@@ -7,7 +7,7 @@ learn about their system, maintain it, and discover ways to improve it.
 (milestone 2), and orientation/explanation (milestone 3) implemented. Bare
 introduction, `--help` (also `tam help`), `--version`, argument errors, `browse`,
 `welcome` orientation, and curated `explain` all build in C against the
-separate `libtam` library and install as `tam`. Installation is not implemented yet.
+separate `libtam` library and install as `tam`. The command is part of `tamlinux-packages` and installed on the system; the future `tam install` subcommand (installation inspection) is not implemented yet.
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam browse` opens the bundled offline
@@ -55,7 +55,37 @@ command behavior, packaging contract and acceptance checks, and the
 | `docs/plans/` | Development scope and acceptance evidence. |
 | `docs/ai/` | AI-assisted authorship and verification records. |
 
-## Build and run
+## Installation on a Tamlinux cultivar
+
+By default on a Tamlinux cultivar (`PREFIX ?= /usr/local`):
+
+- **`tam` binary:** Installed to `/usr/local/bin/tam` (`$(PREFIX)/bin/tam`, mode 755). `/usr/local/bin` is in `$PATH` across the system, allowing users and scripts to invoke `tam` directly from any terminal.
+- **`tam` knowledge pages:** Installed to `/usr/local/share/tamlinux/knowledge/` (`$(PREFIX)/share/tamlinux/knowledge/`). This directory contains the complete offline semantic HTML guide corpus (`index.html`, `welcome.html`, `install/index.html`, `shell/pipelines.html`, `man/index.html`).
+
+### Runtime knowledge resolution
+
+When `tam browse`, `tam welcome`, or `tam explain` looks up knowledge pages, `tam` resolves the corpus root directory by searching the following paths in order:
+
+1. **`$TAM_KNOWLEDGE_DIR`**: Direct override environment variable (used for development builds and automated test suites).
+2. **`$XDG_DATA_HOME/tamlinux/knowledge`**: User data directory (defaults to `~/.local/share/tamlinux/knowledge` if `$XDG_DATA_HOME` is unset).
+3. **`$XDG_DATA_DIRS/tamlinux/knowledge`**: System data directories checked in colon-separated order (e.g. `/usr/local/share/tamlinux/knowledge`, `/usr/share/tamlinux/knowledge`).
+4. **Compiled-in default datadir (`TAM_DATADIR`)**: Built into the binary at compile time via `CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"`, which defaults to `/usr/local/share/tamlinux/knowledge`.
+
+If none of these locations contain a valid guide corpus (`index.html`), `tam browse` prints an informative diagnostic advising the user that the offline guide is not installed, while non-guide commands like `tam --help` and `tam --version` continue to function normally.
+
+### Staged and packaged installation
+
+`tam` is packaged for Tamlinux delivery in [`tamlinux-packages`](https://github.com/greenermoose/tamlinux-packages) (as `packages.x86_64-linux.tam` and the default flake output).
+
+For other package managers (such as Arch `PKGBUILD` or Void `xbps-src`) or relocatable testing, `PREFIX` and `DESTDIR` can be overridden:
+
+```sh
+make install PREFIX=/usr DESTDIR=/path/to/stage
+```
+
+This installs the binary to `$(DESTDIR)$(PREFIX)/bin/tam` and the knowledge pages to `$(DESTDIR)$(PREFIX)/share/tamlinux/knowledge/`.
+
+## Build and install
 
 `tam` links against an **installed** `libtam`; it never builds or modifies the
 library checkout. Build and install `libtam` first, then:
@@ -63,8 +93,10 @@ library checkout. Build and install `libtam` first, then:
 ```sh
 make            # build build/tam
 make test       # run the behavior checks
-sudo make install
+sudo make install  # or: pkexec make install
 ```
+
+`make install` installs the `tam` binary to `$(DESTDIR)$(BINDIR)/tam` (`/usr/local/bin/tam` by default) and copies the knowledge pages to `$(DESTDIR)$(DATADIR)/` (`/usr/local/share/tamlinux/knowledge/` by default).
 
 Override `LIBTAM_PREFIX` if the library lives outside `PREFIX`; `PREFIX` and
 `DESTDIR` support staged installation. See

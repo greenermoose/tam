@@ -15,3 +15,5 @@ Human-only commits retain their original authorship.
 | 2026-10-09 | Offline guide (milestone 2: renderer, pager, `browse`, corpus) | opencode 1.18.35; `big-pickle` | [Session record](docs/ai/2026-10-09-tam-offline-guide.md) |
 | 2026-10-09 | `tam help` alias of `--help` (0.3.0) | opencode 1.18.35; `big-pickle` | [Session record](docs/ai/2026-10-09-tam-help-alias.md) |
 | 2026-10-09 | Orientation and curated explanation 0.4.0 (`welcome`, `welcome_seen`, `explain`) | Antigravity CLI 1.3.2; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-09-tam-orientation-and-explanation.md) |
+| 2026-10-09 | README cultivar installation paths and packaging status | Antigravity CLI 1.3.2; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-09-tam-readme-installation-paths.md) |
+
