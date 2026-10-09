@@ -180,3 +180,11 @@ shell parsing, AI estimates and writable settings retain separate scope.
   installer verbs (`plan`, `apply`, `verify`) truthfully report they are not
   implemented yet (exit 1). Updated offline guide `knowledge/install/index.html`
   and golden test snapshots. Command version bumped to `0.5.0`.
+- **2026-10-09:** Bare `tam explain` topic listing implemented (0.6.0). Bare `tam explain`
+  and `tam explain --pipe` now list available explainable topics grouped with
+  summaries and aliases (exit 0) rather than erroring with missing topic argument.
+  Miss messages point to `tam explain` and `tam browse`. A multi-phase scaling plan
+  for large topic catalogs (domain grouping, TUI pager integration, apropos search,
+  corpus-driven metadata) is recorded in [explain-topic-scaling.md](explain-topic-scaling.md).
+  Command version bumped to `0.6.0`.
+

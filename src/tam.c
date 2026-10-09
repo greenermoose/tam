@@ -109,7 +109,7 @@ static void print_intro(void)
         "Get started:\n"
         "  tam welcome          open the welcome orientation\n"
         "  tam browse           open the offline guide\n"
-        "  tam explain TOPIC    explain a topic or concept\n"
+        "  tam explain [TOPIC]  explain a topic or list available topics\n"
         "  tam install inspect  inspect host and installation capabilities\n"
         "  tam --help           list options and where to begin\n"
         "  tam --version        show version information\n");
@@ -128,6 +128,7 @@ static void print_help(void)
         "  tam browse --pipe    print the guide as plain text\n"
         "  tam welcome          open the welcome orientation\n"
         "  tam welcome --pipe   print the welcome orientation as plain text\n"
+        "  tam explain          list available explanation topics\n"
         "  tam explain TOPIC    explain a curated topic or concept\n"
         "  tam explain TOPIC --pipe  print the topic explanation as plain text\n"
         "  tam install          show installation framework commands\n"
@@ -164,14 +165,6 @@ static int usage_error(const char *bad)
 static int too_many_arguments(void)
 {
     fprintf(stderr, TAM_COMMAND_NAME ": too many arguments\n");
-    fprintf(stderr, "Run '%s --help' for available options.\n",
-            TAM_COMMAND_NAME);
-    return TAM_EXIT_USAGE;
-}
-
-static int missing_topic_error(void)
-{
-    fprintf(stderr, TAM_COMMAND_NAME ": missing topic argument\n");
     fprintf(stderr, "Run '%s --help' for available options.\n",
             TAM_COMMAND_NAME);
     return TAM_EXIT_USAGE;
@@ -564,6 +557,33 @@ static const char *match_curated_topic(const char *topic)
     return NULL;
 }
 
+static void print_explain_topics(void)
+{
+    fputs(
+        "tam explain - explain a curated topic or concept\n\n"
+        "Usage:\n"
+        "  tam explain TOPIC           explain a topic in the terminal\n"
+        "  tam explain TOPIC --pipe    print topic explanation as plain text\n\n"
+        "Available topics:\n"
+        "  welcome      Tamlinux welcome and orientation\n"
+        "               Keywords: welcome, orientation\n"
+        "  install      System installation, inspection, and maintenance\n"
+        "               Keywords: install, installation, inspect, inspection,\n"
+        "                         layers, maintain, maintaining, maintenance,\n"
+        "                         recovery, update, updates\n"
+        "  pipelines    Shell pipelines, redirection, and core filters\n"
+        "               Keywords: pipelines, pipeline, pipe, pipes, shell,\n"
+        "                         redirection, redirect, >, >>, <, 2>&1,\n"
+        "                         cat, grep, ps, wc\n"
+        "  man          Manual pages and system documentation\n"
+        "               Keywords: man, manual, manuals, apropos, whatis\n"
+        "  guide        Offline guide overview and index\n"
+        "               Keywords: guide, index\n\n"
+        "Run 'tam explain <topic>' to view an explanation.\n"
+        "Run 'tam browse' to open the offline guide.\n",
+        stdout);
+}
+
 static int cmd_explain(int n, char **args)
 {
     int pipe = 0;
@@ -572,6 +592,9 @@ static int cmd_explain(int n, char **args)
     for (int i = 0; i < n; i++) {
         if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
             pipe = 1;
+        } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
+            print_explain_topics();
+            return 0;
         } else if (args[i][0] == '-') {
             return usage_error(args[i]);
         } else if (topic == NULL) {
@@ -581,16 +604,17 @@ static int cmd_explain(int n, char **args)
         }
     }
 
-    if (topic == NULL) {
-        return missing_topic_error();
+    if (topic == NULL || strcmp(topic, "help") == 0) {
+        print_explain_topics();
+        return 0;
     }
 
     const char *target = match_curated_topic(topic);
     if (target == NULL) {
         fprintf(stderr,
                 TAM_COMMAND_NAME ": no explanation found for '%s'\n"
-                "Run '%s browse' to explore available topics in the offline guide.\n",
-                topic, TAM_COMMAND_NAME);
+                "Run '%s explain' to see available topics, or '%s browse' to explore the offline guide.\n",
+                topic, TAM_COMMAND_NAME, TAM_COMMAND_NAME);
         return TAM_EXIT_FAILURE;
     }
 

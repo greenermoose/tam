@@ -28,6 +28,7 @@ tam welcome --pipe    # print welcome text to stdout
 tam browse            # open the guide index in the pager
 tam browse welcome    # open a page by name
 tam browse --pipe     # print the guide as plain text (no escape sequences)
+tam explain           # list available explanation topics
 tam explain pipes     # explain a curated topic or shell concept
 tam explain grep --pipe # print topic explanation as plain text
 tam install inspect   # inspect host facts and installation capabilities

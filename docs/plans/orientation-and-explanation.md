@@ -73,7 +73,7 @@ tam welcome | head   # non-TTY stdout automatically uses text mode
 ```sh
 tam explain <topic>         # interactive pager displaying the matched topic
 tam explain <topic> --pipe  # plain text output to stdout
-tam explain                 # error: missing topic argument (exit 2)
+tam explain                 # list available curated topics (exit 0)
 tam explain <topic> extra   # error: too many arguments (exit 2)
 ```
 

@@ -43,7 +43,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.5.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.6.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -64,6 +64,7 @@ pass "cultivar version resolution"
 if "$TAM" | grep -q "$esc"; then fail "bare output contains escape sequences"; fi
 if "$TAM" --help | grep -q "$esc"; then fail "help contains escape sequences"; fi
 if "$TAM" welcome --pipe | grep -q "$esc"; then fail "welcome contains escape sequences"; fi
+if "$TAM" explain | grep -q "$esc"; then fail "bare explain contains escape sequences"; fi
 if "$TAM" explain pipelines --pipe | grep -q "$esc"; then fail "explain contains escape sequences"; fi
 if "$TAM" install | grep -q "$esc"; then fail "install contains escape sequences"; fi
 if "$TAM" install inspect | grep -q "$esc"; then fail "install inspect contains escape sequences"; fi
@@ -95,6 +96,7 @@ env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" browse --pipe >/dev/
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" --help >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" help >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" --version >/dev/null
+env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain pipelines --pipe >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain nonexistent >/dev/null 2>&1 || true
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install >/dev/null
@@ -105,7 +107,7 @@ if [ -e "$iso_state/tamlinux/welcome_seen" ]; then
 fi
 pass "state isolation: bare, browse, help, version, explain, install do not touch welcome_seen"
 
-# Explain command: curated topics resolve, missing topic and errors report cleanly.
+# Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.
 ex_out=$("$TAM" explain pipelines --pipe)
 printf '%s\n' "$ex_out" | grep -q 'Shell pipelines' || fail "explain pipelines failed"
 ex_pipe=$("$TAM" explain '>' --pipe)
@@ -113,8 +115,27 @@ printf '%s\n' "$ex_pipe" | grep -q 'Redirection' || fail "explain '>' failed"
 ex_man=$("$TAM" explain man --pipe)
 printf '%s\n' "$ex_man" | grep -q 'Reading man pages' || fail "explain man failed"
 
-if "$TAM" explain >/dev/null 2>&1; then fail "explain with no topic exited 0"; fi
-"$TAM" explain 2>&1 | grep -qi 'missing topic' || fail "no message for missing topic"
+# Bare explain lists available topics and exits 0.
+ex_list=$("$TAM" explain)
+printf '%s\n' "$ex_list" | grep -q 'Available topics:' || fail "explain with no topic missing topic list"
+printf '%s\n' "$ex_list" | grep -q 'welcome' || fail "explain list missing welcome"
+printf '%s\n' "$ex_list" | grep -q 'install' || fail "explain list missing install"
+printf '%s\n' "$ex_list" | grep -q 'pipelines' || fail "explain list missing pipelines"
+printf '%s\n' "$ex_list" | grep -q 'man' || fail "explain list missing man"
+printf '%s\n' "$ex_list" | grep -q 'guide' || fail "explain list missing guide"
+if printf '%s\n' "$ex_list" | grep -qi 'missing topic'; then
+    fail "explain output unexpectedly mentions missing topic"
+fi
+
+# Piped bare explain also outputs topic list cleanly.
+ex_pipe_list=$("$TAM" explain --pipe)
+printf '%s\n' "$ex_pipe_list" | grep -q 'Available topics:' || fail "explain --pipe missing topic list"
+
+# explain --help, -h, and help match bare explain topic listing.
+[ "$("$TAM" explain help)" = "$ex_list" ] || fail "explain help differs from bare explain"
+[ "$("$TAM" explain --help)" = "$ex_list" ] || fail "explain --help differs from bare explain"
+[ "$("$TAM" explain -h)" = "$ex_list" ] || fail "explain -h differs from bare explain"
+
 if "$TAM" explain pipelines extra >/dev/null 2>&1; then fail "explain with extra args exited 0"; fi
 "$TAM" explain pipelines extra 2>&1 | grep -qi 'too many' || fail "no message for extra args"
 
