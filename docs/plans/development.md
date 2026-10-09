@@ -1,7 +1,8 @@
 # tam development plan
 
-**Stage:** Develop — local repository scaffold. No command implementation,
-installation, publication or release yet.
+**Stage:** Develop — milestone 1 (command foundation) implemented. The
+executable builds in C against an installed `libtam` and installs as `tam`.
+Browsing, orientation, explanation and installation remain unimplemented.
 
 ## Purpose and ownership
 
@@ -10,18 +11,18 @@ including offline and before the graphical desktop is running.
 
 This repository owns the C command, bundled knowledge, tests and component
 versioning. `libtam` owns the reusable C library. The `tamlinux` product owns
-workstation assembly, installed product metadata and the installation
-framework. Existing component tools retain their owners; document or call
-them through deliberate subcommand contracts rather than moving every
-`tam-*` helper into this repository.
+workstation assembly, installed cultivar metadata and the installation
+framework. Existing component tools retain their owners; document or call them
+through deliberate subcommand contracts rather than moving every `tam-*`
+helper into this repository.
 
 ## First command contract
 
 | Invocation | Behavior |
 | --- | --- |
 | `tam` | Concise introduction and starting points; exit 0 without launching a browser or writing state. |
-| `tam --help` | Concise usage and implemented commands; works without Lynx, guide data or product metadata. |
-| `tam --version` | Separate command version and installed Tamlinux product version; report unavailable product metadata explicitly. |
+| `tam --help` | Concise usage and implemented commands; works without Lynx, guide data or cultivar metadata. |
+| `tam --version` | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
 | `tam browse` | Open the local guide in Lynx when interactive; readable text when piped or Lynx is unavailable. |
 | `tam welcome` | Explicit orientation; record welcome only after successful display. |
 | `tam explain <topic>` | Match curated local topics; clear miss message and useful next step. Never execute topic input. |
@@ -46,7 +47,7 @@ Start with the guide index, welcome, installation overview, shell pipelines
 and man-page basics. Keep HTML/text parity checked as the corpus grows.
 Verified component behavior supplies later plugin and AI pages.
 
-Resolve knowledge and product metadata through packaging configuration,
+Resolve knowledge and cultivar metadata through packaging configuration,
 with documented development overrides. Do not assume one fixed `/usr/share`
 path or a sibling source checkout at runtime. Support staged installation
 with `PREFIX` and `DESTDIR`; workstation integration pins the command and
@@ -61,8 +62,15 @@ installation guidance when it is missing.
 
 ## Milestones
 
-1. **Command foundation.** Implement bare introduction, help, version and
-   argument errors; establish the build and explicit library dependency.
+1. **Command foundation — done (2026-10-09).** Bare introduction, help,
+   version and argument errors are implemented; the build links an installed
+   `libtam` (see
+   [the toolchain report](../../../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md)).
+   `--version` reads the installed cultivar version from
+   `$XDG_CONFIG_HOME/tamlinux/version` (falling back to
+   `~/.config/tamlinux/version`), then `$TAMLINUX_VERSION`, and reports
+   unavailable metadata explicitly. Deferred within this milestone: a
+   `libtam.pc` pkg-config file and a versioned `libtam` SONAME.
 2. **Offline guide.** Add corpus lookup, `browse`, `--pipe`, optional Lynx
    integration and text fallback. Verify a relocated staged installation.
 3. **Orientation and explanation.** Add explicit `welcome`, successful-display
@@ -81,7 +89,7 @@ shell parsing, AI estimates and writable settings retain separate scope.
 - Piped output and `--pipe` are readable and contain no control sequences.
 - Missing Lynx falls back to text; browser failure does not mark welcome as
   shown. A successful welcome records state under an isolated XDG home.
-- Missing corpus or product metadata produces useful, truthful diagnostics;
+- Missing corpus or cultivar metadata produces useful, truthful diagnostics;
   help remains usable.
 - Curated explanation handles misses and shell-looking strings as data.
 - A staged package runs away from the source tree; relative guide links work
@@ -98,3 +106,16 @@ shell parsing, AI estimates and writable settings retain separate scope.
 - **2026-10-08:** C with `libtam` replaces the earlier Python proposal.
 - **2026-10-09:** Fred approved this plan and requested committing the prepared
   work. Command implementation remains the next milestone.
+- **2026-10-09:** Command foundation implemented (milestone 1). `tam 0.0.1`
+  builds with GNU Make and `cc` (GCC) against an installed `libtam 0.1.0`,
+  dynamically linked with an rpath for the `/usr/local` development install.
+  `tests/run.sh` checks bare/help/version behavior, no-state, cultivar-version
+  resolution, control-sequence-free piped output and argument errors. Toolchain
+  options and the packaging path are recorded in
+  [`2026-10-09-tam-c-toolchain-and-build.md`](../../../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md).
+- **2026-10-09:** The Tamlinux version reported by `--version` is labelled
+  **"Tamlinux cultivar"**. Fred: "In the future, we will give each version of
+  Tamlinux as a whole a cultivar name as well as a version number. There is no
+  cultivar name yet, so we just call it 'Tamlinux cultivar'." The intended
+  future shape is `Tamlinux cultivar <name> <version>` (e.g. `Tamlinux cultivar
+  blue sparkler 1.0.0`); the name source is not yet defined.

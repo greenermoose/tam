@@ -11,3 +11,4 @@ Human-only commits retain their original authorship.
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
 | 2026-10-08 | Local repository scaffold and command contract | Codex CLI 0.162.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-08-tam-repository-and-command-contract.md) |
+| 2026-10-09 | Command foundation 0.0.1 (intro, `--help`, `--version`) | opencode 1.18.35; `big-pickle` | [Session record](docs/ai/2026-10-09-tam-command-foundation.md) |
