@@ -12,10 +12,10 @@ separate `libtam` library and install as `tam`. The command is part of
 `tamlinux-packages` and installed on the system.
 
 Bare `tam` prints a concise introduction and exits successfully without
-launching a browser or writing state. `tam browse` opens the bundled offline
+launching a browser or writing state. `tam show` opens the bundled offline
 guide: an interactive pager in a terminal, or plain text when output is piped.
 `tam welcome` opens orientation and records successful display state.
-`tam explain <topic>` explains curated local concepts and tools.
+`tam explain <topic>` explains curated local concepts and tools (e.g. `tam explain '|'` or `tam explain browse`).
 `tam install inspect` inspects host facts, package tools, and supported profiles.
 The guide is authored as semantic HTML under `knowledge/`; `tam` renders it
 itself, so browsing needs no network and no external viewer.
@@ -25,11 +25,13 @@ itself, so browsing needs no network and no external viewer.
 ```sh
 tam welcome           # open the welcome orientation in the pager
 tam welcome --pipe    # print welcome text to stdout
-tam browse            # open the guide index in the pager
-tam browse welcome    # open a page by name
-tam browse --pipe     # print the guide as plain text (no escape sequences)
+tam show              # open the guide index in the pager
+tam show welcome      # open a page by name
+tam show --pipe       # print the guide as plain text (no escape sequences)
 tam explain           # list available explanation topics
 tam explain pipes     # explain a curated topic or shell concept
+tam explain '|'       # explain pipelines (quote shell metacharacters like '|')
+tam explain browse    # browse is also an explain topic pointing to the guide
 tam explain grep --pipe # print topic explanation as plain text
 tam install inspect   # inspect host facts and installation capabilities
 tam install --help    # list installation subcommands
@@ -70,14 +72,14 @@ By default on a Tamlinux cultivar (`PREFIX ?= /usr/local`):
 
 ### Runtime knowledge resolution
 
-When `tam browse`, `tam welcome`, or `tam explain` looks up knowledge pages, `tam` resolves the corpus root directory by searching the following paths in order:
+When `tam show`, `tam welcome`, or `tam explain` looks up knowledge pages, `tam` resolves the corpus root directory by searching the following paths in order:
 
 1. **`$TAM_KNOWLEDGE_DIR`**: Direct override environment variable (used for development builds and automated test suites).
 2. **`$XDG_DATA_HOME/tamlinux/knowledge`**: User data directory (defaults to `~/.local/share/tamlinux/knowledge` if `$XDG_DATA_HOME` is unset).
 3. **`$XDG_DATA_DIRS/tamlinux/knowledge`**: System data directories checked in colon-separated order (e.g. `/usr/local/share/tamlinux/knowledge`, `/usr/share/tamlinux/knowledge`).
 4. **Compiled-in default datadir (`TAM_DATADIR`)**: Built into the binary at compile time via `CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"`, which defaults to `/usr/local/share/tamlinux/knowledge`.
 
-If none of these locations contain a valid guide corpus (`index.html`), `tam browse` prints an informative diagnostic advising the user that the offline guide is not installed, while non-guide commands like `tam --help` and `tam --version` continue to function normally.
+If none of these locations contain a valid guide corpus (`index.html`), `tam show` prints an informative diagnostic advising the user that the offline guide is not installed, while non-guide commands like `tam --help` and `tam --version` continue to function normally.
 
 ### Staged and packaged installation
 

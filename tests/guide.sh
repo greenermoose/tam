@@ -22,7 +22,7 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 guide() {
-    env TAM_KNOWLEDGE_DIR="$knowledge" "$TAM" browse "$@"
+    env TAM_KNOWLEDGE_DIR="$knowledge" "$TAM" show "$@"
 }
 
 # Pages that must resolve and render.
@@ -106,24 +106,24 @@ pass "missing page reports an error"
 if env HOME="$tmp/nohome" XDG_CONFIG_HOME="$tmp/nocfg" \
        XDG_DATA_HOME="$tmp/nodata" XDG_DATA_DIRS="$tmp/nodirs" \
        TAM_DATADIR="$tmp/nodatadir" \
-       env -u TAM_KNOWLEDGE_DIR "$TAM" browse --pipe >/dev/null 2>&1; then
-    fail "browse succeeded with no corpus installed"
+       env -u TAM_KNOWLEDGE_DIR "$TAM" show --pipe >/dev/null 2>&1; then
+    fail "show succeeded with no corpus installed"
 fi
 env HOME="$tmp/nohome" XDG_CONFIG_HOME="$tmp/nocfg" \
     XDG_DATA_HOME="$tmp/nodata" XDG_DATA_DIRS="$tmp/nodirs" \
     TAM_DATADIR="$tmp/nodatadir" \
-    env -u TAM_KNOWLEDGE_DIR "$TAM" browse --pipe 2>&1 \
+    env -u TAM_KNOWLEDGE_DIR "$TAM" show --pipe 2>&1 \
     | grep -qi 'no offline guide' || fail "missing-corpus message unclear"
 pass "absent corpus is reported clearly"
 
 # A staged install relocated away from the source tree finds its corpus via
-# XDG_DATA_DIRS and still browses.
+# XDG_DATA_DIRS and still shows pages.
 stage="$tmp/stage/usr"
 if make -C "$root" install DESTDIR="$tmp/stage" PREFIX=/usr \
         LIBTAM_PREFIX="${LIBTAM_PREFIX:-/usr/local}" >/dev/null 2>&1; then
     [ -x "$stage/bin/tam" ] || fail "staged install produced no binary"
     out=$(env XDG_DATA_DIRS="$stage/share" TAM_DATADIR="$tmp/no-datadir" \
-              env -u TAM_KNOWLEDGE_DIR "$stage/bin/tam" browse --pipe welcome)
+              env -u TAM_KNOWLEDGE_DIR "$stage/bin/tam" show --pipe welcome)
     printf '%s\n' "$out" | grep -q 'Tamlinux is an independent' \
         || fail "staged install did not find the bundled corpus"
     pass "staged install relocates and finds the corpus"

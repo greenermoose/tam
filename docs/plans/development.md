@@ -24,13 +24,13 @@ helper into this repository.
 | `tam` | Concise introduction and starting points; exit 0 without launching a browser or writing state. |
 | `tam --help` | Concise usage and implemented commands; works without Lynx, guide data or cultivar metadata. `tam help` is the same invocation. |
 | `tam --version` | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
-| `tam browse` | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. Lynx is never required. |
+| `tam show` | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. Lynx is never required. (Replaces `tam browse`; `browse` remains supported as an explain topic). |
 | `tam welcome` | Explicit orientation; record welcome only after successful display. |
 | `tam explain <topic>` | Match curated local topics; clear miss message and useful next step. Never execute topic input. |
 | `tam install inspect` | Read-only host facts and recognized installation capabilities, through the product installation contract. |
 
 `--pipe` explicitly requests text. Redirected output contains no terminal
-controls or browser prompts. Bare `tam`, `browse`, help, version and install
+controls or browser prompts. Bare `tam`, `show`, help, version and install
 inspection never write welcome state. Successful explicit `welcome` uses
 `$XDG_STATE_HOME/tamlinux/welcome_seen`, falling back to
 `~/.local/state/tamlinux/welcome_seen`.
@@ -187,4 +187,16 @@ shell parsing, AI estimates and writable settings retain separate scope.
   for large topic catalogs (domain grouping, TUI pager integration, apropos search,
   corpus-driven metadata) is recorded in [explain-topic-scaling.md](explain-topic-scaling.md).
   Command version bumped to `0.6.0`.
+- **2026-10-09:** Subcommand rename to `tam show` and explain quoting (0.7.0).
+  Fred requested replacing `tam browse` with `tam show` ("tam show by itself shows
+  the index page, just like tam browse does now. I just like 'show' better than
+  'browse'. We can keep browse as a topic that tam explain browse can handle").
+  `tam show` now serves as the guide subcommand; `tam browse` is retired and
+  produces an unrecognized argument error. `browse` and `show` were added as curated
+  topics to `tam explain`, mapping to `index.html`. `tam explain` now strips outer
+  matching single or double quotes, allowing shell-quoted inputs like `tam explain '|'`
+  and `tam explain "|"` (as well as literal quotes `"'|'"`) to resolve cleanly
+  to `shell/pipelines.html`. Added pipe symbol `|` to pipelines keywords. Miss diagnostics
+  now reference `tam show`. Command version bumped to `0.7.0`.
+
 

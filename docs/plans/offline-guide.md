@@ -83,7 +83,7 @@ and network URLs are refused. `PREFIX`/`DESTDIR` staging must relocate cleanly.
 2. ✅ Corpus locator and diagnostics.
 3. ✅ `render.c`: tokeniser, entity decoding, layout, text emitter.
 4. ✅ `pager.c`: interactive viewer over the rendered lines.
-5. ✅ `browse` wiring: `tam browse [page]`; `--pipe` / non-TTY → text.
+5. ✅ `show` wiring (originally `browse`): `tam show [page]`; `--pipe` / non-TTY → text.
 6. ✅ Tests: golden text snapshots, link-graph resolution, control-free pipes,
    relocated staged install; verified clean under ASan/UBSan.
 7. ⬜ Optional `TAM_VIEWER=lynx` direct-exec path (not started; never a

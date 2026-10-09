@@ -28,7 +28,7 @@ in the first command contract:
    - **Successful display state:** Record that welcome was displayed in
      `$XDG_STATE_HOME/tamlinux/welcome_seen` (falling back to
      `~/.local/state/tamlinux/welcome_seen`) **only after successful display**.
-   - Bare `tam`, `browse`, `help`, `version`, `explain`, and failed runs must
+   - Bare `tam`, `show`, `help`, `version`, `explain`, and failed runs must
      **never** write or touch `welcome_seen`.
 
 2. **`tam explain <topic>` (Curated Explanation):**
@@ -37,7 +37,7 @@ in the first command contract:
    - Interactive terminal: open the matched topic in the pager.
    - Piped / non-TTY stdout / `--pipe`: emit clean plain text.
    - Clear miss diagnostic on unrecognized topics with actionable suggestions
-     (e.g., referring user to `tam browse`).
+     (e.g., referring user to `tam show`).
    - **Strict input safety:** Topic input is treated purely as data. Input
      containing shell characters (pipes `|`, redirects `>`, semicolons `;`,
      subshells `$(...)`) is **never executed**.
@@ -78,21 +78,21 @@ tam explain <topic> extra   # error: too many arguments (exit 2)
 ```
 
 - **Topic matching:**
-  Curated dictionary matching case-insensitively or normalized:
+  Curated dictionary matching case-insensitively or normalized (with outer quotes stripped):
   - Guide pages:
     - `welcome` -> `welcome.html`
     - `install`, `installation` -> `install/index.html`
-    - `pipes`, `pipeline`, `pipelines` -> `shell/pipelines.html`
+    - `pipes`, `pipeline`, `pipelines`, `|` -> `shell/pipelines.html`
     - `man`, `manual` -> `man/index.html`
-    - `guide`, `index` -> `index.html`
+    - `guide`, `index`, `show`, `browse` -> `index.html`
   - Core Unix concepts & operators from the curriculum:
-    - Redirection: `>`, `>>`, `2>&1`, `<`, `redirection` -> `shell/pipelines.html`
+    - Pipelines & redirection: `|`, `>`, `>>`, `2>&1`, `<`, `redirection` -> `shell/pipelines.html`
     - Commands featured in examples: `grep`, `ps`, `wc`, `cat`, `whatis`, `apropos`
 - **Miss handling:**
   When a topic is not in the curated set:
   ```text
   tam: no explanation found for '<topic>'
-  Run 'tam browse' to explore available topics in the offline guide.
+  Run 'tam explain' to see available topics, or 'tam show' to explore the offline guide.
   ```
   Exits with code 1.
 - **Safety invariant:**
@@ -145,9 +145,8 @@ tam explain <topic> extra   # error: too many arguments (exit 2)
 - `tam welcome` displays `welcome.html` interactively in Foot, and records
   `welcome_seen` only on success.
 - `tam welcome --pipe` emits readable text and records `welcome_seen`.
-- Bare `tam`, `tam browse`, `tam help`, `tam --version` never touch `welcome_seen`.
+- Bare `tam`, `tam show`, `tam help`, `tam --version` never touch `welcome_seen`.
 - `tam explain <topic>` resolves curated topics and renders them accurately.
 - `tam explain "cat | grep"` and malicious shell strings are never executed.
-- Unmatched topics report a helpful error pointing to `tam browse`.
+- Unmatched topics report a helpful error pointing to `tam show`.
 - All tests pass cleanly under GCC `-Wall -Wextra -Wpedantic -std=c11`.
-- Installed binary `/usr/local/bin/tam` reports version `0.4.0`.

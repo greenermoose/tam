@@ -108,7 +108,7 @@ static void print_intro(void)
     s = tam_str_cat(s,
         "Get started:\n"
         "  tam welcome          open the welcome orientation\n"
-        "  tam browse           open the offline guide\n"
+        "  tam show             open the offline guide\n"
         "  tam explain [TOPIC]  explain a topic or list available topics\n"
         "  tam install inspect  inspect host and installation capabilities\n"
         "  tam --help           list options and where to begin\n"
@@ -123,9 +123,9 @@ static void print_help(void)
         "tam - the Tamlinux command\n\n"
         "Usage:\n"
         "  tam                  print a short introduction and exit\n"
-        "  tam browse           open the offline guide in the terminal\n"
-        "  tam browse PAGE      open a guide page (e.g. welcome, man, shell/pipelines)\n"
-        "  tam browse --pipe    print the guide as plain text\n"
+        "  tam show             open the offline guide in the terminal\n"
+        "  tam show PAGE        open a guide page (e.g. welcome, man, shell/pipelines)\n"
+        "  tam show --pipe      print the guide as plain text\n"
         "  tam welcome          open the welcome orientation\n"
         "  tam welcome --pipe   print the welcome orientation as plain text\n"
         "  tam explain          list available explanation topics\n"
@@ -423,7 +423,7 @@ static int view_knowledge_page(const char *root, const char *href, int pipe)
     return rc;
 }
 
-static int cmd_browse(int n, char **args)
+static int cmd_show(int n, char **args)
 {
     int pipe = 0;
     const char *page = NULL;
@@ -521,6 +521,7 @@ static const topic_mapping_t TOPIC_MAP[] = {
     { "pipes",          "shell/pipelines.html" },
     { "redirection",    "shell/pipelines.html" },
     { "redirect",       "shell/pipelines.html" },
+    { "|",              "shell/pipelines.html" },
     { ">",              "shell/pipelines.html" },
     { ">>",             "shell/pipelines.html" },
     { "2>&1",           "shell/pipelines.html" },
@@ -540,6 +541,8 @@ static const topic_mapping_t TOPIC_MAP[] = {
     /* Guide index */
     { "guide",          "index.html" },
     { "index",          "index.html" },
+    { "show",           "index.html" },
+    { "browse",         "index.html" },
 
     { NULL, NULL }
 };
@@ -549,8 +552,27 @@ static const char *match_curated_topic(const char *topic)
     if (topic == NULL || topic[0] == '\0') {
         return NULL;
     }
+    char buf[256];
+    size_t len = strlen(topic);
+    if (len >= sizeof(buf)) {
+        return NULL;
+    }
+    memcpy(buf, topic, len + 1);
+
+    /* Strip matching outer quotes ('...' or "...") */
+    while (len >= 2 && ((buf[0] == '\'' && buf[len - 1] == '\'') ||
+                        (buf[0] == '"' && buf[len - 1] == '"'))) {
+        memmove(buf, buf + 1, len - 2);
+        buf[len - 2] = '\0';
+        len -= 2;
+    }
+
+    if (len == 0) {
+        return NULL;
+    }
+
     for (size_t i = 0; TOPIC_MAP[i].keyword != NULL; i++) {
-        if (strcasecmp(topic, TOPIC_MAP[i].keyword) == 0) {
+        if (strcasecmp(buf, TOPIC_MAP[i].keyword) == 0) {
             return TOPIC_MAP[i].target_page;
         }
     }
@@ -573,14 +595,14 @@ static void print_explain_topics(void)
         "                         recovery, update, updates\n"
         "  pipelines    Shell pipelines, redirection, and core filters\n"
         "               Keywords: pipelines, pipeline, pipe, pipes, shell,\n"
-        "                         redirection, redirect, >, >>, <, 2>&1,\n"
+        "                         redirection, redirect, |, >, >>, <, 2>&1,\n"
         "                         cat, grep, ps, wc\n"
         "  man          Manual pages and system documentation\n"
         "               Keywords: man, manual, manuals, apropos, whatis\n"
         "  guide        Offline guide overview and index\n"
-        "               Keywords: guide, index\n\n"
+        "               Keywords: guide, index, show, browse\n\n"
         "Run 'tam explain <topic>' to view an explanation.\n"
-        "Run 'tam browse' to open the offline guide.\n",
+        "Run 'tam show' to open the offline guide.\n",
         stdout);
 }
 
@@ -613,7 +635,7 @@ static int cmd_explain(int n, char **args)
     if (target == NULL) {
         fprintf(stderr,
                 TAM_COMMAND_NAME ": no explanation found for '%s'\n"
-                "Run '%s explain' to see available topics, or '%s browse' to explore the offline guide.\n",
+                "Run '%s explain' to see available topics, or '%s show' to explore the offline guide.\n",
                 topic, TAM_COMMAND_NAME, TAM_COMMAND_NAME);
         return TAM_EXIT_FAILURE;
     }
@@ -654,8 +676,8 @@ int main(int argc, char **argv)
         print_version();
         return 0;
     }
-    if (strcmp(arg, "browse") == 0) {
-        return cmd_browse(argc - 2, argv + 2);
+    if (strcmp(arg, "show") == 0) {
+        return cmd_show(argc - 2, argv + 2);
     }
     if (strcmp(arg, "welcome") == 0) {
         return cmd_welcome(argc - 2, argv + 2);

@@ -43,7 +43,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.6.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.7.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -89,10 +89,10 @@ if env HOME="$tmp/w_home" XDG_STATE_HOME="$w_state" "$TAM" welcome extra >/dev/n
 fi
 pass "welcome displays orientation and records welcome_seen"
 
-# Welcome isolation: bare tam, browse, help, version, explain, install NEVER write welcome state.
+# Welcome isolation: bare tam, show, help, version, explain, install NEVER write welcome state.
 iso_state="$tmp/iso_state"
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" >/dev/null
-env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" browse --pipe >/dev/null
+env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" show --pipe >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" --help >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" help >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" --version >/dev/null
@@ -105,13 +105,32 @@ env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install --help >/dev
 if [ -e "$iso_state/tamlinux/welcome_seen" ]; then
     fail "isolated commands wrote welcome_seen state"
 fi
-pass "state isolation: bare, browse, help, version, explain, install do not touch welcome_seen"
+pass "state isolation: bare, show, help, version, explain, install do not touch welcome_seen"
+
+# Show command: displays guide index or page; browse subcommand is retired.
+sh_out=$("$TAM" show --pipe)
+printf '%s\n' "$sh_out" | grep -q 'Welcome to the Tamlinux guide' || fail "tam show --pipe failed"
+sh_page=$("$TAM" show welcome --pipe)
+printf '%s\n' "$sh_page" | grep -q 'Welcome to Tamlinux' || fail "tam show welcome failed"
+if "$TAM" browse >/dev/null 2>&1; then fail "tam browse unexpectedly succeeded"; fi
+"$TAM" browse 2>&1 | grep -q "unrecognized argument 'browse'" || fail "tam browse missing unrecognized argument message"
+pass "show subcommand and retired browse subcommand"
 
 # Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.
 ex_out=$("$TAM" explain pipelines --pipe)
 printf '%s\n' "$ex_out" | grep -q 'Shell pipelines' || fail "explain pipelines failed"
 ex_pipe=$("$TAM" explain '>' --pipe)
 printf '%s\n' "$ex_pipe" | grep -q 'Redirection' || fail "explain '>' failed"
+ex_pipe_sym=$("$TAM" explain '|' --pipe)
+printf '%s\n' "$ex_pipe_sym" | grep -q 'Shell pipelines' || fail "explain '|' failed"
+ex_pipe_q1=$("$TAM" explain "'|'" --pipe)
+printf '%s\n' "$ex_pipe_q1" | grep -q 'Shell pipelines' || fail "explain \"'|'\" failed"
+ex_pipe_q2=$("$TAM" explain '"|"' --pipe)
+printf '%s\n' "$ex_pipe_q2" | grep -q 'Shell pipelines' || fail "explain '\"|\"' failed"
+ex_browse=$("$TAM" explain browse --pipe)
+printf '%s\n' "$ex_browse" | grep -q 'Tamlinux guide' || fail "explain browse failed"
+ex_show=$("$TAM" explain show --pipe)
+printf '%s\n' "$ex_show" | grep -q 'Tamlinux guide' || fail "explain show failed"
 ex_man=$("$TAM" explain man --pipe)
 printf '%s\n' "$ex_man" | grep -q 'Reading man pages' || fail "explain man failed"
 
@@ -139,12 +158,12 @@ printf '%s\n' "$ex_pipe_list" | grep -q 'Available topics:' || fail "explain --p
 if "$TAM" explain pipelines extra >/dev/null 2>&1; then fail "explain with extra args exited 0"; fi
 "$TAM" explain pipelines extra 2>&1 | grep -qi 'too many' || fail "no message for extra args"
 
-# Unmatched topic: clear diagnostic and reference to browse.
+# Unmatched topic: clear diagnostic and reference to show.
 if "$TAM" explain no_such_topic >/dev/null 2>&1; then fail "unmatched topic exited 0"; fi
 "$TAM" explain no_such_topic 2>&1 | grep -q "no explanation found for 'no_such_topic'" \
     || fail "missing clear miss diagnostic"
-"$TAM" explain no_such_topic 2>&1 | grep -q "tam browse" \
-    || fail "miss diagnostic does not point to tam browse"
+"$TAM" explain no_such_topic 2>&1 | grep -q "tam show" \
+    || fail "miss diagnostic does not point to tam show"
 
 # Safe input handling: arbitrary shell strings are treated strictly as data.
 if "$TAM" explain 'cat foo | grep bar; rm -rf /' >/dev/null 2>&1; then
