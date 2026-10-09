@@ -1,0 +1,85 @@
+#!/bin/sh
+# tam-man - lightweight man wrapper rendering hyperlinked manual pages via tam
+set -eu
+
+if [ $# -eq 0 ]; then
+    man
+    exit $?
+fi
+
+pipe=0
+man_args=""
+
+for arg in "$@"; do
+    case "$arg" in
+        --pipe|-p)
+            pipe=1
+            ;;
+        *)
+            if [ -z "$man_args" ]; then
+                man_args="$arg"
+            else
+                man_args="$man_args $arg"
+            fi
+            ;;
+    esac
+done
+
+if [ -z "$man_args" ]; then
+    man
+    exit $?
+fi
+
+# Locate the manual page file using standard man
+# shellcheck disable=SC2086
+man_path=$(man -w $man_args 2>/dev/null || true)
+if [ -z "$man_path" ] || [ ! -f "$man_path" ]; then
+    # Fallback to standard man for missing pages or errors
+    # shellcheck disable=SC2086
+    exec man $man_args
+fi
+
+# Locate the tam binary: prefer adjacent binary, build binary, or PATH
+tam_bin=""
+if [ -x "$(dirname "$0")/tam" ]; then
+    tam_bin="$(dirname "$0")/tam"
+elif [ -x "$(dirname "$0")/../build/tam" ]; then
+    tam_bin="$(dirname "$0")/../build/tam"
+elif command -v tam >/dev/null 2>&1; then
+    tam_bin="tam"
+fi
+
+if [ -z "$tam_bin" ]; then
+    # Fallback to standard man if tam is unavailable
+    # shellcheck disable=SC2086
+    exec man $man_args
+fi
+
+tam_opts=""
+if [ "$pipe" -eq 1 ]; then
+    tam_opts="--pipe"
+fi
+
+# Convert manual page to HTML via groff and pipe into tam show -
+case "$man_path" in
+    *.gz)
+        # shellcheck disable=SC2086
+        gzip -dc "$man_path" | groff -mandoc -Thtml 2>/dev/null | "$tam_bin" show - $tam_opts
+        ;;
+    *.bz2)
+        # shellcheck disable=SC2086
+        bzip2 -dc "$man_path" | groff -mandoc -Thtml 2>/dev/null | "$tam_bin" show - $tam_opts
+        ;;
+    *.xz)
+        # shellcheck disable=SC2086
+        xz -dc "$man_path" | groff -mandoc -Thtml 2>/dev/null | "$tam_bin" show - $tam_opts
+        ;;
+    *.zst)
+        # shellcheck disable=SC2086
+        zstd -dc "$man_path" | groff -mandoc -Thtml 2>/dev/null | "$tam_bin" show - $tam_opts
+        ;;
+    *)
+        # shellcheck disable=SC2086
+        groff -mandoc -Thtml "$man_path" 2>/dev/null | "$tam_bin" show - $tam_opts
+        ;;
+esac

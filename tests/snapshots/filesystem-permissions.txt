@@ -1,0 +1,54 @@
+File Permissions and Ownership
+
+Every file and directory in Linux has an owner user, an owner group, and a set
+of permission mode bits that dictate who may read, modify, or execute it.
+
+The permission triad
+
+Permissions are divided into three tiers: User (owner), Group, and Others. Each
+tier has three primary access rights:
+
+Read (r = 4)
+    View file contents, or list filenames in a directory.
+
+Write (w = 2)
+    Modify file contents, or create and delete entries in a directory.
+
+Execute (x = 1)
+    Run a file as a program. On a directory, execute permission is required to
+    enter (cd into) the directory or access its files.
+
+Common octal modes
+
+Mode  Symbolic   Typical Usage                                             
+----  ---------  ----------------------------------------------------------
+755   rwxr-xr-x  Executable programs, scripts, and standard directories    
+644   rw-r--r--  Standard readable documents, data files, and configuration
+700   rwx------  Private user directories (such as ~/.ssh and ~/.gnupg)    
+600   rw-------  Private keys and credentials (such as ~/.ssh/id_ed25519)  
+
+Managing permissions and ownership
+
+- chmod 755 file — set numerical octal permission mode.
+- chmod +x script.sh — grant execute permission to everyone.
+- chown user:group file — change user and group ownership.
+- umask — define the default mode mask applied when creating new files.
+
+Links: hard versus symbolic
+
+Hard links (ln target link)
+    Create a new directory entry pointing directly to the existing inode. The
+    underlying data remains until all hard links are deleted.
+
+Symbolic links (ln -s target link)
+    Create a small pointer file containing the path string to the target file.
+    If the target is moved or deleted, the symlink breaks.
+
+Where to next
+
+- Filesystem hierarchy — explore system directories and storage.
+- Guide index — return to the full list of topics.
+
+Links:
+  [1] filesystem/index.html
+  [2] index.html

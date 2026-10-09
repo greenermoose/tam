@@ -1,0 +1,48 @@
+The Linux Filesystem Hierarchy
+
+Linux organizes all files and storage devices into a single unified tree
+beginning at root ( /). This structure follows the Filesystem Hierarchy Standard
+(FHS).
+
+Key directories
+
+Directory  Purpose                                                             
+---------  --------------------------------------------------------------------
+/          The root of the overall directory hierarchy                         
+/home      User personal directories and settings (~/.config, ~/.local)        
+/etc       Host-specific system configuration files in plain text              
+/usr       Secondary hierarchy for user utilities, libraries, and assets       
+/var       Variable runtime state, service data, and system logs (/var/log)    
+/tmp       Temporary files cleared on system restart                           
+/proc      Virtual filesystem exposing kernel and process state metrics        
+/sys       Virtual filesystem exposing kernel device and driver trees          
+/dev       Device node representations for physical hardware and pseudo-devices
+
+Virtual filesystems: /proc and /sys
+
+The files inside /proc and /sys take zero disk space. They are direct windows
+into kernel memory. For instance, reading /proc/cpuinfo queries processor
+features directly from the kernel, and reading /proc/meminfo checks current
+memory metrics.
+
+Inspecting disk and space usage
+
+Two essential commands give quick visibility into filesystem usage:
+
+df -h (disk free)
+    Shows disk usage, capacity, and mount points across all mounted filesystems
+    in human-readable units.
+
+du -sh path (disk usage)
+    Calculates the total disk space consumed by a directory and its contents.
+
+Where to next
+
+- File permissions — understand user ownership and access modes.
+- Resources and performance — analyze RAM, swap, and CPU metrics.
+- Guide index — return to the full list of topics.
+
+Links:
+  [1] filesystem/permissions.html
+  [2] hardware/resources.html
+  [3] index.html

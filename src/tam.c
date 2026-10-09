@@ -5,6 +5,7 @@
 #include "render.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -125,11 +126,13 @@ static void print_help(void)
         "  tam                  print a short introduction and exit\n"
         "  tam show             open the offline guide in the terminal\n"
         "  tam show PAGE        open a guide page (e.g. welcome, man, shell/pipelines)\n"
+        "  tam show -           render HTML from standard input\n"
         "  tam show --pipe      print the guide as plain text\n"
         "  tam welcome          open the welcome orientation\n"
         "  tam welcome --pipe   print the welcome orientation as plain text\n"
         "  tam explain          list available explanation topics\n"
         "  tam explain TOPIC    explain a curated topic or concept\n"
+        "  tam explain -        read topic keyword from standard input\n"
         "  tam explain TOPIC --pipe  print the topic explanation as plain text\n"
         "  tam install          show installation framework commands\n"
         "  tam install inspect  inspect host and installation capabilities\n"
@@ -386,6 +389,78 @@ static int record_welcome_seen(void)
     return ok ? 0 : -1;
 }
 
+static char *read_all_stdin(size_t *out_len)
+{
+    size_t cap = 8192;
+    size_t len = 0;
+    char *buf = malloc(cap);
+    if (buf == NULL) {
+        return NULL;
+    }
+    while (1) {
+        if (len + 4096 >= cap) {
+            cap *= 2;
+            char *next = realloc(buf, cap);
+            if (next == NULL) {
+                free(buf);
+                return NULL;
+            }
+            buf = next;
+        }
+        ssize_t n = read(STDIN_FILENO, buf + len, cap - len - 1);
+        if (n < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            free(buf);
+            return NULL;
+        }
+        if (n == 0) {
+            break;
+        }
+        len += (size_t)n;
+    }
+    buf[len] = '\0';
+    *out_len = len;
+    return buf;
+}
+
+static int view_document(const char *root, const char *href, const char *src,
+                         size_t len, int pipe)
+{
+    int interactive = !pipe && isatty(STDOUT_FILENO);
+    if (interactive && !isatty(STDIN_FILENO)) {
+        int tty = open("/dev/tty", O_RDONLY);
+        if (tty < 0) {
+            interactive = 0;
+        } else {
+            close(tty);
+        }
+    }
+    int width = interactive ? tam_terminal_width() : 80;
+
+    tam_document_t *doc = tam_render_html(src, len, width);
+    if (doc == NULL) {
+        return TAM_EXIT_FAILURE;
+    }
+
+    int rc = 0;
+    if (interactive) {
+        corpus_ctx_t ctx;
+        ctx.root = (char *)root;
+        ctx.width = width;
+        rc = tam_pager_run(doc, href, root != NULL ? corpus_load : NULL, &ctx);
+    } else {
+        char *text = tam_document_text(doc);
+        if (text != NULL) {
+            fputs(text, stdout);
+            free(text);
+        }
+        tam_document_free(doc);
+    }
+    return rc;
+}
+
 static int view_knowledge_page(const char *root, const char *href, int pipe)
 {
     char *path = safe_join(root, href);
@@ -402,24 +477,8 @@ static int view_knowledge_page(const char *root, const char *href, int pipe)
         return TAM_EXIT_FAILURE;
     }
 
-    int interactive = !pipe && isatty(STDOUT_FILENO) && isatty(STDIN_FILENO);
-    int width = interactive ? tam_terminal_width() : 80;
-
-    tam_document_t *doc = tam_render_html(src, len, width);
+    int rc = view_document(root, href, src, len, pipe);
     free(src);
-
-    int rc = 0;
-    if (interactive) {
-        corpus_ctx_t ctx;
-        ctx.root = (char *)root;
-        ctx.width = width;
-        rc = tam_pager_run(doc, href, corpus_load, &ctx);
-    } else {
-        char *text = tam_document_text(doc);
-        fputs(text, stdout);
-        free(text);
-        tam_document_free(doc);
-    }
     return rc;
 }
 
@@ -431,6 +490,12 @@ static int cmd_show(int n, char **args)
     for (int i = 0; i < n; i++) {
         if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
             pipe = 1;
+        } else if (strcmp(args[i], "-") == 0) {
+            if (page == NULL) {
+                page = "-";
+            } else {
+                return too_many_arguments();
+            }
         } else if (args[i][0] == '-') {
             return usage_error(args[i]);
         } else if (page == NULL) {
@@ -438,6 +503,20 @@ static int cmd_show(int n, char **args)
         } else {
             return too_many_arguments();
         }
+    }
+
+    if (page != NULL && strcmp(page, "-") == 0) {
+        size_t len = 0;
+        char *src = read_all_stdin(&len);
+        if (src == NULL) {
+            fprintf(stderr, TAM_COMMAND_NAME ": failed to read HTML from standard input\n");
+            return TAM_EXIT_FAILURE;
+        }
+        char *root = find_knowledge_root();
+        int rc = view_document(root, "<stdin>", src, len, pipe);
+        free(src);
+        free(root);
+        return rc;
     }
 
     char *root = find_knowledge_root();
@@ -513,10 +592,19 @@ static const topic_mapping_t TOPIC_MAP[] = {
     { "recovery",       "install/index.html" },
     { "layers",         "install/index.html" },
 
+    /* Shell & streams */
+    { "shell",          "shell/index.html" },
+    { "streams",        "shell/index.html" },
+    { "stdin",          "shell/index.html" },
+    { "stdout",         "shell/index.html" },
+    { "stderr",         "shell/index.html" },
+    { "sh",             "shell/index.html" },
+    { "bash",           "shell/index.html" },
+    { "fish",           "shell/index.html" },
+
     /* Shell pipelines & redirection */
-    { "shell",          "shell/pipelines.html" },
-    { "pipeline",       "shell/pipelines.html" },
     { "pipelines",      "shell/pipelines.html" },
+    { "pipeline",       "shell/pipelines.html" },
     { "pipe",           "shell/pipelines.html" },
     { "pipes",          "shell/pipelines.html" },
     { "redirection",    "shell/pipelines.html" },
@@ -530,6 +618,82 @@ static const topic_mapping_t TOPIC_MAP[] = {
     { "ps",             "shell/pipelines.html" },
     { "wc",             "shell/pipelines.html" },
     { "cat",            "shell/pipelines.html" },
+
+    /* Processes, jobs, and signals */
+    { "jobs",           "shell/jobs.html" },
+    { "job",            "shell/jobs.html" },
+    { "process",        "shell/jobs.html" },
+    { "processes",      "shell/jobs.html" },
+    { "signal",         "shell/jobs.html" },
+    { "signals",        "shell/jobs.html" },
+    { "fg",             "shell/jobs.html" },
+    { "bg",             "shell/jobs.html" },
+    { "disown",         "shell/jobs.html" },
+    { "kill",           "shell/jobs.html" },
+    { "pkill",          "shell/jobs.html" },
+    { "pgrep",          "shell/jobs.html" },
+    { "top",            "shell/jobs.html" },
+    { "htop",           "shell/jobs.html" },
+    { "sigint",         "shell/jobs.html" },
+    { "sigterm",        "shell/jobs.html" },
+    { "sigkill",        "shell/jobs.html" },
+
+    /* Filesystem & hierarchy */
+    { "filesystem",     "filesystem/index.html" },
+    { "files",          "filesystem/index.html" },
+    { "hierarchy",      "filesystem/index.html" },
+    { "directories",    "filesystem/index.html" },
+    { "proc",           "filesystem/index.html" },
+    { "sys",            "filesystem/index.html" },
+    { "etc",            "filesystem/index.html" },
+    { "usr",            "filesystem/index.html" },
+    { "var",            "filesystem/index.html" },
+    { "fhs",            "filesystem/index.html" },
+
+    /* Permissions and ownership */
+    { "permissions",    "filesystem/permissions.html" },
+    { "permission",     "filesystem/permissions.html" },
+    { "chmod",          "filesystem/permissions.html" },
+    { "chown",          "filesystem/permissions.html" },
+    { "umask",          "filesystem/permissions.html" },
+    { "links",          "filesystem/permissions.html" },
+    { "symlink",        "filesystem/permissions.html" },
+    { "symlinks",       "filesystem/permissions.html" },
+    { "hardlink",       "filesystem/permissions.html" },
+    { "rwx",            "filesystem/permissions.html" },
+
+    /* Desktop and window manager */
+    { "desktop",        "desktop/index.html" },
+    { "hyprland",       "desktop/index.html" },
+    { "sway",           "desktop/index.html" },
+    { "wayland",        "desktop/index.html" },
+    { "tiling",         "desktop/index.html" },
+    { "hotkeys",        "desktop/index.html" },
+    { "shortcuts",      "desktop/index.html" },
+    { "keys",           "desktop/index.html" },
+    { "keybindings",    "desktop/index.html" },
+
+    /* Workspaces */
+    { "workspaces",     "desktop/workspaces.html" },
+    { "workspace",      "desktop/workspaces.html" },
+    { "monitors",       "desktop/workspaces.html" },
+    { "displays",       "desktop/workspaces.html" },
+    { "scratchpad",     "desktop/workspaces.html" },
+
+    /* Resources and performance */
+    { "resources",      "hardware/resources.html" },
+    { "resource",       "hardware/resources.html" },
+    { "hardware",       "hardware/resources.html" },
+    { "memory",         "hardware/resources.html" },
+    { "ram",            "hardware/resources.html" },
+    { "cpu",            "hardware/resources.html" },
+    { "load",           "hardware/resources.html" },
+    { "swap",           "hardware/resources.html" },
+    { "zram",           "hardware/resources.html" },
+    { "disk",           "hardware/resources.html" },
+    { "df",             "hardware/resources.html" },
+    { "free",           "hardware/resources.html" },
+    { "performance",    "hardware/resources.html" },
 
     /* Man pages */
     { "man",            "man/index.html" },
@@ -585,7 +749,8 @@ static void print_explain_topics(void)
         "tam explain - explain a curated topic or concept\n\n"
         "Usage:\n"
         "  tam explain TOPIC           explain a topic in the terminal\n"
-        "  tam explain TOPIC --pipe    print topic explanation as plain text\n\n"
+        "  tam explain TOPIC --pipe    print topic explanation as plain text\n"
+        "  tam explain -               read topic keyword from standard input\n\n"
         "Available topics:\n"
         "  welcome      Tamlinux welcome and orientation\n"
         "               Keywords: welcome, orientation\n"
@@ -593,10 +758,32 @@ static void print_explain_topics(void)
         "               Keywords: install, installation, inspect, inspection,\n"
         "                         layers, maintain, maintaining, maintenance,\n"
         "                         recovery, update, updates\n"
+        "  shell        Unix philosophy, standard streams, and execution\n"
+        "               Keywords: shell, streams, stdin, stdout, stderr,\n"
+        "                         sh, bash, fish\n"
         "  pipelines    Shell pipelines, redirection, and core filters\n"
-        "               Keywords: pipelines, pipeline, pipe, pipes, shell,\n"
+        "               Keywords: pipelines, pipeline, pipe, pipes,\n"
         "                         redirection, redirect, |, >, >>, <, 2>&1,\n"
         "                         cat, grep, ps, wc\n"
+        "  jobs         Process lifecycle, background jobs, and signals\n"
+        "               Keywords: jobs, job, process, processes, signals,\n"
+        "                         signal, fg, bg, disown, kill, pkill, pgrep,\n"
+        "                         top, htop, sigint, sigterm, sigkill\n"
+        "  filesystem   Linux filesystem hierarchy (/etc, /home, /proc, /sys)\n"
+        "               Keywords: filesystem, files, hierarchy, directories,\n"
+        "                         proc, sys, etc, usr, var, fhs\n"
+        "  permissions  File permissions, ownership, and links\n"
+        "               Keywords: permissions, permission, chmod, chown,\n"
+        "                         umask, links, symlink, symlinks, hardlink, rwx\n"
+        "  desktop      Tiling window manager basics and keyboard flow\n"
+        "               Keywords: desktop, hyprland, sway, wayland, tiling,\n"
+        "                         hotkeys, shortcuts, keys, keybindings\n"
+        "  workspaces   Synchronized workspace sets and multi-display layout\n"
+        "               Keywords: workspaces, workspace, monitors, displays,\n"
+        "                         scratchpad\n"
+        "  resources    Memory (Free vs Available), ZRAM swap, CPU load, and disk\n"
+        "               Keywords: resources, resource, hardware, memory, ram,\n"
+        "                         cpu, load, swap, zram, disk, df, free, performance\n"
         "  man          Manual pages and system documentation\n"
         "               Keywords: man, manual, manuals, apropos, whatis\n"
         "  guide        Offline guide overview and index\n"
@@ -617,6 +804,12 @@ static int cmd_explain(int n, char **args)
         } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
             print_explain_topics();
             return 0;
+        } else if (strcmp(args[i], "-") == 0) {
+            if (topic == NULL) {
+                topic = "-";
+            } else {
+                return too_many_arguments();
+            }
         } else if (args[i][0] == '-') {
             return usage_error(args[i]);
         } else if (topic == NULL) {
@@ -624,6 +817,20 @@ static int cmd_explain(int n, char **args)
         } else {
             return too_many_arguments();
         }
+    }
+
+    char stdin_topic[256];
+    if (topic != NULL && strcmp(topic, "-") == 0) {
+        if (fgets(stdin_topic, sizeof(stdin_topic), stdin) == NULL) {
+            fprintf(stderr, TAM_COMMAND_NAME ": failed to read topic from standard input\n");
+            return TAM_EXIT_FAILURE;
+        }
+        size_t slen = strlen(stdin_topic);
+        while (slen > 0 && (stdin_topic[slen - 1] == '\n' || stdin_topic[slen - 1] == '\r' ||
+                            stdin_topic[slen - 1] == ' ' || stdin_topic[slen - 1] == '\t')) {
+            stdin_topic[--slen] = '\0';
+        }
+        topic = stdin_topic;
     }
 
     if (topic == NULL || strcmp(topic, "help") == 0) {

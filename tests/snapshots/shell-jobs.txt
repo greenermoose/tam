@@ -1,0 +1,64 @@
+Processes, Jobs, and Signals
+
+Every running program on Tamlinux is a process with a unique process identifier
+(PID). When you launch commands in an interactive shell, the shell organizes
+them into jobs.
+
+Job control in the shell
+
+You can move long-running tasks between the foreground and background without
+losing your shell session:
+
+Background execution (&)
+    Append & to the command (e.g. make &) to start it in the background
+    immediately, keeping your prompt active.
+
+Suspend (Ctrl+Z)
+    Press Ctrl+Z to suspend the currently running foreground program, sending it
+    a SIGTSTP signal.
+
+List jobs (jobs)
+    Run jobs -l to inspect active background and stopped jobs in the current
+    shell session.
+
+Foreground (fg)
+    Run fg%1 to bring job number 1 back into the interactive foreground.
+
+Background (bg)
+    Run bg%1 to resume stopped job number 1 in the background.
+
+Disown (disown)
+    Run disown%1 to detach a job from the shell so it continues running even
+    after the terminal window is closed.
+
+Signals
+
+Signals are asynchronous notifications delivered to processes by the kernel, the
+shell, or other programs:
+
+Signal   Number  Description                                                    
+-------  ------  ---------------------------------------------------------------
+SIGHUP   1       Terminal hangup; reloads configuration in many daemons         
+SIGINT   2       Interrupt from keyboard (Ctrl+C); polite request to halt       
+SIGQUIT  3       Quit from keyboard (Ctrl+\); halts and dumps core              
+SIGKILL  9       Unconditional immediate termination; cannot be caught or       
+                 ignored                                                        
+SIGTERM  15      Standard termination request; default signal sent by kill      
+SIGSTOP  19      Pauses execution immediately; cannot be caught or ignored      
+SIGCONT  18      Resumes execution of a paused process                          
+
+Inspecting processes
+
+Use ps aux or pgrep -l name to search for processes, and pkill name to signal
+them by command name. For dynamic live monitoring, run top or htop.
+
+Where to next
+
+- The shell and streams — learn standard streams and redirection.
+- Resources and performance — monitor CPU and RAM utilization.
+- Guide index — return to the full list of topics.
+
+Links:
+  [1] shell/index.html
+  [2] hardware/resources.html
+  [3] index.html

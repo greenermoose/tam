@@ -16,16 +16,40 @@ enum {
     B_LIST,
     B_PRE,
     B_QUOTE,
-    B_HR
+    B_HR,
+    B_DT,
+    B_DD,
+    B_TABLE
 };
 
 typedef struct {
-    int         kind;
-    int         level;   /* heading level or list depth */
-    int         ordered;
-    int         number;
     tam_span_t *runs;
     size_t      nruns;
+    int         is_header;
+} tam_table_cell_t;
+
+typedef struct {
+    tam_table_cell_t *cells;
+    size_t            ncells;
+    size_t            cap_cells;
+    int               is_header_row;
+} tam_table_row_t;
+
+typedef struct {
+    tam_table_row_t *rows;
+    size_t           nrows;
+    size_t           cap_rows;
+    size_t           ncols;
+} tam_table_t;
+
+typedef struct {
+    int          kind;
+    int          level;   /* heading level or list depth */
+    int          ordered;
+    int          number;
+    tam_span_t  *runs;
+    size_t       nruns;
+    tam_table_t *table;  /* non-NULL for B_TABLE */
 } tam_block_t;
 
 typedef struct {
@@ -166,11 +190,53 @@ static void blocklist_add(blocklist_t *bl, int kind, int level, int ordered,
     b->number = number;
     b->runs = runs;
     b->nruns = nruns;
+    b->table = NULL;
+}
+
+static void table_free(tam_table_t *t)
+{
+    if (t == NULL) {
+        return;
+    }
+    for (size_t r = 0; r < t->nrows; r++) {
+        tam_table_row_t *row = &t->rows[r];
+        for (size_t c = 0; c < row->ncells; c++) {
+            tam_table_cell_t *cell = &row->cells[c];
+            for (size_t k = 0; k < cell->nruns; k++) {
+                free(cell->runs[k].text);
+                free(cell->runs[k].href);
+            }
+            free(cell->runs);
+        }
+        free(row->cells);
+    }
+    free(t->rows);
+    free(t);
+}
+
+static void blocklist_add_table(blocklist_t *bl, tam_table_t *table)
+{
+    if (bl->n == bl->cap) {
+        size_t cap = bl->cap ? bl->cap * 2 : 8;
+        bl->v = realloc(bl->v, cap * sizeof(*bl->v));
+        bl->cap = cap;
+    }
+    tam_block_t *b = &bl->v[bl->n++];
+    b->kind = B_TABLE;
+    b->level = 0;
+    b->ordered = 0;
+    b->number = 0;
+    b->runs = NULL;
+    b->nruns = 0;
+    b->table = table;
 }
 
 static void blocklist_free(blocklist_t *bl)
 {
     for (size_t i = 0; i < bl->n; i++) {
+        if (bl->v[i].table != NULL) {
+            table_free(bl->v[i].table);
+        }
         for (size_t j = 0; j < bl->v[i].nruns; j++) {
             free(bl->v[i].runs[j].text);
             free(bl->v[i].runs[j].href);
@@ -363,6 +429,12 @@ typedef struct {
     int        in_title;
     tam_str_t  title;
     char       skip[16];
+
+    tam_table_t *curr_table;
+    int          in_table;
+    int          in_tr;
+    int          in_cell;
+    int          cell_is_header;
 } parser_t;
 
 static void list_push(parser_t *p, int ordered)
@@ -398,6 +470,34 @@ static void parser_end_block(parser_t *p)
     }
     p->has_block = 0;
     p->kind = 0;
+}
+
+static void parser_finish_cell(parser_t *p)
+{
+    if (!p->in_cell || p->curr_table == NULL || p->curr_table->nrows == 0) {
+        return;
+    }
+    tam_table_row_t *row = &p->curr_table->rows[p->curr_table->nrows - 1];
+    if (row->ncells == row->cap_cells) {
+        size_t cap = row->cap_cells ? row->cap_cells * 2 : 4;
+        row->cells = realloc(row->cells, cap * sizeof(tam_table_cell_t));
+        row->cap_cells = cap;
+    }
+    tam_table_cell_t *c = &row->cells[row->ncells++];
+    c->runs = p->runs.v;
+    c->nruns = p->runs.n;
+    c->is_header = p->cell_is_header;
+    if (c->is_header) {
+        row->is_header_row = 1;
+        for (size_t k = 0; k < c->nruns; k++) {
+            c->runs[k].style |= TAM_STYLE_BOLD;
+        }
+    }
+    if (row->ncells > p->curr_table->ncols) {
+        p->curr_table->ncols = row->ncells;
+    }
+    spanlist_init(&p->runs);
+    p->in_cell = 0;
 }
 
 static void parser_begin_block(parser_t *p, int kind, int level, int ordered,
@@ -441,11 +541,11 @@ static void parser_add_text(parser_t *p, const char *s, size_t n)
             break;
         }
     }
-    if (!has_nonspace && !p->has_block) {
+    if (!has_nonspace && !p->has_block && !p->in_cell) {
         free(dec);
         return;
     }
-    if (!p->has_block) {
+    if (!p->has_block && !p->in_cell) {
         parser_begin_block(p, B_PARA, 0, 0, 0);
     }
 
@@ -629,6 +729,87 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
         }
         return;
     }
+    if (strcmp(name, "dl") == 0) {
+        parser_end_block(p);
+        return;
+    }
+    if (strcmp(name, "dt") == 0) {
+        if (closing) {
+            parser_end_block(p);
+        } else {
+            parser_begin_block(p, B_DT, 0, 0, 0);
+        }
+        return;
+    }
+    if (strcmp(name, "dd") == 0) {
+        if (closing) {
+            parser_end_block(p);
+        } else {
+            parser_begin_block(p, B_DD, 0, 0, 0);
+        }
+        return;
+    }
+    if (strcmp(name, "table") == 0) {
+        if (closing) {
+            parser_finish_cell(p);
+            p->in_cell = 0;
+            p->in_tr = 0;
+            p->in_table = 0;
+            if (p->curr_table != NULL) {
+                if (p->curr_table->nrows > 0) {
+                    blocklist_add_table(&p->blocks, p->curr_table);
+                } else {
+                    table_free(p->curr_table);
+                }
+                p->curr_table = NULL;
+            }
+        } else {
+            parser_end_block(p);
+            p->curr_table = calloc(1, sizeof(tam_table_t));
+            p->in_table = 1;
+            p->in_tr = 0;
+            p->in_cell = 0;
+        }
+        return;
+    }
+    if (strcmp(name, "thead") == 0 || strcmp(name, "tbody") == 0 ||
+        strcmp(name, "tfoot") == 0) {
+        return;
+    }
+    if (strcmp(name, "tr") == 0) {
+        if (!p->in_table || p->curr_table == NULL) {
+            return;
+        }
+        if (closing) {
+            parser_finish_cell(p);
+            p->in_tr = 0;
+        } else {
+            parser_finish_cell(p);
+            if (p->curr_table->nrows == p->curr_table->cap_rows) {
+                size_t cap = p->curr_table->cap_rows ? p->curr_table->cap_rows * 2 : 4;
+                p->curr_table->rows = realloc(p->curr_table->rows, cap * sizeof(tam_table_row_t));
+                p->curr_table->cap_rows = cap;
+            }
+            tam_table_row_t *row = &p->curr_table->rows[p->curr_table->nrows++];
+            memset(row, 0, sizeof(*row));
+            p->in_tr = 1;
+        }
+        return;
+    }
+    if (strcmp(name, "th") == 0 || strcmp(name, "td") == 0) {
+        if (!p->in_table || p->curr_table == NULL || !p->in_tr) {
+            return;
+        }
+        if (closing) {
+            parser_finish_cell(p);
+        } else {
+            parser_finish_cell(p);
+            p->in_cell = 1;
+            p->cell_is_header = (strcmp(name, "th") == 0);
+            spanlist_init(&p->runs);
+        }
+        return;
+    }
 }
 
 static const char *find_sub(const char *hay, size_t hn, const char *needle,
@@ -807,9 +988,220 @@ static void block_prefix(const tam_block_t *b, char *buf, size_t cap)
         }
     } else if (b->kind == B_QUOTE) {
         snprintf(buf, cap, "  ");
+    } else if (b->kind == B_DT) {
+        snprintf(buf, cap, "%s", "");
+    } else if (b->kind == B_DD) {
+        snprintf(buf, cap, "    ");
     } else {
         snprintf(buf, cap, "%s", "");
     }
+}
+
+static size_t cell_text_len(const tam_table_cell_t *cell)
+{
+    size_t len = 0;
+    for (size_t i = 0; i < cell->nruns; i++) {
+        if (cell->runs[i].text != NULL) {
+            len += strlen(cell->runs[i].text);
+        }
+    }
+    return len;
+}
+
+static void cell_wrap(const tam_table_cell_t *cell, int max_w,
+                      spanlist_t **out_lines, size_t *out_nlines)
+{
+    spanlist_t *lines = NULL;
+    size_t nlines = 0;
+    size_t cap = 0;
+
+    spanlist_t cur;
+    spanlist_init(&cur);
+    int col = 0;
+
+    for (size_t r = 0; r < cell->nruns; r++) {
+        const char *t = cell->runs[r].text;
+        if (t == NULL) {
+            continue;
+        }
+        size_t tl = strlen(t);
+        size_t i = 0;
+        while (i < tl) {
+            if (t[i] == '\n') {
+                if (nlines == cap) {
+                    cap = cap ? cap * 2 : 4;
+                    lines = realloc(lines, cap * sizeof(*lines));
+                }
+                lines[nlines++] = cur;
+                spanlist_init(&cur);
+                col = 0;
+                i++;
+                continue;
+            }
+            if (isspace((unsigned char)t[i])) {
+                i++;
+                continue;
+            }
+            size_t ws = i;
+            while (i < tl && !isspace((unsigned char)t[i]) && t[i] != '\n') {
+                i++;
+            }
+            size_t wl = i - ws;
+            int tight = strchr(",.;:!?%)]}", t[ws]) != NULL;
+            int sep = (col > 0 && !tight) ? 1 : 0;
+            if (col > 0 && col + sep + (int)wl > max_w) {
+                if (nlines == cap) {
+                    cap = cap ? cap * 2 : 4;
+                    lines = realloc(lines, cap * sizeof(*lines));
+                }
+                lines[nlines++] = cur;
+                spanlist_init(&cur);
+                col = 0;
+                sep = 0;
+            }
+            if (sep) {
+                spanlist_append(&cur, " ", 1, cell->runs[r].style, cell->runs[r].href);
+                col++;
+            }
+            spanlist_append(&cur, t + ws, wl, cell->runs[r].style, cell->runs[r].href);
+            col += (int)wl;
+        }
+    }
+    if (nlines == cap) {
+        cap = cap ? cap * 2 : 4;
+        lines = realloc(lines, cap * sizeof(*lines));
+    }
+    lines[nlines++] = cur;
+
+    *out_lines = lines;
+    *out_nlines = nlines;
+}
+
+static void layout_table(linelist_t *out, const tam_table_t *t, int width)
+{
+    if (t == NULL || t->nrows == 0 || t->ncols == 0) {
+        return;
+    }
+    size_t ncols = t->ncols;
+    int *col_w = calloc(ncols, sizeof(int));
+    if (col_w == NULL) {
+        return;
+    }
+    for (size_t c = 0; c < ncols; c++) {
+        col_w[c] = 3;
+    }
+    for (size_t r = 0; r < t->nrows; r++) {
+        const tam_table_row_t *row = &t->rows[r];
+        for (size_t c = 0; c < row->ncells && c < ncols; c++) {
+            size_t l = cell_text_len(&row->cells[c]);
+            if ((int)l > col_w[c]) {
+                col_w[c] = (int)l;
+            }
+        }
+    }
+
+    int total_w = 0;
+    for (size_t c = 0; c < ncols; c++) {
+        total_w += col_w[c];
+        if (c + 1 < ncols) {
+            total_w += 2;
+        }
+    }
+    if (total_w > width) {
+        int excess = total_w - width;
+        while (excess > 0) {
+            int max_idx = -1;
+            int max_val = 8;
+            for (size_t c = 0; c < ncols; c++) {
+                if (col_w[c] > max_val) {
+                    max_val = col_w[c];
+                    max_idx = (int)c;
+                }
+            }
+            if (max_idx < 0) {
+                break;
+            }
+            col_w[max_idx]--;
+            excess--;
+        }
+    }
+
+    for (size_t r = 0; r < t->nrows; r++) {
+        const tam_table_row_t *row = &t->rows[r];
+        spanlist_t **cell_sub = calloc(ncols, sizeof(spanlist_t *));
+        size_t *n_sub = calloc(ncols, sizeof(size_t));
+        size_t max_h = 1;
+
+        for (size_t c = 0; c < ncols; c++) {
+            if (c < row->ncells) {
+                cell_wrap(&row->cells[c], col_w[c], &cell_sub[c], &n_sub[c]);
+                if (n_sub[c] > max_h) {
+                    max_h = n_sub[c];
+                }
+            }
+        }
+
+        for (size_t h = 0; h < max_h; h++) {
+            spanlist_t line;
+            spanlist_init(&line);
+            for (size_t c = 0; c < ncols; c++) {
+                int printed_w = 0;
+                if (cell_sub[c] != NULL && h < n_sub[c]) {
+                    spanlist_t *sub = &cell_sub[c][h];
+                    for (size_t k = 0; k < sub->n; k++) {
+                        spanlist_append(&line, sub->v[k].text,
+                                        strlen(sub->v[k].text), sub->v[k].style,
+                                        sub->v[k].href);
+                        printed_w += (int)strlen(sub->v[k].text);
+                    }
+                }
+                int pad = col_w[c] - printed_w;
+                if (pad > 0) {
+                    char sp[160];
+                    size_t m = (size_t)pad < sizeof(sp) ? (size_t)pad : sizeof(sp) - 1;
+                    memset(sp, ' ', m);
+                    sp[m] = '\0';
+                    spanlist_append(&line, sp, m, 0, NULL);
+                }
+                if (c + 1 < ncols) {
+                    spanlist_append(&line, "  ", 2, 0, NULL);
+                }
+            }
+            linelist_push(out, &line);
+        }
+
+        for (size_t c = 0; c < ncols; c++) {
+            if (cell_sub[c] != NULL) {
+                for (size_t h = 0; h < n_sub[c]; h++) {
+                    spanlist_free(&cell_sub[c][h]);
+                }
+                free(cell_sub[c]);
+            }
+        }
+        free(cell_sub);
+        free(n_sub);
+
+        if (row->is_header_row) {
+            spanlist_t sepline;
+            spanlist_init(&sepline);
+            for (size_t c = 0; c < ncols; c++) {
+                int dashes = col_w[c];
+                char *dash_buf = malloc((size_t)dashes + 1);
+                if (dash_buf != NULL) {
+                    memset(dash_buf, '-', (size_t)dashes);
+                    dash_buf[dashes] = '\0';
+                    spanlist_append(&sepline, dash_buf, (size_t)dashes, 0, NULL);
+                    free(dash_buf);
+                }
+                if (c + 1 < ncols) {
+                    spanlist_append(&sepline, "  ", 2, 0, NULL);
+                }
+            }
+            linelist_push(out, &sepline);
+        }
+    }
+
+    free(col_w);
 }
 
 static void layout_document(const blocklist_t *blocks, int width,
@@ -824,7 +1216,8 @@ static void layout_document(const blocklist_t *blocks, int width,
         if (i > 0) {
             const tam_block_t *prev = &blocks->v[i - 1];
             int tight = (b->kind == B_LIST && prev->kind == B_LIST &&
-                         b->level == prev->level);
+                         b->level == prev->level) ||
+                        (b->kind == B_DD && prev->kind == B_DT);
             if (!tight) {
                 linelist_blank(out);
             }
@@ -849,6 +1242,10 @@ static void layout_document(const blocklist_t *blocks, int width,
             layout_pre(out, b->runs, b->nruns);
             continue;
         }
+        if (b->kind == B_TABLE && b->table != NULL) {
+            layout_table(out, b->table, width);
+            continue;
+        }
         char pfx[80];
         block_prefix(b, pfx, sizeof(pfx));
         layout_flow(out, b->runs, b->nruns, width, pfx);
@@ -867,11 +1264,24 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
 
     parser_parse(&p, src, len);
     parser_end_block(&p);
+    if (p.curr_table != NULL) {
+        parser_finish_cell(&p);
+        if (p.curr_table->nrows > 0) {
+            blocklist_add_table(&p.blocks, p.curr_table);
+        } else {
+            table_free(p.curr_table);
+        }
+        p.curr_table = NULL;
+    }
 
     for (size_t i = 0; i < p.blocks.n; i++) {
         if (p.blocks.v[i].kind == B_HEAD) {
             for (size_t j = 0; j < p.blocks.v[i].nruns; j++) {
                 p.blocks.v[i].runs[j].style |= TAM_STYLE_HEADING;
+            }
+        } else if (p.blocks.v[i].kind == B_DT) {
+            for (size_t j = 0; j < p.blocks.v[i].nruns; j++) {
+                p.blocks.v[i].runs[j].style |= TAM_STYLE_BOLD;
             }
         }
     }

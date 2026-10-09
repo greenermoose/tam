@@ -208,5 +208,18 @@ shell parsing, AI estimates and writable settings retain separate scope.
   interactive hyperlinks for seamless traversal. (2) Prioritize the "Use" track
   first in the knowledge corpus. (3) A clean, space-padded terminal column layout
   is sufficient for table rendering in `src/render.c`. Recorded in milestone 5.
+- **2026-10-09:** Milestone 5 implemented (tam 0.8.0). Implemented table rendering
+  (`<table>`, `<tr>`, `<th>`, `<td>`) with dynamic space-padded column calculations
+  and header underline separators, as well as definition lists (`<dl>`, `<dt>`, `<dd>`)
+  with bold terms and indented definitions in `src/render.c`. Implemented standard
+  input reading (`tam show -` and `tam explain -`) with interactive terminal control via
+  `/dev/tty` in `src/pager.c` and `src/tam.c`. Authored comprehensive "Use" track knowledge
+  pages (`shell/index.html`, `shell/jobs.html`, `filesystem/index.html`,
+  `filesystem/permissions.html`, `desktop/index.html`, `desktop/workspaces.html`,
+  `hardware/resources.html`) and refreshed `index.html` and `welcome.html`. Added
+  lightweight `bin/tam-man` wrapper converting roff manual pages on the fly into
+  hyperlinked terminal views. Updated test suites (`tests/run.sh` and `tests/guide.sh`)
+  and refreshed golden snapshots. Version bumped to `0.8.0`.
+
 
 

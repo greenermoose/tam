@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Shell and Streams</title>
+</head>
+<body>
+<h1>The Shell and Streams</h1>
+
+<p>The command shell connects you to the operating system. Tamlinux embraces
+the Unix philosophy: build small programs that do one job well, and connect
+them with universal text streams.</p>
+
+<h2>The standard streams</h2>
+
+<p>Every program started by the shell opens three standard communication
+channels, known by their file descriptor numbers:</p>
+
+<dl>
+<dt>0 &mdash; standard input (stdin)</dt>
+<dd>The stream where the program reads its input data. By default, this is
+attached to your keyboard.</dd>
+<dt>1 &mdash; standard output (stdout)</dt>
+<dd>The stream where normal program output flows. By default, this is
+attached to your terminal screen.</dd>
+<dt>2 &mdash; standard error (stderr)</dt>
+<dd>The diagnostic stream where errors, warnings, and progress indicators
+flow, separate from normal output data.</dd>
+</dl>
+
+<p>Keeping error messages on stream 2 ensures that when you pipe output into
+another tool, error messages are not silently swallowed or parsed as data.</p>
+
+<h2>Stream redirection</h2>
+
+<p>The shell lets you redirect streams to and from files or other streams:</p>
+
+<table>
+<tr><th>Operator</th><th>Meaning</th></tr>
+<tr><td>&lt; file</td><td>Read input from a file instead of the keyboard</td></tr>
+<tr><td>&gt; file</td><td>Write stdout to a file, overwriting existing contents</td></tr>
+<tr><td>&gt;&gt; file</td><td>Append stdout to the end of a file</td></tr>
+<tr><td>2&gt; file</td><td>Redirect only error messages (stderr) to a file</td></tr>
+<tr><td>2&gt;&amp;1</td><td>Merge stderr into stdout so both follow the same path</td></tr>
+</table>
+
+<h2>Command substitution</h2>
+
+<p>Command substitution runs a command inside a subshell and places its output
+directly onto your command line using <code>$(command)</code>:</p>
+
+<pre>
+mkdir -p backup-$(date +%Y%m%d)
+</pre>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="shell/pipelines.html">Shell pipelines</a> &mdash; connect programs into multi-stage pipelines.</li>
+<li><a href="shell/jobs.html">Processes and jobs</a> &mdash; manage foreground and background processes.</li>
+<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
+</ul>
+</body>
+</html>

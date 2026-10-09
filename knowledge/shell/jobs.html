@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Processes, Jobs, and Signals</title>
+</head>
+<body>
+<h1>Processes, Jobs, and Signals</h1>
+
+<p>Every running program on Tamlinux is a process with a unique process
+identifier (PID). When you launch commands in an interactive shell, the shell
+organizes them into jobs.</p>
+
+<h2>Job control in the shell</h2>
+
+<p>You can move long-running tasks between the foreground and background
+without losing your shell session:</p>
+
+<dl>
+<dt>Background execution (&amp;)</dt>
+<dd>Append <code>&amp;</code> to the command (e.g. <code>make &amp;</code>) to start it in the
+background immediately, keeping your prompt active.</dd>
+<dt>Suspend (Ctrl+Z)</dt>
+<dd>Press <code>Ctrl+Z</code> to suspend the currently running foreground program,
+sending it a <code>SIGTSTP</code> signal.</dd>
+<dt>List jobs (jobs)</dt>
+<dd>Run <code>jobs -l</code> to inspect active background and stopped jobs in the
+current shell session.</dd>
+<dt>Foreground (fg)</dt>
+<dd>Run <code>fg %1</code> to bring job number 1 back into the interactive
+foreground.</dd>
+<dt>Background (bg)</dt>
+<dd>Run <code>bg %1</code> to resume stopped job number 1 in the background.</dd>
+<dt>Disown (disown)</dt>
+<dd>Run <code>disown %1</code> to detach a job from the shell so it continues running
+even after the terminal window is closed.</dd>
+</dl>
+
+<h2>Signals</h2>
+
+<p>Signals are asynchronous notifications delivered to processes by the kernel,
+the shell, or other programs:</p>
+
+<table>
+<tr><th>Signal</th><th>Number</th><th>Description</th></tr>
+<tr><td>SIGHUP</td><td>1</td><td>Terminal hangup; reloads configuration in many daemons</td></tr>
+<tr><td>SIGINT</td><td>2</td><td>Interrupt from keyboard (Ctrl+C); polite request to halt</td></tr>
+<tr><td>SIGQUIT</td><td>3</td><td>Quit from keyboard (Ctrl+\); halts and dumps core</td></tr>
+<tr><td>SIGKILL</td><td>9</td><td>Unconditional immediate termination; cannot be caught or ignored</td></tr>
+<tr><td>SIGTERM</td><td>15</td><td>Standard termination request; default signal sent by kill</td></tr>
+<tr><td>SIGSTOP</td><td>19</td><td>Pauses execution immediately; cannot be caught or ignored</td></tr>
+<tr><td>SIGCONT</td><td>18</td><td>Resumes execution of a paused process</td></tr>
+</table>
+
+<h2>Inspecting processes</h2>
+
+<p>Use <code>ps aux</code> or <code>pgrep -l name</code> to search for processes, and
+<code>pkill name</code> to signal them by command name. For dynamic live
+monitoring, run <code>top</code> or <code>htop</code>.</p>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="shell/index.html">The shell and streams</a> &mdash; learn standard streams and redirection.</li>
+<li><a href="hardware/resources.html">Resources and performance</a> &mdash; monitor CPU and RAM utilization.</li>
+<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
+</ul>
+</body>
+</html>

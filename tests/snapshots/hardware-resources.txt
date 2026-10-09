@@ -1,0 +1,64 @@
+System Resources and Performance
+
+Tamlinux is engineered to extract maximum productivity from your hardware,
+whether on high-end modern workstations or modest older machines.
+
+Memory: free versus available
+
+When you check memory usage with free -h, you will often notice that "free"
+memory appears low. This is intentional and desirable:
+
+Free memory
+    RAM that has literally nothing in it. Completely unused memory does no work
+    for you.
+
+Buffer / cache (page cache)
+    The Linux kernel uses idle RAM to cache recently accessed files and
+    libraries. If an application needs this RAM, the kernel reclaims it
+    instantaneously.
+
+Available memory
+    The true measure of memory health. This indicates how much RAM can be
+    allocated to new programs without swapping to disk.
+
+Swap and ZRAM
+
+Tamlinux uses ZRAM (compressed RAM swap) to dramatically expand usable memory
+without NVMe or SSD thrashing:
+
+- Instead of writing idle memory pages to slow disk partitions, the kernel
+  compresses them in-place in RAM using fast algorithms (like zstd or lz4).
+- Typically achieves a 2:1 to 3:1 compression ratio, effectively doubling or
+  tripling effective memory headroom during heavy compilation or large browser
+  sessions.
+- System responsiveness remains snappy even when physical RAM is 100% utilized.
+
+CPU load averages
+
+The three numbers reported by uptime or top show average system demand over 1,
+5, and 15 minutes:
+
+Metric            Meaning                                                 
+----------------  --------------------------------------------------------
+Load < CPU Cores  The system has spare compute capacity                   
+Load = CPU Cores  The CPUs are fully utilized without queuing             
+Load > CPU Cores  Processes are queuing and waiting for CPU execution time
+
+Run nproc to see your total number of logical CPU cores.
+
+Storage health and inodes
+
+- df -h — shows filesystem storage capacity and utilization.
+- df -i — shows inode usage (number of files that can still be created).
+- du -sh * — reveals disk consumption per folder.
+
+Where to next
+
+- Processes and signals — manage and signal running processes.
+- Filesystem hierarchy — understand directory storage roles.
+- Guide index — return to the full list of topics.
+
+Links:
+  [1] shell/jobs.html
+  [2] filesystem/index.html
+  [3] index.html

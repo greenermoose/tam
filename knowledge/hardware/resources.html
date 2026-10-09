@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>System Resources and Performance</title>
+</head>
+<body>
+<h1>System Resources and Performance</h1>
+
+<p>Tamlinux is engineered to extract maximum productivity from your hardware,
+whether on high-end modern workstations or modest older machines.</p>
+
+<h2>Memory: free versus available</h2>
+
+<p>When you check memory usage with <code>free -h</code>, you will often notice
+that "free" memory appears low. This is intentional and desirable:</p>
+
+<dl>
+<dt>Free memory</dt>
+<dd>RAM that has literally nothing in it. Completely unused memory does no work
+for you.</dd>
+<dt>Buffer / cache (page cache)</dt>
+<dd>The Linux kernel uses idle RAM to cache recently accessed files and
+libraries. If an application needs this RAM, the kernel reclaims it
+instantaneously.</dd>
+<dt>Available memory</dt>
+<dd>The true measure of memory health. This indicates how much RAM can be
+allocated to new programs without swapping to disk.</dd>
+</dl>
+
+<h2>Swap and ZRAM</h2>
+
+<p>Tamlinux uses ZRAM (compressed RAM swap) to dramatically expand usable
+memory without NVMe or SSD thrashing:</p>
+
+<ul>
+<li>Instead of writing idle memory pages to slow disk partitions, the kernel
+compresses them in-place in RAM using fast algorithms (like zstd or lz4).</li>
+<li>Typically achieves a 2:1 to 3:1 compression ratio, effectively doubling or
+tripling effective memory headroom during heavy compilation or large browser
+sessions.</li>
+<li>System responsiveness remains snappy even when physical RAM is 100%
+utilized.</li>
+</ul>
+
+<h2>CPU load averages</h2>
+
+<p>The three numbers reported by <code>uptime</code> or <code>top</code> show
+average system demand over 1, 5, and 15 minutes:</p>
+
+<table>
+<tr><th>Metric</th><th>Meaning</th></tr>
+<tr><td>Load &lt; CPU Cores</td><td>The system has spare compute capacity</td></tr>
+<tr><td>Load = CPU Cores</td><td>The CPUs are fully utilized without queuing</td></tr>
+<tr><td>Load &gt; CPU Cores</td><td>Processes are queuing and waiting for CPU execution time</td></tr>
+</table>
+
+<p>Run <code>nproc</code> to see your total number of logical CPU cores.</p>
+
+<h2>Storage health and inodes</h2>
+
+<ul>
+<li><code>df -h</code> &mdash; shows filesystem storage capacity and utilization.</li>
+<li><code>df -i</code> &mdash; shows inode usage (number of files that can still be created).</li>
+<li><code>du -sh *</code> &mdash; reveals disk consumption per folder.</li>
+</ul>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="shell/jobs.html">Processes and signals</a> &mdash; manage and signal running processes.</li>
+<li><a href="filesystem/index.html">Filesystem hierarchy</a> &mdash; understand directory storage roles.</li>
+<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
+</ul>
+</body>
+</html>

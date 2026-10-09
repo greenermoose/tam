@@ -9,6 +9,11 @@ case $TAM in
     *) TAM=$(cd "$(dirname "$TAM")" && pwd)/$(basename "$TAM") ;;
 esac
 
+here=$(cd "$(dirname "$0")" && pwd)
+root=$(cd "$here/.." && pwd)
+knowledge="$root/knowledge"
+export TAM_KNOWLEDGE_DIR="$knowledge"
+
 fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
 pass() { printf 'ok - %s\n' "$1"; }
 
@@ -43,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.7.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.8.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -112,6 +117,16 @@ sh_out=$("$TAM" show --pipe)
 printf '%s\n' "$sh_out" | grep -q 'Welcome to the Tamlinux guide' || fail "tam show --pipe failed"
 sh_page=$("$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Welcome to Tamlinux' || fail "tam show welcome failed"
+
+# Show with - reads HTML from stdin and renders tables and definition lists.
+stdin_html='<h1>Custom HTML</h1><dl><dt>Alpha</dt><dd>First letter</dd></dl><table><tr><th>Name</th><th>Value</th></tr><tr><td>Foo</td><td>Bar</td></tr></table>'
+sh_stdin=$(printf '%s\n' "$stdin_html" | "$TAM" show - --pipe)
+printf '%s\n' "$sh_stdin" | grep -q 'Custom HTML' || fail "tam show - failed to render heading"
+printf '%s\n' "$sh_stdin" | grep -q 'First letter' || fail "tam show - failed to render definition list"
+printf '%s\n' "$sh_stdin" | grep -q 'Name  Value' || fail "tam show - failed to render table headers"
+printf '%s\n' "$sh_stdin" | grep -q -- '----  -----' || fail "tam show - failed to render table separator"
+printf '%s\n' "$sh_stdin" | grep -q 'Foo   Bar' || fail "tam show - failed to render table cells"
+
 if "$TAM" browse >/dev/null 2>&1; then fail "tam browse unexpectedly succeeded"; fi
 "$TAM" browse 2>&1 | grep -q "unrecognized argument 'browse'" || fail "tam browse missing unrecognized argument message"
 pass "show subcommand and retired browse subcommand"
@@ -134,12 +149,41 @@ printf '%s\n' "$ex_show" | grep -q 'Tamlinux guide' || fail "explain show failed
 ex_man=$("$TAM" explain man --pipe)
 printf '%s\n' "$ex_man" | grep -q 'Reading man pages' || fail "explain man failed"
 
+# Use track curated topics.
+ex_shell=$("$TAM" explain shell --pipe)
+printf '%s\n' "$ex_shell" | grep -q 'The Shell and Streams' || fail "explain shell failed"
+ex_jobs=$("$TAM" explain jobs --pipe)
+printf '%s\n' "$ex_jobs" | grep -q 'Processes, Jobs, and Signals' || fail "explain jobs failed"
+ex_sig=$("$TAM" explain sigkill --pipe)
+printf '%s\n' "$ex_sig" | grep -q 'Processes, Jobs, and Signals' || fail "explain sigkill failed"
+ex_fs=$("$TAM" explain filesystem --pipe)
+printf '%s\n' "$ex_fs" | grep -q 'The Linux Filesystem Hierarchy' || fail "explain filesystem failed"
+ex_perm=$("$TAM" explain permissions --pipe)
+printf '%s\n' "$ex_perm" | grep -q 'File Permissions and Ownership' || fail "explain permissions failed"
+ex_desk=$("$TAM" explain desktop --pipe)
+printf '%s\n' "$ex_desk" | grep -q 'The Tamlinux Desktop' || fail "explain desktop failed"
+ex_ws=$("$TAM" explain workspaces --pipe)
+printf '%s\n' "$ex_ws" | grep -q 'Workspaces and Multi-Display Layout' || fail "explain workspaces failed"
+ex_res=$("$TAM" explain resources --pipe)
+printf '%s\n' "$ex_res" | grep -q 'System Resources and Performance' || fail "explain resources failed"
+
+# Explain with - reads topic from stdin.
+ex_stdin=$(printf 'jobs\n' | "$TAM" explain - --pipe)
+printf '%s\n' "$ex_stdin" | grep -q 'Processes, Jobs, and Signals' || fail "explain - failed to read topic from stdin"
+
 # Bare explain lists available topics and exits 0.
 ex_list=$("$TAM" explain)
 printf '%s\n' "$ex_list" | grep -q 'Available topics:' || fail "explain with no topic missing topic list"
 printf '%s\n' "$ex_list" | grep -q 'welcome' || fail "explain list missing welcome"
 printf '%s\n' "$ex_list" | grep -q 'install' || fail "explain list missing install"
+printf '%s\n' "$ex_list" | grep -q 'shell' || fail "explain list missing shell"
 printf '%s\n' "$ex_list" | grep -q 'pipelines' || fail "explain list missing pipelines"
+printf '%s\n' "$ex_list" | grep -q 'jobs' || fail "explain list missing jobs"
+printf '%s\n' "$ex_list" | grep -q 'filesystem' || fail "explain list missing filesystem"
+printf '%s\n' "$ex_list" | grep -q 'permissions' || fail "explain list missing permissions"
+printf '%s\n' "$ex_list" | grep -q 'desktop' || fail "explain list missing desktop"
+printf '%s\n' "$ex_list" | grep -q 'workspaces' || fail "explain list missing workspaces"
+printf '%s\n' "$ex_list" | grep -q 'resources' || fail "explain list missing resources"
 printf '%s\n' "$ex_list" | grep -q 'man' || fail "explain list missing man"
 printf '%s\n' "$ex_list" | grep -q 'guide' || fail "explain list missing guide"
 if printf '%s\n' "$ex_list" | grep -qi 'missing topic'; then

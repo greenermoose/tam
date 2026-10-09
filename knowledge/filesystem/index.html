@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Linux Filesystem Hierarchy</title>
+</head>
+<body>
+<h1>The Linux Filesystem Hierarchy</h1>
+
+<p>Linux organizes all files and storage devices into a single unified tree
+beginning at root (<code>/</code>). This structure follows the Filesystem
+Hierarchy Standard (FHS).</p>
+
+<h2>Key directories</h2>
+
+<table>
+<tr><th>Directory</th><th>Purpose</th></tr>
+<tr><td>/</td><td>The root of the overall directory hierarchy</td></tr>
+<tr><td>/home</td><td>User personal directories and settings (~/.config, ~/.local)</td></tr>
+<tr><td>/etc</td><td>Host-specific system configuration files in plain text</td></tr>
+<tr><td>/usr</td><td>Secondary hierarchy for user utilities, libraries, and assets</td></tr>
+<tr><td>/var</td><td>Variable runtime state, service data, and system logs (/var/log)</td></tr>
+<tr><td>/tmp</td><td>Temporary files cleared on system restart</td></tr>
+<tr><td>/proc</td><td>Virtual filesystem exposing kernel and process state metrics</td></tr>
+<tr><td>/sys</td><td>Virtual filesystem exposing kernel device and driver trees</td></tr>
+<tr><td>/dev</td><td>Device node representations for physical hardware and pseudo-devices</td></tr>
+</table>
+
+<h2>Virtual filesystems: /proc and /sys</h2>
+
+<p>The files inside <code>/proc</code> and <code>/sys</code> take zero disk space.
+They are direct windows into kernel memory. For instance, reading
+<code>/proc/cpuinfo</code> queries processor features directly from the kernel,
+and reading <code>/proc/meminfo</code> checks current memory metrics.</p>
+
+<h2>Inspecting disk and space usage</h2>
+
+<p>Two essential commands give quick visibility into filesystem usage:</p>
+
+<dl>
+<dt>df -h (disk free)</dt>
+<dd>Shows disk usage, capacity, and mount points across all mounted
+filesystems in human-readable units.</dd>
+<dt>du -sh path (disk usage)</dt>
+<dd>Calculates the total disk space consumed by a directory and its
+contents.</dd>
+</dl>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="filesystem/permissions.html">File permissions</a> &mdash; understand user ownership and access modes.</li>
+<li><a href="hardware/resources.html">Resources and performance</a> &mdash; analyze RAM, swap, and CPU metrics.</li>
+<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
+</ul>
+</body>
+</html>

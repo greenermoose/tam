@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>File Permissions and Ownership</title>
+</head>
+<body>
+<h1>File Permissions and Ownership</h1>
+
+<p>Every file and directory in Linux has an owner user, an owner group, and a
+set of permission mode bits that dictate who may read, modify, or execute
+it.</p>
+
+<h2>The permission triad</h2>
+
+<p>Permissions are divided into three tiers: User (owner), Group, and
+Others. Each tier has three primary access rights:</p>
+
+<dl>
+<dt>Read (r = 4)</dt>
+<dd>View file contents, or list filenames in a directory.</dd>
+<dt>Write (w = 2)</dt>
+<dd>Modify file contents, or create and delete entries in a directory.</dd>
+<dt>Execute (x = 1)</dt>
+<dd>Run a file as a program. On a directory, execute permission is required to
+enter (cd into) the directory or access its files.</dd>
+</dl>
+
+<h2>Common octal modes</h2>
+
+<table>
+<tr><th>Mode</th><th>Symbolic</th><th>Typical Usage</th></tr>
+<tr><td>755</td><td>rwxr-xr-x</td><td>Executable programs, scripts, and standard directories</td></tr>
+<tr><td>644</td><td>rw-r--r--</td><td>Standard readable documents, data files, and configuration</td></tr>
+<tr><td>700</td><td>rwx------</td><td>Private user directories (such as ~/.ssh and ~/.gnupg)</td></tr>
+<tr><td>600</td><td>rw-------</td><td>Private keys and credentials (such as ~/.ssh/id_ed25519)</td></tr>
+</table>
+
+<h2>Managing permissions and ownership</h2>
+
+<ul>
+<li><code>chmod 755 file</code> &mdash; set numerical octal permission mode.</li>
+<li><code>chmod +x script.sh</code> &mdash; grant execute permission to everyone.</li>
+<li><code>chown user:group file</code> &mdash; change user and group ownership.</li>
+<li><code>umask</code> &mdash; define the default mode mask applied when creating new files.</li>
+</ul>
+
+<h2>Links: hard versus symbolic</h2>
+
+<dl>
+<dt>Hard links (ln target link)</dt>
+<dd>Create a new directory entry pointing directly to the existing inode. The
+underlying data remains until all hard links are deleted.</dd>
+<dt>Symbolic links (ln -s target link)</dt>
+<dd>Create a small pointer file containing the path string to the target file.
+If the target is moved or deleted, the symlink breaks.</dd>
+</dl>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="filesystem/index.html">Filesystem hierarchy</a> &mdash; explore system directories and storage.</li>
+<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
+</ul>
+</body>
+</html>

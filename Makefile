@@ -45,11 +45,13 @@ test: $(TAM)
 install: $(TAM)
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
+	install -m 755 bin/tam-man $(DESTDIR)$(BINDIR)/tam-man
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
+	rm -f $(DESTDIR)$(BINDIR)/tam-man
 	rm -rf $(DESTDIR)$(DATADIR)
 
 clean:
