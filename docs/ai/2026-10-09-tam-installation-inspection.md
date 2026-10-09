@@ -5,6 +5,7 @@
 - **CLI Tool:** Antigravity CLI (`agy`) 1.3.2
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
+- **Commit:** `dd2793a` ("Implement tam install subcommand and inspection (0.5.0)").
 - **Authorship:** Fred requested an implementation plan for the `tam install` subcommand, reviewed the draft in Micro, answered open questions regarding bare `tam install` overview behavior and output layout, and approved proceeding. Antigravity implemented `tam install` and `tam install inspect` in C against `libtam`, honest stubs for future installer verbs, guide updates, test suites, and documentation.
 
 ## Guiding prompts
