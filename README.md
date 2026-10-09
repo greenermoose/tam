@@ -3,24 +3,30 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — command foundation (milestone 1) and offline guide
-(milestone 2) implemented. Bare introduction, `--help` (also `tam help`),
-`--version`, argument errors, and the `browse` guide all build in C against the
-separate `libtam` library and install as `tam`. Orientation and installation are
-not implemented yet.
+**Stage:** Develop — command foundation (milestone 1), offline guide
+(milestone 2), and orientation/explanation (milestone 3) implemented. Bare
+introduction, `--help` (also `tam help`), `--version`, argument errors, `browse`,
+`welcome` orientation, and curated `explain` all build in C against the
+separate `libtam` library and install as `tam`. Installation is not implemented yet.
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam browse` opens the bundled offline
 guide: an interactive pager in a terminal, or plain text when output is piped.
+`tam welcome` opens orientation and records successful display state.
+`tam explain <topic>` explains curated local concepts and tools.
 The guide is authored as semantic HTML under `knowledge/`; `tam` renders it
 itself, so browsing needs no network and no external viewer.
 
-## Using the guide
+## Using tam
 
 ```sh
+tam welcome           # open the welcome orientation in the pager
+tam welcome --pipe    # print welcome text to stdout
 tam browse            # open the guide index in the pager
 tam browse welcome    # open a page by name
 tam browse --pipe     # print the guide as plain text (no escape sequences)
+tam explain pipes     # explain a curated topic or shell concept
+tam explain grep --pipe # print topic explanation as plain text
 ```
 
 In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`

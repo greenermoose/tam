@@ -1,9 +1,9 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–2 (command foundation and offline guide)
-implemented. The executable builds in C against an installed `libtam` and
-installs as `tam`, rendering the bundled guide itself. Orientation, explanation
-and installation remain unimplemented.
+**Stage:** Develop — milestones 1–3 (command foundation, offline guide,
+orientation and explanation) implemented. The executable builds in C against
+an installed `libtam` and installs as `tam`, rendering the bundled guide itself.
+Installation inspection remains unimplemented.
 
 ## Purpose and ownership
 
@@ -94,8 +94,10 @@ version that shipped at the time; do not rewrite them.
    (`src/pager.c`) are implemented; a relocated staged installation is
    verified. See the [offline-guide plan](offline-guide.md). Lynx remains an
    optional, unstarted accelerator — never a dependency.
-3. **Orientation and explanation.** Add explicit `welcome`, successful-display
-   state and curated `explain` topics.
+3. **Orientation and explanation — done (2026-10-09).** Added explicit
+   `welcome` (`tam welcome`), successful-display state (`welcome_seen`), and
+   curated `explain` topics (`tam explain <topic>`). See the
+   [orientation and explanation plan](orientation-and-explanation.md).
 4. **Installation inspection.** Connect read-only `install inspect` to the
    product contract; do not pretend unimplemented installer operations work.
 
@@ -155,3 +157,13 @@ shell parsing, AI estimates and writable settings retain separate scope.
   request: "update tam so tam help works the same as tam --help"). Extra
   arguments remain a usage error. Version bumped to `0.3.0` (new user-visible
   invocation).
+- **2026-10-09:** Orientation and curated explanation implemented (milestone 3).
+  Fred approved a combined slice with orientation (`tam welcome`) and curated
+  explanation (`tam explain <topic>`). `tam welcome` opens the orientation guide
+  in the interactive pager (or plain text when piped) and atomically records an
+  ISO 8601 UTC timestamp in `$XDG_STATE_HOME/tamlinux/welcome_seen` only after
+  successful display. Strict isolation is verified: bare `tam`, `browse`,
+  `help`, `version`, and `explain` never touch welcome state. `tam explain`
+  resolves curated topics (`pipelines`, `redirection`, `man`, `welcome`, `install`),
+  emits clear diagnostics on misses, and treats arbitrary shell metacharacters
+  strictly as query data without executing them. Command version bumped to `0.4.0`.

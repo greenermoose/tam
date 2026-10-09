@@ -3,9 +3,13 @@
 #include "pager.h"
 #include "render.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+#include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "version.h"
@@ -102,11 +106,13 @@ static void print_intro(void)
         TAM_COMMAND_VERSION);
     s = tam_str_cat(s,
         "Get started:\n"
-        "  tam browse       open the offline guide\n"
-        "  tam --help       list options and where to begin\n"
-        "  tam --version    show version information\n\n");
+        "  tam welcome          open the welcome orientation\n"
+        "  tam browse           open the offline guide\n"
+        "  tam explain TOPIC    explain a topic or concept\n"
+        "  tam --help           list options and where to begin\n"
+        "  tam --version        show version information\n\n");
     s = tam_str_cat(s,
-        "More commands (welcome, explain, install) appear as they are made.\n");
+        "More commands (install) appear as they are made.\n");
     fputs(s, stdout);
     tam_str_free(s);
 }
@@ -116,14 +122,18 @@ static void print_help(void)
     fputs(
         "tam - the Tamlinux command\n\n"
         "Usage:\n"
-        "  tam              print a short introduction and exit\n"
-        "  tam browse       open the offline guide in the terminal\n"
-        "  tam browse PAGE  open a guide page (e.g. welcome, man, shell/pipelines)\n"
-        "  tam browse --pipe  print the guide as plain text\n"
-        "  tam --help       show this help and exit (same as: tam help)\n"
-        "  tam --version    show version information and exit\n\n"
-        "This early build implements orientation and the offline guide.\n"
-        "Commands such as welcome, explain and install are not available yet.\n",
+        "  tam                  print a short introduction and exit\n"
+        "  tam browse           open the offline guide in the terminal\n"
+        "  tam browse PAGE      open a guide page (e.g. welcome, man, shell/pipelines)\n"
+        "  tam browse --pipe    print the guide as plain text\n"
+        "  tam welcome          open the welcome orientation\n"
+        "  tam welcome --pipe   print the welcome orientation as plain text\n"
+        "  tam explain TOPIC    explain a curated topic or concept\n"
+        "  tam explain TOPIC --pipe  print the topic explanation as plain text\n"
+        "  tam --help           show this help and exit (same as: tam help)\n"
+        "  tam --version        show version information and exit\n\n"
+        "This build implements orientation, explanation and the offline guide.\n"
+        "Commands such as install are not available yet.\n",
         stdout);
 }
 
@@ -152,6 +162,14 @@ static int usage_error(const char *bad)
 static int too_many_arguments(void)
 {
     fprintf(stderr, TAM_COMMAND_NAME ": too many arguments\n");
+    fprintf(stderr, "Run '%s --help' for available options.\n",
+            TAM_COMMAND_NAME);
+    return TAM_EXIT_USAGE;
+}
+
+static int missing_topic_error(void)
+{
+    fprintf(stderr, TAM_COMMAND_NAME ": missing topic argument\n");
     fprintf(stderr, "Run '%s --help' for available options.\n",
             TAM_COMMAND_NAME);
     return TAM_EXIT_USAGE;
@@ -306,6 +324,110 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
     return doc;
 }
 
+static int ensure_dir_exists(const char *dir)
+{
+    if (dir == NULL || dir[0] == '\0') {
+        return -1;
+    }
+    char tmp[4096];
+    size_t len = strlen(dir);
+    if (len >= sizeof(tmp)) {
+        return -1;
+    }
+    memcpy(tmp, dir, len + 1);
+    for (char *p = tmp + 1; *p != '\0'; p++) {
+        if (*p == '/') {
+            *p = '\0';
+            if (tmp[0] != '\0') {
+                if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+                    return -1;
+                }
+            }
+            *p = '/';
+        }
+    }
+    if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+        return -1;
+    }
+    return 0;
+}
+
+static int record_welcome_seen(void)
+{
+    const char *xdg = getenv("XDG_STATE_HOME");
+    const char *home = getenv("HOME");
+    char *dir = NULL;
+    char *path = NULL;
+
+    if (xdg != NULL && xdg[0] != '\0') {
+        dir = join_path(xdg, "/tamlinux");
+        path = join_path(xdg, "/tamlinux/welcome_seen");
+    } else if (home != NULL && home[0] != '\0') {
+        dir = join_path(home, "/.local/state/tamlinux");
+        path = join_path(home, "/.local/state/tamlinux/welcome_seen");
+    }
+
+    if (dir == NULL || path == NULL) {
+        free(dir);
+        free(path);
+        return -1;
+    }
+
+    if (ensure_dir_exists(dir) != 0) {
+        free(dir);
+        free(path);
+        return -1;
+    }
+    free(dir);
+
+    time_t now = time(NULL);
+    struct tm tm;
+    gmtime_r(&now, &tm);
+    char buf[64];
+    size_t len = strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ\n", &tm);
+
+    bool ok = tam_fs_write_atomic(path, buf, len, 0644);
+    free(path);
+    return ok ? 0 : -1;
+}
+
+static int view_knowledge_page(const char *root, const char *href, int pipe)
+{
+    char *path = safe_join(root, href);
+    if (path == NULL || !tam_fs_file_exists(path)) {
+        fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
+        free(path);
+        return TAM_EXIT_FAILURE;
+    }
+    size_t len = 0;
+    char *src = tam_fs_read_file(path, &len);
+    free(path);
+    if (src == NULL) {
+        fprintf(stderr, TAM_COMMAND_NAME ": cannot read guide page: %s\n", href);
+        return TAM_EXIT_FAILURE;
+    }
+
+    int interactive = !pipe && isatty(STDOUT_FILENO) && isatty(STDIN_FILENO);
+    int width = interactive ? tam_terminal_width() : 80;
+
+    tam_document_t *doc = tam_render_html(src, len, width);
+    free(src);
+
+    int rc = 0;
+    if (interactive) {
+        corpus_ctx_t ctx;
+        ctx.root = (char *)root;
+        ctx.width = width;
+        rc = tam_pager_run(doc, href, corpus_load, &ctx);
+    } else {
+        char *text = tam_document_text(doc);
+        fputs(text, stdout);
+        free(text);
+        tam_document_free(doc);
+    }
+    return rc;
+}
+
 static int cmd_browse(int n, char **args)
 {
     int pipe = 0;
@@ -338,40 +460,145 @@ static int cmd_browse(int n, char **args)
         resolve_page(root, page, href, sizeof(href));
     }
 
-    char *path = safe_join(root, href);
-    if (path == NULL || !tam_fs_file_exists(path)) {
-        fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
-        free(path);
-        free(root);
+    int rc = view_knowledge_page(root, href, pipe);
+    free(root);
+    return rc;
+}
+
+static int cmd_welcome(int n, char **args)
+{
+    int pipe = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
+            pipe = 1;
+        } else if (args[i][0] == '-') {
+            return usage_error(args[i]);
+        } else {
+            return too_many_arguments();
+        }
+    }
+
+    char *root = find_knowledge_root();
+    if (root == NULL) {
+        fprintf(stderr,
+                TAM_COMMAND_NAME ": no offline guide installed "
+                "(set TAM_KNOWLEDGE_DIR to a knowledge directory)\n");
         return TAM_EXIT_FAILURE;
     }
-    size_t len = 0;
-    char *src = tam_fs_read_file(path, &len);
-    free(path);
-    if (src == NULL) {
-        fprintf(stderr, TAM_COMMAND_NAME ": cannot read guide page: %s\n", href);
-        free(root);
+
+    int rc = view_knowledge_page(root, "welcome.html", pipe);
+    if (rc == 0) {
+        record_welcome_seen();
+    }
+    free(root);
+    return rc;
+}
+
+typedef struct {
+    const char *keyword;
+    const char *target_page;
+} topic_mapping_t;
+
+static const topic_mapping_t TOPIC_MAP[] = {
+    /* Welcome & orientation */
+    { "welcome",        "welcome.html" },
+    { "orientation",    "welcome.html" },
+
+    /* Install & maintenance */
+    { "install",        "install/index.html" },
+    { "installation",   "install/index.html" },
+    { "maintain",       "install/index.html" },
+    { "maintaining",    "install/index.html" },
+    { "maintenance",    "install/index.html" },
+    { "update",         "install/index.html" },
+    { "updates",        "install/index.html" },
+    { "recovery",       "install/index.html" },
+    { "layers",         "install/index.html" },
+
+    /* Shell pipelines & redirection */
+    { "shell",          "shell/pipelines.html" },
+    { "pipeline",       "shell/pipelines.html" },
+    { "pipelines",      "shell/pipelines.html" },
+    { "pipe",           "shell/pipelines.html" },
+    { "pipes",          "shell/pipelines.html" },
+    { "redirection",    "shell/pipelines.html" },
+    { "redirect",       "shell/pipelines.html" },
+    { ">",              "shell/pipelines.html" },
+    { ">>",             "shell/pipelines.html" },
+    { "2>&1",           "shell/pipelines.html" },
+    { "<",              "shell/pipelines.html" },
+    { "grep",           "shell/pipelines.html" },
+    { "ps",             "shell/pipelines.html" },
+    { "wc",             "shell/pipelines.html" },
+    { "cat",            "shell/pipelines.html" },
+
+    /* Man pages */
+    { "man",            "man/index.html" },
+    { "manual",         "man/index.html" },
+    { "manuals",        "man/index.html" },
+    { "apropos",        "man/index.html" },
+    { "whatis",         "man/index.html" },
+
+    /* Guide index */
+    { "guide",          "index.html" },
+    { "index",          "index.html" },
+
+    { NULL, NULL }
+};
+
+static const char *match_curated_topic(const char *topic)
+{
+    if (topic == NULL || topic[0] == '\0') {
+        return NULL;
+    }
+    for (size_t i = 0; TOPIC_MAP[i].keyword != NULL; i++) {
+        if (strcasecmp(topic, TOPIC_MAP[i].keyword) == 0) {
+            return TOPIC_MAP[i].target_page;
+        }
+    }
+    return NULL;
+}
+
+static int cmd_explain(int n, char **args)
+{
+    int pipe = 0;
+    const char *topic = NULL;
+
+    for (int i = 0; i < n; i++) {
+        if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
+            pipe = 1;
+        } else if (args[i][0] == '-') {
+            return usage_error(args[i]);
+        } else if (topic == NULL) {
+            topic = args[i];
+        } else {
+            return too_many_arguments();
+        }
+    }
+
+    if (topic == NULL) {
+        return missing_topic_error();
+    }
+
+    const char *target = match_curated_topic(topic);
+    if (target == NULL) {
+        fprintf(stderr,
+                TAM_COMMAND_NAME ": no explanation found for '%s'\n"
+                "Run '%s browse' to explore available topics in the offline guide.\n",
+                topic, TAM_COMMAND_NAME);
         return TAM_EXIT_FAILURE;
     }
 
-    int interactive = !pipe && isatty(STDOUT_FILENO) && isatty(STDIN_FILENO);
-    int width = interactive ? tam_terminal_width() : 80;
-
-    tam_document_t *doc = tam_render_html(src, len, width);
-    free(src);
-
-    int rc = 0;
-    if (interactive) {
-        corpus_ctx_t ctx;
-        ctx.root = root;
-        ctx.width = width;
-        rc = tam_pager_run(doc, href, corpus_load, &ctx);
-    } else {
-        char *text = tam_document_text(doc);
-        fputs(text, stdout);
-        free(text);
-        tam_document_free(doc);
+    char *root = find_knowledge_root();
+    if (root == NULL) {
+        fprintf(stderr,
+                TAM_COMMAND_NAME ": no offline guide installed "
+                "(set TAM_KNOWLEDGE_DIR to a knowledge directory)\n");
+        return TAM_EXIT_FAILURE;
     }
+
+    int rc = view_knowledge_page(root, target, pipe);
     free(root);
     return rc;
 }
@@ -401,6 +628,12 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "browse") == 0) {
         return cmd_browse(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "welcome") == 0) {
+        return cmd_welcome(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "explain") == 0) {
+        return cmd_explain(argc - 2, argv + 2);
     }
     return usage_error(arg);
 }
