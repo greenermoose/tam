@@ -59,7 +59,7 @@ command behavior, packaging contract and acceptance checks, and the
 | --- | --- |
 | `src/` | C command implementation. |
 | `knowledge/` | Bundled offline HTML and matching text guide. |
-| `tests/` | Command behavior, browser integration and package-data checks. |
+| `tests/` | Command behavior, offline guide rendering and package-data checks. |
 | `docs/plans/` | Development scope and acceptance evidence. |
 | `docs/ai/` | AI-assisted authorship and verification records. |
 

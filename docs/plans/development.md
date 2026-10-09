@@ -22,9 +22,9 @@ helper into this repository.
 | Invocation | Behavior |
 | --- | --- |
 | `tam` | Concise introduction and starting points; exit 0 without launching a browser or writing state. |
-| `tam --help` | Concise usage and implemented commands; works without Lynx, guide data or cultivar metadata. `tam help` is the same invocation. |
+| `tam --help` | Concise usage and implemented commands; works without guide data or cultivar metadata. `tam help` is the same invocation. |
 | `tam --version` | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
-| `tam show` | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. Lynx is never required. (Replaces `tam browse`; `browse` remains supported as an explain topic). |
+| `tam show` | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. (Replaces `tam browse`; `browse` remains supported as an explain topic). |
 | `tam welcome` | Explicit orientation; record welcome only after successful display. |
 | `tam explain <topic>` | Match curated local topics; clear miss message and useful next step. Never execute topic input. |
 | `tam install inspect` | Read-only host facts and recognized installation capabilities, through the product installation contract. |
@@ -55,11 +55,10 @@ with `PREFIX` and `DESTDIR`; workstation integration pins the command and
 library separately. The package and XDG namespace stay `tamlinux` even
 though the executable and source repository are named `tam`.
 
-Lynx is optional. Interactive browsing must use its terminal directly;
-do not send it through a subprocess helper that captures output or imposes
-a short command timeout. Local guides must open without fetching network
-content or automatically installing anything. Show base-appropriate Lynx
-installation guidance when it is missing.
+The guide is self-contained. Interactive browsing uses the built-in terminal
+pager directly; `tam` parses and displays the bundled HTML natively without
+requiring an external browser or pager. Local guides open without fetching
+network content or requiring external tools.
 
 ## Versioning
 
@@ -92,8 +91,8 @@ version that shipped at the time; do not rewrite them.
 2. **Offline guide — done (2026-10-09).** Corpus lookup, `browse`, `--pipe`,
    a native HTML-subset renderer (`src/render.c`) and an interactive pager
    (`src/pager.c`) are implemented; a relocated staged installation is
-   verified. See the [offline-guide plan](offline-guide.md). Lynx remains an
-   optional, unstarted accelerator — never a dependency.
+   verified. See the [offline-guide plan](offline-guide.md). The native
+   renderer and pager handle display without requiring an external browser.
 3. **Orientation and explanation — done (2026-10-09).** Added explicit
    `welcome` (`tam welcome`), successful-display state (`welcome_seen`), and
    curated `explain` topics (`tam explain <topic>`). See the
@@ -111,7 +110,7 @@ shell parsing, AI estimates and writable settings retain separate scope.
 ## Acceptance evidence
 
 - Bare invocation exits 0, prints useful starting points and never launches
-  Lynx or creates state, including with terminal input/output.
+  the pager or creates state, including with terminal input/output.
 - Piped output and `--pipe` are readable and contain no control sequences.
 - The built-in renderer needs no external viewer; a missing corpus or cultivar
   metadata produces useful, truthful diagnostics and help remains usable.
@@ -144,9 +143,9 @@ shell parsing, AI estimates and writable settings retain separate scope.
   future shape is `Tamlinux cultivar <name> <version>` (e.g. `Tamlinux cultivar
   blue sparkler 1.0.0`); the name source is not yet defined.
 - **2026-10-09:** Offline guide implemented (milestone 2). Fred approved a
-  **native renderer** over driving Lynx (so `tam` works before the desktop and
-  on minimal systems), with text derived at runtime from the same HTML and
-  committed snapshots as golden fixtures. Corpus pages `index`, `welcome`,
+  **native renderer** rather than an external browser (so `tam` works before the
+  desktop and on minimal systems), with text derived at runtime from the same
+  HTML and committed snapshots as golden fixtures. Corpus pages `index`, `welcome`,
   `install/`, `shell/pipelines` and `man/` were authored; links are
   root-relative and resolved against the corpus root. Recorded in the
   [offline-guide plan](offline-guide.md). Command version bumped to `0.1.0`

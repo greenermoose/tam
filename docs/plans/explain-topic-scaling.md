@@ -119,7 +119,7 @@ Phase 5: Extensible Architecture       → Corpus-driven metadata + shell comple
 ## 3. Guiding Invariants
 
 1. **Strict Offline Execution:** No network calls, telemetry, or remote lookups are ever introduced.
-2. **Zero External Dependencies:** Built purely with C and `libtam`; no external pagers (like `less` or `lynx`) required.
+2. **Zero External Dependencies:** Built purely with C and `libtam`; no external pagers or browsers required.
 3. **Pipe and Redirect Safety:** Piped output always emits plain, deterministic text without ANSI escapes, cursor codes, or interactive prompts.
 4. **Input Safety:** Topic arguments are treated purely as data; shell metacharacters (`|`, `>`, `;`, `$()`) are never evaluated.
 5. **No State Pollution:** `tam explain` (with or without arguments) never creates state files or modifies `$XDG_STATE_HOME`.

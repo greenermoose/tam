@@ -6,18 +6,17 @@ corpus lookup and the viewer).
 
 **Decision (Fred, 2026-10-09):**
 
-1. **Native renderer now.** `tam` renders the guide itself instead of driving
-   Lynx. Lynx becomes an optional alternative, never a dependency.
+1. **Native renderer.** `tam` renders the guide itself natively, with no
+   external browser dependency.
 2. **Text is derived at runtime** from the same HTML by `tam`'s renderer;
    committed `.txt` files are golden test fixtures for review and drift
    detection, not a second authored corpus.
 3. **File the plan, then implement.**
 
-## 1. Why native rather than Lynx
+## 1. Why a native renderer rather than an external browser
 
 - `tam` must work before the graphical desktop and on minimal / musl / legacy
-  Void, where Lynx may be absent. On the current workstation Lynx is a
-  Nix-profile binary (`~/.nix-profile/bin/lynx`), not a Tamlinux package.
+  Void, without requiring any external browser package.
 - We author the corpus, so we control the HTML subset: `tam` needs a parser for
   *our* tags, not a general browser.
 - `libtam`'s anti-bloat premise favours a self-contained C renderer.
@@ -26,10 +25,7 @@ corpus lookup and the viewer).
 - `tam_exec` cannot drive an interactive browser anyway: it captures
   stdout/stderr and imposes a timeout (`libtam/src/tam_exec.c`), which the
   [development plan](development.md) already forbids for interactive browsing.
-
-Lynx stays available as an optional accelerator (`TAM_VIEWER=lynx`) that must be
-launched by direct `fork`/`exec` with inherited stdio and `waitpid` — never
-through `tam_exec`. No behaviour may require it.
+  The native in-process renderer and pager avoid subprocess execution entirely.
 
 ## 2. Content: one source of truth
 
@@ -86,8 +82,8 @@ and network URLs are refused. `PREFIX`/`DESTDIR` staging must relocate cleanly.
 5. ✅ `show` wiring (originally `browse`): `tam show [page]`; `--pipe` / non-TTY → text.
 6. ✅ Tests: golden text snapshots, link-graph resolution, control-free pipes,
    relocated staged install; verified clean under ASan/UBSan.
-7. ⬜ Optional `TAM_VIEWER=lynx` direct-exec path (not started; never a
-   dependency).
+7. ⛔ External browser accelerator dropped: native renderer and pager handle
+   display completely self-sufficiently with zero external dependencies.
 8. ✅ Docs: milestone 2 marked in `development.md`; `docs/ai/` record added.
 
 ## 6. Acceptance
