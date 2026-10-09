@@ -102,6 +102,11 @@ version that shipped at the time; do not rewrite them.
    package tool detection, and recognized installation capabilities in C.
    See the [installation inspection plan](installation-inspection.md).
    Later installer plan/apply/verify operations remain deliberately unimplemented.
+5. **Engine enhancements, table layout, and dynamic input (milestone 5 — planned).**
+   Add standard input reading (`tam show -`), definition lists (`<dl>`, `<dt>`,
+   `<dd>`) and space-padded table layout (`<table>`, `<tr>`, `<td>`, `<th>`) to
+   `src/render.c` (D133). Prioritize the "Use" track first in the knowledge corpus.
+   Prepare for dynamic hyperlinked man page traversal.
 
 The first slice can develop independently of desktop migration. Later
 installer plan/apply/verify work follows the product framework. Compound
@@ -196,6 +201,12 @@ shell parsing, AI estimates and writable settings retain separate scope.
   matching single or double quotes, allowing shell-quoted inputs like `tam explain '|'`
   and `tam explain "|"` (as well as literal quotes `"'|'"`) to resolve cleanly
   to `shell/pipelines.html`. Added pipe symbol `|` to pipelines keywords. Miss diagnostics
-  now reference `tam show`. Command version bumped to `0.7.0`.
+- **2026-10-09:** Knowledge architecture, man page strategy, and priorities (D133).
+  Fred confirmed: (1) Provide a lightweight `man` wrapper so `man <command>`
+  directly opens the hyperlinked `tam` pager; system roff man pages are converted
+  to semantic HTML on the fly with cross-references (`SEE ALSO`) transformed into
+  interactive hyperlinks for seamless traversal. (2) Prioritize the "Use" track
+  first in the knowledge corpus. (3) A clean, space-padded terminal column layout
+  is sufficient for table rendering in `src/render.c`. Recorded in milestone 5.
 
 
