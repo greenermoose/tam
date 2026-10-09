@@ -10,6 +10,7 @@ CC       ?= cc
 CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
 PREFIX   ?= /usr/local
 BINDIR   ?= $(PREFIX)/bin
+DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
 
 LIBTAM_PREFIX ?= $(PREFIX)
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
@@ -21,13 +22,16 @@ LDLIBS   ?=
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c
+SRC   := src/tam.c src/render.c src/pager.c
+DEPS  := src/version.h src/render.h src/pager.h
+
+CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"
 
 .PHONY: all clean test install uninstall
 
 all: $(TAM)
 
-$(TAM): $(SRC) src/version.h | $(BUILD)
+$(TAM): $(SRC) $(DEPS) | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
 		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) -o $@
 
@@ -36,13 +40,17 @@ $(BUILD):
 
 test: $(TAM)
 	tests/run.sh $(CURDIR)/$(TAM)
+	tests/guide.sh $(CURDIR)/$(TAM)
 
 install: $(TAM)
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
+	install -d $(DESTDIR)$(DATADIR)
+	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
+	rm -rf $(DESTDIR)$(DATADIR)
 
 clean:
 	rm -rf $(BUILD)

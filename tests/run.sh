@@ -40,7 +40,7 @@ pass "bare invocation prints an introduction and writes no state"
 pass "--help and -h"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.0.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.2.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"

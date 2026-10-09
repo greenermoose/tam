@@ -3,22 +3,41 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — command foundation implemented (milestone 1). The
-first slice — bare introduction, `--help`, `--version` and argument errors —
-builds in C against the separate `libtam` library and installs as `tam`.
-Browsing, orientation and installation are not implemented yet.
+**Stage:** Develop — command foundation (milestone 1) and offline guide
+(milestone 2) implemented. Bare introduction, `--help`, `--version`, argument
+errors, and the `browse` guide all build in C against the separate `libtam`
+library and install as `tam`. Orientation and installation are not implemented
+yet.
 
 Bare `tam` prints a concise introduction and exits successfully without
-launching a browser or writing state. `tam browse` will explicitly open the
-guide; browsing is not implemented yet.
+launching a browser or writing state. `tam browse` opens the bundled offline
+guide: an interactive pager in a terminal, or plain text when output is piped.
+The guide is authored as semantic HTML under `knowledge/`; `tam` renders it
+itself, so browsing needs no network and no external viewer.
+
+## Using the guide
+
+```sh
+tam browse            # open the guide index in the pager
+tam browse welcome    # open a page by name
+tam browse --pipe     # print the guide as plain text (no escape sequences)
+```
+
+In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`
+scroll a screen, `g`/`G` or `Home`/`End` jump to the top/bottom, `Tab` selects
+a link, `Enter` or the right arrow follows it, `u` or the left arrow goes back,
+and `q` or `Esc` quits. External links are shown but never fetched, so the guide
+stays offline. The corpus is located via `$TAM_KNOWLEDGE_DIR`, then the XDG data
+directories, then the compiled install prefix.
 
 The implementation uses C with the separate `libtam` foundation library.
 Command source, bundled guide pages, tests and component documentation live
 here. The `tamlinux` product repository owns workstation assembly and the
 installation framework.
 
-Read the [development plan](docs/plans/development.md) for the first milestone,
-command behavior, packaging contract and acceptance checks.
+Read the [development plan](docs/plans/development.md) for the milestones,
+command behavior, packaging contract and acceptance checks, and the
+[offline-guide plan](docs/plans/offline-guide.md) for the guide's design.
 
 ## Layout
 

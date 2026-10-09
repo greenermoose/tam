@@ -1,0 +1,31 @@
+Shell pipelines
+
+A pipeline connects small programs so the output of one becomes the input of the
+next. Each program does one thing well; the pipe is the wiring.
+
+A first example
+
+  
+  ps aux | grep firefox | wc -l
+  
+
+This asks for the process list, keeps the lines mentioning firefox, and counts
+them. Read it left to right: take, filter, measure.
+
+Redirection
+
+- > writes output to a file, replacing it.
+- >> appends to a file.
+- 2>&1 sends error messages to the same place as normal output.
+
+Consider whether you need a pipe at all. grep firefox file.txt does the same job
+as cat file.txt | grep firefox, with one fewer process.
+
+See also
+
+The man guide explains where to look up any command you meet. The guide index
+lists every topic.
+
+Links:
+  [1] man/index.html
+  [2] index.html

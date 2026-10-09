@@ -1,12 +1,21 @@
 #include <tam.h>
 
+#include "pager.h"
+#include "render.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "version.h"
 
+#ifndef TAM_DATADIR
+#define TAM_DATADIR "/usr/local/share/tamlinux/knowledge"
+#endif
+
 #define TAM_EXIT_USAGE 2
+#define TAM_EXIT_FAILURE 1
 
 static char *join_path(const char *dir, const char *rest)
 {
@@ -93,10 +102,11 @@ static void print_intro(void)
         TAM_COMMAND_VERSION);
     s = tam_str_cat(s,
         "Get started:\n"
+        "  tam browse       open the offline guide\n"
         "  tam --help       list options and where to begin\n"
         "  tam --version    show version information\n\n");
     s = tam_str_cat(s,
-        "More commands (browse, explain, install) appear as they are made.\n");
+        "More commands (welcome, explain, install) appear as they are made.\n");
     fputs(s, stdout);
     tam_str_free(s);
 }
@@ -107,10 +117,13 @@ static void print_help(void)
         "tam - the Tamlinux command\n\n"
         "Usage:\n"
         "  tam              print a short introduction and exit\n"
+        "  tam browse       open the offline guide in the terminal\n"
+        "  tam browse PAGE  open a guide page (e.g. welcome, man, shell/pipelines)\n"
+        "  tam browse --pipe  print the guide as plain text\n"
         "  tam --help       show this help and exit\n"
         "  tam --version    show version information and exit\n\n"
-        "This early build implements orientation only. Commands such as\n"
-        "browse, explain, welcome and install are not available yet.\n",
+        "This early build implements orientation and the offline guide.\n"
+        "Commands such as welcome, explain and install are not available yet.\n",
         stdout);
 }
 
@@ -144,6 +157,225 @@ static int too_many_arguments(void)
     return TAM_EXIT_USAGE;
 }
 
+/* ------------------------------------------------------------------------- */
+/* Offline guide                                                              */
+/* ------------------------------------------------------------------------- */
+
+static char *safe_join(const char *root, const char *href)
+{
+    if (href == NULL || href[0] == '\0') {
+        return NULL;
+    }
+    if (href[0] == '/') {
+        return NULL;
+    }
+    if (strstr(href, "://") != NULL || strstr(href, "..") != NULL) {
+        return NULL;
+    }
+    char *rest = malloc(strlen(href) + 2);
+    if (rest == NULL) {
+        return NULL;
+    }
+    rest[0] = '/';
+    memcpy(rest + 1, href, strlen(href) + 1);
+    char *out = join_path(root, rest);
+    free(rest);
+    return out;
+}
+
+static int knowledge_ok(const char *dir)
+{
+    if (dir == NULL || dir[0] == '\0') {
+        return 0;
+    }
+    char *p = join_path(dir, "/index.html");
+    int ok = p != NULL && tam_fs_file_exists(p);
+    free(p);
+    return ok;
+}
+
+static char *find_knowledge_root(void)
+{
+    const char *env = getenv("TAM_KNOWLEDGE_DIR");
+    if (env != NULL && knowledge_ok(env)) {
+        return strdup(env);
+    }
+
+    const char *xdg = getenv("XDG_DATA_HOME");
+    if (xdg != NULL && xdg[0] != '\0') {
+        char *p = join_path(xdg, "/tamlinux/knowledge");
+        if (knowledge_ok(p)) {
+            return p;
+        }
+        free(p);
+    }
+
+    const char *home = getenv("HOME");
+    if (home != NULL && home[0] != '\0') {
+        char *p = join_path(home, "/.local/share/tamlinux/knowledge");
+        if (knowledge_ok(p)) {
+            return p;
+        }
+        free(p);
+    }
+
+    const char *dirs = getenv("XDG_DATA_DIRS");
+    if (dirs != NULL && dirs[0] != '\0') {
+        const char *s = dirs;
+        while (*s != '\0') {
+            const char *colon = strchr(s, ':');
+            size_t len = colon ? (size_t)(colon - s) : strlen(s);
+            if (len > 0) {
+                char *base = malloc(len + 1);
+                memcpy(base, s, len);
+                base[len] = '\0';
+                char *p = join_path(base, "/tamlinux/knowledge");
+                free(base);
+                if (knowledge_ok(p)) {
+                    return p;
+                }
+                free(p);
+            }
+            if (colon == NULL) {
+                break;
+            }
+            s = colon + 1;
+        }
+    }
+
+    const char *compiled = getenv("TAM_DATADIR");
+    if (compiled == NULL || compiled[0] == '\0') {
+        compiled = TAM_DATADIR;
+    }
+    if (knowledge_ok(compiled)) {
+        return strdup(compiled);
+    }
+    return NULL;
+}
+
+static int knowledge_file_exists(const char *root, const char *rel)
+{
+    char *p = safe_join(root, rel);
+    int ok = p != NULL && tam_fs_file_exists(p);
+    free(p);
+    return ok;
+}
+
+static void resolve_page(const char *root, const char *page, char *out,
+                         size_t cap)
+{
+    static const char suffix[] = ".html";
+    if (strstr(page, ".html") != NULL) {
+        snprintf(out, cap, "%s", page);
+        return;
+    }
+    char cand[600];
+    int n = snprintf(cand, sizeof(cand), "%s%s", page, suffix);
+    if (n > 0 && (size_t)n < sizeof(cand) && knowledge_file_exists(root, cand)) {
+        snprintf(out, cap, "%s", cand);
+        return;
+    }
+    n = snprintf(cand, sizeof(cand), "%s/index.html", page);
+    if (n > 0 && (size_t)n < sizeof(cand) && knowledge_file_exists(root, cand)) {
+        snprintf(out, cap, "%s", cand);
+        return;
+    }
+    snprintf(out, cap, "%s%s", page, suffix);
+}
+
+typedef struct {
+    char *root;
+    int   width;
+} corpus_ctx_t;
+
+static tam_document_t *corpus_load(void *vctx, const char *href)
+{
+    corpus_ctx_t *ctx = vctx;
+    char *path = safe_join(ctx->root, href);
+    if (path == NULL) {
+        return NULL;
+    }
+    size_t len = 0;
+    char *src = tam_fs_read_file(path, &len);
+    free(path);
+    if (src == NULL) {
+        return NULL;
+    }
+    tam_document_t *doc = tam_render_html(src, len, ctx->width);
+    free(src);
+    return doc;
+}
+
+static int cmd_browse(int n, char **args)
+{
+    int pipe = 0;
+    const char *page = NULL;
+
+    for (int i = 0; i < n; i++) {
+        if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
+            pipe = 1;
+        } else if (args[i][0] == '-') {
+            return usage_error(args[i]);
+        } else if (page == NULL) {
+            page = args[i];
+        } else {
+            return too_many_arguments();
+        }
+    }
+
+    char *root = find_knowledge_root();
+    if (root == NULL) {
+        fprintf(stderr,
+                TAM_COMMAND_NAME ": no offline guide installed "
+                "(set TAM_KNOWLEDGE_DIR to a knowledge directory)\n");
+        return TAM_EXIT_FAILURE;
+    }
+
+    char href[600];
+    if (page == NULL) {
+        snprintf(href, sizeof(href), "%s", "index.html");
+    } else {
+        resolve_page(root, page, href, sizeof(href));
+    }
+
+    char *path = safe_join(root, href);
+    if (path == NULL || !tam_fs_file_exists(path)) {
+        fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
+        free(path);
+        free(root);
+        return TAM_EXIT_FAILURE;
+    }
+    size_t len = 0;
+    char *src = tam_fs_read_file(path, &len);
+    free(path);
+    if (src == NULL) {
+        fprintf(stderr, TAM_COMMAND_NAME ": cannot read guide page: %s\n", href);
+        free(root);
+        return TAM_EXIT_FAILURE;
+    }
+
+    int interactive = !pipe && isatty(STDOUT_FILENO) && isatty(STDIN_FILENO);
+    int width = interactive ? tam_terminal_width() : 80;
+
+    tam_document_t *doc = tam_render_html(src, len, width);
+    free(src);
+
+    int rc = 0;
+    if (interactive) {
+        corpus_ctx_t ctx;
+        ctx.root = root;
+        ctx.width = width;
+        rc = tam_pager_run(doc, href, corpus_load, &ctx);
+    } else {
+        char *text = tam_document_text(doc);
+        fputs(text, stdout);
+        free(text);
+        tam_document_free(doc);
+    }
+    free(root);
+    return rc;
+}
+
 int main(int argc, char **argv)
 {
     if (argc <= 1) {
@@ -151,18 +383,23 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc > 2) {
-        return too_many_arguments();
-    }
-
     const char *arg = argv[1];
     if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
+        if (argc > 2) {
+            return too_many_arguments();
+        }
         print_help();
         return 0;
     }
     if (strcmp(arg, "-V") == 0 || strcmp(arg, "--version") == 0) {
+        if (argc > 2) {
+            return too_many_arguments();
+        }
         print_version();
         return 0;
+    }
+    if (strcmp(arg, "browse") == 0) {
+        return cmd_browse(argc - 2, argv + 2);
     }
     return usage_error(arg);
 }

@@ -1,8 +1,9 @@
 # tam development plan
 
-**Stage:** Develop — milestone 1 (command foundation) implemented. The
-executable builds in C against an installed `libtam` and installs as `tam`.
-Browsing, orientation, explanation and installation remain unimplemented.
+**Stage:** Develop — milestones 1–2 (command foundation and offline guide)
+implemented. The executable builds in C against an installed `libtam` and
+installs as `tam`, rendering the bundled guide itself. Orientation, explanation
+and installation remain unimplemented.
 
 ## Purpose and ownership
 
@@ -23,7 +24,7 @@ helper into this repository.
 | `tam` | Concise introduction and starting points; exit 0 without launching a browser or writing state. |
 | `tam --help` | Concise usage and implemented commands; works without Lynx, guide data or cultivar metadata. |
 | `tam --version` | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
-| `tam browse` | Open the local guide in Lynx when interactive; readable text when piped or Lynx is unavailable. |
+| `tam browse` | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. Lynx is never required. |
 | `tam welcome` | Explicit orientation; record welcome only after successful display. |
 | `tam explain <topic>` | Match curated local topics; clear miss message and useful next step. Never execute topic input. |
 | `tam install inspect` | Read-only host facts and recognized installation capabilities, through the product installation contract. |
@@ -60,6 +61,23 @@ a short command timeout. Local guides must open without fetching network
 content or automatically installing anything. Show base-appropriate Lynx
 installation guidance when it is missing.
 
+## Versioning
+
+The command version lives in `src/version.h` (`TAM_COMMAND_VERSION`) and is
+reported by `--version`. Follow semantic versioning and **bump the version in
+the same change that adds a feature**:
+
+- **Minor** (`0.y.0` → `0.y+1.0`): any new feature or user-visible capability
+  (a new subcommand, a new output mode, new bundled content). While the major
+  is `0`, new features take the minor bump.
+- **Patch** (`0.y.z` → `0.y.z+1`): backwards-compatible fixes and internal
+  changes with no new capability.
+- **Major**: reserved; not used before `1.0.0`.
+
+Update the `--version` assertion in `tests/run.sh` to match, and note the
+bump in the decision record below. Historical `docs/ai/` records keep the
+version that shipped at the time; do not rewrite them.
+
 ## Milestones
 
 1. **Command foundation — done (2026-10-09).** Bare introduction, help,
@@ -71,8 +89,11 @@ installation guidance when it is missing.
    `~/.config/tamlinux/version`), then `$TAMLINUX_VERSION`, and reports
    unavailable metadata explicitly. Deferred within this milestone: a
    `libtam.pc` pkg-config file and a versioned `libtam` SONAME.
-2. **Offline guide.** Add corpus lookup, `browse`, `--pipe`, optional Lynx
-   integration and text fallback. Verify a relocated staged installation.
+2. **Offline guide — done (2026-10-09).** Corpus lookup, `browse`, `--pipe`,
+   a native HTML-subset renderer (`src/render.c`) and an interactive pager
+   (`src/pager.c`) are implemented; a relocated staged installation is
+   verified. See the [offline-guide plan](offline-guide.md). Lynx remains an
+   optional, unstarted accelerator — never a dependency.
 3. **Orientation and explanation.** Add explicit `welcome`, successful-display
    state and curated `explain` topics.
 4. **Installation inspection.** Connect read-only `install inspect` to the
@@ -87,10 +108,8 @@ shell parsing, AI estimates and writable settings retain separate scope.
 - Bare invocation exits 0, prints useful starting points and never launches
   Lynx or creates state, including with terminal input/output.
 - Piped output and `--pipe` are readable and contain no control sequences.
-- Missing Lynx falls back to text; browser failure does not mark welcome as
-  shown. A successful welcome records state under an isolated XDG home.
-- Missing corpus or cultivar metadata produces useful, truthful diagnostics;
-  help remains usable.
+- The built-in renderer needs no external viewer; a missing corpus or cultivar
+  metadata produces useful, truthful diagnostics and help remains usable.
 - Curated explanation handles misses and shell-looking strings as data.
 - A staged package runs away from the source tree; relative guide links work
   offline. Inspect changes no configuration or installation state.
@@ -119,3 +138,16 @@ shell parsing, AI estimates and writable settings retain separate scope.
   cultivar name yet, so we just call it 'Tamlinux cultivar'." The intended
   future shape is `Tamlinux cultivar <name> <version>` (e.g. `Tamlinux cultivar
   blue sparkler 1.0.0`); the name source is not yet defined.
+- **2026-10-09:** Offline guide implemented (milestone 2). Fred approved a
+  **native renderer** over driving Lynx (so `tam` works before the desktop and
+  on minimal systems), with text derived at runtime from the same HTML and
+  committed snapshots as golden fixtures. Corpus pages `index`, `welcome`,
+  `install/`, `shell/pipelines` and `man/` were authored; links are
+  root-relative and resolved against the corpus root. Recorded in the
+  [offline-guide plan](offline-guide.md). Command version bumped to `0.1.0`
+  for the new `browse` capability (Fred: bump the minor number when adding a
+  feature), and the versioning convention above was recorded.
+- **2026-10-09:** Pager navigation keys added (Fred's request): `Esc` as well
+  as `q` quits; the right arrow follows the selected link (like `Enter`) and
+  the left arrow goes back (like `u`). Version bumped to `0.2.0` (new input
+  capabilities).

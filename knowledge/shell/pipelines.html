@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Shell pipelines</title>
+</head>
+<body>
+<h1>Shell pipelines</h1>
+
+<p>A pipeline connects small programs so the output of one becomes the input
+of the next. Each program does one thing well; the pipe is the wiring.</p>
+
+<h2>A first example</h2>
+
+<pre>
+ps aux | grep firefox | wc -l
+</pre>
+
+<p>This asks for the process list, keeps the lines mentioning
+<code>firefox</code>, and counts them. Read it left to right: take, filter,
+measure.</p>
+
+<h2>Redirection</h2>
+
+<ul>
+<li><code>&gt;</code> writes output to a file, replacing it.</li>
+<li><code>&gt;&gt;</code> appends to a file.</li>
+<li><code>2&gt;&amp;1</code> sends error messages to the same place as normal
+output.</li>
+</ul>
+
+<p>Consider whether you need a pipe at all. <code>grep firefox file.txt</code>
+does the same job as <code>cat file.txt | grep firefox</code>, with one fewer
+process.</p>
+
+<h2>See also</h2>
+
+<p>The <a href="man/index.html">man guide</a> explains where to look up any
+command you meet. The <a href="index.html">guide index</a> lists every
+topic.</p>
+</body>
+</html>
