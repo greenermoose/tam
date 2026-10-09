@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "install.h"
 #include "pager.h"
 #include "render.h"
 
@@ -77,7 +78,7 @@ static char *cultivar_version_from_file(void)
     return buf;
 }
 
-static char *cultivar_version(void)
+char *cultivar_version(void)
 {
     char *from_file = cultivar_version_from_file();
     if (from_file != NULL) {
@@ -109,10 +110,9 @@ static void print_intro(void)
         "  tam welcome          open the welcome orientation\n"
         "  tam browse           open the offline guide\n"
         "  tam explain TOPIC    explain a topic or concept\n"
+        "  tam install inspect  inspect host and installation capabilities\n"
         "  tam --help           list options and where to begin\n"
-        "  tam --version        show version information\n\n");
-    s = tam_str_cat(s,
-        "More commands (install) appear as they are made.\n");
+        "  tam --version        show version information\n");
     fputs(s, stdout);
     tam_str_free(s);
 }
@@ -130,10 +130,12 @@ static void print_help(void)
         "  tam welcome --pipe   print the welcome orientation as plain text\n"
         "  tam explain TOPIC    explain a curated topic or concept\n"
         "  tam explain TOPIC --pipe  print the topic explanation as plain text\n"
+        "  tam install          show installation framework commands\n"
+        "  tam install inspect  inspect host and installation capabilities\n"
         "  tam --help           show this help and exit (same as: tam help)\n"
         "  tam --version        show version information and exit\n\n"
-        "This build implements orientation, explanation and the offline guide.\n"
-        "Commands such as install are not available yet.\n",
+        "This build implements orientation, explanation, the offline guide, and\n"
+        "installation inspection.\n",
         stdout);
 }
 
@@ -508,6 +510,8 @@ static const topic_mapping_t TOPIC_MAP[] = {
     /* Install & maintenance */
     { "install",        "install/index.html" },
     { "installation",   "install/index.html" },
+    { "inspect",        "install/index.html" },
+    { "inspection",     "install/index.html" },
     { "maintain",       "install/index.html" },
     { "maintaining",    "install/index.html" },
     { "maintenance",    "install/index.html" },
@@ -634,6 +638,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "explain") == 0) {
         return cmd_explain(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "install") == 0) {
+        return cmd_install(argc - 2, argv + 2);
     }
     return usage_error(arg);
 }

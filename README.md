@@ -4,16 +4,19 @@
 learn about their system, maintain it, and discover ways to improve it.
 
 **Stage:** Develop — command foundation (milestone 1), offline guide
-(milestone 2), and orientation/explanation (milestone 3) implemented. Bare
-introduction, `--help` (also `tam help`), `--version`, argument errors, `browse`,
-`welcome` orientation, and curated `explain` all build in C against the
-separate `libtam` library and install as `tam`. The command is part of `tamlinux-packages` and installed on the system; the future `tam install` subcommand (installation inspection) is not implemented yet.
+(milestone 2), orientation/explanation (milestone 3), and installation
+inspection (milestone 4) implemented. Bare introduction, `--help` (also
+`tam help`), `--version`, argument errors, `browse`, `welcome` orientation,
+curated `explain`, and read-only `install inspect` all build in C against the
+separate `libtam` library and install as `tam`. The command is part of
+`tamlinux-packages` and installed on the system.
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam browse` opens the bundled offline
 guide: an interactive pager in a terminal, or plain text when output is piped.
 `tam welcome` opens orientation and records successful display state.
 `tam explain <topic>` explains curated local concepts and tools.
+`tam install inspect` inspects host facts, package tools, and supported profiles.
 The guide is authored as semantic HTML under `knowledge/`; `tam` renders it
 itself, so browsing needs no network and no external viewer.
 
@@ -27,6 +30,8 @@ tam browse welcome    # open a page by name
 tam browse --pipe     # print the guide as plain text (no escape sequences)
 tam explain pipes     # explain a curated topic or shell concept
 tam explain grep --pipe # print topic explanation as plain text
+tam install inspect   # inspect host facts and installation capabilities
+tam install --help    # list installation subcommands
 ```
 
 In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`

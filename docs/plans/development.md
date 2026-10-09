@@ -1,9 +1,9 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–3 (command foundation, offline guide,
-orientation and explanation) implemented. The executable builds in C against
-an installed `libtam` and installs as `tam`, rendering the bundled guide itself.
-Installation inspection remains unimplemented.
+**Stage:** Develop — milestones 1–4 (command foundation, offline guide,
+orientation and explanation, installation inspection) implemented. The
+executable builds in C against an installed `libtam` and installs as `tam`,
+rendering the bundled guide itself.
 
 ## Purpose and ownership
 
@@ -98,8 +98,11 @@ version that shipped at the time; do not rewrite them.
    `welcome` (`tam welcome`), successful-display state (`welcome_seen`), and
    curated `explain` topics (`tam explain <topic>`). See the
    [orientation and explanation plan](orientation-and-explanation.md).
-4. **Installation inspection.** Connect read-only `install inspect` to the
-   product contract; do not pretend unimplemented installer operations work.
+4. **Installation inspection — done (2026-10-09).** Connected read-only
+   `install inspect` to the product contract and implemented host facts,
+   package tool detection, and recognized installation capabilities in C.
+   See the [installation inspection plan](installation-inspection.md).
+   Later installer plan/apply/verify operations remain deliberately unimplemented.
 
 The first slice can develop independently of desktop migration. Later
 installer plan/apply/verify work follows the product framework. Compound
@@ -167,3 +170,13 @@ shell parsing, AI estimates and writable settings retain separate scope.
   resolves curated topics (`pipelines`, `redirection`, `man`, `welcome`, `install`),
   emits clear diagnostics on misses, and treats arbitrary shell metacharacters
   strictly as query data without executing them. Command version bumped to `0.4.0`.
+- **2026-10-09:** Installation inspection implemented (milestone 4). Fred approved
+  the slice 4 implementation plan with bare `tam install` showing usage overview
+  (exit 0) and sectioned key-value output for `tam install inspect`. Implemented
+  modular `src/install.c` and `src/install.h` in C linking `libtam`. Probes
+  `/etc/os-release`, `uname()`, `$PATH` for package tools and privilege tools,
+  `/proc/mounts` for root filesystem, `/dev/dri` for graphics devices, and maps
+  supported profiles (`arch-hyprland, arch`, `void`, `antix`). Unimplemented
+  installer verbs (`plan`, `apply`, `verify`) truthfully report they are not
+  implemented yet (exit 1). Updated offline guide `knowledge/install/index.html`
+  and golden test snapshots. Command version bumped to `0.5.0`.

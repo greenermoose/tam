@@ -9,6 +9,17 @@
 <p>Tamlinux keeps your software and your settings in clear, layered pieces so
 that each can be understood and reversed on its own.</p>
 
+<h2>The installation framework</h2>
+
+<p>The installation framework provides a deliberate four-step lifecycle:</p>
+
+<ol>
+<li><strong>Inspect:</strong> <code>tam install inspect</code> checks host facts, architecture, package tools, and supported profiles without changing anything.</li>
+<li><strong>Plan:</strong> <code>tam install plan</code> prints exact changes, package inputs, checkpoints, and recovery steps before applying.</li>
+<li><strong>Apply:</strong> <code>tam install apply</code> executes only the reviewed plan.</li>
+<li><strong>Verify:</strong> <code>tam install verify</code> validates installed components, command resolution, and desktop integration.</li>
+</ol>
+
 <h2>The layers</h2>
 
 <ol>
@@ -20,8 +31,8 @@ that each can be understood and reversed on its own.</p>
 <h2>Staying healthy</h2>
 
 <p>Before a big change, take a snapshot so you can return to a known-good
-state. <code>tam update</code> gathers the available updates and shows what
-will change before it applies anything.</p>
+state. <code>tam install inspect</code> gathers host facts and recognized
+capabilities before any installation work begins.</p>
 
 <h2>Recovery</h2>
 

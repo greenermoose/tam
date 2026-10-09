@@ -22,8 +22,8 @@ LDLIBS   ?=
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/render.c src/pager.c
-DEPS  := src/version.h src/render.h src/pager.h
+SRC   := src/tam.c src/render.c src/pager.c src/install.c
+DEPS  := src/version.h src/render.h src/pager.h src/install.h
 
 CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"
 
