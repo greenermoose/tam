@@ -5,7 +5,7 @@
 - **CLI Tool:** Antigravity CLI (`agy`) 1.3.2
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
-- **Commit:** Pending.
+- **Commit:** `b01faf9` ("Implement tam orientation and curated explanation (0.4.0)").
 - **Authorship:** Fred reviewed the slice proposal, selected a combined slice, confirmed the curated curriculum topics as sufficient, directed pager navigation with text fallback in pipes, and closed the review window. Antigravity implemented `tam welcome`, atomic `welcome_seen` state tracking, `tam explain <topic>`, test suites, documentation, and installed the binary. No delegation.
 
 ## Guiding prompts
