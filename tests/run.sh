@@ -37,10 +37,13 @@ pass "bare invocation prints an introduction and writes no state"
 # Help.
 "$TAM" --help | grep -q 'Usage:' || fail "--help is missing usage"
 "$TAM" -h >/dev/null || fail "-h failed"
-pass "--help and -h"
+"$TAM" help | grep -q 'Usage:' || fail "help is missing usage"
+[ "$("$TAM" help)" = "$("$TAM" --help)" ] || fail "help differs from --help"
+if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0"; fi
+pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.2.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.3.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"

@@ -22,7 +22,7 @@ helper into this repository.
 | Invocation | Behavior |
 | --- | --- |
 | `tam` | Concise introduction and starting points; exit 0 without launching a browser or writing state. |
-| `tam --help` | Concise usage and implemented commands; works without Lynx, guide data or cultivar metadata. |
+| `tam --help` | Concise usage and implemented commands; works without Lynx, guide data or cultivar metadata. `tam help` is the same invocation. |
 | `tam --version` | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
 | `tam browse` | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. Lynx is never required. |
 | `tam welcome` | Explicit orientation; record welcome only after successful display. |
@@ -151,3 +151,7 @@ shell parsing, AI estimates and writable settings retain separate scope.
   as `q` quits; the right arrow follows the selected link (like `Enter`) and
   the left arrow goes back (like `u`). Version bumped to `0.2.0` (new input
   capabilities).
+- **2026-10-09:** `tam help` added as an exact alias of `tam --help` (Fred's
+  request: "update tam so tam help works the same as tam --help"). Extra
+  arguments remain a usage error. Version bumped to `0.3.0` (new user-visible
+  invocation).

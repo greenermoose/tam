@@ -4,10 +4,10 @@
 learn about their system, maintain it, and discover ways to improve it.
 
 **Stage:** Develop — command foundation (milestone 1) and offline guide
-(milestone 2) implemented. Bare introduction, `--help`, `--version`, argument
-errors, and the `browse` guide all build in C against the separate `libtam`
-library and install as `tam`. Orientation and installation are not implemented
-yet.
+(milestone 2) implemented. Bare introduction, `--help` (also `tam help`),
+`--version`, argument errors, and the `browse` guide all build in C against the
+separate `libtam` library and install as `tam`. Orientation and installation are
+not implemented yet.
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam browse` opens the bundled offline

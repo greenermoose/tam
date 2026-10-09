@@ -120,7 +120,7 @@ static void print_help(void)
         "  tam browse       open the offline guide in the terminal\n"
         "  tam browse PAGE  open a guide page (e.g. welcome, man, shell/pipelines)\n"
         "  tam browse --pipe  print the guide as plain text\n"
-        "  tam --help       show this help and exit\n"
+        "  tam --help       show this help and exit (same as: tam help)\n"
         "  tam --version    show version information and exit\n\n"
         "This early build implements orientation and the offline guide.\n"
         "Commands such as welcome, explain and install are not available yet.\n",
@@ -384,7 +384,8 @@ int main(int argc, char **argv)
     }
 
     const char *arg = argv[1];
-    if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
+    if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0 ||
+        strcmp(arg, "help") == 0) {
         if (argc > 2) {
             return too_many_arguments();
         }
