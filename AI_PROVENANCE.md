@@ -17,4 +17,5 @@ Human-only commits retain their original authorship.
 | 2026-10-09 | Orientation and curated explanation 0.4.0 (`welcome`, `welcome_seen`, `explain`) | Antigravity CLI 1.3.2; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-09-tam-orientation-and-explanation.md) |
 | 2026-10-09 | README cultivar installation paths and packaging status | Antigravity CLI 1.3.2; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-09-tam-readme-installation-paths.md) |
 | 2026-10-09 | Installation inspection 0.5.0 (`install`, `install inspect`) | Antigravity CLI 1.3.2; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-09-tam-installation-inspection.md) |
+| 2026-10-09 | Explain topic listing and scaling roadmap 0.6.0 (`explain`) | Antigravity CLI 1.3.2; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-09-tam-explain-topic-listing.md) |
 
