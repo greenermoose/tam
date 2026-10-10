@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.9.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.9.1' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -273,23 +273,30 @@ pass "install overview, inspect probes, honest unimplemented verbs, and argument
 "$TAM" man help | grep -q 'Usage:' || fail "man help missing usage"
 [ "$("$TAM" man help)" = "$("$TAM" man --help)" ] || fail "man help differs from man --help"
 
-# View grep manual page: check content and hyperlinked cross references in SEE ALSO.
-man_grep=$("$TAM" man grep --pipe)
-printf '%s\n' "$man_grep" | grep -q 'grep - print lines that match patterns' || fail "tam man grep missing description"
-printf '%s\n' "$man_grep" | grep -q 'man:sed(1)' || fail "tam man grep missing hyperlinked sed(1) cross reference"
-printf '%s\n' "$man_grep" | grep -q 'man:awk(1)' || fail "tam man grep missing hyperlinked awk(1) cross reference"
+# Pages installed on the host: a package build sandbox has no man pages or
+# groff, so these checks run only where the pages can be rendered.
+if command -v groff >/dev/null 2>&1 && man -w grep >/dev/null 2>&1 \
+        && man -w 5 fstab >/dev/null 2>&1; then
+    # View grep manual page: check content and hyperlinked cross references in SEE ALSO.
+    man_grep=$("$TAM" man grep --pipe)
+    printf '%s\n' "$man_grep" | grep -q 'grep - print lines that match patterns' || fail "tam man grep missing description"
+    printf '%s\n' "$man_grep" | grep -q 'man:sed(1)' || fail "tam man grep missing hyperlinked sed(1) cross reference"
+    printf '%s\n' "$man_grep" | grep -q 'man:awk(1)' || fail "tam man grep missing hyperlinked awk(1) cross reference"
 
-# View section 5 fstab manual page using both section argument and parenthesized syntax.
-man_fstab=$("$TAM" man 5 fstab --pipe)
-printf '%s\n' "$man_fstab" | grep -q 'static information about the filesystems' || fail "tam man 5 fstab failed"
-man_fstab_paren=$("$TAM" man "fstab(5)" --pipe)
-printf '%s\n' "$man_fstab_paren" | grep -q 'static information about the filesystems' || fail "tam man fstab(5) failed"
+    # View section 5 fstab manual page using both section argument and parenthesized syntax.
+    man_fstab=$("$TAM" man 5 fstab --pipe)
+    printf '%s\n' "$man_fstab" | grep -q 'static information about the filesystems' || fail "tam man 5 fstab failed"
+    man_fstab_paren=$("$TAM" man "fstab(5)" --pipe)
+    printf '%s\n' "$man_fstab_paren" | grep -q 'static information about the filesystems' || fail "tam man fstab(5) failed"
 
-# Wrapper script bin/tam-man delegates to tam man.
-if [ -x "$root/bin/tam-man" ]; then
-    man_wrap=$("$root/bin/tam-man" grep --pipe)
-    printf '%s\n' "$man_wrap" | grep -q 'man:sed(1)' || fail "tam-man wrapper missing live hyperlinked cross reference"
-    pass "tam-man wrapper script executes and hyperlinks manual pages"
+    # Wrapper script bin/tam-man delegates to tam man.
+    if [ -x "$root/bin/tam-man" ]; then
+        man_wrap=$("$root/bin/tam-man" grep --pipe)
+        printf '%s\n' "$man_wrap" | grep -q 'man:sed(1)' || fail "tam-man wrapper missing live hyperlinked cross reference"
+        pass "tam-man wrapper script executes and hyperlinks manual pages"
+    fi
+else
+    printf 'skip - host manual pages (man, groff or pages unavailable)\n'
 fi
 
 # Missing manual page reports clear diagnostic and exit 1.

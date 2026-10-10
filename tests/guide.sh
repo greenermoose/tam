@@ -125,10 +125,21 @@ env HOME="$tmp/nohome" XDG_CONFIG_HOME="$tmp/nocfg" \
     | grep -qi 'no offline guide' || fail "missing-corpus message unclear"
 pass "absent corpus is reported clearly"
 
+# The corpus installed with the binary wins over a user data directory, so a
+# development install never renders another installation's pages.
+mkdir -p "$tmp/otherdata/tamlinux/knowledge"
+printf '<html><body><p>Other installation</p></body></html>\n' \
+    > "$tmp/otherdata/tamlinux/knowledge/index.html"
+out=$(env XDG_DATA_HOME="$tmp/otherdata" TAM_DATADIR="$knowledge" \
+          env -u TAM_KNOWLEDGE_DIR "$TAM" show --pipe)
+printf '%s\n' "$out" | grep -q 'Other installation' \
+    && fail "user data directory shadowed the binary's own corpus"
+pass "own corpus precedes user data directory"
+
 # A staged install relocated away from the source tree finds its corpus via
 # XDG_DATA_DIRS and still shows pages.
 stage="$tmp/stage/usr"
-if make -C "$root" install DESTDIR="$tmp/stage" PREFIX=/usr \
+if make -C "$root" install DESTDIR="$tmp/stage" PREFIX=/usr BUILD="$tmp/build" \
         LIBTAM_PREFIX="${LIBTAM_PREFIX:-/usr/local}" >/dev/null 2>&1; then
     [ -x "$stage/bin/tam" ] || fail "staged install produced no binary"
     out=$(env XDG_DATA_DIRS="$stage/share" TAM_DATADIR="$tmp/no-datadir" \

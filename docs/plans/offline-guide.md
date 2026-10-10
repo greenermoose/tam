@@ -66,8 +66,10 @@ external links are labelled `external` and are never fetched.
 ## 4. Corpus location and packaging
 
 Resolution order (no fixed `/usr/share` assumption): `$TAM_KNOWLEDGE_DIR`
-(development override) → `$XDG_DATA_HOME/tamlinux/knowledge` →
-`$XDG_DATA_DIRS/tamlinux/knowledge` → compiled `<prefix>/share/tamlinux/knowledge`.
+(development override) → compiled `<prefix>/share/tamlinux/knowledge` →
+`$XDG_DATA_HOME/tamlinux/knowledge` → `$XDG_DATA_DIRS/tamlinux/knowledge`.
+Since tam 0.9.1 the compiled path comes second, so each binary renders the
+corpus installed with it.
 A missing corpus produces a truthful diagnostic while `--help` still works.
 Relative `href`s resolve against the corpus root; `..` escapes, absolute paths
 and network URLs are refused. `PREFIX`/`DESTDIR` staging must relocate cleanly.

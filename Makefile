@@ -25,15 +25,27 @@ TAM   := $(BUILD)/tam
 SRC   := src/tam.c src/render.c src/pager.c src/install.c src/man.c
 DEPS  := src/version.h src/render.h src/pager.h src/install.h src/man.h
 
-CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"
+# A build from a Git checkout reports its commit in --version; packaged
+# builds have no .git and report the plain version.
+TAM_BUILD_ID := $(shell git -C $(CURDIR) describe --always --dirty 2>/dev/null)
 
-.PHONY: all clean test install uninstall
+CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\" -DTAM_BUILD=\"$(TAM_BUILD_ID)\"
+
+# The binary embeds DATADIR, the libtam rpath and the build id, so a build
+# made for one PREFIX must not be installed under another. The stamp changes
+# whenever that configuration does and forces a rebuild.
+CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS)
+
+.PHONY: all clean test install uninstall FORCE
 
 all: $(TAM)
 
-$(TAM): $(SRC) $(DEPS) | $(BUILD)
+$(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
 		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) -o $@
+
+$(BUILD)/config: FORCE | $(BUILD)
+	@printf '%s\n' '$(CONFIG)' | cmp -s - $@ || printf '%s\n' '$(CONFIG)' > $@
 
 $(BUILD):
 	mkdir -p $(BUILD)
@@ -46,6 +58,7 @@ install: $(TAM)
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
 	install -m 755 bin/tam-man $(DESTDIR)$(BINDIR)/tam-man
+	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
 

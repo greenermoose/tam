@@ -21,6 +21,12 @@
 #define TAM_DATADIR "/usr/local/share/tamlinux/knowledge"
 #endif
 
+/* Set by the Makefile from `git describe` when building from a checkout;
+ * empty for packaged builds, which have no Git metadata. */
+#ifndef TAM_BUILD
+#define TAM_BUILD ""
+#endif
+
 #define TAM_EXIT_USAGE 2
 #define TAM_EXIT_FAILURE 1
 
@@ -151,7 +157,12 @@ static void print_version(void)
 {
     char *cultivar = cultivar_version();
 
-    printf(TAM_COMMAND_NAME " command %s\n", TAM_COMMAND_VERSION);
+    if (TAM_BUILD[0] != '\0') {
+        printf(TAM_COMMAND_NAME " command %s (dev %s)\n", TAM_COMMAND_VERSION,
+               TAM_BUILD);
+    } else {
+        printf(TAM_COMMAND_NAME " command %s\n", TAM_COMMAND_VERSION);
+    }
     printf("libtam %s\n", tam_version());
     if (cultivar != NULL) {
         printf("Tamlinux cultivar %s\n", cultivar);
@@ -221,6 +232,17 @@ static char *find_knowledge_root(void)
         return strdup(env);
     }
 
+    /* The corpus installed with this binary comes before any shared data
+     * directory, so a development install under one prefix never renders
+     * the pages of a packaged install under another. */
+    const char *compiled = getenv("TAM_DATADIR");
+    if (compiled == NULL || compiled[0] == '\0') {
+        compiled = TAM_DATADIR;
+    }
+    if (knowledge_ok(compiled)) {
+        return strdup(compiled);
+    }
+
     const char *xdg = getenv("XDG_DATA_HOME");
     if (xdg != NULL && xdg[0] != '\0') {
         char *p = join_path(xdg, "/tamlinux/knowledge");
@@ -263,13 +285,6 @@ static char *find_knowledge_root(void)
         }
     }
 
-    const char *compiled = getenv("TAM_DATADIR");
-    if (compiled == NULL || compiled[0] == '\0') {
-        compiled = TAM_DATADIR;
-    }
-    if (knowledge_ok(compiled)) {
-        return strdup(compiled);
-    }
     return NULL;
 }
 

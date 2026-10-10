@@ -233,6 +233,16 @@ shell parsing, AI estimates and writable settings retain separate scope.
   `#SYNOPSIS`). Refactored `bin/tam-man` to delegate cleanly to `tam man` with standard
   man fallback. Updated test suite with `tam man`, section lookups, hyperlinked reference
   assertions, and error handling. Command version bumped to `0.9.0`.
+- **2026-10-09:** Development installs under `~/.local/dev` (tam 0.9.1). Fred asked
+  to install development builds to a user prefix that comes first on `PATH`, so
+  `tam` runs the build under development until it is pinned in
+  `tamlinux-packages`. The compiled data directory now precedes the XDG data
+  directories in corpus lookup, so each binary renders the corpus installed with
+  it rather than a packaged corpus linked into `~/.local/share`. Builds from a Git
+  checkout report `git describe` in `--version` (`0.9.1 (dev 1a2b3c4-dirty)`);
+  packaged builds report the plain version. The build is redone when `PREFIX` or
+  other embedded configuration changes, and `make install` replaces the installed
+  corpus instead of merging into it.
 
 
 
