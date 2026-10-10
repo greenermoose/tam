@@ -1,6 +1,7 @@
 #include <tam.h>
 
 #include "install.h"
+#include "man.h"
 #include "pager.h"
 #include "render.h"
 
@@ -134,12 +135,15 @@ static void print_help(void)
         "  tam explain TOPIC    explain a curated topic or concept\n"
         "  tam explain -        read topic keyword from standard input\n"
         "  tam explain TOPIC --pipe  print the topic explanation as plain text\n"
+        "  tam man PAGE         view manual page with live hyperlinks\n"
+        "  tam man SECTION PAGE view manual page from a specific section\n"
+        "  tam man PAGE --pipe  print manual page as plain text\n"
         "  tam install          show installation framework commands\n"
         "  tam install inspect  inspect host and installation capabilities\n"
         "  tam --help           show this help and exit (same as: tam help)\n"
         "  tam --version        show version information and exit\n\n"
-        "This build implements orientation, explanation, the offline guide, and\n"
-        "installation inspection.\n",
+        "This build implements orientation, explanation, the offline guide,\n"
+        "manual page hyperlinking, and installation inspection.\n",
         stdout);
 }
 
@@ -307,6 +311,15 @@ typedef struct {
 static tam_document_t *corpus_load(void *vctx, const char *href)
 {
     corpus_ctx_t *ctx = vctx;
+    if (href == NULL || href[0] == '\0') {
+        return NULL;
+    }
+    if (strncmp(href, "man:", 4) == 0) {
+        return tam_man_load(href + 4, ctx->width);
+    }
+    if (ctx->root == NULL) {
+        return NULL;
+    }
     char *path = safe_join(ctx->root, href);
     if (path == NULL) {
         return NULL;
@@ -894,6 +907,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "install") == 0) {
         return cmd_install(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "man") == 0) {
+        return tam_cmd_man(argc - 2, argv + 2);
     }
     return usage_error(arg);
 }

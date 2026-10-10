@@ -220,6 +220,20 @@ shell parsing, AI estimates and writable settings retain separate scope.
   lightweight `bin/tam-man` wrapper converting roff manual pages on the fly into
   hyperlinked terminal views. Updated test suites (`tests/run.sh` and `tests/guide.sh`)
   and refreshed golden snapshots. Version bumped to `0.8.0`.
+- **2026-10-09:** Enhanced manual cross-referencing and `tam man` implemented (tam 0.9.0).
+  Implemented Option C: native manual page subsystem in `src/man.c` and `src/man.h`.
+  Roff manual pages are resolved via `man -w`, decompressed on the fly, converted to
+  semantic HTML via `groff -mandoc -Thtml`, and parsed by an HTML linkifier that
+  transforms manual cross references (such as `<b>awk</b>(1)` and `<b>sed</b>(1)` in
+  `SEE ALSO` or throughout the manual body) into live `<a href="man:name(sec)">` links.
+  Added built-in `tam man [SECTION] PAGE` subcommand and wired `man:` link traversal
+  into `corpus_load` so following manual links in the pager immediately renders and
+  switches to the target manual page, with full history navigation (`u` to go back).
+  Added in-page anchor jumping in `src/pager.c` for table-of-contents headings (`#SEE ALSO`,
+  `#SYNOPSIS`). Refactored `bin/tam-man` to delegate cleanly to `tam man` with standard
+  man fallback. Updated test suite with `tam man`, section lookups, hyperlinked reference
+  assertions, and error handling. Command version bumped to `0.9.0`.
+
 
 
 

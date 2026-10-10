@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.8.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.9.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -107,10 +107,11 @@ env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain nonexistent 
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install inspect >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install --help >/dev/null
+env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" man --help >/dev/null
 if [ -e "$iso_state/tamlinux/welcome_seen" ]; then
     fail "isolated commands wrote welcome_seen state"
 fi
-pass "state isolation: bare, show, help, version, explain, install do not touch welcome_seen"
+pass "state isolation: bare, show, help, version, explain, install, man do not touch welcome_seen"
 
 # Show command: displays guide index or page; browse subcommand is retired.
 sh_out=$("$TAM" show --pipe)
@@ -265,5 +266,37 @@ if "$TAM" install inspect extra >/dev/null 2>&1; then fail "install inspect extr
 if "$TAM" install inspect --bogus >/dev/null 2>&1; then fail "install inspect --bogus exited 0"; fi
 if "$TAM" install --help extra >/dev/null 2>&1; then fail "install --help extra exited 0"; fi
 pass "install overview, inspect probes, honest unimplemented verbs, and argument errors"
+
+# Man command: view man pages, section resolution, cross-reference hyperlinking, and tam-man wrapper.
+"$TAM" man | grep -q 'Usage:' || fail "bare man missing usage"
+"$TAM" man --help | grep -q 'Usage:' || fail "man --help missing usage"
+"$TAM" man help | grep -q 'Usage:' || fail "man help missing usage"
+[ "$("$TAM" man help)" = "$("$TAM" man --help)" ] || fail "man help differs from man --help"
+
+# View grep manual page: check content and hyperlinked cross references in SEE ALSO.
+man_grep=$("$TAM" man grep --pipe)
+printf '%s\n' "$man_grep" | grep -q 'grep - print lines that match patterns' || fail "tam man grep missing description"
+printf '%s\n' "$man_grep" | grep -q 'man:sed(1)' || fail "tam man grep missing hyperlinked sed(1) cross reference"
+printf '%s\n' "$man_grep" | grep -q 'man:awk(1)' || fail "tam man grep missing hyperlinked awk(1) cross reference"
+
+# View section 5 fstab manual page using both section argument and parenthesized syntax.
+man_fstab=$("$TAM" man 5 fstab --pipe)
+printf '%s\n' "$man_fstab" | grep -q 'static information about the filesystems' || fail "tam man 5 fstab failed"
+man_fstab_paren=$("$TAM" man "fstab(5)" --pipe)
+printf '%s\n' "$man_fstab_paren" | grep -q 'static information about the filesystems' || fail "tam man fstab(5) failed"
+
+# Wrapper script bin/tam-man delegates to tam man.
+if [ -x "$root/bin/tam-man" ]; then
+    man_wrap=$("$root/bin/tam-man" grep --pipe)
+    printf '%s\n' "$man_wrap" | grep -q 'man:sed(1)' || fail "tam-man wrapper missing live hyperlinked cross reference"
+    pass "tam-man wrapper script executes and hyperlinks manual pages"
+fi
+
+# Missing manual page reports clear diagnostic and exit 1.
+if "$TAM" man nonexistent_xyz >/dev/null 2>&1; then fail "missing man page exited 0"; fi
+"$TAM" man nonexistent_xyz 2>&1 | grep -q "no manual page found for 'nonexistent_xyz'" || fail "missing man page diagnostic unclear"
+if "$TAM" man 1 nonexistent_xyz >/dev/null 2>&1; then fail "missing section man page exited 0"; fi
+"$TAM" man 1 nonexistent_xyz 2>&1 | grep -q "in section 1" || fail "missing section diagnostic unclear"
+pass "man subcommand, cross-reference hyperlinking, and error handling"
 
 printf 'All tam command tests passed.\n'

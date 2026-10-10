@@ -242,13 +242,56 @@ static int is_external(const char *href)
            strstr(href, "://") != NULL;
 }
 
+static int match_anchor(const char *haystack, const char *needle)
+{
+    if (haystack == NULL || needle == NULL) {
+        return 0;
+    }
+    size_t nlen = strlen(needle);
+    if (nlen == 0) {
+        return 0;
+    }
+    for (size_t i = 0; haystack[i] != '\0'; i++) {
+        if (strncasecmp(haystack + i, needle, nlen) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
         return;
     }
     if (href[0] == '#') {
-        snprintf(st->msg, sizeof(st->msg), "in-page anchor");
+        const char *target = href + 1;
+        if (target[0] == '\0') {
+            st->top = 0;
+            st->msg[0] = '\0';
+            return;
+        }
+        for (size_t i = 0; i < st->doc->nlines; i++) {
+            for (size_t j = 0; j < st->doc->lines[i].nspans; j++) {
+                if (match_anchor(st->doc->lines[i].spans[j].text, target)) {
+                    st->top = (int)i;
+                    int usable = st->height - 1;
+                    if (usable < 1) {
+                        usable = 1;
+                    }
+                    int max_top = (int)st->doc->nlines - usable;
+                    if (max_top < 0) {
+                        max_top = 0;
+                    }
+                    if (st->top > max_top) {
+                        st->top = max_top;
+                    }
+                    snprintf(st->msg, sizeof(st->msg), "jumped to %s", target);
+                    return;
+                }
+            }
+        }
+        snprintf(st->msg, sizeof(st->msg), "anchor not found: %s", target);
         return;
     }
     if (is_external(href)) {
