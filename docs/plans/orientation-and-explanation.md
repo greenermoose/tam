@@ -135,7 +135,7 @@ tam explain <topic> extra   # error: too many arguments (exit 2)
      - Missing topic or extra arguments exit 2.
 6. **Build & Installation:**
    - Verify `make && make test` pass cleanly with no warnings.
-   - Run `pkexec make -C /home/fred/Code/tamlinux/tam install` to update `/usr/local/bin/tam`.
+   - Run `pkexec make -C <tam checkout> install` to update `/usr/local/bin/tam`.
    - Record decision entry and AI provenance.
 
 ---

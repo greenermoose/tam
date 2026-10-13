@@ -153,7 +153,7 @@ version that shipped at the time; do not rewrite them.
 5. **Engine enhancements, table layout, and dynamic input — done (2026-10-09).**
    Standard input reading (`tam show -`, `tam explain -`), definition lists
    (`<dl>`, `<dt>`, `<dd>`) and space-padded table layout (`<table>`, `<tr>`,
-   `<td>`, `<th>`) landed in `src/render.c` (D133), together with the "Use"
+   `<td>`, `<th>`) landed in `src/render.c`, together with the "Use"
    track pages (tam 0.8.0). A native manual-page subsystem (`src/man.c`) added
    `tam man` and hyperlinked cross-reference traversal (tam 0.9.0); 0.9.1 moved
    development installs under `~/.local/dev` and preferred the binary's own
@@ -201,7 +201,7 @@ plan/apply/verify work follows the product framework.
   the milestone-8 inspector as its oracle and would use opt-in XDG state on the
   `welcome_seen` pattern.
 - **`why` and depth axes, and a computer-science track.** Exploratory ideas; by
-  D133 they follow the "Use" foundation rather than pre-empt it. Not committed
+  Fred's 2026-10-09 priorities they follow the "Use" foundation rather than pre-empt it. Not committed
   scope.
 - **Fuzzy auto-redirect.** Rejected: fuzzy matches are shown, never applied.
 - **Compound shell parsing, `tam ai` hardware estimates, writable settings and
@@ -308,7 +308,7 @@ plan/apply/verify work follows the product framework.
   matching single or double quotes, allowing shell-quoted inputs like `tam explain '|'`
   and `tam explain "|"` (as well as literal quotes `"'|'"`) to resolve cleanly
   to `shell/pipelines.html`. Added pipe symbol `|` to pipelines keywords. Miss diagnostics
-- **2026-10-09:** Knowledge architecture, man page strategy, and priorities (D133).
+- **2026-10-09:** Knowledge architecture, man page strategy, and priorities.
   Fred confirmed: (1) Provide a lightweight `man` wrapper so `man <command>`
   directly opens the hyperlinked `tam` pager; system roff man pages are converted
   to semantic HTML on the fly with cross-references (`SEE ALSO`) transformed into

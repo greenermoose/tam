@@ -23,7 +23,7 @@
 
 > As part of this project, do research on makefiles and the C compiler chain,
 > decide what you will use for developing the tam command, and prepare a report
-> on that for improvements-fred-tamlinux/reports.
+> on that for [redacted: private repository].
 
 > instead of "Tamlinux product" call it "Tamlinux cultivar". In the future, we
 > will give each version of Tamlinux as a whole a cultivar name as well as a
@@ -46,8 +46,7 @@
 - The build uses GNU Make and `cc` (GCC) and links an **installed** `libtam`
   with an rpath for the `/usr/local` development install; the Makefile never
   builds the sibling library. The toolchain rationale and the packaging path
-  for each cultivar are recorded in
-  [`../../../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md`](../../../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md).
+  for each cultivar are recorded in a private research report.
 
 ## Verification
 

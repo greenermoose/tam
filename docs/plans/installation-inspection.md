@@ -177,7 +177,7 @@ Following the repository's modularity guidelines:
    - Golden snapshot verification for `knowledge/install/index.html`.
    - `tam explain inspect` successfully displays the install guide.
 4. **Live Installation:**
-   - `pkexec make -C /home/fred/Code/tamlinux/tam install` to deploy `/usr/local/bin/tam`.
+   - `pkexec make -C <tam checkout> install` to deploy `/usr/local/bin/tam`.
    - Verify `/usr/local/bin/tam install inspect` live on Fred's workstation.
 
 ---

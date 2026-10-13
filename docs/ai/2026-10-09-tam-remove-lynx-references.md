@@ -5,7 +5,7 @@
 - **CLI Tool:** Antigravity CLI (`agy`) 1.3.2
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
-- **Authorship:** Fred asked whether Lynx was still needed given that `tam` parses and displays HTML on its own, whether any code from Lynx was used, and directed removing talk of needing Lynx for `tam` across all related files. Antigravity confirmed that `tam` renders HTML natively with zero external dependencies and uses no code from Lynx, updated all plans, README, and acknowledgements across `tam`, `tamlinux`, and `improvements-fred-tamlinux`, and verified all tests pass.
+- **Authorship:** Fred asked whether Lynx was still needed given that `tam` parses and displays HTML on its own, whether any code from Lynx was used, and directed removing talk of needing Lynx for `tam` across all related files. Antigravity confirmed that `tam` renders HTML natively with zero external dependencies and uses no code from Lynx, updated all plans, README, and acknowledgements across `tam`, `tamlinux`, and private planning notes, and verified all tests pass.
 
 ## Guiding prompts
 
@@ -25,7 +25,7 @@
   - `tamlinux/docs/plans/tamlinux-command.md`: Removed Lynx fallback/dependency text, updated knowledge format, first slice, implementation order, and review record.
   - `tamlinux/docs/botanical-system-architecture.md`: Updated offline documentation description from Lynx rendering to native `tam` rendering.
   - `tamlinux/ACKNOWLEDGEMENTS.md`: Removed Lynx entry and historical Lynx lineage contributors.
-  - `improvements-fred-tamlinux/plans/14-tamlinux-command-and-knowledge-browser.md` & `ideas/tam-offline-knowledge-browser-command.md`: Added implementation status notes recording that native C parsing/paging replaced Lynx.
+  - Private planning notes: added implementation status notes recording that native C parsing/paging replaced Lynx.
 
 ## Verification
 

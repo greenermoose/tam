@@ -38,7 +38,7 @@
   - Updated `print_intro` and `print_help` to document `welcome` and `explain`.
 - **Standing install rule:**
   - Rebuilt and verified clean under `-Wall -Wextra -Wpedantic -std=c11`.
-  - Installed to `/usr/local/bin/tam` via `pkexec make -C /home/fred/Code/tamlinux/tam install`.
+  - Installed to `/usr/local/bin/tam` via `pkexec make -C <tam checkout> install`.
 
 ## Verification
 

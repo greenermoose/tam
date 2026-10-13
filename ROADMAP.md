@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-13. **Owner:** Fred. **Current Command Version:** `0.13.0`.  
-This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md), the [help and self-inspection requirements](https://github.com/greenermoose/tamlinux/blob/develop/improvements-fred-tamlinux/reports/2026-10-12-tam-help-and-self-inspection-requirements.md), and settled design decisions (D53, D118, D129, D131, D133, D138, D139).
+This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
 
@@ -126,7 +126,7 @@ Equip users and developers to optimize performance, eliminate energy waste, conf
 - **Terminal & Editor Ergonomics:**
   - `knowledge/improve/terminal.html`: Fast shell startup; using `micro` with auto-reload when AI agents modify files concurrently (Virtue V11).
 - **Scripting & Tool Conventions:**
-  - `knowledge/improve/scripting.html`: System-wide portable `tam-*` tools vs personal machine `fred-*` scripts (D131), strict Bash headers (`set -euo pipefail`), safe argument handling (`"$@"`).
+  - `knowledge/improve/scripting.html`: System-wide portable `tam-*` tools vs personal machine `fred-*` scripts, strict Bash headers (`set -euo pipefail`), safe argument handling (`"$@"`).
 - **Native Toolchains & Multi-Agent Workflows:**
   - `knowledge/improve/toolchains.html`: Native C compilation (`-O2`, `-march=native`), isolated Git worktrees (`git worktree add`) for concurrent coding agents.
 - **Physics of Local AI Generation:**
@@ -146,7 +146,7 @@ Demystify why Tamlinux is designed the way it is, explaining not only what is in
   - Explain deliberate omissions: why Sway instead of Hyprland (ABI stability), why runit instead of systemd (simplicity and deterministic speed), why native C instead of Electron/Python daemons (resource respect), why zero-polling.
   - Provide self-determination install routes: clear instructions on how users can install excluded packages if they choose.
 - **Public Rationale Projection:**
-  - Build-time tool projecting publishable rationale from project decision records into public-safe documentation, maintaining separation from private logs.
+  - Build-time tool generating the published rationale pages from reviewed decision summaries.
 
 ### Version 0.20.0 — The "Depth" Axis & Computer Science Fundamentals
 Enable users to interrogate their system and descend from observable desktop behavior down to fundamental physics and computer science theory.
