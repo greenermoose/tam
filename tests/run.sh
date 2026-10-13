@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.11.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.12.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -193,6 +193,118 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/knowledge" || fail "interactive pager link navigation failed"
     pass "pager link navigation: Tab forward and Shift-Tab backward circulation"
+
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show")
+os.close(slave)
+
+time.sleep(0.15)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 1024)
+
+def parse_info(buf):
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    if not lines:
+        return ("", "")
+    last = lines[-1].replace(b"\x1b[K", b"").decode("utf-8", "replace")
+    title = last.split("|")[0].strip()
+    target = ""
+    if "->" in last:
+        target = last.split("->")[-1].strip()
+    return (title, target)
+
+def send_and_get_info(key):
+    time.sleep(0.08)
+    while select.select([master], [], [], 0.02)[0]:
+        os.read(master, 1024)
+    os.write(master, key)
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.02)[0]:
+        buf += os.read(master, 1024)
+    return parse_info(buf)
+
+t, tg = parse_info(buf)
+assert t == "tam - the Tamlinux guide" and tg == ""
+
+# 1. At tip of exploration and no link selected: right arrow does nothing
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "tam - the Tamlinux guide" and tg == ""
+
+# 2. Select first link (welcome.html)
+t, tg = send_and_get_info(b"\t")
+assert t == "tam - the Tamlinux guide" and tg == "welcome.html"
+
+# 3. At tip of exploration with link selected: right arrow extends exploration
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "Welcome" and tg == ""
+
+# 4. At new tip with no link selected: right arrow does nothing
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "Welcome" and tg == ""
+
+# 5. Left arrow returns to index.html; no link selected
+t, tg = send_and_get_info(b"\x1b[D")
+assert t == "tam - the Tamlinux guide" and tg == ""
+
+# 6. Arrived via left arrow and no link selected: right arrow proceeds toward tip (welcome.html)
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "Welcome" and tg == ""
+
+# 7. Select a link on welcome.html (desktop/index.html) and follow it
+t, tg = send_and_get_info(b"\t")
+assert tg == "desktop/index.html"
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "The Tamlinux Desktop" and tg == ""
+
+# 8. Multi-step left arrow: back to welcome, then back to index
+t, tg = send_and_get_info(b"\x1b[D")
+assert t == "Welcome"
+t, tg = send_and_get_info(b"\x1b[D")
+assert t == "tam - the Tamlinux guide"
+
+# 9. Multi-step right arrow: forward to welcome, then forward to desktop, then tip (does nothing)
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "Welcome"
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "The Tamlinux Desktop"
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "The Tamlinux Desktop"
+
+# 10. Return to index, then select DIFFERENT link (install/index.html), right arrow extends branch
+t, tg = send_and_get_info(b"\x1b[D")
+assert t == "Welcome"
+t, tg = send_and_get_info(b"\x1b[D")
+assert t == "tam - the Tamlinux guide"
+# Tab twice to select install/index.html
+send_and_get_info(b"\t")
+t, tg = send_and_get_info(b"\t")
+assert tg == "install/index.html"
+# Right arrow extends this branch
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "Installing and maintaining" and tg == ""
+# At tip of new branch: right arrow does nothing
+t, tg = send_and_get_info(b"\x1b[C")
+assert t == "Installing and maintaining" and tg == ""
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/knowledge" || fail "interactive pager forward navigation failed"
+    pass "pager forward navigation: right arrow forward, referring page memory, and branch extension"
 fi
 
 # Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.

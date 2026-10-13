@@ -23,4 +23,5 @@ Human-only commits retain their original authorship.
 | 2026-10-12 | Plan revision: milestones 6–9 (corpus index/search, depth ladder, read-only inspection, opt-in `ask`) | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-12-tam-plan-revision.md) |
 | 2026-10-13 | Corpus index and search 0.10.0 (`search`, `--json`, index, multi-word explain) | Antigravity CLI 1.3.3; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-13-tam-corpus-index-and-search.md) |
 | 2026-10-13 | Backward link circulation 0.11.0 (`Shift-Tab`, status line, UTF-8 safety) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-13-tam-link-navigation-backward.md) |
+| 2026-10-13 | Forward path navigation 0.12.0 (right arrow forward, referring page memory) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-13-tam-right-arrow-forward.md) |
 

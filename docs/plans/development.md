@@ -387,4 +387,13 @@ plan/apply/verify work follows the product framework.
   display-column-aware truncation preventing UTF-8 boundary slicing. Updated
   corpus documentation, man page help text, and test coverage. Version bumped to
   `0.11.0`.
+- **2026-10-13:** Forward path navigation enhancement (tam 0.12.0). Implemented
+  right arrow (`\033[C`) forward navigation along previously visited paths in
+  `src/pager.c`. When arriving at a page using left arrow (`\033[D`) or `u`, the
+  referring page is remembered in a forward navigation stack. If no link is
+  selected, right arrow proceeds forward toward the tip of an exploration. If a
+  link is selected, right arrow follows that link to extend the exploration (or
+  branch off). If at the tip of an exploration with no link selected, right arrow
+  does nothing. Added automated PTY interactive tests in `tests/run.sh`. Version
+  bumped to `0.12.0`.
 

@@ -83,6 +83,8 @@ typedef struct {
     size_t          nlinks;
     char          **history;
     size_t          nhistory;
+    char          **forward;
+    size_t          nforward;
     int             top;
     int             selected;
     int             width;
@@ -260,6 +262,22 @@ static void history_push(pager_t *st, const char *href)
     st->history[st->nhistory++] = strdup(href);
 }
 
+static void forward_push(pager_t *st, const char *href)
+{
+    st->forward = realloc(st->forward, (st->nforward + 1) * sizeof(char *));
+    st->forward[st->nforward++] = strdup(href);
+}
+
+static void forward_clear(pager_t *st)
+{
+    while (st->nforward > 0) {
+        free(st->forward[--st->nforward]);
+    }
+    free(st->forward);
+    st->forward = NULL;
+    st->nforward = 0;
+}
+
 static int is_external(const char *href)
 {
     return strncmp(href, "http:", 5) == 0 || strncmp(href, "https:", 6) == 0 ||
@@ -329,6 +347,7 @@ static void follow(pager_t *st, const char *href)
         return;
     }
     history_push(st, st->cur_href);
+    forward_clear(st);
     free(st->cur_href);
     st->cur_href = strdup(href);
     tam_document_free(st->doc);
@@ -352,8 +371,32 @@ static void go_back(pager_t *st)
         free(prev);
         return;
     }
+    forward_push(st, st->cur_href);
     free(st->cur_href);
     st->cur_href = prev;
+    tam_document_free(st->doc);
+    st->doc = nd;
+    pager_build_links(st);
+    st->top = 0;
+    st->msg[0] = '\0';
+}
+
+static void go_forward(pager_t *st)
+{
+    if (st->nforward == 0) {
+        return;
+    }
+    char *next = st->forward[--st->nforward];
+    tam_document_t *nd = st->load(st->ctx, next);
+    if (nd == NULL) {
+        st->nforward++;
+        snprintf(st->msg, sizeof(st->msg), "cannot open %s", next);
+        free(next);
+        return;
+    }
+    history_push(st, st->cur_href);
+    free(st->cur_href);
+    st->cur_href = next;
     tam_document_free(st->doc);
     st->doc = nd;
     pager_build_links(st);
@@ -501,7 +544,11 @@ static void handle_key(pager_t *st, unsigned char c)
         } else if (strcmp(seq, "B") == 0) {
             st->top++;
         } else if (strcmp(seq, "C") == 0) {
-            follow_selected(st);
+            if (st->selected >= 0) {
+                follow_selected(st);
+            } else if (st->nforward > 0) {
+                go_forward(st);
+            }
         } else if (strcmp(seq, "D") == 0) {
             go_back(st);
         } else if (strcmp(seq, "H") == 0) {
@@ -645,6 +692,10 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         free(st.history[--st.nhistory]);
     }
     free(st.history);
+    while (st.nforward > 0) {
+        free(st.forward[--st.nforward]);
+    }
+    free(st.forward);
     free(st.links);
     free(st.cur_href);
     tam_document_free(st.doc);

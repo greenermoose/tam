@@ -47,10 +47,12 @@ tam install --help    # list installation subcommands
 
 In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`
 scroll a screen, `g`/`G` or `Home`/`End` jump to the top/bottom, `Tab`/`Shift-Tab`
-selects next/previous link, `Enter` or the right arrow follows it, `u` or the left
-arrow goes back, and `q` or `Esc` quits. External links are shown but never fetched,
-so the guide stays offline. The corpus is located via `$TAM_KNOWLEDGE_DIR`, then the
-XDG data directories, then the compiled install prefix.
+selects next/previous link, `Enter` or the right arrow follows it (or the right
+arrow without a selected link proceeds forward along a visited path), `u` or the
+left arrow goes back, and `q` or `Esc` quits. External links are shown but never
+fetched, so the guide stays offline. The corpus is located via
+`$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then the compiled install
+prefix.
 
 The implementation uses C with the separate `libtam` foundation library.
 Command source, bundled guide pages, tests and component documentation live
