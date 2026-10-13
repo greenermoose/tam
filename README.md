@@ -3,13 +3,16 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — command foundation (milestone 1), offline guide
-(milestone 2), orientation/explanation (milestone 3), and installation
-inspection (milestone 4) implemented. Bare introduction, `--help` (also
-`tam help`), `--version`, argument errors, `browse`, `welcome` orientation,
-curated `explain`, and read-only `install inspect` all build in C against the
-separate `libtam` library and install as `tam`. The command is part of
-`tamlinux-packages` and installed on the system.
+**Stage:** Develop — milestones 1–5 implemented at 0.9.1: command foundation,
+offline guide, orientation/explanation, installation inspection, and engine
+enhancements (tables, definition lists, standard input, and `tam man`). Bare
+introduction, `--help` (also `tam help`), `--version`, argument errors,
+`show`, `welcome` orientation, curated `explain`, `man`, and read-only
+`install inspect` all build in C against the separate `libtam` library and
+install as `tam`. The command is part of `tamlinux-packages` and installed on
+the system. Milestones 6–9 (corpus index and `search`, a depth ladder,
+read-only self-inspection, and an opt-in grounded `ask`) are planned in the
+[development plan](docs/plans/development.md).
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline

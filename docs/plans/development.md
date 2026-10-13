@@ -1,9 +1,13 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–4 (command foundation, offline guide,
-orientation and explanation, installation inspection) implemented. The
-executable builds in C against an installed `libtam` and installs as `tam`,
-rendering the bundled guide itself.
+**Stage:** Develop — milestones 1–5 (command foundation, offline guide,
+orientation and explanation, installation inspection, engine enhancements)
+implemented; the command is at 0.9.1. The executable builds in C against an
+installed `libtam`, installs as `tam`, and renders the bundled guide itself.
+Milestones 6–9 (corpus-driven lookup and `search`, a content-depth ladder,
+read-only self-inspection, and an opt-in grounded `ask`) are **planned** from
+the 2026-10-12 `tam` help and self-inspection requirements; they are not yet
+implemented.
 
 ## Purpose and ownership
 
@@ -17,23 +21,50 @@ framework. Existing component tools retain their owners; document or call them
 through deliberate subcommand contracts rather than moving every `tam-*`
 helper into this repository.
 
-## First command contract
+The corpus's journey spine is the three tracks — **Use**, **Maintain** and
+**Improve** — while lookup for people who already know the word is a separate,
+cross-cutting topic index plus a search surface (the two-axis model). The
+2026-10-12 `tam` help and self-inspection requirements are the authority for
+milestones 6–9 below. The private decision ledger remains authoritative for the
+reasoning; this repository carries the public, publishable projection. The
+`why`/depth axes and a computer-science track are exploratory ideas only and are
+listed under [Excluded and deferred work](#excluded-and-deferred-work).
 
-| Invocation | Behavior |
-| --- | --- |
-| `tam` | Concise introduction and starting points; exit 0 without launching a browser or writing state. |
-| `tam --help` | Concise usage and implemented commands; works without guide data or cultivar metadata. `tam help` is the same invocation. |
-| `tam --version` | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
-| `tam show` | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. (Replaces `tam browse`; `browse` remains supported as an explain topic). |
-| `tam welcome` | Explicit orientation; record welcome only after successful display. |
-| `tam explain <topic>` | Match curated local topics; clear miss message and useful next step. Never execute topic input. |
-| `tam install inspect` | Read-only host facts and recognized installation capabilities, through the product installation contract. |
+## Command contract
+
+| Invocation | Status | Behavior |
+| --- | --- | --- |
+| `tam` | Implemented | Concise introduction and starting points; exit 0 without launching a pager or writing state. |
+| `tam --help` | Implemented | Concise usage and implemented commands; works without guide data or cultivar metadata. `tam help` is the same invocation. |
+| `tam --version` | Implemented | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
+| `tam show [PAGE]` | Implemented | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. Preserves path-based semantics and does not consult the topic index. (Replaces `tam browse`; `browse` remains an explain topic.) |
+| `tam welcome` | Implemented | Explicit orientation; record welcome only after successful display. |
+| `tam explain <topic>` | Implemented | Match curated local topics; clear miss message and useful next step. Never execute topic input. From milestone 6, multi-word queries resolve through `tam search`. |
+| `tam man [SECTION] PAGE` | Implemented | System manual page, converted from roff to semantic HTML with hyperlinked cross-references; a surface separate from the corpus. |
+| `tam install inspect` | Implemented | Read-only host facts and recognized installation capabilities. Grows into the read-only findings layer at milestone 8. |
+| `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
+| `tam search [--json] TERM...` | Planned (milestone 6) | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
+| `tam ask <question>` | Planned (milestone 9) | Opt-in, grounded question answering over the corpus with mandatory citations; never starts a daemon. |
 
 `--pipe` explicitly requests text. Redirected output contains no terminal
-controls or browser prompts. Bare `tam`, `show`, help, version and install
-inspection never write welcome state. Successful explicit `welcome` uses
-`$XDG_STATE_HOME/tamlinux/welcome_seen`, falling back to
+controls or browser prompts. Bare `tam`, `show`, `search`, help, version and
+installation inspection never write welcome state. Successful explicit
+`welcome` uses `$XDG_STATE_HOME/tamlinux/welcome_seen`, falling back to
 `~/.local/state/tamlinux/welcome_seen`.
+
+## Offline identity and the `ask` boundary
+
+`tam` is offline by default: it parses and displays its bundled corpus with no
+network access, no daemon and no mandatory external dependency, and it emits no
+terminal controls when piped. Milestone 9 adds one deliberate, opt-in exception.
+`tam ask` is grounded in the corpus and cited, talks only to an
+already-running local inference server, and never starts, bundles or embeds a
+daemon or model. It reaches the network only after interactive consent that
+discloses the URL, size and expected hash (verified on download). Under `--pipe`
+or any non-interactive invocation it errors instead of fetching. The core binary
+stays offline and dependency-free; the optional model runtime remains external
+and user-controlled. This boundary is recorded here deliberately, as the one
+place where the offline default is amended.
 
 ## Implementation and packaging
 
@@ -48,6 +79,14 @@ Start with the guide index, welcome, installation overview, shell pipelines
 and man-page basics. Keep HTML/text parity checked as the corpus grows.
 Verified component behavior supplies later plugin and AI pages.
 
+Author topic metadata in the pages themselves and project it into a small
+corpus index artifact at build time: each page declares a title, a one-line
+summary and its keywords, plus authoring-only level, track and prerequisites.
+The index is the single lookup authority for `search` and `explain`; it replaces
+the hand-written keyword table in `src/tam.c` and keeps the existing aliases and
+the explain catalog as projections of that one source. The index must load once
+and hold the existing startup budget.
+
 Resolve knowledge and cultivar metadata through packaging configuration,
 with documented development overrides. Do not assume one fixed `/usr/share`
 path or a sibling source checkout at runtime. Support staged installation
@@ -59,6 +98,16 @@ The guide is self-contained. Interactive browsing uses the built-in terminal
 pager directly; `tam` parses and displays the bundled HTML natively without
 requiring an external browser or pager. Local guides open without fetching
 network content or requiring external tools.
+
+Read-only self-inspection runs fixed external tools, never user commands, inside
+a bounded envelope: `LC_ALL=C`, pager and colour neutralised, a short timeout,
+captured standard streams and never an attached terminal; structured output is
+preferred and parseable text is read under a stable contract. Findings carry a
+severity, the evidence that produced them and a link into corpus help.
+Privileged reads use `pkexec` only when it is present, with absolute paths, and
+otherwise degrade to the non-privileged subset with a truthful warning; never an
+interactive `sudo`. The opt-in `ask` surface talks to an already-running local
+server and bundles no model or daemon.
 
 ## Versioning
 
@@ -102,15 +151,62 @@ version that shipped at the time; do not rewrite them.
    package tool detection, and recognized installation capabilities in C.
    See the [installation inspection plan](installation-inspection.md).
    Later installer plan/apply/verify operations remain deliberately unimplemented.
-5. **Engine enhancements, table layout, and dynamic input (milestone 5 — planned).**
-   Add standard input reading (`tam show -`), definition lists (`<dl>`, `<dt>`,
-   `<dd>`) and space-padded table layout (`<table>`, `<tr>`, `<td>`, `<th>`) to
-   `src/render.c` (D133). Prioritize the "Use" track first in the knowledge corpus.
-   Prepare for dynamic hyperlinked man page traversal.
+5. **Engine enhancements, table layout, and dynamic input — done (2026-10-09).**
+   Standard input reading (`tam show -`, `tam explain -`), definition lists
+   (`<dl>`, `<dt>`, `<dd>`) and space-padded table layout (`<table>`, `<tr>`,
+   `<td>`, `<th>`) landed in `src/render.c` (D133), together with the "Use"
+   track pages (tam 0.8.0). A native manual-page subsystem (`src/man.c`) added
+   `tam man` and hyperlinked cross-reference traversal (tam 0.9.0); 0.9.1 moved
+   development installs under `~/.local/dev` and preferred the binary's own
+   corpus.
+6. **Corpus index and search — planned.** Replace the hand-written keyword table
+   (`src/tam.c`) with a corpus index generated from page metadata, keeping the
+   existing aliases as its first coverage. Add `tam search [--json] TERM...` as
+   the single search verb: retrieval is alias → field-weighted word score →
+   substring, with a bounded, *shown* "did you mean" and a miss banner that
+   lists the top candidates with their reopen commands and offers `tam man
+   <query>` where appropriate. Fuzzy matches are suggestions, never an
+   auto-redirect. `tam explain` keeps single-topic semantics and resolves
+   multi-word queries through search.
+7. **Content-depth ladder and fading templates — planned.** Give each curated
+   topic a reader-selected depth: **Beginner** (one worked, annotated example
+   with expected output), **Intermediate** (example plus a completion task) and
+   **Expert** (terse reference with links to `man`). Depth metadata is
+   authoring-only until the ladder is wired; example-first, linked pages are the
+   discipline across the corpus. This formalises the existing
+   `explain` → `show` → `man` progression.
+8. **Read-only self-inspection findings and check contract — planned.** Grow
+   `tam install inspect` into a read-only findings layer: one versioned finding
+   model (id, severity, evidence, link to help) and a check contract
+   (`{task_id, pass, fail, evidence, source, schema_version}`) that the deferred
+   progression system can later use as its offline assessment oracle. Findings
+   deep-link into Maintain-track help. No repair, no telemetry, no daemon.
+9. **Opt-in grounded `ask` — planned.** Add `tam ask <question>`: retrieval over
+   the corpus index with mandatory citations, fallback to `tam search` when no
+   model is available, and the offline-by-default boundary described above.
 
-The first slice can develop independently of desktop migration. Later
-installer plan/apply/verify work follows the product framework. Compound
-shell parsing, AI estimates and writable settings retain separate scope.
+Milestones 6–9 derive from the 2026-10-12 `tam` help and self-inspection
+requirements. The reasoning still belongs in the private decision ledger; this
+plan is the public projection and is revised when those decisions are recorded.
+
+The first slice developed independently of desktop migration. Later installer
+plan/apply/verify work follows the product framework.
+
+## Excluded and deferred work
+
+- **Installer `plan`/`apply`/`verify`.** Follows the product installation
+  framework; still deliberately unimplemented here.
+- **Stateful progression UI (`tam learn`).** Design only for now; it depends on
+  the milestone-8 inspector as its oracle and would use opt-in XDG state on the
+  `welcome_seen` pattern.
+- **`why` and depth axes, and a computer-science track.** Exploratory ideas; by
+  D133 they follow the "Use" foundation rather than pre-empt it. Not committed
+  scope.
+- **Fuzzy auto-redirect.** Rejected: fuzzy matches are shown, never applied.
+- **Compound shell parsing, `tam ai` hardware estimates, writable settings and
+  localisation.** Separate scope, each with its own review.
+- **External browser or pager.** Dropped: the native renderer and pager are
+  self-sufficient with zero external dependencies.
 
 ## Acceptance evidence
 
@@ -125,6 +221,18 @@ shell parsing, AI estimates and writable settings retain separate scope.
 - Compile with warnings enabled and run focused command/integration tests
   and sanitizer checks. Measure startup, binary size and memory before
   describing performance targets as achieved.
+- `tam search "change file owner"` reaches the permissions page from a
+  canonical query set; a miss prints the bounded candidate banner and exits 1;
+  a fuzzy match is shown, never auto-opened. The corpus index and the explain
+  catalog derive from one source and stay consistent, and the existing aliases
+  remain covered.
+- `tam explain` resolves a curated topic and treats shell-looking input as data;
+  multi-word queries resolve through search.
+- Self-inspection emits machine-readable findings, never executes user
+  commands, and degrades truthfully with a warning when `pkexec` is absent.
+- `tam ask` cites corpus pages when a local model answers, refuses with the
+  documented message under `--pipe`, and never fetches or starts a server
+  without interactive consent.
 
 ## Decision record
 
@@ -243,7 +351,18 @@ shell parsing, AI estimates and writable settings retain separate scope.
   packaged builds report the plain version. The build is redone when `PREFIX` or
   other embedded configuration changes, and `make install` replaces the installed
   corpus instead of merging into it.
-
-
-
+- **2026-10-12:** Plan revised for the second generation of work (milestones
+  6–9). Following the `tam` help and self-inspection research and requirements
+  (T32), the plan now commits to (6) a corpus index replacing the hand-written
+  keyword table plus `tam search` as the single search verb, (7) a
+  content-depth ladder with fading templates, (8) a read-only self-inspection
+  findings layer and check contract, and (9) an opt-in, grounded `ask` surface.
+  The strictly-offline identity is amended deliberately and opt-in only: `ask`
+  never bundles or starts a daemon and fetches only under interactive consent.
+  `tam search` supersedes the `tam explain search` variant in
+  [explain-topic-scaling.md](explain-topic-scaling.md), and corpus-driven
+  metadata (its Phase 5) is promoted from last to first. The `why`/depth axes
+  and a computer-science track remain exploratory and are explicitly excluded.
+  This revision is a proposal for Fred's review; the underlying design decisions
+  are recorded in the private ledger when accepted.
 

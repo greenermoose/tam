@@ -3,6 +3,16 @@
 **Stage:** Plan & Reference. Companion to [orientation and explanation](orientation-and-explanation.md)
 and [development plan](development.md).
 
+> **Revised in part (2026-10-12).** Milestones 6–9 of the
+> [development plan](development.md) supersede parts of this roadmap. The single
+> search verb is now **`tam search`**, not Phase 4's `tam explain search`
+> (the naming clash is settled in favour of `search`), and the corpus-driven
+> metadata of Phase 5 is promoted from last to first (milestone 6's corpus
+> index). Phase 2's domain grouping remains useful for bare `tam explain`, but
+> it is no longer the primary scaling answer; the index and search carry that
+> load. Read the rest of this document as the historical rationale for the
+> pre-index design.
+
 ## 1. Context and Problem Statement
 
 `tam explain <topic>` provides offline, terminal-based explanations of Tamlinux
@@ -85,10 +95,12 @@ Phase 5: Extensible Architecture       → Corpus-driven metadata + shell comple
 - **Behavior:**
   - **Keyword Search:**
     ```sh
-    tam explain search <term>     # searches topic names, summaries, and aliases
-    tam explain --search <term>   # equivalent search flag
+    tam search <term>     # searches topic names, summaries, and aliases
     ```
-    Behaves like a fast, local `apropos` for the Tamlinux knowledge base.
+    Behaves like a fast, local `apropos` for the Tamlinux knowledge base. The
+    earlier `tam explain search <term>` / `tam explain --search <term>` spellings
+    are **superseded**: `tam search` is the single search verb (milestone 6).
+    Fuzzy matching is shown as a bounded suggestion, never an auto-redirect.
   - **Intelligent Miss Handling ("Did you mean?"):**
     When `tam explain <query>` does not find an exact match:
     - Computes Levenshtein edit distance and substring matching against the topic catalog.
@@ -105,6 +117,9 @@ Phase 5: Extensible Architecture       → Corpus-driven metadata + shell comple
   - **Disambiguation:** If a query matches multiple topics partially, presents a concise list of candidate topics with invocation hints.
 
 ### Phase 5: Corpus-Driven Metadata & Shell Auto-Completion
+- **Promoted (2026-10-12):** corpus-driven metadata is now milestone 6's corpus
+  index, the first step of the new sequence, not the last. Shell completions
+  remain future work.
 - **Problem:** Hardcoding topic tables in `src/tam.c` requires recompilation for documentation updates and separates content from code.
 - **Architecture:**
   - **Metadata in Knowledge Pages:**
