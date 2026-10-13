@@ -3,7 +3,7 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — milestones 1–6 implemented at 0.10.0: command foundation,
+**Stage:** Develop — milestones 1–6 implemented at 0.11.0: command foundation,
 offline guide, orientation/explanation, installation inspection, engine
 enhancements, and corpus index and search (`tam search`). Bare introduction,
 `--help` (also `tam help`), `--version`, argument errors, `show`, `welcome`
@@ -46,11 +46,11 @@ tam install --help    # list installation subcommands
 ```
 
 In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`
-scroll a screen, `g`/`G` or `Home`/`End` jump to the top/bottom, `Tab` selects
-a link, `Enter` or the right arrow follows it, `u` or the left arrow goes back,
-and `q` or `Esc` quits. External links are shown but never fetched, so the guide
-stays offline. The corpus is located via `$TAM_KNOWLEDGE_DIR`, then the XDG data
-directories, then the compiled install prefix.
+scroll a screen, `g`/`G` or `Home`/`End` jump to the top/bottom, `Tab`/`Shift-Tab`
+selects next/previous link, `Enter` or the right arrow follows it, `u` or the left
+arrow goes back, and `q` or `Esc` quits. External links are shown but never fetched,
+so the guide stays offline. The corpus is located via `$TAM_KNOWLEDGE_DIR`, then the
+XDG data directories, then the compiled install prefix.
 
 The implementation uses C with the separate `libtam` foundation library.
 Command source, bundled guide pages, tests and component documentation live

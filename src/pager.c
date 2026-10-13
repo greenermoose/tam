@@ -171,6 +171,34 @@ static void emit_line(const tam_line_t *line, int width,
     }
 }
 
+static size_t status_byte_limit(const char *s, int max_cols)
+{
+    if (max_cols <= 0) {
+        return 0;
+    }
+    int cols = 0;
+    size_t i = 0;
+    while (s[i] != '\0') {
+        unsigned char c = (unsigned char)s[i];
+        size_t clen = 1;
+        if ((c & 0x80) == 0) {
+            clen = 1;
+        } else if ((c & 0xE0) == 0xC0) {
+            clen = 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            clen = 3;
+        } else if ((c & 0xF8) == 0xF0) {
+            clen = 4;
+        }
+        if (cols + 1 > max_cols) {
+            break;
+        }
+        cols++;
+        i += clen;
+    }
+    return i;
+}
+
 static void draw(pager_t *st)
 {
     st->width = tam_terminal_width();
@@ -207,7 +235,7 @@ static void draw(pager_t *st)
     char status[512];
     const char *title = st->doc->title ? st->doc->title : "tam";
     int off = snprintf(status, sizeof(status),
-                       " %s  |  %d/%zu  |  Tab link  Enter/\xe2\x86\x92 open  "
+                       " %s  |  %d/%zu  |  Tab/S-Tab link  Enter/\xe2\x86\x92 open  "
                        "u/\xe2\x86\x90 back  q/Esc quit",
                        title, st->top + 1, st->doc->nlines);
     if (st->msg[0] != '\0') {
@@ -222,10 +250,7 @@ static void draw(pager_t *st)
     char pos[32];
     int pl = snprintf(pos, sizeof(pos), "\033[%d;1H\033[K", st->height);
     outn(pos, (size_t)pl);
-    size_t slen = strlen(status);
-    if ((int)slen > st->width) {
-        slen = (size_t)st->width;
-    }
+    size_t slen = status_byte_limit(status, st->width);
     outn(status, slen);
 }
 
@@ -453,17 +478,21 @@ static void handle_key(pager_t *st, unsigned char c)
             g_stop = 1;
             return;
         }
+        if (c1 == '\t') {
+            select_next_link(st, -1);
+            return;
+        }
         if (c1 != '[') {
             return;
         }
-        char seq[8];
+        char seq[16];
         size_t n = 0;
         unsigned char c2;
         while (n < sizeof(seq) - 1 && read_byte(st->input_fd, 60, &c2) == 1) {
             seq[n++] = (char)c2;
             if ((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') ||
                 c2 == '~') {
-            break;
+                break;
             }
         }
         seq[n] = '\0';
@@ -483,6 +512,9 @@ static void handle_key(pager_t *st, unsigned char c)
             st->top -= usable;
         } else if (strcmp(seq, "6~") == 0) {
             st->top += usable;
+        } else if (strcmp(seq, "Z") == 0 || strcmp(seq, "1;2Z") == 0 ||
+                   strcmp(seq, "9;2u") == 0 || strcmp(seq, "27;2;9~") == 0) {
+            select_next_link(st, -1);
         }
         break;
     }

@@ -331,7 +331,7 @@ static void print_man_help(void)
         "  tam man systemd.unit      view systemd.unit(5) configuration\n"
         "  tam man grep --pipe       pipe manual page text\n\n"
         "Cross-references (such as in SEE ALSO) are rendered as live links.\n"
-        "Press Tab to select links and Enter to follow them.\n",
+        "Press Tab/Shift-Tab to select links and Enter to follow them.\n",
         stdout);
 }
 

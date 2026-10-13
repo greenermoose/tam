@@ -2,7 +2,7 @@
 
 **Stage:** Develop — milestones 1–6 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
-corpus index and search) implemented; the command is at 0.10.0. The executable
+corpus index and search) and backward link circulation implemented; the command is at 0.11.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself. Milestones 7–9 (a content-depth ladder, read-only
 self-inspection, and an opt-in grounded `ask`) are **planned** from
@@ -379,4 +379,12 @@ plan/apply/verify work follows the product framework.
   HTML parser in `src/render.c` now skips quoted attribute values when detecting
   closing tag delimiters. Development build installed under `~/.local/dev`.
   Command version bumped to `0.10.0`.
+- **2026-10-13:** Link navigation enhancement (tam 0.11.0). Implemented
+  `Shift-Tab` in `src/pager.c` to circulate backward among links (standard ANSI
+  CSI Z / CBT sequence `\033[Z`, plus CSI `1;2Z`, Kitty `9;2u`, modifyOtherKeys
+  `27;2;9~`, and Alt-Tab `\033\t`), complementing `Tab` forward navigation and
+  retaining `N` as a fallback. Pager status line updated to `Tab/S-Tab link` with
+  display-column-aware truncation preventing UTF-8 boundary slicing. Updated
+  corpus documentation, man page help text, and test coverage. Version bumped to
+  `0.11.0`.
 

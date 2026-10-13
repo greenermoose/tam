@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.10.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.11.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -132,6 +132,68 @@ printf '%s\n' "$sh_stdin" | grep -q 'Foo   Bar' || fail "tam show - failed to re
 if "$TAM" browse >/dev/null 2>&1; then fail "tam browse unexpectedly succeeded"; fi
 "$TAM" browse 2>&1 | grep -q "unrecognized argument 'browse'" || fail "tam browse missing unrecognized argument message"
 pass "show subcommand and retired browse subcommand"
+
+# Pager link navigation: Tab advances forward, Shift-Tab and N circulate backward
+if python3 -c 'import pty' >/dev/null 2>&1; then
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show")
+os.close(slave)
+
+def send_and_get_target(key):
+    time.sleep(0.08)
+    while select.select([master], [], [], 0.02)[0]:
+        os.read(master, 1024)
+    os.write(master, key)
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.02)[0]:
+        buf += os.read(master, 1024)
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+    if not lines:
+        return ""
+    return lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace")
+
+time.sleep(0.15)
+# 1. Tab forward selects first link
+t1 = send_and_get_target(b"\t")
+assert t1 == "welcome.html", f"expected welcome.html, got {t1}"
+# 2. Tab forward selects second link
+t2 = send_and_get_target(b"\t")
+assert t2 == "install/index.html", f"expected install/index.html, got {t2}"
+# 3. Shift-Tab (ANSI CSI Z) circulates backward
+t3 = send_and_get_target(b"\x1b[Z")
+assert t3 == "welcome.html", f"expected welcome.html, got {t3}"
+# 4. Shift-Tab from first link wraps backward to last link
+t4 = send_and_get_target(b"\x1b[Z")
+assert t4 == "man/index.html", f"expected man/index.html, got {t4}"
+# 5. Shift-Tab variants (CSI 1;2Z, Kitty 9;2u, modifyOtherKeys 27;2;9~, N fallback)
+t5 = send_and_get_target(b"\x1b[1;2Z")
+assert t5 == "hardware/resources.html", f"expected hardware/resources.html, got {t5}"
+t6 = send_and_get_target(b"\x1b[9;2u")
+assert t6 == "desktop/workspaces.html", f"expected desktop/workspaces.html, got {t6}"
+t7 = send_and_get_target(b"\x1b[27;2;9~")
+assert t7 == "desktop/index.html", f"expected desktop/index.html, got {t7}"
+t8 = send_and_get_target(b"N")
+assert t8 == "filesystem/permissions.html", f"expected filesystem/permissions.html, got {t8}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/knowledge" || fail "interactive pager link navigation failed"
+    pass "pager link navigation: Tab forward and Shift-Tab backward circulation"
+fi
 
 # Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.
 ex_out=$("$TAM" explain pipelines --pipe)
