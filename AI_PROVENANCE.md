@@ -25,4 +25,5 @@ Human-only commits retain their original authorship.
 | 2026-10-13 | Backward link circulation 0.11.0 (`Shift-Tab`, status line, UTF-8 safety) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-13-tam-link-navigation-backward.md) |
 | 2026-10-13 | Forward path navigation 0.12.0 (right arrow forward, referring page memory) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-13-tam-right-arrow-forward.md) |
 | 2026-10-13 | Hyperlink display fixes 0.13.0 (no leading-space underline, multiline wrapped continuation highlight) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-13-tam-hyperlink-display-fixes.md) |
+| 2026-10-13 | Command and repository roadmap (next steps 0.14.0/0.15.0 through future 1.3.0) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-13-tam-command-roadmap.md) |
 
