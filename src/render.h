@@ -17,6 +17,7 @@ typedef struct {
     char    *text;
     unsigned style;
     char    *href; /* NULL unless TAM_STYLE_LINK */
+    int      link_id; /* Unique identifier per <a> tag, or 0 if unlinked */
 } tam_span_t;
 
 /* A single visual line: an ordered list of styled spans. A line with no spans

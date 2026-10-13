@@ -2,7 +2,7 @@
 
 **Stage:** Develop — milestones 1–6 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
-corpus index and search) and backward link circulation implemented; the command is at 0.11.0. The executable
+corpus index and search), link navigation, and hyperlink display fixes implemented; the command is at 0.13.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself. Milestones 7–9 (a content-depth ladder, read-only
 self-inspection, and an opt-in grounded `ask`) are **planned** from
@@ -396,4 +396,16 @@ plan/apply/verify work follows the product framework.
   branch off). If at the tip of an exploration with no link selected, right arrow
   does nothing. Added automated PTY interactive tests in `tests/run.sh`. Version
   bumped to `0.12.0`.
+- **2026-10-13:** Hyperlink display fixes (tam 0.13.0). Fixed two bugs in how
+  hyperlinks are displayed: (1) Do not underline the first space in a hyperlink;
+  start the underline (and selected highlight) with the first non-space character.
+  (2) A hyperlink that wraps lines is treated as a single hyperlink rather than two
+  separate hyperlinks, highlighting the continuation of the hyperlinked text on the
+  next line rather than ending highlighting at the line break. Tagged each `<a>`
+  anchor instance with a unique `link_id` in `src/render.c` and `src/render.h`.
+  In `src/pager.c`, merged contiguous link spans sharing `link_id` into a single
+  link entry, highlighted all lines of a wrapped hyperlink when selected, and
+  skipped leading whitespace in `emit_line` when applying underline or reverse
+  video styling. Added automated PTY tests in `tests/run.sh`. Version bumped to
+  `0.13.0`.
 

@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.12.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.13.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -305,7 +305,76 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/knowledge" || fail "interactive pager forward navigation failed"
     pass "pager forward navigation: right arrow forward, referring page memory, and branch extension"
+
+    # Hyperlink display: no leading-space underline; multiline wrapped links are single links with continuation highlight
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 150, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "welcome")
+os.close(slave)
+
+time.sleep(0.15)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+
+# 1. No unselected hyperlink underlines the leading space; underline starts with first non-space character
+assert b"\x1b[4;34m " not in buf, "unselected link underlines leading space"
+
+# 2. Tab selects wrapped link (desktop/index.html) and highlights both line 1 and line 2 continuation
+os.write(master, b"\t")
+time.sleep(0.08)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+
+lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+assert target == "desktop/index.html", f"expected desktop/index.html, got {target}"
+assert b"\x1b[7;1mthe" in buf, "line 1 of wrapped link not highlighted"
+assert b"\x1b[7;1mdesktop guide" in buf, "line 2 continuation of wrapped link not highlighted"
+assert b"\x1b[7;1m " not in buf, "leading space before wrapped link must not be highlighted"
+
+# 3. Tab advances to next link (shell/index.html) — wrapped link was a single link, not two
+os.write(master, b"\t")
+time.sleep(0.08)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+
+lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+assert target == "shell/index.html", f"expected shell/index.html, got {target}"
+
+# 4. Shift-Tab wraps/returns back to the wrapped link, highlighting both lines
+os.write(master, b"\x1b[Z")
+time.sleep(0.08)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+
+lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+assert target == "desktop/index.html", f"expected desktop/index.html, got {target}"
+assert b"\x1b[7;1mthe" in buf and b"\x1b[7;1mdesktop guide" in buf
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/knowledge" || fail "hyperlink display test failed"
+    pass "pager hyperlink display: leading-space underline prevention and wrapped link continuation highlight"
 fi
+
 
 # Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.
 ex_out=$("$TAM" explain pipelines --pipe)

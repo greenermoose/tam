@@ -75,7 +75,7 @@ typedef struct {
 /* ------------------------------------------------------------------------- */
 
 static int spanlist_append(spanlist_t *l, const char *text, size_t len,
-                           unsigned style, const char *href)
+                           unsigned style, const char *href, int link_id)
 {
     if (len == 0) {
         return 0;
@@ -85,7 +85,8 @@ static int spanlist_append(spanlist_t *l, const char *text, size_t len,
         int same_href = (last->href == NULL && href == NULL) ||
                         (last->href != NULL && href != NULL &&
                          strcmp(last->href, href) == 0);
-        if (last->style == style && same_href) {
+        int same_link = (last->link_id == link_id);
+        if (last->style == style && same_href && same_link) {
             size_t old = strlen(last->text);
             char *nt = realloc(last->text, old + len + 1);
             if (nt == NULL) {
@@ -116,6 +117,7 @@ static int spanlist_append(spanlist_t *l, const char *text, size_t len,
     s->text[len] = '\0';
     s->style = style;
     s->href = href ? strdup(href) : NULL;
+    s->link_id = link_id;
     return 0;
 }
 
@@ -420,6 +422,8 @@ typedef struct {
 
     unsigned   style;
     char      *href;
+    int        link_id;
+    int        next_link_id;
 
     listctx_t *lists;
     size_t     nlists;
@@ -529,7 +533,8 @@ static void parser_add_text(parser_t *p, const char *s, size_t n)
         if (!p->has_block) {
             parser_begin_block(p, B_PRE, 0, 0, 0);
         }
-        spanlist_append(&p->runs, dec, dl, p->style | TAM_STYLE_CODE, p->href);
+        spanlist_append(&p->runs, dec, dl, p->style | TAM_STYLE_CODE, p->href,
+                        p->link_id);
         free(dec);
         return;
     }
@@ -555,9 +560,9 @@ static void parser_add_text(parser_t *p, const char *s, size_t n)
         if (isspace((unsigned char)dec[i])) {
             if (i > start) {
                 spanlist_append(&p->runs, dec + start, i - start, p->style,
-                                p->href);
+                                p->href, p->link_id);
             }
-            spanlist_append(&p->runs, " ", 1, p->style, p->href);
+            spanlist_append(&p->runs, " ", 1, p->style, p->href, p->link_id);
             while (i + 1 < dl && isspace((unsigned char)dec[i + 1])) {
                 i++;
             }
@@ -566,7 +571,8 @@ static void parser_add_text(parser_t *p, const char *s, size_t n)
         i++;
     }
     if (dl > start) {
-        spanlist_append(&p->runs, dec + start, dl - start, p->style, p->href);
+        spanlist_append(&p->runs, dec + start, dl - start, p->style, p->href,
+                        p->link_id);
     }
     free(dec);
 }
@@ -612,14 +618,17 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
             p->style &= ~TAM_STYLE_LINK;
             free(p->href);
             p->href = NULL;
+            p->link_id = 0;
         } else {
             char *h = extract_attr(s, end, "href");
             free(p->href);
             p->href = h;
             if (h != NULL) {
                 p->style |= TAM_STYLE_LINK;
+                p->link_id = ++p->next_link_id;
             } else {
                 p->style &= ~TAM_STYLE_LINK;
+                p->link_id = 0;
             }
         }
         return;
@@ -660,7 +669,7 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
     }
     if (strcmp(name, "br") == 0) {
         if (p->has_block) {
-            spanlist_append(&p->runs, "\n", 1, p->style, p->href);
+            spanlist_append(&p->runs, "\n", 1, p->style, p->href, p->link_id);
         }
         return;
     }
@@ -897,13 +906,13 @@ static void start_line(spanlist_t *line, const char *prefix, size_t lead,
 {
     spanlist_init(line);
     if (first) {
-        spanlist_append(line, prefix, lead, 0, NULL);
+        spanlist_append(line, prefix, lead, 0, NULL, 0);
         return;
     }
     char sp[160];
     size_t m = lead < sizeof(sp) ? lead : sizeof(sp) - 1;
     memset(sp, ' ', m);
-    spanlist_append(line, sp, m, 0, NULL);
+    spanlist_append(line, sp, m, 0, NULL, 0);
 }
 
 static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
@@ -950,10 +959,12 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                 sep = 0;
             }
             if (sep) {
-                spanlist_append(&line, " ", 1, runs[r].style, runs[r].href);
+                spanlist_append(&line, " ", 1, runs[r].style, runs[r].href,
+                                runs[r].link_id);
                 col++;
             }
-            spanlist_append(&line, t + ws, wl, runs[r].style, runs[r].href);
+            spanlist_append(&line, t + ws, wl, runs[r].style, runs[r].href,
+                            runs[r].link_id);
             col += (int)wl;
         }
     }
@@ -964,7 +975,7 @@ static void layout_pre(linelist_t *out, const tam_span_t *runs, size_t nruns)
 {
     spanlist_t line;
     spanlist_init(&line);
-    spanlist_append(&line, "  ", 2, 0, NULL);
+    spanlist_append(&line, "  ", 2, 0, NULL, 0);
 
     for (size_t r = 0; r < nruns; r++) {
         const char *t = runs[r].text;
@@ -974,14 +985,14 @@ static void layout_pre(linelist_t *out, const tam_span_t *runs, size_t nruns)
             if (i == tl || t[i] == '\n') {
                 if (i > start) {
                     spanlist_append(&line, t + start, i - start, runs[r].style,
-                                    runs[r].href);
+                                    runs[r].href, runs[r].link_id);
                 }
                 if (i == tl) {
                     break;
                 }
                 linelist_push(out, &line);
                 spanlist_init(&line);
-                spanlist_append(&line, "  ", 2, 0, NULL);
+                spanlist_append(&line, "  ", 2, 0, NULL, 0);
                 start = i + 1;
             }
         }
@@ -1075,10 +1086,12 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                 sep = 0;
             }
             if (sep) {
-                spanlist_append(&cur, " ", 1, cell->runs[r].style, cell->runs[r].href);
+                spanlist_append(&cur, " ", 1, cell->runs[r].style, cell->runs[r].href,
+                                cell->runs[r].link_id);
                 col++;
             }
-            spanlist_append(&cur, t + ws, wl, cell->runs[r].style, cell->runs[r].href);
+            spanlist_append(&cur, t + ws, wl, cell->runs[r].style, cell->runs[r].href,
+                            cell->runs[r].link_id);
             col += (int)wl;
         }
     }
@@ -1166,7 +1179,7 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
                     for (size_t k = 0; k < sub->n; k++) {
                         spanlist_append(&line, sub->v[k].text,
                                         strlen(sub->v[k].text), sub->v[k].style,
-                                        sub->v[k].href);
+                                        sub->v[k].href, sub->v[k].link_id);
                         printed_w += (int)strlen(sub->v[k].text);
                     }
                 }
@@ -1176,10 +1189,10 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
                     size_t m = (size_t)pad < sizeof(sp) ? (size_t)pad : sizeof(sp) - 1;
                     memset(sp, ' ', m);
                     sp[m] = '\0';
-                    spanlist_append(&line, sp, m, 0, NULL);
+                    spanlist_append(&line, sp, m, 0, NULL, 0);
                 }
                 if (c + 1 < ncols) {
-                    spanlist_append(&line, "  ", 2, 0, NULL);
+                    spanlist_append(&line, "  ", 2, 0, NULL, 0);
                 }
             }
             linelist_push(out, &line);
@@ -1205,11 +1218,11 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
                 if (dash_buf != NULL) {
                     memset(dash_buf, '-', (size_t)dashes);
                     dash_buf[dashes] = '\0';
-                    spanlist_append(&sepline, dash_buf, (size_t)dashes, 0, NULL);
+                    spanlist_append(&sepline, dash_buf, (size_t)dashes, 0, NULL, 0);
                     free(dash_buf);
                 }
                 if (c + 1 < ncols) {
-                    spanlist_append(&sepline, "  ", 2, 0, NULL);
+                    spanlist_append(&sepline, "  ", 2, 0, NULL, 0);
                 }
             }
             linelist_push(out, &sepline);
@@ -1248,7 +1261,7 @@ static void layout_document(const blocklist_t *blocks, int width,
             char *dash = malloc((size_t)n + 1);
             memset(dash, '-', (size_t)n);
             dash[n] = '\0';
-            spanlist_append(&l, dash, (size_t)n, 0, NULL);
+            spanlist_append(&l, dash, (size_t)n, 0, NULL, 0);
             free(dash);
             linelist_push(out, &l);
             continue;

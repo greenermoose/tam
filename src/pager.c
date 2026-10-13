@@ -3,6 +3,7 @@
 #include "pager.h"
 #include "render.h"
 
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -72,8 +73,11 @@ static void outn(const char *s, size_t n)
 }
 
 typedef struct {
+    int               link_id;
+    const char       *href;
+    size_t            line_start;
+    size_t            line_end;
     const tam_span_t *span;
-    size_t            line;
 } linkref_t;
 
 typedef struct {
@@ -108,20 +112,37 @@ static void pager_build_links(pager_t *st)
             if (sp->href == NULL) {
                 continue;
             }
+            if (st->nlinks > 0) {
+                linkref_t *prev = &st->links[st->nlinks - 1];
+                int is_same = 0;
+                if (sp->link_id > 0 && prev->link_id > 0) {
+                    is_same = (sp->link_id == prev->link_id);
+                } else if (prev->href != NULL && strcmp(prev->href, sp->href) == 0 &&
+                           i <= prev->line_end + 1) {
+                    is_same = 1;
+                }
+                if (is_same) {
+                    prev->line_end = i;
+                    continue;
+                }
+            }
             st->links = realloc(st->links, (st->nlinks + 1) * sizeof(*st->links));
+            st->links[st->nlinks].link_id = sp->link_id;
+            st->links[st->nlinks].href = sp->href;
+            st->links[st->nlinks].line_start = i;
+            st->links[st->nlinks].line_end = i;
             st->links[st->nlinks].span = sp;
-            st->links[st->nlinks].line = i;
             st->nlinks++;
         }
     }
 }
 
-static const tam_span_t *selected_span(const pager_t *st)
+static const linkref_t *selected_link(const pager_t *st)
 {
     if (st->selected < 0 || (size_t)st->selected >= st->nlinks) {
         return NULL;
     }
-    return st->links[st->selected].span;
+    return &st->links[st->selected];
 }
 
 static int emit_style(const tam_span_t *sp, int is_sel)
@@ -155,20 +176,55 @@ static int emit_style(const tam_span_t *sp, int is_sel)
 }
 
 static void emit_line(const tam_line_t *line, int width,
-                      const tam_span_t *sel)
+                      const linkref_t *sel)
 {
     int col = 0;
     for (size_t j = 0; j < line->nspans && col < width; j++) {
         const tam_span_t *sp = &line->spans[j];
-        int styled = emit_style(sp, sp == sel);
+        int is_link = (sp->href != NULL);
+        int is_sel = 0;
+        if (is_link && sel != NULL) {
+            if (sp->link_id > 0 && sel->link_id > 0) {
+                is_sel = (sp->link_id == sel->link_id);
+            } else if (sel->href != NULL && strcmp(sp->href, sel->href) == 0) {
+                is_sel = 1;
+            }
+        }
+
         const char *t = sp->text;
         size_t tl = strlen(t);
-        for (size_t k = 0; k < tl && col < width; k++) {
-            outn(t + k, 1);
-            col++;
-        }
-        if (styled) {
-            out("\033[0m");
+
+        if (is_link) {
+            /* 1) Do not underline the first space in a hyperlink.
+             * Start the underline with the first non-space character.
+             * Also for selected hyperlinks, start the highlight with
+             * the first non-space character. */
+            size_t k = 0;
+            while (k < tl && isspace((unsigned char)t[k]) && col < width) {
+                outn(t + k, 1);
+                col++;
+                k++;
+            }
+            if (k < tl && col < width) {
+                int styled = emit_style(sp, is_sel);
+                while (k < tl && col < width) {
+                    outn(t + k, 1);
+                    col++;
+                    k++;
+                }
+                if (styled) {
+                    out("\033[0m");
+                }
+            }
+        } else {
+            int styled = emit_style(sp, 0);
+            for (size_t k = 0; k < tl && col < width; k++) {
+                outn(t + k, 1);
+                col++;
+            }
+            if (styled) {
+                out("\033[0m");
+            }
         }
     }
 }
@@ -223,7 +279,7 @@ static void draw(pager_t *st)
     }
 
     out("\033[2J\033[H");
-    const tam_span_t *sel = selected_span(st);
+    const linkref_t *sel = selected_link(st);
     for (int row = 0; row < usable; row++) {
         int li = st->top + row;
         if (li < (int)st->doc->nlines) {
@@ -423,19 +479,28 @@ static void select_next_link(pager_t *st, int dir)
     if (usable < 1) {
         usable = 1;
     }
-    size_t l = st->links[st->selected].line;
-    if ((int)l < st->top) {
-        st->top = (int)l;
-    } else if ((int)l >= st->top + usable) {
-        st->top = (int)l - usable + 1;
+    size_t l_start = st->links[st->selected].line_start;
+    size_t l_end = st->links[st->selected].line_end;
+    if (dir > 0) {
+        if ((int)l_start < st->top) {
+            st->top = (int)l_start;
+        } else if ((int)l_end >= st->top + usable) {
+            st->top = (int)l_end - usable + 1;
+        }
+    } else {
+        if ((int)l_start < st->top) {
+            st->top = (int)l_start;
+        } else if ((int)l_start >= st->top + usable) {
+            st->top = (int)l_start - usable + 1;
+        }
     }
     st->msg[0] = '\0';
 }
 
 static void follow_selected(pager_t *st)
 {
-    const tam_span_t *sel = selected_span(st);
-    if (sel != NULL) {
+    const linkref_t *sel = selected_link(st);
+    if (sel != NULL && sel->href != NULL) {
         follow(st, sel->href);
     }
 }
@@ -570,7 +635,7 @@ static void handle_key(pager_t *st, unsigned char c)
             int idx = c - '1';
             if ((size_t)idx < st->nlinks) {
                 st->selected = idx;
-                follow(st, st->links[idx].span->href);
+                follow(st, st->links[idx].href);
             }
         }
         break;
