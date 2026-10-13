@@ -130,8 +130,7 @@ version that shipped at the time; do not rewrite them.
 
 1. **Command foundation — done (2026-10-09).** Bare introduction, help,
    version and argument errors are implemented; the build links an installed
-   `libtam` (see
-   [the toolchain report](../../../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md)).
+   `libtam`.
    `--version` reads the installed cultivar version from
    `$XDG_CONFIG_HOME/tamlinux/version` (falling back to
    `~/.config/tamlinux/version`), then `$TAMLINUX_VERSION`, and reports
@@ -248,9 +247,7 @@ plan/apply/verify work follows the product framework.
   builds with GNU Make and `cc` (GCC) against an installed `libtam 0.1.0`,
   dynamically linked with an rpath for the `/usr/local` development install.
   `tests/run.sh` checks bare/help/version behavior, no-state, cultivar-version
-  resolution, control-sequence-free piped output and argument errors. Toolchain
-  options and the packaging path are recorded in
-  [`2026-10-09-tam-c-toolchain-and-build.md`](../../../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md).
+  resolution, control-sequence-free piped output and argument errors.
 - **2026-10-09:** The Tamlinux version reported by `--version` is labelled
   **"Tamlinux cultivar"**. Fred: "In the future, we will give each version of
   Tamlinux as a whole a cultivar name as well as a version number. There is no

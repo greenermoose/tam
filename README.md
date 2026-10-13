@@ -119,9 +119,7 @@ sudo make install  # or: pkexec make install
 Override `LIBTAM_PREFIX` if the library lives outside `PREFIX`; `PREFIX` and
 `DESTDIR` support staged installation. See
 [`docs/plans/development.md`](docs/plans/development.md) for the command
-contract and
-[`../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md`](../improvements-fred-tamlinux/reports/2026-10-09-tam-c-toolchain-and-build.md)
-for the toolchain rationale.
+contract.
 
 ## License and authorship
 
