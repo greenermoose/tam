@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.9.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.10.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -104,6 +104,7 @@ env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" --version >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain pipelines --pipe >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain nonexistent >/dev/null 2>&1 || true
+env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" search pipelines >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install inspect >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install --help >/dev/null
@@ -111,7 +112,7 @@ env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" man --help >/dev/nul
 if [ -e "$iso_state/tamlinux/welcome_seen" ]; then
     fail "isolated commands wrote welcome_seen state"
 fi
-pass "state isolation: bare, show, help, version, explain, install, man do not touch welcome_seen"
+pass "state isolation: bare, show, help, version, search, explain, install, man do not touch welcome_seen"
 
 # Show command: displays guide index or page; browse subcommand is retired.
 sh_out=$("$TAM" show --pipe)
@@ -200,12 +201,13 @@ printf '%s\n' "$ex_pipe_list" | grep -q 'Available topics:' || fail "explain --p
 [ "$("$TAM" explain --help)" = "$ex_list" ] || fail "explain --help differs from bare explain"
 [ "$("$TAM" explain -h)" = "$ex_list" ] || fail "explain -h differs from bare explain"
 
-if "$TAM" explain pipelines extra >/dev/null 2>&1; then fail "explain with extra args exited 0"; fi
-"$TAM" explain pipelines extra 2>&1 | grep -qi 'too many' || fail "no message for extra args"
+# Multi-word explain resolves via search fallback path.
+ex_multi=$("$TAM" explain cpu load --pipe)
+printf '%s\n' "$ex_multi" | grep -q 'System Resources' || fail "explain cpu load failed"
 
 # Unmatched topic: clear diagnostic and reference to show.
 if "$TAM" explain no_such_topic >/dev/null 2>&1; then fail "unmatched topic exited 0"; fi
-"$TAM" explain no_such_topic 2>&1 | grep -q "no explanation found for 'no_such_topic'" \
+"$TAM" explain no_such_topic 2>&1 | grep -q "no topic found for 'no_such_topic'" \
     || fail "missing clear miss diagnostic"
 "$TAM" explain no_such_topic 2>&1 | grep -q "tam show" \
     || fail "miss diagnostic does not point to tam show"
@@ -214,9 +216,48 @@ if "$TAM" explain no_such_topic >/dev/null 2>&1; then fail "unmatched topic exit
 if "$TAM" explain 'cat foo | grep bar; rm -rf /' >/dev/null 2>&1; then
     fail "shell string topic unexpectedly exited 0"
 fi
-"$TAM" explain 'cat foo | grep bar; rm -rf /' 2>&1 | grep -q "no explanation found for 'cat foo | grep bar; rm -rf /'" \
+"$TAM" explain 'cat foo | grep bar; rm -rf /' 2>&1 | grep -q "no topic found for 'cat foo | grep bar; rm -rf /'" \
     || fail "shell metacharacters not treated as plain query data"
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"
+
+# Search command: ranked search over corpus index, json output, canonical queries, and miss banner.
+"$TAM" search >/dev/null || fail "bare search failed"
+"$TAM" search --help | grep -q 'Usage:' || fail "search --help missing usage"
+
+# Canonical query: "change file owner" -> permissions page
+s_owner=$("$TAM" search "change file owner")
+printf '%s\n' "$s_owner" | grep -q 'permissions' || fail "search 'change file owner' missing permissions topic"
+printf '%s\n' "$s_owner" | grep -q 'filesystem/permissions.html' || fail "search 'change file owner' missing permissions page"
+
+# JSON output
+s_json=$("$TAM" search --json "change file owner")
+printf '%s\n' "$s_json" | grep -q '"topic": "permissions"' || fail "search --json missing topic field"
+printf '%s\n' "$s_json" | grep -q '"page": "filesystem/permissions.html"' || fail "search --json missing page field"
+
+# Piped plain text has no escapes
+if "$TAM" search --pipe "change file owner" | grep -q "$esc"; then
+    fail "search piped output contains escape sequences"
+fi
+
+# Canonical queries from research/prototype
+"$TAM" search "pipe output to grep" | grep -q 'pipelines' || fail "search 'pipe output to grep' failed"
+"$TAM" search "redirect stderr" | grep -q 'pipelines' || fail "search 'redirect stderr' failed"
+"$TAM" search "background a process" | grep -q 'jobs' || fail "search 'background a process' failed"
+"$TAM" search "what is /etc" | grep -q 'filesystem' || fail "search 'what is /etc' failed"
+"$TAM" search "check disk space" | grep -q 'resources' || fail "search 'check disk space' failed"
+"$TAM" search "multi monitor" | grep -q 'workspaces' || fail "search 'multi monitor' failed"
+"$TAM" search "man pages" | grep -q 'man' || fail "search 'man pages' failed"
+
+# Out-of-corpus query produces clear miss banner and exits 1 (no auto-redirect)
+if "$TAM" search cron >/dev/null 2>&1; then fail "search cron unexpectedly exited 0"; fi
+"$TAM" search cron 2>&1 | grep -q "no topic found for 'cron'" || fail "search cron missing clear miss message"
+"$TAM" search cron 2>&1 | grep -q "Top candidates:" || fail "search cron missing candidate banner"
+"$TAM" search cron 2>&1 | grep -q "tam show" || fail "search cron missing tam show pointer"
+
+# Bounded did-you-mean for typo
+"$TAM" search permisions 2>&1 | grep -qi "Did you mean" || fail "search typo missing Did you mean"
+
+pass "search subcommand, corpus index retrieval, json output, and canonical query set"
 
 # Install command: bare overview, help, inspect, unimplemented verbs, and error handling.
 "$TAM" install | grep -q 'Usage:' || fail "bare install missing usage"

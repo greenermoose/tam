@@ -855,7 +855,22 @@ static void parser_parse(parser_t *p, const char *src, size_t n)
                 i = f ? (size_t)(f - src) + 3 : n;
                 continue;
             }
-            const char *g = memchr(src + i, '>', n - i);
+            const char *g = NULL;
+            int in_quote = 0;
+            char qchar = 0;
+            for (size_t k = i + 1; k < n; k++) {
+                if (in_quote) {
+                    if (src[k] == qchar) {
+                        in_quote = 0;
+                    }
+                } else if (src[k] == '"' || src[k] == '\'') {
+                    in_quote = 1;
+                    qchar = src[k];
+                } else if (src[k] == '>') {
+                    g = src + k;
+                    break;
+                }
+            }
             if (g == NULL) {
                 parser_add_text(p, src + i, 1);
                 i++;

@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "index.h"
 #include "install.h"
 #include "man.h"
 #include "pager.h"
@@ -117,6 +118,7 @@ static void print_intro(void)
         "Get started:\n"
         "  tam welcome          open the welcome orientation\n"
         "  tam show             open the offline guide\n"
+        "  tam search TERM...   search the offline guide\n"
         "  tam explain [TOPIC]  explain a topic or list available topics\n"
         "  tam install inspect  inspect host and installation capabilities\n"
         "  tam --help           list options and where to begin\n"
@@ -135,6 +137,9 @@ static void print_help(void)
         "  tam show PAGE        open a guide page (e.g. welcome, man, shell/pipelines)\n"
         "  tam show -           render HTML from standard input\n"
         "  tam show --pipe      print the guide as plain text\n"
+        "  tam search TERM...   search the guide for topics or keywords\n"
+        "  tam search --json TERM...  output search results as JSON\n"
+        "  tam search --pipe TERM...  print search results as plain text\n"
         "  tam welcome          open the welcome orientation\n"
         "  tam welcome --pipe   print the welcome orientation as plain text\n"
         "  tam explain          list available explanation topics\n"
@@ -148,8 +153,8 @@ static void print_help(void)
         "  tam install inspect  inspect host and installation capabilities\n"
         "  tam --help           show this help and exit (same as: tam help)\n"
         "  tam --version        show version information and exit\n\n"
-        "This build implements orientation, explanation, the offline guide,\n"
-        "manual page hyperlinking, and installation inspection.\n",
+        "This build implements orientation, explanation, corpus search,\n"
+        "the offline guide, manual page hyperlinking, and installation inspection.\n",
         stdout);
 }
 
@@ -597,258 +602,59 @@ static int cmd_welcome(int n, char **args)
     return rc;
 }
 
-typedef struct {
-    const char *keyword;
-    const char *target_page;
-} topic_mapping_t;
-
-static const topic_mapping_t TOPIC_MAP[] = {
-    /* Welcome & orientation */
-    { "welcome",        "welcome.html" },
-    { "orientation",    "welcome.html" },
-
-    /* Install & maintenance */
-    { "install",        "install/index.html" },
-    { "installation",   "install/index.html" },
-    { "inspect",        "install/index.html" },
-    { "inspection",     "install/index.html" },
-    { "maintain",       "install/index.html" },
-    { "maintaining",    "install/index.html" },
-    { "maintenance",    "install/index.html" },
-    { "update",         "install/index.html" },
-    { "updates",        "install/index.html" },
-    { "recovery",       "install/index.html" },
-    { "layers",         "install/index.html" },
-
-    /* Shell & streams */
-    { "shell",          "shell/index.html" },
-    { "streams",        "shell/index.html" },
-    { "stdin",          "shell/index.html" },
-    { "stdout",         "shell/index.html" },
-    { "stderr",         "shell/index.html" },
-    { "sh",             "shell/index.html" },
-    { "bash",           "shell/index.html" },
-    { "fish",           "shell/index.html" },
-
-    /* Shell pipelines & redirection */
-    { "pipelines",      "shell/pipelines.html" },
-    { "pipeline",       "shell/pipelines.html" },
-    { "pipe",           "shell/pipelines.html" },
-    { "pipes",          "shell/pipelines.html" },
-    { "redirection",    "shell/pipelines.html" },
-    { "redirect",       "shell/pipelines.html" },
-    { "|",              "shell/pipelines.html" },
-    { ">",              "shell/pipelines.html" },
-    { ">>",             "shell/pipelines.html" },
-    { "2>&1",           "shell/pipelines.html" },
-    { "<",              "shell/pipelines.html" },
-    { "grep",           "shell/pipelines.html" },
-    { "ps",             "shell/pipelines.html" },
-    { "wc",             "shell/pipelines.html" },
-    { "cat",            "shell/pipelines.html" },
-
-    /* Processes, jobs, and signals */
-    { "jobs",           "shell/jobs.html" },
-    { "job",            "shell/jobs.html" },
-    { "process",        "shell/jobs.html" },
-    { "processes",      "shell/jobs.html" },
-    { "signal",         "shell/jobs.html" },
-    { "signals",        "shell/jobs.html" },
-    { "fg",             "shell/jobs.html" },
-    { "bg",             "shell/jobs.html" },
-    { "disown",         "shell/jobs.html" },
-    { "kill",           "shell/jobs.html" },
-    { "pkill",          "shell/jobs.html" },
-    { "pgrep",          "shell/jobs.html" },
-    { "top",            "shell/jobs.html" },
-    { "htop",           "shell/jobs.html" },
-    { "sigint",         "shell/jobs.html" },
-    { "sigterm",        "shell/jobs.html" },
-    { "sigkill",        "shell/jobs.html" },
-
-    /* Filesystem & hierarchy */
-    { "filesystem",     "filesystem/index.html" },
-    { "files",          "filesystem/index.html" },
-    { "hierarchy",      "filesystem/index.html" },
-    { "directories",    "filesystem/index.html" },
-    { "proc",           "filesystem/index.html" },
-    { "sys",            "filesystem/index.html" },
-    { "etc",            "filesystem/index.html" },
-    { "usr",            "filesystem/index.html" },
-    { "var",            "filesystem/index.html" },
-    { "fhs",            "filesystem/index.html" },
-
-    /* Permissions and ownership */
-    { "permissions",    "filesystem/permissions.html" },
-    { "permission",     "filesystem/permissions.html" },
-    { "chmod",          "filesystem/permissions.html" },
-    { "chown",          "filesystem/permissions.html" },
-    { "umask",          "filesystem/permissions.html" },
-    { "links",          "filesystem/permissions.html" },
-    { "symlink",        "filesystem/permissions.html" },
-    { "symlinks",       "filesystem/permissions.html" },
-    { "hardlink",       "filesystem/permissions.html" },
-    { "rwx",            "filesystem/permissions.html" },
-
-    /* Desktop and window manager */
-    { "desktop",        "desktop/index.html" },
-    { "hyprland",       "desktop/index.html" },
-    { "sway",           "desktop/index.html" },
-    { "wayland",        "desktop/index.html" },
-    { "tiling",         "desktop/index.html" },
-    { "hotkeys",        "desktop/index.html" },
-    { "shortcuts",      "desktop/index.html" },
-    { "keys",           "desktop/index.html" },
-    { "keybindings",    "desktop/index.html" },
-
-    /* Workspaces */
-    { "workspaces",     "desktop/workspaces.html" },
-    { "workspace",      "desktop/workspaces.html" },
-    { "monitors",       "desktop/workspaces.html" },
-    { "displays",       "desktop/workspaces.html" },
-    { "scratchpad",     "desktop/workspaces.html" },
-
-    /* Resources and performance */
-    { "resources",      "hardware/resources.html" },
-    { "resource",       "hardware/resources.html" },
-    { "hardware",       "hardware/resources.html" },
-    { "memory",         "hardware/resources.html" },
-    { "ram",            "hardware/resources.html" },
-    { "cpu",            "hardware/resources.html" },
-    { "load",           "hardware/resources.html" },
-    { "swap",           "hardware/resources.html" },
-    { "zram",           "hardware/resources.html" },
-    { "disk",           "hardware/resources.html" },
-    { "df",             "hardware/resources.html" },
-    { "free",           "hardware/resources.html" },
-    { "performance",    "hardware/resources.html" },
-
-    /* Man pages */
-    { "man",            "man/index.html" },
-    { "manual",         "man/index.html" },
-    { "manuals",        "man/index.html" },
-    { "apropos",        "man/index.html" },
-    { "whatis",         "man/index.html" },
-
-    /* Guide index */
-    { "guide",          "index.html" },
-    { "index",          "index.html" },
-    { "show",           "index.html" },
-    { "browse",         "index.html" },
-
-    { NULL, NULL }
-};
-
-static const char *match_curated_topic(const char *topic)
-{
-    if (topic == NULL || topic[0] == '\0') {
-        return NULL;
-    }
-    char buf[256];
-    size_t len = strlen(topic);
-    if (len >= sizeof(buf)) {
-        return NULL;
-    }
-    memcpy(buf, topic, len + 1);
-
-    /* Strip matching outer quotes ('...' or "...") */
-    while (len >= 2 && ((buf[0] == '\'' && buf[len - 1] == '\'') ||
-                        (buf[0] == '"' && buf[len - 1] == '"'))) {
-        memmove(buf, buf + 1, len - 2);
-        buf[len - 2] = '\0';
-        len -= 2;
-    }
-
-    if (len == 0) {
-        return NULL;
-    }
-
-    for (size_t i = 0; TOPIC_MAP[i].keyword != NULL; i++) {
-        if (strcasecmp(buf, TOPIC_MAP[i].keyword) == 0) {
-            return TOPIC_MAP[i].target_page;
-        }
-    }
-    return NULL;
-}
-
-static void print_explain_topics(void)
-{
-    fputs(
-        "tam explain - explain a curated topic or concept\n\n"
-        "Usage:\n"
-        "  tam explain TOPIC           explain a topic in the terminal\n"
-        "  tam explain TOPIC --pipe    print topic explanation as plain text\n"
-        "  tam explain -               read topic keyword from standard input\n\n"
-        "Available topics:\n"
-        "  welcome      Tamlinux welcome and orientation\n"
-        "               Keywords: welcome, orientation\n"
-        "  install      System installation, inspection, and maintenance\n"
-        "               Keywords: install, installation, inspect, inspection,\n"
-        "                         layers, maintain, maintaining, maintenance,\n"
-        "                         recovery, update, updates\n"
-        "  shell        Unix philosophy, standard streams, and execution\n"
-        "               Keywords: shell, streams, stdin, stdout, stderr,\n"
-        "                         sh, bash, fish\n"
-        "  pipelines    Shell pipelines, redirection, and core filters\n"
-        "               Keywords: pipelines, pipeline, pipe, pipes,\n"
-        "                         redirection, redirect, |, >, >>, <, 2>&1,\n"
-        "                         cat, grep, ps, wc\n"
-        "  jobs         Process lifecycle, background jobs, and signals\n"
-        "               Keywords: jobs, job, process, processes, signals,\n"
-        "                         signal, fg, bg, disown, kill, pkill, pgrep,\n"
-        "                         top, htop, sigint, sigterm, sigkill\n"
-        "  filesystem   Linux filesystem hierarchy (/etc, /home, /proc, /sys)\n"
-        "               Keywords: filesystem, files, hierarchy, directories,\n"
-        "                         proc, sys, etc, usr, var, fhs\n"
-        "  permissions  File permissions, ownership, and links\n"
-        "               Keywords: permissions, permission, chmod, chown,\n"
-        "                         umask, links, symlink, symlinks, hardlink, rwx\n"
-        "  desktop      Tiling window manager basics and keyboard flow\n"
-        "               Keywords: desktop, hyprland, sway, wayland, tiling,\n"
-        "                         hotkeys, shortcuts, keys, keybindings\n"
-        "  workspaces   Synchronized workspace sets and multi-display layout\n"
-        "               Keywords: workspaces, workspace, monitors, displays,\n"
-        "                         scratchpad\n"
-        "  resources    Memory (Free vs Available), ZRAM swap, CPU load, and disk\n"
-        "               Keywords: resources, resource, hardware, memory, ram,\n"
-        "                         cpu, load, swap, zram, disk, df, free, performance\n"
-        "  man          Manual pages and system documentation\n"
-        "               Keywords: man, manual, manuals, apropos, whatis\n"
-        "  guide        Offline guide overview and index\n"
-        "               Keywords: guide, index, show, browse\n\n"
-        "Run 'tam explain <topic>' to view an explanation.\n"
-        "Run 'tam show' to open the offline guide.\n",
-        stdout);
-}
-
 static int cmd_explain(int n, char **args)
 {
     int pipe = 0;
-    const char *topic = NULL;
+    int from_stdin = 0;
+    char stdin_topic[512] = {0};
+    char query_buf[512] = {0};
+    size_t qlen = 0;
 
     for (int i = 0; i < n; i++) {
         if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
             pipe = 1;
         } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
-            print_explain_topics();
+            char *root = find_knowledge_root();
+            if (root == NULL) {
+                fprintf(stderr,
+                        TAM_COMMAND_NAME ": no offline guide installed "
+                        "(set TAM_KNOWLEDGE_DIR to a knowledge directory)\n");
+                return TAM_EXIT_FAILURE;
+            }
+            tam_index_t *idx = tam_index_load(root);
+            if (idx == NULL) {
+                fprintf(stderr, TAM_COMMAND_NAME ": failed to load guide index\n");
+                free(root);
+                return TAM_EXIT_FAILURE;
+            }
+            tam_index_print_catalog(stdout, idx);
+            tam_index_free(idx);
+            free(root);
             return 0;
         } else if (strcmp(args[i], "-") == 0) {
-            if (topic == NULL) {
-                topic = "-";
-            } else {
+            if (from_stdin || qlen > 0) {
                 return too_many_arguments();
             }
+            from_stdin = 1;
         } else if (args[i][0] == '-') {
             return usage_error(args[i]);
-        } else if (topic == NULL) {
-            topic = args[i];
         } else {
-            return too_many_arguments();
+            if (from_stdin) {
+                return too_many_arguments();
+            }
+            if (qlen > 0 && qlen + 1 < sizeof(query_buf)) {
+                query_buf[qlen++] = ' ';
+            }
+            size_t alen = strlen(args[i]);
+            if (qlen + alen < sizeof(query_buf)) {
+                memcpy(query_buf + qlen, args[i], alen);
+                qlen += alen;
+                query_buf[qlen] = '\0';
+            }
         }
     }
 
-    char stdin_topic[256];
-    if (topic != NULL && strcmp(topic, "-") == 0) {
+    if (from_stdin) {
         if (fgets(stdin_topic, sizeof(stdin_topic), stdin) == NULL) {
             fprintf(stderr, TAM_COMMAND_NAME ": failed to read topic from standard input\n");
             return TAM_EXIT_FAILURE;
@@ -858,21 +664,8 @@ static int cmd_explain(int n, char **args)
                             stdin_topic[slen - 1] == ' ' || stdin_topic[slen - 1] == '\t')) {
             stdin_topic[--slen] = '\0';
         }
-        topic = stdin_topic;
-    }
-
-    if (topic == NULL || strcmp(topic, "help") == 0) {
-        print_explain_topics();
-        return 0;
-    }
-
-    const char *target = match_curated_topic(topic);
-    if (target == NULL) {
-        fprintf(stderr,
-                TAM_COMMAND_NAME ": no explanation found for '%s'\n"
-                "Run '%s explain' to see available topics, or '%s show' to explore the offline guide.\n",
-                topic, TAM_COMMAND_NAME, TAM_COMMAND_NAME);
-        return TAM_EXIT_FAILURE;
+        snprintf(query_buf, sizeof(query_buf), "%s", stdin_topic);
+        qlen = strlen(query_buf);
     }
 
     char *root = find_knowledge_root();
@@ -883,9 +676,146 @@ static int cmd_explain(int n, char **args)
         return TAM_EXIT_FAILURE;
     }
 
-    int rc = view_knowledge_page(root, target, pipe);
+    tam_index_t *idx = tam_index_load(root);
+    if (idx == NULL) {
+        fprintf(stderr, TAM_COMMAND_NAME ": failed to load guide index\n");
+        free(root);
+        return TAM_EXIT_FAILURE;
+    }
+
+    if (qlen == 0 || strcmp(query_buf, "help") == 0) {
+        tam_index_print_catalog(stdout, idx);
+        tam_index_free(idx);
+        free(root);
+        return 0;
+    }
+
+    /* 1. Exact alias lookup */
+    const tam_index_entry_t *entry = tam_index_lookup_alias(idx, query_buf);
+    if (entry != NULL) {
+        int rc = view_knowledge_page(root, entry->path, pipe);
+        tam_index_free(idx);
+        free(root);
+        return rc;
+    }
+
+    /* 2. Multi-word / fuzzy search fallback (if not containing command separator ;) */
+    if (strchr(query_buf, ';') == NULL) {
+        tam_search_result_t results[8];
+        size_t found = tam_index_search(idx, query_buf, results, 8);
+        if (found > 0 && results[0].score > 0) {
+            int rc = view_knowledge_page(root, results[0].entry->path, pipe);
+            tam_index_free(idx);
+            free(root);
+            return rc;
+        }
+    }
+
+    /* 3. Miss banner */
+    tam_index_print_miss(stderr, idx, query_buf);
+    tam_index_free(idx);
     free(root);
-    return rc;
+    return TAM_EXIT_FAILURE;
+}
+
+static int cmd_search(int n, char **args)
+{
+    int json_mode = 0;
+    char query_buf[512] = {0};
+    size_t qlen = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
+            /* Piped plain text mode is the default when outputting text */
+        } else if (strcmp(args[i], "--json") == 0) {
+            json_mode = 1;
+        } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
+            fputs(
+                "tam search - search the Tamlinux offline guide\n\n"
+                "Usage:\n"
+                "  tam search TERM...         search the guide for topics or keywords\n"
+                "  tam search --json TERM...  output search results as JSON\n"
+                "  tam search --pipe TERM...  print search results as plain text\n",
+                stdout);
+            return 0;
+        } else if (args[i][0] == '-') {
+            return usage_error(args[i]);
+        } else {
+            if (qlen > 0 && qlen + 1 < sizeof(query_buf)) {
+                query_buf[qlen++] = ' ';
+            }
+            size_t alen = strlen(args[i]);
+            if (qlen + alen < sizeof(query_buf)) {
+                memcpy(query_buf + qlen, args[i], alen);
+                qlen += alen;
+                query_buf[qlen] = '\0';
+            }
+        }
+    }
+
+    if (qlen == 0) {
+        fputs(
+            "tam search - search the Tamlinux offline guide\n\n"
+            "Usage:\n"
+            "  tam search TERM...         search the guide for topics or keywords\n"
+            "  tam search --json TERM...  output search results as JSON\n"
+            "  tam search --pipe TERM...  print search results as plain text\n",
+            stdout);
+        return 0;
+    }
+
+    char *root = find_knowledge_root();
+    if (root == NULL) {
+        fprintf(stderr,
+                TAM_COMMAND_NAME ": no offline guide installed "
+                "(set TAM_KNOWLEDGE_DIR to a knowledge directory)\n");
+        return TAM_EXIT_FAILURE;
+    }
+
+    tam_index_t *idx = tam_index_load(root);
+    if (idx == NULL) {
+        fprintf(stderr, TAM_COMMAND_NAME ": failed to load guide index\n");
+        free(root);
+        return TAM_EXIT_FAILURE;
+    }
+
+    tam_search_result_t results[32];
+    size_t found = tam_index_search(idx, query_buf, results, 32);
+
+    if (found == 0 || results[0].score <= 0) {
+        tam_index_print_miss(stderr, idx, query_buf);
+        tam_index_free(idx);
+        free(root);
+        return TAM_EXIT_FAILURE;
+    }
+
+    if (json_mode) {
+        printf("[\n");
+        for (size_t i = 0; i < found; i++) {
+            const tam_index_entry_t *e = results[i].entry;
+            printf("  {\n");
+            printf("    \"topic\": \"%s\",\n", e->topic);
+            printf("    \"page\": \"%s\",\n", e->path);
+            printf("    \"title\": \"%s\",\n", e->title);
+            printf("    \"summary\": \"%s\",\n", e->summary);
+            printf("    \"score\": %d\n", results[i].score);
+            printf("  }%s\n", (i + 1 < found) ? "," : "");
+        }
+        printf("]\n");
+    } else {
+        printf("tam search - search the Tamlinux guide\n\n");
+        printf("Matches for '%s':\n", query_buf);
+        for (size_t i = 0; i < found; i++) {
+            const tam_index_entry_t *e = results[i].entry;
+            printf("  %-12s %s (%s)\n", e->topic, e->title, e->path);
+            printf("               %s\n", e->summary);
+        }
+        printf("\nRun 'tam explain <topic>' or 'tam show <page>' to view.\n");
+    }
+
+    tam_index_free(idx);
+    free(root);
+    return 0;
 }
 
 int main(int argc, char **argv)
@@ -916,6 +846,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "welcome") == 0) {
         return cmd_welcome(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "search") == 0) {
+        return cmd_search(argc - 2, argv + 2);
     }
     if (strcmp(arg, "explain") == 0) {
         return cmd_explain(argc - 2, argv + 2);

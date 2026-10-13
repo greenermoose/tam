@@ -1,11 +1,11 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–5 (command foundation, offline guide,
-orientation and explanation, installation inspection, engine enhancements)
-implemented; the command is at 0.9.1. The executable builds in C against an
-installed `libtam`, installs as `tam`, and renders the bundled guide itself.
-Milestones 6–9 (corpus-driven lookup and `search`, a content-depth ladder,
-read-only self-inspection, and an opt-in grounded `ask`) are **planned** from
+**Stage:** Develop — milestones 1–6 (command foundation, offline guide,
+orientation and explanation, installation inspection, engine enhancements,
+corpus index and search) implemented; the command is at 0.10.0. The executable
+builds in C against an installed `libtam`, installs as `tam`, and renders the
+bundled guide itself. Milestones 7–9 (a content-depth ladder, read-only
+self-inspection, and an opt-in grounded `ask`) are **planned** from
 the 2026-10-12 `tam` help and self-inspection requirements; they are not yet
 implemented.
 
@@ -43,7 +43,7 @@ listed under [Excluded and deferred work](#excluded-and-deferred-work).
 | `tam man [SECTION] PAGE` | Implemented | System manual page, converted from roff to semantic HTML with hyperlinked cross-references; a surface separate from the corpus. |
 | `tam install inspect` | Implemented | Read-only host facts and recognized installation capabilities. Grows into the read-only findings layer at milestone 8. |
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
-| `tam search [--json] TERM...` | Planned (milestone 6) | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
+| `tam search [--json] TERM...` | Implemented | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
 | `tam ask <question>` | Planned (milestone 9) | Opt-in, grounded question answering over the corpus with mandatory citations; never starts a daemon. |
 
 `--pipe` explicitly requests text. Redirected output contains no terminal
@@ -159,15 +159,17 @@ version that shipped at the time; do not rewrite them.
    `tam man` and hyperlinked cross-reference traversal (tam 0.9.0); 0.9.1 moved
    development installs under `~/.local/dev` and preferred the binary's own
    corpus.
-6. **Corpus index and search — planned.** Replace the hand-written keyword table
-   (`src/tam.c`) with a corpus index generated from page metadata, keeping the
-   existing aliases as its first coverage. Add `tam search [--json] TERM...` as
-   the single search verb: retrieval is alias → field-weighted word score →
-   substring, with a bounded, *shown* "did you mean" and a miss banner that
-   lists the top candidates with their reopen commands and offers `tam man
-   <query>` where appropriate. Fuzzy matches are suggestions, never an
+6. **Corpus index and search — done (2026-10-13).** Replaced the hand-written
+   keyword table (`src/tam.c`) with a corpus index generated from page metadata
+   (`<meta name="keywords">`, `<meta name="summary">`, `<meta name="level">`,
+   `<meta name="track">`, `<title>`, `<h1>`) projected into `knowledge/index.tsv`
+   and `knowledge/index.json` via `tools/build-index.py`. Implemented `tam search
+   [--json] TERM...` as the single search verb: retrieval is alias → field-weighted
+   word score → substring/prefix, with a bounded, shown "did you mean" suggestion
+   and a miss banner that lists top candidates with reopen commands and offers
+   `tam man <query>` when appropriate. Fuzzy matches are suggestions, never an
    auto-redirect. `tam explain` keeps single-topic semantics and resolves
-   multi-word queries through search.
+   multi-word queries through search. Bumper version to 0.10.0.
 7. **Content-depth ladder and fading templates — planned.** Give each curated
    topic a reader-selected depth: **Beginner** (one worked, annotated example
    with expected output), **Intermediate** (example plus a completion task) and
@@ -364,5 +366,17 @@ plan/apply/verify work follows the product framework.
   metadata (its Phase 5) is promoted from last to first. The `why`/depth axes
   and a computer-science track remain exploratory and are explicitly excluded.
   This revision is a proposal for Fred's review; the underlying design decisions
-  are recorded in the private ledger when accepted.
+- **2026-10-13:** Milestone 6 implemented (tam 0.10.0). Replaced the
+  hardcoded `TOPIC_MAP` in `src/tam.c` with a corpus index (`src/index.c`,
+  `src/index.h`) generated from HTML page metadata (`<meta name="keywords">`,
+  `<meta name="summary">`, `<meta name="level">`, `<meta name="track">`, `<title>`, `<h1>`)
+  via `tools/build-index.py` into `knowledge/index.tsv` and `knowledge/index.json`.
+  Added `tam search [--json] TERM...` as the single search verb with field-weighted
+  ranking, prefix matching, bounded fuzzy suggestions (`Did you mean`), and
+  machine-readable JSON output. `tam explain` keeps single-topic semantics and
+  resolves multi-word queries through search. Clear miss banners report no-topic
+  diagnostics, top candidates, and system manual page suggestions when available.
+  HTML parser in `src/render.c` now skips quoted attribute values when detecting
+  closing tag delimiters. Development build installed under `~/.local/dev`.
+  Command version bumped to `0.10.0`.
 

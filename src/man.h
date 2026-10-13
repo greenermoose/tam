@@ -13,6 +13,9 @@ char *tam_man_linkify_html(const char *src);
  * Returns NULL if the manual page cannot be found or rendered. */
 tam_document_t *tam_man_load(const char *spec, int width);
 
+/* Resolve manual page source path using man -w. Caller must free returned path. */
+char *tam_man_resolve_path(const char *name, const char *sec);
+
 /* Execute the 'tam man' command with given argument vector. */
 int tam_cmd_man(int n, char **args);
 

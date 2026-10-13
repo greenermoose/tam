@@ -22,8 +22,9 @@ LDLIBS   ?=
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/render.c src/pager.c src/install.c src/man.c
-DEPS  := src/version.h src/render.h src/pager.h src/install.h src/man.h
+SRC   := src/tam.c src/render.c src/pager.c src/install.c src/man.c src/index.c
+DEPS  := src/version.h src/render.h src/pager.h src/install.h src/man.h src/index.h
+INDEX := knowledge/index.tsv knowledge/index.json
 
 # A build from a Git checkout reports its commit in --version; packaged
 # builds have no .git and report the plain version.
@@ -40,7 +41,10 @@ CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIB
 
 all: $(TAM)
 
-$(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD)
+$(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) tools/build-index.py
+	python3 tools/build-index.py
+
+$(TAM): $(SRC) $(DEPS) $(BUILD)/config $(INDEX) | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
 		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) -o $@
 

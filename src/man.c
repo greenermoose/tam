@@ -191,6 +191,11 @@ static char *locate_man_file(const char *sec, const char *name)
     return strdup(path);
 }
 
+char *tam_man_resolve_path(const char *name, const char *sec)
+{
+    return locate_man_file(sec, name);
+}
+
 static char *render_man_to_html(const char *path)
 {
     char cmd[2048];

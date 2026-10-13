@@ -3,22 +3,24 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — milestones 1–5 implemented at 0.9.1: command foundation,
-offline guide, orientation/explanation, installation inspection, and engine
-enhancements (tables, definition lists, standard input, and `tam man`). Bare
-introduction, `--help` (also `tam help`), `--version`, argument errors,
-`show`, `welcome` orientation, curated `explain`, `man`, and read-only
-`install inspect` all build in C against the separate `libtam` library and
-install as `tam`. The command is part of `tamlinux-packages` and installed on
-the system. Milestones 6–9 (corpus index and `search`, a depth ladder,
-read-only self-inspection, and an opt-in grounded `ask`) are planned in the
-[development plan](docs/plans/development.md).
+**Stage:** Develop — milestones 1–6 implemented at 0.10.0: command foundation,
+offline guide, orientation/explanation, installation inspection, engine
+enhancements, and corpus index and search (`tam search`). Bare introduction,
+`--help` (also `tam help`), `--version`, argument errors, `show`, `welcome`
+orientation, curated `explain`, `search`, `man`, and read-only `install inspect`
+all build in C against the separate `libtam` library and install as `tam`. The
+command is part of `tamlinux-packages` and installed on the system. Milestones
+7–9 (a depth ladder, read-only self-inspection, and an opt-in grounded `ask`)
+are planned in the [development plan](docs/plans/development.md).
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline
 guide: an interactive pager in a terminal, or plain text when output is piped.
 `tam welcome` opens orientation and records successful display state.
-`tam explain <topic>` explains curated local concepts and tools (e.g. `tam explain '|'` or `tam explain browse`).
+`tam search <query>` searches the corpus index with field-weighted ranking,
+fuzzy suggestions, and optional `--json` output.
+`tam explain <topic>` explains curated local concepts and tools, resolving
+multi-word queries through search.
 `tam install inspect` inspects host facts, package tools, and supported profiles.
 The guide is authored as semantic HTML under `knowledge/`; `tam` renders it
 itself, so browsing needs no network and no external viewer.
@@ -31,8 +33,11 @@ tam welcome --pipe    # print welcome text to stdout
 tam show              # open the guide index in the pager
 tam show welcome      # open a page by name
 tam show --pipe       # print the guide as plain text (no escape sequences)
+tam search "change file owner" # search the guide for topics or phrases
+tam search --json permissions  # output search results as JSON
 tam explain           # list available explanation topics
 tam explain pipes     # explain a curated topic or shell concept
+tam explain cpu load  # multi-word concepts resolve via search
 tam explain '|'       # explain pipelines (quote shell metacharacters like '|')
 tam explain browse    # browse is also an explain topic pointing to the guide
 tam explain grep --pipe # print topic explanation as plain text
