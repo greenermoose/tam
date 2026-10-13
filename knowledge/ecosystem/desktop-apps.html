@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Desktop Application Suites: KDE and GNOME</title>
+<meta name="topic" content="desktop-apps">
+<meta name="summary" content="A survey of KDE Gear and GNOME Core applications for a Sway and Quickshell desktop">
+<meta name="keywords" content="desktop applications, applications, apps, kde, gnome, kde gear, gnome core, dolphin, nautilus, kate, okular, kcalc, filelight, libadwaita, qt6, kf6, baloo, tracker">
+<meta name="level" content="intermediate">
+<meta name="track" content="improve">
+</head>
+<body>
+<h1>Desktop Application Suites: KDE and GNOME</h1>
+
+<p><a href="ecosystem/index.html">The Tamlinux ecosystem</a></p>
+
+<p>A workstation needs dependable everyday applications: a file manager,
+document viewer, text editor, image viewer, media player, and small utilities.
+Tamlinux surveyed the applications of the two largest free desktop projects,
+<strong>KDE</strong> (KDE Gear, built on KDE Frameworks 6) and
+<strong>GNOME</strong> (GNOME Core and Circle, built on GTK 4 and Libadwaita), to
+inform which applications to include. The findings below are survey
+recommendations, not decisions.</p>
+
+<h2>What the applications must fit</h2>
+
+<ul>
+<li><strong>The base:</strong> the target Void base runs runit and seatd without systemd, so applications must work without systemd user sessions or logind.</li>
+<li><strong>The desktop:</strong> Sway with the Quickshell-based Tamlinux shell, keyboard-driven and tiling. Applications should accept server-side decorations and avoid background polling.</li>
+</ul>
+
+<h2>Key findings</h2>
+
+<ul>
+<li><strong>Toolkit alignment:</strong> the Tamlinux shell is built on Qt Quick, so KDE applications share the Qt 6 runtime already in memory; GNOME applications bring a second toolkit.</li>
+<li><strong>Window decorations:</strong> KDE applications support server-side decorations, leaving window frames to Sway. Libadwaita applications draw their own header bars.</li>
+<li><strong>systemd coupling:</strong> core KDE Frameworks libraries do not require systemd. Several GNOME applications expect logind or systemd user services.</li>
+<li><strong>Background services:</strong> both projects ship file indexers (Baloo in KDE, Tracker in GNOME) and heavy personal-information databases (Akonadi, Evolution Data Server). Baloo can be switched off in its configuration file; Tracker is more tightly bound to GNOME's core applications.</li>
+</ul>
+
+<h2>Recommended candidates</h2>
+
+<ul>
+<li><strong>Okular:</strong> document viewer for PDF, EPUB, PostScript, DjVu, and more.</li>
+<li><strong>Kate:</strong> text and code editor with a language-server client and Git integration.</li>
+<li><strong>Dolphin:</strong> file manager, with Baloo indexing turned off.</li>
+<li><strong>KCalc, Filelight, and Ark:</strong> calculator, disk-usage visualizer, and archive manager.</li>
+<li><strong>KDE Connect:</strong> phone integration that runs without the Plasma desktop.</li>
+</ul>
+
+<p>Settings, menus, and similar desktop surfaces are better served by the
+Tamlinux shell itself than by either suite, since KDE System Settings and GNOME
+Settings are tied to their own desktops.</p>
+
+<p>The full survey is
+<a href="https://github.com/greenermoose/ecosystem-fred-tamlinux/blob/main/docs/desktop-application-suites.md">desktop-application-suites.md</a>
+in the ecosystem registry.</p>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Init Systems: runit and systemd</title>
+<meta name="topic" content="init">
+<meta name="summary" content="Init and service supervision: runit on the target base, systemd today">
+<meta name="keywords" content="init, runit, systemd, supervision, daemons, service, services, seatd, pid 1, elogind">
+<meta name="level" content="intermediate">
+<meta name="track" content="improve">
+</head>
+<body>
+<h1>Init and Service Supervision</h1>
+
+<p><a href="ecosystem/index.html">The Tamlinux ecosystem</a></p>
+
+<p>The init system is process ID 1: it starts the system and supervises the
+services that run in the background. Today Tamlinux runs on Arch Linux, which
+uses <strong>systemd</strong>. The target base uses <strong>runit</strong>.</p>
+
+<h2>Why runit on the target base</h2>
+
+<p>On Void Linux, and on the antiX Core fallback, runit is the init and service
+supervisor, without systemd:</p>
+
+<ul>
+<li><strong>Simple services:</strong> a service is a directory containing a short executable script named <code>run</code>.</li>
+<li><strong>Direct supervision:</strong> <code>runsv</code> is the parent of each supervised process, so it sees a crash immediately and restarts the service.</li>
+<li><strong>Small and quiet:</strong> runit is a small C program with a tiny memory footprint and no periodic background work of its own.</li>
+</ul>
+
+<h2>systemd today</h2>
+
+<p>systemd does much more than start services: it also provides logging, login
+and seat management, timers, network and DNS services, and more. That breadth
+is convenient, but many desktop programs now assume it is present. Tamlinux keeps
+its own commands and shell services free of systemd-specific assumptions where
+it can, so that they also run on a runit system.</p>
+
+<h2>Seats without systemd: seatd</h2>
+
+<p>A Wayland compositor needs permission to use the graphics and input devices.
+On systemd systems <code>systemd-logind</code> grants it; without systemd,
+<strong><code>seatd</code></strong> and <strong><code>libseat</code></strong> do
+the same job. This is how Sway runs on Void without systemd or elogind.</p>
+
+<p>See also: <a href="ecosystem/distros.html">Base distributions</a>,
+<a href="ecosystem/compositors.html">Compositors and windowing</a>.</p>
+</body>
+</html>

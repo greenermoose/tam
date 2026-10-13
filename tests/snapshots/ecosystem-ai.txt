@@ -1,0 +1,40 @@
+AI Tooling and Human Agency
+
+The Tamlinux ecosystem
+
+AI coding assistants help build Tamlinux. They work under human direction: a
+person sets the goals, reviews the results, and decides what is tested,
+deployed, and released.
+
+Public provenance
+
+- Every public Tamlinux repository keeps an AI_PROVENANCE.md file and session
+  records under docs/ai/.
+- Each record names the tool and its version, the model, the guiding prompts,
+  and the commits it produced, so anyone can see how a piece of code came to be.
+- Commits made with AI assistance carry trailers naming the tool and model.
+
+Respecting upstream projects
+
+Some projects do not accept AI-assisted contributions. Tamlinux follows each
+project's policy: where AI involvement is not wanted, as in Hyprland, Tamlinux
+does not submit AI-written work and instead publishes fixes on public forks; see
+Carried patches.
+
+Agents in the product
+
+Tamlinux's desktop lets you choose a default AI agent to launch. Support for
+OpenClaw and Hermes has been retired from those defaults.
+
+Tools used in development
+
+- Claude Code (Anthropic)
+- Codex (OpenAI)
+- Antigravity CLI, agy (Google)
+- Cursor, an AI-assisted editor
+
+The provenance files in each repository record which tool did which work.
+
+Links:
+  [1] ecosystem/index.html
+  [2] ecosystem/patches.html

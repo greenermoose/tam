@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Virtualization and Containment</title>
+<meta name="topic" content="virtualization">
+<meta name="summary" content="Virtual machines and containers for clean-room testing">
+<meta name="keywords" content="virtualization, emulation, qemu, kvm, docker, containers, wsl, utm, tart, orbstack, clean-room, testing">
+<meta name="level" content="intermediate">
+<meta name="track" content="improve">
+</head>
+<body>
+<h1>Virtualization and Containment</h1>
+
+<p><a href="ecosystem/index.html">The Tamlinux ecosystem</a></p>
+
+<p>Building a workstation environment means testing installation and
+recovery on machines that start clean, without risking a working computer.
+Virtual machines and containers make that possible. Tamlinux has surveyed these
+tools; none is yet a settled part of its process.</p>
+
+<h2>Tools considered</h2>
+
+<ul>
+<li><strong>QEMU (with KVM):</strong> a machine emulator and virtualizer. It can test installations from scratch and emulate simple graphics adapters, which is useful for checking software rendering without hardware acceleration.</li>
+<li><strong>Docker:</strong> containers built on Linux namespaces and cgroups, useful for clean build environments with a known set of dependencies.</li>
+<li><strong>WSL:</strong> the Windows Subsystem for Linux, which runs a Linux kernel in a lightweight virtual machine on Windows.</li>
+<li><strong>UTM:</strong> a QEMU-based virtual machine manager for macOS.</li>
+<li><strong>Tart:</strong> a command-line virtual machine runner for macOS, built on Apple's Virtualization framework and aimed at automation.</li>
+<li><strong>OrbStack:</strong> a proprietary macOS tool for containers and Linux machines, notable for its efficiency.</li>
+</ul>
+
+<h2>Why it matters</h2>
+
+<p>A change to installation, boot, or recovery should be proven on a clean
+system before it reaches a computer someone depends on. A virtual machine is the
+cheapest clean system there is.</p>
+</body>
+</html>

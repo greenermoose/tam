@@ -1,0 +1,55 @@
+Choosing the Base Operating System
+
+The Tamlinux ecosystem
+
+Every Linux distribution makes its own trade-offs in packaging, init system,
+release cadence, and architecture. Tamlinux is a workstation environment rather
+than a new distribution: it is grafted onto a base distribution (the
+"root-stock") that provides the kernel, drivers, and core system.
+
+The current base: Arch Linux
+
+- Why Arch today: rolling releases bring current kernels, Mesa, Qt 6, and
+  Wayland protocols, and keep the system maintained without whole-OS reinstalls.
+- Packaging: pacman with simple PKGBUILD recipes. Locally patched packages are
+  served from a dedicated repository listed first in /etc/pacman.conf; see
+  Carried patches.
+- Why move on: Arch is built around systemd, while the long-term target is a
+  minimal base without it.
+
+The target: Void Linux
+
+Tamlinux plans to try Void Linux as its minimal base, from step 1.2 of the
+roadmap:
+
+- Independent: Void is built from scratch, not derived from Debian or Red Hat.
+- runit: Void uses runit for init and service supervision instead of systemd;
+  see Init and service supervision.
+- XBPS: a package manager written in C, with source packages built cleanly by
+  xbps-src. Tamlinux plans to deliver native xbps-src packages built from the
+  same sources as its Nix package.
+- glibc and musl: Void offers both C libraries, which allows a measured
+  comparison; see C standard libraries.
+
+The fallback: antiX Core
+
+If Void has a showstopper, Tamlinux will try antiX Linux Core with runit: a
+systemd-free Debian-based distribution with a long record of running well on
+older, low-resource hardware.
+
+Other distributions considered
+
+- Debian: the upstream of many distributions and a benchmark for packaging
+  standards, but its stable releases move slowly for desktop development.
+- Alpine Linux: very small, built on musl and BusyBox; shows how small a base
+  can be, but less suited to a daily graphical workstation.
+- Puppy Linux and Tiny Core: demonstrations of running entirely from RAM,
+  relevant to hardware longevity.
+- Gentoo: source-based and highly tunable, but full source builds are
+  impractical on older hardware.
+
+Links:
+  [1] ecosystem/index.html
+  [2] ecosystem/patches.html
+  [3] ecosystem/init.html
+  [4] ecosystem/libc.html

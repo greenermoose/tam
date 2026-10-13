@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Packaging and Delivery: Nix, Pacman, and XBPS</title>
+<meta name="topic" content="packaging">
+<meta name="summary" content="Package management: Nix and Home Manager for the desktop, the native package manager for the base">
+<meta name="keywords" content="packaging, package manager, nix, pacman, xbps, xbps-src, apt, portage, home manager, rollback, flake">
+<meta name="level" content="intermediate">
+<meta name="track" content="improve">
+</head>
+<body>
+<h1>Software Packaging and Delivery</h1>
+
+<p><a href="ecosystem/index.html">The Tamlinux ecosystem</a></p>
+
+<p>Tamlinux is one workstation package with two ways of delivering it. The base
+distribution's own package manager keeps owning the kernel, drivers, and core
+system; the Tamlinux desktop is delivered on top.</p>
+
+<h2>On existing distributions: Nix and Home Manager</h2>
+
+<p>On distributions such as Arch, Tamlinux is delivered as a Nix flake with a
+Home Manager module and a small native host adapter:</p>
+
+<ul>
+<li><strong>Isolated store paths:</strong> each package is built into its own path under <code>/nix/store</code>, and exact versions are locked in <code>flake.lock</code>.</li>
+<li><strong>One mechanism for testing and daily use:</strong> a candidate build and the build you run every day are installed the same way, to the same places.</li>
+<li><strong>Rollback:</strong> every deployment is a Home Manager generation; returning to an earlier generation restores the previous desktop without touching the base system.</li>
+</ul>
+
+<h2>On Void: native packages</h2>
+
+<p>On the target Void base, Tamlinux plans to deliver native packages built with
+<code>xbps-src</code> from the same sources. XBPS is written in C and installs
+packages in atomic transactions.</p>
+
+<h2>The base: native package managers</h2>
+
+<ul>
+<li><strong>pacman (Arch):</strong> fast and transparent, with simple <code>PKGBUILD</code> recipes.</li>
+<li><strong>XBPS (Void):</strong> the native manager of the target base.</li>
+<li><strong>Also considered:</strong> Debian's APT and dpkg, and Gentoo's Portage.</li>
+</ul>
+
+<h2>Patched packages without silent overwrites</h2>
+
+<p>When a third-party package needs a fix, Tamlinux never edits files under
+<code>/usr</code> and never hides a package from updates with
+<code>IgnorePkg</code>. The patched package is rebuilt with a visible local
+release suffix and retires itself when upstream ships the fix; see
+<a href="ecosystem/patches.html">Carried patches</a>.</p>
+</body>
+</html>

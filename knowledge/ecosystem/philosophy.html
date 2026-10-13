@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Philosophy: Free Software, Open Standards, and Efficiency</title>
+<meta name="topic" content="philosophy">
+<meta name="summary" content="Free software, open standards, and resource efficiency in Tamlinux">
+<meta name="keywords" content="philosophy, freedom, free software, copyleft, gpl, fsf, freedesktop, xdg, standards, efficiency, energy, daemons, polling">
+<meta name="level" content="beginner">
+<meta name="track" content="improve">
+</head>
+<body>
+<h1>Free Software, Open Standards, and Efficiency</h1>
+
+<p><a href="ecosystem/index.html">The Tamlinux ecosystem</a></p>
+
+<p>Tamlinux builds on the free software tradition and on shared desktop
+standards, and treats resource efficiency as a design brief rather than an
+afterthought.</p>
+
+<h2>The four essential freedoms</h2>
+
+<p>The Free Software Foundation describes four freedoms that users of free
+software have:</p>
+
+<ul>
+<li><strong>Freedom 0:</strong> to run the program as you wish, for any purpose.</li>
+<li><strong>Freedom 1:</strong> to study how the program works and change it.</li>
+<li><strong>Freedom 2:</strong> to redistribute copies to help others.</li>
+<li><strong>Freedom 3:</strong> to distribute copies of your modified versions.</li>
+</ul>
+
+<p>Tamlinux distributes its own software under <strong>GPL-3.0-or-later</strong>.
+Copyleft keeps these freedoms attached to every copy and every modified
+version.</p>
+
+<h2>Standards and interoperability</h2>
+
+<p>Tamlinux follows <strong>freedesktop.org (XDG)</strong> specifications so that
+its parts work with the rest of the free desktop:</p>
+
+<ul>
+<li><strong>XDG directories:</strong> configuration in <code>~/.config</code>, data in <code>~/.local/share</code>, and state in <code>~/.local/state</code>.</li>
+<li><strong>Standard protocols:</strong> the shell talks to the compositor through standard Wayland protocols such as <code>wlr-layer-shell</code> and <code>ext-workspace-v1</code> wherever they exist.</li>
+<li><strong>Standard formats:</strong> applications are described by <code>.desktop</code> files; icons and menus follow shared specifications.</li>
+</ul>
+
+<h2>Resource efficiency</h2>
+
+<p>Removing bloat, resident daemons, and polling loops lets Linux run faster and
+use less power on modern hardware, and keeps older machines in service:</p>
+
+<ul>
+<li><strong>No polling loops:</strong> work is event-driven and bounded; software sleeps until something happens.</li>
+<li><strong>No unnecessary daemons:</strong> if a feature can be an on-demand command, it should not run permanently in the background.</li>
+<li><strong>Self-reporting:</strong> tools say what they did and what failed, so problems can be diagnosed rather than guessed at.</li>
+</ul>
+
+<h2>Human direction</h2>
+
+<p>Tamlinux prefers deterministic tools that people direct. AI assistants help
+develop Tamlinux under human direction, and every public repository records how
+in its <code>AI_PROVENANCE.md</code>; see
+<a href="ecosystem/ai.html">AI tooling and human agency</a>.</p>
+</body>
+</html>

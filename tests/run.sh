@@ -178,16 +178,16 @@ t3 = send_and_get_target(b"\x1b[Z")
 assert t3 == "welcome.html", f"expected welcome.html, got {t3}"
 # 4. Shift-Tab from first link wraps backward to last link
 t4 = send_and_get_target(b"\x1b[Z")
-assert t4 == "man/index.html", f"expected man/index.html, got {t4}"
+assert t4 == "ecosystem/patches.html", f"expected ecosystem/patches.html, got {t4}"
 # 5. Shift-Tab variants (CSI 1;2Z, Kitty 9;2u, modifyOtherKeys 27;2;9~, N fallback)
 t5 = send_and_get_target(b"\x1b[1;2Z")
-assert t5 == "hardware/resources.html", f"expected hardware/resources.html, got {t5}"
+assert t5 == "ecosystem/index.html", f"expected ecosystem/index.html, got {t5}"
 t6 = send_and_get_target(b"\x1b[9;2u")
-assert t6 == "desktop/workspaces.html", f"expected desktop/workspaces.html, got {t6}"
+assert t6 == "man/index.html", f"expected man/index.html, got {t6}"
 t7 = send_and_get_target(b"\x1b[27;2;9~")
-assert t7 == "desktop/index.html", f"expected desktop/index.html, got {t7}"
+assert t7 == "hardware/resources.html", f"expected hardware/resources.html, got {t7}"
 t8 = send_and_get_target(b"N")
-assert t8 == "filesystem/permissions.html", f"expected filesystem/permissions.html, got {t8}"
+assert t8 == "desktop/workspaces.html", f"expected desktop/workspaces.html, got {t8}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -490,6 +490,9 @@ fi
 "$TAM" search "check disk space" | grep -q 'resources' || fail "search 'check disk space' failed"
 "$TAM" search "multi monitor" | grep -q 'workspaces' || fail "search 'multi monitor' failed"
 "$TAM" search "man pages" | grep -q 'man' || fail "search 'man pages' failed"
+"$TAM" search sway | grep -q 'ecosystem/compositors.html' || fail "search 'sway' failed"
+"$TAM" search runit | grep -q 'ecosystem/init.html' || fail "search 'runit' failed"
+"$TAM" search "carried patch" | grep -q 'ecosystem/patches.html' || fail "search 'carried patch' failed"
 
 # Out-of-corpus query produces clear miss banner and exits 1 (no auto-redirect)
 if "$TAM" search cron >/dev/null 2>&1; then fail "search cron unexpectedly exited 0"; fi

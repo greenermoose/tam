@@ -1,0 +1,53 @@
+Free Software, Open Standards, and Efficiency
+
+The Tamlinux ecosystem
+
+Tamlinux builds on the free software tradition and on shared desktop standards,
+and treats resource efficiency as a design brief rather than an afterthought.
+
+The four essential freedoms
+
+The Free Software Foundation describes four freedoms that users of free software
+have:
+
+- Freedom 0: to run the program as you wish, for any purpose.
+- Freedom 1: to study how the program works and change it.
+- Freedom 2: to redistribute copies to help others.
+- Freedom 3: to distribute copies of your modified versions.
+
+Tamlinux distributes its own software under GPL-3.0-or-later. Copyleft keeps
+these freedoms attached to every copy and every modified version.
+
+Standards and interoperability
+
+Tamlinux follows freedesktop.org (XDG) specifications so that its parts work
+with the rest of the free desktop:
+
+- XDG directories: configuration in ~/.config, data in ~/.local/share, and state
+  in ~/.local/state.
+- Standard protocols: the shell talks to the compositor through standard Wayland
+  protocols such as wlr-layer-shell and ext-workspace-v1 wherever they exist.
+- Standard formats: applications are described by.desktop files; icons and menus
+  follow shared specifications.
+
+Resource efficiency
+
+Removing bloat, resident daemons, and polling loops lets Linux run faster and
+use less power on modern hardware, and keeps older machines in service:
+
+- No polling loops: work is event-driven and bounded; software sleeps until
+  something happens.
+- No unnecessary daemons: if a feature can be an on-demand command, it should
+  not run permanently in the background.
+- Self-reporting: tools say what they did and what failed, so problems can be
+  diagnosed rather than guessed at.
+
+Human direction
+
+Tamlinux prefers deterministic tools that people direct. AI assistants help
+develop Tamlinux under human direction, and every public repository records how
+in its AI_PROVENANCE.md; see AI tooling and human agency.
+
+Links:
+  [1] ecosystem/index.html
+  [2] ecosystem/ai.html

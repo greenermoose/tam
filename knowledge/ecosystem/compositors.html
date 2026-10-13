@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Compositors and Windowing: Sway, Wayland, and wlroots</title>
+<meta name="topic" content="compositors">
+<meta name="summary" content="Wayland compositors: why Sway on wlroots is planned to replace Hyprland">
+<meta name="keywords" content="compositor, compositors, sway, hyprland, wayland, wlroots, niri, river, labwc, wayfire, pixman, seatd, x11">
+<meta name="level" content="intermediate">
+<meta name="track" content="improve">
+</head>
+<body>
+<h1>Windowing and Compositors: Why Sway</h1>
+
+<p><a href="ecosystem/index.html">The Tamlinux ecosystem</a></p>
+
+<p>On Wayland, the compositor is the display server and the window manager in
+one program. Tamlinux runs on Hyprland today and has selected
+<strong>Sway</strong>, built on the <strong>wlroots</strong> library, as its
+long-term compositor.</p>
+
+<h2>Why Wayland</h2>
+
+<ul>
+<li><strong>Client isolation:</strong> under X11 any client can read other clients' keystrokes and windows; Wayland isolates clients from each other.</li>
+<li><strong>Tear-free output:</strong> clients render into buffers that the compositor presents whole, frame by frame.</li>
+<li><strong>Per-monitor scaling:</strong> mixed resolutions and fractional scales (for example 1.25x) on different monitors.</li>
+</ul>
+
+<h2>Why Sway</h2>
+
+<ul>
+<li><strong>A small C code base:</strong> wlroots and Sway are written in C, with a stable i3-compatible IPC that tools and the Tamlinux shell can rely on.</li>
+<li><strong>Software rendering:</strong> wlroots can render on the CPU with <code>pixman</code> (<code>WLR_RENDERER=pixman</code>), which matters for older graphics hardware. Its rendering paths are still to be tested on representative older machines.</li>
+<li><strong>No systemd required:</strong> Sway obtains seat access through <code>seatd</code> and <code>libseat</code>, so it runs without systemd-logind or elogind.</li>
+<li><strong>A tiling, keyboard-driven desktop:</strong> the target is a tiling window system inspired by the UI Omarchy provides.</li>
+</ul>
+
+<h2>The transition</h2>
+
+<p>The move is staged so that each step can be checked on its own. Tamlinux
+first becomes independent of Omarchy on the current Hyprland desktop. Sway
+integration and packaging follow at 0.7, physical daily use on Sway at 0.8,
+and Hyprland is removed at 1.0.</p>
+
+<p>Reasons for leaving Hyprland:</p>
+
+<ul>
+<li><strong>Plugin ABI churn:</strong> Hyprland plugins must match the exact compositor build, so routine updates can break them.</li>
+<li><strong>Carried patches:</strong> keeping multi-monitor setups stable has required local patches; see <a href="ecosystem/patches.html">Carried patches</a>.</li>
+<li><strong>Contribution policy:</strong> Hyprland accepts pull requests only from vouched contributors, and its AI usage policy forbids AI involvement in pull requests, issues, and comments. Fixes developed with AI assistance therefore cannot be offered upstream directly.</li>
+</ul>
+
+<h2>Other compositors considered</h2>
+
+<ul>
+<li><strong>niri:</strong> a scrollable-tiling compositor in Rust with an intuitive horizontal layout.</li>
+<li><strong>river:</strong> dynamic tiling in Zig, with layouts provided by separate programs.</li>
+<li><strong>labwc:</strong> a stacking compositor on wlroots with Openbox-style configuration.</li>
+<li><strong>Wayfire:</strong> a wlroots compositor known for desktop effects.</li>
+</ul>
+</body>
+</html>

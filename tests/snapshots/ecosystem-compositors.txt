@@ -1,0 +1,58 @@
+Windowing and Compositors: Why Sway
+
+The Tamlinux ecosystem
+
+On Wayland, the compositor is the display server and the window manager in one
+program. Tamlinux runs on Hyprland today and has selected Sway, built on the
+wlroots library, as its long-term compositor.
+
+Why Wayland
+
+- Client isolation: under X11 any client can read other clients' keystrokes and
+  windows; Wayland isolates clients from each other.
+- Tear-free output: clients render into buffers that the compositor presents
+  whole, frame by frame.
+- Per-monitor scaling: mixed resolutions and fractional scales (for example
+  1.25x) on different monitors.
+
+Why Sway
+
+- A small C code base: wlroots and Sway are written in C, with a stable
+  i3-compatible IPC that tools and the Tamlinux shell can rely on.
+- Software rendering: wlroots can render on the CPU with pixman (
+  WLR_RENDERER=pixman), which matters for older graphics hardware. Its rendering
+  paths are still to be tested on representative older machines.
+- No systemd required: Sway obtains seat access through seatd and libseat, so it
+  runs without systemd-logind or elogind.
+- A tiling, keyboard-driven desktop: the target is a tiling window system
+  inspired by the UI Omarchy provides.
+
+The transition
+
+The move is staged so that each step can be checked on its own. Tamlinux first
+becomes independent of Omarchy on the current Hyprland desktop. Sway integration
+and packaging follow at 0.7, physical daily use on Sway at 0.8, and Hyprland is
+removed at 1.0.
+
+Reasons for leaving Hyprland:
+
+- Plugin ABI churn: Hyprland plugins must match the exact compositor build, so
+  routine updates can break them.
+- Carried patches: keeping multi-monitor setups stable has required local
+  patches; see Carried patches.
+- Contribution policy: Hyprland accepts pull requests only from vouched
+  contributors, and its AI usage policy forbids AI involvement in pull requests,
+  issues, and comments. Fixes developed with AI assistance therefore cannot be
+  offered upstream directly.
+
+Other compositors considered
+
+- niri: a scrollable-tiling compositor in Rust with an intuitive horizontal
+  layout.
+- river: dynamic tiling in Zig, with layouts provided by separate programs.
+- labwc: a stacking compositor on wlroots with Openbox-style configuration.
+- Wayfire: a wlroots compositor known for desktop effects.
+
+Links:
+  [1] ecosystem/index.html
+  [2] ecosystem/patches.html

@@ -1,0 +1,38 @@
+C Standard Libraries: glibc and musl
+
+The Tamlinux ecosystem
+
+The C standard library ( libc) sits between almost every program and the Linux
+kernel. Tamlinux runs on glibc today and plans to compare it with musl on the
+target Void base, which offers both.
+
+The two libraries
+
+- glibc (the GNU C Library): the standard C library of most Linux distributions.
+  Feature-complete, heavily optimized, and the library that pre-built binary
+  software expects.
+- musl: a small, simple, standards-focused C library with first-class static
+  linking, used by Alpine Linux and available on Void.
+
+Workstation trade-offs
+
+- Pre-built software: binaries such as Google Chrome and VS Code are built for
+  glibc. On musl they need a compatibility layer such as gcompat or a glibc
+  environment.
+- Proprietary drivers: proprietary GPU drivers are built for glibc. Open-source
+  Mesa drivers work with either.
+- Size and speed: musl is smaller; glibc's tuned routines can be faster for some
+  workloads.
+
+The Tamlinux approach
+
+Lower disk and memory use and better security are hypotheses to test, not
+assumptions. On Void, Tamlinux plans to compare full workloads on glibc and musl
+using matched application versions. A problem that appears only on musl is first
+checked on Void's glibc build, so that the C library is not blamed for a Void
+issue. The plan is published in the tamlinux repository as
+base-operating-system.md.
+
+Links:
+  [1] ecosystem/index.html
+  [2] https://github.com/greenermoose/tamlinux/blob/main/docs/plans/base-operating-system.md

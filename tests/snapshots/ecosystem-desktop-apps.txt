@@ -1,0 +1,51 @@
+Desktop Application Suites: KDE and GNOME
+
+The Tamlinux ecosystem
+
+A workstation needs dependable everyday applications: a file manager, document
+viewer, text editor, image viewer, media player, and small utilities. Tamlinux
+surveyed the applications of the two largest free desktop projects, KDE (KDE
+Gear, built on KDE Frameworks 6) and GNOME (GNOME Core and Circle, built on GTK
+4 and Libadwaita), to inform which applications to include. The findings below
+are survey recommendations, not decisions.
+
+What the applications must fit
+
+- The base: the target Void base runs runit and seatd without systemd, so
+  applications must work without systemd user sessions or logind.
+- The desktop: Sway with the Quickshell-based Tamlinux shell, keyboard-driven
+  and tiling. Applications should accept server-side decorations and avoid
+  background polling.
+
+Key findings
+
+- Toolkit alignment: the Tamlinux shell is built on Qt Quick, so KDE
+  applications share the Qt 6 runtime already in memory; GNOME applications
+  bring a second toolkit.
+- Window decorations: KDE applications support server-side decorations, leaving
+  window frames to Sway. Libadwaita applications draw their own header bars.
+- systemd coupling: core KDE Frameworks libraries do not require systemd.
+  Several GNOME applications expect logind or systemd user services.
+- Background services: both projects ship file indexers (Baloo in KDE, Tracker
+  in GNOME) and heavy personal-information databases (Akonadi, Evolution Data
+  Server). Baloo can be switched off in its configuration file; Tracker is more
+  tightly bound to GNOME's core applications.
+
+Recommended candidates
+
+- Okular: document viewer for PDF, EPUB, PostScript, DjVu, and more.
+- Kate: text and code editor with a language-server client and Git integration.
+- Dolphin: file manager, with Baloo indexing turned off.
+- KCalc, Filelight, and Ark: calculator, disk-usage visualizer, and archive
+  manager.
+- KDE Connect: phone integration that runs without the Plasma desktop.
+
+Settings, menus, and similar desktop surfaces are better served by the Tamlinux
+shell itself than by either suite, since KDE System Settings and GNOME Settings
+are tied to their own desktops.
+
+The full survey is desktop-application-suites.md in the ecosystem registry.
+
+Links:
+  [1] ecosystem/index.html
+  [2] https://github.com/greenermoose/ecosystem-fred-tamlinux/blob/main/docs/desktop-application-suites.md

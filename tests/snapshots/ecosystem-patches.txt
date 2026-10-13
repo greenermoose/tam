@@ -1,0 +1,43 @@
+Why Tamlinux Carries Patches
+
+The Tamlinux ecosystem
+
+Sometimes a third-party package has a bug that Tamlinux cannot wait for upstream
+to fix. Tamlinux then carries a patch: it runs a rebuilt package with the fix
+applied, records it publicly, and removes it as soon as upstream ships the fix.
+
+Why not just send a pull request?
+
+Writing code has become cheap, but reviewing it is still expensive, and many
+maintainers are overwhelmed by machine-generated contributions. Several projects
+now restrict outside pull requests or AI-assisted contributions; for example,
+Hyprland accepts pull requests only from vouched contributors, and its AI policy
+forbids AI involvement in pull requests, issues, and comments.
+
+Tamlinux's fixes are developed with AI assistance and its provenance is
+published. Rather than add to review queues where such work is unwanted,
+Tamlinux publishes each fix where it costs upstream nothing: a clean branch on a
+public fork, based on the upstream release tag, that anyone can inspect,
+compare, and merge.
+
+How a patch is carried
+
+1. The fix is committed on a public fork ( greenermoose/<project>), branched
+   from the upstream release tag.
+2. The commits are exported as patch files with git format-patch.
+3. The package is rebuilt from the upstream source with the patches applied and
+   a visible local release suffix ( pkgrel <arch>.N).
+4. The build is served from a local repository listed first in pacman.conf.
+   Tamlinux never edits files under /usr and never hides the package from
+   updates with IgnorePkg.
+5. A pacman hook checks every update and warns when upstream ships a version
+   containing the fix; the patch is then retired.
+
+The current registry
+
+Which packages are patched, why, and when each patch retires is recorded in the
+public ecosystem registry, generated from its ecosystem.json.
+
+Links:
+  [1] ecosystem/index.html
+  [2] https://github.com/greenermoose/ecosystem-fred-tamlinux/blob/main/ECOSYSTEM.md
