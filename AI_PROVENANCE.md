@@ -32,5 +32,5 @@ Human-only commits retain their original authorship.
 | 2026-10-14 | Command/corpus lane build split (`make command`, `make corpus`) | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-command-corpus-lanes.md) |
 | 2026-10-14 | Lua scripting topic in the ecosystem chapters | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-lua-topic.md) |
 | 2026-10-14 | Read-only self-inspection findings and check contract 0.16.0 (`install inspect`, `check`, JSON contract) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-self-inspection-findings.md) |
-| 2026-10-14 | Breadcrumb trails on the guide pages and a corpus-build check (corpus lane) | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-corpus-breadcrumbs.md) |
+| 2026-10-14 | Guide breadcrumb trails, beginner/intermediate/expert reading paths, and welcome-page refinement (corpus lane) | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-corpus-breadcrumbs.md) |
 
