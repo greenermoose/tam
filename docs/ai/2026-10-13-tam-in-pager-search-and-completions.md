@@ -15,6 +15,7 @@
 > The work plan looks good, but tell me the security implications of the shell auto-completions. Are these a good idea? Why does tam need to provide this functionality?
 > Let's go with option 2 for now. I like the idea of static completions for tam subcommands. Is that what option 2 would provide?
 > I've refreshed the review window. Plan looks good. Please close the review window, claim the paths, and begin implementation!
+> Tamlinux will only support bash shell. So we can remove code for fish and zsh. If you install Tamlinux, you will have the bash shell.
 
 ## Decisions and scope
 
@@ -28,11 +29,11 @@
 - **Reading Progress Telemetry (`src/pager.c`):**
   - Updated status line rendering to compute exact line position metrics: `L1/N (All)` when the document fits on screen, `L1/N (Top)` at the beginning, `LN/N (Bot)` at the end, and `Lk/N (X%)` in between.
   - Updated control hint section to include `/ find` and `n/N next` alongside link, navigation, and exit keys.
-- **Static Shell Auto-Completions (Option 2):**
-  - Generated `completions/bash/tam`, `completions/zsh/_tam`, and `completions/fish/tam.fish`.
+- **Static Bash Auto-Completions (Option 2):**
+  - Following Fred's confirmation that Tamlinux will only support Bash, completions were scoped strictly to Bash (`completions/bash/tam`); Fish and Zsh completion scripts were removed.
   - Restricts completions strictly to hardcoded subcommand names (`show`, `welcome`, `explain`, `search`, `man`, `install`, `help`) and flags (`--help`, `-h`, `--version`, `-V`, `--pipe`, `--json`).
-  - Strict zero-file-I/O security invariant: completion scripts perform no filesystem access, execute no dynamic subshells, and parse no untrusted data on `<TAB>`.
-  - Added `Makefile` install/uninstall targets for standard bash, zsh, and fish completion directories.
+  - Strict zero-file-I/O security invariant: completion script performs no filesystem access, executes no dynamic subshells, and parses no untrusted data on `<TAB>`.
+  - Added `Makefile` install/uninstall targets for the standard bash-completion directory.
 - **Version Bump:** Bumped `TAM_COMMAND_VERSION` in `src/version.h` to `0.14.0`.
 - **Testing & Verification:**
   - Added automated Python PTY interactive tests in `tests/run.sh` covering search activation, hit highlighting, match cycling, `Esc` clearing, and reading progress telemetry.

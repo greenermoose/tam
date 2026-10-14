@@ -668,10 +668,8 @@ if "$TAM" man 1 nonexistent_xyz >/dev/null 2>&1; then fail "missing section man 
 "$TAM" man 1 nonexistent_xyz 2>&1 | grep -q "in section 1" || fail "missing section diagnostic unclear"
 pass "man subcommand, cross-reference hyperlinking, and error handling"
 
-# Shell completion scripts verification
+# Shell completion scripts verification (Tamlinux supports bash)
 bash -n "$root/completions/bash/tam" || fail "bash completion syntax error"
-[ -f "$root/completions/zsh/_tam" ] || fail "zsh completion script missing"
-[ -f "$root/completions/fish/tam.fish" ] || fail "fish completion script missing"
 
 # Test bash completion behavior
 bash_test=$(bash -c '
@@ -706,6 +704,6 @@ printf "%s\n" "${COMPREPLY[@]}"
 printf '%s\n' "$bash_search_test" | grep -q -- '--json' || fail "bash completion missing search --json"
 printf '%s\n' "$bash_search_test" | grep -q -- '--pipe' || fail "bash completion missing search --pipe"
 
-pass "static shell auto-completion scripts (bash, zsh, fish)"
+pass "static bash shell auto-completion script"
 
 printf 'All tam command tests passed.\n'
