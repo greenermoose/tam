@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.13.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.14.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -373,6 +373,81 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/knowledge" || fail "hyperlink display test failed"
     pass "pager hyperlink display: leading-space underline prevention and wrapped link continuation highlight"
+
+    # In-pager text search (/), hit jumping (n / N), Esc clear, and reading telemetry
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
+os.close(slave)
+
+time.sleep(0.15)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+
+# 1. Reading telemetry: verify status line contains "L1/" and "(All)"
+assert b"L1/23 (All)" in buf, f"status line missing L1/23 (All) position metric: {buf}"
+assert b"/ find" in buf, f"status line missing / find hint: {buf}"
+
+# 2. In-pager text search: search for "redirection"
+os.write(master, b"/redirection\r")
+time.sleep(0.10)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+
+assert b"redirection" in buf, "search term missing from status bar message"
+assert b"[" in buf and b"]" in buf, "match indicator missing from status message"
+assert b"\x1b[7" in buf, "search hit not highlighted"
+
+# 3. Next match (n)
+os.write(master, b"n")
+time.sleep(0.08)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+assert b"redirection" in buf
+
+# 4. Previous match (N)
+os.write(master, b"N")
+time.sleep(0.08)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+assert b"redirection" in buf
+
+# 5. Esc clears search query and highlights
+os.write(master, b"\x1b")
+time.sleep(0.08)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+assert b"redirection" not in buf
+
+# 6. Miss search pattern
+os.write(master, b"/nonexistent_pattern_12345\r")
+time.sleep(0.10)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+assert b"Pattern not found" in buf, f"expected Pattern not found message, got: {buf}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/knowledge" || fail "interactive pager search and telemetry test failed"
+    pass "in-pager text search (/), match navigation (n/N), Esc clear, and reading telemetry"
 fi
 
 
@@ -592,5 +667,45 @@ if "$TAM" man nonexistent_xyz >/dev/null 2>&1; then fail "missing man page exite
 if "$TAM" man 1 nonexistent_xyz >/dev/null 2>&1; then fail "missing section man page exited 0"; fi
 "$TAM" man 1 nonexistent_xyz 2>&1 | grep -q "in section 1" || fail "missing section diagnostic unclear"
 pass "man subcommand, cross-reference hyperlinking, and error handling"
+
+# Shell completion scripts verification
+bash -n "$root/completions/bash/tam" || fail "bash completion syntax error"
+[ -f "$root/completions/zsh/_tam" ] || fail "zsh completion script missing"
+[ -f "$root/completions/fish/tam.fish" ] || fail "fish completion script missing"
+
+# Test bash completion behavior
+bash_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam "")
+COMP_CWORD=1
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_test" | grep -q 'show' || fail "bash completion missing show subcommand"
+printf '%s\n' "$bash_test" | grep -q 'install' || fail "bash completion missing install subcommand"
+printf '%s\n' "$bash_test" | grep -q 'search' || fail "bash completion missing search subcommand"
+printf '%s\n' "$bash_test" | grep -q -- '--help' || fail "bash completion missing --help"
+
+bash_install_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam install "")
+COMP_CWORD=2
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_install_test" | grep -q 'inspect' || fail "bash completion missing install inspect"
+printf '%s\n' "$bash_install_test" | grep -q 'plan' || fail "bash completion missing install plan"
+
+bash_search_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam search "")
+COMP_CWORD=2
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_search_test" | grep -q -- '--json' || fail "bash completion missing search --json"
+printf '%s\n' "$bash_search_test" | grep -q -- '--pipe' || fail "bash completion missing search --pipe"
+
+pass "static shell auto-completion scripts (bash, zsh, fish)"
 
 printf 'All tam command tests passed.\n'

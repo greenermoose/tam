@@ -72,6 +72,8 @@ static void outn(const char *s, size_t n)
     }
 }
 
+static int read_byte(int fd, int timeout_ms, unsigned char *c);
+
 typedef struct {
     int               link_id;
     const char       *href;
@@ -79,6 +81,12 @@ typedef struct {
     size_t            line_end;
     const tam_span_t *span;
 } linkref_t;
+
+typedef struct {
+    size_t line_idx;
+    size_t byte_start;
+    size_t byte_end;
+} search_hit_t;
 
 typedef struct {
     tam_document_t *doc;
@@ -97,6 +105,10 @@ typedef struct {
     char            msg[160];
     tam_page_loader_t load;
     void              *ctx;
+    char            search_query[128];
+    search_hit_t   *hits;
+    size_t          nhits;
+    int             cur_hit;
 } pager_t;
 
 static void pager_build_links(pager_t *st)
@@ -175,10 +187,269 @@ static int emit_style(const tam_span_t *sp, int is_sel)
     return styled;
 }
 
-static void emit_line(const tam_line_t *line, int width,
-                      const linkref_t *sel)
+static const char *tam_casestr(const char *haystack, const char *needle)
 {
+    if (haystack == NULL || needle == NULL) {
+        return NULL;
+    }
+    if (*needle == '\0') {
+        return haystack;
+    }
+    size_t nlen = strlen(needle);
+    for (size_t i = 0; haystack[i] != '\0'; i++) {
+        if (strncasecmp(haystack + i, needle, nlen) == 0) {
+            return haystack + i;
+        }
+    }
+    return NULL;
+}
+
+static char *pager_line_text(const tam_line_t *line)
+{
+    size_t total = 0;
+    for (size_t j = 0; j < line->nspans; j++) {
+        if (line->spans[j].text != NULL) {
+            total += strlen(line->spans[j].text);
+        }
+    }
+    char *buf = malloc(total + 1);
+    if (buf == NULL) {
+        return NULL;
+    }
+    char *p = buf;
+    for (size_t j = 0; j < line->nspans; j++) {
+        if (line->spans[j].text != NULL) {
+            size_t n = strlen(line->spans[j].text);
+            memcpy(p, line->spans[j].text, n);
+            p += n;
+        }
+    }
+    *p = '\0';
+    return buf;
+}
+
+static void pager_clear_search(pager_t *st)
+{
+    st->search_query[0] = '\0';
+    free(st->hits);
+    st->hits = NULL;
+    st->nhits = 0;
+    st->cur_hit = -1;
+}
+
+static void pager_perform_search(pager_t *st, const char *query)
+{
+    pager_clear_search(st);
+    if (query == NULL || query[0] == '\0') {
+        return;
+    }
+    snprintf(st->search_query, sizeof(st->search_query), "%s", query);
+    size_t qlen = strlen(query);
+
+    for (size_t i = 0; i < st->doc->nlines; i++) {
+        char *ltext = pager_line_text(&st->doc->lines[i]);
+        if (ltext == NULL) {
+            continue;
+        }
+        const char *p = ltext;
+        while ((p = tam_casestr(p, query)) != NULL) {
+            size_t start = (size_t)(p - ltext);
+            search_hit_t *nh = realloc(st->hits, (st->nhits + 1) * sizeof(*st->hits));
+            if (nh == NULL) {
+                break;
+            }
+            st->hits = nh;
+            st->hits[st->nhits].line_idx = i;
+            st->hits[st->nhits].byte_start = start;
+            st->hits[st->nhits].byte_end = start + qlen;
+            st->nhits++;
+            p += qlen > 0 ? qlen : 1;
+        }
+        free(ltext);
+    }
+
+    if (st->nhits == 0) {
+        snprintf(st->msg, sizeof(st->msg), "Pattern not found: %s", query);
+        st->cur_hit = -1;
+        return;
+    }
+
+    st->cur_hit = 0;
+    for (size_t h = 0; h < st->nhits; h++) {
+        if (st->hits[h].line_idx >= (size_t)st->top) {
+            st->cur_hit = (int)h;
+            break;
+        }
+    }
+
+    int usable = st->height - 1;
+    if (usable < 1) usable = 1;
+    int hit_line = (int)st->hits[st->cur_hit].line_idx;
+    if (hit_line < st->top || hit_line >= st->top + usable) {
+        st->top = hit_line - usable / 3;
+        int max_top = (int)st->doc->nlines - usable;
+        if (max_top < 0) max_top = 0;
+        if (st->top > max_top) st->top = max_top;
+        if (st->top < 0) st->top = 0;
+    }
+
+    snprintf(st->msg, sizeof(st->msg), "[%d/%zu] %s", st->cur_hit + 1, st->nhits, st->search_query);
+}
+
+static void pager_next_hit(pager_t *st, int dir)
+{
+    if (st->search_query[0] == '\0') {
+        return;
+    }
+    if (st->nhits == 0) {
+        snprintf(st->msg, sizeof(st->msg), "Pattern not found: %s", st->search_query);
+        return;
+    }
+    if (st->cur_hit < 0) {
+        st->cur_hit = 0;
+    } else {
+        st->cur_hit += dir;
+        if (st->cur_hit < 0) {
+            st->cur_hit = (int)st->nhits - 1;
+        } else if ((size_t)st->cur_hit >= st->nhits) {
+            st->cur_hit = 0;
+        }
+    }
+
+    int usable = st->height - 1;
+    if (usable < 1) usable = 1;
+    int hit_line = (int)st->hits[st->cur_hit].line_idx;
+    if (hit_line < st->top || hit_line >= st->top + usable) {
+        st->top = hit_line - usable / 3;
+        int max_top = (int)st->doc->nlines - usable;
+        if (max_top < 0) max_top = 0;
+        if (st->top > max_top) st->top = max_top;
+        if (st->top < 0) st->top = 0;
+    }
+
+    snprintf(st->msg, sizeof(st->msg), "[%d/%zu] %s", st->cur_hit + 1, st->nhits, st->search_query);
+}
+
+static void pager_search_prompt(pager_t *st)
+{
+    char prompt[32];
+    snprintf(prompt, sizeof(prompt), "\033[%d;1H\033[K/", st->height);
+    out(prompt);
+    out("\033[?25h");
+
+    char query[128];
+    size_t qlen = 0;
+    query[0] = '\0';
+    int cancelled = 0;
+
+    while (!g_stop) {
+        unsigned char ch;
+        int r = read_byte(st->input_fd, -1, &ch);
+        if (r <= 0) {
+            break;
+        }
+        if (ch == '\r' || ch == '\n') {
+            query[qlen] = '\0';
+            break;
+        }
+        if (ch == 0x1b || ch == 0x03) {
+            cancelled = 1;
+            break;
+        }
+        if (ch == '\b' || ch == 127) {
+            if (qlen > 0) {
+                qlen--;
+                query[qlen] = '\0';
+                out("\b \b");
+            }
+            continue;
+        }
+        if ((isprint(ch) || (unsigned char)ch >= 0x80) && qlen < sizeof(query) - 1) {
+            query[qlen++] = (char)ch;
+            query[qlen] = '\0';
+            outn((char *)&ch, 1);
+        }
+    }
+
+    out("\033[?25l");
+
+    if (!cancelled) {
+        if (qlen > 0) {
+            pager_perform_search(st, query);
+        } else if (st->search_query[0] != '\0') {
+            pager_next_hit(st, 1);
+        }
+    }
+}
+
+static void emit_line(const tam_line_t *line, int width,
+                      const linkref_t *sel, size_t line_idx,
+                      const pager_t *st)
+{
+    size_t hit_start = 0, hit_count = 0;
+    if (st != NULL && st->nhits > 0) {
+        while (hit_start < st->nhits && st->hits[hit_start].line_idx < line_idx) {
+            hit_start++;
+        }
+        while (hit_start + hit_count < st->nhits &&
+               st->hits[hit_start + hit_count].line_idx == line_idx) {
+            hit_count++;
+        }
+    }
+
+    if (hit_count == 0) {
+        int col = 0;
+        for (size_t j = 0; j < line->nspans && col < width; j++) {
+            const tam_span_t *sp = &line->spans[j];
+            int is_link = (sp->href != NULL);
+            int is_sel = 0;
+            if (is_link && sel != NULL) {
+                if (sp->link_id > 0 && sel->link_id > 0) {
+                    is_sel = (sp->link_id == sel->link_id);
+                } else if (sel->href != NULL && strcmp(sp->href, sel->href) == 0) {
+                    is_sel = 1;
+                }
+            }
+
+            const char *t = sp->text;
+            size_t tl = strlen(t);
+
+            if (is_link) {
+                size_t k = 0;
+                while (k < tl && isspace((unsigned char)t[k]) && col < width) {
+                    outn(t + k, 1);
+                    col++;
+                    k++;
+                }
+                if (k < tl && col < width) {
+                    int styled = emit_style(sp, is_sel);
+                    while (k < tl && col < width) {
+                        outn(t + k, 1);
+                        col++;
+                        k++;
+                    }
+                    if (styled) {
+                        out("\033[0m");
+                    }
+                }
+            } else {
+                int styled = emit_style(sp, 0);
+                for (size_t k = 0; k < tl && col < width; k++) {
+                    outn(t + k, 1);
+                    col++;
+                }
+                if (styled) {
+                    out("\033[0m");
+                }
+            }
+        }
+        return;
+    }
+
     int col = 0;
+    size_t line_byte_pos = 0;
+    int active_hit_style = 0;
+
     for (size_t j = 0; j < line->nspans && col < width; j++) {
         const tam_span_t *sp = &line->spans[j];
         int is_link = (sp->href != NULL);
@@ -193,39 +464,77 @@ static void emit_line(const tam_line_t *line, int width,
 
         const char *t = sp->text;
         size_t tl = strlen(t);
+        size_t k = 0;
 
         if (is_link) {
-            /* 1) Do not underline the first space in a hyperlink.
-             * Start the underline with the first non-space character.
-             * Also for selected hyperlinks, start the highlight with
-             * the first non-space character. */
-            size_t k = 0;
             while (k < tl && isspace((unsigned char)t[k]) && col < width) {
+                size_t cpos = line_byte_pos + k;
+                int hit_type = 0;
+                for (size_t m = 0; m < hit_count; m++) {
+                    const search_hit_t *h = &st->hits[hit_start + m];
+                    if (cpos >= h->byte_start && cpos < h->byte_end) {
+                        hit_type = ((int)(hit_start + m) == st->cur_hit) ? 2 : 1;
+                        break;
+                    }
+                }
+                if (hit_type != active_hit_style) {
+                    if (active_hit_style != 0) {
+                        out("\033[0m");
+                    }
+                    if (hit_type == 2) {
+                        out("\033[7;1m");
+                    } else if (hit_type == 1) {
+                        out("\033[7m");
+                    }
+                    active_hit_style = hit_type;
+                }
                 outn(t + k, 1);
                 col++;
                 k++;
             }
-            if (k < tl && col < width) {
-                int styled = emit_style(sp, is_sel);
-                while (k < tl && col < width) {
-                    outn(t + k, 1);
-                    col++;
-                    k++;
-                }
-                if (styled) {
-                    out("\033[0m");
-                }
+        }
+
+        int span_styled = 0;
+        if (k < tl && col < width) {
+            if (active_hit_style == 0) {
+                span_styled = emit_style(sp, is_sel);
             }
-        } else {
-            int styled = emit_style(sp, 0);
-            for (size_t k = 0; k < tl && col < width; k++) {
+            while (k < tl && col < width) {
+                size_t cpos = line_byte_pos + k;
+                int hit_type = 0;
+                for (size_t m = 0; m < hit_count; m++) {
+                    const search_hit_t *h = &st->hits[hit_start + m];
+                    if (cpos >= h->byte_start && cpos < h->byte_end) {
+                        hit_type = ((int)(hit_start + m) == st->cur_hit) ? 2 : 1;
+                        break;
+                    }
+                }
+                if (hit_type != active_hit_style) {
+                    out("\033[0m");
+                    if (hit_type == 2) {
+                        out("\033[7;1m");
+                    } else if (hit_type == 1) {
+                        out("\033[7m");
+                    } else {
+                        span_styled = emit_style(sp, is_sel);
+                    }
+                    active_hit_style = hit_type;
+                }
                 outn(t + k, 1);
                 col++;
+                k++;
             }
-            if (styled) {
+            if (active_hit_style != 0) {
+                out("\033[0m");
+                active_hit_style = 0;
+            } else if (span_styled) {
                 out("\033[0m");
             }
         }
+        line_byte_pos += tl;
+    }
+    if (active_hit_style != 0) {
+        out("\033[0m");
     }
 }
 
@@ -283,7 +592,7 @@ static void draw(pager_t *st)
     for (int row = 0; row < usable; row++) {
         int li = st->top + row;
         if (li < (int)st->doc->nlines) {
-            emit_line(&st->doc->lines[li], st->width, sel);
+            emit_line(&st->doc->lines[li], st->width, sel, (size_t)li, st);
         }
         if (row < usable - 1) {
             out("\r\n");
@@ -292,10 +601,22 @@ static void draw(pager_t *st)
 
     char status[512];
     const char *title = st->doc->title ? st->doc->title : "tam";
+    char pos_metric[64];
+    if (st->doc->nlines <= (size_t)usable) {
+        snprintf(pos_metric, sizeof(pos_metric), "L1/%zu (All)", st->doc->nlines);
+    } else if (st->top == 0) {
+        snprintf(pos_metric, sizeof(pos_metric), "L1/%zu (Top)", st->doc->nlines);
+    } else if (st->top >= max_top) {
+        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (Bot)", st->top + 1, st->doc->nlines);
+    } else {
+        int pct = (int)(((long)st->top * 100) / (max_top > 0 ? max_top : 1));
+        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (%d%%)", st->top + 1, st->doc->nlines, pct);
+    }
+
     int off = snprintf(status, sizeof(status),
-                       " %s  |  %d/%zu  |  Tab/S-Tab link  Enter/\xe2\x86\x92 open  "
+                       " %s  |  %s  |  / find  n/N next  Tab/S-Tab link  Enter/\xe2\x86\x92 open  "
                        "u/\xe2\x86\x90 back  q/Esc quit",
-                       title, st->top + 1, st->doc->nlines);
+                       title, pos_metric);
     if (st->msg[0] != '\0') {
         off += snprintf(status + off, sizeof(status) - (size_t)off, "  [%s]",
                         st->msg);
@@ -404,6 +725,7 @@ static void follow(pager_t *st, const char *href)
     }
     history_push(st, st->cur_href);
     forward_clear(st);
+    pager_clear_search(st);
     free(st->cur_href);
     st->cur_href = strdup(href);
     tam_document_free(st->doc);
@@ -428,6 +750,7 @@ static void go_back(pager_t *st)
         return;
     }
     forward_push(st, st->cur_href);
+    pager_clear_search(st);
     free(st->cur_href);
     st->cur_href = prev;
     tam_document_free(st->doc);
@@ -451,6 +774,7 @@ static void go_forward(pager_t *st)
         return;
     }
     history_push(st, st->cur_href);
+    pager_clear_search(st);
     free(st->cur_href);
     st->cur_href = next;
     tam_document_free(st->doc);
@@ -548,6 +872,14 @@ static void handle_key(pager_t *st, unsigned char c)
     case 'q':
         g_stop = 1;
         return;
+    case '/':
+        pager_search_prompt(st);
+        break;
+    case 'n':
+        if (st->search_query[0] != '\0') {
+            pager_next_hit(st, 1);
+        }
+        break;
     case 'j':
         st->top++;
         break;
@@ -570,7 +902,11 @@ static void handle_key(pager_t *st, unsigned char c)
         select_next_link(st, 1);
         break;
     case 'N':
-        select_next_link(st, -1);
+        if (st->search_query[0] != '\0') {
+            pager_next_hit(st, -1);
+        } else {
+            select_next_link(st, -1);
+        }
         break;
     case '\r':
     case '\n': {
@@ -583,7 +919,12 @@ static void handle_key(pager_t *st, unsigned char c)
     case 0x1b: {
         unsigned char c1;
         if (read_byte(st->input_fd, 60, &c1) != 1) {
-            g_stop = 1;
+            if (st->search_query[0] != '\0') {
+                pager_clear_search(st);
+                st->msg[0] = '\0';
+            } else {
+                g_stop = 1;
+            }
             return;
         }
         if (c1 == '\t') {
@@ -763,6 +1104,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     free(st.forward);
     free(st.links);
     free(st.cur_href);
+    pager_clear_search(&st);
     tam_document_free(st.doc);
 
     signal(SIGINT, SIG_DFL);

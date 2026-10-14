@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-13. **Owner:** Fred. **Current Command Version:** `0.13.0`.  
+**Reviewed:** 2026-10-13. **Owner:** Fred. **Current Command Version:** `0.14.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.13.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.14.0)
 
-Between 2026-10-09 and 2026-10-13, `tam` progressed rapidly through Milestones 1–6 and foundational pager ergonomics:
+Between 2026-10-09 and 2026-10-13, `tam` progressed rapidly through Milestones 1–6, link ergonomics, in-pager search, and shell completions:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -40,26 +40,13 @@ Between 2026-10-09 and 2026-10-13, `tam` progressed rapidly through Milestones 1
 | **0.11.0** | Pager Backward Link Circulation | Done (2026-10-13) | Added `Shift-Tab` backward link navigation in `src/pager.c` across ANSI CSI sequences (CBT, Kitty, modifyOtherKeys), updated status line to `Tab/S-Tab link` with UTF-8 boundary truncation safety. |
 | **0.12.0** | Pager Forward Path Traversal | Done (2026-10-13) | Right Arrow forward navigation along previously visited exploration paths when no hyperlink is selected. |
 | **0.13.0** | Hyperlink Formatting & Wrapping | Done (2026-10-13) | Corrected hyperlink leading-space underline/highlighting; unified multi-line wrapped hyperlinks into single navigation entities with continuous line selection via `link_id`. |
+| **0.14.0** | In-Pager Search, Telemetry & Static Completions | Done (2026-10-13) | Interactive keyword search prompt (`/`) in `src/pager.c` with in-buffer hit highlighting, next/previous navigation (`n`/`N`), and `Esc` clearing; reading position telemetry (`L...`, percentage, `Top`, `Bot`, `All`); static shell completions for Bash, Zsh, and Fish without dynamic file I/O. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **in-pager search and reading ergonomics** (0.14.0), followed by **Milestone 7** (Content-Depth Ladder and Fading Templates, 0.15.0). This gives readers keyword navigation within long manual pages and guide documents before the expanded multi-level corpus lands.
-
-### Version 0.14.0 — In-Pager Text Search, Reading Telemetry & Shell Completions
-Enhance terminal productivity when reading long manual pages and guide documents, and provide shell tab completions.
-
-- **In-Pager Text Search (`/`):**
-  - Implement forward keyword search prompt in `src/pager.c` activated by `/`.
-  - Highlight search hits in the document buffer; support `n` (jump to next match) and `N` (jump to previous match).
-  - Clear search highlights on `Esc` or new navigation.
-- **Reading Progress Telemetry:**
-  - Update pager status line to display reading position: percentage completion (`42%`) or line metrics (`L45/120`).
-- **Shell Auto-Completion Scripts:**
-  - Generate shell completions for Bash (`completions/bash/tam`), Zsh (`completions/zsh/_tam`), and Fish (`completions/fish/tam.fish`).
-  - Support subcommand tab completion (`show`, `welcome`, `explain`, `search`, `man`, `install`).
-  - Dynamic completion for `tam explain <TAB>` and `tam show <TAB>` reading directly from `knowledge/index.tsv`.
+The immediate priority for `tam` is implementing **Milestone 7** (Content-Depth Ladder and Fading Templates, 0.15.0). With in-pager search and reading telemetry in place, the guide and manual page reader offers complete keyword navigation across lengthy technical documents.
 
 ### Version 0.15.0 — Content-Depth Ladder & Fading Templates (Milestone 7)
 Formalize the pedagogical structure of the offline guide into a structured progression, adapting content to user expertise without requiring an internet connection.

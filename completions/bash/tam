@@ -1,0 +1,44 @@
+# Bash completion for tam(1)
+# Static completion: subcommands and fixed flags only. Zero file I/O.
+
+_tam_completions() {
+    local cur prev
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    local subcommands="show welcome explain search man install help"
+    local global_flags="--help -h --version -V"
+
+    if [ "$COMP_CWORD" -eq 1 ]; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=($(compgen -W "$global_flags" -- "$cur"))
+        else
+            COMPREPLY=($(compgen -W "$subcommands $global_flags" -- "$cur"))
+        fi
+        return 0
+    fi
+
+    local cmd="${COMP_WORDS[1]}"
+    case "$cmd" in
+        install)
+            if [ "$COMP_CWORD" -eq 2 ]; then
+                COMPREPLY=($(compgen -W "inspect plan apply verify --help" -- "$cur"))
+            elif [ "$COMP_CWORD" -eq 3 ] && [ "${COMP_WORDS[2]}" = "inspect" ]; then
+                COMPREPLY=($(compgen -W "--pipe" -- "$cur"))
+            fi
+            ;;
+        search)
+            COMPREPLY=($(compgen -W "--json --pipe" -- "$cur"))
+            ;;
+        show|welcome|explain)
+            COMPREPLY=($(compgen -W "--pipe" -- "$cur"))
+            ;;
+        man)
+            COMPREPLY=($(compgen -W "--help --pipe" -- "$cur"))
+            ;;
+        *)
+            ;;
+    esac
+}
+
+complete -F _tam_completions tam

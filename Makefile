@@ -11,6 +11,9 @@ CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
 PREFIX   ?= /usr/local
 BINDIR   ?= $(PREFIX)/bin
 DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
+BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
+ZSHCOMPDIR  ?= $(PREFIX)/share/zsh/site-functions
+FISHCOMPDIR ?= $(PREFIX)/share/fish/vendor_completions.d
 
 LIBTAM_PREFIX ?= $(PREFIX)
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
@@ -65,11 +68,20 @@ install: $(TAM)
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
+	install -d $(DESTDIR)$(BASHCOMPDIR)
+	install -m 644 completions/bash/tam $(DESTDIR)$(BASHCOMPDIR)/tam
+	install -d $(DESTDIR)$(ZSHCOMPDIR)
+	install -m 644 completions/zsh/_tam $(DESTDIR)$(ZSHCOMPDIR)/_tam
+	install -d $(DESTDIR)$(FISHCOMPDIR)
+	install -m 644 completions/fish/tam.fish $(DESTDIR)$(FISHCOMPDIR)/tam.fish
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
 	rm -f $(DESTDIR)$(BINDIR)/tam-man
 	rm -rf $(DESTDIR)$(DATADIR)
+	rm -f $(DESTDIR)$(BASHCOMPDIR)/tam
+	rm -f $(DESTDIR)$(ZSHCOMPDIR)/_tam
+	rm -f $(DESTDIR)$(FISHCOMPDIR)/tam.fish
 
 clean:
 	rm -rf $(BUILD)

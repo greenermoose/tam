@@ -2,7 +2,8 @@
 
 **Stage:** Develop — milestones 1–6 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
-corpus index and search), link navigation, and hyperlink display fixes implemented; the command is at 0.13.0. The executable
+corpus index and search), link navigation, hyperlink display fixes, in-pager text search,
+reading telemetry, and static shell completions implemented; the command is at 0.14.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself. Milestones 7–9 (a content-depth ladder, read-only
 self-inspection, and an opt-in grounded `ask`) are **planned** from
@@ -405,4 +406,5 @@ plan/apply/verify work follows the product framework.
   skipped leading whitespace in `emit_line` when applying underline or reverse
   video styling. Added automated PTY tests in `tests/run.sh`. Version bumped to
   `0.13.0`.
+- **2026-10-13:** In-pager text search, reading telemetry, and static completions implemented (tam 0.14.0). Added in-pager keyword search in `src/pager.c` activated by `/` with interactive search prompt, case-insensitive line search, in-buffer standout hit highlighting, next match (`n`) and previous match (`N`) navigation, and `Esc` highlight clearing (or page navigation clearing). Updated status line reading position telemetry reporting exact line metrics and percentage bounds (`L.../total`, `All`, `Top`, `Bot`, `%`). Retained `N` backward link circulation fallback when no search query is active. Generated static shell completion scripts for Bash (`completions/bash/tam`), Zsh (`completions/zsh/_tam`), and Fish (`completions/fish/tam.fish`) completing fixed subcommands and options with zero dynamic file I/O. Updated `Makefile` install/uninstall targets and expanded automated PTY interactive tests in `tests/run.sh`. Version bumped to `0.14.0`.
 
