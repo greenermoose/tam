@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.17.0`.  
+**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.18.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.16.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.18.0)
 
-Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–8, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, and check contract:
+Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–10, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, and output ergonomics:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -44,25 +44,16 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 | **0.15.0** | Milestone 7: Content-Depth Ladder & Fading Templates | Done (2026-10-14) | Beginner / Intermediate / Expert fading templates across core topics (`shell/jobs.html`, `shell/pipelines.html`, `filesystem/permissions.html`, `hardware/resources.html`); dynamic section filtering in `src/depth.c` and depth navigation (`?level=`); `tam explain --level LEVEL <topic>` and catalog depth filtering; index metadata projection for level lists, tracks, and prerequisites; depth indicators in `tam search` and JSON output; Bash completion for `--level`. |
 | **0.16.0** | Milestone 8: Self-Inspection Findings & Check Contract | Done (2026-10-14) | Comprehensive read-only system diagnostic and health finding engine in `tam install inspect`; structured finding model (`id`, `severity`, `summary`, `evidence`, `help_link`) deep-linking to Maintain-track help; versioned offline Check Contract schema (`{task_id, name, status, pass, fail, evidence, severity, help_ref, source, schema_version}`); Safe Execution Envelope (`safe_probe_exec`) running whitelisted probes under `LC_ALL=C`, bounded timeouts (≤500ms), captured streams, detached TTY; `pkexec` detect-and-degrade (no interactive `sudo`); `tam install inspect --json`, `tam install inspect --check [ID]`, `tam install check [ID]` (`--json` supported); updated Bash completions. |
 | **0.17.0** | Milestone 9: Opt-in Grounded Ask | Done (2026-10-14) | Opt-in grounded question-answering CLI surface (`tam ask [OPTIONS] <question>`) over the corpus index with mandatory citations; POSIX socket HTTP/1.1 client connecting to already-running local inference server (e.g. Ollama); strictly offline by default with D53 zero-daemon invariant; non-interactive refusal contract (exit code 2) and interactive consent flow; `tam ask --json` structured output; Bash completions for `ask`. |
+| **0.18.0** | Milestone 10: Navigation & Output Ergonomics | Done (2026-10-14) | Quick Guide index return shortcut (`` ` ``) in `src/pager.c` with history push; Goldilocks screen budget (bare `tam explain` ≤15 lines, `tam --help` ≤20 lines); interactive hyperlinked `tam explain topics` with pager navigation, `--level` filtering, `--terse` (slugs only) and `--verbose` modifiers; `--terse` check status for `tam install check`; Bash completions. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.18.0** (Quick Guide Index Return Shortcut & "Maintain" Track Knowledge Corpus Expansion). With the content-depth ladder, self-inspection findings, and grounded ask in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation alongside pager ergonomics.
+The immediate priority for `tam` is implementing **Version 0.19.0** ("Maintain" Track Knowledge Corpus Expansion). With navigation ergonomics, the content-depth ladder, self-inspection findings, and grounded ask in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation.
 
-### Version 0.18.0 — Quick Guide Index Return (`\``) & "Maintain" Track Knowledge Corpus Expansion
+### Version 0.19.0 — "Maintain" Track Knowledge Corpus Expansion
 
-- **Quick Guide Index Return Keybinding (`\``):**
-  - Bind backtick (`` ` ``) in the interactive pager (`src/pager.c`) to return immediately to the Guide root index (`index.html`) from anywhere in the corpus or manual page viewer.
-  - Pushes the current page to the history stack before navigation so users can return with `u` if desired.
-  - Eliminates repetitive back-navigation when deep in subtopics or manual pages.
-- **Output Ergonomics & "Goldilocks" Screen Budget:**
-  - Keep default interactive terminal outputs strictly bounded to a standard 80×24 screen (≤20 lines) so critical orientation and usage syntax never scroll off.
-  - Refactor bare `tam explain` to display strictly the concise usage guide (≤15 lines) letting users know a special `tam explain topics` page is available, without spewing the entire 29-topic catalog.
-  - Introduce `tam explain topics` which launches in `tam`'s built-in interactive pager with each topic rendered as a live hyperlink so users can immediately select and jump to any topic (plain text when piped), with `--level LEVEL` filtering.
-  - Establish `--terse` for minimal machine/pipe tokens emitting one topic slug per line (ideal for `fzf`, `grep`, and `xargs`), and `--verbose` for exhaustive diagnostics and keyword arrays.
-  - Condense `tam --help` from 32 lines down to ≤20 lines by consolidating redundant per-subcommand flag lines.
 - **Non-Disruptive Updates & Package Lifecycle:**
   - `knowledge/maintain/updates.html`: Explaining inode unlinking (why Linux updates in place without rebooting), package tiering (OS base vs Tamlinux packages vs Mise user tools), and `tam-update` workflow.
 - **Snapshots & Generation Rollbacks:**
@@ -78,43 +69,14 @@ The immediate priority for `tam` is implementing **Version 0.18.0** (Quick Guide
 
 ## 4. Future Version Sequence & Feature Sets
 
-Following the immediate next steps, the future development of `tam` advances through system maintenance documentation, read-only self-inspection, optimization guides, architectural rationale, deep physics/CS ladders, opt-in AI querying, and full installation framework integration.
+Following the immediate next steps, the future development of `tam` advances through system maintenance documentation, optimization guides, architectural rationale, deep physics/CS ladders, offline skills progression, and full installation framework integration.
 
 ```text
-  0.14.0 ──► 0.15.0 ──► 0.16.0 ──► 0.17.0 ──► 0.18.0 ──► 0.19.0 ──► 0.20.0 ──► 0.21.0 ──► 0.22.0 ──► 0.23.0 ──► 0.24.0 ──► 1.0.0
- (Search)   (Depth)    (Inspect)   (Maintain) (Improve)   (Why)     (Depth)    (Ask)     (Learn)   (Parser)  (Install)  (Stable)
+  0.15.0 ──► 0.16.0 ──► 0.17.0 ──► 0.18.0 ──► 0.19.0 ──► 0.20.0 ──► 0.21.0 ──► 0.22.0 ──► 0.23.0 ──► 0.24.0 ──► 0.25.0 ──► 1.0.0
+ (Depth)    (Inspect)    (Ask)   (Ergonomics) (Maintain) (Improve)   (Why)     (Depth)    (Learn)   (Parser)  (Install)  (Stable)
 ```
 
-### Version 0.17.0 — "Maintain" Track Knowledge Corpus Expansion
-Expand the offline corpus to comprehensively cover system health, resilient updates, diagnostics, and disaster recovery.
-
-- **Non-Disruptive Updates & Package Lifecycle:**
-  - `knowledge/maintain/updates.html`: Explaining inode unlinking (why Linux updates in place without rebooting), package tiering (OS base vs Tamlinux packages vs Mise user tools), and `tam-update` workflow.
-- **Snapshots & Generation Rollbacks:**
-  - `knowledge/maintain/rollback.html`: Copy-on-Write (CoW) mechanics, taking and restoring Btrfs snapshots, and Home Manager `/nix/store` generation rollbacks.
-- **Truthful System Diagnostics:**
-  - `knowledge/maintain/logs.html`: Filtering `journalctl` by boot (`-b`), unit (`-u`), and priority (`-p err..emerg`); reading the kernel ring buffer (`dmesg -T`).
-- **The Progressive Power Ladder:**
-  - `knowledge/maintain/power.html`: 3-stage power progression: DPMS monitor blanking (idle monitors turn off individually), RAM suspend, and zero-watt S4 disk hibernation; safe display wake via `Shift` key.
-- **Emergency Disaster Recovery:**
-  - `knowledge/maintain/recovery.html`: Magic SysRq (REISUB) emergency sequence, dropping to virtual consoles (`Ctrl+Alt+F2`–`F6`), and live USB chroot recovery.
-
-### Version 0.17.0 — Read-Only Self-Inspection Findings & Check Contract (Milestone 8)
-Evolve `tam install inspect` into a comprehensive, read-only system diagnostic engine that reports machine health without modifying configuration or executing unvetted commands.
-
-- **Read-Only Finding Model:**
-  - Define structured finding schema: `{id, severity, evidence, help_link, machine_readable}` with severity levels `info`, `warn`, `error`, `critical`.
-  - Deep-link findings directly into Maintain-track guide pages (e.g. storage exhaustion links to `maintain/rollback.html`).
-- **Offline Check Contract:**
-  - Establish versioned Check Contract: `{task_id, pass, fail, evidence, source, schema_version}` emitted as JSON for automated verification and progression tasks.
-- **Privilege Detect-and-Degrade:**
-  - Detect `pkexec` presence without assuming privilege; on hosts without `pkexec` (or minimal rescue environments), gracefully degrade to the non-privileged inspection subset and emit a `warn` finding.
-  - Never spawn an interactive `sudo` prompt.
-- **Safe Execution Envelope:**
-  - All external inspection probes run under: `LC_ALL=C`, bounded timeouts (≤500ms), captured standard streams, detached TTY, and neutralized color (`--color=never`).
-  - Whitelist only fixed, deterministic read-only system probes (`uname`, `findmnt`, `statvfs`, `systemctl is-active`, `udevadm`); never execute arbitrary user commands.
-
-### Version 0.18.0 — "Improve" Track Knowledge Corpus Expansion
+### Version 0.20.0 — "Improve" Track Knowledge Corpus Expansion
 Equip users and developers to optimize performance, eliminate energy waste, configure tools, and understand local AI inference.
 
 - **Zero-Polling Architecture:**
@@ -130,7 +92,7 @@ Equip users and developers to optimize performance, eliminate energy waste, conf
 - **Physics of Local AI Generation:**
   - `knowledge/improve/ai-performance.html`: Memory bandwidth vs autoregressive token generation speed ($Tokens/s \approx Bandwidth / ModelSize$); quantization tradeoffs (Q4_K_M vs FP16).
 
-### Version 0.19.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
+### Version 0.21.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
 Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
 
 - **`tam why <topic|package>` Command:**
@@ -146,7 +108,7 @@ Demystify why Tamlinux is designed the way it is, explaining not only what is in
 - **Public Rationale Projection:**
   - Build-time tool generating the published rationale pages from reviewed decision summaries.
 
-### Version 0.20.0 — The "Depth" Axis & Computer Science Fundamentals
+### Version 0.22.0 — The "Depth" Axis & Computer Science Fundamentals
 Enable users to interrogate their system and descend from observable desktop behavior down to fundamental physics and computer science theory.
 
 - **Progressive Depth Descent (`tam deeper` / `tam depth`):**
@@ -159,23 +121,7 @@ Enable users to interrogate their system and descend from observable desktop beh
 - **Computer Science Fundamentals Track (`knowledge/cs/`):**
   - Practical theory framed around **Possible / Impossible / Expensive**: computability (undecidable limits), complexity (tractable vs intractable), data representation (two's complement, IEEE-754 floating point rounding), memory hierarchy, and concurrency. Grounded directly in the user's host hardware (`lscpu`, cache topology, RAM bandwidth).
 
-### Version 0.21.0 — Opt-in Grounded Question Answering (`tam ask` — Milestone 9)
-Provide cited, grounded local AI assistance without sacrificing the offline, lightweight foundation.
-
-- **Strict Offline-by-Default Boundary:**
-  - Core binary remains 100% offline and standalone.
-  - `tam ask <question>` connects via local HTTP API strictly to an **already-running** local inference server (e.g. Ollama); `tam` never embeds, bundles, starts, or runs background AI daemons.
-- **Grounded Retrieval-Augmented Generation (RAG):**
-  - Searches local corpus index for top-k relevant documentation snippets to seed model context.
-  - Mandatory citation requirement: every answer must include explicit `Sources:` lines referencing local pages.
-  - Grounding miss safety: if no relevant local documentation exists, `tam ask` responds with `"Not found in Tamlinux guide."` and suggests a `tam search` query, preventing hallucinations.
-- **Interactive Consent for Model Retrieval:**
-  - If a model is not present, `tam` reaches the network only upon explicit interactive TTY confirmation showing URL, download size, storage path, and expected SHA256 checksum.
-  - SHA256 checksum verified immediately after download; mismatches automatically delete partial data.
-- **Non-Interactive Pipeline Safety:**
-  - Invoking `tam ask` under `--pipe` or non-interactive shells when a model or server is unavailable immediately fails with exit code 2 and a concise error message; never attempts network operations or hangs waiting for input.
-
-### Version 0.22.0 — Offline Skills Progression & Self-Paced Learning (`tam learn`)
+### Version 0.23.0 — Offline Skills Progression & Self-Paced Learning (`tam learn`)
 Provide self-paced, offline skill building that uses the Milestone 8 inspection engine as an objective assessment oracle.
 
 - **Opt-in Progress State:**
@@ -184,7 +130,7 @@ Provide self-paced, offline skill building that uses the Milestone 8 inspection 
   - Pairs Intermediate fading template tasks with automated checks: e.g. "Create a background pipeline that filters logs" $\rightarrow$ `tam learn verify` probes system state using the Check Contract.
   - Provides hints without spoiling answers, guiding users toward mastery of command-line tools and system navigation.
 
-### Version 0.23.0 — Safe Command-Line Syntax Dissection
+### Version 0.24.0 — Safe Command-Line Syntax Dissection
 Extend `tam explain` to safely parse and explain compound shell commands, pipelines, and redirection.
 
 - **Non-Executing Analytical Lexer:**
@@ -192,7 +138,7 @@ Extend `tam explain` to safely parse and explain compound shell commands, pipeli
   - Explains execution flow, data routing between standard streams, and file modifications in plain language.
   - Treats all input strictly as inert text data; never passes input to `/bin/sh` or evaluates expressions.
 
-### Version 0.24.0 — Installation Framework Integration (`tam install plan/apply/verify`)
+### Version 0.25.0 — Installation Framework Integration (`tam install plan/apply/verify`)
 Complete the installation framework contract by connecting `tam install` to the product deployment engine.
 
 - **`tam install plan --profile <profile>`:**
@@ -236,14 +182,15 @@ Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support
 | **0.14.0** | Pager Ergonomics & Completions | `src/pager.c`, completions | `/` in-pager text search, line/percentage telemetry, Bash completions. |
 | **0.15.0** | Milestone 7: Content-Depth Ladder | `tam explain --level`, `tam search` | Beginner / Intermediate / Expert fading templates, depth line, ?level= navigation, index metadata. |
 | **0.16.0** | Milestone 8: Self-Inspection | `tam install inspect`, check contract | Read-only findings model, versioned JSON check contract, `pkexec` detect-and-degrade. |
-| **0.17.0** | Milestone 9: Grounded `ask` | `tam ask [OPTIONS] <question>` | Current baseline: Opt-in cited RAG question answering over corpus index, local server only (no daemon), interactive-only consent, --json. |
-| **0.18.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
-| **0.19.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |
-| **0.20.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
-| **0.21.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
-| **0.22.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
-| **0.23.0** | Shell Syntax Dissection | `tam explain <command-line>` | Analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
-| **0.24.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
+| **0.17.0** | Milestone 9: Grounded `ask` | `tam ask [OPTIONS] <question>` | Opt-in cited RAG question answering over corpus index, local server only (no daemon), interactive-only consent, --json. |
+| **0.18.0** | Milestone 10: Navigation & Output Ergonomics | `src/pager.c`, `tam explain topics`, output modifiers | Current baseline: Quick Guide index return (`` ` ``) with history, Goldilocks screen budget (explain ≤15, help ≤20 lines), interactive topics pager, `--terse`/`--verbose`. |
+| **0.19.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
+| **0.20.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |
+| **0.21.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
+| **0.22.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
+| **0.23.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
+| **0.24.0** | Shell Syntax Dissection | `tam explain <command-line>` | Analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
+| **0.25.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
 | **1.0.0** | Stable Showcase Release | Complete command suite | Production release, unified knowledge graph, stable `libtam` ABI, multi-distro packages. |
 | **1.1.0** | Multi-Distribution Adapter | `tam install inspect` | Host inspection across systemd distributions (Debian, Fedora, Ubuntu). |
 | **1.2.0** | Void Linux Native Base | `tam install inspect`, `knowledge/` | Native Void + runit + Btrfs + seatd inspection and guides; musl/glibc analysis. |

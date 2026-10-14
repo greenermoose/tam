@@ -615,7 +615,7 @@ static void draw(pager_t *st)
 
     int off = snprintf(status, sizeof(status),
                        " %s  |  %s  |  / find  n/N next  Tab/S-Tab link  Enter/\xe2\x86\x92 open  "
-                       "u/\xe2\x86\x90 back  q/Esc quit",
+                       "` index  u/\xe2\x86\x90 back  q/Esc quit",
                        title, pos_metric);
     if (st->msg[0] != '\0') {
         off += snprintf(status + off, sizeof(status) - (size_t)off, "  [%s]",
@@ -915,6 +915,15 @@ static void handle_key(pager_t *st, unsigned char c)
     }
     case 'u':
         go_back(st);
+        break;
+    case '`':
+        if (strcmp(st->cur_href, "index.html") != 0) {
+            follow(st, "index.html");
+        } else {
+            st->top = 0;
+            st->selected = -1;
+            st->msg[0] = '\0';
+        }
         break;
     case 0x1b: {
         unsigned char c1;

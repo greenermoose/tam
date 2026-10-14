@@ -653,7 +653,7 @@ static void print_check_contract_json(const check_item_t *c)
     printf("}\n");
 }
 
-static int do_run_single_check(const char *task_id)
+static int do_run_single_check(const char *task_id, bool terse_mode)
 {
     os_release_t os;
     parse_os_release(&os);
@@ -679,7 +679,11 @@ static int do_run_single_check(const char *task_id)
 
     for (size_t i = 0; i < NUM_CHECKS; i++) {
         if (strcmp(checks[i].task_id, task_id) == 0) {
-            print_check_contract_json(&checks[i]);
+            if (terse_mode) {
+                printf("%s %s\n", checks[i].task_id, checks[i].status);
+            } else {
+                print_check_contract_json(&checks[i]);
+            }
             return 0;
         }
     }
@@ -689,7 +693,7 @@ static int do_run_single_check(const char *task_id)
     return TAM_EXIT_FAILURE;
 }
 
-static int do_check_list(bool json_mode)
+static int do_check_list(bool json_mode, bool terse_mode)
 {
     os_release_t os;
     parse_os_release(&os);
@@ -712,6 +716,13 @@ static int do_check_list(bool json_mode)
 
     check_item_t checks[NUM_CHECKS];
     collect_checks(checks, NUM_CHECKS, &os, &uts, pkg_tools, priv_tools, root_fs, gpu);
+
+    if (terse_mode) {
+        for (size_t i = 0; i < NUM_CHECKS; i++) {
+            printf("%s %s\n", checks[i].task_id, checks[i].status);
+        }
+        return 0;
+    }
 
     if (json_mode) {
         printf("[\n");
@@ -935,6 +946,7 @@ int cmd_install(int n, char **args)
 
     if (strcmp(sub, "inspect") == 0) {
         bool json_mode = false;
+        bool terse_mode = false;
         const char *check_id = NULL;
 
         for (int i = 1; i < n; i++) {
@@ -942,11 +954,13 @@ int cmd_install(int n, char **args)
                 continue;
             } else if (strcmp(args[i], "--json") == 0) {
                 json_mode = true;
+            } else if (strcmp(args[i], "--terse") == 0) {
+                terse_mode = true;
             } else if (strcmp(args[i], "--check") == 0) {
                 if (i + 1 < n && args[i + 1][0] != '-') {
                     check_id = args[++i];
                 } else {
-                    return do_check_list(json_mode);
+                    return do_check_list(json_mode, terse_mode);
                 }
             } else if (strncmp(args[i], "--check=", 8) == 0) {
                 check_id = args[i] + 8;
@@ -962,13 +976,14 @@ int cmd_install(int n, char **args)
         }
 
         if (check_id != NULL) {
-            return do_run_single_check(check_id);
+            return do_run_single_check(check_id, terse_mode);
         }
         return do_inspect(json_mode);
     }
 
     if (strcmp(sub, "check") == 0) {
         bool json_mode = false;
+        bool terse_mode = false;
         const char *check_id = NULL;
 
         for (int i = 1; i < n; i++) {
@@ -977,10 +992,13 @@ int cmd_install(int n, char **args)
                        "Usage:\n"
                        "  tam install check               list all available checks\n"
                        "  tam install check <task_id>     run specific check and emit Check Contract JSON\n"
-                       "  tam install check --json        emit all checks in Check Contract format as JSON\n");
+                       "  tam install check --json        emit all checks in Check Contract format as JSON\n"
+                       "  tam install check --terse       emit compact check status lines\n");
                 return 0;
             } else if (strcmp(args[i], "--json") == 0) {
                 json_mode = true;
+            } else if (strcmp(args[i], "--terse") == 0) {
+                terse_mode = true;
             } else if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
                 continue;
             } else if (args[i][0] == '-') {
@@ -998,9 +1016,9 @@ int cmd_install(int n, char **args)
         }
 
         if (check_id != NULL) {
-            return do_run_single_check(check_id);
+            return do_run_single_check(check_id, terse_mode);
         }
-        return do_check_list(json_mode);
+        return do_check_list(json_mode, terse_mode);
     }
 
     if (strcmp(sub, "plan") == 0) {

@@ -41,6 +41,7 @@ pass "bare invocation prints an introduction and writes no state"
 
 # Help.
 "$TAM" --help | grep -q 'Usage:' || fail "--help is missing usage"
+[ $(printf '%s\n' "$("$TAM" --help)" | wc -l) -le 20 ] || fail "--help exceeds 20 lines"
 "$TAM" -h >/dev/null || fail "-h failed"
 "$TAM" help | grep -q 'Usage:' || fail "help is missing usage"
 [ "$("$TAM" help)" = "$("$TAM" --help)" ] || fail "help differs from --help"
@@ -48,7 +49,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.17.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.18.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -451,6 +452,121 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/knowledge" || fail "interactive pager search and telemetry test failed"
     pass "in-pager text search (/), match navigation (n/N), Esc clear, and reading telemetry"
+
+    # Quick Guide index return (`): jump immediately to index.html from any depth, push history
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
+os.close(slave)
+
+def get_title():
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.05)[0]:
+        buf += os.read(master, 4096)
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    if not lines:
+        return ""
+    last = lines[-1].replace(b"\x1b[K", b"").decode("utf-8", "replace")
+    return last.split("|")[0].strip()
+
+# 1. Initial page is pipelines
+t = get_title()
+assert t == "Shell pipelines", f"unexpected initial title: {t}"
+
+# 2. Press backtick (`) to jump to index.html
+os.write(master, b"`")
+t = get_title()
+assert t == "tam - the Tamlinux guide", f"expected index title after backtick, got: {t}"
+
+# 3. Press u to return to shell/pipelines
+os.write(master, b"u")
+t = get_title()
+assert t == "Shell pipelines", f"expected pipelines title after u, got: {t}"
+
+# 4. Press backtick again, then quit
+os.write(master, b"`")
+t = get_title()
+assert t == "tam - the Tamlinux guide", f"expected index title after second backtick, got: {t}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/knowledge" || fail "interactive pager backtick return failed"
+    pass "pager quick Guide index return (\`): immediate index jump and history push"
+
+    # Interactive hyperlinked topics pager (tam explain topics)
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "explain", "topics")
+os.close(slave)
+
+def get_status_info():
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.05)[0]:
+        buf += os.read(master, 4096)
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    if not lines:
+        return ("", "")
+    last = lines[-1].replace(b"\x1b[K", b"").decode("utf-8", "replace")
+    title = last.split("|")[0].strip()
+    target = ""
+    if "->" in last:
+        target = last.split("->")[-1].strip()
+    return (title, target)
+
+# 1. Initial page is Available Explanation Topics
+title, _ = get_status_info()
+assert title == "Available Explanation Topics", f"unexpected topics title: {title}"
+
+# 2. Tab selects first topic link
+os.write(master, b"\t")
+title, target = get_status_info()
+assert target != "", "expected link target to be selected by Tab"
+
+# 3. Enter follows selected topic link into explanation
+os.write(master, b"\r")
+title_topic, _ = get_status_info()
+assert title_topic != "Available Explanation Topics", f"did not follow link into topic explanation: {title_topic}"
+
+# 4. u returns to topics page
+os.write(master, b"u")
+title_back, _ = get_status_info()
+assert title_back == "Available Explanation Topics", f"did not return to topics page: {title_back}"
+
+# 5. Backtick (`) jumps to root guide index.html
+os.write(master, b"`")
+title_home, _ = get_status_info()
+assert title_home == "tam - the Tamlinux guide", f"did not jump to guide index: {title_home}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/knowledge" || fail "interactive explain topics pager failed"
+    pass "tam explain topics: interactive pager with live hyperlinks, back, and home shortcut"
 fi
 
 
@@ -497,34 +613,56 @@ printf '%s\n' "$ex_lua" | grep -q 'Depth: beginner' || fail "explain lua missing
 ex_stdin=$(printf 'jobs\n' | "$TAM" explain - --pipe)
 printf '%s\n' "$ex_stdin" | grep -q 'Processes, Jobs, and Signals' || fail "explain - failed to read topic from stdin"
 
-# Bare explain lists available topics and exits 0.
+# Bare explain displays strictly concise usage synopsis (<=15 lines screen budget) and exits 0.
 ex_list=$("$TAM" explain)
-printf '%s\n' "$ex_list" | grep -q 'Available topics:' || fail "explain with no topic missing topic list"
-printf '%s\n' "$ex_list" | grep -q 'welcome' || fail "explain list missing welcome"
-printf '%s\n' "$ex_list" | grep -q 'install' || fail "explain list missing install"
-printf '%s\n' "$ex_list" | grep -q 'shell' || fail "explain list missing shell"
-printf '%s\n' "$ex_list" | grep -q 'pipelines' || fail "explain list missing pipelines"
-printf '%s\n' "$ex_list" | grep -q 'jobs' || fail "explain list missing jobs"
-printf '%s\n' "$ex_list" | grep -q 'filesystem' || fail "explain list missing filesystem"
-printf '%s\n' "$ex_list" | grep -q 'permissions' || fail "explain list missing permissions"
-printf '%s\n' "$ex_list" | grep -q 'desktop' || fail "explain list missing desktop"
-printf '%s\n' "$ex_list" | grep -q 'workspaces' || fail "explain list missing workspaces"
-printf '%s\n' "$ex_list" | grep -q 'resources' || fail "explain list missing resources"
-printf '%s\n' "$ex_list" | grep -q 'man' || fail "explain list missing man"
-printf '%s\n' "$ex_list" | grep -q 'guide' || fail "explain list missing guide"
-printf '%s\n' "$ex_list" | grep -q '  lua ' || fail "explain list missing lua"
-if printf '%s\n' "$ex_list" | grep -qi 'missing topic'; then
-    fail "explain output unexpectedly mentions missing topic"
+[ $(printf '%s\n' "$ex_list" | wc -l) -le 15 ] || fail "bare explain exceeds 15 lines"
+printf '%s\n' "$ex_list" | grep -q 'tam explain topics' || fail "bare explain missing topics pointer"
+printf '%s\n' "$ex_list" | grep -q 'tam explain TOPIC' || fail "bare explain missing usage"
+printf '%s\n' "$ex_list" | grep -q 'tam show' || fail "bare explain missing show pointer"
+if printf '%s\n' "$ex_list" | grep -qi 'Available topics:'; then
+    fail "bare explain unexpectedly dumps full topic catalog"
 fi
 
-# Piped bare explain also outputs topic list cleanly.
-ex_pipe_list=$("$TAM" explain --pipe)
-printf '%s\n' "$ex_pipe_list" | grep -q 'Available topics:' || fail "explain --pipe missing topic list"
-
-# explain --help, -h, and help match bare explain topic listing.
+# explain --help, -h, and help match bare explain usage synopsis.
 [ "$("$TAM" explain help)" = "$ex_list" ] || fail "explain help differs from bare explain"
 [ "$("$TAM" explain --help)" = "$ex_list" ] || fail "explain --help differs from bare explain"
 [ "$("$TAM" explain -h)" = "$ex_list" ] || fail "explain -h differs from bare explain"
+
+# tam explain topics lists available topics and exits 0.
+ex_topics=$("$TAM" explain topics --pipe)
+printf '%s\n' "$ex_topics" | grep -q 'Available topics:' || fail "explain topics missing heading"
+printf '%s\n' "$ex_topics" | grep -q 'welcome' || fail "explain topics missing welcome"
+printf '%s\n' "$ex_topics" | grep -q 'install' || fail "explain topics missing install"
+printf '%s\n' "$ex_topics" | grep -q 'shell' || fail "explain topics missing shell"
+printf '%s\n' "$ex_topics" | grep -q 'pipelines' || fail "explain topics missing pipelines"
+printf '%s\n' "$ex_topics" | grep -q 'jobs' || fail "explain topics missing jobs"
+printf '%s\n' "$ex_topics" | grep -q 'filesystem' || fail "explain topics missing filesystem"
+printf '%s\n' "$ex_topics" | grep -q 'permissions' || fail "explain topics missing permissions"
+printf '%s\n' "$ex_topics" | grep -q 'desktop' || fail "explain topics missing desktop"
+printf '%s\n' "$ex_topics" | grep -q 'workspaces' || fail "explain topics missing workspaces"
+printf '%s\n' "$ex_topics" | grep -q 'resources' || fail "explain topics missing resources"
+printf '%s\n' "$ex_topics" | grep -q 'man' || fail "explain topics missing man"
+printf '%s\n' "$ex_topics" | grep -q 'guide' || fail "explain topics missing guide"
+printf '%s\n' "$ex_topics" | grep -q '  lua ' || fail "explain topics missing lua"
+
+# tam explain topics --terse emits one topic slug per line.
+ex_terse=$("$TAM" explain topics --terse)
+printf '%s\n' "$ex_terse" | grep -qx 'pipelines' || fail "terse topics missing pipelines"
+printf '%s\n' "$ex_terse" | grep -qx 'jobs' || fail "terse topics missing jobs"
+printf '%s\n' "$ex_terse" | grep -qx 'welcome' || fail "terse topics missing welcome"
+if printf '%s\n' "$ex_terse" | grep -q ' '; then fail "terse output contains spaces"; fi
+
+# tam explain topics --verbose emits detailed metadata and keyword arrays.
+ex_verbose=$("$TAM" explain topics --verbose)
+printf '%s\n' "$ex_verbose" | grep -q 'Keywords:' || fail "verbose topics missing Keywords"
+printf '%s\n' "$ex_verbose" | grep -q 'Path:' || fail "verbose topics missing Path"
+printf '%s\n' "$ex_verbose" | grep -q 'Title:' || fail "verbose topics missing Title"
+
+# tam explain topics --level expert --terse emits only expert topics.
+ex_expert_terse=$("$TAM" explain topics --level expert --terse)
+printf '%s\n' "$ex_expert_terse" | grep -qx 'pipelines' || fail "expert terse missing pipelines"
+printf '%s\n' "$ex_expert_terse" | grep -qx 'jobs' || fail "expert terse missing jobs"
+if printf '%s\n' "$ex_expert_terse" | grep -qx 'desktop'; then fail "expert terse unexpectedly includes desktop"; fi
 
 # Multi-word explain resolves via search fallback path.
 ex_multi=$("$TAM" explain cpu load --pipe)
@@ -707,6 +845,14 @@ printf '%s\n' "$chk_json" | grep -q '"task_id": "storage_root_space"' || fail "t
 chk_space=$("$TAM" install check storage_root_space)
 printf '%s\n' "$chk_space" | grep -q '"task_id": "storage_root_space"' || fail "tam install check storage_root_space failed"
 printf '%s\n' "$chk_space" | grep -q '"status": "pass"' || fail "tam install check storage_root_space status not pass"
+
+# Terse check outputs: compact task_id status lines
+chk_terse=$("$TAM" install check --terse)
+printf '%s\n' "$chk_terse" | grep -q '^privilege_pkexec pass' || fail "install check --terse missing privilege_pkexec"
+printf '%s\n' "$chk_terse" | grep -q '^storage_btrfs pass' || fail "install check --terse missing storage_btrfs"
+
+chk_single_terse=$("$TAM" install check storage_root_space --terse)
+[ "$chk_single_terse" = "storage_root_space pass" ] || fail "single check --terse incorrect: $chk_single_terse"
 
 # Privilege detect-and-degrade: when pkexec is absent from PATH
 no_pk_out=$(env PATH="$tmp" "$TAM" install inspect)

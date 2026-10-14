@@ -27,10 +27,10 @@ _tam_completions() {
                 if [ "$prev" = "--check" ]; then
                     COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release" -- "$cur"))
                 else
-                    COMPREPLY=($(compgen -W "--pipe --json --check" -- "$cur"))
+                    COMPREPLY=($(compgen -W "--pipe --json --check --terse" -- "$cur"))
                 fi
             elif [ "${COMP_WORDS[2]}" = "check" ]; then
-                COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release --json --help" -- "$cur"))
+                COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release --json --terse --help" -- "$cur"))
             fi
             ;;
         search)
@@ -43,7 +43,7 @@ _tam_completions() {
             if [ "$prev" = "--level" ]; then
                 COMPREPLY=($(compgen -W "beginner intermediate expert" -- "$cur"))
             else
-                COMPREPLY=($(compgen -W "--pipe --level" -- "$cur"))
+                COMPREPLY=($(compgen -W "topics --pipe --level --terse --verbose" -- "$cur"))
             fi
             ;;
         man)

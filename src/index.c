@@ -623,18 +623,60 @@ int tam_index_print_miss(FILE *out, const tam_index_t *idx, const char *query)
     return 1;
 }
 
-void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level)
+void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned level, bool terse, bool verbose)
 {
-    fprintf(out,
-        "tam explain - explain a curated topic or concept\n\n"
-        "Usage:\n"
-        "  tam explain TOPIC           explain a topic in the terminal\n"
-        "  tam explain TOPIC --pipe    print topic explanation as plain text\n"
-        "  tam explain --level LEVEL TOPIC\n"
-        "                              explain a topic at one depth: beginner,\n"
-        "                              intermediate, or expert\n"
-        "  tam explain --level LEVEL   list topics offering that depth\n"
-        "  tam explain -               read topic keyword from standard input\n\n");
+    if (terse) {
+        for (size_t i = 0; i < idx->count; i++) {
+            const tam_index_entry_t *e = &idx->entries[i];
+            if (level != 0 && !(e->levels & level)) {
+                continue;
+            }
+            fprintf(out, "%s\n", e->topic);
+        }
+        return;
+    }
+
+    if (verbose) {
+        if (level != 0) {
+            fprintf(out, "Topics with a %s level:\n\n", tam_level_name(level));
+        } else {
+            fprintf(out, "Available topics:\n\n");
+        }
+        for (size_t i = 0; i < idx->count; i++) {
+            const tam_index_entry_t *e = &idx->entries[i];
+            if (level != 0 && !(e->levels & level)) {
+                continue;
+            }
+            fprintf(out, "  %-14s %s\n", e->topic, e->summary);
+            fprintf(out, "    Title:       %s\n", e->title);
+            fprintf(out, "    Path:        %s\n", e->path);
+            if (e->track != NULL && e->track[0] != '\0') {
+                fprintf(out, "    Track:       %s\n", e->track);
+            }
+            char levels[64];
+            tam_level_format(e->levels, ", ", levels, sizeof(levels));
+            fprintf(out, "    Levels:      %s\n", levels);
+            if (e->num_prereqs > 0) {
+                fprintf(out, "    Prereqs:     ");
+                for (size_t p = 0; p < e->num_prereqs; p++) {
+                    fprintf(out, "%s%s", p > 0 ? ", " : "", e->prereqs[p]);
+                }
+                fprintf(out, "\n");
+            }
+            if (e->num_keywords > 0) {
+                fprintf(out, "    Keywords:    ");
+                for (size_t k = 0; k < e->num_keywords; k++) {
+                    fprintf(out, "%s%s", k > 0 ? ", " : "", e->keywords[k]);
+                }
+                fprintf(out, "\n");
+            }
+            fprintf(out, "\n");
+        }
+        fprintf(out, "Run 'tam explain <topic>' to view an explanation.\n");
+        fprintf(out, "Run 'tam show' to open the offline guide.\n");
+        return;
+    }
+
     if (level != 0) {
         fprintf(out, "Topics with a %s level:\n", tam_level_name(level));
     } else {
@@ -647,28 +689,14 @@ void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level)
             continue;
         }
         fprintf(out, "  %-12s %s\n", e->topic, e->summary);
-        if (e->num_keywords > 0) {
-            fprintf(out, "               Keywords: ");
-            size_t printed = 0;
-            for (size_t k = 0; k < e->num_keywords; k++) {
-                if (strcasecmp(e->keywords[k], e->topic) == 0) {
-                    continue; /* Don't repeat topic name */
-                }
-                fprintf(out, "%s%s", printed > 0 ? ", " : "", e->keywords[k]);
-                printed++;
-            }
-            if (printed == 0) {
-                fprintf(out, "%s", e->topic);
-            }
-            fprintf(out, "\n");
-        }
-        if (tam_level_count(e->levels) > 1) {
-            char levels[64];
-            tam_level_format(e->levels, ", ", levels, sizeof(levels));
-            fprintf(out, "               Depth: %s\n", levels);
-        }
     }
     fprintf(out,
         "\nRun 'tam explain <topic>' to view an explanation.\n"
         "Run 'tam show' to open the offline guide.\n");
 }
+
+void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level)
+{
+    tam_index_print_catalog_ex(out, idx, level, false, false);
+}
+

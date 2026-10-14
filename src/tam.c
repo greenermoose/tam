@@ -134,34 +134,17 @@ static void print_help(void)
     fputs(
         "tam - the Tamlinux command\n\n"
         "Usage:\n"
-        "  tam                  print a short introduction and exit\n"
-        "  tam show             open the offline guide in the terminal\n"
-        "  tam show PAGE        open a guide page (e.g. welcome, man, shell/pipelines)\n"
-        "  tam show -           render HTML from standard input\n"
-        "  tam show --pipe      print the guide as plain text\n"
-        "  tam search TERM...   search the guide for topics or keywords\n"
-        "  tam search --json TERM...  output search results as JSON\n"
-        "  tam search --pipe TERM...  print search results as plain text\n"
-        "  tam welcome          open the welcome orientation\n"
-        "  tam welcome --pipe   print the welcome orientation as plain text\n"
-        "  tam explain          list available explanation topics\n"
-        "  tam explain TOPIC    explain a curated topic or concept\n"
-        "  tam explain --level LEVEL TOPIC  explain at one depth\n"
-        "                       (beginner, intermediate, or expert)\n"
-        "  tam explain -        read topic keyword from standard input\n"
-        "  tam explain TOPIC --pipe  print the topic explanation as plain text\n"
-        "  tam man PAGE         view manual page with live hyperlinks\n"
-        "  tam man SECTION PAGE view manual page from a specific section\n"
-        "  tam man PAGE --pipe  print manual page as plain text\n"
-        "  tam install          show installation framework commands\n"
-        "  tam install inspect  inspect host and installation capabilities\n"
-        "  tam ask QUESTION     ask a question grounded in the guide via local model\n"
-        "  tam ask --json QUESTION  output grounded answer and citations as JSON\n"
-        "  tam ask --pipe QUESTION  print grounded answer as plain text\n"
-        "  tam --help           show this help and exit (same as: tam help)\n"
-        "  tam --version        show version information and exit\n\n"
-        "This build implements orientation, explanation, corpus search,\n"
-        "the offline guide, manual page hyperlinking, installation inspection, and grounded ask.\n",
+        "  tam                         short introduction and exit\n"
+        "  tam show [PAGE|-] [--pipe]  offline guide (or stdin/plain text)\n"
+        "  tam search [--json] TERM... search guide topics and keywords\n"
+        "  tam welcome [--pipe]        first-run orientation\n"
+        "  tam explain [TOPIC]         usage overview or topic explanation\n"
+        "  tam explain topics [--terse|--verbose] [--level L]  list available topics\n"
+        "  tam man [SECTION] PAGE      hyperlinked manual page viewer\n"
+        "  tam install inspect [--json|--check]  inspect host and check system health\n"
+        "  tam ask [--json] QUESTION   grounded question answering via local model\n"
+        "  tam --help | --version      show help or version information\n\n"
+        "Output modifiers: --pipe (plain text), --terse (compact), --verbose (detail).\n",
         stdout);
 }
 
@@ -237,7 +220,7 @@ static int knowledge_ok(const char *dir)
     return ok;
 }
 
-static char *find_knowledge_root(void)
+char *tam_find_knowledge_root(void)
 {
     const char *env = getenv("TAM_KNOWLEDGE_DIR");
     if (env != NULL && knowledge_ok(env)) {
@@ -298,6 +281,11 @@ static char *find_knowledge_root(void)
     }
 
     return NULL;
+}
+
+static inline char *find_knowledge_root(void)
+{
+    return tam_find_knowledge_root();
 }
 
 static int knowledge_file_exists(const char *root, const char *rel)
@@ -385,6 +373,47 @@ static char *read_corpus_page(const char *root, const char *href,
     return html;
 }
 
+tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
+{
+    tam_index_t *idx = tam_index_load(root);
+    if (idx == NULL) {
+        return NULL;
+    }
+    tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
+    html = tam_str_cat(html, "<title>Available Explanation Topics</title>\n</head>\n<body>\n");
+    if (level != 0) {
+        html = tam_str_cat_printf(html, "<h1>Topics with a %s level</h1>\n", tam_level_name(level));
+    } else {
+        html = tam_str_cat(html, "<h1>Available Explanation Topics</h1>\n");
+    }
+    html = tam_str_cat(html,
+        "<p>Select a topic with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to view its explanation.<br>\n"
+        "Press <kbd>`</kbd> to return to the guide index, or <kbd>q</kbd> to exit.</p>\n"
+        "<table>\n"
+        "<tr><th>Topic</th><th>Summary</th></tr>\n");
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (level != 0 && !(e->levels & level)) {
+            continue;
+        }
+        if (level != 0) {
+            html = tam_str_cat_printf(html,
+                "<tr><td><a href=\"%s?level=%s\">%s</a></td><td>%s</td></tr>\n",
+                e->path, tam_level_name(level), e->topic, e->summary);
+        } else {
+            html = tam_str_cat_printf(html,
+                "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n",
+                e->path, e->topic, e->summary);
+        }
+    }
+    html = tam_str_cat(html, "</table>\n</body>\n</html>\n");
+    tam_index_free(idx);
+
+    tam_document_t *doc = tam_render_html(html, strlen(html), width);
+    tam_str_free(html);
+    return doc;
+}
+
 static tam_document_t *corpus_load(void *vctx, const char *href)
 {
     corpus_ctx_t *ctx = vctx;
@@ -393,6 +422,14 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
     }
     if (strncmp(href, "man:", 4) == 0) {
         return tam_man_load(href + 4, ctx->width);
+    }
+    if (strncmp(href, "tam:topics", 10) == 0) {
+        unsigned level = 0;
+        const char *q = strstr(href, "?level=");
+        if (q != NULL) {
+            level = tam_level_parse(q + 7);
+        }
+        return tam_topics_document(ctx->root, level, ctx->width);
     }
     if (ctx->root == NULL) {
         return NULL;
@@ -698,9 +735,28 @@ static int explain_entry(const char *root, const tam_index_entry_t *entry,
     return view_knowledge_page(root, href, pipe);
 }
 
+static void print_explain_usage(void)
+{
+    fputs(
+        "tam explain - explain a curated topic or concept\n\n"
+        "Usage:\n"
+        "  tam explain TOPIC           explain a topic in the terminal\n"
+        "  tam explain TOPIC --pipe    print topic explanation as plain text\n"
+        "  tam explain --level LEVEL TOPIC  explain at depth (beginner/intermediate/expert)\n"
+        "  tam explain topics          interactive list of topics with live hyperlinks\n"
+        "  tam explain topics --pipe   print available topics as plain text\n"
+        "  tam explain -               read topic keyword from standard input\n\n"
+        "Run 'tam explain topics' to browse all available topics.\n"
+        "Run 'tam explain <topic>' to view a specific explanation.\n"
+        "Run 'tam show' to open the offline guide.\n",
+        stdout);
+}
+
 static int cmd_explain(int n, char **args)
 {
     int pipe = 0;
+    int terse = 0;
+    int verbose = 0;
     int from_stdin = 0;
     unsigned level = 0;
     char stdin_topic[512] = {0};
@@ -710,6 +766,10 @@ static int cmd_explain(int n, char **args)
     for (int i = 0; i < n; i++) {
         if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
             pipe = 1;
+        } else if (strcmp(args[i], "--terse") == 0) {
+            terse = 1;
+        } else if (strcmp(args[i], "--verbose") == 0 || strcmp(args[i], "-v") == 0) {
+            verbose = 1;
         } else if (strcmp(args[i], "--level") == 0 ||
                    strncmp(args[i], "--level=", 8) == 0) {
             const char *value = NULL;
@@ -726,22 +786,7 @@ static int cmd_explain(int n, char **args)
                 return level_usage_error(value);
             }
         } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
-            char *root = find_knowledge_root();
-            if (root == NULL) {
-                fprintf(stderr,
-                        TAM_COMMAND_NAME ": no offline guide installed "
-                        "(set TAM_KNOWLEDGE_DIR to a knowledge directory)\n");
-                return TAM_EXIT_FAILURE;
-            }
-            tam_index_t *idx = tam_index_load(root);
-            if (idx == NULL) {
-                fprintf(stderr, TAM_COMMAND_NAME ": failed to load guide index\n");
-                free(root);
-                return TAM_EXIT_FAILURE;
-            }
-            tam_index_print_catalog(stdout, idx, 0);
-            tam_index_free(idx);
-            free(root);
+            print_explain_usage();
             return 0;
         } else if (strcmp(args[i], "-") == 0) {
             if (from_stdin || qlen > 0) {
@@ -780,7 +825,16 @@ static int cmd_explain(int n, char **args)
         qlen = strlen(query_buf);
     }
 
-    char *root = find_knowledge_root();
+    if (qlen == 0 || strcmp(query_buf, "help") == 0) {
+        if (level == 0 && !terse && !verbose) {
+            print_explain_usage();
+            return 0;
+        }
+        strcpy(query_buf, "topics");
+        qlen = 6;
+    }
+
+    char *root = tam_find_knowledge_root();
     if (root == NULL) {
         fprintf(stderr,
                 TAM_COMMAND_NAME ": no offline guide installed "
@@ -795,8 +849,41 @@ static int cmd_explain(int n, char **args)
         return TAM_EXIT_FAILURE;
     }
 
-    if (qlen == 0 || strcmp(query_buf, "help") == 0) {
-        tam_index_print_catalog(stdout, idx, level);
+    if (strcmp(query_buf, "topics") == 0) {
+        int interactive = !pipe && !terse && !verbose && isatty(STDOUT_FILENO);
+        if (interactive && !isatty(STDIN_FILENO)) {
+            int tty = open("/dev/tty", O_RDONLY);
+            if (tty < 0) {
+                interactive = 0;
+            } else {
+                close(tty);
+            }
+        }
+
+        if (interactive) {
+            int width = tam_terminal_width();
+            tam_document_t *doc = tam_topics_document(root, level, width);
+            if (doc == NULL) {
+                tam_index_free(idx);
+                free(root);
+                return TAM_EXIT_FAILURE;
+            }
+            corpus_ctx_t ctx;
+            ctx.root = root;
+            ctx.width = width;
+            char initial_href[64];
+            if (level != 0) {
+                snprintf(initial_href, sizeof(initial_href), "tam:topics?level=%s", tam_level_name(level));
+            } else {
+                snprintf(initial_href, sizeof(initial_href), "tam:topics");
+            }
+            int rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
+            tam_index_free(idx);
+            free(root);
+            return rc;
+        }
+
+        tam_index_print_catalog_ex(stdout, idx, level, terse != 0, verbose != 0);
         tam_index_free(idx);
         free(root);
         return 0;

@@ -53,8 +53,14 @@ int tam_index_suggest_fuzzy(const tam_index_t *idx, const char *query,
 /* Print clear miss banner to stderr and return 1 (failure code). */
 int tam_index_print_miss(FILE *out, const tam_index_t *idx, const char *query);
 
-/* Print topic catalog (for bare tam explain). A non-zero level mask lists
- * only topics offering that depth. */
+/* Print topic catalog. A non-zero level mask lists only topics offering that depth. */
 void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level);
+
+/* Print topic catalog with output modifiers.
+ * If terse is true: emits one topic slug per line.
+ * If verbose is true: emits exhaustive diagnostics, titles, paths, levels, and keyword arrays.
+ * Otherwise: emits concise topic names and summaries (Goldilocks bounded format).
+ * A non-zero level mask filters to topics offering that depth. */
+void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned level, bool terse, bool verbose);
 
 #endif /* TAM_INDEX_H */

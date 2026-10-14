@@ -1,9 +1,9 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–9 (command foundation, offline guide,
+**Stage:** Develop — milestones 1–10 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
-corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.17.0. The executable
+corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics), link navigation, hyperlink display fixes, in-pager text search,
+reading telemetry, and static Bash shell completions implemented; the command is at 0.18.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself.
 
@@ -68,9 +68,9 @@ Build targets follow the lanes:
 | `tam --version` | Implemented | Separate command version and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
 | `tam show [PAGE]` | Implemented | Open the local guide in the built-in pager when interactive; readable text when piped or not a terminal. Preserves path-based semantics and does not consult the topic index. (Replaces `tam browse`; `browse` remains an explain topic.) |
 | `tam welcome` | Implemented | Explicit orientation; record welcome only after successful display. |
-| `tam explain` | Planned update | Concise usage overview without spewing the full topic catalog (keeps output within the 24-line screen budget). |
+| `tam explain` | Implemented | Concise usage overview without spewing the full topic catalog (keeps output within the 24-line screen budget; ≤15 lines). |
 | `tam explain <topic>` | Implemented | Match curated local topics; clear miss message and useful next step. Never execute topic input. From milestone 6, multi-word queries resolve through `tam search`. |
-| `tam explain topics` | Planned | List available explanation topics; supports `--level LEVEL`, `--terse` (slugs only for pipes/scripts), and `--verbose` (exhaustive keywords/summaries). |
+| `tam explain topics` | Implemented | Interactive hyperlinked topic browser in pager (or clean text when piped); supports `--level LEVEL`, `--terse` (slugs only for pipes/scripts), and `--verbose` (exhaustive keywords/summaries). |
 | `tam man [SECTION] PAGE` | Implemented | System manual page, converted from roff to semantic HTML with hyperlinked cross-references; a surface separate from the corpus. |
 | `tam install inspect` | Implemented | Read-only host facts and recognized installation capabilities. Grows into the read-only findings layer at milestone 8. |
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
@@ -234,13 +234,13 @@ version that shipped at the time; do not rewrite them.
    redirected stdout) missing server/model exit immediately with code 2 and exact refusal message;
    interactive invocations prompt with full disclosure before model fetch. Added `tam ask --json`
    emitting structured output. Added bash completions for `tam ask`. Version bumped to `0.17.0`.
-10. **Navigation & Output Ergonomics (Quick Guide Index Return, Goldilocks Screen Budget, and Output Modifiers) — planned.**
+10. **Navigation & Output Ergonomics (Quick Guide Index Return, Goldilocks Screen Budget, and Output Modifiers) — done (2026-10-14).**
     - **Quick Guide index navigation (`\``):** Bind backtick (`` ` ``) in the interactive pager (`src/pager.c`) to immediately return to the root Guide index (`index.html`) from any corpus page, subpage, or manual page, pushing the current exploration position to the history stack before jumping to allow easy return with `u`.
     - **Goldilocks Screen Budget & `tam explain topics`:** Enforce the rule that usage guides and command overviews must not spew so much detail that critical orientation scrolls off an 80×24 screen. Refactor bare `tam explain` to emit strictly the usage synopsis and navigation pointers (≤15 lines) with an explicit notice that a special hyperlinked `tam explain topics` page is available, avoiding the 29-topic catalog dump.
     - **Interactive Hyperlinked Topics Pager:** In a terminal, `tam explain topics` launches inside `tam`'s built-in interactive pager, displaying available topics as live hyperlinks so users can easily select and navigate directly to any explanation. Under `--pipe` or non-TTY, it outputs clean formatted text.
     - **Piping Modifiers (`--terse` and `--verbose`):** Offer `--terse` for minimal machine-friendly tokens suited for shell pipelines and scripts (`tam explain topics --terse` emits one topic slug per line, ideal for `fzf`, `grep`, and `while read`; compact check statuses) and `--verbose` for exhaustive diagnostics and keyword arrays. Condense `tam --help` to ≤20 lines by consolidating redundant per-subcommand flag variants. Default outputs remain "Goldilocks" (human-friendly and bounded).
 
-Milestones 6–9 derive from the 2026-10-12 `tam` help and self-inspection
+Milestones 6–10 derive from the 2026-10-12 `tam` help and self-inspection
 requirements. The reasoning still belongs in the private decision ledger; this
 plan is the public projection and is revised when those decisions are recorded.
 
@@ -464,6 +464,7 @@ plan/apply/verify work follows the product framework.
 - **2026-10-14:** Milestone 9 implemented (tam 0.17.0). Added opt-in grounded question answering CLI surface `tam ask [OPTIONS] <question>` (`src/ask.c`, `src/ask.h`). Implemented pure POSIX socket HTTP/1.1 client connecting to already-running local inference server (e.g. Ollama); strictly honours D53 zero-daemon invariant (never starts, stops, or bundles a background daemon). Implemented RAG over corpus index (`tam_index_search`): retrieves top relevant corpus pages, extracts plain-text excerpts bounded to ≤4 KB, and enforces mandatory `Sources:` citation lines. Grounding miss safety: queries with zero corpus relevance return "Not found in Tamlinux guide." with `Sources: (none)` and suggest `tam search`, preventing hallucinations. Non-interactive pipeline safety: under `--pipe` or non-TTY shells, missing model/server immediately exits with code 2 and exact message `tam: ask requires a local model; run interactively to fetch or start Ollama`. Interactive consent: when connected to server with missing model, prompts user with full disclosure (URL, size, storage path) before download, with `$TAM_ASK_ALLOW_FETCH=false` override. Added `--json` machine-readable output schema. Added static Bash completions for `tam ask` (`--model`, `--server`, `--json`, `--pipe`). Version bumped to `0.17.0`.
 - **2026-10-14:** Quick Guide index navigation keybinding planned (Fred's request). Bind backtick (`` ` ``) in the interactive pager (`src/pager.c`) to jump straight back to the Guide root index (`index.html`) from any corpus page, subpage, or manual page, saving the current exploration position to the history stack so users can re-orient to the home index with a single keystroke from any depth.
 - **2026-10-14:** Output ergonomics and "Goldilocks" screen budget decided (Fred's request). Non-interactive usage guides and overviews must never spew unbounded output that scrolls critical syntax off a standard 80×24 terminal screen. Refactor bare `tam explain` to display strictly the usage synopsis and navigation pointers (≤15 lines) letting users know a special `tam explain topics` page is available, without dumping the full topic catalog. `tam explain topics` interactively launches inside `tam`'s built-in pager with each topic rendered as a live hyperlink so users can easily select and navigate directly to any topic; under `--pipe` or non-TTY, it outputs clean text. Establish `--terse` for minimal machine tokens emitting one topic slug per line (ideal for `fzf`/scripts) and `--verbose` for exhaustive diagnostics/keywords, while keeping default outputs in the "Goldilocks" just-right zone. Condense `tam --help` to ≤20 lines by consolidating redundant per-subcommand flag variants.
+- **2026-10-14:** Milestone 10 implemented (tam 0.18.0). Implemented Quick Guide index navigation keybinding in `src/pager.c`: backtick (`` ` ``) returns immediately to `index.html` from any corpus topic, subtopic, or manual page (`tam man`), saving the current page to the history stack so `u` returns back. Updated pager status line to include `` ` index `` shortcut. Implemented Goldilocks screen budget: bare `tam explain` now strictly emits a concise 13-line usage overview (≤15 lines) pointing users to `tam explain topics` and topic queries rather than spewing the entire 29-topic catalog. Condensed `tam --help` to a 14-line synopsis (≤20 lines). Added `tam explain topics` which interactively launches inside `tam`'s built-in pager with each topic rendered as a live hyperlink (`<a href="...">`) for instant selection and navigation; under `--pipe` or non-TTY, emits clean text catalog. Added dynamic `tam:topics` loader routing in `corpus_load` to support back/forward pager navigation. Added `--terse` modifier (slugs only for `tam explain topics`; compact status for `tam install check`) and `--verbose` modifier (exhaustive diagnostics and keyword arrays). Added Bash completions for `topics`, `--terse`, and `--verbose`. Version bumped to `0.18.0`.
 
 
 

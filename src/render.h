@@ -44,4 +44,10 @@ char *tam_document_text(const tam_document_t *doc);
 /* Callback used by the pager to load another page by relative href. */
 typedef tam_document_t *(*tam_page_loader_t)(void *ctx, const char *href);
 
+/* Find the knowledge directory root. Returns newly allocated string or NULL. */
+char *tam_find_knowledge_root(void);
+
+/* Build dynamic HTML document for available topics catalog. Caller must free returned doc. */
+tam_document_t *tam_topics_document(const char *root, unsigned level, int width);
+
 #endif /* TAM_RENDER_H */
