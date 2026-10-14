@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lua: The Embedded Scripting Language</title>
+<meta name="topic" content="lua">
+<meta name="summary" content="Lua on this system: embedded interpreters, desktop configuration, and the host C API">
+<meta name="keywords" content="lua, lua script, scripting, script, embedded, embedded scripting, interpreter, configuration, config, bindings.lua, monitors.lua, hyprland lua, hyprctl reload, hyprctl repl, hyprctl eval, config language, neovim, nvim, mpv, luajit, luarocks, lua5.4, lua5.1, luac, table, tables, stack, lua_pcall, c api">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="ecosystem">
+</head>
+<body>
+<h1>Lua: The Embedded Scripting Language</h1>
+
+<p><a href="ecosystem/index.html">The Tamlinux ecosystem</a></p>
+
+<p>Lua is a small, fast scripting language designed to be embedded inside
+larger programs. Tamlinux ships it as a capability of the programs you
+already run rather than as an application of its own: your compositor,
+your editor, and your media player each contain a Lua interpreter, and
+the desktop configuration you edit every day is written in it.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Lua is the language of your desktop</h2>
+
+<p><strong>Summary:</strong> Meet the interpreter that runs inside Hyprland,
+Neovim, and mpv, and make it say something from the terminal.</p>
+
+<p><strong>Prerequisites:</strong> The ecosystem overview
+(<a href="ecosystem/index.html">The Tamlinux ecosystem</a>) and desktop
+basics (<a href="desktop/index.html">The Tamlinux Desktop</a>).</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+lua -e 'print("hello from " .. _VERSION)'
+</pre>
+
+<p>Expected output:</p>
+
+<pre>
+hello from Lua 5.5
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>lua</code> is the standalone interpreter installed by the
+<code>lua</code> package; here it is version 5.5, the same version
+Hyprland embeds.</li>
+<li><code>-e</code> runs one statement without creating a file;
+<code>..</code> joins strings, and the global <code>_VERSION</code> names
+the interpreter's version.</li>
+<li>You have just run the language outside its hosts for once. The same
+code runs inside the programs listed below.</li>
+</ul>
+
+<h3>Why Lua is included</h3>
+
+<ul>
+<li><strong>Your desktop is configured in Lua.</strong> Hyprland, the
+compositor this desktop runs on, embeds Lua: upstream Hyprland requires
+Lua&nbsp;5.5 at build time and loads <code>~/.config/hypr/hyprland.lua</code>
+and every module it requires through that interpreter. The <code>lua</code>
+package is a hard dependency of <code>hyprland</code>.</li>
+<li><strong>Your editor and player embed it too.</strong> Neovim and mpv
+are built against LuaJIT and declare it as a dependency; the LazyVim
+configuration in <code>~/.config/nvim</code> and mpv's scripts under
+<code>/usr/share/mpv/scripts</code> are written in Lua.</li>
+<li><strong>It fits the house rules.</strong> The interpreter takes about
+1.6&nbsp;MiB of disk and starts in about a millisecond &mdash; configurable
+behavior without a daemon or a runtime tax, in line with
+<a href="ecosystem/philosophy.html">resource efficiency</a>.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Editing a file under <code>~/.config/hypr/</code> does nothing until the
+compositor runs it again. After a change, run <code>hyprctl reload</code>
+to re-execute the Lua configuration; if a file fails to parse,
+<code>hyprctl configerrors</code> lists the errors.</p>
+
+<h3>Next step</h3>
+
+<p>Write your own scripts and find your desktop's Lua modules in the
+intermediate section of this page, or read why this stack was chosen in
+<a href="ecosystem/compositors.html">Compositors and windowing</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Your own scripts, and your desktop's modules</h2>
+
+<p><strong>Summary:</strong> Write Lua files, run them with the installed
+interpreters, and learn the layout of the configuration the compositor
+loads.</p>
+
+<h3>Worked example</h3>
+
+<p>Save this as <code>greet.lua</code> and run <code>lua greet.lua</code>:</p>
+
+<pre>
+local users = { "fred", "root" }
+for i, name in ipairs(users) do
+  print(i .. ": " .. name)
+end
+</pre>
+
+<p>Output:</p>
+
+<pre>
+1: fred
+2: root
+</pre>
+
+<p>A table in braces is Lua's one structured type. <code>ipairs</code>
+walks the array part of a table in order, and Lua counts from 1, so the
+first element is index 1, not 0.</p>
+
+<h3>The interpreters on this system</h3>
+
+<table>
+<tr><th>Command</th><th>Version</th><th>What it is for</th></tr>
+<tr><td><code>lua</code></td><td>5.5.1</td><td>The default system interpreter (package <code>lua</code>); the version Hyprland embeds</td></tr>
+<tr><td><code>luac</code></td><td>5.5.1</td><td>Checks syntax and compiles source to bytecode</td></tr>
+<tr><td><code>lua5.4</code>, <code>lua5.1</code></td><td>5.4.9, 5.1.5</td><td>Older language lines, for scripts pinned to them</td></tr>
+<tr><td><code>luajit</code></td><td>2.1</td><td>Just-in-time compiler, Lua 5.1 compatible; what Neovim and mpv embed</td></tr>
+<tr><td><code>luarocks</code></td><td>3.13.0</td><td>Installs third-party Lua modules</td></tr>
+</table>
+
+<h3>Where your desktop's Lua lives</h3>
+
+<pre>
+~/.config/hypr/hyprland.lua   entry point: module path, defaults, your overrides
+~/.config/hypr/monitors.lua   display layout
+~/.config/hypr/bindings.lua   your key bindings
+~/.config/hypr/tamlinux/      Tamlinux defaults, ported from Omarchy
+</pre>
+
+<p>The entry point prepares the Lua module path and then
+<code>require</code>s the rest in order: Tamlinux defaults first, then
+your <code>hypr.monitors</code>, <code>hypr.bindings</code>,
+<code>hypr.input</code>, and the other personal files. The functions your
+config calls &mdash; <code>o.bind(...)</code>, <code>hl.monitor({ ... })</code>
+&mdash; are not Lua built-ins; Hyprland registers them into the
+interpreter as the host API for its configuration. That state stays
+reachable while the compositor runs: <code>hyprctl repl</code> opens an
+interactive Lua prompt inside Hyprland, and
+<code>hyprctl repl '&lt;expression&gt;'</code> evaluates one expression and
+prints the result (keep test expressions read-only).</p>
+
+<h3>Completion task</h3>
+
+<p>Fill the gap (marked <code>___</code>) so the script prints its total:</p>
+
+<pre>
+local watts = { idle = 8, load = 65 }
+print("total: " .. ___ .. " W")
+</pre>
+
+<p>Target output: exactly <code>total: 73 W</code>.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>Table fields are read with a dot: <code>watts.idle</code>.</li>
+<li>Arithmetic binds tighter than concatenation, so
+<code>watts.idle + watts.load</code> needs no parentheses inside the
+<code>..</code> chain.</li>
+<li>Run it with <code>lua watts.lua</code>; the same file also runs
+unchanged under <code>luajit</code>.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: How a host embeds Lua (the C API)</h2>
+
+<p><strong>Reference:</strong> A host program creates one Lua state, loads
+script files into it, and exchanges values with it over a single shared
+stack. Positions on that stack count up from the bottom
+(<code>1</code>, <code>2</code>, <code>3</code>&hellip;) or down from the
+top (<code>-1</code> is the value most recently pushed or returned).
+Hyprland does exactly this: <code>readelf -d /usr/bin/Hyprland</code>
+lists <code>liblua.so.5.5</code> as a needed library, and its binary
+carries <code>luaL_loadfilex</code>, <code>lua_pcallk</code>, and
+<code>lua_next</code> &mdash; your configuration files are loaded and
+called like any other embedded script.</p>
+
+<h3>A minimal exchange</h3>
+
+<p>The host loads this function from a script file:</p>
+
+<pre>
+function create_character(name, base_power)
+  return { name = name, power = base_power * 1.5, alive = true }
+end
+</pre>
+
+<p>Then pushes the function and its arguments, calls it protected, and
+reads the table that comes back:</p>
+
+<pre>
+lua_getglobal(L, "create_character");   /* function          */
+lua_pushstring(L, "Valkyrie");          /* argument 1        */
+lua_pushnumber(L, 120.0);               /* argument 2        */
+
+if (lua_pcall(L, 2, 1, 0) != LUA_OK) { /* call: 2 in, 1 out */
+    fprintf(stderr, "error: %s\n", lua_tostring(L, -1));
+    lua_pop(L, 1);                      /* discard message   */
+    return;
+}
+
+if (lua_istable(L, -1)) {               /* table on top      */
+    lua_getfield(L, -1, "power");       /* pushes table.power */
+    printf("power: %.1f\n", lua_tonumber(L, -1));
+    lua_pop(L, 1);                      /* table on top again */
+}
+lua_pop(L, 1);                          /* discard the table */
+</pre>
+
+<p>The call consumed the function and both arguments and left one result
+at <code>-1</code>. On failure nothing unwinds the host: the error
+message sits at <code>-1</code> and must be popped. Every
+<code>lua_getfield</code> pushes a value, so every read is balanced by a
+<code>lua_pop</code>.</p>
+
+<h3>Calls worth knowing</h3>
+
+<table>
+<tr><th>Call</th><th>Effect</th></tr>
+<tr><td><code>lua_getglobal(L, "name")</code></td><td>Push the global <code>name</code> (function or value)</td></tr>
+<tr><td><code>lua_pushstring</code>, <code>lua_pushnumber</code>, <code>lua_pushboolean</code></td><td>Push one argument, left to right</td></tr>
+<tr><td><code>lua_pcall(L, nargs, nresults, 0)</code></td><td>Call; returns <code>LUA_OK</code> on success, otherwise the message is at <code>-1</code></td></tr>
+<tr><td><code>lua_istable</code>, <code>lua_tostring</code>, <code>lua_tonumber</code>, <code>lua_toboolean</code></td><td>Type-check and convert the value on top for the host</td></tr>
+<tr><td><code>lua_getfield(L, -1, "key")</code></td><td>Push <code>table.key</code> for a table at <code>-1</code></td></tr>
+<tr><td><code>lua_pushnil(L)</code> then <code>lua_next(L, -2)</code></td><td>Walk a table with dynamic keys: key at <code>-2</code>, value at <code>-1</code>; pop the value each round, keep the key</td></tr>
+<tr><td><code>lua_pop(L, 1)</code></td><td>Discard one value and keep the stack balanced</td></tr>
+</table>
+
+<h3>Rules for scripts a host will run</h3>
+
+<ul>
+<li>Check the type of every value before returning it; a host reads a
+wrong or missing return as an error, not as an exception your script
+sees.</li>
+<li>Declare helpers and temporaries with <code>local</code>; leave in
+global scope only the names the host triggers directly.</li>
+<li>Lists start at index 1, not 0.</li>
+<li>A key that was never set reads as <code>nil</code> rather than
+raising an error, so fill required fields before returning a table.</li>
+</ul>
+
+<p>Manual pages: <a href="man:lua(1)">lua(1)</a>,
+<a href="man:luac(1)">luac(1)</a>, <a href="man:luajit(1)">luajit(1)</a>.
+The full language reference ships on disk in
+<code>/usr/share/doc/lua/manual.html</code>.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash; the compositor that embeds this interpreter.</li>
+<li><a href="desktop/index.html">The Tamlinux Desktop</a> &mdash; what the configuration drives.</li>
+<li><a href="ecosystem/index.html">The Tamlinux ecosystem</a> &mdash; return to the choices that shape the system.</li>
+<li><a href="index.html">Guide index</a> &mdash; browse all topics.</li>
+</ul>
+</body>
+</html>

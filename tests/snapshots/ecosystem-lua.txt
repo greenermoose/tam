@@ -1,0 +1,239 @@
+Lua: The Embedded Scripting Language
+
+Depth: beginner, intermediate, expert. Every level is shown below; follow one to
+read only that depth.
+
+The Tamlinux ecosystem
+
+Lua is a small, fast scripting language designed to be embedded inside larger
+programs. Tamlinux ships it as a capability of the programs you already run
+rather than as an application of its own: your compositor, your editor, and your
+media player each contain a Lua interpreter, and the desktop configuration you
+edit every day is written in it.
+
+Beginner: Lua is the language of your desktop
+
+Summary: Meet the interpreter that runs inside Hyprland, Neovim, and mpv, and
+make it say something from the terminal.
+
+Prerequisites: The ecosystem overview ( The Tamlinux ecosystem) and desktop
+basics ( The Tamlinux Desktop).
+
+Command sequence
+
+  
+  lua -e 'print("hello from " .. _VERSION)'
+  
+
+Expected output:
+
+  
+  hello from Lua 5.5
+  
+
+What just happened
+
+- lua is the standalone interpreter installed by the lua package; here it is
+  version 5.5, the same version Hyprland embeds.
+- -e runs one statement without creating a file;.. joins strings, and the global
+  _VERSION names the interpreter's version.
+- You have just run the language outside its hosts for once. The same code runs
+  inside the programs listed below.
+
+Why Lua is included
+
+- Your desktop is configured in Lua. Hyprland, the compositor this desktop runs
+  on, embeds Lua: upstream Hyprland requires Lua 5.5 at build time and loads
+  ~/.config/hypr/hyprland.lua and every module it requires through that
+  interpreter. The lua package is a hard dependency of hyprland.
+- Your editor and player embed it too. Neovim and mpv are built against LuaJIT
+  and declare it as a dependency; the LazyVim configuration in ~/.config/nvim
+  and mpv's scripts under /usr/share/mpv/scripts are written in Lua.
+- It fits the house rules. The interpreter takes about 1.6 MiB of disk and
+  starts in about a millisecond — configurable behavior without a daemon or a
+  runtime tax, in line with resource efficiency.
+
+Common pitfall
+
+Editing a file under ~/.config/hypr/ does nothing until the compositor runs it
+again. After a change, run hyprctl reload to re-execute the Lua configuration;
+if a file fails to parse, hyprctl configerrors lists the errors.
+
+Next step
+
+Write your own scripts and find your desktop's Lua modules in the intermediate
+section of this page, or read why this stack was chosen in Compositors and
+windowing.
+
+Intermediate: Your own scripts, and your desktop's modules
+
+Summary: Write Lua files, run them with the installed interpreters, and learn
+the layout of the configuration the compositor loads.
+
+Worked example
+
+Save this as greet.lua and run lua greet.lua:
+
+  
+  local users = { "fred", "root" }
+  for i, name in ipairs(users) do
+    print(i .. ": " .. name)
+  end
+  
+
+Output:
+
+  
+  1: fred
+  2: root
+  
+
+A table in braces is Lua's one structured type. ipairs walks the array part of a
+table in order, and Lua counts from 1, so the first element is index 1, not 0.
+
+The interpreters on this system
+
+Command         Version       What it is for                                    
+--------------  ------------  --------------------------------------------------
+lua             5.5.1         The default system interpreter (package lua); the 
+                              version Hyprland embeds                           
+luac            5.5.1         Checks syntax and compiles source to bytecode     
+lua5.4, lua5.1  5.4.9, 5.1.5  Older language lines, for scripts pinned to them  
+luajit          2.1           Just-in-time compiler, Lua 5.1 compatible; what   
+                              Neovim and mpv embed                              
+luarocks        3.13.0        Installs third-party Lua modules                  
+
+Where your desktop's Lua lives
+
+  
+  ~/.config/hypr/hyprland.lua   entry point: module path, defaults, your overrides
+  ~/.config/hypr/monitors.lua   display layout
+  ~/.config/hypr/bindings.lua   your key bindings
+  ~/.config/hypr/tamlinux/      Tamlinux defaults, ported from Omarchy
+  
+
+The entry point prepares the Lua module path and then require s the rest in
+order: Tamlinux defaults first, then your hypr.monitors, hypr.bindings,
+hypr.input, and the other personal files. The functions your config calls —
+o.bind(...), hl.monitor({...}) — are not Lua built-ins; Hyprland registers
+them into the interpreter as the host API for its configuration. That state
+stays reachable while the compositor runs: hyprctl repl opens an interactive Lua
+prompt inside Hyprland, and hyprctl repl '<expression>' evaluates one expression
+and prints the result (keep test expressions read-only).
+
+Completion task
+
+Fill the gap (marked ___) so the script prints its total:
+
+  
+  local watts = { idle = 8, load = 65 }
+  print("total: " .. ___ .. " W")
+  
+
+Target output: exactly total: 73 W.
+
+Verification hints
+
+- Table fields are read with a dot: watts.idle.
+- Arithmetic binds tighter than concatenation, so watts.idle + watts.load needs
+  no parentheses inside the.. chain.
+- Run it with lua watts.lua; the same file also runs unchanged under luajit.
+
+Expert: How a host embeds Lua (the C API)
+
+Reference: A host program creates one Lua state, loads script files into it, and
+exchanges values with it over a single shared stack. Positions on that stack
+count up from the bottom ( 1, 2, 3 …) or down from the top ( -1 is the value
+most recently pushed or returned). Hyprland does exactly this: readelf -d
+/usr/bin/Hyprland lists liblua.so.5.5 as a needed library, and its binary
+carries luaL_loadfilex, lua_pcallk, and lua_next — your configuration files
+are loaded and called like any other embedded script.
+
+A minimal exchange
+
+The host loads this function from a script file:
+
+  
+  function create_character(name, base_power)
+    return { name = name, power = base_power * 1.5, alive = true }
+  end
+  
+
+Then pushes the function and its arguments, calls it protected, and reads the
+table that comes back:
+
+  
+  lua_getglobal(L, "create_character");   /* function          */
+  lua_pushstring(L, "Valkyrie");          /* argument 1        */
+  lua_pushnumber(L, 120.0);               /* argument 2        */
+  
+  if (lua_pcall(L, 2, 1, 0) != LUA_OK) { /* call: 2 in, 1 out */
+      fprintf(stderr, "error: %s\n", lua_tostring(L, -1));
+      lua_pop(L, 1);                      /* discard message   */
+      return;
+  }
+  
+  if (lua_istable(L, -1)) {               /* table on top      */
+      lua_getfield(L, -1, "power");       /* pushes table.power */
+      printf("power: %.1f\n", lua_tonumber(L, -1));
+      lua_pop(L, 1);                      /* table on top again */
+  }
+  lua_pop(L, 1);                          /* discard the table */
+  
+
+The call consumed the function and both arguments and left one result at -1. On
+failure nothing unwinds the host: the error message sits at -1 and must be
+popped. Every lua_getfield pushes a value, so every read is balanced by a
+lua_pop.
+
+Calls worth knowing
+
+Call                                     Effect                                 
+---------------------------------------  ---------------------------------------
+lua_getglobal(L, "name")                 Push the global name (function or      
+                                         value)                                 
+lua_pushstring, lua_pushnumber,          Push one argument, left to right       
+lua_pushboolean                                                                 
+lua_pcall(L, nargs, nresults, 0)         Call; returns LUA_OK on success,       
+                                         otherwise the message is at -1         
+lua_istable, lua_tostring, lua_tonumber  Type-check and convert the value on top
+, lua_toboolean                          for the host                           
+lua_getfield(L, -1, "key")               Push table.key for a table at -1       
+lua_pushnil(L) then lua_next(L, -2)      Walk a table with dynamic keys: key at 
+                                         -2, value at -1; pop the value each    
+                                         round, keep the key                    
+lua_pop(L, 1)                            Discard one value and keep the stack   
+                                         balanced                               
+
+Rules for scripts a host will run
+
+- Check the type of every value before returning it; a host reads a wrong or
+  missing return as an error, not as an exception your script sees.
+- Declare helpers and temporaries with local; leave in global scope only the
+  names the host triggers directly.
+- Lists start at index 1, not 0.
+- A key that was never set reads as nil rather than raising an error, so fill
+  required fields before returning a table.
+
+Manual pages: lua(1), luac(1), luajit(1). The full language reference ships on
+disk in /usr/share/doc/lua/manual.html.
+
+Where to next
+
+- Compositors and windowing — the compositor that embeds this interpreter.
+- The Tamlinux Desktop — what the configuration drives.
+- The Tamlinux ecosystem — return to the choices that shape the system.
+- Guide index — browse all topics.
+
+Links:
+  [1] ecosystem/lua.html?level=beginner
+  [2] ecosystem/lua.html?level=intermediate
+  [3] ecosystem/lua.html?level=expert
+  [4] ecosystem/index.html
+  [5] desktop/index.html
+  [6] ecosystem/philosophy.html
+  [7] ecosystem/compositors.html
+  [8] man:lua(1)
+  [9] man:luac(1)
+  [10] man:luajit(1)
+  [11] index.html

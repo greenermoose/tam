@@ -486,6 +486,9 @@ ex_ws=$("$TAM" explain workspaces --pipe)
 printf '%s\n' "$ex_ws" | grep -q 'Workspaces and Multi-Display Layout' || fail "explain workspaces failed"
 ex_res=$("$TAM" explain resources --pipe)
 printf '%s\n' "$ex_res" | grep -q 'System Resources and Performance' || fail "explain resources failed"
+ex_lua=$("$TAM" explain lua --pipe)
+printf '%s\n' "$ex_lua" | grep -q 'Lua: The Embedded Scripting Language' || fail "explain lua failed"
+printf '%s\n' "$ex_lua" | grep -q 'Depth: beginner' || fail "explain lua missing depth line"
 
 # Explain with - reads topic from stdin.
 ex_stdin=$(printf 'jobs\n' | "$TAM" explain - --pipe)
@@ -506,6 +509,7 @@ printf '%s\n' "$ex_list" | grep -q 'workspaces' || fail "explain list missing wo
 printf '%s\n' "$ex_list" | grep -q 'resources' || fail "explain list missing resources"
 printf '%s\n' "$ex_list" | grep -q 'man' || fail "explain list missing man"
 printf '%s\n' "$ex_list" | grep -q 'guide' || fail "explain list missing guide"
+printf '%s\n' "$ex_list" | grep -q '  lua ' || fail "explain list missing lua"
 if printf '%s\n' "$ex_list" | grep -qi 'missing topic'; then
     fail "explain output unexpectedly mentions missing topic"
 fi
@@ -522,6 +526,14 @@ printf '%s\n' "$ex_pipe_list" | grep -q 'Available topics:' || fail "explain --p
 # Multi-word explain resolves via search fallback path.
 ex_multi=$("$TAM" explain cpu load --pipe)
 printf '%s\n' "$ex_multi" | grep -q 'System Resources' || fail "explain cpu load failed"
+
+# Lua ladder: each depth renders its own section and no others.
+ex_lua_b=$("$TAM" explain --level beginner lua --pipe)
+printf '%s\n' "$ex_lua_b" | grep -q 'Why Lua is included' || fail "explain --level beginner lua failed"
+if printf '%s\n' "$ex_lua_b" | grep -q 'shared stack'; then fail "beginner lua contains expert section"; fi
+ex_lua_e=$("$TAM" explain --level expert lua --pipe)
+printf '%s\n' "$ex_lua_e" | grep -q 'How a host embeds Lua' || fail "explain --level expert lua failed"
+if printf '%s\n' "$ex_lua_e" | grep -q 'Why Lua is included'; then fail "expert lua contains beginner section"; fi
 
 # Unmatched topic: clear diagnostic and reference to show.
 if "$TAM" explain no_such_topic >/dev/null 2>&1; then fail "unmatched topic exited 0"; fi
@@ -558,7 +570,7 @@ ex_cat_expert=$("$TAM" explain --level expert)
 printf '%s\n' "$ex_cat_expert" | grep -q 'Topics with a expert level:' || fail "explain --level expert missing heading"
 printf '%s\n' "$ex_cat_expert" | grep -q 'pipelines' || fail "expert catalog missing pipelines"
 printf '%s\n' "$ex_cat_expert" | grep -q 'jobs' || fail "expert catalog missing jobs"
-if printf '%s\n' "$ex_cat_expert" | grep -q 'desktop'; then fail "expert catalog unexpectedly includes beginner-only desktop"; fi
+if printf '%s\n' "$ex_cat_expert" | grep -q '^  desktop '; then fail "expert catalog unexpectedly includes beginner-only desktop"; fi
 
 # Invalid level argument produces exit code 2 (usage error)
 if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi
@@ -604,6 +616,7 @@ fi
 "$TAM" search sway | grep -q 'ecosystem/compositors.html' || fail "search 'sway' failed"
 "$TAM" search runit | grep -q 'ecosystem/init.html' || fail "search 'runit' failed"
 "$TAM" search "carried patch" | grep -q 'ecosystem/patches.html' || fail "search 'carried patch' failed"
+"$TAM" search lua | grep -q 'ecosystem/lua.html' || fail "search 'lua' failed"
 
 # Out-of-corpus query produces clear miss banner and exits 1 (no auto-redirect)
 if "$TAM" search cron >/dev/null 2>&1; then fail "search cron unexpectedly exited 0"; fi
