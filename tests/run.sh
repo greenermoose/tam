@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.16.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.17.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -873,6 +873,75 @@ printf '%s\n' "$bash_level_test" | grep -q 'beginner' || fail "bash completion m
 printf '%s\n' "$bash_level_test" | grep -q 'intermediate' || fail "bash completion missing level intermediate"
 printf '%s\n' "$bash_level_test" | grep -q 'expert' || fail "bash completion missing level expert"
 
+bash_ask_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam ask "")
+COMP_CWORD=2
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_ask_test" | grep -q -- '--model' || fail "bash completion missing ask --model"
+printf '%s\n' "$bash_ask_test" | grep -q -- '--server' || fail "bash completion missing ask --server"
+printf '%s\n' "$bash_ask_test" | grep -q -- '--json' || fail "bash completion missing ask --json"
+printf '%s\n' "$bash_ask_test" | grep -q -- '--pipe' || fail "bash completion missing ask --pipe"
+
 pass "static bash shell auto-completion script"
+
+# -----------------------------------------------------------------------------
+# Milestone 9: Grounded ask surface, offline boundary, and non-interactive refusal
+# -----------------------------------------------------------------------------
+"$TAM" --help | grep -q 'tam ask' || fail "--help missing tam ask"
+
+# Bare invocation missing question
+set +e
+ask_bare_err=$("$TAM" ask 2>&1)
+ask_bare_rc=$?
+set -e
+[ "$ask_bare_rc" -eq 2 ] || fail "expected bare tam ask exit 2, got $ask_bare_rc"
+echo "$ask_bare_err" | grep -q 'missing question' || fail "bare tam ask did not report missing question"
+
+# tam ask --help
+"$TAM" ask --help | grep -q 'Usage:' || fail "tam ask --help missing usage"
+"$TAM" ask -h | grep -q 'Usage:' || fail "tam ask -h missing usage"
+
+# Non-interactive refusal when server is unreachable (exit code 2)
+set +e
+ask_refusal_out=$("$TAM" ask --server http://127.0.0.1:59999 --pipe "what is a pipeline" 2>&1)
+ask_refusal_code=$?
+set -e
+[ "$ask_refusal_code" -eq 2 ] || fail "expected exit 2 on unreachable server under --pipe, got $ask_refusal_code"
+echo "$ask_refusal_out" | grep -q 'tam: ask requires a local model; run interactively to fetch or start Ollama' || fail "unexpected refusal message: $ask_refusal_out"
+
+# Grounding miss on unrelated topic
+ask_miss_out=$("$TAM" ask --server http://127.0.0.1:11434 "what is the capital of Mars")
+echo "$ask_miss_out" | grep -q 'Not found in Tamlinux guide.' || fail "missing 'Not found' in miss output"
+echo "$ask_miss_out" | grep -q 'Sources: (none)' || fail "missing 'Sources: (none)' in miss output"
+
+# Grounding miss with --json
+ask_json_miss=$("$TAM" ask --json --server http://127.0.0.1:11434 "what is the capital of Mars")
+echo "$ask_json_miss" | grep -q '"grounded": false' || fail "json miss missing grounded: false"
+echo "$ask_json_miss" | grep -q '"sources": \[\]' || fail "json miss missing empty sources array"
+
+# Live inference query with llama3.2:1b
+ask_live_out=$("$TAM" ask --pipe "what is a pipeline")
+echo "$ask_live_out" | grep -qi 'pipeline' || fail "live answer missing pipeline text"
+echo "$ask_live_out" | grep -qi 'Sources:' || fail "live answer missing Sources:"
+
+# Live query with --json
+ask_live_json=$("$TAM" ask --json --pipe "what is a pipeline")
+echo "$ask_live_json" | grep -q '"grounded": true' || fail "live json missing grounded: true"
+echo "$ask_live_json" | grep -q 'shell/pipelines.html' || fail "live json missing shell/pipelines.html source"
+
+# Reading question from stdin via '-'
+ask_stdin_out=$(echo "how do I view background jobs?" | "$TAM" ask --pipe -)
+echo "$ask_stdin_out" | grep -qi 'job' || fail "stdin answer missing job text"
+echo "$ask_stdin_out" | grep -qi 'Sources:' || fail "stdin answer missing Sources:"
+
+# Piped output has no escape sequences
+if "$TAM" ask --pipe "what is a pipeline" | grep -q "$esc"; then
+    fail "piped ask output contains escape sequences"
+fi
+
+pass "tam ask grounded retrieval, local server client, and non-interactive refusal"
 
 printf 'All tam command tests passed.\n'

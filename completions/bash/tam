@@ -6,7 +6,7 @@ _tam_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local subcommands="show welcome explain search man install help"
+    local subcommands="show welcome explain search man install ask help"
     local global_flags="--help -h --version -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
@@ -48,6 +48,13 @@ _tam_completions() {
             ;;
         man)
             COMPREPLY=($(compgen -W "--help --pipe" -- "$cur"))
+            ;;
+        ask)
+            if [ "$prev" = "--model" ] || [ "$prev" = "--server" ]; then
+                COMPREPLY=()
+            else
+                COMPREPLY=($(compgen -W "--model --server --json --pipe --help -h" -- "$cur"))
+            fi
             ;;
         *)
             ;;

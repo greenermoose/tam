@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "ask.h"
 #include "depth.h"
 #include "index.h"
 #include "install.h"
@@ -154,10 +155,13 @@ static void print_help(void)
         "  tam man PAGE --pipe  print manual page as plain text\n"
         "  tam install          show installation framework commands\n"
         "  tam install inspect  inspect host and installation capabilities\n"
+        "  tam ask QUESTION     ask a question grounded in the guide via local model\n"
+        "  tam ask --json QUESTION  output grounded answer and citations as JSON\n"
+        "  tam ask --pipe QUESTION  print grounded answer as plain text\n"
         "  tam --help           show this help and exit (same as: tam help)\n"
         "  tam --version        show version information and exit\n\n"
         "This build implements orientation, explanation, corpus search,\n"
-        "the offline guide, manual page hyperlinking, and installation inspection.\n",
+        "the offline guide, manual page hyperlinking, installation inspection, and grounded ask.\n",
         stdout);
 }
 
@@ -978,6 +982,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "man") == 0) {
         return tam_cmd_man(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "ask") == 0) {
+        return tam_cmd_ask(argc - 2, argv + 2);
     }
     return usage_error(arg);
 }

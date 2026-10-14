@@ -1,13 +1,11 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–8 (command foundation, offline guide,
+**Stage:** Develop — milestones 1–9 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
-corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.16.0. The executable
+corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask), link navigation, hyperlink display fixes, in-pager text search,
+reading telemetry, and static Bash shell completions implemented; the command is at 0.17.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
-bundled guide itself. Milestone 9 (an opt-in grounded `ask`) is **planned**
-from the 2026-10-12 `tam` help and self-inspection requirements; it is not yet
-implemented.
+bundled guide itself.
 
 ## Purpose and ownership
 
@@ -75,7 +73,7 @@ Build targets follow the lanes:
 | `tam install inspect` | Implemented | Read-only host facts and recognized installation capabilities. Grows into the read-only findings layer at milestone 8. |
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
 | `tam search [--json] TERM...` | Implemented | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
-| `tam ask <question>` | Planned (milestone 9) | Opt-in, grounded question answering over the corpus with mandatory citations; never starts a daemon. |
+| `tam ask <question>` | Implemented | Opt-in, grounded question answering over the corpus with mandatory citations; never starts a daemon. |
 
 `--pipe` explicitly requests text. Redirected output contains no terminal
 controls or browser prompts. Bare `tam`, `show`, `search`, help, version and
@@ -227,9 +225,13 @@ version that shipped at the time; do not rewrite them.
    into Maintain-track help (`maintain/rollback.html`, `maintain/recovery.html`,
    `maintain/logs.html`, `maintain/power.html`, `maintain/updates.html`). Updated
    Bash auto-completions and test suite. Version bumped to `0.16.0`.
-9. **Opt-in grounded `ask` — planned.** Add `tam ask <question>`: retrieval over
-   the corpus index with mandatory citations, fallback to `tam search` when no
-   model is available, and the offline-by-default boundary described above.
+9. **Opt-in grounded `ask` — done (2026-10-14).** Added `tam ask <question>`: retrieval
+   over the corpus index with mandatory citations, fallback to `tam search` when no
+   model is available, and the offline-by-default boundary described above. Bounded context
+   (≤4 KB) with top-k retrieved corpus pages. Non-interactive invocations (`--pipe`,
+   redirected stdout) missing server/model exit immediately with code 2 and exact refusal message;
+   interactive invocations prompt with full disclosure before model fetch. Added `tam ask --json`
+   emitting structured output. Added bash completions for `tam ask`. Version bumped to `0.17.0`.
 
 Milestones 6–9 derive from the 2026-10-12 `tam` help and self-inspection
 requirements. The reasoning still belongs in the private decision ledger; this
@@ -452,6 +454,8 @@ plan/apply/verify work follows the product framework.
   `0.13.0`.
 - **2026-10-13:** In-pager text search, reading telemetry, and static Bash completions implemented (tam 0.14.0). Added in-pager keyword search in `src/pager.c` activated by `/` with interactive search prompt, case-insensitive line search, in-buffer standout hit highlighting, next match (`n`) and previous match (`N`) navigation, and `Esc` highlight clearing (or page navigation clearing). Updated status line reading position telemetry reporting exact line metrics and percentage bounds (`L.../total`, `All`, `Top`, `Bot`, `%`). Retained `N` backward link circulation fallback when no search query is active. Generated static shell completion script for Bash (`completions/bash/tam`) completing fixed subcommands and options with zero dynamic file I/O (Tamlinux supports Bash only; zsh and fish code was omitted). Updated `Makefile` install/uninstall targets and expanded automated PTY interactive tests in `tests/run.sh`. Version bumped to `0.14.0`.
 - **2026-10-14:** Milestone 8 implemented (tam 0.16.0). Grew `tam install inspect` into a comprehensive, read-only system diagnostic and health finding engine and established the offline Check Contract. Defined structured finding model (`id`, `severity` in info/warn/error/critical, `summary`, `evidence`, `help_link`) deep-linking directly into Maintain-track guide pages (`maintain/rollback.html`, `maintain/recovery.html`, `maintain/logs.html`, `maintain/power.html`, `maintain/updates.html`). Defined the versioned offline Check Contract schema (`{task_id, name, status, pass, fail, evidence, severity, help_ref, source, schema_version}`) serving as the offline assessment oracle for progression tasks. Implemented the Safe Execution Envelope (`safe_probe_exec`) running fixed read-only whitelisted probes (`findmnt`, `systemctl`, `udevadm`, `pkexec`) under `LC_ALL=C`, bounded timeouts (≤500ms), captured standard streams, detached TTY, and neutralized color, backed by POSIX primitives (`statvfs`, `uname`). Implemented `pkexec` detect-and-degrade rule: detect presence without assuming privilege; on hosts without `pkexec`, gracefully degrade to non-privileged inspection subset and emit a `warn` finding ("privilege tool unavailable: limited inspection"); never spawn interactive `sudo`. Added `tam install inspect --json` for full machine-readable inspection reports, `tam install inspect --check [ID]` and `tam install check [ID]` (`--json` supported) for discrete check evaluation. Updated Bash completions (`completions/bash/tam`) and expanded automated test suite (`tests/run.sh`). Version bumped to `0.16.0`.
+- **2026-10-14:** Milestone 9 implemented (tam 0.17.0). Added opt-in grounded question answering CLI surface `tam ask [OPTIONS] <question>` (`src/ask.c`, `src/ask.h`). Implemented pure POSIX socket HTTP/1.1 client connecting to already-running local inference server (e.g. Ollama); strictly honours D53 zero-daemon invariant (never starts, stops, or bundles a background daemon). Implemented RAG over corpus index (`tam_index_search`): retrieves top relevant corpus pages, extracts plain-text excerpts bounded to ≤4 KB, and enforces mandatory `Sources:` citation lines. Grounding miss safety: queries with zero corpus relevance return "Not found in Tamlinux guide." with `Sources: (none)` and suggest `tam search`, preventing hallucinations. Non-interactive pipeline safety: under `--pipe` or non-TTY shells, missing model/server immediately exits with code 2 and exact message `tam: ask requires a local model; run interactively to fetch or start Ollama`. Interactive consent: when connected to server with missing model, prompts user with full disclosure (URL, size, storage path) before download, with `$TAM_ASK_ALLOW_FETCH=false` override. Added `--json` machine-readable output schema. Added static Bash completions for `tam ask` (`--model`, `--server`, `--json`, `--pipe`). Version bumped to `0.17.0`.
+
 
 
 
