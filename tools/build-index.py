@@ -1,21 +1,34 @@
 #!/usr/bin/env python3
 """build-index.py: Extract metadata from knowledge HTML files and generate
 knowledge/index.tsv and knowledge/index.json.
+
+Each page declares its metadata in <meta> tags: topic, summary, keywords,
+level, track and prereqs. Level lists the depths a page offers (beginner,
+intermediate, expert); a page offering more than one wraps each depth in
+<section data-level="..."> (the content-depth ladder). The build fails on
+unknown levels or tracks, on prerequisites that name no topic, and on
+laddered pages whose sections do not match their declared levels.
 """
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
 
+LEVELS = ("beginner", "intermediate", "expert")
+TRACKS = ("use", "maintain", "improve")
+
 
 def extract_attr(tag, attr):
-    m = re.search(r'\b' + re.escape(attr) + r'\s*=\s*["\']([^"\']*)["\']', tag, re.I)
+    m = re.search(r'(?<![\w-])' + re.escape(attr) + r'\s*=\s*["\']([^"\']*)["\']', tag, re.I)
     return m.group(1).strip() if m else None
 
 
-def parse_page(path, rel_path):
+def split_list(content):
+    return [k.strip() for k in content.split(",") if k.strip()]
+
+
+def parse_page(path, rel_path, errors):
     text = path.read_text(encoding="utf-8", errors="replace")
 
     # Title
@@ -32,8 +45,9 @@ def parse_page(path, rel_path):
     topic = None
     summary = None
     keywords = []
-    level = "beginner"
+    levels = ["beginner"]
     track = "use"
+    prereqs = []
 
     for tag in re.findall(r'<meta\b(?:[^>"\'/]|"[^"]*"|\'[^\']*\')*>', text, re.I):
         name = extract_attr(tag, "name")
@@ -46,13 +60,38 @@ def parse_page(path, rel_path):
         elif name_lower == "summary":
             summary = content.strip()
         elif name_lower == "keywords":
-            # Split comma-separated keywords
-            kws = [k.strip() for k in content.split(",") if k.strip()]
-            keywords.extend(kws)
+            keywords.extend(split_list(content))
         elif name_lower == "level":
-            level = content.strip().lower()
+            declared = [v.lower() for v in split_list(content)]
+            unknown = [v for v in declared if v not in LEVELS]
+            if unknown or not declared:
+                errors.append(f"{rel_path}: unknown level {', '.join(unknown) or '(empty)'}"
+                              f" (expected {', '.join(LEVELS)})")
+            levels = [v for v in LEVELS if v in declared] or ["beginner"]
         elif name_lower == "track":
             track = content.strip().lower()
+            if track not in TRACKS:
+                errors.append(f"{rel_path}: unknown track {track!r}"
+                              f" (expected {', '.join(TRACKS)})")
+        elif name_lower == "prereqs":
+            prereqs.extend(split_list(content))
+
+    # Laddered pages carry one section per declared level, and only those.
+    sections = []
+    for tag in re.findall(r'<section\b(?:[^>"\']|"[^"]*"|\'[^\']*\')*>', text, re.I):
+        value = extract_attr(tag, "data-level")
+        if value is not None:
+            sections.append(value.lower())
+    for value in sections:
+        if value not in LEVELS:
+            errors.append(f"{rel_path}: section has unknown data-level {value!r}")
+        elif value not in levels:
+            errors.append(f"{rel_path}: section level {value!r} is not declared in <meta name=\"level\">")
+    if len(levels) > 1:
+        for value in levels:
+            if sections.count(value) != 1:
+                errors.append(f"{rel_path}: declares level {value!r} but has "
+                              f"{sections.count(value)} matching sections (expected 1)")
 
     if not topic:
         # Fallback topic
@@ -73,8 +112,9 @@ def parse_page(path, rel_path):
         "title": title,
         "summary": summary,
         "keywords": keywords,
-        "level": level,
+        "levels": levels,
         "track": track,
+        "prereqs": prereqs,
     }
 
 
@@ -86,11 +126,23 @@ def main():
         print(f"Error: knowledge directory not found at {knowledge_dir}", file=sys.stderr)
         return 1
 
+    errors = []
     entries = []
     for html_file in sorted(knowledge_dir.rglob("*.html")):
         rel = html_file.relative_to(knowledge_dir).as_posix()
-        entry = parse_page(html_file, rel)
+        entry = parse_page(html_file, rel, errors)
         entries.append(entry)
+
+    topics = {e["topic"] for e in entries}
+    for e in entries:
+        for p in e["prereqs"]:
+            if p not in topics:
+                errors.append(f"{e['path']}: prerequisite {p!r} is not a topic")
+
+    if errors:
+        for message in errors:
+            print(f"Error: {message}", file=sys.stderr)
+        return 1
 
     # Sort entries by topic
     entries.sort(key=lambda e: e["topic"])
@@ -98,10 +150,13 @@ def main():
     # Write index.tsv
     tsv_path = knowledge_dir / "index.tsv"
     with open(tsv_path, "w", encoding="utf-8") as f:
-        f.write("topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\n")
+        f.write("topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\n")
         for e in entries:
             kws = ", ".join(e["keywords"])
-            f.write(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t{e['level']}\t{e['track']}\n")
+            levels = ",".join(e["levels"])
+            prereqs = ", ".join(e["prereqs"])
+            f.write(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
+                    f"{levels}\t{e['track']}\t{prereqs}\n")
 
     # Write index.json
     json_path = knowledge_dir / "index.json"

@@ -10,10 +10,13 @@ typedef struct {
     char *path;        /* relative path in corpus, e.g. "shell/pipelines.html" */
     char *title;       /* title, e.g. "Shell pipelines and redirection" */
     char *summary;     /* summary, e.g. "Shell pipelines, redirection, and core filters" */
-    char *level;       /* level, e.g. "beginner", "intermediate", "expert" */
+    char *level;       /* declared levels, e.g. "beginner,intermediate,expert" */
+    unsigned levels;   /* TAM_LEVEL_* mask parsed from level (see depth.h) */
     char *track;       /* track, e.g. "use", "maintain", "improve" */
     char **keywords;   /* array of keyword/alias strings */
     size_t num_keywords;
+    char **prereqs;    /* topics to read first, e.g. "shell" */
+    size_t num_prereqs;
 } tam_index_entry_t;
 
 typedef struct {
@@ -50,7 +53,8 @@ int tam_index_suggest_fuzzy(const tam_index_t *idx, const char *query,
 /* Print clear miss banner to stderr and return 1 (failure code). */
 int tam_index_print_miss(FILE *out, const tam_index_t *idx, const char *query);
 
-/* Print topic catalog (for bare tam explain) */
-void tam_index_print_catalog(FILE *out, const tam_index_t *idx);
+/* Print topic catalog (for bare tam explain). A non-zero level mask lists
+ * only topics offering that depth. */
+void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level);
 
 #endif /* TAM_INDEX_H */

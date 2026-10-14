@@ -75,12 +75,13 @@ for p in $pages; do
     for href in $(grep -o 'href="[^"]*"' "$knowledge/$p.html" 2>/dev/null \
                   | sed 's/href="//; s/"$//'); do
         case $href in
-            *://*|mailto:*|\#*) continue ;;
+            *://*|mailto:*|\#*|man:*) continue ;;
         esac
         case $href in
             /*|*..*) broken="$broken $p->$href"; continue ;;
         esac
-        [ -f "$knowledge/$href" ] || broken="$broken $p->$href"
+        href_path=${href%%\?*}
+        [ -f "$knowledge/$href_path" ] || broken="$broken $p->$href"
     done
 done
 [ -z "$broken" ] || fail "broken internal links:$broken"

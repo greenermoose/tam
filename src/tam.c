@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "depth.h"
 #include "index.h"
 #include "install.h"
 #include "man.h"
@@ -144,6 +145,8 @@ static void print_help(void)
         "  tam welcome --pipe   print the welcome orientation as plain text\n"
         "  tam explain          list available explanation topics\n"
         "  tam explain TOPIC    explain a curated topic or concept\n"
+        "  tam explain --level LEVEL TOPIC  explain at one depth\n"
+        "                       (beginner, intermediate, or expert)\n"
         "  tam explain -        read topic keyword from standard input\n"
         "  tam explain TOPIC --pipe  print the topic explanation as plain text\n"
         "  tam man PAGE         view manual page with live hyperlinks\n"
@@ -301,8 +304,8 @@ static int knowledge_file_exists(const char *root, const char *rel)
     return ok;
 }
 
-static void resolve_page(const char *root, const char *page, char *out,
-                         size_t cap)
+static void resolve_page_path(const char *root, const char *page, char *out,
+                              size_t cap)
 {
     static const char suffix[] = ".html";
     if (strstr(page, ".html") != NULL) {
@@ -323,10 +326,60 @@ static void resolve_page(const char *root, const char *page, char *out,
     snprintf(out, cap, "%s%s", page, suffix);
 }
 
+/* Resolve a page name, keeping any "?level=NAME" depth selection. */
+static void resolve_page(const char *root, const char *page, char *out,
+                         size_t cap)
+{
+    const char *q = strchr(page, '?');
+    if (q == NULL) {
+        resolve_page_path(root, page, out, cap);
+        return;
+    }
+    char base[600];
+    size_t n = (size_t)(q - page);
+    if (n >= sizeof(base)) {
+        n = sizeof(base) - 1;
+    }
+    memcpy(base, page, n);
+    base[n] = '\0';
+    char path[600];
+    resolve_page_path(root, base, path, sizeof(path));
+    snprintf(out, cap, "%s%s", path, q);
+}
+
 typedef struct {
     char *root;
     int   width;
 } corpus_ctx_t;
+
+/* Read a corpus page and prepare it at its selected depth. `href` may carry
+ * "?level=NAME". Returns NULL when the page is missing, unreadable, or does
+ * not offer the selected level. */
+static char *read_corpus_page(const char *root, const char *href,
+                              size_t *out_len)
+{
+    unsigned level = 0;
+    char *rel = tam_depth_split_href(href, &level);
+    if (rel == NULL) {
+        return NULL;
+    }
+    char *path = safe_join(root, rel);
+    if (path == NULL) {
+        free(rel);
+        return NULL;
+    }
+    size_t len = 0;
+    char *src = tam_fs_read_file(path, &len);
+    free(path);
+    if (src == NULL) {
+        free(rel);
+        return NULL;
+    }
+    char *html = tam_depth_apply(src, len, rel, level, out_len, NULL);
+    free(src);
+    free(rel);
+    return html;
+}
 
 static tam_document_t *corpus_load(void *vctx, const char *href)
 {
@@ -340,13 +393,8 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
     if (ctx->root == NULL) {
         return NULL;
     }
-    char *path = safe_join(ctx->root, href);
-    if (path == NULL) {
-        return NULL;
-    }
     size_t len = 0;
-    char *src = tam_fs_read_file(path, &len);
-    free(path);
+    char *src = read_corpus_page(ctx->root, href, &len);
     if (src == NULL) {
         return NULL;
     }
@@ -496,17 +544,28 @@ static int view_document(const char *root, const char *href, const char *src,
 
 static int view_knowledge_page(const char *root, const char *href, int pipe)
 {
-    char *path = safe_join(root, href);
+    unsigned level = 0;
+    char *rel = tam_depth_split_href(href, &level);
+    char *path = rel != NULL ? safe_join(root, rel) : NULL;
+    free(rel);
     if (path == NULL || !tam_fs_file_exists(path)) {
         fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
         free(path);
         return TAM_EXIT_FAILURE;
     }
-    size_t len = 0;
-    char *src = tam_fs_read_file(path, &len);
     free(path);
+
+    size_t len = 0;
+    char *src = read_corpus_page(root, href, &len);
     if (src == NULL) {
-        fprintf(stderr, TAM_COMMAND_NAME ": cannot read guide page: %s\n", href);
+        if (level != 0) {
+            fprintf(stderr,
+                    TAM_COMMAND_NAME ": guide page %s has no %s level\n",
+                    href, tam_level_name(level));
+        } else {
+            fprintf(stderr, TAM_COMMAND_NAME ": cannot read guide page: %s\n",
+                    href);
+        }
         return TAM_EXIT_FAILURE;
     }
 
@@ -602,10 +661,44 @@ static int cmd_welcome(int n, char **args)
     return rc;
 }
 
+static int level_usage_error(const char *bad)
+{
+    if (bad == NULL) {
+        fprintf(stderr, TAM_COMMAND_NAME ": --level requires a value\n");
+    } else {
+        fprintf(stderr, TAM_COMMAND_NAME ": unknown level '%s'\n", bad);
+    }
+    fprintf(stderr, "Levels: beginner, intermediate, expert.\n");
+    return TAM_EXIT_USAGE;
+}
+
+/* Open a resolved topic, at `level` when one was requested. */
+static int explain_entry(const char *root, const tam_index_entry_t *entry,
+                         unsigned level, int pipe)
+{
+    if (level == 0) {
+        return view_knowledge_page(root, entry->path, pipe);
+    }
+    if (!(entry->levels & level)) {
+        char offered[64];
+        tam_level_format(entry->levels, ", ", offered, sizeof(offered));
+        fprintf(stderr, TAM_COMMAND_NAME ": topic '%s' has no %s level "
+                "(available: %s)\n", entry->topic, tam_level_name(level),
+                offered);
+        fprintf(stderr, "Run 'tam explain %s' to view it.\n", entry->topic);
+        return TAM_EXIT_FAILURE;
+    }
+    char href[600];
+    snprintf(href, sizeof(href), "%s?level=%s", entry->path,
+             tam_level_name(level));
+    return view_knowledge_page(root, href, pipe);
+}
+
 static int cmd_explain(int n, char **args)
 {
     int pipe = 0;
     int from_stdin = 0;
+    unsigned level = 0;
     char stdin_topic[512] = {0};
     char query_buf[512] = {0};
     size_t qlen = 0;
@@ -613,6 +706,21 @@ static int cmd_explain(int n, char **args)
     for (int i = 0; i < n; i++) {
         if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
             pipe = 1;
+        } else if (strcmp(args[i], "--level") == 0 ||
+                   strncmp(args[i], "--level=", 8) == 0) {
+            const char *value = NULL;
+            if (args[i][7] == '=') {
+                value = args[i] + 8;
+            } else if (i + 1 < n) {
+                value = args[++i];
+            }
+            if (value == NULL || value[0] == '\0') {
+                return level_usage_error(NULL);
+            }
+            level = tam_level_parse(value);
+            if (level == 0) {
+                return level_usage_error(value);
+            }
         } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
             char *root = find_knowledge_root();
             if (root == NULL) {
@@ -627,7 +735,7 @@ static int cmd_explain(int n, char **args)
                 free(root);
                 return TAM_EXIT_FAILURE;
             }
-            tam_index_print_catalog(stdout, idx);
+            tam_index_print_catalog(stdout, idx, 0);
             tam_index_free(idx);
             free(root);
             return 0;
@@ -684,7 +792,7 @@ static int cmd_explain(int n, char **args)
     }
 
     if (qlen == 0 || strcmp(query_buf, "help") == 0) {
-        tam_index_print_catalog(stdout, idx);
+        tam_index_print_catalog(stdout, idx, level);
         tam_index_free(idx);
         free(root);
         return 0;
@@ -693,7 +801,7 @@ static int cmd_explain(int n, char **args)
     /* 1. Exact alias lookup */
     const tam_index_entry_t *entry = tam_index_lookup_alias(idx, query_buf);
     if (entry != NULL) {
-        int rc = view_knowledge_page(root, entry->path, pipe);
+        int rc = explain_entry(root, entry, level, pipe);
         tam_index_free(idx);
         free(root);
         return rc;
@@ -704,7 +812,7 @@ static int cmd_explain(int n, char **args)
         tam_search_result_t results[8];
         size_t found = tam_index_search(idx, query_buf, results, 8);
         if (found > 0 && results[0].score > 0) {
-            int rc = view_knowledge_page(root, results[0].entry->path, pipe);
+            int rc = explain_entry(root, results[0].entry, level, pipe);
             tam_index_free(idx);
             free(root);
             return rc;
@@ -793,11 +901,20 @@ static int cmd_search(int n, char **args)
         printf("[\n");
         for (size_t i = 0; i < found; i++) {
             const tam_index_entry_t *e = results[i].entry;
+            char levels[64];
+            tam_level_format(e->levels, "\", \"", levels, sizeof(levels));
             printf("  {\n");
             printf("    \"topic\": \"%s\",\n", e->topic);
             printf("    \"page\": \"%s\",\n", e->path);
             printf("    \"title\": \"%s\",\n", e->title);
             printf("    \"summary\": \"%s\",\n", e->summary);
+            printf("    \"levels\": [\"%s\"],\n", levels);
+            printf("    \"track\": \"%s\",\n", e->track);
+            printf("    \"prereqs\": [");
+            for (size_t k = 0; k < e->num_prereqs; k++) {
+                printf("%s\"%s\"", k > 0 ? ", " : "", e->prereqs[k]);
+            }
+            printf("],\n");
             printf("    \"score\": %d\n", results[i].score);
             printf("  }%s\n", (i + 1 < found) ? "," : "");
         }
@@ -807,10 +924,13 @@ static int cmd_search(int n, char **args)
         printf("Matches for '%s':\n", query_buf);
         for (size_t i = 0; i < found; i++) {
             const tam_index_entry_t *e = results[i].entry;
+            char levels[64];
+            tam_level_format(e->levels, ", ", levels, sizeof(levels));
             printf("  %-12s %s (%s)\n", e->topic, e->title, e->path);
             printf("               %s\n", e->summary);
+            printf("               Depth: %s; track: %s\n", levels, e->track);
         }
-        printf("\nRun 'tam explain <topic>' or 'tam show <page>' to view.\n");
+        printf("\nRun 'tam explain [--level LEVEL] <topic>' or 'tam show <page>' to view.\n");
     }
 
     tam_index_free(idx);

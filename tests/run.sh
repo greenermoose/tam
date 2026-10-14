@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.14.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.15.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -397,8 +397,8 @@ buf = b""
 while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
-# 1. Reading telemetry: verify status line contains "L1/" and "(All)"
-assert b"L1/23 (All)" in buf, f"status line missing L1/23 (All) position metric: {buf}"
+# 1. Reading telemetry: verify status line contains "L1/" and position metric
+assert b"L1/" in buf and (b"(Top)" in buf or b"(All)" in buf), f"status line missing position metric: {buf}"
 assert b"/ find" in buf, f"status line missing / find hint: {buf}"
 
 # 2. In-pager text search: search for "redirection"
@@ -434,7 +434,7 @@ time.sleep(0.08)
 buf = b""
 while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
-assert b"redirection" not in buf
+assert b"\x1b[7" not in buf, "search highlights not cleared by Esc"
 
 # 6. Miss search pattern
 os.write(master, b"/nonexistent_pattern_12345\r")
@@ -536,6 +536,38 @@ if "$TAM" explain 'cat foo | grep bar; rm -rf /' >/dev/null 2>&1; then
 fi
 "$TAM" explain 'cat foo | grep bar; rm -rf /' 2>&1 | grep -q "no topic found for 'cat foo | grep bar; rm -rf /'" \
     || fail "shell metacharacters not treated as plain query data"
+
+# Content-depth ladder: tam explain --level LEVEL TOPIC
+ex_lvl_b=$("$TAM" explain --level beginner pipelines --pipe)
+printf '%s\n' "$ex_lvl_b" | grep -q 'Beginner: Connecting commands' || fail "explain --level beginner pipelines failed"
+printf '%s\n' "$ex_lvl_b" | grep -q 'Expected output:' || fail "explain --level beginner missing expected output"
+if printf '%s\n' "$ex_lvl_b" | grep -q 'Expert: POSIX pipe'; then fail "beginner level contains expert section"; fi
+
+ex_lvl_i=$("$TAM" explain --level intermediate pipelines --pipe)
+printf '%s\n' "$ex_lvl_i" | grep -q 'Intermediate: Redirection and Multi-Stage Filters' || fail "explain --level intermediate pipelines failed"
+printf '%s\n' "$ex_lvl_i" | grep -q 'Completion task' || fail "explain --level intermediate missing completion task"
+if printf '%s\n' "$ex_lvl_i" | grep -q 'Beginner: Connecting commands'; then fail "intermediate level contains beginner section"; fi
+
+ex_lvl_e=$("$TAM" explain --level expert pipelines --pipe)
+printf '%s\n' "$ex_lvl_e" | grep -q 'Expert: POSIX pipe semantics' || fail "explain --level expert pipelines failed"
+printf '%s\n' "$ex_lvl_e" | grep -q 'Stream Redirection Operators' || fail "explain --level expert missing operators table"
+if printf '%s\n' "$ex_lvl_e" | grep -q 'Beginner: Connecting commands'; then fail "expert level contains beginner section"; fi
+
+# Catalog listing filtered by level
+ex_cat_expert=$("$TAM" explain --level expert)
+printf '%s\n' "$ex_cat_expert" | grep -q 'Topics with a expert level:' || fail "explain --level expert missing heading"
+printf '%s\n' "$ex_cat_expert" | grep -q 'pipelines' || fail "expert catalog missing pipelines"
+printf '%s\n' "$ex_cat_expert" | grep -q 'jobs' || fail "expert catalog missing jobs"
+if printf '%s\n' "$ex_cat_expert" | grep -q 'desktop'; then fail "expert catalog unexpectedly includes beginner-only desktop"; fi
+
+# Invalid level argument produces exit code 2 (usage error)
+if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi
+"$TAM" explain --level invalid pipelines 2>&1 | grep -q "unknown level 'invalid'" || fail "missing unknown level message"
+
+# Topic lacking requested level produces clear diagnostic and exits 1
+if "$TAM" explain --level expert desktop >/dev/null 2>&1; then fail "explain --level expert desktop exited 0"; fi
+"$TAM" explain --level expert desktop 2>&1 | grep -q "topic 'desktop' has no expert level" || fail "missing topic level diagnostic"
+
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"
 
 # Search command: ranked search over corpus index, json output, canonical queries, and miss banner.
@@ -546,11 +578,15 @@ pass "explain resolves curated topics, handles misses, and treats shell strings 
 s_owner=$("$TAM" search "change file owner")
 printf '%s\n' "$s_owner" | grep -q 'permissions' || fail "search 'change file owner' missing permissions topic"
 printf '%s\n' "$s_owner" | grep -q 'filesystem/permissions.html' || fail "search 'change file owner' missing permissions page"
+printf '%s\n' "$s_owner" | grep -q 'Depth:' || fail "search missing Depth indicator"
+printf '%s\n' "$s_owner" | grep -q 'track: use' || fail "search missing track indicator"
 
 # JSON output
 s_json=$("$TAM" search --json "change file owner")
 printf '%s\n' "$s_json" | grep -q '"topic": "permissions"' || fail "search --json missing topic field"
 printf '%s\n' "$s_json" | grep -q '"page": "filesystem/permissions.html"' || fail "search --json missing page field"
+printf '%s\n' "$s_json" | grep -q '"levels":' || fail "search --json missing levels field"
+printf '%s\n' "$s_json" | grep -q '"track": "use"' || fail "search --json missing track field"
 
 # Piped plain text has no escapes
 if "$TAM" search --pipe "change file owner" | grep -q "$esc"; then
@@ -703,6 +739,26 @@ printf "%s\n" "${COMPREPLY[@]}"
 ')
 printf '%s\n' "$bash_search_test" | grep -q -- '--json' || fail "bash completion missing search --json"
 printf '%s\n' "$bash_search_test" | grep -q -- '--pipe' || fail "bash completion missing search --pipe"
+
+bash_explain_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam explain "")
+COMP_CWORD=2
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_explain_test" | grep -q -- '--level' || fail "bash completion missing explain --level"
+
+bash_level_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam explain --level "")
+COMP_CWORD=3
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_level_test" | grep -q 'beginner' || fail "bash completion missing level beginner"
+printf '%s\n' "$bash_level_test" | grep -q 'intermediate' || fail "bash completion missing level intermediate"
+printf '%s\n' "$bash_level_test" | grep -q 'expert' || fail "bash completion missing level expert"
 
 pass "static bash shell auto-completion script"
 

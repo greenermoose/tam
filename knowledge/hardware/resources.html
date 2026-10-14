@@ -5,69 +5,129 @@
 <meta name="topic" content="resources">
 <meta name="summary" content="Memory (Free vs Available), ZRAM swap, CPU load, and disk">
 <meta name="keywords" content="resources, resource, hardware, memory, ram, cpu, load, swap, zram, disk, df, free, performance, disk space, space, cpu load">
-<meta name="level" content="intermediate">
+<meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="maintain">
+<meta name="prereqs" content="filesystem">
 </head>
 <body>
 <h1>System Resources and Performance</h1>
 
-<p>Tamlinux is engineered to extract maximum productivity from your hardware,
-whether on high-end modern workstations or modest older machines.</p>
+<p>Tamlinux extracts maximum responsiveness from your hardware, from modest
+older laptops up to high-core workstations, with zero background telemetry
+and minimal memory footprint.</p>
 
-<h2>Memory: free versus available</h2>
+<section data-level="beginner">
+<h2>Beginner: Checking memory headroom and disk capacity</h2>
 
-<p>When you check memory usage with <code>free -h</code>, you will often notice
-that "free" memory appears low. This is intentional and desirable:</p>
+<p><strong>Summary:</strong> Check available memory and remaining storage space
+using standard terminal utilities.</p>
 
-<dl>
-<dt>Free memory</dt>
-<dd>RAM that has literally nothing in it. Completely unused memory does no work
-for you.</dd>
-<dt>Buffer / cache (page cache)</dt>
-<dd>The Linux kernel uses idle RAM to cache recently accessed files and
-libraries. If an application needs this RAM, the kernel reclaims it
-instantaneously.</dd>
-<dt>Available memory</dt>
-<dd>The true measure of memory health. This indicates how much RAM can be
-allocated to new programs without swapping to disk.</dd>
-</dl>
+<p><strong>Prerequisites:</strong> Basic command execution
+(<a href="shell/index.html">The Shell and Streams</a>).</p>
 
-<h2>Swap and ZRAM</h2>
+<h3>Command sequence</h3>
 
-<p>Tamlinux uses ZRAM (compressed RAM swap) to dramatically expand usable
-memory without NVMe or SSD thrashing:</p>
+<pre>
+free -h
+df -h /
+</pre>
+
+<p>Expected output:</p>
+
+<pre>
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4.2Gi       2.1Gi       512Mi       9.2Gi        10Gi
+Swap:          8.0Gi       1.2Gi       6.8Gi
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p2  466G  120G  323G  28% /
+</pre>
+
+<h3>What just happened</h3>
 
 <ul>
-<li>Instead of writing idle memory pages to slow disk partitions, the kernel
-compresses them in-place in RAM using fast algorithms (like zstd or lz4).</li>
-<li>Typically achieves a 2:1 to 3:1 compression ratio, effectively doubling or
-tripling effective memory headroom during heavy compilation or large browser
-sessions.</li>
-<li>System responsiveness remains snappy even when physical RAM is 100%
-utilized.</li>
+<li><code>free -h</code> prints memory metrics in human-readable units (GiB, MiB).</li>
+<li>The <code>available</code> column (10Gi) represents genuine memory headroom for new applications, because Linux can instantly reclaim <code>buff/cache</code> when required.</li>
+<li><code>df -h /</code> reports the total capacity, consumed storage, and available space on the root filesystem.</li>
 </ul>
 
-<h2>CPU load averages</h2>
+<h3>Common pitfall</h3>
 
-<p>The three numbers reported by <code>uptime</code> or <code>top</code> show
-average system demand over 1, 5, and 15 minutes:</p>
+<p>Do not mistake low "free" memory for RAM exhaustion. Unused RAM is wasted
+RAM; the Linux kernel intentionally uses idle memory to cache disk blocks.
+Always monitor <strong>available</strong> memory.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to inspect and terminate runaway background tasks in
+<a href="shell/jobs.html">Processes, Jobs, and Signals</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: CPU load diagnosis and memory profiling</h2>
+
+<p><strong>Summary:</strong> Interpret 1, 5, and 15-minute load averages against
+logical core counts, and profile per-process memory consumption.</p>
+
+<h3>Worked example</h3>
+
+<p>Compare instantaneous system load against hardware capacity:</p>
+
+<pre>
+nproc
+uptime
+</pre>
+
+<p>If <code>nproc</code> reports <code>8</code> cores and load averages are
+<code>1.20, 0.85, 0.60</code>, the system has substantial spare compute headroom.
+Load exceeding core count indicates processes are actively queuing for CPU time.</p>
+
+<h3>Completion task</h3>
+
+<p>List the top 5 memory-consuming processes ordered by resident set size (RSS).
+Complete the missing sort flag below (marked with <code>___</code>):</p>
+
+<pre>
+ps -eo pid,rss,comm ___ | head -n 6
+</pre>
+
+<p>Target output: header row followed by the 5 largest processes currently in physical RAM.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>To sort by RSS descending, pass <code>--sort=-rss</code> to <code>ps</code>.</li>
+<li>Check <a href="man:ps(1)">ps(1)</a> for available column specifiers.</li>
+<li>Run <code>top</code> or <code>btop</code> for dynamic interactive monitoring.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Virtual memory internals, ZRAM, and kernel metrics</h2>
+
+<p><strong>Reference:</strong> Virtual memory architecture: anonymous pages
+(heap, stack) vs file-backed pages (page cache, mmap). Tamlinux configures ZRAM
+swap devices backed by lz4/zstd in-RAM compression. Dirty page flushing is governed
+by <code>vm.dirty_ratio</code> and <code>vm.dirty_background_ratio</code> in <code>sysctl(8)</code>.
+Pressure Stall Information (PSI) in <code>/proc/pressure/{cpu,memory,io}</code> provides
+leading indicators of resource contention.</p>
+
+<h3>Key kernel memory metrics (/proc/meminfo)</h3>
 
 <table>
-<tr><th>Metric</th><th>Meaning</th></tr>
-<tr><td>Load &lt; CPU Cores</td><td>The system has spare compute capacity</td></tr>
-<tr><td>Load = CPU Cores</td><td>The CPUs are fully utilized without queuing</td></tr>
-<tr><td>Load &gt; CPU Cores</td><td>Processes are queuing and waiting for CPU execution time</td></tr>
+<tr><th>Metric</th><th>Kernel Source</th><th>Significance</th></tr>
+<tr><td><code>MemAvailable</code></td><td>Kernel estimate</td><td>RAM available for allocation without swapping</td></tr>
+<tr><td><code>Active(anon)</code></td><td>LRU page list</td><td>Program heap/stack pages accessed recently</td></tr>
+<tr><td><code>Inactive(file)</code></td><td>LRU page list</td><td>Clean page cache pages eligible for immediate reclamation</td></tr>
+<tr><td><code>Dirty</code></td><td>Writeback tracker</td><td>Modified pages awaiting flush to underlying storage</td></tr>
+<tr><td><code>ZramCompRatio</code></td><td>/sys/block/zram0</td><td>Effective compression ratio (uncompressed / compressed size)</td></tr>
 </table>
 
-<p>Run <code>nproc</code> to see your total number of logical CPU cores.</p>
+<h3>Manual pages</h3>
 
-<h2>Storage health and inodes</h2>
-
-<ul>
-<li><code>df -h</code> &mdash; shows filesystem storage capacity and utilization.</li>
-<li><code>df -i</code> &mdash; shows inode usage (number of files that can still be created).</li>
-<li><code>du -sh *</code> &mdash; reveals disk consumption per folder.</li>
-</ul>
+<p>Consult system documentation: <a href="man:vmstat(8)">vmstat(8)</a>,
+<a href="man:free(1)">free(1)</a>, <a href="man:top(1)">top(1)</a>,
+<a href="man:sysctl(8)">sysctl(8)</a>, <a href="man:zramctl(8)">zramctl(8)</a>.</p>
+</section>
 
 <h2>Where to next</h2>
 

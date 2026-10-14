@@ -1,56 +1,125 @@
 Processes, Jobs, and Signals
 
-Every running program on Tamlinux is a process with a unique process identifier
-(PID). When you launch commands in an interactive shell, the shell organizes
-them into jobs.
+Depth: beginner, intermediate, expert. Every level is shown below; follow one to
+read only that depth.
 
-Job control in the shell
+Every running program on Tamlinux is a process with a unique identifier (PID).
+The interactive shell groups running commands into jobs that you can suspend,
+background, and resume.
 
-You can move long-running tasks between the foreground and background without
-losing your shell session:
+Beginner: Controlling background jobs in the shell
 
-Background execution (&)
-    Append & to the command (e.g. make &) to start it in the background
-    immediately, keeping your prompt active.
+Summary: Suspend a running program and move it into the background to keep your
+shell prompt free.
 
-Suspend (Ctrl+Z)
-    Press Ctrl+Z to suspend the currently running foreground program, sending it
-    a SIGTSTP signal.
+Prerequisites: Basic shell interaction ( The Shell and Streams).
 
-List jobs (jobs)
-    Run jobs -l to inspect active background and stopped jobs in the current
-    shell session.
+Command sequence
 
-Foreground (fg)
-    Run fg%1 to bring job number 1 back into the interactive foreground.
+  
+  sleep 100
+  
 
-Background (bg)
-    Run bg%1 to resume stopped job number 1 in the background.
+Press Ctrl+Z, then run:
 
-Disown (disown)
-    Run disown%1 to detach a job from the shell so it continues running even
-    after the terminal window is closed.
+  
+  bg %1
+  jobs
+  
 
-Signals
+Expected output:
 
-Signals are asynchronous notifications delivered to processes by the kernel, the
-shell, or other programs:
+  
+  [1]+  Stopped                 sleep 100
+  [1]+ sleep 100 &
+  [1]+  Running                 sleep 100 &
+  
 
-Signal   Number  Description                                                    
--------  ------  ---------------------------------------------------------------
-SIGHUP   1       Terminal hangup; reloads configuration in many daemons         
-SIGINT   2       Interrupt from keyboard (Ctrl+C); polite request to halt       
-SIGQUIT  3       Quit from keyboard (Ctrl+\); halts and dumps core              
-SIGKILL  9       Unconditional immediate termination; cannot be caught or       
-                 ignored                                                        
-SIGTERM  15      Standard termination request; default signal sent by kill      
-SIGSTOP  19      Pauses execution immediately; cannot be caught or ignored      
-SIGCONT  18      Resumes execution of a paused process                          
+What just happened
 
-Inspecting processes
+- sleep 100 started running in the foreground, monopolizing the terminal.
+- Pressing Ctrl+Z sent a SIGTSTP signal, pausing the process and returning
+  control to your prompt.
+- bg%1 sent a SIGCONT signal to job 1, resuming execution in the background.
+- jobs reported that job 1 is actively running in the background.
 
-Use ps aux or pgrep -l name to search for processes, and pkill name to signal
-them by command name. For dynamic live monitoring, run top or htop.
+Common pitfall
+
+Closing your terminal window sends a SIGHUP (hangup) signal to all child jobs,
+terminating them unless they have been detached with disown or started with
+nohup.
+
+Next step
+
+Monitor system-wide resource utilization in System Resources and Performance.
+
+Intermediate: Process signaling and graceful termination
+
+Summary: Locate processes by name and send polite termination signals before
+resorting to unconditional kills.
+
+Worked example
+
+Find and politely terminate lingering background sleep processes:
+
+  
+  pgrep -l sleep
+  pkill -15 sleep
+  
+
+SIGTERM (signal 15) gives applications the opportunity to save state, flush
+write buffers, and clean up socket files.
+
+Completion task
+
+Start a heavy background compilation task with lowest CPU scheduling priority
+(nice level 19) and detach it from your shell so it survives terminal closure.
+Complete the missing command step below (marked with ___):
+
+  
+  nice -n 19 make &
+  ___ -h %1
+  
+
+Target output: job is marked so SIGHUP will not terminate it on logout.
+
+Verification hints
+
+- The shell builtin to detach a job from the active session is disown.
+- Use jobs -l to inspect the job number and PID.
+- Use ps -o pid,ni,cmd -p <PID> to verify the nice level is 19.
+
+Expert: POSIX process semantics and signal specifications
+
+Reference: Process states (R: running, S: interruptible sleep, D:
+uninterruptible disk sleep, Z: zombie/defunct). Zombies occur when a child
+terminates and the parent has not yet invoked wait4(2) to read its exit status;
+orphan processes are adopted by PID 1 (systemd or runit). Signals are
+synchronous or asynchronous interrupts handled via sigaction(2).
+
+Standard POSIX signals
+
+Signal   Num  Action  Description                                               
+-------  ---  ------  ----------------------------------------------------------
+SIGHUP   1    Term    Hangup detected on controlling terminal; config reload in 
+                      daemons                                                   
+SIGINT   2    Term    Interrupt from keyboard (Ctrl+C)                          
+SIGQUIT  3    Core    Quit from keyboard (Ctrl+\)                               
+SIGKILL  9    Term    Unconditional immediate halt; uncatchable and unignorable 
+SIGUSR1  10   Term    User-defined signal 1                                     
+SIGSEGV  11   Core    Invalid memory reference (segmentation fault)             
+SIGUSR2  12   Term    User-defined signal 2                                     
+SIGPIPE  13   Term    Broken pipe: write to pipe with no readers                
+SIGTERM  15   Term    Graceful termination request (default for kill and pkill) 
+SIGCONT  18   Cont    Continue execution if paused                              
+SIGSTOP  19   Stop    Stop process execution immediately; uncatchable and       
+                      unignorable                                               
+SIGTSTP  20   Stop    Terminal stop signal generated by Ctrl+Z                  
+
+Manual pages
+
+Consult system documentation: kill(1), pkill(1), pgrep(1), sigaction(2), wait(2)
+.
 
 Where to next
 
@@ -59,6 +128,15 @@ Where to next
 - Guide index — return to the full list of topics.
 
 Links:
-  [1] shell/index.html
-  [2] hardware/resources.html
-  [3] index.html
+  [1] shell/jobs.html?level=beginner
+  [2] shell/jobs.html?level=intermediate
+  [3] shell/jobs.html?level=expert
+  [4] shell/index.html
+  [5] hardware/resources.html
+  [6] man:bash(1)
+  [7] man:kill(1)
+  [8] man:pkill(1)
+  [9] man:pgrep(1)
+  [10] man:sigaction(2)
+  [11] man:wait(2)
+  [12] index.html

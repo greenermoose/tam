@@ -678,6 +678,11 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
         parser_end_block(p);
         return;
     }
+    if (strcmp(name, "section") == 0 || strcmp(name, "article") == 0 ||
+        strcmp(name, "div") == 0) {
+        parser_end_block(p);
+        return;
+    }
     if (strcmp(name, "p") == 0) {
         if (closing) {
             parser_end_block(p);

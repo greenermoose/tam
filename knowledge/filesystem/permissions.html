@@ -5,65 +5,138 @@
 <meta name="topic" content="permissions">
 <meta name="summary" content="File permissions, ownership, and links">
 <meta name="keywords" content="permissions, permission, chmod, chown, umask, links, symlink, symlinks, hardlink, rwx, owner, ownership, file permissions, file owner">
-<meta name="level" content="intermediate">
+<meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="use">
+<meta name="prereqs" content="filesystem">
 </head>
 <body>
 <h1>File Permissions and Ownership</h1>
 
-<p>Every file and directory in Linux has an owner user, an owner group, and a
-set of permission mode bits that dictate who may read, modify, or execute
-it.</p>
+<p>Every file and directory on Linux has an owner user, an owner group, and a
+set of permission mode bits that govern read, write, and execute rights.</p>
 
-<h2>The permission triad</h2>
+<section data-level="beginner">
+<h2>Beginner: Making a script executable</h2>
 
-<p>Permissions are divided into three tiers: User (owner), Group, and
-Others. Each tier has three primary access rights:</p>
+<p><strong>Summary:</strong> Grant execution permissions to a shell script using
+symbolic <code>chmod</code>.</p>
 
-<dl>
-<dt>Read (r = 4)</dt>
-<dd>View file contents, or list filenames in a directory.</dd>
-<dt>Write (w = 2)</dt>
-<dd>Modify file contents, or create and delete entries in a directory.</dd>
-<dt>Execute (x = 1)</dt>
-<dd>Run a file as a program. On a directory, execute permission is required to
-enter (cd into) the directory or access its files.</dd>
-</dl>
+<p><strong>Prerequisites:</strong> Filesystem navigation and directory layout
+(<a href="filesystem/index.html">The Linux Filesystem Hierarchy</a>).</p>
 
-<h2>Common octal modes</h2>
+<h3>Command sequence</h3>
 
-<table>
-<tr><th>Mode</th><th>Symbolic</th><th>Typical Usage</th></tr>
-<tr><td>755</td><td>rwxr-xr-x</td><td>Executable programs, scripts, and standard directories</td></tr>
-<tr><td>644</td><td>rw-r--r--</td><td>Standard readable documents, data files, and configuration</td></tr>
-<tr><td>700</td><td>rwx------</td><td>Private user directories (such as ~/.ssh and ~/.gnupg)</td></tr>
-<tr><td>600</td><td>rw-------</td><td>Private keys and credentials (such as ~/.ssh/id_ed25519)</td></tr>
-</table>
+<pre>
+ls -l backup.sh
+chmod +x backup.sh
+ls -l backup.sh
+</pre>
 
-<h2>Managing permissions and ownership</h2>
+<p>Expected output:</p>
+
+<pre>
+-rw-r--r-- 1 fred fred 142 Oct 14 08:00 backup.sh
+-rwxr-xr-x 1 fred fred 142 Oct 14 08:00 backup.sh
+</pre>
+
+<h3>What just happened</h3>
 
 <ul>
-<li><code>chmod 755 file</code> &mdash; set numerical octal permission mode.</li>
-<li><code>chmod +x script.sh</code> &mdash; grant execute permission to everyone.</li>
-<li><code>chown user:group file</code> &mdash; change user and group ownership.</li>
-<li><code>umask</code> &mdash; define the default mode mask applied when creating new files.</li>
+<li><code>ls -l</code> displayed the initial file mode: readable and writable by the user (<code>rw-</code>), readable by group (<code>r--</code>) and others (<code>r--</code>).</li>
+<li><code>chmod +x</code> added the executable bit (<code>x</code>) to all three tiers: user, group, and others.</li>
+<li>The script can now be directly executed from the command line: <code>./backup.sh</code>.</li>
 </ul>
 
-<h2>Links: hard versus symbolic</h2>
+<h3>Common pitfall</h3>
 
-<dl>
-<dt>Hard links (ln target link)</dt>
-<dd>Create a new directory entry pointing directly to the existing inode. The
-underlying data remains until all hard links are deleted.</dd>
-<dt>Symbolic links (ln -s target link)</dt>
-<dd>Create a small pointer file containing the path string to the target file.
-If the target is moved or deleted, the symlink breaks.</dd>
-</dl>
+<p>Never run <code>chmod 777</code> to resolve access errors. Granting universal
+write access creates severe security vulnerabilities. For directories, the
+execute bit (<code>x</code>) is required to traverse (enter) the directory.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to connect scripts into pipelines in <a href="shell/pipelines.html">Shell pipelines</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Numeric octal modes and group collaboration</h2>
+
+<p><strong>Summary:</strong> Calculate octal permission masks and configure
+shared directory collaboration with group sticky bits.</p>
+
+<h3>Worked example</h3>
+
+<p>Lock down private SSH credentials so only your user account can read them:</p>
+
+<pre>
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_ed25519
+</pre>
+
+<p>Directory mode 700 gives <code>rwx------</code>; file mode 600 gives
+<code>rw-------</code>, preventing unauthorized access by other local users.</p>
+
+<h3>Completion task</h3>
+
+<p>Configure a collaboration folder <code>/srv/team</code> so that any newly created
+files automatically inherit the group ownership of the directory (SetGID).
+Complete the missing octal mode below (marked with <code>___</code>):</p>
+
+<pre>
+sudo chgrp developers /srv/team
+sudo chmod ___ /srv/team
+</pre>
+
+<p>Target output: directory permissions show <code>drwxrwsr-x</code> (SetGID bit 2000 combined with 775 permissions).</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The SetGID octal value is <code>2000</code>. Add <code>2000 + 775 = 2775</code>.</li>
+<li>Inspect with <code>ls -ld /srv/team</code> to verify the group execute bit shows lowercase <code>s</code>.</li>
+<li>Use <a href="man:umask(1)">umask(1)</a> to set default creation masks for new files.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: POSIX inode mode representation and attributes</h2>
+
+<p><strong>Reference:</strong> The 16-bit <code>st_mode</code> field in <code>stat(2)</code>
+encodes file type (regular, directory, symlink, fifo, socket, block, char) in the
+top 4 bits, special flags (SUID 04000, SGID 02000, Sticky 01000) in the next 3
+bits, and standard 9-bit rwx permissions in the lower 9 bits. Hard links share
+the identical inode number; symlinks are independent pointer files.</p>
+
+<h3>Special permission mode bits</h3>
+
+<table>
+<tr><th>Bit</th><th>Octal</th><th>Symbolic</th><th>Effect on Files</th><th>Effect on Directories</th></tr>
+<tr><td>SUID</td><td>4000</td><td>rwsr-xr-x</td><td>Executes with privileges of file owner</td><td>No effect on Linux</td></tr>
+<tr><td>SGID</td><td>2000</td><td>rwxr-sr-x</td><td>Executes with privileges of file group</td><td>New files inherit directory group</td></tr>
+<tr><td>Sticky</td><td>1000</td><td>rwxrwxrwt</td><td>No effect on Linux binaries</td><td>Only file owner or root can delete file</td></tr>
+</table>
+
+<h3>Standard umask mappings</h3>
+
+<table>
+<tr><th>Umask</th><th>File Mode Created</th><th>Directory Mode Created</th><th>Security Profile</th></tr>
+<tr><td><code>0022</code></td><td>644 (rw-r--r--)</td><td>755 (rwxr-xr-x)</td><td>Standard multi-user default</td></tr>
+<tr><td><code>0027</code></td><td>640 (rw-r-----)</td><td>750 (rwxr-x---)</td><td>Restricted group-only access</td></tr>
+<tr><td><code>0077</code></td><td>600 (rw-------)</td><td>700 (rwx------)</td><td>Strict private isolation</td></tr>
+</table>
+
+<h3>Manual pages</h3>
+
+<p>Consult system documentation: <a href="man:chmod(1)">chmod(1)</a>,
+<a href="man:chown(1)">chown(1)</a>, <a href="man:stat(2)">stat(2)</a>,
+<a href="man:chattr(1)">chattr(1)</a>, <a href="man:umask(2)">umask(2)</a>.</p>
+</section>
 
 <h2>Where to next</h2>
 
 <ul>
 <li><a href="filesystem/index.html">Filesystem hierarchy</a> &mdash; explore system directories and storage.</li>
+<li><a href="hardware/resources.html">Resources and performance</a> &mdash; inspect disk usage and inodes.</li>
 <li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
 </ul>
 </body>

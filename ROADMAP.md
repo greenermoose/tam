@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-13. **Owner:** Fred. **Current Command Version:** `0.14.0`.  
+**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.15.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.14.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.15.0)
 
-Between 2026-10-09 and 2026-10-13, `tam` progressed rapidly through Milestones 1–6, link ergonomics, in-pager search, and shell completions:
+Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–7, link ergonomics, in-pager search, shell completions, and the content-depth ladder:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -39,28 +39,29 @@ Between 2026-10-09 and 2026-10-13, `tam` progressed rapidly through Milestones 1
 | **0.10.0** | Milestone 6: Corpus Index & Search | Done (2026-10-13) | Replaced hardcoded `TOPIC_MAP` in `src/tam.c` with a build-time corpus index artifact (`knowledge/index.tsv`, `knowledge/index.json`) generated from HTML metadata by `tools/build-index.py`; implemented `tam search [--json] TERM...` with field-weighted ranking, prefix matching, bounded fuzzy suggestions ("Did you mean"), and miss banners offering `tam man`. Multi-word fallback in `tam explain`. |
 | **0.11.0** | Pager Backward Link Circulation | Done (2026-10-13) | Added `Shift-Tab` backward link navigation in `src/pager.c` across ANSI CSI sequences (CBT, Kitty, modifyOtherKeys), updated status line to `Tab/S-Tab link` with UTF-8 boundary truncation safety. |
 | **0.12.0** | Pager Forward Path Traversal | Done (2026-10-13) | Right Arrow forward navigation along previously visited exploration paths when no hyperlink is selected. |
+| **0.13.0** | Hyperlink Display Fixes | Done (2026-10-13) | Corrected hyperlink leading-space underline suppression and multi-line wrapped link continuation styling in `src/render.c` and `src/pager.c`. |
 | **0.14.0** | In-Pager Search, Telemetry & Bash Completions | Done (2026-10-13) | Interactive keyword search prompt (`/`) in `src/pager.c` with in-buffer hit highlighting, next/previous navigation (`n`/`N`), and `Esc` clearing; reading position telemetry (`L...`, percentage, `Top`, `Bot`, `All`); static shell completions for Bash without dynamic file I/O (Tamlinux supports Bash only). |
+| **0.15.0** | Milestone 7: Content-Depth Ladder & Fading Templates | Done (2026-10-14) | Beginner / Intermediate / Expert fading templates across core topics (`shell/jobs.html`, `shell/pipelines.html`, `filesystem/permissions.html`, `hardware/resources.html`); dynamic section filtering in `src/depth.c` and depth navigation (`?level=`); `tam explain --level LEVEL <topic>` and catalog depth filtering; index metadata projection for level lists, tracks, and prerequisites; depth indicators in `tam search` and JSON output; Bash completion for `--level`. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Milestone 7** (Content-Depth Ladder and Fading Templates, 0.15.0). With in-pager search and reading telemetry in place, the guide and manual page reader offers complete keyword navigation across lengthy technical documents.
+The immediate priority for `tam` is implementing **Version 0.16.0** ("Maintain" Track Knowledge Corpus Expansion). With the content-depth ladder and fading templates in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation.
 
-### Version 0.15.0 — Content-Depth Ladder & Fading Templates (Milestone 7)
-Formalize the pedagogical structure of the offline guide into a structured progression, adapting content to user expertise without requiring an internet connection.
+### Version 0.16.0 — "Maintain" Track Knowledge Corpus Expansion
+Expand the offline corpus to comprehensively cover system health, resilient updates, diagnostics, and disaster recovery.
 
-- **Fading Template Architecture:**
-  - **Beginner Level:** One-line summary, prerequisites, single annotated command sequence with realistic expected output, "what just happened" explanation, common pitfall, and next-step link.
-  - **Intermediate Level:** Summary, worked example fragment or scaffold, completion task (user fills in one missing step) with target output, and verification hints.
-  - **Expert Level:** Terse reference, compact option/flag tables, links to `tam man`, zero redundant scaffolding.
-- **Corpus Metadata Projection:**
-  - Add `<meta name="level" content="beginner|intermediate|expert">`, `<meta name="track" content="use|maintain|improve">`, `<meta name="prereqs" content="...">` to knowledge pages.
-  - Extend `tools/build-index.py` and `src/index.c` to index level and track attributes into `knowledge/index.tsv` and `knowledge/index.json`.
-- **Reference Template Implementation:**
-  - Author complete fading implementations across core curated topics: `shell/jobs.html`, `shell/pipelines.html`, `filesystem/permissions.html`, and `hardware/resources.html`.
-- **Depth Selection Interface:**
-  - Support level filtering and display: `tam explain --level <beginner|intermediate|expert> <topic>` and depth indicators in `tam search` output.
+- **Non-Disruptive Updates & Package Lifecycle:**
+  - `knowledge/maintain/updates.html`: Explaining inode unlinking (why Linux updates in place without rebooting), package tiering (OS base vs Tamlinux packages vs Mise user tools), and `tam-update` workflow.
+- **Snapshots & Generation Rollbacks:**
+  - `knowledge/maintain/rollback.html`: Copy-on-Write (CoW) mechanics, taking and restoring Btrfs snapshots, and Home Manager `/nix/store` generation rollbacks.
+- **Truthful System Diagnostics:**
+  - `knowledge/maintain/logs.html`: Filtering `journalctl` by boot (`-b`), unit (`-u`), and priority (`-p err..emerg`); reading the kernel ring buffer (`dmesg -T`).
+- **The Progressive Power Ladder:**
+  - `knowledge/maintain/power.html`: 3-stage power progression: DPMS monitor blanking (idle monitors turn off individually), RAM suspend, and zero-watt S4 disk hibernation; safe display wake via `Shift` key.
+- **Emergency Disaster Recovery:**
+  - `knowledge/maintain/recovery.html`: Magic SysRq (REISUB) emergency sequence, dropping to virtual consoles (`Ctrl+Alt+F2`–`F6`), and live USB chroot recovery.
 
 ---
 
@@ -221,9 +222,8 @@ Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support
 
 | Version | Milestone / Theme | Primary Subcommands & Surfaces | Key Deliverables |
 | :--- | :--- | :--- | :--- |
-| **0.13.0** | Hyperlink display fixes | `tam show`, `tam man` | Current baseline: wrapped link continuity, leading space fixes. |
-| **0.14.0** | Pager Ergonomics & Completions | `src/pager.c`, completions | `/` in-pager text search, line/percentage telemetry, Bash/Zsh/Fish completions. |
-| **0.15.0** | Milestone 7: Content-Depth Ladder | `tam explain --level`, `tam search` | Beginner / Intermediate / Expert fading templates, index metadata. |
+| **0.14.0** | Pager Ergonomics & Completions | `src/pager.c`, completions | `/` in-pager text search, line/percentage telemetry, Bash completions. |
+| **0.15.0** | Milestone 7: Content-Depth Ladder | `tam explain --level`, `tam search` | Current baseline: Beginner / Intermediate / Expert fading templates, depth line, ?level= navigation, index metadata. |
 | **0.16.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
 | **0.17.0** | Milestone 8: Self-Inspection | `tam install inspect`, check contract | Read-only findings model, versioned JSON check contract, `pkexec` detect-and-degrade. |
 | **0.18.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |

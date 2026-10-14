@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "depth.h"
 #include "index.h"
 #include "man.h"
 
@@ -121,6 +122,41 @@ static char *safe_join(const char *dir, const char *file)
     return out;
 }
 
+/* Split a comma-separated TSV field (modified in place) into an allocated
+ * array of trimmed, non-empty strings. */
+static char **split_list(char *field, size_t *count)
+{
+    *count = 0;
+    if (field == NULL || field[0] == '\0') {
+        return NULL;
+    }
+    size_t cap = 8;
+    char **items = malloc(cap * sizeof(char *));
+    if (items == NULL) {
+        return NULL;
+    }
+    char *s = field;
+    while (s != NULL && *s != '\0') {
+        char *comma = strchr(s, ',');
+        if (comma != NULL) {
+            *comma = '\0';
+            comma++;
+        }
+        char *k = trim_string(s);
+        if (*k != '\0') {
+            if (*count >= cap) {
+                cap *= 2;
+                char **re = realloc(items, cap * sizeof(char *));
+                if (re == NULL) break;
+                items = re;
+            }
+            items[(*count)++] = strdup(k);
+        }
+        s = comma;
+    }
+    return items;
+}
+
 tam_index_t *tam_index_load(const char *root)
 {
     if (root == NULL) {
@@ -173,10 +209,11 @@ tam_index_t *tam_index_load(const char *root)
             continue;
         }
 
-        /* Parse TSV columns: topic, path, title, summary, keywords, level, track */
-        char *cols[7] = {0};
+        /* Parse TSV columns: topic, path, title, summary, keywords, level,
+         * track, prereqs */
+        char *cols[8] = {0};
         char *cur = trimmed;
-        for (int c = 0; c < 7 && cur != NULL; c++) {
+        for (int c = 0; c < 8 && cur != NULL; c++) {
             cols[c] = cur;
             char *tab = strchr(cur, '\t');
             if (tab != NULL) {
@@ -200,35 +237,14 @@ tam_index_t *tam_index_load(const char *root)
             entry->path = strdup(cols[1]);
             entry->title = strdup(cols[2]);
             entry->summary = cols[3] ? strdup(cols[3]) : strdup("");
-            entry->level = cols[5] ? strdup(cols[5]) : strdup("beginner");
-            entry->track = cols[6] ? strdup(cols[6]) : strdup("use");
-
-            /* Parse keywords */
-            entry->keywords = NULL;
-            entry->num_keywords = 0;
-            if (cols[4] != NULL && cols[4][0] != '\0') {
-                size_t kw_cap = 8;
-                entry->keywords = malloc(kw_cap * sizeof(char *));
-                char *kw_str = cols[4];
-                while (kw_str != NULL && *kw_str != '\0') {
-                    char *comma = strchr(kw_str, ',');
-                    if (comma != NULL) {
-                        *comma = '\0';
-                        comma++;
-                    }
-                    char *k = trim_string(kw_str);
-                    if (*k != '\0') {
-                        if (entry->num_keywords >= kw_cap) {
-                            kw_cap *= 2;
-                            char **rek = realloc(entry->keywords, kw_cap * sizeof(char *));
-                            if (rek == NULL) break;
-                            entry->keywords = rek;
-                        }
-                        entry->keywords[entry->num_keywords++] = strdup(k);
-                    }
-                    kw_str = comma;
-                }
+            entry->level = (cols[5] && cols[5][0]) ? strdup(cols[5]) : strdup("beginner");
+            entry->levels = tam_level_parse_list(entry->level);
+            if (entry->levels == 0) {
+                entry->levels = TAM_LEVEL_BEGINNER;
             }
+            entry->track = (cols[6] && cols[6][0]) ? strdup(cols[6]) : strdup("use");
+            entry->keywords = split_list(cols[4], &entry->num_keywords);
+            entry->prereqs = split_list(cols[7], &entry->num_prereqs);
 
             idx->count++;
         }
@@ -255,6 +271,10 @@ void tam_index_free(tam_index_t *idx)
             free(e->keywords[k]);
         }
         free(e->keywords);
+        for (size_t k = 0; k < e->num_prereqs; k++) {
+            free(e->prereqs[k]);
+        }
+        free(e->prereqs);
     }
     free(idx->entries);
     free(idx);
@@ -603,18 +623,29 @@ int tam_index_print_miss(FILE *out, const tam_index_t *idx, const char *query)
     return 1;
 }
 
-void tam_index_print_catalog(FILE *out, const tam_index_t *idx)
+void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level)
 {
     fprintf(out,
         "tam explain - explain a curated topic or concept\n\n"
         "Usage:\n"
         "  tam explain TOPIC           explain a topic in the terminal\n"
         "  tam explain TOPIC --pipe    print topic explanation as plain text\n"
-        "  tam explain -               read topic keyword from standard input\n\n"
-        "Available topics:\n");
+        "  tam explain --level LEVEL TOPIC\n"
+        "                              explain a topic at one depth: beginner,\n"
+        "                              intermediate, or expert\n"
+        "  tam explain --level LEVEL   list topics offering that depth\n"
+        "  tam explain -               read topic keyword from standard input\n\n");
+    if (level != 0) {
+        fprintf(out, "Topics with a %s level:\n", tam_level_name(level));
+    } else {
+        fprintf(out, "Available topics:\n");
+    }
 
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
+        if (level != 0 && !(e->levels & level)) {
+            continue;
+        }
         fprintf(out, "  %-12s %s\n", e->topic, e->summary);
         if (e->num_keywords > 0) {
             fprintf(out, "               Keywords: ");
@@ -630,6 +661,11 @@ void tam_index_print_catalog(FILE *out, const tam_index_t *idx)
                 fprintf(out, "%s", e->topic);
             }
             fprintf(out, "\n");
+        }
+        if (tam_level_count(e->levels) > 1) {
+            char levels[64];
+            tam_level_format(e->levels, ", ", levels, sizeof(levels));
+            fprintf(out, "               Depth: %s\n", levels);
         }
     }
     fprintf(out,

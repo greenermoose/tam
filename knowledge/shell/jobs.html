@@ -5,62 +5,141 @@
 <meta name="topic" content="jobs">
 <meta name="summary" content="Process lifecycle, background jobs, and signals">
 <meta name="keywords" content="jobs, job, process, processes, signal, signals, fg, bg, disown, kill, pkill, pgrep, top, htop, sigint, sigterm, sigkill">
-<meta name="level" content="intermediate">
+<meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="use">
+<meta name="prereqs" content="shell">
 </head>
 <body>
 <h1>Processes, Jobs, and Signals</h1>
 
-<p>Every running program on Tamlinux is a process with a unique process
-identifier (PID). When you launch commands in an interactive shell, the shell
-organizes them into jobs.</p>
+<p>Every running program on Tamlinux is a process with a unique identifier
+(PID). The interactive shell groups running commands into jobs that you can
+suspend, background, and resume.</p>
 
-<h2>Job control in the shell</h2>
+<section data-level="beginner">
+<h2>Beginner: Controlling background jobs in the shell</h2>
 
-<p>You can move long-running tasks between the foreground and background
-without losing your shell session:</p>
+<p><strong>Summary:</strong> Suspend a running program and move it into the
+background to keep your shell prompt free.</p>
 
-<dl>
-<dt>Background execution (&amp;)</dt>
-<dd>Append <code>&amp;</code> to the command (e.g. <code>make &amp;</code>) to start it in the
-background immediately, keeping your prompt active.</dd>
-<dt>Suspend (Ctrl+Z)</dt>
-<dd>Press <code>Ctrl+Z</code> to suspend the currently running foreground program,
-sending it a <code>SIGTSTP</code> signal.</dd>
-<dt>List jobs (jobs)</dt>
-<dd>Run <code>jobs -l</code> to inspect active background and stopped jobs in the
-current shell session.</dd>
-<dt>Foreground (fg)</dt>
-<dd>Run <code>fg %1</code> to bring job number 1 back into the interactive
-foreground.</dd>
-<dt>Background (bg)</dt>
-<dd>Run <code>bg %1</code> to resume stopped job number 1 in the background.</dd>
-<dt>Disown (disown)</dt>
-<dd>Run <code>disown %1</code> to detach a job from the shell so it continues running
-even after the terminal window is closed.</dd>
-</dl>
+<p><strong>Prerequisites:</strong> Basic shell interaction
+(<a href="shell/index.html">The Shell and Streams</a>).</p>
 
-<h2>Signals</h2>
+<h3>Command sequence</h3>
 
-<p>Signals are asynchronous notifications delivered to processes by the kernel,
-the shell, or other programs:</p>
+<pre>
+sleep 100
+</pre>
+
+<p>Press <code>Ctrl+Z</code>, then run:</p>
+
+<pre>
+bg %1
+jobs
+</pre>
+
+<p>Expected output:</p>
+
+<pre>
+[1]+  Stopped                 sleep 100
+[1]+ sleep 100 &amp;
+[1]+  Running                 sleep 100 &amp;
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>sleep 100</code> started running in the foreground, monopolizing the terminal.</li>
+<li>Pressing <code>Ctrl+Z</code> sent a <code>SIGTSTP</code> signal, pausing the process and returning control to your prompt.</li>
+<li><code>bg %1</code> sent a <code>SIGCONT</code> signal to job 1, resuming execution in the background.</li>
+<li><code>jobs</code> reported that job 1 is actively running in the background.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Closing your terminal window sends a <code>SIGHUP</code> (hangup) signal to all
+child jobs, terminating them unless they have been detached with <code>disown</code>
+or started with <code>nohup</code>.</p>
+
+<h3>Next step</h3>
+
+<p>Monitor system-wide resource utilization in
+<a href="hardware/resources.html">System Resources and Performance</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Process signaling and graceful termination</h2>
+
+<p><strong>Summary:</strong> Locate processes by name and send polite termination
+signals before resorting to unconditional kills.</p>
+
+<h3>Worked example</h3>
+
+<p>Find and politely terminate lingering background sleep processes:</p>
+
+<pre>
+pgrep -l sleep
+pkill -15 sleep
+</pre>
+
+<p><code>SIGTERM</code> (signal 15) gives applications the opportunity to save
+state, flush write buffers, and clean up socket files.</p>
+
+<h3>Completion task</h3>
+
+<p>Start a heavy background compilation task with lowest CPU scheduling priority
+(nice level 19) and detach it from your shell so it survives terminal closure.
+Complete the missing command step below (marked with <code>___</code>):</p>
+
+<pre>
+nice -n 19 make &amp;
+___ -h %1
+</pre>
+
+<p>Target output: job is marked so <code>SIGHUP</code> will not terminate it on logout.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The shell builtin to detach a job from the active session is <a href="man:bash(1)">disown</a>.</li>
+<li>Use <code>jobs -l</code> to inspect the job number and PID.</li>
+<li>Use <code>ps -o pid,ni,cmd -p &lt;PID&gt;</code> to verify the nice level is 19.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: POSIX process semantics and signal specifications</h2>
+
+<p><strong>Reference:</strong> Process states (R: running, S: interruptible sleep,
+D: uninterruptible disk sleep, Z: zombie/defunct). Zombies occur when a child
+terminates and the parent has not yet invoked <code>wait4(2)</code> to read its exit
+status; orphan processes are adopted by PID 1 (systemd or runit). Signals are
+synchronous or asynchronous interrupts handled via <code>sigaction(2)</code>.</p>
+
+<h3>Standard POSIX signals</h3>
 
 <table>
-<tr><th>Signal</th><th>Number</th><th>Description</th></tr>
-<tr><td>SIGHUP</td><td>1</td><td>Terminal hangup; reloads configuration in many daemons</td></tr>
-<tr><td>SIGINT</td><td>2</td><td>Interrupt from keyboard (Ctrl+C); polite request to halt</td></tr>
-<tr><td>SIGQUIT</td><td>3</td><td>Quit from keyboard (Ctrl+\); halts and dumps core</td></tr>
-<tr><td>SIGKILL</td><td>9</td><td>Unconditional immediate termination; cannot be caught or ignored</td></tr>
-<tr><td>SIGTERM</td><td>15</td><td>Standard termination request; default signal sent by kill</td></tr>
-<tr><td>SIGSTOP</td><td>19</td><td>Pauses execution immediately; cannot be caught or ignored</td></tr>
-<tr><td>SIGCONT</td><td>18</td><td>Resumes execution of a paused process</td></tr>
+<tr><th>Signal</th><th>Num</th><th>Action</th><th>Description</th></tr>
+<tr><td>SIGHUP</td><td>1</td><td>Term</td><td>Hangup detected on controlling terminal; config reload in daemons</td></tr>
+<tr><td>SIGINT</td><td>2</td><td>Term</td><td>Interrupt from keyboard (Ctrl+C)</td></tr>
+<tr><td>SIGQUIT</td><td>3</td><td>Core</td><td>Quit from keyboard (Ctrl+\)</td></tr>
+<tr><td>SIGKILL</td><td>9</td><td>Term</td><td>Unconditional immediate halt; uncatchable and unignorable</td></tr>
+<tr><td>SIGUSR1</td><td>10</td><td>Term</td><td>User-defined signal 1</td></tr>
+<tr><td>SIGSEGV</td><td>11</td><td>Core</td><td>Invalid memory reference (segmentation fault)</td></tr>
+<tr><td>SIGUSR2</td><td>12</td><td>Term</td><td>User-defined signal 2</td></tr>
+<tr><td>SIGPIPE</td><td>13</td><td>Term</td><td>Broken pipe: write to pipe with no readers</td></tr>
+<tr><td>SIGTERM</td><td>15</td><td>Term</td><td>Graceful termination request (default for kill and pkill)</td></tr>
+<tr><td>SIGCONT</td><td>18</td><td>Cont</td><td>Continue execution if paused</td></tr>
+<tr><td>SIGSTOP</td><td>19</td><td>Stop</td><td>Stop process execution immediately; uncatchable and unignorable</td></tr>
+<tr><td>SIGTSTP</td><td>20</td><td>Stop</td><td>Terminal stop signal generated by Ctrl+Z</td></tr>
 </table>
 
-<h2>Inspecting processes</h2>
+<h3>Manual pages</h3>
 
-<p>Use <code>ps aux</code> or <code>pgrep -l name</code> to search for processes, and
-<code>pkill name</code> to signal them by command name. For dynamic live
-monitoring, run <code>top</code> or <code>htop</code>.</p>
+<p>Consult system documentation: <a href="man:kill(1)">kill(1)</a>,
+<a href="man:pkill(1)">pkill(1)</a>, <a href="man:pgrep(1)">pgrep(1)</a>,
+<a href="man:sigaction(2)">sigaction(2)</a>, <a href="man:wait(2)">wait(2)</a>.</p>
+</section>
 
 <h2>Where to next</h2>
 

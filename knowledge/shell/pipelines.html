@@ -5,42 +5,128 @@
 <meta name="topic" content="pipelines">
 <meta name="summary" content="Shell pipelines, redirection, and core filters">
 <meta name="keywords" content="pipelines, pipeline, pipe, pipes, redirection, redirect, redirect stderr, |, >, >>, 2>&1, <, grep, ps, wc, cat">
-<meta name="level" content="beginner">
+<meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="use">
+<meta name="prereqs" content="shell">
 </head>
 <body>
 <h1>Shell pipelines</h1>
 
-<p>A pipeline connects small programs so the output of one becomes the input
-of the next. Each program does one thing well; the pipe is the wiring.</p>
+<p>A pipeline connects programs so the standard output of one command flows
+directly into the standard input of the next without temporary files.</p>
 
-<h2>A first example</h2>
+<section data-level="beginner">
+<h2>Beginner: Connecting commands with a pipe</h2>
+
+<p><strong>Summary:</strong> Filter and count command output by connecting programs
+with the pipe operator (<code>|</code>).</p>
+
+<p><strong>Prerequisites:</strong> Basic terminal interaction and standard streams
+(<a href="shell/index.html">The Shell and Streams</a>).</p>
+
+<h3>Command sequence</h3>
 
 <pre>
 ps aux | grep firefox | wc -l
 </pre>
 
-<p>This asks for the process list, keeps the lines mentioning
-<code>firefox</code>, and counts them. Read it left to right: take, filter,
-measure.</p>
+<p>Expected output:</p>
 
-<h2>Redirection</h2>
+<pre>
+3
+</pre>
+
+<h3>What just happened</h3>
 
 <ul>
-<li><code>&gt;</code> writes output to a file, replacing it.</li>
-<li><code>&gt;&gt;</code> appends to a file.</li>
-<li><code>2&gt;&amp;1</code> sends error messages to the same place as normal
-output.</li>
+<li><code>ps aux</code> prints a snapshot of every running process on the system to standard output.</li>
+<li>The pipe symbol <code>|</code> passes that output directly to the input of <code>grep firefox</code>.</li>
+<li><code>grep firefox</code> discards all lines except those matching "firefox", and outputs the remaining lines.</li>
+<li>The second pipe passes those filtered lines to <code>wc -l</code>, which counts and prints the total number of lines.</li>
 </ul>
 
-<p>Consider whether you need a pipe at all. <code>grep firefox file.txt</code>
-does the same job as <code>cat file.txt | grep firefox</code>, with one fewer
-process.</p>
+<h3>Common pitfall</h3>
 
-<h2>See also</h2>
+<p>Avoid the "useless use of cat": running <code>cat file.txt | grep pattern</code>
+spawns an unnecessary process. Instead, pass the file directly:
+<code>grep pattern file.txt</code>.</p>
 
-<p>The <a href="man/index.html">man guide</a> explains where to look up any
-command you meet. The <a href="index.html">guide index</a> lists every
-topic.</p>
+<h3>Next step</h3>
+
+<p>Read about managing running processes in <a href="shell/jobs.html">Processes, Jobs, and Signals</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Redirection and Multi-Stage Filters</h2>
+
+<p><strong>Summary:</strong> Combine sorting, deduplication, and file descriptors
+to transform structured command data.</p>
+
+<h3>Worked example</h3>
+
+<p>Count the frequency of each login shell across all system users:</p>
+
+<pre>
+cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+</pre>
+
+<p>Output shows shells ordered from most frequent to least frequent.</p>
+
+<h3>Completion task</h3>
+
+<p>Find the top 5 largest directories in <code>/var/log</code>. Complete the
+missing pipeline step below (marked with <code>___</code>):</p>
+
+<pre>
+du -h /var/log 2&gt;/dev/null | sort -hr | ___ -n 5
+</pre>
+
+<p>Target output: exactly 5 lines listing the largest log folders.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The missing filter extracts the first few lines of a stream. Check <a href="man:head(1)">head(1)</a>.</li>
+<li><code>2&gt;/dev/null</code> redirects stderr descriptor (2) to suppress permission warnings.</li>
+<li><code>sort -hr</code> enables human-numeric sorting (recognizing K, M, G suffixes) in descending order.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: POSIX pipe semantics and descriptor routing</h2>
+
+<p><strong>Reference:</strong> Unnamed unidirectional byte streams backed by kernel
+ring buffers (default 64 KiB, configurable via <code>F_SETPIPE_SZ</code>). Commands in a
+pipeline execute concurrently in subshells. Exit status is determined by the
+rightmost command unless <code>set -o pipefail</code> is active in Bash.</p>
+
+<h3>Stream Redirection Operators</h3>
+
+<table>
+<tr><th>Operator</th><th>Descriptor Action</th><th>Description</th></tr>
+<tr><td><code>|</code></td><td>stdout &rarr; stdin</td><td>Connects stdout (fd 1) of left command to stdin (fd 0) of right</td></tr>
+<tr><td><code>|&amp;</code></td><td>stdout + stderr &rarr; stdin</td><td>Connects both stdout (1) and stderr (2) to stdin (0)</td></tr>
+<tr><td><code>&gt; file</code></td><td>1 &rarr; file</td><td>Truncates or creates file and routes stdout</td></tr>
+<tr><td><code>&gt;&gt; file</code></td><td>1 &rarr; file (append)</td><td>Appends stdout to file</td></tr>
+<tr><td><code>2&gt;&amp;1</code></td><td>2 &rarr; 1</td><td>Duplicates stderr to current destination of stdout</td></tr>
+<tr><td><code>&amp;&gt; file</code></td><td>1, 2 &rarr; file</td><td>Redirects both stdout and stderr to file</td></tr>
+<tr><td><code>&lt; file</code></td><td>file &rarr; 0</td><td>Feeds file content into stdin</td></tr>
+<tr><td><code>&lt;(cmd)</code></td><td>fifo/fd &rarr; arg</td><td>Process substitution: presents command output as readable filename</td></tr>
+</table>
+
+<h3>Manual pages</h3>
+
+<p>Consult system documentation: <a href="man:bash(1)">bash(1)</a>,
+<a href="man:pipe(2)">pipe(2)</a>, <a href="man:xargs(1)">xargs(1)</a>,
+<a href="man:dup2(2)">dup2(2)</a>.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="shell/index.html">The Shell and Streams</a> &mdash; return to shell fundamentals.</li>
+<li><a href="shell/jobs.html">Processes, Jobs, and Signals</a> &mdash; manage and signal processes.</li>
+<li><a href="index.html">Guide index</a> &mdash; browse all topics.</li>
+</ul>
 </body>
 </html>

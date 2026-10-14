@@ -2,7 +2,7 @@
 #define TAM_VERSION_H
 
 #define TAM_COMMAND_NAME    "tam"
-#define TAM_COMMAND_VERSION "0.14.0"
+#define TAM_COMMAND_VERSION "0.15.0"
 
 char *cultivar_version(void);
 

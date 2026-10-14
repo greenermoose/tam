@@ -1,13 +1,12 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–6 (command foundation, offline guide,
+**Stage:** Develop — milestones 1–7 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
-corpus index and search), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.14.0. The executable
+corpus index and search, content-depth ladder and fading templates), link navigation, hyperlink display fixes, in-pager text search,
+reading telemetry, and static Bash shell completions implemented; the command is at 0.15.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
-bundled guide itself. Milestones 7–9 (a content-depth ladder, read-only
-self-inspection, and an opt-in grounded `ask`) are **planned** from
-the 2026-10-12 `tam` help and self-inspection requirements; they are not yet
+bundled guide itself. Milestones 8–9 (read-only self-inspection and an opt-in grounded `ask`)
+are **planned** from the 2026-10-12 `tam` help and self-inspection requirements; they are not yet
 implemented.
 
 ## Purpose and ownership
@@ -170,13 +169,17 @@ version that shipped at the time; do not rewrite them.
    `tam man <query>` when appropriate. Fuzzy matches are suggestions, never an
    auto-redirect. `tam explain` keeps single-topic semantics and resolves
    multi-word queries through search. Bumper version to 0.10.0.
-7. **Content-depth ladder and fading templates — planned.** Give each curated
-   topic a reader-selected depth: **Beginner** (one worked, annotated example
-   with expected output), **Intermediate** (example plus a completion task) and
-   **Expert** (terse reference with links to `man`). Depth metadata is
-   authoring-only until the ladder is wired; example-first, linked pages are the
-   discipline across the corpus. This formalises the existing
-   `explain` → `show` → `man` progression.
+7. **Content-depth ladder and fading templates — done (2026-10-14).** Added
+   Beginner (one worked, annotated example with expected output),
+   Intermediate (example plus a completion task) and Expert (terse reference with
+   links to `man`) fading template sections across core curated topics
+   (`shell/jobs.html`, `shell/pipelines.html`, `filesystem/permissions.html`,
+   `hardware/resources.html`). Implemented `src/depth.c` and `src/depth.h` for
+   dynamic section extraction and in-page depth switching (`?level=NAME`);
+   added `tam explain --level LEVEL <topic>` and catalog depth filtering;
+   extended `tools/build-index.py` and `src/index.c` with level lists, track,
+   and prerequisites; updated `tam search` and `--json` with depth indicators;
+   added Bash completions for `--level`. Version bumped to 0.15.0.
 8. **Read-only self-inspection findings and check contract — planned.** Grow
    `tam install inspect` into a read-only findings layer: one versioned finding
    model (id, severity, evidence, link to help) and a check contract
@@ -407,4 +410,6 @@ plan/apply/verify work follows the product framework.
   video styling. Added automated PTY tests in `tests/run.sh`. Version bumped to
   `0.13.0`.
 - **2026-10-13:** In-pager text search, reading telemetry, and static Bash completions implemented (tam 0.14.0). Added in-pager keyword search in `src/pager.c` activated by `/` with interactive search prompt, case-insensitive line search, in-buffer standout hit highlighting, next match (`n`) and previous match (`N`) navigation, and `Esc` highlight clearing (or page navigation clearing). Updated status line reading position telemetry reporting exact line metrics and percentage bounds (`L.../total`, `All`, `Top`, `Bot`, `%`). Retained `N` backward link circulation fallback when no search query is active. Generated static shell completion script for Bash (`completions/bash/tam`) completing fixed subcommands and options with zero dynamic file I/O (Tamlinux supports Bash only; zsh and fish code was omitted). Updated `Makefile` install/uninstall targets and expanded automated PTY interactive tests in `tests/run.sh`. Version bumped to `0.14.0`.
+- **2026-10-14:** Milestone 7 implemented (tam 0.15.0). Formalized the pedagogical progression of the offline guide into a structured content-depth ladder with fading templates across three explicit depths: Beginner (summary, prerequisites, worked command sequence with expected output, "what just happened" explanation, common pitfall, next steps), Intermediate (summary, worked example, completion task with missing step, verification hints), and Expert (terse reference, compact option/flag tables, links to `tam man`, zero redundant scaffolding). Authored complete reference fading templates in `knowledge/shell/jobs.html`, `knowledge/shell/pipelines.html`, `knowledge/filesystem/permissions.html`, and `knowledge/hardware/resources.html`. Implemented dynamic section parsing and filtering in `src/depth.c` and `src/depth.h` linked into `src/tam.c` (`read_corpus_page`, `view_knowledge_page`, `corpus_load`) supporting `?level=NAME` query routing with full pager history and forward navigation. Added `--level <beginner|intermediate|expert>` option to `tam explain` for single-topic depth viewing and catalog filtering (`tam explain --level <level>`), with truthful diagnostics when a requested level is unavailable. Projected level lists, track, and prerequisites into `knowledge/index.tsv` and `knowledge/index.json` via `tools/build-index.py` and `src/index.c`. Added depth indicators to `tam search` text output and JSON output (`levels`, `track`, `prereqs`). Updated static Bash auto-completion script (`completions/bash/tam`) for `--level`. Updated test suites (`tests/run.sh` and `tests/guide.sh`) and refreshed golden snapshots. Version bumped to `0.15.0`.
+
 
