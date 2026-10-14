@@ -30,6 +30,37 @@ reasoning; this repository carries the public, publishable projection. The
 `why`/depth axes and a computer-science track are exploratory ideas only and are
 listed under [Excluded and deferred work](#excluded-and-deferred-work).
 
+## Repository layout and workstream lanes
+
+The repository has two independently developable workstreams:
+
+- **Command (`src/`, `bin/`, `completions/`)** — the C program that renders
+  the corpus and links `libtam`.
+- **Corpus (`knowledge/`, `tools/`, `tests/snapshots/`)** — the authored
+  semantic HTML, the index generator, and the golden snapshots.
+
+They are separate at the source and runtime levels: the binary loads its
+corpus from `TAM_KNOWLEDGE_DIR` or the installed `DATADIR`, so a corpus edit
+needs no recompile and a source edit needs no corpus change. Two agents may
+edit the two lanes at once, each claiming only its lane's paths with
+`tam-work` (workspace `AGENTS.md`). Shared integration files (`Makefile`,
+`tests/run.sh`, `tests/guide.sh`, `AI_PROVENANCE.md`, `README.md`,
+`ROADMAP.md`, `docs/`) move by handoff, never concurrently. An agent working
+on something that tightly couples the two — for example adding parser support
+for a construct and then using it in the corpus — claims both lanes.
+
+The lanes stay coupled at the test level. `tests/guide.sh` renders corpus
+pages through the built binary, and `tests/run.sh` asserts corpus content
+through `search` and `explain`, which read the generated index.
+
+Build targets follow the lanes:
+
+- `make` (or `make all`) — the whole project: the binary and the corpus index.
+- `make command` — just the C binary; does not regenerate the corpus index.
+- `make corpus` — regenerate and validate `knowledge/index.{tsv,json}`.
+- `make test-command` / `make test-corpus` — one lane's checks.
+- `make test` / `make check` — the full, integrated suite.
+
 ## Command contract
 
 | Invocation | Status | Behavior |

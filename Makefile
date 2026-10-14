@@ -5,6 +5,11 @@
 #
 # Override LIBTAM_PREFIX if libtam is installed somewhere other than PREFIX,
 # or LIBTAM_CFLAGS / LIBTAM_LIBS directly for a custom location.
+#
+# Two workstream lanes build independently:
+#   make command   the C binary, linking libtam
+#   make corpus    the knowledge corpus index
+# `make` (or `make all`) builds both. See docs/plans/development.md.
 
 CC       ?= cc
 CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
@@ -28,8 +33,14 @@ DEPS  := src/version.h src/render.h src/pager.h src/install.h src/man.h src/inde
 INDEX := knowledge/index.tsv knowledge/index.json
 
 # A build from a Git checkout reports its commit in --version; packaged
-# builds have no .git and report the plain version.
-TAM_BUILD_ID := $(shell git -C $(CURDIR) describe --always --dirty 2>/dev/null)
+# builds have no .git and report the plain version. Only the command's own
+# paths count as dirty: a corpus-only edit must not change the command's
+# embedded build id.
+TAM_SOURCES := src bin completions Makefile
+TAM_BUILD_ID := $(shell git -C $(CURDIR) describe --always 2>/dev/null)
+ifneq ($(strip $(shell git -C $(CURDIR) status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),)
+TAM_BUILD_ID := $(TAM_BUILD_ID)-dirty
+endif
 
 CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\" -DTAM_BUILD=\"$(TAM_BUILD_ID)\"
 
@@ -38,14 +49,15 @@ CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\" -DTAM_BUILD=\"$(TAM_BUILD_ID)\"
 # whenever that configuration does and forces a rebuild.
 CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS)
 
-.PHONY: all clean test install uninstall FORCE
+.PHONY: all command corpus test test-command test-corpus check install uninstall clean FORCE
 
-all: $(TAM)
+# Whole project (default): the command and the corpus index.
+all: command corpus
 
-$(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) tools/build-index.py
-	python3 tools/build-index.py
+# --- command lane: the C binary, no corpus regeneration -------------------
+command: $(TAM)
 
-$(TAM): $(SRC) $(DEPS) $(BUILD)/config $(INDEX) | $(BUILD)
+$(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
 		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) -o $@
 
@@ -55,11 +67,28 @@ $(BUILD)/config: FORCE | $(BUILD)
 $(BUILD):
 	mkdir -p $(BUILD)
 
-test: $(TAM)
+# --- corpus lane: index generation and validation -------------------------
+corpus: $(INDEX)
+
+$(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) tools/build-index.py
+	python3 tools/build-index.py
+
+# --- tests ----------------------------------------------------------------
+# test-command and test-corpus are single-lane entry points; test and check
+# are the full, integrated runs.
+test: all
 	tests/run.sh $(CURDIR)/$(TAM)
 	tests/guide.sh $(CURDIR)/$(TAM)
 
-install: $(TAM)
+test-command: command
+	tests/run.sh $(CURDIR)/$(TAM)
+
+test-corpus: command
+	tests/guide.sh $(CURDIR)/$(TAM)
+
+check: corpus test
+
+install: all
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
 	install -m 755 bin/tam-man $(DESTDIR)$(BINDIR)/tam-man
