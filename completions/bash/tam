@@ -22,9 +22,15 @@ _tam_completions() {
     case "$cmd" in
         install)
             if [ "$COMP_CWORD" -eq 2 ]; then
-                COMPREPLY=($(compgen -W "inspect plan apply verify --help" -- "$cur"))
-            elif [ "$COMP_CWORD" -eq 3 ] && [ "${COMP_WORDS[2]}" = "inspect" ]; then
-                COMPREPLY=($(compgen -W "--pipe" -- "$cur"))
+                COMPREPLY=($(compgen -W "inspect check plan apply verify --help" -- "$cur"))
+            elif [ "${COMP_WORDS[2]}" = "inspect" ]; then
+                if [ "$prev" = "--check" ]; then
+                    COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release" -- "$cur"))
+                else
+                    COMPREPLY=($(compgen -W "--pipe --json --check" -- "$cur"))
+                fi
+            elif [ "${COMP_WORDS[2]}" = "check" ]; then
+                COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release --json --help" -- "$cur"))
             fi
             ;;
         search)

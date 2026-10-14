@@ -31,3 +31,5 @@ Human-only commits retain their original authorship.
 | 2026-10-14 | Content-depth ladder and fading templates 0.15.0 (`explain --level`, `depth.c`, metadata projection) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-content-depth-ladder.md) |
 | 2026-10-14 | Command/corpus lane build split (`make command`, `make corpus`) | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-command-corpus-lanes.md) |
 | 2026-10-14 | Lua scripting topic in the ecosystem chapters | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-lua-topic.md) |
+| 2026-10-14 | Read-only self-inspection findings and check contract 0.16.0 (`install inspect`, `check`, JSON contract) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-self-inspection-findings.md) |
+

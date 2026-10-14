@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.15.0`.  
+**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.16.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.15.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.16.0)
 
-Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–7, link ergonomics, in-pager search, shell completions, and the content-depth ladder:
+Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–8, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, and check contract:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -42,14 +42,15 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 | **0.13.0** | Hyperlink Display Fixes | Done (2026-10-13) | Corrected hyperlink leading-space underline suppression and multi-line wrapped link continuation styling in `src/render.c` and `src/pager.c`. |
 | **0.14.0** | In-Pager Search, Telemetry & Bash Completions | Done (2026-10-13) | Interactive keyword search prompt (`/`) in `src/pager.c` with in-buffer hit highlighting, next/previous navigation (`n`/`N`), and `Esc` clearing; reading position telemetry (`L...`, percentage, `Top`, `Bot`, `All`); static shell completions for Bash without dynamic file I/O (Tamlinux supports Bash only). |
 | **0.15.0** | Milestone 7: Content-Depth Ladder & Fading Templates | Done (2026-10-14) | Beginner / Intermediate / Expert fading templates across core topics (`shell/jobs.html`, `shell/pipelines.html`, `filesystem/permissions.html`, `hardware/resources.html`); dynamic section filtering in `src/depth.c` and depth navigation (`?level=`); `tam explain --level LEVEL <topic>` and catalog depth filtering; index metadata projection for level lists, tracks, and prerequisites; depth indicators in `tam search` and JSON output; Bash completion for `--level`. |
+| **0.16.0** | Milestone 8: Self-Inspection Findings & Check Contract | Done (2026-10-14) | Comprehensive read-only system diagnostic and health finding engine in `tam install inspect`; structured finding model (`id`, `severity`, `summary`, `evidence`, `help_link`) deep-linking to Maintain-track help; versioned offline Check Contract schema (`{task_id, name, status, pass, fail, evidence, severity, help_ref, source, schema_version}`); Safe Execution Envelope (`safe_probe_exec`) running whitelisted probes under `LC_ALL=C`, bounded timeouts (≤500ms), captured streams, detached TTY; `pkexec` detect-and-degrade (no interactive `sudo`); `tam install inspect --json`, `tam install inspect --check [ID]`, `tam install check [ID]` (`--json` supported); updated Bash completions. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.16.0** ("Maintain" Track Knowledge Corpus Expansion). With the content-depth ladder and fading templates in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation.
+The immediate priority for `tam` is implementing **Version 0.17.0** ("Maintain" Track Knowledge Corpus Expansion). With the content-depth ladder and fading templates in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation.
 
-### Version 0.16.0 — "Maintain" Track Knowledge Corpus Expansion
+### Version 0.17.0 — "Maintain" Track Knowledge Corpus Expansion
 Expand the offline corpus to comprehensively cover system health, resilient updates, diagnostics, and disaster recovery.
 
 - **Non-Disruptive Updates & Package Lifecycle:**
@@ -71,10 +72,10 @@ Following the immediate next steps, the future development of `tam` advances thr
 
 ```text
   0.14.0 ──► 0.15.0 ──► 0.16.0 ──► 0.17.0 ──► 0.18.0 ──► 0.19.0 ──► 0.20.0 ──► 0.21.0 ──► 0.22.0 ──► 0.23.0 ──► 0.24.0 ──► 1.0.0
- (Search)   (Depth)    (Maintain)  (Inspect)  (Improve)   (Why)     (Depth)    (Ask)     (Learn)   (Parser)  (Install)  (Stable)
+ (Search)   (Depth)    (Inspect)   (Maintain) (Improve)   (Why)     (Depth)    (Ask)     (Learn)   (Parser)  (Install)  (Stable)
 ```
 
-### Version 0.16.0 — "Maintain" Track Knowledge Corpus Expansion
+### Version 0.17.0 — "Maintain" Track Knowledge Corpus Expansion
 Expand the offline corpus to comprehensively cover system health, resilient updates, diagnostics, and disaster recovery.
 
 - **Non-Disruptive Updates & Package Lifecycle:**
@@ -223,9 +224,9 @@ Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support
 | Version | Milestone / Theme | Primary Subcommands & Surfaces | Key Deliverables |
 | :--- | :--- | :--- | :--- |
 | **0.14.0** | Pager Ergonomics & Completions | `src/pager.c`, completions | `/` in-pager text search, line/percentage telemetry, Bash completions. |
-| **0.15.0** | Milestone 7: Content-Depth Ladder | `tam explain --level`, `tam search` | Current baseline: Beginner / Intermediate / Expert fading templates, depth line, ?level= navigation, index metadata. |
-| **0.16.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
-| **0.17.0** | Milestone 8: Self-Inspection | `tam install inspect`, check contract | Read-only findings model, versioned JSON check contract, `pkexec` detect-and-degrade. |
+| **0.15.0** | Milestone 7: Content-Depth Ladder | `tam explain --level`, `tam search` | Beginner / Intermediate / Expert fading templates, depth line, ?level= navigation, index metadata. |
+| **0.16.0** | Milestone 8: Self-Inspection | `tam install inspect`, check contract | Current baseline: Read-only findings model, versioned JSON check contract, `pkexec` detect-and-degrade. |
+| **0.17.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
 | **0.18.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |
 | **0.19.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
 | **0.20.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |

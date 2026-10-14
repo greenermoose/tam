@@ -1,12 +1,12 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–7 (command foundation, offline guide,
+**Stage:** Develop — milestones 1–8 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
-corpus index and search, content-depth ladder and fading templates), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.15.0. The executable
+corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract), link navigation, hyperlink display fixes, in-pager text search,
+reading telemetry, and static Bash shell completions implemented; the command is at 0.16.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
-bundled guide itself. Milestones 8–9 (read-only self-inspection and an opt-in grounded `ask`)
-are **planned** from the 2026-10-12 `tam` help and self-inspection requirements; they are not yet
+bundled guide itself. Milestone 9 (an opt-in grounded `ask`) is **planned**
+from the 2026-10-12 `tam` help and self-inspection requirements; it is not yet
 implemented.
 
 ## Purpose and ownership
@@ -211,12 +211,22 @@ version that shipped at the time; do not rewrite them.
    extended `tools/build-index.py` and `src/index.c` with level lists, track,
    and prerequisites; updated `tam search` and `--json` with depth indicators;
    added Bash completions for `--level`. Version bumped to 0.15.0.
-8. **Read-only self-inspection findings and check contract — planned.** Grow
-   `tam install inspect` into a read-only findings layer: one versioned finding
-   model (id, severity, evidence, link to help) and a check contract
-   (`{task_id, pass, fail, evidence, source, schema_version}`) that the deferred
-   progression system can later use as its offline assessment oracle. Findings
-   deep-link into Maintain-track help. No repair, no telemetry, no daemon.
+8. **Read-only self-inspection findings and check contract — done (2026-10-14).** Grew
+   `tam install inspect` into a read-only findings layer: structured finding
+   model (`id`, `severity` in info/warn/error/critical, `evidence`, `help_link`,
+   `summary`) and a versioned offline Check Contract
+   (`{task_id, name, status, pass, fail, evidence, severity, help_ref, source, schema_version}`)
+   that the deferred progression system can use as its assessment oracle. Implemented
+   the Safe Execution Envelope (`LC_ALL=C`, bounded timeouts ≤500ms, captured
+   standard streams, detached TTY, neutralized color) with a fixed whitelist of
+   read-only system probes (`findmnt`, `systemctl`, `udevadm`, `pkexec`), and pure C
+   POSIX primitives (`statvfs`, `uname`). Implemented `pkexec` detect-and-degrade
+   rule (never assume privilege, never spawn interactive `sudo`, truthful warning finding
+   when `pkexec` is absent). Added `tam install inspect --json`, `tam install inspect --check [ID]`,
+   and `tam install check [ID]` (`--json` supported) subcommands. Findings deep-link
+   into Maintain-track help (`maintain/rollback.html`, `maintain/recovery.html`,
+   `maintain/logs.html`, `maintain/power.html`, `maintain/updates.html`). Updated
+   Bash auto-completions and test suite. Version bumped to `0.16.0`.
 9. **Opt-in grounded `ask` — planned.** Add `tam ask <question>`: retrieval over
    the corpus index with mandatory citations, fallback to `tam search` when no
    model is available, and the offline-by-default boundary described above.
@@ -441,6 +451,7 @@ plan/apply/verify work follows the product framework.
   video styling. Added automated PTY tests in `tests/run.sh`. Version bumped to
   `0.13.0`.
 - **2026-10-13:** In-pager text search, reading telemetry, and static Bash completions implemented (tam 0.14.0). Added in-pager keyword search in `src/pager.c` activated by `/` with interactive search prompt, case-insensitive line search, in-buffer standout hit highlighting, next match (`n`) and previous match (`N`) navigation, and `Esc` highlight clearing (or page navigation clearing). Updated status line reading position telemetry reporting exact line metrics and percentage bounds (`L.../total`, `All`, `Top`, `Bot`, `%`). Retained `N` backward link circulation fallback when no search query is active. Generated static shell completion script for Bash (`completions/bash/tam`) completing fixed subcommands and options with zero dynamic file I/O (Tamlinux supports Bash only; zsh and fish code was omitted). Updated `Makefile` install/uninstall targets and expanded automated PTY interactive tests in `tests/run.sh`. Version bumped to `0.14.0`.
-- **2026-10-14:** Milestone 7 implemented (tam 0.15.0). Formalized the pedagogical progression of the offline guide into a structured content-depth ladder with fading templates across three explicit depths: Beginner (summary, prerequisites, worked command sequence with expected output, "what just happened" explanation, common pitfall, next steps), Intermediate (summary, worked example, completion task with missing step, verification hints), and Expert (terse reference, compact option/flag tables, links to `tam man`, zero redundant scaffolding). Authored complete reference fading templates in `knowledge/shell/jobs.html`, `knowledge/shell/pipelines.html`, `knowledge/filesystem/permissions.html`, and `knowledge/hardware/resources.html`. Implemented dynamic section parsing and filtering in `src/depth.c` and `src/depth.h` linked into `src/tam.c` (`read_corpus_page`, `view_knowledge_page`, `corpus_load`) supporting `?level=NAME` query routing with full pager history and forward navigation. Added `--level <beginner|intermediate|expert>` option to `tam explain` for single-topic depth viewing and catalog filtering (`tam explain --level <level>`), with truthful diagnostics when a requested level is unavailable. Projected level lists, track, and prerequisites into `knowledge/index.tsv` and `knowledge/index.json` via `tools/build-index.py` and `src/index.c`. Added depth indicators to `tam search` text output and JSON output (`levels`, `track`, `prereqs`). Updated static Bash auto-completion script (`completions/bash/tam`) for `--level`. Updated test suites (`tests/run.sh` and `tests/guide.sh`) and refreshed golden snapshots. Version bumped to `0.15.0`.
+- **2026-10-14:** Milestone 8 implemented (tam 0.16.0). Grew `tam install inspect` into a comprehensive, read-only system diagnostic and health finding engine and established the offline Check Contract. Defined structured finding model (`id`, `severity` in info/warn/error/critical, `summary`, `evidence`, `help_link`) deep-linking directly into Maintain-track guide pages (`maintain/rollback.html`, `maintain/recovery.html`, `maintain/logs.html`, `maintain/power.html`, `maintain/updates.html`). Defined the versioned offline Check Contract schema (`{task_id, name, status, pass, fail, evidence, severity, help_ref, source, schema_version}`) serving as the offline assessment oracle for progression tasks. Implemented the Safe Execution Envelope (`safe_probe_exec`) running fixed read-only whitelisted probes (`findmnt`, `systemctl`, `udevadm`, `pkexec`) under `LC_ALL=C`, bounded timeouts (≤500ms), captured standard streams, detached TTY, and neutralized color, backed by POSIX primitives (`statvfs`, `uname`). Implemented `pkexec` detect-and-degrade rule: detect presence without assuming privilege; on hosts without `pkexec`, gracefully degrade to non-privileged inspection subset and emit a `warn` finding ("privilege tool unavailable: limited inspection"); never spawn interactive `sudo`. Added `tam install inspect --json` for full machine-readable inspection reports, `tam install inspect --check [ID]` and `tam install check [ID]` (`--json` supported) for discrete check evaluation. Updated Bash completions (`completions/bash/tam`) and expanded automated test suite (`tests/run.sh`). Version bumped to `0.16.0`.
+
 
 

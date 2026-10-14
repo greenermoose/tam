@@ -48,7 +48,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.15.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.16.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -635,7 +635,7 @@ pass "search subcommand, corpus index retrieval, json output, and canonical quer
 "$TAM" install help | grep -q 'Usage:' || fail "install help missing usage"
 [ "$("$TAM" install help)" = "$("$TAM" install --help)" ] || fail "install help differs from install --help"
 
-# Install inspect: reports host facts, capabilities, profiles.
+# Install inspect: reports host facts, capabilities, profiles, and findings.
 ins_out=$("$TAM" install inspect)
 printf '%s\n' "$ins_out" | grep -q 'Host Information:' || fail "inspect missing Host Information"
 printf '%s\n' "$ins_out" | grep -q 'Operating system:' || fail "inspect missing Operating system"
@@ -651,6 +651,17 @@ printf '%s\n' "$ins_out" | grep -q 'Installation Profiles:' || fail "inspect mis
 printf '%s\n' "$ins_out" | grep -q 'Supported:' || fail "inspect missing Supported"
 printf '%s\n' "$ins_out" | grep -q 'Target base:' || fail "inspect missing Target base"
 
+# Inspection Findings in text report
+printf '%s\n' "$ins_out" | grep -q 'Inspection Findings:' || fail "inspect missing Inspection Findings"
+printf '%s\n' "$ins_out" | grep -q 'privilege_pkexec' || fail "inspect missing privilege_pkexec finding"
+printf '%s\n' "$ins_out" | grep -q 'storage_btrfs' || fail "inspect missing storage_btrfs finding"
+printf '%s\n' "$ins_out" | grep -q 'storage_root_space' || fail "inspect missing storage_root_space finding"
+printf '%s\n' "$ins_out" | grep -q 'init_systemd' || fail "inspect missing init_systemd finding"
+printf '%s\n' "$ins_out" | grep -q 'graphics_card' || fail "inspect missing graphics_card finding"
+printf '%s\n' "$ins_out" | grep -q 'package_manager' || fail "inspect missing package_manager finding"
+printf '%s\n' "$ins_out" | grep -q 'kernel_release' || fail "inspect missing kernel_release finding"
+printf '%s\n' "$ins_out" | grep -q 'Help:' || fail "inspect missing Help deep-link"
+
 # Cultivar resolution in inspect matches environment / isolated config.
 iso "$TAM" install inspect | grep -q 'Cultivar version:  7.7.7' || fail "inspect missing cultivar version from file"
 rm -f "$config/tamlinux/version"
@@ -660,6 +671,61 @@ env HOME="$home" XDG_CONFIG_HOME="$config" XDG_STATE_HOME="$state" \
 
 # Inspect pipe flag.
 "$TAM" install inspect --pipe | grep -q 'Host Information:' || fail "inspect --pipe failed"
+
+# Inspect JSON output: machine-readable findings and checks schema
+ins_json=$("$TAM" install inspect --json)
+printf '%s\n' "$ins_json" | grep -q '"schema_version": "1.0.0"' || fail "inspect --json missing schema_version"
+printf '%s\n' "$ins_json" | grep -q '"findings":' || fail "inspect --json missing findings"
+printf '%s\n' "$ins_json" | grep -q '"checks":' || fail "inspect --json missing checks"
+printf '%s\n' "$ins_json" | grep -q '"id": "privilege_pkexec"' || fail "inspect --json missing privilege_pkexec finding id"
+printf '%s\n' "$ins_json" | grep -q '"help_link":' || fail "inspect --json missing help_link"
+
+# Check contract: tam install inspect --check <task_id>
+chk_btrfs=$("$TAM" install inspect --check storage_btrfs)
+printf '%s\n' "$chk_btrfs" | grep -q '"task_id": "storage_btrfs"' || fail "--check storage_btrfs missing task_id"
+printf '%s\n' "$chk_btrfs" | grep -q '"status": "pass"' || fail "--check storage_btrfs missing status pass"
+printf '%s\n' "$chk_btrfs" | grep -q '"pass": true' || fail "--check storage_btrfs missing pass boolean"
+printf '%s\n' "$chk_btrfs" | grep -q '"fail": false' || fail "--check storage_btrfs missing fail boolean"
+printf '%s\n' "$chk_btrfs" | grep -q '"evidence":' || fail "--check storage_btrfs missing evidence"
+printf '%s\n' "$chk_btrfs" | grep -q '"help_ref": "maintain/rollback.html"' || fail "--check storage_btrfs missing help_ref"
+printf '%s\n' "$chk_btrfs" | grep -q '"source": "tam install inspect"' || fail "--check storage_btrfs missing source"
+printf '%s\n' "$chk_btrfs" | grep -q '"schema_version": "1.0.0"' || fail "--check storage_btrfs missing schema_version"
+
+# Check subcommand: tam install check lists available checks; --json emits check array
+chk_list=$("$TAM" install check)
+printf '%s\n' "$chk_list" | grep -q 'Available checks:' || fail "tam install check missing Available checks"
+printf '%s\n' "$chk_list" | grep -q 'storage_btrfs' || fail "tam install check missing storage_btrfs"
+printf '%s\n' "$chk_list" | grep -q 'privilege_pkexec' || fail "tam install check missing privilege_pkexec"
+
+chk_json=$("$TAM" install check --json)
+printf '%s\n' "$chk_json" | grep -q '"task_id": "storage_root_space"' || fail "tam install check --json missing storage_root_space"
+
+# Direct check execution: tam install check <task_id>
+chk_space=$("$TAM" install check storage_root_space)
+printf '%s\n' "$chk_space" | grep -q '"task_id": "storage_root_space"' || fail "tam install check storage_root_space failed"
+printf '%s\n' "$chk_space" | grep -q '"status": "pass"' || fail "tam install check storage_root_space status not pass"
+
+# Privilege detect-and-degrade: when pkexec is absent from PATH
+no_pk_out=$(env PATH="$tmp" "$TAM" install inspect)
+printf '%s\n' "$no_pk_out" | grep -q 'privilege tool unavailable: limited inspection' \
+    || fail "pkexec absence missing degrade warning finding"
+no_pk_chk=$(env PATH="$tmp" "$TAM" install inspect --check privilege_pkexec)
+printf '%s\n' "$no_pk_chk" | grep -q '"status": "unknown"' || fail "degraded check missing status unknown"
+printf '%s\n' "$no_pk_chk" | grep -q '"pass": false' || fail "degraded check pass should be false"
+printf '%s\n' "$no_pk_chk" | grep -q '"severity": "warn"' || fail "degraded check severity should be warn"
+
+# Unknown check diagnostic and error handling
+if "$TAM" install inspect --check nonexistent_check >/dev/null 2>&1; then
+    fail "inspect --check nonexistent exited 0"
+fi
+"$TAM" install inspect --check nonexistent_check 2>&1 | grep -q "unknown check 'nonexistent_check'" \
+    || fail "inspect --check nonexistent missing unknown check diagnostic"
+
+if "$TAM" install check nonexistent_check >/dev/null 2>&1; then
+    fail "install check nonexistent exited 0"
+fi
+"$TAM" install check nonexistent_check 2>&1 | grep -q "unknown check 'nonexistent_check'" \
+    || fail "install check nonexistent missing unknown check diagnostic"
 
 # Unimplemented operations: plan, apply, verify exit 1 with clear diagnostic.
 if "$TAM" install plan >/dev/null 2>&1; then fail "install plan exited 0"; fi
@@ -741,7 +807,38 @@ _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
 printf '%s\n' "$bash_install_test" | grep -q 'inspect' || fail "bash completion missing install inspect"
+printf '%s\n' "$bash_install_test" | grep -q 'check' || fail "bash completion missing install check"
 printf '%s\n' "$bash_install_test" | grep -q 'plan' || fail "bash completion missing install plan"
+
+bash_inspect_flags=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam install inspect "")
+COMP_CWORD=3
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_inspect_flags" | grep -q -- '--json' || fail "bash completion missing inspect --json"
+printf '%s\n' "$bash_inspect_flags" | grep -q -- '--check' || fail "bash completion missing inspect --check"
+
+bash_inspect_check_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam install inspect --check "")
+COMP_CWORD=4
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_inspect_check_test" | grep -q 'storage_btrfs' || fail "bash completion missing inspect --check storage_btrfs"
+printf '%s\n' "$bash_inspect_check_test" | grep -q 'privilege_pkexec' || fail "bash completion missing inspect --check privilege_pkexec"
+
+bash_check_tasks=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam install check "")
+COMP_CWORD=3
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_check_tasks" | grep -q 'storage_root_space' || fail "bash completion missing check storage_root_space"
+printf '%s\n' "$bash_check_tasks" | grep -q -- '--json' || fail "bash completion missing check --json"
 
 bash_search_test=$(bash -c '
 source "'"$root"'/completions/bash/tam"
