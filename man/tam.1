@@ -1,0 +1,278 @@
+.TH TAM 1 "October 2026" "Tamlinux" "User Commands"
+.SH NAME
+tam \- terminal entry point, offline guide, and system inspector for Tamlinux
+.SH SYNOPSIS
+.B tam
+.br
+.B tam welcome
+.RI [ --pipe ]
+.br
+.B tam show
+.RI [ PAGE | \- ]
+.RI [ --pipe ]
+.br
+.B tam search
+.RI [ --json ]
+.IR TERM ...
+.br
+.B tam explain
+.RI [ --level \ LEVEL ]
+.RI [ TOPIC ]
+.RI [ --pipe ]
+.br
+.B tam explain topics
+.RI [ --pipe ]
+.RI [ --terse | --verbose ]
+.RI [ --level \ LEVEL ]
+.br
+.B tam man
+.RI [ SECTION ]
+.IR PAGE
+.RI [ --pipe ]
+.br
+.B tam install inspect
+.RI [ --json | --check \ [ ID ]]
+.RI [ --terse ]
+.br
+.B tam install check
+.RI [ ID ]
+.RI [ --json | --terse ]
+.br
+.B tam ask
+.RI [ --json ]
+.RI [ --model \ MODEL ]
+.RI [ --server \ URL ]
+.IR QUESTION
+.br
+.BR "tam \-\-help" " | " "tam help"
+.br
+.B tam \-\-version
+.SH DESCRIPTION
+.B tam
+is the offline terminal entry point, documentation browser, and health inspection command for Tamlinux workstations. It starts in under 5 milliseconds, consumes negligible memory (<4 MB RSS), makes zero network calls by default, and runs without background polling daemons.
+.PP
+.B tam
+renders the bundled semantic HTML knowledge corpus through a built-in ANSI terminal pager or as clean plain text when redirected or invoked with
+.BR \-\-pipe .
+It operates identically on minimal recovery systems, legacy hardware, and modern graphical desktops.
+.SH SUBCOMMANDS
+.TP
+.B tam
+Print a concise introduction to the command and exit.
+.TP
+.B tam welcome \fR[\fB\-\-pipe\fR]
+Open the first-run Tamlinux welcome orientation. When displayed successfully to completion in an interactive terminal, atomically records state in
+.I $XDG_STATE_HOME/tamlinux/welcome_seen
+to prevent repeated display on subsequent logins.
+.TP
+.B tam show \fR[\fIPAGE\fR|\fB\-\fR] [\fB\-\-pipe\fR]
+Open the offline user guide in the built-in interactive pager, or stream plain text. If
+.I PAGE
+is omitted, opens the root User Guide index (
+.I index.html
+). If
+.I PAGE
+is
+.BR topics ,
+displays the interactive topic catalog. If
+.B \-
+is specified, reads semantic HTML from standard input and displays it in the pager. Supports depth queries via
+.BI ?level= LEVEL
+(where
+.I LEVEL
+is
+.BR beginner ,
+.BR intermediate ,
+or
+.BR expert ).
+.TP
+.B tam search \fR[\fB\-\-json\fR] \fITERM...\fR
+Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries). Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). If no guide page matches, suggests searching system manual pages via
+.BR "tam man" .
+.TP
+.B tam explain \fR[\fB\-\-level\fR \fILEVEL\fR] [\fITOPIC\fR] [\fB\-\-pipe\fR]
+Explain a curated system concept, shell construct, or tool. Bare
+.B tam explain
+emits a brief usage overview pointing to available topics. Input containing shell characters (pipes, redirections, subshells) is treated purely as data and is never executed. Multi-word queries fall back to ranked index search.
+.TP
+.B tam explain topics \fR[\fB\-\-pipe\fR] [\fB\-\-terse\fR|\fB\-\-verbose\fR] [\fB\-\-level\fR \fILEVEL\fR]
+Display the complete catalog of curated explanation topics. Interactively opens a hyperlinked table in the built-in pager, allowing immediate selection and navigation. Under
+.BR \-\-pipe ,
+emits clean plain text. Supports
+.B \-\-terse
+(one topic slug per line) and
+.B \-\-verbose
+(exhaustive metadata including paths, levels, and keyword arrays).
+.TP
+.B tam man \fR[\fISECTION\fR] \fIPAGE\fR [\fB\-\-pipe\fR]
+Display a hyperlinked manual page. Converts system roff manual pages into semantic HTML and displays them in the built-in pager. Cross-references (e.g.
+.BR ls (1))
+and section headings are automatically turned into active hyperlinks that can be followed with
+.B Tab
+and
+.BR Enter .
+.TP
+.B tam install inspect \fR[\fB\-\-json\fR|\fB\-\-check\fR [\fIID\fR]] [\fB\-\-terse\fR]
+Inspect host state, kernel version, hardware architecture, mount points, DRM graphics devices, package managers, and privilege escalation. With
+.BR \-\-check ,
+evaluates system health findings according to the offline Check Contract.
+.TP
+.B tam install check \fR[\fIID\fR] [\fB\-\-json\fR|\fB\-\-terse\fR]
+Direct alias for
+.BR "tam install inspect \-\-check" .
+.TP
+.B tam ask \fR[\fB\-\-json\fR] [\fB\-\-model\fR \fIMODEL\fR] [\fB\-\-server\fR \fIURL\fR] \fIQUESTION\fR
+Ask a grounded question answered strictly from the offline knowledge corpus via a local LLM inference server (e.g. Ollama). Strictly offline by default; requires explicit interactive consent to download models; never runs background daemons; mandates source citations.
+.TP
+.BR "tam \-\-help" ", " "tam help"
+Print a concise synopsis of commands and options.
+.TP
+.B tam \-\-version
+Print version information for the
+.B tam
+command,
+.BR libtam ,
+and the installed Tamlinux cultivar.
+.SH PAGER KEYBOARD CONTROLS
+When viewing pages with
+.BR "tam show" ,
+.BR "tam explain" ,
+or
+.BR "tam man" ,
+the interactive pager provides the following controls:
+.TP
+.BR j ", " Down
+Scroll down by one line.
+.TP
+.BR k ", " Up
+Scroll up by one line.
+.TP
+.BR Space ", " PgDn
+Scroll down by one full screen.
+.TP
+.BR b ", " PgUp
+Scroll up by one full screen.
+.TP
+.BR g ", " Home
+Jump to the top of the document.
+.TP
+.BR G ", " End
+Jump to the bottom of the document.
+.TP
+.BR Tab ", " Shift-Tab
+Cycle forward or backward through hyperlinks on the current page.
+.TP
+.BR Enter ", " Right
+Follow the selected hyperlink. When no link is selected,
+.B Right
+advances forward along previously visited history.
+.TP
+.BR u ", " Left
+Go back to the previous document in the navigation history.
+.TP
+.B ` \fR(backtick)\fP
+Return immediately to the root User Guide index (
+.I index.html
+) from any depth or manual page.
+.TP
+.B /
+Search for text in the current document. Press
+.B n
+for the next match,
+.B N
+for the previous match, or
+.B Esc
+to cancel.
+.TP
+.BR q ", " Esc
+Exit the pager.
+.SH OUTPUT MODIFIERS
+.TP
+.BR \-\-pipe ", " \-p
+Emit clean, unescaped plain text suitable for piping into other Unix tools (e.g.
+.BR grep ,
+.BR head ).
+Appends a numbered
+.B Links:
+appendix for all hyperlinks in the document.
+.TP
+.B \-\-terse
+Output compact, machine-readable text (e.g. topic slugs only, or task ID status pairs).
+.TP
+.B \-\-verbose
+Output detailed diagnostics, keyword arrays, and prerequisites.
+.TP
+.B \-\-json
+Emit structured JSON data (supported by
+.BR search ,
+.BR "install inspect" ,
+and
+.BR ask ).
+.TP
+.BI \-\-level \ LEVEL
+Filter content or topic listings to
+.BR beginner ,
+.BR intermediate ,
+or
+.BR expert .
+.SH ENVIRONMENT
+.TP
+.B TAM_KNOWLEDGE_DIR
+Overrides the compiled knowledge corpus directory. Used for development builds and test suites.
+.TP
+.B TAM_DATADIR
+Compiled fallback directory for the knowledge corpus.
+.TP
+.B TAM_ASK_MODEL
+Default local model name for
+.B tam ask
+(default:
+.BR llama3.2:1b ).
+.TP
+.B TAM_ASK_SERVER
+URL of the local LLM inference server (default:
+.BR http://127.0.0.1:11434 ).
+.TP
+.B TAM_ASK_ALLOW_FETCH
+Set to
+.B false
+to prevent interactive model download prompts.
+.TP
+.B XDG_DATA_HOME
+User data directory (defaults to
+.I ~/.local/share
+). Checked for
+.IR tamlinux/knowledge .
+.TP
+.B XDG_DATA_DIRS
+System data directories (defaults to
+.I /usr/local/share:/usr/share
+). Checked in order for
+.IR tamlinux/knowledge .
+.TP
+.B XDG_STATE_HOME
+User state directory (defaults to
+.I ~/.local/state
+). Checked for
+.IR tamlinux/welcome_seen .
+.SH FILES
+.TP
+.I ~/.local/state/tamlinux/welcome_seen
+Timestamp recording the completion of
+.BR "tam welcome" .
+.TP
+.I <datadir>/index.html
+The root User Guide entry point and overarching Table of Contents.
+.TP
+.I <datadir>/index.tsv
+Build-time corpus index with topic names, paths, titles, summaries, levels, and keywords.
+.TP
+.I <datadir>/index.json
+JSON projection of the corpus index.
+.SH SEE ALSO
+.BR tam-man (1),
+.BR man (1),
+.BR apropos (1),
+.BR groff_man (7)
+.SH AUTHORS
+Written and maintained by Fred Horch and contributors for Tamlinux.

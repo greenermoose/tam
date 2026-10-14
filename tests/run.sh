@@ -49,7 +49,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.19.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.20.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -117,9 +117,13 @@ pass "state isolation: bare, show, help, version, search, explain, install, man 
 
 # Show command: displays guide index or page; browse subcommand is retired.
 sh_out=$("$TAM" show --pipe)
-printf '%s\n' "$sh_out" | grep -q 'Welcome to the Tamlinux guide' || fail "tam show --pipe failed"
+printf '%s\n' "$sh_out" | grep -q 'The Tamlinux User Guide' || fail "tam show --pipe failed"
 sh_page=$("$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Welcome to Tamlinux' || fail "tam show welcome failed"
+sh_topics=$("$TAM" show topics --pipe)
+printf '%s\n' "$sh_topics" | grep -q 'Available Explanation Topics' || fail "tam show topics failed"
+sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
+printf '%s\n' "$sh_topics_pseudo" | grep -q 'Available Explanation Topics' || fail "tam show tam:topics failed"
 
 # Show with - reads HTML from stdin and renders tables and definition lists.
 stdin_html='<h1>Custom HTML</h1><dl><dt>Alpha</dt><dd>First letter</dd></dl><table><tr><th>Name</th><th>Value</th></tr><tr><td>Foo</td><td>Bar</td></tr></table>'
@@ -179,16 +183,16 @@ t3 = send_and_get_target(b"\x1b[Z")
 assert t3 == "welcome.html", f"expected welcome.html, got {t3}"
 # 4. Shift-Tab from first link wraps backward to last link
 t4 = send_and_get_target(b"\x1b[Z")
-assert t4 == "ecosystem/patches.html", f"expected ecosystem/patches.html, got {t4}"
+assert t4 == "man/index.html", f"expected man/index.html, got {t4}"
 # 5. Shift-Tab variants (CSI 1;2Z, Kitty 9;2u, modifyOtherKeys 27;2;9~, N fallback)
 t5 = send_and_get_target(b"\x1b[1;2Z")
-assert t5 == "ecosystem/index.html", f"expected ecosystem/index.html, got {t5}"
+assert t5 == "man:tam(1)", f"expected man:tam(1), got {t5}"
 t6 = send_and_get_target(b"\x1b[9;2u")
-assert t6 == "man/index.html", f"expected man/index.html, got {t6}"
+assert t6 == "tam:topics", f"expected tam:topics, got {t6}"
 t7 = send_and_get_target(b"\x1b[27;2;9~")
-assert t7 == "hardware/resources.html", f"expected hardware/resources.html, got {t7}"
+assert t7 == "ecosystem/sustainability.html", f"expected ecosystem/sustainability.html, got {t7}"
 t8 = send_and_get_target(b"N")
-assert t8 == "desktop/workspaces.html", f"expected desktop/workspaces.html, got {t8}"
+assert t8 == "ecosystem/ai.html", f"expected ecosystem/ai.html, got {t8}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -240,15 +244,15 @@ def send_and_get_info(key):
     return parse_info(buf)
 
 t, tg = parse_info(buf)
-assert t == "tam - the Tamlinux guide" and tg == ""
+assert t == "The Tamlinux User Guide" and tg == ""
 
 # 1. At tip of exploration and no link selected: right arrow does nothing
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "tam - the Tamlinux guide" and tg == ""
+assert t == "The Tamlinux User Guide" and tg == ""
 
 # 2. Select first link (welcome.html)
 t, tg = send_and_get_info(b"\t")
-assert t == "tam - the Tamlinux guide" and tg == "welcome.html"
+assert t == "The Tamlinux User Guide" and tg == "welcome.html"
 
 # 3. At tip of exploration with link selected: right arrow extends exploration
 t, tg = send_and_get_info(b"\x1b[C")
@@ -260,7 +264,7 @@ assert t == "Welcome" and tg == ""
 
 # 5. Left arrow returns to index.html; no link selected
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "tam - the Tamlinux guide" and tg == ""
+assert t == "The Tamlinux User Guide" and tg == ""
 
 # 6. Arrived via left arrow and no link selected: right arrow proceeds toward tip (welcome.html)
 t, tg = send_and_get_info(b"\x1b[C")
@@ -279,7 +283,7 @@ assert t == "The Tamlinux Desktop" and tg == ""
 t, tg = send_and_get_info(b"\x1b[D")
 assert t == "Welcome"
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "tam - the Tamlinux guide"
+assert t == "The Tamlinux User Guide"
 
 # 9. Multi-step right arrow: forward to welcome, then forward to desktop, then tip (does nothing)
 t, tg = send_and_get_info(b"\x1b[C")
@@ -293,7 +297,7 @@ assert t == "The Tamlinux Desktop"
 t, tg = send_and_get_info(b"\x1b[D")
 assert t == "Welcome"
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "tam - the Tamlinux guide"
+assert t == "The Tamlinux User Guide"
 # Tab twice to select install/index.html
 send_and_get_info(b"\t")
 t, tg = send_and_get_info(b"\t")
@@ -489,7 +493,7 @@ assert t == "Shell pipelines", f"unexpected initial title: {t}"
 # 2. Press backtick (`) to jump to index.html
 os.write(master, b"`")
 t = get_title()
-assert t == "tam - the Tamlinux guide", f"expected index title after backtick, got: {t}"
+assert t == "The Tamlinux User Guide", f"expected index title after backtick, got: {t}"
 
 # 3. Press u to return to shell/pipelines
 os.write(master, b"u")
@@ -499,7 +503,7 @@ assert t == "Shell pipelines", f"expected pipelines title after u, got: {t}"
 # 4. Press backtick again, then quit
 os.write(master, b"`")
 t = get_title()
-assert t == "tam - the Tamlinux guide", f"expected index title after second backtick, got: {t}"
+assert t == "The Tamlinux User Guide", f"expected index title after second backtick, got: {t}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -561,7 +565,7 @@ assert title_back == "Available Explanation Topics", f"did not return to topics 
 # 5. Backtick (`) jumps to root guide index.html
 os.write(master, b"`")
 title_home, _ = get_status_info()
-assert title_home == "tam - the Tamlinux guide", f"did not jump to guide index: {title_home}"
+assert title_home == "The Tamlinux User Guide", f"did not jump to guide index: {title_home}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -582,9 +586,9 @@ printf '%s\n' "$ex_pipe_q1" | grep -q 'Shell pipelines' || fail "explain \"'|'\"
 ex_pipe_q2=$("$TAM" explain '"|"' --pipe)
 printf '%s\n' "$ex_pipe_q2" | grep -q 'Shell pipelines' || fail "explain '\"|\"' failed"
 ex_browse=$("$TAM" explain browse --pipe)
-printf '%s\n' "$ex_browse" | grep -q 'Tamlinux guide' || fail "explain browse failed"
+printf '%s\n' "$ex_browse" | grep -q 'Tamlinux User Guide' || fail "explain browse failed"
 ex_show=$("$TAM" explain show --pipe)
-printf '%s\n' "$ex_show" | grep -q 'Tamlinux guide' || fail "explain show failed"
+printf '%s\n' "$ex_show" | grep -q 'Tamlinux User Guide' || fail "explain show failed"
 ex_man=$("$TAM" explain man --pipe)
 printf '%s\n' "$ex_man" | grep -q 'Reading man pages' || fail "explain man failed"
 
@@ -935,6 +939,11 @@ if command -v groff >/dev/null 2>&1 && man -w grep >/dev/null 2>&1 \
         printf '%s\n' "$man_wrap" | grep -q 'man:sed(1)' || fail "tam-man wrapper missing live hyperlinked cross reference"
         pass "tam-man wrapper script executes and hyperlinks manual pages"
     fi
+
+    # View tam(1) manual page
+    man_tam=$("$TAM" man tam --pipe)
+    printf '%s\n' "$man_tam" | grep -q 'tam - terminal entry point' || fail "tam man tam missing title"
+    printf '%s\n' "$man_tam" | grep -q 'SUBCOMMANDS' || fail "tam man tam missing subcommands section"
 else
     printf 'skip - host manual pages (man, groff or pages unavailable)\n'
 fi

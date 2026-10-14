@@ -16,6 +16,7 @@ CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
 PREFIX   ?= /usr/local
 BINDIR   ?= $(PREFIX)/bin
 DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
+MANDIR   ?= $(PREFIX)/share/man
 BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
 
 LIBTAM_PREFIX ?= $(PREFIX)
@@ -95,6 +96,8 @@ install: all
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
+	install -d $(DESTDIR)$(MANDIR)/man1
+	install -m 644 man/tam.1 $(DESTDIR)$(MANDIR)/man1/tam.1
 	install -d $(DESTDIR)$(BASHCOMPDIR)
 	install -m 644 completions/bash/tam $(DESTDIR)$(BASHCOMPDIR)/tam
 
@@ -102,6 +105,7 @@ uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
 	rm -f $(DESTDIR)$(BINDIR)/tam-man
 	rm -rf $(DESTDIR)$(DATADIR)
+	rm -f $(DESTDIR)$(MANDIR)/man1/tam.1
 	rm -f $(DESTDIR)$(BASHCOMPDIR)/tam
 
 clean:

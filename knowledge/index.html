@@ -1,69 +1,134 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>tam - the Tamlinux guide</title>
+<title>The Tamlinux User Guide</title>
 <meta name="topic" content="guide">
-<meta name="summary" content="Offline guide overview and index">
-<meta name="keywords" content="guide, index, show, browse">
+<meta name="summary" content="The Tamlinux User Guide and overarching index">
+<meta name="keywords" content="guide, index, user guide, table of contents, show, browse, toc">
 <meta name="level" content="beginner">
 <meta name="track" content="use">
 </head>
 <body>
-<h1>Welcome to the Tamlinux guide</h1>
+<h1>The Tamlinux User Guide</h1>
 
-<p>This is the offline guide for your Tamlinux workstation. It lives on
-disk, needs no network, and works before the graphical desktop is
-running. Read it here in the terminal, or pipe it into other tools.</p>
+<p>This is the authoritative offline user guide for your Tamlinux workstation. It
+lives on disk, needs no network, and works before the graphical desktop is running.
+Read it here in the terminal, or pipe it into other tools.</p>
 
-<h2>Start here</h2>
-
-<ul>
-<li><a href="welcome.html">Welcome and orientation</a> &mdash; what Tamlinux
-is, and how to find your way around.</li>
-<li><a href="install/index.html">Installing and maintaining</a> &mdash; how the
-system is put together and kept healthy.</li>
-</ul>
-
-<h2>Reading paths</h2>
+<h2>Part I: Getting Started</h2>
 
 <ul>
-<li><a href="beginner.html">The beginner's path</a> &mdash; new to Linux or the
-terminal.</li>
-<li><a href="intermediate.html">The intermediate path</a> &mdash; comfortable at
-the shell, ready to see how the system is built.</li>
-<li><a href="expert.html">The expert's path</a> &mdash; the design decisions and
-internals.</li>
+<li><a href="welcome.html">Welcome and orientation</a> &mdash; what Tamlinux is, and how to find your way around.</li>
+<li>The three paths: using, maintaining, and improving your workstation.</li>
+<li><a href="install/index.html">Installing</a> &mdash; how the system is inspected, installed, and kept healthy.</li>
 </ul>
 
-<h2>Using the system</h2>
+<h2>Part II: Guided Reading Paths</h2>
 
+<ul>
+<li><a href="beginner.html">The beginner's path</a> &mdash; new to Linux or the terminal.</li>
+<li><a href="intermediate.html">The intermediate path</a> &mdash; comfortable at the shell, ready to see how the system is built.</li>
+<li><a href="expert.html">The expert's path</a> &mdash; the design decisions and internals.</li>
+</ul>
+
+<h2>Part III: Using Your Workstation</h2>
+
+<p>Foundations and command center:</p>
 <ul>
 <li><a href="shell/index.html">The shell and streams</a> &mdash; Unix philosophy, standard streams, and redirection.</li>
 <li><a href="shell/pipelines.html">Shell pipelines</a> &mdash; connecting small commands into bigger ideas.</li>
 <li><a href="shell/jobs.html">Processes, jobs, and signals</a> &mdash; job control, background execution, and signals.</li>
+<li>Command center and <code>tam-*</code> tools &mdash; controlling desktop and system via CLI <em>(planned)</em>.</li>
+<li>Terminal tools and tmux &mdash; terminal multiplexing and command-line utilities <em>(planned)</em>.</li>
+<li>Text editors &mdash; terminal editors: Neovim, Micro, and Helix <em>(planned)</em>.</li>
+</ul>
+
+<p>Filesystem and storage:</p>
+<ul>
 <li><a href="filesystem/index.html">Filesystem hierarchy</a> &mdash; standard directories and storage layout.</li>
 <li><a href="filesystem/permissions.html">File permissions and ownership</a> &mdash; access modes, ownership, and links.</li>
 </ul>
 
-<h2>Desktop and workflow</h2>
-
+<p>Desktop environment and navigation:</p>
 <ul>
 <li><a href="desktop/index.html">The Tamlinux desktop</a> &mdash; tiling Wayland environment and essential shortcuts.</li>
+<li>Transitioning from macOS or Windows &mdash; keyboard-first mental models and translation <em>(planned)</em>.</li>
+<li>Window layout mechanics and scratchpad &mdash; tiling flow, floating, and scratchpads <em>(planned)</em>.</li>
+<li>Keyboard shortcuts reference &mdash; authoritative reference table of hotkeys <em>(planned)</em>.</li>
 <li><a href="desktop/workspaces.html">Workspaces and multi-monitor</a> &mdash; virtual workspaces and synchronized display sets.</li>
+<li>The top bar and plugin panels &mdash; Quickshell bar and <code>fred.*</code> widgets <em>(planned)</em>.</li>
+<li>Quick toggles, idle, and screensaver &mdash; mode switching and display energy controls <em>(planned)</em>.</li>
 </ul>
 
-<h2>System health and performance</h2>
+<p>Desktop utilities and customization:</p>
+<ul>
+<li>Screen capture, recording, and OCR &mdash; screenshot tools and text extraction <em>(planned)</em>.</li>
+<li>Unified clipboard history &mdash; persistent clipboard search and security <em>(planned)</em>.</li>
+<li>Notifications and reminders &mdash; system alerts and time notices <em>(planned)</em>.</li>
+<li>Desktop theming and styles &mdash; curated workstation themes and wallpapers <em>(planned)</em>.</li>
+<li>Desktop dotfiles and hooks &mdash; configuration hierarchy under <code>~/.config/hypr/</code> <em>(planned)</em>.</li>
+</ul>
 
+<p>Hardware, input, and power:</p>
 <ul>
 <li><a href="hardware/resources.html">Resources and performance</a> &mdash; memory (free vs available), ZRAM swap, and CPU load.</li>
-<li><a href="man/index.html">Reading man pages</a> &mdash; the traditional manual, without the fear.</li>
+<li>Display positioning and HiDPI scaling &mdash; multi-monitor scaling and DDC brightness <em>(planned)</em>.</li>
+<li>Keyboard, mouse, and trackpad gestures &mdash; input tuning and gesture navigation <em>(planned)</em>.</li>
+<li>Networking, Wi-Fi QR, and DNS &mdash; network configuration and sharing <em>(planned)</em>.</li>
+<li>Hardware authentication &mdash; fingerprint and FIDO2 security keys <em>(planned)</em>.</li>
 </ul>
 
-<h2>Why Tamlinux is built this way</h2>
+<h2>Part IV: Maintaining Your Workstation</h2>
+
+<ul>
+<li><a href="maintain/index.html">Maintaining your workstation</a> &mdash; overview of maintenance pillars and automated diagnostics.</li>
+<li><a href="maintain/updates.html">Non-disruptive updates</a> &mdash; inode unlinking (why Linux updates in place without rebooting) and 3-tier package model.</li>
+<li><a href="maintain/rollback.html">Snapshots and rollbacks</a> &mdash; Btrfs Copy-on-Write snapshots, storage checks, and generation rollbacks.</li>
+<li><a href="maintain/logs.html">System diagnostics and journals</a> &mdash; filtering journalctl streams, dmesg ring buffer, and log integrity.</li>
+<li><a href="maintain/power.html">The progressive power ladder</a> &mdash; DPMS monitor blanking, RAM suspend, zero-watt hibernation, and Shift wake.</li>
+<li><a href="maintain/recovery.html">Emergency disaster recovery</a> &mdash; text virtual consoles, Magic SysRq REISUB sequence, and live USB repair.</li>
+<li>Workstation troubleshooting runbook &mdash; solutions for audio, bluetooth, and display glitches <em>(planned)</em>.</li>
+<li>Frequently asked questions &mdash; common workstation questions and answers <em>(planned)</em>.</li>
+</ul>
+
+<h2>Part V: Improving Your Workstation: Coding, Hacking, and AI Agents</h2>
+
+<ul>
+<li>Extending and improving Tamlinux &mdash; writing software and enhancing workstation capabilities <em>(planned)</em>.</li>
+<li>Coding with AI agents on Tamlinux &mdash; pair programming, isolated worktrees, scope claims (<code>tam-work</code>), and test automation <em>(planned)</em>.</li>
+<li>Writing tools and extending features &mdash; scripting conventions (<code>tam-*</code> vs <code>fred-*</code>) and safe Bash headers <em>(planned)</em>.</li>
+<li>Authoring desktop plugins &mdash; Quickshell plugin architecture, QML panels, and <code>tam-plugin</code> distribution <em>(planned)</em>.</li>
+<li>Adding and packaging software &mdash; Nix packaging, Home Manager modules, and native distro packages <em>(planned)</em>.</li>
+<li>Native toolchains and compilation &mdash; C toolchains, <code>libtam</code> linking, and zero-polling architecture <em>(planned)</em>.</li>
+</ul>
+
+<h2>Part VI: Architecture and Ecosystem (Why Tamlinux Is So)</h2>
 
 <ul>
 <li><a href="ecosystem/index.html">The Tamlinux ecosystem</a> &mdash; the software Tamlinux is built from, the alternatives considered, and why.</li>
-<li><a href="ecosystem/patches.html">Carried patches</a> &mdash; how fixes to third-party packages are carried and retired.</li>
+<li><a href="ecosystem/terminology.html">Tamlinux terminology: the botanical analogy</a> &mdash; greenhouse, pot, nut, root-stock, and cultivar.</li>
+<li><a href="ecosystem/philosophy.html">Philosophy and open standards</a> &mdash; free software, resource efficiency, and sustainability.</li>
+<li><a href="ecosystem/distros.html">Base distributions</a> &mdash; choosing the base OS: Arch Linux today, Void Linux next, antiX Core as fallback.</li>
+<li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash; Wayland compositors: why Sway on wlroots is planned to replace Hyprland.</li>
+<li><a href="ecosystem/packaging.html">Package management</a> &mdash; Nix and Home Manager for the desktop, native package managers for the base.</li>
+<li><a href="ecosystem/init.html">Init and supervision</a> &mdash; runit on the target base, systemd today.</li>
+<li><a href="ecosystem/toolkits.html">Desktop toolkits and UI</a> &mdash; Quickshell, Qt Quick, QML, and the Tamlinux shell.</li>
+<li><a href="ecosystem/desktop-apps.html">Desktop application suites</a> &mdash; KDE Gear and GNOME Core applications for Sway and Quickshell.</li>
+<li><a href="ecosystem/libc.html">C standard libraries</a> &mdash; glibc versus musl on a resource-conscious workstation.</li>
+<li><a href="ecosystem/lua.html">Lua on this system</a> &mdash; embedded interpreters, desktop configuration, and the host C API.</li>
+<li><a href="ecosystem/patches.html">Carried patches</a> &mdash; how fixes to third-party packages are carried on public forks and retired.</li>
+<li><a href="ecosystem/virtualization.html">Virtualization and containers</a> &mdash; virtual machines and containers for clean-room testing.</li>
+<li><a href="ecosystem/ai.html">AI tooling and human agency</a> &mdash; AI assistance under human direction, with public provenance.</li>
+<li><a href="ecosystem/sustainability.html">Hardware sustainability</a> &mdash; hardware longevity, e-waste reduction, and capability profiles.</li>
+</ul>
+
+<h2>Part VII: Reference, Command Manuals, and Indexes</h2>
+
+<ul>
+<li><a href="tam:topics">Explanation Topics Catalog</a> &mdash; interactive alphabetical index of all curated topics with depth levels.</li>
+<li><a href="man:tam(1)">tam(1) manual page</a> &mdash; complete manual page for the <code>tam</code> command.</li>
+<li><a href="man/index.html">Reading man pages</a> &mdash; the traditional manual, without the fear, and using <code>tam man</code>.</li>
+<li>Guide search and inquiries &mdash; fast topic lookups with <code>tam search</code> and grounded Q&amp;A with <code>tam ask</code>.</li>
 </ul>
 
 <h2>Using this guide</h2>
@@ -75,7 +140,8 @@ screen, <code>g</code> or <code>Home</code> and <code>G</code> or
 <code>End</code> to jump to the top or bottom, <code>Tab</code> or
 <code>Shift-Tab</code> to select the next or previous link, <code>Enter</code>
 or the right arrow to follow it, <code>u</code> or the left arrow to go back
-to the previous page, and <code>q</code> or <code>Esc</code> to quit. When the
+to the previous page, <code>`</code> (backtick) to return to this index,
+and <code>q</code> or <code>Esc</code> to quit. When the
 whole page already fits on the screen, the scrolling keys do nothing.</p>
 
 <p>Every page below this index begins with a breadcrumb trail showing where

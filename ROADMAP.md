@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.19.0`.  
+**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.20.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.19.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.20.0)
 
-Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–11, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, and maintain-track corpus expansion:
+Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–12, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, and user guide architecture:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -46,14 +46,15 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 | **0.17.0** | Milestone 9: Opt-in Grounded Ask | Done (2026-10-14) | Opt-in grounded question-answering CLI surface (`tam ask [OPTIONS] <question>`) over the corpus index with mandatory citations; POSIX socket HTTP/1.1 client connecting to already-running local inference server (e.g. Ollama); strictly offline by default with D53 zero-daemon invariant; non-interactive refusal contract (exit code 2) and interactive consent flow; `tam ask --json` structured output; Bash completions for `ask`. |
 | **0.18.0** | Milestone 10: Navigation & Output Ergonomics | Done (2026-10-14) | Quick Guide index return shortcut (`` ` ``) in `src/pager.c` with history push; Goldilocks screen budget (bare `tam explain` ≤15 lines, `tam --help` ≤20 lines); interactive hyperlinked `tam explain topics` with pager navigation, `--level` filtering, `--terse` (slugs only) and `--verbose` modifiers; `--terse` check status for `tam install check`; Bash completions. |
 | **0.19.0** | Milestone 11: "Maintain" Track Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Maintain" track knowledge pages: `maintain/index.html` (hub), `maintain/updates.html` (inode unlinking, package tiering), `maintain/rollback.html` (Btrfs CoW snapshots, Home Manager generations), `maintain/logs.html` (journalctl filtering, kernel ring buffer), `maintain/power.html` (power ladder, Shift-key wake), `maintain/recovery.html` (virtual consoles, REISUB, chroot repair); Beginner/Intermediate/Expert fading templates; two-pass exact-topic alias resolution in `src/index.c`. |
+| **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | Done (2026-10-14) | Re-architected `knowledge/index.html` into comprehensive 7-part Table of Contents ("The Tamlinux User Guide") reflecting Fred's triad (Using, Maintaining, Improving); authored `knowledge/ecosystem/terminology.html` (Greenhouse, Pot, Nut, Root-stock, Cultivar analogy) with fading templates; authored UNIX section 1 manual page `man/tam.1` installed to `$(MANDIR)/man1/tam.1`; updated `src/man.c` and `src/tam.c` for `tam show topics` and dev man page lookup; bumped version to 0.20.0. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.20.0** ("Improve" Track Knowledge Corpus Expansion). Equip users and developers to optimize performance, eliminate energy waste, configure tools, and understand local AI inference.
+The immediate priority for `tam` is implementing **Version 0.21.0** ("Improve" Track Knowledge Corpus Expansion). Equip users and developers to optimize performance, eliminate energy waste, configure tools, and understand local AI inference.
 
-### Version 0.20.0 — "Improve" Track Knowledge Corpus Expansion
+### Version 0.21.0 — "Improve" Track Knowledge Corpus Expansion
 
 - **Zero-Polling Architecture:**
   - `knowledge/improve/efficiency.html`: Eliminating periodic polling loops; leveraging kernel `inotify`, `epoll`, and Wayland compositor event sockets to keep CPU idle and save battery.
@@ -76,10 +77,10 @@ Following the immediate next steps, the future development of `tam` advances thr
 
 ```text
   0.15.0 ──► 0.16.0 ──► 0.17.0 ──► 0.18.0 ──► 0.19.0 ──► 0.20.0 ──► 0.21.0 ──► 0.22.0 ──► 0.23.0 ──► 0.24.0 ──► 0.25.0 ──► 1.0.0
- (Depth)    (Inspect)    (Ask)   (Ergonomics) (Maintain) (Improve)   (Why)     (Depth)    (Learn)   (Parser)  (Install)  (Stable)
+ (Depth)    (Inspect)    (Ask)   (Ergonomics) (Maintain)  (Guide)   (Improve)   (Why)     (Depth)    (Learn)   (Parser)   (Stable)
 ```
 
-### Version 0.20.0 — "Improve" Track Knowledge Corpus Expansion
+### Version 0.21.0 — "Improve" Track Knowledge Corpus Expansion
 Equip users and developers to optimize performance, eliminate energy waste, configure tools, and understand local AI inference.
 
 - **Zero-Polling Architecture:**
@@ -95,7 +96,7 @@ Equip users and developers to optimize performance, eliminate energy waste, conf
 - **Physics of Local AI Generation:**
   - `knowledge/improve/ai-performance.html`: Memory bandwidth vs autoregressive token generation speed ($Tokens/s \approx Bandwidth / ModelSize$); quantization tradeoffs (Q4_K_M vs FP16).
 
-### Version 0.21.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
+### Version 0.22.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
 Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
 
 - **`tam why <topic|package>` Command:**
@@ -111,7 +112,7 @@ Demystify why Tamlinux is designed the way it is, explaining not only what is in
 - **Public Rationale Projection:**
   - Build-time tool generating the published rationale pages from reviewed decision summaries.
 
-### Version 0.22.0 — The "Depth" Axis & Computer Science Fundamentals
+### Version 0.23.0 — The "Depth" Axis & Computer Science Fundamentals
 Enable users to interrogate their system and descend from observable desktop behavior down to fundamental physics and computer science theory.
 
 - **Progressive Depth Descent (`tam deeper` / `tam depth`):**
@@ -124,7 +125,7 @@ Enable users to interrogate their system and descend from observable desktop beh
 - **Computer Science Fundamentals Track (`knowledge/cs/`):**
   - Practical theory framed around **Possible / Impossible / Expensive**: computability (undecidable limits), complexity (tractable vs intractable), data representation (two's complement, IEEE-754 floating point rounding), memory hierarchy, and concurrency. Grounded directly in the user's host hardware (`lscpu`, cache topology, RAM bandwidth).
 
-### Version 0.23.0 — Offline Skills Progression & Self-Paced Learning (`tam learn`)
+### Version 0.24.0 — Offline Skills Progression & Self-Paced Learning (`tam learn`)
 Provide self-paced, offline skill building that uses the Milestone 8 inspection engine as an objective assessment oracle.
 
 - **Opt-in Progress State:**
@@ -133,7 +134,7 @@ Provide self-paced, offline skill building that uses the Milestone 8 inspection 
   - Pairs Intermediate fading template tasks with automated checks: e.g. "Create a background pipeline that filters logs" $\rightarrow$ `tam learn verify` probes system state using the Check Contract.
   - Provides hints without spoiling answers, guiding users toward mastery of command-line tools and system navigation.
 
-### Version 0.24.0 — Safe Command-Line Syntax Dissection
+### Version 0.25.0 — Safe Command-Line Syntax Dissection
 Extend `tam explain` to safely parse and explain compound shell commands, pipelines, and redirection.
 
 - **Non-Executing Analytical Lexer:**
@@ -141,7 +142,7 @@ Extend `tam explain` to safely parse and explain compound shell commands, pipeli
   - Explains execution flow, data routing between standard streams, and file modifications in plain language.
   - Treats all input strictly as inert text data; never passes input to `/bin/sh` or evaluates expressions.
 
-### Version 0.25.0 — Installation Framework Integration (`tam install plan/apply/verify`)
+### Version 0.26.0 — Installation Framework Integration (`tam install plan/apply/verify`)
 Complete the installation framework contract by connecting `tam install` to the product deployment engine.
 
 - **`tam install plan --profile <profile>`:**
@@ -188,12 +189,13 @@ Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support
 | **0.17.0** | Milestone 9: Grounded `ask` | `tam ask [OPTIONS] <question>` | Opt-in cited RAG question answering over corpus index, local server only (no daemon), interactive-only consent, --json. |
 | **0.18.0** | Milestone 10: Navigation & Output Ergonomics | `src/pager.c`, `tam explain topics`, output modifiers | Current baseline: Quick Guide index return (`` ` ``) with history, Goldilocks screen budget (explain ≤15, help ≤20 lines), interactive topics pager, `--terse`/`--verbose`. |
 | **0.19.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
-| **0.20.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |
-| **0.21.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
-| **0.22.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
-| **0.23.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
-| **0.24.0** | Shell Syntax Dissection | `tam explain <command-line>` | Analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
-| **0.25.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
+| **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | `knowledge/index.html`, `man/tam.1`, `src/` | 7-part User Guide TOC, botanical analogy, UNIX tam(1) man page, tam show topics routing. |
+| **0.21.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |
+| **0.22.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
+| **0.23.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
+| **0.24.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
+| **0.25.0** | Shell Syntax Dissection | `tam explain <command-line>` | Analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
+| **0.26.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
 | **1.0.0** | Stable Showcase Release | Complete command suite | Production release, unified knowledge graph, stable `libtam` ABI, multi-distro packages. |
 | **1.1.0** | Multi-Distribution Adapter | `tam install inspect` | Host inspection across systemd distributions (Debian, Fedora, Ubuntu). |
 | **1.2.0** | Void Linux Native Base | `tam install inspect`, `knowledge/` | Native Void + runit + Btrfs + seatd inspection and guides; musl/glibc analysis. |

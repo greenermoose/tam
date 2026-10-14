@@ -173,23 +173,41 @@ static char *locate_man_file(const char *sec, const char *name)
         snprintf(cmd, sizeof(cmd), "man -w '%s' 2>/dev/null", name);
     }
     FILE *fp = popen(cmd, "r");
-    if (fp == NULL) {
-        return NULL;
+    if (fp != NULL) {
+        char path[1024];
+        if (fgets(path, sizeof(path), fp) != NULL) {
+            pclose(fp);
+            size_t len = strlen(path);
+            while (len > 0 && (path[len - 1] == '\n' || path[len - 1] == '\r' || path[len - 1] == ' ')) {
+                path[--len] = '\0';
+            }
+            if (len > 0 && access(path, R_OK) == 0) {
+                return strdup(path);
+            }
+        } else {
+            pclose(fp);
+        }
     }
-    char path[1024];
-    if (fgets(path, sizeof(path), fp) == NULL) {
-        pclose(fp);
-        return NULL;
+
+    /* Fallback for development installs or repository checkout */
+    const char *s = (sec != NULL && sec[0] != '\0') ? sec : "1";
+    char cand[1024];
+
+    char *kroot = tam_find_knowledge_root();
+    if (kroot != NULL) {
+        snprintf(cand, sizeof(cand), "%s/../../man/man%s/%s.%s", kroot, s, name, s);
+        free(kroot);
+        if (access(cand, R_OK) == 0) {
+            return strdup(cand);
+        }
     }
-    pclose(fp);
-    size_t len = strlen(path);
-    while (len > 0 && (path[len - 1] == '\n' || path[len - 1] == '\r' || path[len - 1] == ' ')) {
-        path[--len] = '\0';
+
+    snprintf(cand, sizeof(cand), "man/%s.%s", name, s);
+    if (access(cand, R_OK) == 0) {
+        return strdup(cand);
     }
-    if (len == 0 || access(path, R_OK) != 0) {
-        return NULL;
-    }
-    return strdup(path);
+
+    return NULL;
 }
 
 char *tam_man_resolve_path(const char *name, const char *sec)

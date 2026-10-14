@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tamlinux Terminology: The Botanical Analogy</title>
+<meta name="topic" content="terminology">
+<meta name="summary" content="The botanical framework: greenhouse, pot, nut, root-stock, and cultivar">
+<meta name="keywords" content="terminology, analogy, framework, concept, greenhouse, pot, nut, root-stock, cultivar, uki, distro, bootloader">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="ecosystem, philosophy">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Tamlinux Terminology: The Botanical Analogy</p>
+</nav>
+
+<h1>Tamlinux Terminology: The Botanical Analogy</h1>
+
+<p>Tamlinux uses a horticultural conceptual framework to describe system architecture,
+boot stages, base operating systems, and userland environments. Rather than thinking
+of an operating system as a single monolithic block, developer Fred conceives of the
+workstation through five interconnected botanical layers: the <strong>greenhouse</strong>,
+the <strong>pot</strong>, the <strong>nut</strong>, the <strong>root-stock</strong>,
+and the <strong>cultivar</strong>.</p>
+
+<section data-level="beginner">
+<h2>The Five Layers</h2>
+
+<ol>
+<li><strong>The Greenhouse (Hardware):</strong> The physical machine. The CPU, RAM,
+motherboard, storage drives, thermal heatpipes, and displays provide the shelter,
+light, and physical resources that allow software to live and run.</li>
+
+<li><strong>The Pot (Bootloader or Virtual Machine):</strong> The containing vessel
+placed inside the greenhouse. A pot is the UEFI firmware environment, a bootloader
+like systemd-boot, or a virtual machine container (such as QEMU/KVM) that prepares
+the soil and bounds the environment for germination.</li>
+
+<li><strong>The Nut (Minimal Bootable System):</strong> An extremely compact, self-contained
+seed—a Unified Kernel Image (UKI) or minimal initramfs containing only a Linux kernel
+and an essential text shell. When system control transfers to the nut, it sprouts:
+it initializes fundamental hardware, establishes network access, and prepares the
+environment so a larger operating system can take root.</li>
+
+<li><strong>The Root-stock (Base Linux Distribution):</strong> The hardy, established
+base distribution (such as Void Linux or Arch Linux) that provides the core system
+libraries (libc), service supervision (runit or systemd), and hardware drivers. The
+nut may fetch and plant the root-stock across the network, or the root-stock may
+already be established on local disk.</li>
+
+<li><strong>The Cultivar (Tamlinux Desktop &amp; Suite):</strong> A specific cultivated
+variety grafted onto the root-stock. The cultivar is Tamlinux itself: the tiling Wayland
+compositor, Quickshell status bar, <code>fred.*</code> desktop plugins, terminal tools,
+and application suite. If the root-stock and the cultivar are compatible, the cultivar
+will thrive.</li>
+</ol>
+
+<h2>Why This Mental Model Matters</h2>
+
+<p>Understanding this analogy clarifies why Tamlinux can run across different base
+distributions without losing its identity. A rose cultivar can be grafted onto different
+hardy root-stocks depending on the soil and climate; similarly, Tamlinux can run on an
+Arch Linux root-stock today, transition to a Void Linux root-stock tomorrow, or run inside
+a virtual machine pot for testing, while providing the identical desktop experience.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Technical Mechanics of the Botanical Layers</h2>
+
+<p>Each botanical concept maps to concrete operating system and firmware primitives:</p>
+
+<table>
+<tr><th>Botanical Term</th><th>Technical Subsystem</th><th>Implementation in Tamlinux</th></tr>
+<tr><td><strong>Greenhouse</strong></td><td>Host Hardware &amp; Firmware</td><td>x86_64 CPU, DDR RAM, NVMe/SATA, AMDGPU/Intel DRM, ACPI power states</td></tr>
+<tr><td><strong>Pot</strong></td><td>Bootloader / Hypervisor</td><td>UEFI ESP partition, systemd-boot, QEMU/KVM virtual machine envelope</td></tr>
+<tr><td><strong>Nut</strong></td><td>Unified Kernel Image (UKI)</td><td>Self-contained EFI binary combining kernel, microcode, and minimal initramfs</td></tr>
+<tr><td><strong>Root-stock</strong></td><td>Base Distribution</td><td>Arch Linux (rolling, glibc, systemd) or Void Linux (stable, runit, musl/glibc)</td></tr>
+<tr><td><strong>Cultivar</strong></td><td>Tamlinux Workstation</td><td>Sway/wlroots, Quickshell, <code>fred.*</code> plugins, <code>tam</code>, Nix/Home Manager userland</td></tr>
+</table>
+
+<h2>The Germination and Grafting Sequence</h2>
+
+<p>When a Tamlinux workstation boots, control passes progressively up the botanical ladder:</p>
+
+<ol>
+<li>The <strong>greenhouse</strong> powers on; UEFI firmware locates the active <strong>pot</strong> (the ESP boot partition).</li>
+<li>The bootloader loads the <strong>nut</strong> (a signed UKI image under 100 MB).</li>
+<li>The nut boots the Linux kernel and mounts a ramfs, executing <code>/init</code>. If the underlying disk lacks a root-stock, the nut enables networking (DHCP/Wi-Fi) and fetches the base system image.</li>
+<li>Control pivots to the <strong>root-stock</strong>: the real root filesystem mounts (Btrfs subvolume <code>@</code>), and the service manager (systemd or runit) launches core daemons.</li>
+<li>The root-stock launches the <strong>cultivar</strong>: the user session initializes Wayland, Quickshell renders the bar, and the Tamlinux desktop is live.</li>
+</ol>
+</section>
+
+<section data-level="expert">
+<h2>Architectural Invariants &amp; Grafting Compatibility</h2>
+
+<p>The botanical separation enforces architectural discipline and failure isolation across
+Tamlinux development:</p>
+
+<ul>
+<li><strong>Nut Immutability:</strong> The nut is cryptographically signed and read-only. It contains no stateful configuration, no desktop dependencies, and no background services. If a root-stock or cultivar update introduces a boot failure, the nut remains intact and capable of launching recovery tools or restoring a Btrfs snapshot.</li>
+<li><strong>Graft Compatibility Matrix:</strong> A cultivar cannot assume arbitrary base distribution packages. All communication between the cultivar and the root-stock occurs through standard POSIX syscalls, C library interfaces (<code>libtam</code>), standard stream pipes, or package abstractions. This ensures the cultivar can be lifted from Arch and planted onto Void with zero desktop code modifications.</li>
+<li><strong>Environmental Boundaries:</strong> The cultivar respects greenhouse resources: zero unnecessary CPU wakeups (Virtue V03), zero background polling daemons (Virtue V04), and explicit memory compression via ZRAM.</li>
+</ul>
+
+<p>Back to the <a href="index.html">guide index</a>, or explore the <a href="ecosystem/index.html">Tamlinux ecosystem</a>.</p>
+</section>
+</body>
+</html>

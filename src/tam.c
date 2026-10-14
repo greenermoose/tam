@@ -660,6 +660,64 @@ static int cmd_show(int n, char **args)
         return TAM_EXIT_FAILURE;
     }
 
+    if (page != NULL && (strcmp(page, "topics") == 0 || strncmp(page, "tam:topics", 10) == 0)) {
+        unsigned level = 0;
+        const char *q = strstr(page, "?level=");
+        if (q != NULL) {
+            level = tam_level_parse(q + 7);
+        }
+        int interactive = !pipe && isatty(STDOUT_FILENO);
+        int width = interactive ? tam_terminal_width() : 80;
+        tam_document_t *doc = tam_topics_document(root, level, width);
+        if (doc == NULL) {
+            free(root);
+            return TAM_EXIT_FAILURE;
+        }
+        int rc = 0;
+        if (interactive) {
+            corpus_ctx_t ctx;
+            ctx.root = root;
+            ctx.width = width;
+            rc = tam_pager_run(doc, "tam:topics", corpus_load, &ctx);
+        } else {
+            char *text = tam_document_text(doc);
+            if (text != NULL) {
+                fputs(text, stdout);
+                free(text);
+            }
+            tam_document_free(doc);
+        }
+        free(root);
+        return rc;
+    }
+
+    if (page != NULL && strncmp(page, "man:", 4) == 0) {
+        int interactive = !pipe && isatty(STDOUT_FILENO);
+        int width = interactive ? tam_terminal_width() : 80;
+        tam_document_t *doc = tam_man_load(page + 4, width);
+        if (doc == NULL) {
+            fprintf(stderr, TAM_COMMAND_NAME ": no manual page found for '%s'\n", page + 4);
+            free(root);
+            return TAM_EXIT_FAILURE;
+        }
+        int rc = 0;
+        if (interactive) {
+            corpus_ctx_t ctx;
+            ctx.root = root;
+            ctx.width = width;
+            rc = tam_pager_run(doc, page, corpus_load, &ctx);
+        } else {
+            char *text = tam_document_text(doc);
+            if (text != NULL) {
+                fputs(text, stdout);
+                free(text);
+            }
+            tam_document_free(doc);
+        }
+        free(root);
+        return rc;
+    }
+
     char href[600];
     if (page == NULL) {
         snprintf(href, sizeof(href), "%s", "index.html");

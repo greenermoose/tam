@@ -1,48 +1,153 @@
-Welcome to the Tamlinux guide
+The Tamlinux User Guide
 
-This is the offline guide for your Tamlinux workstation. It lives on disk, needs
-no network, and works before the graphical desktop is running. Read it here in
-the terminal, or pipe it into other tools.
+This is the authoritative offline user guide for your Tamlinux workstation. It
+lives on disk, needs no network, and works before the graphical desktop is
+running. Read it here in the terminal, or pipe it into other tools.
 
-Start here
+Part I: Getting Started
 
 - Welcome and orientation — what Tamlinux is, and how to find your way around.
-- Installing and maintaining — how the system is put together and kept
-  healthy.
+- The three paths: using, maintaining, and improving your workstation.
+- Installing — how the system is inspected, installed, and kept healthy.
 
-Reading paths
+Part II: Guided Reading Paths
 
 - The beginner's path — new to Linux or the terminal.
 - The intermediate path — comfortable at the shell, ready to see how the
   system is built.
 - The expert's path — the design decisions and internals.
 
-Using the system
+Part III: Using Your Workstation
+
+Foundations and command center:
 
 - The shell and streams — Unix philosophy, standard streams, and redirection.
 - Shell pipelines — connecting small commands into bigger ideas.
 - Processes, jobs, and signals — job control, background execution, and
   signals.
+- Command center and tam-* tools — controlling desktop and system via CLI
+  (planned).
+- Terminal tools and tmux — terminal multiplexing and command-line utilities
+  (planned).
+- Text editors — terminal editors: Neovim, Micro, and Helix (planned).
+
+Filesystem and storage:
+
 - Filesystem hierarchy — standard directories and storage layout.
 - File permissions and ownership — access modes, ownership, and links.
 
-Desktop and workflow
+Desktop environment and navigation:
 
 - The Tamlinux desktop — tiling Wayland environment and essential shortcuts.
+- Transitioning from macOS or Windows — keyboard-first mental models and
+  translation (planned).
+- Window layout mechanics and scratchpad — tiling flow, floating, and
+  scratchpads (planned).
+- Keyboard shortcuts reference — authoritative reference table of hotkeys
+  (planned).
 - Workspaces and multi-monitor — virtual workspaces and synchronized display
   sets.
+- The top bar and plugin panels — Quickshell bar and fred.* widgets (planned).
+- Quick toggles, idle, and screensaver — mode switching and display energy
+  controls (planned).
 
-System health and performance
+Desktop utilities and customization:
+
+- Screen capture, recording, and OCR — screenshot tools and text extraction
+  (planned).
+- Unified clipboard history — persistent clipboard search and security
+  (planned).
+- Notifications and reminders — system alerts and time notices (planned).
+- Desktop theming and styles — curated workstation themes and wallpapers
+  (planned).
+- Desktop dotfiles and hooks — configuration hierarchy under ~/.config/hypr/
+  (planned).
+
+Hardware, input, and power:
 
 - Resources and performance — memory (free vs available), ZRAM swap, and CPU
   load.
-- Reading man pages — the traditional manual, without the fear.
+- Display positioning and HiDPI scaling — multi-monitor scaling and DDC
+  brightness (planned).
+- Keyboard, mouse, and trackpad gestures — input tuning and gesture navigation
+  (planned).
+- Networking, Wi-Fi QR, and DNS — network configuration and sharing (planned).
+- Hardware authentication — fingerprint and FIDO2 security keys (planned).
 
-Why Tamlinux is built this way
+Part IV: Maintaining Your Workstation
+
+- Maintaining your workstation — overview of maintenance pillars and automated
+  diagnostics.
+- Non-disruptive updates — inode unlinking (why Linux updates in place without
+  rebooting) and 3-tier package model.
+- Snapshots and rollbacks — Btrfs Copy-on-Write snapshots, storage checks, and
+  generation rollbacks.
+- System diagnostics and journals — filtering journalctl streams, dmesg ring
+  buffer, and log integrity.
+- The progressive power ladder — DPMS monitor blanking, RAM suspend, zero-watt
+  hibernation, and Shift wake.
+- Emergency disaster recovery — text virtual consoles, Magic SysRq REISUB
+  sequence, and live USB repair.
+- Workstation troubleshooting runbook — solutions for audio, bluetooth, and
+  display glitches (planned).
+- Frequently asked questions — common workstation questions and answers
+  (planned).
+
+Part V: Improving Your Workstation: Coding, Hacking, and AI Agents
+
+- Extending and improving Tamlinux — writing software and enhancing
+  workstation capabilities (planned).
+- Coding with AI agents on Tamlinux — pair programming, isolated worktrees,
+  scope claims ( tam-work), and test automation (planned).
+- Writing tools and extending features — scripting conventions ( tam-* vs
+  fred-*) and safe Bash headers (planned).
+- Authoring desktop plugins — Quickshell plugin architecture, QML panels, and
+  tam-plugin distribution (planned).
+- Adding and packaging software — Nix packaging, Home Manager modules, and
+  native distro packages (planned).
+- Native toolchains and compilation — C toolchains, libtam linking, and
+  zero-polling architecture (planned).
+
+Part VI: Architecture and Ecosystem (Why Tamlinux Is So)
 
 - The Tamlinux ecosystem — the software Tamlinux is built from, the
   alternatives considered, and why.
-- Carried patches — how fixes to third-party packages are carried and retired.
+- Tamlinux terminology: the botanical analogy — greenhouse, pot, nut,
+  root-stock, and cultivar.
+- Philosophy and open standards — free software, resource efficiency, and
+  sustainability.
+- Base distributions — choosing the base OS: Arch Linux today, Void Linux
+  next, antiX Core as fallback.
+- Compositors and windowing — Wayland compositors: why Sway on wlroots is
+  planned to replace Hyprland.
+- Package management — Nix and Home Manager for the desktop, native package
+  managers for the base.
+- Init and supervision — runit on the target base, systemd today.
+- Desktop toolkits and UI — Quickshell, Qt Quick, QML, and the Tamlinux shell.
+- Desktop application suites — KDE Gear and GNOME Core applications for Sway
+  and Quickshell.
+- C standard libraries — glibc versus musl on a resource-conscious
+  workstation.
+- Lua on this system — embedded interpreters, desktop configuration, and the
+  host C API.
+- Carried patches — how fixes to third-party packages are carried on public
+  forks and retired.
+- Virtualization and containers — virtual machines and containers for
+  clean-room testing.
+- AI tooling and human agency — AI assistance under human direction, with
+  public provenance.
+- Hardware sustainability — hardware longevity, e-waste reduction, and
+  capability profiles.
+
+Part VII: Reference, Command Manuals, and Indexes
+
+- Explanation Topics Catalog — interactive alphabetical index of all curated
+  topics with depth levels.
+- tam(1) manual page — complete manual page for the tam command.
+- Reading man pages — the traditional manual, without the fear, and using tam
+  man.
+- Guide search and inquiries — fast topic lookups with tam search and grounded
+  Q&A with tam ask.
 
 Using this guide
 
@@ -50,8 +155,9 @@ In the pager, use j and k (or the up and down arrow keys) to scroll the screen a
 line at a time, Space or PgDn and b or PgUp to scroll a whole screen, g or Home
 and G or End to jump to the top or bottom, Tab or Shift-Tab to select the next
 or previous link, Enter or the right arrow to follow it, u or the left arrow to
-go back to the previous page, and q or Esc to quit. When the whole page already
-fits on the screen, the scrolling keys do nothing.
+go back to the previous page, ` (backtick) to return to this index, and q or Esc
+to quit. When the whole page already fits on the screen, the scrolling keys do
+nothing.
 
 Every page below this index begins with a breadcrumb trail showing where it sits
 in the guide, from this index down to the page itself. The trail's earlier parts
@@ -78,6 +184,27 @@ Links:
   [11] desktop/index.html
   [12] desktop/workspaces.html
   [13] hardware/resources.html
-  [14] man/index.html
-  [15] ecosystem/index.html
-  [16] ecosystem/patches.html
+  [14] maintain/index.html
+  [15] maintain/updates.html
+  [16] maintain/rollback.html
+  [17] maintain/logs.html
+  [18] maintain/power.html
+  [19] maintain/recovery.html
+  [20] ecosystem/index.html
+  [21] ecosystem/terminology.html
+  [22] ecosystem/philosophy.html
+  [23] ecosystem/distros.html
+  [24] ecosystem/compositors.html
+  [25] ecosystem/packaging.html
+  [26] ecosystem/init.html
+  [27] ecosystem/toolkits.html
+  [28] ecosystem/desktop-apps.html
+  [29] ecosystem/libc.html
+  [30] ecosystem/lua.html
+  [31] ecosystem/patches.html
+  [32] ecosystem/virtualization.html
+  [33] ecosystem/ai.html
+  [34] ecosystem/sustainability.html
+  [35] tam:topics
+  [36] man:tam(1)
+  [37] man/index.html

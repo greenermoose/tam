@@ -26,7 +26,7 @@ guide() {
 }
 
 # Pages that must resolve and render.
-pages="index welcome beginner intermediate expert install/index shell/index shell/pipelines shell/jobs filesystem/index filesystem/permissions desktop/index desktop/workspaces hardware/resources man/index ecosystem/index ecosystem/philosophy ecosystem/distros ecosystem/compositors ecosystem/packaging ecosystem/init ecosystem/toolkits ecosystem/desktop-apps ecosystem/libc ecosystem/lua ecosystem/patches ecosystem/virtualization ecosystem/ai ecosystem/sustainability maintain/index maintain/updates maintain/rollback maintain/logs maintain/power maintain/recovery"
+pages="index welcome beginner intermediate expert install/index shell/index shell/pipelines shell/jobs filesystem/index filesystem/permissions desktop/index desktop/workspaces hardware/resources man/index ecosystem/index ecosystem/terminology ecosystem/philosophy ecosystem/distros ecosystem/compositors ecosystem/packaging ecosystem/init ecosystem/toolkits ecosystem/desktop-apps ecosystem/libc ecosystem/lua ecosystem/patches ecosystem/virtualization ecosystem/ai ecosystem/sustainability maintain/index maintain/updates maintain/rollback maintain/logs maintain/power maintain/recovery"
 
 # Every page renders non-empty text with a title.
 for p in $pages; do
@@ -37,7 +37,7 @@ pass "all guide pages render to text"
 
 # The index mentions its topics and offers a link appendix.
 idx=$(guide --pipe)
-printf '%s\n' "$idx" | grep -q 'Tamlinux guide' || fail "index missing title"
+printf '%s\n' "$idx" | grep -qi 'Tamlinux User Guide' || fail "index missing title"
 printf '%s\n' "$idx" | grep -q '^Links:' || fail "index missing link appendix"
 printf '%s\n' "$idx" | grep -q 'welcome.html' || fail "index missing welcome link"
 pass "index text includes links appendix"
@@ -78,7 +78,7 @@ for p in $pages; do
     for href in $(grep -o 'href="[^"]*"' "$knowledge/$p.html" 2>/dev/null \
                   | sed 's/href="//; s/"$//'); do
         case $href in
-            *://*|mailto:*|\#*|man:*) continue ;;
+            *://*|mailto:*|\#*|man:*|tam:*) continue ;;
         esac
         case $href in
             /*|*..*) broken="$broken $p->$href"; continue ;;
