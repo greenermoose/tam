@@ -33,5 +33,5 @@ Human-only commits retain their original authorship.
 | 2026-10-14 | Lua scripting topic in the ecosystem chapters | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-lua-topic.md) |
 | 2026-10-14 | Read-only self-inspection findings and check contract 0.16.0 (`install inspect`, `check`, JSON contract) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-self-inspection-findings.md) |
 | 2026-10-14 | Guide breadcrumb trails, beginner/intermediate/expert reading paths, and welcome-page refinement (corpus lane) | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-corpus-breadcrumbs.md) |
-| 2026-10-14 | Opt-in grounded ask CLI surface 0.17.0 (`ask`, `--json`, bounded excerpt grounding, local Ollama client) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-grounded-ask.md) |
+| 2026-10-14 | Opt-in grounded ask CLI surface 0.17.0 (`ask`, `--json`, `qwen2.5-coder:1.5b`, bounded excerpt grounding, local Ollama client) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-grounded-ask.md) |
 

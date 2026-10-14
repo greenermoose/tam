@@ -54,9 +54,9 @@ The command answers questions using an already-running local inference server (e
    - If connected to a running server but the requested model is not installed, `tam ask` never auto-pulls.
    - In an interactive TTY, it presents full disclosure before asking for confirmation:
      ```text
-     Model 'llama3.2' is not installed locally.
-     URL: https://ollama.com/library/llama3.2
-     Estimated Size: ~2.0 GB
+     Model 'qwen2.5-coder:1.5b' is not installed locally.
+     URL: https://ollama.com/library/qwen2.5-coder:1.5b
+     Estimated Size: ~986 MB
      Expected SHA256: [verified manifest hash]
      Storage Path: /var/lib/ollama/models
      Fetch model now? [y/N] 
@@ -98,7 +98,7 @@ Environment Variables:
       "title": "System Logging and Diagnostics"
     }
   ],
-  "model": "llama3.2",
+  "model": "qwen2.5-coder:1.5b",
   "server": "http://127.0.0.1:11434",
   "schema_version": "1.0.0"
 }

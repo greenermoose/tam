@@ -922,15 +922,20 @@ ask_json_miss=$("$TAM" ask --json --server http://127.0.0.1:11434 "what is the c
 echo "$ask_json_miss" | grep -q '"grounded": false' || fail "json miss missing grounded: false"
 echo "$ask_json_miss" | grep -q '"sources": \[\]' || fail "json miss missing empty sources array"
 
-# Live inference query with llama3.2:1b
+# Live inference query with default model (qwen2.5-coder:1.5b)
 ask_live_out=$("$TAM" ask --pipe "what is a pipeline")
 echo "$ask_live_out" | grep -qi 'pipeline' || fail "live answer missing pipeline text"
 echo "$ask_live_out" | grep -qi 'Sources:' || fail "live answer missing Sources:"
 
-# Live query with --json
+# Live query with --json asserts default qwen2.5-coder:1.5b
 ask_live_json=$("$TAM" ask --json --pipe "what is a pipeline")
 echo "$ask_live_json" | grep -q '"grounded": true' || fail "live json missing grounded: true"
 echo "$ask_live_json" | grep -q 'shell/pipelines.html' || fail "live json missing shell/pipelines.html source"
+echo "$ask_live_json" | grep -q 'qwen2.5-coder:1.5b' || fail "live json missing qwen2.5-coder:1.5b model"
+
+# Live query with explicit model override (--model llama3.2:1b)
+ask_llama_json=$("$TAM" ask --model llama3.2:1b --json --pipe "what is a pipeline")
+echo "$ask_llama_json" | grep -q 'llama3.2:1b' || fail "explicit model json missing llama3.2:1b model"
 
 # Reading question from stdin via '-'
 ask_stdin_out=$(echo "how do I view background jobs?" | "$TAM" ask --pipe -)

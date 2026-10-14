@@ -27,7 +27,8 @@
 #endif
 
 #define DEFAULT_SERVER "http://127.0.0.1:11434"
-#define DEFAULT_MODEL "llama3.2:1b"
+#define DEFAULT_MODEL "qwen2.5-coder:1.5b"
+#define FALLBACK_MODEL "llama3.2:1b"
 #define DEFAULT_TIMEOUT_PROBE_MS 500
 #define DEFAULT_TIMEOUT_GENERATE_MS 30000
 #define MAX_CONTEXT_BYTES 4000
@@ -569,14 +570,25 @@ int tam_cmd_ask(int argc, char **argv)
     }
 
     /* 2. Check model availability */
-    bool model_ok = check_model_available(tags_json, model_name);
-    if (!model_ok) {
-        /* If user didn't explicitly request a specific model, check if any model is installed */
-        if (!model_explicit) {
+    bool model_ok = false;
+    if (model_explicit) {
+        model_ok = check_model_available(tags_json, model_name);
+    } else {
+        /* When no explicit model was requested, prefer DEFAULT_MODEL, then FALLBACK_MODEL, then any installed model */
+        if (check_model_available(tags_json, DEFAULT_MODEL)) {
+            model_name = DEFAULT_MODEL;
+            model_ok = true;
+        } else if (check_model_available(tags_json, FALLBACK_MODEL)) {
+            model_name = FALLBACK_MODEL;
+            model_ok = true;
+        } else {
             char *first_model = extract_json_string(tags_json, "name");
             if (first_model != NULL && first_model[0] != '\0') {
                 model_name = first_model;
                 model_ok = true;
+            } else {
+                model_name = DEFAULT_MODEL;
+                model_ok = false;
             }
         }
     }
@@ -597,7 +609,13 @@ int tam_cmd_ask(int argc, char **argv)
         /* Interactive Consent Prompt */
         printf("Model '%s' is not installed locally.\n", model_name);
         printf("URL: https://ollama.com/library/%s\n", model_name);
-        printf("Estimated Size: ~1.3 GB\n");
+        if (strstr(model_name, "qwen2.5-coder:1.5b") != NULL) {
+            printf("Estimated Size: ~986 MB\n");
+        } else if (strstr(model_name, "llama3.2:1b") != NULL) {
+            printf("Estimated Size: ~1.3 GB\n");
+        } else {
+            printf("Estimated Size: ~1-2 GB\n");
+        }
         printf("Storage: ~/.ollama/models\n");
         printf("Fetch model now? [y/N] ");
         fflush(stdout);
