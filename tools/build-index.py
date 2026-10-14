@@ -9,11 +9,12 @@ intermediate, expert); a page offering more than one wraps each depth in
 unknown levels or tracks, on prerequisites that name no topic, and on
 laddered pages whose sections do not match their declared levels.
 
-Every page below the top level also carries a breadcrumb nav before its <h1>,
-so a reader always knows where a page sits in the guide. Its ancestor crumbs
-link to the guide index and the page's section index; the final crumb is the
-page itself, as plain text. The build fails on a missing, misplaced or
-inaccurate breadcrumb, and on a top-level page that carries one.
+Every page except the guide index carries a breadcrumb nav before its <h1>,
+so a reader always knows where a page sits in the guide. Its first crumb is
+the guide index, a section page adds its section index, and the final crumb is
+the page itself, as plain text. The build fails on a missing, misplaced or
+inaccurate breadcrumb, or on the guide index itself carrying one (it is the
+root).
 """
 
 import json
@@ -163,16 +164,18 @@ def check_breadcrumbs(knowledge_dir, errors):
 
     for rel, text in pages.items():
         parts = breadcrumb_parts(text)
-        if "/" not in rel:
+        if rel == "index.html":
             if parts is not None:
-                errors.append(f"{rel}: top-level page must not carry a breadcrumb")
+                errors.append(f"{rel}: the guide index is the root and must not carry a breadcrumb")
             continue
         if parts is None:
             errors.append(f"{rel}: missing breadcrumb")
             continue
-        section, want = rel.split("/")[0], [("index.html", "Guide")]
-        if rel != f"{section}/index.html" and f"{section}/index.html" in pages:
-            want.append((f"{section}/index.html", h1[f"{section}/index.html"]))
+        want = [("index.html", "Guide")]
+        if "/" in rel:
+            section = rel.split("/")[0]
+            if rel != f"{section}/index.html" and f"{section}/index.html" in pages:
+                want.append((f"{section}/index.html", h1[f"{section}/index.html"]))
         if parts[0] != want:
             errors.append(
                 f"{rel}: breadcrumb ancestors {parts[0]} do not match "

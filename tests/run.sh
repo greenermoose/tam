@@ -265,7 +265,10 @@ assert t == "tam - the Tamlinux guide" and tg == ""
 t, tg = send_and_get_info(b"\x1b[C")
 assert t == "Welcome" and tg == ""
 
-# 7. Select a link on welcome.html (desktop/index.html) and follow it
+# 7. On welcome.html, skip the two guide-index links (the breadcrumb crumb
+# and the inline link) and follow the desktop guide link
+send_and_get_info(b"\t")
+send_and_get_info(b"\t")
 t, tg = send_and_get_info(b"\t")
 assert tg == "desktop/index.html"
 t, tg = send_and_get_info(b"\x1b[C")
@@ -321,7 +324,7 @@ if pid == 0:
     os.dup2(slave, 2)
     os.close(slave)
     os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
-    os.execl(sys.argv[1], sys.argv[1], "show", "welcome")
+    os.execl(sys.argv[1], sys.argv[1], "show", "link-wrap")
 os.close(slave)
 
 time.sleep(0.15)
@@ -332,7 +335,7 @@ while select.select([master], [], [], 0.05)[0]:
 # 1. No unselected hyperlink underlines the leading space; underline starts with first non-space character
 assert b"\x1b[4;34m " not in buf, "unselected link underlines leading space"
 
-# 2. Tab selects wrapped link (desktop/index.html) and highlights both line 1 and line 2 continuation
+# 2. Tab selects the first link (one.html); its label wraps two lines and both are highlighted
 os.write(master, b"\t")
 time.sleep(0.08)
 buf = b""
@@ -341,12 +344,12 @@ while select.select([master], [], [], 0.05)[0]:
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
-assert target == "desktop/index.html", f"expected desktop/index.html, got {target}"
-assert b"\x1b[7;1mthe" in buf, "line 1 of wrapped link not highlighted"
-assert b"\x1b[7;1mdesktop guide" in buf, "line 2 continuation of wrapped link not highlighted"
+assert target == "one.html", f"expected one.html, got {target}"
+assert b"\x1b[7;1mALPHA" in buf, "line 1 of wrapped link not highlighted"
+assert buf.count(b"\x1b[7;1m") >= 2, "wrapped link continuation not highlighted"
 assert b"\x1b[7;1m " not in buf, "leading space before wrapped link must not be highlighted"
 
-# 3. Tab advances to next link (shell/index.html) — wrapped link was a single link, not two
+# 3. Tab advances to the next link (two.html) — the wrapped link was one link, not two
 os.write(master, b"\t")
 time.sleep(0.08)
 buf = b""
@@ -355,9 +358,9 @@ while select.select([master], [], [], 0.05)[0]:
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
-assert target == "shell/index.html", f"expected shell/index.html, got {target}"
+assert target == "two.html", f"expected two.html, got {target}"
 
-# 4. Shift-Tab wraps/returns back to the wrapped link, highlighting both lines
+# 4. Shift-Tab returns to the wrapped link, highlighting its lines again
 os.write(master, b"\x1b[Z")
 time.sleep(0.08)
 buf = b""
@@ -366,12 +369,12 @@ while select.select([master], [], [], 0.05)[0]:
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
-assert target == "desktop/index.html", f"expected desktop/index.html, got {target}"
-assert b"\x1b[7;1mthe" in buf and b"\x1b[7;1mdesktop guide" in buf
+assert target == "one.html", f"expected one.html, got {target}"
+assert b"\x1b[7;1mALPHA" in buf, "wrapped link not highlighted after Shift-Tab"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/knowledge" || fail "hyperlink display test failed"
+' "$TAM" "$root/tests/fixtures" || fail "hyperlink display test failed"
     pass "pager hyperlink display: leading-space underline prevention and wrapped link continuation highlight"
 
     # In-pager text search (/), hit jumping (n / N), Esc clear, and reading telemetry
