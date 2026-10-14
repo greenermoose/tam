@@ -49,11 +49,14 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.17.0** ("Maintain" Track Knowledge Corpus Expansion). With the content-depth ladder and fading templates in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation.
+The immediate priority for `tam` is implementing **Version 0.18.0** (Quick Guide Index Return Shortcut & "Maintain" Track Knowledge Corpus Expansion). With the content-depth ladder, self-inspection findings, and grounded ask in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation alongside pager ergonomics.
 
-### Version 0.17.0 — "Maintain" Track Knowledge Corpus Expansion
-Expand the offline corpus to comprehensively cover system health, resilient updates, diagnostics, and disaster recovery.
+### Version 0.18.0 — Quick Guide Index Return (`\``) & "Maintain" Track Knowledge Corpus Expansion
 
+- **Quick Guide Index Return Keybinding (`\``):**
+  - Bind backtick (`` ` ``) in the interactive pager (`src/pager.c`) to return immediately to the Guide root index (`index.html`) from anywhere in the corpus or manual page viewer.
+  - Pushes the current page to the history stack before navigation so users can return with `u` if desired.
+  - Eliminates repetitive back-navigation when deep in subtopics or manual pages.
 - **Non-Disruptive Updates & Package Lifecycle:**
   - `knowledge/maintain/updates.html`: Explaining inode unlinking (why Linux updates in place without rebooting), package tiering (OS base vs Tamlinux packages vs Mise user tools), and `tam-update` workflow.
 - **Snapshots & Generation Rollbacks:**

@@ -56,7 +56,7 @@ external links are labelled `external` and are never fetched.
 - **Interactive pager** (`src/pager.c`): raw `termios`, alternate screen,
   scrolling (`j`/`k`/space/`b`/`g`/`G`/arrows/`Home`/`End`/`PgUp`/`PgDn`),
   link selection (`Tab`/`Shift-Tab`, digits) and follow (`Enter`, right arrow), history
-  back (`u`, left arrow), quit (`q`, `Esc`). Local `href`s navigate
+  back (`u`, left arrow), quick Guide index return (`` ` ``), quit (`q`, `Esc`). Local `href`s navigate
   in-process; external links are shown, never opened, keeping the guide
   offline. OSC 8 is reserved for external links a user may want to open
   elsewhere.
