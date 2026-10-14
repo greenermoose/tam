@@ -57,6 +57,12 @@ The immediate priority for `tam` is implementing **Version 0.18.0** (Quick Guide
   - Bind backtick (`` ` ``) in the interactive pager (`src/pager.c`) to return immediately to the Guide root index (`index.html`) from anywhere in the corpus or manual page viewer.
   - Pushes the current page to the history stack before navigation so users can return with `u` if desired.
   - Eliminates repetitive back-navigation when deep in subtopics or manual pages.
+- **Output Ergonomics & "Goldilocks" Screen Budget:**
+  - Keep default interactive terminal outputs strictly bounded to a standard 80×24 screen (≤20 lines) so critical orientation and usage syntax never scroll off.
+  - Refactor bare `tam explain` to display strictly the concise usage guide (≤15 lines) without spewing the entire 29-topic catalog.
+  - Introduce `tam explain topics` to explicitly list available explanation topics, with support for `--level LEVEL` depth filtering.
+  - Establish `--terse` for minimal machine/pipe tokens (e.g. raw topic slugs for fzf/xargs) and `--verbose` for exhaustive multi-line diagnostics and keyword arrays.
+  - Condense `tam --help` from 32 lines down to ≤20 lines by consolidating redundant per-subcommand flag lines.
 - **Non-Disruptive Updates & Package Lifecycle:**
   - `knowledge/maintain/updates.html`: Explaining inode unlinking (why Linux updates in place without rebooting), package tiering (OS base vs Tamlinux packages vs Mise user tools), and `tam-update` workflow.
 - **Snapshots & Generation Rollbacks:**
