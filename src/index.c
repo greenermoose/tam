@@ -292,11 +292,17 @@ const tam_index_entry_t *tam_index_lookup_alias(const tam_index_t *idx, const ch
     t = strip_quotes(t);
     if (*t == '\0') return NULL;
 
+    /* Pass 1: exact topic match */
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
         if (strcasecmp(t, e->topic) == 0) {
             return e;
         }
+    }
+
+    /* Pass 2: keyword alias match */
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
         for (size_t k = 0; k < e->num_keywords; k++) {
             if (strcasecmp(t, e->keywords[k]) == 0) {
                 return e;

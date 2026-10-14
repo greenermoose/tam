@@ -1,0 +1,161 @@
+Guide / System Maintenance and Reliability / Snapshots and Generation Rollbacks
+
+Snapshots and Generation Rollbacks
+
+Depth: beginner, intermediate, expert. Every level is shown below; follow one to
+read only that depth.
+
+Every software change on a Tamlinux workstation should be reversible. By
+combining Btrfs Copy-on-Write (CoW) subvolume snapshots at the base OS layer
+with Nix and Home Manager generation histories in user space, you can roll back
+unexpected regressions in seconds.
+
+Beginner: Understanding snapshots and generations
+
+Summary: Understand what snapshots and generations are, how they differ from
+slow file copies, and verify rollback readiness.
+
+Prerequisites: Basic filesystem familiarity ( The Linux Filesystem Hierarchy).
+
+Command sequence
+
+  
+  tam install check storage_btrfs
+  tam install check storage_root_space
+  
+
+Expected output:
+
+  
+  [pass] storage_btrfs: root filesystem supports Copy-on-Write snapshots
+  [pass] storage_root_space: root filesystem has sufficient free space
+  
+
+What just happened
+
+- tam install check storage_btrfs verifies that your root mount runs on Btrfs
+  and supports instantaneous subvolume branching.
+- tam install check storage_root_space audits remaining disk capacity to ensure
+  adequate headroom for snapshot growth.
+- A snapshot does not duplicate file contents across your disk. It simply
+  records the current metadata tree pointers, taking zero extra storage until
+  files are subsequently altered or deleted.
+
+Common pitfall
+
+Do not confuse filesystem snapshots with external backups. Snapshots protect
+against broken updates, botched configurations, or unintended software changes;
+they do not protect against physical storage drive hardware failures. Always
+maintain external backups of essential personal documents.
+
+Next step
+
+Learn how to take snapshots manually and switch Home Manager generations in the
+intermediate section below.
+
+Intermediate: Btrfs snapshots and Home Manager generations
+
+Summary: Create read-only Btrfs subvolume checkpoints before major system
+operations and manage user desktop generation profiles.
+
+Btrfs subvolume snapshot creation
+
+Create a read-only snapshot of your active root subvolume prior to package or
+kernel upgrades:
+
+  
+  sudo btrfs subvolume snapshot -r / /.snapshots/root-pre-upgrade
+  
+
+List existing snapshots to confirm creation:
+
+  
+  sudo btrfs subvolume list /
+  
+
+Home Manager desktop generation switching
+
+Tamlinux desktop components and user configurations are deployed as immutable
+generations linked into the Nix store. Inspect past generations:
+
+  
+  home-manager generations
+  
+
+Example generation list:
+
+  
+  2026-10-14 12:00 : id 202 -> /nix/store/...-home-manager-generation
+  2026-10-13 18:30 : id 201 -> /nix/store/...-home-manager-generation
+  
+
+To roll back immediately to the previous generation without modifying any
+underlying base packages, activate the prior profile link:
+
+  
+  /nix/store/...-home-manager-generation/activate
+  
+
+Completion task
+
+Inspect existing Btrfs subvolumes on your root partition using the btrfs
+command. Complete the missing subcommand below (marked with ___):
+
+  
+  sudo btrfs subvolume ___ /
+  
+
+Target output: list of subvolume IDs, generation numbers, and relative paths.
+
+Verification hints
+
+- The list subcommand enumerates all subvolumes and snapshots within a Btrfs
+  filesystem tree.
+- Read more about package lifecycle in Non-Disruptive Updates.
+
+Expert: Root subvolume rollback and Btrfs CoW mechanics
+
+Summary: Master Btrfs extent allocation trees, default subvolume ID switching,
+and complete root recovery from external live environments.
+
+Copy-on-Write (CoW) extent trees
+
+In Btrfs, data and metadata blocks are never overwritten in place. When a block
+is modified, the new data is written to an unallocated physical extent, and the
+B-tree pointers are updated to reference the new block. A snapshot is created by
+cloning the root node of the subvolume's B-tree. The snapshot and original
+subvolume share all underlying extents until writes diverge.
+
+Atomic default subvolume switching
+
+Tamlinux mounts the root filesystem via subvolume name or subvolume ID in
+/etc/fstab (e.g. subvol=@). To roll back the entire root operating system to a
+previous snapshot:
+
+1. Boot into a recovery console or live USB environment.
+2. Mount the top-level Btrfs tree: mount /dev/mapper/cryptroot /mnt.
+3. Rename the current root subvolume: mv /mnt/@ /mnt/@.broken.
+4. Create a read-write clone of the desired snapshot:
+
+  btrfs subvolume snapshot /mnt/@.snapshots/good /mnt/@
+
+5. Alternatively, set the default subvolume ID via btrfs subvolume set-default
+   <subvol-id> /mnt.
+6. Reboot the workstation. The kernel mounts the restored snapshot directly as /
+   .
+
+Where to next
+
+- Non-disruptive updates — package tiering and updating without reboots.
+- Emergency disaster recovery — rescue procedures and emergency shells.
+- System maintenance — return to the maintenance track overview.
+
+Links:
+  [1] index.html
+  [2] maintain/index.html
+  [3] maintain/rollback.html?level=beginner
+  [4] maintain/rollback.html?level=intermediate
+  [5] maintain/rollback.html?level=expert
+  [6] filesystem/index.html
+  [7] maintain/updates.html
+  [8] maintain/recovery.html

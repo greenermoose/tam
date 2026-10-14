@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.18.0`.  
+**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.19.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.18.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.19.0)
 
-Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–10, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, and output ergonomics:
+Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–11, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, and maintain-track corpus expansion:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -45,25 +45,28 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 | **0.16.0** | Milestone 8: Self-Inspection Findings & Check Contract | Done (2026-10-14) | Comprehensive read-only system diagnostic and health finding engine in `tam install inspect`; structured finding model (`id`, `severity`, `summary`, `evidence`, `help_link`) deep-linking to Maintain-track help; versioned offline Check Contract schema (`{task_id, name, status, pass, fail, evidence, severity, help_ref, source, schema_version}`); Safe Execution Envelope (`safe_probe_exec`) running whitelisted probes under `LC_ALL=C`, bounded timeouts (≤500ms), captured streams, detached TTY; `pkexec` detect-and-degrade (no interactive `sudo`); `tam install inspect --json`, `tam install inspect --check [ID]`, `tam install check [ID]` (`--json` supported); updated Bash completions. |
 | **0.17.0** | Milestone 9: Opt-in Grounded Ask | Done (2026-10-14) | Opt-in grounded question-answering CLI surface (`tam ask [OPTIONS] <question>`) over the corpus index with mandatory citations; POSIX socket HTTP/1.1 client connecting to already-running local inference server (e.g. Ollama); strictly offline by default with D53 zero-daemon invariant; non-interactive refusal contract (exit code 2) and interactive consent flow; `tam ask --json` structured output; Bash completions for `ask`. |
 | **0.18.0** | Milestone 10: Navigation & Output Ergonomics | Done (2026-10-14) | Quick Guide index return shortcut (`` ` ``) in `src/pager.c` with history push; Goldilocks screen budget (bare `tam explain` ≤15 lines, `tam --help` ≤20 lines); interactive hyperlinked `tam explain topics` with pager navigation, `--level` filtering, `--terse` (slugs only) and `--verbose` modifiers; `--terse` check status for `tam install check`; Bash completions. |
+| **0.19.0** | Milestone 11: "Maintain" Track Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Maintain" track knowledge pages: `maintain/index.html` (hub), `maintain/updates.html` (inode unlinking, package tiering), `maintain/rollback.html` (Btrfs CoW snapshots, Home Manager generations), `maintain/logs.html` (journalctl filtering, kernel ring buffer), `maintain/power.html` (power ladder, Shift-key wake), `maintain/recovery.html` (virtual consoles, REISUB, chroot repair); Beginner/Intermediate/Expert fading templates; two-pass exact-topic alias resolution in `src/index.c`. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.19.0** ("Maintain" Track Knowledge Corpus Expansion). With navigation ergonomics, the content-depth ladder, self-inspection findings, and grounded ask in place, the guide provides clear pedagogical progression that will frame system health and maintenance documentation.
+The immediate priority for `tam` is implementing **Version 0.20.0** ("Improve" Track Knowledge Corpus Expansion). Equip users and developers to optimize performance, eliminate energy waste, configure tools, and understand local AI inference.
 
-### Version 0.19.0 — "Maintain" Track Knowledge Corpus Expansion
+### Version 0.20.0 — "Improve" Track Knowledge Corpus Expansion
 
-- **Non-Disruptive Updates & Package Lifecycle:**
-  - `knowledge/maintain/updates.html`: Explaining inode unlinking (why Linux updates in place without rebooting), package tiering (OS base vs Tamlinux packages vs Mise user tools), and `tam-update` workflow.
-- **Snapshots & Generation Rollbacks:**
-  - `knowledge/maintain/rollback.html`: Copy-on-Write (CoW) mechanics, taking and restoring Btrfs snapshots, and Home Manager `/nix/store` generation rollbacks.
-- **Truthful System Diagnostics:**
-  - `knowledge/maintain/logs.html`: Filtering `journalctl` by boot (`-b`), unit (`-u`), and priority (`-p err..emerg`); reading the kernel ring buffer (`dmesg -T`).
-- **The Progressive Power Ladder:**
-  - `knowledge/maintain/power.html`: 3-stage power progression: DPMS monitor blanking (idle monitors turn off individually), RAM suspend, and zero-watt S4 disk hibernation; safe display wake via `Shift` key.
-- **Emergency Disaster Recovery:**
-  - `knowledge/maintain/recovery.html`: Magic SysRq (REISUB) emergency sequence, dropping to virtual consoles (`Ctrl+Alt+F2`–`F6`), and live USB chroot recovery.
+- **Zero-Polling Architecture:**
+  - `knowledge/improve/efficiency.html`: Eliminating periodic polling loops; leveraging kernel `inotify`, `epoll`, and Wayland compositor event sockets to keep CPU idle and save battery.
+- **Memory Compression with ZRAM:**
+  - `knowledge/improve/zram.html`: How compressed RAM swap (LZ4/zstd) doubles effective memory capacity with near-zero latency compared to disk thrashing.
+- **Terminal & Editor Ergonomics:**
+  - `knowledge/improve/terminal.html`: Fast shell startup; using `micro` with auto-reload when AI agents modify files concurrently (Virtue V11).
+- **Scripting & Tool Conventions:**
+  - `knowledge/improve/scripting.html`: System-wide portable `tam-*` tools vs personal machine `fred-*` scripts, strict Bash headers (`set -euo pipefail`), safe argument handling (`"$@"`).
+- **Native Toolchains & Multi-Agent Workflows:**
+  - `knowledge/improve/toolchains.html`: Native C compilation (`-O2`, `-march=native`), isolated Git worktrees (`git worktree add`) for concurrent coding agents.
+- **Physics of Local AI Generation:**
+  - `knowledge/improve/ai-performance.html`: Memory bandwidth vs autoregressive token generation speed ($Tokens/s \approx Bandwidth / ModelSize$); quantization tradeoffs (Q4_K_M vs FP16).
 
 ---
 

@@ -26,7 +26,7 @@ guide() {
 }
 
 # Pages that must resolve and render.
-pages="index welcome beginner intermediate expert install/index shell/index shell/pipelines shell/jobs filesystem/index filesystem/permissions desktop/index desktop/workspaces hardware/resources man/index ecosystem/index ecosystem/philosophy ecosystem/distros ecosystem/compositors ecosystem/packaging ecosystem/init ecosystem/toolkits ecosystem/desktop-apps ecosystem/libc ecosystem/lua ecosystem/patches ecosystem/virtualization ecosystem/ai ecosystem/sustainability"
+pages="index welcome beginner intermediate expert install/index shell/index shell/pipelines shell/jobs filesystem/index filesystem/permissions desktop/index desktop/workspaces hardware/resources man/index ecosystem/index ecosystem/philosophy ecosystem/distros ecosystem/compositors ecosystem/packaging ecosystem/init ecosystem/toolkits ecosystem/desktop-apps ecosystem/libc ecosystem/lua ecosystem/patches ecosystem/virtualization ecosystem/ai ecosystem/sustainability maintain/index maintain/updates maintain/rollback maintain/logs maintain/power maintain/recovery"
 
 # Every page renders non-empty text with a title.
 for p in $pages; do
@@ -66,6 +66,9 @@ b=$(guide --pipe desktop/index.html)
 a=$(guide --pipe filesystem)
 b=$(guide --pipe filesystem/index.html)
 [ "$a" = "$b" ] || fail "filesystem and filesystem/index.html differ"
+a=$(guide --pipe maintain)
+b=$(guide --pipe maintain/index.html)
+[ "$a" = "$b" ] || fail "maintain and maintain/index.html differ"
 pass "extensionless page names resolve"
 
 # Referenced links exist on disk. The corpus uses root-relative hrefs

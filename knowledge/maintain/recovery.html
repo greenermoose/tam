@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Emergency Disaster Recovery</title>
+<meta name="topic" content="recovery">
+<meta name="summary" content="Magic SysRq (REISUB) sequence, virtual consoles, and live USB chroot recovery">
+<meta name="keywords" content="recovery, emergency, reisub, sysrq, virtual console, tty, chroot, repair, rescue, freeze, broken">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="maintain">
+<meta name="prereqs" content="maintain, shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Emergency Disaster Recovery</p>
+</nav>
+
+<h1>Emergency Disaster Recovery</h1>
+
+<p>When an application locks up, the graphical environment freezes, or a machine
+fails to complete its boot sequence, a structured recovery escalation ladder
+ensures you regain control calmly without risking data loss or filesystem
+corruption.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Dropping to a virtual console (TTY)</h2>
+
+<p><strong>Summary:</strong> Escape a frozen Wayland desktop or unresponsive
+fullscreen window by switching to an independent text virtual console.</p>
+
+<p><strong>Prerequisites:</strong> Basic command-line navigation
+(<a href="shell/index.html">The Shell and Streams</a>).</p>
+
+<h3>Keyboard shortcut</h3>
+
+<p>Press <strong>Ctrl + Alt + F2</strong> (or <code>F3</code> through <code>F6</code>).</p>
+
+<h3>What just happened</h3>
+
+<ul>
+<li>Linux runs multiple virtual consoles (TTYs) independent of any graphical display server.</li>
+<li>The graphical desktop runs on virtual terminal 1 (<code>tty1</code>) or <code>tty7</code>. Switching to <code>tty2</code> drops immediately to a clean, text-mode login prompt backed by the kernel.</li>
+<li>The display manager and graphical compositor are bypassed, allowing you to log in with your user credentials even if graphics rendering has completely locked up.</li>
+</ul>
+
+<h3>Diagnosing and recovering</h3>
+
+<p>Once logged into the virtual console, identify and terminate the hung process:</p>
+
+<pre>
+# Check processes consuming CPU or memory
+top
+
+# Terminate an unresponsive application cleanly
+pkill -TERM problematic-app
+
+# Switch back to the graphical session
+Ctrl + Alt + F1
+</pre>
+
+<h3>Common pitfall</h3>
+
+<p>Never reach immediately for the hardware power button when an application
+freezes. Hard power cuts bypass disk flush routines and can leave filesystems
+unclean. Virtual consoles provide a safe, non-destructive escape hatch.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to safely reboot an entirely locked kernel using Magic SysRq in the
+intermediate section below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: The Magic SysRq (REISUB) emergency sequence</h2>
+
+<p><strong>Summary:</strong> Use kernel Magic SysRq keys to cleanly terminate
+processes, sync disks, and reboot a frozen machine without holding the power
+button.</p>
+
+<h3>What is Magic SysRq?</h3>
+
+<p>The Magic System Request key is a kernel-level interrupt handler that responds
+even when the window manager, user space, and shell are completely frozen. The
+standard emergency reboot sequence is remembered by the mnemonic
+<strong>REISUB</strong> (or <em>"Raising Elephants Is So Utterly Boring"</em>):</p>
+
+<table>
+<tr><th>Key</th><th>Kernel Action</th><th>Purpose</th></tr>
+<tr><td>R</td><td>unRaw keyboard</td><td>Takes keyboard control back from the X11/Wayland server into TTY mode.</td></tr>
+<tr><td>E</td><td>tErminate processes</td><td>Sends SIGTERM to all processes except init, allowing clean exit.</td></tr>
+<tr><td>I</td><td>kIll processes</td><td>Sends SIGKILL to any stubborn tasks that refused to terminate.</td></tr>
+<tr><td>S</td><td>Sync filesystems</td><td>Flushes all dirty data in RAM buffers to physical storage disks.</td></tr>
+<tr><td>U</td><td>re-mount read-Only</td><td>Remounts all mounted filesystems read-only to prevent corruption.</td></tr>
+<tr><td>B</td><td>reBoot</td><td>Immediately triggers a clean hardware reboot.</td></tr>
+</table>
+
+<h3>Executing REISUB</h3>
+
+<p>Hold down <strong>Alt + SysRq</strong> (the <code>PrintScreen</code> key on most
+keyboards) and press each letter in order, pausing 2–3 seconds between keypresses
+(especially after <code>E</code> and <code>S</code> to allow disk writes to finish):</p>
+
+<pre>
+Alt + SysRq + R
+Alt + SysRq + E
+Alt + SysRq + I
+Alt + SysRq + S
+Alt + SysRq + U
+Alt + SysRq + B
+</pre>
+
+<h3>Enabling Magic SysRq in sysctl</h3>
+
+<p>Inspect your current SysRq enablement mask:</p>
+
+<pre>
+cat /proc/sys/kernel/sysrq
+</pre>
+
+<p>A value of <code>1</code> enables all SysRq functions. To make this permanent
+across reboots, ensure <code>kernel.sysrq = 1</code> is set in
+<code>/etc/sysctl.d/99-sysctl.conf</code>.</p>
+
+<h3>Completion task</h3>
+
+<p>Audit whether your system provides the necessary privilege tools to manage
+system recovery. Complete the command below (marked with <code>___</code>):</p>
+
+<pre>
+tam install check ___
+</pre>
+
+<p>Target output: <code>[pass] privilege_pkexec: polkit pkexec is available</code>.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>Run <code>tam install check privilege_pkexec</code> to confirm privilege tool presence.</li>
+<li>Tamlinux relies on <code>pkexec</code> for non-interactive administrative inspections.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Live USB rescue and chroot recovery</h2>
+
+<p><strong>Summary:</strong> Boot a rescue live USB, mount encrypted and Btrfs
+storage pools, and chroot into the workstation environment to repair kernels,
+initramfs, and bootloaders.</p>
+
+<h3>Step-by-step live USB chroot workflow</h3>
+
+<p>When a kernel upgrade fails or boot configuration becomes corrupted, boot an Arch
+or Tamlinux live USB installation medium:</p>
+
+<ol>
+<li><strong>Unlock encrypted volumes (if using LUKS):</strong>
+<pre>cryptsetup open /dev/nvme0n1p2 cryptroot</pre></li>
+
+<li><strong>Mount the root Btrfs subvolume:</strong>
+<pre>mount -o subvol=@ /dev/mapper/cryptroot /mnt</pre></li>
+
+<li><strong>Mount boot and ESP partitions:</strong>
+<pre>mount /dev/nvme0n1p1 /mnt/boot</pre></li>
+
+<li><strong>Bind virtual kernel filesystems into the target:</strong>
+<pre>
+for dir in /dev /dev/pts /proc /sys /run; do
+    mount --bind "$dir" "/mnt$dir"
+done
+</pre></li>
+
+<li><strong>Enter the installed environment:</strong>
+<pre>chroot /mnt /bin/bash</pre></li>
+
+<li><strong>Repair system configuration:</strong>
+<pre>
+# Rebuild initramfs images
+mkinitcpio -P
+
+# Or restore package database state / reinstall kernel
+pacman -S linux linux-firmware
+</pre></li>
+
+<li><strong>Exit and cleanly unmount before rebooting:</strong>
+<pre>
+exit
+umount -R /mnt
+reboot
+</pre></li>
+</ol>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a> &mdash; restore snapshots instead of manual chroot.</li>
+<li><a href="maintain/logs.html">Truthful system diagnostics and logs</a> &mdash; examine boot logs for root causes.</li>
+<li><a href="maintain/index.html">System maintenance</a> &mdash; return to the maintenance track overview.</li>
+</ul>
+</body>
+</html>

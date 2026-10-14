@@ -49,7 +49,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.18.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.19.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -608,6 +608,20 @@ printf '%s\n' "$ex_res" | grep -q 'System Resources and Performance' || fail "ex
 ex_lua=$("$TAM" explain lua --pipe)
 printf '%s\n' "$ex_lua" | grep -q 'Lua: The Embedded Scripting Language' || fail "explain lua failed"
 printf '%s\n' "$ex_lua" | grep -q 'Depth: beginner' || fail "explain lua missing depth line"
+
+# Maintain track curated topics.
+ex_maint=$("$TAM" explain maintain --pipe)
+printf '%s\n' "$ex_maint" | grep -q 'System Maintenance and Reliability' || fail "explain maintain failed"
+ex_upd=$("$TAM" explain updates --pipe)
+printf '%s\n' "$ex_upd" | grep -q 'Non-Disruptive Updates and Package Lifecycle' || fail "explain updates failed"
+ex_rb=$("$TAM" explain rollback --pipe)
+printf '%s\n' "$ex_rb" | grep -q 'Snapshots and Generation Rollbacks' || fail "explain rollback failed"
+ex_log=$("$TAM" explain logs --pipe)
+printf '%s\n' "$ex_log" | grep -q 'Truthful System Diagnostics and Logs' || fail "explain logs failed"
+ex_pwr=$("$TAM" explain power --pipe)
+printf '%s\n' "$ex_pwr" | grep -q 'The Progressive Power Ladder' || fail "explain power failed"
+ex_rec=$("$TAM" explain recovery --pipe)
+printf '%s\n' "$ex_rec" | grep -q 'Emergency Disaster Recovery' || fail "explain recovery failed"
 
 # Explain with - reads topic from stdin.
 ex_stdin=$(printf 'jobs\n' | "$TAM" explain - --pipe)

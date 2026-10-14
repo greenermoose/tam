@@ -1,0 +1,154 @@
+Guide / System Maintenance and Reliability / Truthful System Diagnostics and
+Logs
+
+Truthful System Diagnostics and Logs
+
+Depth: beginner, intermediate, expert. Every level is shown below; follow one to
+read only that depth.
+
+Truthful diagnostics require examining empirical system evidence rather than
+guessing. Tamlinux prioritizes clean log inspection through structured filtering
+of systemd journals and the kernel ring buffer.
+
+Beginner: Reading current system logs and dmesg
+
+Summary: View recent system service events and hardware kernel messages without
+losing context in an interactive pager.
+
+Prerequisites: Basic command pipelines ( Shell Pipelines).
+
+Command sequence
+
+  
+  journalctl -n 20 --no-pager
+  dmesg -T | tail -n 20
+  
+
+Expected output from journalctl:
+
+  
+  Oct 14 12:00:01 bosgame-omarchy systemd[1]: Starting Daily man-db regeneration...
+  Oct 14 12:00:03 bosgame-omarchy systemd[1]: man-db.service: Deactivated successfully.
+  Oct 14 12:00:03 bosgame-omarchy systemd[1]: Finished Daily man-db regeneration.
+  
+
+What just happened
+
+- journalctl -n 20 --no-pager prints the last 20 log entries directly to the
+  terminal stdout without launching a pager, ideal for scripts and quick checks.
+- dmesg -T prints kernel ring buffer messages with human-readable real-world
+  timestamps (converting raw monotonic clock seconds since boot to calendar
+  dates).
+- Piping to tail -n 20 isolates recent hardware driver events, USB attachments,
+  or GPU power state transitions.
+
+Common pitfall
+
+Do not run bare journalctl and scroll blindly through thousands of lines of
+routine informational messages. Use filtering flags to pinpoint the exact time
+window or service of interest.
+
+Next step
+
+Learn how to filter logs by boot cycle and priority in the intermediate section
+below.
+
+Intermediate: Targeted filtering by boot, unit, and priority
+
+Summary: Isolate specific service failures using boot markers, systemd unit
+selectors, and syslog priority thresholds.
+
+Filtering by boot cycle
+
+Query logs from the current session or a prior boot cycle:
+
+  
+  journalctl -b          # current boot
+  journalctl -b -1       # previous boot (e.g. before an unexpected reboot)
+  journalctl --list-boots
+  
+
+Filtering by unit and severity
+
+Combine unit filters with standard syslog priority bounds:
+
+Priority  Severity Level  Description                                      
+--------  --------------  -------------------------------------------------
+0         emerg           System is unusable.                              
+1         alert           Action must be taken immediately.                
+2         crit            Critical hardware or kernel conditions.          
+3         err             Error events preventing normal service operation.
+4         warning         Warning conditions that should be monitored.     
+
+Filter only error, critical, alert, or emergency messages from a specific
+service during the current boot:
+
+  
+  journalctl -u bluetooth.service -b -p err..emerg
+  
+
+Completion task
+
+Identify all system errors recorded across all units during the current boot.
+Fill in the missing priority range below (marked with ___):
+
+  
+  journalctl -b -p ___
+  
+
+Target output: stream containing only log entries of severity error (3) or
+worse.
+
+Verification hints
+
+- Use -p err (or -p 3) to filter everything at or above error severity.
+- Verify system service status with systemctl --failed.
+
+Expert: Kernel ring buffer mechanics and journal integrity
+
+Summary: Understand cyclic ring buffer allocation, persistent vs volatile
+journal storage, and verify binary journal integrity.
+
+Kernel printk ring buffer
+
+The Linux kernel records console messages in a fixed-size circular memory buffer
+allocated during early boot ( CONFIG_LOG_BUF_SHIFT). Messages are emitted via
+printk() and read via the /dev/kmsg character device or the syslog(2) system
+call. Because the buffer is circular, high-frequency kernel logging will
+overwrite historical boot messages if not captured by a user-space log daemon
+like systemd-journald.
+
+Verifying journal file integrity
+
+Journal entries are stored as indexed binary files under
+/var/log/journal/<machine-id>/. If an ungraceful shutdown occurs (e.g. power
+loss), verify the cryptographic seal and structural integrity of the journal
+files:
+
+  
+  journalctl --verify
+  
+
+To prevent logs from consuming excessive disk space while retaining essential
+audit history, vacuum older archives by storage capacity:
+
+  
+  sudo journalctl --vacuum-size=500M
+  
+
+Where to next
+
+- The progressive power ladder — understand sleep states and hardware wake.
+- Emergency disaster recovery — recovery procedures when logs reveal critical
+  faults.
+- System maintenance — return to the maintenance track overview.
+
+Links:
+  [1] index.html
+  [2] maintain/index.html
+  [3] maintain/logs.html?level=beginner
+  [4] maintain/logs.html?level=intermediate
+  [5] maintain/logs.html?level=expert
+  [6] shell/pipelines.html
+  [7] maintain/power.html
+  [8] maintain/recovery.html

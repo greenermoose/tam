@@ -35,4 +35,6 @@ Human-only commits retain their original authorship.
 | 2026-10-14 | Guide breadcrumb trails, beginner/intermediate/expert reading paths, and welcome-page refinement (corpus lane) | opencode 1.19.0; `big-pickle` | [Session record](docs/ai/2026-10-14-tam-corpus-breadcrumbs.md) |
 | 2026-10-14 | Opt-in grounded ask CLI surface 0.17.0 (`ask`, `--json`, `qwen2.5-coder:1.5b`, bounded excerpt grounding, local Ollama client) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-grounded-ask.md) |
 | 2026-10-14 | Navigation and output ergonomics 0.18.0 (`` ` `` guide index return, Goldilocks screen budget, interactive `explain topics`, `--terse`/`--verbose`) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-navigation-and-output-ergonomics.md) |
+| 2026-10-14 | Maintain track corpus expansion 0.19.0 (`maintain/` chapters, updates/rollback/logs/power/recovery, two-pass alias resolution) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-maintain-track-corpus-expansion.md) |
+
 

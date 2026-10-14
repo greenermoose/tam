@@ -259,12 +259,6 @@
       "installation",
       "inspect",
       "inspection",
-      "maintain",
-      "maintaining",
-      "maintenance",
-      "update",
-      "updates",
-      "recovery",
       "layers",
       "uninstall"
     ],
@@ -346,6 +340,35 @@
     "prereqs": []
   },
   {
+    "topic": "logs",
+    "path": "maintain/logs.html",
+    "title": "Truthful System Diagnostics and Logs",
+    "summary": "Filtering journalctl by boot, unit, and priority, and reading kernel ring buffer",
+    "keywords": [
+      "logs",
+      "log",
+      "journalctl",
+      "systemd",
+      "dmesg",
+      "ring buffer",
+      "diagnostics",
+      "boot",
+      "priority",
+      "errors",
+      "journal"
+    ],
+    "levels": [
+      "beginner",
+      "intermediate",
+      "expert"
+    ],
+    "track": "maintain",
+    "prereqs": [
+      "maintain",
+      "shell"
+    ]
+  },
+  {
     "topic": "lua",
     "path": "ecosystem/lua.html",
     "title": "Lua: The Embedded Scripting Language",
@@ -390,6 +413,29 @@
     "prereqs": [
       "ecosystem"
     ]
+  },
+  {
+    "topic": "maintain",
+    "path": "maintain/index.html",
+    "title": "System Maintenance and Reliability",
+    "summary": "System maintenance, updates, rollbacks, logs, power, and emergency recovery",
+    "keywords": [
+      "maintain",
+      "maintenance",
+      "health",
+      "updates",
+      "rollback",
+      "logs",
+      "power",
+      "recovery",
+      "diagnostics",
+      "reliability"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "maintain",
+    "prereqs": []
   },
   {
     "topic": "man",
@@ -549,6 +595,66 @@
     ]
   },
   {
+    "topic": "power",
+    "path": "maintain/power.html",
+    "title": "The Progressive Power Ladder",
+    "summary": "DPMS monitor blanking, RAM suspend, zero-watt S4 disk hibernation, and safe display wake",
+    "keywords": [
+      "power",
+      "dpms",
+      "blanking",
+      "suspend",
+      "sleep",
+      "s3",
+      "s2idle",
+      "hibernate",
+      "hibernation",
+      "s4",
+      "shift",
+      "wake",
+      "display"
+    ],
+    "levels": [
+      "beginner",
+      "intermediate",
+      "expert"
+    ],
+    "track": "maintain",
+    "prereqs": [
+      "maintain",
+      "resources"
+    ]
+  },
+  {
+    "topic": "recovery",
+    "path": "maintain/recovery.html",
+    "title": "Emergency Disaster Recovery",
+    "summary": "Magic SysRq (REISUB) sequence, virtual consoles, and live USB chroot recovery",
+    "keywords": [
+      "recovery",
+      "emergency",
+      "reisub",
+      "sysrq",
+      "virtual console",
+      "tty",
+      "chroot",
+      "repair",
+      "rescue",
+      "freeze",
+      "broken"
+    ],
+    "levels": [
+      "beginner",
+      "intermediate",
+      "expert"
+    ],
+    "track": "maintain",
+    "prereqs": [
+      "maintain",
+      "shell"
+    ]
+  },
+  {
     "topic": "resources",
     "path": "hardware/resources.html",
     "title": "System Resources and Performance",
@@ -578,6 +684,34 @@
     ],
     "track": "maintain",
     "prereqs": [
+      "filesystem"
+    ]
+  },
+  {
+    "topic": "rollback",
+    "path": "maintain/rollback.html",
+    "title": "Snapshots and Generation Rollbacks",
+    "summary": "Btrfs Copy-on-Write snapshots and Home Manager generation rollbacks",
+    "keywords": [
+      "rollback",
+      "snapshots",
+      "btrfs",
+      "cow",
+      "copy-on-write",
+      "subvolume",
+      "home-manager",
+      "generations",
+      "nix",
+      "restore"
+    ],
+    "levels": [
+      "beginner",
+      "intermediate",
+      "expert"
+    ],
+    "track": "maintain",
+    "prereqs": [
+      "maintain",
       "filesystem"
     ]
   },
@@ -654,6 +788,36 @@
     ],
     "track": "improve",
     "prereqs": []
+  },
+  {
+    "topic": "updates",
+    "path": "maintain/updates.html",
+    "title": "Non-Disruptive Updates and Package Lifecycle",
+    "summary": "Inode unlinking, package tiering, and updating without disruptive reboots",
+    "keywords": [
+      "updates",
+      "update",
+      "package",
+      "packages",
+      "tiering",
+      "inode",
+      "unlink",
+      "pacman",
+      "mise",
+      "home-manager",
+      "tam-update",
+      "reboot"
+    ],
+    "levels": [
+      "beginner",
+      "intermediate",
+      "expert"
+    ],
+    "track": "maintain",
+    "prereqs": [
+      "maintain",
+      "filesystem"
+    ]
   },
   {
     "topic": "virtualization",

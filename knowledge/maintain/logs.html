@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Truthful System Diagnostics and Logs</title>
+<meta name="topic" content="logs">
+<meta name="summary" content="Filtering journalctl by boot, unit, and priority, and reading kernel ring buffer">
+<meta name="keywords" content="logs, log, journalctl, systemd, dmesg, ring buffer, diagnostics, boot, priority, errors, journal">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="maintain">
+<meta name="prereqs" content="maintain, shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Truthful System Diagnostics and Logs</p>
+</nav>
+
+<h1>Truthful System Diagnostics and Logs</h1>
+
+<p>Truthful diagnostics require examining empirical system evidence rather than
+guessing. Tamlinux prioritizes clean log inspection through structured filtering
+of systemd journals and the kernel ring buffer.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Reading current system logs and dmesg</h2>
+
+<p><strong>Summary:</strong> View recent system service events and hardware kernel
+messages without losing context in an interactive pager.</p>
+
+<p><strong>Prerequisites:</strong> Basic command pipelines
+(<a href="shell/pipelines.html">Shell Pipelines</a>).</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+journalctl -n 20 --no-pager
+dmesg -T | tail -n 20
+</pre>
+
+<p>Expected output from <code>journalctl</code>:</p>
+
+<pre>
+Oct 14 12:00:01 bosgame-omarchy systemd[1]: Starting Daily man-db regeneration...
+Oct 14 12:00:03 bosgame-omarchy systemd[1]: man-db.service: Deactivated successfully.
+Oct 14 12:00:03 bosgame-omarchy systemd[1]: Finished Daily man-db regeneration.
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>journalctl -n 20 --no-pager</code> prints the last 20 log entries directly to the terminal stdout without launching a pager, ideal for scripts and quick checks.</li>
+<li><code>dmesg -T</code> prints kernel ring buffer messages with human-readable real-world timestamps (converting raw monotonic clock seconds since boot to calendar dates).</li>
+<li>Piping to <code>tail -n 20</code> isolates recent hardware driver events, USB attachments, or GPU power state transitions.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Do not run bare <code>journalctl</code> and scroll blindly through thousands of lines
+of routine informational messages. Use filtering flags to pinpoint the exact time
+window or service of interest.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to filter logs by boot cycle and priority in the intermediate section
+below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Targeted filtering by boot, unit, and priority</h2>
+
+<p><strong>Summary:</strong> Isolate specific service failures using boot markers,
+systemd unit selectors, and syslog priority thresholds.</p>
+
+<h3>Filtering by boot cycle</h3>
+
+<p>Query logs from the current session or a prior boot cycle:</p>
+
+<pre>
+journalctl -b          # current boot
+journalctl -b -1       # previous boot (e.g. before an unexpected reboot)
+journalctl --list-boots
+</pre>
+
+<h3>Filtering by unit and severity</h3>
+
+<p>Combine unit filters with standard syslog priority bounds:</p>
+
+<table>
+<tr><th>Priority</th><th>Severity Level</th><th>Description</th></tr>
+<tr><td>0</td><td>emerg</td><td>System is unusable.</td></tr>
+<tr><td>1</td><td>alert</td><td>Action must be taken immediately.</td></tr>
+<tr><td>2</td><td>crit</td><td>Critical hardware or kernel conditions.</td></tr>
+<tr><td>3</td><td>err</td><td>Error events preventing normal service operation.</td></tr>
+<tr><td>4</td><td>warning</td><td>Warning conditions that should be monitored.</td></tr>
+</table>
+
+<p>Filter only error, critical, alert, or emergency messages from a specific
+service during the current boot:</p>
+
+<pre>
+journalctl -u bluetooth.service -b -p err..emerg
+</pre>
+
+<h3>Completion task</h3>
+
+<p>Identify all system errors recorded across all units during the current boot.
+Fill in the missing priority range below (marked with <code>___</code>):</p>
+
+<pre>
+journalctl -b -p ___
+</pre>
+
+<p>Target output: stream containing only log entries of severity error (3) or worse.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>Use <code>-p err</code> (or <code>-p 3</code>) to filter everything at or above error severity.</li>
+<li>Verify system service status with <code>systemctl --failed</code>.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Kernel ring buffer mechanics and journal integrity</h2>
+
+<p><strong>Summary:</strong> Understand cyclic ring buffer allocation, persistent vs
+volatile journal storage, and verify binary journal integrity.</p>
+
+<h3>Kernel printk ring buffer</h3>
+
+<p>The Linux kernel records console messages in a fixed-size circular memory buffer
+allocated during early boot (<code>CONFIG_LOG_BUF_SHIFT</code>). Messages are emitted
+via <code>printk()</code> and read via the <code>/dev/kmsg</code> character device or
+the <code>syslog(2)</code> system call. Because the buffer is circular, high-frequency
+kernel logging will overwrite historical boot messages if not captured by a
+user-space log daemon like <code>systemd-journald</code>.</p>
+
+<h3>Verifying journal file integrity</h3>
+
+<p>Journal entries are stored as indexed binary files under
+<code>/var/log/journal/&lt;machine-id&gt;/</code>. If an ungraceful shutdown occurs
+(e.g. power loss), verify the cryptographic seal and structural integrity of the
+journal files:</p>
+
+<pre>
+journalctl --verify
+</pre>
+
+<p>To prevent logs from consuming excessive disk space while retaining essential
+audit history, vacuum older archives by storage capacity:</p>
+
+<pre>
+sudo journalctl --vacuum-size=500M
+</pre>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="maintain/power.html">The progressive power ladder</a> &mdash; understand sleep states and hardware wake.</li>
+<li><a href="maintain/recovery.html">Emergency disaster recovery</a> &mdash; recovery procedures when logs reveal critical faults.</li>
+<li><a href="maintain/index.html">System maintenance</a> &mdash; return to the maintenance track overview.</li>
+</ul>
+</body>
+</html>

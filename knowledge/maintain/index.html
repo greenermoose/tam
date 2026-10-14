@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>System Maintenance and Reliability</title>
+<meta name="topic" content="maintain">
+<meta name="summary" content="System maintenance, updates, rollbacks, logs, power, and emergency recovery">
+<meta name="keywords" content="maintain, maintenance, health, updates, rollback, logs, power, recovery, diagnostics, reliability">
+<meta name="level" content="beginner">
+<meta name="track" content="maintain">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / System Maintenance and Reliability</p>
+</nav>
+
+<h1>System Maintenance and Reliability</h1>
+
+<p>A dependable workstation is one whose state is understandable, observable,
+and reversible. Tamlinux structures system maintenance around five core
+pillars: non-disruptive updates, instant generation rollbacks, truthful
+diagnostics, progressive power management, and emergency recovery.</p>
+
+<h2>The five maintenance pillars</h2>
+
+<dl>
+<dt><a href="maintain/updates.html">Non-disruptive updates and package lifecycle</a></dt>
+<dd>Understand how Linux updates binaries in place without forced restarts
+through inode unlinking, and how Tamlinux organizes software into distinct,
+manageable package tiers.</dd>
+
+<dt><a href="maintain/rollback.html">Snapshots and generation rollbacks</a></dt>
+<dd>Leverage Copy-on-Write (CoW) filesystem mechanics with Btrfs snapshots and
+Home Manager generation rollbacks to make any software change reversible in
+seconds.</dd>
+
+<dt><a href="maintain/logs.html">Truthful system diagnostics and logs</a></dt>
+<dd>Isolate faults quickly by filtering systemd journal streams by boot, unit,
+and severity, and inspecting the kernel ring buffer with <code>dmesg</code>.</dd>
+
+<dt><a href="maintain/power.html">The progressive power ladder</a></dt>
+<dd>Follow the three-stage power progression from individual DPMS monitor
+blanking to RAM suspend and zero-watt S4 disk hibernation, using safe keyboard
+wake conventions.</dd>
+
+<dt><a href="maintain/recovery.html">Emergency disaster recovery</a></dt>
+<dd>Recover calmly from frozen graphical sessions or unbootable states using
+virtual consoles, the Magic SysRq (REISUB) sequence, and live USB chroot
+environments.</dd>
+</dl>
+
+<h2>Automated inspection and health checks</h2>
+
+<p>The <code>tam</code> command provides built-in tools to inspect your machine's
+maintenance readiness without modifying any system configuration:</p>
+
+<pre>
+tam install inspect
+tam install inspect --check
+</pre>
+
+<p>These commands evaluate host facts, check Btrfs snapshot support, verify
+available storage headroom, and audit privilege tools, deep-linking directly
+to the relevant maintenance guides above when findings arise.</p>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="hardware/resources.html">Resources and performance</a> &mdash; analyze RAM, ZRAM swap, and CPU load.</li>
+<li><a href="install/index.html">Installing Tamlinux</a> &mdash; overview of host preparation and layers.</li>
+<li><a href="index.html">Guide index</a> &mdash; return to the full table of contents.</li>
+</ul>
+</body>
+</html>

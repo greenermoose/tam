@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Non-Disruptive Updates and Package Lifecycle</title>
+<meta name="topic" content="updates">
+<meta name="summary" content="Inode unlinking, package tiering, and updating without disruptive reboots">
+<meta name="keywords" content="updates, update, package, packages, tiering, inode, unlink, pacman, mise, home-manager, tam-update, reboot">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="maintain">
+<meta name="prereqs" content="maintain, filesystem">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Non-Disruptive Updates and Package Lifecycle</p>
+</nav>
+
+<h1>Non-Disruptive Updates and Package Lifecycle</h1>
+
+<p>Linux updates running software without forcing disruptive system reboots.
+Tamlinux takes advantage of POSIX filesystem semantics to maintain software
+seamlessly across distinct package tiers.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Safe updates and package status</h2>
+
+<p><strong>Summary:</strong> Check for pending package updates and apply them
+confidently without interrupting active terminal workflows.</p>
+
+<p><strong>Prerequisites:</strong> Basic command execution
+(<a href="shell/index.html">The Shell and Streams</a>) and the
+<a href="maintain/index.html">System Maintenance</a> overview.</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+tam-update --check
+tam-update
+</pre>
+
+<p>Expected output when checking:</p>
+
+<pre>
+tam-update: checking package tiers...
+  [base]     3 packages upgradable (pacman)
+  [tamlinux] up to date (cultivar 0.4.2-d)
+  [tools]    up to date (mise)
+Run 'tam-update' to synchronize packages.
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>tam-update --check</code> inspects each configured package layer and reports pending upgrades without modifying disk state.</li>
+<li>When updates are applied, newly downloaded binaries are written to storage immediately while active processes continue running undisturbed.</li>
+<li>Unlike operating systems that lock active executable files on disk, Linux allows files in use to be replaced safely.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Do not reboot the entire machine after updating user packages or command-line
+utilities. A reboot is only strictly required when activating a newly installed
+Linux kernel or updated low-level system firmware.</p>
+
+<h3>Next step</h3>
+
+<p>Explore how Tamlinux organizes software into distinct, isolated layers in the
+intermediate section below, or learn how to roll back unwanted changes in
+<a href="maintain/rollback.html">Snapshots and Generation Rollbacks</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Package tiering architecture</h2>
+
+<p><strong>Summary:</strong> Understand the three-tier software model: base OS
+packages, Tamlinux product packages, and user development runtimes.</p>
+
+<h3>The three package tiers</h3>
+
+<table>
+<tr><th>Tier</th><th>Manager</th><th>Scope and Responsibility</th></tr>
+<tr><td>Base OS</td><td>pacman</td><td>Linux kernel, systemd init, glibc, Mesa graphics drivers, and hardware firmware.</td></tr>
+<tr><td>Tamlinux</td><td>tamlinux-packages / Nix</td><td>Desktop shell, tiling compositor plugins, libtam, and system lifecycle tools.</td></tr>
+<tr><td>User tools</td><td>mise</td><td>User-specific CLI utilities, compilers, language runtimes, and local developer tools.</td></tr>
+</table>
+
+<h3>Worked example</h3>
+
+<p>Trace which package management layer owns a specific command or file on your
+workstation:</p>
+
+<pre>
+pacman -Qo /usr/bin/bash
+which tam
+</pre>
+
+<p>Expected output:</p>
+
+<pre>
+/usr/bin/bash is owned by bash 5.2.037-1
+/usr/local/bin/tam
+</pre>
+
+<h3>Completion task</h3>
+
+<p>Identify which package manager and repository provides the <code>curl</code>
+binary on your system. Complete the command below by filling in the missing flag
+(marked with <code>___</code>):</p>
+
+<pre>
+pacman ___ /usr/bin/curl
+</pre>
+
+<p>Target output: <code>/usr/bin/curl is owned by curl &lt;version&gt;</code>.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The <code>-Q</code> option queries the local package database, and <code>-o</code> (owns) resolves a filesystem path to its owning package.</li>
+<li>Check the availability of package managers on your host with <code>tam install inspect</code>.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Inode unlinking mechanics and running process tracking</h2>
+
+<p><strong>Summary:</strong> Examine the filesystem mechanics of <code>unlink(2)</code>,
+directory entry deletion versus active inode reference counts, and identify
+processes holding replaced binaries.</p>
+
+<h3>POSIX inode unlinking semantics</h3>
+
+<p>In Unix and Linux filesystems, a directory entry is merely a hard link
+associating a filename with an underlying inode number. When a package manager
+installs an updated executable (e.g. <code>/usr/bin/nvim</code>):</p>
+
+<ol>
+<li>The package manager unpacks the new file to a temporary name in the same filesystem.</li>
+<li>It calls <code>rename(2)</code> or <code>unlink(2)</code> to point <code>/usr/bin/nvim</code> to the new inode.</li>
+<li>Any process currently running the old executable still retains an open file descriptor or memory mapping to the previous inode.</li>
+<li>The kernel maintains the previous inode data on disk as long as its open reference count exceeds zero. Storage space is freed only when the last running process closes the file or exits.</li>
+</ol>
+
+<h3>Inspecting unlinked files held open in memory</h3>
+
+<p>To detect running daemons or user processes that continue executing deleted or
+upgraded code on disk, query open file references with <code>lsof</code>:</p>
+
+<pre>
+lsof +L1
+</pre>
+
+<p>Any entry marked with a link count of 0 (<code>(deleted)</code>) indicates an
+active process running an unlinked inode. Restarting the specific service (via
+<code>systemctl restart &lt;unit&gt;</code>) or closing and re-opening the application
+smoothly migrates execution to the newly installed binary without disturbing other
+workstation workloads.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a> &mdash; restore prior system states instantly.</li>
+<li><a href="maintain/logs.html">Truthful system diagnostics and logs</a> &mdash; monitor service and kernel messages.</li>
+<li><a href="maintain/index.html">System maintenance</a> &mdash; return to the maintenance track overview.</li>
+</ul>
+</body>
+</html>

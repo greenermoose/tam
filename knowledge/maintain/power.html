@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Progressive Power Ladder</title>
+<meta name="topic" content="power">
+<meta name="summary" content="DPMS monitor blanking, RAM suspend, zero-watt S4 disk hibernation, and safe display wake">
+<meta name="keywords" content="power, dpms, blanking, suspend, sleep, s3, s2idle, hibernate, hibernation, s4, shift, wake, display">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="maintain">
+<meta name="prereqs" content="maintain, resources">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / The Progressive Power Ladder</p>
+</nav>
+
+<h1>The Progressive Power Ladder</h1>
+
+<p>Energy efficiency and hardware reliability go hand in hand. Tamlinux manages
+power through a deliberate, three-stage progression: individual monitor blanking,
+low-power RAM suspend, and zero-watt S4 disk hibernation.</p>
+
+<section data-level="beginner">
+<h2>Beginner: The 3-stage power progression and safe display wake</h2>
+
+<p><strong>Summary:</strong> Understand the three power tiers and practice safe display
+waking with the <code>Shift</code> key.</p>
+
+<p><strong>Prerequisites:</strong> Familiarity with hardware resources
+(<a href="hardware/resources.html">System Resources and Performance</a>).</p>
+
+<h3>The three power stages</h3>
+
+<ol>
+<li><strong>Stage 1 &mdash; DPMS monitor blanking:</strong> When inactive, monitors turn off their backlights and enter low-power standby individually. The system, network, and background tasks continue running at full speed.</li>
+<li><strong>Stage 2 &mdash; RAM suspend (sleep):</strong> The CPU powers down and memory enters self-refresh mode (S3 or s2idle). Power consumption drops to ~1–2 watts, and wake-up takes under 2 seconds.</li>
+<li><strong>Stage 3 &mdash; S4 disk hibernation:</strong> The exact state of physical RAM is written to disk swap, and the workstation powers off completely (0 watts). You can unplug power indefinitely and resume your desktop session exactly as you left it.</li>
+</ol>
+
+<h3>Safe display wake convention: the Shift key</h3>
+
+<p>When your screens blank or sleep, wake them by tapping the <strong>Shift</strong> key.
+Modifier keys like <code>Shift</code>, <code>Ctrl</code>, or <code>Alt</code> wake the
+display hardware and trigger compositor retrain without:</p>
+
+<ul>
+<li>Typing unintended letters into a focused terminal or chat window.</li>
+<li>Accidentally submitting form data or executing half-typed shell commands.</li>
+<li>Clicking arbitrary desktop buttons or links if a mouse was nudged.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Never click mouse buttons or strike the <code>Enter</code> key blindly to wake
+a dark screen. You cannot see what window holds input focus until the panel
+relocks signal and lights up.</p>
+
+<h3>Next step</h3>
+
+<p>Inspect power state capabilities and idle timers in the intermediate section
+below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Power state verification and DPMS controls</h2>
+
+<p><strong>Summary:</strong> Query kernel sleep modes in <code>/sys/power/</code> and
+control individual output power under Wayland.</p>
+
+<h3>Querying supported kernel power states</h3>
+
+<p>Inspect available low-power sleep states supported by your motherboard and
+firmware:</p>
+
+<pre>
+cat /sys/power/state
+cat /sys/power/mem_sleep
+</pre>
+
+<p>Expected output on modern hardware:</p>
+
+<pre>
+freeze mem disk
+s2idle [deep]
+</pre>
+
+<p>Brackets indicate the active sleep mode. <code>deep</code> (ACPI S3) powers down
+nearly all hardware clocks while refreshing RAM, whereas <code>s2idle</code>
+(Software Sleep / S0ix) is a kernel software idle loop.</p>
+
+<h3>Wayland DPMS output management</h3>
+
+<p>In a tiling Wayland desktop, query and control display power directly without
+touching X11 legacy tools:</p>
+
+<pre>
+wlopm --toggle DP-1
+</pre>
+
+<p>Alternatively, trigger immediate system suspend when stepping away:</p>
+
+<pre>
+systemctl suspend
+</pre>
+
+<h3>Completion task</h3>
+
+<p>Verify that your workstation detects a valid Direct Rendering Manager (DRM)
+graphics device for power management. Complete the check command below (marked with
+<code>___</code>):</p>
+
+<pre>
+tam install check ___
+</pre>
+
+<p>Target output: <code>[pass] graphics_card: DRM graphics device available</code>.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>Run <code>tam install check graphics_card</code> to evaluate the DRM controller state.</li>
+<li>Monitor battery discharge rate with <code>upower -d</code> on laptops.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Zero-watt S4 disk hibernation and swap image tuning</h2>
+
+<p><strong>Summary:</strong> Configure kernel hibernation image parameters, prevent
+allocation ENOMEM errors, and understand KMS output retraining.</p>
+
+<h3>The kernel hibernation cycle</h3>
+
+<p>When entering S4 hibernation (<code>systemctl hibernate</code>):</p>
+
+<ol>
+<li>User-space processes are frozen via the kernel refrigerator thread.</li>
+<li>The kernel snapshots all active memory pages into an atomic suspend image.</li>
+<li>The image is compressed and written out sequentially to the configured swap partition (specified by <code>resume=</code> in kernel boot parameters).</li>
+<li>The system executes ACPI power-down (S4 state).</li>
+</ol>
+
+<h3>Tuning image_size to avoid ENOMEM allocation faults</h3>
+
+<p>By default, the Linux kernel attempts to shrink the hibernation image to
+satisfy <code>/sys/power/image_size</code> (defaulting to ~2/5 of total RAM). If
+memory is heavily fragmented or allocated across pinned cache pages, the shrinker
+can encounter an allocation failure (<code>ENOMEM</code>):</p>
+
+<pre>
+# Force the kernel to allocate the smallest viable memory image
+echo 0 | sudo tee /sys/power/image_size
+</pre>
+
+<p>Setting <code>image_size=0</code> instructs the kernel memory subsystem to
+reclaim all clean page caches before writing the hibernate image, maximizing
+hibernation reliability on high-RAM workstations.</p>
+
+<h3>KMS output retraining upon wake</h3>
+
+<p>Upon wake from suspend or resume from S4, the kernel DRM/KMS driver retrains
+DisplayPort and HDMI links with physical monitors. In multi-monitor setups, panels
+retrain at slightly different rates. Tamlinux compositor hooks handle these
+transient output plug events smoothly without rearranging workspaces or losing window
+placements.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="maintain/logs.html">Truthful system diagnostics and logs</a> &mdash; inspect power state transition logs.</li>
+<li><a href="maintain/recovery.html">Emergency disaster recovery</a> &mdash; emergency procedures for unresponsive systems.</li>
+<li><a href="maintain/index.html">System maintenance</a> &mdash; return to the maintenance track overview.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,165 @@
+Guide / System Maintenance and Reliability / The Progressive Power Ladder
+
+The Progressive Power Ladder
+
+Depth: beginner, intermediate, expert. Every level is shown below; follow one to
+read only that depth.
+
+Energy efficiency and hardware reliability go hand in hand. Tamlinux manages
+power through a deliberate, three-stage progression: individual monitor
+blanking, low-power RAM suspend, and zero-watt S4 disk hibernation.
+
+Beginner: The 3-stage power progression and safe display wake
+
+Summary: Understand the three power tiers and practice safe display waking with
+the Shift key.
+
+Prerequisites: Familiarity with hardware resources ( System Resources and
+Performance).
+
+The three power stages
+
+1. Stage 1 — DPMS monitor blanking: When inactive, monitors turn off their
+   backlights and enter low-power standby individually. The system, network, and
+   background tasks continue running at full speed.
+2. Stage 2 — RAM suspend (sleep): The CPU powers down and memory enters
+   self-refresh mode (S3 or s2idle). Power consumption drops to ~1–2 watts,
+   and wake-up takes under 2 seconds.
+3. Stage 3 — S4 disk hibernation: The exact state of physical RAM is written
+   to disk swap, and the workstation powers off completely (0 watts). You can
+   unplug power indefinitely and resume your desktop session exactly as you left
+   it.
+
+Safe display wake convention: the Shift key
+
+When your screens blank or sleep, wake them by tapping the Shift key. Modifier
+keys like Shift, Ctrl, or Alt wake the display hardware and trigger compositor
+retrain without:
+
+- Typing unintended letters into a focused terminal or chat window.
+- Accidentally submitting form data or executing half-typed shell commands.
+- Clicking arbitrary desktop buttons or links if a mouse was nudged.
+
+Common pitfall
+
+Never click mouse buttons or strike the Enter key blindly to wake a dark screen.
+You cannot see what window holds input focus until the panel relocks signal and
+lights up.
+
+Next step
+
+Inspect power state capabilities and idle timers in the intermediate section
+below.
+
+Intermediate: Power state verification and DPMS controls
+
+Summary: Query kernel sleep modes in /sys/power/ and control individual output
+power under Wayland.
+
+Querying supported kernel power states
+
+Inspect available low-power sleep states supported by your motherboard and
+firmware:
+
+  
+  cat /sys/power/state
+  cat /sys/power/mem_sleep
+  
+
+Expected output on modern hardware:
+
+  
+  freeze mem disk
+  s2idle [deep]
+  
+
+Brackets indicate the active sleep mode. deep (ACPI S3) powers down nearly all
+hardware clocks while refreshing RAM, whereas s2idle (Software Sleep / S0ix) is
+a kernel software idle loop.
+
+Wayland DPMS output management
+
+In a tiling Wayland desktop, query and control display power directly without
+touching X11 legacy tools:
+
+  
+  wlopm --toggle DP-1
+  
+
+Alternatively, trigger immediate system suspend when stepping away:
+
+  
+  systemctl suspend
+  
+
+Completion task
+
+Verify that your workstation detects a valid Direct Rendering Manager (DRM)
+graphics device for power management. Complete the check command below (marked
+with ___):
+
+  
+  tam install check ___
+  
+
+Target output: [pass] graphics_card: DRM graphics device available.
+
+Verification hints
+
+- Run tam install check graphics_card to evaluate the DRM controller state.
+- Monitor battery discharge rate with upower -d on laptops.
+
+Expert: Zero-watt S4 disk hibernation and swap image tuning
+
+Summary: Configure kernel hibernation image parameters, prevent allocation
+ENOMEM errors, and understand KMS output retraining.
+
+The kernel hibernation cycle
+
+When entering S4 hibernation ( systemctl hibernate):
+
+1. User-space processes are frozen via the kernel refrigerator thread.
+2. The kernel snapshots all active memory pages into an atomic suspend image.
+3. The image is compressed and written out sequentially to the configured swap
+   partition (specified by resume= in kernel boot parameters).
+4. The system executes ACPI power-down (S4 state).
+
+Tuning image_size to avoid ENOMEM allocation faults
+
+By default, the Linux kernel attempts to shrink the hibernation image to satisfy
+/sys/power/image_size (defaulting to ~2/5 of total RAM). If memory is heavily
+fragmented or allocated across pinned cache pages, the shrinker can encounter an
+allocation failure ( ENOMEM):
+
+  
+  # Force the kernel to allocate the smallest viable memory image
+  echo 0 | sudo tee /sys/power/image_size
+  
+
+Setting image_size=0 instructs the kernel memory subsystem to reclaim all clean
+page caches before writing the hibernate image, maximizing hibernation
+reliability on high-RAM workstations.
+
+KMS output retraining upon wake
+
+Upon wake from suspend or resume from S4, the kernel DRM/KMS driver retrains
+DisplayPort and HDMI links with physical monitors. In multi-monitor setups,
+panels retrain at slightly different rates. Tamlinux compositor hooks handle
+these transient output plug events smoothly without rearranging workspaces or
+losing window placements.
+
+Where to next
+
+- Truthful system diagnostics and logs — inspect power state transition logs.
+- Emergency disaster recovery — emergency procedures for unresponsive systems.
+- System maintenance — return to the maintenance track overview.
+
+Links:
+  [1] index.html
+  [2] maintain/index.html
+  [3] maintain/power.html?level=beginner
+  [4] maintain/power.html?level=intermediate
+  [5] maintain/power.html?level=expert
+  [6] hardware/resources.html
+  [7] maintain/logs.html
+  [8] maintain/recovery.html
