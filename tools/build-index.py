@@ -8,6 +8,12 @@ intermediate, expert); a page offering more than one wraps each depth in
 <section data-level="..."> (the content-depth ladder). The build fails on
 unknown levels or tracks, on prerequisites that name no topic, and on
 laddered pages whose sections do not match their declared levels.
+
+Every page below the top level also carries a breadcrumb nav before its <h1>,
+so a reader always knows where a page sits in the guide. Its ancestor crumbs
+link to the guide index and the page's section index; the final crumb is the
+page itself, as plain text. The build fails on a missing, misplaced or
+inaccurate breadcrumb, and on a top-level page that carries one.
 """
 
 import json
@@ -118,6 +124,65 @@ def parse_page(path, rel_path, errors):
     }
 
 
+BREADCRUMB_RE = re.compile(
+    r'<nav[^>]*\baria-label\s*=\s*["\']Breadcrumb["\'][^>]*>(.*?)</nav>',
+    re.I | re.S)
+LINK_RE = re.compile(r'<a\b[^>]*href\s*=\s*["\']([^"\']+)["\'][^>]*>(.*?)</a>',
+                     re.I | re.S)
+
+
+def page_h1(text):
+    m = re.search(r'<h1>(.*?)</h1>', text, re.I | re.S)
+    return re.sub(r'<[^>]+>', '', m.group(1)).strip() if m else ""
+
+
+def breadcrumb_parts(text):
+    """Return (ancestors, current) from the breadcrumb nav, or None.
+
+    ancestors is the list of (href, label) pairs; current is the trailing
+    plain-text crumb naming the page itself."""
+    m = BREADCRUMB_RE.search(text)
+    if not m:
+        return None
+    body = m.group(1)
+    ancestors = [(href, re.sub(r'<[^>]+>', '', label).strip())
+                 for href, label in LINK_RE.findall(body)]
+    pos = body.rfind('</a>')
+    tail = body[pos + 4:] if pos != -1 else body
+    current = re.sub(r'<[^>]+>', '', tail).strip().lstrip('/').strip()
+    return ancestors, current
+
+
+def check_breadcrumbs(knowledge_dir, errors):
+    pages = {}
+    for html_file in sorted(knowledge_dir.rglob("*.html")):
+        pages[html_file.relative_to(knowledge_dir).as_posix()] = \
+            html_file.read_text(encoding="utf-8")
+
+    h1 = {rel: page_h1(text) for rel, text in pages.items()}
+
+    for rel, text in pages.items():
+        parts = breadcrumb_parts(text)
+        if "/" not in rel:
+            if parts is not None:
+                errors.append(f"{rel}: top-level page must not carry a breadcrumb")
+            continue
+        if parts is None:
+            errors.append(f"{rel}: missing breadcrumb")
+            continue
+        section, want = rel.split("/")[0], [("index.html", "Guide")]
+        if rel != f"{section}/index.html" and f"{section}/index.html" in pages:
+            want.append((f"{section}/index.html", h1[f"{section}/index.html"]))
+        if parts[0] != want:
+            errors.append(
+                f"{rel}: breadcrumb ancestors {parts[0]} do not match "
+                f"{want}")
+        if parts[1] != h1[rel]:
+            errors.append(
+                f"{rel}: breadcrumb names {parts[1]!r} but the page's <h1> "
+                f"is {h1[rel]!r}")
+
+
 def main():
     root = Path(__file__).resolve().parent.parent
     knowledge_dir = root / "knowledge"
@@ -138,6 +203,8 @@ def main():
         for p in e["prereqs"]:
             if p not in topics:
                 errors.append(f"{e['path']}: prerequisite {p!r} is not a topic")
+
+    check_breadcrumbs(knowledge_dir, errors)
 
     if errors:
         for message in errors:
