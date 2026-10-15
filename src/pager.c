@@ -613,10 +613,18 @@ static void draw(pager_t *st)
         snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (%d%%)", st->top + 1, st->doc->nlines, pct);
     }
 
-    int off = snprintf(status, sizeof(status),
+    int off;
+    if (st->doc->nav_next != NULL || st->doc->nav_prev != NULL || st->doc->nav_up != NULL) {
+        off = snprintf(status, sizeof(status),
+                       " %s  |  %s  |  n/p next/prev  u up  t top  d dir  ` index  "
+                       "Tab/S-Tab link  Enter open  q quit",
+                       title, pos_metric);
+    } else {
+        off = snprintf(status, sizeof(status),
                        " %s  |  %s  |  / find  n/N next  Tab/S-Tab link  Enter/\xe2\x86\x92 open  "
                        "` index  u/\xe2\x86\x90 back  q/Esc quit",
                        title, pos_metric);
+    }
     if (st->msg[0] != '\0') {
         off += snprintf(status + off, sizeof(status) - (size_t)off, "  [%s]",
                         st->msg);
@@ -878,7 +886,22 @@ static void handle_key(pager_t *st, unsigned char c)
     case 'n':
         if (st->search_query[0] != '\0') {
             pager_next_hit(st, 1);
+        } else if (st->doc->nav_next != NULL) {
+            follow(st, st->doc->nav_next);
         }
+        break;
+    case 'p':
+        if (st->doc->nav_prev != NULL) {
+            follow(st, st->doc->nav_prev);
+        }
+        break;
+    case 't':
+        if (st->doc->nav_top != NULL) {
+            follow(st, st->doc->nav_top);
+        }
+        break;
+    case 'd':
+        follow(st, "info:dir");
         break;
     case 'j':
         st->top++;
@@ -914,7 +937,11 @@ static void handle_key(pager_t *st, unsigned char c)
         break;
     }
     case 'u':
-        go_back(st);
+        if (st->doc->nav_up != NULL) {
+            follow(st, st->doc->nav_up);
+        } else {
+            go_back(st);
+        }
         break;
     case '`':
         if (strcmp(st->cur_href, "index.html") != 0) {

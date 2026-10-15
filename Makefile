@@ -25,12 +25,12 @@ LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
 RPATH         ?= -Wl,-rpath,$(LIBTAM_PREFIX)/lib
 
 LDFLAGS  ?=
-LDLIBS   ?=
+LDLIBS   ?= -lz
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/render.c src/pager.c src/install.c src/man.c src/index.c src/depth.c src/ask.c
-DEPS  := src/version.h src/render.h src/pager.h src/install.h src/man.h src/index.h src/depth.h src/ask.h
+SRC   := src/tam.c src/render.c src/pager.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c
+DEPS  := src/version.h src/render.h src/pager.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h
 INDEX := knowledge/index.tsv knowledge/index.json
 
 # A build from a Git checkout reports its commit in --version; packaged
@@ -93,6 +93,7 @@ install: all
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
 	install -m 755 bin/tam-man $(DESTDIR)$(BINDIR)/tam-man
+	install -m 755 bin/tam-info $(DESTDIR)$(BINDIR)/tam-info
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
@@ -104,6 +105,7 @@ install: all
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
 	rm -f $(DESTDIR)$(BINDIR)/tam-man
+	rm -f $(DESTDIR)$(BINDIR)/tam-info
 	rm -rf $(DESTDIR)$(DATADIR)
 	rm -f $(DESTDIR)$(MANDIR)/man1/tam.1
 	rm -f $(DESTDIR)$(BASHCOMPDIR)/tam

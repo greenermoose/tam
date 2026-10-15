@@ -30,6 +30,10 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .IR PAGE
 .RI [ --pipe ]
 .br
+.B tam info
+.RI [ MANUAL \ [ NODE ]]
+.RI [ --pipe ]
+.br
 .B tam inspect
 .RI [ --json | --check \ [ ID ]]
 .RI [ --terse ]
@@ -115,6 +119,15 @@ and section headings are automatically turned into active hyperlinks that can be
 and
 .BR Enter .
 .TP
+.B tam info \fR[\fIMANUAL\fR [\fINODE\fR]] [\fB\-\-pipe\fR]
+Browse system-wide GNU Texinfo reference manuals with hyperlinked menus, cross-references, and node navigation. Bare
+.B tam info
+opens the top-level Info directory catalog (\fI(dir)Top\fR), categorizing all installed manuals on the host. Specifying
+.I MANUAL
+opens that manual's \fITop\fR node; specifying
+.I NODE
+navigates directly to that specific section (e.g. \fBtam info coreutils "head invocation"\fR). In interactive mode, dedicates keys \fBn\fR (next node), \fBp\fR (previous node), \fBu\fR (parent node), \fBt\fR (top node), and \fBd\fR (directory catalog).
+.TP
 .B tam inspect \fR[\fB\-\-json\fR|\fB\-\-check\fR [\fIID\fR]] [\fB\-\-terse\fR]
 Inspect host state, kernel version, hardware architecture, mount points, DRM graphics devices, package managers, and privilege escalation. With
 .BR \-\-check ,
@@ -142,8 +155,9 @@ and the installed Tamlinux cultivar.
 When viewing pages with
 .BR "tam show" ,
 .BR "tam explain" ,
-or
 .BR "tam man" ,
+or
+.BR "tam info" ,
 the interactive pager provides the following controls:
 .TP
 .BR j ", " Down
@@ -172,13 +186,24 @@ Follow the selected hyperlink. When no link is selected,
 .B Right
 advances forward along previously visited history.
 .TP
+.BR n ", " p
+In GNU Info manuals, navigate to the Next or Previous sibling node. When search is active,
+.BR n / N
+cycles through search matches instead.
+.TP
 .BR u ", " Left
-Go back to the previous document in the navigation history.
+Navigate up to the parent node in an Info manual, or go back to the previous document in navigation history.
+.TP
+.B t
+Jump directly to the \fITop\fR node of the current Info manual.
+.TP
+.B d
+Jump directly to the root Info directory catalog (\fI(dir)Top\fR).
 .TP
 .B ` \fR(backtick)\fP
 Return immediately to the root User Guide index (
 .I index.html
-) from any depth or manual page.
+) from any depth, manual page, or Info node.
 .TP
 .B /
 Search for text in the current document. Press

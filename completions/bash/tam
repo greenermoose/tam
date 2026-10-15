@@ -6,7 +6,7 @@ _tam_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local subcommands="show welcome explain search man inspect check install ask help"
+    local subcommands="show welcome explain search man info inspect check install ask help"
     local global_flags="--help -h --pipe --terse --verbose --version -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
@@ -49,6 +49,13 @@ _tam_completions() {
         man)
             COMPREPLY=($(compgen -W "--help --pipe" -- "$cur"))
             ;;
+        info)
+            if [[ "$cur" == -* ]]; then
+                COMPREPLY=($(compgen -W "--help -h --pipe" -- "$cur"))
+            else
+                COMPREPLY=($(compgen -W "bash coreutils libc make gcc gdb grep sed tar find diffutils gzip readline binutils bison flex autoconf automake cpio as ld cpp gnupg gnutls --help -h --pipe" -- "$cur"))
+            fi
+            ;;
         ask)
             if [ "$prev" = "--model" ] || [ "$prev" = "--server" ]; then
                 COMPREPLY=()
@@ -61,4 +68,4 @@ _tam_completions() {
     esac
 }
 
-complete -F _tam_completions tam
+complete -F _tam_completions tam tam-man tam-info

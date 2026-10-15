@@ -3,6 +3,7 @@
 #include "ask.h"
 #include "depth.h"
 #include "index.h"
+#include "info.h"
 #include "install.h"
 #include "man.h"
 #include "pager.h"
@@ -123,6 +124,7 @@ static void print_tam_help(int tier)
             "Essential Subcommands:\n"
             "  tam welcome                   first-run orientation\n"
             "  tam show [PAGE]               open guide or specific page\n"
+            "  tam info [MANUAL]             browse GNU Info manuals\n"
             "  tam inspect                   inspect system health\n\n"
             "Essential Options:\n"
             "  --help, -h | --pipe | --terse | --verbose | --version, -V\n",
@@ -150,6 +152,8 @@ static void print_tam_help(int tier)
             "      interactive or plain-text catalog of all available topics\n"
             "  tam man [SECTION] PAGE [--pipe]\n"
             "      hyperlinked manual page viewer with interactive cross-reference navigation\n"
+            "  tam info [MANUAL [NODE]] [--pipe]\n"
+            "      browse GNU Info manuals with hyperlinked menus and cross-references\n"
             "  tam ask [--json] [--model MODEL] [--server URL] QUESTION\n"
             "      query a local AI model for answers from the guide to any question\n\n"
             "System subcommands:\n"
@@ -190,6 +194,7 @@ static void print_tam_help(int tier)
         "  tam search KEYWORD...     search guide deterministically\n"
         "  tam explain [TOPIC]       browse all topics or show a topic\n"
         "  tam man [SECTION] PAGE    view hyperlinked manual page\n"
+        "  tam info [MANUAL [NODE]]  browse GNU Info manuals\n"
         "  tam ask QUESTION          ask a local AI model (if available)\n\n"
         "System subcommands to try:\n"
         "  tam inspect               inspect system components\n"
@@ -479,6 +484,9 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
     if (strncmp(href, "man:", 4) == 0) {
         return tam_man_load(href + 4, ctx->width);
     }
+    if (strncmp(href, "info:", 5) == 0) {
+        return tam_info_load(href + 5, ctx->width);
+    }
     if (strncmp(href, "tam:topics", 10) == 0) {
         unsigned level = 0;
         const char *q = strstr(href, "?level=");
@@ -735,6 +743,33 @@ static int cmd_show(int n, char **args)
             ctx.root = root;
             ctx.width = width;
             rc = tam_pager_run(doc, "tam:topics", corpus_load, &ctx);
+        } else {
+            char *text = tam_document_text(doc);
+            if (text != NULL) {
+                fputs(text, stdout);
+                free(text);
+            }
+            tam_document_free(doc);
+        }
+        free(root);
+        return rc;
+    }
+
+    if (page != NULL && strncmp(page, "info:", 5) == 0) {
+        int interactive = !pipe && isatty(STDOUT_FILENO);
+        int width = interactive ? tam_terminal_width() : 80;
+        tam_document_t *doc = tam_info_load(page + 5, width);
+        if (doc == NULL) {
+            fprintf(stderr, TAM_COMMAND_NAME ": no info manual or node found for '%s'\n", page + 5);
+            free(root);
+            return TAM_EXIT_FAILURE;
+        }
+        int rc = 0;
+        if (interactive) {
+            corpus_ctx_t ctx;
+            ctx.root = root;
+            ctx.width = width;
+            rc = tam_pager_run(doc, page, corpus_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) {
@@ -1230,6 +1265,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "man") == 0) {
         return tam_cmd_man(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "info") == 0) {
+        return tam_cmd_info(argc - 2, argv + 2);
     }
     if (strcmp(arg, "ask") == 0) {
         return tam_cmd_ask(argc - 2, argv + 2);

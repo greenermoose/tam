@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.21.0`.  
+**Reviewed:** 2026-10-15. **Owner:** Fred. **Current Command Version:** `0.22.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -48,29 +48,28 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 | **0.19.0** | Milestone 11: "Maintain" Track Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Maintain" track knowledge pages: `maintain/index.html` (hub), `maintain/updates.html` (inode unlinking, package tiering), `maintain/rollback.html` (Btrfs CoW snapshots, Home Manager generations), `maintain/logs.html` (journalctl filtering, kernel ring buffer), `maintain/power.html` (power ladder, Shift-key wake), `maintain/recovery.html` (virtual consoles, REISUB, chroot repair); Beginner/Intermediate/Expert fading templates; two-pass exact-topic alias resolution in `src/index.c`. |
 | **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | Done (2026-10-14) | Re-architected `knowledge/index.html` into comprehensive 7-part Table of Contents ("The Tamlinux User Guide") reflecting Fred's triad (Using, Maintaining, Improving); authored `knowledge/ecosystem/terminology.html` (Greenhouse, Pot, Nut, Root-stock, Cultivar analogy) with fading templates; authored UNIX section 1 manual page `man/tam.1` installed to `$(MANDIR)/man1/tam.1`; updated `src/man.c` and `src/tam.c` for `tam show topics` and dev man page lookup; bumped version to 0.20.0. |
 | **0.21.0** | Milestone 13: "Improve" Track Knowledge Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Improve" track knowledge pages: `improve/index.html` (hub), `improve/efficiency.html` (zero-polling, inotify, epoll, Wayland sockets), `improve/zram.html` (compressed RAM swap, zsmalloc, LZ4/zstd), `improve/terminal.html` (sub-10ms shell startup, Micro editor live reload Virtue V11, foot terminal), `improve/scripting.html` (strict Bash headers set -euo pipefail, safe arguments "$@", tam-* vs fred-* Decision D131), `improve/toolchains.html` (native C compilation, -O2, -march=native, isolated Git worktrees, tam-work concurrency), and `improve/ai-performance.html` (physics of local autoregressive generation, memory bandwidth bounds, quantization tradeoffs); Beginner/Intermediate/Expert fading templates; updated User Guide Part V links; bumped version to 0.21.0. |
+| **0.22.0** | Milestone 14: Native GNU Info Subsystem | Done (2026-10-15) | Native C GNU Info reader (`src/info.c`, `src/info.h`) parsing `.info` and `.info.gz` files along `$INFOPATH` and `/usr/share/info/`; top-level directory browser (`tam info`), targeted manual and node lookup (`tam info MANUAL [NODE]`), tag table and indirect subfile support; hyperlinked menus, cross-references (`*Note`), and man links (`man:`); dedicated pager navigation keys (`n`, `p`, `u`, `t`, `d`); cross-system `info:` URI resolution in `tam show` and `tam man`; `bin/tam-info` wrapper; Bash shell completions; User Guide and man page cross-links; bumped version to 0.22.0. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.22.0** (Native GNU Info Subsystem: `tam info`). Unify system documentation by adding GNU Info as an authoritative, first-class documentation layer alongside system manual pages (`tam man`) and the curated guide (`tam show`).
+The immediate priority for `tam` is implementing **Version 0.23.0** (The "Why" Axis: Architectural Rationale & Excluded Packages). Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
 
-### Version 0.22.0 — Native GNU Info Subsystem (`tam info`)
+### Version 0.23.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
 
-- **Top-Level Directory & Manual Browsing:**
-  - `tam info`: Launches the built-in pager at the top-level Info Directory (`(dir)Top` from `/usr/share/info/dir`), presenting a categorized, hyperlinked catalog of all 80+ installed manuals.
-  - `tam info MANUAL [NODE]`: Direct command-line jump into any manual (e.g. `coreutils`, `bash`, `libc`, `gcc`, `make`, `gdb`) and specific sub-node.
-- **Native Info Parser & Node Navigation Engine (`src/info.c`, `src/info.h`):**
-  - Parse `.info` and `.info.gz` files along `$INFOPATH` and `/usr/share/info/`.
-  - Parse node headers (`\x1F`, `Node`, `Next`, `Prev`, `Up`) and tag tables for constant-time $O(1)$ node jumping.
-  - Convert downward menus (`* Menu:`) into interactive hyperlinked lists (`<ul class="info-menu"><li><a href="...">`).
-  - Transform inline cross-references (`*Note ...`) and manual links (`man:`) into live hyperlinks.
-- **Cross-Subsystem Hypertext Traversal:**
-  - Virtual URI routing `info:MANUAL[/NODE]` in `src/tam.c` (`cmd_show` and `corpus_load`), allowing seamless hyperlink navigation across the Curated Guide, Unix manual pages, and GNU Info books.
-  - Pager node navigation keys: `n` (Next node), `p` (Prev node), `u` (Up to parent node), `t` (Top node), `d` (Directory index), `` ` `` (Guide index).
-- **Tooling & Shell Integration:**
-  - Provide `bin/tam-info` shell wrapper script (mirroring `bin/tam-man`).
-  - Add static Bash shell completions for `tam info <TAB>`.
+- **`tam why <topic|package>` Command:**
+  - Provide concise, evidence-based architectural rationale for core Tamlinux decisions.
+  - Uniform 4-part structure for every decision:
+    1. **Decision:** What Tamlinux chose.
+    2. **Alternatives Considered:** What else was evaluated and what merits it had.
+    3. **Tradeoffs & Evidence:** Why the alternative was rejected here (citing Virtues V01–V14 and Faults A–G).
+    4. **Reopen Trigger:** What specific technical condition would prompt reopening the choice.
+- **Excluded Packages Registry:**
+  - Explain deliberate omissions: why Sway instead of Hyprland (ABI stability), why runit instead of systemd (simplicity and deterministic speed), why native C instead of Electron/Python daemons (resource respect), why zero-polling.
+  - Provide self-determination install routes: clear instructions on how users can install excluded packages if they choose.
+- **Public Rationale Projection:**
+  - Build-time tool generating the published rationale pages from reviewed decision summaries.
 
 ---
 

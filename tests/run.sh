@@ -61,7 +61,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h, help, --terse, and --verbose"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.21.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.22.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -197,16 +197,16 @@ t3 = send_and_get_target(b"\x1b[Z")
 assert t3 == "welcome.html", f"expected welcome.html, got {t3}"
 # 4. Shift-Tab from first link wraps backward to last link
 t4 = send_and_get_target(b"\x1b[Z")
-assert t4 == "man/index.html", f"expected man/index.html, got {t4}"
+assert t4 == "info:dir", f"expected info:dir, got {t4}"
 # 5. Shift-Tab variants (CSI 1;2Z, Kitty 9;2u, modifyOtherKeys 27;2;9~, N fallback)
 t5 = send_and_get_target(b"\x1b[1;2Z")
-assert t5 == "man:tam(1)", f"expected man:tam(1), got {t5}"
+assert t5 == "man/index.html", f"expected man/index.html, got {t5}"
 t6 = send_and_get_target(b"\x1b[9;2u")
-assert t6 == "tam:topics", f"expected tam:topics, got {t6}"
+assert t6 == "man:tam(1)", f"expected man:tam(1), got {t6}"
 t7 = send_and_get_target(b"\x1b[27;2;9~")
-assert t7 == "ecosystem/sustainability.html", f"expected ecosystem/sustainability.html, got {t7}"
+assert t7 == "tam:topics", f"expected tam:topics, got {t7}"
 t8 = send_and_get_target(b"N")
-assert t8 == "ecosystem/ai.html", f"expected ecosystem/ai.html, got {t8}"
+assert t8 == "ecosystem/sustainability.html", f"expected ecosystem/sustainability.html, got {t8}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -999,6 +999,72 @@ if "$TAM" man 1 nonexistent_xyz >/dev/null 2>&1; then fail "missing section man 
 "$TAM" man 1 nonexistent_xyz 2>&1 | grep -q "in section 1" || fail "missing section diagnostic unclear"
 pass "man subcommand, cross-reference hyperlinking, and error handling"
 
+# -----------------------------------------------------------------------------
+# Milestone 14: GNU Info Subsystem (tam info)
+# -----------------------------------------------------------------------------
+# Wrapper script bin/tam-info delegates to tam info.
+if [ -x "$root/bin/tam-info" ]; then
+    info_wrap=$("$root/bin/tam-info" --pipe)
+    printf '%s\n' "$info_wrap" | grep -q 'GNU Info Directory' || fail "tam-info wrapper failed to render directory"
+    pass "tam-info wrapper script executes and renders directory catalog"
+fi
+
+# Directory catalog rendering under --pipe
+info_dir=$("$TAM" info --pipe)
+printf '%s\n' "$info_dir" | grep -q 'GNU Info Directory' || fail "tam info --pipe missing title"
+printf '%s\n' "$info_dir" | grep -q 'Coreutils' || fail "tam info --pipe missing Coreutils"
+printf '%s\n' "$info_dir" | grep -q 'info:coreutils' || fail "tam info --pipe missing info:coreutils link"
+
+# Manual top node rendering (coreutils)
+info_core=$("$TAM" info coreutils --pipe)
+printf '%s\n' "$info_core" | grep -q 'GNU Coreutils' || fail "tam info coreutils missing title"
+printf '%s\n' "$info_core" | grep -q 'Node: Top' || fail "tam info coreutils missing Node: Top"
+
+# Targeted node lookup (head invocation)
+info_head=$("$TAM" info coreutils "head invocation" --pipe)
+printf '%s\n' "$info_head" | grep -q 'Node: head invocation' || fail "tam info coreutils 'head invocation' missing node header"
+printf '%s\n' "$info_head" | grep -q "Output the first part of files" || fail "tam info coreutils 'head invocation' missing body text"
+printf '%s\n' "$info_head" | grep -q "info:coreutils/Common options" || fail "tam info coreutils missing linkified cross reference"
+
+# Split manual lookup (libc)
+info_libc=$("$TAM" info libc --pipe)
+printf '%s\n' "$info_libc" | grep -q 'The GNU C Library Reference Manual' || fail "tam info libc missing title"
+info_libc_sub=$("$TAM" info libc "Unconstrained Allocation" --pipe)
+printf '%s\n' "$info_libc_sub" | grep -q 'Unconstrained Allocation' || fail "tam info libc indirect subfile node lookup failed"
+
+# Virtual URI routing in tam show
+info_show=$("$TAM" show info:coreutils --pipe)
+printf '%s\n' "$info_show" | grep -q 'GNU Coreutils' || fail "tam show info:coreutils failed"
+info_show_node=$("$TAM" show "info:coreutils/head invocation" --pipe)
+printf '%s\n' "$info_show_node" | grep -q 'head invocation' || fail "tam show info:coreutils/head invocation failed"
+
+# Piped output has no escape sequences
+if "$TAM" info coreutils --pipe | grep -q "$esc"; then
+    fail "piped info output contains escape sequences"
+fi
+
+# Error handling
+set +e
+"$TAM" info nonexistent_man_xyz >/dev/null 2>&1
+rc_no_man=$?
+"$TAM" info coreutils nonexistent_node_xyz >/dev/null 2>&1
+rc_no_node=$?
+"$TAM" info --unknown-flag >/dev/null 2>&1
+rc_flag=$?
+"$TAM" info a b c >/dev/null 2>&1
+rc_args=$?
+set -e
+[ "$rc_no_man" -eq 1 ] || fail "expected exit 1 on nonexistent manual, got $rc_no_man"
+[ "$rc_no_node" -eq 1 ] || fail "expected exit 1 on nonexistent node, got $rc_no_node"
+[ "$rc_flag" -eq 2 ] || fail "expected exit 2 on unknown flag, got $rc_flag"
+[ "$rc_args" -eq 2 ] || fail "expected exit 2 on too many args, got $rc_args"
+
+# Help output
+"$TAM" info --help | grep -q 'tam info - browse GNU Info manuals' || fail "tam info --help missing title"
+"$TAM" info -h | grep -q 'Usage:' || fail "tam info -h missing usage"
+
+pass "tam info subcommand, node parsing, cross-references, and error handling"
+
 # Shell completion scripts verification (Tamlinux supports bash)
 bash -n "$root/completions/bash/tam" || fail "bash completion syntax error"
 
@@ -1011,6 +1077,7 @@ _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
 printf '%s\n' "$bash_test" | grep -q 'show' || fail "bash completion missing show subcommand"
+printf '%s\n' "$bash_test" | grep -q 'info' || fail "bash completion missing info subcommand"
 printf '%s\n' "$bash_test" | grep -q 'inspect' || fail "bash completion missing inspect subcommand"
 printf '%s\n' "$bash_test" | grep -q 'check' || fail "bash completion missing check subcommand"
 printf '%s\n' "$bash_test" | grep -q 'install' || fail "bash completion missing install subcommand"
@@ -1101,6 +1168,17 @@ printf '%s\n' "$bash_ask_test" | grep -q -- '--model' || fail "bash completion m
 printf '%s\n' "$bash_ask_test" | grep -q -- '--server' || fail "bash completion missing ask --server"
 printf '%s\n' "$bash_ask_test" | grep -q -- '--json' || fail "bash completion missing ask --json"
 printf '%s\n' "$bash_ask_test" | grep -q -- '--pipe' || fail "bash completion missing ask --pipe"
+
+bash_info_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam info "")
+COMP_CWORD=2
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_info_test" | grep -q 'coreutils' || fail "bash completion missing info coreutils"
+printf '%s\n' "$bash_info_test" | grep -q 'bash' || fail "bash completion missing info bash"
+printf '%s\n' "$bash_info_test" | grep -q -- '--pipe' || fail "bash completion missing info --pipe"
 
 pass "static bash shell auto-completion script"
 

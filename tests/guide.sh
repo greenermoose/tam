@@ -78,17 +78,19 @@ pass "extensionless page names resolve"
 # (resolved against the knowledge root, never the page's own directory).
 broken=""
 for p in $pages; do
-    for href in $(grep -o 'href="[^"]*"' "$knowledge/$p.html" 2>/dev/null \
-                  | sed 's/href="//; s/"$//'); do
+    while IFS= read -r href; do
+        [ -z "$href" ] && continue
         case $href in
-            *://*|mailto:*|\#*|man:*|tam:*) continue ;;
+            *://*|mailto:*|\#*|man:*|tam:*|info:*) continue ;;
         esac
         case $href in
             /*|*..*) broken="$broken $p->$href"; continue ;;
         esac
         href_path=${href%%\?*}
         [ -f "$knowledge/$href_path" ] || broken="$broken $p->$href"
-    done
+    done <<EOF
+$(grep -o 'href="[^"]*"' "$knowledge/$p.html" 2>/dev/null | sed 's/href="//; s/"$//')
+EOF
 done
 [ -z "$broken" ] || fail "broken internal links:$broken"
 pass "internal links resolve to files"

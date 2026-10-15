@@ -32,6 +32,10 @@ typedef struct {
     char       *title;
     tam_line_t *lines;
     size_t      nlines;
+    char       *nav_next;
+    char       *nav_prev;
+    char       *nav_up;
+    char       *nav_top;
 } tam_document_t;
 
 /* Parse an HTML subset (len bytes) and lay it out to `width` columns. */

@@ -439,6 +439,11 @@ typedef struct {
     int          in_tr;
     int          in_cell;
     int          cell_is_header;
+
+    char        *nav_next;
+    char        *nav_prev;
+    char        *nav_up;
+    char        *nav_top;
 } parser_t;
 
 static void list_push(parser_t *p, int ordered)
@@ -630,6 +635,30 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
                 p->style &= ~TAM_STYLE_LINK;
                 p->link_id = 0;
             }
+        }
+        return;
+    }
+    if (strcmp(name, "link") == 0) {
+        if (!closing) {
+            char *rel = extract_attr(s, end, "rel");
+            char *href = extract_attr(s, end, "href");
+            if (rel != NULL && href != NULL) {
+                if (strcasecmp(rel, "next") == 0) {
+                    free(p->nav_next);
+                    p->nav_next = strdup(href);
+                } else if (strcasecmp(rel, "prev") == 0) {
+                    free(p->nav_prev);
+                    p->nav_prev = strdup(href);
+                } else if (strcasecmp(rel, "up") == 0) {
+                    free(p->nav_up);
+                    p->nav_up = strdup(href);
+                } else if (strcasecmp(rel, "top") == 0) {
+                    free(p->nav_top);
+                    p->nav_top = strdup(href);
+                }
+            }
+            free(rel);
+            free(href);
         }
         return;
     }
@@ -1331,6 +1360,10 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     doc->title = strdup((title != NULL && title[0] != '\0') ? title : "tam");
     doc->lines = out.v;
     doc->nlines = out.n;
+    doc->nav_next = p.nav_next;
+    doc->nav_prev = p.nav_prev;
+    doc->nav_up = p.nav_up;
+    doc->nav_top = p.nav_top;
 
     tam_str_free(p.title);
     blocklist_free(&p.blocks);
@@ -1353,6 +1386,10 @@ void tam_document_free(tam_document_t *doc)
     }
     free(doc->lines);
     free(doc->title);
+    free(doc->nav_next);
+    free(doc->nav_prev);
+    free(doc->nav_up);
+    free(doc->nav_top);
     free(doc);
 }
 

@@ -1,6 +1,7 @@
 #include <tam.h>
 
 #include "depth.h"
+#include "info.h"
 #include "man.h"
 #include "pager.h"
 #include "render.h"
@@ -367,6 +368,9 @@ static tam_document_t *man_unified_load(void *vctx, const char *href)
     }
     if (strncmp(href, "man:", 4) == 0) {
         return tam_man_load(href + 4, ctx->width);
+    }
+    if (strncmp(href, "info:", 5) == 0) {
+        return tam_info_load(href + 5, ctx->width);
     }
     if (ctx->root != NULL) {
         if (strncmp(href, "tam:topics", 10) == 0) {
