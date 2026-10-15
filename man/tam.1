@@ -30,13 +30,16 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .IR PAGE
 .RI [ --pipe ]
 .br
-.B tam install inspect
+.B tam inspect
 .RI [ --json | --check \ [ ID ]]
 .RI [ --terse ]
 .br
-.B tam install check
+.B tam check
 .RI [ ID ]
 .RI [ --json | --terse ]
+.br
+.B tam install
+.RI [ --help ]
 .br
 .B tam ask
 .RI [ --json ]
@@ -112,14 +115,16 @@ and section headings are automatically turned into active hyperlinks that can be
 and
 .BR Enter .
 .TP
-.B tam install inspect \fR[\fB\-\-json\fR|\fB\-\-check\fR [\fIID\fR]] [\fB\-\-terse\fR]
+.B tam inspect \fR[\fB\-\-json\fR|\fB\-\-check\fR [\fIID\fR]] [\fB\-\-terse\fR]
 Inspect host state, kernel version, hardware architecture, mount points, DRM graphics devices, package managers, and privilege escalation. With
 .BR \-\-check ,
 evaluates system health findings according to the offline Check Contract.
 .TP
-.B tam install check \fR[\fIID\fR] [\fB\-\-json\fR|\fB\-\-terse\fR]
-Direct alias for
-.BR "tam install inspect \-\-check" .
+.B tam check \fR[\fIID\fR] [\fB\-\-json\fR|\fB\-\-terse\fR]
+Run system progression and workstation health checks according to the offline Check Contract.
+.TP
+.B tam install \fR[\fB\-\-help\fR]
+Tamlinux installation framework overview. Component installation commands will be available in future releases.
 .TP
 .B tam ask \fR[\fB\-\-json\fR] [\fB\-\-model\fR \fIMODEL\fR] [\fB\-\-server\fR \fIURL\fR] \fIQUESTION\fR
 Ask a grounded question answered strictly from the offline knowledge corpus via a local LLM inference server (e.g. Ollama). Strictly offline by default; requires explicit interactive consent to download models; never runs background daemons; mandates source citations.
@@ -205,7 +210,8 @@ Output detailed diagnostics, keyword arrays, and prerequisites.
 .B \-\-json
 Emit structured JSON data (supported by
 .BR search ,
-.BR "install inspect" ,
+.BR inspect ,
+.BR check ,
 and
 .BR ask ).
 .TP

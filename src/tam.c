@@ -103,49 +103,105 @@ char *cultivar_version(void)
     return NULL;
 }
 
-static void print_intro(void)
+enum {
+    HELP_STANDARD = 0,
+    HELP_TERSE,
+    HELP_VERBOSE
+};
+
+static void print_tam_help(int tier)
 {
-    tam_str_t s = tam_str_new("");
-    if (s == NULL) {
+    char dev_buf[64] = "";
+    if (TAM_BUILD[0] != '\0') {
+        snprintf(dev_buf, sizeof(dev_buf), " (dev %s)", TAM_BUILD);
+    }
+
+    if (tier == HELP_TERSE) {
+        fputs(
+            "tam - the Tamlinux command\n\n"
+            "Usage: tam <subcommand> [--options] [arguments]\n\n"
+            "Essential Subcommands:\n"
+            "  tam welcome                   first-run orientation\n"
+            "  tam show [PAGE]               open guide or specific page\n"
+            "  tam inspect                   inspect system health\n\n"
+            "Essential Options:\n"
+            "  --help, -h | --pipe | --terse | --verbose | --version, -V\n",
+            stdout);
         return;
     }
-    s = tam_str_cat(s, TAM_COMMAND_NAME " - the Tamlinux command\n\n");
-    s = tam_str_cat(s,
-        "Learn about this system, keep it healthy, and find your way\n"
-        "around Tamlinux, offline, from the terminal.\n\n");
-    s = tam_str_cat_printf(s,
-        "This is an early development build (tam %s).\n\n",
-        TAM_COMMAND_VERSION);
-    s = tam_str_cat(s,
-        "Get started:\n"
-        "  tam welcome          open the welcome orientation\n"
-        "  tam show             open the offline guide\n"
-        "  tam search TERM...   search the offline guide\n"
-        "  tam explain [TOPIC]  explain a topic or list available topics\n"
-        "  tam install inspect  inspect host and installation capabilities\n"
-        "  tam --help           list options and where to begin\n"
-        "  tam --version        show version information\n");
-    fputs(s, stdout);
-    tam_str_free(s);
-}
 
-static void print_help(void)
-{
-    fputs(
+    if (tier == HELP_VERBOSE) {
+        printf(
+            "tam - the Tamlinux command\n\n"
+            "Understand, use, maintain, and improve your Tamlinux system.\n\n"
+            "This is version %s%s\n\n"
+            "Usage:\n"
+            "  tam <subcommand> [--options] [arguments]\n\n"
+            "Guide and knowledge:\n"
+            "  tam welcome [--pipe]\n"
+            "      first-run orientation and welcome guide\n"
+            "  tam show [PAGE|-] [--pipe]\n"
+            "      open the offline guide, a specific page, or render HTML from stdin\n"
+            "  tam search [--json] TERM...\n"
+            "      search guide topics and keywords with ranked scoring\n"
+            "  tam explain [TOPIC] [--level LEVEL] [--pipe]\n"
+            "      explain a concept or browse the catalog at beginner, intermediate, or expert depth\n"
+            "  tam explain topics [--pipe] [--terse|--verbose] [--level LEVEL]\n"
+            "      interactive or plain-text catalog of all available topics\n"
+            "  tam man [SECTION] PAGE [--pipe]\n"
+            "      hyperlinked manual page viewer with interactive cross-reference navigation\n"
+            "  tam ask [--json] [--model MODEL] [--server URL] QUESTION\n"
+            "      query a local AI model for answers from the guide to any question\n\n"
+            "System subcommands:\n"
+            "  tam inspect [--json|--check [ID]] [--terse]\n"
+            "      inspect hardware, kernel, DRM, storage mounts, and privilege escalation\n"
+            "  tam check [ID] [--json|--terse]\n"
+            "      evaluate workstation health findings against the offline Check Contract\n\n"
+            "Options:\n"
+            "  --help, -h\n"
+            "      display help overview (combine with --verbose for this exhaustive view)\n"
+            "  --pipe\n"
+            "      emit clean plain text without ANSI escape sequences or interactive pager\n"
+            "  --terse\n"
+            "      emit compact single-line or summary output\n"
+            "  --verbose\n"
+            "      show all subcommands, arguments, secondary verbs, and options\n"
+            "  --version, -V\n"
+            "      display command, libtam, and Tamlinux cultivar metadata\n\n"
+            "Environment:\n"
+            "  TAM_KNOWLEDGE_DIR         override path to offline HTML guide corpus\n"
+            "  TAM_ASK_MODEL             default local LLM name (default: qwen2.5-coder:1.5b)\n"
+            "  TAM_ASK_SERVER            default local inference URL (default: http://127.0.0.1:11434)\n\n"
+            "Run 'tam <subcommand> --help' for options specific to any subcommand.\n",
+            TAM_COMMAND_VERSION, dev_buf);
+        return;
+    }
+
+    /* HELP_STANDARD */
+    printf(
         "tam - the Tamlinux command\n\n"
+        "Understand, use, maintain, and improve your Tamlinux system.\n\n"
+        "This is version %s%s\n\n"
         "Usage:\n"
-        "  tam                         short introduction and exit\n"
-        "  tam show [PAGE|-] [--pipe]  offline guide (or stdin/plain text)\n"
-        "  tam search [--json] TERM... search guide topics and keywords\n"
-        "  tam welcome [--pipe]        first-run orientation\n"
-        "  tam explain [TOPIC]         usage overview or topic explanation\n"
-        "  tam explain topics [--terse|--verbose] [--level L]  list available topics\n"
-        "  tam man [SECTION] PAGE      hyperlinked manual page viewer\n"
-        "  tam install inspect [--json|--check]  inspect host and check system health\n"
-        "  tam ask [--json] QUESTION   grounded question answering via local model\n"
-        "  tam --help | --version      show help or version information\n\n"
-        "Output modifiers: --pipe (plain text), --terse (compact), --verbose (detail).\n",
-        stdout);
+        "  tam <subcommand> [--options] [arguments]\n\n"
+        "  tam welcome               first-run orientation\n\n"
+        "Guide subcommands to try:\n"
+        "  tam show [PAGE]           open the guide or a specific page\n"
+        "  tam search KEYWORD...     search guide deterministically\n"
+        "  tam explain [TOPIC]       browse all topics or show a topic\n"
+        "  tam man [SECTION] PAGE    view hyperlinked manual page\n"
+        "  tam ask QUESTION          ask a local AI model (if available)\n\n"
+        "System subcommands to try:\n"
+        "  tam inspect               inspect system components\n"
+        "  tam check                 check system health\n\n"
+        "Options to know:\n"
+        "  --help, -h                show this help overview\n"
+        "  --pipe                    output as plain text for piping\n"
+        "  --terse                   shorter output\n"
+        "  --verbose                 longer output\n"
+        "  --version, -V             show version info\n\n"
+        "Run 'tam --verbose' for a complete list of commands and more detail.\n",
+        TAM_COMMAND_VERSION, dev_buf);
 }
 
 static void print_version(void)
@@ -1090,19 +1146,59 @@ static int cmd_search(int n, char **args)
 int main(int argc, char **argv)
 {
     if (argc <= 1) {
-        print_intro();
+        print_tam_help(HELP_STANDARD);
         return 0;
     }
 
     const char *arg = argv[1];
+
+    if (strcmp(arg, "--terse") == 0) {
+        if (argc == 2) {
+            print_tam_help(HELP_TERSE);
+            return 0;
+        }
+        if (argc == 3 && (strcmp(argv[2], "--help") == 0 ||
+                          strcmp(argv[2], "-h") == 0 ||
+                          strcmp(argv[2], "help") == 0)) {
+            print_tam_help(HELP_TERSE);
+            return 0;
+        }
+        return too_many_arguments();
+    }
+
+    if (strcmp(arg, "--verbose") == 0) {
+        if (argc == 2) {
+            print_tam_help(HELP_VERBOSE);
+            return 0;
+        }
+        if (argc == 3 && (strcmp(argv[2], "--help") == 0 ||
+                          strcmp(argv[2], "-h") == 0 ||
+                          strcmp(argv[2], "help") == 0)) {
+            print_tam_help(HELP_VERBOSE);
+            return 0;
+        }
+        return too_many_arguments();
+    }
+
     if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0 ||
         strcmp(arg, "help") == 0) {
-        if (argc > 2) {
-            return too_many_arguments();
+        if (argc == 2) {
+            print_tam_help(HELP_STANDARD);
+            return 0;
         }
-        print_help();
-        return 0;
+        if (argc == 3) {
+            if (strcmp(argv[2], "--terse") == 0) {
+                print_tam_help(HELP_TERSE);
+                return 0;
+            }
+            if (strcmp(argv[2], "--verbose") == 0) {
+                print_tam_help(HELP_VERBOSE);
+                return 0;
+            }
+        }
+        return too_many_arguments();
     }
+
     if (strcmp(arg, "-V") == 0 || strcmp(arg, "--version") == 0) {
         if (argc > 2) {
             return too_many_arguments();
@@ -1110,6 +1206,7 @@ int main(int argc, char **argv)
         print_version();
         return 0;
     }
+
     if (strcmp(arg, "show") == 0) {
         return cmd_show(argc - 2, argv + 2);
     }
@@ -1121,6 +1218,12 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "explain") == 0) {
         return cmd_explain(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "inspect") == 0) {
+        return cmd_inspect(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "check") == 0) {
+        return cmd_check(argc - 2, argv + 2);
     }
     if (strcmp(arg, "install") == 0) {
         return cmd_install(argc - 2, argv + 2);

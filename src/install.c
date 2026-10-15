@@ -637,7 +637,7 @@ static void print_json_string_array(const char *csv)
     printf("]");
 }
 
-static void print_check_contract_json(const check_item_t *c)
+static void print_check_contract_json(const check_item_t *c, const char *source)
 {
     printf("{\n");
     printf("  \"task_id\": \"%s\",\n", c->task_id);
@@ -648,12 +648,12 @@ static void print_check_contract_json(const check_item_t *c)
     printf("  \"evidence\": {\n    %s\n  },\n", c->evidence_json);
     printf("  \"severity\": \"%s\",\n", severity_str(c->severity));
     printf("  \"help_ref\": \"%s\",\n", c->help_ref);
-    printf("  \"source\": \"tam install inspect\",\n");
+    printf("  \"source\": \"%s\",\n", source);
     printf("  \"schema_version\": \"1.0.0\"\n");
     printf("}\n");
 }
 
-static int do_run_single_check(const char *task_id, bool terse_mode)
+static int do_run_single_check(const char *task_id, bool terse_mode, const char *source)
 {
     os_release_t os;
     parse_os_release(&os);
@@ -682,18 +682,18 @@ static int do_run_single_check(const char *task_id, bool terse_mode)
             if (terse_mode) {
                 printf("%s %s\n", checks[i].task_id, checks[i].status);
             } else {
-                print_check_contract_json(&checks[i]);
+                print_check_contract_json(&checks[i], source);
             }
             return 0;
         }
     }
 
-    fprintf(stderr, TAM_COMMAND_NAME " install: unknown check '%s'\n"
-                    "Run '" TAM_COMMAND_NAME " install check' to view available checks.\n", task_id);
+    fprintf(stderr, TAM_COMMAND_NAME " check: unknown check '%s'\n"
+                    "Run '" TAM_COMMAND_NAME " check' to view available checks.\n", task_id);
     return TAM_EXIT_FAILURE;
 }
 
-static int do_check_list(bool json_mode, bool terse_mode)
+static int do_check_list(bool json_mode, bool terse_mode, const char *source)
 {
     os_release_t os;
     parse_os_release(&os);
@@ -736,19 +736,19 @@ static int do_check_list(bool json_mode, bool terse_mode)
             printf("    \"evidence\": {\n      %s\n    },\n", checks[i].evidence_json);
             printf("    \"severity\": \"%s\",\n", severity_str(checks[i].severity));
             printf("    \"help_ref\": \"%s\",\n", checks[i].help_ref);
-            printf("    \"source\": \"tam install inspect\",\n");
+            printf("    \"source\": \"%s\",\n", source);
             printf("    \"schema_version\": \"1.0.0\"\n");
             printf("  }%s\n", (i + 1 < NUM_CHECKS) ? "," : "");
         }
         printf("]\n");
     } else {
-        printf("tam install check - system health and progression checks\n\n");
+        printf("tam check - system health and progression checks\n\n");
         printf("Available checks:\n");
         for (size_t i = 0; i < NUM_CHECKS; i++) {
             printf("  %-20s [%s] %s\n", checks[i].task_id, severity_str(checks[i].severity), checks[i].name);
             printf("                       Help: %s\n", checks[i].help_ref);
         }
-        printf("\nRun 'tam install check <task_id>' or 'tam install inspect --check <task_id>' to evaluate.\n");
+        printf("\nRun 'tam check <task_id>' or 'tam inspect --check <task_id>' to evaluate.\n");
     }
     return 0;
 }
@@ -800,7 +800,7 @@ static int do_inspect(bool json_mode)
     if (json_mode) {
         printf("{\n");
         printf("  \"schema_version\": \"1.0.0\",\n");
-        printf("  \"source\": \"tam install inspect\",\n");
+        printf("  \"source\": \"tam inspect\",\n");
         printf("  \"host\": {\n");
         printf("    \"operating_system\": \"%s\",\n", os_display);
         printf("    \"os_name\": \"%s\",\n", os.name);
@@ -858,7 +858,7 @@ static int do_inspect(bool json_mode)
             printf("      \"evidence\": {\n        %s\n      },\n", checks[i].evidence_json);
             printf("      \"severity\": \"%s\",\n", severity_str(checks[i].severity));
             printf("      \"help_ref\": \"%s\",\n", checks[i].help_ref);
-            printf("      \"source\": \"tam install inspect\",\n");
+            printf("      \"source\": \"tam inspect\",\n");
             printf("      \"schema_version\": \"1.0.0\"\n");
             printf("    }%s\n", (i + 1 < NUM_CHECKS) ? "," : "");
         }
@@ -907,19 +907,118 @@ static int do_inspect(bool json_mode)
     return 0;
 }
 
+static void print_inspect_help(void)
+{
+    fputs(
+        "tam inspect - inspect host state and system health\n\n"
+        "Usage:\n"
+        "  tam inspect                       inspect host facts and diagnostic findings\n"
+        "  tam inspect --pipe                print inspection report as plain text\n"
+        "  tam inspect --json                emit full inspection report as JSON\n"
+        "  tam inspect --check [ID]          run progression check and emit Check Contract JSON\n"
+        "  tam inspect --terse               emit compact check status lines (with --check)\n"
+        "  tam inspect --help                show this help and exit\n",
+        stdout);
+}
+
+int cmd_inspect(int n, char **args)
+{
+    bool json_mode = false;
+    bool terse_mode = false;
+    const char *check_id = NULL;
+
+    for (int i = 0; i < n; i++) {
+        if (strcmp(args[i], "-h") == 0 || strcmp(args[i], "--help") == 0 || strcmp(args[i], "help") == 0) {
+            print_inspect_help();
+            return 0;
+        } else if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
+            continue;
+        } else if (strcmp(args[i], "--json") == 0) {
+            json_mode = true;
+        } else if (strcmp(args[i], "--terse") == 0) {
+            terse_mode = true;
+        } else if (strcmp(args[i], "--check") == 0) {
+            if (i + 1 < n && args[i + 1][0] != '-') {
+                check_id = args[++i];
+            } else {
+                return do_check_list(json_mode, terse_mode, "tam inspect");
+            }
+        } else if (strncmp(args[i], "--check=", 8) == 0) {
+            check_id = args[i] + 8;
+        } else if (args[i][0] == '-') {
+            fprintf(stderr, TAM_COMMAND_NAME " inspect: unrecognized argument '%s'\n"
+                            "Run '" TAM_COMMAND_NAME " inspect --help' for available options.\n", args[i]);
+            return TAM_EXIT_USAGE;
+        } else {
+            fprintf(stderr, TAM_COMMAND_NAME " inspect: too many arguments\n"
+                            "Run '" TAM_COMMAND_NAME " inspect --help' for available options.\n");
+            return TAM_EXIT_USAGE;
+        }
+    }
+
+    if (check_id != NULL) {
+        return do_run_single_check(check_id, terse_mode, "tam inspect");
+    }
+    return do_inspect(json_mode);
+}
+
+static void print_check_help(void)
+{
+    fputs(
+        "tam check - run progression and health checks\n\n"
+        "Usage:\n"
+        "  tam check                         list all available checks\n"
+        "  tam check <task_id>               run specific check and emit Check Contract JSON\n"
+        "  tam check --json                  emit all checks in Check Contract format as JSON\n"
+        "  tam check --terse                 emit compact check status lines\n"
+        "  tam check --help                  show this help and exit\n",
+        stdout);
+}
+
+int cmd_check(int n, char **args)
+{
+    bool json_mode = false;
+    bool terse_mode = false;
+    const char *check_id = NULL;
+
+    for (int i = 0; i < n; i++) {
+        if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0 || strcmp(args[i], "help") == 0) {
+            print_check_help();
+            return 0;
+        } else if (strcmp(args[i], "--json") == 0) {
+            json_mode = true;
+        } else if (strcmp(args[i], "--terse") == 0) {
+            terse_mode = true;
+        } else if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
+            continue;
+        } else if (args[i][0] == '-') {
+            fprintf(stderr, TAM_COMMAND_NAME " check: unrecognized argument '%s'\n"
+                            "Run '" TAM_COMMAND_NAME " check --help' for available options.\n", args[i]);
+            return TAM_EXIT_USAGE;
+        } else {
+            if (check_id != NULL) {
+                fprintf(stderr, TAM_COMMAND_NAME " check: too many arguments\n"
+                                "Run '" TAM_COMMAND_NAME " check --help' for available options.\n");
+                return TAM_EXIT_USAGE;
+            }
+            check_id = args[i];
+        }
+    }
+
+    if (check_id != NULL) {
+        return do_run_single_check(check_id, terse_mode, "tam check");
+    }
+    return do_check_list(json_mode, terse_mode, "tam check");
+}
+
 static void print_install_help(void)
 {
     fputs(
         "tam install - Tamlinux installation framework\n\n"
         "Usage:\n"
         "  tam install                       show this overview and available subcommands\n"
-        "  tam install inspect               inspect host facts and diagnostic findings\n"
-        "  tam install inspect --pipe        print inspection report as plain text\n"
-        "  tam install inspect --json        emit full inspection report as JSON\n"
-        "  tam install inspect --check [ID]  run progression check and emit Check Contract JSON\n"
-        "  tam install check [ID]            run progression check (or list available checks)\n"
-        "  tam install --help                show this help and exit (same as: tam install help)\n\n"
-        "Upcoming commands:\n"
+        "  tam install --help                show this help and exit\n\n"
+        "Planned component commands:\n"
         "  tam install plan --profile PROF   print planned changes without modifying the system\n"
         "  tam install apply --profile PROF  apply reviewed installation plan\n"
         "  tam install verify                verify installed components and desktop integration\n",
@@ -942,83 +1041,6 @@ int cmd_install(int n, char **args)
         }
         print_install_help();
         return 0;
-    }
-
-    if (strcmp(sub, "inspect") == 0) {
-        bool json_mode = false;
-        bool terse_mode = false;
-        const char *check_id = NULL;
-
-        for (int i = 1; i < n; i++) {
-            if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
-                continue;
-            } else if (strcmp(args[i], "--json") == 0) {
-                json_mode = true;
-            } else if (strcmp(args[i], "--terse") == 0) {
-                terse_mode = true;
-            } else if (strcmp(args[i], "--check") == 0) {
-                if (i + 1 < n && args[i + 1][0] != '-') {
-                    check_id = args[++i];
-                } else {
-                    return do_check_list(json_mode, terse_mode);
-                }
-            } else if (strncmp(args[i], "--check=", 8) == 0) {
-                check_id = args[i] + 8;
-            } else if (args[i][0] == '-') {
-                fprintf(stderr, TAM_COMMAND_NAME " install inspect: unrecognized argument '%s'\n"
-                                "Run '" TAM_COMMAND_NAME " install --help' for available options.\n", args[i]);
-                return TAM_EXIT_USAGE;
-            } else {
-                fprintf(stderr, TAM_COMMAND_NAME " install inspect: too many arguments\n"
-                                "Run '" TAM_COMMAND_NAME " install --help' for available options.\n");
-                return TAM_EXIT_USAGE;
-            }
-        }
-
-        if (check_id != NULL) {
-            return do_run_single_check(check_id, terse_mode);
-        }
-        return do_inspect(json_mode);
-    }
-
-    if (strcmp(sub, "check") == 0) {
-        bool json_mode = false;
-        bool terse_mode = false;
-        const char *check_id = NULL;
-
-        for (int i = 1; i < n; i++) {
-            if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0 || strcmp(args[i], "help") == 0) {
-                printf("tam install check - run progression and health checks\n\n"
-                       "Usage:\n"
-                       "  tam install check               list all available checks\n"
-                       "  tam install check <task_id>     run specific check and emit Check Contract JSON\n"
-                       "  tam install check --json        emit all checks in Check Contract format as JSON\n"
-                       "  tam install check --terse       emit compact check status lines\n");
-                return 0;
-            } else if (strcmp(args[i], "--json") == 0) {
-                json_mode = true;
-            } else if (strcmp(args[i], "--terse") == 0) {
-                terse_mode = true;
-            } else if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
-                continue;
-            } else if (args[i][0] == '-') {
-                fprintf(stderr, TAM_COMMAND_NAME " install check: unrecognized argument '%s'\n"
-                                "Run '" TAM_COMMAND_NAME " install --help' for available options.\n", args[i]);
-                return TAM_EXIT_USAGE;
-            } else {
-                if (check_id != NULL) {
-                    fprintf(stderr, TAM_COMMAND_NAME " install check: too many arguments\n"
-                                    "Run '" TAM_COMMAND_NAME " install --help' for available options.\n");
-                    return TAM_EXIT_USAGE;
-                }
-                check_id = args[i];
-            }
-        }
-
-        if (check_id != NULL) {
-            return do_run_single_check(check_id, terse_mode);
-        }
-        return do_check_list(json_mode, terse_mode);
     }
 
     if (strcmp(sub, "plan") == 0) {

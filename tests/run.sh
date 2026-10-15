@@ -41,12 +41,24 @@ pass "bare invocation prints an introduction and writes no state"
 
 # Help.
 "$TAM" --help | grep -q 'Usage:' || fail "--help is missing usage"
-[ $(printf '%s\n' "$("$TAM" --help)" | wc -l) -le 20 ] || fail "--help exceeds 20 lines"
+[ $(printf '%s\n' "$("$TAM" --help)" | wc -l) -le 35 ] || fail "--help exceeds 35 lines"
 "$TAM" -h >/dev/null || fail "-h failed"
 "$TAM" help | grep -q 'Usage:' || fail "help is missing usage"
 [ "$("$TAM" help)" = "$("$TAM" --help)" ] || fail "help differs from --help"
+[ "$("$TAM")" = "$("$TAM" --help)" ] || fail "bare tam differs from --help"
 if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0"; fi
-pass "--help, -h and help"
+
+# Terse help.
+"$TAM" --terse | grep -q 'Essential Subcommands:' || fail "--terse missing Essential Subcommands"
+[ $(printf '%s\n' "$("$TAM" --terse)" | wc -l) -le 15 ] || fail "--terse exceeds 15 lines"
+[ "$("$TAM" --terse)" = "$("$TAM" --help --terse)" ] || fail "--terse differs from --help --terse"
+[ "$("$TAM" --terse)" = "$("$TAM" help --terse)" ] || fail "--terse differs from help --terse"
+
+# Verbose help.
+"$TAM" --verbose | grep -q 'TAM_KNOWLEDGE_DIR' || fail "--verbose missing environment"
+[ "$("$TAM" --verbose)" = "$("$TAM" --help --verbose)" ] || fail "--verbose differs from --help --verbose"
+[ "$("$TAM" --verbose)" = "$("$TAM" help --verbose)" ] || fail "--verbose differs from help --verbose"
+pass "--help, -h, help, --terse, and --verbose"
 
 # Version: command and library versions are reported; metadata is explicit.
 "$TAM" --version | grep -q '0.21.0' || fail "--version missing command version"
@@ -73,7 +85,8 @@ if "$TAM" welcome --pipe | grep -q "$esc"; then fail "welcome contains escape se
 if "$TAM" explain | grep -q "$esc"; then fail "bare explain contains escape sequences"; fi
 if "$TAM" explain pipelines --pipe | grep -q "$esc"; then fail "explain contains escape sequences"; fi
 if "$TAM" install | grep -q "$esc"; then fail "install contains escape sequences"; fi
-if "$TAM" install inspect | grep -q "$esc"; then fail "install inspect contains escape sequences"; fi
+if "$TAM" inspect | grep -q "$esc"; then fail "inspect contains escape sequences"; fi
+if "$TAM" check | grep -q "$esc"; then fail "check contains escape sequences"; fi
 pass "piped output has no control sequences"
 
 # Unknown argument is an error that points at --help.
@@ -107,13 +120,14 @@ env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain pipelines --
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" explain nonexistent >/dev/null 2>&1 || true
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" search pipelines >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install >/dev/null
-env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install inspect >/dev/null
+env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" inspect >/dev/null
+env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" check >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install --help >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" man --help >/dev/null
 if [ -e "$iso_state/tamlinux/welcome_seen" ]; then
     fail "isolated commands wrote welcome_seen state"
 fi
-pass "state isolation: bare, show, help, version, search, explain, install, man do not touch welcome_seen"
+pass "state isolation: bare, show, help, version, search, explain, inspect, check, install, man do not touch welcome_seen"
 
 # Show command: displays guide index or page; browse subcommand is retired.
 sh_out=$("$TAM" show --pipe)
@@ -804,14 +818,21 @@ if "$TAM" search cron >/dev/null 2>&1; then fail "search cron unexpectedly exite
 
 pass "search subcommand, corpus index retrieval, json output, and canonical query set"
 
-# Install command: bare overview, help, inspect, unimplemented verbs, and error handling.
+# Install command: bare overview, help, unimplemented verbs, and retirement of inspect/check under install.
 "$TAM" install | grep -q 'Usage:' || fail "bare install missing usage"
+"$TAM" install | grep -q 'Planned component commands:' || fail "bare install missing planned commands"
 "$TAM" install --help | grep -q 'Usage:' || fail "install --help missing usage"
 "$TAM" install help | grep -q 'Usage:' || fail "install help missing usage"
 [ "$("$TAM" install help)" = "$("$TAM" install --help)" ] || fail "install help differs from install --help"
 
-# Install inspect: reports host facts, capabilities, profiles, and findings.
-ins_out=$("$TAM" install inspect)
+# Retired subcommands under install report usage error.
+if "$TAM" install inspect >/dev/null 2>&1; then fail "install inspect exited 0"; fi
+"$TAM" install inspect 2>&1 | grep -q "unrecognized argument 'inspect'" || fail "install inspect missing retirement error"
+if "$TAM" install check >/dev/null 2>&1; then fail "install check exited 0"; fi
+"$TAM" install check 2>&1 | grep -q "unrecognized argument 'check'" || fail "install check missing retirement error"
+
+# Inspect subcommand: reports host facts, capabilities, profiles, and findings.
+ins_out=$("$TAM" inspect)
 printf '%s\n' "$ins_out" | grep -q 'Host Information:' || fail "inspect missing Host Information"
 printf '%s\n' "$ins_out" | grep -q 'Operating system:' || fail "inspect missing Operating system"
 printf '%s\n' "$ins_out" | grep -q 'Architecture:' || fail "inspect missing Architecture"
@@ -838,79 +859,80 @@ printf '%s\n' "$ins_out" | grep -q 'kernel_release' || fail "inspect missing ker
 printf '%s\n' "$ins_out" | grep -q 'Help:' || fail "inspect missing Help deep-link"
 
 # Cultivar resolution in inspect matches environment / isolated config.
-iso "$TAM" install inspect | grep -q 'Cultivar version:  7.7.7' || fail "inspect missing cultivar version from file"
+iso "$TAM" inspect | grep -q 'Cultivar version:  7.7.7' || fail "inspect missing cultivar version from file"
 rm -f "$config/tamlinux/version"
-iso "$TAM" install inspect | grep -q 'Cultivar version:  unavailable' || fail "isolated inspect missing unavailable cultivar"
+iso "$TAM" inspect | grep -q 'Cultivar version:  unavailable' || fail "isolated inspect missing unavailable cultivar"
 env HOME="$home" XDG_CONFIG_HOME="$config" XDG_STATE_HOME="$state" \
-    TAMLINUX_VERSION=8.8.8 "$TAM" install inspect | grep -q '8.8.8' || fail "inspect ignored cultivar env"
+    TAMLINUX_VERSION=8.8.8 "$TAM" inspect | grep -q '8.8.8' || fail "inspect ignored cultivar env"
 
 # Inspect pipe flag.
-"$TAM" install inspect --pipe | grep -q 'Host Information:' || fail "inspect --pipe failed"
+"$TAM" inspect --pipe | grep -q 'Host Information:' || fail "inspect --pipe failed"
 
 # Inspect JSON output: machine-readable findings and checks schema
-ins_json=$("$TAM" install inspect --json)
+ins_json=$("$TAM" inspect --json)
 printf '%s\n' "$ins_json" | grep -q '"schema_version": "1.0.0"' || fail "inspect --json missing schema_version"
 printf '%s\n' "$ins_json" | grep -q '"findings":' || fail "inspect --json missing findings"
 printf '%s\n' "$ins_json" | grep -q '"checks":' || fail "inspect --json missing checks"
 printf '%s\n' "$ins_json" | grep -q '"id": "privilege_pkexec"' || fail "inspect --json missing privilege_pkexec finding id"
 printf '%s\n' "$ins_json" | grep -q '"help_link":' || fail "inspect --json missing help_link"
 
-# Check contract: tam install inspect --check <task_id>
-chk_btrfs=$("$TAM" install inspect --check storage_btrfs)
+# Check contract via inspect: tam inspect --check <task_id>
+chk_btrfs=$("$TAM" inspect --check storage_btrfs)
 printf '%s\n' "$chk_btrfs" | grep -q '"task_id": "storage_btrfs"' || fail "--check storage_btrfs missing task_id"
 printf '%s\n' "$chk_btrfs" | grep -q '"status": "pass"' || fail "--check storage_btrfs missing status pass"
 printf '%s\n' "$chk_btrfs" | grep -q '"pass": true' || fail "--check storage_btrfs missing pass boolean"
 printf '%s\n' "$chk_btrfs" | grep -q '"fail": false' || fail "--check storage_btrfs missing fail boolean"
 printf '%s\n' "$chk_btrfs" | grep -q '"evidence":' || fail "--check storage_btrfs missing evidence"
 printf '%s\n' "$chk_btrfs" | grep -q '"help_ref": "maintain/rollback.html"' || fail "--check storage_btrfs missing help_ref"
-printf '%s\n' "$chk_btrfs" | grep -q '"source": "tam install inspect"' || fail "--check storage_btrfs missing source"
+printf '%s\n' "$chk_btrfs" | grep -q '"source": "tam inspect"' || fail "--check storage_btrfs missing source"
 printf '%s\n' "$chk_btrfs" | grep -q '"schema_version": "1.0.0"' || fail "--check storage_btrfs missing schema_version"
 
-# Check subcommand: tam install check lists available checks; --json emits check array
-chk_list=$("$TAM" install check)
-printf '%s\n' "$chk_list" | grep -q 'Available checks:' || fail "tam install check missing Available checks"
-printf '%s\n' "$chk_list" | grep -q 'storage_btrfs' || fail "tam install check missing storage_btrfs"
-printf '%s\n' "$chk_list" | grep -q 'privilege_pkexec' || fail "tam install check missing privilege_pkexec"
+# Check subcommand: tam check lists available checks; --json emits check array
+chk_list=$("$TAM" check)
+printf '%s\n' "$chk_list" | grep -q 'Available checks:' || fail "tam check missing Available checks"
+printf '%s\n' "$chk_list" | grep -q 'storage_btrfs' || fail "tam check missing storage_btrfs"
+printf '%s\n' "$chk_list" | grep -q 'privilege_pkexec' || fail "tam check missing privilege_pkexec"
 
-chk_json=$("$TAM" install check --json)
-printf '%s\n' "$chk_json" | grep -q '"task_id": "storage_root_space"' || fail "tam install check --json missing storage_root_space"
+chk_json=$("$TAM" check --json)
+printf '%s\n' "$chk_json" | grep -q '"task_id": "storage_root_space"' || fail "tam check --json missing storage_root_space"
 
-# Direct check execution: tam install check <task_id>
-chk_space=$("$TAM" install check storage_root_space)
-printf '%s\n' "$chk_space" | grep -q '"task_id": "storage_root_space"' || fail "tam install check storage_root_space failed"
-printf '%s\n' "$chk_space" | grep -q '"status": "pass"' || fail "tam install check storage_root_space status not pass"
+# Direct check execution: tam check <task_id>
+chk_space=$("$TAM" check storage_root_space)
+printf '%s\n' "$chk_space" | grep -q '"task_id": "storage_root_space"' || fail "tam check storage_root_space failed"
+printf '%s\n' "$chk_space" | grep -q '"status": "pass"' || fail "tam check storage_root_space status not pass"
+printf '%s\n' "$chk_space" | grep -q '"source": "tam check"' || fail "tam check storage_root_space missing source"
 
 # Terse check outputs: compact task_id status lines
-chk_terse=$("$TAM" install check --terse)
-printf '%s\n' "$chk_terse" | grep -q '^privilege_pkexec pass' || fail "install check --terse missing privilege_pkexec"
-printf '%s\n' "$chk_terse" | grep -q '^storage_btrfs pass' || fail "install check --terse missing storage_btrfs"
+chk_terse=$("$TAM" check --terse)
+printf '%s\n' "$chk_terse" | grep -q '^privilege_pkexec pass' || fail "check --terse missing privilege_pkexec"
+printf '%s\n' "$chk_terse" | grep -q '^storage_btrfs pass' || fail "check --terse missing storage_btrfs"
 
-chk_single_terse=$("$TAM" install check storage_root_space --terse)
+chk_single_terse=$("$TAM" check storage_root_space --terse)
 [ "$chk_single_terse" = "storage_root_space pass" ] || fail "single check --terse incorrect: $chk_single_terse"
 
 # Privilege detect-and-degrade: when pkexec is absent from PATH
-no_pk_out=$(env PATH="$tmp" "$TAM" install inspect)
+no_pk_out=$(env PATH="$tmp" "$TAM" inspect)
 printf '%s\n' "$no_pk_out" | grep -q 'privilege tool unavailable: limited inspection' \
     || fail "pkexec absence missing degrade warning finding"
-no_pk_chk=$(env PATH="$tmp" "$TAM" install inspect --check privilege_pkexec)
+no_pk_chk=$(env PATH="$tmp" "$TAM" inspect --check privilege_pkexec)
 printf '%s\n' "$no_pk_chk" | grep -q '"status": "unknown"' || fail "degraded check missing status unknown"
 printf '%s\n' "$no_pk_chk" | grep -q '"pass": false' || fail "degraded check pass should be false"
 printf '%s\n' "$no_pk_chk" | grep -q '"severity": "warn"' || fail "degraded check severity should be warn"
 
 # Unknown check diagnostic and error handling
-if "$TAM" install inspect --check nonexistent_check >/dev/null 2>&1; then
+if "$TAM" inspect --check nonexistent_check >/dev/null 2>&1; then
     fail "inspect --check nonexistent exited 0"
 fi
-"$TAM" install inspect --check nonexistent_check 2>&1 | grep -q "unknown check 'nonexistent_check'" \
+"$TAM" inspect --check nonexistent_check 2>&1 | grep -q "unknown check 'nonexistent_check'" \
     || fail "inspect --check nonexistent missing unknown check diagnostic"
 
-if "$TAM" install check nonexistent_check >/dev/null 2>&1; then
-    fail "install check nonexistent exited 0"
+if "$TAM" check nonexistent_check >/dev/null 2>&1; then
+    fail "check nonexistent exited 0"
 fi
-"$TAM" install check nonexistent_check 2>&1 | grep -q "unknown check 'nonexistent_check'" \
-    || fail "install check nonexistent missing unknown check diagnostic"
+"$TAM" check nonexistent_check 2>&1 | grep -q "unknown check 'nonexistent_check'" \
+    || fail "check nonexistent missing unknown check diagnostic"
 
-# Unimplemented operations: plan, apply, verify exit 1 with clear diagnostic.
+# Unimplemented operations under install: plan, apply, verify exit 1 with clear diagnostic.
 if "$TAM" install plan >/dev/null 2>&1; then fail "install plan exited 0"; fi
 "$TAM" install plan 2>&1 | grep -q "'plan' is not implemented yet" || fail "plan missing unimplemented diagnostic"
 if "$TAM" install apply >/dev/null 2>&1; then fail "install apply exited 0"; fi
@@ -921,11 +943,17 @@ if "$TAM" install verify >/dev/null 2>&1; then fail "install verify exited 0"; f
 # Argument errors under install.
 if "$TAM" install bogus >/dev/null 2>&1; then fail "install bogus exited 0"; fi
 "$TAM" install bogus 2>&1 | grep -q "unrecognized argument" || fail "install bogus missing error message"
-if "$TAM" install inspect extra >/dev/null 2>&1; then fail "install inspect extra exited 0"; fi
-"$TAM" install inspect extra 2>&1 | grep -q "too many arguments" || fail "inspect extra missing error message"
-if "$TAM" install inspect --bogus >/dev/null 2>&1; then fail "install inspect --bogus exited 0"; fi
 if "$TAM" install --help extra >/dev/null 2>&1; then fail "install --help extra exited 0"; fi
-pass "install overview, inspect probes, honest unimplemented verbs, and argument errors"
+
+# Argument errors under inspect and check.
+if "$TAM" inspect extra >/dev/null 2>&1; then fail "inspect extra exited 0"; fi
+"$TAM" inspect extra 2>&1 | grep -q "too many arguments" || fail "inspect extra missing error message"
+if "$TAM" inspect --bogus >/dev/null 2>&1; then fail "inspect --bogus exited 0"; fi
+if "$TAM" check extra1 extra2 >/dev/null 2>&1; then fail "check extra exited 0"; fi
+"$TAM" check extra1 extra2 2>&1 | grep -q "too many arguments" || fail "check extra missing error message"
+if "$TAM" check --bogus >/dev/null 2>&1; then fail "check --bogus exited 0"; fi
+
+pass "install framework overview, inspect probes, check runner, and argument errors"
 
 # Man command: view man pages, section resolution, cross-reference hyperlinking, and tam-man wrapper.
 "$TAM" man | grep -q 'Usage:' || fail "bare man missing usage"
@@ -983,9 +1011,13 @@ _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
 printf '%s\n' "$bash_test" | grep -q 'show' || fail "bash completion missing show subcommand"
+printf '%s\n' "$bash_test" | grep -q 'inspect' || fail "bash completion missing inspect subcommand"
+printf '%s\n' "$bash_test" | grep -q 'check' || fail "bash completion missing check subcommand"
 printf '%s\n' "$bash_test" | grep -q 'install' || fail "bash completion missing install subcommand"
 printf '%s\n' "$bash_test" | grep -q 'search' || fail "bash completion missing search subcommand"
 printf '%s\n' "$bash_test" | grep -q -- '--help' || fail "bash completion missing --help"
+printf '%s\n' "$bash_test" | grep -q -- '--terse' || fail "bash completion missing --terse"
+printf '%s\n' "$bash_test" | grep -q -- '--verbose' || fail "bash completion missing --verbose"
 
 bash_install_test=$(bash -c '
 source "'"$root"'/completions/bash/tam"
@@ -994,14 +1026,14 @@ COMP_CWORD=2
 _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
-printf '%s\n' "$bash_install_test" | grep -q 'inspect' || fail "bash completion missing install inspect"
-printf '%s\n' "$bash_install_test" | grep -q 'check' || fail "bash completion missing install check"
 printf '%s\n' "$bash_install_test" | grep -q 'plan' || fail "bash completion missing install plan"
+printf '%s\n' "$bash_install_test" | grep -q 'apply' || fail "bash completion missing install apply"
+printf '%s\n' "$bash_install_test" | grep -q 'verify' || fail "bash completion missing install verify"
 
 bash_inspect_flags=$(bash -c '
 source "'"$root"'/completions/bash/tam"
-COMP_WORDS=(tam install inspect "")
-COMP_CWORD=3
+COMP_WORDS=(tam inspect "")
+COMP_CWORD=2
 _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
@@ -1010,8 +1042,8 @@ printf '%s\n' "$bash_inspect_flags" | grep -q -- '--check' || fail "bash complet
 
 bash_inspect_check_test=$(bash -c '
 source "'"$root"'/completions/bash/tam"
-COMP_WORDS=(tam install inspect --check "")
-COMP_CWORD=4
+COMP_WORDS=(tam inspect --check "")
+COMP_CWORD=3
 _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
@@ -1020,8 +1052,8 @@ printf '%s\n' "$bash_inspect_check_test" | grep -q 'privilege_pkexec' || fail "b
 
 bash_check_tasks=$(bash -c '
 source "'"$root"'/completions/bash/tam"
-COMP_WORDS=(tam install check "")
-COMP_CWORD=3
+COMP_WORDS=(tam check "")
+COMP_CWORD=2
 _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')

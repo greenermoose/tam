@@ -6,8 +6,8 @@ _tam_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local subcommands="show welcome explain search man install ask help"
-    local global_flags="--help -h --version -V"
+    local subcommands="show welcome explain search man inspect check install ask help"
+    local global_flags="--help -h --pipe --terse --verbose --version -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         if [[ "$cur" == -* ]]; then
@@ -20,18 +20,18 @@ _tam_completions() {
 
     local cmd="${COMP_WORDS[1]}"
     case "$cmd" in
-        install)
-            if [ "$COMP_CWORD" -eq 2 ]; then
-                COMPREPLY=($(compgen -W "inspect check plan apply verify --help" -- "$cur"))
-            elif [ "${COMP_WORDS[2]}" = "inspect" ]; then
-                if [ "$prev" = "--check" ]; then
-                    COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release" -- "$cur"))
-                else
-                    COMPREPLY=($(compgen -W "--pipe --json --check --terse" -- "$cur"))
-                fi
-            elif [ "${COMP_WORDS[2]}" = "check" ]; then
-                COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release --json --terse --help" -- "$cur"))
+        inspect)
+            if [ "$prev" = "--check" ]; then
+                COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release" -- "$cur"))
+            else
+                COMPREPLY=($(compgen -W "--pipe --json --check --terse --help -h" -- "$cur"))
             fi
+            ;;
+        check)
+            COMPREPLY=($(compgen -W "storage_root_space storage_btrfs privilege_pkexec init_systemd graphics_card package_manager kernel_release --json --terse --help -h" -- "$cur"))
+            ;;
+        install)
+            COMPREPLY=($(compgen -W "plan apply verify --help -h" -- "$cur"))
             ;;
         search)
             COMPREPLY=($(compgen -W "--json --pipe" -- "$cur"))
