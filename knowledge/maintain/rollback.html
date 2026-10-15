@@ -33,8 +33,8 @@ they differ from slow file copies, and verify rollback readiness.</p>
 <h3>Command sequence</h3>
 
 <pre>
-tam install check storage_btrfs
-tam install check storage_root_space
+tam check storage_btrfs
+tam check storage_root_space
 </pre>
 
 <p>Expected output:</p>
@@ -47,8 +47,8 @@ tam install check storage_root_space
 <h3>What just happened</h3>
 
 <ul>
-<li><code>tam install check storage_btrfs</code> verifies that your root mount runs on Btrfs and supports instantaneous subvolume branching.</li>
-<li><code>tam install check storage_root_space</code> audits remaining disk capacity to ensure adequate headroom for snapshot growth.</li>
+<li><code>tam check storage_btrfs</code> verifies that your root mount runs on Btrfs and supports instantaneous subvolume branching.</li>
+<li><code>tam check storage_root_space</code> audits remaining disk capacity to ensure adequate headroom for snapshot growth.</li>
 <li>A snapshot does not duplicate file contents across your disk. It simply records the current metadata tree pointers, taking zero extra storage until files are subsequently altered or deleted.</li>
 </ul>
 

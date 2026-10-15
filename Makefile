@@ -71,7 +71,7 @@ $(BUILD):
 # --- corpus lane: index generation and validation -------------------------
 corpus: $(INDEX)
 
-$(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) tools/build-index.py
+$(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) knowledge/version tools/build-index.py
 	python3 tools/build-index.py
 
 # --- tests ----------------------------------------------------------------

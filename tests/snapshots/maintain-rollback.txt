@@ -20,8 +20,8 @@ Prerequisites: Basic filesystem familiarity ( The Linux Filesystem Hierarchy).
 Command sequence
 
   
-  tam install check storage_btrfs
-  tam install check storage_root_space
+  tam check storage_btrfs
+  tam check storage_root_space
   
 
 Expected output:
@@ -33,10 +33,10 @@ Expected output:
 
 What just happened
 
-- tam install check storage_btrfs verifies that your root mount runs on Btrfs
-  and supports instantaneous subvolume branching.
-- tam install check storage_root_space audits remaining disk capacity to ensure
-  adequate headroom for snapshot growth.
+- tam check storage_btrfs verifies that your root mount runs on Btrfs and
+  supports instantaneous subvolume branching.
+- tam check storage_root_space audits remaining disk capacity to ensure adequate
+  headroom for snapshot growth.
 - A snapshot does not duplicate file contents across your disk. It simply
   records the current metadata tree pointers, taking zero extra storage until
   files are subsequently altered or deleted.

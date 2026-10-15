@@ -3,8 +3,8 @@
 <head>
 <title>Tamlinux Terminology: The Botanical Analogy</title>
 <meta name="topic" content="terminology">
-<meta name="summary" content="The botanical framework: greenhouse, pot, nut, root-stock, and cultivar">
-<meta name="keywords" content="terminology, analogy, framework, concept, greenhouse, pot, nut, root-stock, cultivar, uki, distro, bootloader">
+<meta name="summary" content="The botanical framework: greenhouse, pot, nut, root-stock, cultivar, and fruit">
+<meta name="keywords" content="terminology, analogy, framework, concept, greenhouse, pot, nut, root-stock, cultivar, fruit, varieties, uki, distro, bootloader">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
 <meta name="prereqs" content="ecosystem, philosophy">
@@ -19,12 +19,12 @@
 <p>Tamlinux uses a horticultural conceptual framework to describe system architecture,
 boot stages, base operating systems, and userland environments. Rather than thinking
 of an operating system as a single monolithic block, developer Fred conceives of the
-workstation through five interconnected botanical layers: the <strong>greenhouse</strong>,
+workstation through six interconnected botanical layers: the <strong>greenhouse</strong>,
 the <strong>pot</strong>, the <strong>nut</strong>, the <strong>root-stock</strong>,
-and the <strong>cultivar</strong>.</p>
+the <strong>cultivar</strong>, and the <strong>fruit</strong>.</p>
 
 <section data-level="beginner">
-<h2>The Five Layers</h2>
+<h2>The Six Layers</h2>
 
 <ol>
 <li><strong>The Greenhouse (Hardware):</strong> The physical machine. The CPU, RAM,
@@ -53,6 +53,10 @@ variety grafted onto the root-stock. The cultivar is Tamlinux itself: the tiling
 compositor, Quickshell status bar, <code>fred.*</code> desktop plugins, terminal tools,
 and application suite. If the root-stock and the cultivar are compatible, the cultivar
 will thrive.</li>
+
+<li><strong>The Fruit (End-User Applications):</strong> The ultimate yield of the tree:
+applications such as Suspra, web browsers, document editors, and AI agents that users
+run to accomplish real work. The entire tree exists to produce healthy, dependable fruit.</li>
 </ol>
 
 <h2>Why This Mental Model Matters</h2>
@@ -76,7 +80,18 @@ a virtual machine pot for testing, while providing the identical desktop experie
 <tr><td><strong>Nut</strong></td><td>Unified Kernel Image (UKI)</td><td>Self-contained EFI binary combining kernel, microcode, and minimal initramfs</td></tr>
 <tr><td><strong>Root-stock</strong></td><td>Base Distribution</td><td>Arch Linux (rolling, glibc, systemd) or Void Linux (stable, runit, musl/glibc)</td></tr>
 <tr><td><strong>Cultivar</strong></td><td>Tamlinux Workstation</td><td>Sway/wlroots, Quickshell, <code>fred.*</code> plugins, <code>tam</code>, Nix/Home Manager userland</td></tr>
+<tr><td><strong>Fruit</strong></td><td>User Applications</td><td>Suspra, web browsers, development environments, and productivity tools</td></tr>
 </table>
+
+<h2>Command Varieties across the Botanical Layers</h2>
+
+<p>To respect hardware constraints and dependency boundaries across the layers, Tamlinux defines three varieties of core utilities:</p>
+
+<ul>
+<li><strong><code>*-nut</code> (e.g. <code>tam-nut</code>):</strong> Extremely minimal utilities designed for the Nut UKI environment. Bounded strictly by the Linux kernel, a text terminal, and basic ramfs tools; focused on inspecting the greenhouse (hardware resources) and installing the root-stock.</li>
+<li><strong><code>*-root</code> (e.g. <code>tam-root</code>):</strong> Utilities running directly on the base Root-stock Linux distribution, limited strictly to the libraries and services the root-stock provides (e.g. POSIX libc, runit/systemd).</li>
+<li><strong><code>*</code> (e.g. <code>tam</code>):</strong> Flagship utilities running in the full Cultivar environment, taking advantage of Tamlinux packages, Nix/Home Manager integrations, and rich documentation.</li>
+</ul>
 
 <h2>The Germination and Grafting Sequence</h2>
 
@@ -88,6 +103,7 @@ a virtual machine pot for testing, while providing the identical desktop experie
 <li>The nut boots the Linux kernel and mounts a ramfs, executing <code>/init</code>. If the underlying disk lacks a root-stock, the nut enables networking (DHCP/Wi-Fi) and fetches the base system image.</li>
 <li>Control pivots to the <strong>root-stock</strong>: the real root filesystem mounts (Btrfs subvolume <code>@</code>), and the service manager (systemd or runit) launches core daemons.</li>
 <li>The root-stock launches the <strong>cultivar</strong>: the user session initializes Wayland, Quickshell renders the bar, and the Tamlinux desktop is live.</li>
+<li>The user launches <strong>fruit</strong>: applications like Suspra or terminal tools to get productive work done.</li>
 </ol>
 </section>
 

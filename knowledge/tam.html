@@ -42,6 +42,24 @@ recovery navigator is instantly accessible in emergency recovery consoles
 (<a href="maintain/recovery.html">Emergency Disaster Recovery</a>), even when the
 graphical environment is down or the network is completely unreachable.</p>
 
+<h3>The tam subcommands</h3>
+
+<p><code>tam</code> exposes a unified set of subcommands covering orientation, documentation, search, system inspection, and diagnostics:</p>
+
+<table>
+<tr><th>Subcommand</th><th>Purpose</th><th>Description</th></tr>
+<tr><td><code>tam welcome</code></td><td>Orientation</td><td>First-run onboarding guide; records welcome state upon completion (aliases: <code>tam hello</code>, <code>tam hi</code>).</td></tr>
+<tr><td><code>tam show [PAGE]</code></td><td>Guide Reader</td><td>Opens the offline guide or specific page in the built-in pager (or clean text with <code>--pipe</code>); supports <code>--level</code>.</td></tr>
+<tr><td><code>tam search TERM...</code></td><td>Search</td><td>Ranked keyword search across guide topics, summaries, and tags; supports <code>--json</code>.</td></tr>
+<tr><td><code>tam explain [TOPIC]</code></td><td>Topic Guides</td><td>Dynamic topic guides matching keywords, or bare <code>tam explain</code> to browse all topic keywords in the pager.</td></tr>
+<tr><td><code>tam man [SEC] PAGE</code></td><td>Manual Pages</td><td>Interactive roff manual page reader with active hyperlinked cross-references.</td></tr>
+<tr><td><code>tam info [MAN [NODE]]</code></td><td>GNU Info</td><td>Native Texinfo documentation browser with hyperlinked node menus and key navigation.</td></tr>
+<tr><td><code>tam inspect</code></td><td>Host Inspection</td><td>Read-only inspection of host hardware, CPU, RAM, storage mounts, DRM graphics, and packages.</td></tr>
+<tr><td><code>tam check [ID]</code></td><td>Health Assessment</td><td>Evaluates workstation health findings against the versioned offline Check Contract.</td></tr>
+<tr><td><code>tam ask QUESTION</code></td><td>Grounded AI</td><td>Grounded query interface to local LLM servers (e.g. Ollama) with mandatory citations.</td></tr>
+<tr><td><code>tam install</code></td><td>Installation</td><td>Deployment framework lifecycle: <code>inspect</code>, <code>plan</code>, <code>apply</code>, <code>verify</code>.</td></tr>
+</table>
+
 <h3>Building and installing from source</h3>
 
 <p>Building <code>tam</code> requires standard developer tools:</p>
@@ -160,6 +178,17 @@ $(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
 src/tam.c src/render.c src/pager.c src/install.c src/man.c \
 src/index.c src/depth.c src/ask.c src/info.c
 </pre>
+
+<h3>Decoupled command and corpus versioning</h3>
+
+<p>As of version 0.24.0, <code>tam</code> decouples the versioning of the C binary executable (the parser and pager displayer) from the offline documentation corpus:</p>
+
+<ul>
+<li><strong>Command version (<code>src/version.h</code>):</strong> Tracks the C binary implementation, layout algorithms, pager features, and subcommands.</li>
+<li><strong>Corpus version (<code>knowledge/version</code>):</strong> Tracks authored documentation pages, topic guides, and search index metadata.</li>
+<li><strong>Runtime resolution:</strong> When <code>tam</code> runs, it dynamically discovers the corpus root via <code>$TAM_KNOWLEDGE_DIR</code> or the compiled datadir, reading <code>knowledge/version</code> directly. This allows documentation edits to land without recompiling C code, and guarantees multi-agent concurrency across command and corpus lanes.</li>
+<li><strong>Compatibility contract:</strong> Within major versions (e.g. 1.x), any <code>tam</code> command binary is guaranteed to parse and render any knowledge corpus version.</li>
+</ul>
 </section>
 
 <section data-level="expert">
@@ -217,7 +246,7 @@ Release (Tamlinux distribution release)
 <h3>4. Release stage</h3>
 
 <ul>
-<li>A semantic release tag is cut (e.g. <code>v0.23.0</code>).</li>
+<li>A semantic release tag is cut (e.g. <code>v0.24.0</code>).</li>
 <li>The cultivar metadata record (<code>~/.config/tamlinux/version</code>) is updated to reflect the new release.</li>
 <li>If an unforeseen defect is detected, instant rollback is available via Home Manager generations (<a href="maintain/rollback.html">Snapshots and Rollbacks</a>), restoring the previous known-good binary and documentation in less than a second.</li>
 </ul>

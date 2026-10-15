@@ -9,11 +9,11 @@ read only that depth.
 Tamlinux uses a horticultural conceptual framework to describe system
 architecture, boot stages, base operating systems, and userland environments.
 Rather than thinking of an operating system as a single monolithic block,
-developer Fred conceives of the workstation through five interconnected
-botanical layers: the greenhouse, the pot, the nut, the root-stock, and the
-cultivar.
+developer Fred conceives of the workstation through six interconnected botanical
+layers: the greenhouse, the pot, the nut, the root-stock, the cultivar, and the
+fruit.
 
-The Five Layers
+The Six Layers
 
 1. The Greenhouse (Hardware): The physical machine. The CPU, RAM, motherboard,
    storage drives, thermal heatpipes, and displays provide the shelter, light,
@@ -38,6 +38,10 @@ The Five Layers
    Wayland compositor, Quickshell status bar, fred.* desktop plugins, terminal
    tools, and application suite. If the root-stock and the cultivar are
    compatible, the cultivar will thrive.
+6. The Fruit (End-User Applications): The ultimate yield of the tree:
+   applications such as Suspra, web browsers, document editors, and AI agents
+   that users run to accomplish real work. The entire tree exists to produce
+   healthy, dependable fruit.
 
 Why This Mental Model Matters
 
@@ -68,6 +72,24 @@ Root-stock      Base Distribution           Arch Linux (rolling, glibc, systemd)
 Cultivar        Tamlinux Workstation        Sway/wlroots, Quickshell, fred.*    
                                             plugins, tam, Nix/Home Manager      
                                             userland                            
+Fruit           User Applications           Suspra, web browsers, development   
+                                            environments, and productivity tools
+
+Command Varieties across the Botanical Layers
+
+To respect hardware constraints and dependency boundaries across the layers,
+Tamlinux defines three varieties of core utilities:
+
+- *-nut (e.g. tam-nut): Extremely minimal utilities designed for the Nut UKI
+  environment. Bounded strictly by the Linux kernel, a text terminal, and basic
+  ramfs tools; focused on inspecting the greenhouse (hardware resources) and
+  installing the root-stock.
+- *-root (e.g. tam-root): Utilities running directly on the base Root-stock
+  Linux distribution, limited strictly to the libraries and services the
+  root-stock provides (e.g. POSIX libc, runit/systemd).
+- * (e.g. tam): Flagship utilities running in the full Cultivar environment,
+  taking advantage of Tamlinux packages, Nix/Home Manager integrations, and rich
+  documentation.
 
 The Germination and Grafting Sequence
 
@@ -85,6 +107,8 @@ ladder:
    daemons.
 5. The root-stock launches the cultivar: the user session initializes Wayland,
    Quickshell renders the bar, and the Tamlinux desktop is live.
+6. The user launches fruit: applications like Suspra or terminal tools to get
+   productive work done.
 
 Architectural Invariants & Grafting Compatibility
 

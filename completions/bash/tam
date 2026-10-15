@@ -6,7 +6,7 @@ _tam_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local subcommands="show welcome explain search man info inspect check install ask help"
+    local subcommands="show welcome hello hi explain search man info inspect check install ask help"
     local global_flags="--help -h --pipe --terse --verbose --version -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
@@ -43,7 +43,7 @@ _tam_completions() {
                 COMPREPLY=($(compgen -W "--pipe --level" -- "$cur"))
             fi
             ;;
-        welcome)
+        welcome|hello|hi)
             COMPREPLY=($(compgen -W "--pipe" -- "$cur"))
             ;;
         explain)

@@ -207,6 +207,14 @@ def main():
             if p not in topics:
                 errors.append(f"{e['path']}: prerequisite {p!r} is not a topic")
 
+    version_file = knowledge_dir / "version"
+    if not version_file.is_file():
+        errors.append("knowledge/version: missing version file")
+    else:
+        v_str = version_file.read_text(encoding="utf-8").strip()
+        if not re.match(r'^\d+\.\d+\.\d+', v_str):
+            errors.append(f"knowledge/version: invalid version {v_str!r} (expected X.Y.Z)")
+
     check_breadcrumbs(knowledge_dir, errors)
 
     if errors:
@@ -233,6 +241,27 @@ def main():
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(entries, f, indent=2)
         f.write("\n")
+
+    # Generate knowledge/.build_id if in a git repository
+    git_dir = root / ".git"
+    if git_dir.exists():
+        try:
+            import subprocess
+            res = subprocess.run(
+                ["git", "-C", str(root), "log", "-n", "1", "--format=%h", "--", "knowledge", "tools"],
+                capture_output=True, text=True, check=True
+            )
+            cid = res.stdout.strip()
+            if cid:
+                status_res = subprocess.run(
+                    ["git", "-C", str(root), "status", "--porcelain", "--", "knowledge", "tools"],
+                    capture_output=True, text=True
+                )
+                if status_res.stdout.strip():
+                    cid += "-dirty"
+                (knowledge_dir / ".build_id").write_text(cid + "\n", encoding="utf-8")
+        except Exception:
+            pass
 
     print(f"Generated {tsv_path} and {json_path} with {len(entries)} entries.")
     return 0

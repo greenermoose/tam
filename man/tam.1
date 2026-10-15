@@ -68,7 +68,7 @@ It operates identically on minimal recovery systems, legacy hardware, and modern
 .B tam
 Print a concise introduction to the command and exit.
 .TP
-.B tam welcome \fR[\fB\-\-pipe\fR]
+.BR "tam welcome" " | " "tam hello" " | " "tam hi" " [\fB\-\-pipe\fR]"
 Open the first-run Tamlinux welcome orientation. When displayed successfully to completion in an interactive terminal, atomically records state in
 .I $XDG_STATE_HOME/tamlinux/welcome_seen
 to prevent repeated display on subsequent logins.
@@ -155,9 +155,11 @@ Print a concise synopsis of commands and options.
 .B tam \-\-version
 Print version information for the
 .B tam
-command,
+command binary, the bundled offline
+.B knowledge corpus
+(and its build revision),
 .BR libtam ,
-and the installed Tamlinux cultivar.
+and the installed Tamlinux cultivar metadata.
 .SH PAGER KEYBOARD CONTROLS
 When viewing pages with
 .BR "tam show" ,

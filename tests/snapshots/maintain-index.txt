@@ -35,17 +35,21 @@ Emergency disaster recovery
 
 Automated inspection and health checks
 
-The tam command provides built-in tools to inspect your machine's maintenance
-readiness without modifying any system configuration:
+The tam command provides built-in, read-only tools to inspect your machine's
+hardware configuration and evaluate maintenance health without modifying any
+system state:
 
   
-  tam install inspect
-  tam install inspect --check
+  tam inspect
+  tam check
   
 
-These commands evaluate host facts, check Btrfs snapshot support, verify
-available storage headroom, and audit privilege tools, deep-linking directly to
-the relevant maintenance guides above when findings arise.
+tam inspect audits host facts, architecture, DRM graphics controllers, storage
+mounts, and privilege escalation tools. tam check evaluates these findings
+against the versioned offline Check Contract (verifying Btrfs snapshot
+capabilities, adequate disk space headroom, and pkexec privilege tools),
+deep-linking directly to the relevant maintenance guides above when corrective
+steps are recommended.
 
 Where to next
 

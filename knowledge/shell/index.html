@@ -4,7 +4,7 @@
 <title>The Shell and Streams</title>
 <meta name="topic" content="shell">
 <meta name="summary" content="Unix philosophy, standard streams, and execution">
-<meta name="keywords" content="shell, streams, stdin, stdout, stderr, sh, bash, fish, ls, channels">
+<meta name="keywords" content="shell, streams, stdin, stdout, stderr, sh, bash, aliases, ls, channels">
 <meta name="level" content="beginner">
 <meta name="track" content="use">
 </head>
@@ -60,6 +60,14 @@ directly onto your command line using <code>$(command)</code>:</p>
 <pre>
 mkdir -p backup-$(date +%Y%m%d)
 </pre>
+
+<h2>User aliases and the one-place-to-look principle</h2>
+
+<p>The shell lets you define shorthand aliases for frequently used commands.
+In Tamlinux, all user aliases are consolidated in a single location: <code>~/.bashrc</code>.
+Rather than scattering alias configurations across system profiles and hidden drop-in
+directories, standard aliases (such as <code>hello</code> and <code>hi</code> mapped to
+<code>tam welcome</code>) live in your personal <code>~/.bashrc</code>.</p>
 
 <h2>Where to next</h2>
 

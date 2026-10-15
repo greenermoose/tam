@@ -60,12 +60,25 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 [ "$("$TAM" --verbose)" = "$("$TAM" help --verbose)" ] || fail "--verbose differs from help --verbose"
 pass "--help, -h, help, --terse, and --verbose"
 
-# Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.23.0' || fail "--version missing command version"
+# Version: command, knowledge corpus, and library versions are reported; metadata is explicit.
+"$TAM" --version | grep -q '0.24.0' || fail "--version missing command version"
+"$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
 pass "--version and -V"
+
+# Decoupled versioning: knowledge corpus version can diverge from command version.
+mock_corpus="$tmp/mock_corpus"
+mkdir -p "$mock_corpus"
+printf '0.99.1\n' > "$mock_corpus/version"
+printf 'mock789\n' > "$mock_corpus/.build_id"
+touch "$mock_corpus/index.html"
+env TAM_KNOWLEDGE_DIR="$mock_corpus" "$TAM" --version | grep -q 'knowledge corpus 0.99.1 (dev mock789)' \
+    || fail "decoupled corpus version not reported in --version"
+env TAM_KNOWLEDGE_DIR="$mock_corpus" "$TAM" | grep -q 'showing corpus version 0.99.1 (dev mock789)' \
+    || fail "decoupled corpus version not reported in bare tam"
+pass "decoupled corpus version resolution"
 
 # Cultivar version: env fallback, and the installed file wins over env.
 env HOME="$home" XDG_CONFIG_HOME="$config" XDG_STATE_HOME="$state" \
@@ -107,6 +120,13 @@ if env HOME="$tmp/w_home" XDG_STATE_HOME="$w_state" "$TAM" welcome extra >/dev/n
     fail "welcome with extra arguments exited 0"
 fi
 pass "welcome displays orientation and records welcome_seen"
+
+# hello and hi aliases for welcome
+hello_out=$("$TAM" hello --pipe)
+printf '%s\n' "$hello_out" | grep -q 'Welcome to Tamlinux' || fail "tam hello did not render welcome"
+hi_out=$("$TAM" hi --pipe)
+printf '%s\n' "$hi_out" | grep -q 'Welcome to Tamlinux' || fail "tam hi did not render welcome"
+pass "hello and hi aliases for welcome"
 
 # Welcome isolation: bare tam, show, help, version, explain, install NEVER write welcome state.
 iso_state="$tmp/iso_state"

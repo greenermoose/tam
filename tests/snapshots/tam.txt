@@ -29,6 +29,44 @@ navigator is instantly accessible in emergency recovery consoles ( Emergency
 Disaster Recovery), even when the graphical environment is down or the network
 is completely unreachable.
 
+The tam subcommands
+
+tam exposes a unified set of subcommands covering orientation, documentation,
+search, system inspection, and diagnostics:
+
+Subcommand             Purpose            Description                           
+---------------------  -----------------  --------------------------------------
+tam welcome            Orientation        First-run onboarding guide; records   
+                                          welcome state upon completion         
+                                          (aliases: tam hello, tam hi).         
+tam show [PAGE]        Guide Reader       Opens the offline guide or specific   
+                                          page in the built-in pager (or clean  
+                                          text with --pipe); supports --level.  
+tam search TERM...     Search             Ranked keyword search across guide    
+                                          topics, summaries, and tags; supports 
+                                          --json.                               
+tam explain [TOPIC]    Topic Guides       Dynamic topic guides matching         
+                                          keywords, or bare tam explain to      
+                                          browse all topic keywords in the      
+                                          pager.                                
+tam man [SEC] PAGE     Manual Pages       Interactive roff manual page reader   
+                                          with active hyperlinked               
+                                          cross-references.                     
+tam info [MAN [NODE]]  GNU Info           Native Texinfo documentation browser  
+                                          with hyperlinked node menus and key   
+                                          navigation.                           
+tam inspect            Host Inspection    Read-only inspection of host hardware,
+                                          CPU, RAM, storage mounts, DRM         
+                                          graphics, and packages.               
+tam check [ID]         Health Assessment  Evaluates workstation health findings 
+                                          against the versioned offline Check   
+                                          Contract.                             
+tam ask QUESTION       Grounded AI        Grounded query interface to local LLM 
+                                          servers (e.g. Ollama) with mandatory  
+                                          citations.                            
+tam install            Installation       Deployment framework lifecycle:       
+                                          inspect, plan, apply, verify.         
+
 Building and installing from source
 
 Building tam requires standard developer tools:
@@ -163,6 +201,22 @@ Where SRC comprises:
   src/index.c src/depth.c src/ask.c src/info.c
   
 
+Decoupled command and corpus versioning
+
+As of version 0.24.0, tam decouples the versioning of the C binary executable
+(the parser and pager displayer) from the offline documentation corpus:
+
+- Command version ( src/version.h): Tracks the C binary implementation, layout
+  algorithms, pager features, and subcommands.
+- Corpus version ( knowledge/version): Tracks authored documentation pages,
+  topic guides, and search index metadata.
+- Runtime resolution: When tam runs, it dynamically discovers the corpus root
+  via $TAM_KNOWLEDGE_DIR or the compiled datadir, reading knowledge/version
+  directly. This allows documentation edits to land without recompiling C code,
+  and guarantees multi-agent concurrency across command and corpus lanes.
+- Compatibility contract: Within major versions (e.g. 1.x), any tam command
+  binary is guaranteed to parse and render any knowledge corpus version.
+
 Expert: The develop-test-run-release lifecycle in Tamlinux
 
 Summary: How tam is packaged, verified, and shipped as part of Tamlinux through
@@ -223,7 +277,7 @@ that governs the full develop -> test -> run -> release cycle:
 
 4. Release stage
 
-- A semantic release tag is cut (e.g. v0.23.0).
+- A semantic release tag is cut (e.g. v0.24.0).
 - The cultivar metadata record ( ~/.config/tamlinux/version) is updated to
   reflect the new release.
 - If an unforeseen defect is detected, instant rollback is available via Home

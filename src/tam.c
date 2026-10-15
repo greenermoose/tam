@@ -105,6 +105,48 @@ char *cultivar_version(void)
     return NULL;
 }
 
+char *tam_corpus_version(const char *root)
+{
+    if (root == NULL || root[0] == '\0') {
+        return NULL;
+    }
+    char *path = join_path(root, "/version");
+    if (path == NULL) {
+        return NULL;
+    }
+    char *buf = tam_fs_read_file(path, NULL);
+    free(path);
+    if (buf != NULL) {
+        trim_in_place(buf);
+        if (buf[0] != '\0') {
+            return buf;
+        }
+        free(buf);
+    }
+    return strdup(TAM_DEFAULT_CORPUS_VERSION);
+}
+
+char *tam_corpus_build_id(const char *root)
+{
+    if (root == NULL || root[0] == '\0') {
+        return NULL;
+    }
+    char *path = join_path(root, "/.build_id");
+    if (path == NULL) {
+        return NULL;
+    }
+    char *buf = tam_fs_read_file(path, NULL);
+    free(path);
+    if (buf != NULL) {
+        trim_in_place(buf);
+        if (buf[0] != '\0') {
+            return buf;
+        }
+        free(buf);
+    }
+    return NULL;
+}
+
 enum {
     HELP_STANDARD = 0,
     HELP_TERSE,
@@ -116,6 +158,20 @@ static void print_tam_help(int tier)
     char dev_buf[64] = "";
     if (TAM_BUILD[0] != '\0') {
         snprintf(dev_buf, sizeof(dev_buf), " (dev %s)", TAM_BUILD);
+    }
+
+    char *k_root = tam_find_knowledge_root();
+    char *k_ver = tam_corpus_version(k_root);
+    char *k_build = tam_corpus_build_id(k_root);
+    char k_buf[128] = "";
+    if (k_ver != NULL) {
+        if (k_build != NULL && k_build[0] != '\0') {
+            snprintf(k_buf, sizeof(k_buf), " showing corpus version %s (dev %s)", k_ver, k_build);
+        } else {
+            snprintf(k_buf, sizeof(k_buf), " showing corpus version %s", k_ver);
+        }
+    } else {
+        snprintf(k_buf, sizeof(k_buf), " (corpus unavailable)");
     }
 
     if (tier == HELP_TERSE) {
@@ -130,6 +186,9 @@ static void print_tam_help(int tier)
             "Essential Options:\n"
             "  --help, -h | --pipe | --terse | --verbose | --version, -V\n",
             stdout);
+        free(k_ver);
+        free(k_build);
+        free(k_root);
         return;
     }
 
@@ -137,12 +196,12 @@ static void print_tam_help(int tier)
         printf(
             "tam - the Tamlinux command\n\n"
             "Understand, use, maintain, and improve your Tamlinux system.\n\n"
-            "This is version %s%s\n\n"
+            "This is tam version %s%s%s\n\n"
             "Usage:\n"
             "  tam <subcommand> [--options] [arguments]\n\n"
             "Guide and knowledge:\n"
             "  tam welcome [--pipe]\n"
-            "      first-run orientation and welcome guide\n"
+            "      first-run orientation and welcome guide (aliases: hello, hi)\n"
             "  tam show [PAGE|-] [--pipe]\n"
             "      open the offline guide, a specific page, or render HTML from stdin\n"
             "  tam search [--json] TERM...\n"
@@ -178,7 +237,10 @@ static void print_tam_help(int tier)
             "  TAM_ASK_MODEL             default local LLM name (default: qwen2.5-coder:1.5b)\n"
             "  TAM_ASK_SERVER            default local inference URL (default: http://127.0.0.1:11434)\n\n"
             "Run 'tam <subcommand> --help' for options specific to any subcommand.\n",
-            TAM_COMMAND_VERSION, dev_buf);
+            TAM_COMMAND_VERSION, dev_buf, k_buf);
+        free(k_ver);
+        free(k_build);
+        free(k_root);
         return;
     }
 
@@ -186,7 +248,7 @@ static void print_tam_help(int tier)
     printf(
         "tam - the Tamlinux command\n\n"
         "Understand, use, maintain, and improve your Tamlinux system.\n\n"
-        "This is version %s%s\n\n"
+        "This is tam version %s%s%s\n\n"
         "Usage:\n"
         "  tam <subcommand> [--options] [arguments]\n\n"
         "  tam welcome               first-run orientation\n\n"
@@ -207,18 +269,33 @@ static void print_tam_help(int tier)
         "  --verbose                 longer output\n"
         "  --version, -V             show version info\n\n"
         "Run 'tam --verbose' for a complete list of commands and more detail.\n",
-        TAM_COMMAND_VERSION, dev_buf);
+        TAM_COMMAND_VERSION, dev_buf, k_buf);
+    free(k_ver);
+    free(k_build);
+    free(k_root);
 }
 
 static void print_version(void)
 {
     char *cultivar = cultivar_version();
+    char *k_root = tam_find_knowledge_root();
+    char *k_ver = tam_corpus_version(k_root);
+    char *k_build = tam_corpus_build_id(k_root);
 
     if (TAM_BUILD[0] != '\0') {
         printf(TAM_COMMAND_NAME " command %s (dev %s)\n", TAM_COMMAND_VERSION,
                TAM_BUILD);
     } else {
         printf(TAM_COMMAND_NAME " command %s\n", TAM_COMMAND_VERSION);
+    }
+    if (k_ver != NULL) {
+        if (k_build != NULL && k_build[0] != '\0') {
+            printf("knowledge corpus %s (dev %s)\n", k_ver, k_build);
+        } else {
+            printf("knowledge corpus %s\n", k_ver);
+        }
+    } else {
+        printf("knowledge corpus: unavailable (no knowledge corpus found)\n");
     }
     printf("libtam %s\n", tam_version());
     if (cultivar != NULL) {
@@ -227,6 +304,9 @@ static void print_version(void)
     } else {
         printf("Tamlinux cultivar: unavailable (no installed cultivar metadata)\n");
     }
+    free(k_ver);
+    free(k_build);
+    free(k_root);
 }
 
 static int usage_error(const char *bad)
@@ -1560,7 +1640,8 @@ int main(int argc, char **argv)
     if (strcmp(arg, "show") == 0) {
         return cmd_show(argc - 2, argv + 2);
     }
-    if (strcmp(arg, "welcome") == 0) {
+    if (strcmp(arg, "welcome") == 0 || strcmp(arg, "hello") == 0 ||
+        strcmp(arg, "hi") == 0) {
         return cmd_welcome(argc - 2, argv + 2);
     }
     if (strcmp(arg, "search") == 0) {

@@ -4,7 +4,7 @@
 <title>Philosophy: Free Software, Open Standards, and Efficiency</title>
 <meta name="topic" content="philosophy">
 <meta name="summary" content="Free software, open standards, and resource efficiency in Tamlinux">
-<meta name="keywords" content="philosophy, freedom, free software, copyleft, gpl, fsf, freedesktop, xdg, standards, efficiency, energy, daemons, polling">
+<meta name="keywords" content="philosophy, freedom, free software, copyleft, gpl, fsf, freedesktop, xdg, standards, efficiency, energy, daemons, polling, principles, ergonomics, consistency">
 <meta name="level" content="beginner">
 <meta name="track" content="improve">
 </head>
@@ -34,6 +34,19 @@ software have:</p>
 <p>Tamlinux distributes its own software under <strong>GPL-3.0-or-later</strong>.
 Copyleft keeps these freedoms attached to every copy and every modified
 version.</p>
+
+<h2>Guiding principles for Tamlinux</h2>
+
+<p>Developer Fred Horch establishes six core engineering and design principles that guide the creation of Tamlinux:</p>
+
+<ol>
+<li><strong>One place to look:</strong> Put configuration and information where users naturally expect to find it. Rather than scattering shell aliases across multiple profile scripts, put them all in <code>~/.bashrc</code>; provide <code>tam</code> as the single entry point for system documentation and checks.</li>
+<li><strong>1 way to do 15 things, not 15 ways to do 1 thing:</strong> Curate packages decisively so users escape the "fiddling trap". Provide one excellent terminal (<code>foot</code>) and one standard shell (<code>bash</code>), eliminating paralyzing choice while providing a broad suite of software for diverse tasks.</li>
+<li><strong>Ergonomics matter:</strong> Optimize keyboard workflows and minimize keystrokes for common tasks. Design intuitive pager keys, concise CLI syntax, and quick orientation shortcuts.</li>
+<li><strong>Consistency counts:</strong> Standardize essential keybindings and behavioral contracts so muscle memory transfers reliably across terminal, desktop, and editor.</li>
+<li><strong>Zero tolerance policy for bugs:</strong> Uncover root causes no matter how deep into the stack it is necessary to go. Verify code with automated test suites, memory audits, and strict compiler enforcement.</li>
+<li><strong>Gather good ideas from everywhere:</strong> Adopt the best design elements from across computing history—Unix stream purity, Plan 9 plumbing, classic Amiga responsiveness, Mac accessibility, and modern Wayland protocols.</li>
+</ol>
 
 <h2>Standards and interoperability</h2>
 
