@@ -178,8 +178,19 @@ Jump to the top of the document.
 .BR G ", " End
 Jump to the bottom of the document.
 .TP
-.BR Tab ", " Shift-Tab
-Cycle forward or backward through hyperlinks on the current page.
+.BR Tab ", " Shift-Tab ", " a ", " s ", " d ", " f
+Navigate hyperlinks.
+.B a
+moves to the hyperlink to the left on the current line (wrapping to the line above), equivalent to
+.BR Shift-Tab .
+.B f
+moves to the hyperlink to the right on the current line (wrapping to the next line), equivalent to
+.BR Tab .
+.B s
+moves to the hyperlink above the selected hyperlink.
+.B d
+moves to the hyperlink below the selected hyperlink.
+If no hyperlink has been selected yet, any of these selectors selects the first hyperlink visible on the screen.
 .TP
 .BR Enter ", " Right
 Follow the selected hyperlink. When no link is selected,
@@ -197,7 +208,7 @@ Navigate up to the parent node in an Info manual, or go back to the previous doc
 .B t
 Jump directly to the \fITop\fR node of the current Info manual.
 .TP
-.B d
+.B i
 Jump directly to the root Info directory catalog (\fI(dir)Top\fR).
 .TP
 .B ` \fR(backtick)\fP

@@ -39,6 +39,7 @@ Human-only commits retain their original authorship.
 | 2026-10-14 | User Guide TOC, botanical analogy, and tam(1) man page 0.20.0 (`knowledge/index.html`, `ecosystem/terminology.html`, `man/tam.1`, `show topics`) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-user-guide-and-man-page.md) |
 | 2026-10-14 | "Improve" track knowledge corpus expansion 0.21.0 (`knowledge/improve/`, efficiency, zram, terminal, scripting, toolchains, ai-performance) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-improve-track-corpus.md) |
 | 2026-10-15 | Native GNU Info Subsystem 0.22.0 (`tam info`, `src/info.c`, pager keys `n`/`p`/`u`/`t`/`d`, cross-system `info:` URIs, indirect tags, completions) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-gnu-info-subsystem.md) |
+| 2026-10-15 | Pager hyperlink navigation ergonomics (`a`/`s`/`d`/`f` 2D navigation, first-visible-link selection, Info dir rebind `i`) | Antigravity CLI 1.3.5; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-hyperlink-navigation-keys.md) |
 
 
 

@@ -213,6 +213,185 @@ os.waitpid(pid, 0)
 ' "$TAM" "$root/knowledge" || fail "interactive pager link navigation failed"
     pass "pager link navigation: Tab forward and Shift-Tab backward circulation"
 
+    # Pager hyperlink navigation with a, s, d, f and Info dir rebind to i
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+# 1. Test 2D spatial link navigation on nav-grid fixture (a left, s up, d down, f right)
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
+os.close(slave)
+
+def send_and_get_target(key):
+    time.sleep(0.08)
+    while select.select([master], [], [], 0.02)[0]:
+        os.read(master, 1024)
+    os.write(master, key)
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.02)[0]:
+        buf += os.read(master, 1024)
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+    if not lines:
+        return ""
+    return lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace")
+
+time.sleep(0.15)
+# Initial: nothing selected. Press "f" -> selects first visible link: tl.html
+t0 = send_and_get_target(b"f")
+assert t0 == "tl.html", f"expected tl.html, got {t0}"
+
+# Press "f" -> moves right on same line: tr.html
+t1 = send_and_get_target(b"f")
+assert t1 == "tr.html", f"expected tr.html, got {t1}"
+
+# Press "d" -> moves down: br.html
+t2 = send_and_get_target(b"d")
+assert t2 == "br.html", f"expected br.html, got {t2}"
+
+# Press "a" -> moves left on same line: bl.html
+t3 = send_and_get_target(b"a")
+assert t3 == "bl.html", f"expected bl.html, got {t3}"
+
+# Press "s" -> moves up: tl.html
+t4 = send_and_get_target(b"s")
+assert t4 == "tl.html", f"expected tl.html, got {t4}"
+
+# Press "s" again from top -> wraps around to bottom: bl.html
+t5 = send_and_get_target(b"s")
+assert t5 == "bl.html", f"expected bl.html, got {t5}"
+
+# Press "d" again from bottom -> wraps around to top: tl.html
+t6 = send_and_get_target(b"d")
+assert t6 == "tl.html", f"expected tl.html, got {t6}"
+
+# Move to tr.html
+t7 = send_and_get_target(b"f")
+assert t7 == "tr.html", f"expected tr.html, got {t7}"
+
+# Press "s" from top right -> wraps around to bottom right: br.html
+t8 = send_and_get_target(b"s")
+assert t8 == "br.html", f"expected br.html, got {t8}"
+
+# Press "d" from bottom right -> wraps around to top right: tr.html
+t9 = send_and_get_target(b"d")
+assert t9 == "tr.html", f"expected tr.html, got {t9}"
+
+# a moves left to tl.html
+t10 = send_and_get_target(b"a")
+assert t10 == "tl.html", f"expected tl.html, got {t10}"
+
+# a from tl.html wraps to last link: br.html
+t11 = send_and_get_target(b"a")
+assert t11 == "br.html", f"expected br.html, got {t11}"
+
+# f from br.html wraps to first link: tl.html
+t12 = send_and_get_target(b"f")
+assert t12 == "tl.html", f"expected tl.html, got {t12}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+
+# 2. Test initial selection of first visible link for keys a, s, d
+for key in [b"a", b"s", b"d"]:
+    m, s = pty.openpty()
+    fcntl.ioctl(s, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+    p = os.fork()
+    if p == 0:
+        os.close(m)
+        os.dup2(s, 0)
+        os.dup2(s, 1)
+        os.dup2(s, 2)
+        os.close(s)
+        os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+        os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
+    os.close(s)
+    time.sleep(0.12)
+    while select.select([m], [], [], 0.02)[0]:
+        os.read(m, 1024)
+    os.write(m, key)
+    time.sleep(0.08)
+    buf = b""
+    while select.select([m], [], [], 0.02)[0]:
+        buf += os.read(m, 1024)
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+    target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+    assert target == "tl.html", f"expected tl.html for key {key}, got {target}"
+    os.write(m, b"q")
+    os.waitpid(p, 0)
+
+# 3. Test key i jumps to info:dir
+m, s = pty.openpty()
+fcntl.ioctl(s, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+p = os.fork()
+if p == 0:
+    os.close(m)
+    os.dup2(s, 0)
+    os.dup2(s, 1)
+    os.dup2(s, 2)
+    os.close(s)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[3]
+    os.execl(sys.argv[1], sys.argv[1], "show")
+os.close(s)
+time.sleep(0.15)
+while select.select([m], [], [], 0.02)[0]:
+    os.read(m, 1024)
+os.write(m, b"i")
+time.sleep(0.12)
+buf = b""
+while select.select([m], [], [], 0.02)[0]:
+    buf += os.read(m, 4096)
+lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+title = lines[-1].split(b"|")[0].replace(b"\x1b[K", b"").strip().decode("utf-8", "replace") if lines else ""
+assert "GNU Info Directory" in title or "dir" in title, f"expected Info Directory title, got {title}"
+os.write(m, b"q")
+os.waitpid(p, 0)
+
+# 4. Test selecting first visible link when scrolled down in viewport
+m, s = pty.openpty()
+fcntl.ioctl(s, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+p = os.fork()
+if p == 0:
+    os.close(m)
+    os.dup2(s, 0)
+    os.dup2(s, 1)
+    os.dup2(s, 2)
+    os.close(s)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[3]
+    os.execl(sys.argv[1], sys.argv[1], "show")
+os.close(s)
+time.sleep(0.15)
+while select.select([m], [], [], 0.02)[0]:
+    os.read(m, 1024)
+for _ in range(10):
+    os.write(m, b"j")
+    time.sleep(0.01)
+time.sleep(0.08)
+while select.select([m], [], [], 0.02)[0]:
+    os.read(m, 1024)
+os.write(m, b"d")
+time.sleep(0.08)
+buf = b""
+while select.select([m], [], [], 0.02)[0]:
+    buf += os.read(m, 4096)
+lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+assert target != "welcome.html" and target != "", f"unexpected target {target}"
+os.write(m, b"q")
+os.waitpid(p, 0)
+' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager a/s/d/f navigation or i dir key failed"
+    pass "pager hyperlink navigation: a/s/d/f 2D navigation, first visible link selection, and i dir rebind"
+
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl
 
@@ -1062,6 +1241,8 @@ set -e
 # Help output
 "$TAM" info --help | grep -q 'tam info - browse GNU Info manuals' || fail "tam info --help missing title"
 "$TAM" info -h | grep -q 'Usage:' || fail "tam info -h missing usage"
+"$TAM" info --help | grep -q 'i                         jump to root Info directory catalog' || fail "tam info --help missing i dir"
+"$TAM" info --help | grep -q 'a/s/d/f' || fail "tam info --help missing a/s/d/f"
 
 pass "tam info subcommand, node parsing, cross-references, and error handling"
 

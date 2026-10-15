@@ -79,6 +79,8 @@ typedef struct {
     const char       *href;
     size_t            line_start;
     size_t            line_end;
+    int               col_start;
+    int               col_end;
     const tam_span_t *span;
 } linkref_t;
 
@@ -119,11 +121,30 @@ static void pager_build_links(pager_t *st)
     st->selected = -1;
 
     for (size_t i = 0; i < st->doc->nlines; i++) {
+        int col = 0;
         for (size_t j = 0; j < st->doc->lines[i].nspans; j++) {
             const tam_span_t *sp = &st->doc->lines[i].spans[j];
+            size_t text_len = sp->text != NULL ? strlen(sp->text) : 0;
+            int span_col_start = col;
+            int span_col_end = col + (int)text_len;
+            col += (int)text_len;
+
             if (sp->href == NULL) {
                 continue;
             }
+
+            size_t lead = 0;
+            if (sp->text != NULL) {
+                while (lead < text_len && isspace((unsigned char)sp->text[lead])) {
+                    lead++;
+                }
+            }
+            int link_col_start = span_col_start + (int)lead;
+            int link_col_end = span_col_end;
+            if (link_col_start >= link_col_end) {
+                link_col_start = span_col_start;
+            }
+
             if (st->nlinks > 0) {
                 linkref_t *prev = &st->links[st->nlinks - 1];
                 int is_same = 0;
@@ -135,6 +156,9 @@ static void pager_build_links(pager_t *st)
                 }
                 if (is_same) {
                     prev->line_end = i;
+                    if (i == prev->line_start) {
+                        prev->col_end = link_col_end;
+                    }
                     continue;
                 }
             }
@@ -143,6 +167,8 @@ static void pager_build_links(pager_t *st)
             st->links[st->nlinks].href = sp->href;
             st->links[st->nlinks].line_start = i;
             st->links[st->nlinks].line_end = i;
+            st->links[st->nlinks].col_start = link_col_start;
+            st->links[st->nlinks].col_end = link_col_end;
             st->links[st->nlinks].span = sp;
             st->nlinks++;
         }
@@ -616,12 +642,12 @@ static void draw(pager_t *st)
     int off;
     if (st->doc->nav_next != NULL || st->doc->nav_prev != NULL || st->doc->nav_up != NULL) {
         off = snprintf(status, sizeof(status),
-                       " %s  |  %s  |  n/p next/prev  u up  t top  d dir  ` index  "
-                       "Tab/S-Tab link  Enter open  q quit",
+                       " %s  |  %s  |  n/p next/prev  u up  t top  i dir  ` index  "
+                       "a/s/d/f link  Enter open  q quit",
                        title, pos_metric);
     } else {
         off = snprintf(status, sizeof(status),
-                       " %s  |  %s  |  / find  n/N next  Tab/S-Tab link  Enter/\xe2\x86\x92 open  "
+                       " %s  |  %s  |  / find  n/N next  a/s/d/f link  Enter/\xe2\x86\x92 open  "
                        "` index  u/\xe2\x86\x90 back  q/Esc quit",
                        title, pos_metric);
     }
@@ -792,28 +818,47 @@ static void go_forward(pager_t *st)
     st->msg[0] = '\0';
 }
 
-static void select_next_link(pager_t *st, int dir)
+static int find_first_visible_link(const pager_t *st)
 {
     if (st->nlinks == 0) {
-        return;
-    }
-    if (st->selected < 0) {
-        st->selected = dir > 0 ? 0 : (int)st->nlinks - 1;
-    } else {
-        st->selected += dir;
-        if (st->selected < 0) {
-            st->selected = (int)st->nlinks - 1;
-        } else if ((size_t)st->selected >= st->nlinks) {
-            st->selected = 0;
-        }
+        return -1;
     }
     int usable = st->height - 1;
     if (usable < 1) {
         usable = 1;
     }
+    size_t top_line = (size_t)st->top;
+    size_t bot_line = (size_t)(st->top + usable - 1);
+
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if (st->links[i].line_end >= top_line && st->links[i].line_start <= bot_line) {
+            return (int)i;
+        }
+    }
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if (st->links[i].line_start > bot_line) {
+            return (int)i;
+        }
+    }
+    return 0;
+}
+
+static void ensure_link_visible(pager_t *st, int dir)
+{
+    if (st->selected < 0 || (size_t)st->selected >= st->nlinks) {
+        return;
+    }
+    int usable = st->height - 1;
+    if (usable < 1) {
+        usable = 1;
+    }
+    int max_top = (int)st->doc->nlines - usable;
+    if (max_top < 0) {
+        max_top = 0;
+    }
     size_t l_start = st->links[st->selected].line_start;
     size_t l_end = st->links[st->selected].line_end;
-    if (dir > 0) {
+    if (dir >= 0) {
         if ((int)l_start < st->top) {
             st->top = (int)l_start;
         } else if ((int)l_end >= st->top + usable) {
@@ -826,6 +871,116 @@ static void select_next_link(pager_t *st, int dir)
             st->top = (int)l_start - usable + 1;
         }
     }
+    if (st->top < 0) {
+        st->top = 0;
+    }
+    if (st->top > max_top) {
+        st->top = max_top;
+    }
+}
+
+static void select_next_link(pager_t *st, int dir)
+{
+    if (st->nlinks == 0) {
+        return;
+    }
+    if (st->selected < 0) {
+        st->selected = find_first_visible_link(st);
+        ensure_link_visible(st, 0);
+        st->msg[0] = '\0';
+        return;
+    }
+    st->selected += dir;
+    if (st->selected < 0) {
+        st->selected = (int)st->nlinks - 1;
+    } else if ((size_t)st->selected >= st->nlinks) {
+        st->selected = 0;
+    }
+    ensure_link_visible(st, dir);
+    st->msg[0] = '\0';
+}
+
+static void select_vertical_link(pager_t *st, int dir)
+{
+    if (st->nlinks == 0) {
+        return;
+    }
+    if (st->selected < 0) {
+        st->selected = find_first_visible_link(st);
+        ensure_link_visible(st, 0);
+        st->msg[0] = '\0';
+        return;
+    }
+
+    int cur = st->selected;
+    size_t cur_line = (dir < 0) ? st->links[cur].line_start : st->links[cur].line_end;
+    int cur_col = (st->links[cur].col_start + st->links[cur].col_end) / 2;
+
+    int target_line = -1;
+
+    if (dir < 0) {
+        /* Move up: find nearest line strictly above cur_line with links */
+        for (size_t i = 0; i < st->nlinks; i++) {
+            if (st->links[i].line_start < cur_line) {
+                if (target_line < 0 || (int)st->links[i].line_start > target_line) {
+                    target_line = (int)st->links[i].line_start;
+                }
+            }
+        }
+        /* If no link above, wrap around to the bottom-most line with links */
+        if (target_line < 0) {
+            for (size_t i = 0; i < st->nlinks; i++) {
+                if (target_line < 0 || (int)st->links[i].line_start > target_line) {
+                    target_line = (int)st->links[i].line_start;
+                }
+            }
+        }
+    } else {
+        /* Move down: find nearest line strictly below cur_line with links */
+        for (size_t i = 0; i < st->nlinks; i++) {
+            if (st->links[i].line_start > cur_line) {
+                if (target_line < 0 || (int)st->links[i].line_start < target_line) {
+                    target_line = (int)st->links[i].line_start;
+                }
+            }
+        }
+        /* If no link below, wrap around to the top-most line with links */
+        if (target_line < 0) {
+            for (size_t i = 0; i < st->nlinks; i++) {
+                if (target_line < 0 || (int)st->links[i].line_start < target_line) {
+                    target_line = (int)st->links[i].line_start;
+                }
+            }
+        }
+    }
+
+    /* Among links on target_line, find the one closest horizontally */
+    int best_k = -1;
+    int best_dist = -1;
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if ((int)st->links[i].line_start == target_line) {
+            int k_col = (st->links[i].col_start + st->links[i].col_end) / 2;
+            int dist = abs(k_col - cur_col);
+            if (best_dist < 0 || dist < best_dist) {
+                best_dist = dist;
+                best_k = (int)i;
+            }
+        }
+    }
+
+    /* If all links are on the same line and best_k == cur, cycle */
+    if (best_k == cur && st->nlinks > 1) {
+        if (dir < 0) {
+            best_k = (cur - 1 + (int)st->nlinks) % (int)st->nlinks;
+        } else {
+            best_k = (cur + 1) % (int)st->nlinks;
+        }
+    }
+
+    if (best_k >= 0) {
+        st->selected = best_k;
+    }
+    ensure_link_visible(st, dir);
     st->msg[0] = '\0';
 }
 
@@ -900,8 +1055,20 @@ static void handle_key(pager_t *st, unsigned char c)
             follow(st, st->doc->nav_top);
         }
         break;
-    case 'd':
+    case 'i':
         follow(st, "info:dir");
+        break;
+    case 'a':
+        select_next_link(st, -1);
+        break;
+    case 's':
+        select_vertical_link(st, -1);
+        break;
+    case 'd':
+        select_vertical_link(st, 1);
+        break;
+    case 'f':
+        select_next_link(st, 1);
         break;
     case 'j':
         st->top++;
