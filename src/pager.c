@@ -101,6 +101,8 @@ typedef struct {
     size_t          nforward;
     int             top;
     int             selected;
+    int             cursor_line;
+    int             sweep_dir;
     int             width;
     int             height;
     int             input_fd;
@@ -181,6 +183,106 @@ static const linkref_t *selected_link(const pager_t *st)
         return NULL;
     }
     return &st->links[st->selected];
+}
+
+#define TAM_ATTENTION_BG "\033[48;5;236m"
+
+static void emit_reset(int is_attention)
+{
+    if (is_attention) {
+        out("\033[0m" TAM_ATTENTION_BG);
+    } else {
+        out("\033[0m");
+    }
+}
+
+static int link_is_visible(const pager_t *st, int link_idx)
+{
+    if (link_idx < 0 || (size_t)link_idx >= st->nlinks) {
+        return 0;
+    }
+    int usable = st->height - 1;
+    if (usable < 1) {
+        usable = 1;
+    }
+    size_t top_line = (size_t)st->top;
+    size_t bot_line = (size_t)(st->top + usable - 1);
+    const linkref_t *l = &st->links[link_idx];
+    return (l->line_end >= top_line && l->line_start <= bot_line);
+}
+
+static int find_first_link_on_line(const pager_t *st, size_t line_idx)
+{
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if (st->links[i].line_start <= line_idx && st->links[i].line_end >= line_idx) {
+            return (int)i;
+        }
+    }
+    return -1;
+}
+
+static int find_last_link_on_line(const pager_t *st, size_t line_idx)
+{
+    int last = -1;
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if (st->links[i].line_start <= line_idx && st->links[i].line_end >= line_idx) {
+            last = (int)i;
+        }
+    }
+    return last;
+}
+
+static void set_cursor_line(pager_t *st, int new_line, int dir)
+{
+    if (st->doc == NULL || st->doc->nlines == 0) {
+        st->cursor_line = 0;
+        st->selected = -1;
+        return;
+    }
+    if (new_line < 0) {
+        new_line = 0;
+    }
+    if (new_line >= (int)st->doc->nlines) {
+        new_line = (int)st->doc->nlines - 1;
+    }
+    st->cursor_line = new_line;
+    st->sweep_dir = dir;
+
+    int usable = st->height - 1;
+    if (usable < 1) {
+        usable = 1;
+    }
+    int max_top = (int)st->doc->nlines - usable;
+    if (max_top < 0) {
+        max_top = 0;
+    }
+
+    if (st->cursor_line < st->top) {
+        st->top = st->cursor_line;
+    } else if (st->cursor_line >= st->top + usable) {
+        st->top = st->cursor_line - usable + 1;
+    }
+    if (st->top < 0) {
+        st->top = 0;
+    }
+    if (st->top > max_top) {
+        st->top = max_top;
+    }
+
+    int caught = -1;
+    if (dir >= 0) {
+        caught = find_first_link_on_line(st, (size_t)st->cursor_line);
+    } else {
+        caught = find_last_link_on_line(st, (size_t)st->cursor_line);
+    }
+
+    if (caught >= 0) {
+        st->selected = caught;
+    } else {
+        if (!link_is_visible(st, st->selected)) {
+            st->selected = -1;
+        }
+    }
 }
 
 static int emit_style(const tam_span_t *sp, int is_sel)
@@ -318,6 +420,7 @@ static void pager_perform_search(pager_t *st, const char *query)
         if (st->top > max_top) st->top = max_top;
         if (st->top < 0) st->top = 0;
     }
+    set_cursor_line(st, hit_line, 1);
 
     snprintf(st->msg, sizeof(st->msg), "[%d/%zu] %s", st->cur_hit + 1, st->nhits, st->search_query);
 }
@@ -352,6 +455,7 @@ static void pager_next_hit(pager_t *st, int dir)
         if (st->top > max_top) st->top = max_top;
         if (st->top < 0) st->top = 0;
     }
+    set_cursor_line(st, hit_line, dir);
 
     snprintf(st->msg, sizeof(st->msg), "[%d/%zu] %s", st->cur_hit + 1, st->nhits, st->search_query);
 }
@@ -412,6 +516,21 @@ static void emit_line(const tam_line_t *line, int width,
                       const linkref_t *sel, size_t line_idx,
                       const pager_t *st)
 {
+    int is_attention = (st != NULL && (int)line_idx == st->cursor_line);
+    if (is_attention) {
+        out(TAM_ATTENTION_BG);
+    }
+
+    if (line->nspans == 0) {
+        if (is_attention) {
+            for (int c = 0; c < width; c++) {
+                outn(" ", 1);
+            }
+            out("\033[0m");
+        }
+        return;
+    }
+
     size_t hit_start = 0, hit_count = 0;
     if (st != NULL && st->nhits > 0) {
         while (hit_start < st->nhits && st->hits[hit_start].line_idx < line_idx) {
@@ -455,7 +574,7 @@ static void emit_line(const tam_line_t *line, int width,
                         k++;
                     }
                     if (styled) {
-                        out("\033[0m");
+                        emit_reset(is_attention);
                     }
                 }
             } else {
@@ -465,9 +584,16 @@ static void emit_line(const tam_line_t *line, int width,
                     col++;
                 }
                 if (styled) {
-                    out("\033[0m");
+                    emit_reset(is_attention);
                 }
             }
+        }
+        if (is_attention) {
+            while (col < width) {
+                outn(" ", 1);
+                col++;
+            }
+            out("\033[0m");
         }
         return;
     }
@@ -505,7 +631,7 @@ static void emit_line(const tam_line_t *line, int width,
                 }
                 if (hit_type != active_hit_style) {
                     if (active_hit_style != 0) {
-                        out("\033[0m");
+                        emit_reset(is_attention);
                     }
                     if (hit_type == 2) {
                         out("\033[7;1m");
@@ -536,7 +662,7 @@ static void emit_line(const tam_line_t *line, int width,
                     }
                 }
                 if (hit_type != active_hit_style) {
-                    out("\033[0m");
+                    emit_reset(is_attention);
                     if (hit_type == 2) {
                         out("\033[7;1m");
                     } else if (hit_type == 1) {
@@ -551,15 +677,22 @@ static void emit_line(const tam_line_t *line, int width,
                 k++;
             }
             if (active_hit_style != 0) {
-                out("\033[0m");
+                emit_reset(is_attention);
                 active_hit_style = 0;
             } else if (span_styled) {
-                out("\033[0m");
+                emit_reset(is_attention);
             }
         }
         line_byte_pos += tl;
     }
     if (active_hit_style != 0) {
+        emit_reset(is_attention);
+    }
+    if (is_attention) {
+        while (col < width) {
+            outn(" ", 1);
+            col++;
+        }
         out("\033[0m");
     }
 }
@@ -629,14 +762,14 @@ static void draw(pager_t *st)
     const char *title = st->doc->title ? st->doc->title : "tam";
     char pos_metric[64];
     if (st->doc->nlines <= (size_t)usable) {
-        snprintf(pos_metric, sizeof(pos_metric), "L1/%zu (All)", st->doc->nlines);
+        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (All)", st->cursor_line + 1, st->doc->nlines);
     } else if (st->top == 0) {
-        snprintf(pos_metric, sizeof(pos_metric), "L1/%zu (Top)", st->doc->nlines);
+        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (Top)", st->cursor_line + 1, st->doc->nlines);
     } else if (st->top >= max_top) {
-        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (Bot)", st->top + 1, st->doc->nlines);
+        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (Bot)", st->cursor_line + 1, st->doc->nlines);
     } else {
-        int pct = (int)(((long)st->top * 100) / (max_top > 0 ? max_top : 1));
-        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (%d%%)", st->top + 1, st->doc->nlines, pct);
+        int pct = (int)(((long)st->cursor_line * 100) / (st->doc->nlines > 1 ? (int)st->doc->nlines - 1 : 1));
+        snprintf(pos_metric, sizeof(pos_metric), "L%d/%zu (%d%%)", st->cursor_line + 1, st->doc->nlines, pct);
     }
 
     int off;
@@ -721,25 +854,14 @@ static void follow(pager_t *st, const char *href)
     if (href[0] == '#') {
         const char *target = href + 1;
         if (target[0] == '\0') {
-            st->top = 0;
+            set_cursor_line(st, 0, -1);
             st->msg[0] = '\0';
             return;
         }
         for (size_t i = 0; i < st->doc->nlines; i++) {
             for (size_t j = 0; j < st->doc->lines[i].nspans; j++) {
                 if (match_anchor(st->doc->lines[i].spans[j].text, target)) {
-                    st->top = (int)i;
-                    int usable = st->height - 1;
-                    if (usable < 1) {
-                        usable = 1;
-                    }
-                    int max_top = (int)st->doc->nlines - usable;
-                    if (max_top < 0) {
-                        max_top = 0;
-                    }
-                    if (st->top > max_top) {
-                        st->top = max_top;
-                    }
+                    set_cursor_line(st, (int)i, 1);
                     snprintf(st->msg, sizeof(st->msg), "jumped to %s", target);
                     return;
                 }
@@ -766,6 +888,8 @@ static void follow(pager_t *st, const char *href)
     st->doc = nd;
     pager_build_links(st);
     st->top = 0;
+    st->cursor_line = 0;
+    st->selected = -1;
     st->msg[0] = '\0';
 }
 
@@ -791,6 +915,8 @@ static void go_back(pager_t *st)
     st->doc = nd;
     pager_build_links(st);
     st->top = 0;
+    st->cursor_line = 0;
+    st->selected = -1;
     st->msg[0] = '\0';
 }
 
@@ -815,6 +941,8 @@ static void go_forward(pager_t *st)
     st->doc = nd;
     pager_build_links(st);
     st->top = 0;
+    st->cursor_line = 0;
+    st->selected = -1;
     st->msg[0] = '\0';
 }
 
@@ -831,12 +959,13 @@ static int find_first_visible_link(const pager_t *st)
     size_t bot_line = (size_t)(st->top + usable - 1);
 
     for (size_t i = 0; i < st->nlinks; i++) {
-        if (st->links[i].line_end >= top_line && st->links[i].line_start <= bot_line) {
+        if (st->links[i].line_start >= (size_t)st->cursor_line &&
+            st->links[i].line_start <= bot_line) {
             return (int)i;
         }
     }
     for (size_t i = 0; i < st->nlinks; i++) {
-        if (st->links[i].line_start > bot_line) {
+        if (st->links[i].line_end >= top_line && st->links[i].line_start <= bot_line) {
             return (int)i;
         }
     }
@@ -886,7 +1015,8 @@ static void select_next_link(pager_t *st, int dir)
     }
     if (st->selected < 0) {
         st->selected = find_first_visible_link(st);
-        ensure_link_visible(st, 0);
+        st->cursor_line = (int)st->links[st->selected].line_start;
+        ensure_link_visible(st, dir);
         st->msg[0] = '\0';
         return;
     }
@@ -896,6 +1026,7 @@ static void select_next_link(pager_t *st, int dir)
     } else if ((size_t)st->selected >= st->nlinks) {
         st->selected = 0;
     }
+    st->cursor_line = (int)st->links[st->selected].line_start;
     ensure_link_visible(st, dir);
     st->msg[0] = '\0';
 }
@@ -907,7 +1038,8 @@ static void select_vertical_link(pager_t *st, int dir)
     }
     if (st->selected < 0) {
         st->selected = find_first_visible_link(st);
-        ensure_link_visible(st, 0);
+        st->cursor_line = (int)st->links[st->selected].line_start;
+        ensure_link_visible(st, dir);
         st->msg[0] = '\0';
         return;
     }
@@ -979,6 +1111,7 @@ static void select_vertical_link(pager_t *st, int dir)
 
     if (best_k >= 0) {
         st->selected = best_k;
+        st->cursor_line = (int)st->links[best_k].line_start;
     }
     ensure_link_visible(st, dir);
     st->msg[0] = '\0';
@@ -986,6 +1119,20 @@ static void select_vertical_link(pager_t *st, int dir)
 
 static void follow_selected(pager_t *st)
 {
+    int cur_link = find_first_link_on_line(st, (size_t)st->cursor_line);
+    if (cur_link >= 0) {
+        if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+            st->links[st->selected].line_start <= (size_t)st->cursor_line &&
+            st->links[st->selected].line_end >= (size_t)st->cursor_line) {
+            /* Keep currently selected link on this line */
+        } else {
+            st->selected = cur_link;
+        }
+    } else if (!link_is_visible(st, st->selected)) {
+        snprintf(st->msg, sizeof(st->msg), "no link selected");
+        return;
+    }
+
     const linkref_t *sel = selected_link(st);
     if (sel != NULL && sel->href != NULL) {
         follow(st, sel->href);
@@ -1071,22 +1218,22 @@ static void handle_key(pager_t *st, unsigned char c)
         select_next_link(st, 1);
         break;
     case 'j':
-        st->top++;
+        set_cursor_line(st, st->cursor_line + 1, 1);
         break;
     case 'k':
-        st->top--;
+        set_cursor_line(st, st->cursor_line - 1, -1);
         break;
     case ' ':
-        st->top += usable;
+        set_cursor_line(st, st->cursor_line + usable, 1);
         break;
     case 'b':
-        st->top -= usable;
+        set_cursor_line(st, st->cursor_line - usable, -1);
         break;
     case 'g':
-        st->top = 0;
+        set_cursor_line(st, 0, -1);
         break;
     case 'G':
-        st->top = max_top;
+        set_cursor_line(st, (int)st->doc->nlines - 1, 1);
         break;
     case '\t':
         select_next_link(st, 1);
@@ -1114,8 +1261,7 @@ static void handle_key(pager_t *st, unsigned char c)
         if (strcmp(st->cur_href, "index.html") != 0) {
             follow(st, "index.html");
         } else {
-            st->top = 0;
-            st->selected = -1;
+            set_cursor_line(st, 0, -1);
             st->msg[0] = '\0';
         }
         break;
@@ -1149,9 +1295,9 @@ static void handle_key(pager_t *st, unsigned char c)
         }
         seq[n] = '\0';
         if (strcmp(seq, "A") == 0) {
-            st->top--;
+            set_cursor_line(st, st->cursor_line - 1, -1);
         } else if (strcmp(seq, "B") == 0) {
-            st->top++;
+            set_cursor_line(st, st->cursor_line + 1, 1);
         } else if (strcmp(seq, "C") == 0) {
             if (st->selected >= 0) {
                 follow_selected(st);
@@ -1161,13 +1307,13 @@ static void handle_key(pager_t *st, unsigned char c)
         } else if (strcmp(seq, "D") == 0) {
             go_back(st);
         } else if (strcmp(seq, "H") == 0) {
-            st->top = 0;
+            set_cursor_line(st, 0, -1);
         } else if (strcmp(seq, "F") == 0) {
-            st->top = max_top;
+            set_cursor_line(st, (int)st->doc->nlines - 1, 1);
         } else if (strcmp(seq, "5~") == 0) {
-            st->top -= usable;
+            set_cursor_line(st, st->cursor_line - usable, -1);
         } else if (strcmp(seq, "6~") == 0) {
-            st->top += usable;
+            set_cursor_line(st, st->cursor_line + usable, 1);
         } else if (strcmp(seq, "Z") == 0 || strcmp(seq, "1;2Z") == 0 ||
                    strcmp(seq, "9;2u") == 0 || strcmp(seq, "27;2;9~") == 0) {
             select_next_link(st, -1);
@@ -1179,6 +1325,7 @@ static void handle_key(pager_t *st, unsigned char c)
             int idx = c - '1';
             if ((size_t)idx < st->nlinks) {
                 st->selected = idx;
+                st->cursor_line = (int)st->links[idx].line_start;
                 follow(st, st->links[idx].href);
             }
         }
@@ -1201,11 +1348,14 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     st.doc = initial;
     st.cur_href = strdup(initial_href);
     st.selected = -1;
+    st.cursor_line = 0;
+    st.sweep_dir = 1;
     st.load = load;
     st.ctx = ctx;
     st.width = tam_terminal_width();
     st.height = terminal_height();
     pager_build_links(&st);
+    st.selected = -1;
 
     int input_fd = STDIN_FILENO;
     int tty_fd = -1;
@@ -1281,6 +1431,12 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
             }
             if (st.top > max_top) {
                 st.top = max_top;
+            }
+            if (st.cursor_line >= (int)st.doc->nlines) {
+                st.cursor_line = (int)st.doc->nlines - 1;
+            }
+            if (!link_is_visible(&st, st.selected)) {
+                st.selected = -1;
             }
         }
         handle_key(&st, c);

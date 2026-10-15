@@ -61,7 +61,8 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h, help, --terse, and --verbose"
 
 # Version: command, knowledge corpus, and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.24.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.25.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.24.0' || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
@@ -784,6 +785,119 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/knowledge" || fail "interactive explain topics pager failed"
     pass "tam explain topics: interactive pager with live hyperlinks, back, and home shortcut"
+
+    # Pager attention line, directional link catching, anchored Tab, and safe Enter activation
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+# Part 1: Directional catching and visible retention on nav-grid
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
+os.close(slave)
+
+def get_state():
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.02)[0]:
+        buf += os.read(master, 4096)
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    last = lines[-1].replace(b"\x1b[K", b"").strip() if lines else b""
+    parts = last.split(b"|")
+    title = parts[0].strip().decode("utf-8", "replace") if len(parts) > 0 else ""
+    pos = parts[1].strip().decode("utf-8", "replace") if len(parts) > 1 else ""
+    target = ""
+    if b"->" in last:
+        target = last.split(b"->")[-1].strip().decode("utf-8", "replace")
+    msg = ""
+    if b"[" in last and b"]" in last:
+        msg = last.split(b"[")[-1].split(b"]")[0].strip().decode("utf-8", "replace")
+    has_tint = b"\x1b[48;5;236m" in buf
+    return title, pos, target, msg, has_tint
+
+def send_key(key):
+    while select.select([master], [], [], 0.02)[0]:
+        os.read(master, 1024)
+    os.write(master, key)
+    return get_state()
+
+time.sleep(0.15)
+title, pos, target, msg, has_tint = get_state()
+assert has_tint, "expected attention line background tint in output buffer"
+assert "L1/4 (All)" in pos, f"expected L1/4 in position metric, got: {pos}"
+assert target == "", f"expected no initial selection, got: {target}"
+
+# 1. First j moves to blank separator line: no link
+title, pos, target, msg, has_tint = send_key(b"j")
+assert "L2/4" in pos and target == "", f"expected blank line, got: {pos} {target}"
+
+# 2. Second j moves onto links line 1: downward sweep catches FIRST link (tl.html)
+title, pos, target, msg, has_tint = send_key(b"j")
+assert "L3/4" in pos and target == "tl.html", f"expected downward sweep to catch first link tl.html, got: {target}"
+
+# 3. Third j moves onto links line 2: downward sweep catches FIRST link (bl.html)
+title, pos, target, msg, has_tint = send_key(b"j")
+assert "L4/4" in pos and target == "bl.html", f"expected downward sweep to catch first link bl.html, got: {target}"
+
+# 4. Tab advances on line 2 to br.html
+title, pos, target, msg, has_tint = send_key(b"\t")
+assert target == "br.html", f"expected Tab to advance to br.html, got: {target}"
+
+# 5. Upward sweep (k) back to line 1: catches LAST link (tr.html)
+title, pos, target, msg, has_tint = send_key(b"k")
+assert "L3/4" in pos and target == "tr.html", f"expected upward sweep to catch last link tr.html, got: {target}"
+
+# 6. Upward sweep (k) to blank line: tr.html stays selected because it is still visible!
+title, pos, target, msg, has_tint = send_key(b"k")
+assert "L2/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
+
+# 7. Upward sweep (k) to heading line: tr.html stays selected while visible!
+title, pos, target, msg, has_tint = send_key(b"k")
+assert "L1/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+
+# Part 2: Off-screen link de-selection and safe Enter
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[3]
+    os.execl(sys.argv[1], sys.argv[1], "show", "welcome")
+os.close(slave)
+
+time.sleep(0.15)
+# Select first link (index.html on line 1)
+title, pos, target, msg, has_tint = send_key(b"\t")
+assert target == "index.html", f"expected index.html, got: {target}"
+# Page down (Space): line 1 scrolls off screen
+title, pos, target, msg, has_tint = send_key(b" ")
+assert target == "", f"expected link to be cleared when scrolled off-screen, got: {target}"
+# Enter when no link selected reports message and does not open off-screen link
+title, pos, target, msg, has_tint = send_key(b"\r")
+assert title == "Welcome", f"expected to remain on Welcome, got: {title}"
+assert "no link selected" in msg, f"expected no link selected message, got: {msg}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager attention line test failed"
+    pass "attention line: charcoal tint, directional link catching (down->first, up->last), and anchored Enter"
 fi
 
 
