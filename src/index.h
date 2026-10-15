@@ -63,4 +63,31 @@ void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level);
  * A non-zero level mask filters to topics offering that depth. */
 void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned level, bool terse, bool verbose);
 
+/* Find all pages in the index matching a topic or keyword.
+ * Populates out_entries up to max_entries, ordered with primary matches first.
+ * If level is non-zero, only entries matching that level mask are returned.
+ * Returns the number of matching entries found. */
+size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
+                                  unsigned level, const tam_index_entry_t **out_entries,
+                                  size_t max_entries);
+
+/* Dynamic list of unique topic keywords extracted from metadata across all pages. */
+typedef struct {
+    char *keyword;
+    size_t count;
+    char *primary_summary;
+} tam_keyword_info_t;
+
+typedef struct {
+    tam_keyword_info_t *items;
+    size_t count;
+} tam_keyword_list_t;
+
+/* Collect all unique topic keywords from index metadata (sorted alphabetically).
+ * If level is non-zero, only keywords for pages matching that level are included. */
+tam_keyword_list_t *tam_index_get_keywords(const tam_index_t *idx, unsigned level);
+
+/* Free keyword list */
+void tam_keyword_list_free(tam_keyword_list_t *list);
+
 #endif /* TAM_INDEX_H */

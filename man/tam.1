@@ -9,6 +9,7 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .br
 .B tam show
 .RI [ PAGE | \- ]
+.RI [ --level \ LEVEL ]
 .RI [ --pipe ]
 .br
 .B tam search
@@ -72,8 +73,8 @@ Open the first-run Tamlinux welcome orientation. When displayed successfully to 
 .I $XDG_STATE_HOME/tamlinux/welcome_seen
 to prevent repeated display on subsequent logins.
 .TP
-.B tam show \fR[\fIPAGE\fR|\fB\-\fR] [\fB\-\-pipe\fR]
-Open the offline user guide in the built-in interactive pager, or stream plain text. If
+.B tam show \fR[\fIPAGE\fR|\fB\-\fR] [\fB\-\-level\fR \fILEVEL\fR] [\fB\-\-pipe\fR]
+Open the offline user guide in the built-in interactive pager, or stream plain text. Directly view a specific page or index. If
 .I PAGE
 is omitted, opens the root User Guide index (
 .I index.html
@@ -83,7 +84,9 @@ is
 .BR topics ,
 displays the interactive topic catalog. If
 .B \-
-is specified, reads semantic HTML from standard input and displays it in the pager. Supports depth queries via
+is specified, reads semantic HTML from standard input and displays it in the pager. Supports depth filtering via
+.BI \-\-level \ LEVEL
+or
 .BI ?level= LEVEL
 (where
 .I LEVEL
@@ -98,9 +101,13 @@ Search the bundled offline corpus index using field-weighted ranking (topic slug
 .BR "tam man" .
 .TP
 .B tam explain \fR[\fB\-\-level\fR \fILEVEL\fR] [\fITOPIC\fR] [\fB\-\-pipe\fR]
-Explain a curated system concept, shell construct, or tool. Bare
+Display a topic guide to concepts and keywords in the Tamlinux guide.
 .B tam explain
-emits a brief usage overview pointing to available topics. Input containing shell characters (pipes, redirections, subshells) is treated purely as data and is never executed. Multi-word queries fall back to ranked index search.
+always displays a topic guide listing relevant pages with explanations, never jumping directly to a single page (use
+.B tam show
+to directly view a page). Bare
+.B tam explain
+presents a dynamically generated catalog of all topic keywords from page metadata in the built-in pager. Input containing shell characters (pipes, redirections, subshells) is treated purely as data and is never executed. Multi-word queries fall back to ranked index search.
 .TP
 .B tam explain topics \fR[\fB\-\-pipe\fR] [\fB\-\-terse\fR|\fB\-\-verbose\fR] [\fB\-\-level\fR \fILEVEL\fR]
 Display the complete catalog of curated explanation topics. Interactively opens a hyperlinked table in the built-in pager, allowing immediate selection and navigation. Under

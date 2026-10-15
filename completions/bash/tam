@@ -36,7 +36,14 @@ _tam_completions() {
         search)
             COMPREPLY=($(compgen -W "--json --pipe" -- "$cur"))
             ;;
-        show|welcome)
+        show)
+            if [ "$prev" = "--level" ]; then
+                COMPREPLY=($(compgen -W "beginner intermediate expert" -- "$cur"))
+            else
+                COMPREPLY=($(compgen -W "--pipe --level" -- "$cur"))
+            fi
+            ;;
+        welcome)
             COMPREPLY=($(compgen -W "--pipe" -- "$cur"))
             ;;
         explain)

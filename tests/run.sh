@@ -61,7 +61,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h, help, --terse, and --verbose"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.22.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.23.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -771,7 +771,7 @@ fi
 ex_out=$("$TAM" explain pipelines --pipe)
 printf '%s\n' "$ex_out" | grep -q 'Shell pipelines' || fail "explain pipelines failed"
 ex_pipe=$("$TAM" explain '>' --pipe)
-printf '%s\n' "$ex_pipe" | grep -q 'Redirection' || fail "explain '>' failed"
+printf '%s\n' "$ex_pipe" | grep -qi 'Redirection' || fail "explain '>' failed"
 ex_pipe_sym=$("$TAM" explain '|' --pipe)
 printf '%s\n' "$ex_pipe_sym" | grep -q 'Shell pipelines' || fail "explain '|' failed"
 ex_pipe_q1=$("$TAM" explain "'|'" --pipe)
@@ -840,20 +840,35 @@ printf '%s\n' "$ex_aip" | grep -q 'Physics of Local AI Generation' || fail "expl
 ex_stdin=$(printf 'jobs\n' | "$TAM" explain - --pipe)
 printf '%s\n' "$ex_stdin" | grep -q 'Processes, Jobs, and Signals' || fail "explain - failed to read topic from stdin"
 
-# Bare explain displays strictly concise usage synopsis (<=15 lines screen budget) and exits 0.
-ex_list=$("$TAM" explain)
-[ $(printf '%s\n' "$ex_list" | wc -l) -le 15 ] || fail "bare explain exceeds 15 lines"
-printf '%s\n' "$ex_list" | grep -q 'tam explain topics' || fail "bare explain missing topics pointer"
-printf '%s\n' "$ex_list" | grep -q 'tam explain TOPIC' || fail "bare explain missing usage"
-printf '%s\n' "$ex_list" | grep -q 'tam show' || fail "bare explain missing show pointer"
-if printf '%s\n' "$ex_list" | grep -qi 'Available topics:'; then
-    fail "bare explain unexpectedly dumps full topic catalog"
-fi
+# Explain usage synopsis: explain --help, -h, and help display strictly concise usage synopsis (<=15 lines screen budget) and exit 0.
+ex_help=$("$TAM" explain --help)
+[ $(printf '%s\n' "$ex_help" | wc -l) -le 15 ] || fail "explain --help exceeds 15 lines"
+printf '%s\n' "$ex_help" | grep -q 'tam explain topics' || fail "explain --help missing topics pointer"
+printf '%s\n' "$ex_help" | grep -q 'tam explain TOPIC' || fail "explain --help missing usage"
+printf '%s\n' "$ex_help" | grep -q 'tam show' || fail "explain --help missing show pointer"
+[ "$("$TAM" explain help)" = "$ex_help" ] || fail "explain help differs from explain --help"
+[ "$("$TAM" explain -h)" = "$ex_help" ] || fail "explain -h differs from explain --help"
 
-# explain --help, -h, and help match bare explain usage synopsis.
-[ "$("$TAM" explain help)" = "$ex_list" ] || fail "explain help differs from bare explain"
-[ "$("$TAM" explain --help)" = "$ex_list" ] || fail "explain --help differs from bare explain"
-[ "$("$TAM" explain -h)" = "$ex_list" ] || fail "explain -h differs from bare explain"
+# Bare explain displays dynamic topic keywords catalog.
+ex_kw=$("$TAM" explain --pipe)
+printf '%s\n' "$ex_kw" | grep -q 'Topic Keywords' || fail "bare explain missing Topic Keywords"
+printf '%s\n' "$ex_kw" | grep -q 'Topic Keyword' || fail "bare explain missing table heading"
+printf '%s\n' "$ex_kw" | grep -q 'tam' || fail "bare explain missing tam topic keyword"
+printf '%s\n' "$ex_kw" | grep -q 'pipelines' || fail "bare explain missing pipelines topic keyword"
+
+# tam explain TOPIC displays a Topic Guide (never takes user directly to a page)
+ex_tg_tam=$("$TAM" explain tam --pipe)
+printf '%s\n' "$ex_tg_tam" | grep -q 'Topic Guide: tam' || fail "explain tam missing Topic Guide header"
+printf '%s\n' "$ex_tg_tam" | grep -q 'The tam Command' || fail "explain tam missing The tam Command page"
+printf '%s\n' "$ex_tg_tam" | grep -q 'tam.html' || fail "explain tam missing tam.html link"
+
+# tam show tam directly displays the dedicated tam page
+sh_tam=$("$TAM" show tam --pipe)
+printf '%s\n' "$sh_tam" | grep -q 'The tam Command' || fail "tam show tam missing heading"
+printf '%s\n' "$sh_tam" | grep -qi 'C11' || fail "tam show tam missing C11 language"
+printf '%s\n' "$sh_tam" | grep -q 'Makefile targets' || fail "tam show tam missing Makefile targets"
+printf '%s\n' "$sh_tam" | grep -q 'libtam' || fail "tam show tam missing libtam"
+printf '%s\n' "$sh_tam" | grep -qi 'develop -> test -> run -> release' || fail "tam show tam missing release cycle"
 
 # tam explain topics lists available topics and exits 0.
 ex_topics=$("$TAM" explain topics --pipe)
@@ -895,13 +910,18 @@ if printf '%s\n' "$ex_expert_terse" | grep -qx 'desktop'; then fail "expert ters
 ex_multi=$("$TAM" explain cpu load --pipe)
 printf '%s\n' "$ex_multi" | grep -q 'System Resources' || fail "explain cpu load failed"
 
-# Lua ladder: each depth renders its own section and no others.
-ex_lua_b=$("$TAM" explain --level beginner lua --pipe)
-printf '%s\n' "$ex_lua_b" | grep -q 'Why Lua is included' || fail "explain --level beginner lua failed"
-if printf '%s\n' "$ex_lua_b" | grep -q 'shared stack'; then fail "beginner lua contains expert section"; fi
-ex_lua_e=$("$TAM" explain --level expert lua --pipe)
-printf '%s\n' "$ex_lua_e" | grep -q 'How a host embeds Lua' || fail "explain --level expert lua failed"
-if printf '%s\n' "$ex_lua_e" | grep -q 'Why Lua is included'; then fail "expert lua contains beginner section"; fi
+# Topic guide depth ladder: tam explain --level LEVEL TOPIC
+ex_tg_lvl_b=$("$TAM" explain --level beginner pipelines --pipe)
+printf '%s\n' "$ex_tg_lvl_b" | grep -q 'Topic Guide: pipelines (beginner Level)' || fail "explain --level beginner pipelines failed"
+printf '%s\n' "$ex_tg_lvl_b" | grep -q 'shell/pipelines.html?level=beginner' || fail "explain --level beginner missing link target"
+
+# Direct page depth ladder: tam show --level LEVEL PAGE
+sh_lua_b=$("$TAM" show --level beginner lua --pipe)
+printf '%s\n' "$sh_lua_b" | grep -q 'Why Lua is included' || fail "show --level beginner lua failed"
+if printf '%s\n' "$sh_lua_b" | grep -q 'shared stack'; then fail "beginner lua contains expert section"; fi
+sh_lua_e=$("$TAM" show --level expert lua --pipe)
+printf '%s\n' "$sh_lua_e" | grep -q 'How a host embeds Lua' || fail "show --level expert lua failed"
+if printf '%s\n' "$sh_lua_e" | grep -q 'Why Lua is included'; then fail "expert lua contains beginner section"; fi
 
 # Unmatched topic: clear diagnostic and reference to show.
 if "$TAM" explain no_such_topic >/dev/null 2>&1; then fail "unmatched topic exited 0"; fi
@@ -917,21 +937,21 @@ fi
 "$TAM" explain 'cat foo | grep bar; rm -rf /' 2>&1 | grep -q "no topic found for 'cat foo | grep bar; rm -rf /'" \
     || fail "shell metacharacters not treated as plain query data"
 
-# Content-depth ladder: tam explain --level LEVEL TOPIC
-ex_lvl_b=$("$TAM" explain --level beginner pipelines --pipe)
-printf '%s\n' "$ex_lvl_b" | grep -q 'Beginner: Connecting commands' || fail "explain --level beginner pipelines failed"
-printf '%s\n' "$ex_lvl_b" | grep -q 'Expected output:' || fail "explain --level beginner missing expected output"
-if printf '%s\n' "$ex_lvl_b" | grep -q 'Expert: POSIX pipe'; then fail "beginner level contains expert section"; fi
+# Content-depth ladder on direct show: tam show --level LEVEL PAGE
+sh_lvl_b=$("$TAM" show --level beginner pipelines --pipe)
+printf '%s\n' "$sh_lvl_b" | grep -q 'Beginner: Connecting commands' || fail "show --level beginner pipelines failed"
+printf '%s\n' "$sh_lvl_b" | grep -q 'Expected output:' || fail "show --level beginner missing expected output"
+if printf '%s\n' "$sh_lvl_b" | grep -q 'Expert: POSIX pipe'; then fail "beginner level contains expert section"; fi
 
-ex_lvl_i=$("$TAM" explain --level intermediate pipelines --pipe)
-printf '%s\n' "$ex_lvl_i" | grep -q 'Intermediate: Redirection and Multi-Stage Filters' || fail "explain --level intermediate pipelines failed"
-printf '%s\n' "$ex_lvl_i" | grep -q 'Completion task' || fail "explain --level intermediate missing completion task"
-if printf '%s\n' "$ex_lvl_i" | grep -q 'Beginner: Connecting commands'; then fail "intermediate level contains beginner section"; fi
+sh_lvl_i=$("$TAM" show --level intermediate pipelines --pipe)
+printf '%s\n' "$sh_lvl_i" | grep -q 'Intermediate: Redirection and Multi-Stage Filters' || fail "show --level intermediate pipelines failed"
+printf '%s\n' "$sh_lvl_i" | grep -q 'Completion task' || fail "show --level intermediate missing completion task"
+if printf '%s\n' "$sh_lvl_i" | grep -q 'Beginner: Connecting commands'; then fail "intermediate level contains beginner section"; fi
 
-ex_lvl_e=$("$TAM" explain --level expert pipelines --pipe)
-printf '%s\n' "$ex_lvl_e" | grep -q 'Expert: POSIX pipe semantics' || fail "explain --level expert pipelines failed"
-printf '%s\n' "$ex_lvl_e" | grep -q 'Stream Redirection Operators' || fail "explain --level expert missing operators table"
-if printf '%s\n' "$ex_lvl_e" | grep -q 'Beginner: Connecting commands'; then fail "expert level contains beginner section"; fi
+sh_lvl_e=$("$TAM" show --level expert pipelines --pipe)
+printf '%s\n' "$sh_lvl_e" | grep -q 'Expert: POSIX pipe semantics' || fail "show --level expert pipelines failed"
+printf '%s\n' "$sh_lvl_e" | grep -q 'Stream Redirection Operators' || fail "show --level expert missing operators table"
+if printf '%s\n' "$sh_lvl_e" | grep -q 'Beginner: Connecting commands'; then fail "expert level contains beginner section"; fi
 
 # Catalog listing filtered by level
 ex_cat_expert=$("$TAM" explain --level expert)

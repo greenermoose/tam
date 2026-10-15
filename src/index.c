@@ -555,8 +555,9 @@ size_t tam_index_search(const tam_index_t *idx, const char *query,
         if (rlen >= 3) {
             for (size_t i = 0; i < idx->count; i++) {
                 const tam_index_entry_t *e = &idx->entries[i];
+                size_t tlen = strlen(e->topic);
                 if (strncasecmp(raw, e->topic, rlen) == 0 ||
-                    strncasecmp(e->topic, raw, strlen(e->topic)) == 0) {
+                    (tlen >= 3 && strncasecmp(e->topic, raw, tlen) == 0)) {
                     scored[nscored].entry = e;
                     scored[nscored].score = 10;
                     scored[nscored].match_type = "substring";
@@ -565,8 +566,9 @@ size_t tam_index_search(const tam_index_t *idx, const char *query,
                 }
                 for (size_t k = 0; k < e->num_keywords; k++) {
                     const char *kw = e->keywords[k];
+                    size_t klen = strlen(kw);
                     if (strncasecmp(raw, kw, rlen) == 0 ||
-                        strncasecmp(kw, raw, strlen(kw)) == 0) {
+                        (klen >= 3 && strncasecmp(kw, raw, klen) == 0)) {
                         scored[nscored].entry = e;
                         scored[nscored].score = 10;
                         scored[nscored].match_type = "substring";
@@ -705,4 +707,161 @@ void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level)
 {
     tam_index_print_catalog_ex(out, idx, level, false, false);
 }
+
+size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
+                                  unsigned level, const tam_index_entry_t **out_entries,
+                                  size_t max_entries)
+{
+    if (idx == NULL || topic == NULL || out_entries == NULL || max_entries == 0) {
+        return 0;
+    }
+    char buf[256];
+    size_t len = strlen(topic);
+    if (len >= sizeof(buf)) return 0;
+    memcpy(buf, topic, len + 1);
+
+    char *t = trim_string(buf);
+    t = strip_quotes(t);
+    if (*t == '\0') return 0;
+
+    size_t count = 0;
+
+    #define ADD_PAGE(e) do { \
+        bool exists = false; \
+        for (size_t _j = 0; _j < count; _j++) { \
+            if (out_entries[_j] == (e)) { exists = true; break; } \
+        } \
+        if (!exists && count < max_entries) { \
+            out_entries[count++] = (e); \
+        } \
+    } while (0)
+
+    /* Pass 1: exact topic match */
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (level != 0 && !(e->levels & level)) continue;
+        if (strcasecmp(t, e->topic) == 0) {
+            ADD_PAGE(e);
+        }
+    }
+
+    /* Pass 2: exact keyword match */
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (level != 0 && !(e->levels & level)) continue;
+        for (size_t k = 0; k < e->num_keywords; k++) {
+            if (strcasecmp(t, e->keywords[k]) == 0) {
+                ADD_PAGE(e);
+                break;
+            }
+        }
+    }
+
+    /* Pass 3: keyword contains word */
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (level != 0 && !(e->levels & level)) continue;
+        for (size_t k = 0; k < e->num_keywords; k++) {
+            if (contains_word_ci(e->keywords[k], t)) {
+                ADD_PAGE(e);
+                break;
+            }
+        }
+    }
+
+    /* Pass 4: multi-word search fallback if count == 0 and contains space */
+    if (count == 0 && strchr(t, ' ') != NULL) {
+        tam_search_result_t search_results[16];
+        size_t found = tam_index_search(idx, t, search_results, 16);
+        for (size_t s = 0; s < found; s++) {
+            if (search_results[s].score > 0) {
+                const tam_index_entry_t *e = search_results[s].entry;
+                if (level != 0 && !(e->levels & level)) continue;
+                ADD_PAGE(e);
+            }
+        }
+    }
+
+    #undef ADD_PAGE
+    return count;
+}
+
+static int keyword_cmp(const void *a, const void *b)
+{
+    const tam_keyword_info_t *ka = a;
+    const tam_keyword_info_t *kb = b;
+    return strcasecmp(ka->keyword, kb->keyword);
+}
+
+tam_keyword_list_t *tam_index_get_keywords(const tam_index_t *idx, unsigned level)
+{
+    if (idx == NULL) return NULL;
+
+    tam_keyword_list_t *list = malloc(sizeof(tam_keyword_list_t));
+    if (list == NULL) return NULL;
+    size_t cap = 256;
+    list->count = 0;
+    list->items = malloc(cap * sizeof(tam_keyword_info_t));
+    if (list->items == NULL) {
+        free(list);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (level != 0 && !(e->levels & level)) continue;
+
+        size_t total_cand = 1 + e->num_keywords;
+        for (size_t c = 0; c < total_cand; c++) {
+            const char *raw = (c == 0) ? e->topic : e->keywords[c - 1];
+            if (raw == NULL) continue;
+
+            char buf[256];
+            size_t rlen = strlen(raw);
+            if (rlen >= sizeof(buf)) continue;
+            memcpy(buf, raw, rlen + 1);
+            char *kw = trim_string(buf);
+            kw = strip_quotes(kw);
+            if (*kw == '\0') continue;
+
+            bool found = false;
+            for (size_t j = 0; j < list->count; j++) {
+                if (strcasecmp(list->items[j].keyword, kw) == 0) {
+                    list->items[j].count++;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (list->count >= cap) {
+                    cap *= 2;
+                    tam_keyword_info_t *re = realloc(list->items, cap * sizeof(tam_keyword_info_t));
+                    if (re == NULL) break;
+                    list->items = re;
+                }
+                list->items[list->count].keyword = strdup(kw);
+                list->items[list->count].count = 1;
+                list->items[list->count].primary_summary = strdup(e->summary ? e->summary : "");
+                list->count++;
+            }
+        }
+    }
+
+    if (list->count > 1) {
+        qsort(list->items, list->count, sizeof(tam_keyword_info_t), keyword_cmp);
+    }
+    return list;
+}
+
+void tam_keyword_list_free(tam_keyword_list_t *list)
+{
+    if (list == NULL) return;
+    for (size_t i = 0; i < list->count; i++) {
+        free(list->items[i].keyword);
+        free(list->items[i].primary_summary);
+    }
+    free(list->items);
+    free(list);
+}
+
 

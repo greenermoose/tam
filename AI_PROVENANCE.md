@@ -40,6 +40,7 @@ Human-only commits retain their original authorship.
 | 2026-10-14 | "Improve" track knowledge corpus expansion 0.21.0 (`knowledge/improve/`, efficiency, zram, terminal, scripting, toolchains, ai-performance) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-14-tam-improve-track-corpus.md) |
 | 2026-10-15 | Native GNU Info Subsystem 0.22.0 (`tam info`, `src/info.c`, pager keys `n`/`p`/`u`/`t`/`d`, cross-system `info:` URIs, indirect tags, completions) | Antigravity CLI 1.3.4; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-gnu-info-subsystem.md) |
 | 2026-10-15 | Pager hyperlink navigation ergonomics (`a`/`s`/`d`/`f` 2D navigation, first-visible-link selection, Info dir rebind `i`) | Antigravity CLI 1.3.5; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-hyperlink-navigation-keys.md) |
+| 2026-10-15 | Dynamic Topic Guides, tam explain topic keywords, and tam command page 0.23.0 (Milestone 15: topic guides, keywords catalog, pager integration, tam.html, Makefile targets, build chain, develop->test->run->release cycle) | Antigravity CLI 1.3.5; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-topic-guides-and-tam-page.md) |
 
 
 

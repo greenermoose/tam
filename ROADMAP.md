@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-15. **Owner:** Fred. **Current Command Version:** `0.22.0`.  
+**Reviewed:** 2026-10-15. **Owner:** Fred. **Current Command Version:** `0.23.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.21.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.23.0)
 
-Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–13, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, and improve-track corpus expansion:
+Between 2026-10-09 and 2026-10-15, `tam` progressed rapidly through Milestones 1–15, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, and command architecture:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -49,14 +49,15 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 | **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | Done (2026-10-14) | Re-architected `knowledge/index.html` into comprehensive 7-part Table of Contents ("The Tamlinux User Guide") reflecting Fred's triad (Using, Maintaining, Improving); authored `knowledge/ecosystem/terminology.html` (Greenhouse, Pot, Nut, Root-stock, Cultivar analogy) with fading templates; authored UNIX section 1 manual page `man/tam.1` installed to `$(MANDIR)/man1/tam.1`; updated `src/man.c` and `src/tam.c` for `tam show topics` and dev man page lookup; bumped version to 0.20.0. |
 | **0.21.0** | Milestone 13: "Improve" Track Knowledge Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Improve" track knowledge pages: `improve/index.html` (hub), `improve/efficiency.html` (zero-polling, inotify, epoll, Wayland sockets), `improve/zram.html` (compressed RAM swap, zsmalloc, LZ4/zstd), `improve/terminal.html` (sub-10ms shell startup, Micro editor live reload Virtue V11, foot terminal), `improve/scripting.html` (strict Bash headers set -euo pipefail, safe arguments "$@", tam-* vs fred-* Decision D131), `improve/toolchains.html` (native C compilation, -O2, -march=native, isolated Git worktrees, tam-work concurrency), and `improve/ai-performance.html` (physics of local autoregressive generation, memory bandwidth bounds, quantization tradeoffs); Beginner/Intermediate/Expert fading templates; updated User Guide Part V links; bumped version to 0.21.0. |
 | **0.22.0** | Milestone 14: Native GNU Info Subsystem | Done (2026-10-15) | Native C GNU Info reader (`src/info.c`, `src/info.h`) parsing `.info` and `.info.gz` files along `$INFOPATH` and `/usr/share/info/`; top-level directory browser (`tam info`), targeted manual and node lookup (`tam info MANUAL [NODE]`), tag table and indirect subfile support; hyperlinked menus, cross-references (`*Note`), and man links (`man:`); dedicated pager navigation keys (`n`, `p`, `u`, `t`, `i`); `a`/`s`/`d`/`f` 2D hyperlink navigation pad with first-visible-link selection; cross-system `info:` URI resolution in `tam show` and `tam man`; `bin/tam-info` wrapper; Bash shell completions; User Guide and man page cross-links; bumped version to 0.22.0. |
+| **0.23.0** | Milestone 15: Topic Guides & tam Architecture | Done (2026-10-15) | Dynamic topic guides for `tam explain`; `tam explain` always displays a topic guide in the built-in pager, never taking you directly to a page (`tam show` is for going directly to a page); topic guides list matching pages with each page explained; bare `tam explain` dynamically collects all topic keywords from metadata and presents them in the pager; devoted `knowledge/tam.html` page (`tam show tam`) detailing C implementation, all Makefile targets, library linking, compiler chain, and the Develop -> Test -> Run -> Release lifecycle via `tamlinux-packages` and Nix/Home Manager; bumped version to 0.23.0. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.23.0** (The "Why" Axis: Architectural Rationale & Excluded Packages). Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
+The immediate priority for `tam` is implementing **Version 0.24.0** (The "Why" Axis: Architectural Rationale & Excluded Packages). Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
 
-### Version 0.23.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
+### Version 0.24.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
 
 - **`tam why <topic|package>` Command:**
   - Provide concise, evidence-based architectural rationale for core Tamlinux decisions.
@@ -78,20 +79,26 @@ The immediate priority for `tam` is implementing **Version 0.23.0** (The "Why" A
 Following the immediate next steps, the future development of `tam` advances through system maintenance documentation, optimization guides, architectural rationale, deep physics/CS ladders, offline skills progression, and full installation framework integration.
 
 ```text
-  0.15.0 ──► 0.16.0 ──► 0.17.0 ──► 0.18.0 ──► 0.19.0 ──► 0.20.0 ──► 0.21.0 ──► 0.22.0 ──► 0.23.0 ──► 0.24.0 ──► 0.25.0 ──► 0.26.0 ──► 0.27.0 ──► 1.0.0
- (Depth)    (Inspect)    (Ask)   (Ergonomics) (Maintain)  (Guide)   (Improve)   (Info)     (Why)     (Depth)    (Learn)   (Parser)   (Install)   (Stable)
+  0.18.0 ──► 0.19.0 ──► 0.20.0 ──► 0.21.0 ──► 0.22.0 ──► 0.23.0 ──► 0.24.0 ──► 0.25.0 ──► 0.26.0 ──► 0.27.0 ──► 0.28.0 ──► 1.0.0
+ (Ergo)    (Maintain)  (Guide)   (Improve)   (Info)    (Guides)    (Why)     (Depth)    (Learn)   (Parser)  (Install)   (Stable)
 ```
 
-### Version 0.22.0 — Native GNU Info Subsystem (`tam info`)
-Incorporate the vast wealth of GNU Texinfo documentation into `tam`, unifying Unix reference cards (`tam man`), curated workstation tracks (`tam show`), and complete GNU reference manuals (`tam info`).
+### Version 0.23.0 — Topic Guides, Dynamic Keywords, & tam Architecture
+Establish topic guides as the universal interface for `tam explain`, reserving direct page navigation for `tam show`.
 
-- `tam info` directory catalog and targeted manual/node lookup.
-- Native C `.info` / `.info.gz` parser with tag table random-access seeking.
-- Hyperlinked menus and cross-references.
-- Dedicated pager node traversal keybindings (`n`, `p`, `u`, `t`, `d`).
-- Cross-system `info:` URI resolution in the guide and man pages.
+- **Topic Guides Contract (`tam explain`):**
+  - Invariant: `tam explain` always displays a topic guide, never opens a page directly. `tam show` is for navigating directly to a page.
+  - Topic guides are formatted lists of pages matching a topic or keyword, with each page explained through its metadata summary.
+  - Interactive pager browsing: `tam explain` always launches its results in the built-in pager (or clean formatted plain text with link references under `--pipe` / non-TTY).
+  - Bare `tam explain` dynamically aggregates all `<meta name="keywords">` and `<meta name="topic">` tags across the corpus and launches the complete catalog in the pager.
+- **Dedicated tam Reference Page (`knowledge/tam.html`):**
+  - Devoted page for `tam`, accessible via `tam show tam` or discovered through `tam explain tam`.
+  - Comprehensive explanation of coding `tam` in C (C11 standard).
+  - Complete documentation of all Makefile targets: `all`, `command`, `corpus`, `test`, `test-command`, `test-corpus`, `check`, `install`, `uninstall`, `clean`, and `FORCE`.
+  - Compiler chain and library linking: GCC/Clang, `libtam` flags and RPATH, `zlib` (`-lz`), and exact build commands.
+  - Tamlinux release lifecycle: the develop -> test -> run -> release cycle, packaging through `tamlinux-packages` and Nix/Home Manager, immutable `/nix/store` package outputs, single-endpoint activation, and generational rollback.
 
-### Version 0.23.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
+### Version 0.24.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
 Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
 
 - **`tam why <topic|package>` Command:**
@@ -107,7 +114,7 @@ Demystify why Tamlinux is designed the way it is, explaining not only what is in
 - **Public Rationale Projection:**
   - Build-time tool generating the published rationale pages from reviewed decision summaries.
 
-### Version 0.24.0 — The "Depth" Axis & Computer Science Fundamentals
+### Version 0.25.0 — The "Depth" Axis & Computer Science Fundamentals
 Enable users to interrogate their system and descend from observable desktop behavior down to fundamental physics and computer science theory.
 
 - **Progressive Depth Descent (`tam deeper` / `tam depth`):**
@@ -120,7 +127,7 @@ Enable users to interrogate their system and descend from observable desktop beh
 - **Computer Science Fundamentals Track (`knowledge/cs/`):**
   - Practical theory framed around **Possible / Impossible / Expensive**: computability (undecidable limits), complexity (tractable vs intractable), data representation (two's complement, IEEE-754 floating point rounding), memory hierarchy, and concurrency. Grounded directly in the user's host hardware (`lscpu`, cache topology, RAM bandwidth).
 
-### Version 0.25.0 — Offline Skills Progression & Self-Paced Learning (`tam learn`)
+### Version 0.26.0 — Offline Skills Progression & Self-Paced Learning (`tam learn`)
 Provide self-paced, offline skill building that uses the Milestone 8 inspection engine as an objective assessment oracle.
 
 - **Opt-in Progress State:**
@@ -129,7 +136,7 @@ Provide self-paced, offline skill building that uses the Milestone 8 inspection 
   - Pairs Intermediate fading template tasks with automated checks: e.g. "Create a background pipeline that filters logs" $\rightarrow$ `tam learn verify` probes system state using the Check Contract.
   - Provides hints without spoiling answers, guiding users toward mastery of command-line tools and system navigation.
 
-### Version 0.26.0 — Safe Command-Line Syntax Dissection
+### Version 0.27.0 — Safe Command-Line Syntax Dissection
 Extend `tam explain` to safely parse and explain compound shell commands, pipelines, and redirection.
 
 - **Non-Executing Analytical Lexer:**
@@ -137,7 +144,7 @@ Extend `tam explain` to safely parse and explain compound shell commands, pipeli
   - Explains execution flow, data routing between standard streams, and file modifications in plain language.
   - Treats all input strictly as inert text data; never passes input to `/bin/sh` or evaluates expressions.
 
-### Version 0.27.0 — Installation Framework Integration (`tam install plan/apply/verify`)
+### Version 0.28.0 — Installation Framework Integration (`tam install plan/apply/verify`)
 Complete the installation framework contract by connecting `tam install` to the product deployment engine.
 
 - **`tam install plan --profile <profile>`:**
@@ -178,21 +185,19 @@ Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support
 
 | Version | Milestone / Theme | Primary Subcommands & Surfaces | Key Deliverables |
 | :--- | :--- | :--- | :--- |
-| **0.14.0** | Pager Ergonomics & Completions | `src/pager.c`, completions | `/` in-pager text search, line/percentage telemetry, Bash completions. |
-| **0.15.0** | Milestone 7: Content-Depth Ladder | `tam explain --level`, `tam search` | Beginner / Intermediate / Expert fading templates, depth line, ?level= navigation, index metadata. |
-| **0.16.0** | Milestone 8: Self-Inspection | `tam install inspect`, check contract | Read-only findings model, versioned JSON check contract, `pkexec` detect-and-degrade. |
-| **0.17.0** | Milestone 9: Grounded `ask` | `tam ask [OPTIONS] <question>` | Opt-in cited RAG question answering over corpus index, local server only (no daemon), interactive-only consent, --json. |
-| **0.18.0** | Milestone 10: Navigation & Output Ergonomics | `src/pager.c`, `tam explain topics`, output modifiers | Current baseline: Quick Guide index return (`` ` ``) with history, Goldilocks screen budget (explain ≤15, help ≤20 lines), interactive topics pager, `--terse`/`--verbose`. |
+| **0.18.0** | Milestone 10: Navigation & Output Ergonomics | `src/pager.c`, `tam explain topics`, output modifiers | Quick Guide index return (`` ` ``) with history, Goldilocks screen budget (explain ≤15, help ≤20 lines), interactive topics pager, `--terse`/`--verbose`. |
 | **0.19.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
 | **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | `knowledge/index.html`, `man/tam.1`, `src/` | 7-part User Guide TOC, botanical analogy, UNIX tam(1) man page, tam show topics routing. |
 | **0.21.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |
 | **0.22.0** | Native GNU Info Subsystem | `tam info`, `src/info.c` | Top-level Info dir browser, manual/node lookup, native tag-table parser, hyperlinked menus and cross-references, `bin/tam-info`. |
-| **0.23.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
-| **0.24.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
-| **0.25.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
-| **0.26.0** | Shell Syntax Dissection | `tam explain <command-line>` | Analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
-| **0.27.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
+| **0.23.0** | Topic Guides & tam Architecture | `tam explain`, `tam show tam`, `knowledge/tam.html` | Dynamic topic guides for `tam explain`, pager topic keywords list, dedicated `tam.html` page covering C code, Makefile targets, libraries, and Tamlinux release cycle. |
+| **0.24.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
+| **0.25.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
+| **0.26.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
+| **0.27.0** | Shell Syntax Dissection | `tam explain <command-line>` | Analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
+| **0.28.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
 | **1.0.0** | Stable Showcase Release | Complete command suite | Production release, unified knowledge graph, stable `libtam` ABI, multi-distro packages. |
 | **1.1.0** | Multi-Distribution Adapter | `tam install inspect` | Host inspection across systemd distributions (Debian, Fedora, Ubuntu). |
 | **1.2.0** | Void Linux Native Base | `tam install inspect`, `knowledge/` | Native Void + runit + Btrfs + seatd inspection and guides; musl/glibc analysis. |
 | **1.3.0** | Minimal Hardware Profile | Terminal-only profile | Sub-512MB RAM optimizations, legacy/32-bit guides, headless administration. |
+

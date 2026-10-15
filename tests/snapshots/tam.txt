@@ -1,0 +1,256 @@
+Guide / The tam Command
+
+The tam Command
+
+Depth: beginner, intermediate, expert. Every level is shown below; follow one to
+read only that depth.
+
+tam is the terminal entry point, offline navigator, and flagship utility for
+Tamlinux. It is written in pure C (C11 standard) and built against the reusable
+libtam foundational library. It is designed to start in under 5 milliseconds,
+consume less than 4 megabytes of resident memory, operate completely offline
+without background daemons, and run reliably from circa-2006 legacy laptops up
+to multi-core workstations.
+
+Beginner: Understanding and building the tam command
+
+Summary: Learn what language tam is written in, how to compile it locally with
+Make, and how to verify a development build.
+
+Prerequisites: Terminal ergonomics ( Terminal and Editor Ergonomics) and native
+toolchains ( Native Toolchains and Multi-Agent Workflows).
+
+Implementation language
+
+tam is written in standard C (ISO/IEC 9899:2011, or C11). It intentionally
+avoids dynamic interpreters (such as Python or Node.js) and heavy frameworks
+(such as Electron) to ensure that the primary system documentation and recovery
+navigator is instantly accessible in emergency recovery consoles ( Emergency
+Disaster Recovery), even when the graphical environment is down or the network
+is completely unreachable.
+
+Building and installing from source
+
+Building tam requires standard developer tools:
+
+- A C11 compiler (such as gcc or clang).
+- GNU Make.
+- The libtam header files and shared library.
+- The zlib compression library headers ( zlib.h).
+- Python 3 (used solely at build time to parse metadata and generate the corpus
+  index).
+
+Quick build sequence
+
+  
+  # Build the binary and the corpus index
+  make -C ~/Code/tamlinux/tam all
+  
+  # Run the built binary directly
+  ./build/tam --version
+  
+  # Run single-lane command tests
+  make -C ~/Code/tamlinux/tam test-command
+  
+
+To install a local development build without touching root or system
+directories, install under your user development prefix:
+
+  
+  make -C ~/Code/tamlinux/tam install PREFIX=$HOME/.local/dev
+  
+
+Next step
+
+Explore the full inventory of Makefile targets, compiler flags, and library
+linking options in the intermediate section below.
+
+Intermediate: Makefile targets, compiler chain, and library linking
+
+Summary: Complete reference to all Makefile targets, the C compilation
+toolchain, preprocessor definitions, and external library linkages.
+
+Makefile targets reference
+
+The tam repository is organized into two independent workstream lanes: the
+Command lane (C source code under src/) and the Corpus lane (HTML documentation
+under knowledge/). The Makefile provides targeted and integrated build actions:
+
+Target        Lane          Description                                         
+------------  ------------  ----------------------------------------------------
+all           Integrated    Default target. Builds both the C binary ( command) 
+                            and the knowledge index ( corpus).                  
+command       Command       Compiles the standalone C binary build/tam from     
+                            src/*.c, linking libtam and zlib, without           
+                            regenerating the corpus index.                      
+corpus        Corpus        Executes python3 tools/build-index.py to parse      
+                            metadata and breadcrumbs from all HTML files,       
+                            regenerating knowledge/index.tsv and                
+                            knowledge/index.json.                               
+test          Integrated    Runs all, then executes the full test suite:        
+                            tests/run.sh (CLI argument, PTY, and subcommand     
+                            tests) and tests/guide.sh (corpus rendering and     
+                            snapshot validation).                               
+test-command  Command       Builds command and runs only the CLI behavior checks
+                            in tests/run.sh.                                    
+test-corpus   Corpus        Builds command and runs only the corpus formatting  
+                            checks in tests/guide.sh.                           
+check         Integrated    Alias for running corpus index validation followed  
+                            by the complete test suite.                         
+install       Packaging     Installs build/tam, bin/tam-man, and bin/tam-info   
+                            into $(BINDIR), copies knowledge/ to $(DATADIR),    
+                            installs manual page man/tam.1 to $(MANDIR)/man1/,  
+                            and registers Bash completion in $(BASHCOMPDIR)/tam.
+uninstall     Packaging     Removes all installed binaries, data directories,   
+                            manual pages, and shell completion files from the   
+                            configured PREFIX.                                  
+clean         Housekeeping  Deletes the build/ directory and all compiled       
+                            objects.                                            
+FORCE         Internal      Phony prerequisite that forces the build            
+                            configuration stamp ( build/config) to be evaluated 
+                            and compared on every invocation.                   
+
+Compiler toolchain and build commands
+
+The build toolchain uses standard Unix compilation variables:
+
+- CC?= cc — C compiler executable (GCC or Clang).
+- CFLAGS?= -O2 -Wall -Wextra -Wpedantic -std=c11 — Optimization, warning, and
+  language dialect flags.
+- CPPFLAGS — Preprocessor options:
+
+  - -DTAM_DATADIR=\"$(DATADIR)\" — Baked-in fallback path to the installed
+    documentation corpus.
+  - -DTAM_BUILD=\"$(TAM_BUILD_ID)\" — Commit hash and dirty stamp extracted
+    from git describe.
+
+- LDFLAGS — Linker options.
+- RPATH?= -Wl,-rpath,$(LIBTAM_PREFIX)/lib — Embedded ELF runtime library
+  search path.
+
+Libraries and how they are linked
+
+tam links against two essential libraries:
+
+1. libtam ( -ltam): The foundational shared C library for Tamlinux. It provides
+   safe memory management, dynamically growing string buffers ( tam_str_t), safe
+   file read routines ( tam_fs_read_file), and terminal dimension detection (
+   tam_terminal_width). It is linked via:
+
+  
+  LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
+  LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
+  RPATH         ?= -Wl,-rpath,$(LIBTAM_PREFIX)/lib
+  
+
+2. zlib ( -lz): The standard compression library. It is used by the GNU Info
+   reader subsystem ( src/info.c) to decompress.info.gz manuals in memory on the
+   fly. Linked via LDLIBS?= -lz.
+
+The exact makefile build command
+
+When compiling the binary, the Makefile issues a single atomic invocation:
+
+  
+  $(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
+        $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) -o build/tam
+  
+
+Where SRC comprises:
+
+  
+  src/tam.c src/render.c src/pager.c src/install.c src/man.c \
+  src/index.c src/depth.c src/ask.c src/info.c
+  
+
+Expert: The develop-test-run-release lifecycle in Tamlinux
+
+Summary: How tam is packaged, verified, and shipped as part of Tamlinux through
+tamlinux-packages and Nix/Home Manager.
+
+The disciplined deployment contract
+
+A core architectural principle of Tamlinux is reproducibility. Users and agents
+do not run arbitrary, untracked checkouts scattered across random local
+directories in production. Every release follows a disciplined 4-stage pipeline
+that governs the full develop -> test -> run -> release cycle:
+
+  
+  Develop (tam.git @ develop)
+     │
+     ▼  Fast-forward promotion
+  Test (tam.git @ test ──► pinned in tamlinux-packages flake)
+     │
+     ▼  Workstation acceptance & verification
+  Run (tam.git @ main ──► tamlinux-packages main)
+     │
+     ▼  Cultivar release tag & generation snapshot
+  Release (Tamlinux distribution release)
+  
+
+1. Develop stage
+
+- Engineers and autonomous AI agents work in isolated Git worktrees within the
+  tam repository on the develop branch.
+- Changes to the command lane ( src/) and corpus lane ( knowledge/) are scoped
+  using tam-work concurrency claims.
+- Full local regression tests are verified via make check.
+
+2. Test stage
+
+- When a candidate is ready for testing, the commit on develop is fast-forward
+  promoted to the test branch. Fast-forward promotion ensures that commit hashes
+  remain identical without introducing merge noise.
+- The candidate is pinned in tamlinux-packages. The exact Git commit revision
+  and content hash are recorded in the flake and lockfile.
+- The workstation's Home Manager configuration follows tamlinux-packages on test
+  .
+- Home Manager builds the Tamlinux package outputs (the tam binary, tam-man,
+  tam-info, manual pages, and bundled knowledge data) into the immutable
+  /nix/store.
+- The tam-deploy utility validates that installed binaries and documentation
+  paths resolve truthfully to the recorded Nix store package outputs.
+
+3. Run stage
+
+- After acceptance testing in the actual live desktop environment, the tested
+  source commit is promoted to main in both the tam repository and
+  tamlinux-packages.
+- Crucially, the package outputs are not rebuilt: the identical byte-for-byte
+  binary and knowledge artifacts tested during the Test stage are promoted to
+  Run.
+- Home Manager switches the primary profile to the accepted generation.
+
+4. Release stage
+
+- A semantic release tag is cut (e.g. v0.23.0).
+- The cultivar metadata record ( ~/.config/tamlinux/version) is updated to
+  reflect the new release.
+- If an unforeseen defect is detected, instant rollback is available via Home
+  Manager generations ( Snapshots and Rollbacks), restoring the previous
+  known-good binary and documentation in less than a second.
+
+Cross references and related guides
+
+- Non-disruptive Updates and Package Architecture — How Linux updates in place
+  via inode unlinking and the 3-tier package model.
+- Package Management with Nix and Native Managers — Why Tamlinux uses Nix for
+  desktop components and native managers for the base OS.
+- Native Toolchains and Multi-Agent Workflows — Concurrency rules and isolated
+  worktrees for multi-agent development.
+- Shell Scripting and Tool Conventions — Safe script conventions and tam-*
+  subcommand guidelines.
+
+Links:
+  [1] index.html
+  [2] tam.html?level=beginner
+  [3] tam.html?level=intermediate
+  [4] tam.html?level=expert
+  [5] improve/terminal.html
+  [6] improve/toolchains.html
+  [7] maintain/recovery.html
+  [8] https://github.com/greenermoose/tamlinux-packages
+  [9] maintain/rollback.html
+  [10] maintain/updates.html
+  [11] ecosystem/packaging.html
+  [12] improve/scripting.html
