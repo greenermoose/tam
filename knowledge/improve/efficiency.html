@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Zero-Polling and Event-Driven Architecture</title>
+<meta name="topic" content="efficiency">
+<meta name="summary" content="Eliminating periodic polling loops with inotify, epoll, and Wayland compositor event sockets to keep CPU idle and save energy">
+<meta name="keywords" content="efficiency, zero-polling, polling, inotify, epoll, wayland, idle, power, wakeups, events, cpu">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="improve, power">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Zero-Polling and Event-Driven Architecture</p>
+</nav>
+
+<h1>Zero-Polling and Event-Driven Architecture</h1>
+
+<p>Every unnecessary CPU wakeup costs energy, generates heat, and prevents modern
+processors from entering deep, power-saving sleep states. Tamlinux enforces an
+event-driven architectural model that eliminates periodic polling loops across
+desktop widgets, monitoring tools, and background utilities.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Identifying CPU wakeups and idle efficiency</h2>
+
+<p><strong>Summary:</strong> Measure processor wakeups and understand how naive
+polling loops drain battery life and generate thermal waste.</p>
+
+<p><strong>Prerequisites:</strong> Basic command execution
+(<a href="shell/index.html">The Shell and Streams</a>) and the
+<a href="maintain/power.html">Progressive Power Ladder</a>.</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+vmstat 1 3
+</pre>
+
+<p>Expected output on an efficient workstation:</p>
+
+<pre>
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0      0 4210432  98304 8450120    0    0     1     4   42  120  0  0 100  0  0
+ 0  0      0 4210432  98304 8450120    0    0     0     0   28   85  0  0 100  0  0
+ 0  0      0 4210432  98304 8450120    0    0     0     0   25   78  0  0 100  0  0
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>vmstat 1 3</code> samples system activity over three 1-second intervals.</li>
+<li>The <code>cs</code> (context switches) and <code>in</code> (interrupts) columns quantify how frequently the kernel must switch execution contexts. An idle system should report low double-digit values.</li>
+<li>The <code>id</code> (idle CPU percentage) column shows near 100% idle time with zero ongoing user (<code>us</code>) or system (<code>sy</code>) CPU churn.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Avoid writing shell scripts with periodic <code>while true; do ...; sleep 1; done</code>
+polling loops. Even when doing minimal work, waking up every second forces the CPU
+out of package C-states (such as C8 or C10), multiplying standby power draw by up
+to three times.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to replace polling loops with Linux kernel filesystem notifications
+in the intermediate section below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Event-driven file watching with inotify</h2>
+
+<p><strong>Summary:</strong> Replace periodic file-checking loops with kernel-level
+<code>inotify</code> file system event notifications.</p>
+
+<h3>Worked example</h3>
+
+<p>Instead of periodically reading a configuration file to detect modifications,
+use <code>inotifywait</code> to block indefinitely in the kernel until an actual
+filesystem event occurs:</p>
+
+<pre>
+inotifywait -e modify,move,create /tmp/testfile
+</pre>
+
+<p>When another process or editor modifies <code>/tmp/testfile</code>,
+<code>inotifywait</code> exits immediately and prints the exact event:</p>
+
+<pre>
+Setting up watches.
+Watches established.
+/tmp/testfile MODIFY
+</pre>
+
+<h3>Completion task</h3>
+
+<p>Monitor an entire directory structure for file creation and deletion events
+continuously in a shell script without polling. Complete the command by filling
+in the missing flag (marked with <code>___</code>):</p>
+
+<pre>
+inotifywait ___ -e create,delete ~/.config/
+</pre>
+
+<p>Target output: continuous event monitoring loop that sleeps at 0% CPU until a file is added or removed.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The <code>-m</code> (or <code>--monitor</code>) flag tells <code>inotifywait</code> to keep listening continuously instead of exiting after the first received event.</li>
+<li>Add <code>-r</code> (recursive) to monitor descendant subdirectories efficiently.</li>
+<li>Inspect <a href="man:inotifywait(1)">inotifywait(1)</a> for available event masks.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Kernel event multiplexing and Wayland event loops</h2>
+
+<p><strong>Summary:</strong> Examine POSIX <code>epoll(7)</code> multiplexing, kernel
+event queues, and Wayland compositor socket architectures.</p>
+
+<h3>POSIX epoll multiplexing</h3>
+
+<p>Linux provides <code>epoll</code> as an $O(1)$ event multiplexer. Rather than
+iterating over an array of file descriptors on each check (like $O(N)$ <code>select</code>
+or <code>poll</code>), <code>epoll_wait(2)</code> sleeps until the Linux kernel's
+ready-list receives a notification from a device driver or socket buffer:</p>
+
+<ol>
+<li>Create an epoll context with <code>int epfd = epoll_create1(EPOLL_CLOEXEC);</code>.</li>
+<li>Register file descriptors (sockets, timers, inotify handles) with <code>epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &amp;event);</code>.</li>
+<li>Put the process to sleep: <code>int nfds = epoll_wait(epfd, events, MAX_EVENTS, -1);</code>. A timeout of <code>-1</code> ensures the process consumes zero CPU cycles until an event arrives.</li>
+</ol>
+
+<h3>Wayland event dispatching</h3>
+
+<p>Tamlinux desktop components communicate with the display server over a UNIX domain
+stream socket (located at <code>$XDG_RUNTIME_DIR/wayland-0</code>). Window title updates,
+workspace changes, and pointer events are delivered through the Wayland wire protocol:</p>
+
+<ul>
+<li>The application retrieves the Wayland socket file descriptor with <code>wl_display_get_fd()</code>.</li>
+<li>The descriptor is registered into the main <code>epoll</code> loop.</li>
+<li>When the compositor writes state changes, the kernel wakes the process, which calls <code>wl_display_dispatch()</code> to process messages and immediately returns to sleep.</li>
+</ul>
+
+<p>This strict event-driven contract ensures that Tamlinux desktop panels,
+<code>fred.*</code> widgets, and CLI helpers consume zero background CPU when the
+user is idle.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="improve/zram.html">Memory compression with ZRAM</a> &mdash; double available memory with in-RAM swap.</li>
+<li><a href="improve/terminal.html">Terminal and editor ergonomics</a> &mdash; fast shell startup and Micro live reload.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
+</ul>
+</body>
+</html>

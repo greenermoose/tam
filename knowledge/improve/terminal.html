@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Terminal and Editor Ergonomics</title>
+<meta name="topic" content="terminal">
+<meta name="summary" content="Fast shell startup, micro editor ergonomics with automatic live disk reload, and distraction-free workflows">
+<meta name="keywords" content="terminal, editor, micro, foot, shell, autoreload, markdown, ergonomics, v11, keybindings, editing">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="improve, shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Terminal and Editor Ergonomics</p>
+</nav>
+
+<h1>Terminal and Editor Ergonomics</h1>
+
+<p>Your terminal is the central workbench of a Tamlinux system. Following
+<strong>Virtue V11</strong>, Tamlinux pairs an ultra-low-latency Wayland terminal
+with the <code>micro</code> text editor, delivering intuitive editing, rich Markdown
+highlighting, and automatic live disk reloading when files are edited by background
+AI agents.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Intuitive terminal editing with Micro</h2>
+
+<p><strong>Summary:</strong> Edit configuration files and Markdown documents
+effortlessly using standard, universal keyboard shortcuts.</p>
+
+<p><strong>Prerequisites:</strong> Basic command execution and shell streams
+(<a href="shell/index.html">The Shell and Streams</a>).</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+micro README.md
+</pre>
+
+<p>Or launch the editor anywhere from the desktop with the keyboard shortcut:</p>
+
+<pre>
+SUPER + Shift + W
+</pre>
+
+<h3>Essential keybindings</h3>
+
+<table>
+<tr><th>Keybinding</th><th>Action</th><th>Notes</th></tr>
+<tr><td><code>Ctrl+S</code></td><td>Save file</td><td>Writes changes to disk immediately.</td></tr>
+<tr><td><code>Ctrl+Q</code></td><td>Quit editor</td><td>Prompts to save if changes are pending.</td></tr>
+<tr><td><code>Ctrl+Z</code> / <code>Ctrl+Y</code></td><td>Undo / Redo</td><td>Multi-level undo tree.</td></tr>
+<tr><td><code>Ctrl+C</code> / <code>Ctrl+V</code></td><td>Copy / Paste</td><td>Integrated with system Wayland clipboard.</td></tr>
+<tr><td><code>Ctrl+F</code></td><td>Find text</td><td>Interactive search with match highlighting.</td></tr>
+<tr><td><code>Ctrl+E</code></td><td>Command prompt</td><td>Access editor commands and settings.</td></tr>
+</table>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>micro</code> opened directly in your terminal without modal modes or complex command syntax.</li>
+<li>Terminal mouse clicking, scrolling, and dragging work out of the box to position the cursor or select text.</li>
+<li>High-contrast syntax highlighting is applied automatically for Markdown, HTML, C, JSON, and shell scripts.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Do not attempt modal Vi commands like <code>:wq</code> in Micro. Use the familiar
+<code>Ctrl+S</code> to save and <code>Ctrl+Q</code> to quit.</p>
+
+<h3>Next step</h3>
+
+<p>Explore how Micro collaborates seamlessly with autonomous AI agents through live
+disk reloading in the intermediate section below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Multi-agent pair programming and live disk reload</h2>
+
+<p><strong>Summary:</strong> Experience how Micro's live disk autoreload
+(Virtue V11) synchronizes buffer contents when background AI agents or Git
+commands modify files on disk.</p>
+
+<h3>Worked example</h3>
+
+<p>Open a document in <code>micro</code>, then append content from another terminal
+or background AI process:</p>
+
+<pre>
+echo -e "\n## Appended by agent" >> README.md
+</pre>
+
+<p>When you return focus to <code>micro</code>, the editor detects the updated
+on-disk inode and timestamp via <code>stat(2)</code>, refreshes the buffer
+contents instantly, and preserves your exact cursor position and undo history.</p>
+
+<h3>Completion task</h3>
+
+<p>Ensure that Micro always prompts or reloads external changes automatically
+without asking. Complete the configuration command below by filling in the missing
+setting (marked with <code>___</code>):</p>
+
+<pre>
+micro -set ___ true
+</pre>
+
+<p>Target output: <code>Set autoreload to true</code>.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The setting is named <code>autoreload</code> and persists in <code>~/.config/micro/settings.json</code>.</li>
+<li>Inspect active editor configuration by pressing <code>Ctrl+E</code> inside Micro and typing <code>show autoreload</code>.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Sub-10ms shell startup and Wayland terminal architecture</h2>
+
+<p><strong>Summary:</strong> Benchmark interactive shell startup latency, prune
+expensive shell hooks, and understand the <code>foot</code> Wayland terminal
+engine.</p>
+
+<h3>Sub-10ms shell startup latency</h3>
+
+<p>A responsive workstation demands that new terminal windows appear instantly.
+Tamlinux mandates a sub-10ms startup budget for interactive shells. Benchmark your
+startup time with:</p>
+
+<pre>
+time bash -i -c exit
+</pre>
+
+<p>Target performance: <code>real 0m0.006s</code> (6 milliseconds). To maintain this
+budget:</p>
+
+<ul>
+<li>Keep <code>~/.bashrc</code> strictly free of dynamic command substitutions (such as <code>$(git branch)</code> or <code>$(nvm ...)</code> on every prompt).</li>
+<li>Place environment variables in <code>~/.bash_profile</code> or <code>~/.config/bash/tamlinux/env</code> so they are evaluated once at login rather than on every subshell.</li>
+<li>Use lightweight, pre-computed prompt symbols without spawning subprocesses.</li>
+</ul>
+
+<h3>The foot terminal architecture</h3>
+
+<p>Tamlinux standardizes on <code>foot</code> as its primary Wayland terminal emulator.
+Unlike bloated Electron or VTE-based terminals, <code>foot</code>:</p>
+
+<ol>
+<li>Communicates directly with the Wayland compositor via shared memory (<code>wl_shm</code>) or DMA-BUF without X11 translation layers.</li>
+<li>Pre-renders glyphs in an asynchronous thread with FreeType and HarfBuzz, caching them in GPU-accessible textures.</li>
+<li>Emits damage regions precisely matching modified character cells, resulting in zero compositor repaints when idle.</li>
+</ol>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; learn strict Bash headers and safe argument handling.</li>
+<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; compile C projects and manage Git worktrees.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
+</ul>
+</body>
+</html>

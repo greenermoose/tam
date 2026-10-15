@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Memory Compression with ZRAM</title>
+<meta name="topic" content="zram">
+<meta name="summary" content="How compressed RAM swap (LZ4/zstd) doubles effective memory capacity with near-zero latency compared to disk thrashing">
+<meta name="keywords" content="zram, memory, ram, compression, swap, lz4, zstd, paging, thrashing, zramctl">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="improve, resources">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Memory Compression with ZRAM</p>
+</nav>
+
+<h1>Memory Compression with ZRAM</h1>
+
+<p>Traditional disk-based swap creates severe I/O bottlenecks when physical RAM is
+exhausted. Tamlinux implements <strong>ZRAM</strong>, creating a compressed block
+device in physical RAM that doubles effective memory capacity with near-zero latency,
+protecting older laptops and developer machines alike from disk thrashing.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Inspecting active ZRAM swap</h2>
+
+<p><strong>Summary:</strong> Check the status and capacity of your system's
+compressed RAM swap using standard terminal tools.</p>
+
+<p><strong>Prerequisites:</strong> System resources and performance
+(<a href="hardware/resources.html">Resources and Performance</a>).</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+zramctl
+</pre>
+
+<p>Expected output:</p>
+
+<pre>
+NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
+/dev/zram0 lz4             8G  1.2G  420M  460M      16 [SWAP]
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>zramctl</code> queries the Linux kernel's ZRAM driver and displays configured compressed memory devices.</li>
+<li><code>DISKSIZE</code> (8G) represents the virtual swap boundary presented to the operating system.</li>
+<li><code>DATA</code> (1.2G) is the uncompressed size of memory pages swapped out by the kernel.</li>
+<li><code>COMPR</code> (420M) and <code>TOTAL</code> (460M) show the actual physical RAM consumed to store that 1.2 GB of data, including compression metadata.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Do not confuse ZRAM swap with slow NVMe or SATA disk swapping. Paging to ZRAM
+takes place entirely inside physical RAM via CPU vector instructions, completing in
+microseconds rather than milliseconds.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to calculate memory compression efficiency and savings in the
+intermediate section below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Calculating compression ratios and memory savings</h2>
+
+<p><strong>Summary:</strong> Evaluate compression ratios and quantify exact RAM
+savings achieved across running workloads.</p>
+
+<h3>Worked example</h3>
+
+<p>Compute the effective compression ratio and physical memory saved by ZRAM:</p>
+
+<pre>
+zramctl --output NAME,DATA,COMPR,TOTAL
+</pre>
+
+<p>Given 1,200 MiB of uncompressed data stored in 460 MiB of physical RAM:</p>
+
+<pre>
+Compression Ratio = 1200 MiB / 460 MiB = 2.61x
+Net RAM Saved     = 1200 MiB - 460 MiB = 740 MiB
+</pre>
+
+<h3>Completion task</h3>
+
+<p>Display raw byte counters across all available ZRAM metric columns for automated
+script parsing. Complete the command below by filling in the missing flag (marked
+with <code>___</code>):</p>
+
+<pre>
+zramctl --bytes ___
+</pre>
+
+<p>Target output: exhaustive numerical report with columns: <code>NAME, DISKSIZE, DATA, COMPR, ALGORITHM, STREAMS, ZERO-PAGES, TOTAL, MEM-LIMIT, MEM-USED, MIGRATED, MOUNTPOINT</code>.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>Pass <code>--output-all</code> to print every metric tracked by the kernel ZRAM driver.</li>
+<li>Passing <code>--bytes</code> prevents <code>zramctl</code> from appending human-readable unit suffixes like <code>M</code> or <code>G</code>.</li>
+<li>Inspect <a href="man:zramctl(8)">zramctl(8)</a> for details.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: zsmalloc kernel allocator and compression algorithms</h2>
+
+<p><strong>Summary:</strong> Analyze the kernel swap writeback path, the
+<code>zsmalloc</code> object slab allocator, and LZ4 versus zstd performance
+characteristics.</p>
+
+<h3>The kernel memory writeback path</h3>
+
+<p>When anonymous memory pressure increases, the Linux kernel's memory management
+subsystem pages out inactive anonymous pages through the swap abstraction:</p>
+
+<ol>
+<li>The kernel selects inactive anonymous pages from the LRU (Least Recently Used) list.</li>
+<li>Pages are dispatched to the block device <code>/dev/zram0</code> via standard block I/O requests.</li>
+<li>The ZRAM driver intercepts the request and invokes a multi-threaded compression stream.</li>
+<li>The compressed chunk is allocated into a <code>zsmalloc</code> memory pool. Unlike standard buddy allocators that require power-of-two page alignments (causing massive internal fragmentation), <code>zsmalloc</code> groups variable-sized compressed chunks into tightly packed page clusters.</li>
+</ol>
+
+<h3>Algorithm tradeoffs: LZ4 vs zstd</h3>
+
+<table>
+<tr><th>Algorithm</th><th>Compression Ratio</th><th>Decompression Speed</th><th>Workstation Role</th></tr>
+<tr><td><strong>LZ4</strong></td><td>~2.0x &ndash; 2.2x</td><td>&gt;4,000 MB/s</td><td>Default in Tamlinux: instant retrieval with imperceptible latency and negligible CPU overhead.</td></tr>
+<tr><td><strong>zstd</strong></td><td>~2.6x &ndash; 3.2x</td><td>~1,200 MB/s</td><td>Higher memory density; ideal for low-RAM machines (&le;4 GB) running compilation or AI tasks.</td></tr>
+</table>
+
+<p>Because decompression with LZ4 operates at multiple gigabytes per second per
+core, swapping to ZRAM is over 100 times faster than reading from physical NVMe
+storage, effectively eliminating system freezes and UI stutter under memory load.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="hardware/resources.html">Resources and performance</a> &mdash; examine overall RAM and CPU load metrics.</li>
+<li><a href="improve/terminal.html">Terminal and editor ergonomics</a> &mdash; discover fast shell startup and Micro live reload.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
+</ul>
+</body>
+</html>

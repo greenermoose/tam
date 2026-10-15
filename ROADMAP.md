@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.20.0`.  
+**Reviewed:** 2026-10-14. **Owner:** Fred. **Current Command Version:** `0.21.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.20.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.21.0)
 
-Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–12, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, and user guide architecture:
+Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1–13, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, and improve-track corpus expansion:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -47,27 +47,28 @@ Between 2026-10-09 and 2026-10-14, `tam` progressed rapidly through Milestones 1
 | **0.18.0** | Milestone 10: Navigation & Output Ergonomics | Done (2026-10-14) | Quick Guide index return shortcut (`` ` ``) in `src/pager.c` with history push; Goldilocks screen budget (bare `tam explain` ≤15 lines, `tam --help` ≤20 lines); interactive hyperlinked `tam explain topics` with pager navigation, `--level` filtering, `--terse` (slugs only) and `--verbose` modifiers; `--terse` check status for `tam install check`; Bash completions. |
 | **0.19.0** | Milestone 11: "Maintain" Track Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Maintain" track knowledge pages: `maintain/index.html` (hub), `maintain/updates.html` (inode unlinking, package tiering), `maintain/rollback.html` (Btrfs CoW snapshots, Home Manager generations), `maintain/logs.html` (journalctl filtering, kernel ring buffer), `maintain/power.html` (power ladder, Shift-key wake), `maintain/recovery.html` (virtual consoles, REISUB, chroot repair); Beginner/Intermediate/Expert fading templates; two-pass exact-topic alias resolution in `src/index.c`. |
 | **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | Done (2026-10-14) | Re-architected `knowledge/index.html` into comprehensive 7-part Table of Contents ("The Tamlinux User Guide") reflecting Fred's triad (Using, Maintaining, Improving); authored `knowledge/ecosystem/terminology.html` (Greenhouse, Pot, Nut, Root-stock, Cultivar analogy) with fading templates; authored UNIX section 1 manual page `man/tam.1` installed to `$(MANDIR)/man1/tam.1`; updated `src/man.c` and `src/tam.c` for `tam show topics` and dev man page lookup; bumped version to 0.20.0. |
+| **0.21.0** | Milestone 13: "Improve" Track Knowledge Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Improve" track knowledge pages: `improve/index.html` (hub), `improve/efficiency.html` (zero-polling, inotify, epoll, Wayland sockets), `improve/zram.html` (compressed RAM swap, zsmalloc, LZ4/zstd), `improve/terminal.html` (sub-10ms shell startup, Micro editor live reload Virtue V11, foot terminal), `improve/scripting.html` (strict Bash headers set -euo pipefail, safe arguments "$@", tam-* vs fred-* Decision D131), `improve/toolchains.html` (native C compilation, -O2, -march=native, isolated Git worktrees, tam-work concurrency), and `improve/ai-performance.html` (physics of local autoregressive generation, memory bandwidth bounds, quantization tradeoffs); Beginner/Intermediate/Expert fading templates; updated User Guide Part V links; bumped version to 0.21.0. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.21.0** ("Improve" Track Knowledge Corpus Expansion). Equip users and developers to optimize performance, eliminate energy waste, configure tools, and understand local AI inference.
+The immediate priority for `tam` is implementing **Version 0.22.0** (The "Why" Axis: Architectural Rationale & Excluded Packages). Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
 
-### Version 0.21.0 — "Improve" Track Knowledge Corpus Expansion
+### Version 0.22.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
 
-- **Zero-Polling Architecture:**
-  - `knowledge/improve/efficiency.html`: Eliminating periodic polling loops; leveraging kernel `inotify`, `epoll`, and Wayland compositor event sockets to keep CPU idle and save battery.
-- **Memory Compression with ZRAM:**
-  - `knowledge/improve/zram.html`: How compressed RAM swap (LZ4/zstd) doubles effective memory capacity with near-zero latency compared to disk thrashing.
-- **Terminal & Editor Ergonomics:**
-  - `knowledge/improve/terminal.html`: Fast shell startup; using `micro` with auto-reload when AI agents modify files concurrently (Virtue V11).
-- **Scripting & Tool Conventions:**
-  - `knowledge/improve/scripting.html`: System-wide portable `tam-*` tools vs personal machine `fred-*` scripts, strict Bash headers (`set -euo pipefail`), safe argument handling (`"$@"`).
-- **Native Toolchains & Multi-Agent Workflows:**
-  - `knowledge/improve/toolchains.html`: Native C compilation (`-O2`, `-march=native`), isolated Git worktrees (`git worktree add`) for concurrent coding agents.
-- **Physics of Local AI Generation:**
-  - `knowledge/improve/ai-performance.html`: Memory bandwidth vs autoregressive token generation speed ($Tokens/s \approx Bandwidth / ModelSize$); quantization tradeoffs (Q4_K_M vs FP16).
+- **`tam why <topic|package>` Command:**
+  - Provide concise, evidence-based architectural rationale for core Tamlinux decisions.
+  - Uniform 4-part structure for every decision:
+    1. **Decision:** What Tamlinux chose.
+    2. **Alternatives Considered:** What else was evaluated and what merits it had.
+    3. **Tradeoffs & Evidence:** Why the alternative was rejected here (citing Virtues V01–V14 and Faults A–G).
+    4. **Reopen Trigger:** What specific technical condition would prompt reopening the choice.
+- **Excluded Packages Registry:**
+  - Explain deliberate omissions: why Sway instead of Hyprland (ABI stability), why runit instead of systemd (simplicity and deterministic speed), why native C instead of Electron/Python daemons (resource respect), why zero-polling.
+  - Provide self-determination install routes: clear instructions on how users can install excluded packages if they choose.
+- **Public Rationale Projection:**
+  - Build-time tool generating the published rationale pages from reviewed decision summaries.
 
 ---
 

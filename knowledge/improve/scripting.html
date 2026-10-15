@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Shell Scripting and Tool Conventions</title>
+<meta name="topic" content="scripting">
+<meta name="summary" content="Portable tam-* tools vs personal fred-* scripts, strict Bash headers, and safe argument handling">
+<meta name="keywords" content="scripting, scripts, bash, conventions, headers, pipefail, arguments, tam-work, portability, trap">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="improve, shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Shell Scripting and Tool Conventions</p>
+</nav>
+
+<h1>Shell Scripting and Tool Conventions</h1>
+
+<p>Scripts in Tamlinux automate tasks safely and predictably. By following strict
+Bash execution headers, safe argument forwarding, and deliberate naming namespaces,
+you can write scripts that run reliably across different machines and user accounts.</p>
+
+<section data-level="beginner">
+<h2>Beginner: The strict Bash script template</h2>
+
+<p><strong>Summary:</strong> Write dependable scripts using a defensive header that
+catches silent errors, uninitialized variables, and pipeline failures.</p>
+
+<p><strong>Prerequisites:</strong> Shell pipelines
+(<a href="shell/pipelines.html">Shell Pipelines</a>) and permissions
+(<a href="filesystem/permissions.html">File Permissions and Ownership</a>).</p>
+
+<h3>The canonical script template</h3>
+
+<pre>
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Script executed safely with arguments: $#"
+</pre>
+
+<h3>Why each flag matters</h3>
+
+<table>
+<tr><th>Flag</th><th>Name</th><th>Protective Behavior</th></tr>
+<tr><td><code>-e</code></td><td>errexit</td><td>Exits immediately if any command exits with a non-zero status.</td></tr>
+<tr><td><code>-u</code></td><td>nounset</td><td>Treats references to unset variables as fatal errors, preventing accidental operations on empty paths.</td></tr>
+<tr><td><code>-o pipefail</code></td><td>pipefail</td><td>Prevents pipeline masking: the return value of a pipeline is the status of the last command to fail, not the last command executed.</td></tr>
+</table>
+
+<h3>What just happened</h3>
+
+<ul>
+<li>The shebang <code>#!/usr/bin/env bash</code> locates the <code>bash</code> executable portably across Nix, Arch, and standard Linux distributions.</li>
+<li>With <code>set -euo pipefail</code> active, typographical errors in variable names (like <code>rm -rf "$MISTYPED_DIR/*"</code>) abort immediately with an error rather than wiping unintended files.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Never rely on unquoted variables when passing arguments. Always quote variable
+expansions (e.g. <code>"$target"</code> instead of <code>$target</code>) to prevent
+accidental word splitting when paths contain spaces.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to safely forward command arguments and register cleanup hooks in the
+intermediate section below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Safe argument handling and cleanup traps</h2>
+
+<p><strong>Summary:</strong> Forward argument arrays without mangling spaces, and
+ensure temporary files are guaranteed to be cleaned up on exit.</p>
+
+<h3>Worked example</h3>
+
+<p>Handle arbitrary filenames containing spaces and ensure temporary directories
+are removed even if the script fails midway:</p>
+
+<pre>
+#!/usr/bin/env bash
+set -euo pipefail
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+for file in "$@"; do
+    cp "$file" "$tmp/"
+done
+echo "Processed $# files safely in $tmp."
+</pre>
+
+<h3>Completion task</h3>
+
+<p>Register a cleanup handler function that executes upon script termination or
+interruption (such as pressing <code>Ctrl+C</code>). Complete the trap declaration
+below by filling in the missing signal keyword (marked with <code>___</code>):</p>
+
+<pre>
+trap cleanup ___
+</pre>
+
+<p>Target output: script that calls <code>cleanup()</code> on normal exit, error aborts, and <code>SIGINT</code>/<code>SIGTERM</code> signals.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The pseudo-signal <code>EXIT</code> (or <code>0</code>) catches normal exits, <code>set -e</code> aborts, and syntax errors.</li>
+<li>To also handle abrupt terminal interruptions, specify <code>EXIT INT TERM</code>.</li>
+<li>Always quote <code>"$@"</code> (double quotes) to expand each argument as a separate, distinct word.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Tool namespaces (tam-* vs fred-*) and POSIX exit contracts</h2>
+
+<p><strong>Summary:</strong> Master the architectural separation between system-wide
+portable tools and personal user scripts (Decision D131), and standard exit codes.</p>
+
+<h3>The Tamlinux command namespace contract</h3>
+
+<p>To keep the operating system clean and shareable, Tamlinux establishes a strict
+namespace separation between public tools and personal scripts:</p>
+
+<table>
+<tr><th>Prefix</th><th>Ownership</th><th>Scope and Design Rules</th></tr>
+<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories, must support <code>--help</code> and <code>--version</code>, and must operate cleanly in non-interactive pipelines.</td></tr>
+<tr><td><code>fred-*</code></td><td>Personal Machine</td><td>Private, user-specific scripts tailored to a single user's workstation, local aliases, or specific hardware setups.</td></tr>
+</table>
+
+<h3>Standard exit code contracts</h3>
+
+<p>Tamlinux tools adhere strictly to the POSIX exit code conventions:</p>
+
+<ul>
+<li><strong><code>0</code>:</strong> Success. Expected output emitted to standard output; standard error is empty.</li>
+<li><strong><code>1</code>:</strong> General runtime error. Truthful, informative diagnostic message written to standard error; no partial corrupt state left on disk.</li>
+<li><strong><code>2</code>:</strong> Command-line usage or syntax error (invalid flags, missing mandatory arguments, or non-interactive refusal contract). Points the user directly to <code>--help</code>.</li>
+</ul>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; native C compilation and Git worktrees.</li>
+<li><a href="improve/terminal.html">Terminal and editor ergonomics</a> &mdash; editor settings and shell startup.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
+</ul>
+</body>
+</html>

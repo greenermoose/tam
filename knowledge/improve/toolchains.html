@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Native Toolchains and Multi-Agent Workflows</title>
+<meta name="topic" content="toolchains">
+<meta name="summary" content="Native C compilation with GCC/Clang, libtam linking, and isolated Git worktrees for concurrent AI agents">
+<meta name="keywords" content="toolchains, compilation, gcc, clang, native, make, libtam, git, worktrees, multi-agent, concurrency">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="improve, terminal">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Native Toolchains and Multi-Agent Workflows</p>
+</nav>
+
+<h1>Native Toolchains and Multi-Agent Workflows</h1>
+
+<p>Tamlinux builds its core commands in native C against <code>libtam</code>,
+achieving sub-5 millisecond startup times and minimal memory consumption. By
+combining optimized C compilation with isolated Git worktrees and scope claims,
+multiple autonomous AI coding agents can develop, test, and package software
+concurrently without stepping on one another.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Building native C projects with Make</h2>
+
+<p><strong>Summary:</strong> Compile native C programs, inspect compiler flags,
+and run local development builds without requiring root privileges.</p>
+
+<p><strong>Prerequisites:</strong> Terminal and editor ergonomics
+(<a href="improve/terminal.html">Terminal and Editor Ergonomics</a>).</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+make -C ~/Code/tamlinux/tam test-command
+./build/tam --version
+</pre>
+
+<p>Expected output:</p>
+
+<pre>
+cc -DTAM_DATADIR=... -O2 -Wall -Wextra -std=c11 src/tam.c ... -ltam -o build/tam
+tam command 0.21.0 (dev abc1234)
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li><code>make -C</code> instructs GNU Make to build the C binary directly in the project directory using GCC or Clang.</li>
+<li>The binary is compiled with <code>-O2</code> optimizations and linked with an embedded runpath (<code>-Wl,-rpath</code>) that finds <code>libtam.so</code> automatically.</li>
+<li>The resulting standalone executable starts in less than 5 milliseconds and requires no external interpreter runtime.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Never install development binaries directly into system directories like
+<code>/usr/bin</code> or <code>/usr/local/bin</code>. In Tamlinux, development builds
+install cleanly under <code>PREFIX=$HOME/.local/dev</code>, which is placed first on
+<code>$PATH</code> without touching root.</p>
+
+<h3>Next step</h3>
+
+<p>Learn how to manage concurrent feature branches with Git worktrees in the
+intermediate section below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Isolated Git worktrees for concurrent development</h2>
+
+<p><strong>Summary:</strong> Spin up isolated working directories sharing a
+single Git repository object database for multi-agent pair programming.</p>
+
+<h3>Worked example</h3>
+
+<p>When multiple agents or developers work on separate features, switching branches
+in a single working tree causes collisions and invalidates build artifacts.
+Instead, create a separate worktree:</p>
+
+<pre>
+git worktree add ../tam-feature-work branch-name
+git worktree list
+</pre>
+
+<p>To inspect active worktrees:</p>
+
+<pre>
+/home/fred/Code/tamlinux/tam                 a1a08ab [develop]
+/home/fred/Code/tamlinux/tam-feature-work   b2c3d4e [branch-name]
+</pre>
+
+<p>When work is complete and merged, prune the worktree cleanly:</p>
+
+<pre>
+git worktree remove ../tam-feature-work
+</pre>
+
+<h3>Completion task</h3>
+
+<p>Create a new isolated Git worktree branched from <code>develop</code> into a
+sibling folder named <code>../tam-test-lane</code>. Complete the command by filling
+in the missing worktree verb (marked with <code>___</code>):</p>
+
+<pre>
+git worktree ___ ../tam-test-lane develop
+</pre>
+
+<p>Target output: <code>Preparing worktree (checking out 'develop')</code>.</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>The subcommand is <code>add</code>: <code>git worktree add &lt;path&gt; &lt;branch&gt;</code>.</li>
+<li>Worktrees share the main <code>.git</code> database, so commits, tags, and stashes are instantly visible across all worktrees.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Compiler optimization flags and tam-work scope reservation</h2>
+
+<p><strong>Summary:</strong> Understand machine code generation flags
+(<code>-march=native</code>, <code>-flto</code>), dynamic linking rpaths, and
+the <code>tam-work</code> concurrency coordination contract.</p>
+
+<h3>Native compilation optimization flags</h3>
+
+<p>Tamlinux builds optimize C code specifically for the host workstation's CPU
+microarchitecture:</p>
+
+<table>
+<tr><th>Compiler Flag</th><th>Purpose</th><th>Performance Benefit</th></tr>
+<tr><td><code>-O2</code></td><td>Standard optimization</td><td>Enables loop vectorization, function inlining, and instruction scheduling without code size explosion.</td></tr>
+<tr><td><code>-march=native</code></td><td>Target host CPU</td><td>Enables all instruction set extensions supported by the local processor (AVX2, FMA, BMI2, AES-NI).</td></tr>
+<tr><td><code>-pipe</code></td><td>Compiler pipes</td><td>Uses pipes rather than temporary disk files between compilation stages, speeding up builds in memory.</td></tr>
+<tr><td><code>-Wl,-rpath,DIR</code></td><td>Embedded library path</td><td>Binds the exact runtime directory of <code>libtam.so</code> into the ELF binary header, eliminating dynamic linker lookup ambiguities.</td></tr>
+</table>
+
+<h3>Concurrency coordination with tam-work</h3>
+
+<p>When multiple autonomous agents (e.g. Claude, Codex, agy, OpenCode) collaborate
+in a shared repository checkout, they coordinate file access using <code>tam-work</code>:</p>
+
+<pre>
+tam-work begin --scope src --scope knowledge --note "Feature development"
+</pre>
+
+<ul>
+<li><strong>Lanes:</strong> Repositories divide into independent lanes (e.g. in <code>tam</code>: the <code>command</code> lane in <code>src/</code> vs the <code>corpus</code> lane in <code>knowledge/</code>). Agents claiming disjoint lanes work in parallel without blocking.</li>
+<li><strong>Strict Git hygiene:</strong> Agents commit strictly their claimed paths (<code>git commit -m "..." -- &lt;paths&gt;</code>), never running indiscriminate <code>git add -A</code>.</li>
+<li><strong>Handoff:</strong> When a task finishes or is accepted, the agent releases its reservation with <code>tam-work finish</code>.</li>
+</ul>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="improve/ai-performance.html">Physics of local AI generation</a> &mdash; memory bandwidth limits and quantization.</li>
+<li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; portable script authoring.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
+</ul>
+</body>
+</html>

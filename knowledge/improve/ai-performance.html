@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Physics of Local AI Generation</title>
+<meta name="topic" content="ai-performance">
+<meta name="summary" content="Memory bandwidth bounds on autoregressive token generation, model quantization tradeoffs, and local inference">
+<meta name="keywords" content="ai-performance, ai, inference, bandwidth, tokens, ollama, llama.cpp, quantization, q4_k_m, fp16, local">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="improve, resources">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Physics of Local AI Generation</p>
+</nav>
+
+<h1>Physics of Local AI Generation</h1>
+
+<p>Running large language models locally provides complete privacy, zero telemetry,
+and offline availability. However, unlike graphics rendering or video encoding,
+local autoregressive text generation is fundamentally governed by the physical
+<strong>memory bandwidth</strong> of your workstation's RAM subsystem, rather than
+raw compute TFLOPS.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Running local inference with Ollama and tam ask</h2>
+
+<p><strong>Summary:</strong> Run private, local AI models on your workstation with
+zero network transmission or API token costs.</p>
+
+<p><strong>Prerequisites:</strong> System resources and performance
+(<a href="hardware/resources.html">Resources and Performance</a>).</p>
+
+<h3>Command sequence</h3>
+
+<pre>
+ollama run qwen2.5:3b "Summarize the Unix philosophy in three bullet points."
+</pre>
+
+<p>Or query your system documentation directly using the grounded ask command:</p>
+
+<pre>
+tam ask "How does Linux pipe standard streams?"
+</pre>
+
+<h3>What just happened</h3>
+
+<ul>
+<li>The model weights reside entirely in local storage and are loaded into system RAM.</li>
+<li>Computation executes exclusively on your local CPU or integrated/discrete GPU.</li>
+<li><code>tam ask</code> grounds model generation strictly in the local Tamlinux knowledge index, enforcing citation sources and refusing to run if no local model server is reachable.</li>
+</ul>
+
+<h3>Common pitfall</h3>
+
+<p>Do not attempt to load a model whose size exceeds your available physical RAM.
+If a 14 GB model is loaded on a system with only 12 GB of free RAM, the operating
+system will thrash pages to disk, causing the system to lock up and token generation
+to collapse from 20 tokens/sec to less than 0.2 tokens/sec.</p>
+
+<h3>Next step</h3>
+
+<p>Learn the mathematical physics connecting RAM bandwidth to token generation
+rates in the intermediate section below.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: Memory bandwidth and token generation rate</h2>
+
+<p><strong>Summary:</strong> Calculate the theoretical maximum generation speed of
+any model from your workstation's memory bus bandwidth.</p>
+
+<h3>The memory bandwidth law of autoregressive generation</h3>
+
+<p>During autoregressive decoding, generating each individual token requires
+streaming the entire weight tensor of the model through the processor's registers
+exactly once. Therefore, token throughput is mathematically bounded by:</p>
+
+<pre>
+Tokens / second &asymp; Memory Bandwidth (GB/s) / Model Size in RAM (GB) &times; Efficiency
+</pre>
+
+<p>Where real-world memory controller efficiency typically ranges from 70% to 85%.</p>
+
+<h3>Worked example</h3>
+
+<p>Consider a 7-billion parameter model quantized to <strong>Q4_K_M</strong>
+(consuming ~4.5 GB in RAM) running on a dual-channel DDR5-5600 workstation:</p>
+
+<ul>
+<li><strong>Theoretical memory bandwidth:</strong> $2 \times 64\text{ bits} \times 5.6\text{ GT/s} / 8 = 89.6\text{ GB/s}$.</li>
+<li><strong>Sustained effective bandwidth (at ~75% efficiency):</strong> $\approx 67.2\text{ GB/s}$.</li>
+<li><strong>Maximum theoretical token rate:</strong> $67.2\text{ GB/s} / 4.5\text{ GB} \approx 14.9\text{ tokens/second}$.</li>
+</ul>
+
+<h3>Completion task</h3>
+
+<p>Calculate the maximum token generation speed for an 8-billion parameter model
+quantized to <strong>Q8_0</strong> (consuming 8.5 GB in RAM) on an ultra-wide memory
+workstation with 200 GB/s sustained memory bandwidth. Complete the formula below
+by filling in the missing variable (marked with <code>___</code>):</p>
+
+<pre>
+Tokens_per_sec = Bandwidth_GBs / ___
+</pre>
+
+<p>Target answer: <code>Model_Size_GB</code> (yielding $200 / 8.5 \approx 23.5\text{ tokens/sec}$).</p>
+
+<h3>Verification hints</h3>
+
+<ul>
+<li>Autoregressive inference cannot generate tokens faster than memory can supply weights, regardless of how many CPU cores or GPU compute shaders are idle.</li>
+<li>To increase token speeds without upgrading hardware, select a smaller parameter model or a more compact quantization format.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Quantization mechanics, KV cache scaling, and CPU SIMD</h2>
+
+<p><strong>Summary:</strong> Analyze quantization weight packing (FP16 vs Q4_K_M),
+context window KV cache memory growth, and CPU SIMD vectorization.</p>
+
+<h3>Quantization formats and weight precision</h3>
+
+<p>Quantization compresses floating-point weights into low-bit integer representations
+with minimal perplexity loss:</p>
+
+<table>
+<tr><th>Format</th><th>Bits / Weight</th><th>Memory (7B Model)</th><th>Perplexity &amp; Quality</th></tr>
+<tr><td><strong>FP16</strong></td><td>16.0</td><td>~14.0 GB</td><td>Baseline uncompressed floating-point reference.</td></tr>
+<tr><td><strong>Q8_0</strong></td><td>8.5</td><td>~7.5 GB</td><td>Virtually zero perplexity loss; ideal when RAM is abundant.</td></tr>
+<tr><td><strong>Q4_K_M</strong></td><td>4.5</td><td>~4.5 GB</td><td>Tamlinux recommended sweet spot: medium k-quant with 4-bit attention and 6-bit feed-forward tensors.</td></tr>
+<tr><td><strong>Q2_K</strong></td><td>2.6</td><td>~2.8 GB</td><td>Extreme compression; noticeable quality degradation on complex reasoning tasks.</td></tr>
+</table>
+
+<h3>KV cache memory scaling</h3>
+
+<p>As conversations grow, storing the Key and Value matrices across multi-head
+attention layers consumes significant memory in addition to static weights:</p>
+
+<pre>
+KV Cache Bytes = 2 &times; layers &times; heads &times; head_dim &times; context_length &times; bytes_per_element
+</pre>
+
+<p>For a model with 32 layers, 32 attention heads, 128 head dimensions, and 16-bit
+precision, an 8,192-token context consumes ~2.1 GB of RAM purely for the KV cache.
+Enabling 8-bit KV cache quantization (<code>--kv-quant-type q8_0</code> in
+<code>llama.cpp</code>) cuts this memory overhead in half without impacting reasoning.</p>
+
+<h3>CPU vectorization with AVX2 and AVX-512</h3>
+
+<p>When running on CPUs, matrix-vector multiplication (GEMV) operations are vectorized
+using native SIMD intrinsics (AVX2, AVX-512, or ARM NEON). By compiling
+<code>libtam</code> and inference backends with <code>-march=native</code>, the
+compiler maps integer multiply-accumulate operations directly into 256-bit or
+512-bit wide vector registers, avoiding scalar memory stalls.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; native compilation and worktrees.</li>
+<li><a href="improve/efficiency.html">Zero-polling architecture</a> &mdash; eliminate idle CPU wakeups.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
+</ul>
+</body>
+</html>

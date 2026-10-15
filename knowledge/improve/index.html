@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Extending and Improving Your Workstation</title>
+<meta name="topic" content="improve">
+<meta name="summary" content="Improving workstation efficiency, memory compression, editor ergonomics, scripting conventions, native compilation, and local AI">
+<meta name="keywords" content="improve, improving, optimization, efficiency, zero-polling, zram, micro, scripting, toolchains, ai-performance, performance">
+<meta name="level" content="beginner">
+<meta name="track" content="improve">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / Extending and Improving Your Workstation</p>
+</nav>
+
+<h1>Extending and Improving Your Workstation</h1>
+
+<p>Tamlinux is designed to be inspected, tuned, and extended by its user and
+autonomous AI coding agents. Unlike opaque monolithic operating systems, every
+configuration layer, script, and component in Tamlinux is transparent,
+accessible, and built to extract maximum responsiveness from physical
+hardware.</p>
+
+<h2>The six improvement pillars</h2>
+
+<dl>
+<dt><a href="improve/efficiency.html">Zero-polling and event-driven architecture</a></dt>
+<dd>Eliminate periodic polling loops by leveraging kernel <code>inotify</code>,
+<code>epoll</code>, and Wayland compositor event sockets to keep the CPU in deep
+idle C-states and preserve battery life.</dd>
+
+<dt><a href="improve/zram.html">Memory compression with ZRAM</a></dt>
+<dd>Double effective memory capacity and prevent catastrophic disk thrashing
+using ultra-fast in-RAM swap compression backed by LZ4 and zstd.</dd>
+
+<dt><a href="improve/terminal.html">Terminal and editor ergonomics</a></dt>
+<dd>Achieve sub-10ms shell startup latency and master the <code>micro</code>
+editor with automatic live disk reload (Virtue V11) when AI agents modify files
+concurrently.</dd>
+
+<dt><a href="improve/scripting.html">Shell scripting and tool conventions</a></dt>
+<dd>Write rock-solid utilities following strict Bash headers, safe whitespace
+quoting, and Tamlinux namespace conventions (system-wide <code>tam-*</code> vs
+personal <code>fred-*</code> tools).</dd>
+
+<dt><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a></dt>
+<dd>Compile native C tools with <code>libtam</code>, apply architecture-tuned
+optimization flags (<code>-O2</code>, <code>-march=native</code>), and isolate
+concurrent coding agents with Git worktrees.</dd>
+
+<dt><a href="improve/ai-performance.html">Physics of local AI generation</a></dt>
+<dd>Understand how hardware memory bandwidth dictates local LLM token generation
+speeds ($Tokens/s \approx Bandwidth / ModelSize$) and evaluate model quantization
+tradeoffs (Q4_K_M vs FP16).</dd>
+</dl>
+
+<h2>Guiding principles for improvement</h2>
+
+<ul>
+<li><strong>Resource respect (Decision D53):</strong> New tools and features must not consume ongoing CPU cycles or memory when idle. Prefer event-driven wakeups over periodic timers.</li>
+<li><strong>Strict offline default:</strong> Tamlinux tools run entirely offline with zero background tracking telemetry or obligatory network dependencies.</li>
+<li><strong>Single best tool (Virtue V15):</strong> Standardize decisively on proven, minimal tools (e.g. <code>micro</code> for terminal Markdown, <code>bash</code> for scripting, native C for core utilities) rather than accumulating redundant alternatives.</li>
+</ul>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="hardware/resources.html">Resources and performance</a> &mdash; inspect current memory, CPU load, and storage metrics.</li>
+<li><a href="maintain/index.html">System maintenance and reliability</a> &mdash; explore updates, rollbacks, and diagnostics.</li>
+<li><a href="index.html">Guide index</a> &mdash; return to the full table of contents.</li>
+</ul>
+</body>
+</html>

@@ -49,7 +49,7 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h and help"
 
 # Version: command and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.20.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '0.21.0' || fail "--version missing command version"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
@@ -626,6 +626,22 @@ ex_pwr=$("$TAM" explain power --pipe)
 printf '%s\n' "$ex_pwr" | grep -q 'The Progressive Power Ladder' || fail "explain power failed"
 ex_rec=$("$TAM" explain recovery --pipe)
 printf '%s\n' "$ex_rec" | grep -q 'Emergency Disaster Recovery' || fail "explain recovery failed"
+
+# Improve track curated topics.
+ex_imp=$("$TAM" explain improve --pipe)
+printf '%s\n' "$ex_imp" | grep -q 'Extending and Improving Your Workstation' || fail "explain improve failed"
+ex_eff=$("$TAM" explain efficiency --pipe)
+printf '%s\n' "$ex_eff" | grep -q 'Zero-Polling and Event-Driven Architecture' || fail "explain efficiency failed"
+ex_zram=$("$TAM" explain zram --pipe)
+printf '%s\n' "$ex_zram" | grep -q 'Memory Compression with ZRAM' || fail "explain zram failed"
+ex_term=$("$TAM" explain terminal --pipe)
+printf '%s\n' "$ex_term" | grep -q 'Terminal and Editor Ergonomics' || fail "explain terminal failed"
+ex_scr=$("$TAM" explain scripting --pipe)
+printf '%s\n' "$ex_scr" | grep -q 'Shell Scripting and Tool Conventions' || fail "explain scripting failed"
+ex_tool=$("$TAM" explain toolchains --pipe)
+printf '%s\n' "$ex_tool" | grep -q 'Native Toolchains and Multi-Agent Workflows' || fail "explain toolchains failed"
+ex_aip=$("$TAM" explain ai-performance --pipe)
+printf '%s\n' "$ex_aip" | grep -q 'Physics of Local AI Generation' || fail "explain ai-performance failed"
 
 # Explain with - reads topic from stdin.
 ex_stdin=$(printf 'jobs\n' | "$TAM" explain - --pipe)
