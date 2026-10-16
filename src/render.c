@@ -951,6 +951,68 @@ static void start_line(spanlist_t *line, const char *prefix, size_t lead,
     spanlist_append(line, sp, m, 0, NULL, 0);
 }
 
+/* Display columns of a UTF-8 byte range. The corpus uses width-1 glyphs
+ * (arrows, math symbols, dashes), so counting code points is sufficient. */
+static size_t dwidth(const char *s, size_t n)
+{
+    size_t w = 0;
+    for (size_t i = 0; i < n; i++) {
+        if (((unsigned char)s[i] & 0xC0) != 0x80) {
+            w++;
+        }
+    }
+    return w;
+}
+
+/* A token made only of sentence punctuation stays with what precedes it, so
+ * it is never left alone at the start of a line. */
+static int all_punct(const char *s, size_t n)
+{
+    if (n == 0) {
+        return 0;
+    }
+    for (size_t i = 0; i < n; i++) {
+        if (strchr(",.;:!?%)]}", s[i]) == NULL) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* Width of the punctuation token that follows the word ending at (r, i), so a
+ * break reserves room for it instead of stranding it past the margin. */
+static size_t peek_following_punct(const tam_span_t *runs, size_t nruns,
+                                   size_t r, size_t i)
+{
+    size_t rr = r;
+    size_t k = i;
+
+    while (rr < nruns) {
+        const char *t = runs[rr].text;
+        size_t tl = (t != NULL) ? strlen(t) : 0;
+        while (k < tl && isspace((unsigned char)t[k])) {
+            if (t[k] == '\n') {
+                return 0;
+            }
+            k++;
+        }
+        if (k >= tl) {
+            rr++;
+            k = 0;
+            continue;
+        }
+        size_t s = k;
+        while (k < tl && !isspace((unsigned char)t[k]) && t[k] != '\n') {
+            k++;
+        }
+        if (all_punct(t + s, k - s)) {
+            return dwidth(t + s, k - s);
+        }
+        return 0;
+    }
+    return 0;
+}
+
 static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                         int width, const char *prefix)
 {
@@ -961,6 +1023,7 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
 
     spanlist_t line;
     int col = 0;
+    int prev = 0;
 
     start_line(&line, prefix, lead, 1);
     col = (int)lead;
@@ -974,6 +1037,7 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                 linelist_push(out, &line);
                 start_line(&line, prefix, lead, 0);
                 col = (int)lead;
+                prev = 0;
                 i++;
                 continue;
             }
@@ -985,23 +1049,29 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
             while (i < tl && !isspace((unsigned char)t[i]) && t[i] != '\n') {
                 i++;
             }
-            size_t wl = i - ws;
+            size_t wb = i - ws;
+            size_t wl = dwidth(t + ws, wb);
             int tight = strchr(",.;:!?%)]}", t[ws]) != NULL;
-            int sep = (col > (int)lead && !tight) ? 1 : 0;
-            if (col > (int)lead && col + sep + (int)wl > width) {
+            int attach = prev == '(' || prev == '[' || prev == '{';
+            int sep = (col > (int)lead && !tight && !attach) ? 1 : 0;
+            size_t extra = peek_following_punct(runs, nruns, r, i);
+            if (col > (int)lead && !all_punct(t + ws, wb) &&
+                col + sep + (int)(wl + extra) > width) {
                 linelist_push(out, &line);
                 start_line(&line, prefix, lead, 0);
                 col = (int)lead;
                 sep = 0;
+                prev = 0;
             }
             if (sep) {
                 spanlist_append(&line, " ", 1, runs[r].style, runs[r].href,
                                 runs[r].link_id);
                 col++;
             }
-            spanlist_append(&line, t + ws, wl, runs[r].style, runs[r].href,
+            spanlist_append(&line, t + ws, wb, runs[r].style, runs[r].href,
                             runs[r].link_id);
             col += (int)wl;
+            prev = (unsigned char)t[ws + wb - 1];
         }
     }
     linelist_push(out, &line);
@@ -1064,7 +1134,7 @@ static size_t cell_text_len(const tam_table_cell_t *cell)
     size_t len = 0;
     for (size_t i = 0; i < cell->nruns; i++) {
         if (cell->runs[i].text != NULL) {
-            len += strlen(cell->runs[i].text);
+            len += dwidth(cell->runs[i].text, strlen(cell->runs[i].text));
         }
     }
     return len;
@@ -1080,6 +1150,7 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
     spanlist_t cur;
     spanlist_init(&cur);
     int col = 0;
+    int prev = 0;
 
     for (size_t r = 0; r < cell->nruns; r++) {
         const char *t = cell->runs[r].text;
@@ -1097,6 +1168,7 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                 lines[nlines++] = cur;
                 spanlist_init(&cur);
                 col = 0;
+                prev = 0;
                 i++;
                 continue;
             }
@@ -1108,10 +1180,14 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
             while (i < tl && !isspace((unsigned char)t[i]) && t[i] != '\n') {
                 i++;
             }
-            size_t wl = i - ws;
+            size_t wb = i - ws;
+            size_t wl = dwidth(t + ws, wb);
             int tight = strchr(",.;:!?%)]}", t[ws]) != NULL;
-            int sep = (col > 0 && !tight) ? 1 : 0;
-            if (col > 0 && col + sep + (int)wl > max_w) {
+            int attach = prev == '(' || prev == '[' || prev == '{';
+            int sep = (col > 0 && !tight && !attach) ? 1 : 0;
+            size_t extra = peek_following_punct(cell->runs, cell->nruns, r, i);
+            if (col > 0 && !all_punct(t + ws, wb) &&
+                col + sep + (int)(wl + extra) > max_w) {
                 if (nlines == cap) {
                     cap = cap ? cap * 2 : 4;
                     lines = realloc(lines, cap * sizeof(*lines));
@@ -1120,15 +1196,17 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                 spanlist_init(&cur);
                 col = 0;
                 sep = 0;
+                prev = 0;
             }
             if (sep) {
                 spanlist_append(&cur, " ", 1, cell->runs[r].style, cell->runs[r].href,
                                 cell->runs[r].link_id);
                 col++;
             }
-            spanlist_append(&cur, t + ws, wl, cell->runs[r].style, cell->runs[r].href,
+            spanlist_append(&cur, t + ws, wb, cell->runs[r].style, cell->runs[r].href,
                             cell->runs[r].link_id);
             col += (int)wl;
+            prev = (unsigned char)t[ws + wb - 1];
         }
     }
     if (nlines == cap) {
@@ -1216,7 +1294,8 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
                         spanlist_append(&line, sub->v[k].text,
                                         strlen(sub->v[k].text), sub->v[k].style,
                                         sub->v[k].href, sub->v[k].link_id);
-                        printed_w += (int)strlen(sub->v[k].text);
+                        printed_w += (int)dwidth(sub->v[k].text,
+                                                 strlen(sub->v[k].text));
                     }
                 }
                 int pad = col_w[c] - printed_w;

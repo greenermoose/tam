@@ -31,8 +31,8 @@ When working with Tamlinux, you encounter two kinds of version numbers:
 - Individual Component Versions: Each software component develops, tests, and
   versions independently at its own pace:
 
-  - tam: The workstation control and offline documentation utility (e.g. 0.25.0
-    ).
+  - tam: The workstation control and offline documentation utility (e.g.
+    0.25.0).
   - libtam: The shared C library and D-Bus integration layer (e.g. 0.2.0).
   - tamlinux-tools: Standalone utilities such as tam-file-select.
   - tamlinux: The desktop shell, fred.* QML plugins, and system commands.
@@ -103,7 +103,7 @@ the central bill of materials (BOM). It defines:
   };
   
 
-4. Cryptographic Lock ( flake.lock): Running nix flake lock generates a
+4. Cryptographic Lock (flake.lock): Running nix flake lock generates a
    tamper-evident record of the exact Git revisions and SHA-256 tree hashes (
    narHash). When Nix builds the package, it guarantees that no upstream changes
    can alter the build.
@@ -134,8 +134,8 @@ Expert: The step-by-step lifecycle from development to release
 Summary: The complete operational runbook for bumping a component version,
 pinning it into Tamlinux, and deploying the resulting assembly.
 
-Prerequisites: Intermediate depth, understanding of the Develop → Test → Run
-→ Release lifecycle ( The tam command lifecycle).
+Prerequisites: Intermediate depth, understanding of the Develop → Test → Run →
+Release lifecycle (The tam command lifecycle).
 
 Phase 1: Component Development and Override
 
@@ -155,10 +155,10 @@ or Nix rebuilds.
 
 Phase 2: Finish and Commit the Component
 
-1. Verify all unit, integration, and guide tests pass ( make test).
+1. Verify all unit, integration, and guide tests pass (make test).
 2. Bump the component version in source:
 
-  - Binary version: src/version.h ( TAM_COMMAND_VERSION).
+  - Binary version: src/version.h (TAM_COMMAND_VERSION).
   - Corpus version: knowledge/version, its only source. A corpus release changes
     no command source.
 

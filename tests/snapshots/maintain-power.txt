@@ -14,7 +14,7 @@ Beginner: The 3-stage power progression and safe display wake
 Summary: Understand the three power tiers and practice safe display waking with
 the Shift key.
 
-Prerequisites: Familiarity with hardware resources ( System Resources and
+Prerequisites: Familiarity with hardware resources (System Resources and
 Performance).
 
 The three power stages
@@ -23,10 +23,10 @@ The three power stages
    backlights and enter low-power standby individually. The system, network, and
    background tasks continue running at full speed.
 2. Stage 2 — RAM suspend (sleep): The CPU powers down and memory enters
-   self-refresh mode (S3 or s2idle). Power consumption drops to ~1–2 watts,
-   and wake-up takes under 2 seconds.
-3. Stage 3 — S4 disk hibernation: The exact state of physical RAM is written
-   to disk swap, and the workstation powers off completely (0 watts). You can
+   self-refresh mode (S3 or s2idle). Power consumption drops to ~1–2 watts, and
+   wake-up takes under 2 seconds.
+3. Stage 3 — S4 disk hibernation: The exact state of physical RAM is written to
+   disk swap, and the workstation powers off completely (0 watts). You can
    unplug power indefinitely and resume your desktop session exactly as you left
    it.
 
@@ -116,7 +116,7 @@ ENOMEM errors, and understand KMS output retraining.
 
 The kernel hibernation cycle
 
-When entering S4 hibernation ( systemctl hibernate):
+When entering S4 hibernation (systemctl hibernate):
 
 1. User-space processes are frozen via the kernel refrigerator thread.
 2. The kernel snapshots all active memory pages into an atomic suspend image.
@@ -129,7 +129,7 @@ Tuning image_size to avoid ENOMEM allocation faults
 By default, the Linux kernel attempts to shrink the hibernation image to satisfy
 /sys/power/image_size (defaulting to ~2/5 of total RAM). If memory is heavily
 fragmented or allocated across pinned cache pages, the shrinker can encounter an
-allocation failure ( ENOMEM):
+allocation failure (ENOMEM):
 
   
   # Force the kernel to allocate the smallest viable memory image

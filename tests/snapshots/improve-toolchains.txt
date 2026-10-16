@@ -17,7 +17,7 @@ Beginner: Building native C projects with Make
 Summary: Compile native C programs, inspect compiler flags, and run local
 development builds without requiring root privileges.
 
-Prerequisites: Terminal and editor ergonomics ( Terminal and Editor Ergonomics).
+Prerequisites: Terminal and editor ergonomics (Terminal and Editor Ergonomics).
 
 Command sequence
 
@@ -38,7 +38,7 @@ What just happened
 - make -C instructs GNU Make to build the C binary directly in the project
   directory using GCC or Clang.
 - The binary is compiled with -O2 optimizations and linked with an embedded
-  runpath ( -Wl,-rpath) that finds libtam.so automatically.
+  runpath (-Wl,-rpath) that finds libtam.so automatically.
 - The resulting standalone executable starts in less than 5 milliseconds and
   requires no external interpreter runtime.
 
@@ -103,7 +103,7 @@ Verification hints
 
 Expert: Compiler optimization flags and tam-work scope reservation
 
-Summary: Understand machine code generation flags ( -march=native, -flto),
+Summary: Understand machine code generation flags (-march=native, -flto),
 dynamic linking rpaths, and the tam-work concurrency coordination contract.
 
 Native compilation optimization flags
@@ -139,7 +139,7 @@ in a shared repository checkout, they coordinate file access using tam-work:
 - Lanes: Repositories divide into independent lanes (e.g. in tam: the command
   lane in src/ vs the corpus lane in knowledge/). Agents claiming disjoint lanes
   work in parallel without blocking.
-- Strict Git hygiene: Agents commit strictly their claimed paths ( git commit -m
+- Strict Git hygiene: Agents commit strictly their claimed paths (git commit -m
   "..." -- <paths>), never running indiscriminate git add -A.
 - Handoff: When a task finishes or is accepted, the agent releases its
   reservation with tam-work finish.
@@ -148,8 +148,7 @@ Where to next
 
 - Physics of local AI generation — memory bandwidth limits and quantization.
 - Shell scripting and tool conventions — portable script authoring.
-- GNU Make Manual — full reference on rules, functions, and parallel
-  execution.
+- GNU Make Manual — full reference on rules, functions, and parallel execution.
 - GCC Reference Manual — optimization flags, architecture tuning, and C
   extensions.
 - Extending and improving — return to the improve track overview.

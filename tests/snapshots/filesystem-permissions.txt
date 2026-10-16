@@ -12,7 +12,7 @@ Beginner: Making a script executable
 
 Summary: Grant execution permissions to a shell script using symbolic chmod.
 
-Prerequisites: Filesystem navigation and directory layout ( The Linux Filesystem
+Prerequisites: Filesystem navigation and directory layout (The Linux Filesystem
 Hierarchy).
 
 Command sequence
@@ -32,17 +32,17 @@ Expected output:
 
 What just happened
 
-- ls -l displayed the initial file mode: readable and writable by the user ( rw-
-  ), readable by group ( r--) and others ( r--).
-- chmod +x added the executable bit ( x) to all three tiers: user, group, and
+- ls -l displayed the initial file mode: readable and writable by the user (
+  rw-), readable by group (r--) and others (r--).
+- chmod +x added the executable bit (x) to all three tiers: user, group, and
   others.
 - The script can now be directly executed from the command line:./backup.sh.
 
 Common pitfall
 
 Never run chmod 777 to resolve access errors. Granting universal write access
-creates severe security vulnerabilities. For directories, the execute bit ( x)
-is required to traverse (enter) the directory.
+creates severe security vulnerabilities. For directories, the execute bit (x) is
+required to traverse (enter) the directory.
 
 Next step
 

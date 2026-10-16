@@ -17,7 +17,7 @@ Beginner: Running local inference with Ollama and tam ask
 Summary: Run private, local AI models on your workstation with zero network
 transmission or API token costs.
 
-Prerequisites: System resources and performance ( Resources and Performance).
+Prerequisites: System resources and performance (Resources and Performance).
 
 Command sequence
 
@@ -75,12 +75,11 @@ Worked example
 Consider a 7-billion parameter model quantized to Q4_K_M (consuming ~4.5 GB in
 RAM) running on a dual-channel DDR5-5600 workstation:
 
-- Theoretical memory bandwidth: $2 \times 64\text{ bits} \times 5.6\text{ GT/s}
-  / 8 = 89.6\text{ GB/s}$.
-- Sustained effective bandwidth (at ~75% efficiency): $\approx 67.2\text{
-  GB/s}$.
-- Maximum theoretical token rate: $67.2\text{ GB/s} / 4.5\text{ GB} \approx
-  14.9\text{ tokens/second}$.
+- Theoretical memory bandwidth: $2 \times 64\text{bits} \times 5.6\text{GT/s} /
+  8 = 89.6\text{GB/s}$.
+- Sustained effective bandwidth (at ~75% efficiency): $\approx 67.2\text{GB/s}$.
+- Maximum theoretical token rate: $67.2\text{GB/s} / 4.5\text{GB} \approx
+  14.9\text{tokens/second}$.
 
 Completion task
 
@@ -137,7 +136,7 @@ attention layers consumes significant memory in addition to static weights:
 
 For a model with 32 layers, 32 attention heads, 128 head dimensions, and 16-bit
 precision, an 8,192-token context consumes ~2.1 GB of RAM purely for the KV
-cache. Enabling 8-bit KV cache quantization ( --kv-quant-type q8_0 in llama.cpp)
+cache. Enabling 8-bit KV cache quantization (--kv-quant-type q8_0 in llama.cpp)
 cuts this memory overhead in half without impacting reasoning.
 
 CPU vectorization with AVX2 and AVX-512

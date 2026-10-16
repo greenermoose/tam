@@ -17,8 +17,8 @@ Beginner: Lua is the language of your desktop
 Summary: Meet the interpreter that runs inside Hyprland, Neovim, and mpv, and
 make it say something from the terminal.
 
-Prerequisites: The ecosystem overview ( The Tamlinux ecosystem) and desktop
-basics ( The Tamlinux Desktop).
+Prerequisites: The ecosystem overview (The Tamlinux ecosystem) and desktop
+basics (The Tamlinux Desktop).
 
 Command sequence
 
@@ -116,9 +116,9 @@ Where your desktop's Lua lives
 The entry point prepares the Lua module path and then require s the rest in
 order: Tamlinux defaults first, then your hypr.monitors, hypr.bindings,
 hypr.input, and the other personal files. The functions your config calls —
-o.bind(...), hl.monitor({...}) — are not Lua built-ins; Hyprland registers
-them into the interpreter as the host API for its configuration. That state
-stays reachable while the compositor runs: hyprctl repl opens an interactive Lua
+o.bind(...), hl.monitor({...}) — are not Lua built-ins; Hyprland registers them
+into the interpreter as the host API for its configuration. That state stays
+reachable while the compositor runs: hyprctl repl opens an interactive Lua
 prompt inside Hyprland, and hyprctl repl '<expression>' evaluates one expression
 and prints the result (keep test expressions read-only).
 
@@ -144,11 +144,11 @@ Expert: How a host embeds Lua (the C API)
 
 Reference: A host program creates one Lua state, loads script files into it, and
 exchanges values with it over a single shared stack. Positions on that stack
-count up from the bottom ( 1, 2, 3 …) or down from the top ( -1 is the value
-most recently pushed or returned). Hyprland does exactly this: readelf -d
+count up from the bottom (1, 2, 3 …) or down from the top (-1 is the value most
+recently pushed or returned). Hyprland does exactly this: readelf -d
 /usr/bin/Hyprland lists liblua.so.5.5 as a needed library, and its binary
-carries luaL_loadfilex, lua_pcallk, and lua_next — your configuration files
-are loaded and called like any other embedded script.
+carries luaL_loadfilex, lua_pcallk, and lua_next — your configuration files are
+loaded and called like any other embedded script.
 
 A minimal exchange
 
@@ -197,8 +197,8 @@ lua_pushstring, lua_pushnumber,          Push one argument, left to right
 lua_pushboolean                                                                 
 lua_pcall(L, nargs, nresults, 0)         Call; returns LUA_OK on success,       
                                          otherwise the message is at -1         
-lua_istable, lua_tostring, lua_tonumber  Type-check and convert the value on top
-, lua_toboolean                          for the host                           
+lua_istable, lua_tostring,               Type-check and convert the value on top
+lua_tonumber, lua_toboolean              for the host                           
 lua_getfield(L, -1, "key")               Push table.key for a table at -1       
 lua_pushnil(L) then lua_next(L, -2)      Walk a table with dynamic keys: key at 
                                          -2, value at -1; pop the value each    

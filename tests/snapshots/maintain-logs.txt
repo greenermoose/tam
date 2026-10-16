@@ -15,7 +15,7 @@ Beginner: Reading current system logs and dmesg
 Summary: View recent system service events and hardware kernel messages without
 losing context in an interactive pager.
 
-Prerequisites: Basic command pipelines ( Shell Pipelines).
+Prerequisites: Basic command pipelines (Shell Pipelines).
 
 Command sequence
 
@@ -112,7 +112,7 @@ journal storage, and verify binary journal integrity.
 Kernel printk ring buffer
 
 The Linux kernel records console messages in a fixed-size circular memory buffer
-allocated during early boot ( CONFIG_LOG_BUF_SHIFT). Messages are emitted via
+allocated during early boot (CONFIG_LOG_BUF_SHIFT). Messages are emitted via
 printk() and read via the /dev/kmsg character device or the syslog(2) system
 call. Because the buffer is circular, high-frequency kernel logging will
 overwrite historical boot messages if not captured by a user-space log daemon

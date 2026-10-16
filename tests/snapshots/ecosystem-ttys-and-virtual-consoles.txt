@@ -42,15 +42,15 @@ You can switch between virtual consoles at any time using hardware keyboard
 shortcuts:
 
 - Switch to a text console: Press Ctrl + Alt + F2 (or F3 through F6). On laptops
-  where function keys share multimedia bindings, hold the Fn key as well ( Ctrl
-  + Alt + Fn + F2).
+  where function keys share multimedia bindings, hold the Fn key as well (Ctrl +
+  Alt + Fn + F2).
 - Return to the graphical desktop: Press Ctrl + Alt + F1 (or whichever virtual
   terminal hosts your display manager and Wayland compositor).
 
 On Tamlinux, the display manager (SDDM) and your primary Wayland session
-typically run on VT1 ( /dev/tty1) or VT2 ( /dev/tty2). Virtual terminals 3
-through 6 run text login prompts (managed by agetty), providing immediate access
-to clean shell prompts without graphics overhead.
+typically run on VT1 (/dev/tty1) or VT2 (/dev/tty2). Virtual terminals 3 through
+6 run text login prompts (managed by agetty), providing immediate access to
+clean shell prompts without graphics overhead.
 
 The emergency escape hatch
 
@@ -65,8 +65,8 @@ Follow this escalation sequence to recover calmly:
 1. Drop to a text console: Press Ctrl + Alt + F3. The kernel immediately pauses
    graphical scanout and presents a text login prompt.
 2. Log in: Type your regular Tamlinux username and password.
-3. Identify the hung process: Run top or search for runaway processes with pgrep
-   :
+3. Identify the hung process: Run top or search for runaway processes with
+   pgrep:
 
   
   pgrep -l problematic-app
@@ -94,7 +94,7 @@ Summary: Contrast hardware TTYs, kernel VTs, and software PTYs; understand the
 role of the terminal line discipline in buffering and signal handling; and
 inspect terminal sessions with standard utilities.
 
-Prerequisites: Beginner depth, plus basic command-line stream concepts ( The
+Prerequisites: Beginner depth, plus basic command-line stream concepts (The
 Shell and Streams).
 
 The three terminal layers
@@ -108,11 +108,11 @@ character-stream programming interface across changing hardware technologies:
    and hardware flow control.
 2. Virtual Terminals (VTs): When personal computers adopted integrated video
    displays and keyboards, the Linux kernel implemented virtual terminals (
-   /dev/tty1 – /dev/tty63). The kernel emulates a DEC VT102 or ANSI terminal
-   in software, rendering glyphs directly into video framebuffers.
+   /dev/tty1 – /dev/tty63). The kernel emulates a DEC VT102 or ANSI terminal in
+   software, rendering glyphs directly into video framebuffers.
 3. Pseudo-Terminals (PTYs): Graphical terminal emulators (such as foot,
-   alacritty, and kitty), terminal multiplexers ( tmux), and remote access
-   servers ( sshd) cannot bind directly to kernel VT devices. Instead, they
+   alacritty, and kitty), terminal multiplexers (tmux), and remote access
+   servers (sshd) cannot bind directly to kernel VT devices. Instead, they
    allocate a bidirectional software channel called a pseudo-terminal pair:
 
   - PTY Master: Opened by the emulator process via /dev/ptmx. The emulator
@@ -133,7 +133,7 @@ processed before the application's read() system call receives them:
   Ctrl+U to erase line) inside the kernel and echoes typed characters back to
   the screen. The application receives nothing until the user presses Enter.
 - Raw Mode: Used by interactive, full-screen terminal programs, including text
-  editors ( micro, vim), pagers ( tam 's internal pager), and system monitors (
+  editors (micro, vim), pagers (tam 's internal pager), and system monitors (
   top). The kernel disables line buffering, character echoing, and key
   translations. Every keypress is delivered immediately to the application as
   raw bytes.
@@ -141,12 +141,12 @@ processed before the application's read() system call receives them:
   discipline intercepts specific control characters and translates them into
   POSIX signals delivered to the foreground process group:
 
-  - Ctrl + C ( \x03) → generates SIGINT (interrupts and cancels the running
+  - Ctrl + C (\x03) → generates SIGINT (interrupts and cancels the running
     command).
-  - Ctrl + \ ( \x1c) → generates SIGQUIT (terminates with core dump).
-  - Ctrl + Z ( \x1a) → generates SIGTSTP (suspends process and returns to
-    shell job control).
-  - Ctrl + D ( \x04) → signals End of File (EOF) when sent on an empty input
+  - Ctrl + \ (\x1c) → generates SIGQUIT (terminates with core dump).
+  - Ctrl + Z (\x1a) → generates SIGTSTP (suspends process and returns to shell
+    job control).
+  - Ctrl + D (\x04) → signals End of File (EOF) when sent on an empty input
     line.
 
 Controlling terminals and session leaders
@@ -192,7 +192,7 @@ master handover between compositors and text consoles, and trace how seat
 arbiters manage unprivileged hardware access.
 
 Prerequisites: Intermediate depth, plus familiarity with Wayland compositors (
-Compositors and Windowing) and display managers ( Display Managers: SDDM).
+Compositors and Windowing) and display managers (Display Managers: SDDM).
 
 Kernel console architecture: drivers/tty/vt/
 
@@ -204,7 +204,7 @@ and hardware console drivers:
   modes:
 
   - KD_TEXT: The console driver renders text characters using a bitmap font
-    rendered by the framebuffer console ( fbcon) or legacy VGA hardware.
+    rendered by the framebuffer console (fbcon) or legacy VGA hardware.
   - KD_GRAPHICS: Console text rendering is suspended. The display hardware is
     surrendered to a userspace graphics process (such as a Wayland compositor or
     X11 server) for direct GPU scanout.
@@ -217,7 +217,7 @@ and hardware console drivers:
 Seat management and unprivileged hardware access
 
 Historically, Xorg required SUID root permissions to open raw input devices (
-/dev/input/event*) and direct graphics memory ( /dev/dri/card*). Modern Wayland
+/dev/input/event*) and direct graphics memory (/dev/dri/card*). Modern Wayland
 compositors on Tamlinux run entirely unprivileged under the user's UID, mediated
 by a seat arbiter:
 
@@ -239,7 +239,7 @@ by a seat arbiter:
 The DRM KMS master handover sequence
 
 Linux Direct Rendering Manager (DRM) enforces an invariant: only one process at
-a time may act as DRM Master on a display controller ( /dev/dri/card*). The DRM
+a time may act as DRM Master on a display controller (/dev/dri/card*). The DRM
 Master controls Kernel Mode Setting (KMS), allocating CRTCs, configuring display
 resolutions, and scheduling page flips.
 

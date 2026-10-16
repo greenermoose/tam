@@ -535,5 +535,15 @@ plan/apply/verify work follows the product framework.
   verbatim (finding F5 of the 2026-10-16 corpus audit). Numeric `&#…;`
   references were already decoded; no `knowledge/` page changed. The four
   affected golden snapshots were regenerated and reviewed.
+- **2026-10-16:** Command 0.25.2 (renderer layout). Text measurement now counts
+  display columns (`dwidth`) instead of UTF-8 bytes, so body, table and cell
+  wrapping fill the requested width exactly; a full-width line previously
+  stopped one column short for every multi-byte glyph it contained. Wrapping
+  no longer inserts a space after an opening bracket, and a token made only of
+  sentence punctuation (`.`, `,`, `:`, `)`, …) is kept with the word before it
+  and never stranded alone on its own line; the break decision reserves room
+  for such a token. Table columns stay aligned under `—`, `→` and `≤`. All 33
+  affected golden snapshots were regenerated and reviewed: no line exceeds the
+  former count of over-width lines and no page lost or gained content.
 
 
