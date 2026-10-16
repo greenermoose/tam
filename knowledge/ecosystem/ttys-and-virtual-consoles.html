@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TTYs, Virtual Consoles, and Terminal Architecture</title>
+<meta name="topic" content="ttys-and-vts">
+<meta name="summary" content="Terminal subsystem architecture, Linux virtual consoles (VTs), pseudo-terminals (PTYs), switching hotkeys, and display manager seat handover">
+<meta name="keywords" content="ttys-and-vts, tty, ttys, vt, vts, virtual terminal, virtual terminals, virtual console, virtual consoles, pty, pts, terminal, console, termios, line discipline, chvt, fgconsole, seatd, logind, agetty">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="ecosystem, compositors">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / TTYs, Virtual Consoles, and Terminal Architecture</p>
+</nav>
+
+<h1>TTYs, Virtual Consoles, and Terminal Architecture</h1>
+
+<p>The terminal is the primary interface for administering and developing on a
+Tamlinux system. In modern Linux systems, what users call a "terminal" spans
+three distinct architectural layers: physical serial teleprinters (TTYs),
+kernel-managed full-screen virtual terminals (VTs or virtual consoles), and
+software-emulated pseudo-terminals (PTYs). Understanding how these layers
+interact is essential for navigating the system, rescuing frozen graphical
+sessions, and understanding how display servers acquire display hardware.</p>
+
+<section data-level="beginner">
+<h2>Beginner: Virtual consoles and everyday switching</h2>
+
+<p><strong>Summary:</strong> Understand what virtual consoles are, how to switch
+between text consoles and your graphical desktop using hotkeys, and how to use
+virtual terminals as an emergency escape hatch when an application freezes.</p>
+
+<p><strong>Prerequisites:</strong> <a href="ecosystem/index.html">The Tamlinux
+Ecosystem</a> and <a href="ecosystem/compositors.html">Compositors and Windowing</a>.</p>
+
+<h3>What is a virtual console?</h3>
+
+<p>A virtual console (also called a virtual terminal or VT) is an independent,
+full-screen character display managed directly by the Linux kernel. Even when no
+graphical desktop or windowing system is installed or running, the Linux kernel
+allocates multiple virtual terminals (typically numbered 1 through 63, backed by
+device nodes <code>/dev/tty1</code> through <code>/dev/tty63</code>).</p>
+
+<p>Each virtual terminal maintains its own display buffer, cursor position,
+keyboard input state, and active process tree. Your physical monitor and
+keyboard connect to only one virtual console at any given moment; switching
+consoles instructs the kernel to switch the active screen buffer and keyboard
+focus.</p>
+
+<h3>Switching between virtual consoles</h3>
+
+<p>You can switch between virtual consoles at any time using hardware keyboard
+shortcuts:</p>
+
+<ul>
+<li><strong>Switch to a text console:</strong> Press
+<strong>Ctrl + Alt + F2</strong> (or <code>F3</code> through <code>F6</code>).
+On laptops where function keys share multimedia bindings, hold the <code>Fn</code>
+key as well (<code>Ctrl + Alt + Fn + F2</code>).</li>
+<li><strong>Return to the graphical desktop:</strong> Press
+<strong>Ctrl + Alt + F1</strong> (or whichever virtual terminal hosts your
+display manager and Wayland compositor).</li>
+</ul>
+
+<p>On Tamlinux, the display manager (SDDM) and your primary Wayland session
+typically run on <strong>VT1</strong> (<code>/dev/tty1</code>) or <strong>VT2</strong>
+(<code>/dev/tty2</code>). Virtual terminals 3 through 6 run text login prompts
+(managed by <code>agetty</code>), providing immediate access to clean shell
+prompts without graphics overhead.</p>
+
+<h3>The emergency escape hatch</h3>
+
+<p>When a graphical application hangs, a video game deadlocks the GPU, or a
+Wayland compositor stops responding to keyboard and mouse shortcuts, the Linux
+kernel's virtual terminal subsystem continues to function. You do not need to
+press the machine's physical power button or reset switch, which risks
+filesystem corruption or unwritten cache data.</p>
+
+<p>Follow this escalation sequence to recover calmly:</p>
+
+<ol>
+<li><strong>Drop to a text console:</strong> Press <code>Ctrl + Alt + F3</code>.
+The kernel immediately pauses graphical scanout and presents a text login
+prompt.</li>
+<li><strong>Log in:</strong> Type your regular Tamlinux username and password.</li>
+<li><strong>Identify the hung process:</strong> Run <code>top</code> or search
+for runaway processes with <code>pgrep</code>:
+<pre>
+pgrep -l problematic-app
+</pre>
+</li>
+<li><strong>Terminate cleanly:</strong> Send a graceful termination request
+first, allowing the application to save state:
+<pre>
+kill -TERM &lt;PID&gt;
+</pre>
+If the application does not exit after several seconds, force termination with
+<code>kill -KILL &lt;PID&gt;</code>.</li>
+<li><strong>Return to desktop:</strong> Press <code>Ctrl + Alt + F1</code> to return
+to your running graphical desktop session.</li>
+</ol>
+
+<p>For system-wide lockups where even virtual console switching does not
+respond, consult <a href="maintain/recovery.html">Emergency Disaster Recovery</a>
+for the Magic SysRq recovery sequence.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: The TTY subsystem, line disciplines, and PTYs</h2>
+
+<p><strong>Summary:</strong> Contrast hardware TTYs, kernel VTs, and software
+PTYs; understand the role of the terminal line discipline in buffering and
+signal handling; and inspect terminal sessions with standard utilities.</p>
+
+<p><strong>Prerequisites:</strong> Beginner depth, plus basic command-line stream
+concepts (<a href="shell/index.html">The Shell and Streams</a>).</p>
+
+<h3>The three terminal layers</h3>
+
+<p>Unix terminal architecture evolved over decades, preserving a consistent
+character-stream programming interface across changing hardware technologies:</p>
+
+<ol>
+<li><strong>Physical Teleprinters (TTYs):</strong> Historically, electromechanical
+teleprinters (such as the Teletype Model 33 ASR) connected to computers over
+serial lines (RS-232, <code>/dev/ttyS0</code>). The kernel driver managed UART
+baud rates, parity bits, and hardware flow control.</li>
+<li><strong>Virtual Terminals (VTs):</strong> When personal computers adopted
+integrated video displays and keyboards, the Linux kernel implemented virtual
+terminals (<code>/dev/tty1</code>–<code>/dev/tty63</code>). The kernel emulates
+a DEC VT102 or ANSI terminal in software, rendering glyphs directly into video
+framebuffers.</li>
+<li><strong>Pseudo-Terminals (PTYs):</strong> Graphical terminal emulators
+(such as <code>foot</code>, <code>alacritty</code>, and <code>kitty</code>),
+terminal multiplexers (<code>tmux</code>), and remote access servers
+(<code>sshd</code>) cannot bind directly to kernel VT devices. Instead, they
+allocate a bidirectional software channel called a pseudo-terminal pair:
+<ul>
+<li><strong>PTY Master:</strong> Opened by the emulator process via
+<code>/dev/ptmx</code>. The emulator writes keyboard input into the master and
+reads formatted screen updates from it.</li>
+<li><strong>PTY Slave:</strong> Created under <code>/dev/pts/N</code> (such as
+<code>/dev/pts/0</code>). The user's shell (e.g. <code>bash</code>) and
+command-line programs open the slave side, behaving identically to a physical
+hardware terminal.</li>
+</ul>
+</li>
+</ol>
+
+<h3>The line discipline: Canonical vs raw mode</h3>
+
+<p>Between any terminal device and the running application sits the kernel's
+<strong>line discipline</strong> (specifically <code>N_TTY</code>). The line
+discipline controls how keystrokes are processed before the application's
+<code>read()</code> system call receives them:</p>
+
+<ul>
+<li><strong>Canonical (Cooked) Mode:</strong> The default mode for command-line
+shells. The kernel buffers input line-by-line. It processes editing keys
+(Backspace, Delete, Ctrl+U to erase line) inside the kernel and echoes typed
+characters back to the screen. The application receives nothing until the user
+presses <code>Enter</code>.</li>
+<li><strong>Raw Mode:</strong> Used by interactive, full-screen terminal
+programs, including text editors (<code>micro</code>, <code>vim</code>), pagers
+(<code>tam</code>'s internal pager), and system monitors (<code>top</code>).
+The kernel disables line buffering, character echoing, and key translations.
+Every keypress is delivered immediately to the application as raw bytes.</li>
+<li><strong>Signal Generation:</strong> In canonical and partially cooked modes,
+the line discipline intercepts specific control characters and translates them
+into POSIX signals delivered to the foreground process group:
+<ul>
+<li><code>Ctrl + C</code> (<code>\x03</code>) → generates <code>SIGINT</code>
+(interrupts and cancels the running command).</li>
+<li><code>Ctrl + \</code> (<code>\x1c</code>) → generates <code>SIGQUIT</code>
+(terminates with core dump).</li>
+<li><code>Ctrl + Z</code> (<code>\x1a</code>) → generates <code>SIGTSTP</code>
+(suspends process and returns to shell job control).</li>
+<li><code>Ctrl + D</code> (<code>\x04</code>) → signals End of File (EOF)
+when sent on an empty input line.</li>
+</ul>
+</li>
+</ul>
+
+<h3>Controlling terminals and session leaders</h3>
+
+<p>Every interactive Unix process group belongs to a session, and each session
+may have an associated <strong>controlling terminal</strong>. The controlling
+terminal is accessible through the special character device
+<code>/dev/tty</code>. Opening <code>/dev/tty</code> always accesses the
+terminal of the current process, regardless of whether standard input or output
+have been redirected to files or pipes.</p>
+
+<p>When a session leader closes its controlling terminal (or when a user hangs
+up an SSH connection or closes a terminal emulator window), the kernel sends a
+<code>SIGHUP</code> (Hangup) signal to all processes attached to that terminal.
+Background daemons detach from controlling terminals via <code>setsid()</code>
+to avoid receiving hangup signals when sessions terminate.</p>
+
+<h3>Inspection and control commands</h3>
+
+<p>You can inspect and control virtual terminals and pseudo-terminals using
+standard command-line tools:</p>
+
+<pre>
+# Print the terminal attached to standard input
+tty
+
+# Inspect line discipline configuration, baud rate, and control keys
+stty -a
+
+# Print the active foreground virtual console number
+fgconsole
+
+# Switch virtual terminals from the command line (requires root or seat access)
+chvt 1
+
+# Display logged-in users across VTs and pseudo-terminals
+w
+</pre>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Kernel KMS handover, seat management, and troubleshooting</h2>
+
+<p><strong>Summary:</strong> Explore the kernel VT implementation in
+<code>drivers/tty/vt/</code>, understand DRM master handover between compositors
+and text consoles, and trace how seat arbiters manage unprivileged hardware
+access.</p>
+
+<p><strong>Prerequisites:</strong> Intermediate depth, plus familiarity with
+Wayland compositors (<a href="ecosystem/compositors.html">Compositors and Windowing</a>)
+and display managers (<a href="ecosystem/sddm.html">Display Managers: SDDM</a>).</p>
+
+<h3>Kernel console architecture: drivers/tty/vt/</h3>
+
+<p>Inside the Linux kernel source tree, the virtual terminal subsystem lives in
+<code>drivers/tty/vt/</code>. It manages terminal state, font tables, character
+attributes, and hardware console drivers:</p>
+
+<ul>
+<li><strong>Terminal Operating Modes:</strong> A virtual terminal operates in one
+of two primary modes:
+<ul>
+<li><code>KD_TEXT</code>: The console driver renders text characters using a
+bitmap font rendered by the framebuffer console (<code>fbcon</code>) or legacy
+VGA hardware.</li>
+<li><code>KD_GRAPHICS</code>: Console text rendering is suspended. The display
+hardware is surrendered to a userspace graphics process (such as a Wayland
+compositor or X11 server) for direct GPU scanout.</li>
+</ul>
+</li>
+<li><strong>Console Switching Controls:</strong> Processes managing graphical
+sessions use ioctl calls on the VT device (e.g. <code>VT_SETMODE</code>,
+<code>VT_ACTIVATE</code>, <code>VT_WAITACTIVE</code>) to request notifications
+when a console switch is requested by the kernel or user.</li>
+</ul>
+
+<h3>Seat management and unprivileged hardware access</h3>
+
+<p>Historically, Xorg required SUID root permissions to open raw input devices
+(<code>/dev/input/event*</code>) and direct graphics memory (<code>/dev/dri/card*</code>).
+Modern Wayland compositors on Tamlinux run entirely unprivileged under the
+user's UID, mediated by a seat arbiter:</p>
+
+<ul>
+<li><strong>Seats:</strong> In freedesktop.org architecture, a "seat"
+represents all hardware devices assigned to a single workstation user (displays,
+keyboards, mice, and sound cards). The primary physical workstation is
+designated <code>seat0</code>.</li>
+<li><strong>Seat Arbiters:</strong> Tamlinux uses <code>systemd-logind</code> (on
+the current Arch base) or <code>seatd</code> (on the target Void base). The seat
+arbiter runs as a privileged daemon and opens device nodes on behalf of the
+session compositor.</li>
+<li><strong>File Descriptor Passing:</strong> When Sway or Hyprland starts, it
+connects to the seat arbiter over a Unix socket or D-Bus. The arbiter verifies
+that the session is active on the current VT, opens the necessary input and DRM
+devices, and passes the open file descriptors to the compositor via
+<code>SCM_RIGHTS</code> socket messages.</li>
+<li><strong>Session Inactivation:</strong> When switching away from the
+compositor's VT, the seat arbiter automatically revokes or pauses the device
+file descriptors. This prevents background sessions from snooping keystrokes or
+accessing GPU memory.</li>
+</ul>
+
+<h3>The DRM KMS master handover sequence</h3>
+
+<p>Linux Direct Rendering Manager (DRM) enforces an invariant: only one process
+at a time may act as <strong>DRM Master</strong> on a display controller
+(<code>/dev/dri/card*</code>). The DRM Master controls Kernel Mode Setting
+(KMS), allocating CRTCs, configuring display resolutions, and scheduling page
+flips.</p>
+
+<p>When you press <code>Ctrl + Alt + F2</code> to switch from a Wayland session
+to a text console, the following coordination occurs:</p>
+
+<ol>
+<li>The kernel receives the switch hotkey and sends a <code>VT_PROCESS</code>
+switch signal to the active session supervisor.</li>
+<li>The seat arbiter notifies the Wayland compositor that its session is becoming
+inactive.</li>
+<li>The compositor pauses rendering and issues the
+<code>DRM_IOCTL_DROP_MASTER</code> ioctl, relinquishing control of the display
+controller.</li>
+<li>The kernel switches the active VT to VT2, sets the terminal mode to
+<code>KD_TEXT</code>, and activates <code>fbcon</code>, which programs the
+display controller to render the text login prompt.</li>
+<li>When you later press <code>Ctrl + Alt + F1</code> to return, the reverse
+sequence executes: <code>fbcon</code> suspends, the target VT is set to
+<code>KD_GRAPHICS</code>, the compositor receives an activation event, issues
+<code>DRM_IOCTL_SET_MASTER</code>, restores its display pipelines, and redraws
+the desktop.</li>
+</ol>
+
+<h3>Troubleshooting common VT and console issues</h3>
+
+<dl>
+<dt><strong>Black screen on virtual console switch</strong></dt>
+<dd>If pressing <code>Ctrl + Alt + F2</code> produces a blank or unresponsive
+black screen, the graphics driver has failed the DRM master handover, or the
+kernel lacks framebuffer console support. Verify that the kernel includes the
+<code>fbcon</code> driver and that kernel mode setting (KMS) is active. On
+systems with dual GPUs, verify that the console is assigned to the active video
+output.</dd>
+
+<dt><strong>Tiny console fonts on HiDPI displays</strong></dt>
+<dd>On 4K and HiDPI monitors, the default 8x16 pixel console font is
+difficult to read. Install a high-resolution console font (such as the Terminus
+font package) and configure <code>/etc/vconsole.conf</code>:
+<pre>
+FONT=ter-v32n
+</pre>
+Apply the font immediately without rebooting by running
+<code>setfont ter-v32n</code>.</dd>
+
+<dt><strong>Inspecting seat and session status</strong></dt>
+<dd>To verify session state, assigned virtual terminals, and seat status:
+<pre>
+# List active seats and sessions
+loginctl list-sessions
+loginctl list-seats
+
+# Inspect specific session state and VT assignment
+loginctl session-status $(loginctl list-sessions --no-legend | awk '{print $1}')
+</pre>
+</dd>
+</dl>
+</section>
+
+</body>
+</html>

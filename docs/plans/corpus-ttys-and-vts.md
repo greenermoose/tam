@@ -1,6 +1,6 @@
 # Plan & Note: TTY and Virtual Terminal (VT) Knowledge Corpus Pages
 
-**Status:** Planned / Backlog (Note filed for future authoring)  
+**Status:** Done (Implemented in corpus 0.27.0)  
 **Date:** 2026-10-16  
 **Owner:** Fred  
 **Target:** Knowledge Corpus (`knowledge/`)

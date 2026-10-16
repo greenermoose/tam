@@ -518,5 +518,16 @@ plan/apply/verify work follows the product framework.
   mechanics including /usr/local/share, refined test-mode and headless
   execution notes, and neutralized display manager architecture descriptions.
   Bumped corpus version to 0.26.1.
+- **2026-10-16:** Corpus 0.27.0. Added `ecosystem/ttys-and-virtual-consoles.html`,
+  which explains terminal architecture across three layers (hardware TTYs,
+  kernel virtual terminals/consoles VTs, and software pseudo-terminals PTYs),
+  terminal line disciplines (canonical vs raw mode, POSIX signal generation
+  Ctrl+C/Ctrl+\/Ctrl+Z/Ctrl+D), controlling terminals and session leaders,
+  emergency console switching (Ctrl+Alt+F2/F1), kernel `drivers/tty/vt/`
+  architecture (`KD_TEXT` vs `KD_GRAPHICS`), seat management with
+  systemd-logind/seatd for unprivileged Wayland compositors, DRM KMS master
+  handover (`DRM_IOCTL_DROP_MASTER` and `DRM_IOCTL_SET_MASTER`), and console
+  troubleshooting. Cross-linked from User Guide index, ecosystem index, SDDM
+  guide, and emergency recovery guide. Bumped corpus version to 0.27.0.
 
 
