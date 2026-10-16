@@ -614,8 +614,8 @@ plan/apply/verify work follows the product framework.
   `updated` in `knowledge/index.tsv` and `knowledge/index.json` without editing
   HTML source files. Updated `src/index.c`, `src/depth.c`
   (`tam_depth_apply_rev()`), and `src/tam.c` (`read_corpus_page()`) so every
-  corpus page displays `Rev <N> Last updated <YYYY-MM-DD HH:MM>` after its
-  `<h1>` heading and in `tam explain topics --verbose`. Bumped command and
-  corpus versions to `0.28.0`.
+  corpus page displays `Rev <N> Last updated <YYYY-MM-DD HH:MM>` as a document
+  footer before `</body>` and in `tam explain topics --verbose`. Bumped command
+  and corpus versions to `0.28.0`.
 
 
