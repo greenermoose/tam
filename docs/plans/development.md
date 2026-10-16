@@ -32,8 +32,8 @@ listed under [Excluded and deferred work](#excluded-and-deferred-work).
 
 The repository has two independently developable workstreams:
 
-- **Command (`src/`, `bin/`, `completions/`)** — the C program that renders
-  the corpus and links `libtam`.
+- **Command (`src/`, `bin/`, `completions/`, `man/`)** — the C program that
+  renders the corpus and links `libtam`, with its manual page.
 - **Corpus (`knowledge/`, `tools/`, `tests/snapshots/`)** — the authored
   semantic HTML, the index generator, and the golden snapshots.
 
@@ -41,7 +41,7 @@ They are separate at the source and runtime levels: the binary loads its
 corpus from `TAM_KNOWLEDGE_DIR` or the installed `DATADIR`, so a corpus edit
 needs no recompile and a source edit needs no corpus change. Two agents may
 edit the two lanes at once, each claiming only its lane's paths with
-`tam-work` (workspace `AGENTS.md`). Shared integration files (`Makefile`,
+`tam-work` ([`AGENTS.md`](../../AGENTS.md)). Shared integration files (`Makefile`,
 `tests/run.sh`, `tests/guide.sh`, `AI_PROVENANCE.md`, `README.md`,
 `ROADMAP.md`, `docs/`) move by handoff, never concurrently. An agent working
 on something that tightly couples the two — for example adding parser support
