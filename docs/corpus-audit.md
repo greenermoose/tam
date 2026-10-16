@@ -28,8 +28,9 @@ audit finds what the checker cannot:
 
 ## Who and when
 
-- **Auditor:** by default a delegate agent that did not write the pages.
-  Claude or Codex audit only when the developer asks.
+- **Auditor:** an independent agent chosen and directed by the developer.
+  Any tool may audit; it must not have written the pages under review.
+  Delegation was retired on 2026-10-16; do not dispatch another agent.
 - **When:** after about ten new or substantially changed pages since the last
   audit, or monthly, whichever comes first, and whenever the developer asks.
 - An audit never gates a Tamlinux candidate.

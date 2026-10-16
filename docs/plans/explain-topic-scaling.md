@@ -28,7 +28,7 @@ As Tamlinux documentation expands, the explainable catalog will grow substantial
 - Tamlinux cultivars, packaging tiers, and lifecycle (`pacman`, `nix`, `home-manager`, `mise`)
 - Wayland / Hyprland desktop integration and keybindings (`hyprland`, `quickshell`, `waybar`, `foot`)
 - System hardware, monitors, and audio (`pipewire`, `wireplumber`, `seatd`, `udev`, `edid`)
-- Agent workflows, provenance, and delegation (`tam-work`, `claim`, `agy`, `opencode`)
+- Direct agent workflows, provenance, and concurrent path claims (`tam-work`, `claim`, `agy`, `opencode`)
 
 Without a scaling strategy, an unconstrained dump of hundreds of topics would:
 1. **Overflow the viewport:** Scroll off the screen immediately, requiring terminal scrollback.

@@ -1,8 +1,9 @@
 # Working on tam with an AI agent
 
 Read this before changing anything in this repository. It applies to every
-agent (Claude Code, Codex, Antigravity, OpenCode or another), whether the
-developer asked you directly or another agent handed you the task.
+agent (Claude Code, Codex, Antigravity, OpenCode or another). The developer
+works directly with every agent. Agent-to-agent delegation was retired on
+2026-10-16; old briefs do not assign new work or override these rules.
 
 ## Start here
 
