@@ -1,7 +1,9 @@
 # SOP: Recurring Tam Knowledge Corpus Audit
 
 - **Date:** 2026-10-16
-- **Status:** Proposal for adoption (reviewed by the maintainer before use).
+- **Status:** Superseded. The developer adopted a narrowed version on
+  2026-10-16: see `docs/corpus-audit.md`. This record keeps the original
+  proposal.
 - **Applies to:** the `tam` repository, **corpus lane** (`knowledge/`) as the
   subject, with read-only use of the command lane (`src/`, `Makefile`) and the
   product repository as the authority.

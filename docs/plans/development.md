@@ -547,3 +547,29 @@ plan/apply/verify work follows the product framework.
   former count of over-width lines and no page lost or gained content.
 
 
+- **2026-10-16:** Fred settled how the corpus is written, checked and
+  recorded, after a review of how agents had worked on it:
+  1. Every statement about Tamlinux traces to a product file, a command's
+     output or a recorded decision; general Linux knowledge is not presented
+     as a Tamlinux choice; unbuilt work is marked planned. Sources go in the
+     session record's `Checked against:` line, not on the page.
+  2. The guide teaches the shared-clone, path-claim workflow; worktrees keep
+     one short note in `improve/toolchains.html` explaining why Tamlinux's
+     repositories do not use them.
+  3. A version is spent when it is committed; corrections take a patch bump
+     (no change to the rule above).
+  4. A note about a missing page is a short file in `docs/plans/corpus/`
+     from its template; the queries it records are re-checked when the page
+     lands.
+  5. Session records keep every required field, record key decisions only
+     where the diff cannot show them, and add `Checked against:` and `Time:`
+     lines (`docs/ai/TEMPLATE.md`); tam only for now.
+  6. The audit SOP is adopted narrowed (`docs/corpus-audit.md`): about every
+     ten changed pages or monthly, by a delegate that did not write the
+     pages, never gating a candidate.
+  7. Renderer goldens move to fixture pages; corpus pages are checked for
+     properties and by the corpus checker instead of per-page snapshots.
+  8. A corpus checker and the fixture tests are delegated to opencode, the
+     audit fixes to agy; Claude wrote the authoring guide.
+  Fred is called the developer of Tamlinux, never another title. The
+  authoring guide is `docs/corpus-authoring.md`.

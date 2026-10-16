@@ -92,7 +92,10 @@ Follow `AI_PROVENANCE.md`. Every AI-assisted commit carries
 `Co-authored-by`, `AI-Tool: <tool> <version>` and `AI-Model: <model-id>`,
 with the tool version checked from the running binary, not remembered.
 Each session adds one record under `docs/ai/` and a row in
-`AI_PROVENANCE.md`, quoting the developer's prompts verbatim.
+`AI_PROVENANCE.md`, quoting the developer's prompts verbatim. Start the
+record from `docs/ai/TEMPLATE.md`: it includes the session's start and end
+time and a `Checked against:` line naming the sources you confirmed facts
+from, and it is sized to the work.
 
 Public files never contain conversation or session IDs, transcript or
 store paths, home-directory paths, or the names of private repositories.
