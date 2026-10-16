@@ -3,7 +3,7 @@
 **Component:** `tam` (this repository)  
 **Target Version:** `0.17.0` (minor bump from `0.16.0`)  
 **Stage:** Develop — Milestone 9 of the [development plan](development.md)  
-**Authority:** [development plan](development.md), [ROADMAP.md](../../ROADMAP.md), and two private design reports from 2026-10-12 (local-model ask design; help and self-inspection requirements) retained by the maintainer  
+**Authority:** [development plan](development.md), [ROADMAP.md](../../ROADMAP.md), and two private design reports from 2026-10-12 (local-model ask design; help and self-inspection requirements) retained by the developer  
 **Author:** Antigravity (`agy`)
 
 ---
