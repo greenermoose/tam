@@ -41,7 +41,7 @@ The C binary dynamically discovers the active corpus root using `tam_find_knowle
 3. Relative fallback to `./knowledge` (in-tree execution).
 
 Two runtime discovery functions were added in `src/tam.c` (declared in `src/version.h`):
-- `tam_corpus_version(const char *root)`: Reads `$root/version`. If absent or unreadable, falls back to `TAM_DEFAULT_CORPUS_VERSION`.
+- `tam_corpus_version(const char *root)`: Reads `$root/version`. If absent or unreadable, falls back to `TAM_DEFAULT_CORPUS_VERSION` (`unversioned` since 0.25.1).
 - `tam_corpus_build_id(const char *root)`: Reads `$root/.build_id`. If absent, reports `tam_build_id()`.
 
 ### C. Truthful Dual-Version Reporting

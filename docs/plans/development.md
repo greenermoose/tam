@@ -3,7 +3,7 @@
 **Stage:** Develop — milestones 1–16 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
 corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics, maintain track corpus expansion, user guide architecture & tam(1) manual page, improve track corpus expansion, native GNU info subsystem, topic guides & tam architecture, and decoupled versioning & corpus alignment), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.24.0 and knowledge corpus is at 0.24.0. The executable
+reading telemetry, and static Bash shell completions implemented; the command is at 0.25.1 and the knowledge corpus is at 0.25.1. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself.
 
@@ -159,6 +159,14 @@ the same change that adds a feature**:
 Update the `--version` assertion in `tests/run.sh` to match, and note the
 bump in the decision record below. Historical `docs/ai/` records keep the
 version that shipped at the time; do not rewrite them.
+
+The corpus version lives only in `knowledge/version` and follows the same
+rules for corpus content: new pages or chapters take the minor bump,
+corrections take the patch bump. A corpus release changes nothing in the
+command lane: `tests/run.sh` reads the expected corpus version from
+`knowledge/version`, `tests/guide.sh` discovers every page under
+`knowledge/`, and `TAM_DEFAULT_CORPUS_VERSION` in `src/version.h` is only
+the `unversioned` label shown for a corpus that has no version file.
 
 ## Milestones
 
@@ -481,10 +489,18 @@ plan/apply/verify work follows the product framework.
 - **2026-10-15:** Milestone 14 implemented (tam 0.22.0). Added native GNU Info documentation reader (`tam info`) parsing Info manuals (`.info`, `.info.gz`) into semantic HTML with interactive hyperlinked menus, cross-references, and tag-table index seeking. Added dedicated Info pager keys (`n`, `p`, `u`, `t`, `i`), `a`/`s`/`d`/`f` link pad, `bin/tam-info` wrapper, Bash completions, and cross-system `info:` URI resolution. Version bumped to `0.22.0`.
 - **2026-10-15:** Milestone 15 implemented (tam 0.23.0). Redesigned `tam explain` to display dynamic topic guides rather than navigating directly to documentation pages (`tam show` remains the direct page navigation tool). Bare `tam explain` dynamically aggregates all keywords across the corpus and launches the built-in pager. Authored dedicated `knowledge/tam.html` (`tam show tam`) detailing C implementation, Makefile targets, compiler chain, and the Develop -> Test -> Run -> Release lifecycle. Version bumped to `0.23.0`.
 - **2026-10-15:** Milestone 16 implemented (tam 0.24.0). Decoupled `tam` command binary version (`src/version.h`) from offline knowledge corpus version (`knowledge/version`), allowing both to iterate and diverge independently. Implemented dynamic runtime discovery of corpus version and build ID in `src/tam.c` (`tam_corpus_version`, `tam_corpus_build_id`). Updated bare `tam` intro, `tam --help`, and `tam --version` to report both command and corpus versions. Added `tam hello` and `tam hi` aliases routing to first-run orientation (`cmd_welcome`). Carefully reviewed every page in `knowledge/` and aligned all references to use top-level `tam inspect` and `tam check` (updating `maintain/`, `install/`, `hardware/`, `tam.html`, `welcome.html`, `index.html`). Enriched ecosystem documentation with the botanical Fruit application layer (`knowledge/ecosystem/terminology.html`) and command varieties (`*-nut`, `*-root`, `*`), Fred's 6 Guiding Principles (`knowledge/ecosystem/philosophy.html`), and user alias guidelines (`knowledge/shell/index.html`). Reviewed Fred's ideas in `improvements-fred-tamlinux/ideas/fred`, filed them into structured idea docs, and recorded removal `HISTORY`. Version bumped to `0.24.0`.
-
-
-
-
-
-
-
+- **2026-10-15:** Command 0.25.0. Added an attention line to the pager: one
+  subtly tinted reading line that scrolling and link keys move. Sweeping down
+  catches the first link on a line, sweeping up the last; `Enter` follows only
+  a link on the attention line or a selected link still on screen.
+- **2026-10-15:** Corpus 0.25.0. Added `ecosystem/package-versions.html`,
+  which explains how a Tamlinux release pins the exact version of each
+  component.
+- **2026-10-15:** Command 0.25.1 and corpus 0.25.1. Made the lanes independent
+  at release time: the tests read the corpus version from `knowledge/version`
+  and discover pages instead of listing them, and the fallback corpus label
+  became `unversioned`. The live `tam ask` checks skip, visibly, when no local
+  Ollama server is running, instead of aborting the suite. Corpus corrections:
+  the package-versions page now names `knowledge/version` as the only corpus
+  version authority and describes the user's own configuration generically,
+  and the toolchains example uses generic paths.

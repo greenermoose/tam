@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-15. **Owner:** Fred. **Current Command Version:** `0.25.0`. **Current Corpus Version:** `0.24.0`.  
+**Reviewed:** 2026-10-15. **Owner:** Fred. **Current Command Version:** `0.25.1`. **Current Corpus Version:** `0.25.1`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -56,7 +56,7 @@ Between 2026-10-09 and 2026-10-15, `tam` progressed rapidly through Milestones 1
 
 ## 3. What Needs to Be Done Next
 
-The immediate priority for `tam` is implementing **Version 0.25.0** (Attention Line & Anchored Hyperlink Navigation). Unify viewport scrolling and hyperlink selection around an attention line (line cursor) that subtly indicates current reading focus, catches hyperlinks along human reading saccades (sweeping down catches the first link, sweeping up catches the last link), preserves visible hyperlink selection across unlinked lines, anchors `Tab` navigation to current reading position, and guarantees that `Enter` only activates a link currently on the attention line or visible on screen.
+**Version 0.25.0** (Attention Line & Anchored Hyperlink Navigation) is done (2026-10-15), and 0.25.1 made the command and corpus lanes independent at release time. The next milestone is **Version 0.26.0** (the "Why" axis). 0.25.0 unified viewport scrolling and hyperlink selection around an attention line (line cursor) that subtly indicates current reading focus, catches hyperlinks along human reading saccades (sweeping down catches the first link, sweeping up catches the last link), preserves visible hyperlink selection across unlinked lines, anchors `Tab` navigation to current reading position, and guarantees that `Enter` only activates a link currently on the attention line or visible on screen.
 
 ### Version 0.25.0 — Attention Line & Anchored Hyperlink Navigation
 

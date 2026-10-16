@@ -123,11 +123,11 @@ into reproducible store paths:
 
 Workstation deployment linkage
 
-The user's workstation configuration (in config-fred-tamlinux) consumes
-tamlinux-packages as its input. When tam-deploy activates a candidate, Home
-Manager links the exact Nix store outputs into ~/.local/bin and
-~/.local/share/tamlinux. No floating branches or mutable checkout links are used
-in Test or Run.
+The user's own workstation configuration, a separate repository that holds
+personal preferences and machine settings, consumes tamlinux-packages as its
+input. When tam-deploy activates a candidate, Home Manager links the exact Nix
+store outputs into ~/.local/bin and ~/.local/share/tamlinux. No floating
+branches or mutable checkout links are used in Test or Run.
 
 Expert: The step-by-step lifecycle from development to release
 
@@ -159,7 +159,8 @@ Phase 2: Finish and Commit the Component
 2. Bump the component version in source:
 
   - Binary version: src/version.h ( TAM_COMMAND_VERSION).
-  - Corpus version: knowledge/version and TAM_DEFAULT_CORPUS_VERSION.
+  - Corpus version: knowledge/version, its only source. A corpus release changes
+    no command source.
 
 3. Record public AI provenance in AI_PROVENANCE.md.
 4. Commit and push the changes to develop on GitHub. Note the resulting commit

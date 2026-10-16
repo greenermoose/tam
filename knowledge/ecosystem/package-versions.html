@@ -149,8 +149,8 @@ from host distribution differences.</li>
 
 <h3>Workstation deployment linkage</h3>
 
-<p>The user's workstation configuration (in <code>config-fred-tamlinux</code>)
-consumes <code>tamlinux-packages</code> as its input. When <code>tam-deploy</code>
+<p>The user's own workstation configuration, a separate repository that
+holds personal preferences and machine settings, consumes <code>tamlinux-packages</code> as its input. When <code>tam-deploy</code>
 activates a candidate, Home Manager links the exact Nix store outputs into
 <code>~/.local/bin</code> and <code>~/.local/share/tamlinux</code>. No floating
 branches or mutable checkout links are used in Test or Run.</p>
@@ -190,7 +190,8 @@ without root privileges or Nix rebuilds.</li>
 <li>Bump the component version in source:
   <ul>
   <li>Binary version: <code>src/version.h</code> (<code>TAM_COMMAND_VERSION</code>).</li>
-  <li>Corpus version: <code>knowledge/version</code> and <code>TAM_DEFAULT_CORPUS_VERSION</code>.</li>
+  <li>Corpus version: <code>knowledge/version</code>, its only source. A corpus
+  release changes no command source.</li>
   </ul>
 </li>
 <li>Record public AI provenance in <code>AI_PROVENANCE.md</code>.</li>
