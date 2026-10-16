@@ -64,7 +64,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.26.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.27.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -974,6 +974,81 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager attention line test failed"
     pass "attention line: charcoal tint, directional link catching, anchored Enter, and history position stack"
+
+    # Pager depth switching (0/1/2/3) and retired 1-9 link jumping
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl, re
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
+os.close(slave)
+
+def strip_ansi(s):
+    return re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", s)
+
+def send_and_read(key):
+    while select.select([master], [], [], 0.02)[0]:
+        os.read(master, 4096)
+    os.write(master, key)
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.02)[0]:
+        buf += os.read(master, 4096)
+    return strip_ansi(buf.decode("utf-8", "replace"))
+
+time.sleep(0.15)
+init_buf = b""
+while select.select([master], [], [], 0.02)[0]:
+    init_buf += os.read(master, 4096)
+assert b"Every level is shown below" in init_buf, f"expected initial all levels on pipelines, got: {init_buf}"
+
+# 0 when already at all levels reports already at all levels
+b0 = send_and_read(b"0")
+assert "already at all levels" in b0, f"expected already at all levels message, got: {b0}"
+
+# 1 switches to beginner depth (does NOT follow 1st hyperlink)
+b1 = send_and_read(b"1")
+assert "Depth: beginner." in b1, f"expected Depth: beginner. after pressing 1, got: {b1}"
+
+# 2 switches to intermediate depth
+b2 = send_and_read(b"2")
+assert "Depth: intermediate." in b2, f"expected Depth: intermediate. after pressing 2, got: {b2}"
+
+# 3 switches to expert depth
+b3 = send_and_read(b"3")
+assert "Depth: expert." in b3, f"expected Depth: expert. after pressing 3, got: {b3}"
+
+# 0 switches back to all levels
+b_all = send_and_read(b"0")
+assert "Every level is shown below" in b_all, f"expected all levels banner after pressing 0, got: {b_all}"
+
+# u goes back in history to expert depth
+b_back = send_and_read(b"u")
+assert "Depth: expert." in b_back, f"expected history back to restore expert depth, got: {b_back}"
+
+# 4..9 no longer jump to links
+b4 = send_and_read(b"4")
+assert "Shell pipelines" in b4 and "->" not in b4, f"expected 4 not to follow or select link, got: {b4}"
+
+# Jump to index.html (`) where only beginner is offered; pressing 3 reports no expert level
+send_and_read(b"`")
+b_no_exp = send_and_read(b"3")
+assert "no expert level on this page" in b_no_exp, f"expected no expert level message on index.html, got: {b_no_exp}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/knowledge" || fail "interactive pager depth switching test failed"
+    pass "pager depth switching: 0/1/2/3 switch reading depth and 1-9 link jumping retired"
 fi
 
 

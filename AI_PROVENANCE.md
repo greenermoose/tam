@@ -65,3 +65,5 @@ model for each session.
 | 2026-10-16 | Corpus workflow review and decisions: authoring guide, page-note and session-record templates, narrowed audit SOP; Fred titled the developer | Claude Code 2.1.301; `claude-opus-5-5` | [Session record](docs/ai/2026-10-16-tam-corpus-workflow-decisions.md) |
 | 2026-10-16 | Corpus checker (`tools/lint-corpus.py`), renderer goldens on fixture pages, and the corpus audit fixes (corpus 0.27.1) | Claude Code 2.1.301; `claude-opus-5-5` | [Session record](docs/ai/2026-10-16-tam-corpus-checker-and-audit-fixes.md) |
 | 2026-10-16 | Pager navigation position stack (`nav_state_t`), numeric and `all` depth level synonyms (`--level 0\|all\|1\|2\|3`), and renderer whitespace-preceded punctuation fix (`git add .`) 0.26.0 | Antigravity CLI 1.4.0; `gemini-4-argon` | [Session record](docs/ai/2026-10-16-tam-pager-stack-and-numeric-levels.md) |
+| 2026-10-16 | Pager reading depth keys (`0`/`1`/`2`/`3` for `all`/`beginner`/`intermediate`/`expert`) and retired `1`–`9` link jumping 0.27.0 | Antigravity CLI 1.4.0; `gemini-4-argon` | [Session record](docs/ai/2026-10-16-tam-pager-depth-keys.md) |
+

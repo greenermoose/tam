@@ -600,3 +600,10 @@ plan/apply/verify work follows the product framework.
   without a space when no whitespace separated them from the previous token in
   the HTML source (preserving the space in `<code>git add .</code>` while
   keeping `<code>x</code>.` joined). Bumped command version to `0.26.0`.
+- **2026-10-16:** Command 0.27.0. Retired legacy `1`–`9` hyperlink jumping in
+  `src/pager.c` and bound keys `0`, `1`, `2`, `3` inside the interactive pager
+  to switch the current page's reading depth (`all`, `beginner`, `intermediate`,
+  `expert`), pushing navigation state onto history and reporting status when a
+  page is already at the requested depth or does not offer it. Updated
+  `man/tam.1` and `tests/run.sh`, and bumped command version to `0.27.0`.
+

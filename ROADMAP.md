@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-16. **Owner:** Fred. **Current Command Version:** `0.26.0`. **Current Corpus Version:** `0.27.1`.  
+**Reviewed:** 2026-10-16. **Owner:** Fred. **Current Command Version:** `0.27.0`. **Current Corpus Version:** `0.27.1`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.26.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.27.0)
 
-Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, and pager navigation state restoration with numeric level synonyms:
+Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, pager navigation state restoration with numeric level synonyms, and interactive pager depth-switching keys:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -53,12 +53,13 @@ Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1
 | **0.24.0** | Milestone 16: Decoupled Versioning & Corpus Subcommands Alignment | Done (2026-10-15) | Decoupled version numbers of `tam` command (`src/version.h`) and knowledge corpus (`knowledge/version`); dynamic runtime corpus version and build ID discovery; dual version reporting in bare `tam` help and `tam --version`; added `tam hello` and `tam hi` aliases; carefully reviewed and updated every page in knowledge corpus to incorporate `tam inspect` and `tam check` across maintenance, rollback, power, recovery, hardware, welcome, index, and `tam.html`; updated `tam.html` with full subcommands reference table; incorporated Fred's 6 guiding principles into philosophy and botanical Fruit application layer into terminology; updated man pages, completions, and test suites. |
 | **0.25.0–0.25.2** | Attention Line, Lane Release Independence, & Renderer Layout | Done (2026-10-16) | Attention line cursor (`cursor_line`), charcoal tint, directional link catching, and safe `Enter` activation (0.25.0); independent command/corpus release tests (0.25.1); extended HTML entity whitelist and display-column (`dwidth`) measurement in `src/render.c` (0.25.2). |
 | **0.26.0** | Pager Navigation Position Stack, Numeric Level Synonyms, & Punctuation Spacing Fix | Done (2026-10-16) | Full `nav_state_t` (`{ href, top, cursor_line }`) in `src/pager.c` restoring exact viewport and cursor line on back (`u`/Left Arrow) and forward (Right Arrow) across page and `#anchor` jumps; numeric and `all` depth synonyms (`--level 0\|all\|1\|2\|3` and `?level=0\|all\|1\|2\|3`) across `tam show`, `tam explain`, and `tam explain topics` plus Bash completions and `man/tam.1`; renderer fix in `src/render.c` so tokens starting with punctuation keep their preceding space when separated by whitespace in the source (e.g. `git add .`). |
+| **0.27.0** | Pager Reading Depth Keys & Retired 1–9 Link Jumping | Done (2026-10-16) | Bound keys `0`, `1`, `2`, `3` inside `src/pager.c` to switch the active page's reading depth (`all`, `beginner`, `intermediate`, `expert`) with history push and status feedback, and retired legacy `1`–`9` link jumping in favor of the attention line, `Tab`/`Shift-Tab`, and `a`/`s`/`d`/`f`. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-**Version 0.26.0** (Pager Navigation Position Stack, Numeric Level Synonyms, & Renderer Punctuation Spacing Fix) is done (2026-10-16). The next planned feature milestones are the "Why" axis, the "Depth" axis, and offline skills progression.
+**Version 0.27.0** (Pager Reading Depth Keys & Retired 1–9 Link Jumping) is done (2026-10-16). The next planned feature milestones are the "Why" axis, the "Depth" axis, and offline skills progression.
 
 ### Version 0.25.0 — Attention Line & Anchored Hyperlink Navigation
 

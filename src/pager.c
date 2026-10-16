@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "depth.h"
 #include "pager.h"
 #include "render.h"
 
@@ -958,6 +959,82 @@ static void follow(pager_t *st, const char *href)
     st->msg[0] = '\0';
 }
 
+static void switch_depth(pager_t *st, unsigned char key)
+{
+    unsigned want_level = 0;
+    const char *level_name = NULL;
+    const char *label = "all levels";
+    if (key == '1') {
+        want_level = TAM_LEVEL_BEGINNER;
+        level_name = "beginner";
+        label = "beginner";
+    } else if (key == '2') {
+        want_level = TAM_LEVEL_INTERMEDIATE;
+        level_name = "intermediate";
+        label = "intermediate";
+    } else if (key == '3') {
+        want_level = TAM_LEVEL_EXPERT;
+        level_name = "expert";
+        label = "expert";
+    } else if (key != '0') {
+        return;
+    }
+
+    if (st->cur_href == NULL ||
+        strncmp(st->cur_href, "man:", 4) == 0 ||
+        strncmp(st->cur_href, "info:", 5) == 0 ||
+        strcmp(st->cur_href, "-") == 0 ||
+        st->cur_href[0] == '<') {
+        snprintf(st->msg, sizeof(st->msg),
+                 "depth levels not available on this page");
+        return;
+    }
+
+    char base[512];
+    snprintf(base, sizeof(base), "%s", st->cur_href);
+    unsigned cur_level = 0;
+    char *q = strstr(base, "&level=");
+    if (q == NULL) {
+        q = strstr(base, "?level=");
+    }
+    if (q != NULL) {
+        (void)tam_level_parse_arg(q + 7, &cur_level);
+        *q = '\0';
+    }
+
+    if (cur_level == want_level) {
+        snprintf(st->msg, sizeof(st->msg), "already at %s", label);
+        return;
+    }
+
+    char target[600];
+    if (level_name == NULL) {
+        snprintf(target, sizeof(target), "%s", base);
+    } else if (strchr(base, '?') != NULL) {
+        snprintf(target, sizeof(target), "%s&level=%s", base, level_name);
+    } else {
+        snprintf(target, sizeof(target), "%s?level=%s", base, level_name);
+    }
+
+    tam_document_t *nd = st->load(st->ctx, target);
+    if (nd == NULL) {
+        snprintf(st->msg, sizeof(st->msg), "no %s level on this page", label);
+        return;
+    }
+    history_push(st, st->cur_href, st->top, st->cursor_line);
+    forward_clear(st);
+    pager_clear_search(st);
+    free(st->cur_href);
+    st->cur_href = strdup(target);
+    tam_document_free(st->doc);
+    st->doc = nd;
+    pager_build_links(st);
+    st->top = 0;
+    st->cursor_line = 0;
+    st->selected = -1;
+    st->msg[0] = '\0';
+}
+
 static void go_back(pager_t *st)
 {
     if (st->nhistory == 0) {
@@ -1397,15 +1474,13 @@ static void handle_key(pager_t *st, unsigned char c)
         }
         break;
     }
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+        switch_depth(st, c);
+        break;
     default:
-        if (c >= '1' && c <= '9') {
-            int idx = c - '1';
-            if ((size_t)idx < st->nlinks) {
-                st->selected = idx;
-                st->cursor_line = (int)st->links[idx].line_start;
-                follow(st, st->links[idx].href);
-            }
-        }
         break;
     }
 
