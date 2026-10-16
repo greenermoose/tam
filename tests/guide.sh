@@ -29,12 +29,14 @@ guide() {
 # needs no change here. Renderer goldens live in tests/render.sh.
 pages=$(cd "$knowledge" && find . -name '*.html' | sed 's#^\./##; s#\.html$##' | LC_ALL=C sort)
 
-# Every page renders non-empty text with a title.
+# Every page renders non-empty text with a title and build-time Git revision stamp.
 for p in $pages; do
     out=$(guide --pipe "$p")
     [ -n "$out" ] || fail "page $p produced no text"
+    printf '%s\n' "$out" | grep -Eq '^Rev [1-9][0-9]* Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$' \
+        || fail "page $p missing Rev <N> Last updated <YYYY-MM-DD HH:MM> stamp"
 done
-pass "all guide pages render to text"
+pass "all guide pages render to text with build-time revision and timestamp"
 
 # The index mentions its topics and offers a link appendix.
 idx=$(guide --pipe)

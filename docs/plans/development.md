@@ -606,4 +606,16 @@ plan/apply/verify work follows the product framework.
   `expert`), pushing navigation state onto history and reporting status when a
   page is already at the requested depth or does not offer it. Updated
   `man/tam.1` and `tests/run.sh`, and bumped command version to `0.27.0`.
+- **2026-10-16:** Command 0.28.0 and Corpus 0.28.0. Added deterministic
+  build-time Git derivation (`git_page_revision()`) in `tools/build-index.py`
+  computing each page's commit count (`git rev-list --count HEAD --
+  knowledge/<page>`) and latest commit timestamp (`git log -1 --format=%cd
+  --date=format:%Y-%m-%d %H:%M -- knowledge/<page>`), storing `rev` and
+  `updated` in `knowledge/index.tsv` and `knowledge/index.json` without editing
+  HTML source files. Updated `src/index.c`, `src/depth.c`
+  (`tam_depth_apply_rev()`), and `src/tam.c` (`read_corpus_page()`) so every
+  corpus page displays `Rev <N> Last updated <YYYY-MM-DD HH:MM>` after its
+  `<h1>` heading and in `tam explain topics --verbose`. Bumped command and
+  corpus versions to `0.28.0`.
+
 

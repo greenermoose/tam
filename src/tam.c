@@ -519,7 +519,19 @@ static char *read_corpus_page(const char *root, const char *href,
         free(rel);
         return NULL;
     }
-    char *html = tam_depth_apply(src, len, rel, level, out_len, NULL);
+    int rev = 0;
+    char updated[64] = {0};
+    tam_index_t *idx = tam_index_load(root);
+    if (idx != NULL) {
+        const tam_index_entry_t *e = tam_index_lookup_path(idx, rel);
+        if (e != NULL && e->rev > 0 && e->updated != NULL && e->updated[0] != '\0') {
+            rev = e->rev;
+            snprintf(updated, sizeof(updated), "%s", e->updated);
+        }
+        tam_index_free(idx);
+    }
+    char *html = tam_depth_apply_rev(src, len, rel, level, rev,
+                                     updated[0] ? updated : NULL, out_len, NULL);
     free(src);
     free(rel);
     return html;

@@ -376,8 +376,9 @@ static void depth_line(buf_t *b, const char *path, unsigned levels,
     buf_str(b, "\">all levels</a>.</p>\n");
 }
 
-char *tam_depth_apply(const char *src, size_t len, const char *path,
-                      unsigned level, size_t *out_len, unsigned *page_levels)
+char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
+                          unsigned level, int rev, const char *updated,
+                          size_t *out_len, unsigned *page_levels)
 {
     unsigned levels = declared_levels(src, len);
     if (levels == 0) {
@@ -392,6 +393,7 @@ char *tam_depth_apply(const char *src, size_t len, const char *path,
 
     int laddered = tam_level_count(levels) > 1 && path != NULL;
     int line_done = !laddered;
+    int has_rev = (rev > 0 && updated != NULL && updated[0] != '\0');
     buf_t b = {0};
 
     size_t i = 0;
@@ -416,10 +418,23 @@ char *tam_depth_apply(const char *src, size_t len, const char *path,
                 line_done = 1;
                 i = stop;
                 continue;
+            } else if (has_rev && tag_is(src, len, i, "body", 1)) {
+                char rev_buf[128];
+                snprintf(rev_buf, sizeof(rev_buf),
+                         "\n<p>Rev %d Last updated %s</p>\n", rev, updated);
+                buf_str(&b, rev_buf);
+                has_rev = 0;
             }
         }
         buf_add(&b, src + i, 1);
         i++;
+    }
+
+    if (has_rev) {
+        char rev_buf[128];
+        snprintf(rev_buf, sizeof(rev_buf),
+                 "\n<p>Rev %d Last updated %s</p>\n", rev, updated);
+        buf_str(&b, rev_buf);
     }
 
     if (b.data == NULL && !b.failed) {
@@ -434,3 +449,11 @@ char *tam_depth_apply(const char *src, size_t len, const char *path,
     }
     return b.data;
 }
+
+char *tam_depth_apply(const char *src, size_t len, const char *path,
+                      unsigned level, size_t *out_len, unsigned *page_levels)
+{
+    return tam_depth_apply_rev(src, len, path, level, 0, NULL, out_len,
+                               page_levels);
+}
+

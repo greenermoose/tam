@@ -17,6 +17,8 @@ typedef struct {
     size_t num_keywords;
     char **prereqs;    /* topics to read first, e.g. "shell" */
     size_t num_prereqs;
+    int rev;           /* page revision count from git history (>= 1, or 0 if unknown) */
+    char *updated;     /* last updated timestamp "YYYY-MM-DD HH:MM" */
 } tam_index_entry_t;
 
 typedef struct {
@@ -35,6 +37,9 @@ tam_index_t *tam_index_load(const char *root);
 
 /* Free index */
 void tam_index_free(tam_index_t *idx);
+
+/* Lookup entry by relative corpus path (e.g. "shell/pipelines.html"). Returns entry or NULL. */
+const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const char *path);
 
 /* Exact alias lookup (case-insensitive, trims outer quotes). Returns entry or NULL. */
 const tam_index_entry_t *tam_index_lookup_alias(const tam_index_t *idx, const char *word);

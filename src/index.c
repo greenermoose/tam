@@ -210,10 +210,10 @@ tam_index_t *tam_index_load(const char *root)
         }
 
         /* Parse TSV columns: topic, path, title, summary, keywords, level,
-         * track, prereqs */
-        char *cols[8] = {0};
+         * track, prereqs, rev, updated */
+        char *cols[10] = {0};
         char *cur = trimmed;
-        for (int c = 0; c < 8 && cur != NULL; c++) {
+        for (int c = 0; c < 10 && cur != NULL; c++) {
             cols[c] = cur;
             char *tab = strchr(cur, '\t');
             if (tab != NULL) {
@@ -245,6 +245,8 @@ tam_index_t *tam_index_load(const char *root)
             entry->track = (cols[6] && cols[6][0]) ? strdup(cols[6]) : strdup("use");
             entry->keywords = split_list(cols[4], &entry->num_keywords);
             entry->prereqs = split_list(cols[7], &entry->num_prereqs);
+            entry->rev = (cols[8] && cols[8][0]) ? atoi(cols[8]) : 0;
+            entry->updated = (cols[9] && cols[9][0]) ? strdup(cols[9]) : strdup("");
 
             idx->count++;
         }
@@ -267,6 +269,7 @@ void tam_index_free(tam_index_t *idx)
         free(e->summary);
         free(e->level);
         free(e->track);
+        free(e->updated);
         for (size_t k = 0; k < e->num_keywords; k++) {
             free(e->keywords[k]);
         }
@@ -278,6 +281,20 @@ void tam_index_free(tam_index_t *idx)
     }
     free(idx->entries);
     free(idx);
+}
+
+const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const char *path)
+{
+    if (idx == NULL || path == NULL || path[0] == '\0') {
+        return NULL;
+    }
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (e->path != NULL && strcasecmp(path, e->path) == 0) {
+            return e;
+        }
+    }
+    return NULL;
 }
 
 const tam_index_entry_t *tam_index_lookup_alias(const tam_index_t *idx, const char *word)
@@ -658,6 +675,9 @@ void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned leve
             fprintf(out, "  %-14s %s\n", e->topic, e->summary);
             fprintf(out, "    Title:       %s\n", e->title);
             fprintf(out, "    Path:        %s\n", e->path);
+            if (e->rev > 0 && e->updated != NULL && e->updated[0] != '\0') {
+                fprintf(out, "    Revision:    Rev %d Last updated %s\n", e->rev, e->updated);
+            }
             if (e->track != NULL && e->track[0] != '\0') {
                 fprintf(out, "    Track:       %s\n", e->track);
             }

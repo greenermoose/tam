@@ -66,4 +66,11 @@ char *tam_depth_split_href(const char *href, unsigned *level);
 char *tam_depth_apply(const char *src, size_t len, const char *path,
                       unsigned level, size_t *out_len, unsigned *page_levels);
 
+/* Prepare a page's HTML for display at `level`, optionally injecting
+ * `<p>Rev <rev> Last updated <updated></p>` after the first </h1> when
+ * `rev > 0` and `updated` is non-empty. */
+char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
+                          unsigned level, int rev, const char *updated,
+                          size_t *out_len, unsigned *page_levels);
+
 #endif /* TAM_DEPTH_H */

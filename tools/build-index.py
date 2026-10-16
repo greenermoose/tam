@@ -17,8 +17,10 @@ inaccurate breadcrumb, or on the guide index itself carrying one (it is the
 root).
 """
 
+from datetime import datetime, timezone
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -35,7 +37,50 @@ def split_list(content):
     return [k.strip() for k in content.split(",") if k.strip()]
 
 
-def parse_page(path, rel_path, errors):
+def git_page_revision(root, path, rel_path):
+    """Derive deterministic (rev, updated) for a knowledge page from Git history.
+
+    rev: integer commit count touching knowledge/<rel_path> (git rev-list --count HEAD -- ...),
+         at least 1.
+    updated: committer timestamp of the latest commit touching knowledge/<rel_path>
+             in its recorded timezone formatted as 'YYYY-MM-DD HH:MM'
+             (git log -1 --format=%cd --date=format:%Y-%m-%d %H:%M -- ...).
+             Falls back to the file's UTC mtime if the file is not yet committed
+             or if Git is unavailable.
+    """
+    git_rel = f"knowledge/{rel_path}"
+    rev = 0
+    updated = ""
+    if (root / ".git").exists():
+        try:
+            cnt_res = subprocess.run(
+                ["git", "-C", str(root), "rev-list", "--count", "HEAD", "--", git_rel],
+                capture_output=True, text=True, check=False
+            )
+            if cnt_res.returncode == 0 and cnt_res.stdout.strip().isdigit():
+                rev = int(cnt_res.stdout.strip())
+            if rev > 0:
+                date_res = subprocess.run(
+                    ["git", "-C", str(root), "log", "-1", "--format=%cd",
+                     "--date=format:%Y-%m-%d %H:%M", "--", git_rel],
+                    capture_output=True, text=True, check=False
+                )
+                if date_res.returncode == 0:
+                    updated = date_res.stdout.strip()
+        except Exception:
+            pass
+    if rev <= 0:
+        rev = 1
+    if not updated:
+        try:
+            mtime = path.stat().st_mtime
+            updated = datetime.fromtimestamp(mtime, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
+        except Exception:
+            updated = "unknown"
+    return rev, updated
+
+
+def parse_page(root, path, rel_path, errors):
     text = path.read_text(encoding="utf-8", errors="replace")
 
     # Title
@@ -113,6 +158,8 @@ def parse_page(path, rel_path, errors):
     if not summary:
         summary = title
 
+    rev, updated = git_page_revision(root, path, rel_path)
+
     return {
         "topic": topic,
         "path": rel_path,
@@ -122,6 +169,8 @@ def parse_page(path, rel_path, errors):
         "levels": levels,
         "track": track,
         "prereqs": prereqs,
+        "rev": rev,
+        "updated": updated,
     }
 
 
@@ -198,7 +247,7 @@ def main():
     entries = []
     for html_file in sorted(knowledge_dir.rglob("*.html")):
         rel = html_file.relative_to(knowledge_dir).as_posix()
-        entry = parse_page(html_file, rel, errors)
+        entry = parse_page(root, html_file, rel, errors)
         entries.append(entry)
 
     topics = {e["topic"] for e in entries}
@@ -228,13 +277,13 @@ def main():
     # Write index.tsv
     tsv_path = knowledge_dir / "index.tsv"
     with open(tsv_path, "w", encoding="utf-8") as f:
-        f.write("topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\n")
+        f.write("topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n")
         for e in entries:
             kws = ", ".join(e["keywords"])
             levels = ",".join(e["levels"])
             prereqs = ", ".join(e["prereqs"])
             f.write(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
-                    f"{levels}\t{e['track']}\t{prereqs}\n")
+                    f"{levels}\t{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
 
     # Write index.json
     json_path = knowledge_dir / "index.json"

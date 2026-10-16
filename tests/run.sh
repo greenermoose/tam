@@ -64,7 +64,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.27.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.28.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1184,6 +1184,8 @@ ex_verbose=$("$TAM" explain topics --verbose)
 printf '%s\n' "$ex_verbose" | grep -q 'Keywords:' || fail "verbose topics missing Keywords"
 printf '%s\n' "$ex_verbose" | grep -q 'Path:' || fail "verbose topics missing Path"
 printf '%s\n' "$ex_verbose" | grep -q 'Title:' || fail "verbose topics missing Title"
+printf '%s\n' "$ex_verbose" | grep -Eq 'Revision: +Rev [1-9][0-9]* Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}' \
+    || fail "verbose topics missing Revision line"
 
 # tam explain topics --level expert --terse emits only expert topics.
 ex_expert_terse=$("$TAM" explain topics --level expert --terse)
