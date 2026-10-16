@@ -50,6 +50,10 @@ A corpus release stays inside the corpus lane: new pages are discovered by
 `tests/guide.sh`, and the expected corpus version is read from
 `knowledge/version`.
 
+Before you write or change a corpus page, read `docs/corpus-authoring.md`:
+the sourcing rule, where each kind of fact lives, the public boundary and the
+steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
+
 ## Versions
 
 - **Command:** `TAM_COMMAND_VERSION` in `src/version.h`, the matching
