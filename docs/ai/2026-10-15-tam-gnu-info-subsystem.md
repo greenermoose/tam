@@ -2,7 +2,8 @@
 
 - **Date:** 2026-10-15
 - **Stage:** Develop — Milestone 14: Native GNU Info Subsystem (`tam info`, `bin/tam-info`, `src/info.c`, `src/info.h`, pager keybindings `n`/`p`/`u`/`t`/`d`, `info:` URI resolution across guide and man pages, zlib decompression, tag tables, indirect subfiles, bash completion), version bump to 0.22.0.
-- **CLI Tool:** Antigravity CLI (`agy`) 1.3.4
+- **CLI Tool:** Antigravity CLI (`agy`) 1.3.5
+- **Correction (2026-10-15):** CLI version 1.3.5 is taken from the agy process log that served this session; this record originally said 1.3.4.
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
 - **Commit:** Pending commit.

@@ -2,7 +2,8 @@
 
 - **Date:** 2026-10-15
 - **Stage:** Develop — Milestone 16: Decoupled Command & Corpus Versioning, Knowledge Corpus Subcommand Review & Alignment, Orientation Shortcuts, and Ecosystem Enrichments, version bump to 0.24.0.
-- **CLI Tool:** Antigravity CLI (`agy`) 1.3.5
+- **CLI Tool:** Antigravity CLI (`agy`) 1.3.6
+- **Correction (2026-10-15):** CLI version 1.3.6 is taken from the agy process log that served this session; this record originally said 1.3.5.
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
 - **Commit:** Pending commit.

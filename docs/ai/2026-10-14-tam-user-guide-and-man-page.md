@@ -2,7 +2,8 @@
 
 - **Date:** 2026-10-14
 - **Stage:** Develop — Milestone 12: Comprehensive User Guide Table of Contents (`knowledge/index.html`), Botanical Analogy (`knowledge/ecosystem/terminology.html`), Section 1 UNIX manual page (`man/tam.1`), `src/man.c` development man page resolution, `src/tam.c` `tam show topics` and `tam:topics` routing, and version bump to 0.20.0.
-- **CLI Tool:** Antigravity CLI (`agy`) 1.3.4
+- **CLI Tool:** Antigravity CLI (`agy`) 1.3.5
+- **Correction (2026-10-15):** CLI version 1.3.5 is taken from the agy process log that served this session; this record originally said 1.3.4.
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
 - **Commit:** Pending commit.

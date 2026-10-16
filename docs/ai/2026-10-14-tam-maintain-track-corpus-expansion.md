@@ -2,7 +2,8 @@
 
 - **Date:** 2026-10-14
 - **Stage:** Develop — Milestone 11: Comprehensive "Maintain" track knowledge corpus expansion across 5 core topics (`updates.html`, `rollback.html`, `logs.html`, `power.html`, `recovery.html`) plus `maintain/index.html` hub; full beginner/intermediate/expert fading template ladders; two-pass exact-topic alias resolution in `src/index.c`; updated tests and snapshots; version bumped to 0.19.0.
-- **CLI Tool:** Antigravity CLI (`agy`) 1.3.4
+- **CLI Tool:** Antigravity CLI (`agy`) 1.3.5
+- **Correction (2026-10-15):** CLI version 1.3.5 is taken from the agy process log that served this session; this record originally said 1.3.4.
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
 - **Commit:** Pending commit.
