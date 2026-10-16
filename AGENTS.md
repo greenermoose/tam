@@ -2,7 +2,7 @@
 
 Read this before changing anything in this repository. It applies to every
 agent (Claude Code, Codex, Antigravity, OpenCode or another), whether the
-maintainer asked you directly or another agent handed you the task.
+developer asked you directly or another agent handed you the task.
 
 ## Start here
 
@@ -12,7 +12,7 @@ maintainer asked you directly or another agent handed you the task.
   record. Read the section you need, not the whole file.
 - A milestone's own plan in `docs/plans/`, when the roadmap links one.
 
-Discuss a design choice with the maintainer before you build it. A version
+Discuss a design choice with the developer before you build it. A version
 number in a request is data, not permission to release anything.
 
 ## Share the clone; claim what you edit
@@ -74,7 +74,7 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
 - Run builds and tests in the foreground with a time limit. Do not wait on
   background tasks, and do not search large system trees such as
   `/usr/share/doc` recursively; both have stalled earlier sessions.
-- When the maintainer wants to try a change, install the development build
+- When the developer wants to try a change, install the development build
   with `make install PREFIX=$HOME/.local/dev`, which comes first on `PATH`.
   Check that `type -a tam` lists it first and that `tam --version` reports
   the new command and corpus versions. A corpus-only change needs this too:
@@ -84,7 +84,7 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
 
 Work on `develop`; push only `develop` (check `git log @{u}..` for other
 agents' commits first). `test`, `main`, tags and GitHub releases move only
-on the maintainer's explicit Test, Run or Release instruction.
+on the developer's explicit Test, Run or Release instruction.
 
 ## Provenance
 
@@ -92,7 +92,7 @@ Follow `AI_PROVENANCE.md`. Every AI-assisted commit carries
 `Co-authored-by`, `AI-Tool: <tool> <version>` and `AI-Model: <model-id>`,
 with the tool version checked from the running binary, not remembered.
 Each session adds one record under `docs/ai/` and a row in
-`AI_PROVENANCE.md`, quoting the maintainer's prompts verbatim.
+`AI_PROVENANCE.md`, quoting the developer's prompts verbatim.
 
 Public files never contain conversation or session IDs, transcript or
 store paths, home-directory paths, or the names of private repositories.

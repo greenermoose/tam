@@ -1,6 +1,6 @@
 # Auditing the tam knowledge corpus
 
-Adopted by the maintainer on 2026-10-16, narrowed from the proposal in
+Adopted by the developer on 2026-10-16, narrowed from the proposal in
 `docs/ai/2026-10-16-tam-corpus-audit-sop.md`, which also records the first
 audit.
 
@@ -22,16 +22,16 @@ audit finds what the checker cannot:
   auditor per cycle.
 - **Read-only.** The audit writes only its own report. Fixes are separate
   Develop work, and an audit never bumps a version.
-- **Advisory.** The maintainer decides which findings become fixes.
+- **Advisory.** The developer decides which findings become fixes.
 - **Follow-through.** The next audit first re-checks the previous report's
   findings marked fixed.
 
 ## Who and when
 
 - **Auditor:** by default a delegate agent that did not write the pages.
-  Claude or Codex audit only when the maintainer asks.
+  Claude or Codex audit only when the developer asks.
 - **When:** after about ten new or substantially changed pages since the last
-  audit, or monthly, whichever comes first, and whenever the maintainer asks.
+  audit, or monthly, whichever comes first, and whenever the developer asks.
 - An audit never gates a Tamlinux candidate.
 
 ## Before you start
@@ -74,4 +74,4 @@ audit finds what the checker cannot:
 - For each finding: the page's claim at `file:line`, the authority at
   `file:line`, and a fix direction. Do not restate the page.
 - A short list of what was verified correct.
-- Follow-up grouped as corpus fix, command fix, or maintainer ruling.
+- Follow-up grouped as corpus fix, command fix, or developer ruling.

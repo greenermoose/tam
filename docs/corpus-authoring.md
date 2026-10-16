@@ -22,7 +22,7 @@ to confirm it quickly.
 - **Do not write history that no source records.** "Tamlinux evaluated and
   rejected X" needs a decision that says so.
 - **When sources disagree, do not choose.** Write what is certain, and report
-  the disagreement to the maintainer in your session record.
+  the disagreement to the developer in your session record.
 - **List what you checked** in the session record's `Checked against:` line,
   for example `bindings/tiling.lua, src/install.c, tam --help`. Sources do not
   appear on the page.
@@ -62,11 +62,13 @@ Never put these in a page:
 
 Naming the developer:
 
-- Where a page credits his work, introduce him at the first mention on that
-  page as "Fred Horch, the developer of Tamlinux", and call him "Fred"
-  afterwards. Never "creator" or "maintainer".
-- Where a page describes the release process, use the role: "on the
-  developer's Test instruction".
+- His only title is **developer**. Never invent another, such as creator,
+  maintainer or author.
+- At the first mention on a page, give his full name with that title, for
+  example "Fred Horch is the Tamlinux developer" or "Fred Horch develops
+  Tamlinux for his personal and business work". Call him "Fred" afterwards.
+- Where a page describes the release process, use the title as a role: "on
+  the developer's Test instruction".
 - Example accounts are never his: write `alex`.
 
 ## Markup the renderer can show
@@ -110,7 +112,7 @@ tests land; this file is updated in that change.
 
 ## Notes about missing pages
 
-When the maintainer asks for a note rather than a page, copy
+When the developer asks for a note rather than a page, copy
 `docs/plans/corpus/TEMPLATE.md` to `docs/plans/corpus/<topic>.md` and fill it
 in, in about twenty lines. Do not draft the page itself; the author outlines it
 when writing it.
