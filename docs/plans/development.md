@@ -280,6 +280,10 @@ plan/apply/verify work follows the product framework.
   localisation.** Separate scope, each with its own review.
 - **External browser or pager.** Dropped: the native renderer and pager are
   self-sufficient with zero external dependencies.
+- **Upcoming corpus additions (TTY and VT guide).** A dedicated knowledge page
+  covering the TTY subsystem, Linux virtual consoles (VTs), pseudo-terminals
+  (PTYs), and DRM/KMS seat handover is planned for the knowledge corpus; see
+  the note and plan in [corpus-ttys-and-vts.md](corpus-ttys-and-vts.md).
 
 ## Acceptance evidence
 
