@@ -100,7 +100,8 @@ behavior:
 Wayland session discovery and launch
 
 By default, SDDM discovers available Wayland graphical sessions by reading
-.desktop files in /usr/share/wayland-sessions/. A curated directory (such as
+.desktop files in /usr/share/wayland-sessions/ and
+/usr/local/share/wayland-sessions/. A curated directory (such as
 /etc/sddm/wayland-sessions/) is used when the SessionDir setting in SDDM
 configuration explicitly overrides the default search directory; SDDM does not
 automatically discover it in addition to standard system directories. Each
@@ -163,8 +164,8 @@ SDDM             Qt 6 / QML           Wayland and X11       Integrates cleanly
                                                             supports drop-in    
                                                             configuration and   
                                                             themes.             
-GDM              GNOME Shell greeter  Wayland and X11       Tightly coupled to  
-                                                            the GNOME desktop   
+GDM              GNOME Shell greeter  Wayland (optional     Tightly coupled to  
+                                      X11)                  the GNOME desktop   
                                                             environment and     
                                                             GNOME runtime       
                                                             libraries.          
@@ -180,8 +181,8 @@ greetd           Minimal daemon       Agnostic              Runs any greeter
                  greeters                                   gtkgreet); delegates
                                                             session launch to   
                                                             the greeter.        
-ly               Ncurses TUI display  Wayland and X11       Text-mode console   
-                 manager in C                               interface with      
+ly               Text-mode console    Wayland and X11       Text-mode console   
+                 greeter                                    interface with      
                                                             minimal resource    
                                                             usage; suited for   
                                                             text-only or minimal

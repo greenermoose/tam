@@ -126,7 +126,8 @@ Relogin=false
 <h3>Wayland session discovery and launch</h3>
 
 <p>By default, SDDM discovers available Wayland graphical sessions by reading
-<code>.desktop</code> files in <code>/usr/share/wayland-sessions/</code>. A curated
+<code>.desktop</code> files in <code>/usr/share/wayland-sessions/</code> and
+<code>/usr/local/share/wayland-sessions/</code>. A curated
 directory (such as <code>/etc/sddm/wayland-sessions/</code>) is used when the
 <code>SessionDir</code> setting in SDDM configuration explicitly overrides the
 default search directory; SDDM does not automatically discover it in addition to
@@ -194,7 +195,7 @@ desktop integration:</p>
 <tr>
 <td><strong>GDM</strong></td>
 <td>GNOME Shell greeter</td>
-<td>Wayland and X11</td>
+<td>Wayland (optional X11)</td>
 <td>Tightly coupled to the GNOME desktop environment and GNOME runtime libraries.</td>
 </tr>
 <tr>
@@ -211,7 +212,7 @@ desktop integration:</p>
 </tr>
 <tr>
 <td><strong>ly</strong></td>
-<td>Ncurses TUI display manager in C</td>
+<td>Text-mode console greeter</td>
 <td>Wayland and X11</td>
 <td>Text-mode console interface with minimal resource usage; suited for text-only or minimal terminal environments.</td>
 </tr>

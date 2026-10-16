@@ -3,7 +3,7 @@
 **Stage:** Develop — milestones 1–16 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
 corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics, maintain track corpus expansion, user guide architecture & tam(1) manual page, improve track corpus expansion, native GNU info subsystem, topic guides & tam architecture, and decoupled versioning & corpus alignment), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.25.1 and the knowledge corpus is at 0.26.0. The executable
+reading telemetry, and static Bash shell completions implemented; the command is at 0.25.1 and the knowledge corpus is at 0.26.1. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself.
 
@@ -508,4 +508,11 @@ plan/apply/verify work follows the product framework.
   display managers, login greeters, the Tamlinux native Qt 6 greeter, autologin
   vs manual logout, Wayland session discovery, PAM authentication, and virtual
   console emergency recovery. Bumped corpus version to 0.26.0.
+- **2026-10-16:** Corpus 0.26.1. Corrected the SDDM guide following review:
+  clarified autologin as a user convenience preference distinct from disk
+  encryption, documented /etc/sddm.conf precedence and SessionDir override
+  mechanics including /usr/local/share, refined test-mode and headless
+  execution notes, and neutralized display manager architecture descriptions.
+  Bumped corpus version to 0.26.1.
+
 
