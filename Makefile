@@ -79,10 +79,12 @@ $(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) knowledge/
 # are the full, integrated runs.
 test: all
 	tests/run.sh $(CURDIR)/$(TAM)
+	tests/render.sh $(CURDIR)/$(TAM)
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 test-command: command
 	tests/run.sh $(CURDIR)/$(TAM)
+	tests/render.sh $(CURDIR)/$(TAM)
 
 test-corpus: command
 	tests/guide.sh $(CURDIR)/$(TAM)

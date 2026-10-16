@@ -37,8 +37,8 @@ work is committed, or when it is cancelled.
 
 | Lane | Paths | Build | Tests |
 | --- | --- | --- | --- |
-| Command | `src/`, `bin/`, `completions/`, `man/` | `make command` | `make test-command` |
-| Corpus | `knowledge/`, `tools/`, `tests/snapshots/` | `make corpus` | `make test-corpus` |
+| Command | `src/`, `bin/`, `completions/`, `man/`, `tests/render/`, `tests/render.sh` | `make command` | `make test-command` |
+| Corpus | `knowledge/`, `tools/`, `tests/test_lint_corpus.py` | `make corpus` | `make test-corpus` |
 | Shared | `Makefile`, `tests/run.sh`, `tests/guide.sh`, `ROADMAP.md`, `README.md`, `AI_PROVENANCE.md`, `docs/plans/` | | `make test` |
 
 Two agents can work at once if each claims one lane. Claim both lanes for a
@@ -66,9 +66,10 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
 
 ## Build, test and install
 
-- `make test` runs both suites. After an intended rendering change, refresh
-  the golden snapshots with `UPDATE=1 tests/guide.sh build/tam` and read the
-  snapshot diff before committing.
+- `make test` runs both suites. Renderer goldens are small fixture pages in
+  `tests/render/`; after an intended rendering change, refresh them with
+  `UPDATE=1 tests/render.sh build/tam` and read the diff before committing.
+  Corpus pages have no snapshots.
 - The live `tam ask` checks need a local Ollama server with the models named
   in `tests/run.sh`; without one they are skipped with a note.
 - Run builds and tests in the foreground with a time limit. Do not wait on

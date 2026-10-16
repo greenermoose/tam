@@ -12,7 +12,6 @@ esac
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/.." && pwd)
 knowledge="$root/knowledge"
-snapshots="$here/snapshots"
 
 fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
 pass() { printf 'ok - %s\n' "$1"; }
@@ -27,7 +26,7 @@ guide() {
 
 # Pages that must resolve and render.
 # Every page in the corpus, discovered rather than listed, so adding a page
-# needs no change here. Its golden snapshot is created on the first run.
+# needs no change here. Renderer goldens live in tests/render.sh.
 pages=$(cd "$knowledge" && find . -name '*.html' | sed 's#^\./##; s#\.html$##' | LC_ALL=C sort)
 
 # Every page renders non-empty text with a title.
@@ -96,23 +95,6 @@ EOF
 done
 [ -z "$broken" ] || fail "broken internal links:$broken"
 pass "internal links resolve to files"
-
-# Golden text snapshots guard against unintended layout drift.
-mkdir -p "$snapshots"
-for p in $pages; do
-    name=$(printf '%s' "$p" | tr '/' '-')
-    snap="$snapshots/$name.txt"
-    guide --pipe "$p" > "$tmp/out.txt"
-    if [ "${UPDATE:-0}" = "1" ] || [ ! -f "$snap" ]; then
-        cp "$tmp/out.txt" "$snap"
-        continue
-    fi
-    if ! diff -u "$snap" "$tmp/out.txt" > "$tmp/diff.txt"; then
-        cat "$tmp/diff.txt" >&2
-        fail "rendered text for $p drifted from snapshot"
-    fi
-done
-pass "golden text snapshots match"
 
 # Missing page is a clear error.
 if guide --pipe no-such-page >/dev/null 2>&1; then
