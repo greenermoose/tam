@@ -3,7 +3,7 @@
 
 #define TAM_COMMAND_NAME            "tam"
 #define TAM_COMMAND_VERSION         "0.25.0"
-#define TAM_DEFAULT_CORPUS_VERSION  "0.24.0"
+#define TAM_DEFAULT_CORPUS_VERSION  "0.25.0"
 
 char *cultivar_version(void);
 char *tam_corpus_version(const char *root);

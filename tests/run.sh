@@ -62,7 +62,7 @@ pass "--help, -h, help, --terse, and --verbose"
 
 # Version: command, knowledge corpus, and library versions are reported; metadata is explicit.
 "$TAM" --version | grep -q '0.25.0' || fail "--version missing command version"
-"$TAM" --version | grep -q '0.24.0' || fail "--version missing corpus version"
+"$TAM" --version | grep -q 'knowledge corpus 0.25.0' || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"

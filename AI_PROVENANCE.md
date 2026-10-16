@@ -42,6 +42,7 @@ Human-only commits retain their original authorship.
 | 2026-10-15 | Pager hyperlink navigation ergonomics (`a`/`s`/`d`/`f` 2D navigation, first-visible-link selection, Info dir rebind `i`) | Antigravity CLI 1.3.5; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-hyperlink-navigation-keys.md) |
 | 2026-10-15 | Dynamic Topic Guides, tam explain topic keywords, and tam command page 0.23.0 (Milestone 15: topic guides, keywords catalog, pager integration, tam.html, Makefile targets, build chain, develop->test->run->release cycle) | Antigravity CLI 1.3.5; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-topic-guides-and-tam-page.md) |
 | 2026-10-15 | Decoupled Versioning and Knowledge Corpus Alignment 0.24.0 (Milestone 16: decoupled command/corpus versioning, dynamic corpus discovery, tam inspect/check corpus alignment, tam hello/hi, botanical Fruit layer, 6 guiding principles) | Antigravity CLI 1.3.5; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-decoupled-versioning-and-corpus-alignment.md) |
+| 2026-10-15 | Package version specification guide and corpus bump 0.25.0 (`ecosystem/package-versions.html`, assembly BOM, flake pinning, lifecycle) | Antigravity CLI 1.3.6; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-package-versions-guide.md) |
 
 
 

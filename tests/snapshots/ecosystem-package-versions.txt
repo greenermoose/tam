@@ -1,0 +1,238 @@
+Guide / The Tamlinux Ecosystem and Its Choices / Specifying Package Versions in
+Tamlinux
+
+Specifying Package Versions in Tamlinux
+
+Depth: beginner, intermediate, expert. Every level is shown below; follow one to
+read only that depth.
+
+A operating system release must be reproducible, verifiable, and free from
+silent runtime drift. Tamlinux achieves this by distinguishing between the
+top-level Tamlinux product version (the cultivar release) and the independent
+versions of each individual tool and library that make it up. Every version of
+Tamlinux is defined by an exact, cryptographically pinned assembly bill of
+materials.
+
+Beginner: Product versions versus component versions
+
+Summary: Understand how Tamlinux version numbers relate to the packages
+installed on your system, and how to inspect them.
+
+Prerequisites: The Tamlinux Ecosystem and Packaging and Delivery.
+
+Two distinct layers of versioning
+
+When working with Tamlinux, you encounter two kinds of version numbers:
+
+- The Tamlinux Product Version (Cultivar): For example, 0.4.3 or 0.4.4. This
+  SemVer number names a planned milestone stage and step of the operating system
+  itself. Pre-release candidate assemblies carry a letter suffix during testing,
+  such as 0.4.3-d.
+- Individual Component Versions: Each software component develops, tests, and
+  versions independently at its own pace:
+
+  - tam: The workstation control and offline documentation utility (e.g. 0.25.0
+    ).
+  - libtam: The shared C library and D-Bus integration layer (e.g. 0.2.0).
+  - tamlinux-tools: Standalone utilities such as tam-file-select.
+  - tamlinux: The desktop shell, fred.* QML plugins, and system commands.
+
+Inspecting what is running
+
+You can check the version of the active workstation cultivar and individual
+tools directly from the terminal:
+
+  
+  tam --version
+  
+
+Example output:
+
+  
+  tam command 0.25.0 (dev 698756c)
+  knowledge corpus 0.25.0 (dev 698756c)
+  libtam 0.2.0
+  Tamlinux cultivar 0.4.3-d
+  
+
+To inspect the full deployed assembly and its pinned component revisions:
+
+  
+  tam-deploy status
+  
+
+This prints the exact Git commit of every component included in the active Home
+Manager generation, proving that what is running matches the planned assembly.
+
+Intermediate: The assembly repository and pinning architecture
+
+Summary: Explore how tamlinux-packages acts as the single source of truth for
+all software versions in a Tamlinux release.
+
+Prerequisites: Beginner depth, plus familiarity with Nix flakes and lock files.
+
+The role of tamlinux-packages
+
+Tamlinux does not install floating package versions from remote repositories at
+deploy time. Instead, a dedicated repository named tamlinux-packages serves as
+the central bill of materials (BOM). It defines:
+
+1. Base Toolchain & Utilities (Nixpkgs): Pinned via inputs.nixpkgs in flake.nix
+   to an exact commit. This locks compilers, Qt, Wayland libraries, Quickshell,
+   Grim, Slurp, and all CLI utilities down to the exact byte.
+2. User Environment Module (Home Manager): Pinned via inputs.home-manager in
+   flake.nix.
+3. Component Source Repositories: Each Tamlinux component is pinned in inputs to
+   a specific GitHub commit:
+
+  
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/8ce4ef6cb6f871616146b9fe26d2a5ae594e94fe";
+    tamlinux = {
+      url = "github:greenermoose/tamlinux/3f39184b6bac9c8a4f0b39182ae972a4c3e329c0";
+      flake = false;
+    };
+    tam = {
+      url = "github:greenermoose/tam/698756c34223f0384a5a5e55767b451639d1fe72";
+      flake = false;
+    };
+    libtam = {
+      url = "github:greenermoose/libtam/c081708b5ed2c8ade4ecdf171cebc110c2cb316f";
+      flake = false;
+    };
+  };
+  
+
+4. Cryptographic Lock ( flake.lock): Running nix flake lock generates a
+   tamper-evident record of the exact Git revisions and SHA-256 tree hashes (
+   narHash). When Nix builds the package, it guarantees that no upstream changes
+   can alter the build.
+
+Package definitions (nix/packages/default.nix)
+
+Inside tamlinux-packages, the Nix expressions translate pinned source inputs
+into reproducible store paths:
+
+- tam and tamlinux-tools are compiled against the pinned libtam derivation and
+  packaged with explicit RPATH and runtime dependencies.
+- tamlinux-shell, tamlinux-plugins, and tamlinux-commands extract their version
+  directly from tamlinux/VERSION.
+- Commands are wrapped with strict, closed PATH prefixes ensuring they only
+  execute utilities from the pinned Nix store, preventing interference from host
+  distribution differences.
+
+Workstation deployment linkage
+
+The user's workstation configuration (in config-fred-tamlinux) consumes
+tamlinux-packages as its input. When tam-deploy activates a candidate, Home
+Manager links the exact Nix store outputs into ~/.local/bin and
+~/.local/share/tamlinux. No floating branches or mutable checkout links are used
+in Test or Run.
+
+Expert: The step-by-step lifecycle from development to release
+
+Summary: The complete operational runbook for bumping a component version,
+pinning it into Tamlinux, and deploying the resulting assembly.
+
+Prerequisites: Intermediate depth, understanding of the Develop &rarr; Test
+&rarr; Run &rarr; Release lifecycle ( The tam command lifecycle).
+
+Phase 1: Component Development and Override
+
+While iterating on a component such as tam:
+
+1. Work on the develop branch of tam.
+2. Install a development build directly into the user prefix:
+
+  
+  make -C ~/Code/tamlinux/tam test
+  make -C ~/Code/tamlinux/tam install PREFIX=$HOME/.local/dev
+  
+
+Because ~/.local/dev/bin sits first on the shell PATH, this binary immediately
+overrides the packaged version for interactive testing without root privileges
+or Nix rebuilds.
+
+Phase 2: Finish and Commit the Component
+
+1. Verify all unit, integration, and guide tests pass ( make test).
+2. Bump the component version in source:
+
+  - Binary version: src/version.h ( TAM_COMMAND_VERSION).
+  - Corpus version: knowledge/version and TAM_DEFAULT_CORPUS_VERSION.
+
+3. Record public AI provenance in AI_PROVENANCE.md.
+4. Commit and push the changes to develop on GitHub. Note the resulting commit
+   hash.
+
+Phase 3: Pin the Component in tamlinux-packages
+
+To include this version in a Tamlinux candidate (e.g. for Tamlinux 0.4.4):
+
+1. In ~/Code/tamlinux/tamlinux-packages on develop, claim the packaging files:
+
+  
+  tam-work begin --scope flake.nix --scope flake.lock --scope nix/packages/default.nix --note 'Pin tam 0.25.0'
+  
+
+2. In flake.nix, update the input URL for tam to the exact pushed commit:
+
+  
+  tam.url = "github:greenermoose/tam/<commit-hash>";
+  
+
+3. Update the cryptographic lock:
+
+  
+  nix flake lock --update-input tam
+  
+
+4. In nix/packages/default.nix, update the declared version = "0.25.0"; inside
+   the tam derivation.
+5. Verify the package build and checks using an exclusive claim:
+
+  
+  nix build .#tam
+  nix flake check
+  
+
+6. Set the candidate Tamlinux letter in VERSION (e.g. 0.4.4-a) following SemVer
+   and candidate letter rules (Decision D135).
+7. Commit and push the updated assembly definition to develop.
+
+Phase 4: Promotion to Test and Run
+
+1. Test: On Fred's "Test" instruction, promote the candidate commit to the test
+   branch (fast-forward only). Deploy using tam-deploy test.
+2. Clean up the dev override: Right after the deploy that delivers the pinned
+   version, remove the development override:
+
+  
+  make -C ~/Code/tamlinux/tam uninstall PREFIX=$HOME/.local/dev
+  hash -r
+  
+
+Confirm type -a tam points back to ~/.local/bin/tam.
+
+3. Run: After thorough daily-driver testing, on Fred's "Run" instruction,
+   promote the exact same tested commit to main with tam-deploy run.
+4. Release: When all planned steps for the version are accepted, tag the release
+   on GitHub with release notes.
+
+Key Architectural Guardrails
+
+- No Reused Letters (Decision D135): Never reuse a candidate letter for a
+  changed assembly once prepared. Fixes always advance to the next letter.
+- Fast-Forward Only: develop, test, and main form one straight line. Promotion
+  never introduces merge commits.
+- The Verb Decides: Version numbers are metadata, not permission. Only explicit
+  instructions from Fred advance stages.
+
+Links:
+  [1] index.html
+  [2] ecosystem/index.html
+  [3] ecosystem/package-versions.html?level=beginner
+  [4] ecosystem/package-versions.html?level=intermediate
+  [5] ecosystem/package-versions.html?level=expert
+  [6] ecosystem/packaging.html
+  [7] tam.html
