@@ -61,8 +61,11 @@ if "$TAM" help extra >/dev/null 2>&1; then fail "help with extra args exited 0";
 pass "--help, -h, help, --terse, and --verbose"
 
 # Version: command, knowledge corpus, and library versions are reported; metadata is explicit.
-"$TAM" --version | grep -q '0.25.0' || fail "--version missing command version"
-"$TAM" --version | grep -q 'knowledge corpus 0.25.0' || fail "--version missing corpus version"
+# The command version is asserted here; the corpus version comes from the
+# corpus itself, so a corpus release needs no change to this file.
+corpus_version=$(cat "$knowledge/version")
+"$TAM" --version | grep -q '^tam command 0.25.1' || fail "--version missing command version"
+"$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
@@ -79,6 +82,9 @@ env TAM_KNOWLEDGE_DIR="$mock_corpus" "$TAM" --version | grep -q 'knowledge corpu
     || fail "decoupled corpus version not reported in --version"
 env TAM_KNOWLEDGE_DIR="$mock_corpus" "$TAM" | grep -q 'showing corpus version 0.99.1 (dev mock789)' \
     || fail "decoupled corpus version not reported in bare tam"
+rm "$mock_corpus/version"
+env TAM_KNOWLEDGE_DIR="$mock_corpus" "$TAM" --version | grep -q 'knowledge corpus unversioned' \
+    || fail "corpus without a version file not reported as unversioned"
 pass "decoupled corpus version resolution"
 
 # Cultivar version: env fallback, and the installed file wins over env.
@@ -1542,41 +1548,49 @@ set -e
 [ "$ask_refusal_code" -eq 2 ] || fail "expected exit 2 on unreachable server under --pipe, got $ask_refusal_code"
 echo "$ask_refusal_out" | grep -q 'tam: ask requires a local model; run interactively to fetch or start Ollama' || fail "unexpected refusal message: $ask_refusal_out"
 
-# Grounding miss on unrelated topic
-ask_miss_out=$("$TAM" ask --server http://127.0.0.1:11434 "what is the capital of Mars")
-echo "$ask_miss_out" | grep -q 'Not found in Tamlinux guide.' || fail "missing 'Not found' in miss output"
-echo "$ask_miss_out" | grep -q 'Sources: (none)' || fail "missing 'Sources: (none)' in miss output"
+# The remaining checks talk to a running local Ollama server with the
+# qwen2.5-coder:1.5b and llama3.2:1b models. Without a server they are skipped,
+# visibly, instead of aborting the whole suite.
+if python3 -c 'import socket, sys; s = socket.socket(); s.settimeout(1); sys.exit(s.connect_ex(("127.0.0.1", 11434)))' 2>/dev/null; then
+    # Grounding miss on unrelated topic
+    ask_miss_out=$("$TAM" ask --server http://127.0.0.1:11434 "what is the capital of Mars")
+    echo "$ask_miss_out" | grep -q 'Not found in Tamlinux guide.' || fail "missing 'Not found' in miss output"
+    echo "$ask_miss_out" | grep -q 'Sources: (none)' || fail "missing 'Sources: (none)' in miss output"
 
-# Grounding miss with --json
-ask_json_miss=$("$TAM" ask --json --server http://127.0.0.1:11434 "what is the capital of Mars")
-echo "$ask_json_miss" | grep -q '"grounded": false' || fail "json miss missing grounded: false"
-echo "$ask_json_miss" | grep -q '"sources": \[\]' || fail "json miss missing empty sources array"
+    # Grounding miss with --json
+    ask_json_miss=$("$TAM" ask --json --server http://127.0.0.1:11434 "what is the capital of Mars")
+    echo "$ask_json_miss" | grep -q '"grounded": false' || fail "json miss missing grounded: false"
+    echo "$ask_json_miss" | grep -q '"sources": \[\]' || fail "json miss missing empty sources array"
 
-# Live inference query with default model (qwen2.5-coder:1.5b)
-ask_live_out=$("$TAM" ask --pipe "what is a pipeline")
-echo "$ask_live_out" | grep -qi 'pipeline' || fail "live answer missing pipeline text"
-echo "$ask_live_out" | grep -qi 'Sources:' || fail "live answer missing Sources:"
+    # Live inference query with default model (qwen2.5-coder:1.5b)
+    ask_live_out=$("$TAM" ask --pipe "what is a pipeline")
+    echo "$ask_live_out" | grep -qi 'pipeline' || fail "live answer missing pipeline text"
+    echo "$ask_live_out" | grep -qi 'Sources:' || fail "live answer missing Sources:"
 
-# Live query with --json asserts default qwen2.5-coder:1.5b
-ask_live_json=$("$TAM" ask --json --pipe "what is a pipeline")
-echo "$ask_live_json" | grep -q '"grounded": true' || fail "live json missing grounded: true"
-echo "$ask_live_json" | grep -q 'shell/pipelines.html' || fail "live json missing shell/pipelines.html source"
-echo "$ask_live_json" | grep -q 'qwen2.5-coder:1.5b' || fail "live json missing qwen2.5-coder:1.5b model"
+    # Live query with --json asserts default qwen2.5-coder:1.5b
+    ask_live_json=$("$TAM" ask --json --pipe "what is a pipeline")
+    echo "$ask_live_json" | grep -q '"grounded": true' || fail "live json missing grounded: true"
+    echo "$ask_live_json" | grep -q 'shell/pipelines.html' || fail "live json missing shell/pipelines.html source"
+    echo "$ask_live_json" | grep -q 'qwen2.5-coder:1.5b' || fail "live json missing qwen2.5-coder:1.5b model"
 
-# Live query with explicit model override (--model llama3.2:1b)
-ask_llama_json=$("$TAM" ask --model llama3.2:1b --json --pipe "what is a pipeline")
-echo "$ask_llama_json" | grep -q 'llama3.2:1b' || fail "explicit model json missing llama3.2:1b model"
+    # Live query with explicit model override (--model llama3.2:1b)
+    ask_llama_json=$("$TAM" ask --model llama3.2:1b --json --pipe "what is a pipeline")
+    echo "$ask_llama_json" | grep -q 'llama3.2:1b' || fail "explicit model json missing llama3.2:1b model"
 
-# Reading question from stdin via '-'
-ask_stdin_out=$(echo "how do I view background jobs?" | "$TAM" ask --pipe -)
-echo "$ask_stdin_out" | grep -qi 'job' || fail "stdin answer missing job text"
-echo "$ask_stdin_out" | grep -qi 'Sources:' || fail "stdin answer missing Sources:"
+    # Reading question from stdin via '-'
+    ask_stdin_out=$(echo "how do I view background jobs?" | "$TAM" ask --pipe -)
+    echo "$ask_stdin_out" | grep -qi 'job' || fail "stdin answer missing job text"
+    echo "$ask_stdin_out" | grep -qi 'Sources:' || fail "stdin answer missing Sources:"
 
-# Piped output has no escape sequences
-if "$TAM" ask --pipe "what is a pipeline" | grep -q "$esc"; then
-    fail "piped ask output contains escape sequences"
+    # Piped output has no escape sequences
+    if "$TAM" ask --pipe "what is a pipeline" | grep -q "$esc"; then
+        fail "piped ask output contains escape sequences"
+    fi
+
+    pass "tam ask grounded retrieval, local server client, and non-interactive refusal"
+else
+    pass "tam ask offline boundary and non-interactive refusal"
+    printf 'skip - tam ask live-server checks (no Ollama at 127.0.0.1:11434)\n'
 fi
-
-pass "tam ask grounded retrieval, local server client, and non-interactive refusal"
 
 printf 'All tam command tests passed.\n'

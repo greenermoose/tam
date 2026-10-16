@@ -26,7 +26,9 @@ guide() {
 }
 
 # Pages that must resolve and render.
-pages="index welcome beginner intermediate expert install/index shell/index shell/pipelines shell/jobs filesystem/index filesystem/permissions desktop/index desktop/workspaces hardware/resources man/index ecosystem/index ecosystem/terminology ecosystem/philosophy ecosystem/distros ecosystem/compositors ecosystem/packaging ecosystem/package-versions ecosystem/init ecosystem/toolkits ecosystem/desktop-apps ecosystem/libc ecosystem/lua ecosystem/patches ecosystem/virtualization ecosystem/ai ecosystem/sustainability maintain/index maintain/updates maintain/rollback maintain/logs maintain/power maintain/recovery improve/index improve/efficiency improve/zram improve/terminal improve/scripting improve/toolchains improve/ai-performance tam"
+# Every page in the corpus, discovered rather than listed, so adding a page
+# needs no change here. Its golden snapshot is created on the first run.
+pages=$(cd "$knowledge" && find . -name '*.html' | sed 's#^\./##; s#\.html$##' | LC_ALL=C sort)
 
 # Every page renders non-empty text with a title.
 for p in $pages; do
