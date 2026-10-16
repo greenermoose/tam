@@ -93,7 +93,7 @@ Readers see the text that `tam show` renders, not the HTML.
 
 1. Claim the page, its section `index.html`, `knowledge/index.html`,
    `knowledge/index.json`, `knowledge/index.tsv`, `knowledge/version`,
-   `tests/snapshots/`, your `docs/ai/` record, and `AI_PROVENANCE.md` while
+   your `docs/ai/` record, and `AI_PROVENANCE.md` while
    you edit it.
 2. Write the page from its sources. Keep a list of what you checked.
 3. Link it from its section index and from `knowledge/index.html`.
@@ -102,13 +102,11 @@ Readers see the text that `tam show` renders, not the HTML.
    records now finds the page (`tam explain <query>`), and mark the note done.
 6. Bump `knowledge/version` in the same commit: minor for a new page, patch
    for a correction.
-7. Run `make corpus` and `make test-corpus`. Refresh the golden snapshots
-   with `UPDATE=1 tests/guide.sh build/tam` and read the diff.
+7. Run `make corpus` and `make test-corpus`. The test runs the corpus
+   checker, `tools/lint-corpus.py`; fix every line it prints. Corpus pages
+   have no snapshots: read your page with `tam show --pipe` instead.
 8. Write the session record and its `AI_PROVENANCE.md` row, commit only your
    paths, and install the development build as `AGENTS.md` describes.
-
-Steps 1, 5 and 7 change when the corpus checker and fixture-based renderer
-tests land; this file is updated in that change.
 
 ## Notes about missing pages
 

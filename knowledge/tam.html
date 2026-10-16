@@ -57,7 +57,7 @@ graphical environment is down or the network is completely unreachable.</p>
 <tr><td><code>tam inspect</code></td><td>Host Inspection</td><td>Read-only inspection of host hardware, CPU, RAM, storage mounts, DRM graphics, and packages.</td></tr>
 <tr><td><code>tam check [ID]</code></td><td>Health Assessment</td><td>Evaluates workstation health findings against the versioned offline Check Contract.</td></tr>
 <tr><td><code>tam ask QUESTION</code></td><td>Grounded AI</td><td>Grounded query interface to local LLM servers (e.g. Ollama) with mandatory citations.</td></tr>
-<tr><td><code>tam install</code></td><td>Installation</td><td>Deployment framework lifecycle: <code>inspect</code>, <code>plan</code>, <code>apply</code>, <code>verify</code>.</td></tr>
+<tr><td><code>tam install</code></td><td>Installation</td><td>Installation framework overview; <code>plan</code>, <code>apply</code> and <code>verify</code> are planned. Inspection is <code>tam inspect</code>.</td></tr>
 </table>
 
 <h3>Building and installing from source</h3>
@@ -220,7 +220,7 @@ Release (Tamlinux distribution release)
 <h3>1. Develop stage</h3>
 
 <ul>
-<li>Engineers and autonomous AI agents work in isolated Git worktrees within the <code>tam</code> repository on the <code>develop</code> branch.</li>
+<li>Engineers and AI agents work together in one shared clone of the <code>tam</code> repository on the <code>develop</code> branch, each claiming the paths they edit with <code>tam-work</code>.</li>
 <li>Changes to the command lane (<code>src/</code>) and corpus lane (<code>knowledge/</code>) are scoped using <code>tam-work</code> concurrency claims.</li>
 <li>Full local regression tests are verified via <code>make check</code>.</li>
 </ul>
@@ -256,7 +256,7 @@ Release (Tamlinux distribution release)
 <ul>
 <li><a href="maintain/updates.html">Non-disruptive Updates and Package Architecture</a> &mdash; How Linux updates in place via inode unlinking and the 3-tier package model.</li>
 <li><a href="ecosystem/packaging.html">Package Management with Nix and Native Managers</a> &mdash; Why Tamlinux uses Nix for desktop components and native managers for the base OS.</li>
-<li><a href="improve/toolchains.html">Native Toolchains and Multi-Agent Workflows</a> &mdash; Concurrency rules and isolated worktrees for multi-agent development.</li>
+<li><a href="improve/toolchains.html">Native Toolchains and Multi-Agent Workflows</a> &mdash; Concurrency rules for several agents working in one clone.</li>
 <li><a href="improve/scripting.html">Shell Scripting and Tool Conventions</a> &mdash; Safe script conventions and <code>tam-*</code> subcommand guidelines.</li>
 </ul>
 </section>

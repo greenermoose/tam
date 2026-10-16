@@ -35,7 +35,7 @@ using ultra-fast in-RAM swap compression backed by LZ4 and zstd.</dd>
 
 <dt><a href="improve/terminal.html">Terminal and editor ergonomics</a></dt>
 <dd>Achieve sub-10ms shell startup latency and master the <code>micro</code>
-editor with automatic live disk reload (Virtue V11) when AI agents modify files
+editor with automatic live disk reload when AI agents modify files
 concurrently.</dd>
 
 <dt><a href="improve/scripting.html">Shell scripting and tool conventions</a></dt>
@@ -45,21 +45,21 @@ personal <code>fred-*</code> tools).</dd>
 
 <dt><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a></dt>
 <dd>Compile native C tools with <code>libtam</code>, apply architecture-tuned
-optimization flags (<code>-O2</code>, <code>-march=native</code>), and isolate
-concurrent coding agents with Git worktrees.</dd>
+optimization flags (<code>-O2</code>, <code>-march=native</code>), and let
+several coding agents share one clone with path claims.</dd>
 
 <dt><a href="improve/ai-performance.html">Physics of local AI generation</a></dt>
 <dd>Understand how hardware memory bandwidth dictates local LLM token generation
-speeds ($Tokens/s \approx Bandwidth / ModelSize$) and evaluate model quantization
+speeds (tokens per second is about memory bandwidth divided by model size) and evaluate model quantization
 tradeoffs (Q4_K_M vs FP16).</dd>
 </dl>
 
 <h2>Guiding principles for improvement</h2>
 
 <ul>
-<li><strong>Resource respect (Decision D53):</strong> New tools and features must not consume ongoing CPU cycles or memory when idle. Prefer event-driven wakeups over periodic timers.</li>
+<li><strong>Resource respect:</strong> New tools and features must not consume ongoing CPU cycles or memory when idle. Prefer event-driven wakeups over periodic timers.</li>
 <li><strong>Strict offline default:</strong> Tamlinux tools run entirely offline with zero background tracking telemetry or obligatory network dependencies.</li>
-<li><strong>Single best tool (Virtue V15):</strong> Standardize decisively on proven, minimal tools (e.g. <code>micro</code> for terminal Markdown, <code>bash</code> for scripting, native C for core utilities) rather than accumulating redundant alternatives.</li>
+<li><strong>Single best tool:</strong> Standardize decisively on proven, minimal tools (e.g. <code>micro</code> for terminal Markdown, <code>bash</code> for scripting, native C for core utilities) rather than accumulating redundant alternatives.</li>
 </ul>
 
 <h2>Where to next</h2>

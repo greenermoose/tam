@@ -20,14 +20,18 @@ that each can be understood and reversed on its own.</p>
 
 <h2>The installation framework</h2>
 
-<p>The installation framework provides a deliberate four-step lifecycle:</p>
+<p>The installation framework is designed as a four-step lifecycle. Only the
+first step works today; the other three are planned and print "not
+implemented yet":</p>
 
 <ol>
-<li><strong>Inspect:</strong> <code>tam install inspect</code> checks host facts, architecture, package tools, and supported profiles without changing anything.</li>
-<li><strong>Plan:</strong> <code>tam install plan</code> prints exact changes, package inputs, checkpoints, and recovery steps before applying.</li>
-<li><strong>Apply:</strong> <code>tam install apply</code> executes only the reviewed plan.</li>
-<li><strong>Verify:</strong> <code>tam install verify</code> validates installed components, command resolution, and desktop integration.</li>
+<li><strong>Inspect:</strong> <code>tam inspect</code> checks host facts, architecture, package tools, and supported profiles without changing anything.</li>
+<li><strong>Plan (planned):</strong> <code>tam install plan</code> will print the planned changes without modifying the system.</li>
+<li><strong>Apply (planned):</strong> <code>tam install apply</code> will apply a reviewed installation plan.</li>
+<li><strong>Verify (planned):</strong> <code>tam install verify</code> will verify installed components and desktop integration.</li>
 </ol>
+
+<p><code>tam install</code> on its own shows this overview and the planned commands.</p>
 
 <h2>The layers</h2>
 
@@ -40,7 +44,7 @@ that each can be understood and reversed on its own.</p>
 <h2>Staying healthy</h2>
 
 <p>Before a big change, take a snapshot so you can return to a known-good
-state. <code>tam inspect</code> (or <code>tam install inspect</code>) gathers host facts and recognized
+state. <code>tam inspect</code> gathers host facts and recognized
 capabilities before any installation work begins, while <code>tam check</code> evaluates system
 health findings against the Check Contract. See
 <a href="maintain/rollback.html">Snapshots and generation rollbacks</a> and

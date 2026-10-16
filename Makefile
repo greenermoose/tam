@@ -80,6 +80,8 @@ $(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) knowledge/
 test: all
 	tests/run.sh $(CURDIR)/$(TAM)
 	tests/render.sh $(CURDIR)/$(TAM)
+	python3 tools/lint-corpus.py
+	python3 -m unittest -q tests/test_lint_corpus.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 test-command: command
@@ -87,6 +89,8 @@ test-command: command
 	tests/render.sh $(CURDIR)/$(TAM)
 
 test-corpus: command
+	python3 tools/lint-corpus.py
+	python3 -m unittest -q tests/test_lint_corpus.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 check: corpus test

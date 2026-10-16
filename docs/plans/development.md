@@ -573,3 +573,14 @@ plan/apply/verify work follows the product framework.
      audit fixes to agy; Claude wrote the authoring guide.
   Fred is called the developer of Tamlinux, never another title. The
   authoring guide is `docs/corpus-authoring.md`.
+- **2026-10-16:** Corpus 0.27.1. Fixed the 2026-10-16 audit findings: the
+  desktop keybinding table now matches the Tamlinux bindings; `tam install
+  plan`, `apply` and `verify` are marked planned and `tam install inspect`
+  is replaced by `tam inspect`; worktree guidance is replaced by the
+  shared-clone, path-claim workflow, with one note on why; LaTeX and internal
+  decision identifiers are removed; the terminology table names Hyprland as
+  current and Sway as planned; smaller corrections to examples, names and
+  wording. Finding F4 (session names) was withdrawn: the page was already
+  right. `make test-corpus` and `make test` now run the corpus checker
+  (`tools/lint-corpus.py`) and its tests, and `make test-command` and `make
+  test` run the renderer goldens (`tests/render.sh`).

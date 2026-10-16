@@ -88,9 +88,9 @@ Tokens / second &asymp; Memory Bandwidth (GB/s) / Model Size in RAM (GB) &times;
 (consuming ~4.5 GB in RAM) running on a dual-channel DDR5-5600 workstation:</p>
 
 <ul>
-<li><strong>Theoretical memory bandwidth:</strong> $2 \times 64\text{ bits} \times 5.6\text{ GT/s} / 8 = 89.6\text{ GB/s}$.</li>
-<li><strong>Sustained effective bandwidth (at ~75% efficiency):</strong> $\approx 67.2\text{ GB/s}$.</li>
-<li><strong>Maximum theoretical token rate:</strong> $67.2\text{ GB/s} / 4.5\text{ GB} \approx 14.9\text{ tokens/second}$.</li>
+<li><strong>Theoretical memory bandwidth:</strong> 2 x 64 bits x 5.6 GT/s / 8 = 89.6 GB/s.</li>
+<li><strong>Sustained effective bandwidth (at ~75% efficiency):</strong> about 67.2 GB/s.</li>
+<li><strong>Maximum theoretical token rate:</strong> 67.2 GB/s / 4.5 GB = about 14.9 tokens/second.</li>
 </ul>
 
 <h3>Completion task</h3>
@@ -104,7 +104,7 @@ by filling in the missing variable (marked with <code>___</code>):</p>
 Tokens_per_sec = Bandwidth_GBs / ___
 </pre>
 
-<p>Target answer: <code>Model_Size_GB</code> (yielding $200 / 8.5 \approx 23.5\text{ tokens/sec}$).</p>
+<p>Target answer: <code>Model_Size_GB</code> (yielding 200 / 8.5 = about 23.5 tokens/second).</p>
 
 <h3>Verification hints</h3>
 
@@ -144,7 +144,7 @@ KV Cache Bytes = 2 &times; layers &times; heads &times; head_dim &times; context
 
 <p>For a model with 32 layers, 32 attention heads, 128 head dimensions, and 16-bit
 precision, an 8,192-token context consumes ~2.1 GB of RAM purely for the KV cache.
-Enabling 8-bit KV cache quantization (<code>--kv-quant-type q8_0</code> in
+Enabling 8-bit KV cache quantization (<code>--cache-type-k q8_0 --cache-type-v q8_0</code> in
 <code>llama.cpp</code>) cuts this memory overhead in half without impacting reasoning.</p>
 
 <h3>CPU vectorization with AVX2 and AVX-512</h3>
@@ -159,7 +159,7 @@ compiler maps integer multiply-accumulate operations directly into 256-bit or
 <h2>Where to next</h2>
 
 <ul>
-<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; native compilation and worktrees.</li>
+<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; native compilation and sharing one clone between agents.</li>
 <li><a href="improve/efficiency.html">Zero-polling architecture</a> &mdash; eliminate idle CPU wakeups.</li>
 <li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
 </ul>

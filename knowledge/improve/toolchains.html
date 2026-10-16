@@ -3,8 +3,8 @@
 <head>
 <title>Native Toolchains and Multi-Agent Workflows</title>
 <meta name="topic" content="toolchains">
-<meta name="summary" content="Native C compilation with GCC/Clang, libtam linking, and isolated Git worktrees for concurrent AI agents">
-<meta name="keywords" content="toolchains, compilation, gcc, clang, native, make, libtam, git, worktrees, multi-agent, concurrency, tam">
+<meta name="summary" content="Native C compilation with GCC/Clang, libtam linking, and several AI agents sharing one clone with path claims">
+<meta name="keywords" content="toolchains, compilation, gcc, clang, native, make, libtam, git, worktree, worktrees, tam-work, claims, multi-agent, concurrency, tam">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
 <meta name="prereqs" content="improve, terminal">
@@ -18,7 +18,7 @@
 
 <p>Tamlinux builds its core commands in native C against <code>libtam</code>,
 achieving sub-5 millisecond startup times and minimal memory consumption. By
-combining optimized C compilation with isolated Git worktrees and scope claims,
+combining optimized C compilation with one shared clone and path claims,
 multiple autonomous AI coding agents can develop, test, and package software
 concurrently without stepping on one another.</p>
 
@@ -41,8 +41,8 @@ make -C ~/src/tam test-command
 <p>Expected output:</p>
 
 <pre>
-cc -DTAM_DATADIR=... -O2 -Wall -Wextra -std=c11 src/tam.c ... -ltam -o build/tam
-tam command 0.21.0 (dev abc1234)
+cc -DTAM_DATADIR=... -O2 -Wall -Wextra -Wpedantic -std=c11 src/tam.c ... -ltam -o build/tam
+tam command 0.25.2 (dev 1a2b3c4)
 </pre>
 
 <h3>What just happened</h3>
@@ -62,58 +62,68 @@ install cleanly under <code>PREFIX=$HOME/.local/dev</code>, which is placed firs
 
 <h3>Next step</h3>
 
-<p>Learn how to manage concurrent feature branches with Git worktrees in the
+<p>Learn how several agents work in one clone at the same time in the
 intermediate section below.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: Isolated Git worktrees for concurrent development</h2>
+<h2>Intermediate: Concurrent work in one shared clone</h2>
 
-<p><strong>Summary:</strong> Spin up isolated working directories sharing a
-single Git repository object database for multi-agent pair programming.</p>
+<p><strong>Summary:</strong> Several people or AI agents work in the same
+checkout at once. Each claims the paths it will edit, commits only those
+paths, and releases the claim when done.</p>
 
 <h3>Worked example</h3>
 
-<p>When multiple agents or developers work on separate features, switching branches
-in a single working tree causes collisions and invalidates build artifacts.
-Instead, create a separate worktree:</p>
+<p>Before editing, claim exactly the files you will change. Set your identity
+once per session:</p>
 
 <pre>
-git worktree add ../tam-feature-work branch-name
-git worktree list
+export TAM_WORK_OWNER=alex TAM_WORK_SESSION=docs-fix-1
+tam-work begin --scope knowledge/shell/jobs.html --note 'Label the job examples'
 </pre>
 
-<p>To inspect active worktrees:</p>
+<p>Another session can claim <code>src/pager.c</code> in the same checkout at
+the same time, because the paths do not overlap. When your change is ready,
+commit only your paths and release the claim:</p>
 
 <pre>
-/home/user/src/tam                 a1a08ab [develop]
-/home/user/src/tam-feature-work   b2c3d4e [branch-name]
+git commit -m 'Label the job examples' -- knowledge/shell/jobs.html
+tam-work finish --note 'Committed the job example labels'
 </pre>
 
-<p>When work is complete and merged, prune the worktree cleanly:</p>
-
-<pre>
-git worktree remove ../tam-feature-work
-</pre>
+<p>Never use <code>git add -A</code>, <code>git add .</code> or
+<code>git commit -a</code> in a shared clone: they would commit another
+session's unfinished work. Do not switch branches, stash, reset or rebase
+there either.</p>
 
 <h3>Completion task</h3>
 
-<p>Create a new isolated Git worktree branched from <code>develop</code> into a
-sibling folder named <code>../tam-test-lane</code>. Complete the command by filling
-in the missing worktree verb (marked with <code>___</code>):</p>
+<p>Fill in the missing <code>tam-work</code> option (marked with
+<code>___</code>) so the claim covers two files:</p>
 
 <pre>
-git worktree ___ ../tam-test-lane develop
+tam-work begin ___ src/pager.c ___ tests/run.sh --note 'Pager fix'
 </pre>
-
-<p>Target output: <code>Preparing worktree (checking out 'develop')</code>.</p>
 
 <h3>Verification hints</h3>
 
 <ul>
-<li>The subcommand is <code>add</code>: <code>git worktree add &lt;path&gt; &lt;branch&gt;</code>.</li>
-<li>Worktrees share the main <code>.git</code> database, so commits, tags, and stashes are instantly visible across all worktrees.</li>
+<li>The option is <code>--scope</code>, repeated once per path.</li>
+<li><code>tam-work status</code> lists every active claim, so you can see who
+is working on what before you begin.</li>
 </ul>
+
+<h3>Why not Git worktrees?</h3>
+
+<p>Git can also give one repository several working directories with
+<code>git worktree</code>. Tamlinux's own repositories do not use them. Each
+extra checkout has to be set up, built and merged back, and for small changes
+that setup cost more than the change itself; tests that look for sibling
+repositories also failed inside a worktree. Instead, everyone works in one
+shared clone and claims the paths they will edit. Sessions whose paths do not
+overlap work at the same time in the same checkout, and each commits only its
+own paths.</p>
 </section>
 
 <section data-level="expert">

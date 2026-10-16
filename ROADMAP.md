@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-16. **Owner:** Fred. **Current Command Version:** `0.25.2`. **Current Corpus Version:** `0.27.0`.  
+**Reviewed:** 2026-10-16. **Owner:** Fred. **Current Command Version:** `0.25.2`. **Current Corpus Version:** `0.27.1`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---

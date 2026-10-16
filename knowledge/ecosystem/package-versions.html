@@ -16,7 +16,7 @@
 
 <h1>Specifying Package Versions in Tamlinux</h1>
 
-<p>A operating system release must be reproducible, verifiable, and free from
+<p>An operating system release must be reproducible, verifiable, and free from
 silent runtime drift. Tamlinux achieves this by distinguishing between the
 top-level <strong>Tamlinux product version</strong> (the cultivar release) and the
 independent versions of each individual tool and library that make it up.
@@ -102,7 +102,7 @@ It defines:</p>
 <code>inputs.nixpkgs</code> in <code>flake.nix</code> to an exact commit. This locks
 compilers, Qt, Wayland libraries, Quickshell, Grim, Slurp, and all CLI utilities
 down to the exact byte.</li>
-<li><strong>User Environment Module (Home Manager):</strong> Pinned via
+<li><strong>Home Manager:</strong> Pinned via
 <code>inputs.home-manager</code> in <code>flake.nix</code>.</li>
 <li><strong>Component Source Repositories:</strong> Each Tamlinux component is
 pinned in <code>inputs</code> to a specific GitHub commit:
@@ -230,14 +230,14 @@ nix flake check
 </pre>
 </li>
 <li>Set the candidate Tamlinux letter in <code>VERSION</code> (e.g. <code>0.4.4-a</code>)
-following SemVer and candidate letter rules (Decision D135).</li>
+following SemVer and candidate letter rules.</li>
 <li>Commit and push the updated assembly definition to <code>develop</code>.</li>
 </ol>
 
 <h3>Phase 4: Promotion to Test and Run</h3>
 
 <ol>
-<li><strong>Test:</strong> On Fred's "Test" instruction, promote the candidate
+<li><strong>Test:</strong> On the developer's "Test" instruction, promote the candidate
 commit to the <code>test</code> branch (fast-forward only). Deploy using
 <code>tam-deploy test</code>.</li>
 <li><strong>Clean up the dev override:</strong> Right after the deploy that
@@ -247,7 +247,7 @@ make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev
 hash -r
 </pre>
 Confirm <code>type -a tam</code> points back to <code>~/.local/bin/tam</code>.</li>
-<li><strong>Run:</strong> After thorough daily-driver testing, on Fred's "Run"
+<li><strong>Run:</strong> After thorough daily-driver testing, on the developer's "Run"
 instruction, promote the exact same tested commit to <code>main</code> with
 <code>tam-deploy run</code>.</li>
 <li><strong>Release:</strong> When all planned steps for the version are
@@ -257,14 +257,14 @@ accepted, tag the release on GitHub with release notes.</li>
 <h3>Key Architectural Guardrails</h3>
 
 <ul>
-<li><strong>No Reused Letters (Decision D135):</strong> Never reuse a candidate
+<li><strong>No Reused Letters:</strong> Never reuse a candidate
 letter for a changed assembly once prepared. Fixes always advance to the next
 letter.</li>
 <li><strong>Fast-Forward Only:</strong> <code>develop</code>, <code>test</code>,
 and <code>main</code> form one straight line. Promotion never introduces merge
 commits.</li>
 <li><strong>The Verb Decides:</strong> Version numbers are metadata, not
-permission. Only explicit instructions from Fred advance stages.</li>
+permission. Only explicit instructions from the developer advance stages.</li>
 </ul>
 </section>
 
