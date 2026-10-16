@@ -5,8 +5,8 @@
 - **CLI Tool:** Antigravity CLI (`agy`) 1.4.0
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
-- **Commit:** Pending commit.
-- **Authorship:** Fred requested adding a page to `tam` for SDDM after noting that `tam explain SDDM` found nothing, specifying that this should be exclusively work in the knowledge corpus and should bump the version number of the corpus, and requesting to get the most recent version of `tam` and the corpus into Tamlinux 0.4.4c. Antigravity claimed the affected corpus and documentation paths under `tam-work`, authored `knowledge/ecosystem/sddm.html` across beginner, intermediate, and expert depths, bumped the corpus version to 0.26.0 in `knowledge/version`, updated `knowledge/ecosystem/index.html` and `knowledge/index.html`, regenerated the index (`tools/build-index.py`), updated golden snapshots, verified command and guide test suites, and coordinated with Codex for packaging integration into Tamlinux 0.4.4c.
+- **Commit:** `4b5fd50` and follow-up review correction commit.
+- **Authorship:** Fred requested adding a page to `tam` for SDDM after noting that `tam explain SDDM` found nothing, specifying that this should be exclusively work in the knowledge corpus and should bump the version number of the corpus, and requesting to get the most recent version of `tam` and the corpus into Tamlinux 0.4.4c. Antigravity claimed the affected corpus and documentation paths under `tam-work`, authored `knowledge/ecosystem/sddm.html` across beginner, intermediate, and expert depths, bumped the corpus version to 0.26.0 in `knowledge/version`, updated `knowledge/ecosystem/index.html` and `knowledge/index.html`, regenerated the index (`tools/build-index.py`), updated golden snapshots, verified command and guide test suites, incorporated review corrections from Codex, and coordinated with Codex for packaging integration into Tamlinux 0.4.4c.
 
 ## Guiding prompt
 
@@ -15,17 +15,17 @@
 ## Decisions and scope
 
 - **New Knowledge Corpus Page (`knowledge/ecosystem/sddm.html`):**
-  - Explains the architectural role of a display manager (login manager) in the Tamlinux boot and session startup sequence.
-  - Documents why Tamlinux selects SDDM (Simple Desktop Display Manager): Wayland-native design, declarative Qt 6 / QML themes matching Quickshell and KDE application styling, low resource footprint, and zero mandatory resident background daemons.
-  - Compares SDDM against alternatives evaluated for Tamlinux: GDM (rejected due to heavy GNOME daemons and dependencies), LightDM (rejected as X11-first architecture), greetd (viable minimalist alternative evaluated for future lightweight runit/terminal profiles), and ly (curses TUI greeter suited for text profiles).
+  - Explains the architectural role of a display manager (login manager) in the Linux boot and user session startup sequence.
+  - Documents SDDM (Simple Desktop Display Manager) characteristics: Wayland and X11 session support, declarative Qt 6 / QML themes aligning with Qt Quick and Tamlinux desktop applications, and flexible session selection.
+  - Neutrally presents alternative display manager architectures (GDM, LightDM, greetd, and ly) and their respective toolkits, dependencies, and session models.
   - Documents the Tamlinux login flow:
-    - *Autologin:* Fast, frictionless startup on single-user workstations (`User=fred`, `Session=tamlinux.desktop`, `Relogin=false`).
-    - *Manual logout:* Returning to the graphical greeter rather than re-triggering autologin.
+    - *Autologin:* Configurable user convenience preference distinguishing data protection at rest from interactive session authentication (`User=alex`, `Session=tamlinux.desktop`, `Relogin=false`).
+    - *Manual logout:* Explicit logout returns to the graphical greeter rather than immediately re-entering the session.
     - *Session selection:* Curated session menu presenting primary desktop vs maintenance/recovery entries.
-  - Details configuration drop-in precedence: `/usr/lib/sddm/sddm.conf.d/` vendor defaults overridden by `/etc/sddm.conf.d/` administrator drop-ins.
-  - Details Wayland session discovery in `/usr/share/wayland-sessions/` and `/etc/sddm/wayland-sessions/`, and execution of `/usr/bin/tam-session`.
-  - Documents runtime state tracking in `/var/lib/sddm/state.conf` and theme testing via `sddm-greeter-qt6 --test-mode`.
-  - Documents PAM authentication integration and seat management via `systemd-logind` / `seatd`.
+  - Details configuration drop-in precedence: `/usr/lib/sddm/sddm.conf.d/` vendor defaults overridden by `/etc/sddm.conf.d/` administrator drop-ins, with `/etc/sddm.conf` taking highest precedence when present.
+  - Details Wayland session discovery in `/usr/share/wayland-sessions/`, the role of `SessionDir` when overriding default directories, and execution of `/usr/bin/tam-session`.
+  - Documents runtime state tracking in `/var/lib/sddm/state.conf` and theme verification in a desktop test window via `sddm-greeter-qt6 --test-mode` (or headlessly via `QT_QPA_PLATFORM=offscreen`).
+  - Documents PAM authentication flow and `systemd-logind` session registration and seat access.
   - Details emergency recovery via text virtual consoles (`Ctrl+Alt+F2` through `F6`), log inspection (`journalctl -u sddm`), and service restarts.
   - Provides a 3-depth ladder (`beginner`, `intermediate`, `expert`).
 - **Corpus Version Bump (0.26.0):**

@@ -53,9 +53,10 @@ in turn launches the Tamlinux shell (Quickshell).</li>
 
 <h3>Autologin and the native greeter</h3>
 
-<p>On a dedicated single-user workstation, waiting at a login prompt on every
-boot adds friction without security if disk encryption is already present.
-Tamlinux supports automatic login:</p>
+<p>On a dedicated single-user workstation, autologin is a user convenience
+preference. Disk encryption protects data at rest while the system is powered
+off, whereas session authentication controls interactive access once the system
+is running. Tamlinux supports automatic login as a configurable choice:</p>
 
 <ul>
 <li><strong>Seamless startup:</strong> On system boot, SDDM automatically enters
@@ -96,14 +97,17 @@ services and desktop files.</p>
 <h3>Configuration drop-in hierarchy</h3>
 
 <p>SDDM loads its configuration by merging files across vendor and administrator
-directories:</p>
+directories, with the primary configuration file taking highest precedence:</p>
 
 <ol>
 <li><strong>Vendor Defaults:</strong> <code>/usr/lib/sddm/sddm.conf.d/</code>
-supplied by packages. These establish safe system-wide defaults.</li>
-<li><strong>System Administrator Overrides:</strong> <code>/etc/sddm.conf.d/</code>
-(such as <code>/etc/sddm.conf.d/tamlinux.conf</code>). Files in <code>/etc</code>
-override vendor settings lexicographically.</li>
+supplied by packages. These establish baseline system defaults.</li>
+<li><strong>System Administrator Drop-ins:</strong> <code>/etc/sddm.conf.d/</code>
+(such as <code>/etc/sddm.conf.d/tamlinux.conf</code>). Drop-in files in <code>/etc</code>
+override vendor defaults lexicographically.</li>
+<li><strong>Primary Configuration File:</strong> <code>/etc/sddm.conf</code>. When
+present, settings in this primary file take the highest precedence over all
+drop-in directories.</li>
 </ol>
 
 <p>A typical Tamlinux configuration drop-in configures the theme and autologin
@@ -114,18 +118,19 @@ behavior:</p>
 Current=tamlinux
 
 [Autologin]
-User=fred
+User=alex
 Session=tamlinux.desktop
 Relogin=false
 </pre>
 
 <h3>Wayland session discovery and launch</h3>
 
-<p>SDDM discovers available Wayland graphical sessions by reading
-<code>.desktop</code> entry files located in
-<code>/usr/share/wayland-sessions/</code> and curated directories in
-<code>/etc/sddm/wayland-sessions/</code>. Each session desktop file defines the
-name and launch command:</p>
+<p>By default, SDDM discovers available Wayland graphical sessions by reading
+<code>.desktop</code> files in <code>/usr/share/wayland-sessions/</code>. A curated
+directory (such as <code>/etc/sddm/wayland-sessions/</code>) is used when the
+<code>SessionDir</code> setting in SDDM configuration explicitly overrides the
+default search directory; SDDM does not automatically discover it in addition to
+standard system directories. Each session desktop file defines the name and launch command:</p>
 
 <pre>
 [Desktop Entry]
@@ -148,84 +153,87 @@ state file, <code>/var/lib/sddm/state.conf</code>. When updating or pruning
 session entries, administrators ensure the saved session entry points to a valid
 installed session.</p>
 
-<h3>Testing greeters offscreen</h3>
+<h3>Testing greeter themes in a test window</h3>
 
 <p>SDDM themes are authored in Qt 6 Quick / QML. You can verify and test a theme
-interactively in an isolated test window without logging out or rebooting:</p>
+interactively in a test window without logging out or rebooting:</p>
 
 <pre>
 sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/tamlinux
 </pre>
 
-<p>This offscreen/nested invocation verifies QML layout, component bindings,
-and keyboard/mouse navigation without touching the active display session.</p>
+<p>The <code>--test-mode</code> flag opens a test window inside your existing
+graphical desktop session to test QML layout, component bindings, and
+keyboard/mouse navigation. For automated test suites or headless environments,
+running with <code>QT_QPA_PLATFORM=offscreen</code> renders the interface
+without an interactive display.</p>
 </section>
 
 <section data-level="expert">
 <h2>Expert: Greeter design, PAM authentication, and recovery procedures</h2>
 
-<p><strong>Summary:</strong> Explore the design rationale behind choosing SDDM
-over alternatives, PAM session integration, and emergency recovery runbooks.</p>
+<p><strong>Summary:</strong> Explore display manager architectures, PAM session
+integration, and emergency recovery runbooks.</p>
 
 <p><strong>Prerequisites:</strong> Intermediate depth, understanding of PAM, seat
 management, and Linux virtual consoles.</p>
 
-<h3>Why SDDM: Comparison with alternatives</h3>
+<h3>Display manager architectures and characteristics</h3>
 
-<p>Tamlinux evaluated several display managers against its core principles of
-resource efficiency, Wayland native architecture, and visual integration:</p>
+<p>Display managers differ in their display protocols, greeter toolkits, and
+desktop integration:</p>
 
 <table>
-<tr><th>Display Manager</th><th>Pros</th><th>Cons</th><th>Tamlinux Assessment</th></tr>
+<tr><th>Display Manager</th><th>Architecture and Greeter Toolkit</th><th>Session Support</th><th>Characteristics</th></tr>
 <tr>
 <td><strong>SDDM</strong></td>
-<td>First-class Wayland support; declarative Qt 6 / QML themes matching Quickshell; actively maintained; independent of GNOME.</td>
-<td>Requires Qt runtime libraries.</td>
-<td><strong>Selected:</strong> Tamlinux already uses Qt Quick for its desktop shell; SDDM provides seamless graphical integration and robust session selection.</td>
+<td>Qt 6 / QML declarative greeter</td>
+<td>Wayland and X11</td>
+<td>Integrates cleanly with Qt Quick desktop components and QML styling; supports drop-in configuration and themes.</td>
 </tr>
 <tr>
 <td><strong>GDM</strong></td>
-<td>Robust GNOME integration; Wayland-first architecture.</td>
-<td>Heavyweight; pulls in extensive GNOME dependencies, systemd couplings, and resident background daemons.</td>
-<td><strong>Rejected:</strong> Violates Tamlinux's zero-polling and minimal daemon invariants.</td>
+<td>GNOME Shell greeter</td>
+<td>Wayland and X11</td>
+<td>Tightly coupled to the GNOME desktop environment and GNOME runtime libraries.</td>
 </tr>
 <tr>
 <td><strong>LightDM</strong></td>
-<td>Lightweight C daemon; multiple greeter frontends (GTK, Qt).</td>
-<td>Architecture fundamentally designed for X11; Wayland session support is retrofitted and fragile.</td>
-<td><strong>Rejected:</strong> Tamlinux is strictly Wayland-native.</td>
+<td>Daemon with separate greeter processes (GTK, Qt)</td>
+<td>Historically X11-first</td>
+<td>Lightweight C daemon; Wayland support depends on the chosen greeter and session wrappers.</td>
 </tr>
 <tr>
 <td><strong>greetd</strong></td>
-<td>Minimalist Rust daemon; agnostic to display server and greeter toolkit; zero resident overhead.</td>
-<td>Greeters (e.g. tuigreet, wlgreet, gtkgreet) are separate projects with varying feature sets; lacks a polished Qt 6 greeter.</td>
-<td><strong>Future candidate:</strong> Attractive for terminal-only or minimal runit profiles; evaluated as a potential long-term alternative.</td>
+<td>Minimal daemon launching independent greeters</td>
+<td>Agnostic</td>
+<td>Runs any greeter command (e.g. tuigreet, wlgreet, gtkgreet); delegates session launch to the greeter.</td>
 </tr>
 <tr>
 <td><strong>ly</strong></td>
-<td>TUI (curses-like) display manager in C; tiny memory footprint.</td>
-<td>Terminal-only interface; lacks rich graphical session previews or multi-monitor branding.</td>
-<td><strong>Specialized:</strong> Excellent for text-only installations; not suited for standard graphical Tamlinux desktop.</td>
+<td>Ncurses TUI display manager in C</td>
+<td>Wayland and X11</td>
+<td>Text-mode console interface with minimal resource usage; suited for text-only or minimal terminal environments.</td>
 </tr>
 </table>
 
-<h3>Authentication and PAM</h3>
+<h3>Authentication, PAM, and session registration</h3>
 
 <p>SDDM integrates with Linux Pluggable Authentication Modules (PAM) via
 <code>/etc/pam.d/sddm</code> (and <code>/etc/pam.d/sddm-autologin</code> for
-automatic login). The authentication sequence:</p>
+automatic login). The authentication and session registration sequence:</p>
 
 <ol>
-<li>The greeter captures credentials and passes them to the SDDM daemon over a
-local Unix domain socket.</li>
-<li>The daemon calls PAM to authenticate, verify account expiration, and open
-the PAM session.</li>
-<li>PAM triggers seat and logind session registration, establishing user cgroups
-and permissions for hardware access (via <code>systemd-logind</code> or
-<code>seatd</code>).</li>
-<li>SDDM sets up clean environment variables (<code>XDG_SESSION_TYPE=wayland</code>,
-<code>XDG_CURRENT_DESKTOP</code>, <code>XDG_SEAT</code>) and spawns the session
-executable under the user's UID/GID.</li>
+<li>The greeter captures credentials and communicates with the SDDM daemon over
+a local Unix domain socket.</li>
+<li>The daemon invokes PAM to authenticate the user, verify account status, and
+open the PAM session.</li>
+<li>PAM session modules register the session with <code>systemd-logind</code>,
+which establishes user cgroups, session scopes, and device seat permissions.</li>
+<li>SDDM sets up standard session environment variables
+(<code>XDG_SESSION_TYPE=wayland</code>, <code>XDG_CURRENT_DESKTOP</code>,
+<code>XDG_SEAT</code>) and executes the configured Wayland session command
+under the user's UID and GID.</li>
 </ol>
 
 <h3>Emergency recovery via virtual consoles</h3>
