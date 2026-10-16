@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Display Managers: SDDM</title>
+<meta name="topic" content="sddm">
+<meta name="summary" content="Display managers, login greeters, and session management: why Tamlinux uses SDDM, native Qt 6 greeters, autologin, and Wayland session launch">
+<meta name="keywords" content="sddm, display manager, display managers, login, greeter, autologin, session, sessions, wayland-sessions, qt6, qml, tam-session">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="improve">
+<meta name="prereqs" content="ecosystem, compositors">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Display Managers: SDDM</p>
+</nav>
+
+<h1>Display Managers: SDDM</h1>
+
+<p>A display manager (or login manager) starts at the end of the system boot
+process. It provides the graphical login screen (the greeter), authenticates
+users, prepares the session environment, and launches the Wayland compositor or
+desktop session. Tamlinux selects <strong>SDDM</strong> (Simple Desktop Display
+Manager) as its primary display manager.</p>
+
+<section data-level="beginner">
+<h2>Beginner: What a display manager does and the Tamlinux login flow</h2>
+
+<p><strong>Summary:</strong> Understand the purpose of a display manager, how
+Tamlinux handles automatic login versus manual selection, and how to verify its
+status.</p>
+
+<p><strong>Prerequisites:</strong> <a href="ecosystem/index.html">The Tamlinux
+Ecosystem</a> and <a href="ecosystem/compositors.html">Compositors and Windowing</a>.</p>
+
+<h3>The login lifecycle</h3>
+
+<p>When you power on your Tamlinux workstation, several stages occur in
+sequence:</p>
+
+<ol>
+<li><strong>Hardware &amp; Bootloader:</strong> The UEFI firmware loads the Linux
+kernel and initramfs.</li>
+<li><strong>Init System:</strong> Process ID 1 (systemd on the current Arch base;
+runit on the target Void base) initializes hardware drivers, filesystems, and
+background system services.</li>
+<li><strong>Display Manager (SDDM):</strong> Starts the graphical server, displays
+the login greeter on screen, and waits for authentication or triggers automatic
+login.</li>
+<li><strong>User Session:</strong> Upon successful authentication, SDDM launches
+the session supervisor and Wayland compositor (such as Hyprland or Sway), which
+in turn launches the Tamlinux shell (Quickshell).</li>
+</ol>
+
+<h3>Autologin and the native greeter</h3>
+
+<p>On a dedicated single-user workstation, waiting at a login prompt on every
+boot adds friction without security if disk encryption is already present.
+Tamlinux supports automatic login:</p>
+
+<ul>
+<li><strong>Seamless startup:</strong> On system boot, SDDM automatically enters
+the user's primary session (<code>tamlinux.desktop</code>).</li>
+<li><strong>Manual logout to greeter:</strong> Setting <code>Relogin=false</code> in
+SDDM configuration ensures that when you explicitly log out of your desktop,
+the graphical greeter appears rather than immediately logging back in.</li>
+<li><strong>Visible session choices:</strong> The native Tamlinux greeter
+displays an uncluttered login menu allowing you to choose between your primary
+desktop session and maintenance or recovery entries.</li>
+</ul>
+
+<h3>Checking SDDM service status</h3>
+
+<p>You can check whether SDDM is running from the terminal:</p>
+
+<pre>
+systemctl status sddm
+</pre>
+
+<p>To inspect active user sessions managed by the system:</p>
+
+<pre>
+loginctl list-sessions
+</pre>
+</section>
+
+<section data-level="intermediate">
+<h2>Intermediate: SDDM architecture, configuration hierarchy, and sessions</h2>
+
+<p><strong>Summary:</strong> Discover how SDDM is configured on Tamlinux, how
+Wayland sessions are discovered and executed, and how the Qt 6 QML greeter is
+structured.</p>
+
+<p><strong>Prerequisites:</strong> Beginner depth, plus familiarity with systemd
+services and desktop files.</p>
+
+<h3>Configuration drop-in hierarchy</h3>
+
+<p>SDDM loads its configuration by merging files across vendor and administrator
+directories:</p>
+
+<ol>
+<li><strong>Vendor Defaults:</strong> <code>/usr/lib/sddm/sddm.conf.d/</code>
+supplied by packages. These establish safe system-wide defaults.</li>
+<li><strong>System Administrator Overrides:</strong> <code>/etc/sddm.conf.d/</code>
+(such as <code>/etc/sddm.conf.d/tamlinux.conf</code>). Files in <code>/etc</code>
+override vendor settings lexicographically.</li>
+</ol>
+
+<p>A typical Tamlinux configuration drop-in configures the theme and autologin
+behavior:</p>
+
+<pre>
+[Theme]
+Current=tamlinux
+
+[Autologin]
+User=fred
+Session=tamlinux.desktop
+Relogin=false
+</pre>
+
+<h3>Wayland session discovery and launch</h3>
+
+<p>SDDM discovers available Wayland graphical sessions by reading
+<code>.desktop</code> entry files located in
+<code>/usr/share/wayland-sessions/</code> and curated directories in
+<code>/etc/sddm/wayland-sessions/</code>. Each session desktop file defines the
+name and launch command:</p>
+
+<pre>
+[Desktop Entry]
+Name=Tamlinux
+Comment=Tamlinux desktop session
+Exec=/usr/bin/tam-session
+Type=Application
+DesktopNames=Hyprland;Tamlinux
+</pre>
+
+<p>In Tamlinux 0.4.4, the native session entry invokes
+<code>/usr/bin/tam-session</code>, which launches the user's
+<code>~/.local/bin/tam-hyprland-session</code> inside a supervised user session
+environment.</p>
+
+<h3>State tracking</h3>
+
+<p>SDDM records user history and the most recently used session in its runtime
+state file, <code>/var/lib/sddm/state.conf</code>. When updating or pruning
+session entries, administrators ensure the saved session entry points to a valid
+installed session.</p>
+
+<h3>Testing greeters offscreen</h3>
+
+<p>SDDM themes are authored in Qt 6 Quick / QML. You can verify and test a theme
+interactively in an isolated test window without logging out or rebooting:</p>
+
+<pre>
+sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/tamlinux
+</pre>
+
+<p>This offscreen/nested invocation verifies QML layout, component bindings,
+and keyboard/mouse navigation without touching the active display session.</p>
+</section>
+
+<section data-level="expert">
+<h2>Expert: Greeter design, PAM authentication, and recovery procedures</h2>
+
+<p><strong>Summary:</strong> Explore the design rationale behind choosing SDDM
+over alternatives, PAM session integration, and emergency recovery runbooks.</p>
+
+<p><strong>Prerequisites:</strong> Intermediate depth, understanding of PAM, seat
+management, and Linux virtual consoles.</p>
+
+<h3>Why SDDM: Comparison with alternatives</h3>
+
+<p>Tamlinux evaluated several display managers against its core principles of
+resource efficiency, Wayland native architecture, and visual integration:</p>
+
+<table>
+<tr><th>Display Manager</th><th>Pros</th><th>Cons</th><th>Tamlinux Assessment</th></tr>
+<tr>
+<td><strong>SDDM</strong></td>
+<td>First-class Wayland support; declarative Qt 6 / QML themes matching Quickshell; actively maintained; independent of GNOME.</td>
+<td>Requires Qt runtime libraries.</td>
+<td><strong>Selected:</strong> Tamlinux already uses Qt Quick for its desktop shell; SDDM provides seamless graphical integration and robust session selection.</td>
+</tr>
+<tr>
+<td><strong>GDM</strong></td>
+<td>Robust GNOME integration; Wayland-first architecture.</td>
+<td>Heavyweight; pulls in extensive GNOME dependencies, systemd couplings, and resident background daemons.</td>
+<td><strong>Rejected:</strong> Violates Tamlinux's zero-polling and minimal daemon invariants.</td>
+</tr>
+<tr>
+<td><strong>LightDM</strong></td>
+<td>Lightweight C daemon; multiple greeter frontends (GTK, Qt).</td>
+<td>Architecture fundamentally designed for X11; Wayland session support is retrofitted and fragile.</td>
+<td><strong>Rejected:</strong> Tamlinux is strictly Wayland-native.</td>
+</tr>
+<tr>
+<td><strong>greetd</strong></td>
+<td>Minimalist Rust daemon; agnostic to display server and greeter toolkit; zero resident overhead.</td>
+<td>Greeters (e.g. tuigreet, wlgreet, gtkgreet) are separate projects with varying feature sets; lacks a polished Qt 6 greeter.</td>
+<td><strong>Future candidate:</strong> Attractive for terminal-only or minimal runit profiles; evaluated as a potential long-term alternative.</td>
+</tr>
+<tr>
+<td><strong>ly</strong></td>
+<td>TUI (curses-like) display manager in C; tiny memory footprint.</td>
+<td>Terminal-only interface; lacks rich graphical session previews or multi-monitor branding.</td>
+<td><strong>Specialized:</strong> Excellent for text-only installations; not suited for standard graphical Tamlinux desktop.</td>
+</tr>
+</table>
+
+<h3>Authentication and PAM</h3>
+
+<p>SDDM integrates with Linux Pluggable Authentication Modules (PAM) via
+<code>/etc/pam.d/sddm</code> (and <code>/etc/pam.d/sddm-autologin</code> for
+automatic login). The authentication sequence:</p>
+
+<ol>
+<li>The greeter captures credentials and passes them to the SDDM daemon over a
+local Unix domain socket.</li>
+<li>The daemon calls PAM to authenticate, verify account expiration, and open
+the PAM session.</li>
+<li>PAM triggers seat and logind session registration, establishing user cgroups
+and permissions for hardware access (via <code>systemd-logind</code> or
+<code>seatd</code>).</li>
+<li>SDDM sets up clean environment variables (<code>XDG_SESSION_TYPE=wayland</code>,
+<code>XDG_CURRENT_DESKTOP</code>, <code>XDG_SEAT</code>) and spawns the session
+executable under the user's UID/GID.</li>
+</ol>
+
+<h3>Emergency recovery via virtual consoles</h3>
+
+<p>If an SDDM configuration error, broken theme, or compositor crash leaves the
+graphical display unresponsive, Linux provides independent text virtual
+consoles:</p>
+
+<ol>
+<li><strong>Switch to a TTY:</strong> Press <code>Ctrl + Alt + F2</code>
+(or <code>F3</code> through <code>F6</code>) to switch away from the graphical
+session on TTY1/TTY2 to a text virtual console.</li>
+<li><strong>Log in:</strong> Enter your username and password at the text
+prompt.</li>
+<li><strong>Inspect logs:</strong> Check recent SDDM errors:
+<pre>
+journalctl -u sddm -n 50 --no-pager
+</pre>
+</li>
+<li><strong>Disable problematic overrides:</strong> If a drop-in in
+<code>/etc/sddm.conf.d/</code> is faulty, move it out of the configuration
+directory (e.g. rename to <code>.disabled</code> outside
+<code>/etc/sddm.conf.d/</code>, since SDDM parses all files in that directory).</li>
+<li><strong>Restart or test:</strong> Restart the display manager service:
+<pre>
+sudo systemctl restart sddm
+</pre>
+(Note: Restarting SDDM terminates any active graphical sessions.)</li>
+</ol>
+
+<p>For more emergency recovery techniques, see
+<a href="maintain/recovery.html">Emergency disaster recovery</a>.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash; Wayland compositors: Sway and Hyprland.</li>
+<li><a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a> &mdash; Quickshell, QML, and the Tamlinux shell.</li>
+<li><a href="maintain/recovery.html">Emergency disaster recovery</a> &mdash; Virtual consoles, Magic SysRq REISUB, and chroot repair.</li>
+<li><a href="index.html">Guide index</a> &mdash; Return to the overarching Tamlinux User Guide.</li>
+</ul>
+</body>
+</html>

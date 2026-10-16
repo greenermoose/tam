@@ -57,3 +57,4 @@ model for each session.
 | 2026-10-15 | Attention line and anchored link navigation 0.25.0 | Antigravity CLI 1.3.6; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-attention-line.md) |
 | 2026-10-15 | Package version specification guide and corpus bump 0.25.0 (`ecosystem/package-versions.html`, assembly BOM, flake pinning, lifecycle) | Antigravity CLI 1.3.6; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-15-tam-package-versions-guide.md) |
 | 2026-10-15 | `AGENTS.md`, lane-safe releases (command and corpus 0.25.1), and provenance and public-boundary repair | Claude Code 2.1.301; `claude-opus-5-5` | [Session record](docs/ai/2026-10-15-tam-agent-guide-and-provenance-repair.md) |
+| 2026-10-16 | SDDM display manager guide and corpus bump 0.26.0 (`ecosystem/sddm.html`, greeter architecture, autologin, session selection, PAM, recovery) | Antigravity CLI 1.4.0; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-16-tam-sddm-guide.md) |
