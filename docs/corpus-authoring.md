@@ -60,6 +60,15 @@ Never put these in a page:
 - internal decision or principle identifiers of the form `Dnnn` or `Vnn`; state
   the reasoning in words instead.
 
+Naming the developer:
+
+- Where a page credits his work, introduce him at the first mention on that
+  page as "Fred Horch, the developer of Tamlinux", and call him "Fred"
+  afterwards. Never "creator" or "maintainer".
+- Where a page describes the release process, use the role: "on the
+  developer's Test instruction".
+- Example accounts are never his: write `alex`.
+
 ## Markup the renderer can show
 
 Readers see the text that `tam show` renders, not the HTML.
