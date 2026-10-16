@@ -175,8 +175,8 @@ command lifecycle</a>).</p>
 <li>Work on the <code>develop</code> branch of <code>tam</code>.</li>
 <li>Install a development build directly into the user prefix:
 <pre>
-make -C ~/Code/tamlinux/tam test
-make -C ~/Code/tamlinux/tam install PREFIX=$HOME/.local/dev
+make -C ~/src/tam test
+make -C ~/src/tam install PREFIX=$HOME/.local/dev
 </pre>
 Because <code>~/.local/dev/bin</code> sits first on the shell <code>PATH</code>,
 this binary immediately overrides the packaged version for interactive testing
@@ -204,7 +204,7 @@ resulting commit hash.</li>
 <p>To include this version in a Tamlinux candidate (e.g. for Tamlinux 0.4.4):</p>
 
 <ol>
-<li>In <code>~/Code/tamlinux/tamlinux-packages</code> on <code>develop</code>,
+<li>In <code>~/src/tamlinux-packages</code> on <code>develop</code>,
 claim the packaging files:
 <pre>
 tam-work begin --scope flake.nix --scope flake.lock --scope nix/packages/default.nix --note 'Pin tam 0.25.0'
@@ -243,7 +243,7 @@ commit to the <code>test</code> branch (fast-forward only). Deploy using
 <li><strong>Clean up the dev override:</strong> Right after the deploy that
 delivers the pinned version, remove the development override:
 <pre>
-make -C ~/Code/tamlinux/tam uninstall PREFIX=$HOME/.local/dev
+make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev
 hash -r
 </pre>
 Confirm <code>type -a tam</code> points back to <code>~/.local/bin/tam</code>.</li>

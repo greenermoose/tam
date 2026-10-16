@@ -145,8 +145,8 @@ While iterating on a component such as tam:
 2. Install a development build directly into the user prefix:
 
   
-  make -C ~/Code/tamlinux/tam test
-  make -C ~/Code/tamlinux/tam install PREFIX=$HOME/.local/dev
+  make -C ~/src/tam test
+  make -C ~/src/tam install PREFIX=$HOME/.local/dev
   
 
 Because ~/.local/dev/bin sits first on the shell PATH, this binary immediately
@@ -170,7 +170,7 @@ Phase 3: Pin the Component in tamlinux-packages
 
 To include this version in a Tamlinux candidate (e.g. for Tamlinux 0.4.4):
 
-1. In ~/Code/tamlinux/tamlinux-packages on develop, claim the packaging files:
+1. In ~/src/tamlinux-packages on develop, claim the packaging files:
 
   
   tam-work begin --scope flake.nix --scope flake.lock --scope nix/packages/default.nix --note 'Pin tam 0.25.0'
@@ -209,7 +209,7 @@ Phase 4: Promotion to Test and Run
    version, remove the development override:
 
   
-  make -C ~/Code/tamlinux/tam uninstall PREFIX=$HOME/.local/dev
+  make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev
   hash -r
   
 

@@ -15,7 +15,7 @@
 ## Decisions and scope
 
 - **Concurrency Claim & Workstream Discipline:**
-  - Claimed repository paths using `tam-work begin --owner agy --session 31d62743-1aad-421d-88c6-6c908847e2a7 --scope src/version.h --scope knowledge --scope tests --scope ROADMAP.md --scope docs/plans/development.md --scope AI_PROVENANCE.md --note 'Milestone 11: Maintain track knowledge corpus expansion (tam 0.19.0)'`.
+  - Claimed repository paths using `tam-work begin --scope src/version.h --scope knowledge --scope tests --scope ROADMAP.md --scope docs/plans/development.md --scope AI_PROVENANCE.md --note 'Milestone 11: Maintain track knowledge corpus expansion (tam 0.19.0)'`.
   - Avoided conflicting with the other concurrent agy session, which was pondering guide home page titles, TOC structures, and `tam` manual page proposals in `docs/plans/user-guide-and-man-page.md`.
 - **Maintain Track Knowledge Corpus Authoring (`knowledge/maintain/`):**
   - `knowledge/maintain/index.html`: Track portal and overview outlining the five maintenance pillars, built-in automated inspection with `tam install inspect`, and navigation pathways.

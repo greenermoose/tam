@@ -6,7 +6,7 @@
 - **Model:** `gemini-3.8-flash-high`
 - **Transcript:** Retained privately by the author.
 - **Commit:** Pending commit.
-- **Authorship:** Fred directed inserting a new Milestone 0.24.0 into `tam` to decouple the command and knowledge corpus version numbers, review every page in the corpus for `tam` subcommands (`tam inspect`, `tam check`, etc.), and discern/incorporate Fred's ideas from `improvements-fred-tamlinux/ideas/fred/`. Antigravity claimed the respective scopes under `tam-work`, executed the codebase and corpus changes, updated test suites, renumbered future roadmap versions (0.25.0 through 0.29.0), and filed/removed raw ideas in `improvements-fred-tamlinux`.
+- **Authorship:** Fred directed inserting a new Milestone 0.24.0 into `tam` to decouple the command and knowledge corpus version numbers, review every page in the corpus for `tam` subcommands (`tam inspect`, `tam check`, etc.), and discern/incorporate Fred's private idea notes. Antigravity claimed the respective scopes under `tam-work`, executed the codebase and corpus changes, updated test suites, renumbered future roadmap versions (0.25.0 through 0.29.0), and filed/removed the raw ideas in the private planning notes.
 
 ## Guiding prompt
 
@@ -18,19 +18,19 @@
 >
 > 2) Carefully review every page in the knowledge corpus for tam subcommands. We have added tam inspect and tam check. There may be others that were added, or functionality in the tam command changed, and these changes may not be reflected perfectly in the knowledge corpus. Attempt to perfect the knowledge corpus.
 >
-> 3) Take a look at the ideas in improvements-fred-tamlinux/ideas/fred. Look for any that relate to tam. Review the ideas and discern whether they are good or bad. Ask me if you have questions about them. Then choose good ideas (if any) to incorporate into this version 0.24.0 of the tam command and the knowledge corpus. Remove the ideas from the fred folder and file them elsewhere in the improvements-fred-tamlinux repo, and leave a removal record called HISTORY in the fred ideas folder.
+> 3) Take a look at the ideas in [redacted: private repository path]. Look for any that relate to tam. Review the ideas and discern whether they are good or bad. Ask me if you have questions about them. Then choose good ideas (if any) to incorporate into this version 0.24.0 of the tam command and the knowledge corpus. Remove the ideas from the fred folder and file them elsewhere in the [redacted: private repository] repo, and leave a removal record called HISTORY in the fred ideas folder.
 >
 > Ask if you have questions.
 
 ## Decisions and scope
 
-- **Ideas Discernment & Filing in `improvements-fred-tamlinux`:**
-  - Evaluated the 4 ideas in `improvements-fred-tamlinux/ideas/fred/`:
-    1. *ideas for tam*: Decoupling command binary version from corpus version. Discernment: Decisively good; core requirement for 0.24.0. Filed to `ideas/decoupled-tam-command-and-corpus-versioning.md`.
-    2. *aliases for Tamlinux*: "One place to look" in `~/.bashrc`, `tam hello`, `tam hi`, `h`. Discernment: Accepted `tam hello` and `tam hi` built-ins and user guidance on single-file alias customization. Added caution on single-letter `h` colliding with `history` in full developer environments. Filed to `ideas/user-shell-aliases-and-onboarding.md`.
-    3. *nut root stock cultivar*: Completing the botanical metaphor and command taxonomy (`*-nut`, `*-root`, `*`). Discernment: Decisively sound taxonomy. Added **Fruit** as the 6th layer (end-user applications). Binary separation deferred until nut UKI is built. Filed to `ideas/botanical-analogy-and-command-varieties.md`.
-    4. *guiding principles*: 6 core philosophical tenets. Discernment: Foundational architecture principles. Incorporated into `knowledge/ecosystem/philosophy.html`. Filed to `ideas/tamlinux-guiding-principles.md`.
-  - Created `improvements-fred-tamlinux/ideas/fred/HISTORY` logging the discernment, filing locations, and incorporation details. Removed original files from `ideas/fred/`. Staged and committed changes in `improvements-fred-tamlinux`.
+- **Ideas Discernment & Filing (private planning notes):**
+  - Evaluated the 4 ideas in the maintainer's private ideas folder:
+    1. *ideas for tam*: Decoupling command binary version from corpus version. Discernment: Decisively good; core requirement for 0.24.0.
+    2. *aliases for Tamlinux*: "One place to look" in `~/.bashrc`, `tam hello`, `tam hi`, `h`. Discernment: Accepted `tam hello` and `tam hi` built-ins and user guidance on single-file alias customization. Added caution on single-letter `h` colliding with `history` in full developer environments.
+    3. *nut root stock cultivar*: Completing the botanical metaphor and command taxonomy (`*-nut`, `*-root`, `*`). Discernment: Decisively sound taxonomy. Added **Fruit** as the 6th layer (end-user applications). Binary separation deferred until nut UKI is built.
+    4. *guiding principles*: 6 core philosophical tenets. Discernment: Foundational architecture principles. Incorporated into `knowledge/ecosystem/philosophy.html`.
+  - Recorded the discernment, filing locations and incorporation details in a private audit record, removed the original notes, and committed the change in the private planning repository.
 
 - **Decoupled Command and Corpus Versioning:**
   - `src/version.h` defines `TAM_COMMAND_VERSION` ("0.24.0") and `TAM_DEFAULT_CORPUS_VERSION` ("0.24.0").

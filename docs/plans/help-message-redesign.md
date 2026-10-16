@@ -3,7 +3,6 @@
 **Status:** Draft for Review  
 **Date:** 2026-10-14  
 **Target:** `tam` (Milestone 14 / Tamlinux 0.22.0)  
-**File:** `/home/fred/Code/tamlinux/tam/docs/plans/help-message-redesign.md`
 
 ---
 

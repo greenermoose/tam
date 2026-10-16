@@ -1,9 +1,9 @@
 # tam grounded ask — Milestone 9 plan
 
-**Component:** `tam` (`~/Code/tamlinux/tam`)  
+**Component:** `tam` (this repository)  
 **Target Version:** `0.17.0` (minor bump from `0.16.0`)  
 **Stage:** Develop — Milestone 9 of the [development plan](development.md)  
-**Authority:** [development plan](development.md), [ROADMAP.md](../../ROADMAP.md), [local-model-ask-design.md](../../../improvements-fred-tamlinux/reports/2026-10-12-local-model-ask-design.md), [tam-help-and-self-inspection-requirements.md](../../../improvements-fred-tamlinux/reports/2026-10-12-tam-help-and-self-inspection-requirements.md)  
+**Authority:** [development plan](development.md), [ROADMAP.md](../../ROADMAP.md), and two private design reports from 2026-10-12 (local-model ask design; help and self-inspection requirements) retained by the maintainer  
 **Author:** Antigravity (`agy`)
 
 ---

@@ -19,7 +19,7 @@ Milestone 16 addresses three interrelated architectural goals for the `tam` work
    When top-level `tam inspect` and `tam check` were introduced, many pages across the knowledge corpus (in `maintain/`, `install/`, and `hardware/`) continued to reference older subcommand patterns (such as `tam install inspect` or `tam install check`) or lacked concrete examples of check task IDs (`storage_btrfs`, `storage_root_space`, `graphics_card`, `privilege_pkexec`). A comprehensive audit was needed to align all documentation pages with the modern subcommand contract.
 
 3. **Discernment & Incorporation of Fred's Ideas:**
-   Review notes in `improvements-fred-tamlinux/ideas/fred/`, discern sound architectural concepts from tentative suggestions, file them into permanent structured specifications in `improvements-fred-tamlinux/ideas/`, author an audit record (`ideas/fred/HISTORY`), and incorporate the good ideas into `0.24.0`:
+   Review the maintainer's private idea notes, discern sound architectural concepts from tentative suggestions, file them as structured idea documents with an audit record in the maintainer's private planning notes, and incorporate the good ideas into `0.24.0`:
    - Decoupled command and corpus versioning.
    - First-run orientation aliases (`tam hello`, `tam hi`) and shell alias guidance.
    - Botanical analogy completion with the 6th layer (**Fruit**) and command varieties (`*-nut`, `*-root`, `*`).
@@ -81,14 +81,14 @@ Every HTML document in `knowledge/` was reviewed and aligned with the current co
 
 ## 4. Ideas Review & Ecosystem Incorporation
 
-### A. Ideas Discernment & Filing in `improvements-fred-tamlinux`
-Four raw notes in `improvements-fred-tamlinux/ideas/fred/` were evaluated and filed into permanent design documents:
-1. `ideas for tam` $\rightarrow$ `ideas/decoupled-tam-command-and-corpus-versioning.md` (Accepted: decoupled versioning).
-2. `aliases for Tamlinux` $\rightarrow$ `ideas/user-shell-aliases-and-onboarding.md` (Accepted: one place to look; caution on 1-letter `h`).
-3. `nut root stock cultivar` $\rightarrow$ `ideas/botanical-analogy-and-command-varieties.md` (Accepted: Fruit layer and command varieties).
-4. `guiding principles` $\rightarrow$ `ideas/tamlinux-guiding-principles.md` (Accepted: 6 core principles).
+### A. Ideas Discernment & Filing (private planning notes)
+Four raw notes in the maintainer's private ideas folder were evaluated and filed into permanent design documents:
+1. `ideas for tam` (Accepted: decoupled versioning).
+2. `aliases for Tamlinux` (Accepted: one place to look; caution on 1-letter `h`).
+3. `nut root stock cultivar` (Accepted: Fruit layer and command varieties).
+4. `guiding principles` (Accepted: 6 core principles).
 
-Original notes were removed from `ideas/fred/` and an audit record `ideas/fred/HISTORY` was committed to preserve rationale.
+The original notes were removed, and a private audit record preserves the rationale.
 
 ### B. Ecosystem Documentation Enrichments
 - **Botanical Taxonomy Completion (`knowledge/ecosystem/terminology.html`):**

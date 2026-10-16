@@ -32,7 +32,7 @@
 - README, the help text itself and the first-command contract table name the
   alias; the decision record entry is dated 2026-10-09.
 - Fred's standing rule is recorded in agent memory: every `tam` source edit
-  ends with `make && make test` and a `pkexec make -C ~/Code/tamlinux/tam
+  ends with `make && make test` and a `pkexec make -C <tam checkout>
   install`, and the install is reported as part of the change.
 
 ## Verification
