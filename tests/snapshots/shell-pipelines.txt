@@ -89,21 +89,20 @@ unless set -o pipefail is active in Bash.
 
 Stream Redirection Operators
 
-Operator  Descriptor Action             Description                             
---------  ----------------------------  ----------------------------------------
-|         stdout &rarr; stdin           Connects stdout (fd 1) of left command  
-                                        to stdin (fd 0) of right                
-|&        stdout + stderr &rarr; stdin  Connects both stdout (1) and stderr (2) 
-                                        to stdin (0)                            
-> file    1 &rarr; file                 Truncates or creates file and routes    
-                                        stdout                                  
->> file   1 &rarr; file (append)        Appends stdout to file                  
-2>&1      2 &rarr; 1                    Duplicates stderr to current destination
-                                        of stdout                               
-&> file   1, 2 &rarr; file              Redirects both stdout and stderr to file
-< file    file &rarr; 0                 Feeds file content into stdin           
-<(cmd)    fifo/fd &rarr; arg            Process substitution: presents command  
-                                        output as readable filename             
+Operator  Descriptor Action          Description                                
+--------  -------------------------  -------------------------------------------
+|         stdout → stdin           Connects stdout (fd 1) of left command to  
+                                     stdin (fd 0) of right                      
+|&        stdout + stderr → stdin  Connects both stdout (1) and stderr (2) to 
+                                     stdin (0)                                  
+> file    1 → file                 Truncates or creates file and routes stdout
+>> file   1 → file (append)        Appends stdout to file                     
+2>&1      2 → 1                    Duplicates stderr to current destination of
+                                     stdout                                     
+&> file   1, 2 → file              Redirects both stdout and stderr to file   
+< file    file → 0                 Feeds file content into stdin              
+<(cmd)    fifo/fd → arg            Process substitution: presents command     
+                                     output as readable filename                
 
 Manual pages
 

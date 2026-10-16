@@ -529,5 +529,11 @@ plan/apply/verify work follows the product framework.
   handover (`DRM_IOCTL_DROP_MASTER` and `DRM_IOCTL_SET_MASTER`), and console
   troubleshooting. Cross-linked from User Guide index, ecosystem index, SDDM
   guide, and emergency recovery guide. Bumped corpus version to 0.27.0.
+- **2026-10-16:** Command 0.25.2. Extended the HTML entity whitelist in
+  `src/render.c` with `larr`, `rarr`, `times`, `le`, `ge`, and `asymp`, so the
+  renderer decodes every named entity the corpus uses instead of printing it
+  verbatim (finding F5 of the 2026-10-16 corpus audit). Numeric `&#…;`
+  references were already decoded; no `knowledge/` page changed. The four
+  affected golden snapshots were regenerated and reviewed.
 
 

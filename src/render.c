@@ -290,6 +290,8 @@ static const struct {
     {"apos", '\''},   {"nbsp", 0xA0},   {"mdash", 0x2014}, {"ndash", 0x2013},
     {"hellip", 0x2026}, {"copy", 0xA9}, {"reg", 0xAE},
     {"lsquo", 0x2018}, {"rsquo", 0x2019}, {"ldquo", 0x201C}, {"rdquo", 0x201D},
+    {"larr", 0x2190},  {"rarr", 0x2192},  {"times", 0xD7},   {"le", 0x2264},
+    {"ge", 0x2265},    {"asymp", 0x2248},
     {NULL, 0}
 };
 

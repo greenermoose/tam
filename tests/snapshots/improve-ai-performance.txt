@@ -65,7 +65,7 @@ registers exactly once. Therefore, token throughput is mathematically bounded
 by:
 
   
-  Tokens / second &asymp; Memory Bandwidth (GB/s) / Model Size in RAM (GB) &times; Efficiency
+  Tokens / second ≈ Memory Bandwidth (GB/s) / Model Size in RAM (GB) × Efficiency
   
 
 Where real-world memory controller efficiency typically ranges from 70% to 85%.
@@ -132,7 +132,7 @@ As conversations grow, storing the Key and Value matrices across multi-head
 attention layers consumes significant memory in addition to static weights:
 
   
-  KV Cache Bytes = 2 &times; layers &times; heads &times; head_dim &times; context_length &times; bytes_per_element
+  KV Cache Bytes = 2 × layers × heads × head_dim × context_length × bytes_per_element
   
 
 For a model with 32 layers, 32 attention heads, 128 head dimensions, and 16-bit
