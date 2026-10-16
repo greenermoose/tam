@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-16. **Owner:** Fred. **Current Command Version:** `0.25.2`. **Current Corpus Version:** `0.27.1`.  
+**Reviewed:** 2026-10-16. **Owner:** Fred. **Current Command Version:** `0.26.0`. **Current Corpus Version:** `0.27.1`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,9 +19,9 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.24.0)
+## 2. What Has Been Done (Foundation: 0.0.1 – 0.26.0)
 
-Between 2026-10-09 and 2026-10-15, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, and corpus alignment:
+Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, and pager navigation state restoration with numeric level synonyms:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -51,12 +51,14 @@ Between 2026-10-09 and 2026-10-15, `tam` progressed rapidly through Milestones 1
 | **0.22.0** | Milestone 14: Native GNU Info Subsystem | Done (2026-10-15) | Native C GNU Info reader (`src/info.c`, `src/info.h`) parsing `.info` and `.info.gz` files along `$INFOPATH` and `/usr/share/info/`; top-level directory browser (`tam info`), targeted manual and node lookup (`tam info MANUAL [NODE]`), tag table and indirect subfile support; hyperlinked menus, cross-references (`*Note`), and man links (`man:`); dedicated pager navigation keys (`n`, `p`, `u`, `t`, `i`); `a`/`s`/`d`/`f` 2D hyperlink navigation pad with first-visible-link selection; cross-system `info:` URI resolution in `tam show` and `tam man`; `bin/tam-info` wrapper; Bash shell completions; User Guide and man page cross-links; bumped version to 0.22.0. |
 | **0.23.0** | Milestone 15: Topic Guides & tam Architecture | Done (2026-10-15) | Dynamic topic guides for `tam explain`; `tam explain` always displays a topic guide in the built-in pager, never taking you directly to a page (`tam show` is for going directly to a page); topic guides list matching pages with each page explained; bare `tam explain` dynamically collects all topic keywords from metadata and presents them in the pager; devoted `knowledge/tam.html` page (`tam show tam`) detailing C implementation, all Makefile targets, library linking, compiler chain, and the Develop -> Test -> Run -> Release lifecycle via `tamlinux-packages` and Nix/Home Manager; bumped version to 0.23.0. |
 | **0.24.0** | Milestone 16: Decoupled Versioning & Corpus Subcommands Alignment | Done (2026-10-15) | Decoupled version numbers of `tam` command (`src/version.h`) and knowledge corpus (`knowledge/version`); dynamic runtime corpus version and build ID discovery; dual version reporting in bare `tam` help and `tam --version`; added `tam hello` and `tam hi` aliases; carefully reviewed and updated every page in knowledge corpus to incorporate `tam inspect` and `tam check` across maintenance, rollback, power, recovery, hardware, welcome, index, and `tam.html`; updated `tam.html` with full subcommands reference table; incorporated Fred's 6 guiding principles into philosophy and botanical Fruit application layer into terminology; updated man pages, completions, and test suites. |
+| **0.25.0–0.25.2** | Attention Line, Lane Release Independence, & Renderer Layout | Done (2026-10-16) | Attention line cursor (`cursor_line`), charcoal tint, directional link catching, and safe `Enter` activation (0.25.0); independent command/corpus release tests (0.25.1); extended HTML entity whitelist and display-column (`dwidth`) measurement in `src/render.c` (0.25.2). |
+| **0.26.0** | Pager Navigation Position Stack, Numeric Level Synonyms, & Punctuation Spacing Fix | Done (2026-10-16) | Full `nav_state_t` (`{ href, top, cursor_line }`) in `src/pager.c` restoring exact viewport and cursor line on back (`u`/Left Arrow) and forward (Right Arrow) across page and `#anchor` jumps; numeric and `all` depth synonyms (`--level 0\|all\|1\|2\|3` and `?level=0\|all\|1\|2\|3`) across `tam show`, `tam explain`, and `tam explain topics` plus Bash completions and `man/tam.1`; renderer fix in `src/render.c` so tokens starting with punctuation keep their preceding space when separated by whitespace in the source (e.g. `git add .`). |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-**Version 0.25.0** (Attention Line & Anchored Hyperlink Navigation) is done (2026-10-15), and 0.25.1 made the command and corpus lanes independent at release time. The next milestone is **Version 0.26.0** (the "Why" axis). 0.25.0 unified viewport scrolling and hyperlink selection around an attention line (line cursor) that subtly indicates current reading focus, catches hyperlinks along human reading saccades (sweeping down catches the first link, sweeping up catches the last link), preserves visible hyperlink selection across unlinked lines, anchors `Tab` navigation to current reading position, and guarantees that `Enter` only activates a link currently on the attention line or visible on screen.
+**Version 0.26.0** (Pager Navigation Position Stack, Numeric Level Synonyms, & Renderer Punctuation Spacing Fix) is done (2026-10-16). The next planned feature milestones are the "Why" axis, the "Depth" axis, and offline skills progression.
 
 ### Version 0.25.0 — Attention Line & Anchored Hyperlink Navigation
 

@@ -91,10 +91,11 @@ or
 (where
 .I LEVEL
 is
-.BR beginner ,
-.BR intermediate ,
+.BR all " (" 0 ),
+.BR beginner " (" 1 ),
+.BR intermediate " (" 2 ),
 or
-.BR expert ).
+.BR expert " (" 3 )).
 .TP
 .B tam search \fR[\fB\-\-json\fR] \fITERM...\fR
 Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries). Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). If no guide page matches, suggests searching system manual pages via
@@ -204,7 +205,7 @@ If no hyperlink has been selected yet, any of these selectors selects the first 
 .BR Enter ", " Right
 Follow the selected hyperlink. When no link is selected,
 .B Right
-advances forward along previously visited history.
+advances forward along previously visited history, restoring the saved viewport and line position.
 .TP
 .BR n ", " p
 In GNU Info manuals, navigate to the Next or Previous sibling node. When search is active,
@@ -212,7 +213,7 @@ In GNU Info manuals, navigate to the Next or Previous sibling node. When search 
 cycles through search matches instead.
 .TP
 .BR u ", " Left
-Navigate up to the parent node in an Info manual, or go back to the previous document in navigation history.
+Navigate up to the parent node in an Info manual, or go back to the previous position in navigation history, restoring the saved viewport and line position.
 .TP
 .B t
 Jump directly to the \fITop\fR node of the current Info manual.
@@ -262,10 +263,11 @@ and
 .TP
 .BI \-\-level \ LEVEL
 Filter content or topic listings to
-.BR beginner ,
-.BR intermediate ,
+.BR all " (" 0 ),
+.BR beginner " (" 1 ),
+.BR intermediate " (" 2 ),
 or
-.BR expert .
+.BR expert " (" 3 ).
 .SH ENVIRONMENT
 .TP
 .B TAM_KNOWLEDGE_DIR

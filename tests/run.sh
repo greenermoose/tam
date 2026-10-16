@@ -64,7 +64,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.25.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.26.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -902,8 +902,78 @@ assert "no link selected" in msg, f"expected no link selected message, got: {msg
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
+
+# Part 3: Navigation history and forward stack restores cursor_line, top, and selected link
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
+os.close(slave)
+
+time.sleep(0.15)
+get_state()
+# Move down to line 4 (L4/4) and select second link on line 4 (br.html)
+send_key(b"j")
+send_key(b"j")
+send_key(b"j")
+title, pos, target, msg, _ = send_key(b"\t")
+assert "L4/4" in pos and target == "br.html", f"expected L4/4 br.html before jump, got: {pos} {target}"
+# Jump to index.html via backtick (`), then scroll down 1 line on index.html
+title, pos, target, msg, _ = send_key(b"`")
+assert "L1/" in pos, f"expected L1 on index.html after backtick jump, got: {pos}"
+title, pos_idx, _, _, _ = send_key(b"j")
+assert "L2/" in pos_idx, f"expected L2 on index.html after j, got: {pos_idx}"
+# Go back (Left Arrow \x1b[D): should restore L4/4 on nav-grid with no link selected so Right Arrow can advance forward
+title, pos, target, msg, _ = send_key(b"\x1b[D")
+assert "L4/4" in pos and target == "", f"expected back to restore L4/4 with no link selected, got: {pos} {target}"
+# Right Arrow (\x1b[C) advances forward to index.html and restores L2/
+title, pos, target, msg, _ = send_key(b"\x1b[C")
+assert pos == pos_idx and target == "", f"expected forward to restore {pos_idx} on index.html, got: {pos} {target}"
+os.write(master, b"q")
+os.waitpid(pid, 0)
+
+# Also verify forward navigation (\x1b[C when no link selected) restores saved line position
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[3]
+    os.execl(sys.argv[1], sys.argv[1], "show", "welcome")
+os.close(slave)
+
+time.sleep(0.15)
+get_state()
+# Page down on welcome so no link is selected (L24/...)
+title, pos_w, target_w, _, _ = send_key(b" ")
+assert target_w == "" and not pos_w.startswith("L1/"), f"expected scrolled welcome with no link, got: {pos_w} {target_w}"
+# Jump to index.html with backtick (`), then page down on index.html
+send_key(b"`")
+title, pos_i, _, _, _ = send_key(b" ")
+assert not pos_i.startswith("L1/"), f"expected scrolled index.html, got: {pos_i}"
+# Left Arrow (\x1b[D) returns to welcome at saved line pos_w (with no link selected)
+title, pos_back, target_back, _, _ = send_key(b"\x1b[D")
+assert title == "Welcome" and pos_back == pos_w and target_back == "", f"expected Welcome at {pos_w}, got: {title} {pos_back} {target_back}"
+# Right Arrow (\x1b[C) with no link selected goes forward to index.html at saved line pos_i
+title, pos_fwd, _, _, _ = send_key(b"\x1b[C")
+assert pos_fwd == pos_i, f"expected forward to restore {pos_i}, got: {pos_fwd}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager attention line test failed"
-    pass "attention line: charcoal tint, directional link catching (down->first, up->last), and anchored Enter"
+    pass "attention line: charcoal tint, directional link catching, anchored Enter, and history position stack"
 fi
 
 
@@ -1092,6 +1162,26 @@ sh_lvl_e=$("$TAM" show --level expert pipelines --pipe)
 printf '%s\n' "$sh_lvl_e" | grep -q 'Expert: POSIX pipe semantics' || fail "show --level expert pipelines failed"
 printf '%s\n' "$sh_lvl_e" | grep -q 'Stream Redirection Operators' || fail "show --level expert missing operators table"
 if printf '%s\n' "$sh_lvl_e" | grep -q 'Beginner: Connecting commands'; then fail "expert level contains beginner section"; fi
+
+# Numeric and 'all' level synonyms (0|all, 1|beginner, 2|intermediate, 3|expert)
+sh_lvl_all=$("$TAM" show pipelines --pipe)
+[ "$("$TAM" show --level 1 pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level 1 differs from beginner"
+[ "$("$TAM" show --level 2 pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level 2 differs from intermediate"
+[ "$("$TAM" show --level 3 pipelines --pipe)" = "$sh_lvl_e" ] || fail "show --level 3 differs from expert"
+[ "$("$TAM" show --level 0 pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level 0 differs from all levels"
+[ "$("$TAM" show --level all pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level all differs from all levels"
+[ "$("$TAM" show "pipelines?level=1" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=1 differs from beginner"
+[ "$("$TAM" show "pipelines?level=2" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=2 differs from intermediate"
+[ "$("$TAM" show "pipelines?level=3" --pipe)" = "$sh_lvl_e" ] || fail "show pipelines?level=3 differs from expert"
+[ "$("$TAM" show "pipelines?level=0" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=0 differs from all levels"
+[ "$("$TAM" show "pipelines?level=all" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=all differs from all levels"
+
+[ "$("$TAM" explain --level 1 pipelines --pipe)" = "$ex_tg_lvl_b" ] || fail "explain --level 1 pipelines differs from beginner"
+[ "$("$TAM" explain --level 0 pipelines --pipe)" = "$ex_out" ] || fail "explain --level 0 pipelines differs from all levels"
+[ "$("$TAM" explain --level all pipelines --pipe)" = "$ex_out" ] || fail "explain --level all pipelines differs from all levels"
+[ "$("$TAM" explain topics --level 3 --terse)" = "$ex_expert_terse" ] || fail "explain topics --level 3 --terse differs from expert"
+[ "$("$TAM" explain topics --level 0 --terse)" = "$ex_terse" ] || fail "explain topics --level 0 --terse differs from all levels"
+[ "$("$TAM" explain topics --level all --terse)" = "$ex_terse" ] || fail "explain topics --level all --terse differs from all levels"
 
 # Catalog listing filtered by level
 ex_cat_expert=$("$TAM" explain --level expert)
@@ -1494,9 +1584,14 @@ COMP_CWORD=3
 _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
+printf '%s\n' "$bash_level_test" | grep -q 'all' || fail "bash completion missing level all"
 printf '%s\n' "$bash_level_test" | grep -q 'beginner' || fail "bash completion missing level beginner"
 printf '%s\n' "$bash_level_test" | grep -q 'intermediate' || fail "bash completion missing level intermediate"
 printf '%s\n' "$bash_level_test" | grep -q 'expert' || fail "bash completion missing level expert"
+printf '%s\n' "$bash_level_test" | grep -qx '0' || fail "bash completion missing level 0"
+printf '%s\n' "$bash_level_test" | grep -qx '1' || fail "bash completion missing level 1"
+printf '%s\n' "$bash_level_test" | grep -qx '2' || fail "bash completion missing level 2"
+printf '%s\n' "$bash_level_test" | grep -qx '3' || fail "bash completion missing level 3"
 
 bash_ask_test=$(bash -c '
 source "'"$root"'/completions/bash/tam"

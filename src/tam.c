@@ -782,7 +782,7 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
         unsigned level = 0;
         const char *lq = strstr(href, "level=");
         if (lq != NULL) {
-            level = tam_level_parse(lq + 6);
+            (void)tam_level_parse_arg(lq + 6, &level);
         }
         const char *tq = strstr(href, "topic=");
         char topic[256] = {0};
@@ -807,7 +807,7 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
         unsigned level = 0;
         const char *q = strstr(href, "?level=");
         if (q != NULL) {
-            level = tam_level_parse(q + 7);
+            (void)tam_level_parse_arg(q + 7, &level);
         }
         return tam_topic_keywords_document(ctx->root, level, ctx->width);
     }
@@ -815,7 +815,7 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
         unsigned level = 0;
         const char *q = strstr(href, "?level=");
         if (q != NULL) {
-            level = tam_level_parse(q + 7);
+            (void)tam_level_parse_arg(q + 7, &level);
         }
         return tam_topics_document(ctx->root, level, ctx->width);
     }
@@ -1010,7 +1010,7 @@ static int level_usage_error(const char *bad)
     } else {
         fprintf(stderr, TAM_COMMAND_NAME ": unknown level '%s'\n", bad);
     }
-    fprintf(stderr, "Levels: beginner, intermediate, expert.\n");
+    fprintf(stderr, "Levels: all (0), beginner (1), intermediate (2), expert (3).\n");
     return TAM_EXIT_USAGE;
 }
 
@@ -1034,8 +1034,7 @@ static int cmd_show(int n, char **args)
             if (value == NULL || value[0] == '\0') {
                 return level_usage_error(NULL);
             }
-            level = tam_level_parse(value);
-            if (level == 0) {
+            if (!tam_level_parse_arg(value, &level)) {
                 return level_usage_error(value);
             }
         } else if (strcmp(args[i], "-") == 0) {
@@ -1079,7 +1078,7 @@ static int cmd_show(int n, char **args)
         if (level == 0) {
             const char *q = strstr(page, "?level=");
             if (q != NULL) {
-                level = tam_level_parse(q + 7);
+                (void)tam_level_parse_arg(q + 7, &level);
             }
         }
         int interactive = !pipe && isatty(STDOUT_FILENO);
@@ -1225,7 +1224,7 @@ static void print_explain_usage(void)
         "  tam explain                 browse all topic keywords in the pager\n"
         "  tam explain TOPIC           display a topic guide for TOPIC in the pager\n"
         "  tam explain TOPIC --pipe    print topic guide as plain text\n"
-        "  tam explain --level LEVEL [TOPIC]  filter by depth (beginner/intermediate/expert)\n"
+        "  tam explain --level LEVEL [TOPIC]  filter by depth (0|all, 1|beginner, 2|intermediate, 3|expert)\n"
         "  tam explain topics          interactive list of topics with live hyperlinks\n"
         "  tam explain topics --pipe   print available topics as plain text\n"
         "  tam explain -               read topic keyword from standard input\n\n"
@@ -1264,8 +1263,7 @@ static int cmd_explain(int n, char **args)
             if (value == NULL || value[0] == '\0') {
                 return level_usage_error(NULL);
             }
-            level = tam_level_parse(value);
-            if (level == 0) {
+            if (!tam_level_parse_arg(value, &level)) {
                 return level_usage_error(value);
             }
         } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {

@@ -11,10 +11,11 @@
 static const struct {
     unsigned    bit;
     const char *name;
+    const char *num;
 } LEVELS[] = {
-    { TAM_LEVEL_BEGINNER,     "beginner" },
-    { TAM_LEVEL_INTERMEDIATE, "intermediate" },
-    { TAM_LEVEL_EXPERT,       "expert" },
+    { TAM_LEVEL_BEGINNER,     "beginner",     "1" },
+    { TAM_LEVEL_INTERMEDIATE, "intermediate", "2" },
+    { TAM_LEVEL_EXPERT,       "expert",       "3" },
 };
 
 #define NLEVELS (sizeof(LEVELS) / sizeof(LEVELS[0]))
@@ -25,9 +26,27 @@ unsigned tam_level_parse(const char *name)
         return 0;
     }
     for (size_t i = 0; i < NLEVELS; i++) {
-        if (strcasecmp(name, LEVELS[i].name) == 0) {
+        if (strcasecmp(name, LEVELS[i].name) == 0 ||
+            strcmp(name, LEVELS[i].num) == 0) {
             return LEVELS[i].bit;
         }
+    }
+    return 0;
+}
+
+int tam_level_parse_arg(const char *arg, unsigned *level)
+{
+    if (arg == NULL || level == NULL || arg[0] == '\0') {
+        return 0;
+    }
+    if (strcasecmp(arg, "all") == 0 || strcmp(arg, "0") == 0) {
+        *level = 0;
+        return 1;
+    }
+    unsigned bit = tam_level_parse(arg);
+    if (bit != 0) {
+        *level = bit;
+        return 1;
     }
     return 0;
 }
@@ -52,7 +71,11 @@ unsigned tam_level_parse_list(const char *list)
             char word[32];
             memcpy(word, start, n);
             word[n] = '\0';
-            mask |= tam_level_parse(word);
+            if (strcasecmp(word, "all") == 0 || strcmp(word, "0") == 0) {
+                mask |= TAM_LEVEL_ALL;
+            } else {
+                mask |= tam_level_parse(word);
+            }
         }
     }
     return mask;
@@ -114,8 +137,8 @@ char *tam_depth_split_href(const char *href, unsigned *level)
     if (strncmp(q + 1, key, sizeof(key) - 1) != 0) {
         return NULL;
     }
-    unsigned bit = tam_level_parse(q + sizeof(key));
-    if (bit == 0) {
+    unsigned bit = 0;
+    if (!tam_level_parse_arg(q + sizeof(key), &bit)) {
         return NULL;
     }
     size_t n = (size_t)(q - href);

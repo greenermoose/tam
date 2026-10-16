@@ -3,7 +3,7 @@
 **Stage:** Develop — milestones 1–16 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
 corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics, maintain track corpus expansion, user guide architecture & tam(1) manual page, improve track corpus expansion, native GNU info subsystem, topic guides & tam architecture, and decoupled versioning & corpus alignment), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.25.1 and the knowledge corpus is at 0.26.1. The executable
+reading telemetry, and static Bash shell completions implemented; the command is at 0.26.0 and the knowledge corpus is at 0.27.1. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself.
 
@@ -584,3 +584,19 @@ plan/apply/verify work follows the product framework.
   right. `make test-corpus` and `make test` now run the corpus checker
   (`tools/lint-corpus.py`) and its tests, and `make test-command` and `make
   test` run the renderer goldens (`tests/render.sh`).
+- **2026-10-16:** Command 0.26.0. (1) Replaced the bare `char **history` and
+  `char **forward` arrays in `src/pager.c` with `nav_state_t` (`{ href, top,
+  cursor_line }`), recording the viewport and attention-line position before
+  following any page or intra-page `#anchor` link and restoring them on back
+  (`u`/Left Arrow) and forward (Right Arrow) navigation while keeping
+  `selected = -1` so Right Arrow traverses forward history until a link is
+  explicitly selected. (2) Added numeric and `all` depth level synonyms
+  (`0`|`all` for all levels, `1`|`beginner`, `2`|`intermediate`, `3`|`expert`)
+  in `src/depth.c`, `src/depth.h`, and `src/tam.c` across `--level` and
+  `?level=` for `tam show`, `tam explain`, and `tam explain topics`, with
+  matching Bash completions and `man/tam.1` documentation. (3) Fixed
+  punctuation joining in `src/render.c` (`layout_flow`, `cell_wrap`, and
+  `peek_following_punct`) so tokens starting with `,.;:!?%)]}` only attach
+  without a space when no whitespace separated them from the previous token in
+  the HTML source (preserving the space in `<code>git add .</code>` while
+  keeping `<code>x</code>.` joined). Bumped command version to `0.26.0`.

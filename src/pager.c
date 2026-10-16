@@ -91,13 +91,19 @@ typedef struct {
 } search_hit_t;
 
 typedef struct {
+    char *href;
+    int   top;
+    int   cursor_line;
+} nav_state_t;
+
+typedef struct {
     tam_document_t *doc;
     char           *cur_href;
     linkref_t      *links;
     size_t          nlinks;
-    char          **history;
+    nav_state_t    *history;
     size_t          nhistory;
-    char          **forward;
+    nav_state_t    *forward;
     size_t          nforward;
     int             top;
     int             selected;
@@ -800,26 +806,81 @@ static void draw(pager_t *st)
     outn(status, slen);
 }
 
-static void history_push(pager_t *st, const char *href)
+static void history_push(pager_t *st, const char *href, int top,
+                         int cursor_line)
 {
-    st->history = realloc(st->history, (st->nhistory + 1) * sizeof(char *));
-    st->history[st->nhistory++] = strdup(href);
+    st->history = realloc(st->history,
+                          (st->nhistory + 1) * sizeof(*st->history));
+    st->history[st->nhistory].href = strdup(href);
+    st->history[st->nhistory].top = top;
+    st->history[st->nhistory].cursor_line = cursor_line;
+    st->nhistory++;
 }
 
-static void forward_push(pager_t *st, const char *href)
+static void forward_push(pager_t *st, const char *href, int top,
+                         int cursor_line)
 {
-    st->forward = realloc(st->forward, (st->nforward + 1) * sizeof(char *));
-    st->forward[st->nforward++] = strdup(href);
+    st->forward = realloc(st->forward,
+                          (st->nforward + 1) * sizeof(*st->forward));
+    st->forward[st->nforward].href = strdup(href);
+    st->forward[st->nforward].top = top;
+    st->forward[st->nforward].cursor_line = cursor_line;
+    st->nforward++;
 }
 
 static void forward_clear(pager_t *st)
 {
     while (st->nforward > 0) {
-        free(st->forward[--st->nforward]);
+        free(st->forward[--st->nforward].href);
     }
     free(st->forward);
     st->forward = NULL;
     st->nforward = 0;
+}
+
+static void restore_nav_state(pager_t *st, int top, int cursor_line)
+{
+    int nlines = (st->doc != NULL) ? (int)st->doc->nlines : 0;
+    if (nlines <= 0) {
+        st->top = 0;
+        st->cursor_line = 0;
+        st->selected = -1;
+        return;
+    }
+    int usable = st->height - 1;
+    if (usable < 1) {
+        usable = 1;
+    }
+    int max_top = nlines - usable;
+    if (max_top < 0) {
+        max_top = 0;
+    }
+    if (top < 0) {
+        top = 0;
+    }
+    if (top > max_top) {
+        top = max_top;
+    }
+    if (cursor_line < 0) {
+        cursor_line = 0;
+    }
+    if (cursor_line >= nlines) {
+        cursor_line = nlines - 1;
+    }
+    if (cursor_line < top) {
+        top = cursor_line;
+    } else if (cursor_line >= top + usable) {
+        top = cursor_line - usable + 1;
+        if (top > max_top) {
+            top = max_top;
+        }
+        if (top < 0) {
+            top = 0;
+        }
+    }
+    st->top = top;
+    st->cursor_line = cursor_line;
+    st->selected = -1;
 }
 
 static int is_external(const char *href)
@@ -854,6 +915,8 @@ static void follow(pager_t *st, const char *href)
     if (href[0] == '#') {
         const char *target = href + 1;
         if (target[0] == '\0') {
+            history_push(st, st->cur_href, st->top, st->cursor_line);
+            forward_clear(st);
             set_cursor_line(st, 0, -1);
             st->msg[0] = '\0';
             return;
@@ -861,6 +924,8 @@ static void follow(pager_t *st, const char *href)
         for (size_t i = 0; i < st->doc->nlines; i++) {
             for (size_t j = 0; j < st->doc->lines[i].nspans; j++) {
                 if (match_anchor(st->doc->lines[i].spans[j].text, target)) {
+                    history_push(st, st->cur_href, st->top, st->cursor_line);
+                    forward_clear(st);
                     set_cursor_line(st, (int)i, 1);
                     snprintf(st->msg, sizeof(st->msg), "jumped to %s", target);
                     return;
@@ -879,7 +944,7 @@ static void follow(pager_t *st, const char *href)
         snprintf(st->msg, sizeof(st->msg), "cannot open %s", href);
         return;
     }
-    history_push(st, st->cur_href);
+    history_push(st, st->cur_href, st->top, st->cursor_line);
     forward_clear(st);
     pager_clear_search(st);
     free(st->cur_href);
@@ -899,24 +964,30 @@ static void go_back(pager_t *st)
         snprintf(st->msg, sizeof(st->msg), "no earlier page");
         return;
     }
-    char *prev = st->history[--st->nhistory];
-    tam_document_t *nd = st->load(st->ctx, prev);
-    if (nd == NULL) {
-        st->nhistory++;
-        snprintf(st->msg, sizeof(st->msg), "cannot open %s", prev);
-        free(prev);
+    nav_state_t prev = st->history[--st->nhistory];
+    if (strcmp(prev.href, st->cur_href) == 0) {
+        forward_push(st, st->cur_href, st->top, st->cursor_line);
+        pager_clear_search(st);
+        free(prev.href);
+        restore_nav_state(st, prev.top, prev.cursor_line);
+        st->msg[0] = '\0';
         return;
     }
-    forward_push(st, st->cur_href);
+    tam_document_t *nd = st->load(st->ctx, prev.href);
+    if (nd == NULL) {
+        st->nhistory++;
+        snprintf(st->msg, sizeof(st->msg), "cannot open %s", prev.href);
+        free(prev.href);
+        return;
+    }
+    forward_push(st, st->cur_href, st->top, st->cursor_line);
     pager_clear_search(st);
     free(st->cur_href);
-    st->cur_href = prev;
+    st->cur_href = prev.href;
     tam_document_free(st->doc);
     st->doc = nd;
     pager_build_links(st);
-    st->top = 0;
-    st->cursor_line = 0;
-    st->selected = -1;
+    restore_nav_state(st, prev.top, prev.cursor_line);
     st->msg[0] = '\0';
 }
 
@@ -925,24 +996,30 @@ static void go_forward(pager_t *st)
     if (st->nforward == 0) {
         return;
     }
-    char *next = st->forward[--st->nforward];
-    tam_document_t *nd = st->load(st->ctx, next);
-    if (nd == NULL) {
-        st->nforward++;
-        snprintf(st->msg, sizeof(st->msg), "cannot open %s", next);
-        free(next);
+    nav_state_t next = st->forward[--st->nforward];
+    if (strcmp(next.href, st->cur_href) == 0) {
+        history_push(st, st->cur_href, st->top, st->cursor_line);
+        pager_clear_search(st);
+        free(next.href);
+        restore_nav_state(st, next.top, next.cursor_line);
+        st->msg[0] = '\0';
         return;
     }
-    history_push(st, st->cur_href);
+    tam_document_t *nd = st->load(st->ctx, next.href);
+    if (nd == NULL) {
+        st->nforward++;
+        snprintf(st->msg, sizeof(st->msg), "cannot open %s", next.href);
+        free(next.href);
+        return;
+    }
+    history_push(st, st->cur_href, st->top, st->cursor_line);
     pager_clear_search(st);
     free(st->cur_href);
-    st->cur_href = next;
+    st->cur_href = next.href;
     tam_document_free(st->doc);
     st->doc = nd;
     pager_build_links(st);
-    st->top = 0;
-    st->cursor_line = 0;
-    st->selected = -1;
+    restore_nav_state(st, next.top, next.cursor_line);
     st->msg[0] = '\0';
 }
 
@@ -1454,11 +1531,11 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     }
 
     while (st.nhistory > 0) {
-        free(st.history[--st.nhistory]);
+        free(st.history[--st.nhistory].href);
     }
     free(st.history);
     while (st.nforward > 0) {
-        free(st.forward[--st.nforward]);
+        free(st.forward[--st.nforward].href);
     }
     free(st.forward);
     free(st.links);

@@ -25,9 +25,14 @@ enum {
 #define TAM_LEVEL_ALL \
     (TAM_LEVEL_BEGINNER | TAM_LEVEL_INTERMEDIATE | TAM_LEVEL_EXPERT)
 
-/* One level name ("beginner", "intermediate", "expert"; case-insensitive)
- * to its bit, or 0 when the name is not a level. */
+/* One level name ("beginner"|"1", "intermediate"|"2", "expert"|"3";
+ * case-insensitive) to its bit, or 0 when the name is not a single level. */
 unsigned tam_level_parse(const char *name);
+
+/* Parse a CLI or query level argument ("0"|"all" -> *level = 0, returns 1;
+ * "1"|"beginner", "2"|"intermediate", "3"|"expert" -> *level = bit, returns 1;
+ * anything else -> returns 0). */
+int tam_level_parse_arg(const char *arg, unsigned *level);
 
 /* A comma- or space-separated list of level names to a mask. Unknown names
  * are ignored. */
@@ -44,8 +49,8 @@ char *tam_level_format(unsigned mask, const char *sep, char *out, size_t cap);
 
 /* Split an href of the form "path[?level=NAME]". Returns a newly allocated
  * path without the query and stores the selected level bit (0 when there is
- * no query) in *level. Returns NULL when the query is present but is not a
- * valid level selection. */
+ * no query or when ?level=all or ?level=0) in *level. Returns NULL when the
+ * query is present but is not a valid level selection. */
 char *tam_depth_split_href(const char *href, unsigned *level);
 
 /* Prepare a page's HTML for display at `level` (0 = every depth).
