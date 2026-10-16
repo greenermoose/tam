@@ -7,7 +7,7 @@ learn about their system, maintain it, and discover ways to improve it.
 offline guide, orientation/explanation, installation inspection, engine
 enhancements, and corpus index and search (`tam search`). Bare introduction,
 `--help` (also `tam help`), `--version`, argument errors, `show`, `welcome`
-orientation, curated `explain`, `search`, `man`, and read-only `install inspect`
+orientation, curated `explain`, `search`, `man`, and read-only `inspect`
 all build in C against the separate `libtam` library and install as `tam`. The
 command is part of `tamlinux-packages` and installed on the system. Milestones
 7–9 (a depth ladder, read-only self-inspection, and an opt-in grounded `ask`)
@@ -21,7 +21,7 @@ guide: an interactive pager in a terminal, or plain text when output is piped.
 fuzzy suggestions, and optional `--json` output.
 `tam explain <topic>` explains curated local concepts and tools, resolving
 multi-word queries through search.
-`tam install inspect` inspects host facts, package tools, and supported profiles.
+`tam inspect` inspects host facts, package tools, and supported profiles.
 The guide is authored as semantic HTML under `knowledge/`; `tam` renders it
 itself, so browsing needs no network and no external viewer.
 
@@ -41,8 +41,8 @@ tam explain cpu load  # multi-word concepts resolve via search
 tam explain '|'       # explain pipelines (quote shell metacharacters like '|')
 tam explain browse    # browse is also an explain topic pointing to the guide
 tam explain grep --pipe # print topic explanation as plain text
-tam install inspect   # inspect host facts and installation capabilities
-tam install --help    # list installation subcommands
+tam inspect           # inspect host facts and installation capabilities
+tam install --help    # list the planned installation subcommands
 ```
 
 In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`
