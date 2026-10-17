@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-16. **Owner:** Fred. **Current Command Version:** `0.28.0`. **Current Corpus Version:** `0.28.0`.  
+**Reviewed:** 2026-10-17. **Owner:** Fred. **Current Command Version:** `0.28.0`. **Current Corpus Version:** `0.29.0`.  
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,7 +19,7 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Foundation: 0.0.1 – 0.28.0)
+## 2. What Has Been Done (Command 0.0.1–0.28.0; corpus 0.0.1–0.29.0)
 
 Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, pager navigation state restoration with numeric level synonyms, interactive pager depth-switching keys, and build-time Git revision and timestamp derivation:
 
@@ -55,12 +55,13 @@ Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1
 | **0.26.0** | Pager Navigation Position Stack, Numeric Level Synonyms, & Punctuation Spacing Fix | Done (2026-10-16) | Full `nav_state_t` (`{ href, top, cursor_line }`) in `src/pager.c` restoring exact viewport and cursor line on back (`u`/Left Arrow) and forward (Right Arrow) across page and `#anchor` jumps; numeric and `all` depth synonyms (`--level 0\|all\|1\|2\|3` and `?level=0\|all\|1\|2\|3`) across `tam show`, `tam explain`, and `tam explain topics` plus Bash completions and `man/tam.1`; renderer fix in `src/render.c` so tokens starting with punctuation keep their preceding space when separated by whitespace in the source (e.g. `git add .`). |
 | **0.27.0** | Pager Reading Depth Keys & Retired 1–9 Link Jumping | Done (2026-10-16) | Bound keys `0`, `1`, `2`, `3` inside `src/pager.c` to switch the active page's reading depth (`all`, `beginner`, `intermediate`, `expert`) with history push and status feedback, and retired legacy `1`–`9` link jumping in favor of the attention line, `Tab`/`Shift-Tab`, and `a`/`s`/`d`/`f`. |
 | **0.28.0** | Build-Time Git Page Revisions & Update Timestamps | Done (2026-10-16) | Deterministic build-time derivation of per-page revision count (`git rev-list --count HEAD -- knowledge/<page>`) and last-updated timestamp (`git log -1 --format=%cd --date=format:%Y-%m-%d %H:%M -- knowledge/<page>`) in `tools/build-index.py`, stored in `knowledge/index.tsv` and `knowledge/index.json` and displayed as `Rev <N> Last updated <YYYY-MM-DD HH:MM>` on every rendered corpus page via `tam_depth_apply_rev()` and in `tam explain topics --verbose`. |
+| **0.29.0 corpus** | Linux Boot Fallbacks & Rescue Routes | Done (2026-10-17) | New Maintain guide distinguishes firmware paths, alternate kernels and initramfs images, snapshot boots and external rescue media by their shared boot dependencies. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-**Version 0.28.0** (Build-Time Git Page Revisions & Update Timestamps) is done (2026-10-16). The next planned feature milestones are the "Why" axis, the "Depth" axis, and offline skills progression.
+Command 0.28.0 (Build-Time Git Page Revisions & Update Timestamps) is done (2026-10-16). Corpus 0.29.0 adds Linux boot fallbacks and rescue routes. The next planned command milestones remain the "Why" axis, the "Depth" axis, and offline skills progression.
 
 ### Version 0.25.0 — Attention Line & Anchored Hyperlink Navigation
 
@@ -155,7 +156,7 @@ Provide self-paced, offline skill building that uses the Milestone 8 inspection 
   - Pairs Intermediate fading template tasks with automated checks: e.g. "Create a background pipeline that filters logs" $\rightarrow$ `tam learn verify` probes system state using the Check Contract.
   - Provides hints without spoiling answers, guiding users toward mastery of command-line tools and system navigation.
 
-### Version 0.29.0 — Safe Command-Line Syntax Dissection
+### Command Version 0.29.0 — Safe Command-Line Syntax Dissection
 Extend `tam explain` to safely parse and explain compound shell commands, pipelines, and redirection.
 
 - **Non-Executing Analytical Lexer:**
@@ -215,7 +216,7 @@ Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support
 | **0.26.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
 | **0.27.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
 | **0.28.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
-| **0.29.0** | Shell Syntax Dissection | `tam explain <command-line>` | Analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
+| **0.29.0 command** | Shell Syntax Dissection | `tam explain <command-line>` | Planned analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
 | **0.30.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
 | **1.0.0** | Stable Showcase Release | Complete command suite | Production release, unified knowledge graph, stable `libtam` ABI, multi-distro packages. |
 | **1.1.0** | Multi-Distribution Adapter | `tam install inspect` | Host inspection across systemd distributions (Debian, Fedora, Ubuntu). |

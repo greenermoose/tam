@@ -38,6 +38,7 @@ to confirm it quickly.
 | Example output | run the command and paste what it prints | output written from memory |
 | Keybindings | `tamlinux` repository: `desktop/session/hypr/tamlinux/bindings/*.lua`; readers can open `tam-menu-keybindings` | the live desktop (personal overrides), Omarchy or Hyprland defaults |
 | `tam-*` commands and their options | `tamlinux` repository: `commands/<name>`; standalone tools in `tamlinux-tools` | |
+| Bootloader, initramfs and rescue-media behavior | The UEFI specification and the relevant bootloader, image-generator or live-media manual; use the product repository for Tamlinux-specific configuration | menu labels, another distribution's defaults |
 | Login, session entry, SDDM | `tamlinux` repository: `desktop/native/integration/`, expected names in `desktop/tests/`; `tamlinux-packages` repository: `docs/sddm-cutover.md`, `docs/session-runtime.md` | |
 | Tamlinux versions, candidate letters, stages | `tamlinux` repository: `VERSIONING.md`, `VERSION` | |
 | Packaging, pins, deployment | `tamlinux-packages` repository: `flake.nix`, `flake.lock`, `nix/`, `docs/deployment.md` | |

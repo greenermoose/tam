@@ -3,7 +3,7 @@
 **Stage:** Develop — milestones 1–16 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
 corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics, maintain track corpus expansion, user guide architecture & tam(1) manual page, improve track corpus expansion, native GNU info subsystem, topic guides & tam architecture, and decoupled versioning & corpus alignment), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, and static Bash shell completions implemented; the command is at 0.26.0 and the knowledge corpus is at 0.27.1. The executable
+reading telemetry, static Bash shell completions and build-time page revision metadata implemented; the command is at 0.28.0 and the knowledge corpus is at 0.29.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself.
 
@@ -617,5 +617,11 @@ plan/apply/verify work follows the product framework.
   corpus page displays `Rev <N> Last updated <YYYY-MM-DD HH:MM>` as a document
   footer before `</body>` and in `tam explain topics --verbose`. Bumped command
   and corpus versions to `0.28.0`.
+- **2026-10-17:** Corpus 0.29.0. Added `knowledge/maintain/boot-recovery.html`
+  to explain how firmware fallback entries, alternate kernels and initramfs
+  images, snapshot boots, virtual consoles and external rescue media differ.
+  Linked the page from the maintenance and guide indexes and the existing boot
+  and emergency-recovery pages. Added the boot and rescue source-authority row
+  to `docs/corpus-authoring.md`; regenerated the searchable index.
 
 

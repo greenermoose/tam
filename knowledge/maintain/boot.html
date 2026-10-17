@@ -153,7 +153,7 @@
 <li><strong>Verify after updates:</strong> After kernel updates, verify boot entries in <code>/boot/limine.conf</code> are correct and point to existing files.</li>
 <li><strong>Keep fallback images:</strong> mkinitcpio typically generates both regular and fallback initramfs; fallback may be useful for recovery if autodetect misses modules.</li>
 <li><strong>Check hooks after changes:</strong> If you modify <code>/etc/mkinitcpio.conf</code> or add drop-ins, regenerate with <code>mkinitcpio -P</code> (all kernels) or per-kernel. Pacman hooks handle this automatically on package updates.</li>
-<li><strong>Boot recovery readiness:</strong> Always maintain a known-good boot entry and recovery path. See <a href="maintain/recovery.html">Emergency Disaster Recovery</a>.</li>
+<li><strong>Boot recovery readiness:</strong> Keep a known-good boot entry and understand which dependencies each route shares. See <a href="maintain/boot-recovery.html">Linux Boot Fallbacks and Rescue Routes</a>.</li>
 </ul>
 
 <h3>Troubleshooting tips</h3>
@@ -170,6 +170,7 @@
 <ul>
 <li><a href="maintain/updates.html">Non-disruptive updates and package lifecycle</a> &mdash; how updates work without reboots</li>
 <li><a href="maintain/recovery.html">Emergency disaster recovery</a> &mdash; recover from boot failures</li>
+<li><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a> &mdash; choose a route based on the failed boot stage</li>
 <li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a> &mdash; rollback system state</li>
 <li><a href="maintain/logs.html">Truthful system diagnostics and logs</a> &mdash; read boot logs with journalctl/dmesg</li>
 </ul>
