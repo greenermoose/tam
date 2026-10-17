@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-17. **Owner:** Fred. **Current Command Version:** `0.29.2`. **Current Corpus Version:** `0.29.0`.
+**Reviewed:** 2026-10-17. **Owner:** Fred. **Current Command Version:** `0.29.3`. **Current Corpus Version:** `0.29.0`.
 This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
 
 ---
@@ -19,7 +19,7 @@ This roadmap sets the development sequence, future version numbers, and feature 
 
 ---
 
-## 2. What Has Been Done (Command 0.0.1–0.29.2; corpus 0.0.1–0.29.0)
+## 2. What Has Been Done (Command 0.0.1–0.29.3; corpus 0.0.1–0.29.0)
 
 Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, pager navigation state restoration with numeric level synonyms, interactive pager depth-switching keys, and build-time Git revision and timestamp derivation:
 
@@ -58,13 +58,14 @@ Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1
 | **0.29.0** | Portable Pager Display | Done (2026-10-17) | Terminfo capability profiles, incremental row painting, Unicode cell geometry, retained-layout resize reflow, and terminal-safe fallbacks. |
 | **0.29.1** | Selected Link Focus | Done (2026-10-17) | The selected hyperlink now uses bold reverse video, with underline fallback where reverse video is unavailable, making the Enter/Right Arrow target easier to identify. |
 | **0.29.2** | Highlight Selected Link Spaces | Done (2026-10-17) | Spaces inside the selected hyperlink now receive the same emphasis as its other characters, keeping multiword link labels visually continuous. |
+| **0.29.3** | Keep Link Boundary Spaces Unhighlighted | Done (2026-10-17) | Only spaces between visible characters in a selected hyperlink receive emphasis; layout whitespace before the link remains unhighlighted. |
 | **0.29.0 corpus** | Linux Boot Fallbacks & Rescue Routes | Done (2026-10-17) | New Maintain guide distinguishes firmware paths, alternate kernels and initramfs images, snapshot boots and external rescue media by their shared boot dependencies. |
 
 ---
 
 ## 3. What Needs to Be Done Next
 
-Command 0.29.2 keeps selected multiword hyperlinks continuously highlighted, including their spaces. Command 0.29.1 makes the currently selected hyperlink visually distinct before it is followed. Command 0.29.0 adds portable, incremental pager display and resize reflow. Corpus 0.29.0 adds Linux boot fallbacks and rescue routes. The next planned command milestones are shell syntax dissection (0.30.0) and the installation framework (0.31.0).
+Command 0.29.3 limits selected-link space emphasis to interior spaces, leaving layout whitespace before a link unhighlighted. Command 0.29.2 keeps selected multiword hyperlinks continuously highlighted, including their spaces. Command 0.29.1 makes the currently selected hyperlink visually distinct before it is followed. Command 0.29.0 adds portable, incremental pager display and resize reflow. Corpus 0.29.0 adds Linux boot fallbacks and rescue routes. The next planned command milestones are shell syntax dissection (0.30.0) and the installation framework (0.31.0).
 
 ### Version 0.25.0 — Attention Line & Anchored Hyperlink Navigation
 
@@ -222,6 +223,7 @@ Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support
 | **0.29.0** | Portable Pager Display | `src/pager.c`, `src/render.c` | Terminfo capability profiles, incremental row painting, Unicode cell geometry, retained-layout resize reflow, and terminal-safe fallbacks. |
 | **0.29.1** | Selected Link Focus | `src/pager.c` | Bold reverse video distinguishes the selected hyperlink; underline remains the fallback when reverse video is unavailable. |
 | **0.29.2** | Highlight Selected Link Spaces | `src/pager.c` | Applies selected-link emphasis to whitespace inside the hyperlink while preserving unselected-link leading-space behavior. |
+| **0.29.3** | Keep Link Boundary Spaces Unhighlighted | `src/pager.c` | Restricts selected-link whitespace emphasis to spaces with non-space link text on both sides. |
 | **0.30.0 command** | Shell Syntax Dissection | `tam explain <command-line>` | Planned analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
 | **0.31.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
 | **1.0.0** | Stable Showcase Release | Complete command suite | Production release, unified knowledge graph, stable `libtam` ABI, multi-distro packages. |

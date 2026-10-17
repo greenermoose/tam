@@ -406,6 +406,25 @@ static int emit_style(const tam_span_t *sp, int is_sel)
     return styled;
 }
 
+static int link_space_is_interior(const char *text, size_t len, size_t offset)
+{
+    int has_text_before = 0;
+    int has_text_after = 0;
+    for (size_t i = offset; i > 0; i--) {
+        if (!isspace((unsigned char)text[i - 1])) {
+            has_text_before = 1;
+            break;
+        }
+    }
+    for (size_t i = offset + 1; i < len; i++) {
+        if (!isspace((unsigned char)text[i])) {
+            has_text_after = 1;
+            break;
+        }
+    }
+    return has_text_before && has_text_after;
+}
+
 static const char *tam_casestr(const char *haystack, const char *needle)
 {
     if (haystack == NULL || needle == NULL) {
@@ -679,8 +698,11 @@ static void emit_line(const tam_line_t *line, int width,
                 }
             }
             int link_space = is_link && isspace((unsigned char)t[char_start]);
+            int selected_interior_space = link_space && is_sel &&
+                link_space_is_interior(t, len, char_start);
             int span_style = !hit &&
-                (sp->href != NULL ? (!link_space || is_sel) : sp->style != 0);
+                (sp->href != NULL ? (!link_space || selected_interior_space)
+                                  : sp->style != 0);
             int style_key = hit ? 2 + hit : span_style ? 1 : 0;
             if (style_key != active_style || (style_key == 1 && active_span != sp)) {
                 if (active_style != 0) emit_reset(attention);

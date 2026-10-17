@@ -3,7 +3,7 @@
 **Stage:** Develop — milestones 1–16 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
 corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics, maintain track corpus expansion, user guide architecture & tam(1) manual page, improve track corpus expansion, native GNU info subsystem, topic guides & tam architecture, and decoupled versioning & corpus alignment), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, static Bash shell completions, build-time page revision metadata, portable incremental pager, stronger selected-link focus, and continuous selected-link emphasis implemented; the command is at 0.29.2 and the knowledge corpus is at 0.29.0. The executable
+reading telemetry, static Bash shell completions, build-time page revision metadata, portable incremental pager, stronger selected-link focus, continuous selected-link emphasis, and link-boundary whitespace handling implemented; the command is at 0.29.3 and the knowledge corpus is at 0.29.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself.
 
@@ -312,6 +312,10 @@ plan/apply/verify work follows the product framework.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-17:** Command 0.29.3. Only whitespace with non-space hyperlink
+  text on both sides receives selected-link emphasis. This keeps the layout
+  separator before a hyperlink outside the highlighted region.
 
 - **2026-10-17:** Command 0.29.2. Whitespace characters inside the selected
   hyperlink now receive the same bold reverse-video style as its other
