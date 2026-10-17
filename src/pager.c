@@ -678,8 +678,9 @@ static void emit_line(const tam_line_t *line, int width,
                     break;
                 }
             }
-            int span_style = (!hit && !(is_link && isspace((unsigned char)t[char_start])) &&
-                              (sp->href != NULL || sp->style != 0));
+            int link_space = is_link && isspace((unsigned char)t[char_start]);
+            int span_style = !hit &&
+                (sp->href != NULL ? (!link_space || is_sel) : sp->style != 0);
             int style_key = hit ? 2 + hit : span_style ? 1 : 0;
             if (style_key != active_style || (style_key == 1 && active_span != sp)) {
                 if (active_style != 0) emit_reset(attention);
