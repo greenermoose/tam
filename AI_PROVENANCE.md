@@ -72,5 +72,6 @@ model for each session.
 | 2026-10-17 | Portable pager display 0.29.0 (terminfo, incremental painting, resize reflow) | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-17-tam-pager-portability.md) |
 | 2026-10-17 | Selected pager link focus and command 0.29.1 | Codex CLI 0.163.0; `gpt-6` | [Session record](docs/ai/2026-10-17-tam-selected-link-focus.md) |
 | 2026-10-17 | Continuous selected hyperlink emphasis including spaces; command 0.29.2 | Codex CLI 0.163.0; `gpt-6` | [Session record](docs/ai/2026-10-17-tam-selected-link-spaces.md) |
+| 2026-10-17 | Keep layout whitespace before selected hyperlinks unhighlighted; command 0.29.3 | Codex CLI 0.163.0; `gpt-6` | [Session record](docs/ai/2026-10-17-tam-link-boundary-spaces.md) |
 
 
