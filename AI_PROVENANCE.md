@@ -70,5 +70,6 @@ model for each session.
 | 2026-10-17 | Rebuild tam corpus to clean dev build id; repair boot.html prereqs and index.tsv header | Antigravity CLI 1.4.0; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-17-tam-rebuild-corpus-clean-dev.md) |
 | 2026-10-17 | Linux boot fallback and rescue routes guide; corpus 0.29.0 | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-17-tam-linux-fallback-rescue.md) |
 | 2026-10-17 | Portable pager display 0.29.0 (terminfo, incremental painting, resize reflow) | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-17-tam-pager-portability.md) |
+| 2026-10-17 | Selected pager link focus and command 0.29.1 | Codex CLI 0.163.0; `gpt-6` | [Session record](docs/ai/2026-10-17-tam-selected-link-focus.md) |
 
 
