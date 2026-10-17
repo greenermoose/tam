@@ -68,5 +68,6 @@ model for each session.
 | 2026-10-16 | Pager reading depth keys (`0`/`1`/`2`/`3` for `all`/`beginner`/`intermediate`/`expert`) and retired `1`–`9` link jumping 0.27.0 | Antigravity CLI 1.4.0; `gemini-4-argon` | [Session record](docs/ai/2026-10-16-tam-pager-depth-keys.md) |
 | 2026-10-16 | Build-time Git derivation of per-page revision numbers and timestamps (`Rev <N> Last updated <YYYY-MM-DD HH:MM>`) 0.28.0 | Antigravity CLI 1.4.0; `gemini-4-argon` | [Session record](docs/ai/2026-10-16-tam-page-revisions-and-timestamps.md) |
 | 2026-10-17 | Rebuild tam corpus to clean dev build id; repair boot.html prereqs and index.tsv header | Antigravity CLI 1.4.0; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-17-tam-rebuild-corpus-clean-dev.md) |
+| 2026-10-17 | Linux boot fallback and rescue routes guide; corpus 0.29.0 | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-17-tam-linux-fallback-rescue.md) |
 
 
