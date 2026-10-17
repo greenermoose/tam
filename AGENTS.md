@@ -2,8 +2,10 @@
 
 Read this before changing anything in this repository. It applies to every
 agent (Claude Code, Codex, Antigravity, OpenCode or another). The developer
-works directly with every agent. Agent-to-agent delegation was retired on
-2026-10-16; old briefs do not assign new work or override these rules.
+directs the work. The custom delegation system was retired on 2026-10-16;
+delegation through skills supplied by OpenAI or another trusted source is
+allowed within the developer's task (clarified 2026-10-17). All agents follow
+the same path-claim rules; old briefs do not assign work or override them.
 
 ## Start here
 
