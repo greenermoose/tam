@@ -67,7 +67,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.29.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.29.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -577,6 +577,7 @@ lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "one.html", f"expected one.html, got {target}"
 assert b"\x1b[1mALPHA" in buf, "line 1 of wrapped link not highlighted"
+assert b"\x1b[7m" in buf, "selected link lacks reverse-video emphasis"
 assert buf.count(b"\x1b[1m") >= 2, "wrapped link continuation not highlighted"
 assert b"\x1b[1m " not in buf, "leading space before wrapped link must not be highlighted"
 
@@ -606,7 +607,7 @@ assert b"\x1b[1mALPHA" in buf, "wrapped link not highlighted after Shift-Tab"
 os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures" || fail "hyperlink display test failed"
-    pass "pager hyperlink display: leading-space underline prevention and wrapped link continuation highlight"
+    pass "pager hyperlink display: selected-link reverse emphasis, leading-space protection, and wrapped continuation"
 
     # In-pager text search (/), hit jumping (n / N), Esc clear, and reading telemetry
     python3 -c '

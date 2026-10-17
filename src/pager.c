@@ -361,10 +361,15 @@ static int emit_style(const tam_span_t *sp, int is_sel)
 {
     if (sp->href != NULL) {
         if (is_sel) {
-            if (g_term != NULL && (g_term->ncv < 0 || !(g_term->ncv & 32)))
-                (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
-            else if (g_term != NULL && (g_term->ncv < 0 || !(g_term->ncv & 2)))
-                (void)tam_terminal_cap(g_term, g_capture, g_term->underline, 0, 0);
+            if (g_term != NULL) {
+                if (g_term->ncv < 0 || !(g_term->ncv & 32))
+                    (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
+                const char *reverse = g_term->rev != NULL ? g_term->rev : g_term->smso;
+                if (reverse != NULL)
+                    (void)tam_terminal_cap(g_term, g_capture, reverse, 0, 0);
+                else if (g_term->ncv < 0 || !(g_term->ncv & 2))
+                    (void)tam_terminal_cap(g_term, g_capture, g_term->underline, 0, 0);
+            }
         } else {
             if (g_term != NULL) {
                 if (g_term->ncv < 0 || !(g_term->ncv & 2))
