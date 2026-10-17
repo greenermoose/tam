@@ -3,15 +3,13 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — milestones 1–6 implemented at 0.11.0: command foundation,
-offline guide, orientation/explanation, installation inspection, engine
-enhancements, and corpus index and search (`tam search`). Bare introduction,
-`--help` (also `tam help`), `--version`, argument errors, `show`, `welcome`
-orientation, curated `explain`, `search`, `man`, and read-only `inspect`
-all build in C against the separate `libtam` library and install as `tam`. The
-command is part of `tamlinux-packages` and installed on the system. Milestones
-7–9 (a depth ladder, read-only self-inspection, and an opt-in grounded `ask`)
-are planned in the [development plan](docs/plans/development.md).
+**Stage:** Develop — command 0.29.0 and knowledge corpus 0.29.0. The command
+includes the offline guide, native man and Info readers, search and explanation,
+host inspection, and a portable built-in pager. It builds in C against the
+separate `libtam` library and installs as `tam`. The command is part of
+`tamlinux-packages` and installed on the system. See the
+[development plan](docs/plans/development.md) and
+[roadmap](ROADMAP.md) for current milestones.
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline
@@ -53,6 +51,12 @@ left arrow goes back, and `q` or `Esc` quits. External links are shown but never
 fetched, so the guide stays offline. The corpus is located via
 `$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then the compiled install
 prefix.
+
+The pager uses terminfo capabilities for colors, cursor positioning and screen
+updates. It falls back to reverse video on the Linux console and monochrome
+terminals, and to plain text when stdout is not a usable terminal. On resize it
+reflows the current document while retaining the reading position, selected
+link and search state.
 
 The implementation uses C with the separate `libtam` foundation library.
 Command source, bundled guide pages, tests and component documentation live

@@ -13,6 +13,9 @@ here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/.." && pwd)
 knowledge="$root/knowledge"
 export TAM_KNOWLEDGE_DIR="$knowledge"
+# PTY pager fixtures need a real terminfo profile; separate cases exercise dumb.
+export TERM=xterm-256color
+unset NO_COLOR
 
 fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
 pass() { printf 'ok - %s\n' "$1"; }
@@ -64,7 +67,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.28.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.29.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -210,7 +213,7 @@ def send_and_get_target(key):
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
     if not lines:
         return ""
-    return lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace")
+    return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
 
 time.sleep(0.15)
 # 1. Tab forward selects first link
@@ -271,7 +274,7 @@ def send_and_get_target(key):
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
     if not lines:
         return ""
-    return lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace")
+    return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
 
 time.sleep(0.15)
 # Initial: nothing selected. Press "f" -> selects first visible link: tl.html
@@ -352,7 +355,7 @@ for key in [b"a", b"s", b"d"]:
     while select.select([m], [], [], 0.02)[0]:
         buf += os.read(m, 1024)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-    target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+    target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
     assert target == "tl.html", f"expected tl.html for key {key}, got {target}"
     os.write(m, b"q")
     os.waitpid(p, 0)
@@ -379,7 +382,7 @@ buf = b""
 while select.select([m], [], [], 0.02)[0]:
     buf += os.read(m, 4096)
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
-title = lines[-1].split(b"|")[0].replace(b"\x1b[K", b"").strip().decode("utf-8", "replace") if lines else ""
+title = lines[-1].split(b"|")[0].split(b"\x1b[K", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert "GNU Info Directory" in title or "dir" in title, f"expected Info Directory title, got {title}"
 os.write(m, b"q")
 os.waitpid(p, 0)
@@ -412,7 +415,7 @@ buf = b""
 while select.select([m], [], [], 0.02)[0]:
     buf += os.read(m, 4096)
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert target != "welcome.html" and target != "", f"unexpected target {target}"
 os.write(m, b"q")
 os.waitpid(p, 0)
@@ -441,16 +444,19 @@ buf = b""
 while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 1024)
 
+last_info = ("", "")
 def parse_info(buf):
+    global last_info
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     if not lines:
-        return ("", "")
-    last = lines[-1].replace(b"\x1b[K", b"").decode("utf-8", "replace")
+        return last_info
+    last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
     title = last.split("|")[0].strip()
     target = ""
     if "->" in last:
-        target = last.split("->")[-1].strip()
-    return (title, target)
+        target = last.split("->")[-1].split("\x1b", 1)[0].strip()
+    last_info = (title, target)
+    return last_info
 
 def send_and_get_info(key):
     time.sleep(0.08)
@@ -464,11 +470,11 @@ def send_and_get_info(key):
     return parse_info(buf)
 
 t, tg = parse_info(buf)
-assert t == "The Tamlinux User Guide" and tg == ""
+assert t == "The Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r} buf={buf!r}"
 
 # 1. At tip of exploration and no link selected: right arrow does nothing
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "The Tamlinux User Guide" and tg == ""
+assert t == "The Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r}"
 
 # 2. Select first link (welcome.html)
 t, tg = send_and_get_info(b"\t")
@@ -484,7 +490,7 @@ assert t == "Welcome" and tg == ""
 
 # 5. Left arrow returns to index.html; no link selected
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "The Tamlinux User Guide" and tg == ""
+assert t == "The Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r}"
 
 # 6. Arrived via left arrow and no link selected: right arrow proceeds toward tip (welcome.html)
 t, tg = send_and_get_info(b"\x1b[C")
@@ -558,7 +564,7 @@ while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
 # 1. No unselected hyperlink underlines the leading space; underline starts with first non-space character
-assert b"\x1b[4;34m " not in buf, "unselected link underlines leading space"
+assert b"\x1b[4m " not in buf, "unselected link underlines leading space"
 
 # 2. Tab selects the first link (one.html); its label wraps two lines and both are highlighted
 os.write(master, b"\t")
@@ -568,11 +574,11 @@ while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "one.html", f"expected one.html, got {target}"
-assert b"\x1b[7;1mALPHA" in buf, "line 1 of wrapped link not highlighted"
-assert buf.count(b"\x1b[7;1m") >= 2, "wrapped link continuation not highlighted"
-assert b"\x1b[7;1m " not in buf, "leading space before wrapped link must not be highlighted"
+assert b"\x1b[1mALPHA" in buf, "line 1 of wrapped link not highlighted"
+assert buf.count(b"\x1b[1m") >= 2, "wrapped link continuation not highlighted"
+assert b"\x1b[1m " not in buf, "leading space before wrapped link must not be highlighted"
 
 # 3. Tab advances to the next link (two.html) — the wrapped link was one link, not two
 os.write(master, b"\t")
@@ -582,7 +588,7 @@ while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "two.html", f"expected two.html, got {target}"
 
 # 4. Shift-Tab returns to the wrapped link, highlighting its lines again
@@ -593,9 +599,9 @@ while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].strip().decode("utf-8", "replace") if lines else ""
+target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "one.html", f"expected one.html, got {target}"
-assert b"\x1b[7;1mALPHA" in buf, "wrapped link not highlighted after Shift-Tab"
+assert b"\x1b[1mALPHA" in buf, "wrapped link not highlighted after Shift-Tab"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -627,7 +633,7 @@ while select.select([master], [], [], 0.05)[0]:
 
 # 1. Reading telemetry: verify status line contains "L1/" and position metric
 assert b"L1/" in buf and (b"(Top)" in buf or b"(All)" in buf), f"status line missing position metric: {buf}"
-assert b"/ find" in buf, f"status line missing / find hint: {buf}"
+assert b"/ n/N" in buf, f"status line missing search hint: {buf}"
 
 # 2. In-pager text search: search for "redirection"
 os.write(master, b"/redirection\r")
@@ -638,7 +644,7 @@ while select.select([master], [], [], 0.05)[0]:
 
 assert b"redirection" in buf, "search term missing from status bar message"
 assert b"[" in buf and b"]" in buf, "match indicator missing from status message"
-assert b"\x1b[7" in buf, "search hit not highlighted"
+assert b"\x1b[4mRedirection" in buf or b"\x1b[4mredirection" in buf, "search hit not highlighted"
 
 # 3. Next match (n)
 os.write(master, b"n")
@@ -662,7 +668,7 @@ time.sleep(0.08)
 buf = b""
 while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
-assert b"\x1b[7" not in buf, "search highlights not cleared by Esc"
+assert b"\x1b[4mRedirection" not in buf and b"\x1b[4mredirection" not in buf, "search highlights not cleared by Esc"
 
 # 6. Miss search pattern
 os.write(master, b"/nonexistent_pattern_12345\r")
@@ -703,7 +709,7 @@ def get_title():
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     if not lines:
         return ""
-    last = lines[-1].replace(b"\x1b[K", b"").decode("utf-8", "replace")
+    last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
     return last.split("|")[0].strip()
 
 # 1. Initial page is pipelines
@@ -756,11 +762,11 @@ def get_status_info():
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     if not lines:
         return ("", "")
-    last = lines[-1].replace(b"\x1b[K", b"").decode("utf-8", "replace")
+    last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
     title = last.split("|")[0].strip()
     target = ""
     if "->" in last:
-        target = last.split("->")[-1].strip()
+        target = last.split("->")[-1].split("\x1b", 1)[0].strip()
     return (title, target)
 
 # 1. Initial page is Available Explanation Topics
@@ -817,13 +823,13 @@ def get_state():
     while select.select([master], [], [], 0.02)[0]:
         buf += os.read(master, 4096)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
-    last = lines[-1].replace(b"\x1b[K", b"").strip() if lines else b""
+    last = lines[-1].split(b"\x1b[K", 1)[0].strip() if lines else b""
     parts = last.split(b"|")
     title = parts[0].strip().decode("utf-8", "replace") if len(parts) > 0 else ""
     pos = parts[1].strip().decode("utf-8", "replace") if len(parts) > 1 else ""
     target = ""
     if b"->" in last:
-        target = last.split(b"->")[-1].strip().decode("utf-8", "replace")
+        target = last.split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
     msg = ""
     if b"[" in last and b"]" in last:
         msg = last.split(b"[")[-1].split(b"]")[0].strip().decode("utf-8", "replace")
@@ -839,7 +845,7 @@ def send_key(key):
 time.sleep(0.15)
 title, pos, target, msg, has_tint = get_state()
 assert has_tint, "expected attention line background tint in output buffer"
-assert "L1/4 (All)" in pos, f"expected L1/4 in position metric, got: {pos}"
+assert "L1/4" in pos and "(All)" in pos, f"expected L1/4 in position metric, got: {pos}"
 assert target == "", f"expected no initial selection, got: {target}"
 
 # 1. First j moves to blank separator line: no link
@@ -968,12 +974,14 @@ title, pos_back, target_back, _, _ = send_key(b"\x1b[D")
 assert title == "Welcome" and pos_back == pos_w and target_back == "", f"expected Welcome at {pos_w}, got: {title} {pos_back} {target_back}"
 # Right Arrow (\x1b[C) with no link selected goes forward to index.html at saved line pos_i
 title, pos_fwd, _, _, _ = send_key(b"\x1b[C")
-assert pos_fwd == pos_i, f"expected forward to restore {pos_i}, got: {pos_fwd}"
+assert pos_fwd.split(" ->", 1)[0] == pos_i.split(" ->", 1)[0], f"expected forward to restore the index position, got: {pos_fwd}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager attention line test failed"
     pass "attention line: charcoal tint, directional link catching, anchored Enter, and history position stack"
+
+    python3 "$here/pager_screen.py" "$TAM" "$root/tests/fixtures" || fail "pager PTY screen-state checks failed"
 
     # Pager depth switching (0/1/2/3) and retired 1-9 link jumping
     python3 -c '
@@ -1038,7 +1046,7 @@ assert "Depth: expert." in b_back, f"expected history back to restore expert dep
 
 # 4..9 no longer jump to links
 b4 = send_and_read(b"4")
-assert "Shell pipelines" in b4 and "->" not in b4, f"expected 4 not to follow or select link, got: {b4}"
+assert b4 == "", f"expected ignored key 4 to leave the display untouched, got: {b4}"
 
 # Jump to index.html (`) where only beginner is offered; pressing 3 reports no expert level
 send_and_read(b"`")

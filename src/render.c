@@ -1,4 +1,5 @@
 #include <tam.h>
+#include "display.h"
 #include "render.h"
 
 #include <ctype.h>
@@ -68,7 +69,13 @@ typedef struct {
     tam_line_t *v;
     size_t      n;
     size_t      cap;
+    size_t      logical_block;
+    size_t      logical_offset;
 } linelist_t;
+
+typedef struct {
+    blocklist_t blocks;
+} layout_backing_t;
 
 /* ------------------------------------------------------------------------- */
 /* Small dynamic-array helpers                                               */
@@ -154,6 +161,8 @@ static void linelist_push(linelist_t *ll, spanlist_t *sl)
     linelist_grow(ll);
     ll->v[ll->n].spans = sl->v;
     ll->v[ll->n].nspans = sl->n;
+    ll->v[ll->n].logical_block = ll->logical_block;
+    ll->v[ll->n].logical_offset = ll->logical_offset;
     ll->n++;
     spanlist_init(sl);
 }
@@ -163,6 +172,8 @@ static void linelist_push_blank(linelist_t *ll)
     linelist_grow(ll);
     ll->v[ll->n].spans = NULL;
     ll->v[ll->n].nspans = 0;
+    ll->v[ll->n].logical_block = ll->logical_block;
+    ll->v[ll->n].logical_offset = ll->logical_offset;
     ll->n++;
 }
 
@@ -951,17 +962,9 @@ static void start_line(spanlist_t *line, const char *prefix, size_t lead,
     spanlist_append(line, sp, m, 0, NULL, 0);
 }
 
-/* Display columns of a UTF-8 byte range. The corpus uses width-1 glyphs
- * (arrows, math symbols, dashes), so counting code points is sufficient. */
 static size_t dwidth(const char *s, size_t n)
 {
-    size_t w = 0;
-    for (size_t i = 0; i < n; i++) {
-        if (((unsigned char)s[i] & 0xC0) != 0x80) {
-            w++;
-        }
-    }
-    return w;
+    return tam_display_width(s, n);
 }
 
 /* A token made only of sentence punctuation stays with what precedes it, so
@@ -1028,6 +1031,8 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
     int col = 0;
     int prev = 0;
     int had_space = 0;
+    size_t run_base = 0;
+    size_t line_offset = 0;
 
     start_line(&line, prefix, lead, 1);
     col = (int)lead;
@@ -1038,7 +1043,9 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
         size_t i = 0;
         while (i < tl) {
             if (t[i] == '\n') {
+                out->logical_offset = line_offset;
                 linelist_push(out, &line);
+                line_offset = run_base + i + 1;
                 start_line(&line, prefix, lead, 0);
                 col = (int)lead;
                 prev = 0;
@@ -1063,7 +1070,9 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
             size_t extra = peek_following_punct(runs, nruns, r, i);
             if (col > (int)lead && !all_punct(t + ws, wb) &&
                 col + sep + (int)(wl + extra) > width) {
+                out->logical_offset = line_offset;
                 linelist_push(out, &line);
+                line_offset = run_base + ws;
                 start_line(&line, prefix, lead, 0);
                 col = (int)lead;
                 sep = 0;
@@ -1074,42 +1083,101 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                                 runs[r].link_id);
                 col++;
             }
+            if (wl > (size_t)(width - (int)lead)) {
+                size_t off = ws;
+                while (off < i) {
+                    size_t char_start = off;
+                    size_t bytes = 0;
+                    wchar_t wc;
+                    int cells = 0;
+                    (void)tam_display_next(t, i, &off, &bytes, &wc, &cells);
+                    if (cells > 0 && col > (int)lead && col + cells > width) {
+                        out->logical_offset = run_base + char_start;
+                        linelist_push(out, &line);
+                        start_line(&line, prefix, lead, 0);
+                        col = (int)lead;
+                    }
+                    if (cells > width - col) {
+                        spanlist_append(&line, "?", 1, runs[r].style,
+                                        runs[r].href, runs[r].link_id);
+                        col++;
+                    } else {
+                        spanlist_append(&line, wc == 0xfffd ? "?" : t + char_start,
+                                        wc == 0xfffd ? 1 : bytes,
+                                        runs[r].style, runs[r].href,
+                                        runs[r].link_id);
+                        col += cells;
+                    }
+                }
+                prev = (unsigned char)t[ws + wb - 1];
+                had_space = 0;
+                continue;
+            }
             spanlist_append(&line, t + ws, wb, runs[r].style, runs[r].href,
                             runs[r].link_id);
             col += (int)wl;
             prev = (unsigned char)t[ws + wb - 1];
             had_space = 0;
         }
+        run_base += tl;
     }
+    out->logical_offset = line_offset;
     linelist_push(out, &line);
 }
 
-static void layout_pre(linelist_t *out, const tam_span_t *runs, size_t nruns)
+static void layout_pre(linelist_t *out, const tam_span_t *runs, size_t nruns,
+                       int width)
 {
+    int indent = width > 2 ? 2 : width - 1;
+    if (indent < 0) indent = 0;
     spanlist_t line;
     spanlist_init(&line);
-    spanlist_append(&line, "  ", 2, 0, NULL, 0);
+    for (int i = 0; i < indent; i++) spanlist_append(&line, " ", 1, 0, NULL, 0);
+    int col = indent;
+    size_t run_base = 0;
+    size_t line_offset = 0;
 
     for (size_t r = 0; r < nruns; r++) {
         const char *t = runs[r].text;
-        size_t tl = strlen(t);
-        size_t start = 0;
-        for (size_t i = 0; i <= tl; i++) {
-            if (i == tl || t[i] == '\n') {
-                if (i > start) {
-                    spanlist_append(&line, t + start, i - start, runs[r].style,
-                                    runs[r].href, runs[r].link_id);
-                }
-                if (i == tl) {
-                    break;
-                }
+        size_t len = strlen(t);
+        size_t off = 0;
+        while (off < len) {
+            size_t char_start = off;
+            size_t bytes = 0;
+            wchar_t wc;
+            int cells = 0;
+            (void)tam_display_next(t, len, &off, &bytes, &wc, &cells);
+            if (t[char_start] == '\n') {
+                out->logical_offset = line_offset;
                 linelist_push(out, &line);
+                line_offset = run_base + off;
                 spanlist_init(&line);
-                spanlist_append(&line, "  ", 2, 0, NULL, 0);
-                start = i + 1;
+                for (int i = 0; i < indent; i++) spanlist_append(&line, " ", 1, 0, NULL, 0);
+                col = indent;
+                continue;
+            }
+            if (cells > 0 && col + cells > width && col > indent) {
+                out->logical_offset = line_offset;
+                linelist_push(out, &line);
+                line_offset = run_base + char_start;
+                spanlist_init(&line);
+                for (int i = 0; i < indent; i++) spanlist_append(&line, " ", 1, 0, NULL, 0);
+                col = indent;
+            }
+            if (cells > width - col) {
+                spanlist_append(&line, "?", 1, runs[r].style, runs[r].href,
+                                runs[r].link_id);
+                col++;
+            } else {
+                spanlist_append(&line, wc == 0xfffd ? "?" : t + char_start,
+                                wc == 0xfffd ? 1 : bytes, runs[r].style,
+                                runs[r].href, runs[r].link_id);
+                col += cells;
             }
         }
+        run_base += len;
     }
+    out->logical_offset = line_offset;
     linelist_push(out, &line);
 }
 
@@ -1213,6 +1281,41 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                                 cell->runs[r].link_id);
                 col++;
             }
+            if (wl > (size_t)max_w) {
+                size_t off = ws;
+                while (off < i) {
+                    size_t char_start = off;
+                    size_t bytes = 0;
+                    wchar_t wc;
+                    int cells = 0;
+                    (void)tam_display_next(t, i, &off, &bytes, &wc, &cells);
+                    if (cells > 0 && col > 0 && col + cells > max_w) {
+                        if (nlines == cap) {
+                            cap = cap ? cap * 2 : 4;
+                            spanlist_t *grown = realloc(lines, cap * sizeof(*lines));
+                            if (grown == NULL) { spanlist_free(&cur); goto done; }
+                            lines = grown;
+                        }
+                        lines[nlines++] = cur;
+                        spanlist_init(&cur);
+                        col = 0;
+                    }
+                    if (cells > max_w - col) {
+                        spanlist_append(&cur, "?", 1, cell->runs[r].style,
+                                        cell->runs[r].href, cell->runs[r].link_id);
+                        col++;
+                    } else {
+                        spanlist_append(&cur, wc == 0xfffd ? "?" : t + char_start,
+                                        wc == 0xfffd ? 1 : bytes,
+                                        cell->runs[r].style, cell->runs[r].href,
+                                        cell->runs[r].link_id);
+                        col += cells;
+                    }
+                }
+                prev = (unsigned char)t[ws + wb - 1];
+                had_space = 0;
+                continue;
+            }
             spanlist_append(&cur, t + ws, wb, cell->runs[r].style, cell->runs[r].href,
                             cell->runs[r].link_id);
             col += (int)wl;
@@ -1226,8 +1329,53 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
     }
     lines[nlines++] = cur;
 
+done:
     *out_lines = lines;
     *out_nlines = nlines;
+}
+
+static void layout_table_stacked(linelist_t *out, const tam_table_t *t, int width)
+{
+    size_t header = t->nrows > 0 && t->rows[0].is_header_row ? 0 : (size_t)-1;
+    int first_item = 1;
+    for (size_t r = 0; r < t->nrows; r++) {
+        if (r == header) continue;
+        const tam_table_row_t *row = &t->rows[r];
+        if (!first_item) linelist_blank(out);
+        first_item = 0;
+        for (size_t c = 0; c < row->ncells; c++) {
+            char label[160];
+            size_t used = 0;
+            if (header != (size_t)-1 && c < t->rows[header].ncells) {
+                const tam_table_cell_t *h = &t->rows[header].cells[c];
+                for (size_t k = 0; k < h->nruns && used + 1 < sizeof(label); k++) {
+                    const char *text = h->runs[k].text != NULL ? h->runs[k].text : "";
+                    size_t n = strlen(text);
+                    if (n > sizeof(label) - used - 1) n = sizeof(label) - used - 1;
+                    memcpy(label + used, text, n);
+                    used += n;
+                }
+            } else {
+                int n = snprintf(label, sizeof(label), "Column %zu", c + 1);
+                used = n > 0 ? (size_t)n : 0;
+                if (used >= sizeof(label)) used = sizeof(label) - 1;
+            }
+            label[used] = '\0';
+            spanlist_t runs;
+            spanlist_init(&runs);
+            if (used > 0) spanlist_append(&runs, label, used, TAM_STYLE_BOLD, NULL, 0);
+            spanlist_append(&runs, ": ", 2, 0, NULL, 0);
+            const tam_table_cell_t *cell = &row->cells[c];
+            for (size_t k = 0; k < cell->nruns; k++) {
+                const tam_span_t *sp = &cell->runs[k];
+                if (sp->text != NULL)
+                    spanlist_append(&runs, sp->text, strlen(sp->text), sp->style,
+                                    sp->href, sp->link_id);
+            }
+            layout_flow(out, runs.v, runs.n, width, "");
+            spanlist_free(&runs);
+        }
+    }
 }
 
 static void layout_table(linelist_t *out, const tam_table_t *t, int width)
@@ -1261,24 +1409,10 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
         }
     }
     if (total_w > width) {
-        int excess = total_w - width;
-        while (excess > 0) {
-            int max_idx = -1;
-            int max_val = 8;
-            for (size_t c = 0; c < ncols; c++) {
-                if (col_w[c] > max_val) {
-                    max_val = col_w[c];
-                    max_idx = (int)c;
-                }
-            }
-            if (max_idx < 0) {
-                break;
-            }
-            col_w[max_idx]--;
-            excess--;
-        }
+        free(col_w);
+        layout_table_stacked(out, t, width);
+        return;
     }
-
     for (size_t r = 0; r < t->nrows; r++) {
         const tam_table_row_t *row = &t->rows[r];
         spanlist_t **cell_sub = calloc(ncols, sizeof(spanlist_t *));
@@ -1361,11 +1495,11 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
 static void layout_document(const blocklist_t *blocks, int width,
                             linelist_t *out)
 {
-    if (width < 16) {
-        width = 16;
-    }
+    if (width < 1) width = 1;
 
     for (size_t i = 0; i < blocks->n; i++) {
+        out->logical_block = i;
+        out->logical_offset = 0;
         const tam_block_t *b = &blocks->v[i];
         if (i > 0) {
             const tam_block_t *prev = &blocks->v[i - 1];
@@ -1393,7 +1527,7 @@ static void layout_document(const blocklist_t *blocks, int width,
             continue;
         }
         if (b->kind == B_PRE) {
-            layout_pre(out, b->runs, b->nruns);
+            layout_pre(out, b->runs, b->nruns, width);
             continue;
         }
         if (b->kind == B_TABLE && b->table != NULL) {
@@ -1440,14 +1574,41 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
         }
     }
 
+    layout_backing_t *backing = calloc(1, sizeof(*backing));
+    if (backing == NULL) {
+        tam_str_free(p.title);
+        blocklist_free(&p.blocks);
+        free(p.lists);
+        free(p.href);
+        return NULL;
+    }
+    backing->blocks = p.blocks;
+    memset(&p.blocks, 0, sizeof(p.blocks));
+
     linelist_t out;
     memset(&out, 0, sizeof(out));
-    layout_document(&p.blocks, width, &out);
+    layout_document(&backing->blocks, width, &out);
     if (out.n == 0) {
         linelist_push_blank(&out);
     }
 
-    tam_document_t *doc = malloc(sizeof(*doc));
+    tam_document_t *doc = calloc(1, sizeof(*doc));
+    if (doc == NULL) {
+        for (size_t i = 0; i < out.n; i++) {
+            for (size_t j = 0; j < out.v[i].nspans; j++) {
+                free(out.v[i].spans[j].text);
+                free(out.v[i].spans[j].href);
+            }
+            free(out.v[i].spans);
+        }
+        free(out.v);
+        blocklist_free(&backing->blocks);
+        free(backing);
+        tam_str_free(p.title);
+        free(p.lists);
+        free(p.href);
+        return NULL;
+    }
     const char *title = p.title ? tam_str_trim(p.title, " \t\r\n") : NULL;
     doc->title = strdup((title != NULL && title[0] != '\0') ? title : "tam");
     doc->lines = out.v;
@@ -1456,12 +1617,44 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     doc->nav_prev = p.nav_prev;
     doc->nav_up = p.nav_up;
     doc->nav_top = p.nav_top;
+    doc->layout = backing;
 
     tam_str_free(p.title);
-    blocklist_free(&p.blocks);
     free(p.lists);
     free(p.href);
     return doc;
+}
+
+static void document_lines_free(tam_line_t *lines, size_t nlines)
+{
+    for (size_t i = 0; i < nlines; i++) {
+        for (size_t j = 0; j < lines[i].nspans; j++) {
+            free(lines[i].spans[j].text);
+            free(lines[i].spans[j].href);
+        }
+        free(lines[i].spans);
+    }
+    free(lines);
+}
+
+int tam_document_reflow(tam_document_t *doc, int content_width)
+{
+    if (doc == NULL || doc->layout == NULL || content_width < 1) return -1;
+    layout_backing_t *backing = doc->layout;
+    linelist_t out;
+    memset(&out, 0, sizeof(out));
+    layout_document(&backing->blocks, content_width, &out);
+    if (out.n == 0) linelist_push_blank(&out);
+    if (out.v == NULL || out.n == 0) {
+        free(out.v);
+        return -1;
+    }
+    tam_line_t *old_lines = doc->lines;
+    size_t old_nlines = doc->nlines;
+    doc->lines = out.v;
+    doc->nlines = out.n;
+    document_lines_free(old_lines, old_nlines);
+    return 0;
 }
 
 void tam_document_free(tam_document_t *doc)
@@ -1469,19 +1662,17 @@ void tam_document_free(tam_document_t *doc)
     if (doc == NULL) {
         return;
     }
-    for (size_t i = 0; i < doc->nlines; i++) {
-        for (size_t j = 0; j < doc->lines[i].nspans; j++) {
-            free(doc->lines[i].spans[j].text);
-            free(doc->lines[i].spans[j].href);
-        }
-        free(doc->lines[i].spans);
-    }
-    free(doc->lines);
+    document_lines_free(doc->lines, doc->nlines);
     free(doc->title);
     free(doc->nav_next);
     free(doc->nav_prev);
     free(doc->nav_up);
     free(doc->nav_top);
+    if (doc->layout != NULL) {
+        layout_backing_t *backing = doc->layout;
+        blocklist_free(&backing->blocks);
+        free(backing);
+    }
     free(doc);
 }
 

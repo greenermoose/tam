@@ -3,7 +3,7 @@
 **Stage:** Develop — milestones 1–16 (command foundation, offline guide,
 orientation and explanation, installation inspection, engine enhancements,
 corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics, maintain track corpus expansion, user guide architecture & tam(1) manual page, improve track corpus expansion, native GNU info subsystem, topic guides & tam architecture, and decoupled versioning & corpus alignment), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, static Bash shell completions and build-time page revision metadata implemented; the command is at 0.28.0 and the knowledge corpus is at 0.29.0. The executable
+reading telemetry, static Bash shell completions, build-time page revision metadata, and portable incremental pager implemented; the command is at 0.29.0 and the knowledge corpus is at 0.29.0. The executable
 builds in C against an installed `libtam`, installs as `tam`, and renders the
 bundled guide itself.
 
@@ -312,6 +312,15 @@ plan/apply/verify work follows the product framework.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-17:** Pager display portability implemented as command 0.29.0.
+  The existing pager now uses terminfo capabilities, buffered row updates,
+  Unicode display-cell geometry and retained-layout reflow. Its focus uses a
+  charcoal color where supported and reverse video on the Linux console and
+  monochrome terminals. Because this is a user-visible capability, the planned
+  shell syntax dissection and installation framework milestones move to
+  0.30.0 and 0.31.0. See
+  [pager display portability](plans/pager-display-portability.md).
 
 - **2026-10-08:** Separate `tam` component repository prepared locally.
 - **2026-10-08:** Fred specified: "Bare tam should print a concise intro and

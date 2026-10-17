@@ -26,11 +26,13 @@ RPATH         ?= -Wl,-rpath,$(LIBTAM_PREFIX)/lib
 
 LDFLAGS  ?=
 LDLIBS   ?= -lz
+TERMINFO_CFLAGS ?= $(shell pkg-config --cflags ncursesw 2>/dev/null)
+TERMINFO_LIBS   ?= $(shell pkg-config --libs ncursesw 2>/dev/null || echo -ltinfo)
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/render.c src/pager.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c
-DEPS  := src/version.h src/render.h src/pager.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h
+SRC   := src/tam.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c
+DEPS  := src/version.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h
 INDEX := knowledge/index.tsv knowledge/index.json
 
 # A build from a Git checkout reports its commit in --version; packaged
@@ -48,7 +50,7 @@ CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\" -DTAM_BUILD=\"$(TAM_BUILD_ID)\"
 # The binary embeds DATADIR, the libtam rpath and the build id, so a build
 # made for one PREFIX must not be installed under another. The stamp changes
 # whenever that configuration does and forces a rebuild.
-CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS)
+CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
 .PHONY: all command corpus test test-command test-corpus check install uninstall clean FORCE
 
@@ -59,8 +61,8 @@ all: command corpus
 command: $(TAM)
 
 $(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
-		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
+		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
 $(BUILD)/config: FORCE | $(BUILD)
 	@printf '%s\n' '$(CONFIG)' | cmp -s - $@ || printf '%s\n' '$(CONFIG)' > $@

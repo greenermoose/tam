@@ -19,6 +19,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <locale.h>
 
 #include "version.h"
 
@@ -493,7 +494,6 @@ static void resolve_page(const char *root, const char *page, char *out,
 
 typedef struct {
     char *root;
-    int   width;
 } corpus_ctx_t;
 
 /* Read a corpus page and prepare it at its selected depth. `href` may carry
@@ -778,17 +778,18 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
     return doc;
 }
 
-static tam_document_t *corpus_load(void *vctx, const char *href)
+static tam_document_t *corpus_load(void *vctx, const char *href,
+                                   int content_width)
 {
     corpus_ctx_t *ctx = vctx;
     if (href == NULL || href[0] == '\0') {
         return NULL;
     }
     if (strncmp(href, "man:", 4) == 0) {
-        return tam_man_load(href + 4, ctx->width);
+        return tam_man_load(href + 4, content_width);
     }
     if (strncmp(href, "info:", 5) == 0) {
-        return tam_info_load(href + 5, ctx->width);
+        return tam_info_load(href + 5, content_width);
     }
     if (strncmp(href, "tam:explain", 11) == 0) {
         unsigned level = 0;
@@ -811,9 +812,9 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
             url_decode_in_place(topic);
         }
         if (topic[0] != '\0') {
-            return tam_topic_guide_document(ctx->root, topic, level, ctx->width);
+            return tam_topic_guide_document(ctx->root, topic, level, content_width);
         }
-        return tam_topic_keywords_document(ctx->root, level, ctx->width);
+        return tam_topic_keywords_document(ctx->root, level, content_width);
     }
     if (strncmp(href, "tam:keywords", 12) == 0) {
         unsigned level = 0;
@@ -821,7 +822,7 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
         if (q != NULL) {
             (void)tam_level_parse_arg(q + 7, &level);
         }
-        return tam_topic_keywords_document(ctx->root, level, ctx->width);
+        return tam_topic_keywords_document(ctx->root, level, content_width);
     }
     if (strncmp(href, "tam:topics", 10) == 0) {
         unsigned level = 0;
@@ -829,7 +830,7 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
         if (q != NULL) {
             (void)tam_level_parse_arg(q + 7, &level);
         }
-        return tam_topics_document(ctx->root, level, ctx->width);
+        return tam_topics_document(ctx->root, level, content_width);
     }
     if (ctx->root == NULL) {
         return NULL;
@@ -839,7 +840,7 @@ static tam_document_t *corpus_load(void *vctx, const char *href)
     if (src == NULL) {
         return NULL;
     }
-    tam_document_t *doc = tam_render_html(src, len, ctx->width);
+    tam_document_t *doc = tam_render_html(src, len, content_width);
     free(src);
     return doc;
 }
@@ -970,7 +971,6 @@ static int view_document(const char *root, const char *href, const char *src,
     if (interactive) {
         corpus_ctx_t ctx;
         ctx.root = (char *)root;
-        ctx.width = width;
         rc = tam_pager_run(doc, href, root != NULL ? corpus_load : NULL, &ctx);
     } else {
         char *text = tam_document_text(doc);
@@ -1104,8 +1104,7 @@ static int cmd_show(int n, char **args)
         if (interactive) {
             corpus_ctx_t ctx;
             ctx.root = root;
-            ctx.width = width;
-            char initial_href[64];
+                char initial_href[64];
             if (level != 0) {
                 snprintf(initial_href, sizeof(initial_href), "tam:topics?level=%s", tam_level_name(level));
             } else {
@@ -1137,8 +1136,7 @@ static int cmd_show(int n, char **args)
         if (interactive) {
             corpus_ctx_t ctx;
             ctx.root = root;
-            ctx.width = width;
-            rc = tam_pager_run(doc, page, corpus_load, &ctx);
+                rc = tam_pager_run(doc, page, corpus_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) {
@@ -1164,8 +1162,7 @@ static int cmd_show(int n, char **args)
         if (interactive) {
             corpus_ctx_t ctx;
             ctx.root = root;
-            ctx.width = width;
-            rc = tam_pager_run(doc, page, corpus_load, &ctx);
+                rc = tam_pager_run(doc, page, corpus_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) {
@@ -1367,7 +1364,6 @@ static int cmd_explain(int n, char **args)
 
         corpus_ctx_t ctx;
         ctx.root = root;
-        ctx.width = width;
         char initial_href[64];
         if (level != 0) {
             snprintf(initial_href, sizeof(initial_href), "tam:topics?level=%s", tam_level_name(level));
@@ -1400,8 +1396,7 @@ static int cmd_explain(int n, char **args)
         if (interactive) {
             corpus_ctx_t ctx;
             ctx.root = root;
-            ctx.width = width;
-            char initial_href[64];
+                char initial_href[64];
             if (level != 0) {
                 snprintf(initial_href, sizeof(initial_href), "tam:keywords?level=%s", tam_level_name(level));
             } else {
@@ -1448,7 +1443,6 @@ static int cmd_explain(int n, char **args)
     if (interactive) {
         corpus_ctx_t ctx;
         ctx.root = root;
-        ctx.width = width;
         char initial_href[512];
         char *enc_q = url_encode(query_buf);
         if (level != 0) {
@@ -1585,6 +1579,7 @@ static int cmd_search(int n, char **args)
 
 int main(int argc, char **argv)
 {
+    (void)setlocale(LC_CTYPE, "");
     if (argc <= 1) {
         print_tam_help(HELP_STANDARD);
         return 0;

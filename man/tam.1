@@ -248,6 +248,17 @@ for expert.
 .TP
 .BR q ", " Esc
 Exit the pager.
+.SH TERMINAL SUPPORT
+The interactive pager reads terminal capabilities through terminfo and updates
+only rows whose contents changed. It reflows pages after a terminal resize,
+preserving the reading position, link selection and search state. The Linux
+virtual console and monochrome terminals use reverse video for the focused
+line; terminals without usable styling continue to support navigation.
+.PP
+When standard output is not a usable terminal, the command emits plain text
+without terminal control sequences. Set
+.B NO_COLOR
+to disable color while retaining the interactive pager.
 .SH OUTPUT MODIFIERS
 .TP
 .BR \-\-pipe ", " \-p

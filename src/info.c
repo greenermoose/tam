@@ -1240,20 +1240,20 @@ static void print_info_help(void)
 
 typedef struct {
     char *root;
-    int   width;
 } info_loader_ctx_t;
 
-static tam_document_t *info_unified_load(void *vctx, const char *href)
+static tam_document_t *info_unified_load(void *vctx, const char *href,
+                                         int content_width)
 {
     info_loader_ctx_t *ctx = vctx;
     if (href == NULL || href[0] == '\0') {
         return NULL;
     }
     if (strncmp(href, "info:", 5) == 0) {
-        return tam_info_load(href + 5, ctx->width);
+        return tam_info_load(href + 5, content_width);
     }
     if (strncmp(href, "man:", 4) == 0) {
-        return tam_man_load(href + 4, ctx->width);
+        return tam_man_load(href + 4, content_width);
     }
     if (strncmp(href, "tam:topics", 10) == 0) {
         unsigned level = 0;
@@ -1261,7 +1261,7 @@ static tam_document_t *info_unified_load(void *vctx, const char *href)
         if (q != NULL) {
             level = tam_level_parse(q + 7);
         }
-        return tam_topics_document(ctx->root, level, ctx->width);
+        return tam_topics_document(ctx->root, level, content_width);
     }
     if (ctx->root != NULL) {
         char path[1024];
@@ -1269,12 +1269,12 @@ static tam_document_t *info_unified_load(void *vctx, const char *href)
         size_t len = 0;
         char *src = tam_fs_read_file(path, &len);
         if (src != NULL) {
-            tam_document_t *doc = tam_render_html(src, len, ctx->width);
+            tam_document_t *doc = tam_render_html(src, len, content_width);
             free(src);
             return doc;
         }
     }
-    return tam_info_load(href, ctx->width);
+    return tam_info_load(href, content_width);
 }
 
 int tam_cmd_info(int n, char **args)
@@ -1334,7 +1334,6 @@ int tam_cmd_info(int n, char **args)
     if (interactive) {
         info_loader_ctx_t ctx;
         ctx.root = tam_find_knowledge_root();
-        ctx.width = width;
         char initial_href[300];
         snprintf(initial_href, sizeof(initial_href), "info:%s", spec);
         rc = tam_pager_run(doc, initial_href, info_unified_load, &ctx);

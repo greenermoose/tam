@@ -25,6 +25,8 @@ typedef struct {
 typedef struct {
     tam_span_t *spans;
     size_t      nspans;
+    size_t      logical_block;
+    size_t      logical_offset;
 } tam_line_t;
 
 /* A laid-out page ready for either front end. */
@@ -36,17 +38,21 @@ typedef struct {
     char       *nav_prev;
     char       *nav_up;
     char       *nav_top;
+    void       *layout; /* private parsed blocks, retained for width reflow */
 } tam_document_t;
 
 /* Parse an HTML subset (len bytes) and lay it out to `width` columns. */
 tam_document_t *tam_render_html(const char *src, size_t len, int width);
 void tam_document_free(tam_document_t *doc);
+/* Atomically relayout a retained parsed document at the requested width. */
+int tam_document_reflow(tam_document_t *doc, int content_width);
 
 /* Plain, escape-sequence-free text rendering of a document. Caller frees. */
 char *tam_document_text(const tam_document_t *doc);
 
 /* Callback used by the pager to load another page by relative href. */
-typedef tam_document_t *(*tam_page_loader_t)(void *ctx, const char *href);
+typedef tam_document_t *(*tam_page_loader_t)(void *ctx, const char *href,
+                                             int content_width);
 
 /* Find the knowledge directory root. Returns newly allocated string or NULL. */
 char *tam_find_knowledge_root(void);
