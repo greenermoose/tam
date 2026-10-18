@@ -1,8 +1,17 @@
 # tam installation inspection — slice 4 plan
 
-**Stage:** Develop — **implemented 2026-10-09.** Milestone 4 of the
-[development plan](development.md): installation inspection (`tam install inspect`),
-command help (`tam install --help`), and contract alignment with the Tamlinux installation framework.
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Command 0.5.0 read-only host inspection.
+**Authority:** [Current development contract](development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `dd2793a`; [verification record](../ai/2026-10-09-tam-installation-inspection.md). The current verbs are top-level inspect/check. Installer plan/apply/verify remain separately deferred in the roadmap.
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](README.md).
+
+## Original design record
 
 ---
 
@@ -13,7 +22,7 @@ knowledge browser (`0.1.0`–`0.2.0`), `tam help` (`0.3.0`), and orientation and
 curated explanation (`0.4.0`).
 
 Milestone 4 connects the `tam install` entry point to the product installation
-contract defined in [`tamlinux/docs/plans/installation-framework.md`](../../../../tamlinux/docs/plans/installation-framework.md):
+contract defined in [`tamlinux/docs/plans/installation-framework.md`](../../../tamlinux/docs/plans/installation-framework.md):
 
 > - `tam install inspect` reports OS, architecture, version, package tools, and supported profile.
 > - `tam install plan --profile <profile>` prints exact changes, inputs, revisions, privileges, checkpoints, and recovery steps without changing anything.

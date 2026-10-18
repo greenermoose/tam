@@ -1,8 +1,20 @@
 # tam grounded ask — Milestone 9 plan
 
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Command 0.17.0 opt-in grounded ask.
+**Authority:** [Current development contract](development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `e929ee5`; [verification record](../ai/2026-10-14-tam-grounded-ask.md). The corpus-only grounding and opt-in boundary survive. System-manual AI retrieval is not part of the overhaul.
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](README.md).
+
+## Original design record
+
 **Component:** `tam` (this repository)  
 **Target Version:** `0.17.0` (minor bump from `0.16.0`)  
-**Stage:** Develop — Milestone 9 of the [development plan](development.md)  
 **Authority:** [development plan](development.md), [ROADMAP.md](../../ROADMAP.md), and two private design reports from 2026-10-12 (local-model ask design; help and self-inspection requirements) retained by the developer  
 **Author:** Antigravity (`agy`)
 

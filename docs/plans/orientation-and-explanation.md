@@ -1,8 +1,17 @@
 # tam orientation and explanation — slice 3 plan
 
-**Stage:** Develop — **implemented 2026-10-09.** Milestone 3 of the
-[development plan](development.md): orientation (`welcome`), successful-display
-state (`welcome_seen`), and curated explanation (`explain <topic>`).
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Command 0.4.0 welcome/orientation and original explanations.
+**Authority:** [Current development contract](development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `b01faf9`; [verification record](../ai/2026-10-09-tam-orientation-and-explanation.md). Current explanation semantics are in the development contract; the new learning paths belong to the [overhaul](knowledge-system-0.31.0.md).
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](README.md).
+
+## Original design record
 
 **Decision (Fred, 2026-10-09):**
 1. **1 combined slice** for orientation (`tam welcome`) and explanation (`tam explain <topic>`).

@@ -3,6 +3,13 @@
 Read this before you add or change a page under `knowledge/`. It supplements
 `AGENTS.md`, which covers claims, lanes, versions and provenance.
 
+Organization changes for corpus 0.31.0 follow the
+[authoritative knowledge-system plan](plans/knowledge-system-0.31.0.md).
+It replaces the seven-part/three-track design; the current corpus still has
+that old schema until the implementation migrates it. Preserve current build
+validity during migration and update this guide when the new schema lands.
+Plan/note status and closure follow [plan maintenance](plan-maintenance.md).
+
 The corpus is public product documentation. Readers trust it to describe the
 Tamlinux they are running, so the rules below are about one thing: every
 statement about Tamlinux must be true of Tamlinux, and a reviewer must be able
@@ -97,17 +104,22 @@ Readers see the text that `tam show` renders, not the HTML.
    your `docs/ai/` record, and `AI_PROVENANCE.md` while
    you edit it.
 2. Write the page from its sources. Keep a list of what you checked.
-3. Link it from its section index and from `knowledge/index.html`.
+3. Link it from its canonical section hub and appropriate learning/task routes.
+   Until the overhaul migrates the root, retain its current contents links.
+   After migration, the root links hubs and utilities, not every chapter.
 4. Run `python3 tools/build-index.py`.
 5. If a note in `docs/plans/corpus/` asked for the page, confirm each query it
-   records now finds the page (`tam explain <query>`), and mark the note done.
+   records now finds the intended page (`tam explain <query>`), and close the
+   note with version/commit and verification evidence. Update the plan index,
+   roadmap and development contract under the maintenance procedure.
 6. Bump `knowledge/version` in the same commit: minor for a new page, patch
    for a correction.
 7. Run `make corpus` and `make test-corpus`. The test runs the corpus
    checker, `tools/lint-corpus.py`; fix every line it prints. Corpus pages
    have no snapshots: read your page with `tam show --pipe` instead.
-8. Write the session record and its `AI_PROVENANCE.md` row, commit only your
-   paths, and install the development build as `AGENTS.md` describes.
+8. Write the session record and its `AI_PROVENANCE.md` row and commit only your
+   paths. Installation is a separately instructed workflow under `AGENTS.md`;
+   a content change or closed plan does not authorize a session deployment.
 
 ## Notes about missing pages
 
@@ -115,6 +127,8 @@ When the developer asks for a note rather than a page, copy
 `docs/plans/corpus/TEMPLATE.md` to `docs/plans/corpus/<topic>.md` and fill it
 in, in about twenty lines. Do not draft the page itself; the author outlines it
 when writing it.
+Add the note to `docs/plans/README.md`, with the status and next action the
+developer's request supports. Do not leave an implemented note labeled Open.
 
 ## Audits
 

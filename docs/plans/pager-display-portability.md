@@ -1,6 +1,22 @@
 # Pager display across terminals
 
-Status: proposed for review, 2026-10-17. Implementation has not started.
+**Plan status:** In progress
+**Reviewed:** 2026-10-18
+**Scope:** Command 0.29.0 portable pager implementation; packaged visual acceptance remains pending.
+**Authority:** [Implementation and verification record](../ai/2026-10-17-tam-pager-portability.md).
+**Next action:** On the developer's instruction, review an exact packaged candidate
+in the Linux console and Foot; record the candidate and results. No new source
+implementation is assigned by this remaining acceptance item.
+
+Implementation `581822a` and automated checks are recorded. Physical acceptance
+was explicitly left pending; this plan is not marked Completed without it.
+Common reader navigation changes now follow the
+[corpus 0.31.0 plan](knowledge-system-0.31.0.md). Preserve portable painting,
+geometry and reflow. The following source investigation and proposed work
+sequence describe the pre-implementation baseline, not current missing code.
+
+## Original design record
+
 Investigated command 0.28.0 at commit `041f7163963e473280a55017047349cddcc4db2c`.
 
 ## Goal and visible behavior

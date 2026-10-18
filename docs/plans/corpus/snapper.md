@@ -1,7 +1,19 @@
 # Corpus note: snapper
 
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Snapper guide in corpus 0.30.0.
+**Authority:** [Current development contract](../development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `d13c1f6` adds the page and cross-links; its commit message reports corpus build/tests passed. Those results were not rerun during this planning session. Keep the page in Maintaining under the [overhaul](../knowledge-system-0.31.0.md). Old direct-install instructions below are historical and do not authorize delivery.
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](../README.md).
+
+## Original design record
+
 - **Date:** 2026-10-18
-- **Status:** Open
 - **Asked for:** "tam explain snapper gives no results. Create a work plan to add a knowledge corpus page for snapper. Decide which section it belongs in. Do not create the page, just create the work plan for creating the page."
 - **Failed queries:**
   - `tam explain snapper` -> `tam: no topic found for 'snapper'`

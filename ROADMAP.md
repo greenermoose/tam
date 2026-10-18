@@ -1,27 +1,33 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-17. **Owner:** Fred. **Current Command Version:** `0.29.3`. **Current Corpus Version:** `0.29.0`.
-This roadmap sets the development sequence, future version numbers, and feature sets for the `tam` command and its bundled offline knowledge base. Component milestones derive from the [development plan](docs/plans/development.md) and its settled design decisions.
+**Reviewed:** 2026-10-18. **Owner:** Fred (developer).
+**Current Command Version:** `0.29.3`. **Current Corpus Version:** `0.30.0`.
+Versions above come from `src/version.h` and `knowledge/version`; future targets
+below are not delivered versions.
 
----
+This roadmap sets priority and outcome, not a second implementation specification.
+Read the [plan index](docs/plans/README.md) for status, the
+[development contract](docs/plans/development.md) for behavior/invariants, and the
+[plan maintenance procedure](docs/plan-maintenance.md) when changing any plan.
 
-## 1. Vision & Architecture
+## 1. Vision and architecture
 
-`tam` is the terminal entry point and flagship showcase command for Tamlinux. Its mission is to empower users to **Use**, **Maintain**, and **Improve** their Linux system—running entirely offline, starting in under 5 milliseconds, consuming negligible memory (<4 MB RSS), generating zero background polling daemons, and operating reliably from legacy hardware (circa-2006 laptops) up to modern multi-core workstations.
+`tam` is the terminal entry point to Tamlinux's offline knowledge system. Its
+primary journey has five parts: **Installing, Learning, Using, Maintaining,
+Improving**. Learning routes cross the shared knowledge; Beginner, Intermediate
+and Expert are reading depths. Search, Topics, Man pages, Info manuals and Help
+serve every part. Corpus 0.30.0 still has the older organization; the next
+milestone delivers this approved design.
 
-### Core Architectural Invariants
+Retain the native C/libtam reader, offline default, read-only browsing, semantic
+HTML and indexed metadata, clean pipe output, explicit opt-in boundary for local
+AI, and independent command/corpus versions. No external viewer, network fetch
+or background daemon is required for knowledge browsing. Startup/memory targets
+are goals to measure, not unconditional claims about every host or manual.
 
-1. **Strictly Offline by Default:** `tam` displays bundled documentation, parses manual pages, and inspects host state with zero network calls, zero tracking telemetry, and zero mandatory runtime daemons.
-2. **Zero External Viewers:** Interactive browsing uses an internal ANSI terminal pager (`src/pager.c`) and semantic HTML layout engine (`src/render.c`) built in C with `libtam`. `tam` never requires Lynx, Less, or an external browser.
-3. **Dual-Mode Unix Citizenship:** In an interactive terminal, `tam` presents a responsive, hyperlinked TUI. When standard output is piped or redirected (`--pipe`), `tam` emits clean, formatted plain text with an indexed link table and zero terminal escape sequences.
-4. **Input & State Safety:** Input arguments are treated strictly as data; shell metacharacters are never evaluated. State is never written without explicit user intent (`tam welcome` records `welcome_seen` atomically; bare `tam`, `show`, `search`, and `explain` are strictly read-only).
-5. **Version Contract:** Following semantic versioning in `src/version.h`, every new user-visible capability or subcommand advances the minor version (`0.y.0` → `0.y+1.0`). Patch releases (`0.y.z`) are reserved for bug fixes and internal maintenance.
+## 2. Delivered history
 
----
-
-## 2. What Has Been Done (Command 0.0.1–0.29.3; corpus 0.0.1–0.29.0)
-
-Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, pager navigation state restoration with numeric level synonyms, interactive pager depth-switching keys, and build-time Git revision and timestamp derivation:
+Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, pager navigation state restoration with numeric level synonyms, interactive pager depth-switching keys, and build-time Git revision and timestamp derivation:
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -61,173 +67,62 @@ Between 2026-10-09 and 2026-10-16, `tam` progressed rapidly through Milestones 1
 | **0.29.3** | Keep Link Boundary Spaces Unhighlighted | Done (2026-10-17) | Only spaces between visible characters in a selected hyperlink receive emphasis; layout whitespace before the link remains unhighlighted. |
 | **0.29.0 corpus** | Linux Boot Fallbacks & Rescue Routes | Done (2026-10-17) | New Maintain guide distinguishes firmware paths, alternate kernels and initramfs images, snapshot boots and external rescue media by their shared boot dependencies. |
 
----
+| **0.30.0 corpus** | Snapper guide | Done (2026-10-18) | Dedicated snapshot-management page and maintenance/recovery cross-links (`d13c1f6`). |
 
-## 3. What Needs to Be Done Next
 
-Command 0.29.3 limits selected-link space emphasis to interior spaces, leaving layout whitespace before a link unhighlighted. Command 0.29.2 keeps selected multiword hyperlinks continuously highlighted, including their spaces. Command 0.29.1 makes the currently selected hyperlink visually distinct before it is followed. Command 0.29.0 adds portable, incremental pager display and resize reflow. Corpus 0.29.0 adds Linux boot fallbacks and rescue routes. The next planned command milestones are shell syntax dissection (0.30.0) and the installation framework (0.31.0).
+## 3. What needs to be done next
 
-### Version 0.25.0 — Attention Line & Anchored Hyperlink Navigation
+**Implement [Five-part knowledge system — corpus 0.31.0](docs/plans/knowledge-system-0.31.0.md).**
+This is the one authoritative work plan, approved by the developer on 2026-10-18.
+Companion command target: **0.30.0**, for shared navigation and in-guide discovery.
+Neither version file changes during planning.
 
-- **Line Cursor & Attention Line:**
-  - Introduce an attention line cursor (`cursor_line`) in `src/pager.c` representing the user's active reading line.
-  - Subtly highlight the active attention line across the full terminal line width with a dark charcoal background tint (`\033[48;5;236m`), ensuring high contrast and zero distraction.
-  - Telemetry update: Status bar reports exact reading position `L<cursor_line + 1>/<nlines>`.
-- **Directional Link Catching:**
-  - Sweeping down (`j`, `Down`, `Space`, `PgDn`): Entering a line with hyperlinks automatically catches the **first** hyperlink on that line.
-  - Sweeping up (`k`, `Up`, `b`, `PgUp`): Entering a line with hyperlinks automatically catches the **last** hyperlink on that line.
-  - Traversing lines without links maintains selection of the previously caught link as long as it remains visible on screen.
-- **Anchored Link Cycling & Safe Activation:**
-  - Pressing `Tab`, `Shift-Tab`, or `a`/`s`/`d`/`f` advances link selection relative to the current attention line, eliminating disorienting jumps back to off-screen links.
-  - Following links (`Enter` or Right Arrow) only fires if the link is on the attention line or currently visible in the active viewport; off-screen links are never activated.
+| Order | Outcome | Completion |
+| --- | --- | --- |
+| K1 | Five-track metadata and logical page hierarchy, preserving old-corpus loading. | Index/schema/parent validation and compatibility fixtures. |
+| K2 | Common Guide/Back/Help/Quit navigation across Guide, Man and Info. | Focus, history, search, Info Up and resize/terminal behavior verified. |
+| K3 | Open arbitrary man pages, keyword/section discovery and Guide search inside tam. | Deterministic lookup/failure tests; no shell execution or noninteractive prompts. |
+| K4 | Reorganize/review all 50 pages; add hubs and learning material; rebuild paths. | Complete page mapping, reachability, depth-aware learning outcomes and query checks. |
+| K5 | Integrate command 0.30.0 / corpus 0.31.0 and prepare candidate handoff. | Both suites and integrated acceptance; package/physical-review limits recorded. |
 
----
+The plan contains exact scope, dependencies, file mapping, navigation contracts,
+acceptance cases and next-agent first steps. Start K1 in the shared clone with
+path claims. Installer execution and stateful progression are outside this work.
 
-## 4. Future Version Sequence & Feature Sets
+Separately, [portable pager display](docs/plans/pager-display-portability.md) has
+implemented source and automated tests (command 0.29.0), but exact packaged
+Linux-console and Foot visual acceptance remains pending. Only the developer
+can direct that stage/review. Do not treat it as a new source-work assignment
+or claim it passed during this planning cleanup.
 
-Following the immediate next steps, the future development of `tam` advances through system maintenance documentation, optimization guides, architectural rationale, deep physics/CS ladders, offline skills progression, and full installation framework integration.
+## 4. Deferred direction, without reserved versions
 
-```text
-  0.18.0 ──► 0.19.0 ──► 0.20.0 ──► 0.21.0 ──► 0.22.0 ──► 0.23.0 ──► 0.24.0 ──► 0.25.0 ──► 0.26.0 ──► 0.27.0 ──► 0.28.0 ──► 0.29.0 ──► 0.30.0 ──► 1.0.0
- (Ergo)    (Maintain)  (Guide)   (Improve)   (Info)    (Guides)  (Decouple)  (Cursor)   (Why)     (Depth)    (Learn)   (Parser)  (Install)   (Stable)
-```
+These remain ideas or separate dependencies, not approved implementation slices
+of corpus 0.31.0:
 
-### Version 0.24.0 — Decoupled Versioning & Knowledge Corpus Alignment
-Decouple the versioning lifecycle of the `tam` binary and offline knowledge corpus, while thoroughly aligning every corpus guide with recent subcommand contracts.
+| Direction | Boundary / prerequisite |
+| --- | --- |
+| Non-executing shell syntax dissection | A separately reviewed parser/CLI design; all input remains inert. Its previous command 0.30.0 reservation is replaced by knowledge navigation/discovery. |
+| Installer plan/apply/verify | Product installation/deployment framework and separately approved implementation. Previous command 0.31.0 reservation is withdrawn. Installing documentation must truthfully describe what exists now. |
+| Stateful `tam learn` and automated assessment | Separate opt-in state and assessment design. Guided learning in corpus 0.31.0 does not require it. |
+| Rationale, deep-system traces and CS learning | Exploratory content/commands, not committed milestones. Existing depth filtering is already implemented. Old proposed 0.26/0.27/0.28 milestones are not future reservations. |
+| Wider distribution/terminal-only profiles and stable 1.0 | Follow the product's capabilities and evidence; no promised feature set or version allocation from this roadmap. |
+| Merged full-text search over installed manuals | Separate scalability/search work. This milestone includes explicit Man keyword discovery and Info directory browsing. |
 
-- **Decoupled Command & Corpus Versioning:**
-  - `src/version.h` defines `TAM_COMMAND_VERSION` ("0.24.0").
-  - `knowledge/version` defines the corpus version ("0.24.0").
-  - Dynamic discovery via `tam_find_knowledge_root()`, reading `version` and build metadata (`.build_id`) at runtime.
-  - Dual version reporting in `tam` introduction, `tam --help`, and `tam --version`.
-- **Top-Level Command Alignment in Knowledge Corpus:**
-  - Thorough review and update of all knowledge pages to replace deprecated invocations (`tam install inspect` / `tam install check`) with top-level `tam inspect` and `tam check`.
-  - Updated `maintain/`, `install/`, `hardware/`, and `tam.html` to reflect modern check contract and health finding capabilities.
-- **Orientation Shortcuts & Ecosystem Enrichments:**
-  - Added `tam hello` and `tam hi` aliases routing to first-run orientation (`cmd_welcome`).
-  - Added 6th layer (**Fruit**) to the botanical taxonomy in `knowledge/ecosystem/terminology.html` and command variety distinctions (`*-nut`, `*-root`, `*`).
-  - Incorporated Fred's 6 Guiding Principles for Tamlinux into `knowledge/ecosystem/philosophy.html`.
-  - Added user alias guidelines and one-place-to-look principle in `knowledge/shell/index.html`.
+A future scope decision creates or updates an authoritative plan and allocates
+versions against then-current files. Do not infer a scheduling commitment from
+an old proposed sequence or a version number.
 
-### Version 0.25.0 — Attention Line & Anchored Hyperlink Navigation
-Unify viewport scrolling and hyperlink selection around an attention line (line cursor) that subtly indicates current reading focus, catches hyperlinks along human reading saccades, and anchors link navigation.
+## 5. Supersession and closure
 
-- **Attention Line Cursor:**
-  - Active line subtly tinted with charcoal background (`\033[48;5;236m`).
-  - Reading telemetry in status bar reports exact cursor line number.
-- **Directional Link Catching:**
-  - Sweeping down catches first link on line; sweeping up catches last link on line.
-  - Moving through unlinked text keeps previously caught link selected while visible.
-- **Anchored Link Cycling & Safe Activation:**
-  - `Tab`/`Shift-Tab` and `a`/`s`/`d`/`f` cycle starting from the attention line.
-  - `Enter` contract: only activates if link is on attention line or visible on screen.
+The developer's 2026-10-18 decision replaces the old seven-part contents and
+three-track organizational model with the five-part spine. The former future
+version sequence and feature-reference matrix are retired as scheduling
+authorities; delivered history above remains history. The
+[plan index](docs/plans/README.md) records every plan's disposition and links
+old designs to their successor at stable paths.
 
-### Version 0.26.0 — The "Why" Axis: Architectural Rationale & Excluded Packages
-Demystify why Tamlinux is designed the way it is, explaining not only what is included, but what is deliberately excluded.
-
-- **`tam why <topic|package>` Command:**
-  - Provide concise, evidence-based architectural rationale for core Tamlinux decisions.
-  - Uniform 4-part structure for every decision:
-    1. **Decision:** What Tamlinux chose.
-    2. **Alternatives Considered:** What else was evaluated and what merits it had.
-    3. **Tradeoffs & Evidence:** Why the alternative was rejected here (citing Virtues V01–V14 and Faults A–G).
-    4. **Reopen Trigger:** What specific technical condition would prompt reopening the choice.
-- **Excluded Packages Registry:**
-  - Explain deliberate omissions: why Sway instead of Hyprland (ABI stability), why runit instead of systemd (simplicity and deterministic speed), why native C instead of Electron/Python daemons (resource respect), why zero-polling.
-  - Provide self-determination install routes: clear instructions on how users can install excluded packages if they choose.
-- **Public Rationale Projection:**
-  - Build-time tool generating the published rationale pages from reviewed decision summaries.
-
-### Version 0.27.0 — The "Depth" Axis & Computer Science Fundamentals
-Enable users to interrogate their system and descend from observable desktop behavior down to fundamental physics and computer science theory.
-
-- **Progressive Depth Descent (`tam deeper` / `tam depth`):**
-  - Interactively descend through abstraction layers one rung at a time:
-    $$\text{User Action} \rightarrow \text{Application} \rightarrow \text{OS/Syscall} \rightarrow \text{Kernel/Driver} \rightarrow \text{ISA/Machine Code} \rightarrow \text{Microarchitecture} \rightarrow \text{Logic Gates} \rightarrow \text{Transistors} \rightarrow \text{Solid-State Physics} \rightarrow \text{Electromagnetism} \rightarrow \text{Quantum Fields}$$
-  - Each rung explicitly defines: (1) what it explains, (2) what it treats as a black box, and (3) the link to the next rung down.
-- **Guided System Traces (`tam trace <journey>`):**
-  - `tam trace keystroke-to-pixel`: From key switch contact bounce, through USB HID / interrupt, `evdev`, compositor dispatch, GPU rasterization, to display refresh.
-  - `tam trace source-to-electricity`: From C source code tokens, compiler IR, assembly, linked ELF binary, virtual memory page loading, CPU execution pipelines, CMOS voltage switching, to electron flow.
-- **Computer Science Fundamentals Track (`knowledge/cs/`):**
-  - Practical theory framed around **Possible / Impossible / Expensive**: computability (undecidable limits), complexity (tractable vs intractable), data representation (two's complement, IEEE-754 floating point rounding), memory hierarchy, and concurrency. Grounded directly in the user's host hardware (`lscpu`, cache topology, RAM bandwidth).
-
-### Version 0.28.0 — Offline Skills Progression & Self-Paced Learning (`tam learn`)
-Provide self-paced, offline skill building that uses the Milestone 8 inspection engine as an objective assessment oracle.
-
-- **Opt-in Progress State:**
-  - Stores local learning progress in `$XDG_STATE_HOME/tamlinux/progress` (following the `welcome_seen` design). Zero network tracking or remote telemetry.
-- **Hands-on Verification Tasks:**
-  - Pairs Intermediate fading template tasks with automated checks: e.g. "Create a background pipeline that filters logs" $\rightarrow$ `tam learn verify` probes system state using the Check Contract.
-  - Provides hints without spoiling answers, guiding users toward mastery of command-line tools and system navigation.
-
-### Command Version 0.30.0 — Safe Command-Line Syntax Dissection
-Extend `tam explain` to safely parse and explain compound shell commands, pipelines, and redirection.
-
-- **Non-Executing Analytical Lexer:**
-  - Safely tokenizes shell pipelines: command names, subcommands, option flags, arguments, redirects (`>`, `>>`, `2>&1`, `<`), and pipe chains (`|`).
-  - Explains execution flow, data routing between standard streams, and file modifications in plain language.
-  - Treats all input strictly as inert text data; never passes input to `/bin/sh` or evaluates expressions.
-
-### Version 0.31.0 — Installation Framework Integration (`tam install plan/apply/verify`)
-Complete the installation framework contract by connecting `tam install` to the product deployment engine.
-
-- **`tam install plan --profile <profile>`:**
-  - Evaluates host capabilities (from Milestone 4/8 inspection) and generates a reproducible, human-readable execution plan detailing exact package inputs, config files, required privileges, and Btrfs snapshot checkpoints without altering the system.
-- **`tam install apply --profile <profile>`:**
-  - Executes a reviewed plan with verified checkpoints and instant rollback hooks.
-- **`tam install verify`:**
-  - Post-installation verification auditing installed packages, checksums, system services, and desktop integration.
-- **Profile Support:**
-  - Arch with Hyprland (`arch-hyprland`), Arch with Sway (`arch`), and Void Linux (`void`).
-
-### Version 1.0.0 — The Stable Showcase Release
-Consolidate `tam` into a production-hardened, fully documented system utility.
-
-- **Complete Tripartite Knowledge Hub:**
-  - Exhaustive Use, Maintain, and Improve knowledge base covering the full Tamlinux workstation experience.
-- **Rock-Solid Foundation:**
-  - Dynamic man-page conversion with seamless cross-referencing, in-pager keyword search, progressive depth ladders, and offline self-inspection.
-  - Full test coverage across interactive PTY fixtures, snapshot comparisons, and memory safety checks (Valgrind/AddressSanitizer clean).
-- **Packaging Parity:**
-  - Stable binary and man page packaging across Arch Linux (`PKGBUILD`), Nix (`tamlinux-packages`), and Void Linux (`xbps-src`).
-
----
-
-## 5. Beyond 1.0: Multi-Distribution & Minimal Hardware
-
-Following 1.0.0, `tam` evolves alongside the broader Tamlinux roadmap to support secondary distributions and resource-constrained machines:
-
-| Version | Milestone Target | Focus & Feature Set |
-| :--- | :--- | :--- |
-| **1.1.0** | Gate C: Another Distribution | Adapt host inspection (`tam install inspect`), capability detection, and package tool wrappers for additional distributions (Debian, Fedora, Ubuntu) running systemd. |
-| **1.2.0** | Gate D: Void Linux Pilot | Native inspection and documentation for the minimal Void Linux base: `runit` service supervision, `xbps` package querying, Btrfs subvolume rollback checks, and `musl` vs `glibc` reporting. |
-| **1.3.0** | Repeatability & Terminal Profile | Dedicated terminal-only profile for legacy hardware (<512 MB RAM, circa-2006 processors, 32-bit architectures): ultra-compact memory footprint, terminal workspace cheatsheets, and headless administration guides. |
-
----
-
-## 6. Version & Feature Reference Matrix
-
-| Version | Milestone / Theme | Primary Subcommands & Surfaces | Key Deliverables |
-| :--- | :--- | :--- | :--- |
-| **0.18.0** | Milestone 10: Navigation & Output Ergonomics | `src/pager.c`, `tam explain topics`, output modifiers | Quick Guide index return (`` ` ``) with history, Goldilocks screen budget (explain ≤15, help ≤20 lines), interactive topics pager, `--terse`/`--verbose`. |
-| **0.19.0** | Maintain Track Knowledge | `knowledge/maintain/` | Updates, Btrfs rollbacks, logs (`journalctl`/`dmesg`), power ladder, REISUB. |
-| **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | `knowledge/index.html`, `man/tam.1`, `src/` | 7-part User Guide TOC, botanical analogy, UNIX tam(1) man page, tam show topics routing. |
-| **0.21.0** | Improve Track Knowledge | `knowledge/improve/` | Zero-polling, ZRAM compression, `micro` autoreload, `tam-*` vs `fred-*`, AI tokens/s physics. |
-| **0.22.0** | Native GNU Info Subsystem | `tam info`, `src/info.c` | Top-level Info dir browser, manual/node lookup, native tag-table parser, hyperlinked menus and cross-references, `bin/tam-info`. |
-| **0.23.0** | Topic Guides & tam Architecture | `tam explain`, `tam show tam`, `knowledge/tam.html` | Dynamic topic guides for `tam explain`, pager topic keywords list, dedicated `tam.html` page covering C code, Makefile targets, libraries, and Tamlinux release cycle. |
-| **0.24.0** | Decoupled Versioning & Knowledge Corpus Alignment | `tam`, `knowledge/`, `tam hello`, `tam hi` | Decoupled command (`src/version.h`) and corpus (`knowledge/version`) versions; dual version reporting; top-level `tam inspect` and `tam check` alignment across corpus; botanical Fruit layer; Fred's 6 guiding principles. |
-| **0.25.0** | Attention Line & Anchored Navigation | `src/pager.c` | Line cursor / attention line, charcoal background tint (`\033[48;5;236m`), directional link catching (down->first, up->last), anchored Tab navigation, safe Enter activation contract. |
-| **0.26.0** | Architectural Rationale ("Why") | `tam why <topic>` | Dedicated top-level subcommand, 4-part rationale structure (decision, alternatives, tradeoffs, reopen triggers), excluded packages registry. |
-| **0.27.0** | Fundamental Physics & CS Depth | `tam deeper`, `tam depth`, `tam trace` | 11-rung descent ladder down to quantum fields, guided traces (`keystroke-to-pixel`, `source-to-electricity`), CS theory track. |
-| **0.28.0** | Offline Skills Progression | `tam learn`, `tam learn verify` | Opt-in `$XDG_STATE_HOME` progress tracking, automated offline task assessment using check contract. |
-| **0.29.0** | Portable Pager Display | `src/pager.c`, `src/render.c` | Terminfo capability profiles, incremental row painting, Unicode cell geometry, retained-layout resize reflow, and terminal-safe fallbacks. |
-| **0.29.1** | Selected Link Focus | `src/pager.c` | Bold reverse video distinguishes the selected hyperlink; underline remains the fallback when reverse video is unavailable. |
-| **0.29.2** | Highlight Selected Link Spaces | `src/pager.c` | Applies selected-link emphasis to whitespace inside the hyperlink while preserving unselected-link leading-space behavior. |
-| **0.29.3** | Keep Link Boundary Spaces Unhighlighted | `src/pager.c` | Restricts selected-link whitespace emphasis to spaces with non-space link text on both sides. |
-| **0.30.0 command** | Shell Syntax Dissection | `tam explain <command-line>` | Planned analytical non-executing shell parser explaining compound pipelines, redirects, and flags. |
-| **0.31.0** | Installation Framework | `tam install plan/apply/verify` | Full installer contract implementation for `arch-hyprland`, `arch`, and `void`. |
-| **1.0.0** | Stable Showcase Release | Complete command suite | Production release, unified knowledge graph, stable `libtam` ABI, multi-distro packages. |
-| **1.1.0** | Multi-Distribution Adapter | `tam install inspect` | Host inspection across systemd distributions (Debian, Fedora, Ubuntu). |
-| **1.2.0** | Void Linux Native Base | `tam install inspect`, `knowledge/` | Native Void + runit + Btrfs + seatd inspection and guides; musl/glibc analysis. |
-| **1.3.0** | Minimal Hardware Profile | Terminal-only profile | Sub-512MB RAM optimizations, legacy/32-bit guides, headless administration. |
-
+Plans close only with evidence or an explicit replacement/retirement. Update
+this roadmap, the development contract and index together whenever scope or
+completion changes. No plan update moves Test, Run or Release or changes the
+package-only delivery rule.

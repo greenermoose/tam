@@ -1,7 +1,19 @@
 # Corpus note: Linux fallback and rescue routes
 
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Boot fallback/rescue guide in corpus 0.29.0.
+**Authority:** [Current development contract](../development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `b9c17ed`, index `9de0735`; [verification record](../../ai/2026-10-17-tam-linux-fallback-rescue.md). Keep the page in Maintaining under the [overhaul](../knowledge-system-0.31.0.md).
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](../README.md).
+
+## Original design record
+
 - **Date:** 2026-10-17
-- **Status:** Written in corpus 0.29.0
 - **Asked for:** “Add a page or series of pages to the corpus that explains the concepts of Linux fallback and rescue route. This is different from the emergency topic already in the corpus.”
 - **Failed queries:** `tam explain 'Linux fallback'` returned distro choice, filesystem hierarchy, beginner guide and virtual-console pages; it does not explain boot fallbacks. `tam explain 'rescue route'` returned only Emergency Disaster Recovery. `tam explain 'boot recovery'` returned the boot, emergency, logs and maintenance index pages without a guide to choosing recovery routes.
 - **Proposed page:** `knowledge/maintain/boot-recovery.html`, one Maintain page linked from `maintain/index.html`, `knowledge/index.html`, `maintain/boot.html` and `maintain/recovery.html`. The boot page teaches boot stages and image generation; the emergency page teaches regaining control and live-USB repair. This page teaches how to reason about recovery paths and their dependencies.

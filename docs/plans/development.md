@@ -1,15 +1,22 @@
 # tam development plan
 
-**Stage:** Develop — milestones 1–16 (command foundation, offline guide,
-orientation and explanation, installation inspection, engine enhancements,
-corpus index and search, content-depth ladder and fading templates, read-only self-inspection findings and check contract, opt-in grounded ask, navigation & output ergonomics, maintain track corpus expansion, user guide architecture & tam(1) manual page, improve track corpus expansion, native GNU info subsystem, topic guides & tam architecture, and decoupled versioning & corpus alignment), link navigation, hyperlink display fixes, in-pager text search,
-reading telemetry, static Bash shell completions, build-time page revision metadata, portable incremental pager, stronger selected-link focus, continuous selected-link emphasis, and link-boundary whitespace handling implemented; the command is at 0.29.3 and the knowledge corpus is at 0.29.0. The executable
-builds in C against an installed `libtam`, installs as `tam`, and renders the
-bundled guide itself.
+**Plan status:** Active
+**Reviewed:** 2026-10-18
+**Scope:** Living integration contract; current command 0.29.3 and corpus 0.30.0.
+**Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
+[plan index](README.md), and [corpus 0.31.0 work plan](knowledge-system-0.31.0.md).
+**Next action:** Integrate the overhaul's K1 hierarchy/index contract, then its
+ordered navigation, discovery and corpus slices. Implementation has not started.
+
+**Stage:** Develop. Milestones 1–16 and later reader improvements have landed.
+The current corpus remains organized under the older model until the approved
+corpus 0.31.0 overhaul is implemented. Maintain this living contract using the
+[plan maintenance procedure](../plan-maintenance.md); closed plans are historical.
 
 ## Purpose and ownership
 
-Give users one useful entry point to learn, maintain and improve Tamlinux,
+Give users one useful entry point for installing, learning, using, maintaining
+and improving Tamlinux,
 including offline and before the graphical desktop is running.
 
 This repository owns the C command, bundled knowledge, tests and component
@@ -19,14 +26,19 @@ framework. Existing component tools retain their owners; document or call them
 through deliberate subcommand contracts rather than moving every `tam-*`
 helper into this repository.
 
-The corpus's journey spine is the three tracks — **Use**, **Maintain** and
-**Improve** — while lookup for people who already know the word is a separate,
-cross-cutting topic index plus a search surface (the two-axis model). The
-2026-10-12 `tam` help and self-inspection requirements are the authority for
-milestones 6–9 below. The private decision ledger remains authoritative for the
-reasoning; this repository carries the public, publishable projection. The
-`why`/depth axes and a computer-science track are exploratory ideas only and are
-listed under [Excluded and deferred work](#excluded-and-deferred-work).
+The approved journey spine has five parts — **Installing, Learning, Using,
+Maintaining, Improving**. Topic lookup/search and Guide/Man/Info reference access
+are shared utilities; Beginner, Intermediate and Expert are independent reading
+depths. Learning routes reuse pages across all parts. Each page has one primary
+home, with contextual links elsewhere. The current corpus 0.30.0 still uses the
+three-track/seven-part arrangement. The
+[corpus 0.31.0 plan](knowledge-system-0.31.0.md) is the sole implementation
+authority for replacing it, including metadata, common navigation and arbitrary
+manual lookup inside the reader. Companion command target is 0.30.0.
+
+The 2026-10-12 requirements describe historical milestones 6–9; later decisions
+below record their evolution. Rationale/depth commands, stateful learning and
+installer execution remain deferred unless the developer assigns new work.
 
 ## Repository layout and workstream lanes
 
@@ -34,8 +46,8 @@ The repository has two independently developable workstreams:
 
 - **Command (`src/`, `bin/`, `completions/`, `man/`)** — the C program that
   renders the corpus and links `libtam`, with its manual page.
-- **Corpus (`knowledge/`, `tools/`, `tests/snapshots/`)** — the authored
-  semantic HTML, the index generator, and the golden snapshots.
+- **Corpus (`knowledge/`, `tools/`, `tests/test_lint_corpus.py`)** — the authored
+  semantic HTML, index generation and corpus checks. Corpus pages have no snapshots.
 
 They are separate at the source and runtime levels: the binary loads its
 corpus from `TAM_KNOWLEDGE_DIR` or the installed `DATADIR`, so a corpus edit
@@ -72,8 +84,8 @@ Build targets follow the lanes:
 | `tam explain` | Implemented | Always launch the built-in pager displaying the dynamic list of all topic keywords from corpus metadata (or clean text when piped). |
 | `tam explain <topic>` | Implemented | Always display a dynamic topic guide for `<topic>` in the built-in pager (or clean text when piped), listing all matching pages with each page explained. Never takes you directly to a page. |
 | `tam explain topics` | Implemented | Interactive hyperlinked topic browser in pager (or clean text when piped); supports `--level LEVEL`, `--terse` (slugs only for pipes/scripts), and `--verbose` (exhaustive keywords/summaries). |
-| `tam inspect` | Implemented | Read-only host facts, capability detection, and system health findings (`tam install inspect` remains supported). Supports `--json`, `--check [ID]`. |
-| `tam check [ID]` | Implemented | Structured offline Check Contract evaluation against system diagnostic probes (`tam install check` remains supported). Supports `--json`, `--terse`. |
+| `tam inspect` | Implemented | Read-only host facts, capability detection, and system health findings (the old `tam install inspect` form is retired). Supports `--json`, `--check [ID]`. |
+| `tam check [ID]` | Implemented | Structured offline Check Contract evaluation against system diagnostic probes (the old `tam install check` form is retired). Supports `--json`, `--terse`. |
 | `tam man [SECTION] PAGE` | Implemented | System manual page, converted from roff to semantic HTML with hyperlinked cross-references; a surface separate from the corpus. |
 | `tam info [MANUAL [NODE]]` | Implemented | System GNU Info manual, converted from Info format to semantic HTML with hyperlinked node hierarchy, menus, and cross-references; opens top-level dir or specific manual/node in pager. (Milestone 14, tam 0.22.0). |
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
@@ -108,14 +120,15 @@ when introducing the dependency. Begin with a small Makefile and documented
 development dependency paths. Builds must not modify a sibling library
 checkout as a hidden side effect.
 
-Ship semantic HTML with relative local links and matching readable text.
-Start with the guide index, welcome, installation overview, shell pipelines
-and man-page basics. Keep HTML/text parity checked as the corpus grows.
-Verified component behavior supplies later plugin and AI pages.
+Ship semantic HTML with corpus-root-relative local links; readable text is
+derived at runtime from the same source. Corpus pages have no golden snapshots.
+Renderer fixtures do. Verify component behavior before documenting it.
 
 Author topic metadata in the pages themselves and project it into a small
 corpus index artifact at build time: each page declares a title, a one-line
-summary and its keywords, plus authoring-only level, track and prerequisites.
+summary and its keywords, plus level, track and prerequisites. These fields
+also drive reader-visible filtering and navigation. The overhaul adds logical
+parent metadata and five tracks; its specification is not current 0.30.0 behavior.
 The index is the single lookup authority for `search` and `explain`; it replaces
 the hand-written keyword table in `src/tam.c` and keeps the existing aliases and
 the explain catalog as projections of that one source. The index must load once
@@ -150,8 +163,8 @@ reported by `--version`. Follow semantic versioning and **bump the version in
 the same change that adds a feature**:
 
 - **Minor** (`0.y.0` → `0.y+1.0`): any new feature or user-visible capability
-  (a new subcommand, a new output mode, new bundled content). While the major
-  is `0`, new features take the minor bump.
+  (a new subcommand or output mode). Corpus content versions independently.
+  While the major is `0`, new features take the minor bump.
 - **Patch** (`0.y.z` → `0.y.z+1`): backwards-compatible fixes and internal
   changes with no new capability.
 - **Major**: reserved; not used before `1.0.0`.
@@ -162,13 +175,18 @@ version that shipped at the time; do not rewrite them.
 
 The corpus version lives only in `knowledge/version` and follows the same
 rules for corpus content: new pages or chapters take the minor bump,
-corrections take the patch bump. A corpus release changes nothing in the
+corrections take the patch bump. A corpus-only release changes nothing in the
 command lane: `tests/run.sh` reads the expected corpus version from
 `knowledge/version`, `tests/guide.sh` discovers every page under
 `knowledge/`, and `TAM_DEFAULT_CORPUS_VERSION` in `src/version.h` is only
 the `unversioned` label shown for a corpus that has no version file.
 
-## Milestones
+## Historical delivered milestones
+
+These entries record the behavior and vocabulary at delivery time. For current
+commands use the contract above; for new work use the overhaul. Original plans
+are retained with explicit dispositions in the plan index. Historical text
+about snapshots, aliases or deployment is not a current operating procedure.
 
 1. **Command foundation — done (2026-10-09).** Bare introduction, help,
    version and argument errors are implemented; the build links an installed
@@ -265,25 +283,25 @@ plan is the public projection and is revised when those decisions are recorded.
 The first slice developed independently of desktop migration. Later installer
 plan/apply/verify work follows the product framework.
 
-## Excluded and deferred work
+## Current implementation and deferred work
 
-- **Installer `plan`/`apply`/`verify`.** Follows the product installation
-  framework; still deliberately unimplemented here.
-- **Stateful progression UI (`tam learn`).** Design only for now; it depends on
-  the milestone-8 inspector as its oracle and would use opt-in XDG state on the
-  `welcome_seen` pattern.
-- **`why` and depth axes, and a computer-science track.** Exploratory ideas; by
-  Fred's 2026-10-09 priorities they follow the "Use" foundation rather than pre-empt it. Not committed
-  scope.
-- **Fuzzy auto-redirect.** Rejected: fuzzy matches are shown, never applied.
-- **Compound shell parsing, `tam ai` hardware estimates, writable settings and
-  localisation.** Separate scope, each with its own review.
-- **External browser or pager.** Dropped: the native renderer and pager are
-  self-sufficient with zero external dependencies.
-- **Upcoming corpus additions (TTY and VT guide).** A dedicated knowledge page
-  covering the TTY subsystem, Linux virtual consoles (VTs), pseudo-terminals
-  (PTYs), and DRM/KMS seat handover is planned for the knowledge corpus; see
-  the note and plan in [corpus-ttys-and-vts.md](corpus-ttys-and-vts.md).
+The next implementation is the five-slice
+[knowledge-system overhaul](knowledge-system-0.31.0.md), targeting corpus 0.31.0
+and companion command 0.30.0. That plan owns the complete content mapping,
+common reader navigation, in-guide Man/Guide search and acceptance matrix.
+No runtime behavior or component version is changed by approving the plan.
+
+Deferred work has no reserved command version: installer plan/apply/verify,
+stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
+expanded CS content, AI hardware estimates, writable settings, localisation and
+wider distribution profiles. See the roadmap for dependencies. Fuzzy
+matches remain suggestions; external viewers remain unnecessary. TTY/VT,
+boot-rescue and Snapper pages have already landed (corpus 0.27.0, 0.29.0 and
+0.30.0 respectively); they are not future page requests.
+
+Package delivery and Test/Run/Release follow developer-controlled stages.
+Physical Linux-console/Foot acceptance left open by the pager portability
+record remains explicit in that plan and the index; it is not silently closed.
 
 ## Acceptance evidence
 
@@ -313,6 +331,22 @@ plan/apply/verify work follows the product framework.
 
 ## Decision record
 
+Entries are dated historical decisions; the current sections and roadmap above
+resolve superseded schedules. Do not execute a former plan from this history.
+
+- **2026-10-18:** The developer approved Installing, Learning, Using, Maintaining,
+  Improving as the spine, Learning routes through shared pages, and arbitrary
+  man lookup within the guide. Corpus target 0.31.0 and companion command target
+  0.30.0 are owned by [one work plan](knowledge-system-0.31.0.md). The seven-part
+  contents and three-track design are superseded. Parser/installer version
+  reservations are withdrawn; those features remain deferred.
+- **2026-10-18:** Adopted [plan maintenance](../plan-maintenance.md): explicit
+  status/evidence/replacement, stable historical addresses, complete plan index,
+  synchronized roadmap/current contract, and a handoff in the owning plan.
+- **2026-10-18:** Reconciled the current corpus to 0.30.0 (`d13c1f6`, Snapper).
+  No version bump, code change, deployment or visual acceptance in this planning
+  session. Pager portability physical acceptance remains pending.
+
 - **2026-10-17:** Command 0.29.3. Only whitespace with non-space hyperlink
   text on both sides receives selected-link emphasis. This keeps the layout
   separator before a hyperlink outside the highlighted region.
@@ -333,7 +367,7 @@ plan/apply/verify work follows the product framework.
   monochrome terminals. Because this is a user-visible capability, the planned
   shell syntax dissection and installation framework milestones move to
   0.30.0 and 0.31.0. See
-  [pager display portability](plans/pager-display-portability.md).
+  [pager display portability](pager-display-portability.md).
 
 - **2026-10-08:** Separate `tam` component repository prepared locally.
 - **2026-10-08:** Fred specified: "Bare tam should print a concise intro and

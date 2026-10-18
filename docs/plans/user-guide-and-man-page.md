@@ -1,6 +1,16 @@
 # tam User Guide Table of Contents and Manual Page Plan
 
-**Stage:** Develop — Proposed. Milestone for `tam` command and knowledge base.
+**Plan status:** Superseded
+**Reviewed:** 2026-10-18
+**Scope:** Seven-part contents and three-track knowledge organization, originally delivered in command/corpus 0.20.0.
+**Authority:** [Developer-approved overhaul](knowledge-system-0.31.0.md).
+**Next action:** Follow the replacement plan; no implementation from this snapshot.
+**Replacement:** [Corpus 0.31.0 knowledge-system plan](knowledge-system-0.31.0.md).
+
+> The replacement owns the five-part spine, logical homes, learning routes and common reference entrances. Retain the implemented man page, terminology and topic links, revising them under that plan. Implementation of the earlier milestone is `a1a08ab`.
+> The body below is historical and does not override the replacement.
+
+## Original design record
 
 ---
 

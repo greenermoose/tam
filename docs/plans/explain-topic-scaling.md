@@ -1,7 +1,16 @@
 # Scaling Plan: Explainable Topics in tam
 
-**Stage:** Plan & Reference. Companion to [orientation and explanation](orientation-and-explanation.md)
-and [development plan](development.md).
+**Plan status:** Superseded
+**Reviewed:** 2026-10-18
+**Scope:** Pre-index scaling phases and domain/CLI proposals.
+**Authority:** [Developer-approved overhaul](knowledge-system-0.31.0.md).
+**Next action:** Follow the replacement plan; no implementation from this snapshot.
+**Replacement:** [Corpus 0.31.0 knowledge-system plan](knowledge-system-0.31.0.md).
+
+> The replacement owns discovery and five-track presentation. Preserve implemented corpus indexing/search and the current show/explain separation. Unimplemented domain flags, topic-count thresholds, automatic page redirects and dynamic completion proposals below are withdrawn as assignments; they require a new scope decision.
+> The body below is historical and does not override the replacement.
+
+## Original design record
 
 > **Revised in part (2026-10-12).** Milestones 6–9 of the
 > [development plan](development.md) supersede parts of this roadmap. The single

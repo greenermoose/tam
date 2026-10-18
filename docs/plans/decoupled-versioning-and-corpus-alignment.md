@@ -1,6 +1,18 @@
 # Plan: Decoupled Versioning and Knowledge Corpus Alignment
 
-**Status:** Approved & Implemented (2026-10-15)  
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Command/corpus 0.24.0 independent versioning and then-current alignment.
+**Authority:** [Current development contract](development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `a8cc06a`; [verification record](../ai/2026-10-15-tam-decoupled-versioning-and-corpus-alignment.md). Independent versioning survives. Alignment and organization for corpus 0.31.0 belong to the [overhaul](knowledge-system-0.31.0.md).
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](README.md).
+
+## Original design record
+
 **Command Version:** `0.24.0`  
 **Corpus Version:** `0.24.0`  
 **Milestone:** 16  

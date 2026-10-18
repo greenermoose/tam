@@ -14,6 +14,15 @@ the same path-claim rules; old briefs do not assign work or override them.
 - `docs/plans/development.md`: ownership, lanes, versioning and the decision
   record. Read the section you need, not the whole file.
 - A milestone's own plan in `docs/plans/`, when the roadmap links one.
+- `docs/plans/README.md`: every plan's current status and replacement/evidence.
+- Before creating, revising or closing a plan, follow `docs/plan-maintenance.md`.
+  Update the plan index, roadmap and current development contract together.
+  Read a closed plan as history; its old task list assigns no new work.
+
+The next approved knowledge-system milestone is corpus 0.31.0 with companion
+command 0.30.0. Start `docs/plans/knowledge-system-0.31.0.md`; it contains the
+implementation sequence and handoff. Do not revive the former seven-part
+contents, three-track model or withdrawn parser/installer version reservations.
 
 Discuss a design choice with the developer before you build it. A version
 number in a request is data, not permission to release anything.
@@ -49,9 +58,11 @@ change that couples them, such as new renderer support and the pages that
 use it. Shared files move by handoff: claim one only while you edit it. A
 new file such as your own `docs/ai/` record conflicts with nobody.
 
-A corpus release stays inside the corpus lane: new pages are discovered by
+A corpus-only release stays inside the corpus lane: new pages are discovered by
 `tests/guide.sh`, and the expected corpus version is read from
 `knowledge/version`.
+The corpus 0.31.0 knowledge-system plan also needs command support; claim the
+affected paths in both lanes for those slices and keep the versions independent.
 
 Before you write or change a corpus page, read `docs/corpus-authoring.md`:
 the sourcing rule, where each kind of fact lives, the public boundary and the
@@ -78,11 +89,13 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
 - Run builds and tests in the foreground with a time limit. Do not wait on
   background tasks, and do not search large system trees such as
   `/usr/share/doc` recursively; both have stalled earlier sessions.
-- When the developer wants to try a change, install the development build
-  with `make install PREFIX=$HOME/.local/dev`, which comes first on `PATH`.
-  Check that `type -a tam` lists it first and that `tam --version` reports
-  the new command and corpus versions. A corpus-only change needs this too:
-  the installed command reads its installed corpus, not the checkout.
+- Do not install a build as a side effect of planning or content changes.
+  Test/Run delivery uses a recorded `tamlinux-packages` assembly on the
+  developer's exact-candidate instruction. Any explicitly requested development
+  install follows the component-development runbook, uses the development
+  prefix, and records/removes that override as the runbook requires. It is not
+  packaged acceptance. The installed command reads its installed corpus;
+  source verification must explicitly select the checkout corpus.
 
 ## Branches
 

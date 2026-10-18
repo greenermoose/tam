@@ -1,6 +1,18 @@
 # tam GNU Info Subsystem Plan
 
-**Stage:** Plan — Milestone 14 for `tam` command and system documentation.  
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Command 0.22.0 native Info reader.
+**Authority:** [Current development contract](development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `a5a3b4f`; [verification record](../ai/2026-10-15-tam-gnu-info-subsystem.md). Parsing and Info URIs survive; the [overhaul](knowledge-system-0.31.0.md) replaces the three-track presentation and adds common navigation/discovery. Original host catalog counts below are historical.
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](README.md).
+
+## Original design record
+
 **Owner:** Fred.  
 **Target Version:** `tam 0.22.0`.  
 

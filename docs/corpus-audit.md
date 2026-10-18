@@ -51,6 +51,9 @@ audit finds what the checker cannot:
    bindings, login, packaging and paths against "Where facts live" in
    `docs/corpus-authoring.md`. Check keybindings against the product
    bindings, never the live desktop. Flag planned work written as current.
+   Use the current plan index and contract, not a historical plan's task list.
+   Corpus 0.31.0's organization and learning review follows its authoritative
+   plan; it does not replace this independent factual audit.
 3. **Unsupported claims.** Every sentence saying what Tamlinux chose, uses,
    evaluated or rejected needs a source. Flag those without one.
 4. **Recorded checks.** Pick three recent session records and confirm that

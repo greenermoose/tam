@@ -18,6 +18,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-18 | Plan corpus 0.31.0 five-part knowledge system; reconcile and maintain plans; implementation handoff | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-18-tam-knowledge-overhaul-planning.md) |
 | 2026-10-16 | Retire delegation; direct developer assignments and independent audit selection | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-16-retire-delegation.md) |
 | 2026-10-08 | Local repository scaffold and command contract | Codex CLI 0.162.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-08-tam-repository-and-command-contract.md) |
 | 2026-10-09 | Command foundation 0.0.1 (intro, `--help`, `--version`) | opencode 1.18.35; `big-pickle` | [Session record](docs/ai/2026-10-09-tam-command-foundation.md) |

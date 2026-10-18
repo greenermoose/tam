@@ -1,8 +1,17 @@
 # tam offline guide — slice 2 plan
 
-**Stage:** Develop — **implemented 2026-10-09.** Milestone 2 of the
-[development plan](development.md): the offline guide (`browse`, `--pipe`,
-corpus lookup and the viewer).
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Command 0.1.0 offline reader, later navigation fixes.
+**Authority:** [Current development contract](development.md) and the evidence below.
+**Next action:** None for this closed plan; follow the current roadmap.
+**Completion evidence:** Implementation `51f43f6`; [verification record](../ai/2026-10-09-tam-offline-guide.md). Native rendering survives; organization and common navigation now follow the [overhaul](knowledge-system-0.31.0.md).
+
+> Historical design snapshot. This plan is closed; its original work items do
+> not assign further implementation. Current behavior belongs to the development
+> contract and current scope to the [plan index](README.md).
+
+## Original design record
 
 **Decision (Fred, 2026-10-09):**
 

@@ -1,6 +1,18 @@
 # Plan: Topic Guides, Metadata Topic Keywords, and tam Architecture
 
-**Status:** Approved & Implemented (2026-10-15)  
+**Plan status:** Completed
+**Reviewed:** 2026-10-18
+**Scope:** Command 0.23.0 topic guides and command architecture page.
+**Authority:** [Current development contract](development.md).
+**Next action:** None for this closed plan; use the overhaul for new work.
+**Completion evidence:** `a32f983`; [verification record](../ai/2026-10-15-tam-topic-guides-and-tam-page.md).
+
+> Historical design snapshot. The show/explain separation survives. The
+> [corpus 0.31.0 plan](knowledge-system-0.31.0.md) replaces the three-track labels,
+> relocates user guidance logically, and owns new search/navigation behavior.
+
+## Original design record
+
 **Version:** `0.23.0`  
 **Milestone:** 15  
 **Owner:** Fred

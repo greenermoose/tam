@@ -3,13 +3,19 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — command 0.29.0 and knowledge corpus 0.29.0. The command
+**Stage:** Develop — command 0.29.3 and knowledge corpus 0.30.0. The command
 includes the offline guide, native man and Info readers, search and explanation,
 host inspection, and a portable built-in pager. It builds in C against the
 separate `libtam` library and installs as `tam`. The command is part of
 `tamlinux-packages` and installed on the system. See the
 [development plan](docs/plans/development.md) and
 [roadmap](ROADMAP.md) for current milestones.
+
+The next approved milestone is the [five-part knowledge-system overhaul](docs/plans/knowledge-system-0.31.0.md),
+targeting corpus 0.31.0 and companion command 0.30.0. It has not been implemented.
+Start there for its handoff; the [plan index](docs/plans/README.md) distinguishes
+current work from historical plans. Follow [plan maintenance](docs/plan-maintenance.md)
+when changing scope or closing work.
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline
@@ -47,7 +53,8 @@ In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`
 scroll a screen, `g`/`G` or `Home`/`End` jump to the top/bottom, `Tab`/`Shift-Tab`
 selects next/previous link, `Enter` or the right arrow follows it (or the right
 arrow without a selected link proceeds forward along a visited path), `u` or the
-left arrow goes back, and `q` or `Esc` quits. External links are shown but never
+left arrow goes back (`u` means hierarchy Up in Info), backtick returns to the
+Guide, and `q` or `Esc` quits. External links are shown but never
 fetched, so the guide stays offline. The corpus is located via
 `$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then the compiled install
 prefix.
@@ -63,18 +70,19 @@ Command source, bundled guide pages, tests and component documentation live
 here. The `tamlinux` product repository owns workstation assembly and the
 installation framework.
 
-Read the [development plan](docs/plans/development.md) for the milestones,
-command behavior, packaging contract and acceptance checks, and the
-[offline-guide plan](docs/plans/offline-guide.md) for the guide's design.
+Read the [development plan](docs/plans/development.md) for current command
+behavior, packaging and acceptance, and the
+[knowledge-system plan](docs/plans/knowledge-system-0.31.0.md) for the next work.
+The [offline-guide plan](docs/plans/offline-guide.md) is a historical design record.
 
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
 | `src/` | C command implementation. |
-| `knowledge/` | Bundled offline HTML and matching text guide. |
+| `knowledge/` | Bundled offline HTML and generated metadata index; text derives at runtime. |
 | `tests/` | Command behavior, offline guide rendering and package-data checks. |
-| `docs/plans/` | Development scope and acceptance evidence. |
+| `docs/plans/` | Indexed current plans and historical designs with explicit dispositions. |
 | `docs/ai/` | AI-assisted authorship and verification records. |
 
 ## Installation on a Tamlinux cultivar
