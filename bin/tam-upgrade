@@ -1,0 +1,1018 @@
+#!/usr/bin/env python3
+# TAM_UPGRADE_RECOVERY_HELPER
+"""Bounded source-stage discovery and activation helper for tam."""
+import argparse
+import base64
+import json
+import os
+import re
+import signal
+import subprocess
+import sys
+import time
+import fcntl
+import stat
+import shutil
+import tempfile
+import uuid
+from pathlib import Path
+
+API = "https://api.github.com/repos/greenermoose/tam"
+MAX_BODY = 1024 * 1024
+MAX_HEADERS = 32 * 1024
+MAX_DIAGNOSTIC = 8 * 1024
+MAX_SOURCE_TREE = 100 * 1024 * 1024
+MAX_BUILD_LOG = 20 * 1024 * 1024
+SOURCE_OPERATION_SECONDS = 30 * 60
+TOTAL_TIMEOUT = 30
+CONNECT_TIMEOUT = 3
+SOURCE_DEADLINE = None
+STAGES = (("development", "develop"), ("test", "test"), ("run", "main"))
+LOCK_MARKER = b"tam-upgrade lock v1\n"
+
+
+class CheckError(Exception):
+    def __init__(self, code, message):
+        super().__init__(message)
+        self.code = code
+
+
+def _pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON field")
+        result[key] = value
+    return result
+
+
+def parse_json(raw):
+    value = json.loads(raw, object_pairs_hook=_pairs,
+                       parse_constant=lambda _: (_ for _ in ()).throw(ValueError("invalid number")))
+    def depth(node, level=0):
+        if level > 32:
+            raise ValueError("JSON nesting limit exceeded")
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if not isinstance(k, str):
+                    raise ValueError("invalid object key")
+                depth(v, level + 1)
+        elif isinstance(node, list):
+            for v in node:
+                depth(v, level + 1)
+    depth(value)
+    return value
+
+
+SEMVER = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$")
+
+
+def semver(value):
+    if not isinstance(value, str) or len(value) > 128:
+        raise ValueError("invalid semantic version")
+    match = SEMVER.fullmatch(value)
+    if not match:
+        raise ValueError("invalid semantic version")
+    nums = tuple(int(match.group(i)) for i in (1, 2, 3))
+    if any(n > 2**63 - 1 for n in nums):
+        raise ValueError("semantic version component is too large")
+    prerelease = match.group(4)
+    ids = [] if prerelease is None else prerelease.split(".")
+    if any(not x or (x.isdigit() and len(x) > 1 and x[0] == "0") for x in ids):
+        raise ValueError("invalid semantic prerelease")
+    return nums, ids
+
+
+def compare_semver(a, b):
+    na, pa = semver(a)
+    nb, pb = semver(b)
+    if na != nb:
+        return (na > nb) - (na < nb)
+    if not pa or not pb:
+        return (not pa) - (not pb)
+    for x, y in zip(pa, pb):
+        if x == y:
+            continue
+        xn, yn = x.isdigit(), y.isdigit()
+        if xn and yn:
+            return (int(x) > int(y)) - (int(x) < int(y))
+        if xn != yn:
+            return -1 if xn else 1
+        return (x > y) - (x < y)
+    return (len(pa) > len(pb)) - (len(pa) < len(pb))
+
+
+def comparison(running, remote):
+    if running is None or remote is None:
+        return "unknown"
+    try: order = compare_semver(remote, running)
+    except ValueError: return "unknown"
+    return "newer" if order > 0 else "running_ahead" if order < 0 else "same_version"
+
+
+def _read_bounded(proc, deadline):
+    import selectors
+    sel = selectors.DefaultSelector()
+    sel.register(proc.stdout, selectors.EVENT_READ)
+    data = bytearray()
+    header_bytes = 0
+    header_done = False
+    status = None
+    headers = bytearray()
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            proc.kill()
+            proc.wait()
+            raise CheckError("timeout", "request exceeded the 30 second check deadline")
+        events = sel.select(min(remaining, 0.25))
+        if not events:
+            if proc.poll() is not None:
+                break
+            continue
+        chunk = os.read(proc.stdout.fileno(), 8192)
+        if not chunk:
+            break
+        if not header_done:
+            headers.extend(chunk)
+            if len(headers) > MAX_HEADERS + MAX_BODY:
+                proc.kill(); proc.wait()
+                raise CheckError("too_large", "response exceeded the bounded size")
+            marker = headers.find(b"\r\n\r\n")
+            if marker < 0:
+                header_bytes = len(headers)
+                if header_bytes > MAX_HEADERS:
+                    proc.kill(); proc.wait()
+                    raise CheckError("headers_too_large", "response headers exceeded 32 KiB")
+                continue
+            header_bytes = marker + 4
+            if header_bytes > MAX_HEADERS:
+                proc.kill(); proc.wait()
+                raise CheckError("headers_too_large", "response headers exceeded 32 KiB")
+            head = bytes(headers[:marker])
+            line = head.split(b"\r\n", 1)[0].split()
+            if len(line) < 2 or not line[1].isdigit():
+                proc.kill(); proc.wait()
+                raise CheckError("http", "server returned malformed HTTP headers")
+            status = int(line[1])
+            data.extend(headers[marker + 4:])
+            headers.clear()
+            header_done = True
+        else:
+            data.extend(chunk)
+        if len(data) > MAX_BODY:
+            proc.kill(); proc.wait()
+            raise CheckError("too_large", "response body exceeded 1 MiB")
+    rc = proc.wait()
+    if rc != 0:
+        raise CheckError("transport", "curl failed (DNS, TLS, timeout, or network error)")
+    if status is None:
+        raise CheckError("http", "server returned no HTTP response")
+    return status, bytes(data)
+
+
+def request(path, deadline=None):
+    if not path.startswith("/") or path.startswith("//") or "\n" in path:
+        raise CheckError("invalid_request", "invalid fixed-host API path")
+    deadline = deadline if deadline is not None else time.monotonic() + TOTAL_TIMEOUT
+    remaining = max(1, int(deadline - time.monotonic()))
+    env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "LC_ALL": "C",
+           "HOME": "/nonexistent", "CURL_HOME": "/nonexistent"}
+    argv = ["curl", "--disable", "--silent", "--show-error", "--include",
+            "--proto", "=https", "--max-redirs", "0", "--connect-timeout",
+            str(CONNECT_TIMEOUT), "--max-time", str(remaining), "--header",
+            "Accept: application/vnd.github+json", "--header", "User-Agent: tam-upgrade",
+            API + path]
+    try:
+        proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=subprocess.DEVNULL, env=env, close_fds=True)
+    except FileNotFoundError:
+        raise CheckError("missing_curl", "curl is required for source checks")
+    try:
+        status, body = _read_bounded(proc, deadline)
+    except BaseException:
+        if proc.poll() is None:
+            proc.kill()
+        proc.wait()
+        proc.stdout.close()
+        raise
+    proc.stdout.close()
+    if status in (301, 302, 303, 307, 308):
+        raise CheckError("redirect", "GitHub API redirected the request")
+    return status, body
+
+
+def api_json(path, deadline, allow_404=False):
+    status, raw = request(path, deadline)
+    if status == 404 and allow_404:
+        return None
+    if status == 403 and b"rate limit" in raw.lower():
+        raise CheckError("rate_limited", "GitHub API rate limit reached")
+    if status < 200 or status >= 300:
+        raise CheckError("http", f"GitHub API returned HTTP {status}")
+    try:
+        return parse_json(raw)
+    except (ValueError, UnicodeDecodeError, json.JSONDecodeError, RecursionError):
+        raise CheckError("malformed_json", "GitHub returned malformed JSON")
+
+
+def content_at(path, sha, deadline):
+    from urllib.parse import quote
+    obj = api_json(f"/contents/{path}?ref={quote(sha, safe='')}", deadline)
+    if not isinstance(obj, dict) or not isinstance(obj.get("content"), str):
+        raise CheckError("metadata", f"missing {path} content at selected commit")
+    try:
+        encoded = "".join(obj["content"].split())
+        return base64.b64decode(encoded, validate=True).decode("utf-8")
+    except (ValueError, UnicodeDecodeError):
+        raise CheckError("metadata", f"invalid {path} content at selected commit")
+
+
+def versions_at(sha, deadline):
+    header = content_at("src/version.h", sha, deadline)
+    match = re.search(r'^#define\s+TAM_COMMAND_VERSION\s+"([^"\r\n]+)"\s*$', header, re.M)
+    if not match:
+        raise CheckError("metadata", "source has no valid command version")
+    command = match.group(1)
+    corpus = content_at("knowledge/version", sha, deadline).strip()
+    try:
+        semver(command); semver(corpus)
+    except ValueError:
+        raise CheckError("metadata", "source contains an invalid component version")
+    return command, corpus
+
+
+def resolve_stage(stage, branch, repo_ok, deadline):
+    from urllib.parse import quote
+    ref = api_json("/git/ref/heads/" + quote(branch, safe=""), deadline, allow_404=True)
+    if ref is None:
+        return {"stage": stage, "status": "absent", "branch": branch,
+                "command": None, "corpus": None, "revision": None}
+    try:
+        sha = ref["object"]["sha"]
+        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{40}", sha):
+            raise ValueError()
+        cmd, corp = versions_at(sha, deadline)
+    except (KeyError, TypeError, ValueError):
+        raise CheckError("metadata", f"invalid {stage} branch metadata")
+    return {"stage": stage, "status": "available", "branch": branch,
+            "command": cmd, "corpus": corp, "revision": sha}
+
+
+def _tag_commit(ref, deadline):
+    obj = ref.get("object") if isinstance(ref, dict) else None
+    for _ in range(8):
+        if not isinstance(obj, dict) or not re.fullmatch(r"[0-9a-f]{40}", str(obj.get("sha", ""))):
+            raise CheckError("metadata", "release ref has an invalid Git object")
+        if obj.get("type") == "commit":
+            return obj["sha"]
+        if obj.get("type") != "tag":
+            raise CheckError("metadata", "release ref does not resolve to a commit")
+        tag = api_json("/git/tags/" + obj["sha"], deadline)
+        obj = tag.get("object") if isinstance(tag, dict) else None
+    raise CheckError("metadata", "annotated release tag nesting limit exceeded")
+
+
+def release_inventory(deadline):
+    main_ref = api_json("/git/ref/heads/main", deadline)
+    try:
+        main_sha = main_ref["object"]["sha"]
+        if not re.fullmatch(r"[0-9a-f]{40}", main_sha): raise ValueError()
+    except (KeyError, TypeError, ValueError):
+        raise CheckError("metadata", "main branch metadata is invalid")
+    found = {}
+    count = 0
+    for page in range(1, 42):
+        refs = api_json(f"/git/matching-refs/tags/?per_page=100&page={page}", deadline)
+        if not isinstance(refs, list):
+            raise CheckError("metadata", "release refs response is not a list")
+        if not refs: break
+        for ref in refs:
+            count += 1
+            if count > 4096:
+                raise CheckError("refs_limit", "release discovery exceeded 4096 refs")
+            if not isinstance(ref, dict) or not isinstance(ref.get("ref"), str):
+                raise CheckError("metadata", "release ref has an invalid name")
+            name = ref["ref"].removeprefix("refs/tags/")
+            paired = re.fullmatch(r"tam-(\d+\.\d+\.\d+)-corpus-(\d+\.\d+\.\d+)", name)
+            legacy = re.fullmatch(r"v?(\d+\.\d+\.\d+)", name)
+            if not paired and not legacy: continue
+            sha = _tag_commit(ref, deadline)
+            command, corpus = versions_at(sha, deadline)
+            if paired and (command, corpus) != paired.groups():
+                raise CheckError("release_conflict", f"release tag {name} disagrees with source versions")
+            if legacy and command != legacy.group(1):
+                raise CheckError("release_conflict", f"legacy release tag {name} disagrees with source command version")
+            pair = (command, corpus)
+            prior = found.get(pair)
+            if prior and prior["revision"] != sha:
+                raise CheckError("release_conflict", f"multiple release tags identify {command}/{corpus} at different commits")
+            ancestry = api_json(f"/compare/{sha}...{main_sha}", deadline)
+            if not isinstance(ancestry, dict) or ancestry.get("status") not in ("ahead", "identical"):
+                raise CheckError("invalid_release_history", f"release tag {name} is outside Run history")
+            found[pair] = {"tag": name, "command": command, "corpus": corpus,
+                           "revision": sha, "stage": "release", "status": "available"}
+        if len(refs) < 100: break
+    from functools import cmp_to_key
+    def order(a, b):
+        first = compare_semver(a["command"], b["command"])
+        return first if first else compare_semver(a["corpus"], b["corpus"])
+    return sorted(found.values(), key=cmp_to_key(order))
+
+
+def resolve_release(version, corpus_version, deadline):
+    releases = release_inventory(deadline)
+    if version is None:
+        if not releases:
+            return {"stage": "release", "status": "absent", "command": None,
+                    "corpus": None, "revision": None}
+        return releases[-1]
+    matches = [r for r in releases if r["command"] == version and
+               (corpus_version is None or r["corpus"] == corpus_version)]
+    if len(matches) != 1:
+        if len(matches) > 1:
+            raise CheckError("ambiguous_release", "command version identifies multiple corpus pairs; provide --corpus-version")
+        raise CheckError("release_absent", "requested paired release is unavailable")
+    return matches[0]
+
+
+# Audited pre-manifest builds. Each pair below is recorded in a Tamlinux
+# package delivery; all used libtam 0.2.0 at the exact pin shown. The old
+# sources use the stable PREFIX/LIBTAM_PREFIX make interface. New sources
+# carry their own source-build.json pin.
+LEGACY_BUILDS = {
+    "efbd1037b1fab10375e8c729d7dd793358123217": {"evidence": "tamlinux-packages delivery arch-hyprland-first-extraction.json"},
+    "cacdd78922950d9e9b907be607e1326fad67888d": {"evidence": "tamlinux-packages delivery tamlinux-0.4.1.json"},
+    "abc1380dea7033d5ebab5336d66ec216b99e1e66": {"evidence": "tamlinux-packages delivery tamlinux-0.4.2-c.json"},
+    "81b9f0cdc6e14a2136e257561589dbb0ad208cd4": {"evidence": "tamlinux-packages delivery tamlinux-0.4.4-b.json"},
+    "46169798e6bdb4e371faaa4719897c5cf7184b11": {"evidence": "tamlinux-packages delivery tamlinux-0.4.4-c.json"},
+}
+for _legacy_pin in LEGACY_BUILDS.values():
+    _legacy_pin.update({"libtam_revision": "c081708b5ed2c8ade4ecdf171cebc110c2cb316f",
+                        "libtam_version": "0.2.0", "dependencies": ["cc", "make", "pkg-config", "python3", "zlib", "ncursesw", "dbus-1"]})
+
+
+def source_build_manifest(sha, deadline):
+    from urllib.parse import quote
+    if sha in LEGACY_BUILDS:
+        return LEGACY_BUILDS[sha]
+    obj = api_json("/contents/source-build.json?ref=" + quote(sha, safe=""), deadline,
+                   allow_404=True)
+    if obj is None:
+        raise CheckError("missing_build_pin", "this source has no audited libtam build pin")
+    try:
+        encoded = "".join(obj["content"].split())
+        manifest = parse_json(base64.b64decode(encoded, validate=True))
+        rev = manifest["libtam_revision"]
+        version = manifest["libtam_version"]
+        deps = manifest["dependencies"]
+        if manifest.get("schema_version") != 1 or not re.fullmatch(r"[0-9a-f]{40}", rev):
+            raise ValueError()
+        semver(version)
+        if not isinstance(deps, list) or not all(isinstance(x, str) for x in deps):
+            raise ValueError()
+        return {"libtam_revision": rev, "libtam_version": version,
+                "dependencies": deps, "evidence": "source-build.json at selected tam commit"}
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+        raise CheckError("invalid_build_pin", "source-build.json is invalid")
+
+
+def selection(stage, channel, version, corpus_version):
+    deadline = time.monotonic() + TOTAL_TIMEOUT
+    repo = api_json("", deadline)
+    if not isinstance(repo, dict) or not isinstance(repo.get("full_name"), str) or repo["full_name"].lower() != "greenermoose/tam":
+        raise CheckError("repository", "GitHub response does not identify greenermoose/tam")
+    if stage in ("development", "develop", "test", "run"):
+        branch = {"development": "develop", "develop": "develop", "test": "test", "run": "main"}[stage]
+        item = resolve_stage(stage, branch, True, deadline)
+        if item["status"] != "available":
+            raise CheckError("absent", f"{stage} stage is unavailable")
+    elif stage == "release":
+        item = resolve_release(version, corpus_version, deadline)
+        if item["status"] != "available":
+            raise CheckError("absent", "no valid Release tag is available")
+    else:
+        raise CheckError("invalid_stage", "unknown stage")
+    if version is not None and (item["command"] != version or (corpus_version is not None and item["corpus"] != corpus_version)):
+        raise CheckError("selection_moved", "selected versions do not match the resolved stage head")
+    item["pinned_release"] = bool(stage == "release" and version is not None)
+    item["build"] = source_build_manifest(item["revision"], deadline)
+    return item
+
+
+def run_bounded(argv, env, timeout, output_limit, log_path, cwd=None):
+    global SOURCE_DEADLINE
+    with open(log_path, "ab", buffering=0) as log:
+        proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, env=env, close_fds=True, cwd=cwd)
+        os.set_blocking(proc.stdout.fileno(), False)
+        import selectors
+        selector = selectors.DefaultSelector()
+        selector.register(proc.stdout, selectors.EVENT_READ)
+        start = time.monotonic()
+        total = 0
+        try:
+            while True:
+                if selector.select(0.1):
+                    try: chunk = os.read(proc.stdout.fileno(), 8192)
+                    except BlockingIOError: chunk = b""
+                else:
+                    chunk = b""
+                if chunk:
+                    total += len(chunk)
+                    if total > output_limit:
+                        proc.kill(); proc.wait()
+                        raise CheckError("build_output_limit", "build output exceeded the per-step log limit")
+                    if log.tell() + len(chunk) > MAX_BUILD_LOG:
+                        proc.kill(); proc.wait()
+                        raise CheckError("build_output_limit", "build output exceeded the 20 MiB operation log limit")
+                    log.write(chunk)
+                elif proc.poll() is not None:
+                    break
+                if time.monotonic() - start > timeout:
+                    proc.kill(); proc.wait()
+                    raise CheckError("build_timeout", f"step timed out: {argv[0]}")
+                if SOURCE_DEADLINE is not None and time.monotonic() > SOURCE_DEADLINE:
+                    proc.kill(); proc.wait()
+                    raise CheckError("source_timeout", "source operation exceeded its 30 minute deadline")
+            rc = proc.wait()
+        finally:
+            if proc.poll() is None:
+                proc.kill(); proc.wait()
+            selector.close()
+            proc.stdout.close()
+    if rc:
+        raise CheckError("build_failed", f"step failed ({rc}); see {log_path}")
+
+
+def source_tree_size(root):
+    total = 0
+    for current, dirs, files in os.walk(root, followlinks=False):
+        dirs[:] = [d for d in dirs if not (Path(current) / d).is_symlink()]
+        for name in files:
+            path = Path(current) / name
+            if path.is_symlink(): continue
+            total += path.stat().st_size
+            if total > MAX_SOURCE_TREE:
+                raise CheckError("source_too_large", "detached source tree exceeds the 100 MiB limit")
+    return total
+
+
+def safe_root():
+    home = Path(os.path.expanduser("~"))
+    if not home.is_absolute():
+        raise CheckError("home", "HOME must be an absolute path")
+    prefix = home / ".local" / "dev"
+    state = home / ".local" / "state" / "tam-upgrade"
+    return prefix, state
+
+
+def current_record():
+    prefix, state = safe_root()
+    current = prefix / "opt" / "tam" / "current"
+    if not current.is_symlink(): return None
+    target = os.readlink(current)
+    if not target.startswith("generations/"): return None
+    receipt = state / "receipts" / (Path(target).name + ".json")
+    try:
+        record = parse_json(receipt.read_text(encoding="utf-8"))
+        return record if isinstance(record, dict) and record.get("schema_version") == 1 else None
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+
+
+def verified_packaged_fallback(prefix):
+    devbin = prefix / "bin"
+    remaining = os.pathsep.join(p for p in os.environ.get("PATH", "").split(os.pathsep)
+                                if os.path.abspath(p) != str(devbin))
+    fallback = shutil.which("tam", path=remaining)
+    if fallback is None:
+        return None
+    try:
+        checked = subprocess.run([fallback, "--version"], stdin=subprocess.DEVNULL,
+                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                 timeout=10, check=False,
+                                 env={"PATH": remaining, "LC_ALL": "C"})
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if checked.returncode or not checked.stdout.startswith(b"tam command ") or len(checked.stdout) > 8192:
+        return None
+    return fallback
+
+
+def acquire_lock(state):
+    path = state / "install.lock"
+    flags = os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0)
+    try: fd = os.open(path, flags, 0o600)
+    except OSError as exc: raise CheckError("lock_file", f"cannot open operation lock {path}: {exc.strerror}")
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid():
+            raise CheckError("ownership", f"refusing unowned operation lock: {path}")
+        try: fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError: raise CheckError("locked", f"another source operation holds {path}")
+        os.lseek(fd, 0, os.SEEK_SET)
+        content = os.read(fd, 128)
+        if content not in (b"", LOCK_MARKER):
+            raise CheckError("ownership", f"refusing unrecognized operation lock: {path}")
+        if not content:
+            os.write(fd, LOCK_MARKER); os.fsync(fd)
+        return fd
+    except Exception:
+        os.close(fd)
+        raise
+
+
+def confirm(prompt):
+    if not sys.stdin.isatty():
+        raise CheckError("non_interactive", "source changes require an interactive terminal")
+    try:
+        return input(prompt + " [y/N] ").strip().lower() in ("y", "yes")
+    except EOFError:
+        return False
+
+
+def preflight(build):
+    missing = [name for name in ("cc", "make", "pkg-config", "python3", "git", "curl")
+               if shutil.which(name) is None]
+    if shutil.which("pkg-config"):
+        probe = subprocess.run(["pkg-config", "--exists", "zlib", "ncursesw", "dbus-1"],
+                               stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL, timeout=5, check=False,
+                               env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "LC_ALL": "C"})
+        if probe.returncode:
+            missing.append("pkg-config modules zlib, ncursesw and dbus-1")
+    if missing:
+        raise CheckError("missing_dependencies", "install the required native build dependencies: " + ", ".join(missing))
+
+
+def activate(selection_item, preview=True):
+    global SOURCE_DEADLINE
+    if not sys.stdin.isatty():
+        raise CheckError("non_interactive", "source changes require an interactive terminal")
+    preflight(selection_item["build"])
+    prefix, state = safe_root()
+    current_before = prefix / "opt" / "tam" / "current"
+    rollback_target = os.readlink(current_before) if current_before.is_symlink() else "packaged command"
+    fallback = None if current_before.is_symlink() else verified_packaged_fallback(prefix)
+    if not current_before.is_symlink() and fallback is None:
+        raise CheckError("no_fallback", "a working packaged tam fallback is required before first activation")
+    if not confirm(f"Build tam {selection_item['command']} / corpus {selection_item['corpus']} for {selection_item['stage']} under {prefix}; tam {selection_item['revision']} and libtam {selection_item['build']['libtam_revision']}. This runs the selected upstream Makefiles as your user. Rollback target: {rollback_target}."):
+        print("Cancelled; installation unchanged")
+        return 0
+    opt = prefix / "opt" / "tam"
+    receipts = state / "receipts"
+    generations = opt / "generations"
+    directories = (prefix.parent, prefix, prefix / "opt", opt, generations,
+                   state.parent, state, receipts)
+    for directory in directories:
+        if directory.is_symlink():
+            raise CheckError("ownership", f"refusing symlink directory endpoint: {directory}")
+        if directory.exists():
+            if not directory.is_dir():
+                raise CheckError("ownership", f"refusing non-directory endpoint: {directory}")
+        else:
+            directory.mkdir(mode=0o700)
+    lock_fd = acquire_lock(state)
+    SOURCE_DEADLINE = time.monotonic() + SOURCE_OPERATION_SECONDS
+    try:
+        current = opt / "current"
+        old_target = os.readlink(current) if current.is_symlink() else None
+        if current.exists() and not current.is_symlink():
+            raise CheckError("ownership", f"refusing unowned endpoint: {current}")
+        if old_target is not None:
+            if not old_target.startswith("generations/") or not (opt / old_target).is_dir():
+                raise CheckError("broken_pointer", "managed current pointer is broken or points outside owned generations")
+        gen_id = f"{selection_item['command']}-{selection_item['corpus']}-{selection_item['revision'][:12]}-{uuid.uuid4().hex[:8]}"
+        generation = generations / gen_id
+        devbin = prefix / "bin"
+        exposed = {Path("bin/tam"): "../opt/tam/current/bin/tam",
+                   Path("bin/tam-man"): "../opt/tam/current/bin/tam-man",
+                   Path("bin/tam-info"): "../opt/tam/current/bin/tam-info",
+                   Path("bin/tam-upgrade"): "../opt/tam/current/bin/tam-upgrade",
+                   Path("share/man/man1/tam.1"): "../../../opt/tam/current/share/man/man1/tam.1",
+                   Path("share/bash-completion/completions/tam"): "../../../opt/tam/current/share/bash-completion/completions/tam"}
+        if devbin.is_symlink():
+            raise CheckError("ownership", f"refusing symlink development bin directory: {devbin}")
+        for relative, target in exposed.items():
+            endpoint = prefix / relative
+            parent = endpoint.parent
+            while parent != prefix and parent != parent.parent:
+                if parent.is_symlink():
+                    raise CheckError("ownership", f"refusing symlink endpoint directory: {parent}")
+                parent = parent.parent
+            if endpoint.exists() or endpoint.is_symlink():
+                if not endpoint.is_symlink() or os.readlink(endpoint) != target:
+                    raise CheckError("ownership", f"refusing pre-existing unowned endpoint: {endpoint}")
+        if old_target is not None:
+            receipt_path = receipts / (Path(old_target).name + ".json")
+            try: active_record = parse_json(receipt_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError, json.JSONDecodeError): active_record = None
+            if isinstance(active_record, dict) and active_record.get("tam_revision") == selection_item["revision"]:
+                active_record["stage"] = selection_item["stage"]
+                active_record["pinned_release"] = selection_item.get("pinned_release", False)
+                active_record["updated_at"] = int(time.time())
+                temp = receipts / (receipt_path.name + ".tmp")
+                with open(temp, "x", encoding="utf-8") as stream:
+                    json.dump(active_record, stream, sort_keys=True); stream.write("\n"); stream.flush(); os.fsync(stream.fileno())
+                os.replace(temp, receipt_path)
+                print(f"Selected {selection_item['stage']} at the already active source {selection_item['revision']}")
+                return 0
+        generation.mkdir(mode=0o700)
+        work = Path(tempfile.mkdtemp(prefix="build-", dir=state))
+        log = state / ("build-" + gen_id + ".log")
+        env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": str(Path.home()),
+               "LC_ALL": "C", "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
+               "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0", "GIT_ALLOW_PROTOCOL": "https"}
+        env["TAM_UPGRADE_TEST_SKIP_OLLAMA"] = "1"
+        activated = False
+        try:
+            repos = (("tam", "https://github.com/greenermoose/tam.git", selection_item["revision"]),
+                     ("libtam", "https://github.com/greenermoose/libtam.git", selection_item["build"]["libtam_revision"]))
+            for name, url, sha in repos:
+                clone = work / name
+                run_bounded(["git", "init", "--quiet", str(clone)],
+                            env, 30, MAX_BODY * 2, log, cwd=work)
+                run_bounded(["git", "-C", str(clone), "-c", "core.hooksPath=/dev/null",
+                             "remote", "add", "origin", url], env, 10, MAX_BODY, log, cwd=work)
+                run_bounded(["git", "-C", str(clone), "-c", "core.hooksPath=/dev/null",
+                             "fetch", "--quiet", "--no-tags", "--filter=blob:limit=10m", "origin", sha],
+                            env, 180, MAX_BODY * 5, log, cwd=work)
+                run_bounded(["git", "-C", str(clone), "-c", "core.hooksPath=/dev/null",
+                             "checkout", "--quiet", "--detach", sha], env, 60, MAX_BODY * 5, log, cwd=work)
+                actual = subprocess.run(["git", "-C", str(clone), "rev-parse", "HEAD"],
+                                        check=True, capture_output=True, text=True, timeout=5,
+                                        env=env).stdout.strip()
+                if actual != sha:
+                    raise CheckError("source_revision", f"downloaded {name} source does not match the previewed commit")
+                source_tree_size(clone)
+            lib = work / "libtam"
+            tam = work / "tam"
+            header = (lib / "include" / "tam.h").read_text(encoding="utf-8")
+            match = re.search(r'^#define\s+TAM_VERSION_STRING\s+"([^"\r\n]+)"', header, re.M)
+            if not match or match.group(1) != selection_item["build"]["libtam_version"]:
+                raise CheckError("libtam_version", "libtam source version does not match its pinned build manifest")
+            genprefix = str(generation)
+            run_bounded(["make", "test"], env, 300, MAX_BODY * 5, log, cwd=lib)
+            run_bounded(["make", "install", "PREFIX=" + genprefix], env, 120, MAX_BODY * 5, log, cwd=lib)
+            run_bounded(["make", "test", "PREFIX=" + genprefix, "LIBTAM_PREFIX=" + genprefix,
+                         "TAM_TEST_SKIP_OLLAMA=1"], env, 600, MAX_BODY * 10, log, cwd=tam)
+            run_bounded(["make", "install", "PREFIX=" + genprefix, "LIBTAM_PREFIX=" + genprefix],
+                        env, 180, MAX_BODY * 5, log, cwd=tam)
+            smoke_env = dict(env)
+            smoke_env.pop("TAM_KNOWLEDGE_DIR", None)
+            smoke = subprocess.run([str(generation / "bin" / "tam"), "--version"],
+                                   stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                                   timeout=10, check=False, env=smoke_env, cwd=state)
+            expected = (f"tam command {selection_item['command']}",
+                        f"knowledge corpus {selection_item['corpus']}",
+                        f"libtam {selection_item['build']['libtam_version']}")
+            if smoke.returncode or any(value not in smoke.stdout for value in expected) or len(smoke.stdout) > 8192:
+                raise CheckError("smoke_failed", "installed generation version or library verification failed")
+            (generation / "bin" / "tam").resolve(strict=True)
+            record = {"schema_version": 1, "stage": selection_item["stage"],
+                      "tam_revision": selection_item["revision"],
+                      "libtam_revision": selection_item["build"]["libtam_revision"],
+                      "libtam_version": selection_item["build"]["libtam_version"],
+                      "build_dependencies": selection_item["build"].get("dependencies", []),
+                      "build_pin_evidence": selection_item["build"].get("evidence", "source-build.json"),
+                      "command_version": selection_item["command"], "corpus_version": selection_item["corpus"],
+                      "pinned_release": selection_item.get("pinned_release", False),
+                      "previous_target": old_target, "created_at": int(time.time()),
+                      "log": str(log), "checks": "passed", "activation_state": "prepared",
+                      "exposed_links": [str(p) for p in exposed],
+                      "previous_binary": str((opt / old_target / "bin" / "tam").resolve()) if old_target else None,
+                      "recovery_command": str(opt / "updater" / "tam-upgrade") + " switch --rollback"}
+            updater_dir = opt / "updater"
+            if updater_dir.is_symlink():
+                raise CheckError("ownership", f"refusing symlink recovery directory: {updater_dir}")
+            if updater_dir.exists() and not updater_dir.is_dir():
+                raise CheckError("ownership", f"refusing non-directory recovery endpoint: {updater_dir}")
+            updater_dir.mkdir(mode=0o700, exist_ok=True)
+            updater = updater_dir / "tam-upgrade"
+            helper_source = Path(__file__).resolve()
+            if updater.exists() or updater.is_symlink():
+                if updater.is_symlink() or not updater.is_file():
+                    raise CheckError("ownership", f"refusing unowned recovery launcher: {updater}")
+                try: owned = "TAM_UPGRADE_RECOVERY_HELPER" in updater.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError): owned = False
+                if not owned:
+                    raise CheckError("ownership", f"refusing unowned recovery launcher: {updater}")
+            updater_tmp = updater_dir / ("tam-upgrade." + uuid.uuid4().hex)
+            shutil.copyfile(helper_source, updater_tmp)
+            os.chmod(updater_tmp, 0o755)
+            os.replace(updater_tmp, updater)
+            receipt_tmp = receipts / (gen_id + ".tmp")
+            receipt = receipts / (gen_id + ".json")
+            with open(receipt_tmp, "x", encoding="utf-8") as stream:
+                json.dump(record, stream, sort_keys=True); stream.write("\n"); stream.flush(); os.fsync(stream.fileno())
+            os.replace(receipt_tmp, receipt)
+            fd = os.open(receipts, os.O_RDONLY); os.fsync(fd); os.close(fd)
+            for relative in exposed:
+                (prefix / relative).parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+            made = []
+            pointer_changed = False
+            try:
+                for relative, target in exposed.items():
+                    endpoint = prefix / relative
+                    if not endpoint.is_symlink():
+                        endpoint.symlink_to(target); made.append(endpoint)
+                next_link = opt / ("current." + uuid.uuid4().hex)
+                next_link.symlink_to(os.path.relpath(generation, opt))
+                os.replace(next_link, current)
+                pointer_changed = True
+                fd = os.open(opt, os.O_RDONLY); os.fsync(fd); os.close(fd)
+                linked = subprocess.run([str(prefix / "bin" / "tam"), "--version"],
+                                        stdin=subprocess.DEVNULL, capture_output=True,
+                                        timeout=10, check=False, env=smoke_env, cwd=state)
+                if linked.returncode or any(value.encode() not in linked.stdout for value in expected) or len(linked.stdout) > 8192:
+                    raise CheckError("activation_verify", "activated command, corpus or library did not verify through the exposed path")
+                record["activation_state"] = "active"
+                with open(receipt_tmp, "w", encoding="utf-8") as stream:
+                    json.dump(record, stream, sort_keys=True); stream.write("\n"); stream.flush(); os.fsync(stream.fileno())
+                os.replace(receipt_tmp, receipt)
+                activated = True
+            except Exception:
+                if pointer_changed and not activated:
+                    if old_target:
+                        restore = opt / ("restore." + uuid.uuid4().hex)
+                        restore.symlink_to(old_target)
+                        os.replace(restore, current)
+                    else:
+                        current.unlink(missing_ok=True)
+                if not activated:
+                    for endpoint in made:
+                        relative = endpoint.relative_to(prefix)
+                        if endpoint.is_symlink() and os.readlink(endpoint) == exposed[relative]:
+                            endpoint.unlink()
+                raise
+            print(f"Activated tam {selection_item['command']} / corpus {selection_item['corpus']} at {generation}")
+            print(f"Recovery launcher: {opt / 'updater' / 'tam-upgrade'} switch --rollback")
+            print("Run `hash -r` in your shell to refresh its command cache.")
+            return 0
+        except Exception:
+            if not activated:
+                shutil.rmtree(generation, ignore_errors=True)
+            raise
+        finally:
+            shutil.rmtree(work, ignore_errors=True)
+    finally:
+        SOURCE_DEADLINE = None
+        os.close(lock_fd)
+
+
+def _rollback_locked():
+    prefix, state = safe_root()
+    opt = prefix / "opt" / "tam"
+    receipts = state / "receipts"
+    current = opt / "current"
+    if not current.is_symlink():
+        raise CheckError("no_install", "there is no managed source generation to roll back")
+    target = os.readlink(current)
+    if not target.startswith("generations/") or not (opt / target).is_dir():
+        raise CheckError("broken_pointer", "managed current pointer is broken or outside owned generations")
+    receipt = receipts / (Path(target).name + ".json")
+    if not receipt.is_file(): receipt = None
+    if receipt is None:
+        raise CheckError("receipt", "current generation has no matching ownership receipt")
+    try: record = parse_json(receipt.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        raise CheckError("receipt", "current generation receipt is invalid")
+    previous = record.get("previous_target")
+    if previous:
+        if not isinstance(previous, str) or not previous.startswith("generations/"):
+            raise CheckError("receipt", "previous target is outside managed generations")
+        restored_path = opt / previous
+        restored_receipt = receipts / (restored_path.name + ".json")
+        if not restored_path.is_dir() or not restored_receipt.is_file():
+            raise CheckError("previous_missing", "previous generation or its receipt is missing")
+        try: restored = parse_json(restored_receipt.read_text(encoding="utf-8"))
+        except (OSError, ValueError, json.JSONDecodeError):
+            raise CheckError("receipt", "previous generation receipt is invalid")
+        binary = restored_path / "bin" / "tam"
+        if not binary.is_file():
+            raise CheckError("previous_missing", "previous generation command is missing")
+        try:
+            verified = subprocess.run([str(binary), "--version"], stdin=subprocess.DEVNULL,
+                                      capture_output=True, timeout=10, check=False,
+                                      env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+                                           "HOME": os.path.expanduser("~"), "LC_ALL": "C"})
+        except (OSError, subprocess.TimeoutExpired):
+            raise CheckError("previous_unusable", "previous generation command could not be verified")
+        expected = (f"tam command {restored.get('command_version')}",
+                    f"knowledge corpus {restored.get('corpus_version')}",
+                    f"libtam {restored.get('libtam_version')}")
+        if verified.returncode or len(verified.stdout) > 8192 or any(x.encode() not in verified.stdout for x in expected):
+            raise CheckError("previous_unusable", "previous command, corpus or library failed verification")
+        restored["previous_target"] = target
+        temp = receipts / (restored_path.name + ".rollback.tmp")
+        with open(temp, "x", encoding="utf-8") as stream:
+            json.dump(restored, stream, sort_keys=True); stream.write("\n"); stream.flush(); os.fsync(stream.fileno())
+        os.replace(temp, restored_receipt)
+        next_link = opt / ("rollback." + uuid.uuid4().hex)
+        next_link.symlink_to(previous)
+        os.replace(next_link, current)
+        fd = os.open(opt, os.O_RDONLY); os.fsync(fd); os.close(fd)
+        print(f"Rolled back to {previous}")
+        return 0
+    # First install: ensure an existing packaged command is visible after removing
+    # our exposure links; do not disturb endpoints that changed ownership later.
+    devbin = prefix / "bin"
+    fallback = verified_packaged_fallback(prefix)
+    if fallback is None:
+        raise CheckError("no_fallback", "packaged tam fallback is unavailable; leaving the managed generation active")
+    for relative, expected in ((Path("bin/tam"), "../opt/tam/current/bin/tam"),
+                               (Path("bin/tam-man"), "../opt/tam/current/bin/tam-man"),
+                               (Path("bin/tam-info"), "../opt/tam/current/bin/tam-info"),
+                               (Path("bin/tam-upgrade"), "../opt/tam/current/bin/tam-upgrade"),
+                               (Path("share/man/man1/tam.1"), "../../../opt/tam/current/share/man/man1/tam.1"),
+                               (Path("share/bash-completion/completions/tam"), "../../../opt/tam/current/share/bash-completion/completions/tam")):
+        endpoint = prefix / relative
+        if endpoint.is_symlink() and os.readlink(endpoint) == expected:
+            endpoint.unlink()
+    current.unlink()
+    print(f"Rolled back to packaged command {fallback}")
+    return 0
+
+
+def rollback():
+    prefix, state = safe_root()
+    current = prefix / "opt" / "tam" / "current"
+    if not current.is_symlink():
+        raise CheckError("no_install", "there is no managed source generation to roll back")
+    state.mkdir(mode=0o700, parents=True, exist_ok=True)
+    lock_fd = acquire_lock(state)
+    try:
+        return _rollback_locked()
+    finally:
+        os.close(lock_fd)
+
+
+def check_stages(requested):
+    deadline = time.monotonic() + TOTAL_TIMEOUT
+    result = {"schema_version": 1, "running": {
+        "command": os.environ.get("TAM_UPGRADE_RUNNING_COMMAND"),
+        "corpus": os.environ.get("TAM_UPGRADE_RUNNING_CORPUS") or None,
+        "revision": os.environ.get("TAM_UPGRADE_RUNNING_REVISION", "unknown"),
+        "dirty": os.environ.get("TAM_UPGRADE_RUNNING_DIRTY") == "true",
+        "corpus_origin": os.environ.get("TAM_UPGRADE_CORPUS_ORIGIN")},
+        "selected_stage": os.environ.get("TAM_UPGRADE_STAGE") or (current_record() or {}).get("stage"), "stages": []}
+    errors = []
+    # Establish repository identity before treating a missing ref as absence.
+    try:
+        repo = api_json("", deadline)
+        if not isinstance(repo, dict) or not isinstance(repo.get("full_name"), str) or repo["full_name"].lower() != "greenermoose/tam":
+            raise CheckError("repository", "GitHub response does not identify greenermoose/tam")
+    except CheckError as exc:
+        for stage, branch in requested:
+            result["stages"].append({"stage": stage, "status": "error", "command": None,
+                                     "corpus": None, "revision": None,
+                                     "command_comparison": "unknown", "corpus_comparison": "unknown",
+                                     "revision_comparison": "unknown", "update_available": None,
+                                     "error": exc.code})
+        return result, 1
+    for stage, branch in requested:
+        try:
+            item = resolve_release(None, None, deadline) if stage == "release" else resolve_stage(stage, branch, True, deadline)
+            if item["status"] == "available":
+                item["command_comparison"] = comparison(result["running"]["command"], item["command"])
+                item["corpus_comparison"] = comparison(result["running"]["corpus"], item["corpus"])
+                local_sha = result["running"]["revision"]
+                item["revision_comparison"] = ("same_clean_commit" if local_sha == item["revision"] and result["running"]["dirty"] is False else
+                                                "different_commit" if local_sha not in (None, "unknown") and local_sha != item["revision"] else "unknown")
+                newer = item["command_comparison"] == "newer" or item["corpus_comparison"] == "newer"
+                unknown = item["command_comparison"] == "unknown" or item["corpus_comparison"] == "unknown"
+                item["update_available"] = True if newer else None if unknown else False
+                item["error"] = None
+            else:
+                item.update({"command_comparison":"unknown", "corpus_comparison":"unknown",
+                             "revision_comparison":"unknown", "update_available":None, "error":None})
+            result["stages"].append(item)
+        except CheckError as exc:
+            errors.append(exc)
+            result["stages"].append({"stage": stage, "status": "error", "command": None,
+                                     "corpus": None, "revision": None,
+                                     "command_comparison": "unknown", "corpus_comparison": "unknown",
+                                     "revision_comparison": "unknown", "update_available": None,
+                                     "error": exc.code})
+    return result, 1 if errors else 0
+
+
+def help_text(verb):
+    if verb == "upgrade":
+        return ("Usage: tam upgrade [--check|--apply] [--channel STAGE] [--json]\n"
+                "Checks Development, Test, Run and Release source metadata. Checks use bounded HTTPS.\n"
+                "--apply builds and switches the tracked stage after an interactive confirmation.\n"
+                "Source builds require Git, curl, a C toolchain, make, pkg-config, Python and headers.\n"
+                "The development override is under ~/.local/dev; rollback is offline with tam switch --rollback.\n")
+    return ("Usage: tam switch STAGE [--version X.Y.Z --corpus-version A.B.C]\n"
+            "       tam switch --rollback\n"
+            "Selects Development, Test, Run or Release source. Downgrades require confirmation.\n"
+            "Source builds require Git, curl, a C toolchain, make, pkg-config, Python and headers.\n"
+            "The development override is under ~/.local/dev; rollback is offline.\n")
+
+
+def main(argv):
+    verb, args = argv[1], argv[2:]
+    if "--help" in args or "-h" in args:
+        if len(args) != 1:
+            print("tam: help cannot be combined with other options", file=sys.stderr); return 2
+        print(help_text(verb), end=""); return 0
+    if verb == "switch":
+        parser = argparse.ArgumentParser(add_help=False, prog="tam switch")
+        parser.add_argument("stage", nargs="?")
+        parser.add_argument("--version")
+        parser.add_argument("--corpus-version")
+        parser.add_argument("--rollback", action="store_true")
+        try:
+            ns = parser.parse_args(args)
+        except SystemExit as exc:
+            return int(exc.code)
+        if ns.rollback:
+            if ns.stage or ns.version or ns.corpus_version:
+                print("tam switch: --rollback cannot be combined with a stage or version", file=sys.stderr); return 2
+            if not sys.stdin.isatty():
+                print("tam switch: rollback requires an interactive terminal", file=sys.stderr); return 1
+            if not confirm("Switch to the previous managed generation or packaged fallback? This uses local state and no network."):
+                print("Cancelled; installation unchanged"); return 0
+            try: return rollback()
+            except CheckError as exc:
+                print(f"tam switch: {exc}", file=sys.stderr); return 1
+        if ns.stage not in ("development", "develop", "test", "run", "release"):
+            print("tam switch: expected development, test, run, or release", file=sys.stderr); return 2
+        if ns.corpus_version is not None and ns.version is None or (ns.stage != "release" and (ns.version is not None or ns.corpus_version is not None)):
+            print("tam switch: version flags are valid only for Release, and --corpus-version requires --version", file=sys.stderr); return 2
+        if not sys.stdin.isatty():
+            print("tam switch: source changes require an interactive terminal", file=sys.stderr); return 1
+        try:
+            chosen = selection(ns.stage, None, ns.version, ns.corpus_version)
+            return activate(chosen)
+        except CheckError as exc:
+            print(f"tam switch: {exc}", file=sys.stderr); return 1
+    parser = argparse.ArgumentParser(add_help=False, prog="tam upgrade")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--check", action="store_true")
+    group.add_argument("--apply", action="store_true")
+    parser.add_argument("--channel", choices=("development", "develop", "test", "run", "release"))
+    parser.add_argument("--json", action="store_true")
+    try:
+        ns = parser.parse_args(args)
+    except SystemExit as exc:
+        return int(exc.code)
+    if ns.apply and ns.json:
+        print("tam upgrade: --json cannot be combined with --apply", file=sys.stderr); return 2
+    if ns.apply and not sys.stdin.isatty():
+        print("tam upgrade: source changes require an interactive terminal", file=sys.stderr); return 1
+    requested = [(stage, branch) for stage, branch in STAGES
+                 if ns.channel is None or ns.channel in (stage, "develop" if stage == "development" else stage)]
+    if ns.channel in (None, "release"):
+        requested.append(("release", None))
+    if ns.apply:
+        stage = ns.channel
+        if stage in (None, "develop"): stage = "development"
+        if stage is None:
+            record = current_record()
+            if record:
+                stage = record.get("stage")
+                if stage == "release" and record.get("pinned_release"):
+                    print(f"tam upgrade --apply: Release is pinned to tam {record.get('command_version')} / corpus {record.get('corpus_version')}; use tam switch release to select a different pair")
+                    return 0
+        if stage is None:
+            print("tam upgrade --apply: no stage is recorded; provide --channel", file=sys.stderr); return 1
+        try:
+            chosen = selection(stage, None, None, None)
+            running_command = os.environ.get("TAM_UPGRADE_RUNNING_COMMAND")
+            running_corpus = os.environ.get("TAM_UPGRADE_RUNNING_CORPUS")
+            if comparison(running_command, chosen["command"]) == "running_ahead" or comparison(running_corpus, chosen["corpus"]) == "running_ahead":
+                print("tam upgrade --apply: target would downgrade a component; use tam switch for an explicit confirmed selection", file=sys.stderr); return 1
+            if comparison(running_command, chosen["command"]) == "same_version" and \
+               comparison(running_corpus, chosen["corpus"]) == "same_version" and \
+               os.environ.get("TAM_UPGRADE_RUNNING_REVISION") not in (None, "unknown", chosen["revision"]):
+                print("tam upgrade --apply: versions match but the source revision differs; use tam switch for an explicit confirmed source selection", file=sys.stderr); return 1
+            return activate(chosen)
+        except CheckError as exc:
+            print(f"tam upgrade --apply: {exc}", file=sys.stderr); return 1
+    result, code = check_stages(requested)
+    if ns.json:
+        print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+    else:
+        running = result["running"]
+        print(f"Running: tam {running['command'] or 'unknown'} / corpus {running['corpus'] or 'unknown'} (source {running['revision']})")
+        selected = os.environ.get("TAM_UPGRADE_STAGE", "unknown")
+        print(f"Selected stage: {selected}")
+        for item in result["stages"]:
+            if item["status"] == "available":
+                print(f"{item['stage'].title()}: command {item['command']} ({item['command_comparison']}) / corpus {item['corpus']} ({item['corpus_comparison']})")
+                print(f"  source {item['revision'][:12]} — {item['revision_comparison']}; update available: {item['update_available']}")
+            elif item["status"] == "absent":
+                print(f"{item['stage'].title()}: unavailable")
+            else:
+                print(f"{item['stage'].title()}: check failed ({item.get('error', 'unknown')})", file=sys.stderr)
+        print("\nSwitch explicitly with: tam switch development|test|run|release")
+    return code
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2 or sys.argv[1] not in ("upgrade", "switch"):
+        print("tam-upgrade: expected upgrade or switch", file=sys.stderr); raise SystemExit(2)
+    raise SystemExit(main(sys.argv))

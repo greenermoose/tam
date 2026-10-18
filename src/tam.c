@@ -5,6 +5,7 @@
 #include "discovery.h"
 #include "index.h"
 #include "info.h"
+#include "upgrade.h"
 #include "install.h"
 #include "man.h"
 #include "pager.h"
@@ -185,6 +186,8 @@ static void print_tam_help(int tier)
             "  tam show [PAGE]               open guide or specific page\n"
             "  tam info [MANUAL]             browse GNU Info manuals\n"
             "  tam inspect                   inspect system health\n\n"
+            "  tam upgrade                   check source stages and available versions\n"
+            "  tam switch STAGE              select a source stage or roll back\n\n"
             "Essential Options:\n"
             "  --help, -h | --pipe | --terse | --verbose | --version, -V\n",
             stdout);
@@ -218,6 +221,9 @@ static void print_tam_help(int tier)
             "      browse GNU Info manuals with hyperlinked menus and cross-references\n"
             "  tam ask [--json] [--model MODEL] [--server URL] QUESTION\n"
             "      query a local AI model for answers from the guide to any question\n\n"
+            "  tam upgrade [--check|--apply] [--channel STAGE] [--json]\n"
+            "  tam switch STAGE [--version X.Y.Z --corpus-version A.B.C]\n"
+            "      discover, build and switch pinned tam source generations\n\n"
             "System subcommands:\n"
             "  tam inspect [--json|--check [ID]] [--terse]\n"
             "      inspect hardware, kernel, DRM, storage mounts, and privilege escalation\n"
@@ -264,6 +270,7 @@ static void print_tam_help(int tier)
         "System subcommands to try:\n"
         "  tam inspect               inspect system components\n"
         "  tam check                 check system health\n\n"
+        "  tam upgrade / switch      check, build, or recover source stages\n\n"
         "Options to know:\n"
         "  --help, -h                show this help overview\n"
         "  --pipe                    output as plain text for piping\n"
@@ -1706,6 +1713,12 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "ask") == 0) {
         return tam_cmd_ask(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "upgrade") == 0) {
+        return tam_cmd_upgrade(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "switch") == 0) {
+        return tam_cmd_switch(argc - 2, argv + 2);
     }
     return usage_error(arg);
 }

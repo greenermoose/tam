@@ -87,13 +87,30 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.30.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.31.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
 "$TAM" -V >/dev/null || fail "-V failed"
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
 pass "--version and -V"
+
+# Source upgrade help and argument validation remain offline and write-free.
+upgrade_help=$(iso "$TAM" upgrade --help) || fail "tam upgrade --help failed"
+printf '%s\n' "$upgrade_help" | grep -q 'Usage: tam upgrade' || fail "upgrade help missing usage"
+switch_help=$(iso "$TAM" switch --help) || fail "tam switch --help failed"
+printf '%s\n' "$switch_help" | grep -q 'tam switch --rollback' || fail "switch help missing rollback"
+[ -z "$(find "$home" "$config" "$state" -mindepth 1 -print -quit 2>/dev/null)" ] || fail "upgrade help wrote state under isolated home"
+set +e
+iso "$TAM" upgrade --apply --json >/dev/null 2>&1
+upgrade_conflict_rc=$?
+iso "$TAM" switch --version 1.2.3 >/dev/null 2>&1
+switch_conflict_rc=$?
+set -e
+[ "$upgrade_conflict_rc" -eq 2 ] || fail "upgrade conflicting options should exit 2"
+[ "$switch_conflict_rc" -eq 2 ] || fail "switch version without release should exit 2"
+[ -z "$(find "$home" "$config" "$state" -mindepth 1 -print -quit 2>/dev/null)" ] || fail "invalid upgrade invocation wrote state"
+pass "upgrade and switch help are offline; invalid mutations fail before writes"
 
 # Decoupled versioning: knowledge corpus version can diverge from command version.
 mock_corpus="$tmp/mock_corpus"
@@ -1933,7 +1950,9 @@ echo "$ask_refusal_out" | grep -q 'tam: ask requires a local model; run interact
 # The remaining checks talk to a running local Ollama server with the
 # qwen2.5-coder:1.5b and llama3.2:1b models. Without a server they are skipped,
 # visibly, instead of aborting the whole suite.
-if python3 -c 'import socket, sys; s = socket.socket(); s.settimeout(1); sys.exit(s.connect_ex(("127.0.0.1", 11434)))' 2>/dev/null; then
+if [ "${TAM_TEST_SKIP_OLLAMA:-0}" = 1 ]; then
+    pass "tam ask live-server checks explicitly skipped for source validation"
+elif python3 -c 'import socket, sys; s = socket.socket(); s.settimeout(1); sys.exit(s.connect_ex(("127.0.0.1", 11434)))' 2>/dev/null; then
     # Grounding miss on unrelated topic
     ask_miss_out=$("$TAM" ask --server http://127.0.0.1:11434 "what is the capital of Mars")
     echo "$ask_miss_out" | grep -q 'Not found in Tamlinux guide.' || fail "missing 'Not found' in miss output"

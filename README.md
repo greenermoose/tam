@@ -49,6 +49,10 @@ tam explain browse    # browse is also an explain topic pointing to the guide
 tam explain grep --pipe # print topic explanation as plain text
 tam inspect           # inspect host facts and installation capabilities
 tam install --help    # list the planned installation subcommands
+tam upgrade           # compare the running command with all four source stages
+tam upgrade --json    # print structured comparison results
+tam switch test       # build and activate Test source after confirmation
+tam switch --rollback # return to the previous local generation, offline
 ```
 
 In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`
@@ -67,10 +71,34 @@ terminals, and to plain text when stdout is not a usable terminal. On resize it
 reflows the current document while retaining the reading position, selected
 link and search state.
 
-The implementation uses C with the separate `libtam` foundation library.
+The offline command is C; the explicit source-upgrade helper uses Python's
+standard library for strict metadata parsing and bounded process control.
 Command source, bundled guide pages, tests and component documentation live
 here. The `tamlinux` product repository owns workstation assembly and the
 installation framework.
+
+## Source stages and recovery
+
+`tam upgrade` checks the public Development (`develop`), Test (`test`), Run
+(`main`) and Release (paired version tag) sources. A check is the only normal
+command that contacts GitHub; it uses fixed HTTPS endpoints and needs `curl`.
+Use `tam upgrade --apply --channel STAGE` to build a forward update, or
+`tam switch STAGE` to select a stage or release intentionally. Release pins
+name both command and corpus versions. A source build requires Git, curl,
+`cc`, Make, pkg-config, Python 3, zlib, ncursesw and D-Bus development inputs.
+The command previews the exact source revisions and runs their Makefiles only
+after interactive confirmation. It does not install OS dependencies.
+
+The build uses private snapshots and a private generation under
+`~/.local/dev/opt/tam/`; it does not write to the working clone or shared
+`libtam`. The exposed command and wrappers point to one atomic `current`
+generation. `tam switch --rollback` uses the local receipt and works offline.
+The helper prints a recovery launcher path so a previous source that lacks
+`upgrade` and `switch` can still be moved forward or rolled back. After a
+successful switch, run `hash -r` in the shell. This is a development override;
+product delivery still requires the recorded `tamlinux-packages` assembly.
+The first installation of these commands needs the component-development
+bootstrap because an older tam cannot invoke commands it does not contain.
 
 Read the [development plan](docs/plans/development.md) for current command
 behavior, packaging and acceptance, and the

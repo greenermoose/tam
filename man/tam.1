@@ -55,6 +55,17 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .RI [ --server \ URL ]
 .IR QUESTION
 .br
+.B tam upgrade
+.RI [ --check | --apply ]
+.RI [ --channel \ STAGE ]
+.RI [ --json ]
+.br
+.B tam switch
+.IR STAGE
+.RI [ --version \ X.Y.Z \ --corpus-version \ A.B.C ]
+.br
+.B tam switch --rollback
+.br
 .BR "tam \-\-help" " | " "tam help"
 .br
 .B tam \-\-version
@@ -161,6 +172,22 @@ Tamlinux installation framework overview. Component installation commands will b
 .TP
 .B tam ask \fR[\fB\-\-json\fR] [\fB\-\-model\fR \fIMODEL\fR] [\fB\-\-server\fR \fIURL\fR] \fIQUESTION\fR
 Ask a grounded question answered strictly from the offline knowledge corpus via a local LLM inference server (e.g. Ollama). Strictly offline by default; requires explicit interactive consent to download models; never runs background daemons; mandates source citations.
+.TP
+.B tam upgrade \fR[\fB\-\-check|\-\-apply\fR] [\fB\-\-channel\fR \fISTAGE\fR] [\fB\-\-json\fR]
+Checks Development, Test, Run and Release source metadata from the fixed public tam repository. Checks require curl and bounded HTTPS requests; ordinary help, version reporting and guide browsing remain offline.
+.B \-\-apply
+builds and activates a forward update after an interactive preview and confirmation. It requires Git, curl, a C compiler, Make, pkg-config, Python 3, zlib, ncursesw and D-Bus development files. It builds selected upstream sources as the current user under
+.IR ~/.local/dev/opt/tam/ .
+.TP
+.B tam switch \fISTAGE\fR
+Selects Development, Test, Run or Release source, including an explicitly confirmed downgrade. Release can be pinned with both
+.B \-\-version
+and
+.BR \-\-corpus-version .
+Source commands require an interactive terminal and never install operating system packages.
+.TP
+.B tam switch \-\-rollback
+Restores the previous locally recorded generation or the packaged command without network access. A retained recovery launcher is printed after activation for use when an older selected tam has no upgrade commands.
 .TP
 .BR "tam \-\-help" ", " "tam help"
 Print a concise synopsis of commands and options.

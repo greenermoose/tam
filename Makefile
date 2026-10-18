@@ -31,21 +31,25 @@ TERMINFO_LIBS   ?= $(shell pkg-config --libs ncursesw 2>/dev/null || echo -ltinf
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c src/discovery.c
-DEPS  := src/version.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h src/discovery.h
+SRC   := src/tam.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c src/discovery.c src/upgrade.c
+DEPS  := src/version.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h src/discovery.h src/upgrade.h
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv
 
 # A build from a Git checkout reports its commit in --version; packaged
 # builds have no .git and report the plain version. Only the command's own
 # paths count as dirty: a corpus-only edit must not change the command's
 # embedded build id.
-TAM_SOURCES := src bin completions Makefile
+TAM_SOURCES := src bin completions Makefile source-build.json
 TAM_BUILD_ID := $(shell git -C $(CURDIR) describe --always 2>/dev/null)
+TAM_SOURCE_REVISION := $(shell git -C $(CURDIR) rev-parse HEAD 2>/dev/null)
+TAM_SOURCE_DIRTY := $(if $(strip $(shell git -C $(CURDIR) status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),1,0)
 ifneq ($(strip $(shell git -C $(CURDIR) status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),)
 TAM_BUILD_ID := $(TAM_BUILD_ID)-dirty
 endif
 
 CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\" -DTAM_BUILD=\"$(TAM_BUILD_ID)\"
+CPPFLAGS += -DTAM_SOURCE_REVISION=\"$(TAM_SOURCE_REVISION)\"
+CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 
 # The binary embeds DATADIR, the libtam rpath and the build id, so a build
 # made for one PREFIX must not be installed under another. The stamp changes
@@ -81,6 +85,7 @@ $(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) knowledge/
 # are the full, integrated runs.
 test: all
 	tests/run.sh $(CURDIR)/$(TAM)
+	TAM_TEST_SKIP_OLLAMA=1 python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
 	tests/render.sh $(CURDIR)/$(TAM)
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
@@ -89,6 +94,7 @@ test: all
 
 test-command: command
 	tests/run.sh $(CURDIR)/$(TAM)
+	TAM_TEST_SKIP_OLLAMA=1 python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
 	tests/render.sh $(CURDIR)/$(TAM)
 
 test-corpus: command
@@ -104,6 +110,7 @@ install: all
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
 	install -m 755 bin/tam-man $(DESTDIR)$(BINDIR)/tam-man
 	install -m 755 bin/tam-info $(DESTDIR)$(BINDIR)/tam-info
+	install -m 755 bin/tam-upgrade $(DESTDIR)$(BINDIR)/tam-upgrade
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
@@ -116,6 +123,7 @@ uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
 	rm -f $(DESTDIR)$(BINDIR)/tam-man
 	rm -f $(DESTDIR)$(BINDIR)/tam-info
+	rm -f $(DESTDIR)$(BINDIR)/tam-upgrade
 	rm -rf $(DESTDIR)$(DATADIR)
 	rm -f $(DESTDIR)$(MANDIR)/man1/tam.1
 	rm -f $(DESTDIR)$(BASHCOMPDIR)/tam

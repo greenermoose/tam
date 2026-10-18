@@ -3,8 +3,8 @@
 <head>
 <title>The tam Command: Architecture, Coding, and Lifecycle</title>
 <meta name="topic" content="tam">
-<meta name="summary" content="Architecture, C coding standards, Makefile build targets, compiler toolchain, library dependencies, and the develop-test-run-release deployment lifecycle of the tam command.">
-<meta name="keywords" content="tam, tam command, command, coding tam, c, make, makefile, build, install, targets, compiler, toolchain, libtam, zlib, develop, test, run, release, deploy, tamlinux-packages, nix, home manager">
+<meta name="summary" content="Architecture, source-stage discovery and switching, transactional development generations, Makefile targets, compiler toolchain, and tam lifecycle.">
+<meta name="keywords" content="tam, tam command, upgrade, switch, source build, stage, development, test, run, release, rollback, paired tags, make, makefile, install, compiler, toolchain, libtam, zlib, tamlinux-packages">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
@@ -20,7 +20,7 @@
 <p>For reader-facing entry points, see <a href="learn/tam.html">Using the tam guide command</a>.
 This page documents the command's implementation, build system, and development lifecycle.
 <code>tam</code> is the terminal entry point, offline navigator, and flagship
-utility for Tamlinux. It is written in pure C (C11 standard) and built against
+utility for Tamlinux. Its command is written in C (C11 standard) and built against
 the reusable <code>libtam</code> foundational library. It is designed to start
 in under 5 milliseconds, consume less than 4 megabytes of resident memory,
 operate completely offline without background daemons, and run reliably from
@@ -61,7 +61,62 @@ graphical environment is down or the network is completely unreachable.</p>
 <tr><td><code>tam check [ID]</code></td><td>Health Assessment</td><td>Evaluates workstation health findings against the versioned offline Check Contract.</td></tr>
 <tr><td><code>tam ask QUESTION</code></td><td>Grounded AI</td><td>Grounded query interface to local LLM servers (e.g. Ollama) with mandatory citations.</td></tr>
 <tr><td><code>tam install</code></td><td>Installation</td><td>Installation framework overview; <code>plan</code>, <code>apply</code> and <code>verify</code> are planned. Inspection is <code>tam inspect</code>.</td></tr>
+<tr><td><code>tam upgrade</code></td><td>Source discovery</td><td>Checks Development, Test, Run and paired Release versions. GitHub checks use bounded HTTPS only when explicitly requested.</td></tr>
+<tr><td><code>tam switch STAGE</code></td><td>Source selection</td><td>Builds an exact source and pinned libtam pair under the user development prefix after an interactive preview; permits explicit stage downgrades.</td></tr>
+<tr><td><code>tam switch --rollback</code></td><td>Recovery</td><td>Restores the prior local source generation or verified packaged fallback without network access.</td></tr>
 </table>
+
+<h3>Source stages, pins, and recovery</h3>
+
+<p><code>tam upgrade</code> compares the running command and corpus separately
+with the <code>develop</code>, <code>test</code>, and <code>main</code> branches,
+and with Release tags that identify both versions (for example,
+<code>tam-0.31.0-corpus-0.32.1</code>). These commands select an existing
+source locally; they do not promote branches, create tags, or claim that a
+larger version number has passed a stage. A missing stage is reported as
+unavailable. Help, version reporting, and guide browsing stay offline.</p>
+
+<p><code>tam upgrade --apply --channel STAGE</code> follows the recorded stage
+and permits forward updates. <code>tam switch STAGE</code> selects a stage or
+Release pin explicitly, including a confirmed downgrade. Development maps to
+<code>develop</code>, Test to <code>test</code>, and Run to <code>main</code>.
+Release pins include both the command and corpus version. Every build resolves
+the selected source to a full commit and uses the exact compatible libtam
+revision recorded in <code>source-build.json</code> or the audited compatibility
+record. The build cannot choose a newer libtam independently.</p>
+
+<p>Before downloading sources, the command displays both component versions,
+source revisions, destination, rollback target, and the fact that selected
+upstream Makefiles run as the current user. It asks for confirmation in a
+terminal and never installs operating system dependencies. Detached snapshots
+build into an isolated generation under <code>~/.local/dev/opt/tam/</code>;
+the command, guide, wrappers, private library, manual, and completion switch
+together through an atomic <code>current</code> link. Shared development
+libraries and the working checkout remain independent.</p>
+
+<p>Each successful generation has a local receipt with its source pins,
+versions, checks, and previous target. A failed build leaves the active
+generation in place. <code>tam switch --rollback</code> uses that receipt and
+does not need a network connection. When selecting an older tam that predates
+these subcommands, use the printed recovery helper directly; it remains next
+to the retained updater. After switching, run <code>hash -r</code> so the
+current shell resolves the new command. This development override does not
+change menu or application paths, and product delivery still belongs to a
+recorded <code>tamlinux-packages</code> assembly.</p>
+
+<h3>First-version bootstrap</h3>
+
+<p>An older installed <code>tam</code> cannot invoke a subcommand it does not
+contain. After choosing the exact committed Develop candidate, verify its
+full source commit and component versions, then use the component development
+workflow: install the pinned libtam development build under
+<code>~/.local/dev</code> if needed, run the candidate's tests, and install tam
+with <code>PREFIX=$HOME/.local/dev</code> and
+<code>LIBTAM_PREFIX=$HOME/.local/dev</code>. Check
+<code>type -a tam</code> and <code>tam --version</code>, then run
+<code>hash -r</code>. To undo the bootstrap, uninstall only the tam component
+from that prefix and remove libtam only if no other development tool uses it;
+the packaged command remains available behind the development prefix.</p>
 
 <h3>Building and installing from source</h3>
 
