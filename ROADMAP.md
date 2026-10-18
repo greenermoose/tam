@@ -83,9 +83,9 @@ bumps; reinstalling existing sources preserves their versions. Release tags
 record the command/corpus version pair. The developer approved the complete
 design on 2026-10-18. TCK6/TCK8 and automated TCK7 transaction checks are
 implemented. A real isolated source build, live GitHub smoke check and
-developer-directed first activation remain pending. GitHub returned 404 for
-the configured repository root and the push was rejected for missing SSH
-public-key authentication; see the
+developer-directed first activation remain pending. The live metadata check
+passes for development and test; `main` predates `knowledge/version`, so the
+run stage cannot be described until it is promoted. See the
 [Luna handoff](docs/handoffs/tam-upgrade-luna.md).
 
 The [five-part knowledge-system plan](docs/plans/knowledge-system-0.31.0.md)
