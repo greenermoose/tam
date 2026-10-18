@@ -17,9 +17,10 @@
 <h1>Snapshots and Generation Rollbacks</h1>
 
 <p>Every software change on a Tamlinux workstation should be reversible. By
-combining Btrfs Copy-on-Write (CoW) subvolume snapshots at the base OS layer
-with Nix and Home Manager generation histories in user space, you can roll back
-unexpected regressions in seconds.</p>
+  combining Btrfs Copy-on-Write (CoW) subvolume snapshots at the base OS layer
+  (managed with <a href="maintain/snapper.html">Snapper</a> and boot-integrated via
+  <a href="maintain/boot.html">Limine</a>) with Nix and Home Manager generation
+  histories in user space, you can roll back unexpected regressions in seconds.</p>
 
 <section data-level="beginner">
 <h2>Beginner: Understanding snapshots and generations</h2>

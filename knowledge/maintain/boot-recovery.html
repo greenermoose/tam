@@ -57,7 +57,7 @@ boot documentation before assuming what a label does.</p>
 <table>
 <tr><th>What still works</th><th>Route to consider</th><th>Why it may help</th></tr>
 <tr><td>The machine starts, but its usual firmware entry is missing</td><td>Another firmware entry or the standard EFI fallback path, if present</td><td>It can point to another copy of the bootloader.</td></tr>
-<tr><td>The bootloader menu appears, but one kernel does not start</td><td>A separate kernel entry or another initramfs image</td><td>It changes the kernel or its early boot tools.</td></tr>
+<tr><td>The bootloader menu appears, but one kernel does not start</td><td>A separate kernel entry, another initramfs image, or a bootable <a href="maintain/snapper.html">Snapper snapshot</a></td><td>It changes the kernel or its early boot tools, or boots a known-good root state.</td></tr>
 <tr><td>The kernel starts, but the desktop or automatic login fails</td><td>A text virtual console, if enabled and reachable</td><td>It can provide a login without the graphical session.</td></tr>
 <tr><td>The installed boot files or system cannot be reached</td><td>External live or rescue media</td><td>It starts a separate operating environment from removable media.</td></tr>
 </table>
@@ -69,7 +69,7 @@ to compare what each route shares with normal boot.</p>
 
 <h3>Next step</h3>
 
-<p>For the boot stages and the files that supply them, see <a href="maintain/boot.html">Boot Process, UKIs, and Kernel Updates</a>. For a frozen desktop, emergency reboot or hands-on live USB procedure, see <a href="maintain/recovery.html">Emergency Disaster Recovery</a>.</p>
+<p>For the boot stages and the files that supply them, see <a href="maintain/boot.html">Boot Process, UKIs, and Kernel Updates</a>. For Snapper-managed checkpoints and boot menu integration, see <a href="maintain/snapper.html">Snapper: Btrfs Snapshots for System Rollbacks</a>. For a frozen desktop, emergency reboot or hands-on live USB procedure, see <a href="maintain/recovery.html">Emergency Disaster Recovery</a>.</p>
 </section>
 
 <section data-level="intermediate">
