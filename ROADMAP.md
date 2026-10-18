@@ -82,10 +82,15 @@ builds for the developer receive independently maintained command/corpus version
 bumps; reinstalling existing sources preserves their versions. Release tags
 record the command/corpus version pair. The developer approved the complete
 design on 2026-10-18. TCK6/TCK8 and automated TCK7 transaction checks are
-implemented. A real isolated source build, live GitHub smoke check and
-developer-directed first activation remain pending. The live metadata check
-passes for development and test; `main` predates `knowledge/version`, so the
-run stage cannot be described until it is promoted. See the
+implemented. The first isolated source build exposed a staged-install test
+fixture that inherited `XDG_DATA_HOME` and expected obsolete guide text. The
+fixture now isolates XDG paths and matches the current corpus; full source tests
+passed with the pinned libtam. Rerun the managed build against the updated
+development head. Disposable acceptance builds and live metadata checks have
+standing developer authorization; first activation in the real development
+prefix remains developer-directed. The live metadata check passes for
+development and test; `main` predates `knowledge/version`, so the run stage
+cannot be described until it is promoted. See the
 [Luna handoff](docs/handoffs/tam-upgrade-luna.md).
 
 The [five-part knowledge-system plan](docs/plans/knowledge-system-0.31.0.md)

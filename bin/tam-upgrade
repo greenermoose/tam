@@ -482,7 +482,7 @@ def current_record():
         return None
 
 
-def verified_packaged_fallback(prefix):
+def verified_packaged_fallback(prefix, with_version=False):
     devbin = prefix / "bin"
     remaining = os.pathsep.join(p for p in os.environ.get("PATH", "").split(os.pathsep)
                                 if os.path.abspath(p) != str(devbin))
@@ -498,7 +498,24 @@ def verified_packaged_fallback(prefix):
         return None
     if checked.returncode or not checked.stdout.startswith(b"tam command ") or len(checked.stdout) > 8192:
         return None
-    return fallback
+    return (fallback, checked.stdout) if with_version else fallback
+
+
+def version_summary(output):
+    command = corpus = "unknown"
+    for raw_line in output.splitlines():
+        line = raw_line.decode("ascii", "ignore")
+        match = re.fullmatch(r"tam command ([0-9A-Za-z.+-]+)(?: \(dev [^()\x00-\x20\x7f]{1,128}\))?", line)
+        if match:
+            candidate = match.group(1)
+            try: semver(candidate); command = candidate
+            except ValueError: pass
+        match = re.fullmatch(r"knowledge corpus ([0-9A-Za-z.+-]+)(?: \(dev [^()\x00-\x20\x7f]{1,128}\))?", line)
+        if match:
+            candidate = match.group(1)
+            try: semver(candidate); corpus = candidate
+            except ValueError: pass
+    return command, corpus
 
 
 def acquire_lock(state):
@@ -554,11 +571,32 @@ def activate(selection_item, preview=True):
     preflight(selection_item["build"])
     prefix, state = safe_root()
     current_before = prefix / "opt" / "tam" / "current"
-    rollback_target = os.readlink(current_before) if current_before.is_symlink() else "packaged command"
-    fallback = None if current_before.is_symlink() else verified_packaged_fallback(prefix)
+    active = current_record() if current_before.is_symlink() else None
+    if current_before.is_symlink():
+        previous = os.readlink(current_before)
+        rollback_target = f"{prefix / 'opt' / 'tam' / previous}"
+        fallback = None
+        fallback_versions = None
+    else:
+        fallback_info = verified_packaged_fallback(prefix, with_version=True)
+        fallback = None if fallback_info is None else fallback_info[0]
+        fallback_versions = None if fallback_info is None else version_summary(fallback_info[1])
+        rollback_target = fallback or "unavailable"
     if not current_before.is_symlink() and fallback is None:
         raise CheckError("no_fallback", "a working packaged tam fallback is required before first activation")
-    if not confirm(f"Build tam {selection_item['command']} / corpus {selection_item['corpus']} for {selection_item['stage']} under {prefix}; tam {selection_item['revision']} and libtam {selection_item['build']['libtam_revision']}. This runs the selected upstream Makefiles as your user. Rollback target: {rollback_target}."):
+    running_command = (active or {}).get("command_version") or os.environ.get("TAM_UPGRADE_RUNNING_COMMAND") or "unknown"
+    running_corpus = (active or {}).get("corpus_version") or os.environ.get("TAM_UPGRADE_RUNNING_CORPUS") or "unknown"
+    running_revision = (active or {}).get("tam_revision") or os.environ.get("TAM_UPGRADE_RUNNING_REVISION") or "unknown"
+    rollback_version = ""
+    if fallback_versions is not None:
+        rollback_version = f" (tam {fallback_versions[0]} / corpus {fallback_versions[1]})"
+    preview = (f"Current: tam {running_command} / corpus {running_corpus}; source {running_revision}. "
+               f"Target: tam {selection_item['command']} / corpus {selection_item['corpus']} "
+               f"({selection_item['stage']}); tam {selection_item['revision']}; "
+               f"libtam {selection_item['build']['libtam_version']} at {selection_item['build']['libtam_revision']}. "
+               f"Destination: {prefix}. Rollback target: {rollback_target}{rollback_version}. "
+               "This downloads pinned sources and runs their Makefiles as your user.")
+    if not confirm(preview):
         print("Cancelled; installation unchanged")
         return 0
     opt = prefix / "opt" / "tam"

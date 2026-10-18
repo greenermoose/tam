@@ -9,8 +9,9 @@ Release switching, approved the development prefix and paired release tags, and
 clarified independent code-based versions with no renumbering on installation.
 The developer accepted the complete plan on 2026-10-18; see the
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
-**Next action:** Finish TCK7 acceptance with a confirmed isolated source build;
-activation remains developer-directed.
+**Next action:** Push the staged-install test isolation fix, then rerun the
+updater's isolated source-build acceptance against the updated development
+head. First activation in `~/.local/dev` remains developer-directed.
 The implementation and automated acceptance evidence are recorded below.
 **Implementation commits:** `f721120`, `5a84294` and `627c126` (source and
 tests); `09101b1` records the handoff.
@@ -232,8 +233,12 @@ the developer's working clone:
    when the selected older tam lacks the upgrade subcommands.
 3. Show current/target versions, channel, full tam/libtam revisions, intended
    destination and rollback target, plus the fact that building runs the selected
-   upstream Makefiles as this user. Ask for confirmation before downloading
-   build sources or executing them. Freeze that previewed selection afterward.
+   upstream Makefiles as this user. Freeze that previewed selection afterward.
+   For acceptance builds in a disposable temporary home/prefix, Fred has granted
+   standing authorization to fetch the pinned sources, run their checks and
+   activate only inside that temporary prefix; agents should not interrupt him
+   for per-build confirmation. The command continues to preview and require
+   confirmation for ordinary switches into the user's configured prefix.
 4. Use a private temporary build area and detached source snapshots fetched
    from the fixed repositories at those SHAs. Do not create worktrees, copy,
    reset, pull, switch or write into existing developer clones. Disable Git
@@ -300,9 +305,12 @@ shared clone on develop under path claims, following `AGENTS.md` and the
   receipts, locking, owned links, validation, retained recovery helper and
   offline rollback. Evidence: the fake-HOME end-to-end suite covers activation,
   failure preservation, endpoint conflicts, lock refusal and rollback. A real
-  source build into an isolated prefix remains unverified; complete it with
-  the plan's preview and confirmation before the first real development-prefix
-  activation.
+  isolated source build compiled both components. Its staged-install test was
+  contaminated by the caller's `XDG_DATA_HOME` and expected obsolete guide
+  text. The test now supplies isolated data paths and checks the current welcome
+  text; a full `make test` with the pinned libtam passed, including the staged
+  install. Rerun the managed isolated build against this updated source head.
+  First activation in `~/.local/dev` still requires Fred's explicit instruction.
 - [x] **TCK8 (CLI, documentation and delivery handoff):** Wired both commands,
   dispatch/help, static Bash completion, manual, README and `knowledge/tam.html`; document the
   temporary development override and bootstrap. Independent versions are
@@ -343,9 +351,11 @@ state, not just internal helpers.
 | Paths with spaces, malicious metadata, oversized/chunked data | Safe argv, bounded parser/transport, no injected commands or terminal controls. |
 | Normal command browsing after installation | No network; installed corpus and private libtam resolve outside build directory. |
 
-No implementation tests or installations were performed during planning. A live
-GitHub smoke check and actual development-prefix activation belong to approved
-implementation acceptance; package Test/Run/Release remain separate actions.
+No implementation tests or installations were performed during planning. Live
+GitHub metadata checks and disposable isolated acceptance builds may proceed
+under the developer's standing authorization; activation in the real
+development prefix remains separately developer-directed. Package
+Test/Run/Release remain separate actions.
 
 ## References and disposition
 

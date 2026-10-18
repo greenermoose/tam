@@ -172,9 +172,10 @@ stage="$tmp/stage/usr"
 if make -C "$root" install DESTDIR="$tmp/stage" PREFIX=/usr BUILD="$tmp/build" \
         LIBTAM_PREFIX="${LIBTAM_PREFIX:-/usr/local}" >/dev/null 2>&1; then
     [ -x "$stage/bin/tam" ] || fail "staged install produced no binary"
-    out=$(env XDG_DATA_DIRS="$stage/share" TAM_DATADIR="$tmp/no-datadir" \
+    out=$(env HOME="$tmp/nohome" XDG_DATA_HOME="$tmp/nodata" \
+              XDG_DATA_DIRS="$stage/share" TAM_DATADIR="$tmp/no-datadir" \
               env -u TAM_KNOWLEDGE_DIR "$stage/bin/tam" show --pipe welcome)
-    printf '%s\n' "$out" | grep -q 'Tamlinux is an independent' \
+    printf '%s\n' "$out" | grep -q 'Tamlinux is a continuing Linux workstation' \
         || fail "staged install did not find the bundled corpus"
     pass "staged install relocates and finds the corpus"
 else

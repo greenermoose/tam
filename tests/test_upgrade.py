@@ -25,6 +25,11 @@ class UpgradeMetadataTests(unittest.TestCase):
             with self.subTest(version=version), self.assertRaises(ValueError):
                 module.semver(version)
 
+    def test_version_summary_accepts_display_build_labels(self):
+        self.assertEqual(module.version_summary(
+            b"tam command 0.29.3 (dev 518cad5)\nknowledge corpus 0.30.0 (dev 9de0735-dirty)\n"),
+            ("0.29.3", "0.30.0"))
+
     def test_duplicate_and_overdeep_json_are_rejected(self):
         with self.assertRaises(ValueError):
             module.parse_json('{"status":"ok","status":"bad"}')
@@ -143,7 +148,7 @@ class UpgradeMetadataTests(unittest.TestCase):
         self.assertEqual(result["stages"][0]["corpus_comparison"], "newer")
         self.assertEqual(result["stages"][2]["error"], "rate_limited")
 
-    def _activate_fixture(self, home, sha, fail_tam_test=False, preexisting=False):
+    def _activate_fixture(self, home, sha, fail_tam_test=False, preexisting=False, prompts=None):
         item = {"stage":"development", "command":"0.31.0", "corpus":"0.32.0",
                 "revision":sha, "build":{"libtam_revision":"c081708b5ed2c8ade4ecdf171cebc110c2cb316f",
                 "libtam_version":"0.2.0"}}
@@ -165,6 +170,7 @@ class UpgradeMetadataTests(unittest.TestCase):
         package_bin = home / "packaged/bin"
         package_bin.mkdir(parents=True, exist_ok=True)
         (package_bin / "tam").write_text("#!/bin/sh\nexit 0\n")
+        (package_bin / "tam").chmod(0o755)
         if preexisting:
             old = home / ".local/dev/bin/tam"
             old.parent.mkdir(parents=True, exist_ok=True)
@@ -179,9 +185,16 @@ class UpgradeMetadataTests(unittest.TestCase):
                 output = "tam command 0.31.0\nknowledge corpus 0.32.0\nlibtam 0.2.0\n"
                 return SimpleNamespace(returncode=0, stdout=output if kwargs.get("text") else output.encode())
             return SimpleNamespace(returncode=0, stdout=b"")
-        with mock.patch.dict(os.environ, {"HOME":str(home), "PATH":os.environ.get("PATH", "")}), \
+        def accept_preview(prompt):
+            if prompts is not None:
+                prompts.append(prompt)
+            return True
+        with mock.patch.dict(os.environ, {"HOME":str(home), "PATH":os.environ.get("PATH", ""),
+                                          "TAM_UPGRADE_RUNNING_COMMAND":"0.30.0",
+                                          "TAM_UPGRADE_RUNNING_CORPUS":"0.31.0",
+                                          "TAM_UPGRADE_RUNNING_REVISION":"unknown"}), \
              mock.patch.object(module.sys.stdin, "isatty", return_value=True), \
-             mock.patch.object(module, "confirm", return_value=True), \
+             mock.patch.object(module, "confirm", side_effect=accept_preview), \
              mock.patch.object(module, "preflight"), \
              mock.patch.object(module, "run_bounded", side_effect=fake_run), \
              mock.patch.dict(os.environ, {"HOME":str(home), "PATH":str(package_bin) + os.pathsep + os.environ.get("PATH", "")}), \
@@ -202,6 +215,24 @@ class UpgradeMetadataTests(unittest.TestCase):
                  mock.patch.object(module.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout=previous_output)):
                 self.assertEqual(module.rollback(), 0)
             self.assertEqual(os.readlink(current), first)
+
+    def test_build_preview_shows_current_target_revisions_paths_and_rollback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            home = pathlib.Path(tmp)
+            prompts = []
+            self.assertEqual(self._activate_fixture(home, "1" * 40, prompts=prompts), 0)
+            self.assertEqual(len(prompts), 1)
+            preview = prompts[0]
+            for expected in (
+                "Current: tam 0.30.0 / corpus 0.31.0",
+                "Target: tam 0.31.0 / corpus 0.32.0 (development)",
+                "tam " + "1" * 40,
+                "libtam 0.2.0 at c081708b5ed2c8ade4ecdf171cebc110c2cb316f",
+                f"Destination: {home}/.local/dev",
+                f"Rollback target: {home}/packaged/bin/tam (tam 0.30.0 / corpus unknown)",
+                "downloads pinned sources and runs their Makefiles",
+            ):
+                self.assertIn(expected, preview)
 
     def test_failed_build_keeps_previous_current_pointer(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-18 | TCK7 isolated build acceptance, staged-guide test repair and standing approval for disposable builds | Codex CLI 0.163.0; `gpt-6.1-sol` | [Acceptance follow-up](docs/ai/2026-10-18-tam-upgrade-acceptance.md) |
 | 2026-10-18 | Implement tam upgrade / tam switch, command 0.31.0 / corpus 0.32.0 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Implementation and acceptance](docs/ai/2026-10-18-tam-upgrade-implementation.md) |
 | 2026-10-18 | Accepted plan and Luna handoff for version checks, source upgrades, four-stage switching and paired releases | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-18-tam-update-check-plan.md) |
 | 2026-10-18 | Plan corpus 0.31.0 five-part knowledge system; reconcile and maintain plans; implementation handoff | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-18-tam-knowledge-overhaul-planning.md) |
