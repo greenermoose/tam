@@ -7,7 +7,7 @@ navigation and integrated manual discovery. Implementation has not started.
 **Authority:** The developer approved the five-part design and in-guide manual
 lookup, then requested this authoritative work plan; see the
 [approval record](../ai/2026-10-18-tam-knowledge-overhaul-planning.md).
-**Next action:** Implement slice K1 below in the existing shared clone, after
+**Next action:** Implement checklist item TCK1 below in the existing shared clone, after
 refreshing the baseline and claiming the paths it changes.
 
 This is the single implementation authority for this overhaul. The
@@ -266,21 +266,23 @@ CLI entry and following links cannot produce different supported actions.
 Use the existing clone and `tam-work` claims. These slices are sequential where
 they share contracts; they are not instructions to dispatch other agents.
 Claim only current paths, adding shared integration files briefly as needed.
+Each slice is a checklist item with a permanent TCK identifier; see the
+[checklist identifier rules](../../CHECKLISTS.md).
 
-| Slice | Work and likely paths | Completion evidence |
+| Item | Work and likely paths | Completion evidence |
 | --- | --- | --- |
-| K1: Index/hierarchy contract | `tools/build-index.py`, `src/index.[ch]`, generated index schema, focused index tests, `docs/corpus-authoring.md`. Implement five tracks, optional logical parent with old-corpus fallback, root handling and hierarchy validation. Keep the current corpus readable. | Fixtures cover five tracks, old three-track input, missing/cyclic parents, track mismatch, additive columns and unchanged topic/level/prerequisite behavior. Record schema decisions here. |
-| K2: Shared reader navigation | `src/pager.[ch]`, `render.[ch]` as needed, loader contexts in `tam.c`, `man.c`, `info.c`, focused PTY fixtures/tests. Implement common location/actions and Help, preserving native Info traversal and history. Set command 0.30.0 and its matching test assertion in the change introducing the first new reader capability. | Guide, topics, man and Info all expose reachable Guide/Back/Help/Quit; scrolling/resize/narrow screens/search preserve them. Direct CLI entry works too. |
-| K3: Manual and search discovery | `src/man.[ch]`, common routing and prompt support, `tam.c`, `info.c`, `completions/bash/tam`, `man/tam.1`, deterministic helper fixtures. Implement `tam:man`, open/keyword/section actions and `tam:search`; retain Info directory. | A guide reader opens an arbitrary installed manual and keyword result without leaving tam; missing docs and literal hostile-looking input fail safely; pipe mode never prompts. |
-| K4: Corpus migration and learning | All 50 mapped pages, five new authored pages, `knowledge/index.{tsv,json}`, `knowledge/version`, `tools/lint-corpus.py` and related tests if rules change. Rebuild root/hubs, paths, metadata, navigation lesson and contextual manual links; review current facts. Set corpus 0.31.0 in the change introducing the reorganized/new content. | Every baseline page has a deliberate home, valid breadcrumbs and preserved public addresses; all three routes meet outcomes; complete reachability and query checks pass. |
-| K5: Integrate and hand off candidate | Verify the version files/assertions already changed with their features; reconcile `README.md`, `ROADMAP.md`, development/authoring/audit docs and provenance. Run stable-tree integration and prepare package-consumption notes. | Command 0.30.0/corpus 0.31.0 pair passes acceptance below. Mark plan Completed only against evidence; keep real-terminal/package review limitations explicit. No deployment/stage change. |
+| TCK1: Index/hierarchy contract | `tools/build-index.py`, `src/index.[ch]`, generated index schema, focused index tests, `docs/corpus-authoring.md`. Implement five tracks, optional logical parent with old-corpus fallback, root handling and hierarchy validation. Keep the current corpus readable. | Fixtures cover five tracks, old three-track input, missing/cyclic parents, track mismatch, additive columns and unchanged topic/level/prerequisite behavior. Record schema decisions here. |
+| TCK2: Shared reader navigation | `src/pager.[ch]`, `render.[ch]` as needed, loader contexts in `tam.c`, `man.c`, `info.c`, focused PTY fixtures/tests. Implement common location/actions and Help, preserving native Info traversal and history. Set command 0.30.0 and its matching test assertion in the change introducing the first new reader capability. | Guide, topics, man and Info all expose reachable Guide/Back/Help/Quit; scrolling/resize/narrow screens/search preserve them. Direct CLI entry works too. |
+| TCK3: Manual and search discovery | `src/man.[ch]`, common routing and prompt support, `tam.c`, `info.c`, `completions/bash/tam`, `man/tam.1`, deterministic helper fixtures. Implement `tam:man`, open/keyword/section actions and `tam:search`; retain Info directory. | A guide reader opens an arbitrary installed manual and keyword result without leaving tam; missing docs and literal hostile-looking input fail safely; pipe mode never prompts. |
+| TCK4: Corpus migration and learning | All 50 mapped pages, five new authored pages, `knowledge/index.{tsv,json}`, `knowledge/version`, `tools/lint-corpus.py` and related tests if rules change. Rebuild root/hubs, paths, metadata, navigation lesson and contextual manual links; review current facts. Set corpus 0.31.0 in the change introducing the reorganized/new content. | Every baseline page has a deliberate home, valid breadcrumbs and preserved public addresses; all three routes meet outcomes; complete reachability and query checks pass. |
+| TCK5: Integrate and hand off candidate | Verify the version files/assertions already changed with their features; reconcile `README.md`, `ROADMAP.md`, development/authoring/audit docs and provenance. Run stable-tree integration and prepare package-consumption notes. | Command 0.30.0/corpus 0.31.0 pair passes acceptance below. Mark plan Completed only against evidence; keep real-terminal/package review limitations explicit. No deployment/stage change. |
 
 Allocate command **0.30.0** to the first new reader/discovery capability and
 corpus **0.31.0** to the reorganized content, in the changes delivering those
 features. Do not bump either just for this plan. If another authorized feature
 consumes a target first, stop and reconcile the version target with the developer;
 do not silently renumber this agreed corpus milestone. Intermediate development
-commits may be incomplete; do not mark the milestone complete after K1 or K4.
+commits may be incomplete; do not mark the milestone complete after TCK1 or TCK4.
 
 ## Acceptance and verification
 
@@ -338,9 +340,9 @@ records remain useful; their old task lists are not new assignments.
 Start with `AGENTS.md`, `docs/plans/README.md`, the current roadmap/development
 sections and this plan. Read `docs/corpus-authoring.md` before editing content.
 Refresh command/corpus versions, `git status --short`, HEAD and relevant claims;
-preserve others' changes. Claim K1's exact paths with `tam-work begin` and check
+preserve others' changes. Claim TCK1's exact paths with `tam-work begin` and check
 the inbox. Inspect index readers and fixtures before adding the parent field.
-Then work K1 -> K2 -> K3 -> K4 -> K5, recording checkpoints in this plan and
+Then work TCK1 -> TCK2 -> TCK3 -> TCK4 -> TCK5, recording checkpoints in this plan and
 provenance. Keep the command runnable between slices. This document has no
-unresolved design question that blocks K1. Report a newly discovered conflict
+unresolved design question that blocks TCK1. Report a newly discovered conflict
 instead of reviving an older proposal.

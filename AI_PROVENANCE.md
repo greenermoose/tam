@@ -75,3 +75,4 @@ model for each session.
 | 2026-10-17 | Continuous selected hyperlink emphasis including spaces; command 0.29.2 | Codex CLI 0.163.0; `gpt-6` | [Session record](docs/ai/2026-10-17-tam-selected-link-spaces.md) |
 | 2026-10-17 | Keep layout whitespace before selected hyperlinks unhighlighted; command 0.29.3 | Codex CLI 0.163.0; `gpt-6` | [Session record](docs/ai/2026-10-17-tam-link-boundary-spaces.md) |
 | 2026-10-18 | Snapper corpus page work plan and section placement (`docs/plans/corpus/snapper.md`) | Antigravity CLI 1.4.2; `gemini-4-argon` | [Session record](docs/ai/2026-10-18-tam-snapper-corpus-plan.md) |
+| 2026-10-18 | Rename knowledge-system checklist items to permanent `TCK` identifiers; checklist identifier rules (`CHECKLISTS.md`) | Claude Code 2.1.302; `claude-opus-5-5` | [Session record](docs/ai/2026-10-18-tam-tck-checklist-identifiers.md) |

@@ -22,7 +22,9 @@ Follow the [plan maintenance procedure](../plan-maintenance.md).
 
 ## Implementation and handoff
 
-<Ordered slices, likely paths, completion evidence, first action.>
+<Ordered slices, likely paths, completion evidence, first action. Give each
+slice a new TCK identifier under the [checklist identifier rules](../../CHECKLISTS.md);
+never start a plan-local series or another letter-number label.>
 
 ## Acceptance and limits
 

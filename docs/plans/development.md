@@ -5,7 +5,7 @@
 **Scope:** Living integration contract; current command 0.29.3 and corpus 0.30.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), and [corpus 0.31.0 work plan](knowledge-system-0.31.0.md).
-**Next action:** Integrate the overhaul's K1 hierarchy/index contract, then its
+**Next action:** Integrate the overhaul's TCK1 hierarchy/index contract, then its
 ordered navigation, discovery and corpus slices. Implementation has not started.
 
 **Stage:** Develop. Milestones 1–16 and later reader improvements have landed.

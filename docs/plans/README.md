@@ -9,7 +9,7 @@ queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
 
 | Plan | Status | Disposition / next action |
 | --- | --- | --- |
-| [Knowledge system, corpus 0.31.0](knowledge-system-0.31.0.md) | Ready | **Next implementation.** Five-part spine, learning routes, shared Guide/Man/Info navigation, in-guide manual and search discovery. Start K1; companion command target 0.30.0. |
+| [Knowledge system, corpus 0.31.0](knowledge-system-0.31.0.md) | Ready | **Next implementation.** Five-part spine, learning routes, shared Guide/Man/Info navigation, in-guide manual and search discovery. Start TCK1; companion command target 0.30.0. |
 | [Development contract](development.md) | Active | Living ownership, behavior and integration contract; incorporate each overhaul slice without rewriting historical decisions. |
 | [Pager display portability](pager-display-portability.md) | In progress | Source implementation is command 0.29.0 (`581822a`); real Linux-console/Foot acceptance of an exact packaged candidate remains pending on the developer's instruction. No missing-source assignment. |
 

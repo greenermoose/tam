@@ -79,14 +79,14 @@ Neither version file changes during planning.
 
 | Order | Outcome | Completion |
 | --- | --- | --- |
-| K1 | Five-track metadata and logical page hierarchy, preserving old-corpus loading. | Index/schema/parent validation and compatibility fixtures. |
-| K2 | Common Guide/Back/Help/Quit navigation across Guide, Man and Info. | Focus, history, search, Info Up and resize/terminal behavior verified. |
-| K3 | Open arbitrary man pages, keyword/section discovery and Guide search inside tam. | Deterministic lookup/failure tests; no shell execution or noninteractive prompts. |
-| K4 | Reorganize/review all 50 pages; add hubs and learning material; rebuild paths. | Complete page mapping, reachability, depth-aware learning outcomes and query checks. |
-| K5 | Integrate command 0.30.0 / corpus 0.31.0 and prepare candidate handoff. | Both suites and integrated acceptance; package/physical-review limits recorded. |
+| TCK1 | Five-track metadata and logical page hierarchy, preserving old-corpus loading. | Index/schema/parent validation and compatibility fixtures. |
+| TCK2 | Common Guide/Back/Help/Quit navigation across Guide, Man and Info. | Focus, history, search, Info Up and resize/terminal behavior verified. |
+| TCK3 | Open arbitrary man pages, keyword/section discovery and Guide search inside tam. | Deterministic lookup/failure tests; no shell execution or noninteractive prompts. |
+| TCK4 | Reorganize/review all 50 pages; add hubs and learning material; rebuild paths. | Complete page mapping, reachability, depth-aware learning outcomes and query checks. |
+| TCK5 | Integrate command 0.30.0 / corpus 0.31.0 and prepare candidate handoff. | Both suites and integrated acceptance; package/physical-review limits recorded. |
 
 The plan contains exact scope, dependencies, file mapping, navigation contracts,
-acceptance cases and next-agent first steps. Start K1 in the shared clone with
+acceptance cases and next-agent first steps. Start TCK1 in the shared clone with
 path claims. Installer execution and stateful progression are outside this work.
 
 Separately, [portable pager display](docs/plans/pager-display-portability.md) has
