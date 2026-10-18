@@ -167,6 +167,8 @@ typedef struct {
     int             help_open;
 } pager_t;
 
+static void follow(pager_t *st, const char *href);
+
 static void emit_reset(int is_attention);
 static int emit_style(const tam_span_t *sp, int is_sel);
 static size_t status_byte_limit(const char *s, int max_cols);
@@ -614,7 +616,8 @@ static void pager_next_hit(pager_t *st, int dir)
              st->nhits, st->search_query);
 }
 
-static void pager_draw_prompt(pager_t *st, const char *query, size_t qlen)
+static void pager_draw_prompt(pager_t *st, const char *label,
+                              const char *query, size_t qlen)
 {
     int row = st->height >= 2 ? st->height - 1 : 0;
     int max = st->width > 1 ? st->width - 1 : 0;
@@ -622,7 +625,7 @@ static void pager_draw_prompt(pager_t *st, const char *query, size_t qlen)
     (void)tam_terminal_move(g_term, &b, row, 0);
     (void)tam_terminal_cap(g_term, &b, g_term->sgr0, 0, 0);
     (void)tam_terminal_erase_eol(g_term, &b);
-    (void)tam_buf_puts(&b, "/");
+    (void)tam_buf_puts(&b, label);
     size_t off = 0;
     size_t n = tam_display_prefix(query, qlen, (size_t)max, NULL);
     while (off < n) {
@@ -638,13 +641,13 @@ static void pager_draw_prompt(pager_t *st, const char *query, size_t qlen)
     tam_buf_free(&b);
 }
 
-static void pager_search_prompt(pager_t *st)
+static int pager_read_prompt(pager_t *st, const char *label,
+                             char *query, size_t query_cap)
 {
-    char query[128];
     size_t qlen = 0;
     query[0] = '\0';
     int cancelled = 0;
-    pager_draw_prompt(st, query, qlen);
+    pager_draw_prompt(st, label, query, qlen);
 
     while (!g_stop) {
         unsigned char ch;
@@ -666,14 +669,14 @@ static void pager_search_prompt(pager_t *st)
                 while (qlen > 0 && ((unsigned char)query[qlen] & 0xc0) == 0x80)
                     qlen--;
                 query[qlen] = '\0';
-                pager_draw_prompt(st, query, qlen);
+                pager_draw_prompt(st, label, query, qlen);
             }
             continue;
         }
-        if ((isprint(ch) || (unsigned char)ch >= 0x80) && qlen < sizeof(query) - 1) {
+        if ((isprint(ch) || (unsigned char)ch >= 0x80) && qlen < query_cap - 1) {
             query[qlen++] = (char)ch;
             query[qlen] = '\0';
-            pager_draw_prompt(st, query, qlen);
+            pager_draw_prompt(st, label, query, qlen);
         }
     }
 
@@ -683,13 +686,70 @@ static void pager_search_prompt(pager_t *st)
     tam_buf_free(&b);
     tam_pager_screen_invalidate(&g_screen);
 
-    if (!cancelled) {
+    return !cancelled;
+}
+
+static void pager_search_prompt(pager_t *st)
+{
+    char query[128];
+    if (pager_read_prompt(st, "/", query, sizeof(query))) {
+        size_t qlen = strlen(query);
         if (qlen > 0) {
             pager_perform_search(st, query);
         } else if (st->search_query[0] != '\0') {
             pager_next_hit(st, 1);
         }
     }
+}
+
+static char *pager_uri_encode(const char *text)
+{
+    static const char hex[] = "0123456789ABCDEF";
+    size_t n = strlen(text);
+    char *out = malloc(n * 3 + 1);
+    if (out == NULL) return NULL;
+    size_t used = 0;
+    for (size_t i = 0; i < n; i++) {
+        unsigned char c = (unsigned char)text[i];
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+            out[used++] = (char)c;
+        else {
+            out[used++] = '%';
+            out[used++] = hex[c >> 4];
+            out[used++] = hex[c & 15];
+        }
+    }
+    out[used] = '\0';
+    return out;
+}
+
+static int pager_prompt_action(pager_t *st, const char *href, char *out,
+                               size_t out_cap)
+{
+    const char *label = NULL;
+    const char *route = NULL;
+    if (strcmp(href, "tam:prompt:guide-search") == 0) {
+        label = "Guide search: "; route = "tam:search?query=";
+    } else if (strcmp(href, "tam:prompt:man-open") == 0) {
+        label = "Manual page [section]: "; route = "tam:man:open?query=";
+    } else if (strcmp(href, "tam:prompt:man-keyword") == 0) {
+        label = "Manual keyword: "; route = "tam:man:keyword?query=";
+    } else if (strcmp(href, "tam:prompt:man-section") == 0) {
+        label = "Manual section: "; route = "tam:man:section?section=";
+    } else return 0;
+
+    char input[128];
+    out[0] = '\0';
+    if (!pager_read_prompt(st, label, input, sizeof(input)) || input[0] == '\0')
+        return 1;
+    char *encoded = pager_uri_encode(input);
+    if (encoded == NULL) {
+        snprintf(st->msg, sizeof(st->msg), "could not encode lookup input");
+        return 1;
+    }
+    snprintf(out, out_cap, "%s%s", route, encoded);
+    free(encoded);
+    return 1;
 }
 
 static void emit_line(const tam_line_t *line, int width,
@@ -1168,6 +1228,12 @@ static int match_anchor(const char *haystack, const char *needle)
 static void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
+        return;
+    }
+    if (strncmp(href, "tam:prompt:", 11) == 0) {
+        char target[512];
+        if (pager_prompt_action(st, href, target, sizeof(target)) && target[0] != '\0')
+            follow(st, target);
         return;
     }
     if (href[0] == '#') {

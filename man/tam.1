@@ -31,6 +31,9 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .IR PAGE
 .RI [ --pipe ]
 .br
+.B tam man
+.RI [ --help ]
+.br
 .B tam info
 .RI [ MANUAL \ [ NODE ]]
 .RI [ --pipe ]
@@ -100,6 +103,9 @@ or
 .B tam search \fR[\fB\-\-json\fR] \fITERM...\fR
 Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries). Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). If no guide page matches, suggests searching system manual pages via
 .BR "tam man" .
+The Guide reader also provides an in-reader search prompt through the
+.B tam:search
+route; results link directly to matching guide pages. This keeps the CLI and JSON output contract unchanged.
 .TP
 .B tam explain \fR[\fB\-\-level\fR \fILEVEL\fR] [\fITOPIC\fR] [\fB\-\-pipe\fR]
 Display a topic guide to concepts and keywords in the Tamlinux guide.
@@ -120,7 +126,13 @@ emits clean plain text. Supports
 (exhaustive metadata including paths, levels, and keyword arrays).
 .TP
 .B tam man \fR[\fISECTION\fR] \fIPAGE\fR [\fB\-\-pipe\fR]
-Display a hyperlinked manual page. Converts system roff manual pages into semantic HTML and displays them in the built-in pager. Cross-references (e.g.
+Display a hyperlinked manual page. Bare
+.B tam man
+opens a discovery landing page with actions to open a page, find by keyword, or browse a section. Keyword and section results use the installed manual index with bounded output and no shell command construction; page-name input is treated as data. Selecting a manual result opens it in the same reader. Noninteractive bare invocation prints the landing page without prompting, and
+.B tam man --help
+continues to print usage.
+.PP
+System roff manual pages are converted to semantic HTML and displayed in the built-in pager. Cross-references (e.g.
 .BR ls (1))
 and section headings are automatically turned into active hyperlinks that can be followed with
 .B Tab
@@ -212,8 +224,11 @@ In GNU Info manuals, navigate to the Next or Previous sibling node. When search 
 .BR n / N
 cycles through search matches instead.
 .TP
-.BR u ", " Left
-Navigate up to the parent node in an Info manual, or go back to the previous position in navigation history, restoring the saved viewport and line position.
+.B Left
+Always go back in reader history, restoring the saved viewport, cursor and link focus.
+.TP
+.B u
+Navigate up to the parent node in an Info manual. On ordinary pages, go back in reader history.
 .TP
 .B t
 Jump directly to the \fITop\fR node of the current Info manual.
@@ -248,6 +263,13 @@ for expert.
 .TP
 .BR q ", " Esc
 Exit the pager.
+.TP
+.B ?
+Open navigation help. Press
+.B ?
+or
+.B Esc
+to close it without changing the page, focus or history.
 .SH TERMINAL SUPPORT
 The interactive pager reads terminal capabilities through terminfo and updates
 only rows whose contents changed. It reflows pages after a terminal resize,

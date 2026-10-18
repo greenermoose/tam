@@ -1,6 +1,7 @@
 #include <tam.h>
 
 #include "depth.h"
+#include "discovery.h"
 #include "info.h"
 #include "man.h"
 #include "pager.h"
@@ -494,7 +495,9 @@ static char *parse_dir_to_html(const char *buf, size_t len)
                                  "<h1>GNU Info Directory</h1>\n"
                                  "<p>The GNU Info directory catalog lists reference manuals "
                                  "available on this system.<br>\n"
-                                 "Select a manual with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to open it. "
+                                 "Use Info for long-form manuals and related nodes; use <a href=\"tam:man\">Man pages</a> "
+                                 "for concise command, system-call and file-format references.<br>\n"
+                                 "Select an installed manual with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to open it. "
                                  "Press <kbd>`</kbd> for the Guide, or <kbd>q</kbd> to exit.</p>\n");
 
     const char *menu = strstr(buf, "* Menu:\n");
@@ -1254,6 +1257,12 @@ static tam_document_t *info_unified_load(void *vctx, const char *href,
     }
     if (strncmp(href, "man:", 4) == 0) {
         return tam_man_load(href + 4, content_width);
+    }
+    if (strncmp(href, "tam:man", 7) == 0) {
+        return tam_man_uri_document(href, content_width);
+    }
+    if (strncmp(href, "tam:search", 10) == 0) {
+        return tam_guide_search_uri_document(ctx->root, href, content_width);
     }
     if (strncmp(href, "tam:topics", 10) == 0) {
         unsigned level = 0;

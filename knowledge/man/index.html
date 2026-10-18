@@ -34,17 +34,24 @@ details.</li>
 <ol>
 <li>User commands, such as <code>ls</code> and <code>grep</code>.</li>
 <li>System calls, the kernel's interface.</li>
-<li>Library functions.</li>
+<li>Library calls and functions.</li>
+<li>Special files and device interfaces.</li>
 <li>File formats and configuration, such as <code>fstab</code>.</li>
-<li>Overviews and conventions, such as regular expressions.</li>
+<li>Games and demonstrations.</li>
+<li>Miscellaneous topics and conventions, such as regular expressions.</li>
 <li>Administration commands and daemons.</li>
+<li>Kernel routines, when provided by the installed system.</li>
 </ol>
 
 <h2>Finding the right page</h2>
 
 <p><code>man -k</code> (also called <code>apropos</code>) searches the short
-descriptions; <code>whatis</code> prints the one-line summary. Inside a page,
-<code>/</code> searches, <code>n</code> repeats, and <code>q</code> quits.</p>
+descriptions; <code>whatis</code> prints the one-line summary. Bare
+<code>tam man</code> opens a discovery page with Open a page, Find by keyword,
+and Browse a section. Lookup input is entered in the reader, results are
+selectable links, and the section list explains the conventional meanings.
+Inside a manual, <code>/</code> searches the current page, <code>n</code>
+repeats, <kbd>?</kbd> opens navigation help, and <code>q</code> quits.</p>
 
 <h2>Hyperlinked manuals with tam man</h2>
 
@@ -58,13 +65,16 @@ between referenced commands with <kbd>Tab</kbd> and <kbd>Enter</kbd>.</p>
 
 <h2>Authoritative GNU Info manuals with tam info</h2>
 
-<p>While UNIX man pages provide quick syntax cards, the GNU Project maintains full,
-book-length documentation in Texinfo format. Tamlinux includes an offline GNU Info reader:
+<p>While man pages provide concise reference entries, the GNU Project's Info
+manuals provide longer explanations organized into related nodes. Tamlinux
+includes an Info reader:
 <code>tam info [MANUAL [NODE]]</code>.</p>
 
-<p>Explore the complete system-wide library in the <a href="info:dir">Info Directory catalog</a>,
-or open comprehensive manuals such as <a href="info:coreutils">coreutils</a>,
-<a href="info:bash">bash</a>, and <a href="info:libc">libc</a>.</p>
+<p>Start with the installed <a href="info:dir">Info Directory catalog</a>.
+Available manuals depend on installed packages. Choose Info for a manual's
+linked chapters and nodes; choose Man pages for a concise command, system-call,
+or file-format reference. Use <code>u</code> for an Info manual's real parent
+node and Left Arrow for browsing history.</p>
 
 <p>Back to the <a href="index.html">guide index</a>.</p>
 </body>

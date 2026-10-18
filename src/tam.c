@@ -2,6 +2,7 @@
 
 #include "ask.h"
 #include "depth.h"
+#include "discovery.h"
 #include "index.h"
 #include "info.h"
 #include "install.h"
@@ -791,6 +792,12 @@ static tam_document_t *corpus_load(void *vctx, const char *href,
     if (strncmp(href, "info:", 5) == 0) {
         return tam_info_load(href + 5, content_width);
     }
+    if (strncmp(href, "tam:man", 7) == 0) {
+        return tam_man_uri_document(href, content_width);
+    }
+    if (strncmp(href, "tam:search", 10) == 0) {
+        return tam_guide_search_uri_document(ctx->root, href, content_width);
+    }
     if (strncmp(href, "tam:explain", 11) == 0) {
         unsigned level = 0;
         const char *lq = strstr(href, "level=");
@@ -1100,6 +1107,7 @@ static int cmd_show(int n, char **args)
             free(root);
             return TAM_EXIT_FAILURE;
         }
+        tam_document_ensure_location(doc, page);
         int rc = 0;
         if (interactive) {
             corpus_ctx_t ctx;
@@ -1123,6 +1131,30 @@ static int cmd_show(int n, char **args)
         return rc;
     }
 
+    if (page != NULL && (strncmp(page, "tam:man", 7) == 0 ||
+                         strncmp(page, "tam:search", 10) == 0)) {
+        corpus_ctx_t ctx = {.root = root};
+        int interactive = !pipe && isatty(STDOUT_FILENO);
+        int width = interactive ? tam_terminal_width() : 80;
+        tam_document_t *doc = corpus_load(&ctx, page, width);
+        if (doc == NULL) {
+            fprintf(stderr, TAM_COMMAND_NAME ": could not open discovery page '%s'\n", page);
+            free(root);
+            return TAM_EXIT_FAILURE;
+        }
+        tam_document_ensure_location(doc, page);
+        int rc = 0;
+        if (interactive) {
+            rc = tam_pager_run(doc, page, corpus_load, &ctx);
+        } else {
+            char *text = tam_document_text(doc);
+            if (text != NULL) { fputs(text, stdout); free(text); }
+            tam_document_free(doc);
+        }
+        free(root);
+        return rc;
+    }
+
     if (page != NULL && strncmp(page, "info:", 5) == 0) {
         int interactive = !pipe && isatty(STDOUT_FILENO);
         int width = interactive ? tam_terminal_width() : 80;
@@ -1132,6 +1164,7 @@ static int cmd_show(int n, char **args)
             free(root);
             return TAM_EXIT_FAILURE;
         }
+        tam_document_ensure_location(doc, page);
         int rc = 0;
         if (interactive) {
             corpus_ctx_t ctx;
@@ -1158,6 +1191,7 @@ static int cmd_show(int n, char **args)
             free(root);
             return TAM_EXIT_FAILURE;
         }
+        tam_document_ensure_location(doc, page);
         int rc = 0;
         if (interactive) {
             corpus_ctx_t ctx;

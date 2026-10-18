@@ -1534,10 +1534,141 @@ if "$TAM" check --bogus >/dev/null 2>&1; then fail "check --bogus exited 0"; fi
 pass "install framework overview, inspect probes, check runner, and argument errors"
 
 # Man command: view man pages, section resolution, cross-reference hyperlinking, and tam-man wrapper.
-"$TAM" man | grep -q 'Usage:' || fail "bare man missing usage"
+man_landing=$("$TAM" man)
+printf '%s\n' "$man_landing" | grep -q '^Guide > Man pages > Manual lookup$' || fail "bare man missing landing location"
+printf '%s\n' "$man_landing" | grep -q 'Open a page' || fail "bare man missing open-page action"
+printf '%s\n' "$man_landing" | grep -q 'Find by keyword' || fail "bare man missing keyword action"
+printf '%s\n' "$man_landing" | grep -q 'Browse a section' || fail "bare man missing section action"
 "$TAM" man --help | grep -q 'Usage:' || fail "man --help missing usage"
 "$TAM" man help | grep -q 'Usage:' || fail "man help missing usage"
 [ "$("$TAM" man help)" = "$("$TAM" man --help)" ] || fail "man help differs from man --help"
+manual_uri=$("$TAM" show tam:man --pipe)
+printf '%s\n' "$manual_uri" | grep -q 'Find by keyword' || fail "tam:man URI did not open manual discovery"
+search_uri=$("$TAM" show 'tam:search?query=pipe' --pipe)
+printf '%s\n' "$search_uri" | grep -q 'Results for pipe' || fail "tam:search URI did not return Guide results"
+
+# Deterministic manual lookup helper: argv remains literal, section browsing
+# is paged, and missing tools/no matches have different recoverable messages.
+lookup_bin="$tmp/lookup-bin"
+mkdir -p "$lookup_bin"
+cat > "$lookup_bin/apropos" <<'EOF'
+#!/bin/sh
+printf '<%s>\n' "$@" >> "$TAM_TEST_APROPOS_LOG"
+if [ "$1" = "-e" ]; then
+    printf '%s\n' 'printf (1) - format and print data' 'printf (3) - formatted output conversion'
+    exit 0
+fi
+if [ "$1" = "-s" ]; then
+    section=$2
+    i=0
+    while [ "$i" -lt 25 ]; do
+        printf 'demo%02d (%s) - section browser fixture\n' "$i" "$section"
+        i=$((i + 1))
+    done
+    exit 0
+fi
+if [ "$2" = "flood" ]; then
+    i=0
+    while [ "$i" -lt 5000 ]; do
+        printf 'flood%04d (1) - bounded output fixture\n' "$i"
+        i=$((i + 1))
+    done
+    exit 0
+fi
+if [ "$2" = "printf" ]; then
+    printf '%s\n' 'printf (1) - format and print data'
+    exit 0
+fi
+exit 16
+EOF
+chmod +x "$lookup_bin/apropos"
+export TAM_TEST_APROPOS_LOG="$tmp/apropos-argv.log"
+lookup_keyword=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:keyword?query=printf' --pipe)
+printf '%s\n' "$lookup_keyword" | grep -q 'printf(1)' || fail "manual keyword lookup missing result"
+lookup_section=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:section?section=3' --pipe)
+printf '%s\n' "$lookup_section" | grep -q 'demo23(3)' || fail "section page missing result"
+printf '%s\n' "$lookup_section" | grep -q 'offset=24' || fail "section results missing pagination"
+lookup_open=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:open?query=printf' --pipe)
+printf '%s\n' "$lookup_open" | grep -q 'Several installed sections match' || fail "ambiguous manual sections were not listed"
+lookup_flood=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:keyword?query=flood' --pipe)
+printf '%s\n' "$lookup_flood" | grep -q 'Output reached the safe lookup limit' || fail "manual lookup output limit was not reported"
+hostile_marker="$tmp/tam-lookup-injection-marker"
+hostile_uri="tam:man:keyword?query=%24%28touch%20$hostile_marker%29"
+: > "$TAM_TEST_APROPOS_LOG"
+lookup_miss=$(PATH="$lookup_bin:$PATH" "$TAM" show "$hostile_uri" --pipe)
+printf '%s\n' "$lookup_miss" | grep -q 'No manual entries matched this keyword' || fail "manual keyword no-hit message missing"
+[ ! -e "$hostile_marker" ] || fail "manual lookup executed hostile query text"
+grep -Fq 'tam-lookup-injection-marker' "$TAM_TEST_APROPOS_LOG" \
+    || { cat "$TAM_TEST_APROPOS_LOG" >&2; fail "manual helper did not receive hostile query as one literal argv element"; }
+[ "$(wc -l < "$TAM_TEST_APROPOS_LOG")" -eq 2 ] \
+    || fail "manual helper received split query arguments"
+missing_apropos=$(PATH="$tmp/no-apropos" "$TAM" show 'tam:man:keyword?query=printf' --pipe)
+printf '%s\n' "$missing_apropos" | grep -q 'apropos tool is unavailable' \
+    || fail "missing apropos tool message missing"
+cat > "$lookup_bin/man" <<'EOF'
+#!/bin/sh
+[ "$1" = "-w" ] || exit 1
+printf '%s\n' "$TAM_TEST_MAN_PAGE"
+EOF
+cat > "$lookup_bin/groff" <<'EOF'
+#!/bin/sh
+printf '%s\n' '<html><head><title>Fixture printf(1)</title></head><body><h1>Fixture printf(1)</h1><p>Loaded fixture manual.</p></body></html>'
+EOF
+chmod +x "$lookup_bin/man" "$lookup_bin/groff"
+printf 'fixture\n' > "$tmp/printf.1"
+export TAM_TEST_MAN_PAGE="$tmp/printf.1"
+
+python3 -c '
+import fcntl, os, pty, select, struct, sys, termios, time
+
+binary, helper, corpus = sys.argv[1:]
+def launch(args):
+    master, slave = pty.openpty()
+    fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 120, 0, 0))
+    pid = os.fork()
+    if pid == 0:
+        os.close(master)
+        os.dup2(slave, 0); os.dup2(slave, 1); os.dup2(slave, 2); os.close(slave)
+        env = os.environ.copy()
+        env["TAM_KNOWLEDGE_DIR"] = corpus
+        env["PATH"] = helper + os.pathsep + env.get("PATH", "")
+        os.execve(binary, [binary] + args, env)
+    os.close(slave)
+    return pid, master
+
+def drain(fd, delay=0.15):
+    time.sleep(delay)
+    data = b""
+    while select.select([fd], [], [], 0.02)[0]: data += os.read(fd, 8192)
+    return data
+
+pid, master = launch(["man"])
+buf = drain(master)
+os.write(master, b"\t\t\r")
+buf += drain(master)
+os.write(master, b"printf\r")
+buf += drain(master, 0.3)
+assert b"Several installed sections match" in buf, buf
+os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
+
+pid, master = launch(["show", "tam:search"])
+buf = drain(master)
+# First Tab is the Man pages utility link; the next is Start a Guide search.
+os.write(master, b"\t\t\r")
+buf += drain(master)
+os.write(master, b"pipe\r")
+buf += drain(master, 0.3)
+assert b"Results for" in buf and b"Shell pipelines" in buf, buf
+os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
+
+pid, master = launch(["show", "tam:man:keyword?query=printf"])
+buf = drain(master)
+os.write(master, b"\t\r")
+buf += drain(master, 0.3)
+assert b"Fixture printf(1)" in buf and b"Loaded fixture manual" in buf, buf
+os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
+' "$TAM" "$lookup_bin" "$knowledge" || fail "manual and Guide search prompts failed"
+pass "manual discovery, bounded literal helper calls, pagination, and Guide Search prompts"
 
 # Pages installed on the host: a package build sandbox has no man pages or
 # groff, so these checks run only where the pages can be rendered.

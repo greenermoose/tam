@@ -13,6 +13,15 @@ char *tam_man_linkify_html(const char *src);
  * Returns NULL if the manual page cannot be found or rendered. */
 tam_document_t *tam_man_load(const char *spec, int width);
 
+/* Manual discovery URI grammar (query values are percent-encoded UTF-8):
+ *   tam:man
+ *   tam:man:open?query=PAGE[%20SECTION] (or PAGE(SECTION))
+ *   tam:man:keyword?query=TERMS
+ *   tam:man:section?section=SECTION[&offset=N]
+ * Lookup text is capped at 120 bytes; sections are 1-8 alphanumeric bytes.
+ * This loader never executes a shell command from a query value. */
+tam_document_t *tam_man_uri_document(const char *uri, int width);
+
 /* Resolve manual page source path using man -w. Caller must free returned path. */
 char *tam_man_resolve_path(const char *name, const char *sec);
 

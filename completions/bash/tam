@@ -34,13 +34,13 @@ _tam_completions() {
             COMPREPLY=($(compgen -W "plan apply verify --help -h" -- "$cur"))
             ;;
         search)
-            COMPREPLY=($(compgen -W "--json --pipe" -- "$cur"))
+            COMPREPLY=($(compgen -W "--json --pipe --help" -- "$cur"))
             ;;
         show)
             if [ "$prev" = "--level" ]; then
                 COMPREPLY=($(compgen -W "all beginner intermediate expert 0 1 2 3" -- "$cur"))
             else
-                COMPREPLY=($(compgen -W "--pipe --level" -- "$cur"))
+                COMPREPLY=($(compgen -W "tam:search tam:man --pipe --level" -- "$cur"))
             fi
             ;;
         welcome|hello|hi)
@@ -54,7 +54,7 @@ _tam_completions() {
             fi
             ;;
         man)
-            COMPREPLY=($(compgen -W "--help --pipe" -- "$cur"))
+            COMPREPLY=($(compgen -W "printf grep ls cat bash systemctl fstab 1 3 5 --help --pipe" -- "$cur"))
             ;;
         info)
             if [[ "$cur" == -* ]]; then
