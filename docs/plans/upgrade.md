@@ -9,12 +9,12 @@ Release switching, approved the development prefix and paired release tags, and
 clarified independent code-based versions with no renumbering on installation.
 The developer accepted the complete plan on 2026-10-18; see the
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
-**Next action:** Push the staged-install test isolation fix, then rerun the
-updater's isolated source-build acceptance against the updated development
-head. First activation in `~/.local/dev` remains developer-directed.
+**Next action:** First activation in `~/.local/dev` remains developer-directed;
+all source, automated and disposable isolated-build acceptance is complete.
 The implementation and automated acceptance evidence are recorded below.
-**Implementation commits:** `f721120`, `5a84294` and `627c126` (source and
-tests); `09101b1` records the handoff.
+**Implementation commits:** `f721120`, `5a84294`, `627c126`, `4afdea5` and
+`5d5c128` (source, tests and acceptance follow-up); `09101b1` records the
+handoff.
 
 Follow [plan maintenance](../plan-maintenance.md). This plan owns the new
 upgrade feature; the completed knowledge-system plan remains historical.
@@ -300,24 +300,26 @@ shared clone on develop under path claims, following `AGENTS.md` and the
   that made GitHub answer 404 for the repository root): development and test
   resolved with exact SHAs and versions; release is absent; run reports an
   error because `main` (0.9.1) predates `knowledge/version`.
-- [ ] **TCK7 (source build and transactional activation):** Added the versioned
+- [x] **TCK7 (source build and transactional activation):** Added the versioned
   source-build manifest, audited compatibility pins, isolated generations,
   receipts, locking, owned links, validation, retained recovery helper and
   offline rollback. Evidence: the fake-HOME end-to-end suite covers activation,
   failure preservation, endpoint conflicts, lock refusal and rollback. A real
-  isolated source build compiled both components. Its staged-install test was
-  contaminated by the caller's `XDG_DATA_HOME` and expected obsolete guide
-  text. The test now supplies isolated data paths and checks the current welcome
-  text; a full `make test` with the pinned libtam passed, including the staged
-  install. Rerun the managed isolated build against this updated source head.
-  First activation in `~/.local/dev` still requires Fred's explicit instruction.
+  isolated source build against tam `5d5c128804e9d5d754d9d21f94dd6feb6063fc24`
+  and libtam `c081708b5ed2c8ade4ecdf171cebc110c2cb316f` passed all source tests,
+  installed and verified the temporary generation, and wrote its receipt.
+  `tam --version` reported 0.31.0 / 0.32.0 / libtam 0.2.0, and the bundled
+  welcome page rendered from outside the build tree. The staged-install test
+  now isolates XDG paths and matches current guide text. First activation in
+  `~/.local/dev` still requires Fred's explicit instruction.
 - [x] **TCK8 (CLI, documentation and delivery handoff):** Wired both commands,
   dispatch/help, static Bash completion, manual, README and `knowledge/tam.html`; document the
   temporary development override and bootstrap. Independent versions are
   command 0.31.0 / corpus 0.32.0. This plan, index, roadmap, contract and
   provenance are synchronized. Evidence: CLI tests and the complete
-  offline command/corpus test suite. Remaining source-build and live GitHub
-  acceptance is listed above and in the handoff.
+  offline command/corpus test suite. Live metadata resolved Development and
+  Test; Run remains unparseable because its older `main` lacks
+  `knowledge/version`.
 
 Likely shared paths: `Makefile`, `tests/run.sh`, a new focused upgrade test
 runner and fixtures, `src/version.h`, `src/tam.c`, `completions/bash/tam`,

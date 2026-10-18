@@ -145,20 +145,21 @@ temporary bootstrap directory. Remove the private bootstrap libtam only if no
 other tool uses it. This does not install OS packages or deploy a Tamlinux
 assembly; subsequent source switches use isolated generations and receipts.
 
-The implementation has automated fake-HOME coverage. The first real isolated
-upstream build exposed a stale staged-install assertion and caller-environment
-leak: it matched obsolete guide text and inherited `XDG_DATA_HOME`. The fixture
-now sets isolated XDG paths and checks the current welcome text; a full test run
-against the pinned source and libtam passed. Rerun the managed build against the
-updated development head before marking TCK7 accepted. Fred has granted
-standing authorization for disposable temporary-prefix source builds, so do
-not interrupt him for per-build confirmation. The earlier HTTP 404 came from requesting the repository root
+The implementation has automated fake-HOME coverage. The staged-install test
+now sets isolated XDG paths and checks current guide text. A managed isolated
+build of tam `5d5c128804e9d5d754d9d21f94dd6feb6063fc24` with pinned libtam
+`c081708b5ed2c8ade4ecdf171cebc110c2cb316f` passed the source suites, activated
+the generation under a disposable temporary home, wrote a receipt, and verified
+the installed command and bundled corpus outside the build tree. Fred has
+granted standing authorization for disposable temporary-prefix source builds,
+so do not interrupt him for per-build confirmation. The earlier HTTP 404 came from requesting the repository root
 with a trailing slash (`627c126` fixes it); the repository is public and the
 push and `gh` failures were the agent sandbox lacking Fred's SSH agent and
-keyring, not revoked access. Perform the plan's isolated build under the
-standing authorization and inspect its preview for scope; do not request
-per-build confirmation. Request Fred's
-instruction before activating the real development prefix.
+keyring, not revoked access. The post-push live check resolved Development at
+the same clean commit and Test at 0.25.1 / 0.26.1; Release is absent. Run
+returns the expected HTTP error because `main` 0.9.1 predates
+`knowledge/version`. No source-build work remains. Request Fred's instruction
+before activating the real development prefix.
 Package Test/Run/Release promotions and deployments are outside this handoff.
 
 Commit only claimed paths, with current runtime provenance. Record the

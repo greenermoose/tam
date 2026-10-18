@@ -9,7 +9,7 @@ queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
 
 | Plan | Status | Disposition / next action |
 | --- | --- | --- |
-| [Version checks, source upgrade and stage switching](upgrade.md) | In progress | Command 0.31.0 / corpus 0.32.0. The staged-install fixture now isolates XDG paths and matches current guide text; a full pinned-source test run passed. Rerun the managed isolated build; first developer-prefix activation remains pending. Disposable acceptance builds have standing developer authorization. See the [Luna handoff](../handoffs/tam-upgrade-luna.md). |
+| [Version checks, source upgrade and stage switching](upgrade.md) | In progress | Command 0.31.0 / corpus 0.32.0. TCK6–TCK8 and the managed isolated source build passed; first activation in the real developer prefix remains pending on Fred's instruction. Disposable acceptance builds have standing developer authorization. See the [Luna handoff](../handoffs/tam-upgrade-luna.md). |
 | [Knowledge system, corpus 0.31.0](knowledge-system-0.31.0.md) | Completed | Command 0.30.0 / corpus 0.31.0; TCK1–TCK5 completed in `e0215fd`, `0b3f008`, `52e71f7`, `597cb71`, `f4fa539`. Automated acceptance passed; package and physical review remain developer-directed. |
 | [Development contract](development.md) | Active | Living ownership, behavior and integration contract; incorporate each overhaul slice without rewriting historical decisions. |
 | [Pager display portability](pager-display-portability.md) | In progress | Source implementation is command 0.29.0 (`581822a`); real Linux-console/Foot acceptance of an exact packaged candidate remains pending on the developer's instruction. No missing-source assignment. |

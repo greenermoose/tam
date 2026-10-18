@@ -6,10 +6,9 @@
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 and [upgrade/stage-switching plan](upgrade.md).
-**Next action:** Rerun the managed isolated source build against the updated
-development head; first development-prefix activation remains developer-
-directed. Disposable acceptance builds and live metadata checks have standing
-developer authorization and need no per-run confirmation.
+**Next action:** First activation in `~/.local/dev` remains developer-directed.
+Disposable acceptance builds and live metadata checks have standing developer
+authorization and need no per-run confirmation.
 
 **Stage:** Develop. Milestones 1–16, the 0.30.0/0.31.0 knowledge overhaul and
 the 0.31.0/0.32.0 upgrade workflow have landed in source. Package assembly and deployment remain separate,
