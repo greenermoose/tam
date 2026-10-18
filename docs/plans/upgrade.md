@@ -1,16 +1,18 @@
 # Check, upgrade and switch tam source versions
 
-**Plan status:** Ready
+**Plan status:** In progress
 **Reviewed:** 2026-10-18
-**Scope:** Four-stage version discovery, source installation and switching;
-implementation version unassigned. Baseline: command 0.30.0 / corpus 0.31.0.
+**Scope:** Four-stage version discovery, source installation and switching.
+Implementation: command 0.31.0 / corpus 0.32.0; baseline was 0.30.0 / 0.31.0.
 **Authority:** The developer requested source installation and Development/Test/Run/
 Release switching, approved the development prefix and paired release tags, and
 clarified independent code-based versions with no renumbering on installation.
 The developer accepted the complete plan on 2026-10-18; see the
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
-**Next action:** The implementation session starts TCK6 (version discovery and
-comparison), following the [Luna handoff](../handoffs/tam-upgrade-luna.md).
+**Next action:** Finish TCK7 acceptance with a confirmed isolated source build,
+then perform the authorized bootstrap/activation and live metadata smoke check.
+The implementation and automated acceptance evidence are recorded below.
+**Implementation commit:** `f721120` (source, tests and product docs).
 
 Follow [plan maintenance](../plan-maintenance.md). This plan owns the new
 upgrade feature; the completed knowledge-system plan remains historical.
@@ -117,10 +119,9 @@ Verified in source on 2026-10-18 at `b131bab`:
   subprocess helper captures output without a byte limit; do not assume it
   supplies the complete bounded transport contract below.
 
-No implementation version is reserved. Allocate the next command minor when
-implementation starts, based on then-current version files. Documentation
-changes to existing corpus pages take their own corpus patch bump; new pages
-take a corpus minor. This planning change bumps neither component.
+Implementation allocated command 0.31.0 for the new command behavior and
+corpus 0.32.0 for the existing guide page update. Rebuilding older selected
+sources preserves the versions recorded in those sources.
 
 ## Version discovery
 
@@ -280,26 +281,30 @@ or old hand-built overrides is outside this first implementation.
 
 ## Implementation and handoff
 
-The developer accepted this design for implementation in a subsequent session.
-Start with the [implementation handoff](../handoffs/tam-upgrade-luna.md); work
-in the shared clone on develop under path claims, following `AGENTS.md`.
-The plan is Ready; no implementation has started in this planning session.
+The developer accepted this design on 2026-10-18. Implementation is in the
+shared clone on develop under path claims, following `AGENTS.md` and the
+[implementation handoff](../handoffs/tam-upgrade-luna.md).
 
-- [ ] **TCK6 (version discovery and comparison):** Add `src/upgrade.c/.h` and
+- [x] **TCK6 (version discovery and comparison):** Added `src/upgrade.c/.h` and
   any small transport/parser modules; pure version comparison, channel metadata,
-  running revision metadata and bounded fixed-host transport. Evidence: offline
-  fixture checks covering the channel/comparison/failure matrix below.
-- [ ] **TCK7 (source build and transactional activation):** Add the dependency
-  manifest and source installer/recovery modules; staged generations, receipts,
-  locking, ownership checks, validation and rollback. Evidence: isolated fake-HOME
-  end-to-end installation, failure injection and crash recovery checks; one real
-  source build into an isolated prefix before requesting real activation.
-- [ ] **TCK8 (CLI, documentation and delivery handoff):** Wire both commands,
+  running revision metadata and bounded fixed-host transport. Evidence: 12
+  deterministic upgrade tests cover semantic versions, strict metadata,
+  partial channel failure, bounded HTTP, release compatibility and CLI offline
+  behavior.
+- [ ] **TCK7 (source build and transactional activation):** Added the versioned
+  source-build manifest, audited compatibility pins, isolated generations,
+  receipts, locking, owned links, validation, retained recovery helper and
+  offline rollback. Evidence: the fake-HOME end-to-end suite covers activation,
+  failure preservation, endpoint conflicts, lock refusal and rollback. A real
+  source build into an isolated prefix remains unverified and is required before
+  the first real development-prefix activation.
+- [x] **TCK8 (CLI, documentation and delivery handoff):** Wired both commands,
   dispatch/help, static Bash completion, manual, README and `knowledge/tam.html`; document the
-  temporary development override and bootstrap. Allocate independent versions,
-  synchronize this plan/index/roadmap/contract, record provenance and hand over
-  exact commits, checks and remaining packaged acceptance. Evidence: CLI tests,
-  checked documentation, and clean offline browsing regression results.
+  temporary development override and bootstrap. Independent versions are
+  command 0.31.0 / corpus 0.32.0. This plan, index, roadmap, contract and
+  provenance are synchronized. Evidence: CLI tests and the complete
+  offline command/corpus test suite. Remaining source-build and live GitHub
+  acceptance is listed above and in the handoff.
 
 Likely shared paths: `Makefile`, `tests/run.sh`, a new focused upgrade test
 runner and fixtures, `src/version.h`, `src/tam.c`, `completions/bash/tam`,
@@ -348,7 +353,8 @@ and [curl options](https://curl.se/docs/manpage.html), consulted 2026-10-18.
 Live tam release/develop API responses were unavailable through the research
 tool; this plan makes no claim about the current remote release or branch head.
 
-On completion, record TCK6–TCK8 commits and evidence, actual command/corpus
-versions, bootstrap delivery and remaining acceptance here, then close this plan
-and synchronize its entry points. Do not close source installation after only
-implementing a checker.
+Before closure, record acceptance follow-up commits and evidence, actual
+command/corpus versions, bootstrap delivery and remaining acceptance here, then
+synchronize its entry points. The implementation commit alone does not close
+source-installation acceptance: complete the isolated real build first and
+leave first activation to the developer's explicit instruction.

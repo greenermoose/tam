@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-18. **Owner:** Fred (developer).
-**Current Command Version:** `0.30.0`. **Current Corpus Version:** `0.31.0`.
+**Current Command Version:** `0.31.0`. **Current Corpus Version:** `0.32.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -17,7 +17,8 @@ primary journey has five parts: **Installing, Learning, Using, Maintaining,
 Improving**. Learning routes cross shared knowledge; Beginner, Intermediate
 and Expert are reading depths. Search, Topics, Man pages, Info manuals and Help
 serve every part. Corpus 0.31.0 implements this organization and command 0.30.0
-provides shared navigation and discovery.
+provides shared navigation and discovery. Command 0.31.0 adds explicit source
+version checks and switching; corpus 0.32.0 documents the workflow.
 
 Retain the native C/libtam reader, offline default, read-only browsing, semantic
 HTML and indexed metadata, clean pipe output, explicit opt-in boundary for local
@@ -80,13 +81,14 @@ user development prefix, exact release pins and rollback (TCK6–TCK8). New code
 builds for the developer receive independently maintained command/corpus version
 bumps; reinstalling existing sources preserves their versions. Release tags
 record the command/corpus version pair. The developer approved the complete
-design on 2026-10-18. Implementation has not started; use the
-[Luna handoff](docs/handoffs/tam-upgrade-luna.md), beginning with TCK6.
-No implementation version is reserved.
+design on 2026-10-18. TCK6/TCK8 and automated TCK7 transaction checks are
+implemented. A real isolated source build, live GitHub smoke check and
+developer-directed first activation remain pending; see the
+[Luna handoff](docs/handoffs/tam-upgrade-luna.md).
 
 The [five-part knowledge-system plan](docs/plans/knowledge-system-0.31.0.md)
 is implemented and its TCK1–TCK5 source and automated acceptance work is
-complete. The command/corpus pair is **0.30.0 / 0.31.0**. The exact source
+complete. Its command/corpus pair is **0.30.0 / 0.31.0**. The exact source
 commits and checks are recorded in that plan and its
 [implementation session record](docs/ai/2026-10-18-knowledge-system-implementation.md).
 

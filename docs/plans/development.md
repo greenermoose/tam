@@ -2,14 +2,16 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-18
-**Scope:** Living integration contract; current command 0.30.0 and corpus 0.31.0.
+**Scope:** Living integration contract; current command 0.31.0 and corpus 0.32.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
-[plan index](README.md), and [corpus 0.31.0 work plan](knowledge-system-0.31.0.md).
-**Next action:** Implement the accepted [upgrade and stage-switching plan](upgrade.md),
-starting with TCK6 and the [Luna handoff](../handoffs/tam-upgrade-luna.md).
+[plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
+and [upgrade/stage-switching plan](upgrade.md).
+**Next action:** Complete the isolated real source build and live metadata check
+for the implemented workflow; first development-prefix activation remains
+developer-directed.
 
-**Stage:** Develop. Milestones 1–16 and the 0.30.0/0.31.0 knowledge overhaul
-have landed in source. Package assembly and deployment remain separate,
+**Stage:** Develop. Milestones 1–16, the 0.30.0/0.31.0 knowledge overhaul and
+the 0.31.0/0.32.0 upgrade workflow have landed in source. Package assembly and deployment remain separate,
 developer-directed work. Maintain this living contract using the
 [plan maintenance procedure](../plan-maintenance.md); closed plans are historical.
 
@@ -92,7 +94,7 @@ Build targets follow the lanes:
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
 | `tam search [--json] TERM...` | Implemented | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
 | `tam ask <question>` | Implemented | Opt-in, grounded question answering over the corpus with mandatory citations; never starts a daemon. |
-| `tam upgrade` / `tam switch STAGE` | Approved; not implemented | Discover Development/Test/Run/Release, build selected source into the development prefix, pin releases and recover. Accepted [TCK6–TCK8 plan](upgrade.md) owns the design. |
+| `tam upgrade` / `tam switch STAGE` | Implemented in source; real source-build acceptance pending | Discover Development/Test/Run/Release, compare independent versions, build selected source into isolated development-prefix generations, pin releases and recover. [TCK6–TCK8](upgrade.md) records implementation and remaining acceptance. |
 
 `--pipe` explicitly requests text. `--terse` provides minimal machine tokens for piping situations; `--verbose` provides exhaustive details and diagnostics; default output adheres to the "Goldilocks" screen budget (≤24 lines). Redirected output contains no terminal
 controls or browser prompts. Bare `tam`, `show`, `search`, help, version and
@@ -112,9 +114,9 @@ discloses the URL, size and expected hash (verified on download). Under `--pipe`
 or any non-interactive invocation it errors instead of fetching. The core binary
 stays offline and dependency-free; the optional model runtime remains external
 and user-controlled. This boundary is recorded here deliberately, as the one
-place where the implemented offline default is amended. The
-[accepted upgrade plan](upgrade.md) will add explicit GitHub metadata/source
-operations; it adds no network behavior to browsing, help or version commands.
+place where the implemented offline default is amended. Explicit upgrade
+subcommands perform fixed-host GitHub metadata/source operations; browsing,
+help and version commands remain offline.
 
 ## Implementation and packaging
 

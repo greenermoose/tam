@@ -9,7 +9,7 @@ queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
 
 | Plan | Status | Disposition / next action |
 | --- | --- | --- |
-| [Version checks, source upgrade and stage switching](upgrade.md) | Ready | Developer accepted 2026-10-18. TCK6–TCK8: four-stage discovery, source installation, switching/pinning and recovery. Start the [Luna handoff](../handoffs/tam-upgrade-luna.md) with TCK6. |
+| [Version checks, source upgrade and stage switching](upgrade.md) | In progress | Command 0.31.0 / corpus 0.32.0. TCK6/TCK8 and automated TCK7 checks are implemented; isolated real source build and first developer-prefix activation remain pending. See the [Luna handoff](../handoffs/tam-upgrade-luna.md). |
 | [Knowledge system, corpus 0.31.0](knowledge-system-0.31.0.md) | Completed | Command 0.30.0 / corpus 0.31.0; TCK1–TCK5 completed in `e0215fd`, `0b3f008`, `52e71f7`, `597cb71`, `f4fa539`. Automated acceptance passed; package and physical review remain developer-directed. |
 | [Development contract](development.md) | Active | Living ownership, behavior and integration contract; incorporate each overhaul slice without rewriting historical decisions. |
 | [Pager display portability](pager-display-portability.md) | In progress | Source implementation is command 0.29.0 (`581822a`); real Linux-console/Foot acceptance of an exact packaged candidate remains pending on the developer's instruction. No missing-source assignment. |

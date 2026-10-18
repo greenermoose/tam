@@ -3,8 +3,10 @@
 **Approved:** 2026-10-18. The developer accepted the complete
 [work plan](../plans/upgrade.md); the verbatim
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff)
-records the handoff request. This file is a starting guide; the work plan owns
-requirements and acceptance. Its status is Ready, with no implementation yet.
+records the handoff request. This file is the implementation handoff; the work
+plan owns requirements and acceptance. Automated implementation evidence is
+recorded there. The isolated real source build, live GitHub smoke check and
+developer-directed first activation remain outstanding.
 
 ## Start here
 
@@ -15,9 +17,10 @@ Run `git status --short` and inspect the current head before selecting scopes.
 Use your own session identity and claim only paths being edited. Do not create
 a worktree, change branches or adopt this planning session's claims.
 
-Planning baseline: `b131bab`, command **0.30.0**, corpus **0.31.0**. This
-handoff/approval commit is documentation only. Verify the current version files
-before allocating implementation versions; no future version is reserved.
+Planning baseline: `b131bab`, command **0.30.0**, corpus **0.31.0**.
+Implementation versions are command **0.31.0**, corpus **0.32.0**. Current
+acceptance and test evidence are in the plan; source-build and activation limits
+remain explicit below.
 
 ## Implement in order
 
@@ -85,6 +88,70 @@ Obtain the developer's instruction before activating the real development
 prefix. Test/Run/Release promotions and packaged deployment still need their
 own exact-candidate instructions; plan acceptance grants none of those actions.
 
-Commit only claimed paths, with current runtime provenance. Report TCK6–TCK8
-commits, actual component versions, tests, bootstrap procedure, remaining human
-acceptance and any unresolved requirement. Release your claims at completion.
+### Bootstrap the first version containing `upgrade` and `switch`
+
+An older installed `tam` cannot invoke these commands. Once the implementation
+commit is available, use the normal component-development procedure to build
+that exact commit under `~/.local/dev`; do not try to bootstrap through the old
+command. In a terminal, verify the candidate and its source-build pin first:
+
+```sh
+git -C ~/Code/tamlinux/tam rev-parse HEAD
+git -C ~/Code/tamlinux/tam show HEAD:src/version.h
+git -C ~/Code/tamlinux/tam show HEAD:knowledge/version
+git -C ~/Code/tamlinux/tam show HEAD:source-build.json
+```
+
+Use temporary, detached source snapshots at the exact reviewed tam commit and
+the `libtam_revision` in its manifest. Do not switch either developer checkout.
+The build needs `cc`, `make`, `pkg-config`, Python 3, Git, curl, zlib, ncursesw,
+and D-Bus development files. Set `TAM_REV` to the verified full Develop commit
+and `LIBTAM_REV` to the full manifest pin, then run:
+
+```sh
+bootstrap=$(mktemp -d)
+git -c core.hooksPath=/dev/null clone --quiet --no-checkout --filter=blob:none --no-recurse-submodules https://github.com/greenermoose/libtam.git "$bootstrap/libtam"
+git -C "$bootstrap/libtam" -c core.hooksPath=/dev/null checkout --quiet --detach "$LIBTAM_REV"
+git -c core.hooksPath=/dev/null clone --quiet --no-checkout --filter=blob:none --no-recurse-submodules https://github.com/greenermoose/tam.git "$bootstrap/tam"
+git -C "$bootstrap/tam" -c core.hooksPath=/dev/null checkout --quiet --detach "$TAM_REV"
+test "$(git -C "$bootstrap/libtam" rev-parse HEAD)" = "$LIBTAM_REV"
+test "$(git -C "$bootstrap/tam" rev-parse HEAD)" = "$TAM_REV"
+make -C "$bootstrap/libtam" test
+make -C "$bootstrap/libtam" install PREFIX="$HOME/.local/dev/opt/tam/bootstrap-libtam"
+make -C "$bootstrap/tam" test PREFIX="$HOME/.local/dev" LIBTAM_PREFIX="$HOME/.local/dev/opt/tam/bootstrap-libtam" TAM_TEST_SKIP_OLLAMA=1
+make -C "$bootstrap/tam" install PREFIX="$HOME/.local/dev" LIBTAM_PREFIX="$HOME/.local/dev/opt/tam/bootstrap-libtam"
+hash -r
+type -a tam
+readlink -f "$HOME/.local/dev/bin/tam"
+tam --version
+ldd "$HOME/.local/dev/bin/tam" | rg "$HOME/.local/dev/opt/tam/bootstrap-libtam/lib/libtam.so"
+mkdir -p "$HOME/.local/dev/opt/tam/updater"
+install -m 755 "$HOME/.local/dev/bin/tam-upgrade" "$HOME/.local/dev/opt/tam/updater/tam-upgrade"
+make -C "$bootstrap/tam" uninstall PREFIX="$HOME/.local/dev" LIBTAM_PREFIX="$HOME/.local/dev/opt/tam/bootstrap-libtam"
+hash -r
+"$HOME/.local/dev/opt/tam/updater/tam-upgrade" switch development
+type -a tam
+readlink -f "$HOME/.local/dev/bin/tam"
+tam --version
+```
+
+Confirm the resolved executable is under `~/.local/dev`, its command and
+corpus versions match the candidate files, and `ldd` resolves libtam from the
+private bootstrap path. The recovery helper is copied to its retained location
+before the ordinary component install is removed; this leaves the packaged
+command as fallback if the first managed build fails. Keep the detached source
+snapshots until the managed command and rollback are verified, then remove the
+temporary bootstrap directory. Remove the private bootstrap libtam only if no
+other tool uses it. This does not install OS packages or deploy a Tamlinux
+assembly; subsequent source switches use isolated generations and receipts.
+
+The implementation has automated fake-HOME coverage but has not run a real
+upstream build. Complete that isolated build only after the plan's preview and
+confirmation, then request Fred's instruction before activating the real
+development prefix. Live GitHub metadata acceptance also remains unverified.
+Package Test/Run/Release promotions and deployments are outside this handoff.
+
+Commit only claimed paths, with current runtime provenance. Record the
+implementation commit, component versions, tests, bootstrap procedure and
+remaining human acceptance in the plan/session record. Release claims at
+completion.
