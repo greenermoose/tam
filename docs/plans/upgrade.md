@@ -10,9 +10,11 @@ clarified independent code-based versions with no renumbering on installation.
 The developer accepted the complete plan on 2026-10-18; see the
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
 **Next action:** Finish TCK7 acceptance with a confirmed isolated source build,
-then perform the authorized bootstrap/activation and live metadata smoke check.
+after restoring access to the fixed `greenermoose/tam` repository. Then repeat
+the live metadata check and isolated build; activation remains developer-directed.
 The implementation and automated acceptance evidence are recorded below.
-**Implementation commit:** `f721120` (source, tests and product docs).
+**Implementation commits:** `f721120` and `5a84294` (source and tests);
+`09101b1` records the handoff.
 
 Follow [plan maintenance](../plan-maintenance.md). This plan owns the new
 upgrade feature; the completed knowledge-system plan remains historical.
@@ -290,14 +292,18 @@ shared clone on develop under path claims, following `AGENTS.md` and the
   running revision metadata and bounded fixed-host transport. Evidence: 12
   deterministic upgrade tests cover semantic versions, strict metadata,
   partial channel failure, bounded HTTP, release compatibility and CLI offline
-  behavior.
+  behavior. A live check reached GitHub but got HTTP 404 for the configured
+  repository root; the public stage metadata could not be checked.
 - [ ] **TCK7 (source build and transactional activation):** Added the versioned
   source-build manifest, audited compatibility pins, isolated generations,
   receipts, locking, owned links, validation, retained recovery helper and
   offline rollback. Evidence: the fake-HOME end-to-end suite covers activation,
   failure preservation, endpoint conflicts, lock refusal and rollback. A real
-  source build into an isolated prefix remains unverified and is required before
-  the first real development-prefix activation.
+  source build into an isolated prefix remains unverified: unauthenticated
+  GitHub returned 404 for the fixed repository, and the attempted push was
+  rejected because SSH public-key authentication failed. Restore repository
+  access, then publish the exact candidate and complete this check before the
+  first real development-prefix activation.
 - [x] **TCK8 (CLI, documentation and delivery handoff):** Wired both commands,
   dispatch/help, static Bash completion, manual, README and `knowledge/tam.html`; document the
   temporary development override and bootstrap. Independent versions are

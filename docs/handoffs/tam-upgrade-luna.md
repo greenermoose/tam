@@ -5,8 +5,9 @@
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff)
 records the handoff request. This file is the implementation handoff; the work
 plan owns requirements and acceptance. Automated implementation evidence is
-recorded there. The isolated real source build, live GitHub smoke check and
-developer-directed first activation remain outstanding.
+recorded there. The isolated real source build, live GitHub metadata check and
+developer-directed first activation remain outstanding because the configured
+GitHub repository currently returns 404 without authentication.
 
 ## Start here
 
@@ -146,9 +147,12 @@ other tool uses it. This does not install OS packages or deploy a Tamlinux
 assembly; subsequent source switches use isolated generations and receipts.
 
 The implementation has automated fake-HOME coverage but has not run a real
-upstream build. Complete that isolated build only after the plan's preview and
-confirmation, then request Fred's instruction before activating the real
-development prefix. Live GitHub metadata acceptance also remains unverified.
+upstream build. The live checker reached GitHub, which returned HTTP 404 for
+`greenermoose/tam`; the push to `origin/develop` was rejected because the
+available SSH key was not accepted and the local `gh` token is invalid.
+Restore repository access, push the exact reviewed commits, then perform the
+plan's preview-confirmed isolated build. Request Fred's instruction before
+activating the real development prefix.
 Package Test/Run/Release promotions and deployments are outside this handoff.
 
 Commit only claimed paths, with current runtime provenance. Record the
