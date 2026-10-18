@@ -108,10 +108,25 @@ class UpgradeMetadataTests(unittest.TestCase):
             bounded(slow, module.time.monotonic() + 0.1)
         self.assertEqual(caught.exception.code, "timeout")
 
+    def test_repository_root_url_has_no_trailing_slash(self):
+        # GitHub returns 404 for /repos/<owner>/<repo>/, so the root must be requested bare.
+        urls = []
+        def popen(argv, **kwargs):
+            urls.append(argv[-1])
+            raise FileNotFoundError
+        with mock.patch.object(module.subprocess, "Popen", popen):
+            with self.assertRaises(module.CheckError):
+                module.request("")
+        self.assertEqual(urls, [module.API])
+        for path in ("/", "//x", "x", "/x\n"):
+            with self.assertRaises(module.CheckError) as caught:
+                module.request(path)
+            self.assertEqual(caught.exception.code, "invalid_request")
+
     def test_stage_check_preserves_partial_results_and_failures(self):
         revisions = {"develop": "1" * 40, "test": "2" * 40, "main": "3" * 40}
         def api(path, deadline, allow_404=False):
-            if path == "/": return {"full_name": "greenermoose/tam"}
+            if path == "": return {"full_name": "greenermoose/tam"}
             branch = path.rsplit("/", 1)[-1]
             if branch == "main": raise module.CheckError("rate_limited", "fixture limit")
             return {"object": {"sha": revisions[branch]}}

@@ -172,7 +172,8 @@ def _read_bounded(proc, deadline):
 
 
 def request(path, deadline=None):
-    if not path.startswith("/") or path.startswith("//") or "\n" in path:
+    # "" is the repository root; GitHub answers 404 for a trailing slash.
+    if path and (not path.startswith("/") or path.startswith("//") or path == "/") or "\n" in path:
         raise CheckError("invalid_request", "invalid fixed-host API path")
     deadline = deadline if deadline is not None else time.monotonic() + TOTAL_TIMEOUT
     remaining = max(1, int(deadline - time.monotonic()))
@@ -379,7 +380,7 @@ def source_build_manifest(sha, deadline):
 
 def selection(stage, channel, version, corpus_version):
     deadline = time.monotonic() + TOTAL_TIMEOUT
-    repo = api_json("/", deadline)
+    repo = api_json("", deadline)
     if not isinstance(repo, dict) or not isinstance(repo.get("full_name"), str) or repo["full_name"].lower() != "greenermoose/tam":
         raise CheckError("repository", "GitHub response does not identify greenermoose/tam")
     if stage in ("development", "develop", "test", "run"):
@@ -860,7 +861,7 @@ def check_stages(requested):
     errors = []
     # Establish repository identity before treating a missing ref as absence.
     try:
-        repo = api_json("/", deadline)
+        repo = api_json("", deadline)
         if not isinstance(repo, dict) or not isinstance(repo.get("full_name"), str) or repo["full_name"].lower() != "greenermoose/tam":
             raise CheckError("repository", "GitHub response does not identify greenermoose/tam")
     except CheckError as exc:
