@@ -250,13 +250,13 @@ t4 = send_and_get_target(b"\x1b[Z")
 assert t4 == "info:dir", f"expected info:dir, got {t4}"
 # 5. Shift-Tab variants (CSI 1;2Z, Kitty 9;2u, modifyOtherKeys 27;2;9~, N fallback)
 t5 = send_and_get_target(b"\x1b[1;2Z")
-assert t5 == "man/index.html", f"expected man/index.html, got {t5}"
+assert t5 == "tam:man", f"expected tam:man, got {t5}"
 t6 = send_and_get_target(b"\x1b[9;2u")
-assert t6 == "man:tam(1)", f"expected man:tam(1), got {t6}"
+assert t6 == "learn/documentation.html", f"expected learn/documentation.html, got {t6}"
 t7 = send_and_get_target(b"\x1b[27;2;9~")
 assert t7 == "tam:topics", f"expected tam:topics, got {t7}"
 t8 = send_and_get_target(b"N")
-assert t8 == "ecosystem/sustainability.html", f"expected ecosystem/sustainability.html, got {t8}"
+assert t8 == "tam:search", f"expected tam:search, got {t8}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -558,10 +558,10 @@ t, tg = send_and_get_info(b"\t")
 assert tg == "install/index.html"
 # Right arrow extends this branch
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Installing and maintaining" and tg == ""
+assert t == "Installing Tamlinux" and tg == ""
 # At tip of new branch: right arrow does nothing
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Installing and maintaining" and tg == ""
+assert t == "Installing Tamlinux" and tg == ""
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -961,12 +961,17 @@ if pid == 0:
 os.close(slave)
 
 time.sleep(0.15)
-# Shift-Tab from no selection wraps to the final link: the fixed Guide breadcrumb.
+# Shift-Tab from no selection wraps to the final canonical parent breadcrumb.
 title, pos, target, msg, has_tint = send_key(b"\x1b[Z")
-assert target == "index.html", f"expected fixed Guide breadcrumb, got: {target}"
-# Page down: the fixed breadcrumb remains selected and available.
+assert target == "learn/index.html", f"expected Learning breadcrumb, got: {target}"
+# Page down: the fixed parent breadcrumb remains selected and available.
 title, pos, target, msg, has_tint = send_key(b" ")
-# Enter follows the visible fixed breadcrumb.
+# Enter follows the visible parent breadcrumb.
+title, pos, target, msg, has_tint = send_key(b"\r")
+assert title == "Learning Tamlinux", f"expected Learning after following breadcrumb, got: {title}"
+# The parent page still exposes Guide as a selectable ancestor.
+title, pos, target, msg, has_tint = send_key(b"\x1b[Z")
+assert target == "index.html", f"expected Guide breadcrumb, got: {target}"
 title, pos, target, msg, has_tint = send_key(b"\r")
 assert title == "The Tamlinux User Guide", f"expected Guide after following breadcrumb, got: {title}"
 
@@ -1037,8 +1042,8 @@ assert not pos_i.startswith("L1/"), f"expected scrolled index.html, got: {pos_i}
 title, pos_back, target_back, _, _ = send_key(b"\x1b[D")
 assert title == "Welcome" and pos_back == pos_w and target_back == "", f"expected Welcome at {pos_w}, got: {title} {pos_back} {target_back}"
 # Right Arrow (\x1b[C) with no link selected goes forward to index.html at saved line pos_i
-title, pos_fwd, _, _, _ = send_key(b"\x1b[C")
-assert pos_fwd.split(" ->", 1)[0] == pos_i.split(" ->", 1)[0], f"expected forward to restore the index position, got: {pos_fwd}"
+title, pos_fwd, target_fwd, _, _ = send_key(b"\x1b[C")
+assert title == "The Tamlinux User Guide" and target_fwd == "", f"expected forward to restore the Guide root, got: {title} {pos_fwd} {target_fwd}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)

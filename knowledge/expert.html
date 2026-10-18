@@ -6,39 +6,19 @@
 <meta name="summary" content="The design and internals chapters of the guide">
 <meta name="keywords" content="expert, internals, design, deep dive">
 <meta name="level" content="expert">
-<meta name="track" content="use">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/index.html">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / The expert's path</p>
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / The expert's path</p>
 </nav>
 
 <h1>The expert's path</h1>
-
-<p>These chapters go into the design decisions and internals behind the
-workstation. They read best after the <a href="intermediate.html">intermediate
-path</a>, and several of them are reference material rather than a narrative.</p>
-
-<ol>
-<li><a href="ecosystem/libc.html">C libraries</a> &mdash; the glibc and musl
-question, and what the C runtime really is.</li>
-<li><a href="ecosystem/lua.html">Lua scripting</a> &mdash; embedding a small
-language for configuration and control.</li>
-<li><a href="ecosystem/distros.html">Base distributions</a> &mdash; the
-philosophies behind Arch, Void, and antiX.</li>
-<li><a href="ecosystem/init.html">Init systems</a> &mdash; PID 1, service
-supervision, and process trees.</li>
-<li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash;
-the Wayland protocol and the compositor's role.</li>
-<li><a href="ecosystem/virtualization.html">Virtualization</a> &mdash;
-namespaces, cgroups, and virtual machines.</li>
-<li><a href="ecosystem/packaging.html">Packaging</a> &mdash; build systems,
-reproducibility, and distribution formats.</li>
-</ol>
-
-<p>Some foundation pages also carry an expert depth of their own: shell
-pipelines, processes and jobs, file permissions, and resources. Read one at that
-depth with <code>tam show shell/pipelines?level=expert</code>, or list every
-topic that offers it with <code>tam explain --level expert</code>.</p>
+<p><strong>Outcome:</strong> reason from process and descriptor behavior through TTYs and boot dependencies, evaluate system architecture tradeoffs, and develop a small tool in a controlled development context.</p>
+<p><strong>Prerequisites:</strong> practical shell experience, basic process concepts, and familiarity with the <a href="intermediate.html">intermediate route</a>. This route gives goals and references rather than step-by-step commands.</p>
+<ol><li>Compare <a href="shell/jobs.html?level=expert">processes and job control</a> with <a href="ecosystem/ttys-and-virtual-consoles.html?level=expert">TTYs, VTs, and PTYs</a>. Trace which process owns a terminal and how file descriptors are inherited.</li><li>Map dependencies among <a href="maintain/boot.html">boot stages</a>, <a href="maintain/boot-recovery.html">fallback paths</a>, and <a href="maintain/recovery.html">recovery routes</a>. Mark the shared dependencies before judging a recovery option.</li><li>Read the <a href="ecosystem/index.html">architecture overview</a>, then compare its pages on <a href="ecosystem/compositors.html?level=intermediate">compositors</a>, <a href="ecosystem/init.html?level=intermediate">service supervision</a>, and <a href="ecosystem/libc.html">C libraries</a>. Separate current choices from planned directions.</li><li>Choose a small, reversible exercise in a development checkout and read <a href="improve/toolchains.html?level=expert">toolchain guidance</a> and <a href="improve/scripting.html?level=expert">tool conventions</a>. State the test boundary and rollback before editing; do not practice on boot, package-removal, or privileged recovery paths.</li></ol>
+<p><strong>Self-check:</strong> draw the process/descriptor/TTY relationships for a shell pipeline, identify one boot dependency shared by two recovery paths, and cite the authoritative source for a current-versus-planned architecture claim.</p>
+<p><strong>Next:</strong> continue into <a href="improve/index.html">Improving</a>, or revisit a subject page at its <code>?level=expert</code> depth where offered.</p>
 </body>
 </html>

@@ -6,44 +6,19 @@
 <meta name="summary" content="A reading order for people comfortable at the shell">
 <meta name="keywords" content="intermediate, reading order, workstations">
 <meta name="level" content="intermediate">
-<meta name="track" content="use">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/index.html">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / The intermediate path</p>
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / The intermediate path</p>
 </nav>
 
 <h1>The intermediate path</h1>
-
-<p>These pages assume you can find your way around the shell and now want to
-understand how the workstation is put together. They build on the
-<a href="beginner.html">beginner's path</a>, and go deeper than the desktop
-does on its own.</p>
-
-<ol>
-<li><a href="desktop/workspaces.html">Workspaces and multi-display layout</a>
-&mdash; arranging windows across workspaces and screens.</li>
-<li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash;
-Sway, Wayland, and the layer that draws your desktop.</li>
-<li><a href="ecosystem/init.html">Init systems</a> &mdash; runit, systemd, and
-what starts your machine.</li>
-<li><a href="ecosystem/desktop-apps.html">Desktop application suites</a> &mdash;
-the KDE and GNOME toolkits that ship alongside Tamlinux.</li>
-<li><a href="ecosystem/toolkits.html">Desktop toolkits</a> &mdash; how
-interfaces are built, and what QML adds.</li>
-<li><a href="ecosystem/ai.html">AI tooling and human agency</a> &mdash; the
-local AI tools, and how to use them deliberately.</li>
-<li><a href="ecosystem/packaging.html">Packaging</a> &mdash; how software is
-built, installed, and updated.</li>
-<li><a href="ecosystem/patches.html">Carried patches</a> &mdash; how fixes to
-third-party packages are carried and retired.</li>
-<li><a href="ecosystem/virtualization.html">Virtualization</a> &mdash;
-containers and virtual machines for isolation.</li>
-<li><a href="ecosystem/distros.html">Base distributions</a> &mdash; Arch,
-Void, and antiX, and why Tamlinux sits on Arch.</li>
-</ol>
-
-<p>When you want the design decisions and internals behind all this, continue
-to the <a href="expert.html">expert's path</a>.</p>
+<p><strong>Outcome:</strong> adapt shell examples in a scratch directory, inspect processes and resources, read available logs, and explain package ownership and snapshot boundaries.</p>
+<p><strong>Prerequisites:</strong> basic command-line use and comfort reading the <a href="shell/pipelines.html?level=beginner">beginner pipeline lesson</a>.</p>
+<ol><li>Adapt <a href="shell/pipelines.html?level=intermediate">a pipeline</a> using your own sample text in a temporary directory. Try a permission change only on a file you created there with <a href="filesystem/permissions.html?level=intermediate">the permissions lesson</a>; remove the scratch directory when done.</li><li>Inspect your own process list with <code>ps</code> and memory with <code>free</code>; compare the output with <a href="hardware/resources.html?level=intermediate">resource guidance</a>.</li><li>Read <a href="maintain/logs.html?level=intermediate">the logs lesson</a>. If your system exposes user journal entries, inspect them read-only with <code>journalctl --user -b</code>; an empty result is possible.</li><li>Read <a href="ecosystem/packaging.html">package ownership and delivery layers</a> and <a href="maintain/rollback.html">snapshot boundaries</a>. Identify which layer owns a tool before considering any change.</li><li>Use <a href="tam:man">Find by keyword</a> for a command you encountered. Compare the short description with its manual page.</li></ol>
+<p><strong>Self-check:</strong> explain why a scratch permission change cannot test system-wide ownership, which package manager owns a given layer according to its documentation, and what a snapshot does and does not cover. Hint: follow each layer to its owner and read the rollback scope carefully.</p>
+<p><strong>Next:</strong> explore <a href="expert.html">the expert route</a>, or use the <a href="learn/practice.html">practice page</a> to review navigation and pipelines.</p>
 </body>
 </html>

@@ -1,66 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Installing and maintaining</title>
+<title>Installing Tamlinux</title>
 <meta name="topic" content="install">
 <meta name="summary" content="System installation, inspection, and maintenance">
 <meta name="keywords" content="install, installation, inspect, inspection, layers, uninstall">
 <meta name="level" content="beginner">
-<meta name="track" content="maintain">
+<meta name="track" content="install">
+<meta name="parent" content="index.html">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / Installing and maintaining Tamlinux</p>
+<p><a href="index.html">Guide</a> / Installing Tamlinux</p>
 </nav>
 
-<h1>Installing and maintaining Tamlinux</h1>
-
-<p>Tamlinux keeps your software and your settings in clear, layered pieces so
-that each can be understood and reversed on its own.</p>
-
-<h2>The installation framework</h2>
-
-<p>The installation framework is designed as a four-step lifecycle. Only the
-first step works today; the other three are planned and print "not
-implemented yet":</p>
-
-<ol>
-<li><strong>Inspect:</strong> <code>tam inspect</code> checks host facts, architecture, package tools, and supported profiles without changing anything.</li>
-<li><strong>Plan (planned):</strong> <code>tam install plan</code> will print the planned changes without modifying the system.</li>
-<li><strong>Apply (planned):</strong> <code>tam install apply</code> will apply a reviewed installation plan.</li>
-<li><strong>Verify (planned):</strong> <code>tam install verify</code> will verify installed components and desktop integration.</li>
-</ol>
-
-<p><code>tam install</code> on its own shows this overview and the planned commands.</p>
-
-<h2>The layers</h2>
-
-<ol>
-<li>The base system, managed by the distribution package manager.</li>
-<li>User command-line tools, which can be updated independently.</li>
-<li>Desktop shell plugins, each with its own version and release.</li>
-</ol>
-
-<h2>Staying healthy</h2>
-
-<p>Before a big change, take a snapshot so you can return to a known-good
-state. <code>tam inspect</code> gathers host facts and recognized
-capabilities before any installation work begins, while <code>tam check</code> evaluates system
-health findings against the Check Contract. See
-<a href="maintain/rollback.html">Snapshots and generation rollbacks</a> and
-<a href="maintain/updates.html">Non-disruptive updates</a>.</p>
-
-<h2>Recovery and diagnostics</h2>
-
-<p>If something goes wrong, read the diagnostics first. A truthful error
-message is more useful than a guess. Learn how to inspect logs in
-<a href="maintain/logs.html">Truthful system diagnostics and logs</a>, manage
-system power in <a href="maintain/power.html">The progressive power ladder</a>,
-and recover from freezes in
-<a href="maintain/recovery.html">Emergency disaster recovery</a>.</p>
-
-<p>Continue with the <a href="shell/pipelines.html">pipeline guide</a>, explore
-<a href="maintain/index.html">system maintenance</a>, or go
-back to the <a href="index.html">guide index</a>.</p>
+<h1>Installing Tamlinux</h1>
+<p>This part explains the available route for preparing and inspecting a Tamlinux host. Current install commands are limited: <code>tam inspect</code> gathers supported host facts without changing the system. Plan, Apply, and Verify remain planned commands.</p>
+<h2>Before you begin</h2>
+<ol><li>Review the <a href="ecosystem/index.html">system architecture</a> and its current-versus-planned choices.</li><li>Read the <a href="tam:topics">topics catalog</a> for host inspection and the relevant <a href="tam:man">manual pages</a>.</li><li>Use <code>tam inspect</code> to see detected host facts. It does not install or configure the system.</li></ol>
+<p>Do not treat the planned <code>tam install plan</code>, <code>apply</code>, or <code>verify</code> commands as available. For changes to an installed system, begin with <a href="maintain/index.html">Maintaining</a>; for development, see <a href="improve/index.html">Improving</a>.</p>
+<h2>Continue learning</h2><ul><li><a href="learn/index.html">Learning routes</a></li><li><a href="use/index.html">Using the workstation</a></li><li><a href="index.html">Guide</a></li></ul>
 </body>
 </html>

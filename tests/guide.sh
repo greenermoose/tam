@@ -42,8 +42,43 @@ pass "all guide pages render to text with build-time revision and timestamp"
 idx=$(guide --pipe)
 printf '%s\n' "$idx" | grep -qi 'Tamlinux User Guide' || fail "index missing title"
 printf '%s\n' "$idx" | grep -q '^Links:' || fail "index missing link appendix"
-printf '%s\n' "$idx" | grep -q 'welcome.html' || fail "index missing welcome link"
+for entry in 'install/index.html' 'learn/index.html' 'use/index.html' \
+             'maintain/index.html' 'improve/index.html' 'tam:search' \
+             'tam:topics' 'tam:man' 'info:dir'; do
+    printf '%s\n' "$idx" | grep -Fq "$entry" || fail "index missing $entry"
+done
 pass "index text includes links appendix"
+
+# The five-part migration must keep the requested search vocabulary attached
+# to useful, specific destinations rather than merely returning a hit.
+search_destinations() {
+    query=$1
+    expected=$2
+    out=$(env TAM_KNOWLEDGE_DIR="$knowledge" "$TAM" search "$query" --pipe)
+    printf '%s\n' "$out" | grep -Fq "($expected)" \
+        || fail "search '$query' missing destination $expected"
+}
+search_destinations install install/index.html
+search_destinations learning learn/index.html
+search_destinations workspaces desktop/workspaces.html
+search_destinations permissions filesystem/permissions.html
+search_destinations snapper maintain/snapper.html
+search_destinations limine-snapper-sync maintain/snapper.html
+search_destinations tty ecosystem/ttys-and-virtual-consoles.html
+search_destinations vt ecosystem/ttys-and-virtual-consoles.html
+search_destinations 'boot recovery' maintain/boot-recovery.html
+search_destinations packaging ecosystem/packaging.html
+search_destinations man man/index.html
+search_destinations info learn/documentation.html
+pass "acceptance queries reach their expected guide destinations"
+
+page_count=$(printf '%s\n' "$pages" | wc -l)
+[ "$page_count" -ge 55 ] || fail "expected all 50 baseline and five new pages; found $page_count"
+for p in learn/index.html use/index.html learn/tam.html \
+         learn/documentation.html learn/practice.html; do
+    [ -f "$knowledge/$p" ] || fail "missing required new page $p"
+done
+pass "all baseline pages and five required learning/navigation pages are present"
 
 # Piped output must be free of terminal control sequences.
 for p in $pages; do

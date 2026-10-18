@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html><head>
+<title>Safe practice and self-checks</title>
+<meta name="topic" content="practice"><meta name="summary" content="Practice guide navigation, shell pipelines, and inspection safely"><meta name="keywords" content="practice, exercises, self-check, scratch, safe, learning"><meta name="level" content="beginner"><meta name="track" content="learn">
+<meta name="parent" content="learn/index.html">
+</head><body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / Safe practice and self-checks</p>
+</nav>
+
+<h1>Safe practice and self-checks</h1>
+<p>Use temporary files in a directory you own. These exercises read or change only that scratch directory; they do not require privilege, package changes, boot changes, or recovery actions.</p>
+<h2>Exercise: navigate documentation</h2>
+<ol><li>Open <a href="tam:search">Guide Search</a> and search for <code>streams</code>.</li><li>Open a result and follow its breadcrumb parent.</li><li>Open <a href="tam:man">Man pages</a>, look up <code>printf</code>, then press Left Arrow.</li></ol>
+<p><strong>Check:</strong> you can name which action returned through history and which key opens the Guide root. Hint: history and Guide are separate actions.</p>
+<h2>Exercise: a read-only pipeline</h2>
+<pre>scratch=$(mktemp -d)
+echo pear &gt; "$scratch/fruit.txt"
+echo apple &gt;&gt; "$scratch/fruit.txt"
+echo pear &gt;&gt; "$scratch/fruit.txt"
+sort "$scratch/fruit.txt" | uniq -c
+rm -r -- "$scratch"</pre>
+<p>The temporary directory is removed at the end. Expect the counts to show one apple and two pears; spacing can vary by implementation.</p>
+<p><strong>Check:</strong> explain which command reads the file, which sorts its lines, and why <code>uniq</code> follows <code>sort</code>. If output differs, inspect the file before changing the commands.</p>
+<h2>Choose another step</h2>
+<ul><li><a href="beginner.html">Beginner route</a></li><li><a href="intermediate.html">Intermediate route</a></li><li><a href="expert.html">Expert route</a></li><li><a href="shell/pipelines.html">Pipeline lesson</a></li></ul>
+</body></html>
