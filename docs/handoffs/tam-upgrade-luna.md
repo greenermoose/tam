@@ -1,12 +1,17 @@
 # Luna implementation handoff: tam upgrade and switch
 
+**Disposition:** Completed 2026-10-18. TCK6–TCK8, source tests, isolated
+source-build acceptance, live metadata check, and Fred-directed first
+activation in `~/.local/dev` are complete. The prefix now runs command 0.31.1 /
+corpus 0.32.0 after a subsequent pager breadcrumb fix. This handoff is retained
+as a historical implementation record; it assigns no remaining source work.
+
 **Approved:** 2026-10-18. The developer accepted the complete
 [work plan](../plans/upgrade.md); the verbatim
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff)
 records the handoff request. This file is the implementation handoff; the work
-plan owns requirements and acceptance. Automated implementation evidence is
-recorded there. The isolated real source build and developer-directed first
-activation remain outstanding.
+plan owns requirements and acceptance. Its implementation evidence and
+remaining package-stage boundaries are recorded there.
 
 ## Start here
 
@@ -18,9 +23,9 @@ Use your own session identity and claim only paths being edited. Do not create
 a worktree, change branches or adopt this planning session's claims.
 
 Planning baseline: `b131bab`, command **0.30.0**, corpus **0.31.0**.
-Implementation versions are command **0.31.0**, corpus **0.32.0**. Current
-acceptance and test evidence are in the plan; source-build and activation limits
-remain explicit below.
+Implementation versions were command **0.31.0**, corpus **0.32.0**. Current
+acceptance and test evidence are in the plan; source-build and activation
+evidence was added after this handoff was written.
 
 ## Implement in order
 

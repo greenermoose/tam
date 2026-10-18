@@ -2,7 +2,7 @@
 #define TAM_VERSION_H
 
 #define TAM_COMMAND_NAME            "tam"
-#define TAM_COMMAND_VERSION         "0.31.0"
+#define TAM_COMMAND_VERSION         "0.31.1"
 /* Reported only when a corpus has no readable version file. knowledge/version
  * is the corpus version's single authority, so a corpus release never edits
  * this file. */

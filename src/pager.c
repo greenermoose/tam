@@ -1526,6 +1526,39 @@ static void select_next_link(pager_t *st, int dir, int include_header)
     st->msg[0] = '\0';
 }
 
+static int header_link_range(const pager_t *st, int *first, int *last)
+{
+    *first = -1;
+    *last = -1;
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if (!st->links[i].header) continue;
+        if (*first < 0) *first = (int)i;
+        *last = (int)i;
+    }
+    return *first >= 0;
+}
+
+static int select_breadcrumb(pager_t *st)
+{
+    int first, last;
+    if (!header_link_range(st, &first, &last)) return 0;
+    st->selected = last;
+    st->msg[0] = '\0';
+    return 1;
+}
+
+static void select_horizontal_header_link(pager_t *st, int dir)
+{
+    int first, last;
+    if (!header_link_range(st, &first, &last) || st->selected < first ||
+        st->selected > last) return;
+    int next = st->selected + dir;
+    if (next < first) next = last;
+    else if (next > last) next = first;
+    st->selected = next;
+    st->msg[0] = '\0';
+}
+
 static void select_vertical_link(pager_t *st, int dir)
 {
     if (st->nlinks == 0) {
@@ -1820,7 +1853,11 @@ static void handle_key(pager_t *st, unsigned char c)
         follow(st, "info:dir");
         break;
     case 'a':
-        select_next_link(st, -1, 0);
+        if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+            st->links[st->selected].header)
+            select_horizontal_header_link(st, -1);
+        else
+            select_next_link(st, -1, 0);
         break;
     case 's':
         select_vertical_link(st, -1);
@@ -1829,7 +1866,11 @@ static void handle_key(pager_t *st, unsigned char c)
         select_vertical_link(st, 1);
         break;
     case 'f':
-        select_next_link(st, 1, 0);
+        if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+            st->links[st->selected].header)
+            select_horizontal_header_link(st, 1);
+        else
+            select_next_link(st, 1, 0);
         break;
     case 'j':
         set_cursor_line(st, st->cursor_line + 1, 1);
@@ -1919,9 +1960,21 @@ static void handle_key(pager_t *st, unsigned char c)
         }
         seq[n] = '\0';
         if (strcmp(seq, "A") == 0) {
-            set_cursor_line(st, st->cursor_line - 1, -1);
+            if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+                st->links[st->selected].header) {
+                select_vertical_link(st, -1);
+            } else if (st->cursor_line <= 0 && st->height > 2 &&
+                       st->doc->location.nspans > 0 && select_breadcrumb(st)) {
+                /* The fixed location line is above the document's first line. */
+            } else {
+                set_cursor_line(st, st->cursor_line - 1, -1);
+            }
         } else if (strcmp(seq, "B") == 0) {
-            set_cursor_line(st, st->cursor_line + 1, 1);
+            if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+                st->links[st->selected].header)
+                select_vertical_link(st, 1);
+            else
+                set_cursor_line(st, st->cursor_line + 1, 1);
         } else if (strcmp(seq, "C") == 0) {
             if (st->selected >= 0) {
                 follow_selected(st);

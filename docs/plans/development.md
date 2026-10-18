@@ -2,11 +2,12 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-18
-**Scope:** Living integration contract; current command 0.31.0 and corpus 0.32.0.
+**Scope:** Living integration contract; current command 0.31.1 and corpus 0.32.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 and [upgrade/stage-switching plan](upgrade.md).
-**Next action:** First activation in `~/.local/dev` remains developer-directed.
+**Next action:** Source implementation and first development-prefix activation
+are complete. Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -368,6 +369,14 @@ resolve superseded schedules. Do not execute a former plan from this history.
 - **2026-10-18:** Reconciled the current corpus to 0.30.0 (`d13c1f6`, Snapper).
   No version bump, code change, deployment or visual acceptance in this planning
   session. Pager portability physical acceptance remains pending.
+- **2026-10-18:** Command 0.31.1 fixes fixed-row breadcrumb navigation in the
+  interactive pager. From the first document line, Up Arrow focuses the last
+  breadcrumb link; Up Arrow moves among breadcrumb links and Down Arrow returns
+  to page links. `a`/`f` move horizontally among breadcrumb links, `s`/`d`
+  move vertically between breadcrumb and page links, and Tab/Shift-Tab include
+  breadcrumb links in the normal sequence. Regression coverage uses the
+  `tam man` landing page and verifies both breadcrumb destinations. Corpus
+  remains 0.32.0.
 
 - **2026-10-17:** Command 0.29.3. Only whitespace with non-space hyperlink
   text on both sides receives selected-link emphasis. This keeps the layout

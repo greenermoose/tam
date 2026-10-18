@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.31.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.31.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1664,6 +1664,47 @@ def drain(fd, delay=0.15):
     while select.select([fd], [], [], 0.02)[0]: data += os.read(fd, 8192)
     return data
 
+def parse_info(buf):
+    lines = [line for line in buf.split(b"\x1b[24;1H") if b"|" in line]
+    last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
+    title = last.split(b"|")[0].strip().decode("utf-8", "replace")
+    target = last.split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if b"->" in last else ""
+    return title, target
+
+# The fixed breadcrumb row is keyboard reachable from the first document line.
+pid, master = launch(["man"])
+buf = drain(master)
+title, target = parse_info(buf)
+assert title == "Manual lookup" and target == "", (title, target)
+os.write(master, b"\x1b[A")
+title, target = parse_info(drain(master))
+assert title == "Manual lookup" and target == "tam:man", f"Up did not focus the last breadcrumb: {target}"
+os.write(master, b"a")
+title, target = parse_info(drain(master))
+assert target == "index.html", f"a did not move left across breadcrumbs: {target}"
+os.write(master, b"f")
+title, target = parse_info(drain(master))
+assert target == "tam:man", f"f did not move right across breadcrumbs: {target}"
+os.write(master, b"s")
+title, target = parse_info(drain(master))
+assert target == "index.html", f"s did not move to the previous breadcrumb: {target}"
+os.write(master, b"d")
+title, target = parse_info(drain(master))
+assert target and target != "index.html" and target != "tam:man", f"d did not move from the breadcrumb into the page: {target}"
+os.write(master, b"g\x1b[A")
+title, target = parse_info(drain(master))
+assert target == "tam:man", f"Up did not return from the document to the breadcrumb: {target}"
+os.write(master, b"\x1b[Z")
+title, target = parse_info(drain(master))
+assert target == "index.html", f"Shift-Tab did not move to the previous breadcrumb: {target}"
+os.write(master, b"\t")
+title, target = parse_info(drain(master))
+assert target == "tam:man", f"Tab did not move to the next breadcrumb: {target}"
+os.write(master, b"a\r")
+title, target = parse_info(drain(master, 0.3))
+assert title == "The Tamlinux User Guide", f"Enter did not follow the Guide breadcrumb: {title}"
+os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
+
 pid, master = launch(["man"])
 buf = drain(master)
 os.write(master, b"\t\t\r")
@@ -1690,7 +1731,7 @@ buf += drain(master, 0.3)
 assert b"Fixture printf(1)" in buf and b"Loaded fixture manual" in buf, buf
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
 ' "$TAM" "$lookup_bin" "$knowledge" || fail "manual and Guide search prompts failed"
-pass "manual discovery, bounded literal helper calls, pagination, and Guide Search prompts"
+pass "manual discovery, breadcrumb keyboard focus, bounded literal helper calls, pagination, and Guide Search prompts"
 
 # Pages installed on the host: a package build sandbox has no man pages or
 # groff, so these checks run only where the pages can be rendered.

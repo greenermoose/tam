@@ -1,6 +1,6 @@
 # Check, upgrade and switch tam source versions
 
-**Plan status:** In progress
+**Plan status:** Completed
 **Reviewed:** 2026-10-18
 **Scope:** Four-stage version discovery, source installation and switching.
 Implementation: command 0.31.0 / corpus 0.32.0; baseline was 0.30.0 / 0.31.0.
@@ -9,9 +9,8 @@ Release switching, approved the development prefix and paired release tags, and
 clarified independent code-based versions with no renumbering on installation.
 The developer accepted the complete plan on 2026-10-18; see the
 [approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
-**Next action:** First activation in `~/.local/dev` remains developer-directed;
-all source, automated and disposable isolated-build acceptance is complete.
-The implementation and automated acceptance evidence are recorded below.
+**Next action:** None for source implementation or local activation. Package
+Test/Run/Release remain separate developer-directed stages.
 **Implementation commits:** `f721120`, `5a84294`, `627c126`, `4afdea5` and
 `5d5c128` (source, tests and acceptance follow-up); `09101b1` records the
 handoff.
@@ -310,8 +309,10 @@ shared clone on develop under path claims, following `AGENTS.md` and the
   installed and verified the temporary generation, and wrote its receipt.
   `tam --version` reported 0.31.0 / 0.32.0 / libtam 0.2.0, and the bundled
   welcome page rendered from outside the build tree. The staged-install test
-  now isolates XDG paths and matches current guide text. First activation in
-  `~/.local/dev` still requires Fred's explicit instruction.
+  now isolates XDG paths and matches current guide text. Fred explicitly
+  directed the first activation in `~/.local/dev`; `make install` installed
+  command 0.31.0 / corpus 0.32.0 from source commit `33e8e1f`, and
+  `tam --version` verified both versions and the development prefix on `PATH`.
 - [x] **TCK8 (CLI, documentation and delivery handoff):** Wired both commands,
   dispatch/help, static Bash completion, manual, README and `knowledge/tam.html`; document the
   temporary development override and bootstrap. Independent versions are
@@ -353,11 +354,12 @@ state, not just internal helpers.
 | Paths with spaces, malicious metadata, oversized/chunked data | Safe argv, bounded parser/transport, no injected commands or terminal controls. |
 | Normal command browsing after installation | No network; installed corpus and private libtam resolve outside build directory. |
 
-No implementation tests or installations were performed during planning. Live
-GitHub metadata checks and disposable isolated acceptance builds may proceed
-under the developer's standing authorization; activation in the real
-development prefix remains separately developer-directed. Package
-Test/Run/Release remain separate actions.
+No implementation tests or installations were performed during planning. The
+implementation, full source tests, isolated source build, live metadata check,
+and developer-directed first activation in the real development prefix are
+complete. The `run` source remains unparseable because `main` predates
+`knowledge/version`; this is reported truthfully and is not a blocker to the
+implemented checks. Package Test/Run/Release remain separate actions.
 
 ## References and disposition
 
@@ -370,8 +372,7 @@ and [curl options](https://curl.se/docs/manpage.html), consulted 2026-10-18.
 Live tam release/develop API responses were unavailable through the research
 tool; this plan makes no claim about the current remote release or branch head.
 
-Before closure, record acceptance follow-up commits and evidence, actual
-command/corpus versions, bootstrap delivery and remaining acceptance here, then
-synchronize its entry points. The implementation commit alone does not close
-source-installation acceptance: complete the isolated real build first and
-leave first activation to the developer's explicit instruction.
+Closure evidence: TCK6–TCK8, the isolated real source build, live metadata
+check, and explicit first activation are recorded above. Command 0.31.1 / corpus
+0.32.0 is now installed in the development prefix after the breadcrumb fix;
+package-stage acceptance remains developer-directed.

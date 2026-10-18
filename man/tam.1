@@ -210,10 +210,10 @@ or
 the interactive pager provides the following controls:
 .TP
 .BR j ", " Down
-Scroll down by one line.
+Scroll down by one line. From the breadcrumb row, return to the page links.
 .TP
 .BR k ", " Up
-Scroll up by one line.
+Scroll up by one line. At the first document line, focus the last breadcrumb link; while the breadcrumb row is focused, move to the previous breadcrumb link.
 .TP
 .BR Space ", " PgDn
 Scroll down by one full screen.
@@ -230,15 +230,16 @@ Jump to the bottom of the document.
 .BR Tab ", " Shift-Tab ", " a ", " s ", " d ", " f
 Navigate hyperlinks.
 .B a
-moves to the hyperlink to the left on the current line (wrapping to the line above), equivalent to
-.BR Shift-Tab .
+moves to the previous page hyperlink in reading order; on the breadcrumb row it moves to the previous breadcrumb.
 .B f
-moves to the hyperlink to the right on the current line (wrapping to the next line), equivalent to
-.BR Tab .
+moves to the next page hyperlink in reading order; on the breadcrumb row it moves to the next breadcrumb.
 .B s
-moves to the hyperlink above the selected hyperlink.
+moves to the hyperlink above the selected hyperlink, including previous breadcrumb links when the breadcrumb row is focused.
 .B d
-moves to the hyperlink below the selected hyperlink.
+moves to the hyperlink below the selected hyperlink, returning from the breadcrumb row to page links.
+The breadcrumb links are also included in the normal
+.BR Tab ", " Shift-Tab
+sequence.
 If no hyperlink has been selected yet, any of these selectors selects the first hyperlink visible on the screen.
 .TP
 .BR Enter ", " Right

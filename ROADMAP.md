@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-18. **Owner:** Fred (developer).
-**Current Command Version:** `0.31.0`. **Current Corpus Version:** `0.32.0`.
+**Current Command Version:** `0.31.1`. **Current Corpus Version:** `0.32.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -18,7 +18,8 @@ Improving**. Learning routes cross shared knowledge; Beginner, Intermediate
 and Expert are reading depths. Search, Topics, Man pages, Info manuals and Help
 serve every part. Corpus 0.31.0 implements this organization and command 0.30.0
 provides shared navigation and discovery. Command 0.31.0 adds explicit source
-version checks and switching; corpus 0.32.0 documents the workflow.
+version checks and switching; 0.31.1 makes the fixed breadcrumb row keyboard
+reachable. Corpus 0.32.0 documents the workflow.
 
 Retain the native C/libtam reader, offline default, read-only browsing, semantic
 HTML and indexed metadata, clean pipe output, explicit opt-in boundary for local
@@ -71,6 +72,7 @@ Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergon
 | **0.30.0 corpus** | Snapper guide | Done (2026-10-18) | Dedicated snapshot-management page and maintenance/recovery cross-links (`d13c1f6`). |
 | **0.30.0 command** | Shared reader navigation and discovery | Done (2026-10-18) | Common Guide/Back/Help/Quit navigation; in-reader Man, Info and Guide search discovery (`0b3f008`, `52e71f7`). |
 | **0.31.0 corpus** | Five-part knowledge system and guided learning | Done (2026-10-18) | Five-part root, logical homes for all 50 existing pages, five new learning/navigation pages, route and search acceptance (`597cb71`, `f4fa539`). |
+| **0.31.1 command** | Breadcrumb keyboard navigation | Done (2026-10-18) | Up Arrow focuses the fixed breadcrumb row; `a`/`f`, `s`/`d`, Tab and Shift-Tab navigate its links. |
 
 
 ## 3. Current work and follow-up
@@ -81,11 +83,10 @@ user development prefix, exact release pins and rollback (TCK6–TCK8). New code
 builds for the developer receive independently maintained command/corpus version
 bumps; reinstalling existing sources preserves their versions. Release tags
 record the command/corpus version pair. The developer approved the complete
-design on 2026-10-18. TCK6/TCK8 and automated TCK7 transaction checks are
-implemented and the managed isolated source build passed against the pushed
-development head. Disposable acceptance builds and live metadata checks have
-standing developer authorization; first activation in the real development
-prefix remains developer-directed. The live metadata check resolves
+design on 2026-10-18. TCK6–TCK8, the managed isolated source build, live metadata
+check, and developer-directed first activation in the real development prefix
+are complete. Disposable acceptance builds and live metadata checks have
+standing developer authorization. The live metadata check resolves
 development and test; `main` predates `knowledge/version`, so the run stage
 cannot be described until it is promoted. See the
 [Luna handoff](docs/handoffs/tam-upgrade-luna.md).
