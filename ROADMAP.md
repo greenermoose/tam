@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-18. **Owner:** Fred (developer).
-**Current Command Version:** `0.29.3`. **Current Corpus Version:** `0.30.0`.
+**Current Command Version:** `0.30.0`. **Current Corpus Version:** `0.31.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -14,10 +14,10 @@ Read the [plan index](docs/plans/README.md) for status, the
 
 `tam` is the terminal entry point to Tamlinux's offline knowledge system. Its
 primary journey has five parts: **Installing, Learning, Using, Maintaining,
-Improving**. Learning routes cross the shared knowledge; Beginner, Intermediate
+Improving**. Learning routes cross shared knowledge; Beginner, Intermediate
 and Expert are reading depths. Search, Topics, Man pages, Info manuals and Help
-serve every part. Corpus 0.30.0 still has the older organization; the next
-milestone delivers this approved design.
+serve every part. Corpus 0.31.0 implements this organization and command 0.30.0
+provides shared navigation and discovery.
 
 Retain the native C/libtam reader, offline default, read-only browsing, semantic
 HTML and indexed metadata, clean pipe output, explicit opt-in boundary for local
@@ -68,26 +68,23 @@ Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergon
 | **0.29.0 corpus** | Linux Boot Fallbacks & Rescue Routes | Done (2026-10-17) | New Maintain guide distinguishes firmware paths, alternate kernels and initramfs images, snapshot boots and external rescue media by their shared boot dependencies. |
 
 | **0.30.0 corpus** | Snapper guide | Done (2026-10-18) | Dedicated snapshot-management page and maintenance/recovery cross-links (`d13c1f6`). |
+| **0.30.0 command** | Shared reader navigation and discovery | Done (2026-10-18) | Common Guide/Back/Help/Quit navigation; in-reader Man, Info and Guide search discovery (`0b3f008`, `52e71f7`). |
+| **0.31.0 corpus** | Five-part knowledge system and guided learning | Done (2026-10-18) | Five-part root, logical homes for all 50 existing pages, five new learning/navigation pages, route and search acceptance (`597cb71`, `f4fa539`). |
 
 
-## 3. What needs to be done next
+## 3. Current work and follow-up
 
-**Implement [Five-part knowledge system — corpus 0.31.0](docs/plans/knowledge-system-0.31.0.md).**
-This is the one authoritative work plan, approved by the developer on 2026-10-18.
-Companion command target: **0.30.0**, for shared navigation and in-guide discovery.
-Neither version file changes during planning.
+The [five-part knowledge-system plan](docs/plans/knowledge-system-0.31.0.md)
+is implemented and its TCK1–TCK5 source and automated acceptance work is
+complete. The command/corpus pair is **0.30.0 / 0.31.0**. The exact source
+commits and checks are recorded in that plan and its
+[implementation session record](docs/ai/2026-10-18-knowledge-system-implementation.md).
 
-| Order | Outcome | Completion |
-| --- | --- | --- |
-| TCK1 | Five-track metadata and logical page hierarchy, preserving old-corpus loading. | Index/schema/parent validation and compatibility fixtures. |
-| TCK2 | Common Guide/Back/Help/Quit navigation across Guide, Man and Info. | Focus, history, search, Info Up and resize/terminal behavior verified. |
-| TCK3 | Open arbitrary man pages, keyword/section discovery and Guide search inside tam. | Deterministic lookup/failure tests; no shell execution or noninteractive prompts. |
-| TCK4 | Reorganize/review all 50 pages; add hubs and learning material; rebuild paths. | Complete page mapping, reachability, depth-aware learning outcomes and query checks. |
-| TCK5 | Integrate command 0.30.0 / corpus 0.31.0 and prepare candidate handoff. | Both suites and integrated acceptance; package/physical-review limits recorded. |
-
-The plan contains exact scope, dependencies, file mapping, navigation contracts,
-acceptance cases and next-agent first steps. Start TCK1 in the shared clone with
-path claims. Installer execution and stateful progression are outside this work.
+No package assembly, stage transition, installation or deployment was part of
+this work. The owning assembly can consume the Tam source at `f4fa539`; real
+Linux-console and Foot review of the exact packaged candidate remains
+developer-directed. Installer execution and stateful progression remain
+deferred.
 
 Separately, [portable pager display](docs/plans/pager-display-portability.md) has
 implemented source and automated tests (command 0.29.0), but exact packaged

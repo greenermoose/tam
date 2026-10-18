@@ -3,12 +3,11 @@
 Read this before you add or change a page under `knowledge/`. It supplements
 `AGENTS.md`, which covers claims, lanes, versions and provenance.
 
-Organization changes for corpus 0.31.0 follow the
-[authoritative knowledge-system plan](plans/knowledge-system-0.31.0.md).
-It replaces the seven-part/three-track design; the current corpus still has
-that old schema until the implementation migrates it. Preserve current build
-validity during migration and update this guide when the new schema lands.
-Plan/note status and closure follow [plan maintenance](plan-maintenance.md).
+The current five-part organization and metadata contract were delivered in
+corpus 0.31.0 under the [authoritative knowledge-system plan](plans/knowledge-system-0.31.0.md).
+The plan records its page mapping, hierarchy rules and verification. Preserve
+those contracts when adding content. Plan/note status and closure follow
+[plan maintenance](plan-maintenance.md).
 
 The new track values are `install`, `learn`, `use`, `maintain` and `improve`.
 Every non-root page in corpus 0.31.0 declares `<meta name="parent" ...>` with
@@ -119,9 +118,9 @@ Readers see the text that `tam show` renders, not the HTML.
    your `docs/ai/` record, and `AI_PROVENANCE.md` while
    you edit it.
 2. Write the page from its sources. Keep a list of what you checked.
-3. Link it from its canonical section hub and appropriate learning/task routes.
-   Until the overhaul migrates the root, retain its current contents links.
-   After migration, the root links hubs and utilities, not every chapter.
+3. Link it from its canonical part hub and appropriate learning/task routes.
+   The Guide root links the five part hubs and shared utilities; it does not list
+   every chapter. Keep cross-links contextual without changing a page's home.
 4. Run `python3 tools/build-index.py`.
 5. If a note in `docs/plans/corpus/` asked for the page, confirm each query it
    records now finds the intended page (`tam explain <query>`), and close the

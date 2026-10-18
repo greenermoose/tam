@@ -8,10 +8,14 @@ carry no transcript identifiers or store paths.
 AI-assisted commits carry `Co-authored-by`, `AI-Tool` and `AI-Model` trailers.
 Human-only commits retain their original authorship.
 
-Pushed commits are never rewritten, so some trailers stay as committed.
+Commits in this shared checkout are not amended or rewritten, so some trailers
+stay as committed.
 These AI-assisted commits carry no AI trailers: `b55522c`, `cacdd78`,
 `020ea30`, `326063d`, `7f5b579`, `1e88746`, `2921c85`, `b58c01c`,
-`3a7e577`, `9464b0f` and `698756c`. Several Antigravity commits from
+`3a7e577`, `9464b0f`, `698756c`, `e0215fd`, `0b3f008`, `52e71f7`,
+`597cb71` and `f4fa539`. The last five deliver the 2026-10-18 knowledge-system
+implementation; its session record carries the verified tool/model and commit
+list. Several Antigravity commits from
 2026-10-14 and 2026-10-15 name an earlier `agy` version than the one that
 ran. The table and session records give the verified tool, version and
 model for each session.
@@ -19,6 +23,7 @@ model for each session.
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
 | 2026-10-18 | Plan corpus 0.31.0 five-part knowledge system; reconcile and maintain plans; implementation handoff | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-18-tam-knowledge-overhaul-planning.md) |
+| 2026-10-18 | Implement five-part knowledge system; command 0.30.0 / corpus 0.31.0 | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-18-knowledge-system-implementation.md) |
 | 2026-10-16 | Retire delegation; direct developer assignments and independent audit selection | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-16-retire-delegation.md) |
 | 2026-10-08 | Local repository scaffold and command contract | Codex CLI 0.162.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-08-tam-repository-and-command-contract.md) |
 | 2026-10-09 | Command foundation 0.0.1 (intro, `--help`, `--version`) | opencode 1.18.35; `big-pickle` | [Session record](docs/ai/2026-10-09-tam-command-foundation.md) |

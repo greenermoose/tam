@@ -3,8 +3,8 @@
 <head>
 <title>Packaging and Delivery: Nix, Pacman, and XBPS</title>
 <meta name="topic" content="packaging">
-<meta name="summary" content="Package management: Nix and Home Manager for the desktop, the native package manager for the base">
-<meta name="keywords" content="packaging, package manager, nix, pacman, xbps, xbps-src, apt, portage, home manager, rollback, flake">
+<meta name="summary" content="Package management: recorded Tamlinux assemblies, Nix and Home Manager for user tools, and the native package manager for the base">
+<meta name="keywords" content="packaging, package manager, nix, pacman, xbps, xbps-src, apt, portage, home manager, mise, rollback, flake">
 <meta name="level" content="intermediate">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
@@ -16,20 +16,28 @@
 
 <h1>Software Packaging and Delivery</h1>
 
-<p>Tamlinux is one workstation package with two ways of delivering it. The base
-distribution's own package manager keeps owning the kernel, drivers, and core
-system; the Tamlinux desktop is delivered on top.</p>
+<p>The base distribution's native package manager owns the kernel, drivers, and
+core system. Tamlinux product software reaches a session through a recorded
+<code>tamlinux-packages</code> assembly and <code>tam-deploy</code>. User tools
+have their own Home Manager or Mise owner.</p>
 
 <h2>On existing distributions: Nix and Home Manager</h2>
 
-<p>On distributions such as Arch, Tamlinux is delivered as a Nix flake with a
-Home Manager module and a small native host adapter:</p>
+<p>On distributions such as Arch, Tamlinux package assemblies use a Nix flake
+and Home Manager integration:</p>
 
 <ul>
 <li><strong>Isolated store paths:</strong> each package is built into its own path under <code>/nix/store</code>, and exact versions are locked in <code>flake.lock</code>.</li>
-<li><strong>One mechanism for testing and daily use:</strong> a candidate build and the build you run every day are installed the same way, to the same places.</li>
+<li><strong>Recorded delivery:</strong> a candidate assembly is recorded and delivered with <code>tam-deploy</code>; a checkout is not a deployment source.</li>
 <li><strong>Rollback:</strong> every deployment is a Home Manager generation; returning to an earlier generation restores the previous desktop without touching the base system.</li>
 </ul>
+
+<h2>User command-line tools</h2>
+
+<p>Pacman remains the owner of operating-system components. Home Manager
+declares stable reproducible user tools, while Mise declares the fast-moving
+agent CLIs. Each interactive command should have one intended owner; check the
+active path in the shell or launch context that uses it.</p>
 
 <h2>On Void: native packages</h2>
 

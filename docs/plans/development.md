@@ -2,15 +2,15 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-18
-**Scope:** Living integration contract; current command 0.29.3 and corpus 0.30.0.
+**Scope:** Living integration contract; current command 0.30.0 and corpus 0.31.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), and [corpus 0.31.0 work plan](knowledge-system-0.31.0.md).
-**Next action:** Integrate the overhaul's TCK1 hierarchy/index contract, then its
-ordered navigation, discovery and corpus slices. Implementation has not started.
+**Next action:** Maintain the delivered five-part knowledge system; select any
+new feature through the roadmap and its approved plan.
 
-**Stage:** Develop. Milestones 1–16 and later reader improvements have landed.
-The current corpus remains organized under the older model until the approved
-corpus 0.31.0 overhaul is implemented. Maintain this living contract using the
+**Stage:** Develop. Milestones 1–16 and the 0.30.0/0.31.0 knowledge overhaul
+have landed in source. Package assembly and deployment remain separate,
+developer-directed work. Maintain this living contract using the
 [plan maintenance procedure](../plan-maintenance.md); closed plans are historical.
 
 ## Purpose and ownership
@@ -26,15 +26,16 @@ framework. Existing component tools retain their owners; document or call them
 through deliberate subcommand contracts rather than moving every `tam-*`
 helper into this repository.
 
-The approved journey spine has five parts — **Installing, Learning, Using,
+The delivered journey spine has five parts — **Installing, Learning, Using,
 Maintaining, Improving**. Topic lookup/search and Guide/Man/Info reference access
 are shared utilities; Beginner, Intermediate and Expert are independent reading
-depths. Learning routes reuse pages across all parts. Each page has one primary
-home, with contextual links elsewhere. The current corpus 0.30.0 still uses the
-three-track/seven-part arrangement. The
-[corpus 0.31.0 plan](knowledge-system-0.31.0.md) is the sole implementation
-authority for replacing it, including metadata, common navigation and arbitrary
-manual lookup inside the reader. Companion command target is 0.30.0.
+depths. Learning routes reuse pages across all parts. Every page has one
+canonical logical home and may be linked contextually elsewhere. Corpus 0.31.0
+declares five track values and explicit parent paths; older corpora may omit
+parent metadata and retain directory-based hierarchy. Command 0.30.0 supplies
+common Guide/Back/Help/Quit actions and in-reader Guide/Man discovery. The
+[knowledge-system plan](knowledge-system-0.31.0.md) records the delivered
+contracts and verification.
 
 The 2026-10-12 requirements describe historical milestones 6–9; later decisions
 below record their evolution. Rationale/depth commands, stateful learning and
@@ -86,7 +87,7 @@ Build targets follow the lanes:
 | `tam explain topics` | Implemented | Interactive hyperlinked topic browser in pager (or clean text when piped); supports `--level LEVEL`, `--terse` (slugs only for pipes/scripts), and `--verbose` (exhaustive keywords/summaries). |
 | `tam inspect` | Implemented | Read-only host facts, capability detection, and system health findings (the old `tam install inspect` form is retired). Supports `--json`, `--check [ID]`. |
 | `tam check [ID]` | Implemented | Structured offline Check Contract evaluation against system diagnostic probes (the old `tam install check` form is retired). Supports `--json`, `--terse`. |
-| `tam man [SECTION] PAGE` | Implemented | System manual page, converted from roff to semantic HTML with hyperlinked cross-references; a surface separate from the corpus. |
+| `tam man [SECTION] PAGE` | Implemented | Bare TTY use opens the manual discovery landing; named pages, sections, keyword lookup and section browsing route through the reader. Pipe mode prints landing guidance without prompting. |
 | `tam info [MANUAL [NODE]]` | Implemented | System GNU Info manual, converted from Info format to semantic HTML with hyperlinked node hierarchy, menus, and cross-references; opens top-level dir or specific manual/node in pager. (Milestone 14, tam 0.22.0). |
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
 | `tam search [--json] TERM...` | Implemented | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
@@ -127,8 +128,12 @@ Renderer fixtures do. Verify component behavior before documenting it.
 Author topic metadata in the pages themselves and project it into a small
 corpus index artifact at build time: each page declares a title, a one-line
 summary and its keywords, plus level, track and prerequisites. These fields
-also drive reader-visible filtering and navigation. The overhaul adds logical
-parent metadata and five tracks; its specification is not current 0.30.0 behavior.
+also drive reader-visible filtering and navigation. Corpus 0.31.0 requires
+explicit logical parents for authored pages, keeps the Guide root track empty,
+and validates parent reachability, cycles, part-track ownership and breadcrumb
+agreement. The sidecar hierarchy projection preserves the established TSV
+columns and lets older command readers ignore the additive data. Three-track
+corpora without parent metadata retain their prior directory fallback.
 The index is the single lookup authority for `search` and `explain`; it replaces
 the hand-written keyword table in `src/tam.c` and keeps the existing aliases and
 the explain catalog as projections of that one source. The index must load once
@@ -285,11 +290,9 @@ plan/apply/verify work follows the product framework.
 
 ## Current implementation and deferred work
 
-The next implementation is the five-slice
-[knowledge-system overhaul](knowledge-system-0.31.0.md), targeting corpus 0.31.0
-and companion command 0.30.0. That plan owns the complete content mapping,
-common reader navigation, in-guide Man/Guide search and acceptance matrix.
-No runtime behavior or component version is changed by approving the plan.
+The five-slice [knowledge-system overhaul](knowledge-system-0.31.0.md) delivered
+command 0.30.0 and corpus 0.31.0. Its full test evidence and remaining package
+review limits are recorded there.
 
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,

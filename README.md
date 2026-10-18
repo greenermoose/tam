@@ -3,19 +3,21 @@
 `tam` is the terminal entry point to Tamlinux's offline guide. It helps users
 learn about their system, maintain it, and discover ways to improve it.
 
-**Stage:** Develop — command 0.29.3 and knowledge corpus 0.30.0. The command
+**Stage:** Develop — command 0.30.0 and knowledge corpus 0.31.0. The command
 includes the offline guide, native man and Info readers, search and explanation,
 host inspection, and a portable built-in pager. It builds in C against the
-separate `libtam` library and installs as `tam`. The command is part of
-`tamlinux-packages` and installed on the system. See the
+separate `libtam` library and is delivered through Tamlinux package assemblies.
+This source candidate has not been deployed. See the
 [development plan](docs/plans/development.md) and
 [roadmap](ROADMAP.md) for current milestones.
 
-The next approved milestone is the [five-part knowledge-system overhaul](docs/plans/knowledge-system-0.31.0.md),
-targeting corpus 0.31.0 and companion command 0.30.0. It has not been implemented.
-Start there for its handoff; the [plan index](docs/plans/README.md) distinguishes
-current work from historical plans. Follow [plan maintenance](docs/plan-maintenance.md)
-when changing scope or closing work.
+The [five-part knowledge-system overhaul](docs/plans/knowledge-system-0.31.0.md)
+is implemented in source: Installing, Learning, Using, Maintaining and
+Improving, with common Guide/Man/Info navigation and in-reader discovery. Its
+automated acceptance passed; package assembly and real-console/Foot review
+remain developer-directed. The [plan index](docs/plans/README.md) distinguishes
+current work from historical plans. Follow
+[plan maintenance](docs/plan-maintenance.md) when changing scope or closing work.
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline
@@ -72,7 +74,8 @@ installation framework.
 
 Read the [development plan](docs/plans/development.md) for current command
 behavior, packaging and acceptance, and the
-[knowledge-system plan](docs/plans/knowledge-system-0.31.0.md) for the next work.
+[knowledge-system plan](docs/plans/knowledge-system-0.31.0.md) for the completed
+corpus change and its remaining packaged-review boundary.
 The [offline-guide plan](docs/plans/offline-guide.md) is a historical design record.
 
 ## Layout
@@ -85,53 +88,43 @@ The [offline-guide plan](docs/plans/offline-guide.md) is a historical design rec
 | `docs/plans/` | Indexed current plans and historical designs with explicit dispositions. |
 | `docs/ai/` | AI-assisted authorship and verification records. |
 
-## Installation on a Tamlinux cultivar
+## Build, package, and develop
 
-By default on a Tamlinux cultivar (`PREFIX ?= /usr/local`):
+Tamlinux product software reaches a session only through a recorded
+`tamlinux-packages` assembly and `tam-deploy`. A source checkout or direct
+system installation is not a deployment route. The owning package repository
+consumes this command and its knowledge corpus as pinned inputs.
 
-- **`tam` binary:** Installed to `/usr/local/bin/tam` (`$(PREFIX)/bin/tam`, mode 755). `/usr/local/bin` is in `$PATH` across the system, allowing users and scripts to invoke `tam` directly from any terminal.
-- **`tam` knowledge pages:** Installed to `/usr/local/share/tamlinux/knowledge/` (`$(PREFIX)/share/tamlinux/knowledge/`). This directory contains the complete offline semantic HTML guide corpus (`index.html`, `welcome.html`, `install/index.html`, `shell/pipelines.html`, `man/index.html`).
+For command development, install an unprivileged build under the development
+prefix used by the Tamlinux component workflow:
+
+```sh
+make
+make test PREFIX="$HOME/.local/dev" LIBTAM_PREFIX="$HOME/.local/dev"
+make install PREFIX="$HOME/.local/dev" LIBTAM_PREFIX="$HOME/.local/dev"
+```
+
+For an assembly or staged package build, set `PREFIX` and `DESTDIR` as required
+by that packaging recipe. `DESTDIR` stages files under a temporary root; it
+does not make that tree a deployment. Do not run the default `/usr/local`
+install on a Tamlinux session.
 
 ### Runtime knowledge resolution
 
 When `tam show`, `tam welcome`, or `tam explain` looks up knowledge pages, `tam` resolves the corpus root directory by searching the following paths in order:
 
 1. **`$TAM_KNOWLEDGE_DIR`**: Direct override environment variable (used for development builds and automated test suites).
-2. **Compiled-in default datadir (`TAM_DATADIR`)**: The corpus installed with this binary, built in at compile time via `CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"` (default `/usr/local/share/tamlinux/knowledge`). Checking it first means a development install under one prefix (for example `~/.local/dev`) never renders the pages of a packaged install under another.
+2. **Compiled-in default datadir (`TAM_DATADIR`)**: The corpus installed with this binary, built in at compile time via `CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"`. Checking it first means a development install under one prefix never renders pages from a different package location.
 3. **`$XDG_DATA_HOME/tamlinux/knowledge`**: User data directory (defaults to `~/.local/share/tamlinux/knowledge` if `$XDG_DATA_HOME` is unset).
 4. **`$XDG_DATA_DIRS/tamlinux/knowledge`**: System data directories checked in colon-separated order (e.g. `/usr/local/share/tamlinux/knowledge`, `/usr/share/tamlinux/knowledge`). These serve relocated (`DESTDIR`-staged) installs whose compiled path does not exist.
 
 If none of these locations contain a valid guide corpus (`index.html`), `tam show` prints an informative diagnostic advising the user that the offline guide is not installed, while non-guide commands like `tam --help` and `tam --version` continue to function normally.
 
-### Staged and packaged installation
-
-`tam` is packaged for Tamlinux delivery in [`tamlinux-packages`](https://github.com/greenermoose/tamlinux-packages) (as `packages.x86_64-linux.tam` and the default flake output).
-
-For other package managers (such as Arch `PKGBUILD` or Void `xbps-src`) or relocatable testing, `PREFIX` and `DESTDIR` can be overridden:
-
-```sh
-make install PREFIX=/usr DESTDIR=/path/to/stage
-```
-
-This installs the binary to `$(DESTDIR)$(PREFIX)/bin/tam` and the knowledge pages to `$(DESTDIR)$(PREFIX)/share/tamlinux/knowledge/`.
-
-## Build and install
-
 `tam` links against an **installed** `libtam`; it never builds or modifies the
-library checkout. Build and install `libtam` first, then:
-
-```sh
-make            # build build/tam
-make test       # run the behavior checks
-sudo make install  # or: pkexec make install
-```
-
-`make install` installs the `tam` binary to `$(DESTDIR)$(BINDIR)/tam` (`/usr/local/bin/tam` by default) and copies the knowledge pages to `$(DESTDIR)$(DATADIR)/` (`/usr/local/share/tamlinux/knowledge/` by default).
-
-Override `LIBTAM_PREFIX` if the library lives outside `PREFIX`; `PREFIX` and
-`DESTDIR` support staged installation. See
-[`docs/plans/development.md`](docs/plans/development.md) for the command
-contract.
+library checkout. Override `LIBTAM_PREFIX` when the library is installed under
+a different prefix. See [`docs/plans/development.md`](docs/plans/development.md)
+for the command contract and the component development runbook for the
+authorized local workflow.
 
 ## License and authorship
 

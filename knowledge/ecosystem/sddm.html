@@ -54,20 +54,19 @@ in turn launches the Tamlinux shell (Quickshell).</li>
 
 <h3>Autologin and the native greeter</h3>
 
-<p>On a dedicated single-user workstation, autologin is a user convenience
-preference. Disk encryption protects data at rest while the system is powered
-off, whereas session authentication controls interactive access once the system
-is running. Tamlinux supports automatic login as a configurable choice:</p>
+<p>Tamlinux's packaged SDDM defaults do not enable automatic login. Account and
+autologin policy belongs in the local administrator configuration under
+<code>/etc</code>; set it only when that is the intended security policy.</p>
 
 <ul>
-<li><strong>Seamless startup:</strong> On system boot, SDDM automatically enters
-the user's primary session (<code>tamlinux.desktop</code>).</li>
-<li><strong>Manual logout to greeter:</strong> Setting <code>Relogin=false</code> in
-SDDM configuration ensures that when you explicitly log out of your desktop,
-the graphical greeter appears rather than immediately logging back in.</li>
-<li><strong>Visible session choices:</strong> The native Tamlinux greeter
-displays an uncluttered login menu allowing you to choose between your primary
-desktop session and maintenance or recovery entries.</li>
+<li><strong>Explicit login:</strong> The native Tamlinux greeter provides
+username, session, and password controls.</li>
+<li><strong>Local policy:</strong> Any autologin configuration is an
+administrator choice in <code>/etc/sddm.conf</code> or
+<code>/etc/sddm.conf.d/</code>, not a Tamlinux package default.</li>
+<li><strong>Session choices:</strong> The session list depends on the session
+desktop files installed on the machine. Do not assume recovery sessions are
+present.</li>
 </ul>
 
 <h3>Checking SDDM service status</h3>
@@ -111,17 +110,17 @@ present, settings in this primary file take the highest precedence over all
 drop-in directories.</li>
 </ol>
 
-<p>A typical Tamlinux configuration drop-in configures the theme and autologin
-behavior:</p>
+<p>The package supplies vendor theme and compositor defaults. Account and
+automatic-login settings are administrator-owned; there is no universal local
+configuration to copy. Inspect the installed session entries before selecting
+a session name.</p>
 
 <pre>
-[Theme]
-Current=tamlinux
-
 [Autologin]
-User=alex
-Session=tamlinux.desktop
-Relogin=false
+# Optional local policy only; uncomment and set deliberately.
+# User=your-account
+# Session=installed-session.desktop
+# Relogin=false
 </pre>
 
 <h3>Wayland session discovery and launch</h3>

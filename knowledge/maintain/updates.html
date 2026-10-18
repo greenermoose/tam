@@ -17,15 +17,17 @@
 
 <h1>Non-Disruptive Updates and Package Lifecycle</h1>
 
-<p>Linux updates running software without forcing disruptive system reboots.
-Tamlinux takes advantage of POSIX filesystem semantics to maintain software
-seamlessly across distinct package tiers.</p>
+<p>Updates have different owners across the base operating system, Tamlinux
+product packages, and user tools. Check each layer with its owner, and follow
+the recorded Tamlinux package assembly and deployment workflow for product
+changes.</p>
 
 <section data-level="beginner">
 <h2>Beginner: Safe updates and package status</h2>
 
-<p><strong>Summary:</strong> Check for pending package updates and apply them
-confidently without interrupting active terminal workflows.</p>
+<p><strong>Summary:</strong> Check native Arch package updates without changing
+the system, and identify the separate owners for Tamlinux and user-tool
+updates.</p>
 
 <p><strong>Prerequisites:</strong> Basic command execution
 (<a href="shell/index.html">The Shell and Streams</a>) and the
@@ -35,32 +37,21 @@ confidently without interrupting active terminal workflows.</p>
 
 <pre>
 tam-update --check
-tam-update
-</pre>
-
-<p>Expected output when checking:</p>
-
-<pre>
-tam-update: checking package tiers...
-  [base]     3 packages upgradable (pacman)
-  [tamlinux] up to date (cultivar 0.4.2-d)
-  [tools]    up to date (mise)
-Run 'tam-update' to synchronize packages.
 </pre>
 
 <h3>What just happened</h3>
 
 <ul>
-<li><code>tam-update --check</code> inspects each configured package layer and reports pending upgrades without modifying disk state.</li>
-<li>When updates are applied, newly downloaded binaries are written to storage immediately while active processes continue running undisturbed.</li>
-<li>Unlike operating systems that lock active executable files on disk, Linux allows files in use to be replaced safely.</li>
+<li><code>tam-update --check</code> asks Arch's <code>checkupdates</code> for the native repository upgrade preview; it does not report Home Manager or Mise updates.</li>
+<li>Applying native system updates is a separate operation with recovery-readiness requirements and a package transaction. Follow the system update guide before running it.</li>
+<li>Update Tamlinux product software only through a recorded <code>tamlinux-packages</code> assembly and <code>tam-deploy</code>.</li>
 </ul>
 
 <h3>Common pitfall</h3>
 
-<p>Do not reboot the entire machine after updating user packages or command-line
-utilities. A reboot is only strictly required when activating a newly installed
-Linux kernel or updated low-level system firmware.</p>
+<p>Do not treat every layer as one update command. Follow the system update
+guide for native package transactions and the Tamlinux lifecycle for product
+deployments; whether a reboot is required depends on what changed.</p>
 
 <h3>Next step</h3>
 
@@ -72,16 +63,17 @@ intermediate section below, or learn how to roll back unwanted changes in
 <section data-level="intermediate">
 <h2>Intermediate: Package tiering architecture</h2>
 
-<p><strong>Summary:</strong> Understand the three-tier software model: base OS
-packages, Tamlinux product packages, and user development runtimes.</p>
+<p><strong>Summary:</strong> Understand the owners for base OS packages,
+Tamlinux product packages, and user tools.</p>
 
 <h3>The three package tiers</h3>
 
 <table>
 <tr><th>Tier</th><th>Manager</th><th>Scope and Responsibility</th></tr>
 <tr><td>Base OS</td><td>pacman</td><td>Linux kernel, systemd init, glibc, Mesa graphics drivers, and hardware firmware.</td></tr>
-<tr><td>Tamlinux</td><td>tamlinux-packages / Nix</td><td>Desktop shell, tiling compositor plugins, libtam, and system lifecycle tools.</td></tr>
-<tr><td>User tools</td><td>mise</td><td>User-specific CLI utilities, compilers, language runtimes, and local developer tools.</td></tr>
+<tr><td>Tamlinux</td><td>Recorded <code>tamlinux-packages</code> assembly, deployed with <code>tam-deploy</code></td><td>Tamlinux product packages and their pinned configuration.</td></tr>
+<tr><td>Stable user tools</td><td>Nix / Home Manager</td><td>Reproducible user commands declared by Home Manager.</td></tr>
+<tr><td>Agent CLIs</td><td>Mise</td><td>Fast-moving agent command-line tools declared in tracked Mise configuration.</td></tr>
 </table>
 
 <h3>Worked example</h3>
@@ -91,15 +83,13 @@ workstation:</p>
 
 <pre>
 pacman -Qo /usr/bin/bash
-which tam
+command -v tam
+readlink -f "$(command -v tam)"
 </pre>
 
-<p>Expected output:</p>
-
-<pre>
-/usr/bin/bash is owned by bash 5.2.037-1
-/usr/local/bin/tam
-</pre>
+<p>Package versions and executable locations vary by machine and deployment.
+Use the local output to identify the owner; a command's presence on
+<code>PATH</code> alone does not show which package or deployment supplied it.</p>
 
 <h3>Completion task</h3>
 
