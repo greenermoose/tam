@@ -111,7 +111,7 @@ class UpgradeMetadataTests(unittest.TestCase):
     def test_stage_check_preserves_partial_results_and_failures(self):
         revisions = {"develop": "1" * 40, "test": "2" * 40, "main": "3" * 40}
         def api(path, deadline, allow_404=False):
-            if path == "": return {"full_name": "greenermoose/tam"}
+            if path == "/": return {"full_name": "greenermoose/tam"}
             branch = path.rsplit("/", 1)[-1]
             if branch == "main": raise module.CheckError("rate_limited", "fixture limit")
             return {"object": {"sha": revisions[branch]}}

@@ -379,7 +379,7 @@ def source_build_manifest(sha, deadline):
 
 def selection(stage, channel, version, corpus_version):
     deadline = time.monotonic() + TOTAL_TIMEOUT
-    repo = api_json("", deadline)
+    repo = api_json("/", deadline)
     if not isinstance(repo, dict) or not isinstance(repo.get("full_name"), str) or repo["full_name"].lower() != "greenermoose/tam":
         raise CheckError("repository", "GitHub response does not identify greenermoose/tam")
     if stage in ("development", "develop", "test", "run"):
@@ -860,7 +860,7 @@ def check_stages(requested):
     errors = []
     # Establish repository identity before treating a missing ref as absence.
     try:
-        repo = api_json("", deadline)
+        repo = api_json("/", deadline)
         if not isinstance(repo, dict) or not isinstance(repo.get("full_name"), str) or repo["full_name"].lower() != "greenermoose/tam":
             raise CheckError("repository", "GitHub response does not identify greenermoose/tam")
     except CheckError as exc:
