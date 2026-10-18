@@ -32,6 +32,7 @@ typedef struct {
 /* A laid-out page ready for either front end. */
 typedef struct {
     char       *title;
+    tam_line_t  location; /* Fixed Guide/manual location row, when available. */
     tam_line_t *lines;
     size_t      nlines;
     char       *nav_next;
@@ -46,6 +47,8 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width);
 void tam_document_free(tam_document_t *doc);
 /* Atomically relayout a retained parsed document at the requested width. */
 int tam_document_reflow(tam_document_t *doc, int content_width);
+/* Ensure a generated/manual document has a truthful location row. */
+void tam_document_ensure_location(tam_document_t *doc, const char *href);
 
 /* Plain, escape-sequence-free text rendering of a document. Caller frees. */
 char *tam_document_text(const tam_document_t *doc);

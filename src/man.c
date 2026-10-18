@@ -391,7 +391,7 @@ static tam_document_t *man_unified_load(void *vctx, const char *href,
             return doc;
         }
     }
-    return tam_man_load(href, content_width);
+    return NULL;
 }
 
 int tam_cmd_man(int n, char **args)
@@ -455,12 +455,14 @@ int tam_cmd_man(int n, char **args)
         return TAM_EXIT_FAILURE;
     }
 
+    char initial_href[160];
+    snprintf(initial_href, sizeof(initial_href), "man:%s", spec);
+    tam_document_ensure_location(doc, initial_href);
+
     int rc = 0;
     if (interactive) {
         man_loader_ctx_t ctx;
         ctx.root = tam_find_knowledge_root();
-        char initial_href[160];
-        snprintf(initial_href, sizeof(initial_href), "man:%s", spec);
         rc = tam_pager_run(doc, initial_href, man_unified_load, &ctx);
         if (ctx.root != NULL) {
             free(ctx.root);

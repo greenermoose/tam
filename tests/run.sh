@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.29.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.30.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -297,7 +297,7 @@ def send_and_get_target(key):
     return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
 
 time.sleep(0.15)
-# Initial: nothing selected. Press "f" -> selects first visible link: tl.html
+# Initial: nothing selected. Press "f" -> first visible body link: tl.html
 t0 = send_and_get_target(b"f")
 assert t0 == "tl.html", f"expected tl.html, got {t0}"
 
@@ -478,15 +478,18 @@ def parse_info(buf):
     last_info = (title, target)
     return last_info
 
+last_buf = b""
 def send_and_get_info(key):
-    time.sleep(0.08)
+    global last_buf
+    time.sleep(0.15)
     while select.select([master], [], [], 0.02)[0]:
         os.read(master, 1024)
     os.write(master, key)
-    time.sleep(0.08)
+    time.sleep(0.15)
     buf = b""
     while select.select([master], [], [], 0.02)[0]:
         buf += os.read(master, 1024)
+    last_buf = buf
     return parse_info(buf)
 
 t, tg = parse_info(buf)
@@ -508,19 +511,20 @@ assert t == "Welcome" and tg == ""
 t, tg = send_and_get_info(b"\x1b[C")
 assert t == "Welcome" and tg == ""
 
-# 5. Left arrow returns to index.html; no link selected
+# 5. Left arrow restores the index page and its selected link
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "The Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r}"
+assert t == "The Tamlinux User Guide" and tg == "welcome.html", f"got {t!r} {tg!r}"
 
-# 6. Arrived via left arrow and no link selected: right arrow proceeds toward tip (welcome.html)
+# 6. Arrived via left arrow with focus restored: right arrow follows welcome.html
 t, tg = send_and_get_info(b"\x1b[C")
 assert t == "Welcome" and tg == ""
 
-# 7. On welcome.html, skip the two guide-index links (the breadcrumb crumb
-# and the inline link) and follow the desktop guide link
-send_and_get_info(b"\t")
-send_and_get_info(b"\t")
+# 7. On welcome.html, skip the inline Guide link and follow the desktop link;
+# the fixed Guide breadcrumb remains available at the end of Tab traversal.
+_, first_link = send_and_get_info(b"\t")
 t, tg = send_and_get_info(b"\t")
+assert last_buf, f"second Tab did not repaint, first={first_link!r}"
+assert tg == "desktop/index.html", f"expected desktop link after Guide link, got {first_link!r} then {tg!r}"
 assert tg == "desktop/index.html"
 t, tg = send_and_get_info(b"\x1b[C")
 assert t == "The Tamlinux Desktop" and tg == ""
@@ -534,8 +538,13 @@ assert t == "The Tamlinux User Guide"
 # 9. Multi-step right arrow: forward to welcome, then forward to desktop, then tip (does nothing)
 t, tg = send_and_get_info(b"\x1b[C")
 assert t == "Welcome"
-t, tg = send_and_get_info(b"\x1b[C")
-assert t == "The Tamlinux Desktop"
+# Following a selected root link starts a new branch and clears forward history.
+# Tab visits the fixed Guide action, then the desktop link on Welcome.
+t, tg = send_and_get_info(b"\t")
+t, tg = send_and_get_info(b"\t")
+assert tg == "desktop/index.html"
+t, tg = send_and_get_info(b"\r")
+assert t == "The Tamlinux Desktop", f"got {t!r} {tg!r} raw={last_buf!r}"
 t, tg = send_and_get_info(b"\x1b[C")
 assert t == "The Tamlinux Desktop"
 
@@ -544,8 +553,7 @@ t, tg = send_and_get_info(b"\x1b[D")
 assert t == "Welcome"
 t, tg = send_and_get_info(b"\x1b[D")
 assert t == "The Tamlinux User Guide"
-# Tab twice to select install/index.html
-send_and_get_info(b"\t")
+# The previously focused welcome link is restored; one Tab selects install/index.html.
 t, tg = send_and_get_info(b"\t")
 assert tg == "install/index.html"
 # Right arrow extends this branch
@@ -937,7 +945,7 @@ assert "L1/4" in pos and target == "tr.html", f"expected tr.html to stay selecte
 os.write(master, b"q")
 os.waitpid(pid, 0)
 
-# Part 2: Off-screen link de-selection and safe Enter
+# Part 2: Fixed breadcrumb links remain reachable while the page scrolls
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
 
@@ -953,16 +961,14 @@ if pid == 0:
 os.close(slave)
 
 time.sleep(0.15)
-# Select first link (index.html on line 1)
-title, pos, target, msg, has_tint = send_key(b"\t")
-assert target == "index.html", f"expected index.html, got: {target}"
-# Page down (Space): line 1 scrolls off screen
+# Shift-Tab from no selection wraps to the final link: the fixed Guide breadcrumb.
+title, pos, target, msg, has_tint = send_key(b"\x1b[Z")
+assert target == "index.html", f"expected fixed Guide breadcrumb, got: {target}"
+# Page down: the fixed breadcrumb remains selected and available.
 title, pos, target, msg, has_tint = send_key(b" ")
-assert target == "", f"expected link to be cleared when scrolled off-screen, got: {target}"
-# Enter when no link selected reports message and does not open off-screen link
+# Enter follows the visible fixed breadcrumb.
 title, pos, target, msg, has_tint = send_key(b"\r")
-assert title == "Welcome", f"expected to remain on Welcome, got: {title}"
-assert "no link selected" in msg, f"expected no link selected message, got: {msg}"
+assert title == "The Tamlinux User Guide", f"expected Guide after following breadcrumb, got: {title}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -995,12 +1001,12 @@ title, pos, target, msg, _ = send_key(b"`")
 assert "L1/" in pos, f"expected L1 on index.html after backtick jump, got: {pos}"
 title, pos_idx, _, _, _ = send_key(b"j")
 assert "L2/" in pos_idx, f"expected L2 on index.html after j, got: {pos_idx}"
-# Go back (Left Arrow \x1b[D): should restore L4/4 on nav-grid with no link selected so Right Arrow can advance forward
+# Go back (Left Arrow \x1b[D): restore L4/4 and its focused br.html link.
 title, pos, target, msg, _ = send_key(b"\x1b[D")
-assert "L4/4" in pos and target == "", f"expected back to restore L4/4 with no link selected, got: {pos} {target}"
-# Right Arrow (\x1b[C) advances forward to index.html and restores L2/
+assert "L4/4" in pos and target == "br.html", f"expected back to restore L4/4 and br.html focus, got: {pos} {target}"
+# The restored focus remains actionable.
 title, pos, target, msg, _ = send_key(b"\x1b[C")
-assert pos == pos_idx and target == "", f"expected forward to restore {pos_idx} on index.html, got: {pos} {target}"
+assert title != "The Tamlinux User Guide", f"expected Right Arrow to follow restored focus, got: {title}"
 os.write(master, b"q")
 os.waitpid(pid, 0)
 
@@ -1539,6 +1545,7 @@ if command -v groff >/dev/null 2>&1 && man -w grep >/dev/null 2>&1 \
         && man -w 5 fstab >/dev/null 2>&1; then
     # View grep manual page: check content and hyperlinked cross references in SEE ALSO.
     man_grep=$("$TAM" man grep --pipe)
+    printf '%s\n' "$man_grep" | grep -q '^Guide > Man pages > ' || fail "tam man pipe missing location trail"
     printf '%s\n' "$man_grep" | grep -q 'grep - print lines that match patterns' || fail "tam man grep missing description"
     printf '%s\n' "$man_grep" | grep -q 'man:sed(1)' || fail "tam man grep missing hyperlinked sed(1) cross reference"
     printf '%s\n' "$man_grep" | grep -q 'man:awk(1)' || fail "tam man grep missing hyperlinked awk(1) cross reference"
@@ -1583,6 +1590,7 @@ fi
 
 # Directory catalog rendering under --pipe
 info_dir=$("$TAM" info --pipe)
+printf '%s\n' "$info_dir" | grep -q '^Guide > Info manuals$' || fail "tam info pipe missing location trail"
 printf '%s\n' "$info_dir" | grep -q 'GNU Info Directory' || fail "tam info --pipe missing title"
 printf '%s\n' "$info_dir" | grep -q 'Coreutils' || fail "tam info --pipe missing Coreutils"
 printf '%s\n' "$info_dir" | grep -q 'info:coreutils' || fail "tam info --pipe missing info:coreutils link"

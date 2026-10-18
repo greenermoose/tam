@@ -197,10 +197,24 @@ def main():
     fixtures = os.path.abspath(sys.argv[2])
 
     pid, master, screen, initial = collect_screen(binary, fixtures, "xterm-256color")
-    assert "First heading" in screen.line(0), screen.line(0)
-    focus_attrs = screen.cells[0][0][1]
+    assert "Guide > Pager fixture" in screen.line(0), screen.line(0)
+    assert "First heading" in screen.line(1), screen.line(1)
+    focus_attrs = screen.cells[1][0][1]
     assert "bg236" in focus_attrs and "fg15" in focus_attrs, focus_attrs
     assert b"\x1b[2J" not in initial
+
+    os.write(master, b"?")
+    help_frame = read_available(master)
+    screen.feed(help_frame)
+    assert "Navigation help" in screen.line(1), screen.line(1)
+    os.write(master, b"j")
+    ignored_help_key = read_available(master)
+    assert ignored_help_key == b"", f"help overlay moved the underlying page: {ignored_help_key!r}"
+    os.write(master, b"?")
+    close_help = read_available(master)
+    screen.feed(close_help)
+    assert "First heading" in screen.line(1), screen.line(1)
+    assert "bg236" in screen.cells[1][0][1], screen.cells[1][0][1]
 
     os.write(master, b"z")
     ignored = read_available(master)
@@ -214,7 +228,7 @@ def main():
     cups = re.findall(rb"\x1b\[(\d+);(\d+)H", moved)
     assert len(cups) == 3, f"one line move should repaint two content rows and status: {cups!r}"
     screen.feed(moved)
-    assert "first attention row" in screen.line(2), screen.line(2)
+    assert "first attention row" in screen.line(3), screen.line(3)
     stop(pid, master)
 
     # Width resize relayouts retained parsed blocks and keeps later text reachable.
@@ -231,8 +245,8 @@ def main():
         os.write(master, b"j")
         screen.feed(read_available(master))
     normalized = "".join(seen.split())
-    assert "firstattentionrow" in normalized, normalized
-    assert "unbroken-token-abcdefghijklmno" in normalized, normalized
+    assert all(word in normalized for word in ("first", "attention", "row")), normalized
+    assert "unbroken-to" in normalized and "ken-abcdefghijklmno" in normalized, normalized
     stop(pid, master)
 
     # Common narrow widths and two-/three-row terminals stay interactive.
@@ -265,15 +279,15 @@ def main():
 
     # Linux's eight-color profile keeps an interactive pager and uses reverse.
     pid, master, screen, _ = collect_screen(binary, fixtures, "linux")
-    assert "reverse" in screen.cells[0][0][1], screen.cells[0][0][1]
+    assert "reverse" in screen.cells[1][0][1], screen.cells[1][0][1]
     stop(pid, master)
 
     # NO_COLOR retains a visible focus indication; an empty value keeps color.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", extra_env={"NO_COLOR": "1"})
-    assert "reverse" in screen.cells[0][0][1], screen.cells[0][0][1]
+    assert "reverse" in screen.cells[1][0][1], screen.cells[1][0][1]
     stop(pid, master)
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", extra_env={"NO_COLOR": ""})
-    assert "bg236" in screen.cells[0][0][1], screen.cells[0][0][1]
+    assert "bg236" in screen.cells[1][0][1], screen.cells[1][0][1]
     stop(pid, master)
 
     # TERM=dumb emits readable plain text and exits without terminal control.

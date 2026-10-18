@@ -457,6 +457,7 @@ typedef struct {
     char        *nav_prev;
     char        *nav_up;
     char        *nav_top;
+    int           in_breadcrumb;
 } parser_t;
 
 static void list_push(parser_t *p, int ordered)
@@ -535,6 +536,7 @@ static void parser_begin_block(parser_t *p, int kind, int level, int ordered,
 
 static void parser_add_text(parser_t *p, const char *s, size_t n)
 {
+    if (p->in_breadcrumb) return;
     size_t dl = 0;
     char *dec = decode_entities(s, n, &dl);
     if (dec == NULL) {
@@ -630,6 +632,19 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
     if (k == 0) {
         return;
     }
+
+    if (strcmp(name, "nav") == 0) {
+        if (closing) {
+            p->in_breadcrumb = 0;
+        } else {
+            char *label = extract_attr(s, end, "aria-label");
+            if (label != NULL && strcasecmp(label, "Breadcrumb") == 0)
+                p->in_breadcrumb = 1;
+            free(label);
+        }
+        return;
+    }
+    if (p->in_breadcrumb) return;
 
     if (strcmp(name, "a") == 0) {
         if (closing) {
@@ -942,6 +957,147 @@ static void parser_parse(parser_t *p, const char *src, size_t n)
         parser_add_text(p, src + i, j - i);
         i = j;
     }
+}
+
+static const char *find_ci_bounded(const char *start, size_t len, const char *needle)
+{
+    size_t nlen = strlen(needle);
+    if (nlen > len) return NULL;
+    for (size_t i = 0; i + nlen <= len; i++) {
+        if (strncasecmp(start + i, needle, nlen) == 0) return start + i;
+    }
+    return NULL;
+}
+
+static char *plain_fragment(const char *start, size_t len)
+{
+    char *raw = malloc(len + 1);
+    if (raw == NULL) return NULL;
+    size_t out = 0;
+    int in_tag = 0;
+    for (size_t i = 0; i < len; i++) {
+        if (start[i] == '<') in_tag = 1;
+        else if (start[i] == '>') in_tag = 0;
+        else if (!in_tag) raw[out++] = start[i];
+    }
+    size_t decoded_len = 0;
+    char *decoded = decode_entities(raw, out, &decoded_len);
+    free(raw);
+    if (decoded == NULL) return NULL;
+    char *begin = decoded;
+    while (*begin && (isspace((unsigned char)*begin) || *begin == '/')) begin++;
+    size_t n = strlen(begin);
+    while (n > 0 && (isspace((unsigned char)begin[n - 1]) || begin[n - 1] == '/'))
+        begin[--n] = '\0';
+    if (begin != decoded) memmove(decoded, begin, n + 1);
+    return decoded;
+}
+
+static tam_line_t extract_location(const char *src, size_t len)
+{
+    spanlist_t spans = {0};
+    const char *nav = find_ci_bounded(src, len, "<nav");
+    const char *nav_end = NULL;
+    while (nav != NULL) {
+        const char *tag_end = memchr(nav, '>', len - (size_t)(nav - src));
+        if (tag_end == NULL) break;
+        char *label = extract_attr(nav + 4, tag_end, "aria-label");
+        if (label != NULL && strcasecmp(label, "Breadcrumb") == 0) {
+            nav_end = find_ci_bounded(tag_end + 1,
+                len - (size_t)(tag_end + 1 - src), "</nav>");
+            free(label);
+            break;
+        }
+        free(label);
+        size_t used = (size_t)(tag_end + 1 - src);
+        if (used >= len) break;
+        nav = find_ci_bounded(src + used, len - used, "<nav");
+    }
+    if (nav_end == NULL) return (tam_line_t){0};
+
+    const char *body = strchr(nav, '>') + 1;
+    const char *cursor = body;
+    size_t link_id = 0;
+    int have_part = 0;
+    while (cursor < nav_end) {
+        const char *a = find_ci_bounded(cursor, (size_t)(nav_end - cursor), "<a");
+        if (a == NULL) break;
+        const char *a_end = memchr(a, '>', (size_t)(nav_end - a));
+        if (a_end == NULL) break;
+        const char *close = find_ci_bounded(a_end + 1, (size_t)(nav_end - a_end - 1), "</a>");
+        if (close == NULL) break;
+        char *href = extract_attr(a + 2, a_end, "href");
+        char *text = plain_fragment(a_end + 1, (size_t)(close - a_end - 1));
+        if (href != NULL && text != NULL && text[0] != '\0') {
+            if (have_part) spanlist_append(&spans, " > ", 3, 0, NULL, 0);
+            spanlist_append(&spans, text, strlen(text), TAM_STYLE_LINK, href, (int)++link_id);
+            have_part = 1;
+        }
+        free(href);
+        free(text);
+        cursor = close + 4;
+    }
+    char *tail = plain_fragment(cursor, (size_t)(nav_end - cursor));
+    if (tail != NULL && tail[0] != '\0') {
+        if (have_part) spanlist_append(&spans, " > ", 3, 0, NULL, 0);
+        spanlist_append(&spans, tail, strlen(tail), 0, NULL, 0);
+    }
+    free(tail);
+    return (tam_line_t){.spans = spans.v, .nspans = spans.n};
+}
+
+static void location_append(tam_document_t *doc, const char *label,
+                           const char *href)
+{
+    if (doc == NULL || label == NULL || label[0] == '\0') return;
+    tam_line_t *line = &doc->location;
+    size_t extra = line->nspans > 0 ? 2 : 1;
+    tam_span_t *spans = realloc(line->spans,
+                                (line->nspans + extra) * sizeof(*spans));
+    if (spans == NULL) return;
+    line->spans = spans;
+    if (line->nspans > 0) {
+        line->spans[line->nspans++] = (tam_span_t){.text = strdup(" > ")};
+    }
+    int link_id = href != NULL ? (int)line->nspans + 1 : 0;
+    line->spans[line->nspans++] = (tam_span_t){
+        .text = strdup(label), .style = href != NULL ? TAM_STYLE_LINK : 0,
+        .href = href != NULL ? strdup(href) : NULL, .link_id = link_id
+    };
+}
+
+void tam_document_ensure_location(tam_document_t *doc, const char *href)
+{
+    if (doc == NULL || doc->location.nspans > 0) return;
+    if (href == NULL || strcmp(href, "index.html") == 0) {
+        location_append(doc, "Guide", NULL);
+        return;
+    }
+    if (strncmp(href, "man:", 4) == 0) {
+        location_append(doc, "Guide", "index.html");
+        location_append(doc, "Man pages", "man:");
+        location_append(doc, doc->title ? doc->title : href + 4, NULL);
+        return;
+    }
+    if (strncmp(href, "info:", 5) == 0) {
+        const char *spec = href + 5;
+        location_append(doc, "Guide", "index.html");
+        location_append(doc, "Info manuals", "info:dir");
+        if (strcmp(spec, "dir") != 0) {
+            const char *slash = strchr(spec, '/');
+            size_t n = slash ? (size_t)(slash - spec) : strlen(spec);
+            char manual[128];
+            if (n >= sizeof(manual)) n = sizeof(manual) - 1;
+            memcpy(manual, spec, n);
+            manual[n] = '\0';
+            location_append(doc, manual, NULL);
+            if (slash != NULL)
+                location_append(doc, doc->title ? doc->title : slash + 1, NULL);
+        }
+        return;
+    }
+    location_append(doc, "Guide", "index.html");
+    location_append(doc, doc->title ? doc->title : href, NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1611,6 +1767,7 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     }
     const char *title = p.title ? tam_str_trim(p.title, " \t\r\n") : NULL;
     doc->title = strdup((title != NULL && title[0] != '\0') ? title : "tam");
+    doc->location = extract_location(src, len);
     doc->lines = out.v;
     doc->nlines = out.n;
     doc->nav_next = p.nav_next;
@@ -1663,6 +1820,11 @@ void tam_document_free(tam_document_t *doc)
         return;
     }
     document_lines_free(doc->lines, doc->nlines);
+    for (size_t i = 0; i < doc->location.nspans; i++) {
+        free(doc->location.spans[i].text);
+        free(doc->location.spans[i].href);
+    }
+    free(doc->location.spans);
     free(doc->title);
     free(doc->nav_next);
     free(doc->nav_prev);
@@ -1680,6 +1842,12 @@ char *tam_document_text(const tam_document_t *doc)
 {
     tam_str_t s = tam_str_new("");
 
+    if (doc->location.nspans > 0) {
+        for (size_t j = 0; j < doc->location.nspans; j++)
+            s = tam_str_cat(s, doc->location.spans[j].text);
+        s = tam_str_cat(s, "\n\n");
+    }
+
     for (size_t i = 0; i < doc->nlines; i++) {
         for (size_t j = 0; j < doc->lines[i].nspans; j++) {
             s = tam_str_cat(s, doc->lines[i].spans[j].text);
@@ -1689,6 +1857,17 @@ char *tam_document_text(const tam_document_t *doc)
 
     const char **links = NULL;
     size_t nlinks = 0;
+    for (size_t j = 0; j < doc->location.nspans; j++) {
+        const char *h = doc->location.spans[j].href;
+        if (h == NULL) continue;
+        int seen = 0;
+        for (size_t k = 0; k < nlinks; k++)
+            if (strcmp(links[k], h) == 0) { seen = 1; break; }
+        if (!seen) {
+            links = realloc(links, (nlinks + 1) * sizeof(*links));
+            links[nlinks++] = h;
+        }
+    }
     for (size_t i = 0; i < doc->nlines; i++) {
         for (size_t j = 0; j < doc->lines[i].nspans; j++) {
             const char *h = doc->lines[i].spans[j].href;
