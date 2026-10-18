@@ -157,6 +157,41 @@ static char **split_list(char *field, size_t *count)
     return items;
 }
 
+static void load_parent_projection(tam_index_t *idx, const char *root)
+{
+    char *path = safe_join(root, "index.parents.tsv");
+    if (path == NULL) return;
+    char *content = tam_fs_read_file(path, NULL);
+    free(path);
+    if (content == NULL) return; /* Older corpora have no parent projection. */
+
+    char *line = content;
+    bool header = true;
+    while (line != NULL && *line != '\0') {
+        char *next = strchr(line, '\n');
+        if (next != NULL) {
+            *next = '\0';
+            next++;
+        }
+        if (header) {
+            header = false;
+            line = next;
+            continue;
+        }
+        char *tab = strchr(line, '\t');
+        if (tab != NULL) {
+            *tab++ = '\0';
+            const tam_index_entry_t *found = tam_index_lookup_path(idx, line);
+            if (found != NULL && *tab != '\0') {
+                tam_index_entry_t *entry = (tam_index_entry_t *)found;
+                entry->parent = strdup(tab);
+            }
+        }
+        line = next;
+    }
+    free(content);
+}
+
 tam_index_t *tam_index_load(const char *root)
 {
     if (root == NULL) {
@@ -209,8 +244,8 @@ tam_index_t *tam_index_load(const char *root)
             continue;
         }
 
-        /* Parse TSV columns: topic, path, title, summary, keywords, level,
-         * track, prereqs, rev, updated */
+        /* Keep the established ten-column TSV projection stable. Hierarchy
+         * metadata lives in the optional index.parents.tsv sidecar. */
         char *cols[10] = {0};
         char *cur = trimmed;
         for (int c = 0; c < 10 && cur != NULL; c++) {
@@ -238,6 +273,7 @@ tam_index_t *tam_index_load(const char *root)
             entry->title = strdup(cols[2]);
             entry->summary = cols[3] ? strdup(cols[3]) : strdup("");
             entry->level = (cols[5] && cols[5][0]) ? strdup(cols[5]) : strdup("beginner");
+            entry->parent = NULL;
             entry->levels = tam_level_parse_list(entry->level);
             if (entry->levels == 0) {
                 entry->levels = TAM_LEVEL_BEGINNER;
@@ -254,6 +290,7 @@ tam_index_t *tam_index_load(const char *root)
         line = next_line;
     }
 
+    load_parent_projection(idx, root);
     free(content);
     return idx;
 }
@@ -269,6 +306,7 @@ void tam_index_free(tam_index_t *idx)
         free(e->summary);
         free(e->level);
         free(e->track);
+        free(e->parent);
         free(e->updated);
         for (size_t k = 0; k < e->num_keywords; k++) {
             free(e->keywords[k]);

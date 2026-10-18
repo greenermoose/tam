@@ -1,0 +1,124 @@
+"""Focused compatibility and hierarchy checks for tools/build-index.py."""
+
+import json
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+BUILDER = Path(__file__).resolve().parents[1] / "tools" / "build-index.py"
+
+
+def page(title, track="", parent=None, crumbs=(), prereqs=None):
+    metadata = [f'<meta name="track" content="{track}">']
+    if parent is not None:
+        metadata.append(f'<meta name="parent" content="{parent}">')
+    if prereqs is not None:
+        metadata.append(f'<meta name="prereqs" content="{prereqs}">')
+    links = ['<a href="index.html">Guide</a>']
+    links.extend(f'<a href="{path}">{label}</a>' for path, label in crumbs)
+    nav = "" if title == "Guide" else (
+        '<nav aria-label="Breadcrumb">' + " / ".join(links) + " / " + title + "</nav>"
+    )
+    return ("<!doctype html><html><head><title>" + title + "</title>" +
+            "<meta name=\"topic\" content=\"" + title.lower().replace(" ", "-") + "\">" +
+            "<meta name=\"summary\" content=\"" + title + " summary\">" +
+            "<meta name=\"level\" content=\"beginner\">" + "".join(metadata) +
+            "</head><body>" + nav + "<h1>" + title + "</h1></body></html>")
+
+
+class BuildIndex(unittest.TestCase):
+    def fixture(self, version, documents):
+        temp = tempfile.TemporaryDirectory()
+        root = Path(temp.name)
+        knowledge = root / "knowledge"
+        knowledge.mkdir()
+        (knowledge / "version").write_text(version + "\n")
+        for rel, text in documents.items():
+            path = knowledge / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+        self.addCleanup(temp.cleanup)
+        return root
+
+    def build(self, root):
+        return subprocess.run([sys.executable, str(BUILDER), "--root", str(root)],
+                              capture_output=True, text=True, timeout=30)
+
+    def test_five_tracks_and_hierarchy_are_additive_without_changing_tsv(self):
+        tracks = ("install", "learn", "use", "maintain", "improve")
+        docs = {"index.html": page("Guide")}
+        for track in tracks:
+            rel = f"{track}/index.html"
+            docs[rel] = page(track.title(), track, "index.html")
+        root = self.fixture("0.31.0", docs)
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        knowledge = root / "knowledge"
+        rows = (knowledge / "index.tsv").read_text().splitlines()
+        self.assertEqual(len(rows[0].split("\t")), 10)
+        self.assertEqual(len(rows[1].split("\t")), 10)
+        data = {item["path"]: item for item in json.loads((knowledge / "index.json").read_text())}
+        self.assertTrue(all(data[f"{track}/index.html"]["track"] in tracks for track in tracks))
+        self.assertEqual(data["maintain/index.html"]["parent"], "index.html")
+        self.assertEqual(data["index.html"]["parent"], None)
+        parents = (knowledge / "index.parents.tsv").read_text().splitlines()
+        self.assertEqual(parents[0], "path\tparent")
+        self.assertIn("maintain/index.html\tindex.html", parents)
+
+    def test_old_three_track_corpus_uses_directory_fallback(self):
+        docs = {
+            "index.html": page("Guide"),
+            "use/index.html": page("Using", "use"),
+            "use/task.html": page("Task", "use", crumbs=(("use/index.html", "Using"),),
+                                  prereqs="using"),
+            "maintain/index.html": page("Maintaining", "maintain"),
+            "improve/index.html": page("Improving", "improve"),
+        }
+        root = self.fixture("0.30.0", docs)
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        rows = (root / "knowledge/index.tsv").read_text().splitlines()
+        self.assertEqual(rows[0].split("\t")[:10], [
+            "topic", "path", "title", "summary", "keywords", "level", "track",
+            "prereqs", "rev", "updated"])
+        data = {item["path"]: item for item in json.loads(
+            (root / "knowledge/index.json").read_text())}
+        self.assertEqual(data["use/task.html"]["parent"], "use/index.html")
+        self.assertEqual(data["use/task.html"]["topic"], "task")
+        self.assertEqual(data["use/task.html"]["levels"], ["beginner"])
+        self.assertEqual(data["use/task.html"]["prereqs"], ["using"])
+
+    def test_missing_and_cyclic_parents_are_rejected(self):
+        missing = self.fixture("0.31.0", {
+            "index.html": page("Guide"),
+            "use/index.html": page("Using", "use", "absent.html"),
+        })
+        result = self.build(missing)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("does not name an existing page", result.stderr)
+
+        cyclic = self.fixture("0.31.0", {
+            "index.html": page("Guide"),
+            "use/index.html": page("Using", "use", "use/task.html"),
+            "use/task.html": page("Task", "use", "use/index.html"),
+        })
+        result = self.build(cyclic)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("contains a cycle", result.stderr)
+
+    def test_parent_part_track_mismatch_is_rejected(self):
+        root = self.fixture("0.31.0", {
+            "index.html": page("Guide"),
+            "maintain/index.html": page("Maintaining", "maintain", "index.html"),
+            "use/task.html": page("Task", "improve", "maintain/index.html",
+                                  crumbs=(("maintain/index.html", "Maintaining"),)),
+        })
+        result = self.build(root)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("does not match parent part", result.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,14 +1,14 @@
 # Five-part Tamlinux knowledge system — corpus 0.31.0
 
-**Plan status:** Ready
+**Plan status:** In progress
 **Reviewed:** 2026-10-18
 **Scope:** Corpus 0.31.0 and companion command 0.30.0; organization, learning,
-navigation and integrated manual discovery. Implementation has not started.
+navigation and integrated manual discovery. TCK1 is implemented; TCK2 is next.
 **Authority:** The developer approved the five-part design and in-guide manual
 lookup, then requested this authoritative work plan; see the
 [approval record](../ai/2026-10-18-tam-knowledge-overhaul-planning.md).
-**Next action:** Implement checklist item TCK1 below in the existing shared clone, after
-refreshing the baseline and claiming the paths it changes.
+**Next action:** Implement TCK2 (shared reader navigation) in the existing
+shared clone, claiming its exact command paths before editing.
 
 This is the single implementation authority for this overhaul. The
 [roadmap](../../ROADMAP.md) sets priority; the [development contract](development.md)
@@ -126,10 +126,10 @@ Generated utilities have an explicit shared-navigation location, not a fake
 corpus track. Templates, index docs and JSON must describe these rules.
 
 For older corpora, absent parent retains the existing directory-based fallback;
-an existing three-track corpus must still load. A newer index adds parent at the
-end of the TSV columns and as an additive JSON field; retain existing column
-positions. Old readers must ignore extra columns without corrupting data (verify
-this; change the projection strategy if necessary). The index builder validates
+an existing three-track corpus must still load. A newer index adds parent as an
+additive JSON field and index projection while preserving the existing TSV
+columns. Old readers must ignore added index data without corrupting their
+projection (change the projection strategy if necessary). The index builder validates
 parent existence, root reachability, no cycles, and breadcrumb agreement with
 the declared hierarchy. Track inheritance/ownership must agree with the part
 ancestor; shared root is the only authored exception.
@@ -271,7 +271,7 @@ Each slice is a checklist item with a permanent TCK identifier; see the
 
 | Item | Work and likely paths | Completion evidence |
 | --- | --- | --- |
-| TCK1: Index/hierarchy contract | `tools/build-index.py`, `src/index.[ch]`, generated index schema, focused index tests, `docs/corpus-authoring.md`. Implement five tracks, optional logical parent with old-corpus fallback, root handling and hierarchy validation. Keep the current corpus readable. | Fixtures cover five tracks, old three-track input, missing/cyclic parents, track mismatch, additive columns and unchanged topic/level/prerequisite behavior. Record schema decisions here. |
+| TCK1: Index/hierarchy contract | `tools/build-index.py`, `src/index.[ch]`, generated index schema, focused index tests, `docs/corpus-authoring.md`. Implement five tracks, optional logical parent with old-corpus fallback, root handling and hierarchy validation. Keep the current corpus readable. | Fixtures cover five tracks, old three-track input, missing/cyclic parents, track mismatch, additive hierarchy data and unchanged topic/level/prerequisite behavior. Record schema decisions here. **Completed 2026-10-18:** builder and C loader support five tracks and logical parents; old corpora retain directory fallback. `make corpus`, four builder fixtures, 29 corpus-linter tests, `tests/guide.sh`, and the command PTY suite pass. ASan found and verified the fix for uninitialized parent pointers after index-array growth. |
 | TCK2: Shared reader navigation | `src/pager.[ch]`, `render.[ch]` as needed, loader contexts in `tam.c`, `man.c`, `info.c`, focused PTY fixtures/tests. Implement common location/actions and Help, preserving native Info traversal and history. Set command 0.30.0 and its matching test assertion in the change introducing the first new reader capability. | Guide, topics, man and Info all expose reachable Guide/Back/Help/Quit; scrolling/resize/narrow screens/search preserve them. Direct CLI entry works too. |
 | TCK3: Manual and search discovery | `src/man.[ch]`, common routing and prompt support, `tam.c`, `info.c`, `completions/bash/tam`, `man/tam.1`, deterministic helper fixtures. Implement `tam:man`, open/keyword/section actions and `tam:search`; retain Info directory. | A guide reader opens an arbitrary installed manual and keyword result without leaving tam; missing docs and literal hostile-looking input fail safely; pipe mode never prompts. |
 | TCK4: Corpus migration and learning | All 50 mapped pages, five new authored pages, `knowledge/index.{tsv,json}`, `knowledge/version`, `tools/lint-corpus.py` and related tests if rules change. Rebuild root/hubs, paths, metadata, navigation lesson and contextual manual links; review current facts. Set corpus 0.31.0 in the change introducing the reorganized/new content. | Every baseline page has a deliberate home, valid breadcrumbs and preserved public addresses; all three routes meet outcomes; complete reachability and query checks pass. |
@@ -283,6 +283,14 @@ features. Do not bump either just for this plan. If another authorized feature
 consumes a target first, stop and reconcile the version target with the developer;
 do not silently renumber this agreed corpus milestone. Intermediate development
 commits may be incomplete; do not mark the milestone complete after TCK1 or TCK4.
+
+TCK1 schema decision: `knowledge/index.tsv` keeps its existing ten columns in
+the same positions. An appended TSV column would be absorbed into `updated` by
+older readers, so parent data is projected additively in `knowledge/index.json`
+and `knowledge/index.parents.tsv`. The C reader loads the optional sidecar;
+older command versions continue to read the unchanged TSV. The hierarchy
+fallback is used only when a page omits parent metadata, while corpus 0.31.0
+requires explicit parents and validates part-track ownership.
 
 ## Acceptance and verification
 

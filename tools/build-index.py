@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 """build-index.py: Extract metadata from knowledge HTML files and generate
-knowledge/index.tsv and knowledge/index.json.
+knowledge/index.tsv, knowledge/index.json and knowledge/index.parents.tsv.
 
 Each page declares its metadata in <meta> tags: topic, summary, keywords,
-level, track and prereqs. Level lists the depths a page offers (beginner,
+level, track, optional parent and prereqs. Level lists the depths a page offers (beginner,
 intermediate, expert); a page offering more than one wraps each depth in
 <section data-level="..."> (the content-depth ladder). The build fails on
 unknown levels or tracks, on prerequisites that name no topic, and on
 laddered pages whose sections do not match their declared levels.
 
-Every page except the guide index carries a breadcrumb nav before its <h1>,
-so a reader always knows where a page sits in the guide. Its first crumb is
-the guide index, a section page adds its section index, and the final crumb is
-the page itself, as plain text. The build fails on a missing, misplaced or
-inaccurate breadcrumb, or on the guide index itself carrying one (it is the
-root).
+Every page except the guide index carries a breadcrumb nav before its <h1>.
+Parent metadata defines the canonical hierarchy; older corpora without it use
+the historical directory-based fallback. Breadcrumb ancestors must match the
+hierarchy, which must reach the guide root without cycles. Corpus 0.31.0
+requires explicit parents and track ownership.
 """
 
 from datetime import datetime, timezone
@@ -22,10 +21,11 @@ import json
 import re
 import subprocess
 import sys
+import argparse
 from pathlib import Path
 
 LEVELS = ("beginner", "intermediate", "expert")
-TRACKS = ("use", "maintain", "improve")
+TRACKS = ("install", "learn", "use", "maintain", "improve")
 
 
 def extract_attr(tag, attr):
@@ -99,6 +99,7 @@ def parse_page(root, path, rel_path, errors):
     keywords = []
     levels = ["beginner"]
     track = "use"
+    parent = None
     prereqs = []
 
     for tag in re.findall(r'<meta\b(?:[^>"\'/]|"[^"]*"|\'[^\']*\')*>', text, re.I):
@@ -122,9 +123,11 @@ def parse_page(root, path, rel_path, errors):
             levels = [v for v in LEVELS if v in declared] or ["beginner"]
         elif name_lower == "track":
             track = content.strip().lower()
-            if track not in TRACKS:
+            if track not in TRACKS and not (rel_path == "index.html" and track == ""):
                 errors.append(f"{rel_path}: unknown track {track!r}"
                               f" (expected {', '.join(TRACKS)})")
+        elif name_lower == "parent":
+            parent = content.strip()
         elif name_lower == "prereqs":
             prereqs.extend(split_list(content))
 
@@ -168,6 +171,7 @@ def parse_page(root, path, rel_path, errors):
         "keywords": keywords,
         "levels": levels,
         "track": track,
+        "parent": parent,
         "prereqs": prereqs,
         "rev": rev,
         "updated": updated,
@@ -203,13 +207,76 @@ def breadcrumb_parts(text):
     return ancestors, current
 
 
-def check_breadcrumbs(knowledge_dir, errors):
+def physical_parent(rel, pages):
+    """Legacy fallback matching the pre-parent directory hierarchy."""
+    if rel == "index.html":
+        return None
+    if rel.endswith("/index.html"):
+        return "index.html"
+    section = rel.split("/", 1)[0]
+    section_index = f"{section}/index.html"
+    return section_index if section_index in pages else "index.html"
+
+
+def check_hierarchy(knowledge_dir, entries, version, errors):
     pages = {}
     for html_file in sorted(knowledge_dir.rglob("*.html")):
         pages[html_file.relative_to(knowledge_dir).as_posix()] = \
             html_file.read_text(encoding="utf-8")
 
     h1 = {rel: page_h1(text) for rel, text in pages.items()}
+    entries_by_path = {entry["path"]: entry for entry in entries}
+    require_explicit_parent = tuple(int(part) for part in version.split(".")[:2]) >= (0, 31)
+    parents = {}
+    for rel, entry in entries_by_path.items():
+        if rel == "index.html":
+            if entry["parent"]:
+                errors.append(f"{rel}: the guide root must not declare a parent")
+            parents[rel] = None
+            continue
+        if require_explicit_parent and not entry["parent"]:
+            errors.append(f"{rel}: corpus {version} requires explicit parent metadata")
+        parent = entry["parent"] or physical_parent(rel, pages)
+        if parent not in pages:
+            errors.append(f"{rel}: parent {parent!r} does not name an existing page")
+        parents[rel] = parent
+        entry["parent"] = parent
+
+    # Every parent chain must terminate at the guide root, without cycles.
+    for rel in parents:
+        seen = set()
+        current = rel
+        while current is not None and current != "index.html":
+            if current in seen:
+                errors.append(f"{rel}: parent hierarchy contains a cycle at {current!r}")
+                break
+            seen.add(current)
+            current = parents.get(current)
+            if current is None and rel != "index.html":
+                errors.append(f"{rel}: parent hierarchy does not reach index.html")
+                break
+
+    def part_ancestor(rel):
+        current = rel
+        seen = set()
+        while current is not None and current != "index.html":
+            if current in seen:
+                return ""
+            seen.add(current)
+            parent = parents.get(current)
+            if parent == "index.html":
+                return entries_by_path[current]["track"]
+            current = parent
+        return ""
+
+    if require_explicit_parent and entries_by_path.get("index.html", {}).get("track"):
+        errors.append("index.html: the shared guide root must have an empty track")
+    for rel, entry in entries_by_path.items():
+        if rel == "index.html":
+            continue
+        home_track = part_ancestor(rel)
+        if require_explicit_parent and home_track and entry["track"] != home_track:
+            errors.append(f"{rel}: track {entry['track']!r} does not match parent part {home_track!r}")
 
     for rel, text in pages.items():
         parts = breadcrumb_parts(text)
@@ -220,11 +287,20 @@ def check_breadcrumbs(knowledge_dir, errors):
         if parts is None:
             errors.append(f"{rel}: missing breadcrumb")
             continue
+        chain = []
+        current = parents.get(rel)
+        seen = set()
+        while current is not None and current not in seen:
+            seen.add(current)
+            chain.append(current)
+            current = parents.get(current)
+        chain.reverse()
         want = [("index.html", "Guide")]
-        if "/" in rel:
-            section = rel.split("/")[0]
-            if rel != f"{section}/index.html" and f"{section}/index.html" in pages:
-                want.append((f"{section}/index.html", h1[f"{section}/index.html"]))
+        for ancestor in chain:
+            if ancestor == "index.html":
+                continue
+            if ancestor in h1:
+                want.append((ancestor, h1[ancestor]))
         if parts[0] != want:
             errors.append(
                 f"{rel}: breadcrumb ancestors {parts[0]} do not match "
@@ -235,8 +311,8 @@ def check_breadcrumbs(knowledge_dir, errors):
                 f"is {h1[rel]!r}")
 
 
-def main():
-    root = Path(__file__).resolve().parent.parent
+def main(root=None):
+    root = Path(root).resolve() if root else Path(__file__).resolve().parent.parent
     knowledge_dir = root / "knowledge"
 
     if not knowledge_dir.is_dir():
@@ -264,7 +340,8 @@ def main():
         if not re.match(r'^\d+\.\d+\.\d+', v_str):
             errors.append(f"knowledge/version: invalid version {v_str!r} (expected X.Y.Z)")
 
-    check_breadcrumbs(knowledge_dir, errors)
+    check_hierarchy(knowledge_dir, entries, version_file.read_text(encoding="utf-8").strip()
+                    if version_file.is_file() else "0.0.0", errors)
 
     if errors:
         for message in errors:
@@ -274,7 +351,8 @@ def main():
     # Sort entries by topic
     entries.sort(key=lambda e: e["topic"])
 
-    # Write index.tsv
+    # Keep the established TSV projection byte-compatible for older readers.
+    # Parent is additive in JSON and in a separate compact TSV projection.
     tsv_path = knowledge_dir / "index.tsv"
     with open(tsv_path, "w", encoding="utf-8") as f:
         f.write("topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n")
@@ -284,6 +362,11 @@ def main():
             prereqs = ", ".join(e["prereqs"])
             f.write(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
                     f"{levels}\t{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
+
+    with open(knowledge_dir / "index.parents.tsv", "w", encoding="utf-8") as f:
+        f.write("path\tparent\n")
+        for e in entries:
+            f.write(f"{e['path']}\t{e['parent'] or ''}\n")
 
     # Write index.json
     json_path = knowledge_dir / "index.json"
@@ -312,9 +395,12 @@ def main():
         except Exception:
             pass
 
-    print(f"Generated {tsv_path} and {json_path} with {len(entries)} entries.")
+    print(f"Generated index.tsv, index.json and index.parents.tsv with {len(entries)} entries.")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", help="Tam command checkout (used for isolated fixtures)")
+    args = parser.parse_args()
+    sys.exit(main(args.root))

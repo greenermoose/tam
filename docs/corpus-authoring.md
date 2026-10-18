@@ -10,6 +10,21 @@ that old schema until the implementation migrates it. Preserve current build
 validity during migration and update this guide when the new schema lands.
 Plan/note status and closure follow [plan maintenance](plan-maintenance.md).
 
+The new track values are `install`, `learn`, `use`, `maintain` and `improve`.
+Every non-root page in corpus 0.31.0 declares `<meta name="parent" ...>` with
+its canonical parent path relative to `knowledge/`, including `.html`. The
+guide root has no parent and has an empty track because it is shared
+navigation. Parent chains must reach `index.html` without cycles, breadcrumbs
+must list the declared ancestors, and each page's track must match its
+top-level part. Older corpora may omit `parent`; `tools/build-index.py` then
+uses the historical directory hierarchy so corpus 0.30.0 remains readable.
+
+The generated `index.tsv` keeps its established ten-column layout so readers
+from earlier command versions continue to load it without changing `updated`.
+The JSON entry gains an additive `parent` field, and `index.parents.tsv`
+projects each page path to its parent for command readers that support logical
+hierarchy. Older corpora without that sidecar use the directory fallback.
+
 The corpus is public product documentation. Readers trust it to describe the
 Tamlinux they are running, so the rules below are about one thing: every
 statement about Tamlinux must be true of Tamlinux, and a reviewer must be able

@@ -13,6 +13,7 @@ typedef struct {
     char *level;       /* declared levels, e.g. "beginner,intermediate,expert" */
     unsigned levels;   /* TAM_LEVEL_* mask parsed from level (see depth.h) */
     char *track;       /* track, e.g. "use", "maintain", "improve" */
+    char *parent;      /* canonical parent page path; NULL in older indexes */
     char **keywords;   /* array of keyword/alias strings */
     size_t num_keywords;
     char **prereqs;    /* topics to read first, e.g. "shell" */

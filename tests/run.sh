@@ -42,6 +42,26 @@ if [ -n "$(find "$tmp" -mindepth 1 -print -quit 2>/dev/null)" ]; then
 fi
 pass "bare invocation prints an introduction and writes no state"
 
+# The additive parent column must not alter the existing updated column;
+# a legacy ten-column index must continue to load as well.
+compat="$tmp/index-compat"
+mkdir -p "$compat/shell"
+cp "$knowledge/shell/pipelines.html" "$compat/shell/pipelines.html"
+cp "$knowledge/index.html" "$compat/index.html"
+printf 'topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n' > "$compat/index.tsv"
+printf 'pipelines\tshell/pipelines.html\tPipelines\tSummary\tpipes\tbeginner\tuse\t\t7\t2026-10-18 10:25\n' >> "$compat/index.tsv"
+printf 'path\tparent\nshell/pipelines.html\tshell/index.html\n' > "$compat/index.parents.tsv"
+extended=$(TAM_KNOWLEDGE_DIR="$compat" "$TAM" show shell/pipelines --pipe)
+printf '%s\n' "$extended" | grep -q 'Rev 7 Last updated 2026-10-18 10:25' \
+    || fail "parent sidecar changed legacy updated metadata"
+printf 'topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n' > "$compat/index.tsv"
+printf 'pipelines\tshell/pipelines.html\tPipelines\tSummary\tpipes\tbeginner\tuse\t\t7\t2026-10-18 10:25\n' >> "$compat/index.tsv"
+rm "$compat/index.parents.tsv"
+legacy=$(TAM_KNOWLEDGE_DIR="$compat" "$TAM" show shell/pipelines --pipe)
+printf '%s\n' "$legacy" | grep -q 'Rev 7 Last updated 2026-10-18 10:25' \
+    || fail "legacy ten-column index no longer loads"
+pass "additive and legacy index columns preserve existing page metadata"
+
 # Help.
 "$TAM" --help | grep -q 'Usage:' || fail "--help is missing usage"
 [ $(printf '%s\n' "$("$TAM" --help)" | wc -l) -le 35 ] || fail "--help exceeds 35 lines"

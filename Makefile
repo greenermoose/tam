@@ -33,7 +33,7 @@ BUILD := build
 TAM   := $(BUILD)/tam
 SRC   := src/tam.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c
 DEPS  := src/version.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h
-INDEX := knowledge/index.tsv knowledge/index.json
+INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv
 
 # A build from a Git checkout reports its commit in --version; packaged
 # builds have no .git and report the plain version. Only the command's own
@@ -84,6 +84,7 @@ test: all
 	tests/render.sh $(CURDIR)/$(TAM)
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
+	python3 -m unittest -q tests/test_build_index.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 test-command: command
@@ -93,6 +94,7 @@ test-command: command
 test-corpus: command
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
+	python3 -m unittest -q tests/test_build_index.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 check: corpus test
