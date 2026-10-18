@@ -74,6 +74,16 @@ Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergon
 
 ## 3. Current work and follow-up
 
+The accepted [source-upgrade and stage-switching plan](docs/plans/upgrade.md) covers
+Development/Test/Run/Release discovery, source installation into the approved
+user development prefix, exact release pins and rollback (TCK6–TCK8). New code
+builds for the developer receive independently maintained command/corpus version
+bumps; reinstalling existing sources preserves their versions. Release tags
+record the command/corpus version pair. The developer approved the complete
+design on 2026-10-18. Implementation has not started; use the
+[Luna handoff](docs/handoffs/tam-upgrade-luna.md), beginning with TCK6.
+No implementation version is reserved.
+
 The [five-part knowledge-system plan](docs/plans/knowledge-system-0.31.0.md)
 is implemented and its TCK1–TCK5 source and automated acceptance work is
 complete. The command/corpus pair is **0.30.0 / 0.31.0**. The exact source

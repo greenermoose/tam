@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-18 | Accepted plan and Luna handoff for version checks, source upgrades, four-stage switching and paired releases | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-18-tam-update-check-plan.md) |
 | 2026-10-18 | Plan corpus 0.31.0 five-part knowledge system; reconcile and maintain plans; implementation handoff | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-18-tam-knowledge-overhaul-planning.md) |
 | 2026-10-18 | Implement five-part knowledge system; command 0.30.0 / corpus 0.31.0 | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-18-knowledge-system-implementation.md) |
 | 2026-10-16 | Retire delegation; direct developer assignments and independent audit selection | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-16-retire-delegation.md) |

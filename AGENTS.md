@@ -19,10 +19,12 @@ the same path-claim rules; old briefs do not assign work or override them.
   Update the plan index, roadmap and current development contract together.
   Read a closed plan as history; its old task list assigns no new work.
 
-The next approved knowledge-system milestone is corpus 0.31.0 with companion
-command 0.30.0. Start `docs/plans/knowledge-system-0.31.0.md`; it contains the
-implementation sequence and handoff. Do not revive the former seven-part
-contents, three-track model or withdrawn parser/installer version reservations.
+The knowledge-system milestone is implemented as command 0.30.0 / corpus 0.31.0.
+The next approved feature is `docs/plans/upgrade.md`: source upgrades and
+Development/Test/Run/Release switching, TCK6–TCK8. Start its implementation
+through `docs/handoffs/tam-upgrade-luna.md`; allocate versions from current
+files when implementing. Do not revive the former seven-part contents,
+three-track model or withdrawn parser/installer version reservations.
 
 Discuss a design choice with the developer before you build it. A version
 number in a request is data, not permission to release anything.

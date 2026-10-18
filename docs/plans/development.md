@@ -5,8 +5,8 @@
 **Scope:** Living integration contract; current command 0.30.0 and corpus 0.31.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), and [corpus 0.31.0 work plan](knowledge-system-0.31.0.md).
-**Next action:** Maintain the delivered five-part knowledge system; select any
-new feature through the roadmap and its approved plan.
+**Next action:** Implement the accepted [upgrade and stage-switching plan](upgrade.md),
+starting with TCK6 and the [Luna handoff](../handoffs/tam-upgrade-luna.md).
 
 **Stage:** Develop. Milestones 1–16 and the 0.30.0/0.31.0 knowledge overhaul
 have landed in source. Package assembly and deployment remain separate,
@@ -92,6 +92,7 @@ Build targets follow the lanes:
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
 | `tam search [--json] TERM...` | Implemented | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
 | `tam ask <question>` | Implemented | Opt-in, grounded question answering over the corpus with mandatory citations; never starts a daemon. |
+| `tam upgrade` / `tam switch STAGE` | Approved; not implemented | Discover Development/Test/Run/Release, build selected source into the development prefix, pin releases and recover. Accepted [TCK6–TCK8 plan](upgrade.md) owns the design. |
 
 `--pipe` explicitly requests text. `--terse` provides minimal machine tokens for piping situations; `--verbose` provides exhaustive details and diagnostics; default output adheres to the "Goldilocks" screen budget (≤24 lines). Redirected output contains no terminal
 controls or browser prompts. Bare `tam`, `show`, `search`, help, version and
@@ -111,7 +112,9 @@ discloses the URL, size and expected hash (verified on download). Under `--pipe`
 or any non-interactive invocation it errors instead of fetching. The core binary
 stays offline and dependency-free; the optional model runtime remains external
 and user-controlled. This boundary is recorded here deliberately, as the one
-place where the offline default is amended.
+place where the implemented offline default is amended. The
+[accepted upgrade plan](upgrade.md) will add explicit GitHub metadata/source
+operations; it adds no network behavior to browsing, help or version commands.
 
 ## Implementation and packaging
 
@@ -173,6 +176,15 @@ the same change that adds a feature**:
 - **Patch** (`0.y.z` → `0.y.z+1`): backwards-compatible fixes and internal
   changes with no new capability.
 - **Major**: reserved; not used before `1.0.0`.
+
+The developer clarified on 2026-10-18: every newly prepared code build for him
+must receive a version bump; changed code must not be delivered under a reused
+version. Command and corpus version independently. Stage labels express
+readiness rather than a numbering scheme. Compiling/installing an existing
+numbered source commit preserves its versions, including when switching back
+to a release. Full commits identify candidates independently of version text.
+Release tags record both component versions (for example,
+`tam-0.31.0-corpus-0.32.1`), so a corpus-only release has an exact identity.
 
 Update the `--version` assertion in `tests/run.sh` to match, and note the
 bump in the decision record below. Historical `docs/ai/` records keep the
@@ -337,6 +349,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-18:** The developer accepted [source upgrades and stage switching](upgrade.md)
+  for a subsequent implementation session: TCK6–TCK8, development-prefix source
+  installs, independent code-based component versions and paired release tags.
+  Approval is recorded in the [planning session](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
+  No implementation, installation or stage promotion occurred during planning.
 - **2026-10-18:** The developer approved Installing, Learning, Using, Maintaining,
   Improving as the spine, Learning routes through shared pages, and arbitrary
   man lookup within the guide. Corpus target 0.31.0 and companion command target
