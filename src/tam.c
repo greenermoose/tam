@@ -700,18 +700,19 @@ tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, in
     }
 
     tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
-    html = tam_str_cat(html, "<title>Tamlinux Topic Keywords</title>\n</head>\n<body>\n");
-    html = tam_str_cat(html, "<nav aria-label=\"Breadcrumb\">\n<p><a href=\"index.html\">Guide</a> / Topic Keywords</p>\n</nav>\n");
+    html = tam_str_cat(html, "<title>Keyword Index</title>\n</head>\n<body>\n");
+    html = tam_str_cat(html, "<nav aria-label=\"Breadcrumb\">\n<p><a href=\"index.html\">Guide</a> / Keyword Index</p>\n</nav>\n");
     if (level != 0) {
-        html = tam_str_cat_printf(html, "<h1>Topics with a %s level:</h1>\n", tam_level_name(level));
+        html = tam_str_cat_printf(html, "<h1>Keyword Index (%s)</h1>\n", tam_level_name(level));
     } else {
-        html = tam_str_cat(html, "<h1>Available topics: Topic Keywords</h1>\n");
+        html = tam_str_cat(html, "<h1>Keyword Index</h1>\n");
     }
     html = tam_str_cat(html,
-        "<p>Available topics: select a topic keyword with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to view its topic guide.<br>\n"
-        "Press <kbd>`</kbd> to return to the guide index, or <kbd>q</kbd> to exit.</p>\n"
+        "<p>Every word <code>tam explain</code> recognizes and what it leads to.<br>\n"
+        "Select a keyword with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to see its topic guide. "
+        "Press <kbd>`</kbd> for the guide index, or <kbd>q</kbd> to quit.</p>\n"
         "<table>\n"
-        "<tr><th>Topic Keyword</th><th>Pages</th><th>Summary / Coverage</th></tr>\n");
+        "<tr><th>Keyword</th><th>Pages</th><th>Covers</th></tr>\n");
 
     for (size_t i = 0; i < list->count; i++) {
         char *enc_kw = url_encode(list->items[i].keyword);
@@ -749,19 +750,20 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
     }
 
     tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
-    html = tam_str_cat(html, "<title>Available Explanation Topics</title>\n</head>\n<body>\n");
+    html = tam_str_cat(html, "<title>Topics A to Z</title>\n</head>\n<body>\n");
     html = tam_str_cat(html, "<nav aria-label=\"Breadcrumb\">\n<p><a href=\"index.html\">Guide</a> / Topics</p>\n</nav>\n");
     if (level != 0) {
-        html = tam_str_cat_printf(html, "<h1>Topics with a %s level</h1>\n",
+        html = tam_str_cat_printf(html, "<h1>Topics A to Z (%s)</h1>\n",
                                   tam_level_name(level));
     } else {
-        html = tam_str_cat(html, "<h1>Available Explanation Topics</h1>\n");
+        html = tam_str_cat(html, "<h1>Topics A to Z</h1>\n");
     }
     html = tam_str_cat(html,
-        "<p>Available topics: select a topic with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to view its explanation.<br>\n"
-        "Press <kbd>`</kbd> to return to the guide index, or <kbd>q</kbd> to exit.</p>\n"
+        "<p>Every topic tam can explain, one line each.<br>\n"
+        "Select a topic with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to read it. "
+        "Press <kbd>`</kbd> for the guide index, or <kbd>q</kbd> to quit.</p>\n"
         "<table>\n"
-        "<tr><th>Topic</th><th>Summary</th></tr>\n");
+        "<tr><th>Topic</th><th>Covers</th></tr>\n");
 
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];

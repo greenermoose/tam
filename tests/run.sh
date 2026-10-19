@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.31.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.31.2' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -202,9 +202,9 @@ printf '%s\n' "$sh_out" | grep -q 'The Tamlinux User Guide' || fail "tam show --
 sh_page=$("$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Welcome to Tamlinux' || fail "tam show welcome failed"
 sh_topics=$("$TAM" show topics --pipe)
-printf '%s\n' "$sh_topics" | grep -q 'Available Explanation Topics' || fail "tam show topics failed"
+printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z' || fail "tam show topics failed"
 sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
-printf '%s\n' "$sh_topics_pseudo" | grep -q 'Available Explanation Topics' || fail "tam show tam:topics failed"
+printf '%s\n' "$sh_topics_pseudo" | grep -q 'Topics A to Z' || fail "tam show tam:topics failed"
 
 # Show with - reads HTML from stdin and renders tables and definition lists.
 stdin_html='<h1>Custom HTML</h1><dl><dt>Alpha</dt><dd>First letter</dd></dl><table><tr><th>Name</th><th>Value</th></tr><tr><td>Foo</td><td>Bar</td></tr></table>'
@@ -854,9 +854,9 @@ def get_status_info():
         target = last.split("->")[-1].split("\x1b", 1)[0].strip()
     return (title, target)
 
-# 1. Initial page is Available Explanation Topics
+# 1. Initial page is Topics A to Z
 title, _ = get_status_info()
-assert title == "Available Explanation Topics", f"unexpected topics title: {title}"
+assert title == "Topics A to Z", f"unexpected topics title: {title}"
 
 # 2. Tab selects first topic link
 os.write(master, b"\t")
@@ -866,12 +866,12 @@ assert target != "", "expected link target to be selected by Tab"
 # 3. Enter follows selected topic link into explanation
 os.write(master, b"\r")
 title_topic, _ = get_status_info()
-assert title_topic != "Available Explanation Topics", f"did not follow link into topic explanation: {title_topic}"
+assert title_topic != "Topics A to Z", f"did not follow link into topic explanation: {title_topic}"
 
 # 4. u returns to topics page
 os.write(master, b"u")
 title_back, _ = get_status_info()
-assert title_back == "Available Explanation Topics", f"did not return to topics page: {title_back}"
+assert title_back == "Topics A to Z", f"did not return to topics page: {title_back}"
 
 # 5. Backtick (`) jumps to root guide index.html
 os.write(master, b"`")
@@ -1233,8 +1233,8 @@ printf '%s\n' "$ex_help" | grep -q 'tam show' || fail "explain --help missing sh
 
 # Bare explain displays dynamic topic keywords catalog.
 ex_kw=$("$TAM" explain --pipe)
-printf '%s\n' "$ex_kw" | grep -q 'Topic Keywords' || fail "bare explain missing Topic Keywords"
-printf '%s\n' "$ex_kw" | grep -q 'Topic Keyword' || fail "bare explain missing table heading"
+printf '%s\n' "$ex_kw" | grep -q 'Keyword Index' || fail "bare explain missing Keyword Index"
+printf '%s\n' "$ex_kw" | grep -q 'Keyword  *Pages  *Covers' || fail "bare explain missing table heading"
 printf '%s\n' "$ex_kw" | grep -q 'tam' || fail "bare explain missing tam topic keyword"
 printf '%s\n' "$ex_kw" | grep -q 'pipelines' || fail "bare explain missing pipelines topic keyword"
 
@@ -1254,7 +1254,7 @@ printf '%s\n' "$sh_tam" | grep -qi 'develop -> test -> run -> release' || fail "
 
 # tam explain topics lists available topics and exits 0.
 ex_topics=$("$TAM" explain topics --pipe)
-printf '%s\n' "$ex_topics" | grep -q 'Available topics:' || fail "explain topics missing heading"
+printf '%s\n' "$ex_topics" | grep -q 'Topics A to Z:' || fail "explain topics missing heading"
 printf '%s\n' "$ex_topics" | grep -q 'welcome' || fail "explain topics missing welcome"
 printf '%s\n' "$ex_topics" | grep -q 'install' || fail "explain topics missing install"
 printf '%s\n' "$ex_topics" | grep -q 'shell' || fail "explain topics missing shell"
@@ -1359,7 +1359,7 @@ sh_lvl_all=$("$TAM" show pipelines --pipe)
 
 # Catalog listing filtered by level
 ex_cat_expert=$("$TAM" explain --level expert)
-printf '%s\n' "$ex_cat_expert" | grep -q 'Topics with a expert level:' || fail "explain --level expert missing heading"
+printf '%s\n' "$ex_cat_expert" | grep -q 'Keyword Index (expert)' || fail "explain --level expert missing heading"
 printf '%s\n' "$ex_cat_expert" | grep -q 'pipelines' || fail "expert catalog missing pipelines"
 printf '%s\n' "$ex_cat_expert" | grep -q 'jobs' || fail "expert catalog missing jobs"
 if printf '%s\n' "$ex_cat_expert" | grep -q '^  desktop '; then fail "expert catalog unexpectedly includes beginner-only desktop"; fi

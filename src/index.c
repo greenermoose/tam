@@ -701,9 +701,9 @@ void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned leve
 
     if (verbose) {
         if (level != 0) {
-            fprintf(out, "Topics with a %s level:\n\n", tam_level_name(level));
+            fprintf(out, "Topics A to Z (%s):\n\n", tam_level_name(level));
         } else {
-            fprintf(out, "Available topics:\n\n");
+            fprintf(out, "Topics A to Z:\n\n");
         }
         for (size_t i = 0; i < idx->count; i++) {
             const tam_index_entry_t *e = &idx->entries[i];
@@ -744,9 +744,9 @@ void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned leve
     }
 
     if (level != 0) {
-        fprintf(out, "Topics with a %s level:\n", tam_level_name(level));
+        fprintf(out, "Topics A to Z (%s):\n", tam_level_name(level));
     } else {
-        fprintf(out, "Available topics:\n");
+        fprintf(out, "Topics A to Z:\n");
     }
 
     for (size_t i = 0; i < idx->count; i++) {

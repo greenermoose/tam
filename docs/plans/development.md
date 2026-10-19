@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-19
-**Scope:** Living integration contract; current command 0.31.1 and corpus 0.32.2.
+**Scope:** Living integration contract; current command 0.31.2 and corpus 0.32.4.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), and [corpus build plan](corpus-build.md).
@@ -206,6 +206,13 @@ the `unversioned` label shown for a corpus that has no version file.
 
 ## Historical delivered milestones
 
+- **2026-10-19:** Command 0.31.2 and corpus 0.32.4. The renderer wraps the
+  widest columns of a table that is wider than the terminal, never below a
+  column's longest word or 12 cells, and stacks rows as `Header: value`
+  records only when the narrowed columns still cannot fit. Topic lists are
+  titled Topics A to Z and Keyword Index. The corpus drops topic keywords
+  that misdirect to a page that does not cover them or mean nothing as a
+  lookup. Corpus 0.32.3 (`b7a838f`) revised the welcome page.
 - **2026-10-19:** Corpus 0.32.2, TCK9 (reliable corpus builds). `make corpus`
   always rechecks pages and Git metadata, preserving unchanged outputs.
   `make corpus-and-test` rebuilds before checks and replaces `test-corpus`.
@@ -360,6 +367,12 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
+
+- **2026-10-19:** Command 0.31.2 (patch) fixes table layout: a table wider than
+  the terminal keeps its columns and wraps the widest ones instead of stacking
+  every row. Topic list headings change to Topics A to Z and Keyword Index.
+  Corpus 0.32.4 (patch) corrects topic keywords; the developer chose the patch
+  bump so changed keywords are not delivered under 0.32.3.
 
 - **2026-10-18:** The developer accepted [source upgrades and stage switching](upgrade.md)
   for a subsequent implementation session: TCK6–TCK8, development-prefix source

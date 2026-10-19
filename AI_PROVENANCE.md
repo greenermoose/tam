@@ -87,3 +87,4 @@ model for each session.
 | 2026-10-18 | Snapper corpus page work plan and section placement (`docs/plans/corpus/snapper.md`) | Antigravity CLI 1.4.2; `gemini-4-argon` | [Session record](docs/ai/2026-10-18-tam-snapper-corpus-plan.md) |
 | 2026-10-18 | Rename knowledge-system checklist items to permanent `TCK` identifiers; checklist identifier rules (`CHECKLISTS.md`) | Claude Code 2.1.302; `claude-opus-5-5` | [Session record](docs/ai/2026-10-18-tam-tck-checklist-identifiers.md) |
 | 2026-10-18 | Warmer welcome page; corpus 0.32.1 | Antigravity CLI 1.4.2; `claude-opus-5-5` | [Session record](docs/ai/2026-10-18-tam-welcome-page-rewrite.md) |
+| 2026-10-19 | Wrapped tables, Topics A to Z and Keyword Index headings, keyword corrections; command 0.31.2, corpus 0.32.4 | Claude Code 2.1.303; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-wrapped-tables.md) |

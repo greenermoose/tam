@@ -1371,6 +1371,37 @@ static size_t cell_text_len(const tam_table_cell_t *cell)
     return len;
 }
 
+/* Width of the longest unbreakable word in a cell; words may span runs. */
+static size_t cell_longest_word(const tam_table_cell_t *cell)
+{
+    size_t best = 0;
+    size_t cur = 0;
+    for (size_t r = 0; r < cell->nruns; r++) {
+        const char *t = cell->runs[r].text;
+        if (t == NULL) {
+            continue;
+        }
+        size_t tl = strlen(t);
+        size_t i = 0;
+        while (i < tl) {
+            if (isspace((unsigned char)t[i])) {
+                cur = 0;
+                i++;
+                continue;
+            }
+            size_t ws = i;
+            while (i < tl && !isspace((unsigned char)t[i])) {
+                i++;
+            }
+            cur += dwidth(t + ws, i - ws);
+            if (cur > best) {
+                best = cur;
+            }
+        }
+    }
+    return best;
+}
+
 static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                       spanlist_t **out_lines, size_t *out_nlines)
 {
@@ -1544,8 +1575,14 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
     if (col_w == NULL) {
         return;
     }
+    int *floor_w = calloc(ncols, sizeof(int));
+    if (floor_w == NULL) {
+        free(col_w);
+        return;
+    }
     for (size_t c = 0; c < ncols; c++) {
         col_w[c] = 3;
+        floor_w[c] = 3;
     }
     for (size_t r = 0; r < t->nrows; r++) {
         const tam_table_row_t *row = &t->rows[r];
@@ -1554,21 +1591,53 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
             if ((int)l > col_w[c]) {
                 col_w[c] = (int)l;
             }
+            size_t w = cell_longest_word(&row->cells[c]);
+            if ((int)w > floor_w[c]) {
+                floor_w[c] = (int)w;
+            }
         }
     }
 
+    /* A column too wide for the terminal wraps its cells. It may shrink to
+     * its longest word, but not below TABLE_MIN_COL unless its widest cell
+     * is narrower; a column of one-word cells never wraps. */
+    enum { TABLE_MIN_COL = 12 };
     int total_w = 0;
+    int floor_total = 0;
     for (size_t c = 0; c < ncols; c++) {
+        if (floor_w[c] < TABLE_MIN_COL) {
+            floor_w[c] = col_w[c] < TABLE_MIN_COL ? col_w[c] : TABLE_MIN_COL;
+        }
         total_w += col_w[c];
+        floor_total += floor_w[c];
         if (c + 1 < ncols) {
             total_w += 2;
+            floor_total += 2;
         }
     }
-    if (total_w > width) {
+    if (floor_total > width) {
+        free(floor_w);
         free(col_w);
         layout_table_stacked(out, t, width);
         return;
     }
+    /* Narrow the widest shrinkable column one cell at a time until the
+     * table fits, so short columns keep their natural width. */
+    while (total_w > width) {
+        size_t widest = ncols;
+        for (size_t c = 0; c < ncols; c++) {
+            if (col_w[c] > floor_w[c] &&
+                (widest == ncols || col_w[c] > col_w[widest])) {
+                widest = c;
+            }
+        }
+        if (widest == ncols) {
+            break;
+        }
+        col_w[widest]--;
+        total_w--;
+    }
+    free(floor_w);
     for (size_t r = 0; r < t->nrows; r++) {
         const tam_table_row_t *row = &t->rows[r];
         spanlist_t **cell_sub = calloc(ncols, sizeof(spanlist_t *));
@@ -1600,7 +1669,7 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
                     }
                 }
                 int pad = col_w[c] - printed_w;
-                if (pad > 0) {
+                if (pad > 0 && c + 1 < ncols) {
                     char sp[160];
                     size_t m = (size_t)pad < sizeof(sp) ? (size_t)pad : sizeof(sp) - 1;
                     memset(sp, ' ', m);
