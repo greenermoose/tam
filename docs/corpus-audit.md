@@ -7,7 +7,7 @@ audit.
 ## Purpose
 
 Mechanical drift, such as unrendered markup, private strings and nonexistent
-subcommands, belongs to the corpus checker that `make test-corpus` runs. An
+subcommands, belongs to the corpus checker that `make corpus-and-test` runs. An
 audit finds what the checker cannot:
 
 - **behaviour drift:** a page describes bindings, commands, names or paths the
@@ -44,7 +44,7 @@ audit finds what the checker cannot:
 
 ## Passes
 
-1. **Checker.** Run `make test-corpus` and record the result. Do not repeat
+1. **Checker.** Run `make corpus-and-test` and record the result. Do not repeat
    its checks by hand; until the checker exists, check entities against
    `entities[]` in `src/render.c` and search for LaTeX.
 2. **Behaviour and status.** Check each page's descriptions of commands,

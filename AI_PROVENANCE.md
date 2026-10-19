@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-19 | TCK9 reliable corpus builds and corpus-and-test target; corpus 0.32.2 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Implementation and verification](docs/ai/2026-10-19-tam-corpus-build.md) |
 | 2026-10-18 | Breadcrumb row keyboard focus and navigation; command 0.31.1 | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-18-tam-breadcrumb-navigation.md) |
 | 2026-10-18 | TCK7 isolated build acceptance, staged-guide test repair and standing approval for disposable builds | Codex CLI 0.163.0; `gpt-6.1-sol` | [Acceptance follow-up](docs/ai/2026-10-18-tam-upgrade-acceptance.md) |
 | 2026-10-18 | Implement tam upgrade / tam switch, command 0.31.0 / corpus 0.32.0 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Implementation and acceptance](docs/ai/2026-10-18-tam-upgrade-implementation.md) |

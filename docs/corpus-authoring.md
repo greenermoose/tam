@@ -114,26 +114,46 @@ Readers see the text that `tam show` renders, not the HTML.
 ## Adding a page
 
 1. Claim the page, its section `index.html`, `knowledge/index.html`,
-   `knowledge/index.json`, `knowledge/index.tsv`, `knowledge/version`,
+   `knowledge/index.json`, `knowledge/index.tsv`, `knowledge/index.parents.tsv`,
+   `knowledge/version`,
    your `docs/ai/` record, and `AI_PROVENANCE.md` while
    you edit it.
 2. Write the page from its sources. Keep a list of what you checked.
 3. Link it from its canonical part hub and appropriate learning/task routes.
    The Guide root links the five part hubs and shared utilities; it does not list
    every chapter. Keep cross-links contextual without changing a page's home.
-4. Run `python3 tools/build-index.py`.
+4. Run `make corpus` to regenerate and validate all three indexes.
 5. If a note in `docs/plans/corpus/` asked for the page, confirm each query it
    records now finds the intended page (`tam explain <query>`), and close the
    note with version/commit and verification evidence. Update the plan index,
    roadmap and development contract under the maintenance procedure.
 6. Bump `knowledge/version` in the same commit: minor for a new page, patch
    for a correction.
-7. Run `make corpus` and `make test-corpus`. The test runs the corpus
+7. Run `make corpus-and-test`. It rebuilds the corpus before running the corpus
    checker, `tools/lint-corpus.py`; fix every line it prints. Corpus pages
    have no snapshots: read your page with `tam show --pipe` instead.
 8. Write the session record and its `AI_PROVENANCE.md` row and commit only your
    paths. Installation is a separately instructed workflow under `AGENTS.md`;
    a content change or closed plan does not authorize a session deployment.
+
+## Rebuilding after commits
+
+`make corpus` always checks every HTML page recursively and refreshes the
+Git-derived page revisions, timestamps and ignored `knowledge/.build_id`.
+It catches additions, deletions and renames, including changes whose file
+timestamps did not advance. Unchanged outputs keep their contents and mtimes.
+
+After committing page changes, run `make corpus` again and review and commit
+any changes to `knowledge/index.tsv`, `knowledge/index.json` and
+`knowledge/index.parents.tsv`. Rerun `make corpus` after that index commit to
+refresh the build marker; a clean corpus/tooling tree reports no `-dirty`.
+No separate Python invocation is needed. Version bumps remain manual.
+
+Use `make corpus-and-test` to rebuild and test in one command. It also builds
+the reader when necessary, so it needs an installed `libtam`; set
+`LIBTAM_PREFIX` to its installation prefix if needed. Neither target installs
+software or promotes a stage. Preview the checkout with
+`TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe <page>`.
 
 ## Notes about missing pages
 

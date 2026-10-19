@@ -1,13 +1,13 @@
 # tam development plan
 
 **Plan status:** Active
-**Reviewed:** 2026-10-18
-**Scope:** Living integration contract; current command 0.31.1 and corpus 0.32.0.
+**Reviewed:** 2026-10-19
+**Scope:** Living integration contract; current command 0.31.1 and corpus 0.32.2.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
-and [upgrade/stage-switching plan](upgrade.md).
-**Next action:** Source implementation and first development-prefix activation
-are complete. Package Test/Run/Release remain developer-directed stages.
+the [upgrade/stage-switching plan](upgrade.md), and [corpus build plan](corpus-build.md).
+**Next action:** Source implementation and reliable corpus build verification
+(TCK9) are complete. Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -71,8 +71,11 @@ Build targets follow the lanes:
 
 - `make` (or `make all`) — the whole project: the binary and the corpus index.
 - `make command` — just the C binary; does not regenerate the corpus index.
-- `make corpus` — regenerate and validate `knowledge/index.{tsv,json}`.
-- `make test-command` / `make test-corpus` — one lane's checks.
+- `make corpus` — always recheck all pages and Git metadata; regenerate the
+  three corpus indexes and checkout build marker, preserving unchanged files.
+- `make test-command` — command checks.
+- `make corpus-and-test` — build the corpus and reader, then run corpus checks.
+  This replaces `test-corpus` without an alias. No installation or stage promotion.
 - `make test` / `make check` — the full, integrated suite.
 
 ## Command contract
@@ -202,6 +205,12 @@ command lane: `tests/run.sh` reads the expected corpus version from
 the `unversioned` label shown for a corpus that has no version file.
 
 ## Historical delivered milestones
+
+- **2026-10-19:** Corpus 0.32.2, TCK9 (reliable corpus builds). `make corpus`
+  always rechecks pages and Git metadata, preserving unchanged outputs.
+  `make corpus-and-test` rebuilds before checks and replaces `test-corpus`.
+  Focused, parallel and integrated verification passed; see the
+  [corpus build plan](corpus-build.md). Command 0.31.1 is unchanged.
 
 These entries record the behavior and vocabulary at delivery time. For current
 commands use the contract above; for new work use the overhaul. Original plans

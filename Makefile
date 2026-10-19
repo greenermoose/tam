@@ -56,7 +56,7 @@ CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 # whenever that configuration does and forces a rebuild.
 CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
-.PHONY: all command corpus test test-command test-corpus check install uninstall clean FORCE
+.PHONY: all command corpus test test-command corpus-and-test check install uninstall clean FORCE
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
@@ -75,13 +75,16 @@ $(BUILD):
 	mkdir -p $(BUILD)
 
 # --- corpus lane: index generation and validation -------------------------
-corpus: $(INDEX)
-
-$(INDEX): $(wildcard knowledge/*.html) $(wildcard knowledge/*/*.html) knowledge/version tools/build-index.py
+# Git history and page removals can change the index without changing an input
+# timestamp. Always recheck; the generator preserves unchanged output files.
+corpus:
 	python3 tools/build-index.py
 
+# Direct output requests share the same generation, including under make -j.
+$(INDEX): corpus
+
 # --- tests ----------------------------------------------------------------
-# test-command and test-corpus are single-lane entry points; test and check
+# test-command and corpus-and-test are single-lane entry points; test and check
 # are the full, integrated runs.
 test: all
 	tests/run.sh $(CURDIR)/$(TAM)
@@ -97,7 +100,7 @@ test-command: command
 	TAM_TEST_SKIP_OLLAMA=1 python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
 	tests/render.sh $(CURDIR)/$(TAM)
 
-test-corpus: command
+corpus-and-test: command corpus
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
 	python3 -m unittest -q tests/test_build_index.py

@@ -1,6 +1,8 @@
 """Focused compatibility and hierarchy checks for tools/build-index.py."""
 
 import json
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -8,6 +10,8 @@ import unittest
 from pathlib import Path
 
 BUILDER = Path(__file__).resolve().parents[1] / "tools" / "build-index.py"
+MAKEFILE = BUILDER.parent.parent / "Makefile"
+INDEXES = ("index.tsv", "index.json", "index.parents.tsv")
 
 
 def page(title, track="", parent=None, crumbs=(), prereqs=None):
@@ -45,6 +49,179 @@ class BuildIndex(unittest.TestCase):
     def build(self, root):
         return subprocess.run([sys.executable, str(BUILDER), "--root", str(root)],
                               capture_output=True, text=True, timeout=30)
+
+    def make_fixture(self):
+        root = self.fixture("0.31.0", {
+            "index.html": page("Guide"),
+            "use/index.html": page("Using", "use", "index.html"),
+        })
+        shutil.copyfile(MAKEFILE, root / "Makefile")
+        (root / "tools").mkdir()
+        shutil.copyfile(BUILDER, root / "tools/build-index.py")
+        (root / ".gitignore").write_text("knowledge/.build_id\n")
+        return root
+
+    def make(self, root, *args):
+        return subprocess.run(["make", "--no-print-directory", "-s", *args],
+                              cwd=root, capture_output=True, text=True, timeout=30,
+                              env={**os.environ, "LC_ALL": "C", "MAKEFLAGS": "", "MFLAGS": ""})
+
+    def make_ok(self, root, *args):
+        result = self.make(root, *args)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        return result
+
+    def git(self, root, *args, date="2026-10-18T12:00:00+00:00"):
+        result = subprocess.run(
+            ["git", "-c", "user.name=Corpus Test", "-c", "user.email=test@example.invalid",
+             "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", *args],
+            cwd=root, capture_output=True, text=True, timeout=30,
+            env={**os.environ, "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
+                 "GIT_AUTHOR_DATE": date, "GIT_COMMITTER_DATE": date})
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        return result.stdout.strip()
+
+    def index(self, root):
+        return {item["path"]: item for item in json.loads(
+            (root / "knowledge/index.json").read_text())}
+
+    def outputs(self, root, names=INDEXES):
+        return {name: ((root / "knowledge" / name).read_bytes(),
+                       (root / "knowledge" / name).stat().st_mtime_ns) for name in names}
+
+    def test_make_rechecks_edits_and_page_inventory_at_any_depth(self):
+        root = self.make_fixture()
+        self.make_ok(root, "corpus")
+        path = root / "knowledge/use/index.html"
+        timestamps = path.stat()
+        path.write_text(path.read_text().replace("Using summary", "Edited summary"))
+        os.utime(path, ns=(timestamps.st_atime_ns, timestamps.st_mtime_ns))
+        self.make_ok(root, "corpus")
+        self.assertEqual(self.index(root)["use/index.html"]["summary"], "Edited summary")
+
+        deep = root / "knowledge/use/deep/nested/task.html"
+        deep.parent.mkdir(parents=True)
+        deep.write_text(page("Task", "use", "use/index.html",
+                             crumbs=(("use/index.html", "Using"),)))
+        self.make_ok(root, "corpus")
+        self.assertIn("use/deep/nested/task.html", self.index(root))
+        renamed = deep.with_name("renamed.html")
+        deep.rename(renamed)
+        self.make_ok(root, "corpus")
+        self.assertNotIn("use/deep/nested/task.html", self.index(root))
+        self.assertIn("use/deep/nested/renamed.html", self.index(root))
+        renamed.unlink()
+        self.make_ok(root, "corpus")
+        self.assertNotIn("use/deep/nested/renamed.html", self.index(root))
+
+    def test_make_refreshes_git_metadata_and_dirty_marker_after_commits(self):
+        root = self.make_fixture()
+        self.git(root, "init", "-q")
+        self.git(root, "add", ".")
+        self.git(root, "commit", "-qm", "Initial pages")
+        self.make_ok(root, "corpus")
+        self.git(root, "add", "knowledge")
+        self.git(root, "commit", "-qm", "Record indexes")
+        self.make_ok(root, "corpus")
+        marker = root / "knowledge/.build_id"
+        self.assertEqual(marker.read_text().strip(), self.git(root, "rev-parse", "--short", "HEAD"))
+
+        path = root / "knowledge/use/index.html"
+        path.write_text(path.read_text().replace("Using summary", "New summary"))
+        self.make_ok(root, "corpus")
+        self.assertTrue(marker.read_text().strip().endswith("-dirty"))
+        before = path.stat().st_mtime_ns
+        self.git(root, "add", "knowledge/use/index.html")
+        self.git(root, "commit", "-qm", "Edit a page", date="2026-10-19T13:45:00+00:00")
+        self.assertEqual(path.stat().st_mtime_ns, before)
+        self.make_ok(root, "corpus")
+        entry = self.index(root)["use/index.html"]
+        self.assertEqual(entry["rev"], 2)
+        self.assertEqual(entry["updated"], "2026-10-19 13:45")
+        # Rewritten indexes themselves keep the build dirty until committed.
+        self.assertTrue(marker.read_text().strip().endswith("-dirty"))
+        self.git(root, "add", "knowledge")
+        self.git(root, "commit", "-qm", "Refresh indexes")
+        self.make_ok(root, "corpus")
+        self.assertFalse(marker.read_text().strip().endswith("-dirty"))
+        self.assertEqual(self.git(root, "status", "--porcelain"), "")
+
+        names = (*INDEXES, ".build_id")
+        stable = self.outputs(root, names)
+        self.make_ok(root, "corpus")
+        self.assertEqual(self.outputs(root, names), stable)
+        for name in names:
+            with self.subTest(missing=name):
+                (root / "knowledge" / name).unlink()
+                self.make_ok(root, "corpus")
+                self.assertEqual((root / "knowledge" / name).read_bytes(), stable[name][0])
+
+    def test_unchanged_archive_build_preserves_outputs_without_git(self):
+        root = self.make_fixture()
+        self.make_ok(root, "corpus")
+        # Pin mtimes to the past so even coarse filesystems detect a rewrite.
+        for name in INDEXES:
+            os.utime(root / "knowledge" / name, ns=(1_000_000_000, 1_000_000_000))
+        before = self.outputs(root)
+        self.make_ok(root, "corpus")
+        self.assertEqual(self.outputs(root), before)
+        self.assertFalse((root / "knowledge/.build_id").exists())
+
+    def test_parallel_and_direct_index_targets_share_one_generation(self):
+        root = self.make_fixture()
+        targets = [f"knowledge/{name}" for name in INDEXES]
+        result = self.make_ok(root, "-j8", "corpus", *targets)
+        self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
+        for target in targets:
+            (root / target).unlink()
+            result = self.make_ok(root, target)
+            self.assertTrue((root / target).is_file())
+            self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
+
+    def test_invalid_metadata_fails_make_without_changing_outputs(self):
+        root = self.make_fixture()
+        self.make_ok(root, "corpus")
+        before = self.outputs(root)
+        path = root / "knowledge/use/index.html"
+        path.write_text(path.read_text().replace('content="index.html"', 'content="missing.html"'))
+        result = self.make(root, "corpus")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("does not name an existing page", result.stderr)
+        self.assertEqual(self.outputs(root), before)
+
+    def test_corpus_and_test_regenerates_before_checks(self):
+        root = self.make_fixture()
+        # Isolate corpus ordering from reader compilation and its dependencies.
+        # Keep the real corpus-and-test recipe, with lightweight test fixtures.
+        (root / "tests").mkdir()
+        (root / "tests/__init__.py").write_text("")
+        for name in ("test_lint_corpus.py", "test_build_index.py"):
+            (root / "tests" / name).write_text(
+                "from pathlib import Path\nimport unittest\n"
+                "class Check(unittest.TestCase):\n"
+                "    def test_generated_index_exists(self):\n"
+                "        self.assertTrue(Path('knowledge/index.json').is_file())\n")
+        (root / "tools/lint-corpus.py").write_text(
+            "from pathlib import Path\n"
+            "assert Path('knowledge/index.json').is_file()\n"
+            "print('lint ran after generation')\n")
+        guide = root / "tests/guide.sh"
+        guide.write_text("#!/bin/sh\nset -eu\ntest -f knowledge/index.tsv\necho 'guide checked'\n")
+        guide.chmod(0o755)
+        result = self.make_ok(root, "-j8", "-o", "command", "corpus", "corpus-and-test")
+        self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
+        self.assertLess(result.stdout.index("Generated index.tsv"),
+                        result.stdout.index("lint ran after generation"))
+        self.assertIn("guide checked", result.stdout)
+        result = self.make(root, "test-corpus")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("No rule to make target", result.stderr)
+
+        path = root / "knowledge/use/index.html"
+        path.write_text(path.read_text().replace('content="index.html"', 'content="missing.html"'))
+        result = self.make(root, "-o", "command", "corpus-and-test")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("lint ran after generation", result.stdout)
 
     def test_five_tracks_and_hierarchy_are_additive_without_changing_tsv(self):
         tracks = ("install", "learn", "use", "maintain", "improve")

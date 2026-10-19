@@ -1,7 +1,7 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-18. **Owner:** Fred (developer).
-**Current Command Version:** `0.31.1`. **Current Corpus Version:** `0.32.1`.
+**Reviewed:** 2026-10-19. **Owner:** Fred (developer).
+**Current Command Version:** `0.31.1`. **Current Corpus Version:** `0.32.2`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -73,9 +73,16 @@ Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergon
 | **0.30.0 command** | Shared reader navigation and discovery | Done (2026-10-18) | Common Guide/Back/Help/Quit navigation; in-reader Man, Info and Guide search discovery (`0b3f008`, `52e71f7`). |
 | **0.31.0 corpus** | Five-part knowledge system and guided learning | Done (2026-10-18) | Five-part root, logical homes for all 50 existing pages, five new learning/navigation pages, route and search acceptance (`597cb71`, `f4fa539`). |
 | **0.31.1 command** | Breadcrumb keyboard navigation | Done (2026-10-18) | Up Arrow focuses the fixed breadcrumb row; `a`/`f`, `s`/`d`, Tab and Shift-Tab navigate its links. |
+| **0.32.2 corpus** | Reliable corpus builds | Done (2026-10-19) | TCK9: `make corpus` rechecks all pages and Git metadata; `make corpus-and-test` builds and checks. Unchanged outputs retain timestamps. |
 
 
 ## 3. Current work and follow-up
+
+The approved [corpus build plan](docs/plans/corpus-build.md) makes
+`make corpus` sufficient after edits and commits, and renames the combined
+build/check entry point to `make corpus-and-test` (TCK9, reliable corpus builds).
+Source implementation and focused, parallel and integrated checks passed for
+corpus 0.32.2; command 0.31.1 is unchanged. Package stages remain separate.
 
 The accepted [source-upgrade and stage-switching plan](docs/plans/upgrade.md) covers
 Development/Test/Run/Release discovery, source installation into the approved

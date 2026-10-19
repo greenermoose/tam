@@ -37,6 +37,13 @@ def split_list(content):
     return [k.strip() for k in content.split(",") if k.strip()]
 
 
+def write_if_changed(path, content):
+    """Rechecking metadata must not touch an otherwise unchanged output."""
+    data = content.encode("utf-8")
+    if not path.exists() or path.read_bytes() != data:
+        path.write_bytes(data)
+
+
 def git_page_revision(root, path, rel_path):
     """Derive deterministic (rev, updated) for a knowledge page from Git history.
 
@@ -353,32 +360,28 @@ def main(root=None):
 
     # Keep the established TSV projection byte-compatible for older readers.
     # Parent is additive in JSON and in a separate compact TSV projection.
-    tsv_path = knowledge_dir / "index.tsv"
-    with open(tsv_path, "w", encoding="utf-8") as f:
-        f.write("topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n")
-        for e in entries:
-            kws = ", ".join(e["keywords"])
-            levels = ",".join(e["levels"])
-            prereqs = ", ".join(e["prereqs"])
-            f.write(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
+    rows = ["topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n"]
+    parents = ["path\tparent\n"]
+    for e in entries:
+        kws = ", ".join(e["keywords"])
+        levels = ",".join(e["levels"])
+        prereqs = ", ".join(e["prereqs"])
+        rows.append(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
                     f"{levels}\t{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
+        parents.append(f"{e['path']}\t{e['parent'] or ''}\n")
 
-    with open(knowledge_dir / "index.parents.tsv", "w", encoding="utf-8") as f:
-        f.write("path\tparent\n")
-        for e in entries:
-            f.write(f"{e['path']}\t{e['parent'] or ''}\n")
-
-    # Write index.json
-    json_path = knowledge_dir / "index.json"
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(entries, f, indent=2)
-        f.write("\n")
+    outputs = {
+        "index.tsv": "".join(rows),
+        "index.parents.tsv": "".join(parents),
+        "index.json": json.dumps(entries, indent=2) + "\n",
+    }
+    for name, content in outputs.items():
+        write_if_changed(knowledge_dir / name, content)
 
     # Generate knowledge/.build_id if in a git repository
     git_dir = root / ".git"
     if git_dir.exists():
         try:
-            import subprocess
             res = subprocess.run(
                 ["git", "-C", str(root), "log", "-n", "1", "--format=%h", "--", "knowledge", "tools"],
                 capture_output=True, text=True, check=True
@@ -391,7 +394,7 @@ def main(root=None):
                 )
                 if status_res.stdout.strip():
                     cid += "-dirty"
-                (knowledge_dir / ".build_id").write_text(cid + "\n", encoding="utf-8")
+                write_if_changed(knowledge_dir / ".build_id", cid + "\n")
         except Exception:
             pass
 
