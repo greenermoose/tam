@@ -7,6 +7,9 @@
 in [the session record](../ai/2026-10-19-tam-corpus-build.md).
 **Next action:** None for source implementation. Package stages remain separate.
 
+Implemented in `fb8c1ac`; the generated-index follow-up records the corrected
+page revision. Verification is recorded in the linked session record.
+
 ## Problem and agreed outcome
 
 The old Make dependencies miss Git-only metadata changes, removed pages and

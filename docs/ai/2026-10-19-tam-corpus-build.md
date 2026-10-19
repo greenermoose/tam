@@ -1,12 +1,12 @@
 # Reliable corpus rebuilds (corpus 0.32.2)
 
 - **Date:** 2026-10-19
-- **Time:** 16:02 to 16:09, -04:00
+- **Time:** 16:02 to 16:10, -04:00
 - **Stage:** Develop — corpus tooling, tests and authoring instructions
 - **CLI Tool:** Codex CLI 0.163.0, checked with the running runtime detector
 - **Model:** GPT-6.1 Sol (`gpt-6.1-sol`), verified against turn metadata
 - **Transcript:** Retained privately by the author.
-- **Commits:** The commit adding this record and its generated-index follow-up
+- **Commits:** `fb8c1ac` and the commit updating the generated indexes and this record
 - **Authorship:** Fred requested and approved the plan and target rename;
   Codex implemented the Make rules, generator, regression tests and documentation.
 - **Checked against:** `Makefile`, `tools/build-index.py`,
@@ -56,3 +56,6 @@ package assembly or promotion.
   LIBTAM_PREFIX=<development-prefix>` passed and generated the indexes once.
 - Live `tam ask` checks skipped because no local Ollama server was running.
 - Changed Markdown links, complete plan inventory and `git diff --check` passed.
+- After committing the source, `make corpus` refreshed the edited page's
+  revision from 6 to 7 and its timestamp without calling Python separately.
+  The post-commit `make corpus-and-test` run passed before recording those indexes.
