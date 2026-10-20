@@ -1047,31 +1047,35 @@ static int draw(pager_t *st)
     const char *actions = max_cols >= 60 ? "< Back  ` Guide  h Help  q Quit" :
                           max_cols >= 40 ? "<Back `Guide hHelp qQuit" : "< ` h q";
     const char *title = st->doc->title ? st->doc->title : "tam";
-    char essential[48];
-    snprintf(essential, sizeof(essential), "L%d/%zu", st->cursor_line + 1,
-             st->doc->nlines);
-    const char *view = st->doc->nlines <= (size_t)usable ? " (All)" :
-                       st->top == 0 ? " (Top)" :
-                       st->top >= max_top ? " (Bot)" : "";
+    size_t total = st->doc->nlines;
+    if (total == 1 && st->doc->lines[0].nspans == 0) {
+        total = 0;
+    }
+    int first = total == 0 ? 0 : st->top + 1;
+    int last = st->top + usable;
+    if (last > (int)total) {
+        last = (int)total;
+    }
+    if (total == 0) {
+        last = 0;
+    }
+    char essential[64];
+    snprintf(essential, sizeof(essential), "L%d %d-%d/%zu",
+             st->cursor_line + 1, first, last, total);
     int essential_width = (int)tam_display_width(essential, strlen(essential));
-    int view_width = (int)tam_display_width(view, strlen(view));
     if (max_cols >= 60) {
         int action_width = (int)tam_display_width(actions, strlen(actions));
-        int title_budget = max_cols - action_width - essential_width - view_width - 6;
+        int title_budget = max_cols - action_width - essential_width - 6;
         if (title_budget > 0) {
             size_t title_bytes = status_byte_limit(title, title_budget);
             strncat(status, title, title_bytes);
             strncat(status, " | ", sizeof(status) - strlen(status) - 1);
         }
         strncat(status, essential, sizeof(status) - strlen(status) - 1);
-        if (view_width > 0 && max_cols - (int)tam_display_width(status, strlen(status)) >= view_width)
-            strncat(status, view, sizeof(status) - strlen(status) - 1);
         strncat(status, " | ", sizeof(status) - strlen(status) - 1);
         strncat(status, actions, sizeof(status) - strlen(status) - 1);
     } else {
         strncat(status, essential, sizeof(status) - 1);
-        if (view_width > 0 && max_cols - essential_width >= view_width)
-            strncat(status, view, sizeof(status) - strlen(status) - 1);
         int used = (int)tam_display_width(status, strlen(status));
         int action_width = (int)tam_display_width(actions, strlen(actions));
         if (max_cols - used >= action_width + 1) {

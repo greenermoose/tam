@@ -322,11 +322,13 @@ def main():
     # A one-row terminal remains navigable and does not report a status row.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", 1, 12)
     assert "First" in screen.line(0), screen.line(0)
-    assert b"L1/" not in screen.line(0).encode()
+    assert b"L1 " not in screen.line(0).encode()
     stop(pid, master)
 
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
                                              2, 20, page="pager-empty")
+    assert b"L1 0-0/0" not in screen.line(0).encode()
+    assert b"L1 0-0/0" in screen.line(1).encode()
     assert b"L1/0" not in b"".join(screen.line(r).encode() for r in range(2))
     stop(pid, master)
 
@@ -356,6 +358,37 @@ def main():
     os.write(master, b"\x1b[D")
     screen.feed(read_available(master))
     assert any("Second part" in screen.line(r) for r in range(1, 5))
+    stop(pid, master)
+
+    # Scrolling status row on an overflowing page
+    pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
+                                             8, 40, page="pager-plain")
+    c_rows = 8 - 2
+
+    def parse_pos(line):
+        m = re.search(r"L(\d+)\s+(\d+)-(\d+)/(\d+)", line)
+        assert m, f"position metric missing in status line: {line!r}"
+        return int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
+
+    # At top: first is 1
+    cur, first, last, total = parse_pos(screen.line(7))
+    assert first == 1, f"expected first == 1 at top, got {first}"
+    assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
+    assert total > c_rows, f"expected page to overflow: total={total}, content_rows={c_rows}"
+
+    # Space (page down) from the top: first is greater than 1
+    os.write(master, b" ")
+    screen.feed(read_available(master))
+    cur, first, last, total = parse_pos(screen.line(7))
+    assert first > 1, f"expected first > 1 after page down, got {first}"
+    assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
+
+    # c (bottom): last equals total
+    os.write(master, b"c")
+    screen.feed(read_available(master))
+    cur, first, last, total = parse_pos(screen.line(7))
+    assert last == total, f"expected last == total ({total}) at bottom, got {last}"
+    assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
     stop(pid, master)
 
     print("ok - pager PTY screen model: focus, row diffs, no-op keys, capability fallback, tiny geometry, and in-page links")

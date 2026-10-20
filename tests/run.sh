@@ -336,7 +336,7 @@ def send_and_get_state(key):
         buf += os.read(master, 1024)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
-    pos = last.split(b"|")[1].strip().split()[0].decode() if b"|" in last else ""
+    pos = last.split(b"|")[1].strip().decode() if b"|" in last else ""
     msg = last.split(b"[")[-1].split(b"]")[0].decode("utf-8", "replace") if b"]" in last else ""
     return pos, msg
 
@@ -364,13 +364,13 @@ assert send_and_get_target(b"s") == "tr.html", "the caught link stays selected o
 
 # Bottom (c, ,) and top (x, .) jump to the ends of the page; G is retired.
 pos, _ = send_and_get_state(b"x")
-assert pos.startswith("L1/"), f"expected x to reach the top, got {pos}"
+assert pos.startswith("L1 "), f"expected x to reach the top, got {pos}"
 pos, _ = send_and_get_state(b"c")
-assert pos.startswith("L4/"), f"expected c to reach the bottom, got {pos}"
+assert pos.startswith("L4 "), f"expected c to reach the bottom, got {pos}"
 pos, _ = send_and_get_state(b".")
-assert pos.startswith("L1/"), f"expected . to reach the top, got {pos}"
+assert pos.startswith("L1 "), f"expected . to reach the top, got {pos}"
 pos, _ = send_and_get_state(b",")
-assert pos.startswith("L4/"), f"expected , to reach the bottom, got {pos}"
+assert pos.startswith("L4 "), f"expected , to reach the bottom, got {pos}"
 send_and_get_state(b"x")
 pos, _ = send_and_get_state(b"G")
 assert pos == "", f"expected retired G to do nothing, got {pos}"
@@ -671,8 +671,8 @@ buf = b""
 while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
-# 1. Reading telemetry: verify status line contains "L1/" and position metric
-assert b"L1/" in buf and (b"(Top)" in buf or b"(All)" in buf), f"status line missing position metric: {buf}"
+# 1. Reading telemetry: verify status line contains position metric
+assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {buf}"
 assert b"/ n/N" in buf, f"status line missing search hint: {buf}"
 
 # 2. In-pager text search: search for "redirection"
@@ -885,20 +885,20 @@ def send_key(key):
 time.sleep(0.15)
 title, pos, target, msg, has_tint = get_state()
 assert has_tint, "expected attention line background tint in output buffer"
-assert "L1/4" in pos and "(All)" in pos, f"expected L1/4 in position metric, got: {pos}"
+assert "L1 1-4/4" in pos, f"expected L1 1-4/4 in position metric, got: {pos}"
 assert target == "", f"expected no initial selection, got: {target}"
 
 # 1. First k moves to blank separator line: no link
 title, pos, target, msg, has_tint = send_key(b"k")
-assert "L2/4" in pos and target == "", f"expected blank line, got: {pos} {target}"
+assert "L2 1-4/4" in pos and target == "", f"expected blank line, got: {pos} {target}"
 
 # 2. Second k moves onto links line 1: downward sweep catches FIRST link (tl.html)
 title, pos, target, msg, has_tint = send_key(b"k")
-assert "L3/4" in pos and target == "tl.html", f"expected downward sweep to catch first link tl.html, got: {target}"
+assert "L3 1-4/4" in pos and target == "tl.html", f"expected downward sweep to catch first link tl.html, got: {target}"
 
 # 3. Third k moves onto links line 2: downward sweep catches FIRST link (bl.html)
 title, pos, target, msg, has_tint = send_key(b"k")
-assert "L4/4" in pos and target == "bl.html", f"expected downward sweep to catch first link bl.html, got: {target}"
+assert "L4 1-4/4" in pos and target == "bl.html", f"expected downward sweep to catch first link bl.html, got: {target}"
 
 # 4. Tab advances on line 2 to br.html
 title, pos, target, msg, has_tint = send_key(b"\t")
@@ -906,15 +906,15 @@ assert target == "br.html", f"expected Tab to advance to br.html, got: {target}"
 
 # 5. Upward sweep (l) back to line 1: catches LAST link (tr.html)
 title, pos, target, msg, has_tint = send_key(b"l")
-assert "L3/4" in pos and target == "tr.html", f"expected upward sweep to catch last link tr.html, got: {target}"
+assert "L3 1-4/4" in pos and target == "tr.html", f"expected upward sweep to catch last link tr.html, got: {target}"
 
 # 6. Upward sweep (l) to blank line: tr.html stays selected because it is still visible!
 title, pos, target, msg, has_tint = send_key(b"l")
-assert "L2/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
+assert "L2 1-4/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
 
 # 7. Upward sweep (l) to heading line: tr.html stays selected while visible!
 title, pos, target, msg, has_tint = send_key(b"l")
-assert "L1/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
+assert "L1 1-4/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -974,15 +974,15 @@ send_key(b"k")
 send_key(b"k")
 send_key(b"k")
 title, pos, target, msg, _ = send_key(b"\t")
-assert "L4/4" in pos and target == "br.html", f"expected L4/4 br.html before jump, got: {pos} {target}"
+assert "L4 1-4/4" in pos and target == "br.html", f"expected L4 1-4/4 br.html before jump, got: {pos} {target}"
 # Jump to index.html via backtick (`), then scroll down 1 line on index.html
 title, pos, target, msg, _ = send_key(b"`")
-assert "L1/" in pos, f"expected L1 on index.html after backtick jump, got: {pos}"
+assert "L1 " in pos, f"expected L1 on index.html after backtick jump, got: {pos}"
 title, pos_idx, _, _, _ = send_key(b"k")
-assert "L2/" in pos_idx, f"expected L2 on index.html after k, got: {pos_idx}"
-# Go back (Left Arrow \x1b[D): restore L4/4 and its focused br.html link.
+assert "L2 " in pos_idx, f"expected L2 on index.html after k, got: {pos_idx}"
+# Go back (Left Arrow \x1b[D): restore L4 1-4/4 and its focused br.html link.
 title, pos, target, msg, _ = send_key(b"\x1b[D")
-assert "L4/4" in pos and target == "br.html", f"expected back to restore L4/4 and br.html focus, got: {pos} {target}"
+assert "L4 1-4/4" in pos and target == "br.html", f"expected back to restore L4 1-4/4 and br.html focus, got: {pos} {target}"
 # The restored focus remains actionable.
 title, pos, target, msg, _ = send_key(b"\x1b[C")
 assert title != "Pager fixture", f"expected Right Arrow to follow restored focus, got: {title}"
@@ -1007,11 +1007,11 @@ time.sleep(0.15)
 get_state()
 # Page down on welcome so no link is selected (L24/...)
 title, pos_w, target_w, _, _ = send_key(b" ")
-assert target_w == "" and not pos_w.startswith("L1/"), f"expected scrolled welcome with no link, got: {pos_w} {target_w}"
+assert target_w == "" and not pos_w.startswith("L1 "), f"expected scrolled welcome with no link, got: {pos_w} {target_w}"
 # Jump to index.html with backtick (`), then page down on index.html
 send_key(b"`")
 title, pos_i, _, _, _ = send_key(b" ")
-assert not pos_i.startswith("L1/"), f"expected scrolled index.html, got: {pos_i}"
+assert not pos_i.startswith("L1 "), f"expected scrolled index.html, got: {pos_i}"
 # Left Arrow (\x1b[D) returns to welcome at saved line pos_w (with no link selected)
 title, pos_back, target_back, _, _ = send_key(b"\x1b[D")
 # Compare the cursor line metric independently of the viewport status label.
@@ -1039,18 +1039,18 @@ os.close(slave)
 
 time.sleep(0.15)
 _, pos, target, _, _ = get_state()
-assert pos.startswith("L1/") and target == "", f"expected L1 with no selection, got: {pos} {target}"
+assert pos.startswith("L1 ") and target == "", f"expected L1 with no selection, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[A")
 assert target == "index.html", f"expected Up on the first line to focus the breadcrumb, got: {target}"
 _, pos, target, _, _ = send_key(b"\x1b[B")
-assert pos.startswith("L1/") and target == "", f"expected Down to return to the first line, got: {pos} {target}"
+assert pos.startswith("L1 ") and target == "", f"expected Down to return to the first line, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[B")
-assert pos.startswith("L2/") and target == "", f"expected Down to move the attention line, got: {pos} {target}"
+assert pos.startswith("L2 ") and target == "", f"expected Down to move the attention line, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[A")
-assert pos.startswith("L1/") and target == "", f"expected Up to move the attention line, got: {pos} {target}"
+assert pos.startswith("L1 ") and target == "", f"expected Up to move the attention line, got: {pos} {target}"
 # From mid-page, Shift-Tab focuses the breadcrumb; Down and k return to the same line.
 _, pos_mid, _, _, _ = send_key(b"kk")
-assert pos_mid.startswith("L3/"), f"expected kk to reach L3, got: {pos_mid}"
+assert pos_mid.startswith("L3 "), f"expected kk to reach L3, got: {pos_mid}"
 _, _, target, _, _ = send_key(b"\x1b[Z")
 assert target == "index.html", f"expected Shift-Tab to focus the breadcrumb, got: {target}"
 _, pos, target, _, _ = send_key(b"\x1b[B")
