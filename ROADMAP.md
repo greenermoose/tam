@@ -92,7 +92,7 @@ in that candidate, not here.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.32.0 / 0.34.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
