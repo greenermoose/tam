@@ -70,11 +70,12 @@ jobs
 <li><code>jobs</code> reported that job 1 is actively running in the background.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Closing your terminal window sends a <code>SIGHUP</code> (hangup) signal to all
-child jobs, terminating them unless they have been detached with <code>disown</code>
-or started with <code>nohup</code>.</p>
+<p>Detach long-running jobs with <code>disown</code> or start them with
+<code>nohup</code> so they survive terminal closure. Closing your terminal window
+sends a <code>SIGHUP</code> (hangup) signal to all child jobs, terminating them
+otherwise.</p>
 
 <h3>Next step</h3>
 

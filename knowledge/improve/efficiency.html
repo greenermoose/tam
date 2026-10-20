@@ -56,12 +56,12 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 <li>The <code>id</code> (idle CPU percentage) column shows near 100% idle time with zero ongoing user (<code>us</code>) or system (<code>sy</code>) CPU churn.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Avoid writing shell scripts with periodic <code>while true; do ...; sleep 1; done</code>
-polling loops. Even when doing minimal work, waking up every second forces the CPU
-out of package C-states (such as C8 or C10), multiplying standby power draw by up
-to three times.</p>
+<p>Use event-driven approaches or appropriate timers instead of busy polling
+loops. Periodic <code>while true; do ...; sleep 1; done</code> loops wake the CPU
+every second, forcing it out of deep package C-states (such as C8 or C10) and
+multiplying standby power draw by up to three times.</p>
 
 <h3>Next step</h3>
 

@@ -76,12 +76,13 @@ behavior without a daemon or a runtime tax, in line with
 <a href="ecosystem/philosophy.html">resource efficiency</a>.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Editing a file under <code>~/.config/hypr/</code> does nothing until the
-compositor runs it again. After a change, run <code>hyprctl reload</code>
-to re-execute the Lua configuration; if a file fails to parse,
-<code>hyprctl configerrors</code> lists the errors.</p>
+<p>After changing a Hyprland Lua configuration file under
+<code>~/.config/hypr/</code>, run <code>hyprctl reload</code> to re-execute it.
+If a file fails to parse, <code>hyprctl configerrors</code> lists the errors.
+Editing the file alone has no effect until the compositor reloads the
+configuration.</p>
 
 <h3>Next step</h3>
 

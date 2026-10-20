@@ -56,11 +56,11 @@ Filesystem      Size  Used Avail Use% Mounted on
 <li>You can also run <code>tam inspect</code> to audit host CPU architecture, RAM, storage mounts, and graphics adapters in a single read-only view, or <code>tam check storage_root_space</code> to verify storage headroom against the Check Contract.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Do not mistake low "free" memory for RAM exhaustion. Unused RAM is wasted
-RAM; the Linux kernel intentionally uses idle memory to cache disk blocks.
-Always monitor <strong>available</strong> memory.</p>
+<p>Always monitor <strong>available</strong> memory, not just "free" memory.
+Unused RAM is not wasted— the Linux kernel intentionally uses idle memory to
+cache disk blocks, so low "free" memory alone does not indicate RAM exhaustion.</p>
 
 <h3>Next step</h3>
 

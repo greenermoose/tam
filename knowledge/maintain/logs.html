@@ -53,11 +53,11 @@ Oct 14 12:00:03 myhost systemd[1]: Finished Daily man-db regeneration.
 <li>Piping to <code>tail -n 20</code> isolates recent hardware driver events, USB attachments, or GPU power state transitions.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Do not run bare <code>journalctl</code> and scroll blindly through thousands of lines
-of routine informational messages. Use filtering flags to pinpoint the exact time
-window or service of interest.</p>
+<p>Use <code>journalctl</code> filtering flags to pinpoint the exact time window,
+unit, or service of interest. Running bare <code>journalctl</code> can produce
+thousands of routine informational messages that make issues hard to spot.</p>
 
 <h3>Next step</h3>
 

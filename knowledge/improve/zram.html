@@ -53,11 +53,11 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 <li><code>COMPR</code> (420M) and <code>TOTAL</code> (460M) show the actual physical RAM consumed to store that 1.2 GB of data, including compression metadata.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Do not confuse ZRAM swap with slow NVMe or SATA disk swapping. Paging to ZRAM
-takes place entirely inside physical RAM via CPU vector instructions, completing in
-microseconds rather than milliseconds.</p>
+<p>Understand the difference: ZRAM swap uses compressed pages in physical RAM via
+CPU instructions, completing in microseconds, while disk-based swap (NVMe/SATA)
+completes in milliseconds. Don't confuse the two when tuning swap behavior.</p>
 
 <h3>Next step</h3>
 

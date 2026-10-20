@@ -55,12 +55,12 @@ tam command 0.31.3 (dev 839f459)
 <li>The resulting standalone executable starts in less than 5 milliseconds and requires no external interpreter runtime.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Never install development binaries directly into system directories like
-<code>/usr/bin</code> or <code>/usr/local/bin</code>. In Tamlinux, development builds
-install cleanly under <code>PREFIX=$HOME/.local/dev</code>, which is placed first on
-<code>$PATH</code> without touching root.</p>
+<p>Install development builds under <code>PREFIX=$HOME/.local/dev</code>, which is
+placed first on <code>$PATH</code> without touching system directories. Installing
+directly into <code>/usr/bin</code> or <code>/usr/local/bin</code> requires root
+and can conflict with package-managed files.</p>
 
 <h3>Next step</h3>
 

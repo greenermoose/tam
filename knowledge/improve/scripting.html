@@ -56,11 +56,12 @@ echo "Script executed safely with arguments: $#"
 <li>With <code>set -euo pipefail</code> active, typographical errors in variable names (like <code>rm -rf "$MISTYPED_DIR/*"</code>) abort immediately with an error rather than wiping unintended files.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Never rely on unquoted variables when passing arguments. Always quote variable
-expansions (e.g. <code>"$target"</code> instead of <code>$target</code>) to prevent
-accidental word splitting when paths contain spaces.</p>
+<p>Always quote variable expansions (e.g. <code>"$target"</code> instead of
+<code>$target</code>) to prevent accidental word splitting when paths contain
+spaces. Unquoted variables can break scripts when filenames or paths include
+whitespace.</p>
 
 <h3>Next step</h3>
 

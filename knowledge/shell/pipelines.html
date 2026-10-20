@@ -50,11 +50,11 @@ ps aux | grep firefox | wc -l
 <li>The second pipe passes those filtered lines to <code>wc -l</code>, which counts and prints the total number of lines.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Avoid the "useless use of cat": running <code>cat file.txt | grep pattern</code>
-spawns an unnecessary process. Instead, pass the file directly:
-<code>grep pattern file.txt</code>.</p>
+<p>Pass files directly to commands when possible (e.g. <code>grep pattern file.txt</code>).
+Running <code>cat file.txt | grep pattern</code> spawns an unnecessary process
+(the "useless use of cat").</p>
 
 <h3>Next step</h3>
 

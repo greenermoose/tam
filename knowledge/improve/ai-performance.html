@@ -52,12 +52,12 @@ tam ask "How does Linux pipe standard streams?"
 <li><code>tam ask</code> grounds model generation strictly in the local Tamlinux knowledge index, enforcing citation sources and refusing to run if no local model server is reachable.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Do not attempt to load a model whose size exceeds your available physical RAM.
-If a 14 GB model is loaded on a system with only 12 GB of free RAM, the operating
-system will thrash pages to disk, causing the system to lock up and token generation
-to collapse from 20 tokens/sec to less than 0.2 tokens/sec.</p>
+<p>Only load models whose size fits within your available physical RAM. Loading a
+model larger than available RAM causes the operating system to thrash pages to
+disk, which can lock up the system and collapse token generation from around 20
+tokens/sec to less than 0.2 tokens/sec.</p>
 
 <h3>Next step</h3>
 

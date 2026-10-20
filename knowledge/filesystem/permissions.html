@@ -52,11 +52,12 @@ ls -l backup.sh
 <li>The script can now be directly executed from the command line: <code>./backup.sh</code>.</li>
 </ul>
 
-<h3>Common pitfall</h3>
+<h3>Best practice</h3>
 
-<p>Never run <code>chmod 777</code> to resolve access errors. Granting universal
-write access creates severe security vulnerabilities. For directories, the
-execute bit (<code>x</code>) is required to traverse (enter) the directory.</p>
+<p>Grant only the minimum required permissions. For directories, the execute bit
+(<code>x</code>) is required to traverse (enter) the directory. Avoid universal
+permissions like <code>chmod 777</code>; granting write access to everyone creates
+severe security vulnerabilities.</p>
 
 <h3>Next step</h3>
 
