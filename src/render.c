@@ -73,8 +73,22 @@ typedef struct {
     size_t      logical_offset;
 } linelist_t;
 
+/* An in-page link target (id= on any element, or name= on <a>), recorded by
+ * block so it survives width reflow. */
 typedef struct {
-    blocklist_t blocks;
+    char  *id;
+    size_t block;
+} anchor_t;
+
+typedef struct {
+    anchor_t *v;
+    size_t    n;
+    size_t    cap;
+} anchorlist_t;
+
+typedef struct {
+    blocklist_t  blocks;
+    anchorlist_t anchors;
 } layout_backing_t;
 
 /* ------------------------------------------------------------------------- */
@@ -242,6 +256,31 @@ static void blocklist_add_table(blocklist_t *bl, tam_table_t *table)
     b->runs = NULL;
     b->nruns = 0;
     b->table = table;
+}
+
+static void anchorlist_add(anchorlist_t *al, char *id, size_t block)
+{
+    if (id == NULL || id[0] == '\0') {
+        free(id);
+        return;
+    }
+    if (al->n == al->cap) {
+        size_t cap = al->cap ? al->cap * 2 : 8;
+        al->v = realloc(al->v, cap * sizeof(*al->v));
+        al->cap = cap;
+    }
+    al->v[al->n].id = id;
+    al->v[al->n].block = block;
+    al->n++;
+}
+
+static void anchorlist_free(anchorlist_t *al)
+{
+    for (size_t i = 0; i < al->n; i++) {
+        free(al->v[i].id);
+    }
+    free(al->v);
+    memset(al, 0, sizeof(*al));
 }
 
 static void blocklist_free(blocklist_t *bl)
@@ -424,7 +463,8 @@ typedef struct {
 } listctx_t;
 
 typedef struct {
-    blocklist_t blocks;
+    blocklist_t  blocks;
+    anchorlist_t anchors;
 
     int        kind;
     int        level;
@@ -645,6 +685,13 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
         return;
     }
     if (p->in_breadcrumb) return;
+
+    if (!closing) {
+        /* The open block, or the next one, takes index blocks.n when it ends. */
+        anchorlist_add(&p->anchors, extract_attr(s, end, "id"), p->blocks.n);
+        if (strcmp(name, "a") == 0)
+            anchorlist_add(&p->anchors, extract_attr(s, end, "name"), p->blocks.n);
+    }
 
     if (strcmp(name, "a") == 0) {
         if (closing) {
@@ -1799,16 +1846,24 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
         }
     }
 
+    for (size_t i = 0; i < p.anchors.n; i++) {
+        if (p.anchors.v[i].block >= p.blocks.n)
+            p.anchors.v[i].block = p.blocks.n > 0 ? p.blocks.n - 1 : 0;
+    }
+
     layout_backing_t *backing = calloc(1, sizeof(*backing));
     if (backing == NULL) {
         tam_str_free(p.title);
         blocklist_free(&p.blocks);
+        anchorlist_free(&p.anchors);
         free(p.lists);
         free(p.href);
         return NULL;
     }
     backing->blocks = p.blocks;
     memset(&p.blocks, 0, sizeof(p.blocks));
+    backing->anchors = p.anchors;
+    memset(&p.anchors, 0, sizeof(p.anchors));
 
     linelist_t out;
     memset(&out, 0, sizeof(out));
@@ -1828,6 +1883,7 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
         }
         free(out.v);
         blocklist_free(&backing->blocks);
+        anchorlist_free(&backing->anchors);
         free(backing);
         tam_str_free(p.title);
         free(p.lists);
@@ -1902,9 +1958,31 @@ void tam_document_free(tam_document_t *doc)
     if (doc->layout != NULL) {
         layout_backing_t *backing = doc->layout;
         blocklist_free(&backing->blocks);
+        anchorlist_free(&backing->anchors);
         free(backing);
     }
     free(doc);
+}
+
+int tam_document_anchor_line(const tam_document_t *doc, const char *id)
+{
+    if (doc == NULL || doc->layout == NULL || id == NULL || id[0] == '\0')
+        return -1;
+    const anchorlist_t *al = &((const layout_backing_t *)doc->layout)->anchors;
+    const anchor_t *hit = NULL;
+    for (size_t i = 0; i < al->n && hit == NULL; i++) {
+        if (strcmp(al->v[i].id, id) == 0) hit = &al->v[i];
+    }
+    for (size_t i = 0; i < al->n && hit == NULL; i++) {
+        if (strcasecmp(al->v[i].id, id) == 0) hit = &al->v[i];
+    }
+    if (hit == NULL) return -1;
+    /* A block's leading blank separator shares its logical_block. */
+    for (size_t i = 0; i < doc->nlines; i++) {
+        if (doc->lines[i].logical_block == hit->block && doc->lines[i].nspans > 0)
+            return (int)i;
+    }
+    return -1;
 }
 
 char *tam_document_text(const tam_document_t *doc)

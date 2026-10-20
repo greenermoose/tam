@@ -47,6 +47,8 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width);
 void tam_document_free(tam_document_t *doc);
 /* Atomically relayout a retained parsed document at the requested width. */
 int tam_document_reflow(tam_document_t *doc, int content_width);
+/* First line of the block holding an id= or <a name=> anchor, or -1. */
+int tam_document_anchor_line(const tam_document_t *doc, const char *id);
 /* Ensure a generated/manual document has a truthful location row. */
 void tam_document_ensure_location(tam_document_t *doc, const char *href);
 

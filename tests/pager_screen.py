@@ -309,7 +309,35 @@ def main():
     assert b"L1/0" not in b"".join(screen.line(r).encode() for r in range(2))
     stop(pid, master)
 
-    print("ok - pager PTY screen model: focus, row diffs, no-op keys, capability fallback, and tiny geometry")
+    # In-page links jump to their name=/id= target, not to the link's own text,
+    # and put the target on the first content row; Left Arrow returns.
+    pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
+                                             8, 40, page="pager-anchors")
+    os.write(master, b"\t")
+    screen.feed(read_available(master))
+    os.write(master, b"\r")
+    screen.feed(read_available(master))
+    assert "Second part" in screen.line(1), screen.line(1)
+    assert "second body" in "".join(screen.line(r) for r in range(2, 4))
+    os.write(master, b"\x1b[D")
+    screen.feed(read_available(master))
+    assert any("Third part" in screen.line(r) for r in range(1, 7))
+    os.write(master, b"\t")
+    screen.feed(read_available(master))
+    os.write(master, b"\x1b[C")
+    screen.feed(read_available(master))
+    assert "Third part" in screen.line(1), screen.line(1)
+    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 6, 20, 0, 0))
+    os.kill(pid, signal.SIGWINCH)
+    screen.resize(6, 20)
+    screen.feed(read_available(master, 0.2))
+    assert any("Third part" in screen.line(r) for r in range(1, 5))
+    os.write(master, b"\x1b[D")
+    screen.feed(read_available(master))
+    assert any("Second part" in screen.line(r) for r in range(1, 5))
+    stop(pid, master)
+
+    print("ok - pager PTY screen model: focus, row diffs, no-op keys, capability fallback, tiny geometry, and in-page links")
 
 
 if __name__ == "__main__":

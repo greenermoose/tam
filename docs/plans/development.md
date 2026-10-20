@@ -368,6 +368,14 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** Command 0.31.5 (patch) makes in-page links work. The
+  renderer records `id=` and `<a name=>` targets by block, and Enter or Right
+  Arrow on a `#fragment` link puts its target on the first content row; Left
+  Arrow returns. Man pages were the visible case: groff's contents list links
+  to `<a name>` targets inside headings, and the old text search matched the
+  link itself, so following it did nothing. Pages without anchors fall back to
+  a heading, then unlinked text. Regression fixture:
+  `tests/fixtures/pager-anchors.html`.
 - **2026-10-19:** Command 0.31.4 (patch) fixes Down Arrow on the breadcrumb
   row. Down (and `j`) now returns to the attention line where it was, instead of
   jumping to the first page link. On a page whose only links are breadcrumbs,

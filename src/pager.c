@@ -1225,6 +1225,22 @@ static int match_anchor(const char *haystack, const char *needle)
     return 0;
 }
 
+/* Fallback for pages without id= anchors: a heading containing the target,
+ * else any unlinked text. A link never counts as its own target. */
+static int find_anchor_text(const tam_document_t *doc, const char *target)
+{
+    int plain = -1;
+    for (size_t i = 0; i < doc->nlines; i++) {
+        for (size_t j = 0; j < doc->lines[i].nspans; j++) {
+            const tam_span_t *sp = &doc->lines[i].spans[j];
+            if (sp->href != NULL || !match_anchor(sp->text, target)) continue;
+            if (sp->style & TAM_STYLE_HEADING) return (int)i;
+            if (plain < 0) plain = (int)i;
+        }
+    }
+    return plain;
+}
+
 static void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
@@ -1245,18 +1261,20 @@ static void follow(pager_t *st, const char *href)
             st->msg[0] = '\0';
             return;
         }
-        for (size_t i = 0; i < st->doc->nlines; i++) {
-            for (size_t j = 0; j < st->doc->lines[i].nspans; j++) {
-                if (match_anchor(st->doc->lines[i].spans[j].text, target)) {
-                    history_push(st, st->cur_href, st->top, st->cursor_line);
-                    forward_clear(st);
-                    set_cursor_line(st, (int)i, 1);
-                    snprintf(st->msg, sizeof(st->msg), "jumped to %s", target);
-                    return;
-                }
-            }
+        int line = tam_document_anchor_line(st->doc, target);
+        if (line < 0) line = find_anchor_text(st->doc, target);
+        if (line < 0) {
+            snprintf(st->msg, sizeof(st->msg), "anchor not found: %s", target);
+            return;
         }
-        snprintf(st->msg, sizeof(st->msg), "anchor not found: %s", target);
+        history_push(st, st->cur_href, st->top, st->cursor_line);
+        forward_clear(st);
+        set_cursor_line(st, line, 1);
+        /* Show the target at the top of the view, as less and browsers do. */
+        int max_top = (int)st->doc->nlines - content_rows(st);
+        st->top = line < max_top ? line : (max_top > 0 ? max_top : 0);
+        if (!link_is_visible(st, st->selected)) st->selected = -1;
+        snprintf(st->msg, sizeof(st->msg), "jumped to %s", target);
         return;
     }
     if (is_external(href)) {
