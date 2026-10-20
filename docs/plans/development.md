@@ -369,6 +369,10 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** Command 0.34.0 (minor) adds pager link keys `]` and `[` with
+  Tab and Shift-Tab kept as aliases, and restricts `N` to previous search hit
+  when a search query is active (TCK15, [plan](pager-quick-keys.md)).
+
 - **2026-10-20:** The developer approved the [pager quick keys plan](pager-quick-keys.md)
   (Tamlinux decision D176) and asked for it to be written for another agent to
   build. `]`/`[` select links, with Tab/Shift-Tab kept as aliases; `N` means

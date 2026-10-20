@@ -1904,14 +1904,16 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case 'g':
         follow_selected(st);
         break;
+    case ']':
     case '\t':
         select_next_link(st, 1, 1);
+        break;
+    case '[':
+        select_next_link(st, -1, 1);
         break;
     case 'N':
         if (st->search_query[0] != '\0') {
             pager_next_hit(st, -1);
-        } else {
-            select_next_link(st, -1, 1);
         }
         break;
     case '\r':

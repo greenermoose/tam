@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
-**Current Command Version:** `0.33.0`. **Current Corpus Version:** `0.35.0`.
+**Current Command Version:** `0.34.0`. **Current Corpus Version:** `0.35.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -89,13 +89,14 @@ in that candidate, not here.
 | **0.34.0 corpus** | POSIX Programmer's Manual guide page | Done (2026-10-20) | Dedicated `man/posix.html` guide page under Learning > Manual Pages covering IEEE Std 1003.1 sections `0p`, `1p`, and `3p`, standard interfaces versus GNU/Linux extensions, `APPLICATION USAGE` and `RATIONALE` sections, and browsing in `tam` (`08b166a`). |
 | **0.34.1 corpus** | Appendices on Guide index one per line | Done (2026-10-20) | Appendices on Guide index one per line |
 | **0.33.0 command / 0.35.0 corpus** | Native `tldr` pages subsystem and curated corpus | Done (2026-10-20) | Bundled AI-curated English `tldr` pages for Tamlinux under `knowledge/tldr/` (`linux` and `common` sections, `index.tsv`, `LICENSE.md`, `SOURCE.json`); native C `tam tldr` reader and index/discovery browser (`src/tldr.c`, `src/tldr.h`, `bin/tam-tldr`, `tam:tldr`) rendering both short and long option forms (`[-s|--long]`), hyperlinked `See also:`/alias/`man:` references, and fixed top breadcrumb navigation (`Guide > tldr pages > <cmd>`). |
+| **0.34.0 command** | Pager quick keys and search-only N | Done (2026-10-20) | Pager link keys `]` and `[` with Tab and Shift-Tab kept as aliases; `N` limited to previous search hit when search query is active (TCK15). |
 
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.33.0 / 0.35.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.34.0 / 0.35.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 

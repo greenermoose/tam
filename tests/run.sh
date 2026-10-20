@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.33.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.34.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -240,7 +240,9 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show")
 os.close(slave)
 
+last_target = ""
 def send_and_get_target(key):
+    global last_target
     time.sleep(0.08)
     while select.select([master], [], [], 0.02)[0]:
         os.read(master, 1024)
@@ -251,31 +253,39 @@ def send_and_get_target(key):
         buf += os.read(master, 1024)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
     if not lines:
-        return ""
-    return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
+        return last_target
+    last_target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
+    return last_target
 
 time.sleep(0.15)
-# 1. Tab forward selects first link
-t1 = send_and_get_target(b"\t")
+# 1. ] from no selection selects the same first link as Tab
+t1 = send_and_get_target(b"]")
 assert t1 == "first.html", f"expected first.html, got {t1}"
-# 2. Tab forward selects second link
+# 2. [ from first link wraps backward to last link, as Shift-Tab does
+t_wrap = send_and_get_target(b"[")
+assert t_wrap == "info:dir", f"expected info:dir, got {t_wrap}"
+# 3. Tab forward wraps back to first link
+t1_tab = send_and_get_target(b"\t")
+assert t1_tab == "first.html", f"expected first.html, got {t1_tab}"
+# 4. Tab forward selects second link
 t2 = send_and_get_target(b"\t")
 assert t2 == "second.html", f"expected second.html, got {t2}"
-# 3. Shift-Tab (ANSI CSI Z) circulates backward
+# 5. Shift-Tab (ANSI CSI Z) circulates backward
 t3 = send_and_get_target(b"\x1b[Z")
 assert t3 == "first.html", f"expected first.html, got {t3}"
-# 4. Shift-Tab from first link wraps backward to last link
+# 6. Shift-Tab from first link wraps backward to last link
 t4 = send_and_get_target(b"\x1b[Z")
 assert t4 == "info:dir", f"expected info:dir, got {t4}"
-# 5. Shift-Tab variants (CSI 1;2Z, Kitty 9;2u, modifyOtherKeys 27;2;9~, N fallback)
+# 7. Shift-Tab variants (CSI 1;2Z, Kitty 9;2u, modifyOtherKeys 27;2;9~)
 t5 = send_and_get_target(b"\x1b[1;2Z")
 assert t5 == "tam:man", f"expected tam:man, got {t5}"
 t6 = send_and_get_target(b"\x1b[9;2u")
 assert t6 == "docs/help.html", f"expected docs/help.html, got {t6}"
 t7 = send_and_get_target(b"\x1b[27;2;9~")
 assert t7 == "tam:topics", f"expected tam:topics, got {t7}"
+# 8. N with no search active leaves the selected link unchanged
 t8 = send_and_get_target(b"N")
-assert t8 == "tam:search", f"expected tam:search, got {t8}"
+assert t8 == "tam:topics", f"expected tam:topics, got {t8}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
