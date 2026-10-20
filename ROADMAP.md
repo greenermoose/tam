@@ -16,10 +16,8 @@ Read the [plan index](docs/plans/README.md) for status, the
 primary journey has five parts: **Installing, Learning, Using, Maintaining,
 Improving**. Learning routes cross shared knowledge; Beginner, Intermediate
 and Expert are reading depths. Search, Topics, Man pages, Info manuals and Help
-serve every part. Corpus 0.31.0 implements this organization and command 0.30.0
-provides shared navigation and discovery. Command 0.31.0 adds explicit source
-version checks and switching; 0.31.1 makes the fixed breadcrumb row keyboard
-reachable. Corpus 0.32.0 documents the workflow.
+serve every part. Corpus 0.31.0 introduced this organization and command 0.30.0
+its shared navigation and discovery; the versions since are in section 2.
 
 Retain the native C/libtam reader, offline default, read-only browsing, semantic
 HTML and indexed metadata, clean pipe output, explicit opt-in boundary for local
@@ -29,7 +27,11 @@ are goals to measure, not unconditional claims about every host or manual.
 
 ## 2. Delivered history
 
-Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergonomics, in-pager search, shell completions, content-depth ladder, self-inspection findings, check contract, grounded ask, output ergonomics, maintain-track corpus expansion, user guide architecture, improve-track corpus expansion, native GNU info subsystem, dynamic topic guides, command architecture, decoupled command/corpus versioning, attention line navigation, renderer layout fixes, pager navigation state restoration with numeric level synonyms, interactive pager depth-switching keys, and build-time Git revision and timestamp derivation:
+Every delivered version since 2026-10-09, oldest first. Through 0.24.0 the
+command and corpus shared one number; after that, rows marked *corpus* are
+corpus versions and the others are command versions. "Done" means the source
+is complete and tested; which pair a Tamlinux candidate packages is recorded
+in that candidate, not here.
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -68,12 +70,14 @@ Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergon
 | **0.29.2** | Highlight Selected Link Spaces | Done (2026-10-17) | Spaces inside the selected hyperlink now receive the same emphasis as its other characters, keeping multiword link labels visually continuous. |
 | **0.29.3** | Keep Link Boundary Spaces Unhighlighted | Done (2026-10-17) | Only spaces between visible characters in a selected hyperlink receive emphasis; layout whitespace before the link remains unhighlighted. |
 | **0.29.0 corpus** | Linux Boot Fallbacks & Rescue Routes | Done (2026-10-17) | New Maintain guide distinguishes firmware paths, alternate kernels and initramfs images, snapshot boots and external rescue media by their shared boot dependencies. |
-
 | **0.30.0 corpus** | Snapper guide | Done (2026-10-18) | Dedicated snapshot-management page and maintenance/recovery cross-links (`d13c1f6`). |
 | **0.30.0 command** | Shared reader navigation and discovery | Done (2026-10-18) | Common Guide/Back/Help/Quit navigation; in-reader Man, Info and Guide search discovery (`0b3f008`, `52e71f7`). |
 | **0.31.0 corpus** | Five-part knowledge system and guided learning | Done (2026-10-18) | Five-part root, logical homes for all 50 existing pages, five new learning/navigation pages, route and search acceptance (`597cb71`, `f4fa539`). |
+| **0.31.0 command / 0.32.0 corpus** | Version checks, source upgrade and stage switching | Done (2026-10-18) | `tam upgrade`: bounded version discovery, transactional source generations, explicit stage switching and rollback; the corpus documents the workflow (`f721120`). |
 | **0.31.1 command** | Breadcrumb keyboard navigation | Done (2026-10-18) | Up Arrow focuses the fixed breadcrumb row; `a`/`f`, `s`/`d`, Tab and Shift-Tab navigate its links. |
+| **0.32.1 corpus** | Welcome page rewrite | Done (2026-10-18) | A warmer first page: what Tamlinux is, why it is called Tam, where the project stands, and where to go next (`86b9da5`). |
 | **0.32.2 corpus** | Reliable corpus builds | Done (2026-10-19) | TCK9: `make corpus` rechecks all pages and Git metadata; `make corpus-and-test` builds and checks. Unchanged outputs retain timestamps. |
+| **0.32.3 corpus** | Welcome page revision | Done (2026-10-19) | Further welcome-page wording (`b7a838f`). |
 | **0.31.2 command** | Wrapped tables and clearer topic lists | Done (2026-10-19) | Tables wider than the terminal wrap their widest columns instead of stacking every row as `Header: value` records; stacking remains only for tables that cannot fit unbroken words. Topic lists are titled Topics A to Z and Keyword Index. |
 | **0.32.4 corpus** | Keyword corrections | Done (2026-10-19) | Removed topic keywords that misdirect or mean nothing as lookups (for example `2006`, `v11`, `zram` on the sustainability page); `top` now leads to the resources page. |
 | **0.33.0 corpus** | Operating Systems reference | Done (2026-10-19) | Twelve pages under Learning > Ecosystem (`ecosystem/os/`): kernel architectures, the Linux families, BSDs, illumos, other independent systems, and the Tam 2.0 microkernel research, readable offline. Roles come from the `tamlinux` operating-system horizons plan. |
@@ -81,59 +85,46 @@ Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergon
 | **0.33.1 corpus** | Welcome page wording | Done (2026-10-19) | The welcome page says why Tam exists and who else it may help. |
 
 
-## 3. Current work and follow-up
+## 3. Current state and follow-up
 
-The approved [corpus build plan](docs/plans/corpus-build.md) makes
-`make corpus` sufficient after edits and commits, and renames the combined
-build/check entry point to `make corpus-and-test` (TCK9, reliable corpus builds).
-Source implementation and focused, parallel and integrated checks passed for
-corpus 0.32.2; command 0.31.1 is unchanged. Package stages remain separate.
+| Branch | Command / corpus | Meaning |
+| --- | --- | --- |
+| `develop` | 0.31.3 / 0.33.1 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
+| `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
-The accepted [source-upgrade and stage-switching plan](docs/plans/upgrade.md) covers
-Development/Test/Run/Release discovery, source installation into the approved
-user development prefix, exact release pins and rollback (TCK6–TCK8). New code
-builds for the developer receive independently maintained command/corpus version
-bumps; reinstalling existing sources preserves their versions. Release tags
-record the command/corpus version pair. The developer approved the complete
-design on 2026-10-18. TCK6–TCK8, the managed isolated source build, live metadata
-check, and developer-directed first activation in the real development prefix
-are complete. Disposable acceptance builds and live metadata checks have
-standing developer authorization. The live metadata check resolves
-development and test; `main` predates `knowledge/version`, so the run stage
-cannot be described until it is promoted. See the
-[Luna handoff](docs/handoffs/tam-upgrade-luna.md).
+This table is a snapshot taken on the review date; `git show <branch>:knowledge/version`
+and `src/version.h` are authoritative. Branches move only through the Tamlinux
+lifecycle on the developer's word.
 
-The [five-part knowledge-system plan](docs/plans/knowledge-system-0.31.0.md)
-is implemented and its TCK1–TCK5 source and automated acceptance work is
-complete. Its command/corpus pair is **0.30.0 / 0.31.0**. The exact source
-commits and checks are recorded in that plan and its
-[implementation session record](docs/ai/2026-10-18-knowledge-system-implementation.md).
+Completed plans: the [five-part knowledge system](docs/plans/knowledge-system-0.31.0.md)
+(TCK1–TCK5, command 0.30.0 / corpus 0.31.0), the
+[source-upgrade and stage-switching plan](docs/plans/upgrade.md) (TCK6–TCK8,
+command 0.31.0 / corpus 0.32.0, first activated in the development prefix) and
+[reliable corpus builds](docs/plans/corpus-build.md) (TCK9, corpus 0.32.2).
+Disposable acceptance builds and live metadata checks have standing developer
+authorization.
 
-No package assembly, stage transition, installation or deployment was part of
-this work. The owning assembly can consume the Tam source at `f4fa539`; real
-Linux-console and Foot review of the exact packaged candidate remains
-developer-directed. Installer execution and stateful progression remain
-deferred.
-
-Separately, [portable pager display](docs/plans/pager-display-portability.md) has
-implemented source and automated tests (command 0.29.0), but exact packaged
-Linux-console and Foot visual acceptance remains pending. Only the developer
-can direct that stage/review. Do not treat it as a new source-work assignment
-or claim it passed during this planning cleanup.
+Still pending, and only on the developer's direction: real Linux-console and
+Foot review of an exact packaged candidate, including the
+[portable pager display](docs/plans/pager-display-portability.md) work (command
+0.29.0). Do not treat it as a new source-work assignment or record it as passed
+without that review. Installer execution and stateful progression remain
+deferred (section 4).
 
 ## 4. Deferred direction, without reserved versions
 
-These remain ideas or separate dependencies, not approved implementation slices
-of corpus 0.31.0:
+These are ideas or separate dependencies. None is approved or scheduled, and
+none has a reserved version:
 
 | Direction | Boundary / prerequisite |
 | --- | --- |
-| Non-executing shell syntax dissection | A separately reviewed parser/CLI design; all input remains inert. Its previous command 0.30.0 reservation is replaced by knowledge navigation/discovery. |
-| Installer plan/apply/verify | Product installation/deployment framework and separately approved implementation. Previous command 0.31.0 reservation is withdrawn. Installing documentation must truthfully describe what exists now. |
+| Non-executing shell syntax dissection | A separately reviewed parser/CLI design; all input remains inert. An earlier reservation of command 0.30.0 for it was withdrawn. |
+| Installer plan/apply/verify | Product installation/deployment framework and separately approved implementation. An earlier reservation of command 0.31.0 for it was withdrawn. Today only read-only `tam install inspect` and `tam install check` exist; Installing pages must say so. |
 | Stateful `tam learn` and automated assessment | Separate opt-in state and assessment design. Guided learning in corpus 0.31.0 does not require it. |
 | Rationale, deep-system traces and CS learning | Exploratory content/commands, not committed milestones. Existing depth filtering is already implemented. Old proposed 0.26/0.27/0.28 milestones are not future reservations. |
 | Wider distribution/terminal-only profiles and stable 1.0 | Follow the product's capabilities and evidence; no promised feature set or version allocation from this roadmap. |
-| Merged full-text search over installed manuals | Separate scalability/search work. This milestone includes explicit Man keyword discovery and Info directory browsing. |
+| Merged full-text search over installed manuals | Separate scalability/search work. Command 0.30.0 already provides explicit Man keyword discovery and Info directory browsing. |
 
 A future scope decision creates or updates an authoritative plan and allocates
 versions against then-current files. Do not infer a scheduling commitment from
