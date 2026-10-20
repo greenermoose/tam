@@ -1,13 +1,14 @@
 # tam development plan
 
 **Plan status:** Active
-**Reviewed:** 2026-10-19
-**Scope:** Living integration contract; current command 0.31.3 and corpus 0.33.1.
+**Reviewed:** 2026-10-20
+**Scope:** Living integration contract; current command 0.32.0 and corpus 0.33.6.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
-the [upgrade/stage-switching plan](upgrade.md), and [corpus build plan](corpus-build.md).
-**Next action:** Source implementation and reliable corpus build verification
-(TCK9) are complete. Package Test/Run/Release remain developer-directed stages.
+the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md)
+and [developer loop plan](dev-loop.md).
+**Next action:** Implement the Ready [developer loop](dev-loop.md): TCK11
+(`make dev`), then TCK12 (drift checks and repository map). Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -368,6 +369,15 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** The developer approved the [developer loop](dev-loop.md)
+  (TCK11, TCK12). `make dev` becomes his own path from saved edits to a
+  committed, tested development install: it commits every changed path except
+  other sessions' claimed paths, proposes the version bump for each changed
+  lane, makes the separate index commit, installs to `~/.local/dev` and asks
+  before pushing `develop`. Plain `make`, `make all` and `make install` stay
+  non-interactive for packaging and agents. A drift checker in `make test`
+  compares copied facts with their sources, and `docs/repo-map.md` says what
+  each top-level entry is. Tooling only; no component version change.
 - **2026-10-20:** Command 0.32.0 (minor) puts the pager's letter keys on the
   home row, mirrored on each hand (D175, TCK10, [plan](pager-home-row-keys.md)).
   `d`/`k` and `s`/`l` move the attention line one row down and up, sharing the

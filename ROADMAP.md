@@ -110,6 +110,12 @@ corpus 0.33.5).
 Disposable acceptance builds and live metadata checks have standing developer
 authorization.
 
+Next approved outcome, Ready (approved 2026-10-20): the
+[developer loop](docs/plans/dev-loop.md). TCK11 adds `make dev`, which
+commits, versions, tests and installs the developer's own edits. TCK12 adds
+drift checks for copied facts and a repository map. This is repository tooling
+only, so neither component version changes for it.
+
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the
 [portable pager display](docs/plans/pager-display-portability.md) work (command
