@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-19
-**Scope:** Living integration contract; current command 0.31.2 and corpus 0.32.4.
+**Scope:** Living integration contract; current command 0.31.3 and corpus 0.33.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), and [corpus build plan](corpus-build.md).
@@ -367,6 +367,12 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
+
+- **2026-10-19:** Command 0.31.3 (patch) shortens the default message so it
+  shows in full in a half-height window: bare `tam` drops `tam search`,
+  `--terse` and `--verbose` (still listed by `tam --verbose`), and usage
+  lines read `tam <subcommand> [arguments] [--options]`. Corpus 0.33.1
+  (patch) rewords the welcome page. Both changes are the developer's.
 
 - **2026-10-19:** Command 0.31.2 (patch) fixes table layout: a table wider than
   the terminal keeps its columns and wraps the widest ones instead of stacking

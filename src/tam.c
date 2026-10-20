@@ -180,13 +180,12 @@ static void print_tam_help(int tier)
     if (tier == HELP_TERSE) {
         fputs(
             "tam - the Tamlinux command\n\n"
-            "Usage: tam <subcommand> [--options] [arguments]\n\n"
+            "Usage: tam <subcommand> [arguments] [--options]\n\n"
             "Essential Subcommands:\n"
             "  tam welcome                   first-run orientation\n"
             "  tam show [PAGE]               open guide or specific page\n"
-            "  tam info [MANUAL]             browse GNU Info manuals\n"
-            "  tam inspect                   inspect system health\n\n"
-            "  tam upgrade                   check source stages and available versions\n"
+            "  tam inspect                   inspect system components\n\n"
+            "  tam upgrade                   check and install available versions\n"
             "  tam switch STAGE              select a source stage or roll back\n\n"
             "Essential Options:\n"
             "  --help, -h | --pipe | --terse | --verbose | --version, -V\n",
@@ -203,7 +202,7 @@ static void print_tam_help(int tier)
             "Understand, use, maintain, and improve your Tamlinux system.\n\n"
             "This is tam version %s%s%s\n\n"
             "Usage:\n"
-            "  tam <subcommand> [--options] [arguments]\n\n"
+            "  tam <subcommand> [arguments] [--options]\n\n"
             "Guide and knowledge:\n"
             "  tam welcome [--pipe]\n"
             "      first-run orientation and welcome guide (aliases: hello, hi)\n"
@@ -258,11 +257,10 @@ static void print_tam_help(int tier)
         "Understand, use, maintain, and improve your Tamlinux system.\n\n"
         "This is tam version %s%s%s\n\n"
         "Usage:\n"
-        "  tam <subcommand> [--options] [arguments]\n\n"
+        "  tam <subcommand> [arguments] [--options]\n\n"
         "  tam welcome               first-run orientation\n\n"
         "Guide subcommands to try:\n"
         "  tam show [PAGE]           open the guide or a specific page\n"
-        "  tam search KEYWORD...     search guide deterministically\n"
         "  tam explain [TOPIC]       browse all topics or show a topic\n"
         "  tam man [SECTION] PAGE    view hyperlinked manual page\n"
         "  tam info [MANUAL [NODE]]  browse GNU Info manuals\n"
@@ -274,8 +272,6 @@ static void print_tam_help(int tier)
         "Options to know:\n"
         "  --help, -h                show this help overview\n"
         "  --pipe                    output as plain text for piping\n"
-        "  --terse                   shorter output\n"
-        "  --verbose                 longer output\n"
         "  --version, -V             show version info\n\n"
         "Run 'tam --verbose' for a complete list of commands and more detail.\n",
         TAM_COMMAND_VERSION, dev_buf, k_buf);
