@@ -69,10 +69,12 @@ CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 # whenever that configuration does and forces a rebuild.
 CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
-.PHONY: all command corpus test test-command corpus-and-test check install uninstall clean libtam-check FORCE
+.PHONY: all command corpus dev test test-command corpus-and-test check install uninstall clean libtam-check FORCE
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
+
+dev: ; @python3 tools/dev.py $(if $(DRY_RUN),--dry-run)
 
 # --- command lane: the C binary, no corpus regeneration -------------------
 command: $(TAM)
@@ -116,6 +118,7 @@ test: all
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
 	python3 -m unittest -q tests/test_build_index.py
+	python3 -m unittest -q tests/test_dev.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 test-command: command

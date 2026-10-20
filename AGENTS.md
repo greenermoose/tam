@@ -84,6 +84,7 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
 
 ## Build, test and install
 
+- `make dev` is the developer's loop; agents do not run it.
 - `make test` runs both suites. Renderer goldens are small fixture pages in
   `tests/render/`; after an intended rendering change, refresh them with
   `UPDATE=1 tests/render.sh build/tam` and read the diff before committing.
