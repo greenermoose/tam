@@ -162,9 +162,11 @@ hibernation reliability on high-RAM workstations.</p>
 
 <p>Upon wake from suspend or resume from S4, the kernel DRM/KMS driver retrains
 DisplayPort and HDMI links with physical monitors. In multi-monitor setups, panels
-retrain at slightly different rates. Tamlinux compositor hooks handle these
-transient output plug events smoothly without rearranging workspaces or losing window
-placements.</p>
+retrain at slightly different rates. Tamlinux's workspace bar plugin
+(<code>fred.workspaces</code>) moves workspaces back to their assigned outputs after
+such an event. It cannot repair a link that fails to retrain, and monitor recovery
+after wake is still being worked on; see
+<a href="maintain/recovery.html">Emergency disaster recovery</a>.</p>
 </section>
 
 <h2>Where to next</h2>

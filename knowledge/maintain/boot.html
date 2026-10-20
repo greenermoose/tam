@@ -161,14 +161,14 @@ configuration; do not infer them from this general sequence.</p>
 
 <ol>
 <li>The tooling bundles <code>vmlinuz-*</code>, the corresponding initramfs (<code>initramfs-*.img</code> or <code>initramfs-*-fallback.img</code>), and the kernel command line into a single PE executable.</li>
-<li>Resulting UKIs are typically written to <code>/boot/EFI/Linux/&lt;name&gt;-&lt;kernel-version&gt;.efi</code> (naming depends on config, e.g. <code>omarchy-*.efi</code>).</li>
+<li>Resulting UKIs are typically written to <code>/boot/EFI/Linux/&lt;name&gt;-&lt;kernel-version&gt;.efi</code> (naming depends on the provider's configuration).</li>
 <li>Limine's config is updated to reference these UKI files. UKIs embed the cmdline, so the bootloader entry may be simpler.</li>
 </ol>
 
 <h3>Safety considerations</h3>
 
 <ul>
-<li><strong>Never edit in-place blindly:</strong> Tools that rewrite boot images can corrupt them if used incorrectly. As noted in Tamlinux memory, certain <code>objcopy</code> invocations that rewrite files in-place can break checksum validation (e.g., breaking Limine BLAKE2B hashes). Always work on copies when inspecting/modifying UKIs.</li>
+<li><strong>Never edit in-place blindly:</strong> Tools that rewrite boot images can corrupt them if used incorrectly. Certain <code>objcopy</code> invocations that rewrite files in-place can break checksum validation (e.g., breaking Limine BLAKE2B hashes). Always work on copies when inspecting/modifying UKIs.</li>
 <li><strong>Verify after updates:</strong> Use the documented provider checks to confirm boot entries point to present artifacts and a known recovery route remains available.</li>
 <li><strong>Keep a recovery route:</strong> Confirm the installed provider's fallback artifacts and recovery procedure before changing kernel or boot configuration.</li>
 <li><strong>Configuration changes:</strong> Changes to initramfs or boot configuration can prevent startup. Follow the dedicated boot-maintenance procedure; do not regenerate boot artifacts as an experiment.</li>

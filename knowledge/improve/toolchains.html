@@ -35,21 +35,22 @@ and run local development builds without requiring root privileges.</p>
 <h3>Command sequence</h3>
 
 <pre>
-make -C ~/src/tam test-command
-./build/tam --version
+cd ~/src/tam
+make test-command
+build/tam --version
 </pre>
 
-<p>Expected output:</p>
+<p>The tests report their results. The first line of the version output names
+the command version and the commit the build came from, for example:</p>
 
 <pre>
-cc -DTAM_DATADIR=... -O2 -Wall -Wextra -Wpedantic -std=c11 src/tam.c ... -ltam -o build/tam
-tam command 0.25.2 (dev 1a2b3c4)
+tam command 0.31.3 (dev 839f459)
 </pre>
 
 <h3>What just happened</h3>
 
 <ul>
-<li><code>make -C</code> instructs GNU Make to build the C binary directly in the project directory using GCC or Clang.</li>
+<li><code>make test-command</code> has GNU Make build the C binary in the project directory with GCC or Clang, then run the command tests.</li>
 <li>The binary is compiled with <code>-O2</code> optimizations and linked with an embedded runpath (<code>-Wl,-rpath</code>) that finds <code>libtam.so</code> automatically.</li>
 <li>The resulting standalone executable starts in less than 5 milliseconds and requires no external interpreter runtime.</li>
 </ul>

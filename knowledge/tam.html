@@ -245,7 +245,7 @@ src/index.c src/depth.c src/ask.c src/info.c
 <li><strong>Command version (<code>src/version.h</code>):</strong> Tracks the C binary implementation, layout algorithms, pager features, and subcommands.</li>
 <li><strong>Corpus version (<code>knowledge/version</code>):</strong> Tracks authored documentation pages, topic guides, and search index metadata.</li>
 <li><strong>Runtime resolution:</strong> When <code>tam</code> runs, it dynamically discovers the corpus root via <code>$TAM_KNOWLEDGE_DIR</code> or the compiled datadir, reading <code>knowledge/version</code> directly. This allows documentation edits to land without recompiling C code, and guarantees multi-agent concurrency across command and corpus lanes.</li>
-<li><strong>Compatibility contract:</strong> Within major versions (e.g. 1.x), any <code>tam</code> command binary is guaranteed to parse and render any knowledge corpus version.</li>
+<li><strong>Compatibility:</strong> newer commands still read older corpora; for example, a corpus without parent metadata falls back to its directory hierarchy. There is no formal cross-version guarantee yet: <code>tam</code> has not reached 1.0.</li>
 </ul>
 </section>
 
@@ -272,7 +272,7 @@ Test (tam.git @ test ──► pinned in tamlinux-packages flake)
 Run (tam.git @ main ──► tamlinux-packages main)
    │
    ▼  Cultivar release tag & generation snapshot
-Release (Tamlinux distribution release)
+Release (Tamlinux release)
 </pre>
 
 <h3>1. Develop stage</h3>
@@ -304,9 +304,9 @@ Release (Tamlinux distribution release)
 <h3>4. Release stage</h3>
 
 <ul>
-<li>A semantic release tag is cut (e.g. <code>v0.24.0</code>).</li>
-<li>The cultivar metadata record (<code>~/.config/tamlinux/version</code>) is updated to reflect the new release.</li>
-<li>If an unforeseen defect is detected, instant rollback is available via Home Manager generations (<a href="maintain/rollback.html">Snapshots and Rollbacks</a>), restoring the previous known-good binary and documentation in less than a second.</li>
+<li>Only on the developer's Release instruction, the accepted commits already on <code>main</code> are tagged. Tamlinux tags its product and delivery repositories (for example <code>0.4.1</code> and <code>v0.4.1</code>); <code>tam</code> release tags name its command/corpus pair (for example <code>tam-0.31.0-corpus-0.32.1</code>). <code>tam</code> has no release tag yet.</li>
+<li>The cultivar record (<code>~/.config/tamlinux/version</code>) names the product version of whichever generation is active, so it changes with each Test or Run activation, not only at a release.</li>
+<li>If a defect is found, rollback to the previous Home Manager generation restores the earlier binary and documentation (<a href="maintain/rollback.html">Snapshots and Rollbacks</a>).</li>
 </ul>
 
 <h3>Cross references and related guides</h3>

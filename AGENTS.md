@@ -9,8 +9,9 @@ the same path-claim rules; old briefs do not assign work or override them.
 
 ## Start here
 
-- `ROADMAP.md`, the "What Needs to Be Done Next" section: the next version
-  and its scope.
+- `ROADMAP.md`, section 3 ("Current state and follow-up"): what each branch
+  carries and what is still pending. Section 4 lists deferred ideas; none is
+  scheduled.
 - `docs/plans/development.md`: ownership, lanes, versioning and the decision
   record. Read the section you need, not the whole file.
 - A milestone's own plan in `docs/plans/`, when the roadmap links one.
@@ -19,10 +20,10 @@ the same path-claim rules; old briefs do not assign work or override them.
   Update the plan index, roadmap and current development contract together.
   Read a closed plan as history; its old task list assigns no new work.
 
-The knowledge-system milestone is implemented as command 0.30.0 / corpus 0.31.0.
-The next approved feature is `docs/plans/upgrade.md`: source upgrades and
-Development/Test/Run/Release switching, TCK6–TCK8. Start its implementation
-through `docs/handoffs/tam-upgrade-luna.md`; allocate versions from current
+The knowledge system (command 0.30.0 / corpus 0.31.0), source upgrades and
+stage switching (`docs/plans/upgrade.md`, command 0.31.0 / corpus 0.32.0) and
+reliable corpus builds (corpus 0.32.2) are complete. No further feature is
+approved; the developer assigns the next one. Allocate versions from current
 files when implementing. Do not revive the former seven-part contents,
 three-track model or withdrawn parser/installer version reservations.
 

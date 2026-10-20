@@ -34,7 +34,7 @@ light, and physical resources that allow software to live and run.</li>
 
 <li><strong>The Pot (Bootloader or Virtual Machine):</strong> The containing vessel
 placed inside the greenhouse. A pot is the UEFI firmware environment, a bootloader
-like systemd-boot, or a virtual machine container (such as QEMU/KVM) that prepares
+such as Limine, or a virtual machine container (such as QEMU/KVM) that prepares
 the soil and bounds the environment for germination.</li>
 
 <li><strong>The Nut (Minimal Bootable System):</strong> An extremely compact, self-contained
@@ -64,9 +64,10 @@ run to accomplish real work. The entire tree exists to produce healthy, dependab
 
 <p>Understanding this analogy clarifies why Tamlinux can run across different base
 distributions without losing its identity. A rose cultivar can be grafted onto different
-hardy root-stocks depending on the soil and climate; similarly, Tamlinux can run on an
-Arch Linux root-stock today, transition to a Void Linux root-stock tomorrow, or run inside
-a virtual machine pot for testing, while providing the identical desktop experience.</p>
+hardy root-stocks depending on the soil and climate; similarly, Tamlinux runs on an
+Arch Linux root-stock today, and the plan is to graft the same cultivar onto other
+root-stocks, Void Linux among them, while providing the identical desktop experience.
+Those other root-stocks are planned, not yet proved.</p>
 </section>
 
 <section data-level="intermediate">
@@ -77,9 +78,9 @@ a virtual machine pot for testing, while providing the identical desktop experie
 <table>
 <tr><th>Botanical Term</th><th>Technical Subsystem</th><th>Implementation in Tamlinux</th></tr>
 <tr><td><strong>Greenhouse</strong></td><td>Host Hardware &amp; Firmware</td><td>x86_64 CPU, DDR RAM, NVMe/SATA, AMDGPU/Intel DRM, ACPI power states</td></tr>
-<tr><td><strong>Pot</strong></td><td>Bootloader / Hypervisor</td><td>UEFI ESP partition, systemd-boot, QEMU/KVM virtual machine envelope</td></tr>
+<tr><td><strong>Pot</strong></td><td>Bootloader / Hypervisor</td><td>UEFI ESP partition, Limine boot loader, QEMU/KVM virtual machine envelope</td></tr>
 <tr><td><strong>Nut</strong></td><td>Unified Kernel Image (UKI)</td><td>Self-contained EFI binary combining kernel, microcode, and minimal initramfs</td></tr>
-<tr><td><strong>Root-stock</strong></td><td>Base Distribution</td><td>Arch Linux (rolling, glibc, systemd) or Void Linux (stable, runit, musl/glibc)</td></tr>
+<tr><td><strong>Root-stock</strong></td><td>Base Distribution</td><td>Arch Linux today (rolling, glibc, systemd); Void Linux planned (rolling, runit, glibc or musl)</td></tr>
 <tr><td><strong>Cultivar</strong></td><td>Tamlinux Workstation</td><td>Hyprland today (Sway planned), Quickshell, <code>fred.*</code> plugins, <code>tam</code>, Nix/Home Manager userland</td></tr>
 <tr><td><strong>Fruit</strong></td><td>User Applications</td><td>Office suites, web browsers, development environments, and productivity tools</td></tr>
 </table>
@@ -116,7 +117,7 @@ Tamlinux development:</p>
 
 <ul>
 <li><strong>Nut Immutability:</strong> The nut is cryptographically signed and read-only. It contains no stateful configuration, no desktop dependencies, and no background services. If a root-stock or cultivar update introduces a boot failure, the nut remains intact and capable of launching recovery tools or restoring a Btrfs snapshot.</li>
-<li><strong>Graft Compatibility Matrix:</strong> A cultivar cannot assume arbitrary base distribution packages. All communication between the cultivar and the root-stock occurs through standard POSIX syscalls, C library interfaces (<code>libtam</code>), standard stream pipes, or package abstractions. This ensures the cultivar can be lifted from Arch and planted onto Void with zero desktop code modifications.</li>
+<li><strong>Graft Compatibility Matrix:</strong> A cultivar cannot assume arbitrary base distribution packages. All communication between the cultivar and the root-stock occurs through standard POSIX syscalls, C library interfaces (<code>libtam</code>), standard stream pipes, or package abstractions. The aim is that the cultivar can be lifted from Arch and planted onto Void without changing desktop code; the planned Void pilot will test that aim.</li>
 <li><strong>Environmental Boundaries:</strong> The cultivar respects greenhouse resources: zero unnecessary CPU wakeups, zero background polling daemons, and explicit memory compression via ZRAM.</li>
 </ul>
 
