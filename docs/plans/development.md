@@ -2,13 +2,13 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-20
-**Scope:** Living integration contract; current command 0.32.0 and corpus 0.34.1.
+**Scope:** Living integration contract; current command 0.33.0 and corpus 0.35.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
-the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md)
-and [developer loop plan](dev-loop.md).
-**Next action:** None approved; the [developer loop](dev-loop.md) (TCK11–TCK14)
-is complete. The developer chooses the next outcome. Package Test/Run/Release remain developer-directed stages.
+the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
+[developer loop plan](dev-loop.md) and [pager quick keys plan](pager-quick-keys.md).
+**Next action:** Build the [pager quick keys plan](pager-quick-keys.md),
+starting with TCK15. Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -369,6 +369,15 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** The developer approved the [pager quick keys plan](pager-quick-keys.md)
+  (Tamlinux decision D176) and asked for it to be written for another agent to
+  build. `]`/`[` select links, with Tab/Shift-Tab kept as aliases; `N` means
+  only the previous search hit; `=` shows a `page:`, `man:`, `info:`, `tldr:` or
+  `tam:` address that `tam show` reopens; `\` searches the Guide with labelled
+  prompts; the status row reads `L65 3-78/79`; the Guide index gains a Quick
+  keys table with `tam:help` and `tam:prompt:page-search` links and keeps tldr
+  pages. He rejected Tab and Shift-Tab as jumps to `tam:topics` and `tam:tldr`.
+  TCK15–TCK19; no version change until TCK15.
 - **2026-10-20:** Command tests no longer depend on what the pages say
   ([developer loop](dev-loop.md), TCK13, TCK14). A correct reordering of the
   index links failed a pager test that asserted the live link order. Interactive

@@ -114,8 +114,9 @@ tooling and tests only: `make dev`, `make check-repo`, pager tests on fixtures).
 Disposable acceptance builds and live metadata checks have standing developer
 authorization.
 
-No further outcome is approved. The developer chooses the next one; the
-deferred items in section 4 are candidates, not assignments.
+Approved next outcome: [pager quick keys, address display and status row](docs/plans/pager-quick-keys.md)
+(TCK15–TCK19, Ready; expected command 0.34.0 / corpus 0.35.1). Start with TCK15.
+The deferred items in section 4 are candidates, not assignments.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the

@@ -1,6 +1,6 @@
 # tam plan index
 
-Reviewed 2026-10-20 (developer loop added) under the [plan maintenance procedure](../plan-maintenance.md).
+Reviewed 2026-10-20 (pager quick keys plan added) under the [plan maintenance procedure](../plan-maintenance.md).
 This is the complete inventory of plans and corpus notes in this directory.
 Read status/disposition before a historical body. A closed plan is not a task
 queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
@@ -9,6 +9,7 @@ queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
 
 | Plan | Status | Disposition / next action |
 | --- | --- | --- |
+| [Pager quick keys, address display and status row](pager-quick-keys.md) | Ready | Approved 2026-10-20 (Tamlinux decision D176; [planning record](../ai/2026-10-20-tam-pager-quick-keys-plan.md)). TCK15–TCK19, expected command 0.34.0 / corpus 0.35.1. Next: TCK15 (link keys `]` and `[`). |
 | [Developer loop: `make dev` and drift checks](dev-loop.md) | Completed | Approved and closed 2026-10-20 ([planning record](../ai/2026-10-20-tam-dev-loop-plan.md)). TCK11 (`make dev`, `ce4b617`), TCK12 (`make check-repo`, `docs/repo-map.md`), TCK13 (pager tests on `tests/fixtures/guide/`, `ee845af`) and TCK14 (`make dev` names the failing check, `e8da257`); developer acceptance by the corpus 0.34.1 run (`98222ff`, `4d41d84`). Non-interactive live-corpus assertions are on hold (roadmap section 4). Tooling and tests only; no component version change. Tooling only; no component version change. |
 | [Home-row pager keys and attention column](pager-home-row-keys.md) | Completed | TCK10 (home-row pager keys), command 0.32.0 / corpus 0.33.5, decided in D175. Full suite passed; see the [session record](../ai/2026-10-20-tam-pager-home-row-keys.md). Interactive review by the developer and packaged acceptance remain developer-directed. |
 | [Reliable corpus builds](corpus-build.md) | Completed | TCK9 (reliable corpus builds), corpus 0.32.2: pages/Git metadata rechecked; `corpus-and-test` replaces `test-corpus`. Focused, parallel and integrated checks passed; see the [session record](../ai/2026-10-19-tam-corpus-build.md). |
