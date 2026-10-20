@@ -1,12 +1,12 @@
 # TCK13 and TCK14: pager tests on fixtures, and `make dev` failure guidance (no version change)
 
 - **Date:** 2026-10-20
-- **Time:** 12:05 to 12:50 -04:00
+- **Time:** about 11:56 to 12:04 -04:00
 - **Stage:** Develop; TCK13 (`tests/fixtures/guide/`, `tests/run.sh`, `tests/guide.sh`, `tools/check-repo.py` check 8, `tests/test_check_repo.py`, `AGENTS.md`) and TCK14 (`tools/dev.py`, `tests/test_dev.py`, plan, plan index, decision record and roadmap); repository tests and tooling only, no version change
 - **CLI Tool:** Claude Code 2.1.304
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `ee845af`, `e8da257` and the commit that adds this record
+- **Commits:** `ee845af`, `e8da257`, `0745166` (this record) and the commit that corrects its time
 - **Authorship:** The developer approved a three-slice plan after `make dev` stopped on a pager test that asserted the live index's link order; slice 1 is [the link-cycle fixture record](2026-10-20-tam-pager-link-cycle-fixture.md). He then directed slices 2 and 3. The AI tool wrote the fixture guide, the test, checker and `dev.py` changes, and the plan updates.
 - **Checked against:** `tests/run.sh`, `tests/guide.sh`, `src/pager.c`, `src/depth.c`, `src/index.c`, `src/tam.c`, `tools/dev.py`, `tools/check-repo.py`, `Makefile`, `AGENTS.md`, `docs/plans/dev-loop.md`, `docs/plan-maintenance.md`
 
