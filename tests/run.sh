@@ -198,7 +198,7 @@ pass "state isolation: bare, show, help, version, search, explain, inspect, chec
 
 # Show command: displays guide index or page; browse subcommand is retired.
 sh_out=$("$TAM" show --pipe)
-printf '%s\n' "$sh_out" | grep -q 'The Tamlinux User Guide' || fail "tam show --pipe failed"
+printf '%s\n' "$sh_out" | grep -q 'Your Tamlinux User Guide' || fail "tam show --pipe failed"
 sh_page=$("$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Welcome to Tamlinux' || fail "tam show welcome failed"
 sh_topics=$("$TAM" show topics --pipe)
@@ -453,15 +453,15 @@ def send_and_get_info(key):
     return parse_info(buf)
 
 t, tg = parse_info(buf)
-assert t == "The Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r} buf={buf!r}"
+assert t == "Your Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r} buf={buf!r}"
 
 # 1. At tip of exploration and no link selected: right arrow does nothing
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "The Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r}"
+assert t == "Your Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r}"
 
 # 2. Select first link (welcome.html)
 t, tg = send_and_get_info(b"\t")
-assert t == "The Tamlinux User Guide" and tg == "welcome.html"
+assert t == "Your Tamlinux User Guide" and tg == "welcome.html"
 
 # 3. At tip of exploration with link selected: right arrow extends exploration
 t, tg = send_and_get_info(b"\x1b[C")
@@ -473,7 +473,7 @@ assert t == "Welcome" and tg == ""
 
 # 5. Left arrow restores the index page and its selected link
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "The Tamlinux User Guide" and tg == "welcome.html", f"got {t!r} {tg!r}"
+assert t == "Your Tamlinux User Guide" and tg == "welcome.html", f"got {t!r} {tg!r}"
 
 # 6. Arrived via left arrow with focus restored: right arrow follows welcome.html
 t, tg = send_and_get_info(b"\x1b[C")
@@ -493,7 +493,7 @@ assert t == "The Tamlinux Desktop" and tg == ""
 t, tg = send_and_get_info(b"\x1b[D")
 assert t == "Welcome"
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "The Tamlinux User Guide"
+assert t == "Your Tamlinux User Guide"
 
 # 9. Multi-step right arrow: forward to welcome, then forward to desktop, then tip (does nothing)
 t, tg = send_and_get_info(b"\x1b[C")
@@ -514,7 +514,7 @@ assert t == "The Tamlinux Desktop"
 t, tg = send_and_get_info(b"\x1b[D")
 assert t == "Welcome"
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "The Tamlinux User Guide"
+assert t == "Your Tamlinux User Guide"
 # The previously focused welcome link is restored; one Tab selects install/index.html.
 t, tg = send_and_get_info(b"\t")
 assert tg == "install/index.html"
@@ -747,7 +747,7 @@ assert t == "Shell pipelines", f"unexpected initial title: {t}"
 # 2. Press backtick (`) to jump to index.html
 os.write(master, b"`")
 t = get_title()
-assert t == "The Tamlinux User Guide", f"expected index title after backtick, got: {t}"
+assert t == "Your Tamlinux User Guide", f"expected index title after backtick, got: {t}"
 
 # 3. Press u to return to shell/pipelines
 os.write(master, b"u")
@@ -757,7 +757,7 @@ assert t == "Shell pipelines", f"expected pipelines title after u, got: {t}"
 # 4. Press backtick again, then quit
 os.write(master, b"`")
 t = get_title()
-assert t == "The Tamlinux User Guide", f"expected index title after second backtick, got: {t}"
+assert t == "Your Tamlinux User Guide", f"expected index title after second backtick, got: {t}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -819,7 +819,7 @@ assert title_back == "Topics A to Z", f"did not return to topics page: {title_ba
 # 5. Backtick (`) jumps to root guide index.html
 os.write(master, b"`")
 title_home, _ = get_status_info()
-assert title_home == "The Tamlinux User Guide", f"did not jump to guide index: {title_home}"
+assert title_home == "Your Tamlinux User Guide", f"did not jump to guide index: {title_home}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -935,7 +935,7 @@ assert title == "Learning Tamlinux", f"expected Learning after following breadcr
 title, pos, target, msg, has_tint = send_key(b"\x1b[Z")
 assert target == "index.html", f"expected Guide breadcrumb, got: {target}"
 title, pos, target, msg, has_tint = send_key(b"\r")
-assert title == "The Tamlinux User Guide", f"expected Guide after following breadcrumb, got: {title}"
+assert title == "Your Tamlinux User Guide", f"expected Guide after following breadcrumb, got: {title}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -973,7 +973,7 @@ title, pos, target, msg, _ = send_key(b"\x1b[D")
 assert "L4/4" in pos and target == "br.html", f"expected back to restore L4/4 and br.html focus, got: {pos} {target}"
 # The restored focus remains actionable.
 title, pos, target, msg, _ = send_key(b"\x1b[C")
-assert title != "The Tamlinux User Guide", f"expected Right Arrow to follow restored focus, got: {title}"
+assert title != "Your Tamlinux User Guide", f"expected Right Arrow to follow restored focus, got: {title}"
 os.write(master, b"q")
 os.waitpid(pid, 0)
 
@@ -1006,7 +1006,7 @@ title, pos_back, target_back, _, _ = send_key(b"\x1b[D")
 assert title == "Welcome" and pos_back.split()[0] == pos_w.split()[0] and target_back == "", f"expected Welcome at {pos_w}, got: {title} {pos_back} {target_back}"
 # Right Arrow (\x1b[C) with no link selected goes forward to index.html at saved line pos_i
 title, pos_fwd, target_fwd, _, _ = send_key(b"\x1b[C")
-assert title == "The Tamlinux User Guide" and target_fwd == "", f"expected forward to restore the Guide root, got: {title} {pos_fwd} {target_fwd}"
+assert title == "Your Tamlinux User Guide" and target_fwd == "", f"expected forward to restore the Guide root, got: {title} {pos_fwd} {target_fwd}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -1687,7 +1687,7 @@ title, target = parse_info(drain(master))
 assert target == "tam:man", f"Tab did not move to the next breadcrumb: {target}"
 os.write(master, b"a\r")
 title, target = parse_info(drain(master, 0.3))
-assert title == "The Tamlinux User Guide", f"Enter did not follow the Guide breadcrumb: {title}"
+assert title == "Your Tamlinux User Guide", f"Enter did not follow the Guide breadcrumb: {title}"
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
 
 pid, master = launch(["man"])
