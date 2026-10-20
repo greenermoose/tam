@@ -171,10 +171,13 @@ printf '%s\n' "$out" | grep -q 'Other installation' \
 pass "own corpus precedes user data directory"
 
 # A staged install relocated away from the source tree finds its corpus via
-# XDG_DATA_DIRS and still shows pages.
+# XDG_DATA_DIRS and still shows pages. The Makefile finds libtam as it does
+# for the binary under test, with pkg-config unless LIBTAM_PREFIX names it.
 stage="$tmp/stage/usr"
-if make -C "$root" install DESTDIR="$tmp/stage" PREFIX=/usr BUILD="$tmp/build" \
-        LIBTAM_PREFIX="${LIBTAM_PREFIX:-/usr/local}" >/dev/null 2>&1; then
+if command -v make >/dev/null 2>&1; then
+    make -C "$root" install DESTDIR="$tmp/stage" PREFIX=/usr BUILD="$tmp/build" \
+            ${LIBTAM_PREFIX:+LIBTAM_PREFIX="$LIBTAM_PREFIX"} >"$tmp/stage.log" 2>&1 \
+        || { cat "$tmp/stage.log" >&2; fail "staged install failed"; }
     [ -x "$stage/bin/tam" ] || fail "staged install produced no binary"
     out=$(env HOME="$tmp/nohome" XDG_DATA_HOME="$tmp/nodata" \
               XDG_DATA_DIRS="$stage/share" TAM_DATADIR="$tmp/no-datadir" \
