@@ -373,6 +373,16 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** `make install` refuses a dirty checkout. An agent committed
+  page edits, skipped the follow-up index commit and installed, so the
+  development install reported corpus `ae1fa41-dirty`. The committed index
+  records each page's commit history and is always one commit behind after a
+  page commit; prose in `AGENTS.md` was the only safeguard. The new
+  `check-clean-tree` target runs after the index rebuild and stops an install
+  when any command or corpus path is uncommitted, naming the index follow-up
+  commit when that is the only change. Staged (`DESTDIR`) installs and sources
+  without their own `.git`, such as the Nix package, are not checked. Tooling
+  and tests only; no component version change.
 - **2026-10-20:** Command 0.34.0 (minor) adds pager link keys `]` and `[` with
   Tab and Shift-Tab kept as aliases, and restricts `N` to previous search hit
   when a search query is active (TCK15, [plan](pager-quick-keys.md)).

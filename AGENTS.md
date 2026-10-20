@@ -99,8 +99,14 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
   Corpus pages have no snapshots.
 - `make corpus` always rechecks pages and Git metadata, preserving unchanged
   outputs. `make corpus-and-test` rebuilds first, then runs the corpus checks.
-  After committing pages, rerun `make corpus` and commit any changed indexes;
-  rerun it after the index commit to refresh the ignored build marker.
+  After committing pages, rerun `make corpus` and commit any changed indexes:
+  the index records each page's commit history, so it is one commit behind
+  until that follow-up commit.
+- `make install` installs only a clean checkout. It rebuilds the index, then
+  refuses while any command or corpus path is uncommitted, and names the index
+  follow-up commit when that is all that is missing. Do not work around it:
+  commit your paths, and wait for another session's uncommitted work rather
+  than installing it.
 - The live `tam ask` checks need a local Ollama server with the models named
   in `tests/run.sh`; without one they are skipped with a note.
 - Run builds and tests in the foreground with a time limit. Do not wait on

@@ -36,13 +36,6 @@ INDEX_PATHS = (
     "knowledge/index.json",
     "knowledge/index.parents.tsv",
 )
-COMMAND_DIRTY_SOURCES = (
-    "src",
-    "bin",
-    "completions",
-    "Makefile",
-    "source-build.json",
-)
 CATEGORIES = (
     "you edit",
     "script edits",
@@ -873,15 +866,6 @@ def step_install(root):
         raise DevError(f"{expected_bin} --version failed:\n{ver_res.stderr.strip()}")
     print(ver_res.stdout.rstrip())
     print("Reminder: run 'hash -r' in your interactive shell to refresh command lookup.")
-
-    dirty_cmd = run_git(
-        root, "status", "--porcelain", "--", *COMMAND_DIRTY_SOURCES, check=False
-    ).stdout.strip()
-    if dirty_cmd:
-        print(
-            "Note: the build id reads -dirty because another session has uncommitted "
-            "changes in command paths."
-        )
 
     return raw_prefix
 

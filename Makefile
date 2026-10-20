@@ -69,7 +69,7 @@ CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 # whenever that configuration does and forces a rebuild.
 CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
-.PHONY: all command corpus dev check-repo test test-command corpus-and-test check install uninstall clean libtam-check FORCE
+.PHONY: all command corpus dev check-repo check-clean-tree test test-command corpus-and-test check install uninstall clean libtam-check FORCE
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
@@ -119,6 +119,7 @@ test: all
 	python3 -m unittest -q tests/test_lint_corpus.py
 	python3 -m unittest -q tests/test_build_index.py
 	python3 -m unittest -q tests/test_dev.py
+	python3 -m unittest -q tests/test_install_guard.py
 	python3 tools/check-repo.py
 	python3 -m unittest -q tests/test_check_repo.py
 	tests/guide.sh $(CURDIR)/$(TAM)
@@ -139,7 +140,33 @@ corpus-and-test: command corpus
 
 check: corpus test
 
+# A checkout installs only committed sources, so the installed --version names
+# a commit rather than `-dirty`. The check runs after `all`, because rebuilding
+# the corpus index can itself dirty the tree: the index records each page's
+# commit history, so a page commit leaves it one commit behind until the
+# follow-up index commit. Staged installs (DESTDIR) and builds without a .git
+# of their own, such as the Nix package, are not checked.
+INSTALL_SOURCES := $(TAM_SOURCES) knowledge tools
+INDEX_FILES     := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv
+
+check-clean-tree:
+	@[ -n "$(DESTDIR)" ] && exit 0; \
+	top=$$(git -C $(CURDIR) rev-parse --show-toplevel 2>/dev/null) || exit 0; \
+	[ "$$top" -ef "$(CURDIR)" ] || exit 0; \
+	dirty=$$(git -C $(CURDIR) status --porcelain -- $(INSTALL_SOURCES)); \
+	[ -z "$$dirty" ] && exit 0; \
+	printf '%s\n' 'tam: refusing to install from a dirty tree:' >&2; \
+	printf '%s\n' "$$dirty" | sed 's/^/  /' >&2; \
+	if [ -z "$$(git -C $(CURDIR) status --porcelain -- $(INSTALL_SOURCES) ':!knowledge/index.*')" ]; then \
+		printf '%s\n' 'Only the regenerated corpus index changed; commit it, then install again:' \
+			"  git commit -m 'Refresh corpus index revisions after $$(git -C $(CURDIR) rev-parse --short HEAD)' -- $(INDEX_FILES)" >&2; \
+	else \
+		printf '%s\n' 'Commit or discard these changes first. Do not install another session'"'"'s uncommitted work.' >&2; \
+	fi; \
+	exit 1
+
 install: all
+	@$(MAKE) --no-print-directory check-clean-tree
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
 	install -m 755 bin/tam-man $(DESTDIR)$(BINDIR)/tam-man
