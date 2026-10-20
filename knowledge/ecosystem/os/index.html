@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Operating Systems Reference</title>
+<meta name="topic" content="operating-systems">
+<meta name="summary" content="An offline reference to the Linux distributions and other operating systems Tamlinux watches">
+<meta name="keywords" content="operating systems, os, distributions, distros, reference, root-stock, donor, horizon, tam 2.0, families, catalog, offline">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Operating Systems Reference</p>
+</nav>
+
+<h1>Operating Systems Reference</h1>
+
+<p>Tamlinux runs on a base operating system, its root-stock, and watches many
+other operating systems for fixes and ideas worth bringing home. These pages
+describe those systems so you can read about them without a network
+connection or a web search. For the decision itself, which base Tamlinux uses
+now and which it plans to try next, read
+<a href="ecosystem/distros.html">Choosing the base operating system</a>.</p>
+
+<h2>How to read an entry</h2>
+
+<p>Each system gets a short entry with the same fields where they apply:</p>
+
+<ul>
+<li><strong>Lineage:</strong> whether it is independent or derived from another system.</li>
+<li><strong>Kernel, init and C library:</strong> what starts the system and what programs are built against.</li>
+<li><strong>Packages and releases:</strong> the package manager, and whether it ships fixed releases or rolls continuously.</li>
+<li><strong>Tamlinux role:</strong> why Tamlinux watches it.</li>
+</ul>
+
+<p>The entries describe lasting design, not current version numbers or
+release dates, which change too often for an offline guide. Check a project's
+own site for its latest release.</p>
+
+<h2>Roles</h2>
+
+<p>A role is a research judgment, not a plan to migrate. Being listed here does
+not mean Tamlinux adopts a project's code or recommends it to you, and a
+project being active does not show that it is secure, mature or suited to
+your hardware.</p>
+
+<table>
+<tr><th>Role</th><th>Meaning</th></tr>
+<tr><td>Base</td><td>Runs the current workstation: Arch Linux.</td></tr>
+<tr><td>Target</td><td>The first planned replacement base: Void Linux with runit.</td></tr>
+<tr><td>Fallback</td><td>Tried if the target has a showstopper: antiX Core with runit.</td></tr>
+<tr><td>Evaluate</td><td>A possible Linux base worth comparing against the target.</td></tr>
+<tr><td>Integration donor</td><td>Close enough to Tamlinux that its fixes and integration work are reviewed directly.</td></tr>
+<tr><td>Idea donor</td><td>Studied for a specific design idea; not a candidate base.</td></tr>
+<tr><td>Horizon</td><td>A system that is not Linux, studied for its architecture.</td></tr>
+<tr><td>Tam 2.0 candidate</td><td>A microkernel-based system explored as a future base. Planned research only.</td></tr>
+</table>
+
+<h2>Start with the ideas</h2>
+
+<ul>
+<li><a href="ecosystem/os/kernels.html">Kernel architectures</a> &mdash; monolithic kernels, microkernels and hybrids, and what each really buys you.</li>
+</ul>
+
+<h2>Linux distributions</h2>
+
+<ul>
+<li><a href="ecosystem/os/arch-family.html">The Arch family</a> &mdash; Arch Linux, Omarchy, CachyOS, EndeavourOS, Manjaro and Artix.</li>
+<li><a href="ecosystem/os/debian-family.html">The Debian family</a> &mdash; Debian, Ubuntu, Linux Mint, antiX, Devuan, BunsenLabs, elementary OS, Pop!_OS and Vanilla OS.</li>
+<li><a href="ecosystem/os/fedora-family.html">The Fedora family</a> &mdash; Fedora, the Atomic desktops, Universal Blue images and Qubes OS.</li>
+<li><a href="ecosystem/os/opensuse-family.html">The openSUSE family</a> &mdash; Tumbleweed, Leap, Slowroll, MicroOS, Aeon and Kalpa.</li>
+<li><a href="ecosystem/os/independent-linux.html">Independent distributions</a> &mdash; Void, Alpine, Gentoo, Slackware, Chimera, Solus, KaOS and Adélie.</li>
+<li><a href="ecosystem/os/declarative.html">Declarative distributions</a> &mdash; NixOS and GNU Guix System.</li>
+</ul>
+
+<h2>Beyond Linux</h2>
+
+<ul>
+<li><a href="ecosystem/os/bsd.html">The BSDs</a> &mdash; FreeBSD, OpenBSD, NetBSD and DragonFly BSD.</li>
+<li><a href="ecosystem/os/illumos.html">illumos</a> &mdash; the open descendant of Solaris: OpenIndiana, OmniOS and SmartOS.</li>
+<li><a href="ecosystem/os/microkernels.html">Microkernel systems and Tam 2.0</a> &mdash; Redox OS and Fuchsia, with seL4, MINIX 3, Genode, HelenOS, GNU Hurd and QNX for comparison.</li>
+<li><a href="ecosystem/os/other-systems.html">Other independent systems</a> &mdash; SerenityOS, Haiku and ReactOS.</li>
+</ul>
+
+<h2>Reading further offline</h2>
+
+<p>Arch Linux publishes its wiki as optional packages, which Tamlinux does not
+install for you:</p>
+
+<ul>
+<li><code>arch-wiki-docs</code> &mdash; pages from the Arch Wiki prepared for offline browsing.</li>
+<li><code>arch-wiki-lite</code> &mdash; the Arch Wiki without HTML, about a ninth of the size and readable in a terminal.</li>
+</ul>
+
+<p>Much of the Arch Wiki applies to other distributions too. On Void Linux,
+the <code>void-docs</code> package installs the Void Handbook for offline
+reading. Use <code>tam search &lt;name&gt;</code> to find any system in this
+guide.</p>
+</body>
+</html>

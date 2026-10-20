@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The openSUSE Family</title>
+<meta name="topic" content="opensuse-family">
+<meta name="summary" content="openSUSE Tumbleweed, Leap, Slowroll, MicroOS, Aeon and Kalpa">
+<meta name="keywords" content="opensuse, suse, tumbleweed, leap, slowroll, microos, leap micro, aeon, kalpa, zypper, openqa, open build service, obs, transactional update, snapper">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / The openSUSE Family</p>
+</nav>
+
+<h1>The openSUSE Family</h1>
+
+<p>openSUSE is a community project sponsored by SUSE. Its distributions share
+RPM packages managed with <code>zypper</code>, Btrfs as the default root file
+system, and Snapper snapshots that let you boot back into the system as it was
+before an update. Snapper is described in this guide; see
+<a href="maintain/snapper.html">Snapper snapshots</a>.</p>
+
+<p>Two openSUSE tools are useful well beyond openSUSE: <strong>openQA</strong>
+tests whole operating-system images automatically, including the graphical
+desktop, and the <strong>Open Build Service</strong> builds packages for many
+distributions from one source.</p>
+
+<h2>Tumbleweed</h2>
+
+<ul>
+<li><strong>Releases:</strong> rolling, but each snapshot passes automated openQA testing before release.</li>
+<li><strong>Tamlinux role:</strong> evaluate as a tested rolling base; idea donor for openQA and the Open Build Service.</li>
+</ul>
+
+<h2>Leap</h2>
+
+<ul>
+<li><strong>Releases:</strong> fixed releases built from SUSE's enterprise sources, for a stable base. Recent releases add an optional immutable mode.</li>
+<li><strong>Tamlinux role:</strong> evaluate as a stable base.</li>
+</ul>
+
+<h2>Slowroll</h2>
+
+<ul>
+<li><strong>Releases:</strong> an experimental flavor between the two, which takes Tumbleweed's changes in less frequent, larger batches.</li>
+<li><strong>Tamlinux role:</strong> evaluate only once its maturity and security update pace are confirmed. It is an example of an update tier, a single source delivered at different speeds.</li>
+</ul>
+
+<h2>MicroOS and Leap Micro</h2>
+
+<ul>
+<li><strong>Design:</strong> a read-only root file system changed only by transactional updates. An update is applied to a new Btrfs snapshot, which becomes active at the next boot or is thrown away if it fails.</li>
+<li><strong>Tamlinux role:</strong> idea donor for transactional updates and rollback. MicroOS is aimed at servers and containers, so it is not a desktop base.</li>
+</ul>
+
+<h2>Aeon and Kalpa</h2>
+
+<ul>
+<li><strong>Design:</strong> desktops built on the MicroOS technology: Aeon with GNOME, Kalpa with KDE Plasma. The system maintains itself automatically; updates are applied in the background and take effect after a reboot, and applications come from Flatpak, with Distrobox for other software.</li>
+<li><strong>Status:</strong> Aeon has described itself as a release candidate, and Kalpa as experimental. Check their current status before relying on them.</li>
+<li><strong>Tamlinux role:</strong> idea donors for automated desktop maintenance and immutable desktop integration.</li>
+</ul>
+</body>
+</html>

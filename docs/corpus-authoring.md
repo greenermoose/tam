@@ -65,6 +65,7 @@ to confirm it quickly.
 | Packaging, pins, deployment | `tamlinux-packages` repository: `flake.nix`, `flake.lock`, `nix/`, `docs/deployment.md` | |
 | Installed package versions | `pacman -Q <package>`; say which system you checked | |
 | Base-system and compositor direction | `tamlinux` repository: `docs/plans/base-operating-system.md`, `sway-integration.md`, `desktop-decoupling.md`; always written as planned | |
+| Which other operating systems Tamlinux watches, their roles, and Tam 2.0 microkernel research | `tamlinux` repository: `docs/plans/operating-system-horizons.md`; always written as research or planned | a project's own claims about Tamlinux, remembered roles |
 | Third-party tool flags | the tool's `--help` or manual page; if the tool is not installed, say it is optional and name its package | |
 | How agents work on Tamlinux | the repository's `AGENTS.md`; `tam-work --help` | |
 

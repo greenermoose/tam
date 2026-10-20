@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-19. **Owner:** Fred (developer).
-**Current Command Version:** `0.31.2`. **Current Corpus Version:** `0.32.4`.
+**Current Command Version:** `0.31.2`. **Current Corpus Version:** `0.33.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -76,6 +76,7 @@ Since 2026-10-09, `tam` progressed rapidly through Milestones 1–16, link ergon
 | **0.32.2 corpus** | Reliable corpus builds | Done (2026-10-19) | TCK9: `make corpus` rechecks all pages and Git metadata; `make corpus-and-test` builds and checks. Unchanged outputs retain timestamps. |
 | **0.31.2 command** | Wrapped tables and clearer topic lists | Done (2026-10-19) | Tables wider than the terminal wrap their widest columns instead of stacking every row as `Header: value` records; stacking remains only for tables that cannot fit unbroken words. Topic lists are titled Topics A to Z and Keyword Index. |
 | **0.32.4 corpus** | Keyword corrections | Done (2026-10-19) | Removed topic keywords that misdirect or mean nothing as lookups (for example `2006`, `v11`, `zram` on the sustainability page); `top` now leads to the resources page. |
+| **0.33.0 corpus** | Operating Systems reference | Done (2026-10-19) | Twelve pages under Learning > Ecosystem (`ecosystem/os/`): kernel architectures, the Linux families, BSDs, illumos, other independent systems, and the Tam 2.0 microkernel research, readable offline. Roles come from the `tamlinux` operating-system horizons plan. |
 
 
 ## 3. Current work and follow-up

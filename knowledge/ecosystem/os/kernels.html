@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kernel Architectures</title>
+<meta name="topic" content="kernels">
+<meta name="summary" content="Monolithic kernels, microkernels and hybrids: what each design costs and buys">
+<meta name="keywords" content="kernel, kernels, microkernel, micro-kernel, monolithic, hybrid kernel, ipc, drivers, userspace drivers, fault isolation, l4, tanenbaum, posix, exokernel, unikernel">
+<meta name="level" content="expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / Kernel Architectures</p>
+</nav>
+
+<h1>Kernel Architectures</h1>
+
+<p>The kernel is the part of an operating system that runs with full control
+of the hardware. Everything else runs as ordinary programs in user space and
+asks the kernel for what it needs. Operating systems differ most deeply in how
+much they put inside the kernel. This page explains the main designs, because
+Tamlinux runs on the Linux kernel today and plans to study a microkernel base
+for Tam 2.0; see <a href="ecosystem/os/microkernels.html">Microkernel systems
+and Tam 2.0</a>.</p>
+
+<h2>Monolithic kernels</h2>
+
+<p>A monolithic kernel runs the scheduler, memory management, file systems,
+network stack and device drivers together in one privileged address space.
+Linux and the BSD kernels are monolithic. Linux can load and unload modules
+while running, but a loaded module still runs inside the kernel with full
+privilege.</p>
+
+<ul>
+<li><strong>Strength:</strong> parts of the kernel call each other directly, so common paths such as reading a file or sending a packet are fast.</li>
+<li><strong>Strength:</strong> one large, shared code base attracts hardware vendors. Linux's driver coverage is its biggest practical advantage.</li>
+<li><strong>Cost:</strong> a bug in any driver can corrupt memory anywhere in the kernel. A faulty graphics driver can freeze or crash the whole system.</li>
+<li><strong>Cost:</strong> the code that must be trusted is very large: every driver loaded on the machine.</li>
+</ul>
+
+<h2>Microkernels</h2>
+
+<p>A microkernel keeps only the mechanisms that need hardware privilege:
+address spaces, threads, scheduling and interprocess communication (IPC).
+Device drivers, file systems and the network stack run as separate user-space
+programs, often called servers, that talk to each other and to applications by
+passing messages through the kernel.</p>
+
+<ul>
+<li><strong>Fault isolation:</strong> a crashing driver is an ordinary process. The system can keep running and restart it.</li>
+<li><strong>Least privilege:</strong> each server can be given access only to the devices and memory it needs, so a compromised service reaches less.</li>
+<li><strong>A small trusted core:</strong> the kernel can be small enough to review closely, and in the case of seL4, to prove correct mathematically.</li>
+<li><strong>Cost:</strong> work that is a function call inside a monolithic kernel becomes a message between processes. Each message costs context switches, which the earliest microkernels paid heavily for.</li>
+<li><strong>Cost:</strong> hardware support must be written for each system. In practice this, more than speed, limits most microkernel systems.</li>
+</ul>
+
+<p>The L4 family of microkernels, begun in the 1990s, showed that careful
+design can make IPC fast, which answered much of the early criticism. The
+public argument in 1992 between Andrew Tanenbaum, author of MINIX, and Linus
+Torvalds over whether Linux should have been a microkernel is still often
+cited; both designs remain in wide use.</p>
+
+<h2>What a microkernel does not give you for free</h2>
+
+<ul>
+<li><strong>Restarting is not recovering.</strong> Restarting a crashed file-system server does not restore the data it held in memory, and its clients must be written to reconnect.</li>
+<li><strong>Isolation needs hardware help.</strong> A driver that controls a device able to write anywhere in memory (direct memory access) is only contained if an IOMMU restricts that device.</li>
+<li><strong>The label is not the measurement.</strong> Whether a system is faster, safer or more reliable depends on its implementation, not its category. Tam 2.0 research measures these rather than assuming them.</li>
+</ul>
+
+<h2>Hybrid kernels</h2>
+
+<p>A hybrid kernel is structured like a microkernel but runs many of its
+services inside kernel space for speed. Windows NT and Apple's XNU, the kernel
+of macOS, are usually described as hybrids. The term is loose; it describes
+where code runs, not a separate theory.</p>
+
+<h2>Other designs</h2>
+
+<ul>
+<li><strong>Exokernels</strong> expose hardware resources almost directly and leave abstractions to libraries in each application. They remain mostly research.</li>
+<li><strong>Unikernels</strong> compile one application together with just the operating-system code it needs into a single image, usually to run in a virtual machine.</li>
+</ul>
+
+<h2>Where user programs meet the kernel</h2>
+
+<p>Programs rarely call the kernel directly. They call a C library, such as
+glibc or musl on Linux, which makes the system calls; see
+<a href="ecosystem/libc.html">C standard libraries</a>. POSIX is the standard
+interface that Unix-like systems share at this level. A system with good
+POSIX compatibility can run much existing software after recompiling it, even
+if its kernel is very different from Linux. Tamlinux's design keeps the
+communication between its own software and the base system to standard
+interfaces like these; see the root-stock and cultivar terms in
+<a href="ecosystem/terminology.html">Terminology</a>.</p>
+
+<p>Linux itself moves some work out of the kernel: FUSE lets file systems run
+as user programs, and VFIO lets a user program drive a device. These narrow the
+gap for particular cases without changing the overall design.</p>
+</body>
+</html>

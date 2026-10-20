@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The BSDs</title>
+<meta name="topic" content="bsd">
+<meta name="summary" content="FreeBSD, OpenBSD, NetBSD and DragonFly BSD: complete Unix systems developed as one base">
+<meta name="keywords" content="bsd, freebsd, openbsd, netbsd, dragonfly, dragonfly bsd, jails, zfs, pledge, unveil, pkgsrc, hammer2, ports, base system">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / The BSDs</p>
+</nav>
+
+<h1>The BSDs</h1>
+
+<p>The BSD operating systems descend from the Berkeley Software Distribution of
+Unix. Unlike a Linux distribution, which assembles a kernel and tools from many
+separate projects, each BSD develops its kernel, C library and core commands
+together as one <em>base system</em>, released and documented as a whole. Extra
+software comes from a separate ports or package collection. Most BSD code uses
+the permissive BSD license.</p>
+
+<p>For Tamlinux the BSDs are horizon systems: not candidate bases today, but
+sources of well-engineered ideas.</p>
+
+<h2>FreeBSD</h2>
+
+<ul>
+<li><strong>Known for:</strong> jails, which isolate groups of processes; first-class ZFS; the bhyve hypervisor; DTrace tracing; and the FreeBSD Handbook, a model of complete documentation.</li>
+<li><strong>Packages:</strong> the ports tree and binary packages with <code>pkg</code>. It can also run many Linux programs through a compatibility layer.</li>
+<li><strong>Tamlinux role:</strong> horizon, and idea donor for a coherent base system, jails, ZFS and documentation.</li>
+</ul>
+
+<h2>OpenBSD</h2>
+
+<ul>
+<li><strong>Known for:</strong> security and correctness first, with code audits, secure defaults, and system calls such as <code>pledge</code> and <code>unveil</code> that let a program give up abilities it no longer needs. OpenSSH comes from the OpenBSD project.</li>
+<li><strong>Releases:</strong> about every six months, with binary patches for the supported releases.</li>
+<li><strong>Tamlinux role:</strong> horizon, and idea donor for security engineering and clear manual pages.</li>
+</ul>
+
+<h2>NetBSD</h2>
+
+<ul>
+<li><strong>Known for:</strong> portability to a very wide range of hardware. Its pkgsrc package collection also builds on other operating systems, including Linux.</li>
+<li><strong>Tamlinux role:</strong> horizon, and idea donor for portability.</li>
+</ul>
+
+<h2>DragonFly BSD</h2>
+
+<ul>
+<li><strong>Lineage:</strong> forked from FreeBSD in 2003.</li>
+<li><strong>Known for:</strong> the HAMMER2 file system with cheap snapshots, virtual kernels that run as ordinary user programs for kernel development, and its own approach to multiprocessor scaling.</li>
+<li><strong>Tamlinux role:</strong> horizon, and idea donor for snapshots and kernel design. Its recent activity has not been checked.</li>
+</ul>
+</body>
+</html>

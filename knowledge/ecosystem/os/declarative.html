@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Declarative Distributions</title>
+<meta name="topic" content="declarative-linux">
+<meta name="summary" content="NixOS and GNU Guix System: whole systems described in code and rebuilt from it">
+<meta name="keywords" content="nixos, nix, nixpkgs, declarative, reproducible, generations, guix, guix system, guile, shepherd, linux-libre, functional package management">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / Declarative Distributions</p>
+</nav>
+
+<h1>Declarative Distributions</h1>
+
+<p>In a declarative distribution you do not change the system step by step.
+You describe the whole system in configuration files, and the system is built
+from that description. Every build is kept as a <em>generation</em> that you can
+boot or roll back to. Packages are stored under paths that include a hash of
+everything used to build them, so different versions never overwrite each
+other.</p>
+
+<p>Tamlinux already uses this idea without these distributions: it delivers
+its desktop with the Nix package manager and Home Manager on top of the base
+distribution. Having the Nix tools does not make a system NixOS. See
+<a href="ecosystem/packaging.html">Packaging and delivery</a>.</p>
+
+<h2>NixOS</h2>
+
+<ul>
+<li><strong>Lineage:</strong> independent, built on the Nix package manager and the Nixpkgs collection, one of the largest package collections in Linux.</li>
+<li><strong>Kernel, init and C library:</strong> Linux, systemd, glibc.</li>
+<li><strong>Releases:</strong> stable releases twice a year, each supported for a limited period, and a rolling unstable channel.</li>
+<li><strong>Tamlinux role:</strong> evaluate as a whole-system declarative base, and idea donor for reproducibility.</li>
+</ul>
+
+<h2>GNU Guix System</h2>
+
+<ul>
+<li><strong>Lineage:</strong> independent, part of the GNU Project. It applies the same functional approach as Nix, written in the Guile Scheme language.</li>
+<li><strong>Kernel and init:</strong> Linux-libre, a Linux kernel without non-free firmware, and the GNU Shepherd service manager.</li>
+<li><strong>Known for:</strong> strict free-software policy, reproducible builds, and work on building the whole system up from a very small trusted starting binary.</li>
+<li><strong>Tamlinux role:</strong> evaluate; not yet assessed. Its firmware policy matters for hardware support.</li>
+</ul>
+</body>
+</html>

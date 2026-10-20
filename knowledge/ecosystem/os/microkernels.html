@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Microkernel Systems and Tam 2.0</title>
+<meta name="topic" content="microkernels">
+<meta name="summary" content="Tam 2.0 research: Redox OS and Fuchsia, with seL4, MINIX 3, Genode, HelenOS, GNU Hurd and QNX for comparison">
+<meta name="keywords" content="microkernel, microkernels, tam 2.0, redox, redox os, rust, relibc, orbital, fuchsia, zircon, starnix, sel4, minix, minix 3, genode, sculpt, helenos, hurd, gnu hurd, gnu mach, qnx, l4">
+<meta name="level" content="expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / Microkernel Systems and Tam 2.0</p>
+</nav>
+
+<h1>Microkernel Systems and Tam 2.0</h1>
+
+<p>Fred Horch is the Tamlinux developer. After Tamlinux 1.x runs on a Linux
+base, Fred plans to explore a base built on a microkernel instead of the Linux
+kernel. That future version is called Tam 2.0 here. It is <strong>planned
+research only</strong>: no base has been chosen, no image has been built or
+booted, and nothing has been measured. Read
+<a href="ecosystem/os/kernels.html">Kernel architectures</a> first for what a
+microkernel is and what it does not give you for free.</p>
+
+<h2>What Tam 2.0 would carry forward</h2>
+
+<p>Tam 2.0 aims to keep what Tamlinux is for: comfortable ergonomics,
+responsiveness, reliability, accessibility, long hardware life, repairability,
+updates and recovery the user controls, and a total cost that stays
+maintainable. Whether today's specific choices, such as runit, Sway, bash, Nix
+and Linux applications, carry over unchanged is a decision still to be made.
+Tamlinux's ideas on a new kernel might become a new environment rather than a
+copy of the Linux desktop.</p>
+
+<h2>The candidates</h2>
+
+<h3>Redox OS: first candidate</h3>
+
+<ul>
+<li><strong>Design:</strong> a Unix-like operating system with a microkernel, written in Rust. Drivers and file systems run as user-space programs.</li>
+<li><strong>Resources as URLs:</strong> Redox names resources through <em>schemes</em>, so a program opens a file, a network connection or a device through a path whose prefix names the server that handles it.</li>
+<li><strong>Compatibility:</strong> its own C library, relibc, written in Rust, provides partial POSIX compatibility, so some existing Unix software can be ported by recompiling.</li>
+<li><strong>Desktop:</strong> its own windowing system, Orbital.</li>
+<li><strong>License:</strong> the core is MIT-licensed; individual programs have their own licenses.</li>
+<li><strong>Open questions:</strong> hardware support (processors, graphics, networking, storage), gaps in POSIX and applications, input and accessibility, package signing and security response, disk encryption, updates and offline recovery. Supporting real hardware would probably mean taking part in Redox driver development. The Redox book itself warns that some of its material is out of date.</li>
+</ul>
+
+<h3>Fuchsia: research</h3>
+
+<ul>
+<li><strong>Design:</strong> an operating system from Google built on the Zircon kernel. Zircon provides processes, memory and IPC primitives, with drivers and services in user space. Whether Zircon should be called a microkernel or a hybrid is not settled.</li>
+<li><strong>Components:</strong> software is built from isolated components that receive only the capabilities they are given, and talk through interfaces described in the FIDL language.</li>
+<li><strong>Linux programs:</strong> a compatibility layer called Starnix aims to run unmodified Linux programs. How well it works for a desktop has not been tested.</li>
+<li><strong>Tamlinux role:</strong> studied for component isolation, diagnostics and its driver framework. No Tamlinux portability is claimed.</li>
+</ul>
+
+<h3>The Linux control</h3>
+
+<p>The current Arch base and the Void target are measured on the same
+hardware and workloads as any candidate, so that results compare real systems
+rather than designs.</p>
+
+<p>SerenityOS is sometimes mentioned alongside these. It builds its own
+graphical system from the kernel up, but it is not described as a microkernel,
+so it is an idea donor rather than a Tam 2.0 candidate; see
+<a href="ecosystem/os/other-systems.html">Other independent systems</a>.</p>
+
+<h2>Background: other microkernel systems</h2>
+
+<p>These systems are <strong>not</strong> Tam 2.0 candidates. They show what
+microkernels have achieved in practice and where they have struggled.</p>
+
+<ul>
+<li><strong>seL4:</strong> a member of the L4 family with a machine-checked mathematical proof that its implementation matches its specification. It is a kernel, not a complete operating system; systems are built on it with frameworks such as CAmkES and the seL4 Microkit.</li>
+<li><strong>MINIX 3:</strong> Andrew Tanenbaum's teaching system, redesigned for reliability: its reincarnation server restarts drivers that fail. Development has been largely inactive for years.</li>
+<li><strong>Genode and Sculpt OS:</strong> Genode is a framework for building systems from small components with explicit capabilities. It runs on several kernels, including seL4 and NOVA. Sculpt OS is a general-purpose desktop built with Genode and used daily by its developers.</li>
+<li><strong>HelenOS:</strong> a multiserver microkernel system from Charles University in Prague, portable to many processor architectures and used for research and teaching.</li>
+<li><strong>GNU Hurd:</strong> the GNU Project's kernel, a set of servers on the GNU Mach microkernel. Debian maintains an unofficial port. Decades of development show how hard hardware support and performance are for a small community.</li>
+<li><strong>QNX:</strong> a proprietary real-time microkernel system widely used in cars and industrial equipment. It shows a microkernel can be fast and dependable in production, but it is not free software and cannot be a Tamlinux base.</li>
+</ul>
+
+<h2>What a decision will need</h2>
+
+<p>Before any candidate could become a base, it needs a bootable image built
+reproducibly from known sources; proof of driver and hardware support on real
+machines; a map of the applications and workflows users need and how each is
+met, natively or in a compatibility environment or virtual machine whose costs
+are counted; ownership of security updates, signed updates, rollback and
+recovery of user data; and an honest estimate of the one-time porting work and
+the recurring maintenance.</p>
+
+<p>For a microkernel, the research also tests what fault containment really
+delivers: which drivers and services run outside the kernel, whether they
+restart without losing data, what a compromised service can reach, and what
+interprocess communication costs in latency, throughput, memory and energy.
+Learning from a system, porting one component, building a prototype and
+changing the base are separate decisions, each made on the developer's
+word.</p>
+</body>
+</html>

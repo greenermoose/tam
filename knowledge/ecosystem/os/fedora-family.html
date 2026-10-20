@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Fedora Family</title>
+<meta name="topic" content="fedora-family">
+<meta name="summary" content="Fedora, the Fedora Atomic desktops, Universal Blue images such as Bazzite and Bluefin, and Qubes OS">
+<meta name="keywords" content="fedora, rpm, dnf, red hat, silverblue, kinoite, fedora atomic, rpm-ostree, ostree, universal blue, bazzite, bluefin, qubes, xen, compartmentalization, image-based">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / The Fedora Family</p>
+</nav>
+
+<h1>The Fedora Family</h1>
+
+<p>Fedora is where many changes to the Linux desktop appear first. Its family
+includes the main image-based desktops on Linux, and the projects that build
+custom images from them.</p>
+
+<h2>Fedora Linux</h2>
+
+<ul>
+<li><strong>Lineage:</strong> a community project sponsored by Red Hat; the upstream of CentOS Stream and Red Hat Enterprise Linux.</li>
+<li><strong>Kernel, init and C library:</strong> Linux, systemd, glibc.</li>
+<li><strong>Packages and releases:</strong> RPM packages with <code>dnf</code>. A new release about every six months, each supported for roughly thirteen months.</li>
+<li><strong>Known for:</strong> adopting new desktop technology early, such as Wayland and PipeWire, and a thorough quality-assurance process.</li>
+<li><strong>Tamlinux role:</strong> evaluate as a conventional base, and idea donor for desktop changes and testing.</li>
+</ul>
+
+<h2>Fedora Atomic Desktops</h2>
+
+<ul>
+<li><strong>Lineage:</strong> Fedora, delivered differently. Editions include Silverblue (GNOME), Kinoite (KDE Plasma) and Sway Atomic.</li>
+<li><strong>Design:</strong> the system is a read-only image updated as a whole. An update is prepared alongside the running system and takes effect at the next boot, and the previous image stays available to boot if the new one fails. Applications usually come from Flatpak, and development tools run in containers.</li>
+<li><strong>Tamlinux role:</strong> idea donor for the image life cycle. The editions are one family with several profiles, not separate bases. Changes such as dropped FUSE 2 support can break some AppImages.</li>
+</ul>
+
+<h2>Universal Blue: Bazzite and Bluefin</h2>
+
+<ul>
+<li><strong>Lineage:</strong> custom images built on Fedora Atomic by the Universal Blue community and rebuilt automatically from their source repositories.</li>
+<li><strong>Bazzite</strong> targets gaming and handheld computers, with extra hardware enablement.</li>
+<li><strong>Bluefin</strong> targets developer workstations.</li>
+<li><strong>Tamlinux role:</strong> idea donors for hardware enablement and for operating workstation images, such as pinning a kernel to keep a file-system module working.</li>
+</ul>
+
+<h2>Qubes OS</h2>
+
+<ul>
+<li><strong>Lineage:</strong> independent, built on the Xen hypervisor, with a Fedora-based administrative domain.</li>
+<li><strong>Design:</strong> security by compartmentalization. Work, personal browsing and untrusted files each run in their own virtual machine, called a qube, and throwaway qubes can open a risky file and then vanish.</li>
+<li><strong>Tamlinux role:</strong> idea donor for an architecture very different from a single trusted system. Comparing it needs an explicit threat model and attention to its cost in memory and workflow.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Other Independent Systems</title>
+<meta name="topic" content="other-systems">
+<meta name="summary" content="SerenityOS, Haiku and ReactOS: whole operating systems built outside the Unix mainstream">
+<meta name="keywords" content="serenityos, serenity, ladybird, haiku, beos, packagefs, bfs, reactos, windows compatibility, wine, hobby os">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / Other Independent Systems</p>
+</nav>
+
+<h1>Other Independent Systems</h1>
+
+<p>These operating systems are written largely from scratch, kernel and all.
+None of them is a Tamlinux base or Tam 2.0 candidate; each is studied for one
+idea it does unusually well.</p>
+
+<h2>SerenityOS</h2>
+
+<ul>
+<li><strong>Design:</strong> a Unix-like graphical operating system with a deliberate late-1990s desktop look, where everything, from the kernel and C library to the windowing system and applications, is written in one repository in C++. Applications are built from source rather than installed as binary packages, and its interfaces are not kept stable between versions.</li>
+<li><strong>History:</strong> its web browser grew into the separate Ladybird project, which now runs on other systems too.</li>
+<li><strong>Tamlinux role:</strong> idea donor for a cohesive desktop where every part is designed together. It is not described as a microkernel system.</li>
+</ul>
+
+<h2>Haiku</h2>
+
+<ul>
+<li><strong>Design:</strong> an open-source re-creation of BeOS, focused on personal computing, with its own kernel and a desktop that responds quickly because work is spread across many threads.</li>
+<li><strong>Ideas:</strong> its file system stores searchable attributes on files, and its package manager mounts packages in place rather than unpacking them, so removing a package removes everything it brought.</li>
+<li><strong>Tamlinux role:</strong> idea donor for personal-computing design.</li>
+</ul>
+
+<h2>ReactOS</h2>
+
+<ul>
+<li><strong>Design:</strong> a free operating system that aims to run Windows applications and drivers directly, by re-creating the Windows NT design. It shares much of its user-space work with Wine. It is still alpha software.</li>
+<li><strong>Tamlinux role:</strong> idea donor for compatibility engineering. Its application model is different enough that comparing it needs separate study.</li>
+</ul>
+</body>
+</html>

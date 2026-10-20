@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Arch Family</title>
+<meta name="topic" content="arch-family">
+<meta name="summary" content="Arch Linux and the distributions built on it: Omarchy, CachyOS, EndeavourOS, Manjaro, Artix">
+<meta name="keywords" content="arch, arch linux, pacman, aur, pkgbuild, omarchy, cachyos, endeavouros, manjaro, artix, rolling release">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/os/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/os/index.html">Operating Systems Reference</a> / The Arch Family</p>
+</nav>
+
+<h1>The Arch Family</h1>
+
+<p>Arch Linux is the base of the current Tamlinux workstation. Several
+distributions build on it, and because they share Arch's packages, their
+fixes often apply to Tamlinux directly.</p>
+
+<h2>Arch Linux</h2>
+
+<ul>
+<li><strong>Lineage:</strong> independent.</li>
+<li><strong>Kernel, init and C library:</strong> Linux, systemd, glibc.</li>
+<li><strong>Packages and releases:</strong> <code>pacman</code>, with packages built from short shell recipes called <code>PKGBUILD</code>s. Arch rolls: there are no versions of the whole system, only a continuous stream of updated packages. The Arch User Repository (AUR) holds recipes contributed by users; it is separate from the official repositories and is not vetted by them.</li>
+<li><strong>Known for:</strong> a minimal starting point that the user builds up, and the Arch Wiki, one of the most thorough Linux references.</li>
+<li><strong>Tamlinux role:</strong> base. See <a href="ecosystem/distros.html">Choosing the base operating system</a> for why, and why Tamlinux plans to move on.</li>
+</ul>
+
+<h2>Omarchy</h2>
+
+<ul>
+<li><strong>Lineage:</strong> an opinionated Hyprland desktop installed on top of Arch Linux, with its own package repository. It is a desktop configuration rather than a separate distribution.</li>
+<li><strong>Tamlinux role:</strong> integration donor. Tamlinux began from Omarchy's shell, services, menus and commands, keeps their MIT license notices, and maintains its own copies. New Omarchy releases are reviewed for fixes that also apply to Tamlinux.</li>
+</ul>
+
+<h2>CachyOS</h2>
+
+<ul>
+<li><strong>Lineage:</strong> Arch-based.</li>
+<li><strong>Known for:</strong> performance tuning: its own kernels with alternative CPU schedulers, and packages rebuilt for newer x86-64 processor feature levels.</li>
+<li><strong>Tamlinux role:</strong> idea donor for package and update experience, performance and Hyprland integration. Performance claims are checked against evidence before being adopted.</li>
+</ul>
+
+<h2>EndeavourOS</h2>
+
+<ul>
+<li><strong>Lineage:</strong> Arch-based, close to plain Arch; the community successor of Antergos.</li>
+<li><strong>Known for:</strong> a graphical installer, a friendly community and documentation, while leaving the system much like Arch.</li>
+<li><strong>Tamlinux role:</strong> idea donor for installation, recovery and documentation.</li>
+</ul>
+
+<h2>Manjaro</h2>
+
+<ul>
+<li><strong>Lineage:</strong> Arch-based, with its own repositories and company backing.</li>
+<li><strong>Known for:</strong> holding Arch packages back in testing branches before releasing them to its stable branch, and its hardware-detection tools.</li>
+<li><strong>Tamlinux role:</strong> idea donor for staged updates and hardware experience. Because Manjaro delays packages, Arch packages and Manjaro packages are not interchangeable.</li>
+</ul>
+
+<h2>Artix Linux</h2>
+
+<ul>
+<li><strong>Lineage:</strong> Arch-based, without systemd.</li>
+<li><strong>Kernel and init:</strong> Linux, with a choice of OpenRC, runit, s6 or dinit.</li>
+<li><strong>Packages:</strong> <code>pacman</code>, with Artix's own repositories providing service scripts for each init system.</li>
+<li><strong>Tamlinux role:</strong> idea donor for running Arch-family packages with an init system other than systemd, which matters for the runit target. Arch packages and service files cannot be assumed to work on Artix unchanged.</li>
+</ul>
+</body>
+</html>
