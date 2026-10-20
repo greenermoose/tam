@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.31.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.31.4' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1064,6 +1064,45 @@ assert title == "Welcome" and pos_back.split()[0] == pos_w.split()[0] and target
 # Right Arrow (\x1b[C) with no link selected goes forward to index.html at saved line pos_i
 title, pos_fwd, target_fwd, _, _ = send_key(b"\x1b[C")
 assert title == "The Tamlinux User Guide" and target_fwd == "", f"expected forward to restore the Guide root, got: {title} {pos_fwd} {target_fwd}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+
+# Part 4: Down leaves the breadcrumb on a page whose only links are breadcrumbs
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "breadcrumb-only")
+os.close(slave)
+
+time.sleep(0.15)
+_, pos, target, _, _ = get_state()
+assert pos.startswith("L1/") and target == "", f"expected L1 with no selection, got: {pos} {target}"
+_, pos, target, _, _ = send_key(b"\x1b[A")
+assert target == "index.html", f"expected Up on the first line to focus the breadcrumb, got: {target}"
+_, pos, target, _, _ = send_key(b"\x1b[B")
+assert pos.startswith("L1/") and target == "", f"expected Down to return to the first line, got: {pos} {target}"
+_, pos, target, _, _ = send_key(b"\x1b[B")
+assert pos.startswith("L2/") and target == "", f"expected Down to move the attention line, got: {pos} {target}"
+_, pos, target, _, _ = send_key(b"\x1b[A")
+assert pos.startswith("L1/") and target == "", f"expected Up to move the attention line, got: {pos} {target}"
+# From mid-page, Shift-Tab focuses the breadcrumb; Down and j return to the same line.
+_, pos_mid, _, _, _ = send_key(b"jj")
+assert pos_mid.startswith("L3/"), f"expected jj to reach L3, got: {pos_mid}"
+_, _, target, _, _ = send_key(b"\x1b[Z")
+assert target == "index.html", f"expected Shift-Tab to focus the breadcrumb, got: {target}"
+_, pos, target, _, _ = send_key(b"\x1b[B")
+assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected Down to return to {pos_mid}, got: {pos} {target}"
+send_key(b"\x1b[Z")
+_, pos, target, _, _ = send_key(b"j")
+assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected j to return to {pos_mid}, got: {pos} {target}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)

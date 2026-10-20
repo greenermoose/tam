@@ -1547,6 +1547,15 @@ static int select_breadcrumb(pager_t *st)
     return 1;
 }
 
+/* Down from the breadcrumb row returns to the attention line, which stays
+ * where it was while the row is focused, even when the page has no links. */
+static void leave_breadcrumb(pager_t *st)
+{
+    st->selected = -1;
+    set_cursor_line(st, st->cursor_line, 1);
+    st->msg[0] = '\0';
+}
+
 static void select_horizontal_header_link(pager_t *st, int dir)
 {
     int first, last;
@@ -1873,7 +1882,11 @@ static void handle_key(pager_t *st, unsigned char c)
             select_next_link(st, 1, 0);
         break;
     case 'j':
-        set_cursor_line(st, st->cursor_line + 1, 1);
+        if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+            st->links[st->selected].header)
+            leave_breadcrumb(st);
+        else
+            set_cursor_line(st, st->cursor_line + 1, 1);
         break;
     case 'k':
         set_cursor_line(st, st->cursor_line - 1, -1);
@@ -1972,7 +1985,7 @@ static void handle_key(pager_t *st, unsigned char c)
         } else if (strcmp(seq, "B") == 0) {
             if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
                 st->links[st->selected].header)
-                select_vertical_link(st, 1);
+                leave_breadcrumb(st);
             else
                 set_cursor_line(st, st->cursor_line + 1, 1);
         } else if (strcmp(seq, "C") == 0) {

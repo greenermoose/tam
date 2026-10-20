@@ -368,6 +368,13 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-19:** Command 0.31.4 (patch) fixes Down Arrow on the breadcrumb
+  row. Down (and `j`) now returns to the attention line where it was, instead of
+  jumping to the first page link. On a page whose only links are breadcrumbs,
+  the old behavior left Up and Down unable to move the attention line. Up from
+  the first line still focuses the last breadcrumb link (the developer kept
+  0.31.1's behavior); `s`/`d` still move between breadcrumb and page links.
+  Regression fixture: `tests/fixtures/breadcrumb-only.html`.
 - **2026-10-19:** Command 0.31.3 (patch) shortens the default message so it
   shows in full in a half-height window: bare `tam` drops `tam search`,
   `--terse` and `--verbose` (still listed by `tam --verbose`), and usage
