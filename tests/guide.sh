@@ -47,7 +47,7 @@ printf '%s\n' "$idx" | grep -Fq "$idx_title" || fail "index missing its heading 
 printf '%s\n' "$idx" | grep -q '^Links:' || fail "index missing link appendix"
 for entry in 'install/index.html' 'learn/index.html' 'use/index.html' \
              'maintain/index.html' 'improve/index.html' 'tam:search' \
-             'tam:topics' 'tam:man' 'info:dir'; do
+             'tam:topics' 'tam:man' 'info:dir' 'tam:tldr'; do
     printf '%s\n' "$idx" | grep -Fq "$entry" || fail "index missing $entry"
 done
 pass "index text includes links appendix"
@@ -122,7 +122,7 @@ for p in $pages; do
     while IFS= read -r href; do
         [ -z "$href" ] && continue
         case $href in
-            *://*|mailto:*|\#*|man:*|tam:*|info:*) continue ;;
+            *://*|mailto:*|\#*|man:*|tam:*|info:*|tldr:*) continue ;;
         esac
         case $href in
             /*|*..*) broken="$broken $p->$href"; continue ;;

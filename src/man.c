@@ -6,6 +6,7 @@
 #include "man.h"
 #include "pager.h"
 #include "render.h"
+#include "tldr.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -887,6 +888,12 @@ static tam_document_t *man_unified_load(void *vctx, const char *href,
     }
     if (strncmp(href, "info:", 5) == 0) {
         return tam_info_load(href + 5, content_width);
+    }
+    if (strncmp(href, "tldr:", 5) == 0) {
+        return tam_tldr_load(href + 5, content_width);
+    }
+    if (strncmp(href, "tam:tldr", 8) == 0) {
+        return tam_tldr_uri_document(href, content_width);
     }
     if (strncmp(href, "tam:man", 7) == 0) {
         return tam_man_uri_document(href, content_width);

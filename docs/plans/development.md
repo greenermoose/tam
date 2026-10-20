@@ -781,5 +781,13 @@ resolve superseded schedules. Do not execute a former plan from this history.
   Linked the page from the maintenance and guide indexes and the existing boot
   and emergency-recovery pages. Added the boot and rescue source-authority row
   to `docs/corpus-authoring.md`; regenerated the searchable index.
+- **2026-10-20:** Command 0.33.0 and Corpus 0.35.0 (minor): Added native `tam tldr`
+  command-example subsystem (`src/tldr.c`, `src/tldr.h`, `bin/tam-tldr`),
+  discovery and A–Z/platform index browser (`tam:tldr`, `tam:tldr:list`,
+  `tam:tldr:keyword`, `tam:tldr:open`), both-form option placeholder rendering
+  (`[-s|--long]`), hyperlinked `See also:`/alias/`man:` cross-references, top
+  breadcrumb bar navigation (`Guide > tldr pages > <cmd>`), and the AI-curated
+  Tamlinux subset of English upstream `tldr-pages` under `knowledge/tldr/`
+  with `tools/build-tldr-index.py`.
 
 

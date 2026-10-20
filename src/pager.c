@@ -767,6 +767,10 @@ static int pager_prompt_action(pager_t *st, const char *href, char *out,
         label = "Manual keyword: "; route = "tam:man:keyword?query=";
     } else if (strcmp(href, "tam:prompt:man-section") == 0) {
         label = "Manual section: "; route = "tam:man:section?section=";
+    } else if (strcmp(href, "tam:prompt:tldr-open") == 0) {
+        label = "tldr command: "; route = "tam:tldr:open?query=";
+    } else if (strcmp(href, "tam:prompt:tldr-keyword") == 0) {
+        label = "tldr keyword: "; route = "tam:tldr:keyword?query=";
     } else return 0;
 
     char input[128];
@@ -1372,6 +1376,8 @@ static void switch_depth(pager_t *st, unsigned char key)
     if (st->cur_href == NULL ||
         strncmp(st->cur_href, "man:", 4) == 0 ||
         strncmp(st->cur_href, "info:", 5) == 0 ||
+        strncmp(st->cur_href, "tldr:", 5) == 0 ||
+        strncmp(st->cur_href, "tam:tldr", 8) == 0 ||
         strcmp(st->cur_href, "-") == 0 ||
         st->cur_href[0] == '<') {
         snprintf(st->msg, sizeof(st->msg),

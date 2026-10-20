@@ -6,7 +6,7 @@ _tam_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local subcommands="show welcome hello hi explain search man info inspect check install ask upgrade switch help"
+    local subcommands="show welcome hello hi explain search man info tldr inspect check install ask upgrade switch help"
     local global_flags="--help -h --pipe --terse --verbose --version -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
@@ -40,7 +40,7 @@ _tam_completions() {
             if [ "$prev" = "--level" ]; then
                 COMPREPLY=($(compgen -W "all beginner intermediate expert 0 1 2 3" -- "$cur"))
             else
-                COMPREPLY=($(compgen -W "tam:search tam:man --pipe --level" -- "$cur"))
+                COMPREPLY=($(compgen -W "tam:search tam:man tam:tldr --pipe --level" -- "$cur"))
             fi
             ;;
         welcome|hello|hi)
@@ -61,6 +61,15 @@ _tam_completions() {
                 COMPREPLY=($(compgen -W "--help -h --pipe" -- "$cur"))
             else
                 COMPREPLY=($(compgen -W "bash coreutils libc make gcc gdb grep sed tar find diffutils gzip readline binutils bison flex autoconf automake cpio as ld cpp gnupg gnutls --help -h --pipe" -- "$cur"))
+            fi
+            ;;
+        tldr)
+            if [ "$prev" = "--platform" ] || [ "$prev" = "-L" ]; then
+                COMPREPLY=($(compgen -W "linux common" -- "$cur"))
+            elif [[ "$cur" == -* ]]; then
+                COMPREPLY=($(compgen -W "--list -l --search --keyword --platform --pipe --help -h" -- "$cur"))
+            else
+                COMPREPLY=($(compgen -W "tar grep find git systemctl pacman btrfs hyprctl curl ssh --list --search --platform --pipe --help -h" -- "$cur"))
             fi
             ;;
         ask)
@@ -87,4 +96,4 @@ _tam_completions() {
     esac
 }
 
-complete -F _tam_completions tam tam-man tam-info
+complete -F _tam_completions tam tam-man tam-info tam-tldr

@@ -10,6 +10,7 @@
 #include "man.h"
 #include "pager.h"
 #include "render.h"
+#include "tldr.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -218,6 +219,8 @@ static void print_tam_help(int tier)
             "      hyperlinked manual page viewer with interactive cross-reference navigation\n"
             "  tam info [MANUAL [NODE]] [--pipe]\n"
             "      browse GNU Info manuals with hyperlinked menus and cross-references\n"
+            "  tam tldr [COMMAND...] [--platform OS] [--pipe]\n"
+            "      browse or view concise tldr command-example pages with hyperlinked references\n"
             "  tam ask [--json] [--model MODEL] [--server URL] QUESTION\n"
             "      query a local AI model for answers from the guide to any question\n\n"
             "  tam upgrade [--check|--apply] [--channel STAGE] [--json]\n"
@@ -241,6 +244,7 @@ static void print_tam_help(int tier)
             "      display command, libtam, and Tamlinux cultivar metadata\n\n"
             "Environment:\n"
             "  TAM_KNOWLEDGE_DIR         override path to offline HTML guide corpus\n"
+            "  TAM_TLDR_DIR              override path to offline curated tldr directory\n"
             "  TAM_ASK_MODEL             default local LLM name (default: qwen2.5-coder:1.5b)\n"
             "  TAM_ASK_SERVER            default local inference URL (default: http://127.0.0.1:11434)\n\n"
             "Run 'tam <subcommand> --help' for options specific to any subcommand.\n",
@@ -264,6 +268,7 @@ static void print_tam_help(int tier)
         "  tam explain [TOPIC]       browse all topics or show a topic\n"
         "  tam man [SECTION] PAGE    view hyperlinked manual page\n"
         "  tam info [MANUAL [NODE]]  browse GNU Info manuals\n"
+        "  tam tldr [COMMAND]        browse or view command example pages\n"
         "  tam ask QUESTION          ask a local AI model (if available)\n\n"
         "System subcommands to try:\n"
         "  tam inspect               inspect system components\n"
@@ -797,6 +802,12 @@ static tam_document_t *corpus_load(void *vctx, const char *href,
     if (strncmp(href, "info:", 5) == 0) {
         return tam_info_load(href + 5, content_width);
     }
+    if (strncmp(href, "tldr:", 5) == 0) {
+        return tam_tldr_load(href + 5, content_width);
+    }
+    if (strncmp(href, "tam:tldr", 8) == 0) {
+        return tam_tldr_uri_document(href, content_width);
+    }
     if (strncmp(href, "tam:man", 7) == 0) {
         return tam_man_uri_document(href, content_width);
     }
@@ -1137,6 +1148,7 @@ static int cmd_show(int n, char **args)
     }
 
     if (page != NULL && (strncmp(page, "tam:man", 7) == 0 ||
+                         strncmp(page, "tam:tldr", 8) == 0 ||
                          strncmp(page, "tam:search", 10) == 0)) {
         corpus_ctx_t ctx = {.root = root};
         int interactive = !pipe && isatty(STDOUT_FILENO);
@@ -1202,6 +1214,33 @@ static int cmd_show(int n, char **args)
             corpus_ctx_t ctx;
             ctx.root = root;
                 rc = tam_pager_run(doc, page, corpus_load, &ctx);
+        } else {
+            char *text = tam_document_text(doc);
+            if (text != NULL) {
+                fputs(text, stdout);
+                free(text);
+            }
+            tam_document_free(doc);
+        }
+        free(root);
+        return rc;
+    }
+
+    if (page != NULL && strncmp(page, "tldr:", 5) == 0) {
+        int interactive = !pipe && isatty(STDOUT_FILENO);
+        int width = interactive ? tam_terminal_width() : 80;
+        tam_document_t *doc = tam_tldr_load(page + 5, width);
+        if (doc == NULL) {
+            fprintf(stderr, TAM_COMMAND_NAME ": no tldr page found for '%s'\n", page + 5);
+            free(root);
+            return TAM_EXIT_FAILURE;
+        }
+        tam_document_ensure_location(doc, page);
+        int rc = 0;
+        if (interactive) {
+            corpus_ctx_t ctx;
+            ctx.root = root;
+            rc = tam_pager_run(doc, page, corpus_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) {
@@ -1708,6 +1747,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "info") == 0) {
         return tam_cmd_info(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "tldr") == 0) {
+        return tam_cmd_tldr(argc - 2, argv + 2);
     }
     if (strcmp(arg, "ask") == 0) {
         return tam_cmd_ask(argc - 2, argv + 2);

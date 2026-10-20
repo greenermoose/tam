@@ -15,10 +15,10 @@ Categories:
 
 - `knowledge/` — *you edit*. Offline HTML guide pages (`*.html`); `knowledge/version` is updated by `make dev` and `knowledge/index.*` is built by `make corpus`.
 - `src/` — *you edit*. C source and headers for the `tam` binary; `TAM_COMMAND_VERSION` in `src/version.h` is updated by `make dev`.
-- `bin/` — *you edit*. Wrapper scripts (`tam-man`, `tam-info`, `tam-upgrade`) installed alongside `tam`.
+- `bin/` — *you edit*. Wrapper scripts (`tam-man`, `tam-info`, `tam-tldr`, `tam-upgrade`) installed alongside `tam`.
 - `completions/` — *you edit*. Static Bash tab-completion script (`completions/bash/tam`).
 - `man/` — *you edit*. Section 1 manual page (`man/tam.1`).
-- `tools/` — *you edit*. Python build, lint, developer-loop and drift-check scripts (`build-index.py`, `lint-corpus.py`, `dev.py`, `check-repo.py`).
+- `tools/` — *you edit*. Python build, lint, developer-loop and drift-check scripts (`build-index.py`, `build-tldr-index.py`, `lint-corpus.py`, `dev.py`, `check-repo.py`).
 - `tests/` — *you edit*. Command, corpus, rendering, upgrade, developer-loop and drift-check suites (`tests/run.sh` command version assertion is updated by `make dev`).
 - `docs/` — *you edit*. Corpus authoring, corpus audit, plan-maintenance and repository-map guides.
 - `docs/plans/` — *you edit*. Feature plans, the living development contract (`development.md`), templates and the plan index (`README.md`); closed plans remain in place as historical records.

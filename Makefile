@@ -44,8 +44,8 @@ TERMINFO_LIBS   ?= $(shell pkg-config --libs ncursesw 2>/dev/null || echo -ltinf
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c src/discovery.c src/upgrade.c
-DEPS  := src/version.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h src/discovery.h src/upgrade.h
+SRC   := src/tam.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/ask.c src/info.c src/discovery.c src/tldr.c src/upgrade.c
+DEPS  := src/version.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/ask.h src/info.h src/discovery.h src/tldr.h src/upgrade.h
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv
 
 # A build from a Git checkout reports its commit in --version; packaged
@@ -144,6 +144,7 @@ install: all
 	install -m 755 $(TAM) $(DESTDIR)$(BINDIR)/tam
 	install -m 755 bin/tam-man $(DESTDIR)$(BINDIR)/tam-man
 	install -m 755 bin/tam-info $(DESTDIR)$(BINDIR)/tam-info
+	install -m 755 bin/tam-tldr $(DESTDIR)$(BINDIR)/tam-tldr
 	install -m 755 bin/tam-upgrade $(DESTDIR)$(BINDIR)/tam-upgrade
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
@@ -157,6 +158,7 @@ uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
 	rm -f $(DESTDIR)$(BINDIR)/tam-man
 	rm -f $(DESTDIR)$(BINDIR)/tam-info
+	rm -f $(DESTDIR)$(BINDIR)/tam-tldr
 	rm -f $(DESTDIR)$(BINDIR)/tam-upgrade
 	rm -rf $(DESTDIR)$(DATADIR)
 	rm -f $(DESTDIR)$(MANDIR)/man1/tam.1

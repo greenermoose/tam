@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.32.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.33.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1828,6 +1828,71 @@ set -e
 
 pass "tam info subcommand, node parsing, cross-references, and error handling"
 
+# -----------------------------------------------------------------------------
+# Native tldr Pages Subsystem (tam tldr)
+# -----------------------------------------------------------------------------
+tldr_fix="$here/fixtures/tldr"
+guide_fix="$here/fixtures/guide"
+
+[ -x "$root/bin/tam-tldr" ] || fail "bin/tam-tldr is missing or not executable"
+tldr_wrap=$(TAM_TLDR_DIR="$tldr_fix" "$root/bin/tam-tldr" tar --pipe)
+printf '%s\n' "$tldr_wrap" | grep -q 'Archiving utility' || fail "bin/tam-tldr did not delegate to tam tldr"
+
+tldr_landing=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr --pipe)
+printf '%s\n' "$tldr_landing" | grep -q '^Guide > tldr pages$' || fail "tam tldr landing missing location trail"
+printf '%s\n' "$tldr_landing" | grep -q 'tam:prompt:tldr-open' || fail "tam tldr landing missing open prompt link"
+printf '%s\n' "$tldr_landing" | grep -q 'tam:prompt:tldr-keyword' || fail "tam tldr landing missing keyword prompt link"
+printf '%s\n' "$tldr_landing" | grep -q 'tam:tldr:list' || fail "tam tldr landing missing list link"
+
+tldr_tar=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr tar --pipe)
+printf '%s\n' "$tldr_tar" | grep -q '^Guide > tldr pages > tar$' || fail "tam tldr tar missing location trail"
+printf '%s\n' "$tldr_tar" | grep -Fq '[-C|--directory]' || fail "tam tldr tar missing both-form option [-C|--directory]"
+printf '%s\n' "$tldr_tar" | grep -q 'tldr:gzip' || fail "tam tldr tar missing See also link to tldr:gzip"
+printf '%s\n' "$tldr_tar" | grep -q 'tam:tldr' || fail "tam tldr tar missing link back to tam:tldr"
+printf '%s\n' "$tldr_tar" | grep -q 'index.html' || fail "tam tldr tar missing link back to Guide index.html"
+
+tldr_gc=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr git commit --pipe)
+printf '%s\n' "$tldr_gc" | grep -q '^Guide > tldr pages > git-commit$' || fail "multi-word tam tldr git commit failed"
+printf '%s\n' "$tldr_gc" | grep -Fq '[-a|--all]' || fail "git-commit missing [-a|--all]"
+printf '%s\n' "$tldr_gc" | grep -Fq 'stash@{0}' || fail "git-commit nested braces {{stash@{0}}} failed"
+printf '%s\n' "$tldr_gc" | grep -Fq '{{literal}}' || fail "git-commit escaped braces \{\{literal\}\} failed"
+
+tldr_cat_l=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr cat --pipe)
+printf '%s\n' "$tldr_cat_l" | grep -Fq 'cat (linux)' || fail "tam tldr cat did not prefer linux section"
+printf '%s\n' "$tldr_cat_l" | grep -Fq 'tldr:common/cat' || fail "tam tldr cat missing alternate platform link"
+
+tldr_cat_c=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr --platform common cat --pipe)
+printf '%s\n' "$tldr_cat_c" | grep -Fq 'cat (common)' || fail "tam tldr --platform common cat failed"
+printf '%s\n' "$tldr_cat_c" | grep -Fq 'tldr:linux/cat' || fail "tam tldr common/cat missing linux/cat link"
+
+tldr_alias=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr ll --pipe)
+printf '%s\n' "$tldr_alias" | grep -q 'tldr:ls' || fail "tam tldr alias page ll did not link to tldr:ls"
+
+tldr_list=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr --list --pipe)
+printf '%s\n' "$tldr_list" | grep -q '^Guide > tldr pages > tldr index$' || fail "tam tldr --list missing location trail"
+printf '%s\n' "$tldr_list" | grep -q 'tldr:common/tar' || fail "tam tldr --list missing tar entry"
+
+tldr_kw=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr --search Archiving --pipe)
+printf '%s\n' "$tldr_kw" | grep -q 'tldr:common/tar' || fail "tam tldr --search Archiving did not find tar"
+
+show_tldr=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_TLDR_DIR="$tldr_fix" "$TAM" show tldr:tar --pipe)
+printf '%s\n' "$show_tldr" | grep -q '^Guide > tldr pages > tar$' || fail "tam show tldr:tar failed"
+
+show_tldr_idx=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_TLDR_DIR="$tldr_fix" "$TAM" show tam:tldr --pipe)
+printf '%s\n' "$show_tldr_idx" | grep -q '^Guide > tldr pages$' || fail "tam show tam:tldr failed"
+
+"$TAM" tldr --help | grep -q 'tam tldr - view concise command-example pages' || fail "tam tldr --help missing title"
+set +e
+TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr no-such-tldr-cmd >/dev/null 2>&1
+rc_tldr_miss=$?
+TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr --bad-flag >/dev/null 2>&1
+rc_tldr_flag=$?
+set -e
+[ "$rc_tldr_miss" -eq 1 ] || fail "expected exit 1 on missing tldr page, got $rc_tldr_miss"
+[ "$rc_tldr_flag" -eq 2 ] || fail "expected exit 2 on invalid tldr flag, got $rc_tldr_flag"
+
+pass "tam tldr subcommand, index discovery, option formatting, and hyperlinks"
+
 # Shell completion scripts verification (Tamlinux supports bash)
 bash -n "$root/completions/bash/tam" || fail "bash completion syntax error"
 
@@ -1841,6 +1906,7 @@ printf "%s\n" "${COMPREPLY[@]}"
 ')
 printf '%s\n' "$bash_test" | grep -q 'show' || fail "bash completion missing show subcommand"
 printf '%s\n' "$bash_test" | grep -q 'info' || fail "bash completion missing info subcommand"
+printf '%s\n' "$bash_test" | grep -q 'tldr' || fail "bash completion missing tldr subcommand"
 printf '%s\n' "$bash_test" | grep -q 'inspect' || fail "bash completion missing inspect subcommand"
 printf '%s\n' "$bash_test" | grep -q 'check' || fail "bash completion missing check subcommand"
 printf '%s\n' "$bash_test" | grep -q 'install' || fail "bash completion missing install subcommand"
@@ -1947,6 +2013,17 @@ printf "%s\n" "${COMPREPLY[@]}"
 printf '%s\n' "$bash_info_test" | grep -q 'coreutils' || fail "bash completion missing info coreutils"
 printf '%s\n' "$bash_info_test" | grep -q 'bash' || fail "bash completion missing info bash"
 printf '%s\n' "$bash_info_test" | grep -q -- '--pipe' || fail "bash completion missing info --pipe"
+
+bash_tldr_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam tldr "")
+COMP_CWORD=2
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_tldr_test" | grep -q 'tar' || fail "bash completion missing tldr tar"
+printf '%s\n' "$bash_tldr_test" | grep -q -- '--list' || fail "bash completion missing tldr --list"
+printf '%s\n' "$bash_tldr_test" | grep -q -- '--pipe' || fail "bash completion missing tldr --pipe"
 
 pass "static bash shell auto-completion script"
 

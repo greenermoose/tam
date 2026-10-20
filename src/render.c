@@ -1126,6 +1126,18 @@ void tam_document_ensure_location(tam_document_t *doc, const char *href)
         location_append(doc, doc->title ? doc->title : href + 4, NULL);
         return;
     }
+    if (strncmp(href, "tldr:", 5) == 0) {
+        location_append(doc, "Guide", "index.html");
+        location_append(doc, "tldr pages", "tam:tldr");
+        location_append(doc, doc->title ? doc->title : href + 5, NULL);
+        return;
+    }
+    if (strncmp(href, "tam:tldr:", 9) == 0) {
+        location_append(doc, "Guide", "index.html");
+        location_append(doc, "tldr pages", "tam:tldr");
+        location_append(doc, doc->title ? doc->title : href + 9, NULL);
+        return;
+    }
     if (strncmp(href, "info:", 5) == 0) {
         const char *spec = href + 5;
         location_append(doc, "Guide", "index.html");
@@ -1777,7 +1789,8 @@ static void layout_document(const blocklist_t *blocks, int width,
             const tam_block_t *prev = &blocks->v[i - 1];
             int tight = (b->kind == B_LIST && prev->kind == B_LIST &&
                          b->level == prev->level) ||
-                        (b->kind == B_DD && prev->kind == B_DT);
+                        (b->kind == B_DD && prev->kind == B_DT) ||
+                        (b->kind == B_PRE && prev->kind == B_DT);
             if (!tight) {
                 linelist_blank(out);
             }

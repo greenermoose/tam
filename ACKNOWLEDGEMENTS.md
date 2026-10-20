@@ -64,6 +64,14 @@ The source links below are the authority for complete notices and exceptions. A 
 - **Stated copyright / limits:** Rich Felker and other musl authors; see upstream COPYRIGHT.
 - **Source:** [Upstream project](https://git.musl-libc.org/cgit/musl/tree/COPYRIGHT).
 
+<a id="tldr-pages"></a>
+### tldr-pages
+
+- **Connection:** Curated English command-example pages under `knowledge/tldr/pages/` are selected from the upstream `tldr-pages/tldr` repository and rendered offline by `tam tldr`.
+- **License:** Creative Commons Attribution 4.0 International (`CC-BY-4.0`) for documentation pages; see [knowledge/tldr/LICENSE.md](knowledge/tldr/LICENSE.md).
+- **Stated copyright / limits:** Copyright 2014–present the tldr-pages team and contributors.
+- **Source:** [Upstream project](https://github.com/tldr-pages/tldr).
+
 ## Community credit and coverage
 
 We also thank the wider upstream communities: reviewers, translators, documentation writers, package maintainers, testers, issue reporters and accessibility contributors. The project/community links above recognize their wider work. This researched list emphasizes identifiable connections to this repository; it is not a complete census of every transitive dependency or a claim of endorsement. Public profiles and affiliations can change; the date above identifies this review.

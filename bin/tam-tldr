@@ -1,0 +1,20 @@
+#!/bin/sh
+# tam-tldr - lightweight tldr wrapper opening hyperlinked tldr pages via tam
+set -eu
+
+# Locate tam binary: prefer adjacent binary, build binary, or PATH
+tam_bin=""
+if [ -x "$(dirname "$0")/tam" ]; then
+    tam_bin="$(dirname "$0")/tam"
+elif [ -x "$(dirname "$0")/../build/tam" ]; then
+    tam_bin="$(dirname "$0")/../build/tam"
+elif command -v tam >/dev/null 2>&1; then
+    tam_bin="tam"
+fi
+
+if [ -n "$tam_bin" ]; then
+    exec "$tam_bin" tldr "$@"
+fi
+
+# Fallback to standard tldr if tam is unavailable
+exec tldr "$@"

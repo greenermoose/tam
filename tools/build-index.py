@@ -378,6 +378,17 @@ def main(root=None):
     for name, content in outputs.items():
         write_if_changed(knowledge_dir / name, content)
 
+    tldr_dir = knowledge_dir / "tldr"
+    if (tldr_dir / "pages").is_dir():
+        tldr_builder = Path(__file__).resolve().parent / "build-tldr-index.py"
+        if tldr_builder.is_file():
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("build_tldr_index", tldr_builder)
+            if spec and spec.loader:
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                mod.build_tldr_index(tldr_dir)
+
     # Generate knowledge/.build_id if in a git repository
     git_dir = root / ".git"
     if git_dir.exists():
