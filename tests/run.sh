@@ -219,7 +219,9 @@ if "$TAM" browse >/dev/null 2>&1; then fail "tam browse unexpectedly succeeded";
 "$TAM" browse 2>&1 | grep -q "unrecognized argument 'browse'" || fail "tam browse missing unrecognized argument message"
 pass "show subcommand and retired browse subcommand"
 
-# Pager link navigation: Tab advances forward, Shift-Tab and N circulate backward
+# Pager link navigation: Tab advances forward, Shift-Tab and N circulate backward.
+# Uses the root index in tests/fixtures/link-cycle/ (no breadcrumb) so corpus
+# edits cannot change the link order.
 if python3 -c 'import pty' >/dev/null 2>&1; then
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl
@@ -255,13 +257,13 @@ def send_and_get_target(key):
 time.sleep(0.15)
 # 1. Tab forward selects first link
 t1 = send_and_get_target(b"\t")
-assert t1 == "welcome.html", f"expected welcome.html, got {t1}"
+assert t1 == "first.html", f"expected first.html, got {t1}"
 # 2. Tab forward selects second link
 t2 = send_and_get_target(b"\t")
-assert t2 == "install/index.html", f"expected install/index.html, got {t2}"
+assert t2 == "second.html", f"expected second.html, got {t2}"
 # 3. Shift-Tab (ANSI CSI Z) circulates backward
 t3 = send_and_get_target(b"\x1b[Z")
-assert t3 == "welcome.html", f"expected welcome.html, got {t3}"
+assert t3 == "first.html", f"expected first.html, got {t3}"
 # 4. Shift-Tab from first link wraps backward to last link
 t4 = send_and_get_target(b"\x1b[Z")
 assert t4 == "info:dir", f"expected info:dir, got {t4}"
@@ -269,7 +271,7 @@ assert t4 == "info:dir", f"expected info:dir, got {t4}"
 t5 = send_and_get_target(b"\x1b[1;2Z")
 assert t5 == "tam:man", f"expected tam:man, got {t5}"
 t6 = send_and_get_target(b"\x1b[9;2u")
-assert t6 == "learn/documentation.html", f"expected learn/documentation.html, got {t6}"
+assert t6 == "docs/help.html", f"expected docs/help.html, got {t6}"
 t7 = send_and_get_target(b"\x1b[27;2;9~")
 assert t7 == "tam:topics", f"expected tam:topics, got {t7}"
 t8 = send_and_get_target(b"N")
@@ -277,7 +279,7 @@ assert t8 == "tam:search", f"expected tam:search, got {t8}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/knowledge" || fail "interactive pager link navigation failed"
+' "$TAM" "$root/tests/fixtures/link-cycle" || fail "interactive pager link navigation failed"
     pass "pager link navigation: Tab forward and Shift-Tab backward circulation"
 
     # Pager home-row keys (D175) and Info dir rebind to i
