@@ -95,3 +95,4 @@ model for each session.
 | 2026-10-19 | Down Arrow leaves the breadcrumb row; command 0.31.4 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-breadcrumb-down-arrow.md) |
 | 2026-10-19 | Install `man-pages`; relink `sh` and `umask` to POSIX `1p` pages; corpus 0.33.4 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-man-pages-links.md) |
 | 2026-10-20 | In-page `#fragment` links jump to their target; command 0.31.5 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-20-tam-fragment-links.md) |
+| 2026-10-20 | TCK10: home-row pager keys and attention column; command 0.32.0, corpus 0.33.5 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-20-tam-pager-home-row-keys.md) |
