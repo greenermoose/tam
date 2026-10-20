@@ -870,6 +870,95 @@ os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager address toggle failed"
     pass "pager address toggle (=): path display, persistence, Esc clear, and navigation reset"
 
+    # Pager guide search ('\') and in-page search ('/') prompts; show quick-keys links
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+binary, corpus = sys.argv[1], sys.argv[2]
+
+def launch(args):
+    master, slave = pty.openpty()
+    fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+    pid = os.fork()
+    if pid == 0:
+        os.close(master)
+        os.dup2(slave, 0); os.dup2(slave, 1); os.dup2(slave, 2); os.close(slave)
+        env = os.environ.copy()
+        env["TAM_KNOWLEDGE_DIR"] = corpus
+        env["TERM"] = "xterm-256color"
+        os.execve(binary, [binary] + args, env)
+    os.close(slave)
+    return pid, master
+
+def drain(fd, delay=0.1):
+    time.sleep(delay)
+    buf = b""
+    while select.select([fd], [], [], 0.02)[0]:
+        buf += os.read(fd, 8192)
+    return buf
+
+# 1. \ shows Search in guide \, typing pipe and Enter shows Results for and Fixture pipelines
+pid, master = launch(["show", "welcome"])
+drain(master, 0.15)
+os.write(master, b"\\")
+buf = drain(master, 0.1)
+assert b"Search in guide \\" in buf, f"expected guide search prompt, got: {buf}"
+os.write(master, b"pipe\r")
+buf = drain(master, 0.3)
+assert b"Results for" in buf and b"Fixture pipelines" in buf, f"expected search results, got: {buf}"
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+
+# 2. / shows Search in page /
+pid, master = launch(["show", "welcome"])
+drain(master, 0.15)
+os.write(master, b"/")
+buf = drain(master, 0.1)
+assert b"Search in page /" in buf, f"expected page search prompt, got: {buf}"
+os.write(master, b"\x1b")
+drain(master, 0.1)
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+
+# 3. show quick-keys: following each link opens page search, guide search, and help overlay
+pid, master = launch(["show", "quick-keys"])
+drain(master, 0.15)
+
+# First link: Search in page /
+os.write(master, b"]")
+drain(master, 0.05)
+os.write(master, b"\r")
+buf = drain(master, 0.1)
+assert b"Search in page /" in buf, f"expected page search prompt from link, got: {buf}"
+os.write(master, b"\x1b")
+drain(master, 0.1)
+
+# Second link: Search in guide \
+os.write(master, b"]")
+drain(master, 0.05)
+os.write(master, b"\r")
+buf = drain(master, 0.1)
+assert b"Search in guide \\" in buf, f"expected guide search prompt from link, got: {buf}"
+os.write(master, b"\x1b")
+drain(master, 0.1)
+
+# Third link: Navigation help
+os.write(master, b"]")
+drain(master, 0.05)
+os.write(master, b"\r")
+buf = drain(master, 0.1)
+assert b"Navigation help" in buf, f"expected help overlay from link, got: {buf}"
+os.write(master, b"\x1b")
+drain(master, 0.1)
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager prompt and quick-keys tests failed"
+    pass "pager search prompts (\\ and /) and quick-keys prompt/help links"
+
     # Interactive hyperlinked topics pager (tam explain topics)
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl

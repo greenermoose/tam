@@ -1231,7 +1231,7 @@ static void print_info_help(void)
         "  tam info coreutils --pipe pipe manual text without pager\n\n"
         "Navigation keys in pager:\n"
         "  d/k, s/l                  move the attention line down / up\n"
-        "  a/j f/;, Tab / Shift-Tab  select hyperlinks on the line / anywhere\n"
+        "  a/j f/;, ] / [ (or Tab / Shift-Tab)  select hyperlinks on the line / anywhere\n"
         "  g, Enter / Right Arrow    follow selected link\n"
         "  n / p                     navigate to next / previous node\n"
         "  u                         navigate to parent node (or back in history)\n"

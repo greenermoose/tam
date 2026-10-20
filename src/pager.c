@@ -724,7 +724,7 @@ static int pager_read_prompt(pager_t *st, const char *label,
 static void pager_search_prompt(pager_t *st)
 {
     char query[128];
-    if (pager_read_prompt(st, "/", query, sizeof(query))) {
+    if (pager_read_prompt(st, "Search in page /", query, sizeof(query))) {
         size_t qlen = strlen(query);
         if (qlen > 0) {
             pager_perform_search(st, query);
@@ -761,7 +761,7 @@ static int pager_prompt_action(pager_t *st, const char *href, char *out,
     const char *label = NULL;
     const char *route = NULL;
     if (strcmp(href, "tam:prompt:guide-search") == 0) {
-        label = "Guide search: "; route = "tam:search?query=";
+        label = "Search in guide \\"; route = "tam:search?query=";
     } else if (strcmp(href, "tam:prompt:man-open") == 0) {
         label = "Manual page [section]: "; route = "tam:man:open?query=";
     } else if (strcmp(href, "tam:prompt:man-keyword") == 0) {
@@ -1036,9 +1036,10 @@ static int draw(pager_t *st)
                 "Navigation help",
                 "Back: Left Arrow   Guide: `   Help: h or ?   Quit: q",
                 "Line: d/k down, s/l up   Top: x or .   Bottom: c or ,",
-                "Links on the line: a/j left, f/; right   Any link: Tab / Shift-Tab",
-                "Follow: g, Enter or Right Arrow",
-                "Info Up: u   Next/Previous: n/p   Search this page: /",
+                "Links on the line: a/j left, f/; right   Any link: ] next, [ previous",
+                "Follow: g, Enter or Right Arrow   Tab / Shift-Tab: same as ] / [",
+                "Search: / this page, \\ the guide   Next/previous hit: n/N   Address: =",
+                "Info Up: u   Next/Previous node: n/p",
                 "Close help with h, ? or Esc. Focus, position and history stay put."
             };
             if ((size_t)row < sizeof(help) / sizeof(help[0]))
@@ -1322,6 +1323,14 @@ static int find_anchor_text(const tam_document_t *doc, const char *target)
 static void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
+        return;
+    }
+    if (strcmp(href, "tam:help") == 0) {
+        st->help_open = 1;
+        return;
+    }
+    if (strcmp(href, "tam:prompt:page-search") == 0) {
+        pager_search_prompt(st);
         return;
     }
     if (strncmp(href, "tam:prompt:", 11) == 0) {
@@ -1880,6 +1889,9 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         break;
     case '/':
         pager_search_prompt(st);
+        break;
+    case '\\':
+        follow(st, "tam:prompt:guide-search");
         break;
     case 'n':
         if (st->search_query[0] != '\0') {
