@@ -60,13 +60,17 @@ In the pager, the letter keys sit on the home row, mirrored on each hand:
 it up; `a`/`j` and `f`/`;` move the attention column left and right from link to
 link along that line. One row down, `x`/`.` or `Home` jumps to the top and
 `c`/`,` or `End` to the bottom. `Space`/`b` or `PgDn`/`PgUp` scroll a screen,
-`Tab`/`Shift-Tab` selects the next/previous link anywhere, and `g`, `Enter` or
-the right arrow follows the selected link (the right arrow without a selected
-link proceeds forward along a visited path). `u` or the left arrow goes back
-(`u` means hierarchy Up in Info), backtick returns to the Guide, `h` or `?`
-shows the keys, and `q` or `Esc` quits. Readers used to `less` or vim: `j` and
-`k` do not scroll here; `k` moves down. External links are shown but never
-fetched, so the guide stays offline. The corpus is located via
+`]` or `[` (or `Tab`/`Shift-Tab`) selects the next or previous link anywhere,
+`/` opens `Search in page /` for text search (`n`/`N` navigates hits), `\` opens
+`Search in guide \` across the guide, and `=` displays the page address (`Path = ...`).
+`g`, `Enter` or the right arrow follows the selected link (the right arrow
+without a selected link proceeds forward along a visited path). `u` or the
+left arrow goes back (`u` means hierarchy Up in Info), backtick returns to the
+Guide, `h` or `?` shows the keys, and `q` or `Esc` quits. The status row shows
+`L<cursor> <first>-<last>/<total>` with the cursor line, visible line range and
+total lines (or `Path = <address>` when `=` is active). Readers used to `less`
+or vim: `j` and `k` do not scroll here; `k` moves down. External links are shown
+but never fetched, so the guide stays offline. The corpus is located via
 `$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then the compiled install
 prefix.
 

@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-20 | Pager quick keys, address display, status row, and Guide index; command 0.34.0 / corpus 0.35.1 | Antigravity CLI 1.4.3; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-20-tam-pager-quick-keys.md) |
 | 2026-10-20 | Dedicated POSIX Programmer's Manual guide page; corpus 0.34.0 | Antigravity CLI 1.4.3; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-20-tam-posix-programmer-manual.md) |
 | 2026-10-19 | TCK9 reliable corpus builds and corpus-and-test target; corpus 0.32.2 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Implementation and verification](docs/ai/2026-10-19-tam-corpus-build.md) |
 | 2026-10-18 | Breadcrumb row keyboard focus and navigation; command 0.31.1 | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-18-tam-breadcrumb-navigation.md) |

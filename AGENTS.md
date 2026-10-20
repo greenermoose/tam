@@ -21,12 +21,13 @@ the same path-claim rules; old briefs do not assign work or override them.
   Read a closed plan as history; its old task list assigns no new work.
 
 The knowledge system (command 0.30.0 / corpus 0.31.0), source upgrades and
-stage switching (`docs/plans/upgrade.md`, command 0.31.0 / corpus 0.32.0) and
-reliable corpus builds (corpus 0.32.2) and the
-[developer loop](docs/plans/dev-loop.md) (TCK11–TCK14) are complete. The approved
-next outcome is the [pager quick keys plan](docs/plans/pager-quick-keys.md)
-(TCK15–TCK19, Ready); nothing else is approved. Allocate versions from
-current files when implementing. Do not revive the former seven-part contents,
+stage switching (`docs/plans/upgrade.md`, command 0.31.0 / corpus 0.32.0),
+reliable corpus builds (corpus 0.32.2), the
+[developer loop](docs/plans/dev-loop.md) (TCK11–TCK14), and
+[pager quick keys](docs/plans/pager-quick-keys.md) (TCK15–TCK19, command 0.34.0 /
+corpus 0.35.1) are complete. Await the developer's direction for the next
+approved outcome; nothing else is approved. Allocate versions from current
+files when implementing. Do not revive the former seven-part contents,
 three-track model or withdrawn parser/installer version reservations.
 
 Discuss a design choice with the developer before you build it. A version

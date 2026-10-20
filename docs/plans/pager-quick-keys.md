@@ -1,15 +1,15 @@
 # Pager quick keys, address display and status row
 
-**Plan status:** Ready
+**Plan status:** Completed
 **Reviewed:** 2026-10-20
-**Scope:** Command 0.34.0 (expected; pager keys, status row, `=` address,
+**Scope:** Command 0.34.0 (pager keys, status row, `=` address,
 `page:` addresses, action links, help texts, man page) and corpus 0.35.1
-(expected; Guide index and welcome page). Five checklist items, TCK15–TCK19.
+(Guide index and welcome page). Five checklist items, TCK15–TCK19.
 **Authority:** The developer's decisions of 2026-10-20 and his instruction to
 write this plan for another agent to build, recorded as Tamlinux decision
 D176; [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Build TCK15, then each later slice in order. Commit after
-each slice.
+**Next action:** Plan complete. Maintain this living plan as history; package
+stages remain developer-directed.
 
 ## Problem and agreed outcome
 
@@ -328,14 +328,14 @@ keys table, and each link works; the plan, index, roadmap, contract and
 
 ## Acceptance and limits
 
-- `make test` passes after each slice and at the end.
-- In a real terminal, on the Guide index:
-  - `]` and `[` (and Tab and Shift-Tab) move through every link.
-  - `=` shows `Path = page:index.html`.
-  - `\` and `/` show their labelled prompts.
-  - Each Quick keys link works.
-  - The status row reads `L1 1-<n>/<total>`.
-- `tam show "$(the address = showed)"` reopens the page for a guide page, a
+- [x] `make test` passes after each slice and at the end.
+- [x] In a real terminal, on the Guide index:
+  - [x] `]` and `[` (and Tab and Shift-Tab) move through every link.
+  - [x] `=` shows `Path = page:index.html`.
+  - [x] `\` and `/` show their labelled prompts.
+  - [x] Each Quick keys link works.
+  - [x] The status row reads `L1 1-<n>/<total>`.
+- [x] `tam show "$(the address = showed)"` reopens the page for a guide page, a
   topic guide, a man page (quoted) and a tldr page.
 
 Not done by this plan, and only on the developer's direction: his own
@@ -344,5 +344,12 @@ exact packaged candidate.
 
 ## Disposition
 
-Open. On completion, record the commits, the session record and any
-deviations here.
+Completed on 2026-10-20. Slices TCK15 through TCK19 built and committed:
+- TCK15: `c2bf223` (Pager link keys `]` and `[`; search-only `N`; command 0.34.0)
+- TCK16: `6e2d809` (Status row `L<cursor> <first>-<last>/<total>` format)
+- TCK17: `2d2c074` (Address display `=` in pager; `page:` addresses in tam show)
+- TCK18: `775eb42` (Guide search `\`; labelled prompts; `tam:help` and prompt links)
+- TCK19: (this commit: Guide index, welcome page, README, corpus 0.35.1, plan close-out)
+
+Session record: [2026-10-20-tam-pager-quick-keys.md](../ai/2026-10-20-tam-pager-quick-keys.md).
+Deviations: none. All slices followed as written.

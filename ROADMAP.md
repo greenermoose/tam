@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
-**Current Command Version:** `0.34.0`. **Current Corpus Version:** `0.35.0`.
+**Current Command Version:** `0.34.0`. **Current Corpus Version:** `0.35.1`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -89,14 +89,14 @@ in that candidate, not here.
 | **0.34.0 corpus** | POSIX Programmer's Manual guide page | Done (2026-10-20) | Dedicated `man/posix.html` guide page under Learning > Manual Pages covering IEEE Std 1003.1 sections `0p`, `1p`, and `3p`, standard interfaces versus GNU/Linux extensions, `APPLICATION USAGE` and `RATIONALE` sections, and browsing in `tam` (`08b166a`). |
 | **0.34.1 corpus** | Appendices on Guide index one per line | Done (2026-10-20) | Appendices on Guide index one per line |
 | **0.33.0 command / 0.35.0 corpus** | Native `tldr` pages subsystem and curated corpus | Done (2026-10-20) | Bundled AI-curated English `tldr` pages for Tamlinux under `knowledge/tldr/` (`linux` and `common` sections, `index.tsv`, `LICENSE.md`, `SOURCE.json`); native C `tam tldr` reader and index/discovery browser (`src/tldr.c`, `src/tldr.h`, `bin/tam-tldr`, `tam:tldr`) rendering both short and long option forms (`[-s|--long]`), hyperlinked `See also:`/alias/`man:` references, and fixed top breadcrumb navigation (`Guide > tldr pages > <cmd>`). |
-| **0.34.0 command** | Pager quick keys and search-only N | Done (2026-10-20) | Pager link keys `]` and `[` with Tab and Shift-Tab kept as aliases; `N` limited to previous search hit when search query is active (TCK15). |
+| **0.34.0 command / 0.35.1 corpus** | Pager quick keys, address display, status row, and Guide index | Done (2026-10-20) | Pager link keys `]` and `[` with Tab/Shift-Tab aliases; search-only `N`; status row `L<cursor> <first>-<last>/<total>`; `=` address display (`Path = <address>`); `page:` addresses in `tam show`; `\` guide search; labelled prompts; `tam:help` and prompt action links; Guide index Quick keys table; corpus 0.35.1 (TCK15–TCK19). |
 
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.34.0 / 0.35.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.34.0 / 0.35.1 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
@@ -107,16 +107,16 @@ lifecycle on the developer's word.
 Completed plans: the [five-part knowledge system](docs/plans/knowledge-system-0.31.0.md)
 (TCK1–TCK5, command 0.30.0 / corpus 0.31.0), the
 [source-upgrade and stage-switching plan](docs/plans/upgrade.md) (TCK6–TCK8,
-command 0.31.0 / corpus 0.32.0, first activated in the development prefix) and
-[reliable corpus builds](docs/plans/corpus-build.md) (TCK9, corpus 0.32.2) and
+command 0.31.0 / corpus 0.32.0, first activated in the development prefix),
+[reliable corpus builds](docs/plans/corpus-build.md) (TCK9, corpus 0.32.2),
 [home-row pager keys](docs/plans/pager-home-row-keys.md) (TCK10, command 0.32.0 /
-corpus 0.33.5) and the [developer loop](docs/plans/dev-loop.md) (TCK11–TCK14,
-tooling and tests only: `make dev`, `make check-repo`, pager tests on fixtures).
-Disposable acceptance builds and live metadata checks have standing developer
-authorization.
+corpus 0.33.5), the [developer loop](docs/plans/dev-loop.md) (TCK11–TCK14,
+tooling and tests only: `make dev`, `make check-repo`, pager tests on fixtures),
+and [pager quick keys, address display and status row](docs/plans/pager-quick-keys.md)
+(TCK15–TCK19, command 0.34.0 / corpus 0.35.1). Disposable acceptance builds and
+live metadata checks have standing developer authorization.
 
-Approved next outcome: [pager quick keys, address display and status row](docs/plans/pager-quick-keys.md)
-(TCK15–TCK19, Ready; expected command 0.34.0 / corpus 0.35.1). Start with TCK15.
+Approved next outcome: await the developer's direction.
 The deferred items in section 4 are candidates, not assignments.
 
 Still pending, and only on the developer's direction: real Linux-console and

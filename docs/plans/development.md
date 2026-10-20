@@ -2,13 +2,12 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-20
-**Scope:** Living integration contract; current command 0.33.0 and corpus 0.35.0.
+**Scope:** Living integration contract; current command 0.34.0 and corpus 0.35.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md) and [pager quick keys plan](pager-quick-keys.md).
-**Next action:** Build the [pager quick keys plan](pager-quick-keys.md),
-starting with TCK15. Package Test/Run/Release remain developer-directed stages.
+**Next action:** Await developer direction. Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -323,8 +322,13 @@ plan/apply/verify work follows the product framework.
 ## Current implementation and deferred work
 
 The five-slice [knowledge-system overhaul](knowledge-system-0.31.0.md) delivered
-command 0.30.0 and corpus 0.31.0. Its full test evidence and remaining package
-review limits are recorded there.
+command 0.30.0 and corpus 0.31.0. The [pager quick keys plan](pager-quick-keys.md)
+delivered command 0.34.0 and corpus 0.35.1 (TCK15–TCK19): pager link keys `]`
+and `[`, search-only `N`, status row `L<cursor> <first>-<last>/<total>`, `=`
+address display (`Path = <address>`), `page:` addresses in `tam show`, `\` guide
+search, labelled search prompts, `tam:help` and prompt action links, and the
+Guide index Quick keys table. Full test evidence and remaining package review
+limits are recorded in those plans.
 
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
