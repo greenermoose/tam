@@ -206,6 +206,19 @@ printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z' || fail "tam show topics fa
 sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
 printf '%s\n' "$sh_topics_pseudo" | grep -q 'Topics A to Z' || fail "tam show tam:topics failed"
 
+# page: addresses, tam:keywords, and tam:explain under show
+sh_pipe1=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show page:shell/pipelines --pipe) || fail "show page:shell/pipelines --pipe failed"
+sh_pipe2=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show shell/pipelines --pipe) || fail "show shell/pipelines --pipe failed"
+[ "$sh_pipe1" = "$sh_pipe2" ] || fail "show page:shell/pipelines output differs from show shell/pipelines"
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show tam:keywords --pipe >/dev/null || fail "show tam:keywords --pipe failed"
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show 'tam:explain?topic=pipelines' --pipe >/dev/null || fail "show tam:explain?topic=pipelines --pipe failed"
+set +e
+sh_page_empty_err=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show page: --pipe 2>&1)
+sh_page_empty_rc=$?
+set -e
+[ "$sh_page_empty_rc" -eq 2 ] || fail "show page: expected exit 2, got $sh_page_empty_rc"
+printf '%s\n' "$sh_page_empty_err" | grep -q "missing guide page after 'page:'" || fail "missing guide page error message missing"
+
 # Show with - reads HTML from stdin and renders tables and definition lists.
 stdin_html='<h1>Custom HTML</h1><dl><dt>Alpha</dt><dd>First letter</dd></dl><table><tr><th>Name</th><th>Value</th></tr><tr><td>Foo</td><td>Bar</td></tr></table>'
 sh_stdin=$(printf '%s\n' "$stdin_html" | "$TAM" show - --pipe)
@@ -775,6 +788,87 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager backtick return failed"
     pass "pager quick Guide index return (\`): immediate index jump and history push"
+
+    # Pager '=' address display and toggle
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
+os.close(slave)
+
+last_status = ""
+def get_status_line():
+    global last_status
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.02)[0]:
+        buf += os.read(master, 4096)
+    if b"\x1b[24;1H" in buf:
+        part = buf.split(b"\x1b[24;1H")[-1]
+        last = part.split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+        last_status = last.strip()
+    return last_status
+
+time.sleep(0.15)
+# Initial state shows position metric
+status0 = get_status_line()
+assert "L1 1-" in status0, f"expected L1 position at start, got: {status0}"
+
+# 1. = shows Path = page:shell/pipelines.html
+os.write(master, b"=")
+status = get_status_line()
+assert "Path = page:shell/pipelines.html" in status, f"expected Path = page:shell/pipelines.html, got: {status}"
+
+# 2. A line-down key (d) keeps it
+os.write(master, b"d")
+status = get_status_line()
+assert "Path = page:shell/pipelines.html" in status, f"expected Path = ... to persist after line down, got: {status}"
+
+# 3. Esc removes it and the position appears again
+os.write(master, b"\x1b")
+status = get_status_line()
+assert "Path = " not in status and "L2 1-" in status, f"expected position restored after Esc, got: {status}"
+
+# 4. = twice shows and then hides it
+os.write(master, b"=")
+status = get_status_line()
+assert "Path = page:shell/pipelines.html" in status, f"expected Path = ... after first =, got: {status}"
+os.write(master, b"=")
+status = get_status_line()
+assert "Path = " not in status and "L2 1-" in status, f"expected position restored after second =, got: {status}"
+
+# 5. = and then following a link removes it on the new page
+os.write(master, b"=")
+status = get_status_line()
+assert "Path = page:shell/pipelines.html" in status
+# [ selects the breadcrumb link (index.html), Enter follows it
+os.write(master, b"[")
+time.sleep(0.08)
+os.write(master, b"\r")
+time.sleep(0.15)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+lines = [l for l in buf.split(b"\x1b[24;1H") if l]
+last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace").strip() if lines else ""
+assert "Path = " not in last, f"expected address cleared on new page, got: {last}"
+assert "Fixture Guide" in buf.decode("utf-8", "replace"), "expected to be on Fixture Guide"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager address toggle failed"
+    pass "pager address toggle (=): path display, persistence, Esc clear, and navigation reset"
 
     # Interactive hyperlinked topics pager (tam explain topics)
     python3 -c '

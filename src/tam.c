@@ -1087,6 +1087,14 @@ static int cmd_show(int n, char **args)
         }
     }
 
+    if (page != NULL && strncmp(page, "page:", 5) == 0) {
+        page += 5;
+        if (page[0] == '\0') {
+            fprintf(stderr, TAM_COMMAND_NAME ": missing guide page after 'page:'\n");
+            return TAM_EXIT_USAGE;
+        }
+    }
+
     if (page != NULL && strcmp(page, "-") == 0) {
         size_t len = 0;
         char *src = read_all_stdin(&len);
@@ -1149,7 +1157,9 @@ static int cmd_show(int n, char **args)
 
     if (page != NULL && (strncmp(page, "tam:man", 7) == 0 ||
                          strncmp(page, "tam:tldr", 8) == 0 ||
-                         strncmp(page, "tam:search", 10) == 0)) {
+                         strncmp(page, "tam:search", 10) == 0 ||
+                         strncmp(page, "tam:explain", 11) == 0 ||
+                         strncmp(page, "tam:keywords", 12) == 0)) {
         corpus_ctx_t ctx = {.root = root};
         int interactive = !pipe && isatty(STDOUT_FILENO);
         int width = interactive ? tam_terminal_width() : 80;

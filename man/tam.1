@@ -103,7 +103,21 @@ is omitted, opens the root User Guide index (
 .I PAGE
 is
 .BR topics ,
-displays the interactive topic catalog. If
+displays the interactive topic catalog.
+.I PAGE
+may be a bare guide path, a
+.BI page: PATH
+address (e.g.
+.BR page:shell/pipelines.html ),
+or an address beginning with
+.BR man: ,
+.BR info: ,
+.BR tldr: ,
+or
+.BR tam: .
+Manual page addresses contain parentheses (such as
+.BR 'man:ls(1)' )
+and must be quoted in the shell. If
 .B \-
 is specified, reads semantic HTML from standard input and displays it in the pager. Supports depth filtering via
 .BI \-\-level \ LEVEL
@@ -299,6 +313,14 @@ for the next match,
 for the previous match, or
 .B Esc
 to cancel.
+.TP
+.B =
+Toggle address display in the status row (\fBPath =\fR \fIaddress\fR).
+Guide pages show \fBpage:\fR\fIpath\fR, while \fBman:\fR, \fBinfo:\fR,
+\fBtldr:\fR, and \fBtam:\fR addresses appear unchanged. Standard input shows
+\fBPath = (standard input has no address)\fR. Any displayed address can be
+passed to \fBtam show\fR to reopen the page. Dismiss with \fBEsc\fR, a second
+\fB=\fR, or by moving to another page.
 .TP
 .BR 0 ", " 1 ", " 2 ", " 3
 Switch the reading depth of the current guide page or topic view:

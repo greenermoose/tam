@@ -166,6 +166,7 @@ typedef struct {
     int             sync_output;
     int             help_open;
     int             column_active;
+    int             show_address;
 } pager_t;
 
 static void follow(pager_t *st, const char *href);
@@ -972,6 +973,25 @@ static void pager_reflow(pager_t *st, int width)
     }
 }
 
+static void pager_address(const pager_t *st, char *out, size_t cap)
+{
+    if (st->cur_href == NULL ||
+        strcmp(st->cur_href, "-") == 0 ||
+        st->cur_href[0] == '<') {
+        snprintf(out, cap, "(standard input has no address)");
+        return;
+    }
+    if (strncmp(st->cur_href, "man:", 4) == 0 ||
+        strncmp(st->cur_href, "info:", 5) == 0 ||
+        strncmp(st->cur_href, "tldr:", 5) == 0 ||
+        strncmp(st->cur_href, "tam:", 4) == 0 ||
+        strncmp(st->cur_href, "page:", 5) == 0) {
+        snprintf(out, cap, "%s", st->cur_href);
+        return;
+    }
+    snprintf(out, cap, "page:%s", st->cur_href);
+}
+
 static int draw(pager_t *st)
 {
     st->width = tam_terminal_width();
@@ -1044,66 +1064,72 @@ static int draw(pager_t *st)
 
     char status[512] = {0};
     int max_cols = paint_width;
-    const char *actions = max_cols >= 60 ? "< Back  ` Guide  h Help  q Quit" :
-                          max_cols >= 40 ? "<Back `Guide hHelp qQuit" : "< ` h q";
-    const char *title = st->doc->title ? st->doc->title : "tam";
-    size_t total = st->doc->nlines;
-    if (total == 1 && st->doc->lines[0].nspans == 0) {
-        total = 0;
-    }
-    int first = total == 0 ? 0 : st->top + 1;
-    int last = st->top + usable;
-    if (last > (int)total) {
-        last = (int)total;
-    }
-    if (total == 0) {
-        last = 0;
-    }
-    char essential[64];
-    snprintf(essential, sizeof(essential), "L%d %d-%d/%zu",
-             st->cursor_line + 1, first, last, total);
-    int essential_width = (int)tam_display_width(essential, strlen(essential));
-    if (max_cols >= 60) {
-        int action_width = (int)tam_display_width(actions, strlen(actions));
-        int title_budget = max_cols - action_width - essential_width - 6;
-        if (title_budget > 0) {
-            size_t title_bytes = status_byte_limit(title, title_budget);
-            strncat(status, title, title_bytes);
-            strncat(status, " | ", sizeof(status) - strlen(status) - 1);
-        }
-        strncat(status, essential, sizeof(status) - strlen(status) - 1);
-        strncat(status, " | ", sizeof(status) - strlen(status) - 1);
-        strncat(status, actions, sizeof(status) - strlen(status) - 1);
+    if (st->show_address) {
+        char addr[256];
+        pager_address(st, addr, sizeof(addr));
+        snprintf(status, sizeof(status), "Path = %s", addr);
     } else {
-        strncat(status, essential, sizeof(status) - 1);
-        int used = (int)tam_display_width(status, strlen(status));
-        int action_width = (int)tam_display_width(actions, strlen(actions));
-        if (max_cols - used >= action_width + 1) {
-            strncat(status, " ", sizeof(status) - strlen(status) - 1);
-            strncat(status, actions, sizeof(status) - strlen(status) - 1);
+        const char *actions = max_cols >= 60 ? "< Back  ` Guide  h Help  q Quit" :
+                              max_cols >= 40 ? "<Back `Guide hHelp qQuit" : "< ` h q";
+        const char *title = st->doc->title ? st->doc->title : "tam";
+        size_t total = st->doc->nlines;
+        if (total == 1 && st->doc->lines[0].nspans == 0) {
+            total = 0;
         }
-    }
-    if (st->doc->nav_up != NULL && max_cols >= 39)
-        strncat(status, "  u Up", sizeof(status) - strlen(status) - 1);
+        int first = total == 0 ? 0 : st->top + 1;
+        int last = st->top + usable;
+        if (last > (int)total) {
+            last = (int)total;
+        }
+        if (total == 0) {
+            last = 0;
+        }
+        char essential[64];
+        snprintf(essential, sizeof(essential), "L%d %d-%d/%zu",
+                 st->cursor_line + 1, first, last, total);
+        int essential_width = (int)tam_display_width(essential, strlen(essential));
+        if (max_cols >= 60) {
+            int action_width = (int)tam_display_width(actions, strlen(actions));
+            int title_budget = max_cols - action_width - essential_width - 6;
+            if (title_budget > 0) {
+                size_t title_bytes = status_byte_limit(title, title_budget);
+                strncat(status, title, title_bytes);
+                strncat(status, " | ", sizeof(status) - strlen(status) - 1);
+            }
+            strncat(status, essential, sizeof(status) - strlen(status) - 1);
+            strncat(status, " | ", sizeof(status) - strlen(status) - 1);
+            strncat(status, actions, sizeof(status) - strlen(status) - 1);
+        } else {
+            strncat(status, essential, sizeof(status) - 1);
+            int used = (int)tam_display_width(status, strlen(status));
+            int action_width = (int)tam_display_width(actions, strlen(actions));
+            if (max_cols - used >= action_width + 1) {
+                strncat(status, " ", sizeof(status) - strlen(status) - 1);
+                strncat(status, actions, sizeof(status) - strlen(status) - 1);
+            }
+        }
+        if (st->doc->nav_up != NULL && max_cols >= 39)
+            strncat(status, "  u Up", sizeof(status) - strlen(status) - 1);
 
-    const char *hints = (st->doc->nav_next != NULL || st->doc->nav_prev != NULL ||
-                         st->doc->nav_up != NULL)
-        ? " n/p t i asdf jkl; g"
-        : " / n/N asdf jkl; g u `";
-    int used = (int)tam_display_width(status, strlen(status));
-    int hint_width = (int)tam_display_width(hints, strlen(hints));
-    if (used + hint_width <= max_cols)
-        strncat(status, hints, sizeof(status) - strlen(status) - 1);
-    const char *detail = st->msg[0] != '\0' ? st->msg :
-                         sel != NULL && sel->href != NULL ? sel->href : NULL;
-    if (detail != NULL) {
-        char part[192];
-        snprintf(part, sizeof(part), st->msg[0] != '\0' ? " [%s]" : " -> %s",
-                 detail);
-        used = (int)tam_display_width(status, strlen(status));
-        int part_width = (int)tam_display_width(part, strlen(part));
-        if (used + part_width <= max_cols)
-            strncat(status, part, sizeof(status) - strlen(status) - 1);
+        const char *hints = (st->doc->nav_next != NULL || st->doc->nav_prev != NULL ||
+                             st->doc->nav_up != NULL)
+            ? " n/p t i asdf jkl; g"
+            : " / n/N asdf jkl; g u `";
+        int used = (int)tam_display_width(status, strlen(status));
+        int hint_width = (int)tam_display_width(hints, strlen(hints));
+        if (used + hint_width <= max_cols)
+            strncat(status, hints, sizeof(status) - strlen(status) - 1);
+        const char *detail = st->msg[0] != '\0' ? st->msg :
+                             sel != NULL && sel->href != NULL ? sel->href : NULL;
+        if (detail != NULL) {
+            char part[192];
+            snprintf(part, sizeof(part), st->msg[0] != '\0' ? " [%s]" : " -> %s",
+                     detail);
+            used = (int)tam_display_width(status, strlen(status));
+            int part_width = (int)tam_display_width(part, strlen(part));
+            if (used + part_width <= max_cols)
+                strncat(status, part, sizeof(status) - strlen(status) - 1);
+        }
     }
 
     if (st->height >= 2) {
@@ -1849,6 +1875,9 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case 'h':
         st->help_open = !st->help_open;
         break;
+    case '=':
+        st->show_address = !st->show_address;
+        break;
     case '/':
         pager_search_prompt(st);
         break;
@@ -1945,6 +1974,8 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         if (read_byte(st->input_fd, 60, &c1) != 1) {
             if (st->help_open) {
                 st->help_open = 0;
+            } else if (st->show_address) {
+                st->show_address = 0;
             } else if (st->search_query[0] != '\0') {
                 pager_clear_search(st);
                 st->msg[0] = '\0';
@@ -2034,6 +2065,8 @@ static void handle_key(pager_t *st, unsigned char c)
     int line = st->cursor_line;
     int selected = st->selected;
     handle_key_inner(st, c);
+    if (st->doc != doc)
+        st->show_address = 0;
     if (c == 'g' || c == '\r' || c == '\n' ||
         (!column_key && (st->doc != doc || st->cursor_line != line ||
                          st->selected != selected)))
