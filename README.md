@@ -128,9 +128,14 @@ prefix used by the Tamlinux component workflow:
 
 ```sh
 make
-make test PREFIX="$HOME/.local/dev" LIBTAM_PREFIX="$HOME/.local/dev"
-make install PREFIX="$HOME/.local/dev" LIBTAM_PREFIX="$HOME/.local/dev"
+make test PREFIX="$HOME/.local/dev"
+make install PREFIX="$HOME/.local/dev"
 ```
+
+`make` finds `libtam` with `pkg-config libtam`, so install `libtam` first and
+make sure pkg-config can see it, for example with
+`PKG_CONFIG_PATH="$HOME/.local/dev/lib/pkgconfig"`. If it cannot, the build
+stops and says what to do.
 
 For an assembly or staged package build, set `PREFIX` and `DESTDIR` as required
 by that packaging recipe. `DESTDIR` stages files under a temporary root; it
@@ -149,8 +154,8 @@ When `tam show`, `tam welcome`, or `tam explain` looks up knowledge pages, `tam`
 If none of these locations contain a valid guide corpus (`index.html`), `tam show` prints an informative diagnostic advising the user that the offline guide is not installed, while non-guide commands like `tam --help` and `tam --version` continue to function normally.
 
 `tam` links against an **installed** `libtam`; it never builds or modifies the
-library checkout. Override `LIBTAM_PREFIX` when the library is installed under
-a different prefix. See [`docs/plans/development.md`](docs/plans/development.md)
+library checkout. Set `LIBTAM_PREFIX` to name the library's install prefix
+instead of asking pkg-config; package recipes do this. See [`docs/plans/development.md`](docs/plans/development.md)
 for the command contract and the component development runbook for the
 authorized local workflow.
 

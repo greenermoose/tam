@@ -3,8 +3,10 @@
 # Builds the command against an installed libtam. The library is a separate
 # dependency and is never built or modified by this Makefile.
 #
-# Override LIBTAM_PREFIX if libtam is installed somewhere other than PREFIX,
-# or LIBTAM_CFLAGS / LIBTAM_LIBS directly for a custom location.
+# libtam is found with `pkg-config libtam`, wherever it is installed; add
+# <prefix>/lib/pkgconfig to PKG_CONFIG_PATH for a prefix outside pkg-config's
+# default path. Set LIBTAM_PREFIX to name the install prefix instead, or
+# LIBTAM_CFLAGS and LIBTAM_LIBS directly for a custom layout.
 #
 # Two workstream lanes build independently:
 #   make command   the C binary, linking libtam
@@ -19,10 +21,21 @@ DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
 MANDIR   ?= $(PREFIX)/share/man
 BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
 
-LIBTAM_PREFIX ?= $(PREFIX)
+PKG_CONFIG ?= pkg-config
+ifdef LIBTAM_PREFIX
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
 LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-RPATH         ?= -Wl,-rpath,$(LIBTAM_PREFIX)/lib
+LIBTAM_LIBDIR ?= $(LIBTAM_PREFIX)/lib
+LIBTAM_ERROR  := $(if $(wildcard $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no include/tam.h)
+else ifeq ($(origin LIBTAM_LIBS),undefined)
+LIBTAM_FOUND  := $(shell $(PKG_CONFIG) --exists libtam 2>/dev/null && echo yes)
+LIBTAM_CFLAGS := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
+LIBTAM_LIBS   := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --libs libtam))
+LIBTAM_LIBDIR := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --variable=libdir libtam))
+LIBTAM_ERROR  := $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam)
+endif
+comma := ,
+RPATH         ?= $(if $(LIBTAM_LIBDIR),-Wl$(comma)-rpath$(comma)$(LIBTAM_LIBDIR))
 
 LDFLAGS  ?=
 LDLIBS   ?= -lz
@@ -56,7 +69,7 @@ CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 # whenever that configuration does and forces a rebuild.
 CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
-.PHONY: all command corpus test test-command corpus-and-test check install uninstall clean FORCE
+.PHONY: all command corpus test test-command corpus-and-test check install uninstall clean libtam-check FORCE
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
@@ -64,7 +77,7 @@ all: command corpus
 # --- command lane: the C binary, no corpus regeneration -------------------
 command: $(TAM)
 
-$(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD)
+$(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD) libtam-check
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
 		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
@@ -73,6 +86,16 @@ $(BUILD)/config: FORCE | $(BUILD)
 
 $(BUILD):
 	mkdir -p $(BUILD)
+
+# Stop before the compiler does, with what to do instead of a missing tam.h.
+libtam-check:
+ifneq ($(LIBTAM_ERROR),)
+	@printf '%s\n' 'tam: cannot build the command: $(LIBTAM_ERROR).' \
+		'  Install libtam first:   make -C <libtam checkout> install PREFIX=<prefix>' \
+		'  then let pkg-config see it:   export PKG_CONFIG_PATH=<prefix>/lib/pkgconfig' \
+		'  or name the prefix:   make LIBTAM_PREFIX=<prefix>' >&2
+	@exit 1
+endif
 
 # --- corpus lane: index generation and validation -------------------------
 # Git history and page removals can change the index without changing an input
