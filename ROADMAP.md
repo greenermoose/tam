@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
-**Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.33.5`.
+**Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.33.6`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -85,13 +85,14 @@ in that candidate, not here.
 | **0.33.1 corpus** | Welcome page wording | Done (2026-10-19) | The welcome page says why Tam exists and who else it may help. |
 | **0.33.2 corpus** | Current versus planned wording | Done (2026-10-19) | Pages separate what Tamlinux does today from what is planned: Void and Sway marked planned, Limine (not systemd-boot) as the boot loader, no Tamlinux install medium, real version output, and no unsourced compatibility or release-tag claims. |
 | **0.32.0 command / 0.33.5 corpus** | Home-row pager keys and attention column | Done (2026-10-20) | TCK10 (D175): `d`/`k` and `s`/`l` move the attention line one row; `a`/`j` and `f`/`;` move an attention column from link to link along it; `g` follows, `h` helps; `x`/`.` and `c`/`,` jump to the top and bottom, and `G` is retired. The welcome page teaches the keys. |
+| **0.33.6 corpus** | Guide root index wording | Done (2026-10-20) | Retitled the Guide root index to "Your Tamlinux User Guide", added the Welcome link to the primary list, and refined the introductory description and footer prompt. |
 
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.32.0 / 0.33.5 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
