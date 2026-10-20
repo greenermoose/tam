@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
-**Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.34.0`.
+**Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.34.1`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -87,13 +87,14 @@ in that candidate, not here.
 | **0.32.0 command / 0.33.5 corpus** | Home-row pager keys and attention column | Done (2026-10-20) | TCK10 (D175): `d`/`k` and `s`/`l` move the attention line one row; `a`/`j` and `f`/`;` move an attention column from link to link along it; `g` follows, `h` helps; `x`/`.` and `c`/`,` jump to the top and bottom, and `G` is retired. The welcome page teaches the keys. |
 | **0.33.6 corpus** | Guide root index wording | Done (2026-10-20) | Retitled the Guide root index to "Your Tamlinux User Guide", added the Welcome link to the primary list, and refined the introductory description and footer prompt. |
 | **0.34.0 corpus** | POSIX Programmer's Manual guide page | Done (2026-10-20) | Dedicated `man/posix.html` guide page under Learning > Manual Pages covering IEEE Std 1003.1 sections `0p`, `1p`, and `3p`, standard interfaces versus GNU/Linux extensions, `APPLICATION USAGE` and `RATIONALE` sections, and browsing in `tam` (`08b166a`). |
+| **0.34.1 corpus** | Appendices on Guide index one per line | Done (2026-10-20) | Appendices on Guide index one per line |
 
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.32.0 / 0.34.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.32.0 / 0.34.1 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
