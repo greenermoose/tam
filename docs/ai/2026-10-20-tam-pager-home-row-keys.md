@@ -17,7 +17,7 @@
 
 ## Guiding prompts
 
-> Read my idea in improvements-fred-tamlinux about tam pager nav keys. What do you think? Do you understand it? Can you imagine how that would work?
+> Read my idea in [redacted: private repository] about tam pager nav keys. What do you think? Do you understand it? Can you imagine how that would work?
 
 > Please ponder G and suggest a solution. I'm wondering if there are other keys that could be used for home and end, preferably ones that don't require a shift. Are there a pair that are currently unused that could be pressed into service to be synonyms for Home and End? I want to retire G since g is now used for going to follow a link.
 
