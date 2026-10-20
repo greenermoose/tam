@@ -86,6 +86,7 @@ in that candidate, not here.
 | **0.33.2 corpus** | Current versus planned wording | Done (2026-10-19) | Pages separate what Tamlinux does today from what is planned: Void and Sway marked planned, Limine (not systemd-boot) as the boot loader, no Tamlinux install medium, real version output, and no unsourced compatibility or release-tag claims. |
 | **0.32.0 command / 0.33.5 corpus** | Home-row pager keys and attention column | Done (2026-10-20) | TCK10 (D175): `d`/`k` and `s`/`l` move the attention line one row; `a`/`j` and `f`/`;` move an attention column from link to link along it; `g` follows, `h` helps; `x`/`.` and `c`/`,` jump to the top and bottom, and `G` is retired. The welcome page teaches the keys. |
 | **0.33.6 corpus** | Guide root index wording | Done (2026-10-20) | Retitled the Guide root index to "Your Tamlinux User Guide", added the Welcome link to the primary list, and refined the introductory description and footer prompt. |
+| **0.34.0 corpus** | POSIX Programmer's Manual guide page | Done (2026-10-20) | Dedicated `man/posix.html` guide page under Learning > Manual Pages covering IEEE Std 1003.1 sections `0p`, `1p`, and `3p`, standard interfaces versus GNU/Linux extensions, `APPLICATION USAGE` and `RATIONALE` sections, and browsing in `tam` (`08b166a`). |
 
 
 ## 3. Current state and follow-up
