@@ -89,3 +89,4 @@ model for each session.
 | 2026-10-18 | Warmer welcome page; corpus 0.32.1 | Antigravity CLI 1.4.2; `claude-opus-5-5` | [Session record](docs/ai/2026-10-18-tam-welcome-page-rewrite.md) |
 | 2026-10-19 | Wrapped tables, Topics A to Z and Keyword Index headings, keyword corrections; command 0.31.2, corpus 0.32.4 | Claude Code 2.1.303; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-wrapped-tables.md) |
 | 2026-10-19 | Operating Systems reference under Learning > Ecosystem; corpus 0.33.0 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-os-reference.md) |
+| 2026-10-19 | Find `libtam` with pkg-config; clear error when missing (build only) | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-libtam-pkg-config.md) |
