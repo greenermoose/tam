@@ -22,10 +22,10 @@ the same path-claim rules; old briefs do not assign work or override them.
 
 The knowledge system (command 0.30.0 / corpus 0.31.0), source upgrades and
 stage switching (`docs/plans/upgrade.md`, command 0.31.0 / corpus 0.32.0) and
-reliable corpus builds (corpus 0.32.2) are complete. The next approved work
-is the [developer loop](docs/plans/dev-loop.md) (TCK11, TCK12), Ready since
-2026-10-20; the developer assigns who builds it. Allocate versions from current
-files when implementing. Do not revive the former seven-part contents,
+reliable corpus builds (corpus 0.32.2) and the
+[developer loop](docs/plans/dev-loop.md) (TCK11–TCK14) are complete. No further
+work is approved; the developer chooses what comes next. Allocate versions from
+current files when implementing. Do not revive the former seven-part contents,
 three-track model or withdrawn parser/installer version reservations.
 
 Discuss a design choice with the developer before you build it. A version

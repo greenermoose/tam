@@ -41,3 +41,14 @@ and `tests/guide.sh`. On a scratch copy whose live index has its links
 reversed and whose index and Welcome are retitled, `tests/run.sh` and
 `tests/guide.sh` both pass. Check 8 reports all eight live-corpus interactive
 tests in the previous `tests/run.sh` and none in the new one.
+
+## Closure
+
+> Hold of the 200 non-interactive assertions. Close the dev-loop plan. I'll
+> review then push. What else?
+
+The developer closed the plan on 2026-10-20. The Disposition section of
+`docs/plans/dev-loop.md` cites the evidence for each acceptance criterion; the
+plan index, roadmap, development contract and `AGENTS.md` now show it as
+complete. The non-interactive live-corpus assertions are listed as on hold in
+roadmap section 4.

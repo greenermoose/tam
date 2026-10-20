@@ -108,17 +108,13 @@ Completed plans: the [five-part knowledge system](docs/plans/knowledge-system-0.
 command 0.31.0 / corpus 0.32.0, first activated in the development prefix) and
 [reliable corpus builds](docs/plans/corpus-build.md) (TCK9, corpus 0.32.2) and
 [home-row pager keys](docs/plans/pager-home-row-keys.md) (TCK10, command 0.32.0 /
-corpus 0.33.5).
+corpus 0.33.5) and the [developer loop](docs/plans/dev-loop.md) (TCK11–TCK14,
+tooling and tests only: `make dev`, `make check-repo`, pager tests on fixtures).
 Disposable acceptance builds and live metadata checks have standing developer
 authorization.
 
-Next approved outcome, Ready (approved 2026-10-20): the
-[developer loop](docs/plans/dev-loop.md). TCK11 adds `make dev`, which
-commits, versions, tests and installs the developer's own edits. TCK12 adds
-drift checks for copied facts and a repository map. TCK13 moves the
-interactive pager tests onto fixtures so page edits cannot break them, and
-TCK14 has `make dev` name the failing check. This is repository tooling and
-tests only, so neither component version changes for it.
+No further outcome is approved. The developer chooses the next one; the
+deferred items in section 4 are candidates, not assignments.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the
@@ -139,6 +135,7 @@ none has a reserved version:
 | Stateful `tam learn` and automated assessment | Separate opt-in state and assessment design. Guided learning in corpus 0.31.0 does not require it. |
 | Rationale, deep-system traces and CS learning | Exploratory content/commands, not committed milestones. Existing depth filtering is already implemented. Old proposed 0.26/0.27/0.28 milestones are not future reservations. |
 | Wider distribution/terminal-only profiles and stable 1.0 | Follow the product's capabilities and evidence; no promised feature set or version allocation from this roadmap. |
+| Non-interactive live-corpus assertions in `tests/run.sh` | On hold by the developer (2026-10-20). About 200 `tam explain`/`tam search` routing and output checks still read `knowledge/`, so a page edit can fail them; `make dev` then names the test. Sorting them into corpus contracts (`tests/guide.sh`) or command tests (fixtures) waits for his decision. |
 | Merged full-text search over installed manuals | Separate scalability/search work. Command 0.30.0 already provides explicit Man keyword discovery and Info directory browsing. |
 
 A future scope decision creates or updates an authoritative plan and allocates

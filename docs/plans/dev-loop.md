@@ -1,14 +1,14 @@
 # Developer loop: `make dev` and drift checks
 
-**Plan status:** In progress
+**Plan status:** Completed
 **Reviewed:** 2026-10-20
 **Scope:** Repository tooling only: `Makefile`, two new scripts under `tools/`,
 their tests and one new map document. No command or corpus version changes
 for this work (command 0.32.0 and corpus 0.33.6 at approval).
 **Authority:** The developer approved this design on 2026-10-20; see
 [the planning record](../ai/2026-10-20-tam-dev-loop-plan.md).
-**Next action:** TCK11 to TCK14 are implemented. The developer decides whether
-his corpus 0.34.1 run (below) completes the developer acceptance.
+**Next action:** None; closed 2026-10-20 (see Disposition). On hold: about
+200 non-interactive live-corpus assertions in `tests/run.sh` (roadmap section 4).
 
 Follow the [plan maintenance procedure](../plan-maintenance.md).
 
@@ -249,4 +249,26 @@ without a local Ollama server.
 
 ## Disposition
 
-Open. Close when both slices and the developer acceptance above are complete.
+Completed 2026-10-20; the developer closed the plan after his corpus 0.34.1 run.
+Evidence for each acceptance criterion:
+
+- `make test` passes with `tests/test_dev.py` (9 tests) and
+  `tests/test_check_repo.py` (10 tests), whose fixtures cover lane grouping,
+  claimed-path exclusion, generated-file filtering, single-occurrence version
+  edits, "already bumped" detection, the refusals, and each drift check
+  ([TCK11](../ai/2026-10-20-tam-dev-loop-tck11.md),
+  [TCK12](../ai/2026-10-20-tam-dev-loop-tck12.md),
+  [TCK13 and TCK14](../ai/2026-10-20-tam-dev-loop-tck13-tck14.md)).
+- `make dev DRY_RUN=1` with one edited page listed only that page and left
+  `git status` unchanged (TCK11 record). Exclusion of another session's claimed
+  paths is covered by the fixture test, not by a live dry run.
+- `make check-repo` passes.
+- Developer acceptance: the corpus 0.34.1 run made the page-and-version commit
+  `98222ff` and the index commit `4d41d84`, installed to `~/.local/dev` (first
+  in `type -a tam`; `tam --version` reads `dev 4d41d84`, not dirty) and pushed.
+  The stop-before-commit and "already bumped" rerun were exercised by a failing
+  test rather than by a lint failure.
+
+Routed elsewhere: the non-interactive `tam explain`/`tam search` assertions that
+still read the live corpus are on hold by the developer's decision (roadmap
+section 4). Limits above still apply.

@@ -2,13 +2,13 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-20
-**Scope:** Living integration contract; current command 0.32.0 and corpus 0.33.6.
+**Scope:** Living integration contract; current command 0.32.0 and corpus 0.34.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md)
 and [developer loop plan](dev-loop.md).
-**Next action:** Implement the Ready [developer loop](dev-loop.md): TCK11
-(`make dev`), then TCK12 (drift checks and repository map). Package Test/Run/Release remain developer-directed stages.
+**Next action:** None approved; the [developer loop](dev-loop.md) (TCK11–TCK14)
+is complete. The developer chooses the next outcome. Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
