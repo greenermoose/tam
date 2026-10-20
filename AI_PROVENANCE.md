@@ -91,3 +91,4 @@ model for each session.
 | 2026-10-19 | Operating Systems reference under Learning > Ecosystem; corpus 0.33.0 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-os-reference.md) |
 | 2026-10-19 | Find `libtam` with pkg-config; clear error when missing (build only) | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-libtam-pkg-config.md) |
 | 2026-10-19 | Roadmap/plan index/AGENTS.md status refresh; current-versus-planned corpus wording, corpus 0.33.2 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-status-and-corpus-wording.md) |
+| 2026-10-19 | Learning levels standardized on "path"; corpus 0.33.3 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-learning-paths.md) |

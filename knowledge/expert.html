@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>The expert's path</title>
+<title>Expert path</title>
 <meta name="topic" content="expert-path">
 <meta name="summary" content="The design and internals chapters of the guide">
 <meta name="keywords" content="expert, internals, design, deep dive">
@@ -11,12 +11,12 @@
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / The expert's path</p>
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / Expert path</p>
 </nav>
 
-<h1>The expert's path</h1>
+<h1>Expert path</h1>
 <p><strong>Outcome:</strong> reason from process and descriptor behavior through TTYs and boot dependencies, evaluate system architecture tradeoffs, and develop a small tool in a controlled development context.</p>
-<p><strong>Prerequisites:</strong> practical shell experience, basic process concepts, and familiarity with the <a href="intermediate.html">intermediate route</a>. This route gives goals and references rather than step-by-step commands.</p>
+<p><strong>Prerequisites:</strong> practical shell experience, basic process concepts, and familiarity with the <a href="intermediate.html">intermediate path</a>. This path gives goals and references rather than step-by-step commands.</p>
 <ol><li>Compare <a href="shell/jobs.html?level=expert">processes and job control</a> with <a href="ecosystem/ttys-and-virtual-consoles.html?level=expert">TTYs, VTs, and PTYs</a>. Trace which process owns a terminal and how file descriptors are inherited.</li><li>Map dependencies among <a href="maintain/boot.html">boot stages</a>, <a href="maintain/boot-recovery.html">fallback paths</a>, and <a href="maintain/recovery.html">recovery routes</a>. Mark the shared dependencies before judging a recovery option.</li><li>Read the <a href="ecosystem/index.html">architecture overview</a>, then compare its pages on <a href="ecosystem/compositors.html?level=intermediate">compositors</a>, <a href="ecosystem/init.html?level=intermediate">service supervision</a>, and <a href="ecosystem/libc.html">C libraries</a>. Separate current choices from planned directions.</li><li>Choose a small, reversible exercise in a development checkout and read <a href="improve/toolchains.html?level=expert">toolchain guidance</a> and <a href="improve/scripting.html?level=expert">tool conventions</a>. State the test boundary and rollback before editing; do not practice on boot, package-removal, or privileged recovery paths.</li></ol>
 <p><strong>Self-check:</strong> draw the process/descriptor/TTY relationships for a shell pipeline, identify one boot dependency shared by two recovery paths, and cite the authoritative source for a current-versus-planned architecture claim.</p>
 <p><strong>Next:</strong> continue into <a href="improve/index.html">Improving</a>, or revisit a subject page at its <code>?level=expert</code> depth where offered.</p>

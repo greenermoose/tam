@@ -94,6 +94,12 @@ Naming the developer:
   the developer's Test instruction".
 - Example accounts are never his: write `alex`.
 
+## Terms
+
+- The three learning levels are **paths**: "Choose a path", "Beginner path",
+  "Intermediate path", "Expert path". Do not call them routes. Boot pages keep
+  "fallback route" and "rescue route" for their own, separate meaning.
+
 ## Markup the renderer can show
 
 Readers see the text that `tam show` renders, not the HTML.
