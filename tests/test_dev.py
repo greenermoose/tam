@@ -458,5 +458,57 @@ class DevLoopTest(unittest.TestCase):
         self.assertIn("Push state: not pushed (upstream has new commits)", out2)
 
 
+class FailureExplanationTest(unittest.TestCase):
+    PAGE_CHANGES = {
+        "corpus": ["knowledge/index.html", "knowledge/version"],
+        "command": [],
+        "other": ["ROADMAP.md"],
+    }
+    COMMAND_TEST_OUTPUT = (
+        "cc -o build/tam src/tam.c\n"
+        "python3 tools/build-index.py\n"
+        "tests/run.sh /work/tam/build/tam\n"
+        "ok - show subcommand\n"
+        "AssertionError: expected info:dir, got learn/documentation.html\n"
+        "FAIL: interactive pager link navigation failed\n"
+        "make: *** [Makefile:115: test] Error 1\n"
+    )
+    PAGE_CHECK_OUTPUT = (
+        "tests/run.sh /work/tam/build/tam\n"
+        "All tam command tests passed.\n"
+        "python3 tools/lint-corpus.py\n"
+        "knowledge/use/index.html:12: unclosed <li>\n"
+        "make: *** [Makefile:118: test] Error 1\n"
+    )
+
+    def test_page_only_change_failing_a_command_test_points_to_an_agent(self):
+        lines = dev_mod.explain_test_failure(self.COMMAND_TEST_OUTPUT, self.PAGE_CHANGES)
+        text = "\n".join(lines)
+        self.assertEqual(lines[0], "FAIL: interactive pager link navigation failed")
+        self.assertIn("Failing check: tests/run.sh /work/tam/build/tam", text)
+        self.assertIn("Your pages are probably fine. Ask an agent", text)
+
+    def test_page_check_failure_asks_for_a_page_fix(self):
+        lines = dev_mod.explain_test_failure(self.PAGE_CHECK_OUTPUT, self.PAGE_CHANGES)
+        text = "\n".join(lines)
+        self.assertIn("Failing check: python3 tools/lint-corpus.py", text)
+        self.assertIn("Fix the page it names", text)
+        self.assertNotIn("Ask an agent", text)
+
+    def test_command_change_only_names_the_check(self):
+        changes = {"corpus": [], "command": ["src/pager.c"], "other": []}
+        lines = dev_mod.explain_test_failure(self.COMMAND_TEST_OUTPUT, changes)
+        text = "\n".join(lines)
+        self.assertIn("Failing check: tests/run.sh", text)
+        self.assertNotIn("Ask an agent", text)
+        self.assertNotIn("Fix the page", text)
+
+    def test_build_failure_before_tests(self):
+        output = "cc -o build/tam src/tam.c\nsrc/tam.c:1: error\nmake: *** [Makefile:90: build/tam] Error 1\n"
+        lines = dev_mod.explain_test_failure(output, self.PAGE_CHANGES)
+        self.assertIn("The build failed before the tests ran.", lines)
+        self.assertIn("Ask an agent", "\n".join(lines))
+
+
 if __name__ == "__main__":
     unittest.main()

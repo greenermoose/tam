@@ -673,13 +673,59 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
 # 5. Build and test first
 # ---------------------------------------------------------------------------
 
-def step_build_and_test(root):
+# Checks that read the developer's pages. Any other failing step is a build,
+# command or repository test that an agent fixes.
+PAGE_CHECKS = (
+    "tools/build-index.py",
+    "tools/lint-corpus.py",
+    "tests/test_lint_corpus.py",
+    "tests/test_build_index.py",
+    "tests/guide.sh",
+)
+RECIPE_RE = re.compile(r"^(tests/\S+|python3 |TAM_TEST_SKIP_OLLAMA=)")
+PAGE_ONLY_OTHER = frozenset({"ROADMAP.md"})
+
+
+def failing_check(output):
+    """The last test or check recipe make echoed before it stopped."""
+    last = None
+    for line in output.splitlines():
+        if RECIPE_RE.match(line):
+            last = line.strip()
+    return last
+
+
+def explain_test_failure(output, changes):
+    lines = [line for line in output.splitlines() if line.startswith("FAIL")]
+    check = failing_check(output)
+    page_check = check is not None and any(c in check for c in PAGE_CHECKS)
+    page_only = bool(changes["corpus"]) and not changes["command"] and all(
+        rel in PAGE_ONLY_OTHER for rel in changes["other"]
+    )
+    if check is None:
+        lines.append("The build failed before the tests ran.")
+    else:
+        lines.append(f"Failing check: {check}")
+    if page_only and not page_check:
+        lines.append(
+            "You changed only pages, and this is not a page check: it is a build, "
+            "command or repository test. Your pages are probably fine. Ask an agent "
+            "to fix the named test, then run make dev again; it keeps your version bump."
+        )
+    elif page_check:
+        lines.append("This check reads the pages. Fix the page it names, then run make dev again.")
+    return lines
+
+
+def step_build_and_test(root, changes):
     print("== 5. Build and test ==")
     res = run_make(root, "test")
     if res.returncode != 0:
         lines = res.stdout.splitlines()
         tail = "\n".join(lines[-40:])
         print(tail)
+        print()
+        print("\n".join(explain_test_failure(res.stdout, changes)))
         raise DevError("make test failed; version edits remain in the working tree.")
     print("make test passed.")
 
@@ -922,7 +968,7 @@ def main(root=None, dry_run=False):
         version_info = step_versions(root, changes, claim_state, dry_run=dry_run)
         if dry_run:
             return 0
-        step_build_and_test(root)
+        step_build_and_test(root, changes)
         main_sha = step_commit(root, changes, version_info, committed)
         step_index_followup(root, main_sha, claim_state, committed)
         prefix = step_install(root)

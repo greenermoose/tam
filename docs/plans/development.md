@@ -369,6 +369,13 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** Command tests no longer depend on what the pages say
+  ([developer loop](dev-loop.md), TCK13, TCK14). A correct reordering of the
+  index links failed a pager test that asserted the live link order. Interactive
+  tests in `tests/run.sh` now read `tests/fixtures/`, `make check-repo` rejects
+  an unmarked live-corpus interactive test, and `make dev` names the failing
+  check and says whether the pages or a test need fixing. Tooling and tests
+  only; no component version change.
 - **2026-10-20:** The developer approved the [developer loop](dev-loop.md)
   (TCK11, TCK12). `make dev` becomes his own path from saved edits to a
   committed, tested development install: it commits every changed path except

@@ -1,14 +1,14 @@
 # Developer loop: `make dev` and drift checks
 
-**Plan status:** Ready
+**Plan status:** In progress
 **Reviewed:** 2026-10-20
 **Scope:** Repository tooling only: `Makefile`, two new scripts under `tools/`,
 their tests and one new map document. No command or corpus version changes
 for this work (command 0.32.0 and corpus 0.33.6 at approval).
 **Authority:** The developer approved this design on 2026-10-20; see
 [the planning record](../ai/2026-10-20-tam-dev-loop-plan.md).
-**Next action:** Implement TCK11 (`make dev`), then TCK12 (drift checks and
-repository map), in that order.
+**Next action:** TCK11 to TCK14 are implemented. The developer decides whether
+his corpus 0.34.1 run (below) completes the developer acceptance.
 
 Follow the [plan maintenance procedure](../plan-maintenance.md).
 
@@ -126,8 +126,10 @@ with a plain message saying what was and was not committed.
      `- **YYYY-MM-DD:** Command X (patch|minor): <summary>` in `development.md`.
    The edited files join the commit set.
 5. **Build and test first.** Run `make test`. On failure print the last 40
-   lines and stop. Nothing is committed; the version edits stay, and step 4
-   finds them next time.
+   lines, then the `FAIL` lines and the check that failed, and stop. Nothing is
+   committed; the version edits stay, and step 4 finds them next time. When only
+   pages changed and the failing check does not read pages (TCK14), say so and
+   tell the developer to ask an agent to fix that test.
 6. **Commit.** Prompt for the subject (default: `<summary>; corpus X` and/or
    `command Y`) and an optional body. `git add --` the untracked paths, then
    `git commit -m … -- <paths>`. This is the developer's own commit: no AI
@@ -167,6 +169,7 @@ expected value and the fix.
 | Repository map | top-level entries and `docs/` subdirectories | one line each in `docs/repo-map.md`, and no line for a missing entry |
 | Relative links | every tracked `*.md` file | each relative link target exists (fragment ignored) |
 | Lane table | path lists in the `AGENTS.md` lane table | each named path exists |
+| Pager fixtures (TCK13) | `tests/fixtures/` | interactive tests in `tests/run.sh` do not read `knowledge/` unless marked `# live-corpus: <reason>` |
 
 `docs/repo-map.md` has one line per entry: what it is for and how it changes,
 using four categories: *you edit* (pages, README, plans), *script edits*
@@ -179,6 +182,40 @@ The first run will find existing drift (for example, the `development.md`
 preamble lagged the version files until this plan was added). Fix each finding
 in its own commit; ask the developer about any finding whose correct value is
 unclear.
+
+### Finding from the first developer run (2026-10-20)
+
+The developer reordered the guide index links and ran `make dev`. It stopped in
+`make test`, as designed, with nothing committed. The cause was not his page:
+the pager Tab/Shift-Tab test asserted the live index's link order. This plan
+and the `AGENTS.md` lane rule ("a corpus-only release stays inside the corpus
+lane") had both assumed that a failing `make test` on a page edit meant a page
+problem, but about eight interactive tests in `tests/run.sh` read live page
+titles, link order and breadcrumbs. The failing test moved to a fixture in
+`fb6df35`; the rerun committed corpus 0.34.1 (`98222ff`, `4d41d84`), reported
+"already bumped", installed and pushed. TCK13 and TCK14 close the gap.
+
+### TCK13 (pager tests on fixtures)
+
+Files: `tests/fixtures/guide/` (new: a small guide with an index, Welcome,
+Learning, Installing, Desktop and a pipelines page with depth sections, plus a
+hand-written `index.tsv`), `tests/run.sh`, `tests/guide.sh`,
+`tools/check-repo.py` (check 8), `tests/test_check_repo.py`, `AGENTS.md`.
+Every interactive test in `tests/run.sh` reads `tests/fixtures/`; `guide.sh`
+reads the index heading from the page instead of fixed wording. Out of scope:
+about 200 non-interactive `tam explain`/`tam search` routing assertions in
+`tests/run.sh` still read the live corpus; they stay until the developer
+decides whether they are corpus contracts (move to `guide.sh`) or command
+tests (move to fixtures).
+
+### TCK14 (`make dev` names the failing check)
+
+Files: `tools/dev.py` (`explain_test_failure`), `tests/test_dev.py`. Step 5
+names the last check `make` ran. Page checks are `tools/build-index.py`,
+`tools/lint-corpus.py`, the corpus unit tests and `tests/guide.sh`; for those it
+says to fix the page. When only pages (plus `ROADMAP.md` version edits)
+changed and another check failed, it says the pages are probably fine and an
+agent should fix the named test.
 
 ## Acceptance and limits
 
@@ -193,6 +230,11 @@ unclear.
 - With another session holding a claim, `make dev DRY_RUN=1` lists that
   session's paths as excluded.
 - `make check-repo` passes on the tree after the drift fixes.
+- TCK13: with the live index's links reversed and the index and Welcome
+  retitled, `tests/run.sh` and `tests/guide.sh` still pass; `check-repo` flags
+  each interactive test that reads `knowledge/` without a marker.
+- TCK14: `tests/test_dev.py` covers the page-check, command-test, build and
+  command-change messages.
 - **Developer acceptance:** the developer edits a page, runs `make dev` and
   accepts the defaults. Expected: a page-and-version commit, then an index
   commit; `type -a tam` lists `~/.local/dev/bin/tam` first; `tam --version`

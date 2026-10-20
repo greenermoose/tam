@@ -115,8 +115,10 @@ authorization.
 Next approved outcome, Ready (approved 2026-10-20): the
 [developer loop](docs/plans/dev-loop.md). TCK11 adds `make dev`, which
 commits, versions, tests and installs the developer's own edits. TCK12 adds
-drift checks for copied facts and a repository map. This is repository tooling
-only, so neither component version changes for it.
+drift checks for copied facts and a repository map. TCK13 moves the
+interactive pager tests onto fixtures so page edits cannot break them, and
+TCK14 has `make dev` name the failing check. This is repository tooling and
+tests only, so neither component version changes for it.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the
