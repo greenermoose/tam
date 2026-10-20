@@ -1,10 +1,16 @@
 # Plan: Common pitfall → Best practice
 
-- **Status:** planned
-- **Area:** corpus/style
-- **Priority:** medium
-- **Created:** 2026-10-20
-- **Owner:** developer
+**Plan status:** Completed
+**Reviewed:** 2026-10-20
+**Scope:** Corpus 0.35.2: the 16 `Common pitfall` sections become
+`Best practice` sections that lead with the correct action.
+**Authority:** The developer's instruction of 2026-10-20 to audit the
+`Common pitfall` sections, plan the fixes and do the work; the
+[audit report](../ai/2026-10-20-common-pitfall-to-best-practice-audit.md);
+[plan maintenance procedure](../plan-maintenance.md).
+**Next action:** None; delivered in `ae1fa41` (pages), `ca25c8f` (index) and
+corpus 0.35.2 ([session record](../ai/2026-10-20-tam-common-pitfall-best-practice.md)).
+Package stages remain developer-directed.
 
 ## Goal
 Rename all `Common pitfall` sections to `Best practice` in the tam knowledge corpus and reorder content so each leads with the positive/correct action first, then explains what bad things happen if done the other way.

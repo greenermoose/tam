@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-20
-**Scope:** Living integration contract; current command 0.34.0 and corpus 0.35.1.
+**Scope:** Living integration contract; current command 0.34.0 and corpus 0.35.2.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
