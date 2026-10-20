@@ -99,3 +99,4 @@ model for each session.
 | 2026-10-20 | TCK10: home-row pager keys and attention column; command 0.32.0, corpus 0.33.5 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-20-tam-pager-home-row-keys.md) |
 | 2026-10-20 | Guide root index wording ("Your Tamlinux User Guide"); corpus 0.33.6 | Antigravity CLI 1.4.3; `gemini-4-argon-medium` | [Session record](docs/ai/2026-10-20-tam-guide-index-wording.md) |
 | 2026-10-20 | Ready plan for the `make dev` developer loop and drift checks (TCK11, TCK12); no version change | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-20-tam-dev-loop-plan.md) |
+| 2026-10-20 | TCK11: `make dev` developer loop (`tools/dev.py`, `tests/test_dev.py`, `Makefile`, `README.md`, `AGENTS.md`); no version change | Antigravity CLI 1.4.3; `gemini-4-argon-high` | [Session record](docs/ai/2026-10-20-tam-dev-loop-tck11.md) |
