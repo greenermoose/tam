@@ -93,3 +93,4 @@ model for each session.
 | 2026-10-19 | Roadmap/plan index/AGENTS.md status refresh; current-versus-planned corpus wording, corpus 0.33.2 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-status-and-corpus-wording.md) |
 | 2026-10-19 | Learning levels standardized on "path"; corpus 0.33.3 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-learning-paths.md) |
 | 2026-10-19 | Down Arrow leaves the breadcrumb row; command 0.31.4 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-breadcrumb-down-arrow.md) |
+| 2026-10-19 | Install `man-pages`; relink `sh` and `umask` to POSIX `1p` pages; corpus 0.33.4 | Claude Code 2.1.304; `claude-opus-5-5` | [Session record](docs/ai/2026-10-19-tam-man-pages-links.md) |
