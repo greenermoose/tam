@@ -10,7 +10,7 @@ registry here.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK10.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK11.** Update this
   counter in the same change that adds a new top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
   being changed. Two sessions minting at once then conflict on the counter

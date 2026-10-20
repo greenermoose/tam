@@ -368,6 +368,17 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** Command 0.32.0 (minor) puts the pager's letter keys on the
+  home row, mirrored on each hand (D175, TCK10, [plan](pager-home-row-keys.md)).
+  `d`/`k` and `s`/`l` move the attention line one row down and up, sharing the
+  arrows' breadcrumb behavior. `a`/`j` and `f`/`;` move an attention column
+  from link to link along the attention line, wrapping; the column is drawn as
+  a band as wide as the caught link on every content row and clears when the
+  line, selection or page changes, or on `g`/Enter. `g` follows the selected
+  link and `h` toggles help. `x`/`.` and `c`/`,` go to the top and bottom; `G`
+  is retired. This replaces 0.31.1's `a`/`f` reading-order and `s`/`d`
+  link-jump meanings. Corpus 0.33.5 (patch) teaches the keys on the welcome
+  page.
 - **2026-10-20:** Command 0.31.5 (patch) makes in-page links work. The
   renderer records `id=` and `<a name=>` targets by block, and Enter or Right
   Arrow on a `#fragment` link puts its target on the first content row; Left

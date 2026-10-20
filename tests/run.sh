@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.31.5' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.32.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -280,11 +280,11 @@ os.waitpid(pid, 0)
 ' "$TAM" "$root/knowledge" || fail "interactive pager link navigation failed"
     pass "pager link navigation: Tab forward and Shift-Tab backward circulation"
 
-    # Pager hyperlink navigation with a, s, d, f and Info dir rebind to i
+    # Pager home-row keys (D175) and Info dir rebind to i
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl
 
-# 1. Test 2D spatial link navigation on nav-grid fixture (a left, s up, d down, f right)
+# 1. Home-row navigation on the nav-grid fixture
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
 
@@ -313,89 +313,64 @@ def send_and_get_target(key):
         return ""
     return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
 
+def send_and_get_state(key):
+    time.sleep(0.08)
+    while select.select([master], [], [], 0.02)[0]:
+        os.read(master, 1024)
+    os.write(master, key)
+    time.sleep(0.08)
+    buf = b""
+    while select.select([master], [], [], 0.02)[0]:
+        buf += os.read(master, 1024)
+    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
+    pos = last.split(b"|")[1].strip().split()[0].decode() if b"|" in last else ""
+    msg = last.split(b"[")[-1].split(b"]")[0].decode("utf-8", "replace") if b"]" in last else ""
+    return pos, msg
+
 time.sleep(0.15)
-# Initial: nothing selected. Press "f" -> first visible body link: tl.html
-t0 = send_and_get_target(b"f")
-assert t0 == "tl.html", f"expected tl.html, got {t0}"
+# The heading line has no links: left and right have nothing to catch.
+assert send_and_get_target(b"f") == "", "f caught a link on a line without links"
+assert send_and_get_target(b"j") == "", "j caught a link on a line without links"
 
-# Press "f" -> moves right on same line: tr.html
-t1 = send_and_get_target(b"f")
-assert t1 == "tr.html", f"expected tr.html, got {t1}"
+# k moves the attention line down one row; the first link row catches tl.html.
+assert send_and_get_target(b"k") == ""
+t = send_and_get_target(b"k")
+assert t == "tl.html", f"expected k to reach the first link row, got {t}"
 
-# Press "d" -> moves down: br.html
-t2 = send_and_get_target(b"d")
-assert t2 == "br.html", f"expected br.html, got {t2}"
+# Right (f, ;) and left (a, j) move along the line and wrap at either end.
+for key, want in ((b"f", "tr.html"), (b";", "tl.html"), (b"a", "tr.html"), (b"j", "tl.html")):
+    t = send_and_get_target(key)
+    assert t == want, f"expected {key!r} to catch {want}, got {t}"
 
-# Press "a" -> moves left on same line: bl.html
-t3 = send_and_get_target(b"a")
-assert t3 == "bl.html", f"expected bl.html, got {t3}"
+# Down (d) catches the first link on the next row; right moves along it.
+assert send_and_get_target(b"d") == "bl.html"
+assert send_and_get_target(b"f") == "br.html"
+# Up (l, s) moves one row; moving up catches the last link on the row.
+assert send_and_get_target(b"l") == "tr.html"
+assert send_and_get_target(b"s") == "tr.html", "the caught link stays selected on the blank row while visible"
 
-# Press "s" -> moves up: tl.html
-t4 = send_and_get_target(b"s")
-assert t4 == "tl.html", f"expected tl.html, got {t4}"
+# Bottom (c, ,) and top (x, .) jump to the ends of the page; G is retired.
+pos, _ = send_and_get_state(b"x")
+assert pos.startswith("L1/"), f"expected x to reach the top, got {pos}"
+pos, _ = send_and_get_state(b"c")
+assert pos.startswith("L4/"), f"expected c to reach the bottom, got {pos}"
+pos, _ = send_and_get_state(b".")
+assert pos.startswith("L1/"), f"expected . to reach the top, got {pos}"
+pos, _ = send_and_get_state(b",")
+assert pos.startswith("L4/"), f"expected , to reach the bottom, got {pos}"
+send_and_get_state(b"x")
+pos, _ = send_and_get_state(b"G")
+assert pos == "", f"expected retired G to do nothing, got {pos}"
 
-# Press "s" again from top -> wraps around to bottom: bl.html
-t5 = send_and_get_target(b"s")
-assert t5 == "bl.html", f"expected bl.html, got {t5}"
-
-# Press "d" again from bottom -> wraps around to top: tl.html
-t6 = send_and_get_target(b"d")
-assert t6 == "tl.html", f"expected tl.html, got {t6}"
-
-# Move to tr.html
-t7 = send_and_get_target(b"f")
-assert t7 == "tr.html", f"expected tr.html, got {t7}"
-
-# Press "s" from top right -> wraps around to bottom right: br.html
-t8 = send_and_get_target(b"s")
-assert t8 == "br.html", f"expected br.html, got {t8}"
-
-# Press "d" from bottom right -> wraps around to top right: tr.html
-t9 = send_and_get_target(b"d")
-assert t9 == "tr.html", f"expected tr.html, got {t9}"
-
-# a moves left to tl.html
-t10 = send_and_get_target(b"a")
-assert t10 == "tl.html", f"expected tl.html, got {t10}"
-
-# a from tl.html wraps to last link: br.html
-t11 = send_and_get_target(b"a")
-assert t11 == "br.html", f"expected br.html, got {t11}"
-
-# f from br.html wraps to first link: tl.html
-t12 = send_and_get_target(b"f")
-assert t12 == "tl.html", f"expected tl.html, got {t12}"
+# g follows the caught link (the fixture targets do not exist).
+send_and_get_target(b"c")
+assert send_and_get_target(b"f") == "br.html"
+_, msg = send_and_get_state(b"g")
+assert msg == "cannot open br.html", f"expected g to follow br.html, got [{msg}]"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-
-# 2. Test initial selection of first visible link for keys a, s, d
-for key in [b"a", b"s", b"d"]:
-    m, s = pty.openpty()
-    fcntl.ioctl(s, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
-    p = os.fork()
-    if p == 0:
-        os.close(m)
-        os.dup2(s, 0)
-        os.dup2(s, 1)
-        os.dup2(s, 2)
-        os.close(s)
-        os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
-        os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
-    os.close(s)
-    time.sleep(0.12)
-    while select.select([m], [], [], 0.02)[0]:
-        os.read(m, 1024)
-    os.write(m, key)
-    time.sleep(0.08)
-    buf = b""
-    while select.select([m], [], [], 0.02)[0]:
-        buf += os.read(m, 1024)
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-    target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
-    assert target == "tl.html", f"expected tl.html for key {key}, got {target}"
-    os.write(m, b"q")
-    os.waitpid(p, 0)
 
 # 3. Test key i jumps to info:dir
 m, s = pty.openpty()
@@ -424,40 +399,8 @@ assert "GNU Info Directory" in title or "dir" in title, f"expected Info Director
 os.write(m, b"q")
 os.waitpid(p, 0)
 
-# 4. Test selecting first visible link when scrolled down in viewport
-m, s = pty.openpty()
-fcntl.ioctl(s, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
-p = os.fork()
-if p == 0:
-    os.close(m)
-    os.dup2(s, 0)
-    os.dup2(s, 1)
-    os.dup2(s, 2)
-    os.close(s)
-    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[3]
-    os.execl(sys.argv[1], sys.argv[1], "show")
-os.close(s)
-time.sleep(0.15)
-while select.select([m], [], [], 0.02)[0]:
-    os.read(m, 1024)
-for _ in range(10):
-    os.write(m, b"j")
-    time.sleep(0.01)
-time.sleep(0.08)
-while select.select([m], [], [], 0.02)[0]:
-    os.read(m, 1024)
-os.write(m, b"d")
-time.sleep(0.08)
-buf = b""
-while select.select([m], [], [], 0.02)[0]:
-    buf += os.read(m, 4096)
-lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
-assert target != "welcome.html" and target != "", f"unexpected target {target}"
-os.write(m, b"q")
-os.waitpid(p, 0)
-' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager a/s/d/f navigation or i dir key failed"
-    pass "pager hyperlink navigation: a/s/d/f 2D navigation, first visible link selection, and i dir rebind"
+' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager home-row keys or i dir key failed"
+    pass "pager home-row keys: a/j f/; along the line, s/l d/k one row, x/. c/, top and bottom, g follows, i dir"
 
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl
@@ -933,32 +876,32 @@ assert has_tint, "expected attention line background tint in output buffer"
 assert "L1/4" in pos and "(All)" in pos, f"expected L1/4 in position metric, got: {pos}"
 assert target == "", f"expected no initial selection, got: {target}"
 
-# 1. First j moves to blank separator line: no link
-title, pos, target, msg, has_tint = send_key(b"j")
+# 1. First k moves to blank separator line: no link
+title, pos, target, msg, has_tint = send_key(b"k")
 assert "L2/4" in pos and target == "", f"expected blank line, got: {pos} {target}"
 
-# 2. Second j moves onto links line 1: downward sweep catches FIRST link (tl.html)
-title, pos, target, msg, has_tint = send_key(b"j")
+# 2. Second k moves onto links line 1: downward sweep catches FIRST link (tl.html)
+title, pos, target, msg, has_tint = send_key(b"k")
 assert "L3/4" in pos and target == "tl.html", f"expected downward sweep to catch first link tl.html, got: {target}"
 
-# 3. Third j moves onto links line 2: downward sweep catches FIRST link (bl.html)
-title, pos, target, msg, has_tint = send_key(b"j")
+# 3. Third k moves onto links line 2: downward sweep catches FIRST link (bl.html)
+title, pos, target, msg, has_tint = send_key(b"k")
 assert "L4/4" in pos and target == "bl.html", f"expected downward sweep to catch first link bl.html, got: {target}"
 
 # 4. Tab advances on line 2 to br.html
 title, pos, target, msg, has_tint = send_key(b"\t")
 assert target == "br.html", f"expected Tab to advance to br.html, got: {target}"
 
-# 5. Upward sweep (k) back to line 1: catches LAST link (tr.html)
-title, pos, target, msg, has_tint = send_key(b"k")
+# 5. Upward sweep (l) back to line 1: catches LAST link (tr.html)
+title, pos, target, msg, has_tint = send_key(b"l")
 assert "L3/4" in pos and target == "tr.html", f"expected upward sweep to catch last link tr.html, got: {target}"
 
-# 6. Upward sweep (k) to blank line: tr.html stays selected because it is still visible!
-title, pos, target, msg, has_tint = send_key(b"k")
+# 6. Upward sweep (l) to blank line: tr.html stays selected because it is still visible!
+title, pos, target, msg, has_tint = send_key(b"l")
 assert "L2/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
 
-# 7. Upward sweep (k) to heading line: tr.html stays selected while visible!
-title, pos, target, msg, has_tint = send_key(b"k")
+# 7. Upward sweep (l) to heading line: tr.html stays selected while visible!
+title, pos, target, msg, has_tint = send_key(b"l")
 assert "L1/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
 
 os.write(master, b"q")
@@ -1015,16 +958,16 @@ os.close(slave)
 time.sleep(0.15)
 get_state()
 # Move down to line 4 (L4/4) and select second link on line 4 (br.html)
-send_key(b"j")
-send_key(b"j")
-send_key(b"j")
+send_key(b"k")
+send_key(b"k")
+send_key(b"k")
 title, pos, target, msg, _ = send_key(b"\t")
 assert "L4/4" in pos and target == "br.html", f"expected L4/4 br.html before jump, got: {pos} {target}"
 # Jump to index.html via backtick (`), then scroll down 1 line on index.html
 title, pos, target, msg, _ = send_key(b"`")
 assert "L1/" in pos, f"expected L1 on index.html after backtick jump, got: {pos}"
-title, pos_idx, _, _, _ = send_key(b"j")
-assert "L2/" in pos_idx, f"expected L2 on index.html after j, got: {pos_idx}"
+title, pos_idx, _, _, _ = send_key(b"k")
+assert "L2/" in pos_idx, f"expected L2 on index.html after k, got: {pos_idx}"
 # Go back (Left Arrow \x1b[D): restore L4/4 and its focused br.html link.
 title, pos, target, msg, _ = send_key(b"\x1b[D")
 assert "L4/4" in pos and target == "br.html", f"expected back to restore L4/4 and br.html focus, got: {pos} {target}"
@@ -1093,16 +1036,16 @@ _, pos, target, _, _ = send_key(b"\x1b[B")
 assert pos.startswith("L2/") and target == "", f"expected Down to move the attention line, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[A")
 assert pos.startswith("L1/") and target == "", f"expected Up to move the attention line, got: {pos} {target}"
-# From mid-page, Shift-Tab focuses the breadcrumb; Down and j return to the same line.
-_, pos_mid, _, _, _ = send_key(b"jj")
-assert pos_mid.startswith("L3/"), f"expected jj to reach L3, got: {pos_mid}"
+# From mid-page, Shift-Tab focuses the breadcrumb; Down and k return to the same line.
+_, pos_mid, _, _, _ = send_key(b"kk")
+assert pos_mid.startswith("L3/"), f"expected kk to reach L3, got: {pos_mid}"
 _, _, target, _, _ = send_key(b"\x1b[Z")
 assert target == "index.html", f"expected Shift-Tab to focus the breadcrumb, got: {target}"
 _, pos, target, _, _ = send_key(b"\x1b[B")
 assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected Down to return to {pos_mid}, got: {pos} {target}"
 send_key(b"\x1b[Z")
-_, pos, target, _, _ = send_key(b"j")
-assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected j to return to {pos_mid}, got: {pos} {target}"
+_, pos, target, _, _ = send_key(b"k")
+assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected k to return to {pos_mid}, got: {pos} {target}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -1732,8 +1675,8 @@ title, target = parse_info(drain(master))
 assert target == "index.html", f"s did not move to the previous breadcrumb: {target}"
 os.write(master, b"d")
 title, target = parse_info(drain(master))
-assert target and target != "index.html" and target != "tam:man", f"d did not move from the breadcrumb into the page: {target}"
-os.write(master, b"g\x1b[A")
+assert target != "index.html" and target != "tam:man", f"d did not return from the breadcrumb to the page: {target}"
+os.write(master, b"x\x1b[A")
 title, target = parse_info(drain(master))
 assert target == "tam:man", f"Up did not return from the document to the breadcrumb: {target}"
 os.write(master, b"\x1b[Z")
@@ -1879,7 +1822,7 @@ set -e
 "$TAM" info --help | grep -q 'tam info - browse GNU Info manuals' || fail "tam info --help missing title"
 "$TAM" info -h | grep -q 'Usage:' || fail "tam info -h missing usage"
 "$TAM" info --help | grep -q 'i                         jump to root Info directory catalog' || fail "tam info --help missing i dir"
-"$TAM" info --help | grep -q 'a/s/d/f' || fail "tam info --help missing a/s/d/f"
+"$TAM" info --help | grep -q 'a/j f/;' || fail "tam info --help missing the home-row keys"
 
 pass "tam info subcommand, node parsing, cross-references, and error handling"
 

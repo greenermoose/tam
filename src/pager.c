@@ -165,6 +165,7 @@ typedef struct {
     int             sync_queried;
     int             sync_output;
     int             help_open;
+    int             column_active;
 } pager_t;
 
 static void follow(pager_t *st, const char *href);
@@ -315,6 +316,36 @@ static void emit_search_style(int type)
         (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
     if (g_term->ncv < 0 || !(g_term->ncv & 2))
         (void)tam_terminal_cap(g_term, g_capture, g_term->underline, 0, 0);
+}
+
+/* The attention column is as wide as the caught link and spans every content
+ * row. Columns are content-relative, so the gutter is subtracted. */
+static int column_band(const pager_t *st, int *start, int *end)
+{
+    const linkref_t *sel = st != NULL && st->column_active ? selected_link(st) : NULL;
+    if (sel == NULL) return 0;
+    int gutter = g_term != NULL && g_term->gutter ? 1 : 0;
+    *start = sel->col_start - gutter;
+    *end = sel->col_end - gutter;
+    if (*start < 0) *start = 0;
+    if (*end <= *start) *end = *start + 1;
+    return 1;
+}
+
+static void emit_band_padding(const pager_t *st, int col, int width)
+{
+    int start, end;
+    if (!column_band(st, &start, &end) || col >= end) return;
+    while (col < start && col < width) {
+        outn(" ", 1);
+        col++;
+    }
+    emit_attention(1);
+    while (col < end && col < width) {
+        outn(" ", 1);
+        col++;
+    }
+    emit_reset(0);
 }
 
 static int link_is_visible(const pager_t *st, int link_idx)
@@ -769,8 +800,12 @@ static void emit_line(const tam_line_t *line, int width,
             hit_end++;
     }
 
+    int band_start = 0, band_end = 0;
+    int band = !attention && column_band(st, &band_start, &band_end);
+
     if (attention) emit_attention(1);
     int active_style = 0;
+    int active_tint = attention;
     const tam_span_t *active_span = NULL;
     for (size_t j = 0; j < line->nspans && col < width; j++) {
         const tam_span_t *sp = &line->spans[j];
@@ -808,12 +843,15 @@ static void emit_line(const tam_line_t *line, int width,
                 (sp->href != NULL ? (!link_space || selected_interior_space)
                                   : sp->style != 0);
             int style_key = hit ? 2 + hit : span_style ? 1 : 0;
-            if (style_key != active_style || (style_key == 1 && active_span != sp)) {
-                if (active_style != 0) emit_reset(attention);
+            int tint = attention || (band && col >= band_start && col < band_end);
+            if (style_key != active_style || (style_key == 1 && active_span != sp) ||
+                tint != active_tint) {
+                if (active_style != 0 || tint != active_tint) emit_reset(tint);
                 if (hit) emit_search_style(hit);
                 else if (span_style) (void)emit_style(sp, is_sel);
                 active_style = style_key;
                 active_span = sp;
+                active_tint = tint;
             }
             if (wc == 0xfffd) outn("?", 1);
             else outn(t + char_start, bytes);
@@ -821,7 +859,7 @@ static void emit_line(const tam_line_t *line, int width,
         }
         byte_pos += len;
     }
-    if (active_style != 0) emit_reset(attention);
+    if (active_style != 0 || active_tint != attention) emit_reset(attention);
     if (attention) {
         emit_attention(1);
         while (col < width) {
@@ -829,6 +867,8 @@ static void emit_line(const tam_line_t *line, int width,
             col++;
         }
         emit_reset(0);
+    } else if (band) {
+        emit_band_padding(st, col, width);
     }
 }
 
@@ -970,10 +1010,12 @@ static int draw(pager_t *st)
         if (st->help_open) {
             static const char *help[] = {
                 "Navigation help",
-                "Back: Left Arrow   Guide: `   Help: ?   Quit: q",
-                "Select links: Tab / Shift-Tab or a/s/d/f; Enter or Right Arrow follows.",
+                "Back: Left Arrow   Guide: `   Help: h or ?   Quit: q",
+                "Line: d/k down, s/l up   Top: x or .   Bottom: c or ,",
+                "Links on the line: a/j left, f/; right   Any link: Tab / Shift-Tab",
+                "Follow: g, Enter or Right Arrow",
                 "Info Up: u   Next/Previous: n/p   Search this page: /",
-                "Close help with ? or Esc. Focus, position and history stay put."
+                "Close help with h, ? or Esc. Focus, position and history stay put."
             };
             if ((size_t)row < sizeof(help) / sizeof(help[0]))
                 outn(help[row], status_byte_limit(help[row], paint_width));
@@ -991,13 +1033,15 @@ static int draw(pager_t *st)
             emit_attention(1);
             for (int c = 0; c < paint_width; c++) out(" ");
             emit_reset(0);
+        } else if (li >= (int)st->doc->nlines) {
+            emit_band_padding(st, 0, paint_width);
         }
     }
 
     char status[512] = {0};
     int max_cols = paint_width;
-    const char *actions = max_cols >= 60 ? "< Back  ` Guide  ? Help  q Quit" :
-                          max_cols >= 40 ? "<Back `Guide ?Help qQuit" : "< ` ? q";
+    const char *actions = max_cols >= 60 ? "< Back  ` Guide  h Help  q Quit" :
+                          max_cols >= 40 ? "<Back `Guide hHelp qQuit" : "< ` h q";
     const char *title = st->doc->title ? st->doc->title : "tam";
     char essential[48];
     snprintf(essential, sizeof(essential), "L%d/%zu", st->cursor_line + 1,
@@ -1036,8 +1080,8 @@ static int draw(pager_t *st)
 
     const char *hints = (st->doc->nav_next != NULL || st->doc->nav_prev != NULL ||
                          st->doc->nav_up != NULL)
-        ? " n/p t i a/s/d/f Enter"
-        : " / n/N a/s/d/f Enter u `";
+        ? " n/p t i asdf jkl; g"
+        : " / n/N asdf jkl; g u `";
     int used = (int)tam_display_width(status, strlen(status));
     int hint_width = (int)tam_display_width(hints, strlen(hints));
     if (used + hint_width <= max_cols)
@@ -1586,122 +1630,60 @@ static void select_horizontal_header_link(pager_t *st, int dir)
     st->msg[0] = '\0';
 }
 
-static void select_vertical_link(pager_t *st, int dir)
+/* Up and down move the attention line one row. Up from the first line enters
+ * the breadcrumb row; there, up moves to the previous breadcrumb link and
+ * down returns to the attention line. */
+static void move_line_up(pager_t *st)
 {
-    if (st->nlinks == 0) {
-        return;
-    }
-    if (st->selected >= 0 && st->links[st->selected].header) {
-        if (dir < 0) {
-            int previous = st->selected - 1;
-            while (previous >= 0 && !st->links[previous].header) previous--;
-            if (previous >= 0) st->selected = previous;
-        } else {
-            size_t next = 0;
-            while (next < st->nlinks && st->links[next].header) next++;
-            if (next < st->nlinks) st->selected = (int)next;
-        }
-        if (!st->links[st->selected].header)
-            st->cursor_line = (int)st->links[st->selected].line_start;
-        ensure_link_visible(st, dir);
+    if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+        st->links[st->selected].header) {
+        int previous = st->selected - 1;
+        if (previous >= 0 && st->links[previous].header) st->selected = previous;
         st->msg[0] = '\0';
-        return;
-    }
-    if (st->selected < 0) {
-        st->selected = find_first_visible_link(st);
-        if (!st->links[st->selected].header)
-            st->cursor_line = (int)st->links[st->selected].line_start;
-        ensure_link_visible(st, dir);
-        st->msg[0] = '\0';
-        return;
-    }
-
-    int cur = st->selected;
-    size_t cur_line = (dir < 0) ? st->links[cur].line_start : st->links[cur].line_end;
-    int cur_col = (st->links[cur].col_start + st->links[cur].col_end) / 2;
-
-    int target_line = -1;
-
-    if (dir < 0) {
-        /* Move up: find nearest line strictly above cur_line with links */
-        for (size_t i = 0; i < st->nlinks; i++) {
-            if (st->links[i].header) continue;
-            if (st->links[i].line_start < cur_line) {
-                if (target_line < 0 || (int)st->links[i].line_start > target_line) {
-                    target_line = (int)st->links[i].line_start;
-                }
-            }
-        }
-        /* If no link above, wrap around to the bottom-most line with links */
-        if (target_line < 0) {
-            for (size_t i = 0; i < st->nlinks; i++) {
-                if (st->links[i].header) continue;
-                if (target_line < 0 || (int)st->links[i].line_start > target_line) {
-                    target_line = (int)st->links[i].line_start;
-                }
-            }
-        }
+    } else if (st->cursor_line <= 0 && st->height > 2 &&
+               st->doc->location.nspans > 0 && select_breadcrumb(st)) {
+        /* The fixed location line is above the document's first line. */
     } else {
-        /* Move down: find nearest line strictly below cur_line with links */
-        for (size_t i = 0; i < st->nlinks; i++) {
-            if (st->links[i].header) continue;
-            if (st->links[i].line_start > cur_line) {
-                if (target_line < 0 || (int)st->links[i].line_start < target_line) {
-                    target_line = (int)st->links[i].line_start;
-                }
-            }
-        }
-        /* If no link below, wrap around to the top-most line with links */
-        if (target_line < 0) {
-            for (size_t i = 0; i < st->nlinks; i++) {
-                if (st->links[i].header) continue;
-                if (target_line < 0 || (int)st->links[i].line_start < target_line) {
-                    target_line = (int)st->links[i].line_start;
-                }
-            }
-        }
+        set_cursor_line(st, st->cursor_line - 1, -1);
     }
+}
 
-    if (target_line < 0 && dir < 0) {
-        for (size_t i = st->nlinks; i > 0; i--) {
-            if (st->links[i - 1].header) {
-                st->selected = (int)i - 1;
-                st->msg[0] = '\0';
-                return;
-            }
-        }
+static void move_line_down(pager_t *st)
+{
+    if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+        st->links[st->selected].header)
+        leave_breadcrumb(st);
+    else
+        set_cursor_line(st, st->cursor_line + 1, 1);
+}
+
+/* Left and right move the attention column from link to link along the
+ * attention line, or along the breadcrumb row while it is focused, wrapping
+ * at either end. A line without links has nothing to catch. */
+static void move_column(pager_t *st, int dir)
+{
+    if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+        st->links[st->selected].header) {
+        select_horizontal_header_link(st, dir);
+        st->column_active = 1;
+        return;
     }
-
-    /* Among links on target_line, find the one closest horizontally */
-    int best_k = -1;
-    int best_dist = -1;
+    int first = -1, last = -1, prev = -1, next = -1, on_line = 0;
     for (size_t i = 0; i < st->nlinks; i++) {
-        if (st->links[i].header) continue;
-        if ((int)st->links[i].line_start == target_line) {
-            int k_col = (st->links[i].col_start + st->links[i].col_end) / 2;
-            int dist = abs(k_col - cur_col);
-            if (best_dist < 0 || dist < best_dist) {
-                best_dist = dist;
-                best_k = (int)i;
-            }
-        }
+        const linkref_t *l = &st->links[i];
+        if (l->header || l->line_start > (size_t)st->cursor_line ||
+            l->line_end < (size_t)st->cursor_line) continue;
+        if (first < 0) first = (int)i;
+        last = (int)i;
+        if ((int)i < st->selected) prev = (int)i;
+        else if ((int)i == st->selected) on_line = 1;
+        else if (next < 0) next = (int)i;
     }
-
-    /* If all links are on the same line and best_k == cur, cycle */
-    if (best_k == cur && st->nlinks > 1) {
-        if (dir < 0) {
-            best_k = (cur - 1 + (int)st->nlinks) % (int)st->nlinks;
-        } else {
-            best_k = (cur + 1) % (int)st->nlinks;
-        }
-    }
-
-    if (best_k >= 0) {
-        st->selected = best_k;
-        if (!st->links[best_k].header)
-            st->cursor_line = (int)st->links[best_k].line_start;
-    }
-    ensure_link_visible(st, dir);
+    if (first < 0) return;
+    if (!on_line) st->selected = dir > 0 ? first : last;
+    else if (dir > 0) st->selected = next >= 0 ? next : first;
+    else st->selected = prev >= 0 ? prev : last;
+    st->column_active = 1;
     st->msg[0] = '\0';
 }
 
@@ -1840,9 +1822,9 @@ static void read_sync_reply(pager_t *st, int fd)
 
 /* Returns 1 if the escape sequence was consumed, and sets *handled to the
  * action code. This keeps arrow/page keys working without a full key table. */
-static void handle_key(pager_t *st, unsigned char c)
+static void handle_key_inner(pager_t *st, unsigned char c)
 {
-    if (st->help_open && c != '?' && c != 'q' && c != 0x1b) return;
+    if (st->help_open && c != '?' && c != 'h' && c != 'q' && c != 0x1b) return;
     int usable = content_rows(st);
     int max_top = (int)st->doc->nlines - usable;
     if (max_top < 0) {
@@ -1854,6 +1836,7 @@ static void handle_key(pager_t *st, unsigned char c)
         g_stop = 1;
         return;
     case '?':
+    case 'h':
         st->help_open = !st->help_open;
         break;
     case '/':
@@ -1879,35 +1862,32 @@ static void handle_key(pager_t *st, unsigned char c)
     case 'i':
         follow(st, "info:dir");
         break;
+    /* Home-row keys: each hand has left, up, down, right under one finger
+     * each, mirrored (D175). */
     case 'a':
-        if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
-            st->links[st->selected].header)
-            select_horizontal_header_link(st, -1);
-        else
-            select_next_link(st, -1, 0);
+    case 'j':
+        move_column(st, -1);
         break;
     case 's':
-        select_vertical_link(st, -1);
+    case 'l':
+        move_line_up(st);
         break;
     case 'd':
-        select_vertical_link(st, 1);
+    case 'k':
+        move_line_down(st);
         break;
     case 'f':
-        if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
-            st->links[st->selected].header)
-            select_horizontal_header_link(st, 1);
-        else
-            select_next_link(st, 1, 0);
+    case ';':
+        move_column(st, 1);
         break;
-    case 'j':
-        if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
-            st->links[st->selected].header)
-            leave_breadcrumb(st);
-        else
-            set_cursor_line(st, st->cursor_line + 1, 1);
+    /* The same fingers one row down go all the way. */
+    case 'x':
+    case '.':
+        set_cursor_line(st, 0, -1);
         break;
-    case 'k':
-        set_cursor_line(st, st->cursor_line - 1, -1);
+    case 'c':
+    case ',':
+        set_cursor_line(st, (int)st->doc->nlines - 1, 1);
         break;
     case ' ':
         set_cursor_line(st, st->cursor_line + usable, 0);
@@ -1916,10 +1896,7 @@ static void handle_key(pager_t *st, unsigned char c)
         set_cursor_line(st, st->cursor_line - usable, 0);
         break;
     case 'g':
-        set_cursor_line(st, 0, -1);
-        break;
-    case 'G':
-        set_cursor_line(st, (int)st->doc->nlines - 1, 1);
+        follow_selected(st);
         break;
     case '\t':
         select_next_link(st, 1, 1);
@@ -1991,21 +1968,9 @@ static void handle_key(pager_t *st, unsigned char c)
         }
         seq[n] = '\0';
         if (strcmp(seq, "A") == 0) {
-            if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
-                st->links[st->selected].header) {
-                select_vertical_link(st, -1);
-            } else if (st->cursor_line <= 0 && st->height > 2 &&
-                       st->doc->location.nspans > 0 && select_breadcrumb(st)) {
-                /* The fixed location line is above the document's first line. */
-            } else {
-                set_cursor_line(st, st->cursor_line - 1, -1);
-            }
+            move_line_up(st);
         } else if (strcmp(seq, "B") == 0) {
-            if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
-                st->links[st->selected].header)
-                leave_breadcrumb(st);
-            else
-                set_cursor_line(st, st->cursor_line + 1, 1);
+            move_line_down(st);
         } else if (strcmp(seq, "C") == 0) {
             if (st->selected >= 0) {
                 follow_selected(st);
@@ -2044,6 +2009,23 @@ static void handle_key(pager_t *st, unsigned char c)
     if (st->top > max_top) {
         st->top = max_top;
     }
+}
+
+
+/* The attention column lives only on the line where it was raised: any key
+ * that moves the attention line, changes the selection or the page clears
+ * it. Only the left and right keys raise it. */
+static void handle_key(pager_t *st, unsigned char c)
+{
+    int column_key = c == 'a' || c == 'j' || c == 'f' || c == ';';
+    const tam_document_t *doc = st->doc;
+    int line = st->cursor_line;
+    int selected = st->selected;
+    handle_key_inner(st, c);
+    if (c == 'g' || c == '\r' || c == '\n' ||
+        (!column_key && (st->doc != doc || st->cursor_line != line ||
+                         st->selected != selected)))
+        st->column_active = 0;
 }
 
 int tam_pager_run(tam_document_t *initial, const char *initial_href,

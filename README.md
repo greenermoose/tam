@@ -55,12 +55,17 @@ tam switch test       # build and activate Test source after confirmation
 tam switch --rollback # return to the previous local generation, offline
 ```
 
-In the pager: `j`/`k` or arrows scroll a line, `Space`/`b` or `PgDn`/`PgUp`
-scroll a screen, `g`/`G` or `Home`/`End` jump to the top/bottom, `Tab`/`Shift-Tab`
-selects next/previous link, `Enter` or the right arrow follows it (or the right
-arrow without a selected link proceeds forward along a visited path), `u` or the
-left arrow goes back (`u` means hierarchy Up in Info), backtick returns to the
-Guide, and `q` or `Esc` quits. External links are shown but never
+In the pager, the letter keys sit on the home row, mirrored on each hand:
+`d`/`k` or Down moves the attention line down a line and `s`/`l` or Up moves
+it up; `a`/`j` and `f`/`;` move the attention column left and right from link to
+link along that line. One row down, `x`/`.` or `Home` jumps to the top and
+`c`/`,` or `End` to the bottom. `Space`/`b` or `PgDn`/`PgUp` scroll a screen,
+`Tab`/`Shift-Tab` selects the next/previous link anywhere, and `g`, `Enter` or
+the right arrow follows the selected link (the right arrow without a selected
+link proceeds forward along a visited path). `u` or the left arrow goes back
+(`u` means hierarchy Up in Info), backtick returns to the Guide, `h` or `?`
+shows the keys, and `q` or `Esc` quits. Readers used to `less` or vim: `j` and
+`k` do not scroll here; `k` moves down. External links are shown but never
 fetched, so the guide stays offline. The corpus is located via
 `$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then the compiled install
 prefix.

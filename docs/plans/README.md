@@ -1,6 +1,6 @@
 # tam plan index
 
-Reviewed 2026-10-19 under the [plan maintenance procedure](../plan-maintenance.md).
+Reviewed 2026-10-20 under the [plan maintenance procedure](../plan-maintenance.md).
 This is the complete inventory of plans and corpus notes in this directory.
 Read status/disposition before a historical body. A closed plan is not a task
 queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
@@ -9,6 +9,7 @@ queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
 
 | Plan | Status | Disposition / next action |
 | --- | --- | --- |
+| [Home-row pager keys and attention column](pager-home-row-keys.md) | Completed | TCK10 (home-row pager keys), command 0.32.0 / corpus 0.33.5, decided in D175. Full suite passed; see the [session record](../ai/2026-10-20-tam-pager-home-row-keys.md). Interactive review by the developer and packaged acceptance remain developer-directed. |
 | [Reliable corpus builds](corpus-build.md) | Completed | TCK9 (reliable corpus builds), corpus 0.32.2: pages/Git metadata rechecked; `corpus-and-test` replaces `test-corpus`. Focused, parallel and integrated checks passed; see the [session record](../ai/2026-10-19-tam-corpus-build.md). |
 | [Version checks, source upgrade and stage switching](upgrade.md) | Completed | TCK6–TCK8, full source tests, isolated source build, live metadata check and developer-directed first activation completed. The development prefix was first activated at command 0.31.1 / corpus 0.32.0 and now holds later developer builds (`tam --version` reports them); package-stage acceptance remains developer-directed. See the [Luna handoff](../handoffs/tam-upgrade-luna.md) for the historical implementation record. |
 | [Knowledge system, corpus 0.31.0](knowledge-system-0.31.0.md) | Completed | Command 0.30.0 / corpus 0.31.0; TCK1–TCK5 completed in `e0215fd`, `0b3f008`, `52e71f7`, `597cb71`, `f4fa539`. Automated acceptance passed; package and physical review remain developer-directed. |

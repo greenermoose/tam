@@ -203,11 +203,11 @@ def main():
     assert "bg236" in focus_attrs and "fg15" in focus_attrs, focus_attrs
     assert b"\x1b[2J" not in initial
 
-    os.write(master, b"?")
+    os.write(master, b"h")
     help_frame = read_available(master)
     screen.feed(help_frame)
     assert "Navigation help" in screen.line(1), screen.line(1)
-    os.write(master, b"j")
+    os.write(master, b"k")
     ignored_help_key = read_available(master)
     assert ignored_help_key == b"", f"help overlay moved the underlying page: {ignored_help_key!r}"
     os.write(master, b"?")
@@ -219,10 +219,10 @@ def main():
     os.write(master, b"z")
     ignored = read_available(master)
     assert ignored == b"", f"ignored key emitted {ignored!r}"
-    os.write(master, b"j")
+    os.write(master, b"k")
     first_move = read_available(master)
     screen.feed(first_move)
-    os.write(master, b"j")
+    os.write(master, b"k")
     moved = read_available(master)
     assert b"\x1b[2J" not in moved
     cups = re.findall(rb"\x1b\[(\d+);(\d+)H", moved)
@@ -242,7 +242,7 @@ def main():
     seen = ""
     for _ in range(32):
         seen += "".join(screen.line(r) for r in range(screen.rows))
-        os.write(master, b"j")
+        os.write(master, b"k")
         screen.feed(read_available(master))
     normalized = "".join(seen.split())
     assert all(word in normalized for word in ("first", "attention", "row")), normalized
@@ -252,7 +252,7 @@ def main():
     # Common narrow widths and two-/three-row terminals stay interactive.
     for rows, cols in ((2, 8), (3, 15), (3, 16), (3, 40)):
         pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", rows, cols)
-        os.write(master, b"j")
+        os.write(master, b"k")
         moved = read_available(master)
         screen.feed(moved)
         assert b"\x1b[2J" not in moved
@@ -263,7 +263,7 @@ def main():
     assert b"\x1b[?2026$p" in initial
     os.write(master, b"\x1b[?20")
     time.sleep(0.02)
-    os.write(master, b"2j6;2$y")
+    os.write(master, b"2k6;2$y")
     synced = read_available(master, 0.3)
     assert b"\x1b[?2026h" in synced and b"\x1b[?2026l" in synced, synced
     stop(pid, master)
@@ -272,9 +272,30 @@ def main():
     pid, master, _, _ = collect_screen(binary, fixtures, "xterm-256color")
     os.write(master, b"\x1b[?2026;0$y")
     read_available(master, 0.2)
-    os.write(master, b"j")
+    os.write(master, b"k")
     rejected = read_available(master)
     assert b"\x1b[?2026h" not in rejected and b"\x1b[?2026l" not in rejected
+    stop(pid, master)
+
+    # The attention column spans every content row at the caught link's
+    # columns, and moving the attention line clears it (D175).
+    pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", page="nav-grid")
+    for key in (b"k", b"k", b"f"):
+        os.write(master, key)
+        screen.feed(read_available(master))
+    link_row = next(r for r in range(screen.rows) if "TopRight" in screen.line(r))
+    band_start = screen.line(link_row).index("TopRight")
+    band_end = band_start + len("TopRight")
+    heading_row = next(r for r in range(1, screen.rows) if "Nav grid" in screen.line(r))
+    for row in (heading_row, link_row + 1, screen.rows - 2):
+        for col in range(band_start, band_end):
+            assert "bg236" in screen.cells[row][col][1], (row, col, screen.cells[row][col])
+        assert "bg236" not in screen.cells[row][band_start - 1][1], (row, band_start - 1)
+        assert "bg236" not in screen.cells[row][band_end][1], (row, band_end)
+    assert "reverse" in screen.cells[link_row][band_start][1], screen.cells[link_row][band_start]
+    os.write(master, b"d")
+    screen.feed(read_available(master))
+    assert "bg236" not in screen.cells[heading_row][band_start][1], screen.cells[heading_row][band_start]
     stop(pid, master)
 
     # Linux's eight-color profile keeps an interactive pager and uses reverse.

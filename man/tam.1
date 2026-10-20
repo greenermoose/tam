@@ -208,12 +208,28 @@ When viewing pages with
 or
 .BR "tam info" ,
 the interactive pager provides the following controls:
+.P
+The letter keys sit on the home row. Each hand has left, up, down and right
+under one finger each, mirrored: the index fingers point inward, the middle
+fingers move down, the ring fingers move up and the little fingers point
+outward.
 .TP
-.BR j ", " Down
-Scroll down by one line. From the breadcrumb row, return to the attention line where it was.
+.BR d ", " k ", " Down
+Move the attention line down one line. From the breadcrumb row, return to the attention line where it was.
 .TP
-.BR k ", " Up
-Scroll up by one line. At the first document line, focus the last breadcrumb link; while the breadcrumb row is focused, move to the previous breadcrumb link.
+.BR s ", " l ", " Up
+Move the attention line up one line. At the first document line, focus the last breadcrumb link; while the breadcrumb row is focused, move to the previous breadcrumb link.
+.TP
+.BR a ", " j ", " f ", " ;
+Move the attention column left
+.RB ( a ", " j )
+or right
+.RB ( f ", " ; )
+from link to link along the attention line, wrapping at either end. The
+column is a band as wide as the caught link, drawn down the whole screen; the
+link where it crosses the attention line is the selected link. Moving the
+attention line or following a link clears it. On the breadcrumb row these keys
+move between breadcrumb links. A line without links has nothing to catch.
 .TP
 .BR Space ", " PgDn
 Scroll down by one full screen.
@@ -221,28 +237,20 @@ Scroll down by one full screen.
 .BR b ", " PgUp
 Scroll up by one full screen.
 .TP
-.BR g ", " Home
-Jump to the top of the document.
+.B x\fR, period (\fB.\fR), \fBHome
+Jump to the top of the document. The fingers that move up one line reach one
+row down to go all the way up.
 .TP
-.BR G ", " End
-Jump to the bottom of the document.
+.B c\fR, comma (\fB,\fR), \fBEnd
+Jump to the bottom of the document. The fingers that move down one line reach
+one row down to go all the way down.
 .TP
-.BR Tab ", " Shift-Tab ", " a ", " s ", " d ", " f
-Navigate hyperlinks.
-.B a
-moves to the previous page hyperlink in reading order; on the breadcrumb row it moves to the previous breadcrumb.
-.B f
-moves to the next page hyperlink in reading order; on the breadcrumb row it moves to the next breadcrumb.
-.B s
-moves to the hyperlink above the selected hyperlink, including previous breadcrumb links when the breadcrumb row is focused.
-.B d
-moves to the hyperlink below the selected hyperlink, returning from the breadcrumb row to page links.
-The breadcrumb links are also included in the normal
 .BR Tab ", " Shift-Tab
-sequence.
-If no hyperlink has been selected yet, any of these selectors selects the first hyperlink visible on the screen.
+Select the next or previous hyperlink anywhere on the page, in reading order,
+including the breadcrumb links. If no hyperlink has been selected yet, the
+first hyperlink visible on the screen is selected.
 .TP
-.BR Enter ", " Right
+.BR g ", " Enter ", " Right
 Follow the selected hyperlink. When no link is selected,
 .B Right
 advances forward along previously visited history, restoring the saved viewport and line position.
@@ -292,9 +300,9 @@ for expert.
 .BR q ", " Esc
 Exit the pager.
 .TP
-.B ?
+.BR h ", " ?
 Open navigation help. Press
-.B ?
+.BR h ", " ?
 or
 .B Esc
 to close it without changing the page, focus or history.
