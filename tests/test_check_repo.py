@@ -342,6 +342,27 @@ class CheckRepoTest(unittest.TestCase):
         self.assert_finding_details(findings[0], "AGENTS.md", 9, "Lane table")
         self.assertIn("tests/missing.sh", findings[0])
 
+    def test_pager_test_on_live_corpus_fails(self):
+        root = self.make_clean_fixture()
+        run_sh = (root / "tests" / "run.sh").read_text(encoding="utf-8")
+        pty = "python3 -c '\nimport pty\n' \"$TAM\" \"$root/knowledge\" || fail \"pager\"\n"
+        (root / "tests" / "run.sh").write_text(run_sh + pty, encoding="utf-8")
+        findings = check_mod.check_repo(root)
+        self.assertEqual(len(findings), 1, findings)
+        self.assert_finding_details(findings[0], "tests/run.sh", 5, "Pager fixtures")
+
+        # A fixture root, or a marked exception, passes.
+        (root / "tests" / "run.sh").write_text(
+            run_sh + pty.replace('"$root/knowledge"', '"$root/tests/fixtures/guide"'),
+            encoding="utf-8",
+        )
+        self.assertEqual(check_mod.check_repo(root), [])
+        (root / "tests" / "run.sh").write_text(
+            run_sh + pty.replace("import pty\n", "import pty\n# live-corpus: checks the installed index\n"),
+            encoding="utf-8",
+        )
+        self.assertEqual(check_mod.check_repo(root), [])
+
 
 if __name__ == "__main__":
     unittest.main()

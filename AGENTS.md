@@ -65,6 +65,12 @@ new file such as your own `docs/ai/` record conflicts with nobody.
 A corpus-only release stays inside the corpus lane: new pages are discovered by
 `tests/guide.sh`, and the expected corpus version is read from
 `knowledge/version`.
+Command tests must not depend on what the pages say. Interactive pager tests in
+`tests/run.sh` read `tests/fixtures/` (the small guide in `tests/fixtures/guide/`
+stands in for the corpus), never `knowledge/`; `make check-repo` enforces this,
+and a deliberate exception needs a `# live-corpus: <reason>` comment on the line
+before it. Live-corpus checks belong in `tests/guide.sh` and must not depend on
+link order or wording.
 The corpus 0.31.0 knowledge-system plan also needs command support; claim the
 affected paths in both lanes for those slices and keep the versions independent.
 

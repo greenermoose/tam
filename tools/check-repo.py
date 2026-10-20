@@ -3,7 +3,7 @@
 
 Usage: check-repo.py [--root DIR]
 
-Checks the seven copied-fact invariants defined in docs/plans/dev-loop.md (TCK12):
+Checks the copied-fact invariants defined in docs/plans/dev-loop.md (TCK12, TCK13):
   1. Command version (src/version.h -> tests/run.sh, ROADMAP.md, development.md)
   2. Corpus version (knowledge/version -> ROADMAP.md)
   3. Build inputs (src/*.c and src/*.h -> Makefile SRC and DEPS)
@@ -11,6 +11,7 @@ Checks the seven copied-fact invariants defined in docs/plans/dev-loop.md (TCK12
   5. Repository map (top-level entries and docs/ subdirectories -> docs/repo-map.md)
   6. Relative links (tracked *.md files -> existing target paths)
   7. Lane table (AGENTS.md lane table -> existing paths)
+  8. Pager fixtures (tests/run.sh interactive tests -> tests/fixtures/, not knowledge/)
 
 Prints one finding per line naming the file, line, expected value and fix.
 Exits 0 when clean, 1 when drift is found.
@@ -760,6 +761,40 @@ def check_lane_table(root):
     return findings
 
 
+# ---------------------------------------------------------------------------
+# 8. Pager tests on fixtures
+# ---------------------------------------------------------------------------
+
+LIVE_CORPUS_RE = re.compile(r'"\$root/knowledge"|"\$knowledge"')
+PTY_LAUNCH_RE = re.compile(r"""^'\s|python3\s+"\$here/""")
+
+
+def check_pager_fixtures(root):
+    """Interactive tests in tests/run.sh must read tests/fixtures/, not the
+    live corpus, so a page edit cannot break a command test. A deliberate
+    exception carries '# live-corpus: <reason>' on the line before."""
+    findings = []
+    run_rel = "tests/run.sh"
+    lines = read_lines(root, run_rel)
+    if lines is None:
+        return findings
+    for idx, line in enumerate(lines, 1):
+        if not PTY_LAUNCH_RE.search(line) or not LIVE_CORPUS_RE.search(line):
+            continue
+        if idx > 1 and "# live-corpus:" in lines[idx - 2]:
+            continue
+        findings.append(
+            format_finding(
+                run_rel, idx, "Pager fixtures",
+                "an interactive test reads the live corpus",
+                "a root under tests/fixtures/ (for example tests/fixtures/guide)",
+                f"point the test on {run_rel}:{idx} at a fixture, or put "
+                "'# live-corpus: <reason>' on the line before it",
+            )
+        )
+    return findings
+
+
 def check_repo(root):
     root = Path(root)
     findings = []
@@ -770,6 +805,7 @@ def check_repo(root):
     findings.extend(check_repo_map(root))
     findings.extend(check_relative_links(root))
     findings.extend(check_lane_table(root))
+    findings.extend(check_pager_fixtures(root))
     return findings
 
 

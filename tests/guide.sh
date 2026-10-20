@@ -38,9 +38,12 @@ for p in $pages; do
 done
 pass "all guide pages render to text with build-time revision and timestamp"
 
-# The index mentions its topics and offers a link appendix.
+# The index shows its own title and offers a link appendix. Order and wording
+# are the author's; only the required destinations are fixed.
 idx=$(guide --pipe)
-printf '%s\n' "$idx" | grep -qi 'Tamlinux User Guide' || fail "index missing title"
+idx_title=$(sed -n 's:.*<h1[^>]*>\(.*\)</h1>.*:\1:p' "$knowledge/index.html" | sed 's/<[^>]*>//g' | head -n 1)
+[ -n "$idx_title" ] || fail "index.html has no <h1> heading"
+printf '%s\n' "$idx" | grep -Fq "$idx_title" || fail "index missing its heading '$idx_title'"
 printf '%s\n' "$idx" | grep -q '^Links:' || fail "index missing link appendix"
 for entry in 'install/index.html' 'learn/index.html' 'use/index.html' \
              'maintain/index.html' 'improve/index.html' 'tam:search' \

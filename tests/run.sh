@@ -197,10 +197,10 @@ fi
 pass "state isolation: bare, show, help, version, search, explain, inspect, check, install, man do not touch welcome_seen"
 
 # Show command: displays guide index or page; browse subcommand is retired.
-sh_out=$("$TAM" show --pipe)
-printf '%s\n' "$sh_out" | grep -q 'Your Tamlinux User Guide' || fail "tam show --pipe failed"
-sh_page=$("$TAM" show welcome --pipe)
-printf '%s\n' "$sh_page" | grep -q 'Welcome to Tamlinux' || fail "tam show welcome failed"
+sh_out=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --pipe)
+printf '%s\n' "$sh_out" | grep -q 'Fixture Guide' || fail "tam show --pipe failed"
+sh_page=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show welcome --pipe)
+printf '%s\n' "$sh_page" | grep -q 'Fixture Welcome' || fail "tam show welcome failed"
 sh_topics=$("$TAM" show topics --pipe)
 printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z' || fail "tam show topics failed"
 sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
@@ -401,7 +401,7 @@ assert "GNU Info Directory" in title or "dir" in title, f"expected Info Director
 os.write(m, b"q")
 os.waitpid(p, 0)
 
-' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager home-row keys or i dir key failed"
+' "$TAM" "$root/tests/fixtures" "$root/tests/fixtures/guide" || fail "interactive pager home-row keys or i dir key failed"
     pass "pager home-row keys: a/j f/; along the line, s/l d/k one row, x/. c/, top and bottom, g follows, i dir"
 
     python3 -c '
@@ -455,31 +455,31 @@ def send_and_get_info(key):
     return parse_info(buf)
 
 t, tg = parse_info(buf)
-assert t == "Your Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r} buf={buf!r}"
+assert t == "Fixture Guide" and tg == "", f"got {t!r} {tg!r} buf={buf!r}"
 
 # 1. At tip of exploration and no link selected: right arrow does nothing
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Your Tamlinux User Guide" and tg == "", f"got {t!r} {tg!r}"
+assert t == "Fixture Guide" and tg == "", f"got {t!r} {tg!r}"
 
 # 2. Select first link (welcome.html)
 t, tg = send_and_get_info(b"\t")
-assert t == "Your Tamlinux User Guide" and tg == "welcome.html"
+assert t == "Fixture Guide" and tg == "welcome.html"
 
 # 3. At tip of exploration with link selected: right arrow extends exploration
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Welcome" and tg == ""
+assert t == "Fixture Welcome" and tg == ""
 
 # 4. At new tip with no link selected: right arrow does nothing
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Welcome" and tg == ""
+assert t == "Fixture Welcome" and tg == ""
 
 # 5. Left arrow restores the index page and its selected link
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "Your Tamlinux User Guide" and tg == "welcome.html", f"got {t!r} {tg!r}"
+assert t == "Fixture Guide" and tg == "welcome.html", f"got {t!r} {tg!r}"
 
 # 6. Arrived via left arrow with focus restored: right arrow follows welcome.html
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Welcome" and tg == ""
+assert t == "Fixture Welcome" and tg == ""
 
 # 7. On welcome.html, skip navigation links and follow the desktop link;
 # the fixed Guide breadcrumb remains available at the end of Tab traversal.
@@ -489,17 +489,17 @@ for _ in range(10):
         break
 assert tg == "desktop/index.html", f"desktop link not reached, got {tg!r}"
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "The Tamlinux Desktop" and tg == ""
+assert t == "Fixture Desktop" and tg == ""
 
 # 8. Multi-step left arrow: back to welcome, then back to index
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "Welcome"
+assert t == "Fixture Welcome"
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "Your Tamlinux User Guide"
+assert t == "Fixture Guide"
 
 # 9. Multi-step right arrow: forward to welcome, then forward to desktop, then tip (does nothing)
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Welcome"
+assert t == "Fixture Welcome"
 # Following a selected root link starts a new branch and clears forward history.
 # Find the desktop link without depending on the number of navigation links.
 for _ in range(10):
@@ -508,28 +508,28 @@ for _ in range(10):
         break
 assert tg == "desktop/index.html", f"desktop link not reached, got {tg!r}"
 t, tg = send_and_get_info(b"\r")
-assert t == "The Tamlinux Desktop", f"got {t!r} {tg!r} raw={last_buf!r}"
+assert t == "Fixture Desktop", f"got {t!r} {tg!r} raw={last_buf!r}"
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "The Tamlinux Desktop"
+assert t == "Fixture Desktop"
 
 # 10. Return to index, then select DIFFERENT link (install/index.html), right arrow extends branch
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "Welcome"
+assert t == "Fixture Welcome"
 t, tg = send_and_get_info(b"\x1b[D")
-assert t == "Your Tamlinux User Guide"
+assert t == "Fixture Guide"
 # The previously focused welcome link is restored; one Tab selects install/index.html.
 t, tg = send_and_get_info(b"\t")
 assert tg == "install/index.html"
 # Right arrow extends this branch
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Installing Tamlinux" and tg == ""
+assert t == "Fixture Installing" and tg == ""
 # At tip of new branch: right arrow does nothing
 t, tg = send_and_get_info(b"\x1b[C")
-assert t == "Installing Tamlinux" and tg == ""
+assert t == "Fixture Installing" and tg == ""
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/knowledge" || fail "interactive pager forward navigation failed"
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager forward navigation failed"
     pass "pager forward navigation: right arrow forward, referring page memory, and branch extension"
 
     # Hyperlink display: no leading-space underline; multiline wrapped links are single links with continuation highlight
@@ -710,7 +710,7 @@ assert b"Pattern not found" in buf, f"expected Pattern not found message, got: {
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/knowledge" || fail "interactive pager search and telemetry test failed"
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager search and telemetry test failed"
     pass "in-pager text search (/), match navigation (n/N), Esc clear, and reading telemetry"
 
     # Quick Guide index return (`): jump immediately to index.html from any depth, push history
@@ -744,26 +744,26 @@ def get_title():
 
 # 1. Initial page is pipelines
 t = get_title()
-assert t == "Shell pipelines", f"unexpected initial title: {t}"
+assert t == "Fixture pipelines", f"unexpected initial title: {t}"
 
 # 2. Press backtick (`) to jump to index.html
 os.write(master, b"`")
 t = get_title()
-assert t == "Your Tamlinux User Guide", f"expected index title after backtick, got: {t}"
+assert t == "Fixture Guide", f"expected index title after backtick, got: {t}"
 
 # 3. Press u to return to shell/pipelines
 os.write(master, b"u")
 t = get_title()
-assert t == "Shell pipelines", f"expected pipelines title after u, got: {t}"
+assert t == "Fixture pipelines", f"expected pipelines title after u, got: {t}"
 
 # 4. Press backtick again, then quit
 os.write(master, b"`")
 t = get_title()
-assert t == "Your Tamlinux User Guide", f"expected index title after second backtick, got: {t}"
+assert t == "Fixture Guide", f"expected index title after second backtick, got: {t}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/knowledge" || fail "interactive pager backtick return failed"
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager backtick return failed"
     pass "pager quick Guide index return (\`): immediate index jump and history push"
 
     # Interactive hyperlinked topics pager (tam explain topics)
@@ -821,11 +821,11 @@ assert title_back == "Topics A to Z", f"did not return to topics page: {title_ba
 # 5. Backtick (`) jumps to root guide index.html
 os.write(master, b"`")
 title_home, _ = get_status_info()
-assert title_home == "Your Tamlinux User Guide", f"did not jump to guide index: {title_home}"
+assert title_home == "Fixture Guide", f"did not jump to guide index: {title_home}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/knowledge" || fail "interactive explain topics pager failed"
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive explain topics pager failed"
     pass "tam explain topics: interactive pager with live hyperlinks, back, and home shortcut"
 
     # Pager attention line, directional link catching, anchored Tab, and safe Enter activation
@@ -932,12 +932,12 @@ assert target == "learn/index.html", f"expected Learning breadcrumb, got: {targe
 title, pos, target, msg, has_tint = send_key(b" ")
 # Enter follows the visible parent breadcrumb.
 title, pos, target, msg, has_tint = send_key(b"\r")
-assert title == "Learning Tamlinux", f"expected Learning after following breadcrumb, got: {title}"
+assert title == "Fixture Learning", f"expected Learning after following breadcrumb, got: {title}"
 # The parent page still exposes Guide as a selectable ancestor.
 title, pos, target, msg, has_tint = send_key(b"\x1b[Z")
 assert target == "index.html", f"expected Guide breadcrumb, got: {target}"
 title, pos, target, msg, has_tint = send_key(b"\r")
-assert title == "Your Tamlinux User Guide", f"expected Guide after following breadcrumb, got: {title}"
+assert title == "Fixture Guide", f"expected Guide after following breadcrumb, got: {title}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -975,7 +975,7 @@ title, pos, target, msg, _ = send_key(b"\x1b[D")
 assert "L4/4" in pos and target == "br.html", f"expected back to restore L4/4 and br.html focus, got: {pos} {target}"
 # The restored focus remains actionable.
 title, pos, target, msg, _ = send_key(b"\x1b[C")
-assert title != "Your Tamlinux User Guide", f"expected Right Arrow to follow restored focus, got: {title}"
+assert title != "Pager fixture", f"expected Right Arrow to follow restored focus, got: {title}"
 os.write(master, b"q")
 os.waitpid(pid, 0)
 
@@ -1005,10 +1005,10 @@ assert not pos_i.startswith("L1/"), f"expected scrolled index.html, got: {pos_i}
 # Left Arrow (\x1b[D) returns to welcome at saved line pos_w (with no link selected)
 title, pos_back, target_back, _, _ = send_key(b"\x1b[D")
 # Compare the cursor line metric independently of the viewport status label.
-assert title == "Welcome" and pos_back.split()[0] == pos_w.split()[0] and target_back == "", f"expected Welcome at {pos_w}, got: {title} {pos_back} {target_back}"
+assert title == "Fixture Welcome" and pos_back.split()[0] == pos_w.split()[0] and target_back == "", f"expected Welcome at {pos_w}, got: {title} {pos_back} {target_back}"
 # Right Arrow (\x1b[C) with no link selected goes forward to index.html at saved line pos_i
 title, pos_fwd, target_fwd, _, _ = send_key(b"\x1b[C")
-assert title == "Your Tamlinux User Guide" and target_fwd == "", f"expected forward to restore the Guide root, got: {title} {pos_fwd} {target_fwd}"
+assert title == "Fixture Guide" and target_fwd == "", f"expected forward to restore the Guide root, got: {title} {pos_fwd} {target_fwd}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -1051,7 +1051,7 @@ assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected k to re
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/tests/fixtures" "$root/knowledge" || fail "interactive pager attention line test failed"
+' "$TAM" "$root/tests/fixtures" "$root/tests/fixtures/guide" || fail "interactive pager attention line test failed"
     pass "attention line: charcoal tint, directional link catching, anchored Enter, and history position stack"
 
     python3 "$here/pager_screen.py" "$TAM" "$root/tests/fixtures" || fail "pager PTY screen-state checks failed"
@@ -1128,7 +1128,7 @@ assert "no expert level on this page" in b_no_exp, f"expected no expert level me
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
-' "$TAM" "$root/knowledge" || fail "interactive pager depth switching test failed"
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager depth switching test failed"
     pass "pager depth switching: 0/1/2/3 switch reading depth and 1-9 link jumping retired"
 fi
 
@@ -1689,7 +1689,7 @@ title, target = parse_info(drain(master))
 assert target == "tam:man", f"Tab did not move to the next breadcrumb: {target}"
 os.write(master, b"a\r")
 title, target = parse_info(drain(master, 0.3))
-assert title == "Your Tamlinux User Guide", f"Enter did not follow the Guide breadcrumb: {title}"
+assert title == "Fixture Guide", f"Enter did not follow the Guide breadcrumb: {title}"
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
 
 pid, master = launch(["man"])
@@ -1708,7 +1708,7 @@ os.write(master, b"\t\t\r")
 buf += drain(master)
 os.write(master, b"pipe\r")
 buf += drain(master, 0.3)
-assert b"Results for" in buf and b"Shell pipelines" in buf, buf
+assert b"Results for" in buf and b"Fixture pipelines" in buf, buf
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
 
 pid, master = launch(["show", "tam:man:keyword?query=printf"])
@@ -1717,7 +1717,7 @@ os.write(master, b"\t\r")
 buf += drain(master, 0.3)
 assert b"Fixture printf(1)" in buf and b"Loaded fixture manual" in buf, buf
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
-' "$TAM" "$lookup_bin" "$knowledge" || fail "manual and Guide search prompts failed"
+' "$TAM" "$lookup_bin" "$root/tests/fixtures/guide" || fail "manual and Guide search prompts failed"
 pass "manual discovery, breadcrumb keyboard focus, bounded literal helper calls, pagination, and Guide Search prompts"
 
 # Pages installed on the host: a package build sandbox has no man pages or
