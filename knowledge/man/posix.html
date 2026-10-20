@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The POSIX Programmer's Manual</title>
+<meta name="topic" content="posix-man">
+<meta name="summary" content="The POSIX Programmer's Manual, standard sections, and portability reference">
+<meta name="keywords" content="posix, standards, posix manual, 1p, 3p, 0p, portability, man pages">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="man/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="man/index.html">Reading man pages</a> / The POSIX Programmer's Manual</p>
+</nav>
+
+<h1>The POSIX Programmer's Manual</h1>
+
+<p>The <strong>POSIX Programmer's Manual</strong> documents the standard interfaces
+defined by IEEE Std 1003.1 and The Open Group Base Specifications (POSIX.1).
+While native Linux manual pages describe the specific behavior and flags of
+installed GNU and Linux utilities, POSIX pages describe the portable baseline
+agreed upon across Unix-like systems.</p>
+
+<h2>The standard sections</h2>
+
+<p>Manual pages from the POSIX standard append the letter <code>p</code> to
+their section number:</p>
+
+<ul>
+<li><strong>Section 0p (C Headers)</strong> &mdash; definitions, macros, and
+type declarations required in standard C headers such as
+<a href="man:stdio.h(0p)">stdio.h(0p)</a>,
+<a href="man:unistd.h(0p)">unistd.h(0p)</a>, and
+<a href="man:fcntl.h(0p)">fcntl.h(0p)</a>.</li>
+<li><strong>Section 1p (Standard Commands and Utilities)</strong> &mdash;
+standard shell commands, options, and exit statuses for utilities such as
+<a href="man:sh(1p)">sh(1p)</a>,
+<a href="man:awk(1p)">awk(1p)</a>,
+<a href="man:grep(1p)">grep(1p)</a>, and
+<a href="man:make(1p)">make(1p)</a>.</li>
+<li><strong>Section 3p (System Interfaces and Library Functions)</strong> &mdash;
+standard C library functions and system interfaces such as
+<a href="man:fork(3p)">fork(3p)</a>,
+<a href="man:open(3p)">open(3p)</a>, and
+<a href="man:pthread_create(3p)">pthread_create(3p)</a>.</li>
+</ul>
+
+<h2>Standard interface versus host implementation</h2>
+
+<p>Linux commands, notably GNU coreutils and util-linux, frequently add helpful
+extensions, non-standard options, and relaxed syntax. For example, GNU
+<code>grep</code> supports <code>-P</code> (Perl regular expressions) and long options
+like <code>--color</code>, neither of which is required by POSIX.</p>
+
+<p>Reviewing the POSIX page clarifies what is portable:</p>
+
+<ul>
+<li><strong>Portable shell scripts:</strong> Scripts starting with
+<code>#!/bin/sh</code> should adhere to the POSIX shell command language
+specified in <a href="man:sh(1p)">sh(1p)</a> to avoid bash-specific constructs
+(&quot;bashisms&quot;) that fail on other shells or distributions.</li>
+<li><strong>Portable builds:</strong> Checking <a href="man:make(1p)">make(1p)</a>
+shows standard Makefile rules and macros that work with BSD make, GNU make,
+and other standard-compliant make tools.</li>
+<li><strong>C library contracts:</strong> Function pages like
+<a href="man:regcomp(3p)">regcomp(3p)</a> document POSIX-mandated return codes,
+error numbers in <code>errno</code>, and thread-safety requirements.</li>
+</ul>
+
+<h2>Anatomy of a POSIX page</h2>
+
+<p>POSIX pages follow a rigorous specification layout. Two sections provide
+particular value when designing software or debugging edge cases:</p>
+
+<ul>
+<li><strong>APPLICATION USAGE</strong> &mdash; practical advice on how to use
+the interface safely, common pitfalls, and guidance on avoiding undefined
+behavior.</li>
+<li><strong>RATIONALE</strong> &mdash; historical context explaining why the
+working group chose a specific interface, trade-offs evaluated, and why certain
+alternative designs or historical behaviors were rejected.</li>
+</ul>
+
+<h2>Reaching POSIX pages in Tamlinux</h2>
+
+<p>Tamlinux includes the complete POSIX Programmer's Manual through the
+system manual package. You can reach any POSIX page directly from the command
+line or through <code>tam</code>'s interactive reader:</p>
+
+<ul>
+<li><strong>Direct lookup:</strong> Open a page directly by passing its section
+and name: <code>tam man 1p sh</code>, <code>tam man 3p fork</code>, or
+<code>tam man 0p stdio.h</code>.</li>
+<li><strong>Browse by section:</strong> Run <code>tam man</code>, select
+<strong>Browse a section</strong>, and enter <code>1p</code>, <code>3p</code>,
+or <code>0p</code> to view a paginated list of all installed POSIX pages.</li>
+<li><strong>Open from discovery:</strong> In <code>tam man</code>, select
+<strong>Open a page</strong> and enter <code>sh(1p)</code> or <code>1p sh</code>.</li>
+<li><strong>Keyword search:</strong> Select <strong>Find by keyword</strong> in
+<code>tam man</code> to search summaries across both Linux and POSIX manuals.</li>
+<li><strong>Hyperlinked cross-references:</strong> Referenced manual pages in the
+<code>SEE ALSO</code> section are converted to live links. Press <kbd>Tab</kbd> to
+select a link and <kbd>Enter</kbd> to follow it. Press <kbd>Left Arrow</kbd>
+to return.</li>
+</ul>
+
+<p>See <a href="man/index.html">Reading man pages</a> for general manual page
+navigation and <a href="improve/scripting.html">Scripting and tool contracts</a>
+for portable shell conventions in Tamlinux.</p>
+
+<p>Back to <a href="man/index.html">Reading man pages</a> or the
+<a href="index.html">guide index</a>.</p>
+</body>
+</html>

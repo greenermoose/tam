@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
-**Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.33.6`.
+**Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.34.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
