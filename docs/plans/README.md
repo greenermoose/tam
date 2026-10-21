@@ -18,7 +18,7 @@ queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
 | [Version checks, source upgrade and stage switching](upgrade.md) | Completed | TCK6–TCK8, full source tests, isolated source build, live metadata check and developer-directed first activation completed. The development prefix was first activated at command 0.31.1 / corpus 0.32.0 and now holds later developer builds (`tam --version` reports them); package-stage acceptance remains developer-directed. See the [Luna handoff](../handoffs/tam-upgrade-luna.md) for the historical implementation record. |
 | [Knowledge system, corpus 0.31.0](knowledge-system-0.31.0.md) | Completed | Command 0.30.0 / corpus 0.31.0; TCK1–TCK5 completed in `e0215fd`, `0b3f008`, `52e71f7`, `597cb71`, `f4fa539`. Automated acceptance passed; package and physical review remain developer-directed. |
 | [Development contract](development.md) | Active | Living ownership, behavior and integration contract; incorporate each overhaul slice without rewriting historical decisions. |
-| [Pager display portability](pager-display-portability.md) | In progress | Source implementation is command 0.29.0 (`581822a`); real Linux-console/Foot acceptance of an exact packaged candidate remains pending on the developer's instruction. No missing-source assignment. |
+| [Pager display portability](pager-display-portability.md) | In progress | Command 0.38.1 fixes text/blank cursor drift on resize with PTY coverage; real Linux-console/Foot acceptance of an exact packaged candidate remains pending on the developer's instruction. |
 
 ## Closed plans retained at stable addresses
 

@@ -888,7 +888,7 @@ static size_t status_byte_limit(const char *s, int max_cols)
 }
 
 static int nearest_logical_line(const tam_document_t *doc, size_t block,
-                                size_t offset, int fallback)
+                                size_t offset, int fallback, int prefer_blank)
 {
     if (doc == NULL || doc->nlines == 0) return 0;
     size_t best_distance = (size_t)-1;
@@ -897,7 +897,16 @@ static int nearest_logical_line(const tam_document_t *doc, size_t block,
         if (doc->lines[i].logical_block != block) continue;
         size_t at = doc->lines[i].logical_offset;
         size_t distance = at > offset ? at - offset : offset - at;
-        if (distance < best_distance) { best_distance = distance; best = (int)i; }
+        /* -1 leaves equal-distance blank/text ties in their existing order. */
+        int is_preferred = prefer_blank >= 0 &&
+            ((doc->lines[i].nspans == 0) == (prefer_blank != 0));
+        int best_is_preferred = best >= 0 && prefer_blank >= 0 &&
+            ((doc->lines[best].nspans == 0) == (prefer_blank != 0));
+        if (distance < best_distance ||
+            (distance == best_distance && is_preferred && !best_is_preferred)) {
+            best_distance = distance;
+            best = (int)i;
+        }
     }
     if (best >= 0) return best;
     if (fallback < 0) return 0;
@@ -909,11 +918,13 @@ static void pager_reflow(pager_t *st, int width)
 {
     if (width < 1 || width == st->layout_width || st->doc == NULL) return;
     size_t cursor_block = 0, cursor_offset = 0, top_block = 0, top_offset = 0;
+    int cursor_blank = 0;
     if (st->doc->nlines > 0) {
         size_t ci = (size_t)st->cursor_line < st->doc->nlines ? (size_t)st->cursor_line : 0;
         size_t ti = (size_t)st->top < st->doc->nlines ? (size_t)st->top : 0;
         cursor_block = st->doc->lines[ci].logical_block;
         cursor_offset = st->doc->lines[ci].logical_offset;
+        cursor_blank = st->doc->lines[ci].nspans == 0;
         top_block = st->doc->lines[ti].logical_block;
         top_offset = st->doc->lines[ti].logical_offset;
     }
@@ -944,8 +955,8 @@ static void pager_reflow(pager_t *st, int width)
     }
     st->layout_width = width;
     st->cursor_line = nearest_logical_line(st->doc, cursor_block, cursor_offset,
-                                           st->cursor_line);
-    st->top = nearest_logical_line(st->doc, top_block, top_offset, st->top);
+                                           st->cursor_line, cursor_blank);
+    st->top = nearest_logical_line(st->doc, top_block, top_offset, st->top, -1);
     st->top = st->cursor_line - cursor_row;
     if (st->top < 0) st->top = 0;
     pager_build_links(st);
@@ -1288,9 +1299,9 @@ static void restore_logical_nav_state(pager_t *st, const nav_state_t *nav)
     restore_nav_state(st, nav->top, nav->cursor_line);
     if (nav->width != content_width(st) && st->doc != NULL && st->doc->nlines > 0) {
         st->cursor_line = nearest_logical_line(st->doc, nav->cursor_block,
-                                               nav->cursor_offset, st->cursor_line);
+                                               nav->cursor_offset, st->cursor_line, -1);
         st->top = nearest_logical_line(st->doc, nav->top_block,
-                                       nav->top_offset, st->top);
+                                       nav->top_offset, st->top, -1);
         int usable = content_rows(st);
         if (st->cursor_line < st->top) st->top = st->cursor_line;
         if (st->cursor_line >= st->top + usable)

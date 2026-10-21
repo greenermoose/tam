@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.38.0 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.38.1 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-21:** Command 0.38.1 (patch): preserve the pager cursor's blank/text
+  kind when resize reflow finds equal logical offsets. PTY screen tests cover
+  text and blank anchors across width changes. The packaged Foot/Linux-console
+  review remains pending; no development installation or package promotion is
+  implied.
 - **2026-10-21:** On the developer's explicit boot/Snapper/Rescue continuation,
   migrated three Maintaining ladders and added Rescue (corpus 0.42.0).
   Practice remains read-only or scratch; no actual boot or snapshot mutation

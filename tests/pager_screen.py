@@ -192,6 +192,11 @@ def stop(pid, master):
     os.close(master)
 
 
+def focused_rows(screen):
+    return [row for row in range(screen.rows - 1)
+            if any("bg236" in attrs for _, attrs in screen.cells[row])]
+
+
 def main():
     binary = os.path.abspath(sys.argv[1])
     fixtures = os.path.abspath(sys.argv[2])
@@ -229,6 +234,51 @@ def main():
     assert len(cups) == 3, f"one line move should repaint two content rows and status: {cups!r}"
     screen.feed(moved)
     assert "first attention row" in screen.line(3), screen.line(3)
+    stop(pid, master)
+
+    # Reflow keeps the focused text row when a separator shares its logical
+    # block and offset. Growing back to the original width must not drift again.
+    pid, master, screen, _ = collect_screen(
+        binary, fixtures + "/guide", "xterm-256color", 24, 100,
+        page="page:welcome.html")
+    for _ in range(40):
+        rows = focused_rows(screen)
+        if len(rows) == 1 and "Welcome line 2" in screen.line(rows[0]):
+            break
+        os.write(master, b"k")
+        screen.feed(read_available(master))
+    rows = focused_rows(screen)
+    assert len(rows) == 1 and "Welcome line 2" in screen.line(rows[0]), rows
+    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
+    os.kill(pid, signal.SIGWINCH)
+    screen.resize(24, 80)
+    screen.feed(read_available(master, 0.2))
+    rows = focused_rows(screen)
+    assert len(rows) == 1 and "Welcome line 2" in screen.line(rows[0]), rows
+    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 100, 0, 0))
+    os.kill(pid, signal.SIGWINCH)
+    screen.resize(24, 100)
+    screen.feed(read_available(master, 0.2))
+    rows = focused_rows(screen)
+    assert len(rows) == 1 and "Welcome line 2" in screen.line(rows[0]), rows
+    stop(pid, master)
+
+    # A cursor already on a blank separator remains on a blank after reflow.
+    pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color")
+    for _ in range(20):
+        rows = focused_rows(screen)
+        if len(rows) == 1 and screen.line(rows[0]).strip() == "":
+            break
+        os.write(master, b"k")
+        screen.feed(read_available(master))
+    rows = focused_rows(screen)
+    assert len(rows) == 1 and screen.line(rows[0]).strip() == "", rows
+    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 8, 30, 0, 0))
+    os.kill(pid, signal.SIGWINCH)
+    screen.resize(8, 30)
+    screen.feed(read_available(master, 0.2))
+    rows = focused_rows(screen)
+    assert len(rows) == 1 and screen.line(rows[0]).strip() == "", rows
     stop(pid, master)
 
     # Width resize relayouts retained parsed blocks and keeps later text reachable.
