@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.35.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.36.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -962,8 +962,43 @@ drain(master, 0.1)
 os.write(master, b"q")
 os.waitpid(pid, 0)
 os.close(master)
+
+# 4. tam search on a terminal opens the results page in the pager; its links follow
+pid, master = launch(["search", "pipe"])
+buf = drain(master, 0.3)
+assert b"Results for" in buf and b"Fixture pipelines" in buf, f"expected search results in pager, got: {buf}"
+os.write(master, b"=")
+buf = drain(master, 0.1)
+assert b"tam:search?query=pipe" in buf, f"expected search address, got: {buf}"
+os.write(master, b"\x1b")
+drain(master, 0.1)
+os.write(master, b"]")
+buf = drain(master, 0.05)
+assert b"-> shell/pipelines.html" in buf, f"expected result link selected, got: {buf}"
+os.write(master, b"\r")
+buf = drain(master, 0.3)
+assert b"Fixture pipelines |" in buf and b"Results for" not in buf, f"expected pipelines page from result link, got: {buf}"
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+
+# 5. A search miss stays on the terminal with suggestions and a failing status
+pid, master = launch(["search", "zzzqqq"])
+_, status = os.waitpid(pid, 0)
+buf = b""
+while True:
+    try:
+        chunk = os.read(master, 8192)
+    except OSError:
+        break
+    if not chunk:
+        break
+    buf += chunk
+os.close(master)
+assert b"no topic found" in buf, f"expected miss banner, got: {buf}"
+assert os.WEXITSTATUS(status) == 1, f"expected exit 1 on miss, got {status}"
 ' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager prompt and quick-keys tests failed"
-    pass "pager search prompts (\\ and /) and quick-keys prompt/help links"
+    pass "pager search prompts (\\ and /), quick-keys links, and tam search in the pager"
 
     # Interactive hyperlinked topics pager (tam explain topics)
     python3 -c '

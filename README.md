@@ -23,8 +23,9 @@ Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline
 guide: an interactive pager in a terminal, or plain text when output is piped.
 `tam welcome` opens orientation and records successful display state.
-`tam search <query>` searches the corpus index with field-weighted ranking,
-fuzzy suggestions, and optional `--json` output.
+`tam search <query>` searches the corpus index with field-weighted ranking and
+fuzzy suggestions; on a terminal the results open in the pager with followable
+links, and `--pipe` or `--json` print them instead.
 `tam explain <topic>` explains curated local concepts and tools, resolving
 multi-word queries through search.
 `tam inspect` inspects host facts, package tools, and supported profiles.
@@ -39,7 +40,8 @@ tam welcome --pipe    # print welcome text to stdout
 tam show              # open the guide index in the pager
 tam show welcome      # open a page by name
 tam show --pipe       # print the guide as plain text (no escape sequences)
-tam search "change file owner" # search the guide for topics or phrases
+tam search "change file owner" # open matching guide pages in the pager
+tam search --pipe permissions  # print search results as plain text
 tam search --json permissions  # output search results as JSON
 tam explain           # list available explanation topics
 tam explain pipes     # explain a curated topic or shell concept

@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-20
-**Scope:** Living integration contract; current command 0.35.0 and corpus 0.36.1.
+**Scope:** Living integration contract; current command 0.36.0 and corpus 0.37.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -373,6 +373,13 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** Command 0.36.0 (minor) opens `tam search` results in the
+  pager. On a terminal the command shows the existing Guide Search page at
+  `tam:search?query=<terms>`, whose result links are followable and whose
+  `Search again` link reopens the guide search prompt. `--pipe` (formerly a
+  no-op) and output that is not a terminal keep the plain-text listing;
+  `--json` is unchanged; a search with no match still prints the miss
+  suggestions to standard error and exits 1 without opening the pager.
 - **2026-10-20:** Command 0.35.0 (minor) reports the operating system and
   Tamlinux separately (Tamlinux decision D181). `tam inspect` shows the
   distribution as `Operating system: Arch Linux (rolling)`, prints

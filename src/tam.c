@@ -288,8 +288,8 @@ static void print_tam_help(int tier)
             "      first-run orientation and welcome guide (aliases: hello, hi)\n"
             "  tam show [PAGE|-] [--pipe]\n"
             "      open the offline guide, a specific page, or render HTML from stdin\n"
-            "  tam search [--json] TERM...\n"
-            "      search guide topics and keywords with ranked scoring\n"
+            "  tam search [--json|--pipe] TERM...\n"
+            "      search guide topics and keywords; results open in the pager\n"
             "  tam explain [TOPIC] [--level LEVEL] [--pipe]\n"
             "      explain a concept or browse the catalog at beginner, intermediate, or expert depth\n"
             "  tam explain topics [--pipe] [--terse|--verbose] [--level LEVEL]\n"
@@ -1635,19 +1635,20 @@ static int cmd_explain(int n, char **args)
 static int cmd_search(int n, char **args)
 {
     int json_mode = 0;
+    int pipe = 0;
     char query_buf[512] = {0};
     size_t qlen = 0;
 
     for (int i = 0; i < n; i++) {
         if (strcmp(args[i], "--pipe") == 0 || strcmp(args[i], "-p") == 0) {
-            /* Piped plain text mode is the default when outputting text */
+            pipe = 1;
         } else if (strcmp(args[i], "--json") == 0) {
             json_mode = 1;
         } else if (strcmp(args[i], "--help") == 0 || strcmp(args[i], "-h") == 0) {
             fputs(
                 "tam search - search the Tamlinux offline guide\n\n"
                 "Usage:\n"
-                "  tam search TERM...         search the guide for topics or keywords\n"
+                "  tam search TERM...         open matching guide pages in the pager\n"
                 "  tam search --json TERM...  output search results as JSON\n"
                 "  tam search --pipe TERM...  print search results as plain text\n",
                 stdout);
@@ -1671,7 +1672,7 @@ static int cmd_search(int n, char **args)
         fputs(
             "tam search - search the Tamlinux offline guide\n\n"
             "Usage:\n"
-            "  tam search TERM...         search the guide for topics or keywords\n"
+            "  tam search TERM...         open matching guide pages in the pager\n"
             "  tam search --json TERM...  output search results as JSON\n"
             "  tam search --pipe TERM...  print search results as plain text\n",
             stdout);
@@ -1701,6 +1702,35 @@ static int cmd_search(int n, char **args)
         tam_index_free(idx);
         free(root);
         return TAM_EXIT_FAILURE;
+    }
+
+    int interactive = !pipe && !json_mode && isatty(STDOUT_FILENO);
+    if (interactive && !isatty(STDIN_FILENO)) {
+        int tty = open("/dev/tty", O_RDONLY);
+        if (tty < 0) {
+            interactive = 0;
+        } else {
+            close(tty);
+        }
+    }
+
+    if (interactive) {
+        tam_index_free(idx);
+        char initial_href[1600];
+        char *enc_q = url_encode(query_buf);
+        snprintf(initial_href, sizeof(initial_href), "tam:search?query=%s", enc_q ? enc_q : "");
+        free(enc_q);
+        tam_document_t *doc = tam_guide_search_document(root, query_buf, tam_terminal_width());
+        if (doc == NULL) {
+            free(root);
+            return TAM_EXIT_FAILURE;
+        }
+        tam_document_ensure_location(doc, initial_href);
+        corpus_ctx_t ctx;
+        ctx.root = root;
+        int rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
+        free(root);
+        return rc;
     }
 
     if (json_mode) {

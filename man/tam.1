@@ -13,7 +13,7 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .RI [ --pipe ]
 .br
 .B tam search
-.RI [ --json ]
+.RI [ --json | --pipe ]
 .IR TERM ...
 .br
 .B tam explain
@@ -132,12 +132,18 @@ is
 or
 .BR expert " (" 3 )).
 .TP
-.B tam search \fR[\fB\-\-json\fR] \fITERM...\fR
-Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries). Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). If no guide page matches, suggests searching system manual pages via
-.BR "tam man" .
-The Guide reader also provides an in-reader search prompt through the
+.B tam search \fR[\fB\-\-json\fR | \fB\-\-pipe\fR] \fITERM...\fR
+Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries). Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). On a terminal, the results open in the pager at the
 .B tam:search
-route; results link directly to matching guide pages. This keeps the CLI and JSON output contract unchanged.
+route, where each result links directly to its guide page and
+.B Search again
+starts a new guide search. With
+.BR \-\-pipe ,
+or when output is not a terminal, the results print as plain text;
+.B \-\-json
+prints them as JSON. If no guide page matches, the command stays on the terminal, prints suggestions (including
+.B "tam man"
+when a manual page exists) and exits 1.
 .TP
 .B tam explain \fR[\fB\-\-level\fR \fILEVEL\fR] [\fITOPIC\fR] [\fB\-\-pipe\fR]
 Display a topic guide to concepts and keywords in the Tamlinux guide.
