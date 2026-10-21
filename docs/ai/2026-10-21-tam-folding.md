@@ -6,7 +6,8 @@
 - **CLI Tool:** Codex CLI `0.163.0` (live-checked)
 - **Model:** `gpt-6.1-sol`
 - **Transcript:** Retained privately by the author.
-- **Commits:** The commit adding this record and its corpus-index follow-up.
+- **Commits:** `5a7af2e` (implementation) and the commit refreshing the
+  corpus indexes and this record.
 - **Authorship:** Fred requested TCK22; Codex implemented and verified the changes.
 - **Checked against:** `docs/plans/learning-levels.md`, `docs/corpus-pedagogy.md`,
   `src/depth.c`, `src/render.c`, `src/pager.c`, `src/tam.c`, `Makefile`,
