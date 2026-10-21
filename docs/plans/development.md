@@ -1,13 +1,14 @@
 # tam development plan
 
 **Plan status:** Active
-**Reviewed:** 2026-10-20
+**Reviewed:** 2026-10-21
 **Scope:** Living integration contract; current command 0.36.0 and corpus 0.37.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
-[developer loop plan](dev-loop.md) and [pager quick keys plan](pager-quick-keys.md).
-**Next action:** Await developer direction. Package Test/Run/Release remain developer-directed stages.
+[developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
+[learning levels plan](learning-levels.md).
+**Next action:** TCK21 (sticky level lens) in the [learning levels plan](learning-levels.md). Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -330,6 +331,11 @@ search, labelled search prompts, `tam:help` and prompt action links, and the
 Guide index Quick keys table. Full test evidence and remaining package review
 limits are recorded in those plans.
 
+The [learning levels plan](learning-levels.md) is in progress. TCK20 delivered
+the teaching contract, [`docs/corpus-pedagogy.md`](../corpus-pedagogy.md), with
+page templates in `docs/templates/`. Current behavior is unchanged until TCK21:
+level keys still reload the page by address, and the "Depth:" line remains.
+
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
 expanded CS content, AI hardware estimates, writable settings, localisation and
@@ -372,6 +378,19 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
+
+- **2026-10-21:** The developer approved the learning levels plan (Tamlinux
+  decision D184, amending D174). Keep three levels, with keys and numeric
+  addresses 1-3 unchanged; novices get an on-ramp (the First steps goal
+  path, folded "New to this?" asides, glossary links) instead of a fourth
+  level. "Level" is the reader's 0-3 lens and "path" is a reading order;
+  "Depth" is retired from reader-visible text. The lens is sticky across
+  pages and sessions (default All), explicit `?level=` links set it, and
+  filtering shows one level plus untagged content. Every page opens at
+  every lens, with a banner where its level differs. Self-quizzes fold in
+  the pager (Enter, `r`, `*`) and print collected answers in pipe output.
+  Paths come in two families: level paths and goal paths. TCK20 (the
+  contract) shipped with the plan; no component version changed.
 
 - **2026-10-20:** Command 0.36.0 (minor) opens `tam search` results in the
   pager. On a terminal the command shows the existing Guide Search page at

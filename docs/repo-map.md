@@ -24,6 +24,7 @@ Categories:
 - `docs/plans/` — *you edit*. Feature plans, the living development contract (`development.md`), templates and the plan index (`README.md`); closed plans remain in place as historical records.
 - `docs/ai/` — *history, read-only*. Per-session AI provenance records; add a new file for a new AI session without rewriting earlier records.
 - `docs/handoffs/` — *history, read-only*. Historical cross-session handoff notes kept at stable paths.
+- `docs/templates/` — *you edit*. Page skeletons (ladder, layered, single, path) that new corpus pages start from; see `docs/corpus-pedagogy.md`.
 - `build/` — *generated, never edit*. Compiler output (`build/tam` and build configuration stamp) created by `make command`.
 - `Makefile` — *you edit*. Build, test, `make dev`, `make check-repo` and install targets; keep `SRC` and `DEPS` aligned with `src/`.
 - `README.md` — *you edit*. Project overview, build prerequisites, developer loop and command reference.

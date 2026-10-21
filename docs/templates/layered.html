@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<!--
+Layered template: a shared body with level-tagged additions. See
+docs/corpus-pedagogy.md. Use it when most of a page serves every reader and
+only some blocks are level-specific. data-level on blocks other than
+<section> is filtered from TCK22 of docs/plans/learning-levels.md.
+Replace every UPPER-CASE placeholder and delete each comment.
+-->
+<head>
+<title>TITLE</title>
+<meta name="topic" content="TOPIC">
+<meta name="summary" content="ONE-LINE SUMMARY">
+<meta name="keywords" content="KEYWORD, KEYWORD">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="TRACK">
+<meta name="parent" content="PART/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="PART/index.html">PART TITLE</a> / TITLE</p>
+</nav>
+
+<h1>TITLE</h1>
+
+<p>SHARED INTRODUCTION.</p>
+
+<aside class="first-time" data-level="beginner">
+<p>WHAT A NOVICE NEEDS BEFORE THE SHARED STEPS.</p>
+</aside>
+
+<h2>SHARED HEADING</h2>
+
+<p>SHARED EXPLANATION.</p>
+
+<pre class="session" data-risk="read-only">
+$ COMMAND
+CAPTURED OUTPUT
+</pre>
+
+<p data-level="beginner">A BEGINNER WALK-THROUGH OF THE OUTPUT.</p>
+
+<aside class="peek" data-level="intermediate">
+<p>A NOTE THAT CONNECTS THE SHARED STEP TO ITS MENTAL MODEL.</p>
+</aside>
+
+<table data-level="expert">
+<tr><th>ITEM</th><th>MEANING</th></tr>
+<tr><td>ITEM</td><td>PRECISE SEMANTICS</td></tr>
+</table>
+
+<section class="quiz" data-level="beginner">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>QUESTION</summary>
+<p>ANSWER THAT EXPLAINS WHY.</p>
+</details>
+</section>
+
+<section class="quiz" data-level="intermediate">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>SCENARIO QUESTION</summary>
+<p>ANSWER THAT EXPLAINS WHY.</p>
+</details>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="PAGE.html">PAGE</a> &mdash; WHY.</li>
+</ul>
+</body>
+</html>

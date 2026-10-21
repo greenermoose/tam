@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-20. **Owner:** Fred (developer).
+**Reviewed:** 2026-10-21. **Owner:** Fred (developer).
 **Current Command Version:** `0.36.0`. **Current Corpus Version:** `0.37.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -14,8 +14,8 @@ Read the [plan index](docs/plans/README.md) for status, the
 
 `tam` is the terminal entry point to Tamlinux's offline knowledge system. Its
 primary journey has five parts: **Installing, Learning, Using, Maintaining,
-Improving**. Learning routes cross shared knowledge; Beginner, Intermediate
-and Expert are reading depths. Search, Topics, Man pages, Info manuals and Help
+Improving**. Learning paths cross shared knowledge; Beginner, Intermediate
+and Expert are levels the reader chooses with keys 0-3. Search, Topics, Man pages, Info manuals and Help
 serve every part. Corpus 0.31.0 introduced this organization and command 0.30.0
 its shared navigation and discovery; the versions since are in section 2.
 
@@ -121,8 +121,13 @@ and [pager quick keys, address display and status row](docs/plans/pager-quick-ke
 (TCK15–TCK19, command 0.34.0 / corpus 0.35.1). Disposable acceptance builds and
 live metadata checks have standing developer authorization.
 
-Approved next outcome: await the developer's direction.
-The deferred items in section 4 are candidates, not assignments.
+Approved next outcome: [learning levels, goal paths and self-quizzes](docs/plans/learning-levels.md)
+(TCK20–TCK25). TCK20, the teaching contract in
+[`docs/corpus-pedagogy.md`](docs/corpus-pedagogy.md) and its templates, is delivered;
+the first outcome continues with TCK21 (sticky level lens), TCK22 (folding and
+self-quizzes) and TCK23 (pilot pages and two goal paths). Versions are allocated
+when each slice starts. The deferred items in section 4 are candidates, not
+assignments.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the
@@ -140,7 +145,7 @@ none has a reserved version:
 | --- | --- |
 | Non-executing shell syntax dissection | A separately reviewed parser/CLI design; all input remains inert. An earlier reservation of command 0.30.0 for it was withdrawn. |
 | Installer plan/apply/verify | Product installation/deployment framework and separately approved implementation. An earlier reservation of command 0.31.0 for it was withdrawn. Today only read-only `tam install inspect` and `tam install check` exist; Installing pages must say so. |
-| Stateful `tam learn` and automated assessment | Separate opt-in state and assessment design. Guided learning in corpus 0.31.0 does not require it. |
+| Stateful `tam learn` and automated assessment | Separate opt-in state and assessment design. Guided learning in corpus 0.31.0 does not require it. The learning-levels plan names the candidates: `tam tutor` (scratch-directory lessons that check each task), `tam quiz` (interleaved, spaced review of corpus quizzes, local only) and a level-aware `tam ask`; each needs its own plan. |
 | Rationale, deep-system traces and CS learning | Exploratory content/commands, not committed milestones. Existing depth filtering is already implemented. Old proposed 0.26/0.27/0.28 milestones are not future reservations. |
 | Wider distribution/terminal-only profiles and stable 1.0 | Follow the product's capabilities and evidence; no promised feature set or version allocation from this roadmap. |
 | Non-interactive live-corpus assertions in `tests/run.sh` | On hold by the developer (2026-10-20). About 200 `tam explain`/`tam search` routing and output checks still read `knowledge/`, so a page edit can fail them; `make dev` then names the test. Sorting them into corpus contracts (`tests/guide.sh`) or command tests (fixtures) waits for his decision. |

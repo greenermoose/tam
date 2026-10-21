@@ -96,9 +96,22 @@ Naming the developer:
 
 ## Terms
 
-- The three learning levels are **paths**: "Choose a path", "Beginner path",
-  "Intermediate path", "Expert path". Do not call them routes. Boot pages keep
-  "fallback route" and "rescue route" for their own, separate meaning.
+- A **level** is Beginner (1), Intermediate (2) or Expert (3); All (0) shows
+  every level. The reader's chosen level is their lens. Do not call levels
+  "depths" or "routes".
+- A **path** is a reading order: the level paths ("Beginner path",
+  "Intermediate path", "Expert path") and the goal paths in `learn/paths/`.
+  Boot pages keep "fallback route" and "rescue route" for their own, separate
+  meaning.
+
+## How a page teaches
+
+Before you write or restructure a page, read
+[`corpus-pedagogy.md`](corpus-pedagogy.md): level definitions, personas, the
+novice on-ramp, page patterns, section anatomy, worked examples, self-quizzes
+and paths. Start a new page from the matching file in
+[`templates/`](templates/). The authoritative plan is
+[learning levels, goal paths and self-quizzes](plans/learning-levels.md).
 
 ## Markup the renderer can show
 
@@ -114,7 +127,7 @@ Readers see the text that `tam show` renders, not the HTML.
   env TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe ecosystem/sddm
   ```
 
-- Start a new page from the head of an existing one. `tools/build-index.py`
+- Start a new page from a template in `docs/templates/`. `tools/build-index.py`
   validates the `topic`, `summary`, `keywords`, `level`, `track` and
   `prereqs` metadata, the `data-level` sections and the breadcrumb.
 
