@@ -171,7 +171,7 @@
     "topic": "boot",
     "path": "maintain/boot.html",
     "title": "Boot Process, UKIs, and Kernel Updates",
-    "summary": "UEFI boot, bootloaders, Unified Kernel Images (UKI), mkinitcpio hooks, initramfs, and kernel updates on Tamlinux",
+    "summary": "Identify startup stages and trace boot artifacts without changing firmware or regenerating images",
     "keywords": [
       "boot",
       "uefi",
@@ -186,7 +186,6 @@
       "mkinitcpio",
       "hooks",
       "kernel",
-      "update",
       "esp",
       "boot partition",
       "limine.conf"
@@ -202,8 +201,12 @@
       "maintain",
       "filesystem"
     ],
-    "kind": "",
-    "skills": [],
+    "kind": "explanation",
+    "skills": [
+      "boot.beginner",
+      "boot.intermediate",
+      "boot.expert"
+    ],
     "rev": 8,
     "updated": "2026-10-21 06:50"
   },
@@ -211,7 +214,7 @@
     "topic": "boot-recovery",
     "path": "maintain/boot-recovery.html",
     "title": "Linux Boot Fallbacks and Rescue Routes",
-    "summary": "Choose among firmware fallbacks, alternate kernels, filesystem snapshots, virtual consoles, and external rescue media by identifying which part of boot failed",
+    "summary": "Choose a documented fallback by identifying the boot stage and shared dependencies it can avoid",
     "keywords": [
       "boot recovery",
       "Linux fallback",
@@ -236,11 +239,14 @@
     "parent": "maintain/index.html",
     "prereqs": [
       "maintain",
-      "filesystem",
-      "boot"
+      "filesystem"
     ],
-    "kind": "",
-    "skills": [],
+    "kind": "explanation",
+    "skills": [
+      "boot.beginner",
+      "boot.intermediate",
+      "boot.expert"
+    ],
     "rev": 4,
     "updated": "2026-10-21 06:50"
   },
@@ -1258,6 +1264,7 @@
       "learning",
       "first steps",
       "healthy",
+      "rescue",
       "beginner",
       "intermediate",
       "expert"
@@ -2397,6 +2404,38 @@
     "updated": "2026-10-21 11:44"
   },
   {
+    "topic": "rescue-path",
+    "path": "learn/paths/rescue.html",
+    "title": "Rescue",
+    "summary": "Choose and prepare a bounded recovery procedure for a failed update or startup failure, preserving data and evidence",
+    "keywords": [
+      "rescue",
+      "path",
+      "failed update",
+      "boot failure",
+      "fallback",
+      "snapper",
+      "rollback",
+      "recovery",
+      "live USB"
+    ],
+    "levels": [
+      "intermediate"
+    ],
+    "track": "learn",
+    "parent": "learn/paths/index.html",
+    "prereqs": [],
+    "kind": "path",
+    "skills": [
+      "boot.intermediate",
+      "boot.expert",
+      "updates.intermediate",
+      "updates.expert"
+    ],
+    "rev": 1,
+    "updated": "2026-10-21 18:33"
+  },
+  {
     "topic": "resources",
     "path": "hardware/resources.html",
     "title": "System Resources and Performance",
@@ -2593,7 +2632,7 @@
     "topic": "snapper",
     "path": "maintain/snapper.html",
     "title": "Snapper: Btrfs Snapshots for System Rollbacks",
-    "summary": "Using Snapper to manage Btrfs root snapshots, automatic pre-update checkpoints, and Limine boot integration",
+    "summary": "Inspect checkpoint scope and metadata, compare verified endpoints and separate snapshot boot from restoration",
     "keywords": [
       "snapper",
       "btrfs",
@@ -2604,7 +2643,10 @@
       "limine-snapper-sync",
       "boot",
       "rollback",
-      "recovery"
+      "recovery",
+      "pre",
+      "post",
+      "retention"
     ],
     "levels": [
       "beginner",
@@ -2615,12 +2657,14 @@
     "parent": "maintain/index.html",
     "prereqs": [
       "maintain",
-      "filesystem",
-      "rollback",
-      "boot"
+      "filesystem"
     ],
-    "kind": "",
-    "skills": [],
+    "kind": "explanation",
+    "skills": [
+      "updates.beginner",
+      "updates.intermediate",
+      "updates.expert"
+    ],
     "rev": 3,
     "updated": "2026-10-21 06:50"
   },

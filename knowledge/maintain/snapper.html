@@ -1,228 +1,227 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <title>Snapper: Btrfs Snapshots for System Rollbacks</title>
 <meta name="topic" content="snapper">
-<meta name="summary" content="Using Snapper to manage Btrfs root snapshots, automatic pre-update checkpoints, and Limine boot integration">
-<meta name="keywords" content="snapper, btrfs, snapshot, subvolume, /.snapshots, tam-update, limine-snapper-sync, boot, rollback, recovery">
+<meta name="summary" content="Inspect checkpoint scope and metadata, compare verified endpoints and separate snapshot boot from restoration">
+<meta name="keywords" content="snapper, btrfs, snapshot, subvolume, /.snapshots, tam-update, limine-snapper-sync, boot, rollback, recovery, pre, post, retention">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
-<meta name="prereqs" content="maintain, filesystem, rollback, boot">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Snapper: Btrfs Snapshots for System Rollbacks</p>
-</nav>
-
+<meta name="prereqs" content="maintain, filesystem">
+<meta name="kind" content="explanation">
+<meta name="skills" content="updates.beginner, updates.intermediate, updates.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Snapper: Btrfs Snapshots for System Rollbacks</p></nav>
 <h1>Snapper: Btrfs Snapshots for System Rollbacks</h1>
-
-<p>Snapper manages Btrfs subvolume snapshots with metadata, numbering, and configurable retention. On Tamlinux, Snapper works alongside <a href="maintain/rollback.html">Btrfs snapshots and generation rollbacks</a> to create read-only checkpoints of the root subvolume, and integrates with the bootloader via <code>limine-snapper-sync</code> so those checkpoints appear as bootable entries in Limine.</p>
-
+<p>Snapper adds configuration, numbering and metadata to filesystem
+snapshots. Learn to identify what a checkpoint covers before choosing it for
+recovery. Practice here is read-only inspection or a scratch metadata model;
+it creates, deletes and restores no real snapshot.</p>
 <section data-level="beginner">
-<h2>What is Snapper and how does it relate to Tamlinux?</h2>
-
-<p><strong>Summary:</strong> Understand Snapper vs raw <code>btrfs subvolume snapshot</code>, how <code>tam-update</code> uses it, and how to inspect configs and existing snapshots.</p>
-
-<p><strong>Prerequisites:</strong> Basic familiarity with <a href="filesystem/index.html">filesystems</a> and <a href="maintain/rollback.html">snapshots</a>.</p>
-
-<h3>What is Snapper?</h3>
-
-<ul>
-<li><strong>Snapshot manager:</strong> Snapper is a tool for managing Btrfs subvolume snapshots, storing metadata (timestamps, descriptions, cleanup info) in <code>/.snapshots/&lt;N&gt;/info.xml</code>.</li>
-<li><strong>Built on Btrfs:</strong> Snapper creates subvolume snapshots; it does not replace Btrfs. You can still use <code>btrfs subvolume snapshot</code> directly, but Snapper adds naming, bookkeeping, cleanup policies, and (optionally) pre/post pairs.</li>
-<li><strong>Configs per subvolume:</strong> Snapper can track multiple configurations (e.g. <code>root</code> for <code>/</code>, others for home if configured).</li>
-</ul>
-
-<h3>Automatic snapshots on Tamlinux</h3>
-
-<p>Before performing native system upgrades, <code>tam-update</code> automatically creates a pre-update snapshot of the root subvolume:</p>
-
-<pre>
-snapper -c root create -d "pre: Tamlinux native update"
+<h2>Identify the configured subvolume</h2>
+<p><strong>Goal:</strong> you will be able to distinguish a Snapper
+configuration from a snapshot and state what a configuration query proves.</p>
+<p><strong>Why it matters:</strong> a configuration named root does not mean
+all your files are protected or that a bootable checkpoint exists.</p>
+<p><strong>Before you start:</strong> read the
+<a href="learn/glossary/snapshot.html">snapshot definition</a> and
+<a href="maintain/rollback.html?level=1">rollback orientation</a>. Snapper
+must already be installed and its configuration readable. Do not install it
+or create a configuration to complete this lesson.</p>
+<aside class="first-time"><p>Type after the dollar
+sign in your terminal. The first line printed names the columns; each following
+line names a configuration and its subvolume. This command lists configuration,
+not your saved checkpoints.</p></aside>
+<h3>Worked example: List configuration without a service request</h3>
+<pre class="session" data-risk="read-only">
+$ snapper --no-dbus --csvout list-configs --columns config,subvolume
+config,subvolume
+root,/
 </pre>
-
-<p>This creates a numbered snapshot entry under <code>/.snapshots/&lt;N&gt;/snapshot</code> (read-only by default for root checkpoints) with a description so you can identify it later.</p>
-
-<h3>Inspecting Snapper on your system</h3>
-
-<p>Check which Snapper configs exist:</p>
-
-<pre>
-snapper list-configs
-</pre>
-
-<p>List snapshots for the root config (note: some operations may require elevated privileges):</p>
-
-<pre data-risk="system">
-sudo snapper -c root list
-</pre>
-
-<h3>Key points</h3>
-
-<ul>
-<li>Snapshots are cheap on Btrfs CoW: they share blocks until data changes.</li>
-<li>Root snapshots are typically read-only checkpoints for rollback/boot selection, not for live mutation.</li>
-<li><code>tam-update</code> uses Snapper as part of its safe update flow; see <a href="maintain/updates.html">Non-disruptive updates</a> for context.</li>
-</ul>
-
-<h3>Next step</h3>
-
-<p>Learn how to create manual snapshots, compare changes, and configure cleanup in the intermediate section below.</p>
+<p>Captured with Snapper 0.13.2 on an Arch Linux workstation, 2026-10-21.
+Your configuration and output may differ.</p>
+<ol><li><code>--no-dbus</code> reads directly instead of contacting snapperd.</li>
+<li><code>--csvout</code> uses plain comma-separated output.</li>
+<li><code>root,/</code> identifies a config for the root subvolume; it does
+not recursively include nested subvolumes or separately mounted data.</li></ol>
+<h3>Try it</h3><p>Run the query if Snapper is available. Name the config
+and subvolume from your own result. Then answer whether that result alone
+proves a usable snapshot exists. Change no settings.</p>
+<details class="solution"><p>It identifies only configuration. A snapshot
+inventory and checks of its data, boot dependencies and intended restoration
+procedure are still required.</p></details>
+<h3>If it goes wrong</h3><p>If Snapper is absent, stop at the paper example.
+If access is denied or a configuration is missing, record that limitation;
+do not create a config or escalate privileges as practice. Direct operation
+bypasses D-Bus, not filesystem permissions.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>Does a root configuration prove your home directory is included?</summary><p>No. Nested subvolumes and separate mounts are outside the root snapshot boundary. Check the actual layout and independent backup coverage.</p></details>
+<details class="q"><summary>Does --no-dbus grant administrator access?</summary><p>No. It changes the communication mode. Filesystem permissions still apply; record an access limit rather than changing it.</p></details>
 </section>
 
+<h3>New words</h3><dl><dt>Configuration</dt><dd>Snapper settings for one managed filesystem or subvolume.</dd>
+<dt>Checkpoint number</dt><dd>An identifier within a configuration, not a universal snapshot name.</dd></dl>
+<p>Compare <a href="learn/glossary/snapshot.html">snapshot</a>,
+<a href="learn/glossary/generation.html">generation</a> and
+<a href="learn/glossary/rollback.html">rollback</a>.</p>
+<h3>Next step</h3><p>Learn to interpret checkpoint types and recovery
+boundaries at Intermediate.</p>
+</section>
 <section data-level="intermediate">
-<h2>Creating, inspecting, and cleaning up snapshots</h2>
-
-<p><strong>Summary:</strong> Create manual snapshots (single or pre/post), inspect differences with <code>snapper status</code> and <code>snapper diff</code>, and manage retention via cleanup algorithms and timers.</p>
-
-<h3>Creating manual snapshots</h3>
-
-<p>Create a single read-only snapshot with a description:</p>
-
-<pre data-risk="system">
-sudo snapper -c root create -d "manual: before testing changes"
+<h2>Read checkpoint relationships before choosing recovery</h2>
+<p><strong>Goal:</strong> you will be able to select comparison endpoints
+from an inventory and distinguish checkpoint creation from restoration.</p>
+<h3>Mental model</h3>
+<pre>
+configuration -> numbered snapshot + metadata -> optional boot-menu entry
+                                                -> optional snapshot boot
+                                                -> separate restore procedure
 </pre>
-
-<p>Create a pre/post pair around an operation to track what changed between them:</p>
-
-<pre data-risk="system">
-sudo snapper -c root create --print-number -d "pre: config edit"
-# ... make changes ...
-sudo snapper -c root create -d "post: config edit" --pre-number &lt;N&gt;
+<p>Each arrow needs its own evidence. The words “pre:” in a description do
+not make a snapshot type pre. Snapper types are single, pre and post; a post
+refers to its pre number. They describe relationships, not different Btrfs
+snapshot mechanisms.</p>
+<h3>Worked example: Derive comparison endpoints</h3>
+<p>Create this fictional inventory in scratch space. Its columns are number,
+type and pre-number; it is deliberately smaller than real Snapper CSV.</p>
+<pre data-risk="scratch">
+snapshot_lab=$(mktemp -d)
+printf '41 pre 0\n42 post 41\n43 single 0\n' &gt; "$snapshot_lab/inventory"
 </pre>
-
-<p>Omitting <code>-r</code> allows writable snapshots in some configs; for system root checkpoints, treat as read-only and use descriptions to make them identifiable.</p>
-
-<h3>Inspecting differences</h3>
-
-<p>Show files changed between snapshots (or since last snapshot):</p>
-
-<pre data-risk="system">
-sudo snapper -c root status
-sudo snapper -c root diff 1..2
+<pre class="session" data-risk="scratch">
+$ awk '$2 == "post" { print $3 ".." $1 }' "$snapshot_lab/inventory"
+41..42
 </pre>
-
-<p>These show added/modified/deleted files; you can diff individual files as needed.</p>
-
-<h3>Listing and understanding metadata</h3>
-
-<p>Each snapshot has a numeric ID <code>N</code> and lives under <code>/.snapshots/&lt;N&gt;/</code> with:</p>
-
-<ul>
-<li><code>snapshot/</code> — the read-only view of that subvolume state</li>
-<li><code>info.xml</code> — metadata (date, description, user, cleanup info, pre/post linkage)</li>
-</ul>
-
-<p>Use <code>sudo snapper -c root list</code> to see numbers, dates, descriptions, and types (pre/post/single).</p>
-
-<h3>Cleanup and retention</h3>
-
-<p>Snapper supports cleanup algorithms controlled by config and timers:</p>
-
-<ul>
-<li><strong>number</strong>: keep a fixed number of snapshots</li>
-<li><strong>timeline</strong>: keep snapshots by age (hourly/daily/weekly/monthly/yearly)</li>
-<li><strong>empty-pre-post</strong>: remove pre/post pairs with no changes</li>
-</ul>
-
-<p>Configuration lives in <code>/etc/snapper/configs/root</code> (and <code>/etc/snapper/config-templates/</code> for defaults). Systemd timers handle automated cleanup:</p>
-
-<ul>
-<li><code>snapper-timeline.timer</code> — creates timeline snapshots (if enabled)</li>
-<li><code>snapper-cleanup.timer</code> — runs cleanup according to retention rules</li>
-</ul>
-
-<p>You can also run cleanup manually:</p>
-
-<pre data-risk="system">
-sudo snapper -c root cleanup number
-sudo snapper -c root cleanup timeline
-sudo snapper -c root cleanup empty-pre-post
+<p>Captured in a scratch directory on Arch Linux, 2026-10-21.</p>
+<ol><li>Find the post row.</li><li>Read its corresponding pre number.</li>
+<li>Construct the range from the relationship, rather than assuming adjacent
+numbers always form a pair. These numbers are not targets on your computer.</li></ol>
+<h3>Completion task</h3><p>Add another fictional pair to your scratch
+inventory:</p>
+<pre data-risk="scratch">
+printf '44 pre 0\n45 post 44\n' &gt;&gt; "$snapshot_lab/inventory"
 </pre>
-
-<h3>Deletion</h3>
-
-<p>Delete specific snapshots when no longer needed:</p>
-
-<pre data-risk="system">
-sudo snapper -c root delete &lt;N&gt;
+<p>Complete <code>awk '$2 == "___" { print $3 ".." $1 }'</code> with the
+type that supplies a pre-number, passing your inventory file.</p>
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ awk '$2 == "post" { print $3 ".." $1 }' "$snapshot_lab/inventory"
+41..42
+44..45
 </pre>
-
-<p>Deleting a pre snapshot may affect its post pair; follow Snapper's behavior and ensure you don't delete snapshots you intend to boot.</p>
-
-<h3>Next step</h3>
-
-<p>Understand D-Bus vs direct operation, and how Snapper integrates with Limine via <code>limine-snapper-sync</code> in the expert section.</p>
+<p>The post rows carry the relationships. A single snapshot with a description
+starting “pre:” would still not be a pre/post pair. Output captured in a scratch
+directory on Arch Linux, 2026-10-21.</p></details>
+<h3>Independent task</h3><p>Write a comparison plan naming config,
+confirmed endpoints, files of interest and data outside the snapshot. State
+why the scratch range must not be copied into a live command. Clean up:</p>
+<pre data-risk="scratch">
+rm -- "$snapshot_lab/inventory"
+rmdir -- "$snapshot_lab"
+unset snapshot_lab
+</pre>
+<details class="solution"><p>Read a real accessible inventory for the chosen
+configuration and verify both endpoints. Record excluded mounts and later
+writes. Only a documented operation may use those actual IDs. The teaching
+file creates no snapshots and supplies no real recovery evidence.</p></details>
+<h3>Choosing</h3>
+<table><tr><th>Need</th><th>Interface</th><th>Limit</th></tr>
+<tr><td>Identify configs</td><td>list-configs</td><td>Not a snapshot inventory</td></tr>
+<tr><td>Identify available numbers/types</td><td>list for the selected config</td><td>Not proof of bootability</td></tr>
+<tr><td>Compare file status</td><td>status with explicit N..M</td><td>Only included paths; endpoint 0 means the current system</td></tr>
+<tr><td>Compare contents</td><td>diff with explicit N..M and optional files</td><td>Can expose sensitive data and read large trees</td></tr>
+<tr><td>Restore normal operation</td><td>Provider-specific recovery procedure</td><td>Snapshot boot, file undo and persistent root restoration differ</td></tr></table>
+<p>Where your existing access permits, <code>snapper -c root list</code>
+reads the root inventory through the normal service. Substitute a verified
+configuration if yours differs. This lesson does not require privileged
+inventory access or a live comparison.</p>
+<h3>Troubleshooting</h3>
+<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
+<tr><td>Snapshot absent from menu</td><td>Synchronization, policy or image dependency</td><td>Inventory versus provider's generated entries</td><td>Preserve evidence; do not rerun generators as practice.</td></tr>
+<tr><td>Comparison fails</td><td>Wrong config, deleted number or permissions</td><td>Accessible inventory and exact error</td><td>Confirm endpoints before a bounded comparison.</td></tr>
+<tr><td>Restored root, newer home data</td><td>Separate mount/subvolume</td><td>Mount and snapshot boundaries</td><td>Use the independent data-recovery plan.</td></tr></table>
+<aside class="tamlinux"><p>The current native updater
+requests a snapshot with description “pre: Tamlinux native update” after its
+recovery gates and before the native transaction. It does not specify type
+pre, so the ordinary create default is single; it is not an automatic pre/post
+pair. A failed creation stops that transaction. Limine snapshot-menu generation
+belongs to the separately selected boot provider. Neither a description nor
+successful creation proves a boot entry or successful restore.</p></aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>The description says pre: but the inventory type is single. Is it half of a pre/post pair?</summary><p>No. Description text is independent of type and pair linkage. Read the type and pre-number metadata; do not infer a relationship from the label.</p></details>
+<details class="q"><summary>A snapshot appears in the menu. What must still be verified before relying on it?</summary><p>Its loader/image/root dependencies, usable data and credentials, excluded mounts, later-write preservation and exact restoration procedure. Menu visibility is one observation, not complete recovery acceptance.</p></details>
 </section>
 
+<h3>Further reading</h3><ul><li><a href="man:snapper(8)">snapper(8)</a>: types, comparison syntax and permissions.</li>
+<li><a href="man:snapper-configs(5)">snapper-configs(5)</a>: retention and configuration.</li>
+<li><a href="maintain/rollback.html?level=2">Rollback boundaries</a>: software selection versus mutable data.</li></ul>
+</section>
 <section data-level="expert">
-<h2>D-Bus, recovery operation, and Limine boot integration</h2>
-
-<p><strong>Summary:</strong> Use Snapper in recovery environments (without D-Bus), understand <code>limine-snapper-sync</code> and how snapshots appear in Limine, and be aware of boundaries (excluded subvolumes, read-only snapshots, rollbacks).</p>
-
-<h3>snapperd, D-Bus, and recovery operation</h3>
-
-<p>Snapper normally communicates with <code>snapperd</code> via D-Bus for coordination. In recovery/chroot environments (live media, or when the rootfs is mounted differently), D-Bus may not be available. Snapper supports direct operation:</p>
-
-<ul>
-<li><code>--no-dbus</code>: bypass D-Bus and operate directly on the filesystem</li>
-<li><code>--root &lt;mountpoint&gt;</code>: operate on a mounted root (e.g. when chrooted from rescue media)</li>
-</ul>
-
-<p>Examples from a recovery context (adjust mountpoints):</p>
-
-<pre data-risk="system">
-sudo snapper --no-dbus --root /mnt list-configs
-sudo snapper --no-dbus --root /mnt -c root list
-</pre>
-
-<p>Be careful to operate on the correct mounted root; mistakes can affect the wrong filesystem.</p>
-
-<h3>On-disk layout</h3>
-
-<p>Under each config's subvolume, Snapper maintains:</p>
-
-<ul>
-<li><code>/.snapshots/</code> directory (subvolume) containing numbered snapshot dirs</li>
-<li><code>/.snapshots/&lt;N&gt;/info.xml</code> — structured metadata</li>
-<li><code>/.snapshots/&lt;N&gt;/snapshot/</code> — read-only subvolume snapshot of root state at that time</li>
-</ul>
-
-<p>The <code>info.xml</code> includes fields like <code>description</code>, <code>date</code>, <code>type</code> (SINGLE/PRE/POST), <code>cleanup</code> algorithms, and <code>userdata</code>. This metadata is what Snapper uses for listing and cleanup.</p>
-
-<h3>Limine integration via limine-snapper-sync</h3>
-
-<p>To make snapshots bootable from the Limine boot menu, Tamlinux uses <code>limine-snapper-sync</code>. It synchronizes Snapper snapshots into Limine boot entries so you can select a previous root snapshot at boot time.</p>
-
-<p>How it works:</p>
-
-<ul>
-<li><strong>Service:</strong> <code>limine-snapper-sync.service</code> (and associated tooling) runs after snapshots are created/updated to regenerate Limine menu entries for available snapshots.</li>
-<li><strong>Config/recipe:</strong> Provided via <code>limine-snapper-sync</code> package; Tamlinux's boot-selection contract integrates it with Limine configuration generation.</li>
-<li><strong>Output:</strong> Updates <code>/boot/limine.conf</code> (and any UKI/snapshot boot entries as configured) to include entries like "Boot from snapshot N: ..." pointing to the corresponding <code>/.snapshots/N/snapshot</code> root.</li>
-<li><strong>Boot behavior:</strong> Booting a snapshot means the kernel/initramfs is loaded as normal, but the root filesystem is mounted from the read-only snapshot subvolume. This gives you a known-good state without modifying the current active root.</li>
-</ul>
-
-<p>See <a href="maintain/boot.html">Boot Process, UKIs, and Kernel Updates</a> for details on how Limine and UKIs are generated; <code>limine-snapper-sync</code> extends that by adding snapshot-based boot entries.</p>
-
-<h3>Boundaries and safety</h3>
-
-<ul>
-<li><strong>Read-only snapshots:</strong> Root snapshots created as checkpoints are typically read-only. Do not expect to persist changes to a booted read-only snapshot; changes go to the active root subvolume (or CoW layer) depending on mount options. To "rollback" persistently, you would replace/restore the active root subvolume from a snapshot — follow established Tamlinux rollback procedures (see <a href="maintain/rollback.html">Snapshots and generation rollbacks</a> and <a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a>).</li>
-<li><strong>Excluded subvolumes:</strong> Snapper tracks the configured subvolume (usually root). <code>/home</code>, <code>/var/log</code>, <code>/var/cache</code>, or other subvolumes may be separate and not rolled back by booting a root snapshot. Be aware of what is included/excluded in your Snapper config.</li>
-<li><strong>Not a replacement for backups:</strong> Snapshots protect against broken updates/config changes but do not protect against hardware failure, full-disk corruption, or deletion of the Btrfs filesystem itself. Maintain external backups.</li>
-<li><strong>Recovery context:</strong> In emergency recovery (live media), use <code>--no-dbus --root</code> to inspect/list snapshots safely. Do not blindly delete snapshots you might need to boot into.</li>
-</ul>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a> — Btrfs CoW and Home Manager generations</li>
-<li><a href="maintain/boot.html">Boot Process, UKIs, and Kernel Updates</a> — Limine, UKIs, mkinitcpio hooks</li>
-<li><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a> — choosing recovery paths</li>
-<li><a href="maintain/updates.html">Non-disruptive updates</a> — how <code>tam-update</code> fits in</li>
-</ul>
+<h2>Audit metadata, retention and boot integration</h2>
+<h3>Reference</h3>
+<table><tr><th>Operation / field</th><th>Semantics</th><th>Recovery caution</th></tr>
+<tr><td>create --type single</td><td>Independent checkpoint; default type</td><td>A description cannot change type.</td></tr>
+<tr><td>create --type pre --print-number</td><td>Create a pre checkpoint and return its number</td><td>Retain that actual number for the pair.</td></tr>
+<tr><td>create --type post --pre-number N</td><td>Link a post checkpoint to pre N</td><td>N must be a verified pre in this config.</td></tr>
+<tr><td>create --read-only / --read-write</td><td>Explicit snapshot property; read-only is the ordinary default</td><td>Do not confuse the long options with global -r.</td></tr>
+<tr><td>--no-dbus --root PATH</td><td>Direct operation on a prepared root, for supported commands</td><td>-r means --root; it does not request a read-only snapshot.</td></tr>
+<tr><td>status N..M / diff N..M</td><td>Metadata/status versus content comparison</td><td>Supply verified endpoints; 0 names current state.</td></tr></table>
+<p>These fragments document syntax; they are not a creation or restoration
+exercise. An actual privileged operation needs a verified rollback point,
+known targets, preserved later writes and approval for that specific step.</p>
+<h3>How it works</h3><p>In the usual root Btrfs layout, Snapper keeps
+<code>/.snapshots/N/info.xml</code> metadata beside the snapshot subvolume at
+<code>/.snapshots/N/snapshot</code>. Configured subvolume and filesystem layout
+are authoritative. D-Bus coordinates requests through snapperd; direct mode
+uses filesystem access without granting permissions; direct mutations can also
+bypass snapperd's coordination. A live environment's
+root is not the installed root: <code>--root</code> needs an already verified,
+appropriately mounted target. It does not unlock or discover the installation.</p>
+<p>Number cleanup selects checkpoints by policy; timeline creation/retention
+and empty-pre-post cleanup have separate rules. Inspect the config, cleanup
+assignment and enabled timers before making a retention claim. Deleting or
+cleaning checkpoints can remove a needed recovery source; apparent free-space
+savings depend on shared extents. File comparisons across large trees can cost
+substantial I/O, so bound them to relevant paths where possible.</p>
+<p>In classic Btrfs mode, Snapper rollback creates new snapshots and changes
+the default subvolume. A loader with an explicit root subvolume need not follow
+that default. Therefore a generic rollback command is not a universal Tamlinux
+restore recipe. Likewise, undoing selected files is not a whole-system restore.</p>
+<h3>Why Tamlinux separates the provider</h3><p>Checkpoint management and
+boot entry generation have different owners and failure boundaries. The current
+Arch selection includes limine-snapper-sync; its exact package and consumer
+policy determine the generated entries and boot behavior. Root snapshots do
+not by themselves retain EFI files on a separate filesystem or firmware state.</p>
+<h3>Edge cases and failure modes</h3><p>Excluded subvolumes, stale entries,
+changed encryption support and mixed-version data mounts can invalidate a
+recovery assumption. A snapshot can preserve crash-consistent filesystem data
+without application-level consistency. Booted read-only state may use an overlay;
+identify where writes go and preserve them before leaving it. Same-device
+snapshots do not survive device loss and are not independent backups.</p>
+<h3>Explore</h3><p>Using a paper inventory, trace one snapshot from config
+and metadata to provider entry, image and root selection. Write separate checks
+for snapshot existence, menu generation, boot access and persistent restoration.
+Identify the evidence and rollback point needed before any future retention or
+restore change. Do not run cleanup, delete or rollback to complete the exercise.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing a model answer.</p>
+<details class="q open"><summary>Why can a successful Snapper rollback leave the next boot using another subvolume?</summary><p>The loader may pass an explicit subvolume selector, while classic rollback changes the filesystem default. Inspect both selectors and the provider contract; do not assume one controls the other.</p></details>
+<details class="q open"><summary>How would you assess a proposal to keep only the newest snapshot?</summary><p>Identify which recovery case each retained checkpoint covers, its boot-image dependencies, external backups and later-write policy. Confirm cleanup assignments and shared-space costs. A recent timestamp is not evidence of a known-good or bootable state; keep deletion pending until those needs are satisfied.</p></details>
 </section>
-</body>
-</html>
+
+<h3>Sources</h3><ul><li><a href="man:snapper(8)">snapper(8)</a> and <a href="man:snapper-configs(5)">snapper-configs(5)</a>: installed semantics.</li>
+<li><a href="https://github.com/greenermoose/tamlinux/blob/develop/commands/tam-update/tam-update">Native updater source (online)</a>: gates and checkpoint request.</li>
+<li><a href="https://github.com/greenermoose/tamlinux-packages/blob/develop/docs/plans/0.4.4-boot-providers.md">Boot-provider selection (online)</a>: independently selected integration.</li></ul>
+<h3>Improve it</h3><p>Report a sanitized mismatch between inventory and
+provider entries in the <a href="https://github.com/greenermoose/tamlinux">public product repository (online)</a>.
+Include package versions and the relevant error, without file contents or secrets.</p>
+</section>
+<h2>Where next</h2><ul><li><a href="learn/paths/rescue.html?level=2">Rescue path</a>.</li>
+<li><a href="maintain/boot-recovery.html">Fallback dependencies</a>.</li>
+<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a>.</li></ul>
+</body></html>

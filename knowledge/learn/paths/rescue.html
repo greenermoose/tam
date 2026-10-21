@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html><head>
+<title>Rescue</title>
+<meta name="topic" content="rescue-path">
+<meta name="summary" content="Choose and prepare a bounded recovery procedure for a failed update or startup failure, preserving data and evidence">
+<meta name="keywords" content="rescue, path, failed update, boot failure, fallback, snapper, rollback, recovery, live USB">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="boot.intermediate, boot.expert, updates.intermediate, updates.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Paths by Goal</a> / Rescue</p></nav>
+<h1>Rescue</h1>
+<p><strong>Gain:</strong> you will be able to choose and prepare a recovery
+procedure for a failed update or startup failure, with a retained recovery
+source, later-write plan and explicit success checks.</p>
+<p><strong>For you if:</strong> you can adapt shell commands and want a
+recovery plan before something fails. If you are already facing a failure,
+start with the last visible stage and record unknowns; do not guess a repair
+command from a menu label. For a first introduction, read
+<a href="maintain/boot-recovery.html?level=1">fallback orientation</a>, then
+return here at level 2.</p>
+<p><strong>Levels:</strong> starts at Intermediate (2), finishes at Expert (3).
+Allow about four reading sessions, one per stage. The exercises use read-only
+inspection and scratch files. A real repair follows a separately approved,
+machine-specific procedure; this path does not require a failed or rebooted system.</p>
+<h2>Stage 1: Locate the failure boundary</h2>
+<ol><li>Read <a href="maintain/boot.html?level=2">Boot artifacts and installed state</a>.</li>
+<li>Work through the dependency model in
+<a href="maintain/boot-recovery.html?level=2">Boot fallbacks and rescue routes</a>.</li>
+<li>Record the symptom, time, last observed stage and the next unknown. Name
+a route that avoids the suspected failure and its remaining shared dependencies.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>A menu offers two kernels but the partition holding both images is unreadable. What route should you investigate?</summary><p>An independently prepared route that avoids that partition, such as verified external rescue media. Another kernel name on the same unreadable partition does not cross the failure boundary.</p></details>
+</section>
+
+<h2>Stage 2: Identify what can actually be recovered</h2>
+<ol><li>Work through <a href="maintain/snapper.html?level=2">Snapper inventory and checkpoint relationships</a>.</li>
+<li>Read <a href="maintain/rollback.html?level=2">Snapshots and generation rollback boundaries</a>.</li>
+<li>For your paper scenario, name the software layer, retained recovery source
+and data outside it. Keep checkpoint IDs, image hashes and assembly identifiers
+unknown unless you have actual evidence. Never substitute the teaching IDs.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>A known-good root snapshot excludes home and EFI files. Which parts of recovery are still separate?</summary><p>Home data and later writes need their own preservation/recovery plan. EFI files and native boot dependencies need the provider procedure. Selecting a software generation or booting a snapshot does not restore all those parts.</p></details>
+</section>
+
+<h2>Stage 3: Plan access before a repair</h2>
+<ol><li>Work through <a href="maintain/recovery.html?level=2">Emergency recovery planning</a>.</li>
+<li>Choose an access method appropriate to the reached stage: configured
+text login for a session failure, or independently prepared rescue media
+when installed startup cannot work.</li>
+<li>Write the exact procedure you would consult, how target identity would
+be verified, where later writes would be preserved, and the stop condition
+if storage, credentials or recovery source cannot be confirmed.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>A live environment starts successfully. Is mounting the first listed disk a valid next step?</summary><p>No. First establish device identity, encryption state, subvolume/mount layout and the chosen procedure. Live startup proves access to that environment, not identification or recoverability of installed storage.</p></details>
+</section>
+
+<h2>Stage 4: Audit shared dependencies</h2>
+<ol><li>Switch to <a href="maintain/boot-recovery.html?level=3">Fallback independence</a>.</li>
+<li>Read <a href="maintain/boot.html?level=3">Boot generation dependencies</a>
+and <a href="maintain/snapper.html?level=3">Snapper metadata and restoration semantics</a>.</li>
+<li>Audit the paper plan for an intact image with wrong root parameters,
+explicit subvolume selection, excluded mounts and a shared failed device.
+Before a real change, retain a verified rollback point and approve one specific
+operation. Define checks for normal boot/unlock, required mounts, login and
+preserved data, with an abort route if any check fails.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing a model answer.</p>
+<details class="q open"><summary>What does a successful snapshot boot establish, and what does it leave open?</summary><p>It establishes that one selected route reached the observed environment. Persistent normal-root restoration, excluded data, later writes and future boot behavior remain separate checks. Record exactly what was observed rather than calling the whole plan accepted.</p></details>
+</section>
+
+<h2>Capstone: Reject an unsafe recovery shortcut</h2>
+<p>Scenario: after an update, the internal EFI partition containing the loader
+and boot images is unreadable. A recent
+root snapshot exists on the internal disk. A document in a separate home
+subvolume was edited afterward. You have an external rescue device, but its
+storage-unlock support has not been verified.</p>
+<p>Use a private scratch directory to represent the candidate routes. These
+are fictional labels, not boot entries, verified artifacts or mount targets.</p>
+<pre data-risk="scratch">
+rescue_plan=$(mktemp -d)
+printf 'normal internal-esp installed-root\nsnapshot internal-esp snapshot-root\nusb external-media rescue-root\n' &gt; "$rescue_plan/routes"
+</pre>
+<p>Filter out routes needing the unavailable internal ESP. Then write five
+lines in your own notes: observed failure; candidate access; unknown dependency;
+later-write preservation; verification/stop condition. Do not write to installed
+storage, repair a loader, mount a snapshot or perform a rollback.</p>
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ awk '$2 != "internal-esp" { print $1 }' "$rescue_plan/routes"
+usb
+</pre>
+<p>Captured in a scratch directory on Arch Linux, 2026-10-21.</p>
+<ol><li><strong>Observed failure:</strong> internal boot images are
+inaccessible; the root snapshot alone cannot supply a working loader/image path.</li>
+<li><strong>Candidate access:</strong> external media avoids that boot-file
+dependency in the model. It has not been proven ready.</li>
+<li><strong>Unknown dependency:</strong> confirm firmware startup, device
+identity, filesystem/unlock support and credentials through the chosen procedure.
+Keep installed-storage operations pending while any required fact is unknown.</li>
+<li><strong>Later writes:</strong> the edited home document is outside the
+root snapshot. Preserve and verify it using a suitable data-recovery procedure
+and independent destination before any destructive restoration.</li>
+<li><strong>Verification/stop condition:</strong> retain the original error
+and native recovery artifacts. A future approved repair must check intended
+boot/unlock, root and data mounts, login and the document. Stop if the target,
+backup, credentials or procedure cannot be verified. Suspected device failure
+requires a data-recovery plan before repeated boot/repair attempts.</li></ol>
+<p>A good result is a bounded plan with honest unknowns. The scratch filter
+has neither tested external media nor recovered this scenario's system.</p>
+</details>
+<p>Remove only your scratch file and directory:</p>
+<pre data-risk="scratch">
+rm -- "$rescue_plan/routes"
+rmdir -- "$rescue_plan"
+unset rescue_plan
+</pre>
+<h2>Next paths</h2><ul><li><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>: prepare updates before a failure.</li>
+<li><a href="expert.html?level=3">Expert path</a>: investigate wider system boundaries.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li></ul>
+</body></html>

@@ -6,6 +6,7 @@ is maintained in [AI_PROVENANCE.md](../../AI_PROVENANCE.md).
 
 | Date | Work | Record |
 | --- | --- | --- |
+| 2026-10-21 | TCK25 boot/fallback/Snapper lessons and Rescue; corpus 0.42.0 | [Implementation and verification](2026-10-21-tam-boot-rescue-learning.md) |
 | 2026-10-21 | TCK25 Maintaining recovery lessons and glossary; corpus 0.41.0 | [Implementation and verification](2026-10-21-tam-recovery-learning.md) |
 | 2026-10-21 | TCK23 pilot, TCK24 scaffolding and TCK25 Using migration; corpus 0.38.0–0.40.0 | [Implementation and verification](2026-10-21-tam-learning-pilot.md) |
 | 2026-10-21 | TCK22 folding, self-quizzes and block-level levels; command 0.38.0 / corpus 0.37.1 | [Implementation and verification](2026-10-21-tam-folding.md) |

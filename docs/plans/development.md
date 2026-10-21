@@ -2,15 +2,15 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.38.0 and corpus 0.41.0.
+**Scope:** Living integration contract; current command 0.38.0 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Continue TCK25 Maintaining with boot, boot-fallback and
-Snapper lessons before the Rescue path, then the remaining Maintaining
-pages (logs, power, resources, packaging and hub) and part-wide enforcement. Using and the first two recovery ladders are implemented;
+**Next action:** Finish TCK25 Maintaining with logs, power, resources,
+packaging and hub migration, then part-wide enforcement. Using, the five
+Maintaining recovery/boot ladders and Rescue are implemented;
 pilot/learner review remains unverified. See the
 [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
@@ -372,6 +372,14 @@ separate product return, mutable data and native boot state, and teach SysRq
 limits without invoking it. Maintaining remains partially migrated;
 part-wide enforcement stays off. See the [verification record](../ai/2026-10-21-tam-recovery-learning.md).
 
+Corpus 0.42.0 migrates boot, boot-fallback (`maintain/boot-recovery.html`)
+and Snapper, with captured read-only/scratch exercises and folded quizzes.
+It corrects Snapper types, comparison endpoints and option semantics and
+separates checkpoint creation, menu generation, boot and restoration. Rescue
+is a four-stage Intermediate-to-Expert goal path with a scratch decision
+capstone. Logs, power, resources, packaging and hub migration remain before
+Maintaining enforcement. See the [verification record](../ai/2026-10-21-tam-boot-rescue-learning.md).
+
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
 expanded CS content, AI hardware estimates, writable settings, localisation and
@@ -412,6 +420,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-21:** On the developer's explicit boot/Snapper/Rescue continuation,
+  migrated three Maintaining ladders and added Rescue (corpus 0.42.0).
+  Practice remains read-only or scratch; no actual boot or snapshot mutation
+  is needed for completion. Remaining Maintaining pages and enforcement,
+  learner review and packaged acceptance stay open.
 - **2026-10-21:** Corpus 0.41.0 (minor): TCK25 Maintaining recovery slice,
   on the developer's continuation request. Migrate rollback and emergency
   recovery, add three glossary terms and connect Intermediate planning from

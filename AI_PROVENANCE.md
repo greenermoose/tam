@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-21 | TCK25 boot/fallback/Snapper ladders and Rescue goal path; corpus 0.42.0 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-21-tam-boot-rescue-learning.md) |
 | 2026-10-21 | TCK25 Maintaining recovery slice; rollback/emergency ladders, three glossary terms and recovery planning; corpus 0.41.0 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-21-tam-recovery-learning.md) |
 | 2026-10-21 | Learning pilot (TCK23, corpus 0.38.0), scaffolding (TCK24, 0.39.0), Using migration and staged paths (TCK25 first part, 0.40.0); validated coverage, captured examples and implementation review | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-21-tam-learning-pilot.md) |
 | 2026-10-20 | Pare down welcome page and add dedicated About page; corpus 0.36.0 | Antigravity CLI 1.4.3; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-20-tam-about-page.md) |

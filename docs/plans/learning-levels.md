@@ -13,10 +13,9 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Continue TCK25 Maintaining with boot, boot-fallback and
-Snapper before adding Rescue; then the remaining Maintaining pages and
-part-wide enforcement.
-TCK24, Using and the first two Maintaining recovery lessons are implemented;
+**Next action:** Finish TCK25 Maintaining with logs, power, resources,
+packaging and hub migration, then part-wide enforcement.
+TCK24, Using, five Maintaining recovery/boot lessons and Rescue are implemented;
 pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
@@ -542,9 +541,46 @@ SysRq policy reads; no recovery operation is run. Three glossary pages are
 added and Keep it healthy stays at Intermediate for recovery planning.
 Anatomy warnings fall from 38 to 34; page gaps from 19 to 15, with 21 path
 gaps unchanged. These counts measure metadata, not learning effectiveness.
-Maintaining still needs boot, boot-fallback, Snapper, logs, power, resources,
-packaging and hub migration and its Rescue path before part-wide enforcement. See the
+At that slice's completion, Maintaining still needed boot, boot-fallback,
+Snapper, logs, power, resources, packaging and hub migration and its Rescue
+path before part-wide enforcement. See the
 [verification record](../ai/2026-10-21-tam-recovery-learning.md).
+
+**Boot and Rescue execution plan (2026-10-21).** The developer explicitly
+requested boot, boot-fallback and Snapper lessons, then Rescue. Baseline
+`124ee80`, command 0.38.0 / corpus 0.41.0. The existing fallback page is
+`maintain/boot-recovery.html`; preserve its address and topic. Allocate corpus
+0.42.0 for the new Rescue goal path; command stays unchanged.
+
+1. Migrate the boot chain, fallback dependencies and Snapper pages as ladders
+   under the existing teaching contract. Capture only read-only host queries
+   and scratch models. Separate evidence from inference; do not regenerate
+   images, alter firmware, mount storage, create/delete snapshots or reboot.
+2. Correct Snapper option/type examples against its native manual and help.
+   Distinguish snapshot creation, menu synchronization, snapshot boot and
+   persistent restoration; none proves the next. Keep current Arch provider
+   details scoped to that provider, and qualify UKI update guarantees.
+3. Add Rescue at Intermediate through Expert with staged links, checkpoints
+   and a scratch recovery-decision capstone. Link it from goal/Learning hubs
+   and Keep it healthy. Completion prepares a bounded recovery procedure;
+   real machine repair and its acceptance remain separate.
+4. Check examples against captured stdout, render every level, exercise the
+   Rescue navigation/folds and run corpus checks under an exclusive claim.
+   Update status/provenance and rebuild Git-derived indexes after committing.
+   Remaining Maintaining pages and enforcement stay pending.
+
+**Boot and Rescue source implemented (2026-10-21, corpus 0.42.0).** The
+three ladders now declare skills and complete teaching anatomy, with folded
+quizzes and captured read-only/scratch examples. Snapper descriptions, types,
+comparison endpoints and global/creation flags are distinguished accurately.
+Rescue links the recovery lessons through four stages, Intermediate to Expert,
+with a scratch dependency-filter capstone and explicit later-write checks.
+No image generation, firmware change, snapshot creation/deletion, mounting or
+repair was performed. Anatomy warnings fall from 34 to 28; page gaps remain
+15 and path gaps fall from 21 to 19. These are metadata counts. Remaining
+Maintaining pages (logs, power, resources, packaging and hub), enforcement,
+pilot/learner and packaged acceptance remain open. See the
+[verification record](../ai/2026-10-21-tam-boot-rescue-learning.md).
 
 ### Stop and ask the developer
 
@@ -582,5 +618,6 @@ see its delivery note and verification record. TCK23 source is delivered as
 corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
 paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
-two Maintaining recovery ladders. Maintaining remains partial, and Learning,
+two Maintaining recovery ladders. Corpus 0.42.0 adds the boot, boot-fallback
+and Snapper migrations and Rescue path. Maintaining remains partial, and Learning,
 Installing and Improving migration remain open.

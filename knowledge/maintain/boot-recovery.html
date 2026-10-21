@@ -1,206 +1,187 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <title>Linux Boot Fallbacks and Rescue Routes</title>
 <meta name="topic" content="boot-recovery">
-<meta name="summary" content="Choose among firmware fallbacks, alternate kernels, filesystem snapshots, virtual consoles, and external rescue media by identifying which part of boot failed">
+<meta name="summary" content="Choose a documented fallback by identifying the boot stage and shared dependencies it can avoid">
 <meta name="keywords" content="boot recovery, Linux fallback, fallback boot, EFI fallback, fallback initramfs, alternate kernel, rescue route, rescue media, live USB, boot menu, snapshot boot, recovery path, boot failure">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
-<meta name="prereqs" content="maintain, filesystem, boot">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Linux Boot Fallbacks and Rescue Routes</p>
-</nav>
-
+<meta name="prereqs" content="maintain, filesystem">
+<meta name="kind" content="explanation">
+<meta name="skills" content="boot.beginner, boot.intermediate, boot.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Linux Boot Fallbacks and Rescue Routes</p></nav>
 <h1>Linux Boot Fallbacks and Rescue Routes</h1>
-
-<p>A fallback or rescue route is another path toward a usable system or a set
-of repair tools. The words on boot menus vary by distribution and bootloader.
-The useful question is which part of the normal path each choice can avoid,
-and which parts it still needs.</p>
-
+<p>A fallback changes part of startup. A rescue environment gives you tools
+from which to inspect or recover the installation. Menu labels alone do not
+tell you what either route can survive.</p>
 <section data-level="beginner">
-<h2>What is a fallback route?</h2>
-
-<p><strong>Summary:</strong> Follow the normal boot path, then see how a
-fallback changes one part of it.</p>
-
-<p><strong>Prerequisites:</strong> Basic familiarity with files, storage and
-the idea that a computer starts before the desktop does.</p>
-
-<h3>The normal path</h3>
-
-<pre>
-firmware
-  -> boot entry and EFI loader
-    -> bootloader menu and Linux kernel image
-      -> initramfs finds and unlocks the root storage
-        -> Linux mounts the root filesystem and starts services
-          -> display manager and desktop login
-</pre>
-
-<p>A <strong>fallback route</strong> changes or bypasses one or more steps in
-that chain. A <strong>rescue route</strong> is a path to a usable environment
-from which you can inspect, copy or repair the installed system. A rescue
-environment can come from the installed system, a recovery entry or separate
-bootable media.</p>
-
-<p>“Fallback” does not name one standard Linux feature. It might mean another
-firmware entry, another EFI loader file, a second kernel, or an initramfs
-image with different contents. Check the menu description and the system's
-boot documentation before assuming what a label does.</p>
-
-<h3>Match the route to the failure</h3>
-
-<table>
-<tr><th>What still works</th><th>Route to consider</th><th>Why it may help</th></tr>
-<tr><td>The machine starts, but its usual firmware entry is missing</td><td>Another firmware entry or the standard EFI fallback path, if present</td><td>It can point to another copy of the bootloader.</td></tr>
-<tr><td>The bootloader menu appears, but one kernel does not start</td><td>A separate kernel entry, another initramfs image, or a bootable <a href="maintain/snapper.html">Snapper snapshot</a></td><td>It changes the kernel or its early boot tools, or boots a known-good root state.</td></tr>
-<tr><td>The kernel starts, but the desktop or automatic login fails</td><td>A text virtual console, if enabled and reachable</td><td>It can provide a login without the graphical session.</td></tr>
-<tr><td>The installed boot files or system cannot be reached</td><td>External live or rescue media</td><td>It starts a separate operating environment from removable media.</td></tr>
-</table>
-
-<p>These are starting points, not guarantees. If all menu choices use the same
-damaged EFI partition, they may all fail together. If Linux cannot unlock the
-root storage, changing the desktop login will not help. Read the next sections
-to compare what each route shares with normal boot.</p>
-
-<h3>Next step</h3>
-
-<p>For the boot stages and the files that supply them, see <a href="maintain/boot.html">Boot Process, UKIs, and Kernel Updates</a>. For Snapper-managed checkpoints and boot menu integration, see <a href="maintain/snapper.html">Snapper: Btrfs Snapshots for System Rollbacks</a>. For a frozen desktop, emergency reboot or hands-on live USB procedure, see <a href="maintain/recovery.html">Emergency Disaster Recovery</a>.</p>
+<h2>Find the last stage that worked</h2>
+<p><strong>Goal:</strong> you will be able to record a startup symptom and
+choose the next kind of help without changing the system.</p>
+<p><strong>Why it matters:</strong> an alternate kernel cannot repair an EFI
+partition that firmware cannot read. The last visible stage narrows your next check.</p>
+<p><strong>Before you start:</strong> read the <a href="maintain/boot.html?level=1">boot chain</a>.
+Use the fictional scenario below; no restart or boot-menu selection is needed.</p>
+<aside class="first-time"><p>A bootloader menu appears
+before Linux login. A text console is a login supplied by Linux. Write down
+what you actually saw, including the error text; “won't boot” is too broad.</p></aside>
+<h3>Worked example: A desktop failure</h3>
+<p>Scenario: the machine reaches a text login, but the graphical session fails.</p>
+<ol><li>Record “text login reached; graphical session fails” and the time.</li>
+<li>Firmware, loader and enough of Linux to offer that login worked.</li>
+<li>Choose session evidence and the <a href="maintain/recovery.html?level=1">console recovery lesson</a>
+before proposing a boot-file change.</li></ol>
+<p>This is a paper diagnosis, not captured host output or a claim that a
+console will always be available.</p>
+<h3>Try it</h3><p>Change the scenario: firmware runs but cannot find any
+internal loader. Would changing a desktop keybinding help? Name the earlier
+stage that needs evidence.</p>
+<details class="solution"><p>No. Check the firmware entry, EFI program and
+storage access. An independently prepared external rescue environment may
+provide access if no installed route avoids the fault.</p></details>
+<h3>If it goes wrong</h3><p>If you cannot distinguish firmware from loader,
+preserve the exact screen text and seek help with that evidence. Do not guess
+a disk number or overwrite an EFI file to see whether the message changes.
+If storage may be physically failing, prioritize a suitable data-recovery
+procedure rather than repeated repairs.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>Does “fallback” always mean an older kernel?</summary><p>No. It can mean another loader pointer, broader initramfs, another kernel or another system. Read the documented entry dependencies.</p></details>
+<details class="q"><summary>Does booting rescue media restore your files?</summary><p>No. It starts a separate environment. Data restoration needs an identified backup or snapshot and a specific procedure.</p></details>
 </section>
 
+<h3>New words</h3><dl><dt>Fallback route</dt><dd>A startup choice that changes or bypasses a component.</dd>
+<dt>Rescue environment</dt><dd>A usable environment with tools to inspect or recover another installation.</dd></dl>
+<p>Review <a href="learn/glossary/virtual-console.html">virtual console</a>
+and <a href="learn/glossary/snapshot.html">snapshot</a>.</p>
+<h3>Next step</h3><p>Compare shared dependencies at Intermediate, then
+start <a href="learn/paths/rescue.html?level=2">Rescue</a>.</p>
+</section>
 <section data-level="intermediate">
-<h2>Compare the recovery choices</h2>
-
-<p><strong>Summary:</strong> Separate firmware fallbacks, kernel alternatives,
-snapshot boots and external rescue environments by the failure boundary they
-can cross.</p>
-
-<h3>Firmware and EFI fallback paths</h3>
-
-<p>UEFI firmware can start an EFI program through a saved firmware entry. Some
-systems also keep an EFI program at the standard removable-media fallback
-path on an EFI System Partition; on x86-64 removable media, the conventional
-name is <code>\EFI\BOOT\BOOTX64.EFI</code>. That second path can help if the
-saved entry is missing or points to the wrong file, provided the partition and
-fallback program still work. It normally starts a bootloader; it does not
-provide a second Linux installation by itself.</p>
-
-<p>Two firmware entries may point to the same EFI file, and two EFI files may
-contain the same bootloader. Those are alternate pointers or copies, not
-necessarily independent recovery systems. A second loader on a separate
-partition can avoid damage to the first loader's partition, but its menu and
-kernel entries still need to point to usable boot images and root storage.</p>
-
-<h3>Alternate kernels and fallback initramfs images</h3>
-
-<p>A <strong>second kernel</strong> is a separately installed kernel version
-with a matching boot image. It can help when the current kernel has a driver,
-hardware or compatibility problem. It usually still relies on the same
-firmware, bootloader, boot partition and installed root filesystem.</p>
-
-<p>A <strong>fallback initramfs</strong> is a different early-boot image, often
-built with a broader set of storage or hardware modules than the normal
-autodetected image. On systems using mkinitcpio, a preset can build multiple
-images for one kernel. The fallback image therefore may help when the normal
-initramfs lacks a needed module, but it does not automatically mean an older
-kernel or an older system. It still uses its kernel and must locate and mount
-the intended root filesystem.</p>
-
-<p>Menu wording is not consistent: a menu item called “fallback” might select
-an initramfs, a kernel, a rescue target or another operating system. Inspect
-the entry's documentation or boot parameters to find out.</p>
-
-<h3>Booting a filesystem snapshot</h3>
-
-<p>A snapshot boot entry attempts to start an earlier filesystem state. It
-still depends on a working firmware path, loader and boot image; it also needs
-the snapshot data and a compatible way to mount it. A read-only snapshot may
-use temporary writable storage for the running session, so changes made there
-may disappear at reboot.</p>
-
-<p><strong>Booting a snapshot does not restore it as the normal system.</strong>
-Restoration changes which filesystem state is used for normal boot. The
-restore method depends on the filesystem layout and tools. Files kept outside
-the snapshotted subvolume may not roll back with it, and later changes can be
-lost if they are not preserved first. Read <a href="maintain/rollback.html">Snapshots and Generation Rollbacks</a> before restoring a snapshot.</p>
-
-<h3>External live or rescue media</h3>
-
-<p>A live USB starts a kernel and user environment stored on the USB. That
-makes it a useful route when the internal bootloader, kernel images or
-installed operating system cannot start. Firmware must be able to boot the
-device, and the rescue environment must support the machine's storage and
-filesystem. Encrypted storage still requires its passphrase and compatible
-unlock tools.</p>
-
-<p>Once started, live media can provide tools to inspect a disk, copy data or
-repair an installation. Starting the live environment does not itself repair
-anything. Identify disks carefully and choose a specific recovery procedure
-before writing to them. A live USB is not an external backup: it does not
-contain another copy of your files unless you saved one there.</p>
-
-<h3>Decision rule</h3>
-
-<p>Start with the last stage you know works. Choose a route that changes the
-component likely to have failed while retaining the dependencies you still
-need. If no installed route avoids the suspected fault, use external media.
-If the storage device itself may be failing, prioritize copying important data
-and follow a suitable recovery procedure instead of repeatedly attempting
-repairs.</p>
-
-<h3>Next step</h3>
-
-<p>For the mechanics of Btrfs snapshots and Home Manager generations, see <a href="maintain/rollback.html">Snapshots and Generation Rollbacks</a>. For console access, Magic SysRq and live USB repair steps, see <a href="maintain/recovery.html">Emergency Disaster Recovery</a>.</p>
+<h2>Choose a route that crosses the failure boundary</h2>
+<p><strong>Goal:</strong> you will be able to reject a fallback that still
+requires the failed component and document a plausible alternative.</p>
+<h3>Mental model</h3>
+<pre>
+installed route: firmware -> internal EFI / loader -> image -> root -> login
+snapshot route:  firmware -> internal EFI / loader -> image -> snapshot root
+external route:  firmware -> external loader / image -> rescue environment
+                                                        -> installed storage
+</pre>
+<p>These are models, not inventories. Snapshot entries may select different
+images; external media still needs working firmware, hardware support and
+credentials to access encrypted installed storage.</p>
+<h3>Worked example: Inspect a scratch dependency model</h3>
+<p>Make a private temporary directory. These rows are invented teaching data,
+not actual menu entries, disks or recovery artifacts.</p>
+<pre data-risk="scratch">
+rescue_lab=$(mktemp -d)
+printf 'normal internal-esp installed-root\nfallback internal-esp installed-root\nsnapshot internal-esp snapshot-root\nusb external-media rescue-root\n' &gt; "$rescue_lab/routes"
+</pre>
+<pre class="session" data-risk="scratch">
+$ awk '$2 != "internal-esp" { print $1 }' "$rescue_lab/routes"
+usb
+</pre>
+<p>Captured in a scratch directory on Arch Linux, 2026-10-21.</p>
+<ol><li>Column 2 names the model's boot-file dependency.</li><li>The query
+excludes routes sharing the suspect internal ESP.</li><li>Its output identifies
+a candidate in this model. It proves nothing about a real USB's readiness.</li></ol>
+<h3>Completion task</h3><p>To exclude only the routes requiring
+<code>installed-root</code>, complete <code>awk '$3 != "___" { print $1 }'</code>
+and pass the same scratch file.</p>
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ awk '$3 != "installed-root" { print $1 }' "$rescue_lab/routes"
+snapshot
+usb
+</pre>
+<p>Snapshot root remains on the same modelled internal storage; a root-state
+fault and a lost disk are different failures.</p></details>
+<h3>Independent task</h3><p>Explain why the snapshot row cannot address a
+lost internal ESP here, and why the USB row still cannot prove data recovery.
+Then remove only the files and directory you created.</p>
+<details class="solution"><p>The snapshot row retains internal-esp. The USB
+row avoids it, but access to installed files still needs readable storage,
+compatible filesystem/unlock tools and credentials. An external backup may
+supply data when installed storage cannot.</p></details>
+<pre data-risk="scratch">
+rm -- "$rescue_lab/routes"
+rmdir -- "$rescue_lab"
+unset rescue_lab
+</pre>
+<h3>Choosing</h3>
+<table><tr><th>Route</th><th>Changes</th><th>Still requires</th></tr>
+<tr><td>Another firmware entry / EFI fallback</td><td>Pointer or loader file</td><td>Readable EFI storage and a usable payload</td></tr>
+<tr><td>Alternate kernel</td><td>Kernel and matching early boot image</td><td>Working loader and compatible root/storage support</td></tr>
+<tr><td>Fallback initramfs</td><td>Often a broader module set</td><td>Its kernel and the intended root; not inherently an older system</td></tr>
+<tr><td>Snapshot boot</td><td>Selected root state, possibly paired boot image</td><td>Loader, boot image, snapshot and required data mounts</td></tr>
+<tr><td>Virtual console</td><td>Access without graphical session</td><td>Working Linux and configured login</td></tr>
+<tr><td>External rescue media</td><td>Loader, image and user environment</td><td>Firmware boot support; installed-data access still needs storage and keys</td></tr></table>
+<h3>Troubleshooting</h3>
+<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
+<tr><td>Two entries fail identically</td><td>Shared image or EFI dependency</td><td>Actual entry paths</td><td>Choose a documented route avoiding the shared fault.</td></tr>
+<tr><td>Snapshot boots but changes vanish</td><td>Temporary writable overlay or read-only root</td><td>Provider mount/overlay semantics</td><td>Preserve needed writes separately before leaving it.</td></tr>
+<tr><td>USB boots but files are unavailable</td><td>Locked storage, missing driver or wrong target</td><td>Device identities and unlock support</td><td>Identify the target and procedure before mounting or writing.</td></tr></table>
+<aside class="tamlinux"><p>The current Arch provider
+combines Limine, generated images and snapshot entries. A second menu item is
+not evidence of independence. The boot-provider contract calls for retained
+native artifacts and an independent rescue route; product generation return
+has a different boundary.</p></aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>The internal boot partition is unreadable. Are two kernels on that partition independent fallbacks?</summary><p>No. Both still require that partition. Look for a verified external route or a documented independent boot-file location.</p></details>
+<details class="q"><summary>A snapshot entry reaches a shell. Has normal root been restored?</summary><p>No. Boot selection and persistent restoration are separate operations. Verify the provider mount semantics and preserve later writes before planning restoration.</p></details>
 </section>
 
+<h3>Further reading</h3><ul><li><a href="maintain/snapper.html?level=2">Snapper</a>: inventory and restoration boundaries.</li>
+<li><a href="maintain/recovery.html?level=2">Emergency recovery</a>: regain access and prepare a specific procedure.</li>
+<li><a href="https://www.system-rescue.org/manual/Booting_SystemRescue/">SystemRescue boot manual (online)</a>: requirements for external startup.</li></ul>
+</section>
 <section data-level="expert">
-<h2>Evaluate independence and recovery limits</h2>
-
-<p><strong>Summary:</strong> Treat a recovery plan as a dependency graph, and
-check the shared failure points before relying on any fallback.</p>
-
-<h3>Map the shared components</h3>
-
-<p>For each boot choice, record the firmware entry, EFI partition and program,
-bootloader configuration, kernel and initramfs, root device, encryption
-parameters, filesystem subvolume, and the data mounts needed for a usable
-session. A choice that changes only one item cannot recover a different item
-that every route still shares.</p>
-
-<ul>
-<li>If the firmware entry is the problem, another entry or an EFI fallback file can help only if firmware can find a valid loader.</li>
-<li>If one kernel or initramfs is the problem, an independently generated alternate image may avoid it.</li>
-<li>If the installed root is broken, an older snapshot may help only when its boot image and mount settings still work.</li>
-<li>If the internal boot files are unavailable, removable media can start independently, but accessing encrypted root still requires the right key and compatible tools.</li>
-<li>If the disk is failing physically, multiple boot entries on that disk do not provide independent data protection.</li>
-</ul>
-
-<h3>Keep recovery and backup separate</h3>
-
-<p>Boot alternatives help regain access. Snapshots help return filesystem state
-to an earlier point. External backups preserve data outside the system being
-repaired. A dependable plan states which of these it provides, what each copy
-covers, and how to verify that the route or backup is usable.</p>
-
-<p>Before a restoration or boot-file repair, preserve the current state and
-later writes, confirm the target devices and mount points, and verify the
-recovery source. Keep the repair specific to the observed failure. Afterward,
-confirm that normal boot, storage unlock, required data mounts and login work
-through the intended route.</p>
-
-<h3>Where to next</h3>
-
-<ul>
-<li><a href="maintain/boot.html">Boot Process, UKIs, and Kernel Updates</a> &mdash; firmware, loaders, initramfs and kernel image generation.</li>
-<li><a href="maintain/rollback.html">Snapshots and Generation Rollbacks</a> &mdash; filesystem snapshots and restoration boundaries.</li>
-<li><a href="maintain/recovery.html">Emergency Disaster Recovery</a> &mdash; regaining control and using a live environment.</li>
-<li><a href="ecosystem/ttys-and-virtual-consoles.html">TTYs and Virtual Consoles</a> &mdash; text consoles independent of the graphical session.</li>
-</ul>
+<h2>Audit independence and recovery evidence</h2>
+<h3>Reference</h3><p>On x86-64 UEFI removable media, the default EFI program
+name is <code>\EFI\BOOT\BOOTX64.EFI</code>. This names an EFI program,
+not another Linux installation. Availability and fixed-disk fallback behavior
+must be verified against the firmware and platform procedure.</p>
+<h3>How it works</h3><p>Model each route with firmware entry, EFI device and
+program, loader configuration, kernel/initrd, root selector, unlock policy and
+required data mounts. Two routes are independent only with respect to a named
+failure: different EFI files on one disk avoid a missing-file fault but share
+a device-loss fault. Record verified facts separately from inferred edges.</p>
+<h3>Why Tamlinux requires a separate boot handoff</h3><p>Software generation
+selection does not cover native packages, boot artifacts, firmware state or
+all mutable data. Keeping exact old archives, configuration and generated files
+makes those restoration boundaries inspectable before a change.</p>
+<h3>Edge cases and failure modes</h3><p>Snapshot and normal roots can share
+storage, external media can lack an encryption tool, and a root snapshot can
+exclude a later data mount. An entry can load an intact image whose modules
+cannot read the intended root. Rescue media can also become stale; verify its
+capabilities before relying on it. Larger images and duplicate payloads cost
+space and update time; repeated boots can waste time and stress failing storage.</p>
+<h3>Explore</h3><p>Extend the scratch model on paper with loader configuration,
+image identity, encryption support and backup location. Name a specific failed
+component, remove every dependent route, then identify the remaining unknowns.
+Before a real boot repair, retain a verified rollback point and later writes,
+and approve a single specific operation with a success check.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing a model answer.</p>
+<details class="q open"><summary>What evidence would justify “independent rescue route”?</summary><p>Name the failure it avoids and record the separate loader/image/environment, firmware access, storage support and required credentials. A tested external boot can demonstrate startup; it still does not demonstrate that an intended backup restores correctly. State each acceptance boundary.</p></details>
+<details class="q open"><summary>How would you distinguish an image failure from root-state failure without changing both?</summary><p>Preserve the exact error and selected entry, compare documented image/root dependencies, and choose a separately approved diagnostic that changes one suspect dependency. If no safe discriminator exists, retain both explanations and prepare external inspection rather than claiming certainty.</p></details>
 </section>
-</body>
-</html>
+
+<h3>Sources</h3><ul><li><a href="https://uefi.org/specifications">UEFI specifications (online)</a>: boot manager and default application names.</li>
+<li><a href="man:mkinitcpio(8)">mkinitcpio(8)</a>: presets and image generation.</li>
+<li><a href="https://github.com/greenermoose/tamlinux/blob/develop/docs/plans/0.4.4-boot-recovery.md">Product boot-recovery contract (online)</a>: retained artifacts.</li></ul>
+<h3>Improve it</h3><p>Report a sanitized route inventory and its acceptance
+limits to the <a href="https://github.com/greenermoose/tamlinux">public product repository (online)</a>.
+Do not include passphrases, recovery keys or private device identifiers.</p>
+</section>
+<h2>Where next</h2><ul><li><a href="learn/paths/rescue.html?level=2">Rescue path</a>.</li>
+<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a>.</li>
+<li><a href="maintain/recovery.html">Emergency recovery</a>.</li></ul>
+</body></html>

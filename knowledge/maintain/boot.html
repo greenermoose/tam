@@ -1,198 +1,194 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <title>Boot Process, UKIs, and Kernel Updates</title>
 <meta name="topic" content="boot">
-<meta name="summary" content="UEFI boot, bootloaders, Unified Kernel Images (UKI), mkinitcpio hooks, initramfs, and kernel updates on Tamlinux">
-<meta name="keywords" content="boot, uefi, efi, bootloader, limine, systemd-boot, uki, unified kernel image, initramfs, initrd, mkinitcpio, hooks, kernel, update, esp, boot partition, limine.conf">
+<meta name="summary" content="Identify startup stages and trace boot artifacts without changing firmware or regenerating images">
+<meta name="keywords" content="boot, uefi, efi, bootloader, limine, systemd-boot, uki, unified kernel image, initramfs, initrd, mkinitcpio, hooks, kernel, esp, boot partition, limine.conf">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
 <meta name="prereqs" content="maintain, filesystem">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Boot Process, UKIs, and Kernel Updates</p>
-</nav>
-
+<meta name="kind" content="explanation">
+<meta name="skills" content="boot.beginner, boot.intermediate, boot.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Boot Process, UKIs, and Kernel Updates</p></nav>
 <h1>Boot Process, UKIs, and Kernel Updates</h1>
-
-<p>This page explains the UEFI boot path and the current Arch-based Tamlinux
-provider setup. Bootloader and initramfs choices are base-system integration,
-not universal properties of every system that can run Tamlinux; the planned
-Void base may use different tools. Treat boot-image regeneration as a
-system-maintenance operation, not as a practice exercise.</p>
-
+<p>Learn where startup can fail before choosing a repair. These exercises
+read the running system or classify a scenario; they do not change boot files.
+The current Arch provider uses Limine and mkinitcpio. That describes the
+provider, not a requirement for every future Tamlinux base.</p>
 <section data-level="beginner">
-<h2>How a Linux System Boots (UEFI)</h2>
-
-<p><strong>Summary:</strong> Understand the boot sequence from firmware to userspace on a UEFI system.</p>
-
-<p><strong>Prerequisites:</strong> Basic filesystem knowledge.</p>
-
-<h3>The UEFI boot sequence</h3>
-
-<ol>
-<li><strong>Firmware (UEFI):</strong> On power-on, UEFI firmware initializes hardware, checks NVRAM boot entries, and loads the bootloader from the EFI System Partition (ESP).</li>
-<li><strong>ESP:</strong> The ESP (often mounted at <code>/boot</code> or <code>/boot/efi</code>) contains EFI executables (.efi files). UEFI looks for a boot entry pointing to a specific .efi file.</li>
-<li><strong>Bootloader:</strong> On the current Arch-based Tamlinux deployment, Limine presents boot options, loads the kernel and initramfs into memory, and passes kernel command-line parameters.</li>
-<li><strong>Kernel and initramfs:</strong> The kernel starts with the temporary initramfs, which provides the tools and modules needed to locate and mount the real root filesystem.</li>
-<li><strong>Userspace:</strong> The configured init system takes over, starts services, mounts filesystems, and launches the display manager and desktop.</li>
-</ol>
-
-<h3>Key directories</h3>
-
-<ul>
-<li><strong>EFI System Partition (ESP):</strong> Its mount point is system-specific. Inspect the active mounts and boot entries rather than assuming it is <code>/boot</code>.</li>
-<li><strong>Bootloader config:</strong> The current Arch-based provider uses Limine configuration under <code>/boot</code>; exact paths and generated entries depend on the installed provider.</li>
-<li><strong>Initramfs build config:</strong> The current Arch-based setup uses mkinitcpio configuration under <code>/etc</code>; another base may use a different image generator.</li>
-<li><strong>Package hooks:</strong> The active package manager and boot provider determine which hooks regenerate boot artifacts after package changes.</li>
-</ul>
-
-<h3>Next step</h3>
-
-<p>Learn about bootloaders and UKIs in the intermediate section.</p>
+<h2>Recognize the startup stages</h2>
+<p><strong>Goal:</strong> you will be able to name the last observed boot
+stage and report what remains unknown.</p>
+<p><strong>Why it matters:</strong> a broken desktop and an absent boot menu
+need different evidence. Changing early boot files because a window is blank
+can introduce a second failure.</p>
+<p><strong>Before you start:</strong> open a terminal on a working Linux
+session; review <a href="filesystem/index.html">filesystem paths</a>.
+The query below only checks whether Linux exposes its UEFI interface.</p>
+<aside class="first-time"><p>Type the command after
+<code>$</code>, without the dollar sign, then press Enter. This is one line.
+It asks a question about a directory; it does not select a boot entry.</p></aside>
+<h3>Worked example: One observable fact</h3>
+<pre class="session" data-risk="read-only">
+$ if test -d /sys/firmware/efi; then printf 'Firmware interface: UEFI\n'; else printf 'Firmware interface: not exposed\n'; fi
+Firmware interface: UEFI
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ
+if the interface is unavailable, including in some containers.</p>
+<ol><li><code>test -d</code> checks for a directory exposed by the kernel.</li>
+<li>The shell prints which branch it took.</li><li>UEFI exposure says nothing
+about which loader file ran, the ESP mount point or whether a fallback works.</li></ol>
+<pre>
+firmware -> EFI loader / boot menu -> kernel + early userspace (initramfs)
+         -> real root filesystem -> services -> login -> desktop
+</pre>
+<p>Firmware starts the EFI program; the loader selects a boot payload. The
+kernel and its early userspace find the root filesystem, including unlocking
+storage when configured. The installed init system starts services and login.
+Some stages can be combined: a UKI packages boot components in one EFI file.</p>
+<h3>Try it</h3>
+<p>Run the query again. Then classify this paper scenario: a login screen
+appears, accepts credentials, and the desktop exits. Which stages were reached?
+Keep the scenario on paper; do not reboot to reproduce it.</p>
+<details class="solution"><p>Firmware, loader, kernel, root and login were
+reached. Investigate session startup next. That observation does not certify
+that every kernel driver or storage device is healthy.</p></details>
+<h3>If it goes wrong</h3>
+<p>“Not exposed” is not proof of a broken firmware entry. Record whether you
+are in a container, live environment or the installed session. If the computer
+cannot start a terminal, record the last visible message and use
+<a href="maintain/boot-recovery.html?level=1">fallback orientation</a>.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>Does a visible login screen prove that the desktop started?</summary><p>No. Login and desktop startup are different stages. Report the screen reached and the next observed failure.</p></details>
+<details class="q"><summary>Does the UEFI query identify the EFI System Partition?</summary><p>No. It tests kernel interface exposure. The actual partition and loader need separate configuration and mount evidence.</p></details>
 </section>
 
+<h3>New words</h3>
+<dl><dt>Firmware</dt><dd>The machine code that starts before the operating system.</dd>
+<dt>ESP</dt><dd>EFI System Partition: a partition containing EFI boot programs; its mount point varies.</dd>
+<dt>Initramfs</dt><dd>The early userspace filesystem used while starting Linux.</dd></dl>
+<p>For text login without the desktop, see the <a href="learn/glossary/virtual-console.html">virtual console definition</a>.</p>
+<h3>Next step</h3><p>Compare boot artifacts at Intermediate, or follow
+<a href="maintain/boot-recovery.html?level=1">fallback orientation</a>.</p>
+</section>
 <section data-level="intermediate">
-<h2>Bootloaders, UKIs, and mkinitcpio</h2>
-
-<p><strong>Summary:</strong> Understand Limine, Unified Kernel Images, and how initramfs is built with mkinitcpio hooks.</p>
-
-<h3>Bootloaders on Tamlinux</h3>
-
-<p>The current Arch-based Tamlinux provider uses <strong>Limine</strong>. Limine
-can boot kernels directly or boot Unified Kernel Images (UKIs). The provider
-integrates its generated entries with configuration under <code>/boot</code>.
-This does not specify the bootloader for the planned Void base.</p>
-
-<h3>What is a Unified Kernel Image (UKI)?</h3>
-
-<p>A <strong>Unified Kernel Image (UKI)</strong> is a single UEFI PE executable that bundles the kernel, initramfs, kernel command line, and optional metadata (signatures, SBAT, etc.) into one <code>.efi</code> file. Benefits include:</p>
-
-<ul>
-<li><strong>Simplified boot entries:</strong> One file instead of separate kernel+initramfs+cmdline.</li>
-<li><strong>Secure Boot readiness:</strong> Easier to sign as a single unit.</li>
-<li><strong>Atomic updates:</strong> The whole boot payload is versioned together.</li>
-<li><strong>Discoverability:</strong> UKIs placed in <code>/boot/EFI/Linux/*.efi</code> can be discovered by some bootloaders/firmware.</li>
-</ul>
-
-<p>The current Arch-based provider supports UKI generation through its Limine
-configuration and package hooks. Whether UKIs are enabled, their exact paths,
-and the command line they contain are properties of the installed provider
-configuration; inspect those sources before diagnosing a particular machine.</p>
-
-<h3>Initramfs and mkinitcpio hooks</h3>
-
-<p>The <strong>initramfs</strong> (initial RAM filesystem) is a minimal rootfs
-loaded with the kernel for early boot. The current Arch-based Tamlinux setup
-builds it with <strong>mkinitcpio</strong>; the planned Void base may use a
-different image generator. It needs the components required by that system's
-storage and root-filesystem configuration, such as:</p>
-
-<ul>
-<li>Kernel modules needed to access storage (block, filesystem, encryption, LVM, etc.)</li>
-<li>Userspace tools to mount the real root</li>
-<li>Any necessary firmware files</li>
-</ul>
-
-<p>Tamlinux builds initramfs using <strong>mkinitcpio</strong>. The <code>HOOKS</code> array in <code>/etc/mkinitcpio.conf</code> defines the boot process inside initramfs. Hooks run in order and each adds scripts/modules. Common hooks include:</p>
-
-<ul>
-<li><strong>base</strong>: Core initramfs functionality (required)</li>
-<li><strong>systemd</strong>: Use systemd inside initramfs instead of busybox</li>
-<li><strong>udev</strong>: Device detection via udev</li>
-<li><strong>autodetect</strong>: Only include modules needed for this hardware</li>
-<li><strong>microcode</strong>: Load CPU microcode updates early</li>
-<li><strong>modconf</strong>: Apply module configuration</li>
-<li><strong>kms</strong>: Kernel Mode Setting (GPU) early initialization</li>
-<li><strong>keyboard/sd-vconsole</strong>: Keyboard/console setup</li>
-<li><strong>block</strong>: Block device handling</li>
-<li><strong>sd-encrypt/encrypt/lvm2</strong>: Disk encryption/LVM support</li>
-<li><strong>filesystems</strong>: Filesystem support and mounting</li>
-<li><strong>fsck</strong>: Filesystem checks on boot</li>
-</ul>
-
-<p>Current mkinitcpio configuration can include drop-ins under
-<code>/etc/mkinitcpio.conf.d/</code>. Changes to hooks or modules affect boot
-artifacts and must follow the system's boot-maintenance and recovery procedure;
-do not experiment on a running installation.</p>
-
-<h3>Hook lifecycle and ordering</h3>
-
-<p>Hook order is critical. For example, encryption hooks must run before filesystems, and block device detection before mounting. Run <code>mkinitcpio -H &lt;hook-name&gt;</code> for help on a specific hook.</p>
-
-<h3>Next step</h3>
-
-<p>Understand how kernel updates trigger regeneration in the expert section.</p>
+<h2>Separate boot payload from installed state</h2>
+<p><strong>Goal:</strong> you will be able to choose which configuration and
+artifact evidence a startup symptom needs before proposing a change.</p>
+<h3>Mental model</h3>
+<p>A boot choice ties together an EFI loader, configuration, a kernel and
+early userspace, root selection and later mounts. A Unified Kernel Image
+(UKI) combines a UEFI stub and kernel with optional initrd, command line and
+other sections. One file simplifies distribution and signing; it does not
+make an entire package transaction or root-filesystem update atomic.</p>
+<h3>Worked example: Bound a mount observation</h3>
+<pre class="session" data-risk="read-only">
+$ findmnt -n -o FSTYPE /
+btrfs
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-21; your output will differ.</p>
+<ol><li><code>findmnt</code> asks about the mount covering <code>/</code>.</li>
+<li><code>FSTYPE</code> selects the filesystem type.</li><li>The result does
+not identify the boot image, loader or whether other paths are separate subvolumes.</li></ol>
+<p>On a mkinitcpio system, the effective configuration can include
+<code>/etc/mkinitcpio.conf</code>, drop-ins under <code>/etc/mkinitcpio.conf.d/</code>
+and presets under <code>/etc/mkinitcpio.d/</code>. Build hooks assemble content;
+runtime hooks, or early systemd units, act during boot. Hook order and required
+storage modules depend on that system. Read its installed manuals and effective
+configuration without sourcing shell configuration files as commands.</p>
+<h3>Completion task</h3>
+<p>Complete the diagnosis: “Root is Btrfs, so the UKI must be at ___.”</p>
+<details class="solution"><p>No path follows from that fact. Inspect the
+active provider configuration, selected loader entry and image destination.
+A filesystem type does not specify an ESP mount or a UKI pathname.</p></details>
+<h3>Independent task</h3>
+<p>For a hypothetical failure after storage unlock but before login, write
+three facts needed before regenerating images: the last reached stage, the
+selected kernel/root identity, and evidence about the failing service or mount.
+State which findings would move attention back to early boot.</p>
+<details class="solution"><p>Record the exact last message and time, the
+selected entry and kernel/root parameters, then the relevant service/mount
+failure. A missing root device or mismatched image points earlier; a session
+service failure with root mounted points later. Leave unobserved facts unknown.</p></details>
+<h3>Choosing</h3>
+<table><tr><th>Observation</th><th>Next evidence</th><th>Boundary</th></tr>
+<tr><td>Loader cannot find an image</td><td>Actual selected config and image path</td><td>Desktop settings do not supply a missing image.</td></tr>
+<tr><td>Early userspace cannot find root</td><td>Kernel arguments, storage support and unlock message</td><td>Image existence alone does not show it can mount root.</td></tr>
+<tr><td>Login works, session exits</td><td>Session startup evidence</td><td>Regeneration needs a separate reason.</td></tr></table>
+<h3>Troubleshooting</h3>
+<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
+<tr><td>Files under /boot look old</td><td>Wrong or absent mount</td><td>Mount and provider destination</td><td>Keep generation pending until the real destination is identified.</td></tr>
+<tr><td>New package, old running kernel</td><td>Existing boot still runs previous kernel</td><td>Compare running kernel with installed package/image records</td><td>Record the difference; use a separately planned boot verification.</td></tr>
+<tr><td>UKI exists, boot fails</td><td>Wrong payload, parameters or trust policy</td><td>Image identity and exact loader error</td><td>Preserve both before a targeted repair.</td></tr></table>
+<aside class="tamlinux"><p>The current Arch provider
+uses Limine/mkinitcpio and snapshot synchronization. The product's native updater
+gates transactions on a separate boot-recovery handoff, then creates a Snapper
+checkpoint before the native transaction. A Home Manager generation alone does
+not restore native kernel packages, EFI files or firmware settings.</p></aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>A new kernel package is installed but uname still reports the previous release. Is generation proven broken?</summary><p>No. The running kernel is the one already booted. Compare the installed image and package records before drawing a conclusion; an approved boot verification is separate.</p></details>
+<details class="q"><summary>Two UKIs share one ESP. What failure remains common to them?</summary><p>Loss or corruption of that ESP can make both inaccessible. Separate image names do not establish an independent rescue environment.</p></details>
 </section>
 
+<h3>Further reading</h3><ul><li><a href="man:mkinitcpio(8)">mkinitcpio(8)</a>: options and presets.</li>
+<li><a href="https://uapi-group.org/specifications/specs/unified_kernel_image/">UKI specification (online)</a>: component semantics.</li>
+<li><a href="maintain/boot-recovery.html?level=2">Fallback choices</a>: dependencies each choice retains.</li></ul>
+</section>
 <section data-level="expert">
-<h2>Kernel Updates, Image Regeneration, and Safety</h2>
-
-<p><strong>Summary:</strong> How the current Arch-based provider coordinates
-kernel packages, mkinitcpio, Limine and UKI generation.</p>
-
-<h3>What happens on kernel update</h3>
-
-<p>On the current Arch-based deployment, a native kernel package transaction
-can invoke provider hooks to regenerate the initramfs and boot entries. Exact
-packages, destinations and hook behavior depend on the installed provider and
-configuration; do not infer them from this general sequence.</p>
-
-<ol>
-<li><strong>Kernel files:</strong> The native package manager installs the kernel and modules.</li>
-<li><strong>Initramfs:</strong> The active image generator and its package hooks build the early-boot image.</li>
-<li><strong>Boot entries:</strong> The installed boot provider updates entries or UKIs at its configured destinations.</li>
-<li><strong>Verification:</strong> The transaction and provider checks must confirm the expected artifacts and recovery route before considering the update complete.</li>
-</ol>
-
-<h3>Key packages and hooks</h3>
-
-<ul>
-<li><strong>mkinitcpio:</strong> Builds initramfs from kernel and config.</li>
-<li><strong>Limine provider hooks:</strong> The current provider set includes mkinitcpio integration and snapshot-entry synchronization; installed package versions and configuration determine their exact behavior.</li>
-<li><strong>Package hooks:</strong> Native package hooks may regenerate boot artifacts during a transaction. Review the transaction output and the provider's own documentation.</li>
-</ul>
-
-<h3>UKI generation specifics</h3>
-
-<p>When the installed provider is configured to build UKIs:</p>
-
-<ol>
-<li>The tooling bundles <code>vmlinuz-*</code>, the corresponding initramfs (<code>initramfs-*.img</code> or <code>initramfs-*-fallback.img</code>), and the kernel command line into a single PE executable.</li>
-<li>Resulting UKIs are typically written to <code>/boot/EFI/Linux/&lt;name&gt;-&lt;kernel-version&gt;.efi</code> (naming depends on the provider's configuration).</li>
-<li>Limine's config is updated to reference these UKI files. UKIs embed the cmdline, so the bootloader entry may be simpler.</li>
-</ol>
-
-<h3>Safety considerations</h3>
-
-<ul>
-<li><strong>Never edit in-place blindly:</strong> Tools that rewrite boot images can corrupt them if used incorrectly. Certain <code>objcopy</code> invocations that rewrite files in-place can break checksum validation (e.g., breaking Limine BLAKE2B hashes). Always work on copies when inspecting/modifying UKIs.</li>
-<li><strong>Verify after updates:</strong> Use the documented provider checks to confirm boot entries point to present artifacts and a known recovery route remains available.</li>
-<li><strong>Keep a recovery route:</strong> Confirm the installed provider's fallback artifacts and recovery procedure before changing kernel or boot configuration.</li>
-<li><strong>Configuration changes:</strong> Changes to initramfs or boot configuration can prevent startup. Follow the dedicated boot-maintenance procedure; do not regenerate boot artifacts as an experiment.</li>
-<li><strong>Boot recovery readiness:</strong> Keep a known-good boot entry and understand which dependencies each route shares. See <a href="maintain/boot-recovery.html">Linux Boot Fallbacks and Rescue Routes</a>.</li>
-</ul>
-
-<h3>Troubleshooting tips</h3>
-
-<ul>
-<li><strong>Check initramfs errors:</strong> Review the native package transaction and provider logs. Repair generation only through the documented boot-recovery procedure.</li>
-<li><strong>Verify UKI contents:</strong> Use tools like <code>objdump</code>, <code>readpe</code>, or inspect UKI sections if available (avoid in-place destructive operations).</li>
-<li><strong>Limine integrity errors:</strong> If Limine reports an artifact mismatch, preserve the error and follow the provider's recovery procedure; do not edit generated files by hand.</li>
-<li><strong>Check package hooks:</strong> Review the installed provider's documented hook locations and package state before changing them.</li>
-</ul>
-
-<h2>Where to next</h2>
-
-<ul>
-<li><a href="maintain/updates.html">Non-disruptive updates and package lifecycle</a> &mdash; how updates work without reboots</li>
-<li><a href="maintain/recovery.html">Emergency disaster recovery</a> &mdash; recover from boot failures</li>
-<li><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a> &mdash; choose a route based on the failed boot stage</li>
-<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a> &mdash; rollback system state</li>
-<li><a href="maintain/logs.html">Truthful system diagnostics and logs</a> &mdash; read boot logs with journalctl/dmesg</li>
-</ul>
+<h2>Audit generation as a chain of dependencies</h2>
+<h3>Reference</h3><table><tr><th>Layer</th><th>Identity to retain</th><th>Failure to distinguish</th></tr>
+<tr><td>Firmware / loader</td><td>Entry, device, EFI program and trust policy</td><td>Missing pointer versus unreadable program</td></tr>
+<tr><td>Provider generation</td><td>Package versions, effective config, hook order and output hashes</td><td>Successful package extraction versus successful image generation</td></tr>
+<tr><td>Boot payload</td><td>Kernel, initrd/UKI and command line</td><td>Correct filename versus compatible content</td></tr>
+<tr><td>Root and services</td><td>Device, unlock method, subvolume and required mounts</td><td>Root mounted versus usable login and data</td></tr></table>
+<h3>How it works</h3><p>Native transaction hooks may run the image generator
+and loader integration. Trace the actual installed hooks and provider recipes,
+not a presumed generic sequence. In mkinitcpio, an explicit config option can
+change which drop-ins are used; presets can override generation inputs. A
+fallback preset commonly omits autodetect to broaden modules, but the effective
+preset is authoritative. It need not contain an older kernel.</p>
+<p>For a UKI, distinguish embedded sections from any runtime overrides and
+trust policy. A coherent single artifact is useful, but its replacement, loader
+configuration and separate root update still have separate failure points.
+Inspection must preserve the original bytes and metadata; rewriting an image
+can invalidate hashes or signatures.</p>
+<h3>Why Tamlinux separates this work</h3><p>Native boot files and firmware
+state extend beyond the per-user product selection. The boot-provider contract
+retains exact native archives, effective configuration, generated images, EFI
+destinations and an independent rescue route before changing them. That makes
+recovery scope explicit rather than promising it from a package generation.</p>
+<h3>Edge cases and failure modes</h3><p>A shadowing Limine configuration can
+select a different image from the file you inspected. An unmounted ESP can leave
+a convincing image in the underlying directory. Encryption keys or resume/root
+parameters can make a byte-valid image unusable. Broader fallback images cost
+space and build time; generation may also exhaust a small ESP. Avoid repeated
+regeneration while the target and capacity are unknown.</p>
+<h3>Explore</h3><p>On paper, trace one provider update from package archive
+through hooks to image, loader and root. List the evidence required at each
+edge. Before any future system change, retain a verified rollback point and
+later writes, then authorize one specific operation. This lesson performs no
+image generation.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing a model answer.</p>
+<details class="q open"><summary>How would you investigate a menu entry loading an unexpected kernel?</summary><p>Retain the exact selected entry and running-kernel observation. Verify which EFI program and configuration actually supplied it, then trace the referenced image and generation inputs. Competing explanations include stale generation, a shadowing configuration and selection of another entry; do not rewrite every image to erase the distinction.</p></details>
+<details class="q open"><summary>Why is a signed UKI insufficient to prove recoverability?</summary><p>Signing can establish an artifact trust relationship. It does not preserve root data, supply missing unlock credentials, guarantee compatible modules or retain an independent boot route. Recovery needs those dependencies and a verified retained state.</p></details>
 </section>
-</body>
-</html>
+
+<h3>Sources</h3><ul><li><a href="man:mkinitcpio(8)">mkinitcpio(8)</a> and <a href="man:mkinitcpio.conf(5)">mkinitcpio.conf(5)</a>: installed generator semantics.</li>
+<li><a href="https://github.com/Limine-Bootloader/Limine/blob/v12.x/CONFIG.md">Limine configuration (online)</a>: search order and entry paths.</li>
+<li><a href="https://github.com/greenermoose/tamlinux/blob/develop/docs/plans/0.4.4-boot-recovery.md">Tamlinux boot-provider contract (online)</a>: retained recovery state.</li></ul>
+<h3>Improve it</h3><p>Report a reproducible provider mismatch to the
+<a href="https://github.com/greenermoose/tamlinux">public product repository (online)</a>
+with versions and sanitized evidence; omit storage secrets and keys.</p>
+</section>
+<h2>Where next</h2><ul><li><a href="maintain/boot-recovery.html">Boot fallbacks and rescue routes</a>.</li>
+<li><a href="maintain/snapper.html">Snapper checkpoints</a>.</li>
+<li><a href="learn/paths/rescue.html?level=2">Rescue path</a>.</li></ul>
+</body></html>
