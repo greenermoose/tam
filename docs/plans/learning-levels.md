@@ -9,7 +9,8 @@ three pages and two goal paths. TCK24 (corpus scaffolding) and TCK25
 (roadmap section 4). Versions are allocated from the current files when each
 slice starts.
 **Authority:** The developer's decisions of 2026-10-20 and 2026-10-21,
-recorded as Tamlinux decision D184 (amends D174) and in the
+recorded as Tamlinux decisions D184 (amends D174) and D185 (state
+directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
 **Next action:** TCK21 (sticky level lens). Claim the paths listed under it
@@ -65,9 +66,12 @@ other than US QWERTY; color as the only way to show anything.
 - The corpus loader is `read_corpus_page()` in `src/tam.c`.
 - The renderer handles `h1`–`h3`, `section`/`article`/`div` as block breaks,
   and no `details`, `summary`, `aside`, `dfn` or `cite`.
-- The first-run marker already lives at
-  `$XDG_STATE_HOME/tamlinux/welcome_seen` (fallback
-  `~/.local/state/tamlinux/`). The lens file sits beside it.
+- `tam` keeps its state in its own subdirectory of the Tamlinux state
+  directory, `$XDG_STATE_HOME/tamlinux/tam/` (fallback
+  `~/.local/state/tamlinux/tam/`), as decided on 2026-10-21 (Tamlinux
+  decision D185). The first-run marker is still written to
+  `tamlinux/welcome_seen` at the top level, and nothing reads it; TCK21
+  moves it.
 - Interactive pager tests in `tests/run.sh` use `tests/fixtures/guide/`.
   The depth case reads the "Depth:" line and expects Back to restore a level.
   Both assertions change in TCK21.
@@ -102,18 +106,29 @@ No component version changes.
 Claim: `src/pager.c`, `src/depth.c`, `src/depth.h`, `src/tam.c`,
 `src/version.h`, `man/tam.1`, `completions/`, `tests/run.sh`,
 `tests/fixtures/guide/`, `tests/render/` if goldens change,
-`docs/plans/development.md`, `ROADMAP.md`, this plan.
+`docs/plans/development.md`, `ROADMAP.md`, this plan; and in the `tamlinux`
+repository, `docs/plans/tamlinux-command.md`.
 
-1. **Lens state.** Add `unsigned lens` to `pager_t`.
+1. **State directory.** Add one helper in `src/tam.c` that returns
+   `$XDG_STATE_HOME/tamlinux/tam`, or `~/.local/state/tamlinux/tam` when
+   `XDG_STATE_HOME` is unset or empty, and creates it on write.
+   - `record_welcome_seen()` writes `tamlinux/tam/welcome_seen` through it.
+   - Do not read, migrate or delete the old top-level
+     `tamlinux/welcome_seen`. Nothing has ever read it, so a stale copy is
+     harmless.
+   - Update the welcome and state-isolation cases in `tests/run.sh` to the
+     new path, and the `welcome_seen` sentence in the `tamlinux`
+     repository's `docs/plans/tamlinux-command.md`.
+2. **Lens state.** Add `unsigned lens` to `pager_t`.
    - Set it at start from `--level`, then `TAM_LEVEL` (`0`–`3` or a level
-     name), then the file `$XDG_STATE_HOME/tamlinux/tam_level`, else `0`.
-   - Read and write the file the way `record_welcome_seen()` does: create
-     the directory and replace the file atomically. A missing, unreadable
-     or invalid file means `0`, silently.
+     name), then the file `tamlinux/tam/level` in the state directory, else
+     `0`.
+   - Write the file through the step 1 helper, replacing it atomically. A
+     missing, unreadable or invalid file means `0`, silently.
    - Write the file only when the reader changes the lens. Skip the write
      when `TAM_LEVEL` is set, so the environment never overwrites the saved
      choice.
-2. **Keys.** Replace the address-reload logic of `switch_depth()`:
+3. **Keys.** Replace the address-reload logic of `switch_depth()`:
    - `0`–`3` set the lens and re-render the current page in place. This
      does not push history and keeps the scroll position as near as the new
      layout allows.
@@ -121,14 +136,14 @@ Claim: `src/pager.c`, `src/depth.c`, `src/depth.h`, `src/tam.c`,
      changes, with the message `Level 2 Intermediate set; this page has one
      level` (wording to match the level).
    - Pressing the current lens reports `already at Level 2 Intermediate`.
-3. **Loading.** When the pager loads a guide page (a corpus path or
+4. **Loading.** When the pager loads a guide page (a corpus path or
    `page:` address) whose address has no `level=`, it appends the lens
    (`?level=` or `&level=`) when the lens is not 0.
    - Following a link that names `level=` sets the lens to that level.
    - History entries store the address without `level=`, so Back and
      Forward restore pages at the current lens.
    - `=` shows the address with the current lens.
-4. **Every page opens.** In `tam_depth_apply_rev()`, stop returning NULL
+5. **Every page opens.** In `tam_depth_apply_rev()`, stop returning NULL
    when the page lacks the requested level. Render the page and put a banner
    in place of the level line:
 
@@ -147,33 +162,35 @@ Claim: `src/pager.c`, `src/depth.c`, `src/depth.h`, `src/tam.c`,
    - `tam show --level` and `tam explain --level` on such a page now print
      the banner with exit status 0, where they used to fail. Update the
      command-line tests and the man page to match.
-5. **Level bar.** Replace the "Depth:" line in `depth_line()`:
+6. **Level bar.** Replace the "Depth:" line in `depth_line()`:
    - Laddered pages show
      `Level: All 0 | Beginner 1 | [Intermediate 2] | Expert 3   keys 0-3`.
      Offered levels are links; the current one is in brackets; a level the
      page lacks is plain text followed by ` -`.
    - Single-level pages show `Written for: Beginner`, or the banner from
-     step 4 when the lens differs.
-6. **Hidden-section markers.** Where a level section is skipped, emit one
+     step 5 when the lens differs.
+7. **Hidden-section markers.** Where a level section is skipped, emit one
    paragraph:
    `-- 1 Beginner: <section heading text> (hidden; press 1 or 0) --`.
-7. **Status row.** Add the lens between the position and the actions:
+8. **Status row.** Add the lens between the position and the actions:
    - `Level 2 Intermediate` when the row is 100 columns or wider;
    - `Lv2` from 60 to 99 columns;
    - `[2]` below 60.
    - Append ` (not on page)` when the page has no section at the current
      lens. Truncation order is otherwise unchanged.
-8. **Messages.** After a change, show
+9. **Messages.** After a change, show
    `[Level 3 Expert: 2 sections hidden]`.
-9. **Other "Depth" text.** Rename the remaining reader-visible "Depth"
+10. **Other "Depth" text.** Rename the remaining reader-visible "Depth"
    strings (`src/tam.c` search and topic listings) to "Levels". Update the
    help overlay, the Guide index Quick keys table if it lists level keys,
    `man/tam.1` (the lens, `TAM_LEVEL`, the state file) and the completions.
-10. **Version.** Command minor bump with the usual `tests/run.sh`
+11. **Version.** Command minor bump with the usual `tests/run.sh`
     assertion, decision-record entry and roadmap header and row.
-11. **Tests** (fixtures only):
+12. **Tests** (fixtures only):
+    - `tam welcome` writes `tamlinux/tam/welcome_seen`, and the
+      state-isolation case still finds nothing written by other commands.
     - The lens persists across a link and across a pager restart (with a
-      temporary `XDG_STATE_HOME`).
+      temporary `XDG_STATE_HOME`), stored in `tamlinux/tam/level`.
     - `TAM_LEVEL` overrides the file and is not written back.
     - A link with `?level=` sets the lens.
     - Back does not undo a lens change.
@@ -185,7 +202,8 @@ Claim: `src/pager.c`, `src/depth.c`, `src/depth.h`, `src/tam.c`,
       assertions to the new rules.
 
 **Done when:** `make test` passes; the lens survives navigation and a
-restart; no level key dead-ends on any page.
+restart; no level key dead-ends on any page; all of `tam`'s state is under
+`tamlinux/tam/`.
 
 ### TCK22 (folding, self-quizzes and block-level levels)
 

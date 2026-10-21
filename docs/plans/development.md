@@ -391,6 +391,13 @@ resolve superseded schedules. Do not execute a former plan from this history.
   the pager (Enter, `r`, `*`) and print collected answers in pipe output.
   Paths come in two families: level paths and goal paths. TCK20 (the
   contract) shipped with the plan; no component version changed.
+- **2026-10-21:** `tam` keeps all its state in `$XDG_STATE_HOME/tamlinux/tam/`
+  (fallback `~/.local/state/tamlinux/tam/`), Tamlinux decision D185. The
+  level lens will be `tamlinux/tam/level`. TCK21 moves `welcome_seen` there
+  from the top level of `tamlinux/`, with no migration because nothing reads
+  it. This keeps `tam` in the `tamlinux` namespace it uses for its corpus
+  and version file, with the subdirectory saying which component owns
+  the files.
 
 - **2026-10-20:** Command 0.36.0 (minor) opens `tam search` results in the
   pager. On a terminal the command shows the existing Guide Search page at
