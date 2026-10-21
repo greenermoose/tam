@@ -1,172 +1,230 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <title>Snapshots and Generation Rollbacks</title>
 <meta name="topic" content="rollback">
-<meta name="summary" content="Btrfs Copy-on-Write snapshots and Home Manager generation rollbacks">
+<meta name="summary" content="Choose recovery for software, mutable data and boot state without changing the system">
 <meta name="keywords" content="rollback, snapshots, btrfs, cow, copy-on-write, subvolume, home-manager, generations, nix, restore">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
-<meta name="prereqs" content="maintain, filesystem">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Snapshots and Generation Rollbacks</p>
-</nav>
-
+<meta name="prereqs" content="maintain, filesystem, shell">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="updates.beginner, updates.intermediate, updates.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Snapshots and Generation Rollbacks</p></nav>
 <h1>Snapshots and Generation Rollbacks</h1>
 
-<p>Every software change on a Tamlinux workstation should be reversible. By
-  combining Btrfs Copy-on-Write (CoW) subvolume snapshots at the base OS layer
-  (managed with <a href="maintain/snapper.html">Snapper</a> and boot-integrated via
-  <a href="maintain/boot.html">Limine</a>) with Nix and Home Manager generation
-  histories in user space, you can roll back unexpected regressions in seconds.</p>
-
+<p>Choose recovery at the layer that changed. Software, documents and boot
+files can need different recovery evidence.</p>
 <section data-level="beginner">
-<h2>Understanding snapshots and generations</h2>
-
-<p><strong>Summary:</strong> Understand what snapshots and generations are, how
-they differ from slow file copies, and verify rollback readiness.</p>
-
-<p><strong>Prerequisites:</strong> Basic filesystem familiarity
-(<a href="filesystem/index.html">The Linux Filesystem Hierarchy</a>).</p>
-
-<h3>Command sequence</h3>
-
-<pre>
-tam check storage_btrfs
-tam check storage_root_space
+<h2>Separate software from your work</h2>
+<p><strong>Goal:</strong> you will be able to distinguish a saved data copy
+from a return to an earlier software selection.</p>
+<p><strong>Why it matters:</strong> an older application can still open today's
+edited document. Returning software does not necessarily undo your edits.</p>
+<p><strong>Before you start:</strong> read <a href="filesystem/index.html?level=1">Files and directories</a>.
+This exercise writes only in a new temporary directory. It makes ordinary
+copies; it creates no snapshot or software generation.</p>
+<aside class="first-time"><p>Open a terminal and keep it open for this section.
+Type commands without the leading <code>$</code>. Copying or writing a file
+usually prints nothing on success. Stop if making or entering the temporary
+directory fails; this exercise needs no administrator privileges.</p></aside>
+<h3>Worked example</h3>
+<p>Make and enter the exercise directory; these commands print nothing on success.</p>
+<pre data-risk="scratch">
+work=$(mktemp -d)
+cd "$work"
 </pre>
-
-<p>Expected output:</p>
-
-<pre>
-[pass] storage_btrfs: root filesystem supports Copy-on-Write snapshots
-[pass] storage_root_space: root filesystem has sufficient free space
+<pre class="session" data-risk="scratch">
+$ printf '%s\n' before &gt; note.txt
+$ cp -- note.txt saved.txt
+$ printf '%s\n' after &gt; note.txt
+$ cat saved.txt note.txt
+before
+after
 </pre>
-
+<p>Captured on Arch Linux, 2026-10-21.</p>
 <h3>What just happened</h3>
-
-<ul>
-<li><code>tam check storage_btrfs</code> verifies that your root mount runs on Btrfs and supports instantaneous subvolume branching.</li>
-<li><code>tam check storage_root_space</code> audits remaining disk capacity to ensure adequate headroom for snapshot growth.</li>
-<li>A snapshot does not duplicate file contents across your disk. It simply records the current metadata tree pointers, taking zero extra storage until files are subsequently altered or deleted.</li>
-</ul>
-
-<h3>Best practice</h3>
-
-<p>Maintain external backups of essential personal documents in addition to
-filesystem snapshots. Snapshots protect against broken updates, botched
-configurations, or unintended software changes, but they do not protect against
-physical storage drive hardware failures.</p>
-
-<h3>Next step</h3>
-
-<p>Learn how to take snapshots manually and switch Home Manager generations in the
-intermediate section below.</p>
+<ol><li>You saved a separate copy before editing a file.</li><li>The second
+write changed only <code>note.txt</code>; the copy kept the earlier text.</li>
+<li>No application version changed. Data and software have different histories.</li></ol>
+<p>A status or version query reads evidence without applying an update.
+An update changes the managed software; restoring our copied note changes
+data. Neither is accomplished just by reading a status report.</p>
+<p>A <dfn><a href="learn/glossary/snapshot.html">snapshot</a></dfn> records a
+filesystem subvolume's state. A Home Manager
+<dfn><a href="learn/glossary/generation.html">generation</a></dfn> selects
+managed software and configuration. Neither automatically saves every document
+and boot file. An external backup provides a copy on separate storage.</p>
+<h3>Try it</h3>
+<p>Restore the exercise note from its saved copy, then read it.</p>
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ cp -- saved.txt note.txt
+$ cat note.txt
+before
+</pre><p>Captured on Arch Linux, 2026-10-21. Only the exercise note is overwritten.</p>
+</details>
+<h3>If it goes wrong</h3>
+<dl><dt>cannot stat 'saved.txt'</dt><dd>The copy is missing or you are in a
+different directory. Check <code>pwd</code> and <code>ls</code>; do not restore
+a real document to complete the exercise.</dd><dt>Permission denied</dt><dd>Stop
+and check that you entered your own new temporary directory.</dd></dl>
+<h3>Finish the exercise</h3>
+<p>Remove only these exercise files, leave the directory, then remove it.
+Inspect anything unexpected before deleting more.</p>
+<pre data-risk="scratch">
+rm -- note.txt saved.txt
+cd /tmp
+rmdir -- "$work"
+</pre>
+<h3>New words</h3>
+<dl><dt><a href="learn/glossary/snapshot.html">Snapshot</a></dt><dd>A saved
+subvolume state; not automatically an independent backup.</dd>
+<dt><a href="learn/glossary/generation.html">Generation</a></dt><dd>A managed
+software and configuration selection, with boundaries.</dd>
+<dt><dfn><a href="learn/glossary/rollback.html">Rollback</a></dfn></dt><dd>A
+return to a known earlier state through its recovery procedure.</dd></dl>
+<p><strong>Next step:</strong> choose level 2 to match recovery to the changed
+layer, or follow <a href="learn/paths/keep-it-healthy.html">Keep it healthy</a>.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Will yesterday's application necessarily restore yesterday's document?</summary>
+<p>No. Identify the document's own recovery source and preserve later edits
+before overwriting it. Software and data histories can be separate.</p></details>
+<details class="q"><summary>Can a snapshot on the same drive replace an external backup?</summary>
+<p>No. Drive failure can destroy both the working data and its snapshot.
+Recovery needs a usable independent copy.</p></details></section>
 </section>
-
 <section data-level="intermediate">
-<h2>Btrfs snapshots and Home Manager generations</h2>
-
-<p><strong>Summary:</strong> Create read-only Btrfs subvolume checkpoints before major
-system operations and manage user desktop generation profiles.</p>
-
-<h3>Btrfs subvolume snapshot creation</h3>
-
-<p>Create a read-only snapshot of your active root subvolume prior to package or
-kernel upgrades:</p>
-
-<pre data-risk="system">
-sudo btrfs subvolume snapshot -r / /.snapshots/root-pre-upgrade
+<h2>Match the recovery boundary</h2>
+<p><strong>Goal:</strong> prepare a recovery note naming what returns, what
+stays mutable and what evidence is missing.</p>
+<h3>Mental model</h3>
+<pre>change --&gt; owning layer --&gt; retained recovery evidence
+                       --&gt; excluded state --&gt; separate recovery</pre>
+<p>Filesystem type is a starting observation. It proves neither that a
+snapshot exists nor that it includes the changed files or can boot.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ findmnt --noheadings --output FSTYPE --target /
+btrfs
 </pre>
-
-<p>List existing snapshots to confirm creation:</p>
-
-<pre data-risk="system">
-sudo btrfs subvolume list /
-</pre>
-
-<h3>Home Manager desktop generation switching</h3>
-
-<p>Tamlinux desktop components and user configurations are deployed as immutable
-generations linked into the Nix store. Inspect past generations:</p>
-
-<pre>
-home-manager generations
-</pre>
-
-<p>Example generation list:</p>
-
-<pre>
-2026-10-14 12:00 : id 202 -> /nix/store/...-home-manager-generation
-2026-10-13 18:30 : id 201 -> /nix/store/...-home-manager-generation
-</pre>
-
-<p>To roll back immediately to the previous generation without modifying any
-underlying base packages, activate the prior profile link:</p>
-
-<pre>
-/nix/store/...-home-manager-generation/activate
-</pre>
-
+<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ
+on other filesystems. <code>--target</code> finds the mount containing the
+path. No recovery point was created.</p>
+<ol><li>Root reports Btrfs.</li><li>A Btrfs snapshot covers its source
+subvolume; nested subvolumes need separate consideration.</li><li>This query
+says nothing about available snapshots, independent backups or restore tests.</li></ol>
 <h3>Completion task</h3>
-
-<p>Inspect existing Btrfs subvolumes on your root partition using the <code>btrfs</code>
-command. Complete the missing subcommand below (marked with <code>___</code>):</p>
-
-<pre data-risk="system">
-sudo btrfs subvolume ___ /
+<p>Find the filesystem containing <code>/boot</code>:
+<code>findmnt --noheadings --output FSTYPE --target ___</code>.</p>
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ findmnt --noheadings --output FSTYPE --target /boot
+vfat
 </pre>
-
-<p>Target output: list of subvolume IDs, generation numbers, and relative paths.</p>
-
-<h3>Verification hints</h3>
-
-<ul>
-<li>The <code>list</code> subcommand enumerates all subvolumes and snapshots within a Btrfs filesystem tree.</li>
-<li>Read more about package lifecycle in <a href="maintain/updates.html">Non-Disruptive Updates</a>.</li>
-</ul>
+<p>Captured on the same workstation and date. Your output will differ with
+the mount layout. Here boot files live on a separate filesystem, outside a
+root subvolume snapshot. On a host without a separate boot mount, the query
+may report the root filesystem instead.</p></details>
+<h3>Independent task</h3>
+<p>Choose a hypothetical application update and document edit. Write four
+lines: owner, retained recovery identifier, excluded state, verification after
+return. Leave unknown identifiers pending. Create or activate nothing.</p>
+<details class="solution"><p>For Tamlinux product software: identify the
+retained assembly and matching generation; name the document/settings backup
+separately; propose checking installed package paths and affected behavior.
+If an identifier or data copy is unknown, the real change remains pending.
+A native package needs its own checkpoint and boot requirements.</p></details>
+<h3>Choosing</h3>
+<table><tr><th>Changed layer</th><th>Recovery evidence</th><th>Separate concern</th></tr>
+<tr><td>Tamlinux product</td><td>Recorded retained assembly, outputs and generation</td><td>Mutable settings, data and native integration</td></tr>
+<tr><td>Native package or kernel</td><td>Native checkpoint and matched boot procedure</td><td>ESP, initramfs and root selection</td></tr>
+<tr><td>Document</td><td>Verified copy or applicable snapshot</td><td>Later edits to preserve</td></tr>
+<tr><td>Failed drive</td><td>Readable independent backup</td><td>Replacement storage and reconstruction</td></tr></table>
+<aside class="tamlinux"><p>Product delivery and return use the recorded
+<code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, on the
+developer's instruction for the exact candidate. Return uses the recorded
+previous deployment and retained generation; missing evidence can stop it.
+This lesson performs no return. Direct activation of an arbitrary Home
+Manager generation does not establish the recorded product selection.
+Mutable data and root-owned login files need their own recovery procedure.</p></aside>
+<h3>Troubleshooting</h3>
+<table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Next action</th></tr>
+<tr><td>Older software, current document</td><td>Data outside generation</td><td>Backup scope and date</td><td>Preserve later work before approved recovery</td></tr>
+<tr><td>Root snapshot lacks boot files</td><td>Separate mount</td><td>Mount containing actual boot path</td><td>Use matched native boot procedure</td></tr>
+<tr><td>Recorded generation unavailable</td><td>Removed outputs or incomplete record</td><td>Retained paths and identity</td><td>Establish usable recovery before changing anything</td></tr></table>
+<h3>Further reading</h3>
+<ul><li><a href="man:findmnt(8)">findmnt(8)</a>: paths, mounts and explicit columns.</li>
+<li><a href="man:btrfs-subvolume(8)">btrfs-subvolume(8)</a>: snapshot boundaries.</li>
+<li><cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Deployment contract</a></cite>: retained packages and mutable state.</li></ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Root is Btrfs and /boot is VFAT. Is a root snapshot a complete kernel recovery plan?</summary>
+<p>No. It omits the separate boot filesystem. Identify matching kernel,
+modules, boot files and the recovery procedure before changing anything.</p></details>
+<details class="q"><summary>An old generation exists but its assembly identity is unknown. Is product return ready?</summary>
+<p>No. Establish the recorded previous package selection, retained outputs
+and mutable-state recovery. A generation's age proves none of these.</p></details></section>
 </section>
-
 <section data-level="expert">
-<h2>Root subvolume rollback and Btrfs CoW mechanics</h2>
-
-<p><strong>Summary:</strong> Master Btrfs extent allocation trees, default subvolume ID
-switching, and complete root recovery from external live environments.</p>
-
-<h3>Copy-on-Write (CoW) extent trees</h3>
-
-<p>In Btrfs, data and metadata blocks are never overwritten in place. When a block
-is modified, the new data is written to an unallocated physical extent, and the
-B-tree pointers are updated to reference the new block. A snapshot is created by
-cloning the root node of the subvolume's B-tree. The snapshot and original
-subvolume share all underlying extents until writes diverge.</p>
-
-<h3>Atomic default subvolume switching</h3>
-
-<p>Tamlinux mounts the root filesystem via subvolume name or subvolume ID in
-<code>/etc/fstab</code> (e.g. <code>subvol=@</code>). To roll back the entire root
-operating system to a previous snapshot:</p>
-
-<ol>
-<li>Boot into a recovery console or live USB environment.</li>
-<li>Mount the top-level Btrfs tree: <code>mount /dev/mapper/cryptroot /mnt</code>.</li>
-<li>Rename the current root subvolume: <code>mv /mnt/@ /mnt/@.broken</code>.</li>
-<li>Create a read-write clone of the desired snapshot:
-<pre>btrfs subvolume snapshot /mnt/@.snapshots/good /mnt/@</pre></li>
-<li>Alternatively, set the default subvolume ID via <code>btrfs subvolume set-default &lt;subvol-id&gt; /mnt</code>.</li>
-<li>Reboot the workstation. The kernel mounts the restored snapshot directly as <code>/</code>.</li>
-</ol>
+<h2>Prove what the restored system selects</h2>
+<p><strong>Reference:</strong> Btrfs snapshots initially share extents, need
+metadata space and do not recursively capture nested subvolumes. Software
+recovery and application-data consistency remain distinct concerns.</p>
+<h3>How it works</h3>
+<p>A Btrfs mount can select a named subvolume with <code>subvol=</code> or
+an ID with <code>subvolid=</code>. Setting the default subvolume does not
+override explicit selection. Top-level ID 5 is not necessarily what a mount
+without explicit selection exposes. Reconcile boot parameters, mounts,
+subvolume IDs and kernel/module versions before proposing a repair.</p>
+<h3>Explore</h3>
+<pre class="session" data-risk="read-only">
+$ findmnt --noheadings --output TARGET,FSTYPE,FSROOT --target /
+/ btrfs /@
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ.
+Here the filesystem root is <code>/@</code>. Compare the observation with
+recorded boot selection and fstab, without editing either. This is not an
+instruction to rename a subvolume or assume that layout on another host.</p>
+<h3>Why Tamlinux records the assembly</h3>
+<p>The <cite data-ref="deployment"><a href="learn/bibliography/deployment.html">deployment contract</a></cite>
+ties candidates to revisions and installed outputs and retains the previous
+package/generation. The product's <code>commands/tam-deploy/tam-deploy</code>
+restores the recorded selection. That makes software return checkable while
+keeping mutable-state recovery explicit.</p>
+<h3>Edge cases and cost</h3>
+<p>A snapshot may omit another mount, nested subvolume or store. Applications
+can require their own consistent backup protocol. Shared storage failure can
+affect original and snapshot together. Retained generations keep store objects
+reachable but do not back up personal data. Retaining divergent data consumes
+space; identify required recovery sources before proposing any pruning.</p>
+<h3>Think through a diagnosis</h3>
+<p>Suppose a restored root still boots the wrong kernel. First compare the
+selected entry with the retained kernel and modules. Then check the boot
+filesystem boundary and explicit subvolume options. Do not repeat a root
+restore just because its timestamp looks right. This is a diagnostic scenario,
+not an observed Tamlinux incident.</p>
+<h3>Sources</h3>
+<ul><li><a href="https://btrfs.readthedocs.io/en/latest/btrfs-subvolume.html">Btrfs subvolume manual (online)</a>: nesting and selection.</li>
+<li><a href="man:btrfs(5)">btrfs(5)</a>: mount options.</li>
+<li><a href="https://github.com/greenermoose/tamlinux-packages/blob/develop/docs/deployment.md">Deployment contract (online)</a>: check the candidate's exact revision.</li></ul>
+<h3>Improve it</h3>
+<p>Propose a minimal recovery-boundary example in the public
+<a href="https://github.com/greenermoose/tam">tam repository (online)</a>.
+Separate observed selection from assumptions; omit personal disk identifiers.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary>Why might changing the default subvolume leave the next boot unchanged?</summary>
+<p>An explicit subvol or subvolid option can still select another root.
+Trace actual boot and mount configuration and confirm retained kernel,
+modules and boot files. A default change alone proves no complete return.</p></details>
+<details class="q open"><summary>What evidence makes a recovery claim credible?</summary>
+<p>Name retained software, included and excluded state, intended boot selection
+and the matching procedure. Record post-return selection and behavior in an
+authorized trial. A build or snapshot listing alone is insufficient.</p></details></section>
 </section>
+<h2>Where next</h2>
+<ul><li><a href="maintain/recovery.html">Emergency recovery</a>: choose the affected layer.</li>
+<li><a href="learn/paths/keep-it-healthy.html">Keep it healthy</a>: prepare a recovery note.</li>
+<li><a href="maintain/index.html">System maintenance</a>.</li></ul>
 
-<h2>Where to next</h2>
-
-<ul>
-<li><a href="maintain/updates.html">Non-disruptive updates</a> &mdash; package tiering and updating without reboots.</li>
-<li><a href="maintain/recovery.html">Emergency disaster recovery</a> &mdash; rescue procedures and emergency shells.</li>
-<li><a href="maintain/index.html">System maintenance</a> &mdash; return to the maintenance track overview.</li>
-</ul>
-</body>
-</html>
+</body></html>

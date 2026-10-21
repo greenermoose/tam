@@ -2,15 +2,16 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.38.0 and corpus 0.40.0.
+**Scope:** Living integration contract; current command 0.38.0 and corpus 0.41.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Plan the remaining TCK25 parts using the coverage report,
-prioritizing Maintaining's recovery examples. Using migration and level paths
-are implemented; pilot/learner review remains unverified. See the
+**Next action:** Continue TCK25 Maintaining with boot, boot-fallback and
+Snapper lessons before the Rescue path, then logs/power and part-wide
+enforcement. Using and the first two recovery ladders are implemented;
+pilot/learner review remains unverified. See the
 [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -363,6 +364,14 @@ use stages, checkpoints and capstones; Command-line fluency is a new goal path.
 Goal-path skills can span visited levels while page skills remain constrained
 to declared levels. Pilot/learner and packaged acceptance remain unverified.
 
+Corpus 0.41.0 migrates rollback and emergency recovery to the teaching
+contract: captured scratch/read-only examples, folded quizzes and mapped
+skills, plus Snapshot, Generation and Virtual console glossary pages.
+Keep it healthy uses the Intermediate recovery-planning lesson. The lessons
+separate product return, mutable data and native boot state, and teach SysRq
+limits without invoking it. Maintaining remains partially migrated;
+part-wide enforcement stays off. See the [verification record](../ai/2026-10-21-tam-recovery-learning.md).
+
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
 expanded CS content, AI hardware estimates, writable settings, localisation and
@@ -402,6 +411,14 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-21:** Corpus 0.41.0 (minor): TCK25 Maintaining recovery slice,
+  on the developer's continuation request. Migrate rollback and emergency
+  recovery, add three glossary terms and connect Intermediate planning from
+  Keep it healthy. Use captured scratch/read-only tasks instead of assumed
+  disk repairs, arbitrary generation activation or emergency reboots.
+  Command remains 0.38.0; remaining Maintaining migration, learner review
+  and package acceptance stay open.
 
 - **2026-10-21:** Corpus 0.40.0 (minor): TCK25 Using migration and new
   Command-line fluency path. Add validated per-part anatomy enforcement,

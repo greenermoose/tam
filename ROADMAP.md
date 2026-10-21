@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-21. **Owner:** Fred (developer).
-**Current Command Version:** `0.38.0`. **Current Corpus Version:** `0.40.0`.
+**Current Command Version:** `0.38.0`. **Current Corpus Version:** `0.41.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -101,12 +101,13 @@ in that candidate, not here.
 | **0.38.0 corpus** | Learning pilot (TCK23 source) | Source done; developer review pending (2026-10-21) | Three laddered pilot pages with captured examples and folded quizzes; goal-path hub, First steps and Keep it healthy linked from Welcome and Learning. Developer review remains unverified; subsequent "Continue" directs TCK24 ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
 | **0.39.0 corpus** | Learning scaffolding (TCK24 source) | Source implemented (2026-10-21) | 36 can-do skill cells, self-placement, 12 per-level glossary terms including the botanical analogy, bibliography, validated optional kind/skills and teaching references, additive index sidecars and a coverage/gap report. Developer "Continue" directed this slice; pilot/learner review remains unverified ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
 | **0.40.0 corpus** | Using migration and path format (TCK25 first part) | Source implemented (2026-10-21) | All six Using pages classified, owned-child jobs exercises, sourced reversible desktop/workspace tasks, strict anatomy checks for Using, staged level paths and Command-line fluency. Other parts retain migration warnings; learner and GUI acceptance remain unverified ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
+| **0.41.0 corpus** | Recovery lessons (TCK25 Maintaining first slice) | Source implemented (2026-10-21) | Rollback and emergency-recovery ladders with captured scratch/read-only examples, folded quizzes, three glossary terms and Intermediate recovery planning in Keep it healthy. Other Maintaining pages and learner/packaged acceptance remain pending ([record](docs/ai/2026-10-21-tam-recovery-learning.md)). |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.38.0 / 0.40.0 | Newest source; TCK23 review pending, TCK24 and TCK25 Using source implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.38.0 / 0.41.0 | Newest source; TCK23 review pending, TCK24, TCK25 Using and two Maintaining recovery lessons implemented. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.36.0 / 0.37.0 | Latest cached remote Test source at `c9b6c5d`; not an installed-candidate claim. |
 | `origin/main` | 0.31.1 / 0.32.1 | Latest cached remote Run source; not an installed-candidate claim. |
 
@@ -138,9 +139,11 @@ delivered as corpus 0.38.0. The developer's review of all pilot levels and
 First steps remains pending. His subsequent "Continue" directed TCK24
 scaffolding, implemented as corpus 0.39.0: skills, placement, glossary,
 bibliography, additive metadata and a coverage/gap report. TCK25's Using part
-and staged level paths are implemented in corpus 0.40.0. Next is planning
-the remaining parts one at a time, prioritizing Maintaining's recovery
-examples. Versions are allocated
+and staged level paths are implemented in corpus 0.40.0. Corpus 0.41.0
+migrates Maintaining's rollback and emergency-recovery lessons and adds
+three glossary terms. Next: migrate boot, boot-fallback and Snapper lessons
+before adding the Rescue path; then finish Maintaining's logs and power.
+Part-wide enforcement waits for that completion. Versions are allocated
 when each slice starts. The deferred items
 in section 4 are candidates, not assignments.
 

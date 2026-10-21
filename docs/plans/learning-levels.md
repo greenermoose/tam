@@ -13,10 +13,10 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Plan the remaining TCK25 parts using the coverage report,
-prioritizing Maintaining's recovery examples. TCK24 and TCK25 Using source
-are implemented after the developer's "Continue" on 2026-10-21; pilot and
-learner review remain unverified.
+**Next action:** Continue TCK25 Maintaining with boot, boot-fallback and
+Snapper before adding Rescue; then logs/power and part-wide enforcement.
+TCK24, Using and the first two Maintaining recovery lessons are implemented;
+pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
 
@@ -509,6 +509,42 @@ path gaps and 38 warning sections in other parts. Maintaining, Learning,
 Installing and Improving migration remain. Verification and limits:
 [session record](../ai/2026-10-21-tam-learning-pilot.md).
 
+**Maintaining recovery execution plan (2026-10-21).** The developer
+asked to inspect the last session and continue the next chunk. Baseline
+`476b499`, command 0.38.0 / corpus 0.40.0. Continue the recorded recovery
+priority without changing the approved teaching design. Allocate corpus
+0.41.0 for three new glossary pages; command stays unchanged.
+
+1. Migrate `maintain/rollback.html` and `maintain/recovery.html` to the full
+   ladder anatomy, with skill mappings and folded quizzes. Replace invented
+   output, direct generation activation, assumed disk layouts and broad
+   process termination with scratch practice or read-only inspection.
+2. Teach recovery boundaries: retained recorded Tamlinux assembly/generation,
+   separately mutable state, native boot state and external backups. Describe
+   SysRq enablement and limitations without invoking it, and rescue planning
+   without mounting, rebooting or repairing this workstation.
+3. Add Snapshot, Generation and Virtual console glossary definitions. Update
+   Keep it healthy to use the migrated Intermediate recovery lesson without
+   changing the reader's lens to Beginner.
+4. Capture and rerun displayed sessions, inspect all levels and folded answers,
+   run source/corpus checks under an exclusive claim, and update status and
+   provenance. Rebuild indexes after the page commit in a separate commit.
+
+This is a partial Maintaining migration: its other pages, the Rescue goal
+path and part-wide enforcement wait for subsequent slices. Learner review
+and packaged acceptance remain unverified.
+
+**Recovery slice source implemented (2026-10-21, corpus 0.41.0).** Both
+ladders now carry skill mappings, complete anatomy and folded quizzes.
+Captured exercises use scratch copies, terminal identity, mount queries and
+SysRq policy reads; no recovery operation is run. Three glossary pages are
+added and Keep it healthy stays at Intermediate for recovery planning.
+Anatomy warnings fall from 38 to 34; page gaps from 19 to 15, with 21 path
+gaps unchanged. These counts measure metadata, not learning effectiveness.
+Maintaining still needs boot, boot-fallback, Snapper, logs and power migration
+and its Rescue path before part-wide enforcement. See the
+[verification record](../ai/2026-10-21-tam-recovery-learning.md).
+
 ### Stop and ask the developer
 
 - If a key named here turns out to be taken, or behaves differently under
@@ -544,4 +580,6 @@ see its delivery note. TCK22 delivered as command 0.38.0 / corpus 0.37.1;
 see its delivery note and verification record. TCK23 source is delivered as
 corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
-paths are implemented as corpus 0.40.0; the remaining four parts stay open.
+paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
+two Maintaining recovery ladders. Maintaining remains partial, and Learning,
+Installing and Improving migration remain open.

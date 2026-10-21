@@ -1,203 +1,223 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <title>Emergency Disaster Recovery</title>
 <meta name="topic" content="recovery">
-<meta name="summary" content="Magic SysRq (REISUB) sequence, virtual consoles, and live USB chroot recovery">
+<meta name="summary" content="Record symptoms, choose a recovery layer and understand SysRq limits before escalation">
 <meta name="keywords" content="recovery, emergency, reisub, sysrq, virtual console, tty, chroot, repair, rescue, freeze, broken">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
-<meta name="prereqs" content="maintain, shell">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Emergency Disaster Recovery</p>
-</nav>
-
+<meta name="prereqs" content="maintain, filesystem, shell">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="boot.beginner, boot.intermediate, boot.expert, troubleshooting.beginner">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Emergency Disaster Recovery</p></nav>
 <h1>Emergency Disaster Recovery</h1>
 
-<p>When an application locks up, the graphical environment freezes, or a machine
-fails to complete its boot sequence, a structured recovery escalation ladder
-ensures you regain control calmly without risking data loss or filesystem
-corruption.</p>
-
+<p>First identify what still responds. A frozen window, an unavailable desktop
+and a machine that cannot boot need different evidence and recovery procedures.</p>
 <section data-level="beginner">
-<h2>Dropping to a virtual console (TTY)</h2>
-
-<p><strong>Summary:</strong> Escape a frozen Wayland desktop or unresponsive
-fullscreen window by switching to an independent text virtual console.</p>
-
-<p><strong>Prerequisites:</strong> Basic command-line navigation
-(<a href="shell/index.html">The Shell and Streams</a>).</p>
-
-<h3>Keyboard shortcut</h3>
-
-<p>Press <strong>Ctrl + Alt + F2</strong> (or <code>F3</code> through <code>F6</code>).</p>
-
+<h2>Record the symptom before escalating</h2>
+<p><strong>Goal:</strong> you will be able to record what stopped responding,
+identify your terminal and recognize when recovery needs help.</p>
+<p><strong>Why it matters:</strong> restarting the whole machine can discard
+unsaved work and the evidence needed to understand a single stuck application.</p>
+<p><strong>Before you start:</strong> read <a href="shell/index.html?level=1">The shell</a>.
+Use a working terminal for this read-only exercise. Do not reproduce a freeze,
+end a real application, change consoles or reboot as practice.</p>
+<aside class="first-time"><p>Type the command after the terminal prompt,
+without <code>$</code>, and press Enter. A terminal emulator is a window
+containing a shell. A Linux <dfn><a href="learn/glossary/virtual-console.html">virtual
+console</a></dfn> is a different terminal surface; neither guarantees that a
+machine with a graphics or kernel fault will respond.</p></aside>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ tty
+/dev/pts/0
+</pre>
+<p>Captured in a pseudo-terminal on an Arch Linux workstation, 2026-10-21.
+Your output will differ. A <code>/dev/pts/N</code> path identifies a
+pseudo-terminal, not the virtual-console number of the graphical session.</p>
 <h3>What just happened</h3>
-
-<ul>
-<li>Linux runs multiple virtual consoles (TTYs) independent of any graphical display server (see <a href="ecosystem/ttys-and-virtual-consoles.html">TTYs, Virtual Consoles, and Terminal Architecture</a>).</li>
-<li>The graphical desktop runs on virtual terminal 1 (<code>tty1</code>) or <code>tty7</code>. Switching to <code>tty2</code> drops immediately to a clean, text-mode login prompt backed by the kernel.</li>
-<li>The display manager and graphical compositor are bypassed, allowing you to log in with your user credentials even if graphics rendering has completely locked up.</li>
-</ul>
-
-<h3>Diagnosing and recovering</h3>
-
-<p>Once logged into the virtual console, identify and terminate the hung process:</p>
-
-<pre>
-# Check processes consuming CPU or memory
-top
-
-# Terminate an unresponsive application cleanly
-pkill -TERM problematic-app
-
-# Switch back to the graphical session
-Ctrl + Alt + F1
-</pre>
-
-<h3>Best practice</h3>
-
-<p>Try non-destructive recovery first—use virtual consoles to kill the hung
-application or switch sessions. Hard power cuts bypass disk flush routines and
-can leave filesystems unclean, so reserve them as a last resort.</p>
-
-<h3>Next step</h3>
-
-<p>Learn how to safely reboot an entirely locked kernel using Magic SysRq in the
-intermediate section below.</p>
+<ol><li><code>tty</code> reported the terminal attached to standard input.</li>
+<li>It did not diagnose the desktop or change sessions.</li><li>A path such
+as <code>/dev/tty2</code> would describe a virtual console instead. Do not
+assume your graphical session is on tty1 or tty7.</li></ol>
+<h3>Try it</h3>
+<p>On paper, record a hypothetical symptom, which inputs still work, the
+approximate time and your terminal type. Mark hypothetical observations as
+such. If you have a second terminal window, query its terminal too; closing
+that extra window undoes opening it.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>not a tty</dt><dd>Input may be a pipe or redirected file. Try from a
+terminal you opened yourself; do not add privileges.</dd>
+<dt>No usable terminal</dt><dd>Do not keep launching programs. A separate
+virtual console or already-configured remote access may help only if its
+input, kernel, display and login services still work.</dd></dl>
+<h3>Recognize the next boundary</h3>
+<p>If the machine never reaches login, record the last visible stage:
+firmware selects a bootloader, the loader starts a kernel, the kernel gains
+access to the root filesystem, then login and desktop services start. A
+failure before login is different from one application freezing afterwards.</p>
+<p>On many Linux systems Ctrl+Alt+F2 through F6 can select another console;
+key handling and login availability vary. Before an emergency, learn the
+actual graphical console and return key on your system. A GPU fault can
+prevent even text-console display. Stop and seek a documented recovery
+procedure if you cannot establish those details.</p>
+<h3>New words</h3>
+<dl><dt><a href="learn/glossary/virtual-console.html">Virtual console</a></dt><dd>A
+kernel terminal surface; it may have a login service.</dd>
+<dt><dfn><a href="learn/glossary/process.html">Process</a></dfn></dt><dd>A
+running program instance. A window and the whole desktop need not share one.</dd></dl>
+<p><strong>Next step:</strong> choose level 2 to compare recovery options and
+inspect SysRq availability without using it.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Does /dev/pts/0 tell you which function key returns to the desktop?</summary>
+<p>No. It identifies a pseudo-terminal. Determine the actual graphical
+console separately; do not infer it from the trailing number.</p></details>
+<details class="q"><summary>One window stopped drawing but the terminal works. Should the first step be an emergency reboot?</summary>
+<p>No. Record the symptom and scope, save reachable work and use the
+application's documented recovery. A whole-machine reset affects much more.</p></details></section>
 </section>
-
 <section data-level="intermediate">
-<h2>The Magic SysRq (REISUB) emergency sequence</h2>
-
-<p><strong>Summary:</strong> Use kernel Magic SysRq keys to cleanly terminate
-processes, sync disks, and reboot a frozen machine without holding the power
-button.</p>
-
-<h3>What is Magic SysRq?</h3>
-
-<p>The Magic System Request key is a kernel-level interrupt handler that responds
-even when the window manager, user space, and shell are completely frozen. The
-standard emergency reboot sequence is remembered by the mnemonic
-<strong>REISUB</strong> (or <em>"Raising Elephants Is So Utterly Boring"</em>):</p>
-
-<table>
-<tr><th>Key</th><th>Kernel Action</th><th>Purpose</th></tr>
-<tr><td>R</td><td>unRaw keyboard</td><td>Takes keyboard control back from the X11/Wayland server into TTY mode.</td></tr>
-<tr><td>E</td><td>tErminate processes</td><td>Sends SIGTERM to all processes except init, allowing clean exit.</td></tr>
-<tr><td>I</td><td>kIll processes</td><td>Sends SIGKILL to any stubborn tasks that refused to terminate.</td></tr>
-<tr><td>S</td><td>Sync filesystems</td><td>Flushes all dirty data in RAM buffers to physical storage disks.</td></tr>
-<tr><td>U</td><td>re-mount read-Only</td><td>Remounts all mounted filesystems read-only to prevent corruption.</td></tr>
-<tr><td>B</td><td>reBoot</td><td>Immediately triggers a clean hardware reboot.</td></tr>
-</table>
-
-<h3>Executing REISUB</h3>
-
-<p>Hold down <strong>Alt + SysRq</strong> (the <code>PrintScreen</code> key on most
-keyboards) and press each letter in order, pausing 2–3 seconds between keypresses
-(especially after <code>E</code> and <code>S</code> to allow disk writes to finish):</p>
-
-<pre>
-Alt + SysRq + R
-Alt + SysRq + E
-Alt + SysRq + I
-Alt + SysRq + S
-Alt + SysRq + U
-Alt + SysRq + B
+<h2>Choose escalation from evidence</h2>
+<p><strong>Goal:</strong> choose the appropriate recovery layer and check
+which keyboard SysRq operations are enabled without triggering them.</p>
+<h3>Mental model</h3>
+<pre>one application --&gt; application evidence and saved work
+whole desktop --&gt; console or configured remote access, if usable
+kernel unresponsive --&gt; emergency procedure, if supported
+cannot boot --&gt; retained fallback or verified rescue medium</pre>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ cat /proc/sys/kernel/sysrq
+244
 </pre>
-
-<h3>Enabling Magic SysRq in sysctl</h3>
-
-<p>Inspect your current SysRq enablement mask:</p>
-
-<pre>
-cat /proc/sys/kernel/sysrq
-</pre>
-
-<p>A value of <code>1</code> enables all SysRq functions. To make this permanent
-across reboots, ensure <code>kernel.sysrq = 1</code> is set in
-<code>/etc/sysctl.d/99-sysctl.conf</code>.</p>
-
+<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ.
+This reads keyboard SysRq policy; it tests neither the physical key combination
+nor whether the kernel can handle an emergency.</p>
+<p>For this setting, 0 disables keyboard operations, 1 allows all supported
+operations, and other positive values select categories by bits. The bits
+needed for REISUB are 4, 16, 32, 64 and 128, together 244.</p>
 <h3>Completion task</h3>
-
-<p>Audit whether your system provides the necessary privilege tools to manage
-system recovery. Complete the command below (marked with <code>___</code>):</p>
-
-<pre>
-tam check ___
-</pre>
-
-<p>Target output: <code>[pass] privilege_pkexec: polkit pkexec is available</code>.</p>
-
-<h3>Verification hints</h3>
-
-<ul>
-<li>Run <code>tam check privilege_pkexec</code> to confirm privilege tool presence.</li>
-<li>Tamlinux relies on <code>pkexec</code> for non-interactive administrative inspections.</li>
-</ul>
+<p>A hypothetical machine reports 16. Does it allow the full sequence?
+Classify that mask using the table, without changing it.</p>
+<details class="solution"><p>16 permits sync only. It does not enable keyboard
+mode changes, process signals, read-only remount or reboot. Do not treat that
+mask as proof that REISUB will work.</p></details>
+<h3>Independent task</h3>
+<p>Read your own mask. Record allowed categories and what remains untested:
+keyboard support, a responsive kernel, console visibility and disk completion.
+If the file is unavailable, record that limitation instead of enabling anything.</p>
+<details class="solution"><p>For 244, the needed categories are allowed;
+for 1, all supported categories are allowed. Neither proves successful disk
+sync or a working keyboard during a fault. For another mask, check each
+required bit. No configuration write or emergency keypress belongs in this task.</p></details>
+<h3>Choosing</h3>
+<table><tr><th>Evidence</th><th>Next option</th><th>Boundary</th></tr>
+<tr><td>Only one application is stuck</td><td>Save work and inspect that instance</td><td>A name-wide kill can affect unrelated work</td></tr>
+<tr><td>Desktop unavailable, another login works</td><td>Collect focused evidence there</td><td>Do not assume a particular VT or restart the session blindly</td></tr>
+<tr><td>No normal control</td><td>Prepared emergency procedure</td><td>Possible data loss; kernel and keyboard support required</td></tr>
+<tr><td>Boot fails</td><td>Documented fallback or rescue route</td><td>Verify dependencies and rollback point first</td></tr></table>
+<h3>REISUB reference, not an exercise</h3>
+<p>On supported PC keyboards the combination is Alt+SysRq (often PrtSc) plus
+one lower-case letter at a time. Hardware handling varies. Do not try it
+while reading this lesson.</p>
+<table><tr><th>Letter</th><th>Action</th><th>Policy bit</th></tr>
+<tr><td>r</td><td>Restore translated keyboard mode</td><td>4</td></tr>
+<tr><td>e</td><td>Send TERM to processes except init</td><td>64</td></tr>
+<tr><td>i</td><td>Send KILL to processes except init</td><td>64</td></tr>
+<tr><td>s</td><td>Attempt filesystem sync</td><td>16</td></tr>
+<tr><td>u</td><td>Attempt read-only remount</td><td>32</td></tr>
+<tr><td>b</td><td>Immediate reboot, without its own sync or unmount</td><td>128</td></tr></table>
+<aside class="caution"><p>Signals can lose unsaved work. Wait for sync and
+remount completion before rebooting; a fixed pause proves neither completed.
+An unresponsive kernel may handle none of these operations.</p></aside>
+<aside class="tamlinux"><p>A product regression uses the recorded
+<code>tam-deploy</code> recovery procedure and the developer's instruction
+for that exact candidate. Boot, login, disk and firmware changes need a
+recorded rollback point and separate approval for each step. This read-only
+lesson provides no authorization to change policy, restart services or repair disks.</p></aside>
+<h3>Troubleshooting</h3>
+<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
+<tr><td>Only sync permitted</td><td>Mask is 16</td><td>Read current policy</td><td>Record missing readiness; arrange policy review separately</td></tr>
+<tr><td>Text console invisible</td><td>Display/input path or kernel also affected</td><td>Previously configured alternative access</td><td>Use established recovery; do not promise console login</td></tr>
+<tr><td>No sync completion visible</td><td>Hidden console or blocked I/O</td><td>Available completion messages</td><td>Follow emergency procedure; elapsed seconds alone prove nothing</td></tr></table>
+<h3>Further reading</h3>
+<ul><li><a href="https://docs.kernel.org/admin-guide/sysrq.html">Kernel SysRq documentation (online)</a>: exact policy and completion semantics.</li>
+<li><a href="man:tty(1)">tty(1)</a>: terminal identity.</li>
+<li><a href="maintain/boot-recovery.html?level=2">Boot fallback routes</a>: compare dependencies before choosing a procedure; do not execute it as practice.</li></ul>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>A machine allows 244. Does that prove it can recover from a kernel lockup?</summary>
+<p>No. The mask permits categories; it does not prove that keyboard input,
+the kernel or I/O will respond during a fault.</p></details>
+<details class="q"><summary>Is b by itself a clean reboot, and do three seconds after s prove sync completed?</summary>
+<p>No to both. b immediately reboots without syncing or unmounting. Completion
+requires evidence, not a fixed delay; a prepared emergency procedure must
+account for the available console and I/O state.</p></details></section>
 </section>
-
 <section data-level="expert">
-<h2>Live USB rescue and chroot recovery</h2>
-
-<p><strong>Summary:</strong> Boot a rescue live USB, mount encrypted and Btrfs
-storage pools, and chroot into the workstation environment to repair kernels,
-initramfs, and bootloaders.</p>
-
-<h3>Step-by-step live USB chroot workflow</h3>
-
-<p>When a kernel upgrade fails or boot configuration becomes corrupted, boot an Arch
-Linux live USB installation medium (Tamlinux has no installation medium of its
-own yet):</p>
-
-<ol>
-<li><strong>Unlock encrypted volumes (if using LUKS):</strong>
-<pre>cryptsetup open /dev/nvme0n1p2 cryptroot</pre></li>
-
-<li><strong>Mount the root Btrfs subvolume:</strong>
-<pre>mount -o subvol=@ /dev/mapper/cryptroot /mnt</pre></li>
-
-<li><strong>Mount boot and ESP partitions:</strong>
-<pre>mount /dev/nvme0n1p1 /mnt/boot</pre></li>
-
-<li><strong>Bind virtual kernel filesystems into the target:</strong>
-<pre>
-for dir in /dev /dev/pts /proc /sys /run; do
-    mount --bind "$dir" "/mnt$dir"
-done
-</pre></li>
-
-<li><strong>Enter the installed environment:</strong>
-<pre>chroot /mnt /bin/bash</pre></li>
-
-<li><strong>Repair system configuration:</strong>
-<pre data-risk="boot">
-# Rebuild initramfs images
-mkinitcpio -P
-
-# Or restore package database state / reinstall kernel
-pacman -S linux linux-firmware
-</pre></li>
-
-<li><strong>Exit and cleanly unmount before rebooting:</strong>
-<pre>
-exit
-umount -R /mnt
-reboot
-</pre></li>
-</ol>
+<h2>Prepare a rescue dependency record</h2>
+<p><strong>Reference:</strong> a chroot changes pathname resolution for a
+process; it does not boot the installed kernel or recreate its running
+services. A rescue environment's running kernel and available drivers matter.</p>
+<h3>How it works</h3>
+<p>Before proposing a mount or repair, identify firmware mode, usable boot
+entry, rescue medium, storage driver, encryption mapping, filesystem and
+subvolume, root mount and separate boot/ESP mounts. Use the actual UUIDs,
+mount policy and retained recovery record. A sample device name from another
+machine is not an acceptable target.</p>
+<h3>Explore without repair</h3>
+<p>Read <a href="man:lsblk(8)">lsblk(8)</a>, <a href="man:findmnt(8)">findmnt(8)</a>
+and <a href="man:chroot(1)">chroot(1)</a>. Build a dependency table from
+existing inventory and the mount queries in <a href="maintain/rollback.html?level=3">Rollback</a>.
+Leave inaccessible or unknown entries blank. Do not mount, unlock, chroot,
+rebuild images or reinstall packages to fill a cell.</p>
+<table><tr><th>Dependency</th><th>Evidence to retain</th><th>Why it matters</th></tr>
+<tr><td>Rescue entry</td><td>Media version, firmware mode and verified availability</td><td>A failed loader cannot supply its own fallback</td></tr>
+<tr><td>Storage and root</td><td>Devices, encryption mapping, filesystem and explicit subvolume</td><td>Mounting the wrong tree can repair the wrong system</td></tr>
+<tr><td>Kernel and boot files</td><td>Matched retained versions and actual boot/ESP locations</td><td>A root snapshot may omit them</td></tr>
+<tr><td>Product and data</td><td>Recorded assembly/generation, native integration and independent backups</td><td>Recovery crosses separate state boundaries</td></tr></table>
+<h3>Why Tamlinux uses recorded recovery</h3>
+<p>The <cite data-ref="deployment"><a href="learn/bibliography/deployment.html">deployment contract</a></cite>
+keeps package identity and generation evidence together while naming separate
+mutable and native state. Tamlinux currently provides read-only installation
+inspection and checks, not an installer apply/repair workflow. There is no
+Tamlinux installation medium to assume available.</p>
+<h3>Edge cases and cost</h3>
+<p>An encrypted root needs working credentials and mapping before access.
+A console can share the failed GPU path. Repeated rebooting can lose volatile
+evidence, and broad scans add I/O during a storage fault. Collect the smallest
+useful evidence that is still available. Preserve later data before any restore.</p>
+<h3>Think through a diagnosis</h3>
+<p>For a hypothetical post-update boot failure, first locate the last visible
+stage and retained fallback. If firmware cannot load it, investigate that
+boundary before proposing a chroot. If the kernel starts but cannot mount
+root, compare storage, encryption and root-selection evidence. Only after
+identifying the target and recording rollback should a specific repair be
+reviewed. This is a method, not a reported incident or ready-to-run procedure.</p>
+<h3>Sources</h3>
+<ul><li><a href="man:chroot(1)">chroot(1)</a>: process-root semantics.</li>
+<li><a href="https://docs.kernel.org/admin-guide/sysrq.html">Kernel SysRq documentation (online)</a>: scope and limits.</li>
+<li><a href="https://github.com/greenermoose/tamlinux-packages/blob/develop/docs/deployment.md">Deployment contract (online)</a>: software, login and mutable-state recovery.</li></ul>
+<h3>Improve it</h3>
+<p>Propose a dependency checklist in the public
+<a href="https://github.com/greenermoose/tam">tam repository (online)</a>.
+Include the observed failing boundary; omit private logs, disk IDs and credentials.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary>Why can a correct chroot still fail to repair the next boot?</summary>
+<p>The wrong boot filesystem may be mounted, the loader may select different
+files, or the rescue kernel may lack needed storage support. A chroot alone
+proves neither the next kernel nor the root subvolume selection.</p></details>
+<details class="q open"><summary>What would justify replacing a guessed repair with an approved procedure?</summary>
+<p>A verified target and dependency chain, retained rollback evidence, a
+specific failure explanation and an explicit verification step. Then seek
+the required approval for each state-changing operation; unknown layout
+must stay unknown rather than becoming a copied command.</p></details></section>
 </section>
+<h2>Where next</h2>
+<ul><li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a>: state boundaries.</li>
+<li><a href="ecosystem/ttys-and-virtual-consoles.html">TTY and virtual-console reference</a>.</li>
+<li><a href="maintain/index.html">System maintenance</a>.</li></ul>
 
-<h2>Where to next</h2>
-
-<ul>
-<li><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a> &mdash; choose among firmware paths, kernels, snapshots and live media.</li>
-<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a> &mdash; restore snapshots instead of manual chroot.</li>
-<li><a href="maintain/logs.html">Truthful system diagnostics and logs</a> &mdash; examine boot logs for root causes.</li>
-<li><a href="maintain/index.html">System maintenance</a> &mdash; return to the maintenance track overview.</li>
-</ul>
-</body>
-</html>
+</body></html>

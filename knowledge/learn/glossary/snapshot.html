@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>Snapshot</title>
+<meta name="topic" content="glossary-snapshot">
+<meta name="summary" content="Snapshot: definition and recovery boundary at each level">
+<meta name="keywords" content="glossary-snapshot, learning, recovery">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / Snapshot</p></nav>
+<h1>Snapshot</h1>
+<section data-level="beginner"><h2>Beginner definition</h2><p>A saved state of a filesystem subvolume. It can help recover an earlier file, but a copy on the same drive does not protect against loss of that drive.</p></section>
+<section data-level="intermediate"><h2>Intermediate definition</h2><p>A Btrfs snapshot initially shares file extents with its source subvolume. Later changes can diverge. A snapshot does not recursively include nested subvolumes or separately mounted filesystems.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>A snapshot is itself a subvolume with an initial shared extent set and independent identity. Read-only flags, mount selection, excluded subvolumes and application consistency define its recovery boundary; independent backups remain necessary.</p></section>
+<p><a href="maintain/rollback.html">Snapshots and generation rollbacks</a>;
+<a href="maintain/recovery.html">Emergency recovery</a>;
+<a href="learn/glossary/index.html">All glossary terms</a>.</p>
+</body></html>
