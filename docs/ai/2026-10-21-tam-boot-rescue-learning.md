@@ -1,12 +1,12 @@
 # Boot, Snapper and Rescue learning (corpus 0.42.0)
 
 - **Date:** 2026-10-21
-- **Time:** 14:20 to 14:33, -04:00
+- **Time:** 14:20 to 14:34, -04:00
 - **Stage:** Develop; TCK25 Maintaining second slice
 - **CLI Tool:** Codex CLI 0.163.0
 - **Model:** GPT-6.1 Sol (`gpt-6.1-sol`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** The lesson commit adding this record and its index-history follow-up.
+- **Commits:** `dda1535` and the index-history follow-up updating this record.
 - **Authorship:** The developer requested the next boot/Snapper/Rescue slice; Codex planned, wrote and checked the content.
 - **Checked against:** Baseline `124ee80`; `ROADMAP.md`, `docs/plans/learning-levels.md`, `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`, `docs/templates/ladder.html`, `docs/templates/path.html`, `src/pager.c`, `src/version.h`, `knowledge/version`, `tools/build-index.py`, `knowledge/learn/skills/skills.json`; product `commands/tam-update/tam-update`, `docs/plans/0.4.4-boot-recovery.md`; assembly `docs/plans/0.4.4-boot-providers.md`; local Snapper 0.13.2 help/manual, findmnt output and the primary references below.
 
