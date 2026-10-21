@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
-**Current Command Version:** `0.34.0`. **Current Corpus Version:** `0.35.2`.
+**Current Command Version:** `0.34.0`. **Current Corpus Version:** `0.36.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -91,13 +91,14 @@ in that candidate, not here.
 | **0.33.0 command / 0.35.0 corpus** | Native `tldr` pages subsystem and curated corpus | Done (2026-10-20) | Bundled AI-curated English `tldr` pages for Tamlinux under `knowledge/tldr/` (`linux` and `common` sections, `index.tsv`, `LICENSE.md`, `SOURCE.json`); native C `tam tldr` reader and index/discovery browser (`src/tldr.c`, `src/tldr.h`, `bin/tam-tldr`, `tam:tldr`) rendering both short and long option forms (`[-s|--long]`), hyperlinked `See also:`/alias/`man:` references, and fixed top breadcrumb navigation (`Guide > tldr pages > <cmd>`). |
 | **0.34.0 command / 0.35.1 corpus** | Pager quick keys, address display, status row, and Guide index | Done (2026-10-20) | Pager link keys `]` and `[` with Tab/Shift-Tab aliases; search-only `N`; status row `L<cursor> <first>-<last>/<total>`; `=` address display (`Path = <address>`); `page:` addresses in `tam show`; `\` guide search; labelled prompts; `tam:help` and prompt action links; Guide index Quick keys table; corpus 0.35.1 (TCK15–TCK19). |
 | **0.35.2 corpus** | Common pitfall sections become Best practice | Done (2026-10-20) | The 16 `Common pitfall` sections are `Best practice` sections that lead with the correct action and then explain what goes wrong otherwise ([plan](docs/plans/common-pitfall-to-best-practice.md), `ae1fa41`). |
+| **0.36.0 corpus** | Pare down welcome page and add dedicated About page | Done (2026-10-20) | Paring down `welcome.html` to a focused orientation page and moving project background and developer notes into a new dedicated `about.html` page (`tam show about`). |
 
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.34.0 / 0.35.2 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.34.0 / 0.36.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
