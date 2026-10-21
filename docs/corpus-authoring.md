@@ -121,7 +121,9 @@ remains valid during migration. Supplied kinds must be valid. Declare skills
 as comma-separated IDs in `<meta name="skills">`, for example
 `shell.beginner, shell.intermediate`. IDs come from
 `knowledge/learn/skills/skills.json`; a skill's level must be offered by the page.
-The skills map publishes the same can-do statements for readers.
+Goal paths may name skills at the levels they visit; their level metadata
+states the starting level. The skills map publishes the same can-do statements
+for readers.
 
 Mark a term's first use with a glossary link, optionally inside `<dfn>`.
 Every `<dfn>` must contain a working link under `learn/glossary/`; definitions
@@ -142,12 +144,19 @@ cross-page fragments. Glossary links likewise name a complete term page.
 
 `index.json` adds `kind` and `skills`. `index.kinds.tsv` and `index.skills.tsv`
 project them without altering the established ten-column `index.tsv`.
+These optional sidecars omit pages with no supplied kind/skills; absence means
+unclassified/unmapped, as the JSON and coverage report also show.
 `coverage.json` reports every skill cell's page/path coverage, explicit gaps,
 unclassified/unmapped pages and anatomy warnings. Read it with
 `python3 tools/report-coverage.py --warnings` after `make corpus`. A mapped
 page is a coverage claim, not learner validation or proof of mastery.
+The unmapped list includes navigation and reference pages that may not need
+skill mappings; the per-cell page/path gaps identify missing teaching coverage.
 Anatomy and quiz gaps are warnings during migration; reference, glossary,
 hub, bibliography and path jobs are not forced into tutorial anatomy.
+The skills registry's optional `enforce_tracks` list promotes instructional
+section anatomy/quiz gaps to errors for completed parts. It currently includes
+`use`; other parts retain warnings until their migration is complete.
 
 ## Markup the renderer can show
 

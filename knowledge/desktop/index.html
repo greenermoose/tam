@@ -8,53 +8,52 @@
 <meta name="level" content="beginner">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
 <p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / The Tamlinux Desktop</p>
 </nav>
-
 <h1>The Tamlinux Desktop</h1>
 
-<p>Tamlinux features a keyboard-first, tiling Wayland environment designed for
-maximum screen efficiency and distraction-free computing. Instead of manually
-dragging and resizing windows, the desktop arranges windows into clean tiles
-automatically.</p>
-
-<h2>Essential keybindings</h2>
-
-<p>The <code>SUPER</code> key (often labeled with a Windows or Command logo) is
-the primary control key for window management:</p>
-
-<table>
-<tr><th>Keybinding</th><th>Action</th></tr>
-<tr><td>SUPER + Enter</td><td>Open a terminal</td></tr>
-<tr><td>SUPER + Space</td><td>Open the Tamlinux menu</td></tr>
-<tr><td>SUPER + ALT + Space</td><td>Open the applications menu</td></tr>
-<tr><td>SUPER + W</td><td>Close the active window</td></tr>
-<tr><td>SUPER + arrow keys</td><td>Move focus between tiled windows</td></tr>
-<tr><td>SUPER + SHIFT + arrow keys</td><td>Swap the active window with its neighbour</td></tr>
-<tr><td>SUPER + 1 to 0</td><td>Switch to workspace 1 to 10</td></tr>
-<tr><td>SUPER + T</td><td>Toggle the active window between floating and tiled</td></tr>
-<tr><td>SUPER + F</td><td>Toggle fullscreen on the focused window</td></tr>
-<tr><td>SUPER + K</td><td>Show every keybinding (<code>tam-menu-keybindings</code>)</td></tr>
-</table>
-
-<h2>Window layout and tiling</h2>
-
-<p>When you open a second window, the active area splits automatically to make
-room. Windows never overlap or hide behind each other unless explicitly set to
-floating mode.</p>
-
-<p>To toggle floating mode for windows that require a fixed geometry (such as
-calculators or file pickers), press <code>SUPER + T</code>.</p>
-
-<h2>Where to next</h2>
-
-<ul>
-<li><a href="desktop/workspaces.html">Workspaces and multi-monitor</a> &mdash; manage multiple virtual workspaces.</li>
-<li><a href="shell/index.html">The shell and streams</a> &mdash; command-line terminal basics.</li>
-<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
-</ul>
-</body>
-</html>
+<p>These are the packaged Tamlinux Hyprland bindings. Personal overrides
+or another compositor can differ; use SUPER+K to inspect the active bindings.</p>
+<section data-level="beginner"><h2>Open a window and recover your place</h2>
+<p><strong>Goal:</strong> you will be able to open an empty terminal, change
+its layout and return to your starting window.</p>
+<p><strong>Why it matters:</strong> knowing how to recover focus makes a
+keyboard-driven desktop less disorienting.</p>
+<p><strong>Before you start:</strong> save work in existing windows and read
+<a href="welcome.html?level=1">Welcome</a>. Practice only with a new empty terminal.</p>
+<aside class="first-time"><p>SUPER is usually the key with a Windows logo.
+A plus sign means hold the keys together, not type a plus. Terminal commands
+and desktop shortcuts are different: these keys go to the desktop.</p></aside>
+<h3>Worked example</h3><ol><li>Note your current window and workspace.</li>
+<li>Press SUPER+RETURN to request a new terminal.</li><li>With that empty
+terminal focused, press SUPER+T to toggle floating/tiling. Press it again to undo.</li>
+<li>Press SUPER+W to close only that empty terminal.</li></ol>
+<p>This walkthrough is checked against the packaged bindings, not a claim
+that a GUI acceptance test was performed in your session.</p>
+<h3>What just happened</h3><ol><li>The terminal launcher opened an application.</li>
+<li>The compositor changed the focused window's layout mode.</li>
+<li>The close request applied to the focused window. Focus matters before closing.</li></ol>
+<h3>Try it</h3><p>Open two empty terminals. Use SUPER+Left/Right/Up/Down to
+move focus in the corresponding direction when another window is there.
+Identify the focused window before closing either. Keep real work untouched.</p>
+<h3>If it goes wrong</h3><dl><dt>A shortcut does nothing</dt><dd>Check
+SUPER+K and your compositor/overrides. A directional focus request needs
+a window in that direction.</dd><dt>A window seems missing</dt><dd>Check
+the workspace and fullscreen/floating state before launching another copy.</dd></dl>
+<h3>New words</h3><dl><dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard input.</dd>
+<dt><dfn><a href="learn/glossary/tiling.html">Tiling</a></dfn></dt><dd>Layout where the compositor arranges windows; floating
+windows and other modes can overlap them.</dd></dl>
+<h3>Next step</h3><p>Read <a href="desktop/workspaces.html?level=2">workspaces</a>
+to organize windows, or <a href="learn/paths/first-steps.html?level=1">First steps</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Which window does SUPER+W close?</summary><p>The currently focused window receives the close request. Check focus and save work first; practice with an empty terminal.</p></details><details class="q"><summary>Does tiling mean windows can never overlap?</summary><p>No. Floating windows and other modes can overlap; fullscreen and application behavior also affect what is visible.</p></details></section>
+</section><h2>Key reference</h2><table><tr><th>Key</th><th>Packaged action</th></tr>
+<tr><td>SUPER+RETURN</td><td>Terminal</td></tr><tr><td>SUPER+SPACE</td><td>Tamlinux menu</td></tr>
+<tr><td>SUPER+ALT+SPACE</td><td>Apps menu</td></tr><tr><td>SUPER+K</td><td>Keybindings</td></tr>
+<tr><td>SUPER+F</td><td>Fullscreen toggle</td></tr><tr><td>SUPER+T</td><td>Floating/tiling toggle</td></tr></table>
+<p><a href="https://github.com/greenermoose/tamlinux/tree/develop/desktop/session/hypr/tamlinux/bindings">Packaged binding sources (online)</a>.</p>
+</body></html>

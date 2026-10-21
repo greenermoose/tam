@@ -13,9 +13,10 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Plan TCK25 migration one part at a time using the coverage
-report. TCK24 scaffolding is implemented after the developer's "Continue"
-on 2026-10-21; pilot and learner review remain unverified.
+**Next action:** Plan the remaining TCK25 parts using the coverage report,
+prioritizing Maintaining's recovery examples. TCK24 and TCK25 Using source
+are implemented after the developer's "Continue" on 2026-10-21; pilot and
+learner review remain unverified.
 
 ## Problem and agreed outcome
 
@@ -450,7 +451,7 @@ bibliography entries, optional metadata and additive projections, teaching
 reference validation, nonfatal anatomy warnings and a coverage report. The
 terminology topic retains its address and links the absorbed definitions;
 unsupported claims of a delivered signed nut are removed. Pilot metadata,
-vocabulary and citations are converted. Current coverage has 24 cells without
+vocabulary and citations are converted. The TCK24 baseline had 24 cells without
 mapped pages and 30 without paths; 40 legacy level sections warn about
 anatomy. These are migration gaps, not new breakages or accepted teaching.
 Verification: [session record](../ai/2026-10-21-tam-learning-pilot.md).
@@ -459,10 +460,54 @@ Verification: [session record](../ai/2026-10-21-tam-learning-pilot.md).
 
 Approved direction. Plan each part before starting.
 
+**First part: Using (2026-10-21).** The developer requested continuation;
+the agent offered Using versus Maintaining as migration priorities and uses
+Using as the recommended default while no different priority is supplied.
+Baseline `91b46d0`, command 0.38.0 / corpus 0.39.0. Allocate corpus 0.40.0
+because this slice adds the Command-line fluency goal path. Command is unchanged.
+
+Claim `shell/jobs.html`, `desktop/index.html`, `desktop/workspaces.html`,
+`use/index.html`, the three level paths, the new goal path, skills registry,
+builder/tests and generated outputs, status/provenance. Existing pilots are
+already migrated. Work in this order:
+
+1. Rewrite jobs with the full ladder anatomy and captured examples that
+   start, wait for and signal only their own short-lived child process.
+   Remove name-wide `pkill` exercises and unconditional promises that
+   disown/nohup preserve a workload after terminal closure.
+2. Rewrite desktop orientation (Beginner) and workspaces (Intermediate)
+   as reversible practice with empty windows, sourced from the product's
+   current Hyprland binding files. Supply folded novice help/checkpoints,
+   choices, trouble checks and undo steps. Do not claim GUI acceptance.
+3. Classify/map the Using hub and all six logical Using pages. Add
+   `enforce_tracks: ["use"]` to the skill registry; validate the policy
+   and promote anatomy/quiz warnings in that completed part to build errors.
+   Other parts keep warning-only behavior.
+4. Add the Command-line fluency goal path from the migrated threshold
+   pages, with checkpoints and a captured scratch-directory capstone.
+   Rewrite the three existing level paths to the agreed path format.
+   A path's skills may span visited levels while its level metadata says
+   where it starts; ordinary pages may map only levels they offer.
+5. Run meaningful enforcement/compatibility tests, the full source/corpus
+   suites, capture checks and pager navigation. Update all entry points and
+   commit page/index histories separately. Report remaining parts and
+   learner/packaged acceptance honestly.
+
 - Migrate one part at a time, threshold concepts first.
 - Revise the level paths to the path format.
 - Add the remaining goal paths in the pedagogy guide as their pages exist.
 - When a part is done, its anatomy and quiz warnings become errors.
+
+**Using source implemented (2026-10-21, corpus 0.40.0).** All six logical
+Using pages are classified; instructional pages map skill cells. Its
+anatomy/quiz gaps now fail the build through validated `enforce_tracks`.
+The jobs ladder uses captured owned-child examples. Desktop/workspace tasks
+are sourced, reversible human practice, without a GUI acceptance claim.
+Command-line fluency is added; all three level paths follow the stage,
+checkpoint and capstone format. The current report has 19 page gaps, 21
+path gaps and 38 warning sections in other parts. Maintaining, Learning,
+Installing and Improving migration remain. Verification and limits:
+[session record](../ai/2026-10-21-tam-learning-pilot.md).
 
 ### Stop and ask the developer
 
@@ -498,4 +543,5 @@ TCK20 delivered on 2026-10-21 with this plan. TCK21 delivered on
 see its delivery note. TCK22 delivered as command 0.38.0 / corpus 0.37.1;
 see its delivery note and verification record. TCK23 source is delivered as
 corpus 0.38.0, with developer review pending. TCK24 source is implemented as
-corpus 0.39.0 on the developer's "Continue"; TCK25 migration has not started.
+corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
+paths are implemented as corpus 0.40.0; the remaining four parts stay open.

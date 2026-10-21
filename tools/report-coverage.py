@@ -23,6 +23,7 @@ def main():
     print(f"\nUnclassified pages: {len(report['unclassified_pages'])}; "
           f"unmapped pages: {len(report['unmapped_pages'])}; "
           f"anatomy warnings: {len(report['warnings'])}")
+    print("Enforced parts: " + (", ".join(report.get("enforced_tracks", [])) or "none"))
     if args.warnings:
         for warning in report["warnings"]:
             print(f"{warning['path']} [{warning['level']}]: missing " + ", ".join(warning["missing"]))

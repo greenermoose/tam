@@ -124,6 +124,48 @@ class BuildIndex(unittest.TestCase):
         self.assertIn('index.html', report['unclassified_pages'])
         self.assertIn('index.html', report['unmapped_pages'])
         self.assertIn('Learning warnings: 1', result.stdout)
+        self.assertEqual((root/'knowledge/index.kinds.tsv').read_text(), 'path\tkind\n')
+        self.assertEqual((root/'knowledge/index.skills.tsv').read_text(), 'path\tskills\n')
+
+    def test_completed_part_promotes_only_its_anatomy_warnings_to_errors(self):
+        text = page('Using', 'use', 'index.html').replace('</body>', '<section data-level="beginner"><h2>Task</h2><p>Partial lesson</p></section></body>')
+        root = self.fixture('0.40.0', {'index.html': page('Guide'), 'use/index.html': text})
+        registry = self.register_skills(root)
+        self.assertEqual(self.build(root).returncode, 0)
+        before = self.outputs(root)
+        data = json.loads(registry.read_text())
+        data['enforce_tracks'] = ['use']
+        registry.write_text(json.dumps(data))
+        result = self.build(root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn('use/index.html: beginner anatomy:', result.stderr)
+        self.assertIn('quiz', result.stderr)
+        self.assertEqual(before, self.outputs(root))
+        data['enforce_tracks'] = ['maintain']
+        registry.write_text(json.dumps(data))
+        self.assertEqual(self.build(root).returncode, 0)
+
+    def test_path_skills_span_visited_levels_but_page_skills_do_not(self):
+        text = page('Guide').replace('</head>', '<meta name="kind" content="path"><meta name="skills" content="shell.expert"></head>')
+        root = self.fixture('0.40.0', {'index.html': text})
+        self.register_skills(root)
+        self.assertEqual(self.build(root).returncode, 0)
+        report = json.loads((root/'knowledge/coverage.json').read_text())
+        self.assertEqual(report['cells'][1]['paths'], ['index.html'])
+        (root/'knowledge/index.html').write_text(text.replace('content="path"','content="tutorial"'))
+        self.assertIn('outside the declared page levels', self.build(root).stderr)
+
+    def test_invalid_enforcement_policies_fail_plainly(self):
+        root = self.fixture('0.40.0', {'index.html': page('Guide')})
+        registry = self.register_skills(root)
+        data = json.loads(registry.read_text())
+        for value in ('use', ['unknown'], ['use','use'], [1]):
+            data['enforce_tracks'] = value
+            registry.write_text(json.dumps(data))
+            result = self.build(root)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn('enforce_tracks', result.stderr)
+            self.assertNotIn('Traceback', result.stderr)
 
     def fixture(self, version, documents):
         temp = tempfile.TemporaryDirectory()

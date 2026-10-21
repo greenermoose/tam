@@ -1,16 +1,22 @@
 {
   "version": 1,
+  "enforced_tracks": [
+    "use"
+  ],
   "cells": [
     {
       "id": "desktop.beginner",
       "domain": "desktop",
       "level": "beginner",
       "can_do": "Open applications and return to the Guide",
-      "pages": [],
+      "pages": [
+        "desktop/index.html"
+      ],
       "paths": [
+        "beginner.html",
         "learn/paths/first-steps.html"
       ],
-      "page_gap": true,
+      "page_gap": false,
       "path_gap": false
     },
     {
@@ -18,10 +24,14 @@
       "domain": "desktop",
       "level": "intermediate",
       "can_do": "Choose a workspace and identify the desktop components involved",
-      "pages": [],
-      "paths": [],
-      "page_gap": true,
-      "path_gap": true
+      "pages": [
+        "desktop/workspaces.html"
+      ],
+      "paths": [
+        "intermediate.html"
+      ],
+      "page_gap": false,
+      "path_gap": false
     },
     {
       "id": "desktop.expert",
@@ -42,6 +52,8 @@
         "shell/pipelines.html"
       ],
       "paths": [
+        "beginner.html",
+        "learn/paths/command-line-fluency.html",
         "learn/paths/first-steps.html"
       ],
       "page_gap": false,
@@ -55,9 +67,12 @@
       "pages": [
         "shell/pipelines.html"
       ],
-      "paths": [],
+      "paths": [
+        "intermediate.html",
+        "learn/paths/command-line-fluency.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "shell.expert",
@@ -67,9 +82,12 @@
       "pages": [
         "shell/pipelines.html"
       ],
-      "paths": [],
+      "paths": [
+        "expert.html",
+        "learn/paths/command-line-fluency.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "files.beginner",
@@ -80,6 +98,8 @@
         "filesystem/permissions.html"
       ],
       "paths": [
+        "beginner.html",
+        "learn/paths/command-line-fluency.html",
         "learn/paths/first-steps.html"
       ],
       "page_gap": false,
@@ -93,9 +113,11 @@
       "pages": [
         "filesystem/permissions.html"
       ],
-      "paths": [],
+      "paths": [
+        "intermediate.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "files.expert",
@@ -105,39 +127,54 @@
       "pages": [
         "filesystem/permissions.html"
       ],
-      "paths": [],
+      "paths": [
+        "expert.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "processes.beginner",
       "domain": "processes",
       "level": "beginner",
       "can_do": "Identify a running program and end your own foreground task",
-      "pages": [],
-      "paths": [],
-      "page_gap": true,
-      "path_gap": true
+      "pages": [
+        "shell/jobs.html"
+      ],
+      "paths": [
+        "learn/paths/command-line-fluency.html"
+      ],
+      "page_gap": false,
+      "path_gap": false
     },
     {
       "id": "processes.intermediate",
       "domain": "processes",
       "level": "intermediate",
       "can_do": "Choose signals and diagnose a stuck job",
-      "pages": [],
-      "paths": [],
-      "page_gap": true,
-      "path_gap": true
+      "pages": [
+        "shell/jobs.html"
+      ],
+      "paths": [
+        "intermediate.html",
+        "learn/paths/command-line-fluency.html"
+      ],
+      "page_gap": false,
+      "path_gap": false
     },
     {
       "id": "processes.expert",
       "domain": "processes",
       "level": "expert",
       "can_do": "Explain process lifetime, descriptor inheritance and resource costs",
-      "pages": [],
-      "paths": [],
-      "page_gap": true,
-      "path_gap": true
+      "pages": [
+        "shell/jobs.html"
+      ],
+      "paths": [
+        "expert.html"
+      ],
+      "page_gap": false,
+      "path_gap": false
     },
     {
       "id": "software.beginner",
@@ -198,6 +235,7 @@
         "maintain/updates.html"
       ],
       "paths": [
+        "intermediate.html",
         "learn/paths/keep-it-healthy.html"
       ],
       "page_gap": false,
@@ -211,9 +249,11 @@
       "pages": [
         "maintain/updates.html"
       ],
-      "paths": [],
+      "paths": [
+        "expert.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "boot.beginner",
@@ -941,35 +981,6 @@
       ]
     },
     {
-      "path": "shell/jobs.html",
-      "level": "beginner",
-      "missing": [
-        "goal:",
-        "why it matters:",
-        "before you start:",
-        "worked example",
-        "try it",
-        "if it goes wrong",
-        "new words",
-        "quiz",
-        "New to this? aside"
-      ]
-    },
-    {
-      "path": "shell/jobs.html",
-      "level": "intermediate",
-      "missing": [
-        "goal:",
-        "mental model",
-        "independent task",
-        "choosing",
-        "troubleshooting",
-        "further reading",
-        "quiz",
-        "On Tamlinux aside"
-      ]
-    },
-    {
       "path": "tam.html",
       "level": "beginner",
       "missing": [
@@ -1003,9 +1014,6 @@
   ],
   "unclassified_pages": [
     "about.html",
-    "beginner.html",
-    "desktop/index.html",
-    "desktop/workspaces.html",
     "ecosystem/ai.html",
     "ecosystem/compositors.html",
     "ecosystem/desktop-apps.html",
@@ -1036,7 +1044,6 @@
     "ecosystem/toolkits.html",
     "ecosystem/ttys-and-virtual-consoles.html",
     "ecosystem/virtualization.html",
-    "expert.html",
     "filesystem/index.html",
     "hardware/resources.html",
     "improve/ai-performance.html",
@@ -1048,7 +1055,6 @@
     "improve/zram.html",
     "index.html",
     "install/index.html",
-    "intermediate.html",
     "learn/documentation.html",
     "learn/practice.html",
     "learn/tam.html",
@@ -1063,16 +1069,11 @@
     "man/index.html",
     "man/posix.html",
     "shell/index.html",
-    "shell/jobs.html",
     "tam.html",
-    "use/index.html",
     "welcome.html"
   ],
   "unmapped_pages": [
     "about.html",
-    "beginner.html",
-    "desktop/index.html",
-    "desktop/workspaces.html",
     "ecosystem/ai.html",
     "ecosystem/compositors.html",
     "ecosystem/desktop-apps.html",
@@ -1104,7 +1105,6 @@
     "ecosystem/toolkits.html",
     "ecosystem/ttys-and-virtual-consoles.html",
     "ecosystem/virtualization.html",
-    "expert.html",
     "filesystem/index.html",
     "hardware/resources.html",
     "improve/ai-performance.html",
@@ -1116,7 +1116,6 @@
     "improve/zram.html",
     "index.html",
     "install/index.html",
-    "intermediate.html",
     "learn/bibliography/bash.html",
     "learn/bibliography/coreutils.html",
     "learn/bibliography/deployment.html",
@@ -1128,17 +1127,24 @@
     "learn/documentation.html",
     "learn/glossary/cultivar.html",
     "learn/glossary/filter.html",
+    "learn/glossary/focus.html",
     "learn/glossary/fruit.html",
     "learn/glossary/greenhouse.html",
     "learn/glossary/index.html",
+    "learn/glossary/job.html",
     "learn/glossary/mode.html",
     "learn/glossary/nut.html",
     "learn/glossary/owner.html",
     "learn/glossary/package.html",
+    "learn/glossary/pid.html",
     "learn/glossary/pot.html",
+    "learn/glossary/process.html",
     "learn/glossary/rollback.html",
     "learn/glossary/root-stock.html",
+    "learn/glossary/signal.html",
     "learn/glossary/stream.html",
+    "learn/glossary/tiling.html",
+    "learn/glossary/workspace.html",
     "learn/index.html",
     "learn/paths/index.html",
     "learn/placement.html",
@@ -1156,7 +1162,6 @@
     "man/index.html",
     "man/posix.html",
     "shell/index.html",
-    "shell/jobs.html",
     "tam.html",
     "use/index.html",
     "welcome.html"

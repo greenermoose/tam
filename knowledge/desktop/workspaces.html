@@ -8,49 +8,57 @@
 <meta name="level" content="intermediate">
 <meta name="track" content="use">
 <meta name="parent" content="desktop/index.html">
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.intermediate">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
 <p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / Workspaces and Multi-Display Layout</p>
 </nav>
-
 <h1>Workspaces and Multi-Display Layout</h1>
 
-<p>Workspaces provide separate virtual desktops so you can group related tasks
-together without visual clutter.</p>
-
-<h2>Navigating workspaces</h2>
-
-<table>
-<tr><th>Keybinding</th><th>Action</th></tr>
-<tr><td>SUPER + 1 .. 9, 0</td><td>Switch directly to workspace 1 through 10</td></tr>
-<tr><td>SUPER + Shift + 1 .. 9, 0</td><td>Move the active window to workspace 1 through 10</td></tr>
-<tr><td>SUPER + TAB</td><td>Move to the next workspace</td></tr>
-<tr><td>SUPER + Shift + TAB</td><td>Move to the previous workspace</td></tr>
-<tr><td>SUPER + Ctrl + TAB</td><td>Return to the former workspace</td></tr>
-</table>
-
-<h2>Multiple displays</h2>
-
-<p>Workspaces are navigated individually. To move the current workspace to a
-neighboring monitor, use <code>SUPER + Shift + Alt + Arrow</code> in the
-direction of that display.</p>
-
-<h2>The scratchpad</h2>
-
-<p>The scratchpad is a hidden tray for temporary utility windows (like a quick
-scratchpad terminal, music player, or notes editor):</p>
-
-<ul>
-<li><code>SUPER + Alt + S</code> &mdash; send the active window to the scratchpad.</li>
-<li><code>SUPER + S</code> &mdash; toggle the scratchpad workspace.</li>
-</ul>
-
-<h2>Where to next</h2>
-
-<ul>
-<li><a href="desktop/index.html">The desktop</a> &mdash; return to desktop navigation and tiling basics.</li>
-<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
-</ul>
-</body>
-</html>
+<p>A <dfn><a href="learn/glossary/workspace.html">workspace</a></dfn> groups windows. Moving focus, moving one window and moving
+a workspace between displays are different operations.</p>
+<section data-level="intermediate"><h2>Choose the right thing to move</h2>
+<p><strong>Goal:</strong> move an empty practice window between workspaces
+and return it, without confusing window movement with display layout changes.</p>
+<h3>Mental model</h3><pre>display --shows--&gt; workspace --contains--&gt; windows
+focus selects a window; a movement command selects what changes location</pre>
+<p>Use the active bindings from SUPER+K if you have overrides. The example
+below uses the packaged US QWERTY number-row bindings.</p>
+<h3>Worked example</h3><ol><li>Record your starting workspace. Open an empty
+terminal with SUPER+RETURN.</li><li>Choose a known practice destination, for
+example workspace 2, without assuming it is empty.</li><li>With the empty
+terminal focused, SUPER+SHIFT+2 moves it to workspace 2 and follows it.</li>
+<li>Move the same terminal back with SUPER+SHIFT plus the starting workspace
+key. Close the empty terminal only after confirming focus.</li></ol>
+<p>The sequence is sourced from the binding definitions; live GUI behavior
+and personal overrides still need human verification.</p>
+<h3>Completion task</h3><p>Fill the missing modifier: SUPER+___+3 moves the
+active window to workspace 3, while SUPER+3 changes your workspace.</p>
+<details class="solution"><p>SHIFT. The packaged move follows the window. Adding ALT to SUPER+SHIFT+3 requests a silent move instead; choose deliberately.</p></details>
+<h3>Independent task</h3><p>With an empty practice terminal, compare a
+workspace switch with a window move, then return both your focus and the
+window to their starting workspace.</p>
+<details class="solution"><p>Record the starting workspace. SUPER+3 switches without moving the terminal; switch back. SUPER+SHIFT+3 moves the focused terminal and follows it. Move that terminal back with SUPER+SHIFT plus its original workspace key. Recheck focus before closing it.</p></details>
+<h3>Choosing</h3><table><tr><th>Intent</th><th>Binding</th></tr>
+<tr><td>Choose workspace 1–10</td><td>SUPER + number-row 1–9,0</td></tr>
+<tr><td>Move one window and follow</td><td>SUPER+SHIFT + number-row key</td></tr>
+<tr><td>Move one window without following</td><td>SUPER+SHIFT+ALT + number-row key</td></tr>
+<tr><td>Next/previous workspace</td><td>SUPER+TAB / SUPER+SHIFT+TAB</td></tr>
+<tr><td>Former workspace</td><td>SUPER+CTRL+TAB</td></tr>
+<tr><td>Move workspace to directional monitor</td><td>SUPER+SHIFT+ALT + Arrow; requires a suitable display layout</td></tr></table>
+<h3>Troubleshooting</h3><table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Window stayed behind</td><td>Switched workspace only</td><td>Which modifier was pressed</td><td>Return, focus the practice window and use the move binding</td></tr>
+<tr><td>Move to monitor does nothing</td><td>No display in that direction</td><td>Current output arrangement</td><td>Use a workspace operation; do not retrain displays as a window exercise</td></tr>
+<tr><td>Hidden utility window</td><td>Scratchpad state</td><td>SUPER+S</td><td>Toggle the scratchpad and inspect before moving another window</td></tr></table>
+<aside class="tamlinux"><p>SUPER+ALT+S moves the focused window silently to
+the special scratchpad; SUPER+S toggles it. The number-row bindings use key
+codes. Other keyboard layouts or personal overrides can change the apparent keys.</p></aside>
+<h3>Further reading</h3><ul><li><a href="desktop/index.html?level=1">Desktop orientation</a>: focus and layout.</li>
+<li><a href="https://github.com/greenermoose/tamlinux/blob/develop/desktop/session/hypr/tamlinux/bindings/tiling.lua">Packaged tiling/workspace bindings (online)</a>: exact dispatcher arguments.</li></ul>
+<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Which operation should you choose to move one utility window without changing the workspace of every other window?</summary><p>Move the focused window to a workspace or the scratchpad. Moving a whole workspace to a monitor changes a different scope.</p></details><details class="q"><summary>Why should the exercise record its starting workspace instead of assuming workspace 1?</summary><p>The reader may have existing work elsewhere. Recording the starting state gives a specific undo step without imposing another layout.</p></details></section>
+</section><h2>Where next</h2><p><a href="use/index.html">Using Tamlinux</a>
+collects tasks; <a href="learn/skills/index.html">the skills map</a> helps
+choose the next level.</p>
+</body></html>

@@ -2,15 +2,15 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.38.0 and corpus 0.39.0.
+**Scope:** Living integration contract; current command 0.38.0 and corpus 0.40.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Plan TCK25 migration one part at a time using the learning
-coverage report. Pilot/learner review remains unverified; the developer's
-"Continue" directed TCK24 scaffolding, now implemented. See the
+**Next action:** Plan the remaining TCK25 parts using the coverage report,
+prioritizing Maintaining's recovery examples. Using migration and level paths
+are implemented; pilot/learner review remains unverified. See the
 [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -354,6 +354,15 @@ validated kind/skills and teaching references, additive sidecars and a
 coverage/gap report (corpus 0.39.0). Legacy pages remain valid; anatomy and
 quiz gaps warn during migration. Pilot/learner review remains unverified.
 
+TCK25's Using part is implemented as corpus 0.40.0. All six logical pages
+declare their job, instructional pages map skill cells, and anatomy checks
+are fatal for completed Using while other parts still warn. Jobs examples
+target only owned disposable children; desktop tasks describe sourced defaults
+and explicit undo without claiming GUI acceptance. The three level paths now
+use stages, checkpoints and capstones; Command-line fluency is a new goal path.
+Goal-path skills can span visited levels while page skills remain constrained
+to declared levels. Pilot/learner and packaged acceptance remain unverified.
+
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
 expanded CS content, AI hardware estimates, writable settings, localisation and
@@ -393,6 +402,13 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-21:** Corpus 0.40.0 (minor): TCK25 Using migration and new
+  Command-line fluency path. Add validated per-part anatomy enforcement,
+  preserve warning-only behavior elsewhere, and allow a path to map visited
+  skill levels beyond its starting level. Convert the three level paths to
+  the agreed format. Command remains 0.38.0; no live GUI, learner or packaged
+  acceptance is inferred from source checks.
 
 - **2026-10-21:** Corpus 0.39.0 (minor): TCK24 scaffolding, on the developer's
   "Continue" after the pilot-review status report. Optional learning metadata

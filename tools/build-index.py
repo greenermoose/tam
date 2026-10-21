@@ -396,12 +396,18 @@ def learning_metadata(knowledge, entries, errors):
     """Optional additive metadata: legacy corpora need no registry or kinds."""
     registry_path = knowledge / "learn/skills/skills.json"
     cells = []
+    enforce_tracks = []
     if registry_path.exists():
         try:
             registry = json.loads(registry_path.read_text())
             if not isinstance(registry, dict) or registry.get("version") != 1 or not isinstance(registry.get("cells"), list):
                 raise ValueError("expected version 1 and a cells list")
             cells = registry["cells"]
+            enforce_tracks = registry.get("enforce_tracks", [])
+            if (not isinstance(enforce_tracks, list) or
+                any(not isinstance(track, str) or track not in TRACKS for track in enforce_tracks) or
+                len(set(enforce_tracks)) != len(enforce_tracks)):
+                raise ValueError("enforce_tracks must list unique known tracks")
             seen = set()
             for cell in cells:
                 if (not isinstance(cell, dict) or
@@ -416,6 +422,7 @@ def learning_metadata(knowledge, entries, errors):
         except (OSError, ValueError, TypeError) as error:
             errors.append(f"learn/skills/skills.json: {error}")
             cells = []
+            enforce_tracks = []
     known = {cell["id"]: cell for cell in cells}
     parsed = {e["path"]: LearningHTML((knowledge / e["path"]).read_text())
               for e in entries}
@@ -435,7 +442,7 @@ def learning_metadata(knowledge, entries, errors):
         for skill in entry["skills"]:
             if skill not in known:
                 errors.append(f"{path}: unknown skill ID {skill!r}")
-            elif known[skill]["level"] not in entry["levels"]:
+            elif kind != "path" and known[skill]["level"] not in entry["levels"]:
                 errors.append(f"{path}: skill {skill!r} is outside the declared page levels")
         if len(entry["skills"]) != len(set(entry["skills"])):
             errors.append(f"{path}: duplicate skill IDs")
@@ -478,7 +485,10 @@ def learning_metadata(knowledge, entries, errors):
             if level == "intermediate" and not section["tamlinux"]:
                 missing.append("On Tamlinux aside")
             if missing:
-                warnings.append({"path": path, "level": level, "missing": missing})
+                if entry["track"] in enforce_tracks:
+                    errors.append(f"{path}: {level} anatomy: missing " + ", ".join(missing))
+                else:
+                    warnings.append({"path": path, "level": level, "missing": missing})
     coverage = []
     for cell in cells:
         matched = [entry for entry in entries if cell["id"] in entry["skills"]]
@@ -486,7 +496,8 @@ def learning_metadata(knowledge, entries, errors):
         paths = sorted(e["path"] for e in matched if e["kind"] == "path")
         coverage.append({**cell, "pages": pages, "paths": paths,
                          "page_gap": not pages, "path_gap": not paths})
-    return {"version": 1, "cells": coverage, "warnings": warnings,
+    return {"version": 1, "enforced_tracks": enforce_tracks,
+            "cells": coverage, "warnings": warnings,
             "unclassified_pages": sorted(e["path"] for e in entries if not e["kind"]),
             "unmapped_pages": sorted(e["path"] for e in entries if not e["skills"])}
 
@@ -545,8 +556,10 @@ def main(root=None):
         rows.append(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
                     f"{levels}\t{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
         parents.append(f"{e['path']}\t{e['parent'] or ''}\n")
-        kinds.append(f"{e['path']}\t{e['kind']}\n")
-        skills.append(f"{e['path']}\t{','.join(e['skills'])}\n")
+        if e['kind']:
+            kinds.append(f"{e['path']}\t{e['kind']}\n")
+        if e['skills']:
+            skills.append(f"{e['path']}\t{','.join(e['skills'])}\n")
 
     outputs = {
         "index.tsv": "".join(rows),

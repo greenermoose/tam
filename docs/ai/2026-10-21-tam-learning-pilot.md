@@ -1,12 +1,12 @@
-# Learning levels pilot and scaffolding (corpus 0.38.0 / 0.39.0)
+# Learning levels pilot, scaffolding and Using migration (corpus 0.38.0–0.40.0)
 
 - **Date:** 2026-10-21
-- **Time:** 07:29 to 11:44, with a developer continuation; -04:00
-- **Stage:** Develop; TCK23 and TCK24 source, with developer pilot review pending
+- **Time:** 07:29 to 11:58, with a developer continuation; -04:00
+- **Stage:** Develop; TCK23, TCK24 and TCK25 Using source, with developer pilot review pending
 - **CLI Tool:** Codex CLI 0.163.0
 - **Model:** GPT-6.1 Sol (`gpt-6.1-sol`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** TCK23 `80bfa7c`, index `8859559`; the TCK24 commit updating this record and its index follow-up.
+- **Commits:** TCK23 `80bfa7c`, index `8859559`; TCK24 `d43fe8e`, index `91b46d0`; the TCK25 Using commit updating this record and its index follow-up.
 - **Authorship:** The developer requested continuation and review; Codex wrote the pilot content and synchronized its status.
 - **Checked against:** `docs/plans/learning-levels.md`, `docs/corpus-pedagogy.md`, templates, `src/fold.c`, `src/pager.c`, `src/tam.c`, `src/version.h`, `knowledge/version`; product `desktop/session/hypr/tamlinux/bindings/{applications,clipboard,utilities}.lua`, `commands/tam-update/tam-update`; `tamlinux-packages/docs/deployment.md`; native `pacman -Q` and `-Qo`; the primary references linked below.
 
@@ -133,3 +133,58 @@ navigation. The existing source checks caught the unusable links before commit.
 
 TCK25 migration and learner acceptance remain open. Completing these source
 checks changes no installed package and promotes no lifecycle stage.
+
+## TCK25 Using migration
+
+Using was offered as the recommended first migration part, with Maintaining
+as the alternative. No different priority was supplied before work proceeded.
+The execution detail was written in the authoritative plan before implementation.
+Baseline `91b46d0`; command 0.38.0 unchanged, corpus minor 0.40.0 adds the
+Command-line fluency path. All six logical Using pages are classified, with
+instructional skill mappings. The validated registry policy now enforces
+anatomy/quiz checks in Using while other parts retain warnings.
+
+The jobs page no longer teaches a name-wide process kill. Its captured
+examples start/wait/signal only their own disposable child. They distinguish
+signal delivery from cleanup, existence from identity and a shell job from
+a process. Desktop and workspace practice has explicit starting/undo steps,
+empty-window scope, choices and folded checkpoints; it is sourced against
+product `bindings/tiling.lua`, `applications.lua` and `utilities.lua` and is
+not a live GUI acceptance claim. Seven glossary terms support the new pages.
+
+All three level paths now use stages, checkpoints and a folded capstone.
+A goal path's skills can name its visited levels even when its page metadata
+advertises the starting level. Ordinary page mappings still reject unoffered
+levels. The first coverage report after this migration has 19 page gaps, 21
+path gaps and 38 warning sections elsewhere. Catalog assertions drain grep
+output to avoid irrelevant broken-pipe diagnostics as the catalog grows.
+
+Additional primary checks: [Bash signals](https://www.gnu.org/s/bash/manual/html_node/Signals.html),
+[signal(7)](https://man7.org/linux/man-pages/man7/signal.7.html) and
+[kill(2)](https://man7.org/linux/man-pages/man2/kill.2.html). Further checked
+against `tools/build-index.py`, `tools/report-coverage.py`, `tools/dev.py`,
+Makefile and their fixtures.
+
+Verification before the Using commit:
+
+- `make test` and `make corpus-and-test`: passed, including all 104 guide
+  pages, 20 builder fixtures, developer/install guards, command/PTY behavior,
+  renderer goldens, repository checks and complete corpus link resolution.
+  Live Ollama checks skipped without a local server.
+- Four new displayed sessions reproduce exact output; 28 new teaching/path
+  page-and-level combinations and 28 additional glossary views render.
+  Real-pager quiz toggles pass for the newly migrated teaching pages and
+  level paths; the goal hub opens the Command-line fluency capstone.
+- Enforcement fixtures prove completed-part failures, warning-only behavior
+  elsewhere, invalid-policy rejection and multi-level goal-path mappings.
+  Optional metadata sidecars omit unsupplied values; this avoids meaningless
+  empty-field rows while JSON/coverage retain the absence explicitly.
+- The roadmap now distinguishes cached remote source refs from stale local
+  stage branches and installed selections: `origin/test` is 0.36.0 / 0.37.0
+  at `c9b6c5d`; `origin/main` is 0.31.1 / 0.32.1 at `230594d`. No refs moved.
+- Repository/provenance scans and `git diff --check`: clean. Index histories
+  are regenerated in the separate follow-up commit.
+
+Maintaining, Learning, Installing and Improving migration remain. Maintaining's
+older recovery examples deserve the next bounded plan; learner and packaged
+acceptance remain unverified.

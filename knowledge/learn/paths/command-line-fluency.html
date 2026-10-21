@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><title>Command-line fluency</title>
+<meta name="topic" content="command-line-fluency-path"><meta name="summary" content="Command-line fluency: a staged reading and practice path">
+<meta name="keywords" content="path, command-line-fluency-path"><meta name="level" content="beginner">
+<meta name="track" content="learn"><meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path"><meta name="skills" content="shell.beginner, shell.intermediate, shell.expert, files.beginner, processes.beginner, processes.intermediate">
+</head><body><nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Paths by Goal</a> / Command-line fluency</p></nav>
+<h1>Command-line fluency</h1><p><strong>Gain:</strong> build a small report from fixed input,
+choose its permissions and manage its background execution.</p>
+<p><strong>For you if:</strong> you can type commands and want to connect
+them into a reliable task. Start with First steps if the terminal is new.</p>
+<p><strong>Levels:</strong> starts at Beginner (1), reaches Expert (3), in
+about four reading sessions. Revisit a stage whenever its checkpoint is hard.</p><h2>Stage 1: Read a stream</h2><ol><li><a href="shell/pipelines.html?level=1">Pipelines</a>: predict the fixed-input count.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>What does a pipe pass?</summary><p>The printed byte stream, not a filename or an argument list.</p></details></section><h2>Stage 2: Control access</h2><ol><li><a href="filesystem/permissions.html?level=1">Permissions</a>: make only your scratch script executable.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Why use u+x rather than a+x for a private script?</summary><p>u changes only the owner class; a requests all classes. Grant only the access the task needs.</p></details></section><h2>Stage 3: Manage the task</h2><ol><li><a href="shell/jobs.html?level=1">Jobs and signals</a>: complete the owned-child example before changing signals.</li><li><a href="shell/jobs.html?level=2">Jobs and signals</a>: wait for or signal only a child you started.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Why avoid a name-wide kill in this exercise?</summary><p>It can include unrelated processes. Save the child PID and use its lifecycle evidence.</p></details></section><h2>Stage 4: Adapt and diagnose</h2><ol><li><a href="shell/pipelines.html?level=2">Filters</a>: adapt the independent task.</li><li><a href="shell/pipelines.html?level=3">Descriptor semantics</a>: compare redirection order and status.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>A final counter succeeds after a producer failure. What evidence is missing?</summary><p>Inspect the producer status and stderr. Default last-command status does not prove every stage succeeded.</p></details></section><h2>Capstone</h2><p>In a scratch directory, create a three-line
+red/blue/red input, write a private executable report script that counts red
+lines in its file argument, start it in the background, wait for that child,
+then inspect its report and mode. Remove only your exercise files.</p><details class="solution"><p>Make and enter a fresh temporary directory for this capstone.</p>
+<pre data-risk="scratch">work=$(mktemp -d)
+cd "$work"</pre><pre class="session" data-risk="scratch">
+$ printf &#x27;%s\n&#x27; red blue red &gt; colours.txt
+$ printf &#x27;%s\n&#x27; &#x27;#!/bin/sh&#x27; &#x27;grep &quot;^red$&quot; &quot;$1&quot; | wc -l&#x27; &gt; report.sh
+$ chmod 700 report.sh
+$ ./report.sh colours.txt &gt; count.txt &amp;
+$ report=$!
+$ wait &quot;$report&quot;
+$ cat count.txt
+$ stat -c &#x27;%a %n&#x27; report.sh
+2
+700 report.sh
+</pre><p>Captured on Arch Linux,
+2026-10-21. The report contains 2 and the script mode is 700. wait connects
+the readback to this shell's completed report task. This demo assumes the
+readable fixed input you created. A general-purpose report must also handle
+input errors; successful wc alone does not establish producer success.</p><pre data-risk="scratch">
+rm -- colours.txt report.sh count.txt
+cd /tmp
+rmdir -- "$work"</pre></details>
+<h2>Next paths</h2><p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>
+adds package ownership and recovery planning; <a href="expert.html?level=3">Expert path</a>
+adds precise diagnostic boundaries.</p></body></html>

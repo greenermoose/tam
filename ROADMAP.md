@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-21. **Owner:** Fred (developer).
-**Current Command Version:** `0.38.0`. **Current Corpus Version:** `0.39.0`.
+**Current Command Version:** `0.38.0`. **Current Corpus Version:** `0.40.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -100,18 +100,21 @@ in that candidate, not here.
 | **0.38.0 command / 0.37.1 corpus** | Folding and self-quizzes (TCK22) | Done (2026-10-21) | Answers fold in the pager with Enter, `r` and `*`, reset on navigation, and collect under Answers in pipe output; block-level filtering, generated section labels, named asides and command risk labels; 23 pages lose hand-typed level prefixes and lint checks enforce the markup ([record](docs/ai/2026-10-21-tam-folding.md)). |
 | **0.38.0 corpus** | Learning pilot (TCK23 source) | Source done; developer review pending (2026-10-21) | Three laddered pilot pages with captured examples and folded quizzes; goal-path hub, First steps and Keep it healthy linked from Welcome and Learning. Developer review remains unverified; subsequent "Continue" directs TCK24 ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
 | **0.39.0 corpus** | Learning scaffolding (TCK24 source) | Source implemented (2026-10-21) | 36 can-do skill cells, self-placement, 12 per-level glossary terms including the botanical analogy, bibliography, validated optional kind/skills and teaching references, additive index sidecars and a coverage/gap report. Developer "Continue" directed this slice; pilot/learner review remains unverified ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
+| **0.40.0 corpus** | Using migration and path format (TCK25 first part) | Source implemented (2026-10-21) | All six Using pages classified, owned-child jobs exercises, sourced reversible desktop/workspace tasks, strict anatomy checks for Using, staged level paths and Command-line fluency. Other parts retain migration warnings; learner and GUI acceptance remain unverified ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.38.0 / 0.39.0 | Newest source; TCK23 pilot review pending; TCK24 scaffolding implemented. Development installation is a separate developer-directed step. |
-| `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
-| `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
+| `develop` | 0.38.0 / 0.40.0 | Newest source; TCK23 review pending, TCK24 and TCK25 Using source implemented. Development installation is a separate developer-directed step. |
+| `origin/test` | 0.36.0 / 0.37.0 | Latest cached remote Test source at `c9b6c5d`; not an installed-candidate claim. |
+| `origin/main` | 0.31.1 / 0.32.1 | Latest cached remote Run source; not an installed-candidate claim. |
 
-This table is a snapshot taken on the review date; `git show <branch>:knowledge/version`
-and `src/version.h` are authoritative. Branches move only through the Tamlinux
-lifecycle on the developer's word.
+This table is a source snapshot taken on the review date. Remote-tracking rows
+use the cached `origin/` refs because local `test`/`main` refs can be stale;
+`git show <ref>:knowledge/version` and `src/version.h` are authoritative for
+those refs. Source refs do not prove an installed package selection. Stage
+promotion still requires the developer's word through the Tamlinux lifecycle.
 
 Completed plans: the [five-part knowledge system](docs/plans/knowledge-system-0.31.0.md)
 (TCK1–TCK5, command 0.30.0 / corpus 0.31.0), the
@@ -134,8 +137,10 @@ TCK22 (folding, self-quizzes and block-level levels, command 0.38.0 / corpus
 delivered as corpus 0.38.0. The developer's review of all pilot levels and
 First steps remains pending. His subsequent "Continue" directed TCK24
 scaffolding, implemented as corpus 0.39.0: skills, placement, glossary,
-bibliography, additive metadata and a coverage/gap report. Next is planning
-TCK25 migration one part at a time, using those gaps. Versions are allocated
+bibliography, additive metadata and a coverage/gap report. TCK25's Using part
+and staged level paths are implemented in corpus 0.40.0. Next is planning
+the remaining parts one at a time, prioritizing Maintaining's recovery
+examples. Versions are allocated
 when each slice starts. The deferred items
 in section 4 are candidates, not assignments.
 

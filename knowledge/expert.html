@@ -1,24 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Expert path</title>
-<meta name="topic" content="expert-path">
-<meta name="summary" content="The design and internals chapters of the guide">
-<meta name="keywords" content="expert, internals, design, deep dive">
-<meta name="level" content="expert">
-<meta name="track" content="learn">
-<meta name="parent" content="learn/index.html">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / Expert path</p>
-</nav>
-
-<h1>Expert path</h1>
-<p><strong>Outcome:</strong> reason from process and descriptor behavior through TTYs and boot dependencies, evaluate system architecture tradeoffs, and develop a small tool in a controlled development context.</p>
-<p><strong>Prerequisites:</strong> practical shell experience, basic process concepts, and familiarity with the <a href="intermediate.html">intermediate path</a>. This path gives goals and references rather than step-by-step commands.</p>
-<ol><li>Compare <a href="shell/jobs.html?level=expert">processes and job control</a> with <a href="ecosystem/ttys-and-virtual-consoles.html?level=expert">TTYs, VTs, and PTYs</a>. Trace which process owns a terminal and how file descriptors are inherited.</li><li>Map dependencies among <a href="maintain/boot.html">boot stages</a>, <a href="maintain/boot-recovery.html">fallback paths</a>, and <a href="maintain/recovery.html">recovery routes</a>. Mark the shared dependencies before judging a recovery option.</li><li>Read the <a href="ecosystem/index.html">architecture overview</a>, then compare its pages on <a href="ecosystem/compositors.html?level=intermediate">compositors</a>, <a href="ecosystem/init.html?level=intermediate">service supervision</a>, and <a href="ecosystem/libc.html">C libraries</a>. Separate current choices from planned directions.</li><li>Choose a small, reversible exercise in a development checkout and read <a href="improve/toolchains.html?level=expert">toolchain guidance</a> and <a href="improve/scripting.html?level=expert">tool conventions</a>. State the test boundary and rollback before editing; do not practice on boot, package-removal, or privileged recovery paths.</li></ol>
-<p><strong>Self-check:</strong> draw the process/descriptor/TTY relationships for a shell pipeline, identify one boot dependency shared by two recovery paths, and cite the authoritative source for a current-versus-planned architecture claim.</p>
-<p><strong>Next:</strong> continue into <a href="improve/index.html">Improving</a>, or revisit a subject page at its <code>?level=expert</code> depth where offered.</p>
-</body>
-</html>
+<!DOCTYPE html><html><head><title>Expert path</title>
+<meta name="topic" content="expert-path"><meta name="summary" content="Expert path: a staged reading and practice path">
+<meta name="keywords" content="path, expert-path"><meta name="level" content="expert">
+<meta name="track" content="learn"><meta name="parent" content="learn/index.html">
+<meta name="kind" content="path"><meta name="skills" content="shell.expert, files.expert, processes.expert, updates.expert">
+</head><body><nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / Expert path</p></nav>
+<h1>Expert path</h1><p><strong>Gain:</strong> Explain process, descriptor and recovery boundaries using evidence.</p><p><strong>For you if:</strong> You already adapt shell commands and want precise semantics and competing explanations.</p><p><strong>Levels:</strong> starts and finishes at Expert (3); allow about three reading sessions. Choose another level whenever needed.</p><h2>Stage 1: Descriptors</h2><ol><li><a href="shell/pipelines.html?level=3">Pipelines</a>: run the redirection/status experiment.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Does reversing two redirections necessarily preserve their destinations?</summary><p>No. Bash applies them left to right; a duplication records the destination at that point.</p></details></section><h2>Stage 2: Identity</h2><ol><li><a href="shell/jobs.html?level=3">Processes</a>: compare existence with stable identity.</li><li><a href="filesystem/permissions.html?level=3">Permissions</a>: observe shared inode modes.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Can a successful existence check prove process health?</summary><p>No. It says neither that the original identity persists nor that the process is healthy.</p></details></section><h2>Stage 3: Recovery</h2><ol><li><a href="maintain/updates.html?level=3">Update mechanics</a>: compare a name with an open inode.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>What does an immutable generation omit?</summary><p>Mutable documents/settings and potentially other native/boot state; recovery must identify each affected boundary.</p></details></section><h2>Capstone</h2><p>Explain an old-running/new-on-disk symptom without assuming a failed package transaction. Reproduce name-versus-open-file behavior only in a scratch directory.</p><details class="solution"><p>Use the updates page experiment: open active.txt on descriptor 3, rename a replacement over its name, then compare a new open with the saved descriptor. The captured output is new followed by old. Explain why that supports a lifetime distinction, then record what additional process/version evidence a real incident would require. Close the descriptor and remove the exercise file/directory.</p></details><h2>Next paths</h2><p><a href="learn/paths/index.html">Goal paths</a> organize a whole task; <a href="learn/placement.html">self-placement</a> helps choose another level.</p></body></html>

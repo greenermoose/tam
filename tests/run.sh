@@ -1837,10 +1837,10 @@ sh_lvl_all=$(fixture_show pipelines --pipe)
 
 # Catalog listing filtered by level
 ex_cat_expert=$("$TAM" explain --level expert)
-printf '%s\n' "$ex_cat_expert" | grep -q 'Keyword Index (expert)' || fail "explain --level expert missing heading"
-printf '%s\n' "$ex_cat_expert" | grep -q 'pipelines' || fail "expert catalog missing pipelines"
-printf '%s\n' "$ex_cat_expert" | grep -q 'jobs' || fail "expert catalog missing jobs"
-if printf '%s\n' "$ex_cat_expert" | grep -q '^  desktop '; then fail "expert catalog unexpectedly includes beginner-only desktop"; fi
+printf '%s\n' "$ex_cat_expert" | grep 'Keyword Index (expert)' >/dev/null || fail "explain --level expert missing heading"
+printf '%s\n' "$ex_cat_expert" | grep 'pipelines' >/dev/null || fail "expert catalog missing pipelines"
+printf '%s\n' "$ex_cat_expert" | grep 'jobs' >/dev/null || fail "expert catalog missing jobs"
+if printf '%s\n' "$ex_cat_expert" | grep '^  desktop ' >/dev/null; then fail "expert catalog unexpectedly includes beginner-only desktop"; fi
 
 # Invalid level argument produces exit code 2 (usage error)
 if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi

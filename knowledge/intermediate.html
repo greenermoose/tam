@@ -1,24 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Intermediate path</title>
-<meta name="topic" content="intermediate-path">
-<meta name="summary" content="A reading order for people comfortable at the shell">
-<meta name="keywords" content="intermediate, reading order, workstations">
-<meta name="level" content="intermediate">
-<meta name="track" content="learn">
-<meta name="parent" content="learn/index.html">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / Intermediate path</p>
-</nav>
-
-<h1>Intermediate path</h1>
-<p><strong>Outcome:</strong> adapt shell examples in a scratch directory, inspect processes and resources, read available logs, and explain package ownership and snapshot boundaries.</p>
-<p><strong>Prerequisites:</strong> basic command-line use and comfort reading the <a href="shell/pipelines.html?level=beginner">beginner pipeline lesson</a>.</p>
-<ol><li>Adapt <a href="shell/pipelines.html?level=intermediate">a pipeline</a> using your own sample text in a temporary directory. Try a permission change only on a file you created there with <a href="filesystem/permissions.html?level=intermediate">the permissions lesson</a>; remove the scratch directory when done.</li><li>Inspect your own process list with <code>ps</code> and memory with <code>free</code>; compare the output with <a href="hardware/resources.html?level=intermediate">resource guidance</a>.</li><li>Read <a href="maintain/logs.html?level=intermediate">the logs lesson</a>. If your system exposes user journal entries, inspect them read-only with <code>journalctl --user -b</code>; an empty result is possible.</li><li>Read <a href="ecosystem/packaging.html">package ownership and delivery layers</a> and <a href="maintain/rollback.html">snapshot boundaries</a>. Identify which layer owns a tool before considering any change.</li><li>Use <a href="tam:man">Find by keyword</a> for a command you encountered. Compare the short description with its manual page.</li></ol>
-<p><strong>Self-check:</strong> explain why a scratch permission change cannot test system-wide ownership, which package manager owns a given layer according to its documentation, and what a snapshot does and does not cover. Hint: follow each layer to its owner and read the rollback scope carefully.</p>
-<p><strong>Next:</strong> explore <a href="expert.html">the expert path</a>, or use the <a href="learn/practice.html">practice page</a> to review navigation and pipelines.</p>
-</body>
-</html>
+<!DOCTYPE html><html><head><title>Intermediate path</title>
+<meta name="topic" content="intermediate-path"><meta name="summary" content="Intermediate path: a staged reading and practice path">
+<meta name="keywords" content="path, intermediate-path"><meta name="level" content="intermediate">
+<meta name="track" content="learn"><meta name="parent" content="learn/index.html">
+<meta name="kind" content="path"><meta name="skills" content="shell.intermediate, files.intermediate, processes.intermediate, desktop.intermediate, updates.intermediate">
+</head><body><nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / Intermediate path</p></nav>
+<h1>Intermediate path</h1><p><strong>Gain:</strong> Adapt commands, distinguish owners and prepare a recovery decision.</p><p><strong>For you if:</strong> You can run examples and want to choose between approaches and diagnose failures.</p><p><strong>Levels:</strong> starts and finishes at Intermediate (2); allow about three reading sessions. Choose another level whenever needed.</p><h2>Stage 1: Transfer</h2><ol><li><a href="shell/pipelines.html?level=2">Pipelines</a>: adapt the distinct-line task.</li><li><a href="filesystem/permissions.html?level=2">Permissions</a>: choose modes and inspect the result.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Why sort before uniq when counting all repeats?</summary><p>uniq groups adjacent equal lines only.</p></details></section><h2>Stage 2: Lifecycle and workspace</h2><ol><li><a href="shell/jobs.html?level=2">Jobs</a>: use your own child PID.</li><li><a href="desktop/workspaces.html?level=2">Workspaces</a>: compare a switch with a reversible move.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Is a workspace switch the same as moving its window?</summary><p>No. One changes the viewed workspace; the other changes the window location.</p></details></section><h2>Stage 3: Maintenance boundary</h2><ol><li><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>: prepare the read-only capstone.</li></ol><section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>What if the recovery evidence is missing?</summary><p>Record the unknown and leave the real change pending rather than inventing a rollback point.</p></details></section><h2>Capstone</h2><p>Prepare the Keep it healthy change record and add one shell failure hypothesis supported by the jobs or pipeline lesson.</p><details class="solution"><p>Query the chosen native package owner and installed version read-only. Record the relevant process/service and log scope, proposed verification and required recovery evidence. Distinguish a wrong PATH selection from a running old process. Missing evidence keeps the transaction pending; this task does not apply an update.</p></details><h2>Next paths</h2><p><a href="learn/paths/index.html">Goal paths</a> organize a whole task; <a href="learn/placement.html">self-placement</a> helps choose another level.</p></body></html>
