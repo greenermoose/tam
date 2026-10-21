@@ -2,15 +2,17 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.38.0 and corpus 0.38.0.
+**Scope:** Living integration contract; current command 0.38.0 and corpus 0.39.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Developer review of the TCK23 pilot before TCK24 scaffolding,
-in the [learning levels plan](learning-levels.md). Package Test/Run/Release
-remain developer-directed stages.
+**Next action:** Plan TCK25 migration one part at a time using the learning
+coverage report. Pilot/learner review remains unverified; the developer's
+"Continue" directed TCK24 scaffolding, now implemented. See the
+[learning levels plan](learning-levels.md). Package Test/Run/Release remain
+developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -345,8 +347,12 @@ labels alone identify levels in All; there is no extra gutter. Lint checks
 reject manual level prefixes, incomplete quizzes and unlabeled privileged
 examples. TCK23 source delivers the three pilot pages, goal-path hub, First
 steps and Keep it healthy, with captured examples, folded quizzes and a
-read-only maintenance capstone (corpus 0.38.0). The developer must review
-the pilot and record any anatomy/template adjustments before TCK24 starts.
+read-only maintenance capstone (corpus 0.38.0). After the review gate was
+reported, the developer directed "Continue". TCK24 adds 36 can-do skill cells,
+self-placement, 12 laddered glossary terms, an annotated bibliography,
+validated kind/skills and teaching references, additive sidecars and a
+coverage/gap report (corpus 0.39.0). Legacy pages remain valid; anatomy and
+quiz gaps warn during migration. Pilot/learner review remains unverified.
 
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
@@ -387,6 +393,13 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-21:** Corpus 0.39.0 (minor): TCK24 scaffolding, on the developer's
+  "Continue" after the pilot-review status report. Optional learning metadata
+  supports gradual migration: unknown supplied values/IDs and dangling teaching
+  references are errors; anatomy gaps warn. JSON and new sidecars preserve the
+  ten-column index.tsv. Coverage separates pages, paths and gaps; no learner
+  score or stored progress. Command remains 0.38.0; review is not claimed.
 
 - **2026-10-21:** Corpus 0.38.0 (minor): TCK23 pilot source. Rewrite pipelines,
   permissions and updates to the teaching contract; add two goal paths and

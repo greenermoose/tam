@@ -259,7 +259,11 @@ Use only pages that exist. Mark a stage without a page as planned.
 
 ## Corpus-wide structures
 
-These arrive in TCK24. Until then, do not link to them.
+TCK24 provides these structures. The skills map reports the pilot's coverage;
+unmapped domains still need TCK25 teaching migration. Anatomy/quiz warnings
+are nonfatal during that migration. See the authoring guide for exact metadata
+and citation markup, and `tools/report-coverage.py` for cells without pages or
+paths. Source availability does not establish learner acceptance.
 
 - **Skills map** (`learn/skills/`). Domains: Desktop, Shell, Files and
   permissions, Processes, Software and packages, Updates and rollback, Boot

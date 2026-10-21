@@ -11,7 +11,8 @@ from pathlib import Path
 
 BUILDER = Path(__file__).resolve().parents[1] / "tools" / "build-index.py"
 MAKEFILE = BUILDER.parent.parent / "Makefile"
-INDEXES = ("index.tsv", "index.json", "index.parents.tsv")
+INDEXES = ("index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
+           "index.skills.tsv", "coverage.json")
 
 
 def page(title, track="", parent=None, crumbs=(), prereqs=None):
@@ -33,6 +34,97 @@ def page(title, track="", parent=None, crumbs=(), prereqs=None):
 
 
 class BuildIndex(unittest.TestCase):
+    def register_skills(self, root, cells=None):
+        path = root / "knowledge/learn/skills/skills.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        cells = cells if cells is not None else [
+            {"id": "shell.beginner", "domain": "shell", "level": "beginner", "can_do": "Connect commands"},
+            {"id": "shell.expert", "domain": "shell", "level": "expert", "can_do": "Explain descriptors"}]
+        path.write_text(json.dumps({"version": 1, "cells": cells}))
+        return path
+
+    def test_learning_sidecars_and_truthful_page_path_gaps(self):
+        text = page("Guide").replace("</head>", '<meta name="kind" content="tutorial"><meta name="skills" content="shell.beginner"></head>')
+        root = self.fixture("0.39.0", {"index.html": text})
+        self.register_skills(root)
+        self.assertEqual(self.build(root).returncode, 0)
+        entry = self.index(root)["index.html"]
+        self.assertEqual(entry["kind"], "tutorial")
+        self.assertEqual(entry["skills"], ["shell.beginner"])
+        self.assertEqual(len((root / "knowledge/index.tsv").read_text().splitlines()[0].split("\t")), 10)
+        report = json.loads((root / "knowledge/coverage.json").read_text())
+        self.assertEqual(report["cells"][0]["pages"], ["index.html"])
+        self.assertTrue(report["cells"][0]["path_gap"])
+        self.assertTrue(report["cells"][1]["page_gap"])
+        self.assertEqual((root / "knowledge/index.kinds.tsv").read_text(), "path\tkind\nindex.html\ttutorial\n")
+        (root / "knowledge/index.html").write_text(text.replace('content="tutorial"', 'content="path"'))
+        self.assertEqual(self.build(root).returncode, 0)
+        report = json.loads((root / "knowledge/coverage.json").read_text())
+        self.assertEqual(report["cells"][0]["paths"], ["index.html"])
+        self.assertTrue(report["cells"][0]["page_gap"])
+        self.assertFalse(report["cells"][0]["path_gap"])
+
+    def test_unknown_and_wrong_level_skills_do_not_replace_good_outputs(self):
+        root = self.fixture("0.39.0", {"index.html": page("Guide")})
+        self.register_skills(root)
+        self.assertEqual(self.build(root).returncode, 0)
+        before = self.outputs(root)
+        cases = [('kind', 'article', 'unknown kind'),
+                 ('skills', 'missing.beginner', 'unknown skill ID'),
+                 ('skills', 'shell.expert', 'outside the declared page levels'),
+                 ('skills', 'shell.beginner, shell.beginner', 'duplicate skill IDs')]
+        for name, value, message in cases:
+            with self.subTest(value=value):
+                (root / "knowledge/index.html").write_text(page("Guide").replace('</head>', f'<meta name="{name}" content="{value}"></head>'))
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn(message, result.stderr)
+                self.assertEqual(before, self.outputs(root))
+
+    def test_registry_errors_are_plain_and_bounded(self):
+        root = self.fixture("0.39.0", {"index.html": page("Guide")})
+        path = self.register_skills(root)
+        for content in ('[]', '{', '{"version": 2, "cells": []}',
+                        '{"version":1,"cells":[null]}'):
+            with self.subTest(content=content):
+                path.write_text(content)
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1)
+                self.assertIn('skills.json:', result.stderr)
+                self.assertNotIn('Traceback', result.stderr)
+
+    def test_glossary_and_bibliography_links_resolve_structurally(self):
+        docs = {
+            'index.html': page('Guide').replace('</body>', '<dfn><a href="learn/glossary/index.html">stream</a></dfn><cite data-ref="bash"><a href="learn/bibliography/index.html">Bash</a></cite></body>'),
+            'learn/index.html': page('Learning', 'learn', 'index.html'),
+            'learn/glossary/index.html': page('Glossary', 'learn', 'learn/index.html', [('learn/index.html', 'Learning')]).replace('</body>', '<p id="stream">Bytes</p></body>'),
+            'learn/bibliography/index.html': page('Bibliography', 'learn', 'learn/index.html', [('learn/index.html', 'Learning')]).replace('</body>', '<section class="reference" id="bash">Bash</section></body>'),
+        }
+        root = self.fixture('0.39.0', docs)
+        self.assertEqual(self.build(root).returncode, 0)
+        bad = [('<dfn>stream</dfn>', 'dfn requires a glossary link'),
+               ('<dfn><a href="learn/glossary/absent.html">term</a></dfn>', 'missing glossary target'),
+               ('<dfn><a href="learn/glossary/index.html#stream">term</a></dfn>', 'cross-page glossary fragments'),
+               ('<cite data-ref="absent">Manual</cite>', 'unknown bibliography ID'),
+               ('<cite data-ref="bash">Bash</cite>', 'requires its bibliography link')]
+        for snippet, error in bad:
+            with self.subTest(snippet=snippet):
+                (root / 'knowledge/index.html').write_text(page('Guide').replace('</body>', snippet+'</body>'))
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(error, result.stderr)
+
+    def test_anatomy_gaps_warn_without_breaking_legacy_build(self):
+        text = page('Guide').replace('</body>', '<section data-level="beginner"><h2>Exercise</h2><p>Try something</p></section></body>')
+        root = self.fixture('0.39.0', {'index.html': text})
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0)
+        report = json.loads((root / 'knowledge/coverage.json').read_text())
+        self.assertIn('quiz', report['warnings'][0]['missing'])
+        self.assertIn('index.html', report['unclassified_pages'])
+        self.assertIn('index.html', report['unmapped_pages'])
+        self.assertIn('Learning warnings: 1', result.stdout)
+
     def fixture(self, version, documents):
         temp = tempfile.TemporaryDirectory()
         root = Path(temp.name)

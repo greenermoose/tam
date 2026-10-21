@@ -113,6 +113,42 @@ and paths. Start a new page from the matching file in
 [`templates/`](templates/). The authoritative plan is
 [learning levels, goal paths and self-quizzes](plans/learning-levels.md).
 
+### Learning metadata and references
+
+Pages may declare `<meta name="kind">` as `tutorial`, `how-to`, `reference`,
+`explanation`, `path`, `hub`, `glossary` or `bibliography`. Missing metadata
+remains valid during migration. Supplied kinds must be valid. Declare skills
+as comma-separated IDs in `<meta name="skills">`, for example
+`shell.beginner, shell.intermediate`. IDs come from
+`knowledge/learn/skills/skills.json`; a skill's level must be offered by the page.
+The skills map publishes the same can-do statements for readers.
+
+Mark a term's first use with a glossary link, optionally inside `<dfn>`.
+Every `<dfn>` must contain a working link under `learn/glossary/`; definitions
+themselves can use ordinary headings and paragraphs. A citation uses a stable
+bibliography ID and its exact entry link:
+
+```html
+<dfn><a href="learn/glossary/stream.html">stream</a></dfn>
+<cite data-ref="bash"><a href="learn/bibliography/bash.html">Bash manual</a></cite>
+```
+
+Bibliography entries use `<section class="reference" id="bash">` and annotate
+level, availability, cost and license. The builder rejects missing glossary
+targets, unknown citation IDs and absent bibliography links. Root-relative
+corpus addresses retain the existing guide-link convention. Give each entry
+its own page: current readers support same-page anchors but do not resolve
+cross-page fragments. Glossary links likewise name a complete term page.
+
+`index.json` adds `kind` and `skills`. `index.kinds.tsv` and `index.skills.tsv`
+project them without altering the established ten-column `index.tsv`.
+`coverage.json` reports every skill cell's page/path coverage, explicit gaps,
+unclassified/unmapped pages and anatomy warnings. Read it with
+`python3 tools/report-coverage.py --warnings` after `make corpus`. A mapped
+page is a coverage claim, not learner validation or proof of mastery.
+Anatomy and quiz gaps are warnings during migration; reference, glossary,
+hub, bibliography and path jobs are not forced into tutorial anatomy.
+
 ## Markup the renderer can show
 
 Readers see the text that `tam show` renders, not the HTML.
@@ -147,6 +183,7 @@ Readers see the text that `tam show` renders, not the HTML.
 
 1. Claim the page, its section `index.html`, `knowledge/index.html`,
    `knowledge/index.json`, `knowledge/index.tsv`, `knowledge/index.parents.tsv`,
+   `knowledge/index.kinds.tsv`, `knowledge/index.skills.tsv`, `knowledge/coverage.json`,
    `knowledge/version`,
    your `docs/ai/` record, and `AI_PROVENANCE.md` while
    you edit it.
@@ -154,7 +191,7 @@ Readers see the text that `tam show` renders, not the HTML.
 3. Link it from its canonical part hub and appropriate learning/task routes.
    The Guide root links the five part hubs and shared utilities; it does not list
    every chapter. Keep cross-links contextual without changing a page's home.
-4. Run `make corpus` to regenerate and validate all three indexes.
+4. Run `make corpus` to regenerate the indexes and coverage report.
 5. If a note in `docs/plans/corpus/` asked for the page, confirm each query it
    records now finds the intended page (`tam explain <query>`), and close the
    note with version/commit and verification evidence. Update the plan index,
@@ -176,8 +213,10 @@ It catches additions, deletions and renames, including changes whose file
 timestamps did not advance. Unchanged outputs keep their contents and mtimes.
 
 After committing page changes, run `make corpus` again and review and commit
-any changes to `knowledge/index.tsv`, `knowledge/index.json` and
-`knowledge/index.parents.tsv`. Rerun `make corpus` after that index commit to
+any changes to `knowledge/index.tsv`, `knowledge/index.json`,
+`knowledge/index.parents.tsv`, `knowledge/index.kinds.tsv`,
+`knowledge/index.skills.tsv` and `knowledge/coverage.json`.
+Rerun `make corpus` after that index commit to
 refresh the build marker; a clean corpus/tooling tree reports no `-dirty`.
 No separate Python invocation is needed. Version bumps remain manual.
 

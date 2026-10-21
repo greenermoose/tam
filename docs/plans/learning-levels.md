@@ -13,9 +13,9 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Developer review of the TCK23 pilot (corpus 0.38.0):
-read the three pilot pages at levels 0–3 and walk First steps from Welcome
-to its capstone. Record adjustments before TCK24 starts.
+**Next action:** Plan TCK25 migration one part at a time using the coverage
+report. TCK24 scaffolding is implemented after the developer's "Continue"
+on 2026-10-21; pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
 
@@ -383,14 +383,52 @@ a transaction or deployment. The source baseline was command 0.38.0 / corpus
 0.37.1 at `56a2866`; command version is unchanged. Verification and review
 findings: [pilot record](../ai/2026-10-21-tam-learning-pilot.md).
 
-TCK23 remains open for its developer review criterion. TCK24 must wait for
-that review and any resulting anatomy/template adjustments. Learner tests
-remain developer-paced and separate from automated source checks.
+TCK23 remains open for its developer review criterion. The developer's
+subsequent "Continue" directs TCK24 work without asserting that the pilot
+review occurred. Learner tests remain developer-paced and separate from
+automated source checks; record later anatomy/template adjustments explicitly.
 
 ### TCK24 (corpus scaffolding)
 
 Approved direction. Write executor detail into this section before
 starting, under the plan maintenance procedure.
+
+**Execution contract (2026-10-21 continuation).** Baseline command 0.38.0 /
+corpus 0.38.0 at `8859559`. Corpus minor 0.39.0; no command version change.
+Claim the new learning structures, three pilot pages, Learning/Welcome hubs,
+terminology page, corpus authoring/templates, index builder and tests, coverage
+report tool, generated outputs, Makefile/dev output lists and status/provenance.
+
+1. Define 36 stable skill IDs (`domain.level`) in
+   `learn/skills/skills.json`: the 12 domains below, each at all three levels,
+   with a can-do description. Publish the same cells in the skills-map page.
+   IDs identify coverage, not learner scores or stored progress.
+2. Add self-placement questions with folded explanations and explicit
+   `?level=` links. Add per-term laddered glossary pages, including the six
+   botanical terms; retain the terminology address as an orientation link.
+   Keep conceptual/planned architecture distinct from built behavior.
+3. Add annotated bibliography entries with stable IDs, level, online/offline
+   availability, cost and license. Offline man/Info references remain primary;
+   web entries are labeled online. Pilot citations use `<cite data-ref="id">`
+   with a bibliography link, and `<dfn>` contains a glossary link.
+   Each glossary term and bibliography entry uses a complete page address:
+   current readers cannot load cross-page fragment addresses. This was found
+   and corrected during real link verification, without changing the command.
+4. Accept optional `kind` metadata with values tutorial, how-to, reference,
+   explanation, path, hub, glossary and bibliography. `skills` is a list of
+   registered IDs. Preserve missing metadata on legacy pages; invalid supplied
+   values/IDs are errors. Add JSON fields and `index.kinds.tsv` and
+   `index.skills.tsv`; preserve the ten-column `index.tsv` exactly.
+5. Validate glossary links inside `dfn` and bibliography IDs in `cite`,
+   including target existence. Emit nonfatal anatomy/quiz warnings for authored
+   teaching sections, with glossary/reference/hub/path jobs handled separately.
+6. Build `coverage.json` with page and path coverage for every skill cell and
+   explicit gaps. A repository tool prints the report; no runtime command or
+   learner-state store is added. Add focused fixture tests for dangling
+   references, metadata compatibility, warnings and truthful coverage.
+7. Convert the pilot's inline vocabulary and references, update metadata and
+   hubs/templates, run the full suites, and commit page/index history separately.
+   Pilot/learner review and package Test/Run/Release remain unverified.
 
 - **Skills map** `learn/skills/`: the domains in the pedagogy guide × three
   levels of can-do cells.
@@ -405,6 +443,17 @@ starting, under the plan maintenance procedure.
   `kind` and skills IDs. Anatomy and quiz presence start as warnings.
 - **Coverage and gap report:** cells and paths by level.
 - **Pilot conversion:** pilot pages move to glossary links and citations.
+
+**Source implemented (2026-10-21, corpus 0.39.0).** The execution contract
+above is implemented: 36 skill cells, placement, 12 glossary terms, seven
+bibliography entries, optional metadata and additive projections, teaching
+reference validation, nonfatal anatomy warnings and a coverage report. The
+terminology topic retains its address and links the absorbed definitions;
+unsupported claims of a delivered signed nut are removed. Pilot metadata,
+vocabulary and citations are converted. Current coverage has 24 cells without
+mapped pages and 30 without paths; 40 legacy level sections warn about
+anatomy. These are migration gaps, not new breakages or accepted teaching.
+Verification: [session record](../ai/2026-10-21-tam-learning-pilot.md).
 
 ### TCK25 (migration)
 
@@ -448,5 +497,5 @@ TCK20 delivered on 2026-10-21 with this plan. TCK21 delivered on
 2026-10-21 as command 0.37.0, with the banner ranking revised in 0.37.1;
 see its delivery note. TCK22 delivered as command 0.38.0 / corpus 0.37.1;
 see its delivery note and verification record. TCK23 source is delivered as
-corpus 0.38.0, with developer review pending. TCK24 scaffolding and TCK25
-migration remain open and have not started.
+corpus 0.38.0, with developer review pending. TCK24 source is implemented as
+corpus 0.39.0 on the developer's "Continue"; TCK25 migration has not started.

@@ -29,12 +29,18 @@ GENERATED_EXACT = frozenset({
     "knowledge/index.tsv",
     "knowledge/index.json",
     "knowledge/index.parents.tsv",
+    "knowledge/index.kinds.tsv",
+    "knowledge/index.skills.tsv",
+    "knowledge/coverage.json",
     "knowledge/.build_id",
 })
 INDEX_PATHS = (
     "knowledge/index.tsv",
     "knowledge/index.json",
     "knowledge/index.parents.tsv",
+    "knowledge/index.kinds.tsv",
+    "knowledge/index.skills.tsv",
+    "knowledge/coverage.json",
 )
 CATEGORIES = (
     "you edit",

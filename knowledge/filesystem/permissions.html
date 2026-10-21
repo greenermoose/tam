@@ -9,11 +9,14 @@
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="prereqs" content="filesystem">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="files.beginner, files.intermediate, files.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / File Permissions and Ownership</p></nav>
 <h1>File Permissions and Ownership</h1>
-<p>Permissions control access through an owner, a group and everyone else.
+<p>Permissions control access through an
+<dfn><a href="learn/glossary/owner.html">owner</a></dfn>, a group and everyone else.
 Practice on temporary files before changing permissions on real documents.</p>
 <section data-level="beginner">
 <h2>Run your own small script</h2>
@@ -54,7 +57,8 @@ owner names, sizes and timestamps from this display.</p>
 <li><code>chmod 600</code> sets a known starting mode: only the owner can
 read and write.</li><li><code>chmod u+x</code> adds execute for the owner
 (user) without granting it to group or others.</li><li><code>stat</code>
-shows the mode change; running the script prints hello.</li></ol>
+shows the <dfn><a href="learn/glossary/mode.html">mode</a></dfn> change;
+running the script prints hello.</li></ol>
 <h3>Try it</h3>
 <p>In this scratch directory, use <code>chmod u-x hello.sh</code>. Inspect
 with the same stat command. Add execute back before trying the script again.</p>
@@ -75,8 +79,8 @@ cd /tmp
 rmdir -- "$work"
 </pre>
 <h3>New words</h3>
-<dl><dt>Mode</dt><dd>The permission bits attached to a file.</dd>
-<dt>Owner</dt><dd>The user whose identity selects the owner permission bits.</dd></dl>
+<dl><dt><dfn><a href="learn/glossary/mode.html">Mode</a></dfn></dt><dd>The permission bits attached to a file.</dd>
+<dt><dfn><a href="learn/glossary/owner.html">Owner</a></dfn></dt><dd>The user whose identity selects the owner permission bits.</dd></dl>
 <h3>Next step</h3>
 <p>Choose level 2 for numeric modes and directory access, or continue to
 <a href="shell/pipelines.html?level=1">pipelines</a>.</p>
@@ -170,7 +174,7 @@ cd /tmp
 rmdir -- "$work"
 </pre>
 <h3>Further reading</h3>
-<ul><li><a href="man:chmod(1)">chmod(1)</a>: symbolic and numeric modes.</li>
+<ul><li><cite data-ref="coreutils"><a href="learn/bibliography/coreutils.html">Source: coreutils</a></cite>; <a href="man:chmod(1)">chmod(1)</a>: symbolic and numeric modes.</li>
 <li><a href="man:umask(2)">umask(2)</a>: creation masks and default ACLs.</li>
 <li><a href="man:acl(5)">acl(5)</a>: permissions beyond the basic mode bits.</li></ul>
 <section class="quiz">
@@ -235,7 +239,7 @@ cd /tmp
 rmdir -- "$work"
 </pre>
 <h3>Sources</h3>
-<ul><li><a href="man:stat(2)">stat(2)</a>: mode bits and inode metadata.</li>
+<ul><li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Source: linux-api</a></cite>; <a href="man:stat(2)">stat(2)</a>: mode bits and inode metadata.</li>
 <li><a href="man:path_resolution(7)">path_resolution(7)</a>: traversal.</li>
 <li><a href="man:capabilities(7)">capabilities(7)</a>: privileged checks.</li>
 <li><a href="info:coreutils/File permissions">GNU file permissions</a>: special mode behavior.</li></ul>

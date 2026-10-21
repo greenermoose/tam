@@ -9,6 +9,8 @@
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
 <meta name="prereqs" content="maintain, filesystem">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="updates.beginner, updates.intermediate, updates.expert, software.beginner, software.intermediate, software.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Updates and Package Ownership</p></nav>
@@ -17,7 +19,8 @@
 can leave the running command unchanged or bypass its recovery procedure.</p>
 <section data-level="beginner">
 <h2>Inspect a package without changing it</h2>
-<p><strong>Goal:</strong> you will be able to read an installed package
+<p><strong>Goal:</strong> you will be able to read an installed
+<dfn><a href="learn/glossary/package.html">package</a></dfn>
 version and distinguish inspection from an update.</p>
 <p><strong>Why it matters:</strong> a version report is evidence you can
 share before deciding whether anything needs to change.</p>
@@ -46,8 +49,8 @@ absent or belong to a different manager; do not install it just to complete
 a query.</dd><dt>Command not found</dt><dd>This example assumes Arch's
 pacman. Stop and identify the host's manager instead.</dd></dl>
 <h3>New words</h3>
-<dl><dt>Package</dt><dd>A manager's named unit of installed software.</dd>
-<dt>Rollback</dt><dd>Restoring a known earlier software state using its
+<dl><dt><dfn><a href="learn/glossary/package.html">Package</a></dfn></dt><dd>A manager's named unit of installed software.</dd>
+<dt><dfn><a href="learn/glossary/rollback.html">Rollback</a></dfn></dt><dd>Restoring a known earlier software state using its
 recorded recovery procedure; it does not automatically restore documents.</dd></dl>
 <h3>Next step</h3>
 <p>Choose level 2 to locate a file's owner and plan an update, or start
@@ -117,7 +120,7 @@ activation of an arbitrary Home Manager generation is not that workflow.</p></as
 <tr><td>pacman reports no owner</td><td>File belongs elsewhere or is unmanaged</td><td>Resolved path and manager declarations</td><td>Identify the supplying layer</td></tr>
 <tr><td>Update guard refuses</td><td>Recovery evidence or cutover prerequisites missing</td><td>Read the exact message</td><td>Complete the documented handoff, without bypassing it</td></tr></table>
 <h3>Further reading</h3>
-<ul><li><a href="man:pacman(8)">pacman(8)</a>: query versus transaction operations.</li>
+<ul><li><cite data-ref="pacman"><a href="learn/bibliography/pacman.html">Source: pacman</a></cite>; <a href="man:pacman(8)">pacman(8)</a>: query versus transaction operations.</li>
 <li><a href="maintain/logs.html?level=2">Logs</a>: narrow evidence to the affected time and service; keep this exercise read-only.</li>
 <li><a href="https://github.com/greenermoose/tamlinux-packages/blob/develop/docs/deployment.md">Deployment contract (online)</a>: assembly identity and recovery boundaries.</li></ul>
 <section class="quiz">
@@ -166,6 +169,7 @@ old
 <p>Captured on Arch Linux, 2026-10-21. Descriptor 3 sees old; reopening the
 name sees new. No package, service or real application was changed.</p>
 <h3>Why this boundary matters on Tamlinux</h3>
+<p><cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Source: deployment contract</a></cite>.</p>
 <p>The package assembly records exact component revisions and output paths.
 The deployment contract retains a previous package and generation before
 activation. That ties recovery to known bytes; restoring mutable settings

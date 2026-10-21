@@ -9,11 +9,14 @@
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="prereqs" content="shell">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shell.beginner, shell.intermediate, shell.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Shell pipelines</p></nav>
 <h1>Shell pipelines</h1>
-<p>A pipeline passes a stream of bytes from one program to another. The
+<p>A pipeline passes a <dfn><a href="learn/glossary/stream.html">stream</a></dfn>
+of bytes from one program to another. The
 examples use fixed input so you can check the result without depending on
 which applications happen to be running.</p>
 <section data-level="beginner">
@@ -21,7 +24,8 @@ which applications happen to be running.</p>
 <p><strong>Goal:</strong> you will be able to connect two filters and predict
 their result.</p>
 <p><strong>Why it matters:</strong> a command may print more than you need.
-A filter keeps the useful lines, and a counter tells you how many remain.</p>
+A <dfn><a href="learn/glossary/filter.html">filter</a></dfn> keeps the useful
+lines, and a counter tells you how many remain.</p>
 <p><strong>Before you start:</strong> open a terminal and read
 <a href="shell/index.html?level=1">Shell and streams</a>. This example only
 reads and prints text; it does not change files.</p>
@@ -50,8 +54,8 @@ run it. No scratch directory is needed because this writes no files.</p>
 retype the complete line.</dd><dt>The count is zero.</dt><dd>Check spelling
 and letter case; apple and Apple are different patterns.</dd></dl>
 <h3>New words</h3>
-<dl><dt>Stream</dt><dd>Bytes a program reads or writes in order.</dd>
-<dt>Filter</dt><dd>A command that selects or transforms its input.</dd></dl>
+<dl><dt><dfn><a href="learn/glossary/stream.html">Stream</a></dfn></dt><dd>Bytes a program reads or writes in order.</dd>
+<dt><dfn><a href="learn/glossary/filter.html">Filter</a></dfn></dt><dd>A command that selects or transforms its input.</dd></dl>
 <h3>Next step</h3>
 <p>Choose level 2 to combine filters, or try
 <a href="filesystem/permissions.html?level=1">file permissions</a>.</p>
@@ -117,9 +121,9 @@ $ printf &#x27;%s\n&#x27; red blue red green blue | sort | uniq | wc -l
 Use <code>0</code> to compare all three levels; changing the lens does not
 run the displayed commands.</p></aside>
 <h3>Further reading</h3>
-<ul><li><a href="man:bash(1)">bash(1)</a>: pipelines, redirections and pipefail.</li>
-<li><a href="man:grep(1)">grep(1)</a>: pattern matching and exit status.</li>
-<li><a href="info:coreutils">GNU Coreutils</a>: sort, uniq and wc.</li></ul>
+<ul><li><cite data-ref="bash"><a href="learn/bibliography/bash.html">Source: bash</a></cite>; <a href="man:bash(1)">bash(1)</a>: pipelines, redirections and pipefail.</li>
+<li><cite data-ref="grep"><a href="learn/bibliography/grep.html">Source: grep</a></cite>; <a href="man:grep(1)">grep(1)</a>: pattern matching and exit status.</li>
+<li><cite data-ref="coreutils"><a href="learn/bibliography/coreutils.html">Source: coreutils</a></cite>; <a href="info:coreutils">GNU Coreutils</a>: sort, uniq and wc.</li></ul>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>

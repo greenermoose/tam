@@ -46,7 +46,7 @@ BUILD := build
 TAM   := $(BUILD)/tam
 SRC   := src/tam.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/upgrade.c
 DEPS  := src/version.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/fold.h src/ask.h src/info.h src/discovery.h src/tldr.h src/upgrade.h
-INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv
+INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/coverage.json
 
 # A build from a Git checkout reports its commit in --version; packaged
 # builds have no .git and report the plain version. Only the command's own
@@ -147,7 +147,7 @@ check: corpus test
 # follow-up index commit. Staged installs (DESTDIR) and builds without a .git
 # of their own, such as the Nix package, are not checked.
 INSTALL_SOURCES := $(TAM_SOURCES) knowledge tools
-INDEX_FILES     := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv
+INDEX_FILES     := $(INDEX)
 
 check-clean-tree:
 	@[ -n "$(DESTDIR)" ] && exit 0; \
@@ -157,7 +157,7 @@ check-clean-tree:
 	[ -z "$$dirty" ] && exit 0; \
 	printf '%s\n' 'tam: refusing to install from a dirty tree:' >&2; \
 	printf '%s\n' "$$dirty" | sed 's/^/  /' >&2; \
-	if [ -z "$$(git -C $(CURDIR) status --porcelain -- $(INSTALL_SOURCES) ':!knowledge/index.*')" ]; then \
+	if [ -z "$$(git -C $(CURDIR) status --porcelain -- $(INSTALL_SOURCES) ':!knowledge/index.*' ':!knowledge/coverage.json')" ]; then \
 		printf '%s\n' 'Only the regenerated corpus index changed; commit it, then install again:' \
 			"  git commit -m 'Refresh corpus index revisions after $$(git -C $(CURDIR) rev-parse --short HEAD)' -- $(INDEX_FILES)" >&2; \
 	else \

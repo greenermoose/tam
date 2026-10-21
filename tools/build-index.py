@@ -18,6 +18,7 @@ requires explicit parents and track ownership.
 
 from datetime import datetime, timezone
 import json
+from html.parser import HTMLParser
 import re
 import subprocess
 import sys
@@ -108,6 +109,8 @@ def parse_page(root, path, rel_path, errors):
     track = "use"
     parent = None
     prereqs = []
+    page_kind = ""
+    skills = []
 
     for tag in re.findall(r'<meta\b(?:[^>"\'/]|"[^"]*"|\'[^\']*\')*>', text, re.I):
         name = extract_attr(tag, "name")
@@ -137,6 +140,10 @@ def parse_page(root, path, rel_path, errors):
             parent = content.strip()
         elif name_lower == "prereqs":
             prereqs.extend(split_list(content))
+        elif name_lower == "kind":
+            page_kind = content.strip()
+        elif name_lower == "skills":
+            skills.extend(split_list(content))
 
     # Laddered sections define the page's levels; smaller tagged blocks may
     # refine any of those levels without adding another ladder section.
@@ -190,6 +197,8 @@ def parse_page(root, path, rel_path, errors):
         "track": track,
         "parent": parent,
         "prereqs": prereqs,
+        "kind": page_kind,
+        "skills": skills,
         "rev": rev,
         "updated": updated,
     }
@@ -328,6 +337,160 @@ def check_hierarchy(knowledge_dir, entries, version, errors):
                 f"is {h1[rel]!r}")
 
 
+KINDS = {"tutorial", "how-to", "reference", "explanation", "path", "hub",
+         "glossary", "bibliography"}
+
+
+class LearningHTML(HTMLParser):
+    """Read cross-page teaching references and level sections structurally."""
+    def __init__(self, text):
+        super().__init__(convert_charrefs=True)
+        self.stack = []
+        self.refs = []
+        self.reference_ids = []
+        self.sections = []
+        self.ids = []
+        self.feed(text)
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if attrs.get("id"):
+            self.ids.append(attrs["id"])
+        if "reference" in attrs.get("class", "").split():
+            self.reference_ids.append(attrs.get("id", ""))
+        if tag in {"meta", "br", "hr", "img", "link", "input", "wbr"}:
+            return
+        node = {"tag": tag, "attrs": attrs, "text": [], "links": [],
+                "quiz": False, "first-time": False, "tamlinux": False}
+        for parent in self.stack:
+            classes = attrs.get("class", "").split()
+            parent["quiz"] |= tag == "details" and "q" in classes
+            parent["first-time"] |= tag == "aside" and "first-time" in classes
+            parent["tamlinux"] |= tag == "aside" and "tamlinux" in classes
+            if tag == "a" and attrs.get("href"):
+                parent["links"].append(attrs["href"])
+        self.stack.append(node)
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
+    def handle_data(self, text):
+        for node in self.stack:
+            node["text"].append(text)
+
+    def handle_endtag(self, tag):
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i]["tag"] != tag:
+                continue
+            nodes, self.stack = self.stack[i:], self.stack[:i]
+            for node in nodes:
+                if node["tag"] in {"dfn", "cite"}:
+                    self.refs.append(node)
+                if node["tag"] == "section" and node["attrs"].get("data-level"):
+                    self.sections.append(node)
+            break
+
+
+def learning_metadata(knowledge, entries, errors):
+    """Optional additive metadata: legacy corpora need no registry or kinds."""
+    registry_path = knowledge / "learn/skills/skills.json"
+    cells = []
+    if registry_path.exists():
+        try:
+            registry = json.loads(registry_path.read_text())
+            if not isinstance(registry, dict) or registry.get("version") != 1 or not isinstance(registry.get("cells"), list):
+                raise ValueError("expected version 1 and a cells list")
+            cells = registry["cells"]
+            seen = set()
+            for cell in cells:
+                if (not isinstance(cell, dict) or
+                    not all(isinstance(cell.get(k), str) and cell[k].strip()
+                            for k in ("id", "domain", "level", "can_do")) or
+                    cell["level"] not in LEVELS or
+                    cell["id"] != cell["domain"] + "." + cell["level"] or
+                    not re.fullmatch(r"[a-z][a-z0-9-]*\.(beginner|intermediate|expert)", cell["id"]) or
+                    cell["id"] in seen):
+                    raise ValueError("invalid or duplicate skill cell")
+                seen.add(cell["id"])
+        except (OSError, ValueError, TypeError) as error:
+            errors.append(f"learn/skills/skills.json: {error}")
+            cells = []
+    known = {cell["id"]: cell for cell in cells}
+    parsed = {e["path"]: LearningHTML((knowledge / e["path"]).read_text())
+              for e in entries}
+    bibliography = {}
+    for path, document in parsed.items():
+        if not path.startswith("learn/bibliography/"):
+            continue
+        for ref in document.reference_ids:
+            if not re.fullmatch(r"[a-z][a-z0-9-]*", ref) or ref in bibliography:
+                errors.append(f"{path}: invalid or duplicate bibliography ID {ref!r}")
+            bibliography[ref] = path
+    warnings = []
+    for entry in entries:
+        path, kind = entry["path"], entry["kind"]
+        if kind and kind not in KINDS:
+            errors.append(f"{path}: unknown kind {kind!r}")
+        for skill in entry["skills"]:
+            if skill not in known:
+                errors.append(f"{path}: unknown skill ID {skill!r}")
+            elif known[skill]["level"] not in entry["levels"]:
+                errors.append(f"{path}: skill {skill!r} is outside the declared page levels")
+        if len(entry["skills"]) != len(set(entry["skills"])):
+            errors.append(f"{path}: duplicate skill IDs")
+        for node in parsed[path].refs:
+            links = node["links"]
+            if node["tag"] == "dfn":
+                glossary = [link for link in links if link.split("?", 1)[0].split("#", 1)[0].startswith("learn/glossary/")]
+                if not glossary:
+                    errors.append(f"{path}: dfn requires a glossary link")
+                for link in glossary:
+                    target, _, fragment = link.partition("#")
+                    target = target.split("?", 1)[0]
+                    if target not in parsed:
+                        errors.append(f"{path}: missing glossary target {link!r}")
+                    elif fragment:
+                        errors.append(f"{path}: cross-page glossary fragments are unsupported; link to a term page")
+            else:
+                ref = node["attrs"].get("data-ref", "")
+                if ref not in bibliography:
+                    errors.append(f"{path}: unknown bibliography ID {ref!r}")
+                elif bibliography[ref] not in links:
+                    errors.append(f"{path}: cite {ref!r} requires its bibliography link")
+        if kind in {"glossary", "reference", "hub", "path", "bibliography"}:
+            continue
+        for section in parsed[path].sections:
+            level = section["attrs"]["data-level"]
+            if level not in {"beginner", "intermediate"}:
+                continue
+            text = " ".join(section["text"]).lower()
+            required = (["goal:", "why it matters:", "before you start:", "worked example",
+                         "try it", "if it goes wrong", "new words", "next step"]
+                        if level == "beginner" else
+                        ["goal:", "mental model", "worked example", "completion task",
+                         "independent task", "choosing", "troubleshooting", "further reading"])
+            missing = [name for name in required if name not in text]
+            if not section["quiz"]:
+                missing.append("quiz")
+            if level == "beginner" and not section["first-time"]:
+                missing.append("New to this? aside")
+            if level == "intermediate" and not section["tamlinux"]:
+                missing.append("On Tamlinux aside")
+            if missing:
+                warnings.append({"path": path, "level": level, "missing": missing})
+    coverage = []
+    for cell in cells:
+        matched = [entry for entry in entries if cell["id"] in entry["skills"]]
+        pages = sorted(e["path"] for e in matched if e["kind"] != "path")
+        paths = sorted(e["path"] for e in matched if e["kind"] == "path")
+        coverage.append({**cell, "pages": pages, "paths": paths,
+                         "page_gap": not pages, "path_gap": not paths})
+    return {"version": 1, "cells": coverage, "warnings": warnings,
+            "unclassified_pages": sorted(e["path"] for e in entries if not e["kind"]),
+            "unmapped_pages": sorted(e["path"] for e in entries if not e["skills"])}
+
+
 def main(root=None):
     root = Path(root).resolve() if root else Path(__file__).resolve().parent.parent
     knowledge_dir = root / "knowledge"
@@ -359,6 +522,7 @@ def main(root=None):
 
     check_hierarchy(knowledge_dir, entries, version_file.read_text(encoding="utf-8").strip()
                     if version_file.is_file() else "0.0.0", errors)
+    coverage = learning_metadata(knowledge_dir, entries, errors)
 
     if errors:
         for message in errors:
@@ -372,6 +536,8 @@ def main(root=None):
     # Parent is additive in JSON and in a separate compact TSV projection.
     rows = ["topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n"]
     parents = ["path\tparent\n"]
+    kinds = ["path\tkind\n"]
+    skills = ["path\tskills\n"]
     for e in entries:
         kws = ", ".join(e["keywords"])
         levels = ",".join(e["levels"])
@@ -379,10 +545,15 @@ def main(root=None):
         rows.append(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
                     f"{levels}\t{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
         parents.append(f"{e['path']}\t{e['parent'] or ''}\n")
+        kinds.append(f"{e['path']}\t{e['kind']}\n")
+        skills.append(f"{e['path']}\t{','.join(e['skills'])}\n")
 
     outputs = {
         "index.tsv": "".join(rows),
         "index.parents.tsv": "".join(parents),
+        "index.kinds.tsv": "".join(kinds),
+        "index.skills.tsv": "".join(skills),
+        "coverage.json": json.dumps(coverage, indent=2) + "\n",
         "index.json": json.dumps(entries, indent=2) + "\n",
     }
     for name, content in outputs.items():
@@ -419,7 +590,9 @@ def main(root=None):
         except Exception:
             pass
 
-    print(f"Generated index.tsv, index.json and index.parents.tsv with {len(entries)} entries.")
+    print(f"Generated index.tsv and five companion outputs with {len(entries)} entries.")
+    if coverage["warnings"]:
+        print(f"Learning warnings: {len(coverage['warnings'])} level sections need migration; see coverage.json.")
     return 0
 
 
