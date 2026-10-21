@@ -1,7 +1,7 @@
 # TCK22 folding and self-quizzes (command 0.38.0 / corpus 0.37.1)
 
 - **Date:** 2026-10-21
-- **Time:** 06:30 to 06:50 -04:00
+- **Time:** 06:30 to 07:28 -04:00
 - **Stage:** Develop; implementation, fixtures, corpus corrections and documentation
 - **CLI Tool:** Codex CLI `0.163.0` (live-checked)
 - **Model:** `gpt-6.1-sol`
@@ -17,6 +17,8 @@
 ## Guiding prompts
 
 > Please work on TCK22—folding and self-quizzes from the tam repo.
+
+> Install the new tam command and corpus.
 
 ## Key decisions
 
@@ -50,4 +52,16 @@
   quoted `>` attributes and canonical numbering with an authored private
   attribute all pass. `git diff --check` and repository drift checks pass.
 
-No installation, package acceptance or stage promotion.
+## Developer-requested development installation
+
+Installed the clean `57e4c5f` command and corpus with `make install` using
+`PREFIX=~/.local/dev` and the existing development `libtam` 0.3.0. The command
+resolves first on the terminal PATH. With `TAM_KNOWLEDGE_DIR` unset, the
+installed command reports command 0.38.0 and corpus 0.37.1, both at `57e4c5f`.
+The installed executable and complete corpus match the build and checkout;
+installed guide rendering and a pipe-mode quiz check pass.
+
+This is the explicitly requested development override. Retire it with
+`make uninstall PREFIX=~/.local/dev` immediately after a recorded package
+deployment delivers the pinned version. No package acceptance or stage
+promotion is implied.
