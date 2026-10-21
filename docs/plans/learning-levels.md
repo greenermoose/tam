@@ -13,8 +13,9 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** TCK23 (pilot pages and two goal paths).
-Write its claim and versions from the current files before starting.
+**Next action:** Developer review of the TCK23 pilot (corpus 0.38.0):
+read the three pilot pages at levels 0–3 and walk First steps from Welcome
+to its capstone. Record adjustments before TCK24 starts.
 
 ## Problem and agreed outcome
 
@@ -372,6 +373,20 @@ change, the indexes, `knowledge/version`, `ROADMAP.md`,
 anatomy and quiz; the two paths open from the welcome page; the developer
 has reviewed the pilot.
 
+**Source delivered (2026-10-21, corpus 0.38.0; developer review pending).**
+The three pilot pages now use worked examples captured in temporary
+directories or read-only native package queries, novice asides, faded tasks,
+troubleshooting, vocabulary and folded quizzes. The paths hub and First steps
+and Keep it healthy paths are linked from Welcome and the Learning hub.
+Keep it healthy prepares an update and recovery decision without performing
+a transaction or deployment. The source baseline was command 0.38.0 / corpus
+0.37.1 at `56a2866`; command version is unchanged. Verification and review
+findings: [pilot record](../ai/2026-10-21-tam-learning-pilot.md).
+
+TCK23 remains open for its developer review criterion. TCK24 must wait for
+that review and any resulting anatomy/template adjustments. Learner tests
+remain developer-paced and separate from automated source checks.
+
 ### TCK24 (corpus scaffolding)
 
 Approved direction. Write executor detail into this section before
@@ -432,4 +447,6 @@ Approved direction. Plan each part before starting.
 TCK20 delivered on 2026-10-21 with this plan. TCK21 delivered on
 2026-10-21 as command 0.37.0, with the banner ranking revised in 0.37.1;
 see its delivery note. TCK22 delivered as command 0.38.0 / corpus 0.37.1;
-see its delivery note and verification record. TCK23–TCK25 remain open.
+see its delivery note and verification record. TCK23 source is delivered as
+corpus 0.38.0, with developer review pending. TCK24 scaffolding and TCK25
+migration remain open and have not started.

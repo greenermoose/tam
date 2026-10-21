@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-21 | TCK23 learning pilot: three laddered pages, two goal paths and hub; corpus 0.38.0; implementation review and captured examples | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-21-tam-learning-pilot.md) |
 | 2026-10-20 | Pare down welcome page and add dedicated About page; corpus 0.36.0 | Antigravity CLI 1.4.3; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-20-tam-about-page.md) |
 | 2026-10-20 | Pager quick keys, address display, status row, and Guide index; command 0.34.0 / corpus 0.35.1 | Antigravity CLI 1.4.3; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-20-tam-pager-quick-keys.md) |
 | 2026-10-20 | Dedicated POSIX Programmer's Manual guide page; corpus 0.34.0 | Antigravity CLI 1.4.3; `gemini-3.8-flash-high` | [Session record](docs/ai/2026-10-20-tam-posix-programmer-manual.md) |

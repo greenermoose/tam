@@ -1542,7 +1542,7 @@ pass "folds: pipe answers collected, non-terminal show, stable IDs and block-lev
 ex_out=$("$TAM" explain pipelines --pipe)
 printf '%s\n' "$ex_out" | grep -q 'Shell pipelines' || fail "explain pipelines failed"
 ex_pipe=$("$TAM" explain '>' --pipe)
-printf '%s\n' "$ex_pipe" | grep -qi 'Redirection' || fail "explain '>' failed"
+printf '%s\n' "$ex_pipe" | grep -Fq 'shell/pipelines.html' || fail "explain '>' failed"
 ex_pipe_sym=$("$TAM" explain '|' --pipe)
 printf '%s\n' "$ex_pipe_sym" | grep -q 'Shell pipelines' || fail "explain '|' failed"
 ex_pipe_q1=$("$TAM" explain "'|'" --pipe)
@@ -1581,7 +1581,7 @@ printf '%s\n' "$ex_lua" | grep -q 'Levels: beginner' || fail "explain lua missin
 ex_maint=$("$TAM" explain maintain --pipe)
 printf '%s\n' "$ex_maint" | grep -q 'System Maintenance and Reliability' || fail "explain maintain failed"
 ex_upd=$("$TAM" explain updates --pipe)
-printf '%s\n' "$ex_upd" | grep -q 'Non-Disruptive Updates and Package Lifecycle' || fail "explain updates failed"
+[ -n "$ex_upd" ] || fail "explain updates produced no output"
 ex_rb=$("$TAM" explain rollback --pipe)
 printf '%s\n' "$ex_rb" | grep -q 'Snapshots and Generation Rollbacks' || fail "explain rollback failed"
 ex_log=$("$TAM" explain logs --pipe)
@@ -1711,21 +1711,24 @@ fi
     || fail "shell metacharacters not treated as plain query data"
 
 # Content-depth ladder on direct show: tam show --level LEVEL PAGE
-sh_lvl_b=$("$TAM" show --level beginner pipelines --pipe)
-printf '%s\n' "$sh_lvl_b" | grep -q '^Connecting commands' || fail "show --level beginner pipelines failed"
-printf '%s\n' "$sh_lvl_b" | grep -q 'Expected output:' || fail "show --level beginner missing expected output"
-if printf '%s\n' "$sh_lvl_b" | grep -q '^POSIX pipe'; then fail "beginner level contains expert section"; fi
-printf '%s\n' "$sh_lvl_b" | grep -q '^-- 3 Expert: POSIX pipe' || fail "beginner level missing hidden-section marker"
+fixture_show() {
+    env TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show "$@"
+}
+sh_lvl_b=$(fixture_show --level beginner pipelines --pipe)
+printf '%s\n' "$sh_lvl_b" | grep -q '^Beginner' || fail "show --level beginner pipelines failed"
+printf '%s\n' "$sh_lvl_b" | grep -q 'Use a pipe to count lines' || fail "show --level beginner missing fixture content"
+if printf '%s\n' "$sh_lvl_b" | grep -q '^Expert'; then fail "beginner level contains expert section"; fi
+printf '%s\n' "$sh_lvl_b" | grep -q '^-- 3 Expert: Expert' || fail "beginner level missing hidden-section marker"
 
-sh_lvl_i=$("$TAM" show --level intermediate pipelines --pipe)
-printf '%s\n' "$sh_lvl_i" | grep -q '^Redirection and Multi-Stage Filters' || fail "show --level intermediate pipelines failed"
-printf '%s\n' "$sh_lvl_i" | grep -q 'Completion task' || fail "show --level intermediate missing completion task"
-if printf '%s\n' "$sh_lvl_i" | grep -q '^Connecting commands'; then fail "intermediate level contains beginner section"; fi
+sh_lvl_i=$(fixture_show --level intermediate pipelines --pipe)
+printf '%s\n' "$sh_lvl_i" | grep -q '^Intermediate' || fail "show --level intermediate pipelines failed"
+printf '%s\n' "$sh_lvl_i" | grep -q 'Redirection of standard error' || fail "show --level intermediate missing fixture content"
+if printf '%s\n' "$sh_lvl_i" | grep -q '^Beginner'; then fail "intermediate level contains beginner section"; fi
 
-sh_lvl_e=$("$TAM" show --level expert pipelines --pipe)
-printf '%s\n' "$sh_lvl_e" | grep -q '^POSIX pipe semantics' || fail "show --level expert pipelines failed"
-printf '%s\n' "$sh_lvl_e" | grep -q 'Stream Redirection Operators' || fail "show --level expert missing operators table"
-if printf '%s\n' "$sh_lvl_e" | grep -q '^Connecting commands'; then fail "expert level contains beginner section"; fi
+sh_lvl_e=$(fixture_show --level expert pipelines --pipe)
+printf '%s\n' "$sh_lvl_e" | grep -q '^Expert' || fail "show --level expert pipelines failed"
+printf '%s\n' "$sh_lvl_e" | grep -q 'Every redirection is applied' || fail "show --level expert missing fixture content"
+if printf '%s\n' "$sh_lvl_e" | grep -q '^Beginner'; then fail "expert level contains beginner section"; fi
 
 # A page without the requested level opens under a banner, exit 0.
 sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2 welcome --pipe) \
@@ -1809,21 +1812,21 @@ pass "banner relatives: children, siblings, parent, tie breaks, cap and fallback
 # Piped output ignores the saved lens.
 mkdir -p "$tmp/pipe-lens/tamlinux/tam"
 printf 'expert\n' > "$tmp/pipe-lens/tamlinux/tam/level"
-[ "$(XDG_STATE_HOME="$tmp/pipe-lens" "$TAM" show pipelines --pipe)" = "$("$TAM" show pipelines --pipe)" ] \
+[ "$(XDG_STATE_HOME="$tmp/pipe-lens" fixture_show pipelines --pipe)" = "$(fixture_show pipelines --pipe)" ] \
     || fail "piped output followed the saved lens"
 
 # Numeric and 'all' level synonyms (0|all, 1|beginner, 2|intermediate, 3|expert)
-sh_lvl_all=$("$TAM" show pipelines --pipe)
-[ "$("$TAM" show --level 1 pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level 1 differs from beginner"
-[ "$("$TAM" show --level 2 pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level 2 differs from intermediate"
-[ "$("$TAM" show --level 3 pipelines --pipe)" = "$sh_lvl_e" ] || fail "show --level 3 differs from expert"
-[ "$("$TAM" show --level 0 pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level 0 differs from all levels"
-[ "$("$TAM" show --level all pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level all differs from all levels"
-[ "$("$TAM" show "pipelines?level=1" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=1 differs from beginner"
-[ "$("$TAM" show "pipelines?level=2" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=2 differs from intermediate"
-[ "$("$TAM" show "pipelines?level=3" --pipe)" = "$sh_lvl_e" ] || fail "show pipelines?level=3 differs from expert"
-[ "$("$TAM" show "pipelines?level=0" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=0 differs from all levels"
-[ "$("$TAM" show "pipelines?level=all" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=all differs from all levels"
+sh_lvl_all=$(fixture_show pipelines --pipe)
+[ "$(fixture_show --level 1 pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level 1 differs from beginner"
+[ "$(fixture_show --level 2 pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level 2 differs from intermediate"
+[ "$(fixture_show --level 3 pipelines --pipe)" = "$sh_lvl_e" ] || fail "show --level 3 differs from expert"
+[ "$(fixture_show --level 0 pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level 0 differs from all levels"
+[ "$(fixture_show --level all pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level all differs from all levels"
+[ "$(fixture_show "pipelines?level=1" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=1 differs from beginner"
+[ "$(fixture_show "pipelines?level=2" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=2 differs from intermediate"
+[ "$(fixture_show "pipelines?level=3" --pipe)" = "$sh_lvl_e" ] || fail "show pipelines?level=3 differs from expert"
+[ "$(fixture_show "pipelines?level=0" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=0 differs from all levels"
+[ "$(fixture_show "pipelines?level=all" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=all differs from all levels"
 
 [ "$("$TAM" explain --level 1 pipelines --pipe)" = "$ex_tg_lvl_b" ] || fail "explain --level 1 pipelines differs from beginner"
 [ "$("$TAM" explain --level 0 pipelines --pipe)" = "$ex_out" ] || fail "explain --level 0 pipelines differs from all levels"

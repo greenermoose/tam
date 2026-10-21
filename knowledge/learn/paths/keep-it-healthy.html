@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Keep it healthy</title>
+<meta name="topic" content="keep-it-healthy-path">
+<meta name="summary" content="Identify update owners, read focused logs and plan recovery at the matching layer">
+<meta name="keywords" content="path, healthy, updates, logs, rollback, recovery, ownership, intermediate">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Paths by Goal</a> / Keep it healthy</p></nav>
+<h1>Keep it healthy</h1>
+<p><strong>Gain:</strong> you will be able to prepare an update decision
+with ownership evidence, focused logs and a matching recovery plan.</p>
+<p><strong>For you if:</strong> you can run and adapt shell commands but
+want to stop guessing which updater or rollback applies. This path prepares
+a change; completing it does not require applying an update.</p>
+<p><strong>Levels:</strong> starts and finishes at Intermediate (2);
+allow about three reading sessions, one for each stage.</p>
+<h2>Stage 1: Identify the owner</h2>
+<ol><li>Work through <a href="maintain/updates.html?level=2">Updates and
+package ownership</a>, including its independent task.</li>
+<li>Write down the selected executable, its owner and current version.
+Distinguish native packages, a recorded Tamlinux assembly and user-tool managers.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>pacman does not own a selected executable. Should you immediately install a native copy?</summary>
+<p>No. Resolve the path and identify its supplying manager or assembly first. Adding another copy can hide the one you intended to update. Reread the independent ownership task.</p>
+</details>
+</section>
+<h2>Stage 2: Read evidence at the affected time</h2>
+<ol><li>Read <a href="maintain/logs.html?level=2">System logs</a> for journal
+filters. Keep this stage read-only; do not clear, vacuum or reconfigure logs.</li>
+<li>For an affected user service, select its real unit name and a relevant
+time range with <code>journalctl --user -u UNIT --since TIME --no-pager</code>.
+UNIT and TIME are placeholders, not literal names. Use
+<a href="man:journalctl(1)">journalctl(1)</a> to choose the system journal
+instead if the problem is a system service.</li>
+<li>Record the symptom, time, selected journal and what remains unknown.
+Empty output may mean the wrong unit, journal or time range.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>A user journal query is empty. Does that prove a system service had no errors?</summary>
+<p>No. User and system journals and unit scopes differ; filters, access and retention can exclude the evidence. Check the unit and time before drawing a conclusion.</p>
+</details>
+</section>
+<h2>Stage 3: Match the recovery boundary</h2>
+<ol><li>Return to <a href="maintain/updates.html?level=2">the ownership and
+recovery table</a>. Identify what would change, what stays mutable and what
+evidence identifies the previous version.</li>
+<li>Read the snapshot-versus-generation overview in
+<a href="maintain/rollback.html?level=1">Snapshots and generation rollbacks</a>.
+Use it for concepts here; do not perform its recovery operations as an exercise.</li>
+<li>For Tamlinux product changes, consult the
+<a href="https://github.com/greenermoose/tamlinux-packages/blob/develop/docs/deployment.md">deployment contract (online)</a>.
+Record the retained assembly, generation and mutable-state recovery procedure.
+If any are unknown, leave the actual change pending.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Will restoring a software generation necessarily restore an edited document?</summary>
+<p>No. Immutable package recovery and mutable document recovery are separate. Identify a backup or other documented recovery method for data before a change that could affect it.</p>
+</details>
+</section>
+<h2>Capstone: Prepare a change record without deploying</h2>
+<p>Use the native Bash package as a read-only practice target. Prepare a
+short note naming its owner and installed version, a relevant log scope
+(or explain why no service log applies), a proposed verification check and
+the recovery evidence you would need before a real update. Then explain
+how the plan would differ for a Tamlinux product package. Leave unknown
+recovery details explicitly pending. Do not invent checkpoint identifiers.</p>
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ pacman -Qo /usr/bin/bash
+/usr/bin/bash is owned by bash 5.3.20-1
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-21; your output will
+differ with its package version. This establishes native ownership of the
+path. It does not prove what an existing shell process has mapped.</p>
+<ol><li>Record the native owner and the version your query actually printed.</li>
+<li>Bash is not itself a system service; do not invent a bash.service log.
+For a real symptom, choose the actual affected service or reproduce the
+shell failure read-only.</li><li>Propose checking the selected path and a
+new invocation's version after the change. Existing processes can retain
+old code.</li><li>Before a native transaction, identify its approved native
+recovery checkpoint and boot procedure where relevant. Missing evidence
+means the update remains pending.</li><li>For a Tamlinux product package,
+replace that recovery boundary with the exact retained assembly and
+generation plus mutable-state recovery, and follow the developer-directed
+tam-deploy procedure.</li></ol>
+<p>You finish with a decision record, not a package transaction. The next
+real change needs its own verified recovery evidence.</p>
+</details>
+<h2>Next paths</h2>
+<ul><li><a href="intermediate.html?level=2">Intermediate path</a>: extend your system model.</li>
+<li><a href="expert.html?level=3">Expert path</a>: investigate internals and failure modes.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li></ul>
+</body>
+</html>

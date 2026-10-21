@@ -3,148 +3,257 @@
 <head>
 <title>File Permissions and Ownership</title>
 <meta name="topic" content="permissions">
-<meta name="summary" content="File permissions, ownership, and links">
-<meta name="keywords" content="permissions, permission, chmod, chown, umask, links, symlink, symlinks, hardlink, rwx, owner, ownership, file permissions, file owner">
+<meta name="summary" content="Inspect and change permissions safely, then reason about directory access">
+<meta name="keywords" content="permissions, chmod, chown, umask, links, ownership, rwx, setgid, sticky">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="prereqs" content="filesystem">
 </head>
 <body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / File Permissions and Ownership</p>
-</nav>
-
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / File Permissions and Ownership</p></nav>
 <h1>File Permissions and Ownership</h1>
-
-<p>Every file and directory on Linux has an owner user, an owner group, and a
-set of permission mode bits that govern read, write, and execute rights.</p>
-
+<p>Permissions control access through an owner, a group and everyone else.
+Practice on temporary files before changing permissions on real documents.</p>
 <section data-level="beginner">
-<h2>Making a script executable</h2>
-
-<p><strong>Summary:</strong> Grant execution permissions to a shell script using
-symbolic <code>chmod</code>.</p>
-
-<p><strong>Prerequisites:</strong> Filesystem navigation and directory layout
-(<a href="filesystem/index.html">The Linux Filesystem Hierarchy</a>).</p>
-
-<h3>Command sequence</h3>
-
-<pre>
-ls -l backup.sh
-chmod +x backup.sh
-ls -l backup.sh
-</pre>
-
-<p>Expected output:</p>
-
-<pre>
--rw-r--r-- 1 alex alex 142 Oct 14 08:00 backup.sh
--rwxr-xr-x 1 alex alex 142 Oct 14 08:00 backup.sh
-</pre>
-
-<h3>What just happened</h3>
-
-<ul>
-<li><code>ls -l</code> displayed the initial file mode: readable and writable by the user (<code>rw-</code>), readable by group (<code>r--</code>) and others (<code>r--</code>).</li>
-<li><code>chmod +x</code> added the executable bit (<code>x</code>) to all three tiers: user, group, and others.</li>
-<li>The script can now be directly executed from the command line: <code>./backup.sh</code>.</li>
-</ul>
-
-<h3>Best practice</h3>
-
-<p>Grant only the minimum required permissions. For directories, the execute bit
-(<code>x</code>) is required to traverse (enter) the directory. Avoid universal
-permissions like <code>chmod 777</code>; granting write access to everyone creates
-severe security vulnerabilities.</p>
-
-<h3>Next step</h3>
-
-<p>Learn how to connect scripts into pipelines in <a href="shell/pipelines.html">Shell pipelines</a>.</p>
-</section>
-
-<section data-level="intermediate">
-<h2>Numeric octal modes and group collaboration</h2>
-
-<p><strong>Summary:</strong> Calculate octal permission masks and configure
-shared directory collaboration with group sticky bits.</p>
-
+<h2>Run your own small script</h2>
+<p><strong>Goal:</strong> you will be able to add execute permission for
+yourself and confirm the result.</p>
+<p><strong>Why it matters:</strong> a downloaded or newly written script may
+be readable without being directly executable. You can grant just the access
+you intend.</p>
+<p><strong>Before you start:</strong> read <a href="filesystem/index.html?level=1">filesystem basics</a>.
+This example creates one script in a temporary directory.</p>
+<aside class="first-time"><p>Enter commands in a terminal one line at a
+time. Do not type the leading <code>$</code> shown in sessions. A command
+that prints nothing can still have succeeded. <code>./hello.sh</code> means
+the file named hello.sh in the current directory.</p></aside>
 <h3>Worked example</h3>
-
-<p>Lock down private SSH credentials so only your user account can read them:</p>
-
-<pre>
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/id_ed25519
+<p>For this section, make a new temporary directory and enter it. These
+commands print nothing when they succeed. Keep this terminal open while you
+work through the section.</p>
+<pre data-risk="scratch">
+work=$(mktemp -d)
+cd "$work"
 </pre>
-
-<p>Directory mode 700 gives <code>rwx------</code>; file mode 600 gives
-<code>rw-------</code>, preventing unauthorized access by other local users.</p>
-
+<pre class="session" data-risk="scratch">
+$ printf &#x27;%s\n&#x27; &#x27;#!/bin/sh&#x27; &#x27;printf &quot;hello\n&quot;&#x27; &gt; hello.sh
+$ chmod 600 hello.sh
+$ stat -c &#x27;%A %a %n&#x27; hello.sh
+$ chmod u+x hello.sh
+$ stat -c &#x27;%A %a %n&#x27; hello.sh
+$ ./hello.sh
+-rw------- 600 hello.sh
+-rwx------ 700 hello.sh
+hello
+</pre>
+<p>Captured on Arch Linux, 2026-10-21. GNU <code>stat</code> omits variable
+owner names, sizes and timestamps from this display.</p>
+<h3>What just happened</h3>
+<ol><li><code>printf</code> writes a two-line shell script.</li>
+<li><code>chmod 600</code> sets a known starting mode: only the owner can
+read and write.</li><li><code>chmod u+x</code> adds execute for the owner
+(user) without granting it to group or others.</li><li><code>stat</code>
+shows the mode change; running the script prints hello.</li></ol>
+<h3>Try it</h3>
+<p>In this scratch directory, use <code>chmod u-x hello.sh</code>. Inspect
+with the same stat command. Add execute back before trying the script again.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>No such file or directory</dt><dd>Check the spelling and current
+directory with <code>pwd</code> and <code>ls</code>.</dd>
+<dt>Permission denied when executing</dt><dd>Check the owner execute bit.
+A noexec mount can also prevent direct execution; do not change mount
+settings for this exercise. <code>sh hello.sh</code> can read this known
+script even without its execute bit.</dd></dl>
+<h3>Finish the exercise</h3>
+<p>Remove only the exercise files you created, then leave and remove the
+temporary directory. If a named file is missing, remove its name from the
+first command; if the directory is not empty, inspect it before removing more.</p>
+<pre data-risk="scratch">
+rm -- hello.sh
+cd /tmp
+rmdir -- "$work"
+</pre>
+<h3>New words</h3>
+<dl><dt>Mode</dt><dd>The permission bits attached to a file.</dd>
+<dt>Owner</dt><dd>The user whose identity selects the owner permission bits.</dd></dl>
+<h3>Next step</h3>
+<p>Choose level 2 for numeric modes and directory access, or continue to
+<a href="shell/pipelines.html?level=1">pipelines</a>.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Which command adds execute only for the owner: chmod u+x or chmod a+x?</summary>
+<p>chmod u+x. The a form asks for owner, group and others; u changes only the owner class.</p>
+</details>
+<details class="q">
+<summary>Does chmod printing no output mean that it failed?</summary>
+<p>No. Successful chmod is normally silent. Inspect the mode with stat; an error message or nonzero exit status signals failure.</p>
+</details>
+</section>
+</section>
+<section data-level="intermediate">
+<h2>Choose modes for private and shared work</h2>
+<p><strong>Goal:</strong> choose file and directory modes without granting
+unnecessary write access.</p>
+<h3>Mental model</h3>
+<pre>owner | group | other
+ r w x | r w x | r w x
+ 4 2 1 | 4 2 1 | 4 2 1</pre>
+<p>Add the values within each class: 6 is read+write, 7 adds execute.
+For a directory, read lists names, execute searches/traverses, and write
+permits changing entries when search access is also available.</p>
+<h3>Worked example</h3>
+<p>For this section, make a new temporary directory and enter it. These
+commands print nothing when they succeed. Keep this terminal open while you
+work through the section.</p>
+<pre data-risk="scratch">
+work=$(mktemp -d)
+cd "$work"
+</pre>
+<pre class="session" data-risk="scratch">
+$ mkdir shared
+$ chmod 2770 shared
+$ stat -c &#x27;%A %a %n&#x27; shared
+$ (umask 0027; printf &#x27;%s\n&#x27; note &gt; shared/note.txt)
+$ stat -c &#x27;%A %a %n&#x27; shared/note.txt
+drwxrws--- 2770 shared
+-rw-r----- 640 shared/note.txt
+</pre>
+<p>Captured on Arch Linux, 2026-10-21, in a fresh directory without default
+ACLs. The leading 2 sets SetGID: children inherit the directory's group.
+It does not grant group write. The umask removes requested creation
+permissions; 0027 yields 0640 for this ordinary file creation.</p>
 <h3>Completion task</h3>
-
-<p>Configure a collaboration folder <code>/srv/team</code> so that any newly created
-files automatically inherit the group ownership of the directory (SetGID).
-Complete the missing octal mode below (marked with <code>___</code>):</p>
-
-<pre data-risk="system">
-sudo chgrp developers /srv/team
-sudo chmod ___ /srv/team
+<p>Create <code>note.txt</code> containing private, then fill the mode in
+<code>chmod ___ note.txt</code> so its owner can read/write, its group can
+read, and others have no access. Inspect it with stat.</p>
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ printf &#x27;%s\n&#x27; private &gt; note.txt
+$ chmod 640 note.txt
+$ stat -c &#x27;%A %a %n&#x27; note.txt
+-rw-r----- 640 note.txt
+</pre><p>Use 640: 4+2 for the owner, 4 for the group, 0 for others. Captured on Arch Linux, 2026-10-21.</p>
+</details>
+<h3>Independent task</h3>
+<p>Create a directory named private that only you can list, enter and change.</p>
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ mkdir private
+$ chmod 700 private
+$ stat -c &#x27;%A %a %n&#x27; private
+drwx------ 700 private
+</pre><p>Directory execute allows traversal. Read/write without execute is insufficient for ordinary directory use. Captured on Arch Linux, 2026-10-21.</p>
+</details>
+<h3>Choosing</h3>
+<table><tr><th>Intent</th><th>Mode or operation</th></tr>
+<tr><td>Private file</td><td>600</td></tr><tr><td>Private directory</td><td>700</td></tr>
+<tr><td>Group collaboration directory</td><td>2770, with the correct group and creation policy</td></tr>
+<tr><td>Restrict deletion in a shared directory</td><td>Sticky bit (1000); distinct from SetGID (2000)</td></tr></table>
+<h3>Troubleshooting</h3>
+<table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Readable file cannot be opened</td><td>Parent lacks search permission</td><td>Inspect each parent</td><td>Grant only the necessary traversal access</td></tr>
+<tr><td>New group files are not writable</td><td>Creation mask removes write</td><td>Inspect umask and default ACL</td><td>Agree on a creation policy; SetGID alone is insufficient</td></tr>
+<tr><td>Unexpected access beyond mode bits</td><td>ACL or privileged process</td><td>Read acl(5)</td><td>Inspect the full access policy before changing bits</td></tr></table>
+<aside class="tamlinux"><p>Practice here does not change package-managed
+files. Product delivery uses recorded packages; recursive chmod on installed
+software is not a Tamlinux update or repair method.</p></aside>
+<h3>Finish the exercise</h3>
+<p>Remove files made by tasks you attempted; omit names you did not create.
+Remove the empty directories last.</p>
+<pre data-risk="scratch">
+rm -- shared/note.txt note.txt
+rmdir -- shared private
+cd /tmp
+rmdir -- "$work"
 </pre>
-
-<p>Target output: directory permissions show <code>drwxrwsr-x</code> (SetGID bit 2000 combined with 775 permissions).</p>
-
-<h3>Verification hints</h3>
-
-<ul>
-<li>The SetGID octal value is <code>2000</code>. Add <code>2000 + 775 = 2775</code>.</li>
-<li>Inspect with <code>ls -ld /srv/team</code> to verify the group execute bit shows lowercase <code>s</code>.</li>
-<li>Use <a href="man:umask(1p)">umask(1p)</a> to set default creation masks for new files.</li>
-</ul>
+<h3>Further reading</h3>
+<ul><li><a href="man:chmod(1)">chmod(1)</a>: symbolic and numeric modes.</li>
+<li><a href="man:umask(2)">umask(2)</a>: creation masks and default ACLs.</li>
+<li><a href="man:acl(5)">acl(5)</a>: permissions beyond the basic mode bits.</li></ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>A team directory has SetGID but new files are not group-writable. Which property should you check?</summary>
+<p>Check the creating program mode, umask and default ACL. SetGID controls group inheritance, not the file write bits.</p>
+</details>
+<details class="q">
+<summary>A user can write a file but cannot remove its name. Is that contradictory?</summary>
+<p>No. Changing file data uses file access; removing a name uses permissions on the containing directory and may be restricted by the sticky bit.</p>
+</details>
 </section>
-
+</section>
 <section data-level="expert">
-<h2>POSIX inode mode representation and attributes</h2>
-
-<p><strong>Reference:</strong> The 16-bit <code>st_mode</code> field in <code>stat(2)</code>
-encodes file type (regular, directory, symlink, fifo, socket, block, char) in the
-top 4 bits, special flags (SUID 04000, SGID 02000, Sticky 01000) in the next 3
-bits, and standard 9-bit rwx permissions in the lower 9 bits. Hard links share
-the identical inode number; symlinks are independent pointer files.</p>
-
-<h3>Special permission mode bits</h3>
-
-<table>
-<tr><th>Bit</th><th>Octal</th><th>Symbolic</th><th>Effect on Files</th><th>Effect on Directories</th></tr>
-<tr><td>SUID</td><td>4000</td><td>rwsr-xr-x</td><td>Executes with privileges of file owner</td><td>No effect on Linux</td></tr>
-<tr><td>SGID</td><td>2000</td><td>rwxr-sr-x</td><td>Executes with privileges of file group</td><td>New files inherit directory group</td></tr>
-<tr><td>Sticky</td><td>1000</td><td>rwxrwxrwt</td><td>No effect on Linux binaries</td><td>Only file owner or root can delete file</td></tr>
-</table>
-
-<h3>Standard umask mappings</h3>
-
-<table>
-<tr><th>Umask</th><th>File Mode Created</th><th>Directory Mode Created</th><th>Security Profile</th></tr>
-<tr><td><code>0022</code></td><td>644 (rw-r--r--)</td><td>755 (rwxr-xr-x)</td><td>Standard multi-user default</td></tr>
-<tr><td><code>0027</code></td><td>640 (rw-r-----)</td><td>750 (rwxr-x---)</td><td>Restricted group-only access</td></tr>
-<tr><td><code>0077</code></td><td>600 (rw-------)</td><td>700 (rwx------)</td><td>Strict private isolation</td></tr>
-</table>
-
-<h3>Manual pages</h3>
-
-<p>Consult system documentation: <a href="man:chmod(1)">chmod(1)</a>,
-<a href="man:chown(1)">chown(1)</a>, <a href="man:stat(2)">stat(2)</a>,
-<a href="man:chattr(1)">chattr(1)</a>, <a href="man:umask(2)">umask(2)</a>.</p>
+<h2>Reason about inodes and access checks</h2>
+<p><strong>Reference:</strong> Linux <code>st_mode</code> combines file-type
+and permission bits. Use <code>S_IFMT</code> and the <code>S_IS*</code>
+macros rather than assuming the C type has a fixed width. Ordinary access
+also depends on process credentials, ACLs, mount flags and security policy.</p>
+<h3>How it works</h3>
+<p>Hard links name the same inode; chmod through either name changes the
+same mode. Symlinks have separate inodes; normal chmod follows their
+targets. See stat(2), path_resolution(7) and capabilities(7).</p>
+<table><tr><th>Special bit</th><th>Linux meaning</th></tr>
+<tr><td>04000 SetUID</td><td>Credential effect on eligible executable files, subject to kernel restrictions; ignored on shell scripts</td></tr>
+<tr><td>02000 SetGID</td><td>Credential effect on eligible executables; group inheritance on directories</td></tr>
+<tr><td>01000 sticky</td><td>Restricts removal/rename in directories to the file owner, directory owner or a suitably privileged process</td></tr></table>
+<h3>Explore</h3>
+<p>For this section, make a new temporary directory and enter it. These
+commands print nothing when they succeed. Keep this terminal open while you
+work through the section.</p>
+<pre data-risk="scratch">
+work=$(mktemp -d)
+cd "$work"
+</pre>
+<pre class="session" data-risk="scratch">
+$ printf &#x27;%s\n&#x27; original &gt; original
+$ chmod 600 original
+$ ln original alias
+$ chmod 640 alias
+$ stat -c &#x27;%a %h %n&#x27; original alias
+640 2 original
+640 2 alias
+</pre>
+<p>Captured on Arch Linux, 2026-10-21. Both names report mode 640 and link
+count 2. Changing a hard link's permissions does not isolate its contents.</p>
+<h3>Edge cases and cost</h3>
+<p>A read-only mount, immutable attribute or security module can deny an
+operation even when mode bits allow it. GNU chmod treats directory SetGID
+preservation specially; consult its manual before assuming a numeric mode
+clears every special bit. Recursive permission changes cost filesystem walks
+and can damage unrelated access; diagnose the failing path first.</p>
+<h3>Finish the exercise</h3>
+<p>Remove only the exercise files you created, then leave and remove the
+temporary directory. If a named file is missing, remove its name from the
+first command; if the directory is not empty, inspect it before removing more.</p>
+<pre data-risk="scratch">
+rm -- original alias
+cd /tmp
+rmdir -- "$work"
+</pre>
+<h3>Sources</h3>
+<ul><li><a href="man:stat(2)">stat(2)</a>: mode bits and inode metadata.</li>
+<li><a href="man:path_resolution(7)">path_resolution(7)</a>: traversal.</li>
+<li><a href="man:capabilities(7)">capabilities(7)</a>: privileged checks.</li>
+<li><a href="info:coreutils/File permissions">GNU file permissions</a>: special mode behavior.</li></ul>
+<h3>Improve it</h3>
+<p>These are Linux permission rules rather than a Tamlinux access-control
+extension. Propose clearer diagnostic examples in the public
+<a href="https://github.com/greenermoose/tam">tam repository (online)</a>.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q open">
+<summary>How would you distinguish a directory traversal failure from a file ACL failure?</summary>
+<p>Inspect search permission along the path first, using the failing identity. Then inspect the target mode and ACL, followed by mount and security policy. A single ls on the target does not establish access through all ancestors.</p>
+</details>
 </section>
-
-<h2>Where to next</h2>
-
-<ul>
-<li><a href="filesystem/index.html">Filesystem hierarchy</a> &mdash; explore system directories and storage.</li>
-<li><a href="hardware/resources.html">Resources and performance</a> &mdash; inspect disk usage and inodes.</li>
-<li><a href="info:coreutils/File permissions">File Permissions in GNU Coreutils</a> &mdash; full manual on permission modes and security contexts.</li>
-<li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li>
-</ul>
+</section>
+<h2>Where next</h2>
+<p><a href="filesystem/index.html">Filesystem hierarchy</a> supplies context;
+<a href="shell/pipelines.html">pipelines</a> turns observations into reports.</p>
 </body>
 </html>

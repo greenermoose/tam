@@ -76,6 +76,15 @@ search_destinations man man/index.html
 search_destinations info learn/documentation.html
 pass "acceptance queries reach their expected guide destinations"
 
+# Curated topic lookup must reach the authored page. Read its actual title:
+# teaching revisions may change wording without changing the command contract.
+updates_title=$(sed -n 's:.*<h1[^>]*>\(.*\)</h1>.*:\1:p' "$knowledge/maintain/updates.html" | sed 's/<[^>]*>//g' | head -n 1)
+[ -n "$updates_title" ] || fail "updates page has no heading"
+updates=$(env TAM_KNOWLEDGE_DIR="$knowledge" "$TAM" explain updates --pipe)
+printf '%s\n' "$updates" | grep -Fq "$updates_title" \
+    || fail "explain updates did not reach the authored updates page"
+pass "updates topic resolves without freezing its teaching-page title"
+
 page_count=$(printf '%s\n' "$pages" | wc -l)
 [ "$page_count" -ge 55 ] || fail "expected all 50 baseline and five new pages; found $page_count"
 for p in learn/index.html use/index.html learn/tam.html \

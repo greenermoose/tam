@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>First steps</title>
+<meta name="topic" content="first-steps-path">
+<meta name="summary" content="Use a terminal, practice on temporary files and find your way back to the Guide">
+<meta name="keywords" content="path, first steps, novice, terminal, typing, paste, files, beginner">
+<meta name="level" content="beginner">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Paths by Goal</a> / First steps</p></nav>
+<h1>First steps</h1>
+<p><strong>Gain:</strong> you will be able to open a terminal, try a small
+file task and return to the Guide without changing system settings.</p>
+<p><strong>For you if:</strong> you have never used a terminal, or know one
+on another system and want a safe first task here. You can leave answers
+closed until you have tried each question.</p>
+<p><strong>Levels:</strong> starts before Beginner and reaches level 1;
+allow about three short reading sessions, pausing after any checkpoint.</p>
+<h2>Stage 1: Open a terminal and type a command</h2>
+<ol><li>Read the desktop keys on <a href="welcome.html?level=1">Welcome</a>.
+On the Tamlinux Hyprland desktop, SUPER+RETURN opens a terminal. SUPER is
+often the key with a Windows logo.</li>
+<li>Read <a href="shell/index.html?level=1">Shell and streams</a>, then
+return here using Left Arrow in the pager.</li></ol>
+<p>A prompt is the terminal text waiting for your command. Examples below
+use <code>$</code> for it; your prompt may look different. Type only the
+text after it, then press Enter.</p>
+<pre class="session" data-risk="read-only">
+$ printf &#x27;%s\n&#x27; hello
+hello
+</pre>
+<p>Captured on Arch Linux, 2026-10-21. A command is different from its
+output: do not type hello again as a command.</p>
+<p>To paste into the terminal, use Tamlinux's SUPER+V shortcut. Read a
+command before pasting; pasted newlines may execute commands immediately.
+For this first task, type the short line yourself. Ctrl+C cancels unfinished
+input or interrupts a foreground command; it does not undo completed work.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Which text do you type: the leading dollar sign, the printf command, or the output hello?</summary>
+<p>Type only the printf command and press Enter. The dollar sign represents the prompt; hello is the result. Reread Stage 1 if these are easy to confuse.</p>
+</details>
+</section>
+<h2>Stage 2: Make one safe file</h2>
+<ol><li>Read <a href="filesystem/index.html?level=1">Filesystem basics</a>
+for names and directories.</li><li>Work through
+<a href="filesystem/permissions.html?level=1">File permissions</a> in its
+fresh temporary directory. The New to this? fold explains the small steps.
+Finish that exercise's cleanup before returning here.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>chmod prints nothing. What do you do before assuming failure?</summary>
+<p>Inspect the mode with stat, as in the permissions page. Many successful commands print nothing. An error message needs attention; silence alone is not failure.</p>
+</details>
+</section>
+<h2>Stage 3: Connect two commands</h2>
+<ol><li>Read <a href="shell/pipelines.html?level=1">Pipelines</a>.</li>
+<li>Predict its count, run the fixed-input example, and try the pear variation.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Why can you predict this example more reliably than counting a running application?</summary>
+<p>The example supplies the same three lines every time. Running applications change, and a process-search command can match itself. Return to the pipeline worked example if needed.</p>
+</details>
+</section>
+<h2>Stage 4: Find your way back</h2>
+<ol><li>Read <a href="learn/documentation.html?level=1">Using the Guide</a>.</li>
+<li>In the pager, press the backtick key to open the Guide index. Use
+<code>]</code> to select a link and Enter to follow it. Left Arrow goes back.</li>
+<li>Press Esc to return to the terminal. Type <code>tam welcome</code> and
+press Enter to open Welcome again.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Which action leaves tam, and which returns to the Guide index while keeping tam open?</summary>
+<p>Esc leaves tam for the terminal. The backtick key opens the Guide index inside the pager. You can reopen the welcome page with tam welcome.</p>
+</details>
+</section>
+<h2>Capstone: Make and inspect a tiny report</h2>
+<p>In a fresh temporary directory, create colours.txt with red, blue, red
+on separate lines. Count whole lines equal to red. Create ready.txt
+containing ready and make it readable and writable only by you. Inspect
+its numeric mode. Remove these two files and the temporary directory when
+done, then reopen Welcome and find this path again.</p>
+<details class="solution">
+<p>For this section, make a new temporary directory and enter it. These
+commands print nothing when they succeed. Keep this terminal open while you
+work through the section.</p>
+<pre data-risk="scratch">
+work=$(mktemp -d)
+cd "$work"
+</pre><pre class="session" data-risk="scratch">
+$ printf &#x27;%s\n&#x27; red blue red &gt; colours.txt
+$ grep &#x27;^red$&#x27; colours.txt | wc -l
+$ printf &#x27;%s\n&#x27; ready &gt; ready.txt
+$ chmod 600 ready.txt
+$ stat -c &#x27;%a %n&#x27; ready.txt
+2
+600 ready.txt
+</pre>
+<p>Captured on Arch Linux, 2026-10-21. The count is 2 and the file mode is
+600. These verify different things: stream filtering and file access.</p>
+<pre data-risk="scratch">
+rm -- colours.txt ready.txt
+cd /tmp
+rmdir -- "$work"
+</pre>
+<p>In a separate terminal command, run <code>tam welcome</code>, select
+Paths by Goal, then First steps. If your result differed, return to the
+pipeline or permissions example before trying again.</p>
+</details>
+<h2>Next paths</h2>
+<ul><li><a href="beginner.html?level=1">Beginner path</a>: broaden your desktop and documentation skills.</li>
+<li><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>:
+when you are comfortable reading and adapting commands.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li></ul>
+</body>
+</html>

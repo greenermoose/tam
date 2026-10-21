@@ -2,13 +2,15 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.38.0 and corpus 0.37.1.
+**Scope:** Living integration contract; current command 0.38.0 and corpus 0.38.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** TCK23 (pilot pages and goal paths) in the [learning levels plan](learning-levels.md). Package Test/Run/Release remain developer-directed stages.
+**Next action:** Developer review of the TCK23 pilot before TCK24 scaffolding,
+in the [learning levels plan](learning-levels.md). Package Test/Run/Release
+remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -33,7 +35,7 @@ helper into this repository.
 The delivered journey spine has five parts — **Installing, Learning, Using,
 Maintaining, Improving**. Topic lookup/search and Guide/Man/Info reference access
 are shared utilities; Beginner, Intermediate and Expert are independent reading
-depths. Learning routes reuse pages across all parts. Every page has one
+levels. Learning paths reuse pages across all parts. Every page has one
 canonical logical home and may be linked contextually elsewhere. Corpus 0.31.0
 declares five track values and explicit parent paths; older corpora may omit
 parent metadata and retain directory-based hierarchy. Command 0.30.0 supplies
@@ -341,7 +343,10 @@ risk labels (command 0.38.0 / corpus 0.37.1). Fold state stays on the current
 page, persists through lens changes and resets on page navigation. Section
 labels alone identify levels in All; there is no extra gutter. Lint checks
 reject manual level prefixes, incomplete quizzes and unlabeled privileged
-examples. Next is the TCK23 pilot; no new learning pages are part of TCK22.
+examples. TCK23 source delivers the three pilot pages, goal-path hub, First
+steps and Keep it healthy, with captured examples, folded quizzes and a
+read-only maintenance capstone (corpus 0.38.0). The developer must review
+the pilot and record any anatomy/template adjustments before TCK24 starts.
 
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
@@ -382,6 +387,13 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-21:** Corpus 0.38.0 (minor): TCK23 pilot source. Rewrite pipelines,
+  permissions and updates to the teaching contract; add two goal paths and
+  their hub, linked from Welcome and Learning. Fixed-input exercises replace
+  uncaptured output; maintenance tasks inspect ownership and prepare recovery
+  without changing packages. Developer pilot review is pending before TCK24.
+  Command remains 0.38.0; no deployment or acceptance is implied.
 
 - **2026-10-21:** Command 0.38.0 (minor): TCK22, with corpus 0.37.1
   (patch), implements the approved folding, quizzes and block-level levels contract.
