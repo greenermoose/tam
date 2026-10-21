@@ -14,7 +14,8 @@ directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
 **Next action:** Continue TCK25 Maintaining with boot, boot-fallback and
-Snapper before adding Rescue; then logs/power and part-wide enforcement.
+Snapper before adding Rescue; then the remaining Maintaining pages and
+part-wide enforcement.
 TCK24, Using and the first two Maintaining recovery lessons are implemented;
 pilot and learner review remain unverified.
 
@@ -541,8 +542,8 @@ SysRq policy reads; no recovery operation is run. Three glossary pages are
 added and Keep it healthy stays at Intermediate for recovery planning.
 Anatomy warnings fall from 38 to 34; page gaps from 19 to 15, with 21 path
 gaps unchanged. These counts measure metadata, not learning effectiveness.
-Maintaining still needs boot, boot-fallback, Snapper, logs and power migration
-and its Rescue path before part-wide enforcement. See the
+Maintaining still needs boot, boot-fallback, Snapper, logs, power, resources,
+packaging and hub migration and its Rescue path before part-wide enforcement. See the
 [verification record](../ai/2026-10-21-tam-recovery-learning.md).
 
 ### Stop and ask the developer

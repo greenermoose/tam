@@ -142,7 +142,8 @@ bibliography, additive metadata and a coverage/gap report. TCK25's Using part
 and staged level paths are implemented in corpus 0.40.0. Corpus 0.41.0
 migrates Maintaining's rollback and emergency-recovery lessons and adds
 three glossary terms. Next: migrate boot, boot-fallback and Snapper lessons
-before adding the Rescue path; then finish Maintaining's logs and power.
+before adding the Rescue path; then finish the remaining Maintaining pages
+(logs, power, resources, packaging and the hub).
 Part-wide enforcement waits for that completion. Versions are allocated
 when each slice starts. The deferred items
 in section 4 are candidates, not assignments.

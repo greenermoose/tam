@@ -27,8 +27,8 @@ uncaptured sample output and overbroad recovery promises with scratch or
 read-only practice. They distinguish recorded product return from mutable
 data and native boot/login recovery. SysRq is a reference and policy read,
 never a command or keyboard exercise. A fixed pause is not proof of sync.
-Boot, boot-fallback, Snapper, logs and power still require migration before
-Maintaining enforcement; the Rescue path is not yet added. Pilot/learner,
+Boot, boot-fallback, Snapper, logs, power, resources, packaging and the hub
+still require migration before Maintaining enforcement; the Rescue path is not yet added. Pilot/learner,
 physical-console and packaged acceptance remain unverified. No installation
 or stage change is part of this work.
 

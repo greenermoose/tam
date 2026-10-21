@@ -9,8 +9,8 @@ the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
 **Next action:** Continue TCK25 Maintaining with boot, boot-fallback and
-Snapper lessons before the Rescue path, then logs/power and part-wide
-enforcement. Using and the first two recovery ladders are implemented;
+Snapper lessons before the Rescue path, then the remaining Maintaining
+pages (logs, power, resources, packaging and hub) and part-wide enforcement. Using and the first two recovery ladders are implemented;
 pilot/learner review remains unverified. See the
 [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
