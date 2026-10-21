@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
-**Current Command Version:** `0.35.0`. **Current Corpus Version:** `0.36.1`.
+**Current Command Version:** `0.35.0`. **Current Corpus Version:** `0.37.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -93,13 +93,14 @@ in that candidate, not here.
 | **0.35.2 corpus** | Common pitfall sections become Best practice | Done (2026-10-20) | The 16 `Common pitfall` sections are `Best practice` sections that lead with the correct action and then explain what goes wrong otherwise ([plan](docs/plans/common-pitfall-to-best-practice.md), `ae1fa41`). |
 | **0.36.0 corpus** | Pare down welcome page and add dedicated About page | Done (2026-10-20) | Paring down `welcome.html` to a focused orientation page and moving project background and developer notes into a new dedicated `about.html` page (`tam show about`). |
 | **0.35.0 command / 0.36.1 corpus** | Operating system and Tamlinux cultivar identity | Done (2026-10-20) | `tam inspect` shows the distribution (`Arch Linux (rolling)`), an `OS version` row only with `VERSION_ID`, and `Tamlinux cultivar: <Name> <version>` from the invoking user's version and cultivar files (the `pkexec` caller under `pkexec`); `tam --version` matches; new `os_identity` and `tamlinux_version` findings; corpus pages document the rows. |
+| **0.37.0 corpus** | Environment-minded systems and desktops | Done (2026-10-20) | New Operating Systems Reference page `ecosystem/os/environment-minded.html` (`tam show environment-minded`): wattOS, Emmabuntüs, GALPon MiniNo, KDE Eco and the Blue Angel label, the Green Software Foundation SCI standard, Nura, /e/OS, Collapse OS and Dusk OS, permacomputing and End of 10, none with a Tamlinux role; linked from the reference index and the sustainability page. |
 
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.35.0 / 0.36.1 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.35.0 / 0.37.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
