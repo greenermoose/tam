@@ -73,6 +73,25 @@ against the versioned offline Check Contract (verifying Btrfs snapshot capabilit
 adequate disk space headroom, and <code>pkexec</code> privilege tools), deep-linking directly
 to the relevant maintenance guides above when corrective steps are recommended.</p>
 
+<p>The <strong>Operating system</strong> row names the installed distribution
+from <code>/etc/os-release</code>, falling back to <code>/usr/lib/os-release</code>,
+for example <code>Arch Linux (rolling)</code>. An <strong>OS version</strong> row
+appears only when the distribution records a <code>VERSION_ID</code>. Tamlinux is
+a workstation environment that runs on that distribution, so it appears on its
+own row, <strong>Tamlinux cultivar</strong>, with its cultivar name and version
+(for example <code>Incipiens 0.4.5</code>). Tamlinux is deployed per user: the
+row reads the version and name from that user's
+<code>~/.config/tamlinux/version</code> and <code>~/.config/tamlinux/cultivar</code>.
+Run through <code>pkexec</code>, <code>tam</code> reports the user who ran it; for
+a user with no deployment the row says it is not deployed.</p>
+
+<p>Two findings cover this identity. <code>os_identity</code> warns when
+<code>/etc/os-release</code> names a different distribution from
+<code>/usr/lib/os-release</code>, which is a leftover override from an earlier
+installation. <code>tamlinux_version</code> reports whether Tamlinux is deployed
+for the user; running as root itself is not a problem, because root has no
+deployment of its own.</p>
+
 <h2>Where to next</h2>
 
 <ul>

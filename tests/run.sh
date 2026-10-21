@@ -87,7 +87,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.34.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.35.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -136,6 +136,12 @@ printf '7.7.7\n' > "$config/tamlinux/version"
 env HOME="$home" XDG_CONFIG_HOME="$config" XDG_STATE_HOME="$state" \
     TAMLINUX_VERSION=9.9.9 "$TAM" --version | grep -q '7.7.7' \
     || fail "version file not preferred over env"
+printf 'Incipiens\n' > "$config/tamlinux/cultivar"
+iso "$TAM" --version | grep -q '^Tamlinux cultivar Incipiens 7.7.7$' \
+    || fail "--version missing cultivar name"
+rm -f "$config/tamlinux/cultivar"
+iso "$TAM" --version | grep -q '^Tamlinux cultivar 7.7.7$' \
+    || fail "--version without a name file should print the bare version"
 pass "cultivar version resolution"
 
 # Piped output must not contain terminal control sequences.
@@ -1639,11 +1645,37 @@ printf '%s\n' "$ins_out" | grep -q 'kernel_release' || fail "inspect missing ker
 printf '%s\n' "$ins_out" | grep -q 'Help:' || fail "inspect missing Help deep-link"
 
 # Cultivar resolution in inspect matches environment / isolated config.
-iso "$TAM" inspect | grep -q 'Cultivar version:  7.7.7' || fail "inspect missing cultivar version from file"
-rm -f "$config/tamlinux/version"
-iso "$TAM" inspect | grep -q 'Cultivar version:  unavailable' || fail "isolated inspect missing unavailable cultivar"
+iso "$TAM" inspect | grep -q 'Tamlinux cultivar: 7.7.7' || fail "inspect missing cultivar version from file"
+printf 'Incipiens\n' > "$config/tamlinux/cultivar"
+iso "$TAM" inspect | grep -q 'Tamlinux cultivar: Incipiens 7.7.7' || fail "inspect missing cultivar name"
+iso "$TAM" inspect --json | grep -q '"tamlinux_cultivar": "Incipiens"' || fail "inspect --json missing tamlinux_cultivar"
+iso "$TAM" inspect --json | grep -q '"tamlinux_version": "7.7.7"' || fail "inspect --json missing tamlinux_version"
+iso "$TAM" inspect | grep -q 'tamlinux_version: Tamlinux 7.7.7 is deployed for' || fail "inspect missing deployment finding"
+rm -f "$config/tamlinux/version" "$config/tamlinux/cultivar"
+if [ "$(id -u)" -ne 0 ]; then
+    iso "$TAM" inspect | grep -q 'Tamlinux cultivar: not deployed for .* (per-user install)' \
+        || fail "isolated inspect missing not-deployed row"
+    iso "$TAM" inspect | grep -q '\[info\] tamlinux_version: Tamlinux is not deployed for' \
+        || fail "isolated inspect missing not-deployed finding"
+    iso "$TAM" inspect --json | grep -q '"tamlinux_version": null' || fail "inspect --json version should be null"
+fi
 env HOME="$home" XDG_CONFIG_HOME="$config" XDG_STATE_HOME="$state" \
     TAMLINUX_VERSION=8.8.8 "$TAM" inspect | grep -q '8.8.8' || fail "inspect ignored cultivar env"
+
+# Operating system identity from fixture os-release files (TAM_INSPECT_ROOT).
+os_fixtures="$root/tests/fixtures/os-release"
+arch_out=$(env TAM_INSPECT_ROOT="$os_fixtures/arch" "$TAM" inspect)
+printf '%s\n' "$arch_out" | grep -q 'Operating system:  Arch Linux (rolling)$' || fail "inspect missing Arch Linux (rolling)"
+if printf '%s\n' "$arch_out" | grep -q 'OS version:'; then fail "OS version row shown without VERSION_ID"; fi
+printf '%s\n' "$arch_out" | grep -q '\[info\] os_identity: os-release names the installed distribution' \
+    || fail "inspect missing passing os_identity"
+over_out=$(env TAM_INSPECT_ROOT="$os_fixtures/override" "$TAM" inspect)
+printf '%s\n' "$over_out" | grep -q 'Operating system:  Overlay (arch-like)$' || fail "inspect missing override name"
+printf '%s\n' "$over_out" | grep -q 'OS version:        1.2.3' || fail "inspect missing OS version row"
+printf '%s\n' "$over_out" | grep -q 'ID=overlay over /usr/lib/os-release ID=arch' || fail "inspect missing os_identity override evidence"
+env TAM_INSPECT_ROOT="$os_fixtures/override" "$TAM" check os_identity | grep -q '"status": "fail"' \
+    || fail "check os_identity should fail on an override"
+pass "inspect operating system identity"
 
 # Inspect pipe flag.
 "$TAM" inspect --pipe | grep -q 'Host Information:' || fail "inspect --pipe failed"

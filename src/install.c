@@ -20,7 +20,7 @@
 #define TAM_EXIT_USAGE 2
 #define TAM_EXIT_FAILURE 1
 
-#define NUM_CHECKS 7
+#define NUM_CHECKS 9
 
 typedef enum {
     SEV_INFO = 0,
@@ -62,6 +62,31 @@ typedef struct {
     char build_id[64];
 } os_release_t;
 
+/* Copy a value into a JSON string body, escaping quotes, backslashes and
+ * control characters; truncates to fit. */
+static void json_escape_into(char *out, size_t size, const char *in)
+{
+    size_t used = 0;
+    for (const unsigned char *c = (const unsigned char *)in; *c != '\0'; c++) {
+        char piece[8];
+        if (*c == '"' || *c == '\\') {
+            snprintf(piece, sizeof(piece), "\\%c", *c);
+        } else if (*c < 0x20) {
+            snprintf(piece, sizeof(piece), "\\u%04x", *c);
+        } else {
+            piece[0] = (char)*c;
+            piece[1] = '\0';
+        }
+        size_t len = strlen(piece);
+        if (used + len + 1 > size) {
+            break;
+        }
+        memcpy(out + used, piece, len);
+        used += len;
+    }
+    out[used] = '\0';
+}
+
 static bool is_whitelisted_probe(const char *cmd)
 {
     if (cmd == NULL) {
@@ -98,19 +123,46 @@ static tam_exec_result_t safe_probe_exec(const char *const argv[])
     return tam_exec(argv, 500);
 }
 
-static void parse_os_release(os_release_t *info)
+/* TAM_INSPECT_ROOT prefixes the os-release paths so tests can supply
+ * fixture files; it is unset in normal use. */
+static char *os_release_read(const char *path)
+{
+    const char *root = getenv("TAM_INSPECT_ROOT");
+    if (root == NULL || root[0] == '\0') {
+        return tam_fs_read_file(path, NULL);
+    }
+    char full[4096];
+    snprintf(full, sizeof(full), "%s%s", root, path);
+    return tam_fs_read_file(full, NULL);
+}
+
+static void parse_os_release_data(os_release_t *info, char *data);
+
+/* One os-release file; false when it is missing. */
+static bool parse_os_release_file(const char *path, os_release_t *info)
 {
     memset(info, 0, sizeof(*info));
-    size_t len = 0;
-    char *data = tam_fs_read_file("/etc/os-release", &len);
+    char *data = os_release_read(path);
     if (data == NULL) {
-        data = tam_fs_read_file("/usr/lib/os-release", &len);
+        return false;
     }
-    if (data == NULL) {
-        snprintf(info->name, sizeof(info->name), "Linux");
-        snprintf(info->id, sizeof(info->id), "unknown");
+    parse_os_release_data(info, data);
+    return true;
+}
+
+/* The effective identity: /etc/os-release, else the vendor file (os-release(5)). */
+static void parse_os_release(os_release_t *info)
+{
+    if (parse_os_release_file("/etc/os-release", info) ||
+        parse_os_release_file("/usr/lib/os-release", info)) {
         return;
     }
+    snprintf(info->name, sizeof(info->name), "Linux");
+    snprintf(info->id, sizeof(info->id), "unknown");
+}
+
+static void parse_os_release_data(os_release_t *info, char *data)
+{
 
     char *line = data;
     while (*line != '\0') {
@@ -598,6 +650,113 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     snprintf(checks[6].evidence_text, sizeof(checks[6].evidence_text), "%s", uts->release);
     snprintf(checks[6].evidence_json, sizeof(checks[6].evidence_json),
              "\"release\": \"%s\", \"machine\": \"%s\"", uts->release, uts->machine);
+
+    /* Check 7: os_identity. An os-release in /etc that names another
+     * distribution than the vendor file is a leftover override, such as the
+     * one Omarchy's installer copied in (D181). */
+    snprintf(checks[7].task_id, sizeof(checks[7].task_id), "os_identity");
+    snprintf(checks[7].name, sizeof(checks[7].name), "Operating system identity");
+    snprintf(checks[7].help_ref, sizeof(checks[7].help_ref), "maintain/index.html");
+    os_release_t etc_os;
+    os_release_t vendor_os;
+    bool have_etc = parse_os_release_file("/etc/os-release", &etc_os);
+    bool have_vendor = parse_os_release_file("/usr/lib/os-release", &vendor_os);
+    if (have_etc && have_vendor && strcmp(etc_os.id, vendor_os.id) != 0) {
+        snprintf(checks[7].status, sizeof(checks[7].status), "fail");
+        checks[7].pass = false;
+        checks[7].fail = true;
+        checks[7].severity = SEV_WARN;
+        snprintf(checks[7].summary, sizeof(checks[7].summary),
+                 "/etc/os-release overrides the base distribution's identity");
+        snprintf(checks[7].evidence_text, sizeof(checks[7].evidence_text),
+                 "/etc/os-release ID=%s over /usr/lib/os-release ID=%s", etc_os.id, vendor_os.id);
+        snprintf(checks[7].evidence_json, sizeof(checks[7].evidence_json),
+                 "\"etc_id\": \"%s\", \"vendor_id\": \"%s\", \"override\": true",
+                 etc_os.id, vendor_os.id);
+    } else {
+        const char *id = have_etc ? etc_os.id : (have_vendor ? vendor_os.id : "unknown");
+        snprintf(checks[7].status, sizeof(checks[7].status), "pass");
+        checks[7].pass = true;
+        checks[7].fail = false;
+        checks[7].severity = SEV_INFO;
+        snprintf(checks[7].summary, sizeof(checks[7].summary),
+                 "os-release names the installed distribution");
+        snprintf(checks[7].evidence_text, sizeof(checks[7].evidence_text), "ID=%s", id);
+        snprintf(checks[7].evidence_json, sizeof(checks[7].evidence_json),
+                 "\"id\": \"%s\", \"override\": false", id);
+    }
+
+    /* Check 8: tamlinux_version. Tamlinux is deployed per user; root itself
+     * has no deployment to report. */
+    snprintf(checks[8].task_id, sizeof(checks[8].task_id), "tamlinux_version");
+    snprintf(checks[8].name, sizeof(checks[8].name), "Tamlinux deployment for this user");
+    snprintf(checks[8].help_ref, sizeof(checks[8].help_ref), "tam.html");
+    char *version = cultivar_version();
+    char *user = cultivar_user();
+    char *vpath = cultivar_path("version");
+    const char *who = user != NULL ? user : "this user";
+    const char *where = vpath != NULL ? vpath : "unknown";
+    char who_json[64];
+    char where_json[256];
+    char version_json[96];
+    json_escape_into(who_json, sizeof(who_json), who);
+    json_escape_into(where_json, sizeof(where_json), where);
+    json_escape_into(version_json, sizeof(version_json), version != NULL ? version : "");
+    if (version != NULL) {
+        snprintf(checks[8].status, sizeof(checks[8].status), "pass");
+        checks[8].pass = true;
+        checks[8].fail = false;
+        checks[8].severity = SEV_INFO;
+        snprintf(checks[8].summary, sizeof(checks[8].summary),
+                 "Tamlinux %.40s is deployed for %.40s", version, who);
+        snprintf(checks[8].evidence_text, sizeof(checks[8].evidence_text), "%.200s", where);
+        snprintf(checks[8].evidence_json, sizeof(checks[8].evidence_json),
+                 "\"user\": \"%s\", \"version\": \"%s\", \"path\": \"%s\"", who_json, version_json, where_json);
+    } else if (cultivar_for_root()) {
+        snprintf(checks[8].status, sizeof(checks[8].status), "pass");
+        checks[8].pass = true;
+        checks[8].fail = false;
+        checks[8].severity = SEV_INFO;
+        snprintf(checks[8].summary, sizeof(checks[8].summary),
+                 "running as root; Tamlinux is deployed per user");
+        snprintf(checks[8].evidence_text, sizeof(checks[8].evidence_text), "no version file at %.200s", where);
+        snprintf(checks[8].evidence_json, sizeof(checks[8].evidence_json),
+                 "\"user\": \"root\", \"version\": null, \"path\": \"%s\"", where_json);
+    } else {
+        snprintf(checks[8].status, sizeof(checks[8].status), "fail");
+        checks[8].pass = false;
+        checks[8].fail = true;
+        checks[8].severity = SEV_INFO;
+        snprintf(checks[8].summary, sizeof(checks[8].summary),
+                 "Tamlinux is not deployed for %.40s", who);
+        snprintf(checks[8].evidence_text, sizeof(checks[8].evidence_text), "no version file at %.200s", where);
+        snprintf(checks[8].evidence_json, sizeof(checks[8].evidence_json),
+                 "\"user\": \"%s\", \"version\": null, \"path\": \"%s\"", who_json, where_json);
+    }
+    free(version);
+    free(user);
+    free(vpath);
+}
+
+/* A JSON string with quotes, backslashes and control characters escaped, or
+ * null. Values here come from files a user can edit. */
+static void print_json_string_or_null(const char *value)
+{
+    if (value == NULL) {
+        printf("null");
+        return;
+    }
+    putchar('"');
+    for (const unsigned char *c = (const unsigned char *)value; *c != '\0'; c++) {
+        if (*c == '"' || *c == '\\') {
+            printf("\\%c", *c);
+        } else if (*c < 0x20) {
+            printf("\\u%04x", *c);
+        } else {
+            putchar(*c);
+        }
+    }
+    putchar('"');
 }
 
 static void print_json_string_array(const char *csv)
@@ -762,11 +921,25 @@ static int do_inspect(bool json_mode)
     memset(&uts, 0, sizeof(uts));
     uname(&uts);
 
-    char *cultivar = cultivar_version();
+    char *cultivar = cultivar_label();
+    char *cultivar_ver = cultivar_version();
+    char *cultivar_nm = cultivar_name();
+    char *cultivar_file_path = cultivar_path("version");
+    char *cultivar_who = cultivar_user();
 
-    char os_display[256];
+    /* "Arch Linux (rolling)"; "Omarchy (arch-like)" with an OS version row. */
+    char os_detail[160] = "";
     if (os.id_like[0] != '\0' && strcasecmp(os.id, os.id_like) != 0) {
-        snprintf(os_display, sizeof(os_display), "%s (%s-like)", os.name, os.id_like);
+        snprintf(os_detail, sizeof(os_detail), "%s-like", os.id_like);
+    }
+    if (os.version_id[0] == '\0' && os.build_id[0] != '\0') {
+        size_t used = strlen(os_detail);
+        snprintf(os_detail + used, sizeof(os_detail) - used, "%s%s",
+                 used > 0 ? ", " : "", os.build_id);
+    }
+    char os_display[320];
+    if (os_detail[0] != '\0') {
+        snprintf(os_display, sizeof(os_display), "%s (%s)", os.name, os_detail);
     } else {
         snprintf(os_display, sizeof(os_display), "%s", os.name);
     }
@@ -809,12 +982,15 @@ static int do_inspect(bool json_mode)
         printf("    \"os_version\": \"%s\",\n", os_ver);
         printf("    \"kernel_release\": \"%s\",\n", uts.release);
         printf("    \"architecture\": \"%s\",\n", uts.machine);
-        if (cultivar != NULL) {
-            printf("    \"cultivar_version\": \"%s\"\n", cultivar);
-        } else {
-            printf("    \"cultivar_version\": \"unavailable\"\n");
-        }
-        printf("  },\n");
+        printf("    \"cultivar_version\": ");
+        print_json_string_or_null(cultivar_ver != NULL ? cultivar_ver : "unavailable");
+        printf(",\n    \"tamlinux_cultivar\": ");
+        print_json_string_or_null(cultivar_nm);
+        printf(",\n    \"tamlinux_version\": ");
+        print_json_string_or_null(cultivar_ver);
+        printf(",\n    \"tamlinux_version_path\": ");
+        print_json_string_or_null(cultivar_file_path);
+        printf("\n  },\n");
 
         printf("  \"capabilities\": {\n");
         printf("    \"init_system\": \"%s\",\n", get_init_system());
@@ -864,46 +1040,48 @@ static int do_inspect(bool json_mode)
         }
         printf("  ]\n");
         printf("}\n");
-
-        if (cultivar != NULL) {
-            free(cultivar);
-        }
-        return 0;
-    }
-
-    printf("Host Information:\n");
-    printf("  Operating system:  %s\n", os_display);
-    printf("  OS version:        %s\n", os_ver);
-    printf("  Kernel release:    %s\n", uts.release);
-    printf("  Architecture:      %s\n", uts.machine);
-    if (cultivar != NULL) {
-        printf("  Cultivar version:  %s\n", cultivar);
-        free(cultivar);
     } else {
-        printf("  Cultivar version:  unavailable\n");
+        printf("Host Information:\n");
+        printf("  Operating system:  %s\n", os_display);
+        if (os.version_id[0] != '\0') {
+            printf("  OS version:        %s\n", os.version_id);
+        }
+        printf("  Kernel release:    %s\n", uts.release);
+        printf("  Architecture:      %s\n", uts.machine);
+        if (cultivar != NULL) {
+            printf("  Tamlinux cultivar: %s\n", cultivar);
+        } else {
+            printf("  Tamlinux cultivar: not deployed for %s (per-user install)\n",
+                   cultivar_who != NULL ? cultivar_who : "this user");
+        }
+        printf("\n");
+
+        printf("Installation Capabilities:\n");
+        printf("  Init system:       %s\n", get_init_system());
+        printf("  Package tools:     %s\n", pkg_tools);
+        printf("  Privilege tool:    %s\n", priv_tools);
+        printf("  Root filesystem:   %s\n", root_fs);
+        printf("  Graphics device:   %s\n", gpu);
+        printf("\n");
+
+        printf("Installation Profiles:\n");
+        printf("  Supported:         %s\n", supported);
+        printf("  Target base:       %s\n", target_base);
+        printf("\n");
+
+        printf("Inspection Findings:\n");
+        for (size_t i = 0; i < NUM_CHECKS; i++) {
+            printf("  [%s] %s: %s\n", severity_str(checks[i].severity), checks[i].task_id, checks[i].summary);
+            printf("    Evidence: %s\n", checks[i].evidence_text);
+            printf("    Help:     %s\n", checks[i].help_ref);
+        }
     }
-    printf("\n");
 
-    printf("Installation Capabilities:\n");
-    printf("  Init system:       %s\n", get_init_system());
-    printf("  Package tools:     %s\n", pkg_tools);
-    printf("  Privilege tool:    %s\n", priv_tools);
-    printf("  Root filesystem:   %s\n", root_fs);
-    printf("  Graphics device:   %s\n", gpu);
-    printf("\n");
-
-    printf("Installation Profiles:\n");
-    printf("  Supported:         %s\n", supported);
-    printf("  Target base:       %s\n", target_base);
-    printf("\n");
-
-    printf("Inspection Findings:\n");
-    for (size_t i = 0; i < NUM_CHECKS; i++) {
-        printf("  [%s] %s: %s\n", severity_str(checks[i].severity), checks[i].task_id, checks[i].summary);
-        printf("    Evidence: %s\n", checks[i].evidence_text);
-        printf("    Help:     %s\n", checks[i].help_ref);
-    }
-
+    free(cultivar);
+    free(cultivar_ver);
+    free(cultivar_nm);
+    free(cultivar_file_path);
+    free(cultivar_who);
     return 0;
 }
 

@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-20
-**Scope:** Living integration contract; current command 0.34.0 and corpus 0.35.2.
+**Scope:** Living integration contract; current command 0.35.0 and corpus 0.36.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -373,6 +373,18 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-20:** Command 0.35.0 (minor) reports the operating system and
+  Tamlinux separately (Tamlinux decision D181). `tam inspect` shows the
+  distribution as `Operating system: Arch Linux (rolling)`, prints
+  `OS version` only when os-release has `VERSION_ID`, and shows
+  `Tamlinux cultivar: <Name> <version>` from the invoking user's
+  `~/.config/tamlinux/version` and `cultivar` files (the `PKEXEC_UID` user
+  under `pkexec`). `tam --version` prints the same cultivar line. Two findings
+  join the Check Contract: `os_identity` (warns when `/etc/os-release` names a
+  different distribution from `/usr/lib/os-release`) and `tamlinux_version`
+  (info when the user has no deployment). The version file still wins over
+  `$TAMLINUX_VERSION`. Corpus 0.36.1 (patch) documents the rows and updates
+  the product-version description.
 - **2026-10-20:** `make install` refuses a dirty checkout. An agent committed
   page edits, skipped the follow-up index commit and installed, so the
   development install reported corpus `ae1fa41-dirty`. The committed index

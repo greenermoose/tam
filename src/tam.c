@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <locale.h>
+#include <pwd.h>
 
 #include "version.h"
 
@@ -65,18 +66,70 @@ static char *trim_in_place(char *s)
     return s;
 }
 
-static char *cultivar_version_from_file(void)
+/* Tamlinux is deployed per user (D181): its version and cultivar name sit in
+ * that user's ~/.config/tamlinux. Under pkexec the user is the one who ran
+ * pkexec (PKEXEC_UID), not root. */
+static const struct passwd *cultivar_passwd(void)
+{
+    const char *pk = getenv("PKEXEC_UID");
+    if (geteuid() == 0 && pk != NULL && pk[0] != '\0') {
+        char *end = NULL;
+        unsigned long uid = strtoul(pk, &end, 10);
+        if (end != pk && *end == '\0') {
+            const struct passwd *pw = getpwuid((uid_t)uid);
+            if (pw != NULL) {
+                return pw;
+            }
+        }
+    }
+    return getpwuid(geteuid());
+}
+
+bool cultivar_for_root(void)
+{
+    const char *pk = getenv("PKEXEC_UID");
+    return geteuid() == 0 && (pk == NULL || pk[0] == '\0');
+}
+
+char *cultivar_user(void)
+{
+    const struct passwd *pw = cultivar_passwd();
+    return strdup(pw != NULL && pw->pw_name != NULL ? pw->pw_name : "this user");
+}
+
+char *cultivar_path(const char *leaf)
 {
     const char *xdg = getenv("XDG_CONFIG_HOME");
-    const char *home = getenv("HOME");
-    char *path = NULL;
+    char *config = NULL;
 
-    if (xdg != NULL && xdg[0] != '\0') {
-        path = join_path(xdg, "/tamlinux/version");
-    } else if (home != NULL && home[0] != '\0') {
-        path = join_path(home, "/.config/tamlinux/version");
+    if (xdg != NULL && xdg[0] != '\0' && getenv("PKEXEC_UID") == NULL) {
+        config = strdup(xdg);
+    } else {
+        const struct passwd *pw = cultivar_passwd();
+        const char *home = getenv("HOME");
+        if (getenv("PKEXEC_UID") != NULL && pw != NULL && pw->pw_dir != NULL) {
+            home = pw->pw_dir;
+        }
+        if (home != NULL && home[0] != '\0') {
+            config = join_path(home, "/.config");
+        }
     }
+    if (config == NULL) {
+        return NULL;
+    }
+    char *dir = join_path(config, "/tamlinux/");
+    free(config);
+    if (dir == NULL) {
+        return NULL;
+    }
+    char *path = join_path(dir, leaf);
+    free(dir);
+    return path;
+}
 
+static char *cultivar_file(const char *leaf)
+{
+    char *path = cultivar_path(leaf);
     if (path == NULL) {
         return NULL;
     }
@@ -95,9 +148,11 @@ static char *cultivar_version_from_file(void)
     return buf;
 }
 
+/* The version file wins over $TAMLINUX_VERSION: activation rewrites the file,
+ * while a long-running process keeps the value it started with. */
 char *cultivar_version(void)
 {
-    char *from_file = cultivar_version_from_file();
+    char *from_file = cultivar_file("version");
     if (from_file != NULL) {
         return from_file;
     }
@@ -107,6 +162,30 @@ char *cultivar_version(void)
         return strdup(env);
     }
     return NULL;
+}
+
+char *cultivar_name(void)
+{
+    return cultivar_file("cultivar");
+}
+
+/* "Incipiens 0.4.5", or the bare version when no name is installed. */
+char *cultivar_label(void)
+{
+    char *version = cultivar_version();
+    if (version == NULL) {
+        return NULL;
+    }
+    char *name = cultivar_name();
+    if (name == NULL) {
+        return version;
+    }
+    char *named = join_path(name, " ");
+    char *label = named != NULL ? join_path(named, version) : NULL;
+    free(named);
+    free(name);
+    free(version);
+    return label;
 }
 
 char *tam_corpus_version(const char *root)
@@ -287,7 +366,7 @@ static void print_tam_help(int tier)
 
 static void print_version(void)
 {
-    char *cultivar = cultivar_version();
+    char *cultivar = cultivar_label();
     char *k_root = tam_find_knowledge_root();
     char *k_ver = tam_corpus_version(k_root);
     char *k_build = tam_corpus_build_id(k_root);
