@@ -1,12 +1,12 @@
 # Maintaining recovery lessons (corpus 0.41.0)
 
 - **Date:** 2026-10-21
-- **Time:** 13:53 to 14:05, -04:00
+- **Time:** 13:53 to 14:06, -04:00
 - **Stage:** Develop; TCK25 Maintaining recovery slice
 - **CLI Tool:** Codex CLI 0.163.0
 - **Model:** GPT-6.1 Sol (`gpt-6.1-sol`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** The commit adding this record and its index-history follow-up.
+- **Commits:** `447b60d` and the index-history follow-up updating this record.
 - **Authorship:** The developer requested continuation; Codex planned, wrote and checked these lessons.
 - **Checked against:** `476b499`, `ROADMAP.md`, `docs/plans/learning-levels.md`, `docs/corpus-pedagogy.md`, `docs/corpus-authoring.md`, `src/install.c`, `src/version.h`, `knowledge/version`, `tools/build-index.py`, `knowledge/coverage.json`; product `commands/tam-deploy/tam-deploy`; `tamlinux-packages/docs/deployment.md`; native `findmnt(8)`, `chroot(1)` and `tty(1)`; Btrfs and kernel primary documentation linked below.
 
