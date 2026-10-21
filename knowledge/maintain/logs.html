@@ -22,7 +22,7 @@ guessing. Tamlinux prioritizes clean log inspection through structured filtering
 of systemd journals and the kernel ring buffer.</p>
 
 <section data-level="beginner">
-<h2>Beginner: Reading current system logs and dmesg</h2>
+<h2>Reading current system logs and dmesg</h2>
 
 <p><strong>Summary:</strong> View recent system service events and hardware kernel
 messages without losing context in an interactive pager.</p>
@@ -66,7 +66,7 @@ below.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: Targeted filtering by boot, unit, and priority</h2>
+<h2>Targeted filtering by boot, unit, and priority</h2>
 
 <p><strong>Summary:</strong> Isolate specific service failures using boot markers,
 systemd unit selectors, and syslog priority thresholds.</p>
@@ -121,7 +121,7 @@ journalctl -b -p ___
 </section>
 
 <section data-level="expert">
-<h2>Expert: Kernel ring buffer mechanics and journal integrity</h2>
+<h2>Kernel ring buffer mechanics and journal integrity</h2>
 
 <p><strong>Summary:</strong> Understand cyclic ring buffer allocation, persistent vs
 volatile journal storage, and verify binary journal integrity.</p>
@@ -149,7 +149,7 @@ journalctl --verify
 <p>To prevent logs from consuming excessive disk space while retaining essential
 audit history, vacuum older archives by storage capacity:</p>
 
-<pre>
+<pre data-risk="system">
 sudo journalctl --vacuum-size=500M
 </pre>
 </section>

@@ -21,7 +21,7 @@
 set of permission mode bits that govern read, write, and execute rights.</p>
 
 <section data-level="beginner">
-<h2>Beginner: Making a script executable</h2>
+<h2>Making a script executable</h2>
 
 <p><strong>Summary:</strong> Grant execution permissions to a shell script using
 symbolic <code>chmod</code>.</p>
@@ -65,7 +65,7 @@ severe security vulnerabilities.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: Numeric octal modes and group collaboration</h2>
+<h2>Numeric octal modes and group collaboration</h2>
 
 <p><strong>Summary:</strong> Calculate octal permission masks and configure
 shared directory collaboration with group sticky bits.</p>
@@ -88,7 +88,7 @@ chmod 600 ~/.ssh/id_ed25519
 files automatically inherit the group ownership of the directory (SetGID).
 Complete the missing octal mode below (marked with <code>___</code>):</p>
 
-<pre>
+<pre data-risk="system">
 sudo chgrp developers /srv/team
 sudo chmod ___ /srv/team
 </pre>
@@ -105,7 +105,7 @@ sudo chmod ___ /srv/team
 </section>
 
 <section data-level="expert">
-<h2>Expert: POSIX inode mode representation and attributes</h2>
+<h2>POSIX inode mode representation and attributes</h2>
 
 <p><strong>Reference:</strong> The 16-bit <code>st_mode</code> field in <code>stat(2)</code>
 encodes file type (regular, directory, symlink, fifo, socket, block, char) in the

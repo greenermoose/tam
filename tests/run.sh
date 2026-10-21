@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.37.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.38.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1460,10 +1460,83 @@ for cols, want, absent in ((120, "Level 1 Beginner", None), (80, "Lv1", "Level 1
 p = Pager(["show", "shell/pipelines"], state)
 assert p.key(b"4") == "", "key 4 changed the display"
 p.quit()
+
+# TCK22: fold keys use ordinary links and never navigate or expose private
+# state in the address. Leaving via a link, Back or Forward hides answers.
+p = Pager(["show", "folds.html"], state, env={"TAM_LEVEL": "all"})
+assert "SECRET_ALPHA" not in p.first and "SECRET_BETA" not in p.first, p.first
+assert "[+] Answer (Enter)" in p.first and "[+] Model answer (Enter)" in p.first, p.first
+p.key(b"]")
+b = p.key(b"\r")
+assert "SECRET_ALPHA" in b and "SECRET_BETA" not in b and "Quiz 1/2 revealed" in b, b
+b = p.key(b"\r")
+assert "SECRET_ALPHA" not in b and "Quiz 0/2 revealed" in b, b
+b = p.key(b"r")
+assert "SECRET_ALPHA" in b and "SECRET_BETA" not in b, b
+b = p.key(b"r")
+assert "SECRET_BETA" in b and "Quiz 2/2 revealed" in b, b
+assert "all answers shown" in p.key(b"r")
+b = p.key(b"*")
+assert "SECRET_ALPHA" not in b and "SECRET_BETA" not in b and "Quiz 0/2 revealed" in b, b
+b = p.key(b"*")
+assert "SECRET_ALPHA" in b and "SECRET_BETA" in b and "Quiz 2/2 revealed" in b, b
+b = p.key(b"=")
+assert "fold=" not in b and "Path = page:folds.html" in b, b
+p.key(b"n")
+b = p.key(b"\x1b[D")
+assert "[+] Answer" in b and "SECRET_ALPHA" not in b and "SECRET_BETA" not in b, b
+p.key(b"*")
+p.key(b"\x1b[C")
+b = p.key(b"\x1b[D")
+assert "SECRET_ALPHA" not in b and "SECRET_BETA" not in b, b
+p.quit()
+
+# Stable numbering across level filtering: the shared quiz stays fold 2.
+p = Pager(["show", "layered.html"], state, env={"TAM_LEVEL": "all"})
+p.key(b"1")
+b = p.key(b"r")
+assert "SHARED_ANSWER" in b and "EXPERT_ANSWER" not in b and "Quiz 1/1 revealed" in b, b
+b = p.key(b"0")
+assert "EXPERT_ANSWER" not in b, b
+# The expert blocks push the shared answer below the initial viewport.
+b = p.key(b"c")
+assert "SHARED_ANSWER" in b and "EXPERT_ANSWER" not in b, b
+p.quit()
+
+# Standard-input HTML has the same folding behavior and can be reloaded.
+p = Pager(["show", "-"], state, env={"TAM_LEVEL": "all"},
+          stdin=b"<h1>Input quiz</h1><details class=\"q\"><summary>Input?</summary>INPUT_SECRET</details>")
+assert "INPUT_SECRET" not in p.first, p.first
+assert "INPUT_SECRET" in p.key(b"r")
+p.quit()
 ' "$TAM" "$root/tests/fixtures/guide" "$root/tests/fixtures/tldr" "$tmp" || fail "interactive pager level lens test failed"
     pass "level lens: 0-3 persist across links, Back and restarts; TAM_LEVEL and --level override; banner, markers and status row"
 fi
 
+
+# TCK22 pipe output: answers follow the questions and are collected per
+# section; block filtering must also hide answers from filtered details.
+python3 - "$TAM" "$root/tests/fixtures/guide" <<'PYFOLD'
+import os, subprocess, sys
+tam, guide = sys.argv[1:]
+def show(page, *args):
+    return subprocess.check_output([tam, "show", page, *args], text=True,
+        env={**os.environ, "TAM_KNOWLEDGE_DIR": guide})
+s = show("folds.html", "--pipe")
+assert s.index("Question beta?") < s.index("Answers") < s.index("SECRET_ALPHA") < s.index("SECRET_BETA"), s
+assert "1. Question alpha?" in s and "1. Answer" in s and "2. Model answer" in s, s
+assert "tam:fold:" not in s and "(Enter)" not in s, s
+assert show("folds.html") == s, "non-terminal show did not use pipe folding"
+s = show("layered.html", "--pipe", "--level", "1")
+assert "SHARED_CONTENT" in s and "SHARED_ITEM" in s and "SHARED_ANSWER" in s, s
+assert "EXPERT_" not in s and "NESTED_DIV" not in s and "COMMENT_" not in s, s
+assert "2. SHARED_QUESTION" in s and "2. Answer" in s, s
+s = show("layered.html", "--pipe", "--level", "3")
+for block in ("ASIDE", "PARAGRAPH", "ITEM", "PRE", "QUESTION", "ANSWER", "DIV", "TABLE"):
+    assert "EXPERT_" + block in s, s
+assert "NESTED_DIV" in s and "SHARED_ANSWER" in s, s
+PYFOLD
+pass "folds: pipe answers collected, non-terminal show, stable IDs and block-level filtering"
 
 # Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.
 ex_out=$("$TAM" explain pipelines --pipe)
@@ -1639,20 +1712,20 @@ fi
 
 # Content-depth ladder on direct show: tam show --level LEVEL PAGE
 sh_lvl_b=$("$TAM" show --level beginner pipelines --pipe)
-printf '%s\n' "$sh_lvl_b" | grep -q 'Beginner: Connecting commands' || fail "show --level beginner pipelines failed"
+printf '%s\n' "$sh_lvl_b" | grep -q '^Connecting commands' || fail "show --level beginner pipelines failed"
 printf '%s\n' "$sh_lvl_b" | grep -q 'Expected output:' || fail "show --level beginner missing expected output"
-if printf '%s\n' "$sh_lvl_b" | grep -q '^Expert: POSIX pipe'; then fail "beginner level contains expert section"; fi
-printf '%s\n' "$sh_lvl_b" | grep -q '^-- 3 Expert: Expert: POSIX pipe' || fail "beginner level missing hidden-section marker"
+if printf '%s\n' "$sh_lvl_b" | grep -q '^POSIX pipe'; then fail "beginner level contains expert section"; fi
+printf '%s\n' "$sh_lvl_b" | grep -q '^-- 3 Expert: POSIX pipe' || fail "beginner level missing hidden-section marker"
 
 sh_lvl_i=$("$TAM" show --level intermediate pipelines --pipe)
-printf '%s\n' "$sh_lvl_i" | grep -q 'Intermediate: Redirection and Multi-Stage Filters' || fail "show --level intermediate pipelines failed"
+printf '%s\n' "$sh_lvl_i" | grep -q '^Redirection and Multi-Stage Filters' || fail "show --level intermediate pipelines failed"
 printf '%s\n' "$sh_lvl_i" | grep -q 'Completion task' || fail "show --level intermediate missing completion task"
-if printf '%s\n' "$sh_lvl_i" | grep -q '^Beginner: Connecting commands'; then fail "intermediate level contains beginner section"; fi
+if printf '%s\n' "$sh_lvl_i" | grep -q '^Connecting commands'; then fail "intermediate level contains beginner section"; fi
 
 sh_lvl_e=$("$TAM" show --level expert pipelines --pipe)
-printf '%s\n' "$sh_lvl_e" | grep -q 'Expert: POSIX pipe semantics' || fail "show --level expert pipelines failed"
+printf '%s\n' "$sh_lvl_e" | grep -q '^POSIX pipe semantics' || fail "show --level expert pipelines failed"
 printf '%s\n' "$sh_lvl_e" | grep -q 'Stream Redirection Operators' || fail "show --level expert missing operators table"
-if printf '%s\n' "$sh_lvl_e" | grep -q '^Beginner: Connecting commands'; then fail "expert level contains beginner section"; fi
+if printf '%s\n' "$sh_lvl_e" | grep -q '^Connecting commands'; then fail "expert level contains beginner section"; fi
 
 # A page without the requested level opens under a banner, exit 0.
 sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2 welcome --pipe) \

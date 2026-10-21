@@ -20,7 +20,7 @@
 <p>Snapper manages Btrfs subvolume snapshots with metadata, numbering, and configurable retention. On Tamlinux, Snapper works alongside <a href="maintain/rollback.html">Btrfs snapshots and generation rollbacks</a> to create read-only checkpoints of the root subvolume, and integrates with the bootloader via <code>limine-snapper-sync</code> so those checkpoints appear as bootable entries in Limine.</p>
 
 <section data-level="beginner">
-<h2>Beginner: What is Snapper and how does it relate to Tamlinux?</h2>
+<h2>What is Snapper and how does it relate to Tamlinux?</h2>
 
 <p><strong>Summary:</strong> Understand Snapper vs raw <code>btrfs subvolume snapshot</code>, how <code>tam-update</code> uses it, and how to inspect configs and existing snapshots.</p>
 
@@ -54,7 +54,7 @@ snapper list-configs
 
 <p>List snapshots for the root config (note: some operations may require elevated privileges):</p>
 
-<pre>
+<pre data-risk="system">
 sudo snapper -c root list
 </pre>
 
@@ -72,7 +72,7 @@ sudo snapper -c root list
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: Creating, inspecting, and cleaning up snapshots</h2>
+<h2>Creating, inspecting, and cleaning up snapshots</h2>
 
 <p><strong>Summary:</strong> Create manual snapshots (single or pre/post), inspect differences with <code>snapper status</code> and <code>snapper diff</code>, and manage retention via cleanup algorithms and timers.</p>
 
@@ -80,13 +80,13 @@ sudo snapper -c root list
 
 <p>Create a single read-only snapshot with a description:</p>
 
-<pre>
+<pre data-risk="system">
 sudo snapper -c root create -d "manual: before testing changes"
 </pre>
 
 <p>Create a pre/post pair around an operation to track what changed between them:</p>
 
-<pre>
+<pre data-risk="system">
 sudo snapper -c root create --print-number -d "pre: config edit"
 # ... make changes ...
 sudo snapper -c root create -d "post: config edit" --pre-number &lt;N&gt;
@@ -98,7 +98,7 @@ sudo snapper -c root create -d "post: config edit" --pre-number &lt;N&gt;
 
 <p>Show files changed between snapshots (or since last snapshot):</p>
 
-<pre>
+<pre data-risk="system">
 sudo snapper -c root status
 sudo snapper -c root diff 1..2
 </pre>
@@ -135,7 +135,7 @@ sudo snapper -c root diff 1..2
 
 <p>You can also run cleanup manually:</p>
 
-<pre>
+<pre data-risk="system">
 sudo snapper -c root cleanup number
 sudo snapper -c root cleanup timeline
 sudo snapper -c root cleanup empty-pre-post
@@ -145,7 +145,7 @@ sudo snapper -c root cleanup empty-pre-post
 
 <p>Delete specific snapshots when no longer needed:</p>
 
-<pre>
+<pre data-risk="system">
 sudo snapper -c root delete &lt;N&gt;
 </pre>
 
@@ -157,7 +157,7 @@ sudo snapper -c root delete &lt;N&gt;
 </section>
 
 <section data-level="expert">
-<h2>Expert: D-Bus, recovery operation, and Limine boot integration</h2>
+<h2>D-Bus, recovery operation, and Limine boot integration</h2>
 
 <p><strong>Summary:</strong> Use Snapper in recovery environments (without D-Bus), understand <code>limine-snapper-sync</code> and how snapshots appear in Limine, and be aware of boundaries (excluded subvolumes, read-only snapshots, rollbacks).</p>
 
@@ -172,7 +172,7 @@ sudo snapper -c root delete &lt;N&gt;
 
 <p>Examples from a recovery context (adjust mountpoints):</p>
 
-<pre>
+<pre data-risk="system">
 sudo snapper --no-dbus --root /mnt list-configs
 sudo snapper --no-dbus --root /mnt -c root list
 </pre>

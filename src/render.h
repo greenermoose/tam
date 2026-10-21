@@ -29,6 +29,8 @@ typedef struct {
     size_t      logical_offset;
 } tam_line_t;
 
+typedef struct { unsigned id; int quiz, open; } tam_fold_t;
+
 /* A laid-out page ready for either front end. */
 typedef struct {
     char       *title;
@@ -41,6 +43,8 @@ typedef struct {
     char       *nav_top;
     unsigned    levels; /* Levels a guide page declares; 0 for other pages. */
     int         hidden; /* Level sections the reader's lens hid. */
+    tam_fold_t *folds;
+    size_t      nfolds;
     void       *layout; /* private parsed blocks, retained for width reflow */
 } tam_document_t;
 

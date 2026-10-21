@@ -350,6 +350,14 @@ Expert. The current page is shown again at that level in place, without a
 history entry; see
 .BR "Level lens" .
 .TP
+.B r
+Reveal the next closed answer at or below the attention line, select its
+fold link and scroll it into view. With none left, report "all answers shown".
+.TP
+.B *
+Reveal every fold on the page, or hide them all when all are open.
+Self-quiz actions report the count as "Quiz 2/5 revealed".
+.TP
 .BR q ", " Esc
 Exit the pager.
 .TP
@@ -359,6 +367,17 @@ Open navigation help. Press
 or
 .B Esc
 to close it without changing the page, focus or history.
+.SS Self-quizzes and folds
+Answers, hints, solutions and "New to this?" asides start hidden in the pager.
+Select their [+] link with Tab, the link keys or the attention line and press
+.B Enter
+to toggle it. An open fold has a [-] link. Fold state belongs to the current
+page and resets when leaving it, including Back and Forward navigation.
+It never appears in the address or the saved state directory.
+With
+.B --pipe
+or non-terminal output, questions remain in place and numbered answers are
+collected under "Answers" at the end of their enclosing section (or page).
 .SS Level lens
 The level lens is the reader's one reading level. It stays in force across
 links,

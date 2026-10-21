@@ -138,18 +138,28 @@ def parse_page(root, path, rel_path, errors):
         elif name_lower == "prereqs":
             prereqs.extend(split_list(content))
 
-    # Laddered pages carry one section per declared level, and only those.
+    # Laddered sections define the page's levels; smaller tagged blocks may
+    # refine any of those levels without adding another ladder section.
     sections = []
-    for tag in re.findall(r'<section\b(?:[^>"\']|"[^"]*"|\'[^\']*\')*>', text, re.I):
-        value = extract_attr(tag, "data-level")
-        if value is not None:
-            sections.append(value.lower())
-    for value in sections:
+    layered = False
+    for match in re.finditer(r'<(section|aside|p|li|pre|details|div|table)\b(?:[^>"\']|"[^"]*"|\'[^\']*\')*>', text, re.I):
+        kind = match.group(1).lower()
+        value = extract_attr(match.group(0), "data-level")
+        if value is None:
+            continue
+        value = value.lower()
+        classes = (extract_attr(match.group(0), "class") or "").split()
+        if kind == "section" and "quiz" not in classes:
+            sections.append(value)
+        else:
+            layered = True
         if value not in LEVELS:
-            errors.append(f"{rel_path}: section has unknown data-level {value!r}")
+            errors.append(f"{rel_path}: {kind} has unknown data-level {value!r}")
         elif value not in levels:
-            errors.append(f"{rel_path}: section level {value!r} is not declared in <meta name=\"level\">")
-    if len(levels) > 1:
+            errors.append(f"{rel_path}: {kind} level {value!r} is not declared in <meta name=\"level\">")
+    # Shared-body pages may express their levels with smaller blocks or
+    # quiz sections. A ladder still requires exactly one section per level.
+    if len(levels) > 1 and (sections or not layered):
         for value in levels:
             if sections.count(value) != 1:
                 errors.append(f"{rel_path}: declares level {value!r} but has "

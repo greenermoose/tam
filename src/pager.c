@@ -168,9 +168,12 @@ typedef struct {
     int             column_active;
     int             show_address;
     unsigned        lens; /* The reader's level lens (depth.h). */
+    unsigned char  *fold_open;
+    size_t          nfold_open;
 } pager_t;
 
 static void follow(pager_t *st, const char *href);
+static void toggle_fold(pager_t *st, unsigned id);
 
 static void emit_reset(int is_attention);
 static int emit_style(const tam_span_t *sp, int is_sel);
@@ -1050,6 +1053,7 @@ static int draw(pager_t *st)
                 "Links on the line: a/j left, f/; right   Any link: ] next, [ previous",
                 "Follow: g, Enter or Right Arrow   Tab / Shift-Tab: same as ] / [",
                 "Search: / this page, \\ the guide   Next/previous hit: n/N   Address: =",
+                "Answers: Enter toggles selected, r reveals next, * toggles all",
                 "Info Up: u   Next/Previous node: n/p",
                 "Level, kept across pages: 0 All, 1 Beginner, 2 Intermediate, 3 Expert",
                 "Close help with h, ? or Esc. Focus, position and history stay put."
@@ -1367,13 +1371,14 @@ static int lens_href(const char *href)
  * cannot be shown at the lens is loaded at every level instead. */
 static tam_document_t *load_at_lens(pager_t *st, const char *href)
 {
-    char target[600];
-    if (st->lens != 0 && lens_href(href) &&
-        tam_href_put_level(href, st->lens, target, sizeof(target))) {
-        tam_document_t *nd = st->load(st->ctx, target, content_width(st));
-        if (nd != NULL) {
-            return nd;
-        }
+    if (st->lens != 0 && lens_href(href)) {
+        size_t cap = strlen(href) + 32;
+        char *target = malloc(cap);
+        if (!target) return NULL;
+        int ok = tam_href_put_level(href, st->lens, target, cap);
+        tam_document_t *nd = ok ? st->load(st->ctx, target, content_width(st)) : NULL;
+        free(target);
+        if (nd != NULL) return nd;
     }
     return st->load(st->ctx, href, content_width(st));
 }
@@ -1381,6 +1386,12 @@ static tam_document_t *load_at_lens(pager_t *st, const char *href)
 static void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
+        return;
+    }
+    if (strncmp(href, "tam:fold:", 9) == 0) {
+        char *end;
+        unsigned long id = strtoul(href + 9, &end, 10);
+        if (id > 0 && id <= (unsigned)-1 && *end == 0) toggle_fold(st, (unsigned)id);
         return;
     }
     if (strcmp(href, "tam:help") == 0) {
@@ -1445,6 +1456,7 @@ static void follow(pager_t *st, const char *href)
             snprintf(st->msg, sizeof(st->msg), "cannot open %.140s", href);
         return;
     }
+    free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
     tam_document_ensure_location(nd, href);
     history_push(st, st->cur_href, st->top, st->cursor_line);
     forward_clear(st);
@@ -1476,7 +1488,19 @@ static int heading_at_or_above(const tam_document_t *doc, int line)
  * stays on the heading it was under when that heading is still shown. */
 static int reload_in_place(pager_t *st)
 {
-    tam_document_t *nd = load_at_lens(st, st->cur_href);
+    size_t cap = strlen(st->cur_href) + st->nfold_open * 12 + 16;
+    char *target = malloc(cap);
+    if (!target) return 0;
+    size_t used = (size_t)snprintf(target, cap, "%s%sfold=", st->cur_href,
+                                  strchr(st->cur_href, '?') ? "&" : "?");
+    int first = 1;
+    for (size_t i = 1; i < st->nfold_open; i++) {
+        if (!st->fold_open[i]) continue;
+        used += (size_t)snprintf(target + used, cap - used, "%s%zu", first ? "" : ".", i);
+        first = 0;
+    }
+    tam_document_t *nd = load_at_lens(st, target);
+    free(target);
     if (nd == NULL) {
         return 0;
     }
@@ -1506,6 +1530,73 @@ static int reload_in_place(pager_t *st)
     }
     restore_nav_state(st, top, top + cursor_row);
     return 1;
+}
+
+/* Fold state belongs to this page, never to its address or history entry. */
+static int fold_set(pager_t *st, unsigned id, int open)
+{
+    if (id >= st->nfold_open) {
+        size_t n = (size_t)id + 1;
+        unsigned char *next = realloc(st->fold_open, n);
+        if (!next) return 0;
+        memset(next + st->nfold_open, 0, n - st->nfold_open);
+        st->fold_open = next; st->nfold_open = n;
+    }
+    st->fold_open[id] = (unsigned char)open;
+    return 1;
+}
+static void fold_message(pager_t *st)
+{
+    size_t total = 0, shown = 0;
+    for (size_t i = 0; i < st->doc->nfolds; i++) {
+        tam_fold_t f = st->doc->folds[i];
+        if (f.quiz) { total++; shown += f.open != 0; }
+    }
+    if (total) snprintf(st->msg, sizeof(st->msg), "Quiz %zu/%zu revealed", shown, total);
+    else st->msg[0] = 0;
+}
+static void select_fold(pager_t *st, unsigned id)
+{
+    char href[40]; snprintf(href, sizeof(href), "tam:fold:%u", id);
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if (strcmp(st->links[i].href, href)) continue;
+        set_cursor_line(st, (int)st->links[i].line_start, 1);
+        st->selected = (int)i;
+        return;
+    }
+}
+static void toggle_fold(pager_t *st, unsigned id)
+{
+    for (size_t i = 0; i < st->doc->nfolds; i++) {
+        tam_fold_t f = st->doc->folds[i];
+        if (f.id != id) continue;
+        if (!fold_set(st, id, !f.open) || !reload_in_place(st)) {
+            snprintf(st->msg, sizeof(st->msg), "cannot toggle answer"); return;
+        }
+        select_fold(st, id); fold_message(st); return;
+    }
+}
+static void reveal_next(pager_t *st)
+{
+    for (size_t i = 0; i < st->nlinks; i++) {
+        if (st->links[i].line_start < (size_t)st->cursor_line || strncmp(st->links[i].href, "tam:fold:", 9)) continue;
+        unsigned id = (unsigned)strtoul(st->links[i].href + 9, NULL, 10);
+        if (id < st->nfold_open && st->fold_open[id]) continue;
+        toggle_fold(st, id); return;
+    }
+    snprintf(st->msg, sizeof(st->msg), "all answers shown");
+}
+static void toggle_all_folds(pager_t *st)
+{
+    if (!st->doc->nfolds) {
+        snprintf(st->msg, sizeof(st->msg), "all answers shown"); return;
+    }
+    int all = 1;
+    for (size_t i = 0; i < st->doc->nfolds; i++)
+        if (!st->doc->folds[i].open) all = 0;
+    for (size_t i = 0; i < st->doc->nfolds; i++)
+        if (!fold_set(st, st->doc->folds[i].id, !all)) return;
+    if (reload_in_place(st)) fold_message(st);
 }
 
 static void set_lens(pager_t *st, unsigned char key)
@@ -1564,6 +1655,7 @@ static void go_back(pager_t *st)
         free(prev.selected_href);
         return;
     }
+    free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
     tam_document_ensure_location(nd, prev.href);
     forward_push(st, st->cur_href, st->top, st->cursor_line);
     pager_clear_search(st);
@@ -1600,6 +1692,7 @@ static void go_forward(pager_t *st)
         free(next.selected_href);
         return;
     }
+    free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
     tam_document_ensure_location(nd, next.href);
     history_push(st, st->cur_href, st->top, st->cursor_line);
     pager_clear_search(st);
@@ -1954,6 +2047,12 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case 'h':
         st->help_open = !st->help_open;
         break;
+    case 'r':
+        reveal_next(st);
+        break;
+    case '*':
+        toggle_all_folds(st);
+        break;
     case '=':
         st->show_address = !st->show_address;
         break;
@@ -2187,6 +2286,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         int rc = plain == NULL ? 1 : 0;
         if (plain != NULL) { fputs(plain, stdout); free(plain); }
         tam_document_free(st.doc);
+        free(st.fold_open);
         free(st.cur_href);
         free(st.links);
         return rc;
@@ -2198,6 +2298,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         int rc = plain == NULL ? 1 : 0;
         if (plain != NULL) { fputs(plain, stdout); free(plain); }
         tam_document_free(st.doc);
+        free(st.fold_open);
         free(st.cur_href);
         free(st.links);
         return rc;
@@ -2224,6 +2325,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
             tam_pager_screen_free(&g_screen);
             g_term = NULL;
             tam_document_free(st.doc);
+            free(st.fold_open);
             free(st.cur_href);
             free(st.links);
             return 1;
@@ -2239,6 +2341,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         tam_pager_screen_free(&g_screen);
         g_term = NULL;
         tam_document_free(st.doc);
+        free(st.fold_open);
         free(st.cur_href);
         free(st.links);
         return 1;
@@ -2255,6 +2358,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         tam_pager_screen_free(&g_screen);
         g_term = NULL;
         tam_document_free(st.doc);
+        free(st.fold_open);
         free(st.cur_href);
         free(st.links);
         return 1;
@@ -2346,6 +2450,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     }
     free(st.forward);
     free(st.links);
+    free(st.fold_open);
     free(st.cur_href);
     pager_clear_search(&st);
     tam_document_free(st.doc);

@@ -24,7 +24,7 @@
   histories in user space, you can roll back unexpected regressions in seconds.</p>
 
 <section data-level="beginner">
-<h2>Beginner: Understanding snapshots and generations</h2>
+<h2>Understanding snapshots and generations</h2>
 
 <p><strong>Summary:</strong> Understand what snapshots and generations are, how
 they differ from slow file copies, and verify rollback readiness.</p>
@@ -68,7 +68,7 @@ intermediate section below.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: Btrfs snapshots and Home Manager generations</h2>
+<h2>Btrfs snapshots and Home Manager generations</h2>
 
 <p><strong>Summary:</strong> Create read-only Btrfs subvolume checkpoints before major
 system operations and manage user desktop generation profiles.</p>
@@ -78,13 +78,13 @@ system operations and manage user desktop generation profiles.</p>
 <p>Create a read-only snapshot of your active root subvolume prior to package or
 kernel upgrades:</p>
 
-<pre>
+<pre data-risk="system">
 sudo btrfs subvolume snapshot -r / /.snapshots/root-pre-upgrade
 </pre>
 
 <p>List existing snapshots to confirm creation:</p>
 
-<pre>
+<pre data-risk="system">
 sudo btrfs subvolume list /
 </pre>
 
@@ -116,7 +116,7 @@ underlying base packages, activate the prior profile link:</p>
 <p>Inspect existing Btrfs subvolumes on your root partition using the <code>btrfs</code>
 command. Complete the missing subcommand below (marked with <code>___</code>):</p>
 
-<pre>
+<pre data-risk="system">
 sudo btrfs subvolume ___ /
 </pre>
 
@@ -131,7 +131,7 @@ sudo btrfs subvolume ___ /
 </section>
 
 <section data-level="expert">
-<h2>Expert: Root subvolume rollback and Btrfs CoW mechanics</h2>
+<h2>Root subvolume rollback and Btrfs CoW mechanics</h2>
 
 <p><strong>Summary:</strong> Master Btrfs extent allocation trees, default subvolume ID
 switching, and complete root recovery from external live environments.</p>

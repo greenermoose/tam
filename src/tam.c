@@ -2,6 +2,7 @@
 
 #include "ask.h"
 #include "depth.h"
+#include "fold.h"
 #include "discovery.h"
 #include "index.h"
 #include "info.h"
@@ -582,6 +583,8 @@ static void resolve_page(const char *root, const char *page, char *out,
 
 typedef struct {
     char *root;
+    const char *stdin_html;
+    size_t stdin_len;
 } corpus_ctx_t;
 
 static int shared_prereqs(const tam_index_entry_t *a, const tam_index_entry_t *b)
@@ -716,9 +719,12 @@ static char *read_corpus_page(const char *root, const char *href,
         }
         tam_index_free(idx);
     }
-    char *html = tam_depth_apply_rev(src, len, rel, level, rev,
+    char *numbered = tam_fold_number(src, len);
+    if (numbered == NULL) { free(related); free(src); free(rel); return NULL; }
+    char *html = tam_depth_apply_rev(numbered, strlen(numbered), rel, level, rev,
                                      updated[0] ? updated : NULL, related,
                                      out_len, info);
+    free(numbered);
     free(related);
     free(src);
     free(rel);
@@ -1062,16 +1068,27 @@ static tam_document_t *corpus_load(void *vctx, const char *href,
         }
         return tam_topics_document(ctx->root, level, content_width);
     }
-    if (ctx->root == NULL) {
+    if (ctx->root == NULL && ctx->stdin_html == NULL) {
         return NULL;
+    }
+    char *open = NULL;
+    char *bare = tam_fold_split_href(href, &open);
+    if (bare == NULL) { free(open); return NULL; }
+    if (ctx->root == NULL && strcmp(bare, "<stdin>") != 0) {
+        free(bare); free(open); return NULL;
     }
     size_t len = 0;
     tam_depth_info_t info = {0};
-    char *src = read_corpus_page(ctx->root, href, &len, &info);
+    char *src = strcmp(bare, "<stdin>") == 0 && ctx->stdin_html != NULL
+        ? tam_fold_number(ctx->stdin_html, ctx->stdin_len)
+        : read_corpus_page(ctx->root, bare, &len, &info);
+    free(bare);
     if (src == NULL) {
+        free(open);
         return NULL;
     }
-    tam_document_t *doc = tam_render_html(src, len, content_width);
+    tam_document_t *doc = tam_fold_render(src, strlen(src), content_width, open, 0);
+    free(open);
     free(src);
     if (doc != NULL) {
         doc->levels = info.levels;
@@ -1201,7 +1218,11 @@ static int view_document(const char *root, const char *href, const char *src,
     }
     int width = interactive ? tam_terminal_width() : 80;
 
-    tam_document_t *doc = tam_render_html(src, len, width);
+    char *numbered = info == NULL ? tam_fold_number(src, len) : NULL;
+    tam_document_t *doc = (info == NULL && numbered == NULL) ? NULL :
+        tam_fold_render(numbered ? numbered : src, numbered ? strlen(numbered) : len,
+                        width, NULL, !interactive);
+    free(numbered);
     if (doc == NULL) {
         return TAM_EXIT_FAILURE;
     }
@@ -1212,9 +1233,9 @@ static int view_document(const char *root, const char *href, const char *src,
 
     int rc = 0;
     if (interactive) {
-        corpus_ctx_t ctx;
-        ctx.root = (char *)root;
-        rc = tam_pager_run(doc, href, root != NULL ? corpus_load : NULL, &ctx);
+        corpus_ctx_t ctx = { .root = (char *)root,
+            .stdin_html = info == NULL ? src : NULL, .stdin_len = len };
+        rc = tam_pager_run(doc, href, corpus_load, &ctx);
     } else {
         char *text = tam_document_text(doc);
         if (text != NULL) {
@@ -1349,7 +1370,7 @@ static int cmd_show(int n, char **args)
         tam_document_ensure_location(doc, page);
         int rc = 0;
         if (interactive) {
-            corpus_ctx_t ctx;
+            corpus_ctx_t ctx = {0};
             ctx.root = root;
                 char initial_href[64];
             if (level != 0) {
@@ -1409,7 +1430,7 @@ static int cmd_show(int n, char **args)
         tam_document_ensure_location(doc, page);
         int rc = 0;
         if (interactive) {
-            corpus_ctx_t ctx;
+            corpus_ctx_t ctx = {0};
             ctx.root = root;
                 rc = tam_pager_run(doc, page, corpus_load, &ctx);
         } else {
@@ -1436,7 +1457,7 @@ static int cmd_show(int n, char **args)
         tam_document_ensure_location(doc, page);
         int rc = 0;
         if (interactive) {
-            corpus_ctx_t ctx;
+            corpus_ctx_t ctx = {0};
             ctx.root = root;
                 rc = tam_pager_run(doc, page, corpus_load, &ctx);
         } else {
@@ -1463,7 +1484,7 @@ static int cmd_show(int n, char **args)
         tam_document_ensure_location(doc, page);
         int rc = 0;
         if (interactive) {
-            corpus_ctx_t ctx;
+            corpus_ctx_t ctx = {0};
             ctx.root = root;
             rc = tam_pager_run(doc, page, corpus_load, &ctx);
         } else {
@@ -1665,7 +1686,7 @@ static int cmd_explain(int n, char **args)
             return TAM_EXIT_FAILURE;
         }
 
-        corpus_ctx_t ctx;
+        corpus_ctx_t ctx = {0};
         ctx.root = root;
         char initial_href[64];
         if (level != 0) {
@@ -1697,7 +1718,7 @@ static int cmd_explain(int n, char **args)
 
         int rc = 0;
         if (interactive) {
-            corpus_ctx_t ctx;
+            corpus_ctx_t ctx = {0};
             ctx.root = root;
                 char initial_href[64];
             if (level != 0) {
@@ -1730,7 +1751,7 @@ static int cmd_explain(int n, char **args)
 
     int rc = 0;
     if (interactive) {
-        corpus_ctx_t ctx;
+        corpus_ctx_t ctx = {0};
         ctx.root = root;
         char initial_href[512];
         char *enc_q = url_encode(query_buf);
@@ -1848,7 +1869,7 @@ static int cmd_search(int n, char **args)
             return TAM_EXIT_FAILURE;
         }
         tam_document_ensure_location(doc, initial_href);
-        corpus_ctx_t ctx;
+        corpus_ctx_t ctx = {0};
         ctx.root = root;
         int rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
         free(root);

@@ -22,7 +22,7 @@ power through a deliberate, three-stage progression: individual monitor blanking
 low-power RAM suspend, and zero-watt S4 disk hibernation.</p>
 
 <section data-level="beginner">
-<h2>Beginner: The 3-stage power progression and safe display wake</h2>
+<h2>The 3-stage power progression and safe display wake</h2>
 
 <p><strong>Summary:</strong> Understand the three power tiers and practice safe display
 waking with the <code>Shift</code> key.</p>
@@ -63,7 +63,7 @@ below.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: Power state verification and DPMS controls</h2>
+<h2>Power state verification and DPMS controls</h2>
 
 <p><strong>Summary:</strong> Query kernel sleep modes in <code>/sys/power/</code> and
 control individual output power under Wayland.</p>
@@ -126,7 +126,7 @@ tam check ___
 </section>
 
 <section data-level="expert">
-<h2>Expert: Zero-watt S4 disk hibernation and swap image tuning</h2>
+<h2>Zero-watt S4 disk hibernation and swap image tuning</h2>
 
 <p><strong>Summary:</strong> Configure kernel hibernation image parameters, prevent
 allocation ENOMEM errors, and understand KMS output retraining.</p>
@@ -149,7 +149,7 @@ satisfy <code>/sys/power/image_size</code> (defaulting to ~2/5 of total RAM). If
 memory is heavily fragmented or allocated across pinned cache pages, the shrinker
 can encounter an allocation failure (<code>ENOMEM</code>):</p>
 
-<pre>
+<pre data-risk="system">
 # Force the kernel to allocate the smallest viable memory image
 echo 0 | sudo tee /sys/power/image_size
 </pre>

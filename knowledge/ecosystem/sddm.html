@@ -24,7 +24,7 @@ desktop session. Tamlinux selects <strong>SDDM</strong> (Simple Desktop Display
 Manager) as its primary display manager.</p>
 
 <section data-level="beginner">
-<h2>Beginner: What a display manager does and the Tamlinux login flow</h2>
+<h2>What a display manager does and the Tamlinux login flow</h2>
 
 <p><strong>Summary:</strong> Understand the purpose of a display manager, how
 Tamlinux handles automatic login versus manual selection, and how to verify its
@@ -85,7 +85,7 @@ loginctl list-sessions
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: SDDM architecture, configuration hierarchy, and sessions</h2>
+<h2>SDDM architecture, configuration hierarchy, and sessions</h2>
 
 <p><strong>Summary:</strong> Discover how SDDM is configured on Tamlinux, how
 Wayland sessions are discovered and executed, and how the Qt 6 QML greeter is
@@ -171,7 +171,7 @@ without an interactive display.</p>
 </section>
 
 <section data-level="expert">
-<h2>Expert: Greeter design, PAM authentication, and recovery procedures</h2>
+<h2>Greeter design, PAM authentication, and recovery procedures</h2>
 
 <p><strong>Summary:</strong> Explore display manager architectures, PAM session
 integration, and emergency recovery runbooks.</p>
@@ -259,7 +259,7 @@ journalctl -u sddm -n 50 --no-pager
 directory (e.g. rename to <code>.disabled</code> outside
 <code>/etc/sddm.conf.d/</code>, since SDDM parses all files in that directory).</li>
 <li><strong>Restart or test:</strong> Restart the display manager service:
-<pre>
+<pre data-risk="system">
 sudo systemctl restart sddm
 </pre>
 (Note: Restarting SDDM terminates any active graphical sessions.)</li>

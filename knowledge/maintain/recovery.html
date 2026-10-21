@@ -23,7 +23,7 @@ ensures you regain control calmly without risking data loss or filesystem
 corruption.</p>
 
 <section data-level="beginner">
-<h2>Beginner: Dropping to a virtual console (TTY)</h2>
+<h2>Dropping to a virtual console (TTY)</h2>
 
 <p><strong>Summary:</strong> Escape a frozen Wayland desktop or unresponsive
 fullscreen window by switching to an independent text virtual console.</p>
@@ -71,7 +71,7 @@ intermediate section below.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Intermediate: The Magic SysRq (REISUB) emergency sequence</h2>
+<h2>The Magic SysRq (REISUB) emergency sequence</h2>
 
 <p><strong>Summary:</strong> Use kernel Magic SysRq keys to cleanly terminate
 processes, sync disks, and reboot a frozen machine without holding the power
@@ -141,7 +141,7 @@ tam check ___
 </section>
 
 <section data-level="expert">
-<h2>Expert: Live USB rescue and chroot recovery</h2>
+<h2>Live USB rescue and chroot recovery</h2>
 
 <p><strong>Summary:</strong> Boot a rescue live USB, mount encrypted and Btrfs
 storage pools, and chroot into the workstation environment to repair kernels,
@@ -174,7 +174,7 @@ done
 <pre>chroot /mnt /bin/bash</pre></li>
 
 <li><strong>Repair system configuration:</strong>
-<pre>
+<pre data-risk="boot">
 # Rebuild initramfs images
 mkinitcpio -P
 

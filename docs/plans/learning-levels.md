@@ -13,7 +13,7 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** TCK22 (folding, self-quizzes and block-level levels).
+**Next action:** TCK23 (pilot pages and two goal paths).
 Write its claim and versions from the current files before starting.
 
 ## Problem and agreed outcome
@@ -316,6 +316,16 @@ prefixes, `knowledge/version`, the indexes, `docs/plans/development.md`,
 hidden in the pager and collected under "Answers" in pipe output; no page
 carries a hand-typed level prefix.
 
+**Delivered (2026-10-21, command 0.38.0 / corpus 0.37.1).** Fold numbering
+runs before level filtering; the fold transform then receives only the visible
+blocks. This keeps question identities stable through lens changes and keeps
+filtered answers out of pipe output. The pager owns its open set; loader-only
+`fold=` parameters never reach history or address display. Standard-input
+HTML supports the same folds. All-view level identification uses generated
+heading labels alone, without another gutter. The 23 prefixed pages now omit
+those prefixes; existing privileged examples have risk labels. Implementation
+and verification: [TCK22 record](../ai/2026-10-21-tam-folding.md).
+
 ### TCK23 (pilot pages, goal-path hub, two goal paths)
 
 Claim: `knowledge/shell/pipelines.html`,
@@ -421,4 +431,5 @@ Approved direction. Plan each part before starting.
 
 TCK20 delivered on 2026-10-21 with this plan. TCK21 delivered on
 2026-10-21 as command 0.37.0, with the banner ranking revised in 0.37.1;
-see its delivery note. TCK22–TCK25 open.
+see its delivery note. TCK22 delivered as command 0.38.0 / corpus 0.37.1;
+see its delivery note and verification record. TCK23–TCK25 remain open.

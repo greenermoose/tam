@@ -753,7 +753,7 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
         }
         return;
     }
-    if (strcmp(name, "em") == 0 || strcmp(name, "i") == 0) {
+    if (strcmp(name, "em") == 0 || strcmp(name, "i") == 0 || strcmp(name, "dfn") == 0) {
         if (closing) {
             p->style &= ~TAM_STYLE_ITALIC;
         } else {
@@ -829,11 +829,51 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
         }
         return;
     }
+    if (strcmp(name, "aside") == 0) {
+        parser_end_block(p);
+        if (!closing) {
+            char *classes = extract_attr(s, end, "class");
+            static const struct { const char *key, *label; } labels[] = {
+                {"note", "Note:"}, {"tip", "Tip:"}, {"caution", "Caution:"},
+                {"tamlinux", "On Tamlinux:"}, {"why", "Why:"},
+                {"peek", "Peek under the hood:"}
+            };
+            char *save = NULL;
+            for (char *c = classes ? strtok_r(classes, " \t\r\n", &save) : NULL;
+                 c; c = strtok_r(NULL, " \t\r\n", &save)) {
+                for (size_t i = 0; i < sizeof(labels)/sizeof(labels[0]); i++) {
+                    if (strcmp(c, labels[i].key)) continue;
+                    parser_begin_block(p, B_PARA, 0, 0, 0);
+                    spanlist_append(&p->runs, labels[i].label, strlen(labels[i].label),
+                                    TAM_STYLE_BOLD, NULL, 0);
+                    parser_end_block(p);
+                    goto aside_done;
+                }
+            }
+        aside_done:
+            free(classes);
+        }
+        return;
+    }
     if (strcmp(name, "pre") == 0) {
         if (closing) {
             parser_end_block(p);
             p->in_pre = 0;
         } else {
+            char *risk = extract_attr(s, end, "data-risk");
+            static const struct { const char *key, *label; } risks[] = {
+                {"read-only", "[read-only]"}, {"scratch", "[scratch directory]"},
+                {"user", "[changes your files]"}, {"system", "[changes the system]"},
+                {"boot", "[affects boot]"}
+            };
+            for (size_t i = 0; risk && i < sizeof(risks)/sizeof(risks[0]); i++) {
+                if (strcmp(risk, risks[i].key)) continue;
+                parser_begin_block(p, B_PARA, 0, 0, 0);
+                spanlist_append(&p->runs, risks[i].label, strlen(risks[i].label),
+                                TAM_STYLE_BOLD, NULL, 0);
+                parser_end_block(p);
+            }
+            free(risk);
             parser_begin_block(p, B_PRE, 0, 0, 0);
             p->in_pre = 1;
         }
@@ -1963,6 +2003,7 @@ void tam_document_free(tam_document_t *doc)
         free(doc->location.spans[i].href);
     }
     free(doc->location.spans);
+    free(doc->folds);
     free(doc->title);
     free(doc->nav_next);
     free(doc->nav_prev);

@@ -56,6 +56,32 @@ class LintCorpus(unittest.TestCase):
     def finding(self, rule, message, line=1, page="knowledge/t.html"):
         return f"{page}:{line}: {rule}: {message}"
 
+    def test_heading_prefix_with_inline_markup(self):
+        self.check("<h2><em>Beginner</em>: Commands</h2>",
+                   [self.finding("LEVEL-PREFIX", "level heading prefixes are generated; remove the hand-typed prefix")], 1)
+        self.check("<h2>Beginning commands</h2>", [], 0)
+
+    def test_quiz_requires_summary_and_answer(self):
+        self.check('<details class="q open"><p>Answer</p></details>',
+                   [self.finding("QUIZ", "details.q requires a summary")], 1)
+        self.check('<details class="q"><summary>Question?</summary>  <p> </p></details>',
+                   [self.finding("QUIZ", "details.q requires a nonempty answer body")], 1)
+        self.check('<details class="q"><summary>Question?</summary><p><em>Answer</em></p></details>', [], 0)
+        self.check('<details class="hint"><summary>Hint?</summary></details>', [], 0)
+
+    def test_risk_labels_required_for_privileged_commands(self):
+        commands = ("sudo true", "pkexec true", "pacman -S example", "pacman -Rns example",
+                    "pacman -U example.pkg.tar.zst", "pacman --sync example", "limine-install",
+                    "mkinitcpio -P", "efibootmgr -v")
+        for command in commands:
+            with self.subTest(command=command):
+                self.check(f'<pre data-risk="read-only"><code>{command}</code></pre>',
+                    [self.finding("RISK", 'privileged, package or boot commands require data-risk="system" or "boot"')], 1)
+                for risk in ("system", "boot"):
+                    self.check(f'<pre data-risk="{risk}">{command}</pre>', [], 0)
+        self.check('<pre>pacman -Q example</pre><p>sudo is a privileged command.</p>', [], 0)
+        self.check('<!-- <pre>pkexec true</pre> -->', [], 0)
+
     # A: entities
     def test_a1_known_and_numeric_entities_pass(self):
         self.check("<p>Fine &amp; dandy &rarr; ok &#8594;</p>", [], 0)

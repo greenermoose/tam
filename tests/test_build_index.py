@@ -89,6 +89,37 @@ class BuildIndex(unittest.TestCase):
         return {name: ((root / "knowledge" / name).read_bytes(),
                        (root / "knowledge" / name).stat().st_mtime_ns) for name in names}
 
+    def test_block_levels_validate_without_adding_ladder_sections(self):
+        for tag in ("aside", "p", "li", "pre", "details", "div", "table"):
+            with self.subTest(tag=tag):
+                text = page("Guide").replace("</body>", f'<{tag} data-level="beginner">Shared</{tag}></body>')
+                root = self.fixture("0.37.1", {"index.html": text})
+                self.assertEqual(self.build(root).returncode, 0)
+                for level, message in (("novice", "unknown data-level"), ("expert", "not declared")):
+                    (root / "knowledge/index.html").write_text(text.replace('data-level="beginner"', f'data-level="{level}"'))
+                    result = self.build(root)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(message, result.stdout + result.stderr)
+
+    def test_layered_pages_and_ladders(self):
+        shared = page("Guide").replace('content="beginner"', 'content="beginner, intermediate, expert"')
+        body = ('<aside data-level="beginner">Hint</aside>'
+                '<p data-level="intermediate">Model</p>'
+                '<table data-level="expert"><tr><td>Reference</td></tr></table>'
+                '<section class="quiz" data-level="beginner"><h3>Quiz</h3></section>')
+        root = self.fixture("0.37.1", {"index.html": shared.replace("</body>", body + "</body>")})
+        self.assertEqual(self.build(root).returncode, 0)
+        ladder = ''.join(f'<section data-level="{level}"><h2>{level}</h2></section>'
+                         for level in ("beginner", "intermediate", "expert"))
+        target = root / "knowledge/index.html"
+        target.write_text(shared.replace("</body>", ladder + body + "</body>"))
+        self.assertEqual(self.build(root).returncode, 0)
+        for invalid in (ladder.replace('data-level="expert"', 'data-level="beginner"'), ""):
+            target.write_text(shared.replace("</body>", invalid + "</body>"))
+            result = self.build(root)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("matching sections", result.stdout + result.stderr)
+
     def test_make_rechecks_edits_and_page_inventory_at_any_depth(self):
         root = self.make_fixture()
         self.make_ok(root, "corpus")

@@ -12,6 +12,7 @@ docs/corpus-authoring.md.
 """
 
 import argparse
+from html.parser import HTMLParser
 import re
 import sys
 from pathlib import Path
@@ -75,6 +76,65 @@ def load_rules(root):
     return entities, subcommands, verbs, stubs
 
 
+class PedagogyParser(HTMLParser):
+    """Structural checks keep inline markup and nested folds together."""
+    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+            "link", "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self, page):
+        super().__init__(convert_charrefs=True)
+        self.page, self.stack = page, []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.VOID:
+            return
+        node = {"tag": tag, "attrs": dict(attrs), "line": self.getpos()[0],
+                "text": [], "body": [], "summary": False}
+        if tag == "summary" and self.stack and self.stack[-1]["tag"] == "details":
+            self.stack[-1]["summary"] = True
+        self.stack.append(node)
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        if tag not in self.VOID:
+            self.handle_endtag(tag)
+
+    def handle_data(self, data):
+        for i, node in enumerate(self.stack):
+            node["text"].append(data)
+            if not any(n["tag"] == "summary" for n in self.stack[i + 1:]):
+                node["body"].append(data)
+
+    def handle_endtag(self, tag):
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i]["tag"] == tag:
+                for node in self.stack[i:]:
+                    self.check_node(node)
+                del self.stack[i:]
+                return
+
+    def check_node(self, node):
+        tag, attrs = node["tag"], node["attrs"]
+        text = "".join(node["text"])
+        offset = self.page.starts[node["line"] - 1]
+        if re.fullmatch(r"h[1-6]", tag) and re.match(r"\s*(Beginner|Intermediate|Expert)\s*:", text, re.I):
+            self.page.add(offset, "LEVEL-PREFIX", "level heading prefixes are generated; remove the hand-typed prefix")
+        if tag == "details" and "q" in (attrs.get("class") or "").split():
+            if not node["summary"]:
+                self.page.add(offset, "QUIZ", "details.q requires a summary")
+            if not "".join(node["body"]).strip():
+                self.page.add(offset, "QUIZ", "details.q requires a nonempty answer body")
+        privileged = re.search(r"(?<![\w./-])(?:sudo|pkexec|limine(?:-[\w-]+)?|mkinitcpio|efibootmgr)\b", text)
+        packages = any(re.search(r"(?:^|\s)-(?:[a-zA-Z]*[SRU]|-(?:sync|remove|upgrade)\b)", m.group(1))
+                       for m in re.finditer(r"\bpacman\s+([^\n]*)", text))
+        if tag == "pre" and (privileged or packages) and attrs.get("data-risk") not in {"system", "boot"}:
+            self.page.add(offset, "RISK", "privileged, package or boot commands require data-risk=\"system\" or \"boot\"")
+
+    def finish(self):
+        for node in self.stack:
+            self.check_node(node)
+
+
 class Page:
     def __init__(self, rel, text, rules):
         self.rel = rel
@@ -100,6 +160,9 @@ class Page:
     def check(self):
         self.check_raw()
         self.check_text()
+        parser = PedagogyParser(self)
+        parser.feed(self.text)
+        parser.finish()
         return self.findings
 
     def check_raw(self):

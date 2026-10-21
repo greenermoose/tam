@@ -2,13 +2,13 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.37.1 and corpus 0.37.0.
+**Scope:** Living integration contract; current command 0.38.0 and corpus 0.37.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** TCK21 (sticky level lens) in the [learning levels plan](learning-levels.md). Package Test/Run/Release remain developer-directed stages.
+**Next action:** TCK23 (pilot pages and goal paths) in the [learning levels plan](learning-levels.md). Package Test/Run/Release remain developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
 
@@ -333,8 +333,15 @@ limits are recorded in those plans.
 
 The [learning levels plan](learning-levels.md) is in progress. TCK20 delivered
 the teaching contract, [`docs/corpus-pedagogy.md`](../corpus-pedagogy.md), with
-page templates in `docs/templates/`. Current behavior is unchanged until TCK21:
-level keys still reload the page by address, and the "Depth:" line remains.
+page templates in `docs/templates/`. TCK21 delivered the sticky level lens,
+status row and level bar (command 0.37.0; banner ranking corrected in 0.37.1).
+TCK22 delivers pager folds and self-quiz keys (Enter, `r`, `*`), section-end
+pipe answers, block-level filtering, generated section labels, asides and
+risk labels (command 0.38.0 / corpus 0.37.1). Fold state stays on the current
+page, persists through lens changes and resets on page navigation. Section
+labels alone identify levels in All; there is no extra gutter. Lint checks
+reject manual level prefixes, incomplete quizzes and unlabeled privileged
+examples. Next is the TCK23 pilot; no new learning pages are part of TCK22.
 
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
@@ -375,6 +382,14 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-21:** Command 0.38.0 (minor): TCK22, with corpus 0.37.1
+  (patch), implements the approved folding, quizzes and block-level levels contract.
+  Number folds before filtering so a level change never reveals another
+  question's answer; keep the open set in the pager and pass it privately to
+  the loader. Pipe output collects answers at section ends. Generated level
+  labels replace manual heading prefixes on 23 pages. See the
+  [implementation record](../ai/2026-10-21-tam-folding.md).
 
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
