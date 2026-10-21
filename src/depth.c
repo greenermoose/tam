@@ -1,6 +1,7 @@
 #include <tam.h>
 
 #include "depth.h"
+#include "version.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -12,10 +13,11 @@ static const struct {
     unsigned    bit;
     const char *name;
     const char *num;
+    const char *label;
 } LEVELS[] = {
-    { TAM_LEVEL_BEGINNER,     "beginner",     "1" },
-    { TAM_LEVEL_INTERMEDIATE, "intermediate", "2" },
-    { TAM_LEVEL_EXPERT,       "expert",       "3" },
+    { TAM_LEVEL_BEGINNER,     "beginner",     "1", "Beginner" },
+    { TAM_LEVEL_INTERMEDIATE, "intermediate", "2", "Intermediate" },
+    { TAM_LEVEL_EXPERT,       "expert",       "3", "Expert" },
 };
 
 #define NLEVELS (sizeof(LEVELS) / sizeof(LEVELS[0]))
@@ -121,6 +123,150 @@ char *tam_level_format(unsigned mask, const char *sep, char *out, size_t cap)
         used += (size_t)n;
     }
     return out;
+}
+
+const char *tam_level_label(unsigned bit)
+{
+    for (size_t i = 0; i < NLEVELS; i++) {
+        if (LEVELS[i].bit == bit) {
+            return LEVELS[i].label;
+        }
+    }
+    return "All";
+}
+
+int tam_level_number(unsigned bit)
+{
+    for (size_t i = 0; i < NLEVELS; i++) {
+        if (LEVELS[i].bit == bit) {
+            return (int)i + 1;
+        }
+    }
+    return 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* The reader's lens                                                          */
+/* ------------------------------------------------------------------------- */
+
+static int      g_lens_known;
+static unsigned g_lens;
+
+static int env_level(unsigned *level)
+{
+    const char *env = getenv("TAM_LEVEL");
+    return env != NULL && tam_level_parse_arg(env, level);
+}
+
+unsigned tam_lens_get(void)
+{
+    if (g_lens_known) {
+        return g_lens;
+    }
+    g_lens_known = 1;
+    g_lens = 0;
+    if (env_level(&g_lens)) {
+        return g_lens;
+    }
+    char *path = tam_state_path("level", false);
+    if (path == NULL) {
+        return g_lens;
+    }
+    size_t len = 0;
+    char *text = tam_fs_read_file(path, &len);
+    free(path);
+    if (text == NULL) {
+        return g_lens;
+    }
+    while (len > 0 && isspace((unsigned char)text[len - 1])) {
+        text[--len] = '\0';
+    }
+    unsigned saved = 0;
+    if (tam_level_parse_arg(text, &saved)) {
+        g_lens = saved;
+    }
+    free(text);
+    return g_lens;
+}
+
+void tam_lens_override(unsigned level)
+{
+    g_lens_known = 1;
+    g_lens = level;
+}
+
+void tam_lens_set(unsigned level)
+{
+    g_lens_known = 1;
+    g_lens = level;
+    unsigned ignored;
+    if (env_level(&ignored)) {
+        return;
+    }
+    char *path = tam_state_path("level", true);
+    if (path == NULL) {
+        return;
+    }
+    char line[32];
+    int n = snprintf(line, sizeof(line), "%s\n",
+                     level == 0 ? "all" : tam_level_name(level));
+    (void)tam_fs_write_atomic(path, line, (size_t)n, 0644);
+    free(path);
+}
+
+int tam_href_take_level(char *href, unsigned *level)
+{
+    if (href == NULL) {
+        return 0;
+    }
+    char *q = strchr(href, '?');
+    while (q != NULL) {
+        char *param = q + 1;
+        char *end = param + strcspn(param, "&#");
+        if (strncmp(param, "level=", 6) == 0) {
+            char value[32];
+            size_t n = (size_t)(end - (param + 6));
+            if (n >= sizeof(value)) {
+                n = sizeof(value) - 1;
+            }
+            memcpy(value, param + 6, n);
+            value[n] = '\0';
+            unsigned bit = 0;
+            int ok = tam_level_parse_arg(value, &bit);
+            /* Drop "level=..." with the separator before it; when it was the
+             * first parameter, the next one (if any) takes over the '?'. */
+            if (*end == '&') {
+                memmove(param, end + 1, strlen(end + 1) + 1);
+            } else {
+                memmove(q, end, strlen(end) + 1);
+            }
+            if (ok && level != NULL) {
+                *level = bit;
+            }
+            return ok;
+        }
+        if (*end != '&') {
+            break;
+        }
+        q = end;
+    }
+    return 0;
+}
+
+int tam_href_put_level(const char *href, unsigned level, char *out,
+                       size_t cap)
+{
+    if (href == NULL) {
+        return 0;
+    }
+    if (level == 0 || tam_level_name(level) == NULL) {
+        return snprintf(out, cap, "%s", href) < (int)cap;
+    }
+    size_t base = strcspn(href, "#");
+    const char *sep = memchr(href, '?', base) != NULL ? "&" : "?";
+    int n = snprintf(out, cap, "%.*s%slevel=%s%s", (int)base, href, sep,
+                     tam_level_name(level), href + base);
+    return n > 0 && (size_t)n < cap;
 }
 
 char *tam_depth_split_href(const char *href, unsigned *level)
@@ -283,7 +429,7 @@ static int tag_attr(const char *src, size_t start, size_t end,
 }
 
 /* Levels declared by <meta name="level" content="...">; 0 when absent. */
-static unsigned declared_levels(const char *src, size_t len)
+unsigned tam_depth_declared(const char *src, size_t len)
 {
     for (size_t i = 0; i < len; i++) {
         if (src[i] != '<') {
@@ -333,80 +479,170 @@ static size_t skip_section(const char *src, size_t len, size_t open_end)
     return len;
 }
 
-static void depth_line(buf_t *b, const char *path, unsigned levels,
-                       unsigned level)
+/* Append the text of the first h2-h4 heading in src[from..to), tags
+ * stripped and whitespace collapsed. Entities pass through unchanged. */
+static void heading_text(buf_t *b, const char *src, size_t from, size_t to)
 {
-    buf_str(b, "\n<p>Depth: ");
-    if (level == 0) {
-        int first = 1;
-        for (size_t i = 0; i < NLEVELS; i++) {
-            if (!(levels & LEVELS[i].bit)) {
-                continue;
-            }
-            buf_str(b, first ? "" : ", ");
-            buf_str(b, "<a href=\"");
-            buf_str(b, path);
-            buf_str(b, "?level=");
-            buf_str(b, LEVELS[i].name);
-            buf_str(b, "\">");
-            buf_str(b, LEVELS[i].name);
-            buf_str(b, "</a>");
-            first = 0;
-        }
-        buf_str(b, ". Every level is shown below; follow one to read "
-                   "only that depth.</p>\n");
-        return;
-    }
-    buf_str(b, tam_level_name(level));
-    buf_str(b, ". Other depths: ");
-    for (size_t i = 0; i < NLEVELS; i++) {
-        if (!(levels & LEVELS[i].bit) || LEVELS[i].bit == level) {
+    static const char *const heads[] = { "h2", "h3", "h4" };
+    for (size_t i = from; i < to; i++) {
+        if (src[i] != '<') {
             continue;
         }
-        buf_str(b, "<a href=\"");
-        buf_str(b, path);
-        buf_str(b, "?level=");
-        buf_str(b, LEVELS[i].name);
-        buf_str(b, "\">");
-        buf_str(b, LEVELS[i].name);
-        buf_str(b, "</a>, ");
+        const char *h = NULL;
+        for (size_t k = 0; k < sizeof(heads) / sizeof(heads[0]); k++) {
+            if (tag_is(src, to, i, heads[k], 0)) {
+                h = heads[k];
+            }
+        }
+        if (h == NULL) {
+            continue;
+        }
+        size_t j = tag_end(src, to, i) + 1;
+        int space = 0;
+        int any = 0;
+        while (j < to && !tag_is(src, to, j, h, 1)) {
+            if (src[j] == '<') {
+                j = tag_end(src, to, j) + 1;
+                continue;
+            }
+            if (isspace((unsigned char)src[j])) {
+                space = any;
+            } else {
+                if (space) {
+                    buf_add(b, " ", 1);
+                }
+                buf_add(b, src + j, 1);
+                space = 0;
+                any = 1;
+            }
+            j++;
+        }
+        return;
     }
+}
+
+static void level_link(buf_t *b, const char *path, const char *name,
+                       const char *text)
+{
     buf_str(b, "<a href=\"");
     buf_str(b, path);
-    buf_str(b, "\">all levels</a>.</p>\n");
+    buf_str(b, "?level=");
+    buf_str(b, name);
+    buf_str(b, "\">");
+    buf_str(b, text);
+    buf_str(b, "</a>");
+}
+
+/* Level bar of a laddered page:
+ *   Level: [All 0] | Beginner 1 | Intermediate 2 | Expert 3 -   keys 0-3
+ * Offered levels are links, the lens is in brackets and a level the page
+ * lacks is plain text followed by " -" (the lens too). */
+static void level_bar(buf_t *b, const char *path, unsigned levels,
+                      unsigned level)
+{
+    char item[32];
+    buf_str(b, "\n<p>Level: ");
+    for (size_t i = 0; i <= NLEVELS; i++) {
+        unsigned bit = i == 0 ? 0 : LEVELS[i - 1].bit;
+        snprintf(item, sizeof(item), "%s %d", tam_level_label(bit), (int)i);
+        if (i > 0) {
+            buf_str(b, " | ");
+        }
+        if (bit == level) {
+            buf_str(b, "[");
+            buf_str(b, item);
+            buf_str(b, bit != 0 && !(levels & bit) ? "] -" : "]");
+        } else if (bit != 0 && !(levels & bit)) {
+            buf_str(b, item);
+            buf_str(b, " -");
+        } else {
+            level_link(b, path, bit == 0 ? "all" : LEVELS[i - 1].name, item);
+        }
+    }
+    buf_str(b, "&nbsp;&nbsp;&nbsp;keys 0-3</p>\n");
+}
+
+/* "Written for: Beginner" or, when the lens is not offered, the banner that
+ * says so and where to read at the lens level instead. */
+static void written_for(buf_t *b, unsigned levels, unsigned level,
+                        const char *related)
+{
+    char names[64] = {0};
+    for (size_t i = 0; i < NLEVELS; i++) {
+        if (levels & LEVELS[i].bit) {
+            if (names[0] != '\0') {
+                strncat(names, ", ", sizeof(names) - strlen(names) - 1);
+            }
+            strncat(names, LEVELS[i].label, sizeof(names) - strlen(names) - 1);
+        }
+    }
+    buf_str(b, "\n<p>Written for: ");
+    buf_str(b, names);
+    if (level == 0 || (levels & level)) {
+        buf_str(b, "</p>\n");
+        return;
+    }
+    buf_str(b, ". This page has no ");
+    buf_str(b, tam_level_label(level));
+    buf_str(b, " version.</p>\n<p>At ");
+    buf_str(b, tam_level_label(level));
+    buf_str(b, ": ");
+    if (related != NULL && related[0] != '\0') {
+        buf_str(b, related);
+    } else {
+        buf_str(b, "<a href=\"");
+        buf_str(b, tam_level_name(level));
+        buf_str(b, ".html\">the ");
+        buf_str(b, tam_level_name(level));
+        buf_str(b, " path</a>");
+    }
+    buf_str(b, "</p>\n");
+}
+
+static void rev_line(buf_t *b, int rev, const char *updated)
+{
+    char rev_buf[128];
+    snprintf(rev_buf, sizeof(rev_buf), "\n<p>Rev %d Last updated %s</p>\n",
+             rev, updated);
+    buf_str(b, rev_buf);
 }
 
 char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                           unsigned level, int rev, const char *updated,
-                          size_t *out_len, unsigned *page_levels)
+                          const char *related, size_t *out_len,
+                          tam_depth_info_t *info)
 {
-    unsigned levels = declared_levels(src, len);
-    if (levels == 0) {
-        levels = TAM_LEVEL_BEGINNER;
-    }
-    if (page_levels != NULL) {
-        *page_levels = levels;
-    }
-    if (level != 0 && !(levels & level)) {
-        return NULL;
-    }
-
-    int laddered = tam_level_count(levels) > 1 && path != NULL;
-    int line_done = !laddered;
+    unsigned levels = tam_depth_declared(src, len);
+    /* A page without the lens level is shown whole under its banner, so the
+     * reader is never left with an empty page. */
+    unsigned filter = (levels & level) ? level : 0;
+    int line_done = levels == 0 || path == NULL;
     int has_rev = (rev > 0 && updated != NULL && updated[0] != '\0');
+    int hidden = 0;
     buf_t b = {0};
 
     size_t i = 0;
     while (i < len) {
         if (src[i] == '<') {
-            if (level != 0 && tag_is(src, len, i, "section", 0)) {
+            if (filter != 0 && tag_is(src, len, i, "section", 0)) {
                 size_t e = tag_end(src, len, i);
                 char value[32];
                 if (tag_attr(src, i + 1, e, "data-level", value,
                              sizeof(value))) {
                     unsigned bit = tam_level_parse(value);
-                    if (bit != 0 && bit != level) {
-                        i = skip_section(src, len, e);
+                    if (bit != 0 && bit != filter) {
+                        size_t next = skip_section(src, len, e);
+                        char mark[64];
+                        snprintf(mark, sizeof(mark), "\n<p>-- %d %s: ",
+                                 tam_level_number(bit), tam_level_label(bit));
+                        buf_str(&b, mark);
+                        heading_text(&b, src, e + 1, next);
+                        snprintf(mark, sizeof(mark),
+                                 " (hidden; press %d or 0) --</p>\n",
+                                 tam_level_number(bit));
+                        buf_str(&b, mark);
+                        hidden++;
+                        i = next;
                         continue;
                     }
                 }
@@ -414,15 +650,19 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                 size_t e = tag_end(src, len, i);
                 size_t stop = e < len ? e + 1 : len;
                 buf_add(&b, src + i, stop - i);
-                depth_line(&b, path, levels, level);
+                if (tam_level_count(levels) > 1) {
+                    level_bar(&b, path, levels, level);
+                    if (level != 0 && filter == 0) {
+                        written_for(&b, levels, level, related);
+                    }
+                } else {
+                    written_for(&b, levels, level, related);
+                }
                 line_done = 1;
                 i = stop;
                 continue;
             } else if (has_rev && tag_is(src, len, i, "body", 1)) {
-                char rev_buf[128];
-                snprintf(rev_buf, sizeof(rev_buf),
-                         "\n<p>Rev %d Last updated %s</p>\n", rev, updated);
-                buf_str(&b, rev_buf);
+                rev_line(&b, rev, updated);
                 has_rev = 0;
             }
         }
@@ -431,10 +671,7 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
     }
 
     if (has_rev) {
-        char rev_buf[128];
-        snprintf(rev_buf, sizeof(rev_buf),
-                 "\n<p>Rev %d Last updated %s</p>\n", rev, updated);
-        buf_str(&b, rev_buf);
+        rev_line(&b, rev, updated);
     }
 
     if (b.data == NULL && !b.failed) {
@@ -444,16 +681,12 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
         free(b.data);
         return NULL;
     }
+    if (info != NULL) {
+        info->levels = levels;
+        info->hidden = hidden;
+    }
     if (out_len != NULL) {
         *out_len = b.len;
     }
     return b.data;
 }
-
-char *tam_depth_apply(const char *src, size_t len, const char *path,
-                      unsigned level, size_t *out_len, unsigned *page_levels)
-{
-    return tam_depth_apply_rev(src, len, path, level, 0, NULL, out_len,
-                               page_levels);
-}
-

@@ -39,6 +39,8 @@ typedef struct {
     char       *nav_prev;
     char       *nav_up;
     char       *nav_top;
+    unsigned    levels; /* Levels a guide page declares; 0 for other pages. */
+    int         hidden; /* Level sections the reader's lens hid. */
     void       *layout; /* private parsed blocks, retained for width reflow */
 } tam_document_t;
 

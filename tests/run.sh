@@ -22,6 +22,9 @@ pass() { printf 'ok - %s\n' "$1"; }
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
+# Pager cases change the reader's level lens; keep its state file here.
+export XDG_STATE_HOME="$tmp/state-default"
+unset TAM_LEVEL
 
 esc=$(printf '\033')
 home="$tmp/home"
@@ -87,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.36.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.37.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -166,8 +169,9 @@ pass "argument errors"
 w_state="$tmp/welcome_state"
 w_out=$(env HOME="$tmp/w_home" XDG_STATE_HOME="$w_state" "$TAM" welcome --pipe)
 printf '%s\n' "$w_out" | grep -q 'Welcome to Tamlinux' || fail "welcome output missing title"
-[ -f "$w_state/tamlinux/welcome_seen" ] || fail "welcome did not create welcome_seen"
-grep -q '^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}T' "$w_state/tamlinux/welcome_seen" \
+[ -f "$w_state/tamlinux/tam/welcome_seen" ] || fail "welcome did not create tamlinux/tam/welcome_seen"
+[ ! -e "$w_state/tamlinux/welcome_seen" ] || fail "welcome wrote the retired top-level welcome_seen"
+grep -q '^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}T' "$w_state/tamlinux/tam/welcome_seen" \
     || fail "welcome_seen missing timestamp"
 if env HOME="$tmp/w_home" XDG_STATE_HOME="$w_state" "$TAM" welcome extra >/dev/null 2>&1; then
     fail "welcome with extra arguments exited 0"
@@ -197,8 +201,8 @@ env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" inspect >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" check >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" install --help >/dev/null
 env HOME="$tmp/iso_home" XDG_STATE_HOME="$iso_state" "$TAM" man --help >/dev/null
-if [ -e "$iso_state/tamlinux/welcome_seen" ]; then
-    fail "isolated commands wrote welcome_seen state"
+if [ -n "$(find "$iso_state" -mindepth 1 -print -quit 2>/dev/null)" ]; then
+    fail "isolated commands wrote state: $(find "$iso_state" -mindepth 1 | head -3)"
 fi
 pass "state isolation: bare, show, help, version, search, explain, inspect, check, install, man do not touch welcome_seen"
 
@@ -1290,80 +1294,171 @@ os.waitpid(pid, 0)
 
     python3 "$here/pager_screen.py" "$TAM" "$root/tests/fixtures" || fail "pager PTY screen-state checks failed"
 
-    # Pager depth switching (0/1/2/3) and retired 1-9 link jumping
+    # Level lens (TCK21): 0-3 set one lens that holds across links, Back and
+    # a restart, is saved in tamlinux/tam/level, and never dead-ends a page.
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl, re
 
-master, slave = pty.openpty()
-fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
-
-pid = os.fork()
-if pid == 0:
-    os.close(master)
-    os.dup2(slave, 0)
-    os.dup2(slave, 1)
-    os.dup2(slave, 2)
-    os.close(slave)
-    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
-    os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
-os.close(slave)
+tam, guide, tldr, tmp = sys.argv[1:5]
 
 def strip_ansi(s):
     return re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", s)
 
-def send_and_read(key):
-    while select.select([master], [], [], 0.02)[0]:
-        os.read(master, 4096)
-    os.write(master, key)
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.02)[0]:
-        buf += os.read(master, 4096)
-    return strip_ansi(buf.decode("utf-8", "replace"))
+class Pager:
+    def __init__(self, args, state, cols=160, env=None, stdin=None):
+        self.master, slave = pty.openpty()
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, cols, 0, 0))
+        self.pid = os.fork()
+        if self.pid == 0:
+            os.close(self.master)
+            # Standard input is a pipe: the pager reads keys from /dev/tty.
+            os.setsid()
+            fcntl.ioctl(slave, termios.TIOCSCTTY, 0)
+            if stdin is not None:
+                r, w = os.pipe()
+                os.write(w, stdin)
+                os.close(w)
+                os.dup2(r, 0)
+            else:
+                os.dup2(slave, 0)
+            os.dup2(slave, 1)
+            os.dup2(slave, 2)
+            os.close(slave)
+            os.environ["TAM_KNOWLEDGE_DIR"] = guide
+            os.environ["TAM_TLDR_DIR"] = tldr
+            os.environ["XDG_STATE_HOME"] = state
+            os.environ.pop("TAM_LEVEL", None)
+            os.environ.update(env or {})
+            os.execl(tam, tam, *args)
+        os.close(slave)
+        time.sleep(0.2)
+        self.first = self.drain()
 
-time.sleep(0.15)
-init_buf = b""
-while select.select([master], [], [], 0.02)[0]:
-    init_buf += os.read(master, 4096)
-assert b"Every level is shown below" in init_buf, f"expected initial all levels on pipelines, got: {init_buf}"
+    def drain(self):
+        buf = b""
+        while select.select([self.master], [], [], 0.05)[0]:
+            buf += os.read(self.master, 65536)
+        return strip_ansi(buf.decode("utf-8", "replace"))
 
-# 0 when already at all levels reports already at all levels
-b0 = send_and_read(b"0")
-assert "already at all levels" in b0, f"expected already at all levels message, got: {b0}"
+    def key(self, k):
+        self.drain()
+        os.write(self.master, k)
+        time.sleep(0.1)
+        return self.drain()
 
-# 1 switches to beginner depth (does NOT follow 1st hyperlink)
-b1 = send_and_read(b"1")
-assert "Depth: beginner." in b1, f"expected Depth: beginner. after pressing 1, got: {b1}"
+    def quit(self):
+        os.write(self.master, b"q")
+        os.waitpid(self.pid, 0)
+        os.close(self.master)
 
-# 2 switches to intermediate depth
-b2 = send_and_read(b"2")
-assert "Depth: intermediate." in b2, f"expected Depth: intermediate. after pressing 2, got: {b2}"
+def saved(state):
+    try:
+        with open(os.path.join(state, "tamlinux", "tam", "level")) as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return None
 
-# 3 switches to expert depth
-b3 = send_and_read(b"3")
-assert "Depth: expert." in b3, f"expected Depth: expert. after pressing 3, got: {b3}"
+state = os.path.join(tmp, "lens-state")
 
-# 0 switches back to all levels
-b_all = send_and_read(b"0")
-assert "Every level is shown below" in b_all, f"expected all levels banner after pressing 0, got: {b_all}"
+# A fresh reader starts at All; 0 says so and writes nothing.
+p = Pager(["show", "shell/pipelines"], state)
+assert "Level: [All 0]" in p.first, p.first
+assert "Level 0 All" in p.first, f"status row lacks the lens: {p.first}"
+b = p.key(b"0")
+assert "already at Level 0 All" in b, b
+assert saved(state) is None, "pressing the current lens wrote state"
 
-# u goes back in history to expert depth
-b_back = send_and_read(b"u")
-assert "Depth: expert." in b_back, f"expected history back to restore expert depth, got: {b_back}"
+# 2 re-renders in place: level bar, hidden-section markers, status, message.
+b = p.key(b"2")
+assert "[Intermediate 2]" in b, b
+assert "-- 1 Beginner: Beginner (hidden; press 1 or 0) --" in b, b
+assert "-- 3 Expert: Expert (hidden; press 3 or 0) --" in b, b
+assert "Level 2 Intermediate: 2 sections hidden" in b, b
+assert "Level 2 Intermediate" in b, b
+assert saved(state) == "intermediate", saved(state)
 
-# 4..9 no longer jump to links
-b4 = send_and_read(b"4")
-assert b4 == "", f"expected ignored key 4 to leave the display untouched, got: {b4}"
+# The lens holds across a link to a single-level page, which opens under a
+# truthful banner instead of failing, and the status row says so.
+b = p.key(b"`")
+assert "Written for: Beginner. This page has no Intermediate version." in b, b
+assert "At Intermediate: " in b, b
+assert "(not on page)" in b, b
+# = shows the address with the lens.
+b = p.key(b"=")
+assert "Path = page:index.html?level=intermediate" in b, b
+p.key(b"=")
 
-# Jump to index.html (`) where only beginner is offered; pressing 3 reports no expert level
-send_and_read(b"`")
-b_no_exp = send_and_read(b"3")
-assert "no expert level on this page" in b_no_exp, f"expected no expert level message on index.html, got: {b_no_exp}"
+# Back returns to the page at the current lens; it does not undo the lens.
+b = p.key(b"\x1b[D")
+assert "[Intermediate 2]" in b, b
+b = p.key(b"3")
+assert "[Expert 3]" in b, b
+b = p.key(b"\x1b[D")
+assert "Level 3 Expert" in b, f"Back undid the lens change: {b}"
+p.quit()
 
-os.write(master, b"q")
-os.waitpid(pid, 0)
-' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager depth switching test failed"
-    pass "pager depth switching: 0/1/2/3 switch reading depth and 1-9 link jumping retired"
+# The lens survives a restart.
+p = Pager(["show", "shell/pipelines"], state)
+assert "[Expert 3]" in p.first, p.first
+# A link that names a level sets the lens: the level bar links do.
+for _ in range(12):
+    b = p.key(b"]")
+    if "-> shell/pipelines.html?level=beginner" in b:
+        break
+else:
+    raise AssertionError("no beginner link in the level bar")
+b = p.key(b"\r")
+assert "[Beginner 1]" in b, b
+assert saved(state) == "beginner", saved(state)
+p.quit()
+
+# TAM_LEVEL overrides the file and is never written back.
+p = Pager(["show", "shell/pipelines"], state, env={"TAM_LEVEL": "expert"})
+assert "[Expert 3]" in p.first, p.first
+b = p.key(b"2")
+assert "[Intermediate 2]" in b, b
+p.quit()
+assert saved(state) == "beginner", f"TAM_LEVEL run wrote the lens: {saved(state)}"
+
+# --level overrides both for this run only.
+p = Pager(["show", "--level", "3", "shell/pipelines"], state)
+assert "[Expert 3]" in p.first, p.first
+p.quit()
+assert saved(state) == "beginner", saved(state)
+
+# An unreadable or invalid state file means All, silently.
+with open(os.path.join(state, "tamlinux", "tam", "level"), "w") as f:
+    f.write("seven\n")
+p = Pager(["show", "shell/pipelines"], state)
+assert "[All 0]" in p.first, p.first
+p.quit()
+
+# One-level pages: tldr and standard input keep the lens and say so.
+p = Pager(["show", "tldr:tar"], state)
+b = p.key(b"2")
+assert "Level 2 Intermediate set; this page has one level" in b, b
+p.quit()
+p = Pager(["show", "-"], state, stdin=b"<html><body><h1>Piped</h1><p>Text.</p></body></html>")
+b = p.key(b"1")
+assert "Level 1 Beginner set; this page has one level" in b, b
+p.quit()
+
+# Status row: full label from 100 columns, Lv from 60, the digit below 60.
+for cols, want, absent in ((120, "Level 1 Beginner", None), (80, "Lv1", "Level 1"), (40, "[1]", "Lv1")):
+    p = Pager(["show", "shell/pipelines"], state, cols=cols)
+    p.key(b"1") if "[Beginner 1]" not in p.first else None
+    b = p.key(b"x")
+    status = [l for l in (p.first + b).splitlines() if "L1 " in l]
+    assert status and want in status[-1], f"{cols} columns: {status}"
+    assert absent is None or absent not in status[-1], f"{cols} columns: {status}"
+    p.quit()
+
+# 4..9 do nothing.
+p = Pager(["show", "shell/pipelines"], state)
+assert p.key(b"4") == "", "key 4 changed the display"
+p.quit()
+' "$TAM" "$root/tests/fixtures/guide" "$root/tests/fixtures/tldr" "$tmp" || fail "interactive pager level lens test failed"
+    pass "level lens: 0-3 persist across links, Back and restarts; TAM_LEVEL and --level override; banner, markers and status row"
 fi
 
 
@@ -1404,7 +1499,7 @@ ex_res=$("$TAM" explain resources --pipe)
 printf '%s\n' "$ex_res" | grep -q 'System Resources and Performance' || fail "explain resources failed"
 ex_lua=$("$TAM" explain lua --pipe)
 printf '%s\n' "$ex_lua" | grep -q 'Lua: The Embedded Scripting Language' || fail "explain lua failed"
-printf '%s\n' "$ex_lua" | grep -q 'Depth: beginner' || fail "explain lua missing depth line"
+printf '%s\n' "$ex_lua" | grep -q 'Levels: beginner' || fail "explain lua missing levels line"
 
 # Maintain track curated topics.
 ex_maint=$("$TAM" explain maintain --pipe)
@@ -1543,17 +1638,30 @@ fi
 sh_lvl_b=$("$TAM" show --level beginner pipelines --pipe)
 printf '%s\n' "$sh_lvl_b" | grep -q 'Beginner: Connecting commands' || fail "show --level beginner pipelines failed"
 printf '%s\n' "$sh_lvl_b" | grep -q 'Expected output:' || fail "show --level beginner missing expected output"
-if printf '%s\n' "$sh_lvl_b" | grep -q 'Expert: POSIX pipe'; then fail "beginner level contains expert section"; fi
+if printf '%s\n' "$sh_lvl_b" | grep -q '^Expert: POSIX pipe'; then fail "beginner level contains expert section"; fi
+printf '%s\n' "$sh_lvl_b" | grep -q '^-- 3 Expert: Expert: POSIX pipe' || fail "beginner level missing hidden-section marker"
 
 sh_lvl_i=$("$TAM" show --level intermediate pipelines --pipe)
 printf '%s\n' "$sh_lvl_i" | grep -q 'Intermediate: Redirection and Multi-Stage Filters' || fail "show --level intermediate pipelines failed"
 printf '%s\n' "$sh_lvl_i" | grep -q 'Completion task' || fail "show --level intermediate missing completion task"
-if printf '%s\n' "$sh_lvl_i" | grep -q 'Beginner: Connecting commands'; then fail "intermediate level contains beginner section"; fi
+if printf '%s\n' "$sh_lvl_i" | grep -q '^Beginner: Connecting commands'; then fail "intermediate level contains beginner section"; fi
 
 sh_lvl_e=$("$TAM" show --level expert pipelines --pipe)
 printf '%s\n' "$sh_lvl_e" | grep -q 'Expert: POSIX pipe semantics' || fail "show --level expert pipelines failed"
 printf '%s\n' "$sh_lvl_e" | grep -q 'Stream Redirection Operators' || fail "show --level expert missing operators table"
-if printf '%s\n' "$sh_lvl_e" | grep -q 'Beginner: Connecting commands'; then fail "expert level contains beginner section"; fi
+if printf '%s\n' "$sh_lvl_e" | grep -q '^Beginner: Connecting commands'; then fail "expert level contains beginner section"; fi
+
+# A page without the requested level opens under a banner, exit 0.
+sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2 welcome --pipe) \
+    || fail "show --level 2 on a single-level page failed"
+printf '%s\n' "$sh_banner" | grep -q 'Written for: Beginner. This page has no Intermediate version.' \
+    || fail "single-level page missing its banner"
+printf '%s\n' "$sh_banner" | grep -q 'Fixture Welcome' || fail "banner page lost its content"
+# Piped output ignores the saved lens.
+mkdir -p "$tmp/pipe-lens/tamlinux/tam"
+printf 'expert\n' > "$tmp/pipe-lens/tamlinux/tam/level"
+[ "$(XDG_STATE_HOME="$tmp/pipe-lens" "$TAM" show pipelines --pipe)" = "$("$TAM" show pipelines --pipe)" ] \
+    || fail "piped output followed the saved lens"
 
 # Numeric and 'all' level synonyms (0|all, 1|beginner, 2|intermediate, 3|expert)
 sh_lvl_all=$("$TAM" show pipelines --pipe)
@@ -1586,9 +1694,10 @@ if printf '%s\n' "$ex_cat_expert" | grep -q '^  desktop '; then fail "expert cat
 if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi
 "$TAM" explain --level invalid pipelines 2>&1 | grep -q "unknown level 'invalid'" || fail "missing unknown level message"
 
-# Topic lacking requested level produces clear diagnostic and exits 1
-if "$TAM" explain --level expert desktop >/dev/null 2>&1; then fail "explain --level expert desktop exited 0"; fi
-"$TAM" explain --level expert desktop 2>&1 | grep -q "topic 'desktop' has no expert level" || fail "missing topic level diagnostic"
+# A topic lacking the requested level lists every level under a banner.
+ex_no_exp=$("$TAM" explain --level expert desktop --pipe) || fail "explain --level expert desktop failed"
+printf '%s\n' "$ex_no_exp" | grep -q "No page on this topic is written for" || fail "missing topic level banner"
+printf '%s\n' "$ex_no_exp" | grep -q "At Expert: the expert path" || fail "topic banner missing the level path"
 
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"
 
@@ -1600,7 +1709,8 @@ pass "explain resolves curated topics, handles misses, and treats shell strings 
 s_owner=$("$TAM" search "change file owner")
 printf '%s\n' "$s_owner" | grep -q 'permissions' || fail "search 'change file owner' missing permissions topic"
 printf '%s\n' "$s_owner" | grep -q 'filesystem/permissions.html' || fail "search 'change file owner' missing permissions page"
-printf '%s\n' "$s_owner" | grep -q 'Depth:' || fail "search missing Depth indicator"
+printf '%s\n' "$s_owner" | grep -q 'Levels:' || fail "search missing Levels indicator"
+if printf '%s\n' "$s_owner" | grep -q 'Depth'; then fail "search still says Depth"; fi
 printf '%s\n' "$s_owner" | grep -q 'track: use' || fail "search missing track indicator"
 
 # JSON output

@@ -379,6 +379,26 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-21:** Command 0.37.0 (minor) delivers TCK21, the sticky level
+  lens. Keys `0`-`3` set the reader's lens and re-render the page in place
+  without a history entry; the lens holds across links, Back and Forward
+  and is saved in `$XDG_STATE_HOME/tamlinux/tam/level` only when the reader
+  changes it. `TAM_LEVEL` overrides the file and is never written back;
+  `--level` and an address with `level=` override both for one run, and a
+  followed link with `level=` sets the lens. History and links keep
+  addresses without `level=`; `=` shows the address with the lens. Guide
+  pages and the generated topic views (`tam:explain`, `tam:topics`,
+  `tam:keywords`) take the lens; man, Info, tldr, other `tam:` pages and
+  standard input report that they have one level. Piped output shows only
+  the level the command or address names, never the saved lens, so scripts
+  stay reproducible. A level bar replaces the "Depth:" line, a one-line
+  marker stands where a section is hidden, the status row shows the lens
+  (with `(not on page)` where it applies), and a page or topic without the
+  lens level is shown whole under a "Written for" banner linking up to
+  three same-track pages at that level (ranked by shared prerequisites,
+  then title) or the level path, so `tam show --level` and
+  `tam explain --level` no longer fail there. `welcome_seen` moves to
+  `tamlinux/tam/`; "Depth" is gone from reader-visible text.
 - **2026-10-21:** The developer approved the learning levels plan (Tamlinux
   decision D184, amending D174). Keep three levels, with keys and numeric
   addresses 1-3 unchanged; novices get an on-ramp (the First steps goal

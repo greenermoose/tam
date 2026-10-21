@@ -13,8 +13,10 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** TCK21 (sticky level lens). Claim the paths listed under it
-and start from the baseline check.
+**Next action:** Ask the developer which rule the "Written for" banner uses
+to pick related pages (open question under TCK21's delivery note), apply it
+with a command patch bump, then TCK22 (folding, self-quizzes and
+block-level levels).
 
 ## Problem and agreed outcome
 
@@ -53,7 +55,7 @@ other than US QWERTY; color as the only way to show anything.
 
 ## Baseline and dependencies
 
-- Command 0.36.0 and corpus 0.37.0 on `develop` at `c9b6c5d`.
+- Command 0.36.0 and corpus 0.37.0 on `develop` at `c9b6c5d` (before TCK21).
 - 70 guide pages declare levels: 24 laddered, 19 beginner, 23 intermediate
   and 4 expert.
 - 23 pages carry hand-typed "Beginner:", "Intermediate:" or "Expert:" heading
@@ -204,6 +206,39 @@ repository, `docs/plans/tamlinux-command.md`.
 **Done when:** `make test` passes; the lens survives navigation and a
 restart; no level key dead-ends on any page; all of `tam`'s state is under
 `tamlinux/tam/`.
+
+**Delivered (2026-10-21, command 0.37.0).** Choices made where this section
+was silent, for the developer's review:
+
+- The generated topic views (`tam:explain`, `tam:topics`, `tam:keywords`)
+  take the lens like guide pages, because they already filtered by level.
+  A topic with no page at the lens lists every level under a banner.
+- Piped output ignores the saved lens and `TAM_LEVEL`; it shows the level
+  that `--level` or the address names, else all levels.
+- A laddered page without the lens level is shown whole: its level bar
+  marks the lens as `[Expert 3] -`, followed by the banner.
+- Every guide page declares levels, hubs included, so the Guide index and
+  section hubs show `Written for: Beginner` and, at another lens, the
+  banner.
+- The level bar's three-space gap before `keys 0-3` renders as four after
+  a linked level.
+- The Guide index Quick keys table lists no level keys, so the corpus is
+  unchanged.
+
+**Open (stop-and-ask condition met).** The banner's related-page rule as
+written (same track, shared prerequisites, title) gives poor picks on the
+real corpus: the welcome page at Intermediate suggests "AI Tooling and Human
+Agency" and "Base Distributions". The rule as written is what shipped. The
+AI tool's recommendation, not yet answered: rank by the index's `parent`
+links (children, then siblings, then the parent, each offering the lens
+level, then shared prerequisites and title) and, when the page has no such
+relative, link only the level path. The alternatives are keeping the
+current rule or always linking the level path.
+
+**Pending in the `tamlinux` repository:** the `welcome_seen` sentence in
+`docs/plans/tamlinux-command.md` still names `tamlinux/welcome_seen`; that
+checkout was held exclusively by another session. Change it to
+`tamlinux/tam/welcome_seen` (fallback `~/.local/state/tamlinux/tam/`).
 
 ### TCK22 (folding, self-quizzes and block-level levels)
 
@@ -388,4 +423,5 @@ Approved direction. Plan each part before starting.
 
 ## Disposition
 
-TCK20 delivered on 2026-10-21 with this plan. TCK21–TCK25 open.
+TCK20 delivered on 2026-10-21 with this plan. TCK21 delivered on
+2026-10-21 as command 0.37.0; see its delivery note. TCK22–TCK25 open.

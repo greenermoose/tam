@@ -167,6 +167,7 @@ typedef struct {
     int             help_open;
     int             column_active;
     int             show_address;
+    unsigned        lens; /* The reader's level lens (depth.h). */
 } pager_t;
 
 static void follow(pager_t *st, const char *href);
@@ -973,8 +974,18 @@ static void pager_reflow(pager_t *st, int width)
     }
 }
 
+static int lens_href(const char *href);
+
 static void pager_address(const pager_t *st, char *out, size_t cap)
 {
+    char with_lens[600];
+    if (st->cur_href != NULL && lens_href(st->cur_href) &&
+        tam_href_put_level(st->cur_href, st->lens, with_lens,
+                           sizeof(with_lens))) {
+        snprintf(out, cap, "%s%.240s",
+                 strncmp(with_lens, "tam:", 4) == 0 ? "" : "page:", with_lens);
+        return;
+    }
     if (st->cur_href == NULL ||
         strcmp(st->cur_href, "-") == 0 ||
         st->cur_href[0] == '<') {
@@ -1040,6 +1051,7 @@ static int draw(pager_t *st)
                 "Follow: g, Enter or Right Arrow   Tab / Shift-Tab: same as ] / [",
                 "Search: / this page, \\ the guide   Next/previous hit: n/N   Address: =",
                 "Info Up: u   Next/Previous node: n/p",
+                "Level, kept across pages: 0 All, 1 Beginner, 2 Intermediate, 3 Expert",
                 "Close help with h, ? or Esc. Focus, position and history stay put."
             };
             if ((size_t)row < sizeof(help) / sizeof(help[0]))
@@ -1088,6 +1100,20 @@ static int draw(pager_t *st)
         char essential[64];
         snprintf(essential, sizeof(essential), "L%d %d-%d/%zu",
                  st->cursor_line + 1, first, last, total);
+        char lens[48];
+        int lens_number = tam_level_number(st->lens);
+        if (max_cols >= 100)
+            snprintf(lens, sizeof(lens), "Level %d %s", lens_number,
+                     tam_level_label(st->lens));
+        else if (max_cols >= 60)
+            snprintf(lens, sizeof(lens), "Lv%d", lens_number);
+        else
+            snprintf(lens, sizeof(lens), "[%d]", lens_number);
+        if (st->doc->levels != 0 && st->lens != 0 && !(st->doc->levels & st->lens))
+            strncat(lens, " (not on page)", sizeof(lens) - strlen(lens) - 1);
+        strncat(essential, max_cols >= 60 ? " | " : " ",
+                sizeof(essential) - strlen(essential) - 1);
+        strncat(essential, lens, sizeof(essential) - strlen(essential) - 1);
         int essential_width = (int)tam_display_width(essential, strlen(essential));
         if (max_cols >= 60) {
             int action_width = (int)tam_display_width(actions, strlen(actions));
@@ -1320,6 +1346,38 @@ static int find_anchor_text(const tam_document_t *doc, const char *target)
     return plain;
 }
 
+/* Guide pages and the generated topic views take the reader's lens; man,
+ * Info, tldr, other tam: pages and standard input have one level. */
+static int lens_href(const char *href)
+{
+    if (href == NULL || href[0] == '\0' || href[0] == '<' || href[0] == '#' ||
+        strcmp(href, "-") == 0) {
+        return 0;
+    }
+    size_t scheme = strcspn(href, ":/?#");
+    if (href[scheme] != ':') {
+        return 1;
+    }
+    return strncmp(href, "tam:explain", 11) == 0 ||
+           strncmp(href, "tam:topics", 10) == 0 ||
+           strncmp(href, "tam:keywords", 12) == 0;
+}
+
+/* Load `href` (stored without level=) at the reader's lens. A view that
+ * cannot be shown at the lens is loaded at every level instead. */
+static tam_document_t *load_at_lens(pager_t *st, const char *href)
+{
+    char target[600];
+    if (st->lens != 0 && lens_href(href) &&
+        tam_href_put_level(href, st->lens, target, sizeof(target))) {
+        tam_document_t *nd = st->load(st->ctx, target, content_width(st));
+        if (nd != NULL) {
+            return nd;
+        }
+    }
+    return st->load(st->ctx, href, content_width(st));
+}
+
 static void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
@@ -1368,12 +1426,23 @@ static void follow(pager_t *st, const char *href)
         snprintf(st->msg, sizeof(st->msg), "external link (not opened)");
         return;
     }
-    tam_document_t *nd = st->load(st->ctx, href, content_width(st));
+    /* A link that names a level sets the lens; history keeps the address
+     * without it, so Back and Forward show pages at the current lens. */
+    char bare[600];
+    snprintf(bare, sizeof(bare), "%s", href);
+    unsigned named = 0;
+    if (lens_href(bare) && tam_href_take_level(bare, &named) &&
+        named != st->lens) {
+        st->lens = named;
+        tam_lens_set(named);
+    }
+    href = bare;
+    tam_document_t *nd = load_at_lens(st, href);
     if (nd == NULL) {
         if (strcmp(href, "index.html") == 0)
             snprintf(st->msg, sizeof(st->msg), "Guide unavailable; Left Arrow returns to the previous page");
         else
-            snprintf(st->msg, sizeof(st->msg), "cannot open %s", href);
+            snprintf(st->msg, sizeof(st->msg), "cannot open %.140s", href);
         return;
     }
     tam_document_ensure_location(nd, href);
@@ -1391,83 +1460,84 @@ static void follow(pager_t *st, const char *href)
     st->msg[0] = '\0';
 }
 
-static void switch_depth(pager_t *st, unsigned char key)
+/* First heading line at or above `line`, or -1. */
+static int heading_at_or_above(const tam_document_t *doc, int line)
 {
-    unsigned want_level = 0;
-    const char *level_name = NULL;
-    const char *label = "all levels";
-    if (key == '1') {
-        want_level = TAM_LEVEL_BEGINNER;
-        level_name = "beginner";
-        label = "beginner";
-    } else if (key == '2') {
-        want_level = TAM_LEVEL_INTERMEDIATE;
-        level_name = "intermediate";
-        label = "intermediate";
-    } else if (key == '3') {
-        want_level = TAM_LEVEL_EXPERT;
-        level_name = "expert";
-        label = "expert";
-    } else if (key != '0') {
-        return;
+    for (int i = line; i >= 0; i--) {
+        if ((size_t)i < doc->nlines && doc->lines[i].nspans > 0 &&
+            (doc->lines[i].spans[0].style & TAM_STYLE_HEADING)) {
+            return i;
+        }
     }
+    return -1;
+}
 
-    if (st->cur_href == NULL ||
-        strncmp(st->cur_href, "man:", 4) == 0 ||
-        strncmp(st->cur_href, "info:", 5) == 0 ||
-        strncmp(st->cur_href, "tldr:", 5) == 0 ||
-        strncmp(st->cur_href, "tam:tldr", 8) == 0 ||
-        strcmp(st->cur_href, "-") == 0 ||
-        st->cur_href[0] == '<') {
-        snprintf(st->msg, sizeof(st->msg),
-                 "depth levels not available on this page");
-        return;
-    }
-
-    char base[512];
-    snprintf(base, sizeof(base), "%s", st->cur_href);
-    unsigned cur_level = 0;
-    char *q = strstr(base, "&level=");
-    if (q == NULL) {
-        q = strstr(base, "?level=");
-    }
-    if (q != NULL) {
-        (void)tam_level_parse_arg(q + 7, &cur_level);
-        *q = '\0';
-    }
-
-    if (cur_level == want_level) {
-        snprintf(st->msg, sizeof(st->msg), "already at %s", label);
-        return;
-    }
-
-    char target[600];
-    if (level_name == NULL) {
-        snprintf(target, sizeof(target), "%s", base);
-    } else if (strchr(base, '?') != NULL) {
-        snprintf(target, sizeof(target), "%s&level=%s", base, level_name);
-    } else {
-        snprintf(target, sizeof(target), "%s?level=%s", base, level_name);
-    }
-
-    tam_document_t *nd = st->load(st->ctx, target, content_width(st));
+/* Re-render the current page at the lens without touching history. The view
+ * stays on the heading it was under when that heading is still shown. */
+static int reload_in_place(pager_t *st)
+{
+    tam_document_t *nd = load_at_lens(st, st->cur_href);
     if (nd == NULL) {
-        snprintf(st->msg, sizeof(st->msg), "no %s level on this page", label);
-        return;
+        return 0;
     }
-    tam_document_ensure_location(nd, target);
-    history_push(st, st->cur_href, st->top, st->cursor_line);
-    forward_clear(st);
+    tam_document_ensure_location(nd, st->cur_href);
+    int cursor_row = st->cursor_line - st->top;
+    int top = st->top;
+    char *heading = NULL;
+    int under = heading_at_or_above(st->doc, st->top);
+    if (under >= 0) {
+        heading = strdup(st->doc->lines[under].spans[0].text);
+    }
+    int offset = st->top - under;
     pager_clear_search(st);
-    free(st->cur_href);
-    st->cur_href = strdup(target);
     tam_document_free(st->doc);
     st->doc = nd;
     pager_build_links(st);
-    st->top = 0;
-    st->cursor_line = 0;
-    st->selected = -1;
-    st->msg[0] = '\0';
+    if (heading != NULL) {
+        for (size_t i = 0; i < nd->nlines; i++) {
+            if (nd->lines[i].nspans > 0 &&
+                (nd->lines[i].spans[0].style & TAM_STYLE_HEADING) &&
+                strcmp(nd->lines[i].spans[0].text, heading) == 0) {
+                top = (int)i + offset;
+                break;
+            }
+        }
+        free(heading);
+    }
+    restore_nav_state(st, top, top + cursor_row);
+    return 1;
+}
+
+static void set_lens(pager_t *st, unsigned char key)
+{
+    unsigned level = 0;
+    if (!tam_level_parse_arg((char[]){ (char)key, '\0' }, &level)) {
+        return;
+    }
+    int number = tam_level_number(level);
+    const char *label = tam_level_label(level);
+    if (level == st->lens) {
+        snprintf(st->msg, sizeof(st->msg), "already at Level %d %s", number,
+                 label);
+        return;
+    }
+    st->lens = level;
+    tam_lens_set(level);
+    if (!lens_href(st->cur_href) || !reload_in_place(st)) {
+        snprintf(st->msg, sizeof(st->msg),
+                 "Level %d %s set; this page has one level", number, label);
+        return;
+    }
+    if (st->doc->levels != 0 && level != 0 && !(st->doc->levels & level))
+        snprintf(st->msg, sizeof(st->msg),
+                 "Level %d %s set; this page has no %s version", number,
+                 label, label);
+    else if (st->doc->hidden > 0)
+        snprintf(st->msg, sizeof(st->msg), "Level %d %s: %d section%s hidden",
+                 number, label, st->doc->hidden,
+                 st->doc->hidden == 1 ? "" : "s");
+    else
+        snprintf(st->msg, sizeof(st->msg), "Level %d %s set", number, label);
 }
 
 static void go_back(pager_t *st)
@@ -1486,7 +1556,7 @@ static void go_back(pager_t *st)
         st->msg[0] = '\0';
         return;
     }
-    tam_document_t *nd = st->load(st->ctx, prev.href, content_width(st));
+    tam_document_t *nd = load_at_lens(st, prev.href);
     if (nd == NULL) {
         st->nhistory++;
         snprintf(st->msg, sizeof(st->msg), "cannot open %s", prev.href);
@@ -1522,7 +1592,7 @@ static void go_forward(pager_t *st)
         st->msg[0] = '\0';
         return;
     }
-    tam_document_t *nd = st->load(st->ctx, next.href, content_width(st));
+    tam_document_t *nd = load_at_lens(st, next.href);
     if (nd == NULL) {
         st->nforward++;
         snprintf(st->msg, sizeof(st->msg), "cannot open %s", next.href);
@@ -2052,7 +2122,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case '1':
     case '2':
     case '3':
-        switch_depth(st, c);
+        set_lens(st, c);
         break;
     default:
         break;
@@ -2095,6 +2165,13 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     memset(&st, 0, sizeof(st));
     st.doc = initial;
     st.cur_href = strdup(initial_href);
+    /* An address that names a level sets the lens for this run only. */
+    unsigned named = 0;
+    int named_level = lens_href(st.cur_href) &&
+                      tam_href_take_level(st.cur_href, &named);
+    if (named_level)
+        tam_lens_override(named);
+    st.lens = tam_lens_get();
     tam_document_ensure_location(st.doc, initial_href);
     st.selected = -1;
     st.cursor_line = 0;
@@ -2127,6 +2204,14 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     }
     g_term = &term;
     tam_pager_screen_init(&g_screen, &term);
+    if (!named_level && st.lens != 0 && st.load != NULL && lens_href(st.cur_href)) {
+        tam_document_t *nd = load_at_lens(&st, st.cur_href);
+        if (nd != NULL) {
+            tam_document_ensure_location(nd, st.cur_href);
+            tam_document_free(st.doc);
+            st.doc = nd;
+        }
+    }
     pager_build_links(&st);
 
     int input_fd = STDIN_FILENO;
