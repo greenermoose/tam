@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.4.3
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** Pending follow-up commit
+- **Commits:** `38fb18d`, and the follow-up index commit
 - **Authorship:** Fred Horch requested paring down the welcome page and moving background sections into a dedicated about page; Antigravity drafted the plan, displayed it in Micro for review, claimed scopes, created `knowledge/about.html`, updated `knowledge/welcome.html`, cross-linked the new page, bumped corpus version, and regenerated indexes.
 - **Checked against:** `knowledge/welcome.html`, `knowledge/ecosystem/philosophy.html`, `knowledge/ecosystem/sustainability.html`, `knowledge/tam.html`, `docs/corpus-authoring.md`, `ROADMAP.md`
 
