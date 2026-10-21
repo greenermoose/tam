@@ -599,30 +599,52 @@ static int shared_prereqs(const tam_index_entry_t *a, const tam_index_entry_t *b
 
 static char *html_escape(const char *s);
 
-/* Links to at most three pages in the same track as `page` that offer
- * `level`, ranked by shared prerequisites, then by title. NULL when there
- * are none, so the banner links the level path instead. */
+/* How `e` relates to `page` through the index's parent links: 0 for a
+ * child, 1 for a sibling, 2 for the parent, -1 for any other page. */
+static int parent_relation(const tam_index_entry_t *page,
+                           const tam_index_entry_t *e)
+{
+    if (e->parent != NULL && strcmp(e->parent, page->path) == 0) {
+        return 0;
+    }
+    if (page->parent != NULL && e->parent != NULL &&
+        strcmp(e->parent, page->parent) == 0) {
+        return 1;
+    }
+    if (page->parent != NULL && strcmp(page->parent, e->path) == 0) {
+        return 2;
+    }
+    return -1;
+}
+
+/* Links to at most three relatives of `page` that offer `level`: its
+ * children, then its siblings, then its parent (by the index's parent
+ * links), each ranked by shared prerequisites, then by title. NULL when
+ * there are none, so the banner links the level path instead. */
 static char *related_at_level(const tam_index_t *idx,
                               const tam_index_entry_t *page, unsigned level)
 {
     enum { MAX_RELATED = 3 };
     const tam_index_entry_t *best[MAX_RELATED];
+    int best_rel[MAX_RELATED];
     int best_score[MAX_RELATED];
     size_t nbest = 0;
-    if (page->track == NULL || page->track[0] == '\0') {
-        return NULL;
-    }
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (e == page || !(e->levels & level) || e->track == NULL ||
-            strcmp(e->track, page->track) != 0) {
+        if (e == page || !(e->levels & level)) {
+            continue;
+        }
+        int rel = parent_relation(page, e);
+        if (rel < 0) {
             continue;
         }
         int score = shared_prereqs(page, e);
         size_t at = nbest;
-        while (at > 0 && (score > best_score[at - 1] ||
-                          (score == best_score[at - 1] &&
-                           strcasecmp(e->title, best[at - 1]->title) < 0))) {
+        while (at > 0 && (rel < best_rel[at - 1] ||
+                          (rel == best_rel[at - 1] &&
+                           (score > best_score[at - 1] ||
+                            (score == best_score[at - 1] &&
+                             strcasecmp(e->title, best[at - 1]->title) < 0))))) {
             at--;
         }
         if (at >= MAX_RELATED) {
@@ -631,9 +653,11 @@ static char *related_at_level(const tam_index_t *idx,
         size_t last = nbest < MAX_RELATED ? nbest : MAX_RELATED - 1;
         for (size_t k = last; k > at; k--) {
             best[k] = best[k - 1];
+            best_rel[k] = best_rel[k - 1];
             best_score[k] = best_score[k - 1];
         }
         best[at] = e;
+        best_rel[at] = rel;
         best_score[at] = score;
         if (nbest < MAX_RELATED) {
             nbest++;

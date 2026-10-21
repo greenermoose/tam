@@ -1,6 +1,6 @@
 # tam plan index
 
-Reviewed 2026-10-21 (learning levels plan added) under the [plan maintenance procedure](../plan-maintenance.md).
+Reviewed 2026-10-21 (learning levels plan and banner-ranking follow-up) under the [plan maintenance procedure](../plan-maintenance.md).
 This is the complete inventory of plans and corpus notes in this directory.
 Read status/disposition before a historical body. A closed plan is not a task
 queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
@@ -9,7 +9,7 @@ queue. `ROADMAP.md` gives priority; `development.md` gives the current contract.
 
 | Plan | Status | Disposition / next action |
 | --- | --- | --- |
-| [Learning levels, goal paths and self-quizzes](learning-levels.md) | In progress | Approved 2026-10-20/21 (Tamlinux decision D184; [planning record](../ai/2026-10-21-tam-learning-levels-plan.md)). TCK20 (contract, [`corpus-pedagogy.md`](../corpus-pedagogy.md), [templates](../templates/)) delivered with the plan; TCK21 (sticky level lens) delivered as command 0.37.0. Next: TCK22 (folding and self-quizzes), then TCK23 (pilot pages and two goal paths); TCK24 scaffolding and TCK25 migration follow. |
+| [Learning levels, goal paths and self-quizzes](learning-levels.md) | In progress | Approved 2026-10-20/21 (Tamlinux decision D184; [planning record](../ai/2026-10-21-tam-learning-levels-plan.md)). TCK20 (contract, [`corpus-pedagogy.md`](../corpus-pedagogy.md), [templates](../templates/)) delivered with the plan; TCK21 (sticky level lens) delivered as command 0.37.0, with [banner ranking corrected in 0.37.1](../ai/2026-10-21-tam-banner-completion.md). Next: TCK22 (folding and self-quizzes), then TCK23 (pilot pages and two goal paths); TCK24 scaffolding and TCK25 migration follow. |
 | [Common pitfall → Best practice](common-pitfall-to-best-practice.md) | Completed | Corpus 0.35.2: 16 pages lead with the correct action (`ae1fa41`, index `ca25c8f`); [audit report](../ai/2026-10-20-common-pitfall-to-best-practice-audit.md) and [session record](../ai/2026-10-20-tam-common-pitfall-best-practice.md). Corpus only; package stages remain developer-directed. |
 | [Pager quick keys, address display and status row](pager-quick-keys.md) | Completed | Approved and completed 2026-10-20 (Tamlinux decision D176; [planning record](../ai/2026-10-20-tam-pager-quick-keys-plan.md); [session record](../ai/2026-10-20-tam-pager-quick-keys.md)). TCK15–TCK19 delivered in command 0.34.0 / corpus 0.35.1. |
 | [Developer loop: `make dev` and drift checks](dev-loop.md) | Completed | Approved and closed 2026-10-20 ([planning record](../ai/2026-10-20-tam-dev-loop-plan.md)). TCK11 (`make dev`, `ce4b617`), TCK12 (`make check-repo`, `docs/repo-map.md`), TCK13 (pager tests on `tests/fixtures/guide/`, `ee845af`) and TCK14 (`make dev` names the failing check, `e8da257`); developer acceptance by the corpus 0.34.1 run (`98222ff`, `4d41d84`). Non-interactive live-corpus assertions are on hold (roadmap section 4). Tooling and tests only; no component version change. Tooling only; no component version change. |

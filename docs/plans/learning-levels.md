@@ -13,10 +13,8 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Ask the developer which rule the "Written for" banner uses
-to pick related pages (open question under TCK21's delivery note), apply it
-with a command patch bump, then TCK22 (folding, self-quizzes and
-block-level levels).
+**Next action:** TCK22 (folding, self-quizzes and block-level levels).
+Write its claim and versions from the current files before starting.
 
 ## Problem and agreed outcome
 
@@ -154,10 +152,11 @@ repository, `docs/plans/tamlinux-command.md`.
    At Intermediate: <link>, <link>
    ```
 
-   - The links come from the index: pages in the same track that offer the
-     lens level. Rank them by shared prerequisites, then by title, and show
-     at most three.
-   - With no match, link the level path (`beginner.html`,
+   - The links come from the index's parent links: the page's children,
+     then its siblings, then its parent, each offering the lens level and
+     ranked by shared prerequisites, then by title; show at most three.
+     (Revised in command 0.37.1; the first rule used the same track.)
+   - With no such relative, link only the level path (`beginner.html`,
      `intermediate.html`, `expert.html`).
    - `read_corpus_page()` already loads the index, so pass it what the
      banner needs.
@@ -225,20 +224,17 @@ was silent, for the developer's review:
 - The Guide index Quick keys table lists no level keys, so the corpus is
   unchanged.
 
-**Open (stop-and-ask condition met).** The banner's related-page rule as
-written (same track, shared prerequisites, title) gives poor picks on the
-real corpus: the welcome page at Intermediate suggests "AI Tooling and Human
-Agency" and "Base Distributions". The rule as written is what shipped. The
-AI tool's recommendation, not yet answered: rank by the index's `parent`
-links (children, then siblings, then the parent, each offering the lens
-level, then shared prerequisites and title) and, when the page has no such
-relative, link only the level path. The alternatives are keeping the
-current rule or always linking the level path.
+**Resolved (2026-10-21, command 0.37.1).** The banner's first rule (same
+track, shared prerequisites, title) gave poor picks on the real corpus: the
+welcome page at Intermediate suggested "AI Tooling and Human Agency" and
+"Base Distributions". The developer accepted the recommendation to rank by
+the index's `parent` links (children, then siblings, then the parent, each
+offering the lens level, then shared prerequisites and title) and to link
+only the level path when the page has no such relative. The welcome page at
+Intermediate now links its sibling "Intermediate path".
 
-**Pending in the `tamlinux` repository:** the `welcome_seen` sentence in
-`docs/plans/tamlinux-command.md` still names `tamlinux/welcome_seen`; that
-checkout was held exclusively by another session. Change it to
-`tamlinux/tam/welcome_seen` (fallback `~/.local/state/tamlinux/tam/`).
+The `welcome_seen` sentence in the `tamlinux` repository's
+`docs/plans/tamlinux-command.md` now names `tamlinux/tam/welcome_seen`.
 
 ### TCK22 (folding, self-quizzes and block-level levels)
 
@@ -424,4 +420,5 @@ Approved direction. Plan each part before starting.
 ## Disposition
 
 TCK20 delivered on 2026-10-21 with this plan. TCK21 delivered on
-2026-10-21 as command 0.37.0; see its delivery note. TCK22–TCK25 open.
+2026-10-21 as command 0.37.0, with the banner ranking revised in 0.37.1;
+see its delivery note. TCK22–TCK25 open.

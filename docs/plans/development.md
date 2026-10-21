@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.36.0 and corpus 0.37.0.
+**Scope:** Living integration contract; current command 0.37.1 and corpus 0.37.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -379,6 +379,12 @@ record remains explicit in that plan and the index; it is not silently closed.
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
 
+- **2026-10-21:** Command 0.37.1 (patch): the "Written for" banner picks
+  related pages from the index's parent links: children, then siblings, then
+  the parent, each offering the lens level and ranked by shared
+  prerequisites, then title, at most three. A page with no such relative
+  links only the level path. The developer accepted this over the TCK21
+  rule (same track, shared prerequisites, title), which gave poor picks.
 - **2026-10-21:** Command 0.37.0 (minor) delivers TCK21, the sticky level
   lens. Keys `0`-`3` set the reader's lens and re-render the page in place
   without a history entry; the lens holds across links, Back and Forward

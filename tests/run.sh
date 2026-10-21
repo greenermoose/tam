@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.37.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.37.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1302,7 +1302,9 @@ import pty, os, time, sys, select, termios, struct, fcntl, re
 tam, guide, tldr, tmp = sys.argv[1:5]
 
 def strip_ansi(s):
-    return re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", s)
+    # terminfo emits character-set selection (ESC ( B) around styled links
+    # as well as CSI controls; neither is visible text.
+    return re.sub(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|[()][0-~])", "", s)
 
 class Pager:
     def __init__(self, args, state, cols=160, env=None, stdin=None):
@@ -1381,7 +1383,8 @@ assert saved(state) == "intermediate", saved(state)
 # truthful banner instead of failing, and the status row says so.
 b = p.key(b"`")
 assert "Written for: Beginner. This page has no Intermediate version." in b, b
-assert "At Intermediate: " in b, b
+# The banner links children of the page at the lens level, from index.parents.tsv.
+assert "At Intermediate: Fixture pipelines" in b, b
 assert "(not on page)" in b, b
 # = shows the address with the lens.
 b = p.key(b"=")
@@ -1657,6 +1660,79 @@ sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2
 printf '%s\n' "$sh_banner" | grep -q 'Written for: Beginner. This page has no Intermediate version.' \
     || fail "single-level page missing its banner"
 printf '%s\n' "$sh_banner" | grep -q 'Fixture Welcome' || fail "banner page lost its content"
+# Related pages come from parent links: a page with no relative at the level
+# links only the level path; siblings, then the parent, are offered next.
+printf '%s\n' "$sh_banner" | grep -q 'At Intermediate: the intermediate path' \
+    || fail "banner without relatives at the level must link only the level path"
+sh_sib=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 3 learn/index --pipe) \
+    || fail "show --level 3 on the learning hub failed"
+printf '%s\n' "$sh_sib" | grep -q 'At Expert: Fixture pipelines' \
+    || fail "banner did not link a sibling at the level"
+if printf '%s\n' "$sh_sib" | grep '^At Expert:' | grep -q 'Welcome'; then
+    fail "banner linked a child without the level"
+fi
+# Exercise the ranking contract independently of live page titles and tracks.
+python3 - "$TAM" "$tmp/banner-ranking" <<'PY' || fail "banner parent ranking failed"
+import csv
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+tam, corpus = sys.argv[1], Path(sys.argv[2])
+corpus.mkdir()
+(corpus / "index.html").write_text(
+    '<html><head><meta name="level" content="beginner"></head>'
+    '<body><h1>Banner fixture</h1><section data-level="beginner">'
+    '<h2>Beginner</h2><p>Read this page.</p></section></body></html>'
+)
+header = "topic path title summary keywords level track prereqs rev updated".split()
+
+def entry(topic, title, parent, prereqs="", level="intermediate", track="other"):
+    path = "index.html" if topic == "current" else topic + ".html"
+    return [topic, path, title, "Summary", topic, level, track, prereqs,
+            "1", "2026-10-21 06:00"], parent
+
+current = entry("current", "Current", "parent.html", "shell, pipes", "beginner", "use")
+parent = entry("parent", "Parent", "root.html", "shell, pipes", track="use")
+sibling = entry("sibling", "Sibling", "parent.html", "shell, pipes", track="use")
+child = entry("child", "Child", "index.html")
+# A stronger prerequisite match in the same track is still unrelated.
+unrelated = entry("unrelated", "Unrelated", "elsewhere.html", "shell, pipes", track="use")
+wrong_level = entry("wrong-level", "Wrong level", "index.html", level="expert")
+
+def banner(entries, parents=True):
+    rows = [current, unrelated, wrong_level, *entries]
+    with (corpus / "index.tsv").open("w") as f:
+        writer = csv.writer(f, delimiter="\t", lineterminator="\n")
+        writer.writerow(header)
+        writer.writerows(row for row, _ in rows)
+    sidecar = corpus / "index.parents.tsv"
+    with sidecar.open("w") as f:
+        writer = csv.writer(f, delimiter="\t", lineterminator="\n")
+        writer.writerow(["path", "parent"])
+        writer.writerows((row[1], p) for row, p in rows)
+    if not parents:
+        sidecar.unlink()
+    out = subprocess.check_output(
+        [tam, "show", "--level", "2", "current", "--pipe"], text=True,
+        env={**os.environ, "TAM_KNOWLEDGE_DIR": str(corpus)},
+    )
+    return next(line for line in out.splitlines() if line.startswith("At Intermediate:"))
+
+assert banner([parent, sibling, child]) == "At Intermediate: Child, Sibling, Parent"
+assert banner([parent, sibling]) == "At Intermediate: Sibling, Parent"
+assert banner([parent]) == "At Intermediate: Parent"
+# Ties use shared prerequisites, then title, and stop at three links.
+children = [entry("zulu", "Zulu", "index.html", "shell"),
+            entry("alpha", "Alpha", "index.html"),
+            entry("beta", "Beta", "index.html", "shell"),
+            entry("delta", "Delta", "index.html", "shell, pipes")]
+assert banner([parent, sibling, *children]) == "At Intermediate: Delta, Beta, Zulu"
+assert banner([]) == "At Intermediate: the intermediate path"
+assert banner([parent, sibling, child], parents=False) == "At Intermediate: the intermediate path"
+PY
+pass "banner relatives: children, siblings, parent, tie breaks, cap and fallback"
 # Piped output ignores the saved lens.
 mkdir -p "$tmp/pipe-lens/tamlinux/tam"
 printf 'expert\n' > "$tmp/pipe-lens/tamlinux/tam/level"

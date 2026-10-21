@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-21. **Owner:** Fred (developer).
-**Current Command Version:** `0.37.0`. **Current Corpus Version:** `0.37.0`.
+**Current Command Version:** `0.37.1`. **Current Corpus Version:** `0.37.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -96,13 +96,14 @@ in that candidate, not here.
 | **0.37.0 corpus** | Environment-minded systems and desktops | Done (2026-10-20) | New Operating Systems Reference page `ecosystem/os/environment-minded.html` (`tam show environment-minded`): wattOS, Emmabuntüs, GALPon MiniNo, KDE Eco and the Blue Angel label, the Green Software Foundation SCI standard, Nura, /e/OS, Collapse OS and Dusk OS, permacomputing and End of 10, none with a Tamlinux role; linked from the reference index and the sustainability page. |
 | **0.36.0 command** | Search results open in the pager | Done (2026-10-20) | On a terminal, `tam search TERM...` opens the `tam:search?query=TERM` results page in the pager, so each result link can be followed and searched again; `--pipe`, `--json` and non-terminal output keep the plain text and JSON contracts; a miss still prints suggestions and exits 1. |
 | **0.37.0 command** | Sticky level lens (TCK21) | Done (2026-10-21) | Keys `0`-`3` set one reading level that holds across links, Back and restarts, saved in `$XDG_STATE_HOME/tamlinux/tam/level` (`TAM_LEVEL` and `--level` override it); a level bar under the title, hidden-section markers, the level in the status row, and a "Written for" banner with links at the reader's level on pages without it, so no level key dead-ends; `welcome_seen` moves to `tamlinux/tam/` ([plan](docs/plans/learning-levels.md)). |
+| **0.37.1 command** | Banner links related pages by parent | Done (2026-10-21) | The "Written for" banner links up to three pages at the reader's level from the index's parent links (children, then siblings, then the parent, each by shared prerequisites and title); a page with no such relative links only the level path ([plan](docs/plans/learning-levels.md)). |
 
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.37.0 / 0.37.0 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.37.1 / 0.37.0 | Newest source; development installation is a separate developer-directed step. |
 | `test` | 0.31.1 / 0.32.1 | The pair packaged in the Tamlinux 0.4.4k Test candidate. |
 | `main` | 0.9.1 (one shared number) | Predates `knowledge/version`, so `tam upgrade` cannot describe the Run source until a Tamlinux Run promotes a newer pair. |
 
@@ -125,7 +126,7 @@ live metadata checks have standing developer authorization.
 Approved next outcome: [learning levels, goal paths and self-quizzes](docs/plans/learning-levels.md)
 (TCK20–TCK25). TCK20, the teaching contract in
 [`docs/corpus-pedagogy.md`](docs/corpus-pedagogy.md) and its templates, and TCK21,
-the sticky level lens (command 0.37.0), are delivered; the first outcome continues
+the sticky level lens (command 0.37.0, banner ranking fixed in 0.37.1), are delivered; the first outcome continues
 with TCK22 (folding and self-quizzes) and TCK23 (pilot pages and two goal paths). Versions are allocated
 when each slice starts. The deferred items in section 4 are candidates, not
 assignments.
