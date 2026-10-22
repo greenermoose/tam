@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-21. **Owner:** Fred (developer).
-**Current Command Version:** `0.40.4`. **Current Corpus Version:** `0.42.0`.
+**Current Command Version:** `0.40.5`. **Current Corpus Version:** `0.42.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -100,6 +100,7 @@ in that candidate, not here.
 | **0.38.0 command / 0.37.1 corpus** | Folding and self-quizzes (TCK22) | Done (2026-10-21) | Answers fold in the pager with Enter, `r` and `*`, reset on navigation, and collect under Answers in pipe output; block-level filtering, generated section labels, named asides and command risk labels; 23 pages lose hand-typed level prefixes and lint checks enforce the markup ([record](docs/ai/2026-10-21-tam-folding.md)). |
 | **0.38.1 command** | Pager resize cursor preservation | Done (2026-10-21) | Reflow preserves whether the attention line is on text or a blank separator when both share a logical position; PTY screen tests cover text and blank anchors ([record](docs/ai/2026-10-21-tam-pager-resize-drift.md)). |
 | **0.39.0 command** | Pager level line | Done (2026-10-21) | One dimmed, right-aligned level line above the page heading, `<Level> text [on <Level> path] [(no <Level> text)]`, replaces the level bar and the "Written for" banner; the path is linked, and a page without the lens level adds `<Level> text: A \| B \| C` with up to three related pages (never the level path itself). Keys `0`-`3` still switch levels ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
+| **0.40.5 command** | `tam.c` and `pager.c` split into modules (refactoring step 6) | Done (2026-10-22) | `tam.c` (1,717 lines) becomes the command line (`tam.c`), Tamlinux and corpus identity (`identity.c`), the offline guide (`corpus.c`) and generated views (`views.c`); `pager.c` (2,524 lines) becomes the run loop (`pager.c`), screen and status row (`pager_draw.c`), keys (`pager_input.c`), link selection and line movement (`pager_links.c`), following, history, folds and lens (`pager_nav.c`), and search and prompts (`pager_search.c`). Function bodies move unchanged; only functions another module uses are exported, through private `corpus.h` and `pager_int.h`. No behaviour change ([record](docs/ai/2026-10-22-tam-refactor-step-2.md)). |
 | **0.40.4 command** | One HTML tag scanner (refactoring step 5) | Done (2026-10-22) | New `src/html_scan.c` reads tags and attributes for the renderer, the level filter, the fold transform and the breadcrumb, replacing four scanners with different rules. Attributes are parsed as name=value pairs, so `data-href` or `href=` inside another value no longer becomes a link, and `<abbr>` no longer breaks a breadcrumb. All guide pages at every level, generated pages, 25 man pages and 83 Info manuals render byte-identically ([record](docs/ai/2026-10-22-tam-refactor-step-2.md)). |
 | **0.40.3 command** | One address module and loader (refactoring step 4) | Done (2026-10-22) | New `src/address.c` classifies every address (guide, man, Info, tldr, view, action, external), reads its query parameters, and routes it through one table; `tam show`, the pager and the `man`, `tldr` and `info` commands share that loader, replacing four partial loaders and five `tam show` branches. Guide links opened from `tam man`, `tam tldr` or `tam info` now get levels, folds, the level line and the corpus path check; `man:` opens the Man pages view; `--level` reaches every view that takes the lens. Scheme comparisons fall from 76 to 31 ([record](docs/ai/2026-10-22-tam-refactor-step-2.md)). |
 | **0.40.2 command** | One HTML escaper and page builder (refactoring step 3) | Done (2026-10-22) | New `src/html.c` holds the only HTML escaper and the page builder that topics, keywords, topic guide, search, man, Info and tldr pages now share; libtam's path, JSON and XDG state helpers replace `tam`'s private copies. Every generated page checked renders byte-identically; Info names and topic summaries are now escaped. About 175 fewer lines ([record](docs/ai/2026-10-22-tam-refactor-step-2.md)). |
@@ -117,7 +118,7 @@ in that candidate, not here.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.40.4 / 0.42.0 | Newest source; pager level line and line labels, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons and Rescue implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.40.5 / 0.42.0 | Newest source; pager level line and line labels, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons and Rescue implemented. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.36.0 / 0.37.0 | Latest cached remote Test source at `c9b6c5d`; not an installed-candidate claim. |
 | `origin/main` | 0.31.1 / 0.32.1 | Latest cached remote Run source; not an installed-candidate claim. |
 

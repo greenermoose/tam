@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-22 | Refactoring step 6: `tam.c` and `pager.c` split into modules with no behaviour change; command 0.40.5 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |
 | 2026-10-22 | Refactoring step 5: one HTML tag scanner for the renderer, level filter, fold transform and breadcrumb; command 0.40.4 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |
 | 2026-10-22 | Refactoring step 4: one address module and loader shared by `tam show`, the pager and the man, tldr and info commands; command 0.40.3 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |
 | 2026-10-22 | Refactoring step 3: one HTML escaper and page builder; libtam path, JSON and state helpers replace private copies; command 0.40.2 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |

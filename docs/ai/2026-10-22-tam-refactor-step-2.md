@@ -1,18 +1,19 @@
-# Refactoring steps 2 to 5 (commands 0.40.1 to 0.40.4)
+# Refactoring steps 2 to 6 (commands 0.40.1 to 0.40.5)
 
 - **Date:** 2026-10-22
-- **Time:** 07:03 to 11:22 -04:00
+- **Time:** 07:03 to 11:34 -04:00
 - **Stage:** Develop: step 2 of the refactoring sequence (0.40.1); man page
   lookups and rendering run through libtam 0.4.0's `tam_exec`, groff's
   scratch files leave `/tmp`, and libtam links statically. Step 3 (0.40.2):
   one HTML escaper and page builder, and libtam's path, JSON and state
   helpers in place of `tam`'s copies. Step 4 (0.40.3): one address module
-  and loader. Step 5 (0.40.4): one HTML tag scanner
+  and loader. Step 5 (0.40.4): one HTML tag scanner. Step 6 (0.40.5):
+  `tam.c` and `pager.c` split into modules
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `15cd730` (0.40.1), `634c955` (0.40.2), `0192688` (0.40.3)
-  and the 0.40.4 commit that updates this record; with libtam `a051ebf` (0.4.0, step 1)
+- **Commits:** `15cd730` (0.40.1), `634c955` (0.40.2), `0192688` (0.40.3),
+  `2a061cd` (0.40.4) and the 0.40.5 commit that updates this record; with libtam `a051ebf` (0.4.0, step 1)
 - **Authorship:** Fred Horch approved the seven-step sequence from Claude's
   architecture review and asked for step 2. Claude wrote the code, tests and
   documentation.
@@ -35,6 +36,10 @@
 > Proceed to step 4.
 
 > Proceed to step 5
+
+> Is v0.40.4 the most recent?
+
+> Proceed to step 6.
 
 ## Key decisions
 
@@ -74,6 +79,14 @@
   too. The review's estimate of 400 to 600 lines saved over steps 2, 3 and
   5 was high: step 5 is about line-neutral.
 
+- Step 6: the split was done by a script, not by hand, so bodies are
+  byte-for-byte the originals; it exported only functions called across
+  the new files and regenerated their prototypes, realigning signatures
+  where `static` (and one `inline`) was dropped. A few exported pager names
+  are generic (`out`, `draw`, `follow`); they are visible only inside the
+  `tam` binary, and the link has no clashes. Renaming them is left for when
+  someone touches that code.
+
 ## Verification
 
 - `make test`: both suites pass, including a new test that a man page
@@ -97,5 +110,8 @@
   node of all 83 Info manuals match 0.40.3 byte for byte; render goldens
   match; a new test covers `data-href`, `href=` inside a value and `<abbr>`
   in a breadcrumb, all three of which 0.40.3 misread.
+- Step 6: builds without warnings; all guide pages at four levels,
+  fixtures, generated pages, `--version`, `inspect --json` and `--help`
+  match 0.40.4; `make test` passes, including every PTY pager test.
 - `readelf -d build/tam` shows no RUNPATH; `make LIBTAM_PREFIX=/nonexistent`
   stops with the libtam 0.4.0 instructions.

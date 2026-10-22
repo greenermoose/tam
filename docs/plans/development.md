@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.40.4 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.40.5 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,19 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.40.5 (patch): refactoring step 6 (private D188),
+  a move with no behaviour change. Source layout: `tam.c` command line and
+  subcommands; `identity.c` cultivar and corpus version; `corpus.c` corpus
+  discovery, page resolution, page reading and related pages; `views.c`
+  topic guide, keyword index and topics; `pager.c` run loop and globals;
+  `pager_draw.c` screen, level and status rows; `pager_input.c` key and
+  terminal-reply reading; `pager_links.c` link selection, breadcrumb focus
+  and line movement; `pager_nav.c` following, history, anchors, folds and
+  the lens; `pager_search.c` search and prompts. Function bodies moved
+  unchanged by a script that cut at top-level function boundaries; only the
+  5 command and 34 pager functions another module calls are exported, from
+  the private headers `corpus.h` and `pager_int.h`; everything else stays
+  `static`. Output matches 0.40.4 byte for byte and every PTY test passes.
 - **2026-10-22:** Command 0.40.4 (patch): refactoring step 5 (private D188).
   `src/html_scan.c` is the one tag scanner: `tam_tag_read()` (quote-aware,
   comments as a unit, lower-case names in which a hyphen continues the name,
