@@ -1,17 +1,18 @@
-# Refactoring steps 2 and 3 (commands 0.40.1 and 0.40.2)
+# Refactoring steps 2 to 4 (commands 0.40.1 to 0.40.3)
 
 - **Date:** 2026-10-22
-- **Time:** 07:03 to 07:19 -04:00
+- **Time:** 07:03 to 07:29 -04:00
 - **Stage:** Develop: step 2 of the refactoring sequence (0.40.1); man page
   lookups and rendering run through libtam 0.4.0's `tam_exec`, groff's
   scratch files leave `/tmp`, and libtam links statically. Step 3 (0.40.2):
   one HTML escaper and page builder, and libtam's path, JSON and state
-  helpers in place of `tam`'s copies
+  helpers in place of `tam`'s copies. Step 4 (0.40.3): one address module
+  and loader
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `15cd730` (0.40.1) and the 0.40.2 commit that updates this
-  record; with libtam `a051ebf` (0.4.0, step 1)
+- **Commits:** `15cd730` (0.40.1), `634c955` (0.40.2) and the 0.40.3
+  commit that updates this record; with libtam `a051ebf` (0.4.0, step 1)
 - **Authorship:** Fred Horch approved the seven-step sequence from Claude's
   architecture review and asked for step 2. Claude wrote the code, tests and
   documentation.
@@ -30,6 +31,8 @@
 > Proceed to step 2 of the refactor.
 
 > Proceed to step 3.
+
+> Proceed to step 4.
 
 ## Key decisions
 
@@ -55,6 +58,12 @@
   keeps its bounded JSON escaper: it fills fixed 512-byte evidence fields
   and must not split an escape when it truncates.
 
+- Step 4: module-owned sub-routes (`tam:man:keyword?`, `tam:tldr:list`, ...),
+  the pager's action names and the breadcrumb builder keep their own string
+  checks; only scheme routing moved. The three command loaders read guide
+  pages raw and joined `root/href` unchecked, so sharing the corpus loader
+  is a behaviour fix, not only a deduplication.
+
 ## Verification
 
 - `make test`: both suites pass, including a new test that a man page
@@ -69,5 +78,9 @@
   several levels) and the Top node of all 83 installed Info manuals render
   byte-identically to 0.40.1; `tam inspect` and `--json` match; `..`,
   absolute and URL page paths are refused; `make test` passes.
+- Step 4: the 36 generated pages and commands match 0.40.2 byte for byte;
+  `make test` passes, with new checks that `man:` opens the Man pages view,
+  `--level` reaches `tam:keywords` and `tam:explain`, and `../` guide
+  addresses are refused.
 - `readelf -d build/tam` shows no RUNPATH; `make LIBTAM_PREFIX=/nonexistent`
   stops with the libtam 0.4.0 instructions.

@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "address.h"
 #include "depth.h"
 #include "display.h"
 #include "pager.h"
@@ -1015,24 +1016,17 @@ static void pager_address(const pager_t *st, char *out, size_t cap)
         tam_href_put_level(st->cur_href, st->lens, with_lens,
                            sizeof(with_lens))) {
         snprintf(out, cap, "%s%.240s",
-                 strncmp(with_lens, "tam:", 4) == 0 ? "" : "page:", with_lens);
+                 tam_addr_kind(with_lens) == TAM_ADDR_GUIDE &&
+                 strncmp(with_lens, "page:", 5) != 0 ? "page:" : "", with_lens);
         return;
     }
-    if (st->cur_href == NULL ||
-        strcmp(st->cur_href, "-") == 0 ||
-        st->cur_href[0] == '<') {
+    tam_addr_kind_t kind = tam_addr_kind(st->cur_href);
+    if (kind == TAM_ADDR_NONE || kind == TAM_ADDR_STDIN) {
         snprintf(out, cap, "(standard input has no address)");
         return;
     }
-    if (strncmp(st->cur_href, "man:", 4) == 0 ||
-        strncmp(st->cur_href, "info:", 5) == 0 ||
-        strncmp(st->cur_href, "tldr:", 5) == 0 ||
-        strncmp(st->cur_href, "tam:", 4) == 0 ||
-        strncmp(st->cur_href, "page:", 5) == 0) {
-        snprintf(out, cap, "%s", st->cur_href);
-        return;
-    }
-    snprintf(out, cap, "page:%s", st->cur_href);
+    snprintf(out, cap, "%s%s", kind == TAM_ADDR_GUIDE &&
+             strncmp(st->cur_href, "page:", 5) != 0 ? "page:" : "", st->cur_href);
 }
 
 /* The breadcrumb row has focus while one of its links is selected. */
@@ -1384,13 +1378,6 @@ static void restore_logical_nav_state(pager_t *st, const nav_state_t *nav)
     }
 }
 
-static int is_external(const char *href)
-{
-    return strncmp(href, "http:", 5) == 0 || strncmp(href, "https:", 6) == 0 ||
-           strncmp(href, "mailto:", 7) == 0 || strncmp(href, "ftp:", 4) == 0 ||
-           strstr(href, "://") != NULL;
-}
-
 static int match_anchor(const char *haystack, const char *needle)
 {
     if (haystack == NULL || needle == NULL) {
@@ -1428,17 +1415,7 @@ static int find_anchor_text(const tam_document_t *doc, const char *target)
  * Info, tldr, other tam: pages and standard input have one level. */
 static int lens_href(const char *href)
 {
-    if (href == NULL || href[0] == '\0' || href[0] == '<' || href[0] == '#' ||
-        strcmp(href, "-") == 0) {
-        return 0;
-    }
-    size_t scheme = strcspn(href, ":/?#");
-    if (href[scheme] != ':') {
-        return 1;
-    }
-    return strncmp(href, "tam:explain", 11) == 0 ||
-           strncmp(href, "tam:topics", 10) == 0 ||
-           strncmp(href, "tam:keywords", 12) == 0;
+    return tam_addr_takes_lens(href);
 }
 
 /* Load `href` (stored without level=) at the reader's lens. A view that
@@ -1507,7 +1484,7 @@ static void follow(pager_t *st, const char *href)
         snprintf(st->msg, sizeof(st->msg), "jumped to %s", target);
         return;
     }
-    if (is_external(href)) {
+    if (tam_addr_kind(href) == TAM_ADDR_EXTERNAL) {
         snprintf(st->msg, sizeof(st->msg), "external link (not opened)");
         return;
     }

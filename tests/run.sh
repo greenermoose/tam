@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.40.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.40.3' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -2327,6 +2327,21 @@ done
 leftover=$(find "$tmp/manz-run" -mindepth 3 2>/dev/null)
 [ -z "$leftover" ] || fail "man rendering left scratch files: $leftover"
 pass "man pages render alike from gzip, bzip2, xz and zstd with no scratch files left"
+
+# One loader serves every address. "man:" alone (the man breadcrumb's link)
+# opens the Man pages view; --level reaches every view that takes the lens;
+# a guide address never leaves the guide.
+"$TAM" show man: --pipe | grep -q 'Man pages' || fail "man: did not open the Man pages view"
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show tam:keywords --level 3 --pipe \
+    | grep -q 'Keyword Index (expert)' || fail "--level did not reach tam:keywords"
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show "tam:explain?topic=pipelines" --level 3 --pipe \
+    | grep -q 'Topic Guide: pipelines (expert Level)' || fail "--level did not reach tam:explain"
+for bad in "page:../run.sh" "page:shell/../../run.sh" "../run.sh"; do
+    if TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show "$bad" --pipe >/dev/null 2>&1; then
+        fail "guide address $bad left the guide"
+    fi
+done
+pass "one address loader: man: view, --level on views, guide paths stay inside"
 
 # -----------------------------------------------------------------------------
 # Milestone 14: GNU Info Subsystem (tam info)

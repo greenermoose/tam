@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.40.2 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.40.3 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,19 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.40.3 (patch): refactoring step 4 (private D188).
+  `src/address.c` owns addresses: `tam_addr_kind()` (guide, man, Info, tldr,
+  view, action, external, fragment, standard input), `tam_addr_takes_lens()`,
+  `tam_addr_param()` (percent-decoded query values) and `tam_address_load()`,
+  one route table for every scheme. `tam show`, the pager and `tam man`,
+  `tam tldr` and `tam info` all use it; their three private loaders and
+  `tam show`'s five scheme branches are gone, and `src/views.h` declares the
+  corpus views and `tam_corpus_page_document()`. Fixed by sharing: guide
+  links opened from the man, tldr and info commands were read raw (no
+  levels, folds or level line) and joined without the corpus path check;
+  `man:` (the man breadcrumb's link) failed under `tam show`; `--level`
+  reached only `tam:topics`. Unknown schemes are treated as external links.
+  Every generated page compared is byte-identical to 0.40.2.
 - **2026-10-22:** Command 0.40.2 (patch): refactoring step 3 (private D188).
   `src/html.c` owns HTML escaping (`tam_html_escape`, `tam_html_cat`,
   escaping `& < > " '`) and the page builder (`tam_page_begin` with title,

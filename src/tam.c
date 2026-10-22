@@ -3,6 +3,7 @@
 #include "ask.h"
 #include "depth.h"
 #include "fold.h"
+#include "address.h"
 #include "html.h"
 #include "discovery.h"
 #include "index.h"
@@ -13,6 +14,7 @@
 #include "pager.h"
 #include "render.h"
 #include "tldr.h"
+#include "views.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -556,12 +558,6 @@ static void resolve_page(const char *root, const char *page, char *out,
     snprintf(out, cap, "%s%s", path, q);
 }
 
-typedef struct {
-    char *root;
-    const char *stdin_html;
-    size_t stdin_len;
-} corpus_ctx_t;
-
 static int shared_prereqs(const tam_index_entry_t *a, const tam_index_entry_t *b)
 {
     int n = 0;
@@ -708,34 +704,6 @@ static char *read_corpus_page(const char *root, const char *href,
     free(src);
     free(rel);
     return html;
-}
-
-static void url_decode_in_place(char *s)
-{
-    if (s == NULL) return;
-    char *o = s;
-    for (char *p = s; *p != '\0'; p++) {
-        if (*p == '%' && p[1] != '\0' && p[2] != '\0') {
-            int h1 = p[1];
-            int h2 = p[2];
-            int v1 = (h1 >= '0' && h1 <= '9') ? (h1 - '0') :
-                     (h1 >= 'a' && h1 <= 'f') ? (h1 - 'a' + 10) :
-                     (h1 >= 'A' && h1 <= 'F') ? (h1 - 'A' + 10) : -1;
-            int v2 = (h2 >= '0' && h2 <= '9') ? (h2 - '0') :
-                     (h2 >= 'a' && h2 <= 'f') ? (h2 - 'a' + 10) :
-                     (h2 >= 'A' && h2 <= 'F') ? (h2 - 'A' + 10) : -1;
-            if (v1 >= 0 && v2 >= 0) {
-                *o++ = (char)((v1 << 4) | v2);
-                p += 2;
-                continue;
-            }
-        } else if (*p == '+') {
-            *o++ = ' ';
-            continue;
-        }
-        *o++ = *p;
-    }
-    *o = '\0';
 }
 
 static char *url_encode(const char *s)
@@ -939,71 +907,11 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
     return tam_page_render(html, width);
 }
 
-static tam_document_t *corpus_load(void *vctx, const char *href,
-                                   int content_width)
+tam_document_t *tam_corpus_page_document(const tam_loader_ctx_t *ctx,
+                                         const char *href, int content_width)
 {
-    corpus_ctx_t *ctx = vctx;
-    if (href == NULL || href[0] == '\0') {
+    if (ctx == NULL || href == NULL || href[0] == '\0') {
         return NULL;
-    }
-    if (strncmp(href, "man:", 4) == 0) {
-        return tam_man_load(href + 4, content_width);
-    }
-    if (strncmp(href, "info:", 5) == 0) {
-        return tam_info_load(href + 5, content_width);
-    }
-    if (strncmp(href, "tldr:", 5) == 0) {
-        return tam_tldr_load(href + 5, content_width);
-    }
-    if (strncmp(href, "tam:tldr", 8) == 0) {
-        return tam_tldr_uri_document(href, content_width);
-    }
-    if (strncmp(href, "tam:man", 7) == 0) {
-        return tam_man_uri_document(href, content_width);
-    }
-    if (strncmp(href, "tam:search", 10) == 0) {
-        return tam_guide_search_uri_document(ctx->root, href, content_width);
-    }
-    if (strncmp(href, "tam:explain", 11) == 0) {
-        unsigned level = 0;
-        const char *lq = strstr(href, "level=");
-        if (lq != NULL) {
-            (void)tam_level_parse_arg(lq + 6, &level);
-        }
-        const char *tq = strstr(href, "topic=");
-        char topic[256] = {0};
-        if (tq != NULL) {
-            tq += 6;
-            const char *end = strchr(tq, '&');
-            size_t tlen = end ? (size_t)(end - tq) : strlen(tq);
-            if (tlen >= sizeof(topic)) tlen = sizeof(topic) - 1;
-            memcpy(topic, tq, tlen);
-            topic[tlen] = '\0';
-            url_decode_in_place(topic);
-        } else if (href[11] == ':') {
-            snprintf(topic, sizeof(topic), "%s", href + 12);
-            url_decode_in_place(topic);
-        }
-        if (topic[0] != '\0') {
-            return tam_topic_guide_document(ctx->root, topic, level, content_width);
-        }
-        return tam_topic_keywords_document(ctx->root, level, content_width);
-    }
-    if (strncmp(href, "tam:keywords", 12) == 0) {
-        unsigned level = 0;
-        const char *q = strstr(href, "?level=");
-        if (q != NULL) {
-            (void)tam_level_parse_arg(q + 7, &level);
-        }
-        return tam_topic_keywords_document(ctx->root, level, content_width);
-    }
-    if (strncmp(href, "tam:topics", 10) == 0) {
-        unsigned level = 0;
-        const char *q = strstr(href, "?level=");
-        if (q != NULL) {
-            (void)tam_level_parse_arg(q + 7, &level);
-        }
-        return tam_topics_document(ctx->root, level, content_width);
     }
     if (ctx->root == NULL && ctx->stdin_html == NULL) {
         return NULL;
@@ -1117,9 +1025,9 @@ static int view_document(const char *root, const char *href, const char *src,
 
     int rc = 0;
     if (interactive) {
-        corpus_ctx_t ctx = { .root = (char *)root,
+        tam_loader_ctx_t ctx = { .root = (char *)root,
             .stdin_html = info == NULL ? src : NULL, .stdin_len = len };
-        rc = tam_pager_run(doc, href, corpus_load, &ctx);
+        rc = tam_pager_run(doc, href, tam_address_load, &ctx);
     } else {
         char *text = tam_document_text(doc);
         if (text != NULL) {
@@ -1237,146 +1145,45 @@ static int cmd_show(int n, char **args)
         return TAM_EXIT_FAILURE;
     }
 
-    if (page != NULL && (strcmp(page, "topics") == 0 || strncmp(page, "tam:topics", 10) == 0)) {
-        if (level == 0) {
-            const char *q = strstr(page, "?level=");
-            if (q != NULL) {
-                (void)tam_level_parse_arg(q + 7, &level);
-            }
-        }
-        int interactive = !pipe && isatty(STDOUT_FILENO);
-        int width = interactive ? tam_terminal_width() : 80;
-        tam_document_t *doc = tam_topics_document(root, level, width);
-        if (doc == NULL) {
-            free(root);
-            return TAM_EXIT_FAILURE;
-        }
-        tam_document_ensure_location(doc, page);
-        int rc = 0;
-        if (interactive) {
-            corpus_ctx_t ctx = {0};
-            ctx.root = root;
-                char initial_href[64];
-            if (level != 0) {
-                snprintf(initial_href, sizeof(initial_href), "tam:topics?level=%s", tam_level_name(level));
-            } else {
-                snprintf(initial_href, sizeof(initial_href), "tam:topics");
-            }
-            rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
-        } else {
-            char *text = tam_document_text(doc);
-            if (text != NULL) {
-                fputs(text, stdout);
-                free(text);
-            }
-            tam_document_free(doc);
-        }
-        free(root);
-        return rc;
+    if (page != NULL && strcmp(page, "topics") == 0) {
+        page = "tam:topics";
     }
-
-    if (page != NULL && (strncmp(page, "tam:man", 7) == 0 ||
-                         strncmp(page, "tam:tldr", 8) == 0 ||
-                         strncmp(page, "tam:search", 10) == 0 ||
-                         strncmp(page, "tam:explain", 11) == 0 ||
-                         strncmp(page, "tam:keywords", 12) == 0)) {
-        corpus_ctx_t ctx = {.root = root};
+    tam_addr_kind_t kind = tam_addr_kind(page);
+    if (kind == TAM_ADDR_MAN || kind == TAM_ADDR_INFO || kind == TAM_ADDR_TLDR ||
+        kind == TAM_ADDR_VIEW) {
+        /* --level applies to a view that takes the lens and names none. */
+        char addr[600];
+        char named[32];
+        snprintf(addr, sizeof(addr), "%s", page);
+        if (level != 0 && tam_addr_takes_lens(addr) &&
+            !tam_addr_param(addr, "level", named, sizeof(named))) {
+            size_t len = strlen(addr);
+            snprintf(addr + len, sizeof(addr) - len, "%clevel=%s",
+                     strchr(addr, '?') != NULL ? '&' : '?', tam_level_name(level));
+        }
+        tam_loader_ctx_t ctx = {.root = root};
         int interactive = !pipe && isatty(STDOUT_FILENO);
         int width = interactive ? tam_terminal_width() : 80;
-        tam_document_t *doc = corpus_load(&ctx, page, width);
+        tam_document_t *doc = tam_address_load(&ctx, addr, width);
         if (doc == NULL) {
-            fprintf(stderr, TAM_COMMAND_NAME ": could not open discovery page '%s'\n", page);
+            if (kind == TAM_ADDR_MAN)
+                fprintf(stderr, TAM_COMMAND_NAME ": no manual page found for '%s'\n", page + 4);
+            else if (kind == TAM_ADDR_INFO)
+                fprintf(stderr, TAM_COMMAND_NAME ": no info manual or node found for '%s'\n", page + 5);
+            else if (kind == TAM_ADDR_TLDR)
+                fprintf(stderr, TAM_COMMAND_NAME ": no tldr page found for '%s'\n", page + 5);
+            else
+                fprintf(stderr, TAM_COMMAND_NAME ": could not open discovery page '%s'\n", page);
             free(root);
             return TAM_EXIT_FAILURE;
         }
-        tam_document_ensure_location(doc, page);
+        tam_document_ensure_location(doc, addr);
         int rc = 0;
         if (interactive) {
-            rc = tam_pager_run(doc, page, corpus_load, &ctx);
+            rc = tam_pager_run(doc, addr, tam_address_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) { fputs(text, stdout); free(text); }
-            tam_document_free(doc);
-        }
-        free(root);
-        return rc;
-    }
-
-    if (page != NULL && strncmp(page, "info:", 5) == 0) {
-        int interactive = !pipe && isatty(STDOUT_FILENO);
-        int width = interactive ? tam_terminal_width() : 80;
-        tam_document_t *doc = tam_info_load(page + 5, width);
-        if (doc == NULL) {
-            fprintf(stderr, TAM_COMMAND_NAME ": no info manual or node found for '%s'\n", page + 5);
-            free(root);
-            return TAM_EXIT_FAILURE;
-        }
-        tam_document_ensure_location(doc, page);
-        int rc = 0;
-        if (interactive) {
-            corpus_ctx_t ctx = {0};
-            ctx.root = root;
-                rc = tam_pager_run(doc, page, corpus_load, &ctx);
-        } else {
-            char *text = tam_document_text(doc);
-            if (text != NULL) {
-                fputs(text, stdout);
-                free(text);
-            }
-            tam_document_free(doc);
-        }
-        free(root);
-        return rc;
-    }
-
-    if (page != NULL && strncmp(page, "man:", 4) == 0) {
-        int interactive = !pipe && isatty(STDOUT_FILENO);
-        int width = interactive ? tam_terminal_width() : 80;
-        tam_document_t *doc = tam_man_load(page + 4, width);
-        if (doc == NULL) {
-            fprintf(stderr, TAM_COMMAND_NAME ": no manual page found for '%s'\n", page + 4);
-            free(root);
-            return TAM_EXIT_FAILURE;
-        }
-        tam_document_ensure_location(doc, page);
-        int rc = 0;
-        if (interactive) {
-            corpus_ctx_t ctx = {0};
-            ctx.root = root;
-                rc = tam_pager_run(doc, page, corpus_load, &ctx);
-        } else {
-            char *text = tam_document_text(doc);
-            if (text != NULL) {
-                fputs(text, stdout);
-                free(text);
-            }
-            tam_document_free(doc);
-        }
-        free(root);
-        return rc;
-    }
-
-    if (page != NULL && strncmp(page, "tldr:", 5) == 0) {
-        int interactive = !pipe && isatty(STDOUT_FILENO);
-        int width = interactive ? tam_terminal_width() : 80;
-        tam_document_t *doc = tam_tldr_load(page + 5, width);
-        if (doc == NULL) {
-            fprintf(stderr, TAM_COMMAND_NAME ": no tldr page found for '%s'\n", page + 5);
-            free(root);
-            return TAM_EXIT_FAILURE;
-        }
-        tam_document_ensure_location(doc, page);
-        int rc = 0;
-        if (interactive) {
-            corpus_ctx_t ctx = {0};
-            ctx.root = root;
-            rc = tam_pager_run(doc, page, corpus_load, &ctx);
-        } else {
-            char *text = tam_document_text(doc);
-            if (text != NULL) {
-                fputs(text, stdout);
-                free(text);
-            }
             tam_document_free(doc);
         }
         free(root);
@@ -1570,7 +1377,7 @@ static int cmd_explain(int n, char **args)
             return TAM_EXIT_FAILURE;
         }
 
-        corpus_ctx_t ctx = {0};
+        tam_loader_ctx_t ctx = {0};
         ctx.root = root;
         char initial_href[64];
         if (level != 0) {
@@ -1578,7 +1385,7 @@ static int cmd_explain(int n, char **args)
         } else {
             snprintf(initial_href, sizeof(initial_href), "tam:topics");
         }
-        int rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
+        int rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
         tam_index_free(idx);
         free(root);
         return rc;
@@ -1602,7 +1409,7 @@ static int cmd_explain(int n, char **args)
 
         int rc = 0;
         if (interactive) {
-            corpus_ctx_t ctx = {0};
+            tam_loader_ctx_t ctx = {0};
             ctx.root = root;
                 char initial_href[64];
             if (level != 0) {
@@ -1610,7 +1417,7 @@ static int cmd_explain(int n, char **args)
             } else {
                 snprintf(initial_href, sizeof(initial_href), "tam:keywords");
             }
-            rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
+            rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) {
@@ -1635,7 +1442,7 @@ static int cmd_explain(int n, char **args)
 
     int rc = 0;
     if (interactive) {
-        corpus_ctx_t ctx = {0};
+        tam_loader_ctx_t ctx = {0};
         ctx.root = root;
         char initial_href[512];
         char *enc_q = url_encode(query_buf);
@@ -1645,7 +1452,7 @@ static int cmd_explain(int n, char **args)
             snprintf(initial_href, sizeof(initial_href), "tam:explain?topic=%s", enc_q ? enc_q : "");
         }
         free(enc_q);
-        rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
+        rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
     } else {
         char *text = tam_document_text(doc);
         if (text != NULL) {
@@ -1753,9 +1560,9 @@ static int cmd_search(int n, char **args)
             return TAM_EXIT_FAILURE;
         }
         tam_document_ensure_location(doc, initial_href);
-        corpus_ctx_t ctx = {0};
+        tam_loader_ctx_t ctx = {0};
         ctx.root = root;
-        int rc = tam_pager_run(doc, initial_href, corpus_load, &ctx);
+        int rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
         free(root);
         return rc;
     }

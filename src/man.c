@@ -1,5 +1,7 @@
 #include <tam.h>
 
+#include "address.h"
+
 #include "depth.h"
 #include "discovery.h"
 #include "html.h"
@@ -787,57 +789,6 @@ static void print_man_help(void)
         stdout);
 }
 
-typedef struct {
-    char *root;
-} man_loader_ctx_t;
-
-static tam_document_t *man_unified_load(void *vctx, const char *href,
-                                        int content_width)
-{
-    man_loader_ctx_t *ctx = vctx;
-    if (href == NULL || href[0] == '\0') {
-        return NULL;
-    }
-    if (strncmp(href, "man:", 4) == 0) {
-        return tam_man_load(href + 4, content_width);
-    }
-    if (strncmp(href, "info:", 5) == 0) {
-        return tam_info_load(href + 5, content_width);
-    }
-    if (strncmp(href, "tldr:", 5) == 0) {
-        return tam_tldr_load(href + 5, content_width);
-    }
-    if (strncmp(href, "tam:tldr", 8) == 0) {
-        return tam_tldr_uri_document(href, content_width);
-    }
-    if (strncmp(href, "tam:man", 7) == 0) {
-        return tam_man_uri_document(href, content_width);
-    }
-    if (strncmp(href, "tam:search", 10) == 0) {
-        return tam_guide_search_uri_document(ctx->root, href, content_width);
-    }
-    if (ctx->root != NULL) {
-        if (strncmp(href, "tam:topics", 10) == 0) {
-            unsigned level = 0;
-            const char *q = strstr(href, "?level=");
-            if (q != NULL) {
-                level = tam_level_parse(q + 7);
-            }
-            return tam_topics_document(ctx->root, level, content_width);
-        }
-        char path[1024];
-        snprintf(path, sizeof(path), "%s/%s", ctx->root, href);
-        size_t len = 0;
-        char *src = tam_fs_read_file(path, &len);
-        if (src != NULL) {
-            tam_document_t *doc = tam_render_html(src, len, content_width);
-            free(src);
-            return doc;
-        }
-    }
-    return NULL;
-}
-
 int tam_cmd_man(int n, char **args)
 {
     int pipe = 0;
@@ -881,9 +832,10 @@ int tam_cmd_man(int n, char **args)
         tam_document_ensure_location(doc, "tam:man");
         int rc = 0;
         if (interactive) {
-            man_loader_ctx_t ctx = {.root = tam_find_knowledge_root()};
-            rc = tam_pager_run(doc, "tam:man", man_unified_load, &ctx);
-            free(ctx.root);
+            char *root = tam_find_knowledge_root();
+            tam_loader_ctx_t ctx = {.root = root};
+            rc = tam_pager_run(doc, "tam:man", tam_address_load, &ctx);
+            free(root);
         } else {
             char *text = tam_document_text(doc);
             if (text != NULL) { fputs(text, stdout); free(text); }
@@ -919,12 +871,10 @@ int tam_cmd_man(int n, char **args)
 
     int rc = 0;
     if (interactive) {
-        man_loader_ctx_t ctx;
-        ctx.root = tam_find_knowledge_root();
-        rc = tam_pager_run(doc, initial_href, man_unified_load, &ctx);
-        if (ctx.root != NULL) {
-            free(ctx.root);
-        }
+        char *root = tam_find_knowledge_root();
+        tam_loader_ctx_t ctx = {.root = root};
+        rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
+        free(root);
     } else {
         char *text = tam_document_text(doc);
         if (text != NULL) {
