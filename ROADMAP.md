@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-21. **Owner:** Fred (developer).
-**Current Command Version:** `0.40.1`. **Current Corpus Version:** `0.42.0`.
+**Current Command Version:** `0.40.2`. **Current Corpus Version:** `0.42.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -100,6 +100,7 @@ in that candidate, not here.
 | **0.38.0 command / 0.37.1 corpus** | Folding and self-quizzes (TCK22) | Done (2026-10-21) | Answers fold in the pager with Enter, `r` and `*`, reset on navigation, and collect under Answers in pipe output; block-level filtering, generated section labels, named asides and command risk labels; 23 pages lose hand-typed level prefixes and lint checks enforce the markup ([record](docs/ai/2026-10-21-tam-folding.md)). |
 | **0.38.1 command** | Pager resize cursor preservation | Done (2026-10-21) | Reflow preserves whether the attention line is on text or a blank separator when both share a logical position; PTY screen tests cover text and blank anchors ([record](docs/ai/2026-10-21-tam-pager-resize-drift.md)). |
 | **0.39.0 command** | Pager level line | Done (2026-10-21) | One dimmed, right-aligned level line above the page heading, `<Level> text [on <Level> path] [(no <Level> text)]`, replaces the level bar and the "Written for" banner; the path is linked, and a page without the lens level adds `<Level> text: A \| B \| C` with up to three related pages (never the level path itself). Keys `0`-`3` still switch levels ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
+| **0.40.2 command** | One HTML escaper and page builder (refactoring step 3) | Done (2026-10-22) | New `src/html.c` holds the only HTML escaper and the page builder that topics, keywords, topic guide, search, man, Info and tldr pages now share; libtam's path, JSON and XDG state helpers replace `tam`'s private copies. Every generated page checked renders byte-identically; Info names and topic summaries are now escaped. About 175 fewer lines ([record](docs/ai/2026-10-22-tam-refactor-step-2.md)). |
 | **0.40.1 command** | Subprocesses without a shell (refactoring step 2) | Done (2026-10-22) | Man page lookups, rendering and apropos run through libtam 0.4.0's `tam_exec` with deadlines and output caps; the `popen` shell pipelines and the private runner are gone. gzip man pages decompress in process; groff's temporary files and images go to a private directory under `$XDG_RUNTIME_DIR`, removed after each page, not `/tmp`. libtam links statically (no RUNPATH), and `source-build.json` pins libtam 0.4.0 ([review](docs/ai/2026-10-22-tam-refactor-step-2.md)). |
 | **0.40.0 command** | Status row with version | Done (2026-10-22) | The status row reads `<Title> \| L<line> <range>/<total> \| <Level> text 0123 \| h Help  Esc Quit  [] Select links  -> <link>` with `v<command> (<corpus>)` at the right edge; the `< Back`, `` ` Guide ``, `q Quit` and key-list hints are gone (the help overlay keeps them). Narrow rows drop the title, then the link, then the key hints ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
 | **0.39.2 command** | Top of page is the title | Done (2026-10-22) | `x`, `.`, Home, an empty `#` link and `` ` `` on the Guide index go to the title (`L1`) with the level lines in view, not to the first level line ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
@@ -114,7 +115,7 @@ in that candidate, not here.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.40.1 / 0.42.0 | Newest source; pager level line and line labels, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons and Rescue implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.40.2 / 0.42.0 | Newest source; pager level line and line labels, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons and Rescue implemented. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.36.0 / 0.37.0 | Latest cached remote Test source at `c9b6c5d`; not an installed-candidate claim. |
 | `origin/main` | 0.31.1 / 0.32.1 | Latest cached remote Run source; not an installed-candidate claim. |
 

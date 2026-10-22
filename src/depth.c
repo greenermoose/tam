@@ -168,7 +168,7 @@ unsigned tam_lens_get(void)
     if (env_level(&g_lens)) {
         return g_lens;
     }
-    char *path = tam_state_path("level", false);
+    char *path = tam_xdg_path(TAM_XDG_STATE, "tam", "level", false);
     if (path == NULL) {
         return g_lens;
     }
@@ -203,7 +203,7 @@ void tam_lens_set(unsigned level)
     if (env_level(&ignored)) {
         return;
     }
-    char *path = tam_state_path("level", true);
+    char *path = tam_xdg_path(TAM_XDG_STATE, "tam", "level", true);
     if (path == NULL) {
         return;
     }

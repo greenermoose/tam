@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-22 | Refactoring step 3: one HTML escaper and page builder; libtam path, JSON and state helpers replace private copies; command 0.40.2 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |
 | 2026-10-22 | Refactoring step 2: man page subprocesses through libtam 0.4.0's `tam_exec` without a shell, groff scratch files off `/tmp`, static libtam; command 0.40.1 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |
 | 2026-10-22 | Status row with `v<command> (<corpus>)` at the right edge and only Help, Quit and link-selection hints; command 0.40.0 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-22 | Top of page is the title (`L1`) for `x`, `.`, Home, `#` and `` ` ``; command 0.39.2 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |

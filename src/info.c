@@ -3,6 +3,7 @@
 #include "depth.h"
 #include "discovery.h"
 #include "info.h"
+#include "html.h"
 #include "man.h"
 #include "pager.h"
 #include "render.h"
@@ -408,24 +409,6 @@ static const char *scan_node_in_buffer(const char *buf, size_t len,
 /* HTML Entity Escaping and Link Creation                                    */
 /* ------------------------------------------------------------------------- */
 
-static tam_str_t escape_html_append(tam_str_t s, const char *text, size_t len)
-{
-    for (size_t i = 0; i < len; i++) {
-        char c = text[i];
-        if (c == '&') {
-            s = tam_str_cat(s, "&amp;");
-        } else if (c == '<') {
-            s = tam_str_cat(s, "&lt;");
-        } else if (c == '>') {
-            s = tam_str_cat(s, "&gt;");
-        } else if (c == '"') {
-            s = tam_str_cat(s, "&quot;");
-        } else {
-            s = tam_str_cat_len(s, &c, 1);
-        }
-    }
-    return s;
-}
 
 static char *clean_name(const char *in)
 {
@@ -490,10 +473,8 @@ static char *make_info_href(const char *cur_manual, const char *raw_target)
 
 static char *parse_dir_to_html(const char *buf, size_t len)
 {
-    tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n"
-                                 "<title>GNU Info Directory</title>\n"
-                                 "</head>\n<body>\n"
-                                 "<h1>GNU Info Directory</h1>\n"
+    tam_str_t html = tam_page_begin("GNU Info Directory", NULL, NULL, 0);
+    html = tam_str_cat(html,     "<h1>GNU Info Directory</h1>\n"
                                  "<p>The GNU Info directory catalog lists reference manuals "
                                  "available on this system.<br>\n"
                                  "Use Info for long-form manuals and related nodes; use <a href=\"tam:man\">Man pages</a> "
@@ -506,14 +487,13 @@ static char *parse_dir_to_html(const char *buf, size_t len)
         menu = strstr(buf, "* Menu:\r\n");
     }
     if (menu == NULL) {
-        html = tam_str_cat(html, "<p>No menu found in Info directory catalog.</p>\n</body>\n</html>\n");
-        return html;
+        html = tam_str_cat(html, "<p>No menu found in Info directory catalog.</p>\n");
+        return tam_page_end(html);
     }
 
     const char *p = strchr(menu, '\n');
     if (p == NULL) {
-        html = tam_str_cat(html, "</body>\n</html>\n");
-        return html;
+        return tam_page_end(html);
     }
     p++;
 
@@ -546,7 +526,7 @@ static char *parse_dir_to_html(const char *buf, size_t len)
                     in_ul = 0;
                 }
                 html = tam_str_cat(html, "<h2>");
-                html = escape_html_append(html, p, hlen);
+                html = tam_html_cat_len(html, p, hlen);
                 html = tam_str_cat(html, "</h2>\n<ul class=\"info-menu\">\n");
                 in_ul = 1;
             }
@@ -595,16 +575,16 @@ static char *parse_dir_to_html(const char *buf, size_t len)
                 html = tam_str_cat(html, "  <li>");
                 if (href != NULL) {
                     html = tam_str_cat_printf(html, "<a href=\"%s\">", href);
-                    html = escape_html_append(html, label, strlen(label));
+                    html = tam_html_cat_len(html, label, strlen(label));
                     html = tam_str_cat(html, "</a>");
                     free(href);
                 } else {
-                    html = escape_html_append(html, label, strlen(label));
+                    html = tam_html_cat_len(html, label, strlen(label));
                 }
 
                 if (dlen > 0) {
                     html = tam_str_cat(html, ": ");
-                    html = escape_html_append(html, desc_start, dlen);
+                    html = tam_html_cat_len(html, desc_start, dlen);
                 }
                 html = tam_str_cat(html, "</li>\n");
             }
@@ -616,8 +596,7 @@ static char *parse_dir_to_html(const char *buf, size_t len)
     if (in_ul) {
         html = tam_str_cat(html, "</ul>\n");
     }
-    html = tam_str_cat(html, "</body>\n</html>\n");
-    return html;
+    return tam_page_end(html);
 }
 
 static void sanitize_link_string(char *s)
@@ -679,7 +658,7 @@ static tam_str_t linkify_info_text(tam_str_t html, const char *cur_manual,
                     char *href = make_info_href(cur_manual, target);
                     if (href != NULL) {
                         html = tam_str_cat_printf(html, "<a href=\"%s\">", href);
-                        html = escape_html_append(html, target, strlen(target));
+                        html = tam_html_cat_len(html, target, strlen(target));
                         html = tam_str_cat(html, "</a>");
                         free(href);
                         p = col + 2;
@@ -716,7 +695,7 @@ static tam_str_t linkify_info_text(tam_str_t html, const char *cur_manual,
                     char *href = make_info_href(cur_manual, target);
                     if (href != NULL) {
                         html = tam_str_cat_printf(html, "<a href=\"%s\">", href);
-                        html = escape_html_append(html, label, strlen(label));
+                        html = tam_html_cat_len(html, label, strlen(label));
                         html = tam_str_cat(html, "</a>");
                         free(href);
                         if (tend < end && (*tend == '.' || *tend == ',')) {
@@ -748,11 +727,11 @@ static tam_str_t linkify_info_text(tam_str_t html, const char *cur_manual,
                 p += 3;
                 continue;
             }
-            html = escape_html_append(html, wstart, (size_t)(p - wstart));
+            html = tam_html_cat_len(html, wstart, (size_t)(p - wstart));
             continue;
         }
 
-        html = escape_html_append(html, p, 1);
+        html = tam_html_cat_len(html, p, 1);
         p++;
     }
 
@@ -835,40 +814,37 @@ static char *parse_node_to_html(const char *manual_name, const char *node_slice,
     char *up_href = up_field[0] ? make_info_href(manual_name, up_field) : NULL;
     char *top_href = make_info_href(manual_name, "Top");
 
-    tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
-    html = tam_str_cat_printf(html, "<title>%s: %s</title>\n",
-                              manual_name, node_field[0] ? node_field : "Top");
-    if (top_href != NULL) {
-        html = tam_str_cat_printf(html, "<link rel=\"top\" href=\"%s\">\n", top_href);
-        free(top_href);
+    const char *node_name = node_field[0] ? node_field : "Top";
+    tam_str_t head = tam_str_new("");
+    static const char *const rels[] = { "top", "next", "prev", "up" };
+    const char *rel_hrefs[] = { top_href, next_href, prev_href, up_href };
+    for (size_t i = 0; i < 4; i++) {
+        if (rel_hrefs[i] != NULL)
+            head = tam_str_cat_printf(head, "<link rel=\"%s\" href=\"%s\">\n",
+                                      rels[i], rel_hrefs[i]);
     }
-    if (next_href != NULL) {
-        html = tam_str_cat_printf(html, "<link rel=\"next\" href=\"%s\">\n", next_href);
-    }
-    if (prev_href != NULL) {
-        html = tam_str_cat_printf(html, "<link rel=\"prev\" href=\"%s\">\n", prev_href);
-    }
-    if (up_href != NULL) {
-        html = tam_str_cat_printf(html, "<link rel=\"up\" href=\"%s\">\n", up_href);
-    }
-    html = tam_str_cat(html, "</head>\n<body>\n");
+    free(top_href);
+    tam_str_t title = tam_str_cat(tam_str_new(manual_name), ": ");
+    title = tam_str_cat(title, node_name);
+    tam_str_t html = tam_page_begin(title, head, NULL, 0);
+    tam_str_free(title);
+    tam_str_free(head);
 
     /* Render top navigation bar */
-    html = tam_str_cat_printf(html,
-        "<nav class=\"info-nav\">\n"
-        "  <span><b>File:</b> %s</span> &nbsp;|&nbsp; <span><b>Node:</b> %s</span>",
-        manual_name, node_field[0] ? node_field : "Top");
-    if (up_href != NULL) {
-        html = tam_str_cat_printf(html, " &nbsp;|&nbsp; <span><b>Up:</b> <a href=\"%s\">%s</a></span>",
-                                  up_href, up_field);
-    }
-    if (next_href != NULL) {
-        html = tam_str_cat_printf(html, " &nbsp;|&nbsp; <span><b>Next:</b> <a href=\"%s\">%s</a></span>",
-                                  next_href, next_field);
-    }
-    if (prev_href != NULL) {
-        html = tam_str_cat_printf(html, " &nbsp;|&nbsp; <span><b>Prev:</b> <a href=\"%s\">%s</a></span>",
-                                  prev_href, prev_field);
+    html = tam_str_cat(html, "<nav class=\"info-nav\">\n  <span><b>File:</b> ");
+    html = tam_html_cat(html, manual_name);
+    html = tam_str_cat(html, "</span> &nbsp;|&nbsp; <span><b>Node:</b> ");
+    html = tam_html_cat(html, node_name);
+    html = tam_str_cat(html, "</span>");
+    static const char *const nav_labels[] = { "Up", "Next", "Prev" };
+    const char *nav_hrefs[] = { up_href, next_href, prev_href };
+    const char *nav_names[] = { up_field, next_field, prev_field };
+    for (size_t i = 0; i < 3; i++) {
+        if (nav_hrefs[i] == NULL) continue;
+        html = tam_str_cat_printf(html, " &nbsp;|&nbsp; <span><b>%s:</b> <a href=\"%s\">",
+                                  nav_labels[i], nav_hrefs[i]);
+        html = tam_html_cat(html, nav_names[i]);
+        html = tam_str_cat(html, "</a></span>");
     }
     html = tam_str_cat(html, "\n</nav>\n<hr>\n");
 
@@ -940,11 +916,11 @@ static char *parse_node_to_html(const char *manual_name, const char *node_slice,
                     html = tam_str_cat(html, "  <li>");
                     if (href != NULL) {
                         html = tam_str_cat_printf(html, "<a href=\"%s\">", href);
-                        html = escape_html_append(html, label, strlen(label));
+                        html = tam_html_cat_len(html, label, strlen(label));
                         html = tam_str_cat(html, "</a>");
                         free(href);
                     } else {
-                        html = escape_html_append(html, label, strlen(label));
+                        html = tam_html_cat_len(html, label, strlen(label));
                     }
                     if (dlen > 0) {
                         html = tam_str_cat(html, ": ");
@@ -1005,7 +981,7 @@ static char *parse_node_to_html(const char *manual_name, const char *node_slice,
                         }
                         const char *htag = (uc == '*' || uc == '=') ? "h1" : ((uc == '-') ? "h2" : "h3");
                         html = tam_str_cat_printf(html, "<%s>", htag);
-                        html = escape_html_append(html, p, hlen);
+                        html = tam_html_cat_len(html, p, hlen);
                         html = tam_str_cat_printf(html, "</%s>\n", htag);
                         p = next_eol + 1;
                         continue;
@@ -1065,8 +1041,7 @@ static char *parse_node_to_html(const char *manual_name, const char *node_slice,
         html = tam_str_cat(html, "</code></pre>\n");
     }
 
-    html = tam_str_cat(html, "</body>\n</html>\n");
-    return html;
+    return tam_page_end(html);
 }
 
 /* ------------------------------------------------------------------------- */

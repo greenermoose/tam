@@ -2,6 +2,7 @@
 
 #include "depth.h"
 #include "discovery.h"
+#include "html.h"
 #include "info.h"
 #include "man.h"
 #include "pager.h"
@@ -130,42 +131,17 @@ static char *literal_apropos_pattern(const char *text)
     return out;
 }
 
-static char *html_escape(const char *text)
-{
-    size_t n = strlen(text);
-    char *out = malloc(n * 6 + 1);
-    if (out == NULL) return NULL;
-    size_t used = 0;
-    for (size_t i = 0; i < n; i++) {
-        const char *rep = NULL;
-        switch (text[i]) {
-        case '&': rep = "&amp;"; break;
-        case '<': rep = "&lt;"; break;
-        case '>': rep = "&gt;"; break;
-        case '"': rep = "&quot;"; break;
-        case '\'': rep = "&#39;"; break;
-        default: out[used++] = text[i]; break;
-        }
-        if (rep != NULL) { size_t m = strlen(rep); memcpy(out + used, rep, m); used += m; }
-    }
-    out[used] = '\0';
-    return out;
-}
-
 static tam_document_t *html_document(const char *title, const char *body, int width)
 {
-    tam_str_t html = tam_str_new("<!DOCTYPE html><html><head><title>");
-    html = tam_str_cat(html, title);
-    html = tam_str_cat(html, "</title></head><body><nav aria-label=\"Breadcrumb\"><p><a href=\"index.html\">Guide</a> / <a href=\"tam:man\">Man pages</a> / ");
-    html = tam_str_cat(html, title);
-    html = tam_str_cat(html, "</p></nav><h1>");
-    html = tam_str_cat(html, title);
+    const tam_crumb_t crumbs[] = {
+        { "index.html", "Guide" }, { "tam:man", "Man pages" }, { NULL, title }
+    };
+    tam_str_t html = tam_page_begin(title, NULL, crumbs, 3);
+    html = tam_str_cat(html, "<h1>");
+    html = tam_html_cat(html, title);
     html = tam_str_cat(html, "</h1>");
     html = tam_str_cat(html, body);
-    html = tam_str_cat(html, "</body></html>");
-    tam_document_t *doc = tam_render_html(html, strlen(html), width);
-    tam_str_free(html);
-    return doc;
+    return tam_page_render(html, width);
 }
 
 char *tam_man_linkify_html(const char *src)
@@ -578,9 +554,9 @@ static void append_lookup_rows(tam_str_t *body, const lookup_result_t *result,
                 if (row >= offset && row < offset + limit) {
                     char href[128];
                     snprintf(href, sizeof(href), "man:%s(%s)", name, section);
-                    char *name_html = html_escape(name);
-                    char *sec_html = html_escape(section);
-                    char *desc_html = html_escape(description);
+                    char *name_html = tam_html_escape(name);
+                    char *sec_html = tam_html_escape(section);
+                    char *desc_html = tam_html_escape(description);
                     *body = tam_str_cat_printf(*body,
                         "<tr><td><a href=\"%s\">%s(%s)</a></td><td>%s</td></tr>\n",
                         href, name_html ? name_html : "",
@@ -648,7 +624,7 @@ static tam_document_t *man_landing_document(int width)
 static tam_document_t *lookup_error_document(const char *title, const char *message,
                                              int width)
 {
-    char *escaped = html_escape(message);
+    char *escaped = tam_html_escape(message);
     tam_str_t body = tam_str_new("<p>");
     body = tam_str_cat(body, escaped ? escaped : "Lookup failed.");
     body = tam_str_cat(body, "</p><p><a href=\"tam:man\">Return to Man pages</a></p>");
@@ -756,9 +732,7 @@ tam_document_t *tam_man_uri_document(const char *uri, int width)
         const char *argv_section[] = {"apropos", "-s", query, "--", ".", NULL};
         lookup_result_t r = run_lookup(section_mode ? argv_section : argv_keyword);
         free(pattern);
-        char *safe_query = html_escape(query);
-        char title[180]; snprintf(title, sizeof(title), section_mode ? "Manual section %s" : "Manual keyword: %s", safe_query ? safe_query : "");
-        free(safe_query);
+        char title[180]; snprintf(title, sizeof(title), section_mode ? "Manual section %s" : "Manual keyword: %s", query);
         if (r.unavailable || r.timed_out) {
             const char *msg = r.unavailable ? "The apropos tool is unavailable; the manual index cannot be searched." :
                 "Manual index lookup timed out. Try a more specific query.";

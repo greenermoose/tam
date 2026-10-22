@@ -106,22 +106,6 @@ static int levenshtein(const char *s1, const char *s2)
     return d[l2];
 }
 
-static char *safe_join(const char *dir, const char *file)
-{
-    if (dir == NULL || file == NULL) return NULL;
-    size_t dlen = strlen(dir);
-    size_t flen = strlen(file);
-    char *out = malloc(dlen + flen + 2);
-    if (out == NULL) return NULL;
-    memcpy(out, dir, dlen);
-    size_t pos = dlen;
-    if (pos > 0 && out[pos - 1] != '/') {
-        out[pos++] = '/';
-    }
-    memcpy(out + pos, file, flen + 1);
-    return out;
-}
-
 /* Split a comma-separated TSV field (modified in place) into an allocated
  * array of trimmed, non-empty strings. */
 static char **split_list(char *field, size_t *count)
@@ -159,7 +143,7 @@ static char **split_list(char *field, size_t *count)
 
 static void load_parent_projection(tam_index_t *idx, const char *root)
 {
-    char *path = safe_join(root, "index.parents.tsv");
+    char *path = tam_path_join(root, "index.parents.tsv");
     if (path == NULL) return;
     char *content = tam_fs_read_file(path, NULL);
     free(path);
@@ -197,7 +181,7 @@ tam_index_t *tam_index_load(const char *root)
     if (root == NULL) {
         return NULL;
     }
-    char *path = safe_join(root, "index.tsv");
+    char *path = tam_path_join(root, "index.tsv");
     if (path == NULL) {
         return NULL;
     }

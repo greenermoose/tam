@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.40.1 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.40.2 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,21 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.40.2 (patch): refactoring step 3 (private D188).
+  `src/html.c` owns HTML escaping (`tam_html_escape`, `tam_html_cat`,
+  escaping `& < > " '`) and the page builder (`tam_page_begin` with title,
+  optional head links and breadcrumbs; `tam_page_end`; `tam_page_render`),
+  used by every generated page; the six private escapers and hand-written
+  framings are gone. libtam's `tam_path_join`, `tam_path_join_under`,
+  `tam_xdg_path` and `tam_str_cat_json` replace `join_path`, `safe_join`,
+  `tam_state_path`/`ensure_dir_exists` and `ask.c`'s JSON escaper. Corpus
+  page paths still refuse URLs; `..` is now refused as a path component
+  rather than anywhere in the name. A new state directory is created 0700.
+  `install.c` keeps its bounded `json_escape_into`, which fits fixed-size
+  evidence fields without splitting an escape. The Info navigation bar and
+  the topics view now escape names and summaries; every page compared
+  (36 generated pages and commands, 83 Info manuals) is byte-identical to
+  0.40.1.
 - **2026-10-22:** Command 0.40.1 (patch): step 2 of the developer-approved
   refactoring sequence (private D188). `man.c` runs `man -w`, `apropos` and
   groff through libtam 0.4.0's `tam_exec`, with `env LC_ALL=C PAGER=cat

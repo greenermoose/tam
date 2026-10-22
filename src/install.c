@@ -746,17 +746,9 @@ static void print_json_string_or_null(const char *value)
         printf("null");
         return;
     }
-    putchar('"');
-    for (const unsigned char *c = (const unsigned char *)value; *c != '\0'; c++) {
-        if (*c == '"' || *c == '\\') {
-            printf("\\%c", *c);
-        } else if (*c < 0x20) {
-            printf("\\u%04x", *c);
-        } else {
-            putchar(*c);
-        }
-    }
-    putchar('"');
+    tam_str_t s = tam_str_cat_json(tam_str_new(""), value);
+    printf("\"%s\"", s != NULL ? s : "");
+    tam_str_free(s);
 }
 
 static void print_json_string_array(const char *csv)

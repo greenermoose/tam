@@ -1,45 +1,20 @@
 #include <tam.h>
 
 #include "discovery.h"
+#include "html.h"
 #include "index.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static char *escape_html(const char *text)
-{
-    size_t n = strlen(text);
-    char *out = malloc(n * 6 + 1);
-    if (out == NULL) return NULL;
-    size_t used = 0;
-    for (size_t i = 0; i < n; i++) {
-        const char *rep = NULL;
-        switch (text[i]) {
-        case '&': rep = "&amp;"; break;
-        case '<': rep = "&lt;"; break;
-        case '>': rep = "&gt;"; break;
-        case '"': rep = "&quot;"; break;
-        case '\'': rep = "&#39;"; break;
-        default: out[used++] = text[i]; break;
-        }
-        if (rep != NULL) {
-            size_t m = strlen(rep);
-            memcpy(out + used, rep, m);
-            used += m;
-        }
-    }
-    out[used] = '\0';
-    return out;
-}
-
 tam_document_t *tam_guide_search_document(const char *root,
                                           const char *query,
                                           int width)
 {
-    tam_str_t html = tam_str_new("<!DOCTYPE html><html><head><title>Guide Search</title></head><body>\n"
-        "<nav aria-label=\"Breadcrumb\"><p><a href=\"index.html\">Guide</a> / Search</p></nav>\n"
-        "<h1>Guide Search</h1>\n");
+    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Search" } };
+    tam_str_t html = tam_page_begin("Guide Search", NULL, crumbs, 2);
+    html = tam_str_cat(html, "<h1>Guide Search</h1>\n");
     if (query == NULL || query[0] == '\0') {
         html = tam_str_cat(html,
             "<p>Search the installed Tamlinux Guide. This searches guide topics and pages; "
@@ -54,25 +29,24 @@ tam_document_t *tam_guide_search_document(const char *root,
         } else {
             tam_search_result_t results[32];
             size_t found = tam_index_search(idx, query, results, 32);
-            char *escaped = escape_html(query);
-            html = tam_str_cat_printf(html, "<p>Results for <strong>%s</strong>:</p>\n",
-                                      escaped ? escaped : "");
-            free(escaped);
+            html = tam_str_cat(html, "<p>Results for <strong>");
+            html = tam_html_cat(html, query);
+            html = tam_str_cat(html, "</strong>:</p>\n");
             if (found == 0 || results[0].score <= 0) {
                 html = tam_str_cat(html, "<p>No Guide pages matched this search.</p>\n");
             } else {
                 html = tam_str_cat(html, "<table><tr><th>Guide page</th><th>Summary</th><th>Track</th></tr>\n");
                 for (size_t i = 0; i < found; i++) {
                     const tam_index_entry_t *e = results[i].entry;
-                    char *topic = escape_html(e->topic);
-                    char *title = escape_html(e->title);
-                    char *summary = escape_html(e->summary);
-                    char *track = escape_html(e->track);
-                    html = tam_str_cat_printf(html,
-                        "<tr><td><a href=\"%s\">%s</a><br>%s</td><td>%s</td><td>%s</td></tr>\n",
-                        e->path, topic ? topic : "", title ? title : "",
-                        summary ? summary : "", track ? track : "");
-                    free(topic); free(title); free(summary); free(track);
+                    html = tam_str_cat_printf(html, "<tr><td><a href=\"%s\">", e->path);
+                    html = tam_html_cat(html, e->topic);
+                    html = tam_str_cat(html, "</a><br>");
+                    html = tam_html_cat(html, e->title);
+                    html = tam_str_cat(html, "</td><td>");
+                    html = tam_html_cat(html, e->summary);
+                    html = tam_str_cat(html, "</td><td>");
+                    html = tam_html_cat(html, e->track);
+                    html = tam_str_cat(html, "</td></tr>\n");
                 }
                 html = tam_str_cat(html, "</table>\n");
             }
@@ -82,10 +56,7 @@ tam_document_t *tam_guide_search_document(const char *root,
             tam_index_free(idx);
         }
     }
-    html = tam_str_cat(html, "</body></html>\n");
-    tam_document_t *doc = tam_render_html(html, strlen(html), width);
-    tam_str_free(html);
-    return doc;
+    return tam_page_render(html, width);
 }
 
 tam_document_t *tam_guide_search_uri_document(const char *root,

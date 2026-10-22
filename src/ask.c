@@ -37,21 +37,10 @@
 /* Knowledge root resolution                                                 */
 /* ------------------------------------------------------------------------- */
 
-static char *join_path(const char *dir, const char *rest)
-{
-    size_t dlen = strlen(dir);
-    size_t rlen = strlen(rest);
-    char *out = malloc(dlen + rlen + 1);
-    if (out == NULL) return NULL;
-    memcpy(out, dir, dlen);
-    memcpy(out + dlen, rest, rlen + 1);
-    return out;
-}
-
 static int knowledge_ok(const char *dir)
 {
     if (dir == NULL || dir[0] == '\0') return 0;
-    char *p = join_path(dir, "/index.html");
+    char *p = tam_path_join(dir, "/index.html");
     int ok = p != NULL && tam_fs_file_exists(p);
     free(p);
     return ok;
@@ -77,29 +66,6 @@ static char *find_knowledge_root(void)
 /* JSON String Helpers                                                       */
 /* ------------------------------------------------------------------------- */
 
-static void json_append_escaped(tam_str_t *dest, const char *src)
-{
-    if (src == NULL) return;
-    for (const char *p = src; *p != '\0'; p++) {
-        switch (*p) {
-        case '"':  *dest = tam_str_cat(*dest, "\\\""); break;
-        case '\\': *dest = tam_str_cat(*dest, "\\\\"); break;
-        case '\b': *dest = tam_str_cat(*dest, "\\b"); break;
-        case '\f': *dest = tam_str_cat(*dest, "\\f"); break;
-        case '\n': *dest = tam_str_cat(*dest, "\\n"); break;
-        case '\r': *dest = tam_str_cat(*dest, "\\r"); break;
-        case '\t': *dest = tam_str_cat(*dest, "\\t"); break;
-        default:
-            if ((unsigned char)*p < 0x20) {
-                *dest = tam_str_cat_printf(*dest, "\\u%04x", (unsigned char)*p);
-            } else {
-                char c[2] = {*p, '\0'};
-                *dest = tam_str_cat(*dest, c);
-            }
-            break;
-        }
-    }
-}
 
 static char *extract_json_string(const char *json, const char *key)
 {
@@ -628,7 +594,7 @@ int tam_cmd_ask(int argc, char **argv)
 
         printf("Fetching model '%s' via Ollama...\n", model_name);
         tam_str_t pull_body = tam_str_new("{\"name\": \"");
-        json_append_escaped(&pull_body, model_name);
+        pull_body = tam_str_cat_json(pull_body, model_name);
         pull_body = tam_str_cat(pull_body, "\"}");
 
         char *pull_resp = NULL;
@@ -671,7 +637,7 @@ int tam_cmd_ask(int argc, char **argv)
             printf("{\n");
             printf("  \"question\": \"");
             tam_str_t qesc = tam_str_new("");
-            json_append_escaped(&qesc, query_buf);
+            qesc = tam_str_cat_json(qesc, query_buf);
             printf("%s\",\n", qesc);
             tam_str_free(qesc);
             printf("  \"grounded\": false,\n");
@@ -699,9 +665,7 @@ int tam_cmd_ask(int argc, char **argv)
     size_t total_excerpt_bytes = 0;
     for (size_t i = 0; i < found && i < 3; i++) {
         const tam_index_entry_t *entry = search_results[i].entry;
-        char *fpath = join_path(root, "/");
-        char *full_path = join_path(fpath, entry->path);
-        free(fpath);
+        char *full_path = tam_path_join(root, entry->path);
 
         size_t fsize = 0;
         char *html = tam_fs_read_file(full_path, &fsize);
@@ -725,9 +689,9 @@ int tam_cmd_ask(int argc, char **argv)
 
     /* 5. Query Model */
     tam_str_t req_json = tam_str_new("{\"model\": \"");
-    json_append_escaped(&req_json, model_name);
+    req_json = tam_str_cat_json(req_json, model_name);
     req_json = tam_str_cat(req_json, "\", \"prompt\": \"");
-    json_append_escaped(&req_json, prompt_ctx);
+    req_json = tam_str_cat_json(req_json, prompt_ctx);
     req_json = tam_str_cat(req_json, "\", \"stream\": false, \"options\": {\"num_predict\": 300, \"temperature\": 0.2}}");
     tam_str_free(prompt_ctx);
 
@@ -772,14 +736,14 @@ int tam_cmd_ask(int argc, char **argv)
         printf("{\n");
         printf("  \"question\": \"");
         tam_str_t qesc = tam_str_new("");
-        json_append_escaped(&qesc, query_buf);
+        qesc = tam_str_cat_json(qesc, query_buf);
         printf("%s\",\n", qesc);
         tam_str_free(qesc);
 
         printf("  \"grounded\": true,\n");
         printf("  \"answer\": \"");
         tam_str_t ansesc = tam_str_new("");
-        json_append_escaped(&ansesc, answer);
+        ansesc = tam_str_cat_json(ansesc, answer);
         printf("%s\",\n", ansesc);
         tam_str_free(ansesc);
 

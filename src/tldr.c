@@ -4,6 +4,7 @@
 #include "tldr.h"
 #include "depth.h"
 #include "discovery.h"
+#include "html.h"
 #include "index.h"
 #include "info.h"
 #include "man.h"
@@ -29,40 +30,6 @@ extern tam_document_t *tam_topics_document(const char *root, unsigned level, int
 /* ------------------------------------------------------------------------- */
 /* String and URI Helpers                                                     */
 /* ------------------------------------------------------------------------- */
-
-static char *html_escape(const char *s)
-{
-    if (s == NULL) return strdup("");
-    size_t len = strlen(s);
-    char *out = malloc(len * 6 + 1);
-    if (out == NULL) return NULL;
-    char *o = out;
-    for (size_t i = 0; i < len; i++) {
-        switch (s[i]) {
-        case '&': memcpy(o, "&amp;", 5); o += 5; break;
-        case '<': memcpy(o, "&lt;", 4); o += 4; break;
-        case '>': memcpy(o, "&gt;", 4); o += 4; break;
-        case '"': memcpy(o, "&quot;", 6); o += 6; break;
-        case '\'': memcpy(o, "&#39;", 5); o += 5; break;
-        default: *o++ = s[i]; break;
-        }
-    }
-    *o = '\0';
-    return out;
-}
-
-static tam_str_t append_escaped_slice(tam_str_t s, const char *buf, size_t len)
-{
-    char *slice = strndup(buf, len);
-    if (slice == NULL) return s;
-    char *esc = html_escape(slice);
-    free(slice);
-    if (esc != NULL) {
-        s = tam_str_cat(s, esc);
-        free(esc);
-    }
-    return s;
-}
 
 static char *uri_decode(const char *src)
 {
@@ -339,10 +306,10 @@ static tam_str_t format_tldr_code_inner(tam_str_t out, const char *code, size_t 
                 if (plen >= 3 && code[start] == '[' && code[end - 1] == ']' &&
                     memchr(code + start, '|', plen) != NULL) {
                     /* Option placeholder {{[-s|--long]}}: display both forms [-s|--long] */
-                    out = append_escaped_slice(out, code + start, plen);
+                    out = tam_html_cat_len(out, code + start, plen);
                 } else {
                     out = tam_str_cat(out, "<em>");
-                    out = append_escaped_slice(out, code + start, plen);
+                    out = tam_html_cat_len(out, code + start, plen);
                     out = tam_str_cat(out, "</em>");
                 }
                 i = end + 2;
@@ -356,7 +323,7 @@ static tam_str_t format_tldr_code_inner(tam_str_t out, const char *code, size_t 
                 (code[next + 1] == '{' || code[next + 1] == '}')) break;
             next++;
         }
-        out = append_escaped_slice(out, code + i, next - i);
+        out = tam_html_cat_len(out, code + i, next - i);
         i = next;
     }
     return out;
@@ -426,7 +393,7 @@ static tam_str_t format_inline_markdown(tam_str_t out, const char *line,
                     if (normalize_tldr_spec(lookup_tok, plat, sizeof(plat), norm, sizeof(norm))) {
                         if (tldr_resolve_page(tldr_root, NULL, norm, plat, sizeof(plat), path, sizeof(path))) {
                             out = tam_str_cat_printf(out, "<a href=\"tldr:%s\"><code>", norm);
-                            out = append_escaped_slice(out, line + i + 1, clen);
+                            out = tam_html_cat_len(out, line + i + 1, clen);
                             out = tam_str_cat(out, "</code></a>");
                             i = (size_t)(close - line) + 1;
                             continue;
@@ -435,7 +402,7 @@ static tam_str_t format_inline_markdown(tam_str_t out, const char *line,
                         if (man_path != NULL) {
                             free(man_path);
                             out = tam_str_cat_printf(out, "<a href=\"man:%s\"><code>", norm);
-                            out = append_escaped_slice(out, line + i + 1, clen);
+                            out = tam_html_cat_len(out, line + i + 1, clen);
                             out = tam_str_cat(out, "</code></a>");
                             i = (size_t)(close - line) + 1;
                             continue;
@@ -454,14 +421,14 @@ static tam_str_t format_inline_markdown(tam_str_t out, const char *line,
             const char *close = strchr(line + i + 1, '>');
             if (close != NULL) {
                 size_t ulen = (size_t)(close - (line + i + 1));
-                out = append_escaped_slice(out, line + i + 1, ulen);
+                out = tam_html_cat_len(out, line + i + 1, ulen);
                 i = (size_t)(close - line) + 1;
                 continue;
             }
         }
         size_t next = i + 1;
         while (next < len && line[next] != '`' && line[next] != '<') next++;
-        out = append_escaped_slice(out, line + i, next - i);
+        out = tam_html_cat_len(out, line + i, next - i);
         i = next;
     }
     return out;
@@ -473,11 +440,9 @@ static tam_document_t *render_tldr_markdown(const char *tldr_root,
                                             const char *md,
                                             int width)
 {
-    char *esc_name = html_escape(name);
-    char *esc_plat = html_escape(platform);
-    tam_str_t html = tam_str_new("<!DOCTYPE html><html><head>");
-    html = tam_str_cat_printf(html, "<title>%s</title></head><body>\n",
-                              esc_name ? esc_name : name);
+    char *esc_name = tam_html_escape(name);
+    char *esc_plat = tam_html_escape(platform);
+    tam_str_t html = tam_page_begin(name, NULL, NULL, 0);
 
     int seen_h1 = 0;
     int in_dl = 0;
@@ -504,7 +469,7 @@ static tam_document_t *render_tldr_markdown(const char *tldr_root,
 
         if (!seen_h1 && strncmp(s, "# ", 2) == 0) {
             seen_h1 = 1;
-            char *h1_esc = html_escape(s + 2);
+            char *h1_esc = tam_html_escape(s + 2);
             html = tam_str_cat_printf(html, "<h1>%s (%s)</h1>\n",
                                       h1_esc ? h1_esc : name,
                                       esc_plat ? esc_plat : platform);
@@ -595,7 +560,7 @@ static tam_document_t *render_tldr_markdown(const char *tldr_root,
 
     html = tam_str_cat(html, "<hr>\n<p>");
     if (man_target[0] != '\0') {
-        char *esc_man = html_escape(man_target);
+        char *esc_man = tam_html_escape(man_target);
         html = tam_str_cat_printf(html,
             "Full manual: <a href=\"man:%s\">%s</a> · ",
             esc_man ? esc_man : man_target, esc_man ? esc_man : man_target);
@@ -608,14 +573,11 @@ static tam_document_t *render_tldr_markdown(const char *tldr_root,
     }
     html = tam_str_cat(html,
         "<a href=\"tam:tldr\">tldr index</a> · "
-        "<a href=\"index.html\">Tamlinux Guide</a></p>\n</body></html>\n");
+        "<a href=\"index.html\">Tamlinux Guide</a></p>\n");
 
     free(esc_name);
     free(esc_plat);
-
-    tam_document_t *doc = tam_render_html(html, strlen(html), width);
-    tam_str_free(html);
-    return doc;
+    return tam_page_render(html, width);
 }
 
 tam_document_t *tam_tldr_load(const char *spec, int width)
@@ -795,19 +757,12 @@ static int score_tldr_entry(const tldr_entry_t *e, const char *query)
 static tam_document_t *tldr_html_document(const char *title, const char *body,
                                           int width)
 {
-    char *esc_title = html_escape(title);
-    tam_str_t html = tam_str_new("<!DOCTYPE html><html><head><title>");
-    html = tam_str_cat(html, esc_title ? esc_title : "tldr pages");
-    html = tam_str_cat(html, "</title></head><body>\n<h1>");
-    html = tam_str_cat(html, esc_title ? esc_title : "tldr pages");
+    tam_str_t html = tam_page_begin(title ? title : "tldr pages", NULL, NULL, 0);
+    html = tam_str_cat(html, "<h1>");
+    html = tam_html_cat(html, title ? title : "tldr pages");
     html = tam_str_cat(html, "</h1>\n");
     html = tam_str_cat(html, body ? body : "");
-    html = tam_str_cat(html, "</body></html>\n");
-    free(esc_title);
-
-    tam_document_t *doc = tam_render_html(html, strlen(html), width);
-    tam_str_free(html);
-    return doc;
+    return tam_page_render(html, width);
 }
 
 static tam_str_t append_az_bar(tam_str_t body, const char *platform)
@@ -891,7 +846,7 @@ static tam_document_t *tldr_landing_document(const char *tldr_root, int width)
 
 static tam_document_t *tldr_error_document(const char *title, const char *msg, int width)
 {
-    char *esc = html_escape(msg);
+    char *esc = tam_html_escape(msg);
     tam_str_t body = tam_str_new("<p>");
     body = tam_str_cat(body, esc ? esc : "tldr lookup failed.");
     body = tam_str_cat(body, "</p>\n<p><a href=\"tam:tldr\">Return to tldr pages</a> · "
@@ -960,9 +915,9 @@ static tam_document_t *tldr_list_document(const char *tldr_root, const char *uri
             }
         }
         if (matched >= offset && shown < TLDR_RESULTS_PER_PAGE) {
-            char *n_esc = html_escape(e->name);
-            char *p_esc = html_escape(e->platform);
-            char *s_esc = html_escape(e->summary);
+            char *n_esc = tam_html_escape(e->name);
+            char *p_esc = tam_html_escape(e->platform);
+            char *s_esc = tam_html_escape(e->summary);
             body = tam_str_cat_printf(body,
                 "<tr><td><a href=\"tldr:%s/%s\">%s</a></td><td>%s</td><td>%s</td></tr>\n",
                 p_esc ? p_esc : "", n_esc ? n_esc : "", n_esc ? n_esc : "",
@@ -1051,7 +1006,7 @@ static tam_document_t *tldr_keyword_document(const char *tldr_root, const char *
         qsort(hits, nhits, sizeof(*hits), cmp_scored_tldr);
     }
 
-    char *esc_q = html_escape(query);
+    char *esc_q = tam_html_escape(query);
     char title[180];
     snprintf(title, sizeof(title), "tldr keyword: %s", query);
 
@@ -1068,9 +1023,9 @@ static tam_document_t *tldr_keyword_document(const char *tldr_root, const char *
         size_t shown = 0;
         for (size_t i = offset; i < nhits && shown < TLDR_RESULTS_PER_PAGE; i++) {
             const tldr_entry_t *e = hits[i].entry;
-            char *n_esc = html_escape(e->name);
-            char *p_esc = html_escape(e->platform);
-            char *s_esc = html_escape(e->summary);
+            char *n_esc = tam_html_escape(e->name);
+            char *p_esc = tam_html_escape(e->platform);
+            char *s_esc = tam_html_escape(e->summary);
             body = tam_str_cat_printf(body,
                 "<tr><td><a href=\"tldr:%s/%s\">%s</a></td><td>%s</td><td>%s</td></tr>\n",
                 p_esc ? p_esc : "", n_esc ? n_esc : "", n_esc ? n_esc : "",

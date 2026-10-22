@@ -3,6 +3,7 @@
 #include "ask.h"
 #include "depth.h"
 #include "fold.h"
+#include "html.h"
 #include "discovery.h"
 #include "index.h"
 #include "info.h"
@@ -19,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -40,19 +40,6 @@
 
 #define TAM_EXIT_USAGE 2
 #define TAM_EXIT_FAILURE 1
-
-static char *join_path(const char *dir, const char *rest)
-{
-    size_t dlen = strlen(dir);
-    size_t rlen = strlen(rest);
-    char *out = malloc(dlen + rlen + 1);
-    if (out == NULL) {
-        return NULL;
-    }
-    memcpy(out, dir, dlen);
-    memcpy(out + dlen, rest, rlen + 1);
-    return out;
-}
 
 static char *trim_in_place(char *s)
 {
@@ -112,18 +99,18 @@ char *cultivar_path(const char *leaf)
             home = pw->pw_dir;
         }
         if (home != NULL && home[0] != '\0') {
-            config = join_path(home, "/.config");
+            config = tam_path_join(home, "/.config");
         }
     }
     if (config == NULL) {
         return NULL;
     }
-    char *dir = join_path(config, "/tamlinux/");
+    char *dir = tam_path_join(config, "/tamlinux/");
     free(config);
     if (dir == NULL) {
         return NULL;
     }
-    char *path = join_path(dir, leaf);
+    char *path = tam_path_join(dir, leaf);
     free(dir);
     return path;
 }
@@ -181,9 +168,9 @@ char *cultivar_label(void)
     if (name == NULL) {
         return version;
     }
-    char *named = join_path(name, " ");
-    char *label = named != NULL ? join_path(named, version) : NULL;
-    free(named);
+    size_t len = strlen(name) + 1 + strlen(version) + 1;
+    char *label = malloc(len);
+    if (label != NULL) snprintf(label, len, "%s %s", name, version);
     free(name);
     free(version);
     return label;
@@ -194,7 +181,7 @@ char *tam_corpus_version(const char *root)
     if (root == NULL || root[0] == '\0') {
         return NULL;
     }
-    char *path = join_path(root, "/version");
+    char *path = tam_path_join(root, "/version");
     if (path == NULL) {
         return NULL;
     }
@@ -215,7 +202,7 @@ char *tam_corpus_build_id(const char *root)
     if (root == NULL || root[0] == '\0') {
         return NULL;
     }
-    char *path = join_path(root, "/.build_id");
+    char *path = tam_path_join(root, "/.build_id");
     if (path == NULL) {
         return NULL;
     }
@@ -419,26 +406,14 @@ static int too_many_arguments(void)
 /* Offline guide                                                              */
 /* ------------------------------------------------------------------------- */
 
-static char *safe_join(const char *root, const char *href)
+/* A corpus-relative page path under root; never a URL or a path that
+ * leaves the corpus. */
+static char *corpus_join(const char *root, const char *href)
 {
-    if (href == NULL || href[0] == '\0') {
+    if (href == NULL || strstr(href, "://") != NULL) {
         return NULL;
     }
-    if (href[0] == '/') {
-        return NULL;
-    }
-    if (strstr(href, "://") != NULL || strstr(href, "..") != NULL) {
-        return NULL;
-    }
-    char *rest = malloc(strlen(href) + 2);
-    if (rest == NULL) {
-        return NULL;
-    }
-    rest[0] = '/';
-    memcpy(rest + 1, href, strlen(href) + 1);
-    char *out = join_path(root, rest);
-    free(rest);
-    return out;
+    return tam_path_join_under(root, href);
 }
 
 static int knowledge_ok(const char *dir)
@@ -446,7 +421,7 @@ static int knowledge_ok(const char *dir)
     if (dir == NULL || dir[0] == '\0') {
         return 0;
     }
-    char *p = join_path(dir, "/index.html");
+    char *p = tam_path_join(dir, "/index.html");
     int ok = p != NULL && tam_fs_file_exists(p);
     free(p);
     return ok;
@@ -472,7 +447,7 @@ char *tam_find_knowledge_root(void)
 
     const char *xdg = getenv("XDG_DATA_HOME");
     if (xdg != NULL && xdg[0] != '\0') {
-        char *p = join_path(xdg, "/tamlinux/knowledge");
+        char *p = tam_path_join(xdg, "/tamlinux/knowledge");
         if (knowledge_ok(p)) {
             return p;
         }
@@ -481,7 +456,7 @@ char *tam_find_knowledge_root(void)
 
     const char *home = getenv("HOME");
     if (home != NULL && home[0] != '\0') {
-        char *p = join_path(home, "/.local/share/tamlinux/knowledge");
+        char *p = tam_path_join(home, "/.local/share/tamlinux/knowledge");
         if (knowledge_ok(p)) {
             return p;
         }
@@ -498,7 +473,7 @@ char *tam_find_knowledge_root(void)
                 char *base = malloc(len + 1);
                 memcpy(base, s, len);
                 base[len] = '\0';
-                char *p = join_path(base, "/tamlinux/knowledge");
+                char *p = tam_path_join(base, "/tamlinux/knowledge");
                 free(base);
                 if (knowledge_ok(p)) {
                     return p;
@@ -522,7 +497,7 @@ static inline char *find_knowledge_root(void)
 
 static int knowledge_file_exists(const char *root, const char *rel)
 {
-    char *p = safe_join(root, rel);
+    char *p = corpus_join(root, rel);
     int ok = p != NULL && tam_fs_file_exists(p);
     free(p);
     return ok;
@@ -600,7 +575,6 @@ static int shared_prereqs(const tam_index_entry_t *a, const tam_index_entry_t *b
     return n;
 }
 
-static char *html_escape(const char *s);
 
 /* How `e` relates to `page` through the index's parent links: 0 for a
  * child, 1 for a sibling, 2 for the parent, -1 for any other page. */
@@ -675,7 +649,7 @@ static char *related_at_level(const tam_index_t *idx,
     }
     tam_str_t html = tam_str_new("");
     for (size_t k = 0; k < nbest; k++) {
-        char *title = html_escape(best[k]->title);
+        char *title = tam_html_escape(best[k]->title);
         /* Titles may hold commas, so links are separated by bars. */
         html = tam_str_cat_printf(html, "%s<a href=\"%s\">%s</a>",
                                   k > 0 ? " | " : "", best[k]->path, title);
@@ -697,7 +671,7 @@ static char *read_corpus_page(const char *root, const char *href,
     if (rel == NULL) {
         return NULL;
     }
-    char *path = safe_join(root, rel);
+    char *path = corpus_join(root, rel);
     if (path == NULL) {
         free(rel);
         return NULL;
@@ -785,30 +759,6 @@ static char *url_encode(const char *s)
     return out;
 }
 
-static char *html_escape(const char *s)
-{
-    if (s == NULL) return strdup("");
-    size_t len = strlen(s);
-    char *out = malloc(len * 6 + 1);
-    if (out == NULL) return strdup("");
-    char *o = out;
-    for (size_t i = 0; i < len; i++) {
-        char c = s[i];
-        if (c == '&') {
-            memcpy(o, "&amp;", 5); o += 5;
-        } else if (c == '<') {
-            memcpy(o, "&lt;", 4); o += 4;
-        } else if (c == '>') {
-            memcpy(o, "&gt;", 4); o += 4;
-        } else if (c == '"') {
-            memcpy(o, "&quot;", 6); o += 6;
-        } else {
-            *o++ = c;
-        }
-    }
-    *o = '\0';
-    return out;
-}
 
 tam_document_t *tam_topic_guide_document(const char *root, const char *topic, unsigned level, int width)
 {
@@ -831,10 +781,13 @@ tam_document_t *tam_topic_guide_document(const char *root, const char *topic, un
         return NULL;
     }
 
-    char *esc_topic = html_escape(topic);
-    tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
-    html = tam_str_cat_printf(html, "<title>Topic Guide: %s</title>\n</head>\n<body>\n", esc_topic);
-    html = tam_str_cat(html, "<nav aria-label=\"Breadcrumb\">\n<p><a href=\"index.html\">Guide</a> / <a href=\"tam:topics\">Topics</a> / Topic Guide</p>\n</nav>\n");
+    char *esc_topic = tam_html_escape(topic);
+    static const tam_crumb_t crumbs[] = {
+        { "index.html", "Guide" }, { "tam:topics", "Topics" }, { NULL, "Topic Guide" }
+    };
+    tam_str_t title = tam_str_cat(tam_str_new("Topic Guide: "), topic);
+    tam_str_t html = tam_page_begin(title, NULL, crumbs, 3);
+    tam_str_free(title);
     unsigned lens = missing != 0 ? missing : level;
     if (lens != 0) {
         char *line = tam_level_lines(missing != 0 ? TAM_LEVEL_ALL : lens, lens,
@@ -859,8 +812,8 @@ tam_document_t *tam_topic_guide_document(const char *root, const char *topic, un
 
     for (size_t i = 0; i < num_matches; i++) {
         const tam_index_entry_t *e = matches[i];
-        char *esc_title = html_escape(e->title);
-        char *esc_summary = html_escape(e->summary);
+        char *esc_title = tam_html_escape(e->title);
+        char *esc_summary = tam_html_escape(e->summary);
         char track_cap[32] = {0};
         if (e->track != NULL && e->track[0] != '\0') {
             snprintf(track_cap, sizeof(track_cap), "%s", e->track);
@@ -887,12 +840,9 @@ tam_document_t *tam_topic_guide_document(const char *root, const char *topic, un
         free(esc_title);
         free(esc_summary);
     }
-    html = tam_str_cat(html, "</dl>\n</body>\n</html>\n");
+    html = tam_str_cat(html, "</dl>\n");
     tam_index_free(idx);
-
-    tam_document_t *doc = tam_render_html(html, strlen(html), width);
-    tam_str_free(html);
-    return doc;
+    return tam_page_render(html, width);
 }
 
 tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, int width)
@@ -907,9 +857,8 @@ tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, in
         return NULL;
     }
 
-    tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
-    html = tam_str_cat(html, "<title>Keyword Index</title>\n</head>\n<body>\n");
-    html = tam_str_cat(html, "<nav aria-label=\"Breadcrumb\">\n<p><a href=\"index.html\">Guide</a> / Keyword Index</p>\n</nav>\n");
+    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Keyword Index" } };
+    tam_str_t html = tam_page_begin("Keyword Index", NULL, crumbs, 2);
     if (level != 0) {
         html = tam_str_cat_printf(html, "<h1>Keyword Index (%s)</h1>\n", tam_level_name(level));
     } else {
@@ -924,8 +873,8 @@ tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, in
 
     for (size_t i = 0; i < list->count; i++) {
         char *enc_kw = url_encode(list->items[i].keyword);
-        char *esc_kw = html_escape(list->items[i].keyword);
-        char *esc_sum = html_escape(list->items[i].primary_summary);
+        char *esc_kw = tam_html_escape(list->items[i].keyword);
+        char *esc_sum = tam_html_escape(list->items[i].primary_summary);
         size_t cnt = list->items[i].count;
 
         if (level != 0) {
@@ -941,13 +890,10 @@ tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, in
         free(esc_kw);
         free(esc_sum);
     }
-    html = tam_str_cat(html, "</table>\n</body>\n</html>\n");
+    html = tam_str_cat(html, "</table>\n");
     tam_keyword_list_free(list);
     tam_index_free(idx);
-
-    tam_document_t *doc = tam_render_html(html, strlen(html), width);
-    tam_str_free(html);
-    return doc;
+    return tam_page_render(html, width);
 }
 
 tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
@@ -957,9 +903,8 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
         return NULL;
     }
 
-    tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
-    html = tam_str_cat(html, "<title>Topics A to Z</title>\n</head>\n<body>\n");
-    html = tam_str_cat(html, "<nav aria-label=\"Breadcrumb\">\n<p><a href=\"index.html\">Guide</a> / Topics</p>\n</nav>\n");
+    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Topics" } };
+    tam_str_t html = tam_page_begin("Topics A to Z", NULL, crumbs, 2);
     if (level != 0) {
         html = tam_str_cat_printf(html, "<h1>Topics A to Z (%s)</h1>\n",
                                   tam_level_name(level));
@@ -979,21 +924,19 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
             continue;
         }
         if (level != 0) {
-            html = tam_str_cat_printf(html,
-                "<tr><td><a href=\"%s?level=%s\">%s</a></td><td>%s</td></tr>\n",
-                e->path, tam_level_name(level), e->topic, e->summary);
+            html = tam_str_cat_printf(html, "<tr><td><a href=\"%s?level=%s\">",
+                                      e->path, tam_level_name(level));
         } else {
-            html = tam_str_cat_printf(html,
-                "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n",
-                e->path, e->topic, e->summary);
+            html = tam_str_cat_printf(html, "<tr><td><a href=\"%s\">", e->path);
         }
+        html = tam_html_cat(html, e->topic);
+        html = tam_str_cat(html, "</a></td><td>");
+        html = tam_html_cat(html, e->summary);
+        html = tam_str_cat(html, "</td></tr>\n");
     }
-    html = tam_str_cat(html, "</table>\n</body>\n</html>\n");
+    html = tam_str_cat(html, "</table>\n");
     tam_index_free(idx);
-
-    tam_document_t *doc = tam_render_html(html, strlen(html), width);
-    tam_str_free(html);
-    return doc;
+    return tam_page_render(html, width);
 }
 
 static tam_document_t *corpus_load(void *vctx, const char *href,
@@ -1091,62 +1034,9 @@ static tam_document_t *corpus_load(void *vctx, const char *href,
     return doc;
 }
 
-static int ensure_dir_exists(const char *dir)
-{
-    if (dir == NULL || dir[0] == '\0') {
-        return -1;
-    }
-    char tmp[4096];
-    size_t len = strlen(dir);
-    if (len >= sizeof(tmp)) {
-        return -1;
-    }
-    memcpy(tmp, dir, len + 1);
-    for (char *p = tmp + 1; *p != '\0'; p++) {
-        if (*p == '/') {
-            *p = '\0';
-            if (tmp[0] != '\0') {
-                if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
-                    return -1;
-                }
-            }
-            *p = '/';
-        }
-    }
-    if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
-        return -1;
-    }
-    return 0;
-}
-
-char *tam_state_path(const char *leaf, bool create)
-{
-    const char *xdg = getenv("XDG_STATE_HOME");
-    const char *home = getenv("HOME");
-    char *dir = NULL;
-
-    if (xdg != NULL && xdg[0] != '\0') {
-        dir = join_path(xdg, "/tamlinux/tam");
-    } else if (home != NULL && home[0] != '\0') {
-        dir = join_path(home, "/.local/state/tamlinux/tam");
-    }
-    if (dir == NULL) {
-        return NULL;
-    }
-    if (create && ensure_dir_exists(dir) != 0) {
-        free(dir);
-        return NULL;
-    }
-    char sub[64];
-    snprintf(sub, sizeof(sub), "/%s", leaf);
-    char *path = join_path(dir, sub);
-    free(dir);
-    return path;
-}
-
 static int record_welcome_seen(void)
 {
-    char *path = tam_state_path("welcome_seen", true);
+    char *path = tam_xdg_path(TAM_XDG_STATE, "tam", "welcome_seen", true);
     if (path == NULL) {
         return -1;
     }
@@ -1245,7 +1135,7 @@ static int view_knowledge_page(const char *root, const char *href, int pipe)
 {
     unsigned level = 0;
     char *rel = tam_depth_split_href(href, &level);
-    char *path = rel != NULL ? safe_join(root, rel) : NULL;
+    char *path = rel != NULL ? corpus_join(root, rel) : NULL;
     free(rel);
     if (path == NULL || !tam_fs_file_exists(path)) {
         fprintf(stderr, TAM_COMMAND_NAME ": guide page not found: %s\n", href);
