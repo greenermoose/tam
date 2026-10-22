@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-22. **Owner:** Fred (developer).
-**Current Command Version:** `0.43.1`. **Current Corpus Version:** `0.42.4`.
+**Current Command Version:** `0.43.1`. **Current Corpus Version:** `0.42.5`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -119,12 +119,13 @@ in that candidate, not here.
 | **0.42.0 corpus** | Boot, Snapper and Rescue (TCK25 Maintaining second slice) | Source implemented (2026-10-21) | Three migrated ladders with read-only/scratch practice, corrected Snapper type/option semantics and a four-stage Intermediate-to-Expert Rescue path. Remaining Maintaining migration and learner/packaged acceptance stay pending ([record](docs/ai/2026-10-21-tam-boot-rescue-learning.md)). |
 | **0.42.3 corpus** | TCK25 logs and power learning ladders | Done (2026-10-22) | Captured read-only journal/sysfs examples, folded quizzes and diagnosis tasks; truthful capability, integrity and energy limits. Command stays 0.43.1; resources, packaging and Maintaining hub remain. |
 | **0.42.4 corpus** | Wordsmithed welcome page | Done (2026-10-22) | Wordsmithed welcome page |
+| **0.42.5 corpus** | Tightened up where next on welcome page | Done (2026-10-22) | Tightened up where next on welcome page |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.1 / 0.42.4 | Newest source; pager level line and line labels, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons, logs/power ladders and Rescue implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.43.1 / 0.42.5 | Newest source; pager level line and line labels, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons, logs/power ladders and Rescue implemented. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.38.1 / 0.42.0 | Latest cached remote Test source at `c161190`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
