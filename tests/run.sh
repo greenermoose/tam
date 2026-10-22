@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.41.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.42.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1492,8 +1492,21 @@ p.quit()
 # state in the address. Leaving via a link, Back or Forward hides answers.
 p = Pager(["show", "folds.html"], state, env={"TAM_LEVEL": "all"})
 assert "SECRET_ALPHA" not in p.first and "SECRET_BETA" not in p.first, p.first
-assert "[+] Answer (Enter)" in p.first and "[+] Model answer (Enter)" in p.first, p.first
+assert "[+] Answer (Press + to show)" in p.first, p.first
+assert "[+] Model answer (Press + to show)" in p.first, p.first
+# + and - act on the answer on the attention line or selected; elsewhere they
+# say where to go.
+b = p.key(b"+")
+assert "Move to a [+] line to show an answer" in b and "SECRET_ALPHA" not in b, b
 p.key(b"]")
+b = p.key(b"+")
+assert "SECRET_ALPHA" in b and "[-] Answer (Press - to hide)" in b and "Quiz 1/2 revealed" in b, b
+b = p.key(b"+")
+assert "Quiz 0/2 revealed" not in b, f"+ on a shown answer hid it: {b}"
+b = p.key(b"-")
+assert "SECRET_ALPHA" not in b and "[+] Answer (Press + to show)" in b and "Quiz 0/2 revealed" in b, b
+assert "Quiz" not in p.key(b"-"), "- on a hidden answer changed it"
+# Enter (and Right Arrow) toggle silently.
 b = p.key(b"\r")
 assert "SECRET_ALPHA" in b and "SECRET_BETA" not in b and "Quiz 1/2 revealed" in b, b
 b = p.key(b"\r")

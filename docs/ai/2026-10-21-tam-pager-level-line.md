@@ -1,4 +1,4 @@
-# Pager level line and status row (commands 0.39.0 to 0.40.0)
+# Pager level line, status row and answer keys (commands 0.39.0 to 0.42.0)
 
 - **Date:** 2026-10-21
 - **Time:** 22:30 to 22:51 -04:00
@@ -6,13 +6,14 @@
   for" banner with a right-aligned level line above the page heading; 0.39.1
   letters the lines above the title and shows the lens as `All text 0123`;
   0.39.2 makes the title the top of the page for the top-of-page keys;
-  0.40.0 rebuilds the status row with the version at its right edge.
+  0.40.0 rebuilds the status row with the version at its right edge;
+  0.42.0 (with corpus 0.42.1) adds `+` and `-` for folded answers.
   A development installation of 0.39.0 was made at the developer's request.
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `959535f` (0.39.0), `dd013ea` (0.39.1), `7f66ebf` (0.39.2)
-  and the 0.40.0 commit that updates this record
+- **Commits:** `959535f` (0.39.0), `dd013ea` (0.39.1), `7f66ebf` (0.39.2),
+  `b51a1dd` (0.40.0) and the 0.42.0 commit that updates this record
 - **Authorship:** Fred Horch wrote the layout note (the line's form, its
   position, alignment and examples) and decided the level bar's and related
   links' placement. Claude proposed the relatives line's wording, dimming
@@ -75,6 +76,13 @@
 >
 > Ask if you have questions.
 
+> How do you hide a shown example? It says + and - but - doesn't do
+> anything.
+
+> Let's make it [+] Answer (Press + to show) and [-] Answer (Press - to
+> hide). Keep Enter and Right Arrow as silent synonyms for toggle. Do you
+> understand what I mean?
+
 ## Key decisions
 
 - The developer's note gives the form
@@ -107,6 +115,12 @@
   title first (the breadcrumb repeats it), then the link, then the key
   hints, keeping the line, range, lens and version; the version is plain
   numbers. `q` still quits though only `Esc Quit` is shown.
+- 0.42.0: the `[+]`/`[-]` markers looked like keys but were only link text,
+  and a shown answer dropped its "(Enter)" hint, so nothing said how to
+  hide it. The developer chose labels that name the keys. Claude settled
+  the scope stated to him: `+`/`-` act on the answer selected or on the
+  attention line, report where to go elsewhere, and do nothing when the
+  answer is already in that state.
 - The fixture `shell/pipelines.html` gains one `?level=beginner` link, so the
   test that a level-naming link sets the lens still has a link to follow.
 
@@ -127,6 +141,10 @@
   now stop at the padding before the version, and the search test checks
   the new key list and the version. PTY drives at 160, 120, 80 and 44
   columns show the layout and the drop order.
+- 0.42.0: `make test`, both suites pass; the fold test checks the labels,
+  `+`, `-`, the no-op repeat and the hint off an answer line, then the
+  existing Enter checks. A PTY drive of `desktop/index` shows `r`, `-`, `+`,
+  Enter and Right Arrow each switching "New to this?".
 - PTY renders at 100 and 44 columns with the tests' screen model: right-aligned
   at 100 columns, left-aligned wrap at 44, and `dim` (`ESC [2m`) emitted
   off the attention line.

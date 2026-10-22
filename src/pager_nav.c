@@ -527,6 +527,34 @@ static void toggle_fold(pager_t *st, unsigned id)
     }
 }
 
+/* + shows and - hides the answer whose [+]/[-] link is selected or on the
+ * attention line; Enter and Right Arrow toggle it as a link. */
+void set_fold_here(pager_t *st, int open)
+{
+    const linkref_t *sel = selected_link(st);
+    const char *href = sel != NULL && strncmp(sel->href, "tam:fold:", 9) == 0
+        ? sel->href : NULL;
+    for (size_t i = 0; href == NULL && i < st->nlinks; i++) {
+        if (strncmp(st->links[i].href, "tam:fold:", 9) == 0 &&
+            st->links[i].line_start <= (size_t)st->cursor_line &&
+            st->links[i].line_end >= (size_t)st->cursor_line)
+            href = st->links[i].href;
+    }
+    if (href == NULL) {
+        snprintf(st->msg, sizeof(st->msg), open
+                 ? "Move to a [+] line to show an answer"
+                 : "Move to a [-] line to hide an answer");
+        return;
+    }
+    unsigned id = (unsigned)strtoul(href + 9, NULL, 10);
+    for (size_t i = 0; i < st->doc->nfolds; i++) {
+        if (st->doc->folds[i].id == id && (st->doc->folds[i].open != 0) != (open != 0)) {
+            toggle_fold(st, id);
+            return;
+        }
+    }
+}
+
 void reveal_next(pager_t *st)
 {
     for (size_t i = 0; i < st->nlinks; i++) {

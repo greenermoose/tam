@@ -115,6 +115,7 @@ int draw(pager_t *st);
 int lens_href(const char *href);
 tam_document_t *load_at_lens(pager_t *st, const char *href);
 void follow(pager_t *st, const char *href);
+void set_fold_here(pager_t *st, int open);
 void reveal_next(pager_t *st);
 void toggle_all_folds(pager_t *st);
 void set_lens(pager_t *st, unsigned char key);

@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.41.0 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.42.0 and corpus 0.42.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,15 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.42.0 (minor) and corpus 0.42.1 (patch): the
+  developer's answer keys. A hidden answer reads `[+] <label> (Press + to
+  show)` and a shown one `[-] <label> (Press - to hide)`. `+` shows and `-`
+  hides the answer whose link is selected or on the attention line; on any
+  other line they report "Move to a [+] line to show an answer" or the `-`
+  equivalent, and a key that matches the current state does nothing. Enter
+  and Right Arrow keep toggling as silent synonyms. `r` and `*` are
+  unchanged. The help overlay and `tam(1)` list the keys; the Learning paths
+  page (`learn/paths/index.html`) now tells readers to press `+`.
 - **2026-10-22:** Command 0.41.0 (minor): refactoring step 7, the man page
   cache the developer asked for with the rule "use disk space to free up CPU
   cycles and RAM" (private D188). groff's HTML is stored in

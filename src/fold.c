@@ -164,8 +164,10 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
             else str(out, label);
             str(out, "</p>");
             if (!x->pipe) {
-                snprintf(line, sizeof(line), "<p><a href=\"tam:fold:%u\">[%c] %s%s</a></p>",
-                         id, opened ? '-' : '+', label, opened ? "" : " (Enter)");
+                snprintf(line, sizeof(line),
+                         "<p><a href=\"tam:fold:%u\">[%c] %s (Press %c to %s)</a></p>",
+                         id, opened ? '-' : '+', label, opened ? '-' : '+',
+                         opened ? "hide" : "show");
                 str(out, line);
             }
             buf_t content = {0}, nested_answers = {0};

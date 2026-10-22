@@ -163,6 +163,12 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case 'h':
         st->help_open = !st->help_open;
         break;
+    case '+':
+        set_fold_here(st, 1);
+        break;
+    case '-':
+        set_fold_here(st, 0);
+        break;
     case 'r':
         reveal_next(st);
         break;
