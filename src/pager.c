@@ -389,6 +389,16 @@ static int find_last_link_on_line(const pager_t *st, size_t line_idx)
     return last;
 }
 
+static void set_cursor_line(pager_t *st, int new_line, int dir);
+
+/* The top of the page is its title, L1: the level lines above it control the
+ * display and are not page content. They stay in view. */
+static void go_page_top(pager_t *st)
+{
+    st->top = 0;
+    set_cursor_line(st, st->doc != NULL ? (int)st->doc->nlead : 0, -1);
+}
+
 static void set_cursor_line(pager_t *st, int new_line, int dir)
 {
     if (st->doc == NULL || st->doc->nlines == 0) {
@@ -1474,7 +1484,7 @@ static void follow(pager_t *st, const char *href)
         if (target[0] == '\0') {
             history_push(st, st->cur_href, st->top, st->cursor_line);
             forward_clear(st);
-            set_cursor_line(st, 0, -1);
+            go_page_top(st);
             st->msg[0] = '\0';
             return;
         }
@@ -2162,7 +2172,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     /* The same fingers one row down go all the way. */
     case 'x':
     case '.':
-        set_cursor_line(st, 0, -1);
+        go_page_top(st);
         break;
     case 'c':
     case ',':
@@ -2205,7 +2215,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         if (strcmp(st->cur_href, "index.html") != 0) {
             follow(st, "index.html");
         } else {
-            set_cursor_line(st, 0, -1);
+            go_page_top(st);
             st->msg[0] = '\0';
         }
         break;
@@ -2263,7 +2273,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         } else if (strcmp(seq, "D") == 0) {
             go_back(st);
         } else if (strcmp(seq, "H") == 0) {
-            set_cursor_line(st, 0, -1);
+            go_page_top(st);
         } else if (strcmp(seq, "F") == 0) {
             set_cursor_line(st, (int)st->doc->nlines - 1, 1);
         } else if (strcmp(seq, "5~") == 0) {

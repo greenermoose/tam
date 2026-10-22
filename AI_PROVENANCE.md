@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-22 | Top of page is the title (`L1`) for `x`, `.`, Home, `#` and `` ` ``; command 0.39.2 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-22 | Pager line labels (`L1` on the title, `Lb` level lines, `La` breadcrumb) and `All text 0123` lens selector; command 0.39.1 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-21 | Pager level line: a dimmed, right-aligned level line and related-pages line above the heading replace the level bar and "Written for" banner; command 0.39.0 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-21 | Pager resize preserves the focused logical text or blank row; command 0.38.1 | Codex CLI 0.163.0; `gpt-6-luna` | [Session record](docs/ai/2026-10-21-tam-pager-resize-drift.md) |

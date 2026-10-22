@@ -1,16 +1,17 @@
-# Pager level line (commands 0.39.0 and 0.39.1)
+# Pager level line (commands 0.39.0 to 0.39.2)
 
 - **Date:** 2026-10-21
 - **Time:** 22:30 to 22:51 -04:00
 - **Stage:** Develop; command 0.39.0 replaces the level bar and the "Written
   for" banner with a right-aligned level line above the page heading; 0.39.1
-  letters the lines above the title and shows the lens as `All text 0123`.
+  letters the lines above the title and shows the lens as `All text 0123`;
+  0.39.2 makes the title the top of the page for the top-of-page keys.
   A development installation of 0.39.0 was made at the developer's request.
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `959535f` (0.39.0) and the 0.39.1 commit that updates this
-  record
+- **Commits:** `959535f` (0.39.0), `dd013ea` (0.39.1) and the 0.39.2
+  commit that updates this record
 - **Authorship:** Fred Horch wrote the layout note (the line's form, its
   position, alignment and examples) and decided the level bar's and related
   links' placement. Claude proposed the relatives line's wording, dimming
@@ -56,6 +57,10 @@
 > with 0 underlined because it is currently selected. If I press 1, the
 > footer should show Beginner text 0123 with 1 underlined.
 
+> I think x/. keys should go to L1, not Lb. I consider L1 to be the top of
+> the page. The level line is not part of page content; it is a page display
+> control line.
+
 ## Key decisions
 
 - The developer's note gives the form
@@ -80,6 +85,9 @@
   them `Lb` and `Lc`. For the narrower status rows the developer did not
   specify, the lens reads `All 0123` (60 to 99 columns) and `0123` below
   that; a terminal without underline brackets the lens digit.
+- 0.39.2: Home, an empty `#` link and `` ` `` on the Guide index are the
+  same "top of page" jump as `x` and `.`, so all of them go to `L1`. Each
+  scrolls to the very top, so the level lines stay in view above the title.
 - The fixture `shell/pipelines.html` gains one `?level=beginner` link, so the
   test that a level-naming link sets the lens still has a link to follow.
 
@@ -93,6 +101,9 @@
   the page opens on `L1` and Up/Down step through `Lb` and `La`; PTY drives
   at 120, 80 and 44 columns with the tests' screen model confirm the labels,
   `Lb`/`Lc` on a page with two level lines, and the underlined lens digit.
+- 0.39.2: `make test`, both suites pass, including a PTY assertion that `x`
+  and `.` go to `L1` from the bottom; a PTY drive of the Welcome page shows
+  `x`, `.` and Home returning from `L52` to `L1` with "Beginner text" in view.
 - PTY renders at 100 and 44 columns with the tests' screen model: right-aligned
   at 100 columns, left-aligned wrap at 44, and `dim` (`ESC [2m`) emitted
   off the attention line.

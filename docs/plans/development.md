@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.39.1 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.39.2 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.39.2 (patch): the top of a page is its title,
+  `L1`. The developer: the level line "is not part of page content; it is a
+  page display control line." `x`, `.`, Home, an empty `#` link and `` ` ``
+  on the Guide index scroll to the top, keeping the level lines in view, and
+  put the attention line on the title. Up still reaches `Lb` and `La`.
 - **2026-10-22:** Command 0.39.1 (patch, the version the developer named):
   status-row line labels and lens selector. A page opens on its title, `L1`;
   the leading level lines are `Lb`, `Lc`, ... and the focused breadcrumb row

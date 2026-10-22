@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.39.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.39.2' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1377,6 +1377,11 @@ b = p.key(b"\x1b[B")
 assert "Lb 1-" in b, f"down from the breadcrumb did not return to Lb: {b}"
 b = p.key(b"\x1b[B")
 assert "L1 1-" in b, f"down from the level line did not reach L1: {b}"
+# The top of the page is the title, not the level line above it.
+for top in (b"x", b"."):
+    p.key(b"c")
+    b = p.key(top)
+    assert "L1 1-" in b, f"{top!r} did not go to L1: {b}"
 b = p.key(b"0")
 assert "already at Level 0 All" in b, b
 assert saved(state) is None, "pressing the current lens wrote state"
