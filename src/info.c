@@ -146,7 +146,7 @@ int tam_info_locate(const char *manual, char *path_out, size_t path_cap)
 /* Decompression and file reading                                            */
 /* ------------------------------------------------------------------------- */
 
-static char *read_decompressed_file(const char *path, size_t *out_len)
+char *tam_read_gzip_file(const char *path, size_t *out_len)
 {
     gzFile gz = gzopen(path, "rb");
     if (gz == NULL) {
@@ -1120,7 +1120,7 @@ tam_document_t *tam_info_load(const char *spec, int width)
     }
 
     size_t file_len = 0;
-    char *buf = read_decompressed_file(file_path, &file_len);
+    char *buf = tam_read_gzip_file(file_path, &file_len);
     if (buf == NULL) {
         return NULL;
     }
@@ -1175,7 +1175,7 @@ tam_document_t *tam_info_load(const char *spec, int width)
             char subpath[1024];
             if (locate_in_dir(dir, subfile, subpath, sizeof(subpath))) {
                 size_t sub_len = 0;
-                char *sub_buf = read_decompressed_file(subpath, &sub_len);
+                char *sub_buf = tam_read_gzip_file(subpath, &sub_len);
                 if (sub_buf != NULL) {
                     free(buf);
                     active_buf = sub_buf;

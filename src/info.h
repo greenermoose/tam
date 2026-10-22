@@ -22,6 +22,10 @@ int tam_info_locate(const char *manual, char *path_out, size_t path_cap);
  * Returns NULL if the manual or node cannot be found or rendered. */
 tam_document_t *tam_info_load(const char *spec, int width);
 
+/* Read a whole file, decompressing it when it is gzip (zlib reads plain
+ * files unchanged). NUL-terminated; NULL on failure. Caller frees. */
+char *tam_read_gzip_file(const char *path, size_t *out_len);
+
 /* Execute the 'tam info' CLI subcommand with given argument vector. */
 int tam_cmd_info(int n, char **args);
 

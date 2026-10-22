@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.40.0 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.40.1 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,19 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.40.1 (patch): step 2 of the developer-approved
+  refactoring sequence (private D188). `man.c` runs `man -w`, `apropos` and
+  groff through libtam 0.4.0's `tam_exec`, with `env LC_ALL=C PAGER=cat
+  MANPAGER=cat` in the argv instead of the private fork runner, and no shell.
+  gzip man pages are read with zlib (`tam_read_gzip_file`, shared with Info);
+  bzip2, xz and zstd go through their decompressor as argv. groff gets
+  `TMPDIR` and its image directory set to a fresh directory under
+  `$XDG_RUNTIME_DIR/tamlinux/tam/` (else the cache directory, else `/tmp`),
+  removed after each render. Output for every man, tldr and apropos page
+  checked is byte-identical to 0.40.0. The build links libtam statically,
+  drops the RUNPATH and requires libtam 0.4.0; `source-build.json` pins
+  libtam `a051ebf` (0.4.0) for source upgrades, keeping `dbus-1` because
+  building libtam still compiles its portal library.
 - **2026-10-22:** Command 0.40.0 (minor): the developer's status row,
   `<Page Title> | L<line> <range>/<total> | <Level> text 0123 | h Help  Esc
   Quit  [] Select links  -> <link>`, with `v<command> (<corpus>)` right

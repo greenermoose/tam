@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.40.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.40.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -2306,6 +2306,27 @@ if "$TAM" man nonexistent_xyz >/dev/null 2>&1; then fail "missing man page exite
 if "$TAM" man 1 nonexistent_xyz >/dev/null 2>&1; then fail "missing section man page exited 0"; fi
 "$TAM" man 1 nonexistent_xyz 2>&1 | grep -q "in section 1" || fail "missing section diagnostic unclear"
 pass "man subcommand, cross-reference hyperlinking, and error handling"
+
+# Man pages render the same from every compression format, through groff run
+# without a shell, and leave no scratch files behind.
+mkdir -p "$tmp/manz/man1" "$tmp/manz-run"
+for z in gz bz2 xz zst plain; do
+    cp "$root/man/tam.1" "$tmp/manz/man1/tamz$z.1"
+done
+gzip "$tmp/manz/man1/tamzgz.1"
+command -v bzip2 >/dev/null && bzip2 "$tmp/manz/man1/tamzbz2.1"
+command -v xz >/dev/null && xz "$tmp/manz/man1/tamzxz.1"
+command -v zstd >/dev/null && zstd -q --rm "$tmp/manz/man1/tamzzst.1"
+want=$(MANPATH="$tmp/manz" XDG_RUNTIME_DIR="$tmp/manz-run" "$TAM" man tamzplain --pipe | sed 1,3d)
+printf '%s\n' "$want" | grep -q 'SYNOPSIS' || fail "plain man page did not render"
+for z in gz bz2 xz zst; do
+    [ -e "$tmp/manz/man1/tamz$z.1.$z" ] || continue
+    got=$(MANPATH="$tmp/manz" XDG_RUNTIME_DIR="$tmp/manz-run" "$TAM" man "tamz$z" --pipe | sed 1,3d)
+    [ "$got" = "$want" ] || fail "$z-compressed man page renders differently"
+done
+leftover=$(find "$tmp/manz-run" -mindepth 3 2>/dev/null)
+[ -z "$leftover" ] || fail "man rendering left scratch files: $leftover"
+pass "man pages render alike from gzip, bzip2, xz and zstd with no scratch files left"
 
 # -----------------------------------------------------------------------------
 # Milestone 14: GNU Info Subsystem (tam info)

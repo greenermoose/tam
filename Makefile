@@ -3,7 +3,8 @@
 # Builds the command against an installed libtam. The library is a separate
 # dependency and is never built or modified by this Makefile.
 #
-# libtam is found with `pkg-config libtam`, wherever it is installed; add
+# libtam 0.4.0 or later is linked statically. It is found with
+# `pkg-config libtam`, wherever it is installed; add
 # <prefix>/lib/pkgconfig to PKG_CONFIG_PATH for a prefix outside pkg-config's
 # default path. Set LIBTAM_PREFIX to name the install prefix instead, or
 # LIBTAM_CFLAGS and LIBTAM_LIBS directly for a custom layout.
@@ -25,17 +26,13 @@ PKG_CONFIG ?= pkg-config
 ifdef LIBTAM_PREFIX
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
 LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-LIBTAM_LIBDIR ?= $(LIBTAM_PREFIX)/lib
-LIBTAM_ERROR  := $(if $(wildcard $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no include/tam.h)
+LIBTAM_ERROR  := $(if $(shell grep -s -l tam_exec_opts $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.4.0 or later include/tam.h)
 else ifeq ($(origin LIBTAM_LIBS),undefined)
-LIBTAM_FOUND  := $(shell $(PKG_CONFIG) --exists libtam 2>/dev/null && echo yes)
+LIBTAM_FOUND  := $(shell $(PKG_CONFIG) --atleast-version=0.4.0 libtam 2>/dev/null && echo yes)
 LIBTAM_CFLAGS := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
 LIBTAM_LIBS   := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --libs libtam))
-LIBTAM_LIBDIR := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --variable=libdir libtam))
-LIBTAM_ERROR  := $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam)
+LIBTAM_ERROR  := $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.4.0 or later)
 endif
-comma := ,
-RPATH         ?= $(if $(LIBTAM_LIBDIR),-Wl$(comma)-rpath$(comma)$(LIBTAM_LIBDIR))
 
 LDFLAGS  ?=
 LDLIBS   ?= -lz
@@ -64,10 +61,10 @@ CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\" -DTAM_BUILD=\"$(TAM_BUILD_ID)\"
 CPPFLAGS += -DTAM_SOURCE_REVISION=\"$(TAM_SOURCE_REVISION)\"
 CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 
-# The binary embeds DATADIR, the libtam rpath and the build id, so a build
+# The binary embeds DATADIR, the static libtam and the build id, so a build
 # made for one PREFIX must not be installed under another. The stamp changes
 # whenever that configuration does and forces a rebuild.
-CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
+CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
 .PHONY: all command corpus dev check-repo check-clean-tree test test-command corpus-and-test check install uninstall clean libtam-check FORCE
 
@@ -81,7 +78,7 @@ command: $(TAM)
 
 $(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD) libtam-check
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
-		$(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
+		$(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
 $(BUILD)/config: FORCE | $(BUILD)
 	@printf '%s\n' '$(CONFIG)' | cmp -s - $@ || printf '%s\n' '$(CONFIG)' > $@
@@ -93,7 +90,7 @@ $(BUILD):
 libtam-check:
 ifneq ($(LIBTAM_ERROR),)
 	@printf '%s\n' 'tam: cannot build the command: $(LIBTAM_ERROR).' \
-		'  Install libtam first:   make -C <libtam checkout> install PREFIX=<prefix>' \
+		'  Install libtam 0.4.0 or later first:   make -C <libtam checkout> install PREFIX=<prefix>' \
 		'  then let pkg-config see it:   export PKG_CONFIG_PATH=<prefix>/lib/pkgconfig' \
 		'  or name the prefix:   make LIBTAM_PREFIX=<prefix>' >&2
 	@exit 1

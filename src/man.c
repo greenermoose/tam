@@ -9,15 +9,10 @@
 #include "tldr.h"
 
 #include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <poll.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <time.h>
 #include <unistd.h>
 
 #define TAM_COMMAND_NAME "tam"
@@ -54,114 +49,34 @@ typedef struct {
     int unavailable;
 } lookup_result_t;
 
-static long long monotonic_ms(void)
-{
-    struct timespec now;
-    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) return 0;
-    return (long long)now.tv_sec * 1000 + now.tv_nsec / 1000000;
-}
+/* man(1) tools run in the C locale and never page their output. */
+#define MAN_TOOL_ENV "env", "LC_ALL=C", "PAGER=cat", "MANPAGER=cat"
 
-/* Run an argv command with detached stdin, hidden stderr, a hard deadline and
- * a strict output cap. User data is always one literal argv element. */
+/* Run a man(1) tool (argv without the environment prefix) with standard
+ * input from /dev/null, a hard deadline and a strict output cap. User data is
+ * always one literal argv element; no shell is involved. */
 static lookup_result_t run_lookup(const char *const argv[])
 {
     lookup_result_t result = {.status = -1};
-    int fds[2];
-    if (argv == NULL || argv[0] == NULL || pipe(fds) != 0) {
+    const char *full[16] = { MAN_TOOL_ENV };
+    size_t n = 4;
+    for (size_t i = 0; argv != NULL && argv[i] != NULL && n + 1 < sizeof(full) / sizeof(full[0]); i++)
+        full[n++] = argv[i];
+    full[n] = NULL;
+    if (argv == NULL || argv[0] == NULL) {
         result.unavailable = 1;
         return result;
     }
-    pid_t pid = fork();
-    if (pid < 0) {
-        close(fds[0]); close(fds[1]);
-        result.unavailable = 1;
-        return result;
-    }
-    if (pid == 0) {
-        close(fds[0]);
-        int nullfd = open("/dev/null", O_RDWR);
-        if (nullfd >= 0) {
-            dup2(nullfd, STDIN_FILENO);
-            dup2(nullfd, STDERR_FILENO);
-            if (nullfd > STDERR_FILENO) close(nullfd);
-        }
-        dup2(fds[1], STDOUT_FILENO);
-        close(fds[1]);
-        setenv("LC_ALL", "C", 1);
-        setenv("PAGER", "cat", 1);
-        setenv("MANPAGER", "cat", 1);
-        execvp(argv[0], (char *const *)argv);
-        _exit(127);
-    }
-    close(fds[1]);
-    int flags = fcntl(fds[0], F_GETFL, 0);
-    if (flags >= 0) fcntl(fds[0], F_SETFL, flags | O_NONBLOCK);
-    result.text = calloc(MAN_LOOKUP_LIMIT + 1, 1);
-    if (result.text == NULL) {
-        close(fds[0]); kill(pid, SIGKILL); waitpid(pid, NULL, 0);
-        result.unavailable = 1;
-        return result;
-    }
-
-    long long deadline = monotonic_ms() + MAN_LOOKUP_TIMEOUT_MS;
-    int open_pipe = 1, child_done = 0, child_status = 0;
-    while (open_pipe || !child_done) {
-        long long remaining = deadline - monotonic_ms();
-        if (remaining <= 0) {
-            result.timed_out = 1;
-            kill(pid, SIGKILL);
-            break;
-        }
-        struct pollfd pfd = {.fd = open_pipe ? fds[0] : -1, .events = POLLIN};
-        int pr = poll(&pfd, 1, remaining > 50 ? 50 : (int)remaining);
-        if (pr < 0 && errno != EINTR) break;
-        if (open_pipe && (pr > 0 || (pfd.revents & (POLLHUP | POLLERR)))) {
-            char chunk[4096];
-            for (;;) {
-                ssize_t n = read(fds[0], chunk, sizeof(chunk));
-                if (n > 0) {
-                    size_t room = MAN_LOOKUP_LIMIT - result.len;
-                    size_t take = (size_t)n < room ? (size_t)n : room;
-                    if (take > 0) {
-                        memcpy(result.text + result.len, chunk, take);
-                        result.len += take;
-                        result.text[result.len] = '\0';
-                    }
-                    if ((size_t)n > take) {
-                        result.truncated = 1;
-                        kill(pid, SIGKILL);
-                        break;
-                    }
-                    if (result.len == MAN_LOOKUP_LIMIT) {
-                        char extra;
-                        ssize_t more = read(fds[0], &extra, 1);
-                        if (more > 0) {
-                            result.truncated = 1;
-                            kill(pid, SIGKILL);
-                        }
-                        break;
-                    }
-                    continue;
-                }
-                if (n == 0) {
-                    close(fds[0]); open_pipe = 0;
-                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    close(fds[0]); open_pipe = 0;
-                }
-                break;
-            }
-        }
-        if (!child_done) {
-            pid_t w = waitpid(pid, &child_status, WNOHANG);
-            if (w == pid) child_done = 1;
-        }
-        if (result.truncated) break;
-    }
-    if (open_pipe) close(fds[0]);
-    if (!child_done) waitpid(pid, &child_status, 0);
-    if (WIFEXITED(child_status)) result.status = WEXITSTATUS(child_status);
-    else if (WIFSIGNALED(child_status)) result.status = 128 + WTERMSIG(child_status);
-    if (result.status == 127) result.unavailable = 1;
+    tam_exec_opts_t opts = { .timeout_ms = MAN_LOOKUP_TIMEOUT_MS,
+                             .max_output = MAN_LOOKUP_LIMIT };
+    tam_exec_result_t r = tam_exec_opts(full, &opts);
+    free(r.stderr_buf);
+    result.text = r.stdout_buf;
+    result.len = r.stdout_len;
+    result.status = r.exit_code;
+    result.timed_out = r.timed_out;
+    result.truncated = r.truncated;
+    result.unavailable = r.stdout_buf == NULL || r.exit_code == 127;
     return result;
 }
 
@@ -386,28 +301,24 @@ char *tam_man_linkify_html(const char *src)
 
 static char *locate_man_file(const char *sec, const char *name)
 {
-    char cmd[512];
-    if (sec != NULL && sec[0] != '\0') {
-        snprintf(cmd, sizeof(cmd), "man -w '%s' '%s' 2>/dev/null", sec, name);
-    } else {
-        snprintf(cmd, sizeof(cmd), "man -w '%s' 2>/dev/null", name);
+    const char *argv[] = { "man", "-w", sec, name, NULL };
+    if (sec == NULL || sec[0] == '\0') {
+        argv[2] = name;
+        argv[3] = NULL;
     }
-    FILE *fp = popen(cmd, "r");
-    if (fp != NULL) {
-        char path[1024];
-        if (fgets(path, sizeof(path), fp) != NULL) {
-            pclose(fp);
-            size_t len = strlen(path);
-            while (len > 0 && (path[len - 1] == '\n' || path[len - 1] == '\r' || path[len - 1] == ' ')) {
-                path[--len] = '\0';
-            }
-            if (len > 0 && access(path, R_OK) == 0) {
-                return strdup(path);
-            }
-        } else {
-            pclose(fp);
+    lookup_result_t r = run_lookup(argv);
+    if (r.status == 0 && r.text != NULL) {
+        char *path = r.text;
+        path[strcspn(path, "\r\n")] = '\0';
+        size_t len = strlen(path);
+        while (len > 0 && path[len - 1] == ' ') path[--len] = '\0';
+        if (len > 0 && access(path, R_OK) == 0) {
+            char *found = strdup(path);
+            free(r.text);
+            return found;
         }
     }
+    free(r.text);
 
     /* Fallback for development installs or repository checkout */
     const char *s = (sec != NULL && sec[0] != '\0') ? sec : "1";
@@ -435,57 +346,87 @@ char *tam_man_resolve_path(const char *name, const char *sec)
     return locate_man_file(sec, name);
 }
 
+/* A private scratch directory for groff's temporary files and any images
+ * grohtml writes, removed after each render: under $XDG_RUNTIME_DIR, else
+ * the cache directory, else /tmp. */
+static char *groff_scratch_dir(void)
+{
+    char *base = tam_xdg_path(TAM_XDG_RUNTIME, "tam", NULL, true);
+    if (base == NULL) base = tam_xdg_path(TAM_XDG_CACHE, "tam", NULL, true);
+    char *tmpl = tam_path_join(base != NULL ? base : "/tmp", "groff-XXXXXX");
+    free(base);
+    if (tmpl != NULL && mkdtemp(tmpl) != NULL) return tmpl;
+    free(tmpl);
+    return NULL;
+}
+
+static void remove_scratch_dir(const char *dir)
+{
+    DIR *d = opendir(dir);
+    if (d != NULL) {
+        struct dirent *e;
+        while ((e = readdir(d)) != NULL) {
+            if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0) continue;
+            char *p = tam_path_join(dir, e->d_name);
+            if (p != NULL) unlink(p);
+            free(p);
+        }
+        closedir(d);
+    }
+    rmdir(dir);
+}
+
+#define MAN_RENDER_TIMEOUT_MS 20000
+
+/* Render a man page source file to HTML with groff. gzip is read in process;
+ * bzip2, xz and zstd go through their decompressor. No shell is involved. */
 static char *render_man_to_html(const char *path)
 {
-    char cmd[2048];
+    static const struct { const char *suffix, *tool; } packers[] = {
+        { ".bz2", "bzip2" }, { ".xz", "xz" }, { ".zst", "zstd" }
+    };
+    char *input = NULL;
+    size_t input_len = 0;
     if (has_suffix(path, ".gz")) {
-        snprintf(cmd, sizeof(cmd), "gzip -dc '%s' | groff -mandoc -Thtml -P -D/tmp 2>/dev/null", path);
-    } else if (has_suffix(path, ".bz2")) {
-        snprintf(cmd, sizeof(cmd), "bzip2 -dc '%s' | groff -mandoc -Thtml -P -D/tmp 2>/dev/null", path);
-    } else if (has_suffix(path, ".xz")) {
-        snprintf(cmd, sizeof(cmd), "xz -dc '%s' | groff -mandoc -Thtml -P -D/tmp 2>/dev/null", path);
-    } else if (has_suffix(path, ".zst")) {
-        snprintf(cmd, sizeof(cmd), "zstd -dc '%s' | groff -mandoc -Thtml -P -D/tmp 2>/dev/null", path);
-    } else {
-        snprintf(cmd, sizeof(cmd), "groff -mandoc -Thtml -P -D/tmp '%s' 2>/dev/null", path);
+        input = tam_read_gzip_file(path, &input_len);
+        if (input == NULL) return NULL;
     }
-
-    FILE *fp = popen(cmd, "r");
-    if (fp == NULL) {
-        return NULL;
-    }
-
-    size_t cap = 32768;
-    size_t len = 0;
-    char *buf = malloc(cap);
-    if (buf == NULL) {
-        pclose(fp);
-        return NULL;
-    }
-
-    char chunk[4096];
-    size_t n;
-    while ((n = fread(chunk, 1, sizeof(chunk), fp)) > 0) {
-        if (len + n >= cap) {
-            cap = (cap + n) * 2;
-            char *next = realloc(buf, cap);
-            if (next == NULL) {
-                free(buf);
-                pclose(fp);
-                return NULL;
-            }
-            buf = next;
+    for (size_t i = 0; input == NULL && i < sizeof(packers) / sizeof(packers[0]); i++) {
+        if (!has_suffix(path, packers[i].suffix)) continue;
+        const char *argv[] = { packers[i].tool, "-dc", path, NULL };
+        tam_exec_result_t r = tam_exec(argv, MAN_RENDER_TIMEOUT_MS);
+        free(r.stderr_buf);
+        if (r.timed_out || r.truncated || r.stdout_len == 0) {
+            free(r.stdout_buf);
+            return NULL;
         }
-        memcpy(buf + len, chunk, n);
-        len += n;
+        input = r.stdout_buf;
+        input_len = r.stdout_len;
     }
-    pclose(fp);
-    buf[len] = '\0';
-    if (len == 0) {
-        free(buf);
+
+    char *scratch = groff_scratch_dir();
+    if (scratch == NULL) {
+        free(input);
         return NULL;
     }
-    return buf;
+    char tmpdir_env[4200], image_dir[4200];
+    snprintf(tmpdir_env, sizeof(tmpdir_env), "TMPDIR=%s", scratch);
+    snprintf(image_dir, sizeof(image_dir), "-D%s", scratch);
+    const char *argv[] = { "env", tmpdir_env, "groff", "-mandoc", "-Thtml", "-P",
+                           image_dir, input != NULL ? NULL : path, NULL };
+    tam_exec_opts_t opts = { .timeout_ms = MAN_RENDER_TIMEOUT_MS,
+                             .input = input, .input_len = input_len };
+    tam_exec_result_t r = tam_exec_opts(argv, &opts);
+    remove_scratch_dir(scratch);
+    free(scratch);
+    free(input);
+    free(r.stderr_buf);
+    /* groff can warn and exit non-zero yet still produce the page. */
+    if (r.timed_out || r.truncated || r.stdout_len == 0) {
+        free(r.stdout_buf);
+        return NULL;
+    }
+    return r.stdout_buf;
 }
 
 tam_document_t *tam_man_load(const char *spec, int width)

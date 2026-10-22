@@ -160,8 +160,9 @@ make test PREFIX="$HOME/.local/dev"
 make install PREFIX="$HOME/.local/dev"
 ```
 
-`make` finds `libtam` with `pkg-config libtam`, so install `libtam` first and
-make sure pkg-config can see it, for example with
+`make` finds `libtam` 0.4.0 or later with `pkg-config libtam` and links it
+statically, so install `libtam` first and make sure pkg-config can see it,
+for example with
 `PKG_CONFIG_PATH="$HOME/.local/dev/lib/pkgconfig"`. If it cannot, the build
 stops and says what to do.
 
