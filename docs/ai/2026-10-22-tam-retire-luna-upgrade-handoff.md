@@ -6,7 +6,7 @@
 - **CLI Tool:** agy 1.4.5
 - **Model:** Gemini 3.8 Flash (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** will be recorded in the commit
+- **Commits:** `eadf500`
 - **Authorship:** Fred asked whether `tam/docs/handoffs/tam-upgrade-luna.md` was completed or superseded, then directed deleting the handoff and deciding whether to leave a note based on repository SOP. Antigravity analyzed repository invariants and link checkers, removed the completed handoff instructions, and retained a historical completion stub.
 - **Checked against:** `tam/docs/repo-map.md`, `tam/docs/plan-maintenance.md`, `tam/tools/check-repo.py`, `tam/docs/plans/upgrade.md`, `tam/docs/plans/README.md`, `tam/docs/ai/2026-10-18-tam-update-check-plan.md`.
 
