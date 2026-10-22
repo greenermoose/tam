@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.40.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.40.4' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -2342,6 +2342,19 @@ for bad in "page:../run.sh" "page:shell/../../run.sh" "../run.sh"; do
     fi
 done
 pass "one address loader: man: view, --level on views, guide paths stay inside"
+
+# One tag scanner reads attributes as name=value pairs: text inside another
+# value, or a longer name such as data-href, never counts; <abbr> in the
+# breadcrumb is not a link.
+scan_out=$(printf '%s' '<html><head><title>T</title></head><body><nav aria-label="Breadcrumb"><p><abbr title="x">G</abbr> <a href="index.html">Guide</a> / Here</p></nav><h1>T</h1><p><a data-href="wrong.html" href="right.html">one</a> and <a title="href=bad.html" href="good.html">two</a>.</p></body></html>' \
+    | TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show - --pipe)
+printf '%s\n' "$scan_out" | head -1 | grep -qx 'Guide > Here' || fail "breadcrumb misread around <abbr>: $scan_out"
+printf '%s\n' "$scan_out" | grep -q 'right.html' || fail "href lost beside data-href: $scan_out"
+printf '%s\n' "$scan_out" | grep -q 'good.html' || fail "href lost after a title holding href=: $scan_out"
+if printf '%s\n' "$scan_out" | grep -q 'wrong.html\|bad.html'; then
+    fail "attribute text read as a link target: $scan_out"
+fi
+pass "one tag scanner: attributes are name=value pairs, breadcrumb links are <a> only"
 
 # -----------------------------------------------------------------------------
 # Milestone 14: GNU Info Subsystem (tam info)

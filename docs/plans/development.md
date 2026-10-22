@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.40.3 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.40.4 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,20 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.40.4 (patch): refactoring step 5 (private D188).
+  `src/html_scan.c` is the one tag scanner: `tam_tag_read()` (quote-aware,
+  comments as a unit, lower-case names in which a hyphen continues the name,
+  a `complete` flag), `tam_tag_is()` and `tam_html_attr()`/`tam_tag_attr()`,
+  which parse attributes as name=value pairs. The renderer's parse loop,
+  attribute reader and breadcrumb extraction, `depth.c`'s helpers and
+  `fold.c`'s scanner all use it; each caller keeps its own handling of an
+  unterminated tag (the renderer shows a lone `<` as text). Fixed: an
+  attribute named inside another value (`title="href=x"`) or with a longer
+  name (`data-href`) was read as `href`, and `<abbr>` in a breadcrumb
+  matched `<a`. Line count is about unchanged; four sets of tag rules
+  become one. All 108 guide pages at four levels, 25 fixture and golden
+  pages, 36 generated pages, 25 man pages and 83 Info manuals are
+  byte-identical to 0.40.3.
 - **2026-10-22:** Command 0.40.3 (patch): refactoring step 4 (private D188).
   `src/address.c` owns addresses: `tam_addr_kind()` (guide, man, Info, tldr,
   view, action, external, fragment, standard input), `tam_addr_takes_lens()`,

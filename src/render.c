@@ -1,6 +1,7 @@
 #include <tam.h>
 #include "display.h"
 #include "render.h"
+#include "html_scan.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -407,51 +408,15 @@ static char *decode_entities(const char *s, size_t n, size_t *outlen)
 /* Attribute extraction                                                       */
 /* ------------------------------------------------------------------------- */
 
+/* Attribute `attr` of the attribute list s..end, entities decoded; NULL
+ * when absent. */
 static char *extract_attr(const char *s, const char *end, const char *attr)
 {
-    size_t al = strlen(attr);
-    const char *p = s;
-
-    while (p + al <= end) {
-        size_t k = 0;
-        while (k < al && tolower((unsigned char)p[k]) == attr[k]) {
-            k++;
-        }
-        if (k == al) {
-            const char *q = p + al;
-            if (q < end && (isalnum((unsigned char)*q) || *q == '-' || *q == '_')) {
-                p++;
-                continue;
-            }
-            while (q < end && isspace((unsigned char)*q)) {
-                q++;
-            }
-            if (q < end && *q == '=') {
-                q++;
-                while (q < end && isspace((unsigned char)*q)) {
-                    q++;
-                }
-                char quote = 0;
-                if (q < end && (*q == '"' || *q == '\'')) {
-                    quote = *q;
-                    q++;
-                }
-                const char *start = q;
-                if (quote) {
-                    while (q < end && *q != quote) {
-                        q++;
-                    }
-                } else {
-                    while (q < end && !isspace((unsigned char)*q) && *q != '>') {
-                        q++;
-                    }
-                }
-                return decode_entities(start, (size_t)(q - start), NULL);
-            }
-        }
-        p++;
+    size_t v, len;
+    if (s >= end || !tam_html_attr(s, 0, (size_t)(end - s), attr, &v, &len)) {
+        return NULL;
     }
-    return NULL;
+    return decode_entities(s + v, len, NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -653,24 +618,14 @@ static void parser_begin_list_item(parser_t *p)
     parser_begin_block(p, B_LIST, idx, ord, num);
 }
 
-static void parser_handle_tag(parser_t *p, const char *s, const char *end)
+/* Handle one complete tag t of src: s..end are its attributes. */
+static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
 {
-    int closing = 0;
-    while (s < end && isspace((unsigned char)*s)) {
-        s++;
-    }
-    if (s < end && *s == '/') {
-        closing = 1;
-        s++;
-    }
-    char name[16];
-    size_t k = 0;
-    while (s < end && k < 15 && isalnum((unsigned char)*s)) {
-        name[k++] = (char)tolower((unsigned char)*s);
-        s++;
-    }
-    name[k] = '\0';
-    if (k == 0) {
+    const char *name = t->name;
+    int closing = t->closing;
+    const char *s = src + t->attrs;
+    const char *end = src + t->end - 1;
+    if (name[0] == '\0') {
         return;
     }
 
@@ -1012,34 +967,18 @@ static void parser_parse(parser_t *p, const char *src, size_t n)
         }
 
         if (src[i] == '<') {
-            if (i + 4 <= n && memcmp(src + i, "<!--", 4) == 0) {
-                const char *f = find_sub(src + i + 4, n - i - 4, "-->", 3);
-                i = f ? (size_t)(f - src) + 3 : n;
-                continue;
-            }
-            const char *g = NULL;
-            int in_quote = 0;
-            char qchar = 0;
-            for (size_t k = i + 1; k < n; k++) {
-                if (in_quote) {
-                    if (src[k] == qchar) {
-                        in_quote = 0;
-                    }
-                } else if (src[k] == '"' || src[k] == '\'') {
-                    in_quote = 1;
-                    qchar = src[k];
-                } else if (src[k] == '>') {
-                    g = src + k;
-                    break;
-                }
-            }
-            if (g == NULL) {
+            tam_tag_t t;
+            int complete = tam_tag_read(src, n, i, &t);
+            if (t.comment) {
+                i = t.end;
+            } else if (!complete) {
+                /* A '<' that opens no tag is text. */
                 parser_add_text(p, src + i, 1);
                 i++;
-                continue;
+            } else {
+                parser_handle_tag(p, src, &t);
+                i = t.end;
             }
-            parser_handle_tag(p, src + i + 1, g);
-            i = (size_t)(g - src) + 1;
             continue;
         }
 
@@ -1048,16 +987,6 @@ static void parser_parse(parser_t *p, const char *src, size_t n)
         parser_add_text(p, src + i, j - i);
         i = j;
     }
-}
-
-static const char *find_ci_bounded(const char *start, size_t len, const char *needle)
-{
-    size_t nlen = strlen(needle);
-    if (nlen > len) return NULL;
-    for (size_t i = 0; i + nlen <= len; i++) {
-        if (strncasecmp(start + i, needle, nlen) == 0) return start + i;
-    }
-    return NULL;
 }
 
 static char *plain_fragment(const char *start, size_t len)
@@ -1084,41 +1013,58 @@ static char *plain_fragment(const char *start, size_t len)
     return decoded;
 }
 
+/* The next complete element tag at or after src[*i] (comments skipped); *i
+ * moves past it. Returns 0 when there is none before len. */
+static int next_tag(const char *src, size_t len, size_t *i, tam_tag_t *t)
+{
+    while (*i < len) {
+        const char *lt = memchr(src + *i, '<', len - *i);
+        if (lt == NULL) return 0;
+        size_t at = (size_t)(lt - src);
+        if (tam_tag_read(src, len, at, t) && !t->comment) {
+            *i = t->end;
+            return 1;
+        }
+        *i = t->complete ? t->end : at + 1;
+    }
+    return 0;
+}
+
 static tam_line_t extract_location(const char *src, size_t len)
 {
     spanlist_t spans = {0};
-    const char *nav = find_ci_bounded(src, len, "<nav");
-    const char *nav_end = NULL;
-    while (nav != NULL) {
-        const char *tag_end = memchr(nav, '>', len - (size_t)(nav - src));
-        if (tag_end == NULL) break;
-        char *label = extract_attr(nav + 4, tag_end, "aria-label");
-        if (label != NULL && strcasecmp(label, "Breadcrumb") == 0) {
-            nav_end = find_ci_bounded(tag_end + 1,
-                len - (size_t)(tag_end + 1 - src), "</nav>");
-            free(label);
-            break;
-        }
-        free(label);
-        size_t used = (size_t)(tag_end + 1 - src);
-        if (used >= len) break;
-        nav = find_ci_bounded(src + used, len - used, "<nav");
+    tam_tag_t t;
+    size_t i = 0, body = 0, nav_end = 0;
+    int found = 0;
+    while (!found && next_tag(src, len, &i, &t)) {
+        char label[32];
+        found = tam_tag_is(&t, "nav", 0) &&
+                tam_tag_attr(src, &t, "aria-label", label, sizeof(label)) &&
+                strcasecmp(label, "Breadcrumb") == 0;
+        body = t.end;
     }
-    if (nav_end == NULL) return (tam_line_t){0};
+    found = 0;
+    while (!found && next_tag(src, len, &i, &t)) {
+        found = tam_tag_is(&t, "nav", 1);
+        nav_end = t.start;
+    }
+    if (!found) return (tam_line_t){0};
 
-    const char *body = strchr(nav, '>') + 1;
-    const char *cursor = body;
+    size_t cursor = body;
     size_t link_id = 0;
     int have_part = 0;
-    while (cursor < nav_end) {
-        const char *a = find_ci_bounded(cursor, (size_t)(nav_end - cursor), "<a");
-        if (a == NULL) break;
-        const char *a_end = memchr(a, '>', (size_t)(nav_end - a));
-        if (a_end == NULL) break;
-        const char *close = find_ci_bounded(a_end + 1, (size_t)(nav_end - a_end - 1), "</a>");
-        if (close == NULL) break;
-        char *href = extract_attr(a + 2, a_end, "href");
-        char *text = plain_fragment(a_end + 1, (size_t)(close - a_end - 1));
+    i = body;
+    while (next_tag(src, nav_end, &i, &t)) {
+        if (!tam_tag_is(&t, "a", 0)) continue;
+        tam_tag_t close;
+        size_t j = t.end;
+        int closed = 0;
+        while (!closed && next_tag(src, nav_end, &j, &close)) {
+            closed = tam_tag_is(&close, "a", 1);
+        }
+        if (!closed) break;
+        char *href = extract_attr(src + t.attrs, src + t.end - 1, "href");
+        char *text = plain_fragment(src + t.end, close.start - t.end);
         if (href != NULL && text != NULL && text[0] != '\0') {
             if (have_part) spanlist_append(&spans, " > ", 3, 0, NULL, 0);
             spanlist_append(&spans, text, strlen(text), TAM_STYLE_LINK, href, (int)++link_id);
@@ -1126,9 +1072,10 @@ static tam_line_t extract_location(const char *src, size_t len)
         }
         free(href);
         free(text);
-        cursor = close + 4;
+        cursor = close.end;
+        i = close.end;
     }
-    char *tail = plain_fragment(cursor, (size_t)(nav_end - cursor));
+    char *tail = plain_fragment(src + cursor, nav_end - cursor);
     if (tail != NULL && tail[0] != '\0') {
         if (have_part) spanlist_append(&spans, " > ", 3, 0, NULL, 0);
         spanlist_append(&spans, tail, strlen(tail), 0, NULL, 0);

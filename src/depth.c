@@ -1,6 +1,7 @@
 #include <tam.h>
 
 #include "depth.h"
+#include "html_scan.h"
 #include "version.h"
 
 #include <ctype.h>
@@ -345,42 +346,17 @@ static void buf_str(buf_t *b, const char *s)
  * quoted attribute values; len when unterminated. */
 static size_t tag_end(const char *src, size_t len, size_t i)
 {
-    char quote = 0;
-    for (size_t j = i + 1; j < len; j++) {
-        char c = src[j];
-        if (quote) {
-            if (c == quote) {
-                quote = 0;
-            }
-        } else if (c == '"' || c == '\'') {
-            quote = c;
-        } else if (c == '>') {
-            return j;
-        }
-    }
-    return len;
+    tam_tag_t t;
+    return tam_tag_read(src, len, i, &t) ? t.end - 1 : len;
 }
 
 /* Does the tag at src[i] open (or, with closing, close) element `name`? */
 static int tag_is(const char *src, size_t len, size_t i, const char *name,
                   int closing)
 {
-    size_t j = i + 1;
-    if (closing) {
-        if (j >= len || src[j] != '/') {
-            return 0;
-        }
-        j++;
-    }
-    size_t n = strlen(name);
-    if (j + n > len || strncasecmp(src + j, name, n) != 0) {
-        return 0;
-    }
-    if (j + n == len) {
-        return 0;
-    }
-    char after = src[j + n];
-    return after == '>' || after == '/' || isspace((unsigned char)after);
+    tam_tag_t t;
+    tam_tag_read(src, len, i, &t);
+    return tam_tag_is(&t, name, closing);
 }
 
 /* Copy attribute `attr` of the tag spanning src[start..end) into out.
@@ -388,44 +364,16 @@ static int tag_is(const char *src, size_t len, size_t i, const char *name,
 static int tag_attr(const char *src, size_t start, size_t end,
                     const char *attr, char *out, size_t cap)
 {
-    size_t alen = strlen(attr);
-    for (size_t j = start; j + alen < end; j++) {
-        if (strncasecmp(src + j, attr, alen) != 0) {
-            continue;
-        }
-        char before = src[j - 1];
-        if (!isspace((unsigned char)before)) {
-            continue;
-        }
-        size_t k = j + alen;
-        while (k < end && isspace((unsigned char)src[k])) {
-            k++;
-        }
-        if (k >= end || src[k] != '=') {
-            continue;
-        }
-        k++;
-        while (k < end && isspace((unsigned char)src[k])) {
-            k++;
-        }
-        char quote = 0;
-        if (k < end && (src[k] == '"' || src[k] == '\'')) {
-            quote = src[k++];
-        }
-        size_t v = k;
-        while (k < end && (quote ? src[k] != quote
-                                 : !isspace((unsigned char)src[k]))) {
-            k++;
-        }
-        size_t n = k - v;
-        if (n >= cap) {
-            n = cap - 1;
-        }
-        memcpy(out, src + v, n);
-        out[n] = '\0';
-        return 1;
+    size_t v, n;
+    if (cap == 0 || !tam_html_attr(src, start, end, attr, &v, &n)) {
+        return 0;
     }
-    return 0;
+    if (n >= cap) {
+        n = cap - 1;
+    }
+    memcpy(out, src + v, n);
+    out[n] = '\0';
+    return 1;
 }
 
 /* Levels declared by <meta name="level" content="...">; 0 when absent. */

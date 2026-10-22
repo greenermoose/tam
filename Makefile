@@ -41,8 +41,8 @@ TERMINFO_LIBS   ?= $(shell pkg-config --libs ncursesw 2>/dev/null || echo -ltinf
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/address.c src/html.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/upgrade.c
-DEPS  := src/version.h src/address.h src/views.h src/html.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/fold.h src/ask.h src/info.h src/discovery.h src/tldr.h src/upgrade.h
+SRC   := src/tam.c src/address.c src/html.c src/html_scan.c src/render.c src/display.c src/pager.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/upgrade.c
+DEPS  := src/version.h src/address.h src/views.h src/html.h src/html_scan.h src/render.h src/display.h src/pager.h src/pager_screen.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/fold.h src/ask.h src/info.h src/discovery.h src/tldr.h src/upgrade.h
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/coverage.json
 
 # A build from a Git checkout reports its commit in --version; packaged

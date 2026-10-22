@@ -1,18 +1,18 @@
-# Refactoring steps 2 to 4 (commands 0.40.1 to 0.40.3)
+# Refactoring steps 2 to 5 (commands 0.40.1 to 0.40.4)
 
 - **Date:** 2026-10-22
-- **Time:** 07:03 to 07:29 -04:00
+- **Time:** 07:03 to 11:22 -04:00
 - **Stage:** Develop: step 2 of the refactoring sequence (0.40.1); man page
   lookups and rendering run through libtam 0.4.0's `tam_exec`, groff's
   scratch files leave `/tmp`, and libtam links statically. Step 3 (0.40.2):
   one HTML escaper and page builder, and libtam's path, JSON and state
   helpers in place of `tam`'s copies. Step 4 (0.40.3): one address module
-  and loader
+  and loader. Step 5 (0.40.4): one HTML tag scanner
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `15cd730` (0.40.1), `634c955` (0.40.2) and the 0.40.3
-  commit that updates this record; with libtam `a051ebf` (0.4.0, step 1)
+- **Commits:** `15cd730` (0.40.1), `634c955` (0.40.2), `0192688` (0.40.3)
+  and the 0.40.4 commit that updates this record; with libtam `a051ebf` (0.4.0, step 1)
 - **Authorship:** Fred Horch approved the seven-step sequence from Claude's
   architecture review and asked for step 2. Claude wrote the code, tests and
   documentation.
@@ -33,6 +33,8 @@
 > Proceed to step 3.
 
 > Proceed to step 4.
+
+> Proceed to step 5
 
 ## Key decisions
 
@@ -64,6 +66,14 @@
   pages raw and joined `root/href` unchecked, so sharing the corpus loader
   is a behaviour fix, not only a deduplication.
 
+- Step 5: `fold.c`'s scanner, which already parsed attribute lists, is the
+  model. `depth.c` keeps its three helper signatures, now thin wrappers, so
+  its twenty call sites are unchanged. A hyphen continues an element name,
+  as in HTML custom elements; no page uses one, and it keeps `depth.c`'s
+  stricter reading. The breadcrumb extractor was a fourth scanner and moved
+  too. The review's estimate of 400 to 600 lines saved over steps 2, 3 and
+  5 was high: step 5 is about line-neutral.
+
 ## Verification
 
 - `make test`: both suites pass, including a new test that a man page
@@ -82,5 +92,10 @@
   `make test` passes, with new checks that `man:` opens the Man pages view,
   `--level` reaches `tam:keywords` and `tam:explain`, and `../` guide
   addresses are refused.
+- Step 5: every guide page at levels 0 to 3, the fixture and golden pages
+  through `tam show -`, the 36 generated pages, 25 man pages and the Top
+  node of all 83 Info manuals match 0.40.3 byte for byte; render goldens
+  match; a new test covers `data-href`, `href=` inside a value and `<abbr>`
+  in a breadcrumb, all three of which 0.40.3 misread.
 - `readelf -d build/tam` shows no RUNPATH; `make LIBTAM_PREFIX=/nonexistent`
   stops with the libtam 0.4.0 instructions.

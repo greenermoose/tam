@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include "fold.h"
+#include "html_scan.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -23,58 +24,18 @@ static void add(buf_t *b, const char *s, size_t n)
 }
 static void str(buf_t *b, const char *s) { add(b, s, strlen(s)); }
 
-typedef struct { size_t start, end, attrs; char name[20]; int close; } tag_t;
-/* Comments and quoted '>' are consumed as a unit. */
-static tag_t tag(const char *s, size_t n, size_t i)
+/* One tag at s[i] from the shared scanner; comments and quoted '>' are
+ * consumed as a unit. */
+static tam_tag_t tag(const char *s, size_t n, size_t i)
 {
-    tag_t t = { .start = i, .end = n, .attrs = i };
-    if (i + 4 <= n && !memcmp(s + i, "<!--", 4)) {
-        const char *e = strstr(s + i + 4, "-->");
-        if (e && (size_t)(e - s) + 3 <= n) t.end = (size_t)(e - s) + 3;
-        return t;
-    }
-    size_t j = i + 1, k = 0;
-    if (j < n && s[j] == '/') { t.close = 1; j++; }
-    while (j < n && isalnum((unsigned char)s[j])) {
-        if (k + 1 < sizeof(t.name)) t.name[k++] = (char)tolower((unsigned char)s[j]);
-        j++;
-    }
-    t.attrs = j;
-    char q = 0;
-    for (; j < n; j++) {
-        if (q) { if (s[j] == q) q = 0; }
-        else if (s[j] == '\'' || s[j] == '"') q = s[j];
-        else if (s[j] == '>') { t.end = j + 1; break; }
-    }
+    tam_tag_t t;
+    tam_tag_read(s, n, i, &t);
     return t;
 }
-static int attr(const char *s, tag_t t, const char *key, char *out, size_t cap)
-{
-    size_t i = t.attrs;
-    while (i + 1 < t.end) {
-        while (i + 1 < t.end && isspace((unsigned char)s[i])) i++;
-        size_t a = i;
-        while (i + 1 < t.end && !isspace((unsigned char)s[i]) && s[i] != '=' && s[i] != '>') i++;
-        size_t z = i;
-        while (i + 1 < t.end && isspace((unsigned char)s[i])) i++;
-        if (s[i] != '=') { if (i == a) i++; continue; }
-        i++;
-        while (i + 1 < t.end && isspace((unsigned char)s[i])) i++;
-        char q = (s[i] == '\'' || s[i] == '"') ? s[i++] : 0;
-        size_t v = i;
-        while (i + 1 < t.end && (q ? s[i] != q : !isspace((unsigned char)s[i]) && s[i] != '>')) i++;
-        if (z - a == strlen(key) && !strncasecmp(s + a, key, z - a)) {
-            size_t len = i - v; if (len >= cap) len = cap - 1;
-            memcpy(out, s + v, len); out[len] = 0; return 1;
-        }
-        if (q && i + 1 < t.end) i++;
-    }
-    return 0;
-}
-static int cls(const char *s, tag_t t, const char *word)
+static int cls(const char *s, tam_tag_t t, const char *word)
 {
     char value[256];
-    if (!attr(s, t, "class", value, sizeof(value))) return 0;
+    if (!tam_tag_attr(s, &t, "class", value, sizeof(value))) return 0;
     for (const char *p = value; *p;) {
         while (isspace((unsigned char)*p)) p++;
         size_t n = strcspn(p, " \t\r\n");
@@ -83,29 +44,29 @@ static int cls(const char *s, tag_t t, const char *word)
     }
     return 0;
 }
-static int is_fold(const char *s, tag_t t)
+static int is_fold(const char *s, tam_tag_t t)
 {
-    return !t.close && (!strcmp(t.name, "details") ||
+    return !t.closing && (!strcmp(t.name, "details") ||
            (!strcmp(t.name, "aside") && cls(s, t, "first-time")));
 }
-static tag_t matching(const char *s, size_t n, tag_t t)
+static tam_tag_t matching(const char *s, size_t n, tam_tag_t t)
 {
     int depth = 1;
     for (size_t i = t.end; i < n;) {
         if (s[i] != '<') { i++; continue; }
-        tag_t next = tag(s, n, i);
-        if (!strcmp(next.name, t.name)) depth += next.close ? -1 : 1;
+        tam_tag_t next = tag(s, n, i);
+        if (!strcmp(next.name, t.name)) depth += next.closing ? -1 : 1;
         if (!depth) return next;
         i = next.end;
     }
-    return (tag_t){ .start = n, .end = n };
+    return (tam_tag_t){ .start = n, .end = n };
 }
 char *tam_fold_number(const char *src, size_t len)
 {
     buf_t b = {0}; unsigned id = 0;
     for (size_t i = 0; i < len;) {
         if (src[i] != '<') { add(&b, src + i++, 1); continue; }
-        tag_t t = tag(src, len, i);
+        tam_tag_t t = tag(src, len, i);
         if (is_fold(src, t) && t.end > i && src[t.end - 1] == '>') {
             char num[64];
             snprintf(num, sizeof(num), " data-tam-fold=\"%u\"", ++id);
@@ -113,8 +74,8 @@ char *tam_fold_number(const char *src, size_t len)
             add(&b, src + t.attrs, t.end - t.attrs);
         } else add(&b, src + i, t.end - i);
         i = t.end;
-        if (!t.close && (!strcmp(t.name, "script") || !strcmp(t.name, "style"))) {
-            tag_t end = matching(src, len, t);
+        if (!t.closing && (!strcmp(t.name, "script") || !strcmp(t.name, "style"))) {
+            tam_tag_t end = matching(src, len, t);
             add(&b, src + i, end.end - i); i = end.end;
         }
     }
@@ -155,13 +116,13 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
     const char *s = x->s;
     for (size_t i = from; i < to;) {
         if (s[i] != '<') { add(out, s + i++, 1); continue; }
-        tag_t t = tag(s, to, i);
-        if (!t.close && (!strcmp(t.name, "script") || !strcmp(t.name, "style"))) {
-            tag_t end = matching(s, to, t);
+        tam_tag_t t = tag(s, to, i);
+        if (!t.closing && (!strcmp(t.name, "script") || !strcmp(t.name, "style"))) {
+            tam_tag_t end = matching(s, to, t);
             add(out, s + i, end.end - i); i = end.end; continue;
         }
-        if (!t.close && !strcmp(t.name, "section")) {
-            tag_t end = matching(s, to, t);
+        if (!t.closing && !strcmp(t.name, "section")) {
+            tam_tag_t end = matching(s, to, t);
             buf_t local = {0};
             add(out, s + i, t.end - i);
             transform(x, t.end, end.start, out, &local, nesting + 1);
@@ -170,9 +131,9 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
             i = end.end; continue;
         }
         if (is_fold(s, t)) {
-            tag_t end = matching(s, to, t);
+            tam_tag_t end = matching(s, to, t);
             size_t body = t.end;
-            tag_t summary = {0}, summary_end = {0};
+            tam_tag_t summary = {0}, summary_end = {0};
             while (body < end.start) {
                 if (isspace((unsigned char)s[body])) { body++; continue; }
                 if (body + 4 <= end.start && !memcmp(s + body, "<!--", 4)) {
@@ -189,7 +150,7 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
                 cls(s, t, "solution") ? "Solution" : cls(s, t, "hint") ? "Hint" :
                 cls(s, t, "q") && cls(s, t, "open") ? "Model answer" : "Answer";
             char value[32] = "0", line[160];
-            attr(s, t, "data-tam-fold", value, sizeof(value));
+            tam_tag_attr(s, &t, "data-tam-fold", value, sizeof(value));
             unsigned id = (unsigned)strtoul(value, NULL, 10);
             int opened = is_open(x->open, id);
             tam_fold_t *next = realloc(x->folds, (x->nfolds + 1) * sizeof(*next));
@@ -221,7 +182,7 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
             str(out, "</div>");
             i = end.end; continue;
         }
-        if (x->pipe && t.close && !strcmp(t.name, "body")) {
+        if (x->pipe && t.closing && !strcmp(t.name, "body")) {
             answers_end(out, answers); *answers = (buf_t){0};
         }
         add(out, s + i, t.end - i); i = t.end;
