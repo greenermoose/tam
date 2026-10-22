@@ -24,6 +24,8 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 # Pager cases change the reader's level lens; keep its state file here.
 export XDG_STATE_HOME="$tmp/state-default"
+# Rendered man pages and groff scratch files stay inside the test directory.
+export XDG_CACHE_HOME="$tmp/cache-default" XDG_RUNTIME_DIR="$tmp/runtime-default"
 unset TAM_LEVEL
 
 esc=$(printf '\033')
@@ -90,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.40.5' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.41.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -2327,6 +2329,21 @@ done
 leftover=$(find "$tmp/manz-run" -mindepth 3 2>/dev/null)
 [ -z "$leftover" ] || fail "man rendering left scratch files: $leftover"
 pass "man pages render alike from gzip, bzip2, xz and zstd with no scratch files left"
+
+# A rendered man page is cached, one file per source, reused while the source
+# is unchanged and rendered again when it changes.
+cache_dir="$tmp/manz-cache/tamlinux/tam/man"
+first=$(MANPATH="$tmp/manz" XDG_CACHE_HOME="$tmp/manz-cache" "$TAM" man tamzplain --pipe)
+[ "$(find "$cache_dir" -name '*.html' | wc -l)" -eq 1 ] || fail "man cache did not store one page"
+head -1 "$cache_dir"/*.html | grep -q '^<!-- tam-man-cache 1 ' || fail "man cache entry has no stamp"
+second=$(MANPATH="$tmp/manz" XDG_CACHE_HOME="$tmp/manz-cache" "$TAM" man tamzplain --pipe)
+[ "$first" = "$second" ] || fail "cached man page renders differently"
+sed -i 's/^\.SH NAME$/.SH NAME\nCACHE-CHANGED/' "$tmp/manz/man1/tamzplain.1"
+touch -d '+1 minute' "$tmp/manz/man1/tamzplain.1"
+MANPATH="$tmp/manz" XDG_CACHE_HOME="$tmp/manz-cache" "$TAM" man tamzplain --pipe | grep -q 'CACHE-CHANGED' \
+    || fail "a changed man page was served from the cache"
+[ "$(find "$cache_dir" -name '*.html' | wc -l)" -eq 1 ] || fail "a changed man page left a second cache file"
+pass "man page cache: one file per source, reused, refreshed when the source changes"
 
 # One loader serves every address. "man:" alone (the man breadcrumb's link)
 # opens the Man pages view; --level reaches every view that takes the lens;

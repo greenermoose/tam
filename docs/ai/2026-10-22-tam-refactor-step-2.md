@@ -1,19 +1,20 @@
-# Refactoring steps 2 to 6 (commands 0.40.1 to 0.40.5)
+# Refactoring steps 2 to 7 (commands 0.40.1 to 0.41.0)
 
 - **Date:** 2026-10-22
-- **Time:** 07:03 to 11:34 -04:00
+- **Time:** 07:03 to 11:40 -04:00
 - **Stage:** Develop: step 2 of the refactoring sequence (0.40.1); man page
   lookups and rendering run through libtam 0.4.0's `tam_exec`, groff's
   scratch files leave `/tmp`, and libtam links statically. Step 3 (0.40.2):
   one HTML escaper and page builder, and libtam's path, JSON and state
   helpers in place of `tam`'s copies. Step 4 (0.40.3): one address module
   and loader. Step 5 (0.40.4): one HTML tag scanner. Step 6 (0.40.5):
-  `tam.c` and `pager.c` split into modules
+  `tam.c` and `pager.c` split into modules. Step 7 (0.41.0): man page cache
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
 - **Commits:** `15cd730` (0.40.1), `634c955` (0.40.2), `0192688` (0.40.3),
-  `2a061cd` (0.40.4) and the 0.40.5 commit that updates this record; with libtam `a051ebf` (0.4.0, step 1)
+  `2a061cd` (0.40.4), `e2e7c69` (0.40.5) and the 0.41.0 commit that updates
+  this record; with libtam `a051ebf` (0.4.0, step 1)
 - **Authorship:** Fred Horch approved the seven-step sequence from Claude's
   architecture review and asked for step 2. Claude wrote the code, tests and
   documentation.
@@ -40,6 +41,10 @@
 > Is v0.40.4 the most recent?
 
 > Proceed to step 6.
+
+> Tell me again what step 6 accomplished and why that was necessary?
+
+> No, step 6 sounds reasonable. Thanks for doing it. Proceed to step 7.
 
 ## Key decisions
 
@@ -87,6 +92,15 @@
   `tam` binary, and the link has no clashes. Renaming them is left for when
   someone touches that code.
 
+- Step 7: one cache file per source (named by a hash of its real path,
+  validated by a size and modification-time stamp) rather than one per
+  version of the source, so package updates overwrite entries instead of
+  leaving orphans. Only groff's output is cached, so `tam`'s cross-reference
+  linking keeps working on cached pages. The test suite was writing nothing
+  to the cache before, but would have from now on, so it now isolates
+  `XDG_CACHE_HOME` and `XDG_RUNTIME_DIR`. The libtam moves for cultivar
+  identity and UTF-8 width wait for a second user, as the sequence said.
+
 ## Verification
 
 - `make test`: both suites pass, including a new test that a man page
@@ -113,5 +127,9 @@
 - Step 6: builds without warnings; all guide pages at four levels,
   fixtures, generated pages, `--version`, `inspect --json` and `--help`
   match 0.40.4; `make test` passes, including every PTY pager test.
+- Step 7: cold and cached renders of bash, ls and git timed (1,118 to 55,
+  96 to 26 and 210 to 35 ms); cached output matches 0.40.5 byte for byte; a
+  new test checks one cache file per source, reuse, and re-rendering after
+  the source changes; no test writes to the real cache.
 - `readelf -d build/tam` shows no RUNPATH; `make LIBTAM_PREFIX=/nonexistent`
   stops with the libtam 0.4.0 instructions.

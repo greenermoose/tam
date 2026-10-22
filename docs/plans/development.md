@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.40.5 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.41.0 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,19 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.41.0 (minor): refactoring step 7, the man page
+  cache the developer asked for with the rule "use disk space to free up CPU
+  cycles and RAM" (private D188). groff's HTML is stored in
+  `$XDG_CACHE_HOME/tamlinux/tam/man/<FNV-1a hash of the real source
+  path>.html` (directory 0700, files 0600, atomic writes) after a stamp line
+  `<!-- tam-man-cache 1 SIZE MTIME PATH -->`. A stamp mismatch re-renders
+  into the same file, so a source never leaves a stale second entry; a
+  removed source leaves one orphan, and deleting the directory is always
+  safe. `tam`'s own processing after groff (cross-reference links) still
+  runs every time. `man bash`: 1,118 ms cold, 55 ms cached; `git` 210 to
+  35 ms. The cultivar-identity and UTF-8 helpers stay in `tam` until a
+  second command needs them. Test scripts now set `XDG_CACHE_HOME` and
+  `XDG_RUNTIME_DIR` inside their temporary directory.
 - **2026-10-22:** Command 0.40.5 (patch): refactoring step 6 (private D188),
   a move with no behaviour change. Source layout: `tam.c` command line and
   subcommands; `identity.c` cultivar and corpus version; `corpus.c` corpus

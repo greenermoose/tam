@@ -13,6 +13,8 @@
 
 #include <ctype.h>
 #include <dirent.h>
+#include <limits.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -358,7 +360,7 @@ static void remove_scratch_dir(const char *dir)
 
 /* Render a man page source file to HTML with groff. gzip is read in process;
  * bzip2, xz and zstd go through their decompressor. No shell is involved. */
-static char *render_man_to_html(const char *path)
+static char *render_man_with_groff(const char *path)
 {
     static const struct { const char *suffix, *tool; } packers[] = {
         { ".bz2", "bzip2" }, { ".xz", "xz" }, { ".zst", "zstd" }
@@ -405,6 +407,67 @@ static char *render_man_to_html(const char *path)
         return NULL;
     }
     return r.stdout_buf;
+}
+
+/* Rendered man pages are cached, trading disk for CPU (groff takes up to a
+ * second for a long page): groff's HTML for a source file is kept in
+ * $XDG_CACHE_HOME/tamlinux/tam/man/<hash of path>.html behind a stamp line
+ * naming the format, the source's size, modification time and path. A
+ * changed source no longer matches its stamp and is rendered again into the
+ * same file, so each source has one cache file. */
+#define MAN_CACHE_FORMAT 1
+
+static char *man_cache_file(const char *source)
+{
+    unsigned long long h = 1469598103934665603ULL; /* FNV-1a */
+    for (const unsigned char *p = (const unsigned char *)source; *p != '\0'; p++) {
+        h ^= *p;
+        h *= 1099511628211ULL;
+    }
+    char *dir = tam_xdg_path(TAM_XDG_CACHE, "tam", "man", true);
+    if (dir == NULL || !tam_fs_mkdir_p(dir, 0700)) {
+        free(dir);
+        return NULL;
+    }
+    char leaf[32];
+    snprintf(leaf, sizeof(leaf), "%016llx.html", h);
+    char *file = tam_path_join(dir, leaf);
+    free(dir);
+    return file;
+}
+
+static char *render_man_to_html(const char *path)
+{
+    char *source = realpath(path, NULL);
+    struct stat st;
+    if (source == NULL || strchr(source, '\n') != NULL || stat(source, &st) != 0) {
+        free(source);
+        return render_man_with_groff(path);
+    }
+    char stamp[4400];
+    snprintf(stamp, sizeof(stamp), "<!-- tam-man-cache %d %lld %lld.%09ld %s -->\n",
+             MAN_CACHE_FORMAT, (long long)st.st_size, (long long)st.st_mtim.tv_sec,
+             st.st_mtim.tv_nsec, source);
+    char *file = man_cache_file(source);
+    free(source);
+    size_t stamp_len = strlen(stamp), len = 0;
+    char *cached = file != NULL ? tam_fs_read_file(file, &len) : NULL;
+    if (cached != NULL && len > stamp_len && memcmp(cached, stamp, stamp_len) == 0) {
+        memmove(cached, cached + stamp_len, len - stamp_len + 1);
+        free(file);
+        return cached;
+    }
+    free(cached);
+    char *html = render_man_with_groff(path);
+    if (html != NULL && file != NULL) {
+        tam_str_t entry = tam_str_cat(tam_str_new(stamp), html);
+        if (entry != NULL) {
+            (void)tam_fs_write_atomic(file, entry, tam_str_len(entry), 0600);
+            tam_str_free(entry);
+        }
+    }
+    free(file);
+    return html;
 }
 
 tam_document_t *tam_man_load(const char *spec, int width)

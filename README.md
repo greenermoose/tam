@@ -84,6 +84,12 @@ terminals, and to plain text when stdout is not a usable terminal. On resize it
 reflows the current document while retaining the reading position, selected
 link and search state.
 
+Man pages are rendered with groff once and cached in
+`$XDG_CACHE_HOME/tamlinux/tam/man/` (default `~/.cache/tamlinux/tam/man/`),
+one file per source page, stamped with the source's size and modification
+time; a changed page is rendered again. Revisiting `man bash` takes about
+50 ms instead of a second. Deleting the directory is always safe.
+
 The offline command is C; the explicit source-upgrade helper uses Python's
 standard library for strict metadata parsing and bounded process control.
 Command source, bundled guide pages, tests and component documentation live
