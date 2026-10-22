@@ -6,6 +6,7 @@
 #include "pager_screen.h"
 #include "render.h"
 #include "terminal.h"
+#include "version.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -168,6 +169,7 @@ typedef struct {
     int             column_active;
     int             show_address;
     unsigned        lens; /* The reader's level lens (depth.h). */
+    char            version[64]; /* "v<command> (<corpus>)", right of the status row */
     unsigned char  *fold_open;
     size_t          nfold_open;
 } pager_t;
@@ -1121,8 +1123,6 @@ static int draw(pager_t *st)
         pager_address(st, addr, sizeof(addr));
         snprintf(status, sizeof(status), "Path = %s", addr);
     } else {
-        const char *actions = max_cols >= 60 ? "< Back  ` Guide  h Help  q Quit" :
-                              max_cols >= 40 ? "<Back `Guide hHelp qQuit" : "< ` h q";
         const char *title = st->doc->title ? st->doc->title : "tam";
         /* The title is line 1: the level lines above it are lettered from
          * b and the breadcrumb row is a, and the range and total count
@@ -1178,50 +1178,53 @@ static int draw(pager_t *st)
         }
         if (st->doc->levels != 0 && st->lens != 0 && !(st->doc->levels & st->lens))
             strncat(essential, " (not on page)", sizeof(essential) - strlen(essential) - 1);
-        int essential_width = (int)tam_display_width(essential, strlen(essential));
-        if (max_cols >= 60) {
-            int action_width = (int)tam_display_width(actions, strlen(actions));
-            int title_budget = max_cols - action_width - essential_width - 6;
-            if (title_budget > 0) {
-                size_t title_bytes = status_byte_limit(title, title_budget);
-                strncat(status, title, title_bytes);
-                strncat(status, " | ", sizeof(status) - strlen(status) - 1);
-            }
-            lens_digit = strlen(status) + digit_at;
-            strncat(status, essential, sizeof(status) - strlen(status) - 1);
-            strncat(status, " | ", sizeof(status) - strlen(status) - 1);
-            strncat(status, actions, sizeof(status) - strlen(status) - 1);
-        } else {
-            lens_digit = digit_at;
-            strncat(status, essential, sizeof(status) - 1);
-            int used = (int)tam_display_width(status, strlen(status));
-            int action_width = (int)tam_display_width(actions, strlen(actions));
-            if (max_cols - used >= action_width + 1) {
-                strncat(status, " ", sizeof(status) - strlen(status) - 1);
-                strncat(status, actions, sizeof(status) - strlen(status) - 1);
-            }
-        }
-        if (st->doc->nav_up != NULL && max_cols >= 39)
-            strncat(status, "  u Up", sizeof(status) - strlen(status) - 1);
 
-        const char *hints = (st->doc->nav_next != NULL || st->doc->nav_prev != NULL ||
-                             st->doc->nav_up != NULL)
-            ? " n/p t i asdf jkl; g"
-            : " / n/N asdf jkl; g u `";
-        int used = (int)tam_display_width(status, strlen(status));
-        int hint_width = (int)tam_display_width(hints, strlen(hints));
-        if (used + hint_width <= max_cols)
-            strncat(status, hints, sizeof(status) - strlen(status) - 1);
-        const char *detail = st->msg[0] != '\0' ? st->msg :
-                             sel != NULL && sel->href != NULL ? sel->href : NULL;
-        if (detail != NULL) {
-            char part[192];
-            snprintf(part, sizeof(part), st->msg[0] != '\0' ? " [%s]" : " -> %s",
-                     detail);
-            used = (int)tam_display_width(status, strlen(status));
-            int part_width = (int)tam_display_width(part, strlen(part));
-            if (used + part_width <= max_cols)
-                strncat(status, part, sizeof(status) - strlen(status) - 1);
+        /* Title | line and range | lens | keys  -> link  ...  version, the
+         * version at the right edge. Narrow rows drop the title first, then
+         * the link, then the keys; the line, range and lens always show. */
+        static const char *const keys[] = {
+            "h Help  Esc Quit  [] Select links", "h Help  Esc Quit"
+        };
+        char detail[192] = {0};
+        if (st->msg[0] != '\0')
+            snprintf(detail, sizeof(detail), "[%s]", st->msg);
+        else if (sel != NULL && sel->href != NULL)
+            snprintf(detail, sizeof(detail), "-> %s", sel->href);
+        int ess_w = (int)tam_display_width(essential, strlen(essential));
+        int ver_w = (int)tam_display_width(st->version, strlen(st->version));
+        int room = max_cols - ess_w - (ver_w > 0 ? ver_w + 2 : 0);
+        const char *key_text = NULL;
+        for (size_t k = 0; k < sizeof(keys) / sizeof(keys[0]) && key_text == NULL; k++)
+            if ((int)tam_display_width(keys[k], strlen(keys[k])) + 3 <= room)
+                key_text = keys[k];
+        if (key_text != NULL)
+            room -= (int)tam_display_width(key_text, strlen(key_text)) + 3;
+        int detail_w = (int)tam_display_width(detail, strlen(detail));
+        int show_detail = detail[0] != '\0' && detail_w + 2 <= room;
+        if (show_detail)
+            room -= detail_w + 2;
+        int title_w = (int)tam_display_width(title, strlen(title));
+        if (title_w + 3 <= room && max_cols >= 60) {
+            strncat(status, title, sizeof(status) - strlen(status) - 1);
+            strncat(status, " | ", sizeof(status) - strlen(status) - 1);
+        }
+        lens_digit = strlen(status) + digit_at;
+        strncat(status, essential, sizeof(status) - strlen(status) - 1);
+        if (key_text != NULL) {
+            strncat(status, " | ", sizeof(status) - strlen(status) - 1);
+            strncat(status, key_text, sizeof(status) - strlen(status) - 1);
+        }
+        if (show_detail) {
+            strncat(status, "  ", sizeof(status) - strlen(status) - 1);
+            strncat(status, detail, sizeof(status) - strlen(status) - 1);
+        }
+        if (ver_w > 0) {
+            int used = (int)tam_display_width(status, strlen(status));
+            int pad = max_cols - used - ver_w;
+            if (pad < 2) pad = 2;
+            for (int i = 0; i < pad && strlen(status) + 1 < sizeof(status); i++)
+                strncat(status, " ", sizeof(status) - strlen(status) - 1);
+            strncat(status, st->version, sizeof(status) - strlen(status) - 1);
         }
     }
 
@@ -2340,6 +2343,16 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     if (named_level)
         tam_lens_override(named);
     st.lens = tam_lens_get();
+    {
+        char *root = tam_find_knowledge_root();
+        char *corpus = tam_corpus_version(root);
+        if (corpus != NULL)
+            snprintf(st.version, sizeof(st.version), "v%s (%s)", TAM_COMMAND_VERSION, corpus);
+        else
+            snprintf(st.version, sizeof(st.version), "v%s", TAM_COMMAND_VERSION);
+        free(corpus);
+        free(root);
+    }
     tam_document_ensure_location(st.doc, initial_href);
     st.selected = -1;
     st.cursor_line = 0;

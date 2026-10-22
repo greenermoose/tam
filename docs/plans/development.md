@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.39.2 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.40.0 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,15 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.40.0 (minor): the developer's status row,
+  `<Page Title> | L<line> <range>/<total> | <Level> text 0123 | h Help  Esc
+  Quit  [] Select links  -> <link>`, with `v<command> (<corpus>)` right
+  aligned "so I'll know which version I'm testing". The `< Back`, `` `
+  Guide ``, `q Quit`, `u Up` and key-list hints are removed as confusing; the
+  help overlay keeps every key, and `q` still quits. Messages take the link's
+  place while they show. Narrow rows drop the title first (the breadcrumb
+  repeats it), then the link, then the key hints; the line, range, lens and
+  version stay.
 - **2026-10-22:** Command 0.39.2 (patch): the top of a page is its title,
   `L1`. The developer: the level line "is not part of page content; it is a
   page display control line." `x`, `.`, Home, an empty `#` link and `` ` ``

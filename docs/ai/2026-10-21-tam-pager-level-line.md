@@ -1,17 +1,18 @@
-# Pager level line (commands 0.39.0 to 0.39.2)
+# Pager level line and status row (commands 0.39.0 to 0.40.0)
 
 - **Date:** 2026-10-21
 - **Time:** 22:30 to 22:51 -04:00
 - **Stage:** Develop; command 0.39.0 replaces the level bar and the "Written
   for" banner with a right-aligned level line above the page heading; 0.39.1
   letters the lines above the title and shows the lens as `All text 0123`;
-  0.39.2 makes the title the top of the page for the top-of-page keys.
+  0.39.2 makes the title the top of the page for the top-of-page keys;
+  0.40.0 rebuilds the status row with the version at its right edge.
   A development installation of 0.39.0 was made at the developer's request.
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `959535f` (0.39.0), `dd013ea` (0.39.1) and the 0.39.2
-  commit that updates this record
+- **Commits:** `959535f` (0.39.0), `dd013ea` (0.39.1), `7f66ebf` (0.39.2)
+  and the 0.40.0 commit that updates this record
 - **Authorship:** Fred Horch wrote the layout note (the line's form, its
   position, alignment and examples) and decided the level bar's and related
   links' placement. Claude proposed the relatives line's wording, dimming
@@ -61,6 +62,19 @@
 > the page. The level line is not part of page content; it is a page display
 > control line.
 
+> Let's add a v X.Y.Z (P.D.Q) aligned right in the footer to show me the
+> version of the tam command (corpus). That way I'll know which version I'm
+> testing when I run it.
+>
+> Also, let's remove some confusing key binding "help". Here's what I want
+> the footer to show:
+>
+> <Page Title> | L<attention line> <Visible range>/<Page length> | <Level>
+> text 0123 | h Help  Esc Quit  [] Select links  -> <Selected link>
+> v0.0.0 (0.0.0)
+>
+> Ask if you have questions.
+
 ## Key decisions
 
 - The developer's note gives the form
@@ -88,6 +102,11 @@
 - 0.39.2: Home, an empty `#` link and `` ` `` on the Guide index are the
   same "top of page" jump as `x` and `.`, so all of them go to `L1`. Each
   scrolls to the very top, so the level lines stay in view above the title.
+- 0.40.0 defaults the developer left open, stated to him before building:
+  messages take the link's place while they show; narrow rows drop the
+  title first (the breadcrumb repeats it), then the link, then the key
+  hints, keeping the line, range, lens and version; the version is plain
+  numbers. `q` still quits though only `Esc Quit` is shown.
 - The fixture `shell/pipelines.html` gains one `?level=beginner` link, so the
   test that a level-naming link sets the lens still has a link to follow.
 
@@ -104,6 +123,10 @@
 - 0.39.2: `make test`, both suites pass, including a PTY assertion that `x`
   and `.` go to `L1` from the bottom; a PTY drive of the Welcome page shows
   `x`, `.` and Home returning from `L52` to `L1` with "Beginner text" in view.
+- 0.40.0: `make test`, both suites pass; tests that read the selected link
+  now stop at the padding before the version, and the search test checks
+  the new key list and the version. PTY drives at 160, 120, 80 and 44
+  columns show the layout and the drop order.
 - PTY renders at 100 and 44 columns with the tests' screen model: right-aligned
   at 100 columns, left-aligned wrap at 44, and `dim` (`ESC [2m`) emitted
   off the attention line.

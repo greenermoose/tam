@@ -68,9 +68,11 @@ link along that line. One row down, `x`/`.` or `Home` jumps to the top and
 `g`, `Enter` or the right arrow follows the selected link (the right arrow
 without a selected link proceeds forward along a visited path). `u` or the
 left arrow goes back (`u` means hierarchy Up in Info), backtick returns to the
-Guide, `h` or `?` shows the keys, and `q` or `Esc` quits. The status row shows
-`L<cursor> <first>-<last>/<total>` with the cursor line, visible line range and
-total lines (or `Path = <address>` when `=` is active). Readers used to `less`
+Guide, `h` or `?` shows the keys, and `q` or `Esc` quits. The status row reads
+`<Page title> | L<line> <first>-<last>/<total> | <Level> text 0123 | h Help  Esc Quit  [] Select links  -> <selected link>`
+with the version at the right edge, `v<command> (<corpus>)`, so a reader
+always knows which build they are running (or `Path = <address>` when `=` is
+active). Narrow terminals drop the title, then the link, then the key hints. Readers used to `less`
 or vim: `j` and `k` do not scroll here; `k` moves down. External links are shown
 but never fetched, so the guide stays offline. The corpus is located via
 `$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then the compiled install

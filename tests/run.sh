@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.39.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.40.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -277,7 +277,9 @@ def send_and_get_target(key):
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
     if not lines:
         return last_target
-    last_target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
+    # The link is the first word after "->"; the version follows at the right.
+    words = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split()
+    last_target = words[0].decode("utf-8", "replace") if words else ""
     return last_target
 
 time.sleep(0.15)
@@ -346,7 +348,7 @@ def send_and_get_target(key):
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
     if not lines:
         return ""
-    return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
+    return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
 
 def send_and_get_state(key):
     time.sleep(0.08)
@@ -469,7 +471,7 @@ def parse_info(buf):
     title = last.split("|")[0].strip()
     target = ""
     if "->" in last:
-        target = last.split("->")[-1].split("\x1b", 1)[0].strip()
+        target = last.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     last_info = (title, target)
     return last_info
 
@@ -599,7 +601,7 @@ while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
+target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "one.html", f"expected one.html, got {target}"
 assert b"\x1b[1m" in buf, "line 1 of wrapped link not bold"
 assert b"\x1b[7m" in buf, "selected link lacks reverse-video emphasis"
@@ -615,7 +617,7 @@ while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
+target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "two.html", f"expected two.html, got {target}"
 
 # 4. Shift-Tab returns to the wrapped link, highlighting its lines again
@@ -626,7 +628,7 @@ while select.select([master], [], [], 0.05)[0]:
     buf += os.read(master, 4096)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
-target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if lines else ""
+target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "one.html", f"expected one.html, got {target}"
 assert b"\x1b[7m" in buf, "wrapped link not reverse-highlighted after Shift-Tab"
 
@@ -673,7 +675,7 @@ os.waitpid(pid, 0)
 
     # In-pager text search (/), hit jumping (n / N), Esc clear, and reading telemetry
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, re, time, sys, select, termios, struct, fcntl
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
@@ -696,7 +698,10 @@ while select.select([master], [], [], 0.05)[0]:
 
 # 1. Reading telemetry: verify status line contains position metric
 assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {buf}"
-assert b"/ n/N" in buf, f"status line missing search hint: {buf}"
+# The status row lists only Help, Quit and link selection, then the version.
+assert b"h Help  Esc Quit  [] Select links" in buf, f"status line missing key hints: {buf}"
+assert b"/ n/N" not in buf and b"q Quit" not in buf, f"status line kept old hints: {buf}"
+assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)\x1b\[K", buf), f"status line missing version: {buf}"
 
 # 2. In-pager text search: search for "redirection"
 os.write(master, b"/redirection\r")
@@ -1034,7 +1039,7 @@ def get_status_info():
     title = last.split("|")[0].strip()
     target = ""
     if "->" in last:
-        target = last.split("->")[-1].split("\x1b", 1)[0].strip()
+        target = last.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     return (title, target)
 
 # 1. Initial page is Topics A to Z
@@ -1097,7 +1102,7 @@ def get_state():
     pos = parts[1].strip().decode("utf-8", "replace") if len(parts) > 1 else ""
     target = ""
     if b"->" in last:
-        target = last.split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace")
+        target = last.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
     msg = ""
     if b"[" in last and b"]" in last:
         msg = last.split(b"[")[-1].split(b"]")[0].strip().decode("utf-8", "replace")
@@ -2198,7 +2203,7 @@ def parse_info(buf):
     lines = [line for line in buf.split(b"\x1b[24;1H") if b"|" in line]
     last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
     title = last.split(b"|")[0].strip().decode("utf-8", "replace")
-    target = last.split(b"->")[-1].split(b"\x1b", 1)[0].strip().decode("utf-8", "replace") if b"->" in last else ""
+    target = last.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if b"->" in last else ""
     return title, target
 
 # The fixed breadcrumb row is keyboard reachable from the first document line.
