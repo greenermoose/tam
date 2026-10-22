@@ -1,12 +1,12 @@
 # Logs and power learning ladders (corpus 0.42.3)
 
 - **Date:** 2026-10-22
-- **Time:** 14:03 to 14:18 -04:00
+- **Time:** 14:03 to 14:20 -04:00
 - **Stage:** Develop; two existing corpus lessons migrated, command unchanged at 0.43.1.
 - **CLI Tool:** Codex CLI 0.163.0 (live runtime detector).
 - **Model:** GPT-6.1 Sol (`gpt-6.1-sol`).
 - **Transcript:** Retained privately by the author.
-- **Commits:** The commit adding this record and its generated-index follow-up.
+- **Commits:** `daeecdd` and the generated-index follow-up containing this line.
 - **Authorship:** The developer requested the next step and approved the proposed logs/power slice. Codex wrote the lesson, index, planning and provenance changes.
 - **Checked against:** `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`, `docs/plans/learning-levels.md`, `tools/build-index.py`, `knowledge/learn/skills/skills.json`; captured `journalctl` and `/sys/power/` queries; the public `tamlinux` repository's `desktop/README.md`, `desktop/plugins/fred.workspaces/Workspaces.qml` and `desktop/native/defaults/root/usr/lib/systemd/system-sleep/tam-hibernate-swap`; [journalctl](https://www.freedesktop.org/software/systemd/man/latest/journalctl.html), [journald.conf](https://www.freedesktop.org/software/systemd/man/latest/journald.conf.html), [kernel sleep states](https://docs.kernel.org/admin-guide/pm/sleep-states.html), [hibernation](https://docs.kernel.org/power/swsusp.html) and [sysfs power ABI](https://github.com/torvalds/linux/blob/master/Documentation/ABI/testing/sysfs-power).
 
