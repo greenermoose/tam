@@ -9,7 +9,8 @@ enum {
     TAM_STYLE_ITALIC  = 1u << 1,
     TAM_STYLE_CODE    = 1u << 2,
     TAM_STYLE_LINK    = 1u << 3,
-    TAM_STYLE_HEADING = 1u << 4
+    TAM_STYLE_HEADING = 1u << 4,
+    TAM_STYLE_DIM     = 1u << 5  /* page metadata, such as the level line */
 };
 
 /* A contiguous run of inline text with one style and optional link target. */

@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.38.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.39.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1364,15 +1364,15 @@ state = os.path.join(tmp, "lens-state")
 
 # A fresh reader starts at All; 0 says so and writes nothing.
 p = Pager(["show", "shell/pipelines"], state)
-assert "Level: [All 0]" in p.first, p.first
+assert "All text" in p.first, p.first
 assert "Level 0 All" in p.first, f"status row lacks the lens: {p.first}"
 b = p.key(b"0")
 assert "already at Level 0 All" in b, b
 assert saved(state) is None, "pressing the current lens wrote state"
 
-# 2 re-renders in place: level bar, hidden-section markers, status, message.
+# 2 re-renders in place: level line, hidden-section markers, status, message.
 b = p.key(b"2")
-assert "[Intermediate 2]" in b, b
+assert "Intermediate text on Intermediate path" in b, b
 assert "-- 1 Beginner: Beginner (hidden; press 1 or 0) --" in b, b
 assert "-- 3 Expert: Expert (hidden; press 3 or 0) --" in b, b
 assert "Level 2 Intermediate: 2 sections hidden" in b, b
@@ -1380,11 +1380,12 @@ assert "Level 2 Intermediate" in b, b
 assert saved(state) == "intermediate", saved(state)
 
 # The lens holds across a link to a single-level page, which opens under a
-# truthful banner instead of failing, and the status row says so.
+# truthful level line instead of failing, and the status row says so.
 b = p.key(b"`")
-assert "Written for: Beginner. This page has no Intermediate version." in b, b
-# The banner links children of the page at the lens level, from index.parents.tsv.
-assert "At Intermediate: Fixture pipelines" in b, b
+assert "Beginner text on Intermediate path (no Intermediate text)" in b, b
+# The relatives line links children of the page at the lens level, from
+# index.parents.tsv.
+assert "Intermediate text: Fixture pipelines" in b, b
 assert "(not on page)" in b, b
 # = shows the address with the lens.
 b = p.key(b"=")
@@ -1393,39 +1394,39 @@ p.key(b"=")
 
 # Back returns to the page at the current lens; it does not undo the lens.
 b = p.key(b"\x1b[D")
-assert "[Intermediate 2]" in b, b
+assert "Intermediate text on Intermediate path" in b, b
 b = p.key(b"3")
-assert "[Expert 3]" in b, b
+assert "Expert text on Expert path" in b, b
 b = p.key(b"\x1b[D")
 assert "Level 3 Expert" in b, f"Back undid the lens change: {b}"
 p.quit()
 
 # The lens survives a restart.
 p = Pager(["show", "shell/pipelines"], state)
-assert "[Expert 3]" in p.first, p.first
-# A link that names a level sets the lens: the level bar links do.
+assert "Expert text on Expert path" in p.first, p.first
+# A link that names a level sets the lens.
 for _ in range(12):
     b = p.key(b"]")
     if "-> shell/pipelines.html?level=beginner" in b:
         break
 else:
-    raise AssertionError("no beginner link in the level bar")
+    raise AssertionError("no beginner link on the page")
 b = p.key(b"\r")
-assert "[Beginner 1]" in b, b
+assert "Beginner text on Beginner path" in b, b
 assert saved(state) == "beginner", saved(state)
 p.quit()
 
 # TAM_LEVEL overrides the file and is never written back.
 p = Pager(["show", "shell/pipelines"], state, env={"TAM_LEVEL": "expert"})
-assert "[Expert 3]" in p.first, p.first
+assert "Expert text on Expert path" in p.first, p.first
 b = p.key(b"2")
-assert "[Intermediate 2]" in b, b
+assert "Intermediate text on Intermediate path" in b, b
 p.quit()
 assert saved(state) == "beginner", f"TAM_LEVEL run wrote the lens: {saved(state)}"
 
 # --level overrides both for this run only.
 p = Pager(["show", "--level", "3", "shell/pipelines"], state)
-assert "[Expert 3]" in p.first, p.first
+assert "Expert text on Expert path" in p.first, p.first
 p.quit()
 assert saved(state) == "beginner", saved(state)
 
@@ -1433,7 +1434,7 @@ assert saved(state) == "beginner", saved(state)
 with open(os.path.join(state, "tamlinux", "tam", "level"), "w") as f:
     f.write("seven\n")
 p = Pager(["show", "shell/pipelines"], state)
-assert "[All 0]" in p.first, p.first
+assert "All text" in p.first and "All text on" not in p.first, p.first
 p.quit()
 
 # One-level pages: tldr and standard input keep the lens and say so.
@@ -1449,7 +1450,7 @@ p.quit()
 # Status row: full label from 100 columns, Lv from 60, the digit below 60.
 for cols, want, absent in ((120, "Level 1 Beginner", None), (80, "Lv1", "Level 1"), (40, "[1]", "Lv1")):
     p = Pager(["show", "shell/pipelines"], state, cols=cols)
-    p.key(b"1") if "[Beginner 1]" not in p.first else None
+    p.key(b"1") if "Beginner text on" not in p.first else None
     b = p.key(b"x")
     status = [l for l in (p.first + b).splitlines() if "L1 " in l]
     assert status and want in status[-1], f"{cols} columns: {status}"
@@ -1510,7 +1511,7 @@ assert "INPUT_SECRET" not in p.first, p.first
 assert "INPUT_SECRET" in p.key(b"r")
 p.quit()
 ' "$TAM" "$root/tests/fixtures/guide" "$root/tests/fixtures/tldr" "$tmp" || fail "interactive pager level lens test failed"
-    pass "level lens: 0-3 persist across links, Back and restarts; TAM_LEVEL and --level override; banner, markers and status row"
+    pass "level lens: 0-3 persist across links, Back and restarts; TAM_LEVEL and --level override; level line, markers and status row"
 fi
 
 
@@ -1730,22 +1731,23 @@ printf '%s\n' "$sh_lvl_e" | grep -q '^Expert' || fail "show --level expert pipel
 printf '%s\n' "$sh_lvl_e" | grep -q 'Every redirection is applied' || fail "show --level expert missing fixture content"
 if printf '%s\n' "$sh_lvl_e" | grep -q '^Beginner'; then fail "expert level contains beginner section"; fi
 
-# A page without the requested level opens under a banner, exit 0.
+# A page without the requested level opens under its level line, exit 0.
 sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2 welcome --pipe) \
     || fail "show --level 2 on a single-level page failed"
-printf '%s\n' "$sh_banner" | grep -q 'Written for: Beginner. This page has no Intermediate version.' \
-    || fail "single-level page missing its banner"
-printf '%s\n' "$sh_banner" | grep -q 'Fixture Welcome' || fail "banner page lost its content"
+printf '%s\n' "$sh_banner" | grep -qE '^ +Beginner text on Intermediate path \(no Intermediate text\)$' \
+    || fail "single-level page missing its right-aligned level line"
+printf '%s\n' "$sh_banner" | grep -q 'Fixture Welcome' || fail "level-line page lost its content"
 # Related pages come from parent links: a page with no relative at the level
-# links only the level path; siblings, then the parent, are offered next.
-printf '%s\n' "$sh_banner" | grep -q 'At Intermediate: the intermediate path' \
-    || fail "banner without relatives at the level must link only the level path"
+# shows only the level path; siblings, then the parent, are offered next.
+if printf '%s\n' "$sh_banner" | grep -q 'Intermediate text:'; then
+    fail "level line without relatives at the level must show only the level path"
+fi
 sh_sib=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 3 learn/index --pipe) \
     || fail "show --level 3 on the learning hub failed"
-printf '%s\n' "$sh_sib" | grep -q 'At Expert: Fixture pipelines' \
-    || fail "banner did not link a sibling at the level"
-if printf '%s\n' "$sh_sib" | grep '^At Expert:' | grep -q 'Welcome'; then
-    fail "banner linked a child without the level"
+printf '%s\n' "$sh_sib" | grep -q 'Expert text: Fixture pipelines' \
+    || fail "relatives line did not link a sibling at the level"
+if printf '%s\n' "$sh_sib" | grep 'Expert text:' | grep -q 'Welcome'; then
+    fail "relatives line linked a child without the level"
 fi
 # Exercise the ranking contract independently of live page titles and tracks.
 python3 - "$TAM" "$tmp/banner-ranking" <<'PY' || fail "banner parent ranking failed"
@@ -1794,21 +1796,22 @@ def banner(entries, parents=True):
         [tam, "show", "--level", "2", "current", "--pipe"], text=True,
         env={**os.environ, "TAM_KNOWLEDGE_DIR": str(corpus)},
     )
-    return next(line for line in out.splitlines() if line.startswith("At Intermediate:"))
+    return next((line.strip() for line in out.splitlines()
+                 if line.strip().startswith("Intermediate text:")), None)
 
-assert banner([parent, sibling, child]) == "At Intermediate: Child, Sibling, Parent"
-assert banner([parent, sibling]) == "At Intermediate: Sibling, Parent"
-assert banner([parent]) == "At Intermediate: Parent"
+assert banner([parent, sibling, child]) == "Intermediate text: Child | Sibling | Parent"
+assert banner([parent, sibling]) == "Intermediate text: Sibling | Parent"
+assert banner([parent]) == "Intermediate text: Parent"
 # Ties use shared prerequisites, then title, and stop at three links.
 children = [entry("zulu", "Zulu", "index.html", "shell"),
             entry("alpha", "Alpha", "index.html"),
             entry("beta", "Beta", "index.html", "shell"),
             entry("delta", "Delta", "index.html", "shell, pipes")]
-assert banner([parent, sibling, *children]) == "At Intermediate: Delta, Beta, Zulu"
-assert banner([]) == "At Intermediate: the intermediate path"
-assert banner([parent, sibling, child], parents=False) == "At Intermediate: the intermediate path"
+assert banner([parent, sibling, *children]) == "Intermediate text: Delta | Beta | Zulu"
+assert banner([]) is None
+assert banner([parent, sibling, child], parents=False) is None
 PY
-pass "banner relatives: children, siblings, parent, tie breaks, cap and fallback"
+pass "level-line relatives: children, siblings, parent, tie breaks, cap and fallback"
 # Piped output ignores the saved lens.
 mkdir -p "$tmp/pipe-lens/tamlinux/tam"
 printf 'expert\n' > "$tmp/pipe-lens/tamlinux/tam/level"
@@ -1846,10 +1849,9 @@ if printf '%s\n' "$ex_cat_expert" | grep '^  desktop ' >/dev/null; then fail "ex
 if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi
 "$TAM" explain --level invalid pipelines 2>&1 | grep -q "unknown level 'invalid'" || fail "missing unknown level message"
 
-# A topic lacking the requested level lists every level under a banner.
+# A topic lacking the requested level lists every level under its level line.
 ex_no_exp=$("$TAM" explain --level expert desktop --pipe) || fail "explain --level expert desktop failed"
-printf '%s\n' "$ex_no_exp" | grep -q "No page on this topic is written for" || fail "missing topic level banner"
-printf '%s\n' "$ex_no_exp" | grep -q "At Expert: the expert path" || fail "topic banner missing the level path"
+printf '%s\n' "$ex_no_exp" | grep -q "All text on Expert path (no Expert text)" || fail "missing topic level line"
 
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"
 

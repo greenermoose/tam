@@ -91,15 +91,25 @@ typedef struct {
     int      hidden;
 } tam_depth_info_t;
 
+/* The level line shown above a page heading, as HTML paragraphs of class
+ * "level-line" (dimmed and right-aligned by the renderer):
+ *   <Shown> text[ on <Level> path][ (no <Level> text)]
+ * `shown` is the level of the text displayed (a mask of several reads
+ * "All"), `level` the lens (0 = All, which names no path) and `missing`
+ * whether the page lacks the lens level. A missing level with a non-empty
+ * `related` (an HTML fragment of links) adds a second line,
+ * "<Level> text: <related>". Returns a newly allocated string, or NULL on
+ * allocation failure. */
+char *tam_level_lines(unsigned shown, unsigned level, int missing,
+                      const char *related);
+
 /* Prepare a page's HTML for display at `level` (0 = every level).
  *
- * A page that declares levels gains a level line after the first </h1>:
- * laddered pages a level bar linking each offered level by `path`,
- * single-level pages "Written for: ...". When a level is selected, the other
- * levels' sections are replaced by one-line markers. A page that does not
- * offer the selected level is shown whole, with a banner naming the levels
- * it was written for and, from `related` (an HTML fragment of links; NULL
- * or empty links the level path), where to read at the selected level.
+ * A page that declares levels (and a non-NULL `path`) gains the level line
+ * of tam_level_lines() before its first <h1>. When a level is selected, the
+ * other levels' sections are replaced by one-line markers. A page that does
+ * not offer the selected level is shown whole, and its level line says so,
+ * with links from `related` to pages at the selected level.
  *
  * When `rev > 0` and `updated` is non-empty, appends
  * `<p>Rev <rev> Last updated <updated></p>`. Returns a newly allocated,

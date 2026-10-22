@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-21. **Owner:** Fred (developer).
-**Current Command Version:** `0.38.1`. **Current Corpus Version:** `0.42.0`.
+**Current Command Version:** `0.39.0`. **Current Corpus Version:** `0.42.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -99,6 +99,7 @@ in that candidate, not here.
 | **0.37.1 command** | Banner links related pages by parent | Done (2026-10-21) | The "Written for" banner links up to three pages at the reader's level from the index's parent links (children, then siblings, then the parent, each by shared prerequisites and title); a page with no such relative links only the level path ([plan](docs/plans/learning-levels.md)). |
 | **0.38.0 command / 0.37.1 corpus** | Folding and self-quizzes (TCK22) | Done (2026-10-21) | Answers fold in the pager with Enter, `r` and `*`, reset on navigation, and collect under Answers in pipe output; block-level filtering, generated section labels, named asides and command risk labels; 23 pages lose hand-typed level prefixes and lint checks enforce the markup ([record](docs/ai/2026-10-21-tam-folding.md)). |
 | **0.38.1 command** | Pager resize cursor preservation | Done (2026-10-21) | Reflow preserves whether the attention line is on text or a blank separator when both share a logical position; PTY screen tests cover text and blank anchors ([record](docs/ai/2026-10-21-tam-pager-resize-drift.md)). |
+| **0.39.0 command** | Pager level line | Done (2026-10-21) | One dimmed, right-aligned level line above the page heading, `<Level> text [on <Level> path] [(no <Level> text)]`, replaces the level bar and the "Written for" banner; the path is linked, and a page without the lens level adds `<Level> text: A \| B \| C` with up to three related pages (never the level path itself). Keys `0`-`3` still switch levels ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
 | **0.38.0 corpus** | Learning pilot (TCK23 source) | Source done; developer review pending (2026-10-21) | Three laddered pilot pages with captured examples and folded quizzes; goal-path hub, First steps and Keep it healthy linked from Welcome and Learning. Developer review remains unverified; subsequent "Continue" directs TCK24 ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
 | **0.39.0 corpus** | Learning scaffolding (TCK24 source) | Source implemented (2026-10-21) | 36 can-do skill cells, self-placement, 12 per-level glossary terms including the botanical analogy, bibliography, validated optional kind/skills and teaching references, additive index sidecars and a coverage/gap report. Developer "Continue" directed this slice; pilot/learner review remains unverified ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
 | **0.40.0 corpus** | Using migration and path format (TCK25 first part) | Source implemented (2026-10-21) | All six Using pages classified, owned-child jobs exercises, sourced reversible desktop/workspace tasks, strict anatomy checks for Using, staged level paths and Command-line fluency. Other parts retain migration warnings; learner and GUI acceptance remain unverified ([record](docs/ai/2026-10-21-tam-learning-pilot.md)). |
@@ -109,7 +110,7 @@ in that candidate, not here.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.38.1 / 0.42.0 | Newest source; pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons and Rescue implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.39.0 / 0.42.0 | Newest source; pager level line, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons and Rescue implemented. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.36.0 / 0.37.0 | Latest cached remote Test source at `c9b6c5d`; not an installed-candidate claim. |
 | `origin/main` | 0.31.1 / 0.32.1 | Latest cached remote Run source; not an installed-candidate claim. |
 

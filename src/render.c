@@ -20,7 +20,8 @@ enum {
     B_HR,
     B_DT,
     B_DD,
-    B_TABLE
+    B_TABLE,
+    B_META  /* <p class="level-line">: dimmed, right-aligned when it fits */
 };
 
 typedef struct {
@@ -791,7 +792,10 @@ static void parser_handle_tag(parser_t *p, const char *s, const char *end)
         if (closing) {
             parser_end_block(p);
         } else {
-            parser_begin_block(p, B_PARA, 0, 0, 0);
+            char *cls = extract_attr(s, end, "class");
+            int meta = cls != NULL && strcmp(cls, "level-line") == 0;
+            free(cls);
+            parser_begin_block(p, meta ? B_META : B_PARA, 0, 0, 0);
         }
         return;
     }
@@ -1816,6 +1820,35 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
     free(col_w);
 }
 
+/* Pad a line on the left so it ends at the right margin. A line that wrapped
+ * stays left-aligned, so it never breaks awkwardly at the right. */
+static void align_right(tam_line_t *line, int width)
+{
+    size_t used = 0;
+    for (size_t i = 0; i < line->nspans; i++) {
+        used += dwidth(line->spans[i].text, strlen(line->spans[i].text));
+    }
+    if ((int)used >= width) {
+        return;
+    }
+    size_t pad = (size_t)width - used;
+    tam_span_t *spans = realloc(line->spans, (line->nspans + 1) * sizeof(*spans));
+    if (spans == NULL) {
+        return;
+    }
+    char *text = malloc(pad + 1);
+    if (text == NULL) {
+        line->spans = spans;
+        return;
+    }
+    memset(text, ' ', pad);
+    text[pad] = '\0';
+    memmove(spans + 1, spans, line->nspans * sizeof(*spans));
+    spans[0] = (tam_span_t){ .text = text };
+    line->spans = spans;
+    line->nspans++;
+}
+
 static void layout_document(const blocklist_t *blocks, int width,
                             linelist_t *out)
 {
@@ -1830,7 +1863,8 @@ static void layout_document(const blocklist_t *blocks, int width,
             int tight = (b->kind == B_LIST && prev->kind == B_LIST &&
                          b->level == prev->level) ||
                         (b->kind == B_DD && prev->kind == B_DT) ||
-                        (b->kind == B_PRE && prev->kind == B_DT);
+                        (b->kind == B_PRE && prev->kind == B_DT) ||
+                        prev->kind == B_META;
             if (!tight) {
                 linelist_blank(out);
             }
@@ -1861,7 +1895,11 @@ static void layout_document(const blocklist_t *blocks, int width,
         }
         char pfx[80];
         block_prefix(b, pfx, sizeof(pfx));
+        size_t first = out->n;
         layout_flow(out, b->runs, b->nruns, width, pfx);
+        if (b->kind == B_META && out->n == first + 1) {
+            align_right(&out->v[first], width);
+        }
     }
 }
 
@@ -1895,6 +1933,10 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
         } else if (p.blocks.v[i].kind == B_DT) {
             for (size_t j = 0; j < p.blocks.v[i].nruns; j++) {
                 p.blocks.v[i].runs[j].style |= TAM_STYLE_BOLD;
+            }
+        } else if (p.blocks.v[i].kind == B_META) {
+            for (size_t j = 0; j < p.blocks.v[i].nruns; j++) {
+                p.blocks.v[i].runs[j].style |= TAM_STYLE_DIM;
             }
         }
     }

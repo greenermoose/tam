@@ -135,11 +135,12 @@ A level named this way applies to this run only. Without one, the pager
 opens at the reader's saved level (see
 .BR "Level lens" );
 piped output shows every level. A page without the selected level is shown
-whole under a
-.B Written for
-banner that links up to three related pages at that level: the page's
-children, then its siblings, then its parent in the Guide. With none, it
-links the path for that level.
+whole, and its level line says so, such as
+.BR "Beginner text on Expert path (no Expert text)" .
+A second line links up to three related pages at that level: the page's
+children, then its siblings, then its parent in the Guide, such as
+.BR "Expert text: Shells | Pipelines" .
+With none, the level line's path link is the way on.
 .TP
 .B tam search \fR[\fB\-\-json\fR | \fB\-\-pipe\fR] \fITERM...\fR
 Search the bundled offline corpus index using field-weighted ranking (topic slugs, titles, keywords, and summaries). Supports multi-term prefix queries and bounded fuzzy suggestions ("Did you mean?"). On a terminal, the results open in the pager at the
@@ -394,12 +395,16 @@ for that run only; else from
 .BR TAM_LEVEL ;
 else from the saved file; else All. Following a link that names
 .B level=
-sets the lens. A guide page shows a level bar under its title, such as
-.BR "Level: All 0 | [Beginner 1] | Intermediate 2 | Expert 3" ,
-and a one-line marker where a section of another level is hidden. A page
-without the lens level opens whole under a
-.B Written for
-banner. The status row shows the lens as
+sets the lens. A guide page shows a dimmed, right-aligned level line above
+its title, in the form
+.IR Level " text [on " Level " path] [(no " Level " text)]:"
+the level of the text shown (All when it shows several), the lens path,
+linked, and whether the page lacks the lens level, such as
+.B All text
+or
+.BR "Beginner text on Expert path (no Expert text)" .
+A one-line marker shows where a section of another level is hidden. The
+status row shows the lens as
 .B Level 2 Intermediate
 (100 columns or wider),
 .B Lv2

@@ -622,19 +622,23 @@ static int parent_relation(const tam_index_entry_t *page,
 
 /* Links to at most three relatives of `page` that offer `level`: its
  * children, then its siblings, then its parent (by the index's parent
- * links), each ranked by shared prerequisites, then by title. NULL when
- * there are none, so the banner links the level path instead. */
+ * links), each ranked by shared prerequisites, then by title. The level path
+ * page is left out, since the level line already links it. NULL when there
+ * are none, so the level line links only the level path. */
 static char *related_at_level(const tam_index_t *idx,
                               const tam_index_entry_t *page, unsigned level)
 {
     enum { MAX_RELATED = 3 };
+    char level_path[32];
+    snprintf(level_path, sizeof(level_path), "%s.html", tam_level_name(level));
     const tam_index_entry_t *best[MAX_RELATED];
     int best_rel[MAX_RELATED];
     int best_score[MAX_RELATED];
     size_t nbest = 0;
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (e == page || !(e->levels & level)) {
+        if (e == page || !(e->levels & level) ||
+            strcmp(e->path, level_path) == 0) {
             continue;
         }
         int rel = parent_relation(page, e);
@@ -672,8 +676,9 @@ static char *related_at_level(const tam_index_t *idx,
     tam_str_t html = tam_str_new("");
     for (size_t k = 0; k < nbest; k++) {
         char *title = html_escape(best[k]->title);
+        /* Titles may hold commas, so links are separated by bars. */
         html = tam_str_cat_printf(html, "%s<a href=\"%s\">%s</a>",
-                                  k > 0 ? ", " : "", best[k]->path, title);
+                                  k > 0 ? " | " : "", best[k]->path, title);
         free(title);
     }
     char *out = strdup(html);
@@ -830,30 +835,19 @@ tam_document_t *tam_topic_guide_document(const char *root, const char *topic, un
     tam_str_t html = tam_str_new("<!DOCTYPE html>\n<html>\n<head>\n");
     html = tam_str_cat_printf(html, "<title>Topic Guide: %s</title>\n</head>\n<body>\n", esc_topic);
     html = tam_str_cat(html, "<nav aria-label=\"Breadcrumb\">\n<p><a href=\"index.html\">Guide</a> / <a href=\"tam:topics\">Topics</a> / Topic Guide</p>\n</nav>\n");
+    unsigned lens = missing != 0 ? missing : level;
+    if (lens != 0) {
+        char *line = tam_level_lines(missing != 0 ? TAM_LEVEL_ALL : lens, lens,
+                                     missing != 0, NULL);
+        if (line != NULL) {
+            html = tam_str_cat(html, line);
+            free(line);
+        }
+    }
     if (level != 0) {
         html = tam_str_cat_printf(html, "<h1>Topic Guide: %s (%s Level)</h1>\n", esc_topic, tam_level_name(level));
     } else {
         html = tam_str_cat_printf(html, "<h1>Topic Guide: %s</h1>\n", esc_topic);
-    }
-    if (missing != 0) {
-        unsigned offered = 0;
-        for (size_t i = 0; i < num_matches; i++) {
-            offered |= matches[i]->levels;
-        }
-        char names[64] = {0};
-        for (unsigned bit = TAM_LEVEL_BEGINNER; bit <= TAM_LEVEL_EXPERT; bit <<= 1) {
-            if (offered & bit) {
-                if (names[0] != '\0') {
-                    strncat(names, ", ", sizeof(names) - strlen(names) - 1);
-                }
-                strncat(names, tam_level_label(bit), sizeof(names) - strlen(names) - 1);
-            }
-        }
-        html = tam_str_cat_printf(html,
-            "<p>Written for: %s. No page on this topic is written for %s.</p>\n"
-            "<p>At %s: <a href=\"%s.html\">the %s path</a></p>\n",
-            names, tam_level_label(missing), tam_level_label(missing),
-            tam_level_name(missing), tam_level_name(missing));
     }
     html = tam_str_cat_printf(html,
         "<p>Topic guide to pages in the Tamlinux guide covering <strong>%s</strong>.<br>\n"

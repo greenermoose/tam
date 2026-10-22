@@ -526,82 +526,55 @@ static void heading_text(buf_t *b, const char *src, size_t from, size_t to)
     }
 }
 
-static void level_link(buf_t *b, const char *path, const char *name,
-                       const char *text)
+/* "<Shown> text": the one level shown, or All when a page shows several. */
+static void shown_label(buf_t *b, unsigned shown)
 {
-    buf_str(b, "<a href=\"");
-    buf_str(b, path);
-    buf_str(b, "?level=");
-    buf_str(b, name);
-    buf_str(b, "\">");
-    buf_str(b, text);
-    buf_str(b, "</a>");
+    buf_str(b, tam_level_count(shown) == 1 ? tam_level_label(shown) : "All");
+    buf_str(b, " text");
 }
 
-/* Level bar of a laddered page:
- *   Level: [All 0] | Beginner 1 | Intermediate 2 | Expert 3 -   keys 0-3
- * Offered levels are links, the lens is in brackets and a level the page
- * lacks is plain text followed by " -" (the lens too). */
-static void level_bar(buf_t *b, const char *path, unsigned levels,
-                      unsigned level)
+/* The level line and, when the lens level is missing, the relatives line:
+ *   Beginner text on <a>Expert path</a> (no Expert text)
+ *   Expert text: <related>
+ * Both are class="level-line" paragraphs, which the renderer dims and
+ * right-aligns. */
+static void level_lines(buf_t *b, unsigned shown, unsigned level,
+                        int missing, const char *related)
 {
-    char item[32];
-    buf_str(b, "\n<p>Level: ");
-    for (size_t i = 0; i <= NLEVELS; i++) {
-        unsigned bit = i == 0 ? 0 : LEVELS[i - 1].bit;
-        snprintf(item, sizeof(item), "%s %d", tam_level_label(bit), (int)i);
-        if (i > 0) {
-            buf_str(b, " | ");
-        }
-        if (bit == level) {
-            buf_str(b, "[");
-            buf_str(b, item);
-            buf_str(b, bit != 0 && !(levels & bit) ? "] -" : "]");
-        } else if (bit != 0 && !(levels & bit)) {
-            buf_str(b, item);
-            buf_str(b, " -");
-        } else {
-            level_link(b, path, bit == 0 ? "all" : LEVELS[i - 1].name, item);
-        }
-    }
-    buf_str(b, "&nbsp;&nbsp;&nbsp;keys 0-3</p>\n");
-}
-
-/* "Written for: Beginner" or, when the lens is not offered, the banner that
- * says so and where to read at the lens level instead. */
-static void written_for(buf_t *b, unsigned levels, unsigned level,
-                        const char *related)
-{
-    char names[64] = {0};
-    for (size_t i = 0; i < NLEVELS; i++) {
-        if (levels & LEVELS[i].bit) {
-            if (names[0] != '\0') {
-                strncat(names, ", ", sizeof(names) - strlen(names) - 1);
-            }
-            strncat(names, LEVELS[i].label, sizeof(names) - strlen(names) - 1);
-        }
-    }
-    buf_str(b, "\n<p>Written for: ");
-    buf_str(b, names);
-    if (level == 0 || (levels & level)) {
-        buf_str(b, "</p>\n");
-        return;
-    }
-    buf_str(b, ". This page has no ");
-    buf_str(b, tam_level_label(level));
-    buf_str(b, " version.</p>\n<p>At ");
-    buf_str(b, tam_level_label(level));
-    buf_str(b, ": ");
-    if (related != NULL && related[0] != '\0') {
-        buf_str(b, related);
-    } else {
-        buf_str(b, "<a href=\"");
+    buf_str(b, "<p class=\"level-line\">");
+    shown_label(b, shown);
+    if (level != 0) {
+        buf_str(b, " on <a href=\"");
         buf_str(b, tam_level_name(level));
-        buf_str(b, ".html\">the ");
-        buf_str(b, tam_level_name(level));
+        buf_str(b, ".html\">");
+        buf_str(b, tam_level_label(level));
         buf_str(b, " path</a>");
     }
+    if (level != 0 && missing) {
+        buf_str(b, " (no ");
+        buf_str(b, tam_level_label(level));
+        buf_str(b, " text)");
+    }
     buf_str(b, "</p>\n");
+    if (level != 0 && missing && related != NULL && related[0] != '\0') {
+        buf_str(b, "<p class=\"level-line\">");
+        shown_label(b, level);
+        buf_str(b, ": ");
+        buf_str(b, related);
+        buf_str(b, "</p>\n");
+    }
+}
+
+char *tam_level_lines(unsigned shown, unsigned level, int missing,
+                      const char *related)
+{
+    buf_t b = {0};
+    level_lines(&b, shown, level, missing, related);
+    if (b.failed) {
+        free(b.data);
+        return NULL;
+    }
+    return b.data;
 }
 
 static void rev_line(buf_t *b, int rev, const char *updated)
@@ -667,21 +640,10 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                     }
                 }
             }
-            if (!line_done && tag_is(src, len, i, "h1", 1)) {
-                size_t e = tag_end(src, len, i);
-                size_t stop = e < len ? e + 1 : len;
-                buf_add(&b, src + i, stop - i);
-                if (tam_level_count(levels) > 1) {
-                    level_bar(&b, path, levels, level);
-                    if (level != 0 && filter == 0) {
-                        written_for(&b, levels, level, related);
-                    }
-                } else {
-                    written_for(&b, levels, level, related);
-                }
+            if (!line_done && tag_is(src, len, i, "h1", 0)) {
+                level_lines(&b, filter != 0 ? filter : levels, level,
+                            !(levels & level), related);
                 line_done = 1;
-                i = stop;
-                continue;
             } else if (has_rev && tag_is(src, len, i, "body", 1)) {
                 rev_line(&b, rev, updated);
                 has_rev = 0;

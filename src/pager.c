@@ -477,6 +477,12 @@ static int emit_style(const tam_span_t *sp, int is_sel)
             (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
         styled = 1;
     }
+    if (sp->style & TAM_STYLE_DIM) {
+        /* Dim text on the attention line's background would be hard to read. */
+        if (g_term != NULL && !g_attention && (g_term->ncv < 0 || !(g_term->ncv & 16)))
+            (void)tam_terminal_cap(g_term, g_capture, g_term->dim, 0, 0);
+        styled = 1;
+    }
     if (sp->style & TAM_STYLE_ITALIC) {
         /* Italic is absent from the portable terminfo profile. */
     }
@@ -1632,7 +1638,7 @@ static void set_lens(pager_t *st, unsigned char key)
     }
     if (st->doc->levels != 0 && level != 0 && !(st->doc->levels & level))
         snprintf(st->msg, sizeof(st->msg),
-                 "Level %d %s set; this page has no %s version", number,
+                 "Level %d %s set; this page has no %s text", number,
                  label, label);
     else if (st->doc->hidden > 0)
         snprintf(st->msg, sizeof(st->msg), "Level %d %s: %d section%s hidden",

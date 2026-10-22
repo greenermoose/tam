@@ -83,6 +83,7 @@ int tam_terminal_init(tam_terminal_t *t, int fd, int rows, int cols)
     t->rmso = str_cap("rmso");
     t->rev = str_cap("rev");
     t->bold = str_cap("bold");
+    t->dim = str_cap("dim");
     t->underline = str_cap("smul");
     t->setaf = str_cap("setaf");
     t->setab = str_cap("setab");
