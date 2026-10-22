@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.42.0 and corpus 0.42.1.
+**Scope:** Living integration contract; current command 0.43.0 and corpus 0.42.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.43.0 (minor): the developer's Left Arrow rule.
+  On a shown answer whose `[-]` link is selected or on the attention line,
+  Left Arrow hides it; on a hidden answer, or anywhere else, it goes back
+  in reader history, and on the first page it reports "no earlier page" as
+  before. `+`, `-` and Left Arrow share one lookup of the answer "here".
 - **2026-10-22:** Command 0.42.0 (minor) and corpus 0.42.1 (patch): the
   developer's answer keys. A hidden answer reads `[+] <label> (Press + to
   show)` and a shown one `[-] <label> (Press - to hide)`. `+` shows and `-`

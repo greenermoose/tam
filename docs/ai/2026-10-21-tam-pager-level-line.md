@@ -1,4 +1,4 @@
-# Pager level line, status row and answer keys (commands 0.39.0 to 0.42.0)
+# Pager level line, status row and answer keys (commands 0.39.0 to 0.43.0)
 
 - **Date:** 2026-10-21
 - **Time:** 22:30 to 22:51 -04:00
@@ -7,13 +7,15 @@
   letters the lines above the title and shows the lens as `All text 0123`;
   0.39.2 makes the title the top of the page for the top-of-page keys;
   0.40.0 rebuilds the status row with the version at its right edge;
-  0.42.0 (with corpus 0.42.1) adds `+` and `-` for folded answers.
+  0.42.0 (with corpus 0.42.1) adds `+` and `-` for folded answers;
+  0.43.0 lets Left Arrow hide a shown answer.
   A development installation of 0.39.0 was made at the developer's request.
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
 - **Commits:** `959535f` (0.39.0), `dd013ea` (0.39.1), `7f66ebf` (0.39.2),
-  `b51a1dd` (0.40.0) and the 0.42.0 commit that updates this record
+  `b51a1dd` (0.40.0), `98fa37b` (0.42.0) and the 0.43.0 commit that
+  updates this record
 - **Authorship:** Fred Horch wrote the layout note (the line's form, its
   position, alignment and examples) and decided the level bar's and related
   links' placement. Claude proposed the relatives line's wording, dimming
@@ -83,6 +85,10 @@
 > hide). Keep Enter and Right Arrow as silent synonyms for toggle. Do you
 > understand what I mean?
 
+> Pressing Left Arrow on an open Answer should close it. Pressing Left
+> Arrow on a closed Answer should go back to the last page visited, or
+> nothing if this is the first page visited.
+
 ## Key decisions
 
 - The developer's note gives the form
@@ -121,6 +127,9 @@
   the scope stated to him: `+`/`-` act on the answer selected or on the
   attention line, report where to go elsewhere, and do nothing when the
   answer is already in that state.
+- 0.43.0: on the first page Left Arrow keeps its existing "no earlier page"
+  message rather than doing nothing silently; Claude told the developer
+  and offered to drop it.
 - The fixture `shell/pipelines.html` gains one `?level=beginner` link, so the
   test that a level-naming link sets the lens still has a link to follow.
 
@@ -145,6 +154,9 @@
   `+`, `-`, the no-op repeat and the hint off an answer line, then the
   existing Enter checks. A PTY drive of `desktop/index` shows `r`, `-`, `+`,
   Enter and Right Arrow each switching "New to this?".
+- 0.43.0: `make test`, both suites pass; the fold test checks Left Arrow
+  hiding a shown answer without leaving the page, then reporting "no
+  earlier page" on the hidden answer of the first page.
 - PTY renders at 100 and 44 columns with the tests' screen model: right-aligned
   at 100 columns, left-aligned wrap at 44, and `dim` (`ESC [2m`) emitted
   off the attention line.

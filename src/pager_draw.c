@@ -416,7 +416,7 @@ int draw(pager_t *st)
                 "Links on the line: a/j left, f/; right   Any link: ] next, [ previous",
                 "Follow: g, Enter or Right Arrow   Tab / Shift-Tab: same as ] / [",
                 "Search: / this page, \\ the guide   Next/previous hit: n/N   Address: =",
-                "Answers: + shows, - hides, r reveals next, * shows or hides all",
+                "Answers: + shows, - or Left Arrow hides, r reveals next, * all",
                 "Info Up: u   Next/Previous node: n/p",
                 "Level, kept across pages: 0 All, 1 Beginner, 2 Intermediate, 3 Expert",
                 "Close help with h, ? or Esc. Focus, position and history stay put."

@@ -67,7 +67,8 @@ link along that line. One row down, `x`/`.` or `Home` jumps to the top and
 `Search in guide \` across the guide, and `=` displays the page address (`Path = ...`).
 `g`, `Enter` or the right arrow follows the selected link (the right arrow
 without a selected link proceeds forward along a visited path). `u` or the
-left arrow goes back (`u` means hierarchy Up in Info), backtick returns to the
+left arrow goes back, or hides a shown answer on its `[-]` line (`u` means
+hierarchy Up in Info), backtick returns to the
 Guide, `h` or `?` shows the keys, and `q` or `Esc` quits. The status row reads
 `<Page title> | L<line> <first>-<last>/<total> | <Level> text 0123 | h Help  Esc Quit  [] Select links  -> <selected link>`
 with the version at the right edge, `v<command> (<corpus>)`, so a reader

@@ -527,9 +527,9 @@ static void toggle_fold(pager_t *st, unsigned id)
     }
 }
 
-/* + shows and - hides the answer whose [+]/[-] link is selected or on the
- * attention line; Enter and Right Arrow toggle it as a link. */
-void set_fold_here(pager_t *st, int open)
+/* The answer whose [+]/[-] link is selected or on the attention line: its
+ * fold id and whether it is shown. Returns 0 when there is none. */
+static int fold_here(const pager_t *st, unsigned *id, int *shown)
 {
     const linkref_t *sel = selected_link(st);
     const char *href = sel != NULL && strncmp(sel->href, "tam:fold:", 9) == 0
@@ -540,19 +540,38 @@ void set_fold_here(pager_t *st, int open)
             st->links[i].line_end >= (size_t)st->cursor_line)
             href = st->links[i].href;
     }
-    if (href == NULL) {
+    if (href == NULL) return 0;
+    *id = (unsigned)strtoul(href + 9, NULL, 10);
+    *shown = 0;
+    for (size_t i = 0; i < st->doc->nfolds; i++)
+        if (st->doc->folds[i].id == *id) *shown = st->doc->folds[i].open != 0;
+    return 1;
+}
+
+/* + shows and - hides the answer here; Enter and Right Arrow toggle it as a
+ * link. */
+void set_fold_here(pager_t *st, int open)
+{
+    unsigned id;
+    int shown;
+    if (!fold_here(st, &id, &shown)) {
         snprintf(st->msg, sizeof(st->msg), open
                  ? "Move to a [+] line to show an answer"
                  : "Move to a [-] line to hide an answer");
         return;
     }
-    unsigned id = (unsigned)strtoul(href + 9, NULL, 10);
-    for (size_t i = 0; i < st->doc->nfolds; i++) {
-        if (st->doc->folds[i].id == id && (st->doc->folds[i].open != 0) != (open != 0)) {
-            toggle_fold(st, id);
-            return;
-        }
-    }
+    if (shown != (open != 0)) toggle_fold(st, id);
+}
+
+/* Left Arrow on a shown answer hides it instead of going back. Returns 1
+ * when it did. */
+int hide_fold_here(pager_t *st)
+{
+    unsigned id;
+    int shown;
+    if (!fold_here(st, &id, &shown) || !shown) return 0;
+    toggle_fold(st, id);
+    return 1;
 }
 
 void reveal_next(pager_t *st)

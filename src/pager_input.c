@@ -324,7 +324,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
                 go_forward(st);
             }
         } else if (strcmp(seq, "D") == 0) {
-            go_back(st);
+            if (!hide_fold_here(st)) go_back(st);
         } else if (strcmp(seq, "H") == 0) {
             go_page_top(st);
         } else if (strcmp(seq, "F") == 0) {

@@ -307,7 +307,8 @@ In GNU Info manuals, navigate to the Next or Previous sibling node. When search 
 cycles through search matches instead.
 .TP
 .B Left
-Always go back in reader history, restoring the saved viewport, cursor and link focus.
+Go back in reader history, restoring the saved viewport, cursor and link
+focus. On a shown answer's [-] line, hide the answer instead.
 .TP
 .B u
 Navigate up to the parent node in an Info manual. On ordinary pages, go back in reader history.
@@ -380,7 +381,8 @@ to show the answer and
 .B -
 to hide it again, when the line reads
 .BR "[-] Answer (Press - to hide)" .
-Enter and Right Arrow toggle it too.
+Enter and Right Arrow toggle it too, and Left Arrow hides a shown answer;
+on a hidden one it goes back as usual.
 .B r
 shows the next hidden answer below and
 .B *

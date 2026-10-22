@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-22 | Left Arrow hides a shown answer, otherwise goes back; command 0.43.0 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-22 | `+`/`-` show and hide folded answers with self-describing labels; command 0.42.0 / corpus 0.42.1 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-22 | Refactoring step 7: man page cache under `$XDG_CACHE_HOME/tamlinux/tam/man/`; command 0.41.0 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |
 | 2026-10-22 | Refactoring step 6: `tam.c` and `pager.c` split into modules with no behaviour change; command 0.40.5 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-22-tam-refactor-step-2.md) |
