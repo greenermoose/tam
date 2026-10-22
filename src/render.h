@@ -38,6 +38,7 @@ typedef struct {
     tam_line_t  location; /* Fixed Guide/manual location row, when available. */
     tam_line_t *lines;
     size_t      nlines;
+    size_t      nlead;  /* Leading level lines, before the title. */
     char       *nav_next;
     char       *nav_prev;
     char       *nav_up;

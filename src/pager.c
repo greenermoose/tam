@@ -1023,6 +1023,13 @@ static void pager_address(const pager_t *st, char *out, size_t cap)
     snprintf(out, cap, "page:%s", st->cur_href);
 }
 
+/* The breadcrumb row has focus while one of its links is selected. */
+static int breadcrumb_focused(const pager_t *st)
+{
+    return st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+           st->links[st->selected].header;
+}
+
 static int draw(pager_t *st)
 {
     st->width = tam_terminal_width();
@@ -1097,6 +1104,7 @@ static int draw(pager_t *st)
     }
 
     char status[512] = {0};
+    size_t lens_digit = (size_t)-1; /* byte of the lens digit to underline */
     int max_cols = paint_width;
     if (st->show_address) {
         char addr[256];
@@ -1106,35 +1114,60 @@ static int draw(pager_t *st)
         const char *actions = max_cols >= 60 ? "< Back  ` Guide  h Help  q Quit" :
                               max_cols >= 40 ? "<Back `Guide hHelp qQuit" : "< ` h q";
         const char *title = st->doc->title ? st->doc->title : "tam";
-        size_t total = st->doc->nlines;
-        if (total == 1 && st->doc->lines[0].nspans == 0) {
+        /* The title is line 1: the level lines above it are lettered from
+         * b and the breadcrumb row is a, and the range and total count
+         * only numbered lines. */
+        int lead = (int)st->doc->nlead;
+        int total = (int)st->doc->nlines - lead;
+        if (st->doc->nlines == 1 && st->doc->lines[0].nspans == 0) {
             total = 0;
         }
-        int first = total == 0 ? 0 : st->top + 1;
-        int last = st->top + usable;
-        if (last > (int)total) {
-            last = (int)total;
+        int first = st->top < lead ? 1 : st->top - lead + 1;
+        int last = st->top + usable - lead;
+        if (last > total) {
+            last = total;
         }
-        if (total == 0) {
-            last = 0;
+        if (total <= 0 || last < first) {
+            first = last = 0;
         }
-        char essential[64];
-        snprintf(essential, sizeof(essential), "L%d %d-%d/%zu",
-                 st->cursor_line + 1, first, last, total);
-        char lens[48];
-        int lens_number = tam_level_number(st->lens);
-        if (max_cols >= 100)
-            snprintf(lens, sizeof(lens), "Level %d %s", lens_number,
-                     tam_level_label(st->lens));
-        else if (max_cols >= 60)
-            snprintf(lens, sizeof(lens), "Lv%d", lens_number);
+        char line_label[16];
+        if (breadcrumb_focused(st))
+            snprintf(line_label, sizeof(line_label), "La");
+        else if (st->cursor_line < lead)
+            snprintf(line_label, sizeof(line_label), "L%c",
+                     st->cursor_line < 25 ? 'b' + st->cursor_line : 'z');
         else
-            snprintf(lens, sizeof(lens), "[%d]", lens_number);
-        if (st->doc->levels != 0 && st->lens != 0 && !(st->doc->levels & st->lens))
-            strncat(lens, " (not on page)", sizeof(lens) - strlen(lens) - 1);
+            snprintf(line_label, sizeof(line_label), "L%d",
+                     st->cursor_line - lead + 1);
+        char essential[96];
+        snprintf(essential, sizeof(essential), "%s %d-%d/%d",
+                 line_label, first, last, total < 0 ? 0 : total);
         strncat(essential, max_cols >= 60 ? " | " : " ",
                 sizeof(essential) - strlen(essential) - 1);
-        strncat(essential, lens, sizeof(essential) - strlen(essential) - 1);
+        /* The lens as "All text 0123", its digit underlined, or in brackets
+         * where the terminal cannot underline. */
+        int lens_number = tam_level_number(st->lens);
+        int underline = g_term != NULL && g_term->underline != NULL &&
+                        (g_term->ncv < 0 || !(g_term->ncv & 2));
+        if (max_cols >= 100) {
+            strncat(essential, tam_level_label(st->lens),
+                    sizeof(essential) - strlen(essential) - 1);
+            strncat(essential, " text ", sizeof(essential) - strlen(essential) - 1);
+        } else if (max_cols >= 60) {
+            strncat(essential, tam_level_label(st->lens),
+                    sizeof(essential) - strlen(essential) - 1);
+            strncat(essential, " ", sizeof(essential) - strlen(essential) - 1);
+        }
+        size_t digit_at = 0;
+        for (int i = 0; i <= 3; i++) {
+            char digit[4];
+            snprintf(digit, sizeof(digit), i == lens_number && !underline ? "[%d]" : "%d", i);
+            if (i == lens_number)
+                digit_at = strlen(essential) + (underline ? 0 : 1);
+            strncat(essential, digit, sizeof(essential) - strlen(essential) - 1);
+        }
+        if (st->doc->levels != 0 && st->lens != 0 && !(st->doc->levels & st->lens))
+            strncat(essential, " (not on page)", sizeof(essential) - strlen(essential) - 1);
         int essential_width = (int)tam_display_width(essential, strlen(essential));
         if (max_cols >= 60) {
             int action_width = (int)tam_display_width(actions, strlen(actions));
@@ -1144,10 +1177,12 @@ static int draw(pager_t *st)
                 strncat(status, title, title_bytes);
                 strncat(status, " | ", sizeof(status) - strlen(status) - 1);
             }
+            lens_digit = strlen(status) + digit_at;
             strncat(status, essential, sizeof(status) - strlen(status) - 1);
             strncat(status, " | ", sizeof(status) - strlen(status) - 1);
             strncat(status, actions, sizeof(status) - strlen(status) - 1);
         } else {
+            lens_digit = digit_at;
             strncat(status, essential, sizeof(status) - 1);
             int used = (int)tam_display_width(status, strlen(status));
             int action_width = (int)tam_display_width(actions, strlen(actions));
@@ -1183,7 +1218,16 @@ static int draw(pager_t *st)
     if (st->height >= 2) {
         g_capture = &frame[st->height - 1];
         size_t slen = status_byte_limit(status, paint_width);
-        outn(status, slen);
+        if (lens_digit < slen && g_term != NULL && g_term->underline != NULL &&
+            (g_term->ncv < 0 || !(g_term->ncv & 2))) {
+            outn(status, lens_digit);
+            (void)tam_terminal_cap(g_term, g_capture, g_term->underline, 0, 0);
+            outn(status + lens_digit, 1);
+            emit_reset(0);
+            outn(status + lens_digit + 1, slen - lens_digit - 1);
+        } else {
+            outn(status, slen);
+        }
     }
     g_capture = NULL;
     int rc = tam_pager_screen_update(&g_screen, frame, nframe, paint_width);
@@ -1484,7 +1528,7 @@ static void follow(pager_t *st, const char *href)
     st->doc = nd;
     pager_build_links(st);
     st->top = 0;
-    st->cursor_line = 0;
+    st->cursor_line = (int)nd->nlead; /* The title, below any level lines. */
     st->selected = -1;
     st->msg[0] = '\0';
 }
@@ -1860,8 +1904,7 @@ static void select_horizontal_header_link(pager_t *st, int dir)
  * down returns to the attention line. */
 static void move_line_up(pager_t *st)
 {
-    if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
-        st->links[st->selected].header) {
+    if (breadcrumb_focused(st)) {
         int previous = st->selected - 1;
         if (previous >= 0 && st->links[previous].header) st->selected = previous;
         st->msg[0] = '\0';
@@ -1875,8 +1918,7 @@ static void move_line_up(pager_t *st)
 
 static void move_line_down(pager_t *st)
 {
-    if (st->selected >= 0 && (size_t)st->selected < st->nlinks &&
-        st->links[st->selected].header)
+    if (breadcrumb_focused(st))
         leave_breadcrumb(st);
     else
         set_cursor_line(st, st->cursor_line + 1, 1);
@@ -2331,6 +2373,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         }
     }
     pager_build_links(&st);
+    st.cursor_line = (int)st.doc->nlead; /* Open on the title. */
 
     int input_fd = STDIN_FILENO;
     int tty_fd = -1;

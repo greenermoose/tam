@@ -1820,6 +1820,18 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
     free(col_w);
 }
 
+/* Number of leading lines laid out from level-line blocks. The pager letters
+ * them (b, c, ...) so the title is line 1. */
+static size_t lead_lines(const blocklist_t *blocks, const linelist_t *out)
+{
+    size_t n = 0;
+    while (n < out->n && out->v[n].logical_block < blocks->n &&
+           blocks->v[out->v[n].logical_block].kind == B_META) {
+        n++;
+    }
+    return n < out->n ? n : 0;
+}
+
 /* Pad a line on the left so it ends at the right margin. A line that wrapped
  * stays left-aligned, so it never breaks awkwardly at the right. */
 static void align_right(tam_line_t *line, int width)
@@ -1990,6 +2002,7 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     doc->location = extract_location(src, len);
     doc->lines = out.v;
     doc->nlines = out.n;
+    doc->nlead = lead_lines(&backing->blocks, &out);
     doc->nav_next = p.nav_next;
     doc->nav_prev = p.nav_prev;
     doc->nav_up = p.nav_up;
@@ -2030,6 +2043,7 @@ int tam_document_reflow(tam_document_t *doc, int content_width)
     size_t old_nlines = doc->nlines;
     doc->lines = out.v;
     doc->nlines = out.n;
+    doc->nlead = lead_lines(&backing->blocks, &out);
     document_lines_free(old_lines, old_nlines);
     return 0;
 }

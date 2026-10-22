@@ -90,7 +90,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.39.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.39.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1365,7 +1365,18 @@ state = os.path.join(tmp, "lens-state")
 # A fresh reader starts at All; 0 says so and writes nothing.
 p = Pager(["show", "shell/pipelines"], state)
 assert "All text" in p.first, p.first
-assert "Level 0 All" in p.first, f"status row lacks the lens: {p.first}"
+assert "All text 0123" in p.first, f"status row lacks the lens: {p.first}"
+# The page opens on its title, line 1; the level line above it is Lb and the
+# breadcrumb row La, and the range and total count only numbered lines.
+assert "L1 1-" in p.first, f"page did not open on its title as L1: {p.first}"
+b = p.key(b"\x1b[A")
+assert "Lb 1-" in b, f"level line is not Lb: {b}"
+b = p.key(b"\x1b[A")
+assert "La 1-" in b, f"breadcrumb row is not La: {b}"
+b = p.key(b"\x1b[B")
+assert "Lb 1-" in b, f"down from the breadcrumb did not return to Lb: {b}"
+b = p.key(b"\x1b[B")
+assert "L1 1-" in b, f"down from the level line did not reach L1: {b}"
 b = p.key(b"0")
 assert "already at Level 0 All" in b, b
 assert saved(state) is None, "pressing the current lens wrote state"
@@ -1376,7 +1387,7 @@ assert "Intermediate text on Intermediate path" in b, b
 assert "-- 1 Beginner: Beginner (hidden; press 1 or 0) --" in b, b
 assert "-- 3 Expert: Expert (hidden; press 3 or 0) --" in b, b
 assert "Level 2 Intermediate: 2 sections hidden" in b, b
-assert "Level 2 Intermediate" in b, b
+assert "Intermediate text 0123" in b, b
 assert saved(state) == "intermediate", saved(state)
 
 # The lens holds across a link to a single-level page, which opens under a
@@ -1398,7 +1409,7 @@ assert "Intermediate text on Intermediate path" in b, b
 b = p.key(b"3")
 assert "Expert text on Expert path" in b, b
 b = p.key(b"\x1b[D")
-assert "Level 3 Expert" in b, f"Back undid the lens change: {b}"
+assert "Expert text 0123" in b, f"Back undid the lens change: {b}"
 p.quit()
 
 # The lens survives a restart.
@@ -1447,14 +1458,17 @@ b = p.key(b"1")
 assert "Level 1 Beginner set; this page has one level" in b, b
 p.quit()
 
-# Status row: full label from 100 columns, Lv from 60, the digit below 60.
-for cols, want, absent in ((120, "Level 1 Beginner", None), (80, "Lv1", "Level 1"), (40, "[1]", "Lv1")):
+# Status row: "Beginner text 0123" from 100 columns, "Beginner 0123" from 60,
+# the digits alone below 60.
+for cols, want, absent in ((120, "Beginner text 0123", None), (80, "Beginner 0123", "text 0123"), (40, "0123", "Beginner")):
     p = Pager(["show", "shell/pipelines"], state, cols=cols)
     p.key(b"1") if "Beginner text on" not in p.first else None
     b = p.key(b"x")
-    status = [l for l in (p.first + b).splitlines() if "L1 " in l]
-    assert status and want in status[-1], f"{cols} columns: {status}"
-    assert absent is None or absent not in status[-1], f"{cols} columns: {status}"
+    text = p.first + b
+    at = max(text.rfind("L1 "), text.rfind("Lb "))
+    status = text[at:at + 40] if at >= 0 else ""
+    assert want in status, f"{cols} columns: {status!r}"
+    assert absent is None or absent not in status, f"{cols} columns: {status!r}"
     p.quit()
 
 # 4..9 do nothing.

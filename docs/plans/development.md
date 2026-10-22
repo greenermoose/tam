@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.39.0 and corpus 0.42.0.
+**Scope:** Living integration contract; current command 0.39.1 and corpus 0.42.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,15 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.39.1 (patch, the version the developer named):
+  status-row line labels and lens selector. A page opens on its title, `L1`;
+  the leading level lines are `Lb`, `Lc`, ... and the focused breadcrumb row
+  is `La`. The visible range and total count only numbered lines, so the
+  Welcome page reads `L1 1-31/48` where 0.39.0 read `L2 1-32/49`. The lens
+  reads `All text 0123` (100 columns or wider), `All 0123` (60 to 99) or
+  `0123`, with the lens digit underlined, or bracketed as `[0]123` where
+  the terminal cannot underline; `(not on page)` still follows a missing
+  lens level.
 - **2026-10-21:** Command 0.39.0 (minor): the developer's pager layout. A
   dimmed, right-aligned level line sits between the breadcrumb and the page
   heading, `<Level> text [on <Level> path] [(no <Level> text)]`, with the
