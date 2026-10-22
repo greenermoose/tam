@@ -1,16 +1,16 @@
 # tam development plan
 
 **Plan status:** Active
-**Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.43.1 and corpus 0.42.2.
+**Reviewed:** 2026-10-22
+**Scope:** Living integration contract; current command 0.43.1 and corpus 0.42.3.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Finish TCK25 Maintaining with logs, power, resources,
-packaging and hub migration, then part-wide enforcement. Using, the five
-Maintaining recovery/boot ladders and Rescue are implemented;
+**Next action:** Finish TCK25 Maintaining with resources, packaging and
+hub migration, then part-wide enforcement. Using, the five
+Maintaining recovery/boot ladders, logs/power ladders and Rescue are implemented;
 pilot/learner review remains unverified. See the
 [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
@@ -380,6 +380,13 @@ is a four-stage Intermediate-to-Expert goal path with a scratch decision
 capstone. Logs, power, resources, packaging and hub migration remain before
 Maintaining enforcement. See the [verification record](../ai/2026-10-21-tam-boot-rescue-learning.md).
 
+Corpus 0.42.3 migrates logs and power: captured read-only examples, full
+Beginner/Intermediate anatomy, skill mappings and folded questions at all levels.
+Logs distinguish empty selection, structural integrity and causal evidence;
+power separates capabilities, selection, actual transitions and energy claims.
+Resources, packaging and the hub remain before Maintaining enforcement.
+See the [verification record](../ai/2026-10-22-tam-logs-power-learning.md).
+
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
 expanded CS content, AI hardware estimates, writable settings, localisation and
@@ -419,6 +426,12 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-22:** Corpus 0.42.3 (patch): the developer said "Proceed" to
+  the proposed logs/power TCK25 slice. Migrated both existing lessons, corrected
+  unsupported diagnostic/power guarantees and added no command behavior or new
+  pages. The next Maintaining slice is resources, packaging and the hub;
+  part-wide enforcement and learner/packaged acceptance remain pending.
 
 - **2026-10-22:** Command 0.43.1 (patch) and corpus 0.42.2 (patch): the
   developer's arrow-key hints. Answers read `[+] <label> (-> to show)` and

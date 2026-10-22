@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-22 | TCK25 logs/power learning migration; corpus 0.42.3 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-22-tam-logs-power-learning.md) |
 | 2026-10-22 | Answer hints name the arrow keys; Right Arrow toggles the answer on the attention line; command 0.43.1 / corpus 0.42.2 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-22 | Left Arrow hides a shown answer, otherwise goes back; command 0.43.0 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |
 | 2026-10-22 | `+`/`-` show and hide folded answers with self-describing labels; command 0.42.0 / corpus 0.42.1 | Claude Code 2.1.307; `claude-opus-5-5` | [Session record](docs/ai/2026-10-21-tam-pager-level-line.md) |

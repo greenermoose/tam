@@ -1,7 +1,7 @@
 # Learning levels, goal paths and self-quizzes
 
 **Plan status:** In progress
-**Reviewed:** 2026-10-21
+**Reviewed:** 2026-10-22
 **Scope:** Command and corpus. The first approved outcome is TCK20–TCK23:
 the contract, a sticky level lens, folding and self-quizzes, and a pilot of
 three pages and two goal paths. TCK24 (corpus scaffolding) and TCK25
@@ -13,9 +13,9 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Finish TCK25 Maintaining with logs, power, resources,
-packaging and hub migration, then part-wide enforcement.
-TCK24, Using, five Maintaining recovery/boot lessons and Rescue are implemented;
+**Next action:** Finish TCK25 Maintaining with resources, packaging and
+hub migration, then part-wide enforcement.
+TCK24, Using, five Maintaining recovery/boot lessons, logs/power and Rescue are implemented;
 pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
@@ -582,6 +582,20 @@ Maintaining pages (logs, power, resources, packaging and hub), enforcement,
 pilot/learner and packaged acceptance remain open. See the
 [verification record](../ai/2026-10-21-tam-boot-rescue-learning.md).
 
+**Logs/power slice (2026-10-22, corpus 0.42.3).** The developer said
+"Proceed" to the proposed two-page slice. Baseline command 0.43.1 / corpus
+0.42.2 at `235c42e`; this corrects and migrates existing pages, so it takes a
+corpus patch version. Command behavior is unchanged.
+
+The slice uses captured read-only journal/sysfs examples, full teaching
+anatomy, folded quizzes and skill mappings. Logs teach bounded selection and
+competing explanations; power separates blanking, sleep capability, mode
+selection and observed completion. No sleep cycle, sysfs write, swap change,
+journal cleanup or session installation is part of the exercises. Metadata
+coverage is not learner validation. Resources, packaging and the hub remain;
+Maintaining enforcement stays off. Verification and limitations:
+[session record](../ai/2026-10-22-tam-logs-power-learning.md).
+
 ### Stop and ask the developer
 
 - If a key named here turns out to be taken, or behaves differently under
@@ -619,5 +633,6 @@ corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
 paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
 two Maintaining recovery ladders. Corpus 0.42.0 adds the boot, boot-fallback
-and Snapper migrations and Rescue path. Maintaining remains partial, and Learning,
+and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power.
+Maintaining remains partial (resources, packaging and hub remain), and Learning,
 Installing and Improving migration remain open.
