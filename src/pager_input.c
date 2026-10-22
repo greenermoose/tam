@@ -318,7 +318,9 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         } else if (strcmp(seq, "B") == 0) {
             move_line_down(st);
         } else if (strcmp(seq, "C") == 0) {
-            if (st->selected >= 0) {
+            if (toggle_fold_here(st)) {
+                /* An answer on the attention line. */
+            } else if (st->selected >= 0) {
                 follow_selected(st);
             } else if (st->nforward > 0) {
                 go_forward(st);

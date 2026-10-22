@@ -563,6 +563,20 @@ void set_fold_here(pager_t *st, int open)
     if (shown != (open != 0)) toggle_fold(st, id);
 }
 
+/* Right Arrow on an answer toggles it, unless another link is selected.
+ * Returns 1 when it did. */
+int toggle_fold_here(pager_t *st)
+{
+    const linkref_t *sel = selected_link(st);
+    unsigned id;
+    int shown;
+    if ((sel != NULL && strncmp(sel->href, "tam:fold:", 9) != 0) ||
+        !fold_here(st, &id, &shown))
+        return 0;
+    toggle_fold(st, id);
+    return 1;
+}
+
 /* Left Arrow on a shown answer hides it instead of going back. Returns 1
  * when it did. */
 int hide_fold_here(pager_t *st)

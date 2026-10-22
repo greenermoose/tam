@@ -1,4 +1,4 @@
-# Pager level line, status row and answer keys (commands 0.39.0 to 0.43.0)
+# Pager level line, status row and answer keys (commands 0.39.0 to 0.43.1)
 
 - **Date:** 2026-10-21
 - **Time:** 22:30 to 22:51 -04:00
@@ -8,14 +8,15 @@
   0.39.2 makes the title the top of the page for the top-of-page keys;
   0.40.0 rebuilds the status row with the version at its right edge;
   0.42.0 (with corpus 0.42.1) adds `+` and `-` for folded answers;
-  0.43.0 lets Left Arrow hide a shown answer.
+  0.43.0 lets Left Arrow hide a shown answer; 0.43.1 (with corpus 0.42.2)
+  names the arrow keys in the answer hints.
   A development installation of 0.39.0 was made at the developer's request.
 - **CLI Tool:** Claude Code 2.1.307
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
 - **Commits:** `959535f` (0.39.0), `dd013ea` (0.39.1), `7f66ebf` (0.39.2),
-  `b51a1dd` (0.40.0), `98fa37b` (0.42.0) and the 0.43.0 commit that
-  updates this record
+  `b51a1dd` (0.40.0), `98fa37b` (0.42.0), `514152b` (0.43.0) and the 0.43.1
+  commit that updates this record
 - **Authorship:** Fred Horch wrote the layout note (the line's form, its
   position, alignment and examples) and decided the level bar's and related
   links' placement. Claude proposed the relatives line's wording, dimming
@@ -89,6 +90,26 @@
 > Arrow on a closed Answer should go back to the last page visited, or
 > nothing if this is the first page visited.
 
+> Let's change the wording for Answers from
+>
+> [+] Answer (Press + to show)
+>
+> to
+>
+> [+] Answer (-> to show)
+>
+> and
+>
+> [-] Answer (Press - to hide)
+>
+> to
+>
+> [-] Answer (<- to hide)
+>
+> Keep all the other keys available (+/-, r/*) but give the hint about the
+> right and left arrow keys. Those are the most convenient on keyboards that
+> have them.
+
 ## Key decisions
 
 - The developer's note gives the form
@@ -130,6 +151,11 @@
 - 0.43.0: on the first page Left Arrow keeps its existing "no earlier page"
   message rather than doing nothing silently; Claude told the developer
   and offered to drop it.
+- 0.43.1: Right Arrow toggled an answer only when its link was selected,
+  so the new hint could fail with the attention line on the `[+]` line;
+  it now uses the same "answer here" lookup as `+`, `-` and Left Arrow.
+  Right Arrow remains a toggle, per the 0.42.0 instruction; Claude told
+  the developer that a second press hides the answer.
 - The fixture `shell/pipelines.html` gains one `?level=beginner` link, so the
   test that a level-naming link sets the lens still has a link to follow.
 
@@ -157,6 +183,9 @@
 - 0.43.0: `make test`, both suites pass; the fold test checks Left Arrow
   hiding a shown answer without leaving the page, then reporting "no
   earlier page" on the hidden answer of the first page.
+- 0.43.1: `make test`, both suites pass, with Right Arrow show and Left
+  Arrow hide checks; a PTY drive of `desktop/index` shows the new hints
+  and `r`, Left, Right, `+` and `-` each switching the answer.
 - PTY renders at 100 and 44 columns with the tests' screen model: right-aligned
   at 100 columns, left-aligned wrap at 44, and `dim` (`ESC [2m`) emitted
   off the attention line.

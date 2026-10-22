@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-21
-**Scope:** Living integration contract; current command 0.43.0 and corpus 0.42.1.
+**Scope:** Living integration contract; current command 0.43.1 and corpus 0.42.2.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -420,6 +420,13 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-22:** Command 0.43.1 (patch) and corpus 0.42.2 (patch): the
+  developer's arrow-key hints. Answers read `[+] <label> (-> to show)` and
+  `[-] <label> (<- to hide)`, because the arrows are the most convenient
+  keys where they exist; `+`, `-`, Enter, `r` and `*` keep working. Right
+  Arrow now toggles the answer on the attention line even when its link is
+  not selected (a selected ordinary link is still followed), so the hint
+  always works; it stays a toggle, as decided for 0.42.0.
 - **2026-10-22:** Command 0.43.0 (minor): the developer's Left Arrow rule.
   On a shown answer whose `[-]` link is selected or on the attention line,
   Left Arrow hides it; on a hidden answer, or anywhere else, it goes back
