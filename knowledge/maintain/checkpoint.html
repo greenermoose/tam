@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Checkpoints and Rollback Points</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="updates.beginner, updates.intermediate, updates.expert">
+<meta name="topic" content="checkpoint">
+<meta name="summary" content="Understand checkpoint scopes, match recovery boundaries, and avoid checkpoint churn">
+<meta name="keywords" content="checkpoint, checkpoints, rollback point, recovery anchor, snapshot, mutable state, quiescence, verification, fallback">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="maintain">
+<meta name="parent" content="maintain/index.html">
+<meta name="prereqs" content="maintain, filesystem">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Checkpoints and Rollback Points</p>
+</nav>
+
+<h1>Checkpoints and Rollback Points</h1>
+
+<p>A checkpoint is a recorded state of a system component captured before making
+a change. It provides a known rollback point so you can return safely if an
+update or configuration change fails.</p>
+
+<section data-level="beginner">
+<h2>Understand What a Checkpoint Protects</h2>
+
+<p><strong>Goal:</strong> you will be able to distinguish a recorded checkpoint
+from an application update or backup, and verify a scratch rollback point.</p>
+
+<p><strong>Why it matters:</strong> making a change without a known rollback
+point leaves you guessing if something breaks. A checkpoint records exact state
+at a point in time so you can return safely.</p>
+
+<p><strong>Before you start:</strong> read <a href="learn/glossary/snapshot.html">snapshot</a>
+and <a href="maintain/rollback.html?level=1">generation rollbacks</a>. This exercise
+writes only in a scratch directory; it makes no system changes.</p>
+
+<aside class="first-time">
+<p>Open a terminal window. Type commands without the leading <code>$</code>. A silent
+return usually means success. Stop if creating or entering the scratch directory
+fails.</p>
+</aside>
+
+<h3>Worked example</h3>
+
+<p>Create a temporary directory, record an initial state file, make a change, and restore
+from the checkpoint:</p>
+
+<pre data-risk="scratch">
+lab=$(mktemp -d)
+cd "$lab"
+</pre>
+<pre class="session" data-risk="scratch">
+$ printf '%s\n' 'port=8080' > service.conf
+$ cp -p -- service.conf service.conf.checkpoint
+$ printf '%s\n' 'port=9090' > service.conf
+$ cat service.conf
+port=9090
+$ cp -p -- service.conf.checkpoint service.conf
+$ cat service.conf
+port=8080
+</pre>
+<p>Captured on Arch Linux, 2026-10-23.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li>You established a known-good configuration in <code>service.conf</code>.</li>
+<li>You created a checkpoint copy (<code>service.conf.checkpoint</code>) before mutating the configuration.</li>
+<li>After modifying the live configuration, you returned directly to the recorded checkpoint.</li>
+<li>Only the targeted file was restored; unrelated system state was unaffected.</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Simulate an unexpected modification by appending an invalid setting
+<code>timeout=bad</code> to <code>service.conf</code>. Restore it again from
+<code>service.conf.checkpoint</code> and confirm the file is clean.</p>
+
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ printf '%s\n' 'timeout=bad' >> service.conf
+$ cp -p -- service.conf.checkpoint service.conf
+$ cat service.conf
+port=8080
+</pre>
+<p>Captured on Arch Linux, 2026-10-23.</p>
+</details>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>cannot stat 'service.conf.checkpoint'</dt>
+<dd>The checkpoint was not created or you changed directories. Run <code>pwd</code> and <code>ls</code> to verify your location.</dd>
+<dt>Permission denied</dt>
+<dd>Ensure you are inside the scratch directory created by <code>mktemp -d</code>.</dd>
+</dl>
+
+<p>Clean up the scratch environment when finished:</p>
+<pre data-risk="scratch">
+rm -f -- service.conf service.conf.checkpoint
+cd /tmp
+rmdir -- "$lab"
+unset lab
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Does creating a checkpoint automatically undo your mistakes while editing?</summary>
+<p>No. A checkpoint records state at a fixed moment. Restoration is a separate, deliberate action.</p>
+</details>
+<details class="q">
+<summary>Does a file checkpoint replace an external backup?</summary>
+<p>No. Checkpoints on the same disk do not protect against storage hardware failure.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt><dfn><a href="learn/glossary/checkpoint.html">Checkpoint</a></dfn></dt>
+<dd>A recorded state of a component captured before a change.</dd>
+<dt><dfn><a href="learn/glossary/rollback.html">Rollback point</a></dfn></dt>
+<dd>A specific saved state you can return to if an operation fails.</dd>
+</dl>
+
+<p><strong>Next step:</strong> compare checkpoint layers at Intermediate.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Match Checkpoints to the Changed Layer</h2>
+
+<p><strong>Goal:</strong> you will be able to select the appropriate checkpoint
+type for a given system change and avoid false coverage assumptions.</p>
+
+<h3>Mental model</h3>
+
+<p>Different system operations modify different storage boundaries. A checkpoint
+must cover the specific layer being changed:</p>
+
+<pre>
+Layer               Boundary                 Checkpoint Mechanism
+===================================================================
+Root OS             / (root subvolume)       Btrfs snapshot via Snapper
+Boot Chain          /boot (ESP & loader)     Quiescent boot-state archive
+User Environment    ~/.config, dotfiles      Mutable settings checkpoint
+User Packages       Nix store profiles       Home Manager generation
+</pre>
+
+<p>Taking a snapshot of the root subvolume does not capture files on a separate
+<code>/boot</code> filesystem, nor does switching a user package generation restore
+modified application database files.</p>
+
+<h3>Worked example</h3>
+
+<p>Inspect whether a proposed change crosses filesystem boundaries:</p>
+
+<pre class="session" data-risk="read-only">
+$ findmnt --noheadings --output TARGET,FSTYPE / /boot
+/     btrfs
+/boot vfat
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-23. Your output may differ depending on partition layout.</p>
+
+<ol>
+<li>The root filesystem <code>/</code> is Btrfs, which supports Snapper snapshots.</li>
+<li>The boot filesystem <code>/boot</code> is VFAT, which does not support Btrfs subvolumes or snapshots.</li>
+<li>A root snapshot protects <code>/usr</code> and <code>/etc</code>, but a kernel or bootloader change requires a separate boot-state capture.</li>
+</ol>
+
+<h3>Completion task</h3>
+
+<p>Complete the check to find which mount point owns <code>/home/alex/.config</code>:</p>
+
+<pre data-risk="scratch">
+findmnt --noheadings --output TARGET,FSTYPE ___
+</pre>
+
+<details class="solution">
+<pre class="session" data-risk="scratch">
+$ findmnt --noheadings --output TARGET,FSTYPE /home/alex/.config
+/home btrfs
+</pre>
+<p>Captured on Arch Linux, 2026-10-23. Passing the configuration path reveals whether user settings reside on the root subvolume or a dedicated <code>/home</code> subvolume.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Write a three-line recovery plan for an update that changes both a native Arch package
+and a user application theme. Name which checkpoint covers the native package, which
+covers the user configuration, and what happens to personal documents.</p>
+
+<details class="solution">
+<p>A native package change is covered by a pre-update Snapper snapshot of <code>/</code>.
+The application theme is covered by a mutable settings checkpoint or Home Manager generation.
+Personal documents remain outside both boundaries and must be protected by independent backups.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Changed Layer</th><th>Checkpoint Type</th><th>Boundary Covered</th><th>Excluded State</th></tr>
+<tr><td>Native packages / OS</td><td>Snapper snapshot</td><td>Root subvolume (<code>/</code>)</td><td>Separate <code>/boot</code>, external mounts, unmounted subvolumes</td></tr>
+<tr><td>Bootloader / Kernel</td><td>Boot archive</td><td>ESP, loader entries, kernel images</td><td>Root filesystem packages, user dotfiles</td></tr>
+<tr><td>User dotfiles / state</td><td>Settings checkpoint</td><td>Targeted <code>~/.config</code> and state files</td><td>System binaries, kernel, documents</td></tr>
+<tr><td>User CLI tools</td><td>Home Manager generation</td><td>Declarative Nix package profiles</td><td>Mutable databases, browser profiles, documents</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely Cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Package rollback succeeds, but desktop theme remains broken</td><td>Settings migrated into mutable dotfiles</td><td>Inspect <code>~/.config</code> against settings checkpoint</td><td>Restore mutable settings checkpoint alongside package return</td></tr>
+<tr><td>Root snapshot restored, but machine fails to boot</td><td>Kernel and modules on separate ESP out of sync</td><td>Check <code>/boot</code> mount and kernel version</td><td>Restore matching boot-state checkpoint</td></tr>
+<tr><td>Workflow stalled waiting for redundant captures</td><td>Unchanged layers treated as requiring fresh checkpoints</td><td>Identify which layer actually mutates</td><td>Capture only the layer being modified; reuse existing anchor</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>Tamlinux organizes recovery by layer. The native updater requests a Snapper
+snapshot before host package updates, while user deployments via <code>tam-deploy</code>
+track package generations and mutable dotfile state. Software return alone does
+not restore modified databases or root-owned login files.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>If an update only modifies a user CLI package in Home Manager, is a new boot-state checkpoint required?</summary>
+<p>No. User package changes do not touch <code>/boot</code> or kernel files. Creating boot checkpoints for user-layer changes is unnecessary churn.</p>
+</details>
+<details class="q">
+<summary>Does rolling back a root filesystem snapshot restore files deleted from a separate /home mount?</summary>
+<p>No. Btrfs snapshots do not cross subvolume boundaries. Separate mounts require their own recovery checkpoints or backups.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="maintain/snapper.html">Snapper: Btrfs Snapshots for System Rollbacks</a>: managing root subvolume snapshots.</li>
+<li><a href="maintain/rollback.html">Snapshots and Generation Rollbacks</a>: matching recovery boundaries.</li>
+<li><a href="maintain/boot-recovery.html">Linux Boot Fallbacks and Rescue Routes</a>: bootloader and kernel dependencies.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Quiescence, Boundary Verification, and Avoiding Churn</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Checkpoint Class</th><th>Quiescence Requirement</th><th>Integrity Verification</th><th>Lifecycle Policy</th></tr>
+<tr><td>Root Btrfs snapshot</td><td>Filesystem sync; no active package manager locks</td><td>Snapper info XML and subvolume readability</td><td>Capture before privileged native mutations; retain until verified</td></tr>
+<tr><td>Boot archive</td><td>Writers stopped; ESP unmounted or remounted read-only</td><td>SHA-256 digest of captured archive and spec</td><td>Capture immediately before firmware, loader, or kernel updates</td></tr>
+<tr><td>Settings checkpoint</td><td>Target application closed; state directory flushed</td><td>Manifest hash list of paths, permissions, and symlinks</td><td>Capture before mutable migrations; preserve later user writes</td></tr>
+<tr><td>Software generation</td><td>Nix daemon build lock released</td><td>Derivation output hash and GC root registration</td><td>Managed declaratively by package manager profile switch</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>A reliable checkpoint requires three properties:</p>
+
+<ol>
+<li><strong>Quiescence:</strong> Background processes writing to the target scope must be stopped or flushed. Capturing a database or boot tree during active writes produces crash-inconsistent or corrupt archives.</li>
+<li><strong>Explicit Boundaries:</strong> Checkpoints define precise path inclusion and exclusion lists. Sockets, FIFO pipes, temporary cache trees, and mounted shared volumes must be excluded.</li>
+<li><strong>Integrity Verification:</strong> Upon capture, the checkpoint record stores cryptographic checksums (such as SHA-256) of the archive and its constituent files. Verification inspects the digest before any rollback operation is initiated.</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Checkpoints are protective tools, not ritual barriers. Tamlinux captures a
+checkpoint immediately before an actual mutation of that specific layer, verifying
+integrity and coverage rather than generating repeated captures for unchanged
+components.</p>
+
+<p>Untested intermediate builds are historical steps, not rollback targets.
+Long-term fallback returns to the trusted <strong>recovery anchor</strong>&mdash;the
+last version the user has lived on in normal daily operation. When testing a candidate,
+reusing the existing anchor material and one shared recovery procedure prevents
+checkpoint churn while guaranteeing a safe, tested route back.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Live-linked symlinks:</strong> Checkpoints capturing user dotfiles must record whether targets are real files or symbolic links pointing into store paths, preserving original permissions and link destinations.</li>
+<li><strong>Later-write preservation:</strong> Restoring a settings checkpoint after an unsuccessful trial must avoid blindly overwriting newer documents or mail delivered during the trial. Selective restore separates configuration from data.</li>
+<li><strong>Shared extent overhead:</strong> While Btrfs snapshots share extents upon creation, subsequent heavy write churn causes rapid disk space consumption. Checkpoints must be audited and retired once their associated stage move is complete.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Inspect the integrity of a candidate transaction or checkpoint manifest
+using standard verification utilities:</p>
+
+<pre class="session" data-risk="read-only">
+$ sha256sum -c &lt;&lt;'EOF'
+d99e955535514a9fff82e7e54121e5f677f844ed592a1fd202153241f1368faa  package.tar.zst
+EOF
+</pre>
+<p>Verifying recorded digests before initiating state restoration ensures that rollback targets have not suffered silent corruption or partial writes.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why is it counterproductive to create fresh boot and root checkpoints when preparing an unactivated user-space candidate?</summary>
+<p>Unactivated candidates make no physical changes to boot or root storage. Generating checkpoints for unchanged layers creates disk overhead, risks displacing valid older checkpoints, and confuses build history with tested recovery anchors. Checkpoints belong immediately before actual mutations of that layer.</p>
+</details>
+<details class="q open">
+<summary>What distinguishes a recovery anchor from an arbitrary intermediate checkpoint?</summary>
+<p>A recovery anchor is a known-good system state that has been verified through sustained daily use. Intermediate checkpoints represent transient pre-change states of untested candidates. If a trial fails, rolling back to the recovery anchor guarantees a working system, whereas rolling back to an untested intermediate build leaves stability unproven.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="man:snapper(8)">snapper(8)</a>: snapshot creation, comparison, and retention algorithms.</li>
+<li><a href="man:btrfs-subvolume(8)">btrfs-subvolume(8)</a>: Btrfs subvolume and snapshot semantics.</li>
+<li><a href="man:sha256sum(1)">sha256sum(1)</a>: cryptographic hash verification for archived state.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Suggest clarifications to checkpoint boundary models or recovery procedures in the
+public <a href="https://github.com/greenermoose/tam">tam repository (online)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="maintain/snapper.html">Snapper: Btrfs snapshots for system rollbacks</a> &mdash; manage root subvolume snapshots.</li>
+<li><a href="maintain/rollback.html">Snapshots and generation rollbacks</a> &mdash; layer-specific recovery procedures.</li>
+<li><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a> &mdash; recover from bootloader or kernel failures.</li>
+<li><a href="maintain/index.html">System Maintenance and Reliability</a> &mdash; guide index for system maintenance.</li>
+</ul>
+
+</body>
+</html>

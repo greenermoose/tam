@@ -1,7 +1,7 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-22. **Owner:** Fred (developer).
-**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.42.5`.
+**Reviewed:** 2026-10-23. **Owner:** Fred (developer).
+**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.43.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -121,12 +121,13 @@ in that candidate, not here.
 | **0.42.3 corpus** | TCK25 logs and power learning ladders | Done (2026-10-22) | Captured read-only journal/sysfs examples, folded quizzes and diagnosis tasks; truthful capability, integrity and energy limits. Command stays 0.43.1; resources, packaging and Maintaining hub remain. |
 | **0.42.4 corpus** | Wordsmithed welcome page | Done (2026-10-22) | Wordsmithed welcome page |
 | **0.42.5 corpus** | Tightened up where next on welcome page | Done (2026-10-22) | Tightened up where next on welcome page |
+| **0.43.0 corpus** | Checkpoint concept guide and glossary entry | Done (2026-10-23) | Authored 'Checkpoints and Rollback Points' (`maintain/checkpoint.html`) and glossary entry (`learn/glossary/checkpoint.html`); explains checkpoint scopes across filesystem, boot, and user settings layers, boundary matching, quiescence, and avoiding churn via recovery anchors. Enables `tam explain checkpoint`. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.2 / 0.42.5 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons, logs/power ladders and Rescue implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.43.2 / 0.43.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons, logs/power ladders and Rescue implemented. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.38.1 / 0.42.0 | Latest cached remote Test source at `c161190`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
