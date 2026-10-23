@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-22
-**Scope:** Living integration contract; current command 0.43.1 and corpus 0.42.3.
+**Scope:** Living integration contract; current command 0.43.2 and corpus 0.42.5.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -426,6 +426,13 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-23:** Command 0.43.2 (patch): the developer's "See also ->"
+  relatives leader. On a page that lacks the reader's active learning level,
+  line c's leader changes for all lenses from `<Level> text:` to
+  `See also -> `, so the arrow clarifies that the listed items are followable
+  links to related pages offering that level rather than introducing the text
+  below.
 
 - **2026-10-22:** Corpus 0.42.3 (patch): the developer said "Proceed" to
   the proposed logs/power TCK25 slice. Migrated both existing lessons, corrected

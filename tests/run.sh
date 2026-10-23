@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.43.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.43.2' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1408,7 +1408,7 @@ b = p.key(b"`")
 assert "Beginner text on Intermediate path (no Intermediate text)" in b, b
 # The relatives line links children of the page at the lens level, from
 # index.parents.tsv.
-assert "Intermediate text: Fixture pipelines" in b, b
+assert "See also -> Fixture pipelines" in b, b
 assert "(not on page)" in b, b
 # = shows the address with the lens.
 b = p.key(b"=")
@@ -1790,14 +1790,14 @@ printf '%s\n' "$sh_banner" | grep -qE '^ +Beginner text on Intermediate path \(n
 printf '%s\n' "$sh_banner" | grep -q 'Fixture Welcome' || fail "level-line page lost its content"
 # Related pages come from parent links: a page with no relative at the level
 # shows only the level path; siblings, then the parent, are offered next.
-if printf '%s\n' "$sh_banner" | grep -q 'Intermediate text:'; then
+if printf '%s\n' "$sh_banner" | grep -q 'See also ->'; then
     fail "level line without relatives at the level must show only the level path"
 fi
 sh_sib=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 3 learn/index --pipe) \
     || fail "show --level 3 on the learning hub failed"
-printf '%s\n' "$sh_sib" | grep -q 'Expert text: Fixture pipelines' \
+printf '%s\n' "$sh_sib" | grep -q 'See also -> Fixture pipelines' \
     || fail "relatives line did not link a sibling at the level"
-if printf '%s\n' "$sh_sib" | grep 'Expert text:' | grep -q 'Welcome'; then
+if printf '%s\n' "$sh_sib" | grep 'See also ->' | grep -q 'Welcome'; then
     fail "relatives line linked a child without the level"
 fi
 # Exercise the ranking contract independently of live page titles and tracks.
@@ -1848,17 +1848,17 @@ def banner(entries, parents=True):
         env={**os.environ, "TAM_KNOWLEDGE_DIR": str(corpus)},
     )
     return next((line.strip() for line in out.splitlines()
-                 if line.strip().startswith("Intermediate text:")), None)
+                 if line.strip().startswith("See also ->")), None)
 
-assert banner([parent, sibling, child]) == "Intermediate text: Child | Sibling | Parent"
-assert banner([parent, sibling]) == "Intermediate text: Sibling | Parent"
-assert banner([parent]) == "Intermediate text: Parent"
+assert banner([parent, sibling, child]) == "See also -> Child | Sibling | Parent"
+assert banner([parent, sibling]) == "See also -> Sibling | Parent"
+assert banner([parent]) == "See also -> Parent"
 # Ties use shared prerequisites, then title, and stop at three links.
 children = [entry("zulu", "Zulu", "index.html", "shell"),
             entry("alpha", "Alpha", "index.html"),
             entry("beta", "Beta", "index.html", "shell"),
             entry("delta", "Delta", "index.html", "shell, pipes")]
-assert banner([parent, sibling, *children]) == "Intermediate text: Delta | Beta | Zulu"
+assert banner([parent, sibling, *children]) == "See also -> Delta | Beta | Zulu"
 assert banner([]) is None
 assert banner([parent, sibling, child], parents=False) is None
 PY

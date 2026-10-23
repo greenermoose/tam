@@ -483,7 +483,7 @@ static void shown_label(buf_t *b, unsigned shown)
 
 /* The level line and, when the lens level is missing, the relatives line:
  *   Beginner text on <a>Expert path</a> (no Expert text)
- *   Expert text: <related>
+ *   See also -> <related>
  * Both are class="level-line" paragraphs, which the renderer dims and
  * right-aligns. */
 static void level_lines(buf_t *b, unsigned shown, unsigned level,
@@ -505,9 +505,7 @@ static void level_lines(buf_t *b, unsigned shown, unsigned level,
     }
     buf_str(b, "</p>\n");
     if (level != 0 && missing && related != NULL && related[0] != '\0') {
-        buf_str(b, "<p class=\"level-line\">");
-        shown_label(b, level);
-        buf_str(b, ": ");
+        buf_str(b, "<p class=\"level-line\">See also -&gt; ");
         buf_str(b, related);
         buf_str(b, "</p>\n");
     }

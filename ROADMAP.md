@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-22. **Owner:** Fred (developer).
-**Current Command Version:** `0.43.1`. **Current Corpus Version:** `0.42.5`.
+**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.42.5`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -100,6 +100,7 @@ in that candidate, not here.
 | **0.38.0 command / 0.37.1 corpus** | Folding and self-quizzes (TCK22) | Done (2026-10-21) | Answers fold in the pager with Enter, `r` and `*`, reset on navigation, and collect under Answers in pipe output; block-level filtering, generated section labels, named asides and command risk labels; 23 pages lose hand-typed level prefixes and lint checks enforce the markup ([record](docs/ai/2026-10-21-tam-folding.md)). |
 | **0.38.1 command** | Pager resize cursor preservation | Done (2026-10-21) | Reflow preserves whether the attention line is on text or a blank separator when both share a logical position; PTY screen tests cover text and blank anchors ([record](docs/ai/2026-10-21-tam-pager-resize-drift.md)). |
 | **0.39.0 command** | Pager level line | Done (2026-10-21) | One dimmed, right-aligned level line above the page heading, `<Level> text [on <Level> path] [(no <Level> text)]`, replaces the level bar and the "Written for" banner; the path is linked, and a page without the lens level adds `<Level> text: A \| B \| C` with up to three related pages (never the level path itself). Keys `0`-`3` still switch levels ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
+| **0.43.2 command** | Pager relatives line leader | Done (2026-10-23) | Changed the line c relatives leader for all lenses to `See also -> <links>` so readers understand the list contains followable navigation links rather than introducing the text below ([record](docs/ai/2026-10-23-tam-see-also-leader.md)). |
 | **0.43.1 command / 0.42.2 corpus** | Arrow-key hints on answers | Done (2026-10-22) | Answers read `[+] Answer (-> to show)` and `[-] Answer (<- to hide)`; Right Arrow toggles the answer on the attention line even when its link is not selected. `+`, `-`, Enter, `r` and `*` still work; the help overlay, man page and Learning paths page name the arrows ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
 | **0.43.0 command** | Left Arrow hides a shown answer | Done (2026-10-22) | On a shown answer's `[-]` line, Left Arrow hides it, as `-` does; elsewhere, including a hidden answer's `[+]` line, it goes back as before ("no earlier page" on the first page) ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
 | **0.42.0 command / 0.42.1 corpus** | `+` and `-` show and hide answers | Done (2026-10-22) | Folded answers read `[+] Answer (Press + to show)` and `[-] Answer (Press - to hide)`; `+` and `-` act on the answer on the attention line or selected, and say where to go elsewhere. Enter and Right Arrow still toggle, unmentioned. The help overlay, man page and the Learning paths page teach the new keys ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
@@ -125,7 +126,7 @@ in that candidate, not here.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.1 / 0.42.5 | Newest source; pager level line and line labels, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons, logs/power ladders and Rescue implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.43.2 / 0.42.5 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons, logs/power ladders and Rescue implemented. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.38.1 / 0.42.0 | Latest cached remote Test source at `c161190`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 

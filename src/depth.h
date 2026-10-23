@@ -93,12 +93,12 @@ typedef struct {
 
 /* The level line shown above a page heading, as HTML paragraphs of class
  * "level-line" (dimmed and right-aligned by the renderer):
- *   <Shown> text[ on <Level> path][ (no <Level> text)]
+ * `<Shown> text[ on <Level> path][ (no <Level> text)]`
  * `shown` is the level of the text displayed (a mask of several reads
  * "All"), `level` the lens (0 = All, which names no path) and `missing`
  * whether the page lacks the lens level. A missing level with a non-empty
  * `related` (an HTML fragment of links) adds a second line,
- * "<Level> text: <related>". Returns a newly allocated string, or NULL on
+ * "See also -> <related>". Returns a newly allocated string, or NULL on
  * allocation failure. */
 char *tam_level_lines(unsigned shown, unsigned level, int missing,
                       const char *related);
