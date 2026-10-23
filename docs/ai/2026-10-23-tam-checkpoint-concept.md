@@ -6,6 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.4.6
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
+- **Commits:** `39a0fd0`
 - **Authorship:** Fred Horch directed creating a page or set of pages in the
   knowledge corpus explaining the checkpoint concept, identifying linking points
   and page count, after noting that `tam explain checkpoint` returned no results.
