@@ -7,7 +7,7 @@
 - **CLI Tool:** agy 1.4.6
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** and the commit that adds this record
+- **Commits:** `46e0098`
 - **Authorship:** Fred Horch requested replacing `<Level> text:` on line c with
   `See also -> ` to clarify that the listed entries are followable links to
   related pages offering that level rather than introducing the text below.
