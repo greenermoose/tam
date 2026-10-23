@@ -21,6 +21,7 @@ typedef struct {
     int bce;
     int sync_output;
     int sync_queried;
+    int hyperlinks;
     int alt_screen;
     int cursor_hidden;
     int raw_mode;

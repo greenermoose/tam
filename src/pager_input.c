@@ -368,7 +368,17 @@ void handle_key(pager_t *st, unsigned char c)
     const tam_document_t *doc = st->doc;
     int line = st->cursor_line;
     int selected = st->selected;
+    char msg[sizeof(st->msg)];
+    memcpy(msg, st->msg, sizeof(msg));
+    st->external_armed = 0;
     handle_key_inner(st, c);
+    /* An external link waits for one press only: any other key forgets it,
+     * and the prompt with it unless the key said something else. */
+    if (st->pending_external != NULL && !st->external_armed) {
+        free(st->pending_external);
+        st->pending_external = NULL;
+        if (memcmp(msg, st->msg, sizeof(msg)) == 0) st->msg[0] = '\0';
+    }
     if (st->doc != doc)
         st->show_address = 0;
     if (c == 'g' || c == '\r' || c == '\n' ||
