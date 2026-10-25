@@ -9,6 +9,8 @@
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="improve, shell">
+<meta name="kind" content="how-to">
+<meta name="skills" content="customizing.beginner, customizing.intermediate, desktop.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -25,138 +27,263 @@ AI agents.</p>
 <section data-level="beginner">
 <h2>Intuitive terminal editing with Micro</h2>
 
-<p><strong>Summary:</strong> Edit configuration files and Markdown documents
-effortlessly using standard, universal keyboard shortcuts.</p>
+<p><strong>Goal:</strong> you will be able to edit text files and configuration documents in the terminal using standard, universal keyboard shortcuts with the Micro editor.</p>
 
-<p><strong>Prerequisites:</strong> Basic command execution and shell streams
-(<a href="shell/index.html">The Shell and Streams</a>).</p>
+<p><strong>Why it matters:</strong> Many traditional terminal editors require memorizing modal keybindings before you can edit a single line. Micro uses universal keyboard shortcuts like <code>Ctrl+S</code> to save and <code>Ctrl+Q</code> to quit, making terminal document and configuration editing intuitive from your first session.</p>
 
-<h3>Command sequence</h3>
+<p><strong>Before you start:</strong> open a terminal (<a href="shell/index.html">The Shell and Streams</a>). We will edit files in an isolated scratch directory without altering any personal configuration.</p>
 
-<pre>
-micro README.md
+<aside class="first-time">
+<p>When you launch <code>micro filename</code>, the editor takes over your terminal window. The status line at the bottom shows the file name and cursor position. You can click with the mouse to move the cursor or select text. To quit at any time, press <code>Ctrl+Q</code>. If you have unsaved changes, Micro prompts <code>Save changes to filename? (y, n, esc)</code>.</p>
+</aside>
+
+<h3>Worked example: Create and edit a scratch note</h3>
+
+<pre class="session" data-risk="read-only">
+$ scratch=$(mktemp -d)
+$ echo "Initial note content" > "$scratch/note.md"
+$ micro "$scratch/note.md"
+$ cat "$scratch/note.md"
+Initial note content
+Appended line saved with Ctrl+S.
+$ rm -rf "$scratch"
 </pre>
 
-<p>Or launch the editor anywhere from the desktop with the keyboard shortcut:</p>
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 
-<pre>
-SUPER + Shift + W
-</pre>
+<ol>
+<li><code>scratch=$(mktemp -d)</code> creates a private temporary directory in <code>/tmp</code> so your work stays contained.</li>
+<li><code>echo "Initial note content" > "$scratch/note.md"</code> writes initial text into a Markdown file.</li>
+<li><code>micro "$scratch/note.md"</code> opens the file in Micro's full-screen terminal interface.</li>
+<li>Typing a new line and pressing <code>Ctrl+S</code> writes the updated buffer to disk immediately.</li>
+<li>Pressing <code>Ctrl+Q</code> exits the editor cleanly and returns control to your shell prompt.</li>
+</ol>
 
-<h3>Essential keybindings</h3>
+<h3>Try it</h3>
 
-<table>
-<tr><th>Keybinding</th><th>Action</th><th>Notes</th></tr>
-<tr><td><code>Ctrl+S</code></td><td>Save file</td><td>Writes changes to disk immediately.</td></tr>
-<tr><td><code>Ctrl+Q</code></td><td>Quit editor</td><td>Prompts to save if changes are pending.</td></tr>
-<tr><td><code>Ctrl+Z</code> / <code>Ctrl+Y</code></td><td>Undo / Redo</td><td>Multi-level undo tree.</td></tr>
-<tr><td><code>Ctrl+C</code> / <code>Ctrl+V</code></td><td>Copy / Paste</td><td>Integrated with system Wayland clipboard.</td></tr>
-<tr><td><code>Ctrl+F</code></td><td>Find text</td><td>Interactive search with match highlighting.</td></tr>
-<tr><td><code>Ctrl+E</code></td><td>Command prompt</td><td>Access editor commands and settings.</td></tr>
-</table>
+<p>Create a temporary file in a scratch directory, open it with <code>micro</code>, press <code>Ctrl+E</code> to open the editor command prompt, type <code>help defaultkeys</code>, and press Enter to browse all standard keyboard shortcuts. Press <code>Ctrl+Q</code> to dismiss the help view.</p>
 
-<h3>What just happened</h3>
+<h3>If it goes wrong</h3>
 
-<ul>
-<li><code>micro</code> opened directly in your terminal without modal modes or complex command syntax.</li>
-<li>Terminal mouse clicking, scrolling, and dragging work out of the box to position the cursor or select text.</li>
-<li>High-contrast syntax highlighting is applied automatically for Markdown, HTML, C, JSON, and shell scripts.</li>
-</ul>
+<dl>
+<dt>Pressing <code>Ctrl+C</code> does not exit the editor</dt>
+<dd>In Micro, <code>Ctrl+C</code> is the standard shortcut to copy selected text to the clipboard. Press <code>Ctrl+Q</code> to quit.</dd>
+<dt>Micro asks "Save changes to ...? (y, n, esc)" on exit</dt>
+<dd>The buffer has modifications that have not been written to disk. Press <code>y</code> to save, <code>n</code> to discard changes, or <code>Esc</code> to continue editing.</dd>
+<dt>Terminal mouse clicks do not position the cursor</dt>
+<dd>Verify that your terminal emulator supports mouse tracking. Standard <code>foot</code> on Tamlinux supports mouse selection, dragging, and wheel scrolling out of the box.</dd>
+</dl>
 
-<h3>Best practice</h3>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which shortcut saves changes to the current file in Micro without closing the editor?</summary>
+<p><code>Ctrl+S</code> writes the buffer changes directly to disk immediately, leaving the file open for further edits.</p>
+</details>
+<details class="q">
+<summary>How do you open Micro's internal command prompt to view help or adjust options?</summary>
+<p>Press <code>Ctrl+E</code>. An interactive prompt opens at the bottom where you can type commands like <code>help</code>, <code>set</code>, or <code>vsplit</code>.</p>
+</details>
+</section>
 
-<p>Use Micro's familiar shortcuts: <code>Ctrl+S</code> to save and <code>Ctrl+Q</code>
-to quit. Modal Vi commands like <code>:wq</code> are not available in Micro.</p>
+<h3>New words</h3>
 
-<h3>Next step</h3>
+<dl>
+<dt>Buffer</dt>
+<dd>The in-memory representation of text being edited inside Micro before or after writing to disk.</dd>
+<dt>Command prompt</dt>
+<dd>The interactive bar at the bottom of Micro opened with <code>Ctrl+E</code> for running editor directives and queries.</dd>
+</dl>
+<p>When you return <dfn><a href="learn/glossary/focus.html">focus</a></dfn> to the terminal window, Micro immediately inspects on-disk file status.</p>
 
-<p>Explore how Micro collaborates seamlessly with autonomous AI agents through live
-disk reloading in the intermediate section below.</p>
+<p><strong>Next step:</strong> at Intermediate, learn how Micro's live disk reload synchronizes buffers when background agents or Git commands modify files on disk.</p>
 </section>
 
 <section data-level="intermediate">
 <h2>Multi-agent pair programming and live disk reload</h2>
 
-<p><strong>Summary:</strong> Experience how Micro's live disk autoreload
-synchronizes buffer contents when background AI agents or Git
-commands modify files on disk.</p>
+<p><strong>Goal:</strong> you will be able to configure Micro's <code>reload</code> setting and coordinate editing between interactive sessions and background scripts or AI agents without edit collisions.</p>
 
-<h3>Worked example</h3>
-
-<p>Open a document in <code>micro</code>, then append content from another terminal
-or background AI process:</p>
+<h3>Mental model</h3>
 
 <pre>
-echo -e "\n## Appended by agent" >> README.md
+Interactive editor (Micro)              Background agent or Git
+        |                                          |
+        | [holds open buffer]                      | [edits file on disk]
+        |                                          v
+        | &lt;---- focus returned / stat(2) ------- file updated on disk
+        |
+        +--&gt; reload "prompt" (default): prompts user to reload or keep
+        +--&gt; reload "auto": reloads updated file content immediately
 </pre>
 
-<p>When you return focus to <code>micro</code>, the editor detects the updated
-on-disk inode and timestamp via <code>stat(2)</code>, refreshes the buffer
-contents instantly, and preserves your exact cursor position and undo history.</p>
+<p>When an autonomous AI agent or background script updates a file that you currently have open in Micro, the on-disk file changes underneath the running editor. When focus returns to Micro or a buffer event occurs, Micro compares the file's modification timestamp and size using <code>stat(2)</code>. Under the default <code>prompt</code> setting, Micro displays a warning asking whether to reload. Under <code>auto</code>, Micro immediately reloads the file without interrupting your workflow, preserving your undo history.</p>
+
+<h3>Worked example: Configure live reload and observe synchronization</h3>
+
+<pre class="session" data-risk="read-only">
+$ scratch=$(mktemp -d)
+$ mkdir -p "$scratch/.config/micro"
+$ echo '{"reload": "auto"}' > "$scratch/.config/micro/settings.json"
+$ echo "Original text" > "$scratch/shared.txt"
+$ echo "Appended by agent" >> "$scratch/shared.txt"
+$ cat "$scratch/shared.txt"
+Original text
+Appended by agent
+$ rm -rf "$scratch"
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<ol>
+<li><code>mkdir -p "$scratch/.config/micro"</code> creates a local configuration folder for testing.</li>
+<li><code>echo '{"reload": "auto"}' > .../settings.json</code> writes the setting that instructs Micro to reload modified files without prompting.</li>
+<li>When an external command or agent appends content to <code>shared.txt</code>, Micro detects the updated timestamp via <code>stat(2)</code> and refreshes the buffer automatically upon regaining focus.</li>
+<li>Your cursor position and multi-level undo tree remain intact.</li>
+</ol>
 
 <h3>Completion task</h3>
 
-<p>Ensure that Micro always prompts or reloads external changes automatically
-without asking. Complete the configuration command below by filling in the missing
-setting (marked with <code>___</code>):</p>
+<p>Configure Micro to reload externally modified files automatically without asking for confirmation. Complete the configuration command by filling in the missing value (marked with <code>___</code>):</p>
 
-<pre>
-micro -set ___ true
+<pre data-risk="read-only">
+set reload ___
 </pre>
 
-<p>Target output: <code>Set autoreload to true</code>.</p>
+<details class="solution">
+<p>Fill in <code>auto</code>. Inside Micro, pressing <code>Ctrl+E</code> and executing <code>set reload auto</code> updates <code>~/.config/micro/settings.json</code> so that buffers reload external modifications immediately without prompting.</p>
+</details>
 
-<h3>Verification hints</h3>
+<h3>Independent task</h3>
+
+<p>In a scratch directory, write a minimal Micro <code>settings.json</code> file that sets <code>reload</code> to <code>auto</code> and <code>wordwrap</code> to <code>true</code>, then verify that the JSON syntax is valid using Python's <code>json.tool</code>.</p>
+
+<details class="solution">
+<p>Run <code>scratch=$(mktemp -d) &amp;&amp; echo '{"reload": "auto", "wordwrap": true}' &gt; "$scratch/settings.json" &amp;&amp; python3 -m json.tool "$scratch/settings.json" &amp;&amp; rm -rf "$scratch"</code>. It parses and formats the JSON keys cleanly, confirming valid syntax.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Reload mode</th><th>When to use</th><th>Trade-off</th></tr>
+<tr><td><code>prompt</code> (default)</td><td>Single-user interactive editing where external changes are rare or unexpected.</td><td>Protects against accidental overwrites, but requires manual confirmation on every background save.</td></tr>
+<tr><td><code>auto</code></td><td>Multi-agent pair programming and automated workflows where background agents modify code.</td><td>Buffer updates seamlessly in real time; unsaved manual edits should be committed before agent execution.</td></tr>
+<tr><td><code>disabled</code></td><td>Inspecting fixed snapshots or static logs where external updates should be ignored.</td><td>Prevents any buffer refresh from disk.</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>"The file on disk has changed" prompt appears on every save</td><td>Micro's <code>reload</code> setting is still set to <code>prompt</code></td><td>Press <code>Ctrl+E</code> and type <code>show reload</code></td><td>Type <code>set reload auto</code> in the command bar or add <code>"reload": "auto"</code> to <code>~/.config/micro/settings.json</code></td></tr>
+<tr><td>Manual edits in buffer conflict with background agent edits</td><td>Both the user and an agent edited the file simultaneously</td><td>Compare Git diff or buffer undo history with <code>Ctrl+Z</code></td><td>Save and commit your manual edits before invoking an AI agent on the file</td></tr>
+<tr><td>Custom settings in <code>settings.json</code> are not taking effect</td><td>JSON syntax error such as a missing comma or quote</td><td>Validate the file with <code>python3 -m json.tool ~/.config/micro/settings.json</code></td><td>Fix syntax errors or remove malformed keys</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, Micro is configured with live reload and integrated with the Wayland system clipboard via <code>wl-clipboard</code> (<code>wl-copy</code> and <code>wl-paste</code>). Desktop keybinding <code>SUPER + Shift + W</code> or terminal editor invocations open Micro natively inside <code>foot</code>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is <code>"reload": "auto"</code> preferred in multi-agent pair programming workflows?</summary>
+<p>When background AI agents or Git operations update files in the workspace, <code>auto</code> refreshes the buffer seamlessly as soon as you refocus Micro, eliminating repetitive manual reload confirmations.</p>
+</details>
+<details class="q">
+<summary>Where does Micro store user configuration options and keybindings on disk?</summary>
+<p>In <code>~/.config/micro/settings.json</code> and <code>~/.config/micro/bindings.json</code> (under <code>$XDG_CONFIG_HOME/micro/</code>).</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
 
 <ul>
-<li>The setting is named <code>autoreload</code> and persists in <code>~/.config/micro/settings.json</code>.</li>
-<li>Inspect active editor configuration by pressing <code>Ctrl+E</code> inside Micro and typing <code>show autoreload</code>.</li>
+<li><a href="man:micro(1)">micro(1)</a> &mdash; command-line flags and options.</li>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; stat(2) file status, inode verification, and modification timestamps.</li>
 </ul>
 </section>
 
 <section data-level="expert">
 <h2>Sub-10ms shell startup and Wayland terminal architecture</h2>
 
-<p><strong>Summary:</strong> Benchmark interactive shell startup latency, prune
-expensive shell hooks, and understand the <code>foot</code> Wayland terminal
-engine.</p>
+<h3>Reference: Wayland terminal interfaces and startup benchmarks</h3>
 
-<h3>Sub-10ms shell startup latency</h3>
+<table>
+<tr><th>Component</th><th>Interface / Mechanism</th><th>Architectural contract</th></tr>
+<tr><td><code>foot</code> terminal</td><td>Wayland client (<code>$XDG_RUNTIME_DIR/wayland-0</code>)</td><td>Direct compositor communication via <code>wl_shm</code> or DMA-BUF without XWayland.</td></tr>
+<tr><td>Damage tracking</td><td><code>wl_surface.damage_buffer</code></td><td>Emits damage regions precisely matching modified character cells; zero compositor repaints when idle.</td></tr>
+<tr><td>Glyph caching</td><td>FreeType &amp; HarfBuzz rasterization</td><td>Asynchronous glyph raster thread with GPU texture atlas caching.</td></tr>
+<tr><td>Shell latency</td><td><code>time bash --norc -i -c exit</code></td><td>Sub-10ms startup budget for interactive shells on Tamlinux.</td></tr>
+</table>
 
-<p>A responsive workstation demands that new terminal windows appear instantly.
-Tamlinux mandates a sub-10ms startup budget for interactive shells. Benchmark your
-startup time with:</p>
+<h3>How it works: Wayland client/compositor boundaries</h3>
 
-<pre>
-time bash -i -c exit
-</pre>
+<p>Tamlinux standardizes on <code>foot</code> as its primary Wayland terminal emulator. Unlike bloated Electron or heavy VTE/GTK-based terminals that consume over 100MB of memory and take 200ms+ to initialize, <code>foot</code> communicates directly with the Wayland compositor over a UNIX domain stream socket located at <code>$XDG_RUNTIME_DIR/wayland-0</code> (or <code>wayland-1</code>).</p>
 
-<p>Target performance: <code>real 0m0.006s</code> (6 milliseconds). To maintain this
-budget:</p>
+<p>When terminal output arrives from a running command, <code>foot</code> processes the VT escape sequences in an internal grid buffer. It computes the exact bounding rectangle of modified character cells and transmits a <code>wl_surface.damage_buffer</code> request followed by <code>wl_surface.commit</code>. When no output is being generated, the terminal client sends zero Wayland protocol messages and the compositor performs zero redraws, consuming zero GPU cycles.</p>
+
+<p>To verify the compositor/client protocol exchanges directly, you can launch a client with <code>WAYLAND_DEBUG=1</code>, which prints every wire protocol request and event passing between the terminal client and the compositor.</p>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>A responsive developer workstation demands that new terminal windows appear instantaneously. Tamlinux enforces a strict sub-10ms startup budget for interactive shells. By keeping <code>~/.bashrc</code> free of dynamic subshells (such as <code>$(git branch)</code> or slow version-manager hooks on every prompt) and pairing it with <code>foot</code>, terminal windows spawn in approximately 15ms with less than 20MB of resident memory.</p>
+
+<h3>Edge cases and failure modes</h3>
 
 <ul>
-<li>Keep <code>~/.bashrc</code> strictly free of dynamic command substitutions (such as <code>$(git branch)</code> or <code>$(nvm ...)</code> on every prompt).</li>
-<li>Place environment variables in <code>~/.bash_profile</code> or <code>~/.config/bash/tamlinux/env</code> so they are evaluated once at login rather than on every subshell.</li>
-<li>Use lightweight, pre-computed prompt symbols without spawning subprocesses.</li>
+<li><strong>Dynamic prompt overhead:</strong> Placing command substitutions like <code>$(git status)</code> inside <code>PS1</code> in <code>~/.bashrc</code> spawns child processes on every prompt, inflating startup latency from 6ms to over 80ms. Always compute prompt state asynchronously or use static prompt indicators.</li>
+<li><strong>Remote terminal definitions:</strong> <code>foot</code> sets <code>TERM=foot</code>. When connecting to remote servers that lack the <code>foot-terminfo</code> package, key sequences or backspace may misbehave. Install <code>foot-terminfo</code> on the remote machine or use <code>TERM=xterm-256color</code> as a temporary fallback.</li>
+<li><strong>Login vs subshell configuration:</strong> Place environment variables in <code>~/.bash_profile</code> or <code>~/.config/bash/tamlinux/env</code> so they are evaluated once at login rather than re-parsed on every interactive subshell.</li>
 </ul>
 
-<h3>The foot terminal architecture</h3>
+<h3>Explore: Benchmark shell startup and inspect Wayland sockets</h3>
 
-<p>Tamlinux standardizes on <code>foot</code> as its primary Wayland terminal emulator.
-Unlike bloated Electron or VTE-based terminals, <code>foot</code>:</p>
+<p>Benchmark your interactive shell startup latency using <code>time</code>:</p>
 
-<ol>
-<li>Communicates directly with the Wayland compositor via shared memory (<code>wl_shm</code>) or DMA-BUF without X11 translation layers.</li>
-<li>Pre-renders glyphs in an asynchronous thread with FreeType and HarfBuzz, caching them in GPU-accessible textures.</li>
-<li>Emits damage regions precisely matching modified character cells, resulting in zero compositor repaints when idle.</li>
-</ol>
+<pre class="session" data-risk="read-only">
+$ time bash --norc -i -c exit
+exit
+
+real	0m0.003s
+user	0m0.000s
+sys	0m0.003s
+$ ls -la "$XDG_RUNTIME_DIR"/wayland-*
+srwxr-xr-x 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1
+-rw-r----- 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1.lock
+</pre>
+
+<p>Notice that the clean interactive shell exits in approximately 3 milliseconds, well within Tamlinux's 10ms budget. The Wayland socket file descriptor provides the direct communication conduit to the compositor.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does placing <code>$(git branch 2&gt;/dev/null)</code> inside <code>~/.bashrc</code> violate the Tamlinux shell latency budget?</summary>
+<p>Every time an interactive shell launches or a prompt renders, Bash must fork a child process, execute <code>git</code>, query the filesystem, and capture stdout through an internal pipe. This fork/exec sequence adds 20 to 60 milliseconds of latency, violating the sub-10ms shell startup budget.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="man:foot(1)">foot(1)</a> &mdash; Wayland terminal emulator configuration and features.</li>
+<li><a href="man:foot.ini(5)">foot.ini(5)</a> &mdash; foot configuration file reference and section bindings.</li>
+<li><cite data-ref="bash"><a href="learn/bibliography/bash.html">GNU Bash manual</a></cite> &mdash; startup file execution order and interactive shell initialization.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Terminal configuration is defined in <code>~/.config/foot/foot.ini</code>, and desktop terminal shortcuts are coordinated in the public repository under <code>tamlinux/desktop/</code>.</p>
 </section>
 
 <h2>Where to next</h2>
 
 <ul>
 <li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; learn strict Bash headers and safe argument handling.</li>
-<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; compile C projects and share one clone between agents.</li>
+<li><a href="improve/efficiency.html">Zero-polling and event-driven architecture</a> &mdash; eliminate CPU wakeups and save energy.</li>
 <li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
 </ul>
 </body>

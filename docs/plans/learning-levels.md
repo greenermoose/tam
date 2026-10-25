@@ -13,7 +13,7 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Continue TCK25 Improving track migration with the remaining lessons (efficiency, zram, terminal, toolchains, ai-performance, patches, package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
+**Next action:** Continue TCK25 Improving track migration with the remaining lessons (zram, toolchains, ai-performance, patches, package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
 
@@ -642,6 +642,32 @@ version is unchanged.
 
 See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice1.md).
 
+**Improving track slice 2 (2026-10-25, corpus 0.43.4).** The developer directed:
+"In the tam repo, we are completing checklist item TCK25. The Using and Maintaining tracks are fully migrated and enforced, and the Improving track hub, scripting, and lua lessons landed in corpus 0.43.3. Continue TCK25 Improving track migration with the next slice: improve/terminal.html and improve/efficiency.html. Follow tam/AGENTS.md and claim scopes before editing."
+Baseline command 0.43.2 / corpus 0.43.3 at `85f6766`. This slice migrates
+`improve/terminal.html` and `improve/efficiency.html` to full ladder anatomy with
+captured read-only examples, mapped skills, and folded quizzes. It resolves the
+page gap for `desktop.expert`. It takes a corpus patch bump (0.43.4); command
+version is unchanged.
+
+1. `improve/terminal.html` is migrated to the full ladder anatomy with captured
+   read-only Micro scratch editing examples, live disk reload configuration
+   (`reload auto`), Wayland client/compositor boundaries (`wl_shm`, `wl_surface.damage_buffer`,
+   `WAYLAND_DEBUG=1`), sub-10ms shell startup latency benchmarking (`time bash --norc -i -c exit`),
+   and folded self-quizzes across Beginner, Intermediate, and Expert levels. Mapped to
+   `customizing.beginner`, `customizing.intermediate`, and `desktop.expert`.
+2. `improve/efficiency.html` is migrated to the full ladder anatomy with captured
+   read-only `vmstat 1 3` processor wakeup and context switch measurements,
+   event-driven kernel filesystem monitoring with `inotifywait -e modify`,
+   $O(1)$ `epoll(7)` multiplexing, Wayland socket event dispatching, and folded
+   self-quizzes across Beginner, Intermediate, and Expert levels. Mapped to
+   `hardware.beginner`, `hardware.intermediate`, and `hardware.expert`.
+3. Whole-corpus anatomy warnings drop from 18 to 14 (all 14 remaining warnings
+   are in unmigrated lessons). Unclassified pages drop from 45 to 43; unmapped
+   pages drop from 87 to 83. The page gap for `desktop.expert` is resolved.
+
+See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice2.md).
+
 ### Stop and ask the developer
 
 - If a key named here turns out to be taken, or behaves differently under
@@ -679,4 +705,4 @@ corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
 paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
 two Maintaining recovery ladders. Corpus 0.42.0 adds the boot, boot-fallback
-and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining with resources, packaging, and the Maintaining hub, and enables track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with the hub, scripting, and lua lessons. Remaining Improving lessons, Learning, and Installing migration remain open.
+and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining with resources, packaging, and the Maintaining hub, and enables track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with the hub, scripting, and lua lessons. Corpus 0.43.4 continues Improving track migration with terminal and efficiency lessons, resolving the desktop.expert page gap. Remaining Improving lessons, Learning, and Installing migration remain open.

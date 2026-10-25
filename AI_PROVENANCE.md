@@ -140,3 +140,4 @@ model for each session.
 | 2026-10-22 | Retire completed Luna upgrade handoff (tam-upgrade-luna.md); no version change | Antigravity CLI 1.4.5; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-22-tam-retire-luna-upgrade-handoff.md) |
 | 2026-10-25 | TCK25 Maintaining completion (resources, packaging, hub) and track-wide enforcement; corpus 0.43.2 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-maintaining-completion.md) |
 | 2026-10-25 | TCK25 Improving track migration slice 1 (hub, scripting, lua); corpus 0.43.3 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-improving-slice1.md) |
+| 2026-10-25 | TCK25 Improving track migration slice 2 (terminal, efficiency); corpus 0.43.4 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-improving-slice2.md) |

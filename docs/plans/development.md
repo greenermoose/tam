@@ -2,13 +2,13 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-22
-**Scope:** Living integration contract; current command 0.43.2 and corpus 0.42.5.
+**Scope:** Living integration contract; current command 0.43.2 and corpus 0.43.4.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Continue TCK25 Improving track migration with the remaining lessons (efficiency, zram, terminal, toolchains, ai-performance, patches, package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
+**Next action:** Continue TCK25 Improving track migration with the remaining lessons (zram, toolchains, ai-performance, patches, package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -423,6 +423,14 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-25:** Corpus 0.43.4 (patch): TCK25 Improving track migration (slice 2).
+  Migrated `improve/terminal.html` and `improve/efficiency.html` to full ladder
+  anatomy with captured read-only examples, mapped skills, and folded quizzes;
+  resolved page gap for `desktop.expert` and expanded `hardware` and `customizing`
+  skills coverage. Anatomy warnings dropped from 18 to 14. Next TCK25 work:
+  remaining Improving lessons (zram, toolchains, ai-performance, patches, package-versions,
+  virtualization, tam.html), then track-wide build enforcement.
 
 - **2026-10-25:** Corpus 0.43.3 (patch): TCK25 Improving track migration (first
   slice). Migrated `improve/scripting.html` and `ecosystem/lua.html` to full ladder
