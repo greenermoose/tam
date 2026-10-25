@@ -2,13 +2,13 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-22
-**Scope:** Living integration contract; current command 0.43.2 and corpus 0.43.5.
+**Scope:** Living integration contract; current command 0.43.2 and corpus 0.43.6.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Continue TCK25 Improving track migration with the remaining lessons (ai-performance, patches, package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
+**Next action:** Continue TCK25 Improving track migration with the remaining lessons (package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -423,6 +423,15 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-25:** Corpus 0.43.6 (patch): TCK25 Improving track migration (slice 4).
+  Migrated `improve/ai-performance.html` and `ecosystem/patches.html` to full ladder
+  anatomy with captured read-only examples, mapped skills, and folded quizzes;
+  mapped `hardware` and `customizing` skills; alphabetized terms in the Glossary
+  hub (`learn/glossary/index.html`). Anatomy warnings dropped from 10 to 8; unclassified
+  pages fell from 41 to 39; unmapped pages fell from 83 to 79. Next TCK25 work:
+  remaining Improving lessons (package-versions, virtualization, tam.html), then
+  track-wide build enforcement.
 
 - **2026-10-25:** Corpus 0.43.5 (patch): TCK25 Improving track migration (slice 3).
   Migrated `improve/zram.html` and `improve/toolchains.html` to full ladder

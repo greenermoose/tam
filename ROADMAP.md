@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-25. **Owner:** Fred (developer).
-**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.43.5`.
+**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.43.6`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -127,12 +127,13 @@ in that candidate, not here.
 | **0.43.3 corpus** | TCK25 Improving track migration (first slice) | Done (2026-10-25) | Migrated scripting and lua lessons to full teaching anatomy with captured examples, quizzes and customizing skills; classified Improving hub. |
 | **0.43.4 corpus** | TCK25 Improving track migration slice 2 | Done (2026-10-25) | Migrated terminal and efficiency lessons to full teaching anatomy with captured read-only examples, quizzes, and desktop.expert / hardware skills; resolved desktop.expert page gap. |
 | **0.43.5 corpus** | TCK25 Improving track migration slice 3 | Done (2026-10-25) | Migrated zram and toolchains lessons to full teaching anatomy with captured read-only examples, quizzes, and hardware / contributing skills; resolved all contributing page gaps. |
+| **0.43.6 corpus** | TCK25 Improving track migration slice 4 | Done (2026-10-25) | Migrated ai-performance and patches lessons to full teaching anatomy with captured read-only examples, quizzes, and hardware / customizing skills; alphabetized Glossary. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.2 / 0.43.5 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using and Maintaining fully migrated and enforced, Improving track migration underway. Development installation is a separate developer-directed step. |
+| `develop` | 0.43.2 / 0.43.6 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using and Maintaining fully migrated and enforced, Improving track migration underway. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.38.1 / 0.42.0 | Latest cached remote Test source at `c161190`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 

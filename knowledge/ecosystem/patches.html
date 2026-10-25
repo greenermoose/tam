@@ -1,55 +1,303 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Carried Patches</title>
+<title>Carried Patches and Upstream Engagement</title>
 <meta name="topic" content="patches">
-<meta name="summary" content="Carried patches: why Tamlinux publishes fixes on public forks and retires them">
-<meta name="keywords" content="patches, patch, carried patch, registry, upstream, forks, fork, pkgbuild, local-patches, ignorepkg, retire">
-<meta name="level" content="intermediate">
+<meta name="summary" content="Carried patches: why Tamlinux publishes fixes on public forks, verifies builds, and retires them automatically">
+<meta name="keywords" content="patches, patch, carried patch, registry, upstream, forks, fork, pkgbuild, local-patches, ignorepkg, retire, pacman, pkgrel">
+<meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
+<meta name="prereqs" content="improve, packaging">
+<meta name="kind" content="how-to">
+<meta name="skills" content="customizing.beginner, customizing.intermediate, customizing.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Why Tamlinux Carries Patches</p>
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Carried Patches and Upstream Engagement</p>
 </nav>
 
-<h1>Why Tamlinux Carries Patches</h1>
+<h1>Carried Patches and Upstream Engagement</h1>
 
 <p>Sometimes a third-party package has a bug that Tamlinux cannot wait for
 upstream to fix. Tamlinux then <em>carries</em> a patch: it runs a rebuilt
 package with the fix applied, records it publicly, and removes it as soon as
 upstream ships the fix.</p>
 
-<h2>Why not just send a pull request?</h2>
+<section data-level="beginner">
+<h2>Inspect carried patches and verify local package status</h2>
 
-<p>Writing code has become cheap, but reviewing it is still expensive, and
-many maintainers are overwhelmed by machine-generated contributions. Several
-projects now restrict outside pull requests or AI-assisted contributions; for
-example, Hyprland accepts pull requests only from vouched contributors, and its
-AI policy forbids AI involvement in pull requests, issues, and comments.</p>
+<p><strong>Goal:</strong> you will be able to check which packages carry local patches, verify their retirement status, and understand why Tamlinux never edits system files under <code>/usr</code> directly.</p>
 
-<p>Tamlinux's fixes are developed with AI assistance and its provenance is
-published. Rather than add to review queues where such work is unwanted,
-Tamlinux publishes each fix where it costs upstream nothing: a clean branch on a
-public fork, based on the upstream release tag, that anyone can inspect,
-compare, and merge.</p>
+<p><strong>Why it matters:</strong> third-party software occasionally suffers critical bugs (such as display freezes or compositor crashes) that make daily work impossible. Rather than hacking files directly under <code>/usr</code> (which breaks integrity checks and gets overwritten on update) or freezing updates with <code>IgnorePkg</code> (which silently blocks security fixes), Tamlinux carries visible, audited patches that retire themselves automatically.</p>
 
-<h2>How a patch is carried</h2>
+<p><strong>Before you start:</strong> open a terminal. On Arch Linux, local patches are published to a dedicated repository called <code>[local-patches]</code>. Inspecting patch status uses read-only commands that require no administrative privileges. See <a href="ecosystem/packaging.html">Software packaging and delivery</a> for package management basics.</p>
+
+<aside class="first-time">
+<p>A patch is a small text file describing exact line changes to source code. In Tamlinux, packages with local fixes carry a distinctive version suffix like <code>-1.1</code>. You can inspect local patch status anytime by reading <code>/var/lib/local-patches-upstream/status</code>.</p>
+</aside>
+
+<h3>Worked example: Check local patch status</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat /var/lib/local-patches-upstream/status
+# 2026-10-23T13:40:08-04:00
+aquamarine	0.15.1-1.1	extra/0.15.1-1	ok
+hyprland	0.56.2-4.1	extra/0.56.2-4	ok
+linux	7.2.11.arch1-1.1	core/7.2.11.arch1-1	ok
+omarchy	4.0.4-1.3	-	no-upstream
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<h3>What just happened</h3>
 
 <ol>
-<li>The fix is committed on a public fork (<code>greenermoose/&lt;project&gt;</code>), branched from the upstream release tag.</li>
-<li>The commits are exported as patch files with <code>git format-patch</code>.</li>
-<li>The package is rebuilt from the upstream source with the patches applied and a visible local release suffix (<code>pkgrel</code> <code>&lt;arch&gt;.N</code>).</li>
-<li>The build is served from a local repository listed first in <code>pacman.conf</code>. Tamlinux never edits files under <code>/usr</code> and never hides the package from updates with <code>IgnorePkg</code>.</li>
-<li>A pacman hook checks every update and warns when upstream ships a version containing the fix; the patch is then retired.</li>
+<li>Reading <code>/var/lib/local-patches-upstream/status</code> displayed all packages currently served from <code>[local-patches]</code>.</li>
+<li>Each entry shows the package name, the locally installed version with its patch suffix (e.g. <code>0.15.1-1.1</code>, <code>0.56.2-4.1</code>), the current upstream distro version (<code>extra/0.15.1-1</code>), and the comparison verdict (<code>ok</code>).</li>
+<li>The verdict <code>ok</code> confirms our local patch is ahead of upstream and still necessary. If upstream releases a newer version, the status changes to warn us to retire or rebase the patch.</li>
 </ol>
 
-<h2>The current registry</h2>
+<h3>Try it</h3>
 
-<p>Which packages are patched, why, and when each patch retires is recorded in
-the public
-<a href="https://github.com/greenermoose/ecosystem-fred-tamlinux/blob/main/ECOSYSTEM.md">ecosystem registry</a>,
-generated from its <code>ecosystem.json</code>.</p>
+<p>Query pacman to inspect version numbers and verify that locally patched packages show the distinctive decimal release suffix:</p>
+
+<pre class="session" data-risk="read-only">
+$ pacman -Q aquamarine hyprland
+aquamarine 0.15.1-1.1
+hyprland 0.56.2-4.1
+</pre>
+
+<p>Every patched package also provides a matching <code>-debug</code> package with unstripped symbols and source files, ensuring native crash backtraces remain fully symbolized locally.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>status file does not exist</dt>
+<dd>The upstream check hook has not run yet. Run <code>/usr/local/bin/local-patches-upstream-check</code> or check installed versions directly with <code>pacman -Q</code>.</dd>
+<dt>status reports upstream-newer</dt>
+<dd>The upstream distribution has shipped an updated package. Check whether the upstream release incorporates the fix; if it does, retire the patch.</dd>
+<dt>pacman reports file exists in filesystem</dt>
+<dd>A file under <code>/usr</code> was manually edited or copied outside of pacman. Never modify files under <code>/usr</code> directly; always build clean packages.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does Tamlinux never use <code>IgnorePkg</code> in <code>pacman.conf</code> to freeze a package with a known bug?</summary>
+<p><code>IgnorePkg</code> freezes the package silently. You stop receiving all future updates and security fixes, and no tool warns you when upstream fixes the bug. Tamlinux uses a local repository that alerts you the moment upstream moves ahead.</p>
+</details>
+<details class="q">
+<summary>What indicates that an installed package contains a local Tamlinux patch?</summary>
+<p>Its release number has an added decimal suffix, such as <code>0.15.1-1.1</code> (where <code>-1</code> is the upstream release and <code>.1</code> is the local patch build number).</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Carried patch</dt>
+<dd>A local source code fix maintained and applied to an upstream package until upstream releases an official fix.</dd>
+<dt>Upstream</dt>
+<dd>The original authors, maintainers, and official repositories of an open-source project or distribution.</dd>
+<dt>Retirement</dt>
+<dd>Removing a carried patch, local repository package, and guard hooks once upstream includes the fix in an official release.</dd>
+</dl>
+<p>Every carried package must have a designated configuration <dfn><a href="learn/glossary/owner.html">owner</a></dfn> and recorded origin.</p>
+
+<p><strong>Next step:</strong> at Intermediate, learn how repository precedence works in <code>pacman.conf</code>, how to inspect patch files, and how automated retirement hooks function.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Repository precedence, patch exports, and automated retirement</h2>
+
+<p><strong>Goal:</strong> you will be able to verify repository order in <code>pacman.conf</code>, inspect patch sets exported from public forks, and explain automated patch retirement mechanisms.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+/etc/pacman.conf
+  |--> [local-patches]  (file:///var/cache/local-patches)  &lt;-- First repository (HIGHEST precedence)
+  |--> [core]
+  |--> [extra]          (official mirrors)                &lt;-- Downstream repositories
+
+Package Resolution:
+  pacman selects package from the FIRST repository that lists it.
+  Version arithmetic does NOT override repository order!
+
+Retirement Detection:
+  vercmp &lt;local-version&gt; &lt;upstream-version&gt;
+  50-local-patches-upstream.hook fires after every transaction.
+  If upstream pkgver &gt; local base: status becomes 'upstream-newer' -&gt; Time to retire!
+</pre>
+
+<p>Pacman evaluates repositories strictly in the order they are defined in <code>/etc/pacman.conf</code>. A package in <code>[local-patches]</code> always supersedes an identical package in <code>[extra]</code>, even if <code>[extra]</code> has a higher version number. Automated hooks compare versions after every transaction to alert you when upstream catches up.</p>
+
+<h3>Worked example: Check repository precedence in pacman.conf</h3>
+
+<pre class="session" data-risk="read-only">
+$ grep -A 4 "\[local-patches\]" /etc/pacman.conf
+[local-patches]
+SigLevel = Optional TrustAll
+Server = file:///var/cache/local-patches
+
+[core]
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<ol>
+<li><code>[local-patches]</code> is listed before <code>[core]</code> and <code>[extra]</code>.</li>
+<li>Because <code>pacman</code> evaluates repositories in order of declaration, any package present in <code>[local-patches]</code> takes precedence over identical package names in official mirrors.</li>
+<li><code>vercmp</code> is used by the post-transaction hook to compare versions: <code>vercmp 0.15.1-1.1 0.15.1-1</code> evaluates to 1 (local is ahead), while <code>vercmp 0.15.1-1.1 0.15.2-1</code> evaluates to -1 (upstream is newer; retirement triggered).</li>
+</ol>
+
+<h3>Completion task</h3>
+
+<p>Fill the gap (marked <code>___</code>) in the version comparison test to determine whether upstream has released a newer build that requires checking for patch retirement:</p>
+
+<pre data-risk="read-only">
+vercmp 0.56.2-4.1 ___
+</pre>
+
+<details class="solution">
+<p>Fill in <code>0.56.2-5</code> (or <code>0.56.3-1</code>). When the second argument is newer than the local base, <code>vercmp</code> returns <code>-1</code>, signaling that upstream has shipped a new release and the patch must be audited for retirement or rebase.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Inspect the compiled binary of a patched library to verify that the carried fix is active. For example, verify that <code>aquamarine</code> carries the hotplug disconnect fix using <code>strings /usr/lib/libaquamarine.so.0.15.1 | grep 'Disabled KMS output'</code>.</p>
+
+<details class="solution">
+<p>Run <code>strings /usr/lib/libaquamarine.so.0.15.1 | grep 'Disabled KMS output'</code>. It outputs <code>drm: Disabled KMS output ... before disconnect</code>, verifying that the carried hotplug disconnect fix is compiled into the active shared library.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Approach</th><th>Tradeoff</th><th>Use when</th></tr>
+<tr><td>Carried patch in <code>[local-patches]</code></td><td>Clean package build, transparent provenance, alerts on upstream release</td><td>Fixing critical bugs before upstream release</td></tr>
+<tr><td>Upstream Pull Request</td><td>Long review latency, subject to project AI policies and contributor vouch gates</td><td>Contributing general features to receptive projects</td></tr>
+<tr><td><code>IgnorePkg</code> in <code>pacman.conf</code></td><td>Freezes package silently, misses security updates</td><td>Never; unsafe practice</td></tr>
+<tr><td>Direct edit under <code>/usr</code></td><td>Reverted on update, breaks checksums (<code>pacman -Qkk</code>)</td><td>Never; violates package management</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>pacman installs extra version instead of local-patches</td><td>Repository order inverted</td><td>Check <code>/etc/pacman.conf</code></td><td>Move <code>[local-patches]</code> above <code>[core]</code> and <code>[extra]</code></td></tr>
+<tr><td>local-patches reports 'could not open file'</td><td>DownloadUser permission issue</td><td>Check repo path</td><td><code>/var/cache/local-patches/</code> must be readable by <code>alpm</code> user; do not place under user home directory</td></tr>
+<tr><td>Status reports PATCH-LOST</td><td>Distro update replaced local package</td><td>Check <code>pacman -Q &lt;pkg&gt;</code></td><td>Re-install local build or complete retirement</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, all carried patches are published transparently on public forks at <code>github.com/greenermoose/&lt;project&gt;</code> and indexed in <code>greenermoose/ecosystem-fred-tamlinux</code>. Patches are built with <code>makepkg -Cf</code> as an unprivileged user, accompanied by <code>-debug</code> packages so local crash backtraces retain complete symbols without debuginfod network lookups.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>If Arch releases <code>hyprland 0.56.3-1</code> in <code>[extra]</code> while <code>0.56.2-4.1</code> is in <code>[local-patches]</code>, will <code>pacman -Syu</code> automatically upgrade it?</summary>
+<p>No! Because <code>[local-patches]</code> is listed first in <code>pacman.conf</code>, pacman satisfies the dependency from <code>[local-patches]</code> and ignores the newer version in <code>[extra]</code>. The post-transaction hook detects that upstream is newer and flags it in the status report so you can test and retire the patch.</p>
+</details>
+<details class="q">
+<summary>Why must <code>/var/cache/local-patches/</code> be located outside of user home directories?</summary>
+<p>Pacman drops privileges to the unprivileged <code>alpm</code> user when downloading or reading repository databases. Because user home directories typically have mode 700 permissions, the <code>alpm</code> user cannot traverse them, resulting in "could not open file" errors.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="man:pacman.conf(5)">pacman.conf(5)</a> &mdash; pacman configuration and repository layout.</li>
+<li><a href="man:vercmp(8)">vercmp(8)</a> &mdash; package version comparison utility.</li>
+<li><a href="ecosystem/packaging.html">Software packaging and delivery</a> &mdash; native package management layers.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Fork branch conventions, PKGBUILD maintenance, and upstream policy</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Component</th><th>Path or Convention</th><th>Purpose</th></tr>
+<tr><td>Fork checkout</td><td><code>~/Code/&lt;Upstream&gt;</code></td><td>Public fork (<code>greenermoose/&lt;Upstream&gt;</code>); branch <code>patch/&lt;slug&gt;</code> off release tag.</td></tr>
+<tr><td>Patch set tag</td><td><code>patchset/&lt;tag&gt;</code></td><td>Release tag plus all applied patches in order, tagged <code>&lt;tag&gt;-fred.&lt;N&gt;</code>.</td></tr>
+<tr><td>Default branch</td><td><code>fred</code></td><td>Points to latest <code>patchset/&lt;tag&gt;</code> so fork landing page shows patched tree.</td></tr>
+<tr><td>Scratch build</td><td><code>~/pkgs/&lt;pkg&gt;/</code></td><td>Arch PKGBUILD, <code>PKGBUILD.arch-orig</code>, exported patch files, and <code>.SRCINFO</code>.</td></tr>
+<tr><td>Local repo</td><td><code>/var/cache/local-patches/</code></td><td>Published pacman repository owned by user (mode 755), indexed by <code>repo-add</code>.</td></tr>
+<tr><td>Upstream hook</td><td><code>/etc/pacman.d/hooks/50-local-patches-upstream.hook</code></td><td>Runs <code>local-patches-upstream-check</code> after every pacman transaction.</td></tr>
+<tr><td>Public registry</td><td><code>ecosystem-fred-tamlinux</code></td><td>Public registry recording every carried patch, upstream commit, and retirement condition.</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>The complete carried patch lifecycle consists of four stages:</p>
+
+<ol>
+<li><strong>Patch creation on a public fork:</strong> The fix is committed to a branch (<code>patch/&lt;slug&gt;</code>) created directly from the upstream release tag that matches the installed package. The commit message includes the bug description, crash evidence, and retirement criteria.</li>
+<li><strong>Exporting patches and tuning PKGBUILD:</strong> Patches are exported with <code>git format-patch</code> into <code>~/pkgs/&lt;pkg&gt;/</code>. The PKGBUILD increments <code>pkgrel</code> with a decimal suffix (e.g. <code>pkgrel=4.1</code>), appends patches to <code>source=()</code> and <code>b2sums=()</code>, and applies them in <code>prepare()</code> with <code>patch -Np1</code>.</li>
+<li><strong>Building and local publishing:</strong> The package is built as an unprivileged user using <code>makepkg -Cf --noconfirm</code>. The <code>-C</code> flag ensures a clean source directory, preventing already-patched errors. The built <code>.pkg.tar.zst</code> and <code>-debug</code> archives are copied to <code>/var/cache/local-patches/</code> and registered with <code>repo-add</code>.</li>
+<li><strong>Automated retirement detection:</strong> After every package transaction, <code>local-patches-upstream-check</code> runs <code>vercmp</code> against the official distribution mirrors. When upstream releases a version containing the fix, the patch is retired: the local repository files, hook, and status files are deleted, and pacman synchronizes the official upstream build.</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Public open-source pull request queues face high maintainer fatigue and increasing restrictions, including contributor vouch gates and strict bans on AI-assisted contributions (such as Hyprland's policy). Rather than adding review burden to upstream queues where AI-assisted contributions are unwelcome, Tamlinux publishes each fix where it costs upstream nothing: a clean branch on a public fork based on the upstream release tag, indexed in a public registry. Anyone can inspect, verify, or cherry-pick the change.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Building from tarball vs git tree:</strong> Packages must always be built from upstream source tarballs, never raw git repository checkouts. For example, Hyprland bakes its source <code>GIT_COMMIT_HASH</code> into its plugin ABI validation string; building from git alters this hash and breaks all desktop plugins.</li>
+<li><strong>Shared library SONAME preservation:</strong> Carried patches should not alter exported symbol signatures or increment library SONAMEs, as doing so requires rebuilding all dependent packages.</li>
+<li><strong>Partial upgrade risk:</strong> Running <code>pacman -Sy</code> against local repositories without performing a full system upgrade (<code>pacman -Syu</code>) leaves sync databases newer than installed packages. Always upgrade packages cohesively.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Inspect the detailed metadata of a carried package to verify its build origin and patch release suffix:</p>
+
+<pre class="session" data-risk="read-only">
+$ pacman -Qi aquamarine | grep -E '^(Name|Version|Packager)'
+Name            : aquamarine
+Version         : 0.15.1-1.1
+Packager        : Unknown Packager
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why does Tamlinux require local patches to be built from upstream release tarballs rather than raw git checkouts?</summary>
+<p>Certain core components (such as Hyprland) embed the git commit hash directly into their plugin ABI validation strings at compile time. Building from an arbitrary git commit hash changes this ABI signature, causing all compiled desktop plugins (e.g. titlebars, workspaces) to fail ABI checks and refuse to load on session start.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="man:pacman(8)">pacman(8)</a> &mdash; package manager utility.</li>
+<li><a href="man:makepkg(8)">makepkg(8)</a> &mdash; package build utility.</li>
+<li><a href="man:PKGBUILD(5)">PKGBUILD(5)</a> &mdash; Arch Linux package build description file.</li>
+<li><cite data-ref="pacman"><a href="learn/bibliography/pacman.html">pacman manual</a></cite> &mdash; official package management reference.</li>
+<li><a href="https://github.com/greenermoose/ecosystem-fred-tamlinux">greenermoose/ecosystem-fred-tamlinux</a> &mdash; public carried patch registry.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Carried patch recipes, public fork branches, and retirement criteria are recorded and maintained in the public <code>greenermoose/ecosystem-fred-tamlinux</code> repository.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; native compilation and sharing one clone between agents.</li>
+<li><a href="ecosystem/packaging.html">Software packaging and delivery</a> &mdash; native package management layers and Home Manager assemblies.</li>
+<li><a href="improve/ai-performance.html">Physics of local AI generation</a> &mdash; evaluate memory bandwidth and quantization constraints.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
+</ul>
 </body>
 </html>
