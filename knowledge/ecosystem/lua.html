@@ -30,7 +30,7 @@ the desktop configuration you edit every day is written in it.</p>
 
 <p><strong>Goal:</strong> you will be able to run Lua one-liners, inspect the desktop interpreter version, and locate your compositor's configuration files.</p>
 
-<p><strong>Why it matters:</strong> Unlike traditional Linux desktops that use static INI or XML files, Tamlinux configures the Hyprland compositor, Neovim, and media players with Lua scripts. Knowing how Lua executes and where your configurations live lets you tune keybindings and display layouts safely without altering package files.</p>
+<p><strong>Why it matters:</strong> Why Lua is included: unlike traditional Linux desktops that use static INI or XML files, Tamlinux configures the Hyprland compositor, Neovim, and media players with Lua scripts. Knowing how Lua executes and where your configurations live lets you tune keybindings and display layouts safely without altering package files.</p>
 
 <p><strong>Before you start:</strong> open a terminal. Lua is installed natively on your system. These commands inspect versions and evaluate expressions in memory; they do not alter files. See <a href="desktop/index.html">The Tamlinux Desktop</a> for desktop navigation basics.</p>
 
@@ -217,7 +217,7 @@ print("total: " .. ___ .. " W")
 </section>
 
 <section data-level="expert">
-<h2>How hosts embed Lua: the C API stack protocol</h2>
+<h2>How a host embeds Lua: the C API stack protocol</h2>
 
 <p><strong>Reference:</strong> A host program creates one Lua state, loads script files into it, and exchanges values with it over a single shared virtual stack. Positions on that stack count up from the bottom (<code>1</code>, <code>2</code>, <code>3</code>&hellip;) or down from the top (<code>-1</code> is the value most recently pushed or returned).</p>
 
