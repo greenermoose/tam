@@ -6,6 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.4.7
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
+- **Commits:** `18e1a28` and the generated-index follow-up containing this line.
 - **Authorship:** The developer directed finishing the remaining Maintaining pages under TCK25. Antigravity CLI migrated `hardware/resources.html` and `ecosystem/packaging.html`, classified `maintain/index.html` as a hub, enabled track-wide build enforcement in `knowledge/learn/skills/skills.json`, and updated plan and roadmap records.
 - **Checked against:** `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`, `docs/plans/learning-levels.md`, `tools/build-index.py`, `tools/lint-corpus.py`, `knowledge/learn/skills/skills.json`; live captured `free -h`, `df -h /`, `nproc`, `uptime`, `pacman -Q bash`, `pacman -Qo /usr/bin/git`, and `home-manager generations` outputs; [free(1)](https://man7.org/linux/man-pages/man1/free.1.html), [ps(1)](https://man7.org/linux/man-pages/man1/ps.1.html), [uptime(1)](https://man7.org/linux/man-pages/man1/uptime.1.html), [pacman(8)](https://man.archlinux.org/man/pacman.8), [procps-ng](https://gitlab.com/procps-ng/procps), Linux kernel `/proc/meminfo` and `/proc/pressure/memory` documentation.
 
