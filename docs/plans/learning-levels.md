@@ -13,10 +13,9 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Finish TCK25 Maintaining with resources, packaging and
-hub migration, then part-wide enforcement.
-TCK24, Using, five Maintaining recovery/boot lessons, logs/power and Rescue are implemented;
-pilot and learner review remain unverified.
+**Next action:** Plan and implement the next TCK25 migration part
+(Learning, Installing, or Improving). Using and Maintaining are fully
+migrated with build enforcement enabled; pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
 
@@ -596,6 +595,32 @@ coverage is not learner validation. Resources, packaging and the hub remain;
 Maintaining enforcement stays off. Verification and limitations:
 [session record](../ai/2026-10-22-tam-logs-power-learning.md).
 
+**Maintaining completion slice (2026-10-25, corpus 0.43.2).** The developer
+directed: "Finish the remaining Maintaining pages under TCK25." Baseline command
+0.43.2 / corpus 0.43.1 at `71bb7b6`. This slice migrates `hardware/resources.html`,
+`ecosystem/packaging.html`, and `maintain/index.html`, and enables part-wide
+build enforcement for the Maintaining track in `skills.json`. It takes a corpus
+patch bump (0.43.2); command version is unchanged.
+
+1. `hardware/resources.html` is migrated to the full ladder anatomy with captured
+   read-only `free -h`, `df -h /`, `nproc`, and `uptime` examples, memory vs buffer
+   distinctions, PSI metrics, and folded self-quizzes across Beginner, Intermediate,
+   and Expert levels. Mapped to `hardware.beginner`, `hardware.intermediate`,
+   `hardware.expert`.
+2. `ecosystem/packaging.html` is migrated to the full ladder anatomy with captured
+   read-only `pacman -Q bash`, `pacman -Qo /usr/bin/git`, and Home Manager generation
+   inspection, distinguishing base OS packages from declarative workstation assemblies
+   and user runtimes. Mapped to `software.beginner`, `software.intermediate`,
+   `software.expert`.
+3. `maintain/index.html` is classified as `kind="hub"` with links to all 11 Maintain
+   pages and the Keep it healthy and Rescue goal paths.
+4. `learn/skills/skills.json` enables `"enforce_tracks": ["use", "maintain"]`,
+   promoting anatomy and quiz warnings across both Using and Maintaining to fatal
+   build errors. Anatomy warnings drop from 24 to 22 (remaining warnings are in
+   unmigrated parts). Maintaining has zero warnings and zero errors.
+
+See the [verification record](../ai/2026-10-25-tam-tck25-maintaining-completion.md).
+
 ### Stop and ask the developer
 
 - If a key named here turns out to be taken, or behaves differently under
@@ -633,6 +658,6 @@ corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
 paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
 two Maintaining recovery ladders. Corpus 0.42.0 adds the boot, boot-fallback
-and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power.
-Maintaining remains partial (resources, packaging and hub remain), and Learning,
-Installing and Improving migration remain open.
+and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining
+with resources, packaging, and the Maintaining hub, and enables track-wide
+build enforcement for Maintaining. Learning, Installing and Improving migration remain open.

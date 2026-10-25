@@ -8,11 +8,10 @@
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Finish TCK25 Maintaining with resources, packaging and
-hub migration, then part-wide enforcement. Using, the five
-Maintaining recovery/boot ladders, logs/power ladders and Rescue are implemented;
-pilot/learner review remains unverified. See the
-[learning levels plan](learning-levels.md). Package Test/Run/Release remain
+**Next action:** Plan and implement the next TCK25 migration part
+(Learning, Installing, or Improving). Using and Maintaining are fully
+migrated with build enforcement enabled; pilot and learner review remain unverified.
+See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
 authorization and need no per-run confirmation.
@@ -426,6 +425,14 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-25:** Corpus 0.43.2 (patch): TCK25 Maintaining completion and
+  enforcement. Migrated `hardware/resources.html` and `ecosystem/packaging.html`
+  to full ladder anatomy with captured read-only examples, mapped skills, and
+  folded quizzes; classified `maintain/index.html` hub; enabled track-wide
+  anatomy and quiz enforcement for Maintaining (`enforce_tracks: ["use", "maintain"]`).
+  Maintaining has zero anatomy warnings. Next TCK25 work: migration of Learning,
+  Installing, or Improving.
 
 - **2026-10-23:** Command 0.43.2 (patch): the developer's "See also ->"
   relatives leader. On a page that lacks the reader's active learning level,

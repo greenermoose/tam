@@ -1,7 +1,7 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-23. **Owner:** Fred (developer).
-**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.43.1`.
+**Reviewed:** 2026-10-25. **Owner:** Fred (developer).
+**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.43.2`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -123,12 +123,13 @@ in that candidate, not here.
 | **0.42.5 corpus** | Tightened up where next on welcome page | Done (2026-10-22) | Tightened up where next on welcome page |
 | **0.43.0 corpus** | Checkpoint concept guide and glossary entry | Done (2026-10-23) | Authored 'Checkpoints and Rollback Points' (`maintain/checkpoint.html`) and glossary entry (`learn/glossary/checkpoint.html`); explains checkpoint scopes across filesystem, boot, and user settings layers, boundary matching, quiescence, and avoiding churn via recovery anchors. Enables `tam explain checkpoint`. |
 | **0.43.1 corpus** | Wordsmithing welcome and about | Done (2026-10-25) | Wordsmithing welcome and about |
+| **0.43.2 corpus** | TCK25 Maintaining completion and enforcement | Done (2026-10-25) | Migrated resources and packaging lessons with full teaching anatomy and captured read-only examples; classified Maintaining hub; enabled Maintaining track-wide enforcement in skills registry. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.2 / 0.43.1 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, five Maintaining recovery/boot lessons, logs/power ladders and Rescue implemented. Development installation is a separate developer-directed step. |
+| `develop` | 0.43.2 / 0.43.2 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using and Maintaining fully migrated and enforced. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.38.1 / 0.42.0 | Latest cached remote Test source at `c161190`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -163,12 +164,7 @@ bibliography, additive metadata and a coverage/gap report. TCK25's Using part
 and staged level paths are implemented in corpus 0.40.0. Corpus 0.41.0
 migrates Maintaining's rollback and emergency-recovery lessons and adds
 three glossary terms. Corpus 0.42.0 migrates boot, boot-fallback and Snapper
-and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power with
-captured read-only examples, folded quizzes and diagnosis exercises. Next: finish the remaining Maintaining
-pages (resources, packaging and the hub).
-Part-wide enforcement waits for that completion. Versions are allocated
-when each slice starts. The deferred items
-in section 4 are candidates, not assignments.
+and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power with captured read-only examples, folded quizzes and diagnosis exercises. Corpus 0.43.2 completes Maintaining by migrating resources and packaging, classifying the Maintaining hub, and enabling track-wide build enforcement for Maintaining. Next: migration of remaining parts (Learning, Installing, Improving) under TCK25. Versions are allocated when each slice starts. The deferred items in section 4 are candidates, not assignments.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the

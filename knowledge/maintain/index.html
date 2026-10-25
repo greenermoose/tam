@@ -3,11 +3,13 @@
 <head>
 <title>System Maintenance and Reliability</title>
 <meta name="topic" content="maintain">
-<meta name="summary" content="System maintenance, updates, rollbacks, logs, power, and emergency recovery">
-<meta name="keywords" content="maintain, maintenance, health, updates, rollback, logs, power, recovery, diagnostics, reliability">
+<meta name="summary" content="System maintenance, updates, rollbacks, logs, power, resources, packaging, and emergency recovery">
+<meta name="keywords" content="maintain, maintenance, health, updates, rollback, logs, power, recovery, diagnostics, reliability, resources, packaging, boot, snapper, checkpoint">
 <meta name="level" content="beginner">
 <meta name="track" content="maintain">
 <meta name="parent" content="index.html">
+<meta name="kind" content="hub">
+<meta name="skills" content="">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -19,9 +21,9 @@
 <p>A dependable workstation is one whose state is understandable, observable,
 and reversible. Tamlinux structures system maintenance around non-disruptive
 updates, generation rollbacks, truthful diagnostics, progressive power
-management, emergency recovery, and reliable boot recovery.</p>
+management, emergency recovery, reliable boot recovery, and clear package ownership.</p>
 
-<h2>The five maintenance pillars</h2>
+<h2>Maintenance guides</h2>
 
 <dl>
 <dt><a href="maintain/updates.html">Non-disruptive updates and package lifecycle</a></dt>
@@ -48,17 +50,39 @@ wake conventions.</dd>
 virtual consoles, the Magic SysRq (REISUB) sequence, and live USB chroot
 environments.</dd>
 
+<dt><a href="maintain/boot.html">Linux boot architecture and chain</a></dt>
+<dd>Trace boot progression from UEFI firmware and Limine bootloader to unified
+kernel images and systemd target milestones.</dd>
+
 <dt><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a></dt>
-      <dd>Choose among alternate firmware paths, kernels, snapshots, virtual consoles
-      and external rescue media by understanding which parts of boot each route
-      still needs.</dd>
+<dd>Choose among alternate firmware paths, kernels, snapshots, virtual consoles
+and external rescue media by understanding which parts of boot each route
+still needs.</dd>
 
-      <dt><a href="maintain/snapper.html">Snapper: Btrfs snapshots for system rollbacks</a></dt>
-      <dd>Use Snapper to manage Btrfs root snapshots, automatic pre-update checkpoints, and Limine boot integration via <code>limine-snapper-sync</code>.</dd>
+<dt><a href="maintain/snapper.html">Snapper: Btrfs snapshots for system rollbacks</a></dt>
+<dd>Use Snapper to manage Btrfs root snapshots, automatic pre-update checkpoints,
+and Limine boot integration via <code>limine-snapper-sync</code>.</dd>
 
-      <dt><a href="maintain/checkpoint.html">Checkpoints and rollback points</a></dt>
-      <dd>Understand checkpoint scopes across filesystem, boot, and user settings layers, match recovery boundaries, and avoid checkpoint churn.</dd>
-    </dl>
+<dt><a href="maintain/checkpoint.html">Checkpoints and rollback points</a></dt>
+<dd>Understand checkpoint scopes across filesystem, boot, and user settings
+layers, match recovery boundaries, and avoid checkpoint churn.</dd>
+
+<dt><a href="hardware/resources.html">System resources and performance</a></dt>
+<dd>Inspect available memory headroom, monitor ZRAM swap compression, diagnose
+CPU load, and track Pressure Stall Information.</dd>
+
+<dt><a href="ecosystem/packaging.html">Software packaging and delivery</a></dt>
+<dd>Query installed packages safely, trace ownership across native OS, Nix/Home
+Manager workstation assemblies, and Mise toolchains.</dd>
+</dl>
+
+<h2>Goal paths</h2>
+
+<p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a> joins
+package updates, journal inspection and recovery planning into a guided path.
+<a href="learn/paths/rescue.html?level=2">Rescue</a> provides a four-stage
+disaster recovery path from Intermediate to Expert.
+<a href="learn/paths/index.html">Other goal paths</a>.</p>
 
 <h2>Automated inspection and health checks</h2>
 

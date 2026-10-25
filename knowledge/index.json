@@ -1793,7 +1793,7 @@
     "topic": "maintain",
     "path": "maintain/index.html",
     "title": "System Maintenance and Reliability",
-    "summary": "System maintenance, updates, rollbacks, logs, power, and emergency recovery",
+    "summary": "System maintenance, updates, rollbacks, logs, power, resources, packaging, and emergency recovery",
     "keywords": [
       "maintain",
       "maintenance",
@@ -1804,7 +1804,12 @@
       "power",
       "recovery",
       "diagnostics",
-      "reliability"
+      "reliability",
+      "resources",
+      "packaging",
+      "boot",
+      "snapper",
+      "checkpoint"
     ],
     "levels": [
       "beginner"
@@ -1812,7 +1817,7 @@
     "track": "maintain",
     "parent": "index.html",
     "prereqs": [],
-    "kind": "",
+    "kind": "hub",
     "skills": [],
     "rev": 7,
     "updated": "2026-10-23 13:31"
@@ -2013,8 +2018,8 @@
   {
     "topic": "packaging",
     "path": "ecosystem/packaging.html",
-    "title": "Packaging and Delivery: Nix, Pacman, and XBPS",
-    "summary": "Package management: recorded Tamlinux assemblies, Nix and Home Manager for user tools, and the native package manager for the base",
+    "title": "Software Packaging and Delivery",
+    "summary": "Package management: query native packages, identify ownership layers, and trace declarative Tamlinux assemblies",
     "keywords": [
       "packaging",
       "package manager",
@@ -2030,13 +2035,21 @@
       "flake"
     ],
     "levels": [
-      "intermediate"
+      "beginner",
+      "intermediate",
+      "expert"
     ],
     "track": "maintain",
     "parent": "maintain/index.html",
-    "prereqs": [],
-    "kind": "",
-    "skills": [],
+    "prereqs": [
+      "maintain"
+    ],
+    "kind": "how-to",
+    "skills": [
+      "software.beginner",
+      "software.intermediate",
+      "software.expert"
+    ],
     "rev": 4,
     "updated": "2026-10-18 12:03"
   },
@@ -2508,7 +2521,7 @@
     "topic": "resources",
     "path": "hardware/resources.html",
     "title": "System Resources and Performance",
-    "summary": "Memory (Free vs Available), ZRAM swap, CPU load, and disk",
+    "summary": "Check available memory and disk headroom, diagnose CPU load, and explore kernel virtual memory metrics",
     "keywords": [
       "resources",
       "resource",
@@ -2538,8 +2551,12 @@
     "prereqs": [
       "filesystem"
     ],
-    "kind": "",
-    "skills": [],
+    "kind": "how-to",
+    "skills": [
+      "hardware.beginner",
+      "hardware.intermediate",
+      "hardware.expert"
+    ],
     "rev": 9,
     "updated": "2026-10-21 06:50"
   },
