@@ -3,12 +3,14 @@
 <head>
 <title>Shell Scripting and Tool Conventions</title>
 <meta name="topic" content="scripting">
-<meta name="summary" content="Portable tam-* tools vs personal fred-* scripts, strict Bash headers, and safe argument handling">
-<meta name="keywords" content="scripting, scripts, bash, conventions, headers, pipefail, arguments, tam-work, portability, trap">
+<meta name="summary" content="Defensive Bash headers, safe whitespace quoting, exit code contracts, and tam-* vs fred-* tool namespaces">
+<meta name="keywords" content="scripting, scripts, bash, conventions, headers, pipefail, arguments, tam-work, portability, trap, errexit, nounset">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
-<meta name="prereqs" content="improve, shell">
+<meta name="prereqs" content="shell, filesystem">
+<meta name="kind" content="how-to">
+<meta name="skills" content="customizing.beginner, customizing.intermediate, customizing.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -22,108 +24,218 @@ Bash execution headers, safe argument forwarding, and deliberate naming namespac
 you can write scripts that run reliably across different machines and user accounts.</p>
 
 <section data-level="beginner">
-<h2>The strict Bash script template</h2>
+<h2>The defensive Bash script template</h2>
 
-<p><strong>Summary:</strong> Write dependable scripts using a defensive header that
-catches silent errors, uninitialized variables, and pipeline failures.</p>
+<p><strong>Goal:</strong> you will be able to write a defensive Bash script with strict execution flags that catches silent errors, uninitialized variables, and pipeline failures.</p>
 
-<p><strong>Prerequisites:</strong> Shell pipelines
-(<a href="shell/pipelines.html">Shell Pipelines</a>) and permissions
-(<a href="filesystem/permissions.html">File Permissions and Ownership</a>).</p>
+<p><strong>Why it matters:</strong> Standard shell scripts silently proceed when commands fail or variables are misspelled. An unquoted empty variable in <code>rm -rf "$MISTYPED_DIR/*"</code> becomes <code>rm -rf "/*"</code>, risking catastrophic filesystem loss. Defensive execution headers halt execution the moment an unexpected error occurs.</p>
 
-<h3>The canonical script template</h3>
+<p><strong>Before you start:</strong> open a terminal. Scripting requires basic familiarity with pipelines (<a href="shell/pipelines.html">Shell Pipelines</a>) and execution permissions (<a href="filesystem/permissions.html">File Permissions and Ownership</a>). We will test scripts in disposable scratch directories.</p>
 
-<pre>
+<aside class="first-time">
+<p>A shell script is a plain text file containing terminal commands. The top line (called the <em>shebang</em>, like <code>#!/usr/bin/env bash</code>) tells the operating system which program executes the file. Before you can run a script directly with <code>./myscript.sh</code>, you must give it execution permissions using <code>chmod +x myscript.sh</code>.</p>
+</aside>
+
+<h3>Worked example: Write and run a safe script</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat << 'EOF' > safe-greet.sh
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Script executed safely with arguments: $#"
+target="${1:-world}"
+echo "Hello, $target!"
+EOF
+$ chmod +x safe-greet.sh
+$ ./safe-greet.sh Tamlinux
+Hello, Tamlinux!
 </pre>
 
-<h3>Why each flag matters</h3>
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 
-<table>
-<tr><th>Flag</th><th>Name</th><th>Protective Behavior</th></tr>
-<tr><td><code>-e</code></td><td>errexit</td><td>Exits immediately if any command exits with a non-zero status.</td></tr>
-<tr><td><code>-u</code></td><td>nounset</td><td>Treats references to unset variables as fatal errors, preventing accidental operations on empty paths.</td></tr>
-<tr><td><code>-o pipefail</code></td><td>pipefail</td><td>Prevents pipeline masking: the return value of a pipeline is the status of the last command to fail, not the last command executed.</td></tr>
-</table>
+<ol>
+<li><code>#!/usr/bin/env bash</code> locates the <code>bash</code> executable portably across Nix, Arch, and standard Linux distributions.</li>
+<li><code>set -e</code> (errexit) exits immediately if any command exits with a non-zero status.</li>
+<li><code>set -u</code> (nounset) treats references to unset variables as fatal errors, preventing accidental operations on empty or mistyped paths.</li>
+<li><code>set -o pipefail</code> prevents pipeline masking: the return value of a pipeline is the status of the last command to fail, not the last command executed.</li>
+<li><code>${1:-world}</code> uses parameter expansion to supply a safe default value if the first argument was omitted.</li>
+</ol>
 
-<h3>What just happened</h3>
+<h3>Try it</h3>
 
-<ul>
-<li>The shebang <code>#!/usr/bin/env bash</code> locates the <code>bash</code> executable portably across Nix, Arch, and standard Linux distributions.</li>
-<li>With <code>set -euo pipefail</code> active, typographical errors in variable names (like <code>rm -rf "$MISTYPED_DIR/*"</code>) abort immediately with an error rather than wiping unintended files.</li>
-</ul>
+<p>Verify that <code>set -u</code> catches uninitialized variables in a temporary scratch directory:</p>
 
-<h3>Best practice</h3>
+<pre class="session" data-risk="scratch">
+$ scratch=$(mktemp -d)
+$ cat << 'EOF' > "$scratch/test-unbound.sh"
+#!/usr/bin/env bash
+set -euo pipefail
+echo "Result: $UNSET_VARIABLE"
+EOF
+$ chmod +x "$scratch/test-unbound.sh"
+$ "$scratch/test-unbound.sh" || true
+$scratch/test-unbound.sh: line 3: UNSET_VARIABLE: unbound variable
+$ rm -rf "$scratch"
+</pre>
 
-<p>Always quote variable expansions (e.g. <code>"$target"</code> instead of
-<code>$target</code>) to prevent accidental word splitting when paths contain
-spaces. Unquoted variables can break scripts when filenames or paths include
-whitespace.</p>
+<p>The script aborts immediately on line 3 before doing any unintended work. Notice that the error message clearly names the exact unbound variable.</p>
 
-<h3>Next step</h3>
+<h3>If it goes wrong</h3>
 
-<p>Learn how to safely forward command arguments and register cleanup hooks in the
-intermediate section below.</p>
+<dl>
+<dt>unbound variable error</dt>
+<dd>A variable was referenced before being assigned. Check spelling, or provide a default fallback such as <code>${var:-default}</code>.</dd>
+<dt>Permission denied when running <code>./script.sh</code></dt>
+<dd>The script lacks executable permissions. Run <code>chmod +x script.sh</code>.</dd>
+<dt>Script exits immediately on a non-critical command</dt>
+<dd>Because <code>set -e</code> is active, any command returning a non-zero code aborts execution. If a command is expected to return 1 (such as <code>grep</code> without matches), append <code>|| true</code> or test it in an <code>if</code> conditional.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is <code>set -o pipefail</code> critical when chaining commands like <code>curl -s ... | grep pattern</code>?</summary>
+<p>Without pipefail, Bash only reports the exit status of the final command in the pipeline (grep). If <code>curl</code> fails due to network disconnection or a 404 error, the pipeline could still return 0 if grep matches an empty string or error message, masking the network failure.</p>
+</details>
+<details class="q">
+<summary>What does <code>set -u</code> do when encountering <code>rm -rf "$TARGET/*"</code> if <code>TARGET</code> was misspelled as <code>TAGRET</code>?</summary>
+<p>It aborts the script immediately with an "unbound variable" error, preventing the disastrous execution of <code>rm -rf /*</code>.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Shebang</dt>
+<dd>The <code>#!</code> header on line 1 directing the kernel to the interpreter binary.</dd>
+<dt>Errexit</dt>
+<dd>The <code>-e</code> shell option that terminates the script when any command fails.</dd>
+<dt>Nounset</dt>
+<dd>The <code>-u</code> shell option treating uninitialized variable expansions as fatal errors.</dd>
+</dl>
+<p>A <dfn><a href="learn/glossary/filter.html">filter</a></dfn> reads standard input and writes standard output within a pipeline.</p>
+
+<p><strong>Next step:</strong> at Intermediate, learn how to forward argument arrays safely with <code>"$@"</code> and register guaranteed cleanup handlers with <code>trap</code>.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Safe argument handling and cleanup traps</h2>
+<h2>Safe argument handling, cleanup traps, and defensive patterns</h2>
 
-<p><strong>Summary:</strong> Forward argument arrays without mangling spaces, and
-ensure temporary files are guaranteed to be cleaned up on exit.</p>
+<p><strong>Goal:</strong> you will be able to forward arbitrary argument arrays without word-splitting bugs and ensure scratch directories are cleaned up reliably using <code>trap</code> handlers.</p>
 
-<h3>Worked example</h3>
-
-<p>Handle arbitrary filenames containing spaces and ensure temporary directories
-are removed even if the script fails midway:</p>
+<h3>Mental model</h3>
 
 <pre>
+$*       --> "arg1 arg2 arg3"               (concatenates into single string)
+$@       --> arg1 arg2 arg3                 (unquoted: splits on internal whitespace)
+"$@"     --> "arg1" "arg with space" "arg3" (preserves exact argument boundaries)
+trap ... EXIT --> guaranteed handler runs on exit, error abort, or termination
+</pre>
+
+<p>When handling filenames passed by users, never expand bare <code>$*</code> or unquoted <code>$@</code>. Unquoted expansions split filenames containing spaces (such as <code>"Quarterly Report.pdf"</code>) into multiple separate words. Always use double-quoted <code>"$@"</code>.</p>
+
+<h3>Worked example: Safe argument processing with an exit trap</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat << 'EOF' > process-files.sh
 #!/usr/bin/env bash
 set -euo pipefail
 
-tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
+scratch=$(mktemp -d)
+trap 'rm -rf "$scratch"' EXIT
 
+echo "Working in scratch directory: $scratch"
 for file in "$@"; do
-    cp "$file" "$tmp/"
+    echo "Processing: $file"
 done
-echo "Processed $# files safely in $tmp."
+EOF
+$ chmod +x process-files.sh
+$ ./process-files.sh "report 2026.txt" "notes final.md"
+Working in scratch directory: /tmp/tmp.DtTGDp4pQ4
+Processing: report 2026.txt
+Processing: notes final.md
 </pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<ol>
+<li><code>mktemp -d</code> creates a private, uniquely named scratch directory in <code>/tmp</code>.</li>
+<li><code>trap 'rm -rf "$scratch"' EXIT</code> registers an automatic cleanup handler. Regardless of whether the script finishes cleanly or aborts midway due to <code>set -e</code>, the scratch directory is guaranteed to be deleted.</li>
+<li><code>for file in "$@"; do</code> loops over each argument while preserving embedded whitespace.</li>
+</ol>
 
 <h3>Completion task</h3>
 
-<p>Register a cleanup handler function that executes upon script termination or
-interruption (such as pressing <code>Ctrl+C</code>). Complete the trap declaration
-below by filling in the missing signal keyword (marked with <code>___</code>):</p>
+<p>Register a cleanup handler function that executes upon script termination or normal exit. Complete the trap declaration below by filling in the missing signal keyword (marked with <code>___</code>):</p>
 
-<pre>
+<pre data-risk="read-only">
 trap cleanup ___
 </pre>
 
-<p>Target output: script that calls <code>cleanup()</code> on normal exit, error aborts, and <code>SIGINT</code>/<code>SIGTERM</code> signals.</p>
+<details class="solution">
+<p>Fill in <code>EXIT</code>. <code>trap cleanup EXIT</code> registers the <code>cleanup</code> function to execute whenever the shell process exits, covering normal completion, <code>exit</code> calls, and fatal <code>set -e</code> errors.</p>
+</details>
 
-<h3>Verification hints</h3>
+<h3>Independent task</h3>
+
+<p>Write a script in a temporary scratch directory that creates a temporary directory using <code>mktemp -d</code>, registers an <code>EXIT</code> trap to remove it, intentionally triggers an error with <code>false</code>, and verifies that the directory was removed despite the failure.</p>
+
+<details class="solution">
+<p>Create <code>test-trap.sh</code> containing <code>scratch=$(mktemp -d); trap 'rm -rf "$scratch"' EXIT; false</code>. Run the script (which exits with code 1). Then run <code>ls -d "$scratch"</code>; it outputs <code>No such file or directory</code>, proving the trap fired on error.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Pattern</th><th>Use when</th><th>Focus</th></tr>
+<tr><td><code>"$@"</code></td><td>Forwarding arbitrary command-line arguments</td><td>Preserving whitespace and distinct array elements</td></tr>
+<tr><td><code>"$*"</code></td><td>Displaying arguments in a single log message</td><td>Joining arguments with the first character of <code>IFS</code></td></tr>
+<tr><td><code>trap '...' EXIT</code></td><td>Guaranteeing resource deletion on exit</td><td>Reliable cleanup of temporary files or scratch directories</td></tr>
+<tr><td><code>trap '...' INT TERM</code></td><td>Handling interactive terminal interruption</td><td>Graceful abort on <code>Ctrl+C</code> or termination signals</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Filename with spaces splits into multiple arguments</td><td>Unquoted variable expansion <code>$file</code> instead of <code>"$file"</code></td><td>Search script for unquoted <code>$</code> expansions</td><td>Always wrap variable expansions in double quotes</td></tr>
+<tr><td>Trap handler fails to run on process kill</td><td>Process received uncatchable <code>SIGKILL</code> (signal 9)</td><td>Check how process was terminated</td><td>Use <code>SIGTERM</code> (15) to allow cleanup handlers to fire</td></tr>
+<tr><td>Script aborts inside an <code>if</code> check unexpectedly</td><td>Command failed outside the condition statement</td><td>Check which command returned non-zero under <code>bash -x</code></td><td>Append <code>|| true</code> if a non-zero exit is acceptable</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, public tools strictly follow the <code>tam-*</code> prefix, must support <code>--help</code> and <code>--version</code>, and must operate cleanly in non-interactive pipelines without hardcoding user home directories. Personal user scripts follow the <code>fred-*</code> prefix in <code>~/.local/bin/</code>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Does <code>trap ... EXIT</code> execute if the script is abruptly killed with <code>kill -9 &lt;PID&gt;</code>?</summary>
+<p>No. <code>SIGKILL</code> (signal 9) is handled directly by the kernel and terminates the process immediately without running user-space handlers. Traps handle normal exit, <code>set -e</code> aborts, <code>SIGINT</code> (Ctrl+C), and <code>SIGTERM</code>.</p>
+</details>
+<details class="q">
+<summary>What is the difference between <code>for f in "$@"</code> and <code>for f in $*</code>?</summary>
+<p><code>"$@"</code> preserves individual arguments exactly as passed, including spaces. <code>$*</code> without quotes concatenates all arguments and re-splits them across all whitespace, mangling filenames that contain spaces.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
 
 <ul>
-<li>The pseudo-signal <code>EXIT</code> (or <code>0</code>) catches normal exits, <code>set -e</code> aborts, and syntax errors.</li>
-<li>To also handle abrupt terminal interruptions, specify <code>EXIT INT TERM</code>.</li>
-<li>Always quote <code>"$@"</code> (double quotes) to expand each argument as a separate, distinct word.</li>
+<li><a href="man:bash(1)">bash(1)</a> &mdash; parameter expansion, shell builtin commands, and trap semantics.</li>
+<li><a href="man:trap(1p)">trap(1p)</a> &mdash; POSIX standard execution traps for signal conditions.</li>
+<li><a href="man:mktemp(1)">mktemp(1)</a> &mdash; safe creation of unique temporary files and directories.</li>
 </ul>
 </section>
 
 <section data-level="expert">
-<h2>Tool namespaces (tam-* vs fred-*) and POSIX exit contracts</h2>
+<h2>Tool namespaces, descriptor contracts, and POSIX exit semantics</h2>
 
-<p><strong>Summary:</strong> Master the architectural separation between system-wide
-portable tools and personal user scripts, and standard exit codes.</p>
+<p><strong>Reference:</strong> Tamlinux tools strictly adhere to the POSIX exit code conventions and maintain an explicit architectural boundary between public commands and personal machine scripts.</p>
 
 <h3>The Tamlinux command namespace contract</h3>
-
-<p>To keep the operating system clean and shareable, Tamlinux establishes a strict
-namespace separation between public tools and personal scripts:</p>
 
 <table>
 <tr><th>Prefix</th><th>Ownership</th><th>Scope and Design Rules</th></tr>
@@ -133,13 +245,67 @@ namespace separation between public tools and personal scripts:</p>
 
 <h3>Standard exit code contracts</h3>
 
-<p>Tamlinux tools adhere strictly to the POSIX exit code conventions:</p>
+<table>
+<tr><th>Exit code</th><th>Meaning</th><th>Standard stream behavior</th></tr>
+<tr><td><code>0</code></td><td>Success</td><td>Expected output emitted to stdout; stderr is empty.</td></tr>
+<tr><td><code>1</code></td><td>General runtime error</td><td>Diagnostic message on stderr; no corrupt partial state left on disk.</td></tr>
+<tr><td><code>2</code></td><td>Command-line usage error</td><td>Help message or syntax error on stderr; points directly to <code>--help</code>.</td></tr>
+<tr><td><code>126</code></td><td>Command invoked cannot execute</td><td>Target file exists but lacks executable permission or valid architecture.</td></tr>
+<tr><td><code>127</code></td><td>Command not found</td><td>Binary or utility not found anywhere on <code>PATH</code>.</td></tr>
+<tr><td><code>128+N</code></td><td>Fatal signal <code>N</code></td><td>Process terminated by signal (e.g. 130 for <code>SIGINT</code> / Ctrl+C, 137 for <code>SIGKILL</code>).</td></tr>
+</table>
+
+<h3>How it works: execution environments and descriptors</h3>
+
+<p>When Bash runs an external command, it invokes <code>fork()</code> and <code>execve()</code>. File descriptors 0 (stdin), 1 (stdout), and 2 (stderr) are inherited by the child process unless redirected. In subshells (commands enclosed in parentheses <code>( ... )</code>), the shell forks a child Bash process that inherits environment variables, shell options, and open descriptors, but modifications to variables or traps inside the subshell do not propagate back to the parent.</p>
+
+<p>Under <code>set -e</code>, subshell behavior has subtle rules defined by POSIX: if a command fails inside a subshell that is part of an <code>if</code>, <code>while</code>, or <code>until</code> test, <code>errexit</code> is temporarily disabled for that command list. Tamlinux scripts make conditional checks explicit using <code>if command; then ...; fi</code> rather than relying on uninspected subshell side-effects.</p>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Standardizing on defensive Bash and POSIX exit codes guarantees that unattended commands, automation hooks, and multi-agent workflows behave deterministically. Scripts fail fast and loudly on errors rather than continuing in an inconsistent state, and standard exit codes allow pipeline callers to distinguish usage mistakes from runtime operational failures.</p>
+
+<h3>Edge cases and failure modes</h3>
 
 <ul>
-<li><strong><code>0</code>:</strong> Success. Expected output emitted to standard output; standard error is empty.</li>
-<li><strong><code>1</code>:</strong> General runtime error. Truthful, informative diagnostic message written to standard error; no partial corrupt state left on disk.</li>
-<li><strong><code>2</code>:</strong> Command-line usage or syntax error (invalid flags, missing mandatory arguments, or non-interactive refusal contract). Points the user directly to <code>--help</code>.</li>
+<li><strong>Traps inside functions:</strong> A trap set inside a function has global shell scope unless <code>set -o functrace</code> and local traps are explicitly enabled. Always declare script-level traps at the top-level script scope.</li>
+<li><strong>Variable localization:</strong> Always declare internal helper variables inside functions using <code>local var="..."</code> to avoid polluting the global execution namespace.</li>
+<li><strong>Subshell exit codes:</strong> Pipelines run in separate subshells in standard Bash. Assignments made inside a <code>cat file | while read -r line; do ...; done</code> loop are lost when the subshell terminates; use process substitution <code>while read -r line; do ...; done < <(cat file)</code> instead.</li>
 </ul>
+
+<h3>Explore: Trace execution with bash -x and strace</h3>
+
+<p>Trace variable expansions and execution branches of any script using <code>bash -x</code>:</p>
+
+<pre class="session" data-risk="read-only">
+$ bash -x ./safe-greet.sh Tamlinux
++ set -euo pipefail
++ target=Tamlinux
++ echo 'Hello, Tamlinux!'
+Hello, Tamlinux!
+</pre>
+
+<p>To inspect child process creation and system calls directly, trace execution with <code>strace -f -e trace=clone,execve ./safe-greet.sh Tamlinux</code>.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why will <code>count=0; cat file | while read l; do ((count++)); done; echo $count</code> print 0 even if the file had 10 lines?</summary>
+<p>In standard Bash, each element of a pipeline runs in a separate child subshell. The <code>while</code> loop incremented <code>count</code> inside a child process whose memory was discarded upon loop completion. The parent shell's <code>count</code> remained 0.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="man:bash(1)">bash(1)</a> &mdash; GNU Bourne-Again SHell reference manual.</li>
+<li><a href="man:execve(2)">execve(2)</a> &mdash; execute program and descriptor inheritance semantics.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>New workstation utility scripts and command contributions are developed in public repositories under <code>tamlinux/commands/</code> following the path-claim and testing rules in <a href="tam.html">The tam command</a>.</p>
 </section>
 
 <h2>Where to next</h2>

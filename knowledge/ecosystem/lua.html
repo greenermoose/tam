@@ -9,6 +9,8 @@
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="ecosystem">
+<meta name="kind" content="how-to">
+<meta name="skills" content="customizing.beginner, customizing.intermediate, customizing.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -26,245 +28,306 @@ the desktop configuration you edit every day is written in it.</p>
 <section data-level="beginner">
 <h2>Lua is the language of your desktop</h2>
 
-<p><strong>Summary:</strong> Meet the interpreter that runs inside Hyprland,
-Neovim, and mpv, and make it say something from the terminal.</p>
+<p><strong>Goal:</strong> you will be able to run Lua one-liners, inspect the desktop interpreter version, and locate your compositor's configuration files.</p>
 
-<p><strong>Prerequisites:</strong> The ecosystem overview
-(<a href="ecosystem/index.html">The Tamlinux ecosystem</a>) and desktop
-basics (<a href="desktop/index.html">The Tamlinux Desktop</a>).</p>
+<p><strong>Why it matters:</strong> Unlike traditional Linux desktops that use static INI or XML files, Tamlinux configures the Hyprland compositor, Neovim, and media players with Lua scripts. Knowing how Lua executes and where your configurations live lets you tune keybindings and display layouts safely without altering package files.</p>
 
-<h3>Command sequence</h3>
+<p><strong>Before you start:</strong> open a terminal. Lua is installed natively on your system. These commands inspect versions and evaluate expressions in memory; they do not alter files. See <a href="desktop/index.html">The Tamlinux Desktop</a> for desktop navigation basics.</p>
 
-<pre>
-lua -e 'print("hello from " .. _VERSION)'
-</pre>
+<aside class="first-time">
+<p>Lua is a lightweight scripting language designed to be embedded inside larger programs. The terminal command <code>lua</code> runs the standalone interpreter. The prompt <code>$</code> means the shell is waiting; do not type the <code>$</code>. The flag <code>-e</code> executes one line of Lua code directly.</p>
+</aside>
 
-<p>Expected output:</p>
+<h3>Worked example: Run a one-line Lua command</h3>
 
-<pre>
+<pre class="session" data-risk="read-only">
+$ lua -e 'print("hello from " .. _VERSION)'
 hello from Lua 5.5
 </pre>
 
-<h3>What just happened</h3>
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 
-<ul>
-<li><code>lua</code> is the standalone interpreter installed by the
-<code>lua</code> package; here it is version 5.5, the same version
-Hyprland embeds.</li>
-<li><code>-e</code> runs one statement without creating a file;
-<code>..</code> joins strings, and the global <code>_VERSION</code> names
-the interpreter's version.</li>
-<li>You have just run the language outside its hosts for once. The same
-code runs inside the programs listed below.</li>
-</ul>
+<ol>
+<li><code>lua</code> is the standalone interpreter installed by the <code>lua</code> package (version 5.5), matching the version Hyprland embeds.</li>
+<li><code>-e</code> executes the given string as a statement without creating a file.</li>
+<li><code>..</code> is Lua's string concatenation operator.</li>
+<li><code>_VERSION</code> is a global variable holding the interpreter's version string.</li>
+</ol>
 
-<h3>Why Lua is included</h3>
+<h3>Try it</h3>
 
-<ul>
-<li><strong>Your desktop is configured in Lua.</strong> Hyprland, the
-compositor this desktop runs on, embeds Lua: upstream Hyprland requires
-Lua&nbsp;5.5 at build time and loads <code>~/.config/hypr/hyprland.lua</code>
-and every module it requires through that interpreter. The <code>lua</code>
-package is a hard dependency of <code>hyprland</code>.</li>
-<li><strong>Your editor and player embed it too.</strong> Neovim and mpv
-are built against LuaJIT and declare it as a dependency; the LazyVim
-configuration in <code>~/.config/nvim</code> and mpv's scripts under
-<code>/usr/share/mpv/scripts</code> are written in Lua.</li>
-<li><strong>It fits the house rules.</strong> The interpreter takes about
-1.6&nbsp;MiB of disk and starts in about a millisecond &mdash; configurable
-behavior without a daemon or a runtime tax, in line with
-<a href="ecosystem/philosophy.html">resource efficiency</a>.</li>
-</ul>
+<p>Evaluate a calculation and format text using a temporary scratch script:</p>
 
-<h3>Best practice</h3>
+<pre class="session" data-risk="scratch">
+$ scratch=$(mktemp -d)
+$ cat << 'EOF' > "$scratch/hello.lua"
+local msg = "Workstation ready"
+local cores = 16
+print(msg .. " across " .. cores .. " cores")
+EOF
+$ lua "$scratch/hello.lua"
+Workstation ready across 16 cores
+$ rm -rf "$scratch"
+</pre>
 
-<p>After changing a Hyprland Lua configuration file under
-<code>~/.config/hypr/</code>, run <code>hyprctl reload</code> to re-execute it.
-If a file fails to parse, <code>hyprctl configerrors</code> lists the errors.
-Editing the file alone has no effect until the compositor reloads the
-configuration.</p>
+<p>The script prints the formatted string and exits immediately. Cleaning up the scratch directory leaves no temporary files on disk.</p>
 
-<h3>Next step</h3>
+<h3>If it goes wrong</h3>
 
-<p>Write your own scripts and find your desktop's Lua modules in the
-intermediate section of this page, or read why this stack was chosen in
-<a href="ecosystem/compositors.html">Compositors and windowing</a>.</p>
+<dl>
+<dt>syntax error: unfinished string</dt>
+<dd>A quotation mark was opened but not closed before the end of the line. Check matching quotes.</dd>
+<dt>attempt to concatenate a nil value</dt>
+<dd>A variable referenced in a <code>..</code> expression does not exist or was misspelled. Lua variables default to <code>nil</code> rather than throwing unbound-variable errors.</dd>
+<dt>command not found: lua</dt>
+<dd>The <code>lua</code> package binary is missing from your <code>PATH</code>. On Tamlinux, <code>/usr/bin/lua</code> is installed by default as a dependency of Hyprland.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What operator does Lua use to join two strings together?</summary>
+<p>Lua uses two dots (<code>..</code>) for string concatenation (e.g. <code>"hello " .. "world"</code>), not <code>+</code>.</p>
+</details>
+<details class="q">
+<summary>What does an uninitialized Lua variable evaluate to by default?</summary>
+<p>It evaluates to <code>nil</code>. Lua does not abort on uninitialized variables; referencing an unassigned variable returns <code>nil</code>.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Embedded interpreter</dt>
+<dd>An interpreter compiled directly into a host application rather than running as an external process.</dd>
+<dt>Concatenation</dt>
+<dd>Joining strings end-to-end using Lua's <code>..</code> operator.</dd>
+<dt>Table</dt>
+<dd>Lua's single universal structured data type for lists, dictionaries, and modules.</dd>
+</dl>
+<p>A <dfn><a href="learn/glossary/mode.html">mode</a></dfn> changes how a program interprets input keys and commands.</p>
+
+<p><strong>Next step:</strong> at Intermediate, write multi-file scripts, manipulate tables, and inspect your compositor's Lua configuration files.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Your own scripts, and your desktop's modules</h2>
+<h2>Desktop modules, table structures, and compositor configuration</h2>
 
-<p><strong>Summary:</strong> Write Lua files, run them with the installed
-interpreters, and learn the layout of the configuration the compositor
-loads.</p>
+<p><strong>Goal:</strong> you will be able to structure Lua tables, inspect your desktop configuration modules in <code>~/.config/hypr/</code>, and test configuration changes safely using <code>hyprctl reload</code>.</p>
 
-<h3>Worked example</h3>
-
-<p>Save this as <code>greet.lua</code> and run <code>lua greet.lua</code>:</p>
+<h3>Mental model</h3>
 
 <pre>
-local users = { "alex", "root" }
-for i, name in ipairs(users) do
-  print(i .. ": " .. name)
-end
+~/.config/hypr/hyprland.lua  --> main entry point, prepares module paths
+  |--> tamlinux/defaults     --> read-only system baseline
+  |--> ~/.config/hypr/bindings.lua --> your keyboard shortcuts
+  |--> ~/.config/hypr/monitors.lua --> your display layout
+hyprctl reload --> re-executes Lua scripts inside the running compositor
 </pre>
 
-<p>Output:</p>
+<p>The compositor loads <code>hyprland.lua</code> on startup, which sets the package path and loads individual modules in order. Tables are Lua's only data structuring mechanism: sequential elements form array lists starting at index 1, while named keys form associative dictionaries.</p>
 
-<pre>
+<h3>Worked example: Working with Lua tables</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat << 'EOF' > table_demo.lua
+local users = { "alex", "root" }
+for i, name in ipairs(users) do
+    print(i .. ": " .. name)
+end
+EOF
+$ lua table_demo.lua
 1: alex
 2: root
 </pre>
 
-<p>A table in braces is Lua's one structured type. <code>ipairs</code>
-walks the array part of a table in order, and Lua counts from 1, so the
-first element is index 1, not 0.</p>
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 
-<h3>The interpreters on this system</h3>
-
-<table>
-<tr><th>Command</th><th>Version</th><th>What it is for</th></tr>
-<tr><td><code>lua</code></td><td>5.5.1</td><td>The default system interpreter (package <code>lua</code>); the version Hyprland embeds</td></tr>
-<tr><td><code>luac</code></td><td>5.5.1</td><td>Checks syntax and compiles source to bytecode</td></tr>
-<tr><td><code>lua5.4</code>, <code>lua5.1</code></td><td>5.4.9, 5.1.5</td><td>Older language lines, for scripts pinned to them</td></tr>
-<tr><td><code>luajit</code></td><td>2.1</td><td>Just-in-time compiler, Lua 5.1 compatible; what Neovim and mpv embed</td></tr>
-<tr><td><code>luarocks</code></td><td>3.13.0</td><td>Installs third-party Lua modules</td></tr>
-</table>
-
-<h3>Where your desktop's Lua lives</h3>
-
-<pre>
-~/.config/hypr/hyprland.lua   entry point: module path, defaults, your overrides
-~/.config/hypr/monitors.lua   display layout
-~/.config/hypr/bindings.lua   your key bindings
-~/.config/hypr/tamlinux/      Tamlinux defaults, ported from Omarchy
-</pre>
-
-<p>The entry point prepares the Lua module path and then
-<code>require</code>s the rest in order: Tamlinux defaults first, then
-your <code>hypr.monitors</code>, <code>hypr.bindings</code>,
-<code>hypr.input</code>, and the other personal files. The functions your
-config calls &mdash; <code>o.bind(...)</code>, <code>hl.monitor({ ... })</code>
-&mdash; are not Lua built-ins; Hyprland registers them into the
-interpreter as the host API for its configuration. That state stays
-reachable while the compositor runs: <code>hyprctl repl</code> opens an
-interactive Lua prompt inside Hyprland, and
-<code>hyprctl repl '&lt;expression&gt;'</code> evaluates one expression and
-prints the result (keep test expressions read-only).</p>
+<ol>
+<li>A table in braces is Lua's one structured type.</li>
+<li><code>ipairs</code> traverses the array part of a table in numerical order.</li>
+<li>Lua indices count from 1, so the first element is at index 1, not 0.</li>
+</ol>
 
 <h3>Completion task</h3>
 
-<p>Fill the gap (marked <code>___</code>) so the script prints its total:</p>
+<p>Fill the gap (marked <code>___</code>) so the script accesses table fields and prints the total wattage:</p>
 
-<pre>
+<pre data-risk="read-only">
 local watts = { idle = 8, load = 65 }
 print("total: " .. ___ .. " W")
 </pre>
 
-<p>Target output: exactly <code>total: 73 W</code>.</p>
+<details class="solution">
+<p>Fill in <code>watts.idle + watts.load</code>. Table fields are accessed using dot notation. Arithmetic binds tighter than string concatenation, so <code>watts.idle + watts.load</code> evaluates to 73, producing <code>total: 73 W</code>.</p>
+</details>
 
-<h3>Verification hints</h3>
+<h3>Independent task</h3>
+
+<p>Validate the syntax of your local Hyprland configuration files using <code>luac -p ~/.config/hypr/bindings.lua</code> to confirm there are no syntax errors before asking the compositor to reload.</p>
+
+<details class="solution">
+<p>Run <code>luac -p ~/.config/hypr/bindings.lua</code>. If the file is valid, it prints nothing and exits with code 0. If a syntax mistake exists, it reports the exact line number without disrupting your running graphical session.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Command</th><th>Use when</th><th>Focus</th></tr>
+<tr><td><code>lua script.lua</code></td><td>Executing a standalone script</td><td>Standard script execution under Lua 5.5</td></tr>
+<tr><td><code>luac -p file.lua</code></td><td>Pre-flight syntax checking</td><td>Verifying syntax without executing code or touching state</td></tr>
+<tr><td><code>luajit script.lua</code></td><td>Performance-critical tooling</td><td>Just-In-Time compiled Lua 5.1 runtime (Neovim/mpv)</td></tr>
+<tr><td><code>hyprctl reload</code></td><td>Applying desktop configuration edits</td><td>Instructing running Hyprland compositor to re-read Lua files</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Configuration change does not take effect</td><td>Compositor has not re-read files</td><td>Check <code>hyprctl reload</code> output</td><td>Run <code>hyprctl reload</code> after editing Lua configs</td></tr>
+<tr><td>Compositor displays red error banner</td><td>Lua syntax or runtime error in config</td><td>Run <code>hyprctl configerrors</code></td><td>Inspect error line with <code>luac -p</code> and fix typo</td></tr>
+<tr><td>First array element missing or nil</td><td>Code assumes 0-based array index</td><td>Check table indexing logic</td><td>Update indices to start at 1</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, desktop keybindings and monitors are configured in Lua under <code>~/.config/hypr/</code>. System defaults live under <code>tamlinux/</code> and must not be edited directly. When modifying <code>bindings.lua</code>, reload the compositor with <code>hyprctl reload</code>. To inspect live compositor state, <code>hyprctl repl</code> provides a read-only Lua prompt inside Hyprland.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What is the index of the first item in a Lua array table?</summary>
+<p>1. Unlike C, Python, or JavaScript, standard Lua array indexing begins at 1 (e.g. <code>items[1]</code>).</p>
+</details>
+<details class="q">
+<summary>Does editing <code>~/.config/hypr/bindings.lua</code> immediately change desktop shortcuts?</summary>
+<p>No. You must run <code>hyprctl reload</code> to make the running compositor re-execute its Lua configuration modules.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
 
 <ul>
-<li>Table fields are read with a dot: <code>watts.idle</code>.</li>
-<li>Arithmetic binds tighter than concatenation, so
-<code>watts.idle + watts.load</code> needs no parentheses inside the
-<code>..</code> chain.</li>
-<li>Run it with <code>lua watts.lua</code>; the same file also runs
-unchanged under <code>luajit</code>.</li>
+<li><a href="man:lua(1)">lua(1)</a> &mdash; Lua standalone interpreter manual.</li>
+<li><a href="man:luac(1)">luac(1)</a> &mdash; Lua bytecode compiler and syntax checker.</li>
+<li><a href="man:luajit(1)">luajit(1)</a> &mdash; Just-In-Time compiler for Lua.</li>
 </ul>
 </section>
 
 <section data-level="expert">
-<h2>How a host embeds Lua (the C API)</h2>
+<h2>How hosts embed Lua: the C API stack protocol</h2>
 
-<p><strong>Reference:</strong> A host program creates one Lua state, loads
-script files into it, and exchanges values with it over a single shared
-stack. Positions on that stack count up from the bottom
-(<code>1</code>, <code>2</code>, <code>3</code>&hellip;) or down from the
-top (<code>-1</code> is the value most recently pushed or returned).
-Hyprland does exactly this: <code>readelf -d /usr/bin/Hyprland</code>
-lists <code>liblua.so.5.5</code> as a needed library, and its binary
-carries <code>luaL_loadfilex</code>, <code>lua_pcallk</code>, and
-<code>lua_next</code> &mdash; your configuration files are loaded and
-called like any other embedded script.</p>
+<p><strong>Reference:</strong> A host program creates one Lua state, loads script files into it, and exchanges values with it over a single shared virtual stack. Positions on that stack count up from the bottom (<code>1</code>, <code>2</code>, <code>3</code>&hellip;) or down from the top (<code>-1</code> is the value most recently pushed or returned).</p>
+
+<p>Hyprland implements this directly: <code>readelf -d /usr/bin/Hyprland</code> lists <code>liblua.so.5.5</code> as a needed shared library, and its binary imports <code>luaL_loadfilex</code>, <code>lua_pcallk</code>, and <code>lua_next</code> to execute your configuration files.</p>
 
 <h3>A minimal exchange</h3>
 
-<p>The host loads this function from a script file:</p>
+<p>The host loads a function from a script file:</p>
 
 <pre>
-function create_character(name, base_power)
-  return { name = name, power = base_power * 1.5, alive = true }
+function create_window(title, width, height)
+  return { title = title, area = width * height, mapped = true }
 end
 </pre>
 
-<p>Then pushes the function and its arguments, calls it protected, and
-reads the table that comes back:</p>
+<p>Then pushes the function and its arguments, executes a protected call, and inspects the returned table:</p>
 
 <pre>
-lua_getglobal(L, "create_character");   /* function          */
-lua_pushstring(L, "Valkyrie");          /* argument 1        */
-lua_pushnumber(L, 120.0);               /* argument 2        */
+lua_getglobal(L, "create_window");     /* push function       */
+lua_pushstring(L, "Terminal");         /* argument 1: title   */
+lua_pushnumber(L, 1920.0);             /* argument 2: width   */
+lua_pushnumber(L, 1080.0);             /* argument 3: height  */
 
-if (lua_pcall(L, 2, 1, 0) != LUA_OK) { /* call: 2 in, 1 out */
+if (lua_pcall(L, 3, 1, 0) != LUA_OK) { /* 3 in, 1 out         */
     fprintf(stderr, "error: %s\n", lua_tostring(L, -1));
-    lua_pop(L, 1);                      /* discard message   */
+    lua_pop(L, 1);                     /* pop error message   */
     return;
 }
 
-if (lua_istable(L, -1)) {               /* table on top      */
-    lua_getfield(L, -1, "power");       /* pushes table.power */
-    printf("power: %.1f\n", lua_tonumber(L, -1));
-    lua_pop(L, 1);                      /* table on top again */
+if (lua_istable(L, -1)) {              /* result table on top */
+    lua_getfield(L, -1, "area");       /* push table.area     */
+    printf("area: %.0f\n", lua_tonumber(L, -1));
+    lua_pop(L, 1);                     /* pop area value      */
 }
-lua_pop(L, 1);                          /* discard the table */
+lua_pop(L, 1);                         /* pop table           */
 </pre>
 
-<p>The call consumed the function and both arguments and left one result
-at <code>-1</code>. On failure nothing unwinds the host: the error
-message sits at <code>-1</code> and must be popped. Every
-<code>lua_getfield</code> pushes a value, so every read is balanced by a
-<code>lua_pop</code>.</p>
+<p>The protected call consumed the function and its arguments, leaving one result at <code>-1</code>. Every <code>lua_getfield</code> pushes a value onto the stack, requiring a balancing <code>lua_pop</code> to prevent stack leaks.</p>
 
 <h3>Calls worth knowing</h3>
 
 <table>
 <tr><th>Call</th><th>Effect</th></tr>
-<tr><td><code>lua_getglobal(L, "name")</code></td><td>Push the global <code>name</code> (function or value)</td></tr>
-<tr><td><code>lua_pushstring</code>, <code>lua_pushnumber</code>, <code>lua_pushboolean</code></td><td>Push one argument, left to right</td></tr>
-<tr><td><code>lua_pcall(L, nargs, nresults, 0)</code></td><td>Call; returns <code>LUA_OK</code> on success, otherwise the message is at <code>-1</code></td></tr>
-<tr><td><code>lua_istable</code>, <code>lua_tostring</code>, <code>lua_tonumber</code>, <code>lua_toboolean</code></td><td>Type-check and convert the value on top for the host</td></tr>
-<tr><td><code>lua_getfield(L, -1, "key")</code></td><td>Push <code>table.key</code> for a table at <code>-1</code></td></tr>
-<tr><td><code>lua_pushnil(L)</code> then <code>lua_next(L, -2)</code></td><td>Walk a table with dynamic keys: key at <code>-2</code>, value at <code>-1</code>; pop the value each round, keep the key</td></tr>
-<tr><td><code>lua_pop(L, 1)</code></td><td>Discard one value and keep the stack balanced</td></tr>
+<tr><td><code>lua_getglobal(L, "name")</code></td><td>Push the global <code>name</code> (function or value) onto the stack</td></tr>
+<tr><td><code>lua_pushstring</code>, <code>lua_pushnumber</code>, <code>lua_pushboolean</code></td><td>Push a typed primitive value onto the stack</td></tr>
+<tr><td><code>lua_pcall(L, nargs, nresults, 0)</code></td><td>Protected call; returns <code>LUA_OK</code> on success; error string at <code>-1</code> on failure</td></tr>
+<tr><td><code>lua_istable</code>, <code>lua_tostring</code>, <code>lua_tonumber</code>, <code>lua_toboolean</code></td><td>Type-check and convert stack values for the C host</td></tr>
+<tr><td><code>lua_getfield(L, -1, "key")</code></td><td>Push <code>table.key</code> for the table currently at index <code>-1</code></td></tr>
+<tr><td><code>lua_pushnil(L)</code> then <code>lua_next(L, -2)</code></td><td>Traverse table keys and values; pops key and pushes next key/value pair</td></tr>
+<tr><td><code>lua_pop(L, n)</code></td><td>Pop <code>n</code> elements from the top of the stack</td></tr>
 </table>
 
-<h3>Rules for scripts a host will run</h3>
+<h3>How it works: execution lifecycle</h3>
+
+<p>When Hyprland initializes, it calls <code>luaL_newstate()</code> to allocate an isolated execution context and <code>luaL_openlibs()</code> to populate standard libraries (math, string, table). It registers custom C functions (such as bind dispatchers and monitor hooks) into the global table. When executing <code>hyprctl reload</code>, the compositor re-runs the Lua scripts in place without restarting the Wayland display server.</p>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Embedding Lua gives users full programmatic control over desktop layouts, conditional keybindings, and dynamic window rules without incurring the memory footprint of heavier language runtimes. The Lua interpreter consumes only ~1.6 MiB of disk space, starts in under a millisecond, and requires zero background daemon processes, upholding Tamlinux's zero-polling and resource efficiency standards.</p>
+
+<h3>Edge cases and failure modes</h3>
 
 <ul>
-<li>Check the type of every value before returning it; a host reads a
-wrong or missing return as an error, not as an exception your script
-sees.</li>
-<li>Declare helpers and temporaries with <code>local</code>; leave in
-global scope only the names the host triggers directly.</li>
-<li>Lists start at index 1, not 0.</li>
-<li>A key that was never set reads as <code>nil</code> rather than
-raising an error, so fill required fields before returning a table.</li>
+<li><strong>Stack leaks in host C code:</strong> Failure to balance pushes with pops gradually exhausts the Lua stack space (default limit 1,000,000 slots), eventually causing memory aborts.</li>
+<li><strong>Unprotected calls:</strong> Using <code>lua_call</code> instead of <code>lua_pcall</code> will invoke <code>panic()</code> and terminate the host process if a script encounters a runtime error. Host applications must always invoke user configuration scripts through <code>lua_pcall</code>.</li>
+<li><strong>Global variable leakage:</strong> Variables declared without <code>local</code> pollute the global environment and can inadvertently overwrite host-provided API functions.</li>
 </ul>
 
-<p>Manual pages: <a href="man:lua(1)">lua(1)</a>,
-<a href="man:luac(1)">luac(1)</a>, <a href="man:luajit(1)">luajit(1)</a>.
-The full language reference ships on disk in
-<code>/usr/share/doc/lua/manual.html</code>.</p>
+<h3>Explore: Live repl evaluation</h3>
+
+<p>Inspect running compositor state in real time by opening an interactive Lua prompt inside Hyprland:</p>
+
+<pre class="session" data-risk="read-only">
+$ hyprctl repl
+</pre>
+
+<p>You can also evaluate single read-only expressions directly from the terminal:</p>
+
+<pre class="session" data-risk="read-only">
+$ hyprctl repl 'print("active workspace:", hl.activeworkspace())'
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why must a C host call <code>lua_pcall</code> rather than <code>lua_call</code> when executing user desktop configuration files?</summary>
+<p><code>lua_call</code> is unprotected: if the user's script contains an error (such as a typo or missing variable), Lua triggers an uncaught panic that terminates the entire host process (crashing the compositor). <code>lua_pcall</code> catches errors safely, pushes the error message to the stack, and returns a non-zero status code so the host can display a diagnostic message and continue running.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="man:lua(1)">lua(1)</a> &mdash; Lua reference manual.</li>
+<li><a href="man:luac(1)">luac(1)</a> &mdash; Lua bytecode compiler reference.</li>
+<li>Lua 5.5 Reference Manual: <a href="file:///usr/share/doc/lua/manual.html">/usr/share/doc/lua/manual.html</a>.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Personal keybinding extensions belong in <code>~/.config/hypr/bindings.lua</code>. Improvements to core Tamlinux compositor defaults are contributed in <code>tamlinux/desktop/</code> following the package delivery rules in <a href="ecosystem/packaging.html">Software packaging and delivery</a>.</p>
 </section>
 
 <h2>Where to next</h2>
 
 <ul>
-<li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash; the compositor that embeds this interpreter.</li>
+<li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; strict Bash headers and utility conventions.</li>
 <li><a href="desktop/index.html">The Tamlinux Desktop</a> &mdash; what the configuration drives.</li>
-<li><a href="ecosystem/index.html">The Tamlinux ecosystem</a> &mdash; return to the choices that shape the system.</li>
+<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
 <li><a href="index.html">Guide index</a> &mdash; browse all topics.</li>
 </ul>
 </body>

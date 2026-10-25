@@ -13,9 +13,7 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Plan and implement the next TCK25 migration part
-(Learning, Installing, or Improving). Using and Maintaining are fully
-migrated with build enforcement enabled; pilot and learner review remain unverified.
+**Next action:** Continue TCK25 Improving track migration with the remaining lessons (efficiency, zram, terminal, toolchains, ai-performance, patches, package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
 
@@ -621,6 +619,29 @@ patch bump (0.43.2); command version is unchanged.
 
 See the [verification record](../ai/2026-10-25-tam-tck25-maintaining-completion.md).
 
+**Improving track slice 1 (2026-10-25, corpus 0.43.3).** The developer
+directed: "Check the last agy session to see what we were doing in the tam repo. Then continue that work. We are completing checklists."
+Baseline command 0.43.2 / corpus 0.43.2 at `2561305`. This slice begins the
+Improving track migration under TCK25, migrating `improve/index.html` (hub),
+`improve/scripting.html`, and `ecosystem/lua.html`, and resolving gaps for the
+`customizing` domain skills. It takes a corpus patch bump (0.43.3); command
+version is unchanged.
+
+1. `improve/index.html` is classified as `kind="hub"` with links to all 11 Improving
+   guides and goal paths.
+2. `improve/scripting.html` is migrated to the full ladder anatomy with captured
+   read-only Bash examples, parameter expansion defaults, `set -u` unbound error
+   aborts, `set -o pipefail` pipeline guarantees, and `trap ... EXIT` cleanup handlers.
+   Mapped to `customizing.beginner`, `customizing.intermediate`, and `customizing.expert`.
+3. `ecosystem/lua.html` is migrated to the full ladder anatomy with captured
+   read-only `lua -e` examples, table indexing rules, `luac -p` syntax verification,
+   `hyprctl reload` compositor workflows, and host C API stack semantics. Mapped to
+   `customizing.beginner`, `customizing.intermediate`, and `customizing.expert`.
+4. Anatomy warnings drop from 22 to 18 across the corpus. Gaps for `customizing.beginner`,
+   `customizing.intermediate`, and `customizing.expert` are resolved.
+
+See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice1.md).
+
 ### Stop and ask the developer
 
 - If a key named here turns out to be taken, or behaves differently under
@@ -658,6 +679,4 @@ corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
 paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
 two Maintaining recovery ladders. Corpus 0.42.0 adds the boot, boot-fallback
-and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining
-with resources, packaging, and the Maintaining hub, and enables track-wide
-build enforcement for Maintaining. Learning, Installing and Improving migration remain open.
+and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining with resources, packaging, and the Maintaining hub, and enables track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with the hub, scripting, and lua lessons. Remaining Improving lessons, Learning, and Installing migration remain open.

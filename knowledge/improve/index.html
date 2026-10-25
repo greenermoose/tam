@@ -3,11 +3,13 @@
 <head>
 <title>Extending and Improving Your Workstation</title>
 <meta name="topic" content="improve">
-<meta name="summary" content="Improving workstation efficiency, memory compression, editor ergonomics, scripting conventions, native compilation, and local AI">
-<meta name="keywords" content="improve, improving, optimization, efficiency, zero-polling, zram, micro, scripting, toolchains, ai-performance, performance">
+<meta name="summary" content="Workstation efficiency, memory compression, editor ergonomics, scripting conventions, native compilation, local AI, and carried patches">
+<meta name="keywords" content="improve, improving, optimization, efficiency, zero-polling, zram, micro, scripting, toolchains, ai-performance, performance, lua, patches, versions, virtualization, tam">
 <meta name="level" content="beginner">
 <meta name="track" content="improve">
 <meta name="parent" content="index.html">
+<meta name="kind" content="hub">
+<meta name="skills" content="">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -22,9 +24,23 @@ configuration layer, script, and component in Tamlinux is transparent,
 accessible, and built to extract maximum responsiveness from physical
 hardware.</p>
 
-<h2>The six improvement pillars</h2>
+<h2>Improvement guides</h2>
 
 <dl>
+<dt><a href="improve/scripting.html">Shell scripting and tool conventions</a></dt>
+<dd>Write rock-solid utilities following strict Bash headers, safe whitespace
+quoting, exit code contracts, and Tamlinux namespace rules (system-wide <code>tam-*</code> vs
+personal <code>fred-*</code> tools).</dd>
+
+<dt><a href="ecosystem/lua.html">Lua: embedded scripting and desktop configuration</a></dt>
+<dd>Configure the Hyprland compositor, Neovim, and mpv using embedded Lua, inspect
+compositor state, and understand the host C API.</dd>
+
+<dt><a href="improve/terminal.html">Terminal and editor ergonomics</a></dt>
+<dd>Achieve sub-10ms shell startup latency and master the <code>micro</code>
+editor with automatic live disk reload when AI agents modify files
+concurrently.</dd>
+
 <dt><a href="improve/efficiency.html">Zero-polling and event-driven architecture</a></dt>
 <dd>Eliminate periodic polling loops by leveraging kernel <code>inotify</code>,
 <code>epoll</code>, and Wayland compositor event sockets to keep the CPU in deep
@@ -34,16 +50,6 @@ idle C-states and preserve battery life.</dd>
 <dd>Double effective memory capacity and prevent catastrophic disk thrashing
 using ultra-fast in-RAM swap compression backed by LZ4 and zstd.</dd>
 
-<dt><a href="improve/terminal.html">Terminal and editor ergonomics</a></dt>
-<dd>Achieve sub-10ms shell startup latency and master the <code>micro</code>
-editor with automatic live disk reload when AI agents modify files
-concurrently.</dd>
-
-<dt><a href="improve/scripting.html">Shell scripting and tool conventions</a></dt>
-<dd>Write rock-solid utilities following strict Bash headers, safe whitespace
-quoting, and Tamlinux namespace conventions (system-wide <code>tam-*</code> vs
-personal <code>fred-*</code> tools).</dd>
-
 <dt><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a></dt>
 <dd>Compile native C tools with <code>libtam</code>, apply architecture-tuned
 optimization flags (<code>-O2</code>, <code>-march=native</code>), and let
@@ -51,9 +57,30 @@ several coding agents share one clone with path claims.</dd>
 
 <dt><a href="improve/ai-performance.html">Physics of local AI generation</a></dt>
 <dd>Understand how hardware memory bandwidth dictates local LLM token generation
-speeds (tokens per second is about memory bandwidth divided by model size) and evaluate model quantization
-tradeoffs (Q4_K_M vs FP16).</dd>
+speeds and evaluate model quantization tradeoffs (Q4_K_M vs FP16).</dd>
+
+<dt><a href="ecosystem/patches.html">Carried patches and upstream engagement</a></dt>
+<dd>Manage self-retiring local package patches, fork boundaries, and upstream
+engagement without bypassing package delivery.</dd>
+
+<dt><a href="ecosystem/package-versions.html">Specifying and verifying package versions</a></dt>
+<dd>Understand semantic versioning, component pins, and package assembly
+specifications across the Tamlinux lifecycle.</dd>
+
+<dt><a href="ecosystem/virtualization.html">Virtualization and containment</a></dt>
+<dd>Use microVMs and containers for isolated, clean-room builds and reproducible
+testing environments.</dd>
+
+<dt><a href="tam.html">The tam command: architecture, coding, and lifecycle</a></dt>
+<dd>Explore the C11 architecture of the <code>tam</code> command, transactional
+development generations, Makefile targets, and paired release tags.</dd>
 </dl>
+
+<h2>Goal paths and progression</h2>
+
+<p>Readers advancing through the workstation lifecycle can follow structured reading orders in the
+<a href="learn/paths/index.html">Goal paths index</a>, or explore multi-topic mastery paths across
+<a href="intermediate.html">Intermediate level</a> and <a href="expert.html">Expert level</a>.</p>
 
 <h2>Guiding principles for improvement</h2>
 

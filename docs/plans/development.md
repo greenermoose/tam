@@ -8,9 +8,7 @@
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Plan and implement the next TCK25 migration part
-(Learning, Installing, or Improving). Using and Maintaining are fully
-migrated with build enforcement enabled; pilot and learner review remain unverified.
+**Next action:** Continue TCK25 Improving track migration with the remaining lessons (efficiency, zram, terminal, toolchains, ai-performance, patches, package-versions, virtualization, tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -425,6 +423,14 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-25:** Corpus 0.43.3 (patch): TCK25 Improving track migration (first
+  slice). Migrated `improve/scripting.html` and `ecosystem/lua.html` to full ladder
+  anatomy with captured read-only examples, mapped skills, and folded quizzes;
+  classified `improve/index.html` hub; resolved gaps for `customizing.beginner`,
+  `customizing.intermediate`, and `customizing.expert`. Anatomy warnings dropped
+  from 22 to 18. Next TCK25 work: remaining Improving lessons, then track-wide
+  enforcement.
 
 - **2026-10-25:** Corpus 0.43.2 (patch): TCK25 Maintaining completion and
   enforcement. Migrated `hardware/resources.html` and `ecosystem/packaging.html`

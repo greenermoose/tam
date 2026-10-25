@@ -124,12 +124,13 @@ in that candidate, not here.
 | **0.43.0 corpus** | Checkpoint concept guide and glossary entry | Done (2026-10-23) | Authored 'Checkpoints and Rollback Points' (`maintain/checkpoint.html`) and glossary entry (`learn/glossary/checkpoint.html`); explains checkpoint scopes across filesystem, boot, and user settings layers, boundary matching, quiescence, and avoiding churn via recovery anchors. Enables `tam explain checkpoint`. |
 | **0.43.1 corpus** | Wordsmithing welcome and about | Done (2026-10-25) | Wordsmithing welcome and about |
 | **0.43.2 corpus** | TCK25 Maintaining completion and enforcement | Done (2026-10-25) | Migrated resources and packaging lessons with full teaching anatomy and captured read-only examples; classified Maintaining hub; enabled Maintaining track-wide enforcement in skills registry. |
+| **0.43.3 corpus** | TCK25 Improving track migration (first slice) | Done (2026-10-25) | Migrated scripting and lua lessons to full teaching anatomy with captured examples, quizzes and customizing skills; classified Improving hub. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.2 / 0.43.2 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using and Maintaining fully migrated and enforced. Development installation is a separate developer-directed step. |
+| `develop` | 0.43.2 / 0.43.3 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using and Maintaining fully migrated and enforced, Improving track migration underway. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.38.1 / 0.42.0 | Latest cached remote Test source at `c161190`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -164,7 +165,7 @@ bibliography, additive metadata and a coverage/gap report. TCK25's Using part
 and staged level paths are implemented in corpus 0.40.0. Corpus 0.41.0
 migrates Maintaining's rollback and emergency-recovery lessons and adds
 three glossary terms. Corpus 0.42.0 migrates boot, boot-fallback and Snapper
-and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power with captured read-only examples, folded quizzes and diagnosis exercises. Corpus 0.43.2 completes Maintaining by migrating resources and packaging, classifying the Maintaining hub, and enabling track-wide build enforcement for Maintaining. Next: migration of remaining parts (Learning, Installing, Improving) under TCK25. Versions are allocated when each slice starts. The deferred items in section 4 are candidates, not assignments.
+and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power with captured read-only examples, folded quizzes and diagnosis exercises. Corpus 0.43.2 completes Maintaining by migrating resources and packaging, classifying the Maintaining hub, and enabling track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with scripting and lua lessons and the Improving hub. Next: remaining Improving lessons, followed by Learning and Installing under TCK25. Versions are allocated when each slice starts. The deferred items in section 4 are candidates, not assignments.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the
