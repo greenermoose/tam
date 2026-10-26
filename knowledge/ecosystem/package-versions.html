@@ -9,6 +9,8 @@
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="ecosystem, packaging">
+<meta name="kind" content="how-to">
+<meta name="skills" content="software.beginner, software.intermediate, software.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -27,252 +29,276 @@ Every version of Tamlinux is defined by an exact, cryptographically pinned
 <section data-level="beginner">
 <h2>Product versions versus component versions</h2>
 
-<p><strong>Summary:</strong> Understand how Tamlinux version numbers relate to
-the packages installed on your system, and how to inspect them.</p>
+<p><strong>Goal:</strong> you will be able to query installed package versions, compare product cultivars with component versions, and inspect active assembly status.</p>
 
-<p><strong>Prerequisites:</strong> <a href="ecosystem/index.html">The Tamlinux
-Ecosystem</a> and <a href="ecosystem/packaging.html">Packaging and Delivery</a>.</p>
+<p><strong>Why it matters:</strong> an operating system must be reproducible and free from silent drift. Understanding whether you are running a stable candidate or a development build prevents troubleshooting the wrong version and ensures changes are verified against the right code.</p>
 
-<h3>Two distinct layers of versioning</h3>
+<p><strong>Before you start:</strong> open a terminal. Inspecting package versions and deployed assembly status uses read-only commands that require no administrative privileges. See <a href="ecosystem/packaging.html">Software packaging and delivery</a> for package management basics.</p>
 
-<p>When working with Tamlinux, you encounter two kinds of version numbers:</p>
+<aside class="first-time">
+<p>A version number identifies an exact release of a program. On Tamlinux, cultivar names like Blue Sparkler represent overall workstation milestones, while individual tools like <code>tam</code> have their own version numbers. Commands like <code>tam --version</code> query the active program directly.</p>
+</aside>
 
-<ul>
-<li><strong>The Tamlinux Product Version (Cultivar):</strong> For example,
-<code>0.4.5</code>. Each minor version, such as 0.5, is a list of goals for the
-workstation environment, and the patch counts the prepared candidates working
-toward it: 0.5.0, then 0.5.1 and so on. Each minor version also has a cultivar
-name, such as Incipiens for 0.4. Candidates of 0.4.4 and earlier carried a
-letter suffix during testing, such as <code>0.4.4-m</code>.</li>
-<li><strong>Individual Component Versions:</strong> Each software component
-develops, tests, and versions independently at its own pace:
-  <ul>
-  <li><code>tam</code>: The workstation control and offline documentation utility (e.g. <code>0.25.0</code>).</li>
-  <li><code>libtam</code>: The shared C library and D-Bus integration layer (e.g. <code>0.2.0</code>).</li>
-  <li><code>tamlinux-tools</code>: Standalone utilities such as <code>tam-file-select</code>.</li>
-  <li><code>tamlinux</code>: The desktop shell, <code>fred.*</code> QML plugins, and system commands.</li>
-  </ul>
-</li>
-</ul>
+<h3>Worked example: Inspect active versions and cultivar</h3>
 
-<h3>Inspecting what is running</h3>
-
-<p>You can check the version of the active workstation cultivar and individual
-tools directly from the terminal:</p>
-
-<pre>
-tam --version
+<pre class="session" data-risk="read-only">
+$ tam --version
+tam command 0.43.2 (dev 7279c24)
+knowledge corpus 0.43.6 (dev 7279c24)
+libtam 0.4.0
+Tamlinux cultivar Blue Sparkler 0.5.4
 </pre>
 
-<p>Example output, from the packaged <code>tam</code> in the Tamlinux 0.4.4-k test
-candidate on 2026-10-19:</p>
+<p>Captured on a Tamlinux workstation, 2026-10-25.</p>
 
-<pre>
-tam command 0.31.1
-knowledge corpus 0.32.1
-libtam 0.2.0
-Tamlinux cultivar 0.4.4-k
+<h3>What just happened</h3>
+
+<ol>
+<li><code>tam --version</code> printed the four version tiers of the running environment: the C command binary (<code>0.43.2</code>), the offline knowledge corpus (<code>0.43.6</code>), the shared integration library <code>libtam</code> (<code>0.4.0</code>), and the overall workstation milestone cultivar name and release (<code>Blue Sparkler 0.5.4</code>).</li>
+<li>The <code>(dev 7279c24)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/dev/bin</code>) matching Git commit <code>7279c24</code>.</li>
+<li>Packaged production builds omit the <code>(dev ...)</code> suffix and reflect the exact version declared in the active Home Manager assembly generation.</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Query the deployed workstation assembly status to see the exact Git commit of every component included in the active generation:</p>
+
+<pre class="session" data-risk="read-only">
+$ tam-deploy status
+assembly: tamlinux-packages 506c0d0809ae1baa20e06e88708623efd54379dc
+  libtam: a051ebf457e41a27d47d273bdab291430cabd7ad
+  tam: eea4509277590380469f83a84939a14c285c107c
+  tamlinux: 73efb4a98a9be6fe6a690455008645b0f7b016fd
+  tamlinux-tools: d8b0912733b1e92a0d3d1f5d039285ffb6b3e49d
+installed shell: 73efb4a98a9be6fe6a690455008645b0f7b016fd
+stage: test
+generation: /nix/store/lrmniw3fj0yhrx5mwkm6w2c8p5vl3y6v-home-manager-generation
 </pre>
 
-<p>A development build adds <code>(dev</code> and the commit it was built from
-after each version it built, for example <code>tam command 0.31.3 (dev 839f459)</code>.</p>
+<p>Every commit hash in the assembly output proves that the running binaries and shell assets correspond precisely to the cryptographic bill of materials.</p>
 
-<p>To inspect the full deployed assembly and its pinned component revisions:</p>
+<h3>If it goes wrong</h3>
 
-<pre>
-tam-deploy status
-</pre>
+<dl>
+<dt>tam prints (dev ...) suffix unexpectedly</dt>
+<dd>A development build in <code>~/.local/dev/bin</code> precedes the packaged binary on <code>PATH</code>. Remove it with <code>make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev</code> and run <code>hash -r</code>.</dd>
+<dt>command and corpus versions differ</dt>
+<dd>Tamlinux command and corpus version independently. Content additions in the documentation corpus bump its version without needing a command binary recompile.</dd>
+<dt>tam-deploy reports command not found</dt>
+<dd>The command path is missing from your environment. Verify that <code>~/.local/bin</code> is present in your shell <code>PATH</code> variable.</dd>
+</dl>
 
-<p>This prints the exact Git commit of every component included in the active
-Home Manager generation, proving that what is running matches the planned
-assembly.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What does <code>(dev ...)</code> indicate when appended to a version number in <code>tam --version</code>?</summary>
+<p>It indicates that the running executable was compiled and installed locally into <code>~/.local/dev/bin</code> from the indicated Git commit, overriding the packaged Home Manager generation on <code>PATH</code>.</p>
+</details>
+<details class="q">
+<summary>Why do <code>tam command</code> and <code>knowledge corpus</code> maintain independent version numbers?</summary>
+<p>The command utility (C binary) and documentation corpus develop on separate cadences. Authoring new guide pages or updating documentation increments the corpus version while leaving the compiled command binary untouched.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Cultivar</dt>
+<dd>The named Tamlinux product release representing a cohesive set of workstation milestones (for example, Blue Sparkler 0.5.4).</dd>
+<dt>Assembly</dt>
+<dd>The cryptographically locked bill of materials in <code>tamlinux-packages</code> specifying exact revisions of all components.</dd>
+<dt>Generation</dt>
+<dd>An immutable Home Manager configuration state linked from the Nix store into the user profile.</dd>
+</dl>
+<p>Each deployed <dfn><a href="learn/glossary/package.html">package</a></dfn> belongs to a specific <dfn><a href="learn/glossary/generation.html">generation</a></dfn> and <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> with a defined configuration <dfn><a href="learn/glossary/owner.html">owner</a></dfn>.</p>
+
+<p><strong>Next step:</strong> at Intermediate, learn how <code>tamlinux-packages</code> acts as the single source of truth for all software versions, examine flake lock pins, and verify Home Manager store path linkages.</p>
 </section>
 
 <section data-level="intermediate">
 <h2>The assembly repository and pinning architecture</h2>
 
-<p><strong>Summary:</strong> Explore how <code>tamlinux-packages</code> acts as
-the single source of truth for all software versions in a Tamlinux release.</p>
+<p><strong>Goal:</strong> you will be able to inspect how <code>tamlinux-packages</code> acts as the single source of truth for all software versions, examine flake lock pins, and verify Home Manager store path linkages.</p>
 
-<p><strong>Prerequisites:</strong> Beginner depth, plus familiarity with Nix
-flakes and lock files.</p>
+<h3>Mental model</h3>
 
-<h3>The role of tamlinux-packages</h3>
+<pre>
+tamlinux-packages (flake.nix &amp; flake.lock)
+  |-- inputs.nixpkgs        --> Cryptographic commit &amp; narHash (toolchains, Wayland, Qt)
+  |-- inputs.tam            --> github:greenermoose/tam/<commit>
+  |-- inputs.libtam         --> github:greenermoose/libtam/<commit>
+  |-- inputs.tamlinux       --> github:greenermoose/tamlinux/<commit>
+  +-- inputs.tamlinux-tools --> github:greenermoose/tamlinux-tools/<commit>
+            |
+            v  (nix build)
+  Nix Store Derivations:
+    /nix/store/1h8...-tam-0.43.2/bin/tam
+    /nix/store/a49...-tamlinux-0.5.4/bin/tam-deploy
+            |
+            v  (Home Manager Generation Activation)
+  User Profile Symlinks (~/.local/bin/):
+    ~/.local/bin/tam        --> /nix/store/1h8...-tam-0.43.2/bin/tam
+    ~/.local/bin/tam-deploy --> /nix/store/a49...-tamlinux-0.5.4/bin/tam-deploy
+</pre>
 
-<p>Tamlinux does not install floating package versions from remote repositories
-at deploy time. Instead, a dedicated repository named
-<code>tamlinux-packages</code> serves as the central bill of materials (BOM).
-It defines:</p>
+<p>Tamlinux does not install floating package versions from remote repositories at deploy time. Instead, a dedicated repository named <code>tamlinux-packages</code> serves as the central bill of materials (BOM), locking every dependency down to the exact commit and cryptographic tree hash.</p>
+
+<h3>Worked example: Trace command origin and store links</h3>
+
+<pre class="session" data-risk="read-only">
+$ which -a tam
+/home/alex/.local/dev/bin/tam
+/home/alex/.local/bin/tam
+$ ls -l /home/alex/.local/bin/tam
+lrwxrwxrwx 1 alex users 68 Oct 25 18:00 /home/alex/.local/bin/tam -> /nix/store/1h8vw7z8kpl9w38h177j2m9f6y19y1v2-tam-0.43.2/bin/tam
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-10-25.</p>
 
 <ol>
-<li><strong>Base Toolchain &amp; Utilities (Nixpkgs):</strong> Pinned via
-<code>inputs.nixpkgs</code> in <code>flake.nix</code> to an exact commit. This locks
-compilers, Qt, Wayland libraries, Quickshell, Grim, Slurp, and all CLI utilities
-down to the exact byte.</li>
-<li><strong>Home Manager:</strong> Pinned via
-<code>inputs.home-manager</code> in <code>flake.nix</code>.</li>
-<li><strong>Component Source Repositories:</strong> Each Tamlinux component is
-pinned in <code>inputs</code> to a specific GitHub commit:
-<pre>
-inputs = {
-  nixpkgs.url = "github:nixos/nixpkgs/8ce4ef6cb6f871616146b9fe26d2a5ae594e94fe";
-  tamlinux = {
-    url = "github:greenermoose/tamlinux/3f39184b6bac9c8a4f0b39182ae972a4c3e329c0";
-    flake = false;
-  };
-  tam = {
-    url = "github:greenermoose/tam/698756c34223f0384a5a5e55767b451639d1fe72";
-    flake = false;
-  };
-  libtam = {
-    url = "github:greenermoose/libtam/c081708b5ed2c8ade4ecdf171cebc110c2cb316f";
-    flake = false;
-  };
-};
-</pre>
-</li>
-<li><strong>Cryptographic Lock (<code>flake.lock</code>):</strong> Running
-<code>nix flake lock</code> generates a tamper-evident record of the exact Git
-revisions and SHA-256 tree hashes (<code>narHash</code>). When Nix builds the
-package, it guarantees that no upstream changes can alter the build.</li>
+<li><code>which -a tam</code> reveals how the shell resolves the command across the directories in <code>PATH</code>.</li>
+<li>The development path <code>~/.local/dev/bin</code> appears first, enabling rapid testing of local changes without root privileges or Nix store builds.</li>
+<li>The packaged production binary sits in <code>~/.local/bin/tam</code>, which is an immutable symlink pointing directly to its pinned derivation path in <code>/nix/store</code>.</li>
 </ol>
 
-<h3>Package definitions (nix/packages/default.nix)</h3>
+<h3>Completion task</h3>
 
-<p>Inside <code>tamlinux-packages</code>, the Nix expressions translate pinned
-source inputs into reproducible store paths:</p>
+<p>Fill the gap (marked <code>___</code>) in the Nix command used inside <code>tamlinux-packages</code> to update the cryptographic lock for the <code>tam</code> input following a pushed commit:</p>
+
+<pre data-risk="read-only">
+nix flake lock ___ tam
+</pre>
+
+<details class="solution">
+<p>Fill in <code>--update-input</code>. Running <code>nix flake lock --update-input tam</code> recalculates the Git revision and tree hash (<code>narHash</code>) for only the <code>tam</code> input in <code>flake.lock</code>, preserving all other pinned inputs unchanged.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Inspect the inputs defined in a flake assembly by running <code>nix flake metadata</code> or reading <code>flake.nix</code>. Identify the locked revision of <code>libtam</code> and confirm that its derivation in <code>nix/packages/default.nix</code> matches the active library version shown in <code>tam --version</code>.</p>
+
+<details class="solution">
+<p>Run <code>nix flake metadata ~/src/tamlinux-packages</code> or inspect <code>inputs.libtam.url</code> in <code>flake.nix</code>. The URL pins an exact commit hash on <code>github.com/greenermoose/libtam</code>. In <code>nix/packages/default.nix</code>, the derivation declares <code>version = "0.4.0";</code>, matching the active <code>libtam 0.4.0</code> runtime.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Approach</th><th>Tradeoff</th><th>Use when</th></tr>
+<tr><td>Packaged assembly (<code>tam-deploy</code>)</td><td>Bit-for-bit reproducible, rollback point recorded, Nix store isolated</td><td>Test and Run daily-driver workstation operations</td></tr>
+<tr><td>User dev prefix (<code>~/.local/dev</code>)</td><td>Fast rebuild loop (<code>make install PREFIX=$HOME/.local/dev</code>), overrides packaged binary without root</td><td>Active interactive component development</td></tr>
+<tr><td>Direct copy to <code>~/.local/bin</code></td><td>Overwrites Home Manager symlink; wiped out on next <code>tam-deploy</code></td><td>Never; breaks package management linkage</td></tr>
+<tr><td>Manual edit under <code>/usr</code></td><td>Requires root, breaks package integrity, erased on distro update</td><td>Never; violates Tamlinux guardrails</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>tam-deploy reports dirty tree</td><td>Uncommitted modifications in <code>tamlinux-packages</code></td><td><code>git status</code> in packages clone</td><td>Commit or clean changes before deploying</td></tr>
+<tr><td>Dev binary still runs after deploy</td><td>Dev build in <code>~/.local/dev/bin</code> shadows deployed binary</td><td><code>type -a tam</code></td><td>Run <code>make uninstall PREFIX=$HOME/.local/dev</code> and <code>hash -r</code></td></tr>
+<tr><td>flake check fails on hash mismatch</td><td>Upstream branch moved or commit rebased</td><td><code>nix flake metadata</code></td><td>Lock to immutable commit hashes rather than floating branches</td></tr>
+<tr><td>Missing shared library at runtime</td><td>Missing <code>RPATH</code> in component derivation</td><td><code>readelf -d ~/.local/bin/tam | grep RPATH</code></td><td>Ensure derivation passes proper library search paths during compilation</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, all software reaches the workstation exclusively through a recorded <code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, never from a mutable checkout, copied payload, or unrecorded override. Test and Run stages are strictly package-managed, and development overrides in <code>~/.local/dev</code> are uninstalled immediately upon deployment. See the <cite data-ref="deployment"><a href="learn/bibliography/deployment.html">deployment contract</a></cite>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>How does <code>tamlinux-packages</code> ensure that builds are completely reproducible across different machines?</summary>
+<p><code>flake.lock</code> records the exact Git commit SHA and cryptographic tree hash (<code>narHash</code>) for all inputs (including <code>nixpkgs</code>, <code>tam</code>, and <code>libtam</code>). Nix guarantees bit-for-bit reproducible outputs by building in isolated sandboxes against those exact locked trees.</p>
+</details>
+<details class="q">
+<summary>Why does a development build in <code>~/.local/dev/bin</code> take precedence over the packaged binary in <code>~/.local/bin</code>?</summary>
+<p>The user's shell configuration places <code>~/.local/dev/bin</code> before <code>~/.local/bin</code> in the <code>PATH</code> environment variable. This allows local development binaries to be tested interactively without modifying the packaged Home Manager generation.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
 
 <ul>
-<li><code>tam</code> and <code>tamlinux-tools</code> are compiled against the pinned
-<code>libtam</code> derivation and packaged with explicit <code>RPATH</code> and
-runtime dependencies.</li>
-<li><code>tamlinux-shell</code>, <code>tamlinux-plugins</code>, and
-<code>tamlinux-commands</code> extract their version directly from
-<code>tamlinux/VERSION</code>.</li>
-<li>Commands are wrapped with strict, closed <code>PATH</code> prefixes ensuring
-they only execute utilities from the pinned Nix store, preventing interference
-from host distribution differences.</li>
+<li><a href="man:nix3-flake(1)">nix3-flake(1)</a> &mdash; Nix flake management and locking operations.</li>
+<li><a href="ecosystem/packaging.html">Software packaging and delivery</a> &mdash; Tamlinux package architecture.</li>
+<li><a href="improve/toolchains.html">Toolchains and Native Compilation</a> &mdash; local build rules, lanes, and claims.</li>
+<li><a href="tam.html">The tam command lifecycle</a> &mdash; Develop, Test, Run, and Release stages.</li>
 </ul>
-
-<h3>Workstation deployment linkage</h3>
-
-<p>The user's own workstation configuration, a separate repository that
-holds personal preferences and machine settings, consumes <code>tamlinux-packages</code> as its input. When <code>tam-deploy</code>
-activates a candidate, Home Manager links the exact Nix store outputs into
-<code>~/.local/bin</code> and <code>~/.local/share/tamlinux</code>. No floating
-branches or mutable checkout links are used in Test or Run.</p>
 </section>
 
 <section data-level="expert">
 <h2>The step-by-step lifecycle from development to release</h2>
 
-<p><strong>Summary:</strong> The complete operational runbook for bumping a
-component version, pinning it into Tamlinux, and deploying the resulting
-assembly.</p>
+<h3>Reference</h3>
 
-<p><strong>Prerequisites:</strong> Intermediate depth, understanding of the
-Develop &rarr; Test &rarr; Run &rarr; Release lifecycle (<a href="tam.html">The tam
-command lifecycle</a>).</p>
+<table>
+<tr><th>Tier / Component</th><th>Source of Truth</th><th>Declared In</th><th>Promotion Gate</th></tr>
+<tr><td><code>tam</code> command binary</td><td><code>TAM_COMMAND_VERSION</code></td><td><code>src/version.h</code></td><td>Tests pass (<code>make test-command</code>); fast-forward develop</td></tr>
+<tr><td><code>tam</code> knowledge corpus</td><td>Corpus version string</td><td><code>knowledge/version</code></td><td>Lint and guide tests pass (<code>make corpus-and-test</code>)</td></tr>
+<tr><td><code>libtam</code> shared library</td><td>Library version</td><td><code>include/tam.h</code>, <code>meson.build</code></td><td>ABI compliance and test suite pass</td></tr>
+<tr><td><code>tamlinux</code> desktop / plugins</td><td>Product version</td><td><code>tamlinux/VERSION</code></td><td>Quickshell syntax checks and plugin unit tests</td></tr>
+<tr><td><code>tamlinux-packages</code></td><td>Cryptographic BOM</td><td><code>flake.nix</code>, <code>flake.lock</code></td><td>Hermetic Nix build (<code>nix build .#tam</code>) and flake check</td></tr>
+<tr><td>Tamlinux cultivar</td><td>Cultivar name &amp; milestone</td><td><code>VERSION</code> in packages repo</td><td>Explicit developer instruction (Test, Run, Release)</td></tr>
+</table>
 
-<h3>Phase 1: Component Development and Override</h3>
+<h3>How it works</h3>
 
-<p>While iterating on a component such as <code>tam</code>:</p>
+<p>Advancing software through the Tamlinux lifecycle follows four structured phases:</p>
 
 <ol>
-<li>Work on the <code>develop</code> branch of <code>tam</code>.</li>
-<li>Install a development build directly into the user prefix:
-<pre>
+<li><strong>Component Development and Override:</strong>
+Work in the component checkout on the <code>develop</code> branch. Install a development build directly into the user prefix:
+<pre data-risk="read-only">
 make -C ~/src/tam test
 make -C ~/src/tam install PREFIX=$HOME/.local/dev
 </pre>
-Because <code>~/.local/dev/bin</code> sits first on the shell <code>PATH</code>,
-this binary immediately overrides the packaged version for interactive testing
-without root privileges or Nix rebuilds.</li>
-</ol>
+Because <code>~/.local/dev/bin</code> sits first on the shell <code>PATH</code>, this binary immediately overrides the packaged version for interactive testing without root privileges or Nix store builds.</li>
 
-<h3>Phase 2: Finish and Commit the Component</h3>
+<li><strong>Component Verification, Version Bump, and Commit:</strong>
+Verify all unit, integration, and guide tests pass (<code>make test</code>). Bump the component version in source:
+<ul>
+<li>Binary version: <code>src/version.h</code> (<code>TAM_COMMAND_VERSION</code>).</li>
+<li>Corpus version: <code>knowledge/version</code>, its only source. A corpus release changes no command source.</li>
+</ul>
+Record public AI provenance in <code>AI_PROVENANCE.md</code>. Commit only your claimed paths (<code>git commit -m '...' -- &lt;paths&gt;</code>) and push to <code>develop</code> on GitHub. Note the resulting commit hash.</li>
 
-<ol>
-<li>Verify all unit, integration, and guide tests pass (<code>make test</code>).</li>
-<li>Bump the component version in source:
-  <ul>
-  <li>Binary version: <code>src/version.h</code> (<code>TAM_COMMAND_VERSION</code>).</li>
-  <li>Corpus version: <code>knowledge/version</code>, its only source. A corpus
-  release changes no command source.</li>
-  </ul>
-</li>
-<li>Record public AI provenance in <code>AI_PROVENANCE.md</code>.</li>
-<li>Commit and push the changes to <code>develop</code> on GitHub. Note the
-resulting commit hash.</li>
-</ol>
-
-<h3>Phase 3: Pin the Component in tamlinux-packages</h3>
-
-<p>To include this version in a Tamlinux candidate (e.g. for Tamlinux 0.4.4):</p>
-
-<ol>
-<li>In <code>~/src/tamlinux-packages</code> on <code>develop</code>,
-claim the packaging files:
-<pre>
-tam-work begin --scope flake.nix --scope flake.lock --scope nix/packages/default.nix --note 'Pin tam 0.25.0'
-</pre>
-</li>
-<li>In <code>flake.nix</code>, update the input URL for <code>tam</code> to the
-exact pushed commit:
-<pre>
+<li><strong>Assembly Pinning in tamlinux-packages:</strong>
+In <code>~/src/tamlinux-packages</code> on <code>develop</code>, claim the packaging files with <code>tam-work begin</code>. In <code>flake.nix</code>, update the input URL for <code>tam</code> to the exact pushed commit hash:
+<pre data-risk="read-only">
 tam.url = "github:greenermoose/tam/&lt;commit-hash&gt;";
 </pre>
-</li>
-<li>Update the cryptographic lock:
-<pre>
+Update the cryptographic lock:
+<pre data-risk="read-only">
 nix flake lock --update-input tam
 </pre>
-</li>
-<li>In <code>nix/packages/default.nix</code>, update the declared
-<code>version = "0.25.0";</code> inside the <code>tam</code> derivation.</li>
-<li>Verify the package build and checks using an exclusive claim:
-<pre>
+In <code>nix/packages/default.nix</code>, update the declared <code>version = "0.43.2";</code> inside the derivation. Verify the package build and checks using an exclusive claim:
+<pre data-risk="read-only">
 nix build .#tam
 nix flake check
 </pre>
-</li>
-<li>Set the candidate Tamlinux letter in <code>VERSION</code> (e.g. <code>0.4.4-a</code>)
-following SemVer and candidate letter rules.</li>
-<li>Commit and push the updated assembly definition to <code>develop</code>.</li>
-</ol>
+Set the candidate Tamlinux letter in <code>VERSION</code> (e.g. <code>0.5.4-a</code>) following candidate letter rules. Commit and push the updated assembly definition to <code>develop</code>.</li>
 
-<h3>Phase 4: Promotion to Test and Run</h3>
-
-<ol>
-<li><strong>Test:</strong> On the developer's "Test" instruction, promote the candidate
-commit to the <code>test</code> branch (fast-forward only). Deploy using
-<code>tam-deploy test</code>.</li>
-<li><strong>Clean up the dev override:</strong> Right after the deploy that
-delivers the pinned version, remove the development override:
-<pre>
+<li><strong>Promotion to Test, Run, and Dev Override Cleanup:</strong>
+<ul>
+<li><strong>Test:</strong> On the developer's explicit "Test" instruction, promote the candidate commit to the <code>test</code> branch (fast-forward only). Deploy using <code>tam-deploy test</code>.</li>
+<li><strong>Clean up the dev override:</strong> Right after the deploy that delivers the pinned version, remove the development override:
+<pre data-risk="read-only">
 make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev
 hash -r
 </pre>
 Confirm <code>type -a tam</code> points back to <code>~/.local/bin/tam</code>.</li>
-<li><strong>Run:</strong> After thorough daily-driver testing, on the developer's "Run"
-instruction, promote the exact same tested commit to <code>main</code> with
-<code>tam-deploy run</code>.</li>
-<li><strong>Release:</strong> When all planned steps for the version are
-accepted, tag the release on GitHub with release notes.</li>
+<li><strong>Run:</strong> After thorough daily-driver testing, on the developer's explicit "Run" instruction, promote the exact same tested commit to <code>main</code> with <code>tam-deploy run</code>.</li>
+<li><strong>Release:</strong> When all planned steps for the version are accepted, tag the release on GitHub with release notes on the developer's explicit "Release" instruction.</li>
+</ul>
+</li>
 </ol>
 
-<h3>Key Architectural Guardrails</h3>
+<h3>Why Tamlinux chose this</h3>
 
-<ul>
-<li><strong>No Reused Letters:</strong> Never reuse a candidate
-letter for a changed assembly once prepared. Fixes always advance to the next
-letter.</li>
-<li><strong>Fast-Forward Only:</strong> <code>develop</code>, <code>test</code>,
-and <code>main</code> form one straight line. Promotion never introduces merge
-commits.</li>
-<li><strong>The Verb Decides:</strong> Version numbers are metadata, not
-permission. Only explicit instructions from the developer advance stages.</li>
-</ul>
+<p>Separating product cultivar milestones from independent component versions enables fast, focused iteration on individual utilities without triggering massive system-wide builds. Pinning components via cryptographic Git hashes and <code>flake.lock</code> eliminates runtime drift, guaranteeing that any developer or machine building a candidate produces identical software. Placing local development builds first on <code>PATH</code> allows safe, unprivileged testing while maintaining pristine package integrity in the underlying operating system.</p>
 </section>
 
 </body>
