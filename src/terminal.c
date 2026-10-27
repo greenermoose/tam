@@ -98,6 +98,10 @@ int tam_terminal_init(tam_terminal_t *t, int fd, int rows, int cols)
     t->reverse = (t->rev != NULL || (t->smso != NULL && t->rmso != NULL));
     t->interactive = t->cup != NULL && t->sgr0 != NULL && t->el != NULL;
     if (!t->interactive) return 0;
+    /* OSC 8 hyperlinks. The Linux console and hardware VT terminals print an
+     * unknown OSC string's text, so they get none. */
+    t->hyperlinks = strcmp(term, "linux") != 0 && strncmp(term, "vt", 2) != 0 &&
+                    strncmp(term, "cons", 4) != 0;
 
     const char *no_color = getenv("NO_COLOR");
     t->use_color = no_color == NULL || no_color[0] == '\0';

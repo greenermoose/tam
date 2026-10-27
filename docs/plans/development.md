@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-27
-**Scope:** Living integration contract; current command 0.43.2 and corpus 0.44.0.
+**Scope:** Living integration contract; current command 0.44.0 and corpus 0.45.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -113,7 +113,7 @@ installation inspection never write welcome state. Successful explicit
 
 `tam` is offline by default: it parses and displays its bundled corpus with no
 network access, no daemon and no mandatory external dependency, and it emits no
-terminal controls when piped. Milestone 9 adds one deliberate, opt-in exception.
+terminal controls when piped. External HTTP(S) links can be handed to the reader’s optional browser after a second activation; terminal OSC 8 controls can open them independently. The browser may access the network; the pager does not fetch pages. Milestone 9 adds a separate opt-in exception.
 `tam ask` retrieves corpus context and cites it, and never starts, bundles or embeds a
 daemon or model. The intended server is local, but the current client accepts
 non-loopback `--server`/`TAM_ASK_SERVER` hosts and uses plain HTTP even for an
@@ -123,8 +123,7 @@ endpoint. Interactive model fetching asks for consent and shows a URL and
 estimated size; the client does not display or verify an expected hash. Under
 `--pipe` or any non-interactive invocation it errors instead of fetching. The core binary
 stays offline and dependency-free; the optional model runtime remains external
-and user-controlled. This boundary is recorded here deliberately, as the one
-place where the implemented offline default is amended. Explicit upgrade
+and user-controlled. This boundary records the implemented offline default. Explicit upgrade
 subcommands perform fixed-host GitHub metadata/source operations; browsing,
 help and version commands remain offline.
 
@@ -392,8 +391,7 @@ track enforcement. Corpus 0.44.0 adds twelve foundational glossary entries,
 a Guide index link and first-use explanations ([record](../ai/2026-10-27-tam-foundation-glossary.md)).
 Corpus 0.45.0 revises Learning and Installing lessons, enables tagged-section
 enforcement in every part and adds six goal paths. TCK25 source implementation is complete; wider concept explanations and
-glossary coverage remain. Pilot, learner and packaged acceptance are pending. The [external-links plan](external-links.md) tracks the
-approved branch implementation; it is not yet in `develop`.
+glossary coverage remain. Pilot, learner and packaged acceptance are pending. The [external-links plan](external-links.md) tracks command 0.44.0’s integrated browser handoff; physical desktop and console review remain pending.
 
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
@@ -486,6 +484,7 @@ record remains explicit in that plan and the index; it is not silently closed.
   from 22 to 18. Next TCK25 work: remaining Improving lessons, then track-wide
   enforcement.
 
+- **2026-10-27:** Command 0.44.0 (minor): external HTTP(S) links hand off to an optional browser with pager confirmation and OSC 8 support; physical review remains pending. See the [plan](external-links.md).
 - **2026-10-25:** Corpus 0.43.2 (patch): TCK25 Maintaining completion and
   enforcement. Migrated `hardware/resources.html` and `ecosystem/packaging.html`
   to full ladder anatomy with captured read-only examples, mapped skills, and

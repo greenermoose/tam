@@ -3,6 +3,7 @@
 #include "address.h"
 #include "depth.h"
 #include "display.h"
+#include "external.h"
 #include "pager.h"
 #include "pager_screen.h"
 #include "render.h"
@@ -37,6 +38,8 @@ static void emit_line(const tam_line_t *line, int width,
                const linkref_t *sel, size_t line_idx,
                const pager_t *st);
 static size_t status_byte_limit(const char *s, int max_cols);
+static const char *hyperlink_target(const tam_span_t *sp);
+static void emit_hyperlink(const tam_span_t *sp, int open);
 static void pager_address(const pager_t *st, char *out, size_t cap);
 
 int tam_terminal_width(void)
@@ -254,6 +257,32 @@ static int link_space_is_interior(const char *text, size_t len, size_t offset)
     return has_text_before && has_text_after;
 }
 
+/* An external link the terminal can open itself, as an OSC 8 hyperlink;
+ * NULL for every other span. */
+static const char *hyperlink_target(const tam_span_t *sp)
+{
+    if (g_term == NULL || !g_term->hyperlinks || sp->href == NULL ||
+        tam_addr_kind(sp->href) != TAM_ADDR_EXTERNAL ||
+        !tam_external_url_ok(sp->href)) return NULL;
+    return sp->href;
+}
+
+/* Each span opens and closes its own hyperlink, so none runs past a row; the
+ * link id joins the rows of a wrapped link into one. */
+static void emit_hyperlink(const tam_span_t *sp, int open)
+{
+    char seq[64];
+    if (!open) {
+        outn("\033]8;;\033\\", 7);
+        return;
+    }
+    if (sp->link_id > 0) snprintf(seq, sizeof(seq), "\033]8;id=tam%d;", sp->link_id);
+    else snprintf(seq, sizeof(seq), "\033]8;;");
+    outn(seq, strlen(seq));
+    outn(sp->href, strlen(sp->href));
+    outn("\033\\", 2);
+}
+
 static void emit_line(const tam_line_t *line, int width,
                       const linkref_t *sel, size_t line_idx,
                       const pager_t *st)
@@ -284,6 +313,8 @@ static void emit_line(const tam_line_t *line, int width,
         size_t len = strlen(t);
         size_t off = 0;
         int is_link = sp->href != NULL;
+        int hyperlink = hyperlink_target(sp) != NULL;
+        int hyperlink_open = 0;
         int is_sel = 0;
         if (is_link && sel != NULL && !sel->header) {
             if (sp->link_id > 0 && sel->link_id > 0)
@@ -324,10 +355,15 @@ static void emit_line(const tam_line_t *line, int width,
                 active_span = sp;
                 active_tint = tint;
             }
+            if (hyperlink && !hyperlink_open && !link_space) {
+                emit_hyperlink(sp, 1);
+                hyperlink_open = 1;
+            }
             if (wc == 0xfffd) outn("?", 1);
             else outn(t + char_start, bytes);
             col += cells;
         }
+        if (hyperlink_open) emit_hyperlink(sp, 0);
         byte_pos += len;
     }
     if (active_style != 0 || active_tint != attention) emit_reset(attention);
@@ -415,6 +451,7 @@ int draw(pager_t *st)
                 "Line: d/k down, s/l up   Top: x or .   Bottom: c or ,",
                 "Links on the line: a/j left, f/; right   Any link: ] next, [ previous",
                 "Follow: g, Enter or Right Arrow   Tab / Shift-Tab: same as ] / [",
+                "Web links: press Enter twice to open them in your browser",
                 "Search: / this page, \\ the guide   Next/previous hit: n/N   Address: =",
                 "Answers: Right Arrow or + shows, Left Arrow or - hides, r next, * all",
                 "Info Up: u   Next/Previous node: n/p",
@@ -508,7 +545,8 @@ int draw(pager_t *st)
 
         /* Title | line and range | lens | keys  -> link  ...  version, the
          * version at the right edge. Narrow rows drop the title first, then
-         * the link, then the keys; the line, range and lens always show. */
+         * the link, then the keys, though a message stays ahead of the keys;
+         * the line, range and lens always show. */
         static const char *const keys[] = {
             "h Help  Esc Quit  [] Select links", "h Help  Esc Quit"
         };
@@ -520,16 +558,30 @@ int draw(pager_t *st)
         int ess_w = (int)tam_display_width(essential, strlen(essential));
         int ver_w = (int)tam_display_width(st->version, strlen(st->version));
         int room = max_cols - ess_w - (ver_w > 0 ? ver_w + 2 : 0);
+        int detail_w = (int)tam_display_width(detail, strlen(detail));
+        /* A message answers the reader's last key, so it outranks the key
+         * hints; a selected link's target gives way to them. */
+        int message = st->msg[0] != '\0';
+        /* A confirmation must remain visible even when the usual status
+         * fields leave too little room for it. */
+        if (st->pending_external != NULL && detail_w + 2 > room) {
+            snprintf(status, sizeof(status), "%s", detail);
+            lens_digit = (size_t)-1;
+            goto status_ready;
+        }
+        int show_detail = message && detail_w + 2 <= room;
+        if (show_detail)
+            room -= detail_w + 2;
         const char *key_text = NULL;
         for (size_t k = 0; k < sizeof(keys) / sizeof(keys[0]) && key_text == NULL; k++)
             if ((int)tam_display_width(keys[k], strlen(keys[k])) + 3 <= room)
                 key_text = keys[k];
         if (key_text != NULL)
             room -= (int)tam_display_width(key_text, strlen(key_text)) + 3;
-        int detail_w = (int)tam_display_width(detail, strlen(detail));
-        int show_detail = detail[0] != '\0' && detail_w + 2 <= room;
-        if (show_detail)
+        if (!message && detail[0] != '\0' && detail_w + 2 <= room) {
+            show_detail = 1;
             room -= detail_w + 2;
+        }
         int title_w = (int)tam_display_width(title, strlen(title));
         if (title_w + 3 <= room && max_cols >= 60) {
             strncat(status, title, sizeof(status) - strlen(status) - 1);
@@ -555,6 +607,7 @@ int draw(pager_t *st)
         }
     }
 
+status_ready:
     if (st->height >= 2) {
         g_capture = &frame[st->height - 1];
         size_t slen = status_byte_limit(status, paint_width);

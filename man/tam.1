@@ -253,6 +253,11 @@ or
 .BR "tam info" ,
 the interactive pager provides the following controls:
 .P
+For an HTTP or HTTPS link, follow it once to name the browser, then follow it
+again to open it; another key cancels. On a text console the pager returns
+when the browser exits. Terminal hyperlink controls may open links directly
+without this confirmation. The browser is optional and may use the network.
+.P
 The letter keys sit on the home row. Each hand has left, up, down and right
 under one finger each, mirrored: the index fingers point inward, the middle
 fingers move down, the ring fingers move up and the little fingers point
@@ -497,6 +502,16 @@ Filter content or topic listings to
 or
 .BR expert " (" 3 ).
 .SH ENVIRONMENT
+.TP
+.B BROWSER
+In a graphical session, a colon-separated list of browser commands, tried in
+order before xdg-open. Words are separated by spaces or tabs; no shell is
+used. %s expands to the URL and %% to a percent sign; without %s the URL is
+appended.
+.TP
+.B TAM_TEXT_BROWSER
+On a text console, browser commands in the same format as BROWSER; otherwise
+w3m, lynx, elinks and links are tried in that order.
 .TP
 .B TAM_KNOWLEDGE_DIR
 Overrides the compiled knowledge corpus directory. Used for development builds and test suites.

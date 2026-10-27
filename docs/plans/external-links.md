@@ -2,9 +2,9 @@
 
 **Plan status:** In progress
 **Reviewed:** 2026-10-27
-**Scope:** Pager handoff of HTTP and HTTPS links; command implementation and documentation. Corpus versions are independent.
+**Scope:** Command 0.44.0 pager handoff of HTTP and HTTPS links; corpus versions are independent.
 **Authority:** Developer-approved design of 2026-10-23, recorded in the plan at `feature/external-links` commit `abf0262`; the developer raised its unfinished status again on 2026-10-27.
-**Next action:** Review the preserved branch implementation against current `develop`, complete its documentation and checks, then integrate using the shared-checkout rules. Preserve the branch and its remote ref.
+**Next action:** Physical desktop and console acceptance of an exact packaged candidate remains developer-directed. Source integration and automated checks are recorded in the session record.
 
 ## Outcome
 
@@ -20,23 +20,15 @@ arguments without a shell. Browsers are optional runtime tools.
 
 ## State and remaining work
 
-- `feature/external-links` and `origin/feature/external-links` both point to
-  `abf0262`. That commit contains the implementation, focused PTY tests and
-  the original detailed design and handoff. It is not in `develop`.
-- The branch records passing command and focused tests on 2026-10-23, but its
-  integrated check was incomplete because documentation was missing. This is
-  historical evidence, not a current test result or physical acceptance.
-- Reconcile the branch with current `develop` and its independent corpus
-  version. Review URL handling, browser selection, terminal restoration and
-  OSC 8 behavior, including the terminal-controlled confirmation distinction.
-- Update the reader help, manual, roadmap, development contract and plan index;
-  run focused and integrated tests on a stable checkout, and record results.
-  Physical desktop and console checks remain explicit acceptance work.
-- Do not switch branches, merge or cherry-pick in the shared checkout. Claim
-  affected paths and use a coordination-safe integration method consistent
-  with repository rules. No branch or folder deletion is needed. Development
-  installation requires a separate developer instruction; packaged Test, Run
-  and Release remain separate developer-directed stages.
+- **TCK26:** Browser handoff, confirmation and OSC 8 source, from `abf0262`.
+- **TCK27:** Documentation, integrated checks and shared-checkout integration.
+
+The implementation from `feature/external-links` at `abf0262` is integrated in
+command 0.44.0 on `develop`; the branch and its remote ref are preserved.
+Documentation and automated verification are recorded in the
+[session record](../ai/2026-10-27-tam-external-links-integration.md).
+Physical desktop and console acceptance remain open; source tests do not
+establish it. Development installation and packaged stages are separate.
 
 ## Acceptance
 

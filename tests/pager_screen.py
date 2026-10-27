@@ -49,6 +49,16 @@ class Screen:
                 if data[i + 1] == ord("("):
                     i += 3
                     continue
+                if data[i + 1] == ord("]"):
+                    # OSC string (hyperlinks), ended by BEL or ESC backslash.
+                    j = i + 2
+                    while j < len(data) and data[j] != 0x07 and \
+                            not (data[j] == 0x1b and j + 1 < len(data) and data[j + 1] == ord("\\")):
+                        j += 1
+                    if j >= len(data):
+                        break
+                    i = j + 1 if data[j] == 0x07 else j + 2
+                    continue
                 i += 2
                 continue
             j = i + 1

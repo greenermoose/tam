@@ -50,6 +50,34 @@ static void on_resize(int sig)
     g_resized = 1;
 }
 
+/* Hand the terminal to another program: leave the alternate screen and
+ * restore the reader's terminal modes. */
+void pager_suspend(pager_t *st)
+{
+    if (g_term == NULL) return;
+    tam_buf_t b = {0};
+    if (tam_terminal_leave(g_term, &b) == 0)
+        (void)tam_terminal_write(g_term, &b);
+    tam_buf_free(&b);
+    if (st->tty_orig != NULL)
+        (void)tcsetattr(st->input_fd, TCSANOW, st->tty_orig);
+    g_term->raw_mode = 0;
+}
+
+/* Take the terminal back; the next draw repaints every row. */
+void pager_resume(pager_t *st)
+{
+    if (g_term == NULL) return;
+    if (st->tty_raw != NULL &&
+        tcsetattr(st->input_fd, TCSANOW, st->tty_raw) == 0)
+        g_term->raw_mode = 1;
+    tam_buf_t b = {0};
+    if (tam_terminal_enter(g_term, &b) == 0)
+        (void)tam_terminal_write(g_term, &b);
+    tam_buf_free(&b);
+    tam_pager_screen_invalidate(&g_screen);
+}
+
 int tam_pager_run(tam_document_t *initial, const char *initial_href,
                   tam_page_loader_t load, void *ctx)
 {
@@ -171,6 +199,8 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         return 1;
     }
     term.raw_mode = 1;
+    st.tty_orig = &orig;
+    st.tty_raw = &raw;
 
     struct sigaction sa, old_int, old_term, old_winch;
     memset(&sa, 0, sizeof(sa));
@@ -259,6 +289,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     free(st.links);
     free(st.fold_open);
     free(st.cur_href);
+    free(st.pending_external);
     pager_clear_search(&st);
     tam_document_free(st.doc);
     tam_pager_screen_free(&g_screen);

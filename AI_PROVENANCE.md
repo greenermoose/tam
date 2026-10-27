@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-27 | External browser links integration; command 0.44.0 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-external-links-integration.md) |
 | 2026-10-23 | Checkpoint concept guide and glossary entry; corpus 0.43.0 | Antigravity CLI 1.4.6; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-23-tam-checkpoint-concept.md) |
 | 2026-10-23 | Relatives line leader changed to "See also ->" for all lenses; command 0.43.2 | Antigravity CLI 1.4.6; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-23-tam-see-also-leader.md) |
 | 2026-10-22 | TCK25 logs/power learning migration; corpus 0.42.3 | Codex CLI 0.163.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-10-22-tam-logs-power-learning.md) |

@@ -91,6 +91,10 @@ typedef struct {
     char            version[64]; /* "v<command> (<corpus>)", right of the status row */
     unsigned char  *fold_open;
     size_t          nfold_open;
+    char           *pending_external; /* An external link awaiting its second press. */
+    int             external_armed;   /* The current key armed it. */
+    const struct termios *tty_orig;   /* The reader's terminal modes, and the pager's. */
+    const struct termios *tty_raw;
 } pager_t;
 
 int terminal_height(void);
@@ -129,6 +133,8 @@ void move_line_down(pager_t *st);
 void move_column(pager_t *st, int dir);
 void follow_selected(pager_t *st);
 int read_byte(int fd, int timeout_ms, unsigned char *c);
+void pager_suspend(pager_t *st);
+void pager_resume(pager_t *st);
 void handle_key(pager_t *st, unsigned char c);
 
 #endif /* TAM_PAGER_INT_H */

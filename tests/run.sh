@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.43.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.44.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1300,6 +1300,7 @@ os.waitpid(pid, 0)
     pass "attention line: charcoal tint, directional link catching, anchored Enter, and history position stack"
 
     python3 "$here/pager_screen.py" "$TAM" "$root/tests/fixtures" || fail "pager PTY screen-state checks failed"
+    python3 "$here/external_links.py" "$TAM" "$root/tests/fixtures" || fail "external link checks failed"
 
     # Level lens (TCK21): 0-3 set one lens that holds across links, Back and
     # a restart, is saved in tamlinux/tam/level, and never dead-ends a page.

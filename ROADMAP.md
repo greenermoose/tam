@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-27. **Owner:** Fred (developer).
-**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.45.0`.
+**Current Command Version:** `0.44.0`. **Current Corpus Version:** `0.45.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -100,6 +100,7 @@ in that candidate, not here.
 | **0.38.0 command / 0.37.1 corpus** | Folding and self-quizzes (TCK22) | Done (2026-10-21) | Answers fold in the pager with Enter, `r` and `*`, reset on navigation, and collect under Answers in pipe output; block-level filtering, generated section labels, named asides and command risk labels; 23 pages lose hand-typed level prefixes and lint checks enforce the markup ([record](docs/ai/2026-10-21-tam-folding.md)). |
 | **0.38.1 command** | Pager resize cursor preservation | Done (2026-10-21) | Reflow preserves whether the attention line is on text or a blank separator when both share a logical position; PTY screen tests cover text and blank anchors ([record](docs/ai/2026-10-21-tam-pager-resize-drift.md)). |
 | **0.39.0 command** | Pager level line | Done (2026-10-21) | One dimmed, right-aligned level line above the page heading, `<Level> text [on <Level> path] [(no <Level> text)]`, replaces the level bar and the "Written for" banner; the path is linked, and a page without the lens level adds `<Level> text: A \| B \| C` with up to three related pages (never the level path itself). Keys `0`-`3` still switch levels ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
+| **0.44.0 command** | External links | Done (2026-10-27) | Confirm and hand HTTP(S) links to the reader’s browser; OSC 8 in supported terminals. Physical desktop and console review remains pending. |
 | **0.43.2 command** | Pager relatives line leader | Done (2026-10-23) | Changed the line c relatives leader for all lenses to `See also -> <links>` so readers understand the list contains followable navigation links rather than introducing the text below ([record](docs/ai/2026-10-23-tam-see-also-leader.md)). |
 | **0.43.1 command / 0.42.2 corpus** | Arrow-key hints on answers | Done (2026-10-22) | Answers read `[+] Answer (-> to show)` and `[-] Answer (<- to hide)`; Right Arrow toggles the answer on the attention line even when its link is not selected. `+`, `-`, Enter, `r` and `*` still work; the help overlay, man page and Learning paths page name the arrows ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
 | **0.43.0 command** | Left Arrow hides a shown answer | Done (2026-10-22) | On a shown answer's `[-]` line, Left Arrow hides it, as `-` does; elsewhere, including a hidden answer's `[+]` line, it goes back as before ("no earlier page" on the first page) ([record](docs/ai/2026-10-21-tam-pager-level-line.md)). |
@@ -138,7 +139,7 @@ in that candidate, not here.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.2 / 0.45.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
+| `develop` | 0.44.0 / 0.45.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -179,7 +180,7 @@ corpus 0.43.8 completes Improving and its enforcement. Corpus 0.44.0 adds
 twelve introductory glossary entries and a Guide index link. Corpus 0.44.1 makes practice cleanup limited to the known file and empty directory. Corpus 0.45.0 revises the tagged Learning lessons, classifies Learning and Installing pages, adds the remaining goal paths and enables tagged-section enforcement in all parts. TCK25 source implementation is complete. Continue defining unfamiliar concepts and expanding the glossary; pilot and learner review remain pending. Allocate versions when
 each slice starts. The deferred items in section 4 are candidates, not assignments.
 
-The approved [external-links work](docs/plans/external-links.md) is implemented on a preserved feature branch but is not integrated into `develop`. Review its current handoff, complete documentation and verification, then integrate under the shared-checkout rules.
+The approved [external-links work](docs/plans/external-links.md) is integrated in command 0.44.0; physical desktop and console review remains pending.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the

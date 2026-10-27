@@ -3,6 +3,7 @@
 #include "address.h"
 #include "depth.h"
 #include "display.h"
+#include "external.h"
 #include "pager.h"
 #include "pager_screen.h"
 #include "render.h"
@@ -17,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <time.h>
@@ -31,6 +33,7 @@ static void history_push(pager_t *st, const char *href, int top,
 static void forward_push(pager_t *st, const char *href, int top,
                   int cursor_line);
 static void forward_clear(pager_t *st);
+static void follow_external(pager_t *st, const char *href);
 static void restore_nav_state(pager_t *st, int top, int cursor_line);
 static void restore_logical_nav_state(pager_t *st, const nav_state_t *nav);
 static int match_anchor(const char *haystack, const char *needle);
@@ -330,6 +333,47 @@ tam_document_t *load_at_lens(pager_t *st, const char *href)
     return st->load(st->ctx, href, content_width(st));
 }
 
+/* tam never fetches a web page. An external link opens in the reader's own
+ * browser on a second press of the same link; the first press names the
+ * browser. A graphical browser starts detached; a text browser takes this
+ * terminal until it exits. */
+static void follow_external(pager_t *st, const char *href)
+{
+    if (!tam_external_url_ok(href)) {
+        size_t scheme = strcspn(href, ":/?#");
+        if (href[scheme] != ':' || (scheme == 4 && strncasecmp(href, "http", 4) == 0) ||
+            (scheme == 5 && strncasecmp(href, "https", 5) == 0))
+            snprintf(st->msg, sizeof(st->msg), "cannot open malformed link");
+        else
+            snprintf(st->msg, sizeof(st->msg), "cannot open %.*s: links",
+                     scheme < 24 ? (int)scheme : 24, href);
+        return;
+    }
+    int graphical = tam_external_graphical();
+    if (st->pending_external == NULL || strcmp(st->pending_external, href) != 0) {
+        char name[64];
+        free(st->pending_external);
+        st->pending_external = NULL;
+        if (!tam_external_opener(graphical, name, sizeof(name))) {
+            snprintf(st->msg, sizeof(st->msg), "%s", tam_external_missing(graphical));
+            return;
+        }
+        st->pending_external = strdup(href);
+        st->external_armed = st->pending_external != NULL;
+        snprintf(st->msg, sizeof(st->msg), "Enter again opens it in %s", name);
+        return;
+    }
+    free(st->pending_external);
+    st->pending_external = NULL;
+    if (graphical) {
+        (void)tam_external_open_detached(href, st->msg, sizeof(st->msg));
+        return;
+    }
+    pager_suspend(st);
+    (void)tam_external_run_foreground(href, st->input_fd, st->msg, sizeof(st->msg));
+    pager_resume(st);
+}
+
 void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
@@ -381,7 +425,7 @@ void follow(pager_t *st, const char *href)
         return;
     }
     if (tam_addr_kind(href) == TAM_ADDR_EXTERNAL) {
-        snprintf(st->msg, sizeof(st->msg), "external link (not opened)");
+        follow_external(st, href);
         return;
     }
     /* A link that names a level sets the lens; history keeps the address

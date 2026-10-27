@@ -6,6 +6,7 @@ is maintained in [AI_PROVENANCE.md](../../AI_PROVENANCE.md).
 
 | Date | Work | Record |
 | --- | --- | --- |
+| 2026-10-27 | External browser links integration; command 0.44.0 | [Session record](2026-10-27-tam-external-links-integration.md) |
 | 2026-10-25 | TCK25 Improving completion and enforcement; corpus 0.43.8 | [Implementation and verification](2026-10-25-tam-tck25-improving-completion.md) |
 | 2026-10-25 | TCK25 Maintaining completion and enforcement; corpus 0.43.2 | [Implementation and verification](2026-10-25-tam-tck25-maintaining-completion.md) |
 | 2026-10-22 | TCK25 logs/power lessons; corpus 0.42.3 | [Implementation and verification](2026-10-22-tam-logs-power-learning.md) |
