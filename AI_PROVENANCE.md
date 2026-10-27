@@ -151,3 +151,4 @@ model for each session.
 | 2026-10-27 | TCK25 Learning and Installing, goal paths; corpus 0.45.0 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-tck25-completion.md) |
 | 2026-10-27 | First steps navigation and skills-map corrections; corpus 0.45.1 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-learning-review.md) |
 | 2026-10-27 | Plain introductions across the guide; corpus 0.45.2 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-plain-openings.md) |
+| 2026-10-27 | Use `tam hi` in corpus instructions; corpus 0.45.3 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-hi-corpus.md) |
