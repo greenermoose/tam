@@ -16,7 +16,8 @@
 
 <h1>The Linux Filesystem Hierarchy</h1>
 
-<p>Linux organizes all files and storage devices into a single unified tree
+<p>A <a href="learn/glossary/file.html">file</a> holds information. A <a href="learn/glossary/directory.html">directory</a>, also called a folder, organizes files and other directories. A <a href="learn/glossary/path.html">path</a> names a place in that tree.</p>
+<p>Linux organizes files and storage devices into a single unified tree
 beginning at root (<code>/</code>). This structure follows the Filesystem
 Hierarchy Standard (FHS).</p>
 
@@ -29,7 +30,7 @@ Hierarchy Standard (FHS).</p>
 <tr><td>/etc</td><td>Host-specific system configuration files in plain text</td></tr>
 <tr><td>/usr</td><td>Secondary hierarchy for user utilities, libraries, and assets</td></tr>
 <tr><td>/var</td><td>Variable runtime state, service data, and system logs (/var/log)</td></tr>
-<tr><td>/tmp</td><td>Temporary files cleared on system restart</td></tr>
+<tr><td>/tmp</td><td>Temporary files; cleanup depends on system configuration</td></tr>
 <tr><td>/proc</td><td>Virtual filesystem exposing kernel and process state metrics</td></tr>
 <tr><td>/sys</td><td>Virtual filesystem exposing kernel device and driver trees</td></tr>
 <tr><td>/dev</td><td>Device node representations for physical hardware and pseudo-devices</td></tr>
@@ -37,8 +38,7 @@ Hierarchy Standard (FHS).</p>
 
 <h2>Virtual filesystems: /proc and /sys</h2>
 
-<p>The files inside <code>/proc</code> and <code>/sys</code> take zero disk space.
-They are direct windows into kernel memory. For instance, reading
+<p><code>/proc</code> and <code>/sys</code> are virtual filesystems that expose information and interfaces provided by the kernel. Their entries are not ordinary stored files. For instance, reading
 <code>/proc/cpuinfo</code> queries processor features directly from the kernel,
 and reading <code>/proc/meminfo</code> checks current memory metrics.</p>
 
