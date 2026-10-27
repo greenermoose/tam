@@ -3,12 +3,14 @@
 <head>
 <title>The tam Command: Architecture, Coding, and Lifecycle</title>
 <meta name="topic" content="tam">
-<meta name="summary" content="Architecture, source-stage discovery and switching, transactional development generations, Makefile targets, compiler toolchain, and tam lifecycle.">
+<meta name="summary" content="Architecture, source-stage discovery and switching, transactional development generations, Makefile targets, compiler toolchain, and tam lifecycle">
 <meta name="keywords" content="tam, tam command, upgrade, switch, source build, stage, development, test, run, release, rollback, paired tags, make, makefile, install, compiler, toolchain, libtam, zlib, tamlinux-packages">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="improve, toolchains">
+<meta name="kind" content="how-to">
+<meta name="skills" content="contributing.beginner, contributing.intermediate, contributing.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -24,30 +26,241 @@ utility for Tamlinux. Its command is written in C (C11 standard) and built again
 the reusable <code>libtam</code> foundational library. It is designed to start
 in under 5 milliseconds, consume less than 4 megabytes of resident memory,
 operate completely offline without background daemons, and run reliably from
-circa-2006 legacy laptops up to multi-core workstations.</p>
+circa-2006 legacy laptops up to modern multi-core workstations.</p>
 
 <section data-level="beginner">
-<h2>Understanding and building the tam command</h2>
+<h2>Inspect subcommands and compile a local build</h2>
 
-<p><strong>Summary:</strong> Learn what language <code>tam</code> is written in,
-how to compile it locally with Make, and how to verify a development build.</p>
+<p><strong>Goal:</strong> you will be able to inspect installed <code>tam</code> version metadata, compile the standalone C binary from source with Make, and test the newly compiled binary safely without altering system packages.</p>
 
-<p><strong>Prerequisites:</strong> Terminal ergonomics
-(<a href="improve/terminal.html">Terminal and Editor Ergonomics</a>) and native
-toolchains (<a href="improve/toolchains.html">Native Toolchains and Multi-Agent Workflows</a>).</p>
+<p><strong>Why it matters:</strong> <code>tam</code> is Tamlinux's core offline navigation and diagnostic command. Unlike interpreters or browser engines, it compiles to an ultra-fast, native C binary that starts in under 5 milliseconds. Understanding how to compile it locally allows you to test fixes and improvements safely under your user development prefix without root permissions or risks to production software.</p>
 
-<h3>Implementation language</h3>
+<p><strong>Before you start:</strong> open a terminal inside the <code>tam</code> repository checkout. Compiling locally requires standard developer tools (GCC or Clang, Make, and header libraries). Inspecting versions is read-only. See <a href="improve/terminal.html">Terminal and editor ergonomics</a> and <a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> for environment prerequisites.</p>
 
-<p><code>tam</code> is written in standard <strong>C (ISO/IEC 9899:2011, or C11)</strong>.
-It intentionally avoids dynamic interpreters (such as Python or Node.js) and heavy
-frameworks (such as Electron) to ensure that the primary system documentation and
-recovery navigator is instantly accessible in emergency recovery consoles
-(<a href="maintain/recovery.html">Emergency Disaster Recovery</a>), even when the
-graphical environment is down or the network is completely unreachable.</p>
+<aside class="first-time">
+<p>Make is a build automation tool that reads a <code>Makefile</code> to compile source code into executable programs. Running <code>make command</code> compiles only the C executable under <code>build/tam</code>. In terminal sessions, <code>$</code> represents your shell prompt; do not type it.</p>
+</aside>
 
-<h3>The tam subcommands</h3>
+<h3>Worked example: Inspect version metadata and build the command</h3>
 
-<p><code>tam</code> exposes a unified set of subcommands covering orientation, documentation, search, system inspection, and diagnostics:</p>
+<pre class="session" data-risk="read-only">
+$ ./build/tam --version
+tam command 0.43.2 (dev 36992ca)
+knowledge corpus 0.43.0
+libtam 0.4.0
+Tamlinux cultivar Blue Sparkler 0.5.4
+$ make -C /home/alex/src/tam command
+make: Entering directory '/home/alex/src/tam'
+cc -DTAM_DATADIR=\"/usr/local/share/tamlinux/knowledge\" -DTAM_BUILD=\"36992ca\" -DTAM_SOURCE_REVISION=\"36992ca3d4f961ad8962be542f3a29c26513dad2\" -DTAM_SOURCE_DIRTY=0 -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -I/home/alex/.local/dev/include src/tam.c src/identity.c src/corpus.c src/views.c src/address.c src/html.c src/html_scan.c src/render.c src/display.c src/pager.c src/pager_draw.c src/pager_input.c src/pager_links.c src/pager_nav.c src/pager_search.c src/pager_screen.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/upgrade.c \
+	 -L/home/alex/.local/dev/lib -ltam -lz -lncursesw -o build/tam
+make: Leaving directory '/home/alex/src/tam'
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>./build/tam --version</code> printed four decoupled version identifiers: the C binary version, the active knowledge corpus version, the foundational <code>libtam</code> version, and the active Tamlinux cultivar generation name and version.</li>
+<li><code>make -C ~/Code/tamlinux/tam command</code> invoked the C compiler (<code>cc</code>) with C11 flags (<code>-std=c11 -O2 -Wall -Wextra -Wpedantic</code>), producing the standalone executable at <code>build/tam</code> linked with <code>libtam</code> and <code>zlib</code>.</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Execute single-lane command tests on the newly built binary to verify CLI arguments and pager navigation without touching the corpus index:</p>
+
+<pre class="session" data-risk="read-only">
+$ make test-command
+</pre>
+
+<p>You can also run the built binary directly with <code>./build/tam --help</code> to inspect the full list of available subcommands.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>fatal error: tam/fs.h: No such file or directory</dt>
+<dd>The <code>libtam</code> header files are not installed under <code>/usr/include</code> or your configured <code>LIBTAM_PREFIX</code> (e.g. <code>~/.local/dev/include</code>). Pass <code>LIBTAM_PREFIX=$HOME/.local/dev</code> when invoking Make.</dd>
+<dt>fatal error: zlib.h: No such file or directory</dt>
+<dd>The zlib compression development headers are missing. On Arch Linux, install native zlib using <code>pacman -S zlib</code>.</dd>
+<dt>build/tam: error while loading shared libraries: libtam.so</dt>
+<dd>The dynamic linker cannot locate <code>libtam.so</code> at runtime. Verify that the RPATH was set during compilation or export <code>LD_LIBRARY_PATH=$HOME/.local/dev/lib</code>.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which Makefile target compiles the C command binary without rebuilding the knowledge index?</summary>
+<p><code>make command</code> compiles only <code>build/tam</code> from <code>src/*.c</code>. <code>make all</code> compiles both the binary and the corpus index.</p>
+</details>
+<details class="q">
+<summary>Why does <code>tam --version</code> report separate versions for the command and the knowledge corpus?</summary>
+<p>Because <code>tam</code> uses decoupled versioning: the C command binary (parser and pager engine) and the documentation corpus evolve independently, allowing documentation pages to be added or revised without recompiling the binary.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>C11 standard</dt>
+<dd>The ISO/IEC 9899:2011 standard for the C programming language, providing standardized multithreading primitives and compiler features.</dd>
+<dt>Decoupled versioning</dt>
+<dd>An architecture where the binary executable version and documentation corpus version increment on independent schedules.</dd>
+<dt>Development prefix</dt>
+<dd>A user-owned directory hierarchy (such as <code>~/.local/dev</code>) used to install and test software without root permissions.</dd>
+</dl>
+<p>A compiled binary runs as a <dfn><a href="learn/glossary/process.html">process</a></dfn> belonging to an identifiable configuration <dfn><a href="learn/glossary/owner.html">owner</a></dfn>, installed from an immutable <dfn><a href="learn/glossary/package.html">package</a></dfn> or local build.</p>
+
+<p><strong>Next step:</strong> at Intermediate, explore the complete inventory of Makefile targets, compiler flags, library linking with libtam and zlib, and transactional source-stage switching.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Makefile targets, compiler chain, and source-stage switching</h2>
+
+<p><strong>Goal:</strong> you will be able to navigate all Makefile targets across command and corpus lanes, understand preprocessor definitions and linker flags, inspect source stages with <code>tam upgrade</code>, and configure transactional source generations under your development prefix.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+Repository Lanes and Build Pipeline:
++---------------------------------------------------------------+
+|                    tam.git checkout root                      |
++---------------------------------------------------------------+
+       |                                                |
+ [Command Lane]                                   [Corpus Lane]
+ `src/*.c`, `src/*.h`                             `knowledge/*.html`
+       |                                                |
+ `make command`                                   `make corpus`
+       |                                                |
+       v                                                v
+  `build/tam`                                      `index.tsv`, `coverage.json`
+ (C11 standalone)                                 (Metadata &amp; search index)
+       \                                                /
+        \                                              /
+         +--------------------+-----------------------+
+                              |
+                    `make test` / `make check`
+                 (Full integration verification)
+                              |
+                 `make install PREFIX=~/.local/dev`
+               (Isolated user development generation)
+</pre>
+
+<p>The <code>tam</code> repository is organized into two independent workstream lanes: the <strong>Command lane</strong> (C source code under <code>src/</code>) and the <strong>Corpus lane</strong> (HTML documentation under <code>knowledge/</code>). Two agents can work concurrently if each claims one lane. The command binary links <code>libtam</code> and <code>zlib</code> and dynamically discovers corpus metadata at runtime.</p>
+
+<h3>Worked example: Check source stages with tam upgrade</h3>
+
+<pre class="session" data-risk="read-only">
+$ ./build/tam upgrade
+Running: tam 0.43.2 / corpus 0.43.0 (source 36992ca3d4f961ad8962be542f3a29c26513dad2)
+Selected stage: unknown
+Development: command 0.43.2 (same_version) / corpus 0.43.7 (newer)
+  source 36992ca3d4f9 — same_clean_commit; update available: True
+Test: command 0.43.2 (same_version) / corpus 0.43.0 (same_version)
+  source eea450927759 — different_commit; update available: False
+Run: command 0.38.1 (running_ahead) / corpus 0.42.0 (running_ahead)
+  source c161190cc496 — different_commit; update available: False
+Release: unavailable
+
+Switch explicitly with: tam switch development|test|run|release
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<ol>
+<li><code>tam upgrade</code> compares the running command and corpus separately against the recorded Development, Test, and Run source branches.</li>
+<li>The command checks sources locally without network requests; network discovery uses bounded HTTPS only when explicitly requested.</li>
+<li><code>tam switch STAGE</code> allows selecting an exact source and pinned <code>libtam</code> pair into an isolated generation under <code>~/.local/dev/opt/tam/generations/</code>.</li>
+</ol>
+
+<h3>Completion task</h3>
+
+<p>Fill the gap (marked <code>___</code>) in the Make command to install a local development build under your user directory without modifying root-owned system directories:</p>
+
+<pre data-risk="read-only">
+make -C ~/Code/tamlinux/tam install PREFIX=___
+</pre>
+
+<details class="solution">
+<p>Fill in <code>$HOME/.local/dev</code> (or <code>~/.local/dev</code>). Development builds install under the user-owned development prefix, never <code>/usr</code> or <code>/usr/local</code>. This guarantees that packaged production software remains untouched.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Inspect the dynamic library dependencies of the compiled binary using <code>ldd build/tam</code> to confirm that system libraries (<code>libz</code>, <code>libncursesw</code>, <code>libc</code>) resolve cleanly without unresolved symbols.</p>
+
+<details class="solution">
+<p>Run <code>ldd build/tam</code>. It prints the resolved paths for <code>libz.so.1</code>, <code>libncursesw.so.6</code>, and <code>libc.so.6</code>, verifying that the binary will run without missing shared library dependencies.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Makefile targets</th><th>Lane</th><th>Build action</th><th>Use when</th></tr>
+<tr><td><code>all</code></td><td>Integrated</td><td>Compiles C binary and regenerates knowledge index</td><td>Performing a complete integrated build across both lanes</td></tr>
+<tr><td><code>command</code></td><td>Command</td><td>Compiles <code>build/tam</code> from <code>src/*.c</code></td><td>Developing C parser, renderer, or pager features</td></tr>
+<tr><td><code>corpus</code></td><td>Corpus</td><td>Rechecks HTML pages, regenerates <code>index.tsv</code>, <code>coverage.json</code></td><td>Authoring or updating documentation pages</td></tr>
+<tr><td><code>test-command</code></td><td>Command</td><td>Runs CLI, PTY, and pager tests in <code>tests/run.sh</code></td><td>Validating command behavior without waiting for corpus tests</td></tr>
+<tr><td><code>corpus-and-test</code></td><td>Corpus</td><td>Rebuilds index and runs corpus lint, tests, and <code>tests/guide.sh</code></td><td>Verifying page structure, links, and learning metadata</td></tr>
+<tr><td><code>test</code></td><td>Integrated</td><td>Runs <code>all</code> followed by the full test suite</td><td>Verifying complete workspace health before handoff</td></tr>
+<tr><td><code>install</code></td><td>Packaging</td><td>Installs binary, data, man page, and completions to <code>PREFIX</code></td><td>Installing a candidate to <code>PREFIX=$HOME/.local/dev</code></td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Uncommitted changes prevent install</td><td>Checkout has uncommitted modifications</td><td><code>git status</code></td><td>Commit your claimed paths or wait for concurrent sessions</td></tr>
+<tr><td>make corpus reports anatomy warnings</td><td>Guide page missing required pedagogical blocks</td><td><code>python3 tools/build-index.py</code></td><td>Complete missing sections per <code>docs/corpus-pedagogy.md</code></td></tr>
+<tr><td>Command not updated after switch</td><td>Shell cached previous binary path</td><td><code>type -a tam</code></td><td>Run <code>hash -r</code> to refresh shell command hash table</td></tr>
+<tr><td>tam switch fails with network error</td><td>Network unreachable during remote fetch</td><td>Network connection</td><td>Use <code>tam switch --rollback</code> to restore previous generation</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, development builds and production releases adhere to strict lifecycle boundaries. Developers and AI coding agents build and test candidates locally using user prefixes (<code>~/.local/dev</code>) or transactional generation directories (<code>~/.local/dev/opt/tam/generations/</code>). However, production software never reaches the system from ad-hoc checkouts or copied payloads; it arrives solely through recorded <code>tamlinux-packages</code> assemblies deployed via Home Manager and <code>tam-deploy</code>. See the <cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Tamlinux package deployment contract</a></cite>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does running <code>hash -r</code> matter after invoking <code>tam switch</code> or installing to a development prefix?</summary>
+<p>Bash caches the absolute path of executed commands in its internal hash table. If you previously ran <code>tam</code> from <code>/nix/store/...</code> or another directory, the shell will continue invoking the cached binary path until you run <code>hash -r</code> to flush the table.</p>
+</details>
+<details class="q">
+<summary>When developing in the corpus lane, why should you run <code>make corpus-and-test</code> rather than <code>make test</code>?</summary>
+<p><code>make corpus-and-test</code> tests only the documentation corpus, metadata indices, and guide rendering without running the extensive, slower interactive pager PTY test suite in <code>tests/run.sh</code>, keeping authoring feedback fast.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; Concurrency rules and path claims.</li>
+<li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; Tamlinux naming rules and shell script safety.</li>
+<li><a href="ecosystem/package-versions.html">Specifying and verifying package versions</a> &mdash; Cultivar pins and flake assemblies.</li>
+<li><a href="maintain/rollback.html">Snapshots and rollbacks</a> &mdash; System generation recovery and Snapper rollbacks.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>C11 architecture, transactional generations, and 4-stage lifecycle</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Component / Flag</th><th>Value or Path</th><th>Mechanism</th><th>Function</th></tr>
+<tr><td>Compiler dialect</td><td><code>-std=c11</code></td><td>ISO C11 standard</td><td>Enforces portable C semantics without GNU extensions</td></tr>
+<tr><td>Warning policy</td><td><code>-Wall -Wextra -Wpedantic</code></td><td>Strict compiler warnings</td><td>Treats questionable constructs and portability violations as errors</td></tr>
+<tr><td>Baked-in datadir</td><td><code>-DTAM_DATADIR=\"$(DATADIR)\"</code></td><td>Preprocessor macro</td><td>Fallback path to installed documentation corpus when unconfigured</td></tr>
+<tr><td>Build identifier</td><td><code>-DTAM_BUILD=\"$(TAM_BUILD_ID)\"</code></td><td>Git describe hash</td><td>Embeds exact commit revision into binary version strings</td></tr>
+<tr><td>libtam linkage</td><td><code>-ltam</code></td><td>Shared C library</td><td>Provides dynamic strings, safe filesystem I/O, terminal dimensions</td></tr>
+<tr><td>zlib linkage</td><td><code>-lz</code></td><td>Shared compression library</td><td>Decompresses GNU Info <code>.info.gz</code> documents in memory</td></tr>
+<tr><td>ncurses linkage</td><td><code>-lncursesw</code></td><td>Wide-character terminal library</td><td>Underlying terminal I/O and capability management</td></tr>
+<tr><td>Active generation</td><td><code>~/.local/dev/opt/tam/current</code></td><td>Atomic symlink</td><td>Points to active transactional build generation without downtime</td></tr>
+</table>
+
+<h3>The tam subcommands inventory</h3>
 
 <table>
 <tr><th>Subcommand</th><th>Purpose</th><th>Description</th></tr>
@@ -67,257 +280,89 @@ graphical environment is down or the network is completely unreachable.</p>
 <tr><td><code>tam switch --rollback</code></td><td>Recovery</td><td>Restores the prior local source generation or verified packaged fallback without network access.</td></tr>
 </table>
 
-<h3>Source stages, pins, and recovery</h3>
-
-<p><code>tam upgrade</code> compares the running command and corpus separately
-with the <code>develop</code>, <code>test</code>, and <code>main</code> branches,
-and with Release tags that identify both versions (for example,
-<code>tam-0.31.0-corpus-0.32.1</code>). These commands select an existing
-source locally; they do not promote branches, create tags, or claim that a
-larger version number has passed a stage. A missing stage is reported as
-unavailable. Help, version reporting, and guide browsing stay offline.</p>
-
-<p><code>tam upgrade --apply --channel STAGE</code> follows the recorded stage
-and permits forward updates. <code>tam switch STAGE</code> selects a stage or
-Release pin explicitly, including a confirmed downgrade. Development maps to
-<code>develop</code>, Test to <code>test</code>, and Run to <code>main</code>.
-Release pins include both the command and corpus version. Every build resolves
-the selected source to a full commit and uses the exact compatible libtam
-revision recorded in <code>source-build.json</code> or the audited compatibility
-record. The build cannot choose a newer libtam independently.</p>
-
-<p>Before downloading sources, the command displays both component versions,
-source revisions, destination, rollback target, and the fact that selected
-upstream Makefiles run as the current user. It asks for confirmation in a
-terminal and never installs operating system dependencies. Detached snapshots
-build into an isolated generation under <code>~/.local/dev/opt/tam/</code>;
-the command, guide, wrappers, private library, manual, and completion switch
-together through an atomic <code>current</code> link. Shared development
-libraries and the working checkout remain independent.</p>
-
-<p>Each successful generation has a local receipt with its source pins,
-versions, checks, and previous target. A failed build leaves the active
-generation in place. <code>tam switch --rollback</code> uses that receipt and
-does not need a network connection. When selecting an older tam that predates
-these subcommands, use the printed recovery helper directly; it remains next
-to the retained updater. After switching, run <code>hash -r</code> so the
-current shell resolves the new command. This development override does not
-change menu or application paths, and product delivery still belongs to a
-recorded <code>tamlinux-packages</code> assembly.</p>
-
-<h3>First-version bootstrap</h3>
-
-<p>An older installed <code>tam</code> cannot invoke a subcommand it does not
-contain. After choosing the exact committed Develop candidate, verify its
-full source commit and component versions, then use the component development
-workflow: install the pinned libtam development build under
-<code>~/.local/dev</code> if needed, run the candidate's tests, and install tam
-with <code>PREFIX=$HOME/.local/dev</code> and
-<code>LIBTAM_PREFIX=$HOME/.local/dev</code>. Check
-<code>type -a tam</code> and <code>tam --version</code>, then run
-<code>hash -r</code>. To undo the bootstrap, uninstall only the tam component
-from that prefix and remove libtam only if no other development tool uses it;
-the packaged command remains available behind the development prefix.</p>
-
-<h3>Building and installing from source</h3>
-
-<p>Building <code>tam</code> requires standard developer tools:</p>
-
-<ul>
-<li>A C11 compiler (such as <code>gcc</code> or <code>clang</code>).</li>
-<li>GNU Make.</li>
-<li>The <code>libtam</code> header files and shared library.</li>
-<li>The <code>zlib</code> compression library headers (<code>zlib.h</code>).</li>
-<li>Python 3 (used solely at build time to parse metadata and generate the corpus index).</li>
-</ul>
-
-<h3>Quick build sequence</h3>
-
-<pre>
-# Build the binary and the corpus index
-make -C ~/src/tam all
-
-# Run the built binary directly
-./build/tam --version
-
-# Run single-lane command tests
-make -C ~/src/tam test-command
-</pre>
-
-<p>To install a local development build without touching root or system directories,
-install under your user development prefix:</p>
-
-<pre>
-make -C ~/src/tam install PREFIX=$HOME/.local/dev
-</pre>
-
-<h3>Next step</h3>
-
-<p>Explore the full inventory of Makefile targets, compiler flags, and library linking
-options in the intermediate section below.</p>
-</section>
-
-<section data-level="intermediate">
-<h2>Makefile targets, compiler chain, and library linking</h2>
-
-<p><strong>Summary:</strong> Complete reference to all Makefile targets, the
-C compilation toolchain, preprocessor definitions, and external library linkages.</p>
-
-<h3>Makefile targets reference</h3>
-
-<p>The <code>tam</code> repository is organized into two independent workstream lanes:
-the <strong>Command lane</strong> (C source code under <code>src/</code>) and the
-<strong>Corpus lane</strong> (HTML documentation under <code>knowledge/</code>).
-The Makefile provides targeted and integrated build actions:</p>
-
-<table>
-<tr><th>Target</th><th>Lane</th><th>Description</th></tr>
-<tr><td><code>all</code></td><td>Integrated</td><td>Default target. Builds both the C binary (<code>command</code>) and the knowledge index (<code>corpus</code>).</td></tr>
-<tr><td><code>command</code></td><td>Command</td><td>Compiles the standalone C binary <code>build/tam</code> from <code>src/*.c</code>, linking <code>libtam</code> and <code>zlib</code>, without regenerating the corpus index.</td></tr>
-<tr><td><code>corpus</code></td><td>Corpus</td><td>Rechecks all HTML pages and Git revision metadata on every invocation. Regenerates <code>knowledge/index.tsv</code>, <code>knowledge/index.json</code>, <code>knowledge/index.parents.tsv</code> and, in a Git checkout, the ignored build marker. Unchanged output files keep their timestamps.</td></tr>
-<tr><td><code>test</code></td><td>Integrated</td><td>Runs <code>all</code>, then executes the full test suite: <code>tests/run.sh</code> (CLI argument, PTY, and subcommand tests) and <code>tests/guide.sh</code> (corpus rendering and snapshot validation).</td></tr>
-<tr><td><code>test-command</code></td><td>Command</td><td>Builds <code>command</code> and runs only the CLI behavior checks in <code>tests/run.sh</code>.</td></tr>
-<tr><td><code>corpus-and-test</code></td><td>Corpus</td><td>Builds <code>command</code> and <code>corpus</code>, then runs corpus lint, linter and index-generator tests, and reader checks for page rendering, links and search. Does not install software or promote a stage.</td></tr>
-<tr><td><code>check</code></td><td>Integrated</td><td>Alias for running <code>corpus</code> index validation followed by the complete <code>test</code> suite.</td></tr>
-<tr><td><code>install</code></td><td>Packaging</td><td>Installs <code>build/tam</code>, <code>bin/tam-man</code>, and <code>bin/tam-info</code> into <code>$(BINDIR)</code>, copies <code>knowledge/</code> to <code>$(DATADIR)</code>, installs manual page <code>man/tam.1</code> to <code>$(MANDIR)/man1/</code>, and registers Bash completion in <code>$(BASHCOMPDIR)/tam</code>.</td></tr>
-<tr><td><code>uninstall</code></td><td>Packaging</td><td>Removes all installed binaries, data directories, manual pages, and shell completion files from the configured <code>PREFIX</code>.</td></tr>
-<tr><td><code>clean</code></td><td>Housekeeping</td><td>Deletes the <code>build/</code> directory and all compiled objects.</td></tr>
-<tr><td><code>FORCE</code></td><td>Internal</td><td>Phony prerequisite that forces the build configuration stamp (<code>build/config</code>) to be evaluated and compared on every invocation.</td></tr>
-</table>
-
-<h3>Compiler toolchain and build commands</h3>
-
-<p>The build toolchain uses standard Unix compilation variables:</p>
-
-<ul>
-<li><code>CC ?= cc</code> &mdash; C compiler executable (GCC or Clang).</li>
-<li><code>CFLAGS ?= -O2 -Wall -Wextra -Wpedantic -std=c11</code> &mdash; Optimization, warning, and language dialect flags.</li>
-<li><code>CPPFLAGS</code> &mdash; Preprocessor options:
-  <ul>
-  <li><code>-DTAM_DATADIR=\"$(DATADIR)\"</code> &mdash; Baked-in fallback path to the installed documentation corpus.</li>
-  <li><code>-DTAM_BUILD=\"$(TAM_BUILD_ID)\"</code> &mdash; Commit hash and dirty stamp extracted from <code>git describe</code>.</li>
-  </ul>
-</li>
-<li><code>LDFLAGS</code> &mdash; Linker options.</li>
-<li><code>RPATH ?= -Wl,-rpath,$(LIBTAM_PREFIX)/lib</code> &mdash; Embedded ELF runtime library search path.</li>
-</ul>
-
-<h3>Libraries and how they are linked</h3>
-
-<p><code>tam</code> links against two essential libraries:</p>
+<h3>How it works</h3>
 
 <ol>
-<li><strong>libtam (<code>-ltam</code>):</strong> The foundational shared C library for Tamlinux.
-It provides safe memory management, dynamically growing string buffers (<code>tam_str_t</code>),
-safe file read routines (<code>tam_fs_read_file</code>), and terminal dimension detection
-(<code>tam_terminal_width</code>). It is linked via:
-<pre>
-LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
-LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-RPATH         ?= -Wl,-rpath,$(LIBTAM_PREFIX)/lib
+<li><strong>C11 Architecture and Sub-5ms Startup:</strong>
+<code>tam</code> is written entirely in ISO C11. It avoids heavy runtimes, JIT compilation pauses, and dynamic module loading. At launch, the binary initializes terminal state via <code>libtam</code>, parses command-line arguments using a single-pass scanner, loads index structures via zero-copy memory mapping or sequential TSV streaming, and draws the first screenful of formatted text in under 5 milliseconds with resident memory below 4 megabytes.</li>
+
+<li><strong>Decoupled Versioning and Dynamic Runtime Resolution:</strong>
+The binary version (<code>src/version.h</code>) is decoupled from the corpus version (<code>knowledge/version</code>). When invoked, <code>src/tam.c</code> discovers the corpus root by checking <code>$TAM_KNOWLEDGE_DIR</code>, followed by the user prefix <code>~/.local/dev/share/tamlinux/knowledge</code>, and finally the compiled datadir <code>/usr/share/tamlinux/knowledge</code>. It reads <code>knowledge/version</code> dynamically at runtime. This allows documentation fixes and new lessons to land without recompiling the C executable, and guarantees multi-agent concurrency across command and corpus lanes.</li>
+
+<li><strong>Transactional Development Generations and Atomic Switching:</strong>
+<code>tam switch STAGE</code> compiles candidates into isolated, timestamped directories:
+<pre data-risk="read-only">
+~/.local/dev/opt/tam/generations/&lt;version&gt;-&lt;commit&gt;-&lt;hash&gt;/
 </pre>
-</li>
-<li><strong>zlib (<code>-lz</code>):</strong> The standard compression library. It is used by the
-GNU Info reader subsystem (<code>src/info.c</code>) to decompress <code>.info.gz</code>
-manuals in memory on the fly. Linked via <code>LDLIBS ?= -lz</code>.</li>
-</ol>
+Each successful generation writes a local receipt recording source pins, versions, checks, and previous targets. Once verified, the command switches the <code>current</code> symlink atomically. If a candidate fails verification, the active generation is untouched. <code>tam switch --rollback</code> restores the prior generation from local receipts without requiring network connectivity.</li>
 
-<h3>The exact makefile build command</h3>
-
-<p>When compiling the binary, the Makefile issues a single atomic invocation:</p>
-
-<pre>
-$(CC) $(CPPFLAGS) $(CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
-      $(LDFLAGS) $(RPATH) $(LIBTAM_LIBS) $(LDLIBS) -o build/tam
-</pre>
-
-<p>Where <code>SRC</code> comprises:</p>
-
-<pre>
-src/tam.c src/render.c src/pager.c src/install.c src/man.c \
-src/index.c src/depth.c src/ask.c src/info.c
-</pre>
-
-<h3>Decoupled command and corpus versioning</h3>
-
-<p>As of version 0.24.0, <code>tam</code> decouples the versioning of the C binary executable (the parser and pager displayer) from the offline documentation corpus:</p>
-
-<ul>
-<li><strong>Command version (<code>src/version.h</code>):</strong> Tracks the C binary implementation, layout algorithms, pager features, and subcommands.</li>
-<li><strong>Corpus version (<code>knowledge/version</code>):</strong> Tracks authored documentation pages, topic guides, and search index metadata.</li>
-<li><strong>Runtime resolution:</strong> When <code>tam</code> runs, it dynamically discovers the corpus root via <code>$TAM_KNOWLEDGE_DIR</code> or the compiled datadir, reading <code>knowledge/version</code> directly. This allows documentation edits to land without recompiling C code, and guarantees multi-agent concurrency across command and corpus lanes.</li>
-<li><strong>Compatibility:</strong> newer commands still read older corpora; for example, a corpus without parent metadata falls back to its directory hierarchy. There is no formal cross-version guarantee yet: <code>tam</code> has not reached 1.0.</li>
-</ul>
-</section>
-
-<section data-level="expert">
-<h2>The develop-test-run-release lifecycle in Tamlinux</h2>
-
-<p><strong>Summary:</strong> How <code>tam</code> is packaged, verified, and shipped as part of
-Tamlinux through <code>tamlinux-packages</code> and Nix/Home Manager.</p>
-
-<h3>The disciplined deployment contract</h3>
-
-<p>A core architectural principle of Tamlinux is reproducibility. Users and agents do
-not run arbitrary, untracked checkouts scattered across random local directories in
-production. Every release follows a disciplined 4-stage pipeline that governs the
-full develop -&gt; test -&gt; run -&gt; release cycle:</p>
-
+<li><strong>The Develop -&gt; Test -&gt; Run -&gt; Release Lifecycle:</strong>
+In Tamlinux, software moves across four disciplined stages governed by the <dfn><a href="learn/glossary/generation.html">generation</a></dfn> and packaging model:
 <pre>
 Develop (tam.git @ develop)
    │
    ▼  Fast-forward promotion
 Test (tam.git @ test ──► pinned in tamlinux-packages flake)
    │
-   ▼  Workstation acceptance & verification
+   ▼  Workstation acceptance &amp; verification
 Run (tam.git @ main ──► tamlinux-packages main)
    │
-   ▼  Cultivar release tag & generation snapshot
+   ▼  Cultivar release tag &amp; generation snapshot
 Release (Tamlinux release)
 </pre>
-
-<h3>1. Develop stage</h3>
-
 <ul>
-<li>Engineers and AI agents work together in one shared clone of the <code>tam</code> repository on the <code>develop</code> branch, each claiming the paths they edit with <code>tam-work</code>.</li>
-<li>Changes to the command lane (<code>src/</code>) and corpus lane (<code>knowledge/</code>) are scoped using <code>tam-work</code> concurrency claims.</li>
-<li>Full local regression tests are verified via <code>make check</code>.</li>
+<li><strong>Develop:</strong> Engineers and AI coding agents work in one shared clone on <code>develop</code>, claiming paths with <code>tam-work</code> and verifying changes with <code>make check</code>.</li>
+<li><strong>Test:</strong> Candidate commits are fast-forward promoted to <code>test</code> and pinned in <code>tamlinux-packages</code> via flake hashes. Home Manager builds the package outputs into <code>/nix/store</code>.</li>
+<li><strong>Run:</strong> After daily-driver acceptance, the tested commit promotes to <code>main</code>. Crucially, package outputs are <strong>not rebuilt</strong>: the identical byte-for-byte artifacts verified in Test are deployed to Run.</li>
+<li><strong>Release:</strong> On explicit developer instruction, accepted commits on <code>main</code> receive paired release tags (e.g. <code>tam-0.31.0-corpus-0.32.1</code>). If defects occur, <dfn><a href="learn/glossary/rollback.html">rollback</a></dfn> to the prior Home Manager generation restores the earlier working state.</li>
 </ul>
+</li>
+</ol>
 
-<h3>2. Test stage</h3>
+<h3>Why Tamlinux chose this</h3>
 
-<ul>
-<li>When a candidate is ready for testing, the commit on <code>develop</code> is fast-forward promoted to the <code>test</code> branch. Fast-forward promotion ensures that commit hashes remain identical without introducing merge noise.</li>
-<li>The candidate is pinned in <a href="https://github.com/greenermoose/tamlinux-packages"><code>tamlinux-packages</code></a>. The exact Git commit revision and content hash are recorded in the flake and lockfile.</li>
-<li>The workstation's Home Manager configuration follows <code>tamlinux-packages</code> on <code>test</code>.</li>
-<li>Home Manager builds the Tamlinux package outputs (the <code>tam</code> binary, <code>tam-man</code>, <code>tam-info</code>, manual pages, and bundled knowledge data) into the immutable <code>/nix/store</code>.</li>
-<li>The <code>tam-deploy</code> utility validates that installed binaries and documentation paths resolve truthfully to the recorded Nix store package outputs.</li>
-</ul>
+<p>A flagship system utility must remain available when the workstation is in distress. By compiling to a standalone C11 binary linked against <code>libtam</code> with zero background daemons, <code>tam</code> operates reliably in single-user recovery consoles even if Wayland compositors, graphics drivers, or package managers are broken. Decoupling command and corpus versioning allows documentation to evolve rapidly without recompilation churn, and the 4-stage lifecycle guarantees byte-for-byte reproducibility from development to release.</p>
 
-<h3>3. Run stage</h3>
+<h3>Edge cases and failure modes</h3>
 
-<ul>
-<li>After acceptance testing in the actual live desktop environment, the tested source commit is promoted to <code>main</code> in both the <code>tam</code> repository and <code>tamlinux-packages</code>.</li>
-<li>Crucially, the package outputs are <strong>not rebuilt</strong>: the identical byte-for-byte binary and knowledge artifacts tested during the Test stage are promoted to Run.</li>
-<li>Home Manager switches the primary profile to the accepted generation.</li>
-</ul>
+<dl>
+<dt>Dirty working tree during install</dt>
+<dd><code>make install</code> refuses to proceed if any command or corpus path has uncommitted changes. This prevents partial, untracked development state from polluting installed prefixes.</dd>
+<dt>Forward-compatible metadata parsing</dt>
+<dd>The HTML tag scanner and index generators parse metadata additively. If an older command binary encounters newly added meta attributes (such as <code>kind</code> or <code>skills</code>), it ignores unrecognized fields gracefully without crashing or failing to display page content.</dd>
+<dt>Dynamic library ABI shifts</dt>
+<dd>Because Arch Linux is a rolling-release distribution, system libraries (such as <code>libncursesw</code> or <code>libz</code>) occasionally receive soname updates. Packaging via Home Manager pins dependencies in immutable Nix store paths, isolating production tools from rolling ABI disruptions.</dd>
+</dl>
 
-<h3>4. Release stage</h3>
+<h3>Explore</h3>
 
-<ul>
-<li>Only on the developer's Release instruction, the accepted commits already on <code>main</code> are tagged. Tamlinux tags its product and delivery repositories (for example <code>0.4.1</code> and <code>v0.4.1</code>); <code>tam</code> release tags name its command/corpus pair (for example <code>tam-0.31.0-corpus-0.32.1</code>). <code>tam</code> has no release tag yet.</li>
-<li>The cultivar record (<code>~/.config/tamlinux/version</code>) names the product version of whichever generation is active, so it changes with each Test or Run activation, not only at a release. Beside it, <code>~/.config/tamlinux/cultivar</code> holds the cultivar name of that minor version, and <code>tam --version</code> prints both, for example <code>Tamlinux cultivar Incipiens 0.4.5</code>.</li>
-<li>If a defect is found, rollback to the previous Home Manager generation restores the earlier binary and documentation (<a href="maintain/rollback.html">Snapshots and Rollbacks</a>).</li>
-</ul>
+<p>Measure the execution time and startup latency of the standalone command using <code>time</code> to verify that it executes well within the 5 millisecond design threshold:</p>
 
-<h3>Cross references and related guides</h3>
+<pre class="session" data-risk="read-only">
+$ time ./build/tam --version
+tam command 0.43.2 (dev 36992ca)
+knowledge corpus 0.43.0
+libtam 0.4.0
+Tamlinux cultivar Blue Sparkler 0.5.4
 
-<ul>
-<li><a href="maintain/updates.html">Non-disruptive Updates and Package Architecture</a> &mdash; How Linux updates in place via inode unlinking and the 3-tier package model.</li>
-<li><a href="ecosystem/packaging.html">Package Management with Nix and Native Managers</a> &mdash; Why Tamlinux uses Nix for desktop components and native managers for the base OS.</li>
-<li><a href="improve/toolchains.html">Native Toolchains and Multi-Agent Workflows</a> &mdash; Concurrency rules for several agents working in one clone.</li>
-<li><a href="improve/scripting.html">Shell Scripting and Tool Conventions</a> &mdash; Safe script conventions and <code>tam-*</code> subcommand guidelines.</li>
-</ul>
+real	0m0.003s
+user	0m0.001s
+sys	0m0.002s
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does the Tamlinux lifecycle mandate that package outputs are NOT rebuilt when promoting from Test to Run?</summary>
+<p>Rebuilding introduces the possibility of non-deterministic differences, compiler toolchain changes, or unintended timestamp variations. Promoting the exact byte-for-byte package output tested during the Test stage guarantees that what was verified in daily use is identical to what runs in production.</p>
+</details>
+<details class="q open">
+<summary>How does the transactional generation architecture in <code>tam switch</code> protect against broken development builds?</summary>
+<p>Each build compiles into an isolated, timestamped generation directory under <code>~/.local/dev/opt/tam/generations/</code>. The active generation link (<code>current</code>) is updated atomically only after the candidate passes verification tests and writes a complete receipt. If the build or tests fail, the symlink remains pointing to the previous functional generation, and <code>tam switch --rollback</code> can restore the earlier state without network access.</p>
+</details>
+</section>
+
 </section>
 
 </body>

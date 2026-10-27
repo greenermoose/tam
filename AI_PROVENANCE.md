@@ -144,3 +144,4 @@ model for each session.
 | 2026-10-25 | TCK25 Improving track migration slice 3 (zram, toolchains); corpus 0.43.5 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-improving-slice3.md) |
 | 2026-10-25 | TCK25 Improving track migration slice 4 (ai-performance, patches) and Glossary alphabetization; corpus 0.43.6 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-improving-slice4.md) |
 | 2026-10-25 | TCK25 Improving track migration slice 5 (package-versions, virtualization); corpus 0.43.7 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-improving-slice5.md) |
+| 2026-10-25 | TCK25 Improving track completion (tam.html) and track-wide enforcement; corpus 0.43.8 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-improving-completion.md) |

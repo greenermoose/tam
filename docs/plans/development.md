@@ -2,13 +2,13 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-22
-**Scope:** Living integration contract; current command 0.43.2 and corpus 0.43.7.
+**Scope:** Living integration contract; current command 0.43.2 and corpus 0.43.8.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md).
-**Next action:** Continue TCK25 Improving track migration with the remaining lesson (tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
+**Next action:** Continue TCK25 migration with remaining tracks (Learning, Installing). Improving track is fully migrated and enforced. Pilot and learner review remain unverified.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -423,6 +423,14 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-25:** Corpus 0.43.8 (patch): TCK25 Improving track completion and enforcement.
+  Migrated `knowledge/tam.html` to full ladder anatomy with captured read-only examples,
+  mapped `contributing` skills, and folded quizzes; enabled track-wide build enforcement
+  for Improving in `knowledge/learn/skills/skills.json` (`enforce_tracks: ["use", "maintain", "improve"]`).
+  Whole-corpus anatomy warnings dropped from 6 to 4; unclassified pages fell from 37 to 36;
+  unmapped pages fell from 77 to 76. The Improving track has zero anatomy warnings and zero gaps.
+  Next TCK25 work: migration of Learning or Installing lessons.
 
 - **2026-10-25:** Corpus 0.43.7 (patch): TCK25 Improving track migration (slice 5).
   Migrated `ecosystem/package-versions.html` and `ecosystem/virtualization.html` to full ladder

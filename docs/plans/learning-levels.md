@@ -13,7 +13,7 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Continue TCK25 Improving track migration with the remaining lesson (tam.html), then enable Improving track build enforcement. Pilot and learner review remain unverified.
+**Next action:** Continue TCK25 migration with remaining tracks (Learning, Installing). Improving track is fully migrated and enforced. Pilot and learner review remain unverified.
 
 ## Problem and agreed outcome
 
@@ -755,6 +755,16 @@ command version is unchanged.
 
 See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice5.md).
 
+**Improving track completion and enforcement (2026-10-25, corpus 0.43.8).** The developer directed:
+"In the tam repo, we are completing checklist item TCK25. Improving track slices 1–5 landed in corpus 0.43.3, 0.43.4, 0.43.5, and 0.43.6. Continue TCK25 Improving track migration with the final Improving lesson: tam.html. Follow tam/AGENTS.md and claim scopes before editing. Once tam.html is migrated, enable Improving track build enforcement in knowledge/learn/skills/skills.json."
+Baseline command 0.43.2 / corpus 0.43.7 at `36992ca`. This slice migrates `tam.html` to full ladder anatomy with captured read-only examples, mapped skills, and folded quizzes, and enables track-wide build enforcement for the Improving track in `skills.json` (`enforce_tracks: ["use", "maintain", "improve"]`). It takes a corpus patch bump (0.43.8); command version is unchanged.
+
+1. `tam.html` is migrated to the full ladder anatomy with captured read-only `./build/tam --version` and `make command` compilation output, single-lane test verification (`make test-command`), local user development prefix installation (`PREFIX=$HOME/.local/dev`), dry-run inspection, `tam upgrade` stage comparison, dynamic library inspection via `ldd`, transactional development generations (`~/.local/dev/opt/tam/generations/`), C11 architectural principles, decoupled versioning discovery, and four-phase lifecycle discipline (`develop -> test -> run -> release`). Mapped to `contributing.beginner`, `contributing.intermediate`, and `contributing.expert`.
+2. `learn/skills/skills.json` enables `"enforce_tracks": ["use", "maintain", "improve"]`, promoting anatomy and quiz warnings across Using, Maintaining, and Improving to fatal build errors. The Improving track has zero anatomy warnings and zero gaps.
+3. Whole-corpus anatomy warnings drop from 6 to 4 (all 4 remaining warnings are in unmigrated lessons in the Learning track: `ecosystem/sddm.html` and `ecosystem/ttys-and-virtual-consoles.html`). Unclassified pages drop from 37 to 36; unmapped pages drop from 77 to 76.
+
+See the [verification record](../ai/2026-10-25-tam-tck25-improving-completion.md).
+
 ### Stop and ask the developer
 
 - If a key named here turns out to be taken, or behaves differently under
@@ -792,4 +802,4 @@ corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
 paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
 two Maintaining recovery ladders. Corpus 0.42.0 adds the boot, boot-fallback
-and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining with resources, packaging, and the Maintaining hub, and enables track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with the hub, scripting, and lua lessons. Corpus 0.43.4 continues Improving track migration with terminal and efficiency lessons, resolving the desktop.expert page gap. Corpus 0.43.5 migrates zram and toolchains lessons, resolving all contributing page gaps. Corpus 0.43.6 migrates ai-performance and patches lessons and alphabetizes the Glossary. Corpus 0.43.7 migrates package-versions and virtualization lessons. Remaining Improving lesson (tam.html), Learning, and Installing migration remain open.
+and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining with resources, packaging, and the Maintaining hub, and enables track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with the hub, scripting, and lua lessons. Corpus 0.43.4 continues Improving track migration with terminal and efficiency lessons, resolving the desktop.expert page gap. Corpus 0.43.5 migrates zram and toolchains lessons, resolving all contributing page gaps. Corpus 0.43.6 migrates ai-performance and patches lessons and alphabetizes the Glossary. Corpus 0.43.7 migrates package-versions and virtualization lessons. Corpus 0.43.8 migrates tam.html and enables track-wide build enforcement for Improving. Learning and Installing migration remain open.
