@@ -1,14 +1,14 @@
 # tam development plan
 
 **Plan status:** Active
-**Reviewed:** 2026-10-22
-**Scope:** Living integration contract; current command 0.43.2 and corpus 0.43.8.
+**Reviewed:** 2026-10-27
+**Scope:** Living integration contract; current command 0.43.2 and corpus 0.44.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
-[learning levels plan](learning-levels.md).
-**Next action:** Continue TCK25 migration with remaining tracks (Learning, Installing). Improving track is fully migrated and enforced. Pilot and learner review remain unverified.
+[learning levels plan](learning-levels.md) and [external-links plan](external-links.md).
+**Next action:** Continue concept-first explanations and glossary expansion; plan the remaining Learning and Installing TCK25 migration. Review the preserved external-links branch for integration. Pilot and learner review remain unverified.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -384,6 +384,13 @@ power separates capabilities, selection, actual transitions and energy claims.
 Resources, packaging and the hub remain before Maintaining enforcement.
 See the [verification record](../ai/2026-10-22-tam-logs-power-learning.md).
 
+Corpus 0.43.2 completed Maintaining and 0.43.8 completed Improving, with
+track enforcement. Corpus 0.44.0 adds twelve foundational glossary entries,
+a Guide index link and first-use explanations ([record](../ai/2026-10-27-tam-foundation-glossary.md)).
+Learning and Installing migration, wider concept explanations and glossary
+coverage remain. The [external-links plan](external-links.md) tracks the
+approved branch implementation; it is not yet in `develop`.
+
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
 expanded CS content, AI hardware estimates, writable settings, localisation and
@@ -423,6 +430,8 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-10-27:** Corpus 0.44.0 (minor): twelve foundational glossary pages, a Guide index link and contextual explanations for first steps, shell and filesystem (`0fcddfe`, index `d1beac0`). Corpus checks passed; learner and packaged review remain pending.
 
 - **2026-10-25:** Corpus 0.43.8 (patch): TCK25 Improving track completion and enforcement.
   Migrated `knowledge/tam.html` to full ladder anatomy with captured read-only examples,

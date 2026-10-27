@@ -1,7 +1,7 @@
 # Learning levels, goal paths and self-quizzes
 
 **Plan status:** In progress
-**Reviewed:** 2026-10-22
+**Reviewed:** 2026-10-27
 **Scope:** Command and corpus. The first approved outcome is TCK20–TCK23:
 the contract, a sticky level lens, folding and self-quizzes, and a pilot of
 three pages and two goal paths. TCK24 (corpus scaffolding) and TCK25
@@ -13,7 +13,27 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Continue TCK25 migration with remaining tracks (Learning, Installing). Improving track is fully migrated and enforced. Pilot and learner review remain unverified.
+**Next action:** Continue concept-first explanations and expand the glossary; plan and migrate the remaining Learning and Installing work under TCK25. Pilot and learner review remain unverified.
+
+## Current concept work (2026-10-27)
+
+The developer asks that pages introduce and define unfamiliar concepts rather
+than assume readers know technical terms, and that the glossary be expanded and
+linked from the Guide index. Corpus 0.44.0 adds that index link, twelve basic
+terms and contextual explanations in First steps, shell and filesystem
+(`0fcddfe`, index `d1beac0`; [verification](../ai/2026-10-27-tam-foundation-glossary.md)).
+Continue in small sourced slices: define a term in context on first use, link
+its glossary entry, and check that a beginner can follow the explanation without
+opening every link. Prioritize the terminology encountered along First steps.
+
+The read-only review identified follow-up candidates: correct SDDM and virtual
+console descriptions against the applicable released and Test configurations;
+replace recursive deletion in the scratch practice with removal of known files;
+and clarify the current limits of installation. Candidate new introductions
+cover startup and login, terminal and commands, files and paths, processes and
+services, and the desktop. Choose scope and sources for each slice; do not imply
+an installer exists. Learning and Installing migration and enforcement remain
+open. Pilot, learner and packaged acceptance are not established by these edits.
 
 ## Problem and agreed outcome
 

@@ -1,6 +1,6 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-25. **Owner:** Fred (developer).
+**Reviewed:** 2026-10-27. **Owner:** Fred (developer).
 **Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.44.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -137,7 +137,7 @@ in that candidate, not here.
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
 | `develop` | 0.43.2 / 0.44.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
-| `origin/test` | 0.38.1 / 0.42.0 | Latest cached remote Test source at `c161190`; not an installed-candidate claim. |
+| `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
 This table is a source snapshot taken on the review date. Remote-tracking rows
@@ -171,7 +171,15 @@ bibliography, additive metadata and a coverage/gap report. TCK25's Using part
 and staged level paths are implemented in corpus 0.40.0. Corpus 0.41.0
 migrates Maintaining's rollback and emergency-recovery lessons and adds
 three glossary terms. Corpus 0.42.0 migrates boot, boot-fallback and Snapper
-and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power with captured read-only examples, folded quizzes and diagnosis exercises. Corpus 0.43.2 completes Maintaining by migrating resources and packaging, classifying the Maintaining hub, and enabling track-wide build enforcement for Maintaining. Corpus 0.43.3–0.43.7 migrated Improving track lessons in slices 1–5. Corpus 0.43.8 completes Improving with tam.html and enables track-wide build enforcement for Improving. Next: remaining Learning and Installing lessons under TCK25. Versions are allocated when each slice starts. The deferred items in section 4 are candidates, not assignments.
+and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power.
+Corpus 0.43.2 completes Maintaining and enables track-wide enforcement;
+corpus 0.43.8 completes Improving and its enforcement. Corpus 0.44.0 adds
+twelve introductory glossary entries and a Guide index link. Next: continue
+defining unfamiliar concepts in context and expand the glossary, alongside the
+remaining Learning and Installing work under TCK25. Allocate versions when
+each slice starts. The deferred items in section 4 are candidates, not assignments.
+
+The approved [external-links work](docs/plans/external-links.md) is implemented on a preserved feature branch but is not integrated into `develop`. Review its current handoff, complete documentation and verification, then integrate under the shared-checkout rules.
 
 Still pending, and only on the developer's direction: real Linux-console and
 Foot review of an exact packaged candidate, including the
@@ -188,7 +196,7 @@ none has a reserved version:
 | Direction | Boundary / prerequisite |
 | --- | --- |
 | Non-executing shell syntax dissection | A separately reviewed parser/CLI design; all input remains inert. An earlier reservation of command 0.30.0 for it was withdrawn. |
-| Installer plan/apply/verify | Product installation/deployment framework and separately approved implementation. An earlier reservation of command 0.31.0 for it was withdrawn. Today only read-only `tam install inspect` and `tam install check` exist; Installing pages must say so. |
+| Installer plan/apply/verify | Product installation/deployment framework and separately approved implementation. An earlier reservation of command 0.31.0 for it was withdrawn. Today read-only `tam inspect` and `tam check` are available; Installing pages must say so. |
 | Stateful `tam learn` and automated assessment | Separate opt-in state and assessment design. Guided learning in corpus 0.31.0 does not require it. The learning-levels plan names the candidates: `tam tutor` (scratch-directory lessons that check each task), `tam quiz` (interleaved, spaced review of corpus quizzes, local only) and a level-aware `tam ask`; each needs its own plan. |
 | Rationale, deep-system traces and CS learning | Exploratory content/commands, not committed milestones. Existing depth filtering is already implemented. Old proposed 0.26/0.27/0.28 milestones are not future reservations. |
 | Wider distribution/terminal-only profiles and stable 1.0 | Follow the product's capabilities and evidence; no promised feature set or version allocation from this roadmap. |
