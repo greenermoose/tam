@@ -106,6 +106,11 @@ Naming the developer:
 
 ## How a page teaches
 
+Every page starts after its navigation lines with a clear heading and one
+plain, unformatted sentence explaining the page to a reader without
+specialized technical knowledge. Define or link unfamiliar terms. See
+`corpus-pedagogy.md` for the complete opening rule.
+
 Before you write or restructure a page, read
 [`corpus-pedagogy.md`](corpus-pedagogy.md): level definitions, personas, the
 novice on-ramp, page patterns, section anatomy, worked examples, self-quizzes

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Memory Compression with ZRAM</title>
+<title>Making better use of working memory</title>
 <meta name="topic" content="zram">
-<meta name="summary" content="How compressed RAM swap (LZ4/zstd) doubles effective memory capacity with near-zero latency compared to disk thrashing">
+<meta name="summary" content="How compressed memory can help when a computer runs short of working memory">
 <meta name="keywords" content="zram, memory, ram, compression, swap, lz4, zstd, paging, thrashing, zramctl">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
@@ -14,15 +14,12 @@
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Memory Compression with ZRAM</p>
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Making better use of working memory</p>
 </nav>
 
-<h1>Memory Compression with ZRAM</h1>
-
-<p>Traditional disk-based swap creates severe I/O bottlenecks and latency spikes when physical RAM is
-exhausted. Tamlinux implements <strong>ZRAM</strong>, creating a compressed block
-device in physical RAM that doubles effective memory capacity with near-zero latency,
-protecting workstations and developer environments alike from catastrophic disk thrashing.</p>
+<h1>Making better use of working memory</h1>
+<p>This page explains one way a computer can make better use of its working memory.</p>
+<p>When working memory runs short, a computer can move some information elsewhere. ZRAM compresses information in memory to make room; the benefit depends on the information and the machine.</p>
 
 <section data-level="beginner">
 <h2>Inspecting active ZRAM swap</h2>

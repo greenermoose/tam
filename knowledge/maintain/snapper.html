@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>Snapper: Btrfs Snapshots for System Rollbacks</title>
+<title>Using Snapper to help recover information</title>
 <meta name="topic" content="snapper">
 <meta name="summary" content="Inspect checkpoint scope and metadata, compare verified endpoints and separate snapshot boot from restoration">
 <meta name="keywords" content="snapper, btrfs, snapshot, subvolume, /.snapshots, tam-update, limine-snapper-sync, boot, rollback, recovery, pre, post, retention">
@@ -11,12 +11,10 @@
 <meta name="kind" content="explanation">
 <meta name="skills" content="updates.beginner, updates.intermediate, updates.expert">
 </head><body>
-<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Snapper: Btrfs Snapshots for System Rollbacks</p></nav>
-<h1>Snapper: Btrfs Snapshots for System Rollbacks</h1>
-<p>Snapper adds configuration, numbering and metadata to filesystem
-snapshots. Learn to identify what a checkpoint covers before choosing it for
-recovery. Practice here is read-only inspection or a scratch metadata model;
-it creates, deletes and restores no real snapshot.</p>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Using Snapper to help recover information</p></nav>
+<h1>Using Snapper to help recover information</h1>
+<p>This page explains a tool that records earlier states of stored information so you can recover them.</p>
+<p>Snapper is a tool for keeping records of earlier states of stored information. The exercises here only inspect information or use a temporary model; they do not create, delete, or restore a real snapshot.</p>
 <section data-level="beginner">
 <h2>Identify the configured subvolume</h2>
 <p><strong>Goal:</strong> you will be able to distinguish a Snapper

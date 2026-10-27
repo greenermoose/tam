@@ -102,6 +102,17 @@ If learner tests show novices still failing beginner sections with all
 three in place, the developer reconsiders a fourth level. Record the
 evidence. Do not add one on your own.
 
+## Page openings
+
+After the navigation and level lines, start every page with a clear heading
+and one ordinary sentence explaining what the page is about. Write for a
+reader with a high school education and no specialized technical knowledge.
+Define unfamiliar terms in the sentence or link to a definition; prefer
+familiar words. Do not use labels, bold text, or other formatting on the
+orientation sentence. Follow it with any necessary context, prerequisites,
+and safety information in plain language. The heading and sentence appear
+at every reading level.
+
 ## Page patterns
 
 Choose one pattern per page. Do not pad a page into three sections to fill a
@@ -230,15 +241,14 @@ acceptable.
 
 Every path page uses [`templates/path.html`](templates/path.html):
 
-1. **Gain:** one can-do sentence.
-2. **For you if:** two or three lines a reader can recognize themselves in.
-3. **Levels:** where the path starts and where it ends, and roughly how many
-   reading sessions it takes. Never promise hours.
-4. **Stages:** three to six. Each stage has one to four page links at stated
+1. **Opening:** a clear heading and an ordinary orientation sentence, as in
+   Page openings above. Explain who the path helps and any prerequisites or
+   safety limits in ordinary sentences when needed.
+2. **Stages:** three to six. Each stage has one to four page links at stated
    levels (`?level=`, which sets the reader's lens) and a checkpoint quiz.
-5. **Capstone:** one realistic whole task in a scratch or reversible setting,
+3. **Capstone:** one realistic whole task in a scratch or reversible setting,
    with a folded worked solution.
-6. **Next paths.**
+4. **Next paths.**
 
 Use only pages that exist. Mark a stage without a page as planned.
 

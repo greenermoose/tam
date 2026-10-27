@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Zero-Polling and Event-Driven Architecture</title>
+<title>How software can wait for work efficiently</title>
 <meta name="topic" content="efficiency">
 <meta name="summary" content="Eliminating periodic polling loops with inotify, epoll, and Wayland compositor event sockets to keep CPU idle and save energy">
 <meta name="keywords" content="efficiency, zero-polling, polling, inotify, epoll, wayland, idle, power, wakeups, events, cpu">
@@ -14,15 +14,12 @@
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Zero-Polling and Event-Driven Architecture</p>
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / How software can wait for work efficiently</p>
 </nav>
 
-<h1>Zero-Polling and Event-Driven Architecture</h1>
-
-<p>Every unnecessary CPU wakeup costs energy, generates heat, and prevents modern
-processors from entering deep, power-saving sleep states. Tamlinux enforces an
-event-driven architectural model that eliminates periodic polling loops across
-desktop widgets, monitoring tools, and background utilities.</p>
+<h1>How software can wait for work efficiently</h1>
+<p>This page explains how software can wait for work without repeatedly checking for it.</p>
+<p>Repeatedly checking for work can use energy even when nothing needs attention. Programs can instead wait to be notified when something happens.</p>
 
 <section data-level="beginner">
 <h2>Identifying CPU wakeups and idle efficiency</h2>
