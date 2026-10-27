@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-27. **Owner:** Fred (developer).
-**Current Command Version:** `0.44.0`. **Current Corpus Version:** `0.45.0`.
+**Current Command Version:** `0.44.0`. **Current Corpus Version:** `0.45.1`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -134,12 +134,13 @@ in that candidate, not here.
 | **0.44.0 corpus** | Foundational glossary | Done (2026-10-27) | Adds twelve foundational terms, explains and links first-use vocabulary, and links the glossary from the Guide index. |
 | **0.44.1 corpus** | TCK25 practice cleanup | Done (2026-10-27) | Removes the known exercise file and empty temporary directory without recursive deletion. |
 | **0.45.0 corpus** | TCK25 Learning and Installing | Done (2026-10-27) | Revises login and console lessons, classifies remaining pages, enforces tagged lesson anatomy in all parts, and adds six goal paths. |
+| **0.45.1 corpus** | First steps review corrections | Done (2026-10-27) | Restores Welcome links, clarifies terminal access, fixes capstone output order and updates skills-map reading links. Learner review remains pending. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.44.0 / 0.45.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
+| `develop` | 0.44.0 / 0.45.1 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 

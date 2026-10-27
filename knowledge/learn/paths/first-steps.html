@@ -28,7 +28,8 @@ On the Tamlinux Hyprland desktop, SUPER+RETURN opens a terminal. SUPER is
 often the key with a Windows logo.</li>
 <li>Read <a href="shell/index.html?level=1">Shell and streams</a>, then
 return here using Left Arrow in the pager.</li></ol>
-<p>A <a href="learn/glossary/prompt.html">prompt</a> is the terminal text waiting for your command. Examples below
+<p>To try commands, press Esc to leave tam and return to the terminal. To reopen this path later, type <code>tam welcome</code>, press Enter, then follow First steps from Welcome.
+A <a href="learn/glossary/prompt.html">prompt</a> is the terminal text waiting for your command. Examples below
 use <code>$</code> for it; your prompt may look different. Type only the
 text after it, then press Enter.</p>
 <pre class="session" data-risk="read-only">
@@ -104,13 +105,13 @@ cd "$work"
 </pre><pre class="session" data-risk="scratch">
 $ printf &#x27;%s\n&#x27; red blue red &gt; colours.txt
 $ grep &#x27;^red$&#x27; colours.txt | wc -l
+2
 $ printf &#x27;%s\n&#x27; ready &gt; ready.txt
 $ chmod 600 ready.txt
 $ stat -c &#x27;%a %n&#x27; ready.txt
-2
 600 ready.txt
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. The count is 2 and the file mode is
+<p>Captured on Arch Linux, 2026-10-27. The count is 2 and the file mode is
 600. These verify different things: stream filtering and file access.</p>
 <pre data-risk="scratch">
 rm -- colours.txt ready.txt
