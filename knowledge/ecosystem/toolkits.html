@@ -8,6 +8,7 @@
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
+<meta name="kind" content="explanation">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -15,6 +16,8 @@
 </nav>
 
 <h1>Desktop Shell: Quickshell and the Tamlinux Shell</h1>
+<section data-level="intermediate"><h2>Separate shell and compositor</h2><p><strong>Goal:</strong> describe how the desktop shell relates to a compositor and its toolkit.</p><h3>Mental model</h3><p>A compositor manages application surfaces; a shell supplies interface elements such as panels; a toolkit helps implement them.</p><h3>Worked example</h3><p>The page below describes Quickshell as the toolkit and the Tamlinux shell as the interface built with it.</p>
+
 
 <p>The desktop shell is the visible interface around your windows: the bar,
 menus, workspace indicators, notifications, and pop-up panels. Tamlinux keeps
@@ -53,5 +56,6 @@ software, packages, or servers.</p>
 <li><strong>Astal and AGS:</strong> GTK widget frameworks scripted in TypeScript through GJS.</li>
 <li><strong>EWW:</strong> a standalone widget engine in Rust with its own configuration language, Yuck.</li>
 </ul>
+<h3>Completion task</h3><p>Name the toolkit and the interface in that example.</p><details class="solution"><p>Quickshell is the toolkit; the Tamlinux shell provides the desktop interface. The compositor is a separate component.</p></details><h3>Independent task</h3><p>Trace a displayed shell component to its owning package or source before proposing a change.</p><h3>Choosing</h3><p>Inspect shell behavior in the shell and window placement in the compositor, then check their interaction.</p><h3>Troubleshooting</h3><p>A missing panel can arise at multiple boundaries; inspect the actual service and logs rather than assuming a toolkit failure.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> The Tamlinux shell is delivered as a separate component from the compositor.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a toolkit name alone tell you which compositor is running?</summary><p>No. Check the actual session and compositor separately.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
 </body>
 </html>

@@ -3,12 +3,19 @@
 <title>Safe practice and self-checks</title>
 <meta name="topic" content="practice"><meta name="summary" content="Practice guide navigation, shell pipelines, and inspection safely"><meta name="keywords" content="practice, exercises, self-check, scratch, safe, learning"><meta name="level" content="beginner"><meta name="track" content="learn">
 <meta name="parent" content="learn/index.html">
+<meta name="kind" content="how-to">
+<meta name="skills" content="shell.beginner">
 </head><body>
 <nav aria-label="Breadcrumb">
 <p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / Safe practice and self-checks</p>
 </nav>
 
 <h1>Safe practice and self-checks</h1>
+<section data-level="beginner"><h2>Practice without system changes</h2>
+<p><strong>Goal:</strong> navigate the Guide and connect commands using a temporary file.</p><p><strong>Why it matters:</strong> A scratch directory gives the exercise a separate place to write.</p>
+<p><strong>Before you start:</strong> The pipeline exercise writes only its newly created temporary directory.</p><aside class="first-time"><p><strong>New to this?</strong> Start in the Guide; follow links with the reader and press Left Arrow to return through history. At a terminal, do not type a leading dollar sign shown as a prompt.</p></aside>
+<h3>Worked example</h3><p>Follow the pipeline exercise below as a complete block. Its two counts show one apple and two pears; the directory is removed only when empty.</p>
+
 <p>Use temporary files in a directory you own. These exercises read or change only that scratch directory; they do not require privilege, package changes, boot changes, or recovery actions.</p>
 <h2>Exercise: navigate documentation</h2>
 <ol><li>Open <a href="tam:search">Guide Search</a> and search for <code>streams</code>.</li><li>Open a result and follow its breadcrumb parent.</li><li>Open <a href="tam:man">Man pages</a>, look up <code>printf</code>, then press Left Arrow.</li></ol>
@@ -28,4 +35,7 @@ fi</pre>
 <p><strong>Check:</strong> explain which command reads the file, which sorts its lines, and why <code>uniq</code> follows <code>sort</code>. If the output differs, check the commands you entered and try again.</p>
 <h2>Choose another step</h2>
 <ul><li><a href="beginner.html">Beginner path</a></li><li><a href="intermediate.html">Intermediate path</a></li><li><a href="expert.html">Expert path</a></li><li><a href="shell/pipelines.html">Pipeline lesson</a></li></ul>
+<h3>Try it</h3><p>Repeat with a different fruit and predict the counts before you run the block.</p><h3>If it goes wrong</h3><p>If temporary-directory creation or cleanup fails, read the message and inspect the named directory before deciding what to remove.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Why does the exercise remove a named file before using rmdir?</summary><p>The file is the known exercise output; rmdir then refuses to remove a directory with unexpected contents.</p></details><details class="q"><summary>What should you do when a result differs from the example?</summary><p>Read the result and the relevant documentation, then check the input and prerequisites before changing anything.</p></details></section>
+<h3>New words</h3><p>See <a href="learn/glossary/command.html">command</a> and <a href="learn/glossary/terminal.html">terminal</a>.</p><h3>Next step</h3><p>Return to <a href="learn/index.html">Learning Tamlinux</a> and choose a related lesson.</p></section>
 </body></html>

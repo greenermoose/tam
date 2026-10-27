@@ -147,3 +147,4 @@ model for each session.
 | 2026-10-25 | TCK25 Improving track completion (tam.html) and track-wide enforcement; corpus 0.43.8 | Antigravity CLI 1.4.7; `gemini-3.8-flash` | [Session record](docs/ai/2026-10-25-tam-tck25-improving-completion.md) |
 | 2026-10-27 | Foundational glossary, Guide index link and planning reconciliation; corpus 0.44.0 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-foundation-glossary.md) |
 | 2026-10-27 | TCK25 safer practice cleanup; corpus 0.44.1 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-practice-cleanup.md) |
+| 2026-10-27 | TCK25 Learning and Installing, goal paths; corpus 0.45.0 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-tck25-completion.md) |

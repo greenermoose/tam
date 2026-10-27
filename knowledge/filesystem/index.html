@@ -8,6 +8,7 @@
 <meta name="level" content="beginner">
 <meta name="track" content="learn">
 <meta name="parent" content="learn/index.html">
+<meta name="kind" content="explanation">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -21,13 +22,20 @@
 beginning at root (<code>/</code>). This structure follows the Filesystem
 Hierarchy Standard (FHS).</p>
 
-<h2>Key directories</h2>
+<section data-level="beginner"><h2>Finding your place</h2>
+<p><strong>Goal:</strong> distinguish a file, directory and path, and identify common parts of the filesystem.</p>
+<p><strong>Why it matters:</strong> reading a path before running a command helps you understand what it will affect.</p>
+<p><strong>Before you start:</strong> open a <a href="learn/glossary/terminal.html">terminal</a>. This example only reads a directory name.</p>
+<aside class="first-time"><p><strong>New to this?</strong> The dollar sign represents your prompt. Type the command after it, then press Enter.</p></aside>
+<h3>Worked example</h3><pre class="session" data-risk="read-only">$ ls -d /tmp
+/tmp</pre><p>Captured on Arch Linux, 2026-10-27. The command displays the named directory itself; it does not list its contents.</p>
+<h3>Key directories</h3>
 
 <table>
 <tr><th>Directory</th><th>Purpose</th></tr>
 <tr><td>/</td><td>The root of the overall directory hierarchy</td></tr>
 <tr><td>/home</td><td>User personal directories and settings (~/.config, ~/.local)</td></tr>
-<tr><td>/etc</td><td>Host-specific system configuration files in plain text</td></tr>
+<tr><td>/etc</td><td>Host-specific system configuration</td></tr>
 <tr><td>/usr</td><td>Secondary hierarchy for user utilities, libraries, and assets</td></tr>
 <tr><td>/var</td><td>Variable runtime state, service data, and system logs (/var/log)</td></tr>
 <tr><td>/tmp</td><td>Temporary files; cleanup depends on system configuration</td></tr>
@@ -55,6 +63,10 @@ filesystems in human-readable units.</dd>
 contents.</dd>
 </dl>
 
+<h3>Try it</h3><p>Use <code>ls -d /proc</code> to inspect another named directory. Compare its purpose in the table; the command does not show its contents.</p>
+<h3>If it goes wrong</h3><p>If a path is absent or access is denied, read the message and check its spelling and permissions. Do not add privilege merely to make an unfamiliar example work.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>What is the difference between a directory and a path?</summary><p>A directory organizes entries; a path names a location in the hierarchy.</p></details><details class="q"><summary>Are /proc entries necessarily ordinary stored files?</summary><p>No. They expose interfaces and information provided by the kernel.</p></details></section>
+<h3>New words</h3><p>See <a href="learn/glossary/file.html">file</a>, <a href="learn/glossary/directory.html">directory</a>, and <a href="learn/glossary/path.html">path</a>.</p><h3>Next step</h3><p>Explore permissions in a temporary directory using the lesson below.</p></section>
 <h2>Where to next</h2>
 
 <ul>

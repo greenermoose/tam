@@ -3,7 +3,7 @@
 <head>
 <title>Terminal and Editor Ergonomics</title>
 <meta name="topic" content="terminal">
-<meta name="summary" content="Fast shell startup, micro editor ergonomics with automatic live disk reload, and distraction-free workflows">
+<meta name="summary" content="Terminal and editor practice, scratch configuration and shell startup">
 <meta name="keywords" content="terminal, editor, micro, foot, shell, autoreload, markdown, ergonomics, keybindings, editing">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
@@ -19,10 +19,7 @@
 
 <h1>Terminal and Editor Ergonomics</h1>
 
-<p>Your terminal is the central workbench of a Tamlinux system. Tamlinux pairs an ultra-low-latency Wayland terminal
-with the <code>micro</code> text editor, delivering intuitive editing, rich Markdown
-highlighting, and automatic live disk reloading when files are edited by background
-AI agents.</p>
+<p>Your terminal is the central workbench of a Tamlinux system. Tamlinux offers a Wayland terminal and the <code>micro</code> text editor for terminal work. Check the installed editor and its settings before relying on a particular behavior.</p>
 
 <section data-level="beginner">
 <h2>Intuitive terminal editing with Micro</h2>
@@ -38,15 +35,17 @@ AI agents.</p>
 </aside>
 
 <h3>Worked example: Create and edit a scratch note</h3>
+<p>Run each command separately. If <code>mktemp</code> fails, stop before creating or removing anything.</p>
 
-<pre class="session" data-risk="read-only">
+<pre class="session" data-risk="scratch">
 $ scratch=$(mktemp -d)
 $ echo "Initial note content" > "$scratch/note.md"
 $ micro "$scratch/note.md"
 $ cat "$scratch/note.md"
 Initial note content
 Appended line saved with Ctrl+S.
-$ rm -rf "$scratch"
+$ rm -- "$scratch/note.md"
+$ rmdir -- "$scratch"
 </pre>
 
 <p>Captured on an Arch Linux workstation, 2026-10-25.</p>
@@ -95,115 +94,32 @@ $ rm -rf "$scratch"
 <dt>Command prompt</dt>
 <dd>The interactive bar at the bottom of Micro opened with <code>Ctrl+E</code> for running editor directives and queries.</dd>
 </dl>
-<p>When you return <dfn><a href="learn/glossary/focus.html">focus</a></dfn> to the terminal window, Micro immediately inspects on-disk file status.</p>
+<p>The editor has <dfn><a href="learn/glossary/focus.html">focus</a></dfn> when it receives your keyboard input. External file changes and unsaved editor buffers may differ; check the editor documentation before choosing a reload setting.</p>
 
-<p><strong>Next step:</strong> at Intermediate, learn how Micro's live disk reload synchronizes buffers when background agents or Git commands modify files on disk.</p>
+<p><strong>Next step:</strong> at Intermediate, validate a scratch configuration and distinguish syntax from actual editor behavior.</p>
 </section>
 
 <section data-level="intermediate">
-<h2>Multi-agent pair programming and live disk reload</h2>
-
-<p><strong>Goal:</strong> you will be able to configure Micro's <code>reload</code> setting and coordinate editing between interactive sessions and background scripts or AI agents without edit collisions.</p>
-
-<h3>Mental model</h3>
-
-<pre>
-Interactive editor (Micro)              Background agent or Git
-        |                                          |
-        | [holds open buffer]                      | [edits file on disk]
-        |                                          v
-        | &lt;---- focus returned / stat(2) ------- file updated on disk
-        |
-        +--&gt; reload "prompt" (default): prompts user to reload or keep
-        +--&gt; reload "auto": reloads updated file content immediately
-</pre>
-
-<p>When an autonomous AI agent or background script updates a file that you currently have open in Micro, the on-disk file changes underneath the running editor. When focus returns to Micro or a buffer event occurs, Micro compares the file's modification timestamp and size using <code>stat(2)</code>. Under the default <code>prompt</code> setting, Micro displays a warning asking whether to reload. Under <code>auto</code>, Micro immediately reloads the file without interrupting your workflow, preserving your undo history.</p>
-
-<h3>Worked example: Configure live reload and observe synchronization</h3>
-
-<pre class="session" data-risk="read-only">
-$ scratch=$(mktemp -d)
-$ mkdir -p "$scratch/.config/micro"
-$ echo '{"reload": "auto"}' > "$scratch/.config/micro/settings.json"
-$ echo "Original text" > "$scratch/shared.txt"
-$ echo "Appended by agent" >> "$scratch/shared.txt"
-$ cat "$scratch/shared.txt"
-Original text
-Appended by agent
-$ rm -rf "$scratch"
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
-
-<ol>
-<li><code>mkdir -p "$scratch/.config/micro"</code> creates a local configuration folder for testing.</li>
-<li><code>echo '{"reload": "auto"}' > .../settings.json</code> writes the setting that instructs Micro to reload modified files without prompting.</li>
-<li>When an external command or agent appends content to <code>shared.txt</code>, Micro detects the updated timestamp via <code>stat(2)</code> and refreshes the buffer automatically upon regaining focus.</li>
-<li>Your cursor position and multi-level undo tree remain intact.</li>
-</ol>
-
-<h3>Completion task</h3>
-
-<p>Configure Micro to reload externally modified files automatically without asking for confirmation. Complete the configuration command by filling in the missing value (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-set reload ___
-</pre>
-
-<details class="solution">
-<p>Fill in <code>auto</code>. Inside Micro, pressing <code>Ctrl+E</code> and executing <code>set reload auto</code> updates <code>~/.config/micro/settings.json</code> so that buffers reload external modifications immediately without prompting.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>In a scratch directory, write a minimal Micro <code>settings.json</code> file that sets <code>reload</code> to <code>auto</code> and <code>wordwrap</code> to <code>true</code>, then verify that the JSON syntax is valid using Python's <code>json.tool</code>.</p>
-
-<details class="solution">
-<p>Run <code>scratch=$(mktemp -d) &amp;&amp; echo '{"reload": "auto", "wordwrap": true}' &gt; "$scratch/settings.json" &amp;&amp; python3 -m json.tool "$scratch/settings.json" &amp;&amp; rm -rf "$scratch"</code>. It parses and formats the JSON keys cleanly, confirming valid syntax.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Reload mode</th><th>When to use</th><th>Trade-off</th></tr>
-<tr><td><code>prompt</code> (default)</td><td>Single-user interactive editing where external changes are rare or unexpected.</td><td>Protects against accidental overwrites, but requires manual confirmation on every background save.</td></tr>
-<tr><td><code>auto</code></td><td>Multi-agent pair programming and automated workflows where background agents modify code.</td><td>Buffer updates seamlessly in real time; unsaved manual edits should be committed before agent execution.</td></tr>
-<tr><td><code>disabled</code></td><td>Inspecting fixed snapshots or static logs where external updates should be ignored.</td><td>Prevents any buffer refresh from disk.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>"The file on disk has changed" prompt appears on every save</td><td>Micro's <code>reload</code> setting is still set to <code>prompt</code></td><td>Press <code>Ctrl+E</code> and type <code>show reload</code></td><td>Type <code>set reload auto</code> in the command bar or add <code>"reload": "auto"</code> to <code>~/.config/micro/settings.json</code></td></tr>
-<tr><td>Manual edits in buffer conflict with background agent edits</td><td>Both the user and an agent edited the file simultaneously</td><td>Compare Git diff or buffer undo history with <code>Ctrl+Z</code></td><td>Save and commit your manual edits before invoking an AI agent on the file</td></tr>
-<tr><td>Custom settings in <code>settings.json</code> are not taking effect</td><td>JSON syntax error such as a missing comma or quote</td><td>Validate the file with <code>python3 -m json.tool ~/.config/micro/settings.json</code></td><td>Fix syntax errors or remove malformed keys</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p>On Tamlinux, Micro is configured with live reload and integrated with the Wayland system clipboard via <code>wl-clipboard</code> (<code>wl-copy</code> and <code>wl-paste</code>). Desktop keybinding <code>SUPER + Shift + W</code> or terminal editor invocations open Micro natively inside <code>foot</code>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why is <code>"reload": "auto"</code> preferred in multi-agent pair programming workflows?</summary>
-<p>When background AI agents or Git operations update files in the workspace, <code>auto</code> refreshes the buffer seamlessly as soon as you refocus Micro, eliminating repetitive manual reload confirmations.</p>
-</details>
-<details class="q">
-<summary>Where does Micro store user configuration options and keybindings on disk?</summary>
-<p>In <code>~/.config/micro/settings.json</code> and <code>~/.config/micro/bindings.json</code> (under <code>$XDG_CONFIG_HOME/micro/</code>).</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:micro(1)">micro(1)</a> &mdash; command-line flags and options.</li>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; stat(2) file status, inode verification, and modification timestamps.</li>
-</ul>
+<h2>Inspect a scratch editor configuration</h2>
+<p><strong>Goal:</strong> check a proposed editor configuration in a temporary file without modifying your real settings.</p>
+<h3>Mental model</h3><p>An editor may have an in-memory buffer and a separate file on disk. A change to one does not by itself prove the other is updated. JSON syntax, supported settings and actual runtime behavior are separate checks.</p>
+<h3>Worked example</h3><p>Create a temporary directory, write one JSON file and validate its syntax. This does not start Micro or change its configuration.</p>
+<pre data-risk="scratch">if scratch=$(mktemp -d); then
+    printf '%s\n' '{"wordwrap": true}' &gt; "$scratch/settings.json"
+    python3 -m json.tool "$scratch/settings.json"
+    rm -- "$scratch/settings.json"
+    rmdir -- "$scratch"
+else
+    printf '%s\n' 'Could not create a temporary directory.'
+fi</pre>
+<p>A valid JSON document is formatted by the tool. Its success does not establish that an editor supports or has loaded the setting. Your output and errors can differ.</p>
+<h3>Completion task</h3><p>After validating a JSON file, what additional evidence would establish that the editor uses it?</p><details class="solution"><p>Consult the installed editor's setting documentation and inspect its effective configuration or behavior. JSON syntax alone cannot establish either.</p></details>
+<h3>Independent task</h3><p>Repeat the syntax check with a different value in a fresh scratch file. Predict whether it is valid JSON before running the tool; remove only the file and empty directory you created.</p>
+<h3>Choosing</h3><p>Use a scratch file to learn syntax. Change an actual editor setting only after identifying its owner, current value, intended behavior and recovery.</p>
+<h3>Troubleshooting</h3><p>If JSON parsing fails, read the line and column in the error. If a valid setting has no effect, check the editor's documented setting names and effective configuration.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> settings can be supplied by a package or by a user configuration. Inspect the actual selected file before editing and preserve user changes.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does valid JSON prove the editor loaded a setting?</summary><p>No. It establishes syntax only; supported keys, file selection and runtime behavior are separate.</p></details><details class="q"><summary>Why keep a recovery path before changing an editor setting?</summary><p>It lets you restore the previous behavior if the setting has unintended effects.</p></details></section>
+<h3>Further reading</h3><p>Consult the installed editor documentation for supported settings and <code>python3 -m json.tool --help</code> for the validator.</p>
 </section>
 
 <section data-level="expert">

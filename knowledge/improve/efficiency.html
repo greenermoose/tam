@@ -110,40 +110,28 @@ Polling Loop (Naive)                      Event-Driven (inotify)
 -------------------                      ----------------------
 while true; do                           inotifywait -e modify file.txt
   check_file                                 |
-  sleep 1  &lt;-- CPU wakes every second        | [blocks in kernel; 0% CPU]
+  sleep 1  &lt;-- CPU wakes every second        | [waits for an event]
 done                                           v
 [Wastes energy, misses changes]          File modified -&gt; kernel wakes script
 </pre>
 
-<p>A polling loop wakes the CPU every interval, even when nothing has changed. If changes occur between sleeps, they can be missed or delayed. In contrast, <code>inotifywait</code> registers an inotify watch in the Linux kernel and calls <code>read(2)</code> on the inotify file descriptor. The kernel puts the process to sleep at 0% CPU until an actual filesystem event (like <code>modify</code>, <code>create</code>, or <code>delete</code>) occurs on that inode, waking the process instantly.</p>
+<p>A polling loop wakes the CPU every interval, even when nothing has changed. If changes occur between sleeps, they can be missed or delayed. In contrast, <code>inotifywait</code> registers an inotify watch in the Linux kernel and calls <code>read(2)</code> on the inotify file descriptor. The waiting process can block until an event (such as <code>modify</code>, <code>create</code>, or <code>delete</code>) is reported. Delivery and application processing take time; measure the actual workload rather than assuming zero CPU use or instant delivery.</p>
 
 <h3>Worked example: Watch a file without polling</h3>
-
-<pre class="session" data-risk="read-only">
-$ scratch=$(mktemp -d)
-$ echo "initial" > "$scratch/watched.txt"
-$ (sleep 1 && echo "updated" >> "$scratch/watched.txt") &
-$ inotifywait -e modify "$scratch/watched.txt"
-Setting up watches.
-Watches established.
-/tmp/tmp.sW01j2/watched.txt MODIFY 
-$ rm -rf "$scratch"
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
-
-<ol>
-<li><code>scratch=$(mktemp -d)</code> sets up an isolated test folder in <code>/tmp</code>.</li>
-<li>A background subshell schedules an append to <code>watched.txt</code> after 1 second.</li>
-<li><code>inotifywait -e modify</code> establishes a kernel watch and suspends execution immediately.</li>
-<li>As soon as the write occurs, the kernel delivers the event and <code>inotifywait</code> exits, reporting the event name <code>MODIFY</code>.</li>
-</ol>
-
+<p>This requires the optional <code>inotifywait</code> command and two terminals. In the first terminal, create a temporary directory and file, then start the watcher:</p>
+<pre data-risk="scratch">scratch=$(mktemp -d) &amp;&amp; printf '%s\n' initial &gt; "$scratch/watched.txt" &amp;&amp; printf '%s\n' "$scratch" &amp;&amp; inotifywait -e modify "$scratch/watched.txt"</pre>
+<p>Wait until it prints <code>Watches established.</code> In the second terminal, use the printed directory name as the argument below. Replace the example path with that exact name; do not type the angle brackets.</p>
+<pre data-risk="scratch">printf '%s\n' updated &gt;&gt; "&lt;printed-directory&gt;/watched.txt"</pre>
+<p>On Arch Linux, 2026-10-27, the watcher printed the file's path followed by <code>MODIFY</code> after the write. The temporary path differs on each run. The watch must be established before the write; sleeping for a fixed time is not a readiness check.</p>
+<p>After the watcher exits, return to the first terminal and remove only its file and empty directory:</p>
+<pre data-risk="scratch">rm -- "$scratch/watched.txt"
+rmdir -- "$scratch"</pre>
+<p>If a command fails, read its message and inspect the directory before deciding what to remove. A blank watcher waits for an event; Ctrl+C stops it.</p>
 <h3>Completion task</h3>
 
 <p>Monitor a directory continuously in a loop without terminating after the first event. Complete the command by filling in the missing monitor flag (marked with <code>___</code>):</p>
 
-<pre data-risk="read-only">
+<pre data-risk="scratch">
 inotifywait ___ -e create,delete "$scratch"
 </pre>
 
@@ -153,17 +141,13 @@ inotifywait ___ -e create,delete "$scratch"
 
 <h3>Independent task</h3>
 
-<p>Write a command in a scratch directory using <code>inotifywait -q -e modify</code> that blocks until a target file is updated, then prints a success confirmation, and verify it by appending a line to the file from another command.</p>
-
-<details class="solution">
-<p>Run <code>scratch=$(mktemp -d) &amp;&amp; touch "$scratch/file" &amp;&amp; (inotifywait -q -e modify "$scratch/file" &amp;&amp; echo "File updated") &amp; sleep 0.5 &amp;&amp; echo "data" &gt;&gt; "$scratch/file" &amp;&amp; rm -rf "$scratch"</code>. The command unblocks immediately upon the write and prints <code>File updated</code>.</p>
-</details>
-
+<p>Repeat the worked example, keeping the readiness messages visible. Wait for the watcher to be ready before appending in the other terminal, then remove the named file and empty directory after the watcher exits.</p>
+<details class="solution"><p>Use the worked example's two-terminal sequence. Wait for <code>Watches established.</code> before writing. A fixed delay is not proof that a watch is ready.</p></details>
 <h3>Choosing</h3>
 
 <table>
 <tr><th>Mechanism</th><th>When to use</th><th>CPU and power impact</th></tr>
-<tr><td><code>inotifywait -e modify</code></td><td>Watching specific local files or directories in shell automation.</td><td>Zero CPU while waiting; instant event delivery from kernel.</td></tr>
+<tr><td><code>inotifywait -e modify</code></td><td>Watching specific local files or directories in shell automation.</td><td>Can block while waiting; measure actual CPU and response time.</td></tr>
 <tr><td><code>systemd.path</code> unit</td><td>Triggering system-wide systemd services upon file or directory changes.</td><td>Zero CPU; managed by systemd's internal epoll/inotify event loop.</td></tr>
 <tr><td><code>sleep N</code> polling</td><td>Remote network filesystems (NFS/CIFS) where kernel inotify events are not delivered.</td><td>High power consumption; periodic CPU wakeups prevent deep sleep states.</td></tr>
 </table>
@@ -178,19 +162,19 @@ inotifywait ___ -e create,delete "$scratch"
 </table>
 
 <aside class="tamlinux">
-<p>On Tamlinux, desktop widgets and status monitors (such as <code>fred.*</code> plugins and Quickshell bars) use event-driven Wayland sockets, D-Bus signals, and inotify handles instead of periodic polling loops, ensuring the system draws minimum wattage when idle.</p>
+<p>On Tamlinux, desktop widgets and status monitors (such as <code>fred.*</code> plugins and Quickshell bars) can use events such as Wayland and D-Bus notifications. Whether a particular component polls and how much power it draws require inspection and measurement.</p>
 </aside>
 
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does a script using <code>inotifywait</code> consume 0% CPU while waiting for a file change?</summary>
-<p>The process calls <code>read(2)</code> on an inotify file descriptor, putting the thread to sleep in the Linux kernel scheduler. It consumes zero CPU cycles until the filesystem driver emits a matching event.</p>
+<summary>Why can an event watcher avoid repeated polling while waiting for a file change?</summary>
+<p>The process calls <code>read(2)</code> on an inotify file descriptor, putting the thread to sleep in the Linux kernel scheduler. It need not repeatedly check the file while blocked; setup, wakeups and other work still have a cost.</p>
 </details>
 <details class="q">
 <summary>What flag makes <code>inotifywait</code> monitor subdirectories recursively?</summary>
-<p>The <code>-r</code> (or <code>--recursive</code>) flag watches the specified directory and all existing and newly created descendant subdirectories.</p>
+<p>The <code>-r</code> (or <code>--recursive</code>) flag adds recursive watches. Consult the manual for races and limits when directories are created.</p>
 </details>
 </section>
 
@@ -211,7 +195,7 @@ inotifywait ___ -e create,delete "$scratch"
 <tr><th>Interface</th><th>Complexity</th><th>Kernel mechanism</th><th>Behavior</th></tr>
 <tr><td><code>epoll_create1(2)</code></td><td>$O(1)$</td><td>Creates an epoll file descriptor with <code>EPOLL_CLOEXEC</code>.</td><td>Initializes kernel event ready-list and interest tree.</td></tr>
 <tr><td><code>epoll_ctl(2)</code></td><td>$O(1)$</td><td>Adds, modifies, or removes watched descriptors (sockets, timers, inotify handles).</td><td>Configures monitored event masks (e.g. <code>EPOLLIN</code>, <code>EPOLLET</code>).</td></tr>
-<tr><td><code>epoll_wait(2)</code></td><td>$O(1)$</td><td>Blocks process execution until one or more descriptors become ready.</td><td>Timeout <code>-1</code> sleeps indefinitely at 0% CPU until a kernel event arrives.</td></tr>
+<tr><td><code>epoll_wait(2)</code></td><td>$O(1)$</td><td>Blocks process execution until one or more descriptors become ready.</td><td>Timeout <code>-1</code> waits without a timeout until an event or interruption.</td></tr>
 <tr><td><code>wl_display_get_fd()</code></td><td>Wayland API</td><td>Retrieves the Wayland display UNIX domain socket descriptor.</td><td>Enables registering the compositor socket directly into an <code>epoll</code> loop.</td></tr>
 <tr><td><code>wl_display_dispatch()</code></td><td>Wayland API</td><td>Processes pending events from the compositor and flushes the outgoing request buffer.</td><td>Executes client callbacks and returns immediately to the event loop.</td></tr>
 </table>
@@ -225,15 +209,15 @@ inotifywait ___ -e create,delete "$scratch"
 <ol>
 <li>The application retrieves the Wayland socket file descriptor with <code>wl_display_get_fd()</code>.</li>
 <li>The descriptor is registered into the process's main <code>epoll</code> instance with <code>EPOLLIN</code>.</li>
-<li>The main thread calls <code>epoll_wait(epfd, events, MAX_EVENTS, -1)</code>. A timeout of <code>-1</code> ensures the process consumes zero CPU cycles until an event arrives.</li>
+<li>The main thread calls <code>epoll_wait(epfd, events, MAX_EVENTS, -1)</code>. A timeout of <code>-1</code> waits without a timeout, subject to events and interruptions.</li>
 <li>When the compositor writes state changes, the kernel wakes the process, which calls <code>wl_display_dispatch()</code> to process messages and immediately returns to sleep.</li>
 </ol>
 
-<p>This strict event-driven contract ensures that Tamlinux desktop panels, <code>fred.*</code> widgets, and CLI helpers consume zero background CPU when the user is idle.</p>
+<p>Event-driven interfaces can reduce unnecessary work. Individual components may also use timers or polling; inspect and measure the component of interest.</p>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Battery longevity and silent fanless operation on modern laptops depend on keeping processor package C-states deep. A single misbehaved application polling every 10 milliseconds prevents CPU package C-states from dropping below C2/C3, increasing idle system power draw from 2 watts to over 7 watts. Enforcing strict event-driven epoll/inotify architectures guarantees energy efficiency and thermal quietness across the entire Tamlinux user space.</p>
+<p>Reducing unnecessary wakeups is one way to pursue efficiency. CPU idle states, power and fan behavior depend on hardware and the whole workload; compare measurements under controlled conditions before claiming an improvement.</p>
 
 <h3>Edge cases and failure modes</h3>
 

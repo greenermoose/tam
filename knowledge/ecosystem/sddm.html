@@ -3,12 +3,14 @@
 <head>
 <title>Display Managers: SDDM</title>
 <meta name="topic" content="sddm">
-<meta name="summary" content="Display managers, login greeters, and session management: why Tamlinux uses SDDM, native Qt 6 greeters, autologin, and Wayland session launch">
+<meta name="summary" content="Display managers, login greeters, and session management: graphical login with SDDM, text login, and session inspection">
 <meta name="keywords" content="sddm, display manager, display managers, login, greeter, autologin, session, sessions, wayland-sessions, qt6, qml, tam-session">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="ecosystem, compositors">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -17,258 +19,42 @@
 
 <h1>Display Managers: SDDM</h1>
 
-<p>A display manager (or login manager) starts at the end of the system boot
-process. It provides the graphical login screen (the greeter), authenticates
-users, prepares the session environment, and launches the Wayland compositor or
-desktop session. Tamlinux selects <strong>SDDM</strong> (Simple Desktop Display
-Manager) as its primary display manager.</p>
-
+<p>A display manager provides a graphical sign-in and starts a selected desktop session. SDDM is one such program. A text login can start a session without a display manager.</p>
 <section data-level="beginner">
-<h2>What a display manager does and the Tamlinux login flow</h2>
-
-<p><strong>Summary:</strong> Understand the purpose of a display manager, how
-Tamlinux handles automatic login versus manual selection, and how to verify its
-status.</p>
-
-<p><strong>Prerequisites:</strong> <a href="ecosystem/index.html">The Tamlinux
-Ecosystem</a> and <a href="ecosystem/compositors.html">Compositors and Windowing</a>.</p>
-
-<h3>The login lifecycle</h3>
-
-<p>When you power on your Tamlinux workstation, several stages occur in
-sequence:</p>
-
-<ol>
-<li><strong>Hardware &amp; Bootloader:</strong> The UEFI firmware loads the Linux
-kernel and initramfs.</li>
-<li><strong>Init System:</strong> Process ID 1 (systemd on the current Arch base;
-runit on the target Void base) initializes hardware drivers, filesystems, and
-background system services.</li>
-<li><strong>Display Manager (SDDM):</strong> Starts the graphical server, displays
-the login greeter on screen, and waits for authentication or triggers automatic
-login.</li>
-<li><strong>User Session:</strong> Upon successful authentication, SDDM launches
-the session supervisor and Wayland compositor (such as Hyprland or Sway), which
-in turn launches the Tamlinux shell (Quickshell).</li>
-</ol>
-
-<h3>Autologin and the native greeter</h3>
-
-<p>Tamlinux's packaged SDDM defaults do not enable automatic login. Account and
-autologin policy belongs in the local administrator configuration under
-<code>/etc</code>; set it only when that is the intended security policy.</p>
-
-<ul>
-<li><strong>Explicit login:</strong> The native Tamlinux greeter provides
-username, session, and password controls.</li>
-<li><strong>Local policy:</strong> Any autologin configuration is an
-administrator choice in <code>/etc/sddm.conf</code> or
-<code>/etc/sddm.conf.d/</code>, not a Tamlinux package default.</li>
-<li><strong>Session choices:</strong> The session list depends on the session
-desktop files installed on the machine. Do not assume recovery sessions are
-present.</li>
-</ul>
-
-<h3>Checking SDDM service status</h3>
-
-<p>You can check whether SDDM is running from the terminal:</p>
-
-<pre>
-systemctl status sddm
-</pre>
-
-<p>To inspect active user sessions managed by the system:</p>
-
-<pre>
-loginctl list-sessions
-</pre>
+<h2>Recognize the login route</h2>
+<p><strong>Goal:</strong> distinguish a graphical sign-in from a text console login.</p>
+<p><strong>Why it matters:</strong> the route determines what to inspect when the desktop does not appear.</p>
+<p><strong>Before you start:</strong> read <a href="learn/glossary/virtual-console.html">virtual console</a> and <a href="learn/glossary/terminal.html">terminal</a>. The examples only read information.</p>
+<aside class="first-time"><p><strong>New to this?</strong> A console is a full-screen text interface. A prompt asks for input; a password normally does not appear as you type. Do not type the leading dollar sign in examples.</p></aside>
+<h3>Worked example: find the service tool</h3>
+<pre class="session" data-risk="read-only">$ command -v systemctl
+/usr/bin/systemctl</pre>
+<p>Captured on Arch Linux, 2026-10-27. Your path may differ. This finds a tool; it does not prove SDDM is installed or running. If available, <code>systemctl status sddm</code> reads its status; press q to leave the display.</p>
+<h3>Try it</h3><p>Find the tool on your own machine. If it is available, inspect SDDM's status without changing it. If the service is absent, that result is useful evidence, not proof that login is broken.</p>
+<h3>If it goes wrong</h3><p>If the tool is missing or cannot reach the service manager, use the documentation for your system and record the message. A blank screen can have several causes; see <a href="maintain/recovery.html">recovery</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a missing SDDM service prove a text login cannot work?</summary><p>No. Text login and graphical login are separate routes.</p></details><details class="q"><summary>Does finding systemctl prove SDDM is active?</summary><p>No. It establishes only that the command is available; inspect the service separately.</p></details></section>
+<h3>New words</h3><p>A <a href="learn/glossary/process.html">process</a> is a running program. A session is the environment for a logged-in user.</p>
+<h3>Next step</h3><p>Read <a href="ecosystem/ttys-and-virtual-consoles.html">virtual consoles</a> before attempting recovery.</p>
 </section>
-
 <section data-level="intermediate">
-<h2>SDDM architecture, configuration hierarchy, and sessions</h2>
-
-<p><strong>Summary:</strong> Discover how SDDM is configured on Tamlinux, how
-Wayland sessions are discovered and executed, and how the Qt 6 QML greeter is
-structured.</p>
-
-<p><strong>Prerequisites:</strong> Beginner depth, plus familiarity with systemd
-services and desktop files.</p>
-
-<h3>Configuration drop-in hierarchy</h3>
-
-<p>SDDM loads its configuration by merging files across vendor and administrator
-directories, with the primary configuration file taking highest precedence:</p>
-
-<ol>
-<li><strong>Vendor Defaults:</strong> <code>/usr/lib/sddm/sddm.conf.d/</code>
-supplied by packages. These establish baseline system defaults.</li>
-<li><strong>System Administrator Drop-ins:</strong> <code>/etc/sddm.conf.d/</code>
-(such as <code>/etc/sddm.conf.d/tamlinux.conf</code>). Drop-in files in <code>/etc</code>
-override vendor defaults lexicographically.</li>
-<li><strong>Primary Configuration File:</strong> <code>/etc/sddm.conf</code>. When
-present, settings in this primary file take the highest precedence over all
-drop-in directories.</li>
-</ol>
-
-<p>The package supplies vendor theme and compositor defaults. Account and
-automatic-login settings are administrator-owned; there is no universal local
-configuration to copy. Inspect the installed session entries before selecting
-a session name.</p>
-
-<pre>
-[Autologin]
-# Optional local policy only; uncomment and set deliberately.
-# User=your-account
-# Session=installed-session.desktop
-# Relogin=false
-</pre>
-
-<h3>Wayland session discovery and launch</h3>
-
-<p>By default, SDDM discovers available Wayland graphical sessions by reading
-<code>.desktop</code> files in <code>/usr/share/wayland-sessions/</code> and
-<code>/usr/local/share/wayland-sessions/</code>. A curated
-directory (such as <code>/etc/sddm/wayland-sessions/</code>) is used when the
-<code>SessionDir</code> setting in SDDM configuration explicitly overrides the
-default search directory; SDDM does not automatically discover it in addition to
-standard system directories. Each session desktop file defines the name and launch command:</p>
-
-<pre>
-[Desktop Entry]
-Name=Tamlinux
-Comment=Tamlinux desktop session
-Exec=/usr/bin/tam-session
-Type=Application
-DesktopNames=Hyprland;Tamlinux
-</pre>
-
-<p>Starting with the Tamlinux 0.4.4 test candidates, the native session entry invokes
-<code>/usr/bin/tam-session</code>, which launches the user's
-<code>~/.local/bin/tam-hyprland-session</code> inside a supervised user session
-environment.</p>
-
-<h3>State tracking</h3>
-
-<p>SDDM records user history and the most recently used session in its runtime
-state file, <code>/var/lib/sddm/state.conf</code>. When updating or pruning
-session entries, administrators ensure the saved session entry points to a valid
-installed session.</p>
-
-<h3>Testing greeter themes in a test window</h3>
-
-<p>SDDM themes are authored in Qt 6 Quick / QML. You can verify and test a theme
-interactively in a test window without logging out or rebooting:</p>
-
-<pre>
-sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/tamlinux
-</pre>
-
-<p>The <code>--test-mode</code> flag opens a test window inside your existing
-graphical desktop session to test QML layout, component bindings, and
-keyboard/mouse navigation. For automated test suites or headless environments,
-running with <code>QT_QPA_PLATFORM=offscreen</code> renders the interface
-without an interactive display.</p>
+<h2>Inspect the route in use</h2>
+<p><strong>Goal:</strong> distinguish configured login, active sessions and desktop launch.</p>
+<h3>Mental model</h3><p>A service may start a graphical greeter; authentication opens a user session; a session starts a desktop. A text getty can offer a separate login. None of these observations alone proves the others succeeded.</p>
+<h3>Worked example</h3><p>Use the tool discovery example above, then inspect <code>systemctl status sddm</code> and <code>loginctl list-sessions</code> where systemd is in use. Both are read-only; their results depend on the host and permissions.</p>
+<h3>Completion task</h3><p>Find whether SDDM is active and list sessions. Which observation describes the login service, and which lists sessions?</p><details class="solution"><p>The service status concerns SDDM; the session list describes registered sessions, including possible text sessions.</p></details>
+<h3>Independent task</h3><p>Identify the login route for the machine in front of you and record the evidence, without restarting any service.</p>
+<h3>Choosing</h3><p>Use service status to inspect a graphical greeter; use <code>loginctl</code> for registered sessions; use the recovery guide when the display is unusable.</p>
+<h3>Troubleshooting</h3><p>Missing service can mean text login or a different display manager. An empty session list can also reflect access or registration issues. Check the actual message and configuration before changing anything.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> The 0.4.8 release uses the native SDDM login arrangement. The 0.5 text-startup work replaces it with text login and an explicit desktop launch; availability depends on the selected installation. Do not assume a particular VT or login route from this guide alone.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>SDDM is absent on a text-startup system. Should you restart it to restore the desktop?</summary><p>No. First identify the installed startup route and its documented desktop launcher. Restarting a display manager can terminate sessions.</p></details><details class="q"><summary>Does a registered session prove its desktop is responsive?</summary><p>No. Registration and a working compositor are different observations.</p></details></section>
+<h3>Further reading</h3><p>Read the installed <code>systemctl(1)</code> and <code>loginctl(1)</code> manuals for status and session fields; see <a href="maintain/recovery.html">recovery</a> for fault boundaries.</p>
 </section>
-
 <section data-level="expert">
-<h2>Greeter design, PAM authentication, and recovery procedures</h2>
-
-<p><strong>Summary:</strong> Explore display manager architectures, PAM session
-integration, and emergency recovery runbooks.</p>
-
-<p><strong>Prerequisites:</strong> Intermediate depth, understanding of PAM, seat
-management, and Linux virtual consoles.</p>
-
-<h3>Display manager architectures and characteristics</h3>
-
-<p>Display managers differ in their display protocols, greeter toolkits, and
-desktop integration:</p>
-
-<table>
-<tr><th>Display Manager</th><th>Architecture and Greeter Toolkit</th><th>Session Support</th><th>Characteristics</th></tr>
-<tr>
-<td><strong>SDDM</strong></td>
-<td>Qt 6 / QML declarative greeter</td>
-<td>Wayland and X11</td>
-<td>Integrates cleanly with Qt Quick desktop components and QML styling; supports drop-in configuration and themes.</td>
-</tr>
-<tr>
-<td><strong>GDM</strong></td>
-<td>GNOME Shell greeter</td>
-<td>Wayland (optional X11)</td>
-<td>Tightly coupled to the GNOME desktop environment and GNOME runtime libraries.</td>
-</tr>
-<tr>
-<td><strong>LightDM</strong></td>
-<td>Daemon with separate greeter processes (GTK, Qt)</td>
-<td>Historically X11-first</td>
-<td>Lightweight C daemon; Wayland support depends on the chosen greeter and session wrappers.</td>
-</tr>
-<tr>
-<td><strong>greetd</strong></td>
-<td>Minimal daemon launching independent greeters</td>
-<td>Agnostic</td>
-<td>Runs any greeter command (e.g. tuigreet, wlgreet, gtkgreet); delegates session launch to the greeter.</td>
-</tr>
-<tr>
-<td><strong>ly</strong></td>
-<td>Text-mode console greeter</td>
-<td>Wayland and X11</td>
-<td>Text-mode console interface with minimal resource usage; suited for text-only or minimal terminal environments.</td>
-</tr>
-</table>
-
-<h3>Authentication, PAM, and session registration</h3>
-
-<p>SDDM integrates with Linux Pluggable Authentication Modules (PAM) via
-<code>/etc/pam.d/sddm</code> (and <code>/etc/pam.d/sddm-autologin</code> for
-automatic login). The authentication and session registration sequence:</p>
-
-<ol>
-<li>The greeter captures credentials and communicates with the SDDM daemon over
-a local Unix domain socket.</li>
-<li>The daemon invokes PAM to authenticate the user, verify account status, and
-open the PAM session.</li>
-<li>PAM session modules register the session with <code>systemd-logind</code>,
-which establishes user cgroups, session scopes, and device seat permissions.</li>
-<li>SDDM sets up standard session environment variables
-(<code>XDG_SESSION_TYPE=wayland</code>, <code>XDG_CURRENT_DESKTOP</code>,
-<code>XDG_SEAT</code>) and executes the configured Wayland session command
-under the user's UID and GID.</li>
-</ol>
-
-<h3>Emergency recovery via virtual consoles</h3>
-
-<p>If an SDDM configuration error, broken theme, or compositor crash leaves the
-graphical display unresponsive, Linux provides independent text virtual
-consoles (see <a href="ecosystem/ttys-and-virtual-consoles.html">TTYs, Virtual Consoles, and Terminal Architecture</a>):</p>
-
-<ol>
-<li><strong>Switch to a TTY:</strong> Press <code>Ctrl + Alt + F2</code>
-(or <code>F3</code> through <code>F6</code>) to switch away from the graphical
-session on TTY1/TTY2 to a text virtual console.</li>
-<li><strong>Log in:</strong> Enter your username and password at the text
-prompt.</li>
-<li><strong>Inspect logs:</strong> Check recent SDDM errors:
-<pre>
-journalctl -u sddm -n 50 --no-pager
-</pre>
-</li>
-<li><strong>Disable problematic overrides:</strong> If a drop-in in
-<code>/etc/sddm.conf.d/</code> is faulty, move it out of the configuration
-directory (e.g. rename to <code>.disabled</code> outside
-<code>/etc/sddm.conf.d/</code>, since SDDM parses all files in that directory).</li>
-<li><strong>Restart or test:</strong> Restart the display manager service:
-<pre data-risk="system">
-sudo systemctl restart sddm
-</pre>
-(Note: Restarting SDDM terminates any active graphical sessions.)</li>
-</ol>
-
-<p>For more emergency recovery techniques, see
-<a href="maintain/recovery.html">Emergency disaster recovery</a>.</p>
+<h2>Configuration and failure boundaries</h2>
+<p>Where SDDM is installed, it reads vendor drop-ins in <code>/usr/lib/sddm/sddm.conf.d/</code>, administrator drop-ins in <code>/etc/sddm.conf.d/</code>, then <code>/etc/sddm.conf</code>; later settings override earlier ones. Consult the installed <code>sddm.conf(5)</code> and inspect the selected session entry instead of assuming a fixed session command. The native greeter has username, session and password controls; packaged defaults do not choose a local account or enable automatic login. Authentication uses PAM and session registration may use logind. A greeter, authentication, session launch and compositor are separate failure points.</p>
+<p>Do not restart SDDM as an exploratory check: a restart can end graphical sessions. Capture the relevant status and journal first, keep an independent recovery route, and follow a reviewed procedure for any login change.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>A greeter accepts credentials but the desktop does not appear. What evidence separates authentication from session launch?</summary><p>Compare authentication and session journal messages, the registered session, and the selected session entry. An accepted password alone does not establish a successful desktop launch.</p></details></section>
 </section>
-
 <h2>Where to next</h2>
 
 <ul>

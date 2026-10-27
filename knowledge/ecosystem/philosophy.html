@@ -8,6 +8,7 @@
 <meta name="level" content="beginner">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
+<meta name="kind" content="explanation">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -15,6 +16,8 @@
 </nav>
 
 <h1>Free Software, Open Standards, and Efficiency</h1>
+<section data-level="beginner"><h2>Understand the principles</h2><p><strong>Goal:</strong> recognize the project&#x27;s free-software and resource-efficiency goals.</p><p><strong>Why it matters:</strong> The goals help explain choices, but a goal is not a measurement of a particular machine.</p><p><strong>Before you start:</strong> Read the principles below; this exercise makes no configuration changes.</p><aside class="first-time"><p><strong>New to this?</strong> Read the explanation below, then try the question. Follow links in the Guide and use Left Arrow to return through history.</p></aside><h3>Worked example</h3><p>The four freedoms include the freedom to study and change a program. Compare that with the discussion of its license below.</p>
+
 
 <p>Tamlinux builds on the free software tradition and on shared desktop
 standards, and treats resource efficiency as a design brief rather than an
@@ -41,7 +44,7 @@ version.</p>
 <p>Fred Horch, the Tamlinux developer (<a href="about.html">About Tamlinux</a>), establishes six core engineering and design principles that guide the creation of Tamlinux:</p>
 
 <ol>
-<li><strong>One place to look:</strong> Put configuration and information where users naturally expect to find it. Rather than scattering shell aliases across multiple profile scripts, put them all in <code>~/.bashrc</code>; provide <code>tam</code> as the single entry point for system documentation and checks.</li>
+<li><strong>One place to look:</strong> Put configuration and information where users naturally expect to find it. Make ownership of configuration discoverable; provide <code>tam</code> as an entry point for documentation and checks. Shell defaults and personal overrides can live in different files.</li>
 <li><strong>1 way to do 15 things, not 15 ways to do 1 thing:</strong> Curate packages decisively so users escape the "fiddling trap". Provide one excellent terminal (<code>foot</code>) and one standard shell (<code>bash</code>), eliminating paralyzing choice while providing a broad suite of software for diverse tasks.</li>
 <li><strong>Ergonomics matter:</strong> Optimize keyboard workflows and minimize keystrokes for common tasks. Design intuitive pager keys, concise CLI syntax, and quick orientation shortcuts.</li>
 <li><strong>Consistency counts:</strong> Standardize essential keybindings and behavioral contracts so muscle memory transfers reliably across terminal, desktop, and editor.</li>
@@ -62,8 +65,7 @@ its parts work with the rest of the free desktop:</p>
 
 <h2>Resource efficiency</h2>
 
-<p>Removing bloat, resident daemons, and polling loops lets Linux run faster and
-use less power on modern hardware, and keeps older machines in service:</p>
+<p>Reducing unnecessary work can improve responsiveness or energy use. Verify the effect on the actual workload and hardware:</p>
 
 <ul>
 <li><strong>No polling loops:</strong> work is event-driven and bounded; software sleeps until something happens.</li>
@@ -77,5 +79,6 @@ use less power on modern hardware, and keeps older machines in service:</p>
 develop Tamlinux under human direction, and every public repository records how
 in its <code>AI_PROVENANCE.md</code>; see
 <a href="ecosystem/ai.html">AI tooling and human agency</a>.</p>
+<h3>Try it</h3><p>Choose one principle and explain what evidence would show whether a change supports it.</p><h3>If it goes wrong</h3><p>If a performance claim lacks a measurement, keep it as a hypothesis and compare the actual workload.</p><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a goal of using fewer resources prove a workload uses less energy?</summary><p>No. Measure the workload and conditions before drawing that conclusion.</p></details><details class="q"><summary>Where can you check a current capability before relying on it?</summary><p>Use its current product documentation and the evidence for the installation you are using.</p></details></section><h3>New words</h3><p>See <a href="learn/glossary/operating-system.html">operating system</a> and <a href="learn/glossary/program.html">program</a>.</p><h3>Next step</h3><p>Return to <a href="learn/index.html">Learning Tamlinux</a> to choose a related topic.</p></section>
 </body>
 </html>

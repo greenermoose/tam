@@ -8,6 +8,7 @@
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
+<meta name="kind" content="explanation">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -15,6 +16,8 @@
 </nav>
 
 <h1>Windowing and Compositors: Why Sway</h1>
+<section data-level="intermediate"><h2>Compare compositor roles</h2><p><strong>Goal:</strong> distinguish the current compositor from planned alternatives.</p><h3>Mental model</h3><p>A compositor presents application surfaces and manages their placement; a desktop shell supplies surrounding controls.</p><h3>Worked example</h3><p>The section below identifies Hyprland as current and Sway as a planned transition.</p>
+
 
 <p>On Wayland, the compositor is the display server and the window manager in
 one program. Tamlinux runs on Hyprland today and has selected
@@ -63,5 +66,6 @@ but none of these steps is delivered.</p>
 <li><strong>labwc:</strong> a stacking compositor on wlroots with Openbox-style configuration.</li>
 <li><strong>Wayfire:</strong> a wlroots compositor known for desktop effects.</li>
 </ul>
+<h3>Completion task</h3><p>Identify which name is current and which is a target in that description.</p><details class="solution"><p>The current component is Hyprland; Sway is a planned transition. An adapter in source is not proof that the planned session is accepted.</p></details><h3>Independent task</h3><p>Find the linked plan and identify what evidence a future transition needs.</p><h3>Choosing</h3><p>Use the current compositor for actual behavior; treat future adapters and releases as planned.</p><h3>Troubleshooting</h3><p>A blank display can have several causes; the compositor name alone does not diagnose it.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> Tamlinux&#x27;s Sway integration remains planned, not an accepted session.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a prepared adapter prove the Sway desktop is delivered?</summary><p>No. Prepared code and an accepted integrated session are distinct.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
 </body>
 </html>

@@ -8,6 +8,7 @@
 <meta name="level" content="expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
+<meta name="kind" content="explanation">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -15,6 +16,8 @@
 </nav>
 
 <h1>C Standard Libraries: glibc and musl</h1>
+<section data-level="expert"><h2>Compare C libraries</h2>
+
 
 <p>The C standard library (<code>libc</code>) sits between almost every program
 and the Linux kernel. Tamlinux runs on <strong>glibc</strong> today and plans to
@@ -44,5 +47,6 @@ using matched application versions. A problem that appears only on musl is first
 checked on Void's glibc build, so that the C library is not blamed for a Void
 issue. The plan is published in the <code>tamlinux</code> repository as
 <a href="https://github.com/greenermoose/tamlinux/blob/main/docs/plans/base-operating-system.md">base-operating-system.md</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>What evidence would support choosing one libc for a workstation?</summary><p>Compare compatibility, complete workload measurements, security maintenance and recovery on representative hardware. A smaller library alone does not establish a better system.</p></details></section></section>
 </body>
 </html>

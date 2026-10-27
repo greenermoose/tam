@@ -56,7 +56,7 @@ hello from Lua 5.5
 
 <h3>Try it</h3>
 
-<p>Evaluate a calculation and format text using a temporary scratch script:</p>
+<p>Evaluate a calculation and format text using a temporary scratch script. Run each line separately; if <code>mktemp</code> fails, stop before creating or removing anything.</p>
 
 <pre class="session" data-risk="scratch">
 $ scratch=$(mktemp -d)
@@ -67,10 +67,11 @@ print(msg .. " across " .. cores .. " cores")
 EOF
 $ lua "$scratch/hello.lua"
 Workstation ready across 16 cores
-$ rm -rf "$scratch"
+$ rm -- "$scratch/hello.lua"
+$ rmdir -- "$scratch"
 </pre>
 
-<p>The script prints the formatted string and exits immediately. Cleaning up the scratch directory leaves no temporary files on disk.</p>
+<p>The script prints the formatted string and exits immediately. Cleanup removes the known file and the directory only if it is empty; inspect any cleanup error before continuing.</p>
 
 <h3>If it goes wrong</h3>
 

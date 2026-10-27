@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head>
+<title>Understand the design</title>
+<meta name="topic" content="understand-design-path">
+<meta name="summary" content="Explain the boundaries between the base system, Tamlinux packages and a user session.">
+<meta name="keywords" content="path, understand-design, learning">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="software.intermediate, software.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Paths by Goal</a> / Understand the design</p></nav>
+<h1>Understand the design</h1>
+<p><strong>Gain:</strong> Explain the boundaries between the base system, Tamlinux packages and a user session.</p>
+<p><strong>For you if:</strong> You can navigate the Guide and want to understand where a change belongs.</p>
+<p><strong>Levels:</strong> Intermediate (2) to Expert (3); allow three reading sessions.</p>
+<h2>Stage 1: Find the layers</h2>
+<p><a href="ecosystem/packaging.html?level=2">Find the layers</a>: Read the package ownership lesson and distinguish native packages, the user assembly and mutable settings.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a user-generation rollback necessarily restore personal files?</summary><p>No. Mutable files need their own recovery method.</p></details></section>
+<h2>Stage 2: Trace a version</h2>
+<p><a href="ecosystem/package-versions.html?level=2">Trace a version</a>: Follow the lesson to distinguish a source revision from a selected package output.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a source commit alone prove what is running?</summary><p>No. Establish the selected package and runtime as separate evidence.</p></details></section>
+<h2>Stage 3: Trace login and session</h2>
+<p><a href="ecosystem/sddm.html?level=3">Trace login and session</a>: Compare authentication, session launch and desktop startup, including the text-login route.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does successful authentication prove the desktop is working?</summary><p>No. Authentication, session launch and rendering have separate failure boundaries.</p></details></section>
+<h2>Capstone</h2><p>Explain where you would investigate a changed application setting, a missing native service and an unexpected command version. Name the evidence you would seek without changing the system.</p>
+<details class="solution"><p>For a changed theme, first identify the active user configuration and its previous value. For a missing system service, inspect its unit and system journal. For a command version, resolve the executable path and identify its package; inspect a running process separately. A user-generation rollback need not restore mutable files.</p></details>
+<h2>Next paths</h2><p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>
+</body></html>

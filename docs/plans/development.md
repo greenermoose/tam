@@ -8,7 +8,7 @@
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md) and [external-links plan](external-links.md).
-**Next action:** Corpus 0.44.1 corrects practice cleanup. Continue concept-first explanations and glossary expansion; plan the remaining Learning and Installing TCK25 migration. Review the preserved external-links branch for integration. Pilot and learner review remain unverified.
+**Next action:** Corpus 0.45.0 revises the tagged Learning lessons and adds the remaining goal paths. Continue concept-first explanations and glossary expansion. Review the preserved external-links branch for integration. Pilot and learner review remain unverified.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -114,11 +114,14 @@ installation inspection never write welcome state. Successful explicit
 `tam` is offline by default: it parses and displays its bundled corpus with no
 network access, no daemon and no mandatory external dependency, and it emits no
 terminal controls when piped. Milestone 9 adds one deliberate, opt-in exception.
-`tam ask` is grounded in the corpus and cited, talks only to an
-already-running local inference server, and never starts, bundles or embeds a
-daemon or model. It reaches the network only after interactive consent that
-discloses the URL, size and expected hash (verified on download). Under `--pipe`
-or any non-interactive invocation it errors instead of fetching. The core binary
+`tam ask` retrieves corpus context and cites it, and never starts, bundles or embeds a
+daemon or model. The intended server is local, but the current client accepts
+non-loopback `--server`/`TAM_ASK_SERVER` hosts and uses plain HTTP even for an
+`https://` URL. Its help says local-only, so this is an unresolved implementation
+and documentation discrepancy; do not send sensitive prompts to a remote
+endpoint. Interactive model fetching asks for consent and shows a URL and
+estimated size; the client does not display or verify an expected hash. Under
+`--pipe` or any non-interactive invocation it errors instead of fetching. The core binary
 stays offline and dependency-free; the optional model runtime remains external
 and user-controlled. This boundary is recorded here deliberately, as the one
 place where the implemented offline default is amended. Explicit upgrade
@@ -387,8 +390,9 @@ See the [verification record](../ai/2026-10-22-tam-logs-power-learning.md).
 Corpus 0.43.2 completed Maintaining and 0.43.8 completed Improving, with
 track enforcement. Corpus 0.44.0 adds twelve foundational glossary entries,
 a Guide index link and first-use explanations ([record](../ai/2026-10-27-tam-foundation-glossary.md)).
-Learning and Installing migration, wider concept explanations and glossary
-coverage remain. The [external-links plan](external-links.md) tracks the
+Corpus 0.45.0 revises Learning and Installing lessons, enables tagged-section
+enforcement in every part and adds six goal paths. TCK25 source implementation is complete; wider concept explanations and
+glossary coverage remain. Pilot, learner and packaged acceptance are pending. The [external-links plan](external-links.md) tracks the
 approved branch implementation; it is not yet in `develop`.
 
 Deferred work has no reserved command version: installer plan/apply/verify,

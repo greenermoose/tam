@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-27. **Owner:** Fred (developer).
-**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.44.1`.
+**Current Command Version:** `0.43.2`. **Current Corpus Version:** `0.45.0`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -132,12 +132,13 @@ in that candidate, not here.
 | **0.43.8 corpus** | TCK25 Improving track completion and enforcement | Done (2026-10-25) | Migrated final Improving lesson (tam.html) to full teaching anatomy with captured read-only examples, quizzes, and contributing skills; enabled track-wide build enforcement for Improving in skills registry. |
 | **0.44.0 corpus** | Foundational glossary | Done (2026-10-27) | Adds twelve foundational terms, explains and links first-use vocabulary, and links the glossary from the Guide index. |
 | **0.44.1 corpus** | TCK25 practice cleanup | Done (2026-10-27) | Removes the known exercise file and empty temporary directory without recursive deletion. |
+| **0.45.0 corpus** | TCK25 Learning and Installing | Done (2026-10-27) | Revises login and console lessons, classifies remaining pages, enforces tagged lesson anatomy in all parts, and adds six goal paths. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.43.2 / 0.44.1 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
+| `develop` | 0.43.2 / 0.45.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -175,9 +176,7 @@ three glossary terms. Corpus 0.42.0 migrates boot, boot-fallback and Snapper
 and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power.
 Corpus 0.43.2 completes Maintaining and enables track-wide enforcement;
 corpus 0.43.8 completes Improving and its enforcement. Corpus 0.44.0 adds
-twelve introductory glossary entries and a Guide index link. Corpus 0.44.1 makes practice cleanup limited to the known file and empty directory. Next: continue
-defining unfamiliar concepts in context and expand the glossary, alongside the
-remaining Learning and Installing work under TCK25. Allocate versions when
+twelve introductory glossary entries and a Guide index link. Corpus 0.44.1 makes practice cleanup limited to the known file and empty directory. Corpus 0.45.0 revises the tagged Learning lessons, classifies Learning and Installing pages, adds the remaining goal paths and enables tagged-section enforcement in all parts. TCK25 source implementation is complete. Continue defining unfamiliar concepts and expanding the glossary; pilot and learner review remain pending. Allocate versions when
 each slice starts. The deferred items in section 4 are candidates, not assignments.
 
 The approved [external-links work](docs/plans/external-links.md) is implemented on a preserved feature branch but is not integrated into `develop`. Review its current handoff, complete documentation and verification, then integrate under the shared-checkout rules.

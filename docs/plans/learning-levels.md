@@ -13,7 +13,7 @@ recorded as Tamlinux decisions D184 (amends D174) and D185 (state
 directory), and in the
 [planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
 [plan maintenance procedure](../plan-maintenance.md).
-**Next action:** Continue concept-first explanations and expand the glossary; plan and migrate the remaining Learning and Installing work under TCK25. Pilot and learner review remain unverified.
+**Next action:** Continue concept-first explanations and glossary expansion. Developer pilot review, learner review and packaged acceptance remain unverified.
 
 ## Current concept work (2026-10-27)
 
@@ -31,8 +31,27 @@ console descriptions against the applicable released and Test configurations;
 clarify the current limits of installation. Candidate new introductions
 cover startup and login, terminal and commands, files and paths, processes and
 services, and the desktop. Choose scope and sources for each slice; do not imply
-an installer exists. Learning and Installing migration and enforcement remain
-open. Pilot, learner and packaged acceptance are not established by these edits.
+an installer exists. All parts now enforce tagged-section anatomy; the introductory and ecosystem instructional sections are tagged. The placement assessment is intentionally untagged, so enforcement does not assess it. Pilot, learner and packaged acceptance are not established by these edits.
+
+## Learning and Installing completion slice (2026-10-27)
+
+Complete the remaining tagged Learning lessons, checking login and console
+claims against the released native-login and text-startup sources. Replace
+fixed console assumptions with evidence and failure boundaries. Classify the
+Installing hub and clarify that inspection is not installation. Enable anatomy
+and quiz enforcement for both parts after the tagged lessons pass. Review the
+remaining goal-path catalog against available lessons; a path needs an actual
+whole task and supported stages, not just links. Record source completion and
+any remaining path or learner-acceptance limits without claiming packaged use.
+
+TCK25 source implementation is complete in corpus 0.45.0: the six new paths
+have stages, checkpoints and bounded capstones; the AI path includes a local
+inference example and the contribution path builds and changes a scratch
+program. All five parts enforce anatomy for tagged instructional sections.
+The builder does not assess the untagged placement assessment or other
+noninstructional pages, and zero warnings is not learner acceptance. The
+new paths guide measurement, practice and preparation; they do not claim a
+particular power saving or an upstream contribution has been achieved.
 
 ## Problem and agreed outcome
 
@@ -821,4 +840,4 @@ corpus 0.38.0, with developer review pending. TCK24 source is implemented as
 corpus 0.39.0 on the developer's "Continue". TCK25 Using migration and level
 paths are implemented as corpus 0.40.0. Corpus 0.41.0 implements the first
 two Maintaining recovery ladders. Corpus 0.42.0 adds the boot, boot-fallback
-and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining with resources, packaging, and the Maintaining hub, and enables track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with the hub, scripting, and lua lessons. Corpus 0.43.4 continues Improving track migration with terminal and efficiency lessons, resolving the desktop.expert page gap. Corpus 0.43.5 migrates zram and toolchains lessons, resolving all contributing page gaps. Corpus 0.43.6 migrates ai-performance and patches lessons and alphabetizes the Glossary. Corpus 0.43.7 migrates package-versions and virtualization lessons. Corpus 0.43.8 migrates tam.html and enables track-wide build enforcement for Improving. Learning and Installing migration remain open.
+and Snapper migrations and Rescue path. Corpus 0.42.3 migrates logs and power. Corpus 0.43.2 completes Maintaining with resources, packaging, and the Maintaining hub, and enables track-wide build enforcement for Maintaining. Corpus 0.43.3 begins Improving track migration with the hub, scripting, and lua lessons. Corpus 0.43.4 continues Improving track migration with terminal and efficiency lessons, resolving the desktop.expert page gap. Corpus 0.43.5 migrates zram and toolchains lessons, resolving all contributing page gaps. Corpus 0.43.6 migrates ai-performance and patches lessons and alphabetizes the Glossary. Corpus 0.43.7 migrates package-versions and virtualization lessons. Corpus 0.43.8 migrates tam.html and enables track-wide build enforcement for Improving. Corpus 0.45.0 revises the tagged Learning lessons, classifies Learning and Installing pages, enables tagged-section enforcement for all parts and adds the six remaining goal paths. TCK25 source implementation is complete; pilot, learner and packaged acceptance remain pending.

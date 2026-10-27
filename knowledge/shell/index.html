@@ -8,6 +8,7 @@
 <meta name="level" content="beginner">
 <meta name="track" content="learn">
 <meta name="parent" content="learn/index.html">
+<meta name="kind" content="explanation">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -20,7 +21,14 @@
 the Unix philosophy: build small programs that do one job well, and connect
 them with universal text streams.</p>
 
-<h2>The standard streams</h2>
+<section data-level="beginner"><h2>Commands and streams</h2>
+<p><strong>Goal:</strong> recognize a command, its output and the streams a shell connects.</p>
+<p><strong>Why it matters:</strong> recognizing output helps you avoid typing it as a command or mistaking an error for data.</p>
+<p><strong>Before you start:</strong> use a terminal and read <a href="learn/paths/first-steps.html">First steps</a>. This example changes no files.</p>
+<aside class="first-time"><p><strong>New to this?</strong> Type the text after the dollar sign at your prompt and press Enter. The next line is output.</p></aside>
+<h3>Worked example</h3><pre class="session" data-risk="read-only">$ printf '%s\n' hello
+hello</pre><p>Captured on Arch Linux, 2026-10-27. The shell starts <code>printf</code>; the word on the second line is its output.</p>
+<h3>The standard streams</h3>
 
 <p>A program started by the shell usually inherits three standard communication
 channels, known by their file descriptor numbers:</p>
@@ -58,18 +66,16 @@ another tool, error messages are not silently swallowed or parsed as data.</p>
 <p>Command substitution runs a command inside a subshell and places its output
 directly onto your command line using <code>$(command)</code>:</p>
 
-<pre>
-mkdir -p backup-$(date +%Y%m%d)
-</pre>
+<p>For example, <code>printf '%s\n' "$(printf '%s' hello)"</code> prints <code>hello</code>. The inner command's output becomes an argument of the outer command.</p>
 
 <h2>User aliases and the one-place-to-look principle</h2>
 
-<p>The shell lets you define shorthand aliases for frequently used commands.
-In Tamlinux, all user aliases are consolidated in a single location: <code>~/.bashrc</code>.
-Rather than scattering alias configurations across system profiles and hidden drop-in
-directories, standard aliases (such as <code>hello</code> and <code>hi</code> mapped to
-<code>tam welcome</code>) live in your personal <code>~/.bashrc</code>.</p>
+<p>The shell can define shorthand aliases. Their location and contents depend on the shell and its configuration. Inspect your own configuration before changing one. The <code>tam hello</code> and <code>tam hi</code> subcommands both open Welcome; they do not require a shell alias.</p>
 
+<h3>Try it</h3><p>Change <code>hello</code> to <code>pear</code> in the example and predict the output before running it.</p>
+<h3>If it goes wrong</h3><p>Check quotes and spacing if the shell asks for more input. Ctrl+C cancels unfinished input; it does not undo commands that already ran. Redirection with <code>&gt;</code> can overwrite a file, so practice only in a fresh temporary directory.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which stream ordinarily carries diagnostics?</summary><p>Standard error, stream 2, is separate from normal standard output.</p></details><details class="q"><summary>Does the dollar sign in a sample need to be typed?</summary><p>No. It represents a prompt; type the command after it.</p></details></section>
+<h3>New words</h3><p>See <a href="learn/glossary/stream.html">stream</a> and <a href="learn/glossary/argument.html">argument</a>.</p><h3>Next step</h3><p>Follow the pipelines lesson below.</p></section>
 <h2>Where to next</h2>
 
 <ul>

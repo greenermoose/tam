@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head>
+<title>Run lean</title>
+<meta name="topic" content="run-lean-path">
+<meta name="summary" content="Compare resource evidence and prepare a small, reversible efficiency investigation.">
+<meta name="keywords" content="path, run-lean, learning">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="hardware.intermediate, hardware.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Paths by Goal</a> / Run lean</p></nav>
+<h1>Run lean</h1>
+<p><strong>Gain:</strong> Compare resource evidence and prepare a small, reversible efficiency investigation.</p>
+<p><strong>For you if:</strong> You can read system metrics and want to understand a slow or power-hungry workload.</p>
+<p><strong>Levels:</strong> Intermediate (2) to Expert (3); allow three reading sessions.</p>
+<h2>Stage 1: Establish headroom</h2>
+<p><a href="hardware/resources.html?level=2">Establish headroom</a>: Read the resource lesson and record available memory and current workload before interpreting a symptom.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does low free memory alone establish memory pressure?</summary><p>No. Compare available memory and workload behavior; cached memory can be reclaimed.</p></details></section>
+<h2>Stage 2: Separate causes</h2>
+<p><a href="improve/efficiency.html?level=2">Separate causes</a>: Read the event-driven example and compare periodic work with work triggered by an event.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does reducing a timer guarantee a useful reduction in energy?</summary><p>No. Measure the workload and wakeups; a shorter interval can increase work and a longer one may affect responsiveness.</p></details></section>
+<h2>Stage 3: Inspect the trade-off</h2>
+<p><a href="improve/zram.html?level=3">Inspect the trade-off</a>: Read the expert section and identify what compressed swap changes and what it cannot establish.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does compressed swap replace a backup?</summary><p>No. Swap is working memory management; a backup protects data through a separate recovery route.</p></details></section>
+<h2>Capstone</h2><p>In the efficiency lesson, replace a repeated check with an event watcher in a fresh scratch directory. Record a baseline, the change, the observed event and how you would compare resource use under the same workload. Name what remains unmeasured. Do not change kernel or swap settings.</p>
+<details class="solution"><p>Use the two-terminal watcher example, wait for the watch to be established, then change its known scratch file. Record the reported event and compare the repeated-check and event-driven designs. Measure resource use over comparable intervals before claiming a reduction; event delivery alone does not prove lower energy use.</p></details>
+<h2>Next paths</h2><p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>
+</body></html>

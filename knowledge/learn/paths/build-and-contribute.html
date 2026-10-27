@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head>
+<title>Build and contribute</title>
+<meta name="topic" content="build-and-contribute-path">
+<meta name="summary" content="Build and test a small scratch program and prepare a focused source contribution.">
+<meta name="keywords" content="path, build-and-contribute, learning">
+<meta name="level" content="expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="contributing.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Paths by Goal</a> / Build and contribute</p></nav>
+<h1>Build and contribute</h1>
+<p><strong>Gain:</strong> Build and test a small scratch program and prepare a focused source contribution.</p>
+<p><strong>For you if:</strong> You can read command output and want to contribute to a native tool.</p>
+<p><strong>Levels:</strong> Expert (3); allow three reading sessions.</p>
+<h2>Stage 1: Understand ownership</h2>
+<p><a href="tam.html?level=3">Understand ownership</a>: Read the command architecture and source-stage boundaries.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a successful local build install or release it?</summary><p>No. Build, installation and release are separate actions.</p></details></section>
+<h2>Stage 2: Prepare a change</h2>
+<p><a href="improve/toolchains.html?level=3">Prepare a change</a>: Read the build and coordination contract; identify the relevant project instructions before editing.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Why limit a claim and commit to the paths you change?</summary><p>Other work can share the checkout; narrow claims and commits preserve its boundaries.</p></details></section>
+<h2>Stage 3: Share responsibly</h2>
+<p><a href="ecosystem/patches.html?level=3">Share responsibly</a>: Read the patch and upstream-policy discussion before proposing an upstream change.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a carried patch mean every upstream will accept an AI-assisted submission?</summary><p>No. Check each project policy and the authorized route before posting.</p></details></section>
+<h2>Capstone</h2><p>Build and run a small program in a fresh temporary directory, make a small change to its source, and build and run it again. Then propose a source correction: name the repository and files, a test that detects the problem, and a verification and handoff. Do not modify the live system.</p>
+<details class="solution"><p>This example requires an installed C compiler. Paste the whole block in a shell; it removes only the two files it creates and then the empty directory.</p><pre data-risk="scratch">if task_dir=$(mktemp -d); then
+    printf '%s\n' '#include &lt;stdio.h&gt;' 'int main(void) { return puts("hello") &lt; 0; }' &gt; "$task_dir/hello.c"
+    if cc "$task_dir/hello.c" -o "$task_dir/hello"; then
+        "$task_dir/hello"
+        printf '%s\n' '#include &lt;stdio.h&gt;' 'int main(void) { return puts("hello tam") &lt; 0; }' &gt; "$task_dir/hello.c"
+        if cc "$task_dir/hello.c" -o "$task_dir/hello"; then
+            "$task_dir/hello"
+        else
+            printf '%s\n' 'Second compilation failed.'
+        fi
+    else
+        printf '%s\n' 'Compilation failed.'
+    fi
+    rm -- "$task_dir/hello.c"
+    if [ -f "$task_dir/hello" ]; then rm -- "$task_dir/hello"; fi
+    rmdir -- "$task_dir"
+else
+    printf '%s\n' 'Could not create a temporary directory.'
+fi</pre><p>On success the first build prints <code>hello</code>; after the source change, the second prints <code>hello tam</code>.</p><p>Captured on Arch Linux, 2026-10-27. If compilation fails, read its error. If cleanup fails, inspect the retained directory; do not recursively delete unexpected files. For an illustrative documentation correction, identify the owning source file, claim the required paths, and use a rendering or link check as verification. Follow the repository's instructions before committing or submitting anything.</p></details>
+<h2>Next paths</h2><p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>
+</body></html>

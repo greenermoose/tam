@@ -1,321 +1,47 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <title>Physics of Local AI Generation</title>
 <meta name="topic" content="ai-performance">
-<meta name="summary" content="Memory bandwidth bounds on autoregressive token generation, model quantization tradeoffs, and local inference">
-<meta name="keywords" content="ai-performance, ai, inference, bandwidth, tokens, ollama, llama.cpp, quantization, q4_k_m, fp16, local">
+<meta name="summary" content="Inspect memory, compare local inference workloads, and verify answers">
+<meta name="keywords" content="ai-performance, ai, inference, bandwidth, tokens, ollama, quantization, local">
 <meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="improve, resources">
 <meta name="kind" content="how-to">
 <meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Physics of Local AI Generation</p>
-</nav>
-
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Physics of Local AI Generation</p></nav>
 <h1>Physics of Local AI Generation</h1>
-
-<p>Running large language models locally provides complete privacy, zero telemetry,
-and offline availability. However, unlike graphics rendering or video encoding,
-local autoregressive text generation is fundamentally governed by the physical
-<strong>memory bandwidth</strong> of your workstation's RAM subsystem, rather than
-raw compute TFLOPS.</p>
-
-<section data-level="beginner">
-<h2>Run local inference and monitor memory headroom</h2>
-
-<p><strong>Goal:</strong> you will be able to query local inference status, understand RAM requirements for model weights, and avoid memory exhaustion thrashing.</p>
-
-<p><strong>Why it matters:</strong> running models locally guarantees data privacy and offline access without API subscription fees. However, loading a model that exceeds available physical RAM forces the Linux kernel to swap memory pages to disk, causing catastrophic system thrashing where generation speed collapses from 20 tokens/sec to less than 0.2 tokens/sec.</p>
-
-<p><strong>Before you start:</strong> open a terminal. Check your available memory using <code>free -h</code>. The <code>tam ask</code> command queries a local inference server without touching any cloud services. See <a href="hardware/resources.html">Resources and Performance</a> for memory inspection basics.</p>
-
-<aside class="first-time">
-<p>Local AI models run entirely on your own processor and memory. The command <code>tam ask</code> requires an active local inference server (such as Ollama). If Ollama is not running, <code>tam ask</code> exits cleanly and suggests using <code>tam search</code> instead. You do not need root privileges to inspect system memory or query documentation.</p>
-</aside>
-
-<h3>Worked example: Check available memory before querying local AI</h3>
-
-<pre class="session" data-risk="read-only">
-$ free -h
+<p>A model needs memory and computation to answer a question. A locally running server can avoid sending a query to a remote server, but privacy depends on the selected endpoint, server and model. Check the actual configuration.</p>
+<section data-level="beginner"><h2>Check memory before inference</h2>
+<p><strong>Goal:</strong> inspect memory headroom and identify where a query is sent before asking a local model.</p>
+<p><strong>Why it matters:</strong> an oversized workload can slow the machine, fail to load, or trigger memory pressure. The exact result depends on the runtime, memory and swap configuration.</p>
+<p><strong>Before you start:</strong> open a <a href="learn/glossary/terminal.html">terminal</a> and read <a href="hardware/resources.html">resources</a>. The example only reads memory statistics.</p>
+<aside class="first-time"><p><strong>New to this?</strong> Type the command after the dollar sign and press Enter. Output is a snapshot and changes as programs run.</p></aside>
+<h3>Worked example</h3><pre class="session" data-risk="read-only">$ free -h
                total        used        free      shared  buff/cache   available
-Mem:            28Gi       7.7Gi        10Gi       548Mi        12Gi        20Gi
-Swap:           56Gi       3.6Gi        52Gi
-$ tam ask --help
-tam ask - opt-in grounded question answering over the Tamlinux guide
-
-Usage:
-  tam ask [OPTIONS] &lt;question&gt;
-  tam ask [OPTIONS] -
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25. Your memory figures will differ.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li><code>free -h</code> reported physical memory: 28 GiB total with 20 GiB currently available for allocation.</li>
-<li>Because a typical 7-billion parameter 4-bit model consumes approximately 4.5 GiB of RAM, having 20 GiB available ensures the model fits completely in physical RAM with ample headroom for desktop applications.</li>
-<li><code>tam ask --help</code> displayed the command options, confirming the default local model (<code>qwen2.5-coder:1.5b</code>) and local server URL (<code>http://127.0.0.1:11434</code>).</li>
-</ol>
-
-<h3>Try it</h3>
-
-<p>Run a query through the grounded documentation assistant or test what occurs when the local server is offline:</p>
-
-<pre class="session" data-risk="read-only">
-$ tam ask "How does Linux pipe standard streams?"
-tam: no local model available (Ollama not running). Start Ollama or run 'tam search How does Linux pipe standard streams?' instead.
-</pre>
-
-<p>When Ollama is not running, <code>tam ask</code> falls back cleanly without hanging or attempting network calls.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt>tam: no local model available (Ollama not running)</dt>
-<dd>The local Ollama server process is not active. Start Ollama or use <code>tam search</code> to query offline documentation directly without AI assistance.</dd>
-<dt>System freezes or becomes sluggish after loading a model</dt>
-<dd>The selected model exceeds physical RAM capacity. The Linux kernel is thrashing memory pages to disk swap. Select a smaller quantized model (such as a 1.5B or 3B parameter model).</dd>
-<dt>model not found</dt>
-<dd>The requested model has not been downloaded into Ollama's local storage. Pull the model weights with <code>ollama pull &lt;model&gt;</code> before running inference.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>What happens if you attempt to load a 14-billion parameter model (requiring ~9 GiB RAM) on a workstation with only 4 GiB of available RAM?</summary>
-<p>The operating system runs out of physical memory and begins thrashing pages to swap storage on disk. Token generation collapses from conversational speeds to fractions of a token per second, and the workstation desktop may freeze.</p>
-</details>
-<details class="q">
-<summary>Does running <code>tam ask</code> send your search queries to external third-party cloud servers?</summary>
-<p>No. <code>tam ask</code> communicates exclusively with a local server on <code>127.0.0.1:11434</code> and grounds its answers strictly within the local Tamlinux guide files.</p>
-</details>
-</section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Inference</dt>
-<dd>The process of running inputs through a pre-trained machine learning model to generate predictions or tokens.</dd>
-<dt>Quantization</dt>
-<dd>Compressing model weights from floating-point numbers into low-bit integers (e.g. 4-bit or 8-bit) to reduce RAM usage and bandwidth demands.</dd>
-<dt>Thrashing</dt>
-<dd>A pathological state where the CPU spends almost all its time moving memory pages between physical RAM and disk swap rather than executing code.</dd>
-</dl>
-<p>Every process must respect its system memory boundaries and allocation <dfn><a href="learn/glossary/mode.html">mode</a></dfn>.</p>
-
-<p><strong>Next step:</strong> at Intermediate, learn the mathematical physics connecting memory bandwidth to token generation rates.</p>
-</section>
-
-<section data-level="intermediate">
-<h2>Memory bandwidth and token generation rate</h2>
-
-<p><strong>Goal:</strong> you will be able to calculate the theoretical maximum token generation rate of any model from memory bus bandwidth and evaluate quantization tradeoffs.</p>
-
-<h3>Mental model</h3>
-
-<pre>
-+-------------------------------------------------------------+
-| Processor (CPU / GPU Cores &amp; Vector Registers)              |
-+-------------------------------------------------------------+
-          ^                                       |
-  Reads full model weights            Streams 1 token output
-  (e.g. 4.5 GB) for EVERY token                   v
-          |                                  +--------+
-+-------------------------------------+      | Output |
-| System RAM (e.g. DDR5-5600 Dual Ch) |      | Stream |
-| Bandwidth Cap: ~67 GB/s effective   |      +--------+
-+-------------------------------------+
-</pre>
-
-<p>During autoregressive decoding, generating each individual token requires
-streaming the entire weight tensor of the model through the processor's registers
-exactly once. Therefore, token throughput is mathematically bounded by:</p>
-
-<pre>
-Tokens / second &asymp; Memory Bandwidth (GB/s) / Model Size in RAM (GB) &times; Efficiency
-</pre>
-
-<p>Where real-world memory controller efficiency typically ranges from 70% to 85%.</p>
-
-<h3>Worked example: Calculate theoretical token generation rate</h3>
-
-<p>Consider a 7-billion parameter model quantized to <strong>Q4_K_M</strong>
-(consuming ~4.5 GB in RAM) running on a dual-channel DDR5-5600 workstation:</p>
-
-<ul>
-<li><strong>Theoretical memory bandwidth:</strong> 2 channels &times; 64 bits &times; 5.6 GT/s / 8 = 89.6 GB/s.</li>
-<li><strong>Sustained effective bandwidth (at ~75% efficiency):</strong> 89.6 &times; 0.75 &asymp; 67.2 GB/s.</li>
-<li><strong>Maximum theoretical token rate:</strong> 67.2 GB/s / 4.5 GB &asymp; 14.9 tokens/second.</li>
-</ul>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25. Even if the processor has 32 idle compute cores, generation cannot exceed ~15 tokens/sec because the memory bus cannot feed weights any faster.</p>
-
-<h3>Completion task</h3>
-
-<p>Calculate the maximum token generation speed for an 8-billion parameter model
-quantized to <strong>Q8_0</strong> (consuming 8.5 GB in RAM) on an ultra-wide memory
-workstation with 200 GB/s sustained memory bandwidth. Complete the formula below
-by filling in the missing variable (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-Tokens_per_sec = Sustained_Bandwidth_GBs / ___
-</pre>
-
-<details class="solution">
-<p>Fill in <code>Model_Size_GB</code> (or <code>8.5</code>). Dividing 200 GB/s by 8.5 GB yields approximately 23.5 tokens/second. Autoregressive inference speed scales inversely with model memory footprint.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Evaluate whether a 14-billion parameter model quantized to FP16 (consuming 28 GB) can run interactively at greater than 5 tokens/second on a dual-channel DDR4-3200 system (effective bandwidth ~38.4 GB/s).</p>
-
-<details class="solution">
-<p>Divide effective bandwidth (38.4 GB/s) by model size (28 GB): <code>38.4 / 28 &asymp; 1.37 tokens/second</code>. It cannot achieve 5 tokens/second. To reach interactive speed, the model must be quantized to Q4_K_M (~8.5 GB), which yields <code>38.4 / 8.5 &asymp; 4.5 tokens/second</code>, or run on hardware with higher memory bandwidth.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Format</th><th>Bits / Weight</th><th>Memory (7B Model)</th><th>Use when</th></tr>
-<tr><td><strong>FP16</strong></td><td>16.0</td><td>~14.0 GB</td><td>Evaluating baseline reference accuracy when VRAM/RAM is abundant.</td></tr>
-<tr><td><strong>Q8_0</strong></td><td>8.5</td><td>~7.5 GB</td><td>High-precision reasoning tasks where RAM is sufficient and minimal loss is needed.</td></tr>
-<tr><td><strong>Q4_K_M</strong></td><td>4.5</td><td>~4.5 GB</td><td>Recommended sweet spot: medium k-quant with 4-bit attention and 6-bit feed-forward tensors.</td></tr>
-<tr><td><strong>Q2_K</strong></td><td>2.6</td><td>~2.8 GB</td><td>Fitting larger models into severely constrained memory, accepting minor perplexity loss.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Token speed drops drastically mid-generation</td><td>KV cache memory growth pushed system into swap</td><td>Check <code>free -h</code> during long generations</td><td>Reduce context window length or enable quantized KV caching</td></tr>
-<tr><td>Generation speed identical across 4 and 16 cores</td><td>Memory bandwidth bottleneck</td><td>Check memory bus frequency with <code>lshw -C memory</code></td><td>Memory bus bandwidth, not compute core count, bounds autoregressive generation</td></tr>
-<tr><td>High GPU compute load but slow token speed</td><td>Weights residing in system RAM instead of GPU VRAM</td><td>Check GPU memory allocation</td><td>Reduce quantization size so full model fits inside GPU VRAM</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p>On Tamlinux, local AI tools like <code>tam ask</code> prioritize energy-efficient inference and zero background idle drain. Grounding questions in the local documentation index prevents hallucinatory system commands. Enabling ZRAM swap (see <a href="improve/zram.html">Memory Compression with ZRAM</a>) provides an in-RAM safety margin against sudden out-of-memory kernel freezes when loading large model tensors.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does upgrading from an 8-core CPU to a 16-core CPU on the same dual-channel motherboard fail to double local LLM generation speed?</summary>
-<p>Local autoregressive inference is memory-bandwidth bound, not compute bound. Both processors share the exact same physical memory bus channels. Because the bus is already fully saturated streaming model weights, additional CPU cores sit idle waiting for memory transfers.</p>
-</details>
-<details class="q">
-<summary>How does 4-bit quantization (Q4_K_M) double token generation speed compared to uncompressed FP16?</summary>
-<p>Q4_K_M reduces the memory footprint of each weight from 16 bits to ~4.5 bits. Because the memory controller has to transfer less than a third as many bytes across the bus for every token generated, token throughput increases proportionally.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:free(1)">free(1)</a> &mdash; inspect physical memory and swap availability.</li>
-<li><a href="hardware/resources.html">Resources and Performance</a> &mdash; memory, CPU load, and PSI pressure metrics.</li>
-<li><a href="improve/zram.html">Memory Compression with ZRAM</a> &mdash; fast in-RAM swap compression.</li>
-</ul>
-</section>
-
-<section data-level="expert">
-<h2>Quantization mechanics, KV cache scaling, and CPU SIMD</h2>
-
-<h3>Reference</h3>
-
-<table>
-<tr><th>Format</th><th>Quantization block structure</th><th>Perplexity delta (vs FP16)</th><th>Vector register requirements</th></tr>
-<tr><td>FP16</td><td>Standard IEEE 754 half-precision float</td><td>0.00 (Reference)</td><td>F16C / AVX2 / ARM NEON</td></tr>
-<tr><td>Q8_0</td><td>32-weight blocks with 1 FP16 scaling factor</td><td>+0.0004 (Imperceptible)</td><td>AVX2 / AVX-512 VNNI (int8 dot product)</td></tr>
-<tr><td>Q4_K_M</td><td>Super-blocks of 256 weights; 4-bit attention / 6-bit feedforward</td><td>+0.0535 (Negligible)</td><td>AVX2 / AVX-512 / ARM NEON unpack</td></tr>
-<tr><td>Q2_K</td><td>Super-blocks with 2-bit quantization and 4-bit block scales</td><td>+0.8698 (Measurable)</td><td>Bitwise shifts and vector shuffle tables</td></tr>
-</table>
-
-<h3>How it works</h3>
-
-<p>As conversations grow, storing the Key and Value matrices across multi-head
-attention layers consumes significant memory in addition to static weights:</p>
-
-<pre>
-KV Cache Bytes = 2 &times; layers &times; heads &times; head_dim &times; context_length &times; bytes_per_element
-</pre>
-
-<p>For a model with 32 layers, 32 attention heads, 128 head dimensions, and 16-bit
-precision, an 8,192-token context consumes:</p>
-
-<pre>
-2 &times; 32 &times; 32 &times; 128 &times; 8,192 &times; 2 bytes = 4,294,967,296 bytes &asymp; 4.0 GiB
-</pre>
-
-<p>Enabling 8-bit KV cache quantization (<code>--cache-type-k q8_0 --cache-type-v q8_0</code> in
-<code>llama.cpp</code>) cuts this memory overhead in half without impacting reasoning.</p>
-
-<p>When running on CPUs, matrix-vector multiplication (GEMV) operations are vectorized
-using native SIMD intrinsics (AVX2, AVX-512, or ARM NEON). By compiling
-<code>libtam</code> and inference backends with <code>-march=native</code>, the
-compiler maps integer multiply-accumulate operations directly into 256-bit or
-512-bit wide vector registers, avoiding scalar memory stalls.</p>
-
-<h3>Why Tamlinux chose this</h3>
-
-<p>Tamlinux emphasizes lean, local, and grounded AI tooling. By choosing grounded question answering over cloud APIs, users retain complete privacy and offline autonomy. By teaching the memory-bandwidth bounds of hardware, Tamlinux prevents users from chasing expensive CPU upgrades when memory channel width is the true physical constraint.</p>
-
-<h3>Edge cases</h3>
-
-<ul>
-<li><strong>Context window memory exhaustion:</strong> In long conversations, the KV cache can grow by several gigabytes, exceeding remaining memory and inducing swap thrashing even when the initial model weights fit comfortably.</li>
-<li><strong>Memory controller thermal throttling:</strong> Continuous tensor streaming generates high sustained write and read loads across memory DIMMs, causing some motherboards to throttle memory clock speeds under prolonged inference.</li>
-<li><strong>NUMA node traversal penalties:</strong> On multi-socket or multi-die processors, accessing weights stored on a remote memory channel introduces substantial latency penalties. Inference runtimes should be pinned to the local NUMA node with <code>numactl</code>.</li>
-</ul>
-
-<h3>Explore</h3>
-
-<p>Inspect the SIMD vector instruction flags supported by your workstation's CPU:</p>
-
-<pre class="session" data-risk="read-only">
-$ grep -m1 flags /proc/cpuinfo | tr ' ' '\n' | grep -E 'avx|fma' | sort -u
-avx
-avx2
-fma
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q open">
-<summary>Why does batch size 1 autoregressive text generation fail to utilize the massive compute TFLOPS of modern GPUs?</summary>
-<p>At batch size 1, generating each token requires loading every model weight from RAM to compute registers for only one multiply-accumulate operation per weight (arithmetic intensity &asymp; 1 FLOP/byte). High-end GPUs have compute-to-memory ratios exceeding 100–200 FLOPs/byte, leaving their compute ALUs idling more than 90% of the time while waiting for memory bus transfers.</p>
-</details>
-</section>
-
-<h3>Sources</h3>
-
-<ul>
-<li><a href="https://github.com/ggerganov/llama.cpp">llama.cpp</a> &mdash; reference implementation of quantized tensor inference.</li>
-<li><a href="hardware/resources.html">Resources and Performance</a> &mdash; system memory and compute resource metrics.</li>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; virtual memory and kernel resource interfaces.</li>
-</ul>
-
-<h3>Improve it</h3>
-
-<p>Grounded prompt engineering and query optimization for <code>tam ask</code> are developed in <code>src/ask.c</code> in the public <code>tam</code> repository.</p>
-</section>
-
-<h2>Where to next</h2>
-
-<ul>
-<li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; native compilation and sharing one clone between agents.</li>
-<li><a href="improve/efficiency.html">Zero-polling architecture</a> &mdash; eliminate idle CPU wakeups.</li>
-<li><a href="ecosystem/patches.html">Carried patches and upstream engagement</a> &mdash; manage local package patches and public forks.</li>
-<li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
-</ul>
-</body>
-</html>
+Mem:            28Gi        10Gi       8.7Gi       121Mi        10Gi        17Gi
+Swap:           56Gi       6.1Gi        50Gi</pre>
+<p>Captured on Arch Linux, 2026-10-27. Available memory estimates headroom; model weights, context, runtime overhead and other work all consume resources. This snapshot does not guarantee that a particular model fits.</p>
+<h3>Try it</h3><p>Run <code>free -h</code> and compare available memory with the model's documented requirements. If the model, server or headroom is unknown, leave inference pending.</p>
+<h3>If it goes wrong</h3><p>A missing model or server is different from memory pressure. Read the message and inspect the configured endpoint. Do not download a model or change swap merely to complete this exercise.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does available memory alone guarantee a model will run without pressure?</summary><p>No. Runtime overhead, context and competing workloads also matter, and available memory changes.</p></details><details class="q"><summary>Is a cited answer automatically correct?</summary><p>No. Open the cited source and check whether it supports the answer.</p></details></section>
+<h3>New words</h3><p>A <a href="learn/glossary/process.html">process</a> is a running program. A model is the data and structure used by an inference program to produce a response.</p><h3>Next step</h3><p>Try the <a href="learn/paths/work-with-ai-locally.html">local AI path</a> if you have a suitable server and model.</p></section>
+<section data-level="intermediate"><h2>Compare an inference workload</h2>
+<p><strong>Goal:</strong> compare resource evidence with a defined workload and check the server boundary.</p>
+<h3>Mental model</h3><p>Model weights, context and runtime state occupy memory. Computation and memory transfers both influence response time. Device placement, context, quantization, concurrency and other work affect measurements.</p>
+<h3>Worked example</h3><p>The memory snapshot above reports available memory at one instant. Record it alongside model name, context and workload; compare another sample during the same task. Neither number alone measures memory bandwidth or establishes the cause of slow output.</p>
+<h3>Completion task</h3><p>A model's file is 4 GiB and available memory is 5 GiB. What else must you consider before concluding it fits?</p><details class="solution"><p>Allow for context, runtime allocations and other processes; available memory is an estimate and can change. Test only with an appropriate recovery margin.</p></details>
+<h3>Independent task</h3><p>For a model already available to you, record the endpoint, model, workload and available memory before deciding whether to run it. If you run a query, check its source and compare a second memory sample. Leave the task pending if any prerequisite is unknown.</p>
+<h3>Choosing</h3><p>Use offline Guide search when an answer can be found directly. Use an inference server only when its endpoint, model and data handling are appropriate for the question.</p>
+<h3>Troubleshooting</h3><p>A slow response can reflect computation, memory pressure, device placement or server load. Check relevant evidence before changing settings; a memory snapshot alone does not establish the cause.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> <code>tam ask</code> defaults to <code>http://127.0.0.1:11434</code>, but <code>--server</code> or <code>TAM_ASK_SERVER</code> can select another host. The current client accepts non-loopback hosts and sends plain HTTP, even when a URL begins with <code>https://</code>. Do not use it to send sensitive data to a remote endpoint. A server or model can have its own network behavior.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does the default loopback address prove every configured server stays on the machine?</summary><p>No. An explicit server or environment override can select another host. Check the actual endpoint and server behavior.</p></details><details class="q"><summary>Does quantization guarantee a particular speedup?</summary><p>No. It can reduce weight storage, but throughput and quality depend on the model, implementation and hardware.</p></details></section>
+<h3>Further reading</h3><p>Read <a href="man:free(1)">free(1)</a> for memory fields and <a href="hardware/resources.html">resources</a> for pressure and load. The <a href="learn/paths/work-with-ai-locally.html">local AI path</a> provides a bounded query exercise.</p></section>
+<section data-level="expert"><h2>Limits of resource estimates</h2>
+<p>Weight size is only one part of a deployment's memory use. Context state and runtime buffers depend on implementation and configuration. Memory bandwidth can constrain autoregressive inference, but compute, data placement, caching, batching and scheduling can also matter. Treat a bandwidth calculation as an upper-bound model with explicit assumptions, then measure the actual workload.</p>
+<p>The current <code>tam ask</code> implementation resolves its configured host and uses plain HTTP sockets; its help describes a local server but does not enforce loopback or transport encryption. Review the endpoint before submitting a prompt and do not treat an <code>https://</code> prefix as TLS protection in this client.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>How would you distinguish a memory-bandwidth limit from another bottleneck?</summary><p>Hold model, context and workload constant; measure throughput and resource use across comparable runs, then vary one relevant factor at a time. Record uncertainty and avoid attributing a slowdown to bandwidth from core count alone.</p></details></section>
+<p>See <a href="hardware/resources.html">resource inspection</a> and the inference runtime's own documentation for its allocation and networking behavior.</p></section>
+</body></html>
