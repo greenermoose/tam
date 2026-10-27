@@ -22,14 +22,13 @@ than assume readers know technical terms, and that the glossary be expanded and
 linked from the Guide index. Corpus 0.44.0 adds that index link, twelve basic
 terms and contextual explanations in First steps, shell and filesystem
 (`0fcddfe`, index `d1beac0`; [verification](../ai/2026-10-27-tam-foundation-glossary.md)).
-Continue in small sourced slices: define a term in context on first use, link
+Corpus 0.44.1 replaces recursive cleanup in the practice exercise with removal of its known file and empty directory. Continue in small sourced slices: define a term in context on first use, link
 its glossary entry, and check that a beginner can follow the explanation without
 opening every link. Prioritize the terminology encountered along First steps.
 
 The read-only review identified follow-up candidates: correct SDDM and virtual
 console descriptions against the applicable released and Test configurations;
-replace recursive deletion in the scratch practice with removal of known files;
-and clarify the current limits of installation. Candidate new introductions
+clarify the current limits of installation. Candidate new introductions
 cover startup and login, terminal and commands, files and paths, processes and
 services, and the desktop. Choose scope and sources for each slice; do not imply
 an installer exists. Learning and Installing migration and enforcement remain

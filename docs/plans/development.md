@@ -8,7 +8,7 @@
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md) and [external-links plan](external-links.md).
-**Next action:** Continue concept-first explanations and glossary expansion; plan the remaining Learning and Installing TCK25 migration. Review the preserved external-links branch for integration. Pilot and learner review remain unverified.
+**Next action:** Corpus 0.44.1 corrects practice cleanup. Continue concept-first explanations and glossary expansion; plan the remaining Learning and Installing TCK25 migration. Review the preserved external-links branch for integration. Pilot and learner review remain unverified.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer

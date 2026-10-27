@@ -13,15 +13,19 @@
 <h2>Exercise: navigate documentation</h2>
 <ol><li>Open <a href="tam:search">Guide Search</a> and search for <code>streams</code>.</li><li>Open a result and follow its breadcrumb parent.</li><li>Open <a href="tam:man">Man pages</a>, look up <code>printf</code>, then press Left Arrow.</li></ol>
 <p><strong>Check:</strong> you can name which action returned through history and which key opens the Guide root. Hint: history and Guide are separate actions.</p>
-<h2>Exercise: a read-only pipeline</h2>
-<pre>scratch=$(mktemp -d)
-echo pear &gt; "$scratch/fruit.txt"
-echo apple &gt;&gt; "$scratch/fruit.txt"
-echo pear &gt;&gt; "$scratch/fruit.txt"
-sort "$scratch/fruit.txt" | uniq -c
-rm -r -- "$scratch"</pre>
-<p>The temporary directory is removed at the end. Expect the counts to show one apple and two pears; spacing can vary by implementation.</p>
-<p><strong>Check:</strong> explain which command reads the file, which sorts its lines, and why <code>uniq</code> follows <code>sort</code>. If output differs, inspect the file before changing the commands.</p>
+<h2>Exercise: a pipeline in a temporary directory</h2>
+<p>A <a href="learn/glossary/directory.html">directory</a> holds files. This exercise creates a temporary one and a file inside it. A <a href="shell/pipelines.html">pipeline</a> passes one command's output to another. Type or paste the whole block into a shell, then press Enter.</p>
+<pre data-risk="scratch">if scratch=$(mktemp -d); then
+    printf '%s\n' pear apple pear &gt; "$scratch/fruit.txt"
+    sort "$scratch/fruit.txt" | uniq -c
+    rm -- "$scratch/fruit.txt"
+    rmdir -- "$scratch"
+else
+    printf '%s\n' 'Could not create a temporary directory.'
+fi</pre>
+<p><code>mktemp -d</code> creates a new directory and puts its name in <code>scratch</code>. The quotes keep that name together if it contains spaces. The <code>if</code> runs the exercise only if creation succeeds. Expect one apple and two pears; spacing can vary.</p>
+<p>Cleanup removes the named file, then <code>rmdir</code> removes the directory only if it is empty. If cleanup reports an error, read it and inspect the directory before deciding what to remove. Do not use recursive removal to clear unexpected contents.</p>
+<p><strong>Check:</strong> explain which command reads the file, which sorts its lines, and why <code>uniq</code> follows <code>sort</code>. If the output differs, check the commands you entered and try again.</p>
 <h2>Choose another step</h2>
 <ul><li><a href="beginner.html">Beginner path</a></li><li><a href="intermediate.html">Intermediate path</a></li><li><a href="expert.html">Expert path</a></li><li><a href="shell/pipelines.html">Pipeline lesson</a></li></ul>
 </body></html>
