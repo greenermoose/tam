@@ -1593,41 +1593,41 @@ pass "folds: pipe answers collected, non-terminal show, stable IDs and block-lev
 
 # Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.
 ex_out=$("$TAM" explain pipelines --pipe)
-printf '%s\n' "$ex_out" | grep -q 'Shell pipelines' || fail "explain pipelines failed"
+printf '%s\n' "$ex_out" | grep -q 'Connecting programs' || fail "explain pipelines failed"
 ex_pipe=$("$TAM" explain '>' --pipe)
 printf '%s\n' "$ex_pipe" | grep -Fq 'shell/pipelines.html' || fail "explain '>' failed"
 ex_pipe_sym=$("$TAM" explain '|' --pipe)
-printf '%s\n' "$ex_pipe_sym" | grep -q 'Shell pipelines' || fail "explain '|' failed"
+printf '%s\n' "$ex_pipe_sym" | grep -q 'Connecting programs' || fail "explain '|' failed"
 ex_pipe_q1=$("$TAM" explain "'|'" --pipe)
-printf '%s\n' "$ex_pipe_q1" | grep -q 'Shell pipelines' || fail "explain \"'|'\" failed"
+printf '%s\n' "$ex_pipe_q1" | grep -q 'Connecting programs' || fail "explain \"'|'\" failed"
 ex_pipe_q2=$("$TAM" explain '"|"' --pipe)
-printf '%s\n' "$ex_pipe_q2" | grep -q 'Shell pipelines' || fail "explain '\"|\"' failed"
+printf '%s\n' "$ex_pipe_q2" | grep -q 'Connecting programs' || fail "explain '\"|\"' failed"
 ex_browse=$("$TAM" explain browse --pipe)
 printf '%s\n' "$ex_browse" | grep -q 'Tamlinux User Guide' || fail "explain browse failed"
 ex_show=$("$TAM" explain show --pipe)
 printf '%s\n' "$ex_show" | grep -q 'Tamlinux User Guide' || fail "explain show failed"
 ex_man=$("$TAM" explain man --pipe)
-printf '%s\n' "$ex_man" | grep -q 'Reading man pages' || fail "explain man failed"
+printf '%s\n' "$ex_man" | grep -q 'Finding instructions for programs' || fail "explain man failed"
 
 # Use track curated topics.
 ex_shell=$("$TAM" explain shell --pipe)
-printf '%s\n' "$ex_shell" | grep -q 'The Shell and Streams' || fail "explain shell failed"
+printf '%s\n' "$ex_shell" | grep -q 'Giving your computer written instructions' || fail "explain shell failed"
 ex_jobs=$("$TAM" explain jobs --pipe)
-printf '%s\n' "$ex_jobs" | grep -q 'Processes, Jobs, and Signals' || fail "explain jobs failed"
+printf '%s\n' "$ex_jobs" | grep -q 'Managing running programs' || fail "explain jobs failed"
 ex_sig=$("$TAM" explain sigkill --pipe)
-printf '%s\n' "$ex_sig" | grep -q 'Processes, Jobs, and Signals' || fail "explain sigkill failed"
+printf '%s\n' "$ex_sig" | grep -q 'Managing running programs' || fail "explain sigkill failed"
 ex_fs=$("$TAM" explain filesystem --pipe)
-printf '%s\n' "$ex_fs" | grep -q 'The Linux Filesystem Hierarchy' || fail "explain filesystem failed"
+printf '%s\n' "$ex_fs" | grep -q 'Files and folders' || fail "explain filesystem failed"
 ex_perm=$("$TAM" explain permissions --pipe)
-printf '%s\n' "$ex_perm" | grep -q 'File Permissions and Ownership' || fail "explain permissions failed"
+printf '%s\n' "$ex_perm" | grep -q 'Who can use a file' || fail "explain permissions failed"
 ex_desk=$("$TAM" explain desktop --pipe)
 printf '%s\n' "$ex_desk" | grep -q 'The Tamlinux Desktop' || fail "explain desktop failed"
 ex_ws=$("$TAM" explain workspaces --pipe)
-printf '%s\n' "$ex_ws" | grep -q 'Workspaces and Multi-Display Layout' || fail "explain workspaces failed"
+printf '%s\n' "$ex_ws" | grep -q 'Organizing windows and screens' || fail "explain workspaces failed"
 ex_res=$("$TAM" explain resources --pipe)
-printf '%s\n' "$ex_res" | grep -q 'System Resources and Performance' || fail "explain resources failed"
+printf '%s\n' "$ex_res" | grep -q 'How your computer uses its resources' || fail "explain resources failed"
 ex_lua=$("$TAM" explain lua --pipe)
-printf '%s\n' "$ex_lua" | grep -q 'Lua: The Embedded Scripting Language' || fail "explain lua failed"
+printf '%s\n' "$ex_lua" | grep -q 'Lua: a language for giving programs instructions' || fail "explain lua failed"
 printf '%s\n' "$ex_lua" | grep -q 'Levels: beginner' || fail "explain lua missing levels line"
 
 # Maintain track curated topics.
@@ -1636,11 +1636,11 @@ printf '%s\n' "$ex_maint" | grep -q 'System Maintenance and Reliability' || fail
 ex_upd=$("$TAM" explain updates --pipe)
 [ -n "$ex_upd" ] || fail "explain updates produced no output"
 ex_rb=$("$TAM" explain rollback --pipe)
-printf '%s\n' "$ex_rb" | grep -q 'Snapshots and Generation Rollbacks' || fail "explain rollback failed"
+printf '%s\n' "$ex_rb" | grep -q 'Returning to an earlier working state' || fail "explain rollback failed"
 ex_log=$("$TAM" explain logs --pipe)
-printf '%s\n' "$ex_log" | grep -q 'Truthful System Diagnostics and Logs' || fail "explain logs failed"
+printf '%s\n' "$ex_log" | grep -q 'Reading messages about what happened' || fail "explain logs failed"
 ex_pwr=$("$TAM" explain power --pipe)
-printf '%s\n' "$ex_pwr" | grep -q 'The Progressive Power Ladder' || fail "explain power failed"
+printf '%s\n' "$ex_pwr" | grep -q 'When your computer rests or sleeps' || fail "explain power failed"
 ex_rec=$("$TAM" explain recovery --pipe)
 printf '%s\n' "$ex_rec" | grep -q 'Emergency Disaster Recovery' || fail "explain recovery failed"
 
@@ -1648,21 +1648,21 @@ printf '%s\n' "$ex_rec" | grep -q 'Emergency Disaster Recovery' || fail "explain
 ex_imp=$("$TAM" explain improve --pipe)
 printf '%s\n' "$ex_imp" | grep -q 'Extending and Improving Your Workstation' || fail "explain improve failed"
 ex_eff=$("$TAM" explain efficiency --pipe)
-printf '%s\n' "$ex_eff" | grep -q 'Zero-Polling and Event-Driven Architecture' || fail "explain efficiency failed"
+printf '%s\n' "$ex_eff" | grep -q 'How software can wait for work efficiently' || fail "explain efficiency failed"
 ex_zram=$("$TAM" explain zram --pipe)
-printf '%s\n' "$ex_zram" | grep -q 'Memory Compression with ZRAM' || fail "explain zram failed"
+printf '%s\n' "$ex_zram" | grep -q 'Making better use of working memory' || fail "explain zram failed"
 ex_term=$("$TAM" explain terminal --pipe)
-printf '%s\n' "$ex_term" | grep -q 'Terminal and Editor Ergonomics' || fail "explain terminal failed"
+printf '%s\n' "$ex_term" | grep -q 'A comfortable place to type and edit text' || fail "explain terminal failed"
 ex_scr=$("$TAM" explain scripting --pipe)
-printf '%s\n' "$ex_scr" | grep -q 'Shell Scripting and Tool Conventions' || fail "explain scripting failed"
+printf '%s\n' "$ex_scr" | grep -q 'Writing instructions your computer can repeat' || fail "explain scripting failed"
 ex_tool=$("$TAM" explain toolchains --pipe)
-printf '%s\n' "$ex_tool" | grep -q 'Native Toolchains and Multi-Agent Workflows' || fail "explain toolchains failed"
+printf '%s\n' "$ex_tool" | grep -q 'Tools for building programs' || fail "explain toolchains failed"
 ex_aip=$("$TAM" explain ai-performance --pipe)
-printf '%s\n' "$ex_aip" | grep -q 'Physics of Local AI Generation' || fail "explain ai-performance failed"
+printf '%s\n' "$ex_aip" | grep -q 'The speed and energy use of AI on your computer' || fail "explain ai-performance failed"
 
 # Explain with - reads topic from stdin.
 ex_stdin=$(printf 'jobs\n' | "$TAM" explain - --pipe)
-printf '%s\n' "$ex_stdin" | grep -q 'Processes, Jobs, and Signals' || fail "explain - failed to read topic from stdin"
+printf '%s\n' "$ex_stdin" | grep -q 'Managing running programs' || fail "explain - failed to read topic from stdin"
 
 # Explain usage synopsis: explain --help, -h, and help display strictly concise usage synopsis (<=15 lines screen budget) and exit 0.
 ex_help=$("$TAM" explain --help)
@@ -1734,7 +1734,7 @@ if printf '%s\n' "$ex_expert_terse" | grep -qx 'desktop'; then fail "expert ters
 
 # Multi-word explain resolves via search fallback path.
 ex_multi=$("$TAM" explain cpu load --pipe)
-printf '%s\n' "$ex_multi" | grep -q 'System Resources' || fail "explain cpu load failed"
+printf '%s\n' "$ex_multi" | grep -q 'hardware/resources.html' || fail "explain cpu load failed"
 
 # Topic guide depth ladder: tam explain --level LEVEL TOPIC
 ex_tg_lvl_b=$("$TAM" explain --level beginner pipelines --pipe)

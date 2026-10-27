@@ -30,6 +30,8 @@
 
 > Read and revise every page in the corpus to ensure none start with gibberish, cryptic labels, or difficult-to-understand technical language.
 
+> Install this version of the tam corpus.
+
 ## Key decisions
 
 Reviewed all 128 page openings and gave each an unformatted orientation sentence. Rewrote dense introductory context, made headings and their navigation trails consistent, and removed the labeled introductions from the learning paths. Retained the rescue path's safety guidance. Updated the authoring guidance and templates so future pages use the same opening. This is a source review, not a claim of learner acceptance.
@@ -38,3 +40,5 @@ Reviewed all 128 page openings and gave each an unformatted orientation sentence
 
 - Checked all 128 pages have a plain paragraph immediately after the page heading.
 - `make corpus-and-test`: corpus lint, index tests and guide checks passed.
+
+The requested development installation exposed command-suite assertions tied to former page titles. The follow-up change updates those existing assertions to the new titles and checks the resource search by its destination; it does not reorganize the held live-corpus tests.
