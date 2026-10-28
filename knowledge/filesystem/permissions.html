@@ -39,6 +39,9 @@ error too. Keep this terminal open while you work through the section.</p>
 work=$(mktemp -d)
 cd "$work"
 </pre>
+<p><code>mktemp -d</code> creates a new temporary directory. The first line
+saves its name as <code>work</code>; <code>cd "$work"</code> moves your
+shell into that directory. Use the same terminal for the remaining commands.</p>
 <pre class="session" data-risk="scratch">
 $ printf &#x27;%s\n&#x27; &#x27;#!/bin/sh&#x27; &#x27;printf &quot;hello\n&quot;&#x27; &gt; hello.sh
 $ chmod 600 hello.sh

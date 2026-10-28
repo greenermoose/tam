@@ -15,6 +15,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / First steps</p></nav>
 <h1>First steps</h1>
 <p>This page helps you give your computer written instructions and find your way around this guide.</p>
+<p>Use the Up and Down Arrow keys to move through a page. Press Tab or
+<code>]</code> to select the next link, then Enter to follow it. Left Arrow
+returns to the previous page. To reveal an answer or solution, move to its
+line and press Right Arrow; Left Arrow hides it again. Press <code>h</code>
+for the reader's full key list.</p>
 <h2>1. Open a place to type</h2>
 <p>A <a href="learn/glossary/terminal.html">terminal</a> is a place where you
 can type instructions and read replies. Each instruction is called a
@@ -35,7 +40,9 @@ $ printf &#x27;%s\n&#x27; hello
 hello
 </pre>
 <p>Captured on Arch Linux, 2026-10-21. A command is different from its
-output: do not type hello again as a command.</p>
+output: do not type hello again as a command. Here <code>printf</code>
+prints text; <code>'%s\n'</code> tells it to print each supplied word on a
+new line. Keep the single quotes and spaces when you type the example.</p>
 <p>To paste into the terminal, use Tamlinux's SUPER+V shortcut. Read a
 command before pasting; pasted newlines may execute commands immediately.
 For this first task, type the short line yourself. Ctrl+C cancels unfinished
@@ -49,6 +56,11 @@ input or interrupts a foreground command; it does not undo completed work.</p>
 </details>
 </section>
 <h2>2. Create something in a safe place</h2>
+<p>To practice while reading, leave the Guide with Esc. After typing a
+command, reopen the relevant lesson with <code>tam show filesystem/permissions</code>
+or <code>tam show shell/pipelines</code>. Leave it again with Esc to return
+to the same shell. Keep that terminal open throughout a scratch exercise:
+its commands depend on the directory and variable set earlier.</p>
 <ol><li>Read <a href="filesystem/index.html?level=1">Filesystem basics</a>
 for names and directories.</li><li>Work through
 <a href="filesystem/permissions.html?level=1">File permissions</a> in its
@@ -75,7 +87,7 @@ Finish that exercise's cleanup before returning here.</li></ol>
 </section>
 <h2>4. Find your way back</h2>
 <ol><li>Read <a href="learn/documentation.html?level=1">Using the Guide</a>.</li>
-<li>In the pager, press the backtick key to open the Guide index. Use
+<li>In the guide reader, press the backtick key to open the Guide index. Use
 <code>]</code> to select a link and Enter to follow it. Left Arrow goes back.</li>
 <li>Press Esc to return to the terminal. Type <code>tam hi</code> and
 press Enter to open Welcome again.</li></ol>

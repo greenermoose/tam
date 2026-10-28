@@ -39,8 +39,8 @@ $ printf &#x27;%s\n&#x27; apple pear apple | grep &#x27;^apple$&#x27; | wc -l
 <p>Captured on Arch Linux, 2026-10-21. This fixed input gives the same count.</p>
 <h3>What just happened</h3>
 <ol><li><code>printf</code> prints three lines: apple, pear, apple.</li>
-<li><code>|</code> connects its standard output to the next command's
-standard input.</li><li><code>grep '^apple$'</code> keeps only whole lines
+<li><code>|</code> passes the text printed by one command to the next
+command as input.</li><li><code>grep '^apple$'</code> keeps only whole lines
 equal to apple. <code>^</code> marks the start and <code>$</code> the end.</li>
 <li><code>wc -l</code> counts the two remaining newline characters.</li></ol>
 <h3>Try it</h3>

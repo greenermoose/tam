@@ -18,9 +18,9 @@
 <h1>Files and folders</h1>
 <p>This page explains how a computer stores and organizes documents and other information.</p>
 <p>A file holds information, such as a document or picture. A folder, also called a directory, can hold files and other folders. A path is the name that tells the computer where to find one.</p>
-<p>Linux organizes files and storage devices into a single unified tree
-beginning at root (<code>/</code>). This structure follows the Filesystem
-Hierarchy Standard (FHS).</p>
+<p>Linux arranges folders inside other folders, starting at the root folder,
+written <code>/</code>. A path such as <code>/home/alex</code> starts at
+that root and names the folder <code>alex</code> inside <code>home</code>.</p>
 
 <section data-level="beginner"><h2>Finding your place</h2>
 <p><strong>Goal:</strong> distinguish a file, directory and path, and identify common parts of the filesystem.</p>
@@ -28,25 +28,25 @@ Hierarchy Standard (FHS).</p>
 <p><strong>Before you start:</strong> open a <a href="learn/glossary/terminal.html">terminal</a>. This example only reads a directory name.</p>
 <aside class="first-time"><p><strong>New to this?</strong> The dollar sign represents your prompt. Type the command after it, then press Enter.</p></aside>
 <h3>Worked example</h3><pre class="session" data-risk="read-only">$ ls -d /tmp
-/tmp</pre><p>Captured on Arch Linux, 2026-10-27. The command displays the named directory itself; it does not list its contents.</p>
+/tmp</pre><p>Captured on Arch Linux, 2026-10-27. <code>ls</code> displays files and folders; <code>-d</code> asks it to display the named directory itself, rather than list its contents. Here it finds <code>/tmp</code>.</p>
 <h3>Key directories</h3>
 
 <table>
 <tr><th>Directory</th><th>Purpose</th></tr>
-<tr><td>/</td><td>The root of the overall directory hierarchy</td></tr>
-<tr><td>/home</td><td>User personal directories and settings (~/.config, ~/.local)</td></tr>
-<tr><td>/etc</td><td>Host-specific system configuration</td></tr>
-<tr><td>/usr</td><td>Secondary hierarchy for user utilities, libraries, and assets</td></tr>
-<tr><td>/var</td><td>Variable runtime state, service data, and system logs (/var/log)</td></tr>
+<tr><td>/</td><td>The root folder containing the rest of the folder tree</td></tr>
+<tr><td>/home</td><td>Personal folders for users</td></tr>
+<tr><td>/etc</td><td>System settings for this computer</td></tr>
+<tr><td>/usr</td><td>Programs and supporting files</td></tr>
+<tr><td>/var</td><td>Changing system data, including logs (records of events)</td></tr>
 <tr><td>/tmp</td><td>Temporary files; cleanup depends on system configuration</td></tr>
-<tr><td>/proc</td><td>Virtual filesystem exposing kernel and process state metrics</td></tr>
-<tr><td>/sys</td><td>Virtual filesystem exposing kernel device and driver trees</td></tr>
-<tr><td>/dev</td><td>Device node representations for physical hardware and pseudo-devices</td></tr>
+<tr><td>/proc</td><td>Information about running programs and the system</td></tr>
+<tr><td>/sys</td><td>Information and controls for devices and the system</td></tr>
+<tr><td>/dev</td><td>Special entries programs use to access devices</td></tr>
 </table>
 
 <h2>Virtual filesystems: /proc and /sys</h2>
 
-<p><code>/proc</code> and <code>/sys</code> are virtual filesystems that expose information and interfaces provided by the kernel. Their entries are not ordinary stored files. For instance, reading
+<p><code>/proc</code> and <code>/sys</code> are virtual filesystems: their entries provide information and controls from the kernel, the core of the operating system. They are not ordinary stored files. For instance, reading
 <code>/proc/cpuinfo</code> queries processor features directly from the kernel,
 and reading <code>/proc/meminfo</code> checks current memory metrics.</p>
 
@@ -56,11 +56,11 @@ and reading <code>/proc/meminfo</code> checks current memory metrics.</p>
 
 <dl>
 <dt>df -h (disk free)</dt>
-<dd>Shows disk usage, capacity, and mount points across all mounted
-filesystems in human-readable units.</dd>
+<dd>Shows space used and available on attached filesystems in easy-to-read units.
+It also shows where each one appears in the folder tree.</dd>
 <dt>du -sh path (disk usage)</dt>
-<dd>Calculates the total disk space consumed by a directory and its
-contents.</dd>
+<dd>Estimates the disk space used by the named folder and its contents.
+Replace <code>path</code> with the folder you want to inspect.</dd>
 </dl>
 
 <h3>Try it</h3><p>Use <code>ls -d /proc</code> to inspect another named directory. Compare its purpose in the table; the command does not show its contents.</p>

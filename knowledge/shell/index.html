@@ -25,26 +25,25 @@
 <p><strong>Before you start:</strong> use a terminal and read <a href="learn/paths/first-steps.html">First steps</a>. This example changes no files.</p>
 <aside class="first-time"><p><strong>New to this?</strong> Type the text after the dollar sign at your prompt and press Enter. The next line is output.</p></aside>
 <h3>Worked example</h3><pre class="session" data-risk="read-only">$ printf '%s\n' hello
-hello</pre><p>Captured on Arch Linux, 2026-10-27. The shell starts <code>printf</code>; the word on the second line is its output.</p>
+hello</pre><p>Captured on Arch Linux, 2026-10-27. The shell runs <code>printf</code>; the word on the second line is its output.</p>
 <h3>The standard streams</h3>
 
-<p>A program started by the shell usually inherits three standard communication
-channels, known by their file descriptor numbers:</p>
+<p>A <a href="learn/glossary/stream.html">stream</a> carries information
+into or out of a program. A program started by the shell usually has three
+standard streams:</p>
 
 <dl>
 <dt>0 &mdash; standard input (stdin)</dt>
-<dd>The stream where the program reads its input data. By default, this is
-attached to your keyboard.</dd>
+<dd>Where the program reads input, usually from your terminal when you run it there.</dd>
 <dt>1 &mdash; standard output (stdout)</dt>
-<dd>The stream where normal program output flows. By default, this is
-attached to your terminal screen.</dd>
+<dd>Where normal output goes, usually to your terminal screen.</dd>
 <dt>2 &mdash; standard error (stderr)</dt>
-<dd>The diagnostic stream where errors, warnings, and progress indicators
-flow, separate from normal output data.</dd>
+<dd>Where messages about errors, warnings and progress go, separate from normal output.</dd>
 </dl>
 
-<p>Keeping error messages on stream 2 ensures that when you pipe output into
-another tool, error messages are not silently swallowed or parsed as data.</p>
+<p>A pipe (<code>|</code>) normally passes standard output to another
+program while error messages stay separate. You can still see an error even
+when you send the normal output somewhere else.</p>
 
 <h2>Stream redirection</h2>
 
@@ -61,8 +60,8 @@ another tool, error messages are not silently swallowed or parsed as data.</p>
 
 <h2>Command substitution</h2>
 
-<p>Command substitution runs a command inside a subshell and places its output
-directly onto your command line using <code>$(command)</code>:</p>
+<p>Command substitution runs a command and uses its output as part of another
+command. The shell recognizes the form <code>$(command)</code>:</p>
 
 <p>For example, <code>printf '%s\n' "$(printf '%s' hello)"</code> prints <code>hello</code>. The inner command's output becomes an argument of the outer command.</p>
 

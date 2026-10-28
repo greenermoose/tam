@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-27. **Owner:** Fred (developer).
-**Current Command Version:** `0.44.0`. **Current Corpus Version:** `0.45.4`.
+**Current Command Version:** `0.44.0`. **Current Corpus Version:** `0.45.5`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -138,12 +138,13 @@ in that candidate, not here.
 | **0.45.2 corpus** | Plain guide openings | Done (2026-10-27) | Gives each page a plain orientation sentence and removes the labeled path introductions; developer and learner review remain pending. |
 | **0.45.3 corpus** | Use tam hi | Done (2026-10-27) | Uses `tam hi` in corpus instructions and examples. |
 | **0.45.4 corpus** | Pilot review corrections | Done (2026-10-27) | Aligns example output with commands, clarifies scratch setup and revises a First steps checkpoint. Learner and developer review remain pending. |
+| **0.45.5 corpus** | Beginner guide clarity | Done (2026-10-27) | Explains reader navigation, returning to practice, scratch setup, and introductory shell and filesystem terms. Learner review remains pending. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.44.0 / 0.45.4 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
+| `develop` | 0.44.0 / 0.45.5 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
