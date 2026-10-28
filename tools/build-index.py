@@ -6,8 +6,8 @@ Each page declares its metadata in <meta> tags: topic, summary, keywords,
 level, track, optional parent and prereqs. Level lists the depths a page offers (beginner,
 intermediate, expert); a page offering more than one wraps each depth in
 <section data-level="..."> (the content-depth ladder). The build fails on
-unknown levels or tracks, on prerequisites that name no topic, and on
-laddered pages whose sections do not match their declared levels.
+unknown levels or tracks, on topics that are not slugs, on prerequisites that
+name no topic, and on laddered pages whose sections do not match their declared levels.
 
 Every page except the guide index carries a breadcrumb nav before its <h1>.
 Parent metadata defines the canonical hierarchy; older corpora without it use
@@ -27,6 +27,8 @@ from pathlib import Path
 
 LEVELS = ("beginner", "intermediate", "expert")
 TRACKS = ("install", "learn", "use", "maintain", "improve")
+# A topic is one command-line word and one line of `tam explain topics --terse`.
+TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
 def extract_attr(tag, attr):
@@ -120,6 +122,9 @@ def parse_page(root, path, rel_path, errors):
         name_lower = name.lower()
         if name_lower == "topic":
             topic = content.strip()
+            if not TOPIC_RE.match(topic):
+                errors.append(f"{rel_path}: topic {topic!r} is not a slug"
+                              f" (lowercase letters, digits and hyphens)")
         elif name_lower == "summary":
             summary = content.strip()
         elif name_lower == "keywords":

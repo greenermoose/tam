@@ -370,6 +370,7 @@ class BuildIndex(unittest.TestCase):
             "from pathlib import Path\n"
             "assert Path('knowledge/index.json').is_file()\n"
             "print('lint ran after generation')\n")
+        (root / "tools/check-repo.py").write_text("print('repository facts checked')\n")
         guide = root / "tests/guide.sh"
         guide.write_text("#!/bin/sh\nset -eu\ntest -f knowledge/index.tsv\necho 'guide checked'\n")
         guide.chmod(0o755)
@@ -377,6 +378,7 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
         self.assertLess(result.stdout.index("Generated index.tsv"),
                         result.stdout.index("lint ran after generation"))
+        self.assertIn("repository facts checked", result.stdout)
         self.assertIn("guide checked", result.stdout)
         result = self.make(root, "test-corpus")
         self.assertNotEqual(result.returncode, 0)
@@ -431,6 +433,16 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual(data["use/task.html"]["topic"], "task")
         self.assertEqual(data["use/task.html"]["levels"], ["beginner"])
         self.assertEqual(data["use/task.html"]["prereqs"], ["using"])
+
+    def test_topic_that_is_not_a_slug_is_rejected(self):
+        root = self.fixture("0.31.0", {
+            "index.html": page("Guide"),
+            "use/index.html": page("Using", "use", "index.html").replace(
+                'content="using"', 'content="using tam"'),
+        })
+        result = self.build(root)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("topic 'using tam' is not a slug", result.stderr)
 
     def test_missing_and_cyclic_parents_are_rejected(self):
         missing = self.fixture("0.31.0", {

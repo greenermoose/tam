@@ -235,24 +235,40 @@ def scan_working_tree(root, owner, session):
     }
 
 
-def replace_once(path, pattern, replacement, regex=False):
-    """Replace pattern with replacement in path, failing unless pattern occurs exactly once."""
-    text = path.read_text(encoding="utf-8")
+def staged_text(texts, path):
+    """The text of path as staged in texts, read from disk on first use."""
+    if path not in texts:
+        texts[path] = path.read_text(encoding="utf-8")
+    return texts[path]
+
+
+def replace_once(texts, path, pattern, replacement, regex=False):
+    """Replace pattern with replacement in path's staged text, failing unless pattern occurs exactly once."""
+    text = staged_text(texts, path)
     if regex:
         matches = list(re.finditer(pattern, text, flags=re.M))
         if len(matches) != 1:
             raise DevError(
-                f"{path.name}: expected pattern {pattern!r} exactly once, found {len(matches)}"
+                f"{path.name}: expected pattern {pattern!r} exactly once, found {len(matches)}; "
+                "no version file was changed (run make check-repo)"
             )
         new_text = re.sub(pattern, replacement, text, count=1, flags=re.M)
     else:
         count = text.count(pattern)
         if count != 1:
             raise DevError(
-                f"{path.name}: expected {pattern!r} exactly once, found {count}"
+                f"{path.name}: expected {pattern!r} exactly once, found {count}; "
+                "no version file was changed (run make check-repo)"
             )
         new_text = text.replace(pattern, replacement, 1)
-    path.write_text(new_text, encoding="utf-8")
+    texts[path] = new_text
+
+
+def write_staged(texts):
+    """Write staged files only after every edit matched, so a failed bump leaves the tree as it was."""
+    for path, text in texts.items():
+        if path.read_text(encoding="utf-8") != text:
+            path.write_text(text, encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -488,36 +504,48 @@ def prompt_bump_choice(lane_label, current_ver, patch_ver, minor_ver):
         print("Please answer 'p' (patch) or 'm' (minor).")
 
 
-def apply_corpus_version_edits(root, old_ver, new_ver, summary, today):
+def apply_corpus_version_edits(root, old_ver, new_ver, summary, today, texts=None):
+    """Bump the corpus version copies; with texts, only stage the edits for the caller to write."""
+    owned = texts is None
+    texts = {} if owned else texts
     cmd_ver = read_command_version(root, from_head=False)
     version_file = root / "knowledge" / "version"
-    replace_once(version_file, old_ver, new_ver)
+    replace_once(texts, version_file, old_ver, new_ver)
 
     roadmap = root / "ROADMAP.md"
     replace_once(
+        texts,
         roadmap,
         f"**Current Corpus Version:** `{old_ver}`.",
         f"**Current Corpus Version:** `{new_ver}`.",
     )
     replace_once(
+        texts,
         roadmap,
         f"| `develop` | {cmd_ver} / {old_ver} |",
         f"| `develop` | {cmd_ver} / {new_ver} |",
     )
     new_row = f"| **{new_ver} corpus** | {summary} | Done ({today}) | {summary} |\n"
     replace_once(
+        texts,
         roadmap,
         r"(\|[^\n]+\|\n)(\n+## 3\. Current state and follow-up\n)",
         r"\1" + new_row.replace("\\", "\\\\") + r"\2",
         regex=True,
     )
+    if owned:
+        write_staged(texts)
     return ["knowledge/version", "ROADMAP.md"]
 
 
-def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, today):
-    corpus_ver = read_corpus_version(root, from_head=False)
+def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, today, texts=None):
+    """Bump the command version copies; with texts, only stage the edits for the caller to write."""
+    owned = texts is None
+    texts = {} if owned else texts
+    corpus_ver = staged_text(texts, root / "knowledge" / "version").strip()
     version_h = root / "src" / "version.h"
     replace_once(
+        texts,
         version_h,
         r'^(#define\s+TAM_COMMAND_VERSION\s+")' + re.escape(old_ver) + r'(")$',
         r"\g<1>" + new_ver + r"\g<2>",
@@ -526,6 +554,7 @@ def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, toda
 
     run_sh = root / "tests" / "run.sh"
     replace_once(
+        texts,
         run_sh,
         f"^tam command {old_ver}",
         f"^tam command {new_ver}",
@@ -533,17 +562,20 @@ def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, toda
 
     roadmap = root / "ROADMAP.md"
     replace_once(
+        texts,
         roadmap,
         f"**Current Command Version:** `{old_ver}`.",
         f"**Current Command Version:** `{new_ver}`.",
     )
     replace_once(
+        texts,
         roadmap,
         f"| `develop` | {old_ver} / {corpus_ver} |",
         f"| `develop` | {new_ver} / {corpus_ver} |",
     )
     new_row = f"| **{new_ver} command** | {summary} | Done ({today}) | {summary} |\n"
     replace_once(
+        texts,
         roadmap,
         r"(\|[^\n]+\|\n)(\n+## 3\. Current state and follow-up\n)",
         r"\1" + new_row.replace("\\", "\\\\") + r"\2",
@@ -553,11 +585,14 @@ def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, toda
     dev_md = root / "docs" / "plans" / "development.md"
     entry = f"- **{today}:** Command {new_ver} ({bump_kind}): {summary}\n"
     replace_once(
+        texts,
         dev_md,
         r"(^## Decision record\n+(?:[^-\n][^\n]*\n+)*)(- \*\*)",
         r"\1" + entry.replace("\\", "\\\\") + r"\2",
         regex=True,
     )
+    if owned:
+        write_staged(texts)
     return ["src/version.h", "tests/run.sh", "ROADMAP.md", "docs/plans/development.md"]
 
 
@@ -637,12 +672,13 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
             result["summary"] = input("One-line summary: ").strip()
 
     edited_files = []
+    texts = {}
     if need_corpus_bump:
         targets = ["knowledge/version", "ROADMAP.md"]
         step_claim(root, targets, claim_state, print_heading=False)
         edited_files.extend(
             apply_corpus_version_edits(
-                root, corpus_old, corpus_choice[1], result["summary"], today
+                root, corpus_old, corpus_choice[1], result["summary"], today, texts
             )
         )
 
@@ -651,9 +687,10 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
         step_claim(root, targets, claim_state, print_heading=False)
         edited_files.extend(
             apply_command_version_edits(
-                root, cmd_old, cmd_choice[1], cmd_choice[0], result["summary"], today
+                root, cmd_old, cmd_choice[1], cmd_choice[0], result["summary"], today, texts
             )
         )
+    write_staged(texts)
 
     for rel in edited_files:
         if rel not in changes["paths"]:

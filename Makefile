@@ -133,6 +133,7 @@ corpus-and-test: command corpus
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
 	python3 -m unittest -q tests/test_build_index.py
+	python3 tools/check-repo.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 check: corpus test

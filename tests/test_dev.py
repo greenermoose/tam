@@ -366,6 +366,64 @@ class DevLoopTest(unittest.TestCase):
                 root, "0.32.0", "0.33.1", "patch", "Duplicate bump", "2026-10-20"
             )
 
+    def test_version_bump_writes_nothing_when_a_later_copy_has_drifted(self):
+        root, _ = self.make_fixture()
+        roadmap_path = root / "ROADMAP.md"
+        roadmap_path.write_text(
+            roadmap_path.read_text().replace(
+                "| `develop` | 0.32.0 / 0.33.6 |", "| `develop` | 0.32.0 / 0.33.5 |"
+            ),
+            encoding="utf-8",
+        )
+        before = {
+            rel: (root / rel).read_text()
+            for rel in ("knowledge/version", "ROADMAP.md", "src/version.h", "tests/run.sh")
+        }
+        with self.assertRaisesRegex(dev_mod.DevError, "no version file was changed"):
+            dev_mod.apply_corpus_version_edits(
+                root, "0.33.6", "0.33.7", "Clarify using index", "2026-10-20"
+            )
+        for rel, text in before.items():
+            self.assertEqual((root / rel).read_text(), text, rel)
+
+    def test_combined_bump_writes_nothing_when_the_command_copy_has_drifted(self):
+        root, _ = self.make_fixture()
+        run_sh = root / "tests" / "run.sh"
+        run_sh.write_text(
+            run_sh.read_text().replace("^tam command 0.32.0", "^tam command 0.31.9"),
+            encoding="utf-8",
+        )
+        before = {
+            rel: (root / rel).read_text()
+            for rel in ("knowledge/version", "ROADMAP.md", "src/version.h", "tests/run.sh")
+        }
+        texts = {}
+        dev_mod.apply_corpus_version_edits(
+            root, "0.33.6", "0.33.7", "Clarify using index", "2026-10-20", texts
+        )
+        with self.assertRaises(dev_mod.DevError):
+            dev_mod.apply_command_version_edits(
+                root, "0.32.0", "0.32.1", "patch", "Fix helper", "2026-10-20", texts
+            )
+        for rel, text in before.items():
+            self.assertEqual((root / rel).read_text(), text, rel)
+
+    def test_combined_bump_stages_both_lanes_before_writing(self):
+        root, _ = self.make_fixture()
+        texts = {}
+        dev_mod.apply_corpus_version_edits(
+            root, "0.33.6", "0.33.7", "Clarify using index", "2026-10-20", texts
+        )
+        dev_mod.apply_command_version_edits(
+            root, "0.32.0", "0.33.0", "minor", "Add helper command", "2026-10-20", texts
+        )
+        self.assertEqual((root / "knowledge" / "version").read_text().strip(), "0.33.6")
+        dev_mod.write_staged(texts)
+        self.assertEqual((root / "knowledge" / "version").read_text().strip(), "0.33.7")
+        roadmap = (root / "ROADMAP.md").read_text()
+        self.assertIn("| `develop` | 0.33.0 / 0.33.7 |", roadmap)
+        self.assertIn('"0.33.0"', (root / "src" / "version.h").read_text())
+
     def test_failed_test_keeps_version_bump_and_rerun_detects_already_bumped(self):
         root, env = self.make_fixture()
         page_path = root / "knowledge" / "use" / "index.html"
