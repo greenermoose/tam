@@ -149,8 +149,9 @@ existing inode are different operations. Truncation can affect existing
 readers; renaming another file over the name preserves the old open file.</p>
 <h3>Explore</h3>
 <p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Keep this terminal open while you
-work through the section.</p>
+commands print nothing when they succeed. Run the first line on its own; if
+it reports an error, stop. Run the second line and stop if it reports an
+error too. Keep this terminal open while you work through the section.</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
@@ -161,10 +162,10 @@ $ exec 3&lt;active.txt
 $ printf &#x27;%s\n&#x27; new &gt; replacement.txt
 $ mv replacement.txt active.txt
 $ cat active.txt
-$ cat &lt;&amp;3
-$ exec 3&lt;&amp;-
 new
+$ cat &lt;&amp;3
 old
+$ exec 3&lt;&amp;-
 </pre>
 <p>Captured on Arch Linux, 2026-10-21. Descriptor 3 sees old; reopening the
 name sees new. No package, service or real application was changed.</p>

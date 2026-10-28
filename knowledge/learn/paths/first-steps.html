@@ -69,8 +69,8 @@ Finish that exercise's cleanup before returning here.</li></ol>
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
 <details class="q">
-<summary>Why can you predict this example more reliably than counting a running application?</summary>
-<p>The example supplies the same three lines every time. Running applications change, and a process-search command can match itself. Return to the pipeline worked example if needed.</p>
+<summary>What will the pipeline count if you change only the pattern from apple to pear?</summary>
+<p>It counts one line: the fixed input contains pear once. Return to the pipeline worked example if needed.</p>
 </details>
 </section>
 <h2>4. Find your way back</h2>
@@ -95,8 +95,9 @@ its numeric mode. Remove these two files and the temporary directory when
 done, then reopen Welcome and find this path again.</p>
 <details class="solution">
 <p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Keep this terminal open while you
-work through the section.</p>
+commands print nothing when they succeed. Run the first line on its own; if
+it reports an error, stop. Run the second line and stop if it reports an
+error too. Keep this terminal open while you work through the section.</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"

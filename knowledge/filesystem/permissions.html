@@ -32,8 +32,9 @@ that prints nothing can still have succeeded. <code>./hello.sh</code> means
 the file named hello.sh in the current directory.</p></aside>
 <h3>Worked example</h3>
 <p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Keep this terminal open while you
-work through the section.</p>
+commands print nothing when they succeed. Run the first line on its own; if
+it reports an error, stop. Run the second line and stop if it reports an
+error too. Keep this terminal open while you work through the section.</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
@@ -42,11 +43,11 @@ cd "$work"
 $ printf &#x27;%s\n&#x27; &#x27;#!/bin/sh&#x27; &#x27;printf &quot;hello\n&quot;&#x27; &gt; hello.sh
 $ chmod 600 hello.sh
 $ stat -c &#x27;%A %a %n&#x27; hello.sh
+-rw------- 600 hello.sh
 $ chmod u+x hello.sh
 $ stat -c &#x27;%A %a %n&#x27; hello.sh
-$ ./hello.sh
--rw------- 600 hello.sh
 -rwx------ 700 hello.sh
+$ ./hello.sh
 hello
 </pre>
 <p>Captured on Arch Linux, 2026-10-21. GNU <code>stat</code> omits variable
@@ -109,8 +110,9 @@ For a directory, read lists names, execute searches/traverses, and write
 permits changing entries when search access is also available.</p>
 <h3>Worked example</h3>
 <p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Keep this terminal open while you
-work through the section.</p>
+commands print nothing when they succeed. Run the first line on its own; if
+it reports an error, stop. Run the second line and stop if it reports an
+error too. Keep this terminal open while you work through the section.</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
@@ -119,9 +121,9 @@ cd "$work"
 $ mkdir shared
 $ chmod 2770 shared
 $ stat -c &#x27;%A %a %n&#x27; shared
+drwxrws--- 2770 shared
 $ (umask 0027; printf &#x27;%s\n&#x27; note &gt; shared/note.txt)
 $ stat -c &#x27;%A %a %n&#x27; shared/note.txt
-drwxrws--- 2770 shared
 -rw-r----- 640 shared/note.txt
 </pre>
 <p>Captured on Arch Linux, 2026-10-21, in a fresh directory without default
@@ -205,8 +207,9 @@ targets. See stat(2), path_resolution(7) and capabilities(7).</p>
 <tr><td>01000 sticky</td><td>Restricts removal/rename in directories to the file owner, directory owner or a suitably privileged process</td></tr></table>
 <h3>Explore</h3>
 <p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Keep this terminal open while you
-work through the section.</p>
+commands print nothing when they succeed. Run the first line on its own; if
+it reports an error, stop. Run the second line and stop if it reports an
+error too. Keep this terminal open while you work through the section.</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
