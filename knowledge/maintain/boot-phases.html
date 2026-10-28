@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html><head>
+<title>Boot phases</title>
+<meta name="topic" content="boot phases">
+<meta name="summary" content="Name the phases from firmware startup to text login and distinguish boot phases from runlevels">
+<meta name="keywords" content="boot, boot phases, startup, firmware, uefi, boot menu, bootloader, kernel, initramfs, unlock, hibernation, resume, login, runlevel, runit, console, desktop">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="maintain">
+<meta name="parent" content="maintain/index.html">
+<meta name="prereqs" content="maintain">
+<meta name="kind" content="reference">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Boot phases</p></nav>
+<h1>Boot phases</h1>
+<p>This page names the parts of startup from turning on a computer to reaching a text login.</p>
+<p>Tamlinux calls these parts <strong>boot phases</strong>. The exact screens and order depend on the machine and its configuration; some phases are combined or invisible.</p>
+<h2>From power on to login</h2>
+<ol>
+<li><strong>Firmware initialization:</strong> the computer's firmware starts hardware and prepares to find something to boot.</li>
+<li><strong>Firmware boot selection:</strong> the firmware chooses a boot entry, automatically or from a menu opened by a machine-specific key.</li>
+<li><strong>Bootloader selection:</strong> a bootloader may offer operating systems, kernels or recovery choices, then load the selected Linux boot image. Some machines use more than one bootloader.</li>
+<li><strong>Kernel and early userspace:</strong> the Linux kernel starts hardware and runs the initramfs, a temporary early environment that prepares the installed system. If the root disk is encrypted, this environment may ask for its unlock password.</li>
+<li><strong>Resume or normal startup:</strong> after required storage is available, a valid hibernation image can restore the earlier session. Otherwise the installed root filesystem is mounted and the init system starts services and a text login prompt.</li>
+</ol>
+<p>A changing font or a blank screen can accompany a console or display-driver change. It does not by itself identify which program is running. A unified kernel image can package the kernel, initramfs and settings in one file.</p>
+<h2>After the boot phases</h2>
+<p>Signing in authenticates a user and starts a text session, usually with a command shell. Disk unlock and user login are separate steps. A resumed session may return directly to its previous state rather than show a fresh login.</p>
+<p>Tamlinux's text-first startup plan provides terminal work after login and starts the graphical desktop only when requested with <code>tam-desktop</code>. The <a href="learn/glossary/virtual-console.html">virtual console</a> remains a way to work with text. A graphical session is optional; it is not a separate boot phase.</p>
+<section data-level="beginner">
+<h2>Remember the difference</h2>
+<p>Unlocking lets the computer access encrypted storage. Signing in identifies the user. You may need to do both.</p>
+</section>
+<section data-level="intermediate">
+<h2>Boot phases and runlevels</h2>
+<p>A boot phase describes part of the startup sequence. A runlevel is a configuration of services for a running system, traditionally identified by a number. The current Arch-based setup uses systemd targets to group units. Runit can also support named service sets called runlevels; its three initialization, operation and shutdown stages are a different use of the word stage. Neither runlevels nor targets are the firmware and bootloader sequence described above.</p>
+</section>
+<section data-level="expert">
+<h2>Handoffs and evidence</h2>
+<p>The firmware selects an EFI program; a loader may pass control to another loader before starting a kernel and initramfs. Early userspace prepares the root device and either resumes a hibernated system or switches to the installed root. Observe the actual entry and boot artifacts before attributing a screen to a particular program. A console font change alone is not that evidence.</p>
+</section>
+<h2>Where next</h2>
+<ul><li><a href="maintain/boot.html">How your computer starts</a>: examine the boot chain and its artifacts.</li>
+<li><a href="maintain/boot-recovery.html">Boot fallbacks and rescue routes</a>: understand recovery choices.</li>
+<li><a href="ecosystem/init.html">Init systems</a>: learn how services are started and supervised.</li></ul>
+</body></html>

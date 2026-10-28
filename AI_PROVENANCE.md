@@ -155,3 +155,4 @@ model for each session.
 | 2026-10-27 | Use `tam hi` in corpus instructions; corpus 0.45.3 | Codex CLI 0.164.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-hi-corpus.md) |
 | 2026-10-27 | Pilot lesson source review and corrections; corpus 0.45.4 | Codex CLI 0.165.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-pilot-review.md) |
 | 2026-10-27 | First steps and beginner lesson clarity; corpus 0.45.5 | Codex CLI 0.165.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-27-tam-pilot-review.md) |
+| 2026-10-28 | Boot phases overview and terminology; corpus 0.46.0 | Codex CLI 0.165.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-28-tam-boot-phases.md) |
