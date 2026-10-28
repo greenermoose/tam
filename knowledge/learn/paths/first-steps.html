@@ -13,13 +13,15 @@
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / First steps</p></nav>
+
 <h1>First steps</h1>
 <p>This page helps you use your computer and find your way around this guide.</p>
-<p>Use the Up and Down Arrow keys to move through a page. Press Tab or
-<code>]</code> to select the next link, then Right Arrow to follow it. Left Arrow
+<p>Use the Up and Down Arrow and Page Up and Down keys to move through a page. Press <code>Tab</code> or
+<code>]</code> to select the next link, then <code>Right Arrow</code> to follow it. <code>Left Arrow</code>
 returns to the previous page. To reveal an answer or solution, move to its
 line and press Right Arrow; Left Arrow hides it again. Press <code>h</code>
 for this guide reader's full key list.</p>
+
 <h2>1. Open a terminal for entering commands</h2>
 <p>A <a href="learn/glossary/terminal.html">terminal</a> is where you
 can type instructions and read replies. Each instruction is called a
@@ -37,26 +39,37 @@ press the Return (or Enter) key, then follow the First steps link from the
 Welcome page.</p>
 <p>A shell <a href="learn/glossary/prompt.html">prompt</a> is the text that shows
 where the computer is waiting for your instruction. Your shell prompt may look
-different from the <code>$</code> in the example. Type only the text after
-the <code>$</code>, then press Enter.</p>
+different from the <code>$</code> in the example below. Type only the text after
+the <code>$</code>, then press your return key.</p>
+
+<h3>Try it: command and output</h3>
+<p>Here's an example for you to try.  This is how most terminal command examples work:
+you see a shell prompt (<code>$</code> in this case), followed by
+the command you need to type.  Then you see the output of the command.</p>
+
+<p>If you can, open another terminal so you can try this command. If you can't, read on and try it later in a terminal.
+Type the command and then press your return key (marked either Return or Enter on your keyboard). Then you should see the output of the command. In this example, the expected output is "hello".</p>
 <pre class="session" data-risk="read-only">
-$ printf &#x27;%s\n&#x27; hello
-hello
+    $ printf &#x27;%s\n&#x27; hello
+    hello
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. A command is different from its
-output: do not type hello again as a command. Here <code>printf</code>
-prints text; <code>'%s\n'</code> tells it to print each supplied word on a
-new line. Keep the single quotes and spaces when you type the example.</p>
-<p>To paste into the terminal, use Tamlinux's SUPER+V shortcut. Read a
-command before pasting; pasted newlines may execute commands immediately.
-For this first task, type the short line yourself. Ctrl+C cancels unfinished
-input or interrupts a foreground command; it does not undo completed work.</p>
+
+<p>The above example was tested using the <code>bash</code> shell from Arch Linux on 2026-10-21. Your results may vary.</p>
+
+<p>Note that the example shows both the command you type and the output we expect the computer to display.
+When you try examples of commands to use in a terminal, just type the command. Do not type hello;
+that is the expected output. The shell command <code>printf</code> prints text; the argument <code>'%s\n'</code>
+tells it to print each supplied word on a new line. Include the single quotes (<code>'</code>) and spaces
+when you type your command.</p>
+<p>To make your life easier, you can copy and paste text into a terminal using Tamlinux's SUPER+C and SUPER+V shortcuts.
+For short examples, you can type everything yourself. But for longer examples, it's easier to select text, copy it, and then paste it into the terminal.</p>
+    
 <section class="quiz">
-<h3>Check yourself</h3>
+<h3>Check your knowledge</h3>
 <p>Answer before revealing the explanation.</p>
 <details class="q">
-<summary>Which text do you type: the leading dollar sign, the printf command, or the output hello?</summary>
-<p>Type only the <code>printf</code> command and press Enter. The dollar sign is the shell prompt in this example;
+<summary>In the terminal command example above, which text do you type: the leading dollar sign, the printf command, or the output hello?</summary>
+<p>Type only the <code>printf</code> command plus the arguments <code>'%s\n'</code> and <code>hello</code>, then press Enter. The dollar sign is the shell prompt in this example;
 hello is the result. Shell prompts often end with a dollar sign, but not always.
 Sometimes they end with a slash (<code>/</code>) or a number sign (<code>#</code>) or a colon (<code>:</code>) or another character.</p>
 </details>

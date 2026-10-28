@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-27. **Owner:** Fred (developer).
-**Current Command Version:** `0.44.0`. **Current Corpus Version:** `0.46.2`.
+**Current Command Version:** `0.44.1`. **Current Corpus Version:** `0.46.3`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -142,12 +142,14 @@ in that candidate, not here.
 | **0.46.0 corpus** | Boot phases | Done (2026-10-28) | Adds a Maintaining page naming the boot phases, separating disk unlock from login and hibernation resume from a fresh boot. Learner and packaged acceptance remain pending. |
 | **0.46.1 corpus** | Boot phases topic slug | Done (2026-10-28) | Renames the boot phases topic to `boot-phases`, so `tam explain boot-phases` works and terse topic lists stay one word per line, and drops its `desktop` keyword. |
 | **0.46.2 corpus** | More wordsmithing of first steps page | Done (2026-10-28) | More wordsmithing of first steps page |
+| **0.46.3 corpus** | Wordsmithing welcome and first steps pages | Done (2026-10-28) | Wordsmithing welcome and first steps pages |
+| **0.44.1 command** | Wordsmithing welcome and first steps pages | Done (2026-10-28) | Wordsmithing welcome and first steps pages |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.44.0 / 0.46.2 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
+| `develop` | 0.44.1 / 0.46.3 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 

@@ -22,7 +22,7 @@ current work from historical plans. Follow
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline
 guide: an interactive pager in a terminal, or plain text when output is piped.
-`tam welcome` opens orientation and records successful display state.
+`tam hi` opens orientation and records successful display state.
 `tam search <query>` searches the corpus index with field-weighted ranking and
 fuzzy suggestions; on a terminal the results open in the pager with followable
 links, and `--pipe` or `--json` print them instead.
@@ -35,8 +35,8 @@ itself, so browsing needs no network and no external viewer.
 ## Using tam
 
 ```sh
-tam welcome           # open the welcome orientation in the pager
-tam welcome --pipe    # print welcome text to stdout
+tam hi                # open the welcome orientation in the pager
+tam hi --pipe         # print welcome text to stdout
 tam show              # open the guide index in the pager
 tam show welcome      # open a page by name
 tam show --pipe       # print the guide as plain text (no escape sequences)

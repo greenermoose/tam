@@ -433,6 +433,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-28:** Command 0.44.1 (patch): Wordsmithing welcome and first steps pages
 - **2026-10-27:** Corpus 0.44.0 (minor): twelve foundational glossary pages, a Guide index link and contextual explanations for first steps, shell and filesystem (`0fcddfe`, index `d1beac0`). Corpus checks passed; learner and packaged review remain pending.
 
 - **2026-10-25:** Corpus 0.43.8 (patch): TCK25 Improving track completion and enforcement.
