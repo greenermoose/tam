@@ -2,13 +2,13 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-10-27
-**Scope:** Living integration contract; current command 0.44.0 and corpus 0.45.0.
+**Scope:** Living integration contract; current command 0.44.0 and corpus 0.45.5.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md) and [external-links plan](external-links.md).
-**Next action:** Corpus 0.45.0 revises the tagged Learning lessons and adds the remaining goal paths. Continue concept-first explanations and glossary expansion. Review the preserved external-links branch for integration. Pilot and learner review remain unverified.
+**Next action:** Continue concept-first explanations and glossary expansion. Pilot and learner review remain unverified; record the remaining external-links acceptance details when available.
 See the [learning levels plan](learning-levels.md). Package Test/Run/Release remain
 developer-directed stages.
 Disposable acceptance builds and live metadata checks have standing developer
@@ -391,7 +391,7 @@ track enforcement. Corpus 0.44.0 adds twelve foundational glossary entries,
 a Guide index link and first-use explanations ([record](../ai/2026-10-27-tam-foundation-glossary.md)).
 Corpus 0.45.0 revises Learning and Installing lessons, enables tagged-section
 enforcement in every part and adds six goal paths. TCK25 source implementation is complete; wider concept explanations and
-glossary coverage remain. Pilot, learner and packaged acceptance are pending. The [external-links plan](external-links.md) tracks command 0.44.0’s integrated browser handoff; physical desktop and console review remain pending.
+glossary coverage remain. Pilot, learner and packaged acceptance are pending. The [external-links plan](external-links.md) tracks command 0.44.0’s integrated browser handoff; Fred reports it works, while the candidate, environments and full acceptance matrix remain unrecorded.
 
 Deferred work has no reserved command version: installer plan/apply/verify,
 stateful `tam learn`, compound shell parsing, new `why`/depth/trace commands,
@@ -484,7 +484,7 @@ record remains explicit in that plan and the index; it is not silently closed.
   from 22 to 18. Next TCK25 work: remaining Improving lessons, then track-wide
   enforcement.
 
-- **2026-10-27:** Command 0.44.0 (minor): external HTTP(S) links hand off to an optional browser with pager confirmation and OSC 8 support; physical review remains pending. See the [plan](external-links.md).
+- **2026-10-27:** Command 0.44.0 (minor): external HTTP(S) links hand off to an optional browser with pager confirmation and OSC 8 support; Fred reports external links work, with acceptance details still unrecorded. See the [plan](external-links.md).
 - **2026-10-25:** Corpus 0.43.2 (patch): TCK25 Maintaining completion and
   enforcement. Migrated `hardware/resources.html` and `ecosystem/packaging.html`
   to full ladder anatomy with captured read-only examples, mapped skills, and

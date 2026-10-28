@@ -4,7 +4,7 @@
 **Reviewed:** 2026-10-27
 **Scope:** Command 0.44.0 pager handoff of HTTP and HTTPS links; corpus versions are independent.
 **Authority:** Developer-approved design of 2026-10-23, recorded in the plan at `feature/external-links` commit `abf0262`; the developer raised its unfinished status again on 2026-10-27.
-**Next action:** Physical desktop and console acceptance of an exact packaged candidate remains developer-directed. Source integration and automated checks are recorded in the session record.
+**Next action:** Record the candidate and environments for the remaining acceptance checks when available. Source integration and automated checks are recorded in the session record.
 
 ## Outcome
 
@@ -27,8 +27,10 @@ The implementation from `feature/external-links` at `abf0262` is integrated in
 command 0.44.0 on `develop`; the branch and its remote ref are preserved.
 Documentation and automated verification are recorded in the
 [session record](../ai/2026-10-27-tam-external-links-integration.md).
-Physical desktop and console acceptance remain open; source tests do not
-establish it. Development installation and packaged stages are separate.
+On 2026-10-27 Fred reported: “I tested external links and they work.” The
+report does not identify the candidate, environments or individual acceptance
+cases, so the full desktop and console acceptance matrix remains open.
+Development installation and packaged stages are separate.
 
 ## Acceptance
 
