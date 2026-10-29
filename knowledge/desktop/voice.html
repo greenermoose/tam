@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Voice Dictation on the Desktop</title>
+<meta name="topic" content="voice">
+<meta name="summary" content="Using local push-to-talk voice dictation to enter text into any window">
+<meta name="keywords" content="voice, dictation, voxtype, whisper, speech, speech-to-text, microphone, f9, wtype">
+<meta name="level" content="beginner">
+<meta name="track" content="use">
+<meta name="parent" content="desktop/index.html">
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.beginner">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / Voice Dictation on the Desktop</p>
+</nav>
+
+<h1>Voice Dictation on the Desktop</h1>
+<p>This page explains how to speak to enter text directly into any focused window without straining your hands or sending your audio to the cloud.</p>
+
+<p>All voice recognition on Tamlinux runs entirely on your local computer using an on-device neural network. No audio, transcripts, or personal data ever leave your machine.</p>
+
+<h2>Push-to-talk and toggle dictation</h2>
+<p>Tamlinux provides two keybindings for dictation:</p>
+<ul>
+  <li><strong>Hold F9 (Push-to-Talk):</strong> Records while the key is held down and transcribes the moment you release it. This is ideal for short sentences and quick thoughts.</li>
+  <li><strong>SUPER + CTRL + X (Toggle):</strong> Press once to start recording hands-free, speak at your own pace, and press again to stop and transcribe.</li>
+</ul>
+
+<section data-level="beginner"><h2>Dictate a sentence into a window</h2>
+<p><strong>Goal:</strong> you will be able to speak a sentence and have it typed into a text editor or terminal without touching your keyboard keys.</p>
+<p><strong>Why it matters:</strong> dictation allows fast note-taking and relieves physical wrist strain during long sessions.</p>
+<p><strong>Before you start:</strong> ensure your microphone (such as a USB headset) is plugged in and selected as your default recording device. Open an empty text editor or terminal.</p>
+<aside class="first-time"><p>F9 is a push-to-talk key. Keep holding F9 down while speaking, then let go when you finish your sentence.</p></aside>
+<h3>Worked example</h3><ol><li>Click into your empty practice window so it has focus.</li>
+<li>Press and hold F9. A small on-screen indicator appears showing that the system is recording.</li>
+<li>Speak in a clear, natural voice: "Tamlinux runs speech recognition entirely on my local machine."</li>
+<li>Release F9. The indicator displays transcribing, and within one to two seconds the transcribed text is typed at your cursor.</li></ol>
+<p>This walkthrough is checked against the packaged Voxtype bindings, not a claim that a GUI acceptance test was performed in your session.</p>
+<h3>What just happened</h3><ol><li>The compositor detected the F9 press and instructed the Voxtype background daemon to start recording.</li>
+<li>The daemon captured your voice stream directly into memory through the PipeWire audio server.</li>
+<li>When you released F9, the local Whisper speech model converted the recorded sound into text.</li>
+<li>The Wayland virtual keyboard tool (wtype) simulated keyboard strokes to type the words into the focused window.</li></ol>
+<h3>Try it</h3><p>Practice with the hands-free toggle: press SUPER + CTRL + X, speak a brief phrase, then press SUPER + CTRL + X again to stop. Observe that the transcribed text is typed into the focused window.</p>
+<h3>If it goes wrong</h3><dl><dt>No text appears after speaking</dt>
+<dd>Check that your microphone is unmuted and set as default. Check the service status in a terminal with systemctl --user status voxtype.</dd>
+<dt>A word is misheard</dt>
+<dd>Whisper uses context to guess words. Speak at a steady pace. Custom word replacements can be added to your configuration in ~/.config/voxtype/config.toml under [text] replacements.</dd></dl>
+<h3>New words</h3><dl><dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard and simulated typing input.</dd>
+<dt><dfn><a href="learn/glossary/terminal.html">Terminal</a></dfn></dt><dd>A window where you interact with command line programs and text.</dd></dl>
+<h3>Next step</h3><p>Read <a href="desktop/voice-commands.html?level=2">Shell voice commands</a> to learn how voice is safely used at the terminal prompt without unintended execution.</p>
+<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Where is your voice recording sent during dictation?</summary><p>Nowhere outside your machine. Audio is held in local memory and processed on your own CPU by an on-device Whisper model.</p></details><details class="q"><summary>How does the transcribed text enter the active application?</summary><p>A virtual keyboard injector (wtype) sends Wayland keyboard events to the focused window, exactly as if typed on a physical keyboard.</p></details></section>
+</section>
+
+<h2>Key reference</h2>
+<table><tr><th>Shortcut</th><th>Action</th><th>Behavior</th></tr>
+<tr><td>F9 (hold)</td><td>Push-to-talk</td><td>Records while held; transcribes on release</td></tr>
+<tr><td>SUPER + CTRL + X</td><td>Toggle dictation</td><td>Starts recording on first press; stops and transcribes on second</td></tr></table>
+
+<h2>How dictation works under the hood</h2>
+<p>Tamlinux links several fast, lightweight components to deliver offline dictation:</p>
+<ol>
+  <li><strong>Audio capture:</strong> PipeWire records 16 kHz 16-bit mono audio directly into daemon process memory (RAM). No audio files are written to disk.</li>
+  <li><strong>Inference engine:</strong> The Voxtype daemon passes the audio buffer to whisper.cpp, which executes OpenAI's Whisper model (ggml-small.en.bin stored in ~/.local/share/voxtype/models/) using AVX2 vector instructions.</li>
+  <li><strong>Context optimization:</strong> Clips under ~22 seconds skip unnecessary padding, allowing typical phrases to transcribe in about 1 second.</li>
+  <li><strong>Window injection:</strong> The daemon instructs wtype to inject keystrokes into the active Wayland surface with a 1 ms character delay.</li>
+</ol>
+</body>
+</html>
