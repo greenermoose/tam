@@ -70,7 +70,7 @@ pass "additive and legacy index columns preserve existing page metadata"
 # Help.
 "$TAM" --help | grep -q 'Usage:' || fail "--help is missing usage"
 [ $(printf '%s\n' "$("$TAM" --help)" | wc -l) -le 35 ] || fail "--help exceeds 35 lines"
-"$TAM" -h >/dev/null || fail "-h failed"
+[ "$("$TAM" -h)" = "$("$TAM" --help)" ] || fail "-h differs from --help"
 "$TAM" help | grep -q 'Usage:' || fail "help is missing usage"
 [ "$("$TAM" help)" = "$("$TAM" --help)" ] || fail "help differs from --help"
 [ "$("$TAM")" = "$("$TAM" --help)" ] || fail "bare tam differs from --help"
@@ -92,13 +92,15 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.44.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.45.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
-"$TAM" -V >/dev/null || fail "-V failed"
+[ "$("$TAM" -v)" = "$("$TAM" --version)" ] || fail "-v differs from --version"
+[ "$("$TAM" -V)" = "$("$TAM" --version)" ] || fail "-V differs from --version"
+if "$TAM" -v extra >/dev/null 2>&1; then fail "-v with extra args exited 0"; fi
 iso "$TAM" --version | grep -q 'unavailable' || fail "missing cultivar metadata note"
-pass "--version and -V"
+pass "--version, -v, and -V"
 
 # Source upgrade help and argument validation remain offline and write-free.
 upgrade_help=$(iso "$TAM" upgrade --help) || fail "tam upgrade --help failed"

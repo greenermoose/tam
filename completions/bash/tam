@@ -7,7 +7,7 @@ _tam_completions() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     local subcommands="show welcome hello hi explain search man info tldr inspect check install ask upgrade switch help"
-    local global_flags="--help -h --pipe --terse --verbose --version -V"
+    local global_flags="--help -h --pipe --terse --verbose --version -v -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         if [[ "$cur" == -* ]]; then

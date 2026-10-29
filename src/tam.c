@@ -101,7 +101,7 @@ static void print_tam_help(int tier)
             "  tam upgrade                   check and install available versions\n"
             "  tam switch STAGE              select a source stage or roll back\n\n"
             "Essential Options:\n"
-            "  --help, -h | --pipe | --terse | --verbose | --version, -V\n",
+            "  --help, -h | --pipe | --terse | --verbose | --version, -v, -V\n",
             stdout);
         free(k_ver);
         free(k_build);
@@ -152,7 +152,7 @@ static void print_tam_help(int tier)
             "      emit compact single-line or summary output\n"
             "  --verbose\n"
             "      show all subcommands, arguments, secondary verbs, and options\n"
-            "  --version, -V\n"
+            "  --version, -v, -V\n"
             "      display command, libtam, and Tamlinux cultivar metadata\n\n"
             "Environment:\n"
             "  TAM_KNOWLEDGE_DIR         override path to offline HTML guide corpus\n"
@@ -189,7 +189,7 @@ static void print_tam_help(int tier)
         "Options to know:\n"
         "  --help, -h                show this help overview\n"
         "  --pipe                    output as plain text for piping\n"
-        "  --version, -V             show version info\n\n"
+        "  --version, -v, -V         show version info\n\n"
         "Run 'tam --verbose' for a complete list of commands and more detail.\n",
         TAM_COMMAND_VERSION, dev_buf, k_buf);
     free(k_ver);
@@ -970,7 +970,7 @@ int main(int argc, char **argv)
         return too_many_arguments();
     }
 
-    if (strcmp(arg, "-V") == 0 || strcmp(arg, "--version") == 0) {
+    if (strcmp(arg, "-v") == 0 || strcmp(arg, "-V") == 0 || strcmp(arg, "--version") == 0) {
         if (argc > 2) {
             return too_many_arguments();
         }

@@ -87,7 +87,7 @@ Build targets follow the lanes:
 | --- | --- | --- |
 | `tam` | Implemented | Concise introduction and starting points; reports command version and corpus version; exit 0 without launching a pager or writing state. |
 | `tam --help` | Implemented | Concise usage and implemented commands; reports command version and corpus version; works without guide data or cultivar metadata. `tam help` is the same invocation. |
-| `tam --version` | Implemented | Reports command version, bundled corpus version, libtam version, and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
+| `tam --version`, `tam -v`, `tam -V` | Implemented | Reports command version, bundled corpus version, libtam version, and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
 | `tam show [PAGE]` | Implemented | Open the local guide in the built-in pager when interactive (e.g. `tam show tam` opens `knowledge/tam.html`); readable text when piped or not a terminal. Preserves path-based semantics and navigates directly to a page. |
 | `tam welcome` | Implemented | Explicit orientation; record welcome only after successful display. |
 | `tam hello`, `tam hi` | Implemented | Friendly orientation shortcuts; exact aliases for `tam welcome`. |
@@ -1204,3 +1204,5 @@ resolve superseded schedules. Do not execute a former plan from this history.
   with `tools/build-tldr-index.py`.
 
 
+
+- **2026-10-29:** Add `-v` as an alias for `--version`, retaining `-V`; command version bumped to 0.45.0.
