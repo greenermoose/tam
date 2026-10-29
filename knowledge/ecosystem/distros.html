@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Base Distributions: Arch, Void, and antiX</title>
+<title>Rootstocks: Arch, Void, and antiX</title>
 <meta name="topic" content="distros">
-<meta name="summary" content="Choosing the base OS: Arch Linux today, Void Linux next, antiX Core as fallback">
-<meta name="keywords" content="distro, distros, distribution, arch, void, antix, debian, alpine, gentoo, base os, root-stock">
+<meta name="summary" content="Choosing the rootstock: Arch Linux today, Void Linux next, antiX Core as fallback">
+<meta name="keywords" content="distro, distros, distribution, arch, void, antix, debian, alpine, gentoo, base os, rootstock">
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
@@ -12,30 +12,42 @@
 </head>
 <body>
 <nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Choosing the Base Operating System</p>
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Choosing the Rootstock</p>
 </nav>
 
-<h1>Choosing the Base Operating System</h1>
-<p>This page compares different versions of Linux and explains which ones Tamlinux uses or is considering.</p>
-<section data-level="intermediate"><h2>Compare the base and the plan</h2><p><strong>Goal:</strong> distinguish the current base from the pilot target and fallback.</p><h3>Mental model</h3><p>A base distribution provides the core operating system; the workstation environment adds its own components.</p><h3>Worked example</h3><p>The discussion below identifies Arch as the working base, Void as a planned pilot and antiX Core as a fallback.</p>
+<h1>Choosing the Rootstock</h1>
+<p>This page compares different versions of Linux and explains which ones Tamlinux uses or is considering as its rootstock.</p>
+<section data-level="intermediate"><h2>Compare the rootstock and the plan</h2><p><strong>Goal:</strong> distinguish the current rootstock from the pilot target and fallback.</p><h3>Mental model</h3><p>A <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn> provides the core system software on which the Tamlinux <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> is installed.</p><h3>Worked example</h3><p>The discussion below identifies Arch as the working rootstock, Void as a planned pilot and antiX Core as a fallback.</p>
 
 
 <p>Every Linux distribution makes its own trade-offs in packaging, init system,
 release cadence, and architecture. Tamlinux is a workstation environment rather
-than a new distribution: it is grafted onto a base distribution (the
-"root-stock") that provides the kernel, drivers, and core system.</p>
+than a new distribution: it is installed onto a rootstock that
+provides the kernel, drivers, and core system software. Rootstock is not a common
+term, but one that Fred Horch, the Tamlinux developer, made up to explain how
+Tamlinux works. Fred defines the rootstock to be the set of software that
+third-parties publish and is necessary to be installed so that the software we
+write can function properly. The cultivar is all the software in the Tamlinux
+release that allows the computer to be used effectively and efficiently by both
+humans and AI agents.</p>
 
-<h2>The current base: Arch Linux</h2>
+<p>Our goal is to minimize the size of the rootstock and maximize its speed and
+efficiency. Currently we are using Arch Linux as our rootstock but we plan to
+migrate to Void Linux in future versions of Tamlinux. Beyond that we are
+considering a microkernel to further reduce the code size of the rootstock and
+improve its performance per watt.</p>
+
+<h2>The current rootstock: Arch Linux</h2>
 
 <ul>
 <li><strong>Why Arch today:</strong> rolling releases bring current kernels, Mesa, Qt 6, and Wayland protocols, and keep the system maintained without whole-OS reinstalls.</li>
 <li><strong>Packaging:</strong> <code>pacman</code> with simple <code>PKGBUILD</code> recipes. Locally patched packages are served from a dedicated repository listed first in <code>/etc/pacman.conf</code>; see <a href="ecosystem/patches.html">Carried patches</a>.</li>
-<li><strong>Why move on:</strong> Arch is built around systemd, while the long-term target is a minimal base without it.</li>
+<li><strong>Why move on:</strong> Arch is built around systemd, while the long-term target is a minimal rootstock without it.</li>
 </ul>
 
 <h2>The target: Void Linux</h2>
 
-<p>Tamlinux plans to try <strong>Void Linux</strong> as its minimal base, from
+<p>Tamlinux plans to try <strong>Void Linux</strong> as its minimal rootstock, from
 step 1.2 of the roadmap:</p>
 
 <ul>
@@ -55,7 +67,7 @@ running well on older, low-resource hardware.</p>
 
 <ul>
 <li><strong>Debian:</strong> the upstream of many distributions and a benchmark for packaging standards, but its stable releases move slowly for desktop development.</li>
-<li><strong>Alpine Linux:</strong> very small, built on musl and BusyBox; shows how small a base can be, but less suited to a daily graphical workstation.</li>
+<li><strong>Alpine Linux:</strong> very small, built on musl and BusyBox; shows how small a rootstock can be, but less suited to a daily graphical workstation.</li>
 <li><strong>Puppy Linux and Tiny Core:</strong> demonstrations of running entirely from RAM, relevant to hardware longevity.</li>
 <li><strong>Gentoo:</strong> source-based and highly tunable, but full source builds are impractical on older hardware.</li>
 </ul>
@@ -63,6 +75,6 @@ running well on older, low-resource hardware.</p>
 <p>For a description of each of these systems and many more, and for the
 microkernel research planned for Tam 2.0, see the
 <a href="ecosystem/os/index.html">Operating systems reference</a>.</p>
-<h3>Completion task</h3><p>Sort those three names into current, pilot and fallback.</p><details class="solution"><p>Arch is the working base. Void is the planned pilot; antiX Core is the fallback if the pilot has a showstopper.</p></details><h3>Independent task</h3><p>Find the linked base-system plan and identify what would qualify as a showstopper.</p><h3>Choosing</h3><p>Use the installed base&#x27;s tools for present maintenance; evaluate a pilot against its own evidence.</p><h3>Troubleshooting</h3><p>A desired target does not prove hardware, application or recovery support.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> The Void pilot is planned; Arch remains the working base in the cited product plan.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does selecting Void as a pilot prove it is running on this host?</summary><p>No. Inspect the host and selected installation rather than inferring it from the plan.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
+<h3>Completion task</h3><p>Sort those three names into current rootstock, pilot and fallback.</p><details class="solution"><p>Arch is the working rootstock. Void is the planned pilot; antiX Core is the fallback if the pilot has a showstopper.</p></details><h3>Independent task</h3><p>Find the linked rootstock plan and identify what would qualify as a showstopper.</p><h3>Choosing</h3><p>Use the installed rootstock&#x27;s tools for present maintenance; evaluate a pilot against its own evidence.</p><h3>Troubleshooting</h3><p>A desired target does not prove hardware, application or recovery support.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> The Void pilot is planned; Arch remains the working rootstock in the cited product plan.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does selecting Void as a pilot prove it is running on this host?</summary><p>No. Inspect the host and selected installation rather than inferring it from the plan.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
 </body>
 </html>

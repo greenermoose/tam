@@ -86,9 +86,20 @@ glibc or musl on Linux, which makes the system calls; see
 interface that Unix-like systems share at this level. A system with good
 POSIX compatibility can run much existing software after recompiling it, even
 if its kernel is very different from Linux. Tamlinux's design keeps the
-communication between its own software and the base system to standard
-interfaces like these; see the root-stock and cultivar terms in
-<a href="ecosystem/terminology.html">Terminology</a>.</p>
+communication between its own software and the <a href="learn/glossary/rootstock.html">rootstock</a> to standard
+interfaces like these; see the rootstock and <a href="learn/glossary/cultivar.html">cultivar</a> terms in
+<a href="ecosystem/terminology.html">Terminology</a>. Rootstock is not a common
+term, but one that Fred Horch, the Tamlinux developer, made up to explain how
+Tamlinux works: it is the kernel and core system software on which the Tamlinux
+cultivar is installed. The cultivar is all the software in the Tamlinux
+release that allows the computer to be used effectively and efficiently by
+both humans and AI agents. Fred defines the rootstock to be the set of software
+that third-parties publish and is necessary to be installed so that the software
+we write can function properly. Our goal is to minimize the size of the rootstock
+and maximize its speed and efficiency. Currently we are using Arch Linux as our
+rootstock but we plan to migrate to Void Linux in future versions of Tamlinux.
+Beyond that we are considering a microkernel to further reduce the code size of
+the rootstock and improve its performance per watt.</p>
 
 <p>Linux itself moves some work out of the kernel: FUSE lets file systems run
 as user programs, and VFIO lets a user program drive a device. These narrow the

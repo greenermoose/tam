@@ -62,7 +62,7 @@ make: Leaving directory '/home/alex/src/tam'
 <h3>What just happened</h3>
 
 <ol>
-<li><code>./build/tam --version</code> printed four decoupled version identifiers: the C binary version, the active knowledge corpus version, the foundational <code>libtam</code> version, and the active Tamlinux cultivar generation name and version.</li>
+<li><code>./build/tam --version</code> printed four decoupled version identifiers: the C binary version, the active knowledge corpus version, the foundational <code>libtam</code> version, and the active Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> generation name and version. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. It is installed on a <a href="learn/glossary/rootstock.html">rootstock</a>, which is the kernel and core system software that third-parties publish and is necessary to be installed so that the software we write can function properly. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</li>
 <li><code>make -C ~/Code/tamlinux/tam command</code> invoked the C compiler (<code>cc</code>) with C11 flags (<code>-std=c11 -O2 -Wall -Wextra -Wpedantic</code>), producing the standalone executable at <code>build/tam</code> linked with <code>libtam</code> and <code>zlib</code>.</li>
 </ol>
 
@@ -332,7 +332,7 @@ Release (Tamlinux release)
 <dt>Forward-compatible metadata parsing</dt>
 <dd>The HTML tag scanner and index generators parse metadata additively. If an older command binary encounters newly added meta attributes (such as <code>kind</code> or <code>skills</code>), it ignores unrecognized fields gracefully without crashing or failing to display page content.</dd>
 <dt>Dynamic library ABI shifts</dt>
-<dd>Because Arch Linux is a rolling-release distribution, system libraries (such as <code>libncursesw</code> or <code>libz</code>) occasionally receive soname updates. Packaging via Home Manager pins dependencies in immutable Nix store paths, isolating production tools from rolling ABI disruptions.</dd>
+<dd>Because Arch Linux is currently used as the rootstock (which is a rolling-release distribution), system libraries (such as <code>libncursesw</code> or <code>libz</code>) occasionally receive soname updates. Packaging via Home Manager pins dependencies in immutable Nix store paths, isolating production tools from rolling ABI disruptions.</dd>
 </dl>
 
 <h3>Explore</h3>

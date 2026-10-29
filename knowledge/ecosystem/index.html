@@ -18,20 +18,21 @@
 <h1>The Tamlinux Ecosystem and Its Choices</h1>
 <p>This page introduces the software that makes up Tamlinux and the ideas behind it.</p>
 <p>Tamlinux is designed for laptop and desktop computers running Linux. These pages describe its parts, the choices behind them, and questions that remain open.</p>
+<p>In Tamlinux, the underlying operating system is called the <a href="learn/glossary/rootstock.html">rootstock</a>, which provides the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
 
 <h2>Explore the ecosystem</h2>
 
 <ul>
 <li><a href="about.html">About Tamlinux</a> &mdash; origin of the name, project background, and developer goals.</li>
 <li><a href="ecosystem/philosophy.html">Philosophy and principles</a> &mdash; free software, open standards, and resource efficiency.</li>
-<li><a href="ecosystem/distros.html">Base distributions</a> &mdash; Arch Linux today; Void Linux planned as the minimal base after the move to Sway, with antiX Core as the fallback.</li>
+<li><a href="ecosystem/distros.html">Rootstocks</a> &mdash; Arch Linux today; Void Linux planned as the minimal rootstock after the move to Sway, with antiX Core as the fallback.</li>
 <li><a href="ecosystem/os/index.html">Operating systems reference</a> &mdash; the Linux distributions, BSDs and microkernel systems Tamlinux watches, readable offline.</li>
 <li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash; why Sway on wlroots is planned to replace Hyprland.</li>
 <li><a href="ecosystem/sddm.html">Display managers and login</a> &mdash; graphical and text login, session inspection and recovery boundaries.</li>
 <li><a href="ecosystem/ttys-and-virtual-consoles.html">TTYs and virtual consoles</a> &mdash; terminal architecture, virtual terminals (VTs), PTYs, and seat handover.</li>
-<li><a href="ecosystem/packaging.html">Packaging and delivery</a> &mdash; Nix and Home Manager for the desktop, the native package manager for the base.</li>
+<li><a href="ecosystem/packaging.html">Packaging and delivery</a> &mdash; Nix and Home Manager for the cultivar, the native package manager for the rootstock.</li>
 <li><a href="ecosystem/package-versions.html">Specifying package versions</a> &mdash; how tamlinux-packages pins exact component revisions and builds the desktop bill of materials.</li>
-<li><a href="ecosystem/init.html">Init and service supervision</a> &mdash; runit on the target base, versus systemd.</li>
+<li><a href="ecosystem/init.html">Init and service supervision</a> &mdash; runit on the target rootstock, versus systemd.</li>
 <li><a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a> &mdash; Quickshell, QML, and independence from Omarchy.</li>
 <li><a href="ecosystem/desktop-apps.html">Desktop application suites</a> &mdash; a survey of KDE Gear and GNOME Core applications.</li>
 <li><a href="ecosystem/libc.html">C standard libraries</a> &mdash; glibc versus musl on a workstation.</li>

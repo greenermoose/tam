@@ -17,7 +17,7 @@
 
 <h1>The Arch Family</h1>
 <p>This page introduces Arch Linux and related versions of Linux.</p>
-<p>Tamlinux currently uses Arch Linux as its foundation. Related systems share some software, so their fixes can sometimes help Tamlinux too.</p>
+<p>Tamlinux currently uses Arch Linux as its <a href="learn/glossary/rootstock.html">rootstock</a>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt. Related systems share some software, so their fixes can sometimes help Tamlinux too.</p>
 
 <h2>Arch Linux</h2>
 
@@ -26,7 +26,7 @@
 <li><strong>Kernel, init and C library:</strong> Linux, systemd, glibc.</li>
 <li><strong>Packages and releases:</strong> <code>pacman</code>, with packages built from short shell recipes called <code>PKGBUILD</code>s. Arch rolls: there are no versions of the whole system, only a continuous stream of updated packages. The Arch User Repository (AUR) holds recipes contributed by users; it is separate from the official repositories and is not vetted by them.</li>
 <li><strong>Known for:</strong> a minimal starting point that the user builds up, and the Arch Wiki, one of the most thorough Linux references.</li>
-<li><strong>Tamlinux role:</strong> base. See <a href="ecosystem/distros.html">Choosing the base operating system</a> for why, and why Tamlinux plans to move on.</li>
+<li><strong>Tamlinux role:</strong> rootstock. See <a href="ecosystem/distros.html">Choosing the Rootstock</a> for why, and why Tamlinux plans to move on.</li>
 </ul>
 
 <h2>Omarchy</h2>

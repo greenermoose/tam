@@ -98,12 +98,12 @@ bash 5.3.20-1
 <h3>Mental model</h3>
 
 <pre>
-Base System (Kernel, Drivers, Core OS)   --> Pacman (/usr/bin)
+Rootstock (Kernel, Drivers, Core OS)    --> Pacman (/usr/bin)
 Workstation Assembly (Tamlinux Desktop) --> Nix / Home Manager (/nix/store)
 User Toolchains (Developer / Agent CLIs) --> Mise / Home Manager (~/.local/share)
 </pre>
 
-<p>Each command on your system should have one clear owner. Pacman owns the operating system base. Recorded Tamlinux assemblies deliver the graphical desktop through Nix and Home Manager. Fast-moving developer and agent CLIs are owned by Mise or Home Manager user declarations.</p>
+<p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt. Recorded Tamlinux assemblies deliver the graphical desktop through Nix and Home Manager. Fast-moving developer and agent CLIs are owned by Mise or Home Manager user declarations.</p>
 
 <h3>Worked example: Trace an executable to its owning package</h3>
 
@@ -129,7 +129,7 @@ ___ tam
 </pre>
 
 <details class="solution">
-<p>Use <code>which tam</code> or <code>command -v tam</code>. If the resulting path begins with <code>/nix/store/</code> or <code>~/.local/dev/bin/</code>, it is managed outside the base distribution's pacman database.</p>
+<p>Use <code>which tam</code> or <code>command -v tam</code>. If the resulting path begins with <code>/nix/store/</code> or <code>~/.local/dev/bin/</code>, it is managed outside the rootstock's pacman database.</p>
 </details>
 
 <h3>Independent task</h3>
@@ -144,7 +144,7 @@ ___ tam
 
 <table>
 <tr><th>Layer</th><th>Tool</th><th>Use for</th></tr>
-<tr><td>Base OS</td><td>pacman</td><td>Kernel, hardware drivers, system libraries, and core systemd services.</td></tr>
+<tr><td>Rootstock</td><td>pacman</td><td>Kernel, hardware drivers, system libraries, and core systemd services.</td></tr>
 <tr><td>Workstation environment</td><td>tamlinux-packages (Nix/HM)</td><td>Compositor, shell plugins, themes, and curated desktop applications.</td></tr>
 <tr><td>User runtimes</td><td>Mise</td><td>Language runtimes (Python, Node, Go) and fast-moving AI agent CLI tools.</td></tr>
 </table>
@@ -170,8 +170,8 @@ ___ tam
 <p>Mixing fast-moving user developer tools into the system package database creates version lock-in, risks dependency conflicts with system components, and complicates clean rollbacks.</p>
 </details>
 <details class="q">
-<summary>What happens to the base OS when you roll back a Home Manager generation?</summary>
-<p>Nothing. Home Manager generations operate within the user profile and <code>/nix/store/</code>; base packages managed by pacman remain untouched.</p>
+<summary>What happens to the rootstock when you roll back a Home Manager generation?</summary>
+<p>Nothing. Home Manager generations operate within the user profile and <code>/nix/store/</code>; rootstock packages managed by pacman remain untouched.</p>
 </details>
 </section>
 
@@ -193,17 +193,17 @@ ___ tam
 <tr><th>Architecture</th><th>Mechanism</th><th>Guarantees</th></tr>
 <tr><td>Nix Store</td><td>/nix/store/&lt;hash&gt;-&lt;name&gt;</td><td>Cryptographically hashed store paths, isolated dependencies, and atomic generation symlinks.</td></tr>
 <tr><td>Pacman DB</td><td>/var/lib/pacman/local/</td><td>Transactional package archives (.pkg.tar.zst) with strict file ownership checks.</td></tr>
-<tr><td>XBPS</td><td>/var/db/xbps/</td><td>Atomic package state machine and binary transactions for the Void Linux target base.</td></tr>
+<tr><td>XBPS</td><td>/var/db/xbps/</td><td>Atomic package state machine and binary transactions for the Void Linux target rootstock.</td></tr>
 <tr><td>Mise</td><td>~/.local/share/mise/</td><td>Per-directory or global tool version shims without root access.</td></tr>
 </table>
 
 <h3>How it works</h3>
 
-<p>Tamlinux delivers software by recording package assemblies in <code>tamlinux-packages</code>. Dependencies are pinned in <code>flake.lock</code>, producing deterministic derivations. When deployed via <code>tam-deploy</code>, Home Manager builds a new generation symlink under <code>~/.local/state/nix/profiles/home-manager</code>. Switching generations updates symlinks in <code>~/.nix-profile/bin/</code> atomically. The base OS remains untouched under native pacman governance.</p>
+<p>Tamlinux delivers software by recording package assemblies in <code>tamlinux-packages</code>. Dependencies are pinned in <code>flake.lock</code>, producing deterministic derivations. When deployed via <code>tam-deploy</code>, Home Manager builds a new generation symlink under <code>~/.local/state/nix/profiles/home-manager</code>. Switching generations updates symlinks in <code>~/.nix-profile/bin/</code> atomically. The rootstock remains untouched under native pacman governance.</p>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Tamlinux adopts a hybrid package-management model to balance system stability with developer flexibility. Using the distribution's native package manager for the base ensures proper hardware driver integration and kernel lifecycle management. Using declarative Nix flakes and Home Manager for the desktop environment prevents configuration drift, guarantees reproducibility across workstations, and makes every desktop update instantly reversible.</p>
+<p>Tamlinux adopts a hybrid package-management model to balance system stability with developer flexibility. Using the native package manager for the rootstock ensures proper hardware driver integration and kernel lifecycle management. Using declarative Nix flakes and Home Manager for the desktop environment prevents configuration drift, guarantees reproducibility across workstations, and makes every desktop update instantly reversible.</p>
 
 <h3>Edge cases</h3>
 

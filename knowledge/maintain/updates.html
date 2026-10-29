@@ -76,6 +76,7 @@ plan with a matching rollback boundary.</p>
 <pre>command name --PATH lookup--&gt; selected executable
 selected executable --owner check--&gt; manager or package assembly
 change that owner --&gt; verify running version --&gt; recover at the same layer</pre>
+<p>In Tamlinux, software packages are separated into the <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn> and the <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux cultivar is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
 $ pacman -Qo /usr/bin/bash
@@ -103,7 +104,7 @@ Nix store path alone does not identify which deployment selected it.</p>
 </details>
 <h3>Choosing</h3>
 <table><tr><th>Layer</th><th>Owner</th><th>Recovery evidence needed</th></tr>
-<tr><td>Base OS and drivers</td><td>Native Arch packages; separately reviewed AUR packages</td><td>Native recovery checkpoint and boot recovery where relevant</td></tr>
+<tr><td>Rootstock and drivers</td><td>Native Arch packages; separately reviewed AUR packages</td><td>Native recovery checkpoint and boot recovery where relevant</td></tr>
 <tr><td>Tamlinux product</td><td>Recorded tamlinux-packages assembly via tam-deploy</td><td>Retained exact package assembly and generation, plus mutable state recovery</td></tr>
 <tr><td>User tools</td><td>Tracked Home Manager or Mise declaration</td><td>Prior declaration and available generation or tool version</td></tr></table>
 <aside class="tamlinux"><p><code>tam-update --check</code> previews native

@@ -31,7 +31,7 @@
 <p><strong>Before you start:</strong> open a terminal. Inspecting package versions and deployed assembly status uses read-only commands that require no administrative privileges. See <a href="ecosystem/packaging.html">Software packaging and delivery</a> for package management basics.</p>
 
 <aside class="first-time">
-<p>A version number identifies an exact release of a program. On Tamlinux, cultivar names like Blue Sparkler represent overall workstation milestones, while individual tools like <code>tam</code> have their own version numbers. Commands like <code>tam --version</code> query the active program directly.</p>
+<p>A version number identifies an exact release of a program. On Tamlinux, cultivar names like Blue Sparkler represent overall workstation milestones, while individual tools like <code>tam</code> have their own version numbers. The <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. It is installed on top of the <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn>, which is the kernel and core system software that third-parties publish and is necessary to be installed so that the software we write can function properly. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt. Commands like <code>tam --version</code> query active program versions directly.</p>
 </aside>
 
 <h3>Worked example: Inspect active versions and cultivar</h3>
@@ -184,7 +184,7 @@ nix flake lock ___ tam
 <tr><td>Packaged assembly (<code>tam-deploy</code>)</td><td>Bit-for-bit reproducible, rollback point recorded, Nix store isolated</td><td>Test and Run daily-driver workstation operations</td></tr>
 <tr><td>User dev prefix (<code>~/.local/dev</code>)</td><td>Fast rebuild loop (<code>make install PREFIX=$HOME/.local/dev</code>), overrides packaged binary without root</td><td>Active interactive component development</td></tr>
 <tr><td>Direct copy to <code>~/.local/bin</code></td><td>Overwrites Home Manager symlink; wiped out on next <code>tam-deploy</code></td><td>Never; breaks package management linkage</td></tr>
-<tr><td>Manual edit under <code>/usr</code></td><td>Requires root, breaks package integrity, erased on distro update</td><td>Never; violates Tamlinux guardrails</td></tr>
+<tr><td>Manual edit under <code>/usr</code></td><td>Requires root, breaks package integrity, erased on rootstock update</td><td>Never; violates Tamlinux guardrails</td></tr>
 </table>
 
 <h3>Troubleshooting</h3>
@@ -293,7 +293,7 @@ Confirm <code>type -a tam</code> points back to <code>~/.local/bin/tam</code>.</
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Separating product cultivar milestones from independent component versions enables fast, focused iteration on individual utilities without triggering massive system-wide builds. Pinning components via cryptographic Git hashes and <code>flake.lock</code> eliminates runtime drift, guaranteeing that any developer or machine building a candidate produces identical software. Placing local development builds first on <code>PATH</code> allows safe, unprivileged testing while maintaining pristine package integrity in the underlying operating system.</p>
+<p>Separating product cultivar milestones from independent component versions enables fast, focused iteration on individual utilities without triggering massive system-wide builds. Pinning components via cryptographic Git hashes and <code>flake.lock</code> eliminates runtime drift, guaranteeing that any developer or machine building a candidate produces identical software. Placing local development builds first on <code>PATH</code> allows safe, unprivileged testing while maintaining pristine package integrity in the rootstock.</p>
 </section>
 
 </body>

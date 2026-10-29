@@ -98,11 +98,21 @@ against the versioned offline Check Contract (verifying Btrfs snapshot capabilit
 adequate disk space headroom, and <code>pkexec</code> privilege tools), deep-linking directly
 to the relevant maintenance guides above when corrective steps are recommended.</p>
 
-<p>The <strong>Operating system</strong> row names the installed distribution
+<p>The <strong>Operating system</strong> row names the installed <a href="learn/glossary/rootstock.html">rootstock</a>
 from <code>/etc/os-release</code>, falling back to <code>/usr/lib/os-release</code>,
-for example <code>Arch Linux (rolling)</code>. An <strong>OS version</strong> row
+for example <code>Arch Linux (rolling)</code>. Rootstock is not a common term, but one
+that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is
+the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a>
+is installed. The cultivar is all the software in the Tamlinux release that allows the computer
+to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock
+to be the set of software that third-parties publish and is necessary to be installed so that
+the software we write can function properly. Our goal is to minimize the size of the rootstock
+and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we
+plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a
+microkernel to further reduce the code size of the rootstock and improve its performance per watt.
+An <strong>OS version</strong> row
 appears only when the distribution records a <code>VERSION_ID</code>. Tamlinux is
-a workstation environment that runs on that distribution, so it appears on its
+a workstation environment that runs on that rootstock, so it appears on its
 own row, <strong>Tamlinux cultivar</strong>, with its cultivar name and version
 (for example <code>Incipiens 0.4.5</code>). Tamlinux is deployed per user: the
 row reads the version and name from that user's

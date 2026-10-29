@@ -17,7 +17,7 @@
 
 <h1>Independent Distributions</h1>
 <p>This page introduces versions of Linux that were built independently of larger projects.</p>
-<p>These systems were built independently rather than from a larger Linux family. Void Linux, a planned Tamlinux target, is one example.</p>
+<p>These systems were built independently rather than from a larger Linux family. Void Linux, a planned Tamlinux target rootstock, is one example. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the <a href="learn/glossary/rootstock.html">rootstock</a> to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
 
 <h2>Void Linux</h2>
 
@@ -26,7 +26,7 @@
 <li><strong>Kernel, init and C library:</strong> Linux and runit, with a choice of glibc or musl; see <a href="ecosystem/init.html">Init and service supervision</a> and <a href="ecosystem/libc.html">C standard libraries</a>.</li>
 <li><strong>Packages and releases:</strong> rolling. XBPS installs binary packages, and <code>xbps-src</code> builds them from source templates in a clean environment.</li>
 <li><strong>Reading offline:</strong> the <code>void-docs</code> package installs the Void Handbook.</li>
-<li><strong>Tamlinux role:</strong> target. The glibc profile is evaluated first. The musl profile is evaluated separately, because some software, such as the proprietary NVIDIA driver, does not support musl.</li>
+<li><strong>Tamlinux role:</strong> target rootstock. The glibc profile is evaluated first. The musl profile is evaluated separately, because some software, such as the proprietary NVIDIA driver, does not support musl.</li>
 </ul>
 
 <h2>Alpine Linux</h2>

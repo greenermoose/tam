@@ -3,8 +3,8 @@
 <head>
 <title>Starting and looking after system programs</title>
 <meta name="topic" content="init">
-<meta name="summary" content="Init and service supervision: runit on the target base, systemd today">
-<meta name="keywords" content="init, runit, systemd, supervision, daemons, service, services, seatd, pid 1, elogind">
+<meta name="summary" content="Init and service supervision: runit on the target rootstock, systemd today">
+<meta name="keywords" content="init, runit, systemd, supervision, daemons, service, services, seatd, pid 1, elogind, rootstock">
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
@@ -17,14 +17,26 @@
 
 <h1>Starting and looking after system programs</h1>
 <p>This page explains how a computer starts and looks after the programs it needs to run.</p>
-<section data-level="intermediate"><h2>Compare service supervision</h2><p><strong>Goal:</strong> identify which service manager belongs to the current system and which is a planned target.</p><h3>Mental model</h3><p>An init process starts the system; a supervisor manages services. A seat manager handles a different device-access boundary.</p><h3>Worked example</h3><p>The discussion below identifies systemd on the current Arch base and runit as the target for the planned base.</p>
+<section data-level="intermediate"><h2>Compare service supervision</h2><p><strong>Goal:</strong> identify which service manager belongs to the current system and which is a planned target.</p><h3>Mental model</h3><p>An init process starts the system; a supervisor manages services. A seat manager handles a different device-access boundary.</p><h3>Worked example</h3><p>The discussion below identifies systemd on the current Arch rootstock and runit as the target for the planned rootstock.</p>
 
 
 <p>The init system is process ID 1: it starts the system and supervises the
-services that run in the background. Today Tamlinux runs on Arch Linux, which
-uses <strong>systemd</strong>. The target base uses <strong>runit</strong>.</p>
+services that run in the background. In Tamlinux, the operating system that
+starts the computer is the <a href="learn/glossary/rootstock.html">rootstock</a>.
+Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer,
+made up to explain how Tamlinux works: it is the kernel and core system software
+on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed.
+The cultivar is all the software in the Tamlinux release that allows the computer
+to be used effectively and efficiently by both humans and AI agents. Fred defines
+the rootstock to be the set of software that third-parties publish and is necessary
+to be installed so that the software we write can function properly. Our goal is to
+minimize the size of the rootstock and maximize its speed and efficiency.
+Currently we are using Arch Linux as our rootstock, which uses <strong>systemd</strong>,
+but we plan to migrate to Void Linux with <strong>runit</strong> in future versions
+of Tamlinux. Beyond that we are considering a microkernel to further reduce the
+code size of the rootstock and improve its performance per watt.</p>
 
-<h2>Why runit on the target base</h2>
+<h2>Why runit on the target rootstock</h2>
 
 <p>On Void Linux, and on the antiX Core fallback, runit is the init and service
 supervisor, without systemd:</p>
@@ -50,8 +62,8 @@ On systemd systems <code>systemd-logind</code> grants it; without systemd,
 <strong><code>seatd</code></strong> and <strong><code>libseat</code></strong> do
 the same job. This is how Sway runs on Void without systemd or elogind.</p>
 
-<p>See also: <a href="ecosystem/distros.html">Base distributions</a>,
+<p>See also: <a href="ecosystem/distros.html">Rootstocks</a>,
 <a href="ecosystem/compositors.html">Compositors and windowing</a>.</p>
-<h3>Completion task</h3><p>Identify which tool is current and which belongs to the planned pilot.</p><details class="solution"><p>The present Arch system uses systemd. Runit is the planned pilot&#x27;s service supervisor; do not apply its commands to the current host by assumption.</p></details><h3>Independent task</h3><p>Find the base-system plan and name a condition to verify before changing the base.</p><h3>Choosing</h3><p>Use documentation for the manager actually installed; do not apply runit instructions to a systemd host by assumption.</p><h3>Troubleshooting</h3><p>A service failure does not by itself identify an init-system design problem; inspect the unit and logs.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> The current Arch base uses systemd; the alternative base is a pilot, not current deployment.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does installing a Wayland compositor require replacing systemd?</summary><p>No. Compositor, init and seat access are related choices with separate implementations.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
+<h3>Completion task</h3><p>Identify which tool is current and which belongs to the planned pilot.</p><details class="solution"><p>The present Arch system uses systemd. Runit is the planned pilot target rootstock&#x27;s service supervisor; do not apply its commands to the current host by assumption.</p></details><h3>Independent task</h3><p>Find the rootstock plan and name a condition to verify before changing the rootstock.</p><h3>Choosing</h3><p>Use documentation for the manager actually installed; do not apply runit instructions to a systemd host by assumption.</p><h3>Troubleshooting</h3><p>A service failure does not by itself identify an init-system design problem; inspect the unit and logs.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> The current Arch rootstock uses systemd; the alternative rootstock is a pilot, not current deployment.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does installing a Wayland compositor require replacing systemd?</summary><p>No. Compositor, init and seat access are related choices with separate implementations.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
 </body>
 </html>
