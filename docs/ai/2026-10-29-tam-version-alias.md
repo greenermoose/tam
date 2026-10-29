@@ -14,10 +14,12 @@
 
 > Make tam -v be a synonym for tam --version. Does tam -h work for --help?
 
+> install that version of tam so I can test
+
 ## Key decisions
 
 Retain the existing `-V` alias and add `-v` to help and completion. `-h` already aliases `--help`.
 
 ## Verification
 
-`timeout 300 make test-command` passed, including 15 upgrade tests and renderer goldens. Live Ollama checks skipped because no server was available.
+`timeout 300 make test-command` passed, including 15 upgrade tests and renderer goldens. Live Ollama checks skipped because no server was available. The full `make test` found a decision-record format error, corrected in a follow-up commit; `make check-repo` passed afterward.
