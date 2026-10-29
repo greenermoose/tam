@@ -1,23 +1,14 @@
 # tam
 
-`tam` is the terminal entry point to Tamlinux's offline guide. It helps users
-learn about their system, maintain it, and discover ways to improve it.
+`tam` is a terminal command to help users learn about their Tamlinux system,
+maintain it, and improve it.
 
-**Stage:** Develop — command 0.30.0 and knowledge corpus 0.31.0. The command
-includes the offline guide, native man and Info readers, search and explanation,
-host inspection, and a portable built-in pager. It builds in C against the
-separate `libtam` library and is delivered through Tamlinux package assemblies.
-This source candidate has not been deployed. See the
-[development plan](docs/plans/development.md) and
-[roadmap](ROADMAP.md) for current milestones.
+The command includes host inspection and a built-in HTML parser and pager
+to display and search the Tamlinux guide, man pages, Info manuals, and tldr
+pages. It builds in C against the `libtam` library and is delivered through
+Tamlinux package assemblies.
 
-The [five-part knowledge-system overhaul](docs/plans/knowledge-system-0.31.0.md)
-is implemented in source: Installing, Learning, Using, Maintaining and
-Improving, with common Guide/Man/Info navigation and in-reader discovery. Its
-automated acceptance passed; package assembly and real-console/Foot review
-remain developer-directed. The [plan index](docs/plans/README.md) distinguishes
-current work from historical plans. Follow
-[plan maintenance](docs/plan-maintenance.md) when changing scope or closing work.
+## Command overview
 
 Bare `tam` prints a concise introduction and exits successfully without
 launching a browser or writing state. `tam show` opens the bundled offline
@@ -25,12 +16,15 @@ guide: an interactive pager in a terminal, or plain text when output is piped.
 `tam hi` opens orientation and records successful display state.
 `tam search <query>` searches the corpus index with field-weighted ranking and
 fuzzy suggestions; on a terminal the results open in the pager with followable
-links, and `--pipe` or `--json` print them instead.
+links; for use in scripts,  `--pipe` or `--json` stream them to stdout instead.
 `tam explain <topic>` explains curated local concepts and tools, resolving
 multi-word queries through search.
 `tam inspect` inspects host facts, package tools, and supported profiles.
-The guide is authored as semantic HTML under `knowledge/`; `tam` renders it
-itself, so browsing needs no network and no external viewer.
+
+## Knowledge corpus
+
+The guide is authored as semantic HTML under `knowledge/`; `tam` renders
+HTML itself, so browsing needs no network and no external viewer.
 
 ## Using tam
 
