@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How terminals display text</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
+<meta name="topic" content="terminfo-and-termcap">
+<meta name="summary" content="How terminals draw a character grid using escape sequences, termcap, terminfo, TERM, tput and infocmp">
+<meta name="keywords" content="terminfo-and-termcap, terminfo, termcap, terminal display, escape sequence, escape sequences, TERM, tput, infocmp, ANSI, VT100, capability, capabilities">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="ecosystem, ttys-and-vts">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / How terminals display text</p>
+</nav>
+
+<h1>How terminals display text</h1>
+
+<p>A terminal draws a grid of character cells. Programs send ordinary text and special control sequences; terminfo and termcap name those capabilities so software can clear the screen, move the cursor, or set colors without hard-coding every terminal type.</p>
+
+<section data-level="beginner">
+<h2>See what your terminal reports</h2>
+
+<p><strong>Goal:</strong> you will be able to read <code>TERM</code> and ask the terminal how wide it is using <code>tput</code>.</p>
+
+<p><strong>Why it matters:</strong> full-screen tools and pagers decide how to clear, color, and move the cursor from the terminal type named by <code>TERM</code>. If that name is wrong or missing, keys and layout misbehave.</p>
+
+<p><strong>Before you start:</strong> open a <a href="learn/glossary/terminal.html">terminal</a>. Read <a href="ecosystem/ttys-and-virtual-consoles.html">text screens and terminal windows</a> if you need the difference between a window and a console. The examples only read settings; they do not change files.</p>
+
+<aside class="first-time">
+<p>Type the lines after the dollar sign and press Enter. <code>printenv TERM</code> prints a short name such as <code>foot</code> or <code>xterm-256color</code>. <code>tput cols</code> prints a number: the width of the terminal in character cells.</p>
+</aside>
+
+<h3>Worked example</h3>
+
+<pre class="session" data-risk="read-only">
+$ printenv TERM
+xterm-256color
+$ tput cols
+80
+$ tput lines
+24
+</pre>
+
+<p>Captured on Arch Linux with <code>TERM=xterm-256color</code>, 2026-10-30. Your <code>TERM</code> and sizes may differ (for example <code>foot</code> inside the Tamlinux desktop terminal).</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>printenv TERM</code> showed the terminal type name the shell exports to programs.</li>
+<li><code>tput cols</code> and <code>tput lines</code> looked up that type’s capability database and reported the current width and height in cells.</li>
+<li>Ordinary characters fill cells; control sequences (looked up by name, not typed by hand here) clear the screen or move the cursor.</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Run <code>printenv TERM</code> and <code>tput cols</code> in your own terminal. Resize the window and run <code>tput cols</code> again. Compare with <code>tput clear</code>, which clears the screen using the same database (your scrollback may keep older lines depending on the emulator).</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>TERM</code> is empty or <code>dumb</code></dt>
+<dd>Interactive full-screen programs may refuse color or cursor control. Use a real terminal window, or set <code>TERM</code> only when you know the correct type name.</dd>
+<dt><code>tput: No value for $TERM and no -T specified</code></dt>
+<dd><code>TERM</code> is unset. Open a desktop terminal or export a known type such as <code>xterm-256color</code> for a temporary check.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What does <code>tput cols</code> measure?</summary>
+<p>The width of the terminal in character cells for the current <code>TERM</code>, not the pixel width of the window.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Capability</dt>
+<dd>A named action or property of a terminal type, such as clearing the screen or moving the cursor.</dd>
+<dt><code>TERM</code></dt>
+<dd>The environment variable that names which terminal type description programs should use.</dd>
+</dl>
+
+<p><strong>Next step:</strong> many programs use the <a href="ecosystem/ncurses.html">ncurses</a> library to talk to terminfo for you.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Termcap, terminfo, and the path to the screen</h2>
+
+<p><strong>Goal:</strong> you will be able to explain how a program’s output becomes cells on screen, and how termcap differs from terminfo.</p>
+
+<h3>Mental model</h3>
+
+<p>A program writes bytes to its terminal device. Those bytes are either printable characters or control sequences. A desktop terminal emulator (or a kernel virtual console) interprets the sequences and updates a grid of cells. Libraries and tools avoid hard-coding every sequence by consulting a capability database keyed by <code>$TERM</code>.</p>
+
+<pre>
+program  -->  escapes or library  -->  PTY / console  -->  emulator paints cells
+                 ^
+                 |
+         terminfo (usual) or termcap (older)
+</pre>
+
+<p><strong>Termcap</strong> is the older database: terminal descriptions as colon-separated capability strings. <strong>Terminfo</strong> is the usual modern database on Linux: compiled entries that <code>tput</code>, ncurses, and many other tools read. Both answer the same kind of question—“how does this terminal type clear the screen?”—with different file formats.</p>
+
+<p>A wrong <code>TERM</code> means the wrong descriptions: clear may fail, colors may be wrong, or special keys may print garbage.</p>
+
+<h3>Worked example</h3>
+
+<pre class="session" data-risk="read-only">
+$ printenv TERM
+xterm-256color
+$ tput cols
+80
+</pre>
+
+<p>Same capture as above. <code>tput</code> is consulting terminfo for that <code>TERM</code> name.</p>
+
+<h3>Completion task</h3>
+
+<pre data-risk="read-only">
+$ tput ___
+</pre>
+
+<details class="solution">
+<p><code>tput lines</code> reports the height in cells. <code>tput clear</code> emits the clear-screen capability for the current <code>TERM</code>.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Without changing configuration permanently, compare <code>TERM</code> in a Tamlinux <code>foot</code> window with <code>TERM</code> after <code>ssh</code> to another host (if you have one). Note whether remote programs still behave.</p>
+
+<details class="solution">
+<p>Foot commonly sets <code>TERM=foot</code>. A remote host needs a matching terminfo entry (for example the <code>foot-terminfo</code> package) or a temporary fallback such as <code>TERM=xterm-256color</code>. See the Tamlinux aside below and <a href="improve/terminal.html">a comfortable place to type and edit text</a>.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Use</th><th>When</th></tr>
+<tr><td>Leave <code>TERM</code> as the emulator set it</td><td>Local interactive work in foot or another desktop terminal</td></tr>
+<tr><td>Install matching terminfo on a remote host</td><td>Remote shells need the same type name (for example <code>foot</code>)</td></tr>
+<tr><td>Temporary <code>TERM=xterm-256color</code></td><td>Short remote sessions when the remote lacks your emulator’s entry</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Backspace or keys misbehave over SSH</td><td>Remote missing terminfo for your <code>TERM</code></td><td><code>printenv TERM</code> on both ends</td><td>Install the remote terminfo package or set a temporary common <code>TERM</code></td></tr>
+<tr><td>No colors in a program that usually has them</td><td><code>TERM</code> too limited, or <code>NO_COLOR</code> set</td><td><code>printenv TERM NO_COLOR</code></td><td>Use a 256-color type when appropriate; unset <code>NO_COLOR</code> if you want color</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the desktop terminal is <code>foot</code>, which sets <code>TERM=foot</code>. When connecting to remote servers that lack the <code>foot-terminfo</code> package, key sequences or backspace may misbehave. Install <code>foot-terminfo</code> on the remote machine or use <code>TERM=xterm-256color</code> as a temporary fallback. Details live under <a href="improve/terminal.html">terminal comfort</a>; this page does not retell foot’s Wayland redraw path.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Is termcap still the primary database <code>tput</code> uses on a typical Linux workstation?</summary>
+<p>No. On typical Linux systems <code>tput</code> and ncurses consult terminfo. Termcap is the older format; some compatibility layers remain, but new descriptions are terminfo.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="ecosystem/ncurses.html">ncurses</a> — the library many programs use to apply terminfo without writing raw escapes.</li>
+<li><a href="ecosystem/ttys-and-virtual-consoles.html">Text screens and terminal windows</a> — PTYs, virtual consoles, and devices.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Compiled terminfo and capability names</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Item</th><th>Meaning</th></tr>
+<tr><td>Compiled terminfo</td><td>Binary entries under the system terminfo tree (often <code>/usr/share/terminfo</code>), selected by the first character of the type name</td></tr>
+<tr><td>Capability names</td><td>Short identifiers such as <code>clear</code>, <code>cup</code> (cursor address), <code>setaf</code> / <code>setab</code> (foreground / background color)</td></tr>
+<tr><td>VT / ANSI sequences</td><td>The byte strings many emulators actually implement; terminfo stores them per type rather than forcing every app to embed them</td></tr>
+<tr><td><code>infocmp</code></td><td>Reconstructs or compares terminfo source for a type name</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p><code>setupterm</code> and related library calls load the compiled entry for <code>$TERM</code>. Tools such as <code>tput</code> and libraries such as ncurses expand parameterized capabilities (for example cursor address) into the sequences the emulator understands. Capability names are stable labels; the bytes behind them differ across <code>linux</code>, <code>xterm-256color</code>, <code>foot</code>, and others. Emulator behavior and the database entry can disagree: an entry may advertise a feature the emulator implements poorly, or the reverse.</p>
+
+<pre class="session" data-risk="read-only">
+$ infocmp -1 xterm-256color | head -8
+#	Reconstructed via infocmp from file: /usr/share/terminfo/./x/xterm-256color
+xterm-256color|xterm with 256 colors,
+	am,
+	bce,
+	ccc,
+	km,
+	mc5i,
+	mir,
+</pre>
+
+<p>Captured on Arch Linux with ncurses 6.6-2, 2026-10-30. Paths and flags vary by distribution.</p>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux does not ship a custom terminfo format. It relies on the rootstock’s ncurses terminfo database and on packages such as <code>foot-terminfo</code> when a remote host must understand <code>TERM=foot</code>. That keeps local and remote capability lookup aligned with ordinary Linux practice.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li>Hardware virtual consoles and <code>TERM=linux</code> omit features common in desktop emulators (for example some hyperlink controls).</li>
+<li><code>TERM=dumb</code> signals a minimal device; interactive pagers may fall back to plain text.</li>
+<li>Nested multiplexers can rewrite <code>TERM</code>; check the innermost value programs actually see.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Run <code>infocmp "$TERM"</code> and find the <code>clear</code> and <code>cup</code> lines. Compare with <code>infocmp -A /usr/share/terminfo -B /usr/share/terminfo "$TERM" xterm-256color</code> only if both entries exist—read the man page before comparing databases.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>What breaks if an application hard-codes xterm escape sequences while <code>TERM</code> is <code>linux</code>?</summary>
+<p>Sequences the Linux console does not implement are ignored or printed as garbage. Capability lookup via terminfo for <code>TERM=linux</code> would select console-appropriate strings instead of assuming an xterm.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:terminfo(5)">terminfo(5)</a>, <a href="man:termcap(5)">termcap(5)</a>, <a href="man:tput(1)">tput(1)</a>, <a href="man:infocmp(1)">infocmp(1)</a>.</p>
+
+<h3>Improve it</h3>
+
+<p>Terminal emulator settings for Tamlinux live under the desktop configuration; remote terminfo packages are ordinary rootstock packages. Document capability issues with the exact <code>TERM</code> value and <code>infocmp</code> output rather than guessing sequences.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/ncurses.html">ncurses</a> — the library that applies terminfo for many full-screen programs, and how <code>tam</code> uses it.</li>
+<li><a href="ecosystem/ttys-and-virtual-consoles.html">Text screens and terminal windows</a> — devices, PTYs, and virtual consoles.</li>
+<li><a href="improve/terminal.html">A comfortable place to type and edit text</a> — foot, editors, and remote <code>TERM</code> fallbacks.</li>
+</ul>
+</body>
+</html>

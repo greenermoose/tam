@@ -35,6 +35,7 @@ typedef struct {
     const char *rev;
     const char *bold;
     const char *dim;
+    const char *italic;
     const char *underline;
     const char *setaf;
     const char *setab;

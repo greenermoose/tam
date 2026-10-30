@@ -238,6 +238,7 @@ make -C ~/Code/tamlinux/tam install PREFIX=___
 
 <ul>
 <li><a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; Concurrency rules and path claims.</li>
+<li><a href="ecosystem/ncurses.html">ncurses</a> &mdash; how <code>tam</code> links <code>libncursesw</code> for terminfo capability lookup.</li>
 <li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; Tamlinux naming rules and shell script safety.</li>
 <li><a href="ecosystem/package-versions.html">Specifying and verifying package versions</a> &mdash; Cultivar pins and flake assemblies.</li>
 <li><a href="maintain/rollback.html">Snapshots and rollbacks</a> &mdash; System generation recovery and Snapper rollbacks.</li>
@@ -257,7 +258,7 @@ make -C ~/Code/tamlinux/tam install PREFIX=___
 <tr><td>Build identifier</td><td><code>-DTAM_BUILD=\"$(TAM_BUILD_ID)\"</code></td><td>Git describe hash</td><td>Embeds exact commit revision into binary version strings</td></tr>
 <tr><td>libtam linkage</td><td><code>-ltam</code></td><td>Shared C library</td><td>Provides dynamic strings, safe filesystem I/O, terminal dimensions</td></tr>
 <tr><td>zlib linkage</td><td><code>-lz</code></td><td>Shared compression library</td><td>Decompresses GNU Info <code>.info.gz</code> documents in memory</td></tr>
-<tr><td>ncurses linkage</td><td><code>-lncursesw</code></td><td>Wide-character terminal library</td><td>Underlying terminal I/O and capability management</td></tr>
+<tr><td>ncurses linkage</td><td><code>-lncursesw</code></td><td>Wide-character terminal library</td><td>Underlying terminal I/O and capability management; see <a href="ecosystem/ncurses.html">ncurses</a></td></tr>
 <tr><td>Active generation</td><td><code>~/.local/dev/opt/tam/current</code></td><td>Atomic symlink</td><td>Points to active transactional build generation without downtime</td></tr>
 </table>
 

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ncurses</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
+<meta name="topic" content="ncurses">
+<meta name="summary" content="What ncurses is, programs that use it, virtual screen updates via terminfo, wide-character ncursesw, and how tam links it">
+<meta name="keywords" content="ncurses, ncursesw, libncursesw, curses, tput, clear, terminal UI, TUI, initscr, setupterm, terminfo library">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="ecosystem, terminfo-and-termcap">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / ncurses</p>
+</nav>
+
+<h1>ncurses</h1>
+
+<p>ncurses is a C library that helps programs draw and update a full-screen terminal interface without hard-coding every terminal’s escape sequences.</p>
+
+<section data-level="beginner">
+<h2>Recognize programs that use ncurses</h2>
+
+<p><strong>Goal:</strong> you will be able to name common programs that use ncurses and confirm that a binary links <code>libncursesw</code>.</p>
+
+<p><strong>Why it matters:</strong> when colors, clear-screen, or keys break in a full-screen text program, the cause is often <code>TERM</code> or missing terminfo—not the application logic alone. Knowing that the program goes through ncurses points you at the right checks.</p>
+
+<p><strong>Before you start:</strong> skim <a href="ecosystem/terminfo-and-termcap.html">how terminals display text</a> for <code>TERM</code> and terminfo. The example only runs <code>ldd</code> on installed binaries.</p>
+
+<aside class="first-time">
+<p><code>ldd</code> lists shared libraries a program needs. A line containing <code>libncursesw</code> means that program is linked against wide-character ncurses. You do not need to call the library yourself to use <code>clear</code>, <code>nano</code>, or <code>tam show</code>.</p>
+</aside>
+
+<h3>Worked example</h3>
+
+<pre class="session" data-risk="read-only">
+$ ldd /usr/bin/clear | grep ncurses
+	libncursesw.so.6 => /usr/lib/libncursesw.so.6
+$ ldd /home/alex/src/tam/build/tam | grep ncurses
+	libncursesw.so.6 => /usr/lib/libncursesw.so.6
+</pre>
+
+<p>Captured on Arch Linux with ncurses 6.6-2, 2026-10-30. Paths differ on your system; the important part is the <code>libncursesw.so.6</code> name. On this machine <code>tput</code> and <code>nano</code> also linked <code>libncursesw</code> the same way.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>clear</code> and <code>tput</code> ship with the ncurses tools and use the library to emit the right sequences for <code>$TERM</code>.</li>
+<li><code>nano</code> is a full-screen editor that uses ncurses to manage the text UI.</li>
+<li><code>tam</code> links the same library so its pager can look up terminal capabilities (explained at intermediate level).</li>
+</ol>
+
+<p>Other full-screen tools on many Linux systems also use ncurses (for example <code>htop</code>, <code>dialog</code>, or <code>ncdu</code> when installed). Only claim a program uses ncurses after <code>ldd</code> (or packaging metadata) shows it; this page does not list tools that were not present on the capture host.</p>
+
+<h3>Try it</h3>
+
+<p>Run <code>ldd "$(command -v clear)"</code> and look for <code>libncursesw</code>. If you have <code>nano</code>, repeat for that binary.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>ldd</code> shows no ncurses line</dt>
+<dd>That binary may use another UI library, be a script, or call a helper. Do not assume every TUI uses ncurses.</dd>
+<dt>Command not found</dt>
+<dd>The example program is not installed. Use <code>clear</code> or <code>tam</code> if those are on your <code>PATH</code>.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Must you write C against the ncurses API to benefit from it?</summary>
+<p>No. Most people use applications already linked to ncurses. The library work happens inside those programs.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>ncurses</dt>
+<dd>A library for terminal-independent text UIs, reading capabilities from terminfo.</dd>
+<dt><code>libncursesw</code></dt>
+<dd>The wide-character build of ncurses, used for Unicode text in the terminal.</dd>
+</dl>
+
+<p><strong>Next step:</strong> see how ncurses relates to terminfo on <a href="ecosystem/terminfo-and-termcap.html">how terminals display text</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Two ways to use ncurses</h2>
+
+<p><strong>Goal:</strong> you will be able to distinguish a full-screen ncurses application from a program that only uses ncurses terminfo helpers, and state how <code>tam</code> fits.</p>
+
+<h3>Mental model</h3>
+
+<p>Typical flow:</p>
+
+<pre>
+application  -->  ncurses  -->  terminfo for $TERM  -->  update sequences  -->  emulator paints cells
+</pre>
+
+<p>Many TUIs call the high-level API: create a screen (<code>initscr</code>), draw into windows, then refresh so ncurses sends only the changes needed. That virtual screen idea keeps applications from repainting every cell on every keystroke.</p>
+
+<p>Other programs link ncurses but draw themselves. They call lower-level terminfo helpers such as <code>setupterm</code>, <code>tigetstr</code>, and <code>tparm</code> to look up clear, cursor address, and color sequences, then write those sequences with their own UI code.</p>
+
+<p>A wrong <code>TERM</code> still breaks both styles: ncurses can only emit what the named terminfo entry describes.</p>
+
+<aside class="tamlinux">
+<p><strong>Does <code>tam</code> use ncurses? Yes.</strong> The <code>tam</code> binary links wide-character ncurses (<code>-lncursesw</code> / <code>libncursesw</code>). The interactive pager needs capabilities that vary by <code>$TERM</code> (cursor address, clear, colors, alternate screen, and related strings). Rather than hard-coding escapes, <code>tam_terminal_init</code> in <code>src/terminal.c</code> calls ncurses terminfo entry points (<code>setupterm</code>, <code>tigetstr</code>, <code>tigetnum</code>, <code>tigetflag</code>, <code>tparm</code>). <strong>What it does not do:</strong> <code>tam</code> does not build its UI with the high-level ncurses window API (<code>initscr</code>, <code>newwin</code>, library-managed refresh). It has its own pager and renderer; ncurses is the capability layer. So <code>tam show</code> is not “an ncurses app” in the same sense as <code>nano</code>, even though both link <code>libncursesw</code>. Build and linkage details also appear on <a href="tam.html">tam</a> and <a href="improve/toolchains.html">toolchains</a>.</p>
+</aside>
+
+<h3>Worked example</h3>
+
+<pre class="session" data-risk="read-only">
+$ ldd /home/alex/src/tam/build/tam | grep ncurses
+	libncursesw.so.6 => /usr/lib/libncursesw.so.6
+</pre>
+
+<p>Captured 2026-10-30. Matching <code>-lncursesw</code> appears in the documented <code>make</code> link line on the <a href="tam.html">tam</a> page.</p>
+
+<h3>Completion task</h3>
+
+<pre data-risk="read-only">
+$ printenv ___
+</pre>
+
+<details class="solution">
+<p><code>printenv TERM</code> shows the type name ncurses will load. If it is wrong for the emulator, full-screen programs and <code>tam</code>’s pager can mis-draw even though the library is installed.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Compare <code>ldd</code> on <code>clear</code> and on <code>tam</code>. Both should name <code>libncursesw</code>; then decide which is a small terminfo tool and which is a custom pager that only borrows capability lookup.</p>
+
+<details class="solution">
+<p><code>clear</code> is an ncurses tool whose job is to emit the clear capability. <code>tam</code> is a custom pager that links ncurses for terminfo lookup and draws with its own code.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Situation</th><th>What to check</th></tr>
+<tr><td>Editor or TUI looks wrong</td><td><code>TERM</code>, terminfo on this host, then the app’s docs</td></tr>
+<tr><td><code>tam show</code> falls back to plain text</td><td>Whether stdin/stdout is a terminal, and whether <code>TERM</code> supports cursor addressing</td></tr>
+<tr><td>You are writing a new TUI</td><td>High-level ncurses API for a classic full-screen UI; terminfo helpers only if you draw yourself</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>TUI draws garbage after SSH</td><td>Remote <code>TERM</code> without a matching entry</td><td><code>printenv TERM</code>; terminfo packages</td><td>Install matching terminfo or temporary common <code>TERM</code>; see <a href="ecosystem/terminfo-and-termcap.html">display text</a></td></tr>
+<tr><td>Missing <code>libncursesw.so</code> at runtime</td><td>Incomplete install or ABI shift</td><td><code>ldd</code> on the binary; package manager</td><td>Install or repair the ncurses package from the rootstock</td></tr>
+</table>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>True or false: because <code>tam</code> links <code>libncursesw</code>, its pager is implemented with <code>initscr</code> and ncurses windows.</summary>
+<p>False. <code>tam</code> links ncurses for terminfo capability lookup and implements its own pager and renderer.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> — terminfo, termcap, <code>tput</code>, <code>infocmp</code>.</li>
+<li><a href="tam.html">tam</a> — build flags including <code>-lncursesw</code>.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Wide-character ncurses and lookup boundaries</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Item</th><th>Meaning</th></tr>
+<tr><td><code>ncursesw</code></td><td>Wide-character build; preferred on UTF-8 workstations</td></tr>
+<tr><td>Terminfo lookup</td><td>Load compiled entry for <code>$TERM</code> from the terminfo database directories</td></tr>
+<tr><td>High-level API</td><td>Screen, windows, input queue, refresh optimization (<code>ncurses(3)</code>)</td></tr>
+<tr><td>Terminfo API</td><td><code>setupterm</code>, <code>tigetstr</code>, <code>tparm</code>, and related calls (<code>curs_terminfo(3)</code>)</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>The library requests sequences described by terminfo; the emulator decides what to paint. If the database overstates a feature, or the emulator ignores a sequence, the failure sits on that boundary—not necessarily in application logic. Wide-character builds track display width for Unicode glyphs so columns stay aligned when combining characters or wide East Asian cells appear.</p>
+
+<p>On Tamlinux, <code>tam</code>’s Makefile prefers <code>pkg-config</code> flags for <code>ncursesw</code>. The pager initializes capabilities only when <code>TERM</code> is set and not <code>dumb</code>, and treats missing cursor-address or related capabilities as non-interactive.</p>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Linking the system wide-character ncurses reuses the rootstock terminfo database and keeps <code>tam</code> aligned with the same capability source as <code>tput</code> and common TUIs, without embedding a private escape table.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li>Soname bumps on a rolling rootstock can break a binary built against an older <code>libncursesw</code> until it is rebuilt or pinned.</li>
+<li>Programs linked only to <code>libtinfo</code> may share terminfo without the full high-level ncurses API.</li>
+<li><code>nmtui</code> on this capture host used <code>libnewt</code> / slang rather than <code>libncursesw</code>—another reminder to verify with <code>ldd</code>.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Read <code>src/terminal.c</code> in the <code>tam</code> repository and list which capability names it loads. Compare one of them with <code>infocmp "$TERM"</code> output.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>What fails if terminfo advertises color but the emulator ignores <code>setaf</code>?</summary>
+<p>ncurses and tools that trust the entry will emit color sequences that have no visible effect (or print noise). The mismatch is between database and emulator, not automatically a bug in the calling application.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:ncurses(3)">ncurses(3)</a>, <a href="man:curs_terminfo(3)">curs_terminfo(3)</a>, <a href="man:terminfo(5)">terminfo(5)</a>, <a href="man:tput(1)">tput(1)</a>.</p>
+
+<h3>Improve it</h3>
+
+<p>Capability and linkage behavior for <code>tam</code> is maintained in the public <code>tam</code> repository (<code>src/terminal.c</code>, Makefile <code>ncursesw</code> flags). Prefer documenting verified <code>ldd</code> and <code>TERM</code> evidence over assumed dependency lists.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> — terminfo, termcap, and <code>TERM</code>.</li>
+<li><a href="ecosystem/ttys-and-virtual-consoles.html">Text screens and terminal windows</a> — PTYs and virtual consoles.</li>
+<li><a href="tam.html">tam</a> — command build and <code>-lncursesw</code>.</li>
+<li><a href="improve/terminal.html">A comfortable place to type and edit text</a> — foot and remote terminfo.</li>
+</ul>
+</body>
+</html>

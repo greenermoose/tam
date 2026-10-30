@@ -228,7 +228,10 @@ static int emit_style(const tam_span_t *sp, int is_sel)
         styled = 1;
     }
     if (sp->style & TAM_STYLE_ITALIC) {
-        /* Italic is absent from the portable terminfo profile. */
+        if (g_term != NULL && g_term->italic != NULL) {
+            (void)tam_terminal_cap(g_term, g_capture, g_term->italic, 0, 0);
+            styled = 1;
+        }
     }
     if (sp->style & TAM_STYLE_CODE) {
         if (g_term != NULL && !g_attention && g_term->colors >= 8 && g_term->use_color)

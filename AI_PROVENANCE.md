@@ -22,6 +22,8 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-30 | Terminfo/termcap and ncurses ecosystem pages; corpus 0.50.0 | Cursor 3.27.22; Composer (`composer`) | [Session record](docs/ai/2026-10-30-tam-terminfo-ncurses.md) |
+| 2026-10-30 | Fred Horch bio page; corpus 0.49.0 | Cursor 3.27.22; Composer (`composer`) | [Session record](docs/ai/2026-10-30-tam-fred-horch-bio.md) |
 | 2026-10-29 | Update F9 dictation to tap to start and stop; corpus 0.48.1 | Antigravity CLI 1.4.10; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-29-tam-f9-dictation-toggle.md) |
 | 2026-10-29 | Voice dictation and shell voice commands; corpus 0.48.0 | Antigravity CLI 1.4.10; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-29-tam-voice-interaction-corpus.md) |
 | 2026-10-29 | Standardize rootstock terminology; corpus 0.47.0 | Antigravity CLI 1.4.10; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-29-tam-rootstock-standardization.md) |

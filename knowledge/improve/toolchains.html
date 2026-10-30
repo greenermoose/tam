@@ -268,7 +268,7 @@ $ readelf -d build/tam | grep -E 'RPATH|RUNPATH|NEEDED'
 
 <p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 
-<p>The <code>readelf -d</code> output exposes dynamic dependencies: <code>libz</code>, <code>libncursesw</code>, and <code>libc</code> are resolved via shared libraries, while core Tamlinux logic from <code>libtam</code> is linked directly, ensuring predictable execution.</p>
+<p>The <code>readelf -d</code> output exposes dynamic dependencies: <code>libz</code>, <code>libncursesw</code>, and <code>libc</code> are resolved via shared libraries, while core Tamlinux logic from <code>libtam</code> is linked directly, ensuring predictable execution. For what <code>libncursesw</code> provides and how <code>tam</code> uses it, see <a href="ecosystem/ncurses.html">ncurses</a>.</p>
 
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -296,6 +296,7 @@ $ readelf -d build/tam | grep -E 'RPATH|RUNPATH|NEEDED'
 <h2>Where to next</h2>
 
 <ul>
+<li><a href="ecosystem/ncurses.html">ncurses</a> &mdash; terminal capability library behind <code>libncursesw</code>.</li>
 <li><a href="improve/ai-performance.html">Physics of local AI generation</a> &mdash; explore memory bandwidth constraints and model quantization.</li>
 <li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; write robust Bash utilities with strict headers.</li>
 <li><a href="improve/zram.html">Memory compression with ZRAM</a> &mdash; configure compressed RAM swap to prevent disk thrashing.</li>

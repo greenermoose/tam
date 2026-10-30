@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.45.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.45.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -676,6 +676,35 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures" || fail "selected hyperlink boundary spacing failed"
     pass "pager hyperlink boundary spacing: leading separator unhighlighted and interior space highlighted"
+
+    # Italic spans emit sitm (CSI 3m) when the terminal description provides it.
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
+
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "pager-italic")
+os.close(slave)
+
+time.sleep(0.15)
+buf = b""
+while select.select([master], [], [], 0.05)[0]:
+    buf += os.read(master, 4096)
+
+assert b"\x1b[3mLarix laricina" in buf, f"italic span missing sitm CSI 3m: {buf!r}"
+os.write(master, b"q")
+os.waitpid(pid, 0)
+' "$TAM" "$root/tests/fixtures" || fail "pager italic sitm emission failed"
+    pass "pager italic: sitm CSI 3m around <i> spans"
 
     # In-pager text search (/), hit jumping (n / N), Esc clear, and reading telemetry
     python3 -c '

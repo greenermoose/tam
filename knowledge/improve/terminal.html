@@ -151,7 +151,7 @@ fi</pre>
 
 <ul>
 <li><strong>Dynamic prompt overhead:</strong> Placing command substitutions like <code>$(git status)</code> inside <code>PS1</code> in <code>~/.bashrc</code> spawns child processes on every prompt, inflating startup latency from 6ms to over 80ms. Always compute prompt state asynchronously or use static prompt indicators.</li>
-<li><strong>Remote terminal definitions:</strong> <code>foot</code> sets <code>TERM=foot</code>. When connecting to remote servers that lack the <code>foot-terminfo</code> package, key sequences or backspace may misbehave. Install <code>foot-terminfo</code> on the remote machine or use <code>TERM=xterm-256color</code> as a temporary fallback.</li>
+<li><strong>Remote terminal definitions:</strong> <code>foot</code> sets <code>TERM=foot</code>. When connecting to remote servers that lack the <code>foot-terminfo</code> package, key sequences or backspace may misbehave. Install <code>foot-terminfo</code> on the remote machine or use <code>TERM=xterm-256color</code> as a temporary fallback. For terminfo, termcap, and how programs look up those capabilities, see <a href="ecosystem/terminfo-and-termcap.html">how terminals display text</a> and <a href="ecosystem/ncurses.html">ncurses</a>.</li>
 <li><strong>Login vs subshell configuration:</strong> Place environment variables in <code>~/.bash_profile</code> or <code>~/.config/bash/tamlinux/env</code> so they are evaluated once at login rather than re-parsed on every interactive subshell.</li>
 </ul>
 
@@ -198,6 +198,8 @@ srwxr-xr-x 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1
 <h2>Where to next</h2>
 
 <ul>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> &mdash; terminfo, termcap, <code>TERM</code>, and escape sequences.</li>
+<li><a href="ecosystem/ncurses.html">ncurses</a> &mdash; the library many full-screen terminal programs use.</li>
 <li><a href="improve/scripting.html">Shell scripting and tool conventions</a> &mdash; learn strict Bash headers and safe argument handling.</li>
 <li><a href="improve/efficiency.html">Zero-polling and event-driven architecture</a> &mdash; eliminate CPU wakeups and save energy.</li>
 <li><a href="improve/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li>
