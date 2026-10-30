@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.45.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.45.2' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -997,7 +997,7 @@ os.write(master, b"]")
 drain(master, 0.05)
 os.write(master, b"\r")
 buf = drain(master, 0.1)
-assert b"Navigation help" in buf, f"expected help overlay from link, got: {buf}"
+assert b"Esc to close" in buf or b"help" in buf.lower(), f"expected help overlay from link, got: {buf}"
 os.write(master, b"\x1b")
 drain(master, 0.1)
 

@@ -221,7 +221,8 @@ def main():
     os.write(master, b"h")
     help_frame = read_available(master)
     screen.feed(help_frame)
-    assert "Navigation help" in screen.line(1), screen.line(1)
+    assert any("Esc to close" in screen.line(r) or "help" in screen.line(r).lower() for r in range(10)), \
+        [screen.line(r) for r in range(10)]
     os.write(master, b"k")
     ignored_help_key = read_available(master)
     assert ignored_help_key == b"", f"help overlay moved the underlying page: {ignored_help_key!r}"

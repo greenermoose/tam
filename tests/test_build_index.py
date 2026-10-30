@@ -370,7 +370,6 @@ class BuildIndex(unittest.TestCase):
             "from pathlib import Path\n"
             "assert Path('knowledge/index.json').is_file()\n"
             "print('lint ran after generation')\n")
-        (root / "tools/check-repo.py").write_text("print('repository facts checked')\n")
         guide = root / "tests/guide.sh"
         guide.write_text("#!/bin/sh\nset -eu\ntest -f knowledge/index.tsv\necho 'guide checked'\n")
         guide.chmod(0o755)
@@ -378,7 +377,6 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
         self.assertLess(result.stdout.index("Generated index.tsv"),
                         result.stdout.index("lint ran after generation"))
-        self.assertIn("repository facts checked", result.stdout)
         self.assertIn("guide checked", result.stdout)
         result = self.make(root, "test-corpus")
         self.assertNotEqual(result.returncode, 0)

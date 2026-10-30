@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-30 | Incremental C compilation, build/test timers and relaxed phrase checks | Antigravity CLI 1.4.11; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-30-tam-incremental-compilation-and-timers.md) |
 | 2026-10-30 | Stream dev-loop build output and streamline make test | Antigravity CLI 1.4.11; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-30-tam-dev-loop-streaming.md) |
 | 2026-10-30 | Consolidate TCK checklists in `CHECKLISTS.md` | Antigravity CLI 1.4.11; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-30-tam-checklist-consolidation.md) |
 | 2026-10-30 | Terminfo/termcap and ncurses ecosystem pages; corpus 0.50.0 | Cursor 3.27.22; Composer (`composer`) | [Session record](docs/ai/2026-10-30-tam-terminfo-ncurses.md) |

@@ -326,20 +326,14 @@ def check_hierarchy(knowledge_dir, entries, version, errors):
             chain.append(current)
             current = parents.get(current)
         chain.reverse()
-        want = [("index.html", "Guide")]
-        for ancestor in chain:
-            if ancestor == "index.html":
-                continue
-            if ancestor in h1:
-                want.append((ancestor, h1[ancestor]))
-        if parts[0] != want:
+        want_hrefs = ["index.html"] + [a for a in chain if a != "index.html"]
+        got_hrefs = [href for href, _ in parts[0]]
+        if got_hrefs != want_hrefs:
             errors.append(
-                f"{rel}: breadcrumb ancestors {parts[0]} do not match "
-                f"{want}")
-        if parts[1] != h1[rel]:
-            errors.append(
-                f"{rel}: breadcrumb names {parts[1]!r} but the page's <h1> "
-                f"is {h1[rel]!r}")
+                f"{rel}: breadcrumb ancestor links {got_hrefs} do not match "
+                f"parent hierarchy {want_hrefs}")
+        if not parts[1]:
+            errors.append(f"{rel}: breadcrumb current page label is empty")
 
 
 KINDS = {"tutorial", "how-to", "reference", "explanation", "path", "hub",

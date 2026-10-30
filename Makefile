@@ -45,6 +45,12 @@ SRC   := src/tam.c src/identity.c src/corpus.c src/views.c src/address.c src/htm
 DEPS  := src/version.h src/corpus.h src/address.h src/views.h src/html.h src/html_scan.h src/render.h src/display.h src/pager.h src/pager_int.h src/pager_screen.h src/external.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/fold.h src/ask.h src/info.h src/discovery.h src/tldr.h src/upgrade.h
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/coverage.json
 
+OBJS  := $(SRC:src/%.c=$(BUILD)/%.o)
+
+RUN_TIMED    := $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py run,sh -c 'shift; exec "$$@"' _)
+TIME_SUMMARY := $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py summary,true)
+TIME_RESET   := $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py reset,true)
+
 # A build from a Git checkout reports its commit in --version; packaged
 # builds have no .git and report the plain version. Only the command's own
 # paths count as dirty: a corpus-only edit must not change the command's
@@ -76,9 +82,11 @@ dev: ; @python3 tools/dev.py $(if $(DRY_RUN),--dry-run)
 # --- command lane: the C binary, no corpus regeneration -------------------
 command: $(TAM)
 
-$(TAM): $(SRC) $(DEPS) $(BUILD)/config | $(BUILD) libtam-check
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(SRC) \
-		$(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
+$(BUILD)/%.o: src/%.c $(DEPS) $(BUILD)/config | $(BUILD) libtam-check
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -c $< -o $@
+
+$(TAM): $(OBJS) | $(BUILD)
+	$(CC) $(OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
 $(BUILD)/config: FORCE | $(BUILD)
 	@printf '%s\n' '$(CONFIG)' | cmp -s - $@ || printf '%s\n' '$(CONFIG)' > $@
@@ -100,7 +108,7 @@ endif
 # Git history and page removals can change the index without changing an input
 # timestamp. Always recheck; the generator preserves unchanged output files.
 corpus:
-	python3 tools/build-index.py
+	@$(RUN_TIMED) "Corpus index generation (build-index.py)" python3 tools/build-index.py
 
 # Direct output requests share the same generation, including under make -j.
 $(INDEX): corpus
@@ -109,27 +117,33 @@ $(INDEX): corpus
 # test-command and corpus-and-test are single-lane entry points; test and check
 # are the full, integrated runs.
 test: all
-	tests/run.sh $(CURDIR)/$(TAM)
-	TAM_TEST_SKIP_OLLAMA=1 python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
-	tests/render.sh $(CURDIR)/$(TAM)
-	python3 tools/lint-corpus.py
-	python3 -m unittest -q tests/test_lint_corpus.py
-	python3 -m unittest -q tests/test_build_index.py
-	tests/guide.sh $(CURDIR)/$(TAM)
+	@$(TIME_RESET)
+	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(TAM)
+	@$(RUN_TIMED) "Upgrade tests (test_upgrade.py)" python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
+	@$(RUN_TIMED) "Renderer golden tests (tests/render.sh)" tests/render.sh $(CURDIR)/$(TAM)
+	@$(RUN_TIMED) "Corpus HTML linter (tools/lint-corpus.py)" python3 tools/lint-corpus.py
+	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
+	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
+	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
+	@$(TIME_SUMMARY)
 
 check-repo:
 	python3 tools/check-repo.py
 
 test-command: command
-	tests/run.sh $(CURDIR)/$(TAM)
-	TAM_TEST_SKIP_OLLAMA=1 python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
-	tests/render.sh $(CURDIR)/$(TAM)
+	@$(TIME_RESET)
+	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(TAM)
+	@$(RUN_TIMED) "Upgrade tests (test_upgrade.py)" python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
+	@$(RUN_TIMED) "Renderer golden tests (tests/render.sh)" tests/render.sh $(CURDIR)/$(TAM)
+	@$(TIME_SUMMARY)
 
 corpus-and-test: command corpus
-	python3 tools/lint-corpus.py
-	python3 -m unittest -q tests/test_lint_corpus.py
-	python3 -m unittest -q tests/test_build_index.py
-	tests/guide.sh $(CURDIR)/$(TAM)
+	@$(TIME_RESET)
+	@$(RUN_TIMED) "Corpus HTML linter (tools/lint-corpus.py)" python3 tools/lint-corpus.py
+	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
+	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
+	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
+	@$(TIME_SUMMARY)
 
 check: corpus test
 	python3 -m unittest -q tests/test_dev.py
