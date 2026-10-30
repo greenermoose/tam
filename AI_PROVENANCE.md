@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-30 | Consolidate TCK checklists in `CHECKLISTS.md` | Antigravity CLI 1.4.11; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-30-tam-checklist-consolidation.md) |
 | 2026-10-30 | Terminfo/termcap and ncurses ecosystem pages; corpus 0.50.0 | Cursor 3.27.22; Composer (`composer`) | [Session record](docs/ai/2026-10-30-tam-terminfo-ncurses.md) |
 | 2026-10-30 | Fred Horch bio page; corpus 0.49.0 | Cursor 3.27.22; Composer (`composer`) | [Session record](docs/ai/2026-10-30-tam-fred-horch-bio.md) |
 | 2026-10-29 | Update F9 dictation to tap to start and stop; corpus 0.48.1 | Antigravity CLI 1.4.10; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-29-tam-f9-dictation-toggle.md) |
