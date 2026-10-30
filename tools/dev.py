@@ -76,14 +76,44 @@ def run_git(root, *args, check=True):
     return res
 
 
-def run_make(root, *args):
-    return subprocess.run(
-        ["make", "-C", str(root), "--no-print-directory", *args],
+def run_make(root, *args, stream=False):
+    cmd = ["make", "-C", str(root), "--no-print-directory", *args]
+    env = clean_make_env()
+    if not stream:
+        return subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            env=env,
+            check=False,
+        )
+    proc = subprocess.Popen(
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
-        env=clean_make_env(),
-        check=False,
+        env=env,
+    )
+    lines = []
+    try:
+        for line in proc.stdout:
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            lines.append(line)
+        proc.wait()
+    except BaseException:
+        proc.kill()
+        proc.wait()
+        raise
+    finally:
+        if proc.stdout:
+            proc.stdout.close()
+    return subprocess.CompletedProcess(
+        args=cmd,
+        returncode=proc.returncode,
+        stdout="".join(lines),
+        stderr=None,
     )
 
 
@@ -262,6 +292,21 @@ def replace_once(texts, path, pattern, replacement, regex=False):
             )
         new_text = text.replace(pattern, replacement, 1)
     texts[path] = new_text
+
+
+def replace_optional(texts, path, pattern, replacement, regex=False):
+    """Replace pattern with replacement in path's staged text if present, otherwise do nothing."""
+    text = staged_text(texts, path)
+    if regex:
+        if re.search(pattern, text, flags=re.M):
+            texts[path] = re.sub(pattern, replacement, text, count=1, flags=re.M)
+            return True
+        return False
+    else:
+        if pattern in text:
+            texts[path] = text.replace(pattern, replacement, 1)
+            return True
+        return False
 
 
 def write_staged(texts):
@@ -526,10 +571,10 @@ def apply_corpus_version_edits(root, old_ver, new_ver, summary, today, texts=Non
         f"| `develop` | {cmd_ver} / {new_ver} |",
     )
     new_row = f"| **{new_ver} corpus** | {summary} | Done ({today}) | {summary} |\n"
-    replace_once(
+    replace_optional(
         texts,
         roadmap,
-        r"(\|[^\n]+\|\n)(\n+## 3\. Current state and follow-up\n)",
+        r"(\|[^\n]+\|\n)(\n+## [0-9]+\. Current state and follow-up\n)",
         r"\1" + new_row.replace("\\", "\\\\") + r"\2",
         regex=True,
     )
@@ -574,10 +619,10 @@ def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, toda
         f"| `develop` | {new_ver} / {corpus_ver} |",
     )
     new_row = f"| **{new_ver} command** | {summary} | Done ({today}) | {summary} |\n"
-    replace_once(
+    replace_optional(
         texts,
         roadmap,
-        r"(\|[^\n]+\|\n)(\n+## 3\. Current state and follow-up\n)",
+        r"(\|[^\n]+\|\n)(\n+## [0-9]+\. Current state and follow-up\n)",
         r"\1" + new_row.replace("\\", "\\\\") + r"\2",
         regex=True,
     )
@@ -755,7 +800,7 @@ def explain_test_failure(output, changes):
 
 def step_build_and_test(root, changes):
     print("== 5. Build and test ==")
-    res = run_make(root, "test")
+    res = run_make(root, "test", stream=True)
     if res.returncode != 0:
         lines = res.stdout.splitlines()
         tail = "\n".join(lines[-40:])

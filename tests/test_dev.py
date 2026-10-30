@@ -1,6 +1,7 @@
 """Behavioral and fixture tests for tools/dev.py (TCK11)."""
 
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -11,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 DEV_SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "dev.py"
 BUILDER = Path(__file__).resolve().parents[1] / "tools" / "build-index.py"
@@ -466,6 +468,7 @@ class DevLoopTest(unittest.TestCase):
         )
         self.assertEqual(rc2, 0, out2)
         self.assertIn("Corpus: already bumped to 0.33.7", out2)
+        self.assertIn("fixture tests ok", out2)
         self.assertIn("Refresh corpus index revisions after", out2)
         self.assertIn("Pushed develop to origin.", out2)
 
@@ -518,6 +521,28 @@ class DevLoopTest(unittest.TestCase):
         self.assertEqual(rc2, 0, out2)
         self.assertIn("Upstream has commits not in HEAD; not pushing:", out2)
         self.assertIn("Push state: not pushed (upstream has new commits)", out2)
+
+    def test_run_make_stream(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            makefile = root / "Makefile"
+            makefile.write_text("hello:\n\t@echo line 1\n\t@echo line 2\n", encoding="utf-8")
+
+            # Without stream: stdout is captured, nothing written to sys.stdout
+            out_buf = io.StringIO()
+            with patch("sys.stdout", out_buf):
+                res = dev_mod.run_make(root, "hello", stream=False)
+            self.assertEqual(res.returncode, 0)
+            self.assertEqual(res.stdout, "line 1\nline 2\n")
+            self.assertEqual(out_buf.getvalue(), "")
+
+            # With stream: stdout is captured AND written to sys.stdout
+            out_buf = io.StringIO()
+            with patch("sys.stdout", out_buf):
+                res = dev_mod.run_make(root, "hello", stream=True)
+            self.assertEqual(res.returncode, 0)
+            self.assertEqual(res.stdout, "line 1\nline 2\n")
+            self.assertEqual(out_buf.getvalue(), "line 1\nline 2\n")
 
 
 class FailureExplanationTest(unittest.TestCase):

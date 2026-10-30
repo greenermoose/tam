@@ -115,10 +115,6 @@ test: all
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
 	python3 -m unittest -q tests/test_build_index.py
-	python3 -m unittest -q tests/test_dev.py
-	python3 -m unittest -q tests/test_install_guard.py
-	python3 tools/check-repo.py
-	python3 -m unittest -q tests/test_check_repo.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 check-repo:
@@ -133,10 +129,13 @@ corpus-and-test: command corpus
 	python3 tools/lint-corpus.py
 	python3 -m unittest -q tests/test_lint_corpus.py
 	python3 -m unittest -q tests/test_build_index.py
-	python3 tools/check-repo.py
 	tests/guide.sh $(CURDIR)/$(TAM)
 
 check: corpus test
+	python3 -m unittest -q tests/test_dev.py
+	python3 -m unittest -q tests/test_install_guard.py
+	python3 tools/check-repo.py
+	python3 -m unittest -q tests/test_check_repo.py
 
 # A checkout installs only committed sources, so the installed --version names
 # a commit rather than `-dirty`. The check runs after `all`, because rebuilding
