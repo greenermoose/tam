@@ -3,7 +3,7 @@
 <head>
 <title>Voice Dictation on the Desktop</title>
 <meta name="topic" content="voice">
-<meta name="summary" content="Using local push-to-talk voice dictation to enter text into any window">
+<meta name="summary" content="Using local voice dictation to enter text into any window">
 <meta name="keywords" content="voice, dictation, voxtype, whisper, speech, speech-to-text, microphone, f9, wtype">
 <meta name="level" content="beginner">
 <meta name="track" content="use">
@@ -21,28 +21,28 @@
 
 <p>All voice recognition on Tamlinux runs entirely on your local computer using an on-device neural network. No audio, transcripts, or personal data ever leave your machine.</p>
 
-<h2>Push-to-talk and toggle dictation</h2>
+<h2>Starting and stopping dictation</h2>
 <p>Tamlinux provides two keybindings for dictation:</p>
 <ul>
-  <li><strong>Hold F9 (Push-to-Talk):</strong> Records while the key is held down and transcribes the moment you release it. This is ideal for short sentences and quick thoughts.</li>
-  <li><strong>SUPER + CTRL + X (Toggle):</strong> Press once to start recording hands-free, speak at your own pace, and press again to stop and transcribe.</li>
+  <li><strong>F9 (Tap to toggle):</strong> Tap once to start recording, speak your sentence, and tap again to stop and transcribe.</li>
+  <li><strong>SUPER + CTRL + X (Alternative toggle):</strong> Also toggles dictation start and stop without reaching for function keys.</li>
 </ul>
 
 <section data-level="beginner"><h2>Dictate a sentence into a window</h2>
 <p><strong>Goal:</strong> you will be able to speak a sentence and have it typed into a text editor or terminal without touching your keyboard keys.</p>
 <p><strong>Why it matters:</strong> dictation allows fast note-taking and relieves physical wrist strain during long sessions.</p>
 <p><strong>Before you start:</strong> ensure your microphone (such as a USB headset) is plugged in and selected as your default recording device. Open an empty text editor or terminal.</p>
-<aside class="first-time"><p>F9 is a push-to-talk key. Keep holding F9 down while speaking, then let go when you finish your sentence.</p></aside>
+<aside class="first-time"><p>F9 is a toggle key. Tap F9 once to start speaking, then tap F9 again when you finish your sentence.</p></aside>
 <h3>Worked example</h3><ol><li>Click into your empty practice window so it has focus.</li>
-<li>Press and hold F9. A small on-screen indicator appears showing that the system is recording.</li>
+<li>Tap F9. A small on-screen indicator appears showing that the system is recording.</li>
 <li>Speak in a clear, natural voice: "Tamlinux runs speech recognition entirely on my local machine."</li>
-<li>Release F9. The indicator displays transcribing, and within one to two seconds the transcribed text is typed at your cursor.</li></ol>
+<li>Tap F9 again. The indicator displays transcribing, and within one to two seconds the transcribed text is typed at your cursor.</li></ol>
 <p>This walkthrough is checked against the packaged Voxtype bindings, not a claim that a GUI acceptance test was performed in your session.</p>
 <h3>What just happened</h3><ol><li>The compositor detected the F9 press and instructed the Voxtype background daemon to start recording.</li>
 <li>The daemon captured your voice stream directly into memory through the PipeWire audio server.</li>
-<li>When you released F9, the local Whisper speech model converted the recorded sound into text.</li>
+<li>When you tapped F9 a second time, the local Whisper speech model converted the recorded sound into text.</li>
 <li>The Wayland virtual keyboard tool (wtype) simulated keyboard strokes to type the words into the focused window.</li></ol>
-<h3>Try it</h3><p>Practice with the hands-free toggle: press SUPER + CTRL + X, speak a brief phrase, then press SUPER + CTRL + X again to stop. Observe that the transcribed text is typed into the focused window.</p>
+<h3>Try it</h3><p>Practice dictating another sentence: tap F9, speak a brief phrase, then tap F9 again to stop. You can also press SUPER + CTRL + X to toggle dictation. Observe that the transcribed text is typed into the focused window.</p>
 <h3>If it goes wrong</h3><dl><dt>No text appears after speaking</dt>
 <dd>Check that your microphone is unmuted and set as default. Check the service status in a terminal with systemctl --user status voxtype.</dd>
 <dt>A word is misheard</dt>
@@ -55,7 +55,7 @@
 
 <h2>Key reference</h2>
 <table><tr><th>Shortcut</th><th>Action</th><th>Behavior</th></tr>
-<tr><td>F9 (hold)</td><td>Push-to-talk</td><td>Records while held; transcribes on release</td></tr>
+<tr><td>F9</td><td>Toggle dictation</td><td>Tap to start; tap again to stop and transcribe</td></tr>
 <tr><td>SUPER + CTRL + X</td><td>Toggle dictation</td><td>Starts recording on first press; stops and transcribes on second</td></tr></table>
 
 <h2>How dictation works under the hood</h2>

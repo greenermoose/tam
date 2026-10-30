@@ -1,7 +1,7 @@
 # tam Roadmap
 
 **Reviewed:** 2026-10-27. **Owner:** Fred (developer).
-**Current Command Version:** `0.45.0`. **Current Corpus Version:** `0.48.0`.
+**Current Command Version:** `0.45.0`. **Current Corpus Version:** `0.48.1`.
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
@@ -148,12 +148,13 @@ in that candidate, not here.
 | **0.46.4 corpus** | Explaining you start in a CLI and can launch a graphical shell | Done (2026-10-28) | Explaining you start in a CLI and can launch a graphical shell |
 | **0.47.0 corpus** | Standardize rootstock terminology | Done (2026-10-29) | Standardizes on 'rootstock' across the knowledge corpus for the operating system Tamlinux depends on; explains rootstock, cultivar, third-party software boundary, Arch today, Void migration plan, and microkernel horizon; adds 'distro' glossary entry and renames 'root-stock' to 'rootstock'. |
 | **0.48.0 corpus** | Voice dictation and shell voice commands | Done (2026-10-29) | Adds Using pages for desktop voice dictation (F9 / SUPER+CTRL+X) and safe shell voice commands (F10); explains on-device Whisper inference, PipeWire audio flow, and Readline vs wtype injection mechanisms. |
+| **0.48.1 corpus** | Update F9 dictation to tap to start and stop | Done (2026-10-29) | Updates voice dictation documentation to reflect F9 tap-to-start and tap-to-stop toggle behavior instead of hold to speak. |
 
 ## 3. Current state and follow-up
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.45.0 / 0.48.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation and shell voice commands added. Development installation is a separate developer-directed step. |
+| `develop` | 0.45.0 / 0.48.1 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, and shell voice commands added. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
