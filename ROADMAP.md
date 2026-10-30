@@ -1,11 +1,14 @@
 # tam Roadmap
 
-**Reviewed:** 2026-10-27. **Owner:** Fred (developer).
-**Current Command Version:** `0.45.1`. **Current Corpus Version:** `0.50.0`.
+**Last Update:** 2026-10-30
+**Owner:** Fred
+**Current Command Version:** `0.45.2`.
+**Current Corpus Version:** `0.50.1`.
+
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
-This roadmap sets priority and outcome, not a second implementation specification.
+This roadmap sets priority and outcome.
 Read the [plan index](docs/plans/README.md) for status, the
 [development contract](docs/plans/development.md) for behavior/invariants, and the
 [plan maintenance procedure](docs/plan-maintenance.md) when changing any plan.
@@ -15,17 +18,70 @@ Read the [plan index](docs/plans/README.md) for status, the
 `tam` is the terminal entry point to Tamlinux's offline knowledge system. Its
 primary journey has five parts: **Installing, Learning, Using, Maintaining,
 Improving**. Learning paths cross shared knowledge; Beginner, Intermediate
-and Expert are levels the reader chooses with keys 0-3. Search, Topics, Man pages, Info manuals and Help
-serve every part. Corpus 0.31.0 introduced this organization and command 0.30.0
-its shared navigation and discovery; the versions since are in section 2.
+and Expert are difficulty levels the reader can choose to show. Search, Topics,
+Man pages, Info manuals and Help serve every part.
 
 Retain the native C/libtam reader, offline default, read-only browsing, semantic
 HTML and indexed metadata, clean pipe output, explicit opt-in boundary for local
 AI, and independent command/corpus versions. No external viewer, network fetch
-or background daemon is required for knowledge browsing. Startup/memory targets
-are goals to measure, not unconditional claims about every host or manual.
+or background daemon is required for knowledge browsing. Startup and memory
+targets are goals to measure.
 
-## 2. Delivered history
+## 2. Current state and follow-up
+
+| Branch | Command / corpus | Meaning |
+| --- | --- | --- |
+| `develop` | 0.45.2 / 0.50.1 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, and terminfo/ncurses ecosystem pages. Development installation is a separate developer-directed step. |
+| `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
+| `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
+
+This table is a source snapshot taken on the review date. Remote-tracking rows
+use the cached `origin/` refs because local `test`/`main` refs can be stale;
+`git show <ref>:knowledge/version` and `src/version.h` are authoritative for
+those refs. Source refs do not prove an installed package selection. Stage
+promotion still requires the developer's word through the Tamlinux lifecycle.
+
+Completed plans: the [five-part knowledge system](docs/plans/knowledge-system-0.31.0.md)
+(TCK1–TCK5, command 0.30.0 / corpus 0.31.0), the
+[source-upgrade and stage-switching plan](docs/plans/upgrade.md) (TCK6–TCK8,
+command 0.31.0 / corpus 0.32.0, first activated in the development prefix),
+[reliable corpus builds](docs/plans/corpus-build.md) (TCK9, corpus 0.32.2),
+[home-row pager keys](docs/plans/pager-home-row-keys.md) (TCK10, command 0.32.0 /
+corpus 0.33.5), the [developer loop](docs/plans/dev-loop.md) (TCK11–TCK14,
+tooling and tests only: `make dev`, `make check-repo`, pager tests on fixtures),
+and [pager quick keys, address display and status row](docs/plans/pager-quick-keys.md)
+(TCK15–TCK19, command 0.34.0 / corpus 0.35.1). Disposable acceptance builds and
+live metadata checks have standing developer authorization.
+
+Approved next outcome: [learning levels, goal paths and self-quizzes](docs/plans/learning-levels.md)
+(TCK20–TCK25). TCK20, the teaching contract in
+[`docs/corpus-pedagogy.md`](docs/corpus-pedagogy.md) and its templates, and TCK21,
+the sticky level lens (command 0.37.0, banner ranking fixed in 0.37.1), and
+TCK22 (folding, self-quizzes and block-level levels, command 0.38.0 / corpus
+0.37.1), are delivered. TCK23 source (pilot pages and two goal paths) is
+delivered as corpus 0.38.0. The developer's review of all pilot levels and
+First steps remains pending. His subsequent "Continue" directed TCK24
+scaffolding, implemented as corpus 0.39.0: skills, placement, glossary,
+bibliography, additive metadata and a coverage/gap report. TCK25's Using part
+and staged level paths are implemented in corpus 0.40.0. Corpus 0.41.0
+migrates Maintaining's rollback and emergency-recovery lessons and adds
+three glossary terms. Corpus 0.42.0 migrates boot, boot-fallback and Snapper
+and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power.
+Corpus 0.43.2 completes Maintaining and enables track-wide enforcement;
+corpus 0.43.8 completes Improving and its enforcement. Corpus 0.44.0 adds
+twelve introductory glossary entries and a Guide index link. Corpus 0.44.1 makes practice cleanup limited to the known file and empty directory. Corpus 0.45.0 revises the tagged Learning lessons, classifies Learning and Installing pages, adds the remaining goal paths and enables tagged-section enforcement in all parts. TCK25 source implementation is complete. Continue defining unfamiliar concepts and expanding the glossary; pilot and learner review remain pending. Allocate versions when
+each slice starts. The deferred items in section 4 are candidates, not assignments.
+
+The approved [external-links work](docs/plans/external-links.md) is integrated in command 0.44.0. Fred reports that external links work; the candidate, environments and full acceptance matrix remain unrecorded.
+
+Still pending, and only on the developer's direction: real Linux-console and
+Foot review of an exact packaged candidate, including the
+[portable pager display](docs/plans/pager-display-portability.md) work (command
+0.29.0). Do not treat it as a new source-work assignment or record it as passed
+without that review. Installer execution and stateful progression remain
+deferred (section 4).
+
+## 3. Delivered history
 
 Every delivered version since 2026-10-09, oldest first. Through 0.24.0 the
 command and corpus shared one number; after that, rows marked *corpus* are
@@ -54,7 +110,7 @@ in that candidate, not here.
 | **0.15.0** | Milestone 7: Content-Depth Ladder & Fading Templates | Done (2026-10-14) | Beginner / Intermediate / Expert fading templates across core topics (`shell/jobs.html`, `shell/pipelines.html`, `filesystem/permissions.html`, `hardware/resources.html`); dynamic section filtering in `src/depth.c` and depth navigation (`?level=`); `tam explain --level LEVEL <topic>` and catalog depth filtering; index metadata projection for level lists, tracks, and prerequisites; depth indicators in `tam search` and JSON output; Bash completion for `--level`. |
 | **0.16.0** | Milestone 8: Self-Inspection Findings & Check Contract | Done (2026-10-14) | Comprehensive read-only system diagnostic and health finding engine in `tam install inspect`; structured finding model (`id`, `severity`, `summary`, `evidence`, `help_link`) deep-linking to Maintain-track help; versioned offline Check Contract schema (`{task_id, name, status, pass, fail, evidence, severity, help_ref, source, schema_version}`); Safe Execution Envelope (`safe_probe_exec`) running whitelisted probes under `LC_ALL=C`, bounded timeouts (≤500ms), captured streams, detached TTY; `pkexec` detect-and-degrade (no interactive `sudo`); `tam install inspect --json`, `tam install inspect --check [ID]`, `tam install check [ID]` (`--json` supported); updated Bash completions. |
 | **0.17.0** | Milestone 9: Opt-in Grounded Ask | Done (2026-10-14) | Opt-in grounded question-answering CLI surface (`tam ask [OPTIONS] <question>`) over the corpus index with mandatory citations; POSIX socket HTTP/1.1 client connecting to already-running local inference server (e.g. Ollama); strictly offline by default with D53 zero-daemon invariant; non-interactive refusal contract (exit code 2) and interactive consent flow; `tam ask --json` structured output; Bash completions for `ask`. |
-| **0.18.0** | Milestone 10: Navigation & Output Ergonomics | Done (2026-10-14) | Quick Guide index return shortcut (`` ` ``) in `src/pager.c` with history push; Goldilocks screen budget (bare `tam explain` ≤15 lines, `tam --help` ≤20 lines); interactive hyperlinked `tam explain topics` with pager navigation, `--level` filtering, `--terse` (slugs only) and `--verbose` modifiers; `--terse` check status for `tam install check`; Bash completions. |
+| **0.18.0** | Milestone 10: Navigation & Output Ergonomics | Done (2026-10-14) | Quick Guide index return shortcut (Backtick) in `src/pager.c` with history push; Goldilocks screen budget (bare `tam explain` ≤15 lines, `tam --help` ≤20 lines); interactive hyperlinked `tam explain topics` with pager navigation, `--level` filtering, `--terse` (slugs only) and `--verbose` modifiers; `--terse` check status for `tam install check`; Bash completions. |
 | **0.19.0** | Milestone 11: "Maintain" Track Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Maintain" track knowledge pages: `maintain/index.html` (hub), `maintain/updates.html` (inode unlinking, package tiering), `maintain/rollback.html` (Btrfs CoW snapshots, Home Manager generations), `maintain/logs.html` (journalctl filtering, kernel ring buffer), `maintain/power.html` (power ladder, Shift-key wake), `maintain/recovery.html` (virtual consoles, REISUB, chroot repair); Beginner/Intermediate/Expert fading templates; two-pass exact-topic alias resolution in `src/index.c`. |
 | **0.20.0** | Milestone 12: User Guide TOC, Botanical Analogy, & tam(1) Man Page | Done (2026-10-14) | Re-architected `knowledge/index.html` into comprehensive 7-part Table of Contents ("The Tamlinux User Guide") reflecting Fred's triad (Using, Maintaining, Improving); authored `knowledge/ecosystem/terminology.html` (Greenhouse, Pot, Nut, Root-stock, Cultivar analogy) with fading templates; authored UNIX section 1 manual page `man/tam.1` installed to `$(MANDIR)/man1/tam.1`; updated `src/man.c` and `src/tam.c` for `tam show topics` and dev man page lookup; bumped version to 0.20.0. |
 | **0.21.0** | Milestone 13: "Improve" Track Knowledge Corpus Expansion | Done (2026-10-14) | Authored comprehensive "Improve" track knowledge pages: `improve/index.html` (hub), `improve/efficiency.html` (zero-polling, inotify, epoll, Wayland sockets), `improve/zram.html` (compressed RAM swap, zsmalloc, LZ4/zstd), `improve/terminal.html` (sub-10ms shell startup, Micro editor live reload Virtue V11, foot terminal), `improve/scripting.html` (strict Bash headers set -euo pipefail, safe arguments "$@", tam-* vs fred-* Decision D131), `improve/toolchains.html` (native C compilation, -O2, -march=native, isolated Git worktrees, tam-work concurrency), and `improve/ai-performance.html` (physics of local autoregressive generation, memory bandwidth bounds, quantization tradeoffs); Beginner/Intermediate/Expert fading templates; updated User Guide Part V links; bumped version to 0.21.0. |
@@ -153,60 +209,6 @@ in that candidate, not here.
 | **0.45.1 command** | Pager italic sitm | Done (2026-10-30) | Emits terminfo `sitm` (CSI 3m) for `<i>` spans when the terminal description provides italic. |
 | **0.50.0 corpus** | Terminfo/termcap and ncurses | Done (2026-10-30) | Adds ecosystem tutorials for terminfo/termcap display capabilities and ncurses, with hub cross-links and how `tam` uses terminfo helpers. |
 
-## 3. Current state and follow-up
-
-| Branch | Command / corpus | Meaning |
-| --- | --- | --- |
-| `develop` | 0.45.1 / 0.50.0 | Newest source; pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, and terminfo/ncurses ecosystem pages. Development installation is a separate developer-directed step. |
-| `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
-| `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
-
-This table is a source snapshot taken on the review date. Remote-tracking rows
-use the cached `origin/` refs because local `test`/`main` refs can be stale;
-`git show <ref>:knowledge/version` and `src/version.h` are authoritative for
-those refs. Source refs do not prove an installed package selection. Stage
-promotion still requires the developer's word through the Tamlinux lifecycle.
-
-Completed plans: the [five-part knowledge system](docs/plans/knowledge-system-0.31.0.md)
-(TCK1–TCK5, command 0.30.0 / corpus 0.31.0), the
-[source-upgrade and stage-switching plan](docs/plans/upgrade.md) (TCK6–TCK8,
-command 0.31.0 / corpus 0.32.0, first activated in the development prefix),
-[reliable corpus builds](docs/plans/corpus-build.md) (TCK9, corpus 0.32.2),
-[home-row pager keys](docs/plans/pager-home-row-keys.md) (TCK10, command 0.32.0 /
-corpus 0.33.5), the [developer loop](docs/plans/dev-loop.md) (TCK11–TCK14,
-tooling and tests only: `make dev`, `make check-repo`, pager tests on fixtures),
-and [pager quick keys, address display and status row](docs/plans/pager-quick-keys.md)
-(TCK15–TCK19, command 0.34.0 / corpus 0.35.1). Disposable acceptance builds and
-live metadata checks have standing developer authorization.
-
-Approved next outcome: [learning levels, goal paths and self-quizzes](docs/plans/learning-levels.md)
-(TCK20–TCK25). TCK20, the teaching contract in
-[`docs/corpus-pedagogy.md`](docs/corpus-pedagogy.md) and its templates, and TCK21,
-the sticky level lens (command 0.37.0, banner ranking fixed in 0.37.1), and
-TCK22 (folding, self-quizzes and block-level levels, command 0.38.0 / corpus
-0.37.1), are delivered. TCK23 source (pilot pages and two goal paths) is
-delivered as corpus 0.38.0. The developer's review of all pilot levels and
-First steps remains pending. His subsequent "Continue" directed TCK24
-scaffolding, implemented as corpus 0.39.0: skills, placement, glossary,
-bibliography, additive metadata and a coverage/gap report. TCK25's Using part
-and staged level paths are implemented in corpus 0.40.0. Corpus 0.41.0
-migrates Maintaining's rollback and emergency-recovery lessons and adds
-three glossary terms. Corpus 0.42.0 migrates boot, boot-fallback and Snapper
-and adds the staged Rescue path. Corpus 0.42.3 migrates logs and power.
-Corpus 0.43.2 completes Maintaining and enables track-wide enforcement;
-corpus 0.43.8 completes Improving and its enforcement. Corpus 0.44.0 adds
-twelve introductory glossary entries and a Guide index link. Corpus 0.44.1 makes practice cleanup limited to the known file and empty directory. Corpus 0.45.0 revises the tagged Learning lessons, classifies Learning and Installing pages, adds the remaining goal paths and enables tagged-section enforcement in all parts. TCK25 source implementation is complete. Continue defining unfamiliar concepts and expanding the glossary; pilot and learner review remain pending. Allocate versions when
-each slice starts. The deferred items in section 4 are candidates, not assignments.
-
-The approved [external-links work](docs/plans/external-links.md) is integrated in command 0.44.0. Fred reports that external links work; the candidate, environments and full acceptance matrix remain unrecorded.
-
-Still pending, and only on the developer's direction: real Linux-console and
-Foot review of an exact packaged candidate, including the
-[portable pager display](docs/plans/pager-display-portability.md) work (command
-0.29.0). Do not treat it as a new source-work assignment or record it as passed
-without that review. Installer execution and stateful progression remain
-deferred (section 4).
-
 ## 4. Deferred direction, without reserved versions
 
 These are ideas or separate dependencies. None is approved or scheduled, and
@@ -228,7 +230,7 @@ an old proposed sequence or a version number.
 
 ## 5. Supersession and closure
 
-The developer's 2026-10-18 decision replaces the old seven-part contents and
+Fred's 2026-10-18 decision replaces the old seven-part contents and
 three-track organizational model with the five-part spine. The former future
 version sequence and feature-reference matrix are retired as scheduling
 authorities; delivered history above remains history. The

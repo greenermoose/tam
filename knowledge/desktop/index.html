@@ -15,37 +15,43 @@
 <nav aria-label="Breadcrumb">
 <p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / The Tamlinux Desktop</p>
 </nav>
-<h1>The Tamlinux Desktop</h1>
-<p>This page introduces the graphical desktop where you can open several programs at once
-and use your keyboard, mouse, or voice to interact with them.</p>
+<h1>The Tamlinux Graphical Desktop</h1>
 
-<p>When you first boot up Tamlinux you arrive in a command line interface (CLI) shell
-where you can type commands and send them to your computer. From a CLI shell, the
-<code>tam-desktop</code> command opens a graphical desktop shell
-(also called a graphical user interface or GUI shell).</p>
+<p>This page explains the graphical desktop where you can use your keyboard, mouse,
+or voice to control your computer.  "Graphical" means that your computer is in a
+mode that allows it to draw any sort of shape on a screen, not just rows of text.
+Computer "graphics" refers to drawing pixels (short for "picture elements," or dots
+of light) on a screen.</p>
 
-<p>To switch from the Tamlinux desktop back to a text-only terminal, you can press and
-hold the Ctrl key, then press and hold the Alt key, and then press F2 or another
-function key (Ctrl + Alt + F2, Ctrl + Alt + F3, etc.). These text-only terminals
-are called "virtual terminals" (VTs); each one is numbered TTY2, TTY3, etc.
-(TTY stands for "TeleTYpe", which was how computers printed output before monitor
-technology was available.) Sometimes switching to a different tty is necessary
-for recovery if your desktop is not responding or you need to troubleshoot a serious
-problem.</p>
+<p>When you first boot up Tamlinux you arrive in a command line interface (CLI)
+text-only shell where you can type commands and send them to your computer. From a
+CLI shell, the <code>tam-desktop</code> command opens a graphical shell
+(also called a graphical user interface or GUI shell) that this guide calls
+the Tamlinux desktop.</p>
+
+<p>To switch from the Tamlinux desktop to a text-only "virtual terminal,"
+you can press and hold the <code>Ctrl</code> key, then press and hold the <code>Alt</code> key, and then
+press <code>F2</code> or another function key (Ctrl + Alt + F2, Ctrl + Alt + F3, etc.). These
+text-only virtual terminals (VTs) are numbered <code>tty2</code>, <code>tty3</code>, etc.  (TTY stands for
+"TeleTYpe", which was how computers printed output before monitor technology was
+available.) Sometimes switching to a different tty is necessary for recovery if
+your graphical desktop is not responding or you need to troubleshoot a
+serious problem.</p>
 
 <h2>Navigating your desktop</h2>
 
 <p>The examples below describe the standard Tamlinux desktop and keybindings.
-You may make keys behave differently. A keybinding is a short-hand way to give
-a command to your computer by pressing a key or combination of keys.</p>
+You may change your settings to make your keys behave differently. A keybinding
+is a short-hand way to give a command to your computer by pressing a key or
+combination of keys.</p>
     
-<p>The SUPER key (on many keyboards it has a Windows logo on it) is your super
+<p>The <code>Meta</code> key (on many keyboards it has a Windows logo on it) is your super
 power in the Tamlinux desktop. Here are three keybindings to try.</p>
 
 <ul>
-  <li><code>SUPER + SPACE</code> opens your application launcher.</li>
-  <li><code>SUPER + RETURN</code> opens a terminal window.</li>
-  <li><code>SUPER + K</code> lists every keybinding.</li>
+  <li><code>Meta + Space</code> opens your application launcher.</li>
+  <li><code>Meta + Return</code> opens a terminal window.</li>
+  <li><code>Meta + K</code> lists every keybinding.</li>
 </ul>
 
 <section data-level="beginner"><h2>Open a window and recover your place</h2>
@@ -55,23 +61,23 @@ its layout and return to your starting window.</p>
 keyboard-driven desktop less disorienting.</p>
 <p><strong>Before you start:</strong> save work in existing windows and read
 <a href="welcome.html?level=1">Welcome</a>. Practice only with a new empty terminal.</p>
-<aside class="first-time"><p>SUPER is usually the key with a Windows logo.
+<aside class="first-time"><p>Meta is usually the key with a Windows logo.
 A plus sign means hold the keys together, not type a plus. Terminal commands
 and desktop shortcuts are different: these keys go to the desktop.</p></aside>
 <h3>Worked example</h3><ol><li>Note your current window and workspace.</li>
-<li>Press SUPER+RETURN to request a new terminal.</li><li>With that empty
-terminal focused, press SUPER+T to toggle floating/tiling. Press it again to undo.</li>
-<li>Press SUPER+W to close only that empty terminal.</li></ol>
+<li>Press Meta + Return to request a new terminal.</li><li>With that empty
+terminal focused, press Meta + T to toggle floating/tiling. Press it again to undo.</li>
+<li>Press Meta + W to close only that empty terminal.</li></ol>
 <p>This walkthrough is checked against the packaged bindings, not a claim
 that a GUI acceptance test was performed in your session.</p>
 <h3>What just happened</h3><ol><li>The terminal launcher opened an application.</li>
 <li>The compositor changed the focused window's layout mode.</li>
 <li>The close request applied to the focused window. Focus matters before closing.</li></ol>
-<h3>Try it</h3><p>Open two empty terminals. Use SUPER+Left/Right/Up/Down to
+<h3>Try it</h3><p>Open two empty terminals. Use Meta + Left/Right/Up/Down to
 move focus in the corresponding direction when another window is there.
 Identify the focused window before closing either. Keep real work untouched.</p>
 <h3>If it goes wrong</h3><dl><dt>A shortcut does nothing</dt><dd>Check
-SUPER+K and your compositor/overrides. A directional focus request needs
+Meta + K and your compositor/overrides. A directional focus request needs
 a window in that direction.</dd><dt>A window seems missing</dt><dd>Check
 the workspace and fullscreen/floating state before launching another copy.</dd></dl>
 <h3>New words</h3><dl><dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard input.</dd>
@@ -80,12 +86,12 @@ windows and other modes can overlap them.</dd></dl>
 <h3>Next step</h3><p>Read <a href="desktop/workspaces.html?level=2">workspaces</a>
 to organize windows, <a href="desktop/voice.html?level=1">voice dictation</a>
 to type text by speaking, or <a href="learn/paths/first-steps.html?level=1">First steps</a>.</p>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Which window does SUPER+W close?</summary><p>The currently focused window receives the close request. Check focus and save work first; practice with an empty terminal.</p></details><details class="q"><summary>Does tiling mean windows can never overlap?</summary><p>No. Floating windows and other modes can overlap; fullscreen and application behavior also affect what is visible.</p></details></section>
+<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Which window does Meta + W close?</summary><p>The currently focused window receives the close request. Check focus and save work first; practice with an empty terminal.</p></details><details class="q"><summary>Does tiling mean windows can never overlap?</summary><p>No. Floating windows and other modes can overlap; fullscreen and application behavior also affect what is visible.</p></details></section>
 </section><h2>Key reference</h2><table><tr><th>Key</th><th>Packaged action</th></tr>
-<tr><td>SUPER+RETURN</td><td>Terminal</td></tr><tr><td>SUPER+SPACE</td><td>Tamlinux menu</td></tr>
-<tr><td>SUPER+ALT+SPACE</td><td>Apps menu</td></tr><tr><td>SUPER+K</td><td>Keybindings</td></tr>
-<tr><td>SUPER+F</td><td>Fullscreen toggle</td></tr><tr><td>SUPER+T</td><td>Floating/tiling toggle</td></tr>
+<tr><td>Meta + Return</td><td>Terminal</td></tr><tr><td>Meta + Space</td><td>Tamlinux menu</td></tr>
+<tr><td>Meta + ALT+Space</td><td>Apps menu</td></tr><tr><td>Meta + K</td><td>Keybindings</td></tr>
+<tr><td>Meta + F</td><td>Fullscreen toggle</td></tr><tr><td>Meta + T</td><td>Floating/tiling toggle</td></tr>
 <tr><td>F9</td><td>Voice dictation (tap start/stop)</td></tr>
-<tr><td>SUPER+CTRL+X</td><td>Toggle voice dictation</td></tr></table>
+<tr><td>Meta + Ctrl + X</td><td>Toggle voice dictation</td></tr></table>
 <p><a href="https://github.com/greenermoose/tamlinux/tree/develop/desktop/session/hypr/tamlinux/bindings">Packaged binding sources (online)</a>.</p>
 </body></html>

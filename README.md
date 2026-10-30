@@ -4,27 +4,23 @@
 maintain it, and improve it.
 
 The command includes host inspection and a built-in HTML parser and pager
-to display and search the Tamlinux guide, man pages, Info manuals, and tldr
-pages. It builds in C against the `libtam` library and is delivered through
-Tamlinux package assemblies.
+to display and search the Tamlinux guide (knowledge corpus), man pages,
+Info manuals, and tldr pages. It builds in C against the `libtam` library
+and is delivered through Tamlinux package assemblies.
 
 ## Command overview
 
 Bare `tam` prints a concise introduction and exits successfully without
-launching a browser or writing state. `tam show` opens the bundled offline
-guide: an interactive pager in a terminal, or plain text when output is piped.
+launching a browser or writing state. `tam show` opens the guide: an
+interactive pager in a terminal, or plain text when output is piped.
 `tam hi` opens orientation and records successful display state.
-`tam search <query>` searches the corpus index with field-weighted ranking and
+`tam search <query>` searches the corpus with field-weighted ranking and
 fuzzy suggestions; on a terminal the results open in the pager with followable
 links; for use in scripts,  `--pipe` or `--json` stream them to stdout instead.
 `tam explain <topic>` explains curated local concepts and tools, resolving
 multi-word queries through search.
+
 `tam inspect` inspects host facts, package tools, and supported profiles.
-
-## Knowledge corpus
-
-The guide is authored as semantic HTML under `knowledge/`; `tam` renders
-HTML itself, so browsing needs no network and no external viewer.
 
 ## Using tam
 
@@ -51,27 +47,28 @@ tam switch test       # build and activate Test source after confirmation
 tam switch --rollback # return to the previous local generation, offline
 ```
 
-In the pager, the letter keys sit on the home row, mirrored on each hand:
-`d`/`k` or Down moves the attention line down a line and `s`/`l` or Up moves
-it up; `a`/`j` and `f`/`;` move the attention column left and right from link to
-link along that line. One row down, `x`/`.` or `Home` jumps to the top and
-`c`/`,` or `End` to the bottom. `Space`/`b` or `PgDn`/`PgUp` scroll a screen,
+The pager is designed so pages can be read easily using arrow keys and the
+space bar.  For keyboards without arrow keys, keys on the home row,
+mirrored on each hand, can be used for navigation: `d`/`k` or Down moves
+the attention line down a line and `s`/`l` or Up moves it up; `a`/`j` and
+`f`/`;` move the attention column left and right from link to link along
+that line. One row down, `x`/`.` or `Home` jumps to the top and `c`/`,`
+or `End` to the bottom. `Space`/`b` or `PgDn`/`PgUp` scroll a screen,
 `]` or `[` (or `Tab`/`Shift-Tab`) selects the next or previous link anywhere,
-`/` opens `Search in page /` for text search (`n`/`N` navigates hits), `\` opens
-`Search in guide \` across the guide, and `=` displays the page address (`Path = ...`).
+`/` opens `Search in page /` for text search (`n`/`N` navigates hits), 
+`\` opens `Search in guide \` across the guide.
+
 `g`, `Enter` or the right arrow follows the selected link (the right arrow
 without a selected link proceeds forward along a visited path). `u` or the
 left arrow goes back, or hides a shown answer on its `[-]` line (`u` means
-hierarchy Up in Info), backtick returns to the
-Guide, `h` or `?` shows the keys, and `q` or `Esc` quits. The status row reads
+hierarchy Up in Info). Backtick returns to the Guide. `q` or `Esc` quits.
+
+`h` or `?` shows a help screen. `=` displays the current page address
+(`Path = ...`). The status row reads
 `<Page title> | L<line> <first>-<last>/<total> | <Level> text 0123 | h Help  Esc Quit  [] Select links  -> <selected link>`
 with the version at the right edge, `v<command> (<corpus>)`, so a reader
 always knows which build they are running (or `Path = <address>` when `=` is
-active). Narrow terminals drop the title, then the link, then the key hints. Readers used to `less`
-or vim: `j` and `k` do not scroll here; `k` moves down. External links are shown
-but never fetched, so the guide stays offline. The corpus is located via
-`$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then the compiled install
-prefix.
+active). Narrow terminals drop the title, then the link, then the key hints.
 
 The pager uses terminfo capabilities for colors, cursor positioning and screen
 updates. It falls back to reverse video on the Linux console and monochrome
@@ -79,19 +76,26 @@ terminals, and to plain text when stdout is not a usable terminal. On resize it
 reflows the current document while retaining the reading position, selected
 link and search state.
 
+## Knowledge corpus
+
+The guide is authored as semantic HTML under `knowledge/`; `tam` renders
+HTML itself, so browsing needs no network and no external viewer. The corpus
+is located via `$TAM_KNOWLEDGE_DIR`, then the XDG data directories, then
+the compiled install prefix.
+
 Man pages are rendered with groff once and cached in
 `$XDG_CACHE_HOME/tamlinux/tam/man/` (default `~/.cache/tamlinux/tam/man/`),
 one file per source page, stamped with the source's size and modification
 time; a changed page is rendered again. Revisiting `man bash` takes about
 50 ms instead of a second. Deleting the directory is always safe.
 
-The offline command is C; the explicit source-upgrade helper uses Python's
-standard library for strict metadata parsing and bounded process control.
-Command source, bundled guide pages, tests and component documentation live
-here. The `tamlinux` product repository owns workstation assembly and the
-installation framework.
-
 ## Source stages and recovery
+
+The `tam` command is written in C; the explicit source-upgrade helper
+uses Python's standard library for strict metadata parsing and bounded
+process control.  Command source, bundled guide pages, tests and component
+documentation live in this repo. The `tamlinux` repository owns workstation
+assembly and the installation framework.
 
 `tam upgrade` checks the public Development (`develop`), Test (`test`), Run
 (`main`) and Release (paired version tag) sources. A check is the only normal

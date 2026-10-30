@@ -433,6 +433,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-30:** Command 0.45.2 (patch): Wordsmithing help screen and other pages
 - **2026-10-30:** Command 0.45.1 (patch): emit terminfo `sitm` (CSI 3m) for italic spans when the terminal description provides it.
 
 - **2026-10-29:** Command 0.45.0 (minor): add `-v` as an alias for `--version`, retaining `-V`.
