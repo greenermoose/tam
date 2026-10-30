@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-29 | Update F9 dictation to tap to start and stop; corpus 0.48.1 | Antigravity CLI 1.4.10; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-29-tam-f9-dictation-toggle.md) |
 | 2026-10-29 | Voice dictation and shell voice commands; corpus 0.48.0 | Antigravity CLI 1.4.10; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-29-tam-voice-interaction-corpus.md) |
 | 2026-10-29 | Standardize rootstock terminology; corpus 0.47.0 | Antigravity CLI 1.4.10; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-29-tam-rootstock-standardization.md) |
 | 2026-10-29 | Short version option; command 0.45.0 | Codex CLI 0.165.0; `gpt-6.1-terra` | [Session record](docs/ai/2026-10-29-tam-version-alias.md) |
