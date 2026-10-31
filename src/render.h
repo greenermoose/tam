@@ -5,12 +5,17 @@
 
 /* Inline style bits. */
 enum {
-    TAM_STYLE_BOLD    = 1u << 0,
-    TAM_STYLE_ITALIC  = 1u << 1,
-    TAM_STYLE_CODE    = 1u << 2,
-    TAM_STYLE_LINK    = 1u << 3,
-    TAM_STYLE_HEADING = 1u << 4,
-    TAM_STYLE_DIM     = 1u << 5  /* page metadata, such as the level line */
+    TAM_STYLE_BOLD     = 1u << 0,
+    TAM_STYLE_ITALIC   = 1u << 1,
+    TAM_STYLE_CODE     = 1u << 2,
+    TAM_STYLE_LINK     = 1u << 3,
+    TAM_STYLE_HEADING  = 1u << 4,
+    TAM_STYLE_DIM      = 1u << 5,  /* page metadata, such as the level line */
+    TAM_STYLE_LVL_0    = 1u << 6,  /* level 0: all text */
+    TAM_STYLE_LVL_1    = 1u << 7,  /* level 1: beginner level text */
+    TAM_STYLE_LVL_2    = 1u << 8,  /* level 2: intermediate level text */
+    TAM_STYLE_LVL_3    = 1u << 9,  /* level 3: expert level text */
+    TAM_STYLE_LVL_MASK = (1u << 6) | (1u << 7) | (1u << 8) | (1u << 9)
 };
 
 /* A contiguous run of inline text with one style and optional link target. */

@@ -474,34 +474,29 @@ static void heading_text(buf_t *b, const char *src, size_t from, size_t to)
     }
 }
 
-/* "<Shown> text": the one level shown, or All when a page shows several. */
-static void shown_label(buf_t *b, unsigned shown)
-{
-    buf_str(b, tam_level_count(shown) == 1 ? tam_level_label(shown) : "All");
-    buf_str(b, " text");
-}
-
 /* The level line and, when the lens level is missing, the relatives line:
- *   Beginner text on <a>Expert path</a> (no Expert text)
+ *   Showing <0: all|1: beginner level|2: intermediate level|3: expert level> text
  *   See also -> <related>
  * Both are class="level-line" paragraphs, which the renderer dims and
  * right-aligns. */
 static void level_lines(buf_t *b, unsigned shown, unsigned level,
                         int missing, const char *related)
 {
-    buf_str(b, "<p class=\"level-line\">");
-    shown_label(b, shown);
-    if (level != 0) {
-        buf_str(b, " on <a href=\"");
-        buf_str(b, tam_level_name(level));
-        buf_str(b, ".html\">");
-        buf_str(b, tam_level_label(level));
-        buf_str(b, " path</a>");
-    }
-    if (level != 0 && missing) {
-        buf_str(b, " (no ");
-        buf_str(b, tam_level_label(level));
-        buf_str(b, " text)");
+    (void)shown;
+    buf_str(b, "<p class=\"level-line\">Showing ");
+    switch (tam_level_number(level)) {
+    case 1:
+        buf_str(b, "<span class=\"lvl-1\">1: beginner</span> level text");
+        break;
+    case 2:
+        buf_str(b, "<span class=\"lvl-2\">2: intermediate</span> level text");
+        break;
+    case 3:
+        buf_str(b, "<span class=\"lvl-3\">3: expert</span> level text");
+        break;
+    default:
+        buf_str(b, "<span class=\"lvl-0\">0: all</span> text");
+        break;
     }
     buf_str(b, "</p>\n");
     if (level != 0 && missing && related != NULL && related[0] != '\0') {

@@ -238,6 +238,34 @@ static int emit_style(const tam_span_t *sp, int is_sel)
             (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 3, 0);
         styled = 1;
     }
+    if (sp->style & TAM_STYLE_LVL_0) {
+        if (g_term != NULL && !g_attention && g_term->colors >= 8 && g_term->use_color)
+            (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 6, 0);
+        else if (g_term != NULL && (g_term->ncv < 0 || !(g_term->ncv & 32)))
+            (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
+        styled = 1;
+    }
+    if (sp->style & TAM_STYLE_LVL_1) {
+        if (g_term != NULL && !g_attention && g_term->colors >= 8 && g_term->use_color)
+            (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 2, 0);
+        else if (g_term != NULL && (g_term->ncv < 0 || !(g_term->ncv & 32)))
+            (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
+        styled = 1;
+    }
+    if (sp->style & TAM_STYLE_LVL_2) {
+        if (g_term != NULL && !g_attention && g_term->colors >= 8 && g_term->use_color)
+            (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 3, 0);
+        else if (g_term != NULL && (g_term->ncv < 0 || !(g_term->ncv & 32)))
+            (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
+        styled = 1;
+    }
+    if (sp->style & TAM_STYLE_LVL_3) {
+        if (g_term != NULL && !g_attention && g_term->colors >= 8 && g_term->use_color)
+            (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 5, 0);
+        else if (g_term != NULL && (g_term->ncv < 0 || !(g_term->ncv & 32)))
+            (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
+        styled = 1;
+    }
     return styled;
 }
 

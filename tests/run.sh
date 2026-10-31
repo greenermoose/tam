@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.47.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.48.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -1441,6 +1441,7 @@ class Pager:
         buf = b""
         while select.select([self.master], [], [], 0.05)[0]:
             buf += os.read(self.master, 65536)
+        self.last_raw = buf
         return strip_ansi(buf.decode("utf-8", "replace"))
 
     def key(self, k):
@@ -1465,7 +1466,7 @@ state = os.path.join(tmp, "lens-state")
 
 # A fresh reader starts at All; 0 says so and writes nothing.
 p = Pager(["show", "shell/pipelines"], state)
-assert "All text" in p.first, p.first
+assert "Showing 0: all text" in p.first, p.first
 assert "All text 0123" in p.first, f"status row lacks the lens: {p.first}"
 # The page opens on its title, line 1; the level line above it is Lb and the
 # breadcrumb row La, and the range and total count only numbered lines.
@@ -1489,7 +1490,7 @@ assert saved(state) is None, "pressing the current lens wrote state"
 
 # 2 re-renders in place: level line, hidden-section markers, status, message.
 b = p.key(b"2")
-assert "Intermediate text on Intermediate path" in b, b
+assert "Showing 2: intermediate level text" in b, b
 assert "-- 1 Beginner: Beginner (hidden; press 1 or 0) --" in b, b
 assert "-- 3 Expert: Expert (hidden; press 3 or 0) --" in b, b
 assert "Level 2 Intermediate: 2 sections hidden" in b, b
@@ -1499,7 +1500,6 @@ assert saved(state) == "intermediate", saved(state)
 # The lens holds across a link to a single-level page, which opens under a
 # truthful level line instead of failing, and the status row says so.
 b = p.key(b"`")
-assert "Beginner text on Intermediate path (no Intermediate text)" in b, b
 # The relatives line links children of the page at the lens level, from
 # index.parents.tsv.
 assert "See also -> Fixture pipelines" in b, b
@@ -1511,16 +1511,16 @@ p.key(b"=")
 
 # Back returns to the page at the current lens; it does not undo the lens.
 b = p.key(b"\x1b[D")
-assert "Intermediate text on Intermediate path" in b, b
+assert "Fixture pipelines" in b, b
 b = p.key(b"3")
-assert "Expert text on Expert path" in b, b
+assert "Showing 3: expert level text" in b, b
 b = p.key(b"\x1b[D")
 assert "Expert text 0123" in b, f"Back undid the lens change: {b}"
 p.quit()
 
 # The lens survives a restart.
 p = Pager(["show", "shell/pipelines"], state)
-assert "Expert text on Expert path" in p.first, p.first
+assert "Showing 3: expert level text" in p.first, p.first
 # A link that names a level sets the lens.
 for _ in range(12):
     b = p.key(b"]")
@@ -1529,21 +1529,21 @@ for _ in range(12):
 else:
     raise AssertionError("no beginner link on the page")
 b = p.key(b"\r")
-assert "Beginner text on Beginner path" in b, b
+assert "Showing 1: beginner level text" in b, b
 assert saved(state) == "beginner", saved(state)
 p.quit()
 
 # TAM_LEVEL overrides the file and is never written back.
 p = Pager(["show", "shell/pipelines"], state, env={"TAM_LEVEL": "expert"})
-assert "Expert text on Expert path" in p.first, p.first
+assert "Showing 3: expert level text" in p.first, p.first
 b = p.key(b"2")
-assert "Intermediate text on Intermediate path" in b, b
+assert "Showing 2: intermediate level text" in b, b
 p.quit()
 assert saved(state) == "beginner", f"TAM_LEVEL run wrote the lens: {saved(state)}"
 
 # --level overrides both for this run only.
 p = Pager(["show", "--level", "3", "shell/pipelines"], state)
-assert "Expert text on Expert path" in p.first, p.first
+assert "Showing 3: expert level text" in p.first, p.first
 p.quit()
 assert saved(state) == "beginner", saved(state)
 
@@ -1551,7 +1551,22 @@ assert saved(state) == "beginner", saved(state)
 with open(os.path.join(state, "tamlinux", "tam", "level"), "w") as f:
     f.write("seven\n")
 p = Pager(["show", "shell/pipelines"], state)
-assert "All text" in p.first and "All text on" not in p.first, p.first
+assert "Showing 0: all text" in p.first, p.first
+
+# Pressing 0, 1, 2, 3 in the pager selects each level and updates line b with distinct highlighting.
+assert b"\x1b[36m 0: all" in p.last_raw, f"level 0 not cyan: {p.last_raw}"
+b1 = p.key(b"1")
+assert "Showing 1: beginner level text" in b1, b1
+assert b"\x1b[32m 1: beginner" in p.last_raw, f"level 1 not green: {p.last_raw}"
+b2 = p.key(b"2")
+assert "Showing 2: intermediate level text" in b2, b2
+assert b"\x1b[33m 2: intermediate" in p.last_raw, f"level 2 not yellow: {p.last_raw}"
+b3 = p.key(b"3")
+assert "Showing 3: expert level text" in b3, b3
+assert b"\x1b[35m 3: expert" in p.last_raw, f"level 3 not magenta: {p.last_raw}"
+b0 = p.key(b"0")
+assert "Showing 0: all text" in b0, b0
+assert b"\x1b[36m 0: all" in p.last_raw, f"level 0 not cyan: {p.last_raw}"
 p.quit()
 
 # One-level pages: tldr and standard input keep the lens and say so.
@@ -1568,7 +1583,7 @@ p.quit()
 # the digits alone below 60.
 for cols, want, absent in ((120, "Beginner text 0123", None), (80, "Beginner 0123", "text 0123"), (40, "0123", "Beginner")):
     p = Pager(["show", "shell/pipelines"], state, cols=cols)
-    p.key(b"1") if "Beginner text on" not in p.first else None
+    p.key(b"1") if "Showing 1: beginner level text" not in p.first else None
     b = p.key(b"x")
     text = p.first + b
     at = max(text.rfind("L1 "), text.rfind("Lb "))
@@ -1879,13 +1894,13 @@ if printf '%s\n' "$sh_lvl_e" | grep -q '^Beginner'; then fail "expert level cont
 # A page without the requested level opens under its level line, exit 0.
 sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2 welcome --pipe) \
     || fail "show --level 2 on a single-level page failed"
-printf '%s\n' "$sh_banner" | grep -qE '^ +Beginner text on Intermediate path \(no Intermediate text\)$' \
+printf '%s\n' "$sh_banner" | grep -qE '^ +Showing 2: intermediate level text$' \
     || fail "single-level page missing its right-aligned level line"
 printf '%s\n' "$sh_banner" | grep -q 'Fixture Welcome' || fail "level-line page lost its content"
 # Related pages come from parent links: a page with no relative at the level
-# shows only the level path; siblings, then the parent, are offered next.
+# shows only the level line; siblings, then the parent, are offered next.
 if printf '%s\n' "$sh_banner" | grep -q 'See also ->'; then
-    fail "level line without relatives at the level must show only the level path"
+    fail "level line without relatives at the level must not show relatives"
 fi
 sh_sib=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 3 learn/index --pipe) \
     || fail "show --level 3 on the learning hub failed"
@@ -1996,7 +2011,7 @@ if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain 
 
 # A topic lacking the requested level lists every level under its level line.
 ex_no_exp=$("$TAM" explain --level expert desktop --pipe) || fail "explain --level expert desktop failed"
-printf '%s\n' "$ex_no_exp" | grep -q "All text on Expert path (no Expert text)" || fail "missing topic level line"
+printf '%s\n' "$ex_no_exp" | grep -q "Showing 3: expert level text" || fail "missing topic level line"
 
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"
 

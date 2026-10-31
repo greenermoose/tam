@@ -717,6 +717,26 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
         }
         return;
     }
+    if (strcmp(name, "span") == 0) {
+        if (closing) {
+            p->style &= ~TAM_STYLE_LVL_MASK;
+        } else {
+            char *cls = extract_attr(s, end, "class");
+            if (cls != NULL) {
+                if (strcmp(cls, "lvl-0") == 0) {
+                    p->style |= TAM_STYLE_LVL_0;
+                } else if (strcmp(cls, "lvl-1") == 0) {
+                    p->style |= TAM_STYLE_LVL_1;
+                } else if (strcmp(cls, "lvl-2") == 0) {
+                    p->style |= TAM_STYLE_LVL_2;
+                } else if (strcmp(cls, "lvl-3") == 0) {
+                    p->style |= TAM_STYLE_LVL_3;
+                }
+                free(cls);
+            }
+        }
+        return;
+    }
     if (strcmp(name, "title") == 0) {
         p->in_title = closing ? 0 : 1;
         return;
@@ -1895,7 +1915,9 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
             }
         } else if (p.blocks.v[i].kind == B_META) {
             for (size_t j = 0; j < p.blocks.v[i].nruns; j++) {
-                p.blocks.v[i].runs[j].style |= TAM_STYLE_DIM;
+                if (!(p.blocks.v[i].runs[j].style & TAM_STYLE_LVL_MASK)) {
+                    p.blocks.v[i].runs[j].style |= TAM_STYLE_DIM;
+                }
             }
         }
     }
