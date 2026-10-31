@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Peer desktop projects</title>
+<meta name="topic" content="peer-projects">
+<meta name="summary" content="Desktop, shell and base-system projects Tamlinux studies, and what each one is worth watching for">
+<meta name="keywords" content="peer projects, desktop, shell, compositor, dotfiles, Omarchy, Dux Shell, Noctalia, Caelestia, end-4, Hyprland, Sway, wlroots, niri, Quickshell, Regolith, nwg-shell, COSMIC, Void Linux, Chimera Linux">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="kind" content="reference">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Peer desktop projects</p>
+</nav>
+
+<h1>Peer desktop projects</h1>
+<p>This page introduces the desktop, shell and base-system projects Tamlinux studies, and says what each one is worth watching for.</p>
+
+<p>These projects are peers, not dependencies. Tamlinux does not install
+them as a set, and being listed here is not a recommendation. Some are
+complete distributions, some are shells for one compositor, and some are
+configuration sets. They solve related problems in different ways, so their
+choices are useful evidence even when Tamlinux takes a different path.</p>
+
+<p>The details are a snapshot from 31 October 2026. Projects change their
+leadership, release rhythm and scope. Check a project's own site before
+relying on a name, version or channel. The people and public meeting places
+behind these projects are on
+<a href="ecosystem/peer-communities.html">Peer developers and communities</a>.</p>
+
+<h2>Terms and how to read an entry</h2>
+
+<dl>
+<dt>Compositor</dt>
+<dd>Software that combines application windows into the picture on screen and
+decides which window receives input. A Wayland compositor also manages
+outputs, seats and the window protocol.</dd>
+<dt>Desktop shell</dt>
+<dd>The visible layer around the compositor: bar, launcher, panels,
+notifications, lock screen and settings. A shell may also provide session
+startup and a greeter.</dd>
+<dt>Desktop distribution</dt>
+<dd>A complete installable system that combines a compositor, a shell,
+default applications and an installer.</dd>
+<dt>Dotfile set</dt>
+<dd>A collection of configuration files, often shared with an installer. It
+is not a packaged desktop, even when it looks like one.</dd>
+<dt>Rootstock</dt>
+<dd>The kernel and core system software on which the Tamlinux
+<a href="learn/glossary/cultivar.html">cultivar</a> is installed. See
+<a href="ecosystem/distros.html">Rootstocks</a> for Tamlinux's current and
+planned choices.</dd>
+</dl>
+
+<p>Each entry gives the same four fields where they apply: what the project
+is, what makes it distinct, why Tamlinux watches it, and where to find it.
+The links are online; the rest of this guide works offline.</p>
+
+<h2>Desktop distributions</h2>
+
+<h3>Omarchy</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>An Arch Linux desktop built around Hyprland, a Quickshell-based shell,
+curated defaults, themes and installer scripts. It is maintained by the
+Omacom Foundation, which also sponsors Hyprland work.</dd>
+<dt>What makes it distinct</dt>
+<dd>It presents a complete, opinionated desktop as a small set of scripts and
+defaults rather than as a separate distribution image.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>Its installer, upgrade path and packaging discipline are useful evidence
+for a small team supporting a large community. Tamlinux no longer depends on
+Omarchy, so this is a study of integration work, not a dependency.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/omacom/omarchy">github.com/omacom/omarchy</a>
+and <a href="https://omarchy.org">omarchy.org</a>.</dd>
+</dl>
+
+<h2>Hyprland shells and dotfile sets</h2>
+
+<h3>Dux Shell</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A full desktop shell for Hyprland built with Quickshell. It was formerly
+called DankMaterialShell, and the old repository links redirect to the new
+name.</dd>
+<dt>What makes it distinct</dt>
+<dd>It ships a bar, launcher, notifications, settings and other desktop
+components as one shell, rather than leaving those pieces to separate
+projects.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It shows how a shell can keep its own components together while still
+depending on a separate compositor. Its rename is also a reminder that
+project names and repository addresses change.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/duxlabs-dev/dux-shell">github.com/duxlabs-dev/dux-shell</a>
+and <a href="https://duxlabs.dev/docs">duxlabs.dev/docs</a>.</dd>
+</dl>
+
+<h3>Noctalia</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A Quickshell-based desktop shell that has moved core parts to native C++
+and now includes its own compositor, Umbriel, and a greeter.</dd>
+<dt>What makes it distinct</dt>
+<dd>It grows from a shell into a larger desktop stack, including the session
+and login pieces that many shells leave to other projects.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is a live test of what a shell gains and loses when it moves beyond
+QML and takes responsibility for the compositor and greeter.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/noctalia-dev/noctalia">github.com/noctalia-dev/noctalia</a>
+and <a href="https://docs.noctalia.dev">docs.noctalia.dev</a>.</dd>
+</dl>
+
+<h3>Caelestia</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A Quickshell desktop shell and Hyprland configuration set with a strong
+visual theme, packaged for people who want the whole look and behaviour.</dd>
+<dt>What makes it distinct</dt>
+<dd>It treats appearance and configuration layout as part of the product, not
+as an afterthought.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It shows how a dotfile set can become a reusable shell, and where that
+transition creates packaging and support work.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/caelestia-dots/shell">github.com/caelestia-dots/shell</a>
+and <a href="https://caelestiashell.com">caelestiashell.com</a>.</dd>
+</dl>
+
+<h3>end-4's dots-hyprland</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A widely used Hyprland dotfile set with an installer, documentation and a
+large collection of configuration files.</dd>
+<dt>What makes it distinct</dt>
+<dd>It is explicitly a configuration set, not a distribution, and it invests
+heavily in the first-install experience.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>Its installer and migration guidance are useful evidence for people
+arriving from other desktops. It also shows the support cost of a large
+configuration set.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/end-4/dots-hyprland">github.com/end-4/dots-hyprland</a>.</dd>
+</dl>
+
+<h2>Compositors</h2>
+
+<p>Tamlinux's current desktop uses Hyprland, and the plan is to move to Sway
+on wlroots. The full comparison is in
+<a href="ecosystem/compositors.html">Compositors and windowing</a>; this
+section records only the peer relationship.</p>
+
+<h3>Hyprland</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A dynamic tiling Wayland compositor with animations, plugins and its own
+configuration language. The Omacom Foundation sponsors work on it.</dd>
+<dt>What makes it distinct</dt>
+<dd>It supports a plugin ecosystem and a configuration style that many shell
+projects build around.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is the current compositor, and its plugin ABI and configuration
+compatibility are practical lessons in how tightly a shell can depend on a
+compositor.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/hyprwm/Hyprland">github.com/hyprwm/Hyprland</a>
+and <a href="https://wiki.hypr.land">wiki.hypr.land</a>.</dd>
+</dl>
+
+<h3>Sway and wlroots</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>Sway is an i3-compatible tiling Wayland compositor built on wlroots, a
+library that provides compositor building blocks.</dd>
+<dt>What makes it distinct</dt>
+<dd>It keeps the i3 model and relies on a shared library for protocol and
+backend work, rather than implementing everything in one project.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is the planned compositor. Sway's own development is quiet, while
+wlroots remains active; quiet is not the same as abandoned, and the two
+projects should be judged separately.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/swaywm/sway">github.com/swaywm/sway</a> and
+<a href="https://gitlab.freedesktop.org/wlroots/wlroots">gitlab.freedesktop.org/wlroots/wlroots</a>.</dd>
+</dl>
+
+<h3>niri</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A scrollable-tiling Wayland compositor: windows sit in columns on an
+infinite horizontal strip, and the workspace scrolls instead of switching
+between fixed pages.</dd>
+<dt>What makes it distinct</dt>
+<dd>It changes the workspace and input model, not just the theme or the
+default keybindings.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is a different answer to window management and a useful comparison
+for input and workspace design. It is not a planned replacement.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/niri-wm/niri">github.com/niri-wm/niri</a>.</dd>
+</dl>
+
+<h2>Shell toolkits and independent shells</h2>
+
+<h3>Quickshell</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A toolkit for building desktop shells with QML and Qt. Tamlinux's own
+shell is built on it.</dd>
+<dt>What makes it distinct</dt>
+<dd>It provides shell building blocks without requiring one compositor or one
+finished desktop.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is both a dependency and a peer: its choices affect Tamlinux's shell,
+and other shell projects show how far those choices stretch. See
+<a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a>.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/quickshell-mirror/quickshell">github.com/quickshell-mirror/quickshell</a>.</dd>
+</dl>
+
+<h3>Regolith</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A desktop environment for Ubuntu and Debian-based systems, built around
+Sway and i3, with its own session and configuration layer.</dd>
+<dt>What makes it distinct</dt>
+<dd>It packages a tiling desktop for people who expect a general-purpose
+distribution and a conventional login session.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>Its session management and packaging show how a tiling desktop reaches
+users who do not want to assemble one themselves.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/regolith-linux/regolith-desktop">github.com/regolith-linux/regolith-desktop</a>
+and <a href="https://regolith-desktop.com">regolith-desktop.com</a>.</dd>
+</dl>
+
+<h3>nwg-shell</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>A GTK-based shell for sway and Hyprland, with panels, launchers and a
+collection of small desktop utilities.</dd>
+<dt>What makes it distinct</dt>
+<dd>It favours small, separate programs over one large shell process.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is evidence for component boundaries and for how utilities can work
+across more than one compositor.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/nwg-piotr/nwg-shell">github.com/nwg-piotr/nwg-shell</a>.</dd>
+</dl>
+
+<h3>COSMIC</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>System76's Rust desktop environment, with its own compositor, settings,
+greeter and applications.</dd>
+<dt>What makes it distinct</dt>
+<dd>It is a complete native desktop built outside the GNOME and KDE
+ecosystems, with a single project owning most of the stack.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It shows what a coherent session and settings architecture looks like
+when one project controls the compositor, shell and applications together.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/pop-os/cosmic-epoch">github.com/pop-os/cosmic-epoch</a>.</dd>
+</dl>
+
+<h2>Base-system peers</h2>
+
+<p>The base system is covered in more detail by
+<a href="ecosystem/distros.html">Rootstocks</a> and the
+<a href="ecosystem/os/index.html">Operating systems reference</a>. Two
+independent distributions matter here because their maintainers and design
+choices overlap with the desktop projects above.</p>
+
+<h3>Void Linux</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>An independent Linux distribution with its own package manager, XBPS, and
+runit as its init and service supervisor.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is the target rootstock. Its small service model and package
+ownership are the main comparison with the current Arch Linux base.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/void-linux/void-packages">github.com/void-linux/void-packages</a>
+and <a href="https://voidlinux.org">voidlinux.org</a>.</dd>
+</dl>
+
+<h3>Chimera Linux</h3>
+
+<dl>
+<dt>What it is</dt>
+<dd>An independent Linux distribution built with musl and the LLVM toolchain,
+with its own package and init choices.</dd>
+<dt>Why Tamlinux watches it</dt>
+<dd>It is a useful comparison for a base system assembled without the usual
+GNU and glibc assumptions.</dd>
+<dt>Where to find it</dt>
+<dd><a href="https://github.com/chimera-linux/cports">github.com/chimera-linux/cports</a>
+and <a href="https://chimera-linux.org">chimera-linux.org</a>.</dd>
+</dl>
+
+<h2>What not to infer</h2>
+
+<ul>
+<li>A similar goal does not mean compatible code, licensing or architecture.</li>
+<li>Popularity is not a security review, and activity is not proof of maturity.</li>
+<li>A public maintainer is not a support desk, and a name here is not an
+invitation to contact someone privately.</li>
+<li>A dated snapshot is not a live status. Check the project before relying on
+a release, a repository address or a channel.</li>
+</ul>
+
+<p>Tamlinux's own choices are recorded in
+<a href="ecosystem/distros.html">Rootstocks</a>,
+<a href="ecosystem/compositors.html">Compositors and windowing</a> and
+<a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a>.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>A peer project has many stars and frequent commits. Does that make it a safe rootstock?</summary>
+<p>No. Popularity and activity say nothing by themselves about security,
+maintenance quality, licensing or fit. A rootstock choice needs evidence about
+package ownership, update policy, architecture and the cost of carrying
+fixes, not a count of stars.</p>
+</details>
+<details class="q">
+<summary>What is the difference between a compositor and a desktop shell?</summary>
+<p>The compositor combines windows into the screen image and routes input. The
+shell draws the bar, launcher, panels, notifications and settings around it.
+A project can provide one, the other, or both, so the terms are not
+interchangeable.</p>
+</details>
+<details class="q">
+<summary>Why does Tamlinux still watch Omarchy after removing the dependency?</summary>
+<p>Because its installer, upgrade path and packaging discipline are still
+useful evidence for a small team supporting a large desktop community.
+Watching a project is not the same as depending on its packages.</p>
+</details>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/peer-communities.html">Peer developers and communities</a> &mdash; who maintains these projects and where public discussion happens.</li>
+<li><a href="ecosystem/compositors.html">Compositors and windowing</a> &mdash; the detailed comparison behind Tamlinux's compositor choice.</li>
+<li><a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a> &mdash; Quickshell, QML and independence from Omarchy.</li>
+<li><a href="ecosystem/distros.html">Rootstocks</a> &mdash; Arch Linux today and Void Linux as the target.</li>
+<li><a href="ecosystem/os/index.html">Operating systems reference</a> &mdash; the wider distribution and kernel landscape.</li>
+</ul>
+</body>
+</html>
