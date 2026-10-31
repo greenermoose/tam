@@ -281,10 +281,16 @@ attention line or following a link clears it. On the breadcrumb row these keys
 move between breadcrumb links. A line without links has nothing to catch.
 .TP
 .BR Space ", " PgDn
-Scroll down by one full screen.
+Scroll down by one page: if there are enough remaining lines in the document,
+the last line showing on the screen becomes the first line; otherwise, show
+the last full page of the document. When the document fits on one screen or
+the last full page is already showing, move the attention line to the end.
 .TP
-.BR b ", " PgUp
-Scroll up by one full screen.
+.BR Shift-Space ", " PgUp ", " b
+Scroll up by one page: if there are enough lines toward the beginning, the
+first line showing on the screen becomes the last line; otherwise, show the
+first full page of the document. When the document fits on one screen or the
+first full page is already showing, move the attention line to the top.
 .TP
 .B x\fR, period (\fB.\fR), \fBHome
 Jump to the top of the document: its title, line

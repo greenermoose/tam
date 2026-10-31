@@ -131,6 +131,8 @@ void go_forward(pager_t *st);
 void select_next_link(pager_t *st, int dir, int include_header);
 void move_line_up(pager_t *st);
 void move_line_down(pager_t *st);
+void pager_page_down(pager_t *st);
+void pager_page_up(pager_t *st);
 void move_column(pager_t *st, int dir);
 void follow_selected(pager_t *st);
 int read_byte(int fd, int timeout_ms, unsigned char *c);

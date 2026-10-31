@@ -376,6 +376,67 @@ void move_line_down(pager_t *st)
         set_cursor_line(st, st->cursor_line + 1, 1);
 }
 
+/* Space and Page Down scroll down by one page with one line of overlap: the
+ * last line showing on the screen becomes the first line. If there are not
+ * enough lines remaining to fill a page, the last full page of the file is
+ * shown. When the document fits on one screen or the last full page is
+ * already showing, the attention line moves to the end of the document. */
+void pager_page_down(pager_t *st)
+{
+    if (st->doc == NULL || st->doc->nlines == 0) return;
+    int usable = content_rows(st);
+    int total_lines = (int)st->doc->nlines;
+    int max_top = total_lines - usable;
+    if (max_top < 0) max_top = 0;
+
+    if (max_top == 0 || st->top >= max_top) {
+        set_cursor_line(st, total_lines - 1, 1);
+        st->msg[0] = '\0';
+        return;
+    }
+
+    int step = usable > 1 ? usable - 1 : 1;
+    int new_top = st->top + step;
+    if (new_top > max_top) {
+        new_top = max_top;
+    }
+    st->top = new_top;
+    set_cursor_line(st, st->top, 1);
+    st->msg[0] = '\0';
+}
+
+/* Shift-Space, Page Up and 'b' scroll up by one page with one line of
+ * overlap: the first line showing on the screen becomes the last line. If
+ * there are not enough lines remaining toward the beginning, the first full
+ * page is shown. When the document fits on one screen or the first full page
+ * is already showing, the attention line moves to the top of the document. */
+void pager_page_up(pager_t *st)
+{
+    if (st->doc == NULL || st->doc->nlines == 0) return;
+    int usable = content_rows(st);
+    int total_lines = (int)st->doc->nlines;
+    int max_top = total_lines - usable;
+    if (max_top < 0) max_top = 0;
+
+    if (max_top == 0 || st->top <= 0) {
+        go_page_top(st);
+        st->msg[0] = '\0';
+        return;
+    }
+
+    int step = usable > 1 ? usable - 1 : 1;
+    int new_top = st->top - step;
+    if (new_top <= 0) {
+        st->top = 0;
+        set_cursor_line(st, 0, -1);
+        st->msg[0] = '\0';
+        return;
+    }
+    st->top = new_top;
+    set_cursor_line(st, st->top, -1);
+    st->msg[0] = '\0';
+}
+
 /* Left and right move the attention column from link to link along the
  * attention line, or along the breadcrumb row while it is focused, wrapping
  * at either end. A line without links has nothing to catch. */

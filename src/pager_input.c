@@ -235,10 +235,10 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         set_cursor_line(st, (int)st->doc->nlines - 1, 1);
         break;
     case ' ':
-        set_cursor_line(st, st->cursor_line + usable, 0);
+        pager_page_down(st);
         break;
     case 'b':
-        set_cursor_line(st, st->cursor_line - usable, 0);
+        pager_page_up(st);
         break;
     case 'g':
         follow_selected(st);
@@ -332,10 +332,12 @@ static void handle_key_inner(pager_t *st, unsigned char c)
             go_page_top(st);
         } else if (strcmp(seq, "F") == 0) {
             set_cursor_line(st, (int)st->doc->nlines - 1, 1);
-        } else if (strcmp(seq, "5~") == 0) {
-            set_cursor_line(st, st->cursor_line - usable, 0);
-        } else if (strcmp(seq, "6~") == 0) {
-            set_cursor_line(st, st->cursor_line + usable, 0);
+        } else if (strcmp(seq, "5~") == 0 || strcmp(seq, "5;2~") == 0 ||
+                   strcmp(seq, "32;2u") == 0 || strcmp(seq, "32;2:1u") == 0 ||
+                   strcmp(seq, "27;2;32~") == 0 || strcmp(seq, "32;2~") == 0) {
+            pager_page_up(st);
+        } else if (strcmp(seq, "6~") == 0 || strcmp(seq, "6;2~") == 0) {
+            pager_page_down(st);
         } else if (strcmp(seq, "Z") == 0 || strcmp(seq, "1;2Z") == 0 ||
                    strcmp(seq, "9;2u") == 0 || strcmp(seq, "27;2;9~") == 0) {
             select_next_link(st, -1, 1);

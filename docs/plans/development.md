@@ -433,6 +433,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-10-31:** Command 0.47.0 (minor): Pager page scrolling: Space and PgDn scroll down so the last line showing becomes the first line, or show the last full page; Shift-Space, PgUp, and b scroll up so the first line showing becomes the last line, or show the first full page; attention row lands on the first visible line or moves to bottom/top when at document boundaries.
 - **2026-10-30:** Command 0.46.0 (minor): Replaced pager_draw.c help overlay with regular HTML page help/index.html; help keys (h, ?) display help and return to invoking page; regular navigation and display.
 - **2026-10-30:** Command 0.45.2 (patch): Wordsmithing help screen and other pages
 - **2026-10-30:** Command 0.45.1 (patch): emit terminfo `sitm` (CSI 3m) for italic spans when the terminal description provides it.

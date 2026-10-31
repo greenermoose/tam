@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-31 | Pager page scrolling and screen overlap; command 0.47.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-31-tam-pager-scroll.md) |
 | 2026-10-30 | HTML help page and back-on-help navigation; command 0.46.0 | Antigravity CLI 1.4.11; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-30-tam-help-page.md) |
 | 2026-10-30 | Incremental C compilation, build/test timers and relaxed phrase checks | Antigravity CLI 1.4.11; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-30-tam-incremental-compilation-and-timers.md) |
 | 2026-10-30 | Stream dev-loop build output and streamline make test | Antigravity CLI 1.4.11; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-30-tam-dev-loop-streaming.md) |

@@ -1,8 +1,8 @@
 # tam Roadmap
 
-**Last Update:** 2026-10-30
+**Last Update:** 2026-10-31
 **Owner:** Fred
-**Current Command Version:** `0.46.0`.
+**Current Command Version:** `0.47.0`.
 **Current Corpus Version:** `0.50.1`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.46.0 / 0.50.1 | Newest source; HTML help page help/index.html with back-on-help navigation, pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, and terminfo/ncurses ecosystem pages. Development installation is a separate developer-directed step. |
+| `develop` | 0.47.0 / 0.50.1 | Newest source; pager page scrolling (Space/PgDn, Shift-Space/PgUp/b) with screen overlap and attention row placement, HTML help page help/index.html with back-on-help navigation, pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, and terminfo/ncurses ecosystem pages. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -211,6 +211,7 @@ in that candidate, not here.
 | **0.45.2 command** | Wordsmithing command help and various pages | Done (2026-10-30) | Command help and various pages wordsmithed. |
 | **0.50.1 corpus** | Wordsmithing command help and various pages | Done (2026-10-30) | Wordsmithing command help and various pages. |
 | **0.46.0 command** | HTML help page and back-on-help navigation | Done (2026-10-30) | Replaces pager_draw.c help overlay with regular HTML page help/index.html; help keys (h, ?) load help and return to invoking page; regular navigation and display. |
+| **0.47.0 command** | Pager page scrolling and screen overlap | Done (2026-10-31) | Space and PgDn scroll down so the last line showing becomes the first line (or show the last full page); Shift-Space, PgUp, and b scroll up so the first line showing becomes the last line (or show the first full page); attention row lands on the first visible line or moves to bottom/top at document boundaries. |
 
 ## 4. Deferred direction, without reserved versions
 
