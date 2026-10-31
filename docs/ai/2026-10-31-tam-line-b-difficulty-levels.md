@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.4.12
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** Pending commit
+- **Commits:** `05423dd` and the commit that updates this record
 - **Authorship:** Fred Horch requested the difficulty level display strings on line b, key selection behavior, and distinct color highlighting, and decided to maintain right alignment, drop the old path and missing notes on line b, and preserve line c related links. Antigravity designed the implementation, inline style flags, span parser handling, terminal color emitter, tests, and documentation.
 - **Checked against:** `src/depth.c`, `src/depth.h`, `src/render.h`, `src/render.c`, `src/pager_draw.c`, `src/version.h`, `tests/run.sh`, `tests/render.sh`, `tests/render/pedagogy.txt`
 
