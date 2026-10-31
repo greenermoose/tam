@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.45.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.46.0' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -997,8 +997,8 @@ os.write(master, b"]")
 drain(master, 0.05)
 os.write(master, b"\r")
 buf = drain(master, 0.1)
-assert b"Esc to close" in buf or b"help" in buf.lower(), f"expected help overlay from link, got: {buf}"
-os.write(master, b"\x1b")
+assert b"help" in buf.lower(), f"expected help page from link, got: {buf}"
+os.write(master, b"h")
 drain(master, 0.1)
 
 os.write(master, b"q")
@@ -1041,6 +1041,68 @@ assert b"no topic found" in buf, f"expected miss banner, got: {buf}"
 assert os.WEXITSTATUS(status) == 1, f"expected exit 1 on miss, got {status}"
 ' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager prompt and quick-keys tests failed"
     pass "pager search prompts (\\ and /), quick-keys links, and tam search in the pager"
+
+    # Pager help page (help/index.html), keys (h and ?), navigation, and return to invoking page
+    python3 -c '
+import pty, os, time, sys, select, termios, struct, fcntl
+
+binary, corpus = sys.argv[1], sys.argv[2]
+
+def launch(args):
+    master, slave = pty.openpty()
+    fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+    pid = os.fork()
+    if pid == 0:
+        os.close(master)
+        os.dup2(slave, 0); os.dup2(slave, 1); os.dup2(slave, 2); os.close(slave)
+        env = os.environ.copy()
+        env["TAM_KNOWLEDGE_DIR"] = corpus
+        env["TERM"] = "xterm-256color"
+        os.execve(binary, [binary] + args, env)
+    os.close(slave)
+    return pid, master
+
+def drain(fd, delay=0.1):
+    time.sleep(delay)
+    buf = b""
+    while select.select([fd], [], [], 0.02)[0]:
+        buf += os.read(fd, 8192)
+    return buf
+
+# 1. Start on shell/pipelines
+pid, master = launch(["show", "shell/pipelines"])
+buf = drain(master, 0.15)
+assert b"Fixture pipelines" in buf, f"expected pipelines page, got: {buf}"
+
+# 2. Press h to show help/index.html
+os.write(master, b"h")
+buf = drain(master, 0.1)
+assert b"Navigation Help" in buf or b"help" in buf.lower(), f"expected help page, got: {buf}"
+
+# 3. Regular navigation works on help page: move attention line down with k
+os.write(master, b"k")
+drain(master, 0.05)
+
+# 4. Press h from help page returns to shell/pipelines
+os.write(master, b"h")
+buf = drain(master, 0.1)
+assert b"Fixture pipelines" in buf, f"expected return to pipelines after h, got: {buf}"
+
+# 5. Press ? to show help/index.html
+os.write(master, b"?")
+buf = drain(master, 0.1)
+assert b"Navigation Help" in buf or b"help" in buf.lower(), f"expected help page from ?, got: {buf}"
+
+# 6. Press ? from help page returns to shell/pipelines
+os.write(master, b"?")
+buf = drain(master, 0.1)
+assert b"Fixture pipelines" in buf, f"expected return to pipelines after ?, got: {buf}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager help page tests failed"
+    pass "pager help page (help/index.html) navigation and return on help keys (h and ?)"
 
     # Interactive hyperlinked topics pager (tam explain topics)
     python3 -c '

@@ -148,7 +148,6 @@ static void read_sync_reply(pager_t *st, int fd)
  * action code. This keeps arrow/page keys working without a full key table. */
 static void handle_key_inner(pager_t *st, unsigned char c)
 {
-    if (st->help_open && c != '?' && c != 'h' && c != 'q' && c != 0x1b) return;
     int usable = content_rows(st);
     int max_top = (int)st->doc->nlines - usable;
     if (max_top < 0) {
@@ -161,7 +160,11 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         return;
     case '?':
     case 'h':
-        st->help_open = !st->help_open;
+        if (is_help_page(st->cur_href)) {
+            pager_return_from_help(st);
+        } else {
+            follow(st, "help/index.html");
+        }
         break;
     case '+':
         set_fold_here(st, 1);
@@ -275,9 +278,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case 0x1b: {
         unsigned char c1;
         if (read_byte(st->input_fd, 60, &c1) != 1) {
-            if (st->help_open) {
-                st->help_open = 0;
-            } else if (st->show_address) {
+            if (st->show_address) {
                 st->show_address = 0;
             } else if (st->search_query[0] != '\0') {
                 pager_clear_search(st);

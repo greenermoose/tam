@@ -84,7 +84,6 @@ typedef struct {
     int             sync_probe_sent;
     int             sync_queried;
     int             sync_output;
-    int             help_open;
     int             column_active;
     int             show_address;
     unsigned        lens; /* The reader's level lens (depth.h). */
@@ -125,6 +124,8 @@ int hide_fold_here(pager_t *st);
 void reveal_next(pager_t *st);
 void toggle_all_folds(pager_t *st);
 void set_lens(pager_t *st, unsigned char key);
+int is_help_page(const char *href);
+void pager_return_from_help(pager_t *st);
 void go_back(pager_t *st);
 void go_forward(pager_t *st);
 void select_next_link(pager_t *st, int dir, int include_header);

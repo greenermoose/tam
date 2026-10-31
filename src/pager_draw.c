@@ -447,42 +447,6 @@ int draw(pager_t *st)
     }
     for (int row = 0; row < usable; row++) {
         g_capture = &frame[content_row + row];
-        if (st->help_open) {
-            static const char *help[] = {
-                "",				
-                "Hopes this helps! (Press Esc to close)",
-                "",
-                "Key                     Command",
-                "----------------------  ---------------------------",
-                "Esq, q                  Quit",
-                "`                       Go to guide index page",
-                "Down Arrow, d, k        Move attention line down",
-                "Up Arrow, s, l          Move attention line up",
-                "Right Arrow, Return, g  Follow selected link",
-                "Left Arrow              Go back to previous page",
-                "Home, x, .              Go to first line",
-                "End, c, Comma           Go to last line",
-                "Tab, ]                  Select next link",
-                "Shift-Tab, [            Select previous link",
-                "f, ;                    Move attention column right",
-                "a, j                    Move attention column left",
-                "/                       Search on this page",
-                "\\                       Search the whole guide",
-                "n                       Next search hit",
-                "N                       Previous search hit",
-                "=                       Show page address",
-                "",
-                "Web links: press Enter twice to open them in your browser",
-                "Answers: Right Arrow or + shows, Left Arrow or - hides, r next, * all",
-                "Info Up: u   Next/Previous node: n/p",
-                "Level, kept across pages: 0 All, 1 Beginner, 2 Intermediate, 3 Expert",
-                "",
-                "Close this help with h, ? or Esc."
-            };
-            if ((size_t)row < sizeof(help) / sizeof(help[0]))
-                outn(help[row], status_byte_limit(help[row], paint_width));
-            continue;
-        }
         int li = st->top + row;
         if (g_term != NULL && g_term->gutter) {
             char marker = li == st->cursor_line ? '>' : ' ';

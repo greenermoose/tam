@@ -386,7 +386,7 @@ void follow(pager_t *st, const char *href)
         return;
     }
     if (strcmp(href, "tam:help") == 0) {
-        st->help_open = 1;
+        follow(st, "help/index.html");
         return;
     }
     if (strcmp(href, "tam:prompt:page-search") == 0) {
@@ -686,6 +686,29 @@ void set_lens(pager_t *st, unsigned char key)
                  st->doc->hidden == 1 ? "" : "s");
     else
         snprintf(st->msg, sizeof(st->msg), "Level %d %s set", number, label);
+}
+
+int is_help_page(const char *href)
+{
+    if (href == NULL) return 0;
+    if (strncmp(href, "page:", 5) == 0) href += 5;
+    if (strcmp(href, "help/index.html") == 0 || strcmp(href, "help") == 0 ||
+        strcmp(href, "help/") == 0)
+        return 1;
+    if (strncmp(href, "help/index.html?", 16) == 0 ||
+        strncmp(href, "help/index.html#", 16) == 0)
+        return 1;
+    return 0;
+}
+
+void pager_return_from_help(pager_t *st)
+{
+    while (st->nhistory > 0 && is_help_page(st->history[st->nhistory - 1].href)) {
+        nav_state_t discarded = st->history[--st->nhistory];
+        free(discarded.href);
+        free(discarded.selected_href);
+    }
+    go_back(st);
 }
 
 void go_back(pager_t *st)

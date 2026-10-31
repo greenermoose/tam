@@ -67,7 +67,7 @@ def parse_roadmap_sections(lines):
         if m_cor and corpus_header is None:
             corpus_header = (idx, m_cor.group(1).strip())
 
-        if line.startswith("## 2. Delivered history"):
+        if line.startswith("## 2. Delivered history") or line.startswith("## 3. Delivered history"):
             in_section_2 = True
             section_2_last_line = idx
             continue
