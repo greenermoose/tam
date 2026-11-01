@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.4.12
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** Pending commit and the commit that records this session
+- **Commits:** `c885aff`
 - **Authorship:** Fred Horch requested `tam whatis <term>` as a synonym for `tam explain <term>` and an in-pager `w` key that prompts for a string and looks it up in the glossary to display the closest match. Antigravity implemented the command alias, pager prompt action, index glossary matching algorithm, test fixtures, integration tests, completion rules, and documentation.
 - **Checked against:** `src/tam.c`, `src/index.h`, `src/index.c`, `src/pager_input.c`, `src/pager_search.c`, `src/pager_nav.c`, `man/tam.1`, `completions/bash/tam`, `tests/run.sh`
 
