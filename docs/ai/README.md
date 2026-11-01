@@ -6,6 +6,7 @@ is maintained in [AI_PROVENANCE.md](../../AI_PROVENANCE.md).
 
 | Date | Work | Record |
 | --- | --- | --- |
+| 2026-11-01 | Computer graphics, display output history, GPU architecture, and display interfaces; corpus 0.57.0 | [Session record](2026-11-01-tam-computer-graphics-and-displays.md) |
 | 2026-11-01 | Computer architecture, digital logic, instruction cycle, and assembly; corpus 0.55.0 | [Session record](2026-11-01-tam-computer-architecture-and-assembly.md) |
 | 2026-11-01 | Typography/fonts and color/themes deep-dive pages; corpus 0.54.0 | [Session record](2026-11-01-tam-themes-and-fonts.md) |
 | 2026-10-31 | Nix and Home Manager deep-dive page; corpus 0.53.0 | [Session record](2026-10-31-tam-nix-home-manager.md) |

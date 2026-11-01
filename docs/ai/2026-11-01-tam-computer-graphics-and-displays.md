@@ -6,7 +6,7 @@
 - **CLI Tool:** agy 1.4.12
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `555a315` (core chapters and scaffolding) and follow-up index commit
+- **Commits:** `555a315` (core chapters and scaffolding), `1613879` (index and provenance refresh)
 - **Authorship:** Fred Horch directed the architecture and requested a comprehensive treatment of computer graphics, display output history, GPU architecture, and display interfaces across multiple modular pages in the knowledge corpus. Antigravity authored the four core chapters, supporting glossary definitions, bibliography citations, hub links, roadmap entries, and index rebuilds.
 - **Checked against:** `/sys/class/drm/`, `/sys/class/graphics/fb0/`, `lspci -nnk`, `lscpu`, `hexdump -C /sys/class/drm/card1-*/edid`, VESA DisplayPort Standard 2.1, HDMI Specification 2.1, Linux DRM/KMS documentation (`include/uapi/drm/drm_mode.h`), *Real-Time Rendering* (4th ed.).
 
