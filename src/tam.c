@@ -124,6 +124,7 @@ static void print_tam_help(int tier)
             "  tam search [--json|--pipe] TERM...\n"
             "      search guide topics and keywords; results open in the pager\n"
             "  tam explain [TOPIC] [--level LEVEL] [--pipe]\n"
+            "  tam whatis [TOPIC] [--level LEVEL] [--pipe]\n"
             "      explain a concept or browse the catalog at beginner, intermediate, or expert level\n"
             "  tam explain topics [--pipe] [--terse|--verbose] [--level LEVEL]\n"
             "      interactive or plain-text catalog of all available topics\n"
@@ -548,9 +549,10 @@ static int cmd_welcome(int n, char **args)
 static void print_explain_usage(void)
 {
     fputs(
-        "tam explain - display a topic guide to concepts in the Tamlinux guide\n\n"
+        "tam explain (or tam whatis) - display a topic guide to concepts in the Tamlinux guide\n\n"
         "Usage:\n"
         "  tam explain                 browse all topic keywords in the pager\n"
+        "  tam whatis TOPIC            look up or display a topic guide for TOPIC\n"
         "  tam explain TOPIC           display a topic guide for TOPIC in the pager\n"
         "  tam explain TOPIC --pipe    print topic guide as plain text\n"
         "  tam explain --level LEVEL [TOPIC]  filter by level (0|all, 1|beginner, 2|intermediate, 3|expert)\n"
@@ -988,7 +990,7 @@ int main(int argc, char **argv)
     if (strcmp(arg, "search") == 0) {
         return cmd_search(argc - 2, argv + 2);
     }
-    if (strcmp(arg, "explain") == 0) {
+    if (strcmp(arg, "explain") == 0 || strcmp(arg, "whatis") == 0) {
         return cmd_explain(argc - 2, argv + 2);
     }
     if (strcmp(arg, "inspect") == 0) {

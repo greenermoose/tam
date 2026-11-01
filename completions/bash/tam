@@ -6,7 +6,7 @@ _tam_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local subcommands="show welcome hello hi explain search man info tldr inspect check install ask upgrade switch help"
+    local subcommands="show welcome hello hi explain whatis search man info tldr inspect check install ask upgrade switch help"
     local global_flags="--help -h --pipe --terse --verbose --version -v -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
@@ -46,7 +46,7 @@ _tam_completions() {
         welcome|hello|hi)
             COMPREPLY=($(compgen -W "--pipe" -- "$cur"))
             ;;
-        explain)
+        explain|whatis)
             if [ "$prev" = "--level" ]; then
                 COMPREPLY=($(compgen -W "all beginner intermediate expert 0 1 2 3" -- "$cur"))
             else

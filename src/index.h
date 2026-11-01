@@ -56,6 +56,9 @@ int tam_index_suggest_fuzzy(const tam_index_t *idx, const char *query,
                             const tam_index_entry_t **out_entry, const char **out_keyword,
                             int max_dist);
 
+/* Find the closest glossary entry matching query, or NULL if none match */
+const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx, const char *query);
+
 /* Print clear miss banner to stderr and return 1 (failure code). */
 int tam_index_print_miss(FILE *out, const tam_index_t *idx, const char *query);
 

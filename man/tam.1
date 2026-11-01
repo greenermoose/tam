@@ -21,6 +21,11 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .RI [ TOPIC ]
 .RI [ --pipe ]
 .br
+.B tam whatis
+.RI [ --level \ LEVEL ]
+.RI [ TOPIC ]
+.RI [ --pipe ]
+.br
 .B tam explain topics
 .RI [ --pipe ]
 .RI [ --terse | --verbose ]
@@ -155,8 +160,8 @@ prints them as JSON. If no guide page matches, the command stays on the terminal
 .B "tam man"
 when a manual page exists) and exits 1.
 .TP
-.B tam explain \fR[\fB\-\-level\fR \fILEVEL\fR] [\fITOPIC\fR] [\fB\-\-pipe\fR]
-Display a topic guide to concepts and keywords in the Tamlinux guide.
+.BR "tam explain" " | " "tam whatis" " [\fB\-\-level\fR \fILEVEL\fR] [\fITOPIC\fR] [\fB\-\-pipe\fR]"
+Display a topic guide to concepts and keywords in the Tamlinux guide (\fBtam whatis\fR is an exact synonym).
 .B tam explain
 always displays a topic guide listing relevant pages with explanations, never jumping directly to a single page (use
 .B tam show
@@ -343,6 +348,9 @@ for the next match,
 for the previous match, or
 .B Esc
 to cancel.
+.TP
+.B w
+Prompt for a term (\fBwhatis:\fR) and look it up in the glossary to display the closest matching definition.
 .TP
 .B =
 Toggle address display in the status row (\fBPath =\fR \fIaddress\fR).

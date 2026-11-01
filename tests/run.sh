@@ -970,6 +970,31 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 os.close(master)
 
+# 2b. w shows whatis: prompt; typing argument opens glossary page; miss reports clearly
+pid, master = launch(["show", "welcome"])
+drain(master, 0.15)
+os.write(master, b"w")
+buf = drain(master, 0.1)
+assert b"whatis: " in buf, f"expected whatis prompt, got: {buf}"
+os.write(master, b"argument\r")
+buf = drain(master, 0.3)
+assert b"Fixture Argument" in buf, f"expected glossary page, got: {buf}"
+os.write(master, b"u")
+buf = drain(master, 0.2)
+assert b"Fixture Welcome" in buf, f"expected return to welcome, got: {buf}"
+os.write(master, b"w")
+drain(master, 0.1)
+os.write(master, b"bogus_nonexistent\r")
+buf = drain(master, 0.2)
+assert b"no glossary match" in buf, f"expected miss message in status, got: {buf}"
+os.write(master, b"w")
+drain(master, 0.1)
+os.write(master, b"\x1b")
+drain(master, 0.1)
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+
 # 3. show quick-keys: following each link opens page search, guide search, and help overlay
 pid, master = launch(["show", "quick-keys"])
 drain(master, 0.15)
@@ -992,7 +1017,16 @@ assert b"Search in guide \\" in buf, f"expected guide search prompt from link, g
 os.write(master, b"\x1b")
 drain(master, 0.1)
 
-# Third link: Navigation help
+# Third link: Whatis glossary lookup
+os.write(master, b"]")
+drain(master, 0.05)
+os.write(master, b"\r")
+buf = drain(master, 0.1)
+assert b"whatis: " in buf, f"expected whatis prompt from link, got: {buf}"
+os.write(master, b"\x1b")
+drain(master, 0.1)
+
+# Fourth link: Navigation help
 os.write(master, b"]")
 drain(master, 0.05)
 os.write(master, b"\r")
@@ -2015,6 +2049,17 @@ printf '%s\n' "$ex_no_exp" | grep -q "Showing 3: expert level text" || fail "mis
 
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"
 
+# whatis subcommand: exact synonym for explain
+whatis_out=$("$TAM" whatis pipelines --pipe)
+[ "$whatis_out" = "$ex_out" ] || fail "whatis pipelines differs from explain pipelines"
+whatis_lvl=$("$TAM" whatis --level beginner pipelines --pipe)
+[ "$whatis_lvl" = "$ex_tg_lvl_b" ] || fail "whatis --level beginner pipelines differs from explain"
+whatis_topics=$("$TAM" whatis topics --pipe)
+[ "$whatis_topics" = "$ex_topics" ] || fail "whatis topics differs from explain topics"
+if "$TAM" whatis no_such_topic >/dev/null 2>&1; then fail "whatis unmatched topic exited 0"; fi
+"$TAM" whatis no_such_topic 2>&1 | grep -q "no topic found for 'no_such_topic'" || fail "whatis missing miss message"
+pass "whatis subcommand operates as an exact synonym for explain"
+
 # Search command: ranked search over corpus index, json output, canonical queries, and miss banner.
 "$TAM" search >/dev/null || fail "bare search failed"
 "$TAM" search --help | grep -q 'Usage:' || fail "search --help missing usage"
@@ -2722,6 +2767,15 @@ _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
 printf '%s\n' "$bash_explain_test" | grep -q -- '--level' || fail "bash completion missing explain --level"
+
+bash_whatis_test=$(bash -c '
+source "'"$root"'/completions/bash/tam"
+COMP_WORDS=(tam whatis "")
+COMP_CWORD=2
+_tam_completions
+printf "%s\n" "${COMPREPLY[@]}"
+')
+printf '%s\n' "$bash_whatis_test" | grep -q -- '--level' || fail "bash completion missing whatis --level"
 
 bash_level_test=$(bash -c '
 source "'"$root"'/completions/bash/tam"

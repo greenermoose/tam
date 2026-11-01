@@ -3,6 +3,7 @@
 #include "address.h"
 #include "depth.h"
 #include "display.h"
+#include "index.h"
 #include "pager.h"
 #include "pager_screen.h"
 #include "render.h"
@@ -287,6 +288,43 @@ static char *pager_uri_encode(const char *text)
 int pager_prompt_action(pager_t *st, const char *href, char *out,
                         size_t out_cap)
 {
+    if (strcmp(href, "tam:prompt:whatis") == 0) {
+        char input[128];
+        out[0] = '\0';
+        if (!pager_read_prompt(st, "whatis: ", input, sizeof(input)) || input[0] == '\0')
+            return 1;
+
+        const char *root = NULL;
+        char *owned_root = NULL;
+        if (st->ctx != NULL) {
+            const tam_loader_ctx_t *lctx = st->ctx;
+            root = lctx->root;
+        }
+        if (root == NULL) {
+            owned_root = tam_find_knowledge_root();
+            root = owned_root;
+        }
+        if (root == NULL) {
+            snprintf(st->msg, sizeof(st->msg), "no offline guide installed");
+            return 1;
+        }
+        tam_index_t *idx = tam_index_load(root);
+        if (idx == NULL) {
+            if (owned_root != NULL) free(owned_root);
+            snprintf(st->msg, sizeof(st->msg), "could not load guide index");
+            return 1;
+        }
+        const tam_index_entry_t *entry = tam_index_closest_glossary_match(idx, input);
+        if (entry != NULL && entry->path != NULL) {
+            snprintf(out, out_cap, "%s", entry->path);
+        } else {
+            snprintf(st->msg, sizeof(st->msg), "no glossary match for '%.30s'", input);
+        }
+        tam_index_free(idx);
+        if (owned_root != NULL) free(owned_root);
+        return 1;
+    }
+
     const char *label = NULL;
     const char *route = NULL;
     if (strcmp(href, "tam:prompt:guide-search") == 0) {

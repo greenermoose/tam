@@ -418,6 +418,164 @@ static bool contains_word_ci(const char *haystack, const char *needle)
     return false;
 }
 
+static bool is_glossary_index_entry(const tam_index_entry_t *e)
+{
+    if (e == NULL || e->path == NULL) return false;
+    if (strcmp(e->path, "learn/glossary/index.html") == 0) return false;
+    if (strncmp(e->path, "learn/glossary/", 15) == 0) return true;
+    if (e->topic != NULL && strcmp(e->topic, "glossary") != 0 &&
+        strncmp(e->topic, "glossary-", 9) == 0) return true;
+    if (e->track != NULL && strcmp(e->track, "glossary") == 0 &&
+        e->topic != NULL && strcmp(e->topic, "glossary") != 0) return true;
+    return false;
+}
+
+static int score_glossary_candidate(const char *q, size_t qlen, const char *cand)
+{
+    if (cand == NULL || *cand == '\0') return -1;
+    char clc[256];
+    size_t clen = strlen(cand);
+    if (clen >= sizeof(clc)) clen = sizeof(clc) - 1;
+    for (size_t i = 0; i < clen; i++) {
+        clc[i] = (char)tolower((unsigned char)cand[i]);
+    }
+    clc[clen] = '\0';
+
+    /* Exact match */
+    if (strcmp(q, clc) == 0) {
+        return 0;
+    }
+
+    /* Prefix match */
+    if (strncmp(clc, q, qlen) == 0) {
+        return 100 + (int)(clen - qlen);
+    }
+
+    /* Word match */
+    if (contains_word_ci(cand, q)) {
+        return 200 + (int)(clen - qlen);
+    }
+
+    /* Substring match */
+    if (strstr(clc, q) != NULL) {
+        return 300 + (int)(clen - qlen);
+    }
+
+    /* Fuzzy match */
+    int min_d = levenshtein(q, clc);
+    if (strchr(clc, ' ') != NULL) {
+        char copy[256];
+        memcpy(copy, clc, clen + 1);
+        char *w = strtok(copy, " ");
+        while (w != NULL) {
+            int dw = levenshtein(q, w);
+            if (dw < min_d) min_d = dw;
+            w = strtok(NULL, " ");
+        }
+    }
+
+    int max_allowed = qlen <= 3 ? 1 : (qlen <= 6 ? 2 : 3);
+    if (min_d <= max_allowed) {
+        return 1000 + min_d * 50 + (int)clen;
+    }
+
+    return -1;
+}
+
+const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx, const char *query)
+{
+    if (idx == NULL || query == NULL) return NULL;
+    char buf[256];
+    size_t len = strlen(query);
+    if (len >= sizeof(buf)) return NULL;
+    memcpy(buf, query, len + 1);
+
+    char *t = trim_string(buf);
+    t = strip_quotes(t);
+    if (*t == '\0') return NULL;
+
+    char q[256];
+    size_t qlen = strlen(t);
+    if (qlen >= sizeof(q)) return NULL;
+    for (size_t i = 0; i < qlen; i++) {
+        q[i] = (char)tolower((unsigned char)t[i]);
+    }
+    q[qlen] = '\0';
+
+    int best_score = -1;
+    const tam_index_entry_t *best_entry = NULL;
+
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (!is_glossary_index_entry(e)) continue;
+
+        int entry_best = -1;
+
+        #define EVAL_CAND(cand_str) do { \
+            const char *_cs = (cand_str); \
+            if (_cs != NULL && *_cs != '\0') { \
+                int s = score_glossary_candidate(q, qlen, _cs); \
+                if (s >= 0 && (entry_best < 0 || s < entry_best)) { \
+                    entry_best = s; \
+                } \
+            } \
+        } while (0)
+
+        /* 1. Title */
+        EVAL_CAND(e->title);
+
+        /* 2. Topic/slug (without glossary- prefix) */
+        if (e->topic != NULL) {
+            if (strncmp(e->topic, "glossary-", 9) == 0) {
+                EVAL_CAND(e->topic + 9);
+            } else {
+                EVAL_CAND(e->topic);
+            }
+        }
+
+        /* 3. Filename slug from path */
+        if (e->path != NULL && strncmp(e->path, "learn/glossary/", 15) == 0) {
+            const char *leaf = e->path + 15;
+            char leaf_buf[64];
+            size_t leaf_len = strlen(leaf);
+            if (leaf_len > 5 && strcmp(leaf + leaf_len - 5, ".html") == 0) {
+                size_t base_len = leaf_len - 5;
+                if (base_len < sizeof(leaf_buf)) {
+                    memcpy(leaf_buf, leaf, base_len);
+                    leaf_buf[base_len] = '\0';
+                    EVAL_CAND(leaf_buf);
+                }
+            }
+        }
+
+        /* 4. Keywords */
+        for (size_t k = 0; k < e->num_keywords; k++) {
+            const char *kw = e->keywords[k];
+            if (kw != NULL) {
+                if (strncmp(kw, "glossary-", 9) == 0) {
+                    EVAL_CAND(kw + 9);
+                } else if (strcmp(kw, "learning") != 0) {
+                    EVAL_CAND(kw);
+                }
+            }
+        }
+
+        #undef EVAL_CAND
+
+        if (entry_best >= 0) {
+            if (best_score < 0 || entry_best < best_score) {
+                best_score = entry_best;
+                best_entry = e;
+                if (best_score == 0) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return best_entry;
+}
+
 size_t tam_index_search(const tam_index_t *idx, const char *query,
                         tam_search_result_t *results, size_t max_results)
 {

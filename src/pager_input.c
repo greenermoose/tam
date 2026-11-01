@@ -187,6 +187,9 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case '\\':
         follow(st, "tam:prompt:guide-search");
         break;
+    case 'w':
+        follow(st, "tam:prompt:whatis");
+        break;
     case 'n':
         if (st->search_query[0] != '\0') {
             pager_next_hit(st, 1);
