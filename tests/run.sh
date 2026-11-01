@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.48.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.48.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -2282,6 +2282,8 @@ printf '%s\n' "$man_landing" | grep -q 'Browse a section' || fail "bare man miss
 [ "$("$TAM" man help)" = "$("$TAM" man --help)" ] || fail "man help differs from man --help"
 manual_uri=$("$TAM" show tam:man --pipe)
 printf '%s\n' "$manual_uri" | grep -q 'Find by keyword' || fail "tam:man URI did not open manual discovery"
+printf '%s\n' "$manual_uri" | grep -q 'tam:man:section?section=1' || fail "tam:man URI missing section 1 link"
+printf '%s\n' "$manual_uri" | grep -q 'tam:man:section?section=9' || fail "tam:man URI missing section 9 link"
 search_uri=$("$TAM" show 'tam:search?query=pipe' --pipe)
 printf '%s\n' "$search_uri" | grep -q 'Results for pipe' || fail "tam:search URI did not return Guide results"
 
@@ -2428,6 +2430,26 @@ buf += drain(master)
 os.write(master, b"printf\r")
 buf += drain(master, 0.3)
 assert b"Several installed sections match" in buf, buf
+os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
+
+# Scrolling down to Section guide selects section link; Enter follows to section index.
+pid, master = launch(["man"])
+buf = drain(master)
+target = ""
+for _ in range(20):
+    os.write(master, b"d")
+    buf = drain(master, 0.05)
+    title, target = parse_info(buf)
+    if target == "tam:man:section?section=1":
+        break
+assert target == "tam:man:section?section=1", f"Section 1 link not reached by scrolling: {target}"
+os.write(master, b"\r")
+buf = drain(master, 0.3)
+assert b"Manual section 1" in buf, buf
+os.write(master, b"u")
+buf = drain(master, 0.3)
+assert b"Manual lookup" in buf, buf
+assert parse_info(buf)[1] == "tam:man:section?section=1", f"u did not restore section 1 link: {parse_info(buf)}"
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
 
 pid, master = launch(["show", "tam:search"])

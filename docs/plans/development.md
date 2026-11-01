@@ -1211,3 +1211,8 @@ resolve superseded schedules. Do not execute a former plan from this history.
   breadcrumb bar navigation (`Guide > tldr pages > <cmd>`), and the AI-curated
   Tamlinux subset of English upstream `tldr-pages` under `knowledge/tldr/`
   with `tools/build-tldr-index.py`.
+- **2026-11-01:** Command 0.48.1 (patch): Hyperlinked manual section numbers and
+  content names (`tam:man:section?section=<N>`) in the `tam man` landing page's
+  Section guide table (`src/man.c`), enabling scrolling to or tabbing across
+  sections to highlight and follow them directly into each section index without
+  interactive prompt dialogs.
