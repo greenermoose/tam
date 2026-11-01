@@ -22,7 +22,9 @@ knowledge browser (`0.1.0`–`0.2.0`), `tam help` (`0.3.0`), and orientation and
 curated explanation (`0.4.0`).
 
 Milestone 4 connects the `tam install` entry point to the product installation
-contract defined in [`tamlinux/docs/plans/installation-framework.md`](../../../tamlinux/docs/plans/installation-framework.md):
+contract formerly defined in `tamlinux/docs/plans/installation-framework.md`
+(pruned from the working tree; retrieve via
+[`FILING-CARD.md`](../../../tamlinux/docs/plans/FILING-CARD.md)):
 
 > - `tam install inspect` reports OS, architecture, version, package tools, and supported profile.
 > - `tam install plan --profile <profile>` prints exact changes, inputs, revisions, privileges, checkpoints, and recovery steps without changing anything.
