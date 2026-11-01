@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Computer graphics and the rendering pipeline</title>
+<meta name="topic" content="computer-graphics">
+<meta name="summary" content="Pixels, vectors versus rasters, framebuffers, the 2D and 3D graphics rendering pipeline, and hardware acceleration">
+<meta name="keywords" content="computer-graphics, graphics, rendering, pipeline, framebuffer, rasterization, pixels, vectors, shaders, opengl, vulkan, mesa, wayland, compositing">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="computer-architecture, themes">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Computer graphics and the rendering pipeline</p>
+</nav>
+
+<h1>Computer graphics and the rendering pipeline</h1>
+<p>This page explains how computers create, store, and display visual images on a screen.</p>
+<p>At its heart, computer graphics bridges abstract mathematical models and physical light emitted by a monitor. Whether rendering a terminal window, a vector font, or a three-dimensional landscape, the computer converts visual descriptions into numbers stored in memory. Understanding this rendering pipeline reveals how pixels are formed, why framebuffers are fundamental, and how modern graphics software coordinates with hardware accelerators.</p>
+
+<section data-level="beginner">
+<h2>Pixels, screen resolution, and framebuffers</h2>
+
+<p><strong>Goal:</strong> you will be able to explain what a pixel is, identify your screen resolution and color depth, and inspect your system framebuffer using read-only terminal commands.</p>
+
+<p><strong>Why it matters:</strong> every visual element on your screen&mdash;every character of text, window border, and icon&mdash;is composed of thousands or millions of tiny, colored dots called pixels. When an image appears blurry, when a game stutters, or when a display looks stretched, the issue often traces back to how pixels and memory resolutions are configured. Knowing how your computer stores pixel data helps you troubleshoot display glitches and configure desktop scaling properly.</p>
+
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). All commands in this section only read system information and make no changes to your computer.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> The <code>$</code> character represents your command-line prompt. Type only the words that follow the prompt and press Enter. If a path begins with <code>/sys/</code>, it refers to a virtual filesystem where the Linux kernel presents hardware details as readable text files.</p>
+</aside>
+
+<h3>Worked example: query screen resolution and framebuffer parameters</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat /sys/class/graphics/fb0/virtual_size
+1920,1080
+
+$ cat /sys/class/graphics/fb0/bits_per_pixel
+32
+
+$ cat /sys/class/graphics/fb0/name
+amdgpudrmfb
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-01. Your screen resolution and graphics driver name will reflect your specific hardware.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>virtual_size</code> reports the dimensions of the active framebuffer: 1920 horizontal pixels by 1080 vertical pixels (standard Full HD resolution).</li>
+<li><code>bits_per_pixel</code> shows that the system allocates 32 bits (4 bytes) of memory for each pixel on the screen: 8 bits for Red, 8 bits for Green, 8 bits for Blue, and 8 bits reserved for transparency (Alpha) or memory alignment.</li>
+<li><code>name</code> identifies the kernel framebuffer driver managing this surface: <code>amdgpudrmfb</code>, the Linux Direct Rendering Manager framebuffer for AMD graphics hardware.</li>
+</ol>
+
+<p>A pixel (short for &ldquo;picture element&rdquo;) is the smallest addressable unit of color on a digital display. A <dfn><a href="learn/glossary/framebuffer.html">framebuffer</a></dfn> is the designated chunk of memory holding the color values for all pixels. For a 1920 &times; 1080 screen using 32-bit color, the framebuffer requires exactly 1920 &times; 1080 &times; 4 bytes = 8,294,400 bytes (approximately 8 megabytes) of memory for a single complete image.</p>
+
+<h3>Try it</h3>
+
+<p>Calculate the memory footprint of your display. Multiply your screen width by its height, then multiply by the bytes per pixel (typically 4 for 32-bit color). Divide by 1,048,576 to find the size in megabytes (MB).</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>/sys/class/graphics/fb0: No such file or directory</code></dt>
+<dd>Your system may be running a pure DRM/KMS kernel driver without legacy fbdev emulation enabled. Check display outputs directly with <code>ls -l /sys/class/drm/</code>.</dd>
+<dt>Resolution appears smaller than your monitor</dt>
+<dd>The display may be running in a fallback low-resolution mode or using desktop scaling. Check compositor status with <code>wlr-randr</code> or <code>hyprctl monitors</code>.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What is the difference between a pixel and a framebuffer?</summary>
+<p>A pixel is an individual dot of light on the physical screen (or a single color coordinate). A framebuffer is the region of computer memory that holds the numerical color values for every pixel on the entire screen.</p>
+</details>
+<details class="q">
+<summary>How many distinct colors can a 24-bit TrueColor pixel represent?</summary>
+<p>With 8 bits for Red, 8 bits for Green, and 8 bits for Blue, each primary channel has 256 possible intensity levels (2 to the 8th power). Multiplying 256 &times; 256 &times; 256 yields 16,777,216 distinct possible colors.</p>
+</details>
+<details class="q">
+<summary>Why does a 32-bit color mode use 4 bytes per pixel if human eyes only see red, green, and blue light?</summary>
+<p>The extra 8 bits either store an Alpha (transparency) channel for window blending, or act as padding so that each pixel aligns to a natural 32-bit memory boundary, allowing CPU and memory controllers to transfer pixels faster.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Pixel</dt>
+<dd>The smallest indivisible element of a digital image or display, combining red, green, and blue light.</dd>
+<dt>Resolution</dt>
+<dd>The total number of horizontal and vertical pixels making up a screen (for example, 1920 &times; 1080).</dd>
+<dt>Framebuffer</dt>
+<dd>A dedicated memory buffer that stores the exact binary color values of every pixel on a screen.</dd>
+<dt>Color depth</dt>
+<dd>The number of bits dedicated to representing the color of a single pixel (such as 8-bit, 24-bit, or 32-bit).</dd>
+</dl>
+
+<p><strong>Next step:</strong> at Intermediate, learn how images are transformed from geometric vectors to rasters, trace the 3D graphics rendering pipeline, and understand hardware acceleration.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Rasterization, 3D pipelines, and hardware acceleration</h2>
+
+<p><strong>Goal:</strong> you will be able to distinguish vector from raster graphics, trace the primary stages of the graphics rendering pipeline, and verify whether graphics acceleration is active on your workstation.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+Geometric Primitives (Vertices, Lines, Triangles in 3D Space)
+                        │
+                        ▼
+      [ Vertex Processing &amp; Transformation ]
+      • Object coordinates to World coordinates
+      • Perspective projection to 2D Screen Space
+                        │
+                        ▼
+          [ Primitive Assembly &amp; Clipping ]
+          • Discard triangles outside screen view
+                        │
+                        ▼
+                 [ Rasterization ]
+                 • Evaluate triangle edge equations
+                 • Generate discrete pixel fragments
+                        │
+                        ▼
+          [ Fragment / Pixel Shading &amp; Texturing ]
+          • Calculate per-pixel colors and lighting
+          • Apply texture images and material properties
+                        │
+                        ▼
+             [ Blending &amp; Depth Testing (Z-Buffer) ]
+             • Discard hidden surfaces behind closer objects
+             • Blend transparent window surfaces
+                        │
+                        ▼
+           [ Final Scanout Framebuffer ]
+           • Presented to display controller at 60-240 Hz
+</pre>
+
+<p>Computer graphics fall into two fundamental paradigms: <strong>vector graphics</strong> and <strong>raster graphics</strong>. Vector graphics represent images mathematically using geometric formulas (coordinates, lines, curves, and fills), as seen in SVG files, PostScript printers, and TrueType fonts. Raster graphics represent images as explicit matrices of colored pixels, as seen in PNGs, JPEGs, and the final monitor image. The bridge between the two is <dfn><a href="learn/glossary/rasterization.html">rasterization</a></dfn>: evaluating which pixels belong inside each geometric shape.</p>
+
+<h3>Worked example: verify hardware acceleration on Tamlinux</h3>
+
+<pre class="session" data-risk="read-only">
+$ glxinfo -B | grep -E "Device|OpenGL renderer|OpenGL core profile version"
+    Device: AMD Radeon Graphics (radeonsi, renoir, LLVM 18.1.8, DRM 3.57, 6.6.58-1-lts)
+    OpenGL renderer string: AMD Radeon Graphics (radeonsi, renoir, LLVM 18.1.8, DRM 3.57, 6.6.58-1-lts)
+    OpenGL core profile version string: 4.6 (Core Profile) Mesa 24.2.5
+</pre>
+
+<ol>
+<li><code>Device</code> confirms that an AMD Radeon graphics processor is handling drawing tasks directly in hardware.</li>
+<li><code>OpenGL renderer string</code> shows that Mesa (the open-source graphics library) is using the hardware-accelerated <code>radeonsi</code> driver rather than a slow CPU software emulator.</li>
+<li><code>OpenGL core profile version string</code> confirms support for modern OpenGL 4.6 features.</li>
+</ol>
+
+<h3>Completion task</h3>
+
+<p>Fill in the blank to check whether the software-only CPU rasterizer (<code>llvmpipe</code>) is currently active instead of a hardware graphics processor:</p>
+
+<pre data-risk="read-only">
+glxinfo -B | grep -i "________"
+</pre>
+
+<details class="solution">
+<p>Fill in <code>llvmpipe</code> (or <code>software</code>):</p>
+<pre data-risk="read-only">
+glxinfo -B | grep -i "llvmpipe"
+</pre>
+<p>If <code>llvmpipe</code> appears in the renderer string, hardware acceleration is missing or disabled, and your CPU is doing all graphics calculations in software.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Use <code>vulkaninfo --summary</code> to inspect available Vulkan physical devices. Determine whether your system supports hardware ray tracing or mesh shading extensions, and note which driver layer is loaded.</p>
+
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ vulkaninfo --summary | grep -E "deviceName|driverName"
+	deviceName        = AMD Radeon Graphics (RADV RENOIR)
+	driverName        = radv
+</pre>
+<p>The output confirms that the open-source Mesa RADV Vulkan driver is active for your hardware device.</p>
+</details>
+
+<h3>Choosing: Vector versus Raster representations</h3>
+
+<table>
+<tr><th>Feature</th><th>Vector Graphics</th><th>Raster Graphics</th></tr>
+<tr><td>Storage method</td><td>Mathematical primitives (lines, arcs, polygons)</td><td>2D array of discrete pixel color values</td></tr>
+<tr><td>Scaling behavior</td><td>Infinitely scalable with zero quality loss</td><td>Pixelates or blurs when magnified past native resolution</td></tr>
+<tr><td>File size</td><td>Proportional to geometric complexity</td><td>Proportional to resolution and color depth</td></tr>
+<tr><td>Common formats</td><td>SVG, EPS, PDF, TTF, OTF</td><td>PNG, JPEG, WebP, GIF, BMP</td></tr>
+<tr><td>Primary desktop role</td><td>User interface icons, typography, window borders</td><td>Wallpapers, photographs, video playback, rendered frames</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Desktop animations stutter; high CPU load during window moves</td><td>Compositor fell back to CPU software rendering (llvmpipe or pixman)</td><td><code>glxinfo -B | grep -i renderer</code></td><td>Verify GPU kernel module is loaded (e.g., <code>amdgpu</code>, <code>i915</code>) and install matching Mesa drivers</td></tr>
+<tr><td>Diagonal lines appear jagged (&ldquo;stair-stepping&rdquo;)</td><td>Spatial aliasing due to discrete pixel sampling without smoothing</td><td>Inspect application anti-aliasing settings</td><td>Enable multi-sample anti-aliasing (MSAA) or subpixel font rendering</td></tr>
+<tr><td>Horizontal tear lines appear across moving windows or video</td><td>Buffer swap occurs mid-scanout without Vertical Synchronization (V-Sync)</td><td>Check Wayland compositor logs or DRM pageflip status</td><td>Ensure DRM atomic modesetting is active; Wayland compositors eliminate tearing by default</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the desktop relies on the Wayland protocol, which guarantees tear-free rendering by requiring clients to commit complete frame buffers before the compositor presents them to the display hardware. For older machines lacking hardware 3D support, wlroots compositors can render on the CPU using <code>pixman</code> (<code>WLR_RENDERER=pixman</code>), allowing Tamlinux to run on aging hardware while retaining responsiveness.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why must 3D models made of triangles be rasterized before they can appear on a computer screen?</summary>
+<p>Computer screens are physical matrices of discrete rectangular pixels. Even though a 3D model is defined by continuous mathematical formulas and vertex coordinates in virtual space, the monitor can only display colored dots at fixed grid locations.</p>
+</details>
+<details class="q">
+<summary>What role does the Z-buffer (depth buffer) play in the 3D graphics pipeline?</summary>
+<p>The Z-buffer stores the distance from the camera for every pixel currently drawn. When a new triangle is rasterized, the GPU compares the new pixel&apos;s depth against the stored value; if the new pixel is behind an already drawn object, it is discarded, preventing hidden surfaces from showing through.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><cite data-ref="real-time-rendering"><a href="learn/bibliography/real-time-rendering.html">Real-Time Rendering</a></cite> &mdash; the definitive guide to graphics hardware pipelines, shading math, and rasterization algorithms.</li>
+<li><a href="ecosystem/themes.html">Color systems and desktop theming</a> &mdash; learn how color science, sRGB gamma, and WCAG contrast operate on rendered pixels.</li>
+<li><a href="ecosystem/fonts.html">Typography, fonts and text rendering</a> &mdash; explore how vector font glyphs are shaped and rasterized into character bitmaps.</li>
+</ul>
+
+<p><strong>Next step:</strong> at Expert, dissect framebuffer stride calculations, examine modern low-level graphics APIs (Vulkan vs OpenGL), and inspect DRM buffer flipping.</p>
+</section>
+
+<section data-level="expert">
+<h2>Framebuffer memory architecture, double-buffering, and presentation</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Format Standard</th><th>Bytes/Pixel</th><th>Channel Layout</th><th>Memory Order (Little Endian)</th><th>Common Usage</th></tr>
+<tr><td>XRGB8888</td><td>4</td><td>8b Empty, 8b Red, 8b Green, 8b Blue</td><td>B, G, R, X (0xXXRRGGBB)</td><td>Standard Linux desktop primary scanout</td></tr>
+<tr><td>ARGB8888</td><td>4</td><td>8b Alpha, 8b Red, 8b Green, 8b Blue</td><td>B, G, R, A (0xAARRGGBB)</td><td>Composited window surfaces with transparency</td></tr>
+<tr><td>RGB565</td><td>2</td><td>5b Red, 6b Green, 5b Blue</td><td>16-bit packed word</td><td>Embedded devices, legacy mobile framebuffers</td></tr>
+<tr><td>XBGR2101010</td><td>4</td><td>2b Empty, 10b Blue, 10b Green, 10b Red</td><td>30-bit Deep Color</td><td>Professional color grading, HDR displays</td></tr>
+</table>
+
+<h3>How it works: Stride, pitch, and memory alignment</h3>
+
+<p>A framebuffer in memory is not a continuous, unbroken grid. Instead, each horizontal scanline must often align to specific hardware memory boundaries (such as 64-byte or 256-byte cache line multiples) to optimize memory bus bursts:</p>
+
+<ol>
+<li><strong>Pitch (Stride):</strong> The pitch is the number of actual bytes allocated in memory for one single row of pixels, including any padding bytes added to satisfy hardware alignment requirements. If a 1920-pixel wide screen uses 4 bytes per pixel, its minimum row size is 7,680 bytes. If the graphics hardware requires 256-byte alignment, the pitch becomes 7,680 bytes (7,680 is evenly divisible by 256). If the resolution were 1366 &times; 768, 1366 &times; 4 = 5,464 bytes; padding rounds the pitch up to 5,632 bytes.</li>
+<li><strong>Pixel Address Formula:</strong> To calculate the memory address of a pixel at coordinate <code>(x, y)</code>:
+  <pre data-risk="read-only">
+  Address = Framebuffer_Base + (y * Pitch) + (x * Bytes_Per_Pixel)
+  </pre>
+  Operating systems and compositors map this region using <code>mmap()</code> or pass memory handles directly to GPU hardware controllers via DMA buffers (<code>dma-buf</code>).</li>
+<li><strong>Double-Buffering and Page Flipping:</strong> If an application drew directly into the active scanout framebuffer, the monitor&apos;s raster beam would display partial drawings mid-render, causing visual tearing. Modern graphics systems use double-buffering:
+  <ul>
+  <li><strong>Front Buffer:</strong> The completed frame currently being scanned out to the physical monitor.</li>
+  <li><strong>Back Buffer:</strong> An off-screen buffer where the GPU or software rasterizer renders the next incoming frame.</li>
+  <li><strong>Page Flip:</strong> During the vertical blanking interval (V-Blank)&mdash;when the display beam moves from bottom to top&mdash;the kernel DRM driver adjusts the scanout base register to point to the back buffer, turning it into the new front buffer instantaneously.</li>
+  </ul>
+</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux avoids monolithic graphics drivers and proprietary display servers. By building upon Linux Direct Rendering Manager (DRM) atomic modesetting, Mesa open-source user-space drivers, and standard Wayland presentation protocols, Tamlinux ensures that window surfaces are isolated from each other for security while eliminating screen tearing. The developer, Fred Horch, prioritized open standards so that the exact same rendering stack operates consistently from lightweight laptops to multi-monitor workstations.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ol>
+<li><strong>Buffer Starvation (Framerate Jitter):</strong> If a complex application misses the V-Blank deadline by even a fraction of a millisecond, the display controller repeats the previous front buffer. This drops the effective framerate from 60 Hz to 30 Hz (or 120 Hz to 60 Hz), causing visible stuttering. Modern compositors mitigate this using adaptive sync (FreeSync / G-Sync) or mailbox presentation modes.</li>
+<li><strong>Memory Bandwidth Exhaustion:</strong> Driving multiple 4K displays at 120 Hz with 10-bit color requires transferring over 50 gigabytes per second across memory buses just to scan out pixels, before any application rendering takes place. On systems with integrated graphics sharing system RAM, scanout traffic can saturate memory channels and degrade CPU performance.</li>
+</ol>
+
+<h3>Explore: inspect graphics hardware and framebuffers</h3>
+
+<pre class="session" data-risk="read-only">
+$ ls -l /sys/class/graphics/
+total 0
+lrwxrwxrwx 1 root root 0 Nov  1 11:00 fb0 -> ../../devices/pci0000:00/0000:00:08.1/0000:05:00.0/drm/card1/card1-DP-1/fb0
+
+$ cat /sys/class/graphics/fb0/stride
+7680
+</pre>
+
+<p>The symlink confirms that the legacy framebuffer device is mapped directly to the active Direct Rendering Manager PCI device and output port, with a stride of exactly 7,680 bytes per row.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does pitch (stride) matter when writing software rasterizers or direct-to-framebuffer utilities?</summary>
+<p>If software assumes that scanlines are tightly packed (width &times; bytes per pixel) without accounting for pitch padding, calculating pixel addresses using simple multiplication will introduce an offset on every row. By row 10, pixels will shift horizontally, turning the rendered image into an illegible diagonal smear.</p>
+</details>
+<details class="q open">
+<summary>How does atomic modesetting in the Linux kernel prevent invalid display configurations?</summary>
+<p>In legacy KMS, setting resolution, CRTCs, and planes required individual ioctl system calls that executed sequentially. If one parameter failed halfway through, the display was left corrupted. Atomic modesetting (<code>DRM_IOCTL_MODE_ATOMIC_COMMIT</code>) validates the entire state change in one transaction: it either applies all plane, framebuffer, and timing changes synchronously at the next V-Blank, or rolls back cleanly with zero visual disruption.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><cite data-ref="real-time-rendering"><a href="learn/bibliography/real-time-rendering.html">Real-Time Rendering</a></cite> &mdash; Akenine-Möller et al. Foundations of rasterization and modern GPU architectures.</li>
+<li><cite data-ref="drm-kms"><a href="learn/bibliography/drm-kms.html">Linux DRM/KMS Documentation</a></cite> &mdash; Linux Kernel Organization. Framebuffer management, atomic modesetting, and scanout surfaces.</li>
+<li><a href="https://wayland.freedesktop.org/">Wayland Protocol Specification (online)</a> &mdash; Freedesktop.org. Surface presentation, buffer passing, and tear-free desktop architecture.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>To inspect your system rendering performance, install the <code>mesa-demos</code> package and run <code>vblank_mode=0 glxgears</code>. Measure the frame rate difference between hardware-accelerated rendering and software emulation (<code>LIBGL_ALWAYS_SOFTWARE=1 glxgears</code>) to observe the exact arithmetic throughput difference.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/display-history.html">Computer displays and the history of visual output</a> &mdash; explore the historical journey from vacuum tubes and teletypes to modern touchscreens.</li>
+<li><a href="ecosystem/gpu-architecture.html">Graphics processing units and CPU-GPU architecture</a> &mdash; discover how CPUs and GPUs communicate across PCIe buses and command queues.</li>
+<li><a href="ecosystem/display-cables.html">Display interfaces, video cables, and connectors</a> &mdash; study physical connectors (HDMI, DisplayPort, VGA) and signal standards.</li>
+<li><a href="ecosystem/compositors.html">How windows appear on your screen</a> &mdash; see how the Wayland compositor composites window surfaces onto your screen.</li>
+</ul>
+
+</body>
+</html>

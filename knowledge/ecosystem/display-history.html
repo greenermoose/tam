@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Computer displays and the history of visual output</title>
+<meta name="topic" content="display-history">
+<meta name="summary" content="The historical evolution of computer output: vacuum tubes, teletypes, vector displays, CRTs, flat panels, and touchscreens">
+<meta name="keywords" content="display-history, displays, monitors, crt, lcd, oled, touchscreen, vacuum-tubes, teletype, nixie, vector-display, capacitive, resistive, e-ink">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="computer-graphics, computer-architecture">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Computer displays and the history of visual output</p>
+</nav>
+
+<h1>Computer displays and the history of visual output</h1>
+<p>This page traces how computer output evolved from early electrical tubes and paper teletypes to modern touchscreen displays.</p>
+<p>For the first several decades of electronic computing, screens did not exist. Operators read blinking neon lights, interpreted holes punched into paper tape, or waited for mechanical teleprinters to hammer ink into paper. The journey from those physical marks to cathode-ray tubes, liquid crystals, and touch-sensitive glass represents one of the greatest transformations in human-computer interaction.</p>
+
+<section data-level="beginner">
+<h2>The timeline of computer output and inspecting active displays</h2>
+
+<p><strong>Goal:</strong> you will be able to outline the primary eras of computer output devices and inspect the physical display outputs detected by your Linux system.</p>
+
+<p><strong>Why it matters:</strong> we take vibrant, instant, high-resolution screens for granted. However, the software we use every day&mdash;such as terminal windows, cursor keys, text consoles, and escape codes&mdash;was designed around the constraints of historical hardware like teletypes and monochrome monitors. Understanding this history clarifies why Linux systems are built the way they are.</p>
+
+<p><strong>Before you start:</strong> open a terminal window. All commands in this section inspect system hardware state without changing your files or display settings.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> Display hardware attached to your computer is represented by files in the Linux <code>/sys/class/drm/</code> directory. DRM stands for Direct Rendering Manager, the kernel system responsible for managing screens and graphics cards.</p>
+</aside>
+
+<h3>Worked example: query connected displays</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat /sys/class/drm/card1-*/status
+connected
+connected
+connected
+
+$ head -n 1 /sys/class/drm/card1-*/modes
+==&gt; /sys/class/drm/card1-DP-1/modes &lt;==
+1920x1080
+
+==&gt; /sys/class/drm/card1-DP-2/modes &lt;==
+1920x1080
+
+==&gt; /sys/class/drm/card1-HDMI-A-1/modes &lt;==
+1920x1080
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-01. The number of detected connectors and their supported modes will reflect your physical setup.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>cat /sys/class/drm/card1-*/status</code> queries the kernel for every video output port wired to graphics card 1. In this worked example, three separate monitor connections report a <code>connected</code> state.</li>
+<li><code>head -n 1 .../modes</code> displays the preferred (native) resolution for each connected display panel. All three monitors report a standard native resolution of 1920 &times; 1080 pixels.</li>
+</ol>
+
+<h3>The five eras of computer output</h3>
+
+<ul>
+<li><strong>1. Tube Indicators and Punch Cards (1940s&ndash;1950s):</strong> Early mainframes like ENIAC and the Manchester Baby used arrays of vacuum tubes, neon pilot lamps, and Williams-Kilburn electrostatic storage tubes. Output was recorded primarily on punched paper tape and punched cardboard cards.</li>
+<li><strong>2. Teleprinters and Teletypes (1960s&ndash;1970s):</strong> Electromechanical typewriters connected directly to computers over serial cables. The computer sent electrical pulses, and mechanical typebars hammered ink ribbons onto continuous rolls of paper at 10 characters per second. The modern Linux terminal (<dfn><a href="learn/glossary/terminal.html">terminal</a></dfn> or <code>tty</code>) directly inherits this architecture.</li>
+<li><strong>3. Cathode-Ray Tube (CRT) Monitors (1970s&ndash;1990s):</strong> Heavy glass vacuum tubes firing beams of electrons against a phosphor-coated screen. CRTs introduced instantaneous raster-scanning video, enabling real-time editing, interactive command lines, and color graphical desktops.</li>
+<li><strong>4. Flat-Panel Displays (2000s&ndash;present):</strong> Lightweight, slim screens replacing bulky CRTs. Liquid Crystal Displays (LCDs) illuminated by LED backlights, and emissive Organic Light-Emitting Diode (OLED) screens where each individual subpixel produces its own light.</li>
+<li><strong>5. Touchscreens and Spatial Displays (2010s&ndash;present):</strong> Transparent capacitive sensor grids fused directly onto display glass, transforming passive monitors into direct-manipulation input devices responsive to human fingertips and electromagnetic styluses.</li>
+</ul>
+
+<h3>Try it</h3>
+
+<p>Run <code>ls -l /sys/class/drm/</code> on your computer. Count how many physical video ports exist on your graphics hardware and identify which ones are currently connected to a monitor.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>status</code> reports <code>disconnected</code> for your monitor</dt>
+<dd>The display cable may be loose, the monitor may be in deep power-saving mode, or the output is driven through a secondary graphics controller. Check cable connections and verify monitor power.</dd>
+<dt>No <code>modes</code> file exists in the directory</dt>
+<dd>The monitor did not transmit an Extended Display Identification Data (<dfn><a href="learn/glossary/edid.html">EDID</a></dfn>) packet over the display cable, so the kernel does not yet know what resolutions the screen supports.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is the Linux terminal command called tty?</summary>
+<p>TTY is short for &ldquo;TeleTYpe&rdquo;, the electromechanical typewriter used to communicate with early Unix mainframes before glass video monitors were invented.</p>
+</details>
+<details class="q">
+<summary>What was a Williams-Kilburn tube, and why is it historically unique?</summary>
+<p>Invented in 1946, the Williams-Kilburn tube was a cathode-ray tube used as the first random-access electronic memory. Because the electron beam created electrostatic charges on the phosphor faceplate, operators could visually inspect the computer&apos;s stored memory bits directly on the glowing glass tube.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Teletype (TTY)</dt>
+<dd>An electromechanical typewriter capable of sending and printing text messages over telegraph wires or serial cables.</dd>
+<dt>CRT</dt>
+<dd>Cathode-Ray Tube; a vacuum tube containing an electron gun that projects electrons onto a phosphor screen to produce images.</dd>
+<dt>LCD</dt>
+<dd>Liquid Crystal Display; a flat-panel display technology that uses liquid crystals to modulate light passing through color filters.</dd>
+<dt>OLED</dt>
+<dd>Organic Light-Emitting Diode; an emissive display where individual pixels made of organic compounds generate their own light.</dd>
+</dl>
+
+<p><strong>Next step:</strong> at Intermediate, compare display mechanisms in depth, study CRT phosphor physics and shadow masks, examine LCD and OLED panels, and explore touchscreen digitizers.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>From CRTs to flat panels, OLEDs, and touchscreens</h2>
+
+<p><strong>Goal:</strong> you will be able to explain the physical operating principles of CRTs, LCDs, OLEDs, and capacitive touchscreens, and evaluate display trade-offs for workstation tasks.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+1. Cathode-Ray Tube (CRT):
+   [Electron Guns (R, G, B)] ──&gt; [Magnetic Deflection Yoke] ──&gt; [Shadow Mask] ──&gt; [Phosphor Screen]
+   (Electrons accelerated at 25 kV sweep horizontally across glass faceplate)
+
+2. Liquid Crystal Display (LCD):
+   [LED Backlight] ──&gt; [Polarizing Filter 1] ──&gt; [Liquid Crystals (Twisted)] ──&gt; [Color Filter] ──&gt; [Polarizer 2]
+   (Voltage untwists liquid crystals to block or pass continuous backlight)
+
+3. Organic Light-Emitting Diode (OLED):
+   [Anode Layer] ──&gt; [Organic Conductive &amp; Emissive Layers] ──&gt; [Cathode Layer] ──&gt; (Direct Light)
+   (No backlight; each subpixel emits pure light; true infinite contrast black)
+
+4. Projected Capacitive Touchscreen (PCAP):
+   [Glass Cover] ──&gt; [X-Axis Drive Electrodes] ──&gt; [Dielectric Layer] ──&gt; [Y-Axis Sensing Electrodes]
+   (Conductive human finger alters mutual capacitance at grid intersections)
+</pre>
+
+<h3>The evolution of display mechanisms</h3>
+
+<h4>1. Vector displays versus raster-scan CRTs</h4>
+<p>Early computer monitors (such as the TX-0, DEC PDP-1 Type 30, and radar consoles) were <strong>vector displays</strong>. The electron beam did not sweep row by row; instead, magnetic deflection coils steered the electron beam directly from point to point, drawing sharp, glowing vector lines directly on the glass. The Tektronix 4010 Direct-View Storage Tube (DVST) used a bistable storage phosphor that held vector drawings indefinitely without needing expensive computer memory refresh.</p>
+<p>In contrast, <strong>raster-scan CRTs</strong> swept the beam in a continuous zig-zag pattern from left to right, top to bottom. Because the phosphor glow faded in milliseconds, the entire image had to be redrawn (refreshed) 50 to 85 times per second. In monochrome CRTs, different phosphor chemistries determined visual ergonomics:</p>
+<ul>
+<li><strong>P1 Phosphor (Green):</strong> Emitted at 525 nm, perfectly matching peak human eye sensitivity for low-intensity text reading.</li>
+<li><strong>P4 Phosphor (White):</strong> Emitted broad-spectrum light, standard in televisions and desktop word processors.</li>
+<li><strong>P3 / P40 Phosphors (Amber):</strong> Emitted at 590&ndash;620 nm with long persistence, popular in Europe to eliminate visible flicker under office fluorescent lighting.</li>
+</ul>
+
+<h4>2. Color CRTs: Shadow masks and aperture grilles</h4>
+<p>Color CRTs used three separate electron guns (Red, Green, Blue). To ensure each gun only struck its corresponding phosphor dots, a metal sheet was placed immediately behind the glass faceplate:</p>
+<ul>
+<li><strong>Shadow Mask:</strong> A perforated sheet of Invar metal with microscopic round holes aligned to phosphor triads. Durable, but blocked significant electron energy.</li>
+<li><strong>Aperture Grille (Sony Trinitron):</strong> Replaced the perforated sheet with vertical tensioned steel wires and continuous vertical phosphor stripes. This let through more electron energy, producing significantly brighter images and richer contrast.</li>
+</ul>
+
+<h4>3. Flat-panel liquid crystal displays (LCD)</h4>
+<p>LCDs revolutionized portable computing by eliminating the high voltage, vacuum tubes, and bulk of CRTs. Liquid crystals do not emit light; they modulate light from an external backlight:</p>
+<ul>
+<li><strong>Twisted Nematic (TN):</strong> Fast response times and cheap to manufacture, but suffers from narrow viewing angles and color shifting.</li>
+<li><strong>In-Plane Switching (IPS):</strong> Liquid crystals rotate parallel to the glass substrate. Offers wide 178-degree viewing angles and accurate color reproduction, making IPS the desktop standard.</li>
+<li><strong>Vertical Alignment (VA):</strong> Crystals align vertically when unpowered, blocking backlight exceptionally well and delivering high static contrast ratios (3000:1).</li>
+<li><strong>Backlight Technology:</strong> Early LCDs used Cold Cathode Fluorescent Lamps (CCFL). Modern screens use White LEDs (WLED), Quantum Dot films (QLED) for wide color gamuts, or Mini-LED matrices with thousands of local dimming zones.</li>
+</ul>
+
+<h4>4. Emissive displays: OLED and MicroLED</h4>
+<p>Unlike LCDs, <strong>OLED</strong> displays are emissive: every subpixel is an organic semiconductor that produces its own colored light when electric current passes through it. When an OLED pixel displays pure black, it turns off completely, consuming zero energy and achieving true infinite contrast. <strong>MicroLED</strong> replaces organic compounds with microscopic inorganic Gallium Nitride (GaN) LEDs, offering the infinite contrast and per-pixel response of OLED without organic burn-in risks.</p>
+
+<h4>5. Reflective displays: Electronic paper (E-Ink)</h4>
+<p>Electrophoretic displays (E-Ink) use microscopic microcapsules filled with clear fluid and charged pigment particles (negatively charged black particles and positively charged white titania particles). An electric field moves the desired particles to the surface. Once moved, the particles remain in place without electrical power (bistability), reflecting ambient light like real paper and consuming electricity only when changing page contents.</p>
+
+<h4>6. Touchscreen technologies</h4>
+<p>Modern interactive screens layer a transparent digitizer over the visual display:</p>
+<ul>
+<li><strong>Resistive Touch (Pressure):</strong> Two flexible transparent sheets coated with Indium Tin Oxide (ITO) separated by microscopic spacer dots. Pressing the screen brings the conductive layers into physical contact, creating a voltage divider that calculates coordinate position. Works with fingers, gloves, or plastic styluses, but supports only single touch and lacks multi-touch gesture capability.</li>
+<li><strong>Surface Capacitive:</strong> A uniform conductive ITO layer applied to glass. Touching the screen draws a minute electric current to the corner electrodes. Fragile and limited to single-touch.</li>
+<li><strong>Projected Capacitive (PCAP):</strong> The foundation of all modern smartphones, tablets, and interactive touchpads. A microscopic matrix of driving and sensing electrodes etched into transparent glass. A conductive human finger alters the electrostatic field and changes the <em>mutual capacitance</em> between overlapping electrodes. A high-speed digital signal processor reads the entire grid hundreds of times per second, tracking multiple independent touch coordinates simultaneously.</li>
+<li><strong>Digitizer Integration:</strong> Early screens placed the touch digitizer as an external glass sandwich on top of the LCD. Modern displays use <strong>On-Cell</strong> (digitizer applied directly on top of the display glass) or <strong>In-Cell</strong> (touch sensors embedded directly inside the active liquid crystal or OLED subpixel matrix), eliminating internal reflection air gaps and making screens thinner.</li>
+<li><strong>Stylus Technologies:</strong> Passive styluses mimic a human fingertip. Active styluses (such as Wacom EMR) use an electromagnetic sensor board located behind the screen that powers a resonant circuit in the pen wirelessly, transmitting pressure levels, tilt angles, and button clicks with zero pen batteries.</li>
+</ul>
+
+<h3>Worked example: query touch input devices on Linux</h3>
+
+<pre class="session" data-risk="read-only">
+$ libinput list-devices | grep -E "Device:|Capabilities:"
+Device:           Power Button
+Capabilities:     keyboard
+Device:           Sleep Button
+Capabilities:     keyboard
+Device:           Video Bus
+Capabilities:     keyboard
+Device:           Logitech USB Optical Mouse
+Capabilities:     pointer
+Device:           AT Translated Set 2 keyboard
+Capabilities:     keyboard
+</pre>
+
+<p>Captured on a Tamlinux workstation without touch hardware. When an external touchscreen or stylus tablet is connected, <code>libinput</code> lists its capabilities as <code>touch</code> or <code>tablet</code>.</p>
+
+<h3>Completion task</h3>
+
+<p>Fill in the missing word in this command to filter for touchscreen input devices handled by the Linux kernel input subsystem:</p>
+
+<pre data-risk="read-only">
+udevadm info --export-db | grep -i "ID_INPUT_TOUCH____=1"
+</pre>
+
+<details class="solution">
+<p>Fill in <code>SCREEN</code>:</p>
+<pre data-risk="read-only">
+udevadm info --export-db | grep -i "ID_INPUT_TOUCHSCREEN=1"
+</pre>
+<p>The <code>ID_INPUT_TOUCHSCREEN</code> udev property tells the Wayland compositor to map touch coordinates directly across the visual screen geometry rather than treating the device as a relative mouse pointer.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Inspect your system&apos;s active monitor EDID block in <code>/sys/class/drm/</code>. Extract the raw hexadecimal EDID using <code>hexdump -C /sys/class/drm/card1-HDMI-A-1/edid | head -n 4</code> and verify the standard 8-byte VESA header (<code>00 ff ff ff ff ff ff 00</code>).</p>
+
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ hexdump -C /sys/class/drm/card1-HDMI-A-1/edid | head -n 2
+00000000  00 ff ff ff ff ff ff 00  34 a9 b8 a0 01 01 01 01  |........4.......|
+00000010  1a 1f 01 03 80 34 20 78  ea 7b 35 a6 55 51 9e 26  |.....4 x.{5.UQ.&amp;|
+</pre>
+<p>The first 8 bytes confirm the standard fixed VESA EDID synchronization pattern, proving the monitor correctly transmitted its hardware identity.</p>
+</details>
+
+<h3>Choosing: Display technologies compared</h3>
+
+<table>
+<tr><th>Technology</th><th>Operating Principle</th><th>Strengths</th><th>Weaknesses</th><th>Ideal Use Case</th></tr>
+<tr><td>IPS LCD</td><td>Twisted liquid crystals modulating LED backlight</td><td>Accurate colors, wide viewing angles, no burn-in, affordable</td><td>Limited contrast (1000:1), backlight bleed, slower response</td><td>Office work, programming, general desktop computing</td></tr>
+<tr><td>OLED / AMOLED</td><td>Per-pixel organic electroluminescence</td><td>Infinite contrast, true deep blacks, sub-millisecond response</td><td>Risk of static image burn-in, lower peak full-field brightness</td><td>Creative media editing, HDR video, dark-mode workstations</td></tr>
+<tr><td>E-Ink (EPD)</td><td>Electrophoretic pigment movement</td><td>Zero eye fatigue, readable in sunlight, ultra-low power</td><td>Slow multi-frame refresh, monochrome or muted colors</td><td>Dedicated text reading, e-books, low-power outdoor status panels</td></tr>
+<tr><td>Projected Capacitive</td><td>Electrostatic mutual capacitance matrix</td><td>Multi-finger gestures, high accuracy, durable smooth glass</td><td>Does not respond to standard gloves; moisture causes false touches</td><td>Laptops, smartphones, kiosk point-of-sale systems</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Touch input registers on the wrong monitor in multi-screen setup</td><td>Compositor mapped the touch device to the default primary display instead of its physical panel</td><td>Check <code>hyprctl monitors</code> and input device mapping</td><td>Bind the touch input device name explicitly to the monitor output identifier in compositor configuration</td></tr>
+<tr><td>Ghost touches or errant taps appear without finger contact</td><td>Electrical noise from ungrounded power adapter or moisture/oil on glass surface</td><td>Clean glass; disconnect external charger to test battery power</td><td>Clean display surface with isopropyl alcohol; use certified grounded power supply</td></tr>
+<tr><td>OLED monitor shows faint persistent outline of desktop taskbar</td><td>Differential organic phosphor degradation (burn-in) from static UI elements</td><td>Display a uniform gray screen to inspect uniformity</td><td>Enable auto-hiding desktop panels and screen blanking timeouts via <a href="maintain/power.html">power management</a></td></tr>
+</table>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> power efficiency and hardware longevity are foundational principles. Tamlinux defaults to high-contrast dark green themes (<a href="ecosystem/themes.html">Tamarack</a>) which significantly reduce power consumption and thermal stress on modern OLED and AMOLED displays while maximizing legibility.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why can an OLED display achieve a true 1,000,000:1 contrast ratio while an IPS LCD is typically limited to 1,000:1?</summary>
+<p>An LCD always has a continuous backlight glowing behind its liquid crystals; even when the crystals block as much light as possible, some light leaks through. In an OLED screen, black pixels are completely turned off and emit zero photons, creating a mathematically infinite contrast ratio.</p>
+</details>
+<details class="q">
+<summary>Why does a projected capacitive touchscreen work with bare fingers but fail when touched with an ordinary wooden pencil or plastic rod?</summary>
+<p>Capacitive touchscreens do not detect physical pressure; they detect electrical conductivity. The human body is a natural electrical conductor that alters the local electrostatic field and draws away mutual capacitance. An insulating material like wood or non-conductive plastic does not disrupt the electric field.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><cite data-ref="real-time-rendering"><a href="learn/bibliography/real-time-rendering.html">Real-Time Rendering</a></cite> &mdash; covers raster display scanning, color filters, and visual perception.</li>
+<li><cite data-ref="vesa-displayport"><a href="learn/bibliography/vesa-displayport.html">VESA DisplayPort Standard</a></cite> &mdash; covers modern digital timing and panel communication.</li>
+<li><a href="ecosystem/themes.html">Color systems and desktop theming</a> &mdash; explores the history of CRT phosphors and human photopic sensitivity.</li>
+</ul>
+
+<p><strong>Next step:</strong> at Expert, dissect the Linux kernel multi-touch protocol, examine `evdev` event slots, and inspect touch coordinates in real time.</p>
+</section>
+
+<section data-level="expert">
+<h2>Linux multi-touch protocol, evdev event slots, and panel timing</h2>
+
+<h3>Reference: Linux kernel multi-touch protocol (Type A vs Type B)</h3>
+
+<table>
+<tr><th>Protocol Type</th><th>Mechanism</th><th>Tracking Responsibility</th><th>Kernel Events Used</th><th>Hardware Class</th></tr>
+<tr><td>Type A (Anonymous)</td><td>Sends all active contact packets on every frame; packet order implies slot</td><td>User-space driver must correlate contacts across frames</td><td><code>ABS_MT_POSITION_X</code>, <code>SYN_MT_REPORT</code>, <code>SYN_REPORT</code></td><td>Legacy multi-touch screens, early digitizers</td></tr>
+<tr><td>Type B (Slotted)</td><td>Assigns a persistent hardware tracking ID to each contact point across frames</td><td>Kernel tracks touch contacts in hardware slots</td><td><code>ABS_MT_SLOT</code>, <code>ABS_MT_TRACKING_ID</code>, <code>SYN_REPORT</code></td><td>Modern PCAP touchscreens, multi-touch trackpads</td></tr>
+</table>
+
+<h3>How it works: Touch event reporting in the Linux kernel</h3>
+
+<p>When you touch a projected capacitive screen, the hardware digitizer ASIC scans its electrode matrix, computes coordinate centroids, and sends USB or I2C interrupt reports to the Linux kernel:</p>
+
+<ol>
+<li><strong>Slot Allocation:</strong> The kernel&apos;s <code>hid-multitouch</code> driver maps the hardware contact to an available multi-touch slot using <code>ABS_MT_SLOT</code>.</li>
+<li><strong>Tracking ID:</strong> The driver assigns an <code>ABS_MT_TRACKING_ID</code>. As your finger glides across the glass, subsequent reports update <code>ABS_MT_POSITION_X</code> and <code>ABS_MT_POSITION_Y</code> within that exact same slot.</li>
+<li><strong>Touch Contact Lifecycles:</strong>
+  <ul>
+  <li><strong>Finger Down:</strong> The kernel emits <code>ABS_MT_TRACKING_ID &lt;positive integer&gt;</code> followed by coordinate updates.</li>
+  <li><strong>Finger Motion:</strong> Coordinates update continuously; no tracking ID is re-emitted because the slot remains active.</li>
+  <li><strong>Finger Up:</strong> The kernel emits <code>ABS_MT_TRACKING_ID -1</code> to indicate that the touch contact has lifted from the screen.</li>
+  </ul>
+</li>
+<li><strong>Compositor Handling:</strong> Wayland compositors (like Hyprland and Sway) consume these slotted events via <code>libinput</code>, converting raw hardware digitizer coordinates into window surface touch gestures (tap, scroll, pinch-to-zoom).</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux builds upon the standard Linux input subsystem (<code>evdev</code>) and <code>libinput</code> rather than proprietary digitizer drivers. This guarantees that whether a user interacts with a high-end active digitizer stylus, a capacitive touch laptop, or a simple keyboard and mouse, all input travels across verified, sandboxed Wayland protocols without background daemons.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ol>
+<li><strong>Indium Tin Oxide (ITO) Resistance Drifts:</strong> Large touchscreens suffer from electrical resistance and capacitance across long physical traces, leading to edge latency and touch jitter. Advanced controllers compensate using multi-frequency driving and digital noise filtering.</li>
+<li><strong>OLED Burn-in and Subpixel Layouts:</strong> Most consumer OLEDs use PenTile or diamond subpixel arrangements (sharing green subpixels between red and blue) rather than standard RGB stripes. Subpixel font rendering (ClearType / FreeType LCD filters) that assumes strict horizontal RGB ordering can cause colored fringing around small text. High-DPI scaling mitigates this by rendering at pixel densities where subpixel rendering can be disabled cleanly.</li>
+</ol>
+
+<h3>Explore: inspect kernel input devices with evtest</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat /proc/bus/input/devices | grep -E "N: Name|H: Handlers" | head -n 8
+N: Name="Power Button"
+H: Handlers=kbd event0 
+N: Name="Sleep Button"
+H: Handlers=kbd event1 
+N: Name="Logitech USB Optical Mouse"
+H: Handlers=mouse0 event2 
+N: Name="AT Translated Set 2 keyboard"
+H: Handlers=sysrq kbd event3 
+</pre>
+
+<p>Every active human interface device is represented by a character device node under <code>/dev/input/event*</code>. Developers can monitor live input reports using the <code>evtest</code> utility.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why is the Linux Type B (slotted) multi-touch protocol vastly more CPU-efficient than the Type A protocol?</summary>
+<p>Under Type A, the hardware transmits every contact coordinate on every single frame, requiring user-space software to perform complex spatial matching algorithms to determine which point corresponds to which finger. Type B performs this tracking in hardware or low-level kernel drivers, transmitting only changed coordinates for active slots and eliminating redundant user-space calculations.</p>
+</details>
+<details class="q open">
+<summary>How does ambient lighting affect the choice between an E-Ink display and an emissive OLED screen?</summary>
+<p>OLED screens rely on internal light emission and must fight against bright ambient sunlight, often causing reflections and requiring maximum backlight power. E-Ink screens are reflective: they use ambient photons to illuminate their microcapsules, meaning contrast and readability actually improve in direct sunlight while consuming zero power to maintain the image.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><cite data-ref="real-time-rendering"><a href="learn/bibliography/real-time-rendering.html">Real-Time Rendering</a></cite> &mdash; Akenine-Möller et al. Physical display characteristics and colorimetry.</li>
+<li><cite data-ref="drm-kms"><a href="learn/bibliography/drm-kms.html">Linux DRM/KMS Documentation</a></cite> &mdash; Kernel display connector architectures and mode detection.</li>
+<li><a href="https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt">Linux Kernel Multi-Touch Protocol Documentation (online)</a> &mdash; Henrik Rydberg. Technical specification for Type A and Type B input event slots.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Inspect the touch devices on your system using <code>sudo libinput record</code> in a temporary scratch session. Touch the screen with two fingers simultaneously and observe how <code>ABS_MT_SLOT</code> and <code>ABS_MT_TRACKING_ID</code> events correlate multiple touch coordinates in real time.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/computer-graphics.html">Computer graphics and the rendering pipeline</a> &mdash; understand how the images on these screens are created in memory.</li>
+<li><a href="ecosystem/gpu-architecture.html">Graphics processing units and CPU-GPU architecture</a> &mdash; explore the parallel processors driving modern displays.</li>
+<li><a href="ecosystem/display-cables.html">Display interfaces, video cables, and connectors</a> &mdash; learn how display signals travel across physical cables like HDMI and DisplayPort.</li>
+<li><a href="ecosystem/themes.html">Color systems and desktop theming</a> &mdash; study color science, WCAG contrast, and atomic desktop styling.</li>
+</ul>
+
+</body>
+</html>

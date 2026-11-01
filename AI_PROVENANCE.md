@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-01 | Computer graphics, display output history, GPU architecture, and display interfaces; corpus 0.57.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-computer-graphics-and-displays.md) |
 | 2026-11-01 | Refresh curated tldr pages; corpus 0.56.1; check-repo plan-doc fixes | Cursor 3.27.22; Composer (`composer`) | [Session record](docs/ai/2026-11-01-tam-tldr-refresh.md) |
 | 2026-11-01 | Meta key guide and glossary, desktop keybinding alignment; corpus 0.56.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-meta-key-guide.md) |
 | 2026-11-01 | Computer architecture, digital logic, instruction cycle, and assembly; corpus 0.55.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-computer-architecture-and-assembly.md) |

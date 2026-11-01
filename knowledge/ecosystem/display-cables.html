@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Display interfaces, video cables, and connectors</title>
+<meta name="topic" content="display-cables">
+<meta name="summary" content="Motherboard versus GPU ports, analog VGA, digital DVI, HDMI, DisplayPort, USB-C DP Alt Mode, Thunderbolt, and DRM connector diagnostics">
+<meta name="keywords" content="display-cables, connectors, hdmi, displayport, vga, dvi, usb-c, thunderbolt, edid, ddc, mst, dsc, alt-mode, bandwidth">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="computer-graphics, gpu-architecture">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Display interfaces, video cables, and connectors</p>
+</nav>
+
+<h1>Display interfaces, video cables, and connectors</h1>
+<p>This page explains the physical cables, electrical connectors, and digital protocols that carry video from a computer to a display.</p>
+<p>Connecting a monitor to a computer seems as simple as plugging in a cable. Yet beneath that physical plug lies a complex world of high-speed electronic engineering. Video interfaces have transitioned from analog voltage waveforms to high-bandwidth digital networks transmitting gigabits of packetized data per second. Understanding display connectors ensures you plug cables into the correct ports, choose the right adapters, and achieve full native resolution and refresh rates on your workstation.</p>
+
+<section data-level="beginner">
+<h2>Identifying video ports: Motherboards, graphics cards, and cable types</h2>
+
+<p><strong>Goal:</strong> you will be able to distinguish motherboard video ports from graphics card ports, identify the primary display connector shapes, and check which physical connectors are active on your computer.</p>
+
+<p><strong>Why it matters:</strong> one of the most common hardware setup mistakes on desktop workstations is plugging a monitor cable into the motherboard I/O panel rather than the dedicated graphics card. When this happens, the monitor may stay completely black, or your computer may run on weak integrated graphics while a powerful dedicated graphics card sits completely idle.</p>
+
+<p><strong>Before you start:</strong> open a terminal window. All commands in this section inspect system hardware ports without making any changes to your computer.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> Desktop computer towers have two separate areas with video ports on the back: the vertical motherboard I/O panel near the top, and the horizontal expansion slots near the middle or bottom. Dedicated graphics cards always sit in the horizontal expansion slots.</p>
+</aside>
+
+<h3>Motherboard ports versus dedicated graphics card ports</h3>
+
+<ul>
+<li><strong>Motherboard Video Ports:</strong> Located on the upper vertical backplate alongside Ethernet and USB ports. These connectors are wired directly to the CPU&apos;s internal integrated graphics processor (iGPU). If your computer has a separate dedicated graphics card installed, the system firmware (BIOS/UEFI) often disables these motherboard ports by default.</li>
+<li><strong>Dedicated Graphics Card Ports:</strong> Located in horizontal slots lower down on the rear of the computer case. These connectors are wired directly to the high-performance discrete GPU. Your primary monitor should always plug into one of these horizontal ports.</li>
+</ul>
+
+<h3>The primary display connector shapes</h3>
+
+<ul>
+<li><strong>VGA (Video Graphics Array):</strong> A blue, 15-pin trapezoidal connector with two thumbscrews. An older analog standard found on older computers, projectors, and office monitors.</li>
+<li><strong>DVI (Digital Visual Interface):</strong> A wide white connector with a grid of pinholes and a flat bar on one side. Bridges the analog and digital eras.</li>
+<li><strong><dfn><a href="learn/glossary/hdmi.html">HDMI</a></dfn> (High-Definition Multimedia Interface):</strong> A flat, trapezoidal plug with angled bottom corners. The consumer electronics standard for televisions, monitors, and laptops, carrying both video and multi-channel audio.</li>
+<li><strong><dfn><a href="learn/glossary/displayport.html">DisplayPort</a></dfn> (DP):</strong> A rectangular connector with one corner beveled at an angle, frequently featuring a mechanical latching button. The standard for professional workstation monitors and high-refresh-rate PC displays.</li>
+<li><strong>USB Type-C:</strong> A small, oval, reversible connector. Modern laptops and monitors use USB-C to carry native DisplayPort video signals, USB data, and electrical power over a single cable.</li>
+</ul>
+
+<h3>Worked example: inspect active physical display connectors on Linux</h3>
+
+<pre class="session" data-risk="read-only">
+$ for port in /sys/class/drm/card1-*; do
+    echo "$(basename "$port"): $(cat "$port/status" 2&gt;/dev/null)"
+  done
+card1-DP-1: connected
+card1-DP-2: connected
+card1-HDMI-A-1: connected
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-01. Your port names and connection statuses will reflect your physical setup.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li>The shell script loops through each display connector registered under graphics controller 1 in the Linux sysfs tree.</li>
+<li>The system identifies two physical DisplayPort interfaces (<code>DP-1</code>, <code>DP-2</code>) and one HDMI interface (<code>HDMI-A-1</code>), reporting that all three ports currently have monitors connected and powered on.</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Inspect the back of your computer or the sides of your laptop. Identify each video port by its physical shape, then run the command above to see how the Linux kernel names each port.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>Monitor displays &ldquo;No Signal&rdquo; when plugged into the desktop</dt>
+<dd>You may have plugged the cable into the motherboard vertical I/O panel instead of the dedicated graphics card horizontal bracket. Move the cable to the lower horizontal ports.</dd>
+<dt>A connected port reports <code>disconnected</code> in sysfs</dt>
+<dd>The display cable is not fully seated, the monitor is powered off, or the monitor is set to a different input source (e.g., set to HDMI 2 while plugged into HDMI 1). Check monitor input settings.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does plugging a monitor into the upper motherboard port often result in a black screen on a desktop tower?</summary>
+<p>When a dedicated graphics card is installed in a PCIe slot, most motherboards automatically disable the CPU&apos;s integrated graphics to prevent hardware conflicts, leaving the motherboard video ports unpowered.</p>
+</details>
+<details class="q">
+<summary>How can you physically tell a DisplayPort plug apart from an HDMI plug?</summary>
+<p>An HDMI connector has two symmetrical angled corners at the bottom (forming a trapezoid). A DisplayPort connector has only one angled corner (the other three are square 90-degree corners), and often has mechanical release latches on top.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>VGA</dt>
+<dd>Video Graphics Array; an analog 15-pin computer display standard introduced by IBM in 1987.</dd>
+<dt>HDMI</dt>
+<dd>High-Definition Multimedia Interface; a digital audio/video connector standard common in consumer electronics.</dd>
+<dt>DisplayPort</dt>
+<dd>A packet-based digital display interface standard developed by VESA for computer monitors.</dd>
+<dt>Alt Mode</dt>
+<dd>Alternate Mode; a feature of USB Type-C that reconfigures physical pins to carry native DisplayPort signals.</dd>
+</dl>
+
+<p><strong>Next step:</strong> at Intermediate, learn how analog and digital signals differ, compare HDMI and DisplayPort capabilities, understand USB-C and Thunderbolt video transport, and evaluate active versus passive adapters.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Signaling protocols, DisplayPort versus HDMI, and USB-C video transport</h2>
+
+<p><strong>Goal:</strong> you will be able to explain the technical differences between analog and digital video transmission, compare HDMI and DisplayPort architectures, understand USB-C DisplayPort Alternate Mode, and choose the correct video cable or adapter.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+1. Analog Video (VGA / DE-15):
+   [Digital Framebuffer] ──&gt; [RAMDAC (Digital to Analog)] ──&gt; [Continuous Voltage (0.7V p-p)] ──&gt; [Monitor ADC]
+   (Subject to electrical resistance, cable length degradation, ghosting, and phase jitter)
+
+2. Digital Stream Video (HDMI / TMDS):
+   [Digital Framebuffer] ──&gt; [TMDS Encoder (8b/10b)] ──&gt; [Clock Lane + 3 Data Lanes] ──&gt; [Digital Panel]
+   (Raster beam model: continuous pixel clock synchronized with horizontal and vertical blanking)
+
+3. Packetized Network Video (DisplayPort / Main Link):
+   [Digital Framebuffer] ──&gt; [Micro-Packet Framing] ──&gt; [1, 2, or 4 Embedded-Clock Lanes] ──&gt; [Panel Receiver]
+   (Network model: packetized data stream; supports Multi-Stream Transport daisy-chaining)
+
+4. USB Type-C DisplayPort Alternate Mode:
+   [Type-C Controller] ──&gt; Reassigns 4 High-Speed Differential Pairs ──&gt; Native DisplayPort Main Link
+   (Carries 4K/8K video while retaining USB 2.0 data lines and 100W USB Power Delivery)
+</pre>
+
+<h3>Analog versus Digital video transmission</h3>
+
+<p>In an analog interface like <strong>VGA</strong>, color intensity is represented by a continuously varying voltage (between 0.0 volts for black and 0.7 volts for full brightness) along separate Red, Green, and Blue wires. Because analog signals are continuous electrical waves, they suffer from electrical noise, impedance mismatches, and signal attenuation over long cables, producing blurry text, color fringing, and &ldquo;ghosting&rdquo; shadows on modern high-resolution LCD panels.</p>
+
+<p>In contrast, digital interfaces like <strong>DVI</strong>, <strong>HDMI</strong>, and <strong>DisplayPort</strong> transmit exact discrete binary numbers (0s and 1s). The display receives the exact numerical color values generated in the framebuffer, ensuring pixel-perfect sharpness and zero analog degradation.</p>
+
+<h3>HDMI versus DisplayPort: Two different design philosophies</h3>
+
+<ul>
+<li><strong>HDMI (Consumer Electronics Focus):</strong> HDMI evolved from DVI as a television interface. It uses <strong>TMDS</strong> (Transition-Minimized Differential Signaling) across three data channels and a dedicated fourth clock channel (in HDMI 1.0 through 2.0). HDMI 2.1 introduced <strong>FRL</strong> (Fixed Rate Link), adopting packetized signaling across four lanes up to 48 Gbps. HDMI includes Consumer Electronics Control (CEC) to control multiple home-theater devices with one remote, and Audio Return Channel (ARC/eARC).</li>
+<li><strong>DisplayPort (Computer Architecture Focus):</strong> DisplayPort was designed specifically for computers by VESA. Instead of transmitting a continuous pixel raster stream locked to an external clock line, DisplayPort breaks video and audio into <strong>micro-packets</strong> with embedded clock signals, identical to how PCI Express and Ethernet operate:
+  <ul>
+  <li><strong>Main Link:</strong> Carries packetized video across 1, 2, or 4 physical lanes using 8b/10b (DP 1.0&ndash;1.4) or 128b/132b (DP 2.0/2.1 UHBR) encoding.</li>
+  <li><strong>AUX Channel:</strong> A dedicated, bidirectional half-duplex sideband channel used for link training, power management, hotplug detection, and reading EDID and DPCD (DisplayPort Configuration Data).</li>
+  <li><strong>Multi-Stream Transport (MST):</strong> Because data is packetized with stream headers, DisplayPort can multiplex multiple independent video streams over a single physical cable. A computer can connect to monitor 1, and monitor 1 can daisy-chain to monitor 2, driving two independent desktop workspaces from one graphics port.</li>
+  <li><strong>Display Stream Compression (DSC):</strong> A mathematically visually lossless compression algorithm that compresses video data by up to 3:1 in real time, allowing ultra-high resolutions (such as 4K at 240 Hz or 8K at 60 Hz) without exceeding cable bandwidth limits.</li>
+  </ul>
+</li>
+</ul>
+
+<h3>USB Type-C and Thunderbolt video transport</h3>
+
+<p>The reversible 24-pin USB Type-C connector can carry native computer video through two distinct mechanisms:</p>
+
+<ol>
+<li><strong>DisplayPort Alternate Mode (DP Alt Mode):</strong> The USB-C controller uses electrical switches to repurpose the high-speed differential transmit/receive pins on the connector. It can allocate either 2 lanes (allowing simultaneous 4K video and 5 Gbps USB 3.0 data) or all 4 lanes (allowing full-bandwidth 8K DisplayPort video), while leaving the dedicated USB 2.0 pins and USB Power Delivery (USB-PD) charging pins active.</li>
+<li><strong>Thunderbolt and USB4 Tunneling:</strong> Rather than physically reassigning pins, Thunderbolt 3/4/5 and USB4 operate as packet-switched network tunnels. The host controller encapsulates DisplayPort packets, PCIe transactions, and USB data into unified transport frames transmitting across 40 Gbps to 80 Gbps physical links.</li>
+<li><strong>Software USB Adapters (DisplayLink):</strong> Cheaper USB-A video adapters do not transmit raw video signals. Instead, a CPU software driver compresses the desktop screen into JPEG-like tiles and sends them as generic USB bulk data packets to a display controller chip in the adapter. This introduces noticeable latency and high CPU overhead, and requires specialized proprietary kernel modules.</li>
+</ol>
+
+<h3>Passive versus Active adapters</h3>
+
+<p>When connecting mismatched video ports (such as a DisplayPort computer to an HDMI monitor), choosing between passive and active adapters is critical:</p>
+
+<ul>
+<li><strong>Passive Adapters (Dual-Mode DP / DP++):</strong> Graphics cards with DisplayPort ports marked with a <code>DP++</code> logo can detect an HDMI or DVI sink over the AUX channel. When detected, the graphics card switches its internal signaling from DisplayPort packets to DVI/HDMI TMDS signaling. The adapter cable is purely passive, containing only a simple electronic level shifter to adjust voltage levels (from 3.3V to 5.0V). Passive adapters are inexpensive, but cannot convert high-bandwidth HDMI 2.1 or convert HDMI sources to DisplayPort sinks.</li>
+<li><strong>Active Adapters:</strong> An active adapter contains a dedicated protocol conversion microprocessor. It receives native DisplayPort micro-packets, decodes them internally into video frames, and re-encodes them into a brand-new HDMI or VGA signal. Active adapters are required for converting DisplayPort to analog VGA, for connecting three or more monitors to certain graphics cards, and when adapting high-bandwidth resolutions.</li>
+</ul>
+
+<h3>Worked example: query connector modes and link properties</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat /sys/class/drm/card1-DP-1/enabled
+enabled
+
+$ head -n 4 /sys/class/drm/card1-DP-1/modes
+1920x1080
+1680x1050
+1280x1024
+1440x900
+</pre>
+
+<ol>
+<li><code>enabled</code> verifies that the kernel DRM display pipeline has assigned a hardware CRTC (timing controller) to this specific DisplayPort output.</li>
+<li><code>modes</code> lists the valid video display timings negotiated between the graphics driver and the monitor during link training.</li>
+</ol>
+
+<h3>Completion task</h3>
+
+<p>Fill in the blank in this command to query whether audio transmission is currently supported over your connected HDMI or DisplayPort interface:</p>
+
+<pre data-risk="read-only">
+cat /sys/class/drm/card1-HDMI-A-1/________ 2&gt;/dev/null || aplay -l | grep -i hdmi
+</pre>
+
+<details class="solution">
+<p>Fill in <code>audio</code> (or use <code>aplay -l | grep -i hdmi</code>):</p>
+<pre data-risk="read-only">
+aplay -l | grep -i hdmi
+</pre>
+<p>The output lists the ALSA sound cards mapped to the graphics card&apos;s digital display audio controller.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Calculate the uncompressed raw bandwidth required to transmit a 2560 &times; 1440 resolution display signal at 144 Hz with 24-bit color (8 bits per channel). Multiply width &times; height &times; refresh rate &times; 24 bits, and add approximately 20% for standard blanking intervals (CVT-RB). Compare your result with the bandwidth limits of HDMI 1.4 (10.2 Gbps) and DisplayPort 1.4 (32.4 Gbps).</p>
+
+<details class="solution">
+<p>2560 &times; 1440 &times; 144 &times; 24 bits &asymp; 12.74 Gbps. Adding 20% blanking overhead yields &asymp; 15.3 Gbps. This exceeds the 10.2 Gbps maximum of HDMI 1.4, explaining why 144 Hz at 1440p fails or drops to 60 Hz over older HDMI cables, but runs comfortably over DisplayPort 1.4 (which supports up to 25.92 Gbps data rate).</p>
+</details>
+
+<h3>Choosing: Video interface standards compared</h3>
+
+<table>
+<tr><th>Interface Standard</th><th>Maximum Bandwidth</th><th>Max Resolution / Refresh</th><th>Audio Support</th><th>Multi-Monitor Daisy Chaining</th><th>Best Workstation Role</th></tr>
+<tr><td>VGA (Analog DE-15)</td><td>Analog (~205 MHz pixel clock)</td><td>2048 &times; 1536 @ 60 Hz</td><td>No (video only)</td><td>No</td><td>Legacy projectors, vintage workstations</td></tr>
+<tr><td>DVI-D (Dual-Link)</td><td>9.9 Gbps (TMDS)</td><td>2560 &times; 1600 @ 60 Hz</td><td>Optional / non-standard</td><td>No</td><td>Older digital monitors (2000s&ndash;2010s)</td></tr>
+<tr><td>HDMI 2.0</td><td>18.0 Gbps (TMDS)</td><td>4K (3840 &times; 2160) @ 60 Hz</td><td>Yes (8-channel LPCM, ARC)</td><td>No</td><td>Desktop monitors, televisions, home media</td></tr>
+<tr><td>HDMI 2.1</td><td>48.0 Gbps (FRL)</td><td>4K @ 120 Hz, 8K @ 60 Hz</td><td>Yes (eARC, Dolby Atmos)</td><td>No</td><td>High-end gaming monitors, 4K 120Hz TVs</td></tr>
+<tr><td>DisplayPort 1.4</td><td>32.4 Gbps (HBR3)</td><td>4K @ 144 Hz, 8K @ 60 Hz (DSC)</td><td>Yes (Multi-channel audio)</td><td>Yes (MST)</td><td>High-performance desktop monitors, multi-display setups</td></tr>
+<tr><td>DisplayPort 2.1</td><td>80.0 Gbps (UHBR20)</td><td>Dual 4K @ 240 Hz, 8K @ 120 Hz</td><td>Yes</td><td>Yes (MST)</td><td>Professional next-generation high-DPI displays</td></tr>
+<tr><td>USB-C (DP Alt Mode)</td><td>Up to DP 2.1 speeds</td><td>Matches underlying DP profile</td><td>Yes</td><td>Yes (via DP MST hubs)</td><td>Laptops, portable monitors, single-cable docks</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Monitor flickers black intermittently under load</td><td>Cable bandwidth degradation; marginal signal integrity over long/cheap cable</td><td>Inspect kernel logs with <code>dmesg | grep -i drm</code> for link training failures</td><td>Replace cable with a VESA-certified DisplayPort or Ultra High Speed HDMI cable; reduce cable length</td></tr>
+<tr><td>Display options cap at 30 Hz or 60 Hz instead of 144 Hz</td><td>Cable or port version mismatch (e.g. plugged into HDMI 1.4 port instead of DisplayPort)</td><td>Check active mode with <code>wlr-randr</code> or <code>cat /sys/class/drm/card*-*/modes</code></td><td>Switch connection to DisplayPort 1.4 or HDMI 2.0/2.1 port using a certified high-speed cable</td></tr>
+<tr><td>Small colored text appears blurry or has colored fringing</td><td>Graphics card negotiated 4:2:0 or 4:2:2 chroma subsampling to fit cable bandwidth</td><td>Inspect monitor color format in settings (YUV vs RGB)</td><td>Switch pixel format to full RGB 4:4:4 in compositor output settings or reduce refresh rate</td></tr>
+<tr><td>Multi-stream (MST) daisy-chain shows duplicated screens instead of extended desktop</td><td>System running in SST (Single-Stream) clone mode or using macOS (which lacks MST support)</td><td>Check <code>cat /sys/class/drm/card*-*/status</code> on Linux</td><td>Verify MST is enabled in monitor on-screen menu; configure separate workspaces per output in compositor</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> multi-monitor stability is treated with great care. The Tamlinux desktop uses standard Wayland protocols (<code>wl_output</code> and <code>wlr-output-management</code>) to handle hotplugging dynamically, ensuring windows preserve their assigned workspaces when external cables are disconnected and reconnected.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What is DisplayPort Multi-Stream Transport (MST)?</summary>
+<p>MST is a feature of DisplayPort that allows a computer to drive multiple independent monitor displays over a single physical cable, either by daisy-chaining monitors together or plugging into an MST hub.</p>
+</details>
+<details class="q">
+<summary>Why is an active adapter required when converting DisplayPort to analog VGA?</summary>
+<p>DisplayPort transmits pure digital micro-packets, whereas VGA requires analog electrical voltages (0.0V to 0.7V). A passive cable cannot convert digital bits to analog voltages; an active adapter containing an internal Digital-to-Analog Converter (DAC) chip is physically required.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><cite data-ref="vesa-displayport"><a href="learn/bibliography/vesa-displayport.html">VESA DisplayPort Standard</a></cite> &mdash; technical specification covering Main Link lanes, AUX channel, and USB-C Alt Mode.</li>
+<li><cite data-ref="hdmi-spec"><a href="learn/bibliography/hdmi-spec.html">HDMI Specification</a></cite> &mdash; covers TMDS signaling, FRL packet transport, and consumer audio protocols.</li>
+<li><cite data-ref="drm-kms"><a href="learn/bibliography/drm-kms.html">Linux DRM/KMS Documentation</a></cite> &mdash; covers Linux connector hotplug detection and modesetting ioctls.</li>
+</ul>
+
+<p><strong>Next step:</strong> at Expert, dissect the DisplayPort AUX channel, examine raw EDID decoding with edid-decode, and inspect DRM connector sysfs internals.</p>
+</section>
+
+<section data-level="expert">
+<h2>DRM connector topology, EDID parsing, and the DisplayPort AUX channel</h2>
+
+<h3>Reference: Linux DRM connector types in kernel source (`include/uapi/drm/drm_mode.h`)</h3>
+
+<table>
+<tr><th>Connector Type ID</th><th>Kernel Constant</th><th>Physical Connector Standard</th><th>Signaling Interface</th></tr>
+<tr><td>0</td><td><code>DRM_MODE_CONNECTOR_Unknown</code></td><td>Unidentified port</td><td>Fallback</td></tr>
+<tr><td>1</td><td><code>DRM_MODE_CONNECTOR_VGA</code></td><td>15-pin DE-15</td><td>Analog RGB + H/V Sync</td></tr>
+<tr><td>2</td><td><code>DRM_MODE_CONNECTOR_DVII</code></td><td>DVI-Integrated</td><td>Digital TMDS + Analog RGB</td></tr>
+<tr><td>3</td><td><code>DRM_MODE_CONNECTOR_DVID</code></td><td>DVI-Digital</td><td>Digital TMDS only</td></tr>
+<tr><td>10</td><td><code>DRM_MODE_CONNECTOR_DisplayPort</code></td><td>DisplayPort (Standard &amp; Mini)</td><td>Packetized Main Link + AUX</td></tr>
+<tr><td>11</td><td><code>DRM_MODE_CONNECTOR_HDMIA</code></td><td>HDMI Type-A (Standard)</td><td>Digital TMDS / FRL + DDC</td></tr>
+<tr><td>14</td><td><code>DRM_MODE_CONNECTOR_eDP</code></td><td>Embedded DisplayPort</td><td>Internal laptop panel ribbon</td></tr>
+<tr><td>16</td><td><code>DRM_MODE_CONNECTOR_USB</code></td><td>USB Type-C Alt Mode / DisplayLink</td><td>Multiplexed serial transport</td></tr>
+</table>
+
+<h3>How it works: The DisplayPort link training and AUX transaction handshake</h3>
+
+<p>When you plug a DisplayPort cable into a computer, the connection establishes itself through an automated, low-level hardware handshake before any video is transmitted:</p>
+
+<ol>
+<li><strong>Hot-Plug Detection (HPD):</strong> The monitor pulls the HPD pin high (3.3V). This triggers an electrical interrupt on the GPU, causing the Linux kernel DRM driver to initiate discovery.</li>
+<li><strong>AUX Channel Handshake:</strong> The GPU issues bidirectional half-duplex transactions across the 1 Mbps Manchester-encoded AUX channel to read the monitor&apos;s <strong>DPCD</strong> (DisplayPort Configuration Data) at address <code>0x00000</code>. The GPU reads:
+  <ul>
+  <li>Maximum supported link rate (RBR: 1.62 Gbps, HBR: 2.7 Gbps, HBR2: 5.4 Gbps, HBR3: 8.1 Gbps, or UHBR: up to 20 Gbps per lane).</li>
+  <li>Supported lane count (1, 2, or 4 lanes).</li>
+  <li>Downstream port capabilities and Display Stream Compression (DSC) support.</li>
+  </ul>
+</li>
+<li><strong>EDID Reading:</strong> Over the same AUX channel (via I2C-over-AUX), the GPU queries the monitor&apos;s 128-byte basic <dfn><a href="learn/glossary/edid.html">EDID</a></dfn> block and any CTA-861 extension blocks, learning panel manufacturer, native resolution, and chromaticity coordinates.</li>
+<li><strong>Link Training:</strong> The GPU and monitor execute a closed-loop feedback training sequence across the Main Link lanes:
+  <ul>
+  <li><strong>Clock Recovery:</strong> The GPU transmits training pattern 1 (TPS1). The monitor adjusts its Phase-Locked Loop (PLL) receivers and signals lock over the AUX channel.</li>
+  <li><strong>Channel Equalization:</strong> The GPU transmits training pattern 2/3/4 (TPS2/3/4) to adjust pre-emphasis and voltage swing levels, compensating for high-frequency attenuation caused by the physical cable copper.</li>
+  </ul>
+</li>
+<li><strong>Stream Transmission:</strong> Once equalized, link training finishes and the GPU begins transmitting micro-packetized video and audio data.</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux relies on standard Linux Direct Rendering Manager sysfs interfaces to discover, query, and monitor display hardware. Because all connector states, EDID blocks, and link modes are exposed as transparent kernel file interfaces under <code>/sys/class/drm/</code>, system diagnosis requires no proprietary vendor tools or heavy background daemons.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ol>
+<li><strong>Cable Signal Degradation and Link Fallback:</strong> If a DisplayPort cable has poor shielding or excessive length, high-frequency signal noise corrupts link training. Modern DisplayPort drivers gracefully fall back to lower link rates (e.g., dropping from HBR3 to HBR2, or reducing 4 lanes to 2 lanes). The monitor continues working, but maximum resolution or refresh rate is reduced.</li>
+<li><strong>Corrupted or Missing EDID:</strong> Defective cables with broken DDC/AUX wiring fail to return an EDID block. The Linux kernel logs <code>[drm] EDID checksum invalid</code> and defaults to a safe fallback resolution (1024 &times; 768). Users can force valid timings using kernel command-line arguments (such as <code>drm.edid_firmware</code>) to load a custom binary EDID from <code>/lib/firmware/edid/</code>.</li>
+</ol>
+
+<h3>Explore: decode monitor EDID with edid-decode</h3>
+
+<pre class="session" data-risk="read-only">
+$ if command -v edid-decode &gt;/dev/null; then
+    edid-decode &lt; /sys/class/drm/card1-HDMI-A-1/edid | grep -E "Manufacturer:|Model:|Detailed Timing"
+  else
+    hexdump -C /sys/class/drm/card1-HDMI-A-1/edid | head -n 4
+  fi
+00000000  00 ff ff ff ff ff ff 00  34 a9 b8 a0 01 01 01 01  |........4.......|
+00000010  1a 1f 01 03 80 34 20 78  ea 7b 35 a6 55 51 9e 26  |.....4 x.{5.UQ.&amp;|
+00000020  0f 50 54 a5 4b 00 71 4f  81 00 81 c0 81 80 a9 c0  |.PT.K.qO........|
+00000030  b3 00 d1 c0 01 01 02 3a  80 18 71 38 2d 40 58 2c  |.......:..q8-@X,|
+</pre>
+
+<p>The raw binary EDID block contains the exact pixel clock, horizontal blanking, vertical sync pulses, and manufacturer ID programmed into the display hardware at the factory.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does DisplayPort use an AUX channel rather than a simple I2C clock and data wire like VGA and HDMI?</summary>
+<p>Legacy VGA and HDMI use an I2C bus operating at a slow 100 kHz clock, capable only of reading static EDID blocks. DisplayPort&apos;s AUX channel is an active high-speed (1 Mbps to 720 Mbps) bidirectional link that performs real-time link training, manages dynamic DPCD power states, reports audio formats, and controls sideband devices.</p>
+</details>
+<details class="q open">
+<summary>How does Display Stream Compression (DSC) allow 4K video at 240 Hz across a cable that physically lacks the raw bandwidth for it?</summary>
+<p>DSC is a mathematically low-latency, visually lossless compression algorithm embedded in the GPU display engine and monitor timing controller. It compresses pixel data line-by-line by up to a 3:1 ratio before sending it across the physical DisplayPort cable. The monitor uncompresses the line in hardware in real time with less than a microsecond of latency, allowing higher resolutions and refresh rates over existing physical wiring.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><cite data-ref="vesa-displayport"><a href="learn/bibliography/vesa-displayport.html">VESA DisplayPort Standard</a></cite> &mdash; Video Electronics Standards Association. Main Link, AUX channel, DPCD, and link training protocols.</li>
+<li><cite data-ref="hdmi-spec"><a href="learn/bibliography/hdmi-spec.html">HDMI Specification</a></cite> &mdash; HDMI Licensing Administrator. TMDS, Fixed Rate Link (FRL), and electrical physical layers.</li>
+<li><cite data-ref="drm-kms"><a href="learn/bibliography/drm-kms.html">Linux DRM/KMS Documentation</a></cite> &mdash; Kernel display connector structures, EDID helpers, and hotplug event handling.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Inspect the display connector states on your system. Run <code>for p in /sys/class/drm/card*-*/status; do echo "$p: $(cat "$p")"; done</code>. Try testing an external monitor connection to observe how the kernel automatically creates and updates connector device entries in sysfs upon cable insertion.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/computer-graphics.html">Computer graphics and the rendering pipeline</a> &mdash; learn how the images transmitted across these cables are rendered in memory.</li>
+<li><a href="ecosystem/gpu-architecture.html">Graphics processing units and CPU-GPU architecture</a> &mdash; explore the GPU silicon that drives these display connectors.</li>
+<li><a href="ecosystem/display-history.html">Computer displays and the history of visual output</a> &mdash; trace the physical evolution of screens from vacuum tubes to touchscreens.</li>
+<li><a href="desktop/workspaces.html">Organizing windows and screens</a> &mdash; learn how to manage workspaces across multi-monitor setups.</li>
+</ul>
+
+</body>
+</html>
