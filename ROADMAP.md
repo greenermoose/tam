@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-01
 **Owner:** Fred
 **Current Command Version:** `0.48.0`.
-**Current Corpus Version:** `0.54.0`.
+**Current Corpus Version:** `0.55.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.0 / 0.54.0 | Newest source; line b difficulty level display and highlighting (Showing 0-3 with cyan, green, yellow, magenta highlights), pager page scrolling (Space/PgDn, Shift-Space/PgUp/b) with screen overlap and attention row placement, HTML help page help/index.html with back-on-help navigation, pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, terminfo/ncurses ecosystem pages, peer project and community ecosystem pages, a networking chapter covering connection status, link/address/name diagnosis, and DNS, a Nix and Home Manager deep-dive page, and typography/fonts and color/themes ecosystem deep-dive pages. Development installation is a separate developer-directed step. |
+| `develop` | 0.48.0 / 0.55.0 | Newest source; line b difficulty level display and highlighting (Showing 0-3 with cyan, green, yellow, magenta highlights), pager page scrolling (Space/PgDn, Shift-Space/PgUp/b) with screen overlap and attention row placement, HTML help page help/index.html with back-on-help navigation, pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, terminfo/ncurses ecosystem pages, peer project and community ecosystem pages, a networking chapter covering connection status, link/address/name diagnosis, and DNS, a Nix and Home Manager deep-dive page, typography/fonts and color/themes ecosystem deep-dive pages, and foundational guides for computer architecture, digital logic, the microarchitectural instruction cycle, and assembly language programming. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -214,6 +214,7 @@ in that candidate, not here.
 | **0.46.0 command** | HTML help page and back-on-help navigation | Done (2026-10-30) | Replaces pager_draw.c help overlay with regular HTML page help/index.html; help keys (h, ?) load help and return to invoking page; regular navigation and display. |
 | **0.47.0 command** | Pager page scrolling and screen overlap | Done (2026-10-31) | Space and PgDn scroll down so the last line showing becomes the first line (or show the last full page); Shift-Space, PgUp, and b scroll up so the first line showing becomes the last line (or show the first full page); attention row lands on the first visible line or moves to bottom/top at document boundaries. |
 | **0.48.0 command** | Line b difficulty level display and highlighting | Done (2026-10-31) | Displays 'Showing 0: all text', 'Showing 1: beginner level text', 'Showing 2: intermediate level text', and 'Showing 3: expert level text' on line b depending on selected difficulty level; highlights level tokens in cyan, green, yellow, and magenta with bold monochrome fallback; preserves related links on line c. |
+| **0.55.0 corpus** | Computer architecture, digital logic, instruction cycle, and assembly | Done (2026-11-01) | Adds comprehensive ecosystem deep-dives for computer architecture (Von Neumann model, memory hierarchy, ISAs), digital logic (CMOS, logic gates, ALUs, sequential flip-flops), the microarchitectural instruction cycle (fetch/decode/execute/MEM/WB pipeline, out-of-order execution, bit flow from storage to registers), and assembly language programming (x86-64/ARM64 registers, standalone syscall assembly, System V AMD64 ABI, objdump disassembly). |
 
 ## 4. Deferred direction, without reserved versions
 
