@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-10-31 | Nix and Home Manager deep-dive page; corpus 0.53.0 | opencode 1.19.4; `big-pickle` | [Session record](docs/ai/2026-10-31-tam-nix-home-manager.md) |
 | 2026-10-31 | Networking chapter covering connection status, link/address/name diagnosis, and DNS; corpus 0.52.0 | opencode 1.19.4; `big-pickle` | [Session record](docs/ai/2026-10-31-tam-network-chapter.md) |
 | 2026-10-31 | Line b difficulty level display and highlighting; command 0.48.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-10-31-tam-line-b-difficulty-levels.md) |
 | 2026-10-31 | Peer project and community ecosystem pages; corpus 0.51.0 | opencode 1.19.4; `big-pickle` | [Session record](docs/ai/2026-10-31-tam-peer-projects-and-developers.md) |
