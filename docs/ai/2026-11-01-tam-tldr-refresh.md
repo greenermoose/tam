@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor `3.27.22` (from `cursor --version`)
 - **Model:** Composer (`composer`). This session identified itself as Auto, powered by Composer; no finer model id was logged by the CLI.
 - **Transcript:** Retained privately by the author.
-- **Commits:** (filled after commit)
+- **Commits:** `159c608`
 - **Authorship:** Fred directed a refresh of the curated offline `tldr` pages, a check for new pages to add, fixes for two pre-existing `make check-repo` failures, verification, and the commit. Cursor curated and copied upstream pages, bumped the corpus, updated the roadmap, fixed the plan docs, and wrote this record.
 - **Checked against:** `docs/agent-runbooks/refreshing-tldr-pages.md`, `knowledge/tldr/SOURCE.json`, upstream clone `tldr-pages/tldr` at `ba104601`, installed tools on the writing host, Tamlinux guide HTML references, `tamlinux/docs/plans/FILING-CARD.md`
 
