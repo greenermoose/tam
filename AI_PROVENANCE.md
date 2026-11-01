@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-01 | Computer architecture, digital logic, instruction cycle, and assembly; corpus 0.55.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-computer-architecture-and-assembly.md) |
 | 2026-11-01 | Default make install PREFIX to user development prefix under Nix | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-makefile-nix-prefix.md) |
 | 2026-11-01 | Typography/fonts and color/themes ecosystem deep-dive pages; corpus 0.54.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-themes-and-fonts.md) |
 | 2026-10-31 | Nix and Home Manager deep-dive page; corpus 0.53.0 | opencode 1.19.4; `big-pickle` | [Session record](docs/ai/2026-10-31-tam-nix-home-manager.md) |
