@@ -16,7 +16,18 @@
 
 CC       ?= cc
 CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
-PREFIX   ?= /usr/local
+
+# When Nix is detected (e.g. Tamlinux with Home Manager, where ~/.local/bin is
+# store-linked and /usr/local is retired), default development installs to the
+# user development prefix $(HOME)/.local/dev rather than root-owned /usr/local.
+ifndef PREFIX
+  ifneq ($(or $(NIX_PROFILES),$(wildcard $(HOME)/.nix-profile)),)
+    PREFIX := $(HOME)/.local/dev
+  else
+    PREFIX := /usr/local
+  endif
+endif
+
 BINDIR   ?= $(PREFIX)/bin
 DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
 MANDIR   ?= $(PREFIX)/share/man

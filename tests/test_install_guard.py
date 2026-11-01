@@ -83,6 +83,35 @@ class InstallGuardTest(unittest.TestCase):
         shutil.copytree(self.root, plain, ignore=shutil.ignore_patterns(".git"))
         self.assertEqual(self.guard(root=plain).returncode, 0)
 
+    def test_default_prefix_with_nix(self):
+        home = str(Path(self.tmp.name) / "home")
+        res = subprocess.run(
+            ["make", "--no-print-directory", "-C", str(self.root),
+             "-f", "Makefile", "-f", "-", "print-prefix"],
+            input="print-prefix: ; @echo $(PREFIX)\n",
+            capture_output=True, text=True, check=True,
+            env={"HOME": home, "NIX_PROFILES": "/nix/var/nix/profiles/default"})
+        self.assertEqual(res.stdout.strip(), f"{home}/.local/dev")
+
+    def test_default_prefix_without_nix(self):
+        home = str(Path(self.tmp.name) / "home")
+        res = subprocess.run(
+            ["make", "--no-print-directory", "-C", str(self.root),
+             "-f", "Makefile", "-f", "-", "print-prefix"],
+            input="print-prefix: ; @echo $(PREFIX)\n",
+            capture_output=True, text=True, check=True,
+            env={"HOME": home, "PATH": "/bin:/usr/bin"})
+        self.assertEqual(res.stdout.strip(), "/usr/local")
+
+    def test_explicit_prefix_override(self):
+        res = subprocess.run(
+            ["make", "--no-print-directory", "-C", str(self.root),
+             "PREFIX=/custom/opt",
+             "-f", "Makefile", "-f", "-", "print-prefix"],
+            input="print-prefix: ; @echo $(PREFIX)\n",
+            capture_output=True, text=True, check=True)
+        self.assertEqual(res.stdout.strip(), "/custom/opt")
+
 
 if __name__ == "__main__":
     unittest.main()
