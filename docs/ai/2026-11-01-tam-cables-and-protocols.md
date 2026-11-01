@@ -6,7 +6,7 @@
 - **CLI Tool:** agy 1.4.12
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `a235f36` (core chapters, glossary, path, hubs, and scaffolding), pending index refresh
+- **Commits:** `a235f36` (core chapters, glossary, path, hubs, and scaffolding), `ef307d5` (index and provenance refresh)
 - **Authorship:** Fred Horch directed the architecture and requested a comprehensive curriculum enabling someone with zero prior computer knowledge to walk away an expert on computer cables, physical signaling, and communication protocols. Fred expanded the curriculum to cover power distribution cables, voltage loops, semiconductors and transistor gates, optical fiber and electro-optical conversion, and wireless radio waves (antennas, Wi-Fi, and cellular). Antigravity authored the six core ecosystem chapters, nineteen supporting glossary definitions, the guided goal path with self-quizzes and capstone troubleshooting scenario, hub links, roadmap entries, and index rebuilds.
 - **Checked against:** Linux kernel TTY subsystem (`/proc/tty/driver/serial`, `/sys/class/tty/`), `termios(3)`, `stty(1)`, `dmesg`, `lspci`, `ethtool -m`, IEEE 802.3 Ethernet standards, EIA/TIA-232-F, EIA/TIA-485-A, Richard Hamming's *Error Detecting and Error Correcting Codes*, Claude Shannon's *A Mathematical Theory of Communication*, Horowitz & Hill's *The Art of Electronics* (3rd ed.).
 
