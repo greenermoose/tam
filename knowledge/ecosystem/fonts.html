@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Typography, fonts and text rendering</title>
+<meta name="topic" content="fonts">
+<meta name="summary" content="The history of digital typography, display technologies, font formats, Fontconfig, and text rasterization across Unix, Arch, Void, and Tamlinux">
+<meta name="keywords" content="fonts, typography, freetype, harfbuzz, fontconfig, pango, truetype, opentype, bitmap, virtual console, setfont, arch, void, tamlinux, atkinson, nerd fonts">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="ttys-and-vts, terminfo-and-termcap">
+<meta name="kind" content="explanation">
+<meta name="skills" content="customizing.beginner, customizing.intermediate, customizing.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Typography, fonts and text rendering</p>
+</nav>
+
+<h1>Typography, fonts and text rendering</h1>
+<p>This page explains how text is turned into visible letters on screens, from Linux virtual consoles to graphical desktops.</p>
+<p>On Unix-like operating systems, typography is not handled by a single monolithic engine. A small text console uses fixed bitmap grids built into kernel memory, while a graphical desktop coordinates multiple libraries to discover font files, shape complex scripts, and draw sharp vector curves on pixel displays. Knowing how this pipeline works allows you to customize your reading environment, troubleshoot missing characters, and write lean desktop software.</p>
+
+<section data-level="beginner">
+<h2>From character codes to screen shapes</h2>
+
+<p><strong>Goal:</strong> you will be able to inspect which font family supplies monospace text in your terminal, locate font files on your system, and test console font changes using read-only commands.</p>
+
+<p><strong>Why it matters:</strong> computers store text as numeric character codes, such as Unicode codepoint U+0041 for the capital letter &ldquo;A&rdquo;. A screen, however, is a grid of physical pixels. A font is the bridge between those codes and visible shapes. When a font is missing, misconfigured, or lacks the right glyphs, text becomes unreadable or displays as empty boxes.</p>
+
+<p><strong>Before you start:</strong> open a terminal window. The commands in this section only read information from your font subsystem.</p>
+
+<aside class="first-time">
+<p>The <code>$</code> at the start of a command line represents your shell prompt. Do not type the <code>$</code>. If a command prints nothing, that usually means no matches were found or the query was completed without error.</p>
+</aside>
+
+<h3>Worked example: query the active monospace font</h3>
+
+<pre class="session" data-risk="read-only">
+$ fc-match monospace
+AtkinsonHyperlegibleMono-Regular.ttf: "Atkinson Hyperlegible Mono" "Regular"
+
+$ fc-list : family | grep -i "atkinson" | head -n 3
+Atkinson Hyperlegible
+Atkinson Hyperlegible Mono
+AtkinsonHyperlegibleMono Nerd Font
+</pre>
+
+<p>Captured on a Tamlinux workstation. Your installed versions and font paths may differ.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>fc-match monospace</code> asks the system font matching library, <dfn><a href="learn/glossary/program.html">Fontconfig</a></dfn>, which font file will be chosen when an application asks for a generic &ldquo;monospace&rdquo; font. It prints the filename, the family name, and the style variant.</li>
+<li><code>fc-list : family</code> lists all font families indexed on your machine. Filtering with <code>grep</code> confirms that the Atkinson family is installed and ready for desktop applications.</li>
+</ol>
+
+<p>A <dfn><a href="learn/glossary/package.html">glyph</a></dfn> is the particular visual representation of a character. A font file contains a collection of glyphs along with lookup tables that map character codes to those shapes. In a <em>proportional</em> font, each letter takes up only as much width as it needs (such as a wide &ldquo;W&rdquo; and a narrow &ldquo;I&rdquo;). In a <em>monospace</em> font, every character occupies an identical cell width, which is essential for command-line alignment, code indentation, and terminal applications.</p>
+
+<p>On Tamlinux, the default interface typeface is <strong>Atkinson Hyperlegible</strong>, designed by the Braille Institute to maximize character distinction for low-vision readers. For terminal and code editors, Tamlinux packages <strong>Atkinson Hyperlegible Mono</strong>, enhanced with icon glyphs from Nerd Fonts.</p>
+
+<h3>Try it</h3>
+
+<p>Run these read-only commands to see where font files are stored on disk and check your terminal font family:</p>
+
+<pre data-risk="read-only">
+fc-match -f "%{file}: %{family} (%{style})\n" monospace
+tam-font-current
+</pre>
+
+<p>The first command outputs the absolute file path on disk where the active monospace font is stored. The second command uses Tamlinux&apos;s own query tool, <code>tam-font-current</code>, to report the currently configured terminal font family.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>fc-match: command not found</dt>
+<dd>The Fontconfig utility package is not installed or not on your <code>PATH</code>. On Arch Linux, install it with <code>pacman -S fontconfig</code>; on Void Linux, install it with <code>xbps-install -S fontconfig</code>.</dd>
+<dt>Question marks or empty boxes instead of text</dt>
+<dd>The selected font file lacks glyphs for those Unicode characters. A fallback font must be configured in Fontconfig, or a font with broader coverage (such as Noto Fonts) must be installed.</dd>
+<dt>Terminal text looks squished or misaligned</dt>
+<dd>The terminal emulator is using a proportional font instead of a fixed-pitch monospace font. Terminal grids require strict character-cell widths.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What is the difference between a character and a glyph?</summary>
+<p>A character is an abstract unit of written language identified by a standard code (such as Unicode U+0041 for &ldquo;A&rdquo;). A glyph is the specific visual shape or curve used to draw that character on a display.</p>
+</details>
+<details class="q">
+<summary>Why must terminal emulators use monospace fonts instead of proportional fonts?</summary>
+<p>Terminal applications organize text in a strict two-dimensional grid of rows and columns. Monospace fonts ensure that every character occupies the exact same rectangular width, keeping columns and table borders properly aligned.</p>
+</details>
+<details class="q">
+<summary>Does Linux have a single, central font server for all programs?</summary>
+<p>No. Early Unix X11 systems used a network font server, but modern desktop environments use client-side font discovery (Fontconfig) and client-side rasterization (FreeType), meaning each application or UI toolkit renders its own text.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Glyph</dt>
+<dd>The physical shape or drawing of a letter, number, punctuation mark, or symbol.</dd>
+<dt>Monospace</dt>
+<dd>A font whose characters all have identical horizontal width.</dd>
+<dt>Proportional</dt>
+<dd>A font whose character widths vary according to their natural typographic design.</dd>
+<dt>Rasterization</dt>
+<dd>The process of converting vector curves and mathematical outlines into a grid of colored pixels.</dd>
+<dt>Fontconfig</dt>
+<dd>The standard Unix library for discovering, customizing, and matching font files across applications.</dd>
+</dl>
+
+<p><strong>Next step:</strong> at Intermediate, explore the historical evolution of computer typography and understand how FreeType, HarfBuzz, and Fontconfig cooperate to render text.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>The rendering pipeline: from outlines to pixels</h2>
+
+<p><strong>Goal:</strong> you will be able to explain the history of human-computer typography, configure Fontconfig XML rules, and compare font management between Arch Linux and Void Linux.</p>
+
+<h3>History of fonts in human-computer interfaces</h3>
+
+<p>Early computer displays did not render scalable typographic curves. In the 1960s and 1970s, cathode-ray tube (CRT) computer terminals, such as the DEC VT100 and IBM 3270, relied on dedicated hardware character generator ROMs. A character generator contained hardwired bitmap matrices&mdash;typically 8&times;8 or 9&times;14 pixels&mdash;that were read by electron beam sweep circuitry. These characters were strictly fixed-cell and could not scale or change styles beyond basic hardware video attributes (such as bold, reverse video, or blinking).</p>
+
+<p>The personal computer typography revolution began in 1973 with the Xerox Alto and its Bravo text editor, designed by Charles Simonyi and Butler Lampson. The Alto featured a bitmapped graphic display where every pixel was stored in memory, allowing proportional typographic fonts designed by computer scientists and typographers. In 1984, Adobe introduced PostScript, a Turing-complete page description language that described letterforms using cubic Bézier curves (Type 1 fonts). Paired with the Apple LaserWriter in 1985, PostScript established scalable digital typography and sparked desktop publishing.</p>
+
+<p>To avoid Adobe&apos;s proprietary PostScript licensing fees, Apple and Microsoft developed the <strong>TrueType</strong> format in 1989&ndash;1991. TrueType used quadratic Bézier curves and introduced a sophisticated built-in virtual machine for <em>hinting bytecode</em>. Hinting adjusted the vector outlines at small point sizes to snap stems and serifs onto physical pixel boundaries on low-resolution (72&ndash;96 DPI) CRT monitors. In 1996, Microsoft and Adobe unified the landscape by introducing <strong>OpenType</strong>, which wrapped both TrueType quadratic curves and PostScript cubic curves into a single container format with advanced typographic layout tables (<code>GSUB</code> for glyph substitution and <code>GPOS</code> for glyph positioning).</p>
+
+<p>In 2016, OpenType 1.8 introduced <strong>Variable Fonts</strong>, allowing a single font file to interpolate continuously along custom design axes (such as weight, width, and optical size) rather than requiring dozens of individual static font files.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+   Unicode Text String: "Hello World"
+               |
+               v
+   [Fontconfig]  ----&gt; Finds best matching font file (.ttf / .otf)
+               |
+               v
+   [HarfBuzz]    ----&gt; Text Shaping (maps character codes to glyph IDs,
+               |       resolves ligatures, and computes (x,y) advances)
+               v
+   [FreeType]    ----&gt; Rasterization (converts vector outlines into pixel
+               |       bitmaps with anti-aliasing and subpixel hinting)
+               v
+   [UI Toolkit / Window]  (Pango / Qt / Cairo composite pixels to screen)
+</pre>
+
+<p>Modern Linux desktop rendering is split into distinct modular layers:</p>
+
+<ul>
+<li><strong>Fontconfig:</strong> searches system directories (such as <code>/usr/share/fonts</code> and <code>~/.local/share/fonts</code>), parses XML configuration rules, and computes mathematical scores to match application font queries to real files on disk.</li>
+<li><strong>FreeType:</strong> loads font files, executes TrueType bytecode or CFF hinting, parses outline coordinates, and rasterizes vector curves into grayscale or subpixel anti-aliased pixel maps.</li>
+<li><strong>HarfBuzz:</strong> the universal text shaping engine. Simple Latin scripts require little shaping, but complex scripts (such as Arabic, Devanagari, or connected cursives) require contextual glyph substitution and positional anchoring. HarfBuzz turns a sequence of Unicode codepoints into positioned glyph indices.</li>
+<li><strong>Pango / Qt:</strong> high-level layout libraries that break paragraphs into lines, handle bidirectional text flow, call HarfBuzz for shaping, and invoke FreeType or Cairo to draw the glyphs onto surfaces.</li>
+</ul>
+
+<h3>Worked example: inspect font configuration rules</h3>
+
+<pre class="session" data-risk="read-only">
+$ cat ~/.config/fontconfig/conf.d/99-tamlinux-monospace.conf
+&lt;?xml version="1.0"?&gt;
+&lt;fontconfig&gt;
+  &lt;match target="pattern"&gt;
+    &lt;test name="family" qual="any"&gt;
+      &lt;string&gt;monospace&lt;/string&gt;
+    &lt;/test&gt;
+    &lt;edit name="family" mode="prepend_first" binding="strong"&gt;
+      &lt;string&gt;AtkinsonHyperlegibleMono Nerd Font&lt;/string&gt;
+    &lt;/edit&gt;
+  &lt;/match&gt;
+&lt;/fontconfig&gt;
+</pre>
+
+<p>This Fontconfig rule intercepts any application query testing for the generic family &ldquo;monospace&rdquo; and strongly prepends &ldquo;AtkinsonHyperlegibleMono Nerd Font&rdquo; as the primary choice.</p>
+
+<h3>Completion task</h3>
+
+<p>Fill in the blank in this Fontconfig snippet to declare a preference for <code>Atkinson Hyperlegible</code> when an application requests the generic <code>sans-serif</code> family:</p>
+
+<pre data-risk="read-only">
+&lt;match target="pattern"&gt;
+  &lt;test name="family" qual="any"&gt;
+    &lt;string&gt;sans-serif&lt;/string&gt;
+  &lt;/test&gt;
+  &lt;edit name="family" mode="prepend_first" binding="strong"&gt;
+    &lt;string&gt;____________________&lt;/string&gt;
+  &lt;/edit&gt;
+&lt;/match&gt;
+</pre>
+
+<details class="solution">
+<p>The filled string is <code>Atkinson Hyperlegible</code>:</p>
+<pre data-risk="read-only">
+&lt;edit name="family" mode="prepend_first" binding="strong"&gt;
+  &lt;string&gt;Atkinson Hyperlegible&lt;/string&gt;
+&lt;/edit&gt;
+</pre>
+<p>This ensures that browser windows, desktop menus, and UI dialogs requesting standard sans-serif text resolve to the Atkinson family.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Verify that your Fontconfig cache is up to date and inspect which file satisfies a request for the default sans-serif font without modifying any system files.</p>
+
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ fc-match sans-serif
+AtkinsonHyperlegible-Regular.ttf: "Atkinson Hyperlegible" "Regular"
+</pre>
+<p>The command resolves the generic pattern through active Fontconfig rules and prints the matching file and family.</p>
+</details>
+
+<h3>Choosing: Arch Linux versus Void Linux</h3>
+
+<table>
+<tr><th>Feature</th><th>Arch Linux</th><th>Void Linux</th></tr>
+<tr><td>Package Manager</td><td><code>pacman</code> (e.g. <code>pacman -S noto-fonts</code>)</td><td><code>xbps</code> (e.g. <code>xbps-install -S noto-fonts-ttf</code>)</td></tr>
+<tr><td>Fontconfig cache trigger</td><td>Pacman hook runs <code>fc-cache -s</code> automatically on package install</td><td>XBPS trigger runs <code>fc-cache -s</code> automatically on install</td></tr>
+<tr><td>Virtual Console Fonts</td><td>Configured in <code>/etc/vconsole.conf</code>; loaded by <code>systemd-vconsole-setup.service</code></td><td>Configured in <code>/etc/rc.conf</code>; loaded by runit core service <code>/etc/runit/core-services/03-consolefont.sh</code></td></tr>
+<tr><td>C Library Impact</td><td>GNU glibc provides full internationalization tables and wide character classifications</td><td>Offered in glibc or musl. <code>void-musl</code> uses minimal locale tables, requiring applications to rely on HarfBuzz for Unicode properties</td></tr>
+<tr><td>Font Directories</td><td><code>/usr/share/fonts/</code> and <code>~/.local/share/fonts/</code></td><td><code>/usr/share/fonts/</code> and <code>~/.local/share/fonts/</code></td></tr>
+</table>
+
+<p>Fred Horch, the Tamlinux developer, chose Arch Linux as the current development rootstock, with Void Linux planned as a leaner, non-systemd rootstock for future releases. Understanding the transition from systemd&apos;s <code>vconsole.conf</code> to Void&apos;s runit <code>rc.conf</code> ensures font configuration remains portable.</p>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely Cause</th><th>Check</th><th>Next Action</th></tr>
+<tr><td>Icons or powerline glyphs appear as empty boxes</td><td>Terminal font lacks Nerd Font or symbol patches</td><td><code>fc-list : family | grep -i nerd</code></td><td>Install a patched Nerd Font and set it via <code>tam-font-set</code></td></tr>
+<tr><td>Font installed in <code>~/.local/share/fonts</code> is not recognized</td><td>Fontconfig cache has not scanned the new directory</td><td>Run <code>fc-cache -v ~/.local/share/fonts</code></td><td>Rebuild cache and re-check with <code>fc-match</code></td></tr>
+<tr><td>Virtual console font is tiny on HiDPI display</td><td>Kernel default 8&times;16 font is too small for 4K display</td><td>Check current font with <code>showconsolefont</code></td><td>Set a 16&times;32 font (such as <code>ter-v32n</code>) in <code>vconsole.conf</code> or <code>rc.conf</code></td></tr>
+<tr><td>Anti-aliasing produces color fringes around text</td><td>Subpixel rendering order (RGB vs BGR) does not match the LCD panel</td><td>Inspect <code>/etc/fonts/conf.d/10-sub-pixel-rgb.conf</code></td><td>Configure grayscale anti-aliasing or select matching subpixel geometry in Fontconfig</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, Atkinson Hyperlegible serves as the system interface typeface, and Atkinson Hyperlegible Mono (enhanced with Nerd Font symbol glyphs) provides the terminal font. Font defaults are delivered declaratively through <code>~/.config/fontconfig/conf.d/99-tamlinux-monospace.conf</code> and selected via <code>tam-font-set</code>. Changing a font updates application preferences inside a transactional journal without modifying package files in <code>/usr</code>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why did TrueType introduce a virtual machine for hinting bytecode?</summary>
+<p>On low-resolution displays (72&ndash;96 DPI), smooth vector curves frequently cross pixel boundaries irregularly, causing blurry stems or distorted letterforms. The TrueType bytecode virtual machine allowed font designers to write tiny programs inside the font file to snap stems, round curve peaks, and ensure uniform line widths at small raster sizes.</p>
+</details>
+<details class="q">
+<summary>How does Void Linux load console fonts during boot without systemd?</summary>
+<p>Void Linux reads the <code>FONT</code> variable from <code>/etc/rc.conf</code> and executes <code>setfont</code> during early boot via the runit stage 1 core service script located at <code>/etc/runit/core-services/03-consolefont.sh</code>.</p>
+</details>
+<details class="q">
+<summary>What role does HarfBuzz play that FreeType cannot do alone?</summary>
+<p>FreeType only knows how to rasterize individual glyph curves into pixel bitmaps. HarfBuzz handles text shaping: it determines which glyphs to substitute (such as ligatures or contextual letterforms in Arabic) and calculates the exact two-dimensional offsets and advances required to position those glyphs next to each other.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="ecosystem/themes.html">Color systems, displays and desktop theming</a> &mdash; see how color palettes and display contrast cooperate with typography.</li>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> &mdash; learn how character matrices and escape sequences work in terminals.</li>
+<li><a href="ecosystem/distros.html">Rootstocks</a> &mdash; understand the packaging differences between Arch Linux and Void Linux.</li>
+</ul>
+
+<p><strong>Next step:</strong> at Expert, dissect Tamlinux&apos;s font engine implementation, study binary font table patching with Python, and evaluate future optimizations for minimal code size.</p>
+</section>
+
+<section data-level="expert">
+<h2>Tamlinux font architecture, table rewriting and leanness</h2>
+
+<p><strong>Goal:</strong> you will be able to dissect Tamlinux&apos;s font engine, manipulate OpenType binary tables, maintain transactional safety during font updates, and design leaner font subsystems for future microkernel and Void targets.</p>
+
+<h3>Dissecting the Tamlinux font engine</h3>
+
+<p>In Tamlinux, font management is coordinated by the theme engine implemented in Python under the Tamlinux product repository. The primary font management function, <code>font_set</code>, resides in the theme engine and is invoked through the command wrapper <code>tam-font-set</code>:</p>
+
+<pre class="session" data-risk="read-only">
+$ tam-font-set "AtkinsonHyperlegibleMono Nerd Font"
+</pre>
+
+<p>When this command runs, the engine executes the following verification and update transaction:</p>
+
+<ol>
+<li><strong>Validation:</strong> The requested family string is sanitized to forbid null bytes and control characters. The engine queries <code>fc-list -f '%{family}\n'</code> and confirms that the requested font is genuinely indexed by Fontconfig before making any changes.</li>
+<li><strong>Multi-Target Configuration:</strong> Terminal emulators and applications store font preferences in distinct, uncoordinated configuration files. The engine identifies and modifies:
+  <ul>
+    <li><code>~/.config/alacritty/alacritty.toml</code> (via regex: <code>family = "..."</code>)</li>
+    <li><code>~/.config/kitty/kitty.conf</code> (via regex: <code>font_family ...</code>)</li>
+    <li><code>~/.config/ghostty/config</code> (via regex: <code>font-family = "..."</code>)</li>
+    <li><code>~/.config/foot/foot.ini</code> (via regex: <code>font=...</code> with colon escaping)</li>
+    <li><code>~/.config/fontconfig/conf.d/99-tamlinux-monospace.conf</code> (generating a clean Fontconfig XML override rule)</li>
+    <li><code>~/.config/fontconfig/fonts.conf</code> (parsing the existing XML tree with <code>xml.etree.ElementTree</code>, preserving comments, and inserting an <code>include</code> node for <code>conf.d/99-tamlinux-monospace.conf</code>)</li>
+  </ul>
+</li>
+<li><strong>Transactional Journaling:</strong> Every target file is backed up into <code>~/.local/state/tamlinux/settings-recovery/font.&lt;id&gt;/</code> before editing. If any file write or XML parse fails, the entire transaction rolls back to the prior state.</li>
+<li><strong>Atomic File Replacement:</strong> Files are written to temporary unique paths on the same filesystem and atomically swapped using <code>os.replace</code>, preventing partially written configurations from being read by running processes.</li>
+<li><strong>Live Session Reload:</strong> The engine issues non-blocking reload commands to the desktop shell and running terminals (<code>tam-restart-terminal</code>, <code>tam-restart-shell</code>) and invokes the hook system via <code>tam-hook font-set &lt;family&gt;</code>.</li>
+</ol>
+
+<h3>Binary font table manipulation with rename-font.py</h3>
+
+<p>Tamlinux packages curated icons and typography. When rebranding and packaging font assets without upstream license violations or glyph distortion, Tamlinux uses a dedicated table patching script, <code>rename-font.py</code>, built on <code>fontTools.ttLib</code>:</p>
+
+<pre data-risk="read-only">
+from fontTools.ttLib import TTFont
+
+font = TTFont(source, recalcTimestamp=False)
+
+# OpenType 'name' table record IDs:
+# 1: Family name, 3: Unique font ID, 4: Full font name,
+# 6: PostScript name, 16: Typographic family, 21: WWS family
+identities = {
+    1: 'Tamlinux Icons',
+    3: 'Tamlinux Icons Regular 1.0',
+    4: 'Tamlinux Icons Regular',
+    6: 'TamlinuxIcons-Regular',
+    16: 'Tamlinux Icons',
+    21: 'Tamlinux Icons'
+}
+
+for record in font['name'].names:
+    if record.nameID in identities:
+        record.string = identities[record.nameID].encode(record.getEncoding())
+</pre>
+
+<p>The script also inspects the <code>post</code> table (format 2.0). It updates internal PostScript glyph name mappings while preserving outline data. Crucially, the script asserts that the compiled binary representation of critical glyph tables remains identical:</p>
+
+<pre data-risk="read-only">
+for table in ('cmap', 'glyf', 'hmtx'):
+    assert font[table].compile(font) == result[table].compile(result)
+</pre>
+
+<p>This guarantees that the character-to-glyph index mapping (<code>cmap</code>), the actual glyph vector curves (<code>glyf</code>), and horizontal metrics (<code>hmtx</code>) are completely untouched.</p>
+
+<h3>Future work for smaller code and higher efficiency</h3>
+
+<p>The current Tamlinux font engine is functional and resilient, but there are clear opportunities to make the code significantly smaller, faster, and more efficient as the system transitions toward Void Linux and microkernel architectures:</p>
+
+<ol>
+<li><strong>Consolidating Multi-Terminal Rewrites:</strong> Currently, the Python engine maintains distinct regular expression parsers for Alacritty, Kitty, Ghostty, and Foot. Standardizing on terminals that respect Fontconfig&apos;s system monospace alias (or generating a single included configuration file) would eliminate hundreds of lines of brittle regex string parsing.</li>
+<li><strong>Minimal C Fontconfig Manipulator:</strong> Replacing the Python <code>ElementTree</code> XML manipulation with a lean C tool linking directly to <code>libfontconfig</code> (or generating simple static XML files without tree parsing) would eliminate Python startup overhead and reduce memory consumption from ~30 megabytes to under 500 kilobytes.</li>
+<li><strong>Pruning Unused Font Tables:</strong> Packaged TrueType and OpenType fonts often contain legacy tables that are unnecessary for modern Wayland compositors:
+  <ul>
+    <li><code>hdmx</code> (horizontal device metrics, redundant when using subpixel rendering)</li>
+    <li><code>VDMX</code> (vertical device metrics)</li>
+    <li>Legacy TrueType bytecode hinting instructions in fonts rendered on high-DPI (200+ DPI) displays, where grayscale anti-aliasing renders sharp outlines without artificial grid-fitting distortion.</li>
+  </ul>
+  Pruning these tables with automated build-time scripts can reduce font package sizes by 15&ndash;30%.</li>
+<li><strong>Precomputed Glyph Metrics in UI Shells:</strong> In desktop panels and widgets (such as Quickshell), font measurement during startup causes disk I/O and FreeType face realization. Precomputing and embedding critical character advance tables for the Atkinson font family at compile time allows immediate layout computation with zero cold-start latency.</li>
+</ol>
+
+<h3>Explore</h3>
+
+<p>Inspect the OpenType tables of a font file installed on your system using read-only command-line tools:</p>
+
+<pre data-risk="read-only">
+fc-match -f "%{file}\n" monospace
+otfinfo -i "$(fc-match -f '%{file}' monospace)"
+</pre>
+
+<p>The <code>otfinfo</code> tool (from the <code>lcdf-typetools</code> package) extracts the OpenType <code>name</code> table entries, showing the family, PostScript name, version, and designer credits directly from the binary header.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does rename-font.py assert that compiled cmap, glyf, and hmtx tables are byte-for-byte identical?</summary>
+<p>To verify that changing the font&apos;s human-readable name metadata did not alter character codepoint mappings (<code>cmap</code>), vector outline geometry (<code>glyf</code>), or character spacing and advance widths (<code>hmtx</code>), ensuring typographic rendering fidelity is perfectly preserved.</p>
+</details>
+<details class="q open">
+<summary>What advantage does an atomic file exchange (os.replace) have over writing directly to a configuration file?</summary>
+<p>Writing directly to a file creates an intermediate state where the file is partially written or empty. If a reader process (like a terminal emulator or editor) reads the file during that window, it crashes or fails to parse. An atomic exchange swaps the directory entry instantaneously, so readers always see either the complete old file or the complete new file.</p>
+</details>
+<details class="q open">
+<summary>How can font subsystem code size be reduced when migrating from Arch Linux to Void Linux?</summary>
+<p>By removing systemd-specific service dependencies, replacing large Python XML parsing scripts with small C utilities or static include files, and standardizing desktop components to query Fontconfig rather than maintaining separate configuration parsers for individual terminal emulators.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">Fontconfig User Manual (online)</a> &mdash; font matching algorithms, pattern syntax, and XML configuration rules.</li>
+<li><a href="https://freetype.org/freetype2/docs/documentation.html">FreeType 2 Documentation (online)</a> &mdash; glyph rasterization, TrueType hinting, and outline vector formats.</li>
+<li><a href="https://harfbuzz.github.io/">HarfBuzz Manual (online)</a> &mdash; OpenType text shaping, cluster mapping, and Unicode text processing.</li>
+<li><a href="https://learn.microsoft.com/en-us/typography/opentype/spec/">OpenType Specification (Microsoft / Adobe, online)</a> &mdash; binary table structures including <code>name</code>, <code>post</code>, <code>cmap</code>, <code>glyf</code>, and <code>hmtx</code>.</li>
+<li><a href="https://www.brailleinstitute.org/freefont/">Braille Institute Atkinson Hyperlegible Design (online)</a> &mdash; design principles for character distinction and low-vision legibility.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>To experiment with leaner font management on Tamlinux, inspect <code>tamlinux/desktop/theme/engine.py</code> in a scratch checkout. Test replacing one terminal&apos;s custom regex parser with an include directive pointing to a Fontconfig-derived file, run the unit test suite with <code>pytest</code>, and measure the execution time reduction before submitting a change for review.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/themes.html">Color systems, displays and desktop theming</a> &mdash; learn how color palettes, displays, and visual themes work across Unix and Tamlinux.</li>
+<li><a href="ecosystem/ttys-and-virtual-consoles.html">TTYs and virtual consoles</a> &mdash; see how kernel virtual terminals display text grids before the graphical desktop starts.</li>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> &mdash; understand terminal escape sequences, character cells, and capabilities.</li>
+<li><a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a> &mdash; explore Quickshell, QML, and desktop UI components.</li>
+</ul>
+</body>
+</html>

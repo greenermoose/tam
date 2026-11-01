@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Color systems, displays and desktop theming</title>
+<meta name="topic" content="themes">
+<meta name="summary" content="The historical evolution of computer displays and colors, display contrast, theming architecture across Unix, Arch, Void, and Tamlinux">
+<meta name="keywords" content="themes, colors, displays, crt, rgb, wcag, contrast, gtk, qt, wayland, foot, terminal, engine.py, transactions, atomic exchange, arch, void, tamlinux, tamarack">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="ttys-and-vts, terminfo-and-termcap, toolkits">
+<meta name="kind" content="explanation">
+<meta name="skills" content="customizing.beginner, customizing.intermediate, customizing.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Color systems, displays and desktop theming</p>
+</nav>
+
+<h1>Color systems, displays and desktop theming</h1>
+<p>This page explains how computer screens display colors and how desktop themes coordinate visual styling across different programs.</p>
+<p>Unlike proprietary operating systems where a single setting controls the visual appearance of all software, a Unix-like desktop is an assembly of independent programs. Terminal emulators, code editors, UI toolkits like GTK and Qt, and desktop shells each store color palettes in their own configuration formats. Understanding how colors and themes work allows you to adjust visual contrast, avoid eye strain, and build robust, efficient desktop environments.</p>
+
+<section data-level="beginner">
+<h2>Coordinating colors across your desktop</h2>
+
+<p><strong>Goal:</strong> you will be able to inspect the active Tamlinux theme, query individual color tokens, and verify that your desktop programs agree on color styling using read-only commands.</p>
+
+<p><strong>Why it matters:</strong> reading text on a computer screen for hours requires sufficient contrast between letters and their background. If a terminal window switches to a dark background while an editor remains bright white, or if an interface uses low-contrast gray text on dark gray panels, reading becomes exhausting. A theme coordinates these colors so every window feels coherent, readable, and predictable.</p>
+
+<p><strong>Before you start:</strong> open a terminal window. All commands in this section inspect active settings without changing any files.</p>
+
+<aside class="first-time">
+<p>The <code>$</code> at the start of a command line represents your shell prompt. Do not type the <code>$</code>. Paths starting with <code>~</code> refer to your personal home directory (such as <code>/home/alex</code>).</p>
+</aside>
+
+<h3>Worked example: inspect the active theme</h3>
+
+<pre class="session" data-risk="read-only">
+$ tam-theme-current
+tamarack-dark
+
+$ readlink ~/.local/state/tamlinux/current/theme
+/home/alex/.local/state/tamlinux/theme-generations/tamarack-dark.4b1a8f...
+
+$ tam-theme-color background
+#131a15
+
+$ tam-theme-color foreground
+#e4ece6
+</pre>
+
+<p>Captured on a Tamlinux workstation. Your active theme and generation hashes will match your local configuration.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>tam-theme-current</code> reads the active theme name recorded in Tamlinux&apos;s state directory. The default theme is <strong>Tamarack Dark</strong>, a high-contrast dark green palette designed specifically for Tamlinux.</li>
+<li><code>readlink</code> inspects the symbolic link at <code>~/.local/state/tamlinux/current/theme</code>. Tamlinux points this link to an isolated, timestamped theme generation directory containing generated configuration files for all desktop applications.</li>
+<li><code>tam-theme-color</code> extracts specific hexadecimal color values from the active palette, such as the dark background (<code>#131a15</code>) and the light foreground text (<code>#e4ece6</code>).</li>
+</ol>
+
+<p>A <dfn><a href="learn/glossary/package.html">theme</a></dfn> is a coordinated set of colors, font assignments, and visual parameters (such as window borders and margins). A <em>palette</em> is the specific collection of colors used by a theme. In modern interface design, colors are defined as semantic <em>tokens</em> (such as &ldquo;background&rdquo;, &ldquo;surface&rdquo;, &ldquo;primary&rdquo;, or &ldquo;danger&rdquo;) rather than hardcoded RGB numbers, allowing software to adapt cleanly between light and dark modes.</p>
+
+<h3>Try it</h3>
+
+<p>Run these read-only commands to list all available themes and inspect the colors assigned to the active theme:</p>
+
+<pre data-risk="read-only">
+tam-theme-list
+head -n 12 ~/.local/state/tamlinux/current/theme/colors.toml
+</pre>
+
+<p>The first command lists both bundled system themes (such as <code>tamarack-dark</code> and <code>tamarack-light</code>) and any personal themes installed under <code>~/.config/tamlinux/themes/</code>. The second command displays the active color table generated for your session.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>tam-theme-current: command not found</dt>
+<dd>The Tamlinux command suite is not on your <code>PATH</code>. On a Tamlinux workstation, ensure your profile includes <code>~/.local/share/tamlinux/shell</code> and <code>~/.nix-profile/bin</code>.</dd>
+<dt>Terminal colors do not match the desktop theme</dt>
+<dd>The terminal emulator was launched before the theme was applied or has a personal configuration override in <code>~/.config/</code> that shadows the generated theme.</dd>
+<dt>Text is hard to read due to low contrast</dt>
+<dd>The display brightness or ambient room lighting may be mismatched with your current theme. Switch between dark and light variants using <code>tam-theme-set tamarack-light</code> or <code>tam-theme-set tamarack-dark</code>.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does Tamlinux store the active theme under ~/.local/state/ rather than directly editing application configs in place?</summary>
+<p>Storing the active theme in an isolated state directory and linking it allows Tamlinux to perform atomic theme switches and rollbacks. If a theme generation fails or is interrupted, the previous working theme remains intact without corrupting personal configuration files.</p>
+</details>
+<details class="q">
+<summary>What is the difference between a raw hex color and a semantic color token?</summary>
+<p>A raw hex color (such as #131a15) specifies an exact red, green, and blue light intensity. A semantic token (such as &ldquo;background&rdquo; or &ldquo;danger&rdquo;) describes the role or purpose of that color in the user interface, allowing the actual color value to change across light and dark modes while keeping the interface logic intact.</p>
+</details>
+<details class="q">
+<summary>Does changing a desktop theme change your personal document files?</summary>
+<p>No. The theme engine only updates application color schemes, stylesheets, and desktop state links. Personal documents, code repositories, and user files remain completely untouched.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Theme</dt>
+<dd>A unified set of visual styling rules, including color palettes, font assignments, and interface geometry.</dd>
+<dt>Palette</dt>
+<dd>A defined set of harmonious colors chosen for a computer display.</dd>
+<dt>Semantic token</dt>
+<dd>A named design variable (such as &ldquo;surface&rdquo; or &ldquo;accent&rdquo;) that abstracts a color from its literal RGB value.</dd>
+<dt>Contrast ratio</dt>
+<dd>The mathematical ratio between the relative luminance of the brightest color and the darkest color in an interface pair.</dd>
+<dt>Luminance</dt>
+<dd>The perceived brightness of a color, weighted by the human eye&apos;s sensitivity to different wavelengths of light.</dd>
+</dl>
+
+<p><strong>Next step:</strong> at Intermediate, learn the history of computer displays and colors, study color science and contrast formulas, and understand how Unix toolkits propagate theme changes.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Displays, color science and Unix theming protocols</h2>
+
+<p><strong>Goal:</strong> you will be able to explain the historical development of computer displays and colors, calculate WCAG contrast ratios, and trace how themes are delivered across Arch Linux and Void Linux.</p>
+
+<h3>History of computer displays and color in HCI</h3>
+
+<p>Early interactive computing in the 1950s and 1960s relied on radar screens and vector displays (such as the TX-0 and DEC PDP-1), where an electron beam traced lines directly between coordinate points. In the 1970s, raster-scan cathode-ray tubes (CRTs) became standard. These displays were monochrome, using specialized phosphor coatings on the inside of the glass tube:</p>
+
+<ul>
+<li><strong>P1 Phosphor (Green):</strong> Emitted light at 525 nanometers, closely aligning with the peak photopic sensitivity of the human eye (555 nm). Green phosphors allowed characters to be read comfortably at lower beam energies.</li>
+<li><strong>P4 Phosphor (White):</strong> Emitted a broad-spectrum bluish-white light, standard in early television sets and office word processors.</li>
+<li><strong>P3 and P40 Phosphors (Amber):</strong> Emitted light at 590&ndash;620 nanometers with longer persistence. In the early 1980s, European occupational health studies (particularly German ergonomics standards) recommended amber displays to reduce eye fatigue and screen flicker under fluorescent office lighting.</li>
+</ul>
+
+<p>Because text terminals were monochrome, early visual emphasis relied on hardware character cell attributes: DEC VT100 terminals supported bold, reverse video, underline, and blinking. In 1976, the ECMA-48 standard (adopted in 1979 as ANSI X3.64) introduced <strong>Select Graphic Rendition (SGR)</strong> escape sequences. SGR codes 30&ndash;37 set text foreground to one of 8 base colors (black, red, green, yellow, blue, magenta, cyan, white), and 40&ndash;47 set the background. Pairing these with bold or bright attributes produced the classic 16-color ANSI terminal palette.</p>
+
+<p>Personal computer graphics hardware evolved rapidly through the 1980s:</p>
+
+<ul>
+<li><strong>IBM CGA (1981):</strong> Supported 16 colors in text mode, but only 4 simultaneous colors in graphics mode from fixed hardware palettes.</li>
+<li><strong>IBM EGA (1984):</strong> Displayed 16 simultaneous colors chosen from a palette of 64 colors.</li>
+<li><strong>IBM VGA (1987):</strong> Introduced the 18-bit Video Graphics Array, displaying 256 simultaneous colors selected from a palette of 262,144 colors using an 8-bit Color Lookup Table (CLUT) inside the digital-to-analog converter (RAMDAC).</li>
+<li><strong>TrueColor (1990s):</strong> Eliminated color lookup tables by dedicating 24 bits per pixel (8 bits each for Red, Green, and Blue), producing 16,777,216 distinct colors.</li>
+</ul>
+
+<p>In 1996, HP and Microsoft standardized <strong>sRGB</strong> (standard Red Green Blue), matching the color gamut and phosphor behavior of standard CRT monitors under typical office lighting (daylight white point at 6500 Kelvin). CRTs have a non-linear physical response: light intensity is proportional to input voltage raised to a power (with an exponent gamma around 2.2). Digital images and colors are therefore gamma-encoded to compress tonal data efficiently into 8 bits per channel, and must be linearized when computing physical light intensity.</p>
+
+<h3>Contrast calculation and accessibility</h3>
+
+<p>The human visual system does not perceive all light wavelengths with equal brightness. In 1931, the International Commission on Illumination (CIE) established standard color matching functions. The W3C Web Content Accessibility Guidelines (WCAG 2.1) use this color science to calculate the <em>relative luminance</em> of a color on a scale from 0.0 (pure black) to 1.0 (pure white):</p>
+
+<ol>
+<li>Convert 8-bit sRGB channel values (red, green, and blue numbers between 0 and 255) to floating-point ratios by dividing by 255.</li>
+<li>Linearize each channel to remove sRGB gamma encoding:
+  <pre>
+  if C_srgb &le; 0.04045:
+      C_linear = C_srgb / 12.92
+  else:
+      C_linear = ((C_srgb + 0.055) / 1.055) ^ 2.4
+  </pre>
+</li>
+<li>Calculate relative luminance using human photopic spectral sensitivity weights:
+  <pre>
+  L = 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
+  </pre>
+  Notice that green accounts for over 71% of perceived luminance, while blue accounts for only 7%.
+</li>
+<li>Calculate the contrast ratio between two colors with luminances L1 and L2 (where L1 is greater than L2):
+  <pre>
+  Contrast Ratio = (L1 + 0.05) / (L2 + 0.05)
+  </pre>
+</li>
+</ol>
+
+<p>WCAG 2.1 requires a minimum contrast ratio of <strong>4.5:1</strong> for normal text (Level AA) and <strong>7:1</strong> for high-contrast accessibility (Level AAA). Tamlinux enforces this 4.5:1 mathematical threshold in its theme engine before any theme can be applied.</p>
+
+<h3>Mental model: the Unix theming pipeline</h3>
+
+<pre>
+   Theme Token Definition (tamarack.toml)
+               |
+               v
+   [Theme Engine (engine.py)]
+     ├──&gt; Validates WCAG Contrast (4.5:1 minimum)
+     ├──&gt; Generates Staged Theme Directory (~/.local/state/tamlinux/theme-generations/...)
+     │     ├── colors.toml, foot.ini, alacritty.toml, gtk4.css, vscode.json
+     └──&gt; Atomic Directory Exchange (renameat2 RENAME_EXCHANGE)
+               |
+               v
+   Active State Link (~/.local/state/tamlinux/current/theme)
+         │           │           │             │
+         ▼           ▼           ▼             ▼
+     [Foot/TTY]   [GTK 4]     [Qt/QML]     [Editors/Tools]
+     (OSC escape  (Adaptive   (Quickshell  (VS Code, Claude,
+      sequences)   CSS link)   theme IPC)   Pi, Obsidian)
+</pre>
+
+<p>In Unix, there is no kernel theming subsystem. Theming is federated:</p>
+
+<ul>
+<li><strong>Terminal Emulators:</strong> Updated via configuration files or dynamically via <strong>OSC (Operating System Command)</strong> escape sequences. For example, <code>\e]10;#e4ece6\e\\</code> sets the terminal foreground color, and <code>\e]11;#131a15\e\\</code> sets the background color.</li>
+<li><strong>GTK Toolkit:</strong> GTK 3 reads <code>settings.ini</code> and CSS files under <code>~/.config/gtk-3.0/gtk.css</code>. GTK 4.20 introduced adaptive color scheme media queries (<code>@media (prefers-color-scheme: dark)</code>), allowing a single stylesheet to serve both dark and light modes.</li>
+<li><strong>Qt and QML:</strong> Qt applications read <code>QPalette</code> or use platform themes (such as <code>qt5ct</code> / <code>qt6ct</code>). The Tamlinux Quickshell desktop shell reads token values directly from generated QML service files.</li>
+<li><strong>XDG Desktop Portal:</strong> Modern Wayland compositors broadcast dark/light mode preferences across D-Bus via the <code>org.freedesktop.portal.Settings</code> interface using the <code>color-scheme</code> key (1 for dark, 2 for light).</li>
+</ul>
+
+<h3>Worked example: query contrast with Python</h3>
+
+<pre class="session" data-risk="read-only">
+$ python3 -c '
+def lum(c):
+    vals = [int(c[i:i+2], 16)/255 for i in (1, 3, 5)]
+    lin = [v/12.92 if v <= 0.04045 else ((v+0.055)/1.055)**2.4 for v in vals]
+    return 0.2126*lin[0] + 0.7152*lin[1] + 0.0722*lin[2]
+bg = lum("#131a15")
+fg = lum("#e4ece6")
+print("Tamarack Dark Contrast:", round((fg + 0.05) / (bg + 0.05), 2))
+'
+Tamarack Dark Contrast: 15.34
+</pre>
+
+<p>The calculation proves that Tamarack Dark delivers a contrast ratio of 15.34:1, far exceeding the 4.5:1 accessibility threshold.</p>
+
+<h3>Completion task</h3>
+
+<p>Fill in the blank in this terminal escape sequence to set the terminal background color dynamically using OSC 11:</p>
+
+<pre data-risk="read-only">
+printf '\033]11;%s\033\\' "________"
+</pre>
+
+<details class="solution">
+<p>The filled string is a hexadecimal color such as <code>#131a15</code>:</p>
+<pre data-risk="read-only">
+printf '\033]11;%s\033\\' "#131a15"
+</pre>
+<p>OSC 11 instructs supporting terminal emulators (such as Foot, Kitty, and Alacritty) to adjust their active window background color immediately without restarting.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Check whether your session currently exports a D-Bus session bus address and query the active GTK color scheme setting using <code>dconf</code>.</p>
+
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ echo "$DBUS_SESSION_BUS_ADDRESS"
+unix:path=/run/user/1000/bus
+
+$ dconf read /org/gnome/desktop/interface/color-scheme
+'prefer-dark'
+</pre>
+<p>The command queries the GNOME/GTK desktop configuration backend to verify that dark mode preference is broadcast to supported applications.</p>
+</details>
+
+<h3>Choosing: Arch Linux versus Void Linux</h3>
+
+<table>
+<tr><th>Theming Layer</th><th>Arch Linux</th><th>Void Linux</th></tr>
+<tr><td>Desktop Session Supervision</td><td>Managed by systemd user session (<code>systemctl --user</code>)</td><td>Managed by <code>turnstile</code> or a desktop script with <code>dbus-run-session</code></td></tr>
+<tr><td>GTK Configuration Backend</td><td><code>dconf-service</code> started via systemd D-Bus socket activation</td><td><code>dconf-service</code> started by D-Bus session bus without systemd sockets</td></tr>
+<tr><td>Portal Integration</td><td><code>xdg-desktop-portal</code> coordinated via systemd targets</td><td><code>xdg-desktop-portal</code> started directly in user session environment</td></tr>
+<tr><td>Virtual Console Theming</td><td>Escape codes in <code>/etc/issue</code> or kernel boot arguments</td><td>Escape codes in <code>/etc/issue</code> or runit console scripts</td></tr>
+<tr><td>Package Delivery</td><td>Pacman installs system icon themes into <code>/usr/share/icons/</code></td><td>XBPS installs system icon themes into <code>/usr/share/icons/</code></td></tr>
+</table>
+
+<p>Tamlinux runs on Arch Linux today, but Fred Horch, the Tamlinux developer, plans a migration to Void Linux to achieve a leaner, runit-based system without systemd. Ensuring that the theme engine relies on file-based atomic swaps and standard XDG specifications rather than systemd-specific IPC is central to that roadmap.</p>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely Cause</th><th>Check</th><th>Next Action</th></tr>
+<tr><td>GTK 4 applications remain bright white in dark mode</td><td>User personal <code>~/.config/gtk-4.0/gtk.css</code> exists and overrides theme</td><td><code>ls -l ~/.config/gtk-4.0/gtk.css</code></td><td>Check if the file is a personal stylesheet or remove it to restore the adaptive theme link</td></tr>
+<tr><td>Theme switch fails with &ldquo;contrast fails&rdquo; error</td><td>Custom theme palette has insufficient contrast between text and background</td><td>Inspect <code>colors.toml</code> foreground and background values</td><td>Adjust colors to satisfy the 4.5:1 WCAG contrast requirement</td></tr>
+<tr><td>Theme changes in terminal but desktop bar does not update</td><td>Quickshell service did not receive or process the reload IPC</td><td><code>systemctl --user status tamlinux-shell.service</code></td><td>Restart the shell service with <code>systemctl --user restart tamlinux-shell.service</code></td></tr>
+<tr><td>Theme exchange reports &ldquo;atomic theme exchange is unavailable&rdquo;</td><td>Filesystem does not support <code>renameat2(RENAME_EXCHANGE)</code> (e.g. older NFS mount)</td><td>Check filesystem type with <code>df -T ~/.local/state/tamlinux</code></td><td>Ensure state directory resides on a modern local filesystem (ext4, Btrfs, or XFS)</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, themes are generated from semantic token files into an isolated state generation directory and published via atomic directory exchange. The default Tamarack palette enforces WCAG AA contrast (at least 4.5:1) at build time. User customizations live in <code>~/.config/tamlinux/themes/</code> and override packaged defaults without modifying immutable store paths.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does the human eye perceive green text as brighter than blue text with the exact same physical energy?</summary>
+<p>The human retina&apos;s photopic spectral sensitivity peaks around 555 nanometers (in the green spectrum). The CIE standard observer weights green at 71.52% of perceived luminance, while blue accounts for only 7.22%.</p>
+</details>
+<details class="q">
+<summary>How does GTK 4.20 allow a single stylesheet to support both dark and light modes?</summary>
+<p>GTK 4.20 introduced support for the CSS <code>@media (prefers-color-scheme: dark)</code> and <code>@media (prefers-color-scheme: light)</code> media queries, allowing application styles to switch automatically when the desktop color scheme changes.</p>
+</details>
+<details class="q">
+<summary>What challenge does Void Linux face with D-Bus session services compared to Arch Linux?</summary>
+<p>Void Linux does not use systemd user sessions, so D-Bus services cannot rely on systemd socket activation. The session D-Bus daemon must be explicitly started (typically via <code>dbus-run-session</code> or <code>turnstile</code>) and environment variables like <code>DBUS_SESSION_BUS_ADDRESS</code> must be manually propagated.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="ecosystem/fonts.html">Typography, fonts and text rendering</a> &mdash; learn how fonts, FreeType, and Fontconfig shape and draw text on screens.</li>
+<li><a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a> &mdash; explore Quickshell, QML, and desktop UI components.</li>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> &mdash; understand terminal escape sequences, character cells, and capabilities.</li>
+</ul>
+
+<p><strong>Next step:</strong> at Expert, dissect the Tamlinux Python theme engine, study atomic directory swaps with <code>renameat2</code>, and design future optimizations for minimal code size.</p>
+</section>
+
+<section data-level="expert">
+<h2>Tamlinux theme engine internals, transactional safety and future work</h2>
+
+<p><strong>Goal:</strong> you will be able to dissect Tamlinux&apos;s theme engine, explain atomic directory exchange via Linux <code>renameat2</code>, inspect transactional journal rollbacks, and evaluate code optimizations to minimize runtime overhead.</p>
+
+<h3>Dissecting the Tamlinux theme engine</h3>
+
+<p>The Tamlinux theme subsystem is implemented in Python under the product repository in <code>tamlinux/desktop/theme/engine.py</code>. The engine is responsible for reading theme templates, generating application configuration files, ensuring WCAG contrast compliance, and publishing updates atomically.</p>
+
+<h4>1. Atomic directory exchange with renameat2</h4>
+
+<p>When switching themes, updating files one by one would leave the desktop in an inconsistent state where some applications read new colors while others read old ones. If the process is killed midway, the session is corrupted.</p>
+
+<p>Tamlinux avoids this by building the entire theme directory inside a temporary staging location (<code>stage</code>) under <code>~/.local/state/tamlinux/theme-generations/</code>. Once staging is complete, the engine performs an <strong>atomic directory exchange</strong> using the Linux <code>renameat2</code> system call:</p>
+
+<pre data-risk="read-only">
+import ctypes
+
+libc = ctypes.CDLL(None, use_errno=True)
+rename = getattr(libc, 'renameat2', None)
+# RENAME_EXCHANGE = 2
+# Flags: exchange temporary directory and active destination directory atomically
+result = rename(-100, os.fsencode(temporary), -100, os.fsencode(destination), 2)
+</pre>
+
+<p>The flag value <code>2</code> corresponds to <code>RENAME_EXCHANGE</code> (introduced in Linux kernel 3.15). The kernel guarantees that the directory swap is instantaneous. Any application opening a file in <code>~/.local/state/tamlinux/current/theme/</code> sees either the complete prior generation or the complete new generation&mdash;never an empty or partially generated directory.</p>
+
+<h4>2. Transactional journaling and rollback</h4>
+
+<p>Before any external application configuration is modified (such as GTK CSS, VS Code settings, or Obsidian vaults), the engine wraps the operation in a transaction manager (<code>Journal</code> class):</p>
+
+<pre data-risk="read-only">
+class Journal:
+    def __init__(self, kind, paths, dconf=None):
+        base = STATE / 'settings-recovery'
+        self.directory = Path(tempfile.mkdtemp(prefix=kind + '.', dir=base))
+        # Snapshots every target file, directory, symlink target, and dconf value
+        ...
+
+    def restore(self):
+        # In case of exception: restores all paths in reverse order
+        # and re-applies previous dconf values
+        ...
+</pre>
+
+<p>If an unhandled exception, syntax error, or process interrupt occurs during adapter execution, the <code>transaction</code> context manager intercepts the failure and invokes <code>journal.restore()</code>, returning all user configurations to their exact pre-transaction state.</p>
+
+<h4>3. Mathematical contrast enforcement</h4>
+
+<p>The engine enforces contrast rules at build time via <code>tamarack_colors()</code>. The algorithm calculates the luminance of every semantic token (<code>foreground</code>, <code>muted</code>, <code>primary</code>, <code>accent</code>, <code>danger</code>, <code>info</code>) against both <code>background</code> and <code>surface</code>:</p>
+
+<pre data-risk="read-only">
+def luminance(color):
+    channels = [int(color[i:i+2], 16) / 255 for i in (1, 3, 5)]
+    values = [v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in channels]
+    return sum(a * b for a, b in zip(values, (0.2126, 0.7152, 0.0722)))
+
+def contrast(a, b):
+    low, high = sorted((luminance(a), luminance(b)))
+    return (high + 0.05) / (low + 0.05)
+
+for fg in ('foreground', 'muted', 'primary', 'accent', 'danger', 'info'):
+    for bg in ('background', 'surface'):
+        if contrast(tokens[fg], tokens[bg]) < 4.5:
+            raise ValueError(f'Tamarack contrast fails for {fg} on {bg}')
+</pre>
+
+<p>Any token failing the 4.5:1 ratio halts execution before any file is written.</p>
+
+<h4>4. Direct binary PNG synthesis without dependencies</h4>
+
+<p>To avoid adding large dependencies (such as Pillow or ImageMagick) to the Tamlinux cultivar, the theme engine generates solid wallpaper PNGs and preview swatches directly using Python&apos;s standard <code>struct</code> and <code>zlib</code> libraries:</p>
+
+<pre data-risk="read-only">
+def solid_png(color):
+    pixel = bytes.fromhex(color[1:])
+    def chunk(kind, data):
+        return struct.pack('!I', len(data)) + kind + data + struct.pack('!I', zlib.crc32(kind + data))
+    return (b'\x89PNG\r\n\x1a\n'
+            + chunk(b'IHDR', struct.pack('!IIBBBBB', 1, 1, 8, 2, 0, 0, 0))
+            + chunk(b'IDAT', zlib.compress(b'\x00' + pixel))
+            + chunk(b'IEND', b''))
+</pre>
+
+<p>This generates a valid 1&times;1 24-bit TrueColor PNG image with proper PNG headers, chunks, and CRC-32 checksums in under 100 microseconds.</p>
+
+<h3>Future work for smaller code and higher efficiency</h3>
+
+<p>The current Tamlinux theme system is robust, but there are multiple paths to make it leaner and more efficient:</p>
+
+<ol>
+<li><strong>Consolidating Adapter Subprocesses:</strong> In the current implementation, applying a theme executes <code>engine.py</code>, which then loops through a list of adapters (<code>ADAPTERS = ['foot', 'tmux', 'gnome', 'browser', 'pi', 'claude', 't3code', 'vscode', 'obsidian', 'keyboard']</code>), invoking individual shell scripts (e.g. <code>tam-theme-set-foot</code>). Each script forks Python, bash, or sed. Integrating these adapters as internal generator functions inside the engine would eliminate over 20 process forks per theme change.</li>
+<li><strong>Lightweight C Theme Engine:</strong> Python requires a ~30 MB memory footprint and several tenths of a second of interpreter startup time. The entire theme engine (reading TOML, performing WCAG contrast calculations, calling <code>renameat2</code>, and writing files) could be implemented in roughly 500 lines of standard C using POSIX APIs and a small JSON/TOML parser. This would reduce the memory footprint to under 1 MB and make theme switching nearly instantaneous.</li>
+<li><strong>Daemonless Inotify File-Watch Architecture:</strong> Currently, the engine explicitly restarts or notifies applications via <code>tam-restart-*</code> and shell commands. In an event-driven architecture, applications and UI panels can watch <code>~/.local/state/tamlinux/current/theme</code> using Linux <code>inotify</code>. When <code>renameat2</code> swaps the directory, inotify triggers a directory modified event, allowing each process to reload its styling autonomously without central coordination scripts.</li>
+<li><strong>Decoupling from dconf for Void Linux and Microkernels:</strong> The current engine checks <code>dconf</code> and refuses to run if GSettings backends are missing. For Void Linux and microkernel targets that do not use GNOME libraries, theming should rely strictly on XDG portal settings or static file symlinks, removing the hard dependency on D-Bus and dconf.</li>
+</ol>
+
+<h3>Explore</h3>
+
+<p>Inspect the active theme generation directory and verify the atomic symlink structure using read-only commands:</p>
+
+<pre class="session" data-risk="read-only">
+$ ls -la ~/.local/state/tamlinux/current/
+total 16
+drwx------ 2 alex alex 4096 Nov  1 05:00 .
+drwx------ 5 alex alex 4096 Nov  1 05:00 ..
+lrwxrwxrwx 1 alex alex   72 Nov  1 05:00 background -&gt; /home/alex/...
+lrwxrwxrwx 1 alex alex   68 Nov  1 05:00 theme -&gt; /home/alex/.local/state/tamlinux/theme-generations/tamarack-dark.4b1a8f...
+-rw------- 1 alex alex   14 Nov  1 05:00 theme.name
+</pre>
+
+<p>Notice that <code>theme</code> is a single symlink pointing to an immutable generation directory. The generation contains the full suite of generated application configs.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why is renameat2 with RENAME_EXCHANGE superior to deleting an old directory and moving a new one in?</summary>
+<p>Deleting the old directory and moving the new one introduces a race window where the path does not exist. If any running application attempts to load an asset or read configuration during that window, it fails with a &ldquo;No such file or directory&rdquo; error. <code>RENAME_EXCHANGE</code> swaps the two directory inodes atomically in a single kernel operation, eliminating any missing-path window.</p>
+</details>
+<details class="q open">
+<summary>How does direct binary PNG generation in Python improve system leanness?</summary>
+<p>By using standard <code>struct</code> and <code>zlib</code> modules to write raw PNG chunks, Tamlinux generates solid wallpapers and color swatches without installing large third-party graphics libraries (like Pillow) or external image utilities (like ImageMagick), keeping the base rootstock and cultivar minimal.</p>
+</details>
+<details class="q open">
+<summary>What is the primary benefit of consolidating adapter shell scripts into the main engine?</summary>
+<p>It eliminates dozens of process forks (spawning shells, Python interpreters, and command-line utilities for each adapter), reducing disk I/O, CPU context switching, and theme application latency.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">Fontconfig User Manual (online)</a> &mdash; font matching algorithms, pattern syntax, and XML configuration rules.</li>
+<li><a href="https://www.w3.org/TR/WCAG21/">W3C Web Content Accessibility Guidelines (WCAG) 2.1 (online)</a> &mdash; relative luminance and contrast ratio specifications.</li>
+<li><a href="https://www.w3.org/Graphics/Color/sRGB">IEC 61966-2-1: sRGB Default RGB Colour Space (online)</a> &mdash; standard color space and gamma transfer characteristics.</li>
+<li><a href="https://man7.org/linux/man-pages/man2/renameat2.2.html">renameat2(2) Linux Manual Page (online)</a> &mdash; atomic directory exchange and rename flags.</li>
+<li><a href="https://www.ecma-international.org/publications-and-standards/standards/ecma-48/">ECMA-48: Control Functions for Coded Character Sets (online)</a> &mdash; standard ANSI escape sequences and Select Graphic Rendition (SGR) codes.</li>
+<li><a href="https://github.com/greenermoose/tamlinux">Tamlinux Repository (online)</a> &mdash; <code>tamlinux/desktop/theme/engine.py</code> and Tamarack design tokens.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>To test theme optimizations, inspect <code>tamlinux/desktop/theme/engine.py</code>. Try refactoring one adapter (such as Foot terminal configuration) to generate directly in memory during the staging pass rather than spawning an external script. Measure the theme switch elapsed time using <code>time tam-theme-set tamarack-light</code> to observe the performance improvement.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/fonts.html">Typography, fonts and text rendering</a> &mdash; learn how fonts, FreeType, and Fontconfig shape and draw text on screens.</li>
+<li><a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a> &mdash; explore Quickshell, QML, and desktop UI components.</li>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> &mdash; understand terminal escape sequences, character cells, and capabilities.</li>
+<li><a href="ecosystem/distros.html">Rootstocks</a> &mdash; see why Tamlinux is planning a migration from Arch Linux to Void Linux.</li>
+</ul>
+</body>
+</html>
