@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How Nix and Home Manager work</title>
+<meta name="topic" content="nix-home-manager">
+<meta name="summary" content="How Nix builds software from descriptions into an immutable store, and how Home Manager turns modules into a switchable user generation">
+<meta name="keywords" content="nix, home manager, derivation, flake, flake.lock, store, profile, generation, module, activation, declarative, reproducible, tamlinux-packages">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="packaging">
+<meta name="kind" content="explanation">
+<meta name="skills" content="software.beginner, software.intermediate, software.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / How Nix and Home Manager work</p>
+</nav>
+
+<h1>How Nix and Home Manager work</h1>
+<p>This page explains how Nix builds software and how Home Manager uses Nix to create the software and settings in your home directory.</p>
+<p>Tamlinux uses these tools to deliver its desktop. You do not need to know them to use Tamlinux, but knowing them makes updates, rollbacks and configuration changes much easier to understand.</p>
+
+<section data-level="beginner">
+<h2>Software that is kept, not overwritten</h2>
+
+<p><strong>Goal:</strong> you will be able to follow an installed command to its place in the Nix store and explain what a Home Manager generation is, using only read-only commands.</p>
+
+<p><strong>Why it matters:</strong> ordinary package managers replace a program when a new version arrives. Nix keeps each built result in its own directory. That makes it possible to see exactly which files a command uses and to return to an earlier selection when a change causes trouble.</p>
+
+<p><strong>Before you start:</strong> open a terminal. Every command in this section only reads information; it installs nothing and changes no files. If a terminal is new to you, read <a href="learn/paths/first-steps.html?level=1">First steps</a> first.</p>
+
+<aside class="first-time">
+<p>The <code>$</code> at the start of a line is the shell prompt. Type the part after it and press Enter; do not type the <code>$</code>. A read-only command usually prints its answer and returns to the prompt. If a command prints nothing at all, that is often normal. Your paths, dates and hashes will differ from the examples because they identify your own installation.</p>
+</aside>
+
+<h3>Worked example: follow a command into the store</h3>
+
+<pre class="session" data-risk="read-only">
+$ nix --version
+nix (Determinate Nix 3.22.5) 2.35.2
+
+$ readlink -f ~/.nix-profile
+/nix/store/c16r82dn5wpsz72imqz86x3sxxap9j6c-user-environment
+
+$ home-manager generations | head -n 3
+2026-10-29 20:20 : id 14 -> /nix/store/hjv5ndzzkadphxx8wj8x3pzzwz0kvs8f-home-manager-generation (current)
+2026-10-29 19:52 : id 13 -> /nix/store/k1ir8w8b2ahblx6s2xmj1ynzzrypwgqg-home-manager-generation
+2026-10-29 19:38 : id 12 -> /nix/store/1h48kj4599hk1bg7gxb81s6k5452g08v-home-manager-generation
+</pre>
+
+<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. Your hashes, dates and generation numbers will differ.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>nix --version</code> prints the version of the Nix program itself. Nix is the tool that builds and stores software; it is not the same thing as NixOS, a whole operating system built on Nix.</li>
+<li><code>readlink -f</code> follows a chain of symbolic links until it reaches a real directory. The answer begins with <code>/nix/store/</code>, the place where Nix keeps built results.</li>
+<li><code>home-manager generations</code> lists numbered records. Each record points to one built Home Manager configuration. The word <code>(current)</code> marks the one in use now.</li>
+</ol>
+
+<p>A <dfn><a href="learn/glossary/package.html">package</a></dfn> is a bundle of program files, libraries and data. Nix does not put a package directly into <code>/usr/bin</code>. It builds the package into its own directory under <code>/nix/store/</code>, then creates links that point at it. A link is a small file that names another file or directory; opening the link opens the target.</p>
+
+<p>A store path has three parts: the fixed prefix <code>/nix/store/</code>, a long hash such as <code>c16r82dn5wpsz72imqz86x3sxxap9j6c</code>, and a readable name such as <code>user-environment</code>. The hash is a fingerprint of everything that went into the build. If an input changes, the fingerprint changes, so the new result gets a different directory and the old result is left alone. Store paths are read-only, which is what people mean when they call the store <em>immutable</em>.</p>
+
+<p>A <dfn><a href="learn/glossary/generation.html">generation</a></dfn> is a recorded selection of managed software and settings. Home Manager creates a new generation each time you activate a changed configuration. The older generations stay on disk until they are deliberately removed. Selecting an older one is called a <dfn><a href="learn/glossary/rollback.html">rollback</a></dfn>. It changes which software your profile points at; it does not restore your documents or other mutable files.</p>
+
+<p>A <em>profile</em> is a named pointer to one generation. Your shell finds commands through a profile such as <code>~/.nix-profile</code>. The profile is itself a link: it points to the current generation, and the generation points into the store. Switching generations moves the profile link; it does not rewrite the store.</p>
+
+<h3>Try it</h3>
+
+<p>Follow the <code>tam</code> command to the file it really runs, and read the profile link target. These commands are read-only.</p>
+
+<pre data-risk="read-only">
+readlink -f "$(command -v tam)"
+readlink ~/.nix-profile
+</pre>
+
+<p>If the first answer begins with <code>/nix/store/</code>, the command is packaged. If it begins under your home directory, it is a development override. The second answer shows the profile link without following it all the way to the store. Your paths and versions will differ from the worked example.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>nix: command not found</dt>
+<dd>Nix is not installed or is not on your <code>PATH</code>. On a Tamlinux workstation it normally arrives with the desktop delivery. Do not install a second copy from a random script; ask for help or read <a href="ecosystem/packaging.html">Software packaging and delivery</a>.</dd>
+<dt>home-manager: command not found</dt>
+<dd>The Home Manager command is missing from your <code>PATH</code>, even if its generations still exist. Check <code>command -v home-manager</code> and the profile path before changing anything.</dd>
+<dt>readlink: /home/alex/.nix-profile: No such file or directory</dt>
+<dd>No Nix profile exists for this account, or the name is different. Do not create one just to finish the example; the read-only lesson can stop here.</dd>
+<dt>Permission denied</dt>
+<dd>The store is read-only by design. Reading is allowed; writing into <code>/nix/store/</code> is not. Never change permissions on the store to make a command work.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does a new Nix build usually get a different store path instead of replacing the old one?</summary>
+<p>The path contains a hash of the build inputs. A changed input changes the hash, so the new result is stored separately and the old result remains available. That is what makes generations and rollback possible.</p>
+</details>
+<details class="q">
+<summary>Does rolling back a Home Manager generation restore a document you edited yesterday?</summary>
+<p>No. A generation selects managed software and configuration. Your documents and other mutable files are outside it and need their own backup or recovery.</p>
+</details>
+<details class="q">
+<summary>What is the difference between a profile and a generation?</summary>
+<p>A generation is one recorded selection. A profile is the named pointer that says which generation is current. Switching moves the profile pointer to another generation.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Nix</dt>
+<dd>A package manager and build system that keeps each built result in its own hashed store directory.</dd>
+<dt>Store</dt>
+<dd>The read-only directory <code>/nix/store/</code> holding built results and the recipes that produced them.</dd>
+<dt>Store path</dt>
+<dd>One directory in the store, named by a hash and a readable name.</dd>
+<dt>Profile</dt>
+<dd>A named link that points to the generation currently in use.</dd>
+<dt>Generation</dt>
+<dd>A recorded selection of managed software and settings that can be selected again later.</dd>
+<dt>Immutable</dt>
+<dd>Not changed after it is created. Store paths are immutable; the links that point to them are not.</dd>
+</dl>
+
+<p><strong>Next step:</strong> at Intermediate, follow the whole path from a Nix description to a built store path and a switched generation.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>From a description to a generation</h2>
+
+<p><strong>Goal:</strong> you will be able to explain how a Nix expression becomes a built store path, how a flake pins its inputs, and how Home Manager activates a new generation.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+flake.nix + flake.lock
+        |
+        |  evaluation: the Nix language reads the description
+        v
+   derivation (a precise build recipe with hashed inputs)
+        |
+        |  build: runs in a sandbox with declared inputs only
+        v
+   /nix/store/&lt;hash&gt;-&lt;name&gt;  (immutable result)
+        |
+        |  profile link
+        v
+   generation N  --&gt;  your commands and configuration files
+</pre>
+
+<p>Read the diagram from top to bottom. The left side is a description written by a person. The right side is what exists on disk. Nix separates the two so that the same description can produce the same result on another machine.</p>
+
+<p><em>Declarative</em> means you describe the result you want instead of listing the steps to create it. An <em>imperative</em> command such as <code>cp file /etc/</code> performs one action now. A declarative file says "this file should exist with this content", and the tool works out what to do. Nix is declarative for builds; Home Manager is declarative for your home directory.</p>
+
+<p>The Nix language is a small functional language. A file is one expression, and evaluating the expression produces a value: a number, a string, a list, an attribute set (a collection of named values), or a function. Nix evaluates lazily, which means it computes a value only when something needs it. That is why a large configuration can mention many packages without building all of them at once.</p>
+
+<p>A <em>derivation</em> is the result of evaluating a build description. It records the builder, the arguments, the environment, the source inputs and the other derivations it needs. Nix writes the derivation to the store as a <code>.drv</code> file and computes an output path from it. A build then runs the builder in a sandbox: a restricted environment with the declared inputs and no ordinary network access. The output appears at the computed path. If the same derivation is requested again, Nix can reuse the existing output instead of rebuilding it.</p>
+
+<p>A <em>flake</em> is a directory with a <code>flake.nix</code> file and a <code>flake.lock</code> file. The <code>flake.nix</code> declares <em>inputs</em> (other flakes or source trees) and an <em>outputs</em> function that turns those inputs into packages, modules, checks or other results. The <code>flake.lock</code> records the exact revision and tree hash of every input. Pinning the lock file is what makes a flake reproducible: two machines that use the same lock get the same inputs, even if a branch has moved since.</p>
+
+<p>Home Manager is a library and a command built on Nix. It uses the NixOS <em>module system</em>. A module is a function that declares <em>options</em> (the settings a user may choose) and <em>config</em> (the values those settings should have). Modules are merged, and the result is built into an <em>activation package</em>. Activating that package creates a new generation, links files into your home directory, and runs any activation scripts the modules defined.</p>
+
+<h3>Worked example: evaluate small Nix expressions</h3>
+
+<pre class="session" data-risk="read-only">
+$ nix eval --expr '1 + 2'
+3
+
+$ nix eval --expr 'let x = 2; in x * 3'
+6
+
+$ nix eval --expr '{ greeting = "hello"; count = 3; }'
+{ count = 3; greeting = "hello"; }
+
+$ nix eval --expr 'builtins.map (x: x * 2) [ 1 2 3 ]'
+[ 2 4 6 ]
+</pre>
+
+<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. The expressions are evaluated locally and build nothing.</p>
+
+<ol>
+<li><code>nix eval --expr</code> evaluates the expression that follows and prints its value. <code>1 + 2</code> is ordinary arithmetic.</li>
+<li><code>let x = 2; in x * 3</code> creates a local name <code>x</code> and uses it in the expression after <code>in</code>. The answer is <code>6</code>.</li>
+<li><code>{ greeting = "hello"; count = 3; }</code> is an attribute set. Nix prints its names in alphabetical order, so the output is <code>{ count = 3; greeting = "hello"; }</code>.</li>
+<li><code>builtins.map</code> applies the function <code>x: x * 2</code> to each item of the list <code>[ 1 2 3 ]</code>. The result is <code>[ 2 4 6 ]</code>.</li>
+</ol>
+
+<h3>Completion task</h3>
+
+<p>Fill the gap so the expression defines a function that doubles its argument. The expected answer is <code>42</code>.</p>
+
+<pre data-risk="read-only">
+nix eval --expr 'let double = x: ___; in double 21'
+</pre>
+
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ nix eval --expr 'let double = x: x * 2; in double 21'
+42
+</pre>
+<p>Captured on the same workstation and date. The function body is <code>x * 2</code>. In Nix, a function is written as <code>argument: body</code>; there is no separate <code>return</code> keyword.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Evaluate an attribute set with the names <code>name</code> and <code>version</code>, then select only <code>name</code>. Use one <code>nix eval</code> command and no file.</p>
+
+<details class="solution">
+<pre class="session" data-risk="read-only">
+$ nix eval --expr '({ name = "tam"; version = "0.48.0"; }).name'
+"tam"
+</pre>
+<p>Captured on the same workstation and date. The dot selects one attribute. Nix prints a string with its quotation marks; add <code>--raw</code> if you want the characters without quotes. The version in your own installation may differ.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Tool</th><th>Use it when</th><th>What it owns on Tamlinux</th></tr>
+<tr><td><code>pacman</code></td><td>The software is part of the operating system, the kernel, a driver or a system service.</td><td>The rootstock.</td></tr>
+<tr><td>Nix and Home Manager</td><td>You want a reproducible, declarative user environment that can be switched and rolled back as one generation.</td><td>The Tamlinux desktop and its user configuration.</td></tr>
+<tr><td>Mise</td><td>A command-line tool changes too quickly for a stable pinned build, or a project needs a per-directory runtime.</td><td>Fast-moving developer and agent tools.</td></tr>
+</table>
+
+<p>The rule of one owner matters. If the same command exists in more than one layer, the first match in <code>PATH</code> wins, and a later update may appear to have no effect. Check with <code>command -v</code> and <code>which -a</code> before concluding that an update failed.</p>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Next action</th></tr>
+<tr><td><code>error: flake '...' does not provide attribute 'packages.x86_64-linux.foo'</code></td><td>The output name is wrong, or the flake does not export that package for this system.</td><td>Read the <code>outputs</code> section of <code>flake.nix</code>; list outputs with <code>nix flake show</code>.</td><td>Use the exact attribute name, or add the missing output.</td></tr>
+<tr><td><code>error: hash mismatch in fixed-output derivation</code></td><td>A downloaded source changed, or the recorded hash is wrong.</td><td>Compare the URL and revision with the lock file.</td><td>Update the pin and hash deliberately; never bypass the check.</td></tr>
+<tr><td><code>warning: Git tree '...' is dirty</code></td><td>A flake in a Git repository has uncommitted files. Nix sees only files Git knows about.</td><td><code>git status</code> in that repository.</td><td>Commit or add the file, or use a path input for a deliberate local test.</td></tr>
+<tr><td>A command still runs the old version after a switch</td><td>Another copy earlier in <code>PATH</code>, or the shell has cached the old location.</td><td><code>which -a NAME</code>, <code>readlink -f "$(command -v NAME)"</code>, then <code>hash -r</code>.</td><td>Remove or reorder the shadowing copy; start a fresh shell.</td></tr>
+<tr><td><code>error: path '...' is not valid</code></td><td>A file or store path named in the configuration does not exist.</td><td>Check the exact path and whether the input was pinned or built.</td><td>Correct the path or build the missing input.</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p>On Tamlinux, pacman owns the rootstock while Nix and Home Manager deliver the cultivar. The public <code>tamlinux-packages</code> flake pins the exact revisions of <code>nixpkgs</code>, Home Manager and each Tamlinux component. Product software reaches your session through a recorded assembly selected by <code>tam-deploy</code>; activating an arbitrary Home Manager generation from a checkout is a development action, not product delivery. A generation rollback returns user software and configuration, not the kernel, boot files or mutable data. See the <cite data-ref="deployment"><a href="learn/bibliography/deployment.html">deployment contract</a></cite>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>A flake's <code>flake.lock</code> is unchanged, but the upstream branch has new commits. Will a new build use those new commits?</summary>
+<p>No. The lock file records an exact revision. A build uses the locked revision until someone deliberately updates the lock. That is the difference between a moving branch name and a pinned input.</p>
+</details>
+<details class="q">
+<summary>Why can Nix reuse a build instead of running the builder again?</summary>
+<p>The derivation and its inputs determine the output path. If that exact path already exists and its references are valid, the requested result is already present. Reuse is safe because a changed input would produce a different path.</p>
+</details>
+<details class="q">
+<summary>A user adds a package with Home Manager but the command still resolves to the pacman version. What should they check first?</summary>
+<p>Check <code>PATH</code> and <code>which -a</code>. The native copy may come first, or the shell may have cached the old location. The package being installed is not the same as being the first match.</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><a href="ecosystem/packaging.html">Software packaging and delivery</a> &mdash; how the layers fit together and how to trace an executable to its owner.</li>
+<li><a href="maintain/rollback.html">Returning to an earlier working state</a> &mdash; generations, snapshots and their different recovery boundaries.</li>
+<li><a href="https://nix.dev/manual/nix/latest/language/">The Nix language (online)</a> &mdash; the authoritative syntax and evaluation rules.</li>
+<li><a href="https://nix-community.github.io/home-manager/">Home Manager manual (online)</a> &mdash; options, modules and activation.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Reading and changing the Tamlinux Nix source</h2>
+
+<p><strong>Reference:</strong> the tables and file walkthrough below use the public <code>tamlinux-packages</code> repository. Read the revision named by your candidate; line numbers and option names can change between releases.</p>
+
+<h3>Reference: the language you will read</h3>
+
+<table>
+<tr><th>Syntax</th><th>Meaning</th></tr>
+<tr><td><code>{ a = 1; b = "two"; }</code></td><td>An attribute set: named values. Names are strings; order is not significant.</td></tr>
+<tr><td><code>[ 1 2 3 ]</code></td><td>A list. Items are separated by whitespace, not commas.</td></tr>
+<tr><td><code>x: x + 1</code></td><td>A function of one argument. Functions are values and can be passed to other functions.</td></tr>
+<tr><td><code>{ a, b ? 2 }: a + b</code></td><td>A function whose argument is an attribute set with required <code>a</code> and optional <code>b</code>.</td></tr>
+<tr><td><code>args@{ a, ... }:</code></td><td>Bind the whole argument set to <code>args</code> while also naming <code>a</code>. The <code>...</code> accepts extra attributes.</td></tr>
+<tr><td><code>let x = 1; in x + 1</code></td><td>A local binding. Bindings are lazy and visible after <code>in</code>.</td></tr>
+<tr><td><code>with pkgs; [ hello ]</code></td><td>Bring the names in an attribute set into scope for the expression that follows.</td></tr>
+<tr><td><code>inherit (pkgs) hello;</code></td><td>Copy the attribute <code>hello</code> from <code>pkgs</code> into the current set.</td></tr>
+<tr><td><code>if c then a else b</code></td><td>A conditional expression. Both branches must be expressions, not statements.</td></tr>
+<tr><td><code>a // b</code></td><td>Shallow attribute-set update. Names in <code>b</code> replace names in <code>a</code>.</td></tr>
+<tr><td><code>a ++ b</code></td><td>List concatenation.</td></tr>
+<tr><td><code>"${expr}"</code></td><td>String interpolation: insert the value of an expression into a string.</td></tr>
+<tr><td><code>''...''</code></td><td>An indented string. It can span lines and uses <code>''${...}</code> for a literal <code>${</code>.</td></tr>
+<tr><td><code>rec { a = 1; b = a + 1; }</code></td><td>A recursive attribute set. Prefer <code>let</code> when a plain binding is enough.</td></tr>
+<tr><td><code>import ./file.nix</code></td><td>Evaluate a file. If the file is a function, apply it to an argument with <code>import ./file.nix { ... }</code>.</td></tr>
+<tr><td><code>builtins.foo</code></td><td>A built-in function or value. Examples: <code>readFile</code>, <code>pathExists</code>, <code>toJSON</code>, <code>match</code>.</td></tr>
+<tr><td><code>pkgs.lib.foo</code></td><td>A helper from the Nixpkgs library, also available as <code>lib</code> in modules. Examples: <code>optional</code>, <code>optionals</code>, <code>mkIf</code>, <code>mkDefault</code>.</td></tr>
+<tr><td><code>attrs.name or default</code></td><td>Select an attribute, falling back to a default when it is absent.</td></tr>
+<tr><td><code>attrs ? name</code></td><td>Test whether an attribute exists.</td></tr>
+<tr><td><code>assert cond; expr</code></td><td>Fail evaluation unless <code>cond</code> is true, then evaluate <code>expr</code>.</td></tr>
+<tr><td><code>throw "message"</code></td><td>Stop evaluation with an error. It is forced only if the value is actually needed.</td></tr>
+<tr><td><code>map f list</code></td><td>Apply a function to every item of a list.</td></tr>
+<tr><td><code>foldl' f init list</code></td><td>Fold a list from the left with a strict accumulator.</td></tr>
+<tr><td><code>lib.genAttrs names f</code></td><td>Build an attribute set by applying <code>f</code> to each name.</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>Nix evaluation and Nix building are separate phases. Evaluation reads <code>.nix</code> files and produces values, including derivations. A derivation is a data structure: it names a builder, arguments, environment variables and input derivations. Nix serialises it to a <code>.drv</code> file in the store. Building takes those <code>.drv</code> files and runs the builders in a sandbox. The sandbox has the declared inputs, a private temporary directory and no ordinary network access. The builder writes its result to <code>$out</code>, the output path Nix computed. A fixed-output derivation is the exception that may fetch from the network, because its output hash is declared in advance.</p>
+
+<p>The store is a graph. A store path refers to other store paths: a program's shared libraries, a script's interpreter, a configuration file's source. The set of all paths reachable from one path is its <em>closure</em>. Copying a closure to another machine is enough to run that program, which is why Nix can distribute binary substitutes. A <em>garbage collection root</em> is a link that keeps a path and its closure alive. Profiles and generation links are roots. Removing a generation removes a root; <code>nix-collect-garbage</code> can then delete paths that no remaining root reaches.</p>
+
+<p>A flake adds a standard interface around evaluation. <code>flake.nix</code> has <code>inputs</code> and an <code>outputs</code> function. <code>flake.lock</code> pins each input's revision and <code>narHash</code>, the hash of the unpacked source tree. A <code>flake = false</code> input is a plain source tree rather than a flake: it has no <code>outputs</code> of its own, and Nix exposes it as a store path. An input with <code>inputs.nixpkgs.follows = "nixpkgs"</code> reuses the root flake's <code>nixpkgs</code> instead of fetching a second copy. That keeps one package set and one set of library versions across the whole evaluation.</p>
+
+<p>Home Manager's module system merges declarations from many files. Each module returns an attribute set with optional <code>options</code> and <code>config</code> attributes. An option declaration gives a name, a type, a default and a description. A config definition assigns a value. The module system checks types, merges values according to priority, and produces one final <code>config</code>. Helpers such as <code>lib.mkIf</code>, <code>lib.mkDefault</code>, <code>lib.mkForce</code> and <code>lib.mkMerge</code> control whether and how a value participates in that merge. <code>lib.mkEnableOption</code> is shorthand for a Boolean option that defaults to false.</p>
+
+<p>Home Manager then builds an activation package. The package contains an <code>activate</code> script, a <code>home-files</code> tree of managed files, and a <code>home-path</code> profile of packages. Activation creates a new generation link, switches the profile, links the managed files into your home directory, and runs the activation scripts in dependency order. The order is a directed acyclic graph, or DAG. A script added with <code>lib.hm.dag.entryAfter [ "linkGeneration" ]</code> runs after the named step; <code>entryBefore</code> runs before it. Activation scripts should be idempotent, because they run again on every switch.</p>
+
+<h3>The Tamlinux flake, line by line</h3>
+
+<p>The flake is deliberately small. It pins inputs, imports the package definitions, and exposes a module, packages and checks.</p>
+
+<pre>
+{
+  description = "Pinned Tamlinux packages and reusable user-layer deployment modules";
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/&lt;commit&gt;";
+    home-manager = {
+      url = "github:nix-community/home-manager/&lt;commit&gt;";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    tamlinux = {
+      url = "github:greenermoose/tamlinux/&lt;commit&gt;";
+      flake = false;
+    };
+  };
+  outputs = inputs@{ self, nixpkgs, home-manager, tamlinux, ... }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
+      components = import ./nix/packages {
+        inherit pkgs;
+        sources = inputs;
+      };
+    in {
+      homeManagerModules.default = { lib, ... }: {
+        imports = [ ./nix/modules ];
+        tamlinux.shell.package = lib.mkDefault components.tamlinux-shell;
+      };
+      packages.${system} = components // {
+        default = components.tam;
+      };
+    };
+}
+</pre>
+
+<p>This excerpt leaves out some inputs and outputs so the shape is visible; read the real file for the complete set. <code>inputs</code> is an attribute set of dependencies. The <code>home-manager</code> input declares that its own <code>nixpkgs</code> input follows the root flake's <code>nixpkgs</code>. The Tamlinux product repositories are marked <code>flake = false</code>: they are pinned source trees, not flakes with their own outputs. The <code>outputs</code> function receives the resolved inputs. The pattern <code>inputs@{ self, nixpkgs, home-manager, tamlinux, ... }</code> binds the whole set to <code>inputs</code> and also names the inputs used below. <code>self</code> is the flake's own outputs, which lets a module refer to itself without a circular file import.</p>
+
+<p>The <code>let</code> block defines <code>system</code>, imports <code>nixpkgs</code> with that system, and imports the local package file with the package set and the whole input set. <code>import nixpkgs { inherit system; }</code> works because the Nixpkgs entry point is a function that expects an argument set. <code>components</code> is then an attribute set of built packages. The <code>outputs</code> attribute set exposes a Home Manager module, packages and checks. <code>lib.mkDefault</code> gives the package options a low-priority value so a consumer can override them without editing the flake.</p>
+
+<p>The lock file is the other half of the pin. Each input has an <code>original</code> description and a <code>locked</code> record with <code>owner</code>, <code>repo</code>, <code>rev</code>, <code>lastModified</code> and <code>narHash</code>. The <code>rev</code> names the exact commit; the <code>narHash</code> identifies the exact unpacked tree. A branch name alone would not be reproducible because it can move. Updating an input is a deliberate change to the lock file, reviewed like any other source change.</p>
+
+<h3>The package file</h3>
+
+<p><code>nix/packages/default.nix</code> is a function of <code>{ pkgs, sources }</code>. It builds the component packages and returns them as an attribute set. The central pattern is <code>stdenv.mkDerivation</code>, the standard Nixpkgs builder for software that uses a conventional build system. The excerpt below is shortened; the real package also handles optional display and session outputs.</p>
+
+<pre>
+libtam = pkgs.stdenv.mkDerivation {
+  pname = "libtam";
+  version = builtins.head (builtins.match
+    ''#define TAM_VERSION_STRING[[:space:]]+"([^"]+)"[[:space:]]*''
+    (pkgs.lib.findFirst (pkgs.lib.hasPrefix "#define TAM_VERSION_STRING")
+      (throw "Pinned libtam source has no version")
+      (pkgs.lib.splitString "\n" (builtins.readFile "${sources.libtam}/include/tam.h"))));
+  src = sources.libtam;
+  nativeBuildInputs = [ pkgs.pkg-config ];
+  buildInputs = [ pkgs.dbus ];
+  buildPhase = ''
+    runHook preBuild
+    make all
+    runHook postBuild
+  '';
+  installPhase = ''
+    runHook preInstall
+    make install PREFIX="$out"
+    runHook postInstall
+  '';
+  doCheck = true;
+  meta.license = pkgs.lib.licenses.gpl3Plus;
+};
+</pre>
+
+<p><code>pname</code> and <code>version</code> name the result. The version is read from the pinned source at evaluation time: <code>builtins.readFile</code> reads the header, <code>lib.splitString</code> splits it into lines, <code>lib.findFirst</code> finds the version line, and <code>builtins.match</code> extracts the captured string. This means the package version cannot drift from the source header without the derivation changing. <code>src</code> is the pinned source tree. <code>nativeBuildInputs</code> are tools used while building; <code>buildInputs</code> are libraries the result needs. The phases run the project's own build and install commands. <code>$out</code> is the output store path. <code>doCheck = true</code> runs the project's tests during the build, and <code>meta.license</code> records the license for tooling and users.</p>
+
+<p>The other components use the same ideas with different helpers. <code>pkgs.runCommand</code> creates a derivation that runs a shell script; it is convenient for copying files into a store tree. <code>passthru</code> attaches extra attributes to a package, such as <code>version</code>, <code>revision</code> and <code>features</code>, without changing the build. <code>builtins.pathExists</code> and <code>builtins.readDir</code> inspect the pinned product source during evaluation, which lets one flake support revisions that have different features. <code>lib.optionalString</code> and <code>lib.optionals</code> include a string or list only when a condition is true. <code>patchShebangs</code> rewrites interpreter lines such as <code>#!/usr/bin/env python3</code> to the store path of the declared interpreter. <code>wrapProgram</code> creates a small wrapper that sets <code>PATH</code> and other environment variables before running the real program. <code>pkgs.writeText</code> writes a generated text file into the store, and <code>builtins.toJSON</code> turns a Nix value into JSON.</p>
+
+<h3>The module file</h3>
+
+<p><code>nix/modules/shell.nix</code> shows the module pattern used throughout the deployment. The file is a function of the module arguments, defines options, and returns configuration guarded by <code>lib.mkIf</code>.</p>
+
+<pre>
+{ config, lib, pkgs, ... }:
+let
+  cfg = config.tamlinux.shell;
+  shell = cfg.package;
+in {
+  options.tamlinux.shell = {
+    enable = lib.mkEnableOption "Tamlinux shell deployment";
+    package = lib.mkOption {
+      type = lib.types.package;
+      description = "Tamlinux shell package built from the recorded assembly.";
+    };
+  };
+  config = lib.mkIf cfg.enable {
+    home.packages = [ cfg.commandPackage ];
+    home.file.".local/share/tamlinux/shell".source =
+      "${shell}/share/tamlinux/shell";
+    xdg.configFile."tamlinux/plugins".source =
+      "${cfg.pluginPackage}/share/tamlinux/plugins";
+    assertions = [
+      {
+        assertion = shell.passthru.revision == cfg.pluginPackage.passthru.revision;
+        message = "Shell and plugins must come from the same product revision.";
+      }
+    ];
+    home.activation.checkPluginOverrides =
+      config.lib.dag.entryBefore [ "checkLinkTargets" ] ''
+        # Refuse to switch while a development override is active.
+        # The real script checks the plugin state directory.
+        ...
+      '';
+  };
+}
+</pre>
+
+<p>This excerpt is shortened. <code>{ config, lib, pkgs, ... }:</code> is a module function. <code>config</code> is the final merged configuration, <code>lib</code> is the Nixpkgs library, and <code>pkgs</code> is the package set. The <code>...</code> accepts additional module arguments that Home Manager supplies. The <code>let</code> block names the option subtree and the selected package. <code>options.tamlinux.shell</code> declares the settings. <code>lib.mkEnableOption</code> creates a Boolean option that defaults to false. <code>lib.mkOption</code> declares a typed option; <code>lib.types.package</code> requires a derivation, not an arbitrary string.</p>
+
+<p>The <code>config</code> attribute is active only when <code>cfg.enable</code> is true. <code>home.packages</code> adds a package to the profile. <code>home.file</code> and <code>xdg.configFile</code> create managed links; <code>.source</code> points at a store path, while <code>.text</code> stores literal content and links that file. The <code>assertions</code> list fails evaluation if the shell and plugin package revisions differ, which prevents mixing outputs from different product revisions. <code>home.activation</code> adds a script to the activation DAG; <code>entryBefore [ "checkLinkTargets" ]</code> places it before Home Manager's own link check. The <code>''</code> string is an indented string, and <code>''${...}</code> would escape a literal interpolation.</p>
+
+<p>The same module file also declares <code>systemd.user.services.tamlinux-shell</code>. Home Manager turns that attribute set into a user unit. The <code>Unit</code>, <code>Service</code> and <code>Install</code> sections use systemd's own names. <code>WantedBy = [ "graphical-session.target" ]</code> makes the service part of the graphical session. <code>ConditionEnvironment = "WAYLAND_DISPLAY"</code> prevents it from starting without a Wayland session. The service's <code>PATH</code> is assembled from the user's <code>~/.local/bin</code>, the shell's runtime dependencies and a final <code>/usr/bin</code> fallback, so the shell finds its packaged commands first.</p>
+
+<h3>How a change becomes a generation</h3>
+
+<ol>
+<li>Edit a <code>.nix</code> file, or update a pinned input in <code>flake.nix</code> and <code>flake.lock</code>. For a product change, the source revision and the assembly record change together.</li>
+<li>Run <code>nix flake check</code> to evaluate the flake and build its checks. A check is a derivation; if it builds, the check passes.</li>
+<li>Run <code>home-manager build --flake .#name</code> to evaluate the modules and build the activation package without touching your home directory. Inspect the result before activating it.</li>
+<li>Run <code>home-manager switch --flake .#name</code> to build and activate. Home Manager creates a new generation, links the managed files and runs the activation scripts.</li>
+<li>Verify the result with <code>home-manager generations</code>, <code>readlink -f</code>, <code>command -v</code> and the program's own version output. A successful build is not the same as a verified running system.</li>
+<li>If the change is wrong, use <code>home-manager rollback</code> or select the previous generation. Keep the old generation until the new one has survived normal use.</li>
+</ol>
+
+<p>For Tamlinux product delivery, the last steps are owned by <code>tam-deploy</code>. It selects the recorded assembly, verifies that the installed shell, plugins and commands resolve into that assembly's packages, and reports the generation. Do not substitute a direct <code>home-manager switch</code> from a checkout for that recorded selection. Development builds are for testing and are removed after the deploy that delivers the pinned version.</p>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux needs two different kinds of ownership. The rootstock, which includes the kernel, drivers and system services, must follow the hardware and the distribution's lifecycle. Pacman is the right owner for that layer. The cultivar, which includes the compositor, shell, plugins, themes and curated desktop applications, changes quickly and must be reproducible across workstations. Nix and Home Manager give that layer a pinned description, atomic generations and an immediate rollback.</p>
+
+<p>The design also keeps the two layers honest. A Nix generation cannot silently change the kernel or a native driver. A native update cannot silently rewrite the desktop description. Each layer has its own record and its own recovery boundary. The cost is real: a second package store, a second package language, more disk use and a steeper learning curve. Tamlinux accepts that cost because the desktop is the part that changes most often and benefits most from reproducible delivery.</p>
+
+<p>Tamlinux is not NixOS. Nix is a package manager that runs on an ordinary Arch Linux rootstock; NixOS is a whole operating system built around Nix. Using Nix and Home Manager does not replace the rootstock or make the kernel declarative. See <a href="ecosystem/os/declarative.html">Describing how a system should be set up</a> for the distinction.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ul>
+<li><strong>Purity.</strong> Evaluation is pure by default: it cannot read arbitrary environment variables or the current system unless the expression asks for them. <code>builtins.currentSystem</code> is impure; pass <code>system</code> explicitly in a flake. Use <code>--impure</code> only for an experiment, not for a recorded build.</li>
+<li><strong>Import from derivation.</strong> A build that needs the output of another build during evaluation is an import from derivation. It can slow evaluation, break sandbox assumptions and make caching harder. Prefer evaluating data that is already in the source tree.</li>
+<li><strong>Fixed-output derivations.</strong> Network fetches are allowed only when the output hash is declared in advance. A hash mismatch means the source changed or the hash is wrong. Do not disable the check; update the pin and hash deliberately.</li>
+<li><strong>Garbage collection.</strong> Old generations keep their store closures alive. Removing a generation removes a root, and a later <code>nix-collect-garbage</code> may delete paths that only that generation used. Keep the generations you may need for rollback.</li>
+<li><strong>ABI drift across layers.</strong> A native update can replace a core library such as Mesa or Wayland while an older Nix generation still expects the previous application binary interface. Rebuild or return to a matching generation; do not assume that an old store path is compatible with a new host library.</li>
+<li><strong>PATH shadowing.</strong> A development build, a Mise shim, a Nix profile and <code>/usr/bin</code> can all provide the same command. The first match wins. Check the resolved path, not only the version string.</li>
+<li><strong>Non-NixOS graphics.</strong> A program built by Nix may need the host's graphics drivers and vendor configuration. Tamlinux wraps the shell provider to supply its locked Mesa EGL vendor file and DRI directory while leaving child processes with the caller's environment. The wrapper changes only the shell process; it is not a general fix for every Nix-built graphical program.</li>
+<li><strong>Mutable state.</strong> A generation contains software and configuration, not your documents, caches, browser profiles or other changing data. Back up mutable state separately, and do not expect a rollback to undo a document edit.</li>
+<li><strong>Evaluation cost.</strong> A large flake can evaluate many attributes before it builds anything. Lazy evaluation helps, but a broad <code>nix flake show</code> or an unnecessary import can still be slow. Ask for the narrow attribute you need.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>In a checkout of the public <code>tamlinux-packages</code> repository, read the lock file and ask Nix to evaluate one package name. These commands are read-only; the last one may build nothing because it asks only for a name.</p>
+
+<pre class="session" data-risk="read-only">
+$ nix eval .#packages.x86_64-linux.tam.name
+"tam-0.45.1"
+</pre>
+
+<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. Your package version will differ. To see the pinned inputs without building, run <code>nix flake metadata</code>. Its output has this shape:</p>
+
+<pre>
+Inputs:
+├───home-manager: github:nix-community/home-manager/&lt;commit&gt;
+├───libtam: github:greenermoose/libtam/&lt;commit&gt;
+├───nixpkgs: github:nixos/nixpkgs/&lt;commit&gt;
+├───tam: github:greenermoose/tam/&lt;commit&gt;
+├───tamlinux: github:greenermoose/tamlinux/&lt;commit&gt;
+└───tamlinux-tools: github:greenermoose/tamlinux-tools/&lt;commit&gt;
+</pre>
+
+<p>This is a schematic, not captured output; the real command also prints the checkout path, locked URL and timestamps. Notice that every input is pinned to a commit, and that the product repositories appear as source inputs rather than as flakes.</p>
+
+<p>Then follow one dependency chain without building it:</p>
+
+<pre data-risk="read-only">
+nix why-depends .#packages.x86_64-linux.tam .#packages.x86_64-linux.libtam
+</pre>
+
+<p>If the package has not been built, Nix may need to realise the paths first. Use a scratch checkout and a disposable store or a VM if you want to experiment freely. The goal is to see that a package is not a single file: it is a path in a graph of other paths.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why does Tamlinux pin <code>nixpkgs</code> and Home Manager to exact commits instead of following their stable branches?</summary>
+<p>A branch is a moving name. Pinning a commit makes the input identical on every machine and at every later build, so a recorded assembly identifies the exact bytes. Following a branch would make the same description produce different results over time and would break the link between a candidate and its evidence.</p>
+</details>
+<details class="q open">
+<summary>What breaks if two components in one Home Manager generation come from different product revisions?</summary>
+<p>The generation can mix a shell, plugin set and command set that were never tested together. Interfaces, environment variables and file layouts may disagree. Tamlinux asserts that the revisions match so the build fails early instead of producing a plausible but inconsistent session.</p>
+</details>
+<details class="q open">
+<summary>When is a direct <code>home-manager switch</code> from a checkout appropriate, and when is it not?</summary>
+<p>It is appropriate for a developer testing a local change in a disposable environment, with the old generation retained. It is not appropriate as product delivery: Tamlinux product software must arrive through a recorded <code>tamlinux-packages</code> assembly selected by <code>tam-deploy</code>, so the installed bytes and their provenance are known.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="https://nix.dev/manual/nix/latest/">Nix manual (online)</a> &mdash; evaluation, derivations, the store, profiles and garbage collection.</li>
+<li><a href="https://nix.dev/manual/nix/latest/language/">The Nix language (online)</a> &mdash; syntax, values, operators and built-ins.</li>
+<li><a href="https://nixos.org/manual/nixpkgs/stable/">Nixpkgs manual (online)</a> &mdash; <code>stdenv</code>, builders, phases, wrappers and the Nixpkgs library.</li>
+<li><a href="https://nix-community.github.io/home-manager/">Home Manager manual (online)</a> &mdash; modules, options, activation and generations.</li>
+<li><a href="https://github.com/greenermoose/tamlinux-packages">tamlinux-packages (online)</a> &mdash; the flake, lock file, package definitions and modules described here.</li>
+<li><cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Tamlinux package deployment contract</a></cite> &mdash; recorded assembly selection, installed interfaces and recovery.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Read the public <code>tamlinux-packages</code> repository at the revision your candidate names. Start with <code>flake.nix</code>, then <code>nix/packages/default.nix</code>, then the module that owns the behaviour you want to change. Make a small change in a scratch checkout, run <code>nix flake check</code> and <code>home-manager build</code>, and compare the result before proposing it. A change that affects the installed desktop is a product change: it needs the normal Test and Run stages, not a local switch presented as delivery.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/packaging.html">Software packaging and delivery</a> &mdash; trace a command to pacman, Nix or Mise and choose the right owner.</li>
+<li><a href="ecosystem/package-versions.html">Keeping track of software versions</a> &mdash; see how a candidate records exact component revisions.</li>
+<li><a href="maintain/rollback.html">Returning to an earlier working state</a> &mdash; match a generation rollback to the layer that changed.</li>
+<li><a href="ecosystem/os/declarative.html">Describing how a system should be set up</a> &mdash; compare Nix and Home Manager with NixOS and Guix.</li>
+</ul>
+</body>
+</html>
