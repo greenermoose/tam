@@ -3,7 +3,7 @@
 **Last Update:** 2026-10-31
 **Owner:** Fred
 **Current Command Version:** `0.48.0`.
-**Current Corpus Version:** `0.51.0`.
+**Current Corpus Version:** `0.52.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.0 / 0.51.0 | Newest source; line b difficulty level display and highlighting (Showing 0-3 with cyan, green, yellow, magenta highlights), pager page scrolling (Space/PgDn, Shift-Space/PgUp/b) with screen overlap and attention row placement, HTML help page help/index.html with back-on-help navigation, pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, terminfo/ncurses ecosystem pages, and peer project and community ecosystem pages. Development installation is a separate developer-directed step. |
+| `develop` | 0.48.0 / 0.52.0 | Newest source; line b difficulty level display and highlighting (Showing 0-3 with cyan, green, yellow, magenta highlights), pager page scrolling (Space/PgDn, Shift-Space/PgUp/b) with screen overlap and attention row placement, HTML help page help/index.html with back-on-help navigation, pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, terminfo/ncurses ecosystem pages, peer project and community ecosystem pages, and a networking chapter covering connection status, link/address/name diagnosis, and DNS. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
