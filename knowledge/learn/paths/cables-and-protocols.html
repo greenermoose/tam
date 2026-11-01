@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mastering computer cables, hardware communication, and protocols</title>
+<meta name="topic" content="cables-and-protocols-path">
+<meta name="summary" content="From voltage loops and semiconductors to serial, optical fiber, wireless RF, protocols, and bench repair">
+<meta name="keywords" content="path, cables, protocols, communication, hardware, serial, parallel, fiber-optic, wireless, error-correction, diagnostics">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Mastering computer cables, hardware communication, and protocols</p>
+</nav>
+
+<h1>Mastering computer cables, hardware communication, and protocols</h1>
+<p>This learning path guides you from zero prior knowledge of computing hardware to mastery of computer cables, electrical signaling, optical fiber, wireless radiation, protocol framing, and bench-level board repair.</p>
+<p>Fred Horch, the Tamlinux developer, designed Tamlinux on the principle of transparency: a computer should never be an impenetrable black box. True computing literacy does not stop at the operating system or command line; it begins in the physical universe with the flow of electrons through closed circuits, the quantum bandgap of semiconductors, the pulses of photons through silica glass, and the electromagnetic radiation of radio waves. By following this sequential curriculum, you will build an unbroken mental model connecting basic electrical physics to modern high-speed communication networks and hardware diagnostics.</p>
+
+<h2>Stage 1: Electricity, semiconductors, and power loops</h2>
+<p><a href="ecosystem/circuits-and-power.html?level=1">Electricity, semiconductors, and power distribution</a>: Learn how voltage pushes electric current through closed conducting loops, how power supplies convert AC mains into regulated DC rails, and how semiconductor P-N junctions form diodes and transistor switches.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary>Why can electrical current never flow through a single disconnected wire?</summary>
+<p>Because every electrical circuit requires an unbroken closed loop. Electrons can only move continuously if they have a complete return path back to the power source that maintains an electromotive force (voltage) pushing them forward.</p>
+</details>
+<details class="q">
+<summary>How does a semiconductor diode allow current to flow in only one direction?</summary>
+<p>A diode joins P-type and N-type silicon to form a P-N junction with an internal depletion zone. Forward voltage pushes electrons and holes across the junction to conduct current; reverse voltage widens the depletion zone, blocking current flow.</p>
+</details>
+</section>
+
+<h2>Stage 2: Channels and bit movement</h2>
+<p><a href="ecosystem/serial-and-parallel.html?level=1">Serial and parallel communication channels</a>: Compare serial single-lane bit streams against multi-lane parallel buses, evaluate simplex, half-duplex, and full-duplex transmission modes, and understand why modern computing replaced wide parallel ribbons with high-speed serial links.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary>Why did high-speed computer architectures transition from 64-bit parallel buses to point-to-point serial links like PCIe?</summary>
+<p>At gigahertz frequencies, microscopic variations in wire length cause clock skew (bits arriving out of alignment), and closely packed parallel wires suffer severe capacitive crosstalk. Serial links eliminate skew and achieve orders-of-magnitude higher speeds using embedded clock recovery.</p>
+</details>
+</section>
+
+<h2>Stage 3: Media and signaling: copper, fiber, and wireless waves</h2>
+<p><a href="ecosystem/cables-and-signaling.html?level=2">Transmission media: electrical cables, optical fiber, and wireless waves</a>: Discover how differential signaling cancels electrical noise on copper pairs, how total internal reflection traps laser light inside optical fiber cores, and how accelerating electrical charges radiate electromagnetic radio waves for Wi-Fi and cellular networks.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary>How does an optical transceiver convert digital electronic bits into light pulses and back again?</summary>
+<p>A laser diode or VCSEL transmitter converts electrical logic voltage into nanosecond pulses of photons. At the receiving end, a semiconductor photodiode absorbs incoming photons, generating a minute electrical current via the photoelectric effect, which a transimpedance amplifier boosts back into digital voltage swings.</p>
+</details>
+<details class="q">
+<summary>Why does twisting copper wire pairs together reject electromagnetic interference?</summary>
+<p>Twisting ensures that external electromagnetic noise strikes both wires equally, inducing an identical voltage spike on both. When the differential receiver subtracts the negative wire from the positive wire, the common noise terms cancel out completely.</p>
+</details>
+</section>
+
+<h2>Stage 4: Protocols, framing, and channel reliability</h2>
+<p><a href="ecosystem/communication-protocols.html?level=2">Communication protocols, framing, and data rates</a> and <a href="ecosystem/error-detection-and-correction.html?level=2">Error detection, correction, and channel reliability</a>: Distinguish baud rate from bit rate, master UART 8N1 framing, evaluate hardware vs software flow control, and implement parity, checksums, CRCs, and Hamming Forward Error Correction codes.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary>If an asynchronous serial link is configured as 115,200 baud, 8N1, what is the maximum number of data characters it can transmit per second?</summary>
+<p>Each character requires 10 physical bit periods (1 Start bit + 8 Data bits + 0 Parity bits + 1 Stop bit). Dividing 115,200 baud by 10 bits per frame yields a maximum throughput of 11,520 characters (payload bytes) per second.</p>
+</details>
+<details class="q">
+<summary>What is the difference between error detection (like CRC-32) and Forward Error Correction (like Hamming codes)?</summary>
+<p>Error detection calculates a mathematical remainder that tells the receiver whether a frame was corrupted, requiring a retransmission protocol (ARQ) to request a new copy. Forward Error Correction (FEC) adds geometric redundancy that allows the receiver to locate and invert the exact corrupted bits on the fly without retransmission.</p>
+</details>
+</section>
+
+<h2>Stage 5: Bench diagnostics and board repair</h2>
+<p><a href="ecosystem/hardware-diagnostics.html?level=3">Hardware diagnostics: troubleshooting cables and communication boards</a>: Inspect physical connectors and Linux device enumeration, use a digital multimeter for continuity and diode drops, build hardware serial loopback plugs, analyze waveforms with oscilloscopes, and replace blown transceivers and TVS protection diodes.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary>What does a successful serial loopback test (connecting TX directly to RX) prove about a computer system?</summary>
+<p>It proves that the entire local communication stack &mdash; user-space software, OS kernel drivers, USB host controllers, hardware UART registers, and line transceiver output/input circuitry &mdash; is 100% operational. Any remaining fault must reside in the external field cable or remote device.</p>
+</details>
+</section>
+
+<h2>Capstone: End-to-end field link diagnostics</h2>
+<p><strong>Scenario:</strong> You are dispatched to diagnose an automated solar energy monitoring array. An industrial logging controller communicates with distant solar inverters across a 60-meter link consisting of:
+1. A 24V DC auxiliary power bus running alongside the data lines.
+2. An RS-485 two-wire differential serial bus operating at 115,200 baud.
+3. An optical fiber bridge coupling data to the central operations center.</p>
+
+<p><strong>Reported Symptoms:</strong>
+The central dashboard reports continuous CRC checksum errors and intermittent link dropouts. The field technician replaced the remote solar inverter, but the new unit also drops offline. In addition, the RS-485 transceiver chip (SP3485) on the logger board is uncomfortably hot to the touch, and when the monitoring software connects, terminal output shows garbled characters (<code>`~?x??{</code>).</p>
+
+<p><strong>Your Task:</strong> Using the principles mastered in this path, formulate a systematic 4-step diagnostic and bench repair procedure to isolate and repair all physical and protocol failures.</p>
+
+<details class="solution">
+<p><strong>Model Diagnostic and Repair Procedure:</strong></p>
+<ol>
+<li><strong>Step 1: Protocol and Baud Verification:</strong>
+  <ul>
+  <li><em>Observation:</em> Garbled characters (<code>`~?x??{</code>) indicate a baud rate or framing mismatch.</li>
+  <li><em>Action:</em> Query local terminal settings using <code>stty -F /dev/ttyUSB0</code>. Discover that the local logger is configured for 9600 baud while the new inverter defaults to 115,200 baud 8N1. Reconfigure the serial port to 115,200 baud with <code>stty -F /dev/ttyUSB0 115200 cs8 -cstopb -parenb</code>.</li>
+  </ul>
+</li>
+<li><strong>Step 2: Power and Ground Loop Isolation:</strong>
+  <ul>
+  <li><em>Observation:</em> The SP3485 transceiver chip is overheating, suggesting excessive current flow through protection diodes or a ground loop.</li>
+  <li><em>Action:</em> Disconnect the cable and measure DC voltage between the solar array ground and the logger board ground using a multimeter. Measure a 4.5V ground potential difference caused by improper earth grounding between the two locations. Isolate the signal ground reference and install an optically isolated RS-485 repeater to break the ground loop and protect the transceiver.</li>
+  </ul>
+</li>
+<li><strong>Step 3: Signal Integrity, Reflections, and Continuity:</strong>
+  <ul>
+  <li><em>Observation:</em> Persistent CRC checksum errors across a 60-meter high-speed serial run indicate signal reflections or internal cable damage.</li>
+  <li><em>Action:</em> Power off the bus and measure resistance across the RS-485 differential pair (lines A and B). The multimeter reads <code>OL</code> (infinite resistance). The long cable run is completely unterminated. Install a 120-ohm terminating resistor across the differential lines at each end of the 60-meter cable to match characteristic impedance (<code>Z_L = Z_0</code>), absorbing reflections and restoring crisp square pulses on the oscilloscope.</li>
+  </ul>
+</li>
+<li><strong>Step 4: Transceiver and Board Repair:</strong>
+  <ul>
+  <li><em>Observation:</em> After cooling down, the SP3485 transceiver output fails to toggle when probed with an oscilloscope (stuck at 0V differential). The chip was damaged by the ground loop over-current.</li>
+  <li><em>Action:</em> Use a hot-air rework station to desolder the blown SOIC-8 SP3485 transceiver. Inspect the adjacent TVS protection diode array with a multimeter diode check; verify it is not shorted to ground. Solder a fresh replacement SP3485 transceiver onto the board. Run a loopback test using a jumper between local pins to verify driver toggle, then reconnect the terminated field cable. Verify zero CRC errors in kernel logs.</li>
+  </ul>
+</li>
+</ol>
+</details>
+
+<h2>Next paths</h2>
+<p><a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>
+</body>
+</html>

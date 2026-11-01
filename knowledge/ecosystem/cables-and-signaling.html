@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Transmission media: electrical cables, optical fiber, and wireless waves</title>
+<meta name="topic" content="cables-and-signaling">
+<meta name="summary" content="Copper cables, optical fiber waveguides, total internal reflection, wireless electromagnetic waves, and signaling">
+<meta name="keywords" content="cables-and-signaling, cables, connectors, copper, fiber-optic, optics, total-internal-reflection, radio-waves, electromagnetic, wifi, cellular, antenna, differential-signaling, impedance">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="circuits-and-power, serial-and-parallel">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert, networking.beginner, networking.intermediate, networking.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Transmission media: electrical cables, optical fiber, and wireless waves</p>
+</nav>
+
+<h1>Transmission media: electrical cables, optical fiber, and wireless waves</h1>
+<p>This page explains the physical transmission media that carry computer data &mdash; electrical copper cables, glass optical fibers, and radiating wireless electromagnetic waves.</p>
+<p>All digital communications depend on manipulating physical energy across space. Whether transmitting voltage pulses across copper wires, flashing laser beams through strands of purified glass, or radiating high-frequency electromagnetic waves across the atmosphere, each medium is governed by precise physical laws. Understanding how conductors, optical waveguides, and radio antennas operate, how electrical signals become light or radio waves, and how noise and reflections degrade signal integrity allows you to design, deploy, and troubleshoot computer communication systems.</p>
+
+<section data-level="beginner">
+<h2>The three media: copper wire, light in glass, and radio waves</h2>
+
+<p><strong>Goal:</strong> you will be able to describe the three physical media used to carry computer signals &mdash; copper cables, optical fiber, and radio waves &mdash; and explain how signals travel through each.</p>
+
+<p><strong>Why it matters:</strong> selecting the wrong physical medium causes communication links to fail completely. A copper network cable running past heavy factory motors will pick up devastating electrical noise that corrupts data; running copper cables between separate buildings risks lightning destruction and ground loops; and trying to route high-speed video over long distances without optical fiber results in black screens. Knowing how each medium behaves ensures you select the correct cables and interfaces for your environment.</p>
+
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The commands in this section query physical network link parameters without altering network connections.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> Cables are the physical highways of computing. A cable contains one or more insulated conductors surrounded by protective outer jackets. The terminal commands below show how Linux identifies whether an interface is using a physical cable or wireless radio.</p>
+</aside>
+
+<h3>Worked example: query physical network link types</h3>
+
+<pre class="session" data-risk="read-only">
+$ ip -br link
+lo               UNKNOWN        00:00:00:00:00:00 &lt;LOOPBACK,UP,LOWER_UP&gt;
+enp1s0           UP             54:05:db:4b:21:aa &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;
+wlp3s0           UP             e8:2a:44:89:12:ef &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;
+
+$ ethtool enp1s0 | grep -E "Speed|Duplex|Port"
+	Speed: 1000Mb/s
+	Duplex: Full
+	Port: Twisted Pair
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-01. The machine provides both a wired twisted-pair copper Ethernet interface (<code>enp1s0</code>) and a wireless radio interface (<code>wlp3s0</code>).</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>ip -br link</code> lists kernel network devices: <code>enp1s0</code> is a physical wired Ethernet card; <code>wlp3s0</code> is a wireless Wi-Fi radio adapter.</li>
+<li><code>ethtool</code> queries the physical layer transceiver of the wired card, reporting that it is connected via a <code>Twisted Pair</code> copper cable operating at 1,000 megabits per second (1 Gbps) in full duplex.</li>
+</ol>
+
+<h3>The three fundamental transmission media</h3>
+
+<p>All computer data travels through one of three physical channels:</p>
+
+<ol>
+<li><strong>Electrical (Copper) Cables:</strong> Signals travel as pulses of electric current (moving electrons) along metal wires.
+  <ul>
+  <li><em>Construction:</em> Central copper conductors wrapped in plastic insulation, surrounded by metallic foil or braided copper shielding, enclosed in an outer jacket.</li>
+  <li><em>Connectors:</em> RJ-45 (8P8C for Ethernet), USB Type-A and Type-C, DB-9 and DB-25 (RS-232 serial), and flat IDC ribbon cables.</li>
+  <li><em>Strengths:</em> Cheap, rugged, easily terminated, and can carry electrical power alongside data (Power over Ethernet / USB-PD).</li>
+  <li><em>Limitations:</em> Suffers electrical noise (EMI), limited distance (typically 100 meters for Ethernet, 2 to 3 meters for high-speed USB), and vulnerable to ground loops.</li>
+  </ul>
+</li>
+<li><strong><dfn><a href="learn/glossary/fiber-optic.html">Fiber Optic</a></dfn> Cables:</strong> Signals travel as pulses of light (photons) guided inside ultra-pure glass or plastic strands.
+  <ul>
+  <li><em>Construction:</em> A microscopic glass core surrounded by a glass cladding layer with a different optical density, covered in protective aramid yarn (Kevlar) and a colored outer jacket.</li>
+  <li><em>Connectors:</em> LC (Lucent Connector, small snap-in), SC (Subscriber Connector, push-pull), ST (bayonet twist), and MPO/MTP (multi-fiber ribbon).</li>
+  <li><em>Strengths:</em> Immune to all electrical interference, radio noise, and lightning surges; zero ground loop risk; transmits multi-gigabit data over tens of kilometers.</li>
+  <li><em>Limitations:</em> Glass fibers cannot carry electrical power; fragile if bent too tightly (macrobend loss); requires precision optical transceivers.</li>
+  </ul>
+</li>
+<li><strong>Wireless (<dfn><a href="learn/glossary/electromagnetic-wave.html">Electromagnetic Waves</a></dfn>):</strong> Signals travel through free space as radiating invisible waves of coupled electric and magnetic energy without any physical wires.
+  <ul>
+  <li><em>Technologies:</em> Wi-Fi (IEEE 802.11), Bluetooth, cellular networks (4G LTE / 5G NR), and satellite communications.</li>
+  <li><em>Strengths:</em> Total physical mobility; eliminates cabling costs across open spaces.</li>
+  <li><em>Limitations:</em> Highly vulnerable to physical obstacles (walls, foliage), radio interference, atmospheric moisture absorption, and shared broadcast bandwidth.</li>
+  </ul>
+</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Inspect your active connection using <code>tam-network-status</code>. If you are on Wi-Fi, view your wireless link quality and frequency band using <code>iw dev $(ip -br link | grep -E "^wl" | awk '{print $1}') link</code>.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>ethtool: command not found</code></dt>
+<dd>The <code>ethtool</code> package is missing. Inspect basic carrier detection directly through the kernel sysfs interface: <code>cat /sys/class/net/enp1s0/carrier</code> (1 means cable is plugged in; 0 means disconnected).</dd>
+<dt><code>Cannot get device settings: Operation not supported</code></dt>
+<dd>The network interface is a virtual container adapter or wireless interface. <code>ethtool</code> link queries apply strictly to physical wired network interface controllers (NICs).</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is a fiber optic cable completely immune to electromagnetic interference (EMI) from nearby power lines or electric motors?</summary>
+<p>Because fiber optic cables carry data using pulses of light (photons) traveling through non-conductive glass, rather than electric current (electrons) traveling through metal. Magnetic fields from power lines only induce noise in electrical conductors, having zero effect on light beams in glass.</p>
+</details>
+<details class="q">
+<summary>What is the difference between how data travels through copper wire versus how it travels through an optical fiber?</summary>
+<p>In copper wire, data travels as electrical voltage and current pulses (moving electrons) pushing against physical resistance. In optical fiber, data travels as flashes of light (photons) reflecting inside a transparent glass core.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Fiber optic</dt>
+<dd>A transmission medium that guides pulses of light through transparent glass or plastic fibers.</dd>
+<dt>Electromagnetic wave</dt>
+<dd>Propagating oscillations of electric and magnetic fields that travel through space at the speed of light.</dd>
+<dt>Twisted pair</dt>
+<dd>A cable construction where pairs of insulated conductors are twisted together to cancel out electromagnetic interference.</dd>
+</dl>
+
+<p><strong>Next step:</strong> at Intermediate, explore differential signaling, total internal reflection in fiber, and how antennas radiate radio waves.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Differential signaling, total internal reflection, and radio antennas</h2>
+
+<p><strong>Goal:</strong> you will be able to contrast single-ended vs differential electrical signaling, explain total internal reflection in fiber optics, and describe electro-optical and radio wave conversion.</p>
+
+<h3>Mental model</h3>
+
+<pre>
+Differential Electrical Signaling:
+  Wire A (+):  ___/---\___/---\___   (V_plus)
+  Wire B (-):  ---\___/---\___/---   (V_minus = -V_plus)
+  External Noise Spike (N) hits BOTH wires identically:
+  Receiver subtracts: (V_plus + N) - (V_minus + N) = V_plus - V_minus  (NOISE ELIMINATED!)
+
+Fiber Optic Total Internal Reflection (TIR):
+       Cladding (Lower Refractive Index, n2)
+  -------------------------------------------------- Boundary
+       Core (Higher Refractive Index, n1)  \  / Light ray trapped!
+       Light Ray ========&gt; Angle &gt; Theta_c  \/ (Reflects indefinitely)
+  -------------------------------------------------- Boundary
+       Cladding (n2)
+
+Antenna Radiation (Electrical Current to Radio Waves):
+  RF Oscillator ===&gt; Accelerating Electrons in Metal Rod
+                     ---&gt; Radiating Oscillating Electric Field (E)
+                     ---&gt; Radiating Oscillating Magnetic Field (B)
+                     ===&gt; Self-Propagating Electromagnetic Wave in Free Space
+</pre>
+
+<h3>Electrical signaling: single-ended versus differential</h3>
+
+<p>When sending electrical pulses through copper, circuits use one of two fundamental methods:</p>
+
+<ul>
+<li><strong>Single-Ended Signaling:</strong> Uses one signal wire per data channel, with all channels sharing a common ground wire as their voltage reference.
+  <ul>
+  <li><em>Characteristics:</em> Used in legacy interfaces (RS-232, parallel printer ports, early RAM).</li>
+  <li><em>Vulnerability:</em> If external static or motor noise induces an electrical spike onto the signal wire, the receiver cannot distinguish the noise from a legitimate data bit. Furthermore, return currents from multiple signals sharing a ground wire cause <strong>ground bounce</strong>, corrupting high-speed data.</li>
+  </ul>
+</li>
+<li><strong><dfn><a href="learn/glossary/differential-signaling.html">Differential Signaling</a></dfn>:</strong> Uses two tightly twisted wires for each data channel. The transmitter sends the true signal on Wire A ($V_+$) and an exact inverted copy on Wire B ($V_-$).
+  <ul>
+  <li><em>Characteristics:</em> Used in modern high-speed standards (Ethernet, USB, HDMI, DisplayPort, PCIe, RS-485).</li>
+  <li><em>Common-Mode Noise Rejection:</em> Because the two wires are twisted closely together, any incoming electromagnetic noise ($N$) strikes both wires equally. The receiver measures strictly the <em>difference</em> between the two wires:
+  <pre data-risk="read-only">
+  V_received = (V_+ + N) - (V_- + N) = V_+ - V_-
+  </pre>
+  The external noise cancels out completely. This allows differential links to run over hundreds of meters at low voltage swings (a few hundred millivolts) with extraordinary noise immunity.</li>
+  </ul>
+</li>
+</ul>
+
+<h3>How fiber optics work: Total Internal Reflection</h3>
+
+<p>Light naturally travels in a straight line, but optical fibers can bend light around corners. This is achieved through the optical physics of <strong>Total Internal Reflection (TIR)</strong>:</p>
+
+<ol>
+<li><strong>Refractive Index:</strong> When light crosses from a dense medium with a higher refractive index (<code>n1</code>) into a less dense medium with a lower refractive index (<code>n2</code>), the light ray bends away from the normal surface.</li>
+<li><strong>The Critical Angle:</strong> If the light strikes the boundary at an angle shallower than the critical angle (calculated by Snell's law: <code>critical angle = arcsin(n2 / n1)</code>), the light ray cannot escape into the outer cladding. Instead, 100% of the light reflects completely back into the glass core, bouncing down the strand for kilometers with negligible loss.</li>
+<li><strong>Single-Mode vs Multi-Mode Fiber:</strong>
+  <ul>
+  <li><strong>Single-Mode Fiber (SMF, yellow jacket):</strong> Has a tiny glass core (only 9 micrometers in diameter &mdash; narrower than a human hair). Light travels in a single direct ray, eliminating modal dispersion. Driven by infrared lasers (1310 nm or 1550 nm), SMF carries signals over 10 to 40 kilometers without repeaters.</li>
+  <li><strong>Multi-Mode Fiber (MMF, aqua or orange jacket):</strong> Has a wider glass core (50 or 62.5 micrometers). Light bounces along multiple simultaneous reflective paths (modes). Driven by lower-cost LEDs or VCSEL lasers (850 nm), MMF is used for high-bandwidth connections inside datacenters up to 300 to 500 meters.</li>
+  </ul>
+</li>
+</ol>
+
+<h3>Electro-optical conversion: from electrons to photons</h3>
+
+<p>Computers process electrical signals on silicon, but fiber optics carry light. The conversion occurs inside hot-pluggable optical transceiver modules (such as SFP+ or QSFP):</p>
+
+<ul>
+<li><strong>Electrical to Optical (Transmitter):</strong> Digital voltage pulses drive a semiconductor <strong>Laser Diode</strong> or Vertical-Cavity Surface-Emitting Laser (VCSEL). The laser switches on and off in nanoseconds, launching photons into the fiber core.</li>
+<li><strong>Optical to Electrical (Receiver):</strong> Incoming light pulses strike a semiconductor <strong>Photodiode</strong> (a reverse-biased P-N junction). Photons dislodge electrons via the photoelectric effect, creating a tiny electrical current. A <strong>Transimpedance Amplifier (TIA)</strong> boosts this tiny current into clean, standard digital voltage swings that motherboard controllers understand.</li>
+</ul>
+
+<h3>Radio waves: from electrical circuits to wireless radiation</h3>
+
+<p>How does an electrical computer broadcast data across a room without wires?</p>
+
+<ol>
+<li><strong>Accelerating Charge:</strong> Under the laws of classical electrodynamics (Maxwell's equations), whenever electrical charges accelerate &mdash; such as high-frequency alternating current rushing back and forth inside a metal rod &mdash; they create an oscillating electric field (E).</li>
+<li><strong>Coupled Magnetic Field:</strong> A changing electric field generates an oscillating magnetic field (B), which in turn regenerates an electric field. The two fields couple together and detach from the metal conductor, radiating outward into space at the speed of light (300,000 km/s) as an <strong>electromagnetic radio wave</strong>.</li>
+<li><strong>Antenna Reception:</strong> When the radiating electromagnetic wave passes across a distant antenna, the oscillating electric field pushes electrons inside the metal rod, inducing an alternating electric current. The receiving radio chip amplifies and demodulates this microvolt signal back into binary digital bits.</li>
+<li><strong>Wi-Fi and Cellular Frequency Bands:</strong> Wi-Fi modulates radio frequencies in unlicensed Industrial, Scientific, and Medical (ISM) spectrum bands (2.4 GHz, 5 GHz, and 6 GHz). Cellular networks (4G LTE / 5G NR) operate across licensed regional frequency bands (700 MHz to 3.5 GHz for long-range coverage, and 24 GHz to 40 GHz millimeter-wave for ultra-dense short-range capacity).</li>
+</ol>
+
+<h3>Worked example: query optical SFP transceiver diagnostics</h3>
+
+<pre class="session" data-risk="system">
+$ sudo ethtool -m enp1s0 2&gt;/dev/null || echo "Interface uses fixed copper PHY (no SFP module present)"
+Interface uses fixed copper PHY (no SFP module present)
+</pre>
+
+<p>When an optical SFP/QSFP module is installed in an enterprise NIC, <code>ethtool -m</code> queries its internal Digital Diagnostic Monitoring (DDM) microcontroller, reporting laser bias current, optical transmit power (in dBm), and received optical power.</p>
+
+<h3>Completion task</h3>
+
+<p>Fill in the missing command option to inspect the active Wi-Fi link speed, signal strength (RSSI), and frequency (marked with <code>___</code>):</p>
+
+<pre data-risk="read-only">
+iw dev wlp3s0 ___
+</pre>
+
+<details class="solution">
+<p>Fill in <code>link</code>. Running <code>iw dev wlp3s0 link</code> queries the wireless kernel driver, reporting the connected access point BSSID, radio frequency (e.g. 5240 MHz), signal strength (e.g. -54 dBm), and instantaneous receive/transmit bitrates.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Explain why an RS-485 industrial communication bus uses a 120-ohm resistor at each end of its differential cable, and predict what happens to digital signal pulses if those resistors are missing.</p>
+
+<details class="solution">
+<p>A 120-ohm resistor matches the cable's <em>characteristic impedance</em> ($Z_0$). When an electrical pulse reaches the end of an un-terminated wire (open circuit), the electrical energy cannot leave and reflects back down the cable like an echo. These reflected waves collide with incoming data pulses, creating ringing and false edges that corrupt bit reading. Terminating the line with a resistor matching $Z_0$ absorbs 100% of the pulse's energy with zero reflection.</p>
+</details>
+
+<h3>Choosing</h3>
+
+<table>
+<tr><th>Transmission Medium</th><th>Max Practical Range</th><th>Immunity to Noise (EMI)</th><th>Power Delivery Capability</th><th>Installation Cost</th></tr>
+<tr><td>Cat6A Twisted-Pair Copper</td><td>100 meters</td><td>High (Differential rejection + shield)</td><td>Yes (Power over Ethernet up to 90W)</td><td>Low (Standard RJ-45 crimping)</td></tr>
+<tr><td>Single-Mode Optical Fiber (OS2)</td><td>10 to 40+ km</td><td>Total (100% immune)</td><td>None (Light only)</td><td>Moderate (Requires fusion splicing &amp; SFPs)</td></tr>
+<tr><td>Multi-Mode Optical Fiber (OM4)</td><td>300 to 500 meters</td><td>Total (100% immune)</td><td>None (Light only)</td><td>Moderate (Short-range datacenter optics)</td></tr>
+<tr><td>Wi-Fi 6 / 6E Radio (5/6 GHz)</td><td>10 to 30 meters</td><td>Low (Susceptible to radio interference)</td><td>None (Requires battery or wall adapter)</td><td>Lowest (Zero cable pulling)</td></tr>
+</table>
+
+<h3>Troubleshooting</h3>
+
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
+<tr><td>Ethernet links negotiate at 100 Mbps instead of 1000 Mbps</td><td>One of the four wire pairs in the Cat5e/Cat6 cable has an open wire break</td><td>Run `ethtool enp1s0` and inspect cable with a hardware pin tester</td><td>Re-crimp RJ-45 connector or replace cable (Gigabit requires all 4 pairs; 100M requires only 2)</td></tr>
+<tr><td>Optical fiber link shows no carrier light</td><td>Transmitter and receiver strands are swapped (TX connected to TX)</td><td>Inspect patch cable orientation (A-to-B crossover)</td><td>Unclip duplex LC connector and reverse the two fiber strands so TX connects to RX</td></tr>
+<tr><td>Optical link drops packets intermittently</td><td>Dust or microscopic oil contamination on optical ferrule end-face</td><td>Inspect received power with `ethtool -m` (values below -20 dBm indicate high attenuation)</td><td>Clean fiber connector end-faces using an optical one-click dry cleaning pen</td></tr>
+<tr><td>Wi-Fi drops connection when microwave runs</td><td>Severe 2.4 GHz radio frequency interference overlapping Wi-Fi channel</td><td>Run `iw dev wlp3s0 scan | grep -E "SSID|freq"`</td><td>Migrate wireless connection to 5 GHz or 6 GHz frequency band</td></tr>
+</table>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> wireless regulatory domains are configured through the kernel wireless subsystem (`crda` / `wireless-regdb`). Tamlinux automatically aligns Wi-Fi channels and maximum allowable transmit power (EIRP) with local radio spectrum laws, preventing interference with aircraft radar frequencies on Dynamic Frequency Selection (DFS) channels.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>How does differential signaling eliminate electromagnetic noise picked up along a computer cable?</summary>
+<p>Differential signaling transmits equal and opposite voltages across a tightly twisted pair of wires. When external noise strikes the cable, it introduces an identical voltage spike on both wires (common-mode noise). When the receiver subtracts the two wire voltages from each other, the identical noise terms cancel out completely.</p>
+</details>
+<details class="q">
+<summary>What physical condition is required for total internal reflection to trap light inside an optical fiber core?</summary>
+<p>The glass core must have a higher refractive index than the surrounding cladding glass, and the light ray must strike the boundary at an angle shallower than the critical angle (<code>critical angle = arcsin(n2 / n1)</code>).</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; ethtool(8) and socket(7).</li>
+<li><a href="man:iw(8)">iw(8)</a> &mdash; inspect and configure wireless radio link parameters.</li>
+<li>Hecht, J. <em>Understanding Fiber Optics</em> (5th ed.). Laser Light Press.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Transmission line theory, optical link budgets, and eye diagrams</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Transmission Standard</th><th>Medium Specification</th><th>Impedance (Z_0)</th><th>Signal Type</th><th>Typical Voltage Swing (V_pp)</th><th>Max Loss Budget</th></tr>
+<tr><td>1000BASE-T Ethernet</td><td>Cat5e/Cat6 UTP (4 pairs)</td><td>100 ohms +/- 15%</td><td>Differential PAM-5</td><td>+/- 1.0 V</td><td>21 dB at 100 MHz (100 m)</td></tr>
+<tr><td>10GBASE-LR Optical</td><td>Single-Mode OS2 (1310 nm)</td><td>Dielectric Waveguide</td><td>Optical 10.3 Gbps</td><td>Laser Launch: -8 to +0.5 dBm</td><td>6.2 dB optical budget (10 km)</td></tr>
+<tr><td>RS-485 Industrial</td><td>Shielded Twisted Pair (1 pair)</td><td>120 ohms +/- 10%</td><td>Differential Bipolar</td><td>+/- 1.5 V to +/- 5.0 V</td><td>+/- 200 mV receiver sensitivity</td></tr>
+<tr><td>USB 3.2 Gen 2</td><td>Shielded Differential Pair (SDP)</td><td>90 ohms +/- 5 ohms</td><td>Differential High-Speed</td><td>+/- 400 mV - 600 mV</td><td>-8.5 dB at 5 GHz (1 m)</td></tr>
+<tr><td>Wi-Fi 6 (802.11ax)</td><td>Free Space RF (5 GHz)</td><td>377 ohms (Air) / 50 ohms (Antenna)</td><td>1024-QAM / OFDM</td><td>EIRP limit: +20 to +30 dBm</td><td>Receiver Sensitivity: -65 to -90 dBm</td></tr>
+</table>
+
+<h3>How it works: Transmission Line Theory and Impedance</h3>
+
+<p>When the transit time of an electrical signal across a cable exceeds roughly one-tenth of its rise time (<code>t_transit &gt; 0.1 * t_rise</code>), wires can no longer be modeled as simple lumped zero-resistance connections. They behave as <strong>transmission lines</strong> with distributed capacitance (C) and distributed inductance (L) per unit length:</p>
+
+<ol>
+<li><strong>Characteristic Impedance (Z_0):</strong> The ratio of voltage to current for a wave propagating along the line:
+<pre data-risk="read-only">
+Z_0 = sqrt( L / C )
+</pre>
+Characteristic impedance depends solely on conductor geometry, spacing, and the dielectric constant of the insulating material &mdash; not on cable length.</li>
+<li><strong>The Reflection Coefficient (Gamma):</strong> When a propagating wave encounters a load impedance (<code>Z_L</code>) at the end of the cable, the fraction of voltage reflected back toward the transmitter is:
+<pre data-risk="read-only">
+Gamma = (Z_L - Z_0) / (Z_L + Z_0)
+</pre>
+If the line end is open (<code>Z_L = infinity</code>), <code>Gamma = +1</code> (a wave of equal amplitude reflects back in phase). If the line is shorted to ground (<code>Z_L = 0</code>), <code>Gamma = -1</code> (the wave reflects back inverted). Only when the terminating resistor exactly matches the cable impedance (<code>Z_L = Z_0</code>) does <code>Gamma = 0</code>, absorbing 100% of the energy without reflections.</li>
+</ol>
+
+<h3>Optical link budgets and dispersion</h3>
+
+<p>Engineers calculate whether an optical signal can traverse a fiber link using the <strong>optical power budget equation</strong>:</p>
+
+<pre data-risk="read-only">
+P_rx = P_tx - (alpha * Length + N_connectors * Loss_connector + N_splices * Loss_splice + Margin)
+</pre>
+
+<p>Where <code>P_tx</code> is minimum laser transmitter output power (in dBm), <code>P_rx</code> is receiver sensitivity, and <code>alpha</code> is fiber attenuation (typically 0.35 dB/km at 1310 nm, or 0.20 dB/km at 1550 nm). If calculated <code>P_rx</code> is lower than the receiver's minimum sensitivity threshold, photons cannot reliably trigger electron transitions in the photodiode, producing high bit error rates. At high gigabit speeds, pulse width expands due to <strong>chromatic dispersion</strong> (different wavelengths of laser light traveling at slightly different speeds in silica glass), setting an upper limit on modulation symbol rate.</p>
+
+<h3>Signal integrity and eye diagrams</h3>
+
+<p>To evaluate transmission quality across physical media, engineers probe differential pairs with high-speed digital oscilloscopes to generate an <strong>eye diagram</strong> (overlaying thousands of consecutive bit transitions triggered on the clock):</p>
+
+<ul>
+<li><strong>Eye Height:</strong> The vertical opening between high and low voltage levels. Represents the channel's <strong>noise margin</strong>. A collapsed eye height indicates severe line attenuation or high contact resistance.</li>
+<li><strong>Eye Width:</strong> The horizontal time opening between rising and falling edges. Represents <strong>timing jitter</strong>. A narrow eye indicates clock instability, Phase-Locked Loop phase noise, or inter-symbol interference (ISI).</li>
+<li><strong>Eye Mask Violations:</strong> Standards define a geometric diamond mask in the center of the eye. If signal ringing, overshoot, or impedance reflections cross into the mask, bit decoding errors are guaranteed.</li>
+</ul>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Understanding transmission line impedance and optical physical layers directly impacts Tamlinux system deployment. From selecting low-loss twinaxial Direct Attach Copper (DAC) cables for 10GbE server interlinks to diagnosing Wi-Fi beacon losses on congested RF channels, hardware maintenance requires knowing the physical constraints of signals. Tamlinux tools expose physical link metrics through unified sysfs interfaces, giving engineers instant access to real-time transceiver health data.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ul>
+<li><strong>Optical Receiver Saturation:</strong> Connecting a high-power long-range optical transceiver (e.g. 40 km optics with +3 dBm output) directly into a receiver with a short 1-meter patch cord without an inline optical attenuator will overpower the photodiode, causing optical saturation distortion or permanently destroying the receiver semiconductor.</li>
+<li><strong>Skin Effect at High Frequencies:</strong> At gigahertz frequencies, alternating current flows exclusively on the microscopic outer perimeter of a copper conductor (the skin depth is less than 2 micrometers at 1 GHz). This exponentially increases effective AC resistance, causing sharp high-frequency signal attenuation that rounds off square-wave digital edges.</li>
+<li><strong>Dielectric Absorption and Inter-Symbol Interference (ISI):</strong> High-frequency energy absorbed by cheap PCB laminate materials or cable PVC insulation delays discharging, causing residual energy from a previous bit to smear into the next bit period.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Inspect raw kernel Wi-Fi link statistics and signal attenuation (RSSI in dBm) in real time:</p>
+
+<pre class="session" data-risk="read-only">
+$ watch -n 1 "cat /proc/net/wireless"
+Inter-| sta-|   Quality        |   Discarded packets               | Missed | WE
+ face | tus | link level noise |  nwid  crypt   frag  retry   misc | beacon | 22
+wlp3s0: 0000   58.  -52.  -256        0      0      0      4      0      0
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>What causes signal reflections at the end of an electrical cable, and how does proper termination prevent them?</summary>
+<p>Signal reflections are caused by an impedance discontinuity &mdash; an abrupt change between the cable's characteristic impedance (<code>Z_0</code>) and the load impedance (<code>Z_L</code>) at the connector. When the propagating electromagnetic wave hits a mismatch, boundary conditions dictate that excess energy must reflect back toward the source (<code>Gamma != 0</code>). Placing a terminating resistor equal to <code>Z_0</code> across the line allows the wave to deposit 100% of its energy as heat in the resistor, completely absorbing the pulse with zero reflected wave.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li>Bogatin, E. <em>Signal and Power Integrity &mdash; Simplified</em> (3rd ed.). Prentice Hall.</li>
+<li>IEEE Standards Association. <em>IEEE 802.3 Standard for Ethernet</em>.</li>
+<li>Agrawal, G. P. <em>Fiber-Optic Communication Systems</em> (4th ed.). Wiley.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Contribute physical layer link diagnostics and optical monitoring additions in the public <a href="tam.html">tam</a> command repository.</p>
+</section>
+
+<h2>Where to next</h2>
+
+<ul>
+<li><a href="ecosystem/communication-protocols.html">Communication protocols, framing, and data rates</a> &mdash; baud rate, UART framing, and flow control.</li>
+<li><a href="ecosystem/error-detection-and-correction.html">Error detection, correction, and channel reliability</a> &mdash; parity, CRCs, and forward error correction.</li>
+<li><a href="ecosystem/circuits-and-power.html">Electrical circuits, semiconductors, and power delivery</a> &mdash; voltage, current loops, and power cables.</li>
+<li><a href="ecosystem/serial-and-parallel.html">Serial and parallel communication channels</a> &mdash; simplex, half-duplex, and full-duplex architectures.</li>
+<li><a href="ecosystem/index.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li>
+</ul>
+</body>
+</html>
