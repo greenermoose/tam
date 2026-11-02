@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head>
+<title>Diagnose from first principles</title>
+<meta name="topic" content="diagnose-from-principles-path">
+<meta name="summary" content="Choose a failing layer with evidence from physics through packages">
+<meta name="keywords" content="path, diagnose, troubleshooting, first principles, layers">
+<meta name="level" content="expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="troubleshooting.expert, desktop.expert, networking.expert, hardware.expert, signals.expert, boot.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Diagnose from first principles</p></nav>
+<h1>Diagnose from first principles</h1>
+<p>These readings help you name the failing layer of a workstation problem before you change anything.</p>
+<p>Prerequisites: <a href="learn/paths/from-atoms-to-bits.html">From atoms to bits</a>, <a href="learn/paths/how-software-runs.html">How software runs</a>, and <a href="learn/paths/session-and-desktop.html">Session and desktop</a>.</p>
+<h2>Stage 1: Pick the symptom class</h2>
+<p>Start at <a href="maintain/symptoms/index.html">the symptom index</a>. Record time, last action, and whether text VTs still work.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Why record VT success or failure early?</summary><p>It roughly separates early boot and basic input/GPU text paths from graphical session faults.</p></details></section>
+<h2>Stage 2: Physical and link layers</h2>
+<p><a href="learn/paths/cables-and-protocols.html?level=3">Cables and protocols</a> and <a href="learn/paths/display-and-gpu.html?level=3">Display and GPU</a>: decide whether media, framing, or display protocol is in play.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>When is a cable reseat better evidence than restarting a service?</summary><p>When the panel, link light, or connector state is unproven. Software restarts can destroy session evidence.</p></details></section>
+<h2>Stage 3: OS and delivery layers</h2>
+<p><a href="maintain/logs.html?level=3">Logs</a>, <a href="maintain/boot-recovery.html?level=3">boot recovery</a>, <a href="ecosystem/package-versions.html?level=3">package versions</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>What separates a wrong PATH binary from a failed update transaction?</summary><p>Path resolution and ownership evidence. A development prefix can hide a packaged binary without any failed transaction.</p></details></section>
+<h2>Capstone</h2>
+<p>Take one real past incident (or a paper scenario): blank screen after login with working VTs. Write competing explanations at three layers and the next read-only check for each. Do not apply a fix in this exercise.</p>
+<details class="solution"><p>Example competitors: (1) compositor/session not started after console login — check processes and <code>tam-desktop</code> docs; (2) DRM mode/connector — check connector state from VT; (3) cable/panel input — known-good cable and input selection. Rank by cheapest decisive evidence. Restarting display stacks is not the first check.</p></details>
+<h2>Next paths</h2>
+<p><a href="learn/paths/rescue.html?level=3">Rescue</a>; <a href="expert.html?level=3">Expert path</a>; <a href="maintain/faq.html">Maintaining FAQ</a>.</p>
+</body></html>

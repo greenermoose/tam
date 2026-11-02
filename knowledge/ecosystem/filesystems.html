@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Filesystems that keep state</title>
+<meta name="topic" content="filesystems">
+<meta name="summary" content="How disks store files, with Btrfs snapshots as a Tamlinux recovery boundary">
+<meta name="keywords" content="filesystem, btrfs, snapshot, subvolume, disk, storage">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="kernel-and-processes">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="files.beginner, files.intermediate, boot.intermediate">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Filesystems that keep state</p>
+</nav>
+
+<h1>Filesystems that keep state</h1>
+<p>This page explains how a computer organizes files on a disk and how snapshots help recovery.</p>
+
+<section data-level="beginner">
+<h2>Files live on a filesystem</h2>
+<p><strong>Goal:</strong> you will be able to say what a <dfn><a href="learn/glossary/filesystem.html">filesystem</a></dfn> is and that <dfn><a href="learn/glossary/btrfs.html">Btrfs</a></dfn> can take snapshots.</p>
+<p><strong>Why it matters:</strong> updates and mistakes are safer when you know which recovery boundary covers which files.</p>
+<p><strong>Before you start:</strong> read-only commands only.</p>
+<aside class="first-time"><p>A filesystem is the rules and structures that turn a disk into named files and directories.</p></aside>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ findmnt -T /
+TARGET SOURCE FSTYPE OPTIONS
+/ /dev/... btrfs ...
+</pre>
+<p>Captured pattern on Arch Linux, 2026-11-02. Your device name and options differ. If the type is btrfs, snapshot tools may apply; if not, do not invent Snapper steps.</p>
+<h3>Try it</h3>
+<p>Run <code>findmnt -T /home</code> as well and compare types.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>findmnt missing</dt><dd>Use the documentation for your rootstock; do not invent filesystem types.</dd></dl>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Does a Btrfs snapshot always restore a document you edited today?</summary><p>No. Snapshots cover configured subvolumes at taken times. Mutable files outside that boundary need their own backup story.</p></details>
+</section>
+<h3>New words</h3>
+<dl><dt><a href="learn/glossary/btrfs.html">Btrfs</a></dt><dd>Filesystem that can snapshot subvolumes.</dd>
+<dt><a href="learn/glossary/filesystem.html">Filesystem</a></dt><dd>Rules that turn a disk into named files.</dd></dl>
+<h3>Next step</h3>
+<p><a href="maintain/snapper.html?level=1">Snapper</a>; <a href="filesystem/permissions.html?level=1">Permissions</a>.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>Subvolumes and recovery domains</h2>
+<p><strong>Goal:</strong> separate filesystem snapshots from Home Manager generations and hand-edited files.</p>
+<h3>Mental model</h3>
+<pre>Btrfs subvolume snapshot  |  Home Manager generation  |  mutable documents
+</pre>
+<p>Each column recovers different state. A healthy plan names which column covers the change you are about to make.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> Snapper timelines and deploy generations are both used; neither replaces the other. See <a href="maintain/rollback.html">rollback</a>.</p></aside>
+<h3>Worked example</h3>
+<p>Before any cleanup, write which column of the mental model covers the change you fear.</p>
+<details class="solution"><p>Example: removing a Snapper timeline entry does not restore a hand-edited document.</p></details>
+<h3>Completion task</h3>
+<p>Name one change covered by a Home Manager generation and one that is not.</p>
+<details class="solution"><p>A packaged user program path may roll with a generation; a paragraph in a personal notes file usually will not.</p></details>
+<h3>Independent task</h3>
+<p>Read the rollback page headings only and list the recovery domains it names.</p>
+<details class="solution"><p>Expect filesystem snapshots and generation rollback as separate ideas.</p></details>
+<h3>Choosing</h3>
+<p>Match the recovery tool to the domain you identified; do not start with destructive cleanup.</p>
+<h3>Troubleshooting</h3>
+<p>Disk-full symptoms: see <a href="maintain/symptoms/disk-pressure.html">disk pressure</a>.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>You updated a theme file by hand. Which recovery domain should you check first?</summary><p>The mutable file's own backup or previous copy. A package generation may not restore that edit.</p></details>
+</section>
+<h3>Further reading</h3>
+<ul><li><a href="maintain/snapper.html">Snapper</a></li>
+<li><a href="maintain/rollback.html">Rollback</a></li></ul>
+</section>
+
+<section data-level="expert">
+<h2>Checksums, CoW and evidence</h2>
+<p>Btrfs copy-on-write snapshots and checksums change failure modes: bitrot detection and cheap snapshot creation trade against free-space and balance concerns. Before rollback, inventory Snapper checkpoints and confirm the subvolume layout. Never treat teaching snapshot IDs as live identifiers.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary>Why record the subvolume and checkpoint ID before a rollback?</summary><p>Rollback is targeted. The wrong subvolume or ID can discard the wrong state or miss the intended recovery point.</p></details>
+</section>
+</section>
+</body>
+</html>

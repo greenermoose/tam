@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head>
+<title>From gates to machine code</title>
+<meta name="topic" content="from-gates-to-machine-path">
+<meta name="summary" content="Follow digital logic through architecture, the instruction cycle and assembly">
+<meta name="keywords" content="path, gates, architecture, instruction cycle, assembly, ISA">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="hardware.intermediate, hardware.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / From gates to machine code</p></nav>
+<h1>From gates to machine code</h1>
+<p>These readings follow bits from logic gates up to the instructions a CPU runs.</p>
+<p>Finish <a href="learn/paths/from-atoms-to-bits.html?level=1">From atoms to bits</a> first if digital logic is new.</p>
+<h2>Stage 1: Architecture</h2>
+<p><a href="ecosystem/computer-architecture.html?level=2">Computer architecture</a>: name CPU, memory and buses.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Why separate memory from the CPU in the basic model?</summary><p>Programs and data live in memory; the CPU fetches and operates on them over interconnects. Mixing the roles hides latency and failure boundaries.</p></details></section>
+<h2>Stage 2: Instruction cycle</h2>
+<p><a href="ecosystem/instruction-cycle.html?level=2">Instruction cycle</a>: fetch, decode and execute.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>What does fetch retrieve?</summary><p>The next instruction (and related fetch traffic) from memory into the processor pipeline.</p></details></section>
+<h2>Stage 3: Assembly</h2>
+<p><a href="ecosystem/assembly.html?level=2">Assembly</a>: read a human-facing view of machine instructions.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Is assembly the same as the high-level language you write daily?</summary><p>No. Assembly is close to the machine encoding; compilers translate higher languages into it or into machine code.</p></details></section>
+<h2>Capstone</h2>
+<p>Take one simple command such as printing a line in a terminal and name the layers from logic gates to a running process without claiming you traced every gate on your CPU.</p>
+<details class="solution"><p>Gates form functional units; the architecture organizes those units and memory; the instruction cycle runs encoded operations; assembly or machine code is what the CPU executes; the kernel loads and schedules the process that issues the write. Your evidence at the workstation is the process and syscall boundary, not a gate-level probe.</p></details>
+<h2>Next paths</h2>
+<p><a href="learn/paths/how-software-runs.html?level=2">How software runs</a>; <a href="learn/paths/display-and-gpu.html?level=2">Display and GPU</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>
+</body></html>

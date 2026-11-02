@@ -3,12 +3,13 @@
 <head>
 <title>How windows appear on your screen</title>
 <meta name="topic" content="compositors">
-<meta name="summary" content="Wayland compositors: why Sway on wlroots is planned to replace Hyprland">
-<meta name="keywords" content="compositor, compositors, sway, hyprland, wayland, wlroots, niri, river, labwc, wayfire, pixman, seatd, x11">
-<meta name="level" content="intermediate">
+<meta name="summary" content="Wayland compositors: Hyprland today, Sway planned, and blank-screen checks">
+<meta name="keywords" content="compositor, sway, hyprland, wayland, wlroots, blank screen, drm">
+<meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
-<meta name="kind" content="explanation">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -16,57 +17,79 @@
 </nav>
 
 <h1>How windows appear on your screen</h1>
-<p>This page explains the software that puts windows on your screen and lets you interact with them.</p>
-<section data-level="intermediate"><h2>Compare compositor roles</h2><p><strong>Goal:</strong> distinguish the current compositor from planned alternatives.</p><h3>Mental model</h3><p>A compositor presents application surfaces and manages their placement; a desktop shell supplies surrounding controls.</p><h3>Worked example</h3><p>The section below identifies Hyprland as current and Sway as a planned transition.</p>
+<p>This page explains the software that puts windows on your screen and lets you move among them.</p>
 
+<section data-level="beginner">
+<h2>The compositor draws the desktop</h2>
+<p><strong>Goal:</strong> you will be able to say what a <dfn><a href="learn/glossary/compositor.html">compositor</a></dfn> is and that Tamlinux uses <dfn><a href="learn/glossary/hyprland.html">Hyprland</a></dfn> today on <dfn><a href="learn/glossary/wayland.html">Wayland</a></dfn>.</p>
+<p><strong>Why it matters:</strong> a frozen GUI often needs a text console, not more mouse clicks in a stuck compositor.</p>
+<p><strong>Before you start:</strong> you need a working graphical session or a text console. Do not restart display services while learning.</p>
+<aside class="first-time"><p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p></aside>
+<h3>Worked example</h3>
+<p>From a working desktop, press Meta + K and confirm keybindings still list Meta + Return. That shows the compositor is receiving keys. If nothing responds, move to a virtual console instead of forcing power off.</p>
+<h3>Try it</h3>
+<p>Press Meta + Return to open a terminal, then Meta + Q to close only that empty window.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>No response to Meta keys</dt><dd>Switch to a VT with Ctrl + Alt + Fn and continue from text.</dd></dl>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Is the compositor the same as a web browser window?</summary><p>No. The compositor is the display server that places all windows; a browser is one client.</p></details>
+</section>
+<h3>New words</h3>
+<dl><dt><a href="learn/glossary/compositor.html">Compositor</a></dt><dd>Program that draws and places windows.</dd>
+<dt><a href="learn/glossary/wayland.html">Wayland</a></dt><dd>Protocol used by modern Linux desktops.</dd></dl>
+<h3>Next step</h3>
+<p><a href="desktop/index.html?level=1">The Tamlinux desktop</a>.</p>
+</section>
 
-<p>On Wayland, the compositor is the display server and the window manager in
-one program. Tamlinux runs on Hyprland today and has selected
-<strong>Sway</strong>, built on the <strong>wlroots</strong> library, as its
-long-term compositor.</p>
-
-<h2>Why Wayland</h2>
-
+<section data-level="intermediate">
+<h2>Compare compositor roles</h2>
+<p><strong>Goal:</strong> distinguish the current compositor from planned alternatives and from the shell.</p>
+<h3>Mental model</h3>
+<p>A Wayland compositor presents application surfaces and manages placement and input. The desktop shell (panels, menus) is separate. Tamlinux runs <strong>Hyprland</strong> today and has selected <strong>Sway</strong> on <strong>wlroots</strong> as a long-term planned compositor.</p>
+<h3>Why Wayland</h3>
 <ul>
-<li><strong>Client isolation:</strong> under X11 any client can read other clients' keystrokes and windows; Wayland isolates clients from each other.</li>
-<li><strong>Tear-free output:</strong> clients render into buffers that the compositor presents whole, frame by frame.</li>
-<li><strong>Per-monitor scaling:</strong> mixed resolutions and fractional scales (for example 1.25x) on different monitors.</li>
+<li>Client isolation compared with classic X11 open access.</li>
+<li>Whole-frame presentation that reduces tearing.</li>
+<li>Per-monitor scaling for mixed displays.</li>
 </ul>
-
-<h2>Why Sway</h2>
-
+<h3>Why Sway is planned</h3>
 <ul>
-<li><strong>A small C code base:</strong> wlroots and Sway are written in C, with a stable i3-compatible IPC that tools and the Tamlinux shell can rely on.</li>
-<li><strong>Software rendering:</strong> wlroots can render on the CPU with <code>pixman</code> (<code>WLR_RENDERER=pixman</code>), which matters for older graphics hardware. Its rendering paths are still to be tested on representative older machines.</li>
-<li><strong>No systemd required:</strong> Sway obtains seat access through <code>seatd</code> and <code>libseat</code>, so it runs without systemd-logind or elogind.</li>
-<li><strong>A tiling, keyboard-driven desktop:</strong> the target is a tiling window system inspired by the UI Omarchy provides.</li>
+<li>Small C code base and stable i3-compatible IPC.</li>
+<li>Software rendering paths useful on older GPUs.</li>
+<li>Seat access via seatd/libseat without requiring systemd-logind.</li>
 </ul>
+<p>The Sway transition remains planned (integration, daily use, Hyprland removal). Adapters in source are not proof of delivery. Independence from Omarchy on the Hyprland desktop is complete; Omarchy is a peer, not a runtime dependency.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> check packaged bindings under the product session tree, not stock Hyprland defaults.</p></aside>
+<h3>Worked example</h3>
+<p>Identify the current compositor name from session documentation or process list when the desktop works; treat Sway mentions as planned unless evidence shows otherwise.</p>
+<details class="solution"><p>Hyprland is current. Sway remains planned.</p></details>
+<h3>Completion task</h3>
+<p>Name one reason Tamlinux plans to leave Hyprland.</p>
+<details class="solution"><p>Plugin ABI churn, carried patches, or upstream contribution policy are documented reasons.</p></details>
+<h3>Independent task</h3>
+<p>From Meta + K, confirm one packaged chord matches the desktop page.</p>
+<details class="solution"><p>Compare Ctrl + F12 or Meta + Return against the desktop hub table.</p></details>
+<h3>Choosing</h3>
+<p>Use Hyprland docs for live behavior; use Sway docs only for planned work.</p>
+<h3>Troubleshooting</h3>
+<p>Blank GUI with working VTs points at session/compositor/display mode, not early firmware.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Does a prepared Sway adapter prove Sway is the live session?</summary><p>No. Prepared code and an accepted session are distinct.</p></details>
+</section>
+<h3>Further reading</h3>
+<ul><li><a href="ecosystem/patches.html">Carried patches</a></li>
+<li><a href="learn/paths/session-and-desktop.html">Session and desktop</a></li></ul>
+</section>
 
-<h2>The transition</h2>
-
-<p>The move is staged so that each step can be checked on its own. The first
-step, making Tamlinux independent of Omarchy on the current Hyprland desktop,
-is in progress through the 0.4 versions. The Sway steps are planned: Sway
-integration and packaging at 0.7, physical daily use on Sway at 0.8, and
-removal of Hyprland at 1.0. Some Sway adapters have been prepared in advance,
-but none of these steps is delivered.</p>
-
-<p>Reasons for leaving Hyprland:</p>
-
-<ul>
-<li><strong>Plugin ABI churn:</strong> Hyprland plugins must match the exact compositor build, so routine updates can break them.</li>
-<li><strong>Carried patches:</strong> keeping multi-monitor setups stable has required local patches; see <a href="ecosystem/patches.html">Carried patches</a>.</li>
-<li><strong>Contribution policy:</strong> Hyprland accepts pull requests only from vouched contributors, and its AI usage policy forbids AI involvement in pull requests, issues, and comments. Fixes developed with AI assistance therefore cannot be offered upstream directly.</li>
-</ul>
-
-<h2>Other compositors considered</h2>
-
-<ul>
-<li><strong>niri:</strong> a scrollable-tiling compositor in Rust with an intuitive horizontal layout.</li>
-<li><strong>river:</strong> dynamic tiling in Zig, with layouts provided by separate programs.</li>
-<li><strong>labwc:</strong> a stacking compositor on wlroots with Openbox-style configuration.</li>
-<li><strong>Wayfire:</strong> a wlroots compositor known for desktop effects.</li>
-</ul>
-<h3>Completion task</h3><p>Identify which name is current and which is a target in that description.</p><details class="solution"><p>The current component is Hyprland; Sway is a planned transition. An adapter in source is not proof that the planned session is accepted.</p></details><h3>Independent task</h3><p>Find the linked plan and identify what evidence a future transition needs.</p><h3>Choosing</h3><p>Use the current compositor for actual behavior; treat future adapters and releases as planned.</p><h3>Troubleshooting</h3><p>A blank display can have several causes; the compositor name alone does not diagnose it.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> Tamlinux&#x27;s Sway integration remains planned, not an accepted session.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a prepared adapter prove the Sway desktop is delivered?</summary><p>No. Prepared code and an accepted integrated session are distinct.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p><ul><li><a href="ecosystem/computer-graphics.html">Computer graphics and the rendering pipeline</a> &mdash; learn how the compositor interacts with DRM framebuffers and client surfaces.</li></ul></section>
+<section data-level="expert">
+<h2>Blank-screen boundaries</h2>
+<p>Separate panel power, cable/protocol, DRM/KMS programming, compositor process, and client faults. Plugin ABI churn and carried multi-monitor patches are reasons Tamlinux plans to leave Hyprland; contribution policy also blocks some upstream paths. Capture <code>hyprctl</code> or DRM connector evidence from a working VT when documenting a fault. Do not restart display stacks as a first exploratory step.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary>Text VTs work but the GUI is black. Which layer have you roughly cleared?</summary><p>Early boot and basic input/GPU text paths are at least partly alive. Focus on the graphical session, compositor, and display modes next.</p></details>
+</section>
+<ul><li><a href="ecosystem/computer-graphics.html">Computer graphics</a></li>
+<li><a href="ecosystem/display-cables.html">Display cables</a></li>
+<li><a href="learn/paths/display-and-gpu.html">Display and GPU path</a></li></ul>
+</section>
 </body>
 </html>

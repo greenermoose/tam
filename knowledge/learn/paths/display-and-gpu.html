@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head>
+<title>Display and GPU</title>
+<meta name="topic" content="display-and-gpu-path">
+<meta name="summary" content="Explain pixels, GPUs and display cables through to a blank-screen check">
+<meta name="keywords" content="path, display, gpu, pixels, hdmi, displayport, compositor">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert, desktop.intermediate">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Display and GPU</p></nav>
+<h1>Display and GPU</h1>
+<p>These readings explain how images reach your eyes and how to separate a cable fault from a software fault.</p>
+<h2>Stage 1: Graphics ideas</h2>
+<p><a href="ecosystem/computer-graphics.html?level=2">Computer graphics</a> and <a href="ecosystem/gpu-architecture.html?level=2">GPU architecture</a>: frames, pixels and accelerators.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>What is a framebuffer for?</summary><p>It holds pixel values that a display path reads to light the panel.</p></details></section>
+<h2>Stage 2: Cables and history</h2>
+<p><a href="ecosystem/display-cables.html?level=2">Display cables</a> and <a href="ecosystem/display-history.html?level=2">Display history</a>: HDMI, DisplayPort and why standards matter.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a lit panel prove the compositor is healthy?</summary><p>No. Firmware or a static image can light a panel. Check session and compositor evidence separately.</p></details></section>
+<h2>Stage 3: Desktop boundary</h2>
+<p><a href="ecosystem/compositors.html?level=2">Compositors</a> and <a href="desktop/index.html?level=1">the Tamlinux desktop</a>: Wayland roles and recovery to a VT.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which key chord moves to a text virtual console for recovery?</summary><p>Ctrl + Alt + Fn (for example Ctrl + Alt + F2), then work from the text login or shell. Exact VT numbers depend on the installation.</p></details></section>
+<h2>Capstone</h2>
+<p>Write a blank-screen checklist with four layers: power/panel, cable/protocol, GPU/DRM, compositor/session. Mark each check as read-only.</p>
+<details class="solution"><p>Power/panel: is the monitor powered and input selected? Cable/protocol: reseat or try a known-good cable/port; note HDMI vs DisplayPort. GPU/DRM: from a VT, inspect connector state with documented read-only tools. Compositor/session: is the session alive; does <code>tam-desktop</code> apply; can you reach a VT? Do not restart display services as a first guess.</p></details>
+<h2>Next paths</h2>
+<p><a href="learn/paths/session-and-desktop.html?level=2">Session and desktop</a>; <a href="learn/paths/diagnose-from-principles.html?level=3">Diagnose from first principles</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>
+</body></html>

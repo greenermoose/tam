@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>Nix</title>
+<meta name="topic" content="glossary-nix">
+<meta name="summary" content="Nix: Nix is a package manager that installs software into immutable store paths and can reproduce exact environments.">
+<meta name="keywords" content="glossary-nix, nix, nix store, package manager, declarative">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / Nix</p></nav>
+<h1>Nix</h1>
+<p>Nix is a package manager that installs software into immutable store paths and can reproduce exact environments.</p>
+<section data-level="beginner"><h2>Beginner definition</h2><p>Nix places each package build in a unique directory under the Nix store. Tamlinux uses Nix and Home Manager to deliver recorded assemblies of workstation software. Rolling back a generation restores that assembly; it does not by itself restore every personal file.</p></section>
+<section data-level="intermediate"><h2>Intermediate definition</h2><p>Nix evaluates declarative expressions to store paths addressed by cryptographic hashes. Flakes and lock files pin inputs. Tamlinux packaging records assemblies in the packages repository; deploy tools switch generations without rebuilding when promoting stages.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>A purely functional package manager and store; Tamlinux assemblies pin Nix-built outputs for reproducible delivery.</p></section>
+<p><a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>

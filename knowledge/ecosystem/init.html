@@ -3,12 +3,13 @@
 <head>
 <title>Starting and looking after system programs</title>
 <meta name="topic" content="init">
-<meta name="summary" content="Init and service supervision: runit on the target rootstock, systemd today">
-<meta name="keywords" content="init, runit, systemd, supervision, daemons, service, services, seatd, pid 1, elogind, rootstock">
-<meta name="level" content="intermediate">
+<meta name="summary" content="Init and service supervision: systemd today, runit planned, with journal evidence">
+<meta name="keywords" content="init, runit, systemd, supervision, daemons, service, journal, seatd, pid 1">
+<meta name="level" content="beginner, intermediate, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
-<meta name="kind" content="explanation">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="boot.beginner, troubleshooting.intermediate, software.intermediate">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -16,54 +17,71 @@
 </nav>
 
 <h1>Starting and looking after system programs</h1>
-<p>This page explains how a computer starts and looks after the programs it needs to run.</p>
-<section data-level="intermediate"><h2>Compare service supervision</h2><p><strong>Goal:</strong> identify which service manager belongs to the current system and which is a planned target.</p><h3>Mental model</h3><p>An init process starts the system; a supervisor manages services. A seat manager handles a different device-access boundary.</p><h3>Worked example</h3><p>The discussion below identifies systemd on the current Arch rootstock and runit as the target for the planned rootstock.</p>
+<p>This page explains how a computer starts the background programs it needs and how you inspect them safely.</p>
 
+<section data-level="beginner">
+<h2>Services after login</h2>
+<p><strong>Goal:</strong> you will be able to say what an init system does and find whether <dfn><a href="learn/glossary/systemd.html">systemd</a></dfn> tools exist on your machine.</p>
+<p><strong>Why it matters:</strong> networking, logging and many desktop helpers are services. Knowing who starts them prevents random restarts.</p>
+<p><strong>Before you start:</strong> read-only commands only.</p>
+<aside class="first-time"><p>Do not restart services while learning. Looking is enough.</p></aside>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ command -v systemctl
+/usr/bin/systemctl
+</pre>
+<p>Captured on Arch Linux, 2026-11-02. If the command is missing, you may be on a different init; do not invent systemd steps.</p>
+<h3>Try it</h3>
+<p>Run <code>systemctl is-system-running</code> if available and record the word it prints.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>command not found</dt><dd>You may not be on a systemd rootstock; stop and identify the init in use.</dd></dl>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Does finding systemctl prove every service is healthy?</summary><p>No. It only shows the tool is installed. Inspect specific units for health.</p></details>
+</section>
+<h3>New words</h3>
+<dl><dt><a href="learn/glossary/systemd.html">systemd</a></dt><dd>Current init and service manager on Arch-based Tamlinux.</dd></dl>
+<h3>Next step</h3>
+<p><a href="maintain/logs.html?level=1">System logs</a>.</p>
+</section>
 
-<p>The init system is process ID 1: it starts the system and supervises the
-services that run in the background. In Tamlinux, the operating system that
-starts the computer is the <a href="learn/glossary/rootstock.html">rootstock</a>.
-Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer,
-made up to explain how Tamlinux works: it is the kernel and core system software
-on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed.
-The cultivar is all the software in the Tamlinux release that allows the computer
-to be used effectively and efficiently by both humans and AI agents. Fred defines
-the rootstock to be the set of software that third-parties publish and is necessary
-to be installed so that the software we write can function properly. Our goal is to
-minimize the size of the rootstock and maximize its speed and efficiency.
-Currently we are using Arch Linux as our rootstock, which uses <strong>systemd</strong>,
-but we plan to migrate to Void Linux with <strong>runit</strong> in future versions
-of Tamlinux. Beyond that we are considering a microkernel to further reduce the
-code size of the rootstock and improve its performance per watt.</p>
+<section data-level="intermediate">
+<h2>Compare service supervision</h2>
+<p><strong>Goal:</strong> identify which service manager belongs to the current system and which is planned.</p>
+<h3>Mental model</h3>
+<p>Process ID 1 (init) starts the system and supervises services. On the current Arch <a href="learn/glossary/rootstock.html">rootstock</a>, that manager is <strong>systemd</strong>. A planned Void rootstock uses <strong>runit</strong>. Seat access for graphics is a related but separate boundary (<code>logind</code> today; <code>seatd</code> on runit targets).</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ systemctl status systemd-journald.service --no-pager | head -n 8
+</pre>
+<p>Read-only status of the journal service. Press q if a pager appears. Your lines will differ.</p>
+<details class="solution"><p>Status concerns one unit. It does not prove unrelated services or the compositor.</p></details>
+<h3>Choosing</h3>
+<p>Use documentation for the manager actually installed. Do not apply runit commands to a systemd host by assumption.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> systemd is current; runit is planned with a future Void rootstock. Keep shell tools free of hard systemd assumptions where practical.</p></aside>
+<details class="solution"><p>The status output describes one unit at one time.</p></details>
+<h3>Completion task</h3>
+<p>Name the current init and the planned alternative.</p>
+<details class="solution"><p>systemd now; runit planned.</p></details>
+<h3>Independent task</h3>
+<p>Read-only: list one failed unit with <code>systemctl --failed --no-pager</code> if available, or record that none failed.</p>
+<details class="solution"><p>Empty failed lists still teach you the query; do not restart units here.</p></details>
+<h3>Troubleshooting</h3>
+<p>A red unit status is not proof of a design flaw in systemd versus runit; fix or understand that unit first.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Is runit the service manager on today's Arch-based Tamlinux?</summary><p>No. systemd is. Runit belongs to the planned rootstock path.</p></details>
+</section>
+<h3>Further reading</h3>
+<ul><li><a href="maintain/logs.html">Logs</a></li>
+<li><a href="ecosystem/distros.html">Rootstocks</a></li></ul>
+</section>
 
-<h2>Why runit on the target rootstock</h2>
-
-<p>On Void Linux, and on the antiX Core fallback, runit is the init and service
-supervisor, without systemd:</p>
-
-<ul>
-<li><strong>Simple services:</strong> a service is a directory containing a short executable script named <code>run</code>.</li>
-<li><strong>Direct supervision:</strong> <code>runsv</code> is the parent of each supervised process, so it sees a crash immediately and restarts the service.</li>
-<li><strong>Small and quiet:</strong> runit is a small C program with a tiny memory footprint and no periodic background work of its own.</li>
-</ul>
-
-<h2>systemd today</h2>
-
-<p>systemd does much more than start services: it also provides logging, login
-and seat management, timers, network and DNS services, and more. That breadth
-is convenient, but many desktop programs now assume it is present. Tamlinux keeps
-its own commands and shell services free of systemd-specific assumptions where
-it can, so that they also run on a runit system.</p>
-
-<h2>Seats without systemd: seatd</h2>
-
-<p>A Wayland compositor needs permission to use the graphics and input devices.
-On systemd systems <code>systemd-logind</code> grants it; without systemd,
-<strong><code>seatd</code></strong> and <strong><code>libseat</code></strong> do
-the same job. This is how Sway runs on Void without systemd or elogind.</p>
-
-<p>See also: <a href="ecosystem/distros.html">Rootstocks</a>,
-<a href="ecosystem/compositors.html">Compositors and windowing</a>.</p>
-<h3>Completion task</h3><p>Identify which tool is current and which belongs to the planned pilot.</p><details class="solution"><p>The present Arch system uses systemd. Runit is the planned pilot target rootstock&#x27;s service supervisor; do not apply its commands to the current host by assumption.</p></details><h3>Independent task</h3><p>Find the rootstock plan and name a condition to verify before changing the rootstock.</p><h3>Choosing</h3><p>Use documentation for the manager actually installed; do not apply runit instructions to a systemd host by assumption.</p><h3>Troubleshooting</h3><p>A service failure does not by itself identify an init-system design problem; inspect the unit and logs.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> The current Arch rootstock uses systemd; the alternative rootstock is a pilot, not current deployment.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does installing a Wayland compositor require replacing systemd?</summary><p>No. Compositor, init and seat access are related choices with separate implementations.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
+<section data-level="expert">
+<h2>Units, seats and failure boundaries</h2>
+<p>systemd units, sockets and targets group work; the journal stores structured logs. A Wayland compositor needs seat permission for DRM and input. On systemd systems <code>systemd-logind</code> grants seats; without systemd, <code>seatd</code> and <code>libseat</code> can. Restarting a login or display-related unit can end sessions—capture evidence first.</p>
+<p>Why runit is attractive on the target rootstock: simple <code>run</code> scripts, direct supervision, small footprint. That is design rationale, not a claim that your current host runs runit.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary>A greeter or desktop fails only after a service restart you triggered. What should your note include?</summary><p>The unit name, time, prior status evidence, and that the restart may have terminated sessions. Prefer read-only diagnosis before further restarts.</p></details>
+</section>
+</section>
 </body>
 </html>

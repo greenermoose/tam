@@ -266,6 +266,13 @@ Use only pages that exist. Mark a stage without a page as planned.
 | Work with AI locally | Run and tune local AI tools and know what they cost | 2 to 3 |
 | Understand the design | Explain how Tamlinux is put together and why | 2 to 3 |
 | Build and contribute | Set up a development toolchain and make a safe first change | 3 |
+| Cables and protocols | Trace electricity and signaling from circuits to reliable links | 1 to 3 |
+| From atoms to bits | Connect quantum and solid-state ideas to digital logic | 1 to 2 |
+| From gates to machine code | Follow logic through architecture, the instruction cycle and assembly | 2 to 3 |
+| Display and GPU | Explain pixels, GPUs and display cables to a blank-screen check | 2 to 3 |
+| How software runs | Trace kernel, process, filesystem and init into a running program | 2 to 3 |
+| Session and desktop | Follow login, compositor and input into a working desktop | 2 to 3 |
+| Diagnose from first principles | Choose a failing layer with evidence from physics through packages | 3 |
 
 ## Corpus-wide structures
 
@@ -277,9 +284,9 @@ paths. Source availability does not establish learner acceptance.
 
 - **Skills map** (`learn/skills/`). Domains: Desktop, Shell, Files and
   permissions, Processes, Software and packages, Updates and rollback, Boot
-  and recovery, Hardware and displays, Networking, Troubleshooting,
-  Customizing, Contributing. Each domain has can-do cells at the three
-  levels. Pages and paths name their cells in `<meta name="skills">`.
+  and recovery, Hardware and displays, Signals and cables, Networking,
+  Troubleshooting, Customizing, Contributing. Each domain has can-do cells at
+  the three levels. Pages and paths name their cells in `<meta name="skills">`.
 - **Self-placement** (`learn/placement.html`). For each level, a "you will
   recognize yourself if…" description and folded questions. It ends in
   links that set the lens.

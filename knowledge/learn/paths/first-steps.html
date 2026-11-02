@@ -74,17 +74,41 @@ hello is the result. Shell prompts often end with a dollar sign, but not always.
 Sometimes they end with a slash (<code>/</code>) or a number sign (<code>#</code>) or a colon (<code>:</code>) or another character.</p>
 </details>
 </section>
-<h2>2. Create something in a safe place</h2>
-<p>To practice while reading, leave the Guide with Esc. After typing a
-command, reopen the relevant lesson with <code>tam show filesystem/permissions</code>
-or <code>tam show shell/pipelines</code>. Leave it again with Esc to return
-to the same shell. Keep that terminal open throughout a scratch exercise:
-its commands depend on the directory and variable set earlier.</p>
-<ol><li>Read <a href="filesystem/index.html?level=1">Filesystem basics</a>
-for names and directories.</li><li>Work through
-<a href="filesystem/permissions.html?level=1">File permissions</a> in its
-fresh temporary directory. The New to this? fold explains the small steps.
-Finish that exercise's cleanup before returning here.</li></ol>
+<h2>2. See where you are and make a safe place</h2>
+<p>Leave the Guide with Esc so you can type in the terminal. Keep that
+terminal open: later steps depend on the directory you choose here.</p>
+<p>Ask the shell where you are, list names in that place, then create a
+temporary practice directory and enter it:</p>
+<pre class="session" data-risk="scratch">
+$ pwd
+/home/alex
+$ ls
+Documents  Downloads
+$ work=$(mktemp -d)
+$ cd "$work"
+$ pwd
+/tmp/tmp.AbCdEfGh
+</pre>
+<p>Captured on Arch Linux, 2026-11-02. Your home path and listing will differ;
+<code>mktemp -d</code> always prints a new empty directory under <code>/tmp</code>.</p>
+<p>Read <a href="filesystem/index.html?level=1">Filesystem basics</a> for
+names and directories, then continue.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Which command prints your current directory, and which creates a new empty temporary directory?</summary>
+<p><code>pwd</code> prints the current directory. <code>mktemp -d</code> creates a new empty temporary directory and prints its path. <code>cd</code> changes into a directory; <code>ls</code> lists names.</p>
+</details>
+</section>
+<h2>3. Create something in a safe place</h2>
+<p>Still inside your temporary directory (or a fresh one from
+<code>mktemp -d</code>), work through
+<a href="filesystem/permissions.html?level=1">File permissions</a>.
+The New to this? fold explains the small steps. Finish that exercise's
+cleanup before returning here. After typing a command, you can reopen a
+lesson with <code>tam show filesystem/permissions</code> and leave again
+with Esc.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
@@ -93,7 +117,7 @@ Finish that exercise's cleanup before returning here.</li></ol>
 <p>Inspect the mode with stat, as in the permissions page. Many successful commands print nothing. An error message needs attention; silence alone is not failure.</p>
 </details>
 </section>
-<h2>3. Connect two instructions</h2>
+<h2>4. Connect two instructions</h2>
 <ol><li>Read <a href="shell/pipelines.html?level=1">Pipelines</a>.</li>
 <li>Predict its count, run the fixed-input example, and try the pear variation.</li></ol>
 <section class="quiz">
@@ -104,10 +128,11 @@ Finish that exercise's cleanup before returning here.</li></ol>
 <p>It counts one line: the fixed input contains pear once. Return to the pipeline worked example if needed.</p>
 </details>
 </section>
-<h2>4. Find your way back</h2>
+<h2>5. Find your way back</h2>
 <ol><li>Read <a href="learn/documentation.html?level=1">Using the Guide</a>.</li>
 <li>In the guide reader, press the backtick key to open the Guide index. Use
-<code>]</code> to select a link and Enter to follow it. Left Arrow goes back.</li>
+<code>Tab</code> or <code>]</code> to select a link, then <code>Right Arrow</code>
+to follow it. Left Arrow goes back.</li>
 <li>Press Esc to return to the terminal. Type <code>tam hi</code> and
 press Enter to open Welcome again.</li></ol>
 <section class="quiz">

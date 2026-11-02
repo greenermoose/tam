@@ -1,10 +1,10 @@
 # Corpus note: The Meta Key and Desktop Modifiers
 
-**Plan status:** Ready
-**Reviewed:** 2026-11-01
+**Plan status:** Completed
+**Reviewed:** 2026-11-02
 **Scope:** Missing-content plan for the Meta key, modifier history, and desktop navigation flow.
 **Authority:** [Plan maintenance procedure](../../plan-maintenance.md) and developer direction.
-**Next action:** Author `knowledge/desktop/meta-key.html` and `knowledge/learn/glossary/meta.html`.
+**Next action:** None — pages shipped; no further implementation.
 
 - **Date:** 2026-11-01
 - **Asked for:** "Remember that we are NOT calling it SUPER any more. It is called the Meta key on Tamlinux. Who calls it SUPER and why? Do some research into the history of the Meta / Windows / Command / SUPER key. Make a plan to add that topic to the tam knowledge corpus."
@@ -23,4 +23,7 @@
   - `/usr/include/linux/input-event-codes.h` (`KEY_LEFTMETA`, `KEY_RIGHTMETA`)
   - `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`, `knowledge/desktop/index.html`
 - **Open questions:** None; developer approved placement in `desktop/`.
-- **Completion / replacement:** Deliver in corpus 0.56.0 with companion glossary entry `knowledge/learn/glossary/meta.html`. Update plan index, roadmap, and index sidecars.
+- **Completion / replacement:** Delivered in corpus 0.56.0 as
+  `knowledge/desktop/meta-key.html` and `knowledge/learn/glossary/meta.html`.
+  Closed 2026-11-02 during the corpus gap remediation audit (content already
+  present; Ready status was stale).

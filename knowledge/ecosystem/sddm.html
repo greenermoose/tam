@@ -18,8 +18,8 @@
 </nav>
 
 <h1>Display Managers: SDDM</h1>
-<p>This page explains one way to sign in to a computer and start its desktop.</p>
-<p>SDDM is a program that shows a sign-in screen and starts a desktop. You can also sign in on a text screen without it.</p>
+<p>This page explains graphical sign-in screens and how they differ from text console login.</p>
+<p>SDDM is a display manager: a program that shows a sign-in screen and starts a desktop. Many systems, including current Tamlinux cultivars, sign in on a text screen instead and start the desktop only when asked.</p>
 <section data-level="beginner">
 <h2>Recognize the login route</h2>
 <p><strong>Goal:</strong> distinguish a graphical sign-in from a text console login.</p>
@@ -45,7 +45,7 @@
 <h3>Independent task</h3><p>Identify the login route for the machine in front of you and record the evidence, without restarting any service.</p>
 <h3>Choosing</h3><p>Use service status to inspect a graphical greeter; use <code>loginctl</code> for registered sessions; use the recovery guide when the display is unusable.</p>
 <h3>Troubleshooting</h3><p>Missing service can mean text login or a different display manager. An empty session list can also reflect access or registration issues. Check the actual message and configuration before changing anything.</p>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> The 0.4.8 release uses the native SDDM login arrangement. The 0.5 text-startup work replaces it with text login and an explicit desktop launch; availability depends on the selected installation. Do not assume a particular VT or login route from this guide alone.</p></aside>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> Current cultivars use console-first login: you sign in at a text prompt, then start the graphical desktop with <code>tam-desktop</code> when you want it. SDDM is not packaged on that route. Older installations may still use a graphical greeter; identify the route from evidence before restarting any login service. Do not assume a particular VT or greeter from this guide alone.</p></aside>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>SDDM is absent on a text-startup system. Should you restart it to restore the desktop?</summary><p>No. First identify the installed startup route and its documented desktop launcher. Restarting a display manager can terminate sessions.</p></details><details class="q"><summary>Does a registered session prove its desktop is responsive?</summary><p>No. Registration and a working compositor are different observations.</p></details></section>
 <h3>Further reading</h3><p>Read the installed <code>systemctl(1)</code> and <code>loginctl(1)</code> manuals for status and session fields; see <a href="maintain/recovery.html">recovery</a> for fault boundaries.</p>
 </section>

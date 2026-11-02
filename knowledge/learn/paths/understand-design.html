@@ -7,12 +7,12 @@
 <meta name="track" content="learn">
 <meta name="parent" content="learn/paths/index.html">
 <meta name="kind" content="path">
-<meta name="skills" content="software.intermediate, software.expert">
+<meta name="skills" content="software.intermediate, software.expert, desktop.intermediate, boot.beginner">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Understand the design</p></nav>
 <h1>Understand the design</h1>
 <p>These readings explain how the parts of Tamlinux fit together.</p>
-<p>Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the <a href="learn/glossary/rootstock.html">rootstock</a> to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
+<p>Fred Horch, the Tamlinux developer, uses <a href="learn/glossary/rootstock.html">rootstock</a> for the third-party base system (today Arch Linux) and <a href="learn/glossary/cultivar.html">cultivar</a> for Tamlinux's own release software. Planned rootstock moves are under <a href="ecosystem/distros.html">distributions and rootstocks</a>.</p>
 <h2>Stage 1: Find the layers</h2>
 <p><a href="ecosystem/packaging.html?level=2">Find the layers</a>: Read the package ownership lesson and distinguish rootstock packages, the user assembly and mutable settings.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a user-generation rollback necessarily restore personal files?</summary><p>No. Mutable files need their own recovery method.</p></details></section>
@@ -20,8 +20,11 @@
 <p><a href="ecosystem/package-versions.html?level=2">Trace a version</a>: Follow the lesson to distinguish a source revision from a selected package output.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a source commit alone prove what is running?</summary><p>No. Establish the selected package and runtime as separate evidence.</p></details></section>
 <h2>Stage 3: Trace login and session</h2>
-<p><a href="ecosystem/sddm.html?level=3">Trace login and session</a>: Compare authentication, session launch and desktop startup, including the text-login route.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does successful authentication prove the desktop is working?</summary><p>No. Authentication, session launch and rendering have separate failure boundaries.</p></details></section>
+<p>Current Tamlinux cultivars use console-first login: you authenticate at a text prompt, then start the desktop with <code>tam-desktop</code> when you want graphics. Read <a href="ecosystem/ttys-and-virtual-consoles.html?level=2">TTYs and virtual consoles</a> for the text route, then <a href="ecosystem/sddm.html?level=2">display managers</a> to understand graphical greeters as an optional or historical alternative. Compare authentication, session launch and desktop startup as separate boundaries.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does successful authentication prove the desktop is working?</summary><p>No. Authentication, session launch and rendering have separate failure boundaries. On console-first systems, the desktop starts only when you run <code>tam-desktop</code>.</p></details></section>
+<h2>Stage 4: Kernel, init and compositor</h2>
+<p>Read <a href="ecosystem/kernel-and-processes.html?level=2">Kernel and processes</a>, <a href="ecosystem/init.html?level=2">Init</a>, <a href="ecosystem/compositors.html?level=2">Compositors</a> and <a href="ecosystem/nix.html?level=2">Nix and Home Manager</a>. Name which layer owns a stuck GUI versus a wrong package binary.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which layer owns arranging windows on screen today?</summary><p>The Hyprland compositor (Wayland), not Nix itself.</p></details></section>
 <h2>Capstone</h2><p>Explain where you would investigate a changed application setting, a missing native service and an unexpected command version. Name the evidence you would seek without changing the system.</p>
 <details class="solution"><p>For a changed theme, first identify the active user configuration and its previous value. For a missing system service, inspect its unit and system journal. For a command version, resolve the executable path and identify its package; inspect a running process separately. A user-generation rollback need not restore mutable files.</p></details>
 <h2>Next paths</h2><p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>

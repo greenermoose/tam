@@ -17,15 +17,22 @@
         "desktop/index.html",
         "desktop/meta-key.html",
         "desktop/voice.html",
+        "ecosystem/compositors.html",
         "ecosystem/ncurses.html",
         "ecosystem/sddm.html",
         "ecosystem/terminfo-and-termcap.html",
-        "ecosystem/ttys-and-virtual-consoles.html"
+        "ecosystem/ttys-and-virtual-consoles.html",
+        "use/faq.html",
+        "use/recipes/apps.html",
+        "use/recipes/gui-froze.html",
+        "use/recipes/terminal.html",
+        "use/recipes/voice.html"
       ],
       "paths": [
         "beginner.html",
         "learn/paths/first-steps.html",
         "learn/paths/make-it-yours.html",
+        "learn/paths/session-and-desktop.html",
         "learn/paths/settle-in.html"
       ],
       "page_gap": false,
@@ -40,6 +47,7 @@
         "desktop/meta-key.html",
         "desktop/voice-commands.html",
         "desktop/workspaces.html",
+        "ecosystem/compositors.html",
         "ecosystem/ncurses.html",
         "ecosystem/sddm.html",
         "ecosystem/terminfo-and-termcap.html",
@@ -47,7 +55,10 @@
       ],
       "paths": [
         "intermediate.html",
-        "learn/paths/settle-in.html"
+        "learn/paths/display-and-gpu.html",
+        "learn/paths/session-and-desktop.html",
+        "learn/paths/settle-in.html",
+        "learn/paths/understand-design.html"
       ],
       "page_gap": false,
       "path_gap": false
@@ -59,15 +70,21 @@
       "can_do": "Diagnose compositor/client boundaries with reproducible evidence",
       "pages": [
         "desktop/meta-key.html",
+        "ecosystem/compositors.html",
         "ecosystem/ncurses.html",
         "ecosystem/sddm.html",
         "ecosystem/terminfo-and-termcap.html",
         "ecosystem/ttys-and-virtual-consoles.html",
         "improve/terminal.html"
       ],
-      "paths": [],
+      "paths": [
+        "expert.html",
+        "learn/paths/diagnose-from-principles.html",
+        "learn/paths/make-it-yours.html",
+        "learn/paths/session-and-desktop.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "shell.beginner",
@@ -76,7 +93,9 @@
       "can_do": "Connect commands and predict a fixed-input pipeline",
       "pages": [
         "learn/practice.html",
-        "shell/pipelines.html"
+        "shell/pipelines.html",
+        "use/faq.html",
+        "use/recipes/terminal.html"
       ],
       "paths": [
         "beginner.html",
@@ -122,6 +141,7 @@
       "level": "beginner",
       "can_do": "Create a scratch file and inspect its permissions",
       "pages": [
+        "ecosystem/filesystems.html",
         "filesystem/permissions.html"
       ],
       "paths": [
@@ -139,10 +159,12 @@
       "level": "intermediate",
       "can_do": "Choose modes and diagnose directory access",
       "pages": [
+        "ecosystem/filesystems.html",
         "filesystem/permissions.html"
       ],
       "paths": [
-        "intermediate.html"
+        "intermediate.html",
+        "learn/paths/how-software-runs.html"
       ],
       "page_gap": false,
       "path_gap": false
@@ -167,6 +189,7 @@
       "level": "beginner",
       "can_do": "Identify a running program and end your own foreground task",
       "pages": [
+        "ecosystem/kernel-and-processes.html",
         "shell/jobs.html"
       ],
       "paths": [
@@ -181,11 +204,13 @@
       "level": "intermediate",
       "can_do": "Choose signals and diagnose a stuck job",
       "pages": [
+        "ecosystem/kernel-and-processes.html",
         "shell/jobs.html"
       ],
       "paths": [
         "intermediate.html",
-        "learn/paths/command-line-fluency.html"
+        "learn/paths/command-line-fluency.html",
+        "learn/paths/how-software-runs.html"
       ],
       "page_gap": false,
       "path_gap": false
@@ -196,6 +221,7 @@
       "level": "expert",
       "can_do": "Explain process lifetime, descriptor inheritance and resource costs",
       "pages": [
+        "ecosystem/kernel-and-processes.html",
         "shell/jobs.html"
       ],
       "paths": [
@@ -213,11 +239,14 @@
         "ecosystem/nix.html",
         "ecosystem/package-versions.html",
         "ecosystem/packaging.html",
+        "maintain/symptoms/wrong-version.html",
         "maintain/updates.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/keep-it-healthy.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "software.intermediate",
@@ -225,12 +254,14 @@
       "level": "intermediate",
       "can_do": "Identify the manager supplying an executable",
       "pages": [
+        "ecosystem/init.html",
         "ecosystem/nix.html",
         "ecosystem/package-versions.html",
         "ecosystem/packaging.html",
         "maintain/updates.html"
       ],
       "paths": [
+        "learn/paths/how-software-runs.html",
         "learn/paths/keep-it-healthy.html",
         "learn/paths/understand-design.html"
       ],
@@ -261,13 +292,17 @@
       "can_do": "Distinguish a status query from an update",
       "pages": [
         "maintain/checkpoint.html",
+        "maintain/faq.html",
         "maintain/rollback.html",
         "maintain/snapper.html",
+        "maintain/symptoms/wrong-version.html",
         "maintain/updates.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/keep-it-healthy.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "updates.intermediate",
@@ -312,13 +347,23 @@
       "level": "beginner",
       "can_do": "Identify boot stages and know when to seek help",
       "pages": [
+        "ecosystem/init.html",
         "maintain/boot-recovery.html",
         "maintain/boot.html",
-        "maintain/recovery.html"
+        "maintain/faq.html",
+        "maintain/recovery.html",
+        "maintain/symptoms/no-desktop.html",
+        "maintain/symptoms/will-not-boot.html",
+        "use/recipes/gui-froze.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/how-software-runs.html",
+        "learn/paths/rescue.html",
+        "learn/paths/session-and-desktop.html",
+        "learn/paths/understand-design.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "boot.intermediate",
@@ -326,6 +371,7 @@
       "level": "intermediate",
       "can_do": "Choose a documented recovery procedure for the affected layer",
       "pages": [
+        "ecosystem/filesystems.html",
         "maintain/boot-recovery.html",
         "maintain/boot.html",
         "maintain/recovery.html"
@@ -347,6 +393,7 @@
         "maintain/recovery.html"
       ],
       "paths": [
+        "learn/paths/diagnose-from-principles.html",
         "learn/paths/rescue.html"
       ],
       "page_gap": false,
@@ -356,7 +403,7 @@
       "id": "hardware.beginner",
       "domain": "hardware",
       "level": "beginner",
-      "can_do": "Identify the display and resource involved in a symptom",
+      "can_do": "Identify the display or resource in a symptom and name a closed circuit or cable class",
       "pages": [
         "ecosystem/cables-and-signaling.html",
         "ecosystem/circuits-and-power.html",
@@ -371,15 +418,19 @@
         "ecosystem/gpu-architecture.html",
         "ecosystem/hardware-diagnostics.html",
         "ecosystem/instruction-cycle.html",
+        "ecosystem/matter-and-energy.html",
         "ecosystem/serial-and-parallel.html",
         "hardware/resources.html",
         "improve/ai-performance.html",
         "improve/efficiency.html",
         "improve/zram.html",
-        "maintain/power.html"
+        "maintain/power.html",
+        "use/recipes/external-display.html"
       ],
       "paths": [
-        "learn/paths/cables-and-protocols.html"
+        "learn/paths/cables-and-protocols.html",
+        "learn/paths/display-and-gpu.html",
+        "learn/paths/from-atoms-to-bits.html"
       ],
       "page_gap": false,
       "path_gap": false
@@ -412,6 +463,8 @@
       ],
       "paths": [
         "learn/paths/cables-and-protocols.html",
+        "learn/paths/display-and-gpu.html",
+        "learn/paths/from-gates-to-machine.html",
         "learn/paths/run-lean.html",
         "learn/paths/work-with-ai-locally.html"
       ],
@@ -446,8 +499,72 @@
       ],
       "paths": [
         "learn/paths/cables-and-protocols.html",
+        "learn/paths/diagnose-from-principles.html",
+        "learn/paths/display-and-gpu.html",
+        "learn/paths/from-gates-to-machine.html",
         "learn/paths/run-lean.html",
         "learn/paths/work-with-ai-locally.html"
+      ],
+      "page_gap": false,
+      "path_gap": false
+    },
+    {
+      "id": "signals.beginner",
+      "domain": "signals",
+      "level": "beginner",
+      "can_do": "Explain a closed circuit and identify a cable or media fault class",
+      "pages": [
+        "ecosystem/cables-and-signaling.html",
+        "ecosystem/circuits-and-power.html",
+        "ecosystem/communication-protocols.html",
+        "ecosystem/error-detection-and-correction.html",
+        "ecosystem/hardware-diagnostics.html",
+        "ecosystem/matter-and-energy.html",
+        "ecosystem/serial-and-parallel.html"
+      ],
+      "paths": [
+        "learn/paths/cables-and-protocols.html",
+        "learn/paths/from-atoms-to-bits.html"
+      ],
+      "page_gap": false,
+      "path_gap": false
+    },
+    {
+      "id": "signals.intermediate",
+      "domain": "signals",
+      "level": "intermediate",
+      "can_do": "Separate media, framing and protocol failures with evidence",
+      "pages": [
+        "ecosystem/cables-and-signaling.html",
+        "ecosystem/circuits-and-power.html",
+        "ecosystem/communication-protocols.html",
+        "ecosystem/error-detection-and-correction.html",
+        "ecosystem/hardware-diagnostics.html",
+        "ecosystem/serial-and-parallel.html"
+      ],
+      "paths": [
+        "learn/paths/cables-and-protocols.html",
+        "learn/paths/from-atoms-to-bits.html"
+      ],
+      "page_gap": false,
+      "path_gap": false
+    },
+    {
+      "id": "signals.expert",
+      "domain": "signals",
+      "level": "expert",
+      "can_do": "Plan safe bench evidence across continuity, loopback and error detection",
+      "pages": [
+        "ecosystem/cables-and-signaling.html",
+        "ecosystem/circuits-and-power.html",
+        "ecosystem/communication-protocols.html",
+        "ecosystem/error-detection-and-correction.html",
+        "ecosystem/hardware-diagnostics.html",
+        "ecosystem/serial-and-parallel.html"
+      ],
+      "paths": [
+        "learn/paths/cables-and-protocols.html",
+        "learn/paths/diagnose-from-principles.html"
       ],
       "page_gap": false,
       "path_gap": false
@@ -459,11 +576,15 @@
       "can_do": "Identify the connection and report its status",
       "pages": [
         "ecosystem/cables-and-signaling.html",
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "maintain/symptoms/no-network.html",
+        "use/recipes/network.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/keep-it-healthy.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "networking.intermediate",
@@ -474,9 +595,11 @@
         "ecosystem/cables-and-signaling.html",
         "hardware/networking.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/keep-it-healthy.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "networking.expert",
@@ -487,9 +610,12 @@
         "ecosystem/cables-and-signaling.html",
         "hardware/networking.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/diagnose-from-principles.html",
+        "learn/paths/rescue.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "troubleshooting.beginner",
@@ -498,12 +624,21 @@
       "can_do": "Record the symptom and time without changing the system",
       "pages": [
         "ecosystem/hardware-diagnostics.html",
+        "maintain/faq.html",
         "maintain/logs.html",
-        "maintain/recovery.html"
+        "maintain/recovery.html",
+        "maintain/symptoms/blank-screen.html",
+        "maintain/symptoms/disk-pressure.html",
+        "maintain/symptoms/index.html",
+        "maintain/symptoms/no-input.html",
+        "maintain/symptoms/will-not-boot.html",
+        "use/recipes/gui-froze.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/keep-it-healthy.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "troubleshooting.intermediate",
@@ -512,6 +647,7 @@
       "can_do": "Select the relevant logs and distinguish facts from guesses",
       "pages": [
         "ecosystem/hardware-diagnostics.html",
+        "ecosystem/init.html",
         "maintain/logs.html"
       ],
       "paths": [
@@ -529,9 +665,13 @@
         "ecosystem/hardware-diagnostics.html",
         "maintain/logs.html"
       ],
-      "paths": [],
+      "paths": [
+        "expert.html",
+        "learn/paths/diagnose-from-principles.html",
+        "learn/paths/rescue.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "customizing.beginner",
@@ -544,7 +684,8 @@
         "ecosystem/patches.html",
         "ecosystem/themes.html",
         "improve/scripting.html",
-        "improve/terminal.html"
+        "improve/terminal.html",
+        "use/recipes/appearance.html"
       ],
       "paths": [
         "learn/paths/make-it-yours.html"
@@ -583,9 +724,11 @@
         "ecosystem/themes.html",
         "improve/scripting.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/make-it-yours.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "contributing.beginner",
@@ -598,9 +741,11 @@
         "improve/toolchains.html",
         "tam.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/build-and-contribute.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "contributing.intermediate",
@@ -613,9 +758,11 @@
         "improve/toolchains.html",
         "tam.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/build-and-contribute.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "contributing.expert",
@@ -642,11 +789,9 @@
   "unmapped_pages": [
     "about.html",
     "ecosystem/ai.html",
-    "ecosystem/compositors.html",
     "ecosystem/desktop-apps.html",
     "ecosystem/distros.html",
     "ecosystem/index.html",
-    "ecosystem/init.html",
     "ecosystem/libc.html",
     "ecosystem/os/arch-family.html",
     "ecosystem/os/bsd.html",
@@ -687,14 +832,18 @@
     "learn/bibliography/vesa-displayport.html",
     "learn/documentation.html",
     "learn/glossary/argument.html",
+    "learn/glossary/bandgap.html",
     "learn/glossary/baud-rate.html",
     "learn/glossary/bit-rate.html",
+    "learn/glossary/btrfs.html",
     "learn/glossary/checkpoint.html",
     "learn/glossary/circuit.html",
     "learn/glossary/command.html",
+    "learn/glossary/compositor.html",
     "learn/glossary/crc.html",
     "learn/glossary/cultivar.html",
     "learn/glossary/current.html",
+    "learn/glossary/deploy.html",
     "learn/glossary/differential-signaling.html",
     "learn/glossary/diode.html",
     "learn/glossary/directory.html",
@@ -702,6 +851,7 @@
     "learn/glossary/distro.html",
     "learn/glossary/edid.html",
     "learn/glossary/electromagnetic-wave.html",
+    "learn/glossary/electron.html",
     "learn/glossary/evdev.html",
     "learn/glossary/fiber-optic.html",
     "learn/glossary/file.html",
@@ -717,11 +867,15 @@
     "learn/glossary/greenhouse.html",
     "learn/glossary/half-duplex.html",
     "learn/glossary/hdmi.html",
+    "learn/glossary/home-manager.html",
+    "learn/glossary/hyprland.html",
     "learn/glossary/index.html",
     "learn/glossary/job.html",
     "learn/glossary/kernel.html",
+    "learn/glossary/limine.html",
     "learn/glossary/meta.html",
     "learn/glossary/mode.html",
+    "learn/glossary/nix.html",
     "learn/glossary/nut.html",
     "learn/glossary/operating-system.html",
     "learn/glossary/owner.html",
@@ -729,12 +883,14 @@
     "learn/glossary/parallel-communication.html",
     "learn/glossary/parity.html",
     "learn/glossary/path.html",
+    "learn/glossary/photon.html",
     "learn/glossary/pid.html",
     "learn/glossary/pn-junction.html",
     "learn/glossary/pot.html",
     "learn/glossary/process.html",
     "learn/glossary/program.html",
     "learn/glossary/prompt.html",
+    "learn/glossary/quantum.html",
     "learn/glossary/rasterization.html",
     "learn/glossary/rollback.html",
     "learn/glossary/rootstock.html",
@@ -744,11 +900,14 @@
     "learn/glossary/signal.html",
     "learn/glossary/snapshot.html",
     "learn/glossary/stream.html",
+    "learn/glossary/systemd.html",
     "learn/glossary/terminal.html",
     "learn/glossary/tiling.html",
     "learn/glossary/transistor.html",
+    "learn/glossary/uefi.html",
     "learn/glossary/virtual-console.html",
     "learn/glossary/voltage.html",
+    "learn/glossary/wayland.html",
     "learn/glossary/workspace.html",
     "learn/index.html",
     "learn/paths/index.html",
@@ -761,6 +920,7 @@
     "man/posix.html",
     "shell/index.html",
     "use/index.html",
+    "use/recipes/index.html",
     "welcome.html"
   ]
 }

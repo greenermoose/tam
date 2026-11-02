@@ -31,26 +31,26 @@
 <p><strong>Before you start:</strong> open a terminal. Inspecting package versions and deployed assembly status uses read-only commands that require no administrative privileges. See <a href="ecosystem/packaging.html">Software packaging and delivery</a> for package management basics.</p>
 
 <aside class="first-time">
-<p>A version number identifies an exact release of a program. On Tamlinux, cultivar names like Blue Sparkler represent overall workstation milestones, while individual tools like <code>tam</code> have their own version numbers. The <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. It is installed on top of the <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn>, which is the kernel and core system software that third-parties publish and is necessary to be installed so that the software we write can function properly. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt. Commands like <code>tam --version</code> query active program versions directly.</p>
+<p>A version number identifies an exact release of a program. On Tamlinux, cultivar names like KBN WB represent overall workstation milestones, while individual tools like <code>tam</code> have their own version numbers. The <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> is the Tamlinux software release; it sits on a <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn> (today Arch Linux; Void and a smaller microkernel base are planned). Commands like <code>tam --version</code> query active program versions directly. See <a href="ecosystem/distros.html">distributions and rootstocks</a> for the longer design story.</p>
 </aside>
 
 <h3>Worked example: Inspect active versions and cultivar</h3>
 
 <pre class="session" data-risk="read-only">
 $ tam --version
-tam command 0.43.2 (dev 7279c24)
-knowledge corpus 0.43.6 (dev 7279c24)
+tam command 0.48.1 (dev 4788787)
+knowledge corpus 0.59.0 (dev 4788787)
 libtam 0.4.0
-Tamlinux cultivar Blue Sparkler 0.5.4
+Tamlinux cultivar KBN WB 0.6.1
 </pre>
 
-<p>Captured on a Tamlinux workstation, 2026-10-25.</p>
+<p>Captured on a Tamlinux workstation, 2026-11-02. Your build hash may differ.</p>
 
 <h3>What just happened</h3>
 
 <ol>
-<li><code>tam --version</code> printed the four version tiers of the running environment: the C command binary (<code>0.43.2</code>), the offline knowledge corpus (<code>0.43.6</code>), the shared integration library <code>libtam</code> (<code>0.4.0</code>), and the overall workstation milestone cultivar name and release (<code>Blue Sparkler 0.5.4</code>).</li>
-<li>The <code>(dev 7279c24)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/dev/bin</code>) matching Git commit <code>7279c24</code>.</li>
+<li><code>tam --version</code> printed the four version tiers of the running environment: the C command binary (<code>0.48.1</code>), the offline knowledge corpus (<code>0.59.0</code>), the shared integration library <code>libtam</code> (<code>0.4.0</code>), and the overall workstation milestone cultivar name and release (<code>KBN WB 0.6.1</code>).</li>
+<li>The <code>(dev 4788787)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/dev/bin</code>) matching that Git short hash.</li>
 <li>Packaged production builds omit the <code>(dev ...)</code> suffix and reflect the exact version declared in the active Home Manager assembly generation.</li>
 </ol>
 
@@ -100,7 +100,7 @@ generation: /nix/store/lrmniw3fj0yhrx5mwkm6w2c8p5vl3y6v-home-manager-generation
 
 <dl>
 <dt>Cultivar</dt>
-<dd>The named Tamlinux product release representing a cohesive set of workstation milestones (for example, Blue Sparkler 0.5.4).</dd>
+<dd>The named Tamlinux product release representing a cohesive set of workstation milestones (for example, KBN WB 0.6.1).</dd>
 <dt>Assembly</dt>
 <dd>The cryptographically locked bill of materials in <code>tamlinux-packages</code> specifying exact revisions of all components.</dd>
 <dt>Generation</dt>

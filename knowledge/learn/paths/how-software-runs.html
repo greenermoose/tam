@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head>
+<title>How software runs</title>
+<meta name="topic" content="how-software-runs-path">
+<meta name="summary" content="Trace kernel, process, filesystem and init into a running program">
+<meta name="keywords" content="path, kernel, process, filesystem, init, software">
+<meta name="level" content="intermediate">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="processes.intermediate, files.intermediate, boot.beginner, software.intermediate">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / How software runs</p></nav>
+<h1>How software runs</h1>
+<p>These readings follow a program from the kernel up through filesystems and services.</p>
+<h2>Stage 1: Kernel and process</h2>
+<p><a href="ecosystem/kernel-and-processes.html?level=2">Kernel and processes</a>: syscalls, drivers and PIDs.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>What sits between a normal program and a hardware device?</summary><p>Usually a syscall into the kernel and then a driver path.</p></details></section>
+<h2>Stage 2: Filesystems</h2>
+<p><a href="ecosystem/filesystems.html?level=2">Filesystems that keep state</a>: disks, Btrfs and recovery domains.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Name two recovery domains that are not the same.</summary><p>Filesystem snapshots and Home Manager generations are different; mutable documents may be a third.</p></details></section>
+<h2>Stage 3: Init and boot context</h2>
+<p><a href="ecosystem/init.html?level=2">Init and services</a> and <a href="maintain/boot-phases.html?level=2">Boot phases</a>: who starts services after the kernel.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which init runs on current Arch-based Tamlinux?</summary><p>systemd. Runit is planned for a future rootstock.</p></details></section>
+<h2>Capstone</h2>
+<p>Pick <code>tam --version</code>. Name the process, the package/delivery story you would check next, and one service you would not blame without evidence.</p>
+<details class="solution"><p>The command runs as your user process. Next evidence is path resolution and assembly or package ownership (<a href="ecosystem/package-versions.html">package versions</a>). Do not restart unrelated system units because a version string looks odd.</p></details>
+<h2>Next paths</h2>
+<p><a href="learn/paths/session-and-desktop.html?level=2">Session and desktop</a>; <a href="learn/paths/understand-design.html?level=2">Understand the design</a>.</p>
+</body></html>
