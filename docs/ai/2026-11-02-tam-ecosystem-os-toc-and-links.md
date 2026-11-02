@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.4.12
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** `<pending>`
+- **Commits:** `3089937`, and the follow-up index commit adding this record
 - **Authorship:** Fred Horch directed the additions, scope clarification, and field formatting; Antigravity drafted the plan, added the tables of contents, alphabetized the sections, and added the official website links.
 - **Checked against:** `knowledge/ecosystem/os/*.html`, `src/pager_nav.c`, `src/render.c`, `tools/lint-corpus.py`, `tools/build-index.py`, and `tests/guide.sh`.
 
