@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>evdev</title>
+<meta name="topic" content="glossary-evdev">
+<meta name="summary" content="evdev: learning reference, kernel input event subsystem, and device interface">
+<meta name="keywords" content="glossary-evdev, evdev, input, kernel, learning">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / evdev</p></nav>
+<h1>evdev</h1>
+<p>evdev (Event Device) is the Linux kernel subsystem and device interface that delivers input events from hardware to applications.</p>
+<section data-level="beginner"><h2>Beginner definition</h2><p>The Linux system that receives button presses, mouse movements, and touches from your hardware and sends them as uniform messages to your desktop.</p></section>
+<section data-level="intermediate"><h2>Intermediate definition</h2><p>The Linux generic input event interface exposing character devices at <code>/dev/input/event*</code>. It standardizes diverse hardware protocols into uniform <code>struct input_event</code> streams (keystrokes, relative pointer motions, absolute coordinates) consumed by libraries like <code>libevdev</code> and <code>libinput</code>.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>The kernel-level input event subsystem defined in <code>linux/input.h</code> that packages events into <code>type</code>, <code>code</code>, and <code>value</code> tuples with microsecond timestamps. It provides ioctl query mechanisms (<code>EVIOCGBIT</code>, <code>EVIOCGRAB</code>), multi-touch slot tracking, and companion virtual device synthesis via <code>uinput</code>. Read <a href="ecosystem/evdev.html">The Linux Input Subsystem and evdev</a> for architecture and examples.</p></section>
+<p><a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>

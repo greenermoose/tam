@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Linux Input Subsystem and evdev</title>
+<meta name="topic" content="evdev">
+<meta name="summary" content="The Linux generic input event interface: kernel drivers, event character devices, libevdev, and Wayland compositor input handling">
+<meta name="keywords" content="evdev, input, linux input subsystem, libevdev, libinput, event device, scancode, keycode, input_event, /dev/input, uinput">
+<meta name="level" content="beginner, intermediate, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="compositors, ttys-and-vts">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / The Linux Input Subsystem and evdev</p>
+</nav>
+
+<h1>The Linux Input Subsystem and evdev</h1>
+<p>This page explains how Linux receives signals from keyboards, mice, and touchscreens and turns them into events programs can understand.</p>
+<p>Every time you press a key, slide a mouse, or tap a touchscreen, physical electrical contacts generate hardware interrupts. The kernel processes these signals and passes them through a unified abstraction called the <dfn><a href="learn/glossary/evdev.html">evdev</a></dfn> (event device) subsystem. Instead of every application needing proprietary drivers for every keyboard, mouse, and game controller on earth, Linux provides a standardized stream of timestamped event packets. This architecture guarantees that modern Wayland compositors, terminal emulators, and games handle input safely, predictably, and without background polling daemons.</p>
+
+<section data-level="beginner">
+<h2>Discovering input devices on your computer</h2>
+
+<p><strong>Goal:</strong> you will be able to locate the input device nodes on your system, identify which hardware keyboard and mouse devices are active, and explain how Linux organizes input under <code>/dev/input/</code>.</p>
+
+<p><strong>Why it matters:</strong> when a keyboard stops responding, a mouse jumps unexpectedly, or a new input device is connected, guessing what is wrong wastes time. Knowing how Linux discovers and names input devices allows you to confirm within seconds whether the operating system recognizes your hardware.</p>
+
+<p><strong>Before you start:</strong> open a terminal window. The commands in this section only inspect system state; they do not alter any files or settings.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> In Linux, hardware devices are represented as special files in the <code>/dev/</code> directory. Input devices live in <code>/dev/input/</code> and are named <code>event0</code>, <code>event1</code>, and so on. For security reasons, regular user accounts cannot eavesdrop on raw keystrokes directly from these files; access is restricted to the <code>root</code> user and the <code>input</code> system group.</p>
+</aside>
+
+<h3>Worked example: list active input devices</h3>
+
+<pre class="session" data-risk="read-only">
+$ grep -E 'Name=|Handlers=' /proc/bus/input/devices
+N: Name="Power Button"
+H: Handlers=kbd event0 
+N: Name="Power Button"
+H: Handlers=kbd event1 
+N: Name="AT Translated Set 2 keyboard"
+H: Handlers=sysrq kbd leds event2 
+N: Name="Video Bus"
+H: Handlers=kbd event3 
+N: Name="Logitech USB Optical Mouse"
+H: Handlers=event4 mouse0 
+N: Name="LiteOn Lenovo Calliope USB Keyboard"
+H: Handlers=sysrq kbd leds event8 
+
+$ ls -l /dev/input/by-id/
+total 0
+lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-LiteOn_Lenovo_Calliope_USB_Keyboard-event-kbd -&gt; ../event8
+lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-event-mouse -&gt; ../event4
+lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt; ../mouse0
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-02. The detected devices, model names, and event numbers will match your computer's connected hardware.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li>The Linux kernel probed connected motherboard ports and USB buses during boot and peripheral attachment.</li>
+<li>Kernel drivers bound to each device and registered an <code>event*</code> handler with the evdev subsystem.</li>
+<li>The virtual file <code>/proc/bus/input/devices</code> reported the human-readable names and assigned handler numbers.</li>
+<li>Udev created persistent symlinks in <code>/dev/input/by-id/</code>, allowing software to reference devices by their vendor and model names rather than unpredictable event numbers.</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Run <code>grep -E 'Name=|Handlers=' /proc/bus/input/devices</code> in your terminal. Count how many input devices are recognized and locate your primary keyboard and pointing device.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>A connected keyboard or mouse does not appear in the list</dt>
+<dd>Check physical cable connections or USB ports. Check the kernel ring buffer using <code>dmesg | grep -i input</code> to see if a hardware fault or power negotiation error occurred during device attachment.</dd>
+<dt>Permission denied when trying to read <code>/dev/input/event*</code></dt>
+<dd>This is expected security behavior. Unprivileged terminal programs are blocked from reading raw keystrokes to prevent malware from logging passwords. On a Wayland desktop, the compositor receives input and safely directs keystrokes only to the active focused window.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does Linux provide unified /dev/input/event* interfaces instead of having applications talk directly to USB or PS/2 hardware?</summary>
+<p>The evdev subsystem provides a standard hardware-independent abstraction. Applications and compositors only need to understand one uniform protocol (<code>struct input_event</code>) rather than implementing custom communication drivers for thousands of distinct hardware models.</p>
+</details>
+<details class="q">
+<summary>Why do persistent symlinks exist in /dev/input/by-id/?</summary>
+<p>Dynamic kernel event node numbers (like <code>event4</code> or <code>event8</code>) can change order between boots depending on which device powers on or enumerates first. The symlinks in <code>by-id/</code> remain consistent across reboots because they are generated from hardware vendor and product serial identifiers.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+
+<dl>
+<dt><dfn><a href="learn/glossary/evdev.html">evdev</a></dfn></dt>
+<dd>The generic input event interface in the Linux kernel that standardizes hardware input into structured event streams.</dd>
+</dl>
+
+<p><strong>Next step:</strong> explore the intermediate section to understand the event data structure, event types, and how user-space libraries like <code>libevdev</code> and <code>libinput</code> communicate with compositors.</p>
+</section>
+
+<section data-level="intermediate">
+<h2>The evdev event protocol and user-space architecture</h2>
+
+<p><strong>Goal:</strong> you will be able to explain the <code>struct input_event</code> layout, differentiate event types (<code>EV_KEY</code>, <code>EV_REL</code>, <code>EV_ABS</code>, <code>EV_SYN</code>), and trace how input flows from kernel character devices through <code>libinput</code> to the Wayland compositor.</p>
+
+<h3>Mental model</h3>
+
+<p>Linux input is structured as a pipeline of layered responsibilities, separating hardware detection, protocol translation, gesture recognition, and window dispatch:</p>
+
+<pre>
++-------------------------------------------------------------+
+| Physical Hardware (Keyboard, Mouse, Touchpad, Touchscreen)  |
++-------------------------------------------------------------+
+                             |
+                             v  Hardware interrupts &amp; USB packets
++-------------------------------------------------------------+
+| Kernel Input Drivers (usbhid, hid-generic, i2c-hid, psmouse) |
++-------------------------------------------------------------+
+                             |
+                             v  Standardized raw input events
++-------------------------------------------------------------+
+| Linux Kernel Input Core &amp; evdev Subsystem                   |
++-------------------------------------------------------------+
+                             |
+                             v  /dev/input/event* (character stream)
++-------------------------------------------------------------+
+| Seat Controller (seatd or systemd-logind)                  |
+| Passes open device file descriptor to compositor            |
++-------------------------------------------------------------+
+                             |
+                             v  File descriptor handover
++-------------------------------------------------------------+
+| User-space Input Libraries:                                 |
+| - libevdev: ioctl abstractions, state sync, event decoding  |
+| - libinput: palm rejection, tap-to-click, gestures, quirks  |
+| - libxkbcommon: translates evdev keycodes to keysyms &amp; mods |
++-------------------------------------------------------------+
+                             |
+                             v  Wayland protocol events (wl_keyboard, wl_pointer)
++-------------------------------------------------------------+
+| Wayland Compositor (Hyprland / Sway)                        |
+| Enforces window focus, evaluates desktop chords &amp; shortcuts |
++-------------------------------------------------------------+
+                             |
+                             v  Surface focus dispatch
++-------------------------------------------------------------+
+| Client Application Window (Terminal, Browser, Text Editor)  |
++-------------------------------------------------------------+
+</pre>
+
+<h3>Worked example: inspect the struct input_event definition and event codes</h3>
+
+<p>All evdev character devices communicate using a binary structure defined in <code>&lt;linux/input.h&gt;</code>. Each packet consists of a timestamp, event type, event code, and value:</p>
+
+<pre class="session" data-risk="read-only">
+$ sed -n '40,46p' /usr/include/linux/input.h
+#define input_event_usec __usec
+#endif
+	__u16 type;
+	__u16 code;
+	__s32 value;
+};
+
+$ grep -E '^#define EV_' /usr/include/linux/input-event-codes.h | head -n 8
+#define EV_SYN			0x00
+#define EV_KEY			0x01
+#define EV_REL			0x02
+#define EV_ABS			0x03
+#define EV_MSC			0x04
+#define EV_SW			0x05
+#define EV_LED			0x11
+#define EV_SND			0x12
+</pre>
+
+<p>Captured on Arch Linux, 2026-11-02. The kernel event definitions are standardized across all Linux architectures.</p>
+
+<h3>Core event types</h3>
+
+<p>The <code>type</code> field distinguishes which physical mechanism produced the event:</p>
+
+<ul>
+<li><strong><code>EV_SYN</code> (0x00):</strong> Synchronization markers. When a mouse moves diagonally, the kernel sends an <code>EV_REL</code> packet for X, an <code>EV_REL</code> packet for Y, and finishes with an <code>EV_SYN</code> (code <code>SYN_REPORT</code>). The receiver applies both movements simultaneously, preventing torn cursor movement.</li>
+<li><strong><code>EV_KEY</code> (0x01):</strong> State changes on keys and buttons. The <code>code</code> specifies the key (such as <code>KEY_A</code> or <code>BTN_LEFT</code>), and <code>value</code> indicates whether the key was released (0), pressed (1), or repeated automatically (2).</li>
+<li><strong><code>EV_REL</code> (0x02):</strong> Relative motion values from pointing devices, such as mouse displacement (<code>REL_X</code>, <code>REL_Y</code>) or scroll wheel turns (<code>REL_WHEEL</code>).</li>
+<li><strong><code>EV_ABS</code> (0x03):</strong> Absolute positioning values from digitizers, touchscreens, and joystick axes (<code>ABS_X</code>, <code>ABS_Y</code>, <code>ABS_PRESSURE</code>) bounded by fixed minimum and maximum ranges.</li>
+<li><strong><code>EV_MSC</code> (0x04):</strong> Miscellaneous hardware data, including raw hardware scancodes (<code>MSC_SCAN</code>).</li>
+<li><strong><code>EV_SW</code> (0x05):</strong> Binary hardware switches, such as a laptop lid switch (<code>SW_LID</code>) or tablet mode sensor (<code>SW_TABLET_MODE</code>).</li>
+<li><strong><code>EV_LED</code> (0x11):</strong> Status LEDs on keyboards (<code>LED_CAPSL</code>, <code>LED_NUML</code>). Applications can write LED events back to the device to toggle keyboard indicator lights.</li>
+</ul>
+
+<h3>The roles of libevdev and libinput</h3>
+
+<p>Directly managing <code>/dev/input/event*</code> requires extensive <code>ioctl(2)</code> boilerplate and state tracking. Two libraries simplify user-space integration:</p>
+
+<ul>
+<li><strong><code>libevdev</code>:</strong> A type-safe C wrapper around the evdev ioctls. It provides functions to query device names (<code>libevdev_get_name</code>), inspect supported capabilities (<code>libevdev_has_event_code</code>), and handle event queue resynchronization if kernel buffers overflow.</li>
+<li><strong><code>libinput</code>:</strong> A comprehensive input handling library developed for Wayland compositors and X11. While evdev reports raw coordinates, <code>libinput</code> implements touchpad gesture recognition (pinch, swipe), palm rejection, kinetic scroll deceleration, pointer acceleration curves, and device-specific quirks workarounds (loaded from <code>/usr/share/libinput/*.quirks</code>).</li>
+</ul>
+
+<h3>Completion task</h3>
+
+<p>Fill in the missing evdev event type code to inspect keypress state changes (marked with <code>___</code>):</p>
+
+<pre data-risk="read-only">
+#define ___ 0x01
+</pre>
+
+<details class="solution">
+<p>Fill in <code>EV_KEY</code>. In the Linux input subsystem, <code>EV_KEY</code> (value 0x01) reports all button and key transitions, where value 0 represents key release, 1 represents key press, and 2 represents autorepeat.</p>
+</details>
+
+<h3>Independent task</h3>
+
+<p>Explain why Wayland compositors like Hyprland and Sway query input devices using <code>libinput</code> rather than opening <code>/dev/input/event*</code> directly and implementing their own pointer physics from scratch.</p>
+
+<details class="solution">
+<p>While evdev provides raw hardware coordinates and event streams, turning those raw metrics into a smooth desktop experience requires complex mathematics: sub-pixel pointer acceleration curves, kinetic scroll deceleration, touchpad palm rejection, multi-finger gesture recognition (pinch, swipe, rotate), and an extensive database of hardware quirks for buggy vendor firmwares. Using <code>libinput</code> standardizes these behaviors across all Wayland compositors so users experience consistent, predictable pointer dynamics regardless of which window manager or desktop shell they run.</p>
+</details>
+
+<h3>Choosing an input subsystem component</h3>
+
+<table>
+<thead>
+<tr><th>Component</th><th>Layer</th><th>Primary Responsibility</th><th>Typical Consumer</th></tr>
+</thead>
+<tbody>
+<tr><td><code>evdev</code></td><td>Kernel</td><td>Translates hardware signals into standard <code>input_event</code> packets</td><td>Seat manager, <code>libevdev</code></td></tr>
+<tr><td><code>libevdev</code></td><td>User space</td><td>Provides type-safe C APIs over evdev ioctls and tracks device state</td><td>Input diagnostics, test suites, device remappers</td></tr>
+<tr><td><code>libinput</code></td><td>User space</td><td>Implements pointer physics, palm detection, gestures, and quirks</td><td>Wayland compositors (Hyprland, Sway), Xorg</td></tr>
+<tr><td><code>libxkbcommon</code></td><td>User space</td><td>Translates evdev keycodes to keysyms and modifier states</td><td>Compositors and GUI toolkits</td></tr>
+<tr><td><code>uinput</code></td><td>Kernel</td><td>Allows user space to create synthetic virtual evdev devices</td><td>Remote desktop, accessibility, macro tools</td></tr>
+</tbody>
+</table>
+
+<h3>Troubleshooting common input issues</h3>
+
+<table>
+<thead>
+<tr><th>Symptom</th><th>Likely Cause</th><th>Check</th><th>Fix</th></tr>
+</thead>
+<tbody>
+<tr><td>Touchpad tap-to-click does not respond</td><td>Feature disabled in compositor settings</td><td>Inspect <code>hyprland.conf</code> or <code>sway/config</code> input blocks</td><td>Enable <code>tap-to-click = true</code> in compositor input settings</td></tr>
+<tr><td>Keypresses stutter or jump during heavy disk I/O</td><td>Event queue overflow (<code>SYN_DROPPED</code>)</td><td>Check system load and compositor logs</td><td>Ensure the compositor has real-time scheduling priority; client must resync state</td></tr>
+<tr><td>Modifier keys produce unexpected behavior</td><td>Mismatch between evdev codes and XKB keymap</td><td>Run <code>localectl status</code></td><td>Configure matching keyboard layout and model in compositor configuration</td></tr>
+<tr><td>Unprivileged tool cannot read <code>/dev/input/event*</code></td><td>Device node restricted to <code>root:input</code></td><td>Inspect permissions with <code>ls -l /dev/input/event*</code></td><td>Do not loosen file permissions; route input through Wayland protocol surfaces</td></tr>
+</tbody>
+</table>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the desktop relies completely on the generic evdev and libinput pipeline within the Wayland session. Proprietary vendor input daemons and legacy X11 driver packages are excluded from the system architecture. Keyboard mappings and desktop navigation chords are compiled cleanly through <code>libxkbcommon</code> and dispatched directly by the compositor.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does a mouse driver emit an EV_SYN packet with code SYN_REPORT after sending relative motion events?</summary>
+<p>An optical mouse measures motion in two dimensions simultaneously. Emitting <code>SYN_REPORT</code> groups the separate X and Y delta packets into one atomic update, preventing the compositor from rendering a diagonal movement as two jagged horizontal and vertical steps.</p>
+</details>
+<details class="q">
+<summary>What is the difference between an evdev scancode and an XKB keycode?</summary>
+<p>In standard Linux systems, evdev emits the raw kernel keycode (such as <code>KEY_ESC = 1</code>). For historical compatibility with X11 protocol specifications, XKB keycodes are offset by 8 (meaning <code>KEY_Escape</code> is code 9 in XKB keymaps).</p>
+</details>
+</section>
+
+<h3>Further reading</h3>
+
+<ul>
+<li><code>input(4)</code> and <code>xorg.conf(5)</code> for traditional input device options.</li>
+<li><code>libinput(1)</code> manual and documentation for gesture configurations and pointer acceleration profiles.</li>
+<li><a href="desktop/meta-key.html">The Meta key and desktop modifiers</a> for how evdev keycodes map to Tamlinux window management chords.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Kernel input plumbing, ioctls, uinput, and multi-touch protocol</h2>
+
+<p><strong>Goal:</strong> you will be able to query evdev devices using kernel <code>ioctl(2)</code> calls, configure virtual input devices using <code>uinput</code>, decode Multi-Touch Type B slotted events, and trace Wayland compositor seat handover.</p>
+
+<h3>The evdev ioctl interface</h3>
+
+<p>User-space programs communicate with <code>/dev/input/event*</code> nodes using standard POSIX <code>read(2)</code> to receive event streams, and <code>ioctl(2)</code> to query hardware capabilities. Core request codes defined in <code>&lt;linux/input.h&gt;</code> include:</p>
+
+<ul>
+<li><strong><code>EVIOCGVERSION(int *version)</code>:</strong> Returns the driver protocol version (such as <code>0x010001</code> for version 1.0.1).</li>
+<li><strong><code>EVIOCGID(struct input_id *id)</code>:</strong> Retrieves the bus type (<code>BUS_USB</code>, <code>BUS_I8042</code>, <code>BUS_BLUETOOTH</code>), vendor ID, product ID, and revision number.</li>
+<li><strong><code>EVIOCGNAME(int len)</code>:</strong> Reads the human-readable product string assigned by the kernel driver.</li>
+<li><strong><code>EVIOCGBIT(int ev_type, int max_bytes)</code>:</strong> Returns a bitmask representing all event types or specific event codes supported by the hardware. For example, passing <code>EV_KEY</code> returns a bitmap where bit <code>N</code> is set if keycode <code>N</code> can be emitted.</li>
+<li><strong><code>EVIOCGABS(int abs_axis)</code>:</strong> Returns a <code>struct input_absinfo</code> detailing minimum value, maximum value, fuzz, flat deadzone, and resolution for absolute axes.</li>
+<li><strong><code>EVIOCGRAB(int state)</code>:</strong> Grants the calling process exclusive ownership of the input device when <code>state</code> is 1. All events are delivered solely to the grabbing file descriptor and hidden from all other readers until released (<code>state = 0</code>). This is used by virtual machine hypervisors and screen lockers.</li>
+<li><strong><code>EVIOCREVOKE(int reserved)</code>:</strong> Revokes access to the device node, causing all subsequent operations from other processes to return <code>ENODEV</code>.</li>
+</ul>
+
+<h3>Multi-touch protocol: Type A versus Type B (Slotted)</h3>
+
+<p>The Linux kernel supports two distinct multi-touch protocols:</p>
+
+<ol>
+<li><strong>Type A (Anonymous packet):</strong> Legacy drivers send all touch contact points sequentially, separated by <code>SYN_MT_REPORT</code> markers and concluded by <code>SYN_REPORT</code>. The receiving application must correlate contacts between successive packets using geometric distance calculations.</li>
+<li><strong>Type B (Slotted stateful tracking):</strong> Modern touchscreens and touchpads track contacts in hardware or kernel driver state. Each contact point is assigned a persistent numerical slot (<code>ABS_MT_SLOT</code>) and a tracking identifier (<code>ABS_MT_TRACKING_ID</code>):
+  <ul>
+  <li>When a finger touches the surface, the driver selects an unused slot and sends <code>ABS_MT_TRACKING_ID</code> with a positive integer.</li>
+  <li>Subsequent packets only emit modified values for that slot (such as <code>ABS_MT_POSITION_X</code> or <code>ABS_MT_POSITION_Y</code>). If a finger remains motionless while another moves, no data is sent for the stationary slot.</li>
+  <li>When the finger lifts from the surface, the driver sends <code>ABS_MT_TRACKING_ID</code> with value <code>-1</code>.</li>
+  </ul>
+  Type B reduces context switching and CPU overhead by eliminating redundant coordinate transmissions during multi-finger gestures.</li>
+</ol>
+
+<h3>Virtual device creation with uinput</h3>
+
+<p>The <code>uinput</code> kernel module exposes a character device at <code>/dev/uinput</code> that allows user-space daemons to synthesize virtual input devices. These virtual devices register as standard <code>/dev/input/event*</code> nodes indistinguishable from physical hardware.</p>
+
+<p>The lifecycle of a virtual input device follows seven steps:</p>
+
+<ol>
+<li>Open <code>/dev/uinput</code> in non-blocking write mode (<code>O_WRONLY | O_NONBLOCK</code>).</li>
+<li>Configure supported event types using <code>ioctl(fd, UI_SET_EVBIT, EV_KEY)</code>.</li>
+<li>Configure specific key codes using <code>ioctl(fd, UI_SET_KEYBIT, KEY_A)</code>.</li>
+<li>Populate a <code>struct uinput_setup</code> with vendor ID, product ID, bus type, and device name string.</li>
+<li>Issue <code>ioctl(fd, UI_DEV_SETUP, &amp;setup)</code> followed by <code>ioctl(fd, UI_DEV_CREATE)</code>. The kernel assigns a new <code>/dev/input/event*</code> node.</li>
+<li>Write binary <code>struct input_event</code> packets to the file descriptor to inject synthetic keystrokes or mouse displacements.</li>
+<li>On termination, issue <code>ioctl(fd, UI_DEV_DESTROY)</code> and close the file descriptor.</li>
+</ol>
+
+<h3>Wayland seat handover architecture</h3>
+
+<p>In the X11 era, the display server ran as root, allowing direct access to <code>/dev/input/event*</code>. In modern Linux and Tamlinux, Wayland compositors (such as Hyprland and Sway) run as unprivileged user processes. Access to input devices is mediated by a seat management daemon (such as <code>seatd</code> or <code>systemd-logind</code>):</p>
+
+<ol>
+<li>When the compositor starts, it establishes an IPC connection (via UNIX domain socket or D-Bus) to the seat manager.</li>
+<li>The compositor calls <code>TakeControl</code> to claim the active seat and virtual terminal (VT).</li>
+<li>The compositor requests access to individual input devices (e.g. <code>OpenDevice("/dev/input/event4")</code>).</li>
+<li>The seat manager checks that the calling session is active and currently foregrounded on the VT. It opens the device node with root privileges and passes the open file descriptor back to the compositor using <code>SCM_RIGHTS</code> control messages over the UNIX socket.</li>
+<li>The compositor passes the received file descriptor to <code>libinput</code> for event processing.</li>
+<li>When the user switches consoles (e.g. <code>Ctrl + Alt + F2</code>), the seat manager pauses or revokes the input descriptors. This prevents a background compositor from snooping on passwords typed into the foreground virtual console.</li>
+</ol>
+
+<h3>Ring buffer overflow and SYN_DROPPED recovery</h3>
+
+<p>The kernel evdev driver maintains a fixed-size circular ring buffer for each open file descriptor (typically 64 to 512 events). If a user-space application stalls due to CPU starvation or heavy I/O, the queue fills up. The kernel handles overflow gracefully:</p>
+
+<ol>
+<li>The kernel discards the overflowing event packet.</li>
+<li>It sets a flag on the client queue and injects an <code>EV_SYN</code> event with code <code>SYN_DROPPED</code> and value 0.</li>
+<li>When the reader resumes reading, <code>libevdev</code> encounters <code>SYN_DROPPED</code> and returns <code>LIBEVDEV_READ_STATUS_SYNC</code>.</li>
+<li>Because intermediate relative motions and key transitions were lost, the reader must not guess. Instead, <code>libevdev</code> queries the full hardware state using <code>EVIOCGKEY</code>, <code>EVIOCGLED</code>, and <code>EVIOCGSW</code>, comparing the kernel's active bitmasks against its internal state and synthesizing synthetic release or press events to resynchronize smoothly.</li>
+</ol>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is SYN_DROPPED emitted as an EV_SYN packet rather than returning a read error like ENOBUFS?</summary>
+<p>Returning an error on <code>read(2)</code> would break standard POSIX event loops that treat errors as fatal disconnects. Emitting <code>SYN_DROPPED</code> in-band within the event stream allows the client to detect buffer overflow at the exact moment in time it occurred, discard corrupted partial event sequences, and resynchronize cleanly.</p>
+</details>
+<details class="q">
+<summary>How does the Multi-Touch Type B slotted protocol reduce CPU overhead compared to Type A?</summary>
+<p>Type A transmits the complete state of every active touch contact on every scan cycle. Type B assigns persistent hardware slots and transmits updates only for contacts whose position or pressure actually changed, dramatically reducing event volume during multi-finger gestures.</p>
+</details>
+</section>
+
+<h3>Sources and references</h3>
+
+<ul>
+<li><code>/usr/include/linux/input.h</code> and <code>/usr/include/linux/input-event-codes.h</code> for authoritative kernel constants and data structures.</li>
+<li>Linux kernel documentation: <code>Documentation/input/input.rst</code>, <code>Documentation/input/event-codes.rst</code>, and <code>Documentation/input/multi-touch-protocol.rst</code>.</li>
+<li><code>libevdev(3)</code> and <code>libinput(3)</code> programmer documentation.</li>
+<li>Public Tamlinux repository: <code>desktop/session/hypr/tamlinux/bindings/</code> for desktop keybinding integrations.</li>
+</ul>
+</section>
+</body>
+</html>
