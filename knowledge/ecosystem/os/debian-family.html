@@ -3,7 +3,7 @@
 <head>
 <title>The Debian Family</title>
 <meta name="topic" content="debian-family">
-<meta name="summary" content="Debian and its descendants: Ubuntu, Linux Mint, antiX, Devuan, BunsenLabs, elementary OS, Pop!_OS, Vanilla OS">
+<meta name="summary" content="Debian and related systems: antiX, BunsenLabs, Devuan, elementary OS, Linux Mint, Pop!_OS, Ubuntu, Vanilla OS">
 <meta name="keywords" content="debian, apt, dpkg, ubuntu, linux mint, lmde, antix, antix core, mx linux, devuan, bunsenlabs, crunchbang, elementary, pop_os, cosmic, vanilla os">
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
@@ -19,75 +19,98 @@
 <p>This page introduces Debian and related versions of Linux.</p>
 <p>Debian is the starting point for many other versions of Linux, including Ubuntu and antiX Core. Tamlinux keeps antiX Core as a fallback.</p>
 
-<h2>Debian</h2>
+<h2>Contents</h2>
 
 <ul>
-<li><strong>Lineage:</strong> independent, community-run, and one of the oldest surviving distributions. It is governed by its Social Contract and Free Software Guidelines.</li>
-<li><strong>Kernel, init and C library:</strong> Linux, systemd by default, glibc.</li>
-<li><strong>Packages and releases:</strong> <code>dpkg</code> and <code>apt</code>. A stable release appears about every two years and receives security updates for several years; the testing and unstable branches move continuously.</li>
-<li><strong>Tamlinux role:</strong> evaluate, for the trade-offs of a slow, stable base with long security maintenance. Distribution activity is not the same as support for a particular branch: check each release's end-of-life date.</li>
+<li><a href="#antix">antiX</a></li>
+<li><a href="#bunsenlabs">BunsenLabs</a></li>
+<li><a href="#debian">Debian</a></li>
+<li><a href="#devuan">Devuan</a></li>
+<li><a href="#elementary-os">elementary OS</a></li>
+<li><a href="#linux-mint">Linux Mint and LMDE</a></li>
+<li><a href="#pop-os">Pop!_OS</a></li>
+<li><a href="#ubuntu">Ubuntu</a></li>
+<li><a href="#vanilla-os">Vanilla OS</a></li>
 </ul>
 
-<h2>Ubuntu</h2>
+<h2 id="antix">antiX</h2>
 
 <ul>
-<li><strong>Lineage:</strong> based on Debian, developed by Canonical.</li>
-<li><strong>Packages and releases:</strong> <code>apt</code>, plus Canonical's Snap packages. Releases come every six months; every two years a long-term support (LTS) release is maintained much longer than the interim ones.</li>
-<li><strong>Tamlinux role:</strong> evaluate as a vendor-supported base, and idea donor for desktop and security engineering. LTS and interim releases are separate cases.</li>
-</ul>
-
-<h2>Linux Mint and LMDE</h2>
-
-<ul>
-<li><strong>Lineage:</strong> the main edition is based on Ubuntu LTS releases; Linux Mint Debian Edition (LMDE) is based directly on Debian.</li>
-<li><strong>Known for:</strong> the Cinnamon desktop, a careful update manager, and Timeshift system snapshots.</li>
-<li><strong>Tamlinux role:</strong> idea donor for desktop integration, update management and snapshots.</li>
-</ul>
-
-<h2>antiX</h2>
-
-<ul>
+<li><strong>Website:</strong> <a href="https://antixlinux.com/">antixlinux.com</a></li>
 <li><strong>Lineage:</strong> based on Debian stable, without systemd and without elogind.</li>
 <li><strong>Init:</strong> sysvinit or runit.</li>
 <li><strong>Known for:</strong> running well on old and low-memory computers. antiX Core is a command-line base to build on. MX Linux is a related, heavier distribution made with the antiX community.</li>
 <li><strong>Tamlinux role:</strong> fallback base, tried with runit if Void Linux has a showstopper, and idea donor for small systems without systemd.</li>
 </ul>
 
-<h2>Devuan</h2>
+<h2 id="bunsenlabs">BunsenLabs</h2>
 
 <ul>
-<li><strong>Lineage:</strong> a fork of Debian created to keep a choice of init system.</li>
-<li><strong>Init:</strong> sysvinit, OpenRC or runit.</li>
-<li><strong>Tamlinux role:</strong> idea donor for running Debian packages without systemd. Devuan follows Debian's merged <code>/usr</code> layout to keep its own maintenance work small.</li>
-</ul>
-
-<h2>BunsenLabs</h2>
-
-<ul>
+<li><strong>Website:</strong> <a href="https://www.bunsenlabs.org/">bunsenlabs.org</a></li>
 <li><strong>Lineage:</strong> based on Debian; a community continuation of CrunchBang.</li>
 <li><strong>Known for:</strong> a light Openbox desktop.</li>
 <li><strong>Tamlinux role:</strong> idea donor for layering. BunsenLabs delivers its look and tools as configuration and resource packages on top of a Debian base that it leaves administratively unchanged, much as Tamlinux grows a <a href="learn/glossary/cultivar.html">cultivar</a> on a <a href="learn/glossary/rootstock.html">rootstock</a>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux cultivar is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</li>
 </ul>
 
-<h2>elementary OS</h2>
+<h2 id="debian">Debian</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://www.debian.org/">debian.org</a></li>
+<li><strong>Lineage:</strong> independent, community-run, and one of the oldest surviving distributions. It is governed by its Social Contract and Free Software Guidelines.</li>
+<li><strong>Kernel, init and C library:</strong> Linux, systemd by default, glibc.</li>
+<li><strong>Packages and releases:</strong> <code>dpkg</code> and <code>apt</code>. A stable release appears about every two years and receives security updates for several years; the testing and unstable branches move continuously.</li>
+<li><strong>Tamlinux role:</strong> evaluate, for the trade-offs of a slow, stable base with long security maintenance. Distribution activity is not the same as support for a particular branch: check each release's end-of-life date.</li>
+</ul>
+
+<h2 id="devuan">Devuan</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://www.devuan.org/">devuan.org</a></li>
+<li><strong>Lineage:</strong> a fork of Debian created to keep a choice of init system.</li>
+<li><strong>Init:</strong> sysvinit, OpenRC or runit.</li>
+<li><strong>Tamlinux role:</strong> idea donor for running Debian packages without systemd. Devuan follows Debian's merged <code>/usr</code> layout to keep its own maintenance work small.</li>
+</ul>
+
+<h2 id="elementary-os">elementary OS</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://elementary.io/">elementary.io</a></li>
 <li><strong>Lineage:</strong> built on Ubuntu LTS releases.</li>
 <li><strong>Known for:</strong> the Pantheon desktop, a consistent design language, attention to accessibility, and its own app store for independent developers.</li>
 <li><strong>Tamlinux role:</strong> idea donor for coherent design, accessibility and applications.</li>
 </ul>
 
-<h2>Pop!_OS</h2>
+<h2 id="linux-mint">Linux Mint and LMDE</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://linuxmint.com/">linuxmint.com</a></li>
+<li><strong>Lineage:</strong> the main edition is based on Ubuntu LTS releases; Linux Mint Debian Edition (LMDE) is based directly on Debian.</li>
+<li><strong>Known for:</strong> the Cinnamon desktop, a careful update manager, and Timeshift system snapshots.</li>
+<li><strong>Tamlinux role:</strong> idea donor for desktop integration, update management and snapshots.</li>
+</ul>
+
+<h2 id="pop-os">Pop!_OS</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://pop.system76.com/">pop.system76.com</a></li>
 <li><strong>Lineage:</strong> Ubuntu-based, from the computer maker System76.</li>
 <li><strong>Known for:</strong> the COSMIC desktop, written in Rust by System76, with built-in tiling, and close hardware integration with System76 machines.</li>
 <li><strong>Tamlinux role:</strong> idea donor for tiling, productivity and hardware integration.</li>
 </ul>
 
-<h2>Vanilla OS</h2>
+<h2 id="ubuntu">Ubuntu</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://ubuntu.com/">ubuntu.com</a></li>
+<li><strong>Lineage:</strong> based on Debian, developed by Canonical.</li>
+<li><strong>Packages and releases:</strong> <code>apt</code>, plus Canonical's Snap packages. Releases come every six months; every two years a long-term support (LTS) release is maintained much longer than the interim ones.</li>
+<li><strong>Tamlinux role:</strong> evaluate as a vendor-supported base, and idea donor for desktop and security engineering. LTS and interim releases are separate cases.</li>
+</ul>
+
+<h2 id="vanilla-os">Vanilla OS</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://vanillaos.org/">vanillaos.org</a></li>
 <li><strong>Lineage:</strong> began on Ubuntu and moved to a Debian base. Check its current base before relying on either.</li>
 <li><strong>Known for:</strong> an image-based design: the system is updated as a whole image rather than package by package, and extra software runs in containers.</li>
 <li><strong>Tamlinux role:</strong> idea donor for image-based updates and reproducible images.</li>

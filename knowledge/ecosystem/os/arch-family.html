@@ -3,7 +3,7 @@
 <head>
 <title>The Arch Family</title>
 <meta name="topic" content="arch-family">
-<meta name="summary" content="Arch Linux and the distributions built on it: Omarchy, CachyOS, EndeavourOS, Manjaro, Artix">
+<meta name="summary" content="Arch Linux and related systems: Artix, CachyOS, EndeavourOS, Manjaro, Omarchy">
 <meta name="keywords" content="arch, arch linux, pacman, aur, pkgbuild, omarchy, cachyos, endeavouros, manjaro, artix, rolling release">
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
@@ -19,9 +19,21 @@
 <p>This page introduces Arch Linux and related versions of Linux.</p>
 <p>Tamlinux currently uses Arch Linux as its <a href="learn/glossary/rootstock.html">rootstock</a>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt. Related systems share some software, so their fixes can sometimes help Tamlinux too.</p>
 
-<h2>Arch Linux</h2>
+<h2>Contents</h2>
 
 <ul>
+<li><a href="#arch-linux">Arch Linux</a></li>
+<li><a href="#artix-linux">Artix Linux</a></li>
+<li><a href="#cachyos">CachyOS</a></li>
+<li><a href="#endeavouros">EndeavourOS</a></li>
+<li><a href="#manjaro">Manjaro</a></li>
+<li><a href="#omarchy">Omarchy</a></li>
+</ul>
+
+<h2 id="arch-linux">Arch Linux</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://archlinux.org/">archlinux.org</a></li>
 <li><strong>Lineage:</strong> independent.</li>
 <li><strong>Kernel, init and C library:</strong> Linux, systemd, glibc.</li>
 <li><strong>Packages and releases:</strong> <code>pacman</code>, with packages built from short shell recipes called <code>PKGBUILD</code>s. Arch rolls: there are no versions of the whole system, only a continuous stream of updated packages. The Arch User Repository (AUR) holds recipes contributed by users; it is separate from the official repositories and is not vetted by them.</li>
@@ -29,44 +41,49 @@
 <li><strong>Tamlinux role:</strong> rootstock. See <a href="ecosystem/distros.html">Choosing the Rootstock</a> for why, and why Tamlinux plans to move on.</li>
 </ul>
 
-<h2>Omarchy</h2>
+<h2 id="artix-linux">Artix Linux</h2>
 
 <ul>
-<li><strong>Lineage:</strong> an opinionated Hyprland desktop installed on top of Arch Linux, with its own package repository. It is a desktop configuration rather than a separate distribution.</li>
-<li><strong>Tamlinux role:</strong> integration donor. Tamlinux began from Omarchy's shell, services, menus and commands, keeps their MIT license notices, and maintains its own copies. New Omarchy releases are reviewed for fixes that also apply to Tamlinux.</li>
+<li><strong>Website:</strong> <a href="https://artixlinux.org/">artixlinux.org</a></li>
+<li><strong>Lineage:</strong> Arch-based, without systemd.</li>
+<li><strong>Kernel and init:</strong> Linux, with a choice of OpenRC, runit, s6 or dinit.</li>
+<li><strong>Packages:</strong> <code>pacman</code>, with Artix's own repositories providing service scripts for each init system.</li>
+<li><strong>Tamlinux role:</strong> idea donor for running Arch-family packages with an init system other than systemd, which matters for the runit target. Arch packages and service files cannot be assumed to work on Artix unchanged.</li>
 </ul>
 
-<h2>CachyOS</h2>
+<h2 id="cachyos">CachyOS</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://cachyos.org/">cachyos.org</a></li>
 <li><strong>Lineage:</strong> Arch-based.</li>
 <li><strong>Known for:</strong> performance tuning: its own kernels with alternative CPU schedulers, and packages rebuilt for newer x86-64 processor feature levels.</li>
 <li><strong>Tamlinux role:</strong> idea donor for package and update experience, performance and Hyprland integration. Performance claims are checked against evidence before being adopted.</li>
 </ul>
 
-<h2>EndeavourOS</h2>
+<h2 id="endeavouros">EndeavourOS</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://endeavouros.com/">endeavouros.com</a></li>
 <li><strong>Lineage:</strong> Arch-based, close to plain Arch; the community successor of Antergos.</li>
 <li><strong>Known for:</strong> a graphical installer, a friendly community and documentation, while leaving the system much like Arch.</li>
 <li><strong>Tamlinux role:</strong> idea donor for installation, recovery and documentation.</li>
 </ul>
 
-<h2>Manjaro</h2>
+<h2 id="manjaro">Manjaro</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://manjaro.org/">manjaro.org</a></li>
 <li><strong>Lineage:</strong> Arch-based, with its own repositories and company backing.</li>
 <li><strong>Known for:</strong> holding Arch packages back in testing branches before releasing them to its stable branch, and its hardware-detection tools.</li>
 <li><strong>Tamlinux role:</strong> idea donor for staged updates and hardware experience. Because Manjaro delays packages, Arch packages and Manjaro packages are not interchangeable.</li>
 </ul>
 
-<h2>Artix Linux</h2>
+<h2 id="omarchy">Omarchy</h2>
 
 <ul>
-<li><strong>Lineage:</strong> Arch-based, without systemd.</li>
-<li><strong>Kernel and init:</strong> Linux, with a choice of OpenRC, runit, s6 or dinit.</li>
-<li><strong>Packages:</strong> <code>pacman</code>, with Artix's own repositories providing service scripts for each init system.</li>
-<li><strong>Tamlinux role:</strong> idea donor for running Arch-family packages with an init system other than systemd, which matters for the runit target. Arch packages and service files cannot be assumed to work on Artix unchanged.</li>
+<li><strong>Website:</strong> <a href="https://omarchy.org/">omarchy.org</a> and <a href="https://github.com/omacom/omarchy">github.com/omacom/omarchy</a></li>
+<li><strong>Lineage:</strong> an opinionated Hyprland desktop installed on top of Arch Linux, with its own package repository. It is a desktop configuration rather than a separate distribution.</li>
+<li><strong>Tamlinux role:</strong> integration donor. Tamlinux began from Omarchy's shell, services, menus and commands, keeps their MIT license notices, and maintains its own copies. New Omarchy releases are reviewed for fixes that also apply to Tamlinux.</li>
 </ul>
 </body>
 </html>

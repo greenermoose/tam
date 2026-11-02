@@ -3,7 +3,7 @@
 <head>
 <title>Other Independent Systems</title>
 <meta name="topic" content="other-systems">
-<meta name="summary" content="SerenityOS, Haiku and ReactOS: whole operating systems built outside the Unix mainstream">
+<meta name="summary" content="Haiku, ReactOS and SerenityOS: whole operating systems built outside the Unix mainstream">
 <meta name="keywords" content="serenityos, serenity, ladybird, haiku, beos, packagefs, bfs, reactos, windows compatibility, wine, hobby os">
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
@@ -19,27 +19,38 @@
 <p>This page introduces computer operating systems built outside the major Linux families.</p>
 <p>These systems are built largely from scratch. None is a Tamlinux foundation or a candidate for Tam 2.0; each is included for ideas worth studying.</p>
 
-<h2>SerenityOS</h2>
+<h2>Contents</h2>
 
 <ul>
-<li><strong>Design:</strong> a Unix-like graphical operating system with a deliberate late-1990s desktop look, where everything, from the kernel and C library to the windowing system and applications, is written in one repository in C++. Applications are built from source rather than installed as binary packages, and its interfaces are not kept stable between versions.</li>
-<li><strong>History:</strong> its web browser grew into the separate Ladybird project, which now runs on other systems too.</li>
-<li><strong>Tamlinux role:</strong> idea donor for a cohesive desktop where every part is designed together. It is not described as a microkernel system.</li>
+<li><a href="#haiku">Haiku</a></li>
+<li><a href="#reactos">ReactOS</a></li>
+<li><a href="#serenityos">SerenityOS</a></li>
 </ul>
 
-<h2>Haiku</h2>
+<h2 id="haiku">Haiku</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://www.haiku-os.org/">haiku-os.org</a></li>
 <li><strong>Design:</strong> an open-source re-creation of BeOS, focused on personal computing, with its own kernel and a desktop that responds quickly because work is spread across many threads.</li>
 <li><strong>Ideas:</strong> its file system stores searchable attributes on files, and its package manager mounts packages in place rather than unpacking them, so removing a package removes everything it brought.</li>
 <li><strong>Tamlinux role:</strong> idea donor for personal-computing design.</li>
 </ul>
 
-<h2>ReactOS</h2>
+<h2 id="reactos">ReactOS</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://reactos.org/">reactos.org</a></li>
 <li><strong>Design:</strong> a free operating system that aims to run Windows applications and drivers directly, by re-creating the Windows NT design. It shares much of its user-space work with Wine. It is still alpha software.</li>
 <li><strong>Tamlinux role:</strong> idea donor for compatibility engineering. Its application model is different enough that comparing it needs separate study.</li>
+</ul>
+
+<h2 id="serenityos">SerenityOS</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://serenityos.org/">serenityos.org</a></li>
+<li><strong>Design:</strong> a Unix-like graphical operating system with a deliberate late-1990s desktop look, where everything, from the kernel and C library to the windowing system and applications, is written in one repository in C++. Applications are built from source rather than installed as binary packages, and its interfaces are not kept stable between versions.</li>
+<li><strong>History:</strong> its web browser grew into the separate Ladybird project, which now runs on other systems too.</li>
+<li><strong>Tamlinux role:</strong> idea donor for a cohesive desktop where every part is designed together. It is not described as a microkernel system.</li>
 </ul>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <title>Independent Distributions</title>
 <meta name="topic" content="independent-linux">
-<meta name="summary" content="Independent Linux distributions: Void, Alpine, Gentoo, Slackware, Chimera, Solus, KaOS, Adélie">
+<meta name="summary" content="Independent Linux distributions: Adélie, Alpine, Chimera, Gentoo, KaOS, Slackware, Solus, Void">
 <meta name="keywords" content="void, void linux, xbps, xbps-src, runit, musl, alpine, apk, busybox, openrc, gentoo, portage, use flags, slackware, chimera, dinit, solus, eopkg, kaos, adelie">
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
@@ -19,19 +19,31 @@
 <p>This page introduces versions of Linux that were built independently of larger projects.</p>
 <p>These systems were built independently rather than from a larger Linux family. Void Linux, a planned Tamlinux target rootstock, is one example. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the <a href="learn/glossary/rootstock.html">rootstock</a> to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
 
-<h2>Void Linux</h2>
+<h2>Contents</h2>
 
 <ul>
-<li><strong>Lineage:</strong> independent.</li>
-<li><strong>Kernel, init and C library:</strong> Linux and runit, with a choice of glibc or musl; see <a href="ecosystem/init.html">Init and service supervision</a> and <a href="ecosystem/libc.html">C standard libraries</a>.</li>
-<li><strong>Packages and releases:</strong> rolling. XBPS installs binary packages, and <code>xbps-src</code> builds them from source templates in a clean environment.</li>
-<li><strong>Reading offline:</strong> the <code>void-docs</code> package installs the Void Handbook.</li>
-<li><strong>Tamlinux role:</strong> target rootstock. The glibc profile is evaluated first. The musl profile is evaluated separately, because some software, such as the proprietary NVIDIA driver, does not support musl.</li>
+<li><a href="#adelie-linux">Adélie Linux</a></li>
+<li><a href="#alpine-linux">Alpine Linux</a></li>
+<li><a href="#chimera-linux">Chimera Linux</a></li>
+<li><a href="#gentoo-linux">Gentoo Linux</a></li>
+<li><a href="#kaos">KaOS</a></li>
+<li><a href="#slackware-linux">Slackware Linux</a></li>
+<li><a href="#solus">Solus</a></li>
+<li><a href="#void-linux">Void Linux</a></li>
 </ul>
 
-<h2>Alpine Linux</h2>
+<h2 id="adelie-linux">Adélie Linux</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://www.adelielinux.org/">adelielinux.org</a></li>
+<li><strong>Lineage:</strong> independent, built on musl, with an interest in running on many processor architectures.</li>
+<li><strong>Tamlinux role:</strong> not yet assessed.</li>
+</ul>
+
+<h2 id="alpine-linux">Alpine Linux</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://alpinelinux.org/">alpinelinux.org</a></li>
 <li><strong>Lineage:</strong> independent.</li>
 <li><strong>Kernel, init and C library:</strong> Linux, OpenRC, musl, with BusyBox for many basic commands.</li>
 <li><strong>Packages and releases:</strong> <code>apk</code>. Stable branches twice a year, and a rolling edge branch.</li>
@@ -39,53 +51,62 @@
 <li><strong>Tamlinux role:</strong> evaluate, for how small a base can be and for portability.</li>
 </ul>
 
-<h2>Gentoo Linux</h2>
+<h2 id="chimera-linux">Chimera Linux</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://chimera-linux.org/">chimera-linux.org</a></li>
+<li><strong>Lineage:</strong> independent.</li>
+<li><strong>Design:</strong> the Linux kernel with core command-line tools taken from FreeBSD, the LLVM compiler toolchain and musl, the dinit service manager, and <code>apk</code> packages built by its own builder.</li>
+<li><strong>Tamlinux role:</strong> evaluate, and idea donor for a modern minimal base without GNU tools or systemd.</li>
+</ul>
+
+<h2 id="gentoo-linux">Gentoo Linux</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://www.gentoo.org/">gentoo.org</a></li>
 <li><strong>Lineage:</strong> independent.</li>
 <li><strong>Init and C library:</strong> OpenRC or systemd; glibc or musl.</li>
 <li><strong>Packages:</strong> Portage builds software from recipes called ebuilds, with USE flags to choose which features each program is built with. Gentoo now also offers binary packages, so a machine need not compile everything.</li>
 <li><strong>Tamlinux role:</strong> evaluate, as the most configurable of the major distributions. Building everything from source is slow on older hardware.</li>
 </ul>
 
-<h2>Slackware Linux</h2>
+<h2 id="kaos">KaOS</h2>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://kaosx.us/">kaosx.us</a></li>
+<li><strong>Lineage:</strong> independent, with its own repositories, although it uses <code>pacman</code>.</li>
+<li><strong>Known for:</strong> a narrow focus on one 64-bit architecture and a Qt-based desktop. KaOS was long known for KDE Plasma; its site now names the Niri compositor with the Noctalia shell, and the Dinit init system. Read its current pages rather than older descriptions.</li>
+<li><strong>Tamlinux role:</strong> idea donor for focused Qt integration.</li>
+</ul>
+
+<h2 id="slackware-linux">Slackware Linux</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="http://www.slackware.com/">slackware.com</a></li>
 <li><strong>Lineage:</strong> independent, and the oldest Linux distribution still maintained.</li>
 <li><strong>Init:</strong> simple BSD-style startup scripts.</li>
 <li><strong>Packages:</strong> plain archives installed with <code>pkgtools</code>, which does not resolve dependencies for you. A stable release, and a -current development branch.</li>
 <li><strong>Tamlinux role:</strong> evaluate, as a traditional, conservative base.</li>
 </ul>
 
-<h2>Chimera Linux</h2>
+<h2 id="solus">Solus</h2>
 
 <ul>
-<li><strong>Lineage:</strong> independent.</li>
-<li><strong>Design:</strong> the Linux kernel with core command-line tools taken from FreeBSD, the LLVM compiler toolchain and musl, the dinit service manager, and <code>apk</code> packages built by its own builder.</li>
-<li><strong>Tamlinux role:</strong> evaluate, and idea donor for a modern minimal base without GNU tools or systemd.</li>
-</ul>
-
-<h2>Solus</h2>
-
-<ul>
+<li><strong>Website:</strong> <a href="https://getsol.us/">getsol.us</a></li>
 <li><strong>Lineage:</strong> independent.</li>
 <li><strong>Packages and releases:</strong> <code>eopkg</code>. A curated rolling release: updates are tested together and published once a week rather than as each package changes.</li>
 <li><strong>Tamlinux role:</strong> idea donor for curated, tested delivery to desktop users.</li>
 </ul>
 
-<h2>KaOS</h2>
+<h2 id="void-linux">Void Linux</h2>
 
 <ul>
-<li><strong>Lineage:</strong> independent, with its own repositories, although it uses <code>pacman</code>.</li>
-<li><strong>Known for:</strong> a narrow focus on one 64-bit architecture and a Qt-based desktop. KaOS was long known for KDE Plasma; its site now names the Niri compositor with the Noctalia shell, and the Dinit init system. Read its current pages rather than older descriptions.</li>
-<li><strong>Tamlinux role:</strong> idea donor for focused Qt integration.</li>
-</ul>
-
-<h2>Adélie Linux</h2>
-
-<ul>
-<li><strong>Lineage:</strong> independent, built on musl, with an interest in running on many processor architectures.</li>
-<li><strong>Tamlinux role:</strong> not yet assessed.</li>
+<li><strong>Website:</strong> <a href="https://voidlinux.org/">voidlinux.org</a></li>
+<li><strong>Lineage:</strong> independent.</li>
+<li><strong>Kernel, init and C library:</strong> Linux and runit, with a choice of glibc or musl; see <a href="ecosystem/init.html">Init and service supervision</a> and <a href="ecosystem/libc.html">C standard libraries</a>.</li>
+<li><strong>Packages and releases:</strong> rolling. XBPS installs binary packages, and <code>xbps-src</code> builds them from source templates in a clean environment.</li>
+<li><strong>Reading offline:</strong> the <code>void-docs</code> package installs the Void Handbook.</li>
+<li><strong>Tamlinux role:</strong> target rootstock. The glibc profile is evaluated first. The musl profile is evaluated separately, because some software, such as the proprietary NVIDIA driver, does not support musl.</li>
 </ul>
 </body>
 </html>

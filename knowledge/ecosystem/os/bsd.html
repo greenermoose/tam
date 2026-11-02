@@ -3,7 +3,7 @@
 <head>
 <title>The BSDs</title>
 <meta name="topic" content="bsd">
-<meta name="summary" content="FreeBSD, OpenBSD, NetBSD and DragonFly BSD: complete Unix systems developed as one base">
+<meta name="summary" content="DragonFly BSD, FreeBSD, NetBSD and OpenBSD: complete Unix systems developed as one base">
 <meta name="keywords" content="bsd, freebsd, openbsd, netbsd, dragonfly, dragonfly bsd, jails, zfs, pledge, unveil, pkgsrc, hammer2, ports, base system">
 <meta name="level" content="intermediate">
 <meta name="track" content="learn">
@@ -22,35 +22,48 @@
 <p>For Tamlinux the BSDs are horizon systems: not candidate bases today, but
 sources of well-engineered ideas.</p>
 
-<h2>FreeBSD</h2>
+<h2>Contents</h2>
 
 <ul>
+<li><a href="#dragonfly-bsd">DragonFly BSD</a></li>
+<li><a href="#freebsd">FreeBSD</a></li>
+<li><a href="#netbsd">NetBSD</a></li>
+<li><a href="#openbsd">OpenBSD</a></li>
+</ul>
+
+<h2 id="dragonfly-bsd">DragonFly BSD</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://www.dragonflybsd.org/">dragonflybsd.org</a></li>
+<li><strong>Lineage:</strong> forked from FreeBSD in 2003.</li>
+<li><strong>Known for:</strong> the HAMMER2 file system with cheap snapshots, virtual kernels that run as ordinary user programs for kernel development, and its own approach to multiprocessor scaling.</li>
+<li><strong>Tamlinux role:</strong> horizon, and idea donor for snapshots and kernel design. Its recent activity has not been checked.</li>
+</ul>
+
+<h2 id="freebsd">FreeBSD</h2>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://www.freebsd.org/">freebsd.org</a></li>
 <li><strong>Known for:</strong> jails, which isolate groups of processes; first-class ZFS; the bhyve hypervisor; DTrace tracing; and the FreeBSD Handbook, a model of complete documentation.</li>
 <li><strong>Packages:</strong> the ports tree and binary packages with <code>pkg</code>. It can also run many Linux programs through a compatibility layer.</li>
 <li><strong>Tamlinux role:</strong> horizon, and idea donor for a coherent base system, jails, ZFS and documentation.</li>
 </ul>
 
-<h2>OpenBSD</h2>
+<h2 id="netbsd">NetBSD</h2>
 
 <ul>
-<li><strong>Known for:</strong> security and correctness first, with code audits, secure defaults, and system calls such as <code>pledge</code> and <code>unveil</code> that let a program give up abilities it no longer needs. OpenSSH comes from the OpenBSD project.</li>
-<li><strong>Releases:</strong> about every six months, with binary patches for the supported releases.</li>
-<li><strong>Tamlinux role:</strong> horizon, and idea donor for security engineering and clear manual pages.</li>
-</ul>
-
-<h2>NetBSD</h2>
-
-<ul>
+<li><strong>Website:</strong> <a href="https://www.netbsd.org/">netbsd.org</a></li>
 <li><strong>Known for:</strong> portability to a very wide range of hardware. Its pkgsrc package collection also builds on other operating systems, including Linux.</li>
 <li><strong>Tamlinux role:</strong> horizon, and idea donor for portability.</li>
 </ul>
 
-<h2>DragonFly BSD</h2>
+<h2 id="openbsd">OpenBSD</h2>
 
 <ul>
-<li><strong>Lineage:</strong> forked from FreeBSD in 2003.</li>
-<li><strong>Known for:</strong> the HAMMER2 file system with cheap snapshots, virtual kernels that run as ordinary user programs for kernel development, and its own approach to multiprocessor scaling.</li>
-<li><strong>Tamlinux role:</strong> horizon, and idea donor for snapshots and kernel design. Its recent activity has not been checked.</li>
+<li><strong>Website:</strong> <a href="https://www.openbsd.org/">openbsd.org</a></li>
+<li><strong>Known for:</strong> security and correctness first, with code audits, secure defaults, and system calls such as <code>pledge</code> and <code>unveil</code> that let a program give up abilities it no longer needs. OpenSSH comes from the OpenBSD project.</li>
+<li><strong>Releases:</strong> about every six months, with binary patches for the supported releases.</li>
+<li><strong>Tamlinux role:</strong> horizon, and idea donor for security engineering and clear manual pages.</li>
 </ul>
 </body>
 </html>

@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-02 | Table of contents, alphabetization, and website links for ecosystem/os pages; corpus 0.58.1 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-ecosystem-os-toc-and-links.md) |
 | 2026-11-01 | Computer cables, physical transmission media, and communication protocols; corpus 0.58.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-cables-and-protocols.md) |
 | 2026-11-01 | Computer graphics, display output history, GPU architecture, and display interfaces; corpus 0.57.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-01-tam-computer-graphics-and-displays.md) |
 | 2026-11-01 | Refresh curated tldr pages; corpus 0.56.1; check-repo plan-doc fixes | Cursor 3.27.22; Composer (`composer`) | [Session record](docs/ai/2026-11-01-tam-tldr-refresh.md) |

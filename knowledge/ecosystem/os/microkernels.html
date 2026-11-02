@@ -3,7 +3,7 @@
 <head>
 <title>Exploring a different system foundation</title>
 <meta name="topic" content="microkernels">
-<meta name="summary" content="Tam 2.0 research: Redox OS and Fuchsia, with seL4, MINIX 3, Genode, HelenOS, GNU Hurd and QNX for comparison">
+<meta name="summary" content="Tam 2.0 research: Fuchsia and Redox OS, with Genode, GNU Hurd, HelenOS, MINIX 3, QNX and seL4 for comparison">
 <meta name="keywords" content="microkernel, microkernels, tam 2.0, redox, redox os, rust, relibc, orbital, fuchsia, zircon, starnix, sel4, minix, minix 3, genode, sculpt, helenos, hurd, gnu hurd, gnu mach, qnx, l4">
 <meta name="level" content="expert">
 <meta name="track" content="learn">
@@ -19,6 +19,19 @@
 <p>This page explores a way to build the central software that helps a computer run programs.</p>
 <p>Fred Horch develops Tamlinux. He plans to study a different kind of system foundation after Tamlinux 1.x. That future work is called Tam 2.0; it is research, and no foundation has been selected or built. Rootstock is not a common term, but one that Fred made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the <a href="learn/glossary/rootstock.html">rootstock</a> to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
 
+<h2>Contents</h2>
+
+<ul>
+<li><a href="#fuchsia">Fuchsia</a></li>
+<li><a href="#redox-os">Redox OS</a></li>
+<li><a href="#genode">Genode and Sculpt OS</a></li>
+<li><a href="#gnu-hurd">GNU Hurd</a></li>
+<li><a href="#helenos">HelenOS</a></li>
+<li><a href="#minix-3">MINIX 3</a></li>
+<li><a href="#qnx">QNX</a></li>
+<li><a href="#sel4">seL4</a></li>
+</ul>
+
 <h2>What Tam 2.0 would carry forward</h2>
 
 <p>Tam 2.0 aims to keep what Tamlinux is for: comfortable ergonomics,
@@ -31,24 +44,26 @@ copy of the Linux desktop.</p>
 
 <h2>The candidates</h2>
 
-<h3>Redox OS: first candidate</h3>
+<h3 id="fuchsia">Fuchsia: research</h3>
 
 <ul>
+<li><strong>Website:</strong> <a href="https://fuchsia.dev/">fuchsia.dev</a></li>
+<li><strong>Design:</strong> an operating system from Google built on the Zircon kernel. Zircon provides processes, memory and IPC primitives, with drivers and services in user space. Whether Zircon should be called a microkernel or a hybrid is not settled.</li>
+<li><strong>Components:</strong> software is built from isolated components that receive only the capabilities they are given, and talk through interfaces described in the FIDL language.</li>
+<li><strong>Linux programs:</strong> a compatibility layer called Starnix aims to run unmodified Linux programs. How well it works for a desktop has not been tested.</li>
+<li><strong>Tamlinux role:</strong> studied for component isolation, diagnostics and its driver framework. No Tamlinux portability is claimed.</li>
+</ul>
+
+<h3 id="redox-os">Redox OS: first candidate</h3>
+
+<ul>
+<li><strong>Website:</strong> <a href="https://www.redox-os.org/">redox-os.org</a></li>
 <li><strong>Design:</strong> a Unix-like operating system with a microkernel, written in Rust. Drivers and file systems run as user-space programs.</li>
 <li><strong>Resources as URLs:</strong> Redox names resources through <em>schemes</em>, so a program opens a file, a network connection or a device through a path whose prefix names the server that handles it.</li>
 <li><strong>Compatibility:</strong> its own C library, relibc, written in Rust, provides partial POSIX compatibility, so some existing Unix software can be ported by recompiling.</li>
 <li><strong>Desktop:</strong> its own windowing system, Orbital.</li>
 <li><strong>License:</strong> the core is MIT-licensed; individual programs have their own licenses.</li>
 <li><strong>Open questions:</strong> hardware support (processors, graphics, networking, storage), gaps in POSIX and applications, input and accessibility, package signing and security response, disk encryption, updates and offline recovery. Supporting real hardware would probably mean taking part in Redox driver development. The Redox book itself warns that some of its material is out of date.</li>
-</ul>
-
-<h3>Fuchsia: research</h3>
-
-<ul>
-<li><strong>Design:</strong> an operating system from Google built on the Zircon kernel. Zircon provides processes, memory and IPC primitives, with drivers and services in user space. Whether Zircon should be called a microkernel or a hybrid is not settled.</li>
-<li><strong>Components:</strong> software is built from isolated components that receive only the capabilities they are given, and talk through interfaces described in the FIDL language.</li>
-<li><strong>Linux programs:</strong> a compatibility layer called Starnix aims to run unmodified Linux programs. How well it works for a desktop has not been tested.</li>
-<li><strong>Tamlinux role:</strong> studied for component isolation, diagnostics and its driver framework. No Tamlinux portability is claimed.</li>
 </ul>
 
 <h3>The Linux control</h3>
@@ -68,12 +83,12 @@ so it is an idea donor rather than a Tam 2.0 candidate; see
 microkernels have achieved in practice and where they have struggled.</p>
 
 <ul>
-<li><strong>seL4:</strong> a member of the L4 family with a machine-checked mathematical proof that its implementation matches its specification. It is a kernel, not a complete operating system; systems are built on it with frameworks such as CAmkES and the seL4 Microkit.</li>
-<li><strong>MINIX 3:</strong> Andrew Tanenbaum's teaching system, redesigned for reliability: its reincarnation server restarts drivers that fail. Development has been largely inactive for years.</li>
-<li><strong>Genode and Sculpt OS:</strong> Genode is a framework for building systems from small components with explicit capabilities. It runs on several kernels, including seL4 and NOVA. Sculpt OS is a general-purpose desktop built with Genode and used daily by its developers.</li>
-<li><strong>HelenOS:</strong> a multiserver microkernel system from Charles University in Prague, portable to many processor architectures and used for research and teaching.</li>
-<li><strong>GNU Hurd:</strong> the GNU Project's kernel, a set of servers on the GNU Mach microkernel. Debian maintains an unofficial port. Decades of development show how hard hardware support and performance are for a small community.</li>
-<li><strong>QNX:</strong> a proprietary real-time microkernel system widely used in cars and industrial equipment. It shows a microkernel can be fast and dependable in production, but it is not free software and cannot be a Tamlinux base.</li>
+<li id="genode"><strong>Genode and Sculpt OS:</strong> a framework for building systems from small components with explicit capabilities. It runs on several kernels, including seL4 and NOVA. Sculpt OS is a general-purpose desktop built with Genode and used daily by its developers. <strong>Website:</strong> <a href="https://genode.org/">genode.org</a></li>
+<li id="gnu-hurd"><strong>GNU Hurd:</strong> the GNU Project's kernel, a set of servers on the GNU Mach microkernel. Debian maintains an unofficial port. Decades of development show how hard hardware support and performance are for a small community. <strong>Website:</strong> <a href="https://www.gnu.org/software/hurd/">gnu.org/software/hurd</a></li>
+<li id="helenos"><strong>HelenOS:</strong> a multiserver microkernel system from Charles University in Prague, portable to many processor architectures and used for research and teaching. <strong>Website:</strong> <a href="http://www.helenos.org/">helenos.org</a></li>
+<li id="minix-3"><strong>MINIX 3:</strong> Andrew Tanenbaum's teaching system, redesigned for reliability: its reincarnation server restarts drivers that fail. Development has been largely inactive for years. <strong>Website:</strong> <a href="https://www.minix3.org/">minix3.org</a></li>
+<li id="qnx"><strong>QNX:</strong> a proprietary real-time microkernel system widely used in cars and industrial equipment. It shows a microkernel can be fast and dependable in production, but it is not free software and cannot be a Tamlinux base. <strong>Website:</strong> <a href="https://blackberry.qnx.com/">blackberry.qnx.com</a></li>
+<li id="sel4"><strong>seL4:</strong> a member of the L4 family with a machine-checked mathematical proof that its implementation matches its specification. It is a kernel, not a complete operating system; systems are built on it with frameworks such as CAmkES and the seL4 Microkit. <strong>Website:</strong> <a href="https://sel4.systems/">sel4.systems</a></li>
 </ul>
 
 <h2>What a decision will need</h2>
