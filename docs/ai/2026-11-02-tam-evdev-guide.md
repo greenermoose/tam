@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.4.12
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** Pending first commit and follow-up index refresh commit
+- **Commits:** `4b9634a`, and the follow-up index commit adding this record
 - **Authorship:** Fred Horch directed: "Add a page for evdev to the tam knowledge corpus and include evdev in the glossary." Antigravity claimed paths with `tam-work`, authored `knowledge/ecosystem/evdev.html`, created companion glossary entry `knowledge/learn/glossary/evdev.html`, linked both in `knowledge/ecosystem/index.html` and `knowledge/learn/glossary/index.html`, bumped `knowledge/version` to 0.59.0, updated `ROADMAP.md` and `AI_PROVENANCE.md`, and regenerated corpus indexes.
 - **Checked against:** `/proc/bus/input/devices`, `/dev/input/by-id/`, `/usr/include/linux/input.h`, `/usr/include/linux/input-event-codes.h`, `/usr/include/linux/uinput.h`, `/usr/include/libevdev-1.0/libevdev/libevdev.h`, `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`, `tools/lint-corpus.py`, `tools/build-index.py`, and `tests/guide.sh`.
 
