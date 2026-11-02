@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Agent
 - **Model:** Composer
 - **Transcript:** Retained privately by the author.
-- **Commits:** (this change; index/version bump may follow when shared claims free)
+- **Commits:** `613496b` (content); index/version bump still pending on freed claims
 - **Authorship:** Developer approved the remediation plan; the agent authored
   the audit record and corpus page edits.
 - **Checked against:** `bindings/utilities.lua`, `bindings/voxtype.lua`,
@@ -48,5 +48,9 @@
 
 ## Follow-up
 
-- Claim version + primary indexes, bump corpus minor (0.60.0), run
-  `make corpus-and-test`, commit sidecars, add AI_PROVENANCE row when free.
+- Claim version + primary indexes, bump corpus to 0.60.0, run
+  `make corpus-and-test`, commit sidecars and parents, add AI_PROVENANCE and
+  ROADMAP rows when `agy-e86705208bac` releases those paths.
+- Validated offline: `build-index.py` and `lint-corpus.py` against a temp
+  tree with 231 entries and no page/path gaps for the new `signals` cells.
+- Prepared index outputs live under `/tmp/tam-index-handoff/` for that follow-up.
