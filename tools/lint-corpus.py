@@ -20,6 +20,15 @@ from pathlib import Path
 EXTRA_SUBCOMMANDS = {"help", "--help", "-h", "--version", "-V"}
 LATEX_WORDS = r"\\(?:rightarrow|leftarrow|times|approx|text|frac|cdot)\b"
 WORKTREE_PAGE = "knowledge/improve/toolchains.html"
+# Historical Super/SUPER explanation only (D217). Living chords use Meta/META.
+SUPER_MOD_PAGES = {
+    "knowledge/desktop/meta-key.html",
+    "knowledge/learn/glossary/meta.html",
+}
+SUPER_MOD = re.compile(
+    r"(?:\bSUPER\s*\+|\bSUPER\+|\bSuper\s*\+|\bSuper\+|"
+    r"\bthe SUPER key\b|\bSUPER key\b|\bthe Super key\b|\bSuper key\b)"
+)
 BLOCKS = {"p", "li", "dd", "dt", "td", "pre"}
 
 TAG = re.compile(r"<(/?)([A-Za-z][A-Za-z0-9]*)(?:[^>\"']|\"[^\"]*\"|'[^']*')*>"
@@ -180,6 +189,10 @@ class Page:
             for m in re.finditer(r"worktree", self.text, re.I):
                 self.add(m.start(), "WORKTREE",
                          "worktrees are mentioned only in improve/toolchains.html")
+        if self.rel not in SUPER_MOD_PAGES:
+            for m in SUPER_MOD.finditer(self.text):
+                self.add(m.start(), "SUPER-MOD",
+                         "call the desktop modifier Meta (D217); SUPER only in meta-key history")
 
     def check_text(self):
         pre = code = 0

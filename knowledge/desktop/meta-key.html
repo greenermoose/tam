@@ -186,7 +186,7 @@ libxkbcommon translation (Keymap / XKB rules)
     |
     v
 Wayland Compositor (Hyprland / Sway dispatchers)
-    - Configuration string: "SUPER" or "Mod4"
+    - Tamlinux configuration token: "META" (Hyprland also accepts SUPER/WIN/Mod4)
     - Intercepts chords before passing input to client windows
     |
     v
@@ -208,11 +208,11 @@ Tamlinux User Interface &amp; Documentation
 <p>Wayland compositors use <code>libxkbcommon</code> to translate raw evdev scancodes into logical keysyms and modifier masks based on your keyboard layout. Because XKB maintains backwards compatibility with the 1987 X11 protocol, standard xkb keymaps translate <code>KEY_LEFTMETA</code> to the keysym <code>XKB_KEY_Super_L</code> and set the <code>Mod4</code> modifier bit.</p>
 
 <h3>3. Compositor binding dispatchers</h3>
-<p>In Tamlinux's compositor configuration (such as <code>desktop/session/hypr/tamlinux/bindings/</code>), the dispatcher reads the configuration token <code>SUPER</code> because Hyprland's parser expects X11/XKB convention strings:</p>
+<p>In Tamlinux's compositor configuration (such as <code>desktop/session/hypr/tamlinux/bindings/</code>), binds use the token <code>META</code>. Hyprland accepts that spelling for the same Mod4 mask that older tiling-WM configs often wrote as <code>SUPER</code>:</p>
 
 <pre class="session" data-risk="read-only">
-o.bind("SUPER + RETURN", "Terminal", { launcher = "terminal" })
-o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+o.bind("META + RETURN", "Terminal", { launcher = "terminal" })
+o.bind("META + Q", "Close window", hl.dsp.window.close())
 </pre>
 
 <p>The compositor intercepts any chord matching the modifier mask before application windows ever see it. This guarantees that pressing <code>Meta + Q</code> closes a misbehaving or frozen window immediately, without allowing the application to trap or ignore the keystroke.</p>

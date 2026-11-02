@@ -72,7 +72,7 @@ internet_ping_ms  20.2
 
 <dl>
 <dt>The output says <code>disconnected</code> and the fields are empty</dt>
-<dd>No interface has a route to the internet. Check that the Ethernet cable is seated, or open the network panel with SUPER+CTRL+W and connect to a Wi-Fi network.</dd>
+<dd>No interface has a route to the internet. Check that the Ethernet cable is seated, or open the network panel with Meta + CTRL+W and connect to a Wi-Fi network.</dd>
 <dt><code>tam-network-status: command not found</code></dt>
 <dd>The command ships with Tamlinux. Use <code>ip route</code> and <code>nmcli device status</code> instead, and report that the Tamlinux command is missing.</dd>
 <dt><code>router_ping_ms</code> or <code>internet_ping_ms</code> is blank</dt>
@@ -204,7 +204,7 @@ $ getent ahosts ___
 <tr><td><code>ip -4 -br addr</code> and <code>ip route</code></td><td>You want the address and the default route without NetworkManager's view.</td></tr>
 <tr><td><code>getent ahosts NAME</code> or <code>resolvectl query NAME</code></td><td>You want to test name resolution specifically.</td></tr>
 <tr><td><code>tam-dns</code></td><td>You want to read the current DNS provider. Changing it is privileged and records the originals first.</td></tr>
-<tr><td>SUPER+CTRL+W</td><td>You want the desktop network panel for connecting, disconnecting, forgetting a network, sharing a QR code or testing speed.</td></tr>
+<tr><td>Meta + CTRL+W</td><td>You want the desktop network panel for connecting, disconnecting, forgetting a network, sharing a QR code or testing speed.</td></tr>
 </table>
 
 <h3>Troubleshooting</h3>
@@ -219,7 +219,7 @@ $ getent ahosts ___
 </table>
 
 <aside class="tamlinux">
-<p>Tamlinux ships NetworkManager for connection state and systemd-resolved for name resolution. The desktop panel is a view over NetworkManager; it calls the same <code>tam-*</code> commands described here. The panel binding is SUPER+CTRL+W. DNS changes go through <code>tam-dns</code>, which preserves the previous settings under <code>/var/lib/tamlinux/network-recovery</code> before changing the NetworkManager drop-in and <code>resolved.conf</code>. The command asks for authorization through <code>pkexec</code>.</p>
+<p>Tamlinux ships NetworkManager for connection state and systemd-resolved for name resolution. The desktop panel is a view over NetworkManager; it calls the same <code>tam-*</code> commands described here. The panel binding is Meta + CTRL+W. DNS changes go through <code>tam-dns</code>, which preserves the previous settings under <code>/var/lib/tamlinux/network-recovery</code> before changing the NetworkManager drop-in and <code>resolved.conf</code>. The command asks for authorization through <code>pkexec</code>.</p>
 </aside>
 
 <section class="quiz">

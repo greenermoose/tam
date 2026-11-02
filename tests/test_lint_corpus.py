@@ -183,6 +183,19 @@ class LintCorpus(unittest.TestCase):
     def test_h2_worktree_on_toolchains_page(self):
         self.check("<p>Use a Git worktree.</p>", [], 0, path="improve/toolchains.html")
 
+    # H2: SUPER as desktop modifier (D217)
+    def test_h3_super_chord_elsewhere(self):
+        self.check("<p>Press SUPER + K.</p>", [self.finding(
+            "SUPER-MOD",
+            "call the desktop modifier Meta (D217); SUPER only in meta-key history")], 1)
+
+    def test_h4_super_allowed_on_meta_key_page(self):
+        self.check("<p>Tiling WMs adopted <code>SUPER</code>.</p>", [], 0,
+                   path="desktop/meta-key.html")
+
+    def test_h5_meta_chord_ok(self):
+        self.check("<p>Press Meta + K.</p>", [], 0)
+
     # I: ordering and errors
     def test_i1_findings_sorted_by_line(self):
         self.check("<p>a &times; b</p>\n<p>/home/bob</p>", [

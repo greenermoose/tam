@@ -103,6 +103,11 @@ Naming the developer:
   "Intermediate path", "Expert path") and the goal paths in `learn/paths/`.
   Boot pages keep "fallback route" and "rescue route" for their own, separate
   meaning.
+- The desktop modifier is **Meta** (chords `Meta + K`; Hyprland tokens
+  `META + …`). Do not write `SUPER + …` or “the SUPER key” in living pages.
+  Historical Super/SUPER belongs only on `desktop/meta-key.html` and
+  `learn/glossary/meta.html` (D217). `lint-corpus.py` rule `SUPER-MOD`
+  enforces this.
 
 ## How a page teaches
 
