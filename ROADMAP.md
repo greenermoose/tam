@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-02
 **Owner:** Fred
 **Current Command Version:** `0.48.1`.
-**Current Corpus Version:** `0.59.1`.
+**Current Corpus Version:** `0.60.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.1 / 0.59.1 | Newest source; seventh guiding principle (make computing fun for humans; agents and scripts do boring testing and drudgery while humans play); Linux input subsystem and evdev guide (ecosystem/evdev.html) with companion evdev glossary entry (learn/glossary/evdev.html); in-page tables of contents, alphabetized operating system catalog entries, and authoritative project website links across ecosystem/os reference pages; line b difficulty level display and highlighting (Showing 0-3 with cyan, green, yellow, magenta highlights), pager page scrolling (Space/PgDn, Shift-Space/PgUp/b) with screen overlap and attention row placement, HTML help page help/index.html with back-on-help navigation, pager level line and line labels, See also -> relatives leader, pager resize cursor fix, TCK23 review pending, TCK24, TCK25 Using, Maintaining, and Improving fully migrated and enforced, rootstock standardized, voice dictation updated to F9 tap toggle, shell voice commands, Fred Horch bio page, pager italic sitm, terminfo/ncurses ecosystem pages, peer project and community ecosystem pages, a networking chapter covering connection status, link/address/name diagnosis, and DNS, a Nix and Home Manager deep-dive page, typography/fonts and color/themes ecosystem deep-dive pages, foundational guides for computer architecture, digital logic, the microarchitectural instruction cycle, and assembly language programming, the Meta key and desktop modifiers guide, comprehensive chapters on computer graphics, display output history, GPU architecture, and display interfaces/cables with accompanying glossary terms and bibliography references, foundational guides on circuits and power distribution, serial and parallel communication channels, transmission media (copper, fiber, and wireless), communication protocols, error detection and correction, and hardware diagnostics and bench repair, and a refreshed curated tldr corpus (724 pages). Development installation is a separate developer-directed step. |
+| `develop` | 0.48.1 / 0.60.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 

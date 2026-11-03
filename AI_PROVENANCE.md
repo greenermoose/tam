@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-02 | Corpus gap remediation audit and content; corpus 0.60.0 | Cursor Agent; Composer | [Session records](docs/ai/2026-11-02-tam-corpus-audit.md); [remediation](docs/ai/2026-11-02-tam-corpus-remediation.md) |
 | 2026-11-02 | Guiding principle: make computing fun for humans; corpus 0.59.1 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-fun-computing-principle.md) |
 | 2026-11-02 | Linux input subsystem and evdev guide and glossary entry; corpus 0.59.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-evdev-guide.md) |
 | 2026-11-02 | Table of contents, alphabetization, and website links for ecosystem/os pages; corpus 0.58.1 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-ecosystem-os-toc-and-links.md) |
