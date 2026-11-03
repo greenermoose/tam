@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Composer
 - **Model:** Composer (Auto)
 - **Transcript:** Private Cursor session.
-- **Commits:** Corpus 0.64.0 on `develop` (hash filled after commit).
+- **Commits:** `19fee53` (pages) and `b609f21` (indexes) on `develop`.
 - **Authorship:** Fred accepted the three D221 pilots and said "Proceed." Cursor migrated the path-neighbor pages on the three embedded paths, expanded hard-enforcement to those pages, bumped the corpus version and synced roadmap records.
 
 ## Guiding prompts
