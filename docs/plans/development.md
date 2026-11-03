@@ -1238,3 +1238,6 @@ resolve superseded schedules. Do not execute a former plan from this history.
 - **2026-11-02:** Corpus 0.68.0 (minor): Migrate five ecosystem goal paths
   (atoms→bits, gates→machine, cables/protocols, display/GPU, how software
   runs); twenty pages.
+- **2026-11-02:** Corpus 0.69.0 (minor): Add C11 language guide page
+  (`knowledge/ecosystem/c11.html`); register Systems programming in C11
+  in `paths.json`; expand D221 hard-enforcement.

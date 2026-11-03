@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-02
 **Owner:** Fred
 **Current Command Version:** `0.48.2`.
-**Current Corpus Version:** `0.64.0`.
+**Current Corpus Version:** `0.69.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.2 / 0.64.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 novice/learner/expert labels, command UI, pilots, and path-neighbor migration. Development installation is a separate developer-directed step. |
+| `develop` | 0.48.2 / 0.69.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 novice/learner/expert labels, command UI, pilots, and path-neighbor migration. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -232,6 +232,7 @@ in that candidate, not here.
 | **0.66.0 corpus** | D221 voice, everyday desktop, and recovery/boot paths | Done (2026-11-02) | Migrates desktop voice, nine `use/desktop` task pages, and six maintain recovery/boot pages; adds three paths to `paths.json` and expands hard-enforcement. |
 | **0.67.0 corpus** | D221 improve-track paths | Done (2026-11-02) | Migrates `hardware/resources` and six `improve/*` pages; adds Run lean and Improve your tools to `paths.json` and expands hard-enforcement. |
 | **0.68.0 corpus** | D221 ecosystem goal paths | Done (2026-11-02) | Migrates twenty ecosystem pages across From atoms to bits, From gates to machine code, Cables and protocols, Display and GPU, and How software runs; expands hard-enforcement. |
+| **0.69.0 corpus** | C11 language guide page | Done (2026-11-02) | Adds `ecosystem/c11.html` teaching ISO C11, compiler flags, and libc portability; registers Systems programming in C11 path in `paths.json`; expands hard-enforcement. |
 
 ## 4. Deferred direction, without reserved versions
 

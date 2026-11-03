@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The C11 programming language and portable systems code</title>
+<meta name="topic" content="c11">
+<meta name="summary" content="The ISO C11 standard, compiler flags, libc portability across glibc and musl, and native systems programming in Tamlinux">
+<meta name="keywords" content="c11, c, iso c11, std=c11, compiler, gcc, clang, libtam, tam, c23, c99, libc, glibc, musl, static-assert, generic, atomics, system-programming">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="assembly, toolchains">
+<meta name="kind" content="how-to">
+<meta name="skills" content="contributing.beginner, contributing.intermediate, contributing.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / The C11 programming language and portable systems code</p>
+</nav>
+
+<h1>The C11 programming language and portable systems code</h1>
+<p>This page explains the role of the C11 programming language standard in Tamlinux, why core utilities are written in standard C, and how C11 provides a portable, high-performance foundation across different hardware and system libraries.</p>
+<p>While shell scripts and higher-level scripting languages coordinate desktop tasks and agent workflows, Tamlinux's core terminal utilities, diagnostic tools, and shared libraries are written in standard C. Standard C compiles directly to native <dfn><a href="learn/glossary/machine-code.html">machine code</a></dfn>, providing deterministic performance, sub-millisecond startup times, and minimal memory consumption without background daemon runtimes.</p>
+
+<section data-level="novice">
+<h2>What is C11?</h2>
+<p>When you run system utilities like the <code>tam</code> guide browser or inspection tools, they start instantly and use very little memory because they are compiled native programs written in standard C. Understanding why C is used and which standard revision governs it helps you appreciate how Tamlinux stays fast and reliable.</p>
+
+<h3>Why it matters</h3>
+<p>Core system utilities must be available under all operating conditions, including emergency recovery consoles when graphical desktop compositors, network access, or heavy language runtimes have failed. Writing utilities in standard C ensures they have no external runtime dependencies beyond the standard C library, start in under 5 milliseconds, and consume less than 4 megabytes of resident memory.</p>
+
+<h3>How to think about it</h3>
+<p>C is a compiled programming language where source code is translated directly into processor instructions by a compiler (such as GCC or Clang). Over the decades, the international C standard has evolved through major revisions: C89/C90, C99, C11, C17, and C23. C11 (ISO/IEC 9899:2011) represents a mature, universally supported standard that introduced essential features for modern 64-bit systems &mdash; including static assertions, memory alignment controls, and anonymous data structures &mdash; while maintaining complete portability across every Linux distribution and hardware generation.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>C11</dt>
+<dd>The international standard for the C programming language published in December 2011 as ISO/IEC 9899:2011, succeeding C99.</dd>
+<dt>Compiler standard flag (<code>-std=c11</code>)</dt>
+<dd>A compiler flag that instructs GCC or Clang to enforce standard ISO C11 syntax and semantics, rejecting compiler-specific non-standard extensions.</dd>
+<dt>Static assertion</dt>
+<dd>A compile-time check (<code>_Static_assert</code>) that verifies architectural requirements or structure sizes during compilation, failing before any binary code is produced.</dd>
+<dt>Standard C Library (<code>libc</code>)</dt>
+<dd>The core system library (such as <code>glibc</code> or <code>musl</code>) that provides standard functions for memory allocation, string handling, input/output, and Linux kernel system call wrappers.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Verify standard C11 compiler macros and compile a portable program</h2>
+<p><strong>Goal:</strong> you will be able to query the active C standard version macro using <code>gcc</code>, compile a standalone C11 source file with strict warning flags, and test a compile-time static assertion.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Systems programming in C11</strong> &mdash;
+<a href="ecosystem/c11.html?level=2">Start</a> |
+<a href="ecosystem/assembly.html?level=2">&larr; Back</a> |
+<a href="improve/toolchains.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The compiler inspection commands in this section run in user space and do not modify any system files or configuration.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> Standard-conforming C compilers define the preprocessor macro <code>__STDC_VERSION__</code> to identify the active standard. When targeting ISO C11, the macro evaluates to <code>201112L</code> (representing year 2011, month 12). The compiler flag <code>-std=c11</code> enforces this standard.</p>
+</aside>
+
+<h3>Worked example: query the C11 version macro</h3>
+
+<pre class="session" data-risk="read-only">
+$ gcc -std=c11 -Wall -Wextra -Wpedantic -dM -E - &lt;/dev/null | grep '__STDC_VERSION__'
+#define __STDC_VERSION__ 201112L
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-11-02.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>gcc -std=c11</code> configures the GNU Compiler Collection to enforce ISO C11 syntax and semantics.</li>
+<li><code>-Wall -Wextra -Wpedantic</code> enables strict compiler warnings and pedantic standard conformance checking.</li>
+<li><code>-dM -E</code> instructs the preprocessor to run on an empty input stream (<code>&lt;/dev/null</code>) and output all predefined preprocessor macros instead of compiling code.</li>
+<li>The output confirms that the compiler defines <code>__STDC_VERSION__</code> as <code>201112L</code>, verifying full C11 mode activation.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Compile a one-line C11 program that tests a compile-time assertion using a shell pipeline and standard input:</p>
+
+<pre class="session" data-risk="scratch">
+$ echo '_Static_assert(sizeof(void*) == 8, "64-bit pointer required"); int main(void) { return 0; }' | gcc -std=c11 -Wall -Wextra -Wpedantic -x c - -o /tmp/c11_check
+$ /tmp/c11_check &amp;&amp; echo "C11 check succeeded"
+C11 check succeeded
+$ rm -f /tmp/c11_check
+</pre>
+
+<p>If you change <code>sizeof(void*) == 8</code> to <code>sizeof(void*) == 4</code>, observe how the compiler halts immediately during compilation with an error message and refuses to produce an output file.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>gcc: command not found</code></dt>
+<dd>The GNU Compiler Collection is not installed. Native toolchains require <code>gcc</code> or <code>clang</code> from the base development package group.</dd>
+<dt><code>error: static assertion failed</code></dt>
+<dd>A compile-time condition failed. Static assertions stop compilation before emitting any machine code if architectural requirements (such as pointer size or data structure alignment) are not met.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> core utilities like the <code>tam</code> command and <code>libtam</code> foundational library are built with <code>-std=c11 -Wall -Wextra -Wpedantic</code>. By combining strict ISO C11 with <code>libtam</code> for dynamic strings, safe filesystem I/O, and subprocess execution, Tamlinux ensures utilities start in milliseconds with sub-megabyte memory use while remaining cleanly portable across both <code>glibc</code> and <code>musl</code> systems without code changes.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What does the compiler flag -std=c11 enforce?</summary>
+<p>It directs the compiler to conform strictly to the ISO C11 standard and disables non-standard compiler-specific extensions (such as GNU C extensions), ensuring code can be compiled across different compilers and operating environments.</p>
+</details>
+<details class="q">
+<summary>How does _Static_assert differ from the traditional runtime assert() macro?</summary>
+<p>Traditional <code>assert()</code> runs while the program is executing and aborts if a condition is false at runtime. <code>_Static_assert</code> is evaluated entirely at compile time: if the expression is false, compilation halts with an error and no executable is produced.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>C11 language architecture, libc portability, and toolchain rationale</h2>
+
+<h3>Reference: C Standard Evolution and Compiler Flags</h3>
+
+<table>
+<tr><th>Standard</th><th>ISO Specification</th><th>Published</th><th>Key Architectural Characteristics</th></tr>
+<tr><td>C89 / C90</td><td>ISO/IEC 9899:1990</td><td>1990</td><td>Original ANSI/ISO standardization; function prototypes, <code>void*</code>, standard library headers.</td></tr>
+<tr><td>C99</td><td>ISO/IEC 9899:1999</td><td>1999</td><td>Exact-width integers (<code>&lt;stdint.h&gt;</code>), <code>inline</code>, designated initializers, compound literals.</td></tr>
+<tr><td>C11</td><td>ISO/IEC 9899:2011</td><td>2011</td><td>Static assertions (<code>_Static_assert</code>), alignment (<code>_Alignas</code>), anonymous structs, removed <code>gets()</code>.</td></tr>
+<tr><td>C17</td><td>ISO/IEC 9899:2018</td><td>2018</td><td>Bug-fix release to C11; no new language features introduced.</td></tr>
+<tr><td>C23</td><td>ISO/IEC 9899:2024</td><td>2024</td><td>Modernization release; <code>#embed</code>, <code>nullptr</code>, <code>[[...]]</code> attribute syntax, bit manipulation.</td></tr>
+</table>
+
+<h3>Tamlinux Compiler Flags</h3>
+
+<table>
+<tr><th>Compiler Flag</th><th>Purpose</th><th>Operational Impact</th></tr>
+<tr><td><code>-std=c11</code></td><td>Enforce ISO C11 standard</td><td>Disables non-standard GNU extensions; ensures strict cross-compiler compliance.</td></tr>
+<tr><td><code>-O2</code></td><td>Level 2 optimization</td><td>Enables instruction scheduling, register allocation, and inlining without bloated binary size.</td></tr>
+<tr><td><code>-Wall -Wextra</code></td><td>Standard warning suites</td><td>Enables comprehensive compiler warnings for suspicious constructs, sign mismatches, and uninitialized variables.</td></tr>
+<tr><td><code>-Wpedantic</code></td><td>Strict ISO pedantry</td><td>Issues warnings or errors for any code construct that deviates from strict ISO C11 rules.</td></tr>
+<tr><td><code>-D_DEFAULT_SOURCE</code></td><td>Feature test macro</td><td>Exposes standard POSIX, BSD, and SVID library definitions in <code>glibc</code> and <code>musl</code> headers.</td></tr>
+<tr><td><code>-D_XOPEN_SOURCE=600</code></td><td>POSIX.1-2001 / SUSv3 conformance</td><td>Enables standard POSIX operating system interfaces (such as terminal control and directory traversal).</td></tr>
+</table>
+
+<h3>Why Tamlinux chose C11 over C23</h3>
+
+<p>When selecting the primary C dialect for core system components, Tamlinux chose ISO C11 over newer standards like C23 for four decisive reasons:</p>
+
+<ol>
+<li><strong>Toolchain ubiquity across all target hardware:</strong> Tamlinux is engineered to run on hardware spanning from 2006-era budget laptops up to modern multi-core workstations. C11 has been fully and reliably supported by GCC since version 4.9 and Clang since version 3.1. In contrast, C23 was published in 2024; its compiler support across distributions is still incomplete and actively evolving.</li>
+<li><strong>Strict pedantic warning policy (<code>-Wpedantic</code>):</strong> Tamlinux compiles with <code>-Wall -Wextra -Wpedantic</code>. Compiling with pedantic warnings enabled under experimental or newly drafted standards frequently emits spurious diagnostics about unstable syntax. Under C11, pedantic compilation guarantees zero warnings across every production toolchain.</li>
+<li><strong>Universal C library (<code>libc</code>) portability:</strong> Tamlinux evaluates both <code>glibc</code> and <code>musl</code> libc implementations (see <a href="ecosystem/libc.html">C standard libraries</a>). C11 headers, types, and library symbols are completely implemented across both libraries. C23 additions (such as <code>&lt;stdbit.h&gt;</code> and new format specifiers) are not yet universally available in minimal libc environments.</li>
+<li><strong>Simplicity and anti-bloat:</strong> Core terminal tools like <code>tam</code> do not require complex newer features like binary embedding (<code>#embed</code>) or attribute specifiers. C11 provides the exact set of systems primitives required: deterministic types, memory alignment controls, and compile-time verification.</li>
+</ol>
+
+<h3>Key C11 features used in native Tamlinux code</h3>
+
+<ul>
+<li><strong>Static Assertions (<code>_Static_assert</code>):</strong> Allows the compiler to verify architectural assumptions at build time rather than runtime. For example, validating that memory buffers and packet headers match expected hardware structures:
+<pre data-risk="read-only">
+_Static_assert(sizeof(off_t) == 8, "Large file support (64-bit off_t) required");
+</pre>
+</li>
+<li><strong>Anonymous Structures and Unions:</strong> Allows nested struct and union fields to be accessed directly without redundant wrapper identifiers, keeping parser and display code concise and readable.</li>
+<li><strong>Type-Generic Expressions (<code>_Generic</code>):</strong> Enables compile-time function selection based on argument types, allowing safe polymorphic macros without the overhead or complexity of C++ templates.</li>
+<li><strong>Memory Alignment (<code>_Alignas</code> and <code>_Alignof</code>):</strong> Provides portable, language-standard control over memory alignment for high-performance I/O buffers and cache-line boundary alignment.</li>
+<li><strong>Removal of Unsafe Interfaces:</strong> C11 officially removed the inherently unsafe <code>gets()</code> function from the C standard library, codifying safe buffer boundaries into the language core.</li>
+</ul>
+
+<h3>Explore: inspect the compiler invocation for tam</h3>
+
+<p>You can inspect how the <code>tam</code> command compiles using Make's dry-run mode (<code>-n</code>) inside the source repository:</p>
+
+<pre class="session" data-risk="read-only">
+$ make -C ~/src/tam -n command | head -n 3
+make: Entering directory '/home/user/src/tam'
+printf '%s\n' 'cc ... -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 ...'
+cc ... -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -c src/tam.c -o build/tam.o
+</pre>
+
+<p>Every object file in the binary is compiled with <code>-std=c11</code> and pedantic warning flags, linking against the reusable <code>libtam</code> foundation.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why is C11 preferred over C23 for emergency rescue tools like tam?</summary>
+<p>C11 has been maturely implemented across all GCC, Clang, and minimal libc versions for over a decade. Emergency rescue tools must be compilable and repairable on any rescue environment or minimal distribution (including minimal musl-based images) without requiring cutting-edge compilers that support draft C23 specifications.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li>ISO/IEC 9899:2011 &mdash; Information technology &mdash; Programming languages &mdash; C.</li>
+<li>ISO/IEC 9899:2024 &mdash; Programming languages &mdash; C (C23).</li>
+<li>POSIX.1-2008 / IEEE Std 1003.1-2008 &mdash; The Open Group Base Specifications Issue 7.</li>
+</ul>
+
+<h3>Improve it</h3>
+<p>Contribute toolchain and systems programming improvements in the public <a href="tam.html">tam</a> command repository.</p>
+</section>
+
+<h2>Where to next</h2>
+<ul>
+<li><a href="improve/toolchains.html">Toolchains and compilation</a> &mdash; how Make, GCC, and Clang coordinate builds.</li>
+<li><a href="ecosystem/assembly.html">Assembly language programming</a> &mdash; human-readable machine code mnemonics.</li>
+<li><a href="ecosystem/libc.html">C standard libraries</a> &mdash; comparing glibc and musl.</li>
+<li><a href="tam.html">The tam command architecture</a> &mdash; C11 implementation and transactional generations.</li>
+<li><a href="ecosystem/index.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li>
+</ul>
+</body>
+</html>

@@ -90,6 +90,7 @@ D221_PILOT_PAGES = frozenset({
     "ecosystem/filesystems.html",
     "ecosystem/init.html",
     "ecosystem/package-versions.html",
+    "ecosystem/c11.html",
 })
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
