@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Composer
 - **Model:** Composer (Auto)
 - **Transcript:** Private Cursor session.
-- **Commits:** Pending on `develop` at record write time.
+- **Commits:** `3ee4333` (pages) and `a22eff5` (indexes) on `develop`.
 - **Authorship:** Fred said to proceed with the next logical grouping. Cursor migrated the Improving track plus `hardware/resources`, registered Run lean and Improve your tools in `paths.json`, expanded hard-enforcement, bumped the corpus version and synced roadmap records.
 
 ## Guiding prompts
