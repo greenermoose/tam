@@ -1241,3 +1241,5 @@ resolve superseded schedules. Do not execute a former plan from this history.
 - **2026-11-02:** Corpus 0.69.0 (minor): Add C11 language guide page
   (`knowledge/ecosystem/c11.html`); register Systems programming in C11
   in `paths.json`; expand D221 hard-enforcement.
+- **2026-11-02:** Corpus 0.70.0 (minor): Migrate final D221 batches
+  (session/desktop, understand-design, terminal stack, guide leftovers).

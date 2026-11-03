@@ -22,20 +22,46 @@
 <p>Different tools manage different parts of the software. This page explains where each part comes from and how Tamlinux records what it installs.</p>
 
 <section data-level="novice">
+<h2>How is Tamlinux software packaged?</h2>
+<p>Before reporting an issue or planning an update, you need to know which version of a package is actually installed. Read-only queries cannot break your system, alter package state, or require administrative privileges.</p>
+<h3>Why it matters</h3>
+<p>Before reporting an issue or planning an update, you need to know which version of a package is actually installed. Read-only queries cannot break your system, alter package state, or require administrative privileges.</p>
+<h3>How to think about it</h3>
+<p>A package is a bundle of program files, documentation, and metadata. In pacman, uppercase -Q means "query" what is already installed on your computer.</p>
+<h3>New words</h3>
+<dl>
+<dt>Package</dt>
+<dd>A manager's named archive containing software binaries, libraries, and metadata.</dd>
+<dt>Upstream</dt>
+<dd>The original authors and repository of an open-source software project.</dd>
+<dt>Query</dt>
+<dd>A read-only operation that inspects database records without changing them.</dd>
+</dl>
+<p>A <dfn><a href="learn/glossary/package.html">package</a></dfn> is managed by an authoritative package manager.</p>
+</section>
+
+<section data-level="learner">
 <h2>Query installed packages safely</h2>
-
 <p><strong>Goal:</strong> you will be able to query an installed package's version and metadata with the native package manager without modifying any system packages.</p>
-
-<p><strong>Why it matters:</strong> before reporting an issue or planning an update, you need to know which version of a package is actually installed. Read-only queries cannot break your system, alter package state, or require administrative privileges.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Understand the design</strong> &mdash;
+<a href="ecosystem/packaging.html?level=2">Start</a> |
+<a href="ecosystem/packaging.html?level=2">&larr; Back</a> |
+<a href="ecosystem/nix.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal. On Arch Linux, <code>pacman</code> is the native package manager. Running query operations (<code>-Q</code>) requires no root or administrative privileges and touches no system files. See <a href="learn/paths/first-steps.html?level=1">First steps</a> if you are new to the command line.</p>
-
 <aside class="first-time">
 <p>A package is a bundle of program files, documentation, and metadata. In <code>pacman</code>, uppercase <code>-Q</code> means "query" what is already installed on your computer. You do not need <code>sudo</code> or <code>pkexec</code> to inspect installed packages.</p>
 </aside>
+<h3>Mental model</h3>
+<pre>
+Rootstock (Kernel, Drivers, Core OS)    --> Pacman (/usr/bin)
+Workstation Assembly (Tamlinux Desktop) --> Nix / Home Manager (/nix/store)
+User Toolchains (Developer / Agent CLIs) --> Mise / Home Manager (~/.local/share)
+</pre>
 
+<p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt. Recorded Tamlinux assemblies deliver the graphical desktop through Nix and Home Manager. Fast-moving developer and agent CLIs are owned by Mise or Home Manager user declarations.</p>
 <h3>Worked example: Query an installed package</h3>
-
 <pre class="session" data-risk="read-only">
 $ pacman -Q bash
 bash 5.3.20-1
@@ -48,20 +74,18 @@ bash 5.3.20-1
 <li><code>bash</code> is the package name being inspected.</li>
 <li><code>5.3.20-1</code> reports upstream version 5.3.20 and packaging release 1. Because this is a query, nothing was downloaded or modified.</li>
 </ol>
-
 <h3>Try it</h3>
-
 <p>Query detailed package information for <code>coreutils</code> using <code>pacman -Qi coreutils</code>. Inspect the <code>Version</code>, <code>Description</code>, and <code>Install Date</code> fields. No packages are modified.</p>
-
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt>package 'foo' was not found</dt>
 <dd>The package is not installed through pacman. It may be provided by Home Manager, Mise, or another tool manager.</dd>
 <dt>error: you cannot perform this operation unless you are root</dt>
 <dd>You used an installation flag such as <code>-S</code> or <code>-R</code> instead of the query flag <code>-Q</code>. Use only <code>-Q</code> for safe, unprivileged queries.</dd>
 </dl>
-
+<aside class="tamlinux">
+<p>Tamlinux strictly enforces that product software reaches your session only through a recorded <code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, never from an unrecorded git checkout or raw copied payload. Furthermore, when local package patches are required, Tamlinux builds self-retiring packages in <code>~/pkgs</code> with a release suffix rather than using <code>IgnorePkg</code> or modifying files under <code>/usr</code>.</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -74,116 +98,7 @@ bash 5.3.20-1
 <p>The package build revision created by the distribution maintainer, distinct from the upstream software release.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Package</dt>
-<dd>A manager's named archive containing software binaries, libraries, and metadata.</dd>
-<dt>Upstream</dt>
-<dd>The original authors and repository of an open-source software project.</dd>
-<dt>Query</dt>
-<dd>A read-only operation that inspects database records without changing them.</dd>
-</dl>
-<p>A <dfn><a href="learn/glossary/package.html">package</a></dfn> is managed by an authoritative package manager.</p>
-
-<p><strong>Next step:</strong> at Learner, identify which package manager owns a specific executable file on your system.</p>
 </section>
-
-<section data-level="learner">
-<h2>Identify package ownership across layers</h2>
-
-<p><strong>Goal:</strong> you will be able to identify which package manager supplies an executable and trace ownership across native, workstation, and user tool layers.</p>
-
-<h3>Mental model</h3>
-
-<pre>
-Rootstock (Kernel, Drivers, Core OS)    --> Pacman (/usr/bin)
-Workstation Assembly (Tamlinux Desktop) --> Nix / Home Manager (/nix/store)
-User Toolchains (Developer / Agent CLIs) --> Mise / Home Manager (~/.local/share)
-</pre>
-
-<p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn> is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt. Recorded Tamlinux assemblies deliver the graphical desktop through Nix and Home Manager. Fast-moving developer and agent CLIs are owned by Mise or Home Manager user declarations.</p>
-
-<h3>Worked example: Trace an executable to its owning package</h3>
-
-<pre class="session" data-risk="read-only">
-$ pacman -Qo /usr/bin/git
-/usr/bin/git is owned by git 2.56.0-1
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25. Your version may differ.</p>
-
-<ol>
-<li><code>which git</code> locates the executable at <code>/usr/bin/git</code>.</li>
-<li><code>pacman -Qo</code> queries which installed native package owns that exact filesystem path.</li>
-<li>Pacman confirms ownership by the <code>git</code> package at release <code>2.56.0-1</code>.</li>
-</ol>
-
-<h3>Completion task</h3>
-
-<p>Check which package manager owns a user CLI command by first resolving its full path, then querying the native database. Complete the command below (marked with <code>___</code>) to find the binary path of <code>tam</code>:</p>
-
-<pre data-risk="read-only">
-___ tam
-</pre>
-
-<details class="solution">
-<p>Use <code>which tam</code> or <code>command -v tam</code>. If the resulting path begins with <code>/nix/store/</code> or <code>~/.local/dev/bin/</code>, it is managed outside the rootstock's pacman database.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Inspect Home Manager generation history to verify that Tamlinux packages are delivered in recorded assemblies rather than unrecorded checkouts. Run <code>home-manager generations | head -n 3</code>. Observe the cryptographic hash and timestamp of each generation.</p>
-
-<details class="solution">
-<p>Run <code>home-manager generations | head -n 3</code>. Each line records a generation ID, date, and target store path under <code>/nix/store/</code>, allowing atomic activation and instant rollback.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Layer</th><th>Tool</th><th>Use for</th></tr>
-<tr><td>Rootstock</td><td>pacman</td><td>Kernel, hardware drivers, system libraries, and core systemd services.</td></tr>
-<tr><td>Workstation environment</td><td>tamlinux-packages (Nix/HM)</td><td>Compositor, shell plugins, themes, and curated desktop applications.</td></tr>
-<tr><td>User runtimes</td><td>Mise</td><td>Language runtimes (Python, Node, Go) and fast-moving AI agent CLI tools.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Command version does not match expected update</td><td>Earlier entry in PATH shadows the intended executable</td><td>Run <code>which -a &lt;cmd&gt;</code> and <code>echo $PATH</code></td><td>Adjust PATH ordering or remove the shadowing binary</td></tr>
-<tr><td>pacman -Qo returns "No package owns &lt;path&gt;"</td><td>File was installed by Nix, Mise, or local build</td><td>Inspect file symlink target (<code>ls -l &lt;path&gt;</code>)</td><td>Query Home Manager or Mise registry for the tool</td></tr>
-<tr><td>File conflict during package installation</td><td>Unrecorded manual copy in /usr/bin or /usr/share</td><td>Check origin before overwriting</td><td>Remove unrecorded file; never use --overwrite blindly</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p>Tamlinux strictly enforces that product software reaches your session only through a recorded <code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, never from an unrecorded git checkout or raw copied payload. Furthermore, when local package patches are required, Tamlinux builds self-retiring packages in <code>~/pkgs</code> with a release suffix rather than using <code>IgnorePkg</code> or modifying files under <code>/usr</code>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why should user developer tools not be installed via system-wide pacman commands?</summary>
-<p>Mixing fast-moving user developer tools into the system package database creates version lock-in, risks dependency conflicts with system components, and complicates clean rollbacks.</p>
-</details>
-<details class="q">
-<summary>What happens to the rootstock when you roll back a Home Manager generation?</summary>
-<p>Nothing. Home Manager generations operate within the user profile and <code>/nix/store/</code>; rootstock packages managed by pacman remain untouched.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:pacman(8)">pacman(8)</a> &mdash; package manager utility.</li>
-<li><a href="maintain/updates.html">Non-disruptive updates</a> &mdash; package lifecycle and inode unlinking.</li>
-<li><a href="maintain/rollback.html">Snapshots and rollbacks</a> &mdash; Btrfs and Home Manager generation recovery.</li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>Packaging architectures, immutable stores, and patch lifecycles</h2>
 

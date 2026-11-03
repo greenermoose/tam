@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-02
 **Owner:** Fred
 **Current Command Version:** `0.48.2`.
-**Current Corpus Version:** `0.69.0`.
+**Current Corpus Version:** `0.70.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -233,6 +233,7 @@ in that candidate, not here.
 | **0.67.0 corpus** | D221 improve-track paths | Done (2026-11-02) | Migrates `hardware/resources` and six `improve/*` pages; adds Run lean and Improve your tools to `paths.json` and expands hard-enforcement. |
 | **0.68.0 corpus** | D221 ecosystem goal paths | Done (2026-11-02) | Migrates twenty ecosystem pages across From atoms to bits, From gates to machine code, Cables and protocols, Display and GPU, and How software runs; expands hard-enforcement. |
 | **0.69.0 corpus** | C11 language guide page | Done (2026-11-02) | Adds `ecosystem/c11.html` teaching ISO C11, compiler flags, and libc portability; registers Systems programming in C11 path in `paths.json`; expands hard-enforcement. |
+| **0.70.0 corpus** | D221 final anatomy batches | Done (2026-11-02) | Migrates session/desktop, understand-design, terminal-stack, and guide-leftover pages; clears remaining novice/learner anatomy warnings; expands hard-enforcement. |
 
 ## 4. Deferred direction, without reserved versions
 

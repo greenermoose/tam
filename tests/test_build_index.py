@@ -157,22 +157,22 @@ class BuildIndex(unittest.TestCase):
                 '<meta name="level" content="novice">').replace(
                 '</body>', partial + '</body>')
         # Non-migrated path only: warning, build succeeds
-        root = self.fixture('0.66.0', {
+        root = self.fixture('0.70.0', {
             'index.html': page('Guide'),
-            'ecosystem/ai.html': leveled('AI'),
+            'ecosystem/terminology.html': leveled('Terminology'),
         })
         result = self.build(root)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('Learning warnings:', result.stdout)
         report = json.loads((root / 'knowledge/coverage.json').read_text())
-        self.assertTrue(any(w.get('path') == 'ecosystem/ai.html' for w in report['warnings']))
+        self.assertTrue(any(w.get('path') == 'ecosystem/terminology.html' for w in report['warnings']))
         # Add a migrated path with the same gap: hard error
         (root / 'knowledge/shell/pipelines.html').parent.mkdir(parents=True, exist_ok=True)
         (root / 'knowledge/shell/pipelines.html').write_text(leveled('Pipelines'))
         result = self.build(root)
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn('shell/pipelines.html: novice anatomy: forbidden goal:', result.stderr)
-        self.assertNotIn('ecosystem/ai.html: novice anatomy:', result.stderr)
+        self.assertNotIn('ecosystem/terminology.html: novice anatomy:', result.stderr)
     def test_path_skills_span_visited_levels_but_page_skills_do_not(self):
         text = page('Guide').replace('</head>', '<meta name="kind" content="path"><meta name="skills" content="shell.expert"></head>')
         root = self.fixture('0.40.0', {'index.html': text})

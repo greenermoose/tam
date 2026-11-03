@@ -22,20 +22,41 @@
 <p>Unlike proprietary operating systems where a single setting controls the visual appearance of all software, a Unix-like desktop is an assembly of independent programs. Terminal emulators, code editors, UI toolkits like GTK and Qt, and desktop shells each store color palettes in their own configuration formats. Understanding how colors and themes work allows you to adjust visual contrast, avoid eye strain, and build robust, efficient desktop environments.</p>
 
 <section data-level="novice">
+<h2>What is a desktop theme?</h2>
+<p>Reading text on a computer screen for hours requires sufficient contrast between letters and their background. If a terminal window switches to a dark background while an editor remains bright white, or if an interface uses low-contrast gray text on dark gray panels, reading becomes exhausting. A theme coordinates these colors so every window feels coherent, readable, and predictable.</p>
+<h3>Why it matters</h3>
+<p>Reading text on a computer screen for hours requires sufficient contrast between letters and their background. If a terminal window switches to a dark background while an editor remains bright white, or if an interface uses low-contrast gray text on dark gray panels, reading becomes exhausting. A theme coordinates these colors so every window feels coherent, readable, and predictable.</p>
+<h3>How to think about it</h3>
+<p>The $ at the start of a command line represents your shell prompt. Do not type the $.</p>
+<h3>New words</h3>
+<dl>
+<dt>Theme</dt>
+<dd>A unified set of visual styling rules, including color palettes, font assignments, and interface geometry.</dd>
+<dt>Palette</dt>
+<dd>A defined set of harmonious colors chosen for a computer display.</dd>
+<dt>Semantic token</dt>
+<dd>A named design variable (such as &ldquo;surface&rdquo; or &ldquo;accent&rdquo;) that abstracts a color from its literal RGB value.</dd>
+<dt>Contrast ratio</dt>
+<dd>The mathematical ratio between the relative luminance of the brightest color and the darkest color in an interface pair.</dd>
+<dt>Luminance</dt>
+<dd>The perceived brightness of a color, weighted by the human eye&apos;s sensitivity to different wavelengths of light.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Coordinating colors across your desktop</h2>
-
 <p><strong>Goal:</strong> you will be able to inspect the active Tamlinux theme, query individual color tokens, and verify that your desktop programs agree on color styling using read-only commands.</p>
-
-<p><strong>Why it matters:</strong> reading text on a computer screen for hours requires sufficient contrast between letters and their background. If a terminal window switches to a dark background while an editor remains bright white, or if an interface uses low-contrast gray text on dark gray panels, reading becomes exhausting. A theme coordinates these colors so every window feels coherent, readable, and predictable.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Terminal stack</strong> &mdash;
+<a href="ecosystem/terminfo-and-termcap.html?level=2">Start</a> |
+<a href="ecosystem/fonts.html?level=2">&larr; Back</a> |
+<a href="ecosystem/lua.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal window. All commands in this section inspect active settings without changing any files.</p>
-
 <aside class="first-time">
 <p>The <code>$</code> at the start of a command line represents your shell prompt. Do not type the <code>$</code>. Paths starting with <code>~</code> refer to your personal home directory (such as <code>/home/alex</code>).</p>
 </aside>
-
 <h3>Worked example: inspect the active theme</h3>
-
 <pre class="session" data-risk="read-only">
 $ tam-theme-current
 tamarack-dark
@@ -51,9 +72,7 @@ $ tam-theme-color foreground
 </pre>
 
 <p>Captured on a Tamlinux workstation. Your active theme and generation hashes will match your local configuration.</p>
-
 <h3>What just happened</h3>
-
 <ol>
 <li><code>tam-theme-current</code> reads the active theme name recorded in Tamlinux&apos;s state directory. The default theme is <strong>Tamarack Dark</strong>, a high-contrast dark green palette designed specifically for Tamlinux.</li>
 <li><code>readlink</code> inspects the symbolic link at <code>~/.local/state/tamlinux/current/theme</code>. Tamlinux points this link to an isolated, timestamped theme generation directory containing generated configuration files for all desktop applications.</li>
@@ -61,9 +80,7 @@ $ tam-theme-color foreground
 </ol>
 
 <p>A <dfn><a href="learn/glossary/package.html">theme</a></dfn> is a coordinated set of colors, font assignments, and visual parameters (such as window borders and margins). A <em>palette</em> is the specific collection of colors used by a theme. In modern interface design, colors are defined as semantic <em>tokens</em> (such as &ldquo;background&rdquo;, &ldquo;surface&rdquo;, &ldquo;primary&rdquo;, or &ldquo;danger&rdquo;) rather than hardcoded RGB numbers, allowing software to adapt cleanly between light and dark modes.</p>
-
 <h3>Try it</h3>
-
 <p>Run these read-only commands to list all available themes and inspect the colors assigned to the active theme:</p>
 
 <pre data-risk="read-only">
@@ -72,9 +89,7 @@ head -n 12 ~/.local/state/tamlinux/current/theme/colors.toml
 </pre>
 
 <p>The first command lists both bundled system themes (such as <code>tamarack-dark</code> and <code>tamarack-light</code>) and any personal themes installed under <code>~/.config/tamlinux/themes/</code>. The second command displays the active color table generated for your session.</p>
-
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt>tam-theme-current: command not found</dt>
 <dd>The Tamlinux command suite is not on your <code>PATH</code>. On a Tamlinux workstation, ensure your profile includes <code>~/.local/share/tamlinux/shell</code> and <code>~/.nix-profile/bin</code>.</dd>
@@ -83,7 +98,9 @@ head -n 12 ~/.local/state/tamlinux/current/theme/colors.toml
 <dt>Text is hard to read due to low contrast</dt>
 <dd>The display brightness or ambient room lighting may be mismatched with your current theme. Switch between dark and light variants using <code>tam-theme-set tamarack-light</code> or <code>tam-theme-set tamarack-dark</code>.</dd>
 </dl>
-
+<aside class="tamlinux">
+<p>On Tamlinux, themes are generated from semantic token files into an isolated state generation directory and published via atomic directory exchange. The default Tamarack palette enforces WCAG AA contrast (at least 4.5:1) at build time. User customizations live in <code>~/.config/tamlinux/themes/</code> and override packaged defaults without modifying immutable store paths.</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -100,215 +117,7 @@ head -n 12 ~/.local/state/tamlinux/current/theme/colors.toml
 <p>No. The theme engine only updates application color schemes, stylesheets, and desktop state links. Personal documents, code repositories, and user files remain completely untouched.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Theme</dt>
-<dd>A unified set of visual styling rules, including color palettes, font assignments, and interface geometry.</dd>
-<dt>Palette</dt>
-<dd>A defined set of harmonious colors chosen for a computer display.</dd>
-<dt>Semantic token</dt>
-<dd>A named design variable (such as &ldquo;surface&rdquo; or &ldquo;accent&rdquo;) that abstracts a color from its literal RGB value.</dd>
-<dt>Contrast ratio</dt>
-<dd>The mathematical ratio between the relative luminance of the brightest color and the darkest color in an interface pair.</dd>
-<dt>Luminance</dt>
-<dd>The perceived brightness of a color, weighted by the human eye&apos;s sensitivity to different wavelengths of light.</dd>
-</dl>
-
-<p><strong>Next step:</strong> at Learner, learn the history of computer displays and colors, study color science and contrast formulas, and understand how Unix toolkits propagate theme changes.</p>
 </section>
-
-<section data-level="learner">
-<h2>Displays, color science and Unix theming protocols</h2>
-
-<p><strong>Goal:</strong> you will be able to explain the historical development of computer displays and colors, calculate WCAG contrast ratios, and trace how themes are delivered across Arch Linux and Void Linux.</p>
-
-<h3>History of computer displays and color in HCI</h3>
-
-<p>Early interactive computing in the 1950s and 1960s relied on radar screens and vector displays (such as the TX-0 and DEC PDP-1), where an electron beam traced lines directly between coordinate points. In the 1970s, raster-scan cathode-ray tubes (CRTs) became standard. These displays were monochrome, using specialized phosphor coatings on the inside of the glass tube:</p>
-
-<ul>
-<li><strong>P1 Phosphor (Green):</strong> Emitted light at 525 nanometers, closely aligning with the peak photopic sensitivity of the human eye (555 nm). Green phosphors allowed characters to be read comfortably at lower beam energies.</li>
-<li><strong>P4 Phosphor (White):</strong> Emitted a broad-spectrum bluish-white light, standard in early television sets and office word processors.</li>
-<li><strong>P3 and P40 Phosphors (Amber):</strong> Emitted light at 590&ndash;620 nanometers with longer persistence. In the early 1980s, European occupational health studies (particularly German ergonomics standards) recommended amber displays to reduce eye fatigue and screen flicker under fluorescent office lighting.</li>
-</ul>
-
-<p>Because text terminals were monochrome, early visual emphasis relied on hardware character cell attributes: DEC VT100 terminals supported bold, reverse video, underline, and blinking. In 1976, the ECMA-48 standard (adopted in 1979 as ANSI X3.64) introduced <strong>Select Graphic Rendition (SGR)</strong> escape sequences. SGR codes 30&ndash;37 set text foreground to one of 8 base colors (black, red, green, yellow, blue, magenta, cyan, white), and 40&ndash;47 set the background. Pairing these with bold or bright attributes produced the classic 16-color ANSI terminal palette.</p>
-
-<p>Personal computer graphics hardware evolved rapidly through the 1980s:</p>
-
-<ul>
-<li><strong>IBM CGA (1981):</strong> Supported 16 colors in text mode, but only 4 simultaneous colors in graphics mode from fixed hardware palettes.</li>
-<li><strong>IBM EGA (1984):</strong> Displayed 16 simultaneous colors chosen from a palette of 64 colors.</li>
-<li><strong>IBM VGA (1987):</strong> Introduced the 18-bit Video Graphics Array, displaying 256 simultaneous colors selected from a palette of 262,144 colors using an 8-bit Color Lookup Table (CLUT) inside the digital-to-analog converter (RAMDAC).</li>
-<li><strong>TrueColor (1990s):</strong> Eliminated color lookup tables by dedicating 24 bits per pixel (8 bits each for Red, Green, and Blue), producing 16,777,216 distinct colors.</li>
-</ul>
-
-<p>In 1996, HP and Microsoft standardized <strong>sRGB</strong> (standard Red Green Blue), matching the color gamut and phosphor behavior of standard CRT monitors under typical office lighting (daylight white point at 6500 Kelvin). CRTs have a non-linear physical response: light intensity is proportional to input voltage raised to a power (with an exponent gamma around 2.2). Digital images and colors are therefore gamma-encoded to compress tonal data efficiently into 8 bits per channel, and must be linearized when computing physical light intensity.</p>
-
-<h3>Contrast calculation and accessibility</h3>
-
-<p>The human visual system does not perceive all light wavelengths with equal brightness. In 1931, the International Commission on Illumination (CIE) established standard color matching functions. The W3C Web Content Accessibility Guidelines (WCAG 2.1) use this color science to calculate the <em>relative luminance</em> of a color on a scale from 0.0 (pure black) to 1.0 (pure white):</p>
-
-<ol>
-<li>Convert 8-bit sRGB channel values (red, green, and blue numbers between 0 and 255) to floating-point ratios by dividing by 255.</li>
-<li>Linearize each channel to remove sRGB gamma encoding:
-  <pre>
-  if C_srgb &le; 0.04045:
-      C_linear = C_srgb / 12.92
-  else:
-      C_linear = ((C_srgb + 0.055) / 1.055) ^ 2.4
-  </pre>
-</li>
-<li>Calculate relative luminance using human photopic spectral sensitivity weights:
-  <pre>
-  L = 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
-  </pre>
-  Notice that green accounts for over 71% of perceived luminance, while blue accounts for only 7%.
-</li>
-<li>Calculate the contrast ratio between two colors with luminances L1 and L2 (where L1 is greater than L2):
-  <pre>
-  Contrast Ratio = (L1 + 0.05) / (L2 + 0.05)
-  </pre>
-</li>
-</ol>
-
-<p>WCAG 2.1 requires a minimum contrast ratio of <strong>4.5:1</strong> for normal text (Level AA) and <strong>7:1</strong> for high-contrast accessibility (Level AAA). Tamlinux enforces this 4.5:1 mathematical threshold in its theme engine before any theme can be applied.</p>
-
-<h3>Mental model: the Unix theming pipeline</h3>
-
-<pre>
-   Theme Token Definition (tamarack.toml)
-               |
-               v
-   [Theme Engine (engine.py)]
-     ├──&gt; Validates WCAG Contrast (4.5:1 minimum)
-     ├──&gt; Generates Staged Theme Directory (~/.local/state/tamlinux/theme-generations/...)
-     │     ├── colors.toml, foot.ini, alacritty.toml, gtk4.css, vscode.json
-     └──&gt; Atomic Directory Exchange (renameat2 RENAME_EXCHANGE)
-               |
-               v
-   Active State Link (~/.local/state/tamlinux/current/theme)
-         │           │           │             │
-         ▼           ▼           ▼             ▼
-     [Foot/TTY]   [GTK 4]     [Qt/QML]     [Editors/Tools]
-     (OSC escape  (Adaptive   (Quickshell  (VS Code, Claude,
-      sequences)   CSS link)   theme IPC)   Pi, Obsidian)
-</pre>
-
-<p>In Unix, there is no kernel theming subsystem. Theming is federated:</p>
-
-<ul>
-<li><strong>Terminal Emulators:</strong> Updated via configuration files or dynamically via <strong>OSC (Operating System Command)</strong> escape sequences. For example, <code>\e]10;#e4ece6\e\\</code> sets the terminal foreground color, and <code>\e]11;#131a15\e\\</code> sets the background color.</li>
-<li><strong>GTK Toolkit:</strong> GTK 3 reads <code>settings.ini</code> and CSS files under <code>~/.config/gtk-3.0/gtk.css</code>. GTK 4.20 introduced adaptive color scheme media queries (<code>@media (prefers-color-scheme: dark)</code>), allowing a single stylesheet to serve both dark and light modes.</li>
-<li><strong>Qt and QML:</strong> Qt applications read <code>QPalette</code> or use platform themes (such as <code>qt5ct</code> / <code>qt6ct</code>). The Tamlinux Quickshell desktop shell reads token values directly from generated QML service files.</li>
-<li><strong>XDG Desktop Portal:</strong> Modern Wayland compositors broadcast dark/light mode preferences across D-Bus via the <code>org.freedesktop.portal.Settings</code> interface using the <code>color-scheme</code> key (1 for dark, 2 for light).</li>
-</ul>
-
-<h3>Worked example: query contrast with Python</h3>
-
-<pre class="session" data-risk="read-only">
-$ python3 -c '
-def lum(c):
-    vals = [int(c[i:i+2], 16)/255 for i in (1, 3, 5)]
-    lin = [v/12.92 if v <= 0.04045 else ((v+0.055)/1.055)**2.4 for v in vals]
-    return 0.2126*lin[0] + 0.7152*lin[1] + 0.0722*lin[2]
-bg = lum("#131a15")
-fg = lum("#e4ece6")
-print("Tamarack Dark Contrast:", round((fg + 0.05) / (bg + 0.05), 2))
-'
-Tamarack Dark Contrast: 15.34
-</pre>
-
-<p>The calculation proves that Tamarack Dark delivers a contrast ratio of 15.34:1, far exceeding the 4.5:1 accessibility threshold.</p>
-
-<h3>Completion task</h3>
-
-<p>Fill in the blank in this terminal escape sequence to set the terminal background color dynamically using OSC 11:</p>
-
-<pre data-risk="read-only">
-printf '\033]11;%s\033\\' "________"
-</pre>
-
-<details class="solution">
-<p>The filled string is a hexadecimal color such as <code>#131a15</code>:</p>
-<pre data-risk="read-only">
-printf '\033]11;%s\033\\' "#131a15"
-</pre>
-<p>OSC 11 instructs supporting terminal emulators (such as Foot, Kitty, and Alacritty) to adjust their active window background color immediately without restarting.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Check whether your session currently exports a D-Bus session bus address and query the active GTK color scheme setting using <code>dconf</code>.</p>
-
-<details class="solution">
-<pre class="session" data-risk="read-only">
-$ echo "$DBUS_SESSION_BUS_ADDRESS"
-unix:path=/run/user/1000/bus
-
-$ dconf read /org/gnome/desktop/interface/color-scheme
-'prefer-dark'
-</pre>
-<p>The command queries the GNOME/GTK desktop configuration backend to verify that dark mode preference is broadcast to supported applications.</p>
-</details>
-
-<h3>Choosing: Arch Linux versus Void Linux</h3>
-
-<table>
-<tr><th>Theming Layer</th><th>Arch Linux</th><th>Void Linux</th></tr>
-<tr><td>Desktop Session Supervision</td><td>Managed by systemd user session (<code>systemctl --user</code>)</td><td>Managed by <code>turnstile</code> or a desktop script with <code>dbus-run-session</code></td></tr>
-<tr><td>GTK Configuration Backend</td><td><code>dconf-service</code> started via systemd D-Bus socket activation</td><td><code>dconf-service</code> started by D-Bus session bus without systemd sockets</td></tr>
-<tr><td>Portal Integration</td><td><code>xdg-desktop-portal</code> coordinated via systemd targets</td><td><code>xdg-desktop-portal</code> started directly in user session environment</td></tr>
-<tr><td>Virtual Console Theming</td><td>Escape codes in <code>/etc/issue</code> or kernel boot arguments</td><td>Escape codes in <code>/etc/issue</code> or runit console scripts</td></tr>
-<tr><td>Package Delivery</td><td>Pacman installs system icon themes into <code>/usr/share/icons/</code></td><td>XBPS installs system icon themes into <code>/usr/share/icons/</code></td></tr>
-</table>
-
-<p>Tamlinux runs on Arch Linux today, but Fred Horch, the Tamlinux developer, plans a migration to Void Linux to achieve a leaner, runit-based system without systemd. Ensuring that the theme engine relies on file-based atomic swaps and standard XDG specifications rather than systemd-specific IPC is central to that roadmap.</p>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely Cause</th><th>Check</th><th>Next Action</th></tr>
-<tr><td>GTK 4 applications remain bright white in dark mode</td><td>User personal <code>~/.config/gtk-4.0/gtk.css</code> exists and overrides theme</td><td><code>ls -l ~/.config/gtk-4.0/gtk.css</code></td><td>Check if the file is a personal stylesheet or remove it to restore the adaptive theme link</td></tr>
-<tr><td>Theme switch fails with &ldquo;contrast fails&rdquo; error</td><td>Custom theme palette has insufficient contrast between text and background</td><td>Inspect <code>colors.toml</code> foreground and background values</td><td>Adjust colors to satisfy the 4.5:1 WCAG contrast requirement</td></tr>
-<tr><td>Theme changes in terminal but desktop bar does not update</td><td>Quickshell service did not receive or process the reload IPC</td><td><code>systemctl --user status tamlinux-shell.service</code></td><td>Restart the shell service with <code>systemctl --user restart tamlinux-shell.service</code></td></tr>
-<tr><td>Theme exchange reports &ldquo;atomic theme exchange is unavailable&rdquo;</td><td>Filesystem does not support <code>renameat2(RENAME_EXCHANGE)</code> (e.g. older NFS mount)</td><td>Check filesystem type with <code>df -T ~/.local/state/tamlinux</code></td><td>Ensure state directory resides on a modern local filesystem (ext4, Btrfs, or XFS)</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p>On Tamlinux, themes are generated from semantic token files into an isolated state generation directory and published via atomic directory exchange. The default Tamarack palette enforces WCAG AA contrast (at least 4.5:1) at build time. User customizations live in <code>~/.config/tamlinux/themes/</code> and override packaged defaults without modifying immutable store paths.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does the human eye perceive green text as brighter than blue text with the exact same physical energy?</summary>
-<p>The human retina&apos;s photopic spectral sensitivity peaks around 555 nanometers (in the green spectrum). The CIE standard observer weights green at 71.52% of perceived luminance, while blue accounts for only 7.22%.</p>
-</details>
-<details class="q">
-<summary>How does GTK 4.20 allow a single stylesheet to support both dark and light modes?</summary>
-<p>GTK 4.20 introduced support for the CSS <code>@media (prefers-color-scheme: dark)</code> and <code>@media (prefers-color-scheme: light)</code> media queries, allowing application styles to switch automatically when the desktop color scheme changes.</p>
-</details>
-<details class="q">
-<summary>What challenge does Void Linux face with D-Bus session services compared to Arch Linux?</summary>
-<p>Void Linux does not use systemd user sessions, so D-Bus services cannot rely on systemd socket activation. The session D-Bus daemon must be explicitly started (typically via <code>dbus-run-session</code> or <code>turnstile</code>) and environment variables like <code>DBUS_SESSION_BUS_ADDRESS</code> must be manually propagated.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="ecosystem/fonts.html">Typography, fonts and text rendering</a> &mdash; learn how fonts, FreeType, and Fontconfig shape and draw text on screens.</li>
-<li><a href="ecosystem/toolkits.html">Desktop shell and UI toolkits</a> &mdash; explore Quickshell, QML, and desktop UI components.</li>
-<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> &mdash; understand terminal escape sequences, character cells, and capabilities.</li>
-</ul>
-
-<p><strong>Next step:</strong> at Expert, dissect the Tamlinux Python theme engine, study atomic directory swaps with <code>renameat2</code>, and design future optimizations for minimal code size.</p>
-</section>
-
 <section data-level="expert">
 <h2>Tamlinux theme engine internals, transactional safety and future work</h2>
 

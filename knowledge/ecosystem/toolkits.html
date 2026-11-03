@@ -5,7 +5,7 @@
 <meta name="topic" content="toolkits">
 <meta name="summary" content="Desktop shell and UI: Quickshell, Qt Quick, QML, and the Tamlinux shell">
 <meta name="keywords" content="toolkit, toolkits, quickshell, qt, qml, gtk, tamlinux shell, omarchy, waybar, ags, astal, eww, layer shell, bar, panel">
-<meta name="level" content="learner">
+<meta name="level" content="novice, learner">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="kind" content="explanation">
@@ -17,8 +17,30 @@
 
 <h1>The bar and menus around your windows</h1>
 <p>This page explains the software that provides the bar, menus, and other controls around your windows.</p>
-<section data-level="learner"><h2>Separate shell and compositor</h2><p><strong>Goal:</strong> describe how the desktop shell relates to a compositor and its toolkit.</p><h3>Mental model</h3><p>A compositor manages application surfaces; a shell supplies interface elements such as panels; a toolkit helps implement them.</p><h3>Worked example</h3><p>The page below describes Quickshell as the toolkit and the Tamlinux shell as the interface built with it.</p>
+<section data-level="novice">
+<h2>What desktop toolkits does Tamlinux use?</h2>
+<p>The bar, menus and panels around your windows come from a desktop shell built on a toolkit. Separating that shell from the compositor clarifies what to restart or replace when the GUI misbehaves.</p>
+<h3>Why it matters</h3>
+<p>The bar, menus and panels around your windows come from a desktop shell built on a toolkit. Separating that shell from the compositor clarifies what to restart or replace when the GUI misbehaves.</p>
+<h3>How to think about it</h3>
+<p>The compositor owns windows and surfaces; the shell draws the bar and menus on top. Toolkit choice (for example Qt Quick / QML) shapes how those shell pieces are written.</p>
+<h3>New words</h3>
+<p>See linked glossary terms in the Learner section.</p>
+</section>
 
+<section data-level="learner">
+<h2>Separate shell and compositor</h2>
+<p><strong>Goal:</strong> describe how the desktop shell relates to a compositor and its toolkit.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Understand the design</strong> &mdash;
+<a href="ecosystem/packaging.html?level=2">Start</a> |
+<a href="ecosystem/virtualization.html?level=2">&larr; Back</a> |
+<a href="ecosystem/packaging.html?level=2">Next &rarr;</a></p>
+</nav>
+<h3>Mental model</h3>
+<p>A compositor manages application surfaces; a shell supplies interface elements such as panels; a toolkit helps implement them.</p>
+<h3>Worked example</h3>
+<p>The page below describes Quickshell as the toolkit and the Tamlinux shell as the interface built with it.</p>
 
 <p>The desktop shell is the visible interface around your windows: the bar,
 menus, workspace indicators, notifications, and pop-up panels. Tamlinux keeps
@@ -57,6 +79,15 @@ Omarchy remains a peer project that Tamlinux watches for useful ideas and fixes.
 <li><strong>Astal and AGS:</strong> GTK widget frameworks scripted in TypeScript through GJS.</li>
 <li><strong>EWW:</strong> a standalone widget engine in Rust with its own configuration language, Yuck.</li>
 </ul>
-<h3>Completion task</h3><p>Name the toolkit and the interface in that example.</p><details class="solution"><p>Quickshell is the toolkit; the Tamlinux shell provides the desktop interface. The compositor is a separate component.</p></details><h3>Independent task</h3><p>Trace a displayed shell component to its owning package or source before proposing a change.</p><h3>Choosing</h3><p>Inspect shell behavior in the shell and window placement in the compositor, then check their interaction.</p><h3>Troubleshooting</h3><p>A missing panel can arise at multiple boundaries; inspect the actual service and logs rather than assuming a toolkit failure.</p><aside class="tamlinux"><p><strong>On Tamlinux:</strong> The Tamlinux shell is delivered as a separate component from the compositor.</p></aside><section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a toolkit name alone tell you which compositor is running?</summary><p>No. Check the actual session and compositor separately.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section><h3>Further reading</h3><p>Follow the page's related Guide and product-plan links; compare the selected system with its actual configuration.</p></section>
+<h3>Try it</h3>
+<p>Name the toolkit and the interface in that example.</p><details class="solution"><p>Quickshell is the toolkit; the Tamlinux shell provides the desktop interface. The compositor is a separate component.</p></details>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The result is empty or unexpected</dt>
+<dd>Re-read the lesson. These pages explain design; they do not require changing the system to practice.</dd>
+</dl>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a toolkit name alone tell you which compositor is running?</summary><p>No. Check the actual session and compositor separately.</p></details><details class="q"><summary>What evidence separates a proposed change from a delivered one?</summary><p>Inspect the relevant plan, selected package and acceptance evidence; a proposal alone establishes none of those.</p></details></section>
+</section>
+
 </body>
 </html>

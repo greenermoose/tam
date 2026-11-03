@@ -20,26 +20,39 @@
 <h1>Text screens and terminal windows</h1>
 <p>This page explains ways to type and read text on a computer, with or without a desktop.</p>
 <p>A virtual console is a text screen you can use outside the desktop. A terminal is a place to type and read text; a terminal window works inside the desktop.</p>
-<section data-level="novice"><h2>Recognize a virtual console</h2>
+<section data-level="novice">
+<h2>What are TTYs and virtual consoles?</h2>
+<p>A text login may remain usable when a graphical application is stuck, but display, kernel or input failures can affect it too.</p>
+<h3>Why it matters</h3>
+<p>A text login may remain usable when a graphical application is stuck, but display, kernel or input failures can affect it too.</p>
+<h3>How to think about it</h3>
+<p>New to this? A path names a place in the filesystem.</p>
+<h3>New words</h3>
+<p>A <a href="learn/glossary/kernel.html">kernel</a> manages hardware and processes; a <a href="learn/glossary/path.html">path</a> identifies a filesystem location.</p><h3>Next step</h3><p>Read <a href="maintain/recovery.html">recovery</a> before relying on a console during a fault.</p>
+</section>
+
+<section data-level="learner">
+<h2>Recognize a virtual console</h2>
 <p><strong>Goal:</strong> identify a virtual console and its limits as a recovery route.</p>
-<p><strong>Why it matters:</strong> a text login may remain usable when a graphical application is stuck, but display, kernel or input failures can affect it too.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Session and desktop</strong> &mdash;
+<a href="ecosystem/ttys-and-virtual-consoles.html?level=2">Start</a> |
+<a href="ecosystem/ttys-and-virtual-consoles.html?level=2">&larr; Back</a> |
+<a href="ecosystem/sddm.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> read <a href="learn/glossary/terminal.html">terminal</a> and <a href="learn/glossary/virtual-console.html">virtual console</a>. The example reads a system path.</p>
 <aside class="first-time"><p><strong>New to this?</strong> A path names a place in the filesystem. Type only what follows the dollar sign and press Enter. Do not switch consoles during an unsaved task.</p></aside>
-<h3>Worked example</h3><pre class="session" data-risk="read-only">$ ls -d /sys/class/tty/tty0
+<h3>Mental model</h3>
+<p>A kernel VT supplies a console surface; a getty may offer a text login there. A desktop terminal uses a PTY pair: the emulator handles one end and the shell uses the other. A session manager and graphics driver contribute their own state.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">$ ls -d /sys/class/tty/tty0
 /sys/class/tty/tty0</pre><p>Captured on Arch Linux, 2026-10-27. This shows a kernel interface exists; it does not show which console has a login or a desktop. Your system may differ.</p>
-<h3>Try it</h3><p>Run the read-only example. Identify the directory shown and compare it with a terminal window's <code>tty</code> output, if the command is available.</p>
-<h3>If it goes wrong</h3><p>A missing path or a blank screen does not identify the cause. A graphical session, console display, login service and keyboard are separate dependencies. Use <a href="maintain/recovery.html">recovery</a> for alternatives.</p>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a tty0 path guarantee a usable text login?</summary><p>No. A display, input and a login service must also work.</p></details><details class="q"><summary>Is a terminal window the same as a kernel virtual console?</summary><p>No. A terminal window normally uses a pseudo-terminal; a virtual console is managed by the kernel.</p></details></section>
-<h3>New words</h3><p>A <a href="learn/glossary/kernel.html">kernel</a> manages hardware and processes; a <a href="learn/glossary/path.html">path</a> identifies a filesystem location.</p><h3>Next step</h3><p>Read <a href="maintain/recovery.html">recovery</a> before relying on a console during a fault.</p></section>
-<section data-level="learner"><h2>Identify the active route</h2><p><strong>Goal:</strong> distinguish a console device, a login prompt and a graphical session.</p>
-<h3>Mental model</h3><p>A kernel VT supplies a console surface; a getty may offer a text login there. A desktop terminal uses a PTY pair: the emulator handles one end and the shell uses the other. A session manager and graphics driver contribute their own state.</p>
-<h3>Worked example</h3><p>The example above finds the tty0 interface. In an interactive terminal, <code>tty</code> shows the device attached to standard input. <code>loginctl list-sessions</code> lists registered sessions on systemd hosts. Output varies; neither alone proves a console can display a prompt.</p>
-<h3>Completion task</h3><p>Compare the device reported by <code>tty</code> with any registered session. Which identifies the terminal device and which identifies a session?</p><details class="solution"><p><code>tty</code> reports the terminal attached to its input; <code>loginctl</code> reports registered sessions. A PTY number does not identify the desktop's VT.</p></details>
-<h3>Independent task</h3><p>Without switching or changing configuration, identify the documented recovery route for your installation and the evidence needed to know which console hosts it.</p>
-<h3>Choosing</h3><p>Use a terminal window for ordinary shell work. Use a separately available text console when the desktop cannot be used and the console and input still work. Do not assume a fixed VT number.</p>
-<h3>Troubleshooting</h3><p>A blank console may reflect display, driver, input, login-service or kernel failure; a single symptom does not establish which. Record what responds and follow the recovery guide.</p>
+<h3>Try it</h3>
+<p>Run the read-only example. Identify the directory shown and compare it with a terminal window's <code>tty</code> output, if the command is available.</p>
+<h3>If it goes wrong</h3>
+<p>A missing path or a blank screen does not identify the cause. A graphical session, console display, login service and keyboard are separate dependencies. Use <a href="maintain/recovery.html">recovery</a> for alternatives.</p>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> the 0.5 text-startup design provides a text login and a second console, with the desktop started explicitly. Other installed versions can use graphical login. Check the selected installation rather than assuming F1, F2 or F3 is always the right return key.</p></aside>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does /dev/pts/0 tell you the desktop's virtual console number?</summary><p>No. It identifies a pseudo-terminal slave, not the compositor's VT.</p></details><details class="q"><summary>Why can a console switch fail during a graphics fault?</summary><p>Console switching and rendering depend on working kernel, input and display components. A fault can affect any of them.</p></details></section>
-<h3>Further reading</h3><p>See <code>tty(1)</code>, <code>pty(7)</code> and <code>loginctl(1)</code> for devices and sessions; see <a href="maintain/recovery.html">recovery</a> for fault handling.</p></section>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a tty0 path guarantee a usable text login?</summary><p>No. A display, input and a login service must also work.</p></details><details class="q"><summary>Is a terminal window the same as a kernel virtual console?</summary><p>No. A terminal window normally uses a pseudo-terminal; a virtual console is managed by the kernel.</p></details></section>
+</section>
 <section data-level="expert"><h2>Terminal and display boundaries</h2><p>A PTY is a master/slave pair; programs on the slave use terminal semantics while an emulator drives the master. The line discipline can handle editing and signal characters depending on termios settings: canonical mode ordinarily delivers completed lines, while applications can configure noncanonical input. With signal generation enabled, Ctrl+C requests SIGINT for the foreground process group. A controlling terminal, foreground process group and session have distinct roles; see <code>pty(7)</code> and <code>termios(3)</code>.</p><p>VT switching may require coordination among the active session, seat manager, display driver and compositor. Failure to display a console is evidence to investigate, not proof of a particular DRM failure. Avoid switching or changing VT modes on a working session merely to diagnose an unrelated fault.</p><section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>What must you distinguish before attributing a blank VT to a failed compositor?</summary><p>Check input response, kernel and session state, login availability and display output. Each can fail independently; a blank screen alone cannot identify the failing layer.</p></details></section></section>
 <h2>Where next</h2><p><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a>; <a href="ecosystem/ncurses.html">ncurses</a>; <a href="ecosystem/sddm.html">Display managers and login</a>; <a href="maintain/recovery.html">recovery</a>; <a href="index.html">Guide</a>.</p></body></html>

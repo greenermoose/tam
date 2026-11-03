@@ -22,94 +22,13 @@
 <p>Tamlinux uses these tools to deliver its desktop. You do not need to know them to use Tamlinux, but knowing them makes updates, rollbacks and configuration changes much easier to understand.</p>
 
 <section data-level="novice">
-<h2>Software that is kept, not overwritten</h2>
-
-<p><strong>Goal:</strong> you will be able to follow an installed command to its place in the Nix store and explain what a Home Manager generation is, using only read-only commands.</p>
-
-<p><strong>Why it matters:</strong> ordinary package managers replace a program when a new version arrives. Nix keeps each built result in its own directory. That makes it possible to see exactly which files a command uses and to return to an earlier selection when a change causes trouble.</p>
-
-<p><strong>Before you start:</strong> open a terminal. Every command in this section only reads information; it installs nothing and changes no files. If a terminal is new to you, read <a href="learn/paths/first-steps.html?level=1">First steps</a> first.</p>
-
-<aside class="first-time">
-<p>The <code>$</code> at the start of a line is the shell prompt. Type the part after it and press Enter; do not type the <code>$</code>. A read-only command usually prints its answer and returns to the prompt. If a command prints nothing at all, that is often normal. Your paths, dates and hashes will differ from the examples because they identify your own installation.</p>
-</aside>
-
-<h3>Worked example: follow a command into the store</h3>
-
-<pre class="session" data-risk="read-only">
-$ nix --version
-nix (Determinate Nix 3.22.5) 2.35.2
-
-$ readlink -f ~/.nix-profile
-/nix/store/c16r82dn5wpsz72imqz86x3sxxap9j6c-user-environment
-
-$ home-manager generations | head -n 3
-2026-10-29 20:20 : id 14 -> /nix/store/hjv5ndzzkadphxx8wj8x3pzzwz0kvs8f-home-manager-generation (current)
-2026-10-29 19:52 : id 13 -> /nix/store/k1ir8w8b2ahblx6s2xmj1ynzzrypwgqg-home-manager-generation
-2026-10-29 19:38 : id 12 -> /nix/store/1h48kj4599hk1bg7gxb81s6k5452g08v-home-manager-generation
-</pre>
-
-<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. Your hashes, dates and generation numbers will differ.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li><code>nix --version</code> prints the version of the Nix program itself. Nix is the tool that builds and stores software; it is not the same thing as NixOS, a whole operating system built on Nix.</li>
-<li><code>readlink -f</code> follows a chain of symbolic links until it reaches a real directory. The answer begins with <code>/nix/store/</code>, the place where Nix keeps built results.</li>
-<li><code>home-manager generations</code> lists numbered records. Each record points to one built Home Manager configuration. The word <code>(current)</code> marks the one in use now.</li>
-</ol>
-
-<p>A <dfn><a href="learn/glossary/package.html">package</a></dfn> is a bundle of program files, libraries and data. Nix does not put a package directly into <code>/usr/bin</code>. It builds the package into its own directory under <code>/nix/store/</code>, then creates links that point at it. A link is a small file that names another file or directory; opening the link opens the target.</p>
-
-<p>A store path has three parts: the fixed prefix <code>/nix/store/</code>, a long hash such as <code>c16r82dn5wpsz72imqz86x3sxxap9j6c</code>, and a readable name such as <code>user-environment</code>. The hash is a fingerprint of everything that went into the build. If an input changes, the fingerprint changes, so the new result gets a different directory and the old result is left alone. Store paths are read-only, which is what people mean when they call the store <em>immutable</em>.</p>
-
-<p>A <dfn><a href="learn/glossary/generation.html">generation</a></dfn> is a recorded selection of managed software and settings. Home Manager creates a new generation each time you activate a changed configuration. The older generations stay on disk until they are deliberately removed. Selecting an older one is called a <dfn><a href="learn/glossary/rollback.html">rollback</a></dfn>. It changes which software your profile points at; it does not restore your documents or other mutable files.</p>
-
-<p>A <em>profile</em> is a named pointer to one generation. Your shell finds commands through a profile such as <code>~/.nix-profile</code>. The profile is itself a link: it points to the current generation, and the generation points into the store. Switching generations moves the profile link; it does not rewrite the store.</p>
-
-<h3>Try it</h3>
-
-<p>Follow the <code>tam</code> command to the file it really runs, and read the profile link target. These commands are read-only.</p>
-
-<pre data-risk="read-only">
-readlink -f "$(command -v tam)"
-readlink ~/.nix-profile
-</pre>
-
-<p>If the first answer begins with <code>/nix/store/</code>, the command is packaged. If it begins under your home directory, it is a development override. The second answer shows the profile link without following it all the way to the store. Your paths and versions will differ from the worked example.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt>nix: command not found</dt>
-<dd>Nix is not installed or is not on your <code>PATH</code>. On a Tamlinux workstation it normally arrives with the desktop delivery. Do not install a second copy from a random script; ask for help or read <a href="ecosystem/packaging.html">Software packaging and delivery</a>.</dd>
-<dt>home-manager: command not found</dt>
-<dd>The Home Manager command is missing from your <code>PATH</code>, even if its generations still exist. Check <code>command -v home-manager</code> and the profile path before changing anything.</dd>
-<dt>readlink: /home/alex/.nix-profile: No such file or directory</dt>
-<dd>No Nix profile exists for this account, or the name is different. Do not create one just to finish the example; the read-only lesson can stop here.</dd>
-<dt>Permission denied</dt>
-<dd>The store is read-only by design. Reading is allowed; writing into <code>/nix/store/</code> is not. Never change permissions on the store to make a command work.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does a new Nix build usually get a different store path instead of replacing the old one?</summary>
-<p>The path contains a hash of the build inputs. A changed input changes the hash, so the new result is stored separately and the old result remains available. That is what makes generations and rollback possible.</p>
-</details>
-<details class="q">
-<summary>Does rolling back a Home Manager generation restore a document you edited yesterday?</summary>
-<p>No. A generation selects managed software and configuration. Your documents and other mutable files are outside it and need their own backup or recovery.</p>
-</details>
-<details class="q">
-<summary>What is the difference between a profile and a generation?</summary>
-<p>A generation is one recorded selection. A profile is the named pointer that says which generation is current. Switching moves the profile pointer to another generation.</p>
-</details>
-</section>
-
+<h2>What are Nix and Home Manager?</h2>
+<p>Ordinary package managers replace a program when a new version arrives. Nix keeps each built result in its own directory. That makes it possible to see exactly which files a command uses and to return to an earlier selection when a change causes trouble.</p>
+<h3>Why it matters</h3>
+<p>Ordinary package managers replace a program when a new version arrives. Nix keeps each built result in its own directory. That makes it possible to see exactly which files a command uses and to return to an earlier selection when a change causes trouble.</p>
+<h3>How to think about it</h3>
+<p>The $ at the start of a line is the shell prompt. Type the part after it and press Enter; do not type the $.</p>
 <h3>New words</h3>
-
 <dl>
 <dt>Nix</dt>
 <dd>A package manager and build system that keeps each built result in its own hashed store directory.</dd>
@@ -124,17 +43,22 @@ readlink ~/.nix-profile
 <dt>Immutable</dt>
 <dd>Not changed after it is created. Store paths are immutable; the links that point to them are not.</dd>
 </dl>
-
-<p><strong>Next step:</strong> at Learner, follow the whole path from a Nix description to a built store path and a switched generation.</p>
 </section>
 
 <section data-level="learner">
-<h2>From a description to a generation</h2>
-
-<p><strong>Goal:</strong> you will be able to explain how a Nix expression becomes a built store path, how a flake pins its inputs, and how Home Manager activates a new generation.</p>
-
+<h2>Software that is kept, not overwritten</h2>
+<p><strong>Goal:</strong> you will be able to follow an installed command to its place in the Nix store and explain what a Home Manager generation is, using only read-only commands.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Understand the design</strong> &mdash;
+<a href="ecosystem/packaging.html?level=2">Start</a> |
+<a href="ecosystem/packaging.html?level=2">&larr; Back</a> |
+<a href="ecosystem/distros.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> open a terminal. Every command in this section only reads information; it installs nothing and changes no files. If a terminal is new to you, read <a href="learn/paths/first-steps.html?level=1">First steps</a> first.</p>
+<aside class="first-time">
+<p>The <code>$</code> at the start of a line is the shell prompt. Type the part after it and press Enter; do not type the <code>$</code>. A read-only command usually prints its answer and returns to the prompt. If a command prints nothing at all, that is often normal. Your paths, dates and hashes will differ from the examples because they identify your own installation.</p>
+</aside>
 <h3>Mental model</h3>
-
 <pre>
 flake.nix + flake.lock
         |
@@ -162,113 +86,75 @@ flake.nix + flake.lock
 <p>A <em>flake</em> is a directory with a <code>flake.nix</code> file and a <code>flake.lock</code> file. The <code>flake.nix</code> declares <em>inputs</em> (other flakes or source trees) and an <em>outputs</em> function that turns those inputs into packages, modules, checks or other results. The <code>flake.lock</code> records the exact revision and tree hash of every input. Pinning the lock file is what makes a flake reproducible: two machines that use the same lock get the same inputs, even if a branch has moved since.</p>
 
 <p>Home Manager is a library and a command built on Nix. It uses the NixOS <em>module system</em>. A module is a function that declares <em>options</em> (the settings a user may choose) and <em>config</em> (the values those settings should have). Modules are merged, and the result is built into an <em>activation package</em>. Activating that package creates a new generation, links files into your home directory, and runs any activation scripts the modules defined.</p>
-
-<h3>Worked example: evaluate small Nix expressions</h3>
-
+<h3>Worked example: follow a command into the store</h3>
 <pre class="session" data-risk="read-only">
-$ nix eval --expr '1 + 2'
-3
+$ nix --version
+nix (Determinate Nix 3.22.5) 2.35.2
 
-$ nix eval --expr 'let x = 2; in x * 3'
-6
+$ readlink -f ~/.nix-profile
+/nix/store/c16r82dn5wpsz72imqz86x3sxxap9j6c-user-environment
 
-$ nix eval --expr '{ greeting = "hello"; count = 3; }'
-{ count = 3; greeting = "hello"; }
-
-$ nix eval --expr 'builtins.map (x: x * 2) [ 1 2 3 ]'
-[ 2 4 6 ]
+$ home-manager generations | head -n 3
+2026-10-29 20:20 : id 14 -> /nix/store/hjv5ndzzkadphxx8wj8x3pzzwz0kvs8f-home-manager-generation (current)
+2026-10-29 19:52 : id 13 -> /nix/store/k1ir8w8b2ahblx6s2xmj1ynzzrypwgqg-home-manager-generation
+2026-10-29 19:38 : id 12 -> /nix/store/1h48kj4599hk1bg7gxb81s6k5452g08v-home-manager-generation
 </pre>
 
-<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. The expressions are evaluated locally and build nothing.</p>
-
+<p>Captured on an Arch Linux workstation with Determinate Nix, 2026-10-31. Your hashes, dates and generation numbers will differ.</p>
+<h3>What just happened</h3>
 <ol>
-<li><code>nix eval --expr</code> evaluates the expression that follows and prints its value. <code>1 + 2</code> is ordinary arithmetic.</li>
-<li><code>let x = 2; in x * 3</code> creates a local name <code>x</code> and uses it in the expression after <code>in</code>. The answer is <code>6</code>.</li>
-<li><code>{ greeting = "hello"; count = 3; }</code> is an attribute set. Nix prints its names in alphabetical order, so the output is <code>{ count = 3; greeting = "hello"; }</code>.</li>
-<li><code>builtins.map</code> applies the function <code>x: x * 2</code> to each item of the list <code>[ 1 2 3 ]</code>. The result is <code>[ 2 4 6 ]</code>.</li>
+<li><code>nix --version</code> prints the version of the Nix program itself. Nix is the tool that builds and stores software; it is not the same thing as NixOS, a whole operating system built on Nix.</li>
+<li><code>readlink -f</code> follows a chain of symbolic links until it reaches a real directory. The answer begins with <code>/nix/store/</code>, the place where Nix keeps built results.</li>
+<li><code>home-manager generations</code> lists numbered records. Each record points to one built Home Manager configuration. The word <code>(current)</code> marks the one in use now.</li>
 </ol>
 
-<h3>Completion task</h3>
+<p>A <dfn><a href="learn/glossary/package.html">package</a></dfn> is a bundle of program files, libraries and data. Nix does not put a package directly into <code>/usr/bin</code>. It builds the package into its own directory under <code>/nix/store/</code>, then creates links that point at it. A link is a small file that names another file or directory; opening the link opens the target.</p>
 
-<p>Fill the gap so the expression defines a function that doubles its argument. The expected answer is <code>42</code>.</p>
+<p>A store path has three parts: the fixed prefix <code>/nix/store/</code>, a long hash such as <code>c16r82dn5wpsz72imqz86x3sxxap9j6c</code>, and a readable name such as <code>user-environment</code>. The hash is a fingerprint of everything that went into the build. If an input changes, the fingerprint changes, so the new result gets a different directory and the old result is left alone. Store paths are read-only, which is what people mean when they call the store <em>immutable</em>.</p>
+
+<p>A <dfn><a href="learn/glossary/generation.html">generation</a></dfn> is a recorded selection of managed software and settings. Home Manager creates a new generation each time you activate a changed configuration. The older generations stay on disk until they are deliberately removed. Selecting an older one is called a <dfn><a href="learn/glossary/rollback.html">rollback</a></dfn>. It changes which software your profile points at; it does not restore your documents or other mutable files.</p>
+
+<p>A <em>profile</em> is a named pointer to one generation. Your shell finds commands through a profile such as <code>~/.nix-profile</code>. The profile is itself a link: it points to the current generation, and the generation points into the store. Switching generations moves the profile link; it does not rewrite the store.</p>
+<h3>Try it</h3>
+<p>Follow the <code>tam</code> command to the file it really runs, and read the profile link target. These commands are read-only.</p>
 
 <pre data-risk="read-only">
-nix eval --expr 'let double = x: ___; in double 21'
+readlink -f "$(command -v tam)"
+readlink ~/.nix-profile
 </pre>
 
-<details class="solution">
-<pre class="session" data-risk="read-only">
-$ nix eval --expr 'let double = x: x * 2; in double 21'
-42
-</pre>
-<p>Captured on the same workstation and date. The function body is <code>x * 2</code>. In Nix, a function is written as <code>argument: body</code>; there is no separate <code>return</code> keyword.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Evaluate an attribute set with the names <code>name</code> and <code>version</code>, then select only <code>name</code>. Use one <code>nix eval</code> command and no file.</p>
-
-<details class="solution">
-<pre class="session" data-risk="read-only">
-$ nix eval --expr '({ name = "tam"; version = "0.48.0"; }).name'
-"tam"
-</pre>
-<p>Captured on the same workstation and date. The dot selects one attribute. Nix prints a string with its quotation marks; add <code>--raw</code> if you want the characters without quotes. The version in your own installation may differ.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Tool</th><th>Use it when</th><th>What it owns on Tamlinux</th></tr>
-<tr><td><code>pacman</code></td><td>The software is part of the operating system, the kernel, a driver or a system service.</td><td>The rootstock.</td></tr>
-<tr><td>Nix and Home Manager</td><td>You want a reproducible, declarative user environment that can be switched and rolled back as one generation.</td><td>The Tamlinux desktop and its user configuration.</td></tr>
-<tr><td>Mise</td><td>A command-line tool changes too quickly for a stable pinned build, or a project needs a per-directory runtime.</td><td>Fast-moving developer and agent tools.</td></tr>
-</table>
-
-<p>The rule of one owner matters. If the same command exists in more than one layer, the first match in <code>PATH</code> wins, and a later update may appear to have no effect. Check with <code>command -v</code> and <code>which -a</code> before concluding that an update failed.</p>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Next action</th></tr>
-<tr><td><code>error: flake '...' does not provide attribute 'packages.x86_64-linux.foo'</code></td><td>The output name is wrong, or the flake does not export that package for this system.</td><td>Read the <code>outputs</code> section of <code>flake.nix</code>; list outputs with <code>nix flake show</code>.</td><td>Use the exact attribute name, or add the missing output.</td></tr>
-<tr><td><code>error: hash mismatch in fixed-output derivation</code></td><td>A downloaded source changed, or the recorded hash is wrong.</td><td>Compare the URL and revision with the lock file.</td><td>Update the pin and hash deliberately; never bypass the check.</td></tr>
-<tr><td><code>warning: Git tree '...' is dirty</code></td><td>A flake in a Git repository has uncommitted files. Nix sees only files Git knows about.</td><td><code>git status</code> in that repository.</td><td>Commit or add the file, or use a path input for a deliberate local test.</td></tr>
-<tr><td>A command still runs the old version after a switch</td><td>Another copy earlier in <code>PATH</code>, or the shell has cached the old location.</td><td><code>which -a NAME</code>, <code>readlink -f "$(command -v NAME)"</code>, then <code>hash -r</code>.</td><td>Remove or reorder the shadowing copy; start a fresh shell.</td></tr>
-<tr><td><code>error: path '...' is not valid</code></td><td>A file or store path named in the configuration does not exist.</td><td>Check the exact path and whether the input was pinned or built.</td><td>Correct the path or build the missing input.</td></tr>
-</table>
-
+<p>If the first answer begins with <code>/nix/store/</code>, the command is packaged. If it begins under your home directory, it is a development override. The second answer shows the profile link without following it all the way to the store. Your paths and versions will differ from the worked example.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>nix: command not found</dt>
+<dd>Nix is not installed or is not on your <code>PATH</code>. On a Tamlinux workstation it normally arrives with the desktop delivery. Do not install a second copy from a random script; ask for help or read <a href="ecosystem/packaging.html">Software packaging and delivery</a>.</dd>
+<dt>home-manager: command not found</dt>
+<dd>The Home Manager command is missing from your <code>PATH</code>, even if its generations still exist. Check <code>command -v home-manager</code> and the profile path before changing anything.</dd>
+<dt>readlink: /home/alex/.nix-profile: No such file or directory</dt>
+<dd>No Nix profile exists for this account, or the name is different. Do not create one just to finish the example; the read-only lesson can stop here.</dd>
+<dt>Permission denied</dt>
+<dd>The store is read-only by design. Reading is allowed; writing into <code>/nix/store/</code> is not. Never change permissions on the store to make a command work.</dd>
+</dl>
 <aside class="tamlinux">
 <p>On Tamlinux, pacman owns the rootstock while Nix and Home Manager deliver the cultivar. The public <code>tamlinux-packages</code> flake pins the exact revisions of <code>nixpkgs</code>, Home Manager and each Tamlinux component. Product software reaches your session through a recorded assembly selected by <code>tam-deploy</code>; activating an arbitrary Home Manager generation from a checkout is a development action, not product delivery. A generation rollback returns user software and configuration, not the kernel, boot files or mutable data. See the <cite data-ref="deployment"><a href="learn/bibliography/deployment.html">deployment contract</a></cite>.</p>
 </aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>A flake's <code>flake.lock</code> is unchanged, but the upstream branch has new commits. Will a new build use those new commits?</summary>
-<p>No. The lock file records an exact revision. A build uses the locked revision until someone deliberately updates the lock. That is the difference between a moving branch name and a pinned input.</p>
+<summary>Why does a new Nix build usually get a different store path instead of replacing the old one?</summary>
+<p>The path contains a hash of the build inputs. A changed input changes the hash, so the new result is stored separately and the old result remains available. That is what makes generations and rollback possible.</p>
 </details>
 <details class="q">
-<summary>Why can Nix reuse a build instead of running the builder again?</summary>
-<p>The derivation and its inputs determine the output path. If that exact path already exists and its references are valid, the requested result is already present. Reuse is safe because a changed input would produce a different path.</p>
+<summary>Does rolling back a Home Manager generation restore a document you edited yesterday?</summary>
+<p>No. A generation selects managed software and configuration. Your documents and other mutable files are outside it and need their own backup or recovery.</p>
 </details>
 <details class="q">
-<summary>A user adds a package with Home Manager but the command still resolves to the pacman version. What should they check first?</summary>
-<p>Check <code>PATH</code> and <code>which -a</code>. The native copy may come first, or the shell may have cached the old location. The package being installed is not the same as being the first match.</p>
+<summary>What is the difference between a profile and a generation?</summary>
+<p>A generation is one recorded selection. A profile is the named pointer that says which generation is current. Switching moves the profile pointer to another generation.</p>
 </details>
 </section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="ecosystem/packaging.html">Software packaging and delivery</a> &mdash; how the layers fit together and how to trace an executable to its owner.</li>
-<li><a href="maintain/rollback.html">Returning to an earlier working state</a> &mdash; generations, snapshots and their different recovery boundaries.</li>
-<li><a href="https://nix.dev/manual/nix/latest/language/">The Nix language (online)</a> &mdash; the authoritative syntax and evaluation rules.</li>
-<li><a href="https://nix-community.github.io/home-manager/">Home Manager manual (online)</a> &mdash; options, modules and activation.</li>
-</ul>
 </section>
-
 <section data-level="expert">
 <h2>Reading and changing the Tamlinux Nix source</h2>
 
