@@ -5,11 +5,11 @@
 <meta name="topic" content="workspaces">
 <meta name="summary" content="Workspace navigation, scratchpad, and multi-display movement">
 <meta name="keywords" content="workspaces, workspace, monitors, displays, scratchpad, monitor, multi monitor">
-<meta name="level" content="learner">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="desktop/index.html">
 <meta name="kind" content="how-to">
-<meta name="skills" content="desktop.intermediate">
+<meta name="skills" content="desktop.beginner, desktop.intermediate">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -17,48 +17,79 @@
 </nav>
 <h1>Organizing windows and screens</h1>
 <p>This page explains how to organize open windows into groups and move between them.</p>
-<p>A workspace is a group of windows you can switch between. You can move between groups, move a window, or move a group to another screen.</p>
-<section data-level="learner"><h2>Choose the right thing to move</h2>
-<p><strong>Goal:</strong> move an empty practice window between workspaces
-and return it, without confusing window movement with display layout changes.</p>
-<h3>Mental model</h3><pre>display --shows--&gt; workspace --contains--&gt; windows
-focus selects a window; a movement command selects what changes location</pre>
-<p>Use the active bindings from Meta + K if you have overrides. The example
-below uses the packaged US QWERTY number-row bindings.</p>
-<h3>Worked example</h3><ol><li>Record your starting workspace. Open an empty
-terminal with Meta + Return.</li><li>Choose a known practice destination, for
-example workspace 2, without assuming it is empty.</li><li>With the empty
-terminal focused, Meta + Shift + 2 moves it to workspace 2 and follows it.</li>
-<li>Move the same terminal back with Meta + Shift plus the starting workspace
-key. Close the empty terminal only after confirming focus.</li></ol>
-<p>The sequence is sourced from the binding definitions; live GUI behavior
-and personal overrides still need human verification.</p>
-<h3>Completion task</h3><p>Fill the missing modifier: Meta + ___ + 3 moves the
-active window to workspace 3, while Meta + 3 changes your workspace.</p>
-<details class="solution"><p>Shift. The packaged move follows the window. Using Ctrl + Alt + 3 requests a silent move without following; choose deliberately.</p></details>
-<h3>Independent task</h3><p>With an empty practice terminal, compare a
-workspace switch with a window move, then return both your focus and the
-window to their starting workspace.</p>
-<details class="solution"><p>Record the starting workspace. Meta + 3 switches without moving the terminal; switch back. Meta + Shift + 3 moves the focused terminal and follows it. Move that terminal back with Meta + Shift plus its original workspace key. Recheck focus before closing it.</p></details>
-<h3>Choosing</h3><table><tr><th>Intent</th><th>Binding</th></tr>
-<tr><td>Choose workspace 1–10</td><td>Meta + number-row 1–9,0</td></tr>
-<tr><td>Move one window and follow</td><td>Meta + Shift + number-row key</td></tr>
-<tr><td>Move one window without following</td><td>Ctrl + Alt + number-row key</td></tr>
-<tr><td>Next/previous workspace</td><td>Meta + Tab / Meta + Shift + Tab</td></tr>
-<tr><td>Former workspace</td><td>Meta + Ctrl + Tab</td></tr>
-<tr><td>Move workspace to directional monitor</td><td>Alt + Shift + Arrow; requires a suitable display layout</td></tr></table>
-<h3>Troubleshooting</h3><table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Window stayed behind</td><td>Switched workspace only</td><td>Which modifier was pressed</td><td>Return, focus the practice window and use the move binding</td></tr>
-<tr><td>Move to monitor does nothing</td><td>No display in that direction</td><td>Current output arrangement</td><td>Use a workspace operation; do not retrain displays as a window exercise</td></tr>
-<tr><td>Hidden utility window</td><td>Scratchpad state</td><td>Meta + S</td><td>Toggle the scratchpad and inspect before moving another window</td></tr></table>
-<aside class="tamlinux"><p>Ctrl + Shift + S moves the focused window silently to
-the special scratchpad; Meta + S toggles it. The number-row bindings use key
-codes. Other keyboard layouts or personal overrides can change the apparent keys. See <a href="desktop/meta-key.html">The Meta key and desktop modifiers</a> for full modifier architecture.</p></aside>
-<h3>Further reading</h3><ul><li><a href="desktop/index.html?level=1">Desktop orientation</a>: focus and layout.</li>
-<li><a href="desktop/meta-key.html">The Meta key and desktop modifiers</a>: history, modifiers, and keyboard flow.</li>
-<li><a href="https://github.com/greenermoose/tamlinux/blob/develop/desktop/session/hypr/tamlinux/bindings/tiling.lua">Packaged tiling/workspace bindings (online)</a>: exact dispatcher arguments.</li></ul>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Which operation should you choose to move one utility window without changing the workspace of every other window?</summary><p>Move the focused window to a workspace or the scratchpad. Moving a whole workspace to a monitor changes a different scope.</p></details><details class="q"><summary>Why should the exercise record its starting workspace instead of assuming workspace 1?</summary><p>The reader may have existing work elsewhere. Recording the starting state gives a specific undo step without imposing another layout.</p></details></section>
-</section><h2>Where next</h2><p><a href="use/index.html">Using Tamlinux</a>
-collects tasks; <a href="learn/skills/index.html">the skills map</a> helps
-choose the next level.</p>
-</body></html>
+
+<section data-level="novice">
+<h2>What is a workspace?</h2>
+<p>A workspace is a group of windows you can switch between. You can move between groups, move a window into another group, or move a whole group to another screen.</p>
+
+<h3>Why it matters</h3>
+<p>Workspaces keep related windows together so you can leave a messy layout behind without closing programs.</p>
+
+<h3>How to think about it</h3>
+<p>Think of workspaces as separate desks in the same room. Switching desks changes which papers you see; moving a paper to another desk is different from walking to that desk yourself.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/workspace.html">Workspace</a></dfn></dt><dd>A named group of windows you can switch to as a set.</dd>
+<dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window that receives keyboard input.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Choose the right thing to move</h2>
+<p><strong>Goal:</strong> move an empty practice window between workspaces and return it, without confusing window movement with display layout changes.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop basics</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/meta-key.html?level=2">&larr; Back</a> |
+<a href="desktop/index.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p>Use the active bindings from Meta + K if you have overrides. The example below uses the packaged US QWERTY number-row bindings.</p>
+
+<h3>Worked example</h3>
+<ol>
+<li>Record your starting workspace. Open an empty terminal with Meta + Return.</li>
+<li>Choose a known practice destination, for example workspace 2.</li>
+<li>With the empty terminal focused, Meta + Shift + 2 moves it to workspace 2 and follows it.</li>
+<li>Move the same terminal back with Meta + Shift plus the starting workspace key. Close the empty terminal only after confirming focus.</li>
+</ol>
+<p>The sequence is sourced from the binding definitions; live GUI behavior and personal overrides still need human verification.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>A workspace switch changes which group you are viewing.</li>
+<li>A window move changes which group contains the focused window.</li>
+<li>Recording the start point gives a specific undo step.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>With an empty practice terminal, compare a workspace switch (Meta + 3) with a window move (Meta + Shift + 3), then return both your focus and the window to their starting workspace.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Window stayed behind</dt>
+<dd>You switched workspace only. Return, focus the practice window, and use the move binding.</dd>
+<dt>Move to monitor does nothing</dt>
+<dd>There may be no display in that direction. Use a workspace operation instead.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Ctrl + Shift + S moves the focused window silently to the scratchpad; Meta + S toggles it. See <a href="desktop/meta-key.html">The Meta key and desktop modifiers</a>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which operation moves one utility window without changing every other window's workspace?</summary>
+<p>Move the focused window to a workspace or the scratchpad.</p></details>
+<details class="q"><summary>Why record the starting workspace instead of assuming workspace 1?</summary>
+<p>You may have existing work elsewhere. Recording the start gives a specific undo step.</p></details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<p><a href="use/index.html">Using Tamlinux</a> collects everyday tasks;
+<a href="learn/skills/index.html">the skills map</a> helps choose the next level.</p>
+</body>
+</html>

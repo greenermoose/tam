@@ -19,23 +19,59 @@
 
 <h1>Network connections and DNS</h1>
 <p>This page explains how your computer reaches the internet and how to tell which part of that path is failing.</p>
-<p>A working connection needs a network card that is up, an address and a route to a router, and a way to turn names such as example.com into addresses. Each layer can fail on its own, so check them in order instead of guessing.</p>
 
 <section data-level="novice">
-<h2>Identify the connection you are using</h2>
+<h2>What makes a network connection work?</h2>
+<p>A working connection needs a network card that is up, an address and a route to a router, and a way to turn names such as example.com into addresses. Each layer can fail on its own, so check them in order instead of guessing.</p>
 
+<h3>Why it matters</h3>
+<p>When a web page or an update fails, the useful first question is whether the computer is offline, connected to the wrong network, or online but unable to look up a name. One status command separates those cases and gives you something specific to report.</p>
+
+<h3>How to think about it</h3>
+<pre>
+name (example.com)
+  |  DNS lookup
+  v
+address (203.0.113.10)
+  |  routing table chooses a gateway
+  v
+link (ethernet or wifi) --> router --> internet
+</pre>
+<p>The <dfn><a href="learn/glossary/kernel.html">kernel</a></dfn> owns the link and the routing table. NetworkManager asks the kernel to configure them. The DNS resolver turns names into addresses.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Interface</dt>
+<dd>The kernel's name for a network device, such as <code>enp1s0</code> or <code>wlp3s0</code>.</dd>
+<dt>IP address</dt>
+<dd>The number that identifies this computer on a network.</dd>
+<dt>Gateway</dt>
+<dd>The router that carries traffic from your local network to other networks.</dd>
+<dt>DNS</dt>
+<dd>The Domain Name System, which turns a name such as example.com into an IP address.</dd>
+<dt>SSID</dt>
+<dd>The public name of a Wi-Fi network.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Identify the connection you are using</h2>
 <p><strong>Goal:</strong> you will be able to identify the connection your computer is using and report whether it has an address and can reach the internet.</p>
 
-<p><strong>Why it matters:</strong> when a web page or an update fails, the useful first question is whether the computer is offline, connected to the wrong network, or online but unable to look up a name. One status command separates those cases and gives you something specific to report.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Healthy diagnostics</strong> &mdash;
+<a href="hardware/networking.html?level=2">Start</a> |
+<a href="hardware/networking.html?level=2">&larr; Back</a> |
+<a href="maintain/logs.html?level=2">Next &rarr;</a></p>
+</nav>
 
 <p><strong>Before you start:</strong> open a <dfn><a href="learn/glossary/terminal.html">terminal</a></dfn>. The commands below only read network state. <code>tam-network-status --verbose</code> also sends one small test message to 1.1.1.1 to measure internet round-trip time. See <a href="learn/paths/first-steps.html?level=1">First steps</a> if you are new to the command line.</p>
 
 <aside class="first-time">
-<p>Type the command after the <code>$</code> prompt and press Enter. Do not type the <code>$</code>. The output is a list of labels and values separated by tabs. Your interface name, address and timings will differ from the example. Success means the command finishes and prints a list; it does not change your connection.</p>
+<p>Type the command after the <code>$</code> prompt and press Enter. Do not type the <code>$</code>. Your interface name, address and timings will differ from the example. Success means the command finishes and prints a list; it does not change your connection.</p>
 </aside>
 
-<h3>Worked example: Read the detailed status</h3>
-
+<h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
 $ tam-network-status --verbose
 iface             enp1s0
@@ -50,203 +86,52 @@ duplex            full
 router_ping_ms    0.684
 internet_ping_ms  20.2
 </pre>
-
-<p>Captured on a wired Arch Linux workstation on 2026-10-31. Your output will differ. The command separates each label from its value with a tab; the columns are aligned with spaces here so the pager can show them.</p>
+<p>Captured on a wired Arch Linux workstation on 2026-10-31. Your output will differ.</p>
 
 <h3>What just happened</h3>
-
 <ol>
-<li><code>iface</code> is the network interface, the kernel's name for the network card in use.</li>
-<li><code>ip</code> and <code>prefix</code> are the computer's address and the size of the local network it belongs to. A prefix of 24 usually means the last part of the address identifies this computer.</li>
-<li><code>gateway</code> is the router that forwards traffic beyond your local network.</li>
-<li><code>type</code> is <code>ethernet</code> or <code>wifi</code>. On Wi-Fi the detailed output also names the network (SSID), its signal, frequency and bitrate.</li>
-<li><code>router_ping_ms</code> and <code>internet_ping_ms</code> are round-trip times to your router and to 1.1.1.1. A blank value means no reply arrived.</li>
-<li><code>rx_bytes</code> and <code>tx_bytes</code> are counters of bytes received and sent since the interface came up.</li>
+<li><code>iface</code> is the network interface in use.</li>
+<li><code>ip</code> and <code>prefix</code> are the computer's address and local network size.</li>
+<li><code>gateway</code> is the router beyond your local network.</li>
+<li><code>type</code> is <code>ethernet</code> or <code>wifi</code>.</li>
+<li><code>router_ping_ms</code> and <code>internet_ping_ms</code> are round-trip times; a blank value means no reply arrived.</li>
 </ol>
 
 <h3>Try it</h3>
-
-<p>Run the short form, <code>tam-network-status</code>, and then <code>ip -4 -br addr</code>. The short form prints one tab-separated line: the type, then the interface name, and on Wi-Fi the SSID, signal and frequency. Match the interface name in both outputs. This is read-only and safe to repeat.</p>
+<p>Run the short form, <code>tam-network-status</code>, and then <code>ip -4 -br addr</code>. Match the interface name in both outputs. This is read-only and safe to repeat.</p>
+<p>If the short form looks healthy but a browser still fails, separate layers with read-only checks: <code>nmcli device status</code>, <code>ip route</code>, <code>getent ahosts example.com</code>, and <code>ping -c 1 -W 2 1.1.1.1</code>.</p>
 
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt>The output says <code>disconnected</code> and the fields are empty</dt>
 <dd>No interface has a route to the internet. Check that the Ethernet cable is seated, or open the network panel with Meta + CTRL+W and connect to a Wi-Fi network.</dd>
 <dt><code>tam-network-status: command not found</code></dt>
 <dd>The command ships with Tamlinux. Use <code>ip route</code> and <code>nmcli device status</code> instead, and report that the Tamlinux command is missing.</dd>
 <dt><code>router_ping_ms</code> or <code>internet_ping_ms</code> is blank</dt>
-<dd>A blank value means the test message received no reply. Some networks block the reply even when web traffic works. Compare with a name lookup and a browser before concluding the connection is down.</dd>
-<dt>A Wi-Fi line has empty trailing fields</dt>
-<dd>The computer is not associated with a Wi-Fi network. The fields are the type, SSID, signal and frequency; empty fields mean no active Wi-Fi connection.</dd>
+<dd>No reply arrived. Some networks block ICMP even when web traffic works. Compare with a name lookup and a browser before concluding the connection is down.</dd>
+<dt>A name fails while a numeric address replies</dt>
+<dd>The link and route layers work; check DNS with <code>getent ahosts example.com</code> or <code>resolvectl query example.com</code>.</dd>
 </dl>
+
+<aside class="tamlinux">
+<p>Tamlinux ships NetworkManager for connection state and systemd-resolved for name resolution. The desktop panel binding is Meta + CTRL+W. DNS changes go through <code>tam-dns</code>, which preserves previous settings before writing.</p>
+</aside>
 
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary>Which field in the detailed output names the network card?</summary>
 <p><code>iface</code>. The <code>ip</code> field is the address assigned to that card, and <code>gateway</code> is the router beyond it.</p>
 </details>
 <details class="q">
+<summary>A computer can ping 1.1.1.1 but cannot open example.com. Which layer should you check first?</summary>
+<p>Name resolution. A successful ping to a numeric address proves the link, address and routing layers work.</p>
+</details>
+<details class="q">
 <summary>Predict the output when the computer has no connection at all.</summary>
-<p><code>tam-network-status</code> prints <code>disconnected</code> with empty fields. With no default route it cannot find a device to describe.</p>
-</details>
-<details class="q">
-<summary>On Wi-Fi, which fields follow the word <code>wifi</code> in the short output?</summary>
-<p>The SSID, the signal strength and the frequency. On Ethernet only the interface name follows, because those Wi-Fi details do not apply.</p>
+<p><code>tam-network-status</code> prints <code>disconnected</code> with empty fields.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Interface</dt>
-<dd>The kernel's name for a network device, such as <code>enp1s0</code> for a wired card or <code>wlp3s0</code> for a wireless one.</dd>
-<dt>IP address</dt>
-<dd>The number that identifies this computer on a network.</dd>
-<dt>Prefix</dt>
-<dd>How many leading bits of an address identify the local network. A prefix of 24 covers the first three numbers in a typical IPv4 address.</dd>
-<dt>Gateway</dt>
-<dd>The router that carries traffic from your local network to other networks.</dd>
-<dt>Default route</dt>
-<dd>The rule that says where to send traffic when no more specific route matches. Without one, the computer is effectively offline.</dd>
-<dt>DNS</dt>
-<dd>The Domain Name System, which turns a name such as example.com into an IP address.</dd>
-<dt>SSID</dt>
-<dd>The public name of a Wi-Fi network.</dd>
-<dt>DHCP</dt>
-<dd>The protocol that usually supplies an address, gateway and DNS servers automatically when you join a network.</dd>
-</dl>
-
-<p><strong>Next step:</strong> at Learner, use the link, address and name layers to separate a connection failure from a name-resolution failure.</p>
-</section>
-
-<section data-level="learner">
-<h2>Separate link, address, and name failures</h2>
-
-<p><strong>Goal:</strong> you will be able to separate a link failure, an address or routing failure, and a name-resolution failure, and choose the shortest check for each.</p>
-
-<h3>Mental model</h3>
-
-<pre>
-name (example.com)
-  |  DNS lookup
-  v
-address (203.0.113.10)
-  |  routing table chooses a gateway
-  v
-link (ethernet or wifi) --> router --> internet
-</pre>
-
-<p>The <dfn><a href="learn/glossary/kernel.html">kernel</a></dfn> owns the link and the routing table. NetworkManager asks the kernel to configure them and remembers connection profiles. The DNS resolver turns names into addresses. Test from the bottom up: is an interface up, does it have an address and a default route, can it resolve a name, and can it exchange a packet?</p>
-
-<h3>Worked example: Diagnose in order</h3>
-
-<pre class="session" data-risk="read-only">
-$ nmcli device status
-DEVICE  TYPE      STATE                   CONNECTION
-enp1s0  ethernet  connected               Wired connection 1
-lo      loopback  connected (externally)  lo
-enp2s0  ethernet  unavailable             --
-wlp3s0  wifi      unavailable             --
-
-$ ip -4 -br addr
-lo               UNKNOWN        127.0.0.1/8
-enp1s0           UP             192.168.1.26/24
-
-$ ip route
-default via 192.168.1.1 dev enp1s0 proto dhcp src 192.168.1.26 metric 100
-192.168.1.0/24 dev enp1s0 proto kernel scope link src 192.168.1.26 metric 100
-
-$ getent ahosts example.com | head -4
-172.66.147.243  STREAM example.com
-172.66.147.243  DGRAM
-172.66.147.243  RAW
-104.20.23.154   STREAM
-
-$ ping -c 1 -W 2 1.1.1.1
-PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=48 time=19.8 ms
-
---- 1.1.1.1 ping statistics ---
-1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 19.802/19.802/19.802/0.000 ms
-</pre>
-
-<p>Captured on 2026-10-31. Your devices, addresses and timings will differ.</p>
-
-<h3>Completion task</h3>
-
-<pre data-risk="read-only">
-$ getent ahosts ___
-</pre>
-
-<details class="solution">
-<p><code>getent ahosts example.com</code>. It asks the system resolver for addresses and prints one line per address and socket type. An empty result with exit status 2 means the name did not resolve.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>A reader says a browser reports that a server cannot be found, but <code>ping 1.1.1.1</code> still replies. Identify the failed layer and name the check that confirms it.</p>
-
-<details class="solution">
-<p>The link and address layers are working because a packet reached 1.1.1.1. The failure is name resolution. Run <code>getent ahosts example.com</code> or <code>resolvectl query example.com</code>. If either returns no address, compare the configured DNS provider with <code>tam-dns</code> and check <code>resolvectl status</code>.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Use</th><th>When</th></tr>
-<tr><td><code>tam-network-status</code></td><td>You want one line naming the active connection.</td></tr>
-<tr><td><code>tam-network-status --verbose</code></td><td>You want the interface, address, gateway, counters and ping times together.</td></tr>
-<tr><td><code>nmcli device status</code></td><td>You want to see every device and whether NetworkManager considers it connected.</td></tr>
-<tr><td><code>ip -4 -br addr</code> and <code>ip route</code></td><td>You want the address and the default route without NetworkManager's view.</td></tr>
-<tr><td><code>getent ahosts NAME</code> or <code>resolvectl query NAME</code></td><td>You want to test name resolution specifically.</td></tr>
-<tr><td><code>tam-dns</code></td><td>You want to read the current DNS provider. Changing it is privileged and records the originals first.</td></tr>
-<tr><td>Meta + CTRL+W</td><td>You want the desktop network panel for connecting, disconnecting, forgetting a network, sharing a QR code or testing speed.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Wi-Fi device is unavailable</td><td>The radio is blocked or switched off</td><td><code>rfkill list wifi</code> and <code>nmcli radio wifi</code></td><td>Unblock it in the network panel, or run <code>tam-restart-wifi</code>.</td></tr>
-<tr><td>Connected but no web page loads</td><td>DNS or an upstream failure</td><td><code>ping 1.1.1.1</code> then <code>getent ahosts example.com</code></td><td>If the address replies but the name fails, inspect <code>tam-dns</code> and <code>resolvectl status</code>.</td></tr>
-<tr><td>Some names fail and others work</td><td>The resolver or a captive portal</td><td><code>resolvectl query example.com</code></td><td>Join the network's sign-in page, or set a known provider with <code>tam-dns</code>.</td></tr>
-<tr><td>Wi-Fi is slow at a distance</td><td>The radio chose a weak band</td><td><code>tam-network-band</code> and <code>tam-network-speedtest down</code></td><td>Pin a band in the panel or with <code>tam-network-band 5</code>.</td></tr>
-<tr><td>You need the Wi-Fi password</td><td>The network is already saved</td><td><code>tam-network-password &lt;interface&gt;</code></td><td>Show a QR code in the panel instead of printing the secret on screen.</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p>Tamlinux ships NetworkManager for connection state and systemd-resolved for name resolution. The desktop panel is a view over NetworkManager; it calls the same <code>tam-*</code> commands described here. The panel binding is Meta + CTRL+W. DNS changes go through <code>tam-dns</code>, which preserves the previous settings under <code>/var/lib/tamlinux/network-recovery</code> before changing the NetworkManager drop-in and <code>resolved.conf</code>. The command asks for authorization through <code>pkexec</code>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>A computer can ping 1.1.1.1 but cannot open example.com. Which layer should you check first, and why?</summary>
-<p>Name resolution. A successful ping to a numeric address proves the link, address and routing layers work. The remaining step is turning example.com into an address, which <code>getent ahosts</code> or <code>resolvectl query</code> tests directly.</p>
-</details>
-<details class="q">
-<summary>Why is <code>nmcli device status</code> useful even when <code>ip route</code> already shows a default route?</summary>
-<p>It shows every device, including unavailable Wi-Fi radios, and names the connection profile in use. <code>ip route</code> shows only the winning route, so it can hide a second interface or a radio that is switched off.</p>
-</details>
-<details class="q">
-<summary>You see <code>enp1s0 UP 192.168.1.26/24</code> but no default route. What is missing?</summary>
-<p>The route to other networks. The interface has a local address, but without a default route the computer does not know which gateway to use for traffic beyond 192.168.1.0/24. Reconnect the profile or check that DHCP supplied a gateway.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:nmcli(1)">nmcli(1)</a> &mdash; NetworkManager's command-line client, including device and connection queries.</li>
-<li><a href="man:ip-route(8)">ip-route(8)</a> &mdash; how the kernel's routing table is read and changed.</li>
-<li><a href="man:resolvectl(1)">resolvectl(1)</a> &mdash; query and inspect the systemd-resolved stub resolver.</li>
-<li><a href="man:iw(8)">iw(8)</a> &mdash; read the Wi-Fi link, signal, frequency and bitrate directly.</li>
-</ul>
 </section>
 
 <section data-level="expert">

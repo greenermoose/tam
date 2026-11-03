@@ -5,7 +5,7 @@
 <meta name="topic" content="desktop">
 <meta name="summary" content="Tiling window manager basics and keyboard flow">
 <meta name="keywords" content="desktop, wayland, tiling, hotkeys, shortcuts, keys, keybindings">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="kind" content="tutorial">
@@ -16,84 +16,91 @@
 <p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / The Tamlinux Desktop</p>
 </nav>
 <h1>The Tamlinux Graphical Desktop</h1>
+<p>This page explains the graphical desktop where you can use your keyboard, mouse, or voice to control your computer.</p>
 
-<p>This page explains the graphical desktop where you can use your keyboard, mouse,
-or voice to control your computer.  "Graphical" means that your computer is in a
-mode that allows it to draw any sort of shape on a screen, not just rows of text.
-Computer "graphics" refers to drawing pixels (short for "picture elements," or dots
-of light) on a screen.</p>
+<section data-level="novice">
+<h2>What is the graphical desktop?</h2>
+<p>"Graphical" means your computer can draw shapes on a screen, not only rows of text. When you first boot Tamlinux you arrive in a text-only shell. From there, <code>tam-desktop</code> opens the graphical Tamlinux desktop.</p>
+<p>The <dfn><a href="learn/glossary/meta.html">Meta key</a></dfn> (often marked with a Windows logo) is the main command key for the desktop. Meta + Space opens the system menu; Meta + Return opens a terminal; Meta + K lists keybindings.</p>
 
-<p>When you first boot up Tamlinux you arrive in a command line interface (CLI)
-text-only shell where you can type commands and send them to your computer. From a
-CLI shell, the <code>tam-desktop</code> command opens a graphical shell
-(also called a graphical user interface or GUI shell) that this guide calls
-the Tamlinux desktop.</p>
+<h3>Why it matters</h3>
+<p>Knowing a few desktop chords lets you open tools and recover focus without hunting through menus, which keeps a keyboard-driven desktop usable.</p>
 
-<p>To switch from the Tamlinux desktop to a text-only "virtual terminal,"
-you can press and hold the <code>Ctrl</code> key, then press and hold the <code>Alt</code> key, and then
-press <code>F2</code> or another function key (Ctrl + Alt + F2, Ctrl + Alt + F3, etc.). These
-text-only virtual terminals (VTs) are numbered <code>tty2</code>, <code>tty3</code>, etc.  (TTY stands for
-"TeleTYpe", which was how computers printed output before monitor technology was
-available.) Sometimes switching to a different tty is necessary for recovery if
-your graphical desktop is not responding or you need to troubleshoot a
-serious problem.</p>
+<h3>How to think about it</h3>
+<p>Think of Meta as the desktop's command key: it talks to the window manager about windows and workspaces, while Control usually talks to the program inside a window.</p>
 
-<h2>Navigating your desktop</h2>
-
-<p>The examples below describe the standard Tamlinux desktop and keybindings.
-You may change your settings to make your keys behave differently. A keybinding
-is a short-hand way to give a command to your computer by pressing a key or
-combination of keys.</p>
-    
-<p>The <dfn><a href="learn/glossary/meta.html">Meta key</a></dfn> (on many keyboards it has a Windows logo on it) is your command key in the Tamlinux desktop. For its history and hardware mapping, see <a href="desktop/meta-key.html">The Meta key and desktop modifiers</a>. Here are four essential keybindings to try:</p>
-
-<ul>
-  <li><code>Meta + Space</code> opens the Tamlinux system menu.</li>
-  <li><code>Ctrl + F12</code> opens the applications menu.</li>
-  <li><code>Meta + Return</code> opens a terminal window.</li>
-  <li><code>Meta + K</code> lists every keybinding.</li>
-</ul>
-
-<section data-level="novice"><h2>Open a window and recover your place</h2>
-<p><strong>Goal:</strong> you will be able to open an empty terminal, change
-its layout and return to your starting window.</p>
-<p><strong>Why it matters:</strong> knowing how to recover focus makes a
-keyboard-driven desktop less disorienting.</p>
-<p><strong>Before you start:</strong> save work in existing windows and read
-<a href="welcome.html?level=1">Welcome</a>. Practice only with a new empty terminal.</p>
-<aside class="first-time"><p>Meta is usually the key with a Windows logo.
-A plus sign means hold the keys together, not type a plus. Terminal commands
-and desktop shortcuts are different: these keys go to the desktop.</p></aside>
-<h3>Worked example</h3><ol><li>Note your current window and workspace.</li>
-<li>Press Meta + Return to request a new terminal.</li><li>With that empty
-terminal focused, press Meta + T to toggle floating/tiling. Press it again to undo.</li>
-<li>Press Meta + Q to close only that empty terminal.</li></ol>
-<p>This walkthrough is checked against the packaged bindings, not a claim
-that a GUI acceptance test was performed in your session.</p>
-<h3>What just happened</h3><ol><li>The terminal launcher opened an application.</li>
-<li>The compositor changed the focused window's layout mode.</li>
-<li>The close request applied to the focused window. Focus matters before closing.</li></ol>
-<h3>Try it</h3><p>Open two empty terminals. Use Meta + Left/Right/Up/Down to
-move focus in the corresponding direction when another window is there.
-Identify the focused window before closing either. Keep real work untouched.</p>
-<h3>If it goes wrong</h3><dl><dt>A shortcut does nothing</dt><dd>Check
-Meta + K and your compositor/overrides. A directional focus request needs
-a window in that direction.</dd><dt>A window seems missing</dt><dd>Check
-the workspace and fullscreen/floating state before launching another copy.</dd></dl>
-<h3>New words</h3><dl><dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard input.</dd>
+<h3>New words</h3>
+<dl>
 <dt><dfn><a href="learn/glossary/meta.html">Meta key</a></dfn></dt><dd>The primary desktop modifier key.</dd>
-<dt><dfn><a href="learn/glossary/tiling.html">Tiling</a></dfn></dt><dd>Layout where the compositor arranges windows; floating
-windows and other modes can overlap them.</dd></dl>
-<h3>Next step</h3><p>Read <a href="desktop/meta-key.html">the Meta key guide</a> for modifier history and hardware layout, <a href="desktop/workspaces.html?level=2">workspaces</a>
-to organize windows, <a href="desktop/voice.html?level=1">voice dictation</a>
-to type text by speaking, or <a href="learn/paths/first-steps.html?level=1">First steps</a>.</p>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Which window does Meta + Q close?</summary><p>The currently focused window receives the close request. Check focus and save work first; practice with an empty terminal.</p></details><details class="q"><summary>Does tiling mean windows can never overlap?</summary><p>No. Floating windows and other modes can overlap; fullscreen and application behavior also affect what is visible.</p></details></section>
-</section><h2>Key reference</h2><table><tr><th>Key</th><th>Packaged action</th></tr>
-<tr><td>Meta + Return</td><td>Terminal</td></tr><tr><td>Meta + Space</td><td>Tamlinux menu</td></tr>
-<tr><td>Ctrl + F12</td><td>Apps menu</td></tr><tr><td>Meta + K</td><td>Keybindings</td></tr>
-<tr><td>Meta + Q</td><td>Close window</td></tr><tr><td>Meta + F</td><td>File manager</td></tr>
-<tr><td>Meta + Shift + F</td><td>Fullscreen toggle</td></tr><tr><td>Meta + T</td><td>Floating/tiling toggle</td></tr>
-<tr><td>F9</td><td>Voice dictation (hold to talk; release to stop)</td></tr>
-<tr><td>Meta + Ctrl + X</td><td>Toggle voice dictation</td></tr></table>
+<dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard input.</dd>
+<dt><dfn><a href="learn/glossary/tiling.html">Tiling</a></dfn></dt><dd>Layout where the compositor arranges windows side by side.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Open a window and recover your place</h2>
+<p><strong>Goal:</strong> you will be able to open an empty terminal, change its layout and return to your starting window.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop basics</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/index.html?level=2">&larr; Back</a> |
+<a href="desktop/meta-key.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p><strong>Before you start:</strong> save work in existing windows and read <a href="welcome.html?level=1">Welcome</a>. Practice only with a new empty terminal.</p>
+<aside class="first-time"><p>Meta is usually the key with a Windows logo. A plus sign means hold the keys together, not type a plus. These keys go to the desktop, not into the terminal text.</p></aside>
+
+<h3>Worked example</h3>
+<ol>
+<li>Note your current window and workspace.</li>
+<li>Press Meta + Return to request a new terminal.</li>
+<li>With that empty terminal focused, press Meta + T to toggle floating/tiling. Press it again to undo.</li>
+<li>Press Meta + Q to close only that empty terminal.</li>
+</ol>
+<p>This walkthrough is checked against the packaged bindings, not a claim that a GUI acceptance test was performed in your session.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The terminal launcher opened an application.</li>
+<li>The compositor changed the focused window's layout mode.</li>
+<li>The close request applied to the focused window. Focus matters before closing.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Open two empty terminals. Use Meta + Left/Right/Up/Down to move focus when another window is there. Identify the focused window before closing either. Keep real work untouched.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A shortcut does nothing</dt>
+<dd>Check Meta + K and your overrides. A directional focus request needs a window in that direction.</dd>
+<dt>A window seems missing</dt>
+<dd>Check the workspace and fullscreen/floating state before launching another copy.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Ctrl + Alt + F2 and other function keys switch to text virtual terminals for recovery when the graphical session is stuck.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which window does Meta + Q close?</summary>
+<p>The currently focused window. Check focus and save work first; practice with an empty terminal.</p></details>
+<details class="q"><summary>Does tiling mean windows can never overlap?</summary>
+<p>No. Floating windows and other modes can overlap.</p></details>
+</section>
+</section>
+
+<h2>Key reference</h2>
+<table>
+<tr><th>Key</th><th>Packaged action</th></tr>
+<tr><td>Meta + Return</td><td>Terminal</td></tr>
+<tr><td>Meta + Space</td><td>Tamlinux menu</td></tr>
+<tr><td>Ctrl + F12</td><td>Apps menu</td></tr>
+<tr><td>Meta + K</td><td>Keybindings</td></tr>
+<tr><td>Meta + Q</td><td>Close window</td></tr>
+<tr><td>Meta + T</td><td>Floating/tiling toggle</td></tr>
+</table>
 <p><a href="https://github.com/greenermoose/tamlinux/tree/develop/desktop/session/hypr/tamlinux/bindings">Packaged binding sources (online)</a>.</p>
-</body></html>
+</body>
+</html>

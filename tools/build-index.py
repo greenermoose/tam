@@ -40,6 +40,12 @@ D221_PILOT_PAGES = frozenset({
     "maintain/updates.html",
     "maintain/index.html",
     "maintain/rollback.html",
+    "desktop/index.html",
+    "desktop/meta-key.html",
+    "desktop/workspaces.html",
+    "hardware/networking.html",
+    "maintain/logs.html",
+    "learn/documentation.html",
 })
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")

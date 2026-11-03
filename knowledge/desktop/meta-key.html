@@ -8,7 +8,7 @@
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="desktop/index.html">
-<meta name="kind" content="reference">
+<meta name="kind" content="tutorial">
 <meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
 </head>
 <body>
@@ -19,236 +19,151 @@
 <h1>The Meta Key and Desktop Modifiers</h1>
 <p>This page explains what the Meta key is, how to find it on your keyboard, and how it controls the Tamlinux desktop.</p>
 
-<p>Every graphical computer uses modifier keys &mdash; keys you hold down while tapping another key. On Tamlinux, the <dfn><a href="learn/glossary/meta.html">Meta key</a></dfn> is your primary command key for managing windows, switching workspaces, and controlling the desktop environment.</p>
-
 <section data-level="novice">
-<h2>Find and use the Meta key</h2>
+<h2>What is the Meta key?</h2>
+<p>Every graphical computer uses modifier keys &mdash; keys you hold while tapping another key. On Tamlinux, the <dfn><a href="learn/glossary/meta.html">Meta key</a></dfn> is the primary command key for managing windows, switching workspaces, and controlling the desktop.</p>
+<p>On most PC keyboards Meta sits on the bottom row between Control and Alt and shows a Windows logo. On Apple keyboards it is the Command key (⌘). On some Linux laptops it shows a Tux penguin, a circle, or a brand logo. Tamlinux calls that physical key <strong>Meta</strong>.</p>
 
-<p><strong>Goal:</strong> you will be able to locate the physical Meta key on your keyboard and use it to control your desktop without touching a mouse.</p>
+<h3>Why it matters</h3>
+<p>Reaching for a mouse to resize, move, or switch windows interrupts typing. Meta chords keep window management on the keyboard.</p>
 
-<p><strong>Why it matters:</strong> reaching for a mouse to resize, move, or switch windows interrupts your typing and slows you down. Using the Meta key lets you arrange windows quickly while keeping your hands comfortably on the keyboard.</p>
-
-<p><strong>Before you start:</strong> read <a href="desktop/index.html?level=1">The Tamlinux Desktop</a>. The commands below only open menus and empty practice windows; no files or settings are changed.</p>
-
-<aside class="first-time">
-<p>On most PC keyboards, the Meta key is located on the bottom row between Control and Alt, and has a Windows logo on it. On Apple keyboards, it is the Command key (marked with ⌘). On laptops built specifically for Linux, it may show a Tux penguin, a circle, or a brand logo. Tamlinux calls this physical key <strong>Meta</strong>.</p>
-</aside>
-
-<h3>Mental model: Three tiers of modifier keys</h3>
-
-<p>To avoid confusing shortcuts, Tamlinux separates what each modifier key does:</p>
-
+<h3>How to think about it</h3>
+<p>Tamlinux separates what each modifier does:</p>
 <ul>
-  <li><strong>Control (Ctrl):</strong> commands inside an application (such as saving a text file with <code>Ctrl + S</code>).</li>
-  <li><strong>Alt:</strong> alternate characters and secondary options inside menus.</li>
-  <li><strong>Meta:</strong> commands to the desktop itself (moving windows, switching workspaces, opening system menus).</li>
+  <li><strong>Control (Ctrl):</strong> commands inside an application (for example <code>Ctrl + S</code> to save).</li>
+  <li><strong>Alt:</strong> alternate characters and secondary menu options.</li>
+  <li><strong>Meta:</strong> commands to the desktop itself (windows, workspaces, system menus).</li>
 </ul>
 
-<h3>Worked example: Open the system menu and keybindings reference</h3>
-
-<ol>
-  <li>Find the Meta key on the bottom row of your keyboard.</li>
-  <li>Press and hold <strong>Meta</strong>, tap the <strong>Space</strong> bar, and release both. The Tamlinux system menu appears. Tap <strong>Escape</strong> to close it.</li>
-  <li>Press and hold <strong>Meta</strong>, tap <strong>K</strong>, and release both. The interactive keybindings reference window opens, showing every available desktop shortcut. Tap <strong>Escape</strong> or <strong>Meta + Q</strong> to close it.</li>
-  <li>Press and hold <strong>Meta</strong>, then press <strong>Return</strong> (Enter). An empty terminal window opens. Press <strong>Meta + Q</strong> to close that terminal.</li>
-</ol>
-
-<p>Captured on a Tamlinux workstation. The bindings are verified against packaged session definitions.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-  <li>Pressing <code>Meta + Space</code> sent a desktop-level command to open the Tamlinux main menu, without typing a space into any program.</li>
-  <li>Pressing <code>Meta + K</code> launched the keybindings explorer utility (<code>tam-menu-keybindings</code>).</li>
-  <li>Pressing <code>Meta + Q</code> requested the window manager to close the currently focused window cleanly.</li>
-</ol>
-
-<h3>Try it</h3>
-
-<p>Press <code>Meta + Return</code> to open an empty practice terminal. Press <code>Meta + T</code> to toggle the window between floating and tiled mode. Then press <code>Meta + Q</code> to close the practice window.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-  <dt>Pressing the key does nothing</dt>
-  <dd>Verify you are pressing the physical key between Ctrl and Alt on the left side of your spacebar. On external or non-standard keyboards, check if a firmware switch swapped the Alt and Windows/Command positions.</dd>
-  <dt>The key opened a Windows-style start menu on another monitor</dt>
-  <dd>Press Escape to dismiss the menu. The key is working; use <code>Meta + Space</code> for the full Tamlinux system launcher.</dd>
-</dl>
-
 <h3>New words</h3>
-
 <dl>
   <dt><dfn><a href="learn/glossary/meta.html">Meta key</a></dfn></dt>
   <dd>The primary desktop modifier key, used for window and workspace management.</dd>
   <dt><dfn><a href="learn/glossary/focus.html">Keyboard focus</a></dfn></dt>
   <dd>The window currently selected to receive keystrokes.</dd>
 </dl>
-
-<h3>Next step</h3>
-
-<p>At Learner, learn why this key is called Meta, why other Linux guides call it Super, and how keyboard modifiers evolved over fifty years of computing.</p>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before revealing the explanation.</p>
-<details class="q">
-<summary>Which modifier key does Tamlinux use to close a window or switch a workspace?</summary>
-<p>The Meta key. Desktop and window management commands use Meta (such as <code>Meta + Q</code> to close a window), leaving Control for application commands.</p>
-</details>
-<details class="q">
-<summary>Why doesn't Tamlinux call this key the Windows key?</summary>
-<p>Tamlinux is an independent, free software operating system environment. Using a proprietary corporate brand name for a standard keyboard modifier would be inaccurate and inappropriate for a universal platform.</p>
-</details>
-</section>
 </section>
 
 <section data-level="learner">
-<h2>Fifty years of keyboard modifier history</h2>
+<h2>Find and use the Meta key</h2>
+<p><strong>Goal:</strong> locate the physical Meta key and use it to open the system menu, the keybindings list, and an empty practice terminal.</p>
 
-<p><strong>Goal:</strong> you will understand the historical evolution of modifier keys from 1970 to the present and explain why different systems call the same physical key Meta, Super, Command, or Windows.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop basics</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/index.html?level=2">&larr; Back</a> |
+<a href="desktop/workspaces.html?level=2">Next &rarr;</a></p>
+</nav>
 
-<h3>The lineage of the Meta key</h3>
+<p><strong>Before you start:</strong> read <a href="desktop/index.html?level=1">The Tamlinux Desktop</a>. The steps below only open menus and empty practice windows; no files or settings change.</p>
+<aside class="first-time">
+<p>Hold Meta, tap the second key, then release both. A plus sign means hold the keys together, not type a plus. These chords go to the desktop, not into the focused program's text.</p>
+</aside>
 
-<p>The modifier key beside your spacebar is the product of five decades of hardware evolution, software design, and operating system culture:</p>
-
-<table>
-  <thead>
-    <tr><th>Year</th><th>Keyboard / System</th><th>Key Names</th><th>Significance</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>1970</td><td>SAIL (Stanford AI Lab)</td><td>Control, Meta</td><td>First Meta key; invented "bucky bits" to set the 8th bit of characters.</td></tr>
-    <tr><td>1975</td><td>Knight Keyboard (MIT)</td><td>Control, Meta</td><td>Adapted SAIL's Meta key for MIT's ITS system and Lisp machines.</td></tr>
-    <tr><td>1976</td><td>Emacs (MIT)</td><td>Control, Meta</td><td>Established standard editor commands (<code>C-</code> and <code>M-</code>).</td></tr>
-    <tr><td>1978</td><td>Space-Cadet Keyboard (MIT)</td><td>Control, Meta, Super, Hyper</td><td>Added Super and Hyper as higher-order modifiers for Lisp hackers.</td></tr>
-    <tr><td>1984</td><td>Apple Macintosh</td><td>Command (⌘), Option, Control</td><td>Susan Kare designed the looped square (⌘); Apple avoided the Apple logo.</td></tr>
-    <tr><td>1987</td><td>X Window System (X11)</td><td>Meta, Super, Hyper (Mod1&ndash;Mod5)</td><td>Inherited MIT keysyms; defined keysyms for Meta and Super.</td></tr>
-    <tr><td>1994</td><td>Microsoft Natural Keyboard</td><td>Windows key, Menu</td><td>Added physical Windows logo keys to standard 104-key PC keyboards.</td></tr>
-    <tr><td>1994+</td><td>XFree86 &amp; Linux Window Managers</td><td>Super (Mod4)</td><td>Mapped the Windows key to X11's Super keysym to avoid saying "Windows".</td></tr>
-    <tr><td>Present</td><td>Tamlinux</td><td>Meta</td><td>Reclaims the name Meta for conceptual clarity and vendor neutrality.</td></tr>
-  </tbody>
-</table>
-
-<h3>1. 1970: The Stanford AI Lab (SAIL) and "Bucky Bits"</h3>
-<p>In 1970, Martin Breslau and Dan Swinehart designed a custom terminal keyboard for the Stanford Artificial Intelligence Laboratory. To give programmers more single-key commands without needing multi-character Escape prefixes, they added a modifier key called <strong>META</strong>. Holding Meta set the 8th bit of an ASCII byte (a "bucky bit", named after Niklaus Wirth's nickname). This doubled the number of immediate commands a terminal could transmit.</p>
-
-<h3>2. 1978: The MIT Space-Cadet Keyboard and the "Super" Key</h3>
-<p>In 1978, John L. Kulp designed the famous "Space-Cadet keyboard" for MIT CADR Lisp machines. Building upon Tom Knight's earlier Knight keyboard, Kulp added seven modifier keys: <code>Shift</code>, <code>Top</code>, <code>Front</code>, <code>Control</code>, <code>Meta</code>, <code>Super</code>, and <code>Hyper</code>. In this hierarchy, <strong>Super</strong> was simply an escalation step beyond Meta, allowing Lisp programmers to generate over 8,000 unique character chords for editing and symbolic algebra.</p>
-
-<h3>3. 1984: Apple and the Command Key (⌘)</h3>
-<p>Early Apple computers used a key with an Apple logo. When designing the original Macintosh in 1984, Steve Jobs felt that putting the corporate logo on every shortcut across the menus was "taking the Apple name in vain." Graphic designer Susan Kare consulted a dictionary of symbols and selected the looped square (the Saint Hannes cross, ⌘), an ancient Scandinavian symbol denoting a notable site or attraction. Apple named it the <strong>Command key</strong>.</p>
-
-<h3>4. 1994: Microsoft and the XFree86 "Super" Mapping</h3>
-<p>In September 1994, Microsoft released the Microsoft Natural Keyboard for Windows 95, adding two keys bearing the Windows logo to standard PC keyboards. Free software developers running Linux and BSD on PC hardware wanted to use these new physical keys, but refused to adopt a proprietary corporate trademark on Unix. Because the MIT-designed X11 protocol already had built-in keysyms for <code>XK_Super_L</code> and <code>XK_Super_R</code> dating from the Space-Cadet era, XFree86 mapped the physical Windows key to <strong>Super</strong> (assigned to modifier mask <code>Mod4</code>). Tiling window managers (i3, dwm, Sway, and Hyprland) adopted <code>SUPER</code> in their configuration files to avoid clashing with applications' <code>Ctrl</code> and <code>Alt</code> chords.</p>
-
-<h3>5. Why Tamlinux Reclaims "Meta"</h3>
-<p>Tamlinux standardizes on the name <strong>Meta</strong> for three reasons:</p>
+<h3>Worked example</h3>
 <ol>
-  <li><strong>Semantic precision:</strong> In Greek, <em>metá</em> means "beyond", "transcending", or "about". The Meta key performs <em>meta-operations</em>: commands that operate on the desktop environment itself (managing windows, switching workspaces, controlling monitors) rather than editing inside an application.</li>
-  <li><strong>Vendor neutrality:</strong> It avoids proprietary marketing brands ("Windows key") and Apple-specific conventions ("Command").</li>
-  <li><strong>Historical dignity:</strong> On the 1978 Space-Cadet keyboard, "Super" was merely an arbitrary third modifier tier. Reclaiming Meta honors the deep Unix, MIT, and free software heritage while giving the keyboard workflow a clean, timeless vocabulary.</li>
+  <li>Find the Meta key on the bottom row of your keyboard.</li>
+  <li>Press and hold <strong>Meta</strong>, tap <strong>Space</strong>, and release both. The Tamlinux system menu appears. Tap <strong>Escape</strong> to close it.</li>
+  <li>Press <strong>Meta + K</strong>. The interactive keybindings reference opens. Tap <strong>Escape</strong> or <strong>Meta + Q</strong> to close it.</li>
+  <li>Press <strong>Meta + Return</strong>. An empty terminal opens. Press <strong>Meta + Q</strong> to close that terminal only.</li>
 </ol>
+<p>The bindings are verified against packaged session definitions. Live GUI behaviour on your keyboard still needs human verification if your layout differs.</p>
+
+<h3>What just happened</h3>
+<ol>
+  <li><code>Meta + Space</code> sent a desktop-level command to open the main menu.</li>
+  <li><code>Meta + K</code> launched the keybindings explorer (<code>tam-menu-keybindings</code>).</li>
+  <li><code>Meta + Q</code> asked the window manager to close the focused window.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Press <code>Meta + Return</code> to open an empty practice terminal. Press <code>Meta + T</code> to toggle floating and tiled mode. Then press <code>Meta + Q</code> to close only that practice window.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+  <dt>Pressing the key does nothing</dt>
+  <dd>Verify you are pressing the key between Ctrl and Alt near the spacebar. On some external keyboards a firmware switch swaps Alt and Windows/Command.</dd>
+  <dt>A Windows-style start menu appears on another monitor</dt>
+  <dd>Press Escape to dismiss it. The key works; use <code>Meta + Space</code> for the Tamlinux launcher.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Other Linux guides often call this key Super because X11 mapped the Windows key to the Super keysym. Tamlinux standardizes on Meta for vendor-neutral desktop commands. The Expert section traces kernel, XKB, and compositor names.</p>
+</aside>
 
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before revealing the explanation.</p>
 <details class="q">
-<summary>Why did Linux developers in the 1990s start calling the Windows key "Super"?</summary>
-<p>Because the X11 display server already had keysyms for Super inherited from the 1978 MIT Space-Cadet keyboard. Rather than calling a key on free Unix systems by a Microsoft brand name, developers mapped the physical key to X11's existing Super keysym.</p>
+<summary>Which modifier does Tamlinux use to close a window or switch a workspace?</summary>
+<p>The Meta key. Desktop management uses Meta (such as <code>Meta + Q</code>), leaving Control for application commands.</p>
 </details>
 <details class="q">
-<summary>What is the semantic distinction between Control and Meta in Tamlinux?</summary>
-<p>Control is an intra-application modifier (operating on files, text, and data within a program). Meta is an extra-application modifier (operating on the windows, workspaces, and system environment enclosing the programs).</p>
+<summary>Why doesn't Tamlinux call this key the Windows key?</summary>
+<p>Tamlinux is an independent free-software environment. A proprietary brand name is inaccurate for a universal modifier.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Input plumbing: Kernel evdev, XKB, and compositors</h2>
+<h2>History and input plumbing</h2>
+<p><strong>Reference:</strong> the same physical key has been called Meta, Super, Command, and Windows across fifty years of keyboards. On Linux the kernel names it Meta; XKB often exposes Super; Tamlinux documentation and bindings say Meta.</p>
 
-<p><strong>Goal:</strong> you will be able to trace how a physical Meta keypress travels from Linux kernel evdev scancodes through XKB keysym translation to Wayland compositor dispatchers.</p>
+<h3>Lineage</h3>
+<table>
+  <thead>
+    <tr><th>Year</th><th>Keyboard / System</th><th>Key Names</th><th>Significance</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1970</td><td>SAIL (Stanford AI Lab)</td><td>Control, Meta</td><td>First Meta key; "bucky bits" set the 8th bit of characters.</td></tr>
+    <tr><td>1978</td><td>Space-Cadet Keyboard (MIT)</td><td>Control, Meta, Super, Hyper</td><td>Added Super and Hyper as higher-order modifiers.</td></tr>
+    <tr><td>1984</td><td>Apple Macintosh</td><td>Command (⌘), Option, Control</td><td>Susan Kare's looped square; Apple avoided putting the logo on every menu.</td></tr>
+    <tr><td>1994</td><td>Microsoft Natural Keyboard / XFree86</td><td>Windows key mapped to Super (Mod4)</td><td>Free software avoided the brand name by using X11's Super keysym.</td></tr>
+    <tr><td>Present</td><td>Tamlinux</td><td>Meta</td><td>Reclaims Meta for conceptual clarity and vendor neutrality.</td></tr>
+  </tbody>
+</table>
 
-<h3>The Linux input pipeline</h3>
-
-<p>When you press the physical Meta key, the event flows through three distinct software layers before triggering a window action:</p>
-
+<h3>Input pipeline</h3>
 <pre class="session" data-risk="read-only">
 Physical Key (PC Windows key / Mac Command ⌘)
     |
     v
-Kernel evdev subsystem (/dev/input/event*)
+Kernel evdev (/dev/input/event*)
     - Scancode: 125 (KEY_LEFTMETA) or 126 (KEY_RIGHTMETA)
     |
     v
-libxkbcommon translation (Keymap / XKB rules)
-    - Keysym: XKB_KEY_Super_L (0xffeb) / XKB_KEY_Super_R (0xffec)
+libxkbcommon (XKB)
+    - Keysym: XKB_KEY_Super_L / XKB_KEY_Super_R
     - Modifier Mask: Mod4
     |
     v
-Wayland Compositor (Hyprland / Sway dispatchers)
-    - Tamlinux configuration token: "META" (Hyprland also accepts SUPER/WIN/Mod4)
-    - Intercepts chords before passing input to client windows
+Wayland compositor (Hyprland / Sway)
+    - Tamlinux token: "META" (also accepts SUPER/WIN/Mod4)
     |
     v
-Tamlinux User Interface &amp; Documentation
-    - Semantic Label: Meta (e.g. Meta + Return, Meta + Space)
+Documentation label: Meta
 </pre>
 
-<h3>1. Kernel evdev scancodes</h3>
-<p>In the Linux kernel's input subsystem (defined in <code>/usr/include/linux/input-event-codes.h</code>), the physical key has always been defined as <strong>META</strong>:</p>
-
-<pre class="session" data-risk="read-only">
-#define KEY_LEFTMETA    125
-#define KEY_RIGHTMETA   126
-</pre>
-
-<p>Even though PC hardware manufacturers print Windows logos on the plastic keycaps, the Linux kernel driver emits <code>KEY_LEFTMETA</code>.</p>
-
-<h3>2. The XKB translation layer</h3>
-<p>Wayland compositors use <code>libxkbcommon</code> to translate raw evdev scancodes into logical keysyms and modifier masks based on your keyboard layout. Because XKB maintains backwards compatibility with the 1987 X11 protocol, standard xkb keymaps translate <code>KEY_LEFTMETA</code> to the keysym <code>XKB_KEY_Super_L</code> and set the <code>Mod4</code> modifier bit.</p>
-
-<h3>3. Compositor binding dispatchers</h3>
-<p>In Tamlinux's compositor configuration (such as <code>desktop/session/hypr/tamlinux/bindings/</code>), binds use the token <code>META</code>. Hyprland accepts that spelling for the same Mod4 mask that older tiling-WM configs often wrote as <code>SUPER</code>:</p>
-
-<pre class="session" data-risk="read-only">
-o.bind("META + RETURN", "Terminal", { launcher = "terminal" })
-o.bind("META + Q", "Close window", hl.dsp.window.close())
-</pre>
-
-<p>The compositor intercepts any chord matching the modifier mask before application windows ever see it. This guarantees that pressing <code>Meta + Q</code> closes a misbehaving or frozen window immediately, without allowing the application to trap or ignore the keystroke.</p>
-
-<h3>4. Universal clipboard translation</h3>
-<p>Tamlinux's desktop integration uses compositor-level Meta dispatching to solve a longstanding Unix problem: terminal emulators traditionally use <code>Ctrl + C</code> for interrupt signals, making standard graphical copy/paste awkward. In <code>desktop/session/hypr/tamlinux/bindings/clipboard.lua</code>, Tamlinux binds universal shortcuts:</p>
-
-<ul>
-  <li><code>Meta + C</code>: Checks if the focused window is a terminal. If so, it dispatches <code>Ctrl + Insert</code> (Foot's native copy chord); if a standard GUI app, it dispatches <code>Ctrl + C</code>.</li>
-  <li><code>Meta + V</code>: Dispatches <code>Shift + Insert</code> to terminals and <code>Ctrl + V</code> to standard GUI applications.</li>
-</ul>
-
-<p>This allows your muscle memory to transfer seamlessly across terminal windows, code editors, and web browsers.</p>
+<p>In kernel headers the key is <code>KEY_LEFTMETA</code> / <code>KEY_RIGHTMETA</code>. Compositor configs under <code>desktop/session/hypr/tamlinux/bindings/</code> use <code>META</code>. Clipboard chords such as <code>Meta + C</code> / <code>Meta + V</code> translate terminal versus GUI copy/paste so muscle memory transfers across apps.</p>
 
 <section class="quiz">
 <h3>Check yourself</h3>
-<p>Decide your answer before revealing the explanation.</p>
-<details class="q open">
+<details class="q">
 <summary>What is the Linux kernel's internal name for the physical Windows logo key?</summary>
-<p><code>KEY_LEFTMETA</code> (scancode 125). Despite the commercial logo on PC keycaps, the Linux kernel input subsystem defines the key as Meta.</p>
+<p><code>KEY_LEFTMETA</code> (scancode 125). Despite the logo on PC keycaps, the kernel input subsystem defines the key as Meta.</p>
 </details>
 <details class="q">
-<summary>Why do Wayland compositors intercept Meta chords before passing events to client surfaces?</summary>
-<p>To ensure system-level desktop control remains dependable and secure. If client applications could intercept or consume Meta chords, a frozen, malicious, or misconfigured application could trap keyboard focus and prevent you from switching workspaces or closing the window.</p>
+<summary>Why do compositors intercept Meta chords before clients see them?</summary>
+<p>So desktop control stays dependable. If a client could consume Meta chords, a frozen or misconfigured application could trap focus and block workspace switches or window close.</p>
 </details>
 </section>
 </section>
 
 <h2>Where to next</h2>
-
 <ul>
-  <li><a href="desktop/index.html">The Tamlinux Desktop</a> &mdash; orientation, focus recovery, and the desktop layout.</li>
-  <li><a href="desktop/workspaces.html">Organizing windows and screens</a> &mdash; workspace switching and multi-monitor layouts.</li>
+  <li><a href="desktop/index.html">The Tamlinux Desktop</a> &mdash; orientation and focus recovery.</li>
+  <li><a href="desktop/workspaces.html">Organizing windows and screens</a> &mdash; workspace switching and multi-monitor movement.</li>
   <li><a href="desktop/voice.html">Voice Dictation on the Desktop</a> &mdash; entering text by voice.</li>
   <li><a href="learn/glossary/meta.html">Glossary: Meta key</a> &mdash; quick definitions at all levels.</li>
-  <li><a href="index.html">Guide index</a> &mdash; return to the main guide.</li>
 </ul>
 
 </body>

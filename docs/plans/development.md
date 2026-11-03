@@ -1226,3 +1226,7 @@ resolve superseded schedules. Do not execute a former plan from this history.
 - **2026-11-02:** Corpus 0.64.0 (minor): After pilot acceptance, migrate path
   neighbors `shell/index`, `shell/jobs`, `filesystem/index`, `maintain/index`
   and `maintain/rollback` to Novice/Learner anatomy with embedded path links.
+- **2026-11-02:** Corpus 0.65.0 (minor): Migrate Desktop basics
+  (`desktop/index`, `meta-key`, `workspaces`) and Healthy diagnostics
+  (`hardware/networking`, `maintain/logs`, `learn/documentation`); register
+  both paths in `paths.json` and expand anatomy hard-enforcement.
