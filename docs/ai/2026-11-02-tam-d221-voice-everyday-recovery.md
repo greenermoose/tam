@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Composer
 - **Model:** Composer (Auto)
 - **Transcript:** Private Cursor session.
-- **Commits:** Pending on `develop` at record write time.
+- **Commits:** `5938852` (pages) and `d9fbf2e` (indexes) on `develop`.
 - **Authorship:** Fred directed three batches in order: desktop voice, everyday desktop tasks, then recovery/boot. Cursor migrated the pages, registered three paths in `paths.json`, expanded hard-enforcement, bumped the corpus version and synced roadmap records.
 
 ## Guiding prompts
