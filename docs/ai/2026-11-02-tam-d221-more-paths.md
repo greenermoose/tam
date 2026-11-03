@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Composer
 - **Model:** Composer (Auto)
 - **Transcript:** Private Cursor session.
-- **Commits:** On `develop` (this change).
+- **Commits:** `b0db6ac` (pages) and `66ee96a` (indexes) on `develop`.
 - **Authorship:** Fred said "Keep migrating along more paths." Cursor migrated Desktop basics and Healthy diagnostics pages, registered them in `paths.json`, expanded hard-enforcement, bumped the corpus version and synced roadmap records.
 
 ## Guiding prompts
