@@ -1,18 +1,15 @@
 # Learning levels, goal paths and self-quizzes
 
-**Plan status:** In progress
-**Reviewed:** 2026-10-27
-**Scope:** Command and corpus. The first approved outcome is TCK20–TCK23:
-the contract, a sticky level lens, folding and self-quizzes, and a pilot of
-three pages and two goal paths. TCK24 (corpus scaffolding) and TCK25
-(migration) follow under the same approval. Practice commands are deferred
-(roadmap section 4). Versions are allocated from the current files when each
-slice starts.
-**Authority:** The developer's decisions of 2026-10-20 and 2026-10-21,
-recorded as Tamlinux decisions D184 (amends D174) and D185 (state
-directory), and in the
-[planning record](../ai/2026-10-21-tam-learning-levels-plan.md);
-[plan maintenance procedure](../plan-maintenance.md).
+**Plan status:** In progress (D221 Level Evolution & Embedded Learning Paths)
+**Reviewed:** 2026-11-02
+**Scope:** Command and corpus.
+- Visible UI labels become `1: novice / 2: learner / 3: expert` (D221, amending D184).
+- Level 1 (Novice): gentle conceptual intro, no goals, no practice, no quizzes.
+- Level 2 (Learner): the only level with `Goal:` and `Try it` practice exercises, quizzes, and embedded learning path links.
+- Level 3 (Expert): advanced usage examples for reference, not student exercises.
+- Eliminate separate `Learning` (`learn/`) corpus track; learning paths are embedded in every page's Learner text (`Start`, `Back`, `Next` at `?level=2`).
+- Pilot-first rollout: `shell/pipelines.html`, `filesystem/permissions.html`, `maintain/updates.html`.
+**Authority:** The developer's decision D221 (2026-11-02, amending D184) and D185 (state directory).
 **Next action:** Continue concept-first explanations and glossary expansion. Developer pilot review, learner review and packaged acceptance remain unverified.
 
 ## Current concept work (2026-10-27)

@@ -38,7 +38,7 @@ _tam_completions() {
             ;;
         show)
             if [ "$prev" = "--level" ]; then
-                COMPREPLY=($(compgen -W "all beginner intermediate expert 0 1 2 3" -- "$cur"))
+                COMPREPLY=($(compgen -W "all novice learner expert beginner intermediate 0 1 2 3" -- "$cur"))
             else
                 COMPREPLY=($(compgen -W "tam:search tam:man tam:tldr --pipe --level" -- "$cur"))
             fi
@@ -48,7 +48,7 @@ _tam_completions() {
             ;;
         explain|whatis)
             if [ "$prev" = "--level" ]; then
-                COMPREPLY=($(compgen -W "all beginner intermediate expert 0 1 2 3" -- "$cur"))
+                COMPREPLY=($(compgen -W "all novice learner expert beginner intermediate 0 1 2 3" -- "$cur"))
             else
                 COMPREPLY=($(compgen -W "topics --pipe --level --terse --verbose" -- "$cur"))
             fi

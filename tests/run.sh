@@ -1533,12 +1533,12 @@ assert saved(state) is None, "pressing the current lens wrote state"
 
 # 2 re-renders in place: level line, hidden-section markers, status, message.
 b = p.key(b"2")
-assert "Showing 2: intermediate level text" in b, b
-assert "-- 1 Beginner: Beginner (hidden; press 1 or 0) --" in b, b
+assert "Showing 2: learner level text" in b, b
+assert "-- 1 Novice: Beginner (hidden; press 1 or 0) --" in b, b
 assert "-- 3 Expert: Expert (hidden; press 3 or 0) --" in b, b
-assert "Level 2 Intermediate: 2 sections hidden" in b, b
-assert "Intermediate text 0123" in b, b
-assert saved(state) == "intermediate", saved(state)
+assert "Level 2 Learner: 2 sections hidden" in b, b
+assert "Learner text 0123" in b, b
+assert saved(state) == "learner", saved(state)
 
 # The lens holds across a link to a single-level page, which opens under a
 # truthful level line instead of failing, and the status row says so.
@@ -1549,7 +1549,7 @@ assert "See also -> Fixture pipelines" in b, b
 assert "(not on page)" in b, b
 # = shows the address with the lens.
 b = p.key(b"=")
-assert "Path = page:index.html?level=intermediate" in b, b
+assert "Path = page:index.html?level=learner" in b, b
 p.key(b"=")
 
 # Back returns to the page at the current lens; it does not undo the lens.
@@ -1572,23 +1572,23 @@ for _ in range(12):
 else:
     raise AssertionError("no beginner link on the page")
 b = p.key(b"\r")
-assert "Showing 1: beginner level text" in b, b
-assert saved(state) == "beginner", saved(state)
+assert "Showing 1: novice level text" in b, b
+assert saved(state) == "novice", saved(state)
 p.quit()
 
 # TAM_LEVEL overrides the file and is never written back.
 p = Pager(["show", "shell/pipelines"], state, env={"TAM_LEVEL": "expert"})
 assert "Showing 3: expert level text" in p.first, p.first
 b = p.key(b"2")
-assert "Showing 2: intermediate level text" in b, b
+assert "Showing 2: learner level text" in b, b
 p.quit()
-assert saved(state) == "beginner", f"TAM_LEVEL run wrote the lens: {saved(state)}"
+assert saved(state) == "novice", f"TAM_LEVEL run wrote the lens: {saved(state)}"
 
 # --level overrides both for this run only.
 p = Pager(["show", "--level", "3", "shell/pipelines"], state)
 assert "Showing 3: expert level text" in p.first, p.first
 p.quit()
-assert saved(state) == "beginner", saved(state)
+assert saved(state) == "novice", saved(state)
 
 # An unreadable or invalid state file means All, silently.
 with open(os.path.join(state, "tamlinux", "tam", "level"), "w") as f:
@@ -1599,11 +1599,11 @@ assert "Showing 0: all text" in p.first, p.first
 # Pressing 0, 1, 2, 3 in the pager selects each level and updates line b with distinct highlighting.
 assert b"\x1b[36m 0: all" in p.last_raw, f"level 0 not cyan: {p.last_raw}"
 b1 = p.key(b"1")
-assert "Showing 1: beginner level text" in b1, b1
-assert b"\x1b[32m 1: beginner" in p.last_raw, f"level 1 not green: {p.last_raw}"
+assert "Showing 1: novice level text" in b1, b1
+assert b"\x1b[32m 1: novice" in p.last_raw, f"level 1 not green: {p.last_raw}"
 b2 = p.key(b"2")
-assert "Showing 2: intermediate level text" in b2, b2
-assert b"\x1b[33m 2: intermediate" in p.last_raw, f"level 2 not yellow: {p.last_raw}"
+assert "Showing 2: learner level text" in b2, b2
+assert b"\x1b[33m 2: learner" in p.last_raw, f"level 2 not yellow: {p.last_raw}"
 b3 = p.key(b"3")
 assert "Showing 3: expert level text" in b3, b3
 assert b"\x1b[35m 3: expert" in p.last_raw, f"level 3 not magenta: {p.last_raw}"
@@ -1615,18 +1615,18 @@ p.quit()
 # One-level pages: tldr and standard input keep the lens and say so.
 p = Pager(["show", "tldr:tar"], state)
 b = p.key(b"2")
-assert "Level 2 Intermediate set; this page has one level" in b, b
+assert "Level 2 Learner set; this page has one level" in b, b
 p.quit()
 p = Pager(["show", "-"], state, stdin=b"<html><body><h1>Piped</h1><p>Text.</p></body></html>")
 b = p.key(b"1")
-assert "Level 1 Beginner set; this page has one level" in b, b
+assert "Level 1 Novice set; this page has one level" in b, b
 p.quit()
 
-# Status row: "Beginner text 0123" from 100 columns, "Beginner 0123" from 60,
+# Status row: "Novice text 0123" from 100 columns, "Novice 0123" from 60,
 # the digits alone below 60.
-for cols, want, absent in ((120, "Beginner text 0123", None), (80, "Beginner 0123", "text 0123"), (40, "0123", "Beginner")):
+for cols, want, absent in ((120, "Novice text 0123", None), (80, "Novice 0123", "text 0123"), (40, "0123", "Novice")):
     p = Pager(["show", "shell/pipelines"], state, cols=cols)
-    p.key(b"1") if "Showing 1: beginner level text" not in p.first else None
+    p.key(b"1") if "Showing 1: novice level text" not in p.first else None
     b = p.key(b"x")
     text = p.first + b
     at = max(text.rfind("L1 "), text.rfind("Lb "))
@@ -1779,7 +1779,7 @@ ex_res=$("$TAM" explain resources --pipe)
 printf '%s\n' "$ex_res" | grep -q 'How your computer uses its resources' || fail "explain resources failed"
 ex_lua=$("$TAM" explain lua --pipe)
 printf '%s\n' "$ex_lua" | grep -q 'Lua: a language for giving programs instructions' || fail "explain lua failed"
-printf '%s\n' "$ex_lua" | grep -q 'Levels: beginner' || fail "explain lua missing levels line"
+printf '%s\n' "$ex_lua" | grep -q 'Levels: novice' || fail "explain lua missing levels line"
 
 # Maintain track curated topics.
 ex_maint=$("$TAM" explain maintain --pipe)
@@ -1889,8 +1889,8 @@ printf '%s\n' "$ex_multi" | grep -q 'hardware/resources.html' || fail "explain c
 
 # Topic guide depth ladder: tam explain --level LEVEL TOPIC
 ex_tg_lvl_b=$("$TAM" explain --level beginner pipelines --pipe)
-printf '%s\n' "$ex_tg_lvl_b" | grep -q 'Topic Guide: pipelines (beginner Level)' || fail "explain --level beginner pipelines failed"
-printf '%s\n' "$ex_tg_lvl_b" | grep -q 'shell/pipelines.html?level=beginner' || fail "explain --level beginner missing link target"
+printf '%s\n' "$ex_tg_lvl_b" | grep -q 'Topic Guide: pipelines (novice Level)' || fail "explain --level beginner pipelines failed"
+printf '%s\n' "$ex_tg_lvl_b" | grep -q 'shell/pipelines.html?level=novice' || fail "explain --level beginner missing link target"
 
 # Direct page depth ladder: tam show --level LEVEL PAGE
 sh_lua_b=$("$TAM" show --level beginner lua --pipe)
@@ -1937,7 +1937,7 @@ if printf '%s\n' "$sh_lvl_e" | grep -q '^Beginner'; then fail "expert level cont
 # A page without the requested level opens under its level line, exit 0.
 sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2 welcome --pipe) \
     || fail "show --level 2 on a single-level page failed"
-printf '%s\n' "$sh_banner" | grep -qE '^ +Showing 2: intermediate level text$' \
+printf '%s\n' "$sh_banner" | grep -qE '^ +Showing 2: learner level text$' \
     || fail "single-level page missing its right-aligned level line"
 printf '%s\n' "$sh_banner" | grep -q 'Fixture Welcome' || fail "level-line page lost its content"
 # Related pages come from parent links: a page with no relative at the level
@@ -2021,15 +2021,20 @@ printf 'expert\n' > "$tmp/pipe-lens/tamlinux/tam/level"
 [ "$(XDG_STATE_HOME="$tmp/pipe-lens" fixture_show pipelines --pipe)" = "$(fixture_show pipelines --pipe)" ] \
     || fail "piped output followed the saved lens"
 
-# Numeric and 'all' level synonyms (0|all, 1|beginner, 2|intermediate, 3|expert)
+# Numeric and 'all' level synonyms (0|all, 1|novice|beginner, 2|learner|intermediate, 3|expert)
 sh_lvl_all=$(fixture_show pipelines --pipe)
 [ "$(fixture_show --level 1 pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level 1 differs from beginner"
+[ "$(fixture_show --level novice pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level novice differs from beginner"
 [ "$(fixture_show --level 2 pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level 2 differs from intermediate"
+[ "$(fixture_show --level learner pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level learner differs from intermediate"
 [ "$(fixture_show --level 3 pipelines --pipe)" = "$sh_lvl_e" ] || fail "show --level 3 differs from expert"
+[ "$(fixture_show --level expert pipelines --pipe)" = "$sh_lvl_e" ] || fail "show --level expert differs from 3"
 [ "$(fixture_show --level 0 pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level 0 differs from all levels"
 [ "$(fixture_show --level all pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level all differs from all levels"
 [ "$(fixture_show "pipelines?level=1" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=1 differs from beginner"
+[ "$(fixture_show "pipelines?level=novice" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=novice differs from beginner"
 [ "$(fixture_show "pipelines?level=2" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=2 differs from intermediate"
+[ "$(fixture_show "pipelines?level=learner" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=learner differs from intermediate"
 [ "$(fixture_show "pipelines?level=3" --pipe)" = "$sh_lvl_e" ] || fail "show pipelines?level=3 differs from expert"
 [ "$(fixture_show "pipelines?level=0" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=0 differs from all levels"
 [ "$(fixture_show "pipelines?level=all" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=all differs from all levels"
@@ -2816,6 +2821,8 @@ _tam_completions
 printf "%s\n" "${COMPREPLY[@]}"
 ')
 printf '%s\n' "$bash_level_test" | grep -q 'all' || fail "bash completion missing level all"
+printf '%s\n' "$bash_level_test" | grep -q 'novice' || fail "bash completion missing level novice"
+printf '%s\n' "$bash_level_test" | grep -q 'learner' || fail "bash completion missing level learner"
 printf '%s\n' "$bash_level_test" | grep -q 'beginner' || fail "bash completion missing level beginner"
 printf '%s\n' "$bash_level_test" | grep -q 'intermediate' || fail "bash completion missing level intermediate"
 printf '%s\n' "$bash_level_test" | grep -q 'expert' || fail "bash completion missing level expert"

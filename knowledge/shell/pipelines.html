@@ -5,7 +5,7 @@
 <meta name="topic" content="pipelines">
 <meta name="summary" content="Connect, filter and diagnose streams with shell pipelines">
 <meta name="keywords" content="pipelines, pipeline, pipe, pipes, redirection, redirect, redirect stderr, |, >, >>, 2>&1, <, grep, sort, uniq, wc, cat, pipefail">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="prereqs" content="shell">
@@ -15,48 +15,65 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Connecting programs</p></nav>
 <h1>Connecting programs</h1>
-<p>This page explains how to pass the output of one program to another.</p>
-<p>A pipeline connects programs so that information produced by one becomes input for the next. The examples use known input so you can check the result.</p>
-<section data-level="beginner">
+<p>This page explains how to pass information from one program into another so tools can work together.</p>
+
+<section data-level="novice">
+<h2>What is a pipeline?</h2>
+<p>When you use a computer from the command line, programs are like small, specialized tools in a workshop. One tool might list names, another tool might search for a word, and a third tool might count lines. A pipeline is the way you connect these tools together in a row: the text produced by the first tool flows directly into the second tool as its input, without you needing to copy and paste or save a temporary file.</p>
+
+<h3>Why it matters</h3>
+<p>Instead of needing one massive program that does everything, Linux gives you hundreds of small, reliable tools that do one job well. Pipelines let you combine them to solve problems that no single tool could handle alone.</p>
+
+<h3>How to think about it</h3>
+<p>Think of an assembly line or a series of connected water pipes. Water flows from a pump, through a filter that cleans it, and finally into a tap. In the terminal, text flows from the first program, through a filtering program that discards what you do not want, and into a final program that formats or displays the result.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/stream.html">Stream</a></dfn></dt><dd>A continuous flow of text or data traveling between programs.</dd>
+<dt><dfn><a href="learn/glossary/filter.html">Filter</a></dfn></dt><dd>A program that takes text in, removes or changes parts of it, and sends the remaining text onward.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Filter and count lines</h2>
-<p><strong>Goal:</strong> you will be able to connect two filters and predict
-their result.</p>
-<p><strong>Why it matters:</strong> a command may print more than you need.
-A <dfn><a href="learn/glossary/filter.html">filter</a></dfn> keeps the useful
-lines, and a counter tells you how many remain.</p>
-<p><strong>Before you start:</strong> open a terminal and read
-<a href="shell/index.html?level=1">Shell and streams</a>. This example only
-reads and prints text; it does not change files.</p>
-<aside class="first-time"><p>Type commands after the terminal's prompt. A
-leading <code>$</code> below marks that prompt: do not type it. Press Enter
-after the complete command. The vertical bar is a pipe; on US QWERTY it is
-Shift+Backslash. The lines without a prompt are output, not commands.</p></aside>
+<p><strong>Goal:</strong> connect two filters using a pipe and predict their combined output.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Mastering the Command Line</strong> &mdash;
+<a href="shell/index.html?level=2">Start</a> |
+<a href="shell/index.html?level=2">&larr; Back</a> |
+<a href="shell/jobs.html?level=2">Next &rarr;</a></p>
+</nav>
+
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
-$ printf &#x27;%s\n&#x27; apple pear apple | grep &#x27;^apple$&#x27; | wc -l
+$ printf &#x27;%s
+&#x27; apple pear apple | grep &#x27;^apple$&#x27; | wc -l
 2
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. This fixed input gives the same count.</p>
+<p>Captured on Arch Linux, 2026-10-21. This fixed input gives the same count on every system.</p>
+
 <h3>What just happened</h3>
-<ol><li><code>printf</code> prints three lines: apple, pear, apple.</li>
-<li><code>|</code> passes the text printed by one command to the next
-command as input.</li><li><code>grep '^apple$'</code> keeps only whole lines
-equal to apple. <code>^</code> marks the start and <code>$</code> the end.</li>
-<li><code>wc -l</code> counts the two remaining newline characters.</li></ol>
+<ol>
+<li><code>printf</code> prints three lines: apple, pear, apple.</li>
+<li>The vertical bar (<code>|</code>) passes the text printed by <code>printf</code> into <code>grep</code>.</li>
+<li><code>grep &#x27;^apple$&#x27;</code> keeps only lines that match apple exactly, discarding pear.</li>
+<li>The second pipe sends those matching lines into <code>wc -l</code>, which counts the two remaining lines.</li>
+</ol>
+
 <h3>Try it</h3>
-<p>Change only the pattern to <code>'^pear$'</code>. Predict the count, then
-run it. No scratch directory is needed because this writes no files.</p>
+<p>In your terminal, run the same pipeline but change the pattern from <code>&#x27;^apple$&#x27;</code> to <code>&#x27;^pear$&#x27;</code>. Predict the count before you press Enter.</p>
+
 <h3>If it goes wrong</h3>
-<dl><dt>The terminal shows a continuation prompt, often <code>&gt;</code>.</dt>
-<dd>You may have left a quote open or ended with a pipe. Press Ctrl+C and
-retype the complete line.</dd><dt>The count is zero.</dt><dd>Check spelling
-and letter case; apple and Apple are different patterns.</dd></dl>
-<h3>New words</h3>
-<dl><dt><dfn><a href="learn/glossary/stream.html">Stream</a></dfn></dt><dd>Bytes a program reads or writes in order.</dd>
-<dt><dfn><a href="learn/glossary/filter.html">Filter</a></dfn></dt><dd>A command that selects or transforms its input.</dd></dl>
-<h3>Next step</h3>
-<p>Choose level 2 to combine filters, or try
-<a href="filesystem/permissions.html?level=1">file permissions</a>.</p>
+<dl>
+<dt>The terminal shows a continuation prompt, often <code>&gt;</code>.</dt>
+<dd>You may have left a quote open or ended the command with a pipe. Press Ctrl+C and retype the complete line.</dd>
+<dt>The count is zero.</dt>
+<dd>Check spelling and letter case; apple and Apple are different patterns.</dd>
+</dl>
+
+<aside class="tamlinux"><p>The Guide opens this page at the current lens. Use <code>0</code> to compare all three levels; changing the lens does not run the displayed commands.</p></aside>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
@@ -70,71 +87,7 @@ and letter case; apple and Apple are different patterns.</dd></dl>
 </details>
 </section>
 </section>
-<section data-level="intermediate">
-<h2>Choose filters and find failures</h2>
-<p><strong>Goal:</strong> adapt a pipeline to new input and separate data
-errors from diagnostic messages.</p>
-<h3>Mental model</h3>
-<pre>producer --stdout--&gt; filter --stdout--&gt; consumer
-             stderr --&gt; terminal</pre>
-<p>The usual pipe carries standard output (descriptor 1), not standard
-error (descriptor 2). A successful final command does not prove that the
-producer succeeded.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ printf &#x27;%s\n&#x27; pear apple pear | sort | uniq -c
-      1 apple
-      2 pear
-</pre>
-<p>Captured on Arch Linux, 2026-10-21, with <code>LC_ALL=C</code>. Sorting
-makes equal lines adjacent before <code>uniq -c</code> counts them. Locale
-can change ordering on other inputs.</p>
-<h3>Completion task</h3>
-<p>Using the same input, fill in the filter that must precede
-<code>uniq -c</code>: <code>printf '%s\n' pear apple pear | ___ | uniq -c</code>.</p>
-<details class="solution">
-<p>Use <code>sort</code>, as in the worked example. Without it, the two pear lines remain separated and are counted separately.</p>
-</details>
-<h3>Independent task</h3>
-<p>Count distinct lines in red, blue, red, green, blue, rather than total
-lines or repetitions. Use a pipeline; do not hard-code the answer.</p>
-<details class="solution">
-<pre class="session" data-risk="read-only">
-$ printf &#x27;%s\n&#x27; red blue red green blue | sort | uniq | wc -l
-3
-</pre><p><code>uniq</code> without <code>-c</code> emits one line per adjacent run. Sorting first groups repeats; the result is three distinct lines. Captured on Arch Linux, 2026-10-21.</p>
-</details>
-<h3>Choosing</h3>
-<table><tr><th>Need</th><th>Choose</th></tr>
-<tr><td>Keep matching lines</td><td><code>grep</code></td></tr>
-<tr><td>Group repeated lines</td><td><code>sort | uniq -c</code></td></tr>
-<tr><td>Count lines</td><td><code>wc -l</code>; it counts newlines, not words</td></tr>
-<tr><td>Keep errors beside data in Bash</td><td><code>2&gt;&amp;1 |</code>, deliberately</td></tr></table>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Repeated groups</td><td>Input is not sorted</td><td>Read the input to uniq</td><td>Sort before counting</td></tr>
-<tr><td>Errors still appear</td><td>stderr bypasses the pipe</td><td>Run the producer alone</td><td>Diagnose the error; merge streams only when appropriate</td></tr>
-<tr><td>Count succeeds after a failed producer</td><td>Last-command status</td><td>Inspect each stage</td><td>Use Bash pipefail when failure should propagate</td></tr></table>
-<aside class="tamlinux"><p>The Guide opens this page at the current lens.
-Use <code>0</code> to compare all three levels; changing the lens does not
-run the displayed commands.</p></aside>
-<h3>Further reading</h3>
-<ul><li><cite data-ref="bash"><a href="learn/bibliography/bash.html">Source: bash</a></cite>; <a href="man:bash(1)">bash(1)</a>: pipelines, redirections and pipefail.</li>
-<li><cite data-ref="grep"><a href="learn/bibliography/grep.html">Source: grep</a></cite>; <a href="man:grep(1)">grep(1)</a>: pattern matching and exit status.</li>
-<li><cite data-ref="coreutils"><a href="learn/bibliography/coreutils.html">Source: coreutils</a></cite>; <a href="info:coreutils">GNU Coreutils</a>: sort, uniq and wc.</li></ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary>A script ends with producer | wc -l and exits successfully, but producer reported an error. What do you check?</summary>
-<p>Run the producer alone and inspect its exit status and stderr. By default Bash reports the last command status; wc can succeed on empty input. pipefail helps detect a failing stage but does not repair it.</p>
-</details>
-<details class="q">
-<summary>Why is uniq -c alone wrong for pear, apple, pear?</summary>
-<p>uniq combines adjacent equal lines only. Sort first if all repeated values should be counted together.</p>
-</details>
-</section>
-</section>
+
 <section data-level="expert">
 <h2>Descriptor order and pipeline status</h2>
 <p><strong>Reference:</strong> descriptor 0 is standard input, 1 standard
@@ -145,33 +98,38 @@ command redirections, then applies redirections from left to right.</p>
 <tr><td><code>2&gt;&amp;1 &gt;file</code></td><td>Duplicate the old 1 onto 2, then replace 1</td></tr>
 <tr><td><code>|&amp;</code></td><td>Bash shorthand for a pipe with stderr merged after explicit redirections</td></tr>
 <tr><td><code>PIPESTATUS</code></td><td>Bash array of statuses from the last foreground pipeline; inspect immediately</td></tr></table>
+
 <h3>How it works</h3>
 <p>A Linux pipe is a finite byte buffer, without message boundaries. Writers
 may block when it is full; readers see EOF only when all write descriptors
 are closed. Writes up to <code>PIPE_BUF</code> have an atomicity guarantee;
 that limit is distinct from capacity. Do not assume a fixed capacity.</p>
-<h3>Explore</h3>
-<p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Keep this terminal open while you
-work through the section.</p>
+
+<h3>Illustrative reference</h3>
+<p>These commands illustrate descriptor duplication and pipeline status in a temporary directory.</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
 </pre>
 <pre class="session" data-risk="scratch">
-$ bash -c &#x27;printf &quot;out\n&quot;; printf &quot;err\n&quot; &gt;&amp;2&#x27; &gt;both.txt 2&gt;&amp;1
+$ bash -c &#x27;printf &quot;out
+&quot;; printf &quot;err
+&quot; &gt;&amp;2&#x27; &gt;both.txt 2&gt;&amp;1
 $ cat both.txt
 out
 err
 </pre>
 <pre class="session" data-risk="read-only">
-$ bash -c &#x27;false | cat; printf &quot;default: %s\n&quot; &quot;$?&quot;; set -o pipefail; false | cat; printf &quot;pipefail: %s\n&quot; &quot;$?&quot;&#x27;
+$ bash -c &#x27;false | cat; printf &quot;default: %s
+&quot; &quot;$?&quot;; set -o pipefail; false | cat; printf &quot;pipefail: %s
+&quot; &quot;$?&quot;&#x27;
 default: 0
 pipefail: 1
 </pre>
 <p>Captured on Arch Linux, 2026-10-21. Predict the result of reversing the
 redirections before trying it. The separate Bash invocation confines
 <code>pipefail</code> to the experiment.</p>
+
 <h3>Edge cases and cost</h3>
 <p>Bash normally runs pipeline elements in subshell environments; the
 <code>lastpipe</code> option can change the last element's environment when
@@ -179,23 +137,19 @@ job control is inactive. A consumer that exits early can give a writer
 SIGPIPE. Extra filters create processes and move bytes; prefer a direct
 file argument when it expresses the task clearly. Avoid polling pipelines
 when a single query answers the question.</p>
-<h3>Finish the exercise</h3>
-<p>Remove only the exercise files you created, then leave and remove the
-temporary directory. If a named file is missing, remove its name from the
-first command; if the directory is not empty, inspect it before removing more.</p>
+
+<h3>Clean up</h3>
 <pre data-risk="scratch">
 rm -- both.txt
 cd /tmp
 rmdir -- "$work"
 </pre>
+
 <h3>Sources</h3>
 <ul><li><a href="man:pipe(7)">pipe(7)</a>: buffering, atomicity and limits.</li>
 <li><a href="man:dup2(2)">dup2(2)</a>: descriptor duplication.</li>
 <li><a href="man:bash(1)">bash(1)</a>: shell-specific execution semantics.</li></ul>
-<h3>Improve it</h3>
-<p>Contribute a minimal reproducible pipeline and its observed statuses to
-the public <a href="https://github.com/greenermoose/tam">tam repository (online)</a>.
-These are Bash/Linux semantics, not a separate Tamlinux pipeline dialect.</p>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
@@ -205,9 +159,8 @@ These are Bash/Linux semantics, not a separate Tamlinux pipeline dialect.</p>
 </details>
 </section>
 </section>
+
 <h2>Where next</h2>
-<p><a href="shell/jobs.html">Processes and signals</a> explains the running
-programs; <a href="learn/paths/first-steps.html">First steps</a> puts these
-skills into a whole task.</p>
+<p><a href="shell/jobs.html">Processes and signals</a> explains running programs; switch to level 2 for the step-by-step learning path.</p>
 </body>
 </html>

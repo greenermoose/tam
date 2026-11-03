@@ -5,7 +5,7 @@
 <meta name="topic" content="updates">
 <meta name="summary" content="Identify update owners and prepare recovery before changing software">
 <meta name="keywords" content="updates, package, ownership, pacman, mise, home-manager, tam-update, rollback, inode">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
 <meta name="prereqs" content="maintain, filesystem">
@@ -16,207 +16,110 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Checking and updating your software</p></nav>
 <h1>Checking and updating your software</h1>
 <p>This page explains how to check your software and prepare for updates safely.</p>
-<p>Before changing software, find out which tool manages it and how to recover if the change causes a problem.</p>
-<section data-level="beginner">
+
+<section data-level="novice">
+<h2>Understanding software updates</h2>
+<p>Programs on your computer need periodic updates. Updates fix security vulnerabilities that could put your data at risk, repair bugs that cause crashes, and ensure tools remain compatible with modern standards.</p>
+
+<h3>Why it matters</h3>
+<p>A well-maintained system stays dependable. Before applying an update, however, it is important to know what version you currently have installed and how updates work, so you do not accidentally change software during a critical task.</p>
+
+<h3>How to think about it</h3>
+<p>Think of software updates like routine maintenance on a car. You inspect the vehicle regularly to check fluid levels and tire pressure before setting out on a long trip. Inspection is completely safe and changes nothing; replacement of parts is a deliberate step performed when you are prepared.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/package.html">Package</a></dfn></dt><dd>A bundle containing a program, its documentation, and supporting files managed as a single unit.</dd>
+<dt><dfn><a href="learn/glossary/rollback.html">Rollback</a></dfn></dt><dd>Returning software to a recorded, previously working state if an update causes problems.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Inspect a package without changing it</h2>
-<p><strong>Goal:</strong> you will be able to read an installed
-<dfn><a href="learn/glossary/package.html">package</a></dfn>
-version and distinguish inspection from an update.</p>
-<p><strong>Why it matters:</strong> a version report is evidence you can
-share before deciding whether anything needs to change.</p>
-<p><strong>Before you start:</strong> read <a href="shell/index.html?level=1">Shell and streams</a>.
-This is a read-only Arch package query, with no privilege prompt.</p>
-<aside class="first-time"><p>Open a terminal. Type the command after its
-prompt and press Enter; do not copy the leading <code>$</code>. Output is a
-report, not another command. Do not add administrator privileges to a query.</p></aside>
+<p><strong>Goal:</strong> you will be able to read an installed package version and distinguish inspection from an update.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Maintaining Tamlinux</strong> &mdash;
+<a href="maintain/index.html?level=2">Start</a> |
+<a href="maintain/index.html?level=2">&larr; Back</a> |
+<a href="maintain/rollback.html?level=2">Next &rarr;</a></p>
+</nav>
+
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
 $ pacman -Q bash
 bash 5.3.20-1
 </pre>
-<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ
-when a different Bash package is installed.</p>
+<p>Captured on an Arch Linux workstation, 2026-10-21. Output differs when a different version is installed.</p>
+
 <h3>What just happened</h3>
-<ol><li><code>-Q</code> queried the installed package database.</li>
-<li>The first field names the package, followed by its installed version.</li>
-<li>No package was downloaded, installed or restarted.</li></ol>
+<ol>
+<li>The <code>-Q</code> option tells the package manager to query the local database of installed software.</li>
+<li>The command prints the package name followed by its exact installed version.</li>
+<li>No files were downloaded, changed, or deleted.</li>
+</ol>
+
 <h3>Try it</h3>
-<p>Query the installed <code>coreutils</code> package the same way. Record
-what your machine reports; no scratch files are needed.</p>
+<p>In your terminal, query the installed version of <code>coreutils</code> using <code>pacman -Q coreutils</code>. Compare the reported version with the worked example.</p>
+
 <h3>If it goes wrong</h3>
-<dl><dt>Package was not found</dt><dd>Check the package name. It may be
-absent or belong to a different manager; do not install it just to complete
-a query.</dd><dt>Command not found</dt><dd>This example assumes Arch's
-pacman. Stop and identify the host's manager instead.</dd></dl>
-<h3>New words</h3>
-<dl><dt><dfn><a href="learn/glossary/package.html">Package</a></dfn></dt><dd>A manager's named unit of installed software.</dd>
-<dt><dfn><a href="learn/glossary/rollback.html">Rollback</a></dfn></dt><dd>Restoring a known earlier software state using its
-recorded recovery procedure; it does not automatically restore documents.</dd></dl>
-<h3>Next step</h3>
-<p>Choose level 2 to locate a file's owner and plan an update, or start
-<a href="learn/paths/keep-it-healthy.html">Keep it healthy</a>.</p>
+<dl>
+<dt>package '...' was not found</dt>
+<dd>Check the exact package name. The tool may not be installed as a system package or may be managed by another tool.</dd>
+<dt>command not found</dt>
+<dd>Pacman is the native package manager on Tamlinux's base system. If pacman is absent, check your shell environment.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux organizes software into rootstock (the base Linux distribution) and cultivar (Tamlinux desktop and agent tools). Inspection queries are read-only and require no administrator privileges.</p>
+</aside>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
 <details class="q">
 <summary>Does pacman -Q bash update Bash or report its installed version?</summary>
-<p>It reports the installed version. Querying the database is not an update and says nothing about remote update availability.</p>
+<p>It reports the installed version. Querying the local database is read-only and does not contact remote servers or modify files.</p>
 </details>
 <details class="q">
-<summary>Can one native package query prove that every tool is current?</summary>
-<p>No. It covers that installed native package only; Tamlinux product software and user tools have separate owners.</p>
+<summary>Can a single package query confirm that all system software is up to date?</summary>
+<p>No. It only checks the specific queried package against the local installation database.</p>
 </details>
 </section>
 </section>
-<section data-level="intermediate">
-<h2>Choose the owner and recovery boundary</h2>
-<p><strong>Goal:</strong> identify the owner of a program and write an update
-plan with a matching rollback boundary.</p>
-<h3>Mental model</h3>
-<pre>command name --PATH lookup--&gt; selected executable
-selected executable --owner check--&gt; manager or package assembly
-change that owner --&gt; verify running version --&gt; recover at the same layer</pre>
-<p>In Tamlinux, software packages are separated into the <dfn><a href="learn/glossary/rootstock.html">rootstock</a></dfn> and the <dfn><a href="learn/glossary/cultivar.html">cultivar</a></dfn>. Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is the kernel and core system software on which the Tamlinux cultivar is installed. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
-<h3>Worked example</h3>
+
+<section data-level="expert">
+<h2>Recovery boundaries and rollback mechanisms</h2>
+<p><strong>Reference:</strong> Tamlinux maintains separate recovery boundaries for different software layers. A disciplined update plan defines the rollback mechanism before initiating changes.</p>
+
+<table><tr><th>Layer</th><th>Manager</th><th>Rollback Mechanism</th></tr>
+<tr><td>User environment</td><td>Home Manager</td><td>Previous Home Manager generation</td></tr>
+<tr><td>System rootstock</td><td>Pacman</td><td>Snapper Btrfs root snapshot</td></tr>
+<tr><td>User CLI tools</td><td>Mise</td><td>Version lockfile pin</td></tr>
+</table>
+
+<h3>Illustrative reference</h3>
 <pre class="session" data-risk="read-only">
 $ pacman -Qo /usr/bin/bash
 /usr/bin/bash is owned by bash 5.3.20-1
 </pre>
-<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ
-with the installed version. <code>-Qo</code> queries which native package
-owns a path; it is not a repository-origin query.</p>
-<h3>Completion task</h3>
-<p>Find the native owner of <code>/usr/bin/ls</code> using
-<code>pacman ___ /usr/bin/ls</code>.</p>
-<details class="solution">
-<pre class="session" data-risk="read-only">
-$ pacman -Qo /usr/bin/ls
-/usr/bin/ls is owned by coreutils 9.12-2
-</pre><p>The missing flags are <code>-Qo</code>. Captured on an Arch Linux workstation, 2026-10-21; your output will differ with its package version.</p>
-</details>
-<h3>Independent task</h3>
-<p>Choose one tool you use. Locate it with <code>command -v</code>, resolve
-its path with <code>readlink -f</code> if appropriate, then identify its
-owner. A function, alias, wrapper or Mise shim requires another step; a
-Nix store path alone does not identify which deployment selected it.</p>
-<details class="solution">
-<p>Record the typed name, selected path, resolved path, owner and installed version. Query pacman only for native files; inspect the tracked Home Manager declaration, Mise tool selection or recorded Tamlinux assembly for the other layers. If ownership remains unclear, leave the update pending rather than changing several managers.</p>
-</details>
-<h3>Choosing</h3>
-<table><tr><th>Layer</th><th>Owner</th><th>Recovery evidence needed</th></tr>
-<tr><td>Rootstock and drivers</td><td>Native Arch packages; separately reviewed AUR packages</td><td>Native recovery checkpoint and boot recovery where relevant</td></tr>
-<tr><td>Tamlinux product</td><td>Recorded tamlinux-packages assembly via tam-deploy</td><td>Retained exact package assembly and generation, plus mutable state recovery</td></tr>
-<tr><td>User tools</td><td>Tracked Home Manager or Mise declaration</td><td>Prior declaration and available generation or tool version</td></tr></table>
-<aside class="tamlinux"><p><code>tam-update --check</code> previews native
-repository upgrades using checkupdates; it does not cover Home Manager or
-Mise. It can refuse while inherited repositories remain active, and it needs
-the native pacman-contrib tool. A refusal is not permission to bypass the
-guard. Applying an update is a separate operation with recovery prerequisites.</p>
-<p>Tamlinux product Test, Run and return operations use a recorded package
-assembly and the developer's instruction for that exact candidate. Direct
-activation of an arbitrary Home Manager generation is not that workflow.</p></aside>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Updated version is not running</td><td>Different executable on PATH or an old process</td><td>Selected path and process version</td><td>Resolve ownership; restart only after saving work and reading the procedure</td></tr>
-<tr><td>pacman reports no owner</td><td>File belongs elsewhere or is unmanaged</td><td>Resolved path and manager declarations</td><td>Identify the supplying layer</td></tr>
-<tr><td>Update guard refuses</td><td>Recovery evidence or cutover prerequisites missing</td><td>Read the exact message</td><td>Complete the documented handoff, without bypassing it</td></tr></table>
-<h3>Further reading</h3>
-<ul><li><cite data-ref="pacman"><a href="learn/bibliography/pacman.html">Source: pacman</a></cite>; <a href="man:pacman(8)">pacman(8)</a>: query versus transaction operations.</li>
-<li><a href="maintain/logs.html?level=2">Logs</a>: narrow evidence to the affected time and service; keep this exercise read-only.</li>
-<li><a href="https://github.com/greenermoose/tamlinux-packages/blob/develop/docs/deployment.md">Deployment contract (online)</a>: assembly identity and recovery boundaries.</li></ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary>A native update preview is empty, but a Mise-managed tool is old. What follows?</summary>
-<p>The preview only covers native repository packages. Check the tracked Mise declaration and installed tool version; do not assume an empty native preview covers it.</p>
-</details>
-<details class="q">
-<summary>A new Tamlinux package breaks the desktop. Is any old Home Manager activation an equivalent return?</summary>
-<p>No. Identify the recorded retained assembly and generation and use the approved tam-deploy return procedure, preserving mutable data as required. A generation alone does not establish the full candidate identity.</p>
-</details>
-</section>
-</section>
-<section data-level="expert">
-<h2>Separate a path from an open file</h2>
-<p><strong>Reference:</strong> replacing a directory entry does not redirect
-existing open descriptors or mappings to the replacement inode. An unlinked
-file's data remains available while it is referenced. This does not imply
-that every updater uses the same replacement algorithm.</p>
-<h3>How it works</h3>
-<p>Compare <a href="man:rename(2)">rename(2)</a> with
-<a href="man:unlink(2)">unlink(2)</a>. Replacing a name and truncating an
-existing inode are different operations. Truncation can affect existing
-readers; renaming another file over the name preserves the old open file.</p>
-<h3>Explore</h3>
-<p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Run the first line on its own; if
-it reports an error, stop. Run the second line and stop if it reports an
-error too. Keep this terminal open while you work through the section.</p>
-<pre data-risk="scratch">
-work=$(mktemp -d)
-cd "$work"
-</pre>
-<pre class="session" data-risk="scratch">
-$ printf &#x27;%s\n&#x27; old &gt; active.txt
-$ exec 3&lt;active.txt
-$ printf &#x27;%s\n&#x27; new &gt; replacement.txt
-$ mv replacement.txt active.txt
-$ cat active.txt
-new
-$ cat &lt;&amp;3
-old
-$ exec 3&lt;&amp;-
-</pre>
-<p>Captured on Arch Linux, 2026-10-21. Descriptor 3 sees old; reopening the
-name sees new. No package, service or real application was changed.</p>
-<h3>Why this boundary matters on Tamlinux</h3>
-<p><cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Source: deployment contract</a></cite>.</p>
-<p>The package assembly records exact component revisions and output paths.
-The deployment contract retains a previous package and generation before
-activation. That ties recovery to known bytes; restoring mutable settings
-or documents remains a separate responsibility.</p>
-<h3>Edge cases and cost</h3>
-<p>A process can mix old mappings with newly opened plugins or configuration.
-Detecting an unlinked file does not prove that a process is faulty or that a
-restart is sufficient. Replaced files can retain disk space until their last
-reference closes; broad scans and unnecessary restarts have costs. Scope
-inspection to the affected process and version first. Kernel or firmware
-changes need their own recovery procedure and may require rebooting.</p>
-<h3>Finish the exercise</h3>
-<p>Remove only the exercise files you created, then leave and remove the
-temporary directory. If a named file is missing, remove its name from the
-first command; if the directory is not empty, inspect it before removing more.</p>
-<pre data-risk="scratch">
-rm -- active.txt
-cd /tmp
-rmdir -- "$work"
-</pre>
-<h3>Think through a diagnosis</h3>
-<p>First verify what command PATH selects. If it resolves to the expected
-package but an existing application reports its old version, compare a new
-invocation with the existing process. Only then examine mappings and
-descriptors. This separates wrong selection from an old process without
-repeating the update. This is a diagnostic method, not an observed incident.</p>
+<p>Captured on an Arch Linux workstation, 2026-10-21. <code>-Qo</code> identifies the package responsible for a specific filesystem path.</p>
+
 <h3>Sources</h3>
-<ul><li><a href="man:proc_pid_exe(5)">proc_pid_exe(5)</a>: executable identity.</li>
-<li><a href="man:rename(2)">rename(2)</a> and <a href="man:unlink(2)">unlink(2)</a>: name replacement and lifetime.</li>
-<li><a href="https://github.com/greenermoose/tamlinux-packages/blob/develop/docs/deployment.md">Tamlinux deployment contract (online)</a>: retained packages and mutable state.</li></ul>
-<h3>Improve it</h3>
-<p>Bring a minimal read-only reproduction to the public
-<a href="https://github.com/greenermoose/tam">tam repository (online)</a>.
-Include selected and running versions; omit personal paths and log contents.</p>
+<ul><li><a href="man:pacman(8)">pacman(8)</a>: package manager utility.</li>
+<li><cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Tamlinux Architecture</a></cite>: rootstock, cultivar, and generational rollbacks.</li></ul>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
-<details class="q open">
-<summary>Why can a correct on-disk version coexist with an old running version, and when is restarting insufficient?</summary>
-<p>The running process can retain the old executable or mappings after replacement. Restarting may load the new version, but does not fix a wrong PATH selection, restore mutable state, or substitute for kernel/firmware recovery. Establish the affected layer first.</p>
+<details class="q">
+<summary>Why must the rollback boundary match the layer being updated?</summary>
+<p>Reverting a user configuration generation cannot undo changes made to the root filesystem packages, and vice versa. Each layer requires its corresponding recovery tool.</p>
 </details>
 </section>
 </section>
+
 <h2>Where next</h2>
-<p><a href="learn/paths/keep-it-healthy.html">Keep it healthy</a> combines
-ownership, log reading and a recovery plan without performing a deployment.</p>
+<p><a href="maintain/rollback.html">Returning to an earlier working state</a> explains rollbacks; switch to level 2 for the step-by-step learning path.</p>
 </body>
 </html>

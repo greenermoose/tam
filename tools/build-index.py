@@ -25,10 +25,27 @@ import sys
 import argparse
 from pathlib import Path
 
-LEVELS = ("beginner", "intermediate", "expert")
+LEVELS = ("beginner", "intermediate", "expert", "novice", "learner")
+CANONICAL_LEVELS = ("novice", "learner", "expert")
+LEGACY_LEVELS = ("beginner", "intermediate", "expert")
 TRACKS = ("install", "learn", "use", "maintain", "improve")
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+def level_matches(skill_level, page_levels):
+    if skill_level in page_levels:
+        return True
+    if skill_level == "beginner" and "novice" in page_levels:
+        return True
+    if skill_level == "intermediate" and "learner" in page_levels:
+        return True
+    return False
+
+
+def order_levels(declared):
+    order = CANONICAL_LEVELS if any(lvl in ("novice", "learner") for lvl in declared) else LEGACY_LEVELS
+    return [v for v in order if v in declared]
 
 
 def extract_attr(tag, attr):
@@ -135,7 +152,7 @@ def parse_page(root, path, rel_path, errors):
             if unknown or not declared:
                 errors.append(f"{rel_path}: unknown level {', '.join(unknown) or '(empty)'}"
                               f" (expected {', '.join(LEVELS)})")
-            levels = [v for v in LEVELS if v in declared] or ["beginner"]
+            levels = order_levels(declared) or ["beginner"]
         elif name_lower == "track":
             track = content.strip().lower()
             if track not in TRACKS and not (rel_path == "index.html" and track == ""):
@@ -441,7 +458,7 @@ def learning_metadata(knowledge, entries, errors):
         for skill in entry["skills"]:
             if skill not in known:
                 errors.append(f"{path}: unknown skill ID {skill!r}")
-            elif kind != "path" and known[skill]["level"] not in entry["levels"]:
+            elif kind != "path" and not level_matches(known[skill]["level"], entry["levels"]):
                 errors.append(f"{path}: skill {skill!r} is outside the declared page levels")
         if len(entry["skills"]) != len(set(entry["skills"])):
             errors.append(f"{path}: duplicate skill IDs")
@@ -468,9 +485,35 @@ def learning_metadata(knowledge, entries, errors):
             continue
         for section in parsed[path].sections:
             level = section["attrs"]["data-level"]
-            if level not in {"beginner", "intermediate"}:
+            if level not in {"beginner", "intermediate", "novice", "learner"}:
                 continue
             text = " ".join(section["text"]).lower()
+            if level == "novice":
+                forbidden = []
+                if "goal:" in text:
+                    forbidden.append("goal:")
+                if "try it" in text:
+                    forbidden.append("try it")
+                if section["quiz"]:
+                    forbidden.append("quiz")
+                if forbidden:
+                    msg = f"{path}: novice anatomy: forbidden " + ", ".join(forbidden)
+                    if entry["track"] in enforce_tracks:
+                        errors.append(msg)
+                    else:
+                        warnings.append({"path": path, "level": level, "forbidden": forbidden})
+                continue
+            if level == "learner":
+                required = ["goal:", "worked example", "try it", "if it goes wrong", "learning path:"]
+                missing = [name for name in required if name not in text]
+                if not section["quiz"]:
+                    missing.append("quiz")
+                if missing:
+                    if entry["track"] in enforce_tracks:
+                        errors.append(f"{path}: learner anatomy: missing " + ", ".join(missing))
+                    else:
+                        warnings.append({"path": path, "level": level, "missing": missing})
+                continue
             required = (["goal:", "why it matters:", "before you start:", "worked example",
                          "try it", "if it goes wrong", "new words", "next step"]
                         if level == "beginner" else

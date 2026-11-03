@@ -22,16 +22,20 @@ enum {
     TAM_LEVEL_EXPERT       = 1u << 2
 };
 
+#define TAM_LEVEL_NOVICE   TAM_LEVEL_BEGINNER
+#define TAM_LEVEL_LEARNER  TAM_LEVEL_INTERMEDIATE
+
 #define TAM_LEVEL_ALL \
     (TAM_LEVEL_BEGINNER | TAM_LEVEL_INTERMEDIATE | TAM_LEVEL_EXPERT)
 
-/* One level name ("beginner"|"1", "intermediate"|"2", "expert"|"3";
- * case-insensitive) to its bit, or 0 when the name is not a single level. */
+/* One level name ("novice"|"beginner"|"1", "learner"|"intermediate"|"2",
+ * "expert"|"3"; case-insensitive) to its bit, or 0 when the name is not
+ * a single level. */
 unsigned tam_level_parse(const char *name);
 
 /* Parse a CLI or query level argument ("0"|"all" -> *level = 0, returns 1;
- * "1"|"beginner", "2"|"intermediate", "3"|"expert" -> *level = bit, returns 1;
- * anything else -> returns 0). */
+ * "1"|"novice"|"beginner", "2"|"learner"|"intermediate", "3"|"expert"
+ * -> *level = bit, returns 1; anything else -> returns 0). */
 int tam_level_parse_arg(const char *arg, unsigned *level);
 
 /* A comma- or space-separated list of level names to a mask. Unknown names
@@ -47,7 +51,7 @@ int tam_level_count(unsigned mask);
 /* Write the levels of a mask, ladder order, joined by `sep`. Returns `out`. */
 char *tam_level_format(unsigned mask, const char *sep, char *out, size_t cap);
 
-/* Display label ("All", "Beginner", "Intermediate", "Expert") and key
+/* Display label ("All", "Novice", "Learner", "Expert") and key
  * number (0-3) of a lens; 0 is All. */
 const char *tam_level_label(unsigned bit);
 int tam_level_number(unsigned bit);

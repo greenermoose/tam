@@ -16,9 +16,9 @@ static const struct {
     const char *num;
     const char *label;
 } LEVELS[] = {
-    { TAM_LEVEL_BEGINNER,     "beginner",     "1", "Beginner" },
-    { TAM_LEVEL_INTERMEDIATE, "intermediate", "2", "Intermediate" },
-    { TAM_LEVEL_EXPERT,       "expert",       "3", "Expert" },
+    { TAM_LEVEL_NOVICE,  "novice",  "1", "Novice" },
+    { TAM_LEVEL_LEARNER, "learner", "2", "Learner" },
+    { TAM_LEVEL_EXPERT,  "expert",  "3", "Expert" },
 };
 
 #define NLEVELS (sizeof(LEVELS) / sizeof(LEVELS[0]))
@@ -33,6 +33,13 @@ unsigned tam_level_parse(const char *name)
             strcmp(name, LEVELS[i].num) == 0) {
             return LEVELS[i].bit;
         }
+    }
+    /* Backwards compatibility aliases: beginner -> novice (1), intermediate -> learner (2) */
+    if (strcasecmp(name, "beginner") == 0) {
+        return TAM_LEVEL_NOVICE;
+    }
+    if (strcasecmp(name, "intermediate") == 0) {
+        return TAM_LEVEL_LEARNER;
     }
     return 0;
 }
@@ -486,10 +493,10 @@ static void level_lines(buf_t *b, unsigned shown, unsigned level,
     buf_str(b, "<p class=\"level-line\">Showing ");
     switch (tam_level_number(level)) {
     case 1:
-        buf_str(b, "<span class=\"lvl-1\">1: beginner</span> level text");
+        buf_str(b, "<span class=\"lvl-1\">1: novice</span> level text");
         break;
     case 2:
-        buf_str(b, "<span class=\"lvl-2\">2: intermediate</span> level text");
+        buf_str(b, "<span class=\"lvl-2\">2: learner</span> level text");
         break;
     case 3:
         buf_str(b, "<span class=\"lvl-3\">3: expert</span> level text");

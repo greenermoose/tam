@@ -186,8 +186,8 @@ Readers see the text that `tam show` renders, not the HTML.
   validates the `topic`, `summary`, `keywords`, `level`, `track` and
   `prereqs` metadata, the `data-level` sections and blocks, and the breadcrumb.
 - In the All view the first heading of each tagged section receives its level
-  label automatically. Do not hand-type `Beginner:`, `Intermediate:` or
-  `Expert:` prefixes; the linter rejects them.
+  label automatically. Do not hand-type `Novice:`, `Learner:`, `Beginner:`,
+  `Intermediate:` or `Expert:` prefixes; the linter rejects them.
 - `details.q` requires a `summary` question and a nonempty answer body. Answers
   start folded in the pager; pipe output collects them under `Answers` at the
   enclosing section's end. See the pedagogy contract for other fold classes.

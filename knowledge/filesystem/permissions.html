@@ -5,7 +5,7 @@
 <meta name="topic" content="permissions">
 <meta name="summary" content="Inspect and change permissions safely, then reason about directory access">
 <meta name="keywords" content="permissions, chmod, chown, umask, links, ownership, rwx, setgid, sticky">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="prereqs" content="filesystem">
@@ -15,33 +15,49 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Who can use a file</p></nav>
 <h1>Who can use a file</h1>
-<p>This page explains how to control who can read, change, or run information stored on a computer.</p>
-<p>Permissions are rules about who can use a file, such as a document or picture. Try the examples on temporary files before changing your own documents.</p>
-<section data-level="beginner">
+<p>This page explains how to control who can read, modify, or run files stored on your system.</p>
+
+<section data-level="novice">
+<h2>Understanding file permissions</h2>
+<p>On a Linux computer, every file and folder has security rules attached to it. These rules are called permissions. Permissions decide who is allowed to open a document, who is allowed to change or delete it, and who is allowed to run a program or script.</p>
+
+<h3>Why it matters</h3>
+<p>Permissions protect your files from accidental damage and prevent unauthorized users or background programs from reading private data. By setting appropriate permissions, you can share a file with collaborators while keeping your personal documents private.</p>
+
+<h3>How to think about it</h3>
+<p>Think of file permissions like keys to rooms in an office building. The person who created the file is the owner (holding the office key). A designated team belongs to the group (holding a shared meeting room key). Everyone else is in the "other" category (allowed in the public lobby, but locked out of private offices).</p>
+<p>There are three kinds of actions you can permit or deny:</p>
+<ul>
+<li><strong>Read (r):</strong> viewing or copying the contents of a file.</li>
+<li><strong>Write (w):</strong> modifying the contents, renaming, or deleting the file.</li>
+<li><strong>Execute (x):</strong> running the file as a program or script.</li>
+</ul>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/mode.html">Mode</a></dfn></dt><dd>The combination of read, write, and execute permissions attached to a file.</dd>
+<dt><dfn><a href="learn/glossary/owner.html">Owner</a></dfn></dt><dd>The user account that owns a file and controls who may access it.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Run your own small script</h2>
-<p><strong>Goal:</strong> you will be able to add execute permission for
-yourself and confirm the result.</p>
-<p><strong>Why it matters:</strong> a downloaded or newly written script may
-be readable without being directly executable. You can grant just the access
-you intend.</p>
-<p><strong>Before you start:</strong> read <a href="filesystem/index.html?level=1">filesystem basics</a>.
-This example creates one script in a temporary directory.</p>
-<aside class="first-time"><p>Enter commands in a terminal one line at a
-time. Do not type the leading <code>$</code> shown in sessions. A command
-that prints nothing can still have succeeded. <code>./hello.sh</code> means
-the file named hello.sh in the current directory.</p></aside>
+<p><strong>Goal:</strong> you will be able to add execute permission for yourself and confirm the result.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Securing Files and Ownership</strong> &mdash;
+<a href="filesystem/index.html?level=2">Start</a> |
+<a href="filesystem/index.html?level=2">&larr; Back</a> |
+<a href="filesystem/index.html?level=2">Next &rarr;</a></p>
+</nav>
+
 <h3>Worked example</h3>
-<p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Run the first line on its own; if
-it reports an error, stop. Run the second line and stop if it reports an
-error too. Keep this terminal open while you work through the section.</p>
+<p>Make a new temporary directory and enter it:</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
 </pre>
-<p><code>mktemp -d</code> creates a new temporary directory. The first line
-saves its name as <code>work</code>; <code>cd "$work"</code> moves your
-shell into that directory. Use the same terminal for the remaining commands.</p>
+<p>Now write a two-line test script and check its permissions:</p>
 <pre class="session" data-risk="scratch">
 $ printf &#x27;%s\n&#x27; &#x27;#!/bin/sh&#x27; &#x27;printf &quot;hello\n&quot;&#x27; &gt; hello.sh
 $ chmod 600 hello.sh
@@ -53,216 +69,101 @@ $ stat -c &#x27;%A %a %n&#x27; hello.sh
 $ ./hello.sh
 hello
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. GNU <code>stat</code> omits variable
-owner names, sizes and timestamps from this display.</p>
+<p>Captured on Arch Linux, 2026-10-21. GNU <code>stat</code> omits user names, sizes, and timestamps from this format.</p>
+
 <h3>What just happened</h3>
-<ol><li><code>printf</code> writes a two-line shell script.</li>
-<li><code>chmod 600</code> sets a known starting mode: only the owner can
-read and write.</li><li><code>chmod u+x</code> adds execute for the owner
-(user) without granting it to group or others.</li><li><code>stat</code>
-shows the <dfn><a href="learn/glossary/mode.html">mode</a></dfn> change;
-running the script prints hello.</li></ol>
+<ol>
+<li><code>printf</code> writes a two-line shell script into <code>hello.sh</code>.</li>
+<li><code>chmod 600</code> sets a private mode: only the owner can read and write.</li>
+<li><code>chmod u+x</code> adds execute permission for the user (owner) without changing group or other access.</li>
+<li><code>stat</code> verifies that mode <code>600</code> became <code>700</code> (<code>-rwx------</code>).</li>
+<li>Running <code>./hello.sh</code> executes the script and prints hello.</li>
+</ol>
+
 <h3>Try it</h3>
-<p>In this scratch directory, use <code>chmod u-x hello.sh</code>. Inspect
-with the same stat command. Add execute back before trying the script again.</p>
+<p>In your temporary directory, remove execute permission using <code>chmod u-x hello.sh</code>. Inspect the mode with <code>stat -c '%A %a %n' hello.sh</code>, try running <code>./hello.sh</code>, and notice the error. Then add execute permission back with <code>chmod u+x hello.sh</code>.</p>
+
 <h3>If it goes wrong</h3>
-<dl><dt>No such file or directory</dt><dd>Check the spelling and current
-directory with <code>pwd</code> and <code>ls</code>.</dd>
-<dt>Permission denied when executing</dt><dd>Check the owner execute bit.
-A noexec mount can also prevent direct execution; do not change mount
-settings for this exercise. <code>sh hello.sh</code> can read this known
-script even without its execute bit.</dd></dl>
-<h3>Finish the exercise</h3>
-<p>Remove only the exercise files you created, then leave and remove the
-temporary directory. If a named file is missing, remove its name from the
-first command; if the directory is not empty, inspect it before removing more.</p>
+<dl>
+<dt>Permission denied when executing</dt>
+<dd>Check that the file has owner execute permission (<code>-rwx------</code> or mode <code>700</code>). Also verify that you typed <code>./hello.sh</code> to indicate the current directory.</dd>
+<dt>No such file or directory</dt>
+<dd>Check your spelling and use <code>pwd</code> and <code>ls</code> to verify you are still inside the temporary directory.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, permissions follow standard Linux POSIX rules. The Guide lens filters which explanations and exercises are displayed; it does not change permissions on disk.</p>
+</aside>
+
+<h3>Clean up</h3>
 <pre data-risk="scratch">
 rm -- hello.sh
 cd /tmp
 rmdir -- "$work"
 </pre>
-<h3>New words</h3>
-<dl><dt><dfn><a href="learn/glossary/mode.html">Mode</a></dfn></dt><dd>The permission bits attached to a file.</dd>
-<dt><dfn><a href="learn/glossary/owner.html">Owner</a></dfn></dt><dd>The user whose identity selects the owner permission bits.</dd></dl>
-<h3>Next step</h3>
-<p>Choose level 2 for numeric modes and directory access, or continue to
-<a href="shell/pipelines.html?level=1">pipelines</a>.</p>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
 <details class="q">
 <summary>Which command adds execute only for the owner: chmod u+x or chmod a+x?</summary>
-<p>chmod u+x. The a form asks for owner, group and others; u changes only the owner class.</p>
+<p>chmod u+x. The a form changes owner, group, and others; u changes only the owner class.</p>
 </details>
 <details class="q">
 <summary>Does chmod printing no output mean that it failed?</summary>
-<p>No. Successful chmod is normally silent. Inspect the mode with stat; an error message or nonzero exit status signals failure.</p>
+<p>No. A successful chmod command is normally silent. Inspect the mode with stat; an error message or nonzero exit status indicates failure.</p>
 </details>
 </section>
 </section>
-<section data-level="intermediate">
-<h2>Choose modes for private and shared work</h2>
-<p><strong>Goal:</strong> choose file and directory modes without granting
-unnecessary write access.</p>
-<h3>Mental model</h3>
-<pre>owner | group | other
- r w x | r w x | r w x
- 4 2 1 | 4 2 1 | 4 2 1</pre>
-<p>Add the values within each class: 6 is read+write, 7 adds execute.
-For a directory, read lists names, execute searches/traverses, and write
-permits changing entries when search access is also available.</p>
-<h3>Worked example</h3>
-<p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Run the first line on its own; if
-it reports an error, stop. Run the second line and stop if it reports an
-error too. Keep this terminal open while you work through the section.</p>
-<pre data-risk="scratch">
-work=$(mktemp -d)
-cd "$work"
-</pre>
-<pre class="session" data-risk="scratch">
-$ mkdir shared
-$ chmod 2770 shared
-$ stat -c &#x27;%A %a %n&#x27; shared
-drwxrws--- 2770 shared
-$ (umask 0027; printf &#x27;%s\n&#x27; note &gt; shared/note.txt)
-$ stat -c &#x27;%A %a %n&#x27; shared/note.txt
--rw-r----- 640 shared/note.txt
-</pre>
-<p>Captured on Arch Linux, 2026-10-21, in a fresh directory without default
-ACLs. The leading 2 sets SetGID: children inherit the directory's group.
-It does not grant group write. The umask removes requested creation
-permissions; 0027 yields 0640 for this ordinary file creation.</p>
-<h3>Completion task</h3>
-<p>Create <code>note.txt</code> containing private, then fill the mode in
-<code>chmod ___ note.txt</code> so its owner can read/write, its group can
-read, and others have no access. Inspect it with stat.</p>
-<details class="solution">
-<pre class="session" data-risk="scratch">
-$ printf &#x27;%s\n&#x27; private &gt; note.txt
-$ chmod 640 note.txt
-$ stat -c &#x27;%A %a %n&#x27; note.txt
--rw-r----- 640 note.txt
-</pre><p>Use 640: 4+2 for the owner, 4 for the group, 0 for others. Captured on Arch Linux, 2026-10-21.</p>
-</details>
-<h3>Independent task</h3>
-<p>Create a directory named private that only you can list, enter and change.</p>
-<details class="solution">
-<pre class="session" data-risk="scratch">
-$ mkdir private
-$ chmod 700 private
-$ stat -c &#x27;%A %a %n&#x27; private
-drwx------ 700 private
-</pre><p>Directory execute allows traversal. Read/write without execute is insufficient for ordinary directory use. Captured on Arch Linux, 2026-10-21.</p>
-</details>
-<h3>Choosing</h3>
-<table><tr><th>Intent</th><th>Mode or operation</th></tr>
-<tr><td>Private file</td><td>600</td></tr><tr><td>Private directory</td><td>700</td></tr>
-<tr><td>Group collaboration directory</td><td>2770, with the correct group and creation policy</td></tr>
-<tr><td>Restrict deletion in a shared directory</td><td>Sticky bit (1000); distinct from SetGID (2000)</td></tr></table>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Readable file cannot be opened</td><td>Parent lacks search permission</td><td>Inspect each parent</td><td>Grant only the necessary traversal access</td></tr>
-<tr><td>New group files are not writable</td><td>Creation mask removes write</td><td>Inspect umask and default ACL</td><td>Agree on a creation policy; SetGID alone is insufficient</td></tr>
-<tr><td>Unexpected access beyond mode bits</td><td>ACL or privileged process</td><td>Read acl(5)</td><td>Inspect the full access policy before changing bits</td></tr></table>
-<aside class="tamlinux"><p>Practice here does not change package-managed
-files. Product delivery uses recorded packages; recursive chmod on installed
-software is not a Tamlinux update or repair method.</p></aside>
-<h3>Finish the exercise</h3>
-<p>Remove files made by tasks you attempted; omit names you did not create.
-Remove the empty directories last.</p>
-<pre data-risk="scratch">
-rm -- shared/note.txt note.txt
-rmdir -- shared private
-cd /tmp
-rmdir -- "$work"
-</pre>
-<h3>Further reading</h3>
-<ul><li><cite data-ref="coreutils"><a href="learn/bibliography/coreutils.html">Source: coreutils</a></cite>; <a href="man:chmod(1)">chmod(1)</a>: symbolic and numeric modes.</li>
-<li><a href="man:umask(2)">umask(2)</a>: creation masks and default ACLs.</li>
-<li><a href="man:acl(5)">acl(5)</a>: permissions beyond the basic mode bits.</li></ul>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Answer before revealing the explanation.</p>
-<details class="q">
-<summary>A team directory has SetGID but new files are not group-writable. Which property should you check?</summary>
-<p>Check the creating program mode, umask and default ACL. SetGID controls group inheritance, not the file write bits.</p>
-</details>
-<details class="q">
-<summary>A user can write a file but cannot remove its name. Is that contradictory?</summary>
-<p>No. Changing file data uses file access; removing a name uses permissions on the containing directory and may be restricted by the sticky bit.</p>
-</details>
-</section>
-</section>
+
 <section data-level="expert">
-<h2>Reason about inodes and access checks</h2>
-<p><strong>Reference:</strong> Linux <code>st_mode</code> combines file-type
-and permission bits. Use <code>S_IFMT</code> and the <code>S_IS*</code>
-macros rather than assuming the C type has a fixed width. Ordinary access
-also depends on process credentials, ACLs, mount flags and security policy.</p>
-<h3>How it works</h3>
-<p>Hard links name the same inode; chmod through either name changes the
-same mode. Symlinks have separate inodes; normal chmod follows their
-targets. See stat(2), path_resolution(7) and capabilities(7).</p>
-<table><tr><th>Special bit</th><th>Linux meaning</th></tr>
-<tr><td>04000 SetUID</td><td>Credential effect on eligible executable files, subject to kernel restrictions; ignored on shell scripts</td></tr>
-<tr><td>02000 SetGID</td><td>Credential effect on eligible executables; group inheritance on directories</td></tr>
-<tr><td>01000 sticky</td><td>Restricts removal/rename in directories to the file owner, directory owner or a suitably privileged process</td></tr></table>
-<h3>Explore</h3>
-<p>For this section, make a new temporary directory and enter it. These
-commands print nothing when they succeed. Run the first line on its own; if
-it reports an error, stop. Run the second line and stop if it reports an
-error too. Keep this terminal open while you work through the section.</p>
+<h2>Numeric modes, bitmasks, and directory access</h2>
+<p><strong>Reference:</strong> each permission set has three bits: read (4), write (2), execute (1). Modes are three or four octal digits: special bits (setuid 4000, setgid 2000, sticky 1000), user, group, other.</p>
+
+<table><tr><th>Mode</th><th>Symbolic</th><th>Meaning</th></tr>
+<tr><td><code>644</code></td><td><code>rw-r--r--</code></td><td>Owner read/write; group and others read-only</td></tr>
+<tr><td><code>755</code></td><td><code>rwxr-xr-x</code></td><td>Owner read/write/execute; others read/execute</td></tr>
+<tr><td><code>700</code></td><td><code>rwx------</code></td><td>Owner only; private directory or script</td></tr>
+<tr><td><code>1777</code></td><td><code>rwxrwxrwt</code></td><td>Sticky directory (e.g. <code>/tmp</code>): users delete only their own files</td></tr>
+</table>
+
+<h3>Directory permissions vs file permissions</h3>
+<p>On directories, the execute bit (<code>x</code>) means search/traversal: the right to enter the directory and access files inside. The read bit (<code>r</code>) allows listing directory entries. Without <code>x</code>, a user cannot access inodes inside even if they know file names.</p>
+
+<h3>Illustrative reference</h3>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
+mkdir -m 700 private
+touch private/secret.txt
+chmod 600 private/secret.txt
+stat -c '%A %a %n' private private/secret.txt
 </pre>
-<pre class="session" data-risk="scratch">
-$ printf &#x27;%s\n&#x27; original &gt; original
-$ chmod 600 original
-$ ln original alias
-$ chmod 640 alias
-$ stat -c &#x27;%a %h %n&#x27; original alias
-640 2 original
-640 2 alias
-</pre>
-<p>Captured on Arch Linux, 2026-10-21. Both names report mode 640 and link
-count 2. Changing a hard link's permissions does not isolate its contents.</p>
-<h3>Edge cases and cost</h3>
-<p>A read-only mount, immutable attribute or security module can deny an
-operation even when mode bits allow it. GNU chmod treats directory SetGID
-preservation specially; consult its manual before assuming a numeric mode
-clears every special bit. Recursive permission changes cost filesystem walks
-and can damage unrelated access; diagnose the failing path first.</p>
-<h3>Finish the exercise</h3>
-<p>Remove only the exercise files you created, then leave and remove the
-temporary directory. If a named file is missing, remove its name from the
-first command; if the directory is not empty, inspect it before removing more.</p>
+
+<h3>Clean up</h3>
 <pre data-risk="scratch">
-rm -- original alias
+rm -- private/secret.txt
+rmdir -- private
 cd /tmp
 rmdir -- "$work"
 </pre>
+
 <h3>Sources</h3>
-<ul><li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Source: linux-api</a></cite>; <a href="man:stat(2)">stat(2)</a>: mode bits and inode metadata.</li>
-<li><a href="man:path_resolution(7)">path_resolution(7)</a>: traversal.</li>
-<li><a href="man:capabilities(7)">capabilities(7)</a>: privileged checks.</li>
-<li><a href="info:coreutils/File permissions">GNU file permissions</a>: special mode behavior.</li></ul>
-<h3>Improve it</h3>
-<p>These are Linux permission rules rather than a Tamlinux access-control
-extension. Propose clearer diagnostic examples in the public
-<a href="https://github.com/greenermoose/tam">tam repository (online)</a>.</p>
+<ul><li><a href="man:chmod(1)">chmod(1)</a>: file mode manipulation.</li>
+<li><a href="man:stat(1)">stat(1)</a>: display file and filesystem status.</li>
+<li><a href="man:umask(2)">umask(2)</a>: file mode creation mask.</li></ul>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
-<details class="q open">
-<summary>How would you distinguish a directory traversal failure from a file ACL failure?</summary>
-<p>Inspect search permission along the path first, using the failing identity. Then inspect the target mode and ACL, followed by mount and security policy. A single ls on the target does not establish access through all ancestors.</p>
+<details class="q">
+<summary>Can a user read a file in a directory if they have read permission on the file but no execute (x) on the directory?</summary>
+<p>No. Directory execute permission is required to traverse into the directory to reach the file's inode.</p>
 </details>
 </section>
 </section>
+
 <h2>Where next</h2>
-<p><a href="filesystem/index.html">Filesystem hierarchy</a> supplies context;
-<a href="shell/pipelines.html">pipelines</a> turns observations into reports.</p>
+<p><a href="filesystem/index.html">Files and folders</a> explains directory structures; switch to level 2 for the step-by-step learning path.</p>
 </body>
 </html>

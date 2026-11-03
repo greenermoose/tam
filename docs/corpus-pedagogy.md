@@ -41,29 +41,29 @@ Two rules are Tamlinux's own:
 
 ## Terms
 
-- **Level:** Beginner (1), Intermediate (2) or Expert (3). **All** (0) shows
-  every level. The reader's chosen level is their *lens*. Pages declare levels
-  in `<meta name="level">`.
-- **Path:** a reading order. *Level paths* are `beginner.html`,
-  `intermediate.html` and `expert.html`. *Goal paths* live in `learn/paths/`
-  and are named by what the reader gains.
+- **Level:** Novice (1), Learner (2) or Expert (3) (D221, amending D184).
+  **All** (0) shows every level. The reader's chosen level is their *lens*.
+  Pages declare levels in `<meta name="level">`. `beginner` and `intermediate`
+  remain accepted backwards-compatible aliases for Novice and Learner.
+- **Path:** a reading order through the material. Learning paths are embedded
+  directly inside every topic page's Learner (2) text, showing the starting
+  point (`Start`), previous stop (`Back`), and next stop (`Next`) with
+  `?level=2`. The separate `Learning` (`learn/`) corpus track is eliminated in
+  favor of discovery within each page.
 - Do not call levels "depths" or "routes". Boot pages keep "fallback route"
   and "rescue route" for their own meaning.
 
 ## What each level means
 
-| | Beginner (1) | Intermediate (2) | Expert (3) |
+| | Novice (1) | Learner (2) | Expert (3) |
 | --- | --- | --- | --- |
-| Dreyfus stage | Novice to advanced beginner | Competent | Proficient to expert |
-| The reader asks | What do I type, and what should I see? | How does it work, and which option fits? | What exactly happens, why, and how do I change it? |
-| Afterwards they can | Complete the task safely by following steps, recognize success, undo it | Adapt to a new case, diagnose common failures, choose between options | Explain the internals, handle failures nobody has seen before, extend the system, contribute |
-| Usual Diátaxis kind | Tutorial, how-to | How-to, explanation | Reference, explanation |
-| Examples | Complete worked example with captured output | Faded example, then a completion task, then an independent task | Precise semantics, edge cases, experiments |
-| Questions | Recall; predict the output | Scenario; spot the bug; classify | Trade-offs; open prompts with a model answer |
-| Safety | Scratch directory only; risky commands labeled | Risk labels; undo stated | Rollback point stated before any system change |
-
-Intermediate is not "beginner with more words". Its center is transfer
-(adapting to a new case) and troubleshooting.
+| Dreyfus stage | Complete newcomer | Competent practitioner | Proficient to expert |
+| Reader intent | Gentle introduction; assumes no prior knowledge and no interest in practicing | Wants to practice, build skills, and learn by doing | Needs reference semantics, architecture, and advanced usage |
+| Content role | Conceptual orientation: what it is, why it exists, everyday mental model, glossary definitions | The ONLY level with `Goal:` and `Try it` practice exercises, quizzes, and path links | Internals, precise semantics, edge cases, illustrative advanced examples (not student exercises) |
+| Usual Diátaxis kind | Gentle explanation | Tutorial, hands-on how-to | Reference, architectural explanation |
+| Examples | None or brief illustrative concept snippets | Complete worked example and hands-on `Try it` tasks | Advanced illustrative configurations or script pipelines |
+| Questions | None (no quiz pressure) | Check yourself self-quizzes with folded answers | Trade-offs; open prompts with model answers |
+| Learning paths | Not displayed | Embedded `Start`, `Back`, and `Next` links (`?level=2`) for discovered learning paths | Not displayed |
 
 ### Personas
 
@@ -135,48 +135,35 @@ labels. Never type "Beginner:" into a heading.
 Use these blocks in this order. Leave out a block only when it would be
 empty or false, never to save effort.
 
-**Beginner**
+**Novice (1)**
 
-1. **Goal:** one can-do sentence ("You will be able to…").
-2. **Why it matters:** one concrete paragraph.
-3. **Before you start:** prerequisites, with links, and what the commands
-   touch.
-4. **New to this?:** a folded `aside class="first-time"`.
-5. **Worked example:** exact commands, captured output, and a numbered
-   "What just happened".
-6. **Try it:** a close variation in a scratch directory.
-7. **If it goes wrong:** likely messages, what they mean, how to recover.
-8. **Check yourself:** a quiz of two to four questions.
-9. **New words:** glossary links (a short `<dl>` until the glossary exists).
-10. **Next step.**
+Assumes no prior knowledge and no interest in practicing. A gentle introduction for someone who knows nothing about the topic.
+1. **What this is:** One plain-language paragraph explaining the concept simply.
+2. **Why it matters:** What problem it solves in everyday terms.
+3. **How to think about it:** An everyday mental model or analogy.
+4. **New words:** Plain-language definitions linking to glossary terms.
+*(Novice sections never include Goal statements, Try it practice exercises, or quizzes).*
 
-**Intermediate**
+**Learner (2)**
 
-1. **Goal.**
-2. **Mental model:** how it works, with an ASCII diagram when one helps.
-3. **Worked example, completion task, independent task,** with folded
-   solutions.
-4. **Choosing:** a decision table, "use X when…".
-5. **Troubleshooting:** a table of symptom, likely cause, check, fix.
-6. **On Tamlinux:** where Tamlinux differs from generic Arch Linux, sourced.
-7. **Check yourself:** scenario questions.
-8. **Further reading:** two to four annotated references.
+The only level for active skill practice and hands-on learning.
+1. **Goal:** One can-do sentence ("You will be able to…").
+2. **Learning path:** Start, Back, and Next links (`?level=2`) for the topic's learning path.
+3. **Worked example:** Step-by-step commands with captured output and explanation.
+4. **Try it:** Practice exercises in a scratch directory for the reader to try.
+5. **If it goes wrong:** Likely errors, what they mean, and recovery steps.
+6. **On Tamlinux:** Specific Tamlinux defaults and conventions.
+7. **Check yourself:** Self-quiz with folded questions and answers explaining why.
 
-**Expert**
+**Expert (3)**
 
-1. **Reference:** precise semantics, option and descriptor tables.
-2. **How it works:** internals, with the authoritative files, manual pages,
-   specifications and public Tamlinux source paths.
-3. **Why Tamlinux chose this:** the reasoning in words. Never cite internal
-   decision identifiers.
-4. **Edge cases and failure modes,** including performance and energy cost.
-5. **Explore:** open-ended experiments, such as tracing a pipeline with
-   `strace -f`.
-6. **Case study,** when a public record supports one.
-7. **Check yourself:** open prompts with model answers.
-8. **Sources:** primary references.
-9. **Improve it:** the public repository or plan where a reader can
-   contribute.
+Reference semantics, internals, and advanced usage.
+1. **Reference:** Precise semantics, option, flag, and descriptor tables.
+2. **How it works:** Internals, authoritative kernel/system interfaces, specs, and source paths.
+3. **Advanced usage examples:** Complex commands and script patterns shown for reference and illustration (not framed as student practice exercises).
+4. **Edge cases and failure modes:** Concurrency, performance, resource limits, and signal handling.
+5. **Check yourself:** Deep trade-off and diagnostic questions with model reasoning.
+6. **Sources & Improve it:** Primary references and public contribution links.
 
 ## Worked examples
 

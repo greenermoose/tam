@@ -132,16 +132,20 @@ or
 .I LEVEL
 is
 .BR all " (" 0 ),
-.BR beginner " (" 1 ),
-.BR intermediate " (" 2 ),
+.BR novice " (" 1 ),
+.BR learner " (" 2 ),
 or
-.BR expert " (" 3 )).
+.BR expert " (" 3 );
+.B beginner
+and
+.B intermediate
+remain accepted as aliases).
 A level named this way applies to this run only. Without one, the pager
 opens at the reader's saved level (see
 .BR "Level lens" );
 piped output shows every level. A page without the selected level is shown
 whole, and its level line says so, such as
-.BR "Beginner text on Expert path (no Expert text)" .
+.BR "Novice text on Expert path (no Expert text)" .
 A second line links up to three related pages at that level: the page's
 children, then its siblings, then its parent in the Guide, such as
 .BR "See also \-> Shells | Pipelines" .
@@ -365,9 +369,9 @@ Set the level lens:
 .B 0
 All,
 .B 1
-Beginner,
+Novice,
 .B 2
-Intermediate, or
+Learner, or
 .B 3
 Expert. The current page is shown again at that level in place, without a
 history entry; see
@@ -435,7 +439,7 @@ the level of the text shown (All when it shows several), the lens path,
 linked, and whether the page lacks the lens level, such as
 .B All text
 or
-.BR "Beginner text on Expert path (no Expert text)" .
+.BR "Novice text on Expert path (no Expert text)" .
 A one-line marker shows where a section of another level is hidden. A page
 opens on its title, which the status row numbers
 .BR L1 ;
@@ -447,9 +451,9 @@ and so on, the breadcrumb row is
 and the visible range and line total count only numbered lines, as in
 .BR "L1 1-31/48" .
 The status row shows the lens as
-.B Intermediate text 0123
+.B Learner text 0123
 (100 columns or wider),
-.B Intermediate 0123
+.B Learner 0123
 (60 to 99) or
 .B 0123
 (narrower), with the lens digit underlined, or bracketed as
@@ -511,10 +515,14 @@ and
 .BI \-\-level \ LEVEL
 Filter content or topic listings to
 .BR all " (" 0 ),
-.BR beginner " (" 1 ),
-.BR intermediate " (" 2 ),
+.BR novice " (" 1 ),
+.BR learner " (" 2 ),
 or
-.BR expert " (" 3 ).
+.BR expert " (" 3 )
+(.B beginner
+and
+.B intermediate
+remain accepted aliases).
 .SH ENVIRONMENT
 .TP
 .B BROWSER
@@ -536,8 +544,8 @@ Compiled fallback directory for the knowledge corpus.
 .B TAM_LEVEL
 Level lens for the pager:
 .BR 0 | all ,
-.BR 1 | beginner ,
-.BR 2 | intermediate
+.BR 1 | novice | beginner ,
+.BR 2 | learner | intermediate
 or
 .BR 3 | expert .
 Overrides the saved lens and is never written to it.
@@ -587,8 +595,8 @@ Timestamp recording the completion of
 .I ~/.local/state/tamlinux/tam/level
 The saved level lens
 .RB ( all ,
-.BR beginner ,
-.B intermediate
+.BR novice ,
+.B learner
 or
 .BR expert ).
 .TP

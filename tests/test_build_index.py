@@ -229,7 +229,7 @@ class BuildIndex(unittest.TestCase):
                 text = page("Guide").replace("</body>", f'<{tag} data-level="beginner">Shared</{tag}></body>')
                 root = self.fixture("0.37.1", {"index.html": text})
                 self.assertEqual(self.build(root).returncode, 0)
-                for level, message in (("novice", "unknown data-level"), ("expert", "not declared")):
+                for level, message in (("bogus", "unknown data-level"), ("expert", "not declared")):
                     (root / "knowledge/index.html").write_text(text.replace('data-level="beginner"', f'data-level="{level}"'))
                     result = self.build(root)
                     self.assertNotEqual(result.returncode, 0)

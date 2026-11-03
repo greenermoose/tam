@@ -125,7 +125,7 @@ static void print_tam_help(int tier)
             "      search guide topics and keywords; results open in the pager\n"
             "  tam explain [TOPIC] [--level LEVEL] [--pipe]\n"
             "  tam whatis [TOPIC] [--level LEVEL] [--pipe]\n"
-            "      explain a concept or browse the catalog at beginner, intermediate, or expert level\n"
+            "      explain a concept or browse the catalog at novice, learner, or expert level\n"
             "  tam explain topics [--pipe] [--terse|--verbose] [--level LEVEL]\n"
             "      interactive or plain-text catalog of all available topics\n"
             "  tam man [SECTION] PAGE [--pipe]\n"
@@ -379,7 +379,7 @@ static int level_usage_error(const char *bad)
     } else {
         fprintf(stderr, TAM_COMMAND_NAME ": unknown level '%s'\n", bad);
     }
-    fprintf(stderr, "Levels: all (0), beginner (1), intermediate (2), expert (3).\n");
+    fprintf(stderr, "Levels: all (0), novice (1), learner (2), expert (3).\n");
     return TAM_EXIT_USAGE;
 }
 
@@ -555,7 +555,7 @@ static void print_explain_usage(void)
         "  tam whatis TOPIC            look up or display a topic guide for TOPIC\n"
         "  tam explain TOPIC           display a topic guide for TOPIC in the pager\n"
         "  tam explain TOPIC --pipe    print topic guide as plain text\n"
-        "  tam explain --level LEVEL [TOPIC]  filter by level (0|all, 1|beginner, 2|intermediate, 3|expert)\n"
+        "  tam explain --level LEVEL [TOPIC]  filter by level (0|all, 1|novice, 2|learner, 3|expert)\n"
         "  tam explain topics          interactive list of topics with live hyperlinks\n"
         "  tam explain topics --pipe   print available topics as plain text\n"
         "  tam explain -               read topic keyword from standard input\n\n"
