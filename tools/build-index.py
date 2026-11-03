@@ -29,6 +29,13 @@ LEVELS = ("beginner", "intermediate", "expert", "novice", "learner")
 CANONICAL_LEVELS = ("novice", "learner", "expert")
 LEGACY_LEVELS = ("beginner", "intermediate", "expert")
 TRACKS = ("install", "learn", "use", "maintain", "improve")
+# D221 pilot pages: new novice/learner anatomy is hard-enforced only here
+# until the rest of the corpus migrates (warnings elsewhere).
+D221_PILOT_PAGES = frozenset({
+    "shell/pipelines.html",
+    "filesystem/permissions.html",
+    "maintain/updates.html",
+})
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
@@ -498,7 +505,7 @@ def learning_metadata(knowledge, entries, errors):
                     forbidden.append("quiz")
                 if forbidden:
                     msg = f"{path}: novice anatomy: forbidden " + ", ".join(forbidden)
-                    if entry["track"] in enforce_tracks:
+                    if path in D221_PILOT_PAGES:
                         errors.append(msg)
                     else:
                         warnings.append({"path": path, "level": level, "forbidden": forbidden})
@@ -509,8 +516,9 @@ def learning_metadata(knowledge, entries, errors):
                 if not section["quiz"]:
                     missing.append("quiz")
                 if missing:
-                    if entry["track"] in enforce_tracks:
-                        errors.append(f"{path}: learner anatomy: missing " + ", ".join(missing))
+                    msg = f"{path}: learner anatomy: missing " + ", ".join(missing)
+                    if path in D221_PILOT_PAGES:
+                        errors.append(msg)
                     else:
                         warnings.append({"path": path, "level": level, "missing": missing})
                 continue

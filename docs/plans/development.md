@@ -1216,3 +1216,10 @@ resolve superseded schedules. Do not execute a former plan from this history.
   Section guide table (`src/man.c`), enabling scrolling to or tabbing across
   sections to highlight and follow them directly into each section index without
   interactive prompt dialogs.
+- **2026-11-02:** Command 0.48.2 (patch): D221 visible level labels
+  `1: novice` / `2: learner` / `3: expert` (`src/depth.c`, `src/depth.h`,
+  `src/tam.c`, man page and completions), with beginner/intermediate kept as
+  parser aliases.
+- **2026-11-02:** Corpus 0.63.0 (minor): D221 pilot pages with embedded learning
+  paths, `knowledge/paths.json`, pilot-only novice/learner anatomy hard-errors,
+  restored `enforce_tracks`, and guide-root level `novice`.

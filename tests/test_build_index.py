@@ -145,6 +145,34 @@ class BuildIndex(unittest.TestCase):
         registry.write_text(json.dumps(data))
         self.assertEqual(self.build(root).returncode, 0)
 
+    def test_d221_novice_learner_anatomy_errors_only_on_pilot_pages(self):
+        """Non-pilot novice/learner gaps warn; the three D221 pilots hard-fail."""
+        partial = (
+            '<section data-level="novice"><h2>Intro</h2>'
+            '<p><strong>Goal:</strong> do a thing.</p></section>'
+        )
+        def leveled(title):
+            return page(title, 'use', 'index.html').replace(
+                '<meta name="level" content="beginner">',
+                '<meta name="level" content="novice">').replace(
+                '</body>', partial + '</body>')
+        # Non-pilot path only: warning, build succeeds
+        root = self.fixture('0.63.0', {
+            'index.html': page('Guide'),
+            'shell/jobs.html': leveled('Jobs'),
+        })
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Learning warnings:', result.stdout)
+        report = json.loads((root / 'knowledge/coverage.json').read_text())
+        self.assertTrue(any(w.get('path') == 'shell/jobs.html' for w in report['warnings']))
+        # Add a pilot path with the same gap: hard error
+        (root / 'knowledge/shell/pipelines.html').parent.mkdir(parents=True, exist_ok=True)
+        (root / 'knowledge/shell/pipelines.html').write_text(leveled('Pipelines'))
+        result = self.build(root)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn('shell/pipelines.html: novice anatomy: forbidden goal:', result.stderr)
+        self.assertNotIn('shell/jobs.html: novice anatomy:', result.stderr)
     def test_path_skills_span_visited_levels_but_page_skills_do_not(self):
         text = page('Guide').replace('</head>', '<meta name="kind" content="path"><meta name="skills" content="shell.expert"></head>')
         root = self.fixture('0.40.0', {'index.html': text})

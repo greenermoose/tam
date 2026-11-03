@@ -2,8 +2,8 @@
 
 **Last Update:** 2026-11-02
 **Owner:** Fred
-**Current Command Version:** `0.48.1`.
-**Current Corpus Version:** `0.62.0`.
+**Current Command Version:** `0.48.2`.
+**Current Corpus Version:** `0.63.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -17,8 +17,8 @@ Read the [plan index](docs/plans/README.md) for status, the
 
 `tam` is the terminal entry point to Tamlinux's offline knowledge system. Its
 primary journey has five parts: **Installing, Learning, Using, Maintaining,
-Improving**. Learning paths cross shared knowledge; Beginner, Intermediate
-and Expert are difficulty levels the reader can choose to show. Search, Topics,
+Improving**. Learning paths cross shared knowledge; Novice, Learner and Expert
+are difficulty levels the reader can choose to show. Search, Topics,
 Man pages, Info manuals and Help serve every part.
 
 Retain the native C/libtam reader, offline default, read-only browsing, semantic
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.1 / 0.62.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 page labels novice/learner/expert. Development installation is a separate developer-directed step. |
+| `develop` | 0.48.2 / 0.63.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 novice/learner/expert labels, command UI, and embedded-path pilots. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -224,7 +224,9 @@ in that candidate, not here.
 | **0.59.0 corpus** | Linux input subsystem and evdev guide | Done (2026-11-02) | Adds comprehensive ecosystem guide for the Linux input subsystem and evdev (`ecosystem/evdev.html`) and companion glossary entry (`learn/glossary/evdev.html`). |
 | **0.59.1 corpus** | Guiding principle: make computing fun for humans | Done (2026-11-02) | Adds the project's seventh guiding principle to philosophy and about pages: make computing fun for humans, with AI agents and scripts handling testing drudgery while humans play with their workstations. |
 | **0.61.0 corpus** | Absolute-beginner desktop tasks and command reference | Done (2026-11-02) | Adds nine beginner task pages under `use/desktop/` (screenshots and recording, clipboard history, notifications, audio, Bluetooth, displays and text size, keyboard and touchpad, lock and idle, night light), a desktop command reference under `use/commands/`, and links from the Using hub and four goal paths. Adds the approved `devices`, `security` and `accounts` skill cells. |
-| **0.62.0 corpus** | D221 page level labels: novice / learner / expert | Done (2026-11-02) | Renames corpus page difficulty labels from beginner/intermediate/expert to novice/learner/expert across knowledge HTML (skill cell IDs unchanged). agy's three pilot pages and `knowledge/index.html` are left for the D221 pilot. Anatomy hard-enforcement is paused in `skills.json` (`enforce_tracks` empty) until agy gates new novice/learner checks to those pilots. |
+| **0.62.0 corpus** | D221 page level labels: novice / learner / expert | Done (2026-11-02) | Renames corpus page difficulty labels from beginner/intermediate/expert to novice/learner/expert across knowledge HTML (skill cell IDs unchanged). |
+| **0.48.2 command** | D221 UI labels novice/learner/expert | Done (2026-11-02) | Visible level labels become `1: novice` / `2: learner` / `3: expert` with beginner/intermediate accepted as aliases; man page and completions updated. |
+| **0.63.0 corpus** | D221 pilot pages, paths.json, and anatomy gate | Done (2026-11-02) | Reworks the three embedded-path pilots (`shell/pipelines`, `filesystem/permissions`, `maintain/updates`), adds `knowledge/paths.json`, restores `enforce_tracks`, hard-enforces new novice/learner anatomy only on those pilots, and sets the guide root level to novice. |
 
 ## 4. Deferred direction, without reserved versions
 
