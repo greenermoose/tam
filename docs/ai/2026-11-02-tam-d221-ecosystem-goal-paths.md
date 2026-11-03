@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Composer
 - **Model:** Composer (Auto)
 - **Transcript:** Private Cursor session.
-- **Commits:** Pending on `develop` at record write time.
+- **Commits:** `e9d8f11` (pages) and `96ae088` (indexes) on `develop`.
 - **Authorship:** Fred directed five ecosystem goal-path batches in order. Cursor migrated twenty pages, registered the paths in `paths.json`, expanded hard-enforcement, bumped the corpus version and synced roadmap records.
 
 ## Guiding prompts
