@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.48.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.48.2' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -984,9 +984,18 @@ buf = drain(master, 0.2)
 assert b"Fixture Welcome" in buf, f"expected return to welcome, got: {buf}"
 os.write(master, b"w")
 drain(master, 0.1)
-os.write(master, b"bogus_nonexistent\r")
+os.write(master, b"argumant\r")
+buf = drain(master, 0.3)
+assert b"Fixture Argument" in buf, f"expected fuzzy typo match, got: {buf}"
+os.write(master, b"u")
+drain(master, 0.2)
+os.write(master, b"w")
+drain(master, 0.1)
+# Short nonsense near fixture keyword 'bus' must miss (not fuzzy-redirect)
+os.write(master, b"bogus\r")
 buf = drain(master, 0.2)
 assert b"no glossary match" in buf, f"expected miss message in status, got: {buf}"
+assert b"Fixture Argument" not in buf, f"bogus must not open glossary via short alias, got: {buf}"
 os.write(master, b"w")
 drain(master, 0.1)
 os.write(master, b"\x1b")

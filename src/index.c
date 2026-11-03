@@ -474,7 +474,12 @@ static int score_glossary_candidate(const char *q, size_t qlen, const char *cand
         }
     }
 
-    int max_allowed = qlen <= 3 ? 1 : (qlen <= 6 ? 2 : 3);
+    /* Relative closeness: edits vs shorter string, hard-capped at 3.
+     * Query-only caps let short aliases (bus) absorb nonsense (bogus). */
+    size_t shorter = qlen < clen ? qlen : clen;
+    int max_allowed = (int)(shorter / 3);
+    if (max_allowed < 1) max_allowed = 1;
+    if (max_allowed > 3) max_allowed = 3;
     if (min_d <= max_allowed) {
         return 1000 + min_d * 50 + (int)clen;
     }
