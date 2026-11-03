@@ -29,6 +29,7 @@ model for each session.
 | 2026-11-02 | D221 path-neighbor migration after pilot acceptance; corpus 0.64.0 | Cursor Composer | [Session record](docs/ai/2026-11-02-tam-d221-path-neighbors.md) |
 | 2026-11-02 | D221 desktop-basics and healthy-diagnostics paths; corpus 0.65.0 | Cursor Composer | [Session record](docs/ai/2026-11-02-tam-d221-more-paths.md) |
 | 2026-11-02 | D221 voice, everyday desktop, and recovery/boot paths; corpus 0.66.0 | Cursor Composer | [Session record](docs/ai/2026-11-02-tam-d221-voice-everyday-recovery.md) |
+| 2026-11-02 | D221 improve-track paths (run lean, improve tools); corpus 0.67.0 | Cursor Composer | [Session record](docs/ai/2026-11-02-tam-d221-improve-paths.md) |
 | 2026-11-02 | Corpus gap remediation audit and content; corpus 0.60.0 | Cursor Agent; Composer | [Session records](docs/ai/2026-11-02-tam-corpus-audit.md); [remediation](docs/ai/2026-11-02-tam-corpus-remediation.md) |
 | 2026-11-02 | Guiding principle: make computing fun for humans; corpus 0.59.1 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-fun-computing-principle.md) |
 | 2026-11-02 | Linux input subsystem and evdev guide and glossary entry; corpus 0.59.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-evdev-guide.md) |

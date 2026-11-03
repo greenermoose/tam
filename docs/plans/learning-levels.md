@@ -12,8 +12,9 @@
 - Path-neighbor migration (corpus 0.64.0): `shell/index.html`, `shell/jobs.html`, `filesystem/index.html`, `maintain/index.html`, `maintain/rollback.html`.
 - More paths (corpus 0.65.0): Desktop basics (`desktop/index.html`, `desktop/meta-key.html`, `desktop/workspaces.html`) and Healthy diagnostics (`hardware/networking.html`, `maintain/logs.html`, `learn/documentation.html`).
 - Voice, everyday desktop, recovery/boot (corpus 0.66.0): `desktop/voice.html`, `desktop/voice-commands.html`, nine `use/desktop/*` pages, and `maintain/recovery` → `power` → `boot` → `boot-recovery` → `snapper` → `checkpoint`.
+- Improve-track paths (corpus 0.67.0): Run lean (`hardware/resources`, `improve/efficiency`, `improve/zram`) and Improve your tools (`terminal`, `scripting`, `toolchains`, `ai-performance`).
 **Authority:** The developer's decision D221 (2026-11-02, amending D184) and D185 (state directory).
-**Next action:** Continue migrating remaining pages (especially `ecosystem/` and leftover `improve/`/`learn/` warnings) onto Novice/Learner anatomy, or pause for Learner review of the migrated paths. Packaged acceptance remains unverified.
+**Next action:** Migrate remaining pages along existing ecosystem goal paths (`from-atoms-to-bits`, `from-gates-to-machine`, cables/protocols, display/GPU, how-software-runs, session-and-desktop), then leftover `learn/`/`man`/`tam.html` pages—or pause for Learner review. Packaged acceptance remains unverified.
 
 ## Current concept work (2026-10-27)
 

@@ -22,20 +22,48 @@
 <p>Repeatedly checking for work can use energy even when nothing needs attention. Programs can instead wait to be notified when something happens.</p>
 
 <section data-level="novice">
+<h2>What wastes idle CPU time?</h2>
+<p>Naive automation scripts often check status using <code>while true; do check; sleep 1; done</code> loops. Waking up every second prevents modern CPU cores from dropping into low-power package C-states (such as C8 or C10), tripling idle battery drain and generating unnecessary heat even when the laptop lid is closed.</p>
+<h3>Why it matters</h3>
+<p>Naive automation scripts often check status using <code>while true; do check; sleep 1; done</code> loops. Waking up every second prevents modern CPU cores from dropping into low-power package C-states (such as C8 or C10), tripling idle battery drain and generating unnecessary heat even when the laptop lid is closed.</p>
+<h3>How to think about it</h3>
+<p>Periodic wakeups keep CPUs out of deep idle. Prefer work that runs when an event arrives instead of polling on a timer.</p>
+<h3>New words</h3>
+<dl>
+<dt>Context switch</dt>
+<dd>The kernel operation of saving one process's execution state and restoring another to run on a CPU core.</dd>
+<dt>C-state</dt>
+<dd>An operating state of a processor core; C0 is active execution, while higher states (C1 to C10) progressively power down clock domains and caches to conserve energy.</dd>
+</dl>
+<p>An idle <dfn><a href="learn/glossary/process.html">process</a></dfn> sleeps in the kernel and consumes zero CPU cycles until an event arrives.</p>
+</section>
+
+<section data-level="learner">
 <h2>Identifying CPU wakeups and idle efficiency</h2>
-
 <p><strong>Goal:</strong> you will be able to measure processor wakeups, context switches, and CPU idle percentages using <code>vmstat</code> to verify system efficiency.</p>
-
-<p><strong>Why it matters:</strong> Naive automation scripts often check status using <code>while true; do check; sleep 1; done</code> loops. Waking up every second prevents modern CPU cores from dropping into low-power package C-states (such as C8 or C10), tripling idle battery drain and generating unnecessary heat even when the laptop lid is closed.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Run lean</strong> &mdash;
+<a href="hardware/resources.html?level=2">Start</a> |
+<a href="hardware/resources.html?level=2">&larr; Back</a> |
+<a href="improve/zram.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal (<a href="shell/index.html">The Shell and Streams</a>). Review the <a href="maintain/power.html">Progressive Power Ladder</a> for sleep levels and system power management. The monitoring commands here are strictly read-only queries.</p>
-
 <aside class="first-time">
 <p>When measuring idle system performance, avoid moving the mouse cursor or pressing keys while the benchmark runs. Moving the mouse sends input events that wake up the compositor and inflate interrupt counts. Run the command, wait a few seconds without touching inputs, and observe the numbers.</p>
 </aside>
+<h3>Mental model</h3>
+<pre>
+Polling Loop (Naive)                      Event-Driven (inotify)
+-------------------                      ----------------------
+while true; do                           inotifywait -e modify file.txt
+  check_file                                 |
+  sleep 1  &lt;-- CPU wakes every second        | [waits for an event]
+done                                           v
+[Wastes energy, misses changes]          File modified -&gt; kernel wakes script
+</pre>
 
+<p>A polling loop wakes the CPU every interval, even when nothing has changed. If changes occur between sleeps, they can be missed or delayed. In contrast, <code>inotifywait</code> registers an inotify watch in the Linux kernel and calls <code>read(2)</code> on the inotify file descriptor. The waiting process can block until an event (such as <code>modify</code>, <code>create</code>, or <code>delete</code>) is reported. Delivery and application processing take time; measure the actual workload rather than assuming zero CPU use or instant delivery.</p>
 <h3>Worked example: Sample CPU wakeups and context switches with vmstat</h3>
-
 <pre class="session" data-risk="read-only">
 $ vmstat 1 3
 procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
@@ -53,13 +81,9 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
 <li>The <code>in</code> (interrupts) column counts hardware and timer interrupts received by the CPU.</li>
 <li>The <code>id</code> (idle percentage) column shows the percentage of CPU time spent in the idle task (here 98%), while <code>us</code> (user) and <code>sy</code> (system) show active processing time.</li>
 </ol>
-
 <h3>Try it</h3>
-
 <p>Run <code>vmstat 2 2</code> to sample over 2-second windows. Observe how leaving the system untouched yields high idle percentages (95%+) and steady context switch rates.</p>
-
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt>Context switches (cs) spike into tens of thousands</dt>
 <dd>A background process or browser tab is actively running a high-frequency polling loop or animation. Identify it using <code>top</code> or <code>htop</code> sorted by CPU usage.</dd>
@@ -68,7 +92,9 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
 <dt>Command vmstat not found</dt>
 <dd><code>vmstat</code> is part of the standard <code>procps-ng</code> package included with every base Arch Linux installation.</dd>
 </dl>
-
+<aside class="tamlinux">
+<p>On Tamlinux, desktop widgets and status monitors (such as <code>fred.*</code> plugins and Quickshell bars) can use events such as Wayland and D-Bus notifications. Whether a particular component polls and how much power it draws require inspection and measurement.</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -81,108 +107,7 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
 <p>It indicates that processor cores are spending substantial time executing user or system code, preventing the CPU from entering energy-saving sleep states.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Context switch</dt>
-<dd>The kernel operation of saving one process's execution state and restoring another to run on a CPU core.</dd>
-<dt>C-state</dt>
-<dd>An operating state of a processor core; C0 is active execution, while higher states (C1 to C10) progressively power down clock domains and caches to conserve energy.</dd>
-</dl>
-<p>An idle <dfn><a href="learn/glossary/process.html">process</a></dfn> sleeps in the kernel and consumes zero CPU cycles until an event arrives.</p>
-
-<p><strong>Next step:</strong> at Learner, learn how to replace wasteful sleep-polling scripts with event-driven <code>inotify</code> file watchers.</p>
 </section>
-
-<section data-level="learner">
-<h2>Event-driven file watching with inotify</h2>
-
-<p><strong>Goal:</strong> you will be able to replace periodic polling loops in shell scripts with kernel-level <code>inotifywait</code> filesystem event notifications.</p>
-
-<h3>Mental model</h3>
-
-<pre>
-Polling Loop (Naive)                      Event-Driven (inotify)
--------------------                      ----------------------
-while true; do                           inotifywait -e modify file.txt
-  check_file                                 |
-  sleep 1  &lt;-- CPU wakes every second        | [waits for an event]
-done                                           v
-[Wastes energy, misses changes]          File modified -&gt; kernel wakes script
-</pre>
-
-<p>A polling loop wakes the CPU every interval, even when nothing has changed. If changes occur between sleeps, they can be missed or delayed. In contrast, <code>inotifywait</code> registers an inotify watch in the Linux kernel and calls <code>read(2)</code> on the inotify file descriptor. The waiting process can block until an event (such as <code>modify</code>, <code>create</code>, or <code>delete</code>) is reported. Delivery and application processing take time; measure the actual workload rather than assuming zero CPU use or instant delivery.</p>
-
-<h3>Worked example: Watch a file without polling</h3>
-<p>This requires the optional <code>inotifywait</code> command and two terminals. In the first terminal, create a temporary directory and file, then start the watcher:</p>
-<pre data-risk="scratch">scratch=$(mktemp -d) &amp;&amp; printf '%s\n' initial &gt; "$scratch/watched.txt" &amp;&amp; printf '%s\n' "$scratch" &amp;&amp; inotifywait -e modify "$scratch/watched.txt"</pre>
-<p>Wait until it prints <code>Watches established.</code> In the second terminal, use the printed directory name as the argument below. Replace the example path with that exact name; do not type the angle brackets.</p>
-<pre data-risk="scratch">printf '%s\n' updated &gt;&gt; "&lt;printed-directory&gt;/watched.txt"</pre>
-<p>On Arch Linux, 2026-10-27, the watcher printed the file's path followed by <code>MODIFY</code> after the write. The temporary path differs on each run. The watch must be established before the write; sleeping for a fixed time is not a readiness check.</p>
-<p>After the watcher exits, return to the first terminal and remove only its file and empty directory:</p>
-<pre data-risk="scratch">rm -- "$scratch/watched.txt"
-rmdir -- "$scratch"</pre>
-<p>If a command fails, read its message and inspect the directory before deciding what to remove. A blank watcher waits for an event; Ctrl+C stops it.</p>
-<h3>Completion task</h3>
-
-<p>Monitor a directory continuously in a loop without terminating after the first event. Complete the command by filling in the missing monitor flag (marked with <code>___</code>):</p>
-
-<pre data-risk="scratch">
-inotifywait ___ -e create,delete "$scratch"
-</pre>
-
-<details class="solution">
-<p>Fill in <code>-m</code> (or <code>--monitor</code>). The <code>-m</code> flag instructs <code>inotifywait</code> to execute continuously in monitor mode rather than exiting after the first received event.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Repeat the worked example, keeping the readiness messages visible. Wait for the watcher to be ready before appending in the other terminal, then remove the named file and empty directory after the watcher exits.</p>
-<details class="solution"><p>Use the worked example's two-terminal sequence. Wait for <code>Watches established.</code> before writing. A fixed delay is not proof that a watch is ready.</p></details>
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Mechanism</th><th>When to use</th><th>CPU and power impact</th></tr>
-<tr><td><code>inotifywait -e modify</code></td><td>Watching specific local files or directories in shell automation.</td><td>Can block while waiting; measure actual CPU and response time.</td></tr>
-<tr><td><code>systemd.path</code> unit</td><td>Triggering system-wide systemd services upon file or directory changes.</td><td>Zero CPU; managed by systemd's internal epoll/inotify event loop.</td></tr>
-<tr><td><code>sleep N</code> polling</td><td>Remote network filesystems (NFS/CIFS) where kernel inotify events are not delivered.</td><td>High power consumption; periodic CPU wakeups prevent deep sleep states.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td><code>inotifywait: command not found</code></td><td><code>inotify-tools</code> package is not installed</td><td>Run <code>pacman -Q inotify-tools</code></td><td>Install <code>inotify-tools</code> via package management</td></tr>
-<tr><td>"Upper limit on inotify watches reached" error</td><td>System exhausted <code>max_user_watches</code> due to massive directory trees</td><td>Inspect limit with <code>sysctl fs.inotify.max_user_watches</code></td><td>Increase the sysctl limit or exclude large directories like build caches</td></tr>
-<tr><td>File modification events missed on network share</td><td>NFS and SMB mounts do not propagate local kernel notifications across clients</td><td>Check filesystem type with <code>df -T</code></td><td>Use server-side event hooks or explicit synchronization triggers</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p>On Tamlinux, desktop widgets and status monitors (such as <code>fred.*</code> plugins and Quickshell bars) can use events such as Wayland and D-Bus notifications. Whether a particular component polls and how much power it draws require inspection and measurement.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why can an event watcher avoid repeated polling while waiting for a file change?</summary>
-<p>The process calls <code>read(2)</code> on an inotify file descriptor, putting the thread to sleep in the Linux kernel scheduler. It need not repeatedly check the file while blocked; setup, wakeups and other work still have a cost.</p>
-</details>
-<details class="q">
-<summary>What flag makes <code>inotifywait</code> monitor subdirectories recursively?</summary>
-<p>The <code>-r</code> (or <code>--recursive</code>) flag adds recursive watches. Consult the manual for races and limits when directories are created.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:inotifywait(1)">inotifywait(1)</a> &mdash; wait for changes to files using inotify.</li>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; inotify(7) Linux filesystem event monitoring API.</li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>Kernel event multiplexing and Wayland event loops</h2>
 

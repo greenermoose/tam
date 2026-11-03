@@ -63,6 +63,13 @@ D221_PILOT_PAGES = frozenset({
     "maintain/boot-recovery.html",
     "maintain/snapper.html",
     "maintain/checkpoint.html",
+    "hardware/resources.html",
+    "improve/efficiency.html",
+    "improve/zram.html",
+    "improve/terminal.html",
+    "improve/scripting.html",
+    "improve/toolchains.html",
+    "improve/ai-performance.html",
 })
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")

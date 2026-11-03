@@ -22,20 +22,45 @@
 <p>You can use the examples to learn what your computer is doing and investigate its performance.</p>
 
 <section data-level="novice">
+<h2>What do memory and disk numbers mean?</h2>
+<p>Linux aggressively uses idle RAM for disk buffers and page cache, so seeing low "free" memory is normal. Checking the wrong number leads people to terminate healthy applications or panic about nonexistent memory exhaustion.</p>
+<h3>Why it matters</h3>
+<p>Linux aggressively uses idle RAM for disk buffers and page cache, so seeing low "free" memory is normal. Checking the wrong number leads people to terminate healthy applications or panic about nonexistent memory exhaustion.</p>
+<h3>How to think about it</h3>
+<p>Free memory is not the whole story: Linux uses idle RAM for cache. Read capacity and pressure together before killing healthy programs.</p>
+<h3>New words</h3>
+<dl>
+<dt>RAM</dt>
+<dd>Random Access Memory; fast volatile storage holding running programs.</dd>
+<dt>Buffer and cache</dt>
+<dd>Memory used temporarily by the kernel to speed up storage access.</dd>
+<dt>Headroom</dt>
+<dd>Remaining resource capacity before performance degrades or allocations fail.</dd>
+</dl>
+<p>A <dfn><a href="learn/glossary/process.html">process</a></dfn> consumes memory while executing.</p>
+</section>
+
+<section data-level="learner">
 <h2>Check memory headroom and disk capacity</h2>
-
 <p><strong>Goal:</strong> you will be able to check available memory and storage headroom without confusing cache with memory exhaustion.</p>
-
-<p><strong>Why it matters:</strong> Linux aggressively uses idle RAM for disk buffers and page cache, so seeing low "free" memory is normal. Checking the wrong number leads people to terminate healthy applications or panic about nonexistent memory exhaustion.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Run lean</strong> &mdash;
+<a href="hardware/resources.html?level=2">Start</a> |
+<a href="hardware/resources.html?level=2">&larr; Back</a> |
+<a href="improve/efficiency.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal. These commands only read system memory and disk metrics; they do not kill processes or alter storage. See <a href="learn/paths/first-steps.html?level=1">First steps</a> if you are new to the command line.</p>
-
 <aside class="first-time">
 <p>A terminal is where you type commands. The prompt <code>$</code> means the shell is waiting for input; do not type the <code>$</code>. <code>free</code> reports RAM, and <code>df</code> reports disk space. Silence or plain tables mean the query succeeded.</p>
 </aside>
+<h3>Mental model</h3>
+<pre>
+load average > logical cores  --> processes queuing for CPU or disk I/O
+load average <= logical cores --> system has compute headroom
+</pre>
 
+<p>A load average is an exponential moving average of processes in runnable or uninterruptible sleep state (waiting for CPU or disk). Compare load to <code>nproc</code>: on a 16-core machine, a load of 1.4 means substantial spare headroom; on a 2-core machine, a load of 4.0 means tasks are actively queuing.</p>
 <h3>Worked example: Check available memory</h3>
-
 <pre class="session" data-risk="read-only">
 $ free -h
                total        used        free      shared  buff/cache   available
@@ -52,9 +77,7 @@ Swap:           56Gi       3.0Gi        53Gi
 <li><code>buff/cache</code> (7.2Gi) is memory holding temporary filesystem buffers and cached disk blocks.</li>
 <li><code>available</code> (22Gi) is the crucial metric: memory that can be allocated immediately to new applications by reclaiming buffer and cache space without swapping.</li>
 </ol>
-
 <h3>Try it</h3>
-
 <p>Check disk capacity and headroom on your root filesystem using <code>df -h /</code>:</p>
 
 <pre class="session" data-risk="read-only">
@@ -64,16 +87,16 @@ Filesystem                Size  Used Avail Use% Mounted on
 </pre>
 
 <p>Check the <code>Avail</code> column and the <code>Use%</code>. No changes are made to your files. You can also run <code>tam inspect</code> to audit host CPU architecture, RAM, storage mounts, and graphics adapters in a single read-only view.</p>
-
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt>Low "free" memory with high "available"</dt>
 <dd>This is healthy behavior. The Linux kernel uses otherwise idle memory to cache disk blocks. It frees cache instantly when applications request RAM.</dd>
 <dt>Low "available" memory</dt>
 <dd>Applications are consuming most physical RAM. Check running tasks before starting heavy workloads. Nothing needs undo.</dd>
 </dl>
-
+<aside class="tamlinux">
+<p>Tamlinux configures compressed in-RAM swap via ZRAM by default rather than slow disk swap partitions, maximizing responsiveness on systems with modest RAM. In addition, <code>tam inspect</code> audits host CPU, memory, and mount headroom in one read-only command, and <code>tam check storage_root_space</code> validates root filesystem headroom against the Check Contract.</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -86,118 +109,7 @@ Filesystem                Size  Used Avail Use% Mounted on
 <p>No. Both commands are strictly read-only diagnostics.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>RAM</dt>
-<dd>Random Access Memory; fast volatile storage holding running programs.</dd>
-<dt>Buffer and cache</dt>
-<dd>Memory used temporarily by the kernel to speed up storage access.</dd>
-<dt>Headroom</dt>
-<dd>Remaining resource capacity before performance degrades or allocations fail.</dd>
-</dl>
-<p>A <dfn><a href="learn/glossary/process.html">process</a></dfn> consumes memory while executing.</p>
-
-<p><strong>Next step:</strong> at Learner, compare CPU load averages against hardware cores and profile process memory.</p>
 </section>
-
-<section data-level="learner">
-<h2>Diagnose CPU load and process memory</h2>
-
-<p><strong>Goal:</strong> you will be able to interpret 1, 5, and 15-minute load averages against logical core counts and profile per-process resident memory.</p>
-
-<h3>Mental model</h3>
-
-<pre>
-load average > logical cores  --> processes queuing for CPU or disk I/O
-load average <= logical cores --> system has compute headroom
-</pre>
-
-<p>A load average is an exponential moving average of processes in runnable or uninterruptible sleep state (waiting for CPU or disk). Compare load to <code>nproc</code>: on a 16-core machine, a load of 1.4 means substantial spare headroom; on a 2-core machine, a load of 4.0 means tasks are actively queuing.</p>
-
-<h3>Worked example: Compare load average against core count</h3>
-
-<pre class="session" data-risk="read-only">
-$ nproc
-16
-$ uptime
- 06:28:47 up 1 day, 16:13,  1 user,  load average: 1.41, 1.10, 0.94
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-10-25. Your numbers will differ.</p>
-
-<ol>
-<li><code>nproc</code> reports 16 available hardware processing threads.</li>
-<li><code>uptime</code> reports 1, 5, and 15-minute load averages of 1.41, 1.10, 0.94.</li>
-<li>Because 1.41 is far below 16, the system has abundant compute headroom and no CPU queue.</li>
-</ol>
-
-<h3>Completion task</h3>
-
-<p>List the top 5 memory-consuming processes ordered by resident set size (RSS). Complete the missing sort flag below (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-ps -eo pid,rss,comm ___ | head -n 6
-</pre>
-
-<details class="solution">
-<p>Fill in <code>--sort=-rss</code>. The leading minus sign sorts descending (largest first). <code>ps -eo pid,rss,comm --sort=-rss | head -n 6</code> prints the header row followed by the 5 largest processes currently in physical RAM.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Inspect swap utilization to verify whether memory pressure is forcing pages to swap space. Run <code>cat /proc/swaps</code> or <code>free -m</code>. Observe whether swap devices (including compressed ZRAM devices) are active while available RAM remains plentiful.</p>
-
-<details class="solution">
-<p>Run <code>cat /proc/swaps</code>. It lists each active swap partition or ZRAM device, its total size, and currently consumed space in kilobytes.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Tool</th><th>Use when</th><th>Focus</th></tr>
-<tr><td><code>free -h</code></td><td>Quick sanity check of physical RAM and swap</td><td>Available memory vs buffer/cache</td></tr>
-<tr><td><code>uptime</code> / <code>nproc</code></td><td>Evaluating system responsiveness</td><td>Load average vs logical core count</td></tr>
-<tr><td><code>ps -eo ... --sort=-rss</code></td><td>Identifying specific high-memory tasks</td><td>Per-process resident set size (RSS)</td></tr>
-<tr><td><code>top</code> / <code>btop</code></td><td>Dynamic interactive monitoring</td><td>Real-time per-core CPU and memory churn</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>High load average but low CPU%</td><td>Processes waiting for slow disk I/O</td><td>Check <code>vmstat 1 5</code> for high <code>b</code> (blocked) count</td><td>Identify storage bottlenecks or failing disks</td></tr>
-<tr><td>High swap usage with high available RAM</td><td>Old memory pages swapped during a past spike</td><td>Compare <code>Swap: used</code> with <code>Mem: available</code></td><td>Harmless; inactive pages remain in swap until needed</td></tr>
-<tr><td>Sudden desktop freeze and thrashing</td><td>Memory exhaustion causing aggressive page reclaim</td><td>Check <code>dmesg -T | grep -i oom</code> for kernel kills</td><td>Close memory-hungry tabs or add ZRAM headroom</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p>Tamlinux configures compressed in-RAM swap via ZRAM by default rather than slow disk swap partitions, maximizing responsiveness on systems with modest RAM. In addition, <code>tam inspect</code> audits host CPU, memory, and mount headroom in one read-only command, and <code>tam check storage_root_space</code> validates root filesystem headroom against the Check Contract.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>On a 4-core machine, what does a 1-minute load average of 8.0 indicate?</summary>
-<p>The system is overloaded: on average, 4 processes were running on CPUs while another 4 were queuing for CPU time or uninterruptible disk I/O.</p>
-</details>
-<details class="q">
-<summary>Does high resident set size (RSS) alone prove that an application has a memory leak?</summary>
-<p>No. Many applications (like web browsers or compilers) legitimately hold large working sets in RAM. A leak is indicated by continuous monotonic growth over time under steady workload.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:ps(1)">ps(1)</a> &mdash; process status selection, output formatting, and sorting flags.</li>
-<li><a href="man:free(1)">free(1)</a> &mdash; memory and buffer display options.</li>
-<li><a href="man:uptime(1)">uptime(1)</a> &mdash; system running time and load averages.</li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>Virtual memory internals, ZRAM, and kernel metrics</h2>
 

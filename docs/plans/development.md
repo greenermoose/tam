@@ -1233,3 +1233,5 @@ resolve superseded schedules. Do not execute a former plan from this history.
 - **2026-11-02:** Corpus 0.66.0 (minor): Migrate Desktop voice, Everyday
   desktop tasks (`use/desktop/*`), and Recovery and boot (`maintain/recovery`
   through `checkpoint`); register three paths and expand hard-enforcement.
+- **2026-11-02:** Corpus 0.67.0 (minor): Migrate Improving track plus
+  `hardware/resources`; register Run lean and Improve your tools paths.

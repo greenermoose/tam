@@ -22,18 +22,37 @@
 <p>A terminal is a place where you type instructions and read replies. Tamlinux also provides a text editor called micro. Check your installed editor and settings before relying on a particular behavior.</p>
 
 <section data-level="novice">
+<h2>What makes a terminal editor approachable?</h2>
+<p>Many traditional terminal editors require memorizing modal keybindings before you can edit a single line. Micro uses universal keyboard shortcuts like <code>Ctrl+S</code> to save and <code>Ctrl+Q</code> to quit, making terminal document and configuration editing intuitive from your first session.</p>
+<h3>Why it matters</h3>
+<p>Many traditional terminal editors require memorizing modal keybindings before you can edit a single line. Micro uses universal keyboard shortcuts like <code>Ctrl+S</code> to save and <code>Ctrl+Q</code> to quit, making terminal document and configuration editing intuitive from your first session.</p>
+<h3>How to think about it</h3>
+<p>A terminal editor with familiar shortcuts lowers the cost of small config edits. Ownership and undo still matter before changing settings.</p>
+<h3>New words</h3>
+<dl>
+<dt>Buffer</dt>
+<dd>The in-memory representation of text being edited inside Micro before or after writing to disk.</dd>
+<dt>Command prompt</dt>
+<dd>The interactive bar at the bottom of Micro opened with <code>Ctrl+E</code> for running editor directives and queries.</dd>
+</dl>
+<p>The editor has <dfn><a href="learn/glossary/focus.html">focus</a></dfn> when it receives your keyboard input. External file changes and unsaved editor buffers may differ; check the editor documentation before choosing a reload setting.</p>
+</section>
+
+<section data-level="learner">
 <h2>Intuitive terminal editing with Micro</h2>
-
 <p><strong>Goal:</strong> you will be able to edit text files and configuration documents in the terminal using standard, universal keyboard shortcuts with the Micro editor.</p>
-
-<p><strong>Why it matters:</strong> Many traditional terminal editors require memorizing modal keybindings before you can edit a single line. Micro uses universal keyboard shortcuts like <code>Ctrl+S</code> to save and <code>Ctrl+Q</code> to quit, making terminal document and configuration editing intuitive from your first session.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Improve your tools</strong> &mdash;
+<a href="improve/terminal.html?level=2">Start</a> |
+<a href="improve/terminal.html?level=2">&larr; Back</a> |
+<a href="improve/scripting.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal (<a href="shell/index.html">The Shell and Streams</a>). We will edit files in an isolated scratch directory without altering any personal configuration.</p>
-
 <aside class="first-time">
 <p>When you launch <code>micro filename</code>, the editor takes over your terminal window. The status line at the bottom shows the file name and cursor position. You can click with the mouse to move the cursor or select text. To quit at any time, press <code>Ctrl+Q</code>. If you have unsaved changes, Micro prompts <code>Save changes to filename? (y, n, esc)</code>.</p>
 </aside>
-
+<h3>Mental model</h3>
+<p>An editor may have an in-memory buffer and a separate file on disk. A change to one does not by itself prove the other is updated. JSON syntax, supported settings and actual runtime behavior are separate checks.</p>
 <h3>Worked example: Create and edit a scratch note</h3>
 <p>Run each command separately. If <code>mktemp</code> fails, stop before creating or removing anything.</p>
 
@@ -57,13 +76,9 @@ $ rmdir -- "$scratch"
 <li>Typing a new line and pressing <code>Ctrl+S</code> writes the updated buffer to disk immediately.</li>
 <li>Pressing <code>Ctrl+Q</code> exits the editor cleanly and returns control to your shell prompt.</li>
 </ol>
-
 <h3>Try it</h3>
-
 <p>Create a temporary file in a scratch directory, open it with <code>micro</code>, press <code>Ctrl+E</code> to open the editor command prompt, type <code>help defaultkeys</code>, and press Enter to browse all standard keyboard shortcuts. Press <code>Ctrl+Q</code> to dismiss the help view.</p>
-
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt>Pressing <code>Ctrl+C</code> does not exit the editor</dt>
 <dd>In Micro, <code>Ctrl+C</code> is the standard shortcut to copy selected text to the clipboard. Press <code>Ctrl+Q</code> to quit.</dd>
@@ -72,7 +87,7 @@ $ rmdir -- "$scratch"
 <dt>Terminal mouse clicks do not position the cursor</dt>
 <dd>Verify that your terminal emulator supports mouse tracking. Standard <code>foot</code> on Tamlinux supports mouse selection, dragging, and wheel scrolling out of the box.</dd>
 </dl>
-
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> settings can be supplied by a package or by a user configuration. Inspect the actual selected file before editing and preserve user changes.</p></aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -85,43 +100,7 @@ $ rmdir -- "$scratch"
 <p>Press <code>Ctrl+E</code>. An interactive prompt opens at the bottom where you can type commands like <code>help</code>, <code>set</code>, or <code>vsplit</code>.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Buffer</dt>
-<dd>The in-memory representation of text being edited inside Micro before or after writing to disk.</dd>
-<dt>Command prompt</dt>
-<dd>The interactive bar at the bottom of Micro opened with <code>Ctrl+E</code> for running editor directives and queries.</dd>
-</dl>
-<p>The editor has <dfn><a href="learn/glossary/focus.html">focus</a></dfn> when it receives your keyboard input. External file changes and unsaved editor buffers may differ; check the editor documentation before choosing a reload setting.</p>
-
-<p><strong>Next step:</strong> at Learner, validate a scratch configuration and distinguish syntax from actual editor behavior.</p>
 </section>
-
-<section data-level="learner">
-<h2>Inspect a scratch editor configuration</h2>
-<p><strong>Goal:</strong> check a proposed editor configuration in a temporary file without modifying your real settings.</p>
-<h3>Mental model</h3><p>An editor may have an in-memory buffer and a separate file on disk. A change to one does not by itself prove the other is updated. JSON syntax, supported settings and actual runtime behavior are separate checks.</p>
-<h3>Worked example</h3><p>Create a temporary directory, write one JSON file and validate its syntax. This does not start Micro or change its configuration.</p>
-<pre data-risk="scratch">if scratch=$(mktemp -d); then
-    printf '%s\n' '{"wordwrap": true}' &gt; "$scratch/settings.json"
-    python3 -m json.tool "$scratch/settings.json"
-    rm -- "$scratch/settings.json"
-    rmdir -- "$scratch"
-else
-    printf '%s\n' 'Could not create a temporary directory.'
-fi</pre>
-<p>A valid JSON document is formatted by the tool. Its success does not establish that an editor supports or has loaded the setting. Your output and errors can differ.</p>
-<h3>Completion task</h3><p>After validating a JSON file, what additional evidence would establish that the editor uses it?</p><details class="solution"><p>Consult the installed editor's setting documentation and inspect its effective configuration or behavior. JSON syntax alone cannot establish either.</p></details>
-<h3>Independent task</h3><p>Repeat the syntax check with a different value in a fresh scratch file. Predict whether it is valid JSON before running the tool; remove only the file and empty directory you created.</p>
-<h3>Choosing</h3><p>Use a scratch file to learn syntax. Change an actual editor setting only after identifying its owner, current value, intended behavior and recovery.</p>
-<h3>Troubleshooting</h3><p>If JSON parsing fails, read the line and column in the error. If a valid setting has no effect, check the editor's documented setting names and effective configuration.</p>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> settings can be supplied by a package or by a user configuration. Inspect the actual selected file before editing and preserve user changes.</p></aside>
-<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does valid JSON prove the editor loaded a setting?</summary><p>No. It establishes syntax only; supported keys, file selection and runtime behavior are separate.</p></details><details class="q"><summary>Why keep a recovery path before changing an editor setting?</summary><p>It lets you restore the previous behavior if the setting has unintended effects.</p></details></section>
-<h3>Further reading</h3><p>Consult the installed editor documentation for supported settings and <code>python3 -m json.tool --help</code> for the validator.</p>
-</section>
-
 <section data-level="expert">
 <h2>Sub-10ms shell startup and Wayland terminal architecture</h2>
 

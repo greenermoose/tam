@@ -22,76 +22,13 @@
 <p>Developers use a collection of tools to turn source code, the written instructions for a program, into software they can run and test. This page introduces those tools and how contributors share their work.</p>
 
 <section data-level="novice">
-<h2>Building native C projects with Make</h2>
-
-<p><strong>Goal:</strong> you will be able to consult project documentation, build native C tools using Make, execute command test suites to reproduce symptoms, and inspect standalone binary versions without root permissions.</p>
-
-<p><strong>Why it matters:</strong> Contributing to workstation software or verifying a bug report starts with building and testing code cleanly from source. Tamlinux writes core tools in native C11 against <code>libtam</code>, achieving instantaneous startup times and minimal memory consumption. Knowing how to run Make builds, execute verification suites, and inspect compiled binaries gives you the foundation to reproduce reported issues and verify fixes safely without endangering packaged system files.</p>
-
-<p><strong>Before you start:</strong> open a terminal (<a href="shell/index.html">The Shell and Streams</a>). Review terminal editing (<a href="improve/terminal.html">Terminal and Editor Ergonomics</a>). Native compilation requires standard build tools (<code>gcc</code> or <code>clang</code>, <code>make</code>) provided by base packages. All compilation steps run in a local project checkout without requiring administrative privileges.</p>
-
-<aside class="first-time">
-<p>When compiling software with Make, you do not invoke the compiler directly for every file. Instead, the project's <code>Makefile</code> defines recipes and targets. Typing <code>make test-command</code> builds the binary and runs the automated test suite, printing <code>ok</code> for each verified test assertion.</p>
-</aside>
-
-<h3>Worked example: Build native C tools and inspect version output</h3>
-
-<pre class="session" data-risk="read-only">
-$ cd ~/src/tam
-$ make test-command
-tests/run.sh /home/user/src/tam/build/tam
-ok - bare invocation prints an introduction and writes no state
-ok - additive and legacy index columns preserve existing page metadata
-...
-All tam command tests passed.
-$ build/tam --version
-tam command 0.48.1 (dev 4788787)
-knowledge corpus 0.59.0 (dev 4788787)
-libtam 0.4.0
-Tamlinux cultivar KBN WB 0.6.1
-</pre>
-
-<p>Captured on an Arch Linux workstation, 2026-11-02. Your build hash will differ.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li><code>make test-command</code> reads the <code>Makefile</code>, invokes the C compiler (<code>gcc</code> or <code>clang</code>) if any source file changed, links against <code>libtam</code>, and runs <code>tests/run.sh</code>.</li>
-<li>The binary is compiled with <code>-O2</code> optimizations and linked against <code>libtam</code>, producing a self-contained executable that starts in milliseconds without an external script runtime.</li>
-<li>The command tests run in a test harness verifying argument handling, link navigation, and state isolation without altering the host environment.</li>
-<li><code>build/tam --version</code> confirms the standalone binary executes cleanly, reporting its command version, git commit hash, and component libraries.</li>
-</ol>
-
-<h3>Try it</h3>
-
-<p>Inspect project documentation and build options in a scratch directory by running <code>make -n command</code>. The <code>-n</code> (dry-run) flag prints every compiler invocation and link command that Make would execute, showing exact flags (<code>-O2</code>, <code>-Wall</code>, <code>-std=c11</code>) without running the build or modifying any files.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt><code>make: cc: No such file or directory</code></dt>
-<dd>The native C compiler is not installed. Native toolchains require <code>gcc</code> or <code>clang</code> from the base development package group.</dd>
-<dt><code>cannot open shared object file: libtam.so</code></dt>
-<dd>The dynamic linker cannot locate <code>libtam.so</code> at runtime. Verify that the library was built under <code>~/.local/dev/lib</code> or compiled with <code>-Wl,-rpath</code> pointing to the local library directory.</dd>
-<dt>A test assertion fails with <code>not ok</code></dt>
-<dd>Record the exact test line and failure message in your issue report. Do not modify system packages to force a test to pass; test failures indicate a code regression or missing local dependency.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does Tamlinux compile core utilities in native C11 rather than using interpreted scripts?</summary>
-<p>Native C executables start in less than 5 milliseconds and consume negligible memory, avoiding the startup latency, memory overhead, and runtime dependency management of interpreted script runtimes.</p>
-</details>
-<details class="q">
-<summary>What does running <code>make -n</code> do when inspecting a project build?</summary>
-<p>It performs a dry run, printing every compilation and linking command that Make would execute without actually building or modifying any files.</p>
-</details>
-</section>
-
+<h2>What is a native toolchain build?</h2>
+<p>Contributing to workstation software or verifying a bug report starts with building and testing code cleanly from source. Tamlinux writes core tools in native C11 against <code>libtam</code>, achieving instantaneous startup times and minimal memory consumption. Knowing how to run Make builds, execute verification suites, and inspect compiled binaries gives you the foundation to reproduce reported issues and verify fixes safely without endangering packaged system files.</p>
+<h3>Why it matters</h3>
+<p>Contributing to workstation software or verifying a bug report starts with building and testing code cleanly from source. Tamlinux writes core tools in native C11 against <code>libtam</code>, achieving instantaneous startup times and minimal memory consumption. Knowing how to run Make builds, execute verification suites, and inspect compiled binaries gives you the foundation to reproduce reported issues and verify fixes safely without endangering packaged system files.</p>
+<h3>How to think about it</h3>
+<p>A local Make build under your user prefix lets you test without replacing packaged system files. Path claims keep concurrent agents from colliding.</p>
 <h3>New words</h3>
-
 <dl>
 <dt>Toolchain</dt>
 <dd>The complete suite of programming tools (compiler, assembler, linker, and build automation) used to transform source code into executable binaries.</dd>
@@ -101,17 +38,22 @@ Tamlinux cultivar KBN WB 0.6.1
 <dd>An execution mode (such as <code>make -n</code>) that displays proposed commands without executing them or making changes.</dd>
 </dl>
 <p>Building from source produces an executable <dfn><a href="learn/glossary/package.html">package</a></dfn> or standalone binary.</p>
-
-<p><strong>Next step:</strong> at Learner, learn how multiple contributors and AI agents work safely in one shared clone using path claims and <code>tam-work</code>.</p>
 </section>
 
 <section data-level="learner">
-<h2>Concurrent work in one shared clone</h2>
-
-<p><strong>Goal:</strong> you will be able to coordinate concurrent development in a single shared Git clone using <code>tam-work</code> path claims, enforce strict commit scoping, and prepare focused changes with verification evidence.</p>
-
+<h2>Building native C projects with Make</h2>
+<p><strong>Goal:</strong> you will be able to consult project documentation, build native C tools using Make, execute command test suites to reproduce symptoms, and inspect standalone binary versions without root permissions.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Improve your tools</strong> &mdash;
+<a href="improve/terminal.html?level=2">Start</a> |
+<a href="improve/scripting.html?level=2">&larr; Back</a> |
+<a href="improve/ai-performance.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> open a terminal (<a href="shell/index.html">The Shell and Streams</a>). Review terminal editing (<a href="improve/terminal.html">Terminal and Editor Ergonomics</a>). Native compilation requires standard build tools (<code>gcc</code> or <code>clang</code>, <code>make</code>) provided by base packages. All compilation steps run in a local project checkout without requiring administrative privileges.</p>
+<aside class="first-time">
+<p>When compiling software with Make, you do not invoke the compiler directly for every file. Instead, the project's <code>Makefile</code> defines recipes and targets. Typing <code>make test-command</code> builds the binary and runs the automated test suite, printing <code>ok</code> for each verified test assertion.</p>
+</aside>
 <h3>Mental model</h3>
-
 <pre>
 One Shared Git Clone (e.g. ~/src/tam)
 +-------------------------------------------------------------+
@@ -129,94 +71,57 @@ One Shared Git Clone (e.g. ~/src/tam)
 </pre>
 
 <p>Instead of creating duplicate worktrees or branches for every task, contributors share a single clone. Before editing, each contributor or agent uses <code>tam-work</code> to reserve the specific paths they will change. Multiple sessions can work concurrently in the same repository as long as their claimed scopes do not overlap.</p>
-
-<h3>Worked example: Claim paths, make a focused edit, and commit</h3>
-
+<h3>Worked example: Build native C tools and inspect version output</h3>
 <pre class="session" data-risk="read-only">
-$ export TAM_WORK_OWNER=alex TAM_WORK_SESSION=fix-docs-1
-$ tam-work begin --scope knowledge/shell/jobs.html --note 'Improve job examples'
-Claimed alex-1a2b3c4d [active, shared] alex scope=knowledge/shell/jobs.html
-$ tam-work status
-alex-1a2b3c4d [active, shared] alex scope=knowledge/shell/jobs.html
-$ git commit -m 'Improve job examples' -- knowledge/shell/jobs.html
-$ tam-work finish --note 'Committed job example update'
-Finished alex-1a2b3c4d
+$ cd ~/src/tam
+$ make test-command
+tests/run.sh /home/user/src/tam/build/tam
+ok - bare invocation prints an introduction and writes no state
+ok - additive and legacy index columns preserve existing page metadata
+...
+All tam command tests passed.
+$ build/tam --version
+tam command 0.48.1 (dev 4788787)
+knowledge corpus 0.59.0 (dev 4788787)
+libtam 0.4.0
+Tamlinux cultivar KBN WB 0.6.1
 </pre>
 
-<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
-
+<p>Captured on an Arch Linux workstation, 2026-11-02. Your build hash will differ.</p>
+<h3>What just happened</h3>
 <ol>
-<li><code>export TAM_WORK_OWNER=alex TAM_WORK_SESSION=fix-docs-1</code> sets session identity so <code>tam-work</code> tracks who owns which paths.</li>
-<li><code>tam-work begin --scope &lt;path&gt;</code> reserves the specified repository-relative paths. If another session holds overlapping paths, the claim is refused.</li>
-<li><code>tam-work status</code> lists all active claims across the clone, allowing contributors to verify that paths are free before editing.</li>
-<li><code>git commit -m '...' -- &lt;path&gt;</code> commits strictly the claimed files. Never run <code>git add .</code>, <code>git add -A</code>, or <code>git commit -a</code>, as they sweep up uncommitted edits from neighbouring sessions.</li>
-<li><code>tam-work finish</code> releases the reservation once changes are committed or abandoned.</li>
+<li><code>make test-command</code> reads the <code>Makefile</code>, invokes the C compiler (<code>gcc</code> or <code>clang</code>) if any source file changed, links against <code>libtam</code>, and runs <code>tests/run.sh</code>.</li>
+<li>The binary is compiled with <code>-O2</code> optimizations and linked against <code>libtam</code>, producing a self-contained executable that starts in milliseconds without an external script runtime.</li>
+<li>The command tests run in a test harness verifying argument handling, link navigation, and state isolation without altering the host environment.</li>
+<li><code>build/tam --version</code> confirms the standalone binary executes cleanly, reporting its command version, git commit hash, and component libraries.</li>
 </ol>
-
-<h3>Completion task</h3>
-
-<p>Claim two distinct files in a shared repository for a bug fix. Fill in the missing option (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-tam-work begin ___ src/pager.c ___ tests/run.sh --note 'Fix pager scrolling'
-</pre>
-
-<details class="solution">
-<p>Fill in <code>--scope</code>. Running <code>tam-work begin --scope src/pager.c --scope tests/run.sh --note '...'</code> reserves both paths simultaneously in a single claim transaction.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Inspect all active claims across the workstation checkout using <code>tam-work status</code>. If no claims are currently active, verify the command exits cleanly with an empty or clear status report.</p>
-
-<details class="solution">
-<p>Run <code>tam-work status</code>. It lists every active claim, its owner, session ID, and reserved paths. If all work has been finished or released, the output reports no active claims.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Coordination pattern</th><th>When to use</th><th>Trade-off</th></tr>
-<tr><td>Shared clone with <code>tam-work</code> claims</td><td>Standard for all contributors and autonomous AI agents in Tamlinux.</td><td>Eliminates duplicate disk usage and worktree setup overhead; requires strict path discipline and explicit commits.</td></tr>
-<tr><td>Exclusive claim (<code>--exclusive</code>)</td><td>Whole-tree operations like tree builds, releases, or repo-wide formatters.</td><td>Blocks all other sessions across the entire repository; must be kept as short as possible.</td></tr>
-<tr><td>Independent lanes</td><td>Decoupled subsystems (e.g. <code>command</code> in <code>src/</code> vs <code>corpus</code> in <code>knowledge/</code>).</td><td>Allows simultaneous development and test execution across independent developer sessions without blocking.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td><code>tam-work begin</code> is refused with conflict error</td><td>Another session holds an overlapping path or parent directory</td><td>Run <code>tam-work status</code> to identify the conflicting owner</td><td>Coordinate with the other contributor or wait until their claim is finished</td></tr>
-<tr><td>Accidentally staged other files with <code>git add .</code></td><td>Used indiscriminate Git staging commands in a shared clone</td><td>Run <code>git status</code> to see staged files</td><td>Unstage files outside your claim with <code>git restore --staged &lt;path&gt;</code>; always commit strictly with <code>-- &lt;paths&gt;</code></td></tr>
-<tr><td>Git reports <code>fatal: Unable to create '.git/index.lock'</code></td><td>Another session is currently committing or running a Git command</td><td>Wait 2 seconds and retry</td><td>Never delete <code>index.lock</code> manually; concurrent Git operations take lock briefly and release it automatically</td></tr>
-</table>
-
+<h3>Try it</h3>
+<p>Inspect project documentation and build options in a scratch directory by running <code>make -n command</code>. The <code>-n</code> (dry-run) flag prints every compiler invocation and link command that Make would execute, showing exact flags (<code>-O2</code>, <code>-Wall</code>, <code>-std=c11</code>) without running the build or modifying any files.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>make: cc: No such file or directory</code></dt>
+<dd>The native C compiler is not installed. Native toolchains require <code>gcc</code> or <code>clang</code> from the base development package group.</dd>
+<dt><code>cannot open shared object file: libtam.so</code></dt>
+<dd>The dynamic linker cannot locate <code>libtam.so</code> at runtime. Verify that the library was built under <code>~/.local/dev/lib</code> or compiled with <code>-Wl,-rpath</code> pointing to the local library directory.</dd>
+<dt>A test assertion fails with <code>not ok</code></dt>
+<dd>Record the exact test line and failure message in your issue report. Do not modify system packages to force a test to pass; test failures indicate a code regression or missing local dependency.</dd>
+</dl>
 <aside class="tamlinux">
 <p>On Tamlinux, all development across core repositories (including <code>tam</code>, <code>libtam</code>, and <code>tamlinux</code>) follows the shared clone concurrency model. Git worktrees are explicitly avoided because their setup and merge overhead exceeds small changes, and relative directory paths break when nested in worktrees. Instead, contributors and AI coding agents reserve paths with <code>tam-work</code>, push exclusively to <code>develop</code>, and record all verification evidence with AI provenance.</p>
 </aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why is running <code>git add .</code> or <code>git commit -a</code> strictly forbidden in a shared clone?</summary>
-<p>In a shared clone, multiple contributors or agents work on different files simultaneously. Indiscriminate commands like <code>git add .</code> stage and commit unfinished files belonging to other sessions. You must always commit strictly your own paths using <code>git commit -m '...' -- &lt;your-paths&gt;</code>.</p>
+<summary>Why does Tamlinux compile core utilities in native C11 rather than using interpreted scripts?</summary>
+<p>Native C executables start in less than 5 milliseconds and consume negligible memory, avoiding the startup latency, memory overhead, and runtime dependency management of interpreted script runtimes.</p>
 </details>
 <details class="q">
-<summary>What should you do if Git reports that <code>.git/index.lock</code> exists?</summary>
-<p>Wait a moment and retry. Another session is executing a brief Git transaction. Never delete <code>index.lock</code> manually, as doing so can corrupt repository index state.</p>
+<summary>What does running <code>make -n</code> do when inspecting a project build?</summary>
+<p>It performs a dry run, printing every compilation and linking command that Make would execute without actually building or modifying any files.</p>
 </details>
 </section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><cite data-ref="bash"><a href="learn/bibliography/bash.html">GNU Bash manual</a></cite> &mdash; environment variable export and execution scopes.</li>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; flock(2) and atomic filesystem locking semantics.</li>
-<li><a href="man:git-commit(1)">git-commit(1)</a> &mdash; pathspec scoping and atomic commit creation.</li>
-</ul>
 </section>
-
 <section data-level="expert">
 <h2>Compiler optimization flags and tam-work scope reservation</h2>
 

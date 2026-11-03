@@ -230,6 +230,7 @@ in that candidate, not here.
 | **0.64.0 corpus** | D221 path-neighbor migration | Done (2026-11-02) | Migrates `shell/index`, `shell/jobs`, `filesystem/index`, `maintain/index` and `maintain/rollback` to Novice/Learner anatomy with embedded path links; expands hard-enforcement to those pages after pilot acceptance. |
 | **0.65.0 corpus** | D221 desktop-basics and healthy-diagnostics paths | Done (2026-11-02) | Migrates `desktop/index`, `desktop/meta-key`, `desktop/workspaces`, `hardware/networking`, `maintain/logs` and `learn/documentation` to Novice/Learner anatomy; adds the two paths to `paths.json` and expands hard-enforcement. |
 | **0.66.0 corpus** | D221 voice, everyday desktop, and recovery/boot paths | Done (2026-11-02) | Migrates desktop voice, nine `use/desktop` task pages, and six maintain recovery/boot pages; adds three paths to `paths.json` and expands hard-enforcement. |
+| **0.67.0 corpus** | D221 improve-track paths | Done (2026-11-02) | Migrates `hardware/resources` and six `improve/*` pages; adds Run lean and Improve your tools to `paths.json` and expands hard-enforcement. |
 
 ## 4. Deferred direction, without reserved versions
 
