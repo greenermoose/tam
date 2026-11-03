@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Composer
 - **Model:** Composer (Auto)
 - **Transcript:** Private Cursor session; claim `cursor-9a07279d4220`.
-- **Commits:** Corpus 0.62.0 on `develop` (hash filled after commit).
+- **Commits:** `88bd391` on `develop` (corpus 0.62.0).
 - **Authorship:** Fred directed Cursor to take over opencode's stalled Slice 1 work and, while in the corpus, rename page difficulty levels to novice / learner / expert (D221). Cursor finished Slice 1 as `1f43879`, coordinated with agy (D221 command/pilot owner), renamed knowledge HTML labels 1:1 (`beginner`→`novice`, `intermediate`→`learner`) except agy's three pilots and `knowledge/index.html`, and paused `enforce_tracks` so new novice/learner anatomy hard-errors do not block the shared checkout until agy gates them to the pilots. Skill cell IDs (`*.beginner` / `*.intermediate`) are unchanged. Full Novice/Learner content anatomy and embedded paths remain agy's pilot scope. Command-lane UI label work remains agy's.
 
 ## Guiding prompts
