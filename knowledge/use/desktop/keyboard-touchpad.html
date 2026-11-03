@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Turning the touchpad on or off and finding keyboard shortcuts</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="devices.beginner, desktop.beginner">
+<meta name="topic" content="keyboard-touchpad">
+<meta name="summary" content="Toggle the touchpad, adjust keyboard backlight, and look up any keybinding">
+<meta name="keywords" content="touchpad, trackpad, keyboard, shortcut, keybinding, backlight, input device, keyboard layout">
+<meta name="level" content="beginner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Turning the touchpad on or off and finding keyboard shortcuts</p>
+</nav>
+
+<h1>Turning the touchpad on or off and finding keyboard shortcuts</h1>
+
+<p>This page shows how to disable the touchpad while typing, adjust the keyboard light, and look up a shortcut you have forgotten.</p>
+
+<section data-level="beginner">
+<h2>Control input devices</h2>
+
+<p><strong>Goal:</strong> you will be able to turn the touchpad off and on, change keyboard backlight, and open the full keybinding list.</p>
+
+<p><strong>Why it matters:</strong> a touchpad can be brushed by your palms while typing. Turning it off for a moment is faster than fighting the pointer. The keybinding list is the map for everything else.</p>
+
+<p><strong>Before you start:</strong> this page assumes a laptop with a touchpad and, for the backlight steps, a keyboard that has a light. A desktop computer may have neither; the commands then report that no device was found.</p>
+
+<aside class="first-time">
+<p>Find the key with a small touchpad icon, often near the function keys. Press it once to turn the touchpad off; an overlay confirms the change. Press it again to turn it back on. To see every shortcut, press <code>Meta + K</code>.</p>
+</aside>
+
+<h3>Worked example</h3>
+<ol>
+<li>Press the touchpad-toggle key. The overlay says the touchpad is off.</li>
+<li>Move a finger on the touchpad. The pointer should not move.</li>
+<li>Press the same key again. The pointer works once more.</li>
+<li>If your keyboard has backlight keys, press the keyboard-brightness-up key and watch the keys get brighter.</li>
+<li>Press <code>Meta + K</code> to open the keybinding list, then close it with <code>Esc</code>.</li>
+</ol>
+
+<p>Captured from the packaged input commands and keybindings on 2026-11-02. A desktop without a touchpad will skip the first three steps.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The touchpad key called <code>tam-toggle-input-device touchpad</code>.</li>
+<li>The command found the touchpad by name and told the compositor to ignore it.</li>
+<li>The disabled state is remembered, so the touchpad stays off across a reload until you turn it back on.</li>
+<li>The keybinding list is generated from the same bindings that are active now.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Ask whether this computer has a touchpad:</p>
+<pre class="session" data-risk="read-only">
+$ tam-hw-touchpad
+$ echo $?
+1
+</pre>
+<p>Captured on 2026-11-02 on a desktop computer. The command printed no name and exited with status 1, meaning no touchpad was found. On a laptop it prints the device name and exits with status 0.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Nothing happens when you press the touchpad key</dt>
+<dd>The computer may have no touchpad, or the key may be assigned to something else. Run <code>tam-hw-touchpad</code> to check. If it prints a name, run <code>tam-toggle-input-device touchpad on</code> to turn the device back on.</dd>
+<dt>The pointer still moves after you disable the touchpad</dt>
+<dd>A mouse or trackpoint may be moving it. The touchpad key controls only the touchpad.</dd>
+<dt>Keyboard backlight keys do nothing</dt>
+<dd>Many desktop keyboards have no backlight. Laptop keys may need <code>Fn</code> held with the brightness key.</dd>
+<dt>Letters produce the wrong characters</dt>
+<dd>The keyboard layout is a system setting chosen when Tamlinux was installed. This page does not change it.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which keys open the list of every shortcut?</summary>
+<p><code>Meta + K</code>. The touchpad key is separate and controls only the touchpad.</p>
+</details>
+<details class="q">
+<summary>Does turning the touchpad off last until the next reboot?</summary>
+<p>The disabled state is stored, so it lasts across a reload and a reboot until you turn the touchpad back on.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+<dl>
+<dt>Touchpad</dt>
+<dd>The flat pointing surface below a laptop keyboard.</dd>
+<dt>Keybinding</dt>
+<dd>A key or key combination that runs an action.</dd>
+<dt>Exit status</dt>
+<dd>A number a command returns. Zero means success; a non-zero number means it did not do the job.</dd>
+</dl>
+
+<p><strong>Next step:</strong> <a href="use/desktop/lock-and-idle.html">Lock the screen and keep it awake</a>.</p>
+</section>
+
+<h2>Input keys and commands</h2>
+<table>
+<tr><th>Keys or command</th><th>What it does</th></tr>
+<tr><td>Touchpad toggle key</td><td>Turn the touchpad off or on</td></tr>
+<tr><td>Keyboard brightness keys</td><td>Change keyboard backlight, if present</td></tr>
+<tr><td><code>Meta + K</code></td><td>Open the keybinding list</td></tr>
+<tr><td><code>tam-toggle-input-device touchpad off</code></td><td>Disable the touchpad</td></tr>
+<tr><td><code>tam-toggle-input-device touchpad on</code></td><td>Enable the touchpad</td></tr>
+<tr><td><code>tam-toggle-input-device touchscreen off</code></td><td>Disable a touchscreen</td></tr>
+</table>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/displays.html">Arranging your screens</a> &mdash; screen brightness and text size.</li>
+<li><a href="use/desktop/lock-and-idle.html">Lock the screen and keep it awake</a> &mdash; keyboard and pointer behaviour when idle.</li>
+</ul>
+</body>
+</html>

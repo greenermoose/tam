@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Desktop commands</title>
+<meta name="kind" content="reference">
+<meta name="skills" content="devices.beginner, security.beginner">
+<meta name="topic" content="desktop-commands">
+<meta name="summary" content="Hand-checked commands for screenshots, sound, Bluetooth, displays, input, locking, and night light">
+<meta name="keywords" content="desktop commands, tam commands, volume, bluetooth, brightness, screenshot, clipboard, lock, night light, cheat sheet">
+<meta name="level" content="beginner">
+<meta name="track" content="use">
+<meta name="parent" content="use/commands/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="use/commands/index.html">Desktop command reference</a> / Desktop commands</p>
+</nav>
+
+<h1>Desktop commands</h1>
+
+<p>These are the commands behind the everyday desktop pages. Run them in a terminal. Each one changes a setting immediately; there is no separate save step.</p>
+
+<h2>Screenshots and recording</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-capture-screenshot</code></td><td>Choose an area, window, or the full screen; save and copy it</td></tr>
+<tr><td><code>tam-capture-screenshot fullscreen</code></td><td>Capture the whole screen without the picker</td></tr>
+<tr><td><code>tam-capture-text</code></td><td>Choose an area and copy the text in it</td></tr>
+<tr><td><code>tam-capture-screenrecording</code></td><td>Choose an area and start recording</td></tr>
+<tr><td><code>tam-capture-screenrecording --stop-recording</code></td><td>Stop the recording that is running</td></tr>
+<tr><td><code>tam-capture-edit &lt;image&gt;</code></td><td>Open a saved picture in the annotator</td></tr>
+</table>
+<pre class="session" data-risk="user">
+$ tam-capture-screenshot fullscreen
+$ tam-capture-edit ~/Pictures/screenshot-2026-11-02_14-30-00-AbCdEf.png
+</pre>
+
+<h2>Clipboard and notifications</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-shell clipboard toggle</code></td><td>Open or close the clipboard history</td></tr>
+<tr><td><code>tam-notification-send "Headline" "Description"</code></td><td>Show a desktop notification</td></tr>
+<tr><td><code>tam-notification-send "Headline" "Description" --exec program arg</code></td><td>Show a notification that runs a program when clicked</td></tr>
+<tr><td><code>tam-toggle-notification-silencing</code></td><td>Silence notifications, or turn them back on</td></tr>
+</table>
+<pre class="session" data-risk="user">
+$ tam-notification-send "Tea is ready" "Take the kettle off the heat"
+$ tam-notification-send "Guide" "Click to open" --exec tam show use/desktop/notifications
+</pre>
+
+<h2>Sound</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-audio-output-volume raise</code></td><td>Raise the volume by five percent</td></tr>
+<tr><td><code>tam-audio-output-volume lower</code></td><td>Lower the volume by five percent</td></tr>
+<tr><td><code>tam-audio-output-volume +10</code></td><td>Raise the volume by ten percent</td></tr>
+<tr><td><code>tam-audio-output-volume mute-toggle</code></td><td>Mute or unmute the output</td></tr>
+<tr><td><code>tam-audio-output-switch</code></td><td>Switch to the next output device</td></tr>
+<tr><td><code>tam-audio-output-sink</code></td><td>Print the current output device name</td></tr>
+<tr><td><code>tam-audio-input-mute</code></td><td>Mute or unmute the microphone</td></tr>
+<tr><td><code>tam-restart-audio</code></td><td>Restart the sound service</td></tr>
+</table>
+<pre class="session" data-risk="user">
+$ tam-audio-output-volume +10
+$ tam-audio-output-sink
+alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headset-00.analog-stereo
+</pre>
+
+<h2>Bluetooth</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-bluetooth-power on</code></td><td>Turn Bluetooth on</td></tr>
+<tr><td><code>tam-bluetooth-power off</code></td><td>Turn Bluetooth off and keep it off after a reboot</td></tr>
+<tr><td><code>tam-bluetooth-power is-on</code></td><td>Print nothing; exit status 0 means on, 1 means off</td></tr>
+<tr><td><code>tam-bluetooth-device pair &lt;address&gt;</code></td><td>Pair and connect a device</td></tr>
+<tr><td><code>tam-bluetooth-device connect &lt;address&gt;</code></td><td>Connect a paired device</td></tr>
+<tr><td><code>tam-bluetooth-device forget &lt;address&gt;</code></td><td>Disconnect and remove a device</td></tr>
+<tr><td><code>tam-restart-bluetooth</code></td><td>Restart the Bluetooth service</td></tr>
+</table>
+<pre class="session" data-risk="user">
+$ tam-bluetooth-power on
+$ bluetoothctl devices
+$ tam-bluetooth-device connect AA:BB:CC:DD:EE:FF
+</pre>
+<p>The address above is an example, not a real device. Use the address printed by <code>bluetoothctl devices</code>.</p>
+
+<h2>Displays and text size</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-brightness-display +10%</code></td><td>Brighten the focused screen by ten percent</td></tr>
+<tr><td><code>tam-brightness-display 10%-</code></td><td>Dim the focused screen by ten percent</td></tr>
+<tr><td><code>tam-brightness-display 100%</code></td><td>Set maximum brightness</td></tr>
+<tr><td><code>tam-display-text-size</code></td><td>Print the current text size</td></tr>
+<tr><td><code>tam-display-text-size 14</code></td><td>Set text size from 9 to 20</td></tr>
+<tr><td><code>tam-display-text-size reset</code></td><td>Return to 12 px, scale 1.0, and a 9 pt terminal font</td></tr>
+</table>
+<pre class="session" data-risk="user">
+$ tam-display-text-size
+text size: 12 px
+gtk text-scaling-factor: 1.0
+terminal font: 9 pt
+$ tam-display-text-size 14
+$ tam-display-text-size reset
+</pre>
+
+<h2>Input devices</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-toggle-input-device touchpad</code></td><td>Turn the touchpad off or on</td></tr>
+<tr><td><code>tam-toggle-input-device touchpad off</code></td><td>Disable the touchpad</td></tr>
+<tr><td><code>tam-toggle-input-device touchpad on</code></td><td>Enable the touchpad</td></tr>
+<tr><td><code>tam-toggle-input-device touchscreen off</code></td><td>Disable a touchscreen</td></tr>
+</table>
+<pre class="session" data-risk="user">
+$ tam-toggle-input-device touchpad off
+$ tam-toggle-input-device touchpad on
+</pre>
+
+<h2>Locking and idle</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-system-lock</code></td><td>Lock the screen now</td></tr>
+<tr><td><code>tam-toggle-idle</code></td><td>Turn Stay Awake on or off</td></tr>
+<tr><td><code>tam-toggle-idle status</code></td><td>Print the Stay Awake state as JSON</td></tr>
+<tr><td><code>tam-toggle-idle stay-awake</code></td><td>Turn Stay Awake on</td></tr>
+<tr><td><code>tam-toggle-idle allow-idle</code></td><td>Turn Stay Awake off</td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ tam-toggle-idle status
+{"enabled":false,"class":"disabled","tooltip":"Stay Awake"}
+</pre>
+<p>In that output, <code>"enabled"</code> refers to Stay Awake, and the tooltip names the action the key would take next. Use <code>status</code> when you want an unambiguous answer; the words printed by <code>stay-awake</code> and <code>allow-idle</code> describe idle locking instead.</p>
+
+<h2>Night light</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-toggle-nightlight</code></td><td>Turn the warm colour filter on or off</td></tr>
+<tr><td><code>tam-toggle-nightlight --status</code></td><td>Print whether the filter is on and its temperature</td></tr>
+<tr><td><code>tam-restart-hyprsunset</code></td><td>Restart the night-light program</td></tr>
+</table>
+<pre class="session" data-risk="user">
+$ tam-toggle-nightlight --status
+{"enabled":false,"temperature":null}
+$ tam-toggle-nightlight
+$ tam-toggle-nightlight --status
+{"enabled":true,"temperature":4000}
+</pre>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/screenshots.html">Taking a screenshot or recording the screen</a></li>
+<li><a href="use/desktop/clipboard.html">Finding something you copied earlier</a></li>
+<li><a href="use/desktop/audio.html">Changing the volume and choosing speakers or headphones</a></li>
+<li><a href="use/desktop/bluetooth.html">Connecting Bluetooth headphones or a mouse</a></li>
+<li><a href="use/desktop/displays.html">Arranging your screens and changing brightness</a></li>
+<li><a href="use/desktop/lock-and-idle.html">Locking the screen and keeping it awake</a></li>
+<li><a href="use/desktop/night-light.html">Making the screen warmer at night</a></li>
+</ul>
+</body>
+</html>

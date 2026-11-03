@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Making the screen warmer at night</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="devices.beginner, desktop.beginner">
+<meta name="topic" content="night-light">
+<meta name="summary" content="Turn the blue-light filter on or off and check its state">
+<meta name="keywords" content="night light, nightlight, blue light, warm screen, colour temperature, hyprsunset, eye strain">
+<meta name="level" content="beginner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Making the screen warmer at night</p>
+</nav>
+
+<h1>Making the screen warmer at night</h1>
+
+<p>This page shows how to give the screen a warmer colour in the evening and how to check whether the setting is on.</p>
+
+<section data-level="beginner">
+<h2>Turn the night light on and off</h2>
+
+<p><strong>Goal:</strong> you will be able to turn the warm colour filter on, turn it off, and confirm which state it is in.</p>
+
+<p><strong>Why it matters:</strong> a very blue screen late at night can feel harsh. A warmer colour is easier on the eyes and is a single key away, without changing any picture files.</p>
+
+<p><strong>Before you start:</strong> you need a graphical session. The change affects what you see on screen, not the colours saved in photos or documents.</p>
+
+<aside class="first-time">
+<p>Press <code>Meta + Ctrl + J</code>. The screen becomes noticeably warmer. Press the same keys again to return to normal colours. If nothing seems to happen, check the status command below; the filter has no pop-up message.</p>
+</aside>
+
+<h3>Worked example</h3>
+<ol>
+<li>Look at a white window or this guide's background.</li>
+<li>Press <code>Meta + Ctrl + J</code>. The white becomes warm, like early evening light.</li>
+<li>Press <code>Meta + Ctrl + J</code> again. The white returns to its usual colour.</li>
+<li>Open a terminal with <code>Meta + Return</code> and run <code>tam-toggle-nightlight --status</code>.</li>
+</ol>
+
+<pre class="session" data-risk="read-only">
+$ tam-toggle-nightlight --status
+{"enabled":false,"temperature":null}
+</pre>
+<p>Captured on 2026-11-02 with the filter off. When it is on, the same command reports <code>"enabled":true</code> and a temperature of <code>4000</code>.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The key started the night-light program if it was not already running.</li>
+<li>It set the screen's colour temperature to 4000 K, which is warmer than normal daylight.</li>
+<li>Pressing it again set the temperature to 6500 K, the program's normal, unfiltered value.</li>
+<li>The status command reads the current temperature and reports whether it is below 6000 K.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Turn the filter on, then run <code>tam-toggle-nightlight --status</code> and confirm it reports <code>"enabled":true</code> and <code>"temperature":4000</code>. Turn it off again and confirm the values return to <code>false</code> and <code>null</code>.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Nothing changes</dt>
+<dd>Run the status command. If it already says <code>"enabled":true</code>, the filter is on; press the keys once to turn it off and compare. Some rooms and screens make the change harder to notice.</dd>
+<dt>The colours look wrong in a photo editor</dt>
+<dd>Turn the filter off while you judge colours. It changes the whole screen, including programs that edit pictures.</dd>
+<dt>The filter will not turn on</dt>
+<dd>Run <code>tam-toggle-nightlight</code> in a terminal and read any error. If the night-light program is not running, the command tries to start it.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which keys toggle the night light?</summary>
+<p><code>Meta + Ctrl + J</code>. Press them again to return to normal colours.</p>
+</details>
+<details class="q">
+<summary>What temperature does the filter use when it turns on?</summary>
+<p>4000 K. Turning it off sets 6500 K, which is the program's normal value.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+<dl>
+<dt>Colour temperature</dt>
+<dd>How warm or cool white light looks, measured in kelvin (K). Lower numbers look warmer.</dd>
+<dt>Blue light</dt>
+<dd>The cooler part of white light. A night filter reduces it.</dd>
+<dt>Filter</dt>
+<dd>A change applied to the whole screen without altering the files themselves.</dd>
+</dl>
+
+<p><strong>Next step:</strong> <a href="use/commands/desktop.html">Desktop commands</a> &mdash; a compact list of the commands used on these pages.</p>
+</section>
+
+<h2>Night-light commands</h2>
+<table>
+<tr><th>Command or keys</th><th>What it does</th></tr>
+<tr><td><code>Meta + Ctrl + J</code></td><td>Turn the warm filter on or off</td></tr>
+<tr><td><code>tam-toggle-nightlight</code></td><td>Same as the keys</td></tr>
+<tr><td><code>tam-toggle-nightlight --status</code></td><td>Print whether the filter is on and its temperature</td></tr>
+<tr><td><code>tam-restart-hyprsunset</code></td><td>Restart the night-light program if it stops responding</td></tr>
+</table>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/displays.html">Arranging your screens</a> &mdash; brightness and text size.</li>
+<li><a href="use/desktop/screenshots.html">Taking a screenshot</a> &mdash; go back to the start of this desktop set.</li>
+</ul>
+</body>
+</html>

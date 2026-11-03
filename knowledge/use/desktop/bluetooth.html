@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Connecting Bluetooth headphones or a mouse</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="devices.beginner, desktop.beginner">
+<meta name="topic" content="bluetooth">
+<meta name="summary" content="Turn Bluetooth on, pair a device, connect it, and remove it again">
+<meta name="keywords" content="bluetooth, pair, connect, disconnect, forget, headphones, mouse, keyboard, wireless, rfkill">
+<meta name="level" content="beginner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Connecting Bluetooth headphones or a mouse</p>
+</nav>
+
+<h1>Connecting Bluetooth headphones or a mouse</h1>
+
+<p>This page shows how to turn Bluetooth on, pair a wireless device, and remove one you no longer use.</p>
+
+<section data-level="beginner">
+<h2>Pair and connect a device</h2>
+
+<p><strong>Goal:</strong> you will be able to turn Bluetooth on, put a device into pairing mode, pair it, and connect it again later.</p>
+
+<p><strong>Why it matters:</strong> wireless headphones, mice, and keyboards need a one-time pairing. After that, connecting is usually a single click.</p>
+
+<p><strong>Before you start:</strong> you need a graphical session and a Bluetooth adapter. The device must be charged and close to the computer. Have its manual ready if you do not know how to start pairing mode.</p>
+
+<aside class="first-time">
+<p>Press <code>Meta + Ctrl + B</code> to open the Bluetooth panel. If Bluetooth is off, turn it on there. Put your device into pairing mode: usually hold its power or pairing button until a light flashes. The device appears in the panel; click it and wait for the connection.</p>
+</aside>
+
+<h3>Worked example</h3>
+<ol>
+<li>Press <code>Meta + Ctrl + B</code>. The Bluetooth panel opens.</li>
+<li>Turn Bluetooth on if the panel says it is off.</li>
+<li>Hold the pairing button on the headphones or mouse until its light flashes.</li>
+<li>Wait for the device to appear in the panel, then click its name.</li>
+<li>When it connects, the panel marks it as connected. Play some sound or move the mouse to confirm.</li>
+</ol>
+
+<p>Captured from the packaged Bluetooth commands and keybindings on 2026-11-02. Menu labels depend on the device.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The panel asked the Bluetooth service for nearby devices.</li>
+<li>Clicking a device told the service to pair with it and trust it.</li>
+<li>The device is remembered, so later connections do not need pairing mode again.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Check whether the adapter is on:</p>
+<pre class="session" data-risk="read-only">
+$ tam-bluetooth-power is-on
+$ echo $?
+0
+</pre>
+<p>Captured on 2026-11-02. The command prints nothing; the exit status is the answer. <code>0</code> means Bluetooth is on, and <code>1</code> means it is off.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The device does not appear</dt>
+<dd>Put it back into pairing mode and keep it within a metre of the computer. Make sure Bluetooth is on. A device already connected to a phone may refuse a second connection until you disconnect it there.</dd>
+<dt>Pairing starts but fails</dt>
+<dd>Remove the device from the computer and try again: open the panel, choose the device, and use its forget or remove action. Then pair once more.</dd>
+<dt>Headphones connect but there is no sound</dt>
+<dd>Use <code>Shift</code> with the mute key to switch the audio output, or choose the headphones in the audio panel. See <a href="use/desktop/audio.html">Changing the volume</a>.</dd>
+<dt>Bluetooth is off and will not turn on</dt>
+<dd>Turn it on in the panel once. If that fails, run <code>tam-restart-bluetooth</code> in a terminal, then try again.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which keys open the Bluetooth panel?</summary>
+<p><code>Meta + Ctrl + B</code>. The audio panel is <code>Meta + Ctrl + A</code>.</p>
+</details>
+<details class="q">
+<summary>Why does a paired device not need pairing mode every time?</summary>
+<p>Pairing exchanges and stores a key. The computer and device reuse that key when they connect later.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+<dl>
+<dt>Pairing</dt>
+<dd>The one-time exchange that lets two Bluetooth devices trust each other.</dd>
+<dt>Adapter</dt>
+<dd>The Bluetooth radio inside the computer.</dd>
+<dt>Forget</dt>
+<dd>Remove a paired device and its stored key.</dd>
+</dl>
+
+<p><strong>Next step:</strong> <a href="use/desktop/displays.html">Arrange your screens and change brightness</a>.</p>
+</section>
+
+<h2>Bluetooth commands</h2>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>tam-bluetooth-power on</code></td><td>Turn the adapter on</td></tr>
+<tr><td><code>tam-bluetooth-power off</code></td><td>Turn the adapter off and keep it off after a reboot</td></tr>
+<tr><td><code>tam-bluetooth-power is-on</code></td><td>Print nothing; exit status 0 means on</td></tr>
+<tr><td><code>tam-bluetooth-device pair &lt;address&gt;</code></td><td>Pair and connect a device by address</td></tr>
+<tr><td><code>tam-bluetooth-device connect &lt;address&gt;</code></td><td>Connect an already paired device</td></tr>
+<tr><td><code>tam-bluetooth-device forget &lt;address&gt;</code></td><td>Disconnect and remove a device</td></tr>
+<tr><td><code>tam-restart-bluetooth</code></td><td>Restart the Bluetooth service</td></tr>
+</table>
+<p>To find an address, run <code>bluetoothctl devices</code>. Each line shows an address such as <code>AA:BB:CC:DD:EE:FF</code> followed by the device name.</p>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/audio.html">Changing the volume</a> &mdash; choose Bluetooth headphones as the output.</li>
+<li><a href="use/commands/desktop.html">Desktop commands</a> &mdash; the commands behind the panel and keys.</li>
+</ul>
+</body>
+</html>

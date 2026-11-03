@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Arranging your screens and changing brightness</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="devices.beginner, desktop.beginner">
+<meta name="topic" content="displays">
+<meta name="summary" content="Change brightness and text size, arrange monitors, and turn the laptop screen off or mirror it">
+<meta name="keywords" content="display, monitor, screen, brightness, text size, scaling, resolution, mirror, laptop screen, external monitor">
+<meta name="level" content="beginner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Arranging your screens and changing brightness</p>
+</nav>
+
+<h1>Arranging your screens and changing brightness</h1>
+
+<p>This page shows how to change screen brightness, make text larger, and manage a second monitor.</p>
+
+<section data-level="beginner">
+<h2>Brightness, text size, and monitors</h2>
+
+<p><strong>Goal:</strong> you will be able to dim or brighten the screen, make text easier to read, and choose what a second monitor shows.</p>
+
+<p><strong>Why it matters:</strong> a screen that is too bright is tiring, and tiny text is hard to read. A second monitor also needs to be arranged so the pointer moves between screens in the direction you expect.</p>
+
+<p><strong>Before you start:</strong> you need a graphical session. Brightness keys usually control the built-in laptop screen. External monitors may respond only if they support a control standard called DDC.</p>
+
+<aside class="first-time">
+<p>Press the brightness-down key a few times. An overlay shows the level falling. If the screen is still too bright, open the display panel with <code>Meta + Ctrl + D</code> and use the brightness control for the monitor you are looking at. For larger text everywhere, run <code>tam-display-text-size 14</code> in a terminal.</p>
+</aside>
+
+<h3>Worked example</h3>
+<ol>
+<li>Press the brightness-down key. The overlay shows the new level.</li>
+<li>Press <code>Shift</code> with the brightness-down key to go straight to the minimum, or <code>Shift</code> with brightness-up for the maximum.</li>
+<li>Open a terminal with <code>Meta + Return</code> and run <code>tam-display-text-size</code> to see the current text size.</li>
+<li>Run <code>tam-display-text-size 14</code> to make the shell and terminal text larger.</li>
+<li>Run <code>tam-display-text-size reset</code> to return to the default.</li>
+</ol>
+
+<pre class="session" data-risk="read-only">
+$ tam-display-text-size
+text size: 12 px
+gtk text-scaling-factor: 1.0
+terminal font: 9 pt
+</pre>
+<p>Captured on 2026-11-02. Your values may differ if you or an earlier change set them.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The brightness keys changed the backlight of the screen with focus.</li>
+<li>The display panel lists each connected monitor and the controls that monitor supports.</li>
+<li><code>tam-display-text-size</code> changed three related settings together: the shell, programs that use GTK, and the terminal font.</li>
+<li><code>reset</code> returned all three to 12 px, a scale factor of 1.0, and a 9 pt terminal font.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Open the display panel with <code>Meta + Ctrl + D</code>. Find the monitor you are using, change its brightness or scale, and use the panel's apply step. If the result is wrong, use the panel's revert step before the countdown ends.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Brightness keys do nothing</dt>
+<dd>The focused screen may be an external monitor without brightness control. Use the monitor's own buttons, or try the slider in the display panel. A desktop monitor may not support DDC at all.</dd>
+<dt>Text is now too large or too small</dt>
+<dd>Run <code>tam-display-text-size reset</code>, then choose a size between 9 and 20.</dd>
+<dt>The second monitor shows a black screen</dt>
+<dd>Check its cable and input source. Then open the display panel and confirm the monitor is enabled and positioned where you expect.</dd>
+<dt>The pointer will not move to the other screen</dt>
+<dd>Arrange the monitors in the display panel so their edges touch in the same order as the physical screens.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which command makes text larger everywhere, and how do you undo it?</summary>
+<p><code>tam-display-text-size 14</code> makes it larger. <code>tam-display-text-size reset</code> returns to the default. Pick any size from 9 to 20.</p>
+</details>
+<details class="q">
+<summary>Why might the brightness keys not dim an external monitor?</summary>
+<p>The keys control the focused screen's backlight. Many external monitors do not expose brightness over DDC, so the keys have nothing to change.</p>
+</details>
+</section>
+
+<h3>New words</h3>
+<dl>
+<dt>Resolution</dt>
+<dd>The number of pixels a screen shows, such as 1920 by 1080.</dd>
+<dt>Scaling</dt>
+<dd>Making everything on screen larger without lowering the resolution.</dd>
+<dt>Mirror</dt>
+<dd>Show the same picture on two screens.</dd>
+</dl>
+
+<p><strong>Next step:</strong> <a href="use/desktop/keyboard-touchpad.html">Turn the touchpad on or off and change the keyboard layout</a>.</p>
+</section>
+
+<h2>Display keys and commands</h2>
+<table>
+<tr><th>Keys or command</th><th>What it does</th></tr>
+<tr><td>Brightness up, Brightness down</td><td>Change the focused screen's brightness; hold to repeat</td></tr>
+<tr><td><code>Alt</code> + Brightness up or down</td><td>Change brightness one percent at a time</td></tr>
+<tr><td><code>Shift</code> + Brightness up or down</td><td>Go to maximum or minimum brightness</td></tr>
+<tr><td><code>Meta + Ctrl + D</code></td><td>Open the display panel</td></tr>
+<tr><td><code>Meta + Ctrl + Delete</code></td><td>Turn the laptop screen on or off</td></tr>
+<tr><td><code>Meta + Shift + Delete</code></td><td>Mirror the laptop screen on another display</td></tr>
+<tr><td><code>tam-display-text-size</code></td><td>Show the current text size</td></tr>
+<tr><td><code>tam-display-text-size 14</code></td><td>Set text size from 9 to 20</td></tr>
+<tr><td><code>tam-display-text-size reset</code></td><td>Return to the default size</td></tr>
+</table>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/keyboard-touchpad.html">Keyboard and touchpad</a> &mdash; input devices and layout.</li>
+<li><a href="use/desktop/night-light.html">Making the screen warmer at night</a> &mdash; reduce blue light.</li>
+<li><a href="use/commands/desktop.html">Desktop commands</a> &mdash; the command behind each display key.</li>
+</ul>
+</body>
+</html>
