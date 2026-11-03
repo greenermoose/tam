@@ -6,7 +6,7 @@
 - **CLI Tool:** Cursor Composer
 - **Model:** Composer (Auto)
 - **Transcript:** Private Cursor session; claim `cursor-77a594e52b00`.
-- **Commits:** Agy D221 command/pilot `c4dd503`; Cursor corpus 0.63.0 follow-up on `develop` (see `git log -1`).
+- **Commits:** Agy D221 command/pilot `c4dd503`; Cursor corpus 0.63.0 follow-up `a21fb13` on `develop`.
 - **Authorship:** Fred directed Cursor to finish after agy released the `tam` checkout. Agy delivered command UI labels, pedagogy/templates, the three pilot pages and `paths.json` (`c4dd503`). Cursor gated novice/learner anatomy hard-errors to those pilots, restored `enforce_tracks`, set the guide root to `novice`, bumped corpus to 0.63.0, synced ROADMAP/development/provenance, and regenerated indexes.
 
 ## Guiding prompts
