@@ -4,7 +4,7 @@
 <meta name="topic" content="power">
 <meta name="summary" content="Distinguish display blanking, suspend and hibernation, inspect kernel capabilities, and plan bounded wake diagnosis">
 <meta name="keywords" content="power, dpms, blanking, suspend, sleep, s3, s2idle, hibernate, hibernation, s4, shift, wake, display, image_size">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
 <meta name="prereqs" content="maintain, resources">
@@ -15,7 +15,7 @@
 <h1>When your computer rests or sleeps</h1>
 <p>This page explains what happens when your computer rests, sleeps, or saves its state before turning off.</p>
 <p>Turning off the screen, putting the computer to sleep, and saving its state before power-off are different choices. This page explains what each preserves.</p>
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Tell display blanking from system sleep</h2>
 <p><strong>Goal:</strong> you will be able to name the three states and read
 which sleep labels your kernel offers, without putting the machine to sleep.</p>
@@ -37,7 +37,7 @@ freeze mem disk
 <p>Captured on an Arch Linux workstation, 2026-10-22. Your list may differ.</p>
 <ol><li><code>freeze</code> names suspend-to-idle.</li>
 <li><code>mem</code> requests the suspend variant selected through
-<code>mem_sleep</code>, explained at Intermediate.</li>
+<code>mem_sleep</code>, explained at Learner.</li>
 <li><code>disk</code> names hibernation. Its presence is a kernel capability,
 not proof that storage, resume setup and drivers can complete a round trip.</li></ol>
 <table><tr><th>State</th><th>What continues or survives?</th><th>What to remember</th></tr>
@@ -65,10 +65,10 @@ the machine depends on its configuration and hardware. Nothing read here needs u
 <dt>Hibernation</dt><dd>Saving a memory image to storage so the session can be restored later.</dd></dl>
 <p>A <dfn><a href="learn/glossary/process.html">process</a></dfn> is a running
 instance of a program; display blanking alone does not suspend it.</p>
-<h3>Next step</h3><p>At Intermediate, distinguish an available mode from a
+<h3>Next step</h3><p>At Learner, distinguish an available mode from a
 selected mode and a successful wake.</p>
 </section>
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Compare capability, selection and observed behavior</h2>
 <p><strong>Goal:</strong> you will be able to interpret sleep-mode selection
 and choose evidence for a power symptom without changing a setting.</p>

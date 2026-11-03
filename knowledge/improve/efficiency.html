@@ -5,7 +5,7 @@
 <meta name="topic" content="efficiency">
 <meta name="summary" content="Eliminating periodic polling loops with inotify, epoll, and Wayland compositor event sockets to keep CPU idle and save energy">
 <meta name="keywords" content="efficiency, zero-polling, polling, inotify, epoll, wayland, idle, power, wakeups, events, cpu">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="improve, power">
@@ -21,7 +21,7 @@
 <p>This page explains how software can wait for work without repeatedly checking for it.</p>
 <p>Repeatedly checking for work can use energy even when nothing needs attention. Programs can instead wait to be notified when something happens.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Identifying CPU wakeups and idle efficiency</h2>
 
 <p><strong>Goal:</strong> you will be able to measure processor wakeups, context switches, and CPU idle percentages using <code>vmstat</code> to verify system efficiency.</p>
@@ -92,10 +92,10 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
 </dl>
 <p>An idle <dfn><a href="learn/glossary/process.html">process</a></dfn> sleeps in the kernel and consumes zero CPU cycles until an event arrives.</p>
 
-<p><strong>Next step:</strong> at Intermediate, learn how to replace wasteful sleep-polling scripts with event-driven <code>inotify</code> file watchers.</p>
+<p><strong>Next step:</strong> at Learner, learn how to replace wasteful sleep-polling scripts with event-driven <code>inotify</code> file watchers.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Event-driven file watching with inotify</h2>
 
 <p><strong>Goal:</strong> you will be able to replace periodic polling loops in shell scripts with kernel-level <code>inotifywait</code> filesystem event notifications.</p>

@@ -5,7 +5,7 @@
 <meta name="topic" content="fonts">
 <meta name="summary" content="The history of digital typography, display technologies, font formats, Fontconfig, and text rasterization across Unix, Arch, Void, and Tamlinux">
 <meta name="keywords" content="fonts, typography, freetype, harfbuzz, fontconfig, pango, truetype, opentype, bitmap, virtual console, setfont, arch, void, tamlinux, atkinson, nerd fonts">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="ttys-and-vts, terminfo-and-termcap">
@@ -21,7 +21,7 @@
 <p>This page explains how text is turned into visible letters on screens, from Linux virtual consoles to graphical desktops.</p>
 <p>On Unix-like operating systems, typography is not handled by a single monolithic engine. A small text console uses fixed bitmap grids built into kernel memory, while a graphical desktop coordinates multiple libraries to discover font files, shape complex scripts, and draw sharp vector curves on pixel displays. Knowing how this pipeline works allows you to customize your reading environment, troubleshoot missing characters, and write lean desktop software.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>From character codes to screen shapes</h2>
 
 <p><strong>Goal:</strong> you will be able to inspect which font family supplies monospace text in your terminal, locate font files on your system, and test console font changes using read-only commands.</p>
@@ -113,10 +113,10 @@ tam-font-current
 <dd>The standard Unix library for discovering, customizing, and matching font files across applications.</dd>
 </dl>
 
-<p><strong>Next step:</strong> at Intermediate, explore the historical evolution of computer typography and understand how FreeType, HarfBuzz, and Fontconfig cooperate to render text.</p>
+<p><strong>Next step:</strong> at Learner, explore the historical evolution of computer typography and understand how FreeType, HarfBuzz, and Fontconfig cooperate to render text.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>The rendering pipeline: from outlines to pixels</h2>
 
 <p><strong>Goal:</strong> you will be able to explain the history of human-computer typography, configure Fontconfig XML rules, and compare font management between Arch Linux and Void Linux.</p>
@@ -373,7 +373,7 @@ otfinfo -i "$(fc-match -f '%{file}' monospace)"
 </details>
 <details class="q open">
 <summary>What advantage does an atomic file exchange (os.replace) have over writing directly to a configuration file?</summary>
-<p>Writing directly to a file creates an intermediate state where the file is partially written or empty. If a reader process (like a terminal emulator or editor) reads the file during that window, it crashes or fails to parse. An atomic exchange swaps the directory entry instantaneously, so readers always see either the complete old file or the complete new file.</p>
+<p>Writing directly to a file creates an learner state where the file is partially written or empty. If a reader process (like a terminal emulator or editor) reads the file during that window, it crashes or fails to parse. An atomic exchange swaps the directory entry instantaneously, so readers always see either the complete old file or the complete new file.</p>
 </details>
 <details class="q open">
 <summary>How can font subsystem code size be reduced when migrating from Arch Linux to Void Linux?</summary>

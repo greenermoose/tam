@@ -5,7 +5,7 @@
 <meta name="topic" content="error-detection-and-correction">
 <meta name="summary" content="Parity bits, checksums, Cyclic Redundancy Checks (CRCs), ARQ retransmission, and Forward Error Correction (Hamming codes)">
 <meta name="keywords" content="error-detection, error-correction, parity, checksum, crc, crc-32, crc-16, hamming, forward-error-correction, fec, arq, stop-and-wait, selective-repeat">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="communication-protocols, digital-logic">
@@ -21,7 +21,7 @@
 <p>This page explains why physical transmission channels corrupt digital data, how mathematical detection algorithms identify corrupted bits, and how forward error correction and retransmission protocols guarantee reliability across imperfect hardware.</p>
 <p>In a purely theoretical world, a wire conveys 1s and 0s with mathematical perfection. In the physical universe, conductors pass through electromagnetic fields, radio waves encounter atmospheric moisture, and microscopic thermal fluctuations agitate electrons inside semiconductors. Communication engineering assumes that every physical medium is inherently hostile and lossy. By appending structured redundant bits to messages &mdash; ranging from simple parity bits to multi-dimensional Cyclic Redundancy Checks and Forward Error Correction codes &mdash; computers detect errors immediately or reconstruct damaged data in flight without retransmission.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Noise, corrupted bits, and parity verification</h2>
 
 <p><strong>Goal:</strong> you will be able to explain how physical noise flips bits on communication lines, and calculate even and odd parity bits to detect single-bit errors.</p>
@@ -107,7 +107,7 @@ Calculated parity bit: 1 | Incoming valid under Even Parity: True
 <p>Single-bit parity is sufficient for low-speed serial links, but high-throughput storage and network packets require robust algorithms. In the next section, you will learn how Cyclic Redundancy Checks (CRCs) catch burst errors and how ARQ protocols retransmit lost packets.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Checksums, Cyclic Redundancy Checks (CRC), and ARQ retransmission</h2>
 
 <p><strong>Goal:</strong> you will be able to implement internet checksums, explain polynomial Cyclic Redundancy Checks (CRC-16 and CRC-32), inspect kernel serial error counters, and analyze Automatic Repeat reQuest (ARQ) retransmission mechanisms.</p>

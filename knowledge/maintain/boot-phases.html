@@ -4,7 +4,7 @@
 <meta name="topic" content="boot-phases">
 <meta name="summary" content="Name the phases from firmware startup to text login and distinguish boot phases from runlevels">
 <meta name="keywords" content="boot, boot phases, startup, firmware, uefi, boot menu, bootloader, kernel, initramfs, unlock, hibernation, resume, login, runlevel, runit, console">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
 <meta name="prereqs" content="maintain">
@@ -26,11 +26,11 @@
 <h2>After the boot phases</h2>
 <p>Signing in authenticates a user and starts a text session, usually with a command shell. Disk unlock and user login are separate steps. A resumed session may return directly to its previous state rather than show a fresh login.</p>
 <p>Current Tamlinux cultivars use console-first startup: after login you work in a text session, and you start the graphical desktop only when requested with <code>tam-desktop</code>. The <a href="learn/glossary/virtual-console.html">virtual console</a> remains a way to work with text. A graphical session is optional; it is not a separate boot phase.</p>
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Remember the difference</h2>
 <p>Unlocking lets the computer access encrypted storage. Signing in identifies the user. You may need to do both.</p>
 </section>
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Boot phases and runlevels</h2>
 <p>A boot phase describes part of the startup sequence. A runlevel is a configuration of services for a running system, traditionally identified by a number. The current Arch-based setup uses systemd targets to group units. Runit can also support named service sets called runlevels; its three initialization, operation and shutdown stages are a different use of the word stage. Neither runlevels nor targets are the firmware and bootloader sequence described above.</p>
 </section>

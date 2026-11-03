@@ -5,7 +5,7 @@
 <meta name="topic" content="hardware-diagnostics">
 <meta name="summary" content="Physical inspection, multimeter testing, loopback plugs, oscilloscopes, logic analyzers, and component-level board repair">
 <meta name="keywords" content="hardware-diagnostics, multimeter, loopback, continuity, oscilloscope, logic-analyzer, rs232, uart, transceiver, max232, tvs-diode, trace-repair">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="cables-and-signaling, communication-protocols, error-detection-and-correction">
@@ -21,7 +21,7 @@
 <p>This how-to guide explains how to troubleshoot faulty computer cables, communication buses, and interface boards &mdash; moving from visual physical inspection and operating system enumeration to multimeter bench testing, hardware loopback plugs, oscilloscope signal integrity probing, and board-level component repair.</p>
 <p>When a server console stops responding, a network link drops packets, or an industrial sensor goes offline, the fault may lie anywhere from a loosened thumb screw or broken copper core to a blown electrostatic discharge (ESD) protection diode or an incorrect baud rate setting. By approaching hardware problems systematically &mdash; eliminating physical defects first, testing electrical continuity and voltage levels with bench instruments, and diagnosing signal waveforms with oscilloscopes &mdash; you can pinpoint the exact failure point and repair equipment instead of discarding it.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Visual inspection and operating system hardware detection</h2>
 
 <p><strong>Goal:</strong> you will be able to perform a methodical physical inspection of cables and connectors, verify cable seating, and determine whether the Linux kernel detects plugged communication hardware.</p>
@@ -107,7 +107,7 @@ crw-rw---- 1 root dialout 188, 0 Nov  1 14:15 /dev/ttyUSB0
 <p>Once you have confirmed that the cable is undamaged visually and the operating system recognizes the interface, you need to verify the electrical health of the conductors. In the next section, you will use a Digital Multimeter (DMM) to test continuity, measure DC voltage rails, and build a hardware loopback plug.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Bench testing with a Multimeter, loopback plugs, and framing diagnostics</h2>
 
 <p><strong>Goal:</strong> you will be able to test cable continuity and detect internal shorts using a Digital Multimeter (DMM), measure DC voltage levels on communication pins, construct a serial loopback plug to verify transceiver health, and diagnose baud rate and framing mismatches.</p>
@@ -183,7 +183,7 @@ except Exception as e:
 Loopback success: transmitted 29 bytes, received identical echo!
 </pre>
 
-<p>When the transmitted bytes match the received bytes byte-for-byte, you have proven conclusively that the computer's CPU, motherboard bus, USB host controller, cable adapter chip, line driver transceiver, and OS kernel driver are completely healthy. If communication fails when connected to the remote equipment, the fault lies entirely in the remote device or intermediate field wiring.</p>
+<p>When the transmitted bytes match the received bytes byte-for-byte, you have proven conclusively that the computer's CPU, motherboard bus, USB host controller, cable adapter chip, line driver transceiver, and OS kernel driver are completely healthy. If communication fails when connected to the remote equipment, the fault lies entirely in the remote device or learner field wiring.</p>
 
 <h3>Completion task</h3>
 

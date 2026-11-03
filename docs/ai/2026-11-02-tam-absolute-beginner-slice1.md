@@ -6,7 +6,7 @@
 - **CLI Tool:** opencode 1.19.4 (content); Cursor Composer finished the commit after opencode exhausted tokens
 - **Model:** big-pickle (`opencode/big-pickle`); Cursor Composer for handoff commit
 - **Transcript:** Retained privately by the author; Cursor takeover under Fred's direction 2026-11-02.
-- **Commits:** Slice 1 corpus 0.61.0 on `develop` (hash filled after commit in the follow-up rename record if needed).
+- **Commits:** `1f43879` on `develop` (corpus 0.61.0).
 - **Authorship:** Fred approved the plan, set the audience and page granularity, and directed the first slice. Opencode wrote the plan edits, skill cells, pages, links, version bump and this record; Cursor took over the claim, re-ran `make corpus-and-test`, and committed. No live desktop actions or command-lane source changes.
 - **Checked against:** `tamlinux/commands/tam-capture-screenshot/tam-capture-screenshot`,
   `tamlinux/commands/tam-capture-region/tam-capture-region`,

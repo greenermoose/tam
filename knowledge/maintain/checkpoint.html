@@ -7,7 +7,7 @@
 <meta name="topic" content="checkpoint">
 <meta name="summary" content="Understand checkpoint scopes, match recovery boundaries, and avoid checkpoint churn">
 <meta name="keywords" content="checkpoint, checkpoints, rollback point, recovery anchor, snapshot, mutable state, quiescence, verification, fallback">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="maintain">
 <meta name="parent" content="maintain/index.html">
 <meta name="prereqs" content="maintain, filesystem">
@@ -21,7 +21,7 @@
 <p>This page explains how saving a record before a change can help you recover if something goes wrong.</p>
 <p>A checkpoint records the state of part of a system before a change. It may help you return to that state if the change causes a problem.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Understand What a Checkpoint Protects</h2>
 
 <p><strong>Goal:</strong> you will be able to distinguish a recorded checkpoint
@@ -126,10 +126,10 @@ unset lab
 <dd>A specific saved state you can return to if an operation fails.</dd>
 </dl>
 
-<p><strong>Next step:</strong> compare checkpoint layers at Intermediate.</p>
+<p><strong>Next step:</strong> compare checkpoint layers at Learner.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Match Checkpoints to the Changed Layer</h2>
 
 <p><strong>Goal:</strong> you will be able to select the appropriate checkpoint
@@ -276,7 +276,7 @@ checkpoint immediately before an actual mutation of that specific layer, verifyi
 integrity and coverage rather than generating repeated captures for unchanged
 components.</p>
 
-<p>Untested intermediate builds are historical steps, not rollback targets.
+<p>Untested learner builds are historical steps, not rollback targets.
 Long-term fallback returns to the trusted <strong>recovery anchor</strong>&mdash;the
 last version the user has lived on in normal daily operation. When testing a candidate,
 reusing the existing anchor material and one shared recovery procedure prevents
@@ -309,8 +309,8 @@ EOF
 <p>Unactivated candidates make no physical changes to boot or root storage. Generating checkpoints for unchanged layers creates disk overhead, risks displacing valid older checkpoints, and confuses build history with tested recovery anchors. Checkpoints belong immediately before actual mutations of that layer.</p>
 </details>
 <details class="q open">
-<summary>What distinguishes a recovery anchor from an arbitrary intermediate checkpoint?</summary>
-<p>A recovery anchor is a known-good system state that has been verified through sustained daily use. Intermediate checkpoints represent transient pre-change states of untested candidates. If a trial fails, rolling back to the recovery anchor guarantees a working system, whereas rolling back to an untested intermediate build leaves stability unproven.</p>
+<summary>What distinguishes a recovery anchor from an arbitrary learner checkpoint?</summary>
+<p>A recovery anchor is a known-good system state that has been verified through sustained daily use. Learner checkpoints represent transient pre-change states of untested candidates. If a trial fails, rolling back to the recovery anchor guarantees a working system, whereas rolling back to an untested learner build leaves stability unproven.</p>
 </details>
 </section>
 

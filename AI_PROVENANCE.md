@@ -22,7 +22,8 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
-| 2026-11-02 | Absolute-beginner desktop task pages and curated desktop command reference; corpus 0.61.0 | opencode 1.19.4; `big-pickle` | [Session record](docs/ai/2026-11-02-tam-absolute-beginner-slice1.md) |
+| 2026-11-02 | Absolute-beginner desktop task pages and curated desktop command reference; corpus 0.61.0 | opencode 1.19.4; `big-pickle` (Cursor finished commit) | [Session record](docs/ai/2026-11-02-tam-absolute-beginner-slice1.md) |
+| 2026-11-02 | D221 page difficulty labels novice/learner/expert; corpus 0.62.0 | Cursor Composer | [Session record](docs/ai/2026-11-02-tam-d221-level-labels.md) |
 | 2026-11-02 | Corpus gap remediation audit and content; corpus 0.60.0 | Cursor Agent; Composer | [Session records](docs/ai/2026-11-02-tam-corpus-audit.md); [remediation](docs/ai/2026-11-02-tam-corpus-remediation.md) |
 | 2026-11-02 | Guiding principle: make computing fun for humans; corpus 0.59.1 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-fun-computing-principle.md) |
 | 2026-11-02 | Linux input subsystem and evdev guide and glossary entry; corpus 0.59.0 | Antigravity CLI 1.4.12; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-02-tam-evdev-guide.md) |

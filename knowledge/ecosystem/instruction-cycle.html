@@ -5,7 +5,7 @@
 <meta name="topic" content="instruction-cycle">
 <meta name="summary" content="How bits travel from storage and DRAM to CPU caches, get fetched, decoded, executed by processor units, and written back as results">
 <meta name="keywords" content="instruction-cycle, microarchitecture, fetch, decode, execute, memory-access, writeback, pipeline, instruction-pointer, program-counter, alu, cache-line, micro-ops, uops, registers, mmu">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="computer-architecture, digital-logic">
@@ -21,7 +21,7 @@
 <p>This page explains how a computer processor continuously fetches instructions from memory, interprets their binary codes, executes calculations, and records the results.</p>
 <p>Every software program on your computer &mdash; from a simple shell script to the Linux kernel itself &mdash; eventually compiles into a stream of raw binary machine instructions. The processor operates as an automated engine that loops through discrete microarchitectural phases billions of times per second: pulling bytes from cache into registers, decoding binary opcodes into electrical control signals, calculating results in the ALU, and committing values to memory.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>The fundamental loop: fetch, decode, and execute</h2>
 
 <p><strong>Goal:</strong> you will be able to describe the three primary stages of processor execution (Fetch, Decode, Execute) and inspect processor cache structures that deliver instructions to the execution core.</p>
@@ -103,10 +103,10 @@ $ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
 </dl>
 <p>A sequence of instructions stored in an executable file forms a <dfn><a href="learn/glossary/program.html">program</a></dfn>.</p>
 
-<p><strong>Next step:</strong> at Intermediate, trace the complete 5-stage classic pipeline and see how bits travel all the way from NVMe storage chips to CPU registers.</p>
+<p><strong>Next step:</strong> at Learner, trace the complete 5-stage classic pipeline and see how bits travel all the way from NVMe storage chips to CPU registers.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>The 5-stage pipeline and the storage-to-register journey</h2>
 
 <p><strong>Goal:</strong> you will be able to trace how bits travel from storage chips to CPU registers and analyze the 5-stage classic instruction pipeline (IF, ID, EX, MEM, WB).</p>

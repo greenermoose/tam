@@ -5,7 +5,7 @@
 <meta name="topic" content="toolchains">
 <meta name="summary" content="Native C compilation with GCC/Clang, libtam linking, and several AI agents sharing one clone with path claims">
 <meta name="keywords" content="toolchains, compilation, gcc, clang, native, make, libtam, git, worktree, worktrees, tam-work, claims, multi-agent, concurrency, tam">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="improve, terminal">
@@ -21,7 +21,7 @@
 <p>This page introduces the tools used to build and check computer programs.</p>
 <p>Developers use a collection of tools to turn source code, the written instructions for a program, into software they can run and test. This page introduces those tools and how contributors share their work.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Building native C projects with Make</h2>
 
 <p><strong>Goal:</strong> you will be able to consult project documentation, build native C tools using Make, execute command test suites to reproduce symptoms, and inspect standalone binary versions without root permissions.</p>
@@ -102,10 +102,10 @@ Tamlinux cultivar KBN WB 0.6.1
 </dl>
 <p>Building from source produces an executable <dfn><a href="learn/glossary/package.html">package</a></dfn> or standalone binary.</p>
 
-<p><strong>Next step:</strong> at Intermediate, learn how multiple contributors and AI agents work safely in one shared clone using path claims and <code>tam-work</code>.</p>
+<p><strong>Next step:</strong> at Learner, learn how multiple contributors and AI agents work safely in one shared clone using path claims and <code>tam-work</code>.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Concurrent work in one shared clone</h2>
 
 <p><strong>Goal:</strong> you will be able to coordinate concurrent development in a single shared Git clone using <code>tam-work</code> path claims, enforce strict commit scoping, and prepare focused changes with verification evidence.</p>
@@ -226,7 +226,7 @@ tam-work begin ___ src/pager.c ___ tests/run.sh --note 'Fix pager scrolling'
 <tr><th>Compiler flag / Contract</th><th>Mechanism</th><th>Performance benefit / Guarantee</th></tr>
 <tr><td><code>-O2</code></td><td>Standard optimization level</td><td>Enables function inlining, instruction scheduling, and loop vectorization without binary size inflation.</td></tr>
 <tr><td><code>-march=native</code></td><td>Host microarchitecture tuning</td><td>Emits instruction set extensions supported by host CPU (AVX2, FMA, BMI2, AES-NI) for maximum vector execution speed.</td></tr>
-<tr><td><code>-pipe</code></td><td>Compiler pipes</td><td>Transfers intermediate assembler data via in-memory pipes rather than temporary disk files, reducing disk I/O during builds.</td></tr>
+<tr><td><code>-pipe</code></td><td>Compiler pipes</td><td>Transfers learner assembler data via in-memory pipes rather than temporary disk files, reducing disk I/O during builds.</td></tr>
 <tr><td><code>-Wl,-rpath,DIR</code></td><td>Embedded runtime library path</td><td>Binds the exact ELF directory search path for <code>libtam.so</code> into the binary header, avoiding dynamic loader lookup failures.</td></tr>
 <tr><td><code>tam-work</code> claim</td><td>Atomic path reservation</td><td>Guarantees that concurrent developer and AI agent sessions work exclusively on disjoint directory scopes.</td></tr>
 </table>

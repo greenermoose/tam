@@ -5,7 +5,7 @@
 <meta name="topic" content="evdev">
 <meta name="summary" content="The Linux generic input event interface: kernel drivers, event character devices, libevdev, and Wayland compositor input handling">
 <meta name="keywords" content="evdev, input, linux input subsystem, libevdev, libinput, event device, scancode, keycode, input_event, /dev/input, uinput">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="compositors, ttys-and-vts">
@@ -21,7 +21,7 @@
 <p>This page explains how Linux receives signals from keyboards, mice, and touchscreens and turns them into events programs can understand.</p>
 <p>Every time you press a key, slide a mouse, or tap a touchscreen, physical electrical contacts generate hardware interrupts. The kernel processes these signals and passes them through a unified abstraction called the <dfn><a href="learn/glossary/evdev.html">evdev</a></dfn> (event device) subsystem. Instead of every application needing proprietary drivers for every keyboard, mouse, and game controller on earth, Linux provides a standardized stream of timestamped event packets. This architecture guarantees that modern Wayland compositors, terminal emulators, and games handle input safely, predictably, and without background polling daemons.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Discovering input devices on your computer</h2>
 
 <p><strong>Goal:</strong> you will be able to locate the input device nodes on your system, identify which hardware keyboard and mouse devices are active, and explain how Linux organizes input under <code>/dev/input/</code>.</p>
@@ -102,10 +102,10 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 <dd>The generic input event interface in the Linux kernel that standardizes hardware input into structured event streams.</dd>
 </dl>
 
-<p><strong>Next step:</strong> explore the intermediate section to understand the event data structure, event types, and how user-space libraries like <code>libevdev</code> and <code>libinput</code> communicate with compositors.</p>
+<p><strong>Next step:</strong> explore the learner section to understand the event data structure, event types, and how user-space libraries like <code>libevdev</code> and <code>libinput</code> communicate with compositors.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>The evdev event protocol and user-space architecture</h2>
 
 <p><strong>Goal:</strong> you will be able to explain the <code>struct input_event</code> layout, differentiate event types (<code>EV_KEY</code>, <code>EV_REL</code>, <code>EV_ABS</code>, <code>EV_SYN</code>), and trace how input flows from kernel character devices through <code>libinput</code> to the Wayland compositor.</p>
@@ -350,7 +350,7 @@ $ grep -E '^#define EV_' /usr/include/linux/input-event-codes.h | head -n 8
 <li>The kernel discards the overflowing event packet.</li>
 <li>It sets a flag on the client queue and injects an <code>EV_SYN</code> event with code <code>SYN_DROPPED</code> and value 0.</li>
 <li>When the reader resumes reading, <code>libevdev</code> encounters <code>SYN_DROPPED</code> and returns <code>LIBEVDEV_READ_STATUS_SYNC</code>.</li>
-<li>Because intermediate relative motions and key transitions were lost, the reader must not guess. Instead, <code>libevdev</code> queries the full hardware state using <code>EVIOCGKEY</code>, <code>EVIOCGLED</code>, and <code>EVIOCGSW</code>, comparing the kernel's active bitmasks against its internal state and synthesizing synthetic release or press events to resynchronize smoothly.</li>
+<li>Because learner relative motions and key transitions were lost, the reader must not guess. Instead, <code>libevdev</code> queries the full hardware state using <code>EVIOCGKEY</code>, <code>EVIOCGLED</code>, and <code>EVIOCGSW</code>, comparing the kernel's active bitmasks against its internal state and synthesizing synthetic release or press events to resynchronize smoothly.</li>
 </ol>
 
 <section class="quiz">

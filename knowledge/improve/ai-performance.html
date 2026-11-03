@@ -4,7 +4,7 @@
 <meta name="topic" content="ai-performance">
 <meta name="summary" content="Inspect memory, compare local inference workloads, and verify answers">
 <meta name="keywords" content="ai-performance, ai, inference, bandwidth, tokens, ollama, quantization, local">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="improve, resources">
@@ -15,7 +15,7 @@
 <h1>The speed and energy use of AI on your computer</h1>
 <p>This page explains what affects the speed and energy use of artificial intelligence running on your own computer.</p>
 <p>An AI model is software that produces an answer from a request. Running it on your own computer may avoid sending the request elsewhere, but privacy depends on the software and settings you choose.</p>
-<section data-level="beginner"><h2>Check memory before inference</h2>
+<section data-level="novice"><h2>Check memory before inference</h2>
 <p><strong>Goal:</strong> inspect memory headroom and identify where a query is sent before asking a local model.</p>
 <p><strong>Why it matters:</strong> an oversized workload can slow the machine, fail to load, or trigger memory pressure. The exact result depends on the runtime, memory and swap configuration.</p>
 <p><strong>Before you start:</strong> open a <a href="learn/glossary/terminal.html">terminal</a> and read <a href="hardware/resources.html">resources</a>. The example only reads memory statistics.</p>
@@ -29,7 +29,7 @@ Swap:           56Gi       6.1Gi        50Gi</pre>
 <h3>If it goes wrong</h3><p>A missing model or server is different from memory pressure. Read the message and inspect the configured endpoint. Do not download a model or change swap merely to complete this exercise.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does available memory alone guarantee a model will run without pressure?</summary><p>No. Runtime overhead, context and competing workloads also matter, and available memory changes.</p></details><details class="q"><summary>Is a cited answer automatically correct?</summary><p>No. Open the cited source and check whether it supports the answer.</p></details></section>
 <h3>New words</h3><p>A <a href="learn/glossary/process.html">process</a> is a running program. A model is the data and structure used by an inference program to produce a response.</p><h3>Next step</h3><p>Try the <a href="learn/paths/work-with-ai-locally.html">local AI path</a> if you have a suitable server and model.</p></section>
-<section data-level="intermediate"><h2>Compare an inference workload</h2>
+<section data-level="learner"><h2>Compare an inference workload</h2>
 <p><strong>Goal:</strong> compare resource evidence with a defined workload and check the server boundary.</p>
 <h3>Mental model</h3><p>Model weights, context and runtime state occupy memory. Computation and memory transfers both influence response time. Device placement, context, quantization, concurrency and other work affect measurements.</p>
 <h3>Worked example</h3><p>The memory snapshot above reports available memory at one instant. Record it alongside model name, context and workload; compare another sample during the same task. Neither number alone measures memory bandwidth or establishes the cause of slow output.</p>

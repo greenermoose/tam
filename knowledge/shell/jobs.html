@@ -5,7 +5,7 @@
 <meta name="topic" content="jobs">
 <meta name="summary" content="Process lifecycle, background jobs, and signals">
 <meta name="keywords" content="jobs, job, process, processes, signal, signals, fg, bg, disown, kill, pkill, pgrep, sigint, sigterm, sigkill">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="prereqs" content="shell">
@@ -19,7 +19,7 @@
 <h1>Managing running programs</h1>
 <p>This page explains how to see and manage programs that are running.</p>
 <p>A process is a running program. A shell is a program that reads typed instructions; it can manage one or more processes as a job. In the examples, start your own practice processes and wait for them to finish.</p>
-<section data-level="beginner"><h2>Start and wait for your own task</h2>
+<section data-level="novice"><h2>Start and wait for your own task</h2>
 <p><strong>Goal:</strong> you will be able to run a short background task
 and recognize when it finishes.</p>
 <p><strong>Why it matters:</strong> work can continue while a command runs,
@@ -56,7 +56,7 @@ which may include more than one process.</dd></dl>
 <a href="learn/paths/command-line-fluency.html?level=1">Command-line fluency</a>.</p>
 <section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Does a shell job always contain exactly one process?</summary><p>No. A pipeline is one shell job but commonly contains several processes.</p></details><details class="q"><summary>Why does this example save $! rather than searching by the name sleep?</summary><p>It identifies the child just started by this shell. A name search could include unrelated tasks.</p></details></section>
 </section>
-<section data-level="intermediate"><h2>Choose a signal for an owned task</h2>
+<section data-level="learner"><h2>Choose a signal for an owned task</h2>
 <p><strong>Goal:</strong> terminate a disposable child and inspect its status
 without signaling unrelated processes.</p>
 <h3>Mental model</h3><pre>shell --starts--&gt; child PID
@@ -77,10 +77,10 @@ redirected; its status is printed immediately, before another command replaces i
 fill the signal in <code>kill -___ "$worker"</code> to request ordinary
 termination of that same disposable child.</p>
 <details class="solution"><p>Use TERM. Keep the complete worked example in one shell. Do not replace it with pkill sleep: the latter selects every matching accessible process, including tasks outside this exercise.</p></details>
-<h3>Independent task</h3><p>Adapt the beginner example to wait for a
+<h3>Independent task</h3><p>Adapt the novice example to wait for a
 two-second task normally. Compare its successful wait with the signaled
 case; explain what evidence distinguishes completion from termination.</p>
-<details class="solution"><p>Use sleep 2 in the beginner example. A successful wait returns 0; the SIGTERM example prints 143 in Bash. Save or print the status immediately. Neither a process name nor absence from a later ps snapshot establishes how it ended.</p></details>
+<details class="solution"><p>Use sleep 2 in the novice example. A successful wait returns 0; the SIGTERM example prints 143 in Bash. Save or print the status immediately. Neither a process name nor absence from a later ps snapshot establishes how it ended.</p></details>
 <h3>Choosing</h3><table><tr><th>Intent</th><th>Choose</th></tr>
 <tr><td>Finish naturally</td><td>wait for your own child</td></tr>
 <tr><td>Pause/resume an interactive job</td><td>Ctrl+Z, jobs, then fg/bg with the actual job number</td></tr>

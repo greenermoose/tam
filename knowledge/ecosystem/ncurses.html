@@ -7,7 +7,7 @@
 <meta name="topic" content="ncurses">
 <meta name="summary" content="What ncurses is, programs that use it, virtual screen updates via terminfo, wide-character ncursesw, and how tam links it">
 <meta name="keywords" content="ncurses, ncursesw, libncursesw, curses, tput, clear, terminal UI, TUI, initscr, setupterm, terminfo library">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="ecosystem, terminfo-and-termcap">
@@ -21,7 +21,7 @@
 
 <p>ncurses is a C library that helps programs draw and update a full-screen terminal interface without hard-coding every terminal’s escape sequences.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Recognize programs that use ncurses</h2>
 
 <p><strong>Goal:</strong> you will be able to name common programs that use ncurses and confirm that a binary links <code>libncursesw</code>.</p>
@@ -50,7 +50,7 @@ $ ldd /home/alex/src/tam/build/tam | grep ncurses
 <ol>
 <li><code>clear</code> and <code>tput</code> ship with the ncurses tools and use the library to emit the right sequences for <code>$TERM</code>.</li>
 <li><code>nano</code> is a full-screen editor that uses ncurses to manage the text UI.</li>
-<li><code>tam</code> links the same library so its pager can look up terminal capabilities (explained at intermediate level).</li>
+<li><code>tam</code> links the same library so its pager can look up terminal capabilities (explained at learner level).</li>
 </ol>
 
 <p>Other full-screen tools on many Linux systems also use ncurses (for example <code>htop</code>, <code>dialog</code>, or <code>ncdu</code> when installed). Only claim a program uses ncurses after <code>ldd</code> (or packaging metadata) shows it; this page does not list tools that were not present on the capture host.</p>
@@ -89,7 +89,7 @@ $ ldd /home/alex/src/tam/build/tam | grep ncurses
 <p><strong>Next step:</strong> see how ncurses relates to terminfo on <a href="ecosystem/terminfo-and-termcap.html">how terminals display text</a>.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Two ways to use ncurses</h2>
 
 <p><strong>Goal:</strong> you will be able to distinguish a full-screen ncurses application from a program that only uses ncurses terminfo helpers, and state how <code>tam</code> fits.</p>

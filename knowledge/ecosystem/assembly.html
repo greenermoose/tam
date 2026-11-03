@@ -5,7 +5,7 @@
 <meta name="topic" content="assembly">
 <meta name="summary" content="Writing, assembling, linking, and disassembling low-level machine instructions for x86-64 and ARM64 processors">
 <meta name="keywords" content="assembly, assembler, machine-code, x86-64, arm64, registers, mnemonics, nasm, gas, objdump, gdb, calling-convention, abi, syscall, system-call, elf">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
 <meta name="prereqs" content="computer-architecture, toolchains">
@@ -21,7 +21,7 @@
 <p>This page explains how assembly language provides human-readable words for the numeric instructions that a processor understands.</p>
 <p>While high-level programming languages like C, Rust, or Python let developers write code using familiar mathematical syntax and abstractions, microprocessors can only execute raw binary byte sequences known as machine code. Assembly language is the closest human-readable representation of this machine code: each assembly instruction corresponds directly to one machine operation, giving developers total visibility into CPU registers, memory addresses, and execution flags.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>From machine bytes to assembly mnemonics</h2>
 
 <p><strong>Goal:</strong> you will be able to inspect compiled binary executables, disassemble machine code into human-readable assembly instructions using <code>objdump</code>, and identify the role of an assembler.</p>
@@ -101,10 +101,10 @@ $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 </dl>
 <p>An executable program runs under the control of the operating system <dfn><a href="learn/glossary/kernel.html">kernel</a></dfn>.</p>
 
-<p><strong>Next step:</strong> at Intermediate, learn x86-64 register partitions, write a standalone assembly program with direct Linux system calls, and assemble it from source.</p>
+<p><strong>Next step:</strong> at Learner, learn x86-64 register partitions, write a standalone assembly program with direct Linux system calls, and assemble it from source.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Register architecture and standalone assembly programs</h2>
 
 <p><strong>Goal:</strong> you will be able to navigate general-purpose CPU registers, write a standalone x86-64 assembly program, invoke Linux system calls directly without a C runtime, and assemble and link the binary.</p>

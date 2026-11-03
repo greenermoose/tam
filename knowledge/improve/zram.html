@@ -5,7 +5,7 @@
 <meta name="topic" content="zram">
 <meta name="summary" content="How compressed memory can help when a computer runs short of working memory">
 <meta name="keywords" content="zram, memory, ram, compression, swap, lz4, zstd, paging, thrashing, zramctl">
-<meta name="level" content="beginner, intermediate, expert">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="improve">
 <meta name="parent" content="improve/index.html">
 <meta name="prereqs" content="improve, resources">
@@ -21,7 +21,7 @@
 <p>This page explains one way a computer can make better use of its working memory.</p>
 <p>When working memory runs short, a computer can move some information elsewhere. ZRAM compresses information in memory to make room; the benefit depends on the information and the machine.</p>
 
-<section data-level="beginner">
+<section data-level="novice">
 <h2>Inspecting active ZRAM swap</h2>
 
 <p><strong>Goal:</strong> you will be able to query active compressed RAM swap using <code>zramctl</code>, identify compressed versus uncompressed memory metrics, and recognize when ZRAM is protecting your workstation from disk thrashing.</p>
@@ -96,10 +96,10 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 </dl>
 <p>When system memory is constrained, an inactive <dfn><a href="learn/glossary/process.html">process</a></dfn> has its anonymous memory pages compressed into ZRAM.</p>
 
-<p><strong>Next step:</strong> at Intermediate, learn how to calculate compression ratios and memory savings, and configure kernel swap priorities.</p>
+<p><strong>Next step:</strong> at Learner, learn how to calculate compression ratios and memory savings, and configure kernel swap priorities.</p>
 </section>
 
-<section data-level="intermediate">
+<section data-level="learner">
 <h2>Calculating compression ratios and memory savings</h2>
 
 <p><strong>Goal:</strong> you will be able to calculate effective compression ratios and exact RAM savings from raw byte counters, and configure kernel swap priority rules.</p>
