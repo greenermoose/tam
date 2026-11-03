@@ -17,18 +17,47 @@
 <p>For the names and order of the <a href="maintain/boot-phases.html">boot phases</a>, start with the short overview.</p>
 <p>These exercises look at information without changing startup files. This page also describes tools used by the current Arch Linux system; another system may use different tools.</p>
 <section data-level="novice">
+<h2>What happens when the computer starts?</h2>
+<p>A broken desktop and an absent boot menu
+need different evidence. Changing early boot files because a window is blank
+can introduce a second failure.</p>
+<h3>Why it matters</h3>
+<p>A broken desktop and an absent boot menu
+need different evidence. Changing early boot files because a window is blank
+can introduce a second failure.</p>
+<h3>How to think about it</h3>
+<p>Startup is a chain: firmware, bootloader, kernel, root filesystem, then login and desktop services. Name the last stage that worked.</p>
+<h3>New words</h3>
+<dl><dt>Firmware</dt><dd>The machine code that starts before the operating system.</dd>
+<dt>ESP</dt><dd>EFI System Partition: a partition containing EFI boot programs; its mount point varies.</dd>
+<dt>Initramfs</dt><dd>The early userspace filesystem used while starting Linux.</dd></dl>
+<p>For text login without the desktop, see the <a href="learn/glossary/virtual-console.html">virtual console definition</a>.</p>
+<h3>Next step</h3><p>Compare boot artifacts at Learner, or follow
+<a href="maintain/boot-recovery.html?level=1">fallback orientation</a>.</p>
+</section>
+
+<section data-level="learner">
 <h2>Recognize the startup stages</h2>
 <p><strong>Goal:</strong> you will be able to name the last observed boot
 stage and report what remains unknown.</p>
-<p><strong>Why it matters:</strong> a broken desktop and an absent boot menu
-need different evidence. Changing early boot files because a window is blank
-can introduce a second failure.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Recovery and boot</strong> &mdash;
+<a href="maintain/recovery.html?level=2">Start</a> |
+<a href="maintain/power.html?level=2">&larr; Back</a> |
+<a href="maintain/boot-recovery.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal on a working Linux
 session; review <a href="filesystem/index.html">filesystem paths</a>.
 The query below only checks whether Linux exposes its UEFI interface.</p>
 <aside class="first-time"><p>Type the command after
 <code>$</code>, without the dollar sign, then press Enter. This is one line.
 It asks a question about a directory; it does not select a boot entry.</p></aside>
+<h3>Mental model</h3>
+<p>A boot choice ties together an EFI loader, configuration, a kernel and
+early userspace, root selection and later mounts. A Unified Kernel Image
+(UKI) combines a UEFI stub and kernel with optional initrd, command line and
+other sections. One file simplifies distribution and signing; it does not
+make an entire package transaction or root-filesystem update atomic.</p>
 <h3>Worked example: One observable fact</h3>
 <pre class="session" data-risk="read-only">
 $ if test -d /sys/firmware/efi; then printf 'Firmware interface: UEFI\n'; else printf 'Firmware interface: not exposed\n'; fi
@@ -59,70 +88,6 @@ that every kernel driver or storage device is healthy.</p></details>
 are in a container, live environment or the installed session. If the computer
 cannot start a terminal, record the last visible message and use
 <a href="maintain/boot-recovery.html?level=1">fallback orientation</a>.</p>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary>Does a visible login screen prove that the desktop started?</summary><p>No. Login and desktop startup are different stages. Report the screen reached and the next observed failure.</p></details>
-<details class="q"><summary>Does the UEFI query identify the EFI System Partition?</summary><p>No. It tests kernel interface exposure. The actual partition and loader need separate configuration and mount evidence.</p></details>
-</section>
-
-<h3>New words</h3>
-<dl><dt>Firmware</dt><dd>The machine code that starts before the operating system.</dd>
-<dt>ESP</dt><dd>EFI System Partition: a partition containing EFI boot programs; its mount point varies.</dd>
-<dt>Initramfs</dt><dd>The early userspace filesystem used while starting Linux.</dd></dl>
-<p>For text login without the desktop, see the <a href="learn/glossary/virtual-console.html">virtual console definition</a>.</p>
-<h3>Next step</h3><p>Compare boot artifacts at Learner, or follow
-<a href="maintain/boot-recovery.html?level=1">fallback orientation</a>.</p>
-</section>
-<section data-level="learner">
-<h2>Separate boot payload from installed state</h2>
-<p><strong>Goal:</strong> you will be able to choose which configuration and
-artifact evidence a startup symptom needs before proposing a change.</p>
-<h3>Mental model</h3>
-<p>A boot choice ties together an EFI loader, configuration, a kernel and
-early userspace, root selection and later mounts. A Unified Kernel Image
-(UKI) combines a UEFI stub and kernel with optional initrd, command line and
-other sections. One file simplifies distribution and signing; it does not
-make an entire package transaction or root-filesystem update atomic.</p>
-<h3>Worked example: Bound a mount observation</h3>
-<pre class="session" data-risk="read-only">
-$ findmnt -n -o FSTYPE /
-btrfs
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-21; your output will differ.</p>
-<ol><li><code>findmnt</code> asks about the mount covering <code>/</code>.</li>
-<li><code>FSTYPE</code> selects the filesystem type.</li><li>The result does
-not identify the boot image, loader or whether other paths are separate subvolumes.</li></ol>
-<p>On a mkinitcpio system, the effective configuration can include
-<code>/etc/mkinitcpio.conf</code>, drop-ins under <code>/etc/mkinitcpio.conf.d/</code>
-and presets under <code>/etc/mkinitcpio.d/</code>. Build hooks assemble content;
-runtime hooks, or early systemd units, act during boot. Hook order and required
-storage modules depend on that system. Read its installed manuals and effective
-configuration without sourcing shell configuration files as commands.</p>
-<h3>Completion task</h3>
-<p>Complete the diagnosis: “Root is Btrfs, so the UKI must be at ___.”</p>
-<details class="solution"><p>No path follows from that fact. Inspect the
-active provider configuration, selected loader entry and image destination.
-A filesystem type does not specify an ESP mount or a UKI pathname.</p></details>
-<h3>Independent task</h3>
-<p>For a hypothetical failure after storage unlock but before login, write
-three facts needed before regenerating images: the last reached stage, the
-selected kernel/root identity, and evidence about the failing service or mount.
-State which findings would move attention back to early boot.</p>
-<details class="solution"><p>Record the exact last message and time, the
-selected entry and kernel/root parameters, then the relevant service/mount
-failure. A missing root device or mismatched image points earlier; a session
-service failure with root mounted points later. Leave unobserved facts unknown.</p></details>
-<h3>Choosing</h3>
-<table><tr><th>Observation</th><th>Next evidence</th><th>Boundary</th></tr>
-<tr><td>Loader cannot find an image</td><td>Actual selected config and image path</td><td>Desktop settings do not supply a missing image.</td></tr>
-<tr><td>Early userspace cannot find root</td><td>Kernel arguments, storage support and unlock message</td><td>Image existence alone does not show it can mount root.</td></tr>
-<tr><td>Login works, session exits</td><td>Session startup evidence</td><td>Regeneration needs a separate reason.</td></tr></table>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
-<tr><td>Files under /boot look old</td><td>Wrong or absent mount</td><td>Mount and provider destination</td><td>Keep generation pending until the real destination is identified.</td></tr>
-<tr><td>New package, old running kernel</td><td>Existing boot still runs previous kernel</td><td>Compare running kernel with installed package/image records</td><td>Record the difference; use a separately planned boot verification.</td></tr>
-<tr><td>UKI exists, boot fails</td><td>Wrong payload, parameters or trust policy</td><td>Image identity and exact loader error</td><td>Preserve both before a targeted repair.</td></tr></table>
 <aside class="tamlinux"><p>The current Arch provider
 uses Limine/mkinitcpio and snapshot synchronization. The product's native updater
 gates transactions on a separate boot-recovery handoff, then creates a Snapper
@@ -131,13 +96,9 @@ not restore native kernel packages, EFI files or firmware settings.</p></aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing the explanation.</p>
-<details class="q"><summary>A new kernel package is installed but uname still reports the previous release. Is generation proven broken?</summary><p>No. The running kernel is the one already booted. Compare the installed image and package records before drawing a conclusion; an approved boot verification is separate.</p></details>
-<details class="q"><summary>Two UKIs share one ESP. What failure remains common to them?</summary><p>Loss or corruption of that ESP can make both inaccessible. Separate image names do not establish an independent rescue environment.</p></details>
+<details class="q"><summary>Does a visible login screen prove that the desktop started?</summary><p>No. Login and desktop startup are different stages. Report the screen reached and the next observed failure.</p></details>
+<details class="q"><summary>Does the UEFI query identify the EFI System Partition?</summary><p>No. It tests kernel interface exposure. The actual partition and loader need separate configuration and mount evidence.</p></details>
 </section>
-
-<h3>Further reading</h3><ul><li><a href="man:mkinitcpio(8)">mkinitcpio(8)</a>: options and presets.</li>
-<li><a href="https://uapi-group.org/specifications/specs/unified_kernel_image/">UKI specification (online)</a>: component semantics.</li>
-<li><a href="maintain/boot-recovery.html?level=2">Fallback choices</a>: dependencies each choice retains.</li></ul>
 </section>
 <section data-level="expert">
 <h2>Audit generation as a chain of dependencies</h2>

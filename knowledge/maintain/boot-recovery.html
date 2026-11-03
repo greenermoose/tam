@@ -16,53 +16,38 @@
 <p>This page explains ways to start or repair your computer when its usual startup fails.</p>
 <p>If the usual startup fails, you may be able to start with a different set of system files or use separate recovery tools. The name shown in a menu does not tell you which problems an option can solve.</p>
 <section data-level="novice">
-<h2>Find the last stage that worked</h2>
-<p><strong>Goal:</strong> you will be able to record a startup symptom and
-choose the next kind of help without changing the system.</p>
-<p><strong>Why it matters:</strong> an alternate kernel cannot repair an EFI
+<h2>What is a boot recovery route?</h2>
+<p>An alternate kernel cannot repair an EFI
 partition that firmware cannot read. The last visible stage narrows your next check.</p>
-<p><strong>Before you start:</strong> read the <a href="maintain/boot.html?level=1">boot chain</a>.
-Use the fictional scenario below; no restart or boot-menu selection is needed.</p>
-<aside class="first-time"><p>A bootloader menu appears
-before Linux login. A text console is a login supplied by Linux. Write down
-what you actually saw, including the error text; “won't boot” is too broad.</p></aside>
-<h3>Worked example: A desktop failure</h3>
-<p>Scenario: the machine reaches a text login, but the graphical session fails.</p>
-<ol><li>Record “text login reached; graphical session fails” and the time.</li>
-<li>Firmware, loader and enough of Linux to offer that login worked.</li>
-<li>Choose session evidence and the <a href="maintain/recovery.html?level=1">console recovery lesson</a>
-before proposing a boot-file change.</li></ol>
-<p>This is a paper diagnosis, not captured host output or a claim that a
-console will always be available.</p>
-<h3>Try it</h3><p>Change the scenario: firmware runs but cannot find any
-internal loader. Would changing a desktop keybinding help? Name the earlier
-stage that needs evidence.</p>
-<details class="solution"><p>No. Check the firmware entry, EFI program and
-storage access. An independently prepared external rescue environment may
-provide access if no installed route avoids the fault.</p></details>
-<h3>If it goes wrong</h3><p>If you cannot distinguish firmware from loader,
-preserve the exact screen text and seek help with that evidence. Do not guess
-a disk number or overwrite an EFI file to see whether the message changes.
-If storage may be physically failing, prioritize a suitable data-recovery
-procedure rather than repeated repairs.</p>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary>Does “fallback” always mean an older kernel?</summary><p>No. It can mean another loader pointer, broader initramfs, another kernel or another system. Read the documented entry dependencies.</p></details>
-<details class="q"><summary>Does booting rescue media restore your files?</summary><p>No. It starts a separate environment. Data restoration needs an identified backup or snapshot and a specific procedure.</p></details>
-</section>
-
-<h3>New words</h3><dl><dt>Fallback route</dt><dd>A startup choice that changes or bypasses a component.</dd>
+<h3>Why it matters</h3>
+<p>An alternate kernel cannot repair an EFI
+partition that firmware cannot read. The last visible stage narrows your next check.</p>
+<h3>How to think about it</h3>
+<p>Choose a route that crosses the failure boundary you observed, instead of rebooting as the first experiment.</p>
+<h3>New words</h3>
+<dl><dt>Fallback route</dt><dd>A startup choice that changes or bypasses a component.</dd>
 <dt>Rescue environment</dt><dd>A usable environment with tools to inspect or recover another installation.</dd></dl>
 <p>Review <a href="learn/glossary/virtual-console.html">virtual console</a>
 and <a href="learn/glossary/snapshot.html">snapshot</a>.</p>
 <h3>Next step</h3><p>Compare shared dependencies at Learner, then
 start <a href="learn/paths/rescue.html?level=2">Rescue</a>.</p>
 </section>
+
 <section data-level="learner">
-<h2>Choose a route that crosses the failure boundary</h2>
-<p><strong>Goal:</strong> you will be able to reject a fallback that still
-requires the failed component and document a plausible alternative.</p>
+<h2>Find the last stage that worked</h2>
+<p><strong>Goal:</strong> you will be able to record a startup symptom and
+choose the next kind of help without changing the system.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Recovery and boot</strong> &mdash;
+<a href="maintain/recovery.html?level=2">Start</a> |
+<a href="maintain/boot.html?level=2">&larr; Back</a> |
+<a href="maintain/snapper.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> read the <a href="maintain/boot.html?level=1">boot chain</a>.
+Use the fictional scenario below; no restart or boot-menu selection is needed.</p>
+<aside class="first-time"><p>A bootloader menu appears
+before Linux login. A text console is a login supplied by Linux. Write down
+what you actually saw, including the error text; “won't boot” is too broad.</p></aside>
 <h3>Mental model</h3>
 <pre>
 installed route: firmware -> internal EFI / loader -> image -> root -> login
@@ -73,57 +58,27 @@ external route:  firmware -> external loader / image -> rescue environment
 <p>These are models, not inventories. Snapshot entries may select different
 images; external media still needs working firmware, hardware support and
 credentials to access encrypted installed storage.</p>
-<h3>Worked example: Inspect a scratch dependency model</h3>
-<p>Make a private temporary directory. These rows are invented teaching data,
-not actual menu entries, disks or recovery artifacts.</p>
-<pre data-risk="scratch">
-rescue_lab=$(mktemp -d)
-printf 'normal internal-esp installed-root\nfallback internal-esp installed-root\nsnapshot internal-esp snapshot-root\nusb external-media rescue-root\n' &gt; "$rescue_lab/routes"
-</pre>
-<pre class="session" data-risk="scratch">
-$ awk '$2 != "internal-esp" { print $1 }' "$rescue_lab/routes"
-usb
-</pre>
-<p>Captured in a scratch directory on Arch Linux, 2026-10-21.</p>
-<ol><li>Column 2 names the model's boot-file dependency.</li><li>The query
-excludes routes sharing the suspect internal ESP.</li><li>Its output identifies
-a candidate in this model. It proves nothing about a real USB's readiness.</li></ol>
-<h3>Completion task</h3><p>To exclude only the routes requiring
-<code>installed-root</code>, complete <code>awk '$3 != "___" { print $1 }'</code>
-and pass the same scratch file.</p>
-<details class="solution">
-<pre class="session" data-risk="scratch">
-$ awk '$3 != "installed-root" { print $1 }' "$rescue_lab/routes"
-snapshot
-usb
-</pre>
-<p>Snapshot root remains on the same modelled internal storage; a root-state
-fault and a lost disk are different failures.</p></details>
-<h3>Independent task</h3><p>Explain why the snapshot row cannot address a
-lost internal ESP here, and why the USB row still cannot prove data recovery.
-Then remove only the files and directory you created.</p>
-<details class="solution"><p>The snapshot row retains internal-esp. The USB
-row avoids it, but access to installed files still needs readable storage,
-compatible filesystem/unlock tools and credentials. An external backup may
-supply data when installed storage cannot.</p></details>
-<pre data-risk="scratch">
-rm -- "$rescue_lab/routes"
-rmdir -- "$rescue_lab"
-unset rescue_lab
-</pre>
-<h3>Choosing</h3>
-<table><tr><th>Route</th><th>Changes</th><th>Still requires</th></tr>
-<tr><td>Another firmware entry / EFI fallback</td><td>Pointer or loader file</td><td>Readable EFI storage and a usable payload</td></tr>
-<tr><td>Alternate kernel</td><td>Kernel and matching early boot image</td><td>Working loader and compatible root/storage support</td></tr>
-<tr><td>Fallback initramfs</td><td>Often a broader module set</td><td>Its kernel and the intended root; not inherently an older system</td></tr>
-<tr><td>Snapshot boot</td><td>Selected root state, possibly paired boot image</td><td>Loader, boot image, snapshot and required data mounts</td></tr>
-<tr><td>Virtual console</td><td>Access without graphical session</td><td>Working Linux and configured login</td></tr>
-<tr><td>External rescue media</td><td>Loader, image and user environment</td><td>Firmware boot support; installed-data access still needs storage and keys</td></tr></table>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
-<tr><td>Two entries fail identically</td><td>Shared image or EFI dependency</td><td>Actual entry paths</td><td>Choose a documented route avoiding the shared fault.</td></tr>
-<tr><td>Snapshot boots but changes vanish</td><td>Temporary writable overlay or read-only root</td><td>Provider mount/overlay semantics</td><td>Preserve needed writes separately before leaving it.</td></tr>
-<tr><td>USB boots but files are unavailable</td><td>Locked storage, missing driver or wrong target</td><td>Device identities and unlock support</td><td>Identify the target and procedure before mounting or writing.</td></tr></table>
+<h3>Worked example: A desktop failure</h3>
+<p>Scenario: the machine reaches a text login, but the graphical session fails.</p>
+<ol><li>Record “text login reached; graphical session fails” and the time.</li>
+<li>Firmware, loader and enough of Linux to offer that login worked.</li>
+<li>Choose session evidence and the <a href="maintain/recovery.html?level=1">console recovery lesson</a>
+before proposing a boot-file change.</li></ol>
+<p>This is a paper diagnosis, not captured host output or a claim that a
+console will always be available.</p>
+<h3>Try it</h3>
+<p>Change the scenario: firmware runs but cannot find any
+internal loader. Would changing a desktop keybinding help? Name the earlier
+stage that needs evidence.</p>
+<details class="solution"><p>No. Check the firmware entry, EFI program and
+storage access. An independently prepared external rescue environment may
+provide access if no installed route avoids the fault.</p></details>
+<h3>If it goes wrong</h3>
+<p>If you cannot distinguish firmware from loader,
+preserve the exact screen text and seek help with that evidence. Do not guess
+a disk number or overwrite an EFI file to see whether the message changes.
+If storage may be physically failing, prioritize a suitable data-recovery
+procedure rather than repeated repairs.</p>
 <aside class="tamlinux"><p>The current Arch provider
 combines Limine, generated images and snapshot entries. A second menu item is
 not evidence of independence. The boot-provider contract calls for retained
@@ -132,13 +87,9 @@ has a different boundary.</p></aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing the explanation.</p>
-<details class="q"><summary>The internal boot partition is unreadable. Are two kernels on that partition independent fallbacks?</summary><p>No. Both still require that partition. Look for a verified external route or a documented independent boot-file location.</p></details>
-<details class="q"><summary>A snapshot entry reaches a shell. Has normal root been restored?</summary><p>No. Boot selection and persistent restoration are separate operations. Verify the provider mount semantics and preserve later writes before planning restoration.</p></details>
+<details class="q"><summary>Does “fallback” always mean an older kernel?</summary><p>No. It can mean another loader pointer, broader initramfs, another kernel or another system. Read the documented entry dependencies.</p></details>
+<details class="q"><summary>Does booting rescue media restore your files?</summary><p>No. It starts a separate environment. Data restoration needs an identified backup or snapshot and a specific procedure.</p></details>
 </section>
-
-<h3>Further reading</h3><ul><li><a href="maintain/snapper.html?level=2">Snapper</a>: inventory and restoration boundaries.</li>
-<li><a href="maintain/recovery.html?level=2">Emergency recovery</a>: regain access and prepare a specific procedure.</li>
-<li><a href="https://www.system-rescue.org/manual/Booting_SystemRescue/">SystemRescue boot manual (online)</a>: requirements for external startup.</li></ul>
 </section>
 <section data-level="expert">
 <h2>Audit independence and recovery evidence</h2>

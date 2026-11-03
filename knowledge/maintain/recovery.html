@@ -16,11 +16,31 @@
 <p>This page helps you decide what to do when your computer stops responding.</p>
 <p>First notice what still responds. A frozen window, an unavailable desktop, and a computer that cannot start need different responses.</p>
 <section data-level="novice">
+<h2>What does emergency recovery start with?</h2>
+<p>Restarting the whole machine can discard
+unsaved work and the evidence needed to understand a single stuck application.</p>
+<h3>Why it matters</h3>
+<p>Restarting the whole machine can discard
+unsaved work and the evidence needed to understand a single stuck application.</p>
+<h3>How to think about it</h3>
+<p>Notice what still responds before escalating. A stuck window, a dead desktop, and a machine that never reaches login need different responses.</p>
+<h3>New words</h3>
+<dl><dt><a href="learn/glossary/virtual-console.html">Virtual console</a></dt><dd>A
+kernel terminal surface; it may have a login service.</dd>
+<dt><dfn><a href="learn/glossary/process.html">Process</a></dfn></dt><dd>A
+running program instance. A window and the whole desktop need not share one.</dd></dl>
+</section>
+
+<section data-level="learner">
 <h2>Record the symptom before escalating</h2>
 <p><strong>Goal:</strong> you will be able to record what stopped responding,
 identify your terminal and recognize when recovery needs help.</p>
-<p><strong>Why it matters:</strong> restarting the whole machine can discard
-unsaved work and the evidence needed to understand a single stuck application.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Recovery and boot</strong> &mdash;
+<a href="maintain/recovery.html?level=2">Start</a> |
+<a href="maintain/recovery.html?level=2">&larr; Back</a> |
+<a href="maintain/power.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> read <a href="shell/index.html?level=1">The shell</a>.
 Use a working terminal for this read-only exercise. Do not reproduce a freeze,
 end a real application, change consoles or reboot as practice.</p>
@@ -29,6 +49,11 @@ without <code>$</code>, and press Enter. A terminal emulator is a window
 containing a shell. A Linux <dfn><a href="learn/glossary/virtual-console.html">virtual
 console</a></dfn> is a different terminal surface; neither guarantees that a
 machine with a graphics or kernel fault will respond.</p></aside>
+<h3>Mental model</h3>
+<pre>one application --&gt; application evidence and saved work
+whole desktop --&gt; console or configured remote access, if usable
+kernel unresponsive --&gt; emergency procedure, if supported
+cannot boot --&gt; retained fallback or verified rescue medium</pre>
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
 $ tty
@@ -53,23 +78,11 @@ terminal you opened yourself; do not add privileges.</dd>
 <dt>No usable terminal</dt><dd>Do not keep launching programs. A separate
 virtual console or already-configured remote access may help only if its
 input, kernel, display and login services still work.</dd></dl>
-<h3>Recognize the next boundary</h3>
-<p>If the machine never reaches login, record the last visible stage:
-firmware selects a bootloader, the loader starts a kernel, the kernel gains
-access to the root filesystem, then login and desktop services start. A
-failure before login is different from one application freezing afterwards.</p>
-<p>On many Linux systems Ctrl+Alt+F2 through F6 can select another console;
-key handling and login availability vary. Before an emergency, learn the
-actual graphical console and return key on your system. A GPU fault can
-prevent even text-console display. Stop and seek a documented recovery
-procedure if you cannot establish those details.</p>
-<h3>New words</h3>
-<dl><dt><a href="learn/glossary/virtual-console.html">Virtual console</a></dt><dd>A
-kernel terminal surface; it may have a login service.</dd>
-<dt><dfn><a href="learn/glossary/process.html">Process</a></dfn></dt><dd>A
-running program instance. A window and the whole desktop need not share one.</dd></dl>
-<p><strong>Next step:</strong> choose level 2 to compare recovery options and
-inspect SysRq availability without using it.</p>
+<aside class="tamlinux"><p>A product regression uses the recorded
+<code>tam-deploy</code> recovery procedure and the developer's instruction
+for that exact candidate. Boot, login, disk and firmware changes need a
+recorded rollback point and separate approval for each step. This read-only
+lesson provides no authorization to change policy, restart services or repair disks.</p></aside>
 <section class="quiz"><h3>Check yourself</h3>
 <details class="q"><summary>Does /dev/pts/0 tell you which function key returns to the desktop?</summary>
 <p>No. It identifies a pseudo-terminal. Determine the actual graphical
@@ -77,83 +90,6 @@ console separately; do not infer it from the trailing number.</p></details>
 <details class="q"><summary>One window stopped drawing but the terminal works. Should the first step be an emergency reboot?</summary>
 <p>No. Record the symptom and scope, save reachable work and use the
 application's documented recovery. A whole-machine reset affects much more.</p></details></section>
-</section>
-<section data-level="learner">
-<h2>Choose escalation from evidence</h2>
-<p><strong>Goal:</strong> choose the appropriate recovery layer and check
-which keyboard SysRq operations are enabled without triggering them.</p>
-<h3>Mental model</h3>
-<pre>one application --&gt; application evidence and saved work
-whole desktop --&gt; console or configured remote access, if usable
-kernel unresponsive --&gt; emergency procedure, if supported
-cannot boot --&gt; retained fallback or verified rescue medium</pre>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ cat /proc/sys/kernel/sysrq
-244
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-21. Your output will differ.
-This reads keyboard SysRq policy; it tests neither the physical key combination
-nor whether the kernel can handle an emergency.</p>
-<p>For this setting, 0 disables keyboard operations, 1 allows all supported
-operations, and other positive values select categories by bits. The bits
-needed for REISUB are 4, 16, 32, 64 and 128, together 244.</p>
-<h3>Completion task</h3>
-<p>A hypothetical machine reports 16. Does it allow the full sequence?
-Classify that mask using the table, without changing it.</p>
-<details class="solution"><p>16 permits sync only. It does not enable keyboard
-mode changes, process signals, read-only remount or reboot. Do not treat that
-mask as proof that REISUB will work.</p></details>
-<h3>Independent task</h3>
-<p>Read your own mask. Record allowed categories and what remains untested:
-keyboard support, a responsive kernel, console visibility and disk completion.
-If the file is unavailable, record that limitation instead of enabling anything.</p>
-<details class="solution"><p>For 244, the needed categories are allowed;
-for 1, all supported categories are allowed. Neither proves successful disk
-sync or a working keyboard during a fault. For another mask, check each
-required bit. No configuration write or emergency keypress belongs in this task.</p></details>
-<h3>Choosing</h3>
-<table><tr><th>Evidence</th><th>Next option</th><th>Boundary</th></tr>
-<tr><td>Only one application is stuck</td><td>Save work and inspect that instance</td><td>A name-wide kill can affect unrelated work</td></tr>
-<tr><td>Desktop unavailable, another login works</td><td>Collect focused evidence there</td><td>Do not assume a particular VT or restart the session blindly</td></tr>
-<tr><td>No normal control</td><td>Prepared emergency procedure</td><td>Possible data loss; kernel and keyboard support required</td></tr>
-<tr><td>Boot fails</td><td>Documented fallback or rescue route</td><td>Verify dependencies and rollback point first</td></tr></table>
-<h3>REISUB reference, not an exercise</h3>
-<p>On supported PC keyboards the combination is Alt+SysRq (often PrtSc) plus
-one lower-case letter at a time. Hardware handling varies. Do not try it
-while reading this lesson.</p>
-<table><tr><th>Letter</th><th>Action</th><th>Policy bit</th></tr>
-<tr><td>r</td><td>Restore translated keyboard mode</td><td>4</td></tr>
-<tr><td>e</td><td>Send TERM to processes except init</td><td>64</td></tr>
-<tr><td>i</td><td>Send KILL to processes except init</td><td>64</td></tr>
-<tr><td>s</td><td>Attempt filesystem sync</td><td>16</td></tr>
-<tr><td>u</td><td>Attempt read-only remount</td><td>32</td></tr>
-<tr><td>b</td><td>Immediate reboot, without its own sync or unmount</td><td>128</td></tr></table>
-<aside class="caution"><p>Signals can lose unsaved work. Wait for sync and
-remount completion before rebooting; a fixed pause proves neither completed.
-An unresponsive kernel may handle none of these operations.</p></aside>
-<aside class="tamlinux"><p>A product regression uses the recorded
-<code>tam-deploy</code> recovery procedure and the developer's instruction
-for that exact candidate. Boot, login, disk and firmware changes need a
-recorded rollback point and separate approval for each step. This read-only
-lesson provides no authorization to change policy, restart services or repair disks.</p></aside>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
-<tr><td>Only sync permitted</td><td>Mask is 16</td><td>Read current policy</td><td>Record missing readiness; arrange policy review separately</td></tr>
-<tr><td>Text console invisible</td><td>Display/input path or kernel also affected</td><td>Previously configured alternative access</td><td>Use established recovery; do not promise console login</td></tr>
-<tr><td>No sync completion visible</td><td>Hidden console or blocked I/O</td><td>Available completion messages</td><td>Follow emergency procedure; elapsed seconds alone prove nothing</td></tr></table>
-<h3>Further reading</h3>
-<ul><li><a href="https://docs.kernel.org/admin-guide/sysrq.html">Kernel SysRq documentation (online)</a>: exact policy and completion semantics.</li>
-<li><a href="man:tty(1)">tty(1)</a>: terminal identity.</li>
-<li><a href="maintain/boot-recovery.html?level=2">Boot fallback routes</a>: compare dependencies before choosing a procedure; do not execute it as practice.</li></ul>
-<section class="quiz"><h3>Check yourself</h3>
-<details class="q"><summary>A machine allows 244. Does that prove it can recover from a kernel lockup?</summary>
-<p>No. The mask permits categories; it does not prove that keyboard input,
-the kernel or I/O will respond during a fault.</p></details>
-<details class="q"><summary>Is b by itself a clean reboot, and do three seconds after s prove sync completed?</summary>
-<p>No to both. b immediately reboots without syncing or unmounting. Completion
-requires evidence, not a fixed delay; a prepared emergency procedure must
-account for the available console and I/O state.</p></details></section>
 </section>
 <section data-level="expert">
 <h2>Prepare a rescue dependency record</h2>

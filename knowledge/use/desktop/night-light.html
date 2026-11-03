@@ -7,7 +7,7 @@
 <meta name="topic" content="night-light">
 <meta name="summary" content="Turn the blue-light filter on or off and check its state">
 <meta name="keywords" content="night light, nightlight, blue light, warm screen, colour temperature, hyprsunset, eye strain">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 </head>
@@ -18,21 +18,37 @@
 
 <h1>Making the screen warmer at night</h1>
 
-<p>This page shows how to give the screen a warmer colour in the evening and how to check whether the setting is on.</p>
-
 <section data-level="novice">
+<h2>What this helps with</h2>
+<p>This page shows how to give the screen a warmer colour in the evening and how to check whether the setting is on.</p>
+<h3>Why it matters</h3>
+<p>A very blue screen late at night can feel harsh. A warmer colour is easier on the eyes and is a single key away, without changing any picture files.</p>
+<h3>How to think about it</h3>
+<p>Press Meta + Ctrl + J. The screen becomes noticeably warmer.</p>
+<h3>New words</h3>
+<dl>
+<dt>Colour temperature</dt>
+<dd>How warm or cool white light looks, measured in kelvin (K). Lower numbers look warmer.</dd>
+<dt>Blue light</dt>
+<dd>The cooler part of white light. A night filter reduces it.</dd>
+<dt>Filter</dt>
+<dd>A change applied to the whole screen without altering the files themselves.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Turn the night light on and off</h2>
-
 <p><strong>Goal:</strong> you will be able to turn the warm colour filter on, turn it off, and confirm which state it is in.</p>
-
-<p><strong>Why it matters:</strong> a very blue screen late at night can feel harsh. A warmer colour is easier on the eyes and is a single key away, without changing any picture files.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="use/desktop/screenshots.html?level=2">Start</a> |
+<a href="use/desktop/lock-and-idle.html?level=2">&larr; Back</a> |
+<a href="use/desktop/screenshots.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> you need a graphical session. The change affects what you see on screen, not the colours saved in photos or documents.</p>
-
 <aside class="first-time">
 <p>Press <code>Meta + Ctrl + J</code>. The screen becomes noticeably warmer. Press the same keys again to return to normal colours. If nothing seems to happen, check the status command below; the filter has no pop-up message.</p>
 </aside>
-
 <h3>Worked example</h3>
 <ol>
 <li>Look at a white window or this guide's background.</li>
@@ -46,7 +62,6 @@ $ tam-toggle-nightlight --status
 {"enabled":false,"temperature":null}
 </pre>
 <p>Captured on 2026-11-02 with the filter off. When it is on, the same command reports <code>"enabled":true</code> and a temperature of <code>4000</code>.</p>
-
 <h3>What just happened</h3>
 <ol>
 <li>The key started the night-light program if it was not already running.</li>
@@ -54,10 +69,8 @@ $ tam-toggle-nightlight --status
 <li>Pressing it again set the temperature to 6500 K, the program's normal, unfiltered value.</li>
 <li>The status command reads the current temperature and reports whether it is below 6000 K.</li>
 </ol>
-
 <h3>Try it</h3>
 <p>Turn the filter on, then run <code>tam-toggle-nightlight --status</code> and confirm it reports <code>"enabled":true</code> and <code>"temperature":4000</code>. Turn it off again and confirm the values return to <code>false</code> and <code>null</code>.</p>
-
 <h3>If it goes wrong</h3>
 <dl>
 <dt>Nothing changes</dt>
@@ -67,7 +80,6 @@ $ tam-toggle-nightlight --status
 <dt>The filter will not turn on</dt>
 <dd>Run <code>tam-toggle-nightlight</code> in a terminal and read any error. If the night-light program is not running, the command tries to start it.</dd>
 </dl>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -80,18 +92,6 @@ $ tam-toggle-nightlight --status
 <p>4000 K. Turning it off sets 6500 K, which is the program's normal value.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-<dl>
-<dt>Colour temperature</dt>
-<dd>How warm or cool white light looks, measured in kelvin (K). Lower numbers look warmer.</dd>
-<dt>Blue light</dt>
-<dd>The cooler part of white light. A night filter reduces it.</dd>
-<dt>Filter</dt>
-<dd>A change applied to the whole screen without altering the files themselves.</dd>
-</dl>
-
-<p><strong>Next step:</strong> <a href="use/commands/desktop.html">Desktop commands</a> &mdash; a compact list of the commands used on these pages.</p>
 </section>
 
 <h2>Night-light commands</h2>

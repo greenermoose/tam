@@ -16,11 +16,35 @@
 <p>This page explains a tool that records earlier states of stored information so you can recover them.</p>
 <p>Snapper is a tool for keeping records of earlier states of stored information. The exercises here only inspect information or use a temporary model; they do not create, delete, or restore a real snapshot.</p>
 <section data-level="novice">
+<h2>What are Snapper snapshots?</h2>
+<p>A configuration named root does not mean
+all your files are protected or that a bootable checkpoint exists.</p>
+<h3>Why it matters</h3>
+<p>A configuration named root does not mean
+all your files are protected or that a bootable checkpoint exists.</p>
+<h3>How to think about it</h3>
+<p>Snapper snapshots record filesystem state for a configured subvolume. They are not a full independent backup by themselves.</p>
+<h3>New words</h3>
+<dl><dt>Configuration</dt><dd>Snapper settings for one managed filesystem or subvolume.</dd>
+<dt>Checkpoint number</dt><dd>An identifier within a configuration, not a universal snapshot name.</dd></dl>
+<p>Compare <a href="learn/glossary/snapshot.html">snapshot</a>,
+<a href="learn/glossary/generation.html">generation</a>,
+<a href="learn/glossary/rollback.html">rollback</a> and
+<a href="learn/glossary/checkpoint.html">checkpoint</a>.</p>
+<h3>Next step</h3><p>Learn to interpret checkpoint types and recovery
+boundaries at Learner.</p>
+</section>
+
+<section data-level="learner">
 <h2>Identify the configured subvolume</h2>
 <p><strong>Goal:</strong> you will be able to distinguish a Snapper
 configuration from a snapshot and state what a configuration query proves.</p>
-<p><strong>Why it matters:</strong> a configuration named root does not mean
-all your files are protected or that a bootable checkpoint exists.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Recovery and boot</strong> &mdash;
+<a href="maintain/recovery.html?level=2">Start</a> |
+<a href="maintain/boot-recovery.html?level=2">&larr; Back</a> |
+<a href="maintain/checkpoint.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> read the
 <a href="learn/glossary/snapshot.html">snapshot definition</a> and
 <a href="maintain/rollback.html?level=1">rollback orientation</a>. Snapper
@@ -30,6 +54,16 @@ or create a configuration to complete this lesson.</p>
 sign in your terminal. The first line printed names the columns; each following
 line names a configuration and its subvolume. This command lists configuration,
 not your saved checkpoints.</p></aside>
+<h3>Mental model</h3>
+<pre>
+configuration -> numbered snapshot + metadata -> optional boot-menu entry
+                                                -> optional snapshot boot
+                                                -> separate restore procedure
+</pre>
+<p>Each arrow needs its own evidence. The words “pre:” in a description do
+not make a snapshot type pre. Snapper types are single, pre and post; a post
+refers to its pre number. They describe relationships, not different Btrfs
+snapshot mechanisms.</p>
 <h3>Worked example: List configuration without a service request</h3>
 <pre class="session" data-risk="read-only">
 $ snapper --no-dbus --csvout list-configs --columns config,subvolume
@@ -42,105 +76,18 @@ Your configuration and output may differ.</p>
 <li><code>--csvout</code> uses plain comma-separated output.</li>
 <li><code>root,/</code> identifies a config for the root subvolume; it does
 not recursively include nested subvolumes or separately mounted data.</li></ol>
-<h3>Try it</h3><p>Run the query if Snapper is available. Name the config
+<h3>Try it</h3>
+<p>Run the query if Snapper is available. Name the config
 and subvolume from your own result. Then answer whether that result alone
 proves a usable snapshot exists. Change no settings.</p>
 <details class="solution"><p>It identifies only configuration. A snapshot
 inventory and checks of its data, boot dependencies and intended restoration
 procedure are still required.</p></details>
-<h3>If it goes wrong</h3><p>If Snapper is absent, stop at the paper example.
+<h3>If it goes wrong</h3>
+<p>If Snapper is absent, stop at the paper example.
 If access is denied or a configuration is missing, record that limitation;
 do not create a config or escalate privileges as practice. Direct operation
 bypasses D-Bus, not filesystem permissions.</p>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary>Does a root configuration prove your home directory is included?</summary><p>No. Nested subvolumes and separate mounts are outside the root snapshot boundary. Check the actual layout and independent backup coverage.</p></details>
-<details class="q"><summary>Does --no-dbus grant administrator access?</summary><p>No. It changes the communication mode. Filesystem permissions still apply; record an access limit rather than changing it.</p></details>
-</section>
-
-<h3>New words</h3><dl><dt>Configuration</dt><dd>Snapper settings for one managed filesystem or subvolume.</dd>
-<dt>Checkpoint number</dt><dd>An identifier within a configuration, not a universal snapshot name.</dd></dl>
-<p>Compare <a href="learn/glossary/snapshot.html">snapshot</a>,
-<a href="learn/glossary/generation.html">generation</a>,
-<a href="learn/glossary/rollback.html">rollback</a> and
-<a href="learn/glossary/checkpoint.html">checkpoint</a>.</p>
-<h3>Next step</h3><p>Learn to interpret checkpoint types and recovery
-boundaries at Learner.</p>
-</section>
-<section data-level="learner">
-<h2>Read checkpoint relationships before choosing recovery</h2>
-<p><strong>Goal:</strong> you will be able to select comparison endpoints
-from an inventory and distinguish checkpoint creation from restoration.</p>
-<h3>Mental model</h3>
-<pre>
-configuration -> numbered snapshot + metadata -> optional boot-menu entry
-                                                -> optional snapshot boot
-                                                -> separate restore procedure
-</pre>
-<p>Each arrow needs its own evidence. The words “pre:” in a description do
-not make a snapshot type pre. Snapper types are single, pre and post; a post
-refers to its pre number. They describe relationships, not different Btrfs
-snapshot mechanisms.</p>
-<h3>Worked example: Derive comparison endpoints</h3>
-<p>Create this fictional inventory in scratch space. Its columns are number,
-type and pre-number; it is deliberately smaller than real Snapper CSV.</p>
-<pre data-risk="scratch">
-snapshot_lab=$(mktemp -d)
-printf '41 pre 0\n42 post 41\n43 single 0\n' &gt; "$snapshot_lab/inventory"
-</pre>
-<pre class="session" data-risk="scratch">
-$ awk '$2 == "post" { print $3 ".." $1 }' "$snapshot_lab/inventory"
-41..42
-</pre>
-<p>Captured in a scratch directory on Arch Linux, 2026-10-21.</p>
-<ol><li>Find the post row.</li><li>Read its corresponding pre number.</li>
-<li>Construct the range from the relationship, rather than assuming adjacent
-numbers always form a pair. These numbers are not targets on your computer.</li></ol>
-<h3>Completion task</h3><p>Add another fictional pair to your scratch
-inventory:</p>
-<pre data-risk="scratch">
-printf '44 pre 0\n45 post 44\n' &gt;&gt; "$snapshot_lab/inventory"
-</pre>
-<p>Complete <code>awk '$2 == "___" { print $3 ".." $1 }'</code> with the
-type that supplies a pre-number, passing your inventory file.</p>
-<details class="solution">
-<pre class="session" data-risk="scratch">
-$ awk '$2 == "post" { print $3 ".." $1 }' "$snapshot_lab/inventory"
-41..42
-44..45
-</pre>
-<p>The post rows carry the relationships. A single snapshot with a description
-starting “pre:” would still not be a pre/post pair. Output captured in a scratch
-directory on Arch Linux, 2026-10-21.</p></details>
-<h3>Independent task</h3><p>Write a comparison plan naming config,
-confirmed endpoints, files of interest and data outside the snapshot. State
-why the scratch range must not be copied into a live command. Clean up:</p>
-<pre data-risk="scratch">
-rm -- "$snapshot_lab/inventory"
-rmdir -- "$snapshot_lab"
-unset snapshot_lab
-</pre>
-<details class="solution"><p>Read a real accessible inventory for the chosen
-configuration and verify both endpoints. Record excluded mounts and later
-writes. Only a documented operation may use those actual IDs. The teaching
-file creates no snapshots and supplies no real recovery evidence.</p></details>
-<h3>Choosing</h3>
-<table><tr><th>Need</th><th>Interface</th><th>Limit</th></tr>
-<tr><td>Identify configs</td><td>list-configs</td><td>Not a snapshot inventory</td></tr>
-<tr><td>Identify available numbers/types</td><td>list for the selected config</td><td>Not proof of bootability</td></tr>
-<tr><td>Compare file status</td><td>status with explicit N..M</td><td>Only included paths; endpoint 0 means the current system</td></tr>
-<tr><td>Compare contents</td><td>diff with explicit N..M and optional files</td><td>Can expose sensitive data and read large trees</td></tr>
-<tr><td>Restore normal operation</td><td>Provider-specific recovery procedure</td><td>Snapshot boot, file undo and persistent root restoration differ</td></tr></table>
-<p>Where your existing access permits, <code>snapper -c root list</code>
-reads the root inventory through the normal service. Substitute a verified
-configuration if yours differs. This lesson does not require privileged
-inventory access or a live comparison.</p>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Possible cause</th><th>Check</th><th>Next action</th></tr>
-<tr><td>Snapshot absent from menu</td><td>Synchronization, policy or image dependency</td><td>Inventory versus provider's generated entries</td><td>Preserve evidence; do not rerun generators as practice.</td></tr>
-<tr><td>Comparison fails</td><td>Wrong config, deleted number or permissions</td><td>Accessible inventory and exact error</td><td>Confirm endpoints before a bounded comparison.</td></tr>
-<tr><td>Restored root, newer home data</td><td>Separate mount/subvolume</td><td>Mount and snapshot boundaries</td><td>Use the independent data-recovery plan.</td></tr></table>
 <aside class="tamlinux"><p>The current native updater
 requests a snapshot with description “pre: Tamlinux native update” after its
 recovery gates and before the native transaction. It does not specify type
@@ -151,13 +98,9 @@ successful creation proves a boot entry or successful restore.</p></aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing the explanation.</p>
-<details class="q"><summary>The description says pre: but the inventory type is single. Is it half of a pre/post pair?</summary><p>No. Description text is independent of type and pair linkage. Read the type and pre-number metadata; do not infer a relationship from the label.</p></details>
-<details class="q"><summary>A snapshot appears in the menu. What must still be verified before relying on it?</summary><p>Its loader/image/root dependencies, usable data and credentials, excluded mounts, later-write preservation and exact restoration procedure. Menu visibility is one observation, not complete recovery acceptance.</p></details>
+<details class="q"><summary>Does a root configuration prove your home directory is included?</summary><p>No. Nested subvolumes and separate mounts are outside the root snapshot boundary. Check the actual layout and independent backup coverage.</p></details>
+<details class="q"><summary>Does --no-dbus grant administrator access?</summary><p>No. It changes the communication mode. Filesystem permissions still apply; record an access limit rather than changing it.</p></details>
 </section>
-
-<h3>Further reading</h3><ul><li><a href="man:snapper(8)">snapper(8)</a>: types, comparison syntax and permissions.</li>
-<li><a href="man:snapper-configs(5)">snapper-configs(5)</a>: retention and configuration.</li>
-<li><a href="maintain/rollback.html?level=2">Rollback boundaries</a>: software selection versus mutable data.</li></ul>
 </section>
 <section data-level="expert">
 <h2>Audit metadata, retention and boot integration</h2>

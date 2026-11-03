@@ -16,11 +16,35 @@
 <p>This page explains what happens when your computer rests, sleeps, or saves its state before turning off.</p>
 <p>Turning off the screen, putting the computer to sleep, and saving its state before power-off are different choices. This page explains what each preserves.</p>
 <section data-level="novice">
+<h2>What are blanking, suspend, and hibernation?</h2>
+<p>Turning off a monitor does not stop a
+download. Losing power during ordinary suspend can lose the session held in RAM.</p>
+<h3>Why it matters</h3>
+<p>Turning off a monitor does not stop a
+download. Losing power during ordinary suspend can lose the session held in RAM.</p>
+<h3>How to think about it</h3>
+<p>A dark screen is not sleep. Suspend keeps the session in powered RAM; hibernation writes a memory image to storage first.</p>
+<h3>New words</h3>
+<dl>
+<dt>DPMS</dt><dd>Display Power Management Signaling; display power control, distinct from system sleep.</dd>
+<dt>Suspend</dt><dd>A low-power system state retaining the session in RAM.</dd>
+<dt>Hibernation</dt><dd>Saving a memory image to storage so the session can be restored later.</dd></dl>
+<p>A <dfn><a href="learn/glossary/process.html">process</a></dfn> is a running
+instance of a program; display blanking alone does not suspend it.</p>
+<h3>Next step</h3><p>At Learner, distinguish an available mode from a
+selected mode and a successful wake.</p>
+</section>
+
+<section data-level="learner">
 <h2>Tell display blanking from system sleep</h2>
 <p><strong>Goal:</strong> you will be able to name the three states and read
 which sleep labels your kernel offers, without putting the machine to sleep.</p>
-<p><strong>Why it matters:</strong> turning off a monitor does not stop a
-download. Losing power during ordinary suspend can lose the session held in RAM.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Recovery and boot</strong> &mdash;
+<a href="maintain/recovery.html?level=2">Start</a> |
+<a href="maintain/recovery.html?level=2">&larr; Back</a> |
+<a href="maintain/boot.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> use a terminal; the examples only read
 information from the kernel (the operating system's core). See <a href="learn/paths/first-steps.html?level=1">First steps</a>
 for terminal help and <a href="hardware/resources.html?level=1">resources</a>
@@ -29,6 +53,13 @@ for an introduction to memory.</p>
 It needs power to retain data. The files below are kernel interfaces: reading
 them asks a question; writing to them can change system behavior. This lesson
 uses <code>cat</code> to read only.</p></aside>
+<h3>Mental model</h3>
+<pre>
+desktop request -> system sleep policy -> kernel mode -> devices / firmware
+display blanking -------------------------------------> display power
+</pre>
+<p>The lines are separate. Kernel capability, a selected mode, policy approval
+and a successful wake are four different claims.</p>
 <h3>Worked example: Read available labels</h3>
 <pre class="session">
 $ cat /sys/power/state
@@ -56,79 +87,14 @@ Record exactly what you read; do not add a label by writing into the file.
 If a display is already dark, try a modifier such as Shift rather than Enter,
 then wait until you can see the focused window. Whether that input can wake
 the machine depends on its configuration and hardware. Nothing read here needs undo.</p>
-<section class="quiz"><h3>Check yourself</h3>
-<details class="q"><summary>Does turning off a monitor stop a background download?</summary><p>No. Display blanking affects the display. A separate system-sleep action can stop normal program execution.</p></details>
-<details class="q"><summary>Does <code>disk</code> in the list prove hibernation is ready to use?</summary><p>No. The kernel offers the interface, but storage capacity, resume configuration, policy and driver behavior still matter.</p></details></section>
-<h3>New words</h3><dl>
-<dt>DPMS</dt><dd>Display Power Management Signaling; display power control, distinct from system sleep.</dd>
-<dt>Suspend</dt><dd>A low-power system state retaining the session in RAM.</dd>
-<dt>Hibernation</dt><dd>Saving a memory image to storage so the session can be restored later.</dd></dl>
-<p>A <dfn><a href="learn/glossary/process.html">process</a></dfn> is a running
-instance of a program; display blanking alone does not suspend it.</p>
-<h3>Next step</h3><p>At Learner, distinguish an available mode from a
-selected mode and a successful wake.</p>
-</section>
-<section data-level="learner">
-<h2>Compare capability, selection and observed behavior</h2>
-<p><strong>Goal:</strong> you will be able to interpret sleep-mode selection
-and choose evidence for a power symptom without changing a setting.</p>
-<h3>Mental model</h3>
-<pre>
-desktop request -> system sleep policy -> kernel mode -> devices / firmware
-display blanking -------------------------------------> display power
-</pre>
-<p>The lines are separate. Kernel capability, a selected mode, policy approval
-and a successful wake are four different claims.</p>
-<h3>Worked example: Which suspend variant is selected?</h3>
-<pre class="session">
-$ cat /sys/power/mem_sleep
-s2idle [deep]
-</pre>
-<p>Captured on an Arch Linux workstation, 2026-10-22. Your output may differ.</p>
-<ol><li>Both listed variants are available on this machine.</li>
-<li>Brackets identify <code>deep</code> as the variant selected for the kernel's
-<code>mem</code> request. On ACPI systems it corresponds to suspend-to-RAM (S3).</li>
-<li><code>s2idle</code> is suspend-to-idle. Its presence does not prove that
-the platform reaches a particular hardware residency or energy target.</li></ol>
-<h3>Completion task</h3>
-<p>Complete <code>cat /sys/power/___</code> to read what the kernel will do
-after writing a hibernation image, rather than selecting the suspend variant.</p>
-<details class="solution"><p>Use <code>disk</code>. The bracketed choice
-identifies the selected hibernation mode, such as <code>platform</code> or
-<code>shutdown</code>. Merely reading it does not hibernate the system.</p></details>
-<h3>Independent task</h3>
-<p>A display stays dark after a reported wake. Make an evidence plan that can
-distinguish a display problem from a system that never resumed. State the
-observation, the boot and time window, and which layers to inspect. Do not
-repeat the sleep cycle as part of this exercise.</p>
-<details class="solution"><p>Record the visible symptom and time. Compare
-kernel transition messages with session/service activity after the expected
-wake, using the <a href="maintain/logs.html?level=2">log filters</a>. Continued
-session activity weakens “never resumed” but does not identify a particular
-display fault. A missing log alone does not prove a hang.</p></details>
-<h3>Choosing</h3>
-<table><tr><th>Question</th><th>Read-only evidence</th><th>Does not prove</th></tr>
-<tr><td>Which kernel states exist?</td><td><code>cat /sys/power/state</code></td><td>Configured hibernation readiness.</td></tr>
-<tr><td>Which <code>mem</code> variant is selected?</td><td><code>cat /sys/power/mem_sleep</code></td><td>Successful suspend or wake.</td></tr>
-<tr><td>What follows image creation?</td><td><code>cat /sys/power/disk</code></td><td>That an image was written.</td></tr>
-<tr><td>What happened around wake?</td><td>Kernel and session logs in a bounded window.</td><td>Wall-plug energy consumption.</td></tr></table>
-<h3>Troubleshooting</h3>
-<table><tr><th>Symptom</th><th>Possible cause</th><th>Check and response</th></tr>
-<tr><td>Only <code>s2idle</code> listed</td><td>No deeper variant is exposed by this kernel/platform.</td><td>Read the available labels; do not write an unsupported one.</td></tr>
-<tr><td>Dark display, active session</td><td>Display policy or a driver/link problem.</td><td>Compare session and kernel evidence before blaming sleep entry.</td></tr>
-<tr><td>Hibernate was requested but sleep behavior differs</td><td>A policy decision or failure in a transition stage.</td><td>Read service and kernel messages; a request is not a completion record.</td></tr></table>
 <aside class="tamlinux"><p><code>fred.workspaces</code> has per-display power controls. They are distinct
 from a system-sleep request. The packaged <code>tam-hibernate-swap</code> hook
 attempts to drain zram swap before the hibernation leg and restore it afterwards,
 with time and disk-headroom guards. It can skip or fail a drain; its presence
 does not prove a successful hibernation. Do not run the hook manually for this lesson.</p></aside>
 <section class="quiz"><h3>Check yourself</h3>
-<details class="q"><summary>Does <code>[deep]</code> prove that the last wake used S3 successfully?</summary><p>No. It identifies the currently selected kernel variant for a <code>mem</code> request. Establish the actual request, policy and transition outcome from evidence.</p></details>
-<details class="q"><summary>Can a passing graphics-device check establish hibernation readiness?</summary><p>No. DRM is Linux's graphics subsystem. Detecting a DRM device is only evidence that the device is present. It does not test image allocation, resume storage, firmware or driver restoration.</p></details></section>
-<h3>Further reading</h3><ul>
-<li><a href="man:systemd-sleep.conf(5)">systemd-sleep.conf(5)</a>: sleep policy and overrides, offline if installed.</li>
-<li><cite data-ref="journalctl"><a href="learn/bibliography/journalctl.html">journalctl manual</a></cite>: match the transition to its boot and time.</li>
-<li><a href="maintain/boot-recovery.html?level=2">Boot fallbacks and rescue</a>: which dependencies survive a failure.</li></ul>
+<details class="q"><summary>Does turning off a monitor stop a background download?</summary><p>No. Display blanking affects the display. A separate system-sleep action can stop normal program execution.</p></details>
+<details class="q"><summary>Does <code>disk</code> in the list prove hibernation is ready to use?</summary><p>No. The kernel offers the interface, but storage capacity, resume configuration, policy and driver behavior still matter.</p></details></section>
 </section>
 <section data-level="expert">
 <h2>Reason about image allocation and resume boundaries</h2>

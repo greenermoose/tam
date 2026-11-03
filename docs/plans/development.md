@@ -1230,3 +1230,6 @@ resolve superseded schedules. Do not execute a former plan from this history.
   (`desktop/index`, `meta-key`, `workspaces`) and Healthy diagnostics
   (`hardware/networking`, `maintain/logs`, `learn/documentation`); register
   both paths in `paths.json` and expand anatomy hard-enforcement.
+- **2026-11-02:** Corpus 0.66.0 (minor): Migrate Desktop voice, Everyday
+  desktop tasks (`use/desktop/*`), and Recovery and boot (`maintain/recovery`
+  through `checkpoint`); register three paths and expand hard-enforcement.

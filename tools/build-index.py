@@ -46,6 +46,23 @@ D221_PILOT_PAGES = frozenset({
     "hardware/networking.html",
     "maintain/logs.html",
     "learn/documentation.html",
+    "desktop/voice.html",
+    "desktop/voice-commands.html",
+    "use/desktop/screenshots.html",
+    "use/desktop/clipboard.html",
+    "use/desktop/notifications.html",
+    "use/desktop/audio.html",
+    "use/desktop/bluetooth.html",
+    "use/desktop/displays.html",
+    "use/desktop/keyboard-touchpad.html",
+    "use/desktop/lock-and-idle.html",
+    "use/desktop/night-light.html",
+    "maintain/recovery.html",
+    "maintain/power.html",
+    "maintain/boot.html",
+    "maintain/boot-recovery.html",
+    "maintain/snapper.html",
+    "maintain/checkpoint.html",
 })
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")

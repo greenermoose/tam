@@ -7,7 +7,7 @@
 <meta name="topic" content="notifications">
 <meta name="summary" content="Read a pop-up, find an older message, silence notifications, and send one from the terminal">
 <meta name="keywords" content="notification, pop-up, toast, alert, dismiss, do not disturb, silence, notification history, DND">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 </head>
@@ -18,21 +18,37 @@
 
 <h1>Reading and dismissing notifications</h1>
 
-<p>This page shows how pop-up messages work, how to find one you missed, and how to silence them for a while.</p>
-
 <section data-level="novice">
+<h2>What this helps with</h2>
+<p>This page shows how pop-up messages work, how to find one you missed, and how to silence them for a while.</p>
+<h3>Why it matters</h3>
+<p>Notifications carry messages from your programs, but a pile of pop-ups gets in the way. You can clear them without reading, and still find them later.</p>
+<h3>How to think about it</h3>
+<p>A notification appears at the edge of the screen and fades after a while. To dismiss the newest one, press Meta + N.</p>
+<h3>New words</h3>
+<dl>
+<dt>Notification</dt>
+<dd>A short message a program shows without taking over the screen.</dd>
+<dt>Silence</dt>
+<dd>Stop pop-ups from appearing for a while. Also called do not disturb.</dd>
+<dt>History</dt>
+<dd>The list of messages already received.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Read, dismiss, and silence a notification</h2>
-
 <p><strong>Goal:</strong> you will be able to dismiss a pop-up, open an older one, and turn notifications off and on again.</p>
-
-<p><strong>Why it matters:</strong> notifications carry messages from your programs, but a pile of pop-ups gets in the way. You can clear them without reading, and still find them later.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="use/desktop/screenshots.html?level=2">Start</a> |
+<a href="use/desktop/clipboard.html?level=2">&larr; Back</a> |
+<a href="use/desktop/audio.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> you need a graphical session. Notifications are stored for your account only. A notification that offers an action can be clicked while it is showing.</p>
-
 <aside class="first-time">
 <p>A notification appears at the edge of the screen and fades after a while. To dismiss the newest one, press <code>Meta + N</code>. To dismiss all of them, press <code>Meta + Shift + N</code>. To silence new notifications, press <code>Meta + Ctrl + N</code>; press the same keys again to turn them back on.</p>
 </aside>
-
 <h3>Worked example</h3>
 <ol>
 <li>Open a terminal with <code>Meta + Return</code>.</li>
@@ -43,7 +59,6 @@
 </ol>
 
 <p>Captured from the packaged notification commands and keybindings on 2026-11-02. The appearance of the pop-up depends on your desktop theme.</p>
-
 <h3>What just happened</h3>
 <ol>
 <li><code>tam-notification-send</code> sent a headline and a description to the session's notification service.</li>
@@ -51,10 +66,8 @@
 <li><code>Meta + N</code> removed the newest pop-up.</li>
 <li><code>Meta + Shift + H</code> opened the history, which persists across restarts.</li>
 </ol>
-
 <h3>Try it</h3>
 <p>Send a notification with an action that opens this guide when clicked. Run <code>tam-notification-send "Guide" "Click to open the guide" --exec tam show use/desktop/notifications</code>, then click the pop-up.</p>
-
 <h3>If it goes wrong</h3>
 <dl>
 <dt>No pop-up appears</dt>
@@ -64,7 +77,6 @@
 <dt>A notification disappears too quickly</dt>
 <dd>Open the history with <code>Meta + Shift + H</code>. Pop-ups are temporary; the history is not.</dd>
 </dl>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -77,18 +89,6 @@
 <p>No. It is recorded in the history, and you can open the history with <code>Meta + Shift + H</code>.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-<dl>
-<dt>Notification</dt>
-<dd>A short message a program shows without taking over the screen.</dd>
-<dt>Silence</dt>
-<dd>Stop pop-ups from appearing for a while. Also called do not disturb.</dd>
-<dt>History</dt>
-<dd>The list of messages already received.</dd>
-</dl>
-
-<p><strong>Next step:</strong> <a href="use/desktop/audio.html">Change the volume and choose speakers or headphones</a>.</p>
 </section>
 
 <h2>Notification keys</h2>

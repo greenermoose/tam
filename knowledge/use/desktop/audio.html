@@ -7,7 +7,7 @@
 <meta name="topic" content="audio">
 <meta name="summary" content="Raise, lower and mute sound, switch outputs, and choose a microphone">
 <meta name="keywords" content="audio, sound, volume, mute, speakers, headphones, microphone, output, input, sound device">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 </head>
@@ -18,21 +18,37 @@
 
 <h1>Changing the volume and choosing speakers or headphones</h1>
 
-<p>This page shows how to change the sound level, mute it, and choose which device plays or records.</p>
-
 <section data-level="novice">
+<h2>What this helps with</h2>
+<p>This page shows how to change the sound level, mute it, and choose which device plays or records.</p>
+<h3>Why it matters</h3>
+<p>Sound often comes out of the wrong device, or a muted microphone makes a call silent. Both are quick to fix when you know where the controls are.</p>
+<h3>How to think about it</h3>
+<p>Use the volume keys at the top of the keyboard. A small overlay shows the new level.</p>
+<h3>New words</h3>
+<dl>
+<dt>Output</dt>
+<dd>The device that plays sound, such as speakers or headphones.</dd>
+<dt>Input</dt>
+<dd>The device that records sound, such as a microphone.</dd>
+<dt>Default device</dt>
+<dd>The output or input used when a program does not choose one.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Control sound</h2>
-
 <p><strong>Goal:</strong> you will be able to change the volume, mute it, switch to headphones or speakers, and mute the microphone.</p>
-
-<p><strong>Why it matters:</strong> sound often comes out of the wrong device, or a muted microphone makes a call silent. Both are quick to fix when you know where the controls are.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="use/desktop/screenshots.html?level=2">Start</a> |
+<a href="use/desktop/notifications.html?level=2">&larr; Back</a> |
+<a href="use/desktop/bluetooth.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> you need a graphical session and a sound device. The volume keys work even when another window has focus, unless that program has captured the keys for itself.</p>
-
 <aside class="first-time">
 <p>Use the volume keys at the top of the keyboard. A small overlay shows the new level. Press the mute key to silence the output; press it again to restore the level. If you hear nothing, press <code>Shift</code> with the mute key to try the next output, such as headphones instead of speakers.</p>
 </aside>
-
 <h3>Worked example</h3>
 <ol>
 <li>Press the volume-up key a few times. An overlay shows the level rising.</li>
@@ -43,7 +59,6 @@
 </ol>
 
 <p>Captured from the packaged audio commands and keybindings on 2026-11-02. Device names in the overlay depend on what is connected.</p>
-
 <h3>What just happened</h3>
 <ol>
 <li>The volume keys call <code>tam-audio-output-volume</code> with a small step, and holding a key repeats it.</li>
@@ -52,7 +67,6 @@
 <li>The audio panel offers a direct choice when cycling is too slow.</li>
 <li>The microphone key toggled the default recording device.</li>
 </ol>
-
 <h3>Try it</h3>
 <p>Ask the system which output it is using:</p>
 <pre class="session" data-risk="read-only">
@@ -60,7 +74,6 @@ $ tam-audio-output-sink
 alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headset-00.analog-stereo
 </pre>
 <p>Captured on 2026-11-02. A long name is normal: it identifies the device by its connection and model. Your name will differ.</p>
-
 <h3>If it goes wrong</h3>
 <dl>
 <dt>No sound at all</dt>
@@ -72,7 +85,6 @@ alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headse
 <dt>Sound stops working after a device change</dt>
 <dd>Run <code>tam-restart-audio</code> in a terminal. It restarts the sound service without rebooting.</dd>
 </dl>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -85,18 +97,6 @@ alsa_output.usb-C-Media_Electronics_Inc._Lenovo_USB-A_Wired_Stereo_On-Ear_Headse
 <p>The microphone mute key, then the input chosen in the audio panel. Output volume does not affect recording.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-<dl>
-<dt>Output</dt>
-<dd>The device that plays sound, such as speakers or headphones.</dd>
-<dt>Input</dt>
-<dd>The device that records sound, such as a microphone.</dd>
-<dt>Default device</dt>
-<dd>The output or input used when a program does not choose one.</dd>
-</dl>
-
-<p><strong>Next step:</strong> <a href="use/desktop/bluetooth.html">Connect Bluetooth headphones or a mouse</a>.</p>
 </section>
 
 <h2>Sound keys</h2>

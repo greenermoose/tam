@@ -7,7 +7,7 @@
 <meta name="topic" content="lock-and-idle">
 <meta name="summary" content="Lock the screen, unlock it, prevent idle locking, and suspend the computer">
 <meta name="keywords" content="lock, unlock, lock screen, idle, stay awake, sleep, suspend, password, hyprlock">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 </head>
@@ -18,21 +18,37 @@
 
 <h1>Locking the screen and keeping it awake</h1>
 
-<p>This page shows how to lock the screen before you walk away, how to unlock it, and how to stop it locking while a long job runs.</p>
-
 <section data-level="novice">
+<h2>What this helps with</h2>
+<p>This page shows how to lock the screen before you walk away, how to unlock it, and how to stop it locking while a long job runs.</p>
+<h3>Why it matters</h3>
+<p>Locking protects your files and messages when you leave the computer. The opposite problem, a screen that locks during a long download or a video, is just as annoying.</p>
+<h3>How to think about it</h3>
+<p>Press Meta + Ctrl + L to lock. The screen is covered by the lock screen.</p>
+<h3>New words</h3>
+<dl>
+<dt>Lock screen</dt>
+<dd>A password prompt that covers your desktop without closing your programs.</dd>
+<dt>Idle</dt>
+<dd>No keyboard or pointer activity for a period of time.</dd>
+<dt>Suspend</dt>
+<dd>Put the computer into a low-power state and keep your work in memory.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Lock, unlock, and stay awake</h2>
-
 <p><strong>Goal:</strong> you will be able to lock the screen on demand, unlock it with your password, and keep it unlocked while you are nearby.</p>
-
-<p><strong>Why it matters:</strong> locking protects your files and messages when you leave the computer. The opposite problem, a screen that locks during a long download or a video, is just as annoying.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="use/desktop/screenshots.html?level=2">Start</a> |
+<a href="use/desktop/keyboard-touchpad.html?level=2">&larr; Back</a> |
+<a href="use/desktop/night-light.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> you need a graphical session and your login password. Locking does not close your programs; they keep running.</p>
-
 <aside class="first-time">
 <p>Press <code>Meta + Ctrl + L</code> to lock. The screen is covered by the lock screen. Type your password and press <code>Return</code> to return to your work. To stop the screen locking while you are idle, press <code>Meta + Ctrl + I</code>; the same keys turn normal locking back on. That toggle is silent, so use the status command on this page if you are unsure which state it is in.</p>
 </aside>
-
 <h3>Worked example</h3>
 <ol>
 <li>Press <code>Meta + Ctrl + L</code>. The lock screen appears.</li>
@@ -43,7 +59,6 @@
 </ol>
 
 <p>Captured from the packaged lock and idle commands and keybindings on 2026-11-02. The lock screen's appearance depends on your theme.</p>
-
 <h3>What just happened</h3>
 <ol>
 <li><code>Meta + Ctrl + L</code> started the lock screen and reset the keyboard layout to its first entry.</li>
@@ -52,7 +67,6 @@
 <li>The marker is remembered, so Stay Awake survives a restart until you turn it off.</li>
 <li>The system menu offers actions that affect the whole computer, not just one window.</li>
 </ol>
-
 <h3>Try it</h3>
 <p>Ask whether Stay Awake is on:</p>
 <pre class="session" data-risk="read-only">
@@ -60,7 +74,6 @@ $ tam-toggle-idle status
 {"enabled":false,"class":"disabled","tooltip":"Stay Awake"}
 </pre>
 <p>Captured on 2026-11-02. Here <code>"enabled":false</code> means Stay Awake is off, so the normal idle behaviour applies. The <code>tooltip</code> names what pressing the Stay Awake key would do next.</p>
-
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The screen does not lock</dt>
@@ -72,7 +85,6 @@ $ tam-toggle-idle status
 <dt>The screen never locks on its own</dt>
 <dd>Your system may not have an idle lock timer configured. That is normal on some Tamlinux installations. Lock manually with <code>Meta + Ctrl + L</code>.</dd>
 </dl>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -85,18 +97,6 @@ $ tam-toggle-idle status
 <p>No. Stay Awake stops the idle lock cycle. Choosing Suspend is a separate action that you start yourself.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-<dl>
-<dt>Lock screen</dt>
-<dd>A password prompt that covers your desktop without closing your programs.</dd>
-<dt>Idle</dt>
-<dd>No keyboard or pointer activity for a period of time.</dd>
-<dt>Suspend</dt>
-<dd>Put the computer into a low-power state and keep your work in memory.</dd>
-</dl>
-
-<p><strong>Next step:</strong> <a href="use/desktop/night-light.html">Making the screen warmer at night</a>.</p>
 </section>
 
 <h2>Lock and power actions</h2>

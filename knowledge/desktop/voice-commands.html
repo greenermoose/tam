@@ -5,7 +5,7 @@
 <meta name="topic" content="voice-commands">
 <meta name="summary" content="Using safe, validated voice commands at the Bash shell prompt">
 <meta name="keywords" content="voice, commands, shell, bash, readline, f10, voxtype, terminal, safety">
-<meta name="level" content="learner">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="desktop/voice.html">
 <meta name="kind" content="how-to">
@@ -17,58 +17,102 @@
 </nav>
 
 <h1>Shell Voice Commands</h1>
-<p>This page explains how to speak commands directly at your shell prompt while guaranteeing that spoken words are never executed without your explicit confirmation.</p>
+<p>This page explains how to speak commands at your shell prompt while guaranteeing that spoken words are never executed without your confirmation.</p>
 
-<p>Unlike desktop dictation (which simulates raw keystrokes into any window), shell voice commands validate your speech against a known command vocabulary and place the command onto your shell prompt for inspection before running.</p>
+<section data-level="novice">
+<h2>Why shell voice is different from dictation</h2>
+<p>Desktop dictation types unrestricted prose into any window. Shell voice commands validate speech against a known command vocabulary and place the result on your prompt for inspection before anything runs.</p>
 
-<section data-level="learner"><h2>Issue a voice command at the shell prompt</h2>
-<p><strong>Goal:</strong> issue a command in your terminal using your voice with confirmation safety.</p>
-<h3>Mental model</h3><pre>prompt check (empty?) --&gt; F10 capture --&gt; Whisper transcript --&gt; allowlist validation --&gt; Readline line (no execution)
-The user reviews the inserted line and presses Enter manually to execute it.</pre>
-<p>Typing arbitrary spoken text directly into a command prompt is dangerous. A misheard word, background speech, or coughing could accidentally form a destructive command. Tamlinux isolates shell commands so they are never executed automatically.</p>
-<aside class="tamlinux"><p>F10 is bound inside Bash Readline (as \e[21~). It works only at an empty shell prompt, not while an editor or interactive agent is running. Normal F9 dictation still types unrestricted prose elsewhere.</p></aside>
-<h3>Worked example</h3><ol><li>Ensure your command prompt is empty.</li>
+<h3>Why it matters</h3>
+<p>A misheard word at a command prompt could form a destructive command. Isolating shell capture from ordinary dictation keeps confirmation under your control.</p>
+
+<h3>How to think about it</h3>
+<pre>
+empty prompt --&gt; F10 capture --&gt; Whisper transcript --&gt; allowlist check --&gt; Readline line (no execution)
+</pre>
+<p>You review the inserted line and press Enter yourself to run it.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Allowlist</dt><dd>The short set of approved command names the helper will insert.</dd>
+<dt>Readline</dt><dd>The line editor Bash uses for the interactive prompt.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Issue a voice command at the shell prompt</h2>
+<p><strong>Goal:</strong> issue a command in your terminal using your voice, with confirmation before it runs.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop voice</strong> &mdash;
+<a href="desktop/voice.html?level=2">Start</a> |
+<a href="desktop/voice.html?level=2">&larr; Back</a> |
+<a href="desktop/voice.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p><strong>Before you start:</strong> open a terminal with an empty Bash prompt. Do not practice inside an editor or interactive agent.</p>
+<aside class="first-time"><p>F10 is bound inside Bash Readline. It works only at an empty shell prompt. Ordinary F9 dictation still types unrestricted prose elsewhere.</p></aside>
+
+<h3>Worked example</h3>
+<ol>
+<li>Ensure your command prompt is empty.</li>
 <li>Press F10. The prompt displays: Speak a command. Enter finishes; Escape cancels.</li>
 <li>Speak clearly: "codex" (or "open codex").</li>
 <li>Press Enter on your physical keyboard to finish recording.</li>
-<li>The system checks the speech and confirms: Recognized codex. Press Enter at the prompt to run it.</li>
-<li>The word codex now appears at your prompt.</li>
-<li>Press Enter on your physical keyboard to execute the command.</li></ol>
+<li>The system confirms recognition and inserts the word at your prompt.</li>
+<li>Press Enter again only if you want to run it.</li>
+</ol>
 <p>This walkthrough is checked against the packaged voice command helper, not a claim that an interactive terminal test was performed in your session.</p>
-<h3>Completion task</h3><p>What happens if you speak an unrecognized command or sentence using F10?</p>
-<details class="solution"><p>The helper checks the transcript against its allowlist. If the command is unrecognized, it reports an error message and leaves the prompt completely empty. Nothing is inserted.</p></details>
-<h3>Independent task</h3><p>Try cancelling a voice command: at an empty prompt, press F10, then immediately press Escape or Ctrl+C.</p>
-<details class="solution"><p>The capture loop detects Escape or Ctrl+C, stops the recording daemon, removes the private temporary directory, and prints a cancellation notice. The prompt line remains empty and ready for normal typing.</p></details>
-<h3>Choosing</h3><table><tr><th>Intent</th><th>Shortcut</th><th>Behavior</th></tr>
-<tr><td>General prose into any window</td><td>F9 (hold to talk) or Meta + Ctrl + X (toggle)</td><td>Types text directly at cursor via wtype</td></tr>
-<tr><td>Voice command at empty shell prompt</td><td>F10</td><td>Validates command and inserts into Readline buffer</td></tr>
-<tr><td>Finish voice command recording</td><td>Enter (during F10 capture)</td><td>Stops recording and begins transcription</td></tr>
-<tr><td>Cancel voice command recording</td><td>Escape or Ctrl+C</td><td>Aborts recording; leaves prompt empty</td></tr>
-<tr><td>Execute inserted voice command</td><td>Enter (at prompt)</td><td>Runs the validated command</td></tr></table>
-<h3>Troubleshooting</h3><table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Prompt says "Clear the prompt first"</td><td>Line was not empty</td><td>Existing text in READLINE_LINE</td><td>Press Ctrl+C or Ctrl+U to clear the line before pressing F10</td></tr>
-<tr><td>"I don't understand" feedback</td><td>Phrase not on allowlist</td><td>Spoken words vs supported tools</td><td>Speak only an approved tool name (e.g. codex, agy, claude)</td></tr>
-<tr><td>Voxtype is busy error</td><td>Dictation in progress</td><td>voxtype status</td><td>Release F9 or finish Meta + Ctrl + X toggle before starting F10 command capture</td></tr></table>
-<h3>Further reading</h3><ul><li><a href="desktop/voice.html?level=1">Voice Dictation on the Desktop</a>: general voice dictation.</li>
-<li><a href="desktop/index.html?level=1">Desktop orientation</a>: focus, layout, and keybindings.</li>
-<li><a href="shell/pipelines.html?level=2">Pipelines</a>: connecting command streams.</li></ul>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Will a recognized shell voice command run immediately when transcription finishes?</summary><p>No. Tamlinux inserts the command text into the Readline prompt buffer and waits for you to review it and press Enter yourself.</p></details><details class="q"><summary>Can you speak arbitrary shell pipelines like "cat file | grep text" using F10?</summary><p>No. The voice command helper enforces a strict allowlist of approved commands and rejects arguments, options, and shell syntax for your safety.</p></details></section>
+
+<h3>What just happened</h3>
+<ol>
+<li>F10 started a locked capture that does not execute anything.</li>
+<li>Whisper produced a transcript checked against the allowlist.</li>
+<li>The helper assigned the result to <code>READLINE_LINE</code> without a newline, so Bash waits for you.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>At an empty prompt, press F10, then immediately press Escape or Ctrl+C to cancel. Confirm the prompt stays empty. Then try F10 with an unrecognized phrase and confirm nothing is inserted.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Prompt says "Clear the prompt first"</dt>
+<dd>Press Ctrl+C or Ctrl+U to clear the line, then press F10 again.</dd>
+<dt>"I don't understand"</dt>
+<dd>Speak only an approved tool name (for example codex, agy, or claude).</dd>
+<dt>Voxtype is busy</dt>
+<dd>Release F9 or finish the Meta + Ctrl + X toggle before starting F10.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>F10 is bound as <code>\e[21~</code> in Bash Readline so it does not intercept keys inside full-screen programs. General prose still uses <a href="desktop/voice.html?level=2">desktop dictation</a>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Will a recognized shell voice command run immediately when transcription finishes?</summary>
+<p>No. Tamlinux inserts the command into the Readline buffer and waits for you to press Enter.</p></details>
+<details class="q"><summary>Can you speak arbitrary pipelines like "cat file | grep text" using F10?</summary>
+<p>No. The helper enforces a strict allowlist and rejects arguments, options, and shell syntax.</p></details>
+</section>
 </section>
 
 <h2>Voice command shortcuts reference</h2>
-<table><tr><th>Key</th><th>Context</th><th>Action</th></tr>
+<table>
+<tr><th>Key</th><th>Context</th><th>Action</th></tr>
 <tr><td>F10</td><td>Empty Bash prompt</td><td>Starts shell voice command capture</td></tr>
 <tr><td>Enter</td><td>During F10 capture</td><td>Finishes recording and begins verification</td></tr>
-<tr><td>Escape or Ctrl+C</td><td>During F10 capture</td><td>Cancels capture immediately; nothing inserted</td></tr>
-<tr><td>Enter</td><td>After insertion</td><td>Executes the command shown on the prompt</td></tr></table>
+<tr><td>Escape or Ctrl+C</td><td>During F10 capture</td><td>Cancels; nothing inserted</td></tr>
+<tr><td>Enter</td><td>After insertion</td><td>Executes the command shown on the prompt</td></tr>
+</table>
 
-<h2>Under the hood: Voice command architecture</h2>
+<h2>Under the hood</h2>
 <ol>
-  <li><strong>Readline integration:</strong> The terminal translates F10 into the escape sequence \e[21~, which Bash binds to a shell function. This prevents F10 from intercepting keys inside text editors or full-screen programs.</li>
-  <li><strong>Session locking:</strong> A lock file in $XDG_RUNTIME_DIR/ ensures only one voice command runs at a time and prevents clashes with regular dictation.</li>
-  <li><strong>Isolated temporary transcript:</strong> The audio transcript is saved into a private, temporary file in memory (tmpfs). The file is erased immediately after validation.</li>
-  <li><strong>Two-stage verification:</strong> The Python helper checks the command against an internal allowlist and confirms it exists on PATH. The Bash shell wrapper validates the output a second time before updating the prompt.</li>
-  <li><strong>Buffer injection:</strong> The result is assigned directly to the shell's READLINE_LINE variable. Because no newline character is appended, the shell waits for physical user input.</li>
+  <li><strong>Readline integration:</strong> F10 becomes <code>\e[21~</code>, bound only at the shell prompt.</li>
+  <li><strong>Session locking:</strong> a lock under <code>$XDG_RUNTIME_DIR/</code> prevents clashes with dictation.</li>
+  <li><strong>Isolated transcript:</strong> temporary transcript storage is erased after validation.</li>
+  <li><strong>Two-stage verification:</strong> allowlist check plus PATH existence before updating the prompt.</li>
+  <li><strong>Buffer injection:</strong> assignment to <code>READLINE_LINE</code> with no trailing newline.</li>
 </ol>
 </body>
 </html>

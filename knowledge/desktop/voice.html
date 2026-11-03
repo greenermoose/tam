@@ -5,7 +5,7 @@
 <meta name="topic" content="voice">
 <meta name="summary" content="Using local voice dictation to enter text into any window">
 <meta name="keywords" content="voice, dictation, voxtype, whisper, speech, speech-to-text, microphone, f9, wtype">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner">
 <meta name="track" content="use">
 <meta name="parent" content="desktop/index.html">
 <meta name="kind" content="how-to">
@@ -18,53 +18,94 @@
 
 <h1>Voice Dictation on the Desktop</h1>
 <p>This page explains how to speak to enter text directly into any focused window without straining your hands or sending your audio to the cloud.</p>
-
 <p>All voice recognition on Tamlinux runs entirely on your local computer using an on-device neural network. No audio, transcripts, or personal data ever leave your machine.</p>
 
-<h2>Starting and stopping dictation</h2>
-<p>Tamlinux provides two keybindings for dictation:</p>
-<ul>
-  <li><strong>F9 (push-to-talk):</strong> Hold F9 while you speak. Release F9 to stop recording and transcribe.</li>
-  <li><strong>Meta + Ctrl + X (toggle):</strong> Press once to start recording and again to stop and transcribe, without holding a key.</li>
-</ul>
+<section data-level="novice">
+<h2>What is local voice dictation?</h2>
+<p>Dictation turns spoken words into typed text in the focused window. Tamlinux does that on your machine: audio stays in memory, a local Whisper model transcribes it, and a virtual keyboard types the result.</p>
+<p>Two shortcuts start recording: hold <strong>F9</strong> (push-to-talk), or press <strong>Meta + Ctrl + X</strong> once to start and again to stop.</p>
 
-<section data-level="novice"><h2>Dictate a sentence into a window</h2>
-<p><strong>Goal:</strong> you will be able to speak a sentence and have it typed into a text editor or terminal without touching your keyboard keys.</p>
-<p><strong>Why it matters:</strong> dictation allows fast note-taking and relieves physical wrist strain during long sessions.</p>
-<p><strong>Before you start:</strong> ensure your microphone (such as a USB headset) is plugged in and selected as your default recording device. Open an empty text editor or terminal.</p>
+<h3>Why it matters</h3>
+<p>Dictation speeds note-taking and can relieve wrist strain. Keeping recognition on-device means you do not send speech to a remote service.</p>
+
+<h3>How to think about it</h3>
+<p>Think of dictation as a microphone plus a typer: the compositor starts recording, Whisper turns sound into words, and <code>wtype</code> injects keystrokes into the focused window as if you typed them.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard and simulated typing input.</dd>
+<dt><dfn><a href="learn/glossary/terminal.html">Terminal</a></dfn></dt><dd>A window where you interact with command line programs and text.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Dictate a sentence into a window</h2>
+<p><strong>Goal:</strong> you will be able to speak a sentence and have it typed into a text editor or terminal without typing the words yourself.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop voice</strong> &mdash;
+<a href="desktop/voice.html?level=2">Start</a> |
+<a href="desktop/voice.html?level=2">&larr; Back</a> |
+<a href="desktop/voice-commands.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p><strong>Before you start:</strong> ensure your microphone is plugged in and selected as the default recording device. Open an empty text editor or terminal.</p>
 <aside class="first-time"><p>F9 is push-to-talk. Press and hold F9 while you speak, then release F9 when you finish. Meta + Ctrl + X toggles start and stop with separate presses.</p></aside>
-<h3>Worked example</h3><ol><li>Click into your empty practice window so it has focus.</li>
-<li>Press and hold F9. A small on-screen indicator appears showing that the system is recording.</li>
-<li>Speak in a clear, natural voice: "Tamlinux runs speech recognition entirely on my local machine."</li>
-<li>Release F9. The indicator displays transcribing, and within one to two seconds the transcribed text is typed at your cursor.</li></ol>
+
+<h3>Worked example</h3>
+<ol>
+<li>Click into your empty practice window so it has focus.</li>
+<li>Press and hold F9. A small on-screen indicator shows that the system is recording.</li>
+<li>Speak clearly: "Tamlinux runs speech recognition entirely on my local machine."</li>
+<li>Release F9. The indicator shows transcribing, and within one to two seconds the text is typed at your cursor.</li>
+</ol>
 <p>This walkthrough is checked against the packaged Voxtype bindings, not a claim that a GUI acceptance test was performed in your session.</p>
-<h3>What just happened</h3><ol><li>The compositor detected the F9 press and instructed the Voxtype background daemon to start recording.</li>
-<li>The daemon captured your voice stream directly into memory through the PipeWire audio server.</li>
-<li>When you released F9, the local Whisper speech model converted the recorded sound into text.</li>
-<li>The Wayland virtual keyboard tool (wtype) simulated keyboard strokes to type the words into the focused window.</li></ol>
-<h3>Try it</h3><p>Practice dictating another sentence: hold F9, speak a brief phrase, then release F9 to stop. You can also press Meta + Ctrl + X once to start and again to stop. Observe that the transcribed text is typed into the focused window.</p>
-<h3>If it goes wrong</h3><dl><dt>No text appears after speaking</dt>
-<dd>Check that your microphone is unmuted and set as default. Check the service status in a terminal with systemctl --user status voxtype.</dd>
+
+<h3>What just happened</h3>
+<ol>
+<li>The compositor detected F9 and told the Voxtype daemon to start recording.</li>
+<li>The daemon captured audio in memory through PipeWire.</li>
+<li>On release, the local Whisper model converted the sound into text.</li>
+<li><code>wtype</code> injected Wayland keyboard events into the focused window.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Hold F9, speak a brief phrase, then release. Or press Meta + Ctrl + X once to start and again to stop. Confirm the text appears only in the focused window.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No text appears after speaking</dt>
+<dd>Check that the microphone is unmuted and set as default. In a terminal, run <code>systemctl --user status voxtype</code>.</dd>
 <dt>A word is misheard</dt>
-<dd>Whisper uses context to guess words. Speak at a steady pace. Custom word replacements can be added to your configuration in ~/.config/voxtype/config.toml under [text] replacements.</dd></dl>
-<h3>New words</h3><dl><dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard and simulated typing input.</dd>
-<dt><dfn><a href="learn/glossary/terminal.html">Terminal</a></dfn></dt><dd>A window where you interact with command line programs and text.</dd></dl>
-<h3>Next step</h3><p>Read <a href="desktop/voice-commands.html?level=2">Shell voice commands</a> to learn how voice is safely used at the terminal prompt without unintended execution.</p>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Where is your voice recording sent during dictation?</summary><p>Nowhere outside your machine. Audio is held in local memory and processed on your own CPU by an on-device Whisper model.</p></details><details class="q"><summary>How does the transcribed text enter the active application?</summary><p>A virtual keyboard injector (wtype) sends Wayland keyboard events to the focused window, exactly as if typed on a physical keyboard.</p></details></section>
+<dd>Speak at a steady pace. Custom replacements can be added under <code>[text] replacements</code> in <code>~/.config/voxtype/config.toml</code>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Shell prompts use a separate F10 path that validates commands before inserting them. See <a href="desktop/voice-commands.html?level=2">Shell voice commands</a>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Where is your voice recording sent during dictation?</summary>
+<p>Nowhere outside your machine. Audio is held in local memory and processed on your own CPU by an on-device Whisper model.</p></details>
+<details class="q"><summary>How does the transcribed text enter the active application?</summary>
+<p>A virtual keyboard injector (<code>wtype</code>) sends Wayland keyboard events to the focused window.</p></details>
+</section>
 </section>
 
 <h2>Key reference</h2>
-<table><tr><th>Shortcut</th><th>Action</th><th>Behavior</th></tr>
+<table>
+<tr><th>Shortcut</th><th>Action</th><th>Behavior</th></tr>
 <tr><td>F9</td><td>Push-to-talk dictation</td><td>Hold to record; release to stop and transcribe</td></tr>
-<tr><td>Meta + Ctrl + X</td><td>Toggle dictation</td><td>Starts recording on first press; stops and transcribes on second</td></tr></table>
+<tr><td>Meta + Ctrl + X</td><td>Toggle dictation</td><td>Starts on first press; stops and transcribes on second</td></tr>
+</table>
 
 <h2>How dictation works under the hood</h2>
-<p>Tamlinux links several fast, lightweight components to deliver offline dictation:</p>
 <ol>
-  <li><strong>Audio capture:</strong> PipeWire records 16 kHz 16-bit mono audio directly into daemon process memory (RAM). No audio files are written to disk.</li>
-  <li><strong>Inference engine:</strong> The Voxtype daemon passes the audio buffer to whisper.cpp, which executes OpenAI's Whisper model (ggml-small.en.bin stored in ~/.local/share/voxtype/models/) using AVX2 vector instructions.</li>
-  <li><strong>Context optimization:</strong> Clips under ~22 seconds skip unnecessary padding, allowing typical phrases to transcribe in about 1 second.</li>
-  <li><strong>Window injection:</strong> The daemon instructs wtype to inject keystrokes into the active Wayland surface with a 1 ms character delay.</li>
+  <li><strong>Audio capture:</strong> PipeWire records 16 kHz 16-bit mono audio into daemon memory. No audio files are written to disk.</li>
+  <li><strong>Inference:</strong> whisper.cpp runs OpenAI's Whisper model (<code>ggml-small.en.bin</code> under <code>~/.local/share/voxtype/models/</code>).</li>
+  <li><strong>Context optimization:</strong> Short clips skip unnecessary padding so typical phrases finish in about a second.</li>
+  <li><strong>Window injection:</strong> <code>wtype</code> injects keystrokes into the active Wayland surface.</li>
 </ol>
 </body>
 </html>
