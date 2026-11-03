@@ -72,7 +72,7 @@ $ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
 <ol>
 <li><code>index1</code> in sysfs exposes the processor core's dedicated Level 1 <strong>Instruction Cache (L1i)</strong>.</li>
 <li>The cache size is 32 Kilobytes per core, sitting directly adjacent to the instruction decoder on the silicon die.</li>
-<li>The coherency line size is 64 bytes. When the processor fetches an instruction, it pulls a full 64-byte chunk of machine code into L1i, ensuring that subsequent sequential instructions can be fetched with zero wait states.</li>
+<li>The coherency line size is 64 bytes. When the processor fetches an instruction, it pulls a full 64-byte chunk of <a href="learn/glossary/machine-code.html">machine code</a> into L1i, ensuring that subsequent sequential instructions can be fetched with zero wait states.</li>
 </ol>
 <h3>Try it</h3>
 <p>Query your CPU core execution capabilities and flags using <code>lscpu | grep -i flags</code>. Look for vector execution flags such as <code>avx2</code>, <code>fma</code>, or <code>sse4_2</code> that provide specialized hardware execution units.</p>
