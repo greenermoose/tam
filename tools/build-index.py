@@ -29,12 +29,17 @@ LEVELS = ("beginner", "intermediate", "expert", "novice", "learner")
 CANONICAL_LEVELS = ("novice", "learner", "expert")
 LEGACY_LEVELS = ("beginner", "intermediate", "expert")
 TRACKS = ("install", "learn", "use", "maintain", "improve")
-# D221 pilot pages: new novice/learner anatomy is hard-enforced only here
+# D221 migrated pages: new novice/learner anatomy is hard-enforced only here
 # until the rest of the corpus migrates (warnings elsewhere).
 D221_PILOT_PAGES = frozenset({
     "shell/pipelines.html",
+    "shell/index.html",
+    "shell/jobs.html",
     "filesystem/permissions.html",
+    "filesystem/index.html",
     "maintain/updates.html",
+    "maintain/index.html",
+    "maintain/rollback.html",
 })
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")

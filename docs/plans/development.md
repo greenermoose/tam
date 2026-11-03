@@ -1223,3 +1223,6 @@ resolve superseded schedules. Do not execute a former plan from this history.
 - **2026-11-02:** Corpus 0.63.0 (minor): D221 pilot pages with embedded learning
   paths, `knowledge/paths.json`, pilot-only novice/learner anatomy hard-errors,
   restored `enforce_tracks`, and guide-root level `novice`.
+- **2026-11-02:** Corpus 0.64.0 (minor): After pilot acceptance, migrate path
+  neighbors `shell/index`, `shell/jobs`, `filesystem/index`, `maintain/index`
+  and `maintain/rollback` to Novice/Learner anatomy with embedded path links.

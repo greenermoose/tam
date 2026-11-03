@@ -8,9 +8,10 @@
 - Level 2 (Learner): the only level with `Goal:` and `Try it` practice exercises, quizzes, and embedded learning path links.
 - Level 3 (Expert): advanced usage examples for reference, not student exercises.
 - Eliminate separate `Learning` (`learn/`) corpus track; learning paths are embedded in every page's Learner text (`Start`, `Back`, `Next` at `?level=2`).
-- Pilot-first rollout: `shell/pipelines.html`, `filesystem/permissions.html`, `maintain/updates.html` (landed command 0.48.2 / corpus 0.63.0).
+- Pilot-first rollout: `shell/pipelines.html`, `filesystem/permissions.html`, `maintain/updates.html` (accepted 2026-11-02).
+- Path-neighbor migration (corpus 0.64.0): `shell/index.html`, `shell/jobs.html`, `filesystem/index.html`, `maintain/index.html`, `maintain/rollback.html`.
 **Authority:** The developer's decision D221 (2026-11-02, amending D184) and D185 (state directory).
-**Next action:** Developer pilot review of the three pages. Then migrate more pages to Novice/Learner anatomy and expand embedded paths. Learner review and packaged acceptance remain unverified.
+**Next action:** Continue migrating pages onto Novice/Learner anatomy along embedded paths. Learner review and packaged acceptance remain unverified.
 
 ## Current concept work (2026-10-27)
 

@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-02
 **Owner:** Fred
 **Current Command Version:** `0.48.2`.
-**Current Corpus Version:** `0.63.0`.
+**Current Corpus Version:** `0.64.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.2 / 0.63.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 novice/learner/expert labels, command UI, and embedded-path pilots. Development installation is a separate developer-directed step. |
+| `develop` | 0.48.2 / 0.64.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 novice/learner/expert labels, command UI, pilots, and path-neighbor migration. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -227,6 +227,7 @@ in that candidate, not here.
 | **0.62.0 corpus** | D221 page level labels: novice / learner / expert | Done (2026-11-02) | Renames corpus page difficulty labels from beginner/intermediate/expert to novice/learner/expert across knowledge HTML (skill cell IDs unchanged). |
 | **0.48.2 command** | D221 UI labels novice/learner/expert | Done (2026-11-02) | Visible level labels become `1: novice` / `2: learner` / `3: expert` with beginner/intermediate accepted as aliases; man page and completions updated. |
 | **0.63.0 corpus** | D221 pilot pages, paths.json, and anatomy gate | Done (2026-11-02) | Reworks the three embedded-path pilots (`shell/pipelines`, `filesystem/permissions`, `maintain/updates`), adds `knowledge/paths.json`, restores `enforce_tracks`, hard-enforces new novice/learner anatomy only on those pilots, and sets the guide root level to novice. |
+| **0.64.0 corpus** | D221 path-neighbor migration | Done (2026-11-02) | Migrates `shell/index`, `shell/jobs`, `filesystem/index`, `maintain/index` and `maintain/rollback` to Novice/Learner anatomy with embedded path links; expands hard-enforcement to those pages after pilot acceptance. |
 
 ## 4. Deferred direction, without reserved versions
 

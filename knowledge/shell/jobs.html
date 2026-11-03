@@ -18,117 +18,116 @@
 </nav>
 <h1>Managing running programs</h1>
 <p>This page explains how to see and manage programs that are running.</p>
-<p>A process is a running program. A shell is a program that reads typed instructions; it can manage one or more processes as a job. In the examples, start your own practice processes and wait for them to finish.</p>
-<section data-level="novice"><h2>Start and wait for your own task</h2>
-<p><strong>Goal:</strong> you will be able to run a short background task
-and recognize when it finishes.</p>
-<p><strong>Why it matters:</strong> work can continue while a command runs,
-but you still need to know what belongs to your shell and when it is done.</p>
-<p><strong>Before you start:</strong> read <a href="shell/index.html?level=1">Shell and streams</a>.
-This example creates only a one-second sleep process in a separate Bash shell.</p>
-<aside class="first-time"><p>Type after the terminal prompt; omit the
-leading dollar sign in a session. The ampersand starts a command in the
-background. Ctrl+C normally interrupts a foreground terminal job; it is not
-an undo key and does not select an arbitrary background task.</p></aside>
+
+<section data-level="novice">
+<h2>What is a process?</h2>
+<p>A process is a running program. A shell is a program that reads typed instructions; it can manage one or more processes as a job. Your own short practice tasks are safe to start and wait for; other people's processes are not practice material.</p>
+
+<h3>Why it matters</h3>
+<p>Work can continue while a command runs in the background, but you still need to know what belongs to your shell and when it has finished.</p>
+
+<h3>How to think about it</h3>
+<p>Think of each process as a worker you hired for one task. The shell keeps a list of the workers it started. Waiting for a worker is checking that they finished; sending a signal is asking them to pause or stop.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/process.html">Process</a></dfn></dt><dd>A program that is currently running.</dd>
+<dt><dfn><a href="learn/glossary/pid.html">PID</a></dfn></dt><dd>A process identifier; it can be reused after the process exits.</dd>
+<dt>Job</dt><dd>A shell's command or pipeline, which may include more than one process.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Start and wait for your own task</h2>
+<p><strong>Goal:</strong> you will be able to run a short background task and recognize when it finishes.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Mastering the Command Line</strong> &mdash;
+<a href="shell/index.html?level=2">Start</a> |
+<a href="shell/pipelines.html?level=2">&larr; Back</a> |
+<a href="shell/index.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p><strong>Before you start:</strong> read <a href="shell/index.html?level=1">Giving your computer written instructions</a>. This example creates only a one-second sleep process in a separate Bash shell.</p>
+<aside class="first-time"><p>Type after the terminal prompt; omit the leading dollar sign in a session. The ampersand starts a command in the background. Ctrl+C normally interrupts a foreground terminal job; it is not an undo key and does not select an arbitrary background task.</p></aside>
+
 <h3>Worked example</h3>
 <pre class="session" data-risk="scratch">
-$ bash -c &#x27;sleep 1 &amp; worker=$!; wait &quot;$worker&quot;; printf &quot;worker finished\n&quot;&#x27;
+$ bash -c 'sleep 1 &amp; worker=$!; wait "$worker"; printf "worker finished\n"'
 worker finished
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. The output is fixed; job identifiers
-and notifications in an interactive shell can look different.</p>
+<p>Captured on Arch Linux, 2026-10-21. The output is fixed; job identifiers and notifications in an interactive shell can look different.</p>
+
 <h3>What just happened</h3>
-<ol><li><code>bash -c</code> confines this exercise to a separate shell.</li>
+<ol>
+<li><code>bash -c</code> confines this exercise to a separate shell.</li>
 <li><code>sleep 1 &amp;</code> starts a short background task.</li>
 <li><code>$!</code> gives its process ID; <code>wait</code> waits for that child.</li>
-<li>The final printf runs after the wait and prints the confirmation.</li></ol>
-<h3>Try it</h3><p>Change sleep 1 to sleep 2. The same message should arrive
-about a second later. Do not substitute another person's process.</p>
+<li>The final printf runs after the wait and prints the confirmation.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Change sleep 1 to sleep 2. The same message should arrive about a second later. Do not substitute another person's process.</p>
+
 <h3>If it goes wrong</h3>
-<dl><dt>Continuation prompt instead of execution</dt><dd>A quote is likely
-unfinished. Ctrl+C cancels that input; retype the complete command.</dd>
-<dt>wait says the PID is not a child</dt><dd>The PID belongs to another shell
-or was copied incorrectly. Rerun the complete example in one shell.</dd></dl>
-<h3>New words</h3><dl><dt><dfn><a href="learn/glossary/pid.html">PID</a></dfn></dt><dd>A process identifier; it can be reused
-after the process exits.</dd><dt>Job</dt><dd>A shell's command or pipeline,
-which may include more than one process.</dd></dl>
-<h3>Next step</h3><p>Choose level 2 to signal a task you started, or take
-<a href="learn/paths/command-line-fluency.html?level=1">Command-line fluency</a>.</p>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Does a shell job always contain exactly one process?</summary><p>No. A pipeline is one shell job but commonly contains several processes.</p></details><details class="q"><summary>Why does this example save $! rather than searching by the name sleep?</summary><p>It identifies the child just started by this shell. A name search could include unrelated tasks.</p></details></section>
+<dl>
+<dt>Continuation prompt instead of execution</dt>
+<dd>A quote is likely unfinished. Ctrl+C cancels that input; retype the complete command.</dd>
+<dt>wait says the PID is not a child</dt>
+<dd>The PID belongs to another shell or was copied incorrectly. Rerun the complete example in one shell.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>A shell child and a desktop or system service have different owners. Use the component's documented recovery procedure for real applications; a process name match is not a Tamlinux recovery plan.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary>Does a shell job always contain exactly one process?</summary>
+<p>No. A pipeline is one shell job but commonly contains several processes.</p></details>
+<details class="q"><summary>Why does this example save $! rather than searching by the name sleep?</summary>
+<p>It identifies the child just started by this shell. A name search could include unrelated tasks.</p></details>
 </section>
-<section data-level="learner"><h2>Choose a signal for an owned task</h2>
-<p><strong>Goal:</strong> terminate a disposable child and inspect its status
-without signaling unrelated processes.</p>
-<h3>Mental model</h3><pre>shell --starts--&gt; child PID
-shell --signal request--&gt; child
-shell --wait--&gt; termination status</pre>
-<p>A <dfn><a href="learn/glossary/signal.html">signal</a></dfn> requests a disposition. SIGTERM can be caught or ignored;
-whether an application saves data depends on that application. SIGKILL
-cannot be caught and prevents user-space cleanup.</p>
-<h3>Worked example</h3>
+</section>
+
+<section data-level="expert">
+<h2>Distinguish existence, identity and health</h2>
+<p><strong>Reference:</strong> signals target processes or process groups according to kill's PID argument. Dispositions and masks differ; SIGKILL and SIGSTOP cannot be caught, blocked or ignored. A PID can be reused after exit. Existence alone is not identity or health.</p>
+
+<h3>How it works</h3>
+<p>The shell records its children and reaps their termination statuses with wait interfaces. Process groups organize terminal jobs, so terminal-generated signals need not target only one process. Zombie processes have exited but retain status until reaped.</p>
+
+<h3>Illustrative reference</h3>
 <pre class="session" data-risk="scratch">
-$ bash -c &#x27;sleep 30 &amp; worker=$!; kill -TERM &quot;$worker&quot;; wait &quot;$worker&quot; 2&gt;/dev/null; printf &quot;wait status: %s\n&quot; &quot;$?&quot;&#x27;
-wait status: 143
-</pre>
-<p>Captured on Arch Linux, 2026-10-21. Bash reports 128 + 15 = 143 for this
-SIGTERM-terminated child. The wait's expected termination notification is
-redirected; its status is printed immediately, before another command replaces it.</p>
-<h3>Completion task</h3><p>Explain the purpose of the saved worker PID, then
-fill the signal in <code>kill -___ "$worker"</code> to request ordinary
-termination of that same disposable child.</p>
-<details class="solution"><p>Use TERM. Keep the complete worked example in one shell. Do not replace it with pkill sleep: the latter selects every matching accessible process, including tasks outside this exercise.</p></details>
-<h3>Independent task</h3><p>Adapt the novice example to wait for a
-two-second task normally. Compare its successful wait with the signaled
-case; explain what evidence distinguishes completion from termination.</p>
-<details class="solution"><p>Use sleep 2 in the novice example. A successful wait returns 0; the SIGTERM example prints 143 in Bash. Save or print the status immediately. Neither a process name nor absence from a later ps snapshot establishes how it ended.</p></details>
-<h3>Choosing</h3><table><tr><th>Intent</th><th>Choose</th></tr>
-<tr><td>Finish naturally</td><td>wait for your own child</td></tr>
-<tr><td>Pause/resume an interactive job</td><td>Ctrl+Z, jobs, then fg/bg with the actual job number</td></tr>
-<tr><td>Request orderly termination</td><td>SIGTERM to the verified process or documented service owner</td></tr>
-<tr><td>Force termination</td><td>Only after understanding data loss and failed ordinary recovery; not an exercise here</td></tr></table>
-<h3>Troubleshooting</h3><table><tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>No such process</td><td>The child already exited</td><td>Saved PID and wait status</td><td>Do not chase a recycled PID</td></tr>
-<tr><td>Permission denied</td><td>Wrong identity or ownership</td><td>Target and process owner</td><td>Stop; do not add privilege to the exercise</td></tr>
-<tr><td>wait cannot find a child</td><td>Different shell</td><td>Where the task started</td><td>Use its creating shell</td></tr></table>
-<aside class="tamlinux"><p>A shell child and a desktop/system service have
-different owners. Use the component's documented service/recovery procedure
-for real applications; a process name match is not a Tamlinux recovery plan.</p></aside>
-<h3>Further reading</h3><ul><li><a href="man:bash(1)">bash(1)</a>: jobs, wait and exit status.</li>
-<li><a href="man:signal(7)">signal(7)</a>: delivery and dispositions.</li>
-<li><a href="man:kill(2)">kill(2)</a>: permissions and process/group selection.</li></ul>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary>Is pkill sleep a safe replacement for the saved worker PID?</summary><p>No. It can signal unrelated matching processes. The disposable child PID limits this exercise to the process it created.</p></details><details class="q"><summary>Does successful kill prove the application saved its data?</summary><p>No. It reports the signal request result, not completed application cleanup. Check the documented shutdown behavior and wait or service status.</p></details></section>
-</section>
-<section data-level="expert"><h2>Distinguish existence, identity and health</h2>
-<p><strong>Reference:</strong> signals target processes or process groups
-according to kill's PID argument. Dispositions and masks differ; SIGKILL
-and SIGSTOP cannot be caught, blocked or ignored. A PID can be reused after
-exit. Existence alone is not identity or health.</p>
-<h3>How it works</h3><p>The shell records its children and reaps their
-termination statuses with wait interfaces. Process groups organize terminal
-jobs, so terminal-generated signals need not target only one process.
-Zombie processes have exited but retain status until reaped.</p>
-<h3>Explore</h3><pre class="session" data-risk="scratch">
-$ bash -c &#x27;kill -0 &quot;$$&quot;; printf &quot;existence check: %s\n&quot; &quot;$?&quot;&#x27;
+$ bash -c 'kill -0 "$$"; printf "existence check: %s\n" "$?"'
 existence check: 0
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. Signal 0 performs existence/permission
-checking without sending a signal. It is not a health check and does not
-remove a PID-reuse race. Compare it with a verified child's wait status.</p>
-<h3>Edge cases and cost</h3><p>Terminal closure, shell hangup policy,
-session management, open descriptors and application behavior all matter.
-disown and nohup are not universal workload-survival guarantees. Do not
-poll process existence in a busy loop when waiting or service supervision
-provides the needed lifecycle event.</p>
-<h3>Sources</h3><p><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux API references</a></cite>:
+<p>Captured on Arch Linux, 2026-10-21. Signal 0 performs existence/permission checking without sending a signal. It is not a health check and does not remove a PID-reuse race.</p>
+
+<pre class="session" data-risk="scratch">
+$ bash -c 'sleep 30 &amp; worker=$!; kill -TERM "$worker"; wait "$worker" 2&gt;/dev/null; printf "wait status: %s\n" "$?"'
+wait status: 143
+</pre>
+<p>Captured on Arch Linux, 2026-10-21. Bash reports 128 + 15 = 143 for this SIGTERM-terminated child.</p>
+
+<h3>Edge cases and cost</h3>
+<p>Terminal closure, shell hangup policy, session management, open descriptors and application behavior all matter. disown and nohup are not universal workload-survival guarantees. Do not poll process existence in a busy loop when waiting or service supervision provides the needed lifecycle event.</p>
+
+<h3>Sources</h3>
+<p><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux API references</a></cite>:
 <a href="man:signal(7)">signal(7)</a>, <a href="man:waitpid(2)">waitpid(2)</a>,
 <a href="man:pidfd_open(2)">pidfd_open(2)</a>; <cite data-ref="bash"><a href="learn/bibliography/bash.html">Bash manual</a></cite>.</p>
-<h3>Improve it</h3><p>These are shell/Linux semantics rather than a separate
-Tamlinux signal dialect. Propose a minimal reproduction in the public
-<a href="https://github.com/greenermoose/tam">tam repository (online)</a>.
-No public case study is assumed here.</p>
-<section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q open"><summary>Why can kill -0 succeeding still be insufficient evidence to signal a previously observed PID?</summary><p>The check is a point-in-time existence/permission result. The original process may exit and the PID may be reused before the next operation. Use an appropriate stable process handle or lifecycle owner when identity matters, and preserve the recovery boundary.</p></details></section>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open"><summary>Why can kill -0 succeeding still be insufficient evidence to signal a previously observed PID?</summary>
+<p>The check is a point-in-time existence/permission result. The original process may exit and the PID may be reused before the next operation.</p></details>
 </section>
-<h2>Where next</h2><p><a href="shell/pipelines.html">Pipelines</a> connects
-processes; <a href="maintain/updates.html">package ownership</a> separates
-running code from its installed replacement.</p>
-</body></html>
+</section>
+
+<h2>Where next</h2>
+<p><a href="shell/pipelines.html">Connecting programs</a> connects processes;
+<a href="maintain/updates.html">Checking and updating your software</a> separates running code from its installed replacement.</p>
+</body>
+</html>

@@ -5,7 +5,7 @@
 <meta name="topic" content="maintain">
 <meta name="summary" content="System maintenance, updates, rollbacks, logs, power, resources, packaging, and emergency recovery">
 <meta name="keywords" content="maintain, maintenance, health, updates, rollback, logs, power, recovery, diagnostics, reliability, resources, packaging, boot, snapper, checkpoint">
-<meta name="level" content="novice">
+<meta name="level" content="novice, learner">
 <meta name="track" content="maintain">
 <meta name="parent" content="index.html">
 <meta name="kind" content="hub">
@@ -18,11 +18,51 @@
 
 <h1>System Maintenance and Reliability</h1>
 <p>This page introduces ways to keep your computer working and recover from problems.</p>
-<p>You can check your software, prepare for changes, and learn what to do if something goes wrong. Choose a topic below to begin.</p>
 
-<h2>Start from a symptom</h2>
-<p><a href="maintain/symptoms/index.html">Symptom index</a> — blank screen, boot failure, no desktop, network, wrong version, dead input, disk pressure.</p>
-<p><a href="maintain/faq.html">Maintaining FAQ</a> — short answers before deep guides.</p>
+<section data-level="novice">
+<h2>What maintenance covers</h2>
+<p>You can check your software, prepare for changes, and learn what to do if something goes wrong. Maintenance is not one button: updates, rollbacks, logs and recovery each answer a different question.</p>
+
+<h3>Why it matters</h3>
+<p>A small inspection before a change is safer than guessing afterward. Knowing which guide matches your symptom saves time when something feels wrong.</p>
+
+<h3>How to think about it</h3>
+<p>Think of this hub as a front desk. Start from a symptom when something failed, or pick a maintenance guide when you want to prepare for a planned change.</p>
+</section>
+
+<section data-level="learner">
+<h2>Choose a maintenance starting point</h2>
+<p><strong>Goal:</strong> you will be able to pick the right next guide for an update or recovery question.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Maintaining Tamlinux</strong> &mdash;
+<a href="maintain/index.html?level=2">Start</a> |
+<a href="maintain/index.html?level=2">&larr; Back</a> |
+<a href="maintain/updates.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<p>Suppose you want to check installed software without changing anything. Open
+<a href="maintain/updates.html?level=2">Checking and updating your software</a>
+at the learner level and run the package query there. That page separates inspection from applying an update.</p>
+
+<h3>Try it</h3>
+<p>Open the <a href="maintain/symptoms/index.html">Symptom index</a> and find the entry that matches a blank screen after login. Note which deeper guide it points to before you follow the link.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You are unsure whether the problem is software or your documents</dt>
+<dd>Read <a href="maintain/rollback.html?level=2">Returning to an earlier working state</a> before changing anything. Software and data have different recovery paths.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Is inspecting an installed package version the same as updating it?</summary>
+<p>No. A query reads local information; an update changes software. Keep those steps separate.</p></details>
+<details class="q"><summary>Where should you start if the computer will not boot?</summary>
+<p>Start from the symptom index or boot-recovery guides, not from an ordinary package update page.</p></details>
+</section>
+</section>
 
 <h2>Start from a symptom</h2>
 <p><a href="maintain/symptoms/index.html">Symptom index</a> — blank screen, boot failure, no desktop, network, wrong version, dead input, disk pressure.</p>
@@ -31,116 +71,58 @@
 <h2>Maintenance guides</h2>
 
 <dl>
-<dt><a href="maintain/updates.html">Non-disruptive updates and package lifecycle</a></dt>
-<dd>Understand how Linux updates binaries in place without forced restarts
-through inode unlinking, and how Tamlinux organizes software into distinct,
-manageable package tiers.</dd>
+<dt><a href="maintain/updates.html">Checking and updating your software</a></dt>
+<dd>Inspect package versions and prepare recovery before changing software.</dd>
 
-<dt><a href="maintain/rollback.html">Snapshots and generation rollbacks</a></dt>
-<dd>Leverage Copy-on-Write (CoW) filesystem mechanics with Btrfs snapshots and
-Home Manager generation rollbacks to make any software change reversible in
-seconds.</dd>
+<dt><a href="maintain/rollback.html">Returning to an earlier working state</a></dt>
+<dd>Separate software recovery from document recovery, and match the right boundary.</dd>
 
 <dt><a href="maintain/logs.html">Truthful system diagnostics and logs</a></dt>
-<dd>Isolate faults quickly by filtering systemd journal streams by boot, unit,
-and severity, and inspecting the kernel ring buffer with <code>dmesg</code>.</dd>
+<dd>Filter journal streams by boot, unit and severity; inspect the kernel ring buffer.</dd>
 
 <dt><a href="maintain/power.html">The progressive power ladder</a></dt>
-<dd>Follow the three-stage power progression from individual DPMS monitor
-blanking to RAM suspend and zero-watt S4 disk hibernation, using safe keyboard
-wake conventions.</dd>
+<dd>Monitor blanking, suspend and hibernation with safe wake conventions.</dd>
 
 <dt><a href="maintain/recovery.html">Emergency disaster recovery</a></dt>
-<dd>Recover calmly from frozen graphical sessions or unbootable states using
-virtual consoles, the Magic SysRq (REISUB) sequence, and live USB chroot
-environments.</dd>
+<dd>Virtual consoles, Magic SysRq (REISUB), and live USB recovery.</dd>
 
 <dt><a href="maintain/boot.html">Linux boot architecture and chain</a></dt>
 <dd><a href="maintain/boot-phases.html">Boot phases</a> names each part of startup, from firmware to text login.</dd>
-<dd>Trace boot progression from UEFI firmware and Limine bootloader to unified
-kernel images and systemd target milestones.</dd>
 
 <dt><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a></dt>
-<dd>Choose among alternate firmware paths, kernels, snapshots, virtual consoles
-and external rescue media by understanding which parts of boot each route
-still needs.</dd>
+<dd>Choose among firmware paths, kernels, snapshots, consoles and rescue media.</dd>
 
 <dt><a href="maintain/snapper.html">Snapper: Btrfs snapshots for system rollbacks</a></dt>
-<dd>Use Snapper to manage Btrfs root snapshots, automatic pre-update checkpoints,
-and Limine boot integration via <code>limine-snapper-sync</code>.</dd>
+<dd>Manage root snapshots and Limine boot integration.</dd>
 
 <dt><a href="maintain/checkpoint.html">Checkpoints and rollback points</a></dt>
-<dd>Understand checkpoint scopes across filesystem, boot, and user settings
-layers, match recovery boundaries, and avoid checkpoint churn.</dd>
+<dd>Match recovery boundaries across filesystem, boot and user settings.</dd>
 
 <dt><a href="hardware/resources.html">System resources and performance</a></dt>
-<dd>Inspect available memory headroom, monitor ZRAM swap compression, diagnose
-CPU load, and track Pressure Stall Information.</dd>
+<dd>Memory headroom, ZRAM, CPU load and Pressure Stall Information.</dd>
 
 <dt><a href="ecosystem/packaging.html">Software packaging and delivery</a></dt>
-<dd>Query installed packages safely, trace ownership across native OS, Nix/Home
-Manager workstation assemblies, and Mise toolchains.</dd>
+<dd>Trace ownership across native packages, Nix/Home Manager and Mise.</dd>
 </dl>
 
 <h2>Goal paths</h2>
-
-<p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a> joins
-package updates, journal inspection and recovery planning into a guided path.
-<a href="learn/paths/rescue.html?level=2">Rescue</a> provides a four-stage
-disaster recovery path from Learner to Expert.
+<p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a> joins package updates, journal inspection and recovery planning.
+<a href="learn/paths/rescue.html?level=2">Rescue</a> provides a disaster recovery path.
 <a href="learn/paths/index.html">Other goal paths</a>.</p>
 
-<h2>Automated inspection and health checks</h2>
-
-<p>The <code>tam</code> command provides built-in, read-only tools to inspect your machine's
-hardware configuration and evaluate maintenance health without modifying any system state:</p>
-
-<pre>
-tam inspect
-tam check
+<h2>Automated inspection</h2>
+<p>Read-only inspection tools:</p>
+<pre class="session" data-risk="read-only">
+$ tam inspect
+$ tam check
 </pre>
-
-<p><code>tam inspect</code> audits host facts, architecture, DRM graphics controllers,
-storage mounts, and privilege escalation tools. <code>tam check</code> evaluates these findings
-against the versioned offline Check Contract (verifying Btrfs snapshot capabilities,
-adequate disk space headroom, and <code>pkexec</code> privilege tools), deep-linking directly
-to the relevant maintenance guides above when corrective steps are recommended.</p>
-
-<p>The <strong>Operating system</strong> row names the installed <a href="learn/glossary/rootstock.html">rootstock</a>
-from <code>/etc/os-release</code>, falling back to <code>/usr/lib/os-release</code>,
-for example <code>Arch Linux (rolling)</code>. Rootstock is not a common term, but one
-that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works: it is
-the kernel and core system software on which the Tamlinux <a href="learn/glossary/cultivar.html">cultivar</a>
-is installed. The cultivar is all the software in the Tamlinux release that allows the computer
-to be used effectively and efficiently by both humans and AI agents. Fred defines the rootstock
-to be the set of software that third-parties publish and is necessary to be installed so that
-the software we write can function properly. Our goal is to minimize the size of the rootstock
-and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we
-plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a
-microkernel to further reduce the code size of the rootstock and improve its performance per watt.
-An <strong>OS version</strong> row
-appears only when the distribution records a <code>VERSION_ID</code>. Tamlinux is
-a workstation environment that runs on that rootstock, so it appears on its
-own row, <strong>Tamlinux cultivar</strong>, with its cultivar name and version
-(for example <code>Incipiens 0.4.5</code>). Tamlinux is deployed per user: the
-row reads the version and name from that user's
-<code>~/.config/tamlinux/version</code> and <code>~/.config/tamlinux/cultivar</code>.
-Run through <code>pkexec</code>, <code>tam</code> reports the user who ran it; for
-a user with no deployment the row says it is not deployed.</p>
-
-<p>Two findings cover this identity. <code>os_identity</code> warns when
-<code>/etc/os-release</code> names a different distribution from
-<code>/usr/lib/os-release</code>, which is a leftover override from an earlier
-installation. <code>tamlinux_version</code> reports whether Tamlinux is deployed
-for the user; running as root itself is not a problem, because root has no
-deployment of its own.</p>
+<p><code>tam inspect</code> reports host facts. <code>tam check</code> evaluates them against the offline Check Contract and links to maintenance guides when corrective steps are recommended.</p>
 
 <h2>Where to next</h2>
-
 <ul>
-<li><a href="hardware/resources.html">Resources and performance</a> &mdash; analyze RAM, ZRAM swap, and CPU load.</li>
-<li><a href="install/index.html">Installing Tamlinux</a> &mdash; overview of host preparation and layers.</li>
-<li><a href="index.html">Guide index</a> &mdash; return to the full table of contents.</li>
+<li><a href="maintain/updates.html">Checking and updating your software</a></li>
+<li><a href="hardware/resources.html">Resources and performance</a></li>
+<li><a href="index.html">Guide index</a></li>
 </ul>
 </body>
 </html>
