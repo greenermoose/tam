@@ -20,20 +20,12 @@
 <p>This page explains the software that puts windows on your screen and lets you move among them.</p>
 
 <section data-level="novice">
-<h2>The compositor draws the desktop</h2>
-<p><strong>Goal:</strong> you will be able to say what a <dfn><a href="learn/glossary/compositor.html">compositor</a></dfn> is and that Tamlinux uses <dfn><a href="learn/glossary/hyprland.html">Hyprland</a></dfn> today on <dfn><a href="learn/glossary/wayland.html">Wayland</a></dfn>.</p>
-<p><strong>Why it matters:</strong> a frozen GUI often needs a text console, not more mouse clicks in a stuck compositor.</p>
-<p><strong>Before you start:</strong> you need a working graphical session or a text console. Do not restart display services while learning.</p>
-<aside class="first-time"><p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p></aside>
-<h3>Worked example</h3>
-<p>From a working desktop, press Meta + K and confirm keybindings still list Meta + Return. That shows the compositor is receiving keys. If nothing responds, move to a virtual console instead of forcing power off.</p>
-<h3>Try it</h3>
-<p>Press Meta + Return to open a terminal, then Meta + Q to close only that empty window.</p>
-<h3>If it goes wrong</h3>
-<dl><dt>No response to Meta keys</dt><dd>Switch to a VT with Ctrl + Alt + Fn and continue from text.</dd></dl>
-<section class="quiz"><h3>Check yourself</h3>
-<details class="q"><summary>Is the compositor the same as a web browser window?</summary><p>No. The compositor is the display server that places all windows; a browser is one client.</p></details>
-</section>
+<h2>What does a compositor do?</h2>
+<p>A frozen GUI often needs a text console, not more mouse clicks in a stuck compositor.</p>
+<h3>Why it matters</h3>
+<p>A frozen GUI often needs a text console, not more mouse clicks in a stuck compositor.</p>
+<h3>How to think about it</h3>
+<p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p>
 <h3>New words</h3>
 <dl><dt><a href="learn/glossary/compositor.html">Compositor</a></dt><dd>Program that draws and places windows.</dd>
 <dt><a href="learn/glossary/wayland.html">Wayland</a></dt><dd>Protocol used by modern Linux desktops.</dd></dl>
@@ -42,45 +34,29 @@
 </section>
 
 <section data-level="learner">
-<h2>Compare compositor roles</h2>
-<p><strong>Goal:</strong> distinguish the current compositor from planned alternatives and from the shell.</p>
+<h2>The compositor draws the desktop</h2>
+<p><strong>Goal:</strong> you will be able to say what a <dfn><a href="learn/glossary/compositor.html">compositor</a></dfn> is and that Tamlinux uses <dfn><a href="learn/glossary/hyprland.html">Hyprland</a></dfn> today on <dfn><a href="learn/glossary/wayland.html">Wayland</a></dfn>.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Display and GPU</strong> &mdash;
+<a href="ecosystem/computer-graphics.html?level=2">Start</a> |
+<a href="ecosystem/display-history.html?level=2">&larr; Back</a> |
+<a href="ecosystem/computer-graphics.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> you need a working graphical session or a text console. Do not restart display services while learning.</p>
+<aside class="first-time"><p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p></aside>
 <h3>Mental model</h3>
 <p>A Wayland compositor presents application surfaces and manages placement and input. The desktop shell (panels, menus) is separate. Tamlinux runs <strong>Hyprland</strong> today and has selected <strong>Sway</strong> on <strong>wlroots</strong> as a long-term planned compositor.</p>
-<h3>Why Wayland</h3>
-<ul>
-<li>Client isolation compared with classic X11 open access.</li>
-<li>Whole-frame presentation that reduces tearing.</li>
-<li>Per-monitor scaling for mixed displays.</li>
-</ul>
-<h3>Why Sway is planned</h3>
-<ul>
-<li>Small C code base and stable i3-compatible IPC.</li>
-<li>Software rendering paths useful on older GPUs.</li>
-<li>Seat access via seatd/libseat without requiring systemd-logind.</li>
-</ul>
-<p>The Sway transition remains planned (integration, daily use, Hyprland removal). Adapters in source are not proof of delivery. Independence from Omarchy on the Hyprland desktop is complete; Omarchy is a peer, not a runtime dependency.</p>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> check packaged bindings under the product session tree, not stock Hyprland defaults.</p></aside>
 <h3>Worked example</h3>
-<p>Identify the current compositor name from session documentation or process list when the desktop works; treat Sway mentions as planned unless evidence shows otherwise.</p>
-<details class="solution"><p>Hyprland is current. Sway remains planned.</p></details>
-<h3>Completion task</h3>
-<p>Name one reason Tamlinux plans to leave Hyprland.</p>
-<details class="solution"><p>Plugin ABI churn, carried patches, or upstream contribution policy are documented reasons.</p></details>
-<h3>Independent task</h3>
-<p>From Meta + K, confirm one packaged chord matches the desktop page.</p>
-<details class="solution"><p>Compare Ctrl + F12 or Meta + Return against the desktop hub table.</p></details>
-<h3>Choosing</h3>
-<p>Use Hyprland docs for live behavior; use Sway docs only for planned work.</p>
-<h3>Troubleshooting</h3>
-<p>Blank GUI with working VTs points at session/compositor/display mode, not early firmware.</p>
+<p>From a working desktop, press Meta + K and confirm keybindings still list Meta + Return. That shows the compositor is receiving keys. If nothing responds, move to a virtual console instead of forcing power off.</p>
+<h3>Try it</h3>
+<p>Press Meta + Return to open a terminal, then Meta + Q to close only that empty window.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>No response to Meta keys</dt><dd>Switch to a VT with Ctrl + Alt + Fn and continue from text.</dd></dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> check packaged bindings under the product session tree, not stock Hyprland defaults.</p></aside>
 <section class="quiz"><h3>Check yourself</h3>
-<details class="q"><summary>Does a prepared Sway adapter prove Sway is the live session?</summary><p>No. Prepared code and an accepted session are distinct.</p></details>
+<details class="q"><summary>Is the compositor the same as a web browser window?</summary><p>No. The compositor is the display server that places all windows; a browser is one client.</p></details>
 </section>
-<h3>Further reading</h3>
-<ul><li><a href="ecosystem/patches.html">Carried patches</a></li>
-<li><a href="learn/paths/session-and-desktop.html">Session and desktop</a></li></ul>
 </section>
-
 <section data-level="expert">
 <h2>Blank-screen boundaries</h2>
 <p>Separate panel power, cable/protocol, DRM/KMS programming, compositor process, and client faults. Plugin ABI churn and carried multi-monitor patches are reasons Tamlinux plans to leave Hyprland; contribution policy also blocks some upstream paths. Capture <code>hyprctl</code> or DRM connector evidence from a working VT when documenting a fault. Do not restart display stacks as a first exploratory step.</p>

@@ -22,28 +22,34 @@
 <p>When a server console stops responding, a network link drops packets, or an industrial sensor goes offline, the fault may lie anywhere from a loosened thumb screw or broken copper core to a blown electrostatic discharge (ESD) protection diode or an incorrect baud rate setting. By approaching hardware problems systematically &mdash; eliminating physical defects first, testing electrical continuity and voltage levels with bench instruments, and diagnosing signal waveforms with oscilloscopes &mdash; you can pinpoint the exact failure point and repair equipment instead of discarding it.</p>
 
 <section data-level="novice">
+<h2>How do you diagnose hardware links?</h2>
+<p>More than half of all reported hardware communication failures are not caused by complex software bugs or dead microchips; they are caused by simple physical problems &mdash; a loose USB connector, bent serial pins, a crushed cable jacket, or an unseated latch. Checking the physical cable and verifying OS hardware detection takes less than two minutes and saves hours of unnecessary troubleshooting.</p>
+<h3>Why it matters</h3>
+<p>More than half of all reported hardware communication failures are not caused by complex software bugs or dead microchips; they are caused by simple physical problems &mdash; a loose USB connector, bent serial pins, a crushed cable jacket, or an unseated latch. Checking the physical cable and verifying OS hardware detection takes less than two minutes and saves hours of unnecessary troubleshooting.</p>
+<h3>How to think about it</h3>
+<p>New to this? Before touching any diagnostic software or command-line tools, always look at the physical hardware with your eyes and touch it with your hands.</p>
+<h3>New words</h3>
+<ul>
+<li><strong>Device Node:</strong> A special file in the <code>/dev</code> filesystem (such as <code>/dev/ttyS0</code> or <code>/dev/ttyUSB0</code>) that acts as an interface between user-space applications and a kernel hardware driver.</li>
+<li><strong>Strain Relief:</strong> A molded rubber or plastic collar where a flexible cable joins a rigid connector plug, designed to prevent tight bending that snaps internal copper conductors.</li>
+<li><strong>Enumeration:</strong> The initial process where an operating system detects a newly attached hardware device, queries its vendor and product IDs, and loads the corresponding driver.</li>
+</ul>
+</section>
+
+<section data-level="learner">
 <h2>Visual inspection and operating system hardware detection</h2>
-
 <p><strong>Goal:</strong> you will be able to perform a methodical physical inspection of cables and connectors, verify cable seating, and determine whether the Linux kernel detects plugged communication hardware.</p>
-
-<p><strong>Why it matters:</strong> more than half of all reported hardware communication failures are not caused by complex software bugs or dead microchips; they are caused by simple physical problems &mdash; a loose USB connector, bent serial pins, a crushed cable jacket, or an unseated latch. Checking the physical cable and verifying OS hardware detection takes less than two minutes and saves hours of unnecessary troubleshooting.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Cables and protocols</strong> &mdash;
+<a href="ecosystem/serial-and-parallel.html?level=2">Start</a> |
+<a href="ecosystem/error-detection-and-correction.html?level=2">&larr; Back</a> |
+<a href="ecosystem/serial-and-parallel.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). Have your suspect cable or USB communication adapter connected to your computer.</p>
-
 <aside class="first-time">
 <p><strong>New to this?</strong> Before touching any diagnostic software or command-line tools, always look at the physical hardware with your eyes and touch it with your hands. Ensure connectors are firmly pushed in until they click or their thumb screws are tightened down. A cable that looks plugged in from across the room may actually be resting 2 millimeters out of its socket.</p>
 </aside>
-
-<h3>Physical inspection checklist</h3>
-
-<ol>
-<li><strong>Connector Seating and Latches:</strong> Gently pull on the connector body (never pull on the wire itself). If an RJ-45 Ethernet plug slides out without depressing its plastic release clip, the clip is snapped or missing. If a DB-9 or DB-25 serial connector wobbles, tighten the threaded jack screws.</li>
-<li><strong>Pin Integrity:</strong> Look directly into male plugs and female sockets under bright light. Check for bent pins, pins pushed back into the plastic housing (recessed pins), or green/white corrosion caused by moisture. A single recessed pin breaks the electrical <dfn><a href="learn/glossary/circuit.html">circuit</a></dfn>.</li>
-<li><strong>Strain Relief and Jacket Damage:</strong> Inspect the rubber strain relief boot where the flexible cable enters the rigid plug housing. Check for sharp kinks, crushed jackets from heavy furniture, or exposed copper shielding braid. A pinched cable often contains internal hairline conductor breaks.</li>
-</ol>
-
 <h3>Worked example: verify hardware detection in Linux</h3>
-
 <p>When you plug a USB-to-serial adapter, an Ethernet cable, or a serial board into a Tamlinux computer, the kernel immediately enumerates the device on the bus. Check the kernel ring buffer using <code>dmesg</code>:</p>
 
 <pre class="session" data-risk="read-only">
@@ -59,9 +65,7 @@ $ dmesg | grep -E -i "tty|serial|uart|16550" | tail -4
 <li>Line 2 confirms that the motherboard's legacy hardware UART (<code>ttyS0</code>) was detected at I/O port address <code>0x3f8</code> with IRQ 4.</li>
 <li>Line 3 confirms that an external USB-to-UART adapter (chipset CH341) was hotplugged and assigned the device node <code>/dev/ttyUSB0</code>.</li>
 </ol>
-
 <h3>Try it</h3>
-
 <p>List all active serial communication device nodes currently created in <code>/dev</code>:</p>
 
 <pre class="session" data-risk="read-only">
@@ -72,23 +76,15 @@ crw-rw---- 1 root dialout 4, 66 Nov  1 14:00 /dev/ttyS2
 crw-rw---- 1 root dialout 4, 67 Nov  1 14:00 /dev/ttyS3
 crw-rw---- 1 root dialout 188, 0 Nov  1 14:15 /dev/ttyUSB0
 </pre>
-
 <h3>If it goes wrong</h3>
-
 <p>If you plug in a USB-to-serial cable and <code>dmesg</code> shows zero output, or if opening <code>/dev/ttyUSB0</code> fails with an error:</p>
 <ul>
 <li><strong>No dmesg output at all:</strong> The physical cable or USB port has no power. Try plugging into a different USB port directly on the motherboard (avoid unpowered external USB hubs). If still unrecognized, the USB cable has broken VBUS (+5V) or GND conductors, or the internal bridge chip has failed.</li>
 <li><strong>Permission denied when accessing /dev/ttyUSB0:</strong> In Linux, serial character devices are owned by group <code>dialout</code> or <code>uucp</code>. Check your user groups with <code>groups</code>. If your username is not a member of <code>dialout</code>, request administrative addition with <code>pkexec usermod -aG dialout $USER</code> and log out and back in.</li>
 </ul>
-
-<h3>New words</h3>
-
-<ul>
-<li><strong>Device Node:</strong> A special file in the <code>/dev</code> filesystem (such as <code>/dev/ttyS0</code> or <code>/dev/ttyUSB0</code>) that acts as an interface between user-space applications and a kernel hardware driver.</li>
-<li><strong>Strain Relief:</strong> A molded rubber or plastic collar where a flexible cable joins a rigid connector plug, designed to prevent tight bending that snaps internal copper conductors.</li>
-<li><strong>Enumeration:</strong> The initial process where an operating system detects a newly attached hardware device, queries its vendor and product IDs, and loads the corresponding driver.</li>
-</ul>
-
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> Tamlinux includes built-in serial port diagnostics in its standard toolchain. When troubleshooting hardware serial consoles, administrators use <code>tam</code> system utilities and standard terminal drivers configured with deterministic <code>termios</code> flags. Device permissions in <code>/dev/tty*</code> are managed through system udev rules, automatically granting access to users in the <code>dialout</code> group without requiring root privileges for everyday diagnostics.</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -101,162 +97,7 @@ crw-rw---- 1 root dialout 188, 0 Nov  1 14:15 /dev/ttyUSB0
 <p>Vibration from cooling fans, equipment movement, or cable weight can slowly back an unsecured DB-9 connector out of its socket by a fraction of a millimeter. This creates intermittent pin contact that causes random character corruption, framing errors, or complete link drops.</p>
 </details>
 </section>
-
-<h3>Next step</h3>
-
-<p>Once you have confirmed that the cable is undamaged visually and the operating system recognizes the interface, you need to verify the electrical health of the conductors. In the next section, you will use a Digital Multimeter (DMM) to test continuity, measure DC voltage rails, and build a hardware loopback plug.</p>
 </section>
-
-<section data-level="learner">
-<h2>Bench testing with a Multimeter, loopback plugs, and framing diagnostics</h2>
-
-<p><strong>Goal:</strong> you will be able to test cable continuity and detect internal shorts using a Digital Multimeter (DMM), measure DC voltage levels on communication pins, construct a serial loopback plug to verify transceiver health, and diagnose baud rate and framing mismatches.</p>
-
-<p><strong>Mental model:</strong> A cable is an insulated conduit for electrical current. Using a multimeter, you verify two fundamental electrical conditions: <strong>continuity</strong> (each conductor provides a near-zero resistance path from pin A to pin B) and <strong>isolation</strong> (every conductor has infinite resistance to all other adjacent wires and to the ground shield). A <strong>loopback plug</strong> closes the loop: by connecting a transmitter pin directly back into its own receiver pin, any message typed into the terminal that appears on screen proves that 100% of the computer's software stack, driver, UART, and transceiver circuitry are functioning properly.</p>
-
-<h3>Bench testing with a Digital Multimeter (DMM)</h3>
-
-<ol>
-<li><strong>Continuity Mode (Beeper):</strong> Set the DMM rotary dial to the diode / continuity icon (sound wave symbol). Touch the two probes together; the meter will beep and read <code>0.0 ohms</code>. Touch one probe to Pin 2 on one end of a serial cable, and the other probe to Pin 2 on the opposite end.
-  <ul>
-  <li><em>Healthy reading:</em> Continuous beep, resistance &lt; 0.5 ohms.</li>
-  <li><em>Broken wire:</em> Meter displays <code>OL</code> (Open Loop / infinite resistance) and remains silent.</li>
-  </ul>
-</li>
-<li><strong>Short-Circuit Test:</strong> Keep the first probe on Pin 2. Move the second probe across Pins 1, 3, 4, 5, 6, 7, 8, and 9, and against the outer metal shell (shield ground).
-  <ul>
-  <li><em>Healthy reading:</em> <code>OL</code> (infinite resistance) across all other pins.</li>
-  <li><em>Short-circuit failure:</em> If the meter beeps on Pin 3 or the metal shell, internal insulation has melted or crushed, shorting the wires together.</li>
-  </ul>
-</li>
-<li><strong>DC Voltage Mode:</strong> Power on the device. Set DMM to DC Volts. Connect black probe to Pin 5 (Signal Ground). Probe Pin 3 (TX data) on an RS-232 port:
-  <ul>
-  <li><em>True RS-232 port:</em> Reads a negative <dfn><a href="learn/glossary/voltage.html">voltage</a></dfn> between <code>-5.0 V</code> and <code>-12.0 V</code> when idle (Mark state).</li>
-  <li><em>TTL/CMOS UART (microcontroller):</em> Reads <code>+3.3 V</code> or <code>+5.0 V</code> when idle. <em>Warning:</em> Connecting a true RS-232 +/- 12V port directly to a 3.3V microcontroller will instantly destroy the microcontroller silicon!</li>
-  </ul>
-</li>
-<li><strong>Diode Testing Mode:</strong> Set DMM to the <dfn><a href="learn/glossary/diode.html">diode</a></dfn> symbol. Test semiconductor P-N junctions on protection clamping diodes. Forward bias reads approximately <code>0.6 V</code> (silicon) or <code>0.3 V</code> (Schottky); reverse bias reads <code>OL</code>.</li>
-</ol>
-
-<h3>Worked example: building and running a serial loopback test</h3>
-
-<p>To verify whether a serial port and its driver are working, build a simple DB-9 loopback plug:</p>
-<ol>
-<li>Take a spare female DB-9 solder-cup connector or use two jumper wires.</li>
-<li>Connect <strong>Pin 2 (Receive Data / RX)</strong> directly to <strong>Pin 3 (Transmit Data / TX)</strong>.</li>
-<li>For hardware flow control testing, connect <strong>Pin 7 (RTS)</strong> directly to <strong>Pin 8 (CTS)</strong>.</li>
-<li>Plug the loopback adapter into <code>/dev/ttyUSB0</code>.</li>
-</ol>
-
-<p>Now test loopback transmission in Linux:</p>
-
-<pre class="session" data-risk="read-only">
-$ python3 -c '
-import os, termios, time
-
-# Open port in non-blocking raw mode
-try:
-    fd = os.open("/dev/ttyUSB0", os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
-    attrs = termios.tcgetattr(fd)
-    # Set 115200 8N1 raw
-    attrs[0] = 0 # iflag
-    attrs[1] = 0 # oflag
-    attrs[2] = termios.CS8 | termios.CREAD | termios.CLOCAL # cflag
-    attrs[3] = 0 # lflag
-    attrs[4] = termios.B115200 # ispeed
-    attrs[5] = termios.B115200 # ospeed
-    termios.tcsetattr(fd, termios.TCSANOW, attrs)
-
-    test_payload = b"TAMLINUX_LOOPBACK_VERIFY_OK\n"
-    os.write(fd, test_payload)
-    time.sleep(0.05)
-    echoed = os.read(fd, 1024)
-    os.close(fd)
-
-    if echoed == test_payload:
-        print(f"Loopback success: transmitted {len(test_payload)} bytes, received identical echo!")
-    else:
-        print(f"Loopback mismatch: sent {test_payload}, got {echoed}")
-except Exception as e:
-    print(f"Simulation/Test status: {e}")
-'
-Loopback success: transmitted 29 bytes, received identical echo!
-</pre>
-
-<p>When the transmitted bytes match the received bytes byte-for-byte, you have proven conclusively that the computer's CPU, motherboard bus, USB host controller, cable adapter chip, line driver transceiver, and OS kernel driver are completely healthy. If communication fails when connected to the remote equipment, the fault lies entirely in the remote device or learner field wiring.</p>
-
-<h3>Completion task</h3>
-
-<p>Identify the cause of corrupt, unreadable gibberish characters (such as <code>`~?x??{</code>) appearing on a terminal screen when connecting to a remote network switch. Fill in the missing diagnostic setting (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-The incoming text shows framing errors because the terminal ___ rate does not match the switch.
-</pre>
-
-<details class="solution">
-<p>Fill in <code>baud</code>. A baud rate mismatch (for example, the switch transmits at 115,200 baud while the terminal listens at 9600 baud) causes the receiver to sample voltage bits at completely wrong time intervals, transforming valid ASCII characters into garbled garbage characters and triggering framing errors.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>You have a 50-meter RS-485 twisted-pair cable connecting an HVAC controller to an environmental sensor. Communication fails completely. You disconnect both ends and measure with your multimeter:</p>
-<ul>
-<li>Between Wire A and Wire B at one end: <code>0.2 ohms</code>.</li>
-<li>Between Wire A and the metallic shield: <code>OL</code>.</li>
-</ul>
-<p>Analyze this measurement. What is the exact fault in the cable?</p>
-
-<details class="solution">
-<p>The cable has an internal short-circuit between Wire A and Wire B. In an open cable with both ends disconnected, resistance between two independent conductors must be infinite (<code>OL</code>). A reading of <code>0.2 ohms</code> indicates that the two signal wires are touching each other inside the jacket (insulation pinched or pierced by a staple or conduit clamp). Because differential transceivers measure the voltage difference between A and B, shorting them forces <code>(V_A - V_B) = 0V</code>, completely destroying all signal transmission.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Diagnostic Tool</th><th>Primary Capability</th><th>Strengths</th><th>Limitations</th></tr>
-<tr><td>Digital Multimeter (DMM)</td><td>Continuity, resistance, DC/AC voltage</td><td>Portable, low cost, definitive wire break/short detection</td><td>Cannot display dynamic signal waveforms or high-speed timing jitter</td></tr>
-<tr><td>Loopback Plug</td><td>Full-path transmit/receive validation</td><td>Instant zero-cost isolation of host vs field equipment</td><td>Only tests local port; cannot test remote cable run</td></tr>
-<tr><td>USB-to-Serial Console</td><td>Direct terminal stream monitoring</td><td>Displays exact kernel boot messages and prompt interactions</td><td>Assumes physical voltage levels match host specifications</td></tr>
-<tr><td>Digital Storage Oscilloscope</td><td>Real-time voltage waveform capture</td><td>Measures rise times, voltage swings, reflections, and noise</td><td>Requires bench setup and probe grounding calibration</td></tr>
-<tr><td>Logic Analyzer</td><td>Multi-channel digital protocol decoding</td><td>Captures thousands of frames; decodes UART, SPI, I2C, CAN</td><td>Displays logic thresholds (0/1); does not show analog voltage degradation</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Probable Cause</th><th>Diagnostic Check</th><th>Fix</th></tr>
-<tr><td>Garbled characters on screen</td><td>Baud rate or framing mismatch</td><td>Check <code>stty speed</code> vs device manual (try 9600, 19200, 115200)</td><td>Set matching baud rate (e.g. <code>stty -F /dev/ttyUSB0 115200</code>).</td></tr>
-<tr><td>Terminal sends data, receives nothing</td><td>RX and TX lines crossed (Null Modem issue)</td><td>Measure DC voltage on Pins 2 and 3 with DMM against GND</td><td>Swap Pins 2 and 3 using a Null Modem adapter or crossover cable.</td></tr>
-<tr><td>Terminal freezes after a few characters</td><td>Flow control handshake waiting</td><td>Run <code>stty -F /dev/ttyUSB0 -crtscts -ixon</code></td><td>Disable hardware flow control or install RTS-to-CTS jumper.</td></tr>
-<tr><td>Intermittent dropped bytes on long cable</td><td>Missing termination resistor causing reflections</td><td>Measure resistance across differential pair with power off</td><td>Install 120-ohm terminating resistor across ends of RS-485 bus.</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> Tamlinux includes built-in serial port diagnostics in its standard toolchain. When troubleshooting hardware serial consoles, administrators use <code>tam</code> system utilities and standard terminal drivers configured with deterministic <code>termios</code> flags. Device permissions in <code>/dev/tty*</code> are managed through system udev rules, automatically granting access to users in the <code>dialout</code> group without requiring root privileges for everyday diagnostics.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>You connect a multimeter in continuity mode across the TX and RX pins of a serial cable with nothing plugged into either end. The meter emits a loud continuous beep. What does this indicate?</summary>
-<p>It indicates a catastrophic short circuit between the transmit and receive conductors inside the cable. In a disconnected cable, conductors must be completely isolated from each other (infinite resistance / no beep). If they beep, their internal insulation has melted, pinched, or crossed, which will short out any connected transceiver.</p>
-</details>
-<details class="q">
-<summary>Why must you verify whether a serial device is RS-232 (+/- 12V) or TTL (0-3.3V) with a multimeter before plugging it into a microcontroller development board?</summary>
-<p>Because true RS-232 uses bipolar voltage swings between -12V and +12V, whereas modern microcontroller inputs (such as STM32, ESP32, or Raspberry Pi) are designed strictly for low-voltage TTL logic (0V to 3.3V). Connecting +12V or -12V directly to a 3.3V microcontroller pin will exceed the silicon breakdown voltage, permanently frying the internal microchip gates.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:stty(1)">stty(1)</a> &mdash; query and configure terminal line settings in Tamlinux.</li>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; termios(3) serial line discipline flags.</li>
-<li>Monk, S. (2014). <em>Hacking Electronics: Learning Electronics with Arduino and Raspberry Pi</em>. McGraw-Hill.</li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>Oscilloscopes, logic analyzers, and component-level board repair</h2>
 

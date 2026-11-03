@@ -22,85 +22,13 @@
 <p>In the early days of personal computing, the Central Processing Unit performed every single calculation in the machine, including calculating every pixel on the monitor. Today, modern computers rely on heterogeneous computing: pairing a latency-optimized CPU with a throughput-optimized Graphics Processing Unit (GPU). Understanding this architectural partnership clarifies why dedicated GPUs exist, how massive parallelism works, and how graphics drivers coordinate hardware across system buses.</p>
 
 <section data-level="novice">
-<h2>The processor partnership: CPU conductor and GPU orchestra</h2>
-
-<p><strong>Goal:</strong> you will be able to distinguish the core responsibilities of a CPU and a GPU, inspect your active graphics processor using standard Linux commands, and identify whether your system uses integrated or discrete graphics.</p>
-
-<p><strong>Why it matters:</strong> a modern computer is not a single processor executing instructions in isolation; it is a team of specialized chips. When an application runs slowly or consumes excessive battery power, knowing whether the CPU or GPU is handling the workload helps you diagnose performance bottlenecks and optimize your workflow.</p>
-
-<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). All commands in this section inspect hardware devices without changing system configuration.</p>
-
-<aside class="first-time">
-<p><strong>New to this?</strong> The <code>lspci</code> command queries the Peripheral Component Interconnect (PCI) bus on your motherboard. The filter <code>-d ::0300</code> instructs <code>lspci</code> to list only display and VGA-compatible controllers.</p>
-</aside>
-
-<h3>Worked example: inspect your system graphics processor</h3>
-
-<pre class="session" data-risk="read-only">
-$ lspci -nnk -d ::0300
-05:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Lucienne [1002:164c] (rev c1)
-	Subsystem: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:1636]
-	Kernel driver in use: amdgpu
-	Kernel modules: amdgpu
-
-$ ls -l /dev/dri/
-total 0
-drwxr-xr-x  2 root root         80 Nov  1 11:00 by-path
-crw-rw----+ 1 root video  226,   1 Nov  1 11:00 card1
-crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your processor model, PCI bus identifier, and kernel module will reflect your installed hardware.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li><code>lspci</code> locates the graphics controller at PCI bus address <code>05:00.0</code>. It identifies the hardware as an AMD Radeon graphics processor (Lucienne architecture) and confirms that the open-source <code>amdgpu</code> kernel driver is managing the device.</li>
-<li><code>ls -l /dev/dri/</code> exposes the character device nodes created by the Linux Direct Rendering Manager:
-  <ul>
-  <li><code>card1</code>: The master KMS display node, used by the Wayland compositor to control screen modes and outputs.</li>
-  <li><code>renderD128</code>: The unprivileged render node, used by applications and games to submit 3D rendering and compute tasks without needing display management rights.</li>
-  </ul>
-</li>
-</ol>
-
-<h3>The CPU conductor and the GPU orchestra</h3>
-
-<p>Think of your computer as a grand symphony:</p>
-
-<ul>
-<li><strong>The CPU (Central Processing Unit) is the conductor:</strong> It has a small number of extraordinarily fast, versatile cores (typically 4 to 16 cores). The CPU is optimized for <em>latency</em>&mdash;making decisions instantly, running complex branch logic (such as &ldquo;if file exists, then open it, otherwise show an error&rdquo;), and managing operating system tasks sequentially.</li>
-<li><strong>The <dfn><a href="learn/glossary/gpu.html">GPU</a></dfn> (Graphics Processing Unit) is the orchestra:</strong> It has hundreds or thousands of smaller, simpler arithmetic logic units (ALUs). The GPU is optimized for <em>throughput</em>&mdash;performing the exact same mathematical operation simultaneously across thousands of data points at once, such as calculating the color of 8 million pixels 60 times every second.</li>
-</ul>
-
-<h3>Try it</h3>
-
-<p>Run <code>lscpu | grep "Model name"</code> followed by <code>lspci -nnk -d ::0300</code>. Identify how many CPU cores your machine has and compare that with the model name of your graphics controller.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt><code>lspci: command not found</code></dt>
-<dd>The <code>pciutils</code> package is missing. On Tamlinux, <code>pciutils</code> is included in the base system rootstock.</dd>
-<dt><code>Kernel driver in use</code> is missing from lspci output</dt>
-<dd>The Linux kernel did not bind a hardware graphics driver to the chip, causing the system to fall back to basic EFI framebuffers. Verify that your kernel firmware package (such as <code>linux-firmware</code>) is installed.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does a computer need both a CPU and a GPU rather than just a faster CPU?</summary>
-<p>A CPU is designed to execute sequential tasks with deep branch logic as quickly as possible, but it has few cores. A GPU has thousands of cores designed for parallel math. Performing modern 3D graphics or video processing on a CPU alone would overwhelm its cores and grind everyday desktop responsiveness to a halt.</p>
-</details>
-<details class="q">
-<summary>What is the difference between an integrated GPU (iGPU) and a dedicated/discrete GPU (dGPU)?</summary>
-<p>An integrated GPU is built into the same silicon chip as the CPU and shares system RAM for video memory. A discrete GPU is an independent expansion card installed in a PCIe slot, featuring its own dedicated cooling system, power delivery, and ultra-high-speed Video RAM (VRAM).</p>
-</details>
-</section>
-
+<h2>How does a GPU differ from a CPU?</h2>
+<p>A modern computer is not a single processor executing instructions in isolation; it is a team of specialized chips. When an application runs slowly or consumes excessive battery power, knowing whether the CPU or GPU is handling the workload helps you diagnose performance bottlenecks and optimize your workflow.</p>
+<h3>Why it matters</h3>
+<p>A modern computer is not a single processor executing instructions in isolation; it is a team of specialized chips. When an application runs slowly or consumes excessive battery power, knowing whether the CPU or GPU is handling the workload helps you diagnose performance bottlenecks and optimize your workflow.</p>
+<h3>How to think about it</h3>
+<p>New to this? The lspci command queries the Peripheral Component Interconnect (PCI) bus on your motherboard.</p>
 <h3>New words</h3>
-
 <dl>
 <dt>GPU</dt>
 <dd>Graphics Processing Unit; a massively parallel microprocessor dedicated to rendering images and processing matrix mathematics.</dd>
@@ -111,17 +39,22 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 <dt>DRM</dt>
 <dd>Direct Rendering Manager; the Linux kernel subsystem that interfaces with graphics hardware and exposes render nodes.</dd>
 </dl>
-
-<p><strong>Next step:</strong> at Learner, explore the microarchitectural differences between CPUs and GPUs, examine the memory bandwidth chasm, and trace how CPUs and GPUs communicate.</p>
 </section>
 
 <section data-level="learner">
-<h2>Microarchitecture, the memory bandwidth chasm, and CPU-GPU communication</h2>
-
-<p><strong>Goal:</strong> you will be able to compare CPU and GPU silicon layouts, explain why memory bandwidth dictates GPU performance, and describe the command buffer submission model.</p>
-
+<h2>The processor partnership: CPU conductor and GPU orchestra</h2>
+<p><strong>Goal:</strong> you will be able to distinguish the core responsibilities of a CPU and a GPU, inspect your active graphics processor using standard Linux commands, and identify whether your system uses integrated or discrete graphics.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Display and GPU</strong> &mdash;
+<a href="ecosystem/computer-graphics.html?level=2">Start</a> |
+<a href="ecosystem/computer-graphics.html?level=2">&larr; Back</a> |
+<a href="ecosystem/display-cables.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). All commands in this section inspect hardware devices without changing system configuration.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> The <code>lspci</code> command queries the Peripheral Component Interconnect (PCI) bus on your motherboard. The filter <code>-d ::0300</code> instructs <code>lspci</code> to list only display and VGA-compatible controllers.</p>
+</aside>
 <h3>Mental model</h3>
-
 <pre>
        CPU Architecture (Latency-Optimized)               GPU Architecture (Throughput-Optimized)
 ┌─────────────────────────────────────────────────┐   ┌─────────────────────────────────────────────────┐
@@ -142,129 +75,57 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
                                                                                ▼
                                                       [ Memory Bandwidth: 500 - 2,000+ GB/s over GDDR/HBM ]
 </pre>
-
-<h3>Architectural contrast: Latency versus Throughput</h3>
-
-<p>The fundamental divergence between CPUs and GPUs comes down to silicon budget allocation:</p>
-
-<ul>
-<li><strong>How CPUs hide memory latency:</strong> Main memory (RAM) is painfully slow compared to processor clock speeds (taking ~60&ndash;100 ns, or hundreds of wasted clock cycles). To prevent waiting, CPUs dedicate more than half their silicon area to enormous multi-level cache hierarchies (L1, L2, L3) and speculative out-of-order execution logic. When a CPU predicts branch paths accurately and finds data in L1/L2 cache, instructions execute with near-zero latency.</li>
-<li><strong>How GPUs hide memory latency:</strong> GPUs take the opposite approach: they do not try to make a single thread run without waiting. Instead, GPUs operate on <strong>SIMD</strong> (Single Instruction, Multiple Data) or <strong>SIMT</strong> (Single Instruction, Multiple Threads). When a group of 32 or 64 threads (called a <em>warp</em> on NVIDIA or a <em>wavefront</em> on AMD) requests texture data from memory and stalls, the hardware thread scheduler instantly switches execution to another ready warp on the very next clock cycle without any context-switching penalty. By keeping thousands of mathematical threads in flight simultaneously, the GPU ensures its arithmetic units are never idle.</li>
-</ul>
-
-<h3>The Memory Bandwidth Chasm</h3>
-
-<p>Why do modern workstations have dedicated graphics cards instead of running everything on the CPU? The primary physical bottleneck is not raw processing power&mdash;it is <strong>memory bandwidth</strong>.</p>
-
-<p>A high-end desktop CPU uses dual-channel DDR5 system memory over a 128-bit memory bus, delivering approximately <strong>60 to 90 GB/s</strong> of memory bandwidth. This bandwidth is shared across all operating system services, background daemons, disk I/O buffers, and application threads.</p>
-
-<p>In contrast, a modern dedicated GPU connects to specialized Video RAM (such as GDDR6, GDDR6X, or High Bandwidth Memory HBM3) across ultra-wide memory buses (256-bit, 384-bit, or 1024-bit interposers). This delivers between <strong>500 GB/s and over 2,000 GB/s</strong> (2 terabytes per second) of dedicated bandwidth directly to the GPU ALUs with zero contention from the operating system.</p>
-
-<h3>How the CPU and GPU work together</h3>
-
-<p>The CPU and GPU communicate across the motherboard&apos;s high-speed PCI Express (PCIe) bus using an asynchronous, queue-based model:</p>
-
-<ol>
-<li><strong>Command Buffers:</strong> The CPU never micromanages individual pixels. Instead, applications use user-space graphics drivers (such as Mesa on Linux) to record large batches of draw commands, pipeline state objects, and memory descriptors into memory structures called <em>command buffers</em>.</li>
-<li><strong>Queue Submission:</strong> The CPU issues a kernel system call submitting the command buffer to a hardware ring buffer managed by the GPU. Once queued, the CPU immediately returns to other tasks without waiting for rendering to finish.</li>
-<li><strong>Direct Memory Access (DMA):</strong> The GPU fetches vertex geometries, shader code, and texture assets directly across the PCIe bus into its local VRAM using DMA, without consuming CPU cycles.</li>
-<li><strong>Synchronization:</strong> When the CPU must synchronize with the GPU (such as waiting before destroying a memory buffer), the two processors signal each other using lightweight hardware <em>fences</em> or timeline semaphores.</li>
-</ol>
-
-<h3>Worked example: inspect PCIe link speed and VRAM capacity</h3>
-
+<h3>Worked example: inspect your system graphics processor</h3>
 <pre class="session" data-risk="read-only">
-$ lspci -vv -s 05:00.0 | grep -E "LnkCap:|LnkSta:"
-		LnkCap:	Port #0, Speed 8GT/s, Width x16, ASPM L0s L1, Exit Latency L0s &lt;64ns, L1 &lt;1us
-		LnkSta:	Speed 8GT/s, Width x16
+$ lspci -nnk -d ::0300
+05:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Lucienne [1002:164c] (rev c1)
+	Subsystem: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:1636]
+	Kernel driver in use: amdgpu
+	Kernel modules: amdgpu
 
-$ glxinfo | grep -E "Dedicated video memory|Total available memory"
-    Dedicated video memory: 2048 MB
-    Total available memory: 6994 MB
+$ ls -l /dev/dri/
+total 0
+drwxr-xr-x  2 root root         80 Nov  1 11:00 by-path
+crw-rw----+ 1 root video  226,   1 Nov  1 11:00 card1
+crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 </pre>
 
+<p>Captured on a Tamlinux workstation, 2026-11-01. Your processor model, PCI bus identifier, and kernel module will reflect your installed hardware.</p>
+<h3>What just happened</h3>
 <ol>
-<li><code>LnkCap</code> and <code>LnkSta</code> confirm that the graphics device is linked over 16 PCI Express lanes running at 8 GT/s (PCIe Generation 3 &times;16), delivering ~16 gigabytes per second of bidirectional transfer bandwidth between CPU and GPU.</li>
-<li><code>glxinfo</code> displays the VRAM pool: 2,048 MB of dedicated hardware memory, with an additional 4,946 MB dynamically shareable from system RAM.</li>
+<li><code>lspci</code> locates the graphics controller at PCI bus address <code>05:00.0</code>. It identifies the hardware as an AMD Radeon graphics processor (Lucienne architecture) and confirms that the open-source <code>amdgpu</code> kernel driver is managing the device.</li>
+<li><code>ls -l /dev/dri/</code> exposes the character device nodes created by the Linux Direct Rendering Manager:
+  <ul>
+  <li><code>card1</code>: The master KMS display node, used by the Wayland compositor to control screen modes and outputs.</li>
+  <li><code>renderD128</code>: The unprivileged render node, used by applications and games to submit 3D rendering and compute tasks without needing display management rights.</li>
+  </ul>
+</li>
 </ol>
-
-<h3>Completion task</h3>
-
-<p>Fill in the blank in this command to inspect kernel memory aperture boundaries assigned to your graphics device:</p>
-
-<pre data-risk="read-only">
-cat /proc/iomem | grep -i "________" | head -n 4
-</pre>
-
-<details class="solution">
-<p>Fill in <code>amdgpu</code> (or your active graphics driver name, e.g. <code>i915</code> or <code>nouveau</code>):</p>
-<pre data-risk="read-only">
-cat /proc/iomem | grep -i "amdgpu" | head -n 4
-</pre>
-<p>The output displays the physical host memory address ranges mapped to the GPU framebuffers and registers.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Check whether your system firmware and kernel have enabled <strong>Resizable BAR</strong> (Base Address Register). Inspect your kernel boot logs using <code>journalctl -b 0 -k | grep -i -E "bar|resizable"</code> and determine whether the CPU can address the full VRAM capacity directly in a single 64-bit window.</p>
-
-<details class="solution">
-<pre class="session" data-risk="read-only">
-$ journalctl -b 0 -k | grep -i "resizable bar"
-kernel: pci 0000:05:00.0: BAR 0 [mem 0x7c00000000-0x7c0fffffff 64bit pref]: initialized: size: 256MB
-</pre>
-<p>On systems with full Resizable BAR (AMD Smart Access Memory), the BAR expands from the legacy 256 MB window to the entire VRAM pool, eliminating CPU-to-GPU transfer staging overhead.</p>
-</details>
-
-<h3>Choosing: Integrated (iGPU) versus Dedicated (dGPU)</h3>
-
-<table>
-<tr><th>Dimension</th><th>Integrated GPU (iGPU / APU)</th><th>Dedicated GPU (dGPU)</th></tr>
-<tr><td>Physical location</td><td>Built into CPU die</td><td>Separate PCIe expansion card</td></tr>
-<tr><td>Memory architecture</td><td>Shares system RAM (Unified Memory)</td><td>Dedicated GDDR6 / HBM onboard card</td></tr>
-<tr><td>Memory bandwidth</td><td>~50&ndash;100 GB/s (shared bus)</td><td>~500&ndash;2,000+ GB/s (exclusive wide bus)</td></tr>
-<tr><td>Power consumption</td><td>15 to 65 Watts (entire CPU package)</td><td>75 Watts (PCIe slot) to 450+ Watts</td></tr>
-<tr><td>Thermals</td><td>Shared CPU cooling solution</td><td>Massive dedicated heatsinks and fans</td></tr>
-<tr><td>Workstation fit</td><td>Office work, shell, coding, 2D tiling desktops</td><td>3D CAD, high-framerate rendering, local AI LLMs</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Hybrid laptop drains battery in under two hours</td><td>Discrete GPU remains powered on continuously instead of suspending</td><td><code>cat /sys/bus/pci/devices/0000:01:00.0/power/runtime_status</code></td><td>Configure dynamic runtime power management via <code>udev</code> rules to power down idle dGPUs</td></tr>
-<tr><td>Game or AI model runs on slow integrated GPU instead of dGPU</td><td>Application executed without PRIME offload environment variables</td><td><code>glxinfo -B</code> vs <code>DRI_PRIME=1 glxinfo -B</code></td><td>Prefix executable with <code>DRI_PRIME=1</code> (for open-source Mesa drivers) to direct rendering to the dGPU</td></tr>
-<tr><td>Video playback produces high CPU usage and spinning fans</td><td>Hardware video decoding (VA-API / VDPAU) is disabled or unconfigured</td><td>Run <code>vainfo</code> to audit hardware video codec profiles</td><td>Install matching acceleration package (such as <code>mesa-va-drivers</code> or <code>intel-media-driver</code>)</td></tr>
-</table>
-
+<h3>Try it</h3>
+<p>Run <code>lscpu | grep "Model name"</code> followed by <code>lspci -nnk -d ::0300</code>. Identify how many CPU cores your machine has and compare that with the model name of your graphics controller.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>lspci: command not found</code></dt>
+<dd>The <code>pciutils</code> package is missing. On Tamlinux, <code>pciutils</code> is included in the base system rootstock.</dd>
+<dt><code>Kernel driver in use</code> is missing from lspci output</dt>
+<dd>The Linux kernel did not bind a hardware graphics driver to the chip, causing the system to fall back to basic EFI framebuffers. Verify that your kernel firmware package (such as <code>linux-firmware</code>) is installed.</dd>
+</dl>
 <aside class="tamlinux">
 <p><strong>On Tamlinux:</strong> power consumption and thermal footprint are actively monitored. For multi-GPU laptops, Tamlinux supports standard Linux PRIME render offloading, allowing the lightweight Wayland desktop and terminal to run coolly on the integrated GPU while activating the high-power discrete GPU only on explicit demand.</p>
 </aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does a GPU perform matrix multiplication thousands of times faster than a CPU with a higher clock speed?</summary>
-<p>A CPU may run at 4.5 GHz, but it only has 8 or 16 cores. A GPU runs at 2.0 GHz, but it has 4,000 to 10,000 arithmetic cores executing simultaneously. Because matrix multiplication consists of independent arithmetic calculations that can be calculated in parallel, the GPU&apos;s sheer arithmetic density vastly outperforms the CPU.</p>
+<summary>Why does a computer need both a CPU and a GPU rather than just a faster CPU?</summary>
+<p>A CPU is designed to execute sequential tasks with deep branch logic as quickly as possible, but it has few cores. A GPU has thousands of cores designed for parallel math. Performing modern 3D graphics or video processing on a CPU alone would overwhelm its cores and grind everyday desktop responsiveness to a halt.</p>
 </details>
 <details class="q">
-<summary>What is Resizable BAR (Smart Access Memory)?</summary>
-<p>Historically, 32-bit legacy limits restricted the CPU to accessing GPU memory in small 256 MB chunks over the PCIe bus. Resizable BAR allows the CPU to negotiate a 64-bit window covering the entire VRAM pool, allowing textures, meshes, and shader assets to transfer without queue fragmentation.</p>
+<summary>What is the difference between an integrated GPU (iGPU) and a dedicated/discrete GPU (dGPU)?</summary>
+<p>An integrated GPU is built into the same silicon chip as the CPU and shares system RAM for video memory. A discrete GPU is an independent expansion card installed in a PCIe slot, featuring its own dedicated cooling system, power delivery, and ultra-high-speed Video RAM (VRAM).</p>
 </details>
 </section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><cite data-ref="real-time-rendering"><a href="learn/bibliography/real-time-rendering.html">Real-Time Rendering</a></cite> &mdash; covers programmable shader stages and SIMD execution models.</li>
-<li><cite data-ref="drm-kms"><a href="learn/bibliography/drm-kms.html">Linux DRM/KMS Documentation</a></cite> &mdash; covers driver architecture, render nodes, and GEM/TTM memory managers.</li>
-<li><a href="ecosystem/computer-architecture.html">Computer architecture and hardware systems</a> &mdash; study the Von Neumann model and PCIe bus hierarchies.</li>
-</ul>
-
-<p><strong>Next step:</strong> at Expert, dissect the Linux graphics driver stack, examine DRM ioctl calls, and trace DMA-BUF buffer sharing across Wayland compositors.</p>
 </section>
-
 <section data-level="expert">
 <h2>The Linux graphics stack: DRM/KMS, Mesa, GEM/TTM, and DMA-BUF</h2>
 

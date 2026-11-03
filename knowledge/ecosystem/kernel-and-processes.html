@@ -21,11 +21,34 @@
 <p>This page explains the central program that helps every other program use the computer's hardware.</p>
 
 <section data-level="novice">
+<h2>What do the kernel and processes do?</h2>
+<p>When something freezes, you need to know whether the problem is your program, a service, or the kernel that sits under both.</p>
+<h3>Why it matters</h3>
+<p>When something freezes, you need to know whether the problem is your program, a service, or the kernel that sits under both.</p>
+<h3>How to think about it</h3>
+<p>Type only the text after the $. Do not type the dollar sign.</p>
+<h3>New words</h3>
+<dl><dt><a href="learn/glossary/kernel.html">Kernel</a></dt><dd>Central software that manages hardware and processes.</dd>
+<dt><a href="learn/glossary/process.html">Process</a></dt><dd>A running instance of a program.</dd></dl>
+<h3>Next step</h3>
+<p><a href="shell/jobs.html?level=1">Jobs and signals</a>; <a href="ecosystem/init.html?level=1">Init and services</a>.</p>
+</section>
+
+<section data-level="learner">
 <h2>Meet the kernel and a process</h2>
 <p><strong>Goal:</strong> you will be able to say what a <dfn><a href="learn/glossary/kernel.html">kernel</a></dfn> is and name a running <dfn><a href="learn/glossary/process.html">process</a></dfn> on your machine.</p>
-<p><strong>Why it matters:</strong> when something freezes, you need to know whether the problem is your program, a service, or the kernel that sits under both.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: How software runs</strong> &mdash;
+<a href="ecosystem/kernel-and-processes.html?level=2">Start</a> |
+<a href="ecosystem/kernel-and-processes.html?level=2">&larr; Back</a> |
+<a href="ecosystem/filesystems.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal. The commands only read information.</p>
 <aside class="first-time"><p>Type only the text after the <code>$</code>. Do not type the dollar sign. Silence after some commands can mean success.</p></aside>
+<h3>Mental model</h3>
+<pre>your program --&gt; syscall --&gt; kernel --&gt; driver --&gt; hardware
+</pre>
+<p>Programs ask the kernel for services (open a file, send a packet, map memory). Drivers are kernel code (or modules) that talk to devices. A fault can sit in the program, the kernel path, or the device.</p>
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
 $ uname -s
@@ -43,58 +66,12 @@ $ printf '%s\n' "$$"
 <p>Run <code>uname -r</code> to see the kernel release string. Record it; do not change packages.</p>
 <h3>If it goes wrong</h3>
 <dl><dt>command not found</dt><dd>Confirm you are in a normal shell on Tamlinux; <code>uname</code> is part of the core system.</dd></dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> design comparisons of monolithic vs microkernel live in <a href="ecosystem/os/kernels.html">kernels</a>. Today the rootstock kernel is Linux.</p></aside>
 <section class="quiz"><h3>Check yourself</h3>
 <details class="q"><summary>Is the kernel the same thing as a terminal window?</summary><p>No. The kernel is the central privileged program. A terminal is a program (and window or console) that lets you talk to a shell.</p></details>
 <details class="q"><summary>What identifies a running program to the kernel?</summary><p>Its process ID (PID), among other credentials.</p></details>
 </section>
-<h3>New words</h3>
-<dl><dt><a href="learn/glossary/kernel.html">Kernel</a></dt><dd>Central software that manages hardware and processes.</dd>
-<dt><a href="learn/glossary/process.html">Process</a></dt><dd>A running instance of a program.</dd></dl>
-<h3>Next step</h3>
-<p><a href="shell/jobs.html?level=1">Jobs and signals</a>; <a href="ecosystem/init.html?level=1">Init and services</a>.</p>
 </section>
-
-<section data-level="learner">
-<h2>Syscalls and drivers</h2>
-<p><strong>Goal:</strong> separate a user program, a syscall, and a driver boundary.</p>
-<h3>Mental model</h3>
-<pre>your program --&gt; syscall --&gt; kernel --&gt; driver --&gt; hardware
-</pre>
-<p>Programs ask the kernel for services (open a file, send a packet, map memory). Drivers are kernel code (or modules) that talk to devices. A fault can sit in the program, the kernel path, or the device.</p>
-<h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ cat /proc/self/status | head -n 5
-Name:	cat
-Umask:	0022
-State:	R (running)
-...
-</pre>
-<p>Captured on Arch Linux, 2026-11-02. <code>/proc</code> is a kernel-provided view of process state.</p>
-<details class="solution"><p>Reading <code>/proc</code> is a userspace view exported by the kernel. It does not by itself prove hardware health.</p></details>
-<h3>Choosing</h3>
-<table><tr><th>Symptom class</th><th>First evidence</th></tr>
-<tr><td>One app misbehaves</td><td>That process, its logs, reproduction</td></tr>
-<tr><td>Many apps fail the same way</td><td>Shared service, compositor, or kernel/driver</td></tr>
-<tr><td>Machine locks hard</td><td>Kernel/oops evidence, SysRq policy, hardware</td></tr>
-</table>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> design comparisons of monolithic vs microkernel live in <a href="ecosystem/os/kernels.html">kernels</a>. Today the rootstock kernel is Linux.</p></aside>
-<details class="solution"><p><code>/proc</code> is exported by the kernel for inspection.</p></details>
-<h3>Completion task</h3>
-<p>Classify a single-app hang versus a whole-machine lock using the table above.</p>
-<details class="solution"><p>Single-app hang starts with that process; whole-machine lock needs kernel/SysRq/hardware evidence.</p></details>
-<h3>Independent task</h3>
-<p>Read <code>/proc/self/status</code> and name two fields you understand.</p>
-<details class="solution"><p>Name and State are enough to start; leave unknown fields unmarked.</p></details>
-<h3>Troubleshooting</h3>
-<p>Do not unload kernel modules experimentally while learning.</p>
-<section class="quiz"><h3>Check yourself</h3>
-<details class="q"><summary>Does a successful file open prove the disk is healthy forever?</summary><p>No. It shows one successful path at that moment. Later I/O can still fail.</p></details>
-</section>
-<h3>Further reading</h3>
-<ul><li><a href="shell/jobs.html">Jobs</a></li>
-<li><a href="ecosystem/os/kernels.html">Kernel designs</a></li></ul>
-</section>
-
 <section data-level="expert">
 <h2>Identity, memory and failure isolation</h2>
 <p>The kernel schedules threads, isolates address spaces, and mediates devices. Process existence (<code>kill -0</code>) is not health. Open file descriptors can outlive path names. Module and driver faults in a monolithic kernel can take the whole system down; that cost is why Tamlinux watches microkernel research while shipping Linux today.</p>

@@ -22,20 +22,40 @@
 <p>While high-level programming languages like C, Rust, or Python let developers write code using familiar mathematical syntax and abstractions, microprocessors can only execute raw binary byte sequences known as machine code. Assembly language is the closest human-readable representation of this machine code: each assembly instruction corresponds directly to one machine operation, giving developers total visibility into CPU registers, memory addresses, and execution flags.</p>
 
 <section data-level="novice">
+<h2>What is assembly language?</h2>
+<p>When debugging subtle library crashes, optimizing tight performance bottlenecks, or inspecting compiled binaries for security vulnerabilities, looking at high-level source code alone is not enough. Disassembling a binary lets you verify exactly what machine code the compiler generated and what instructions the processor will execute.</p>
+<h3>Why it matters</h3>
+<p>When debugging subtle library crashes, optimizing tight performance bottlenecks, or inspecting compiled binaries for security vulnerabilities, looking at high-level source code alone is not enough. Disassembling a binary lets you verify exactly what machine code the compiler generated and what instructions the processor will execute.</p>
+<h3>How to think about it</h3>
+<p>New to this? A mnemonic is a short word (like mov for move, add for addition, or jmp for jump) that represents an opcode.</p>
+<h3>New words</h3>
+<dl>
+<dt>Machine code</dt>
+<dd>The raw binary bytes (opcodes and operands) that a microprocessor's hardware decoders directly execute.</dd>
+<dt>Mnemonic</dt>
+<dd>A symbolic human-readable name for a machine operation, such as <code>mov</code>, <code>add</code>, <code>sub</code>, or <code>jmp</code>.</dd>
+<dt>Register</dt>
+<dd>A small, extremely fast physical storage cell directly inside the CPU core (e.g. <code>%rax</code>, <code>%rdi</code>).</dd>
+<dt>Disassembler</dt>
+<dd>A programming tool that parses binary machine code bytes and outputs equivalent assembly mnemonics.</dd>
+</dl>
+<p>An executable program runs under the control of the operating system <dfn><a href="learn/glossary/kernel.html">kernel</a></dfn>.</p>
+</section>
+
+<section data-level="learner">
 <h2>From machine bytes to assembly mnemonics</h2>
-
 <p><strong>Goal:</strong> you will be able to inspect compiled binary executables, disassemble machine code into human-readable assembly instructions using <code>objdump</code>, and identify the role of an assembler.</p>
-
-<p><strong>Why it matters:</strong> when debugging subtle library crashes, optimizing tight performance bottlenecks, or inspecting compiled binaries for security vulnerabilities, looking at high-level source code alone is not enough. Disassembling a binary lets you verify exactly what machine code the compiler generated and what instructions the processor will execute.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: From gates to machine code</strong> &mdash;
+<a href="ecosystem/computer-architecture.html?level=2">Start</a> |
+<a href="ecosystem/instruction-cycle.html?level=2">&larr; Back</a> |
+<a href="ecosystem/computer-architecture.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The inspection commands in this section read compiled binaries without modifying any files.</p>
-
 <aside class="first-time">
 <p><strong>New to this?</strong> A <strong>mnemonic</strong> is a short word (like <code>mov</code> for move, <code>add</code> for addition, or <code>jmp</code> for jump) that represents an opcode. A <strong>disassembler</strong> (like <code>objdump</code>) reads binary bytes from an executable file and translates them back into assembly mnemonics.</p>
 </aside>
-
 <h3>Worked example: disassemble machine code in an ELF executable</h3>
-
 <pre class="session" data-risk="read-only">
 $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 0000000000005190 &lt;_start&gt;:
@@ -50,9 +70,7 @@ $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 </pre>
 
 <p>Captured on an Arch Linux workstation, 2026-11-01.</p>
-
 <h3>What just happened</h3>
-
 <ol>
 <li><code>objdump -d -M intel</code> disassembles the executable section of the <code>build/tam</code> binary using Intel assembly syntax (destination operand first).</li>
 <li>The left column (<code>5190:</code>) shows the virtual memory address of the instruction.</li>
@@ -60,20 +78,18 @@ $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 <li>The right column (<code>xor ebp,ebp</code>) shows the human-readable assembly mnemonic. In x86, XORing a 32-bit register with itself (<code>xor ebp,ebp</code>) clears it to zero in a single compact 2-byte instruction while zero-extending into 64-bit <code>%rbp</code>.</li>
 <li><code>pop rsi</code> retrieves the command-line argument count (<code>argc</code>) from the stack into register <code>%rsi</code> with a single 1-byte opcode: <code>5e</code>.</li>
 </ol>
-
 <h3>Try it</h3>
-
 <p>Run <code>objdump -d /bin/ls | head -n 30</code> to inspect the entry point of the standard <code>ls</code> command. Observe how many bytes each instruction takes.</p>
-
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt><code>objdump: command not found</code></dt>
 <dd>The <code>binutils</code> package containing <code>objdump</code>, <code>readelf</code>, <code>as</code>, and <code>ld</code> is not installed. Install standard development utilities from base repositories.</dd>
 <dt>Output uses AT&amp;T syntax instead of Intel</dt>
 <dd>By default, GNU <code>objdump</code> outputs AT&amp;T syntax (source first, with <code>%</code> for registers and <code>$</code> for constants). Pass <code>-M intel</code> to view Intel syntax (destination first).</dd>
 </dl>
-
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> core utilities are developed in native C11 rather than raw assembly language. C provides direct low-level control, compiles to near-optimal machine code, and links seamlessly with system libraries (like <code>libtam</code> and <code>libncursesw</code>) while preserving complete portability across x86-64, ARM64, and future RISC-V platforms without maintaining separate assembly codebases. See the <a href="improve/toolchains.html">native toolchains guide</a>.</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -86,159 +102,7 @@ $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 <p>Because x86 is a Complex Instruction Set Computer (CISC) with variable-length instruction encoding: simple operations use short 1-to-2 byte opcodes, while complex operations with prefixes, registers, and 64-bit immediate values require more bytes.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Machine code</dt>
-<dd>The raw binary bytes (opcodes and operands) that a microprocessor's hardware decoders directly execute.</dd>
-<dt>Mnemonic</dt>
-<dd>A symbolic human-readable name for a machine operation, such as <code>mov</code>, <code>add</code>, <code>sub</code>, or <code>jmp</code>.</dd>
-<dt>Register</dt>
-<dd>A small, extremely fast physical storage cell directly inside the CPU core (e.g. <code>%rax</code>, <code>%rdi</code>).</dd>
-<dt>Disassembler</dt>
-<dd>A programming tool that parses binary machine code bytes and outputs equivalent assembly mnemonics.</dd>
-</dl>
-<p>An executable program runs under the control of the operating system <dfn><a href="learn/glossary/kernel.html">kernel</a></dfn>.</p>
-
-<p><strong>Next step:</strong> at Learner, learn x86-64 register partitions, write a standalone assembly program with direct Linux system calls, and assemble it from source.</p>
 </section>
-
-<section data-level="learner">
-<h2>Register architecture and standalone assembly programs</h2>
-
-<p><strong>Goal:</strong> you will be able to navigate general-purpose CPU registers, write a standalone x86-64 assembly program, invoke Linux system calls directly without a C runtime, and assemble and link the binary.</p>
-
-<h3>Mental model: the x86-64 register hierarchy</h3>
-
-<pre>
-64-bit Register: %rax (Bits 0 - 63)
-+---------------------------------------------------------------+
-|                      |  32-bit: %eax (Bits 0 - 31)            |
-|                      +----------------------------------------+
-|                      |             | 16-bit: %ax (Bits 0 - 15)|
-|                      |             +--------------------------+
-|                      |             | %ah (8-15) | %al (0-7)   |
-+---------------------------------------------------------------+
-
-General Purpose Registers:
-  %rax (Accumulator / Syscall return)     %r8  (General / 5th argument)
-  %rbx (Base register / Callee-saved)     %r9  (General / 6th argument)
-  %rcx (Counter / 4th argument)           %r10 (Syscall 4th argument)
-  %rdx (Data / 3rd argument)              %r11 (Temporary / RFLAGS on syscall)
-  %rsi (Source Index / 2nd argument)      %r12 (General / Callee-saved)
-  %rdi (Destination Index / 1st argument) %r13 (General / Callee-saved)
-  %rbp (Base Pointer / Callee-saved)      %r14 (General / Callee-saved)
-  %rsp (Stack Pointer - points to top)    %r15 (General / Callee-saved)
-</pre>
-
-<p>Writing to a 32-bit sub-register (such as <code>mov %eax, 5</code>) automatically zeroes out the upper 32 bits of the full 64-bit register (<code>%rax</code>), preventing stale high-order bits from corrupting calculations.</p>
-
-<h3>Worked example: a standalone Linux assembly program</h3>
-
-<pre class="session" data-risk="scratch">
-$ task_dir=$(mktemp -d)
-$ cat &lt;&lt; 'EOF' &gt; "$task_dir/hello.s"
-.global _start
-.text
-_start:
-    # write(1, message, 14)
-    mov $1, %rax          # syscall number 1: sys_write
-    mov $1, %rdi          # file descriptor 1: stdout
-    lea message(%rip), %rsi # address of message buffer
-    mov $14, %rdx         # string length in bytes
-    syscall               # invoke Linux kernel
-
-    # exit(0)
-    mov $60, %rax         # syscall number 60: sys_exit
-    xor %rdi, %rdi        # exit status 0
-    syscall
-
-.data
-message:
-    .ascii "Hello from asm\n"
-EOF
-
-$ as -o "$task_dir/hello.o" "$task_dir/hello.s"
-$ ld -o "$task_dir/hello" "$task_dir/hello.o"
-$ "$task_dir/hello"
-Hello from asm
-$ rm -r "$task_dir"
-</pre>
-
-<ol>
-<li><code>.global _start</code> exports the default ELF entry point symbol that the Linux dynamic linker or kernel jumps to when executing the program.</li>
-<li>The <code>syscall</code> instruction transfers control from user mode (Ring 3) to the kernel (Ring 0). The kernel reads the system call number from <code>%rax</code> and arguments from <code>%rdi</code>, <code>%rsi</code>, <code>%rdx</code>.</li>
-<li><code>sys_write</code> (syscall 1) writes 14 bytes from the <code>message</code> address to stdout (file descriptor 1).</li>
-<li><code>sys_exit</code> (syscall 60) cleanly terminates the process with exit code 0.</li>
-<li>The assembled binary requires zero external libraries &mdash; it does not even link <code>libc</code>. Its final stripped size is less than 1 kilobyte.</li>
-</ol>
-
-<h3>Completion task</h3>
-
-<p>Fill in the missing register and immediate value below to exit a process with return code 42 via <code>sys_exit</code> (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-mov $60, %rax       # syscall 60 is sys_exit
-mov $42, ___        # set exit code in the first argument register
-syscall
-</pre>
-
-<details class="solution">
-<p>Fill in <code>%rdi</code>. In the Linux x86-64 syscall ABI, the first argument is passed in <code>%rdi</code>. Thus <code>mov $42, %rdi</code> followed by <code>syscall</code> terminates the program reporting exit status 42.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>In a temporary directory, create a small C file <code>test.c</code> with a function <code>int square(int x) { return x * x; }</code>. Compile it to assembly using <code>gcc -S -O2 -fno-asynchronous-unwind-tables test.c</code>. Inspect <code>test.s</code> and note how the multiplication instruction is emitted.</p>
-
-<details class="solution">
-<p>The compiler emits <code>mov %edi, %eax</code> followed by <code>imul %edi, %eax</code> and <code>ret</code>. The input argument is received in <code>%edi</code> and the return value is left in <code>%eax</code>, adhering precisely to the calling convention.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Syntax Style</th><th>Operand Order</th><th>Register Prefix</th><th>Immediate Prefix</th><th>Common Tools</th></tr>
-<tr><td>AT&amp;T Syntax</td><td>Source, Destination (e.g. <code>mov $1, %rax</code>)</td><td><code>%</code> (e.g. <code>%rax</code>)</td><td><code>$</code> (e.g. <code>$42</code>)</td><td>GNU Assembler (<code>as</code>), <code>gcc -S</code>, GDB defaults</td></tr>
-<tr><td>Intel Syntax</td><td>Destination, Source (e.g. <code>mov rax, 1</code>)</td><td>None (e.g. <code>rax</code>)</td><td>None (e.g. <code>42</code>)</td><td>NASM, Yasm, <code>objdump -M intel</code>, Microsoft MASM</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td><code>Segmentation fault (core dumped)</code> on <code>call</code> instruction</td><td>The stack pointer (<code>%rsp</code>) is not 16-byte aligned before calling a library function</td><td>Inspect <code>%rsp</code> in GDB (<code>p $rsp % 16</code>)</td><td>Adjust stack by pushing or subtracting 8/16 bytes before the <code>call</code></td></tr>
-<tr><td><code>ld: warning: cannot find entry symbol _start</code></td><td>Entry label was misspelled or not declared with <code>.global _start</code></td><td>Check source file for <code>.global _start</code></td><td>Add <code>.global _start</code> or pass <code>-e &lt;symbol&gt;</code> to <code>ld</code></td></tr>
-<tr><td>Kernel returns <code>-ENOSYS</code> (Function not implemented) in <code>%rax</code></td><td>Used wrong syscall number (e.g. 32-bit x86 syscall table instead of x86-64)</td><td>Check <code>/usr/include/asm/unistd_64.h</code></td><td>Ensure 64-bit syscall numbers are used (e.g. <code>sys_write</code> is 1 on x86-64, not 4)</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> core utilities are developed in native C11 rather than raw assembly language. C provides direct low-level control, compiles to near-optimal machine code, and links seamlessly with system libraries (like <code>libtam</code> and <code>libncursesw</code>) while preserving complete portability across x86-64, ARM64, and future RISC-V platforms without maintaining separate assembly codebases. See the <a href="improve/toolchains.html">native toolchains guide</a>.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does writing to a 32-bit register like <code>%eax</code> clear the upper 32 bits of <code>%rax</code> in x86-64?</summary>
-<p>To eliminate false data dependencies on the upper half of the register. In 64-bit mode, zero-extending 32-bit results prevents older partial-register stall penalties and simplifies hardware register renaming.</p>
-</details>
-<details class="q">
-<summary>What register receives the return value of a function in x86-64 System V ABI?</summary>
-<p>Register <code>%rax</code> (or <code>%eax</code> for 32-bit integers, <code>%al</code> for 8-bit values). Floating-point results are returned in vector register <code>%xmm0</code>.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:as(1)">as(1)</a> &mdash; the portable GNU assembler manual.</li>
-<li><a href="man:ld(1)">ld(1)</a> &mdash; the GNU linker.</li>
-<li><a href="man:syscalls(2)">syscalls(2)</a> &mdash; Linux system call reference and architecture conventions.</li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>System V AMD64 ABI, stack frames, and the Red Zone</h2>
 

@@ -22,87 +22,13 @@
 <p>Every digital computer coordinates three primary components: a Central Processing Unit (CPU) to perform calculations, Primary Memory (RAM) to hold active instructions and data, and Secondary Storage (NVMe, SSD, or hard disk) to persist information when powered off. Understanding computer architecture clarifies how data travels across system buses, why cache hierarchies exist, and how instruction set architectures bridge software with silicon.</p>
 
 <section data-level="novice">
-<h2>The computer hardware triad and CPU inspection</h2>
-
-<p><strong>Goal:</strong> you will be able to identify the primary hardware components of a computer, inspect your processor architecture and cache topology using standard commands, and understand the Von Neumann model.</p>
-
-<p><strong>Why it matters:</strong> software does not run in an abstract void; it executes on physical chips constrained by bandwidth, electricity, and the speed of light. Knowing how your CPU and memory communicate helps you recognize hardware limits, write more efficient programs, and understand why certain operations run in nanoseconds while others take milliseconds.</p>
-
-<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). All inspection commands in this section are read-only and require no administrative privileges.</p>
-
-<aside class="first-time">
-<p><strong>New to this?</strong> The <code>$</code> prompt indicates the shell is ready for a command. Do not type the <code>$</code>. The <code>lscpu</code> command reads hardware data from the Linux kernel without changing any system configuration.</p>
-</aside>
-
-<h3>Worked example: query CPU architecture and cache sizes</h3>
-
-<pre class="session" data-risk="read-only">
-$ lscpu | grep -E "Architecture|Byte Order|Address sizes|Model name|Thread\(s\) per core|Core\(s\) per socket"
-Architecture:                            x86_64
-Address sizes:                           48 bits physical, 48 bits virtual
-Byte Order:                              Little Endian
-Model name:                              AMD Ryzen 7 5700U with Radeon Graphics
-Thread(s) per core:                      2
-Core(s) per socket:                      8
-
-$ lscpu -C
-NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
-L1d       32K     256K    8 Data            1   64        1             64
-L1i       32K     256K    8 Instruction     1   64        1             64
-L2       512K       4M    8 Unified         2 1024        1             64
-L3         4M       8M   16 Unified         3 4096        1             64
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your processor model, core counts, and cache sizes will reflect your specific machine.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li><code>lscpu</code> reports the fundamental CPU architecture: <code>x86_64</code> (64-bit x86 extensions), using Little Endian byte ordering (least significant byte stored at the lowest address).</li>
-<li><code>Address sizes</code> shows that the processor uses 48-bit virtual and physical memory addresses, allowing up to 256 terabytes of addressable space.</li>
-<li><code>Thread(s) per core: 2</code> indicates simultaneous multithreading (SMT), allowing two logical execution contexts to share execution resources on each physical core.</li>
-<li><code>lscpu -C</code> exposes the hardware cache hierarchy: Level 1 has separate Data (L1d, 32 KB) and Instruction (L1i, 32 KB) caches per core; Level 2 (L2, 512 KB per core) is unified; and Level 3 (L3, 4 MB to 8 MB) is shared across cores. All caches use 64-byte coherency lines.</li>
-</ol>
-
-<h3>The Von Neumann model</h3>
-
-<p>Most modern general-purpose computers follow the <strong>Von Neumann architecture</strong>, proposed by John von Neumann in 1945. Its key insight is the <em>stored-program concept</em>: program instructions and application data share the same unified memory space. A computer consists of:</p>
-
-<ul>
-<li><strong>Central Processing Unit (CPU):</strong> containing a Control Unit (which coordinates operations), an Arithmetic Logic Unit (which computes), and Registers (ultra-fast storage on the chip).</li>
-<li><strong>Main Memory (RAM):</strong> an array of addressable storage cells holding both instructions and active data.</li>
-<li><strong>Buses:</strong> sets of parallel electrical conductors connecting the CPU, memory, and input/output devices (address bus, data bus, and control bus).</li>
-<li><strong>Input and Output (I/O):</strong> interfaces to secondary storage, keyboard, display, and network.</li>
-</ul>
-
-<h3>Try it</h3>
-
-<p>Run <code>lscpu</code> on your terminal without filtering. Identify your CPU family, maximum clock frequency in MHz, and virtualization capabilities.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt><code>lscpu: command not found</code></dt>
-<dd>The <code>util-linux</code> package is missing or corrupted. On Tamlinux, <code>lscpu</code> is part of the standard rootstock base.</dd>
-<dt><code>lscpu -C</code> prints an error</dt>
-<dd>Older versions of <code>util-linux</code> do not support the <code>-C</code> cache table flag. Query cache parameters directly via sysfs: <code>cat /sys/devices/system/cpu/cpu0/cache/index0/size</code>.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>What is the primary defining characteristic of the Von Neumann architecture?</summary>
-<p>Program instructions and application data share the same physical memory space and bus system, rather than residing in physically separate memories.</p>
-</details>
-<details class="q">
-<summary>Why does the CPU have separate L1i and L1d caches if the system follows the Von Neumann model?</summary>
-<p>While main memory is unified (Von Neumann), the CPU core internally uses a modified Harvard architecture at Level 1 cache: separating instruction fetch from data access prevents structural contention between reading instructions and reading variables.</p>
-</details>
-</section>
-
+<h2>What is computer architecture?</h2>
+<p>Software does not run in an abstract void; it executes on physical chips constrained by bandwidth, electricity, and the speed of light. Knowing how your CPU and memory communicate helps you recognize hardware limits, write more efficient programs, and understand why certain operations run in nanoseconds while others take milliseconds.</p>
+<h3>Why it matters</h3>
+<p>Software does not run in an abstract void; it executes on physical chips constrained by bandwidth, electricity, and the speed of light. Knowing how your CPU and memory communicate helps you recognize hardware limits, write more efficient programs, and understand why certain operations run in nanoseconds while others take milliseconds.</p>
+<h3>How to think about it</h3>
+<p>New to this? The $ prompt indicates the shell is ready for a command.</p>
 <h3>New words</h3>
-
 <dl>
 <dt>CPU</dt>
 <dd>Central Processing Unit; the primary silicon chip that executes program instructions and coordinates hardware.</dd>
@@ -114,17 +40,22 @@ L3         4M       8M   16 Unified         3 4096        1             64
 <dd>Instruction Set Architecture; the abstract machine model and vocabulary of instructions understood by a processor.</dd>
 </dl>
 <p>Every running program executes as an operating system <dfn><a href="learn/glossary/process.html">process</a></dfn>.</p>
-
-<p><strong>Next step:</strong> at Learner, explore the complete memory hierarchy, compare bus throughputs, and evaluate CISC versus RISC architectures.</p>
 </section>
 
 <section data-level="learner">
-<h2>The memory hierarchy and processor families</h2>
-
-<p><strong>Goal:</strong> you will be able to distinguish memory hierarchy tiers by latency and capacity, trace bus interconnects (PCIe, memory channels), and compare CISC and RISC architectures.</p>
-
+<h2>The computer hardware triad and CPU inspection</h2>
+<p><strong>Goal:</strong> you will be able to identify the primary hardware components of a computer, inspect your processor architecture and cache topology using standard commands, and understand the Von Neumann model.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: From gates to machine code</strong> &mdash;
+<a href="ecosystem/computer-architecture.html?level=2">Start</a> |
+<a href="ecosystem/computer-architecture.html?level=2">&larr; Back</a> |
+<a href="ecosystem/instruction-cycle.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). All inspection commands in this section are read-only and require no administrative privileges.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> The <code>$</code> prompt indicates the shell is ready for a command. Do not type the <code>$</code>. The <code>lscpu</code> command reads hardware data from the Linux kernel without changing any system configuration.</p>
+</aside>
 <h3>Mental model</h3>
-
 <pre>
         +----------------------------+  Latency    Capacity     Cost
         | CPU Registers (64-bit)     |  &lt; 1 ns     ~1 KB        Highest
@@ -143,85 +74,57 @@ L3         4M       8M   16 Unified         3 4096        1             64
 </pre>
 
 <p>As you move down the hierarchy, storage capacity grows exponentially, cost per gigabyte plummets, but latency jumps by orders of magnitude. A register access takes less than a third of a nanosecond; reading from main memory takes roughly 100 times longer; and retrieving a block from an NVMe SSD takes 100,000 times longer.</p>
-
-<h3>Worked example: inspect NUMA topology and cache line parameters</h3>
-
+<h3>Worked example: query CPU architecture and cache sizes</h3>
 <pre class="session" data-risk="read-only">
-$ cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size
-64
+$ lscpu | grep -E "Architecture|Byte Order|Address sizes|Model name|Thread\(s\) per core|Core\(s\) per socket"
+Architecture:                            x86_64
+Address sizes:                           48 bits physical, 48 bits virtual
+Byte Order:                              Little Endian
+Model name:                              AMD Ryzen 7 5700U with Radeon Graphics
+Thread(s) per core:                      2
+Core(s) per socket:                      8
 
-$ cat /sys/devices/system/cpu/cpu0/cache/index3/size
-4M
+$ lscpu -C
+NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL SETS PHY-LINE COHERENCY-SIZE
+L1d       32K     256K    8 Data            1   64        1             64
+L1i       32K     256K    8 Instruction     1   64        1             64
+L2       512K       4M    8 Unified         2 1024        1             64
+L3         4M       8M   16 Unified         3 4096        1             64
 </pre>
 
+<p>Captured on a Tamlinux workstation, 2026-11-01. Your processor model, core counts, and cache sizes will reflect your specific machine.</p>
+<h3>What just happened</h3>
 <ol>
-<li><code>index0</code> corresponds to Level 1 Data cache; its coherency line size is 64 bytes. When the CPU requests a single 4-byte integer from RAM, the memory controller fetches all 64 bytes surrounding it.</li>
-<li><code>index3</code> is the Level 3 Last Level Cache (LLC), shared across all cores on the die.</li>
+<li><code>lscpu</code> reports the fundamental CPU architecture: <code>x86_64</code> (64-bit x86 extensions), using Little Endian byte ordering (least significant byte stored at the lowest address).</li>
+<li><code>Address sizes</code> shows that the processor uses 48-bit virtual and physical memory addresses, allowing up to 256 terabytes of addressable space.</li>
+<li><code>Thread(s) per core: 2</code> indicates simultaneous multithreading (SMT), allowing two logical execution contexts to share execution resources on each physical core.</li>
+<li><code>lscpu -C</code> exposes the hardware cache hierarchy: Level 1 has separate Data (L1d, 32 KB) and Instruction (L1i, 32 KB) caches per core; Level 2 (L2, 512 KB per core) is unified; and Level 3 (L3, 4 MB to 8 MB) is shared across cores. All caches use 64-byte coherency lines.</li>
 </ol>
-
-<h3>Completion task</h3>
-
-<p>Fill in the missing command option to inspect hardware storage controllers connected over the PCIe bus (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-lspci | grep -i ___
-</pre>
-
-<details class="solution">
-<p>Fill in <code>nvme</code> (or <code>storage</code>). Running <code>lspci | grep -i nvme</code> lists active Non-Volatile Memory Express solid-state controllers communicating directly with the CPU over high-speed PCIe lanes.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Compare the memory bandwidth and latency of your workstation. Inspect your system memory channels and clock speed using <code>dmidecode -t memory</code> (or review memory metrics in <a href="hardware/resources.html">resources</a>). Calculate how many 64-byte cache lines fit into your CPU L3 cache.</p>
-
-<details class="solution">
-<p>Divide the total L3 cache size in bytes by 64. For an 8 MB (8,388,608 bytes) L3 cache: 8,388,608 / 64 = 131,072 cache lines. The cache controller indexes and manages these lines to minimize slow trips to main memory.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Architecture Class</th><th>Philosophy</th><th>Instruction Characteristics</th><th>Examples</th><th>Workstation Trade-offs</th></tr>
-<tr><td>CISC (Complex Instruction Set)</td><td>Hardware handles complexity; rich instruction set</td><td>Variable length (1 to 15 bytes); memory-to-register arithmetic</td><td>x86, x86-64 (AMD64, Intel 64)</td><td>Broadest software ecosystem; backward compatibility; complex silicon decoders.</td></tr>
-<tr><td>RISC (Reduced Instruction Set)</td><td>Software/compiler handles complexity; simple fixed instructions</td><td>Fixed length (typically 4 bytes); load/store only architecture</td><td>ARM (AArch64), RISC-V, MIPS</td><td>Higher energy efficiency; simpler decoders; smaller silicon die area.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Application terminates with <code>SIGILL</code> (Illegal Instruction)</td><td>Binary was compiled with CPU flags (e.g. <code>-march=native</code>, AVX-512) unsupported by the host processor</td><td>Run <code>lscpu | grep Flags</code> and check binary with <code>gdb</code></td><td>Recompile targeting the baseline generic architecture or update binary package</td></tr>
-<tr><td>Excessive CPU memory stalls despite low CPU utilization</td><td>Severe cache thrashing or false sharing across threads</td><td>Inspect hardware performance counters via <code>perf stat</code></td><td>Align data structures to 64-byte cache lines; restructure loops for spatial locality</td></tr>
-<tr><td>Unexpected performance drop on multi-socket workstation</td><td>Processes accessing memory across Non-Uniform Memory Access (NUMA) interconnect</td><td>Run <code>numactl --hardware</code></td><td>Bind latency-sensitive tasks to local NUMA node with <code>taskset</code> or <code>numactl</code></td></tr>
-</table>
-
+<h3>Try it</h3>
+<p>Run <code>lscpu</code> on your terminal without filtering. Identify your CPU family, maximum clock frequency in MHz, and virtualization capabilities.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>lscpu: command not found</code></dt>
+<dd>The <code>util-linux</code> package is missing or corrupted. On Tamlinux, <code>lscpu</code> is part of the standard rootstock base.</dd>
+<dt><code>lscpu -C</code> prints an error</dt>
+<dd>Older versions of <code>util-linux</code> do not support the <code>-C</code> cache table flag. Query cache parameters directly via sysfs: <code>cat /sys/devices/system/cpu/cpu0/cache/index0/size</code>.</dd>
+</dl>
 <aside class="tamlinux">
 <p><strong>On Tamlinux:</strong> core product packages are built targeting generic x86-64 baselines (x86-64-v2/v3) so binaries run reliably across different CPU generations without generating illegal instruction faults. Tamlinux avoids persistent disk swap on solid-state drives, using compressed in-RAM ZRAM to preserve flash memory lifespan and keep memory operations operating at bus speeds. See the <a href="improve/zram.html">memory compression guide</a>.</p>
 </aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does a Load/Store architecture (RISC) forbid operations like <code>ADD [memory], 5</code>?</summary>
-<p>In a pure load/store architecture, arithmetic instructions operate strictly on processor registers. Memory can only be accessed through dedicated load and store instructions, keeping the execution pipeline uniform and predictable.</p>
+<summary>What is the primary defining characteristic of the Von Neumann architecture?</summary>
+<p>Program instructions and application data share the same physical memory space and bus system, rather than residing in physically separate memories.</p>
 </details>
 <details class="q">
-<summary>What is spatial locality, and how does the 64-byte cache line exploit it?</summary>
-<p>Spatial locality is the tendency of programs to access memory locations physically close to recently accessed data. By loading an entire 64-byte line into cache on every memory reference, adjacent array elements or instructions are already in cache for subsequent cycles.</p>
+<summary>Why does the CPU have separate L1i and L1d caches if the system follows the Von Neumann model?</summary>
+<p>While main memory is unified (Von Neumann), the CPU core internally uses a modified Harvard architecture at Level 1 cache: separating instruction fetch from data access prevents structural contention between reading instructions and reading variables.</p>
 </details>
 </section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; mmap(2), sysfs(5), and memory management interfaces.</li>
-<li><a href="man:lscpu(1)">lscpu(1)</a> &mdash; CPU architecture and topology reporting.</li>
-<li><a href="man:lspci(8)">lspci(8)</a> &mdash; PCI bus and peripheral component interconnect query.</li>
-</ul>
 </section>
-
 <section data-level="expert">
 <h2>Hardware interconnects, DMA, and memory management units</h2>
 

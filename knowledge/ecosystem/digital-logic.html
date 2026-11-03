@@ -22,82 +22,13 @@
 <p>At the physical level, digital computers do not manipulate numbers, words, or images directly. They switch millions or billions of microscopic transistors between conductive and non-conductive states, representing binary 1 and 0 as distinct voltage ranges. By connecting transistors into elementary logic gates, circuit designers construct arithmetic logic units (ALUs) that calculate numbers and sequential registers that store state.</p>
 
 <section data-level="novice">
-<h2>Binary signals, truth tables, and logic gates</h2>
-
-<p><strong>Goal:</strong> you will be able to explain how high and low voltages represent binary bits, interpret truth tables for fundamental logic gates (AND, OR, NOT, XOR), and evaluate bitwise logic in the terminal.</p>
-
-<p><strong>Why it matters:</strong> every instruction executed by your computer boils down to bitwise operations. Understanding Boolean logic clarifies how file permissions are masked, how networking subnets are filtered, and how microprocessors add, subtract, and compare data.</p>
-
-<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The shell arithmetic expressions in this section execute purely in memory and modify no files.</p>
-
-<aside class="first-time">
-<p><strong>New to this?</strong> In digital electronics, a <strong>bit</strong> is the smallest unit of information: either 0 or 1. Computers represent 0 as a low voltage (e.g. 0 volts / ground) and 1 as a higher voltage (e.g. +1.0 V or +3.3 V). The shell lets you test these operations directly using <code>$(( ... ))</code> arithmetic syntax.</p>
-</aside>
-
-<h3>Worked example: evaluate Boolean logic gates in Bash</h3>
-
-<pre class="session" data-risk="read-only">
-$ a=12  # binary 1100
-$ b=10  # binary 1010
-$ printf "AND: %d &amp; %d = %d\n" "$a" "$b" "$(( a &amp; b ))"
-AND: 12 &amp; 10 = 8
-
-$ printf "OR:  %d | %d = %d\n" "$a" "$b" "$(( a | b ))"
-OR:  12 | 10 = 14
-
-$ printf "XOR: %d ^ %d = %d\n" "$a" "$b" "$(( a ^ b ))"
-XOR: 12 ^ 10 = 6
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li>The number 12 in binary is <code>1100</code>; the number 10 in binary is <code>1010</code>.</li>
-<li><strong>Bitwise AND (<code>&amp;</code>):</strong> compares corresponding bits. A bit in the output is 1 only if <em>both</em> input bits are 1. Comparing <code>1100</code> and <code>1010</code> yields <code>1000</code> in binary, which is decimal 8.</li>
-<li><strong>Bitwise OR (<code>|</code>):</strong> produces a 1 if <em>either</em> or both input bits are 1. Comparing <code>1100</code> and <code>1010</code> yields <code>1110</code>, which is decimal 14.</li>
-<li><strong>Bitwise XOR (Exclusive OR, <code>^</code>):</strong> produces a 1 only if the input bits are <em>different</em>. Comparing <code>1100</code> and <code>1010</code> yields <code>0110</code>, which is decimal 6.</li>
-</ol>
-
-<h3>Fundamental logic gates and truth tables</h3>
-
-<p>A logic gate is a tiny physical circuit that implements a Boolean logic function. Its behavior is defined by a <em>truth table</em> showing outputs for all possible input combinations:</p>
-
-<table>
-<tr><th>Input A</th><th>Input B</th><th>NOT A (<code>~A</code>)</th><th>AND (<code>A &amp; B</code>)</th><th>OR (<code>A | B</code>)</th><th>XOR (<code>A ^ B</code>)</th><th>NAND (<code>~(A &amp; B)</code>)</th></tr>
-<tr><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
-<tr><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
-<tr><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
-<tr><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
-</table>
-
-<h3>Try it</h3>
-
-<p>Test bitwise negation (NOT) in your shell using <code>$(( ~0 ))</code> or test masking an octal permission mask using <code>$(( 0755 &amp; 0700 ))</code>.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt><code>printf: -1: invalid number</code></dt>
-<dd>Bitwise NOT in two's complement inverts all bits including the sign bit, so <code>~0</code> evaluates to -1. This is normal signed integer behavior.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Which logic gate outputs 1 only when its two input bits are different from each other?</summary>
-<p>The XOR (Exclusive OR) gate. It outputs 1 for inputs (0,1) and (1,0), and outputs 0 for (0,0) and (1,1).</p>
-</details>
-<details class="q">
-<summary>Why is the NAND gate called a "universal gate" in computer engineering?</summary>
-<p>Any possible Boolean function (including AND, OR, NOT, and XOR) can be constructed exclusively out of interconnected NAND gates.</p>
-</details>
-</section>
-
+<h2>What is digital logic?</h2>
+<p>Every instruction executed by your computer boils down to bitwise operations. Understanding Boolean logic clarifies how file permissions are masked, how networking subnets are filtered, and how microprocessors add, subtract, and compare data.</p>
+<h3>Why it matters</h3>
+<p>Every instruction executed by your computer boils down to bitwise operations. Understanding Boolean logic clarifies how file permissions are masked, how networking subnets are filtered, and how microprocessors add, subtract, and compare data.</p>
+<h3>How to think about it</h3>
+<p>New to this? In digital electronics, a bit is the smallest unit of information: either 0 or 1.</p>
 <h3>New words</h3>
-
 <dl>
 <dt>Bit</dt>
 <dd>A binary digit; the fundamental unit of information in digital computing, holding either 0 or 1.</dd>
@@ -109,17 +40,22 @@ XOR: 12 ^ 10 = 6
 <dd>The branch of mathematics dealing with variables that have two truth values: true (1) and false (0).</dd>
 </dl>
 <p>A shell script or binary file is stored on disk under a <dfn><a href="learn/glossary/filesystem.html">filesystem</a></dfn>.</p>
-
-<p><strong>Next step:</strong> at Learner, see how gates combine into adders and ALUs, and how flip-flops remember state across clock cycles.</p>
 </section>
 
 <section data-level="learner">
-<h2>Combinational circuits, adders, and sequential flip-flops</h2>
-
-<p><strong>Goal:</strong> you will be able to distinguish combinational logic from sequential logic, trace how half and full adders perform integer addition, and understand how clock signals synchronize registers.</p>
-
+<h2>Binary signals, truth tables, and logic gates</h2>
+<p><strong>Goal:</strong> you will be able to explain how high and low voltages represent binary bits, interpret truth tables for fundamental logic gates (AND, OR, NOT, XOR), and evaluate bitwise logic in the terminal.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: From atoms to bits</strong> &mdash;
+<a href="ecosystem/matter-and-energy.html?level=2">Start</a> |
+<a href="ecosystem/circuits-and-power.html?level=2">&larr; Back</a> |
+<a href="ecosystem/matter-and-energy.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The shell arithmetic expressions in this section execute purely in memory and modify no files.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> In digital electronics, a <strong>bit</strong> is the smallest unit of information: either 0 or 1. Computers represent 0 as a low voltage (e.g. 0 volts / ground) and 1 as a higher voltage (e.g. +1.0 V or +3.3 V). The shell lets you test these operations directly using <code>$(( ... ))</code> arithmetic syntax.</p>
+</aside>
 <h3>Mental model</h3>
-
 <pre>
 Combinational Logic (Stateless / Instantaneous):
 Inputs ===&gt; [ Logic Gates (Adders, Multiplexers, Decoders, ALU) ] ===&gt; Outputs
@@ -136,82 +72,51 @@ Clock Pulse ---------+  (Updates only on rising edge: ___/--- )
 <li><strong>Combinational logic:</strong> the output depends strictly and immediately on the current combination of inputs. It has no memory and no concept of past state. Examples include addition circuits, multiplexers, and decoders.</li>
 <li><strong>Sequential logic:</strong> the output depends on both current inputs and past history. It uses feedback loops to store bits, synchronized by a master <em>clock signal</em>. Examples include CPU registers, program counters, and RAM cells.</li>
 </ul>
-
-<h3>Worked example: the 1-bit Full Adder</h3>
-
+<h3>Worked example: evaluate Boolean logic gates in Bash</h3>
 <pre class="session" data-risk="read-only">
-Half Adder (adds 2 bits: A and B):
-  Sum   = A XOR B
-  Carry = A AND B
+$ a=12  # binary 1100
+$ b=10  # binary 1010
+$ printf "AND: %d &amp; %d = %d\n" "$a" "$b" "$(( a &amp; b ))"
+AND: 12 &amp; 10 = 8
 
-Full Adder (adds 3 bits: A, B, and Carry-In):
-  Sum       = (A XOR B) XOR Carry_In
-  Carry_Out = (A AND B) OR (Carry_In AND (A XOR B))
+$ printf "OR:  %d | %d = %d\n" "$a" "$b" "$(( a | b ))"
+OR:  12 | 10 = 14
+
+$ printf "XOR: %d ^ %d = %d\n" "$a" "$b" "$(( a ^ b ))"
+XOR: 12 ^ 10 = 6
 </pre>
 
-<p>By chaining 64 full adders together (feeding the Carry-Out of bit 0 into the Carry-In of bit 1, and so forth), the processor constructs a <strong>64-bit Ripple-Carry Adder</strong> (or a modern Carry-Lookahead Adder) capable of adding two 64-bit integers in a fraction of a nanosecond inside the Arithmetic Logic Unit (ALU).</p>
-
-<h3>Completion task</h3>
-
-<p>Complete the description of a D (Data) Flip-Flop. Fill in the missing term (marked with <code>___</code>):</p>
-
-<p>&ldquo;A D flip-flop captures the input bit present on its D pin and copies it to the output Q pin strictly on the rising ___ of the system clock signal.&rdquo;</p>
-
-<details class="solution">
-<p>Fill in <code>edge</code> (or <code>transition</code>). Clock-edge triggering ensures that digital circuits only update state simultaneously, preventing electrical race conditions.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Observe how negative numbers are represented in binary using two's complement arithmetic in your shell. Compute <code>$(( -5 ))</code> and inspect how bits invert: <code>$(( ~5 + 1 ))</code>.</p>
-
-<details class="solution">
-<p>In two's complement, to negate a number you invert all bits (NOT) and add 1. For example, 5 is <code>...00000101</code>. Inverting yields <code>...11111010</code>. Adding 1 produces <code>...11111011</code>, which represents -5. This enables the ALU to subtract numbers using the exact same adder circuits used for addition.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Circuit Category</th><th>Mechanism</th><th>Primary Role</th><th>Key Components</th></tr>
-<tr><td>Combinational Logic</td><td>Direct gate propagation (no feedback loops, no clock dependency)</td><td>Transforms and calculates data instantly based on current inputs</td><td>Adders, Subtractors, Multiplexers, Demultiplexers, Shifters, ALUs</td></tr>
-<tr><td>Sequential Logic</td><td>Feedback loops gated by periodic clock signals</td><td>Stores state and preserves values across discrete clock cycles</td><td>D Flip-Flops, Latches, CPU General-Purpose Registers, Program Counter</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Circuit produces intermittent corrupted output when overclocked</td><td>Propagation delay exceeded; signals fail to traverse combinational paths before the next clock edge</td><td>Check CPU clock frequency and system stability logs (<code>mcelog</code> / <code>edac</code>)</td><td>Reduce clock multiplier or increase core voltage within manufacturer specifications</td></tr>
-<tr><td>Spurious state flip in asynchronous sequential inputs</td><td>Metastability caused by input changing right during the setup/hold window</td><td>Inspect signal synchronization stages</td><td>Pass asynchronous external signals through two cascaded flip-flops (dual-rank synchronizer)</td></tr>
-<tr><td>High thermal throttling under continuous compute load</td><td>Excessive dynamic switching power dissipation (where power scales with capacitance, frequency, and the square of voltage)</td><td>Run <code>sensors</code> to inspect CPU core temperatures</td><td>Improve cooling headroom or adjust CPU governor policy via <code>cpupower</code></td></tr>
-</table>
-
+<p>Captured on a Tamlinux workstation, 2026-11-01.</p>
+<h3>What just happened</h3>
+<ol>
+<li>The number 12 in binary is <code>1100</code>; the number 10 in binary is <code>1010</code>.</li>
+<li><strong>Bitwise AND (<code>&amp;</code>):</strong> compares corresponding bits. A bit in the output is 1 only if <em>both</em> input bits are 1. Comparing <code>1100</code> and <code>1010</code> yields <code>1000</code> in binary, which is decimal 8.</li>
+<li><strong>Bitwise OR (<code>|</code>):</strong> produces a 1 if <em>either</em> or both input bits are 1. Comparing <code>1100</code> and <code>1010</code> yields <code>1110</code>, which is decimal 14.</li>
+<li><strong>Bitwise XOR (Exclusive OR, <code>^</code>):</strong> produces a 1 only if the input bits are <em>different</em>. Comparing <code>1100</code> and <code>1010</code> yields <code>0110</code>, which is decimal 6.</li>
+</ol>
+<h3>Try it</h3>
+<p>Test bitwise negation (NOT) in your shell using <code>$(( ~0 ))</code> or test masking an octal permission mask using <code>$(( 0755 &amp; 0700 ))</code>.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>printf: -1: invalid number</code></dt>
+<dd>Bitwise NOT in two's complement inverts all bits including the sign bit, so <code>~0</code> evaluates to -1. This is normal signed integer behavior.</dd>
+</dl>
 <aside class="tamlinux">
 <p><strong>On Tamlinux:</strong> the kernel leverages Dynamic Voltage and Frequency Scaling (DVFS) and processor C-states to power down execution units and lower clock frequencies when idle. Tamlinux’s zero-polling design principle ensures that background applications do not wake processor cores unnecessarily, preventing millions of wasted transistor state transitions per second and maximizing battery life. See the <a href="improve/efficiency.html">zero-polling guide</a>.</p>
 </aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>How does an Arithmetic Logic Unit (ALU) perform subtraction using an addition circuit?</summary>
-<p>It uses two's complement: it inverts the second operand's bits (using XOR gates) and sets the adder's initial Carry-In bit to 1. This computes A plus (NOT B plus 1) = A minus B using the standard addition hardware.</p>
+<summary>Which logic gate outputs 1 only when its two input bits are different from each other?</summary>
+<p>The XOR (Exclusive OR) gate. It outputs 1 for inputs (0,1) and (1,0), and outputs 0 for (0,0) and (1,1).</p>
 </details>
 <details class="q">
-<summary>What is a multiplexer (MUX) and how is it used in a CPU?</summary>
-<p>A multiplexer is a digital selector switch: it takes multiple data inputs and routes one selected input to the output based on control bits. CPUs use multiplexers to select which register supplies operands to the ALU.</p>
+<summary>Why is the NAND gate called a "universal gate" in computer engineering?</summary>
+<p>Any possible Boolean function (including AND, OR, NOT, and XOR) can be constructed exclusively out of interconnected NAND gates.</p>
 </details>
 </section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:cpupower(1)">cpupower(1)</a> &mdash; inspect and manage processor frequency states.</li>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; time(7) and timerfd_create(2).</li>
-<li>Wakerly, J. F. <em>Digital Design: Principles and Practices</em>.</li>
-</ul>
 </section>
-
 <section data-level="expert">
 <h2>CMOS transistor physics, propagation delay, and ALU design</h2>
 

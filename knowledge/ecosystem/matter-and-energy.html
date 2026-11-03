@@ -21,11 +21,40 @@
 <p>This page explains the tiny building blocks of electricity and light that make computer chips work.</p>
 
 <section data-level="novice">
+<h2>What are matter and energy in computing hardware?</h2>
+<p>Every wire, transistor and display on your workstation moves electrons or emits photons. Naming those pieces makes later circuit and cable lessons stop feeling like magic words.</p>
+<h3>Why it matters</h3>
+<p>Every wire, transistor and display on your workstation moves electrons or emits photons. Naming those pieces makes later circuit and cable lessons stop feeling like magic words.</p>
+<h3>How to think about it</h3>
+<p>You do not need a laboratory. Everyday words are enough: electron = tiny charged bit of matter that can move in metal and chips; photon = tiny packet of light.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="learn/glossary/electron.html">Electron</a></dt><dd>Tiny negatively charged particle.</dd>
+<dt><a href="learn/glossary/photon.html">Photon</a></dt><dd>Packet of light energy.</dd>
+<dt><a href="learn/glossary/quantum.html">Quantum</a></dt><dd>Fixed-step behavior of some physical quantities.</dd>
+</dl>
+<h3>Next step</h3>
+<p>Read <a href="ecosystem/circuits-and-power.html?level=1">Circuits and power</a>.</p>
+</section>
+
+<section data-level="learner">
 <h2>Meet electrons and light packets</h2>
 <p><strong>Goal:</strong> you will be able to say what an <dfn><a href="learn/glossary/electron.html">electron</a></dfn> and a <dfn><a href="learn/glossary/photon.html">photon</a></dfn> are, and why chips need stepped energy rules.</p>
-<p><strong>Why it matters:</strong> every wire, transistor and display on your workstation moves electrons or emits photons. Naming those pieces makes later circuit and cable lessons stop feeling like magic words.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: From atoms to bits</strong> &mdash;
+<a href="ecosystem/matter-and-energy.html?level=2">Start</a> |
+<a href="ecosystem/matter-and-energy.html?level=2">&larr; Back</a> |
+<a href="ecosystem/circuits-and-power.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> no commands are required. Read the glossary links if a word is new. This page only explains; it does not change your system.</p>
 <aside class="first-time"><p>You do not need a laboratory. Everyday words are enough: electron = tiny charged bit of matter that can move in metal and chips; photon = tiny packet of light.</p></aside>
+<h3>Mental model</h3>
+<pre>valence band (electrons "at home")
+        |  bandgap (forbidden energies)
+        v
+conduction band (electrons free to flow)
+</pre>
+<p>In a metal, electrons already move easily. In an insulator, the bandgap is so large that almost none reach the conduction band. In a semiconductor the gap is moderate: heat, light, or doping can add carriers, and a gate voltage in a transistor can open or close a channel.</p>
 <h3>Worked example</h3>
 <p>Hold these three sentences and check them against the glossary pages:</p>
 <ol>
@@ -46,64 +75,13 @@
 <dt>The words feel abstract</dt>
 <dd>Stay with the novice glossary pages and the three sentences above. Do not jump to formulas yet.</dd>
 </dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> this page is general solid-state literacy. Later cables and display pages apply it to links and screens; they do not change Tamlinux packaging.</p></aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q"><summary>What does a photon carry that an electron does not?</summary><p>A photon is a packet of light (electromagnetic) energy and has no rest mass. An electron is a particle of matter with negative charge that can sit in atoms or flow in conductors.</p></details>
 <details class="q"><summary>Why does "quantum" matter for a computer chip?</summary><p>Electrons in solids occupy stepped energy bands. The gap between bands is what lets a semiconductor act like a switch.</p></details>
 </section>
-<h3>New words</h3>
-<dl>
-<dt><a href="learn/glossary/electron.html">Electron</a></dt><dd>Tiny negatively charged particle.</dd>
-<dt><a href="learn/glossary/photon.html">Photon</a></dt><dd>Packet of light energy.</dd>
-<dt><a href="learn/glossary/quantum.html">Quantum</a></dt><dd>Fixed-step behavior of some physical quantities.</dd>
-</dl>
-<h3>Next step</h3>
-<p>Read <a href="ecosystem/circuits-and-power.html?level=1">Circuits and power</a>.</p>
 </section>
-
-<section data-level="learner">
-<h2>Bandgap and switching</h2>
-<p><strong>Goal:</strong> explain how a <dfn><a href="learn/glossary/bandgap.html">bandgap</a></dfn> lets a <dfn><a href="learn/glossary/semiconductor.html">semiconductor</a></dfn> act as a controllable conductor.</p>
-<h3>Mental model</h3>
-<pre>valence band (electrons "at home")
-        |  bandgap (forbidden energies)
-        v
-conduction band (electrons free to flow)
-</pre>
-<p>In a metal, electrons already move easily. In an insulator, the bandgap is so large that almost none reach the conduction band. In a semiconductor the gap is moderate: heat, light, or doping can add carriers, and a gate voltage in a transistor can open or close a channel.</p>
-<h3>Worked example</h3>
-<p>Silicon's bandgap is about 1.12 eV. A red photon may lack enough energy to promote an electron across that gap; a more energetic photon may succeed. That is why some materials look opaque or transparent to different colors, and why photodiodes and cameras need matching wavelengths.</p>
-<details class="solution"><p>Match photon energy to the gap: if the photon energy is below the gap, absorption into the conduction band does not occur that way. Device designers choose materials and wavelengths together.</p></details>
-<h3>Choosing</h3>
-<table>
-<tr><th>Question</th><th>Look at</th></tr>
-<tr><td>Why does a transistor switch?</td><td>Field effect across a semiconductor channel; carriers and bandgap</td></tr>
-<tr><td>Why does an LED emit light?</td><td>Electrons dropping across a gap release photons</td></tr>
-<tr><td>Why does copper feel different from silicon?</td><td>Metals lack a usable switching bandgap</td></tr>
-</table>
-<h3>Troubleshooting</h3>
-<p>Confusion between "quantum" as mysticism and as stepped energy bands is common. Keep the claim narrow: chips rely on electronic energy bands and gaps, not on speculative interpretations.</p>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> this page is general solid-state literacy. Later cables and display pages apply it to links and screens; they do not change Tamlinux packaging.</p></aside>
-<details class="solution"><p>Photon energy must meet or exceed the gap for that absorption path.</p></details>
-<h3>Completion task</h3>
-<p>Explain in one sentence why a transistor needs a semiconductor, not only a metal wire.</p>
-<details class="solution"><p>A semiconductor's bandgap and controllable carriers let a gate turn conduction on and off; a metal stays highly conductive.</p></details>
-<h3>Independent task</h3>
-<p>Open the transistor glossary page and write one sentence linking bandgap to switching.</p>
-<details class="solution"><p>Field effect modulates carriers across a gapped material to switch current.</p></details>
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>What sits between the valence band and the conduction band?</summary><p>The bandgap: a range of energies electrons cannot stably occupy in the ideal crystal picture.</p></details>
-<details class="q"><summary>Name one practical way to add carriers in a semiconductor without melting it.</summary><p>Doping (adding controlled impurities), applying a gate field in a FET, or absorbing suitable photons.</p></details>
-</section>
-<h3>Further reading</h3>
-<ul>
-<li><a href="ecosystem/circuits-and-power.html?level=2">Circuits and power</a></li>
-<li><a href="learn/glossary/transistor.html">Transistor</a></li>
-<li><a href="learn/glossary/pn-junction.html">P-N junction</a></li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>Why this model is enough for troubleshooting</h2>
 <p>Expert workstation diagnosis rarely needs full quantum-field formalism. It needs a correct causal stack: carriers and bandgaps → devices → circuits → signaling → OS → session. Mis-stating the physics (for example treating electrons as continuous fluid without resistance, or treating light as only a wave when photodetection matters) leads to wrong fault classes.</p>

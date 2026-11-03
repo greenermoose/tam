@@ -22,20 +22,65 @@
 <p>Every digital computer is fundamentally an electrical machine. Long before software instructions execute or network packets travel across the internet, physical power supplies must establish electric potential differences that push electrons through copper conductors and silicon switches. Understanding how current circulates, why every circuit requires a continuous return loop, how semiconductor P-N junctions control current flow, and how power cables distribute direct current prevents hardware damage and clarifies system behavior.</p>
 
 <section data-level="novice">
+<h2>What is an electrical circuit?</h2>
+<p>Electricity does not vanish into computer components; it circulates in complete loops. If a ground wire is disconnected, a power cord is loose, or an electrical short bypasses resistance, computer hardware fails or shuts down instantly. Knowing the core relationships between voltage, current, and circuit continuity helps you recognize power issues, safely connect hardware cables, and understand why electronics generate heat.</p>
+<h3>Why it matters</h3>
+<p>Electricity does not vanish into computer components; it circulates in complete loops. If a ground wire is disconnected, a power cord is loose, or an electrical short bypasses resistance, computer hardware fails or shuts down instantly. Knowing the core relationships between voltage, current, and circuit continuity helps you recognize power issues, safely connect hardware cables, and understand why electronics generate heat.</p>
+<h3>How to think about it</h3>
+<p>New to this? In everyday language, people often use "electricity", "voltage", and "current" as if they were the same thing.</p>
+<h3>New words</h3>
+<dl>
+<dt>Voltage</dt>
+<dd>Electrical potential difference, measured in volts, that pushes electric charge through a conductor.</dd>
+<dt>Current</dt>
+<dd>The flow rate of electric charges through a conductor, measured in amperes.</dd>
+<dt>Circuit</dt>
+<dd>A closed continuous path that allows electric current to circulate from a power source, through loads, and back.</dd>
+<dt>Semiconductor</dt>
+<dd>A solid material whose electrical conductivity can be controlled and switched, forming the basis of diodes and transistors.</dd>
+<dt>Diode</dt>
+<dd>A two-terminal semiconductor device that allows current to flow in only one direction.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
 <h2>Voltage, current loops, semiconductors, and power cables</h2>
-
 <p><strong>Goal:</strong> you will be able to explain how electrical voltage pushes current through a closed circuit loop, describe how semiconductors switch electrical flow, and identify standard computer power cables.</p>
-
-<p><strong>Why it matters:</strong> electricity does not vanish into computer components; it circulates in complete loops. If a ground wire is disconnected, a power cord is loose, or an electrical short bypasses resistance, computer hardware fails or shuts down instantly. Knowing the core relationships between voltage, current, and circuit continuity helps you recognize power issues, safely connect hardware cables, and understand why electronics generate heat.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: From atoms to bits</strong> &mdash;
+<a href="ecosystem/matter-and-energy.html?level=2">Start</a> |
+<a href="ecosystem/matter-and-energy.html?level=2">&larr; Back</a> |
+<a href="ecosystem/digital-logic.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The inspection commands in this section query power supply status and hardware sensors without modifying system state.</p>
-
 <aside class="first-time">
 <p><strong>New to this?</strong> In everyday language, people often use "electricity", "voltage", and "current" as if they were the same thing. In science and engineering, they have distinct, precise meanings. The <code>$</code> prompt indicates the shell is ready for a command. Do not type the <code>$</code>.</p>
 </aside>
+<h3>Mental model</h3>
+<pre>
+Power Delivery &amp; Voltage Drop:
+  [ Power Supply (12.0 V) ] ===( R_wire )===&gt; [ High-Current Load (GPU/CPU) ]
+           |                                                 |
+           +&lt;================( R_return )====================+
+  Total Loop Resistance = R_wire + R_return
+  Voltage at Load = 12.0 V - (Current * Total_Resistance)
+  Heat Dissipated in Cable = Current^2 * Total_Resistance
 
+Transistor (MOSFET) Electronic Switch:
+  Gate (Voltage Control) ---+
+                            | (Electric field opens channel)
+  Drain (Input Current) ===[ ]===&gt; Source (Output Current)
+</pre>
+
+<p>When an electrical circuit delivers power, every real-world conductor has a small non-zero resistance. Electrical power ($P$) is the rate at which energy is delivered or converted into heat, measured in <strong>watts</strong> (W):</p>
+
+<pre data-risk="read-only">
+Power = Voltage * Current    (P = V * I)
+Power = Current^2 * Resistance    (P = I^2 * R)
+</pre>
+
+<p>Because resistive power loss scales with the <em>square</em> of the current ($I^2 R$), doubling the current quadruples the heat generated in the cables. This explains why computers use higher voltages (+12V rather than +5V, or USB-PD at 20V/48V) to power energy-intensive processors and graphics cards: transmitting power at higher voltage requires fewer amperes of current for the same wattage, dramatically reducing cable heating and voltage drop.</p>
 <h3>Worked example: inspect system power rails and battery state</h3>
-
 <pre class="session" data-risk="read-only">
 $ upower -i $(upower -e | grep -E "battery|line_power" | head -1)
   native-path:          BAT0
@@ -66,92 +111,24 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 </pre>
 
 <p>Captured on a Tamlinux workstation, 2026-11-01. Your battery properties and voltage readings will reflect your specific motherboard and power supply.</p>
-
 <h3>What just happened</h3>
-
 <ol>
 <li><code>upower</code> queries the system power management daemon for physical battery metrics, reporting an active voltage of 12.65 volts and an instantaneous charging rate of 18.4 watts.</li>
 <li><code>sensors</code> reads hardware monitoring chips on the motherboard, showing regulated direct-current (DC) voltage rails: the CPU core voltage (1.05 V) and the primary system power rails (+12V, +5V, +3.3V).</li>
 <li>Each voltage rail remains within standard 5% tolerance windows required for digital silicon stability.</li>
 </ol>
-
-<h3>The water and pump model of electricity</h3>
-
-<p>To understand how electricity flows through computer cables and boards, physical scientists use the intuitive analogy of water flowing through pipes:</p>
-
-<ul>
-<li><strong><dfn><a href="learn/glossary/voltage.html">Voltage</a></dfn> (V):</strong> Electrical potential difference &mdash; the "pressure" that pushes electric charges. Measured in <strong>volts</strong> (V). Electric charges naturally flow from a point of higher voltage to a point of lower voltage, just as water flows downhill or from high-pressure pipes toward low pressure.</li>
-<li><strong><dfn><a href="learn/glossary/current.html">Current</a></dfn> (I):</strong> The flow rate of electrical charge (the physical electrons moving through the conductor). Measured in <strong>amperes</strong> or <strong>amps</strong> (A). One ampere represents approximately 6.24 &times; 10<sup>18</sup> electrons passing a given point every second.</li>
-<li><strong>Resistance (R):</strong> The opposition or friction against the flow of electrons through a material. Measured in <strong>ohms</strong>. Thin wires or poorly conducting materials offer high resistance; thick copper wires offer very low resistance.</li>
-<li><strong>Ohm's Law:</strong> The fundamental law connecting all three:
-<pre data-risk="read-only">
-Voltage = Current * Resistance    (V = I * R)
-</pre>
-Increasing voltage pushes more current through a circuit; increasing resistance restricts current flow.</li>
-</ul>
-
-<h3>The essential closed circuit loop</h3>
-
-<p>Every electrical <dfn><a href="learn/glossary/circuit.html">circuit</a></dfn> must be a continuous, unbroken circular loop. Electric charges cannot simply travel down a single wire and vanish into thin air. For current to flow, there must be an outgoing path from the power source to the device, and a return path leading back to the power source.</p>
-
-<p>Inside the power supply or battery, an active chemical or electromagnetic mechanism acts like a water pump: it forces electrons <em>against</em> the natural gradient, lifting them from low electrical potential back up to high electrical potential. The energized electrons then exit the power supply through the positive conductor, travel through motherboard chips and components (doing useful work such as computing or illuminating displays), lose their potential energy, and flow back through the ground return wire to the source. If the loop is severed at any point (an <strong>open circuit</strong>), current ceases everywhere in that loop. If high voltage is connected directly to ground with zero resistance (a <strong>short circuit</strong>), massive current rushes through the loop, generating intense heat that trips safety fuses or melts wires.</p>
-
-<h3>Conductors, insulators, and semiconductors</h3>
-
-<p>Materials behave differently depending on how tightly their atoms hold their outer (valence) electrons:</p>
-
-<ul>
-<li><strong>Conductors (e.g. Copper, Gold, Aluminium):</strong> Metals whose outer electrons are loosely bound in a shared "sea of electrons". Applying even a tiny voltage immediately pushes these electrons forward, conducting current effortlessly. Computer cables and printed circuit board (PCB) traces are made of copper.</li>
-<li><strong>Insulators (e.g. Rubber, Plastic, Glass):</strong> Materials whose electrons are locked tightly in chemical bonds. Insulators resist electrical flow almost completely, preventing current from leaking out of wires. The colored outer sleeves of computer cables are made of insulating PVC or rubber.</li>
-<li><strong><dfn><a href="learn/glossary/semiconductor.html">Semiconductors</a></dfn> (e.g. Silicon, Germanium):</strong> Materials that sit between conductors and insulators. Pure silicon forms a crystal lattice where each atom shares four valence electrons with its neighbours. In its pure state, silicon conducts very poorly. However, by introducing microscopic amounts of specific impurities &mdash; a process called <strong>doping</strong> &mdash; engineers transform silicon into an electrically controllable material:
-  <ul>
-  <li><strong>N-type silicon:</strong> Doped with elements like Phosphorus (which has 5 valence electrons). The extra electrons do not fit in the crystal lattice and become free, mobile negative charge carriers.</li>
-  <li><strong>P-type silicon:</strong> Doped with elements like Boron (which has 3 valence electrons). This creates missing electrons called <strong>holes</strong>, which act like mobile positive charges.</li>
-  </ul>
-</li>
-</ul>
-
-<h3>The P-N junction and the diode</h3>
-
-<p>When an N-type region and a P-type region are formed together in a single silicon crystal, their boundary is called a <strong><dfn><a href="learn/glossary/pn-junction.html">P-N junction</a></dfn></strong>. At the interface, free electrons from the N side diffuse across to fill holes on the P side, creating a narrow neutral zone called the <em>depletion region</em> with a built-in electrical barrier.</p>
-
-<p>A component with a P-N junction is called a <strong><dfn><a href="learn/glossary/diode.html">diode</a></dfn></strong>. A diode acts as a one-way valve for electricity:</p>
-
-<ul>
-<li><strong>Forward bias:</strong> Connecting positive voltage to the P-type side and negative voltage to the N-type side pushes electrons and holes toward the boundary, overcoming the barrier. Current flows freely once the voltage exceeds roughly 0.6 to 0.7 volts.</li>
-<li><strong>Reverse bias:</strong> Connecting positive voltage to the N-type side and negative voltage to the P-type side pulls charge carriers away from the junction, widening the barrier. Current is completely blocked.</li>
-</ul>
-
-<p>Diodes perform crucial jobs in computers: they rectify alternating current (AC) into direct current (DC) inside power supplies, and protect sensitive communication lines from electrostatic discharge (ESD).</p>
-
-<h3>Computer power cables and connectors</h3>
-
-<p>Computers require two primary stages of power cabling:</p>
-
-<table>
-<tr><th>Cable / Connector</th><th>Type</th><th>Nominal Voltages</th><th>Function</th></tr>
-<tr><td>IEC C13 / C14</td><td>AC Mains</td><td>100V - 240V AC</td><td>Wall power cord connecting the utility outlet to the computer power supply unit (PSU). Features Live, Neutral, and Safety Earth wires.</td></tr>
-<tr><td>ATX 24-Pin Main</td><td>Internal DC</td><td>+12V, +5V, +3.3V, -12V, +5VSB</td><td>Primary motherboard power harness supplying chipsets, RAM, PCIe slots, and standby power.</td></tr>
-<tr><td>EPS 8-Pin (CPU)</td><td>Internal DC</td><td>+12V DC</td><td>Dedicated high-current 12V power delivered directly to the CPU voltage regulator modules (VRMs).</td></tr>
-<tr><td>PCIe 6-Pin / 8-Pin</td><td>Internal DC</td><td>+12V DC</td><td>Supplies dedicated auxiliary power (75W for 6-pin, 150W for 8-pin) to high-draw graphics cards.</td></tr>
-<tr><td>12VHPWR (16-Pin)</td><td>Internal DC</td><td>+12V DC + 4 Sideband Sense</td><td>Modern PCIe Gen 5 connector delivering up to 600W over 12 primary power conductors with digital sense pins.</td></tr>
-<tr><td>SATA Power (15-Pin)</td><td>Internal DC</td><td>+12V, +5V, +3.3V DC</td><td>Flat keyed connector powering solid-state drives (SSDs) and mechanical hard drives.</td></tr>
-<tr><td>USB Power Delivery</td><td>External DC</td><td>5V, 9V, 15V, 20V, 48V DC</td><td>Universal Serial Bus power negotiation over Type-C cables delivering up to 240 watts for laptops and monitors.</td></tr>
-</table>
-
 <h3>Try it</h3>
-
 <p>Run <code>sensors</code> on your terminal to inspect your computer's power rail voltages. Check whether your motherboard reports a <code>+12V</code>, <code>+5V</code>, or <code>Vcore</code> line. Verify that the reported voltage matches the nominal target within 5%.</p>
-
 <h3>If it goes wrong</h3>
-
 <dl>
 <dt><code>sensors: command not found</code></dt>
 <dd>The <code>lm_sensors</code> package is not installed. Inspect power status via the sysfs battery interface instead: <code>cat /sys/class/power_supply/*/voltage_now</code>.</dd>
 <dt>A reported voltage rail shows zero or negative values</dt>
 <dd>Motherboard sensor chips use analog multiplexers that require specific chip-configuration formulas. Unconfigured sensors often report erroneous raw values; confirm stability with <code>upower -d</code>.</dd>
 </dl>
-
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the power management daemon coordinates with ACPI and the Linux kernel to monitor battery health, thermal margins, and charging profiles. Tamlinux sets CPU governor policies that throttle back clock frequencies if motherboard sensors detect thermal runaway or voltage delivery instability, protecting laptop hardware from battery swelling and circuit stress.</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -168,162 +145,7 @@ Increasing voltage pushes more current through a circuit; increasing resistance 
 <p>It widens its internal depletion barrier and blocks electric current from passing through, functioning like a closed one-way valve.</p>
 </details>
 </section>
-
-<h3>New words</h3>
-
-<dl>
-<dt>Voltage</dt>
-<dd>Electrical potential difference, measured in volts, that pushes electric charge through a conductor.</dd>
-<dt>Current</dt>
-<dd>The flow rate of electric charges through a conductor, measured in amperes.</dd>
-<dt>Circuit</dt>
-<dd>A closed continuous path that allows electric current to circulate from a power source, through loads, and back.</dd>
-<dt>Semiconductor</dt>
-<dd>A solid material whose electrical conductivity can be controlled and switched, forming the basis of diodes and transistors.</dd>
-<dt>Diode</dt>
-<dd>A two-terminal semiconductor device that allows current to flow in only one direction.</dd>
-</dl>
-
-<p><strong>Next step:</strong> at Learner, calculate electric power dissipation, evaluate wire gauge thickness, and inspect how transistors act as microscopic switches.</p>
 </section>
-
-<section data-level="learner">
-<h2>Power formulas, wire gauge, and transistor switches</h2>
-
-<p><strong>Goal:</strong> you will be able to calculate electrical power dissipation and voltage drop over wire runs, evaluate wire gauge (AWG) ampacity limits, and explain transistor switching and USB-PD power negotiation.</p>
-
-<h3>Mental model</h3>
-
-<pre>
-Power Delivery &amp; Voltage Drop:
-  [ Power Supply (12.0 V) ] ===( R_wire )===&gt; [ High-Current Load (GPU/CPU) ]
-           |                                                 |
-           +&lt;================( R_return )====================+
-  Total Loop Resistance = R_wire + R_return
-  Voltage at Load = 12.0 V - (Current * Total_Resistance)
-  Heat Dissipated in Cable = Current^2 * Total_Resistance
-
-Transistor (MOSFET) Electronic Switch:
-  Gate (Voltage Control) ---+
-                            | (Electric field opens channel)
-  Drain (Input Current) ===[ ]===&gt; Source (Output Current)
-</pre>
-
-<p>When an electrical circuit delivers power, every real-world conductor has a small non-zero resistance. Electrical power ($P$) is the rate at which energy is delivered or converted into heat, measured in <strong>watts</strong> (W):</p>
-
-<pre data-risk="read-only">
-Power = Voltage * Current    (P = V * I)
-Power = Current^2 * Resistance    (P = I^2 * R)
-</pre>
-
-<p>Because resistive power loss scales with the <em>square</em> of the current ($I^2 R$), doubling the current quadruples the heat generated in the cables. This explains why computers use higher voltages (+12V rather than +5V, or USB-PD at 20V/48V) to power energy-intensive processors and graphics cards: transmitting power at higher voltage requires fewer amperes of current for the same wattage, dramatically reducing cable heating and voltage drop.</p>
-
-<h3>Transistors as electronic switches</h3>
-
-<p>While diodes allow one-way current flow, computers require switches that can be turned on and off by software. The workhorse of all modern computing is the <strong><dfn><a href="learn/glossary/transistor.html">transistor</a></dfn></strong>, specifically the Metal-Oxide-Semiconductor Field-Effect Transistor (MOSFET):</p>
-
-<ul>
-<li><strong>Terminals:</strong> A MOSFET has three active terminals &mdash; the <strong>Gate</strong> (control), the <strong>Source</strong> (current entry), and the <strong>Drain</strong> (current exit).</li>
-<li><strong>Operation:</strong> The Gate is separated from the silicon channel by a microscopic layer of insulating glass (silicon dioxide). When a control voltage is applied to the Gate, an electric field penetrates the insulator, pulling electrons into the channel and opening a conductive path between Source and Drain. When gate voltage is removed, the channel closes.</li>
-<li><strong>Advantage:</strong> Unlike mechanical relays or switches, a MOSFET has no moving parts, switches in picoseconds, and draws virtually zero continuous current through its insulated Gate terminal.</li>
-</ul>
-
-<h3>Optoelectronic semiconductors: light and electricity</h3>
-
-<p>Semiconductor P-N junctions also bridge electricity with light:</p>
-
-<ul>
-<li><strong>Light Emitting Diodes (LEDs) and Laser Diodes:</strong> When forward-biased, electrons cross the junction and drop into lower-energy holes. In direct-bandgap semiconductors (like Gallium Arsenide), this energy difference is released directly as photons of light. Modulating the forward voltage flashes the laser diode billions of times per second, converting electrical bit streams into optical signals for fiber optic cables.</li>
-<li><strong>Photodiodes:</strong> The reverse process. Incoming light photons strike a reverse-biased P-N junction, knocking electrons out of their valence bonds to create electron-hole pairs. This induces a tiny electrical current proportional to light intensity. A Transimpedance Amplifier (TIA) boosts this current back into standard logic voltages, converting optical signals back into computer data.</li>
-</ul>
-
-<h3>Worked example: inspect USB Power Delivery contracts</h3>
-
-<pre class="session" data-risk="read-only">
-$ lsusb -v -d 1d6b: | grep -A 10 -i "power"
-    bMaxPower               0mA
-    (Bus Powered)
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0039
-    bNumInterfaces          1
-    bConfigurationValue     1
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower              100mA
-</pre>
-
-<p>USB devices negotiate power capabilities with host controllers through descriptor packets before drawing high current.</p>
-
-<h3>Completion task</h3>
-
-<p>Fill in the missing formula variable to calculate voltage drop across a wire of resistance $R$ carrying current $I$ (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-V_drop = ___ * R
-</pre>
-
-<details class="solution">
-<p>Fill in <code>I</code> (or <code>Current</code>). Voltage drop equals current multiplied by the wire resistance (<code>V = I * R</code>). If a 12V graphics card draws 25 amps through a thin cable with 0.04 ohms resistance, the voltage drop is <code>25 * 0.04 = 1.0 V</code>, leaving only 11.0V at the card.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>A computer monitor consumes 65 watts of power. Calculate the current running through a USB-C cable if powered at standard 5V versus negotiated USB-PD at 20V. Explain why 20V is safer for the cable.</p>
-
-<details class="solution">
-<p>Using <code>I = P / V</code>: at 5V, the current is <code>65 / 5 = 13 Amperes</code>. At 20V, the current is <code>65 / 20 = 3.25 Amperes</code>. Running 13 amps through thin USB wires would generate massive resistive heat (<code>I^2 * R</code>), potentially melting the cable insulation or causing a fire. Transmitting at 20V cuts current to 3.25A, reducing cable heat generation by a factor of 16 (<code>13^2 / 3.25^2 = 16</code>).</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Cable / Wire Standard</th><th>Typical Gauge (AWG)</th><th>Maximum Safe Current</th><th>Best Use Case</th></tr>
-<tr><td>Mains Power Cord (C13)</td><td>16 - 18 AWG</td><td>10A - 13A (at 120/240V AC)</td><td>Connecting wall AC outlet to PSU. Thick copper handles high power with negligible voltage loss.</td></tr>
-<tr><td>EPS / PCIe 12V Wires</td><td>16 - 18 AWG</td><td>8A - 10A per pin pair</td><td>Dedicated DC high-current feeds to CPUs and GPUs to minimize voltage drop under heavy compute load.</td></tr>
-<tr><td>SATA / Peripheral DC</td><td>18 - 20 AWG</td><td>4.5A total</td><td>Storage drives with low steady-state power draw (5W - 15W).</td></tr>
-<tr><td>Standard USB 2.0 Cable</td><td>24 - 28 AWG</td><td>0.5A - 1.5A (at 5V)</td><td>Peripherals like keyboards and mice drawing under 5 watts.</td></tr>
-<tr><td>USB-PD 100W/240W Cable</td><td>20 - 22 AWG (VBUS)</td><td>3A - 5A (at up to 48V)</td><td>Laptops, docking stations, and monitors equipped with electronically marked (E-marker) identification chips.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Computer abruptly reboots during 3D gaming or compiling</td><td>12V rail voltage sag under load, tripping motherboard undervoltage protection</td><td>Monitor `sensors` or review journal for kernel MCE/power alerts</td><td>Distribute GPU power across separate PCIe cables rather than daisy-chaining a single split cable</td></tr>
-<tr><td>Melted plastic on high-power GPU connector</td><td>High contact resistance on terminal pins causing severe $I^2 R$ localized heating</td><td>Inspect connector pins for discoloration, carbon buildup, or loose seating</td><td>Replace damaged cable harness and ensure 16-pin 12VHPWR connector is seated completely flush without tight bends</td></tr>
-<tr><td>USB-C laptop charges at very slow rate (e.g. 15W instead of 65W)</td><td>Cable lacks E-marker chip supporting high-wattage USB-PD profiles</td><td>Run `lsusb -v` and check kernel log (`dmesg | grep -i typec`)</td><td>Use a certified 100W/240W USB-C cable with integrated E-marker IC</td></tr>
-<tr><td>USB or serial port dies immediately after a static shock</td><td>Transient Voltage Suppressor (TVS) diode failed shorted to ground after absorbing ESD spike</td><td>Check pin continuity to ground with multimeter</td><td>Desolder shorted TVS diode and replace with matching surface-mount protection pack</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> the power management daemon coordinates with ACPI and the Linux kernel to monitor battery health, thermal margins, and charging profiles. Tamlinux sets CPU governor policies that throttle back clock frequencies if motherboard sensors detect thermal runaway or voltage delivery instability, protecting laptop hardware from battery swelling and circuit stress.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does resistive heating in a computer power cable scale with current squared (<code>I^2</code>) rather than current (<code>I</code>)?</summary>
-<p>Because according to Ohm's law, the voltage drop across the wire is itself proportional to current (<code>V_drop = I * R</code>). Substituting <code>V_drop</code> into the power formula <code>P = V * I</code> yields <code>P = (I * R) * I = I^2 * R</code>. Doubling the current doubles both the flow rate and the voltage drop, quadrupling total heat dissipation.</p>
-</details>
-<details class="q">
-<summary>How does a field-effect transistor (MOSFET) differ from a mechanical electrical switch?</summary>
-<p>A MOSFET switches electronically using an electric field across an insulated gate terminal rather than physically moving metal contacts. It has no moving parts, switches in picoseconds, does not produce mechanical bounce or sparks, and draws virtually zero continuous gate current.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; sysfs(5) power supply class and hardware monitoring interfaces.</li>
-<li><a href="man:upower(1)">upower(1)</a> &mdash; inspect power devices and battery statistics.</li>
-<li><a href="man:sensors(1)">sensors(1)</a> &mdash; query hardware monitoring sensor chips on the motherboard.</li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>Switched-mode power supplies, ground loops, and circuit protection</h2>
 

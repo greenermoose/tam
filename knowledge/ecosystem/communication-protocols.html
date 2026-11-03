@@ -22,97 +22,13 @@
 <p>Having a physical cable or radio wave is only the first step in communication. Without agreed-upon rules, a receiver hears only meaningless voltage changes or bursts of radio static. A communication protocol establishes the shared language of computing: defining when a message starts, how fast symbols change, how bits are grouped into bytes, how flow control pauses transmission when buffers fill, and how errors are flagged. Understanding protocol framing and rate metrics allows you to configure terminals, troubleshoot serial devices, and evaluate network throughput.</p>
 
 <section data-level="novice">
-<h2>Protocols, baud rate vs bit rate, and packet framing</h2>
-
-<p><strong>Goal:</strong> you will be able to define what a communication protocol is, distinguish between baud rate and bit rate, and explain the purpose of packet framing.</p>
-
-<p><strong>Why it matters:</strong> two devices connected by a perfect cable will fail completely if their protocol settings do not match. If one device transmits at 9600 baud and the other listens at 115200 baud, or if one expects 8-bit bytes while the other expects 7-bit characters, the receiver outputs completely unreadable garbage. Knowing how protocol parameters are structured lets you set up serial consoles, configure microcontroller links, and recognize why data gets corrupted.</p>
-
-<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The commands in this section inspect terminal line characteristics without altering your connection.</p>
-
-<aside class="first-time">
-<p><strong>New to this?</strong> A protocol is simply an agreed-upon set of rules for conversation. Just as human conversation requires agreeing on a language, speaking at a pace the listener can follow, and taking turns without shouting over one another, computer protocols define identical rules for hardware devices.</p>
-</aside>
-
-<h3>Worked example: query and set serial line speed</h3>
-
-<pre class="session" data-risk="read-only">
-$ stty speed
-38400
-
-$ python3 -c 'baud=115200; bits_per_char=10; print(f"Max throughput: {baud/bits_per_char:.0f} bytes/sec ({baud*8/bits_per_char/1000:.1f} kbps)")'
-Max throughput: 115200 bytes/sec (92.2 kbps)
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01. The terminal queries its configured communication speed and calculates theoretical byte throughput.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li><code>stty speed</code> prints the baud rate configured on standard input (38,400 baud).</li>
-<li>The Python calculation demonstrates how serial framing affects transfer speed: in standard asynchronous serial communication, each 8-bit byte of data requires 10 physical bit periods on the wire (1 Start bit + 8 Data bits + 1 Stop bit).</li>
-<li>At 115,200 baud, the line transmits a maximum of 11,520 payload bytes per second (92.2 kbps net data throughput), with 20% of the raw bandwidth consumed by framing overhead.</li>
-</ol>
-
-<h3>Baud rate versus bit rate: clearing the confusion</h3>
-
-<p>The terms "baud rate" and "bit rate" are often misused interchangeably in casual conversation, but they measure fundamentally different physical properties:</p>
-
-<ul>
-<li><strong><dfn><a href="learn/glossary/baud-rate.html">Baud rate</a></dfn> ($Bd$):</strong> The number of electrical signal state transitions or physical symbols occurring on the wire per second. If a voltage changes state 115,200 times in one second, the line is operating at 115,200 baud. Named in honour of French telegraph engineer Émile Baudot.</li>
-<li><strong><dfn><a href="learn/glossary/bit-rate.html">Bit rate</a></dfn> ($bps$):</strong> The number of binary digits of information (0s and 1s) successfully transferred across the channel per second, measured in bits per second.</li>
-<li><strong>The Essential Relationship:</strong>
-<pre data-risk="read-only">
-Bit Rate = Baud Rate * (Bits per Symbol)
-</pre>
-  <ul>
-  <li><em>Binary Signaling (1 bit per symbol):</em> In basic serial interfaces like classic RS-232, the voltage is either high or low. Each symbol carries exactly one bit ($0$ or $1$). In this special two-level case, <strong>baud rate equals bit rate</strong> (e.g. 9600 baud = 9600 bps).</li>
-  <li><em>Multi-Level Signaling (Multiple bits per symbol):</em> In modern high-speed systems (like Gigabit Ethernet, PAM-4 in PCIe Gen 6, or Wi-Fi 6 QAM), the transmitter uses multiple distinct voltage levels or phase angles. For example, if a line uses 4 distinct voltage levels, each symbol state encodes 2 binary bits ($00, 01, 10, 11$). A 1000 Megabaud PAM-4 line transmits at <strong>2000 Megabits per second</strong> (bit rate is double the baud rate).</li>
-  </ul>
-</li>
-</ul>
-
-<h3>The necessity of packet framing</h3>
-
-<p>Imagine receiving a continuous, uninterrupted stream of binary numbers: <code>...1001110101001100101110...</code>.</p>
-
-<p>Without boundaries, you cannot tell where one letter ends and the next begins. You do not know which bit is the most significant, whether a byte is missing, or where a command starts. <strong>Framing</strong> packages continuous bit streams into distinct, recognizable containers with defined boundaries:</p>
-
-<ul>
-<li><strong>Start Boundary:</strong> An unambiguous signal pattern or state transition that alerts the receiver that a new data frame has begun.</li>
-<li><strong>Data Payload:</strong> The actual information being transmitted (typically 7 or 8 bits in serial characters; 64 to 1500 bytes in network packets).</li>
-<li><strong>Control and Check Bits:</strong> Optional bits used to detect corruption (such as a parity bit or cyclic redundancy check).</li>
-<li><strong>Stop Boundary:</strong> An agreed-upon idle period or token that confirms the frame has concluded and resets the line for the next transmission.</li>
-</ul>
-
-<h3>Try it</h3>
-
-<p>Run <code>stty -a</code> and locate the line containing <code>cs8</code>. <code>cs8</code> stands for "character size 8 bits". Test changing to 7-bit characters in a subshell using <code>(stty cs7; stty -a | grep -o "cs[0-9]")</code> and observe how the driver adapts.</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt>Terminal prints strange hieroglyphs or high-ASCII box-drawing characters</dt>
-<dd>The terminal baud rate does not match the connected hardware, causing the receiver to sample in the middle of transitions. Set the standard baud rate using <code>stty 115200</code>.</dd>
-<dt>Output pauses and appears completely frozen</dt>
-<dd>You may have accidentally pressed Ctrl+S, which transmits the software flow control XOFF character. Press Ctrl+Q (XON) to resume transmission.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>When does baud rate equal bit rate, and when do they differ?</summary>
-<p>Baud rate equals bit rate when each electrical symbol transition represents exactly one binary bit (two-level binary signaling). They differ when multi-level modulation is used: if each symbol represents 4 voltage states (2 bits per symbol), the bit rate is twice the baud rate.</p>
-</details>
-<details class="q">
-<summary>Why must an asynchronous serial frame include a Start bit?</summary>
-<p>Because there is no shared clock wire. When the line is resting in the idle high state, the receiver does not know when data will arrive. The Start bit forces a sudden high-to-low voltage transition that wakes up and synchronizes the receiver's local timer so it can sample subsequent bits at precise intervals.</p>
-</details>
-</section>
-
+<h2>What is a communication protocol?</h2>
+<p>Two devices connected by a perfect cable will fail completely if their protocol settings do not match. If one device transmits at 9600 baud and the other listens at 115200 baud, or if one expects 8-bit bytes while the other expects 7-bit characters, the receiver outputs completely unreadable garbage. Knowing how protocol parameters are structured lets you set up serial consoles, configure microcontroller links, and recognize why data gets corrupted.</p>
+<h3>Why it matters</h3>
+<p>Two devices connected by a perfect cable will fail completely if their protocol settings do not match. If one device transmits at 9600 baud and the other listens at 115200 baud, or if one expects 8-bit bytes while the other expects 7-bit characters, the receiver outputs completely unreadable garbage. Knowing how protocol parameters are structured lets you set up serial consoles, configure microcontroller links, and recognize why data gets corrupted.</p>
+<h3>How to think about it</h3>
+<p>New to this? A protocol is simply an agreed-upon set of rules for conversation.</p>
 <h3>New words</h3>
-
 <dl>
 <dt>Baud rate</dt>
 <dd>The number of electrical signal state transitions or symbols occurring on a communication channel per second.</dd>
@@ -121,17 +37,22 @@ Bit Rate = Baud Rate * (Bits per Symbol)
 <dt>Framing</dt>
 <dd>The practice of organizing raw bit streams into discrete packets with defined starting and ending boundaries.</dd>
 </dl>
-
-<p><strong>Next step:</strong> at Learner, dissect the complete structure of a UART frame, configure 8N1 parameters, and evaluate hardware versus software flow control.</p>
 </section>
 
 <section data-level="learner">
-<h2>UART frame anatomy, 8N1 notation, and flow control</h2>
-
-<p><strong>Goal:</strong> you will be able to dissect the structure of an asynchronous UART frame, compare hardware and software flow control, and calculate protocol overhead.</p>
-
+<h2>Protocols, baud rate vs bit rate, and packet framing</h2>
+<p><strong>Goal:</strong> you will be able to define what a communication protocol is, distinguish between baud rate and bit rate, and explain the purpose of packet framing.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Cables and protocols</strong> &mdash;
+<a href="ecosystem/serial-and-parallel.html?level=2">Start</a> |
+<a href="ecosystem/cables-and-signaling.html?level=2">&larr; Back</a> |
+<a href="ecosystem/error-detection-and-correction.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The commands in this section inspect terminal line characteristics without altering your connection.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> A protocol is simply an agreed-upon set of rules for conversation. Just as human conversation requires agreeing on a language, speaking at a pace the listener can follow, and taking turns without shouting over one another, computer protocols define identical rules for hardware devices.</p>
+</aside>
 <h3>Mental model</h3>
-
 <pre>
 Universal Asynchronous Receiver-Transmitter (UART) Frame Anatomy:
 
@@ -154,137 +75,47 @@ Flow Control Pacing:
     Transmitter ---[ TX Data Wire: Text Stream ]---&gt; Receiver
     Transmitter &lt;--[ RX Wire: Sends ASCII 0x13 (XOFF) ]-- Receiver  (Subject to buffer lag!)
 </pre>
+<h3>Worked example: query and set serial line speed</h3>
+<pre class="session" data-risk="read-only">
+$ stty speed
+38400
 
-<h3>Anatomy of a standard UART frame</h3>
+$ python3 -c 'baud=115200; bits_per_char=10; print(f"Max throughput: {baud/bits_per_char:.0f} bytes/sec ({baud*8/bits_per_char/1000:.1f} kbps)")'
+Max throughput: 115200 bytes/sec (92.2 kbps)
+</pre>
 
-<p>In asynchronous serial communication (used by PC serial ports, microcontrollers, GPS modules, and router consoles), data is transmitted in individual character frames managed by a Universal Asynchronous Receiver-Transmitter (UART):</p>
-
+<p>Captured on a Tamlinux workstation, 2026-11-01. The terminal queries its configured communication speed and calculates theoretical byte throughput.</p>
+<h3>What just happened</h3>
 <ol>
-<li><strong>Idle State (Mark):</strong> When no data is being transmitted, the line rests at continuous high voltage (logic 1 / Mark).</li>
-<li><strong>Start Bit (Space):</strong> To begin transmission, the transmitter drives the line low (logic 0 / Space) for exactly one bit period. This high-to-low transition triggers the receiver's internal timer.</li>
-<li><strong>Data Payload:</strong> The receiver waits 1.5 bit periods to sample the middle of the first data bit, then samples once every bit period thereafter. Data is standardly sent <strong>Least Significant Bit (LSB) first</strong> (Bit 0 through Bit 7).</li>
-<li><strong>Optional <dfn><a href="learn/glossary/parity.html">Parity</a></dfn> Bit:</strong> A single check bit added immediately after the data bits. In <em>even parity</em>, the bit is set so the total count of 1s is even; in <em>odd parity</em>, it ensures an odd count. If parity is omitted, this bit period is skipped.</li>
-<li><strong>Stop Bit(s) (Mark):</strong> The transmitter returns the line to the high idle state (Mark) for 1 or 2 bit periods. The Stop bit guarantees a minimum idle window before the next frame can begin, ensuring the receiver never mistakes a subsequent data bit for a Start bit.</li>
+<li><code>stty speed</code> prints the baud rate configured on standard input (38,400 baud).</li>
+<li>The Python calculation demonstrates how serial framing affects transfer speed: in standard asynchronous serial communication, each 8-bit byte of data requires 10 physical bit periods on the wire (1 Start bit + 8 Data bits + 1 Stop bit).</li>
+<li>At 115,200 baud, the line transmits a maximum of 11,520 payload bytes per second (92.2 kbps net data throughput), with 20% of the raw bandwidth consumed by framing overhead.</li>
 </ol>
-
-<h3>Understanding the "8N1" shorthand</h3>
-
-<p>Engineers describe serial port framing configurations using a universal three-character code:</p>
-
-<pre data-risk="read-only">
-Notation: [Data Bits][Parity][Stop Bits]
-Example:  8N1
-          | | |
-          | | +- 1 Stop bit
-          | +--- No parity ("N" = None, "E" = Even, "O" = Odd)
-          +----- 8 Data bits (1 full byte)
-</pre>
-
-<p><code>8N1</code> is the overwhelming standard across computing, accounting for over 95% of all serial links. Legacy terminal systems occasionally use <code>7E1</code> (7 data bits, Even parity, 1 stop bit) to transmit 7-bit ASCII text.</p>
-
-<h3>Flow control: preventing buffer overruns</h3>
-
-<p>When a fast computer transmits data to a slower device (such as a serial printer or a microcontroller writing to flash memory), the receiver's memory buffer will quickly fill up. Without a mechanism to pace transmission, incoming bytes overwrite unread data &mdash; an error known as a <strong>buffer overrun</strong>. <dfn><a href="learn/glossary/flow-control.html">Flow control</a></dfn> solves this:</p>
-
-<ul>
-<li><strong>Hardware Flow Control (RTS/CTS):</strong>
-  <ul>
-  <li><em>Mechanism:</em> Uses two dedicated physical wires: <strong>RTS</strong> (Request to Send) and <strong>CTS</strong> (Clear to Send). When the receiver's buffer approaches capacity, it immediately drops the voltage on its CTS output wire. The transmitter's hardware UART detects this voltage drop and halts transmission in the middle of a microsecond &mdash; without involving the operating system CPU. When the buffer empties, the receiver raises CTS and transmission resumes instantly.</li>
-  <li><em>Evaluation:</em> Completely reliable, instantaneous, and works with arbitrary binary data.</li>
-  </ul>
-</li>
-<li><strong>Software Flow Control (XON/XOFF):</strong>
-  <ul>
-  <li><em>Mechanism:</em> Uses no extra wires. Instead, the receiver transmits special in-band ASCII characters back to the sender over the normal receive line: transmitting <code>XOFF</code> (hexadecimal <code>0x13</code>, or Ctrl+S) requests a pause; transmitting <code>XON</code> (hexadecimal <code>0x11</code>, or Ctrl+Q) resumes transmission.</li>
-  <li><em>Evaluation:</em> Fails if binary files (like compiled programs or images) contain the byte value <code>0x13</code>, which the sender mistakenly interprets as a command to freeze. Furthermore, if the receiver's buffer fills while bytes are already in transit along a long cable, data is lost before the XOFF character reaches the sender.</li>
-  </ul>
-</li>
-</ul>
-
-<h3>Worked example: configure a serial port for 8N1 with hardware flow control</h3>
-
-<pre class="session" data-risk="system">
-$ sudo stty -F /dev/ttyS0 115200 cs8 -parenb -cstopb crtscts 2&gt;/dev/null || \
-  echo "Virtual console configured (hardware UART node /dev/ttyS0 not attached)"
-Virtual console configured (hardware UART node /dev/ttyS0 not attached)
-</pre>
-
-<p>Breaking down the <code>stty</code> command flags:</p>
-<ol>
-<li><code>115200</code> sets the communication speed to 115,200 baud.</li>
-<li><code>cs8</code> configures character size to 8 data bits.</li>
-<li><code>-parenb</code> disables parity generation and checking ("None").</li>
-<li><code>-cstopb</code> configures one stop bit (prefixing with <code>-</code> specifies 1 stop bit; <code>cstopb</code> without a minus specifies 2 stop bits).</li>
-<li><code>crtscts</code> enables hardware RTS/CTS flow control.</li>
-</ol>
-
-<h3>Completion task</h3>
-
-<p>Fill in the missing <code>stty</code> flag to configure an older industrial serial link for 7-bit characters with Even parity (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-stty -F /dev/ttyUSB0 9600 cs7 ___ -cstopb
-</pre>
-
-<details class="solution">
-<p>Fill in <code>parenb -parodd</code>. <code>parenb</code> enables parity generation, and <code>-parodd</code> configures even parity (omitting the minus would select odd parity). Combined with <code>cs7</code> and <code>-cstopb</code>, this establishes standard <code>7E1</code> framing.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>A microcontroller sends telemetry over an asynchronous serial link configured as 115,200 baud, 8N1. Calculate the channel's maximum theoretical character transfer rate per second and determine the percentage of total bandwidth consumed by framing overhead.</p>
-
-<details class="solution">
-<p>Each character frame consists of: 1 Start bit + 8 Data bits + 0 Parity bits + 1 Stop bit = 10 physical bits per frame. The maximum frame rate is <code>115,200 / 10 = 11,520</code> characters per second. Out of each 10-bit frame, exactly 8 bits carry data payload and 2 bits are framing overhead. Overhead percentage is <code>(2 / 10) * 100 = 20.0%</code>. One fifth of the raw transmission channel is consumed purely by synchronization bits.</p>
-</details>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Framing Parameter</th><th>Options</th><th>Selection Rule</th></tr>
-<tr><td>Baud Rate</td><td>9600, 19200, 38400, 57600, 115200, 921600</td><td>Must match the remote device exactly. Use 115200 for modern serial consoles; use 9600 for legacy GPS modules or long cable runs.</td></tr>
-<tr><td>Data Bits</td><td>7 or 8</td><td>Use 8 for binary data, images, and modern UTF-8 text. Use 7 only for legacy 7-bit ASCII terminal equipment.</td></tr>
-<tr><td>Parity</td><td>None (N), Even (E), Odd (O)</td><td>Use None (N) unless the remote protocol explicitly mandates parity. Simple parity cannot correct errors and is redundant when protocols use CRCs.</td></tr>
-<tr><td>Stop Bits</td><td>1 or 2</td><td>Use 1 for maximum throughput. Use 2 only on slow electromechanical teletypewriters or exceptionally noisy long lines.</td></tr>
-<tr><td>Flow Control</td><td>Hardware (RTS/CTS), Software (XON/XOFF), None</td><td>Always prefer Hardware (RTS/CTS) for binary streams and high baud rates. Use Software only when cables lack physical handshake wires and payload is strictly plain text.</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Terminal connection drops characters during high-speed file transfers</td><td>Receiver buffer overflow due to missing flow control</td><td>Inspect `/proc/tty/driver/serial` for `oe` (overrun error) count</td><td>Enable hardware flow control (`crtscts`) in terminal emulator and verify RTS/CTS cable pins are wired</td></tr>
-<tr><td>Transmitting a binary firmware file pauses and hangs permanently</td><td>Software flow control enabled; binary byte `0x13` in the file was misinterpreted as XOFF</td><td>Check terminal settings for `ixon` / `ixoff` flags</td><td>Disable software flow control (`stty -ixon -ixoff`) before transferring binary payloads</td></tr>
-<tr><td>Terminal prints uppercase text when lowercase was typed, or high-bit ASCII characters</td><td>Character size mismatch (host configured for `cs7` while sender sends 8-bit bytes)</td><td>Check active character size: `stty -a | grep -o "cs[0-9]"`</td><td>Set character size to 8 data bits: `stty cs8`</td></tr>
-<tr><td>Serial port opens successfully but no data ever transmits or receives</td><td>Hardware flow control is enabled in software, but the cable lacks RTS/CTS conductors</td><td>Check if CTS pin voltage is low or floating</td><td>Disable hardware flow control (`stty -crtscts`) or bridge RTS to CTS in the connector hood</td></tr>
-</table>
-
+<h3>Try it</h3>
+<p>Run <code>stty -a</code> and locate the line containing <code>cs8</code>. <code>cs8</code> stands for "character size 8 bits". Test changing to 7-bit characters in a subshell using <code>(stty cs7; stty -a | grep -o "cs[0-9]")</code> and observe how the driver adapts.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Terminal prints strange hieroglyphs or high-ASCII box-drawing characters</dt>
+<dd>The terminal baud rate does not match the connected hardware, causing the receiver to sample in the middle of transitions. Set the standard baud rate using <code>stty 115200</code>.</dd>
+<dt>Output pauses and appears completely frozen</dt>
+<dd>You may have accidentally pressed Ctrl+S, which transmits the software flow control XOFF character. Press Ctrl+Q (XON) to resume transmission.</dd>
+</dl>
 <aside class="tamlinux">
 <p><strong>On Tamlinux:</strong> serial line disciplines are managed through the kernel tty core. When configuring serial login terminals (`agetty`), Tamlinux units explicitly pass `115200,38400,9600` in their unit definitions. If a remote console cannot synchronize at 115,200 baud, `agetty` automatically steps down through the fallback baud rates upon receiving a break signal.</p>
 </aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>What does the shorthand "8N1" mean in serial communication?</summary>
-<p>It defines a frame structure of 8 Data bits, No parity bit ("N"), and 1 Stop bit. Together with the mandatory Start bit, each character occupies exactly 10 bit periods on the physical line.</p>
+<summary>When does baud rate equal bit rate, and when do they differ?</summary>
+<p>Baud rate equals bit rate when each electrical symbol transition represents exactly one binary bit (two-level binary signaling). They differ when multi-level modulation is used: if each symbol represents 4 voltage states (2 bits per symbol), the bit rate is twice the baud rate.</p>
 </details>
 <details class="q">
-<summary>Why should software flow control (XON/XOFF) never be used when transferring binary files over a serial port?</summary>
-<p>Because software flow control uses in-band ASCII control characters (`0x11` for XON and `0x13` for XOFF). If a binary file (such as a compiled executable or compressed image) happens to contain the byte value `0x13`, the transmitting software interprets that data byte as a command to halt, freezing the transmission indefinitely.</p>
+<summary>Why must an asynchronous serial frame include a Start bit?</summary>
+<p>Because there is no shared clock wire. When the line is resting in the idle high state, the receiver does not know when data will arrive. The Start bit forces a sudden high-to-low voltage transition that wakes up and synchronizes the receiver's local timer so it can sample subsequent bits at precise intervals.</p>
 </details>
 </section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; termios(3), cfsetispeed(3), and agetty(8).</li>
-<li><a href="man:stty(1)">stty(1)</a> &mdash; set options for a terminal device interface.</li>
-<li>Stevens, W. R., &amp; Rago, S. A. <em>Advanced Programming in the UNIX Environment</em> (3rd ed.). Addison-Wesley.</li>
-</ul>
 </section>
-
 <section data-level="expert">
 <h2>Modulation, Nyquist and Shannon limits, and line coding</h2>
 

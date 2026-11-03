@@ -1235,3 +1235,6 @@ resolve superseded schedules. Do not execute a former plan from this history.
   through `checkpoint`); register three paths and expand hard-enforcement.
 - **2026-11-02:** Corpus 0.67.0 (minor): Migrate Improving track plus
   `hardware/resources`; register Run lean and Improve your tools paths.
+- **2026-11-02:** Corpus 0.68.0 (minor): Migrate five ecosystem goal paths
+  (atoms→bits, gates→machine, cables/protocols, display/GPU, how software
+  runs); twenty pages.

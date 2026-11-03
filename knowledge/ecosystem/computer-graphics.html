@@ -22,75 +22,13 @@
 <p>At its heart, computer graphics bridges abstract mathematical models and physical light emitted by a monitor. Whether rendering a terminal window, a vector font, or a three-dimensional landscape, the computer converts visual descriptions into numbers stored in memory. Understanding this rendering pipeline reveals how pixels are formed, why framebuffers are fundamental, and how modern graphics software coordinates with hardware accelerators.</p>
 
 <section data-level="novice">
-<h2>Pixels, screen resolution, and framebuffers</h2>
-
-<p><strong>Goal:</strong> you will be able to explain what a pixel is, identify your screen resolution and color depth, and inspect your system framebuffer using read-only terminal commands.</p>
-
-<p><strong>Why it matters:</strong> every visual element on your screen&mdash;every character of text, window border, and icon&mdash;is composed of thousands or millions of tiny, colored dots called pixels. When an image appears blurry, when a game stutters, or when a display looks stretched, the issue often traces back to how pixels and memory resolutions are configured. Knowing how your computer stores pixel data helps you troubleshoot display glitches and configure desktop scaling properly.</p>
-
-<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). All commands in this section only read system information and make no changes to your computer.</p>
-
-<aside class="first-time">
-<p><strong>New to this?</strong> The <code>$</code> character represents your command-line prompt. Type only the words that follow the prompt and press Enter. If a path begins with <code>/sys/</code>, it refers to a virtual filesystem where the Linux kernel presents hardware details as readable text files.</p>
-</aside>
-
-<h3>Worked example: query screen resolution and framebuffer parameters</h3>
-
-<pre class="session" data-risk="read-only">
-$ cat /sys/class/graphics/fb0/virtual_size
-1920,1080
-
-$ cat /sys/class/graphics/fb0/bits_per_pixel
-32
-
-$ cat /sys/class/graphics/fb0/name
-amdgpudrmfb
-</pre>
-
-<p>Captured on a Tamlinux workstation, 2026-11-01. Your screen resolution and graphics driver name will reflect your specific hardware.</p>
-
-<h3>What just happened</h3>
-
-<ol>
-<li><code>virtual_size</code> reports the dimensions of the active framebuffer: 1920 horizontal pixels by 1080 vertical pixels (standard Full HD resolution).</li>
-<li><code>bits_per_pixel</code> shows that the system allocates 32 bits (4 bytes) of memory for each pixel on the screen: 8 bits for Red, 8 bits for Green, 8 bits for Blue, and 8 bits reserved for transparency (Alpha) or memory alignment.</li>
-<li><code>name</code> identifies the kernel framebuffer driver managing this surface: <code>amdgpudrmfb</code>, the Linux Direct Rendering Manager framebuffer for AMD graphics hardware.</li>
-</ol>
-
-<p>A pixel (short for &ldquo;picture element&rdquo;) is the smallest addressable unit of color on a digital display. A <dfn><a href="learn/glossary/framebuffer.html">framebuffer</a></dfn> is the designated chunk of memory holding the color values for all pixels. For a 1920 &times; 1080 screen using 32-bit color, the framebuffer requires exactly 1920 &times; 1080 &times; 4 bytes = 8,294,400 bytes (approximately 8 megabytes) of memory for a single complete image.</p>
-
-<h3>Try it</h3>
-
-<p>Calculate the memory footprint of your display. Multiply your screen width by its height, then multiply by the bytes per pixel (typically 4 for 32-bit color). Divide by 1,048,576 to find the size in megabytes (MB).</p>
-
-<h3>If it goes wrong</h3>
-
-<dl>
-<dt><code>/sys/class/graphics/fb0: No such file or directory</code></dt>
-<dd>Your system may be running a pure DRM/KMS kernel driver without legacy fbdev emulation enabled. Check display outputs directly with <code>ls -l /sys/class/drm/</code>.</dd>
-<dt>Resolution appears smaller than your monitor</dt>
-<dd>The display may be running in a fallback low-resolution mode or using desktop scaling. Check compositor status with <code>wlr-randr</code> or <code>hyprctl monitors</code>.</dd>
-</dl>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>What is the difference between a pixel and a framebuffer?</summary>
-<p>A pixel is an individual dot of light on the physical screen (or a single color coordinate). A framebuffer is the region of computer memory that holds the numerical color values for every pixel on the entire screen.</p>
-</details>
-<details class="q">
-<summary>How many distinct colors can a 24-bit TrueColor pixel represent?</summary>
-<p>With 8 bits for Red, 8 bits for Green, and 8 bits for Blue, each primary channel has 256 possible intensity levels (2 to the 8th power). Multiplying 256 &times; 256 &times; 256 yields 16,777,216 distinct possible colors.</p>
-</details>
-<details class="q">
-<summary>Why does a 32-bit color mode use 4 bytes per pixel if human eyes only see red, green, and blue light?</summary>
-<p>The extra 8 bits either store an Alpha (transparency) channel for window blending, or act as padding so that each pixel aligns to a natural 32-bit memory boundary, allowing CPU and memory controllers to transfer pixels faster.</p>
-</details>
-</section>
-
+<h2>What is computer graphics?</h2>
+<p>Every visual element on your screen&mdash;every character of text, window border, and icon&mdash;is composed of thousands or millions of tiny, colored dots called pixels. When an image appears blurry, when a game stutters, or when a display looks stretched, the issue often traces back to how pixels and memory resolutions are configured. Knowing how your computer stores pixel data helps you troubleshoot display glitches and configure desktop scaling properly.</p>
+<h3>Why it matters</h3>
+<p>Every visual element on your screen&mdash;every character of text, window border, and icon&mdash;is composed of thousands or millions of tiny, colored dots called pixels. When an image appears blurry, when a game stutters, or when a display looks stretched, the issue often traces back to how pixels and memory resolutions are configured. Knowing how your computer stores pixel data helps you troubleshoot display glitches and configure desktop scaling properly.</p>
+<h3>How to think about it</h3>
+<p>New to this? The $ character represents your command-line prompt.</p>
 <h3>New words</h3>
-
 <dl>
 <dt>Pixel</dt>
 <dd>The smallest indivisible element of a digital image or display, combining red, green, and blue light.</dd>
@@ -101,17 +39,22 @@ amdgpudrmfb
 <dt>Color depth</dt>
 <dd>The number of bits dedicated to representing the color of a single pixel (such as 8-bit, 24-bit, or 32-bit).</dd>
 </dl>
-
-<p><strong>Next step:</strong> at Learner, learn how images are transformed from geometric vectors to rasters, trace the 3D graphics rendering pipeline, and understand hardware acceleration.</p>
 </section>
 
 <section data-level="learner">
-<h2>Rasterization, 3D pipelines, and hardware acceleration</h2>
-
-<p><strong>Goal:</strong> you will be able to distinguish vector from raster graphics, trace the primary stages of the graphics rendering pipeline, and verify whether graphics acceleration is active on your workstation.</p>
-
+<h2>Pixels, screen resolution, and framebuffers</h2>
+<p><strong>Goal:</strong> you will be able to explain what a pixel is, identify your screen resolution and color depth, and inspect your system framebuffer using read-only terminal commands.</p>
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Display and GPU</strong> &mdash;
+<a href="ecosystem/computer-graphics.html?level=2">Start</a> |
+<a href="ecosystem/computer-graphics.html?level=2">&larr; Back</a> |
+<a href="ecosystem/gpu-architecture.html?level=2">Next &rarr;</a></p>
+</nav>
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). All commands in this section only read system information and make no changes to your computer.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> The <code>$</code> character represents your command-line prompt. Type only the words that follow the prompt and press Enter. If a path begins with <code>/sys/</code>, it refers to a virtual filesystem where the Linux kernel presents hardware details as readable text files.</p>
+</aside>
 <h3>Mental model</h3>
-
 <pre>
 Geometric Primitives (Vertices, Lines, Triangles in 3D Space)
                         │
@@ -145,99 +88,56 @@ Geometric Primitives (Vertices, Lines, Triangles in 3D Space)
 </pre>
 
 <p>Computer graphics fall into two fundamental paradigms: <strong>vector graphics</strong> and <strong>raster graphics</strong>. Vector graphics represent images mathematically using geometric formulas (coordinates, lines, curves, and fills), as seen in SVG files, PostScript printers, and TrueType fonts. Raster graphics represent images as explicit matrices of colored pixels, as seen in PNGs, JPEGs, and the final monitor image. The bridge between the two is <dfn><a href="learn/glossary/rasterization.html">rasterization</a></dfn>: evaluating which pixels belong inside each geometric shape.</p>
-
-<h3>Worked example: verify hardware acceleration on Tamlinux</h3>
-
+<h3>Worked example: query screen resolution and framebuffer parameters</h3>
 <pre class="session" data-risk="read-only">
-$ glxinfo -B | grep -E "Device|OpenGL renderer|OpenGL core profile version"
-    Device: AMD Radeon Graphics (radeonsi, renoir, LLVM 18.1.8, DRM 3.57, 6.6.58-1-lts)
-    OpenGL renderer string: AMD Radeon Graphics (radeonsi, renoir, LLVM 18.1.8, DRM 3.57, 6.6.58-1-lts)
-    OpenGL core profile version string: 4.6 (Core Profile) Mesa 24.2.5
+$ cat /sys/class/graphics/fb0/virtual_size
+1920,1080
+
+$ cat /sys/class/graphics/fb0/bits_per_pixel
+32
+
+$ cat /sys/class/graphics/fb0/name
+amdgpudrmfb
 </pre>
 
+<p>Captured on a Tamlinux workstation, 2026-11-01. Your screen resolution and graphics driver name will reflect your specific hardware.</p>
+<h3>What just happened</h3>
 <ol>
-<li><code>Device</code> confirms that an AMD Radeon graphics processor is handling drawing tasks directly in hardware.</li>
-<li><code>OpenGL renderer string</code> shows that Mesa (the open-source graphics library) is using the hardware-accelerated <code>radeonsi</code> driver rather than a slow CPU software emulator.</li>
-<li><code>OpenGL core profile version string</code> confirms support for modern OpenGL 4.6 features.</li>
+<li><code>virtual_size</code> reports the dimensions of the active framebuffer: 1920 horizontal pixels by 1080 vertical pixels (standard Full HD resolution).</li>
+<li><code>bits_per_pixel</code> shows that the system allocates 32 bits (4 bytes) of memory for each pixel on the screen: 8 bits for Red, 8 bits for Green, 8 bits for Blue, and 8 bits reserved for transparency (Alpha) or memory alignment.</li>
+<li><code>name</code> identifies the kernel framebuffer driver managing this surface: <code>amdgpudrmfb</code>, the Linux Direct Rendering Manager framebuffer for AMD graphics hardware.</li>
 </ol>
 
-<h3>Completion task</h3>
-
-<p>Fill in the blank to check whether the software-only CPU rasterizer (<code>llvmpipe</code>) is currently active instead of a hardware graphics processor:</p>
-
-<pre data-risk="read-only">
-glxinfo -B | grep -i "________"
-</pre>
-
-<details class="solution">
-<p>Fill in <code>llvmpipe</code> (or <code>software</code>):</p>
-<pre data-risk="read-only">
-glxinfo -B | grep -i "llvmpipe"
-</pre>
-<p>If <code>llvmpipe</code> appears in the renderer string, hardware acceleration is missing or disabled, and your CPU is doing all graphics calculations in software.</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>Use <code>vulkaninfo --summary</code> to inspect available Vulkan physical devices. Determine whether your system supports hardware ray tracing or mesh shading extensions, and note which driver layer is loaded.</p>
-
-<details class="solution">
-<pre class="session" data-risk="read-only">
-$ vulkaninfo --summary | grep -E "deviceName|driverName"
-	deviceName        = AMD Radeon Graphics (RADV RENOIR)
-	driverName        = radv
-</pre>
-<p>The output confirms that the open-source Mesa RADV Vulkan driver is active for your hardware device.</p>
-</details>
-
-<h3>Choosing: Vector versus Raster representations</h3>
-
-<table>
-<tr><th>Feature</th><th>Vector Graphics</th><th>Raster Graphics</th></tr>
-<tr><td>Storage method</td><td>Mathematical primitives (lines, arcs, polygons)</td><td>2D array of discrete pixel color values</td></tr>
-<tr><td>Scaling behavior</td><td>Infinitely scalable with zero quality loss</td><td>Pixelates or blurs when magnified past native resolution</td></tr>
-<tr><td>File size</td><td>Proportional to geometric complexity</td><td>Proportional to resolution and color depth</td></tr>
-<tr><td>Common formats</td><td>SVG, EPS, PDF, TTF, OTF</td><td>PNG, JPEG, WebP, GIF, BMP</td></tr>
-<tr><td>Primary desktop role</td><td>User interface icons, typography, window borders</td><td>Wallpapers, photographs, video playback, rendered frames</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Likely cause</th><th>Check</th><th>Fix</th></tr>
-<tr><td>Desktop animations stutter; high CPU load during window moves</td><td>Compositor fell back to CPU software rendering (llvmpipe or pixman)</td><td><code>glxinfo -B | grep -i renderer</code></td><td>Verify GPU kernel module is loaded (e.g., <code>amdgpu</code>, <code>i915</code>) and install matching Mesa drivers</td></tr>
-<tr><td>Diagonal lines appear jagged (&ldquo;stair-stepping&rdquo;)</td><td>Spatial aliasing due to discrete pixel sampling without smoothing</td><td>Inspect application anti-aliasing settings</td><td>Enable multi-sample anti-aliasing (MSAA) or subpixel font rendering</td></tr>
-<tr><td>Horizontal tear lines appear across moving windows or video</td><td>Buffer swap occurs mid-scanout without Vertical Synchronization (V-Sync)</td><td>Check Wayland compositor logs or DRM pageflip status</td><td>Ensure DRM atomic modesetting is active; Wayland compositors eliminate tearing by default</td></tr>
-</table>
-
+<p>A pixel (short for &ldquo;picture element&rdquo;) is the smallest addressable unit of color on a digital display. A <dfn><a href="learn/glossary/framebuffer.html">framebuffer</a></dfn> is the designated chunk of memory holding the color values for all pixels. For a 1920 &times; 1080 screen using 32-bit color, the framebuffer requires exactly 1920 &times; 1080 &times; 4 bytes = 8,294,400 bytes (approximately 8 megabytes) of memory for a single complete image.</p>
+<h3>Try it</h3>
+<p>Calculate the memory footprint of your display. Multiply your screen width by its height, then multiply by the bytes per pixel (typically 4 for 32-bit color). Divide by 1,048,576 to find the size in megabytes (MB).</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>/sys/class/graphics/fb0: No such file or directory</code></dt>
+<dd>Your system may be running a pure DRM/KMS kernel driver without legacy fbdev emulation enabled. Check display outputs directly with <code>ls -l /sys/class/drm/</code>.</dd>
+<dt>Resolution appears smaller than your monitor</dt>
+<dd>The display may be running in a fallback low-resolution mode or using desktop scaling. Check compositor status with <code>wlr-randr</code> or <code>hyprctl monitors</code>.</dd>
+</dl>
 <aside class="tamlinux">
 <p><strong>On Tamlinux:</strong> the desktop relies on the Wayland protocol, which guarantees tear-free rendering by requiring clients to commit complete frame buffers before the compositor presents them to the display hardware. For older machines lacking hardware 3D support, wlroots compositors can render on the CPU using <code>pixman</code> (<code>WLR_RENDERER=pixman</code>), allowing Tamlinux to run on aging hardware while retaining responsiveness.</p>
 </aside>
-
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why must 3D models made of triangles be rasterized before they can appear on a computer screen?</summary>
-<p>Computer screens are physical matrices of discrete rectangular pixels. Even though a 3D model is defined by continuous mathematical formulas and vertex coordinates in virtual space, the monitor can only display colored dots at fixed grid locations.</p>
+<summary>What is the difference between a pixel and a framebuffer?</summary>
+<p>A pixel is an individual dot of light on the physical screen (or a single color coordinate). A framebuffer is the region of computer memory that holds the numerical color values for every pixel on the entire screen.</p>
 </details>
 <details class="q">
-<summary>What role does the Z-buffer (depth buffer) play in the 3D graphics pipeline?</summary>
-<p>The Z-buffer stores the distance from the camera for every pixel currently drawn. When a new triangle is rasterized, the GPU compares the new pixel&apos;s depth against the stored value; if the new pixel is behind an already drawn object, it is discarded, preventing hidden surfaces from showing through.</p>
+<summary>How many distinct colors can a 24-bit TrueColor pixel represent?</summary>
+<p>With 8 bits for Red, 8 bits for Green, and 8 bits for Blue, each primary channel has 256 possible intensity levels (2 to the 8th power). Multiplying 256 &times; 256 &times; 256 yields 16,777,216 distinct possible colors.</p>
+</details>
+<details class="q">
+<summary>Why does a 32-bit color mode use 4 bytes per pixel if human eyes only see red, green, and blue light?</summary>
+<p>The extra 8 bits either store an Alpha (transparency) channel for window blending, or act as padding so that each pixel aligns to a natural 32-bit memory boundary, allowing CPU and memory controllers to transfer pixels faster.</p>
 </details>
 </section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><cite data-ref="real-time-rendering"><a href="learn/bibliography/real-time-rendering.html">Real-Time Rendering</a></cite> &mdash; the definitive guide to graphics hardware pipelines, shading math, and rasterization algorithms.</li>
-<li><a href="ecosystem/themes.html">Color systems and desktop theming</a> &mdash; learn how color science, sRGB gamma, and WCAG contrast operate on rendered pixels.</li>
-<li><a href="ecosystem/fonts.html">Typography, fonts and text rendering</a> &mdash; explore how vector font glyphs are shaped and rasterized into character bitmaps.</li>
-</ul>
-
-<p><strong>Next step:</strong> at Expert, dissect framebuffer stride calculations, examine modern low-level graphics APIs (Vulkan vs OpenGL), and inspect DRM buffer flipping.</p>
 </section>
-
 <section data-level="expert">
 <h2>Framebuffer memory architecture, double-buffering, and presentation</h2>
 

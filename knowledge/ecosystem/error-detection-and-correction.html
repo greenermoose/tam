@@ -22,20 +22,34 @@
 <p>In a purely theoretical world, a wire conveys 1s and 0s with mathematical perfection. In the physical universe, conductors pass through electromagnetic fields, radio waves encounter atmospheric moisture, and microscopic thermal fluctuations agitate electrons inside semiconductors. Communication engineering assumes that every physical medium is inherently hostile and lossy. By appending structured redundant bits to messages &mdash; ranging from simple parity bits to multi-dimensional Cyclic Redundancy Checks and Forward Error Correction codes &mdash; computers detect errors immediately or reconstruct damaged data in flight without retransmission.</p>
 
 <section data-level="novice">
+<h2>How do systems catch bit errors?</h2>
+<p>Computers control critical real-world systems, from banking transactions and hard drives to automotive brakes and medical monitors. If a cosmic ray, a nearby motor spark, or a loose connector cable causes a <code>0</code> to become a <code>1</code> unnoticed, a monetary transfer of $100 could silently become $10,000, or a machine code instruction could jump into unmapped memory and crash the kernel. Error detection provides the mathematical safety net that protects digital logic from physical reality.</p>
+<h3>Why it matters</h3>
+<p>Computers control critical real-world systems, from banking transactions and hard drives to automotive brakes and medical monitors. If a cosmic ray, a nearby motor spark, or a loose connector cable causes a <code>0</code> to become a <code>1</code> unnoticed, a monetary transfer of $100 could silently become $10,000, or a machine code instruction could jump into unmapped memory and crash the kernel. Error detection provides the mathematical safety net that protects digital logic from physical reality.</p>
+<h3>How to think about it</h3>
+<p>New to this? Think of a parity bit like a quick count verification.</p>
+<h3>New words</h3>
+<ul>
+<li><strong><dfn><a href="learn/glossary/parity.html">Parity</a></dfn>:</strong> An error-detection method where an extra binary bit is added to a data sequence to ensure the total number of set bits (1s) is always even or always odd.</li>
+<li><strong>Bit Flip:</strong> An unintentional change in the state of a digital bit from 0 to 1, or 1 to 0, caused by electromagnetic interference, thermal noise, or voltage fluctuations.</li>
+<li><strong>Payload:</strong> The actual meaningful data being transmitted, excluding synchronization bits, headers, and error check codes.</li>
+</ul>
+</section>
+
+<section data-level="learner">
 <h2>Noise, corrupted bits, and parity verification</h2>
-
 <p><strong>Goal:</strong> you will be able to explain how physical noise flips bits on communication lines, and calculate even and odd parity bits to detect single-bit errors.</p>
-
-<p><strong>Why it matters:</strong> computers control critical real-world systems, from banking transactions and hard drives to automotive brakes and medical monitors. If a cosmic ray, a nearby motor spark, or a loose connector cable causes a <code>0</code> to become a <code>1</code> unnoticed, a monetary transfer of $100 could silently become $10,000, or a machine code instruction could jump into unmapped memory and crash the kernel. Error detection provides the mathematical safety net that protects digital logic from physical reality.</p>
-
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Cables and protocols</strong> &mdash;
+<a href="ecosystem/serial-and-parallel.html?level=2">Start</a> |
+<a href="ecosystem/communication-protocols.html?level=2">&larr; Back</a> |
+<a href="ecosystem/hardware-diagnostics.html?level=2">Next &rarr;</a></p>
+</nav>
 <p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The commands in this section run standard Python one-liners to calculate parity on ASCII text.</p>
-
 <aside class="first-time">
 <p><strong>New to this?</strong> Think of a parity bit like a quick count verification. If you pack a box with three apples and write "odd number of apples" on the outside tape, the recipient opens the box and counts them. If they count four apples (or two), they instantly know something went wrong during shipment, even without knowing which apple was damaged.</p>
 </aside>
-
 <h3>Worked example: calculate even and odd parity for ASCII characters</h3>
-
 <p>In standard 7-bit ASCII, the uppercase letter <code>'A'</code> has binary code <code>1000001</code> (two 1s). The letter <code>'C'</code> has binary code <code>1000011</code> (three 1s). Let us calculate the required parity bit for both:</p>
 
 <pre class="session" data-risk="read-only">
@@ -57,9 +71,7 @@ Char: C | Bits: 1000011 (ones: 3) | Even parity: 1 | Odd parity: 0
 <li><strong>Odd Parity Rule:</strong> The parity bit is chosen so that the total count of 1s is an <strong>odd number</strong>. For <code>'A'</code> (two 1s), parity is <code>1</code> (total becomes 3). For <code>'C'</code> (three 1s), parity is <code>0</code> (total remains 3).</li>
 <li><strong>Receiver Verification:</strong> When the receiver receives the 8 bits, it counts the 1s. If even parity was agreed upon and the count arrives odd, the receiver immediately asserts a <dfn><a href="learn/glossary/parity.html">parity</a></dfn> error flag.</li>
 </ol>
-
 <h3>Try it</h3>
-
 <p>Compute the parity bit for the lowercase character <code>'z'</code> (binary <code>1111010</code>, five 1s) under Even parity. Verify whether an incoming byte with binary <code>11110101</code> passes or fails an Even parity check:</p>
 
 <pre class="session" data-risk="read-only">
@@ -73,22 +85,14 @@ print(f"Calculated parity bit: {even_bit} | Incoming valid under Even Parity: {v
 '
 Calculated parity bit: 1 | Incoming valid under Even Parity: True
 </pre>
-
 <h3>If it goes wrong</h3>
-
 <p>If parity checking fails to catch an error, remember the fundamental limitation of single-bit parity:</p>
 <ul>
 <li><strong>The Double-Bit Blind Spot:</strong> If electrical noise is severe enough to flip <strong>two</strong> bits within the same byte (for example, <code>1000001</code> becomes <code>1000111</code>), the number of 1s increases by two. The total count remains even, and the parity check reports that the corrupted byte is completely valid. Single-bit parity detects all single-bit errors, but fails completely on any even number of bit flips.</li>
 </ul>
-
-<h3>New words</h3>
-
-<ul>
-<li><strong><dfn><a href="learn/glossary/parity.html">Parity</a></dfn>:</strong> An error-detection method where an extra binary bit is added to a data sequence to ensure the total number of set bits (1s) is always even or always odd.</li>
-<li><strong>Bit Flip:</strong> An unintentional change in the state of a digital bit from 0 to 1, or 1 to 0, caused by electromagnetic interference, thermal noise, or voltage fluctuations.</li>
-<li><strong>Payload:</strong> The actual meaningful data being transmitted, excluding synchronization bits, headers, and error check codes.</li>
-</ul>
-
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> Tamlinux integrates end-to-end cryptographic checksumming across its package assembly pipeline. Every binary assembly in <code>tamlinux-packages</code> is signed and verified using SHA-256 digests. At the kernel stream layer, serial consoles configure hardware parity checking through termios flags, and network interfaces offload CRC-32 calculation directly into hardware NIC silicon (checksum offloading).</p>
+</aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
@@ -101,127 +105,7 @@ Calculated parity bit: 1 | Incoming valid under Even Parity: True
 <p>Because flipping two bits either increases the count of 1s by 2, decreases it by 2, or keeps it unchanged (if one 0 becomes 1 and one 1 becomes 0). In all three cases, the even/odd mathematical parity of the total sum remains unchanged, completely fooling the receiver's parity check.</p>
 </details>
 </section>
-
-<h3>Next step</h3>
-
-<p>Single-bit parity is sufficient for low-speed serial links, but high-throughput storage and network packets require robust algorithms. In the next section, you will learn how Cyclic Redundancy Checks (CRCs) catch burst errors and how ARQ protocols retransmit lost packets.</p>
 </section>
-
-<section data-level="learner">
-<h2>Checksums, Cyclic Redundancy Checks (CRC), and ARQ retransmission</h2>
-
-<p><strong>Goal:</strong> you will be able to implement internet checksums, explain polynomial Cyclic Redundancy Checks (CRC-16 and CRC-32), inspect kernel serial error counters, and analyze Automatic Repeat reQuest (ARQ) retransmission mechanisms.</p>
-
-<p><strong>Mental model:</strong> Moving beyond simple parity requires treating data mathematically as long numbers or algebraic polynomials. An Internet Checksum treats data bytes as a series of 16-bit integers and sums them up, appending the inverted total. A <dfn><a href="learn/glossary/crc.html">Cyclic Redundancy Check</a></dfn> goes further: it treats the entire message stream as one giant binary polynomial and divides it by a fixed prime divisor polynomial using modulo-2 arithmetic. The remainder of that division is appended to the packet. If even a single bit or burst of consecutive bits is corrupted along the wire, dividing the received message by the generator polynomial yields a non-zero remainder, instantly exposing the corruption.</p>
-
-<h3>Worked example: compute a CRC-32 checksum in Python</h3>
-
-<p>Modern Ethernet frames, Wi-Fi packets, SATA storage transfers, and PNG image files use <strong>CRC-32</strong> to verify data integrity. The standard IEEE 802.3 generator polynomial produces a 32-bit (4-byte) hexadecimal hash code:</p>
-
-<pre class="session" data-risk="read-only">
-$ python3 -c '
-import zlib
-msg1 = b"Tamlinux serial bus frame 001"
-msg2 = b"Tamlinux serial bus frame 002"  # only one character changed
-crc1 = zlib.crc32(msg1)
-crc2 = zlib.crc32(msg2)
-print(f"Message 1 CRC-32: {crc1:#010x}")
-print(f"Message 2 CRC-32: {crc2:#010x}")
-'
-Message 1 CRC-32: 0x933094c9
-Message 2 CRC-32: 0x072d637b
-</pre>
-
-<p>Notice the <strong>avalanche effect</strong>: altering a single bit in the payload completely scrambles the resulting 32-bit CRC remainder. A receiver recalculating the CRC-32 upon receipt and comparing it against the appended 4 bytes will detect burst errors up to 32 bits long with 100% mathematical certainty, and random errors with a failure rate of less than one in 4.29 billion (<code>1 / 2^32</code>).</p>
-
-<h3>Completion task</h3>
-
-<p>Inspect the kernel's hardware UART driver statistics to identify whether physical lines are experiencing parity errors (<code>pe</code>), framing errors (<code>fe</code>), or buffer overruns (<code>oe</code>). Fill in the missing file path (marked with <code>___</code>):</p>
-
-<pre data-risk="read-only">
-cat /proc/tty/___/serial
-</pre>
-
-<details class="solution">
-<p>Fill in <code>driver</code>. Reading <code>/proc/tty/driver/serial</code> outputs hardware-level driver error counters maintained directly by the Linux 8250/16550 UART driver, showing exact counts for <code>tx</code>, <code>rx</code>, <code>fe</code> (framing error), <code>pe</code> (parity error), <code>brk</code> (break condition), and <code>oe</code> (overrun error).</p>
-</details>
-
-<h3>Independent task</h3>
-
-<p>In a terminal, inspect the active error counters on your system's serial drivers:</p>
-
-<pre class="session" data-risk="read-only">
-$ cat /proc/tty/driver/serial 2&gt;/dev/null || echo "No legacy 8250 UART ports active on this machine"
-No legacy 8250 UART ports active on this machine
-</pre>
-
-<p>Explain the physical difference between an Overrun Error (<code>oe</code>) and a Parity Error (<code>pe</code>). Which one points to a bad cable, and which one points to slow software?</p>
-
-<details class="solution">
-<p>A Parity Error (<code>pe</code>) indicates electrical signal corruption along the physical cable: electrical noise or voltage sag flipped a bit in flight, causing the received parity bit to mismatch the data payload. An Overrun Error (<code>oe</code>) indicates slow software or excessive CPU latency: new character bytes arrived at the hardware UART FIFO buffer before the operating system kernel or user application read the previous bytes, forcing the UART chip to overwrite unread data. Thus, <code>pe</code> indicates cable/signaling failure, while <code>oe</code> indicates buffer starvation or processing bottlenecks.</p>
-</details>
-
-<h3>Automatic Repeat reQuest (ARQ) protocols</h3>
-
-<p>Detecting an error is only half the battle; the communication system must recover from it. Most networks implement <strong>Automatic Repeat reQuest (ARQ)</strong> protocols:</p>
-
-<ol>
-<li><strong>Stop-and-Wait ARQ:</strong> The transmitter sends one packet and pauses. It starts a retransmission timer. The receiver verifies the CRC; if valid, it returns an Acknowledgment (<code>ACK</code>). If corrupted, it returns a Negative Acknowledgment (<code>NAK</code>) or drops the packet. The transmitter sends the next packet only upon receiving the <code>ACK</code>. If the timer expires before an ACK arrives, the transmitter re-sends the packet.
-  <ul>
-  <li><em>Limitation:</em> Massive throughput penalty on long-distance or high-latency links, as the channel sits idle waiting for round-trip travel time.</li>
-  </ul>
-</li>
-<li><strong>Go-Back-N ARQ:</strong> The transmitter uses a sliding window to send multiple packets (e.g. packets 1 through 7) without waiting for individual ACKs. If packet 3 is corrupted and the receiver returns a NAK for 3, the transmitter rewinds and retransmits all packets starting from packet 3 (packets 3, 4, 5, 6, 7), even if packets 4 through 7 were received cleanly.</li>
-<li><strong>Selective Repeat ARQ:</strong> The most efficient sliding window protocol. The receiver buffers subsequent out-of-order packets (4, 5, 6, 7) into a local queue and specifically requests retransmission of <em>only</em> damaged packet 3. The transmitter resends only packet 3, saving enormous bandwidth. Used by TCP and modern Wi-Fi / LTE MAC layers.</li>
-</ol>
-
-<h3>Choosing</h3>
-
-<table>
-<tr><th>Error Scheme</th><th>Mechanism</th><th>Overhead</th><th>Detection Capability</th><th>Best Use Case</th></tr>
-<tr><td>Simple Parity (8E1/8O1)</td><td>1 parity bit per byte</td><td>10% to 12.5%</td><td>Catches all odd-number bit flips; 0% of even bit flips</td><td>Low-speed microcontroller links, RS-232 telemetry</td></tr>
-<tr><td>Internet Checksum (RFC 1071)</td><td>16-bit 1's complement addition</td><td>2 bytes per packet</td><td>Catches all single errors and most burst errors</td><td>IPv4 header, UDP, and TCP layer-3/4 transport validation</td></tr>
-<tr><td>CRC-16 (Modbus/XMODEM)</td><td>16-bit polynomial remainder</td><td>2 bytes per frame</td><td>Catches all single, double, odd errors, and bursts &le; 16 bits</td><td>Industrial RS-485 automation, USB token packets</td></tr>
-<tr><td>CRC-32 (IEEE 802.3)</td><td>32-bit polynomial remainder</td><td>4 bytes per frame</td><td>Catches all bursts &le; 32 bits, 99.99999997% of random errors</td><td>Ethernet, Wi-Fi 802.11, SATA/SAS drives, gzip archives</td></tr>
-<tr><td>Cryptographic Hash (SHA-256)</td><td>Cryptographic one-way hash</td><td>32 bytes per message</td><td>Virtually impossible collision rate; detects intentional tampering</td><td>Tamlinux package signatures, Git commits, TLS security</td></tr>
-</table>
-
-<h3>Troubleshooting</h3>
-
-<table>
-<tr><th>Symptom</th><th>Probable Root Cause</th><th>Diagnostic Check</th><th>Resolution</th></tr>
-<tr><td>Continuous Parity Errors (<code>pe</code>)</td><td>Baud rate drift or severe electrical noise</td><td>Inspect <code>/proc/tty/driver/serial</code>; probe TX line with oscilloscope</td><td>Verify baud rate divisor on both ends; shield cable against motor EMI.</td></tr>
-<tr><td>High Framing Errors (<code>fe</code>)</td><td>Stop bit sampled as zero (baud mismatch)</td><td>Compare <code>stty -F /dev/ttyS0</code> settings on both devices</td><td>Align baud rates, stop bits (1 vs 2), and data bits (8N1 vs 7E1).</td></tr>
-<tr><td>Frequent TCP packet retransmissions</td><td>Impedance mismatch or bad Ethernet cable</td><td>Run <code>netstat -s | grep retransmitted</code>; check <code>ip -s link</code> for RX dropped</td><td>Replace pinched Cat6 patch cable; verify RJ-45 crimp pins with cable tester.</td></tr>
-<tr><td>High Overrun Errors (<code>oe</code>)</td><td>Operating system latency or unread FIFO</td><td>Inspect process CPU consumption and interrupt handling</td><td>Increase hardware UART FIFO trigger threshold or use DMA transfers.</td></tr>
-</table>
-
-<aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> Tamlinux integrates end-to-end cryptographic checksumming across its package assembly pipeline. Every binary assembly in <code>tamlinux-packages</code> is signed and verified using SHA-256 digests. At the kernel stream layer, serial consoles configure hardware parity checking through termios flags, and network interfaces offload CRC-32 calculation directly into hardware NIC silicon (checksum offloading).</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide your answer before you reveal it.</p>
-<details class="q">
-<summary>Why does CRC-32 detect burst errors far more effectively than an Internet 16-bit additive checksum?</summary>
-<p>An additive checksum simply sums numbers together; if one bit flips from 0 to 1 and another bit in the same position flips from 1 to 0 in an adjacent byte, the mathematical sum remains completely unchanged. A CRC uses non-linear binary polynomial division (modulo-2 arithmetic). Every bit position influences multiple positions in the remainder, ensuring that burst errors up to the degree of the generator polynomial (32 bits) cannot cancel each other out.</p>
-</details>
-<details class="q">
-<summary>In high-latency satellite communication, why is Selective Repeat ARQ vastly superior to Stop-and-Wait ARQ?</summary>
-<p>In satellite communication, round-trip signal propagation delay can exceed 500 milliseconds. Under Stop-and-Wait, the transmitter must send one packet and sit idle for half a second waiting for an ACK, collapsing channel throughput to a tiny fraction of its theoretical capacity. Selective Repeat continuously streams packets to fill the bandwidth-delay product, and only retransmits the specific damaged frames without pausing or discarding healthy packets.</p>
-</details>
-</section>
-
-<h3>Further reading</h3>
-
-<ul>
-<li><a href="man:stty(1)">stty(1)</a> &mdash; configure terminal line parity, framing, and baud rates.</li>
-<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; termios(3) terminal error flags (<code>IGNPAR</code>, <code>PARMRK</code>, <code>INPCK</code>).</li>
-<li>Peterson, W. W., &amp; Brown, D. T. (1961). <em>Cyclic Codes for Error Detection</em>. Proceedings of the IRE.</li>
-</ul>
-</section>
-
 <section data-level="expert">
 <h2>Forward Error Correction (FEC), Hamming codes, and Bit Error Rate (BER)</h2>
 

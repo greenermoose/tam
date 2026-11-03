@@ -13,8 +13,9 @@
 - More paths (corpus 0.65.0): Desktop basics (`desktop/index.html`, `desktop/meta-key.html`, `desktop/workspaces.html`) and Healthy diagnostics (`hardware/networking.html`, `maintain/logs.html`, `learn/documentation.html`).
 - Voice, everyday desktop, recovery/boot (corpus 0.66.0): `desktop/voice.html`, `desktop/voice-commands.html`, nine `use/desktop/*` pages, and `maintain/recovery` → `power` → `boot` → `boot-recovery` → `snapper` → `checkpoint`.
 - Improve-track paths (corpus 0.67.0): Run lean (`hardware/resources`, `improve/efficiency`, `improve/zram`) and Improve your tools (`terminal`, `scripting`, `toolchains`, `ai-performance`).
+- Ecosystem goal paths (corpus 0.68.0): From atoms to bits, From gates to machine code, Cables and protocols, Display and GPU, How software runs (twenty pages).
 **Authority:** The developer's decision D221 (2026-11-02, amending D184) and D185 (state directory).
-**Next action:** Migrate remaining pages along existing ecosystem goal paths (`from-atoms-to-bits`, `from-gates-to-machine`, cables/protocols, display/GPU, how-software-runs, session-and-desktop), then leftover `learn/`/`man`/`tam.html` pages—or pause for Learner review. Packaged acceptance remains unverified.
+**Next action:** Migrate remaining ecosystem leftovers (`session-and-desktop` pages, packaging/nix/themes/fonts/evdev/…), then `learn/`/`man`/`tam.html`—or pause for Learner review. Packaged acceptance remains unverified.
 
 ## Current concept work (2026-10-27)
 
