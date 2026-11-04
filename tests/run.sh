@@ -1841,7 +1841,7 @@ printf '%s\n' "$ex_tg_tam" | grep -q 'tam.html' || fail "explain tam missing tam
 sh_tam=$("$TAM" show tam --pipe)
 printf '%s\n' "$sh_tam" | grep -q 'The tam Command' || fail "tam show tam missing heading"
 printf '%s\n' "$sh_tam" | grep -qi 'C11' || fail "tam show tam missing C11 language"
-printf '%s\n' "$sh_tam" | grep -q 'Makefile targets' || fail "tam show tam missing Makefile targets"
+printf '%s\n' "$sh_tam" | grep -Eq 'Makefile targets?' || fail "tam show tam missing Makefile targets"
 printf '%s\n' "$sh_tam" | grep -q 'libtam' || fail "tam show tam missing libtam"
 printf '%s\n' "$sh_tam" | grep -qi 'develop -> test -> run -> release' || fail "tam show tam missing release cycle"
 

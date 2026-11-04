@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-02
 **Owner:** Fred
 **Current Command Version:** `0.48.2`.
-**Current Corpus Version:** `0.70.0`.
+**Current Corpus Version:** `0.70.1`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.2 / 0.69.0 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 novice/learner/expert labels, command UI, pilots, and path-neighbor migration. Development installation is a separate developer-directed step. |
+| `develop` | 0.48.2 / 0.70.1 | Newest source; corpus gap remediation (behaviour drift fixes for Apps menu Ctrl+F12 and F9 push-to-talk, console-first login centering, first-principles matter/energy and OS/session ladders, signals skill domain, use/recipes and maintain/symptoms, diagnose-from-principles path); seventh guiding principle (make computing fun for humans); Linux input subsystem and evdev guide; ecosystem/os TOC and website links; line b difficulty levels; pager page scrolling; HTML help; TCK23 review pending; TCK24/TCK25 Using/Maintaining/Improving enforced; Meta key guide; cables/protocols and graphics/display chapters; refreshed curated tldr corpus; absolute-beginner desktop task pages and a curated command reference; D221 novice/learner/expert labels, command UI, pilots, and path-neighbor migration. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
