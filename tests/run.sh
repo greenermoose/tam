@@ -267,17 +267,29 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show")
 os.close(slave)
 
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
 last_target = ""
 def send_and_get_target(key):
     global last_target
-    time.sleep(0.08)
-    while select.select([master], [], [], 0.02)[0]:
-        os.read(master, 1024)
+    drain_pty(master, timeout=0.002)
     os.write(master, key)
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.02)[0]:
-        buf += os.read(master, 1024)
+    buf = drain_pty(master, timeout=0.04, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
     if not lines:
         return last_target
@@ -286,7 +298,7 @@ def send_and_get_target(key):
     last_target = words[0].decode("utf-8", "replace") if words else ""
     return last_target
 
-time.sleep(0.15)
+drain_pty(master, timeout=0.1, quiet=0.01)
 # 1. ] from no selection selects the same first link as Tab
 t1 = send_and_get_target(b"]")
 assert t1 == "first.html", f"expected first.html, got {t1}"
@@ -340,36 +352,43 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
 os.close(slave)
 
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
 def send_and_get_target(key):
-    time.sleep(0.08)
-    while select.select([master], [], [], 0.02)[0]:
-        os.read(master, 1024)
+    drain_pty(master, timeout=0.002)
     os.write(master, key)
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.02)[0]:
-        buf += os.read(master, 1024)
+    buf = drain_pty(master, timeout=0.04, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
     if not lines:
         return ""
     return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
 
 def send_and_get_state(key):
-    time.sleep(0.08)
-    while select.select([master], [], [], 0.02)[0]:
-        os.read(master, 1024)
+    drain_pty(master, timeout=0.002)
     os.write(master, key)
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.02)[0]:
-        buf += os.read(master, 1024)
+    buf = drain_pty(master, timeout=0.04, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
     pos = last.split(b"|")[1].strip().decode() if b"|" in last else ""
     msg = last.split(b"[")[-1].split(b"]")[0].decode("utf-8", "replace") if b"]" in last else ""
     return pos, msg
 
-time.sleep(0.15)
+drain_pty(master, timeout=0.1, quiet=0.01)
 # The heading line has no links: left and right have nothing to catch.
 assert send_and_get_target(b"f") == "", "f caught a link on a line without links"
 assert send_and_get_target(b"j") == "", "j caught a link on a line without links"
@@ -426,14 +445,9 @@ if p == 0:
     os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[3]
     os.execl(sys.argv[1], sys.argv[1], "show")
 os.close(s)
-time.sleep(0.15)
-while select.select([m], [], [], 0.02)[0]:
-    os.read(m, 1024)
+drain_pty(m, timeout=0.1, quiet=0.01)
 os.write(m, b"i")
-time.sleep(0.12)
-buf = b""
-while select.select([m], [], [], 0.02)[0]:
-    buf += os.read(m, 4096)
+buf = drain_pty(m, timeout=0.04, quiet=0.005)
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
 title = lines[-1].split(b"|")[0].split(b"\x1b[K", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert "GNU Info Directory" in title or "dir" in title, f"expected Info Directory title, got {title}"
@@ -460,10 +474,24 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show")
 os.close(slave)
 
-time.sleep(0.15)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 1024)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+buf = drain_pty(master, timeout=0.1, quiet=0.01)
 
 last_info = ("", "")
 def parse_info(buf):
@@ -482,14 +510,9 @@ def parse_info(buf):
 last_buf = b""
 def send_and_get_info(key):
     global last_buf
-    time.sleep(0.15)
-    while select.select([master], [], [], 0.02)[0]:
-        os.read(master, 1024)
+    drain_pty(master, timeout=0.002)
     os.write(master, key)
-    time.sleep(0.15)
-    buf = b""
-    while select.select([master], [], [], 0.02)[0]:
-        buf += os.read(master, 1024)
+    buf = drain_pty(master, timeout=0.04, quiet=0.005)
     last_buf = buf
     return parse_info(buf)
 
@@ -589,20 +612,31 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "link-wrap")
 os.close(slave)
 
-time.sleep(0.15)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+buf = drain_pty(master, timeout=0.1, quiet=0.01)
 
 # 1. No unselected hyperlink underlines the leading space; underline starts with first non-space character
 assert b"\x1b[4m " not in buf, "unselected link underlines leading space"
 
 # 2. Tab selects the first link (one.html); its label wraps two lines and both are highlighted
 os.write(master, b"\t")
-time.sleep(0.08)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
@@ -615,10 +649,7 @@ assert b"\x1b[1m " not in buf, "leading space before wrapped link must not be hi
 
 # 3. Tab advances to the next link (two.html) — the wrapped link was one link, not two
 os.write(master, b"\t")
-time.sleep(0.08)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
@@ -626,10 +657,7 @@ assert target == "two.html", f"expected two.html, got {target}"
 
 # 4. Shift-Tab returns to the wrapped link, highlighting its lines again
 os.write(master, b"\x1b[Z")
-time.sleep(0.08)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
 lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
@@ -660,15 +688,27 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "link-leading-space")
 os.close(slave)
 
-time.sleep(0.15)
-while select.select([master], [], [], 0.05)[0]:
-    os.read(master, 4096)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+drain_pty(master, timeout=0.1, quiet=0.01)
 
 os.write(master, b"\t")
-time.sleep(0.08)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
 assert b"\x1b[7m the" not in buf, "space before hyperlink received selected reverse emphasis"
 assert b"\x1b[7mthe desktop guide" in buf, "interior hyperlink spaces lost selected reverse emphasis"
@@ -695,10 +735,24 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "pager-italic")
 os.close(slave)
 
-time.sleep(0.15)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+buf = drain_pty(master, timeout=0.1, quiet=0.01)
 
 assert b"\x1b[3mLarix laricina" in buf, f"italic span missing sitm CSI 3m: {buf!r}"
 os.write(master, b"q")
@@ -724,10 +778,24 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
 os.close(slave)
 
-time.sleep(0.15)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+buf = drain_pty(master, timeout=0.1, quiet=0.01)
 
 # 1. Reading telemetry: verify status line contains position metric
 assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {buf}"
@@ -738,10 +806,7 @@ assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)\x1b\[K", buf), f"status line missin
 
 # 2. In-pager text search: search for "redirection"
 os.write(master, b"/redirection\r")
-time.sleep(0.10)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
 assert b"redirection" in buf, "search term missing from status bar message"
 assert b"[" in buf and b"]" in buf, "match indicator missing from status message"
@@ -749,34 +814,22 @@ assert b"\x1b[4mRedirection" in buf or b"\x1b[4mredirection" in buf, "search hit
 
 # 3. Next match (n)
 os.write(master, b"n")
-time.sleep(0.08)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.04, quiet=0.005)
 assert b"redirection" in buf
 
 # 4. Previous match (N)
 os.write(master, b"N")
-time.sleep(0.08)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.04, quiet=0.005)
 assert b"redirection" in buf
 
 # 5. Esc clears search query and highlights
 os.write(master, b"\x1b")
-time.sleep(0.08)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.09, quiet=0.005)
 assert b"\x1b[4mRedirection" not in buf and b"\x1b[4mredirection" not in buf, "search highlights not cleared by Esc"
 
 # 6. Miss search pattern
 os.write(master, b"/nonexistent_pattern_12345\r")
-time.sleep(0.10)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.08, quiet=0.005)
 assert b"Pattern not found" in buf, f"expected Pattern not found message, got: {buf}"
 
 os.write(master, b"q")
@@ -802,11 +855,28 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
 os.close(slave)
 
-def get_title():
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.05)[0]:
-        buf += os.read(master, 4096)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+def get_title(key=None):
+    if key:
+        drain_pty(master, timeout=0.002)
+        os.write(master, key)
+    buf = drain_pty(master, timeout=0.05, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     if not lines:
         return ""
@@ -818,18 +888,15 @@ t = get_title()
 assert t == "Fixture pipelines", f"unexpected initial title: {t}"
 
 # 2. Press backtick (`) to jump to index.html
-os.write(master, b"`")
-t = get_title()
+t = get_title(b"`")
 assert t == "Fixture Guide", f"expected index title after backtick, got: {t}"
 
 # 3. Press u to return to shell/pipelines
-os.write(master, b"u")
-t = get_title()
+t = get_title(b"u")
 assert t == "Fixture pipelines", f"expected pipelines title after u, got: {t}"
 
 # 4. Press backtick again, then quit
-os.write(master, b"`")
-t = get_title()
+t = get_title(b"`")
 assert t == "Fixture Guide", f"expected index title after second backtick, got: {t}"
 
 os.write(master, b"q")
@@ -855,59 +922,68 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "shell/pipelines")
 os.close(slave)
 
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
 last_status = ""
-def get_status_line():
+def get_status_line(key=None, timeout=None):
     global last_status
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.02)[0]:
-        buf += os.read(master, 4096)
+    if key:
+        drain_pty(master, timeout=0.002)
+        os.write(master, key)
+    if timeout is None:
+        timeout = 0.09 if key == b"\x1b" else 0.05
+    buf = drain_pty(master, timeout=timeout, quiet=0.005)
     if b"\x1b[24;1H" in buf:
         part = buf.split(b"\x1b[24;1H")[-1]
         last = part.split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
         last_status = last.strip()
     return last_status
 
-time.sleep(0.15)
 # Initial state shows position metric
-status0 = get_status_line()
+status0 = get_status_line(timeout=0.1)
 assert "L1 1-" in status0, f"expected L1 position at start, got: {status0}"
 
 # 1. = shows Path = page:shell/pipelines.html
-os.write(master, b"=")
-status = get_status_line()
+status = get_status_line(b"=")
 assert "Path = page:shell/pipelines.html" in status, f"expected Path = page:shell/pipelines.html, got: {status}"
 
 # 2. A line-down key (d) keeps it
-os.write(master, b"d")
-status = get_status_line()
+status = get_status_line(b"d")
 assert "Path = page:shell/pipelines.html" in status, f"expected Path = ... to persist after line down, got: {status}"
 
 # 3. Esc removes it and the position appears again
-os.write(master, b"\x1b")
-status = get_status_line()
+status = get_status_line(b"\x1b")
 assert "Path = " not in status and "L2 1-" in status, f"expected position restored after Esc, got: {status}"
 
 # 4. = twice shows and then hides it
-os.write(master, b"=")
-status = get_status_line()
+status = get_status_line(b"=")
 assert "Path = page:shell/pipelines.html" in status, f"expected Path = ... after first =, got: {status}"
-os.write(master, b"=")
-status = get_status_line()
+status = get_status_line(b"=")
 assert "Path = " not in status and "L2 1-" in status, f"expected position restored after second =, got: {status}"
 
 # 5. = and then following a link removes it on the new page
-os.write(master, b"=")
-status = get_status_line()
+status = get_status_line(b"=")
 assert "Path = page:shell/pipelines.html" in status
 # [ selects the breadcrumb link (index.html), Enter follows it
 os.write(master, b"[")
-time.sleep(0.08)
+drain_pty(master, timeout=0.02, quiet=0.005)
 os.write(master, b"\r")
-time.sleep(0.15)
-buf = b""
-while select.select([master], [], [], 0.05)[0]:
-    buf += os.read(master, 4096)
+buf = drain_pty(master, timeout=0.06, quiet=0.005)
 lines = [l for l in buf.split(b"\x1b[24;1H") if l]
 last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace").strip() if lines else ""
 assert "Path = " not in last, f"expected address cleared on new page, got: {last}"
@@ -938,12 +1014,25 @@ def launch(args):
     os.close(slave)
     return pid, master
 
-def drain(fd, delay=0.1):
-    time.sleep(delay)
-    buf = b""
-    while select.select([fd], [], [], 0.02)[0]:
-        buf += os.read(fd, 8192)
-    return buf
+def drain_pty(fd, timeout=0.05, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+def drain(fd, delay=0.05):
+    return drain_pty(fd, timeout=delay, quiet=0.005)
 
 # 1. \ shows Search in guide \, typing pipe and Enter shows Results for and Fixture pipelines
 pid, master = launch(["show", "welcome"])
@@ -1105,12 +1194,25 @@ def launch(args):
     os.close(slave)
     return pid, master
 
-def drain(fd, delay=0.1):
-    time.sleep(delay)
-    buf = b""
-    while select.select([fd], [], [], 0.02)[0]:
-        buf += os.read(fd, 8192)
-    return buf
+def drain_pty(fd, timeout=0.05, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+def drain(fd, delay=0.05):
+    return drain_pty(fd, timeout=delay, quiet=0.005)
 
 # 1. Start on shell/pipelines
 pid, master = launch(["show", "shell/pipelines"])
@@ -1165,11 +1267,28 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "explain", "topics")
 os.close(slave)
 
-def get_status_info():
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.05)[0]:
-        buf += os.read(master, 4096)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+def get_status_info(key=None):
+    if key:
+        drain_pty(master, timeout=0.002)
+        os.write(master, key)
+    buf = drain_pty(master, timeout=0.05, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     if not lines:
         return ("", "")
@@ -1185,23 +1304,19 @@ title, _ = get_status_info()
 assert title == "Topics A to Z", f"unexpected topics title: {title}"
 
 # 2. Tab selects first topic link
-os.write(master, b"\t")
-title, target = get_status_info()
+title, target = get_status_info(b"\t")
 assert target != "", "expected link target to be selected by Tab"
 
 # 3. Enter follows selected topic link into explanation
-os.write(master, b"\r")
-title_topic, _ = get_status_info()
+title_topic, _ = get_status_info(b"\r")
 assert title_topic != "Topics A to Z", f"did not follow link into topic explanation: {title_topic}"
 
 # 4. u returns to topics page
-os.write(master, b"u")
-title_back, _ = get_status_info()
+title_back, _ = get_status_info(b"u")
 assert title_back == "Topics A to Z", f"did not return to topics page: {title_back}"
 
 # 5. Backtick (`) jumps to root guide index.html
-os.write(master, b"`")
-title_home, _ = get_status_info()
+title_home, _ = get_status_info(b"`")
 assert title_home == "Fixture Guide", f"did not jump to guide index: {title_home}"
 
 os.write(master, b"q")
@@ -1228,11 +1343,25 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
 os.close(slave)
 
-def get_state():
-    time.sleep(0.08)
-    buf = b""
-    while select.select([master], [], [], 0.02)[0]:
-        buf += os.read(master, 4096)
+def drain_pty(fd, timeout=0.04, quiet=0.005):
+    buf = bytearray()
+    deadline = time.monotonic() + timeout
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
+
+def get_state(timeout=0.04):
+    buf = drain_pty(master, timeout=timeout, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
     last = lines[-1].split(b"\x1b[K", 1)[0].strip() if lines else b""
     parts = last.split(b"|")
@@ -1248,13 +1377,11 @@ def get_state():
     return title, pos, target, msg, has_tint
 
 def send_key(key):
-    while select.select([master], [], [], 0.02)[0]:
-        os.read(master, 1024)
+    drain_pty(master, timeout=0.002)
     os.write(master, key)
     return get_state()
 
-time.sleep(0.15)
-title, pos, target, msg, has_tint = get_state()
+title, pos, target, msg, has_tint = get_state(timeout=0.08)
 assert has_tint, "expected attention line background tint in output buffer"
 assert "L1 1-4/4" in pos, f"expected L1 1-4/4 in position metric, got: {pos}"
 assert target == "", f"expected no initial selection, got: {target}"
@@ -1305,7 +1432,7 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "welcome")
 os.close(slave)
 
-time.sleep(0.15)
+drain_pty(master, timeout=0.08, quiet=0.005)
 # Shift-Tab from no selection wraps to the final canonical parent breadcrumb.
 title, pos, target, msg, has_tint = send_key(b"\x1b[Z")
 assert target == "learn/index.html", f"expected Learning breadcrumb, got: {target}"
@@ -1338,8 +1465,7 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
 os.close(slave)
 
-time.sleep(0.15)
-get_state()
+get_state(timeout=0.08)
 # Move down to line 4 (L4/4) and select second link on line 4 (br.html)
 send_key(b"k")
 send_key(b"k")
@@ -1374,8 +1500,7 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "welcome")
 os.close(slave)
 
-time.sleep(0.15)
-get_state()
+get_state(timeout=0.08)
 # Page down on welcome so no link is selected (L24/...)
 title, pos_w, target_w, _, _ = send_key(b" ")
 assert target_w == "" and not pos_w.startswith("L1 "), f"expected scrolled welcome with no link, got: {pos_w} {target_w}"
@@ -1408,8 +1533,7 @@ if pid == 0:
     os.execl(sys.argv[1], sys.argv[1], "show", "breadcrumb-only")
 os.close(slave)
 
-time.sleep(0.15)
-_, pos, target, _, _ = get_state()
+_, pos, target, _, _ = get_state(timeout=0.08)
 assert pos.startswith("L1 ") and target == "", f"expected L1 with no selection, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[A")
 assert target == "index.html", f"expected Up on the first line to focus the breadcrumb, got: {target}"
@@ -1477,21 +1601,30 @@ class Pager:
             os.environ.update(env or {})
             os.execl(tam, tam, *args)
         os.close(slave)
-        time.sleep(0.2)
-        self.first = self.drain()
+        self.first = self.drain(timeout=0.08, quiet=0.005)
 
-    def drain(self):
-        buf = b""
-        while select.select([self.master], [], [], 0.05)[0]:
-            buf += os.read(self.master, 65536)
-        self.last_raw = buf
-        return strip_ansi(buf.decode("utf-8", "replace"))
+    def drain(self, timeout=0.04, quiet=0.005):
+        buf = bytearray()
+        deadline = time.monotonic() + timeout
+        while True:
+            wait = quiet if buf else max(0.0, deadline - time.monotonic())
+            ready, _, _ = select.select([self.master], [], [], wait)
+            if not ready:
+                break
+            try:
+                part = os.read(self.master, 65536)
+            except OSError:
+                break
+            if not part:
+                break
+            buf.extend(part)
+        self.last_raw = bytes(buf)
+        return strip_ansi(self.last_raw.decode("utf-8", "replace"))
 
     def key(self, k):
-        self.drain()
+        self.drain(timeout=0.002, quiet=0.001)
         os.write(self.master, k)
-        time.sleep(0.1)
-        return self.drain()
+        return self.drain(timeout=0.04, quiet=0.005)
 
     def quit(self):
         os.write(self.master, b"q")
@@ -2390,11 +2523,23 @@ def launch(args):
     os.close(slave)
     return pid, master
 
-def drain(fd, delay=0.15):
-    time.sleep(delay)
-    data = b""
-    while select.select([fd], [], [], 0.02)[0]: data += os.read(fd, 8192)
-    return data
+def drain(fd, delay=0.04):
+    buf = bytearray()
+    quiet = 0.04 if delay >= 0.2 else 0.005
+    deadline = time.monotonic() + delay
+    while True:
+        wait = quiet if buf else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
+        if not ready:
+            break
+        try:
+            part = os.read(fd, 65536)
+        except OSError:
+            break
+        if not part:
+            break
+        buf.extend(part)
+    return bytes(buf)
 
 def parse_info(buf):
     lines = [line for line in buf.split(b"\x1b[24;1H") if b"|" in line]

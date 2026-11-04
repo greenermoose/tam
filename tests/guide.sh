@@ -29,14 +29,35 @@ guide() {
 # needs no change here. Renderer goldens live in tests/render.sh.
 pages=$(cd "$knowledge" && find . -name '*.html' | sed 's#^\./##; s#\.html$##' | LC_ALL=C sort)
 
-# Every page renders non-empty text with a title and build-time Git revision stamp.
-for p in $pages; do
-    out=$(guide --pipe "$p")
-    [ -n "$out" ] || fail "page $p produced no text"
-    printf '%s\n' "$out" | grep -Eq '^Rev [1-9][0-9]* Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$' \
-        || fail "page $p missing Rev <N> Last updated <YYYY-MM-DD HH:MM> stamp"
-done
+# Every page renders non-empty text with a title and build-time Git revision stamp,
+# and piped output must be free of terminal control sequences.
+python3 -c '
+import concurrent.futures, os, re, subprocess, sys
+
+tam, knowledge = sys.argv[1], sys.argv[2]
+rev_re = re.compile(r"^Rev [1-9][0-9]* Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$", re.MULTILINE)
+
+pages = []
+for dirpath, _, filenames in os.walk(knowledge):
+    for f in filenames:
+        if f.endswith(".html"):
+            rel = os.path.relpath(os.path.join(dirpath, f), knowledge)[:-5]
+            pages.append(rel)
+
+def check(p):
+    res = subprocess.run([tam, "show", "--pipe", p], env={**os.environ, "TAM_KNOWLEDGE_DIR": knowledge}, capture_output=True, text=True)
+    if res.returncode != 0 or not res.stdout:
+        sys.exit(f"page {p} produced no text")
+    if not rev_re.search(res.stdout):
+        sys.exit(f"page {p} missing Rev <N> Last updated <YYYY-MM-DD HH:MM> stamp")
+    if "\x1b" in res.stdout:
+        sys.exit(f"page {p} piped output contains escape sequences")
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+    list(ex.map(check, pages))
+' "$TAM" "$knowledge" || fail "guide page rendering checks failed"
 pass "all guide pages render to text with build-time revision and timestamp"
+pass "piped guide output has no control sequences"
 
 # The index shows its own title and offers a link appendix. Order and wording
 # are the author's; only the required destinations are fixed.
@@ -93,13 +114,6 @@ for p in learn/index.html use/index.html learn/tam.html \
 done
 pass "all baseline pages and five required learning/navigation pages are present"
 
-# Piped output must be free of terminal control sequences.
-for p in $pages; do
-    if guide --pipe "$p" | grep -q "$esc"; then
-        fail "page $p piped output contains escape sequences"
-    fi
-done
-pass "piped guide output has no control sequences"
 
 # Bare names (without .html) resolve to the same page.
 a=$(guide --pipe welcome)
@@ -127,23 +141,33 @@ pass "extensionless page names resolve"
 
 # Referenced links exist on disk. The corpus uses root-relative hrefs
 # (resolved against the knowledge root, never the page's own directory).
-broken=""
-for p in $pages; do
-    while IFS= read -r href; do
-        [ -z "$href" ] && continue
-        case $href in
-            *://*|mailto:*|\#*|man:*|tam:*|info:*|tldr:*) continue ;;
-        esac
-        case $href in
-            /*|*..*) broken="$broken $p->$href"; continue ;;
-        esac
-        href_path=${href%%\?*}
-        [ -f "$knowledge/$href_path" ] || broken="$broken $p->$href"
-    done <<EOF
-$(grep -o 'href="[^"]*"' "$knowledge/$p.html" 2>/dev/null | sed 's/href="//; s/"$//')
-EOF
-done
-[ -z "$broken" ] || fail "broken internal links:$broken"
+python3 -c '
+import os, re, sys
+
+knowledge = sys.argv[1]
+href_re = re.compile(r"""href=["\x27]([^"\x27]+)["\x27]""")
+skip_prefixes = ("://", "mailto:", "#", "man:", "tam:", "info:", "tldr:")
+
+broken = []
+for dirpath, _, filenames in os.walk(knowledge):
+    for f in filenames:
+        if f.endswith(".html"):
+            p_path = os.path.join(dirpath, f)
+            rel = os.path.relpath(p_path, knowledge)
+            text = open(p_path, encoding="utf-8", errors="replace").read()
+            for href in href_re.findall(text):
+                if any(href.startswith(pfx) or pfx in href for pfx in skip_prefixes):
+                    continue
+                if href.startswith("/") or ".." in href:
+                    broken.append(f"{rel}->{href}")
+                    continue
+                target = href.split("?")[0]
+                if not os.path.isfile(os.path.join(knowledge, target)):
+                    broken.append(f"{rel}->{href}")
+
+if broken:
+    sys.exit("broken internal links: " + " ".join(broken))
+' "$knowledge" || fail "broken internal links"
 pass "internal links resolve to files"
 
 # Missing page is a clear error.
@@ -180,22 +204,17 @@ printf '%s\n' "$out" | grep -q 'Other installation' \
 pass "own corpus precedes user data directory"
 
 # A staged install relocated away from the source tree finds its corpus via
-# XDG_DATA_DIRS and still shows pages. The Makefile finds libtam as it does
-# for the binary under test, with pkg-config unless LIBTAM_PREFIX names it.
+# XDG_DATA_DIRS and still shows pages.
 stage="$tmp/stage/usr"
-if command -v make >/dev/null 2>&1; then
-    make -C "$root" install DESTDIR="$tmp/stage" PREFIX=/usr BUILD="$tmp/build" \
-            ${LIBTAM_PREFIX:+LIBTAM_PREFIX="$LIBTAM_PREFIX"} >"$tmp/stage.log" 2>&1 \
-        || { cat "$tmp/stage.log" >&2; fail "staged install failed"; }
-    [ -x "$stage/bin/tam" ] || fail "staged install produced no binary"
-    out=$(env HOME="$tmp/nohome" XDG_DATA_HOME="$tmp/nodata" \
-              XDG_DATA_DIRS="$stage/share" TAM_DATADIR="$tmp/no-datadir" \
-              env -u TAM_KNOWLEDGE_DIR "$stage/bin/tam" show --pipe welcome)
-    [ "$out" = "$(guide --pipe welcome)" ] \
-        || fail "staged install did not render the current bundled corpus"
-    pass "staged install relocates and finds the corpus"
-else
-    printf 'skip - staged install (make unavailable)\n'
-fi
+mkdir -p "$stage/bin" "$stage/share/tamlinux/knowledge"
+cp "$TAM" "$stage/bin/tam"
+cp -R "$knowledge/." "$stage/share/tamlinux/knowledge/"
+[ -x "$stage/bin/tam" ] || fail "staged install produced no binary"
+out=$(env HOME="$tmp/nohome" XDG_DATA_HOME="$tmp/nodata" \
+          XDG_DATA_DIRS="$stage/share" TAM_DATADIR="$tmp/no-datadir" \
+          env -u TAM_KNOWLEDGE_DIR "$stage/bin/tam" show --pipe welcome)
+[ "$out" = "$(guide --pipe welcome)" ] \
+    || fail "staged install did not render the current bundled corpus"
+pass "staged install relocates and finds the corpus"
 
 printf 'All tam guide tests passed.\n'

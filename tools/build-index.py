@@ -148,7 +148,40 @@ def write_if_changed(path, content):
         path.write_bytes(data)
 
 
-def git_page_revision(root, path, rel_path):
+def load_all_git_page_revisions(root):
+    """Derive deterministic (rev, updated) for all knowledge pages in one git log pass."""
+    revisions = {}
+    if not (root / ".git").exists():
+        return revisions
+    try:
+        res = subprocess.run(
+            ["git", "-C", str(root), "log", "--name-only", "--format=COMMIT:%cd",
+             "--date=format:%Y-%m-%d %H:%M", "--", "knowledge"],
+            capture_output=True, text=True, check=False
+        )
+        if res.returncode == 0 and res.stdout:
+            file_counts = {}
+            file_dates = {}
+            current_date = None
+            for line in res.stdout.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                if line.startswith("COMMIT:"):
+                    current_date = line[7:]
+                elif line.startswith("knowledge/"):
+                    rel = line[len("knowledge/"):]
+                    file_counts[rel] = file_counts.get(rel, 0) + 1
+                    if rel not in file_dates and current_date:
+                        file_dates[rel] = current_date
+            for rel, count in file_counts.items():
+                revisions[rel] = (count, file_dates.get(rel, ""))
+    except Exception:
+        pass
+    return revisions
+
+
+def git_page_revision(root, path, rel_path, git_cache=None):
     """Derive deterministic (rev, updated) for a knowledge page from Git history.
 
     rev: integer commit count touching knowledge/<rel_path> (git rev-list --count HEAD -- ...),
@@ -159,6 +192,28 @@ def git_page_revision(root, path, rel_path):
              Falls back to the file's UTC mtime if the file is not yet committed
              or if Git is unavailable.
     """
+    if git_cache is not None:
+        if rel_path in git_cache:
+            rev, updated = git_cache[rel_path]
+            if rev <= 0:
+                rev = 1
+            if not updated:
+                try:
+                    mtime = path.stat().st_mtime
+                    updated = datetime.fromtimestamp(mtime, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
+                except Exception:
+                    updated = "unknown"
+            return rev, updated
+        else:
+            # File is in working tree but not in git history
+            rev = 1
+            try:
+                mtime = path.stat().st_mtime
+                updated = datetime.fromtimestamp(mtime, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
+            except Exception:
+                updated = "unknown"
+            return rev, updated
+
     git_rel = f"knowledge/{rel_path}"
     rev = 0
     updated = ""
@@ -191,7 +246,7 @@ def git_page_revision(root, path, rel_path):
     return rev, updated
 
 
-def parse_page(root, path, rel_path, errors):
+def parse_page(root, path, rel_path, errors, git_cache=None):
     text = path.read_text(encoding="utf-8", errors="replace")
 
     # Title
@@ -291,7 +346,7 @@ def parse_page(root, path, rel_path, errors):
     if not summary:
         summary = title
 
-    rev, updated = git_page_revision(root, path, rel_path)
+    rev, updated = git_page_revision(root, path, rel_path, git_cache=git_cache)
 
     return {
         "topic": topic,
@@ -639,9 +694,10 @@ def main(root=None):
 
     errors = []
     entries = []
+    git_cache = load_all_git_page_revisions(root)
     for html_file in sorted(knowledge_dir.rglob("*.html")):
         rel = html_file.relative_to(knowledge_dir).as_posix()
-        entry = parse_page(root, html_file, rel, errors)
+        entry = parse_page(root, html_file, rel, errors, git_cache=git_cache)
         entries.append(entry)
 
     topics = {e["topic"] for e in entries}

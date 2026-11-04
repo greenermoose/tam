@@ -1,5 +1,8 @@
 """Focused compatibility and hierarchy checks for tools/build-index.py."""
 
+import contextlib
+import io
+import importlib.util
 import json
 import os
 import shutil
@@ -13,6 +16,17 @@ BUILDER = Path(__file__).resolve().parents[1] / "tools" / "build-index.py"
 MAKEFILE = BUILDER.parent.parent / "Makefile"
 INDEXES = ("index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
            "index.skills.tsv", "coverage.json")
+
+spec = importlib.util.spec_from_file_location("build_index_tool", str(BUILDER))
+build_index_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(build_index_mod)
+
+
+class BuildResult:
+    def __init__(self, returncode, stdout, stderr):
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
 
 
 def page(title, track="", parent=None, crumbs=(), prereqs=None):
@@ -209,8 +223,18 @@ class BuildIndex(unittest.TestCase):
         return root
 
     def build(self, root):
-        return subprocess.run([sys.executable, str(BUILDER), "--root", str(root)],
-                              capture_output=True, text=True, timeout=30)
+        out = io.StringIO()
+        err = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            try:
+                rc = build_index_mod.main(str(root))
+            except SystemExit as e:
+                rc = e.code if isinstance(e.code, int) else (1 if e.code else 0)
+            except Exception:
+                import traceback
+                traceback.print_exc(file=err)
+                rc = 1
+        return BuildResult(rc or 0, out.getvalue(), err.getvalue())
 
     def make_fixture(self):
         root = self.fixture("0.31.0", {

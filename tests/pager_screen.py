@@ -143,12 +143,14 @@ class Screen:
         return "".join(ch for ch, _ in self.cells[row])
 
 
-def read_available(fd, timeout=0.08):
+def read_available(fd, timeout=0.08, quiet=None):
+    if quiet is None:
+        quiet = 0.04 if timeout >= 0.3 else 0.005
     out = bytearray()
     deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        left = deadline - time.monotonic()
-        ready, _, _ = select.select([fd], [], [], max(0, left))
+    while True:
+        wait = quiet if out else max(0.0, deadline - time.monotonic())
+        ready, _, _ = select.select([fd], [], [], wait)
         if not ready:
             break
         try:

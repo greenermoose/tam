@@ -1,12 +1,24 @@
 """Tests for tools/lint-corpus.py, run on small fixture trees."""
 
+import importlib.util
+import io
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 LINT = Path(__file__).resolve().parent.parent / "tools" / "lint-corpus.py"
+spec = importlib.util.spec_from_file_location("lint_corpus", str(LINT))
+lint_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(lint_mod)
+
+class LintResult:
+    def __init__(self, stdout, stderr, returncode):
+        self.stdout = stdout
+        self.stderr = stderr
+        self.returncode = returncode
 
 RENDER_C = """static const struct { const char *name; unsigned cp; } entities[] = {
     {"amp", '&'}, {"lt", '<'}, {"gt", '>'}, {"rarr", 0x2192},
@@ -44,9 +56,11 @@ class LintCorpus(unittest.TestCase):
                 (src / "render.c").write_text(RENDER_C)
             (src / "tam.c").write_text(TAM_C)
             (src / "install.c").write_text(INSTALL_C)
-            result = subprocess.run([sys.executable, str(LINT), "--root", str(root)],
-                                    capture_output=True, text=True, timeout=30)
-        return result
+            buf = io.StringIO()
+            err = io.StringIO()
+            with redirect_stdout(buf), redirect_stderr(err):
+                rc = lint_mod.main(["--root", str(root)])
+        return LintResult(buf.getvalue(), err.getvalue(), rc)
 
     def check(self, page, expected, status, path="t.html"):
         result = self.run_lint(page, path)
