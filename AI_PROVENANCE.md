@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-04 | Comprehensive glossary expansion covering technical, specialist, and Tamlinux terms; corpus 0.71.0 | opencode 1.19.4; `big-pickle` (Antigravity finished commit) | [Session record](docs/ai/2026-11-04-tam-glossary-expansion.md) |
 | 2026-11-02 | Absolute-beginner desktop task pages and curated desktop command reference; corpus 0.61.0 | opencode 1.19.4; `big-pickle` (Cursor finished commit) | [Session record](docs/ai/2026-11-02-tam-absolute-beginner-slice1.md) |
 | 2026-11-02 | D221 page difficulty labels novice/learner/expert; corpus 0.62.0 | Cursor Composer | [Session record](docs/ai/2026-11-02-tam-d221-level-labels.md) |
 | 2026-11-02 | D221 command UI, pilot pages and paths.json; command 0.48.2 | Antigravity CLI | Commit `c4dd503`; [follow-up](docs/ai/2026-11-02-tam-d221-followup.md) |
