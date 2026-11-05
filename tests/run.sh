@@ -2014,7 +2014,7 @@ printf '%s\n' "$ex_verbose" | grep -Eq 'Revision: +Rev [1-9][0-9]* Last updated 
 ex_expert_terse=$("$TAM" explain topics --level expert --terse)
 printf '%s\n' "$ex_expert_terse" | grep -qx 'pipelines' || fail "expert terse missing pipelines"
 printf '%s\n' "$ex_expert_terse" | grep -qx 'jobs' || fail "expert terse missing jobs"
-if printf '%s\n' "$ex_expert_terse" | grep -qx 'desktop'; then fail "expert terse unexpectedly includes desktop"; fi
+if printf '%s\n' "$ex_expert_terse" | grep -qx 'welcome'; then fail "expert terse unexpectedly includes welcome"; fi
 
 # Multi-word explain resolves via search fallback path.
 ex_multi=$("$TAM" explain cpu load --pipe)
@@ -2184,14 +2184,14 @@ ex_cat_expert=$("$TAM" explain --level expert)
 printf '%s\n' "$ex_cat_expert" | grep 'Keyword Index (expert)' >/dev/null || fail "explain --level expert missing heading"
 printf '%s\n' "$ex_cat_expert" | grep 'pipelines' >/dev/null || fail "expert catalog missing pipelines"
 printf '%s\n' "$ex_cat_expert" | grep 'jobs' >/dev/null || fail "expert catalog missing jobs"
-if printf '%s\n' "$ex_cat_expert" | grep '^  desktop ' >/dev/null; then fail "expert catalog unexpectedly includes beginner-only desktop"; fi
+if printf '%s\n' "$ex_cat_expert" | grep '^welcome ' >/dev/null; then fail "expert catalog unexpectedly includes beginner-only welcome"; fi
 
 # Invalid level argument produces exit code 2 (usage error)
 if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi
 "$TAM" explain --level invalid pipelines 2>&1 | grep -q "unknown level 'invalid'" || fail "missing unknown level message"
 
 # A topic lacking the requested level lists every level under its level line.
-ex_no_exp=$("$TAM" explain --level expert desktop --pipe) || fail "explain --level expert desktop failed"
+ex_no_exp=$("$TAM" explain --level expert welcome --pipe) || fail "explain --level expert welcome failed"
 printf '%s\n' "$ex_no_exp" | grep -q "Showing 3: expert level text" || fail "missing topic level line"
 
 pass "explain resolves curated topics, handles misses, and treats shell strings as data"

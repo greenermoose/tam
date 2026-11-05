@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-04 | Fix expert-level filtering assertions in tests/run.sh for desktop hubs; test suite passes | Antigravity CLI 1.5.1; Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`) | [Session record](docs/ai/2026-11-04-tam-expert-terse-test-fix.md) |
 | 2026-11-04 | Plan 26 Phase 2 hubs (capture, clipboard, toggles, notifications, shell tools/editors); corpus 0.72.1 | Cursor 3.27.22; Composer | [Session record](docs/ai/2026-11-04-tam-plan26-phase2-utilities.md) |
 | 2026-11-04 | Plan 26 Phase 1 desktop hubs (hotkeys, windows, bar, transition); corpus 0.72.0; W1 coverage/exemptions earlier same day | Cursor 3.27.22; Composer | [Session record](docs/ai/2026-11-04-tam-plan26-phase1-desktop.md) |
 | 2026-11-04 | Comprehensive glossary expansion covering technical, specialist, and Tamlinux terms; corpus 0.71.0 | opencode 1.19.4; `big-pickle` (Antigravity finished commit) | [Session record](docs/ai/2026-11-04-tam-glossary-expansion.md) |
