@@ -6,7 +6,7 @@
 - **CLI Tool:** cursor 3.27.22
 - **Model:** Composer (`composer`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** (pending commit that adds this record)
+- **Commits:** `f446e01`
 - **Authorship:** Fred accepted plan 26 Phase 1 ballot (full ladders; four hubs;
   name all plugins and binding files; Omarchy for ideas only). Cursor wrote
   the pages, indexes, provenance, and coverage refresh.
