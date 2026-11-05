@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Desktop Theming and Appearance</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="customizing.beginner, customizing.intermediate, customizing.expert">
+<meta name="topic" content="theming">
+<meta name="summary" content="Themes, wallpapers, fonts, and desktop appearance in Tamlinux">
+<meta name="keywords" content="theming, themes, fonts, backgrounds, wallpapers, styling, appearance, tam-install-font">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="desktop/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / Desktop Theming and Appearance</p>
+</nav>
+
+<h1>Desktop Theming and Appearance</h1>
+<p>This page explains how Tamlinux coordinates color themes, wallpaper backgrounds, terminal colors, and font installation.</p>
+
+<section data-level="novice">
+<h2>What is desktop theming?</h2>
+<p>Theming controls the visual style of your desktop: the color palette used by windows, the background wallpaper on your monitors, and the typography of text.</p>
+
+<h3>Why it matters</h3>
+<p>A cohesive color theme makes text easy to read in all lighting conditions. High-quality monospace fonts reduce strain when reading code and terminal logs.</p>
+
+<h3>How to think about it</h3>
+<p>Tamlinux applies a single active palette across the compositor, the top bar, terminal emulators, and text editors. Switching themes updates these parts together rather than requiring separate adjustments.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Palette</dt>
+<dd>A coordinated set of foreground, background, and accent colors used across desktop applications.</dd>
+<dt>Font family</dt>
+<dd>A collection of related type designs with varying weights and styles, such as monospace or sans-serif.</dd>
+<dt>Wallpaper</dt>
+<dd>The background image displayed behind windows across your desktop workspaces.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Preview themes and manage fonts safely</h2>
+<p><strong>Goal:</strong> you will be able to switch wallpapers and understand how fonts and color themes are managed.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/config.html?level=2">&larr; Back</a> |
+<a href="desktop/hotkeys.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Press <kbd>Meta + Shift + W</kbd> to cycle to the next packaged wallpaper.</li>
+<li>Open the theme switcher menu with <kbd>Meta + Ctrl + T</kbd> to preview and select from available system themes.</li>
+<li>Install a curated monospace font package using the font installer:
+<pre class="session" data-risk="low">
+$ tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono"
+</pre>
+</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Inspect available font families on your system by running <code>fc-list : family | sort -u | head -n 15</code> in your terminal. This is a read-only query.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Terminal colors do not match the desktop theme</dt>
+<dd>Run <code>tam-theme-colors-from-alacritty</code> or reload your terminal profile to sync colors.</dd>
+<dt>A new font does not appear in application lists</dt>
+<dd>Refresh the font cache by running <code>fc-cache -f</code>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux stores user background selections and active theme states under standard XDG state directories.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>What command installs a font package and selects its family?</summary>
+<p><code>tam-install-font</code>.</p></details>
+<details class="q"><summary>Which chord cycles to the next background wallpaper?</summary>
+<p><kbd>Meta + Shift + W</kbd>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Theming and font command family</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-install-font</code></td><td>Install an Arch font package and set the active family across desktop defaults</td></tr>
+<tr><td><code>tam-theme-switcher</code></td><td>Interactive theme selection menu</td></tr>
+<tr><td><code>tam-theme-bg-set</code></td><td>Set active desktop wallpaper image</td></tr>
+<tr><td><code>tam-theme-bg-next</code></td><td>Cycle to the next available background wallpaper</td></tr>
+<tr><td><code>tam-theme-colors-from-alacritty</code></td><td>Extract color definitions and update application palette bridges</td></tr>
+</table>
+<p>Themes and font definitions trace directly to declarative templates in the product checkout. When switching themes, Tamlinux reloads live Wayland surfaces and notifies running terminal emulators via standard OSC color escape codes.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="ecosystem/themes.html">Ecosystem: color themes and design</a> — color theory and terminal palettes.</li>
+<li><a href="ecosystem/fonts.html">Ecosystem: typography and fonts</a> — font formats and glyph rendering.</li>
+<li><a href="desktop/bar.html">The top bar</a> — status bar styling and widgets.</li>
+</ul>
+</body>
+</html>

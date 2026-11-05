@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hardware Security and Privilege Management</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="security.beginner, security.intermediate, hardware.expert">
+<meta name="topic" content="hardware-security">
+<meta name="summary" content="Hardware authentication, FIDO2 security keys, fingerprints, SSH server hardening, and privilege controls">
+<meta name="keywords" content="security, fido2, fingerprint, sshd, sudo, docker, authentication, pam, polkit">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="prereqs" content="shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Hardware Security and Privilege Management</p>
+</nav>
+
+<h1>Hardware Security and Privilege Management</h1>
+<p>This page explains physical authentication tokens, biometric fingerprint sensors, SSH remote access hardening, and administrative privilege management on Tamlinux.</p>
+
+<section data-level="novice">
+<h2>What is hardware security?</h2>
+<p>Hardware security uses physical devices—such as USB security keys (FIDO2 or YubiKey) or built-in fingerprint readers—to verify your identity before performing sensitive tasks or logging in.</p>
+
+<h3>Why it matters</h3>
+<p>Passwords can be observed, guessed, or intercepted. Physical keys and fingerprints require your physical presence at the machine, preventing unauthorized access even if someone knows your password.</p>
+
+<h3>How to think about it</h3>
+<p>The system uses PAM (Pluggable Authentication Modules) and Polkit to verify permissions. You can register a hardware key or fingerprint so that authorizing administrative actions or unlocking the screen only requires a touch.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>FIDO2</dt>
+<dd>An open authentication standard that uses cryptographic keys stored on a hardware token to verify user identity without sending passwords.</dd>
+<dt>Biometrics</dt>
+<dd>Physical characteristics, such as fingerprints, used as a secure form of authentication.</dd>
+<dt>Privilege</dt>
+<dd>Permission granted by the operating system to modify system files, install software, or access hardware devices.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect privilege and authentication settings safely</h2>
+<p><strong>Goal:</strong> you will be able to check privilege configurations and understand how hardware keys protect administrative actions.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: System hardware and storage</strong> &mdash;
+<a href="hardware/drives.html?level=2">Start</a> |
+<a href="hardware/drives.html?level=2">&larr; Back</a> |
+<a href="maintain/power.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Check whether your user account can interact with Docker directly or requires elevated privileges:
+<pre class="session" data-risk="system">
+$ tam-sudo-docker
+tam-sudo-docker: docker requires sudo or membership in the docker group
+</pre>
+</li>
+<li>When performing temporary administrative maintenance, you can enable bounded passwordless access for a short 15-minute window:
+<pre class="session" data-risk="system">
+$ tam-sudo-passwordless 15
+</pre>
+This setting expires automatically and is cleaned up on reboot.
+</li>
+<li>In scripts requiring repeated administrative actions, <code>tam-sudo-keepalive</code> keeps the authorization token fresh in the background while the parent script runs.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>tam-sudo-docker --configured</code> in your terminal. It returns an exit status indicating whether the docker daemon socket is configured and accessible without making changes.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>FIDO2 key not recognized when prompted</dt>
+<dd>Ensure the key is securely seated in a USB port and its contact sensor illuminates; enter your normal account password as fallback.</dd>
+<dt>Fingerprint reader fails on laptop lid close</dt>
+<dd>Tamlinux includes clamshell gates that automatically bypass fingerprint prompts when the laptop lid is closed with external screens attached.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Every privileged step in Tamlinux requires explicit authorization; administrative setup tools back up PAM configurations before modifying them.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>What command checks if Docker requires sudo?</summary>
+<p><code>tam-sudo-docker</code>.</p></details>
+<details class="q"><summary>How long does a temporary tam-sudo-passwordless window last by default?</summary>
+<p>15 minutes, with automatic native cleanup.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Security setup and privilege command family</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-setup-security-fido2</code></td><td>Register FIDO2 hardware token and configure PAM stacks for sudo and polkit</td></tr>
+<tr><td><code>tam-remove-security-fido2</code></td><td>Remove FIDO2 modules from authentication stacks and remove helper packages</td></tr>
+<tr><td><code>tam-setup-security-fingerprint</code></td><td>Enroll biometric fingerprint reader and integrate with hyprlock and PAM</td></tr>
+<tr><td><code>tam-remove-security-fingerprint</code></td><td>Remove fingerprint authentication and restore default PAM configurations</td></tr>
+<tr><td><code>tam-setup-security-sshd</code></td><td>Start OpenSSH daemon, configure firewall rule, and disable password logins</td></tr>
+<tr><td><code>tam-remove-security-sshd</code></td><td>Stop OpenSSH server and close firewall ports</td></tr>
+<tr><td><code>tam-setup-security-sudoless-docker</code></td><td>Add user to docker group after explicit root-equivalence confirmation</td></tr>
+<tr><td><code>tam-remove-security-sudoless-docker</code></td><td>Remove user from docker group and restore sudo requirements</td></tr>
+<tr><td><code>tam-sudo-docker</code></td><td>Probe whether Docker requires sudo or is directly accessible</td></tr>
+<tr><td><code>tam-sudo-keepalive</code></td><td>Maintain an active sudo authentication token during long-running tasks</td></tr>
+<tr><td><code>tam-sudo-passwordless</code></td><td>Temporarily activate bounded passwordless sudo for a specified number of minutes</td></tr>
+</table>
+<p>All authentication setup tools preserve previous configuration state under recovery paths before modifying PAM or systemd service configurations.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/drives.html">Storage drives and encryption</a> — full disk encryption and LUKS passphrases.</li>
+<li><a href="maintain/recovery.html">System recovery</a> — emergency access and rollback points.</li>
+<li><a href="desktop/config.html">Desktop configuration</a> — application defaults and settings preservation.</li>
+</ul>
+</body>
+</html>
