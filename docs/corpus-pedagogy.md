@@ -55,15 +55,21 @@ Two rules are Tamlinux's own:
 
 ## What each level means
 
+Levels are **difficulty texts on the same page**, not separate files (D226).
+The reader picks all, novice, learner, or expert; the pager shows or hides
+matching sections. The guide's aim is that a complete novice can become an
+expert by reading it, following **Where next** and **See also** (and
+Learner path links) in an order that builds skill.
+
 | | Novice (1) | Learner (2) | Expert (3) |
 | --- | --- | --- | --- |
 | Dreyfus stage | Complete newcomer | Competent practitioner | Proficient to expert |
 | Reader intent | Gentle introduction; assumes no prior knowledge and no interest in practicing | Wants to practice, build skills, and learn by doing | Needs reference semantics, architecture, and advanced usage |
 | Content role | Conceptual orientation: what it is, why it exists, everyday mental model, glossary definitions | The ONLY level with `Goal:` and `Try it` practice exercises, quizzes, and path links | Internals, precise semantics, edge cases, illustrative advanced examples (not student exercises) |
 | Usual Diátaxis kind | Gentle explanation | Tutorial, hands-on how-to | Reference, architectural explanation |
-| Examples | None or brief illustrative concept snippets | Complete worked example and hands-on `Try it` tasks | Advanced illustrative configurations or script pipelines |
+| Examples | None — no worked examples at Novice (D225) | Short worked example and hands-on `Try it` when useful; keep static examples light until interactive sandboxes | Advanced illustrative configurations or script pipelines |
 | Questions | None (no quiz pressure) | Check yourself self-quizzes with folded answers | Trade-offs; open prompts with model answers |
-| Learning paths | Not displayed | Embedded `Start`, `Back`, and `Next` links (`?level=2`) for discovered learning paths | Not displayed |
+| Learning paths | Follow shared **Where next** / **See also** | Those links plus embedded `Start`, `Back`, and `Next` (`?level=2`) where a goal path includes the page | Follow shared **Where next** / **See also** |
 
 ### Personas
 
@@ -142,7 +148,7 @@ Assumes no prior knowledge and no interest in practicing. A gentle introduction 
 2. **Why it matters:** What problem it solves in everyday terms.
 3. **How to think about it:** An everyday mental model or analogy.
 4. **New words:** Plain-language definitions linking to glossary terms.
-*(Novice sections never include Goal statements, Try it practice exercises, or quizzes).*
+*(Novice sections never include Goal statements, Try it practice exercises, quizzes, or worked examples.)*
 
 **Learner (2)**
 
@@ -167,24 +173,27 @@ Reference semantics, internals, and advanced usage.
 
 ## Worked examples
 
+Worked examples belong in **Learner (2) only** (D225). Novice text stays
+simple and never carries command-and-output walkthroughs. Keep static
+examples light: a future `tam` version will offer interactive bash sandbox
+windows; do not invest heavily in textbook-style example craft that those
+will replace. Full rules live in [`corpus-style.md`](corpus-style.md).
+
 - **Capture every output by running the command.** Never write output from
   memory. Run a scratch example in `mktemp -d` and remove the directory at
   the end. When output depends on the machine, write "Your output will
   differ" and name the system and date you captured it on.
-- **Annotate:** follow the example with numbered notes tied to its parts.
-- **Contrasting pairs:** put the tempting command beside the correct one and
-  say why. The correct action comes first, as in the pitfall-to-best-practice
-  convention.
-- **Fade:** set the same task three times with less help each time: full
-  example, a blank to fill (`___`), then the goal alone.
-- **Parsons problems:** give the lines of a pipeline or procedure out of
-  order and ask for the order.
+- **Annotate lightly:** a few numbered notes tied to the example's parts are
+  enough; prefer one short capture over multi-stage fading sequences.
+- **Contrasting pairs** (optional): put the tempting command beside the
+  correct one and say why. The correct action comes first.
 - **Think-aloud diagnosis (expert):** narrate how a practitioner narrows a
-  real symptom. Show each piece of evidence, each branch point and why it
-  was taken.
-- **Case studies** come only from public Tamlinux records, such as a plugin
-  ABI mismatch, or a library crash handled with a self-retiring local
-  package. Keep the lesson: how the system is maintained.
+  real symptom when the page needs it. Show each piece of evidence and why
+  a branch was taken.
+- **Case studies** come only from public Tamlinux records. Keep the lesson:
+  how the system is maintained.
+- Fade ladders and Parsons problems are optional Learner devices, not a
+  default for every page.
 
 ## Self-quizzes
 

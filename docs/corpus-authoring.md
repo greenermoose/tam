@@ -117,10 +117,11 @@ specialized technical knowledge. Define or link unfamiliar terms. See
 `corpus-pedagogy.md` for the complete opening rule.
 
 Before you write or restructure a page, read
-[`corpus-pedagogy.md`](corpus-pedagogy.md): level definitions, personas, the
-novice on-ramp, page patterns, section anatomy, worked examples, self-quizzes
-and paths. Start a new page from the matching file in
-[`templates/`](templates/). The authoritative plan is
+[`corpus-style.md`](corpus-style.md) (how it reads; example policy) and
+[`corpus-pedagogy.md`](corpus-pedagogy.md) (level definitions, personas, the
+novice on-ramp, page patterns, section anatomy, quizzes and paths). Start a
+new page from the matching file in [`templates/`](templates/). The
+authoritative plan is
 [learning levels, goal paths and self-quizzes](plans/learning-levels.md).
 
 ### Learning metadata and references
