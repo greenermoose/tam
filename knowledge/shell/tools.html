@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Shell tools</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shell.beginner, shell.intermediate, desktop.intermediate">
+<meta name="topic" content="shell-tools">
+<meta name="summary" content="Launchers, TUI wrappers, and web apps from the Tamlinux shell tools">
+<meta name="keywords" content="launch, tui, webapp, menu, terminal tools">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="shell/index.html">
+<meta name="prereqs" content="shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="shell/index.html">The Shell</a> / Shell tools</p>
+</nav>
+
+<h1>Shell tools</h1>
+<p>This page explains how Tamlinux launches apps, wraps TUI programs, and opens packaged web apps from menus and chords.</p>
+
+<section data-level="novice">
+<h2>What are shell tools here?</h2>
+<p>Besides the interactive shell itself, Tamlinux ships small commands that start programs: a launcher, terminal UI helpers, and web-app wrappers. They keep launch paths consistent from the keyboard and menus.</p>
+
+<h3>Why it matters</h3>
+<p>You get one way to open a browser app or a TUI instead of hunting for each binary.</p>
+
+<h3>How to think about it</h3>
+<p>Menus call these commands; you can also run them from a terminal when scripting or debugging.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>TUI</dt>
+<dd>Text user interface: a full-screen program in a terminal.</dd>
+<dt>Web app</dt>
+<dd>A site opened in an app-like browser window.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Open the launcher and a TUI</h2>
+<p><strong>Goal:</strong> you will be able to start an app from the launcher and recognize a TUI wrapper.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Shell day to day</strong> &mdash;
+<a href="shell/tools.html?level=2">Start</a> |
+<a href="shell/index.html?level=2">&larr; Back</a> |
+<a href="shell/editors.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Open an empty terminal with Meta + Return (<code>tam-launch-terminal</code> in packaged bindings).</li>
+<li>Run <code>tam-launch-tui --help</code> and <code>tam-launch-webapp --help</code> to see the packaged wrappers.</li>
+<li>Prefer menus for daily use; use the commands when a binding or script needs an exact path.</li>
+</ol>
+
+<aside class="tamlinux">
+<p>Capture and toggle menus are separate: Meta + Ctrl + C (<code>tam-menu toggle capture</code>), Meta + Ctrl + O (<code>tam-menu toggle toggle</code>). See
+<a href="desktop/capture.html">Screen capture</a> and <a href="desktop/toggles.html">Desktop toggles</a>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which command opens a packaged TUI in a terminal?</summary>
+<p><code>tam-launch-tui</code>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Launch / TUI / webapp commands</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-launch-terminal</code></td><td>Terminal window</td></tr>
+<tr><td><code>tam-launch-browser</code></td><td>Browser</td></tr>
+<tr><td><code>tam-launch-editor</code></td><td>Configured editor</td></tr>
+<tr><td><code>tam-launch-config-editor</code></td><td>Config editor path</td></tr>
+<tr><td><code>tam-launch-about</code></td><td>About dialog</td></tr>
+<tr><td><code>tam-launch-nautilus</code> / <code>tam-launch-nautilus-cwd</code></td><td>File manager</td></tr>
+<tr><td><code>tam-launch-docker-tui</code></td><td>Docker TUI helper</td></tr>
+<tr><td><code>tam-launch-tui</code></td><td>Open a TUI in a terminal</td></tr>
+<tr><td><code>tam-launch-webapp</code></td><td>Open a packaged web app</td></tr>
+<tr><td><code>tam-launch-or-focus</code> / <code>tam-launch-or-focus-tui</code> / <code>tam-launch-or-focus-webapp</code></td><td>Raise or start</td></tr>
+<tr><td><code>tam-launch-floating-terminal-with-presentation</code></td><td>Presentation terminal</td></tr>
+<tr><td><code>tam-tui-install</code> / <code>tam-tui-remove</code></td><td>Install or remove a TUI helper</td></tr>
+<tr><td><code>tam-webapp-install</code> / <code>tam-webapp-remove</code></td><td>Install or remove a web app</td></tr>
+<tr><td><code>tam-webapp-handler-hey</code> / <code>tam-webapp-handler-zoom</code></td><td>Named web-app handlers</td></tr>
+<tr><td><code>tam-remove-launcher-entry</code></td><td>Remove a launcher entry</td></tr>
+</table>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="shell/editors.html">Editors</a></li>
+<li><a href="desktop/hotkeys.html">Desktop hotkeys</a></li>
+<li><a href="shell/index.html">The Shell</a></li>
+</ul>
+</body>
+</html>

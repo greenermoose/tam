@@ -13,6 +13,9 @@ import unittest
 from pathlib import Path
 
 BUILDER = Path(__file__).resolve().parents[1] / "tools" / "build-index.py"
+COVERAGE_TOOL = (
+    Path(__file__).resolve().parents[1] / "tools" / "report-component-coverage.py"
+)
 MAKEFILE = BUILDER.parent.parent / "Makefile"
 INDEXES = ("index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
            "index.skills.tsv", "coverage.json")
@@ -244,6 +247,10 @@ class BuildIndex(unittest.TestCase):
         shutil.copyfile(MAKEFILE, root / "Makefile")
         (root / "tools").mkdir()
         shutil.copyfile(BUILDER, root / "tools/build-index.py")
+        # `make corpus` also regenerates component-coverage.json (plan 26 W1).
+        shutil.copyfile(
+            COVERAGE_TOOL, root / "tools/report-component-coverage.py"
+        )
         (root / ".gitignore").write_text("knowledge/.build_id\n")
         return root
 
@@ -412,7 +419,11 @@ class BuildIndex(unittest.TestCase):
         # Keep the real corpus-and-test recipe, with lightweight test fixtures.
         (root / "tests").mkdir()
         (root / "tests/__init__.py").write_text("")
-        for name in ("test_lint_corpus.py", "test_build_index.py"):
+        for name in (
+            "test_lint_corpus.py",
+            "test_build_index.py",
+            "test_component_coverage.py",
+        ):
             (root / "tests" / name).write_text(
                 "from pathlib import Path\nimport unittest\n"
                 "class Check(unittest.TestCase):\n"

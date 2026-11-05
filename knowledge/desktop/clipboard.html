@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Clipboard</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, devices.beginner">
+<meta name="topic" content="clipboard-hub">
+<meta name="summary" content="Copy, paste, and clipboard history on Tamlinux">
+<meta name="keywords" content="clipboard, copy, paste, history, Meta C, Meta V">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="desktop/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / Clipboard</p>
+</nav>
+
+<h1>Clipboard</h1>
+<p>This page explains how copy and paste work across apps on Tamlinux, including clipboard history.</p>
+
+<section data-level="novice">
+<h2>What is the clipboard?</h2>
+<p>The <dfn><a href="learn/glossary/clipboard.html">clipboard</a></dfn> holds the last thing you copied so you can paste it elsewhere. Tamlinux also keeps a short history of earlier items.</p>
+
+<h3>Why it matters</h3>
+<p>One set of chords works in terminals and graphical apps, so you do not relearn copy/paste per program.</p>
+
+<h3>How to think about it</h3>
+<p>Meta + C copies; Meta + V pastes; Meta + Ctrl + V opens history.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="learn/glossary/clipboard.html">Clipboard</a></dt>
+<dd>Holding place for the latest copy.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Copy, paste, and recover an older item</h2>
+<p><strong>Goal:</strong> you will be able to paste an earlier clipboard entry from history.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="use/desktop/clipboard.html?level=2">Start</a> |
+<a href="desktop/capture.html?level=2">&larr; Back</a> |
+<a href="desktop/toggles.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Copy two different short phrases with <kbd>Meta + C</kbd>.</li>
+<li>Press <kbd>Meta + Ctrl + V</kbd> to open clipboard history.</li>
+<li>Select the older phrase and press Return to paste it.</li>
+</ol>
+<p>Full practice steps are on
+<a href="use/desktop/clipboard.html">Finding something you copied earlier</a>.
+Chords are implemented in <code>clipboard.lua</code>.</p>
+
+<h3>Try it</h3>
+<p>Copy a screenshot (see <a href="desktop/capture.html">Screen capture</a>), then paste into an editor with Meta + V.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which chord opens clipboard history?</summary>
+<p>Meta + Ctrl + V.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Binding source</h2>
+<p>Universal clipboard shortcuts are defined in
+<code>desktop/session/hypr/tamlinux/bindings/clipboard.lua</code>. They send
+explicit modifier chords into the focused surface, including layer-shell
+panels, instead of relying on a virtual keyboard alone.</p>
+<p>Related: image items from <code>tam-capture-screenshot</code> land on the same
+clipboard service the history UI reads.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/clipboard.html">Finding something you copied earlier</a></li>
+<li><a href="desktop/hotkeys.html">Desktop hotkeys</a></li>
+<li><a href="desktop/capture.html">Screen capture</a></li>
+</ul>
+</body>
+</html>
