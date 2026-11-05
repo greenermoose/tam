@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Coming from Mac or Windows</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner">
+<meta name="topic" content="transition">
+<meta name="summary" content="Orient Mac and Windows users to the Tamlinux desktop">
+<meta name="keywords" content="mac, windows, transition, beginner, Meta, tiling">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="desktop/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / Coming from Mac or Windows</p>
+</nav>
+
+<h1>Coming from Mac or Windows</h1>
+<p>This page orients people who know macOS or Windows to the Tamlinux graphical desktop.</p>
+
+<section data-level="novice">
+<h2>What stays familiar?</h2>
+<p>You still have windows, a keyboard, a pointer, and a place for the time of day. Tamlinux boots first to text; the graphical desktop starts when you ask for it. The special desktop key is called <dfn><a href="learn/glossary/meta.html">Meta</a></dfn>—on many keyboards it is the key with a Windows logo (not Command on a Mac keyboard unless you remap).</p>
+
+<h3>Why it matters</h3>
+<p>A few renamed ideas (Meta instead of Super/Win, tiling instead of overlapping cascades) prevent early frustration.</p>
+
+<h3>How to think about it</h3>
+<p>Imagine the desktop as a keyboard-first workshop: Meta chords run the shop; the top bar is the status shelf; workspaces are extra desks.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/meta.html">Meta</a></dfn></dt>
+<dd>Desktop command key on Tamlinux.</dd>
+<dt><dfn><a href="learn/glossary/tiling.html">Tiling</a></dfn></dt>
+<dd>Windows share the screen without stacking by default.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Survive the first session</h2>
+<p><strong>Goal:</strong> you will be able to open the menu, open a terminal, list keybindings, and close a practice window.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop basics</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/bar.html?level=2">&larr; Back</a> |
+<a href="desktop/index.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Press <kbd>Meta + Space</kbd> for the Tamlinux menu, then Escape to dismiss it.</li>
+<li>Press <kbd>Meta + Return</kbd> for a terminal.</li>
+<li>Press <kbd>Meta + K</kbd> to browse keybindings.</li>
+<li>Focus the empty terminal and press <kbd>Meta + Q</kbd> to close it.</li>
+</ol>
+<p>These chords come from packaged <code>utilities.lua</code> and <code>applications.lua</code>. On a Mac keyboard, confirm which physical key sends Meta.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>Menus and launchers are keyboard-reachable without a Windows-style Start glyph hunt.</li>
+<li>Keybindings are discoverable live, not only in this guide.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Open the file manager with Meta + F, then close it with Meta + Q after you focus it. Leave any real work windows untouched.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Meta seems dead</dt>
+<dd>You may be pressing Command/Option instead. See <a href="desktop/meta-key.html">The Meta key</a>.</dd>
+<dt>I want overlapping windows</dt>
+<dd>Toggle floating with Meta + T on the focused window; see <a href="desktop/windows.html">Windows and layouts</a>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Fred Horch is the Tamlinux developer. Everyday desktop help lives under Using; deeper recovery stays under Maintaining.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>What is the Tamlinux name for the Windows-logo desktop key?</summary>
+<p>Meta.</p></details>
+<details class="q"><summary>Which chord lists keybindings?</summary>
+<p>Meta + K.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Map familiar ideas to Tamlinux pieces</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Familiar idea</th><th>Tamlinux piece</th></tr>
+<tr><td>Start / Spotlight-style launcher</td><td>Meta + Space (<code>tam-menu</code>), Ctrl + F12 apps menu</td></tr>
+<tr><td>Taskbar clock</td><td>Top bar; <code>fred.clock</code></td></tr>
+<tr><td>Settings panels</td><td>Menus and bar plugins; not a single Control Panel app</td></tr>
+<tr><td>Win+Arrow snapping</td><td>Tiling plus Meta focus/move chords in <code>tiling.lua</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>The graphical session is Hyprland plus the Tamlinux shell. Packaged defaults are cultivar files; user overrides belong under personal config and must not be cited as product defaults.</p>
+
+<h3>Advanced usage</h3>
+<p>Text consoles remain available for recovery (for example Ctrl + Alt + F2) when the graphical session misbehaves—see the desktop hub.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>External Mac keyboards may need remapping before Meta matches muscle memory.</li>
+<li>Preinstalled application chords in <code>applications.lua</code> can be disabled when those apps are absent.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open"><summary>Why does this guide avoid copying macOS or Windows help text?</summary>
+<p>Tamlinux behavior is defined by its packaged bindings and modules; other desktops' manuals describe different systems.</p></details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/index.html">The Tamlinux desktop</a> &mdash; hub for graphical use.</li>
+<li><a href="desktop/hotkeys.html">Desktop hotkeys</a> &mdash; lookup habits.</li>
+<li><a href="desktop/bar.html">The top bar</a> &mdash; status modules.</li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+<li><a href="welcome.html">Welcome</a></li>
+<li><a href="desktop/meta-key.html">The Meta key</a></li>
+</ul>
+</body>
+</html>

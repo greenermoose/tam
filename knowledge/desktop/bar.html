@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The top bar</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate">
+<meta name="topic" content="bar">
+<meta name="summary" content="Tamlinux top bar, tray, and fred.* plugins">
+<meta name="keywords" content="bar, panel, tray, plugins, fred.clock, quickshell">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="desktop/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / The top bar</p>
+</nav>
+
+<h1>The top bar</h1>
+<p>This page explains the strip along the top of the Tamlinux desktop and the fred.* plugins that live there.</p>
+
+<section data-level="novice">
+<h2>What is the top bar?</h2>
+<p>The top bar is a thin strip that shows status and opens small panels: clock, weather, system info, and more. You can hide or show it with a keyboard chord when you need a clearer screen.</p>
+
+<h3>Why it matters</h3>
+<p>The bar answers “what time is it?” and “is the network up?” without opening a full app, and it is where Tamlinux ships its desktop plugins.</p>
+
+<h3>How to think about it</h3>
+<p>Treat the bar like a dashboard row: glance for status, click or activate a module for detail, then return to your windows.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Bar</dt>
+<dd>The desktop status strip (also called a panel).</dd>
+<dt>Plugin</dt>
+<dd>A packaged bar module with an id such as <code>fred.clock</code>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Show the bar and open a plugin</h2>
+<p><strong>Goal:</strong> you will be able to toggle the bar and recognize the packaged fred.* modules by name.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop basics</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/windows.html?level=2">&larr; Back</a> |
+<a href="desktop/transition.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Press <kbd>Meta + Shift + Space</kbd> to toggle the top bar (<code>tam-shell tamlinux-shell toggleBar</code> from <code>utilities.lua</code>).</li>
+<li>If you hid it, press the same chord again to bring it back.</li>
+<li>Locate the clock area—that module is <code>fred.clock</code>. Other modules use ids such as <code>fred.weather</code> and <code>fred.sysinfo</code>.</li>
+</ol>
+<p>Module ids come from each plugin's packaged manifest in the product tree. Layout can vary by host profile.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The shell toggled bar visibility.</li>
+<li>Each fred.* plugin owns one kind of status or panel.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>With the bar visible, open Meta + K and confirm the bar toggle chord. Then hide and show the bar once without changing themes or layouts.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Bar will not return</dt>
+<dd>Press Meta + Shift + Space again. If the session is wedged, use a text virtual terminal for recovery as noted on the desktop hub.</dd>
+<dt>A module is missing</dt>
+<dd>Host profiles may omit optional plugins; the packaged set is listed in the expert section.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Plugins are product code under <code>desktop/plugins/fred.*/</code> and reach the session through packaged Tamlinux assemblies, not by copying folders by hand.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which chord toggles the top bar in the packaged bindings?</summary>
+<p>Meta + Shift + Space.</p></details>
+<details class="q"><summary>What is the id of the clock plugin?</summary>
+<p><code>fred.clock</code>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Packaged fred.* modules</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Id</th><th>Name</th><th>Role</th></tr>
+<tr><td><code>fred.agents</code></td><td>Agents</td><td>Agent usage and limits panel</td></tr>
+<tr><td><code>fred.clock</code></td><td>Clock</td><td>Time, agenda, calendars</td></tr>
+<tr><td><code>fred.keyboard</code></td><td>Keyboard</td><td>Shortcut explorer</td></tr>
+<tr><td><code>fred.monitor</code></td><td>Display</td><td>Multi-display layouts</td></tr>
+<tr><td><code>fred.sysinfo</code></td><td>System Information</td><td>Hardware and resource panel</td></tr>
+<tr><td><code>fred.tamversion</code></td><td>Tamlinux Version</td><td>Running shell version</td></tr>
+<tr><td><code>fred.tides</code></td><td>Tides</td><td>Tide information</td></tr>
+<tr><td><code>fred.weather</code></td><td>Weather</td><td>Weather panel</td></tr>
+<tr><td><code>fred.workspaces</code></td><td>Workspaces</td><td>Workspace numbers and desktop modes</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>The Tamlinux shell (Quickshell-based) loads bar modules declared for the cultivar. Each plugin directory holds a manifest with <code>id</code>, <code>name</code>, and <code>version</code>. <code>fred.workspaces</code> may already appear in workspace documentation; the full id list above is the coverage set for the bar.</p>
+
+<h3>Advanced usage</h3>
+<p>Theme and background menus are separate (Meta + Shift + T, Meta + Ctrl + Space). Plugin authoring and <code>tam-plugin</code> belong under Improving, not this page.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>Optional modules can be absent on a host without breaking the bar.</li>
+<li>Hiding the bar does not quit plugins; it only changes visibility.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open"><summary>Why document plugin ids such as <code>fred.sysinfo</code> instead of only the friendly label?</summary>
+<p>Ids are stable product names used in packaging and coverage checks; labels can vary in the UI.</p></details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/hotkeys.html">Desktop hotkeys</a> &mdash; chords that control the bar and menus.</li>
+<li><a href="desktop/workspaces.html">Organizing windows and screens</a> &mdash; workspace strip behavior.</li>
+<li><a href="use/desktop/notifications.html">Notifications</a> &mdash; notices near the bar.</li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+<li><a href="desktop/transition.html">Coming from Mac or Windows</a></li>
+<li><a href="use/desktop/displays.html">Displays</a> &mdash; pairs with <code>fred.monitor</code></li>
+</ul>
+</body>
+</html>

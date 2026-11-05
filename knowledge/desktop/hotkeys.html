@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Desktop hotkeys</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate">
+<meta name="topic" content="hotkeys">
+<meta name="summary" content="Where Tamlinux keeps keybindings and how to look them up">
+<meta name="keywords" content="hotkeys, keybindings, Meta, shortcuts, bindings">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="desktop/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / Desktop hotkeys</p>
+</nav>
+
+<h1>Desktop hotkeys</h1>
+<p>This page explains how keyboard shortcuts drive the Tamlinux desktop and where to look them up when you forget one.</p>
+
+<section data-level="novice">
+<h2>What is a hotkey?</h2>
+<p>A hotkey is a key or chord that asks the desktop to do something: open a terminal, close a window, raise volume, or show a menu. On Tamlinux the main desktop modifier is the <dfn><a href="learn/glossary/meta.html">Meta</a></dfn> key (often marked with a Windows logo).</p>
+
+<h3>Why it matters</h3>
+<p>Remembering a few chords is faster than hunting through menus, and Meta + K always shows the live list when memory fails.</p>
+
+<h3>How to think about it</h3>
+<p>Think of Meta chords as talking to the room (the desktop), while Control chords usually talk to the app inside the focused window.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/meta.html">Meta</a></dfn></dt>
+<dd>The primary desktop modifier key.</dd>
+<dt>Keybinding</dt>
+<dd>A recorded mapping from a chord to an action.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Find and try a packaged binding</h2>
+<p><strong>Goal:</strong> you will be able to open the keybindings list and identify a safe practice chord.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Desktop basics</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/meta-key.html?level=2">&larr; Back</a> |
+<a href="desktop/windows.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Press <kbd>Meta + K</kbd> to open keybindings via <code>tam-menu-keybindings</code>.</li>
+<li>Find <kbd>Meta + Return</kbd> (terminal) under application bindings.</li>
+<li>Press <kbd>Meta + Return</kbd> to open an empty terminal, then <kbd>Meta + Q</kbd> to close only that window after you confirm it has focus.</li>
+</ol>
+<p>Actions follow the packaged binding files; personal overrides in your config can differ. Check Meta + K on your machine.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The keybindings UI lists what this session will run.</li>
+<li>Meta + Return starts the terminal launcher.</li>
+<li>Meta + Q closes the focused window only.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>From Meta + K, find the binding that toggles the top bar (<kbd>Meta + Shift + Space</kbd>). Toggle once, then toggle back. Leave other windows alone.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A chord does nothing</dt>
+<dd>Open Meta + K and confirm the chord is listed. Overrides or a grabbed key in another app can steal it.</dd>
+<dt>Wrong window closed</dt>
+<dd>Focus the empty practice window first; Meta + Q always targets focus.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Packaged chords live under binding files such as <code>applications.lua</code>, <code>tiling.lua</code>, <code>utilities.lua</code>, <code>clipboard.lua</code>, <code>media.lua</code>, and optional <code>voxtype.lua</code>. See the expert section for paths.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which chord opens the live keybindings list?</summary>
+<p>Meta + K, which runs <code>tam-menu-keybindings</code>.</p></details>
+<details class="q"><summary>Why check Meta + K instead of memorizing only this page?</summary>
+<p>Your machine may carry personal overrides; Meta + K shows what this session will actually run.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Binding sources and helpers</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>File</th><th>Role</th></tr>
+<tr><td><code>applications.lua</code></td><td>Terminal, browser, file manager, editor launchers</td></tr>
+<tr><td><code>tiling.lua</code></td><td>Close, float, focus, workspaces, layout toggles</td></tr>
+<tr><td><code>utilities.lua</code></td><td>Menus, Meta + K, bar toggle, theme/background</td></tr>
+<tr><td><code>clipboard.lua</code></td><td>Universal clipboard chords into focused surfaces</td></tr>
+<tr><td><code>media.lua</code></td><td>Volume, brightness, media keys via <code>tam-audio-*</code> / <code>tam-brightness-*</code></td></tr>
+<tr><td><code>voxtype.lua</code></td><td>Dictation toggles when <code>voxtype</code> is present</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Product defaults ship in the <code>tamlinux</code> repository under
+<code>desktop/session/hypr/tamlinux/bindings/</code>. The session loads those Lua files;
+<code>tam-menu-keybindings</code> reads the effective map for the UI. Do not treat
+<code>~/.config/hypr/</code> alone as the product source of truth.</p>
+
+<h3>Advanced usage</h3>
+<p>Related menus: <code>tam-menu-tmux-keybindings</code> (Meta + Shift + K) and
+<code>tam-menu-herdr-keybindings</code> (Meta + Ctrl + K). Capture opens with
+Meta + Ctrl + C via <code>tam-menu toggle capture</code>.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>Layer-shell panels need clipboard chords that target the focused surface; see comments in <code>clipboard.lua</code>.</li>
+<li>Hardware media keys are marked <code>locked</code> so they work on the lock screen where appropriate.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open"><summary>Where should a documentation claim about a default chord cite its source?</summary>
+<p>The packaged file under <code>desktop/session/hypr/tamlinux/bindings/</code> in the product repository (for example <code>tiling.lua</code>), not a remembered live config alone.</p></details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windows.html">Windows and layouts</a> &mdash; move, float, and workspaces.</li>
+<li><a href="desktop/bar.html">The top bar</a> &mdash; plugins and tray.</li>
+<li><a href="desktop/meta-key.html">The Meta key</a> &mdash; modifier details.</li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+<li><a href="use/desktop/keyboard-touchpad.html">Keyboard and touchpad</a></li>
+<li><a href="use/desktop/clipboard.html">Clipboard</a></li>
+</ul>
+</body>
+</html>
