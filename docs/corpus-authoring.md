@@ -161,6 +161,14 @@ unclassified/unmapped, as the JSON and coverage report also show.
 unclassified/unmapped pages and anatomy warnings. Read it with
 `python3 tools/report-coverage.py --warnings` after `make corpus`. A mapped
 page is a coverage claim, not learner validation or proof of mastery.
+
+`component-coverage.json` (plan 26 W1) maps each product component
+(`tamlinux/commands/*`, `fred.*` plugins, binding `.lua` files) to corpus
+pages that mention its exact name, or to an exemption in
+`tools/component-coverage-exemptions.tsv`. Read or refresh with
+`python3 tools/report-component-coverage.py` (and `--json` / `--check`).
+`--check` is available but not yet required by `make corpus-and-test`.
+Style and teaching quality remain under [`corpus-style.md`](corpus-style.md).
 The unmapped list includes navigation and reference pages that may not need
 skill mappings; the per-cell page/path gaps identify missing teaching coverage.
 Anatomy and quiz gaps are warnings during migration; reference, glossary,

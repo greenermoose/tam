@@ -54,7 +54,7 @@ BUILD := build
 TAM   := $(BUILD)/tam
 SRC   := src/tam.c src/identity.c src/corpus.c src/views.c src/address.c src/html.c src/html_scan.c src/render.c src/display.c src/pager.c src/pager_draw.c src/pager_input.c src/pager_links.c src/pager_nav.c src/pager_search.c src/pager_screen.c src/external.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/upgrade.c
 DEPS  := src/version.h src/corpus.h src/address.h src/views.h src/html.h src/html_scan.h src/render.h src/display.h src/pager.h src/pager_int.h src/pager_screen.h src/external.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/fold.h src/ask.h src/info.h src/discovery.h src/tldr.h src/upgrade.h
-INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/coverage.json
+INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/coverage.json knowledge/component-coverage.json
 
 OBJS  := $(SRC:src/%.c=$(BUILD)/%.o)
 
@@ -120,6 +120,8 @@ endif
 # timestamp. Always recheck; the generator preserves unchanged output files.
 corpus:
 	@$(RUN_TIMED) "Corpus index generation (build-index.py)" python3 tools/build-index.py
+	@$(RUN_TIMED) "Component coverage map (report-component-coverage.py)" \
+		python3 tools/report-component-coverage.py --quiet --json knowledge/component-coverage.json
 
 # Direct output requests share the same generation, including under make -j.
 $(INDEX): corpus
@@ -135,6 +137,7 @@ test: all
 	@$(RUN_TIMED) "Corpus HTML linter (tools/lint-corpus.py)" python3 tools/lint-corpus.py
 	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
 	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
+	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
 	@$(TIME_SUMMARY)
 
@@ -153,6 +156,7 @@ corpus-and-test: command corpus
 	@$(RUN_TIMED) "Corpus HTML linter (tools/lint-corpus.py)" python3 tools/lint-corpus.py
 	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
 	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
+	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
 	@$(TIME_SUMMARY)
 
@@ -179,7 +183,7 @@ check-clean-tree:
 	[ -z "$$dirty" ] && exit 0; \
 	printf '%s\n' 'tam: refusing to install from a dirty tree:' >&2; \
 	printf '%s\n' "$$dirty" | sed 's/^/  /' >&2; \
-	if [ -z "$$(git -C $(CURDIR) status --porcelain -- $(INSTALL_SOURCES) ':!knowledge/index.*' ':!knowledge/coverage.json')" ]; then \
+	if [ -z "$$(git -C $(CURDIR) status --porcelain -- $(INSTALL_SOURCES) ':!knowledge/index.*' ':!knowledge/coverage.json' ':!knowledge/component-coverage.json')" ]; then \
 		printf '%s\n' 'Only the regenerated corpus index changed; commit it, then install again:' \
 			"  git commit -m 'Refresh corpus index revisions after $$(git -C $(CURDIR) rev-parse --short HEAD)' -- $(INDEX_FILES)" >&2; \
 	else \
