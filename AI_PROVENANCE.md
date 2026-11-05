@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-05 | Plan 26 Phase 5 maintenance, W5 contributing & zero-gap coverage; corpus 0.75.0 | Antigravity CLI 1.5.1; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-05-tam-plan26-phase5-maintenance-w5.md) |
 | 2026-11-05 | Plan 26 Phase 4 appearance, security and Tier 2 folds; corpus 0.74.0 | Antigravity CLI 1.5.1; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-05-tam-plan26-phase4-appearance-security.md) |
 | 2026-11-05 | Plan 26 Phase 3 hardware & config hubs (displays, input, drives, config, plugins); corpus 0.73.0 | Antigravity CLI 1.5.1; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-05-tam-plan26-phase3-hardware-config.md) |
 | 2026-11-04 | Fix expert-level filtering assertions in tests/run.sh for desktop hubs; test suite passes | Antigravity CLI 1.5.1; Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`) | [Session record](docs/ai/2026-11-04-tam-expert-terse-test-fix.md) |

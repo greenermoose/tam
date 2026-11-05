@@ -139,7 +139,7 @@ $ rmdir -- "$scratch"
 
 <table>
 <tr><th>Prefix</th><th>Ownership</th><th>Scope and Design Rules</th></tr>
-<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories, must support <code>--help</code> and <code>--version</code>, and must operate cleanly in non-interactive pipelines.</td></tr>
+<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories, must support <code>--help</code> and <code>--version</code>, and must operate cleanly in non-interactive pipelines. Interactive menu wrappers use <code>tam-show-logo</code> for banners and <code>tam-show-done</code> for completion pauses.</td></tr>
 <tr><td><code>fred-*</code></td><td>Personal Machine</td><td>Private, user-specific scripts tailored to a single user's workstation, local aliases, or specific hardware setups.</td></tr>
 </table>
 

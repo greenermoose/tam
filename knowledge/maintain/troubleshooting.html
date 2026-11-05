@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Troubleshooting and Diagnostics</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="troubleshooting.beginner, troubleshooting.intermediate, troubleshooting.expert">
+<meta name="topic" content="troubleshooting">
+<meta name="summary" content="Diagnose desktop issues, process crashes, stale caches, and test workstation health">
+<meta name="keywords" content="troubleshooting, diagnose, crash, coredump, quickshell, qmlcache, test, upgrade, logs">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="maintain">
+<meta name="parent" content="maintain/index.html">
+<meta name="prereqs" content="maintain">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Troubleshooting and Diagnostics</p>
+</nav>
+
+<h1>Troubleshooting and Diagnostics</h1>
+<p>This page explains how to diagnose process crashes, resolve desktop shell glitches, clear compiled caches, and run diagnostic tests on Tamlinux.</p>
+
+<section data-level="novice">
+<h2>What is troubleshooting?</h2>
+<p>Troubleshooting means finding out why a program stopped working and applying a targeted fix. On Tamlinux, issues are isolated so one failing program does not bring down the entire computer.</p>
+
+<h3>Why it matters</h3>
+<p>When an application crashes or a status icon disappears, you can find the exact error message and recover without rebooting or guessing.</p>
+
+<h3>How to think about it</h3>
+<p>Separate symptoms by layer: application crash, desktop shell glitch, or system service fault. Always check recent logs before making changes.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Crash</dt>
+<dd>An unexpected termination of a running program caused by an unhandled error or signal.</dd>
+<dt>Core dump</dt>
+<dd>A snapshot of a program's memory recorded by the kernel when it crashes, used for debugging.</dd>
+<dt>Cache</dt>
+<dd>Temporary stored data designed to speed up loading, which can sometimes become stale after an update.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Investigate crashes and clear stale state safely</h2>
+<p><strong>Goal:</strong> you will be able to review crash notices, purge compiled desktop caches, and execute diagnostic dry-runs.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Maintaining Tamlinux</strong> &mdash;
+<a href="maintain/index.html?level=2">Start</a> |
+<a href="maintain/index.html?level=2">&larr; Back</a> |
+<a href="maintain/logs.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>When an application crashes, <code>tam-crash-watch</code> issues a desktop alert naming the process ID (PID).</li>
+<li>To gather crash evidence and view an automated report, run:
+<pre class="session" data-risk="read-only">
+$ tam-agent-crash 12345
+</pre>
+</li>
+<li>If desktop status bar plugins fail to display updated code after an update, purge stale QML caches:
+<pre class="session" data-risk="low">
+$ tam-qmlcache-purge
+</pre>
+</li>
+<li>Verify desktop layout without making changes using the test battery:
+<pre class="session" data-risk="read-only">
+$ tam-desktop-test --dry-run
+</pre>
+</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>coredumpctl list -n 5</code> in your terminal. This prints recent process crash records recorded by systemd without altering any files.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The graphical desktop is completely unresponsive</dt>
+<dd>Press <kbd>Ctrl + Alt + F2</kbd> to switch to a text virtual console, log in, and check journal logs.</dd>
+<dt>A component upgrade requires full system restart</dt>
+<dd>Log in to a text virtual console and run <code>tam-workstation-upgrade</code> to execute staged upgrade verification.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux services record detailed diagnostic traces in the system journal; cite boot IDs and precise time windows when reviewing issues.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which background daemon monitors user processes for crashes and offers diagnosis?</summary>
+<p><code>tam-crash-watch</code>.</p></details>
+<details class="q"><summary>What tool purges compiled QML caches when plugin code changes?</summary>
+<p><code>tam-qmlcache-purge</code>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Diagnostic and troubleshooting command family</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-crash-watch</code></td><td>Monitor user process exits and notify with AI diagnosis options</td></tr>
+<tr><td><code>tam-agent-crash</code></td><td>Collect stack trace and crash context for a PID using the default agent</td></tr>
+<tr><td><code>tam-qmlcache-purge</code></td><td>Remove stale compiled Quickshell QML caches for deployed desktop plugins</td></tr>
+<tr><td><code>tam-desktop-test</code></td><td>Execute physical desktop test battery for layout and workspace validation</td></tr>
+<tr><td><code>tam-workstation-upgrade</code></td><td>Perform workstation assembly upgrade and migration from text console</td></tr>
+</table>
+<p>Home Manager stores deployed plugins with identical Unix timestamps (1970-01-01) in the Nix store. <code>tam-qmlcache-purge</code> clears cached bytecode by matching plugin paths against SHA-1 cache entries, preventing stale execution across version switches.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="maintain/logs.html">Truthful system diagnostics and logs</a> — journal inspection and filtering.</li>
+<li><a href="maintain/recovery.html">Emergency disaster recovery</a> — Magic SysRq and virtual consoles.</li>
+<li><a href="maintain/rollback.html">Returning to an earlier working state</a> — generational rollbacks.</li>
+</ul>
+</body>
+</html>
