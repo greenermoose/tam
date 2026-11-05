@@ -6,8 +6,8 @@
 - **CLI Tool:** Antigravity CLI 1.5.1
 - **Model:** Gemini 3.8 Flash (High)
 - **Transcript:** Retained privately by the author.
-- **Commits:** pending commit
-- **Authorship:** Fred said Proceed to Phase 5. agy created `maintain/troubleshooting.html` and `improve/contributing.html` (W5), folded remaining tool coverage into `desktop/capture.html`, `improve/scripting.html`, and `desktop/config.html`, refreshed indexes and coverage, and authored this record.
+- **Commits:** `54dac25` (Phase 5 content, zero-gap coverage, corpus 0.75.0), followed by `Makefile` gap check wiring.
+- **Authorship:** Fred said Proceed to Phase 5. agy created `maintain/troubleshooting.html` and `improve/contributing.html` (W5), folded remaining tool coverage into `desktop/capture.html`, `improve/scripting.html`, and `desktop/config.html`, refreshed indexes and coverage, wired `report-component-coverage.py --quiet --check` into `test` and `corpus-and-test` in `Makefile` with graceful skipping when product tree is absent, and authored this record.
 - **Checked against:** `tamlinux/commands` inventory via `report-component-coverage.py`; command source implementations under `tamlinux/commands/` (`tam-crash-watch`, `tam-agent-crash`, `tam-qmlcache-purge`, `tam-desktop-test`, `tam-workstation-upgrade`, `tam-work`, `tam-dev`, `tam-fleet`, `tam-transcode`, `tam-transcode-ascii`, `tam-show-logo`, `tam-show-done`, `tam-branding-about`); `docs/corpus-style.md` and `docs/corpus-authoring.md`.
 
 ## Guiding prompts

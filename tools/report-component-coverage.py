@@ -246,12 +246,15 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"Wrote {out.relative_to(tam)}")
     gaps = [r for r in report["components"] if r["status"] == "gap"]
     if args.check and gaps:
-        if not args.quiet:
-            print(f"--check: {len(gaps)} component(s) uncovered", file=sys.stderr)
+        print(f"--check: {len(gaps)} component(s) uncovered", file=sys.stderr)
+        return 1
+    if args.tamlinux is not None and report["product_root"] is None:
+        print(f"--tamlinux: {args.tamlinux} is not a directory", file=sys.stderr)
         return 1
     if args.check and report["product_root"] is None:
-        print("--check: no product tree; cannot verify coverage", file=sys.stderr)
-        return 1
+        if not args.quiet:
+            print("--check: no product tree; skipped check", file=sys.stderr)
+        return 0
     return 0
 
 

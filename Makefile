@@ -138,6 +138,8 @@ test: all
 	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
 	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
 	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
+	@$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
+		python3 tools/report-component-coverage.py --quiet --check
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
 	@$(TIME_SUMMARY)
 
@@ -157,6 +159,8 @@ corpus-and-test: command corpus
 	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
 	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
 	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
+	@$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
+		python3 tools/report-component-coverage.py --quiet --check
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
 	@$(TIME_SUMMARY)
 
