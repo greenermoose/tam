@@ -6,7 +6,7 @@
 - **CLI Tool:** cursor 3.27.22
 - **Model:** Composer (`composer`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** (pending Fred's Commit word)
+- **Commits:** `6139b8d`
 - **Authorship:** Fred said Proceed for Phase 2. Cursor wrote the six hubs,
   index links, coverage refresh, plan 26 status, and this record.
 - **Checked against:** `tamlinux/commands` inventory via
