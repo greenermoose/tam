@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Desktop Configuration and Defaults</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
+<meta name="topic" content="desktop-config">
+<meta name="summary" content="Packaged defaults, user overrides, default applications, and session initialization">
+<meta name="keywords" content="config, dotfiles, settings, defaults, browser, terminal, agent, session, tam-session-init, tam-settings-preserve">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="desktop/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="desktop/index.html">The Tamlinux Desktop</a> / Desktop Configuration and Defaults</p>
+</nav>
+
+<h1>Desktop Configuration and Defaults</h1>
+<p>This page explains how Tamlinux organizes desktop defaults, personal overrides, default application handlers, and session state.</p>
+
+<section data-level="novice">
+<h2>What is desktop configuration?</h2>
+<p>Configuration controls how your programs look and behave. Tamlinux provides carefully tested defaults out of the box, while leaving you full control to customize applications in your home folder.</p>
+
+<h3>Why it matters</h3>
+<p>Separating system defaults from user overrides means system updates can refresh packaged programs without overwriting your personal themes, keybindings, or preferred web browser.</p>
+
+<h3>How to think about it</h3>
+<p>Tamlinux follows the XDG base directory specification. Read-only application defaults reside in system packages, while personal overrides live under <code>~/.config/</code>. Session state and cache files live under <code>~/.local/state/</code> and <code>~/.cache/</code>.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Dotfiles</dt>
+<dd>Configuration files and directories starting with a dot in your home directory, often placed under <code>~/.config/</code>.</dd>
+<dt>Default handler</dt>
+<dd>The chosen program that automatically opens a file type or web address when clicked.</dd>
+<dt>Session initialization</dt>
+<dd>Setting up fresh, clean user defaults on a new account or desktop startup.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Choose your default applications safely</h2>
+<p><strong>Goal:</strong> you will be able to query and choose your default browser, terminal, and coding agent without manually editing desktop entry files.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="desktop/index.html?level=2">Start</a> |
+<a href="desktop/hotkeys.html?level=2">&larr; Back</a> |
+<a href="improve/plugins.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Check your currently configured default web browser:
+<pre class="session" data-risk="read-only">
+$ tam-default-browser
+chromium
+</pre>
+</li>
+<li>To change the default browser, pass the supported browser name:
+<pre class="session" data-risk="low">
+$ tam-default-browser firefox
+</pre>
+</li>
+<li>Check your default terminal emulator:
+<pre class="session" data-risk="read-only">
+$ tam-default-terminal
+alacritty
+</pre>
+</li>
+<li>Inspect or select your default coding agent:
+<pre class="session" data-risk="read-only">
+$ tam-default-agent
+</pre>
+</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>tam-default-terminal</code> without arguments in your terminal. It prints the active terminal without making any modifications.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Web links open in an unexpected program</dt>
+<dd>Re-run <code>tam-default-browser</code> with your desired browser name to refresh XDG mime associations.</dd>
+<dt>Settings change broke an application configuration</dt>
+<dd>Check <code>~/.local/state/tamlinux/</code> for preserved snapshots created by <code>tam-settings-preserve</code>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Before modifying critical configuration keys, Tamlinux helpers use <code>tam-settings-preserve</code> to snapshot configuration files safely.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Where do personal user configuration overrides live?</summary>
+<p>Under <code>~/.config/</code> according to the XDG base directory specification.</p></details>
+<details class="q"><summary>Which command inspects and sets the default web browser?</summary>
+<p><code>tam-default-browser</code>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Configuration and session command family</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-default-browser</code></td><td>Show or set default browser for web protocols and HTML files</td></tr>
+<tr><td><code>tam-default-terminal</code></td><td>Show or set default terminal emulator for <code>xdg-terminal-exec</code></td></tr>
+<tr><td><code>tam-default-agent</code></td><td>Read, select, or launch supported coding agents</td></tr>
+<tr><td><code>tam-browser-command</code></td><td>Resolve browser desktop entry Exec specifications into argv without executing</td></tr>
+<tr><td><code>tam-desktop-mode</code></td><td>Query or switch workspace layouts and desktop modes used by the bar</td></tr>
+<tr><td><code>tam-session-init</code></td><td>Initialize application defaults and user assets upon fresh session startup</td></tr>
+<tr><td><code>tam-settings-preserve</code></td><td>Snapshot user files and state before settings mutations to provide rollback</td></tr>
+</table>
+<p>Desktop applications launch via standard XDG desktop files. <code>tam-browser-command</code> parses Exec strings according to the desktop entry specification, allowing clean invocation without shell interpolation risks.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/hotkeys.html">Desktop hotkeys</a> — system chords and keyboard customization.</li>
+<li><a href="improve/plugins.html">Shell plugins</a> — customizing status bars and panels.</li>
+<li><a href="improve/scripting.html">Shell scripting</a> — writing robust personal tools.</li>
+</ul>
+</body>
+</html>

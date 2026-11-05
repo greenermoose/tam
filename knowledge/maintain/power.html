@@ -23,7 +23,7 @@ download. Losing power during ordinary suspend can lose the session held in RAM.
 <p>Turning off a monitor does not stop a
 download. Losing power during ordinary suspend can lose the session held in RAM.</p>
 <h3>How to think about it</h3>
-<p>A dark screen is not sleep. Suspend keeps the session in powered RAM; hibernation writes a memory image to storage first.</p>
+<p>A dark screen is not sleep. Suspend keeps the session in powered RAM; hibernation writes a memory image to storage first. On laptops, power profiles balance speed and battery life.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="learn/glossary/dpms.html">DPMS</a></dt><dd>Display Power Management Signaling; display power control, distinct from system sleep.</dd>
@@ -88,7 +88,7 @@ If a display is already dark, try a modifier such as Shift rather than Enter,
 then wait until you can see the focused window. Whether that input can wake
 the machine depends on its configuration and hardware. Nothing read here needs undo.</p>
 <aside class="tamlinux"><p><code>fred.workspaces</code> has per-display power controls. They are distinct
-from a system-sleep request. The packaged <code>tam-hibernate-swap</code> hook
+from a system-sleep request. Check battery state with <code>tam-battery-status</code> and inspect active power profiles with <code>tam-powerprofiles-list</code>. The packaged <code>tam-hibernate-swap</code> hook
 attempts to drain zram swap before the hibernation leg and restore it afterwards,
 with time and disk-headroom guards. It can skip or fail a drain; its presence
 does not prove a successful hibernation. Do not run the hook manually for this lesson.</p></aside>
@@ -143,6 +143,17 @@ does not change sysfs values, swap, boot parameters or sleep policy.</p>
 <section class="quiz"><h3>Check yourself</h3>
 <details class="q open"><summary>Why might <code>image_size=0</code> fail to fix an allocation error even with abundant disk swap?</summary><p>It asks for a minimal image, rather than guaranteeing sufficient working RAM. Unsavable or unreclaimable memory, zram pressure and allocation requirements can still prevent image preparation. Locate the failing stage and test a specific explanation; disk space and RAM headroom are different budgets.</p></details>
 <details class="q open"><summary>What would a claim of successful hibernation and wake need beyond the available-state list?</summary><p>Evidence of the requested policy, completed image write and restore, working devices and session after resume, and an explicit hardware/configuration scope. Energy and wake-time claims additionally need measurements. One successful cycle does not establish reliability across workloads.</p></details></section>
+<h3>Power and battery management commands</h3>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-battery-status</code></td><td>Report battery percentage, time to empty or full, and power draw (<code>--shell</code> for scripts)</td></tr>
+<tr><td><code>tam-battery-low</code></td><td>Shell notification alert executed when battery charge drops to 10%</td></tr>
+<tr><td><code>tam-powerprofiles-list</code></td><td>List supported platform power profiles (<code>--active-state</code> shows active profile)</td></tr>
+<tr><td><code>tam-powerprofiles-set</code></td><td>Switch and remember power profile for AC mains vs battery power</td></tr>
+<tr><td><code>tam-hibernation-available</code></td><td>Succeed when platform kernel and swap support hibernation</td></tr>
+<tr><td><code>suspend-unless-stay-awake</code></td><td>Suspend the workstation unless the Stay Awake toggle is engaged</td></tr>
+<tr><td><code>tam-nut</code></td><td>Hardware inspection and environment verification in laptop bootstrap (<code>tam-nut inspect</code>)</td></tr>
+</table>
 <h3>Sources and improve it</h3>
 <p>Read <a href="man:systemd-sleep(8)">systemd-sleep(8)</a> and
 <a href="man:systemd-sleep.conf(5)">systemd-sleep.conf(5)</a>, offline if installed.

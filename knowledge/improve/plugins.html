@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Shell and Bar Plugins</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.intermediate, desktop.expert">
+<meta name="topic" content="plugins">
+<meta name="summary" content="Authoring, testing, and managing Tamlinux shell and bar plugins">
+<meta name="keywords" content="plugins, quickshell, qml, fred.*, tam-plugin, desktop bar, extension, manifests">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="improve">
+<meta name="parent" content="improve/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="improve/index.html">Extending and Improving Your Workstation</a> / Shell and Bar Plugins</p>
+</nav>
+
+<h1>Shell and Bar Plugins</h1>
+<p>This page explains how Tamlinux status bar plugins work, how to manage them, and how to author new extensions.</p>
+
+<section data-level="novice">
+<h2>What is a Tamlinux plugin?</h2>
+<p>A plugin is an extension module that adds items to the top status bar or opens specialized desktop panels. Plugins can display a clock, battery metrics, workspace status, or system resource meters.</p>
+
+<h3>Why it matters</h3>
+<p>Plugins let you customize what information is visible on your screen at a glance without modifying the compositor or rewriting the main desktop shell.</p>
+
+<h3>How to think about it</h3>
+<p>Tamlinux desktop plugins (named in the <code>fred.*</code> namespace) run inside Quickshell. Each plugin lives in its own directory with a declarative manifest and QML interface files. Plugins interact with the system through bounded helpers rather than arbitrary root access.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>QML</dt>
+<dd>Qt Modeling Language; a declarative language used to define user interface components and layouts.</dd>
+<dt>Manifest</dt>
+<dd>A JSON description file (<code>manifest.json</code>) declaring a plugin's identifier, version, title, entry points, and permissions.</dd>
+<dt>Quickshell</dt>
+<dd>The flexible Wayland desktop shell engine powering Tamlinux panels, bars, and overlays.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect and test plugins safely</h2>
+<p><strong>Goal:</strong> you will be able to list installed desktop plugins and understand how development plugins are linked for testing.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Extending Tamlinux</strong> &mdash;
+<a href="improve/index.html?level=2">Start</a> |
+<a href="desktop/config.html?level=2">&larr; Back</a> |
+<a href="improve/scripting.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>List installed plugins and their active states:
+<pre class="session" data-risk="read-only">
+$ tam-plugin list
+fred.bar
+fred.clock
+fred.monitor
+fred.sysinfo
+fred.workspaces
+</pre>
+</li>
+<li>Inspect the status of a specific plugin:
+<pre class="session" data-risk="read-only">
+$ tam-plugin status fred.clock
+Plugin: fred.clock
+Version: 1.3.3
+Status: active
+</pre>
+</li>
+<li>When authoring a plugin, link your development checkout into the local test directory:
+<pre class="session" data-risk="low">
+$ tam-plugin dev link my-plugin
+</pre>
+</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>tam-plugin --help</code> in your terminal to see the commands available for listing, enabling, linking, and testing plugins.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Plugin fails to appear on the bar</dt>
+<dd>Check the journal for Quickshell QML parse errors using <code>journalctl --user -u quickshell</code>.</dd>
+<dt>Plugin shows old assets after editing</dt>
+<dd>Restart the shell or run <code>tam-plugin dev reload</code> to clear live memory caches.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Plugins follow strict security architecture: single entry point, bounded execution environments, and no privileged commands.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which command manages and tests Tamlinux shell plugins?</summary>
+<p><code>tam-plugin</code>.</p></details>
+<details class="q"><summary>What language is used to write Tamlinux desktop plugin user interfaces?</summary>
+<p>QML (Qt Modeling Language) running under Quickshell.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Plugin architecture and development</h2>
+<p>Tamlinux product plugins are developed in the core repository under <code>desktop/plugins/fred.&lt;id&gt;/</code>. Each plugin directory contains:</p>
+<ul>
+<li><code>manifest.json</code>: declares id, name, version, author, and QML entry point.</li>
+<li><code>Bar.qml</code> or <code>Panel.qml</code>: top-level interface component.</li>
+<li><code>assets/</code>: icons and static graphic resources.</li>
+</ul>
+<table>
+<tr><th>Command / Tool</th><th>Role</th></tr>
+<tr><td><code>tam-plugin</code></td><td>Manage live, development, and test plugin registrations</td></tr>
+<tr><td><code>tam-plugin dev</code></td><td>Link development checkouts into active testing directories</td></tr>
+<tr><td><code>tam-plugin test</code></td><td>Run plugin test suites against isolated mock environments</td></tr>
+</table>
+<p>All plugins run within the unprivileged user session. Any persistent settings should be stored under descriptor-relative cache paths or standard XDG state directories.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/bar.html">The top bar</a> — bar layout and status plugins.</li>
+<li><a href="improve/scripting.html">Shell scripting</a> — writing helper scripts for plugins.</li>
+<li><a href="improve/efficiency.html">Efficiency and event handling</a> — zero-polling design.</li>
+</ul>
+</body>
+</html>

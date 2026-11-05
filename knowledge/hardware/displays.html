@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Displays and Monitors</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="devices.beginner, devices.intermediate, hardware.expert">
+<meta name="topic" content="displays">
+<meta name="summary" content="Monitors, scaling, multi-head layouts, and console display control on Tamlinux">
+<meta name="keywords" content="displays, monitors, hyprland, scaling, multi-monitor, clamshell, mirror, tam-monitor, brightness, ddc">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Displays and Monitors</p>
+</nav>
+
+<h1>Displays and Monitors</h1>
+<p>This page explains how Tamlinux manages monitors, display scaling, multi-screen arrangements, and console brightness.</p>
+
+<section data-level="novice">
+<h2>What is a display?</h2>
+<p>A display is a physical screen connected to your computer. Common connectors include HDMI, DisplayPort, USB-C, and internal laptop panels (eDP). The compositor draws your desktop across one or more screens.</p>
+
+<h3>Why it matters</h3>
+<p>Connecting a second monitor expands your workspace. Choosing the right scaling factor makes text sharp and comfortable to read on high-resolution screens without squinting.</p>
+
+<h3>How to think about it</h3>
+<p>Hyprland coordinates graphical windows across active monitors. When you plug in an external monitor, the desktop can extend or mirror your workspace. When you close a laptop lid with an external screen attached, clamshell mode keeps the session alive on the external screen.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Resolution</dt>
+<dd>The number of distinct pixels a display can produce, such as 1920&times;1080 or 3840&times;2160.</dd>
+<dt>Scaling</dt>
+<dd>A multiplier that resizes text and window elements so they appear comfortably sized on dense pixel grids.</dd>
+<dt>Clamshell mode</dt>
+<dd>Operating a laptop with the lid closed while an external monitor, keyboard, and mouse remain active.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect and adjust your displays safely</h2>
+<p><strong>Goal:</strong> you will be able to identify connected monitors and view their scaling factors without changing hardware settings.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="use/desktop/displays.html?level=2">Start</a> |
+<a href="desktop/index.html?level=2">&larr; Back</a> |
+<a href="hardware/input.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Open a terminal and run <code>tam-monitor list</code> to see connected display connectors.</li>
+<li>Check the focused monitor's current scaling factor:
+<pre class="session" data-risk="read-only">
+$ tam-hyprland-monitor-scaling
+1.00
+</pre>
+</li>
+<li>To adjust scaling incrementally, pass <code>up</code> or <code>down</code>:
+<pre class="session" data-risk="low">
+$ tam-hyprland-monitor-scaling up
+1.25
+</pre>
+</li>
+<li>Press <kbd>Meta + Shift + D</kbd> (or run <code>tam-menu toggle displays</code>) to open the display layout menu.</li>
+</ol>
+<p>Detailed step-by-step display arrangement instructions live on <a href="use/desktop/displays.html">Arranging displays and changing brightness</a>.</p>
+
+<h3>Try it</h3>
+<p>Run <code>tam-hyprland-monitor-focused</code> in your terminal. It prints the name of the monitor that currently holds keyboard focus.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Display scaling makes windows too large</dt>
+<dd>Run <code>tam-hyprland-monitor-scaling down</code> or restore <code>1.0</code>.</dd>
+<dt>External screen does not activate on plug-in</dt>
+<dd>Check cable seating and run <code>tam-hyprland-monitor-watch</code> or verify with <code>tam-monitor list</code>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Adjusting brightness or display power triggers on-screen feedback through <code>tam-osd</code>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which command reports the scaling factor of the currently focused monitor?</summary>
+<p><code>tam-hyprland-monitor-scaling</code>.</p></details>
+<details class="q"><summary>What tool provides console display control without requiring Hyprland?</summary>
+<p><code>tam-monitor</code>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Monitor command family</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-monitor</code></td><td>Standalone C console display inspection, hardware brightness, and TUI</td></tr>
+<tr><td><code>tam-hyprland-monitor-scaling</code></td><td>Inspect, increment, decrement, or set focused display scale factor</td></tr>
+<tr><td><code>tam-hyprland-monitor-focused</code></td><td>Print the connector name of the focused monitor</td></tr>
+<tr><td><code>tam-hyprland-monitor-focused-apple</code></td><td>Focused Apple Studio or Cinema Display connector probe</td></tr>
+<tr><td><code>tam-hyprland-monitor-internal</code></td><td>Identify the internal laptop display connector (eDP)</td></tr>
+<tr><td><code>tam-hyprland-monitor-laptop</code></td><td>Laptop display configuration helper</td></tr>
+<tr><td><code>tam-hyprland-monitor-clamshell</code></td><td>Manage laptop lid-close behavior when external monitors are present</td></tr>
+<tr><td><code>tam-hyprland-monitor-external-active</code></td><td>Check if any external monitor is currently connected and active</td></tr>
+<tr><td><code>tam-hyprland-monitor-internal-mirror</code></td><td>Mirror internal display content onto an external monitor</td></tr>
+<tr><td><code>tam-hyprland-monitor-modeless</code></td><td>Configure monitor layout without mode switching</td></tr>
+<tr><td><code>tam-hyprland-monitor-watch</code></td><td>Event listener daemon watching for monitor plug and unplug events</td></tr>
+<tr><td><code>tam-hyprland-reload-guard</code></td><td>Prevent race conditions during rapid compositor reloads</td></tr>
+</table>
+<p>On-screen display indicators for volume, brightness, and display adjustments are routed through <code>tam-osd</code>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/displays.html">Arranging displays and changing brightness</a> — everyday task recipe.</li>
+<li><a href="desktop/workspaces.html">Organizing windows and screens</a> — workspace movements across monitors.</li>
+<li><a href="hardware/input.html">Input devices</a> — keyboards, mice, and touchpads.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Input Devices</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="devices.beginner, devices.intermediate">
+<meta name="topic" content="input">
+<meta name="summary" content="Keyboards, mice, touchpads, touchscreens, and input tuning in Tamlinux">
+<meta name="keywords" content="input, keyboard, mouse, touchpad, trackpad, touchscreen, gestures, libinput">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="prereqs" content="desktop">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Input Devices</p>
+</nav>
+
+<h1>Input Devices</h1>
+<p>This page explains how Tamlinux receives and configures input from keyboards, mice, touchpads, and touchscreens.</p>
+
+<section data-level="novice">
+<h2>What are input devices?</h2>
+<p>Input devices allow you to talk to your computer. A keyboard types characters and sends shortcuts. A mouse or touchpad moves the pointer and clicks. Touchscreens let you interact directly with screen elements.</p>
+
+<h3>Why it matters</h3>
+<p>Comfortable pointer acceleration, natural scrolling, and disabling the touchpad while typing prevent errors and reduce wrist fatigue during long sessions.</p>
+
+<h3>How to think about it</h3>
+<p>The Linux kernel detects hardware events and passes them to <code>libinput</code>. The Hyprland compositor then reads those events, applies your personal configuration (such as sensitivity and scroll direction), and dispatches actions to windows.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Tap-to-click</dt>
+<dd>Tapping the touchpad surface lightly to produce a mouse click without pressing the physical button.</dd>
+<dt>Natural scrolling</dt>
+<dd>Scrolling where content moves in the same direction as your fingers, matching touchscreen behavior.</dd>
+<dt>Pointer acceleration</dt>
+<dd>Scaling the pointer speed based on how quickly you move your hand across the pad or desk.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect input devices safely</h2>
+<p><strong>Goal:</strong> you will be able to verify detected input hardware and understand touchpad toggles.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
+<a href="use/desktop/keyboard-touchpad.html?level=2">Start</a> |
+<a href="hardware/displays.html?level=2">&larr; Back</a> |
+<a href="hardware/drives.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>List your detected input hardware by querying Hyprland:
+<pre class="session" data-risk="read-only">
+$ hyprctl devices
+</pre>
+The output groups devices into keyboards, mice, touchpads, and switches.
+</li>
+<li>Toggle touchpad touch responsiveness on or off using the packaged hotkey <kbd>Meta + Alt + T</kbd>.</li>
+<li>Open <a href="use/desktop/keyboard-touchpad.html">Touchpad and keyboard shortcuts</a> for complete step-by-step configuration.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Inspect your keyboard repeat rate and delay in the output of <code>hyprctl getoption input:repeat_rate</code>. This is a read-only query that changes nothing.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Touchpad does not register taps</dt>
+<dd>Ensure tap-to-click is enabled in your Hyprland configuration under the <code>input:touchpad</code> section.</dd>
+<dt>Cursor moves while typing</dt>
+<dd>Verify that <code>disable_while_typing = true</code> is active in the compositor input block.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>When switching focus between applications rapidly using shortcuts, Tamlinux uses <code>tam-hyprland-focus-app</code> to target the desired window class or title.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which system layer processes raw hardware events before handing them to Hyprland?</summary>
+<p><code>libinput</code> via the Linux kernel.</p></details>
+<details class="q"><summary>What command helper focuses an application window by matching its class or title?</summary>
+<p><code>tam-hyprland-focus-app</code>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Input architecture and routing</h2>
+<p>Tamlinux input configuration resides in compositor rules and desktop helpers. The primary helpers include:</p>
+<table>
+<tr><th>Tool / Component</th><th>Role</th></tr>
+<tr><td><code>tam-hyprland-focus-app</code></td><td>Focus the first window whose class or launch title matches a specified pattern</td></tr>
+<tr><td><code>bindings/keyboard.lua</code></td><td>Packaged keyboard layout and switching definitions</td></tr>
+<tr><td><code>bindings/touchpad.lua</code></td><td>Touchpad gestures, toggle hooks, and sensitivity overrides</td></tr>
+</table>
+<p>For custom keyboard remappings, Tamlinux supports XKB options declared in user configuration without modifying system-wide layout files.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/keyboard-touchpad.html">Touchpad and keyboard shortcuts</a> — step-by-step everyday recipe.</li>
+<li><a href="desktop/hotkeys.html">Desktop hotkeys</a> — system-wide chords and keybindings.</li>
+<li><a href="hardware/displays.html">Displays and monitors</a> — screen arrangements and scaling.</li>
+</ul>
+</body>
+</html>

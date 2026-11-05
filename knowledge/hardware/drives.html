@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Storage Drives and Encryption</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+<meta name="topic" content="drives">
+<meta name="summary" content="Drive inspection, speed tests, and encrypted storage management">
+<meta name="keywords" content="drives, storage, disk, speedtest, tam-drive-info, tam-drive-select, tam-drive-password, tam-hardware, encryption, luks">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="prereqs" content="shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Storage Drives and Encryption</p>
+</nav>
+
+<h1>Storage Drives and Encryption</h1>
+<p>This page explains how to inspect storage drives, test disk read and write performance, and manage encryption passwords on Tamlinux.</p>
+
+<section data-level="novice">
+<h2>What is a storage drive?</h2>
+<p>A storage drive keeps your operating system, programs, and documents permanently saved even when the computer is powered off. Modern systems use fast solid-state drives (NVMe or SATA SSDs) and removable USB flash drives.</p>
+
+<h3>Why it matters</h3>
+<p>Knowing your drive capacity and transfer speed helps detect failing hardware or slow cables. Full disk encryption protects your private documents if a laptop is lost or stolen.</p>
+
+<h3>How to think about it</h3>
+<p>Linux names physical disks as block devices in <code>/dev</code> (for example, <code>/dev/nvme0n1</code> or <code>/dev/sda</code>). Before files can be read or written, a filesystem on the drive is mounted to a directory path. Encrypted disks require unlocking with a passphrase before mounting.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Block device</dt>
+<dd>A hardware device that moves data in fixed-size blocks, represented as a file under <code>/dev</code>.</dd>
+<dt>Mount point</dt>
+<dd>The directory location in your filesystem tree where a drive's contents appear.</dd>
+<dt>LUKS</dt>
+<dd>Linux Unified Key Setup; the standard specification for Linux disk encryption.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect drives and measure performance</h2>
+<p><strong>Goal:</strong> you will be able to display storage hardware information and test transfer throughput safely without administrative privileges.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: System hardware and storage</strong> &mdash;
+<a href="hardware/drives.html?level=2">Start</a> |
+<a href="hardware/input.html?level=2">&larr; Back</a> |
+<a href="maintain/power.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<h3>Worked example</h3>
+<ol>
+<li>Inspect host architecture and hardware identity:
+<pre class="session" data-risk="read-only">
+$ tam-hardware
+Architecture: x86_64
+Model: Tamlinux Workstation
+CPU: 8 cores
+</pre>
+</li>
+<li>Inspect connected storage drives:
+<pre class="session" data-risk="read-only">
+$ tam-drive-info
+/dev/nvme0n1: 512 GB [NVMe SSD] mounted on /
+</pre>
+</li>
+<li>Measure disk read and write speeds with a non-destructive benchmark:
+<pre class="session" data-risk="low">
+$ tam-disk-speedtest
+Testing sequential read and write speeds...
+Write: 1420 MB/s
+Read: 2850 MB/s
+</pre>
+</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>tam-drive-info</code> in your terminal. It scans available storage devices and prints model, size, and mount points without modifying anything.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Drive info prints nothing or reports access denied</dt>
+<dd>Ensure external USB drives are fully inserted and recognized by the kernel (check with <code>lsblk</code>).</dd>
+<dt>Speed test takes too long</dt>
+<dd>Press <kbd>Ctrl + C</kbd> to cancel the test safely; temporary benchmark files are cleaned up automatically.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>To pick a drive interactively for backup or encryption tasks, use <code>tam-drive-select</code>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which command measures live disk read and write throughput?</summary>
+<p><code>tam-disk-speedtest</code>.</p></details>
+<details class="q"><summary>What command prints drive size, model, and mount details?</summary>
+<p><code>tam-drive-info</code>.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Storage tools reference</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-hardware</code></td><td>Report host architecture, CPU features, caches, and DMI identity</td></tr>
+<tr><td><code>tam-disk-speedtest</code></td><td>Measure live disk sequential and random read/write speeds</td></tr>
+<tr><td><code>tam-drive-info</code></td><td>Print detailed size, model, transport, and mount information for drives</td></tr>
+<tr><td><code>tam-drive-select</code></td><td>Interactive terminal picker to select a drive with capacity and brand details</td></tr>
+<tr><td><code>tam-drive-password</code></td><td>Update encryption passphrase on a selected LUKS encrypted drive</td></tr>
+</table>
+<p>All read-only diagnostic commands run cleanly as an unprivileged user. Passphrase changes with <code>tam-drive-password</code> interactively prompt for the existing passphrase before updating LUKS keyslots.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/resources.html">Resources and memory</a> — RAM, swap, and disk headroom.</li>
+<li><a href="maintain/snapper.html">System snapshots</a> — rollback points and filesystem state.</li>
+<li><a href="maintain/power.html">Power and battery</a> — sleep states and battery management.</li>
+</ul>
+</body>
+</html>
