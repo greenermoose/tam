@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.5.2
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** and the commit that adds this record
+- **Commits:** `c8c4630` and the commit that updates this record
 - **Authorship:** Fred Horch requested replacing the old hidden section headers (`-- 1 Novice: Novice definition (hidden; press 1 or 0) --`) on multi-level pages with right-aligned hiding notices (`Hiding novice text (01 show)`, `Hiding learner text (02 show)`, `Hiding expert text (03 show)`) styled like line Lb with subdued text and level colors, and bumping tam command version to 0.49.0. Antigravity designed the `<p class="level-line">` notice emission with `lvl-1`, `lvl-2`, `lvl-3` spans in `src/depth.c`, adjusted layout document block tightness in `src/render.c` so consecutive notices remain stacked while section content is spaced with blank lines, updated tests in `tests/run.sh`, bumped `TAM_COMMAND_VERSION` to 0.49.0 in `src/version.h`, and updated documentation.
 - **Checked against:** `src/depth.c`, `src/render.c`, `src/version.h`, `tests/run.sh`, `ROADMAP.md`, `docs/plans/development.md`.
 
