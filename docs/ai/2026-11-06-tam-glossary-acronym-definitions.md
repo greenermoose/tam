@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.5.2, checked from the running binary (`agy --version`).
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** Content and follow-up index commits for corpus 0.75.3
+- **Commits:** `48c97de`, `5b2f620`, and the commit that records them
 - **Authorship:** Fred Horch directed a review of all 397 glossary terms in the Tam knowledge corpus to include full definitions of acronyms in entries and headings, and explanations for portmanteaus in parentheses. The AI tool systematically analyzed all 397 terms, identified 105 acronyms and 20 portmanteaus/abbreviations, updated all page titles, `<h1>` headings, breadcrumbs, and index listings, added ARM naming history and ZRAM Ziv compression origin notes, bumped the patch version, updated `ROADMAP.md`, regenerated the indexes, and verified all tests pass without errors.
 - **Checked against:**
   - `knowledge/learn/glossary/*.html` (all 397 glossary pages)
