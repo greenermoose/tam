@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-06
 **Owner:** Fred
 **Current Command Version:** `0.49.0`.
-**Current Corpus Version:** `0.75.2`.
+**Current Corpus Version:** `0.75.3`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
