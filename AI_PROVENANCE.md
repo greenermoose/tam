@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-06 | Full link to the tamlinux filing card, so `make check` passes from a clean clone | Claude Code 2.1.319; Claude Opus 5.5 | [Session record](docs/ai/2026-11-06-tam-clean-clone-link.md) |
 | 2026-11-06 | Right-aligned subdued difficulty level hiding notices with level color highlighting and attention line show-all override (Right Arrow, Return, g); command 0.49.0 | Antigravity CLI 1.5.2; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-06-tam-hidden-level-notices.md) |
 | 2026-11-05 | Remediate corpus audit findings A01–A12, valid risk labels and zero-gap coverage; corpus 0.75.1 | Antigravity CLI 1.5.2; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-05-tam-corpus-audit-remediation.md) |
 | 2026-11-05 | Plan 26 Phase 5 maintenance, W5 contributing & zero-gap coverage; corpus 0.75.0 | Antigravity CLI 1.5.1; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-05-tam-plan26-phase5-maintenance-w5.md) |
