@@ -8,7 +8,7 @@
 - **Transcript:** Retained privately by the author.
 - **Commits:** `591b255`, and the commit that adds this record and refreshed index revisions
 - **Authorship:** Fred Horch directed explaining how voice technology works under Tamlinux covering both F9 and F10, detailing commands invoked, where recordings go, processing via Whisper, and window injection mechanisms. Antigravity authored the technical documentation, drafted and presented the review artifact in Micro, and integrated two new knowledge pages with navigation updates.
-- **Checked against:** `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`, `ROADMAP.md`, `knowledge/desktop/index.html`, `desktop/session/hypr/tamlinux/bindings/voxtype.lua`, `config-fred-tamlinux/config/bash/voice-command.bash`, `config-fred-tamlinux/bin/fred-voice-command`
+- **Checked against:** `docs/corpus-authoring.md`, `docs/corpus-pedagogy.md`, `ROADMAP.md`, `knowledge/desktop/index.html`, `desktop/session/hypr/tamlinux/bindings/voxtype.lua`, private voice-command configuration and helper sources
 
 ## Guiding prompts
 

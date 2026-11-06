@@ -14,10 +14,12 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <limits.h>
+#include <stdint.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 
 #define TAM_COMMAND_NAME "tam"
@@ -26,7 +28,8 @@
 
 static int is_name_char(char c)
 {
-    return isalnum((unsigned char)c) || c == '_' || c == '-' || c == '.' || c == '+';
+    return isalnum((unsigned char)c) || c == '_' || c == '-' || c == '.' ||
+           c == '+' || c == ':' || c == '@';
 }
 
 static int is_sec_char(char c)
@@ -58,9 +61,9 @@ typedef struct {
 #define MAN_TOOL_ENV "env", "LC_ALL=C", "PAGER=cat", "MANPAGER=cat"
 
 /* Run a man(1) tool (argv without the environment prefix) with standard
- * input from /dev/null, a hard deadline and a strict output cap. User data is
+ * input from /dev/null, a hard deadline and a caller-selected output cap. User data is
  * always one literal argv element; no shell is involved. */
-static lookup_result_t run_lookup(const char *const argv[])
+static lookup_result_t run_lookup_with_limit(const char *const argv[], size_t limit)
 {
     lookup_result_t result = {.status = -1};
     const char *full[16] = { MAN_TOOL_ENV };
@@ -73,7 +76,7 @@ static lookup_result_t run_lookup(const char *const argv[])
         return result;
     }
     tam_exec_opts_t opts = { .timeout_ms = MAN_LOOKUP_TIMEOUT_MS,
-                             .max_output = MAN_LOOKUP_LIMIT };
+                             .max_output = limit };
     tam_exec_result_t r = tam_exec_opts(full, &opts);
     free(r.stderr_buf);
     result.text = r.stdout_buf;
@@ -83,6 +86,11 @@ static lookup_result_t run_lookup(const char *const argv[])
     result.truncated = r.truncated;
     result.unavailable = r.stdout_buf == NULL || r.exit_code == 127;
     return result;
+}
+
+static lookup_result_t run_lookup(const char *const argv[])
+{
+    return run_lookup_with_limit(argv, MAN_LOOKUP_LIMIT);
 }
 
 static char *uri_decode(const char *text)
@@ -479,7 +487,7 @@ tam_document_t *tam_man_load(const char *spec, int width)
     if (strncmp(s, "man:", 4) == 0) {
         s += 4;
     }
-    char name[65] = {0};
+    char name[NAME_MAX + 1] = {0};
     char sec[16] = {0};
 
     const char *paren = strchr(s, '(');
@@ -571,7 +579,7 @@ static int valid_lookup_text(const char *query)
     return 1;
 }
 
-static int parse_lookup_row(const char *line, char name[65], char section[16],
+static int parse_lookup_row(const char *line, char name[NAME_MAX + 1], char section[16],
                             char **description)
 {
     *description = NULL;
@@ -585,7 +593,7 @@ static int parse_lookup_row(const char *line, char name[65], char section[16],
     while (start > line && !isspace((unsigned char)start[-1]) && start[-1] != ',') start--;
     size_t nlen = (size_t)(name_end - start);
     size_t slen = (size_t)(close - open - 1);
-    if (nlen == 0 || nlen >= 65) return 0;
+    if (nlen == 0 || nlen > NAME_MAX) return 0;
     memcpy(name, start, nlen); name[nlen] = '\0';
     memcpy(section, open + 1, slen); section[slen] = '\0';
     if (!valid_section(section)) return 0;
@@ -596,7 +604,23 @@ static int parse_lookup_row(const char *line, char name[65], char section[16],
         sep += sep[0] == ':' ? 2 : 3;
         *description = strdup(sep);
     } else *description = strdup("");
-    return *description != NULL;
+    return *description != NULL ? 1 : -1;
+}
+
+typedef struct {
+    char name[NAME_MAX + 1];
+    char section[16];
+    char *description;
+} lookup_row_t;
+
+static int compare_lookup_rows(const void *a, const void *b)
+{
+    const lookup_row_t *left = a, *right = b;
+    int cmp = strcasecmp(left->name, right->name);
+    if (cmp == 0) cmp = strcmp(left->name, right->name);
+    if (cmp == 0) cmp = strcmp(left->section, right->section);
+    if (cmp == 0) cmp = strcmp(left->description, right->description);
+    return cmp;
 }
 
 static void append_lookup_rows(tam_str_t *body, const lookup_result_t *result,
@@ -605,38 +629,68 @@ static void append_lookup_rows(tam_str_t *body, const lookup_result_t *result,
 {
     *matched = 0;
     *more = 0;
-    size_t row = 0;
+    size_t row = 0, nrows = 0, capacity = 0;
+    lookup_row_t *rows = NULL;
     const char *p = result->text ? result->text : "";
     while (*p != '\0') {
         const char *end = strchr(p, '\n');
         size_t len = end ? (size_t)(end - p) : strlen(p);
         char *line = strndup(p, len);
         if (line != NULL) {
-            char name[65], section[16];
-            char *description = NULL;
-            if (parse_lookup_row(line, name, section, &description)) {
-                (*matched)++;
-                if (row >= offset && row < offset + limit) {
-                    char href[128];
-                    snprintf(href, sizeof(href), "man:%s(%s)", name, section);
-                    char *name_html = tam_html_escape(name);
-                    char *sec_html = tam_html_escape(section);
-                    char *desc_html = tam_html_escape(description);
-                    *body = tam_str_cat_printf(*body,
-                        "<tr><td><a href=\"%s\">%s(%s)</a></td><td>%s</td></tr>\n",
-                        href, name_html ? name_html : "",
-                        sec_html ? sec_html : "", desc_html ? desc_html : "");
-                    free(name_html); free(sec_html); free(desc_html);
-                }
-                row++;
+            lookup_row_t entry = {0};
+            int parsed = parse_lookup_row(line, entry.name, entry.section, &entry.description);
+            if (parsed < 0) {
+                free(line);
+                *matched = -1;
+                goto cleanup;
             }
-            free(description);
+            if (parsed > 0) {
+                if (nrows == capacity) {
+                    size_t next_capacity = capacity ? capacity * 2 : 64;
+                    lookup_row_t *next = realloc(rows, next_capacity * sizeof(*rows));
+                    if (next == NULL) {
+                        free(entry.description); free(line);
+                        *matched = -1;
+                        goto cleanup;
+                    }
+                    rows = next; capacity = next_capacity;
+                }
+                rows[nrows++] = entry;
+            }
             free(line);
+        } else {
+            *matched = -1;
+            goto cleanup;
         }
         if (end == NULL) break;
         p = end + 1;
     }
-    *more = row > offset + limit || result->truncated;
+    if (nrows > 1) qsort(rows, nrows, sizeof(*rows), compare_lookup_rows);
+    for (size_t i = 0; i < nrows; i++) {
+        lookup_row_t *entry = &rows[i];
+        /* The same page can appear in several manpath databases. */
+        if (i > 0 && strcmp(entry->name, rows[i - 1].name) == 0 &&
+            strcmp(entry->section, rows[i - 1].section) == 0) continue;
+        (*matched)++;
+        if (row >= offset && row - offset < limit) {
+            char href[NAME_MAX + 24];
+            snprintf(href, sizeof(href), "man:%s(%s)", entry->name, entry->section);
+            char *name_html = tam_html_escape(entry->name);
+            char *sec_html = tam_html_escape(entry->section);
+            char *desc_html = tam_html_escape(entry->description);
+            if (name_html == NULL || sec_html == NULL || desc_html == NULL) {
+                free(name_html); free(sec_html); free(desc_html);
+                *matched = -1;
+                goto cleanup;
+            }
+            *body = tam_str_cat_printf(*body,
+                "<tr><td><a href=\"%s\">%s(%s)</a></td><td>%s</td></tr>\n",
+                href, name_html, sec_html, desc_html);
+            free(name_html); free(sec_html); free(desc_html);
+        }
+        row++;
+    }
+    *more = (row > offset && row - offset > limit) || result->truncated;
     if (result->truncated)
         *body = tam_str_cat(*body, "<p>Output reached the safe lookup limit; results may be incomplete.</p>\n");
     if (*more && !result->truncated && more_uri != NULL) {
@@ -644,6 +698,9 @@ static void append_lookup_rows(tam_str_t *body, const lookup_result_t *result,
             "<p><a href=\"%s&amp;offset=%zu\">More results</a></p>\n",
             more_uri ? more_uri : "tam:man", offset + limit);
     }
+cleanup:
+    for (size_t i = 0; i < nrows; i++) free(rows[i].description);
+    free(rows);
 }
 
 static tam_document_t *man_landing_document(int width)
@@ -750,6 +807,10 @@ tam_document_t *tam_man_uri_document(const char *uri, int width)
                 return lookup_error_document("Open a manual page", msg, width);
             }
             append_lookup_rows(&body, &r, NULL, 0, 50, &count, &more);
+            if (count < 0) {
+                tam_str_free(body); free(r.text); free(page);
+                return lookup_error_document("Open a manual page", "Not enough memory to list the manual entries.", width);
+            }
             if (count > 1) {
                 body = tam_str_cat(body, "</table><p>Several installed sections match. Select the intended page.</p>");
                 tam_document_t *doc = html_document("Choose a manual section", body, width);
@@ -798,8 +859,12 @@ tam_document_t *tam_man_uri_document(const char *uri, int width)
             return lookup_error_document("Manual keyword lookup", "Could not prepare the keyword query.", width);
         }
         const char *argv_keyword[] = {"apropos", "--", pattern, NULL};
-        const char *argv_section[] = {"apropos", "-s", query, "--", ".", NULL};
-        lookup_result_t r = run_lookup(section_mode ? argv_section : argv_keyword);
+        const char *argv_section[] = {"apropos", "-s", query, "-l", "--", ".", NULL};
+        /* A section is one searchable document, not a bounded preview. Let
+         * capture grow with the installed index, retaining the hard deadline.
+         * Half the address space leaves room for capture's buffer growth. */
+        lookup_result_t r = section_mode ? run_lookup_with_limit(argv_section, SIZE_MAX / 2) :
+                                          run_lookup(argv_keyword);
         free(pattern);
         char title[180]; snprintf(title, sizeof(title), section_mode ? "Manual section %s" : "Manual keyword: %s", query);
         if (r.unavailable || r.timed_out) {
@@ -813,6 +878,10 @@ tam_document_t *tam_man_uri_document(const char *uri, int width)
             return lookup_error_document(title,
                 "The manual index database is unavailable or could not be read.", width);
         }
+        if (section_mode && (r.truncated || (r.status != 0 && r.status != 16))) {
+            free(r.text); free(query);
+            return lookup_error_document(title, "The complete manual section could not be read. Try again.", width);
+        }
         tam_str_t body = tam_str_new("<table><tr><th>Page</th><th>Description</th></tr>\n");
         int count = 0, more = 0;
         char *encoded_query = uri_encode(query);
@@ -821,8 +890,12 @@ tam_document_t *tam_man_uri_document(const char *uri, int width)
             "tam:man:section?section=%s" : "tam:man:keyword?query=%s",
             encoded_query ? encoded_query : "");
         free(encoded_query);
-        append_lookup_rows(&body, &r, more_uri, offset,
-                           MAN_RESULTS_PER_PAGE, &count, &more);
+        append_lookup_rows(&body, &r, more_uri, section_mode ? 0 : offset,
+                           section_mode ? SIZE_MAX : MAN_RESULTS_PER_PAGE, &count, &more);
+        if (count < 0) {
+            tam_str_free(body); free(r.text); free(query);
+            return lookup_error_document(title, "Not enough memory to list the manual entries.", width);
+        }
         if (count == 0) {
             body = tam_str_cat(body, section_mode ?
                 "</table><p>No installed manual pages were found in this section.</p>" :

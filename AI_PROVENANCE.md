@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-06 | Complete alphabetical manual section browsing and full-list search; command 0.49.1 | Codex CLI 0.167.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-11-06-tam-man-section-listings.md) |
 | 2026-11-06 | Include acronym definitions and portmanteau explanations in glossary headings and entries; corpus 0.75.3 | Antigravity CLI 1.5.2; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-06-tam-glossary-acronym-definitions.md) |
 | 2026-11-06 | Full link to the tamlinux filing card, so `make check` passes from a clean clone | Claude Code 2.1.319; Claude Opus 5.5 | [Session record](docs/ai/2026-11-06-tam-clean-clone-link.md) |
 | 2026-11-06 | Right-aligned subdued difficulty level hiding notices with level color highlighting and attention line show-all override (Right Arrow, Return, g); command 0.49.0 | Antigravity CLI 1.5.2; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-06-tam-hidden-level-notices.md) |

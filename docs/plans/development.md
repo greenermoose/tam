@@ -433,6 +433,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-06:** Command 0.49.1 (patch): every manual section/subsection is
+  a complete alphabetical document for scrolling and in-page search. Section
+  capture grows with the installed apropos index under the existing deadline;
+  duplicate page/section entries are collapsed. Keyword results retain paging.
+
 - **2026-11-01:** `tam whatis <term>` synonym for `tam explain <term>`; in-pager `w` key opens `whatis:` prompt for glossary term lookup with closest-match resolution across exact, prefix, word, and fuzzy distance.
 - **2026-10-31:** Command 0.48.0 (minor): Line b difficulty level display and highlighting: shows `Showing 0: all text`, `Showing 1: beginner level text`, `Showing 2: intermediate level text`, or `Showing 3: expert level text` on line b for the selected difficulty level; highlights level tokens in cyan, green, yellow, and magenta with bold monochrome fallback; preserves related links on line c.
 - **2026-10-31:** Command 0.47.0 (minor): Pager page scrolling: Space and PgDn scroll down so the last line showing becomes the first line, or show the last full page; Shift-Space, PgUp, and b scroll up so the first line showing becomes the last line, or show the first full page; attention row lands on the first visible line or moves to bottom/top when at document boundaries.

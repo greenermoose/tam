@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.49.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.49.1' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -2483,7 +2483,7 @@ search_uri=$("$TAM" show 'tam:search?query=pipe' --pipe)
 printf '%s\n' "$search_uri" | grep -q 'Results for pipe' || fail "tam:search URI did not return Guide results"
 
 # Deterministic manual lookup helper: argv remains literal, section browsing
-# is paged, and missing tools/no matches have different recoverable messages.
+# is complete and sorted, and missing tools/no matches have distinct messages.
 lookup_bin="$tmp/lookup-bin"
 mkdir -p "$lookup_bin"
 cat > "$lookup_bin/apropos" <<'EOF'
@@ -2495,11 +2495,24 @@ if [ "$1" = "-e" ]; then
 fi
 if [ "$1" = "-s" ]; then
     section=$2
-    i=0
-    while [ "$i" -lt 25 ]; do
-        printf 'demo%02d (%s) - section browser fixture\n' "$i" "$section"
-        i=$((i + 1))
+    [ "$3" = "-l" ] || exit 2
+    [ "$section" = "9" ] && exit 16
+    if [ "$section" = "bad" ]; then
+        printf 'partial (bad) - should not display failed lookup output\n'
+        exit 2
+    fi
+    i=2999
+    while [ "$i" -ge 0 ]; do
+        printf 'demo%04d (%s) - section browser fixture\n' "$i" "$section"
+        i=$((i - 1))
     done
+    printf 'Alpha (%s) - mixed case sorting fixture\n' "$section"
+    printf 'alpha (%s) - mixed case sorting fixture\n' "$section"
+    printf 'Zebra (%s) - mixed case sorting fixture\n' "$section"
+    printf 'IO::Socket::IP (%s) - namespaced manual fixture\n' "$section"
+    printf 'systemd-unit@.service (%s) - template manual fixture\n' "$section"
+    printf 'long_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (%s) - long manual name fixture\n' "$section"
+    printf 'demo2999 (%s) - duplicate from a second database\n' "$section"
     exit 0
 fi
 if [ "$2" = "flood" ]; then
@@ -2520,9 +2533,26 @@ chmod +x "$lookup_bin/apropos"
 export TAM_TEST_APROPOS_LOG="$tmp/apropos-argv.log"
 lookup_keyword=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:keyword?query=printf' --pipe)
 printf '%s\n' "$lookup_keyword" | grep -q 'printf(1)' || fail "manual keyword lookup missing result"
-lookup_section=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:section?section=3' --pipe)
-printf '%s\n' "$lookup_section" | grep -q 'demo23(3)' || fail "section page missing result"
-printf '%s\n' "$lookup_section" | grep -q 'offset=24' || fail "section results missing pagination"
+# More than 96 KiB, deliberately reversed: every section/subsection must be
+# one complete document, including when opening a legacy offset URI.
+for section in 1 2 3 4 5 6 7 8 3p; do
+    PATH="$lookup_bin:$PATH" "$TAM" show "tam:man:section?section=$section&offset=24" --pipe > "$tmp/section-list"
+    python3 - "$tmp/section-list" "$section" <<'PYLIST'
+import re, sys
+from pathlib import Path
+text = Path(sys.argv[1]).read_text()
+section = sys.argv[2]
+names = re.findall(r"^\s*\[\d+\] man:(.+)\(" + section + r"\)$", text, re.M)
+expected = ["Alpha", "alpha"] + [f"demo{i:04d}" for i in range(3000)] + ["IO::Socket::IP", "long_" + "x" * 80, "systemd-unit@.service", "Zebra"]
+assert names == expected, (section, len(names), names[:5], names[-5:])
+assert "safe lookup limit" not in text and "More results" not in text
+assert "offset=" not in text
+PYLIST
+done
+lookup_empty=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:section?section=9' --pipe)
+printf '%s\n' "$lookup_empty" | grep -q 'No installed manual pages' || fail "empty section message missing"
+lookup_failed=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:section?section=bad' --pipe)
+printf '%s\n' "$lookup_failed" | grep -q 'complete manual section could not be read' || fail "failed section lookup displayed partial results"
 lookup_open=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:open?query=printf' --pipe)
 printf '%s\n' "$lookup_open" | grep -q 'Several installed sections match' || fail "ambiguous manual sections were not listed"
 lookup_flood=$(PATH="$lookup_bin:$PATH" "$TAM" show 'tam:man:keyword?query=flood' --pipe)
@@ -2552,6 +2582,12 @@ EOF
 chmod +x "$lookup_bin/man" "$lookup_bin/groff"
 printf 'fixture\n' > "$tmp/printf.1"
 export TAM_TEST_MAN_PAGE="$tmp/printf.1"
+
+# Listed namespace/template and long names must also open when followed.
+for page in 'IO::Socket::IP' 'systemd-unit@.service' 'long_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; do
+    opened=$(PATH="$lookup_bin:$PATH" "$TAM" show "man:$page(3)" --pipe)
+    printf '%s\n' "$opened" | grep -q 'Loaded fixture manual' || fail "listed manual name could not be opened: $page"
+done
 
 python3 -c '
 import fcntl, os, pty, select, struct, sys, termios, time
@@ -2653,6 +2689,14 @@ assert target == "tam:man:section?section=1", f"Section 1 link not reached by sc
 os.write(master, b"\r")
 buf = drain(master, 0.3)
 assert b"Manual section 1" in buf, buf
+# Search reaches an entry far beyond the former 24-row and capture limits.
+os.write(master, b"/demo2999\r")
+buf = drain(master, 0.3)
+assert b"demo2999" in buf and b"[1/1]" in buf, buf
+# End scrolls to the alphabetical tail of the same document.
+os.write(master, b"x\x1b[F")
+buf = drain(master, 0.3)
+assert b"Zebra(1)" in buf, buf
 os.write(master, b"u")
 buf = drain(master, 0.3)
 assert b"Manual lookup" in buf, buf
