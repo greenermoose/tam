@@ -439,48 +439,6 @@ static size_t skip_block(const char *src, size_t len, size_t open_end, const cha
     return len;
 }
 
-/* Append the text of the first h2-h4 heading in src[from..to), tags
- * stripped and whitespace collapsed. Entities pass through unchanged. */
-static void heading_text(buf_t *b, const char *src, size_t from, size_t to)
-{
-    static const char *const heads[] = { "h2", "h3", "h4" };
-    for (size_t i = from; i < to; i++) {
-        if (src[i] != '<') {
-            continue;
-        }
-        const char *h = NULL;
-        for (size_t k = 0; k < sizeof(heads) / sizeof(heads[0]); k++) {
-            if (tag_is(src, to, i, heads[k], 0)) {
-                h = heads[k];
-            }
-        }
-        if (h == NULL) {
-            continue;
-        }
-        size_t j = tag_end(src, to, i) + 1;
-        int space = 0;
-        int any = 0;
-        while (j < to && !tag_is(src, to, j, h, 1)) {
-            if (src[j] == '<') {
-                j = tag_end(src, to, j) + 1;
-                continue;
-            }
-            if (isspace((unsigned char)src[j])) {
-                space = any;
-            } else {
-                if (space) {
-                    buf_add(b, " ", 1);
-                }
-                buf_add(b, src + j, 1);
-                space = 0;
-                any = 1;
-            }
-            j++;
-        }
-        return;
-    }
-}
-
 /* The level line and, when the lens level is missing, the relatives line:
  *   Showing <0: all|1: beginner level|2: intermediate level|3: expert level> text
  *   See also -> <related>
@@ -571,14 +529,11 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                     unsigned bit = tam_level_parse(value);
                     if (filter != 0 && bit != 0 && bit != filter) {
                         size_t next = skip_block(src, len, e, block);
-                        char mark[64];
                         if (strcmp(block, "section") == 0) {
-                            snprintf(mark, sizeof(mark), "\n<p>-- %d %s: ",
-                                     tam_level_number(bit), tam_level_label(bit));
-                            buf_str(&b, mark);
-                            heading_text(&b, src, e + 1, next);
+                            char mark[128];
                             snprintf(mark, sizeof(mark),
-                                     " (hidden; press %d or 0) --</p>\n",
+                                     "\n<p class=\"level-line\">Hiding <span class=\"lvl-%d\">%s</span> text (0%d show)</p>\n",
+                                     tam_level_number(bit), tam_level_name(bit),
                                      tam_level_number(bit));
                             buf_str(&b, mark);
                             hidden++;

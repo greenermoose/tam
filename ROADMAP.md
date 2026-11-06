@@ -1,8 +1,8 @@
 # tam Roadmap
 
-**Last Update:** 2026-11-05
+**Last Update:** 2026-11-06
 **Owner:** Fred
-**Current Command Version:** `0.48.2`.
+**Current Command Version:** `0.49.0`.
 **Current Corpus Version:** `0.75.1`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.2 / 0.75.1 | Newest source; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
+| `develop` | 0.49.0 / 0.75.1 | Newest source; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -234,6 +234,8 @@ in that candidate, not here.
 | **0.68.0 corpus** | D221 ecosystem goal paths | Done (2026-11-02) | Migrates twenty ecosystem pages across From atoms to bits, From gates to machine code, Cables and protocols, Display and GPU, and How software runs; expands hard-enforcement. |
 | **0.69.0 corpus** | C11 language guide page | Done (2026-11-02) | Adds `ecosystem/c11.html` teaching ISO C11, compiler flags, and libc portability; registers Systems programming in C11 path in `paths.json`; expands hard-enforcement. |
 | **0.70.0 corpus** | D221 final anatomy batches | Done (2026-11-02) | Migrates session/desktop, understand-design, terminal-stack, and guide-leftover pages; clears remaining novice/learner anatomy warnings; expands hard-enforcement. |
+| **0.75.1 corpus** | Audit findings A01–A12 remediation | Done (2026-11-06) | Fixes audit findings A01 through A12 across 13 corpus pages; adds tam-open to shell tools table maintaining 0 gaps. |
+| **0.49.0 command** | Hidden difficulty level notice display | Done (2026-11-06) | Displays right-aligned hiding notices ('Hiding novice text (01 show)', 'Hiding learner text (02 show)', 'Hiding expert text (03 show)') in subdued style with corresponding level color highlighting when sections are filtered out. |
 
 ## 4. Deferred direction, without reserved versions
 

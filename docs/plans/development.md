@@ -1220,6 +1220,11 @@ resolve superseded schedules. Do not execute a former plan from this history.
   `1: novice` / `2: learner` / `3: expert` (`src/depth.c`, `src/depth.h`,
   `src/tam.c`, man page and completions), with beginner/intermediate kept as
   parser aliases.
+- **2026-11-06:** Command 0.49.0 (minor): Hidden difficulty level text notices:
+  displays right-aligned hiding notices ('Hiding novice text (01 show)', 'Hiding
+  learner text (02 show)', 'Hiding expert text (03 show)') in subdued style on
+  line with level color highlighting ('novice' green, 'learner' yellow, 'expert'
+  magenta) when displaying a single difficulty level on multi-level pages.
 - **2026-11-02:** Corpus 0.63.0 (minor): D221 pilot pages with embedded learning
   paths, `knowledge/paths.json`, pilot-only novice/learner anatomy hard-errors,
   restored `enforce_tracks`, and guide-root level `novice`.
