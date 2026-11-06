@@ -124,6 +124,7 @@ int hide_fold_here(pager_t *st);
 void reveal_next(pager_t *st);
 void toggle_all_folds(pager_t *st);
 void set_lens(pager_t *st, unsigned char key);
+int hiding_line_here(const pager_t *st);
 int is_help_page(const char *href);
 void pager_return_from_help(pager_t *st);
 void go_back(pager_t *st);

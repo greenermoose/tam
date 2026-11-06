@@ -244,7 +244,11 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         pager_page_up(st);
         break;
     case 'g':
-        follow_selected(st);
+        if (hiding_line_here(st)) {
+            set_lens(st, '0');
+        } else {
+            follow_selected(st);
+        }
         break;
     case ']':
     case '\t':
@@ -260,7 +264,11 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         break;
     case '\r':
     case '\n': {
-        follow_selected(st);
+        if (hiding_line_here(st)) {
+            set_lens(st, '0');
+        } else {
+            follow_selected(st);
+        }
         break;
     }
     case 'u':
@@ -324,6 +332,8 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         } else if (strcmp(seq, "C") == 0) {
             if (toggle_fold_here(st)) {
                 /* An answer on the attention line. */
+            } else if (hiding_line_here(st)) {
+                set_lens(st, '0');
             } else if (st->selected >= 0) {
                 follow_selected(st);
             } else if (st->nforward > 0) {

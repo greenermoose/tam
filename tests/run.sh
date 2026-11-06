@@ -1673,6 +1673,39 @@ assert "Level 2 Learner: 2 sections hidden" in b, b
 assert "Learner text 0123" in b, b
 assert saved(state) == "learner", saved(state)
 
+# Moving attention to a hiding line and pressing Return shows all (0).
+p.key(b".")
+for _ in range(6):
+    p.key(b"k")
+b_ret = p.key(b"\r")
+assert "Showing 0: all text" in b_ret, b_ret
+assert "All text 0123" in b_ret, b_ret
+assert saved(state) == "all", saved(state)
+
+# Switching back to 2, moving to a hiding line, and pressing Right Arrow shows all (0).
+p.key(b"2")
+assert saved(state) == "learner", saved(state)
+p.key(b".")
+for _ in range(6):
+    p.key(b"k")
+b_arr = p.key(b"\x1b[C")
+assert "Showing 0: all text" in b_arr, b_arr
+assert "All text 0123" in b_arr, b_arr
+assert saved(state) == "all", saved(state)
+
+# Switching back to 2, moving to a hiding line, and pressing g shows all (0).
+p.key(b"2")
+assert saved(state) == "learner", saved(state)
+p.key(b".")
+for _ in range(6):
+    p.key(b"k")
+b_g = p.key(b"g")
+assert "Showing 0: all text" in b_g, b_g
+assert "All text 0123" in b_g, b_g
+assert saved(state) == "all", saved(state)
+p.key(b"2")
+assert saved(state) == "learner", saved(state)
+
 # The lens holds across a link to a single-level page, which opens under a
 # truthful level line instead of failing, and the status row says so.
 b = p.key(b"`")
