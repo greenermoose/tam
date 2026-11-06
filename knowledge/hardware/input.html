@@ -60,7 +60,7 @@ $ hyprctl devices
 </pre>
 The output groups devices into keyboards, mice, touchpads, and switches.
 </li>
-<li>Toggle touchpad touch responsiveness on or off using the packaged hotkey <kbd>Meta + Alt + T</kbd>.</li>
+<li>Toggle touchpad touch responsiveness on or off using the hardware <kbd>XF86TouchpadToggle</kbd> key (or by running <code>tam-toggle-input-device touchpad</code>).</li>
 <li>Open <a href="use/desktop/keyboard-touchpad.html">Touchpad and keyboard shortcuts</a> for complete step-by-step configuration.</li>
 </ol>
 
@@ -94,8 +94,9 @@ The output groups devices into keyboards, mice, touchpads, and switches.
 <table>
 <tr><th>Tool / Component</th><th>Role</th></tr>
 <tr><td><code>tam-hyprland-focus-app</code></td><td>Focus the first window whose class or launch title matches a specified pattern</td></tr>
-<tr><td><code>bindings/keyboard.lua</code></td><td>Packaged keyboard layout and switching definitions</td></tr>
-<tr><td><code>bindings/touchpad.lua</code></td><td>Touchpad gestures, toggle hooks, and sensitivity overrides</td></tr>
+<tr><td><code>tam-toggle-input-device</code></td><td>Toggle, enable, or disable input devices such as touchpads</td></tr>
+<tr><td><code>desktop/session/hypr/tamlinux/input.lua</code></td><td>Compositor input device options (layout, repeat rate, touchpad gestures)</td></tr>
+<tr><td><code>desktop/session/hypr/tamlinux/bindings/media.lua</code></td><td>Hardware media and input device hotkey bindings (including touchpad toggle)</td></tr>
 </table>
 <p>For custom keyboard remappings, Tamlinux supports XKB options declared in user configuration without modifying system-wide layout files.</p>
 </section>

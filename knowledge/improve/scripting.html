@@ -133,24 +133,24 @@ $ rmdir -- "$scratch"
 <section data-level="expert">
 <h2>Tool namespaces, descriptor contracts, and POSIX exit semantics</h2>
 
-<p><strong>Reference:</strong> Tamlinux tools strictly adhere to the POSIX exit code conventions and maintain an explicit architectural boundary between public commands and personal machine scripts.</p>
+<p><strong>Reference:</strong> Tamlinux commands respect standard POSIX exit status conventions and maintain an explicit architectural boundary between public product utilities and personal user scripts.</p>
 
 <h3>The Tamlinux command namespace contract</h3>
 
 <table>
 <tr><th>Prefix</th><th>Ownership</th><th>Scope and Design Rules</th></tr>
-<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories, must support <code>--help</code> and <code>--version</code>, and must operate cleanly in non-interactive pipelines. Interactive menu wrappers use <code>tam-show-logo</code> for banners and <code>tam-show-done</code> for completion pauses.</td></tr>
+<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories. Individual tools define their own CLI arguments and behavior: complex utilities support flags like <code>--help</code>, while focused wrappers may forward arguments directly to underlying applications. Interactive menu wrappers use <code>tam-show-logo</code> for banners and <code>tam-show-done</code> for completion pauses.</td></tr>
 <tr><td><code>fred-*</code></td><td>Personal Machine</td><td>Private, user-specific scripts tailored to a single user's workstation, local aliases, or specific hardware setups.</td></tr>
 </table>
 
-<h3>Standard exit code contracts</h3>
+<h3>Exit code conventions and predicate semantics</h3>
 
 <table>
-<tr><th>Exit code</th><th>Meaning</th><th>Standard stream behavior</th></tr>
-<tr><td><code>0</code></td><td>Success</td><td>Expected output emitted to stdout; stderr is empty.</td></tr>
-<tr><td><code>1</code></td><td>General runtime error</td><td>Diagnostic message on stderr; no corrupt partial state left on disk.</td></tr>
-<tr><td><code>2</code></td><td>Command-line usage error</td><td>Help message or syntax error on stderr; points directly to <code>--help</code>.</td></tr>
-<tr><td><code>126</code></td><td>Command invoked cannot execute</td><td>Target file exists but lacks executable permission or valid architecture.</td></tr>
+<tr><th>Exit code</th><th>Common convention</th><th>Predicate semantics and stream variations</th></tr>
+<tr><td><code>0</code></td><td>Success</td><td>Standard command success, or affirmative result in predicates (e.g. <code>tam-sudo-docker</code> returns 0 when sudo is needed).</td></tr>
+<tr><td><code>1</code></td><td>General error / Negative result</td><td>Runtime failure, or normal negative result in silent status predicates (e.g. <code>tam-toggle-enabled</code> or <code>tam-sudo-docker</code>). Some utilities emit usage notices on exit 1.</td></tr>
+<tr><td><code>2</code></td><td>Usage error / Invalid syntax</td><td>Command-line argument error or invalid option in tools adhering strictly to utility conventions (e.g. <code>tam-notification-wait</code>).</td></tr>
+<tr><td><code>126</code></td><td>Command cannot execute</td><td>Target file exists but lacks executable permission or valid architecture.</td></tr>
 <tr><td><code>127</code></td><td>Command not found</td><td>Binary or utility not found anywhere on <code>PATH</code>.</td></tr>
 <tr><td><code>128+N</code></td><td>Fatal signal <code>N</code></td><td>Process terminated by signal (e.g. 130 for <code>SIGINT</code> / Ctrl+C, 137 for <code>SIGKILL</code>).</td></tr>
 </table>

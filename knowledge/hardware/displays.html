@@ -55,19 +55,20 @@
 <h3>Worked example</h3>
 <ol>
 <li>Open a terminal and run <code>tam-monitor list</code> to see connected display connectors.</li>
-<li>Check the focused monitor's current scaling factor:
+<li>Check the focused monitor's current scaling factor (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
 <pre class="session" data-risk="read-only">
 $ tam-hyprland-monitor-scaling
-1.00
+1
 </pre>
 </li>
-<li>To adjust scaling incrementally, pass <code>up</code> or <code>down</code>:
-<pre class="session" data-risk="low">
+<li>To adjust scaling incrementally, pass <code>up</code> or <code>down</code>, then read back the updated factor:
+<pre class="session" data-risk="user">
 $ tam-hyprland-monitor-scaling up
+$ tam-hyprland-monitor-scaling
 1.25
 </pre>
 </li>
-<li>Press <kbd>Meta + Shift + D</kbd> (or run <code>tam-menu toggle displays</code>) to open the display layout menu.</li>
+<li>Press <kbd>Meta + Ctrl + D</kbd> (or run <code>tam-shell tamlinux-shell toggle fred.monitor</code>) to toggle the display settings panel.</li>
 </ol>
 <p>Detailed step-by-step display arrangement instructions live on <a href="use/desktop/displays.html">Arranging displays and changing brightness</a>.</p>
 

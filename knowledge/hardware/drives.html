@@ -54,32 +54,36 @@
 
 <h3>Worked example</h3>
 <ol>
-<li>Inspect host architecture and hardware identity:
+<li>Inspect host architecture and hardware identity (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
 <pre class="session" data-risk="read-only">
 $ tam-hardware
 Architecture: x86_64
-Model: Tamlinux Workstation
-CPU: 8 cores
+CPU:          AMD Ryzen 7 5700U with Radeon Graphics
+Cores:        8 physical, 16 logical
+Product:      EffiZen Series
+Board:        ACB19D / Bosgame
 </pre>
 </li>
-<li>Inspect connected storage drives:
+<li>Discover drive device names and inspect disk and partition details (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
 <pre class="session" data-risk="read-only">
-$ tam-drive-info
-/dev/nvme0n1: 512 GB [NVMe SSD] mounted on /
+$ lsblk -dno NAME,TYPE
+nvme0n1 disk
+$ tam-drive-info /dev/nvme0n1
+/dev/nvme0n1 (953.9G) - KINGSTON OM3PGP41024P-A0 [vfat, unknown, ntfs, ntfs, crypto_LUKS, vfat(/boot), ext4(/data)]
 </pre>
 </li>
-<li>Measure disk read and write speeds with a non-destructive benchmark:
-<pre class="session" data-risk="low">
+<li>Measure disk read and write speeds with a non-destructive benchmark (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
+<pre class="session" data-risk="scratch">
 $ tam-disk-speedtest
-Testing sequential read and write speeds...
-Write: 1420 MB/s
-Read: 2850 MB/s
+disk KINGSTON OM3PGP41024P-A0
+read 2850
+write 1420
 </pre>
 </li>
 </ol>
 
 <h3>Try it</h3>
-<p>Run <code>tam-drive-info</code> in your terminal. It scans available storage devices and prints model, size, and mount points without modifying anything.</p>
+<p>Find your block devices with <code>lsblk -dno NAME,TYPE</code> and pass a drive to <code>tam-drive-info /dev/&lt;name&gt;</code> in your terminal. It prints drive size, vendor/model, and partition mount points without modifying anything.</p>
 
 <h3>If it goes wrong</h3>
 <dl>
@@ -97,7 +101,7 @@ Read: 2850 MB/s
 <h3>Check yourself</h3>
 <details class="q"><summary>Which command measures live disk read and write throughput?</summary>
 <p><code>tam-disk-speedtest</code>.</p></details>
-<details class="q"><summary>What command prints drive size, model, and mount details?</summary>
+<details class="q"><summary>What command prints drive size, model, and mount details when passed a device?</summary>
 <p><code>tam-drive-info</code>.</p></details>
 </section>
 </section>
@@ -108,7 +112,7 @@ Read: 2850 MB/s
 <tr><th>Command</th><th>Role</th></tr>
 <tr><td><code>tam-hardware</code></td><td>Report host architecture, CPU features, caches, and DMI identity</td></tr>
 <tr><td><code>tam-disk-speedtest</code></td><td>Measure live disk sequential and random read/write speeds</td></tr>
-<tr><td><code>tam-drive-info</code></td><td>Print detailed size, model, transport, and mount information for drives</td></tr>
+<tr><td><code>tam-drive-info</code></td><td>Print detailed size, model, transport, and mount information for a specified drive</td></tr>
 <tr><td><code>tam-drive-select</code></td><td>Interactive terminal picker to select a drive with capacity and brand details</td></tr>
 <tr><td><code>tam-drive-password</code></td><td>Update encryption passphrase on a selected LUKS encrypted drive</td></tr>
 </table>

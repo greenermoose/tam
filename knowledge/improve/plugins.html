@@ -54,40 +54,48 @@
 
 <h3>Worked example</h3>
 <ol>
-<li>List installed plugins and their active states:
+<li>List installed plugins and their active states (captured on Bosgame Mini PC, 2026-11-06; your output will differ):
 <pre class="session" data-risk="read-only">
 $ tam-plugin list
-fred.bar
-fred.clock
-fred.monitor
-fred.sysinfo
-fred.workspaces
+ID                 INSTALLED  STATE      SOURCE                 SOURCE STATUS
+fred.agents        2.0.6      validated  Tamlinux               0.5-44-g206d3d5
+fred.clock         2.0.4      validated  Tamlinux               0.5-44-g206d3d5
+fred.keyboard      2.0.4      validated  Tamlinux               0.5-44-g206d3d5
+fred.monitor       2.0.6      validated  Tamlinux               0.5-44-g206d3d5
+fred.sysinfo       2.0.5      validated  Tamlinux               0.5-44-g206d3d5
+fred.tamversion    0.1.3      validated  Tamlinux               0.5-44-g206d3d5
+fred.tides         2.0.3      validated  Tamlinux               0.5-44-g206d3d5
+fred.weather       2.0.3      validated  Tamlinux               0.5-44-g206d3d5
+fred.workspaces    2.0.7      validated  Tamlinux               0.5-44-g206d3d5
 </pre>
 </li>
-<li>Inspect the status of a specific plugin:
+<li>Inspect detailed metadata for a specific plugin:
 <pre class="session" data-risk="read-only">
-$ tam-plugin status fred.clock
-Plugin: fred.clock
-Version: 1.3.3
-Status: active
+$ tam-plugin info fred.clock
+Plugin:      fred.clock
+Description: Date/time label with upcoming countdown badge, interactive agenda, multi-calendar sync, and local event management
+Repository:  https://github.com/greenermoose/tamlinux/tree/main/desktop/plugins/fred.clock
+Installed:   Yes (~/.config/tamlinux/plugins/fred.clock)
+Version:     2.0.4
+Author:      Fred (@greenermoose)
 </pre>
 </li>
-<li>When authoring a plugin, link your development checkout into the local test directory:
-<pre class="session" data-risk="low">
-$ tam-plugin dev link my-plugin
+<li>When developing a plugin, point the running shell at its repository checkout for rapid iteration:
+<pre class="session" data-risk="user">
+$ tam-plugin dev fred.clock on
 </pre>
 </li>
 </ol>
 
 <h3>Try it</h3>
-<p>Run <code>tam-plugin --help</code> in your terminal to see the commands available for listing, enabling, linking, and testing plugins.</p>
+<p>Run <code>tam-plugin --help</code> in your terminal to see the commands available for listing, inspecting, and development overrides.</p>
 
 <h3>If it goes wrong</h3>
 <dl>
 <dt>Plugin fails to appear on the bar</dt>
-<dd>Check the journal for Quickshell QML parse errors using <code>journalctl --user -u quickshell</code>.</dd>
+<dd>Check the journal for Quickshell QML parse errors using <code>journalctl --user -u tamlinux-shell.service</code>.</dd>
 <dt>Plugin shows old assets after editing</dt>
-<dd>Restart the shell or run <code>tam-plugin dev reload</code> to clear live memory caches.</dd>
+<dd>Purge cached bytecode and restart the shell by running <code>tam-restart-shell</code> (or <code>tam-qmlcache-purge</code>).</dd>
 </dl>
 
 <aside class="tamlinux">
@@ -96,7 +104,7 @@ $ tam-plugin dev link my-plugin
 
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary>Which command manages and tests Tamlinux shell plugins?</summary>
+<details class="q"><summary>Which command inspects and configures development overrides for shell plugins?</summary>
 <p><code>tam-plugin</code>.</p></details>
 <details class="q"><summary>What language is used to write Tamlinux desktop plugin user interfaces?</summary>
 <p>QML (Qt Modeling Language) running under Quickshell.</p></details>
@@ -113,9 +121,10 @@ $ tam-plugin dev link my-plugin
 </ul>
 <table>
 <tr><th>Command / Tool</th><th>Role</th></tr>
-<tr><td><code>tam-plugin</code></td><td>Manage live, development, and test plugin registrations</td></tr>
-<tr><td><code>tam-plugin dev</code></td><td>Link development checkouts into active testing directories</td></tr>
-<tr><td><code>tam-plugin test</code></td><td>Run plugin test suites against isolated mock environments</td></tr>
+<tr><td><code>tam-plugin</code></td><td>Inspect, search, and manage shell plugin state and development overrides</td></tr>
+<tr><td><code>tam-plugin dev</code></td><td>Toggle development overrides pointing the live shell to source checkouts</td></tr>
+<tr><td><code>tam-plugin verify</code></td><td>Compare installed plugin digests against maintained source to detect drift</td></tr>
+<tr><td><code>tam-restart-shell</code></td><td>Purge QML cache and restart the shell service after code edits</td></tr>
 </table>
 <p>All plugins run within the unprivileged user session. Any persistent settings should be stored under descriptor-relative cache paths or standard XDG state directories.</p>
 </section>

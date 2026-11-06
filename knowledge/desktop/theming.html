@@ -54,10 +54,10 @@
 
 <h3>Worked example</h3>
 <ol>
-<li>Press <kbd>Meta + Shift + W</kbd> to cycle to the next packaged wallpaper.</li>
-<li>Open the theme switcher menu with <kbd>Meta + Ctrl + T</kbd> to preview and select from available system themes.</li>
+<li>Open the background switcher with <kbd>Meta + Ctrl + Space</kbd> (or run <code>tam-menu toggle background</code>) to select from available wallpapers.</li>
+<li>Open the theme switcher menu with <kbd>Meta + Shift + T</kbd> (or run <code>tam-menu toggle theme</code>) to preview and select from available system themes.</li>
 <li>Install a curated monospace font package using the font installer:
-<pre class="session" data-risk="low">
+<pre class="session" data-risk="system">
 $ tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono"
 </pre>
 </li>
@@ -69,7 +69,7 @@ $ tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono"
 <h3>If it goes wrong</h3>
 <dl>
 <dt>Terminal colors do not match the desktop theme</dt>
-<dd>Run <code>tam-theme-colors-from-alacritty</code> or reload your terminal profile to sync colors.</dd>
+<dd>Run <code>tam-theme-refresh</code> or re-apply your theme with <code>tam-theme-switcher</code> to broadcast updated color escape codes to running terminals.</dd>
 <dt>A new font does not appear in application lists</dt>
 <dd>Refresh the font cache by running <code>fc-cache -f</code>.</dd>
 </dl>
@@ -82,8 +82,8 @@ $ tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono"
 <h3>Check yourself</h3>
 <details class="q"><summary>What command installs a font package and selects its family?</summary>
 <p><code>tam-install-font</code>.</p></details>
-<details class="q"><summary>Which chord cycles to the next background wallpaper?</summary>
-<p><kbd>Meta + Shift + W</kbd>.</p></details>
+<details class="q"><summary>Which chord opens the desktop background switcher?</summary>
+<p><kbd>Meta + Ctrl + Space</kbd>.</p></details>
 </section>
 </section>
 
@@ -95,7 +95,7 @@ $ tam-install-font "JetBrains Mono" ttf-jetbrains-mono "JetBrains Mono"
 <tr><td><code>tam-theme-switcher</code></td><td>Interactive theme selection menu</td></tr>
 <tr><td><code>tam-theme-bg-set</code></td><td>Set active desktop wallpaper image</td></tr>
 <tr><td><code>tam-theme-bg-next</code></td><td>Cycle to the next available background wallpaper</td></tr>
-<tr><td><code>tam-theme-colors-from-alacritty</code></td><td>Extract color definitions and update application palette bridges</td></tr>
+<tr><td><code>tam-theme-colors-from-alacritty</code></td><td>Generate a theme's colors.toml from its alacritty.toml palette directory</td></tr>
 </table>
 <p>Themes and font definitions trace directly to declarative templates in the product checkout. When switching themes, Tamlinux reloads live Wayland surfaces and notifies running terminal emulators via standard OSC color escape codes.</p>
 </section>

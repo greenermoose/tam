@@ -61,7 +61,7 @@ $ tam-agent-crash 12345
 </pre>
 </li>
 <li>If desktop status bar plugins fail to display updated code after an update, purge stale QML caches:
-<pre class="session" data-risk="low">
+<pre class="session" data-risk="user">
 $ tam-qmlcache-purge
 </pre>
 </li>
@@ -79,8 +79,8 @@ $ tam-desktop-test --dry-run
 <dl>
 <dt>The graphical desktop is completely unresponsive</dt>
 <dd>Press <kbd>Ctrl + Alt + F2</kbd> to switch to a text virtual console, log in, and check journal logs.</dd>
-<dt>A component upgrade requires full system restart</dt>
-<dd>Log in to a text virtual console and run <code>tam-workstation-upgrade</code> to execute staged upgrade verification.</dd>
+<dt>Inspecting or verifying a staged upgrade</dt>
+<dd>Log in to a text virtual console and run <code>tam-workstation-upgrade --check</code> to inspect the upgrade plan without applying changes, or <code>tam-workstation-upgrade --status</code> to view the last local receipt.</dd>
 </dl>
 
 <aside class="tamlinux">

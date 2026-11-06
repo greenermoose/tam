@@ -1,9 +1,9 @@
 # tam Roadmap
 
-**Last Update:** 2026-11-04
+**Last Update:** 2026-11-05
 **Owner:** Fred
 **Current Command Version:** `0.48.2`.
-**Current Corpus Version:** `0.72.2`.
+**Current Corpus Version:** `0.75.1`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.48.2 / 0.72.2 | Newest source; plan 26 Phase 2 hubs (capture, clipboard, toggles, notifications, shell tools/editors) plus Phase 1 desktop hubs; component coverage map (W1); full glossary expansion; corpus gap remediation; seventh guiding principle; input/evdev guide; D221 novice/learner/expert labels and path migration; absolute-beginner desktop tasks. Development installation is a separate developer-directed step. |
+| `develop` | 0.48.2 / 0.75.1 | Newest source; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 

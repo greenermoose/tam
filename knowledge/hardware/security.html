@@ -25,7 +25,7 @@
 <p>Hardware security uses physical devices—such as USB security keys (FIDO2 or YubiKey) or built-in fingerprint readers—to verify your identity before performing sensitive tasks or logging in.</p>
 
 <h3>Why it matters</h3>
-<p>Passwords can be observed, guessed, or intercepted. Physical keys and fingerprints require your physical presence at the machine, preventing unauthorized access even if someone knows your password.</p>
+<p>Passwords can be observed, guessed, or intercepted. Physical keys and fingerprints provide convenient hardware-backed alternative authentication that verifies your physical presence at the machine, allowing quick authorization while retaining password fallback.</p>
 
 <h3>How to think about it</h3>
 <p>The system uses PAM (Pluggable Authentication Modules) and Polkit to verify permissions. You can register a hardware key or fingerprint so that authorizing administrative actions or unlocking the screen only requires a touch.</p>
@@ -54,23 +54,24 @@
 
 <h3>Worked example</h3>
 <ol>
-<li>Check whether your user account can interact with Docker directly or requires elevated privileges:
-<pre class="session" data-risk="system">
-$ tam-sudo-docker
-tam-sudo-docker: docker requires sudo or membership in the docker group
+<li>Check whether your current session requires sudo to interact with Docker:
+<pre class="session" data-risk="read-only">
+$ tam-sudo-docker; echo "Exit status: $?"
+Exit status: 0
 </pre>
+This silent predicate returns exit 0 when sudo is required, or exit 1 when Docker is directly accessible.
 </li>
-<li>When performing temporary administrative maintenance, you can enable bounded passwordless access for a short 15-minute window:
+<li>When performing temporary administrative maintenance, you can enable a bounded passwordless sudo window (for example, 15 minutes):
 <pre class="session" data-risk="system">
 $ tam-sudo-passwordless 15
 </pre>
-This setting expires automatically and is cleaned up on reboot.
+Note that during this active window, any process running as your user can execute any root command without prompting; the timeout limits only the duration, not the scope of authority.
 </li>
 <li>In scripts requiring repeated administrative actions, <code>tam-sudo-keepalive</code> keeps the authorization token fresh in the background while the parent script runs.</li>
 </ol>
 
 <h3>Try it</h3>
-<p>Run <code>tam-sudo-docker --configured</code> in your terminal. It returns an exit status indicating whether the docker daemon socket is configured and accessible without making changes.</p>
+<p>Run <code>tam-sudo-docker --configured; echo $?</code> in your terminal. With <code>--configured</code>, it checks account group membership rather than the live socket, returning exit 0 if the user will need sudo after logging in or exit 1 if the docker group is configured.</p>
 
 <h3>If it goes wrong</h3>
 <dl>
@@ -81,7 +82,7 @@ This setting expires automatically and is cleaned up on reboot.
 </dl>
 
 <aside class="tamlinux">
-<p>Every privileged step in Tamlinux requires explicit authorization; administrative setup tools back up PAM configurations before modifying them.</p>
+<p>Every privileged step in Tamlinux requires explicit authorization; always record a rollback point before modifying system authentication configurations.</p>
 </aside>
 
 <section class="quiz">
@@ -105,11 +106,11 @@ This setting expires automatically and is cleaned up on reboot.
 <tr><td><code>tam-remove-security-sshd</code></td><td>Stop OpenSSH server and close firewall ports</td></tr>
 <tr><td><code>tam-setup-security-sudoless-docker</code></td><td>Add user to docker group after explicit root-equivalence confirmation</td></tr>
 <tr><td><code>tam-remove-security-sudoless-docker</code></td><td>Remove user from docker group and restore sudo requirements</td></tr>
-<tr><td><code>tam-sudo-docker</code></td><td>Probe whether Docker requires sudo or is directly accessible</td></tr>
+<tr><td><code>tam-sudo-docker</code></td><td>Predicate returning exit 0 when Docker requires sudo, exit 1 when accessible directly</td></tr>
 <tr><td><code>tam-sudo-keepalive</code></td><td>Maintain an active sudo authentication token during long-running tasks</td></tr>
 <tr><td><code>tam-sudo-passwordless</code></td><td>Temporarily activate bounded passwordless sudo for a specified number of minutes</td></tr>
 </table>
-<p>All authentication setup tools preserve previous configuration state under recovery paths before modifying PAM or systemd service configurations.</p>
+<p>Authentication setup tools directly edit PAM and systemd service configurations. Always record a rollback point or snapshot before altering system-wide authentication stacks.</p>
 </section>
 
 <h2>Where next</h2>
