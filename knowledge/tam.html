@@ -21,12 +21,10 @@
 
 <p>This page explains how to build and maintain <code>tam</code>, the program that displays this guide.  If you just want to learn how to use tam, see <a href="learn/tam.html">Using the tam command</a>. Read on to learn about tam's implementation, build system, and development lifecycle.</p>
 
-<p><code>tam</code> is the terminal entry point, guide, and flagship utility for Tamlinux.  It is written in the C programming language (specifically, the C11 standard) and built against the
-<code>libtam</code> library. It is designed to start quickly, use little resident memory, and operate completely offline without background daemons, so it can run reliably on any 64-bit
-hardware from 2006-era budget laptops up to the latest multi-core, multi-screen desktop workstations.</p>
+<p><code>tam</code> is the flagship utility for Tamlinux.  <a href="learn/about/fred.html">Fred</a> chose to write it in the C programming language (specifically, the C11 standard) built against the <code>libtam</code> library so it starts quickly, uses little resident memory, and operates completely offline without background daemons. Tam should run reliably on any 64-bit hardware from 2006-era budget laptops up to the latest multi-core, multi-screen desktop workstations.</p>
 
 <section data-level="novice">
-<h2>What is the tam command architecture?</h2>
+<h2>The tam command architecture</h2>
 
 <p><code>tam</code> is Tamlinux's core offline navigation and diagnostic command. Unlike interpreters or browser engines, it compiles to an ultra-fast, native C binary that starts in under 5 milliseconds. Understanding how to compile it locally allows you to test fixes and improvements safely under your user development prefix without root permissions or risks to production software.</p>
 
@@ -214,7 +212,7 @@ Release (Tamlinux release)
 </li>
 </ol>
 
-<h3>Why Tamlinux chose this</h3>
+<h3>Why Fred chose this</h3>
 
 <p>A flagship system utility must remain available when the workstation is in distress. By compiling to a standalone C11 binary linked against <code>libtam</code> with zero background daemons, <code>tam</code> operates reliably in single-user recovery consoles even if Wayland compositors, graphics drivers, or package managers are broken. Decoupling command and corpus versioning allows documentation to evolve rapidly without recompilation churn, and the 4-stage lifecycle guarantees byte-for-byte reproducibility from development to release.</p>
 

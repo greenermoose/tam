@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-06
 **Owner:** Fred
 **Current Command Version:** `0.49.0`.
-**Current Corpus Version:** `0.75.1`.
+**Current Corpus Version:** `0.75.2`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.49.0 / 0.75.1 | Newest source; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
+| `develop` | 0.49.0 / 0.75.2 | Newest source; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
