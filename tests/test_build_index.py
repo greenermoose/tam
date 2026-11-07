@@ -436,11 +436,15 @@ class BuildIndex(unittest.TestCase):
         guide = root / "tests/guide.sh"
         guide.write_text("#!/bin/sh\nset -eu\ntest -f knowledge/index.tsv\necho 'guide checked'\n")
         guide.chmod(0o755)
+        (root / "tools/check-repo.py").write_text("print('repo checked')\n")
         result = self.make_ok(root, "-j8", "-o", "command", "corpus", "corpus-and-test")
         self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
         self.assertLess(result.stdout.index("Generated index.tsv"),
                         result.stdout.index("lint ran after generation"))
         self.assertIn("guide checked", result.stdout)
+        self.assertIn("repo checked", result.stdout)
+        self.assertLess(result.stdout.index("Generated index.tsv"),
+                        result.stdout.index("repo checked"))
         result = self.make(root, "test-corpus")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("No rule to make target", result.stderr)
