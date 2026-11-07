@@ -6,6 +6,7 @@ is maintained in [AI_PROVENANCE.md](../../AI_PROVENANCE.md).
 
 | Date | Work | Record |
 | --- | --- | --- |
+| 2026-11-07 | Pre-push `check-repo` hook, lane-test wiring, and `AGENTS.md` version checklist | [Session record](2026-11-07-tam-pre-push-repo-check.md) |
 | 2026-11-07 | Restore current command and corpus version history rows | [Session record](2026-11-07-tam-version-history.md) |
 | 2026-11-06 | Complete alphabetical manual section browsing; command 0.49.1 | [Session record](2026-11-06-tam-man-section-listings.md) |
 | 2026-11-04 | Comprehensive glossary expansion covering technical, specialist, and Tamlinux terms; corpus 0.71.0 | [Session record](2026-11-04-tam-glossary-expansion.md) |

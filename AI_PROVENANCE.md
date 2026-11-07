@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-07 | Pre-push `check-repo` hook, lane-test `check-repo` wiring, and `AGENTS.md` version checklist | Antigravity CLI 1.5.3; Gemini 4 Argon (High) (`gemini-4-argon-high`) | [Session record](docs/ai/2026-11-07-tam-pre-push-repo-check.md) |
 | 2026-11-07 | Restore roadmap history rows for command 0.49.1 and corpus 0.75.3 | Codex CLI 0.167.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-11-07-tam-version-history.md) |
 | 2026-11-06 | Complete alphabetical manual section browsing and full-list search; command 0.49.1 | Codex CLI 0.167.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-11-06-tam-man-section-listings.md) |
 | 2026-11-06 | Include acronym definitions and portmanteau explanations in glossary headings and entries; corpus 0.75.3 | Antigravity CLI 1.5.2; Gemini 3.8 Flash (High) | [Session record](docs/ai/2026-11-06-tam-glossary-acronym-definitions.md) |

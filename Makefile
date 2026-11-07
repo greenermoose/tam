@@ -141,9 +141,11 @@ test: all
 	@$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
 		python3 tools/report-component-coverage.py --quiet --check
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
+	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
 	@$(TIME_SUMMARY)
 
 check-repo:
+	@if [ -d .git ] && [ -d .githooks ]; then git config core.hooksPath .githooks 2>/dev/null || true; fi
 	python3 tools/check-repo.py
 
 test-command: command
@@ -151,6 +153,7 @@ test-command: command
 	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(TAM)
 	@$(RUN_TIMED) "Upgrade tests (test_upgrade.py)" python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
 	@$(RUN_TIMED) "Renderer golden tests (tests/render.sh)" tests/render.sh $(CURDIR)/$(TAM)
+	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
 	@$(TIME_SUMMARY)
 
 corpus-and-test: command corpus
@@ -162,6 +165,7 @@ corpus-and-test: command corpus
 	@$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
 		python3 tools/report-component-coverage.py --quiet --check
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
+	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
 	@$(TIME_SUMMARY)
 
 check: corpus test

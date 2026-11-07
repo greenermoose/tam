@@ -1,0 +1,6 @@
+#!/bin/sh
+# pre-push: verify copied repository facts (versions, ROADMAP history rows,
+# decision record, links, and lane paths) before pushing commits.
+set -eu
+root=$(git rev-parse --show-toplevel)
+exec python3 "$root/tools/check-repo.py" --root "$root"

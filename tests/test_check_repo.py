@@ -363,6 +363,12 @@ class CheckRepoTest(unittest.TestCase):
         )
         self.assertEqual(check_mod.check_repo(root), [])
 
+    def test_pre_push_hook_enforces_check_repo(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        hook = repo_root / ".githooks" / "pre-push"
+        self.assertTrue(hook.is_file(), "missing .githooks/pre-push")
+        self.assertIn("tools/check-repo.py", hook.read_text(encoding="utf-8"))
+
 
 if __name__ == "__main__":
     unittest.main()

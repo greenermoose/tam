@@ -83,12 +83,19 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
 ## Versions
 
 - **Command:** `TAM_COMMAND_VERSION` in `src/version.h`, the matching
-  assertion in `tests/run.sh`, and a line in the decision record of
-  `docs/plans/development.md`.
-- **Corpus:** `knowledge/version` only.
+  `--version` assertion in `tests/run.sh`, a line in the decision record of
+  `docs/plans/development.md`, and in `ROADMAP.md`: the
+  `**Current Command Version:**` header, the `develop` row in section 3, and a
+  `| **<version> command** | ... |` row in section 2 (`Delivered history`).
+- **Corpus:** `knowledge/version`, and in `ROADMAP.md`: the
+  `**Current Corpus Version:**` header, the `develop` row in section 3, and a
+  `| **<version> corpus** | ... |` row in section 2 (`Delivered history`).
 - New capability or new pages take the minor bump; fixes and corrections
-  take the patch bump. Bump in the same change that adds the feature, and
-  update the version header in `ROADMAP.md`.
+  take the patch bump. Bump in the same change that adds the feature, update
+  every place above in the same commit, and run `make check-repo` before
+  committing. `.githooks/pre-push` (enabled with
+  `git config core.hooksPath .githooks`) runs `tools/check-repo.py` before
+  every push.
 
 ## Build, test and install
 
