@@ -236,6 +236,8 @@ in that candidate, not here.
 | **0.70.0 corpus** | D221 final anatomy batches | Done (2026-11-02) | Migrates session/desktop, understand-design, terminal-stack, and guide-leftover pages; clears remaining novice/learner anatomy warnings; expands hard-enforcement. |
 | **0.75.1 corpus** | Audit findings A01–A12 remediation | Done (2026-11-06) | Fixes audit findings A01 through A12 across 13 corpus pages; adds tam-open to shell tools table maintaining 0 gaps. |
 | **0.49.0 command** | Hidden difficulty level notice display | Done (2026-11-06) | Displays right-aligned hiding notices ('Hiding novice text (01 show)', 'Hiding learner text (02 show)', 'Hiding expert text (03 show)') in subdued style with corresponding level color highlighting when sections are filtered out. |
+| **0.49.1 command** | Complete alphabetical manual section browsing | Done (2026-11-06) | Lists every manual in a selected section in alphabetical order. |
+| **0.75.3 corpus** | Glossary acronym and portmanteau explanations | Done (2026-11-06) | Adds acronym definitions and explains portmanteaux in the glossary. |
 
 ## 4. Deferred direction, without reserved versions
 
