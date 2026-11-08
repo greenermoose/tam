@@ -606,10 +606,13 @@ int draw(pager_t *st)
 status_ready:
     if (st->height >= 3) {
         g_capture = &frame[st->height - 2];
+        emit_attention(1);
         size_t slen = status_byte_limit(footer2, paint_width);
         outn(footer2, slen);
+        emit_reset(0);
 
         g_capture = &frame[st->height - 1];
+        emit_attention(1);
         slen = status_byte_limit(footer1, paint_width);
         if (lens_digit < slen && g_term != NULL && g_term->underline != NULL &&
             (g_term->ncv < 0 || !(g_term->ncv & 2))) {
@@ -617,14 +620,19 @@ status_ready:
             (void)tam_terminal_cap(g_term, g_capture, g_term->underline, 0, 0);
             outn(footer1 + lens_digit, 1);
             emit_reset(0);
+            emit_attention(1);
             outn(footer1 + lens_digit + 1, slen - lens_digit - 1);
+            emit_reset(0);
         } else {
             outn(footer1, slen);
+            emit_reset(0);
         }
     } else if (st->height == 2) {
         g_capture = &frame[1];
+        emit_attention(1);
         size_t slen = status_byte_limit(footer2, paint_width);
         outn(footer2, slen);
+        emit_reset(0);
     }
     g_capture = NULL;
     int rc = tam_pager_screen_update(&g_screen, frame, nframe, paint_width);
