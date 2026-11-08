@@ -97,8 +97,10 @@ static void outn(const char *s, size_t n)
 
 int content_rows(const pager_t *st)
 {
-    if (st->height <= 2) return st->height <= 1 ? 1 : st->height - 1;
-    return st->height - 2; /* Fixed location row plus footer. */
+    if (st->height <= 1) return 1;
+    if (st->height == 2) return 1;
+    if (st->height == 3) return 1;
+    return st->height - 3; /* Location row plus two footer rows. */
 }
 
 int content_width(const pager_t *st)
@@ -492,148 +494,137 @@ int draw(pager_t *st)
         }
     }
 
-    char status[512] = {0};
+    char footer2[512] = {0};
+    char footer1[512] = {0};
     size_t lens_digit = (size_t)-1; /* byte of the lens digit to underline */
     int max_cols = paint_width;
+
+    /* Compute the attention line label, range and totals (shared by both
+     * footers' first field). */
+    const char *title = st->doc->title ? st->doc->title : "tam";
+    int lead = (int)st->doc->nlead;
+    int total = (int)st->doc->nlines - lead;
+    if (st->doc->nlines == 1 && st->doc->lines[0].nspans == 0) {
+        total = 0;
+    }
+    int first = st->top < lead ? 1 : st->top - lead + 1;
+    int last = st->top + usable - lead;
+    if (last > total) last = total;
+    if (total <= 0 || last < first) first = last = 0;
+
+    char line_label[16];
+    if (breadcrumb_focused(st))
+        snprintf(line_label, sizeof(line_label), "La");
+    else if (st->cursor_line < lead)
+        snprintf(line_label, sizeof(line_label), "L%c",
+                 st->cursor_line < 25 ? 'b' + st->cursor_line : 'z');
+    else
+        snprintf(line_label, sizeof(line_label), "L%d",
+                 st->cursor_line - lead + 1);
+
+    /* F2: title | attention line + range | highlighted link -> destination. */
     if (st->show_address) {
         char addr[256];
         pager_address(st, addr, sizeof(addr));
-        snprintf(status, sizeof(status), "Path = %s", addr);
+        snprintf(footer2, sizeof(footer2), "Path = %s", addr);
     } else {
-        const char *title = st->doc->title ? st->doc->title : "tam";
-        /* The title is line 1: the level lines above it are lettered from
-         * b and the breadcrumb row is a, and the range and total count
-         * only numbered lines. */
-        int lead = (int)st->doc->nlead;
-        int total = (int)st->doc->nlines - lead;
-        if (st->doc->nlines == 1 && st->doc->lines[0].nspans == 0) {
-            total = 0;
-        }
-        int first = st->top < lead ? 1 : st->top - lead + 1;
-        int last = st->top + usable - lead;
-        if (last > total) {
-            last = total;
-        }
-        if (total <= 0 || last < first) {
-            first = last = 0;
-        }
-        char line_label[16];
-        if (breadcrumb_focused(st))
-            snprintf(line_label, sizeof(line_label), "La");
-        else if (st->cursor_line < lead)
-            snprintf(line_label, sizeof(line_label), "L%c",
-                     st->cursor_line < 25 ? 'b' + st->cursor_line : 'z');
-        else
-            snprintf(line_label, sizeof(line_label), "L%d",
-                     st->cursor_line - lead + 1);
-        char essential[96];
-        snprintf(essential, sizeof(essential), "%s %d-%d/%d",
+        char range_part[96];
+        snprintf(range_part, sizeof(range_part), "%s %d-%d/%d",
                  line_label, first, last, total < 0 ? 0 : total);
-        strncat(essential, max_cols >= 60 ? " | " : " ",
-                sizeof(essential) - strlen(essential) - 1);
-        /* The lens as "All text 0123", its digit underlined, or in brackets
-         * where the terminal cannot underline. */
-        int lens_number = tam_level_number(st->lens);
-        int underline = g_term != NULL && g_term->underline != NULL &&
-                        (g_term->ncv < 0 || !(g_term->ncv & 2));
-        if (max_cols >= 100) {
-            strncat(essential, tam_level_label(st->lens),
-                    sizeof(essential) - strlen(essential) - 1);
-            strncat(essential, " text ", sizeof(essential) - strlen(essential) - 1);
-        } else if (max_cols >= 60) {
-            strncat(essential, tam_level_label(st->lens),
-                    sizeof(essential) - strlen(essential) - 1);
-            strncat(essential, " ", sizeof(essential) - strlen(essential) - 1);
-        }
-        size_t digit_at = 0;
-        for (int i = 0; i <= 3; i++) {
-            char digit[4];
-            snprintf(digit, sizeof(digit), i == lens_number && !underline ? "[%d]" : "%d", i);
-            if (i == lens_number)
-                digit_at = strlen(essential) + (underline ? 0 : 1);
-            strncat(essential, digit, sizeof(essential) - strlen(essential) - 1);
-        }
-        if (st->doc->levels != 0 && st->lens != 0 && !(st->doc->levels & st->lens))
-            strncat(essential, " (not on page)", sizeof(essential) - strlen(essential) - 1);
-
-        /* Title | line and range | lens | keys  -> link  ...  version, the
-         * version at the right edge. Narrow rows drop the title first, then
-         * the link, then the keys, though a message stays ahead of the keys;
-         * the line, range and lens always show. */
-        static const char *const keys[] = {
-            "h Help  Esc Quit  [] Select links", "h Help  Esc Quit"
-        };
+        snprintf(footer2, sizeof(footer2), "%s | %s", title, range_part);
         char detail[192] = {0};
         if (st->msg[0] != '\0')
             snprintf(detail, sizeof(detail), "[%s]", st->msg);
-        else if (sel != NULL && sel->href != NULL)
-            snprintf(detail, sizeof(detail), "-> %s", sel->href);
-        int ess_w = (int)tam_display_width(essential, strlen(essential));
-        int ver_w = (int)tam_display_width(st->version, strlen(st->version));
-        int room = max_cols - ess_w - (ver_w > 0 ? ver_w + 2 : 0);
-        int detail_w = (int)tam_display_width(detail, strlen(detail));
-        /* A message answers the reader's last key, so it outranks the key
-         * hints; a selected link's target gives way to them. */
-        int message = st->msg[0] != '\0';
-        /* A confirmation must remain visible even when the usual status
-         * fields leave too little room for it. */
-        if (st->pending_external != NULL && detail_w + 2 > room) {
-            snprintf(status, sizeof(status), "%s", detail);
-            lens_digit = (size_t)-1;
-            goto status_ready;
+        else if (sel != NULL && sel->href != NULL) {
+            const char *lt = (sel->span != NULL && sel->span->text != NULL)
+                                 ? sel->span->text : "";
+            snprintf(detail, sizeof(detail), "%s -> %s", lt, sel->href);
         }
-        int show_detail = message && detail_w + 2 <= room;
-        if (show_detail)
-            room -= detail_w + 2;
-        const char *key_text = NULL;
-        for (size_t k = 0; k < sizeof(keys) / sizeof(keys[0]) && key_text == NULL; k++)
-            if ((int)tam_display_width(keys[k], strlen(keys[k])) + 3 <= room)
-                key_text = keys[k];
-        if (key_text != NULL)
-            room -= (int)tam_display_width(key_text, strlen(key_text)) + 3;
-        if (!message && detail[0] != '\0' && detail_w + 2 <= room) {
-            show_detail = 1;
-            room -= detail_w + 2;
-        }
-        int title_w = (int)tam_display_width(title, strlen(title));
-        if (title_w + 3 <= room && max_cols >= 60) {
-            strncat(status, title, sizeof(status) - strlen(status) - 1);
-            strncat(status, " | ", sizeof(status) - strlen(status) - 1);
-        }
-        lens_digit = strlen(status) + digit_at;
-        strncat(status, essential, sizeof(status) - strlen(status) - 1);
-        if (key_text != NULL) {
-            strncat(status, " | ", sizeof(status) - strlen(status) - 1);
-            strncat(status, key_text, sizeof(status) - strlen(status) - 1);
-        }
-        if (show_detail) {
-            strncat(status, "  ", sizeof(status) - strlen(status) - 1);
-            strncat(status, detail, sizeof(status) - strlen(status) - 1);
-        }
-        if (ver_w > 0) {
-            int used = (int)tam_display_width(status, strlen(status));
-            int pad = max_cols - used - ver_w;
-            if (pad < 2) pad = 2;
-            for (int i = 0; i < pad && strlen(status) + 1 < sizeof(status); i++)
-                strncat(status, " ", sizeof(status) - strlen(status) - 1);
-            strncat(status, st->version, sizeof(status) - strlen(status) - 1);
+        if (detail[0] != '\0') {
+            strncat(footer2, " | ", sizeof(footer2) - strlen(footer2) - 1);
+            strncat(footer2, detail, sizeof(footer2) - strlen(footer2) - 1);
         }
     }
 
+    /* F1: lens digits + keys + version. */
+    int lens_number = tam_level_number(st->lens);
+    int underline = g_term != NULL && g_term->underline != NULL &&
+                    (g_term->ncv < 0 || !(g_term->ncv & 2));
+    char lens_part[96] = {0};
+    size_t digit_at = 0;
+    for (int i = 0; i <= 3; i++) {
+        char digit[4];
+        snprintf(digit, sizeof(digit), i == lens_number && !underline ? "[%d]" : "%d", i);
+        if (i == lens_number)
+            digit_at = strlen(lens_part) + (underline ? 0 : 1);
+        strncat(lens_part, digit, sizeof(lens_part) - strlen(lens_part) - 1);
+    }
+    strncat(lens_part, " showing ", sizeof(lens_part) - strlen(lens_part) - 1);
+    strncat(lens_part, tam_level_label(st->lens),
+            sizeof(lens_part) - strlen(lens_part) - 1);
+    strncat(lens_part, " text", sizeof(lens_part) - strlen(lens_part) - 1);
+    if (st->doc->levels != 0 && st->lens != 0 && !(st->doc->levels & st->lens))
+        strncat(lens_part, " (not on page)", sizeof(lens_part) - strlen(lens_part) - 1);
+
+    static const char *const keys[] = {
+        "h Help  Esc Quit  [] Select links  asdf jkl; Navigate", "h Help  Esc Quit"
+    };
+    int ver_w = (int)tam_display_width(st->version, strlen(st->version));
+    int lens_w = (int)tam_display_width(lens_part, strlen(lens_part));
+    int room = max_cols - lens_w - (ver_w > 0 ? ver_w + 2 : 0);
+    const char *key_text = NULL;
+    for (size_t k = 0; k < sizeof(keys) / sizeof(keys[0]) && key_text == NULL; k++)
+        if ((int)tam_display_width(keys[k], strlen(keys[k])) + 3 <= room)
+            key_text = keys[k];
+    if (key_text != NULL)
+        room -= (int)tam_display_width(key_text, strlen(key_text)) + 3;
+
+    snprintf(footer1, sizeof(footer1), "%s", lens_part);
+    /* lens_part starts footer1, so digit_at is already absolute. */
+    lens_digit = digit_at;
+    if (key_text != NULL) {
+        strncat(footer1, " | ", sizeof(footer1) - strlen(footer1) - 1);
+        strncat(footer1, key_text, sizeof(footer1) - strlen(footer1) - 1);
+    }
+    if (ver_w > 0) {
+        int used = (int)tam_display_width(footer1, strlen(footer1));
+        int pad = max_cols - used - ver_w;
+        if (pad < 2) pad = 2;
+        for (int i = 0; i < pad && strlen(footer1) + 1 < sizeof(footer1); i++)
+            strncat(footer1, " ", sizeof(footer1) - strlen(footer1) - 1);
+        strncat(footer1, st->version, sizeof(footer1) - strlen(footer1) - 1);
+    }
+
+    /* pending_external confirmation: show on F2 */
+    if (st->pending_external != NULL) {
+        char detail[192];
+        snprintf(detail, sizeof(detail), "-> %s", st->pending_external);
+        /* keep simple: overwrite footer2 */
+        snprintf(footer2, sizeof(footer2), "%s", detail);
+    }
+
 status_ready:
-    if (st->height >= 2) {
+    if (st->height >= 3) {
+        g_capture = &frame[st->height - 2];
+        size_t slen = status_byte_limit(footer2, paint_width);
+        outn(footer2, slen);
+
         g_capture = &frame[st->height - 1];
-        size_t slen = status_byte_limit(status, paint_width);
+        slen = status_byte_limit(footer1, paint_width);
         if (lens_digit < slen && g_term != NULL && g_term->underline != NULL &&
             (g_term->ncv < 0 || !(g_term->ncv & 2))) {
-            outn(status, lens_digit);
+            outn(footer1, lens_digit);
             (void)tam_terminal_cap(g_term, g_capture, g_term->underline, 0, 0);
-            outn(status + lens_digit, 1);
+            outn(footer1 + lens_digit, 1);
             emit_reset(0);
-            outn(status + lens_digit + 1, slen - lens_digit - 1);
+            outn(footer1 + lens_digit + 1, slen - lens_digit - 1);
         } else {
-            outn(status, slen);
+            outn(footer1, slen);
         }
+    } else if (st->height == 2) {
+        g_capture = &frame[1];
+        size_t slen = status_byte_limit(footer2, paint_width);
+        outn(footer2, slen);
     }
     g_capture = NULL;
     int rc = tam_pager_screen_update(&g_screen, frame, nframe, paint_width);
