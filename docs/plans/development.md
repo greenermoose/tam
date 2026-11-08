@@ -433,6 +433,10 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-07:** Corpus 0.76.0 (minor): new Maintaining pages for
+  `tam-boot` (startup time split into machine work and waiting for you) and
+  `tam-meter` (power, temperature and wakeup readings), so every product
+  command has a corpus mention again.
 - **2026-11-07:** Command 0.50.2 (patch): the two-row footer keeps the
   selected link's destination visible (a long label is shortened with "..."),
   drops the title before the line and range on a narrow row, and keeps an

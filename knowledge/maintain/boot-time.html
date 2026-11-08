@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html><head>
+<title>Why startup took as long as it did</title>
+<meta name="topic" content="boot-time">
+<meta name="summary" content="Use tam-boot to split startup time into machine work and time spent waiting for you, and find the pauses worth investigating">
+<meta name="keywords" content="tam-boot, boot time, startup time, slow boot, firmware, loader, kernel, userspace, passphrase, sign-in, journal, systemd-analyze">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="maintain">
+<meta name="parent" content="maintain/index.html">
+<meta name="prereqs" content="boot-phases, logs">
+<meta name="kind" content="how-to">
+<meta name="skills" content="boot.beginner, boot.intermediate, boot.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Why startup took as long as it did</p></nav>
+<h1>Why startup took as long as it did</h1>
+<p>This page shows how to find out where the time went between pressing the power button and being ready to work.</p>
+<p>The <code>tam-boot</code> command reads the record the system keeps of each startup and explains it. It only reads; it changes nothing and needs no administrator rights.</p>
+
+<section data-level="novice">
+<h2>What tam-boot tells you</h2>
+<p>Startup happens in <a href="maintain/boot-phases.html">phases</a>: the computer's own firmware, then the program that picks what to start, then Linux, then the services that bring you to a login prompt. <code>tam-boot</code> shows how long each phase took.</p>
+<h3>Why it matters</h3>
+<p>A startup can feel slow because the computer is busy, or because it is waiting for you. If your disk is encrypted, the computer waits while you type the unlock passphrase, and it waits again at the login prompt. <code>tam-boot</code> keeps those two kinds of time apart, so you know whether there is anything to fix.</p>
+<h3>How to think about it</h3>
+<p>Think of a train journey. Some of the trip is the train moving; some is the train standing at a station while passengers board. Making the train faster does not shorten the time people take to board. <code>tam-boot</code> labels each part either <em>machine</em> (the train moving) or <em>waiting for you</em> (boarding).</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="learn/glossary/firmware.html">Firmware</a></dt><dd>Software built into the computer that starts the hardware before any operating system runs.</dd>
+<dt><a href="learn/glossary/kernel.html">Kernel</a></dt><dd>The core of the operating system, which manages hardware and runs programs.</dd>
+<dt><a href="learn/glossary/passphrase.html">Passphrase</a></dt><dd>The words or characters you type to unlock an encrypted disk.</dd>
+<dt><a href="learn/glossary/journal.html">Journal</a></dt><dd>The system's log, where startup messages are recorded with their times.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read a startup report</h2>
+<p><strong>Goal:</strong> you will be able to read a <code>tam-boot</code> report, separate machine time from waiting time, and look at an earlier startup.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ tam-boot
+Boot da1124be  kernel 7.2.11-arch1-1.1
+
+  firmware       9.98 s   machine
+  loader         1.95 s   machine
+  kernel        13.62 s   = 5.47 s machine + 8.16 s waiting for you (disk passphrase)
+  userspace      5.19 s   machine, to multi-user.target
+  text login    17.05 s   getty@tty1 ready
+  sign-in       43.73 s   waiting for you (26.69 s since prompt)
+  user session  43.94 s   user@1000 default.target ready
+  desktop      1133.24 s   graphical-session.target ready
+
+  Machine time to text login: 22.6 s  (30.7 s total minus 8.2 s waiting)
+</pre>
+<p>Captured on an Arch Linux workstation running Tamlinux 0.6.18, 2026-11-07, with <code>tam-boot</code> 0.1.0. The report also lists kernel pauses, shown at Expert. Your numbers will differ.</p>
+<h3>What just happened</h3>
+<ol>
+<li>The first four rows are durations: how long the firmware, the loader, the kernel and the startup services each took.</li>
+<li>The kernel row is split. About 8 seconds of it was the computer waiting for the disk passphrase, so the kernel itself worked for about 5.5 seconds.</li>
+<li>From <code>text login</code> on, each number is a point in time counted from when the kernel started, not a duration. The text login prompt appeared at 17 seconds; someone signed in 26.7 seconds after that.</li>
+<li>The <code>desktop</code> row is late because Tamlinux starts at a text console and the graphical desktop starts only when you ask for it with <code>tam-desktop</code>. That number mostly measures when you asked.</li>
+<li>The last line subtracts the passphrase wait from the total that the init system reports, which leaves the time the machine itself spent.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>tam-boot</code>, then <code>tam-boot list</code> to see which startups the journal still holds, then <code>tam-boot -1</code> to explain the startup before this one. Compare the two machine-time lines. Every command here only reads.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Only boot 0 is listed</dt><dd>The journal may be kept only in memory, so earlier startups were lost at shutdown. See <a href="maintain/logs.html">log evidence</a> for how the journal is stored.</dd>
+<dt><code>tam-boot: failed to analyze boot</code></dt><dd>The journal did not return the messages for that startup. Check that the boot exists with <code>tam-boot list</code>, and that your account may read the system journal; <a href="man:journalctl(1)">journalctl(1)</a> explains which groups can.</dd>
+<dt>A row is missing</dt><dd>A row appears only when the journal holds its message. Firmware and loader times need firmware that reports them, and the passphrase split appears only when the disk was unlocked during startup.</dd>
+</dl>
+<aside class="tamlinux"><p><code>tam-boot</code> ships with the Tamlinux commands. <code>--json</code> prints the same analysis for scripts, and <code>--top K</code> sets how many kernel pauses to list (5 by default).</p></aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>The kernel row reads <code>14 s = 4 s machine + 10 s waiting for you (disk passphrase)</code>. Will a faster kernel fix it?</summary>
+<p>Mostly not. Ten of the fourteen seconds were spent waiting for you to type the passphrase; only four were kernel work. Typing sooner shortens it; a faster kernel could save part of four seconds at most.</p>
+</details>
+<details class="q">
+<summary>Why can the <code>desktop</code> time be many minutes on a healthy machine?</summary>
+<p>Because it is the moment the graphical session became ready, counted from kernel start, and the desktop starts only when you run <code>tam-desktop</code>. A long gap usually means you worked at the console first, not that something was slow.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Where the numbers come from</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Row</th><th>Source in the journal</th></tr>
+<tr><td>firmware, loader, kernel, userspace, total</td><td>The init system's <q>Startup finished in …</q> message for that boot</td></tr>
+<tr><td>passphrase wait</td><td>Kernel message timestamps from <q>Key type encrypted registered</q> to the next kernel message that contains <q>mapped to</q>, <q>BTRFS</q> or <q>PM: Image not found</q></td></tr>
+<tr><td>text login</td><td><code>getty@tty1.service</code> started</td></tr>
+<tr><td>sign-in</td><td>The first new login session; the wait is measured from the text login prompt</td></tr>
+<tr><td>user session, desktop</td><td>The user manager reaching <code>default.target</code> and <code>graphical-session.target</code> for UID 1000</td></tr>
+<tr><td>slowest steps</td><td>Gaps of 0.3 s or more between consecutive kernel messages, excluding the passphrase wait</td></tr>
+</table>
+<h3>How it works</h3>
+<p><code>tam-boot</code> runs <code>journalctl</code> with the boot selector and reads its export format; it does not open journal files itself. A boot argument is either a relative number (<code>0</code>, <code>-1</code>, …) or a boot ID from <code>tam-boot list</code>.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>The user-session and desktop rows read only UID 1000, the first account created on a typical install. Other accounts' sessions are not reported.</li>
+<li>In version 0.1.0 the <q>Slowest steps</q> list shows the first qualifying pauses in boot order, not necessarily the longest. Use <code>--top</code> with a larger number, or <code>--json</code>, to see more.</li>
+<li>A kernel pause names the messages on either side of it. The message before a pause is not proof of its cause; a driver can wait on hardware that logs nothing.</li>
+<li>The passphrase split depends on the wording of kernel messages. A different storage layout can leave the wait counted as kernel machine time.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A pause of 1.4 s sits between a clock-watchdog message and a graphics-driver message. What do you do before blaming either?</summary>
+<p>Treat the pair as a location, not a verdict. Compare the same gap across several boots with <code>tam-boot -1</code>, <code>-2</code> and so on; a gap that moves or vanishes is likely timing noise. If it is stable, read the full kernel log around it with <code>journalctl -k -b</code> and look for the driver that was initializing, then change one thing at a time with a recorded way back.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="man:journalctl(1)">journalctl(1)</a> and <a href="man:systemd-analyze(1)">systemd-analyze(1)</a>, which reports the same firmware, loader, kernel and userspace split. Tamlinux's public source is <code>greenermoose/tamlinux</code>, under <code>commands/tam-boot/</code>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="maintain/boot-phases.html">Boot phases</a>: what each phase does.</li>
+<li><a href="maintain/logs.html">Truthful system diagnostics and logs</a>: read the journal behind these numbers.</li>
+<li><a href="maintain/energy.html">How much power your computer uses</a>: measure the running system once it is up.</li>
+</ul>
+</body></html>

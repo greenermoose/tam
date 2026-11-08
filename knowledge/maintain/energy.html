@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html><head>
+<title>How much power your computer uses</title>
+<meta name="topic" content="energy">
+<meta name="summary" content="Use tam-meter to sample power, temperature and wakeups, watch them live, and take a settled energy reading">
+<meta name="keywords" content="tam-meter, energy, power, watts, power draw, temperature, wakeups, interrupts, context switches, idle, battery, measurement">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="maintain">
+<meta name="parent" content="maintain/index.html">
+<meta name="prereqs" content="power, resources">
+<meta name="kind" content="how-to">
+<meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / How much power your computer uses</p></nav>
+<h1>How much power your computer uses</h1>
+<p>This page shows how to see how much electricity your computer's main chip is using, and what keeps it busy.</p>
+<p>The <code>tam-meter</code> command reads the computer's own sensors. It only reads; it changes nothing and needs no administrator rights.</p>
+
+<section data-level="novice">
+<h2>What tam-meter tells you</h2>
+<p><code>tam-meter</code> reports power in watts, the processor's temperature, how busy the processor is, and how often it is woken up to do small jobs.</p>
+<h3>Why it matters</h3>
+<p>A computer that stays busy when you are not using it wastes electricity, runs warmer and, on a laptop, drains the battery. Seeing the numbers lets you notice when a program keeps the machine awake for no good reason.</p>
+<h3>How to think about it</h3>
+<p>Think of the electricity meter in a house. A quiet house still uses some power, but a meter that keeps spinning at night means something was left on. <code>tam-meter</code> is that meter for the processor, with a list of which programs were running.</p>
+<h3>New words</h3>
+<dl>
+<dt>Watt</dt><dd>A unit of power: how fast energy is being used right now. A small light bulb uses a few watts.</dd>
+<dt><a href="learn/glossary/cpu.html">CPU</a></dt><dd>The processor, the chip that runs programs.</dd>
+<dt>Wakeup</dt><dd>A moment when the processor stops resting to handle something, such as a timer or a key press. Fewer wakeups usually mean less power.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Take a quick sample, then a careful reading</h2>
+<p><strong>Goal:</strong> you will be able to take a one-off sample, watch power live, and run a settled reading you can compare with a later one.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ tam-meter now
+APU power: 3.0 W | CPU temp: 49.1 °C | CPU busy: 1.0% | Wakeups: 2395 int/s, 3442 ctxt/s
+</pre>
+<p>Captured on an AMD desktop running Tamlinux 0.6.18, 2026-11-07, with <code>tam-meter</code> 0.1.0. Your numbers will differ, and they change from second to second.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>APU power</code> is what the main chip reports it is drawing. An APU is a processor with its graphics built in.</li>
+<li><code>CPU temp</code> is the processor's temperature sensor.</li>
+<li><code>CPU busy</code> is the share of time the processor was doing work rather than resting.</li>
+<li><code>int/s</code> counts interrupts per second, signals from hardware and timers; <code>ctxt/s</code> counts <a href="learn/glossary/context-switch.html">context switches</a> per second, when the processor changes from one task to another.</li>
+</ol>
+<h3>Try it</h3>
+<ol>
+<li>Run <code>tam-meter top</code> for a live view of power, a small graph of recent readings, wakeups and the busiest programs. Press <kbd>q</kbd> or <kbd>Esc</kbd> to leave.</li>
+<li>Leave the computer alone and watch the power settle. Then move the mouse or play a video and watch it rise.</li>
+<li>When you want a number to keep, run <code>tam-meter reading</code>. It waits six minutes for the machine to settle, then samples every two seconds for ten minutes, so plan for about sixteen minutes without using the computer.</li>
+</ol>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>APU power</code> is unavailable</dt><dd>Your processor does not report power through the sensor <code>tam-meter</code> reads. On a laptop running on battery it uses the battery's discharge rate instead.</dd>
+<dt>The numbers jump around</dt><dd>That is normal for single samples. Use <code>tam-meter reading</code>, which reports the mean, median and range over many samples.</dd>
+<dt>The reading finished but seems high</dt><dd>Look at its <q>Busiest processes</q> line. A browser or editor left open keeps waking the machine.</dd>
+</dl>
+<aside class="tamlinux"><p><code>tam-meter</code> ships with the Tamlinux commands. <code>reading</code> takes <code>--settle SECONDS</code>, <code>--minutes MINUTES</code> and <code>--interval SECONDS</code>; <code>reading</code> and <code>now</code> take <code>--json</code> for scripts. Its help calls <code>reading</code> the energy reading used when testing a Tamlinux candidate, so readings taken the same way can be compared across versions.</p></aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>One <code>tam-meter now</code> shows 3 W and the next shows 13 W. Is something wrong?</summary>
+<p>Not necessarily. A single sample catches one moment, and power rises briefly whenever any program does some work. To judge whether the machine idles well, use a settled reading and look at the median.</p>
+</details>
+<details class="q">
+<summary>Does the APU figure tell you what the whole computer draws from the wall?</summary>
+<p>No. It covers the main chip only. Memory, storage, networking, the power supply's own losses and the monitors are not included; a wall meter is needed for the whole machine.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>What tam-meter measures and leaves out</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Field</th><th>Source</th></tr>
+<tr><td>APU power</td><td><code>power1_input</code> of the <code>amdgpu</code> hwmon device (package power tracking); otherwise, while a battery is discharging, its <code>power_now</code>, or <code>current_now</code> times <code>voltage_now</code></td></tr>
+<tr><td>CPU temperature</td><td>The first hwmon temperature found from <code>k10temp</code>, then <code>coretemp</code>, then <code>acpitz</code></td></tr>
+<tr><td>CPU busy, interrupts, context switches</td><td>Differences between successive readings of <code>/proc/stat</code></td></tr>
+<tr><td>Busiest processes (<code>reading</code>)</td><td>CPU seconds each process used during the window, from <code>/proc/PID/stat</code> at the start and end</td></tr>
+<tr><td>Displays (<code>reading</code>)</td><td>The DPMS state of each connected DRM connector under <code>/sys/class/drm</code>, at the start and end</td></tr>
+<tr><td>Memory (<code>reading</code>)</td><td>Available memory and swap in use, from <code>/proc/meminfo</code></td></tr>
+</table>
+<h3>How it works</h3>
+<p><code>reading</code> sleeps for the settle time, samples for the window, then reports mean, median and range. It also reports the CPU time it used itself, so you can see that the meter is not what is being measured. Each report ends with a <q>Not measured</q> line: wall power, the RAPL package energy counter when only root can read it, and everything outside the APU.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Package power reported by the chip is a model of its own draw, useful for comparing one state with another on the same machine, not a calibrated wall measurement.</li>
+<li>On Intel systems without an <code>amdgpu</code> sensor, power comes only from a discharging battery; on mains power it is unavailable.</li>
+<li>Settling matters: background jobs, indexers and fans keep running for minutes after you stop typing. A reading with <code>--settle 0</code> measures that tail.</li>
+<li>Displays are in the report because a lit monitor changes graphics work; compare readings only with the same displays on or off. The state is what the graphics driver reports, which is not proof that a panel is physically lit.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Two readings of the same build differ by 1.5 W in median. What would you check before calling it a regression?</summary>
+<p>Whether the conditions matched: the same settle time and window, the same displays on, similar busiest processes, and similar memory and swap pressure. If one reading had a browser waking the machine, the difference belongs to that program. Repeat both readings; a stable difference under matched conditions is evidence, one pair is not.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>The kernel's hwmon sysfs interface and power-supply class documentation, and <a href="man:proc_stat(5)">proc_stat(5)</a> where installed. Tamlinux's public source is <code>greenermoose/tamlinux</code>, under <code>commands/tam-meter/</code>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="maintain/power.html">When your computer rests or sleeps</a>: blanking, suspend and hibernation.</li>
+<li><a href="hardware/resources.html">System resources and performance</a>: memory, CPU load and pressure.</li>
+<li><a href="maintain/boot-time.html">Why startup took as long as it did</a>: where startup time goes.</li>
+</ul>
+</body></html>
