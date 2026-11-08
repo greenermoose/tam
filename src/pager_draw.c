@@ -603,7 +603,6 @@ int draw(pager_t *st)
         snprintf(footer2, sizeof(footer2), "%s", detail);
     }
 
-status_ready:
     if (st->height >= 3) {
         g_capture = &frame[st->height - 2];
         emit_attention(1);
