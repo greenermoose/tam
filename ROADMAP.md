@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-07
 **Owner:** Fred
 **Current Command Version:** `0.50.2`.
-**Current Corpus Version:** `0.76.0`.
+**Current Corpus Version:** `0.76.1`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.50.2 / 0.76.0 | Newest source; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
+| `develop` | 0.50.2 / 0.76.1 | Newest source; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -242,6 +242,7 @@ in that candidate, not here.
 | **0.75.4 corpus** | Guide index link groups | Done (2026-11-07) | Regroups the Guide index links and moves "Learn more" below the quick keys. |
 | **0.76.0 corpus** | Startup time and power pages | Done (2026-11-07) | Adds `maintain/boot-time.html` (`tam-boot`) and `maintain/energy.html` (`tam-meter`), closing the component coverage gap for both commands. |
 | **0.50.2 command** | Two-row footer fixes | Done (2026-11-07) | Keeps the link destination, line range and external-link confirmation visible in the two-row pager footer; tests follow the new footer rows. |
+| **0.76.1 corpus** | spacing on the index page | Done (2026-11-07) | spacing on the index page |
 
 ## 4. Deferred direction, without reserved versions
 
