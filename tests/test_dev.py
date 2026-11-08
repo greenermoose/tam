@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from unittest.mock import patch
 
 DEV_SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "dev.py"
@@ -27,19 +28,24 @@ ROADMAP_TEMPLATE = """# tam Roadmap
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
 **Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.33.6`.
 
-## 2. Delivered history
+## 2. Current state and follow-up
+
+| Branch | Command / corpus | Meaning |
+| --- | --- | --- |
+| `develop` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+
+## 3. Delivered history
 
 | Version | Milestone / Focus | Status | Key Delivered Capabilities |
 | :--- | :--- | :--- | :--- |
 | **0.32.0 command / 0.33.5 corpus** | Home-row pager keys | Done (2026-10-20) | Home-row navigation. |
 | **0.33.6 corpus** | Guide root index wording | Done (2026-10-20) | Retitled Guide root index. |
 
+## 4. Deferred direction, without reserved versions
 
-## 3. Current state and follow-up
-
-| Branch | Command / corpus | Meaning |
-| --- | --- | --- |
-| `develop` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| Idea | Note |
+| --- | --- |
+| Something later | Not scheduled. |
 """
 
 DEVELOPMENT_TEMPLATE = """# tam development plan
@@ -367,6 +373,78 @@ class DevLoopTest(unittest.TestCase):
             dev_mod.apply_command_version_edits(
                 root, "0.32.0", "0.33.1", "patch", "Duplicate bump", "2026-10-20"
             )
+
+    def test_history_rows_append_to_the_delivered_history_table(self):
+        root, _ = self.make_fixture()
+        dev_mod.apply_corpus_version_edits(
+            root, "0.33.6", "0.33.7", "Clarify using index", "2026-10-20"
+        )
+        dev_mod.apply_command_version_edits(
+            root, "0.32.0", "0.32.1", "patch", "Fix helper", "2026-10-20"
+        )
+        roadmap = (root / "ROADMAP.md").read_text()
+        history = roadmap.split("## 3. Delivered history", 1)[1].split("## 4.", 1)[0]
+        rows = [line for line in history.splitlines() if line.startswith("| **")]
+        self.assertEqual(
+            rows[-2:],
+            [
+                "| **0.33.7 corpus** | Clarify using index | Done (2026-10-20) | Clarify using index |",
+                "| **0.32.1 command** | Fix helper | Done (2026-10-20) | Fix helper |",
+            ],
+        )
+        self.assertNotIn("0.33.7 corpus", roadmap.split("## 3. Delivered history", 1)[0])
+        self.assertNotIn("0.33.7 corpus", roadmap.split("## 4.", 1)[1])
+        self.assertIn("\n| **0.32.1 command** | Fix helper | Done (2026-10-20) | Fix helper |\n\n## 4.", roadmap)
+
+    def test_version_bump_fails_loudly_without_a_delivered_history_table(self):
+        root, _ = self.make_fixture()
+        roadmap_path = root / "ROADMAP.md"
+        roadmap_path.write_text(
+            roadmap_path.read_text().replace("## 3. Delivered history", "## 3. Shipped"),
+            encoding="utf-8",
+        )
+        before = {rel: (root / rel).read_text() for rel in ("knowledge/version", "ROADMAP.md")}
+        with self.assertRaisesRegex(dev_mod.DevError, "Delivered history"):
+            dev_mod.apply_corpus_version_edits(
+                root, "0.33.6", "0.33.7", "Clarify using index", "2026-10-20"
+            )
+        for rel, text in before.items():
+            self.assertEqual((root / rel).read_text(), text, rel)
+
+    def test_already_bumped_rerun_adds_a_missing_history_row(self):
+        root, _ = self.make_fixture()
+        # An older dev.py bumped the version copies but wrote no history row.
+        (root / "knowledge" / "version").write_text("0.33.7\n", encoding="utf-8")
+        roadmap_path = root / "ROADMAP.md"
+        roadmap_path.write_text(
+            roadmap_path.read_text()
+            .replace("**Current Corpus Version:** `0.33.6`.", "**Current Corpus Version:** `0.33.7`.")
+            .replace("| `develop` | 0.32.0 / 0.33.6 |", "| `develop` | 0.32.0 / 0.33.7 |"),
+            encoding="utf-8",
+        )
+        changes = {
+            "paths": ["knowledge/use/index.html", "knowledge/version", "ROADMAP.md"],
+            "corpus": ["knowledge/use/index.html", "knowledge/version"],
+            "command": [],
+            "other": ["ROADMAP.md"],
+            "untracked": [],
+        }
+        with patch("builtins.input", return_value="Refine using guide"), \
+                patch.object(dev_mod, "step_claim"), \
+                redirect_stdout(io.StringIO()) as out:
+            result = dev_mod.step_versions(root, changes, {}, today="2026-10-21")
+        self.assertEqual(result["corpus_version"], "0.33.7")
+        self.assertIn("Added the missing ROADMAP history row for corpus 0.33.7.", out.getvalue())
+        roadmap = roadmap_path.read_text()
+        self.assertEqual(
+            roadmap.count("| **0.33.7 corpus** | Refine using guide | Done (2026-10-21) |"), 1
+        )
+        # A second rerun finds the row and leaves ROADMAP.md alone.
+        with patch("builtins.input", return_value="Unused"), \
+                patch.object(dev_mod, "step_claim"), \
+                redirect_stdout(io.StringIO()):
+            dev_mod.step_versions(root, changes, {}, today="2026-10-22")
+        self.assertEqual(roadmap_path.read_text(), roadmap)
 
     def test_version_bump_writes_nothing_when_a_later_copy_has_drifted(self):
         root, _ = self.make_fixture()

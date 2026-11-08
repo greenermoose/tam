@@ -294,26 +294,52 @@ def replace_once(texts, path, pattern, replacement, regex=False):
     texts[path] = new_text
 
 
-def replace_optional(texts, path, pattern, replacement, regex=False):
-    """Replace pattern with replacement in path's staged text if present, otherwise do nothing."""
-    text = staged_text(texts, path)
-    if regex:
-        if re.search(pattern, text, flags=re.M):
-            texts[path] = re.sub(pattern, replacement, text, count=1, flags=re.M)
-            return True
-        return False
-    else:
-        if pattern in text:
-            texts[path] = text.replace(pattern, replacement, 1)
-            return True
-        return False
-
-
 def write_staged(texts):
     """Write staged files only after every edit matched, so a failed bump leaves the tree as it was."""
     for path, text in texts.items():
         if path.read_text(encoding="utf-8") != text:
             path.write_text(text, encoding="utf-8")
+
+
+HISTORY_HEADING_RE = re.compile(r"^## [0-9]+\. Delivered history$", re.M)
+
+
+def history_row_present(text, ver_str, kind):
+    """Whether ROADMAP text already has a delivered-history row naming this version."""
+    pattern = r"^\|\s*\*\*" + re.escape(ver_str) + r"\s+" + re.escape(kind) + r"\*\*\s*\|"
+    return re.search(pattern, text, flags=re.M) is not None
+
+
+def insert_history_row(texts, roadmap, ver_str, kind, summary, today):
+    """Append the version's row to the end of the Delivered history table.
+
+    The table is found by its section heading, wherever the section sits, and
+    a missing section or table fails loudly: make check-repo requires the row.
+    An existing row for the version is left as it is.
+    """
+    text = staged_text(texts, roadmap)
+    if history_row_present(text, ver_str, kind):
+        return False
+    heading = HISTORY_HEADING_RE.search(text)
+    if heading is None:
+        raise DevError(
+            f"{roadmap.name}: no '## N. Delivered history' section for the {ver_str} {kind} row; "
+            "no version file was changed (run make check-repo)"
+        )
+    next_heading = re.compile(r"^## ", re.M).search(text, heading.end())
+    section_end = next_heading.start() if next_heading else len(text)
+    last_row = None
+    for m in re.finditer(r"^\|[^\n]*\|[ \t]*$", text[heading.end():section_end], flags=re.M):
+        last_row = m
+    if last_row is None:
+        raise DevError(
+            f"{roadmap.name}: the Delivered history section has no table for the {ver_str} {kind} row; "
+            "no version file was changed (run make check-repo)"
+        )
+    at = heading.end() + last_row.end()
+    row = f"| **{ver_str} {kind}** | {summary} | Done ({today}) | {summary} |"
+    texts[roadmap] = text[:at] + "\n" + row + text[at:]
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -570,14 +596,7 @@ def apply_corpus_version_edits(root, old_ver, new_ver, summary, today, texts=Non
         f"| `develop` | {cmd_ver} / {old_ver} |",
         f"| `develop` | {cmd_ver} / {new_ver} |",
     )
-    new_row = f"| **{new_ver} corpus** | {summary} | Done ({today}) | {summary} |\n"
-    replace_optional(
-        texts,
-        roadmap,
-        r"(\|[^\n]+\|\n)(\n+## [0-9]+\. Current state and follow-up\n)",
-        r"\1" + new_row.replace("\\", "\\\\") + r"\2",
-        regex=True,
-    )
+    insert_history_row(texts, roadmap, new_ver, "corpus", summary, today)
     if owned:
         write_staged(texts)
     return ["knowledge/version", "ROADMAP.md"]
@@ -618,14 +637,7 @@ def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, toda
         f"| `develop` | {old_ver} / {corpus_ver} |",
         f"| `develop` | {new_ver} / {corpus_ver} |",
     )
-    new_row = f"| **{new_ver} command** | {summary} | Done ({today}) | {summary} |\n"
-    replace_optional(
-        texts,
-        roadmap,
-        r"(\|[^\n]+\|\n)(\n+## [0-9]+\. Current state and follow-up\n)",
-        r"\1" + new_row.replace("\\", "\\\\") + r"\2",
-        regex=True,
-    )
+    insert_history_row(texts, roadmap, new_ver, "command", summary, today)
 
     dev_md = root / "docs" / "plans" / "development.md"
     entry = f"- **{today}:** Command {new_ver} ({bump_kind}): {summary}\n"
@@ -660,6 +672,7 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
                 result["summary"] = input("One-line summary: ").strip()
         return result
 
+    already_bumped = []  # (version, kind) bumped by an earlier, failed run
     need_corpus_bump = False
     corpus_old = corpus_patch = corpus_minor = None
     if has_corpus:
@@ -667,6 +680,7 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
         head_corpus = read_corpus_version(root, from_head=True)
         if wt_corpus != head_corpus:
             print(f"Corpus: already bumped to {wt_corpus}")
+            already_bumped.append((wt_corpus, "corpus"))
             result["corpus_version"] = wt_corpus
             result["summary"] = recover_existing_summary(root, wt_corpus, "corpus")
         else:
@@ -686,6 +700,7 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
         head_cmd = read_command_version(root, from_head=True)
         if wt_cmd != head_cmd:
             print(f"Command: already bumped to {wt_cmd}")
+            already_bumped.append((wt_cmd, "command"))
             result["command_version"] = wt_cmd
             if not result["summary"]:
                 result["summary"] = recover_existing_summary(root, wt_cmd, "command")
@@ -735,6 +750,20 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
                 root, cmd_old, cmd_choice[1], cmd_choice[0], result["summary"], today, texts
             )
         )
+
+    # A version bumped by an earlier run (whose tests then failed) still needs
+    # its history row; add it now if that run or an older dev.py left it out.
+    roadmap = root / "ROADMAP.md"
+    missing = [
+        (ver, kind) for ver, kind in already_bumped
+        if not history_row_present(staged_text(texts, roadmap), ver, kind)
+    ]
+    if missing:
+        step_claim(root, ["ROADMAP.md"], claim_state, print_heading=False)
+        for ver, kind in missing:
+            insert_history_row(texts, roadmap, ver, kind, result["summary"], today)
+            print(f"Added the missing ROADMAP history row for {kind} {ver}.")
+        edited_files.append("ROADMAP.md")
     write_staged(texts)
 
     for rel in edited_files:
