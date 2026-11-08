@@ -433,6 +433,9 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-07:** Command 0.50.1 (patch): pager footer lines use the same
+  attention-line color as the focused status row.
+
 - **2026-11-06:** Command 0.49.1 (patch): every manual section/subsection is
   a complete alphabetical document for scrolling and in-page search. Section
   capture grows with the installed apropos index under the existing deadline;

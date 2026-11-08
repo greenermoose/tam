@@ -1,8 +1,8 @@
 # tam Roadmap
 
-**Last Update:** 2026-11-06
+**Last Update:** 2026-11-07
 **Owner:** Fred
-**Current Command Version:** `0.49.1`.
+**Current Command Version:** `0.50.1`.
 **Current Corpus Version:** `0.75.3`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.49.1 / 0.75.3 | Newest source; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
+| `develop` | 0.50.1 / 0.75.3 | Newest source; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -238,6 +238,7 @@ in that candidate, not here.
 | **0.49.0 command** | Hidden difficulty level notice display | Done (2026-11-06) | Displays right-aligned hiding notices ('Hiding novice text (01 show)', 'Hiding learner text (02 show)', 'Hiding expert text (03 show)') in subdued style with corresponding level color highlighting when sections are filtered out. |
 | **0.49.1 command** | Complete alphabetical manual section browsing | Done (2026-11-06) | Lists every manual in a selected section in alphabetical order. |
 | **0.75.3 corpus** | Glossary acronym and portmanteau explanations | Done (2026-11-06) | Adds acronym definitions and explains portmanteaux in the glossary. |
+| **0.50.1 command** | Footer attention color | Done (2026-11-07) | Colors pager footer lines like the attention line. |
 
 ## 4. Deferred direction, without reserved versions
 
