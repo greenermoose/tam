@@ -531,14 +531,39 @@ int draw(pager_t *st)
         char range_part[96];
         snprintf(range_part, sizeof(range_part), "%s %d-%d/%d",
                  line_label, first, last, total < 0 ? 0 : total);
-        snprintf(footer2, sizeof(footer2), "%s | %s", title, range_part);
-        char detail[192] = {0};
+        /* The line and range always show; a narrow row drops the title. */
+        if ((int)tam_display_width(title, strlen(title)) + 3 +
+                (int)tam_display_width(range_part, strlen(range_part)) <= max_cols)
+            snprintf(footer2, sizeof(footer2), "%s | %s", title, range_part);
+        else
+            snprintf(footer2, sizeof(footer2), "%s", range_part);
+        char detail[400] = {0};
         if (st->msg[0] != '\0')
             snprintf(detail, sizeof(detail), "[%s]", st->msg);
         else if (sel != NULL && sel->href != NULL) {
+            /* The destination always shows; a long link label gives way,
+             * shortened with "..." to the columns the destination leaves. */
             const char *lt = (sel->span != NULL && sel->span->text != NULL)
                                  ? sel->span->text : "";
-            snprintf(detail, sizeof(detail), "%s -> %s", lt, sel->href);
+            int room = paint_width
+                - (int)tam_display_width(footer2, strlen(footer2)) - 3
+                - 4 - (int)tam_display_width(sel->href, strlen(sel->href));
+            size_t lt_len = strlen(lt);
+            const char *more = "";
+            if ((int)tam_display_width(lt, lt_len) > room) {
+                lt_len = room > 3 ? status_byte_limit(lt, room - 3) : 0;
+                more = lt_len > 0 ? "..." : "";
+            }
+            size_t cap = sizeof(detail) - strlen(sel->href) - 8;
+            if (strlen(sel->href) + 8 >= sizeof(detail)) cap = 0;
+            if (lt_len > cap) {
+                lt_len = cap;
+                while (lt_len > 0 && ((unsigned char)lt[lt_len] & 0xC0) == 0x80)
+                    lt_len--;
+                more = lt_len > 0 ? "..." : "";
+            }
+            snprintf(detail, sizeof(detail), "%.*s%s%s-> %s", (int)lt_len, lt,
+                     more, lt_len > 0 ? " " : "", sel->href);
         }
         if (detail[0] != '\0') {
             strncat(footer2, " | ", sizeof(footer2) - strlen(footer2) - 1);
@@ -595,12 +620,13 @@ int draw(pager_t *st)
         strncat(footer1, st->version, sizeof(footer1) - strlen(footer1) - 1);
     }
 
-    /* pending_external confirmation: show on F2 */
-    if (st->pending_external != NULL) {
-        char detail[192];
-        snprintf(detail, sizeof(detail), "-> %s", st->pending_external);
-        /* keep simple: overwrite footer2 */
-        snprintf(footer2, sizeof(footer2), "%s", detail);
+    /* A pending external link's confirmation must stay visible however
+     * narrow the row, so it replaces the usual footer2 fields. */
+    if (st->pending_external != NULL && !st->show_address) {
+        if (st->msg[0] != '\0')
+            snprintf(footer2, sizeof(footer2), "[%s]", st->msg);
+        else
+            snprintf(footer2, sizeof(footer2), "-> %s", st->pending_external);
     }
 
     if (st->height >= 3) {

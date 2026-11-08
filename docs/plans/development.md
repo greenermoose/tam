@@ -433,6 +433,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-07:** Command 0.50.2 (patch): the two-row footer keeps the
+  selected link's destination visible (a long label is shortened with "..."),
+  drops the title before the line and range on a narrow row, and keeps an
+  external link's confirmation prompt; the pager tests read the new footer
+  rows. Corpus 0.75.4 regroups the links on the Guide index page.
 - **2026-11-07:** Command 0.50.1 (patch): pager footer lines use the same
   attention-line color as the focused status row.
 

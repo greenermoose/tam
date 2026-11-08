@@ -205,7 +205,8 @@ def stop(pid, master):
 
 
 def focused_rows(screen):
-    return [row for row in range(screen.rows - 1)
+    # The two footer rows share the attention tint, so only content rows count.
+    return [row for row in range(screen.rows - 2)
             if any("bg236" in attrs for _, attrs in screen.cells[row])]
 
 
@@ -304,7 +305,7 @@ def main():
     screen.feed(resized)
     seen = ""
     for _ in range(32):
-        seen += "".join(screen.line(r) for r in range(screen.rows))
+        seen += "".join(screen.line(r) for r in range(1, screen.rows - 2))
         os.write(master, b"k")
         screen.feed(read_available(master))
     normalized = "".join(seen.split())
@@ -350,7 +351,7 @@ def main():
     band_start = screen.line(link_row).index("TopRight")
     band_end = band_start + len("TopRight")
     heading_row = next(r for r in range(1, screen.rows) if "Nav grid" in screen.line(r))
-    for row in (heading_row, link_row + 1, screen.rows - 2):
+    for row in (heading_row, link_row + 1, screen.rows - 3):
         for col in range(band_start, band_end):
             assert "bg236" in screen.cells[row][col][1], (row, col, screen.cells[row][col])
         assert "bg236" not in screen.cells[row][band_start - 1][1], (row, band_start - 1)
@@ -426,7 +427,7 @@ def main():
     # Scrolling status row on an overflowing page
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
                                              8, 40, page="pager-plain")
-    c_rows = 8 - 2
+    c_rows = 8 - 3  # location row plus two footer rows
 
     def parse_pos(line):
         m = re.search(r"L(\d+)\s+(\d+)-(\d+)/(\d+)", line)
@@ -434,31 +435,33 @@ def main():
         return int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
 
     # At top: first is 1
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert first == 1, f"expected first == 1 at top, got {first}"
     assert last == c_rows, f"expected last == {c_rows} at top, got {last}"
     assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
     assert total > c_rows, f"expected page to overflow: total={total}, content_rows={c_rows}"
 
-    # Space (page down) from top: previous last line (6) becomes first line (6)
+    # Space (page down) from top: previous last line becomes first line
+    prev_last = last
     os.write(master, b" ")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
-    assert first == 6 and cur == 6, f"expected first==6 and cur==6 after page down, got {first}, {cur}"
-    assert last == 11, f"expected last==11 after page down, got {last}"
+    cur, first, last, total = parse_pos(screen.line(6))
+    assert first == prev_last and cur == prev_last, f"expected first==cur=={prev_last} after page down, got {first}, {cur}"
+    assert last == prev_last + c_rows - 1, f"expected last=={prev_last + c_rows - 1} after page down, got {last}"
     assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
 
-    # Page Down escape sequence (\x1b[6~): line 11 becomes first line
+    # Page Down escape sequence (\x1b[6~): previous last line becomes first line
+    prev_last = last
     os.write(master, b"\x1b[6~")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
-    assert first == 11 and cur == 11, f"expected first==11 and cur==11, got {first}, {cur}"
-    assert last == 16, f"expected last==16, got {last}"
+    cur, first, last, total = parse_pos(screen.line(6))
+    assert first == prev_last and cur == prev_last, f"expected first==cur=={prev_last}, got {first}, {cur}"
+    assert last == prev_last + c_rows - 1, f"expected last=={prev_last + c_rows - 1}, got {last}"
 
     # Space when remaining lines not enough for full step: shows last full page
     os.write(master, b" ")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert last == total, f"expected last==total ({total}), got {last}"
     assert first == total - c_rows + 1, f"expected first full page top ({total - c_rows + 1}), got {first}"
     assert cur == first, f"expected attention at top of last page ({first}), got {cur}"
@@ -466,7 +469,7 @@ def main():
     # Space when already at last full page: moves attention row to bottom line
     os.write(master, b" ")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert cur == total, f"expected attention at document end ({total}), got {cur}"
     assert last == total and first == total - c_rows + 1
 
@@ -474,7 +477,7 @@ def main():
     prev_first = first
     os.write(master, b"\x1b[5~")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert last == prev_first, f"expected last==prev_first ({prev_first}) after page up, got {last}"
     assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
     assert cur == first, f"expected attention at top of new screen ({first}), got {cur}"
@@ -483,7 +486,7 @@ def main():
     prev_first = first
     os.write(master, b"\x1b[32;2u")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert last == prev_first, f"expected last==prev_first ({prev_first}) after Shift-Space, got {last}"
     assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
     assert cur == first, f"expected attention at {first}, got {cur}"
@@ -491,31 +494,31 @@ def main():
     # 'b' key when remaining lines toward top not enough for full step: shows first full page
     os.write(master, b"b")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert first == 1, f"expected first==1 after b, got {first}"
     assert last == c_rows, f"expected last=={c_rows}, got {last}"
 
     # 'b' when already at first full page: moves attention line to top (L1)
     os.write(master, b"b")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert cur == 1 and first == 1, f"expected cur==1 and first==1 at top, got {cur}, {first}"
 
     # Shift-Space via xterm modifyOtherKeys (\x1b[27;2;32~) works as page up
     # Move down with Space first
     os.write(master, b" ")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
-    assert first == 6
+    cur, first, last, total = parse_pos(screen.line(6))
+    assert first == c_rows, f"expected first=={c_rows} after Space, got {first}"
     os.write(master, b"\x1b[27;2;32~")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert first == 1, f"expected modifyOtherKeys Shift-Space to page up, got {first}"
 
     # c (bottom): last equals total
     os.write(master, b"c")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(7))
+    cur, first, last, total = parse_pos(screen.line(6))
     assert last == total, f"expected last == total ({total}) at bottom, got {last}"
     assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
     stop(pid, master)
@@ -523,16 +526,16 @@ def main():
     # Single-screen document: Space moves attention to bottom, PgUp to top
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
                                              24, 80, page="nav-grid")
-    cur, first, last, total = parse_pos(screen.line(23))
-    assert total <= 24 - 2, f"expected single screen page: total={total}"
+    cur, first, last, total = parse_pos(screen.line(22))
+    assert total <= 24 - 3, f"expected single screen page: total={total}"
     assert cur == 1, f"expected cur==1 initially, got {cur}"
     os.write(master, b" ")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(23))
+    cur, first, last, total = parse_pos(screen.line(22))
     assert cur == total, f"expected Space on single screen to move to bottom ({total}), got {cur}"
     os.write(master, b"\x1b[5~")
     screen.feed(read_available(master))
-    cur, first, last, total = parse_pos(screen.line(23))
+    cur, first, last, total = parse_pos(screen.line(22))
     assert cur == 1, f"expected PgUp on single screen to move to top (1), got {cur}"
     stop(pid, master)
 

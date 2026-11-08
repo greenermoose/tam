@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.50.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.50.2' || fail "--version missing command version"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -251,7 +251,7 @@ pass "show subcommand and retired browse subcommand"
 # edits cannot change the link order.
 if python3 -c 'import pty' >/dev/null 2>&1; then
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
@@ -290,7 +290,7 @@ def send_and_get_target(key):
     drain_pty(master, timeout=0.002)
     os.write(master, key)
     buf = drain_pty(master, timeout=0.04, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+    lines = [l for l in buf.split(b"\x1b[23;1H") if b"->" in l]
     if not lines:
         return last_target
     # The link is the first word after "->"; the version follows at the right.
@@ -335,7 +335,7 @@ os.waitpid(pid, 0)
 
     # Pager home-row keys (D175) and Info dir rebind to i
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 # 1. Home-row navigation on the nav-grid fixture
 master, slave = pty.openpty()
@@ -373,7 +373,7 @@ def send_and_get_target(key):
     drain_pty(master, timeout=0.002)
     os.write(master, key)
     buf = drain_pty(master, timeout=0.04, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+    lines = [l for l in buf.split(b"\x1b[23;1H") if b"->" in l]
     if not lines:
         return ""
     return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
@@ -382,10 +382,15 @@ def send_and_get_state(key):
     drain_pty(master, timeout=0.002)
     os.write(master, key)
     buf = drain_pty(master, timeout=0.04, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
     last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
     pos = last.split(b"|")[1].strip().decode() if b"|" in last else ""
-    msg = last.split(b"[")[-1].split(b"]")[0].decode("utf-8", "replace") if b"]" in last else ""
+    if b"]" in last:
+        _end = last.rfind(b"]")
+        _start = last.rfind(b"[", 0, _end)
+        msg = last[_start + 1:_end].decode("utf-8", "replace") if _start >= 0 else ""
+    else:
+        msg = ""
     return pos, msg
 
 drain_pty(master, timeout=0.1, quiet=0.01)
@@ -448,7 +453,7 @@ os.close(s)
 drain_pty(m, timeout=0.1, quiet=0.01)
 os.write(m, b"i")
 buf = drain_pty(m, timeout=0.04, quiet=0.005)
-lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
 title = lines[-1].split(b"|")[0].split(b"\x1b[K", 1)[0].strip().decode("utf-8", "replace") if lines else ""
 assert "GNU Info Directory" in title or "dir" in title, f"expected Info Directory title, got {title}"
 os.write(m, b"q")
@@ -458,7 +463,7 @@ os.waitpid(p, 0)
     pass "pager home-row keys: a/j f/; along the line, s/l d/k one row, x/. c/, top and bottom, g follows, i dir"
 
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
@@ -496,10 +501,11 @@ buf = drain_pty(master, timeout=0.1, quiet=0.01)
 last_info = ("", "")
 def parse_info(buf):
     global last_info
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
     if not lines:
         return last_info
     last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+    last = re.sub(r"\x1b\[[0-9;]*m", "", last)
     title = last.split("|")[0].strip()
     target = ""
     if "->" in last:
@@ -596,7 +602,7 @@ os.waitpid(pid, 0)
 
     # Hyperlink display: no leading-space underline; multiline wrapped links are single links with continuation highlight
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 150, 0, 0))
@@ -638,7 +644,7 @@ assert b"\x1b[4m " not in buf, "unselected link underlines leading space"
 os.write(master, b"\t")
 buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
-lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+lines = [l for l in buf.split(b"\x1b[23;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "one.html", f"expected one.html, got {target}"
 assert b"\x1b[1m" in buf, "line 1 of wrapped link not bold"
@@ -651,7 +657,7 @@ assert b"\x1b[1m " not in buf, "leading space before wrapped link must not be hi
 os.write(master, b"\t")
 buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
-lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+lines = [l for l in buf.split(b"\x1b[23;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "two.html", f"expected two.html, got {target}"
 
@@ -659,7 +665,7 @@ assert target == "two.html", f"expected two.html, got {target}"
 os.write(master, b"\x1b[Z")
 buf = drain_pty(master, timeout=0.04, quiet=0.005)
 
-lines = [l for l in buf.split(b"\x1b[24;1H") if b"->" in l]
+lines = [l for l in buf.split(b"\x1b[23;1H") if b"->" in l]
 target = lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if lines else ""
 assert target == "one.html", f"expected one.html, got {target}"
 assert b"\x1b[7m" in buf, "wrapped link not reverse-highlighted after Shift-Tab"
@@ -672,7 +678,7 @@ os.waitpid(pid, 0)
     # A layout separator before a hyperlink is attached to its span. It must
     # remain outside the selected highlight, while interior link spaces stay highlighted.
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 120, 0, 0))
@@ -719,7 +725,7 @@ os.waitpid(pid, 0)
 
     # Italic spans emit sitm (CSI 3m) when the terminal description provides it.
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
@@ -802,7 +808,7 @@ assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {
 # The status row lists only Help, Quit and link selection, then the version.
 assert b"h Help  Esc Quit  [] Select links" in buf, f"status line missing key hints: {buf}"
 assert b"/ n/N" not in buf and b"q Quit" not in buf, f"status line kept old hints: {buf}"
-assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)\x1b\[K", buf), f"status line missing version: {buf}"
+assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)(?:\x1b\(B\x1b\[m)?\x1b\[K", buf), f"status line missing version: {buf}"
 
 # 2. In-pager text search: search for "redirection"
 os.write(master, b"/redirection\r")
@@ -839,7 +845,7 @@ os.waitpid(pid, 0)
 
     # Quick Guide index return (`): jump immediately to index.html from any depth, push history
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
@@ -877,10 +883,11 @@ def get_title(key=None):
         drain_pty(master, timeout=0.002)
         os.write(master, key)
     buf = drain_pty(master, timeout=0.05, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
     if not lines:
         return ""
     last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+    last = re.sub(r"\x1b\[[0-9;]*m", "", last)
     return last.split("|")[0].strip()
 
 # 1. Initial page is pipelines
@@ -906,7 +913,7 @@ os.waitpid(pid, 0)
 
     # Pager '=' address display and toggle
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
@@ -948,9 +955,10 @@ def get_status_line(key=None, timeout=None):
     if timeout is None:
         timeout = 0.09 if key == b"\x1b" else 0.05
     buf = drain_pty(master, timeout=timeout, quiet=0.005)
-    if b"\x1b[24;1H" in buf:
-        part = buf.split(b"\x1b[24;1H")[-1]
+    if b"\x1b[23;1H" in buf:
+        part = buf.split(b"\x1b[23;1H")[-1]
         last = part.split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+        last = re.sub(r"\x1b\[[0-9;]*m", "", last)
         last_status = last.strip()
     return last_status
 
@@ -984,8 +992,9 @@ os.write(master, b"[")
 drain_pty(master, timeout=0.02, quiet=0.005)
 os.write(master, b"\r")
 buf = drain_pty(master, timeout=0.06, quiet=0.005)
-lines = [l for l in buf.split(b"\x1b[24;1H") if l]
-last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace").strip() if lines else ""
+lines = [l for l in buf.split(b"\x1b[23;1H") if l]
+last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace") if lines else ""
+last = re.sub(r"\x1b\[[0-9;]*m", "", last).strip()
 assert "Path = " not in last, f"expected address cleared on new page, got: {last}"
 assert "Fixture Guide" in buf.decode("utf-8", "replace"), "expected to be on Fixture Guide"
 
@@ -996,7 +1005,7 @@ os.waitpid(pid, 0)
 
     # Pager guide search ('\') and in-page search ('/') prompts; show quick-keys links
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 binary, corpus = sys.argv[1], sys.argv[2]
 
@@ -1176,7 +1185,7 @@ assert os.WEXITSTATUS(status) == 1, f"expected exit 1 on miss, got {status}"
 
     # Pager help page (help/index.html), keys (h and ?), navigation, and return to invoking page
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 binary, corpus = sys.argv[1], sys.argv[2]
 
@@ -1251,7 +1260,7 @@ os.close(master)
 
     # Interactive hyperlinked topics pager (tam explain topics)
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
@@ -1289,10 +1298,11 @@ def get_status_info(key=None):
         drain_pty(master, timeout=0.002)
         os.write(master, key)
     buf = drain_pty(master, timeout=0.05, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
     if not lines:
         return ("", "")
     last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+    last = re.sub(r"\x1b\[[0-9;]*m", "", last)
     title = last.split("|")[0].strip()
     target = ""
     if "->" in last:
@@ -1326,7 +1336,7 @@ os.waitpid(pid, 0)
 
     # Pager attention line, directional link catching, anchored Tab, and safe Enter activation
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl
+import pty, os, time, sys, select, termios, struct, fcntl, re
 
 # Part 1: Directional catching and visible retention on nav-grid
 master, slave = pty.openpty()
@@ -1362,8 +1372,9 @@ def drain_pty(fd, timeout=0.04, quiet=0.005):
 
 def get_state(timeout=0.04):
     buf = drain_pty(master, timeout=timeout, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[24;1H") if b"|" in l]
+    lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
     last = lines[-1].split(b"\x1b[K", 1)[0].strip() if lines else b""
+    last = re.sub(rb"\x1b\[[0-9;]*m", b"", last)
     parts = last.split(b"|")
     title = parts[0].strip().decode("utf-8", "replace") if len(parts) > 0 else ""
     pos = parts[1].strip().decode("utf-8", "replace") if len(parts) > 1 else ""
@@ -1565,7 +1576,7 @@ os.waitpid(pid, 0)
     # Level lens (TCK21): 0-3 set one lens that holds across links, Back and
     # a restart, is saved in tamlinux/tam/level, and never dead-ends a page.
     python3 -c '
-import pty, os, time, sys, select, termios, struct, fcntl, re
+import pty, os, time, sys, select, termios, struct, fcntl, re, re
 
 tam, guide, tldr, tmp = sys.argv[1:5]
 
@@ -1643,7 +1654,7 @@ state = os.path.join(tmp, "lens-state")
 # A fresh reader starts at All; 0 says so and writes nothing.
 p = Pager(["show", "shell/pipelines"], state)
 assert "Showing 0: all text" in p.first, p.first
-assert "All text 0123" in p.first, f"status row lacks the lens: {p.first}"
+assert "0123 showing All text" in p.first, f"status row lacks the lens: {p.first}"
 # The page opens on its title, line 1; the level line above it is Lb and the
 # breadcrumb row La, and the range and total count only numbered lines.
 assert "L1 1-" in p.first, f"page did not open on its title as L1: {p.first}"
@@ -1670,7 +1681,7 @@ assert "Showing 2: learner level text" in b, b
 assert "Hiding novice text (01 show)" in b, b
 assert "Hiding expert text (03 show)" in b, b
 assert "Level 2 Learner: 2 sections hidden" in b, b
-assert "Learner text 0123" in b, b
+assert "0123 showing Learner text" in b, b
 assert saved(state) == "learner", saved(state)
 
 # Moving attention to a hiding line and pressing Return shows all (0).
@@ -1679,7 +1690,7 @@ for _ in range(6):
     p.key(b"k")
 b_ret = p.key(b"\r")
 assert "Showing 0: all text" in b_ret, b_ret
-assert "All text 0123" in b_ret, b_ret
+assert "0123 showing All text" in b_ret, b_ret
 assert saved(state) == "all", saved(state)
 
 # Switching back to 2, moving to a hiding line, and pressing Right Arrow shows all (0).
@@ -1690,7 +1701,7 @@ for _ in range(6):
     p.key(b"k")
 b_arr = p.key(b"\x1b[C")
 assert "Showing 0: all text" in b_arr, b_arr
-assert "All text 0123" in b_arr, b_arr
+assert "0123 showing All text" in b_arr, b_arr
 assert saved(state) == "all", saved(state)
 
 # Switching back to 2, moving to a hiding line, and pressing g shows all (0).
@@ -1701,7 +1712,7 @@ for _ in range(6):
     p.key(b"k")
 b_g = p.key(b"g")
 assert "Showing 0: all text" in b_g, b_g
-assert "All text 0123" in b_g, b_g
+assert "0123 showing All text" in b_g, b_g
 assert saved(state) == "all", saved(state)
 p.key(b"2")
 assert saved(state) == "learner", saved(state)
@@ -1722,9 +1733,14 @@ p.key(b"=")
 b = p.key(b"\x1b[D")
 assert "Fixture pipelines" in b, b
 b = p.key(b"3")
-assert "Showing 3: expert level text" in b, b
+assert "Showing 3: expert level text" in b and "0123 showing Expert text" in b, b
 b = p.key(b"\x1b[D")
-assert "Expert text 0123" in b, f"Back undid the lens change: {b}"
+# Only changed rows repaint, so the unchanged lens row is checked through the
+# address, which carries the lens.
+assert "showing Learner text" not in b, f"Back undid the lens change: {b}"
+b = p.key(b"=")
+assert "level=expert" in b, f"Back undid the lens change: {b}"
+p.key(b"=")
 p.quit()
 
 # The lens survives a restart.
@@ -1798,17 +1814,16 @@ b = p.key(b"1")
 assert "Level 1 Novice set; this page has one level" in b, b
 p.quit()
 
-# Status row: "Novice text 0123" from 100 columns, "Novice 0123" from 60,
-# the digits alone below 60.
-for cols, want, absent in ((120, "Novice text 0123", None), (80, "Novice 0123", "text 0123"), (40, "0123", "Novice")):
+# Footer: the lower row leads with the lens, "0123 showing Novice text", at
+# every width; the row above holds the line and range.
+for cols in (120, 80, 40):
     p = Pager(["show", "shell/pipelines"], state, cols=cols)
     p.key(b"1") if "Showing 1: novice level text" not in p.first else None
     b = p.key(b"x")
     text = p.first + b
     at = max(text.rfind("L1 "), text.rfind("Lb "))
-    status = text[at:at + 40] if at >= 0 else ""
-    assert want in status, f"{cols} columns: {status!r}"
-    assert absent is None or absent not in status, f"{cols} columns: {status!r}"
+    status = text[at:at + 60] if at >= 0 else ""
+    assert "0123 showing Novice text" in status, f"{cols} columns: {status!r}"
     p.quit()
 
 # 4..9 do nothing.
@@ -2590,7 +2605,7 @@ for page in 'IO::Socket::IP' 'systemd-unit@.service' 'long_xxxxxxxxxxxxxxxxxxxxx
 done
 
 python3 -c '
-import fcntl, os, pty, select, struct, sys, termios, time
+import fcntl, os, pty, re, select, struct, sys, termios, time
 
 binary, helper, corpus = sys.argv[1:]
 def launch(args):
@@ -2626,8 +2641,9 @@ def drain(fd, delay=0.04):
     return bytes(buf)
 
 def parse_info(buf):
-    lines = [line for line in buf.split(b"\x1b[24;1H") if b"|" in line]
+    lines = [line for line in buf.split(b"\x1b[23;1H") if b"|" in line]
     last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
+    last = re.sub(rb"\x1b\[[0-9;]*m", b"", last)
     title = last.split(b"|")[0].strip().decode("utf-8", "replace")
     target = last.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if b"->" in last else ""
     return title, target

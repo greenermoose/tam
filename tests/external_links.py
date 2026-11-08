@@ -48,7 +48,8 @@ class Pager:
         return raw
 
     def status(self):
-        return self.screen.line(23)
+        # The upper footer row carries the link target and messages.
+        return self.screen.line(22)
 
     def stop(self):
         stop(self.pid, self.master)
