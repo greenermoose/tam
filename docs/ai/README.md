@@ -6,6 +6,7 @@ is maintained in [AI_PROVENANCE.md](../../AI_PROVENANCE.md).
 
 | Date | Work | Record |
 | --- | --- | --- |
+| 2026-11-08 | Console exit keeps the last page and leaves a fresh prompt line, command 0.50.3 | [Session record](2026-11-08-tam-console-exit-scroll.md) |
 | 2026-11-07 | Two-row footer fixes, command 0.50.2; `tam-boot` and `tam-meter` pages, corpus 0.76.0 | [Session record](2026-11-07-tam-footer-fixes-and-command-pages.md) |
 | 2026-11-07 | Pre-push `check-repo` hook, lane-test wiring, and `AGENTS.md` version checklist | [Session record](2026-11-07-tam-pre-push-repo-check.md) |
 | 2026-11-07 | Restore current command and corpus version history rows | [Session record](2026-11-07-tam-version-history.md) |
