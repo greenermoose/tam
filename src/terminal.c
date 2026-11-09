@@ -163,7 +163,15 @@ int tam_terminal_leave(tam_terminal_t *t, tam_buf_t *b)
     if (t->sync_output) (void)tam_buf_puts(b, "\033[?2026l");
     if (tam_terminal_cap(t, b, t->sgr0, 0, 0) < 0) return -1;
     if (t->cursor_hidden && tam_terminal_cap(t, b, t->cnorm, 0, 0) < 0) return -1;
-    if (t->alt_screen && tam_terminal_cap(t, b, t->rmcup, 0, 0) < 0) return -1;
+    if (t->alt_screen) {
+        if (tam_terminal_cap(t, b, t->rmcup, 0, 0) < 0) return -1;
+    } else if (t->interactive) {
+        /* Without an alternate screen (the Linux kernel console), keep the
+         * last page visible: go to the bottom row and scroll up one line, so
+         * the shell prompt starts on a fresh, empty bottom line. */
+        if (tam_terminal_move(t, b, t->rows - 1, 0) < 0 ||
+            tam_buf_puts(b, "\r\n") < 0) return -1;
+    }
     return 0;
 }
 

@@ -433,6 +433,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-08:** Command 0.50.3 (patch): on a terminal without an
+  alternate screen, such as the Linux console, quitting the pager keeps the
+  last page visible, scrolls it up one line and leaves the cursor at the
+  start of an empty bottom line, so the shell prompt has clear space. The
+  developer chose this over clearing the screen.
 - **2026-11-07:** Corpus 0.76.0 (minor): new Maintaining pages for
   `tam-boot` (startup time split into machine work and waiting for you) and
   `tam-meter` (power, temperature and wakeup readings), so every product

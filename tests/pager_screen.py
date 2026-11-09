@@ -121,8 +121,13 @@ class Screen:
             if ch in "\r\n":
                 if ch == "\r":
                     self.col = 0
+                elif self.row == self.rows - 1:
+                    # A newline on the bottom row scrolls the screen up.
+                    self.cells = self.cells[1:] + [
+                        [(" ", frozenset()) for _ in range(self.cols)]]
+                    self.col = 0
                 else:
-                    self.row = min(self.rows - 1, self.row + 1)
+                    self.row += 1
                     self.col = 0
                 continue
             if ch == "\b":
@@ -365,7 +370,18 @@ def main():
     # Linux's eight-color profile keeps an interactive pager and uses reverse.
     pid, master, screen, _ = collect_screen(binary, fixtures, "linux")
     assert "reverse" in screen.cells[1][0][1], screen.cells[1][0][1]
-    stop(pid, master)
+    # Linux has no alternate screen. Quitting keeps the last page visible,
+    # scrolled up one line, and leaves the cursor at the start of a fresh,
+    # empty bottom line for the shell prompt.
+    page = [screen.line(r) for r in range(screen.rows)]
+    os.write(master, b"q")
+    screen.feed(read_available(master, 0.4))
+    os.waitpid(pid, 0)
+    os.close(master)
+    after = [screen.line(r) for r in range(screen.rows)]
+    assert after[:-1] == page[1:], (page, after)
+    assert after[-1].strip() == "", after
+    assert (screen.row, screen.col) == (screen.rows - 1, 0), (screen.row, screen.col)
 
     # NO_COLOR retains a visible focus indication; an empty value keeps color.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", extra_env={"NO_COLOR": "1"})
