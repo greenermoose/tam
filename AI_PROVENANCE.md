@@ -26,7 +26,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
-| 2026-11-10 | Line Lb lens display `X Showing lens text` with digit and name in level color; command 0.51.1 | opencode v2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-10-tam-line-lb-lens-wording.md) |
+| 2026-11-10 | Line Lb lens display `X Showing lens text` with digit and name in level color; corpus-style level line reworded to the new display; command 0.51.1 | opencode v2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-10-tam-line-lb-lens-wording.md) |
 | 2026-11-09 | `tam-bundle` page and bundle glossary entry; corpus 0.78.0 and 0.78.1 | Claude Code 2.1.321; Claude Opus 5.5 (`claude-opus-5-5`) | [Session record](docs/ai/2026-11-09-tam-bundle-pages.md) |
 | 2026-11-09 | Knowledge authoring markup snippets; corpus 0.77.1 | Antigravity CLI 1.5.3; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-09-tam-knowledge-authoring-snippets.md) |
 | 2026-11-09 | Add knowledge corpus authoring guide page; corpus 0.77.0 | Antigravity CLI 1.5.3; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-09-tam-knowledge-authoring-page.md) |

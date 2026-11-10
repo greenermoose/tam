@@ -23,7 +23,8 @@ topic. Put all three difficulty texts in **one** page file. The reader
 chooses what to display: **all**, **novice**, **learner**, or **expert**.
 The pager shows or hides the matching `data-level` sections.
 
-Visible levels are **1: novice**, **2: learner**, **3: expert** (D221).
+Line Lb shows the reader lens as `0 Showing all text`, `1 Showing novice
+text`, `2 Showing learner text`, `3 Showing expert text` (D221).
 
 | Level | How that text reads | Examples in that text |
 | --- | --- | --- |
