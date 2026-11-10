@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.51.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.52.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -414,7 +414,7 @@ assert send_and_get_target(b"d") == "bl.html"
 assert send_and_get_target(b"f") == "br.html"
 # Up (l, s) moves one row; moving up catches the last link on the row.
 assert send_and_get_target(b"l") == "tr.html"
-assert send_and_get_target(b"s") == "tr.html", "the caught link stays selected on the blank row while visible"
+assert send_and_get_target(b"s") == "", "moving off the link row deactivates the link"
 
 # Bottom (c, ,) and top (x, .) jump to the ends of the page; G is retired.
 pos, _ = send_and_get_state(b"x")
@@ -509,7 +509,7 @@ def parse_info(buf):
     last = re.sub(r"\x1b\[[0-9;]*m", "", last)
     title = last.split("|")[0].strip()
     target = ""
-    if "->" in last:
+    if "->" in last and not ("]" in last and last.rfind("]") > last.rfind("->")):
         target = last.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     last_info = (title, target)
     return last_info
@@ -1306,7 +1306,7 @@ def get_status_info(key=None):
     last = re.sub(r"\x1b\[[0-9;]*m", "", last)
     title = last.split("|")[0].strip()
     target = ""
-    if "->" in last:
+    if "->" in last and not ("]" in last and last.rfind("]") > last.rfind("->")):
         target = last.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     return (title, target)
 
@@ -1380,7 +1380,7 @@ def get_state(timeout=0.04):
     title = parts[0].strip().decode("utf-8", "replace") if len(parts) > 0 else ""
     pos = parts[1].strip().decode("utf-8", "replace") if len(parts) > 1 else ""
     target = ""
-    if b"->" in last:
+    if b"->" in last and not (b"]" in last and last.rfind(b"]") > last.rfind(b"->")):
         target = last.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
     msg = ""
     if b"[" in last and b"]" in last:
@@ -1418,13 +1418,13 @@ assert target == "br.html", f"expected Tab to advance to br.html, got: {target}"
 title, pos, target, msg, has_tint = send_key(b"l")
 assert "L3 1-4/4" in pos and target == "tr.html", f"expected upward sweep to catch last link tr.html, got: {target}"
 
-# 6. Upward sweep (l) to blank line: tr.html stays selected because it is still visible!
+# 6. Upward sweep (l) to blank line: link deactivates when moving off its line
 title, pos, target, msg, has_tint = send_key(b"l")
-assert "L2 1-4/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
+assert "L2 1-4/4" in pos and target == "", f"expected link to deactivate on blank line, got: {target}"
 
-# 7. Upward sweep (l) to heading line: tr.html stays selected while visible!
+# 7. Upward sweep (l) to heading line: no link on heading line
 title, pos, target, msg, has_tint = send_key(b"l")
-assert "L1 1-4/4" in pos and target == "tr.html", f"expected tr.html to stay selected while visible, got: {target}"
+assert "L1 1-4/4" in pos and target == "", f"expected no link on heading line, got: {target}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -1565,6 +1565,114 @@ assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected Down to
 send_key(b"\x1b[Z")
 _, pos, target, _, _ = send_key(b"k")
 assert pos.split()[0] == pos_mid.split()[0] and target == "", f"expected k to return to {pos_mid}, got: {pos} {target}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+
+# Part 5: Right Arrow unselected navigation, cancellation, next link jump, and next page meta
+# 5a. Right arrow unselected prompt, cancellation, and next link jump on nav-grid
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "nav-grid")
+os.close(slave)
+
+# On nav-grid L1: no link selected, no forward history
+_, pos, target, msg, _ = get_state(timeout=0.08)
+assert "L1 " in pos and target == "", f"expected L1 with no selection, got: {pos} {target}"
+
+# 1st Right Arrow: prompts to move to next link
+_, pos, target, msg, _ = send_key(b"\x1b[C")
+assert "No forward history. Move to next link? (-> again)" in msg, f"expected 1st Right Arrow prompt, got msg: {msg}"
+assert target == "", f"expected no link selected during prompt, got: {target}"
+
+# Pressing another key (e.g. k) cancels the armed prompt
+_, pos, target, msg, _ = send_key(b"k")
+assert "L2 " in pos and target == "" and msg == "", f"expected cancel and move to L2, got: {pos} {target} {msg}"
+
+# 1st Right Arrow again from L2: prompts again
+_, pos, target, msg, _ = send_key(b"\x1b[C")
+assert "No forward history. Move to next link? (-> again)" in msg, f"expected prompt again on Right Arrow, got msg: {msg}"
+
+# 2nd Right Arrow: jumps to next link below attention line (L3: tl.html) and activates it
+_, pos, target, msg, _ = send_key(b"\x1b[C")
+assert "L3 " in pos and target == "tl.html", f"expected jump to L3 with tl.html active, got: {pos} {target}"
+assert msg == "", f"expected prompt cleared, got msg: {msg}"
+
+# 3rd Right Arrow while link is active: follows it!
+title, _, _, msg, _ = send_key(b"\x1b[C")
+assert "cannot open tl.html" in msg or title != "Nav grid", f"expected Right Arrow to follow active link, got: {title} {msg}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+
+# 5b. Right Arrow with meta name="next" when no more links on page
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "next-meta")
+os.close(slave)
+
+_, pos, target, msg, _ = get_state(timeout=0.08)
+assert target == "", f"expected no selection on next-meta, got: {target}"
+
+# 1st Right Arrow: No forward history prompt
+_, _, _, msg, _ = send_key(b"\x1b[C")
+assert "No forward history. Move to next link? (-> again)" in msg, f"expected 1st Right Arrow prompt, got: {msg}"
+
+# 2nd Right Arrow: No links below, but next page metadata exists -> prompts for next page
+_, _, _, msg, _ = send_key(b"\x1b[C")
+assert "No more links. Open " in msg and "? (-> again)" in msg, f"expected next page prompt, got: {msg}"
+
+# 3rd Right Arrow: follows next page metadata to index.html
+title, _, _, _, _ = send_key(b"\x1b[C")
+assert title == "Pager fixture", f"expected next page open Pager fixture, got title: {title}"
+
+os.write(master, b"q")
+os.waitpid(pid, 0)
+
+# 5c. Right Arrow with no links below and no next page
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.dup2(slave, 0)
+    os.dup2(slave, 1)
+    os.dup2(slave, 2)
+    os.close(slave)
+    os.environ["TAM_KNOWLEDGE_DIR"] = sys.argv[2]
+    os.execl(sys.argv[1], sys.argv[1], "show", "breadcrumb-only")
+os.close(slave)
+
+_, pos, target, msg, _ = get_state(timeout=0.08)
+assert target == "", f"expected no selection on breadcrumb-only, got: {target}"
+
+# 1st Right Arrow: No forward history prompt
+_, _, _, msg, _ = send_key(b"\x1b[C")
+assert "No forward history. Move to next link? (-> again)" in msg, f"expected 1st Right Arrow prompt, got: {msg}"
+
+# 2nd Right Arrow: No links below and no next page -> displays message, does nothing
+_, _, _, msg, _ = send_key(b"\x1b[C")
+assert "No more links and no next page" in msg, f"expected no more links and no next page message, got: {msg}"
+
+# 3rd Right Arrow: does nothing
+title, pos, target, msg3, _ = send_key(b"\x1b[C")
+assert "Breadcrumb only" in title and target == "", f"expected to remain on breadcrumb-only, got: {title}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)

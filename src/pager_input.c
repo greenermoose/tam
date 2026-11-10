@@ -338,6 +338,8 @@ static void handle_key_inner(pager_t *st, unsigned char c)
                 follow_selected(st);
             } else if (st->nforward > 0) {
                 go_forward(st);
+            } else {
+                pager_handle_right_arrow_unselected(st);
             }
         } else if (strcmp(seq, "D") == 0) {
             if (!hide_fold_here(st)) go_back(st);
@@ -387,12 +389,17 @@ void handle_key(pager_t *st, unsigned char c)
     char msg[sizeof(st->msg)];
     memcpy(msg, st->msg, sizeof(msg));
     st->external_armed = 0;
+    st->right_arrow_armed = 0;
     handle_key_inner(st, c);
     /* An external link waits for one press only: any other key forgets it,
      * and the prompt with it unless the key said something else. */
     if (st->pending_external != NULL && !st->external_armed) {
         free(st->pending_external);
         st->pending_external = NULL;
+        if (memcmp(msg, st->msg, sizeof(msg)) == 0) st->msg[0] = '\0';
+    }
+    if (st->right_arrow_state != 0 && !st->right_arrow_armed) {
+        st->right_arrow_state = 0;
         if (memcmp(msg, st->msg, sizeof(msg)) == 0) st->msg[0] = '\0';
     }
     if (st->doc != doc)

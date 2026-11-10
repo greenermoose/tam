@@ -26,7 +26,6 @@
 
 static int find_last_link_on_line(const pager_t *st, size_t line_idx);
 static int find_first_visible_link(const pager_t *st);
-static void ensure_link_visible(pager_t *st, int dir);
 static int header_link_range(const pager_t *st, int *first, int *last);
 static int select_breadcrumb(pager_t *st);
 static void leave_breadcrumb(pager_t *st);
@@ -175,6 +174,7 @@ void set_cursor_line(pager_t *st, int new_line, int dir)
     if (new_line >= (int)st->doc->nlines) {
         new_line = (int)st->doc->nlines - 1;
     }
+    int old_line = st->cursor_line;
     st->cursor_line = new_line;
     st->sweep_dir = dir;
 
@@ -196,19 +196,25 @@ void set_cursor_line(pager_t *st, int new_line, int dir)
         st->top = max_top;
     }
 
-    int caught = -1;
-    if (dir > 0) {
-        caught = find_first_link_on_line(st, (size_t)st->cursor_line);
-    } else if (dir < 0) {
-        caught = find_last_link_on_line(st, (size_t)st->cursor_line);
+    if (breadcrumb_focused(st)) {
+        return;
     }
 
-    if (caught >= 0) {
-        st->selected = caught;
+    if (new_line == old_line && st->selected >= 0 && (size_t)st->selected < st->nlinks &&
+        !st->links[st->selected].header &&
+        st->links[st->selected].line_start <= (size_t)st->cursor_line &&
+        st->links[st->selected].line_end >= (size_t)st->cursor_line) {
+        /* Keep currently selected link on this line */
     } else {
-        if (!link_is_visible(st, st->selected)) {
-            st->selected = -1;
+        int caught = -1;
+        if (dir > 0) {
+            caught = find_first_link_on_line(st, (size_t)st->cursor_line);
+        } else if (dir < 0) {
+            caught = find_last_link_on_line(st, (size_t)st->cursor_line);
+        } else {
+            caught = find_first_link_on_line(st, (size_t)st->cursor_line);
         }
+        st->selected = caught;
     }
 }
 
@@ -243,7 +249,7 @@ static int find_first_visible_link(const pager_t *st)
     return 0;
 }
 
-static void ensure_link_visible(pager_t *st, int dir)
+void ensure_link_visible(pager_t *st, int dir)
 {
     if (st->selected < 0 || (size_t)st->selected >= st->nlinks) {
         return;

@@ -4,6 +4,7 @@
 #include "depth.h"
 #include "display.h"
 #include "external.h"
+#include "index.h"
 #include "pager.h"
 #include "pager_screen.h"
 #include "render.h"
@@ -270,10 +271,16 @@ static void restore_logical_nav_state(pager_t *st, const nav_state_t *nav)
             if (link->href != NULL && strcmp(link->href, nav->selected_href) == 0 &&
                 link->header == nav->selected_header &&
                 (nav->selected_link_id == 0 || link->link_id == nav->selected_link_id)) {
-                st->selected = (int)i;
+                if (link->header || (link->line_start <= (size_t)st->cursor_line &&
+                                     link->line_end >= (size_t)st->cursor_line)) {
+                    st->selected = (int)i;
+                }
                 break;
             }
         }
+    }
+    if (st->selected < 0) {
+        st->selected = find_first_link_on_line(st, (size_t)st->cursor_line);
     }
 }
 
@@ -834,5 +841,110 @@ void follow_selected(pager_t *st)
     const linkref_t *sel = selected_link(st);
     if (sel != NULL && sel->href != NULL) {
         follow(st, sel->href);
+    }
+}
+
+void pager_nav_next_name(const pager_t *st, const char *href, char *out, size_t cap)
+{
+    if (out == NULL || cap == 0) return;
+    out[0] = '\0';
+    if (href == NULL || href[0] == '\0') return;
+
+    const char *p = href;
+    if (strncmp(p, "page:", 5) == 0) p += 5;
+
+    char clean_path[256];
+    size_t i = 0;
+    while (p[i] != '\0' && p[i] != '?' && p[i] != '#' && i < sizeof(clean_path) - 1) {
+        clean_path[i] = p[i];
+        i++;
+    }
+    clean_path[i] = '\0';
+
+    const char *root = NULL;
+    char *owned_root = NULL;
+    if (st != NULL && st->ctx != NULL) {
+        const tam_loader_ctx_t *lctx = st->ctx;
+        root = lctx->root;
+    }
+    if (root == NULL) {
+        owned_root = tam_find_knowledge_root();
+        root = owned_root;
+    }
+    if (root != NULL) {
+        tam_index_t *idx = tam_index_load(root);
+        if (idx != NULL) {
+            const tam_index_entry_t *entry = tam_index_lookup_path(idx, clean_path);
+            if (entry != NULL && entry->title != NULL && entry->title[0] != '\0') {
+                snprintf(out, cap, "%s", entry->title);
+            }
+            tam_index_free(idx);
+        }
+        if (owned_root != NULL) free(owned_root);
+    }
+    if (out[0] == '\0') {
+        snprintf(out, cap, "%s", p);
+    }
+}
+
+void pager_handle_right_arrow_unselected(pager_t *st)
+{
+    if (st == NULL) return;
+
+    if (st->right_arrow_state == 0) {
+        snprintf(st->msg, sizeof(st->msg), "No forward history. Move to next link? (-> again)");
+        st->right_arrow_state = 1;
+        st->right_arrow_armed = 1;
+        return;
+    }
+
+    if (st->right_arrow_state == 1) {
+        int next_link = -1;
+        for (size_t i = 0; i < st->nlinks; i++) {
+            const linkref_t *l = &st->links[i];
+            if (l->header) continue;
+            if (l->line_start > (size_t)st->cursor_line) {
+                next_link = (int)i;
+                break;
+            }
+        }
+        if (next_link >= 0) {
+            st->cursor_line = (int)st->links[next_link].line_start;
+            st->selected = next_link;
+            ensure_link_visible(st, 1);
+            st->msg[0] = '\0';
+            st->right_arrow_state = 0;
+            return;
+        }
+
+        if (st->doc != NULL && st->doc->nav_next != NULL && st->doc->nav_next[0] != '\0') {
+            char name[100];
+            pager_nav_next_name(st, st->doc->nav_next, name, sizeof(name));
+            snprintf(st->msg, sizeof(st->msg), "No more links. Open %.*s? (-> again)",
+                     (int)sizeof(name), name);
+            st->right_arrow_state = 2;
+            st->right_arrow_armed = 1;
+            return;
+        }
+
+        snprintf(st->msg, sizeof(st->msg), "No more links and no next page");
+        st->right_arrow_state = 0;
+        return;
+    }
+
+    if (st->right_arrow_state == 2) {
+        if (st->doc != NULL && st->doc->nav_next != NULL && st->doc->nav_next[0] != '\0') {
+            char *target = strdup(st->doc->nav_next);
+            st->right_arrow_state = 0;
+            st->msg[0] = '\0';
+            if (target != NULL) {
+                follow(st, target);
+                free(target);
+            }
+        } else {
+            st->right_arrow_state = 0;
+            st->msg[0] = '\0';
+        }
+        return;
     }
 }

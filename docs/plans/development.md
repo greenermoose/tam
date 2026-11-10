@@ -433,6 +433,16 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-10:** Command 0.52.0 (minor): links activate only when the
+  attention line is on them; moving the attention line off a link deactivates it.
+  Right Arrow follows an active link immediately, shows all text if on a
+  hiding line, navigates forward through history if not at the forward tip,
+  or prompts to move to the next link on the page ("No forward history. Move
+  to next link? (-> again)"). A second Right Arrow jumps the attention line
+  to the next link below and activates it. If no more links exist on the page,
+  Right Arrow prompts to open the next page in the learning sequence if `<meta name="next">`
+  is set ("No more links. Open <name>? (-> again)"), and a further Right Arrow
+  opens it. If neither a link nor next page exists, displays "No more links and no next page".
 - **2026-11-10:** Command 0.51.1 (patch): line Lb now names the lens digit
   first and drops the colon: `0 Showing all text`, `1 Showing novice text`,
   `2 Showing learner text`, `3 Showing expert text`. The digit and the level

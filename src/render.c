@@ -693,6 +693,30 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
         }
         return;
     }
+    if (strcmp(name, "meta") == 0) {
+        if (!closing) {
+            char *m_name = extract_attr(s, end, "name");
+            char *m_content = extract_attr(s, end, "content");
+            if (m_name != NULL && m_content != NULL) {
+                if (strcasecmp(m_name, "next") == 0) {
+                    free(p->nav_next);
+                    p->nav_next = strdup(m_content);
+                } else if (strcasecmp(m_name, "prev") == 0) {
+                    free(p->nav_prev);
+                    p->nav_prev = strdup(m_content);
+                } else if (strcasecmp(m_name, "up") == 0) {
+                    free(p->nav_up);
+                    p->nav_up = strdup(m_content);
+                } else if (strcasecmp(m_name, "top") == 0) {
+                    free(p->nav_top);
+                    p->nav_top = strdup(m_content);
+                }
+            }
+            free(m_name);
+            free(m_content);
+        }
+        return;
+    }
     if (strcmp(name, "code") == 0) {
         if (closing) {
             p->style &= ~TAM_STYLE_CODE;

@@ -92,6 +92,8 @@ typedef struct {
     size_t          nfold_open;
     char           *pending_external; /* An external link awaiting its second press. */
     int             external_armed;   /* The current key armed it. */
+    int             right_arrow_state; /* 0=idle, 1=prompted next link, 2=prompted next page */
+    int             right_arrow_armed;
     const struct termios *tty_orig;   /* The reader's terminal modes, and the pager's. */
     const struct termios *tty_raw;
 } pager_t;
@@ -103,6 +105,7 @@ int content_width(const pager_t *st);
 void pager_build_links(pager_t *st);
 const linkref_t *selected_link(const pager_t *st);
 int link_is_visible(const pager_t *st, int link_idx);
+void ensure_link_visible(pager_t *st, int dir);
 int find_first_link_on_line(const pager_t *st, size_t line_idx);
 void go_page_top(pager_t *st);
 void set_cursor_line(pager_t *st, int new_line, int dir);
@@ -112,6 +115,9 @@ void pager_next_hit(pager_t *st, int dir);
 void pager_search_prompt(pager_t *st);
 int pager_prompt_action(pager_t *st, const char *href, char *out,
                         size_t out_cap);
+void pager_handle_right_arrow_unselected(pager_t *st);
+void pager_nav_next_name(const pager_t *st, const char *href, char *out,
+                         size_t cap);
 void pager_reflow(pager_t *st, int width);
 int breadcrumb_focused(const pager_t *st);
 int draw(pager_t *st);
