@@ -97,7 +97,7 @@ typedef struct {
 
 /* The level line shown above a page heading, as HTML paragraphs of class
  * "level-line" (dimmed and right-aligned by the renderer):
- * `<Shown> text[ on <Level> path][ (no <Level> text)]`
+ * `<0|1|2|3> Showing <all|novice|learner|expert> text`
  * `shown` is the level of the text displayed (a mask of several reads
  * "All"), `level` the lens (0 = All, which names no path) and `missing`
  * whether the page lacks the lens level. A missing level with a non-empty

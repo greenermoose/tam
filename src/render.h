@@ -12,9 +12,9 @@ enum {
     TAM_STYLE_HEADING  = 1u << 4,
     TAM_STYLE_DIM      = 1u << 5,  /* page metadata, such as the level line */
     TAM_STYLE_LVL_0    = 1u << 6,  /* level 0: all text */
-    TAM_STYLE_LVL_1    = 1u << 7,  /* level 1: beginner level text */
-    TAM_STYLE_LVL_2    = 1u << 8,  /* level 2: intermediate level text */
-    TAM_STYLE_LVL_3    = 1u << 9,  /* level 3: expert level text */
+    TAM_STYLE_LVL_1    = 1u << 7,  /* level 1: novice text */
+    TAM_STYLE_LVL_2    = 1u << 8,  /* level 2: learner text */
+    TAM_STYLE_LVL_3    = 1u << 9,  /* level 3: expert text */
     TAM_STYLE_LVL_MASK = (1u << 6) | (1u << 7) | (1u << 8) | (1u << 9)
 };
 

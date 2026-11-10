@@ -1,8 +1,8 @@
 # tam Roadmap
 
-**Last Update:** 2026-11-09
+**Last Update:** 2026-11-10
 **Owner:** Fred
-**Current Command Version:** `0.51.0`.
+**Current Command Version:** `0.51.1`.
 **Current Corpus Version:** `0.78.1`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.51.0 / 0.78.1 | Bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
+| `develop` | 0.51.1 / 0.78.1 | Line Lb lens display (`0 Showing all text`); bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -250,6 +250,7 @@ in that candidate, not here.
 | **0.77.1 corpus** | Knowledge markup snippets | Done (2026-11-09) | Adds full HTML snippets and rendering details for questions, hints, first-time guidance, on Tamlinux, and peek under the hood on `improve/authoring.html`. |
 | **0.78.0 corpus** | `tam-bundle` page | Done (2026-11-09) | Adds `ecosystem/tam-bundle.html` (in development: bundles, slots, switch and rollback, formats, recovery, privilege) and the `bundle` glossary entry, linked from the ecosystem hub and the Nix page. |
 | **0.78.1 corpus** | `tam-bundle` recovery rule | Done (2026-11-09) | `ecosystem/tam-bundle.html` states the `tam-bundle` 0.4.1 rule: every changing command recovers an interrupted switch first; reading commands answer and warn. |
+| **0.51.1 command** | Line Lb lens display | Done (2026-11-10) | Line Lb shows the reader lens as '0 Showing all text', '1 Showing novice text', '2 Showing learner text' or '3 Showing expert text' with the lens digit and the level name in the level color (cyan, green, yellow, magenta) and the surrounding words subdued; same right-aligned level-line style. |
 
 ## 4. Deferred direction, without reserved versions
 

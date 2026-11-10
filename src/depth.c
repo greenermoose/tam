@@ -440,30 +440,22 @@ static size_t skip_block(const char *src, size_t len, size_t open_end, const cha
 }
 
 /* The level line and, when the lens level is missing, the relatives line:
- *   Showing <0: all|1: beginner level|2: intermediate level|3: expert level> text
+ *   <0|1|2|3> Showing <all|novice|learner|expert> text
  *   See also -> <related>
  * Both are class="level-line" paragraphs, which the renderer dims and
- * right-aligns. */
+ * right-aligns; the lens digit and the level name carry the level color. */
 static void level_lines(buf_t *b, unsigned shown, unsigned level,
                         int missing, const char *related)
 {
     (void)shown;
-    buf_str(b, "<p class=\"level-line\">Showing ");
-    switch (tam_level_number(level)) {
-    case 1:
-        buf_str(b, "<span class=\"lvl-1\">1: novice</span> level text");
-        break;
-    case 2:
-        buf_str(b, "<span class=\"lvl-2\">2: learner</span> level text");
-        break;
-    case 3:
-        buf_str(b, "<span class=\"lvl-3\">3: expert</span> level text");
-        break;
-    default:
-        buf_str(b, "<span class=\"lvl-0\">0: all</span> text");
-        break;
-    }
-    buf_str(b, "</p>\n");
+    unsigned n = (unsigned)tam_level_number(level);
+    const char *name = n == 0 ? "all" : LEVELS[n - 1].name;
+    char line[128];
+    snprintf(line, sizeof(line),
+             "<p class=\"level-line\"><span class=\"lvl-%u\">%u</span> Showing "
+             "<span class=\"lvl-%u\">%s</span> text</p>\n",
+             n, n, n, name);
+    buf_str(b, line);
     if (level != 0 && missing && related != NULL && related[0] != '\0') {
         buf_str(b, "<p class=\"level-line\">See also -&gt; ");
         buf_str(b, related);

@@ -433,6 +433,11 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-10:** Command 0.51.1 (patch): line Lb now names the lens digit
+  first and drops the colon: `0 Showing all text`, `1 Showing novice text`,
+  `2 Showing learner text`, `3 Showing expert text`. The digit and the level
+  name both carry the level color; the words `Showing` and `text` stay
+  dimmed, as before.
 - **2026-11-09:** Command 0.51.0 (minor): implement the approved bundle design's version and ownership readers. Only a command inside a bundle reads its BUNDLE identity; a dormant bundle does not change older or development commands. `tam where PATH` asks tam-bundle first and the native package manager otherwise.
 
 - **2026-11-09:** Command 0.50.4 (patch): the host-profile check in
