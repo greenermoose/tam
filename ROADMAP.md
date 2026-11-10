@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-07
 **Owner:** Fred
 **Current Command Version:** `0.50.3`.
-**Current Corpus Version:** `0.76.1`.
+**Current Corpus Version:** `0.77.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.50.3 / 0.76.1 | Newest source; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
+| `develop` | 0.50.3 / 0.77.0 | Newest source; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -244,6 +244,7 @@ in that candidate, not here.
 | **0.50.2 command** | Two-row footer fixes | Done (2026-11-07) | Keeps the link destination, line range and external-link confirmation visible in the two-row pager footer; tests follow the new footer rows. |
 | **0.76.1 corpus** | spacing on the index page | Done (2026-11-07) | spacing on the index page |
 | **0.50.3 command** | Console exit leaves a fresh prompt line | Done (2026-11-08) | On a terminal without an alternate screen, such as the Linux console, quitting keeps the last page visible, scrolls it up one line and leaves the cursor at the start of an empty bottom line. |
+| **0.77.0 corpus** | Knowledge authoring page | Done (2026-11-09) | Adds `improve/authoring.html` covering the knowledge system, progressive learning levels, interactive quizzes, and corpus authoring rules. |
 
 ## 4. Deferred direction, without reserved versions
 
