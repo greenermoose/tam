@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-09: Codex CLI `0.167.0` (`gpt-6.1-sol`) adds bundle identity and ownership lookup in command 0.51.0. [Session](docs/ai/2026-11-09-tam-bundle-identity.md).
+
 Fred directs this project. AI-assisted work records the tool and verified
 version, model, guiding prompts, authorship boundaries and verification.
 Session transcripts are retained privately by the author; public records

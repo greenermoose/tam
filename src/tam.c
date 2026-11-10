@@ -55,6 +55,40 @@ enum {
 
 static void print_tam_help(int tier);
 static void print_version(void);
+
+static int cmd_where(int argc, char **argv)
+{
+    if (argc == 1 && (strcmp(argv[0], "--help") == 0 || strcmp(argv[0], "-h") == 0)) {
+        puts("Usage: tam where PATH\nShow bundle ownership, otherwise ask the native package manager.");
+        return 0;
+    }
+    if (argc != 1 || !argv[0][0]) {
+        fputs("Usage: tam where PATH\n", stderr);
+        return 2;
+    }
+    const char *bundle[] = {"tam-bundle", "where", argv[0], NULL};
+    tam_exec_result_t result = tam_exec(bundle, 10000);
+    if (result.exit_code == 0) {
+        if (result.stdout_buf) fputs(result.stdout_buf, stdout);
+        if (result.stderr_buf) fputs(result.stderr_buf, stderr);
+        tam_exec_result_free(&result);
+        return 0;
+    }
+    tam_exec_result_free(&result);
+    const char *arch[] = {"pacman", "-Qo", "--", argv[0], NULL};
+    result = tam_exec(arch, 10000);
+    if (result.exit_code == 127) {
+        tam_exec_result_free(&result);
+        const char *native[] = {"xbps-query", "-o", argv[0], NULL};
+        result = tam_exec(native, 10000);
+    }
+    if (result.stdout_buf) fputs(result.stdout_buf, stdout);
+    if (result.stderr_buf) fputs(result.stderr_buf, stderr);
+    int status = result.exit_code == 0 ? 0 : 1;
+    if (result.exit_code == 127) fputs("tam where: install tam-bundle or a supported native package manager\n", stderr);
+    tam_exec_result_free(&result);
+    return status;
+}
 static int usage_error(const char *bad);
 static int too_many_arguments(void);
 static int record_welcome_seen(void);
@@ -144,6 +178,8 @@ static void print_tam_help(int tier)
             "      inspect hardware, kernel, DRM, storage mounts, and privilege escalation\n"
             "  tam check [ID] [--json|--terse]\n"
             "      evaluate workstation health findings against the offline Check Contract\n\n"
+            "  tam where PATH\n"
+            "      show the bundle or native package that owns a file\n\n"
             "Options:\n"
             "  --help, -h\n"
             "      display help overview (combine with --verbose for this exhaustive view)\n"
@@ -186,6 +222,7 @@ static void print_tam_help(int tier)
         "System subcommands to try:\n"
         "  tam inspect               inspect system components\n"
         "  tam check                 check system health\n\n"
+        "  tam where PATH            show a file's bundle or native package\n\n"
         "  tam upgrade / switch      check, build, or recover source stages\n\n"
         "Options to know:\n"
         "  --help, -h                show this help overview\n"
@@ -995,6 +1032,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "inspect") == 0) {
         return cmd_inspect(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "where") == 0) {
+        return cmd_where(argc - 2, argv + 2);
     }
     if (strcmp(arg, "check") == 0) {
         return cmd_check(argc - 2, argv + 2);

@@ -433,6 +433,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-09:** Command 0.51.0 (minor): implement the approved bundle design's version and ownership readers. Only a command inside a bundle reads its BUNDLE identity; a dormant bundle does not change older or development commands. `tam where PATH` asks tam-bundle first and the native package manager otherwise.
+
 - **2026-11-09:** Command 0.50.4 (patch): the host-profile check in
   `src/install.c` recognizes Arch through `ID=arch` or an `ID_LIKE`
   containing `arch`, and no longer through the `omarchy` ID. The packaging

@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <locale.h>
 #include <pwd.h>
+#include <limits.h>
 
 #include "version.h"
 
@@ -52,6 +53,52 @@
 static char *trim_in_place(char *s);
 static const struct passwd *cultivar_passwd(void);
 static char *cultivar_file(const char *leaf);
+
+typedef struct { char *name, *version; } bundle_identity_t;
+
+static int bundle_identity_line(void *user, size_t line, int format, char **fields, size_t n)
+{
+    (void)line; (void)format;
+    bundle_identity_t *b = user;
+    if (n != 2) return 1;
+    char **value = strcmp(fields[0], "name") == 0 ? &b->name :
+                   strcmp(fields[0], "version") == 0 ? &b->version : NULL;
+    if (!value) return 0;
+    if (*value || !fields[1][0] || strlen(fields[1]) > 100) return 1;
+    for (const char *p = fields[1]; *p; p++)
+        if (!isalnum((unsigned char)*p) && *p != '.' && *p != '-' && *p != '_' && *p != '+') return 1;
+    *value = strdup(fields[1]);
+    return *value ? 0 : 1;
+}
+
+/* Only an executable installed in a bundle's bin/ uses that bundle's
+ * identity. Merely placing a dormant bundle on the machine must not change
+ * the identity reported by a development or old-delivery command. */
+static char *bundle_identity(char **version)
+{
+    char exe[PATH_MAX];
+    ssize_t n = readlink("/proc/self/exe", exe, sizeof exe - 1);
+    if (n <= 0 || n >= (ssize_t)sizeof exe - 1) return NULL;
+    exe[n] = '\0';
+    char *slash = strrchr(exe, '/');
+    if (!slash) return NULL;
+    *slash = '\0';
+    slash = strrchr(exe, '/');
+    if (!slash || strcmp(slash + 1, "bin") != 0) return NULL;
+    *slash = '\0';
+    char *path = tam_path_join(exe, "BUNDLE");
+    size_t len = 0;
+    char *text = path ? tam_fs_read_file(path, &len) : NULL;
+    bundle_identity_t b = {0};
+    tam_rec_error_t error;
+    bool valid = text && tam_rec_parse(text, len, 2, 1, bundle_identity_line, &b, &error) == 0 &&
+                 b.name && strcmp(b.name, "tamlinux") == 0 && b.version;
+    free(text); free(b.name);
+    if (!valid) { free(path); free(b.version); return NULL; }
+    if (version) *version = b.version;
+    else free(b.version);
+    return path;
+}
 
 static char *trim_in_place(char *s)
 {
@@ -99,6 +146,17 @@ char *cultivar_user(void)
 
 char *cultivar_path(const char *leaf)
 {
+    char *bundle = bundle_identity(NULL);
+    if (bundle) {
+        if (strcmp(leaf, "version") == 0) return bundle;
+        if (strcmp(leaf, "cultivar") == 0) {
+            *strrchr(bundle, '/') = '\0';
+            char *path = tam_path_join(bundle, "share/tamlinux/cultivar");
+            free(bundle);
+            return path;
+        }
+        free(bundle);
+    }
     const char *xdg = getenv("XDG_CONFIG_HOME");
     char *config = NULL;
 
@@ -152,6 +210,9 @@ static char *cultivar_file(const char *leaf)
  * while a long-running process keeps the value it started with. */
 char *cultivar_version(void)
 {
+    char *version = NULL;
+    char *bundle = bundle_identity(&version);
+    if (bundle) { free(bundle); return version; }
     char *from_file = cultivar_file("version");
     if (from_file != NULL) {
         return from_file;

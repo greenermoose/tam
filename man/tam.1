@@ -61,6 +61,9 @@ tam \- terminal entry point, offline guide, and system inspector for Tamlinux
 .B tam install
 .RI [ --help ]
 .br
+.B tam where
+.I PATH
+.br
 .B tam ask
 .RI [ --json ]
 .RI [ --model \ MODEL ]
@@ -90,6 +93,12 @@ renders the bundled semantic HTML knowledge corpus through a built-in ANSI termi
 .BR \-\-pipe .
 It operates identically on minimal recovery systems, legacy hardware, and modern graphical desktops.
 .SH SUBCOMMANDS
+.TP
+.BI "where " PATH
+Show the bundle owning a file, or ask the native package manager when the
+file is outside bundle ownership. Paths are passed as arguments, without
+shell expansion. A bundled tam reads its own BUNDLE version and cultivar
+before legacy per-user identity files.
 .TP
 .B tam
 Print a concise introduction to the command and exit.
