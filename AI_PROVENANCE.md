@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-10: opencode `v2.2.5` (`big-pickle`) makes the component coverage gap check optional in `make dev`, asked each run and skipped by default; tooling only. [Session](docs/ai/2026-11-10-tam-dev-optional-coverage-gap-check.md).
+
 2026-11-10: opencode `v2.2.5` (`big-pickle`) changes line Lb to `X Showing lens text` in command 0.51.1. [Session](docs/ai/2026-11-10-tam-line-lb-lens-wording.md).
 
 2026-11-09: Codex CLI `0.167.0` (`gpt-6.1-sol`) adds bundle identity and ownership lookup in command 0.51.0. [Session](docs/ai/2026-11-09-tam-bundle-identity.md).
@@ -26,6 +28,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-10 | Optional component coverage gap check question in `make dev` (default skip, `SKIP_COVERAGE_CHECK` make variable); tooling only, no version change | opencode v2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-10-tam-dev-optional-coverage-gap-check.md) |
 | 2026-11-10 | Line Lb lens display `X Showing lens text` with digit and name in level color; corpus-style level line reworded to the new display; command 0.51.1 | opencode v2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-10-tam-line-lb-lens-wording.md) |
 | 2026-11-09 | `tam-bundle` page and bundle glossary entry; corpus 0.78.0 and 0.78.1 | Claude Code 2.1.321; Claude Opus 5.5 (`claude-opus-5-5`) | [Session record](docs/ai/2026-11-09-tam-bundle-pages.md) |
 | 2026-11-09 | Knowledge authoring markup snippets; corpus 0.77.1 | Antigravity CLI 1.5.3; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-09-tam-knowledge-authoring-snippets.md) |

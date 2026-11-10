@@ -129,6 +129,18 @@ $(INDEX): corpus
 # --- tests ----------------------------------------------------------------
 # test-command and corpus-and-test are single-lane entry points; test and check
 # are the full, integrated runs.
+
+# The component coverage gap check reports product components (commands,
+# plugins, bindings) with no corpus page mention. `make dev` asks whether to
+# run it each time and passes this variable when declined; SKIP_COVERAGE_CHECK=1
+# skips it in a plain non-interactive `make test` or `make corpus-and-test` too.
+ifneq ($(SKIP_COVERAGE_CHECK),)
+COVERAGE_GAP_CHECK := @printf '%s\n' 'tam: component coverage gap check skipped (SKIP_COVERAGE_CHECK).'
+else
+COVERAGE_GAP_CHECK := @$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
+	python3 tools/report-component-coverage.py --quiet --check
+endif
+
 test: all
 	@$(TIME_RESET)
 	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(TAM)
@@ -138,8 +150,7 @@ test: all
 	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
 	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
 	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
-	@$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
-		python3 tools/report-component-coverage.py --quiet --check
+	$(COVERAGE_GAP_CHECK)
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
 	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
 	@$(TIME_SUMMARY)
@@ -162,8 +173,7 @@ corpus-and-test: command corpus
 	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
 	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
 	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
-	@$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
-		python3 tools/report-component-coverage.py --quiet --check
+	$(COVERAGE_GAP_CHECK)
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
 	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
 	@$(TIME_SUMMARY)

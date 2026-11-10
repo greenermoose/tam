@@ -92,6 +92,8 @@ corpus:
 
 test:
 	@if [ -f fail_test ]; then seq 1 50; exit 1; fi
+	@mkdir -p build
+	@if [ -n "$(SKIP_COVERAGE_CHECK)" ]; then echo skip > build/coverage_choice; else echo run > build/coverage_choice; fi
 	@echo "fixture tests ok"
 
 install: command corpus
@@ -222,6 +224,7 @@ class DevLoopTest(unittest.TestCase):
             b"[c]ontinue, [d]iff, [q]uit",
             b"[p]atch (default) / [m]inor:",
             b"One-line summary:",
+            b"Run the component coverage gap check? [y/N]:",
             b"Commit subject",
             b"Commit body (optional):",
             b"Install prefix",
@@ -517,7 +520,7 @@ class DevLoopTest(unittest.TestCase):
         rc, out = self.run_dev_pty(
             root,
             env,
-            ["c", "p", "Refine using guide"],
+            ["c", "p", "Refine using guide", ""],
         )
         self.assertNotEqual(rc, 0)
         self.assertIn("make test failed", out)
@@ -542,10 +545,14 @@ class DevLoopTest(unittest.TestCase):
         rc2, out2 = self.run_dev_pty(
             root,
             env,
-            ["c", "", "", "", "y"],
+            ["c", "", "", "", "", "y"],
         )
         self.assertEqual(rc2, 0, out2)
         self.assertIn("Corpus: already bumped to 0.33.7", out2)
+        self.assertIn("Skipping the component coverage gap check for this run.", out2)
+        self.assertEqual(
+            (root / "build" / "coverage_choice").read_text().strip(), "skip"
+        )
         self.assertIn("fixture tests ok", out2)
         self.assertIn("Refresh corpus index revisions after", out2)
         self.assertIn("Pushed develop to origin.", out2)
@@ -574,7 +581,7 @@ class DevLoopTest(unittest.TestCase):
         rc, out = self.run_dev_pty(
             root,
             env,
-            ["c", "p", "Test prefix guard", "", "", "/usr/local"],
+            ["c", "p", "Test prefix guard", "", "", "", "/usr/local"],
         )
         self.assertNotEqual(rc, 0)
         self.assertIn("refusing to install to /usr/local", out)
@@ -594,9 +601,12 @@ class DevLoopTest(unittest.TestCase):
         rc2, out2 = self.run_dev_pty(
             root,
             custom_env,
-            ["c", "p", "Custom prefix install", "", "", str(custom_prefix), "yes"],
+            ["c", "p", "Custom prefix install", "y", "", "", str(custom_prefix), "yes"],
         )
         self.assertEqual(rc2, 0, out2)
+        self.assertEqual(
+            (root / "build" / "coverage_choice").read_text().strip(), "run"
+        )
         self.assertIn("Upstream has commits not in HEAD; not pushing:", out2)
         self.assertIn("Push state: not pushed (upstream has new commits)", out2)
 
@@ -621,6 +631,31 @@ class DevLoopTest(unittest.TestCase):
             self.assertEqual(res.returncode, 0)
             self.assertEqual(res.stdout, "line 1\nline 2\n")
             self.assertEqual(out_buf.getvalue(), "line 1\nline 2\n")
+
+    def test_coverage_gap_check_prompt(self):
+        # A plain Enter and an explicit no skip the check; yes runs it; an
+        # unrecognized answer is re-asked.
+        with patch("builtins.input", return_value=""):
+            self.assertFalse(dev_mod.prompt_coverage_gap_check())
+        with patch("builtins.input", return_value="N"):
+            self.assertFalse(dev_mod.prompt_coverage_gap_check())
+        with patch("builtins.input", side_effect=["what", "y"]):
+            self.assertTrue(dev_mod.prompt_coverage_gap_check())
+
+    def test_step_build_and_test_passes_the_coverage_choice_to_make(self):
+        root, _ = self.make_fixture()
+        changes = {"corpus": [], "command": [], "other": []}
+        completed = subprocess.CompletedProcess(args=(), returncode=0, stdout="", stderr=None)
+        with patch("builtins.input", return_value="n"), \
+                patch.object(dev_mod, "run_make", return_value=completed) as run_mock, \
+                redirect_stdout(io.StringIO()):
+            dev_mod.step_build_and_test(root, changes)
+        run_mock.assert_called_once_with(root, "test", "SKIP_COVERAGE_CHECK=1", stream=True)
+        with patch("builtins.input", return_value="y"), \
+                patch.object(dev_mod, "run_make", return_value=completed) as run_mock, \
+                redirect_stdout(io.StringIO()):
+            dev_mod.step_build_and_test(root, changes)
+        run_mock.assert_called_once_with(root, "test", stream=True)
 
 
 class FailureExplanationTest(unittest.TestCase):

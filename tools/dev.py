@@ -575,6 +575,25 @@ def prompt_bump_choice(lane_label, current_ver, patch_ver, minor_ver):
         print("Please answer 'p' (patch) or 'm' (minor).")
 
 
+def prompt_coverage_gap_check():
+    """Ask whether this run also runs the component coverage gap check.
+
+    The default answer skips it: the check reports product components with no
+    page mention, which a page edit neither causes nor usually fixes, so it
+    does not belong in every developer loop.
+    """
+    while True:
+        try:
+            ans = input("Run the component coverage gap check? [y/N]: ").strip().lower()
+        except EOFError as exc:
+            raise DevError("unexpected EOF while reading prompt.") from exc
+        if ans in ("", "n", "no"):
+            return False
+        if ans in ("y", "yes"):
+            return True
+        print("Please answer 'y' (yes) or 'n' (no).")
+
+
 def apply_corpus_version_edits(root, old_ver, new_ver, summary, today, texts=None):
     """Bump the corpus version copies; with texts, only stage the edits for the caller to write."""
     owned = texts is None
@@ -829,7 +848,12 @@ def explain_test_failure(output, changes):
 
 def step_build_and_test(root, changes):
     print("== 5. Build and test ==")
-    res = run_make(root, "test", stream=True)
+    if prompt_coverage_gap_check():
+        test_args = ("test",)
+    else:
+        print("Skipping the component coverage gap check for this run.")
+        test_args = ("test", "SKIP_COVERAGE_CHECK=1")
+    res = run_make(root, *test_args, stream=True)
     if res.returncode != 0:
         lines = res.stdout.splitlines()
         tail = "\n".join(lines[-40:])

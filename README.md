@@ -151,11 +151,12 @@ make dev
 ```
 
 `make dev` collects uncommitted changes outside other sessions' active
-`tam-work` claims, proposes the next version bump for each changed lane, runs
-`make test`, commits the changes and any refreshed corpus indexes, installs the
-development build under `~/.local/dev`, and asks before pushing `develop`. Use
-`make dev DRY_RUN=1` to preview the change list and proposed versions without
-writing, building or committing anything.
+`tam-work` claims, proposes the next version bump for each changed lane, asks
+whether to run the component coverage gap check (the default answer skips it),
+runs `make test`, commits the changes and any refreshed corpus indexes, installs
+the development build under `~/.local/dev`, and asks before pushing `develop`.
+Use `make dev DRY_RUN=1` to preview the change list and proposed versions
+without writing, building or committing anything.
 
 For a non-interactive build and development install:
 
