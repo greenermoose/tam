@@ -415,8 +415,7 @@ static const char *get_init_system(void)
 
 static void get_profiles(const os_release_t *info, char *supported, size_t s_len, char *target_base, size_t t_len)
 {
-    if (strcasecmp(info->id, "omarchy") == 0 ||
-        strcasecmp(info->id, "arch") == 0 ||
+    if (strcasecmp(info->id, "arch") == 0 ||
         strcasestr(info->id_like, "arch") != NULL) {
         snprintf(supported, s_len, "arch-hyprland, arch");
         snprintf(target_base, t_len, "arch");

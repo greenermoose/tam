@@ -433,6 +433,12 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-09:** Command 0.50.4 (patch): the host-profile check in
+  `src/install.c` recognizes Arch through `ID=arch` or an `ID_LIKE`
+  containing `arch`, and no longer through the `omarchy` ID. The packaging
+  repository applied this change as a patch; with it in the source, the new
+  bundle recipes build tam unpatched. The developer chose changing tam over
+  adding patch support to recipes.
 - **2026-11-08:** Command 0.50.3 (patch): on a terminal without an
   alternate screen, such as the Linux console, quitting the pager keeps the
   last page visible, scrolls it up one line and leaves the cursor at the

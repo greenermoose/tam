@@ -214,3 +214,4 @@ model for each session.
 | 2026-11-07 | Fix corpus-and-test fixture to supply tools/check-repo.py (D231) | OpenCode 2.2.5; `beam-free` | [Commit](https://github.com/greenermoose/tam/commit/ea152bc) |
 | 2026-11-07 | Two-row footer fixes, command 0.50.2; `tam-boot` and `tam-meter` pages, corpus 0.76.0 | Claude Code 2.1.319; `claude-opus-5-5` | [Session record](docs/ai/2026-11-07-tam-footer-fixes-and-command-pages.md) |
 | 2026-11-08 | Console exit keeps the last page and leaves a fresh prompt line, command 0.50.3 | Claude Code 2.1.319; `claude-opus-5-5` | [Session record](docs/ai/2026-11-08-tam-console-exit-scroll.md) |
+| 2026-11-09 | Arch host profile without the `omarchy` ID, command 0.50.4 | Claude Code 2.1.321; `claude-opus-5-5` | [Session record](docs/ai/2026-11-09-tam-arch-host-profile.md) |
