@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Bundle</title>
+<meta name="topic" content="glossary-bundle">
+<meta name="summary" content="Bundle: learning reference and next steps">
+<meta name="keywords" content="glossary-bundle, bundle, tam-bundle, learning">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / Bundle</p></nav>
+<h1>Bundle</h1>
+<p>A bundle is all the files of one version of some software, with a name, a version and a fingerprint, installed and removed as one unit.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>A complete set of files for one version of a program, kept together so it can be installed, checked and swapped back as one thing.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>In <code>tam-bundle</code>, a directory holding a built tree plus two text records: <code>BUNDLE</code> (name, version, hash, sources) and <code>MANIFEST</code> (every path with its mode and SHA-256 hash). Its id is <code>name-version-</code> followed by twelve hash characters.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>A content-addressed file set: the bundle hash is SHA-256 over the identity record without its build time, followed by the file list, so identical inputs give an identical id. Unlike a Nix store path it is installed as real files and carries no dependency closure; native needs are only checked.</p></section>
+<p><a href="ecosystem/tam-bundle.html">How tam-bundle installs and rolls back files</a>;
+<a href="learn/glossary/rollback.html">Rollback glossary entry</a>;
+<a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>

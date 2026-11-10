@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How tam-bundle installs and rolls back files</title>
+<meta name="topic" content="tam-bundle">
+<meta name="summary" content="tam-bundle, in development: a named, versioned set of real files installed into a slot, switched in one step and rolled back with one command">
+<meta name="keywords" content="tam-bundle, bundle, slot, live tree, kept tree, rollback, switch, manifest, lock file, recipe, reflink, renameat2, tamlinux-tools">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="packaging, nix-home-manager">
+<meta name="kind" content="explanation">
+<meta name="skills" content="software.beginner, software.intermediate, software.expert, updates.intermediate">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / How tam-bundle installs and rolls back files</p>
+</nav>
+
+<h1>How tam-bundle installs and rolls back files</h1>
+<p>This page explains <code>tam-bundle</code>, a small program that installs a set of files as one unit and can put the previous set back in a moment.</p>
+<p><code>tam-bundle</code> is in development. No Tamlinux release uses it yet: today the desktop still arrives through Nix and Home Manager, as <a href="ecosystem/nix.html">How Nix and Home Manager work</a> explains. Tamlinux plans to deliver its own files with <code>tam-bundle</code> instead. Everything on this page that describes Tamlinux using it is a plan.</p>
+
+<section data-level="novice">
+<h2>What is tam-bundle?</h2>
+<p>A program is rarely one file. It comes with helper programs, pictures, settings and manuals. <code>tam-bundle</code> treats all the files of one version as a single <dfn><a href="learn/glossary/bundle.html">bundle</a></dfn> with a name, a version number and a fingerprint. It copies the bundle into place as ordinary files, writes down exactly what it installed, and keeps the previous version whole beside it.</p>
+<h3>Why it matters</h3>
+<p>An update that goes wrong is much less frightening when you can undo it at once. Because the old version is kept complete, going back is one command and takes less than a second. Because every file is listed with its fingerprint, you can also ask which version put a file on your computer, and whether anyone has changed it since.</p>
+<h3>How to think about it</h3>
+<p>Think of two bookshelves. One holds the books you are reading now. When a new edition arrives, a helper fills an empty shelf with it, checks every book against a list, and only then swaps the two shelves in one movement. Nobody ever sees a shelf that is half old and half new. The old shelf is kept in the back room, so if the new edition disappoints you, the helper swaps them back.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="learn/glossary/bundle.html">Bundle</a></dt>
+<dd>All the files of one version of some software, with a name, a version and a fingerprint, treated as one thing.</dd>
+<dt>Slot</dt>
+<dd>The folder a bundle is installed into. The files in use are in its <code>current</code> folder.</dd>
+<dt><a href="learn/glossary/hash.html">Hash</a></dt>
+<dd>A short fingerprint computed from a file's contents. If one byte changes, the fingerprint changes.</dd>
+<dt><a href="learn/glossary/rollback.html">Rollback</a></dt>
+<dd>Returning to the earlier working version.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Switch between two versions and back</h2>
+<p><strong>Goal:</strong> you will be able to seal two small bundles, switch a private slot between them, roll back, and ask which bundle installed a file.</p>
+<p><strong>Before you start:</strong> this section needs the <code>tam-bundle</code> command, which no Tamlinux release installs yet. Check with <code>command -v tam-bundle</code>. If it prints nothing, read the example without running it; the program is built from the public <code>tamlinux-tools</code> repository. Everything here happens inside a temporary folder that you own, so it needs no administrator rights and changes nothing else on your computer.</p>
+<aside class="first-time">
+<p>The <code>$</code> at the start of a line is the prompt; type what follows it. <code>mktemp -d</code> makes a new, empty, private folder and prints its name. The line beginning <code>tb()</code> defines a short shell function, so that <code>tb switch v1</code> means <code>tam-bundle --slot "$d/slot" --state "$d/state" switch v1</code>: every command then works in the temporary folder.</p>
+</aside>
+<h3>Mental model</h3>
+<pre>
+  v1/  (a built tree)                 v2/
+    |  tam-bundle seal                  |  tam-bundle seal
+    v                                   v
+  v1/BUNDLE + v1/MANIFEST             v2/BUNDLE + v2/MANIFEST
+    |                                   |
+    |  switch: copy into staging,       |
+    |  check, then swap in one step     |
+    v                                   v
+  slot/current/  &lt;--- swap ---&gt;  slot/kept/&lt;bundle id&gt;/
+                   back: swap again, nothing copied
+</pre>
+<p>A <em>bundle id</em> joins the name, the version and the first twelve characters of the bundle's hash, for example <code>demo-1-198a107655aa</code>. The <code>MANIFEST</code> file lists every directory, file and link with its mode and, for a file, its SHA-256 hash. <code>BUNDLE</code> holds the name, version, overall hash and the sources and tools it was built from.</p>
+<h3>Worked example: two versions, one rollback</h3>
+<pre class="session" data-risk="scratch">
+$ d=$(mktemp -d); cd "$d"
+$ tb() { tam-bundle --slot "$d/slot" --state "$d/state" "$@"; }
+$ mkdir -p v1/bin v2/bin
+$ printf '#!/bin/sh\necho one\n' &gt; v1/bin/hello
+$ printf '#!/bin/sh\necho two\n' &gt; v2/bin/hello
+$ chmod 755 v1/bin/hello v2/bin/hello
+$ tam-bundle seal v1 --name demo --version 1
+sealed v1 as demo-1-198a107655aa (2 entries)
+$ tam-bundle seal v2 --name demo --version 2
+sealed v2 as demo-2-77c79880491c (2 entries)
+$ cat v1/MANIFEST
+format 1
+d 0755 - bin
+f 0755 sha256:f5dd87fa1cf3d592ff0ba84641abfe39bacecaad5e003c74aa181ccb54c2cc9a bin/hello
+$ tb switch v1
+switched /tmp/tmp.gZGWeCbGMw/slot to demo-1-198a107655aa (from -): 0 files reused, 1 copied
+$ tb switch v2
+switched /tmp/tmp.gZGWeCbGMw/slot to demo-2-77c79880491c (from demo-1-198a107655aa): 0 files reused, 1 copied
+$ slot/current/bin/hello
+two
+$ tb back
+switched /tmp/tmp.gZGWeCbGMw/slot back to demo-1-198a107655aa (from demo-2-77c79880491c)
+$ slot/current/bin/hello
+one
+$ tb status
+slot:      /tmp/tmp.gZGWeCbGMw/slot
+state:     /tmp/tmp.gZGWeCbGMw/state
+live:      demo-1-198a107655aa
+previous:  demo-2-77c79880491c
+kept:      demo-2-77c79880491c (previous)
+last:      2026-11-10T02:45:54Z back demo-1-198a107655aa from demo-2-77c79880491c ok 0.0s
+$ tb where $PWD/slot/current/bin/hello
+/tmp/tmp.gZGWeCbGMw/slot/current/bin/hello
+  bundle:  demo-1-198a107655aa (demo 1)
+  record:  f sha256:f5dd87fa1cf3d592ff0ba84641abfe39bacecaad5e003c74aa181ccb54c2cc9a
+</pre>
+<p>Captured with <code>tam-bundle</code> 0.4.0 on an Arch Linux workstation, 2026-11-09. Your temporary folder name and times will differ. The file hashes will match if your files match byte for byte; the bundle ids also depend on the <code>tam-bundle</code> version, which <code>BUNDLE</code> records.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>seal</code> wrote <code>BUNDLE</code> and <code>MANIFEST</code> into each folder. The two entries are the <code>bin</code> directory and the <code>hello</code> file.</li>
+<li>The first <code>switch</code> created the slot and made <code>demo-1</code> live. <code>(from -)</code> means nothing was live before.</li>
+<li>The second <code>switch</code> made <code>demo-2</code> live and moved <code>demo-1</code>'s tree to <code>slot/kept/</code>. On a Btrfs filesystem, files that did not change are cloned rather than copied, and the message counts them as reused.</li>
+<li><code>back</code> swapped the kept tree and the live tree. Nothing was copied, which is why a rollback is fast.</li>
+<li><code>status</code> shows what is live, what <code>back</code> would return to, and the last line of the log.</li>
+<li><code>where</code> names the bundle that installed a file and the hash it was installed with.</li>
+</ol>
+<h3>Try it</h3>
+<p>In the same temporary folder, run <code>tb check</code>; it reports that the live tree matches. Then change the live file by hand with <code>echo 'echo edited' &gt;&gt; slot/current/bin/hello</code> and run <code>tb check</code> again, then <code>tb switch v2</code>. Read what each one says. When you are done, leave the folder and remove it: <code>cd; rm -r "$d"</code>.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>tam-bundle: command not found</dt>
+<dd>No Tamlinux release installs it yet. Read the example instead, or build it from the public <code>tamlinux-tools</code> repository into a private prefix as its README describes.</dd>
+<dt>the live tree ... has 1 change not made by tam-bundle (listed above)</dt>
+<dd>Someone edited a file in <code>current/</code>. <code>tam-bundle</code> will not hide that change in a kept tree that a later clean-up could delete. Undo the edit, or run the switch again with <code>--save-edits</code> to copy the changed file into the state folder first.</dd>
+<dt>An administrator password prompt appears</dt>
+<dd>You left out <code>--slot</code>, so the command aimed at the system slot <code>/usr/lib/tamlinux</code> and asked for administrator rights. Cancel it; <code>tam-bundle</code> then reports <code>not authorized to change slot /usr/lib/tamlinux (refused or dismissed); nothing was changed</code>. Use the <code>tb</code> function, which passes your own slot.</dd>
+<dt>no previous bundle is recorded</dt>
+<dd>Only one bundle has ever been live in this slot, so there is nothing to go back to.</dd>
+</dl>
+<aside class="tamlinux">
+<p>On Tamlinux, the plan is for the product's own files to live in the slot <code>/usr/lib/tamlinux</code>, with <code>current/bin</code> on your <code>PATH</code>. A small native package per distribution would install <code>tam-bundle</code> itself, outside any bundle, so a broken bundle could never break the tool that rolls it back. <code>tam-deploy</code> would keep deciding what is tested and run, and call <code>tam-bundle</code> to install it. Third-party software stays with the distribution's package manager. None of this is delivered yet.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does <code>back</code> copy no files?</summary>
+<p>The previous version is still complete in <code>slot/kept/</code>. Rolling back swaps that folder with <code>current/</code> in one step, so nothing needs to be copied or rebuilt.</p>
+</details>
+<details class="q">
+<summary>You edited a file in <code>current/</code> while debugging. Why does the next <code>switch</code> stop instead of carrying on?</summary>
+<p>A switch moves the old tree to <code>kept/</code>, and pruning can later delete kept trees. Stopping makes sure your edit is noticed: you can undo it, or let <code>--save-edits</code> copy it to the state folder before switching.</p>
+</details>
+<details class="q">
+<summary>Two people seal folders whose files are identical, byte for byte and mode for mode, with the same name and version. Do they get the same bundle id?</summary>
+<p>Yes, if they also used the same <code>tam-bundle</code> version and recorded the same sources. The hash covers the identity lines and the file list, not the time it was built, so identical inputs give an identical id.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Design, formats and failure handling</h2>
+<p><code>tam-bundle</code> is C on <code>libtam</code>, linked statically, with its own version number in the public <code>tamlinux-tools</code> repository. Its manual page is <code>tam-bundle(1)</code>: run <code>man tam-bundle</code> where it is installed, or read <code>man/tam-bundle.1</code> in the repository. The approved design is <code>docs/plans/tam-bundle.md</code> there.</p>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Root for a root-owned slot</th></tr>
+<tr><td><code>build &lt;recipes&gt; &lt;lock&gt; -o DIR --version V</code></td><td>Build a bundle from exact commits for the slot's live tree</td><td>No</td></tr>
+<tr><td><code>seal DIR --name N --version V</code></td><td>Write <code>BUNDLE</code> and <code>MANIFEST</code> for a built tree</td><td>No</td></tr>
+<tr><td><code>verify DIR</code>, <code>needs DIR</code></td><td>Hash every file against <code>MANIFEST</code>; report missing native commands and files</td><td>No</td></tr>
+<tr><td><code>switch DIR</code>, <code>back [ID]</code></td><td>Make a bundle live; make a kept tree live again</td><td>Yes</td></tr>
+<tr><td><code>status</code>, <code>check [--full]</code>, <code>where PATH</code></td><td>Report; find edited, missing and extra files; name a file's bundle</td><td>No</td></tr>
+<tr><td><code>keep ID REASON</code>, <code>unkeep ID</code>, <code>prune [--yes]</code></td><td>Protect kept trees; list or remove unprotected ones</td><td>Yes</td></tr>
+<tr><td><code>recover</code></td><td>Finish or undo an interrupted switch</td><td>Yes</td></tr>
+<tr><td><code>lock COMPONENT COMMIT</code></td><td>Set one component's commit in a lock file</td><td>No</td></tr>
+<tr><td><code>after</code></td><td>Run the live bundle's post-install steps as you</td><td>No</td></tr>
+</table>
+<p>Exit status: 0 success, 1 refused or problems found, 2 usage, 3 switched but a post-install step failed, 4 an interrupted switch needs <code>recover</code>.</p>
+
+<h3>How it works</h3>
+<p>A slot holds <code>current/</code>, <code>kept/&lt;id&gt;/</code> and, only during a switch, <code>staging.&lt;id&gt;/</code>, all on one filesystem. State lives in <code>/var/lib/tam-bundle/&lt;slot name&gt;/</code> for a root-owned slot and under <code>$XDG_STATE_HOME/tamlinux/tam-bundle/</code> otherwise: the lock, the intent file <code>switch</code>, a one-line-per-action <code>log</code>, the <code>keep</code> list, and recorded file status for fast checks.</p>
+<ol>
+<li><strong>Stage.</strong> Under the slot's lock, write the intent file and sync it. Build <code>staging.&lt;id&gt;/</code> from the bundle: a file whose hash equals the live file's is cloned from <code>current/</code> with <code>FICLONE</code> where the filesystem supports it, others are copied and re-hashed. Bundle files are opened with <code>openat2</code> and <code>RESOLVE_BENEATH</code>, so a link planted in a bundle cannot make a root switch read outside it. One <code>syncfs</code> puts the whole tree on disk before any of it is visible.</li>
+<li><strong>Exchange.</strong> <code>renameat2(staging, current, RENAME_EXCHANGE)</code> swaps the two directories in one system call, then the slot directory is synced. A program that already has a file open keeps reading the old file.</li>
+<li><strong>Record.</strong> The displaced tree becomes <code>kept/&lt;old id&gt;/</code>; the log line, file status and "previous" keep entry are written; the intent file is removed last.</li>
+<li><strong>Post-install steps.</strong> Only names from a fixed list: <code>user-units-reload</code>, <code>qml-cache-purge</code>, <code>shell-restart</code>. A failed step does not undo the switch, because the files are already right and the step can be rerun with <code>after</code>.</li>
+</ol>
+<p>Recovery reads the intent file and the live tree's own <code>BUNDLE</code>. If the live tree is still the "from" side, the switch is undone; if it is the "to" side, the switch is finished; if it is neither, nothing is touched and the command stops. <code>switch</code> and <code>back</code> do this before they start; <code>status</code> reports it with exit status 4.</p>
+<p>The bundle hash is SHA-256 over <code>BUNDLE</code> without its <code>hash</code> and <code>built</code> lines, followed by <code>MANIFEST</code>. Every record is plain text with a <code>format</code> line; a newer format is refused with the version needed, and older formats keep being read so that rollback to an older release keeps working.</p>
+<p><strong>Building.</strong> A lock file names each component's repository and full commit. A recipe is data, never a script: <code>build make</code>, an optional <code>output build-only</code> for libraries other components link against, <code>make-vars</code> and <code>after-build</code>. Each commit is exported with <code>git archive</code>; <code>make</code> runs with <code>PREFIX</code> set to the slot's <code>current</code> path inside its own user and mount namespace at fixed paths, with <code>SOURCE_DATE_EPOCH</code>, <code>LC_ALL=C</code> and <code>TZ=UTC</code>, so the same lock gives the same bytes whatever the cache's location. With <code>index man</code>, the manual index is built into the bundle with man-db's <code>mandb</code>, so <code>whatis</code> and <code>apropos</code> match the pages and roll back with them.</p>
+<p><strong>Privilege.</strong> Run as a user on a root-owned slot, a changing command re-runs itself through <code>/usr/bin/pkexec</code> with its own absolute path; the user's waiting process then runs the session steps. Where no polkit agent runs, as on a text console, run it with <code>sudo</code> and then <code>tam-bundle after</code> in the graphical session.</p>
+
+<h3>Advanced usage</h3>
+<p>Build for the planned product slot from a lock file and local clones, inspect, then switch. Illustrative; it needs recipes and a lock file that no Tamlinux release ships yet.</p>
+<pre data-risk="system">
+tam-bundle build recipes tamlinux.lock -o /var/tmp/tamlinux-0.7.0 --version 0.7.0 --repos ~/src
+tam-bundle verify /var/tmp/tamlinux-0.7.0
+tam-bundle needs /var/tmp/tamlinux-0.7.0
+tam-bundle --dry-run switch /var/tmp/tamlinux-0.7.0
+tam-bundle switch /var/tmp/tamlinux-0.7.0
+</pre>
+
+<h3>Why Tamlinux chose this</h3>
+<p>Tamlinux needs a coherent set of its own files built from exact commits, marked as one thing, installed as real files, recorded, and switchable with rollback. Nix and Home Manager do that today, but each installed file is a link into a store, Nix brings a build daemon and sockets that Tamlinux otherwise avoids, and a switch evaluates a whole language. Most of what Nix offers, such as complete dependency closures, binary caches and remote builders, Tamlinux does not need, because third-party software comes from the distribution. <code>tam-bundle</code> keeps the parts worth keeping (content hashes, exact pins, whole-tree generations, rollback, recipes as data) and drops the rest. It does not depend on pacman or xbps internals, so the same bundle format can follow Tamlinux to another rootstock.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>One filesystem.</strong> The exchange fails with <code>EXDEV</code> across filesystems, and on Btrfs the trees must share a subvolume. Keeping everything under one slot directory guarantees that.</li>
+<li><strong>Disk use.</strong> On Btrfs, unchanged files are clones and a kept tree costs only what differs. Elsewhere each switch copies the tree and each kept tree costs its full size. <code>prune</code> sizes on Btrfs overstate what comes back, because shared extents are freed only when no tree uses them.</li>
+<li><strong>Long-running programs.</strong> A program that opens files by path later, such as a desktop shell loading QML, would read the new tree while running old code. That is what <code>shell-restart</code> is for.</li>
+<li><strong>Hand edits.</strong> <code>check</code> trusts unchanged size, inode, modification time and change time; <code>--full</code> hashes everything. Running <code>mandb</code> as root with the live tree on the manual path rewrites the index, which <code>check</code> then reports as edited.</li>
+<li><strong>Power loss</strong> is not simulated by the tests; correctness relies on the staging <code>syncfs</code> and the directory syncs. Interruption at every step, and <code>SIGKILL</code> at random moments, are tested.</li>
+<li><strong>Builds</strong> need unprivileged user namespaces; where they are turned off, <code>build</code> stops and says so.</li>
+<li><strong>Host.</strong> A bundle built for another host is refused, as is one whose native needs are missing.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why is the intent file removed last, rather than first?</summary>
+<p>Its presence is what tells a later command that a switch may be incomplete. Combined with the live tree's own <code>BUNDLE</code>, it decides whether to undo or finish. Removing it first would leave a crash between the exchange and the bookkeeping with no record that bookkeeping was owed.</p>
+</details>
+<details class="q open">
+<summary>What would break if <code>tam-bundle</code> itself were shipped inside the product bundle it installs?</summary>
+<p>A bundle with a broken <code>tam-bundle</code> could switch in, after which the tool needed to roll it back would be the broken one. Shipping it in a separate native package keeps the rollback path independent of what it rolls back.</p>
+</details>
+<details class="q open">
+<summary>Why are components built with <code>PREFIX</code> set to <code>current</code> rather than to their kept or staging path?</summary>
+<p>Paths compiled into a program then always point at the live location. A kept tree is only ever used after it has been exchanged back into <code>current/</code>, so its compiled paths are correct again at that moment, and nothing needs rewriting on rollback.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li><code>man tam-bundle</code> (offline, where installed) &mdash; commands, options, files, formats and exit status.</li>
+<li><a href="https://github.com/greenermoose/tamlinux-tools">tamlinux-tools (online)</a> &mdash; the source, tests, manual page and the design in <code>docs/plans/tam-bundle.md</code>.</li>
+<li><code>man 2 rename</code> (offline) &mdash; <code>renameat2</code> and <code>RENAME_EXCHANGE</code>.</li>
+</ul>
+
+<h3>Improve it</h3>
+<p>Build <code>libtam</code> and <code>tamlinux-tools</code> into a private prefix, run <code>make test</code>, and try a change in a slot of your own. The tests include interruption at every step of a switch and rollback through older bundles; run them on both Btrfs and ext4 directories by setting <code>TAM_TEST_DIR</code>. Delivery of Tamlinux through <code>tam-bundle</code> follows the normal Test and Run stages, one approved step at a time.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/nix.html">How Nix and Home Manager work</a> &mdash; the delivery Tamlinux uses today, and what <code>tam-bundle</code> keeps from it.</li>
+<li><a href="ecosystem/packaging.html">Software packaging and delivery</a> &mdash; which tool owns which layer.</li>
+<li><a href="maintain/rollback.html">Returning to an earlier working state</a> &mdash; match a rollback to the layer that changed.</li>
+<li><a href="ecosystem/filesystems.html">Filesystems that keep state</a> &mdash; Btrfs, whose clones make kept trees cheap.</li>
+</ul>
+</body>
+</html>

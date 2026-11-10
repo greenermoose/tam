@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-09 | `tam-bundle` page and bundle glossary entry; corpus 0.78.0 | Claude Code 2.1.321; Claude Opus 5.5 (`claude-opus-5-5`) | [Session record](docs/ai/2026-11-09-tam-bundle-pages.md) |
 | 2026-11-09 | Knowledge authoring markup snippets; corpus 0.77.1 | Antigravity CLI 1.5.3; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-09-tam-knowledge-authoring-snippets.md) |
 | 2026-11-09 | Add knowledge corpus authoring guide page; corpus 0.77.0 | Antigravity CLI 1.5.3; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-09-tam-knowledge-authoring-page.md) |
 | 2026-11-07 | Pre-push `check-repo` hook, lane-test `check-repo` wiring, and `AGENTS.md` version checklist | Antigravity CLI 1.5.3; Gemini 4 Argon (High) (`gemini-4-argon-high`) | [Session record](docs/ai/2026-11-07-tam-pre-push-repo-check.md) |
