@@ -208,6 +208,7 @@ tam_index_t *tam_index_load(const char *root)
 
     char *line = content;
     int is_header = 1;
+    int has_level_col = 0;
 
     while (line != NULL && *line != '\0') {
         char *next_line = strchr(line, '\n');
@@ -223,13 +224,13 @@ tam_index_t *tam_index_load(const char *root)
         }
 
         if (is_header) {
+            has_level_col = (strstr(trimmed, "\tlevel\t") != NULL);
             is_header = 0;
             line = next_line;
             continue;
         }
 
-        /* Keep the established ten-column TSV projection stable. Hierarchy
-         * metadata lives in the optional index.parents.tsv sidecar. */
+        /* Support both 9-column (level retired) and legacy 10-column index.tsv. */
         char *cols[10] = {0};
         char *cur = trimmed;
         for (int c = 0; c < 10 && cur != NULL; c++) {
@@ -256,17 +257,23 @@ tam_index_t *tam_index_load(const char *root)
             entry->path = strdup(cols[1]);
             entry->title = strdup(cols[2]);
             entry->summary = cols[3] ? strdup(cols[3]) : strdup("");
-            entry->level = (cols[5] && cols[5][0]) ? strdup(cols[5]) : strdup("beginner");
-            entry->parent = NULL;
-            entry->levels = tam_level_parse_list(entry->level);
-            if (entry->levels == 0) {
-                entry->levels = TAM_LEVEL_BEGINNER;
-            }
-            entry->track = (cols[6] && cols[6][0]) ? strdup(cols[6]) : strdup("use");
             entry->keywords = split_list(cols[4], &entry->num_keywords);
-            entry->prereqs = split_list(cols[7], &entry->num_prereqs);
-            entry->rev = (cols[8] && cols[8][0]) ? atoi(cols[8]) : 0;
-            entry->updated = (cols[9] && cols[9][0]) ? strdup(cols[9]) : strdup("");
+            entry->parent = NULL;
+            if (has_level_col) {
+                entry->level = (cols[5] && cols[5][0]) ? strdup(cols[5]) : NULL;
+                entry->levels = tam_level_parse_list(entry->level);
+                entry->track = (cols[6] && cols[6][0]) ? strdup(cols[6]) : strdup("use");
+                entry->prereqs = split_list(cols[7], &entry->num_prereqs);
+                entry->rev = (cols[8] && cols[8][0]) ? atoi(cols[8]) : 0;
+                entry->updated = (cols[9] && cols[9][0]) ? strdup(cols[9]) : strdup("");
+            } else {
+                entry->level = NULL;
+                entry->levels = TAM_LEVEL_ALL;
+                entry->track = (cols[5] && cols[5][0]) ? strdup(cols[5]) : strdup("use");
+                entry->prereqs = split_list(cols[6], &entry->num_prereqs);
+                entry->rev = (cols[7] && cols[7][0]) ? atoi(cols[7]) : 0;
+                entry->updated = (cols[8] && cols[8][0]) ? strdup(cols[8]) : strdup("");
+            }
 
             idx->count++;
         }
@@ -838,9 +845,6 @@ void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned leve
     if (terse) {
         for (size_t i = 0; i < idx->count; i++) {
             const tam_index_entry_t *e = &idx->entries[i];
-            if (level != 0 && !(e->levels & level)) {
-                continue;
-            }
             fprintf(out, "%s\n", e->topic);
         }
         return;
@@ -854,9 +858,6 @@ void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned leve
         }
         for (size_t i = 0; i < idx->count; i++) {
             const tam_index_entry_t *e = &idx->entries[i];
-            if (level != 0 && !(e->levels & level)) {
-                continue;
-            }
             fprintf(out, "  %-14s %s\n", e->topic, e->summary);
             fprintf(out, "    Title:       %s\n", e->title);
             fprintf(out, "    Path:        %s\n", e->path);
@@ -866,9 +867,6 @@ void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned leve
             if (e->track != NULL && e->track[0] != '\0') {
                 fprintf(out, "    Track:       %s\n", e->track);
             }
-            char levels[64];
-            tam_level_format(e->levels, ", ", levels, sizeof(levels));
-            fprintf(out, "    Levels:      %s\n", levels);
             if (e->num_prereqs > 0) {
                 fprintf(out, "    Prereqs:     ");
                 for (size_t p = 0; p < e->num_prereqs; p++) {
@@ -898,9 +896,6 @@ void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned leve
 
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (level != 0 && !(e->levels & level)) {
-            continue;
-        }
         fprintf(out, "  %-12s %s\n", e->topic, e->summary);
     }
     fprintf(out,
@@ -917,6 +912,7 @@ size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
                                   unsigned level, const tam_index_entry_t **out_entries,
                                   size_t max_entries)
 {
+    (void)level;
     if (idx == NULL || topic == NULL || out_entries == NULL || max_entries == 0) {
         return 0;
     }
@@ -944,7 +940,6 @@ size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
     /* Pass 1: exact topic match */
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (level != 0 && !(e->levels & level)) continue;
         if (strcasecmp(t, e->topic) == 0) {
             ADD_PAGE(e);
         }
@@ -953,7 +948,6 @@ size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
     /* Pass 2: exact keyword match */
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (level != 0 && !(e->levels & level)) continue;
         for (size_t k = 0; k < e->num_keywords; k++) {
             if (strcasecmp(t, e->keywords[k]) == 0) {
                 ADD_PAGE(e);
@@ -965,7 +959,6 @@ size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
     /* Pass 3: keyword contains word */
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (level != 0 && !(e->levels & level)) continue;
         for (size_t k = 0; k < e->num_keywords; k++) {
             if (contains_word_ci(e->keywords[k], t)) {
                 ADD_PAGE(e);
@@ -981,7 +974,6 @@ size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
         for (size_t s = 0; s < found; s++) {
             if (search_results[s].score > 0) {
                 const tam_index_entry_t *e = search_results[s].entry;
-                if (level != 0 && !(e->levels & level)) continue;
                 ADD_PAGE(e);
             }
         }
@@ -1000,6 +992,7 @@ static int keyword_cmp(const void *a, const void *b)
 
 tam_keyword_list_t *tam_index_get_keywords(const tam_index_t *idx, unsigned level)
 {
+    (void)level;
     if (idx == NULL) return NULL;
 
     tam_keyword_list_t *list = malloc(sizeof(tam_keyword_list_t));
@@ -1014,7 +1007,6 @@ tam_keyword_list_t *tam_index_get_keywords(const tam_index_t *idx, unsigned leve
 
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (level != 0 && !(e->levels & level)) continue;
 
         size_t total_cand = 1 + e->num_keywords;
         for (size_t c = 0; c < total_cand; c++) {

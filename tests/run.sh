@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.52.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.52.1' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -2177,11 +2177,11 @@ printf '%s\n' "$ex_verbose" | grep -q 'Title:' || fail "verbose topics missing T
 printf '%s\n' "$ex_verbose" | grep -Eq 'Revision: +Rev [1-9][0-9]* Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}' \
     || fail "verbose topics missing Revision line"
 
-# tam explain topics --level expert --terse emits only expert topics.
+# tam explain topics lists all topics; levels apply to pages, not topics.
 ex_expert_terse=$("$TAM" explain topics --level expert --terse)
 printf '%s\n' "$ex_expert_terse" | grep -qx 'pipelines' || fail "expert terse missing pipelines"
 printf '%s\n' "$ex_expert_terse" | grep -qx 'jobs' || fail "expert terse missing jobs"
-if printf '%s\n' "$ex_expert_terse" | grep -qx 'welcome'; then fail "expert terse unexpectedly includes welcome"; fi
+printf '%s\n' "$ex_expert_terse" | grep -qx 'welcome' || fail "expert terse missing welcome"
 
 # Multi-word explain resolves via search fallback path.
 ex_multi=$("$TAM" explain cpu load --pipe)
@@ -2356,7 +2356,6 @@ ex_cat_expert=$("$TAM" explain --level expert)
 printf '%s\n' "$ex_cat_expert" | grep 'Keyword Index (expert)' >/dev/null || fail "explain --level expert missing heading"
 printf '%s\n' "$ex_cat_expert" | grep 'pipelines' >/dev/null || fail "expert catalog missing pipelines"
 printf '%s\n' "$ex_cat_expert" | grep 'jobs' >/dev/null || fail "expert catalog missing jobs"
-if printf '%s\n' "$ex_cat_expert" | grep '^welcome ' >/dev/null; then fail "expert catalog unexpectedly includes beginner-only welcome"; fi
 
 # Invalid level argument produces exit code 2 (usage error)
 if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi

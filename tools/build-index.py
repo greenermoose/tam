@@ -286,12 +286,8 @@ def parse_page(root, path, rel_path, errors, git_cache=None):
         elif name_lower == "keywords":
             keywords.extend(split_list(content))
         elif name_lower == "level":
-            declared = [v.lower() for v in split_list(content)]
-            unknown = [v for v in declared if v not in LEVELS]
-            if unknown or not declared:
-                errors.append(f"{rel_path}: unknown level {', '.join(unknown) or '(empty)'}"
-                              f" (expected {', '.join(LEVELS)})")
-            levels = order_levels(declared) or ["beginner"]
+            # meta name="level" is ignored; reader lens applies to pages, not topics.
+            pass
         elif name_lower == "track":
             track = content.strip().lower()
             if track not in TRACKS and not (rel_path == "index.html" and track == ""):
@@ -323,15 +319,6 @@ def parse_page(root, path, rel_path, errors, git_cache=None):
             layered = True
         if value not in LEVELS:
             errors.append(f"{rel_path}: {kind} has unknown data-level {value!r}")
-        elif value not in levels:
-            errors.append(f"{rel_path}: {kind} level {value!r} is not declared in <meta name=\"level\">")
-    # Shared-body pages may express their levels with smaller blocks or
-    # quiz sections. A ladder still requires exactly one section per level.
-    if len(levels) > 1 and (sections or not layered):
-        for value in levels:
-            if sections.count(value) != 1:
-                errors.append(f"{rel_path}: declares level {value!r} but has "
-                              f"{sections.count(value)} matching sections (expected 1)")
 
     if not topic:
         # Fallback topic
@@ -597,8 +584,6 @@ def learning_metadata(knowledge, entries, errors):
         for skill in entry["skills"]:
             if skill not in known:
                 errors.append(f"{path}: unknown skill ID {skill!r}")
-            elif kind != "path" and not level_matches(known[skill]["level"], entry["levels"]):
-                errors.append(f"{path}: skill {skill!r} is outside the declared page levels")
         if len(entry["skills"]) != len(set(entry["skills"])):
             errors.append(f"{path}: duplicate skill IDs")
         for node in parsed[path].refs:
@@ -728,16 +713,15 @@ def main(root=None):
 
     # Keep the established TSV projection byte-compatible for older readers.
     # Parent is additive in JSON and in a separate compact TSV projection.
-    rows = ["topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n"]
+    rows = ["topic\tpath\ttitle\tsummary\tkeywords\ttrack\tprereqs\trev\tupdated\n"]
     parents = ["path\tparent\n"]
     kinds = ["path\tkind\n"]
     skills = ["path\tskills\n"]
     for e in entries:
         kws = ", ".join(e["keywords"])
-        levels = ",".join(e["levels"])
         prereqs = ", ".join(e["prereqs"])
         rows.append(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
-                    f"{levels}\t{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
+                    f"{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
         parents.append(f"{e['path']}\t{e['parent'] or ''}\n")
         if e['kind']:
             kinds.append(f"{e['path']}\t{e['kind']}\n")

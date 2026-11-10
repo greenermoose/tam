@@ -383,9 +383,28 @@ static int tag_attr(const char *src, size_t start, size_t end,
     return 1;
 }
 
-/* Levels declared by <meta name="level" content="...">; 0 when absent. */
+/* Scan src for data-level attributes on block elements. Returns bitmask of levels. */
+static unsigned tam_depth_scan_levels(const char *src, size_t len)
+{
+    unsigned mask = 0;
+    for (size_t i = 0; i < len; i++) {
+        if (src[i] != '<') {
+            continue;
+        }
+        size_t end = tag_end(src, len, i);
+        char value[32];
+        if (tag_attr(src, i + 1, end, "data-level", value, sizeof(value))) {
+            mask |= tam_level_parse(value);
+        }
+        i = end;
+    }
+    return mask;
+}
+
+/* Levels offered by a page: derived from legacy <meta name="level"> and data-level attributes; 0 when absent. */
 unsigned tam_depth_declared(const char *src, size_t len)
 {
+    unsigned mask = 0;
     for (size_t i = 0; i < len; i++) {
         if (src[i] != '<') {
             continue;
@@ -402,11 +421,12 @@ unsigned tam_depth_declared(const char *src, size_t len)
         if (tag_attr(src, i + 1, end, "name", name, sizeof(name)) &&
             strcasecmp(name, "level") == 0 &&
             tag_attr(src, i + 1, end, "content", content, sizeof(content))) {
-            return tam_level_parse_list(content);
+            mask |= tam_level_parse_list(content);
         }
         i = end;
     }
-    return 0;
+    mask |= tam_depth_scan_levels(src, len);
+    return mask;
 }
 
 /* Position just past the </section> matching the <section> whose tag ends

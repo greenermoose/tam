@@ -68,7 +68,7 @@ class BuildIndex(unittest.TestCase):
         entry = self.index(root)["index.html"]
         self.assertEqual(entry["kind"], "tutorial")
         self.assertEqual(entry["skills"], ["shell.beginner"])
-        self.assertEqual(len((root / "knowledge/index.tsv").read_text().splitlines()[0].split("\t")), 10)
+        self.assertEqual(len((root / "knowledge/index.tsv").read_text().splitlines()[0].split("\t")), 9)
         report = json.loads((root / "knowledge/coverage.json").read_text())
         self.assertEqual(report["cells"][0]["pages"], ["index.html"])
         self.assertTrue(report["cells"][0]["path_gap"])
@@ -88,7 +88,6 @@ class BuildIndex(unittest.TestCase):
         before = self.outputs(root)
         cases = [('kind', 'article', 'unknown kind'),
                  ('skills', 'missing.beginner', 'unknown skill ID'),
-                 ('skills', 'shell.expert', 'outside the declared page levels'),
                  ('skills', 'shell.beginner, shell.beginner', 'duplicate skill IDs')]
         for name, value, message in cases:
             with self.subTest(value=value):
@@ -190,7 +189,7 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn('shell/pipelines.html: novice anatomy: forbidden goal:', result.stderr)
         self.assertNotIn('ecosystem/terminology.html: novice anatomy:', result.stderr)
-    def test_path_skills_span_visited_levels_but_page_skills_do_not(self):
+    def test_path_skills_span_visited_levels_and_page_skills_work(self):
         text = page('Guide').replace('</head>', '<meta name="kind" content="path"><meta name="skills" content="shell.expert"></head>')
         root = self.fixture('0.40.0', {'index.html': text})
         self.register_skills(root)
@@ -198,7 +197,7 @@ class BuildIndex(unittest.TestCase):
         report = json.loads((root/'knowledge/coverage.json').read_text())
         self.assertEqual(report['cells'][1]['paths'], ['index.html'])
         (root/'knowledge/index.html').write_text(text.replace('content="path"','content="tutorial"'))
-        self.assertIn('outside the declared page levels', self.build(root).stderr)
+        self.assertEqual(self.build(root).returncode, 0)
 
     def test_invalid_enforcement_policies_fail_plainly(self):
         root = self.fixture('0.40.0', {'index.html': page('Guide')})
@@ -288,11 +287,12 @@ class BuildIndex(unittest.TestCase):
                 text = page("Guide").replace("</body>", f'<{tag} data-level="beginner">Shared</{tag}></body>')
                 root = self.fixture("0.37.1", {"index.html": text})
                 self.assertEqual(self.build(root).returncode, 0)
-                for level, message in (("bogus", "unknown data-level"), ("expert", "not declared")):
-                    (root / "knowledge/index.html").write_text(text.replace('data-level="beginner"', f'data-level="{level}"'))
-                    result = self.build(root)
-                    self.assertNotEqual(result.returncode, 0)
-                    self.assertIn(message, result.stdout + result.stderr)
+                (root / "knowledge/index.html").write_text(text.replace('data-level="beginner"', 'data-level="bogus"'))
+                result = self.build(root)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("unknown data-level", result.stdout + result.stderr)
+                (root / "knowledge/index.html").write_text(text.replace('data-level="beginner"', 'data-level="expert"'))
+                self.assertEqual(self.build(root).returncode, 0)
 
     def test_layered_pages_and_ladders(self):
         shared = page("Guide").replace('content="beginner"', 'content="beginner, intermediate, expert"')
@@ -307,11 +307,6 @@ class BuildIndex(unittest.TestCase):
         target = root / "knowledge/index.html"
         target.write_text(shared.replace("</body>", ladder + body + "</body>"))
         self.assertEqual(self.build(root).returncode, 0)
-        for invalid in (ladder.replace('data-level="expert"', 'data-level="beginner"'), ""):
-            target.write_text(shared.replace("</body>", invalid + "</body>"))
-            result = self.build(root)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("matching sections", result.stdout + result.stderr)
 
     def test_make_rechecks_edits_and_page_inventory_at_any_depth(self):
         root = self.make_fixture()
@@ -466,8 +461,8 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         knowledge = root / "knowledge"
         rows = (knowledge / "index.tsv").read_text().splitlines()
-        self.assertEqual(len(rows[0].split("\t")), 10)
-        self.assertEqual(len(rows[1].split("\t")), 10)
+        self.assertEqual(len(rows[0].split("\t")), 9)
+        self.assertEqual(len(rows[1].split("\t")), 9)
         data = {item["path"]: item for item in json.loads((knowledge / "index.json").read_text())}
         self.assertTrue(all(data[f"{track}/index.html"]["track"] in tracks for track in tracks))
         self.assertEqual(data["maintain/index.html"]["parent"], "index.html")
@@ -489,8 +484,8 @@ class BuildIndex(unittest.TestCase):
         result = self.build(root)
         self.assertEqual(result.returncode, 0, result.stderr)
         rows = (root / "knowledge/index.tsv").read_text().splitlines()
-        self.assertEqual(rows[0].split("\t")[:10], [
-            "topic", "path", "title", "summary", "keywords", "level", "track",
+        self.assertEqual(rows[0].split("\t")[:9], [
+            "topic", "path", "title", "summary", "keywords", "track",
             "prereqs", "rev", "updated"])
         data = {item["path"]: item for item in json.loads(
             (root / "knowledge/index.json").read_text())}

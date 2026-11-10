@@ -229,9 +229,6 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
 
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (level != 0 && !(e->levels & level)) {
-            continue;
-        }
         if (level != 0) {
             html = tam_str_cat_printf(html, "<tr><td><a href=\"%s?level=%s\">",
                                       e->path, tam_level_name(level));

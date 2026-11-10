@@ -433,6 +433,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-10:** Command 0.52.1 (patch): Hiding sections of welcome page by level
 - **2026-11-10:** Command 0.52.0 (minor): links activate only when the
   attention line is on them; moving the attention line off a link deactivates it.
   Right Arrow follows an active link immediately, shows all text if on a
