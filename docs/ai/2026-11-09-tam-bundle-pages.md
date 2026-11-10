@@ -1,4 +1,4 @@
-# `tam-bundle` page and bundle glossary entry (corpus 0.78.0)
+# `tam-bundle` page and bundle glossary entry (corpus 0.78.0, 0.78.1)
 
 - **Date:** 2026-11-09
 - **Time:** about 21:15 to 21:55 -05:00
@@ -7,7 +7,7 @@
 - **CLI Tool:** Claude Code 2.1.321
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** the commit that adds this record, and the index follow-up.
+- **Commits:** `ecd5238`, `e25add2`, and the 0.78.1 correction with its index follow-up.
 - **Authorship:** Fred asked for the `tam` pages; Claude wrote both pages,
   the links, the version and roadmap rows, and this record.
 - **Checked against:** `tamlinux-tools` `src/tam-bundle/*.c`, `tb.h`,
@@ -30,10 +30,17 @@
   has no learning-path links. Putting an undelivered tool on "Understand the
   design" would send readers to a command they do not have; it can join the
   path when Tamlinux delivers it.
-- **The design and the code disagree on one point.** The design says every
-  command runs the recovery check first; in the code, `switch` and `back`
-  recover first, `status` reports with exit 4, and other commands do not
-  check. The page describes the code and leaves the choice to the developer.
+- **The design and the code disagreed on one point.** The design said every
+  command runs the recovery check first; in `tam-bundle` 0.4.0 only `switch`
+  and `back` did. The developer accepted the recommendation to change the
+  code; `tam-bundle` 0.4.1 makes every changing command recover first, and
+  corpus 0.78.1 corrects the expert section to match.
+
+## Follow-up prompts
+
+> Ponder this question: shoudl the design be corrected or the code changed? Do some research. Then give me your recommendation backed up with evidence from credible authorities.
+
+> I accept your recommendation. Make those changes.
 
 ## Verification
 
