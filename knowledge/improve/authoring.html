@@ -26,9 +26,17 @@
 
 <p>The tam knowledge corpus is the built-in reference and learning guide for Tamlinux. Instead of splitting documentation into separate manuals for beginners and advanced readers, each topic presents progressive depths on a single page.</p>
 
+<aside class="first-time">
+<p>If you are new to the Guide, use the spacebar or down arrow to scroll, press <code>0</code> through <code>3</code> to change your reading lens, and press <code>q</code> to exit.</p>
+</aside>
+
 <h3>Why it matters</h3>
 
 <p>Detailed technical manuals often overwhelm beginners with options and internal architecture, while introductory guides frustrate experienced users by omitting edge cases. A unified page allows readers to choose their lens and learn at their own pace.</p>
+
+<aside class="peek">
+<p>Under the hood, reading levels are filtered dynamically in C by <code>src/depth.c</code> based on your active lens.</p>
+</aside>
 
 <h3>How to think about it</h3>
 
@@ -102,6 +110,11 @@ $ tam show --level learner improve/contributing
 </pre>
 <p>Press <code>r</code> to reveal hidden quiz answers, <code>*</code> to toggle all folds, or <code>0</code> through <code>3</code> to switch the reading level.</p>
 
+<details class="hint">
+<summary>Need a hint on fold controls?</summary>
+<p>Pressing Enter on any highlighted fold link toggles that fold open or closed. Pressing <code>r</code> jumps directly to and expands the next closed quiz answer.</p>
+</details>
+
 <h3>If it goes wrong</h3>
 
 <dl>
@@ -146,6 +159,76 @@ $ tam show --level learner improve/contributing
 <tr><td><code>aside.tamlinux</code></td><td>On Tamlinux:</td><td>Highlights where Tamlinux differs from standard Linux</td></tr>
 <tr><td><code>aside.peek</code></td><td>Peek under the hood:</td><td>Links a beginner simplification to expert internals</td></tr>
 </table>
+
+<h3>Markup patterns: folds and asides</h3>
+
+<p>The corpus uses two mechanisms for supplementary guidance: interactive folds (which expand and collapse) and static asides (which render inline callouts with bold labels). Below are the full HTML snippets for each pattern and how the renderer displays them.</p>
+
+<h4>1. Question and answer (details.q / details.q.open)</h4>
+
+<p>Wrap self-quizzes in a <code>&lt;section class="quiz"&gt;</code> with an <code>&lt;h3&gt;Check yourself&lt;/h3&gt;</code> heading. Each question is a <code>&lt;details class="q"&gt;</code> containing a mandatory <code>&lt;summary&gt;</code> stating the question and a non-empty answer body. Use <code>class="q open"</code> in expert sections for model answers.</p>
+
+<pre class="session" data-risk="read-only">
+&lt;section class="quiz"&gt;
+&lt;h3&gt;Check yourself&lt;/h3&gt;
+&lt;p&gt;Decide your answer before you reveal it.&lt;/p&gt;
+&lt;details class="q"&gt;
+&lt;summary&gt;Which key reveals the next closed quiz answer?&lt;/summary&gt;
+&lt;p&gt;The &lt;code&gt;r&lt;/code&gt; key jumps to the next closed fold and opens it.&lt;/p&gt;
+&lt;/details&gt;
+&lt;/section&gt;
+</pre>
+
+<p><strong>How it renders:</strong> In the pager, the question displays with a collapsible fold control labeled <code>[+] Answer (-&gt; to show)</code>. Pressing Enter, Right Arrow, <code>r</code>, or <code>*</code> opens the fold to show <code>[-] Answer (&lt;- to hide)</code> and reveals the answer text. In piped output (<code>--pipe</code>), the question appears inline and all answers are collected under an <code>&lt;h3&gt;Answers&lt;/h3&gt;</code> heading at the end of the section.</p>
+
+<h4>2. Hint (details.hint)</h4>
+
+<p>Provide progressive clues or non-essential hints in exercises with <code>&lt;details class="hint"&gt;</code>. A <code>&lt;summary&gt;</code> is optional; if omitted, the console label is used.</p>
+
+<pre class="session" data-risk="read-only">
+&lt;details class="hint"&gt;
+&lt;summary&gt;Need a hint on navigating links?&lt;/summary&gt;
+&lt;p&gt;Use Tab and Shift+Tab to jump between links, or press the number badge shown next to each link.&lt;/p&gt;
+&lt;/details&gt;
+</pre>
+
+<p><strong>How it renders:</strong> In the pager, renders a fold link labeled <code>[+] Hint (-&gt; to show)</code> below the summary line. When expanded, it reveals the clue text. In piped output, the hint text is collected under <code>Answers</code> at the section end.</p>
+
+<h4>3. First time (aside.first-time)</h4>
+
+<p>Novice-level orientation for readers who have never used a Linux terminal belongs in an <code>&lt;aside class="first-time"&gt;</code> within the novice section.</p>
+
+<pre class="session" data-risk="read-only">
+&lt;aside class="first-time"&gt;
+&lt;p&gt;Type commands without the leading dollar sign (&lt;code&gt;$&lt;/code&gt;). The prompt indicates the shell is ready for input.&lt;/p&gt;
+&lt;/aside&gt;
+</pre>
+
+<p><strong>How it renders:</strong> Implemented as a fold by <code>src/fold.c</code>. In the pager, it displays as an interactive fold link labeled <code>[+] New to this? (-&gt; to show)</code>, keeping novice guidance out of the way of experienced readers until expanded. In piped output, it prints <code>New to this?</code> inline and defers the body to <code>Answers</code>.</p>
+
+<h4>4. On Tamlinux (aside.tamlinux)</h4>
+
+<p>Highlight where Tamlinux defaults, keybindings, or tools differ from generic Arch Linux or upstream conventions using <code>&lt;aside class="tamlinux"&gt;</code>.</p>
+
+<pre class="session" data-risk="read-only">
+&lt;aside class="tamlinux"&gt;
+&lt;p&gt;Tamlinux binds &lt;code&gt;Meta&lt;/code&gt; as its primary desktop modifier instead of generic Super.&lt;/p&gt;
+&lt;/aside&gt;
+</pre>
+
+<p><strong>How it renders:</strong> In both the pager and piped mode, <code>src/render.c</code> automatically injects a bold <strong>On Tamlinux:</strong> heading block above the aside content. It is rendered inline as a static callout block rather than an interactive fold.</p>
+
+<h4>5. Peek under the hood (aside.peek)</h4>
+
+<p>Connect beginner simplifications to underlying system internals, source files, or architecture with <code>&lt;aside class="peek"&gt;</code>.</p>
+
+<pre class="session" data-risk="read-only">
+&lt;aside class="peek"&gt;
+&lt;p&gt;Under the hood, fold links use custom URIs of the form &lt;code&gt;tam:fold:&amp;lt;id&amp;gt;&lt;/code&gt; handled internally by &lt;code&gt;src/pager.c&lt;/code&gt;.&lt;/p&gt;
+&lt;/aside&gt;
+</pre>
+
+<p><strong>How it renders:</strong> In both the pager and piped mode, <code>src/render.c</code> automatically injects a bold <strong>Peek under the hood:</strong> heading block above the paragraph. It is rendered inline as a static callout block linking conceptual explanations to implementation details.</p>
 
 <h3>How it works</h3>
 

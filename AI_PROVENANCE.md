@@ -22,6 +22,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-09 | Knowledge authoring markup snippets; corpus 0.77.1 | Antigravity CLI 1.5.3; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-09-tam-knowledge-authoring-snippets.md) |
 | 2026-11-09 | Add knowledge corpus authoring guide page; corpus 0.77.0 | Antigravity CLI 1.5.3; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-09-tam-knowledge-authoring-page.md) |
 | 2026-11-07 | Pre-push `check-repo` hook, lane-test `check-repo` wiring, and `AGENTS.md` version checklist | Antigravity CLI 1.5.3; Gemini 4 Argon (High) (`gemini-4-argon-high`) | [Session record](docs/ai/2026-11-07-tam-pre-push-repo-check.md) |
 | 2026-11-07 | Restore roadmap history rows for command 0.49.1 and corpus 0.75.3 | Codex CLI 0.167.0; `gpt-6.1-sol` | [Session record](docs/ai/2026-11-07-tam-version-history.md) |
