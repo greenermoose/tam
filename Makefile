@@ -67,8 +67,14 @@ TIME_RESET   := $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tool
 # paths count as dirty: a corpus-only edit must not change the command's
 # embedded build id.
 TAM_SOURCES := src bin completions Makefile source-build.json
+TAM_BUILD_ID := $(shell git -C $(CURDIR) log -n 1 --format=%h -- $(TAM_SOURCES) 2>/dev/null)
+ifeq ($(TAM_BUILD_ID),)
 TAM_BUILD_ID := $(shell git -C $(CURDIR) describe --always 2>/dev/null)
+endif
+TAM_SOURCE_REVISION := $(shell git -C $(CURDIR) log -n 1 --format=%H -- $(TAM_SOURCES) 2>/dev/null)
+ifeq ($(TAM_SOURCE_REVISION),)
 TAM_SOURCE_REVISION := $(shell git -C $(CURDIR) rev-parse HEAD 2>/dev/null)
+endif
 TAM_SOURCE_DIRTY := $(if $(strip $(shell git -C $(CURDIR) status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),1,0)
 ifneq ($(strip $(shell git -C $(CURDIR) status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),)
 TAM_BUILD_ID := $(TAM_BUILD_ID)-dirty
@@ -83,7 +89,7 @@ CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 # whenever that configuration does and forces a rebuild.
 CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
-.PHONY: all command corpus dev preview check-repo check-clean-tree test test-command corpus-and-test check install uninstall clean libtam-check FORCE
+.PHONY: all command corpus dev preview check-repo check-clean-tree test test-command corpus-and-test check install install-corpus uninstall clean libtam-check FORCE
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
@@ -215,6 +221,12 @@ check-clean-tree:
 		printf '%s\n' 'Commit or discard these changes first. Do not install another session'"'"'s uncommitted work.' >&2; \
 	fi; \
 	exit 1
+
+install-corpus:
+	@$(MAKE) --no-print-directory check-clean-tree
+	rm -rf $(DESTDIR)$(DATADIR)
+	install -d $(DESTDIR)$(DATADIR)
+	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
 
 install: all
 	@$(MAKE) --no-print-directory check-clean-tree

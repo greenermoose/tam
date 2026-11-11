@@ -646,6 +646,54 @@ class DevLoopTest(unittest.TestCase):
             self.assertEqual(res.stdout, "line 1\nline 2\n")
             self.assertEqual(out_buf.getvalue(), "line 1\nline 2\n")
 
+    def test_step_install_lane_targeting(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            fake_bin = root / "bin"
+            fake_bin.mkdir(parents=True)
+            fake_tam = fake_bin / "tam"
+            fake_tam.write_text("#!/bin/sh\necho 'tam command 0.52.1'\n", encoding="utf-8")
+            fake_tam.chmod(0o755)
+
+            calls = []
+            def fake_run_make(_root, *args, **kwargs):
+                calls.append((args, kwargs))
+                return subprocess.CompletedProcess(
+                    args=["make", *args], returncode=0, stdout="", stderr=None
+                )
+
+            corpus_changes = {
+                "paths": ["knowledge/welcome.html"],
+                "corpus": ["knowledge/welcome.html"],
+                "command": [],
+                "other": ["ROADMAP.md"],
+            }
+            command_changes = {
+                "paths": ["src/pager.c"],
+                "corpus": [],
+                "command": ["src/pager.c"],
+                "other": [],
+            }
+
+            with patch.object(dev_mod, "run_make", side_effect=fake_run_make), \
+                 patch("builtins.input", side_effect=[str(root), "yes", str(root), "yes"]), \
+                 patch("subprocess.run") as mock_subproc:
+                mock_subproc.return_value = subprocess.CompletedProcess(
+                    args=[], returncode=0, stdout=f"tam is {fake_tam}\ntam command 0.52.1\n", stderr=""
+                )
+
+                # Corpus-only changes: should not run 'command', should target 'install-corpus'
+                dev_mod.step_install(root, changes=corpus_changes)
+                self.assertFalse(any("command" in c[0] for c in calls))
+                self.assertTrue(any("install-corpus" in c[0] for c in calls))
+
+                # Command changes: should run 'command', should target 'install'
+                calls.clear()
+                dev_mod.step_install(root, changes=command_changes)
+                self.assertTrue(any("command" in c[0] for c in calls))
+                self.assertTrue(any("install" in c[0] for c in calls))
+                self.assertFalse(any("install-corpus" in c[0] for c in calls))
+
     def test_coverage_gap_check_prompt(self):
         # A plain Enter and an explicit no skip the check; yes runs it; an
         # unrecognized answer is re-asked.

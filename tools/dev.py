@@ -995,11 +995,13 @@ def step_index_followup(root, main_sha, claim_state, committed):
 # 8. Install
 # ---------------------------------------------------------------------------
 
-def step_install(root):
+def step_install(root, changes=None):
     print("== 8. Install ==")
-    cmd_res = run_make(root, "command")
-    if cmd_res.returncode != 0:
-        raise DevError(f"make command failed:\n{cmd_res.stdout.strip()}")
+    is_corpus_only = changes is not None and is_corpus_only_change(changes)
+    if not is_corpus_only:
+        cmd_res = run_make(root, "command", stream=True)
+        if cmd_res.returncode != 0:
+            raise DevError(f"make command failed:\n{cmd_res.stdout.strip()}")
 
     default_raw = "~/.local/dev"
     default_expanded = os.path.expanduser(default_raw)
@@ -1017,9 +1019,16 @@ def step_install(root):
         if confirm != "yes":
             raise DevError("non-default install prefix was not confirmed with 'yes'.")
 
-    inst_res = run_make(root, "install", f"PREFIX={expanded_prefix}")
+    target = (
+        "install-corpus"
+        if (is_corpus_only and (Path(expanded_prefix) / "bin" / "tam").is_file())
+        else "install"
+    )
+    inst_res = run_make(root, target, f"PREFIX={expanded_prefix}")
+    if inst_res.returncode != 0 and target == "install-corpus":
+        inst_res = run_make(root, "install", f"PREFIX={expanded_prefix}")
     if inst_res.returncode != 0:
-        raise DevError(f"make install PREFIX={expanded_prefix} failed:\n{inst_res.stdout.strip()}")
+        raise DevError(f"make {target} PREFIX={expanded_prefix} failed:\n{inst_res.stdout.strip()}")
 
     type_res = subprocess.run(
         ["bash", "-c", "type -a tam"],
@@ -1137,7 +1146,7 @@ def main(root=None, dry_run=False):
         step_build_and_test(root, changes)
         main_sha = step_commit(root, changes, version_info, committed)
         step_index_followup(root, main_sha, claim_state, committed)
-        prefix = step_install(root)
+        prefix = step_install(root, changes=changes)
         push_state = step_push(root)
         step_finish(root, claim_state, committed, version_info, prefix, push_state)
         return 0

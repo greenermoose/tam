@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-10: Antigravity CLI `1.5.5` (`gemini-3.8-flash`) decouples command build ID from corpus edits in `Makefile` and `tools/dev.py`, adds `make install-corpus`, and accelerates dev install for corpus edits; tooling only. [Session](docs/ai/2026-11-10-tam-decouple-command-build-id-from-corpus.md).
+
 2026-11-10: Antigravity CLI `1.5.5` (`gemini-3.8-flash`) accelerates corpus development cycle: single-pass component coverage scan, lane-targeted testing and tooling unit-test skip prompt in `tools/dev.py`, single-page linting, and `make preview` target; tooling only. [Session](docs/ai/2026-11-10-tam-accelerate-corpus-dev-cycle.md).
 
 2026-11-10: Antigravity CLI `1.5.5` (`gemini-3.8-flash`) tracks `knowledge/component-coverage.json` in developer loop (`tools/dev.py`) so index follow-up commits it before install; tooling only. [Session](docs/ai/2026-11-10-tam-dev-component-coverage-index-followup.md).
@@ -34,6 +36,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-10 | Decouple command build ID from corpus edits in `Makefile` and `tools/dev.py`, add `install-corpus`, and accelerate dev install; tooling only, no version change | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-decouple-command-build-id-from-corpus.md) |
 | 2026-11-10 | Accelerate corpus development cycle with single-pass component coverage, lane-targeted dev loop, unit-test skip prompt, single-page linting, and `make preview`; tooling only, no version change | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-accelerate-corpus-dev-cycle.md) |
 | 2026-11-10 | Track `knowledge/component-coverage.json` in `make dev` generated outputs and index follow-up; tooling only, no version change | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-dev-component-coverage-index-followup.md) |
 | 2026-11-10 | Pager links activate only on attention line; Right Arrow jump/follow/next page navigation; command 0.52.0 | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-pager-attention-links.md) |
