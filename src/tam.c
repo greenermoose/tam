@@ -954,6 +954,10 @@ static int cmd_search(int n, char **args)
 
 int main(int argc, char **argv)
 {
+    if (tam_bundle_guard(NULL)) {
+        fputs("Tamlinux is switching versions or needs recovery; use tam-bundle status from the console.\n", stderr);
+        return 1;
+    }
     (void)setlocale(LC_CTYPE, "");
     if (argc <= 1) {
         print_tam_help(HELP_STANDARD);

@@ -1,5 +1,7 @@
 # tam plan index
 
+Command 0.53.0 integrates the shared bundle startup barrier. Delivery follows the [public bundle plan](https://github.com/greenermoose/tamlinux-tools/blob/develop/docs/plans/tam-bundle.md).
+
 Reviewed 2026-10-27 (current work and branch handoff) under the [plan maintenance procedure](../plan-maintenance.md).
 This is the complete inventory of plans and corpus notes in this directory.
 Read status/disposition before a historical body. A closed plan is not a task

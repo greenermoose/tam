@@ -3,7 +3,7 @@
 # Builds the command against an installed libtam. The library is a separate
 # dependency and is never built or modified by this Makefile.
 #
-# libtam 0.4.0 or later is linked statically. It is found with
+# libtam 0.6.0 or later is linked statically. It is found with
 # `pkg-config libtam`, wherever it is installed; add
 # <prefix>/lib/pkgconfig to PKG_CONFIG_PATH for a prefix outside pkg-config's
 # default path. Set LIBTAM_PREFIX to name the install prefix instead, or
@@ -37,12 +37,12 @@ PKG_CONFIG ?= pkg-config
 ifdef LIBTAM_PREFIX
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
 LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-LIBTAM_ERROR  := $(if $(shell grep -s -l tam_exec_opts $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.4.0 or later include/tam.h)
+LIBTAM_ERROR  := $(if $(shell grep -s -l tam_bundle_guard $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.6.0 or later include/tam.h)
 else ifeq ($(origin LIBTAM_LIBS),undefined)
-LIBTAM_FOUND  := $(shell $(PKG_CONFIG) --atleast-version=0.4.0 libtam 2>/dev/null && echo yes)
+LIBTAM_FOUND  := $(shell $(PKG_CONFIG) --atleast-version=0.6.0 libtam 2>/dev/null && echo yes)
 LIBTAM_CFLAGS := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
 LIBTAM_LIBS   := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --libs libtam))
-LIBTAM_ERROR  := $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.4.0 or later)
+LIBTAM_ERROR  := $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.6.0 or later)
 endif
 
 LDFLAGS  ?=
@@ -105,7 +105,7 @@ command: $(TAM)
 $(BUILD)/%.o: src/%.c $(DEPS) $(BUILD)/config | $(BUILD) libtam-check
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -c $< -o $@
 
-$(TAM): $(OBJS) | $(BUILD)
+$(TAM): $(OBJS) $(wildcard $(LIBTAM_PREFIX)/lib/libtam.a) | $(BUILD)
 	$(CC) $(OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
 $(BUILD)/config: FORCE | $(BUILD)
@@ -118,7 +118,7 @@ $(BUILD):
 libtam-check:
 ifneq ($(LIBTAM_ERROR),)
 	@printf '%s\n' 'tam: cannot build the command: $(LIBTAM_ERROR).' \
-		'  Install libtam 0.4.0 or later first:   make -C <libtam checkout> install PREFIX=<prefix>' \
+		'  Install libtam 0.6.0 or later first:   make -C <libtam checkout> install PREFIX=<prefix>' \
 		'  then let pkg-config see it:   export PKG_CONFIG_PATH=<prefix>/lib/pkgconfig' \
 		'  or name the prefix:   make LIBTAM_PREFIX=<prefix>' >&2
 	@exit 1
