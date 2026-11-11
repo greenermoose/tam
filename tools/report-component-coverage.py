@@ -97,6 +97,34 @@ def load_exemptions(path: Path) -> dict[str, dict]:
     return out
 
 
+def load_corpus_pages(knowledge: Path) -> list[tuple[str, str]]:
+    pages: list[tuple[str, str]] = []
+    for path in sorted(knowledge.rglob("*.html")):
+        try:
+            pages.append(
+                (str(path.relative_to(knowledge)), path.read_text(encoding="utf-8", errors="replace"))
+            )
+        except OSError:
+            continue
+    return pages
+
+
+def match_components(pages: list[tuple[str, str]], components: list[dict]) -> dict[str, list[str]]:
+    if not components or not pages:
+        return {c["id"]: [] for c in components}
+    sorted_ids = sorted([c["id"] for c in components], key=lambda x: -len(x))
+    pattern = re.compile(
+        r"(?<![A-Za-z0-9_.-])(" + "|".join(re.escape(i) for i in sorted_ids) + r")(?![A-Za-z0-9_-])"
+    )
+    hits: dict[str, list[str]] = {c["id"]: [] for c in components}
+    for rel, text in pages:
+        matches = set(pattern.findall(text))
+        for m in matches:
+            if m in hits:
+                hits[m].append(rel)
+    return hits
+
+
 def corpus_blob(knowledge: Path) -> str:
     parts: list[str] = []
     for path in sorted(knowledge.rglob("*.html")):
@@ -128,12 +156,13 @@ def build_report(tam: Path, product: Path | None) -> dict:
     exemptions = load_exemptions(exemptions_path)
     knowledge = tam / "knowledge"
     components = inventory(product) if product is not None else []
-    blob = corpus_blob(knowledge) if components else ""
+    pages = load_corpus_pages(knowledge) if components else []
+    comp_hits = match_components(pages, components)
     rows = []
     for item in components:
-        pages = pages_mentioning(knowledge, item["id"], blob=blob)
+        matched_pages = comp_hits.get(item["id"], [])
         exempt = exemptions.get(item["id"])
-        if pages:
+        if matched_pages:
             status = "covered"
         elif exempt:
             status = "exempt"
@@ -141,7 +170,7 @@ def build_report(tam: Path, product: Path | None) -> dict:
             status = "gap"
         row = {
             **item,
-            "pages": pages,
+            "pages": matched_pages,
             "status": status,
         }
         if exempt:

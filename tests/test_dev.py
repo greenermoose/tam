@@ -75,7 +75,7 @@ set -eu
 FIXTURE_MAKEFILE = """PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 
-.PHONY: all command corpus test libtam-check install
+.PHONY: all command corpus test corpus-and-test libtam-check install
 
 all: command corpus
 
@@ -94,6 +94,13 @@ test:
 	@if [ -f fail_test ]; then seq 1 50; exit 1; fi
 	@mkdir -p build
 	@if [ -n "$(SKIP_COVERAGE_CHECK)" ]; then echo skip > build/coverage_choice; else echo run > build/coverage_choice; fi
+	@echo "fixture tests ok"
+
+corpus-and-test:
+	@if [ -f fail_test ]; then seq 1 50; exit 1; fi
+	@mkdir -p build
+	@if [ -n "$(SKIP_COVERAGE_CHECK)" ]; then echo skip > build/coverage_choice; else echo run > build/coverage_choice; fi
+	@if [ -n "$(SKIP_UNIT_TESTS)" ]; then echo skip > build/unit_tests_choice; else echo run > build/unit_tests_choice; fi
 	@echo "fixture tests ok"
 
 install: command corpus
@@ -225,6 +232,7 @@ class DevLoopTest(unittest.TestCase):
             b"[p]atch (default) / [m]inor:",
             b"One-line summary:",
             b"Run the component coverage gap check? [y/N]:",
+            b"Run tooling unit tests (test_build_index, etc.)? [y/N]:",
             b"Commit subject",
             b"Commit body (optional):",
             b"Install prefix",
@@ -522,10 +530,10 @@ class DevLoopTest(unittest.TestCase):
         rc, out = self.run_dev_pty(
             root,
             env,
-            ["c", "p", "Refine using guide", ""],
+            ["c", "p", "Refine using guide", "", ""],
         )
         self.assertNotEqual(rc, 0)
-        self.assertIn("make test failed", out)
+        self.assertIn("failed", out)
         self.assertIn("Nothing was committed.", out)
         self.assertEqual((root / "knowledge" / "version").read_text().strip(), "0.33.7")
 
@@ -547,13 +555,17 @@ class DevLoopTest(unittest.TestCase):
         rc2, out2 = self.run_dev_pty(
             root,
             env,
-            ["c", "", "", "", "", "y"],
+            ["c", "", "", "", "", "", "y"],
         )
         self.assertEqual(rc2, 0, out2)
         self.assertIn("Corpus: already bumped to 0.33.7", out2)
         self.assertIn("Skipping the component coverage gap check for this run.", out2)
+        self.assertIn("Skipping tooling unit tests for this corpus-only run.", out2)
         self.assertEqual(
             (root / "build" / "coverage_choice").read_text().strip(), "skip"
+        )
+        self.assertEqual(
+            (root / "build" / "unit_tests_choice").read_text().strip(), "skip"
         )
         self.assertIn("fixture tests ok", out2)
         self.assertIn("Refresh corpus index revisions after", out2)
@@ -583,7 +595,7 @@ class DevLoopTest(unittest.TestCase):
         rc, out = self.run_dev_pty(
             root,
             env,
-            ["c", "p", "Test prefix guard", "", "", "", "/usr/local"],
+            ["c", "p", "Test prefix guard", "", "", "", "", "/usr/local"],
         )
         self.assertNotEqual(rc, 0)
         self.assertIn("refusing to install to /usr/local", out)
@@ -603,7 +615,7 @@ class DevLoopTest(unittest.TestCase):
         rc2, out2 = self.run_dev_pty(
             root,
             custom_env,
-            ["c", "p", "Custom prefix install", "y", "", "", str(custom_prefix), "yes"],
+            ["c", "p", "Custom prefix install", "y", "", "", "", str(custom_prefix), "yes"],
         )
         self.assertEqual(rc2, 0, out2)
         self.assertEqual(
@@ -644,6 +656,14 @@ class DevLoopTest(unittest.TestCase):
         with patch("builtins.input", side_effect=["what", "y"]):
             self.assertTrue(dev_mod.prompt_coverage_gap_check())
 
+    def test_unit_tests_prompt(self):
+        with patch("builtins.input", return_value=""):
+            self.assertFalse(dev_mod.prompt_unit_tests())
+        with patch("builtins.input", return_value="n"):
+            self.assertFalse(dev_mod.prompt_unit_tests())
+        with patch("builtins.input", side_effect=["invalid", "y"]):
+            self.assertTrue(dev_mod.prompt_unit_tests())
+
     def test_step_build_and_test_passes_the_coverage_choice_to_make(self):
         root, _ = self.make_fixture()
         changes = {"corpus": [], "command": [], "other": []}
@@ -658,6 +678,32 @@ class DevLoopTest(unittest.TestCase):
                 redirect_stdout(io.StringIO()):
             dev_mod.step_build_and_test(root, changes)
         run_mock.assert_called_once_with(root, "test", stream=True)
+
+    def test_step_build_and_test_corpus_only_lane_targeting(self):
+        root, _ = self.make_fixture()
+        changes = {
+            "corpus": ["knowledge/shell/pipelines.html", "knowledge/version"],
+            "command": [],
+            "other": ["ROADMAP.md"],
+        }
+        completed = subprocess.CompletedProcess(args=(), returncode=0, stdout="", stderr=None)
+        # Default: both prompts answered 'n' (or Enter) -> corpus-and-test with both skips
+        with patch("builtins.input", side_effect=["n", "n"]), \
+                patch.object(dev_mod, "run_make", return_value=completed) as run_mock, \
+                redirect_stdout(io.StringIO()):
+            dev_mod.step_build_and_test(root, changes)
+        run_mock.assert_called_once_with(
+            root, "corpus-and-test", "SKIP_COVERAGE_CHECK=1", "SKIP_UNIT_TESTS=1", stream=True
+        )
+
+        # Unit tests explicitly requested ('y')
+        with patch("builtins.input", side_effect=["n", "y"]), \
+                patch.object(dev_mod, "run_make", return_value=completed) as run_mock, \
+                redirect_stdout(io.StringIO()):
+            dev_mod.step_build_and_test(root, changes)
+        run_mock.assert_called_once_with(
+            root, "corpus-and-test", "SKIP_COVERAGE_CHECK=1", stream=True
+        )
 
     def test_component_coverage_is_index_companion_output(self):
         self.assertIn("knowledge/component-coverage.json", dev_mod.GENERATED_EXACT)

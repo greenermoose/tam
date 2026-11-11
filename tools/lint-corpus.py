@@ -264,6 +264,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--root", type=Path,
                         default=Path(__file__).resolve().parent.parent)
+    parser.add_argument("pages", nargs="*", type=Path,
+                        help="Specific pages to lint (defaults to all knowledge/**/*.html)")
     args = parser.parse_args(argv)
     root = args.root
     try:
@@ -276,8 +278,22 @@ def main(argv=None):
         print("lint-corpus: knowledge/: no corpus directory", file=sys.stderr)
         return 2
     findings = []
-    for path in sorted(knowledge.rglob("*.html")):
-        rel = "knowledge/" + path.relative_to(knowledge).as_posix()
+    if args.pages:
+        target_paths = []
+        for p in args.pages:
+            resolved = p if p.is_absolute() else (root / p)
+            if not resolved.is_file():
+                print(f"lint-corpus: {p}: file not found", file=sys.stderr)
+                return 2
+            target_paths.append(resolved)
+    else:
+        target_paths = sorted(knowledge.rglob("*.html"))
+
+    for path in target_paths:
+        try:
+            rel = "knowledge/" + path.relative_to(knowledge).as_posix()
+        except ValueError:
+            rel = path.as_posix()
         text = path.read_text(encoding="utf-8", errors="replace")
         findings.extend(Page(rel, text, rules).check())
     for rel, line, rule, message in sorted(set(findings)):

@@ -596,6 +596,24 @@ def prompt_coverage_gap_check():
         print("Please answer 'y' (yes) or 'n' (no).")
 
 
+def prompt_unit_tests():
+    """Ask whether to run tooling unit tests (test_build_index, etc.) during a corpus-only run.
+
+    The default answer skips them: they test the unchanged builder/linter scripts with
+    synthetic fixtures, which page edits do not affect.
+    """
+    while True:
+        try:
+            ans = input("Run tooling unit tests (test_build_index, etc.)? [y/N]: ").strip().lower()
+        except EOFError as exc:
+            raise DevError("unexpected EOF while reading prompt.") from exc
+        if ans in ("", "n", "no"):
+            return False
+        if ans in ("y", "yes"):
+            return True
+        print("Please answer 'y' (yes) or 'n' (no).")
+
+
 def apply_corpus_version_edits(root, old_ver, new_ver, summary, today, texts=None):
     """Bump the corpus version copies; with texts, only stage the edits for the caller to write."""
     owned = texts is None
@@ -848,13 +866,34 @@ def explain_test_failure(output, changes):
     return lines
 
 
+def is_corpus_only_change(changes):
+    return (
+        bool(changes["corpus"])
+        and not changes["command"]
+        and all(rel in PAGE_ONLY_OTHER for rel in changes["other"])
+    )
+
+
 def step_build_and_test(root, changes):
     print("== 5. Build and test ==")
+    is_corpus_only = is_corpus_only_change(changes)
+    target = "corpus-and-test" if is_corpus_only else "test"
+
+    extra_args = []
     if prompt_coverage_gap_check():
-        test_args = ("test",)
+        pass
     else:
         print("Skipping the component coverage gap check for this run.")
-        test_args = ("test", "SKIP_COVERAGE_CHECK=1")
+        extra_args.append("SKIP_COVERAGE_CHECK=1")
+
+    if is_corpus_only:
+        if prompt_unit_tests():
+            pass
+        else:
+            print("Skipping tooling unit tests for this corpus-only run.")
+            extra_args.append("SKIP_UNIT_TESTS=1")
+
+    test_args = (target, *extra_args)
     res = run_make(root, *test_args, stream=True)
     if res.returncode != 0:
         lines = res.stdout.splitlines()
@@ -862,8 +901,8 @@ def step_build_and_test(root, changes):
         print(tail)
         print()
         print("\n".join(explain_test_failure(res.stdout, changes)))
-        raise DevError("make test failed; version edits remain in the working tree.")
-    print("make test passed.")
+        raise DevError(f"make {target} failed; version edits remain in the working tree.")
+    print(f"make {target} passed.")
 
 
 # ---------------------------------------------------------------------------

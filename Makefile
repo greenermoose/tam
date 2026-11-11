@@ -83,12 +83,15 @@ CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 # whenever that configuration does and forces a rebuild.
 CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
 
-.PHONY: all command corpus dev check-repo check-clean-tree test test-command corpus-and-test check install uninstall clean libtam-check FORCE
+.PHONY: all command corpus dev preview check-repo check-clean-tree test test-command corpus-and-test check install uninstall clean libtam-check FORCE
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
 
 dev: ; @python3 tools/dev.py $(if $(DRY_RUN),--dry-run)
+
+preview: command
+	@TAM_KNOWLEDGE_DIR="$(CURDIR)/knowledge" $(TAM) $(PAGE)
 
 # --- command lane: the C binary, no corpus regeneration -------------------
 command: $(TAM)
@@ -170,9 +173,13 @@ test-command: command
 corpus-and-test: command corpus
 	@$(TIME_RESET)
 	@$(RUN_TIMED) "Corpus HTML linter (tools/lint-corpus.py)" python3 tools/lint-corpus.py
+ifeq ($(SKIP_UNIT_TESTS),)
 	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
 	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
 	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
+else
+	@printf '%s\n' 'tam: tooling unit tests skipped (SKIP_UNIT_TESTS).'
+endif
 	$(COVERAGE_GAP_CHECK)
 	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
 	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
