@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.5.5
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** <pending commit>
+- **Commits:** `d3edf5a`
 - **Authorship:** Fred Horch directed keybinding changes and selected option 3 for `g`; Antigravity implemented the key dispatch, tests, and documentation updates.
 - **Checked against:** `src/pager_input.c`, `src/pager_draw.c`, `man/tam.1`, `knowledge/help/index.html`, `knowledge/welcome.html`.
 
