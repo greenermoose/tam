@@ -66,20 +66,30 @@ edit the two lanes at once, each claiming only its lane's paths with
 on something that tightly couples the two — for example adding parser support
 for a construct and then using it in the corpus — claims both lanes.
 
-The lanes stay coupled at the test level. `tests/guide.sh` renders corpus
-pages through the built binary, and `tests/run.sh` asserts corpus content
-through `search` and `explain`, which read the generated index.
+Corpus metadata builds require neither C compilation nor libtam. Lint rules
+are derived from command sources without compiling them. Rendering checks use
+an existing executable selected by `TAM_READER`, then `build/tam`, then `tam`
+on PATH. Full integrated verification explicitly builds the command.
 
 Build targets follow the lanes:
 
-- `make` (or `make all`) — the whole project: the binary and the corpus index.
-- `make command` — just the C binary; does not regenerate the corpus index.
-- `make corpus` — always recheck all pages and Git metadata; regenerate the
-  three corpus indexes and checkout build marker, preserving unchanged files.
-- `make test-command` — command checks.
-- `make corpus-and-test` — build the corpus and reader, then run corpus checks.
-  This replaces `test-corpus` without an alias. No installation or stage promotion.
-- `make test` / `make check` — the full, integrated suite.
+- `make` / `make all`: command and corpus.
+- `make command`: only C compilation, with generated transitive header dependencies.
+- `make corpus`: content-hashed incremental indexes/reports, preserving unchanged files.
+- `make corpus-check`: incremental corpus validation and rendering, with no install/commit/push.
+- `make preview PAGE=…`: incremental metadata build and source-page preview.
+- `make test-command`: command checks, without corpus generation.
+- `make corpus-and-test`: uncached corpus checks and tooling tests; no C compilation.
+- `make test` / `make check`: full integrated verification, including uncached corpus checks.
+- `make bench-corpus`: five-run workload medians/slowest times in disposable fixtures.
+
+`CORPUS_CACHE=0` disables cached successes; deleting `build/corpus/` is safe.
+The [incremental build plan](incremental-corpus-build.md) owns cache dependencies,
+correctness/performance acceptance and the finishing-loop changes. Existing
+standalone script entry points and generated corpus formats remain supported.
+Corpus-only `make dev` uses fast checks and retains the optional tooling-test
+and coverage prompts. It refreshes metadata after the page commit and updates
+identity after the index commit, without repeating content validation.
 
 ## Command contract
 
@@ -432,6 +442,13 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-11-11:** Implement the approved [incremental corpus build](incremental-corpus-build.md):
+  separate fast editing commands and independent C/corpus builds, content-hashed
+  on-demand cache, uncached full verification, and precise compiler dependencies.
+  Tooling only; no component version change. Timings and the existing journal
+  coverage exception are recorded in the plan and implementation record.
+
 
 - **2026-11-11:** Command 0.54.0 (minor): Rebind home-row keys to arrow synonyms (left hand a s d f for Left, Up, Down, Right; right hand j k l ; for Right, Down, Up, Left). Attention column moves to [ (left) and ] (right). g and backtick jump to the Guide index page.
 - **2026-11-11:** Command 0.53.0 adds the libtam 0.6.0 startup barrier during a system bundle apply. The approved bundle integration follows the [public delivery plan](https://github.com/greenermoose/tamlinux-tools/blob/develop/docs/plans/tam-bundle.md).

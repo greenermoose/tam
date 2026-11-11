@@ -37,12 +37,12 @@ PKG_CONFIG ?= pkg-config
 ifdef LIBTAM_PREFIX
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
 LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-LIBTAM_ERROR  := $(if $(shell grep -s -l tam_bundle_guard $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.6.0 or later include/tam.h)
+LIBTAM_ERROR  = $(if $(shell grep -s -l tam_bundle_guard $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.6.0 or later include/tam.h)
 else ifeq ($(origin LIBTAM_LIBS),undefined)
-LIBTAM_FOUND  := $(shell $(PKG_CONFIG) --atleast-version=0.6.0 libtam 2>/dev/null && echo yes)
-LIBTAM_CFLAGS := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
-LIBTAM_LIBS   := $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --libs libtam))
-LIBTAM_ERROR  := $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.6.0 or later)
+LIBTAM_FOUND  = $(shell $(PKG_CONFIG) --atleast-version=0.6.0 libtam 2>/dev/null && echo yes)
+LIBTAM_CFLAGS = $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
+LIBTAM_LIBS   = $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --libs libtam))
+LIBTAM_ERROR  = $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.6.0 or later)
 endif
 
 LDFLAGS  ?=
@@ -53,7 +53,6 @@ TERMINFO_LIBS   ?= $(shell pkg-config --libs ncursesw 2>/dev/null || echo -ltinf
 BUILD := build
 TAM   := $(BUILD)/tam
 SRC   := src/tam.c src/identity.c src/corpus.c src/views.c src/address.c src/html.c src/html_scan.c src/render.c src/display.c src/pager.c src/pager_draw.c src/pager_input.c src/pager_links.c src/pager_nav.c src/pager_search.c src/pager_screen.c src/external.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/upgrade.c
-DEPS  := src/version.h src/corpus.h src/address.h src/views.h src/html.h src/html_scan.h src/render.h src/display.h src/pager.h src/pager_int.h src/pager_screen.h src/external.h src/terminal.h src/install.h src/man.h src/index.h src/depth.h src/fold.h src/ask.h src/info.h src/discovery.h src/tldr.h src/upgrade.h
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/coverage.json knowledge/component-coverage.json
 
 OBJS  := $(SRC:src/%.c=$(BUILD)/%.o)
@@ -67,135 +66,122 @@ TIME_RESET   := $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tool
 # paths count as dirty: a corpus-only edit must not change the command's
 # embedded build id.
 TAM_SOURCES := src bin completions Makefile source-build.json
-TAM_BUILD_ID := $(shell git -C $(CURDIR) log -n 1 --format=%h -- $(TAM_SOURCES) 2>/dev/null)
-ifeq ($(TAM_BUILD_ID),)
-TAM_BUILD_ID := $(shell git -C $(CURDIR) describe --always 2>/dev/null)
-endif
-TAM_SOURCE_REVISION := $(shell git -C $(CURDIR) log -n 1 --format=%H -- $(TAM_SOURCES) 2>/dev/null)
-ifeq ($(TAM_SOURCE_REVISION),)
-TAM_SOURCE_REVISION := $(shell git -C $(CURDIR) rev-parse HEAD 2>/dev/null)
-endif
-TAM_SOURCE_DIRTY := $(if $(strip $(shell git -C $(CURDIR) status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),1,0)
-ifneq ($(strip $(shell git -C $(CURDIR) status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),)
-TAM_BUILD_ID := $(TAM_BUILD_ID)-dirty
-endif
+TAM_BUILD_ID = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%h -- $(TAM_SOURCES) 2>/dev/null),$(shell git -C "$(CURDIR)" describe --always 2>/dev/null))$(if $(filter 1,$(TAM_SOURCE_DIRTY)),-dirty)
+TAM_SOURCE_REVISION = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%H -- $(TAM_SOURCES) 2>/dev/null),$(shell git -C "$(CURDIR)" rev-parse HEAD 2>/dev/null))
+TAM_SOURCE_DIRTY = $(if $(strip $(shell git -C "$(CURDIR)" status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),1,0)
 
-CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\" -DTAM_BUILD=\"$(TAM_BUILD_ID)\"
-CPPFLAGS += -DTAM_SOURCE_REVISION=\"$(TAM_SOURCE_REVISION)\"
-CPPFLAGS += -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
+CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"
+IDENTITY_FLAGS = -DTAM_BUILD=\"$(TAM_BUILD_ID)\" -DTAM_SOURCE_REVISION=\"$(TAM_SOURCE_REVISION)\" -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
+COMPILE_CONFIG = $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS)
+LINK_CONFIG = $(CC) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
+LIBTAM_ARCHIVE = $(wildcard $(if $(LIBTAM_PREFIX),$(LIBTAM_PREFIX)/lib,$(shell $(PKG_CONFIG) --variable=libdir libtam 2>/dev/null))/libtam.a)
+TAM_READER ?=
+CORPUS_CACHE ?= 1
+export CORPUS_CACHE TAM_READER SKIP_COVERAGE_CHECK
+SESSION = $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py session,)
 
-# The binary embeds DATADIR, the static libtam and the build id, so a build
-# made for one PREFIX must not be installed under another. The stamp changes
-# whenever that configuration does and forces a rebuild.
-CONFIG := $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS)
-
-.PHONY: all command corpus dev preview check-repo check-clean-tree test test-command corpus-and-test check install install-corpus uninstall clean libtam-check FORCE
+.PHONY: all command corpus corpus-check corpus-identity dev preview bench-corpus check-repo check-clean-tree test test-command corpus-and-test check install install-corpus uninstall clean libtam-check FORCE _test _test-command _command-checks _corpus-and-test _check corpus-tool-tests
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
 
 dev: ; @python3 tools/dev.py $(if $(DRY_RUN),--dry-run)
 
-preview: command
-	@TAM_KNOWLEDGE_DIR="$(CURDIR)/knowledge" $(TAM) $(PAGE)
+preview:
+	@python3 tools/corpus_pipeline.py preview --page "$(PAGE)" $(if $(TAM_READER),--reader "$(TAM_READER)")
+
+bench-corpus:
+	@python3 tools/bench-corpus.py $(if $(TAM_READER),--reader "$(TAM_READER)")
 
 # --- command lane: the C binary, no corpus regeneration -------------------
 command: $(TAM)
 
-$(BUILD)/%.o: src/%.c $(DEPS) $(BUILD)/config | $(BUILD) libtam-check
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -c $< -o $@
+$(BUILD)/%.o: src/%.c $(BUILD)/compile-config | $(BUILD) libtam-check
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -MMD -MP -c $< -o $@
 
-$(TAM): $(OBJS) $(wildcard $(LIBTAM_PREFIX)/lib/libtam.a) | $(BUILD)
+# Only these objects consume changing checkout identity, keeping other objects warm.
+$(BUILD)/tam.o $(BUILD)/upgrade.o: private CPPFLAGS += $(IDENTITY_FLAGS)
+$(BUILD)/tam.o $(BUILD)/upgrade.o: $(BUILD)/identity-config
+
+.SECONDEXPANSION:
+$(TAM): $(OBJS) $$(LIBTAM_ARCHIVE) $(BUILD)/link-config | $(BUILD)
 	$(CC) $(OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
-$(BUILD)/config: FORCE | $(BUILD)
-	@printf '%s\n' '$(CONFIG)' | cmp -s - $@ || printf '%s\n' '$(CONFIG)' > $@
+$(BUILD)/compile-config: FORCE | $(BUILD)
+	@printf '%s\n' '$(COMPILE_CONFIG)' | cmp -s - $@ || printf '%s\n' '$(COMPILE_CONFIG)' > $@
+
+$(BUILD)/link-config: FORCE | $(BUILD)
+	@printf '%s\n' '$(LINK_CONFIG)' | cmp -s - $@ || printf '%s\n' '$(LINK_CONFIG)' > $@
+
+$(BUILD)/identity-config: FORCE | $(BUILD)
+	@printf '%s\n' '$(IDENTITY_FLAGS)' | cmp -s - $@ || printf '%s\n' '$(IDENTITY_FLAGS)' > $@
+
+-include $(OBJS:.o=.d)
 
 $(BUILD):
 	mkdir -p $(BUILD)
 
 # Stop before the compiler does, with what to do instead of a missing tam.h.
 libtam-check:
-ifneq ($(LIBTAM_ERROR),)
-	@printf '%s\n' 'tam: cannot build the command: $(LIBTAM_ERROR).' \
-		'  Install libtam 0.6.0 or later first:   make -C <libtam checkout> install PREFIX=<prefix>' \
-		'  then let pkg-config see it:   export PKG_CONFIG_PATH=<prefix>/lib/pkgconfig' \
-		'  or name the prefix:   make LIBTAM_PREFIX=<prefix>' >&2
-	@exit 1
-endif
+	@if [ -n '$(LIBTAM_ERROR)' ]; then \
+		printf '%s\n' 'tam: cannot build the command: $(LIBTAM_ERROR).' \
+		'  Install libtam 0.6.0 or later first, or set LIBTAM_PREFIX=<prefix>.' >&2; \
+		exit 1; fi
 
-# --- corpus lane: index generation and validation -------------------------
-# Git history and page removals can change the index without changing an input
-# timestamp. Always recheck; the generator preserves unchanged output files.
+# --- corpus lane: no compiler, libtam or command prerequisite --------------
 corpus:
-	@$(RUN_TIMED) "Corpus index generation (build-index.py)" python3 tools/build-index.py
-	@$(RUN_TIMED) "Component coverage map (report-component-coverage.py)" \
-		python3 tools/report-component-coverage.py --quiet --json knowledge/component-coverage.json
+	@$(RUN_TIMED) "Corpus build" python3 tools/corpus_pipeline.py build
+
+corpus-identity:
+	@python3 tools/corpus_pipeline.py identity
+
+corpus-check:
+	@$(RUN_TIMED) "Corpus checks" python3 tools/corpus_pipeline.py check
 
 # Direct output requests share the same generation, including under make -j.
 $(INDEX): corpus
 
-# --- tests ----------------------------------------------------------------
-# test-command and corpus-and-test are single-lane entry points; test and check
-# are the full, integrated runs.
+# Session timing starts before recursive make expands any build prerequisites.
+test:
+	+@$(SESSION) $(MAKE) --no-print-directory _test
 
-# The component coverage gap check reports product components (commands,
-# plugins, bindings) with no corpus page mention. `make dev` asks whether to
-# run it each time and passes this variable when declined; SKIP_COVERAGE_CHECK=1
-# skips it in a plain non-interactive `make test` or `make corpus-and-test` too.
-ifneq ($(SKIP_COVERAGE_CHECK),)
-COVERAGE_GAP_CHECK := @printf '%s\n' 'tam: component coverage gap check skipped (SKIP_COVERAGE_CHECK).'
-else
-COVERAGE_GAP_CHECK := @$(RUN_TIMED) "Component coverage gap check (report-component-coverage.py --check)" \
-	python3 tools/report-component-coverage.py --quiet --check
-endif
+test-command:
+	+@$(SESSION) $(MAKE) --no-print-directory _command-checks
 
-test: all
-	@$(TIME_RESET)
+corpus-and-test:
+	+@$(SESSION) $(MAKE) --no-print-directory _corpus-and-test CORPUS_CACHE=0
+
+check:
+	+@$(SESSION) $(MAKE) --no-print-directory _check
+
+_test: _test-command
+	+@$(MAKE) --no-print-directory _corpus-and-test CORPUS_CACHE=0 TAM_READER="$(CURDIR)/$(TAM)"
+
+_test-command: command
 	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(TAM)
 	@$(RUN_TIMED) "Upgrade tests (test_upgrade.py)" python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
 	@$(RUN_TIMED) "Renderer golden tests (tests/render.sh)" tests/render.sh $(CURDIR)/$(TAM)
-	@$(RUN_TIMED) "Corpus HTML linter (tools/lint-corpus.py)" python3 tools/lint-corpus.py
-	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
-	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
-	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
-	$(COVERAGE_GAP_CHECK)
-	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
-	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
-	@$(TIME_SUMMARY)
+
+_command-checks: _test-command
+	@$(RUN_TIMED) "Repository consistency check" python3 tools/check-repo.py
+
+_corpus-and-test: corpus-check
+	+@$(MAKE) --no-print-directory corpus-tool-tests
+	@$(RUN_TIMED) "Repository consistency check" python3 tools/check-repo.py
+
+corpus-tool-tests:
+ifeq ($(SKIP_UNIT_TESTS),)
+	@$(RUN_TIMED) "Corpus tooling unit tests" python3 -B -m unittest -q tests/test_lint_corpus.py tests/test_build_index.py tests/test_component_coverage.py tests/test_corpus_pipeline.py
+else
+	@printf '%s\n' 'tam: tooling unit tests skipped (SKIP_UNIT_TESTS).'
+endif
 
 check-repo:
 	@if [ -d .git ] && [ -d .githooks ]; then git config core.hooksPath .githooks 2>/dev/null || true; fi
 	python3 tools/check-repo.py
 
-test-command: command
-	@$(TIME_RESET)
-	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(TAM)
-	@$(RUN_TIMED) "Upgrade tests (test_upgrade.py)" python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
-	@$(RUN_TIMED) "Renderer golden tests (tests/render.sh)" tests/render.sh $(CURDIR)/$(TAM)
-	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
-	@$(TIME_SUMMARY)
-
-corpus-and-test: command corpus
-	@$(TIME_RESET)
-	@$(RUN_TIMED) "Corpus HTML linter (tools/lint-corpus.py)" python3 tools/lint-corpus.py
-ifeq ($(SKIP_UNIT_TESTS),)
-	@$(RUN_TIMED) "Corpus linter unit tests (test_lint_corpus.py)" python3 -m unittest -q tests/test_lint_corpus.py
-	@$(RUN_TIMED) "Corpus index unit tests (test_build_index.py)" python3 -m unittest -q tests/test_build_index.py
-	@$(RUN_TIMED) "Component coverage unit tests (test_component_coverage.py)" python3 -m unittest -q tests/test_component_coverage.py
-else
-	@printf '%s\n' 'tam: tooling unit tests skipped (SKIP_UNIT_TESTS).'
-endif
-	$(COVERAGE_GAP_CHECK)
-	@$(RUN_TIMED) "Guide verification (tests/guide.sh)" tests/guide.sh $(CURDIR)/$(TAM)
-	@$(RUN_TIMED) "Repository consistency check (tools/check-repo.py)" python3 tools/check-repo.py
-	@$(TIME_SUMMARY)
-
-check: corpus test
-	python3 -m unittest -q tests/test_dev.py
-	python3 -m unittest -q tests/test_install_guard.py
-	python3 tools/check-repo.py
-	python3 -m unittest -q tests/test_check_repo.py
+_check: _test
+	@$(RUN_TIMED) "Developer and build guard unit tests" python3 -B -m unittest -q tests/test_dev.py tests/test_install_guard.py tests/test_check_repo.py tests/test_command_build.py
 
 # A checkout installs only committed sources, so the installed --version names
 # a commit rather than `-dirty`. The check runs after `all`, because rebuilding

@@ -104,8 +104,10 @@ steps for adding a page. Corpus audits follow `docs/corpus-audit.md`.
   `tests/render/`; after an intended rendering change, refresh them with
   `UPDATE=1 tests/render.sh build/tam` and read the diff before committing.
   Corpus pages have no snapshots.
-- `make corpus` always rechecks pages and Git metadata, preserving unchanged
-  outputs. `make corpus-and-test` rebuilds first, then runs the corpus checks.
+- `make corpus` hashes inputs and reuses unchanged page summaries, preserving
+  unchanged outputs. `make corpus-check` is the fast editing check, and
+  `make preview PAGE=…` opens a source page with an existing reader.
+  `CORPUS_CACHE=0` bypasses cached successes. `make corpus-and-test` rebuilds first, then runs the corpus checks.
   After committing pages, rerun `make corpus` and commit any changed indexes:
   the index records each page's commit history, so it is one commit behind
   until that follow-up commit.

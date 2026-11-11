@@ -400,10 +400,14 @@ def check_build_inputs(root):
     disk_c = sorted(f"src/{p.name}" for p in src_dir.glob("*.c")) if src_dir.is_dir() else []
     disk_h = sorted(f"src/{p.name}" for p in src_dir.glob("*.h")) if src_dir.is_dir() else []
 
+    generated_headers = any("-MMD" in line and "-MP" in line for line in mk_lines) and any(
+        re.match(r"^-include\s+\$\(OBJS:\.o=\.d\)", line) for line in mk_lines)
     for var_name, disk_files, glob_desc in (
         ("SRC", disk_c, "src/*.c"),
         ("DEPS", disk_h, "src/*.h"),
     ):
+        if var_name == "DEPS" and generated_headers:
+            continue  # The compiler discovers transitive header dependencies.
         line_no, listed = parse_makefile_var(mk_lines, var_name)
         if line_no is None:
             findings.append(

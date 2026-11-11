@@ -15,6 +15,7 @@ Runs the ten-step workflow defined in docs/plans/dev-loop.md (TCK11):
 """
 
 import argparse
+import builtins
 from datetime import datetime, timezone
 import json
 import os
@@ -24,6 +25,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import time
 
 GENERATED_EXACT = frozenset({
     "knowledge/index.tsv",
@@ -52,19 +54,49 @@ CATEGORIES = (
 )
 
 
+WORK_SECONDS = 0.0
+NETWORK_SECONDS = 0.0
+PROMPT_SECONDS = 0.0
+
+
 class DevError(Exception):
     """Stops the developer loop with a plain error message."""
 
 
 def clean_make_env(extra=None):
     env = dict(os.environ)
-    for key in ("MAKEFLAGS", "MFLAGS", "MAKELEVEL"):
+    for key in ("MAKEFLAGS", "MFLAGS", "MAKELEVEL", "SKIP_COVERAGE_CHECK", "SKIP_UNIT_TESTS"):
         env.pop(key, None)
     if extra:
         env.update(extra)
     return env
 
 
+def read_answer(message):
+    global PROMPT_SECONDS
+    start = time.perf_counter()
+    try:
+        return builtins.input(message)
+    finally:
+        PROMPT_SECONDS += time.perf_counter() - start
+
+
+def measure_work(fn):
+    def measured(*args, **kwargs):
+        global WORK_SECONDS, NETWORK_SECONDS
+        start = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            seconds = time.perf_counter() - start
+            if fn.__name__ == "run_git" and len(args) > 1 and args[1] in {"push", "fetch", "ls-remote"}:
+                NETWORK_SECONDS += seconds
+            else:
+                WORK_SECONDS += seconds
+    return measured
+
+
+@measure_work
 def run_git(root, *args, check=True):
     res = subprocess.run(
         ["git", "-C", str(root), *args],
@@ -78,6 +110,7 @@ def run_git(root, *args, check=True):
     return res
 
 
+@measure_work
 def run_make(root, *args, stream=False):
     cmd = ["make", "-C", str(root), "--no-print-directory", *args]
     env = clean_make_env()
@@ -375,13 +408,9 @@ def step_preflight(root, dry_run=False):
         if marker.exists():
             raise DevError(f"{op_name} in progress ({marker.name} exists).")
 
-    libtam_res = run_make(root, "libtam-check")
-    if libtam_res.returncode != 0:
-        raise DevError(f"make libtam-check failed:\n{libtam_res.stdout.strip()}")
-
     if shutil.which("tam-work") is None:
         raise DevError("tam-work not found on PATH.")
-    print("Preflight ok: on branch develop, libtam and tam-work ready.")
+    print("Preflight ok: on branch develop, tam-work ready.")
 
 
 # ---------------------------------------------------------------------------
@@ -488,7 +517,7 @@ def step_collect_changes(root, claim_state, dry_run=False, changes=None):
 
     while True:
         try:
-            ans = input("[c]ontinue, [d]iff, [q]uit [c]: ").strip().lower()
+            ans = read_answer("[c]ontinue, [d]iff, [q]uit [c]: ").strip().lower()
         except EOFError as exc:
             raise DevError("unexpected EOF while reading prompt.") from exc
         if ans in ("", "c", "continue"):
@@ -569,7 +598,7 @@ def prompt_bump_choice(lane_label, current_ver, patch_ver, minor_ver):
             f"{lane_label} version ({current_ver} -> patch {patch_ver} or minor {minor_ver}) "
             f"[p]atch (default) / [m]inor: "
         )
-        ans = input(prompt).strip().lower()
+        ans = read_answer(prompt).strip().lower()
         if ans in ("", "p", "patch"):
             return "patch", patch_ver
         if ans in ("m", "minor"):
@@ -586,7 +615,7 @@ def prompt_coverage_gap_check():
     """
     while True:
         try:
-            ans = input("Run the component coverage gap check? [y/N]: ").strip().lower()
+            ans = read_answer("Run the component coverage gap check? [y/N]: ").strip().lower()
         except EOFError as exc:
             raise DevError("unexpected EOF while reading prompt.") from exc
         if ans in ("", "n", "no"):
@@ -604,7 +633,7 @@ def prompt_unit_tests():
     """
     while True:
         try:
-            ans = input("Run tooling unit tests (test_build_index, etc.)? [y/N]: ").strip().lower()
+            ans = read_answer("Run tooling unit tests (test_build_index, etc.)? [y/N]: ").strip().lower()
         except EOFError as exc:
             raise DevError("unexpected EOF while reading prompt.") from exc
         if ans in ("", "n", "no"):
@@ -708,7 +737,7 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
         print("No corpus or command changes; version files unchanged.")
         if not dry_run:
             while not result["summary"]:
-                result["summary"] = input("One-line summary: ").strip()
+                result["summary"] = read_answer("One-line summary: ").strip()
         return result
 
     already_bumped = []  # (version, kind) bumped by an earlier, failed run
@@ -768,7 +797,7 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
 
     if need_corpus_bump or need_cmd_bump or not result["summary"]:
         while not result["summary"]:
-            result["summary"] = input("One-line summary: ").strip()
+            result["summary"] = read_answer("One-line summary: ").strip()
 
     edited_files = []
     texts = {}
@@ -877,7 +906,7 @@ def is_corpus_only_change(changes):
 def step_build_and_test(root, changes):
     print("== 5. Build and test ==")
     is_corpus_only = is_corpus_only_change(changes)
-    target = "corpus-and-test" if is_corpus_only else "test"
+    target = "corpus-check" if is_corpus_only else "test"
 
     extra_args = []
     if prompt_coverage_gap_check():
@@ -886,9 +915,10 @@ def step_build_and_test(root, changes):
         print("Skipping the component coverage gap check for this run.")
         extra_args.append("SKIP_COVERAGE_CHECK=1")
 
+    run_tool_tests = False
     if is_corpus_only:
         if prompt_unit_tests():
-            pass
+            run_tool_tests = True
         else:
             print("Skipping tooling unit tests for this corpus-only run.")
             extra_args.append("SKIP_UNIT_TESTS=1")
@@ -902,6 +932,14 @@ def step_build_and_test(root, changes):
         print()
         print("\n".join(explain_test_failure(res.stdout, changes)))
         raise DevError(f"make {target} failed; version edits remain in the working tree.")
+    if is_corpus_only:
+        if run_tool_tests:
+            tools_res = run_make(root, "corpus-tool-tests", stream=True)
+            if tools_res.returncode:
+                raise DevError("corpus tooling tests failed")
+        repo_res = run_make(root, "check-repo", stream=True)
+        if repo_res.returncode:
+            raise DevError("repository consistency check failed")
     print(f"make {target} passed.")
 
 
@@ -928,13 +966,13 @@ def step_commit(root, changes, version_info, committed):
         version_info.get("command_version"),
     )
     if default_subject:
-        subject = input(f"Commit subject [{default_subject}]: ").strip() or default_subject
+        subject = read_answer(f"Commit subject [{default_subject}]: ").strip() or default_subject
     else:
         subject = ""
         while not subject:
-            subject = input("Commit subject: ").strip()
+            subject = read_answer("Commit subject: ").strip()
 
-    body = input("Commit body (optional): ").strip()
+    body = read_answer("Commit body (optional): ").strip()
 
     untracked_to_add = [p for p in changes["paths"] if p in changes["untracked"]]
     if untracked_to_add:
@@ -986,7 +1024,7 @@ def step_index_followup(root, main_sha, claim_state, committed):
         committed.append((idx_sha, idx_subject))
         print(f"Committed {idx_sha}: {idx_subject}")
 
-    res2 = run_make(root, "corpus")
+    res2 = run_make(root, "corpus-identity")
     if res2.returncode != 0:
         raise DevError(f"second make corpus failed:\n{res2.stdout.strip()}")
 
@@ -1005,7 +1043,7 @@ def step_install(root, changes=None):
 
     default_raw = "~/.local/dev"
     default_expanded = os.path.expanduser(default_raw)
-    raw_prefix = input(f"Install prefix [{default_raw}]: ").strip() or default_raw
+    raw_prefix = read_answer(f"Install prefix [{default_raw}]: ").strip() or default_raw
     expanded_prefix = os.path.expanduser(raw_prefix)
     resolved_prefix = Path(expanded_prefix).resolve()
 
@@ -1013,20 +1051,16 @@ def step_install(root, changes=None):
         raise DevError("refusing to install to /usr/local.")
 
     if resolved_prefix != Path(default_expanded).resolve():
-        confirm = input(
+        confirm = read_answer(
             f"Install to non-default prefix '{expanded_prefix}'? Type 'yes' to confirm: "
         ).strip()
         if confirm != "yes":
             raise DevError("non-default install prefix was not confirmed with 'yes'.")
 
-    target = (
-        "install-corpus"
-        if (is_corpus_only and (Path(expanded_prefix) / "bin" / "tam").is_file())
-        else "install"
-    )
+    if is_corpus_only and not (Path(expanded_prefix) / "bin" / "tam").is_file():
+        raise DevError("corpus-only install needs an existing command at the selected prefix; build/install the command separately")
+    target = "install-corpus" if is_corpus_only else "install"
     inst_res = run_make(root, target, f"PREFIX={expanded_prefix}")
-    if inst_res.returncode != 0 and target == "install-corpus":
-        inst_res = run_make(root, "install", f"PREFIX={expanded_prefix}")
     if inst_res.returncode != 0:
         raise DevError(f"make {target} PREFIX={expanded_prefix} failed:\n{inst_res.stdout.strip()}")
 
@@ -1075,7 +1109,7 @@ def step_push(root):
         print(upstream_commits)
         return "not pushed (upstream has new commits)"
 
-    ans = input("Push develop? [y/N]: ").strip().lower()
+    ans = read_answer("Push develop? [y/N]: ").strip().lower()
     if ans in ("y", "yes"):
         run_git(root, "push", "origin", "develop")
         print("Pushed develop to origin.")
@@ -1113,6 +1147,9 @@ def format_commit_status(committed):
 
 def main(root=None, dry_run=False):
     root = Path(root).resolve() if root else Path(__file__).resolve().parent.parent
+    global WORK_SECONDS, NETWORK_SECONDS, PROMPT_SECONDS
+    WORK_SECONDS = NETWORK_SECONDS = PROMPT_SECONDS = 0.0
+    started = time.perf_counter()
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     claim_state = {
         "owner": "fred",
@@ -1154,6 +1191,10 @@ def main(root=None, dry_run=False):
         print(f"Error: {err} {format_commit_status(committed)}", file=sys.stderr)
         return 1
     finally:
+        elapsed = time.perf_counter() - started
+        print(f"Developer cycle: {elapsed:.2f}s wall, "
+              f"{max(0, elapsed - PROMPT_SECONDS - NETWORK_SECONDS):.2f}s local automated work, "
+              f"{PROMPT_SECONDS:.2f}s prompts, {NETWORK_SECONDS:.2f}s network.")
         release_claim(root, claim_state, note="make dev cleanup")
         signal.signal(signal.SIGINT, old_sigint)
         signal.signal(signal.SIGTERM, old_sigterm)

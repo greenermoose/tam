@@ -246,11 +246,13 @@ class BuildIndex(unittest.TestCase):
         shutil.copyfile(MAKEFILE, root / "Makefile")
         (root / "tools").mkdir()
         shutil.copyfile(BUILDER, root / "tools/build-index.py")
+        for name in ("corpus_pipeline.py", "build-tldr-index.py"):
+            shutil.copyfile(BUILDER.parent / name, root / "tools" / name)
         # `make corpus` also regenerates component-coverage.json (plan 26 W1).
         shutil.copyfile(
             COVERAGE_TOOL, root / "tools/report-component-coverage.py"
         )
-        (root / ".gitignore").write_text("knowledge/.build_id\n")
+        (root / ".gitignore").write_text("knowledge/.build_id\nbuild/\n__pycache__/\n")
         return root
 
     def make(self, root, *args):
@@ -390,12 +392,12 @@ class BuildIndex(unittest.TestCase):
         root = self.make_fixture()
         targets = [f"knowledge/{name}" for name in INDEXES]
         result = self.make_ok(root, "-j8", "corpus", *targets)
-        self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
+        self.assertEqual(result.stdout.count("indexes current."), 1)
         for target in targets:
             (root / target).unlink()
             result = self.make_ok(root, target)
             self.assertTrue((root / target).is_file())
-            self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
+            self.assertEqual(result.stdout.count("indexes current."), 1)
 
     def test_invalid_metadata_fails_make_without_changing_outputs(self):
         root = self.make_fixture()
@@ -418,35 +420,35 @@ class BuildIndex(unittest.TestCase):
             "test_lint_corpus.py",
             "test_build_index.py",
             "test_component_coverage.py",
+            "test_corpus_pipeline.py",
         ):
             (root / "tests" / name).write_text(
                 "from pathlib import Path\nimport unittest\n"
                 "class Check(unittest.TestCase):\n"
                 "    def test_generated_index_exists(self):\n"
                 "        self.assertTrue(Path('knowledge/index.json').is_file())\n")
-        (root / "tools/lint-corpus.py").write_text(
-            "from pathlib import Path\n"
-            "assert Path('knowledge/index.json').is_file()\n"
-            "print('lint ran after generation')\n")
+        shutil.copyfile(BUILDER.parent / "lint-corpus.py", root / "tools/lint-corpus.py")
+        (root / "src").mkdir()
+        for name in ("render.c", "tam.c", "install.c"):
+            shutil.copyfile(BUILDER.parent.parent / "src" / name, root / "src" / name)
+        reader = root / "reader"
+        reader.write_text('#!/bin/sh\nprintf "Page\\nRev 1 Last updated 2026-11-11 12:00\\n"\n')
+        reader.chmod(0o755)
         guide = root / "tests/guide.sh"
         guide.write_text("#!/bin/sh\nset -eu\ntest -f knowledge/index.tsv\necho 'guide checked'\n")
         guide.chmod(0o755)
         (root / "tools/check-repo.py").write_text("print('repo checked')\n")
-        result = self.make_ok(root, "-j8", "-o", "command", "corpus", "corpus-and-test")
-        self.assertEqual(result.stdout.count("Generated index.tsv"), 1)
-        self.assertLess(result.stdout.index("Generated index.tsv"),
-                        result.stdout.index("lint ran after generation"))
-        self.assertIn("guide checked", result.stdout)
+        result = self.make_ok(root, "-j8", "corpus-and-test", f"TAM_READER={reader}", "SKIP_COVERAGE_CHECK=1")
+        self.assertIn("checks passed", result.stdout)
         self.assertIn("repo checked", result.stdout)
-        self.assertLess(result.stdout.index("Generated index.tsv"),
-                        result.stdout.index("repo checked"))
+        self.assertLess(result.stdout.index("checks passed"), result.stdout.index("repo checked"))
         result = self.make(root, "test-corpus")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("No rule to make target", result.stderr)
 
         path = root / "knowledge/use/index.html"
         path.write_text(path.read_text().replace('content="index.html"', 'content="missing.html"'))
-        result = self.make(root, "-o", "command", "corpus-and-test")
+        result = self.make(root, "corpus-and-test", f"TAM_READER={reader}", "SKIP_COVERAGE_CHECK=1")
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn("lint ran after generation", result.stdout)
 

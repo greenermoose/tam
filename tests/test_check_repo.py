@@ -252,6 +252,15 @@ class CheckRepoTest(unittest.TestCase):
         self.assert_finding_details(findings2[0], "Makefile", 3, "Build inputs")
         self.assertIn("src/render.h", findings2[0])
 
+    def test_compiler_generated_headers_replace_the_blanket_list(self):
+        root = self.make_clean_fixture()
+        make = root / "Makefile"
+        make.write_text(make.read_text().replace("DEPS  := src/version.h src/render.h", "") +
+                        "\ncompile:\n\t$(CC) -MMD -MP -c $< -o $@\n-include $(OBJS:.o=.d)\n")
+        self.assertEqual(check_mod.check_build_inputs(root), [])
+        make.write_text(make.read_text().replace("-include $(OBJS:.o=.d)", ""))
+        self.assertTrue(check_mod.check_build_inputs(root))
+
     def test_plan_index_drift_fails(self):
         # Unindexed plan file on disk
         root = self.make_clean_fixture()

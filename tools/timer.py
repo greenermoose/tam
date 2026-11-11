@@ -79,7 +79,14 @@ def main():
         print(f"Usage: {sys.argv[0]} run <label> <cmd...> | summary | reset")
         sys.exit(1)
     action = sys.argv[1]
-    if action == "run":
+    if action == "session":
+        reset_timer()
+        started = time.perf_counter()
+        result = subprocess.run(sys.argv[2:])
+        print_summary()
+        print(f"Automated build/check wall time: {time.perf_counter() - started:.2f}s", flush=True)
+        sys.exit(result.returncode)
+    elif action == "run":
         if len(sys.argv) < 4:
             print(f"Usage: {sys.argv[0]} run <label> <cmd...>")
             sys.exit(1)

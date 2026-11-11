@@ -53,6 +53,11 @@ and [pager quick keys, address display and status row](docs/plans/pager-quick-ke
 (TCK15–TCK19, command 0.34.0 / corpus 0.35.1). Disposable acceptance builds and
 live metadata checks have standing developer authorization.
 
+Build tooling: the approved [incremental corpus build](docs/plans/incremental-corpus-build.md)
+delivers a separate fast check/preview loop, an on-demand cache and precise
+C dependencies. Source verification is complete; component versions are unchanged.
+The existing `tam-launch-journal` coverage gap remains separate.
+
 Approved next outcome: [learning levels, goal paths and self-quizzes](docs/plans/learning-levels.md)
 (TCK20–TCK25). TCK20, the teaching contract in
 [`docs/corpus-pedagogy.md`](docs/corpus-pedagogy.md) and its templates, and TCK21,

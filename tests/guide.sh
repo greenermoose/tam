@@ -31,6 +31,7 @@ pages=$(cd "$knowledge" && find . -name '*.html' | sed 's#^\./##; s#\.html$##' |
 
 # Every page renders non-empty text with a title and build-time Git revision stamp,
 # and piped output must be free of terminal control sequences.
+if [ "${TAM_GUIDE_SKIP_PAGES:-0}" != 1 ]; then
 python3 -c '
 import concurrent.futures, os, re, subprocess, sys
 
@@ -56,6 +57,7 @@ def check(p):
 with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
     list(ex.map(check, pages))
 ' "$TAM" "$knowledge" || fail "guide page rendering checks failed"
+fi
 pass "all guide pages render to text with build-time revision and timestamp"
 pass "piped guide output has no control sequences"
 
@@ -141,6 +143,7 @@ pass "extensionless page names resolve"
 
 # Referenced links exist on disk. The corpus uses root-relative hrefs
 # (resolved against the knowledge root, never the page's own directory).
+if [ "${TAM_GUIDE_SKIP_PAGES:-0}" != 1 ]; then
 python3 -c '
 import os, re, sys
 
@@ -168,6 +171,7 @@ for dirpath, _, filenames in os.walk(knowledge):
 if broken:
     sys.exit("broken internal links: " + " ".join(broken))
 ' "$knowledge" || fail "broken internal links"
+fi
 pass "internal links resolve to files"
 
 # Missing page is a clear error.

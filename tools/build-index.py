@@ -246,8 +246,9 @@ def git_page_revision(root, path, rel_path, git_cache=None):
     return rev, updated
 
 
-def parse_page(root, path, rel_path, errors, git_cache=None):
-    text = path.read_text(encoding="utf-8", errors="replace")
+def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
+    if text is None:
+        text = path.read_text(encoding="utf-8", errors="replace")
 
     # Title
     m_title = re.search(r'<title>(.*?)</title>', text, re.I | re.S)
@@ -392,13 +393,11 @@ def physical_parent(rel, pages):
     return section_index if section_index in pages else "index.html"
 
 
-def check_hierarchy(knowledge_dir, entries, version, errors):
-    pages = {}
-    for html_file in sorted(knowledge_dir.rglob("*.html")):
-        pages[html_file.relative_to(knowledge_dir).as_posix()] = \
-            html_file.read_text(encoding="utf-8")
-
-    h1 = {rel: page_h1(text) for rel, text in pages.items()}
+def check_hierarchy(knowledge_dir, entries, version, errors, pages=None):
+    if pages is None:
+        pages = {p.relative_to(knowledge_dir).as_posix():
+                 {"crumbs": breadcrumb_parts(p.read_text(encoding="utf-8"))}
+                 for p in sorted(knowledge_dir.rglob("*.html"))}
     entries_by_path = {entry["path"]: entry for entry in entries}
     require_explicit_parent = tuple(int(part) for part in version.split(".")[:2]) >= (0, 31)
     parents = {}
@@ -452,8 +451,8 @@ def check_hierarchy(knowledge_dir, entries, version, errors):
         if require_explicit_parent and home_track and entry["track"] != home_track:
             errors.append(f"{rel}: track {entry['track']!r} does not match parent part {home_track!r}")
 
-    for rel, text in pages.items():
-        parts = breadcrumb_parts(text)
+    for rel, summary in pages.items():
+        parts = summary["crumbs"]
         if rel == "index.html":
             if parts is not None:
                 errors.append(f"{rel}: the guide index is the root and must not carry a breadcrumb")
@@ -534,7 +533,7 @@ class LearningHTML(HTMLParser):
             break
 
 
-def learning_metadata(knowledge, entries, errors):
+def learning_metadata(knowledge, entries, errors, parsed=None):
     """Optional additive metadata: legacy corpora need no registry or kinds."""
     registry_path = knowledge / "learn/skills/skills.json"
     cells = []
@@ -566,8 +565,9 @@ def learning_metadata(knowledge, entries, errors):
             cells = []
             enforce_tracks = []
     known = {cell["id"]: cell for cell in cells}
-    parsed = {e["path"]: LearningHTML((knowledge / e["path"]).read_text())
-              for e in entries}
+    if parsed is None:
+        parsed = {e["path"]: LearningHTML((knowledge / e["path"]).read_text())
+                  for e in entries}
     bibliography = {}
     for path, document in parsed.items():
         if not path.startswith("learn/bibliography/"):
@@ -669,7 +669,39 @@ def learning_metadata(knowledge, entries, errors):
             "unmapped_pages": sorted(e["path"] for e in entries if not e["skills"])}
 
 
-def main(root=None):
+def index_outputs(entries, coverage):
+    # Sort entries by topic
+    entries.sort(key=lambda e: e["topic"])
+
+    # Keep the established TSV projection byte-compatible for older readers.
+    # Parent is additive in JSON and in a separate compact TSV projection.
+    rows = ["topic\tpath\ttitle\tsummary\tkeywords\ttrack\tprereqs\trev\tupdated\n"]
+    parents = ["path\tparent\n"]
+    kinds = ["path\tkind\n"]
+    skills = ["path\tskills\n"]
+    for e in entries:
+        kws = ", ".join(e["keywords"])
+        prereqs = ", ".join(e["prereqs"])
+        rows.append(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
+                    f"{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
+        parents.append(f"{e['path']}\t{e['parent'] or ''}\n")
+        if e['kind']:
+            kinds.append(f"{e['path']}\t{e['kind']}\n")
+        if e['skills']:
+            skills.append(f"{e['path']}\t{','.join(e['skills'])}\n")
+
+    outputs = {
+        "index.tsv": "".join(rows),
+        "index.parents.tsv": "".join(parents),
+        "index.kinds.tsv": "".join(kinds),
+        "index.skills.tsv": "".join(skills),
+        "coverage.json": json.dumps(coverage, indent=2) + "\n",
+        "index.json": json.dumps(entries, indent=2) + "\n",
+    }
+    return outputs
+
+
+def reference_main(root=None):
     root = Path(root).resolve() if root else Path(__file__).resolve().parent.parent
     knowledge_dir = root / "knowledge"
 
@@ -708,34 +740,7 @@ def main(root=None):
             print(f"Error: {message}", file=sys.stderr)
         return 1
 
-    # Sort entries by topic
-    entries.sort(key=lambda e: e["topic"])
-
-    # Keep the established TSV projection byte-compatible for older readers.
-    # Parent is additive in JSON and in a separate compact TSV projection.
-    rows = ["topic\tpath\ttitle\tsummary\tkeywords\ttrack\tprereqs\trev\tupdated\n"]
-    parents = ["path\tparent\n"]
-    kinds = ["path\tkind\n"]
-    skills = ["path\tskills\n"]
-    for e in entries:
-        kws = ", ".join(e["keywords"])
-        prereqs = ", ".join(e["prereqs"])
-        rows.append(f"{e['topic']}\t{e['path']}\t{e['title']}\t{e['summary']}\t{kws}\t"
-                    f"{e['track']}\t{prereqs}\t{e['rev']}\t{e['updated']}\n")
-        parents.append(f"{e['path']}\t{e['parent'] or ''}\n")
-        if e['kind']:
-            kinds.append(f"{e['path']}\t{e['kind']}\n")
-        if e['skills']:
-            skills.append(f"{e['path']}\t{','.join(e['skills'])}\n")
-
-    outputs = {
-        "index.tsv": "".join(rows),
-        "index.parents.tsv": "".join(parents),
-        "index.kinds.tsv": "".join(kinds),
-        "index.skills.tsv": "".join(skills),
-        "coverage.json": json.dumps(coverage, indent=2) + "\n",
-        "index.json": json.dumps(entries, indent=2) + "\n",
-    }
+    outputs = index_outputs(entries, coverage)
     for name, content in outputs.items():
         write_if_changed(knowledge_dir / name, content)
 
@@ -774,6 +779,18 @@ def main(root=None):
     if coverage["warnings"]:
         print(f"Learning warnings: {len(coverage['warnings'])} level sections need migration; see coverage.json.")
     return 0
+
+
+def main(root=None):
+    # Isolated legacy fixtures copy only this file; keep their uncached oracle.
+    if not Path(__file__).with_name("corpus_pipeline.py").is_file():
+        return reference_main(root)
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("corpus_pipeline", Path(__file__).with_name("corpus_pipeline.py"))
+    pipeline = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pipeline)
+    run = pipeline.run
+    return run(root, mode="index")
 
 
 if __name__ == "__main__":

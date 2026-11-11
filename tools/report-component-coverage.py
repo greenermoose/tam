@@ -53,7 +53,7 @@ def inventory(product: Path) -> list[dict]:
                 rows.append({
                     "id": path.name,
                     "kind": "command",
-                    "source": str(path.relative_to(product)),
+                    "source": os.path.relpath(path, product),
                 })
     plugins = product / "desktop" / "plugins"
     if plugins.is_dir():
@@ -62,7 +62,7 @@ def inventory(product: Path) -> list[dict]:
                 rows.append({
                     "id": path.name,
                     "kind": "plugin",
-                    "source": str(path.relative_to(product)),
+                    "source": os.path.relpath(path, product),
                 })
     bindings = (
         product / "desktop" / "session" / "hypr" / "tamlinux" / "bindings"
@@ -72,7 +72,7 @@ def inventory(product: Path) -> list[dict]:
             rows.append({
                 "id": path.name,
                 "kind": "bindings",
-                "source": str(path.relative_to(product)),
+                "source": os.path.relpath(path, product),
             })
     return rows
 
@@ -151,13 +151,16 @@ def pages_mentioning(knowledge: Path, ident: str, blob: str | None = None) -> li
     return hits
 
 
-def build_report(tam: Path, product: Path | None) -> dict:
+def build_report(tam: Path, product: Path | None, pages=None, components=None, comp_hits=None) -> dict:
     exemptions_path = tam / "tools" / "component-coverage-exemptions.tsv"
     exemptions = load_exemptions(exemptions_path)
     knowledge = tam / "knowledge"
-    components = inventory(product) if product is not None else []
-    pages = load_corpus_pages(knowledge) if components else []
-    comp_hits = match_components(pages, components)
+    if components is None:
+        components = inventory(product) if product is not None else []
+    if pages is None:
+        pages = load_corpus_pages(knowledge) if components else []
+    if comp_hits is None:
+        comp_hits = match_components(pages, components)
     rows = []
     for item in components:
         matched_pages = comp_hits.get(item["id"], [])

@@ -13,7 +13,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 DEV_SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "dev.py"
 BUILDER = Path(__file__).resolve().parents[1] / "tools" / "build-index.py"
@@ -96,12 +96,21 @@ test:
 	@if [ -n "$(SKIP_COVERAGE_CHECK)" ]; then echo skip > build/coverage_choice; else echo run > build/coverage_choice; fi
 	@echo "fixture tests ok"
 
-corpus-and-test:
+corpus-check:
 	@if [ -f fail_test ]; then seq 1 50; exit 1; fi
 	@mkdir -p build
 	@if [ -n "$(SKIP_COVERAGE_CHECK)" ]; then echo skip > build/coverage_choice; else echo run > build/coverage_choice; fi
 	@if [ -n "$(SKIP_UNIT_TESTS)" ]; then echo skip > build/unit_tests_choice; else echo run > build/unit_tests_choice; fi
 	@echo "fixture tests ok"
+
+corpus-identity:
+	@python3 tools/build-index.py
+
+check-repo corpus-tool-tests:
+	@true
+
+install-corpus:
+	@true
 
 install: command corpus
 	@mkdir -p $(BINDIR)
@@ -140,6 +149,9 @@ class DevLoopTest(unittest.TestCase):
         home = workspace / "home"
         dev_prefix = home / ".local" / "dev"
         (dev_prefix / "bin").mkdir(parents=True)
+        installed = dev_prefix / "bin/tam"
+        installed.write_text('#!/bin/sh\necho "tam command 0.32.0"\n')
+        installed.chmod(0o755)
 
         subprocess.run(["git", "init", "--bare", "-q", str(origin)], check=True)
         root.mkdir()
@@ -608,6 +620,7 @@ class DevLoopTest(unittest.TestCase):
         )
         custom_prefix = root.parent / "custom-prefix"
         (custom_prefix / "bin").mkdir(parents=True)
+        shutil.copy(Path(env["HOME"]) / ".local/dev/bin/tam", custom_prefix / "bin/tam")
         custom_env = {
             **env,
             "PATH": f"{custom_prefix / 'bin'}:{env['PATH']}",
@@ -740,18 +753,18 @@ class DevLoopTest(unittest.TestCase):
                 patch.object(dev_mod, "run_make", return_value=completed) as run_mock, \
                 redirect_stdout(io.StringIO()):
             dev_mod.step_build_and_test(root, changes)
-        run_mock.assert_called_once_with(
-            root, "corpus-and-test", "SKIP_COVERAGE_CHECK=1", "SKIP_UNIT_TESTS=1", stream=True
-        )
+        self.assertEqual(run_mock.call_args_list, [
+            call(root, "corpus-check", "SKIP_COVERAGE_CHECK=1", "SKIP_UNIT_TESTS=1", stream=True),
+            call(root, "check-repo", stream=True)])
 
         # Unit tests explicitly requested ('y')
         with patch("builtins.input", side_effect=["n", "y"]), \
                 patch.object(dev_mod, "run_make", return_value=completed) as run_mock, \
                 redirect_stdout(io.StringIO()):
             dev_mod.step_build_and_test(root, changes)
-        run_mock.assert_called_once_with(
-            root, "corpus-and-test", "SKIP_COVERAGE_CHECK=1", stream=True
-        )
+        self.assertEqual(run_mock.call_args_list, [
+            call(root, "corpus-check", "SKIP_COVERAGE_CHECK=1", stream=True),
+            call(root, "corpus-tool-tests", stream=True), call(root, "check-repo", stream=True)])
 
     def test_component_coverage_is_index_companion_output(self):
         self.assertIn("knowledge/component-coverage.json", dev_mod.GENERATED_EXACT)

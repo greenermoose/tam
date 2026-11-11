@@ -141,6 +141,30 @@ Tamlinux product software reaches a session only through a recorded
 system installation is not a deployment route. The owning package repository
 consumes this command and its knowledge corpus as pinned inputs.
 
+### Fast corpus editing
+
+The command and corpus build independently. After editing HTML, use:
+
+```sh
+make corpus-check
+make preview PAGE=use/index
+```
+
+`corpus-check` incrementally builds indexes, checks content and links, and
+renders changed pages. `preview` builds indexes and opens the requested page.
+Both use source pages directly without committing, installing or pushing.
+Select an existing reader with `TAM_READER=/path/to/tam`; otherwise they use
+`build/tam`, then `tam` on PATH. Build a missing reader separately with
+`make command`. Metadata-only `make corpus` needs no compiler or libtam.
+
+The disposable cache is under `build/corpus/`. Inputs are content-hashed;
+restoring an edited file's timestamp cannot hide a change. Use
+`make corpus-and-test` for complete uncached corpus checks, or set
+`CORPUS_CACHE=0` to bypass caching on any corpus build/check. Full `make check`
+includes the C command and all integrated checks. `make bench-corpus` reports
+five-run medians and slowest times in temporary fixtures; it leaves source
+pages and installed files alone.
+
 ### Editing and installing a development build
 
 After editing `knowledge/` pages or `src/` files in this checkout, run the
@@ -153,7 +177,7 @@ make dev
 `make dev` collects uncommitted changes outside other sessions' active
 `tam-work` claims, proposes the next version bump for each changed lane, asks
 whether to run the component coverage gap check (the default answer skips it),
-runs `make test`, commits the changes and any refreshed corpus indexes, installs
+runs lane-appropriate checks, commits the changes and any refreshed corpus indexes, installs
 the development build under `~/.local/dev`, and asks before pushing `develop`.
 Use `make dev DRY_RUN=1` to preview the change list and proposed versions
 without writing, building or committing anything.

@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-11: Codex CLI `0.167.1` (`gpt-6.1-sol`) implements independent incremental corpus/C builds and a fast check/preview loop; tooling only. [Record](docs/ai/2026-11-11-tam-incremental-build.md).
+
 2026-11-11: Antigravity CLI `1.5.5` (`gemini-3.8-flash-high`) rebinds home-row keys to arrow synonyms, moves attention column to brackets [ ], and rebinds g to Guide index in command 0.54.0 / corpus 0.78.15. [Record](docs/ai/2026-11-11-tam-pager-keybindings.md).
 
 2026-11-11: Codex CLI `0.167.1` (`gpt-6.1-sol`) — command and corpus defect tracker. [Record](docs/ai/2026-11-11-defect-tracker.md).
