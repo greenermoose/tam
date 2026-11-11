@@ -42,5 +42,5 @@
 - `python3 -m unittest discover -s tests -p 'test_install_guard.py' -q`: all 12 tests pass.
 - `python3 -m unittest discover -s tests -p 'test_check_repo.py' -q`: all 11 tests pass.
 - `python3 tools/check-repo.py`: passes with 0 findings.
-- `make -C /home/fred/Code/tamlinux/tam test-command`: all command integration, upgrade, renderer golden, and consistency checks pass.
-- `make -C /home/fred/Code/tamlinux/tam corpus-and-test SKIP_COVERAGE_CHECK=1 SKIP_UNIT_TESTS=1`: live corpus checks pass in 2.01s.
+- `make test-command` from the repository: all command integration, upgrade, renderer golden, and consistency checks pass.
+- `make corpus-and-test SKIP_COVERAGE_CHECK=1 SKIP_UNIT_TESTS=1` from the repository: live corpus checks pass in 2.01s.
