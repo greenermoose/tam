@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-10
 **Owner:** Fred
 **Current Command Version:** `0.52.1`.
-**Current Corpus Version:** `0.78.8`.
+**Current Corpus Version:** `0.78.9`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.52.1 / 0.78.8 | Attention line link activation/deactivation and Right Arrow jump/follow/next page navigation; Line Lb lens display (`0 Showing all text`); bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
+| `develop` | 0.52.1 / 0.78.9 | Attention line link activation/deactivation and Right Arrow jump/follow/next page navigation; Line Lb lens display (`0 Showing all text`); bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -260,6 +260,7 @@ in that candidate, not here.
 | **0.78.6 corpus** | Welcome lens in aside | Done (2026-11-10) | Welcome lens in aside |
 | **0.78.7 corpus** | Welcome quiz about level lens | Done (2026-11-10) | Welcome quiz about level lens |
 | **0.78.8 corpus** | End welcome with have fun! | Done (2026-11-10) | End welcome with have fun! |
+| **0.78.9 corpus** | More about Fred | Done (2026-11-10) | More about Fred |
 
 ## 4. Deferred direction, without reserved versions
 
