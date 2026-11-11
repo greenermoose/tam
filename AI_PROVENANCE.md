@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-11: Codex CLI `0.167.1` (`gpt-6.1-sol`) — command and corpus defect tracker. [Record](docs/ai/2026-11-11-defect-tracker.md).
+
 2026-11-11: Codex CLI `0.167.0` (`gpt-6.1-sol`) integrates the bundle startup barrier in command 0.53.0. [Record](docs/ai/2026-11-11-bundle-startup-guard.md).
 
 2026-11-10: Antigravity CLI `1.5.5` (`gemini-3.8-flash`) decouples command build ID from corpus edits in `Makefile` and `tools/dev.py`, adds `make install-corpus`, and accelerates dev install for corpus edits; tooling only. [Session](docs/ai/2026-11-10-tam-decouple-command-build-id-from-corpus.md).

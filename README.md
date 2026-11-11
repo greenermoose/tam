@@ -198,3 +198,5 @@ authorized local workflow.
 
 GPL-3.0-or-later; see [LICENSE](LICENSE). AI-assisted work is recorded in
 [AI_PROVENANCE.md](AI_PROVENANCE.md).
+
+[Software defect tracker](bugs/README-bugs.md): report reproducible defects beside their source.
