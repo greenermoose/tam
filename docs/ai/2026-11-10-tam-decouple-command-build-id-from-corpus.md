@@ -6,7 +6,7 @@
 - **CLI Tool:** agy 1.5.5
 - **Model:** Gemini 3.8 Flash (High) (`gemini-3.8-flash`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** Pending
+- **Commits:** `ab77e14`
 - **Authorship:** The developer asked why there was a lag at install during `make dev` for corpus edits and why a Git commit was embedded into the binary, then directed a plan to resolve the lag using a hybrid of lane-scoped build revisions and targeted install. The AI tool updated `Makefile` to scope command build IDs to command sources, added an `install-corpus` target, updated `tools/dev.py` to skip command compilation and phony index regeneration during corpus-only installs, and added unit tests in `tests/test_dev.py`.
 - **Checked against:** `Makefile`, `tools/dev.py`, `tests/test_dev.py`, `tests/test_install_guard.py`, `tests/test_check_repo.py`, `docs/plans/development.md`, `docs/plans/upgrade.md`.
 
