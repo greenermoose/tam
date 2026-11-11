@@ -70,6 +70,13 @@ class InstallGuardTest(unittest.TestCase):
         self.assertIn("Only the regenerated corpus index changed", res.stderr)
         self.assertIn("knowledge/coverage.json", res.stderr)
 
+    def test_component_coverage_report_is_a_generated_index_output(self):
+        (self.root / "knowledge" / "component-coverage.json").write_text('{}\n')
+        res = self.guard()
+        self.assertNotEqual(res.returncode, 0)
+        self.assertIn("Only the regenerated corpus index changed", res.stderr)
+        self.assertIn("knowledge/component-coverage.json", res.stderr)
+
     def test_paths_outside_the_install_are_ignored(self):
         (self.root / "notes.md").write_text("scratch\n")
         self.assertEqual(self.guard().returncode, 0)

@@ -32,6 +32,7 @@ GENERATED_EXACT = frozenset({
     "knowledge/index.kinds.tsv",
     "knowledge/index.skills.tsv",
     "knowledge/coverage.json",
+    "knowledge/component-coverage.json",
     "knowledge/.build_id",
 })
 INDEX_PATHS = (
@@ -41,6 +42,7 @@ INDEX_PATHS = (
     "knowledge/index.kinds.tsv",
     "knowledge/index.skills.tsv",
     "knowledge/coverage.json",
+    "knowledge/component-coverage.json",
 )
 CATEGORIES = (
     "you edit",

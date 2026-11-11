@@ -101,7 +101,9 @@ with a plain message saying what was and was not committed.
    `finally` block and on SIGINT/SIGTERM.
 3. **Collect changes.** Parse `git status --porcelain=v1 -z --untracked-files=all`.
    Drop generated outputs (`knowledge/index.tsv`, `knowledge/index.json`,
-   `knowledge/index.parents.tsv`, `knowledge/.build_id`, `build/`,
+   `knowledge/index.parents.tsv`, `knowledge/index.kinds.tsv`,
+   `knowledge/index.skills.tsv`, `knowledge/coverage.json`,
+   `knowledge/component-coverage.json`, `knowledge/.build_id`, `build/`,
    `__pycache__/`). Drop paths at or under another session's claimed scope.
    Group the rest as corpus (`knowledge/`), command (`src/`) and other, print
    them with `git diff --stat`, and list the excluded paths with the claim
@@ -134,9 +136,10 @@ with a plain message saying what was and was not committed.
    `command Y`) and an optional body. `git add --` the untracked paths, then
    `git commit -m … -- <paths>`. This is the developer's own commit: no AI
    trailers.
-7. **Index follow-up.** Run `make corpus`. If any `knowledge/index.*` changed,
-   commit them alone as `Refresh corpus index revisions after <short sha>`.
-   Run `make corpus` again.
+7. **Index follow-up.** Run `make corpus`. If any index companion output
+   (`knowledge/index.*`, `knowledge/coverage.json`,
+   `knowledge/component-coverage.json`) changed, commit them alone as `Refresh
+   corpus index revisions after <short sha>`. Run `make corpus` again.
 8. **Install.** Run `make command` so the binary embeds the new commit. Prompt
    `Install prefix [~/.local/dev]:`; any other prefix needs typed `yes`, and
    `/usr/local` is refused. Run `make install PREFIX=<prefix>`, then report

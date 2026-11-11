@@ -305,6 +305,7 @@ class DevLoopTest(unittest.TestCase):
         (root / "README.md").write_text("# tam updated\n", encoding="utf-8")
         (root / "knowledge" / "index.tsv").write_text("dirty generated\n", encoding="utf-8")
         (root / "knowledge" / "coverage.json").write_text("{}\n", encoding="utf-8")
+        (root / "knowledge" / "component-coverage.json").write_text("{}\n", encoding="utf-8")
         (root / "knowledge" / "index.skills.tsv").write_text("path\tskills\n", encoding="utf-8")
         (root / "knowledge" / ".build_id").write_text("dirty-id\n", encoding="utf-8")
         (root / "build").mkdir(exist_ok=True)
@@ -328,6 +329,7 @@ class DevLoopTest(unittest.TestCase):
         self.assertIn("owner claude", res.stdout)
         self.assertNotIn("knowledge/index.tsv", res.stdout)
         self.assertNotIn("knowledge/coverage.json", res.stdout)
+        self.assertNotIn("knowledge/component-coverage.json", res.stdout)
         self.assertNotIn("knowledge/index.skills.tsv", res.stdout)
         self.assertNotIn("knowledge/.build_id", res.stdout)
         self.assertNotIn("build/tam", res.stdout)
@@ -656,6 +658,11 @@ class DevLoopTest(unittest.TestCase):
                 redirect_stdout(io.StringIO()):
             dev_mod.step_build_and_test(root, changes)
         run_mock.assert_called_once_with(root, "test", stream=True)
+
+    def test_component_coverage_is_index_companion_output(self):
+        self.assertIn("knowledge/component-coverage.json", dev_mod.GENERATED_EXACT)
+        self.assertIn("knowledge/component-coverage.json", dev_mod.INDEX_PATHS)
+        self.assertTrue(dev_mod.is_generated_path("knowledge/component-coverage.json"))
 
 
 class FailureExplanationTest(unittest.TestCase):
