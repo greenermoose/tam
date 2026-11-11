@@ -144,6 +144,26 @@ static void read_sync_reply(pager_t *st, int fd)
     }
 }
 
+static void pager_left_arrow(pager_t *st)
+{
+    if (!hide_fold_here(st)) go_back(st);
+}
+
+static void pager_right_arrow(pager_t *st)
+{
+    if (toggle_fold_here(st)) {
+        /* An answer on the attention line. */
+    } else if (hiding_line_here(st)) {
+        set_lens(st, '0');
+    } else if (st->selected >= 0) {
+        follow_selected(st);
+    } else if (st->nforward > 0) {
+        go_forward(st);
+    } else {
+        pager_handle_right_arrow_unselected(st);
+    }
+}
+
 /* Returns 1 if the escape sequence was consumed, and sets *handled to the
  * action code. This keeps arrow/page keys working without a full key table. */
 static void handle_key_inner(pager_t *st, unsigned char c)
@@ -210,11 +230,11 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case 'i':
         follow(st, "info:dir");
         break;
-    /* Home-row keys: each hand has left, up, down, right under one finger
-     * each, mirrored (D175). */
+    /* Home-row keys: left hand a s d f are synonyms for Left, Up, Down, Right.
+     * Right hand j k l ; are synonyms for Right, Down, Up, Left. */
     case 'a':
-    case 'j':
-        move_column(st, -1);
+    case ';':
+        pager_left_arrow(st);
         break;
     case 's':
     case 'l':
@@ -225,8 +245,8 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         move_line_down(st);
         break;
     case 'f':
-    case ';':
-        move_column(st, 1);
+    case 'j':
+        pager_right_arrow(st);
         break;
     /* The same fingers one row down go all the way. */
     case 'x':
@@ -244,18 +264,22 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         pager_page_up(st);
         break;
     case 'g':
-        if (hiding_line_here(st)) {
-            set_lens(st, '0');
+    case '`':
+        if (strcmp(st->cur_href, "index.html") != 0) {
+            follow(st, "index.html");
         } else {
-            follow_selected(st);
+            go_page_top(st);
+            st->msg[0] = '\0';
         }
         break;
+    case '[':
+        move_column(st, -1);
+        break;
     case ']':
+        move_column(st, 1);
+        break;
     case '\t':
         select_next_link(st, 1, 1);
-        break;
-    case '[':
-        select_next_link(st, -1, 1);
         break;
     case 'N':
         if (st->search_query[0] != '\0') {
@@ -276,14 +300,6 @@ static void handle_key_inner(pager_t *st, unsigned char c)
             follow(st, st->doc->nav_up);
         } else {
             go_back(st);
-        }
-        break;
-    case '`':
-        if (strcmp(st->cur_href, "index.html") != 0) {
-            follow(st, "index.html");
-        } else {
-            go_page_top(st);
-            st->msg[0] = '\0';
         }
         break;
     case 0x1b: {
@@ -330,19 +346,9 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         } else if (strcmp(seq, "B") == 0) {
             move_line_down(st);
         } else if (strcmp(seq, "C") == 0) {
-            if (toggle_fold_here(st)) {
-                /* An answer on the attention line. */
-            } else if (hiding_line_here(st)) {
-                set_lens(st, '0');
-            } else if (st->selected >= 0) {
-                follow_selected(st);
-            } else if (st->nforward > 0) {
-                go_forward(st);
-            } else {
-                pager_handle_right_arrow_unselected(st);
-            }
+            pager_right_arrow(st);
         } else if (strcmp(seq, "D") == 0) {
-            if (!hide_fold_here(st)) go_back(st);
+            pager_left_arrow(st);
         } else if (strcmp(seq, "H") == 0) {
             go_page_top(st);
         } else if (strcmp(seq, "F") == 0) {
@@ -379,10 +385,10 @@ static void handle_key_inner(pager_t *st, unsigned char c)
 
 /* The attention column lives only on the line where it was raised: any key
  * that moves the attention line, changes the selection or the page clears
- * it. Only the left and right keys raise it. */
+ * it. Only the bracket keys raise it. */
 void handle_key(pager_t *st, unsigned char c)
 {
-    int column_key = c == 'a' || c == 'j' || c == 'f' || c == ';';
+    int column_key = c == '[' || c == ']';
     const tam_document_t *doc = st->doc;
     int line = st->cursor_line;
     int selected = st->selected;
@@ -404,7 +410,7 @@ void handle_key(pager_t *st, unsigned char c)
     }
     if (st->doc != doc)
         st->show_address = 0;
-    if (c == 'g' || c == '\r' || c == '\n' ||
+    if (c == '\r' || c == '\n' || c == 'f' || c == 'j' ||
         (!column_key && (st->doc != doc || st->cursor_line != line ||
                          st->selected != selected)))
         st->column_active = 0;

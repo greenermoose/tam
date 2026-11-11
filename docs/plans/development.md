@@ -433,6 +433,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-11:** Command 0.54.0 (minor): Rebind home-row keys to arrow synonyms (left hand a s d f for Left, Up, Down, Right; right hand j k l ; for Right, Down, Up, Left). Attention column moves to [ (left) and ] (right). g and backtick jump to the Guide index page.
 - **2026-11-11:** Command 0.53.0 adds the libtam 0.6.0 startup barrier during a system bundle apply. The approved bundle integration follows the [public delivery plan](https://github.com/greenermoose/tamlinux-tools/blob/develop/docs/plans/tam-bundle.md).
 
 - **2026-11-10:** Command 0.52.1 (patch): Hiding sections of welcome page by level

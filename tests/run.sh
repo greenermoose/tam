@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.53.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.54.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -300,11 +300,11 @@ def send_and_get_target(key):
     return last_target
 
 drain_pty(master, timeout=0.1, quiet=0.01)
-# 1. ] from no selection selects the same first link as Tab
-t1 = send_and_get_target(b"]")
+# 1. Tab from no selection selects the first link
+t1 = send_and_get_target(b"\t")
 assert t1 == "first.html", f"expected first.html, got {t1}"
-# 2. [ from first link wraps backward to last link, as Shift-Tab does
-t_wrap = send_and_get_target(b"[")
+# 2. Shift-Tab from first link wraps backward to last link
+t_wrap = send_and_get_target(b"\x1b[Z")
 assert t_wrap == "info:dir", f"expected info:dir, got {t_wrap}"
 # 3. Tab forward wraps back to first link
 t1_tab = send_and_get_target(b"\t")
@@ -395,23 +395,23 @@ def send_and_get_state(key):
     return pos, msg
 
 drain_pty(master, timeout=0.1, quiet=0.01)
-# The heading line has no links: left and right have nothing to catch.
-assert send_and_get_target(b"f") == "", "f caught a link on a line without links"
-assert send_and_get_target(b"j") == "", "j caught a link on a line without links"
+# The heading line has no links: [ and ] have nothing to catch.
+assert send_and_get_target(b"]") == "", "] caught a link on a line without links"
+assert send_and_get_target(b"[") == "", "[ caught a link on a line without links"
 
 # k moves the attention line down one row; the first link row catches tl.html.
 assert send_and_get_target(b"k") == ""
 t = send_and_get_target(b"k")
 assert t == "tl.html", f"expected k to reach the first link row, got {t}"
 
-# Right (f, ;) and left (a, j) move along the line and wrap at either end.
-for key, want in ((b"f", "tr.html"), (b";", "tl.html"), (b"a", "tr.html"), (b"j", "tl.html")):
+# Right (]) and left ([) move along the line and wrap at either end.
+for key, want in ((b"]", "tr.html"), (b"[", "tl.html"), (b"]", "tr.html"), (b"[", "tl.html")):
     t = send_and_get_target(key)
     assert t == want, f"expected {key!r} to catch {want}, got {t}"
 
 # Down (d) catches the first link on the next row; right moves along it.
 assert send_and_get_target(b"d") == "bl.html"
-assert send_and_get_target(b"f") == "br.html"
+assert send_and_get_target(b"]") == "br.html"
 # Up (l, s) moves one row; moving up catches the last link on the row.
 assert send_and_get_target(b"l") == "tr.html"
 assert send_and_get_target(b"s") == "", "moving off the link row deactivates the link"
@@ -429,11 +429,27 @@ send_and_get_state(b"x")
 pos, _ = send_and_get_state(b"G")
 assert pos == "", f"expected retired G to do nothing, got {pos}"
 
-# g follows the caught link (the fixture targets do not exist).
+# Follow link: f and j are Right Arrow synonyms and follow the caught link.
 send_and_get_target(b"c")
-assert send_and_get_target(b"f") == "br.html"
-_, msg = send_and_get_state(b"g")
-assert msg == "cannot open br.html", f"expected g to follow br.html, got [{msg}]"
+assert send_and_get_target(b"]") == "br.html"
+_, msg = send_and_get_state(b"f")
+assert msg == "cannot open br.html", f"expected f to follow br.html, got [{msg}]"
+
+assert send_and_get_target(b"]") == "bl.html"
+_, msg = send_and_get_state(b"j")
+assert msg == "cannot open bl.html", f"expected j to follow bl.html, got [{msg}]"
+
+# Go back: a and ; are Left Arrow synonyms (at root, reports no earlier page).
+_, msg = send_and_get_state(b";")
+assert "no earlier page" in msg, f"expected ; to report no earlier page, got [{msg}]"
+send_and_get_target(b"]")
+_, msg = send_and_get_state(b"a")
+assert "no earlier page" in msg, f"expected a to report no earlier page, got [{msg}]"
+
+# g jumps to the Guide index page (index.html).
+os.write(master, b"g")
+buf = drain_pty(master, timeout=0.1, quiet=0.01)
+assert b"Link fixture index" in buf, f"expected g to jump to index, got {buf}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -461,7 +477,7 @@ os.write(m, b"q")
 os.waitpid(p, 0)
 
 ' "$TAM" "$root/tests/fixtures" "$root/tests/fixtures/guide" || fail "interactive pager home-row keys or i dir key failed"
-    pass "pager home-row keys: a/j f/; along the line, s/l d/k one row, x/. c/, top and bottom, g follows, i dir"
+    pass "pager home-row keys: [ ] along the line, s/l d/k one row, a/; back, f/j follow, x/. c/ top and bottom, g guide, i dir"
 
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl, re
@@ -807,7 +823,7 @@ buf = drain_pty(master, timeout=0.1, quiet=0.01)
 # 1. Reading telemetry: verify status line contains position metric
 assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {buf}"
 # The status row lists only Help, Quit and link selection, then the version.
-assert b"h Help  Esc Quit  [] Select links" in buf, f"status line missing key hints: {buf}"
+assert b"h Help  Esc Quit  [] Column" in buf, f"status line missing key hints: {buf}"
 assert b"/ n/N" not in buf and b"q Quit" not in buf, f"status line kept old hints: {buf}"
 assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)(?:\x1b\(B\x1b\[m)?\x1b\[K", buf), f"status line missing version: {buf}"
 
@@ -988,8 +1004,8 @@ assert "Path = " not in status and "L2 1-" in status, f"expected position restor
 # 5. = and then following a link removes it on the new page
 status = get_status_line(b"=")
 assert "Path = page:shell/pipelines.html" in status
-# [ selects the breadcrumb link (index.html), Enter follows it
-os.write(master, b"[")
+# Shift-Tab selects the breadcrumb link (index.html), Enter follows it
+os.write(master, b"\x1b[Z")
 drain_pty(master, timeout=0.02, quiet=0.005)
 os.write(master, b"\r")
 buf = drain_pty(master, timeout=0.06, quiet=0.005)
@@ -1108,7 +1124,7 @@ pid, master = launch(["show", "quick-keys"])
 drain(master, 0.15)
 
 # First link: Search in page /
-os.write(master, b"]")
+os.write(master, b"\t")
 drain(master, 0.05)
 os.write(master, b"\r")
 buf = drain(master, 0.1)
@@ -1117,7 +1133,7 @@ os.write(master, b"\x1b")
 drain(master, 0.1)
 
 # Second link: Search in guide \
-os.write(master, b"]")
+os.write(master, b"\t")
 drain(master, 0.05)
 os.write(master, b"\r")
 buf = drain(master, 0.1)
@@ -1126,7 +1142,7 @@ os.write(master, b"\x1b")
 drain(master, 0.1)
 
 # Third link: Whatis glossary lookup
-os.write(master, b"]")
+os.write(master, b"\t")
 drain(master, 0.05)
 os.write(master, b"\r")
 buf = drain(master, 0.1)
@@ -1135,7 +1151,7 @@ os.write(master, b"\x1b")
 drain(master, 0.1)
 
 # Fourth link: Navigation help
-os.write(master, b"]")
+os.write(master, b"\t")
 drain(master, 0.05)
 os.write(master, b"\r")
 buf = drain(master, 0.1)
@@ -1156,7 +1172,7 @@ buf = drain(master, 0.1)
 assert b"tam:search?query=pipe" in buf, f"expected search address, got: {buf}"
 os.write(master, b"\x1b")
 drain(master, 0.1)
-os.write(master, b"]")
+os.write(master, b"\t")
 buf = drain(master, 0.05)
 assert b"-> shell/pipelines.html" in buf, f"expected result link selected, got: {buf}"
 os.write(master, b"\r")
@@ -1813,22 +1829,22 @@ assert "0 Showing all text" in b_arr, b_arr
 assert "0123 showing All text" in b_arr, b_arr
 assert saved(state) == "all", saved(state)
 
-# Switching back to 2, moving to a hiding line, and pressing g shows all (0).
+# Switching back to 2, moving to a hiding line, and pressing f shows all (0).
 p.key(b"2")
 assert saved(state) == "learner", saved(state)
 p.key(b".")
 for _ in range(6):
     p.key(b"k")
-b_g = p.key(b"g")
-assert "0 Showing all text" in b_g, b_g
-assert "0123 showing All text" in b_g, b_g
+b_f = p.key(b"f")
+assert "0 Showing all text" in b_f, b_f
+assert "0123 showing All text" in b_f, b_f
 assert saved(state) == "all", saved(state)
 p.key(b"2")
 assert saved(state) == "learner", saved(state)
 
 # The lens holds across a link to a single-level page, which opens under a
 # truthful level line instead of failing, and the status row says so.
-b = p.key(b"`")
+b = p.key(b"g")
 # The relatives line links children of the page at the lens level, from
 # index.parents.tsv.
 assert "See also -> Fixture pipelines" in b, b
@@ -1857,7 +1873,7 @@ p = Pager(["show", "shell/pipelines"], state)
 assert "3 Showing expert text" in p.first, p.first
 # A link that names a level sets the lens.
 for _ in range(12):
-    b = p.key(b"]")
+    b = p.key(b"\t")
     if "-> shell/pipelines.html?level=beginner" in b:
         break
 else:
@@ -1950,7 +1966,7 @@ assert "[+] Model answer (-> to show)" in p.first, p.first
 # say where to go.
 b = p.key(b"+")
 assert "Move to a [+] line to show an answer" in b and "SECRET_ALPHA" not in b, b
-p.key(b"]")
+p.key(b"\t")
 b = p.key(b"+")
 assert "SECRET_ALPHA" in b and "[-] Answer (<- to hide)" in b and "Quiz 1/2 revealed" in b, b
 b = p.key(b"+")
@@ -2764,12 +2780,12 @@ assert title == "Manual lookup" and target == "", (title, target)
 os.write(master, b"\x1b[A")
 title, target = parse_info(drain(master))
 assert title == "Manual lookup" and target == "tam:man", f"Up did not focus the last breadcrumb: {target}"
-os.write(master, b"a")
+os.write(master, b"[")
 title, target = parse_info(drain(master))
-assert target == "index.html", f"a did not move left across breadcrumbs: {target}"
-os.write(master, b"f")
+assert target == "index.html", f"[ did not move left across breadcrumbs: {target}"
+os.write(master, b"]")
 title, target = parse_info(drain(master))
-assert target == "tam:man", f"f did not move right across breadcrumbs: {target}"
+assert target == "tam:man", f"] did not move right across breadcrumbs: {target}"
 os.write(master, b"s")
 title, target = parse_info(drain(master))
 assert target == "index.html", f"s did not move to the previous breadcrumb: {target}"
@@ -2785,7 +2801,7 @@ assert target == "index.html", f"Shift-Tab did not move to the previous breadcru
 os.write(master, b"\t")
 title, target = parse_info(drain(master))
 assert target == "tam:man", f"Tab did not move to the next breadcrumb: {target}"
-os.write(master, b"a\r")
+os.write(master, b"[\r")
 title, target = parse_info(drain(master, 0.3))
 assert title == "Fixture Guide", f"Enter did not follow the Guide breadcrumb: {title}"
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)

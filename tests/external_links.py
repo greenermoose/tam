@@ -81,13 +81,13 @@ def main():
         "web link is not an OSC 8 hyperlink"
     assert b"ftp://example.org/file\x1b\\" not in p.initial, "ftp link became a hyperlink"
     assert b"has space\x1b\\" not in p.initial, "malformed link became a hyperlink"
-    p.key(b"]")
+    p.key(b"\t")
     assert "-> " + URL in p.status(), p.status()
     p.key(b"\r")
     assert "Enter again opens it in browser-stub" in p.status(), p.status()
     assert not os.path.exists(out), "browser ran on the first press"
     # Any other key forgets the pending link and its prompt.
-    p.key(b"f")
+    p.key(b"]")
     assert "Enter again" not in p.status(), p.status()
     p.key(b"\r")
     assert "Enter again opens it in browser-stub" in p.status(), p.status()
@@ -99,10 +99,10 @@ def main():
     os.unlink(out)
 
     # Other schemes and malformed URLs are refused without running anything.
-    p.key(b"]")
+    p.key(b"\t")
     p.key(b"\r")
     assert "cannot open ftp: links" in p.status(), p.status()
-    p.key(b"]")
+    p.key(b"\t")
     p.key(b"\r")
     assert "cannot open malformed link" in p.status(), p.status()
     p.key(b"\r")
@@ -112,19 +112,19 @@ def main():
     # The confirmation cannot disappear when the usual status fields fill
     # a narrow terminal.
     p = Pager(binary, fixtures, graphical, cols=60)
-    p.key(b"]")
+    p.key(b"\t")
     p.key(b"\r")
     assert "Enter again opens it in browser-stub" in p.status(), p.status()
     p.stop()
 
     # No installed browser, and a browser that cannot start.
     p = Pager(binary, fixtures, dict(graphical, BROWSER="no-such-browser", PATH=bin_dir))
-    p.key(b"]")
+    p.key(b"\t")
     p.key(b"\r")
     assert "no browser found; set BROWSER" in p.status(), p.status()
     p.stop()
     p = Pager(binary, fixtures, dict(graphical, BROWSER="broken-stub"))
-    p.key(b"]")
+    p.key(b"\t")
     p.key(b"\r")
     p.key(b"\r", 0.3)
     assert "cannot start broken-stub" in p.status(), p.status()
@@ -134,7 +134,7 @@ def main():
     # the pager comes back and still takes keys.
     console = dict(graphical, WAYLAND_DISPLAY="", TAM_TEXT_BROWSER="text-stub")
     p = Pager(binary, fixtures, console)
-    p.key(b"]")
+    p.key(b"\t")
     p.key(b"\r")
     assert "Enter again opens it in text-stub" in p.status(), p.status()
     raw = p.key(b"\r", 0.6)
@@ -147,7 +147,7 @@ def main():
     p.screen.feed(b"")
     assert "back from text-stub" in p.status(), p.status()
     assert any("External links" in p.screen.line(r) for r in range(23)), "page not redrawn"
-    p.key(b"]")
+    p.key(b"\t")
     assert "-> ftp://example.org/file" in p.status(), p.status()
     p.stop()
 

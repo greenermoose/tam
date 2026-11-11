@@ -276,10 +276,12 @@ again to open it; another key cancels. On a text console the pager returns
 when the browser exits. Terminal hyperlink controls may open links directly
 without this confirmation. The browser is optional and may use the network.
 .P
-The letter keys sit on the home row. Each hand has left, up, down and right
-under one finger each, mirrored: the index fingers point inward, the middle
-fingers move down, the ring fingers move up and the little fingers point
-outward.
+The letter keys sit on the home row. Left-hand keys
+.RB ( a ", " s ", " d ", " f )
+are synonyms for Left Arrow, Up Arrow, Down Arrow, and Right Arrow.
+Right-hand keys
+.RB ( j ", " k ", " l ", " ; )
+are synonyms for Right Arrow, Down Arrow, Up Arrow, and Left Arrow.
 .TP
 .BR d ", " k ", " Down
 Move the attention line down one line. From the breadcrumb row, return to the attention line where it was.
@@ -287,11 +289,11 @@ Move the attention line down one line. From the breadcrumb row, return to the at
 .BR s ", " l ", " Up
 Move the attention line up one line. At the first document line, focus the last breadcrumb link; while the breadcrumb row is focused, move to the previous breadcrumb link.
 .TP
-.BR a ", " j ", " f ", " ;
+.BR [ ", " ]
 Move the attention column left
-.RB ( a ", " j )
+.RB ( [ )
 or right
-.RB ( f ", " ; )
+.RB ( ] )
 from link to link along the attention line, wrapping at either end. The
 column is a band as wide as the caught link, drawn down the whole screen; the
 link where it crosses the attention line is the selected link. Moving the
@@ -325,9 +327,11 @@ Select the next or previous hyperlink anywhere on the page, in reading order,
 including the breadcrumb links. If no hyperlink has been selected yet, the
 first hyperlink visible on the screen is selected.
 .TP
-.BR g ", " Enter ", " Right
+.BR f ", " j ", " Enter ", " Right
 Follow the selected hyperlink. When no link is selected,
 .B Right
+(or
+.BR f ", " j )
 advances forward along previously visited history, restoring the saved viewport and line position.
 .TP
 .BR n ", " p
@@ -335,7 +339,7 @@ In GNU Info manuals, navigate to the Next or Previous sibling node. When search 
 .BR n / N
 cycles through search matches instead.
 .TP
-.B Left
+.BR a ", " ; ", " Left
 Go back in reader history, restoring the saved viewport, cursor and link
 focus. On a shown answer's [-] line, hide the answer instead.
 .TP
@@ -348,7 +352,7 @@ Jump directly to the \fITop\fR node of the current Info manual.
 .B i
 Jump directly to the root Info directory catalog (\fI(dir)Top\fR).
 .TP
-.B ` \fR(backtick)\fP
+.BR g ", " ` \fR(backtick)\fP
 Return immediately to the root User Guide index (
 .I index.html
 ) from any guide page, manual page, or Info node.
@@ -471,7 +475,7 @@ where the terminal cannot underline, followed by
 .B (not on page)
 when the page has no section at that level. The rest of the status row
 reads
-.B h Help  Esc Quit  [] Select links
+.B h Help  Esc Quit  [] Column
 and, while a link is selected, its target after
 .BR \-> ;
 the help page lists every other key. The command and corpus versions,

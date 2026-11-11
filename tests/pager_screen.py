@@ -349,7 +349,7 @@ def main():
     # The attention column spans every content row at the caught link's
     # columns, and moving the attention line clears it (D175).
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", page="nav-grid")
-    for key in (b"k", b"k", b"f"):
+    for key in (b"k", b"k", b"]"):
         os.write(master, key)
         screen.feed(read_available(master))
     link_row = next(r for r in range(screen.rows) if "TopRight" in screen.line(r))
