@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-11
 **Owner:** Fred
 **Current Command Version:** `0.54.1`.
-**Current Corpus Version:** `0.78.19`.
+**Current Corpus Version:** `0.78.20`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.54.1 / 0.78.19 | Virtual terminal console colors; Rebind home-row keys to arrow synonyms (a s d f for Left, Up, Down, Right; j k l ; for Right, Down, Up, Left), move attention column to brackets [ ], and rebind g and backtick to Guide index; Bundle startup barrier; Attention line link activation/deactivation and Right Arrow jump/follow/next page navigation; Line Lb lens display (`0 Showing all text`); bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
+| `develop` | 0.54.1 / 0.78.20 | Virtual terminal console colors; Rebind home-row keys to arrow synonyms (a s d f for Left, Up, Down, Right; j k l ; for Right, Down, Up, Left), move attention column to brackets [ ], and rebind g and backtick to Guide index; Bundle startup barrier; Attention line link activation/deactivation and Right Arrow jump/follow/next page navigation; Line Lb lens display (`0 Showing all text`); bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -279,6 +279,7 @@ in that candidate, not here.
 | **0.54.1 command** | Virtual terminal console colors | Done (2026-11-11) | Restores ANSI colors (cyan headings, yellow code, bold bright blue links, level colors) on 8-color Linux virtual consoles; fixes terminal capability initialization and unselected link color check; preserves reverse-video attention/footer focus. |
 | **0.78.18 corpus** | The absolute maximum performance tagline in the index | Done (2026-11-11) | The absolute maximum performance tagline in the index |
 | **0.78.19 corpus** | Edited several pages | Done (2026-11-11) | Edited several pages |
+| **0.78.20 corpus** | Lens in first steps | Done (2026-11-11) | Lens in first steps |
 
 ## 4. Deferred direction, without reserved versions
 
