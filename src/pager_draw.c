@@ -202,7 +202,9 @@ static int emit_style(const tam_span_t *sp, int is_sel)
             if (g_term != NULL) {
                 if (g_term->ncv < 0 || !(g_term->ncv & 2))
                     (void)tam_terminal_cap(g_term, g_capture, g_term->underline, 0, 0);
-                if (!g_attention && !g_term->reverse && g_term->colors >= 8 && g_term->use_color)
+                else if (!g_attention && (g_term->ncv < 0 || !(g_term->ncv & 32)))
+                    (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
+                if (!g_attention && g_term->colors >= 8 && g_term->use_color)
                     (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 4, 0);
             }
         }

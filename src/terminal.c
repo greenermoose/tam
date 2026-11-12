@@ -105,12 +105,10 @@ int tam_terminal_init(tam_terminal_t *t, int fd, int rows, int cols)
                     strncmp(term, "cons", 4) != 0;
 
     const char *no_color = getenv("NO_COLOR");
-    t->use_color = no_color == NULL || no_color[0] == '\0';
-    if (t->colors >= 256 && t->setaf != NULL && t->setab != NULL && t->use_color) {
-        /* If the user has disabled colors, focus remains a reverse attribute. */
-    } else if (t->reverse) {
-        t->use_color = 0;
-    } else {
+    t->use_color = (no_color == NULL || no_color[0] == '\0') &&
+                   t->colors >= 8 && t->setaf != NULL;
+    if (!(t->colors >= 256 && t->setaf != NULL && t->setab != NULL && t->use_color) &&
+        !t->reverse) {
         t->gutter = 1;
     }
     return 1;

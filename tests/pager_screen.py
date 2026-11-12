@@ -383,6 +383,24 @@ def main():
     assert after[-1].strip() == "", after
     assert (screen.row, screen.col) == (screen.rows - 1, 0), (screen.row, screen.col)
 
+    # Linux's eight-color profile renders semantic colors on content (cyan
+    # headings, bright blue links where underline is suppressed by ncv).
+    pid, master, screen, _ = collect_screen(binary, fixtures, "linux")
+    assert {"bold", "fg4"}.issubset(screen.cells[0][0][1]), screen.cells[0][0][1]
+    os.write(master, b"k")
+    screen.feed(read_available(master, 0.2))
+    assert {"bold", "fg6"}.issubset(screen.cells[1][0][1]), screen.cells[1][0][1]
+    assert "reverse" not in screen.cells[1][0][1], screen.cells[1][0][1]
+    stop(pid, master)
+
+    # NO_COLOR under linux retains reverse focus and omits foreground colors.
+    pid_nc, master_nc, screen_nc, _ = collect_screen(binary, fixtures, "linux", extra_env={"NO_COLOR": "1"})
+    assert "reverse" in screen_nc.cells[1][0][1], screen_nc.cells[1][0][1]
+    os.write(master_nc, b"k")
+    screen_nc.feed(read_available(master_nc, 0.2))
+    assert "fg6" not in screen_nc.cells[1][0][1], screen_nc.cells[1][0][1]
+    stop(pid_nc, master_nc)
+
     # NO_COLOR retains a visible focus indication; an empty value keeps color.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", extra_env={"NO_COLOR": "1"})
     assert "reverse" in screen.cells[1][0][1], screen.cells[1][0][1]

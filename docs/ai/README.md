@@ -6,6 +6,7 @@ is maintained in [AI_PROVENANCE.md](../../AI_PROVENANCE.md).
 
 | Date | Work | Record |
 | --- | --- | --- |
+| 2026-11-11 | Restore ANSI colors on 8-color Linux virtual consoles, command 0.54.1 | [Session record](2026-11-11-tam-vt-console-colors.md) |
 | 2026-11-11 | Incremental independent command/corpus builds and fast editing checks | [Record](2026-11-11-tam-incremental-build.md) |
 | 2026-11-08 | Console exit keeps the last page and leaves a fresh prompt line, command 0.50.3 | [Session record](2026-11-08-tam-console-exit-scroll.md) |
 | 2026-11-07 | Two-row footer fixes, command 0.50.2; `tam-boot` and `tam-meter` pages, corpus 0.76.0 | [Session record](2026-11-07-tam-footer-fixes-and-command-pages.md) |
