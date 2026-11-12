@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Compiler sanitizers, AddressSanitizer, and memory safety in C</title>
+<meta name="topic" content="sanitizers">
+<meta name="summary" content="Detecting buffer overflows, memory corruption, and undefined behavior using GCC/Clang compiler sanitizers and AddressSanitizer (ASan)">
+<meta name="keywords" content="sanitizers, asan, addresssanitizer, ubsan, tsan, msan, memory safety, buffer overflow, use-after-free, double-free, leaks, compiler, gcc, clang, libtam, verification">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="c11, toolchains">
+<meta name="kind" content="how-to">
+<meta name="skills" content="contributing.beginner, contributing.intermediate, contributing.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Compiler sanitizers, AddressSanitizer, and memory safety in C</p>
+</nav>
+
+<h1>Compiler sanitizers, AddressSanitizer, and memory safety in C</h1>
+<p>This page explains what compiler sanitizers are, how AddressSanitizer (ASan) detects memory errors at runtime, and how native C programs use sanitizers to prevent crashes and security vulnerabilities.</p>
+<p>Writing high-performance native systems software in C provides deterministic speed and low memory use, but places full responsibility for memory management on the programmer. In standard C, mistakes such as writing past the boundary of a buffer, using memory after freeing it, or dereferencing invalid pointers do not always crash immediately; they often silently corrupt data. Compiler <dfn><a href="learn/glossary/sanitizer.html">sanitizers</a></dfn> instrument code at build time so runtime errors are detected and diagnosed the instant they occur.</p>
+
+<section data-level="novice">
+<h2>What are compiler sanitizers?</h2>
+<p>When you run a native command in Tamlinux, the program executes direct CPU instructions and manages its own memory without an interpreter or background garbage collector. Compiler sanitizers are built-in diagnostic tools that monitor how a program touches memory while it runs, catching mistakes immediately during testing before software is released.</p>
+
+<h3>Why it matters</h3>
+<p>In lower-level programming languages like C, a single mistake &mdash; such as storing eleven items in a ten-slot list or reading from memory that was already released &mdash; can cause subtle bugs. Without sanitizers, these mistakes might remain hidden for months, only causing a crash when special data is encountered or creating security vulnerabilities that attackers could exploit. Sanitizers make invisible memory bugs visible and pinpoint their exact cause.</p>
+
+<h3>How to think about it</h3>
+<p>Think of writing C code like building a high-speed plumbing system. Under normal production, water flows directly through pipes with zero obstruction for maximum speed. Testing with a sanitizer is like injecting bright fluorescent dye into the water and placing sensors at every joint during a factory pressure test: if any pipe leaks or exceeds its boundary by even a single drop, an alarm sounds instantly and the inspector knows the exact fitting that failed.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="learn/glossary/addresssanitizer.html">AddressSanitizer (ASan)</a></dt>
+<dd>A compiler tool that instruments memory allocations and pointers to catch buffer overflows, use-after-free, and memory corruption during execution.</dd>
+<dt><a href="learn/glossary/sanitizer.html">Sanitizer</a></dt>
+<dd>A tool built into modern compilers (like GCC and Clang) that inserts runtime checks into a program to catch errors, leaks, or undefined behavior.</dd>
+<dt><a href="learn/glossary/buffer.html">Buffer overflow</a></dt>
+<dd>A condition where a program writes data outside the allocated boundary of a memory block, risking silent data corruption or security breaches.</dd>
+<dt><a href="learn/glossary/compiler.html">Compiler flag</a></dt>
+<dd>A command-line switch passed to GCC or Clang (such as <code>-fsanitize=address</code>) to enable specific language standards, optimizations, or diagnostic instrumentation.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Compile and verify programs with AddressSanitizer</h2>
+<p><strong>Goal:</strong> you will be able to compile a standalone C program with AddressSanitizer flags, run the instrumented binary to detect an invalid memory access, and read the resulting diagnostic report to find the bug.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Systems programming in C11</strong> &mdash;
+<a href="ecosystem/c11.html?level=2">Start</a> |
+<a href="ecosystem/c11.html?level=2">&larr; Back</a> |
+<a href="improve/toolchains.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). Native compilation requires standard build tools (<code>gcc</code> or <code>clang</code>) from the base system. All examples in this section use temporary scratch files in user space and do not modify any system configuration.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> To enable AddressSanitizer, pass <code>-fsanitize=address</code> to both the compilation step and the linking step. Always include <code>-g</code> to embed debugging symbols so ASan reports include exact file names and source line numbers.</p>
+</aside>
+
+<h3>Worked example: detect a heap buffer overflow with AddressSanitizer</h3>
+
+<p>Create a small test file in a temporary scratch directory that allocates space for 10 integers but writes past the end of the buffer:</p>
+
+<pre class="session" data-risk="scratch">
+$ cat &lt;&lt; 'EOF' &gt; /tmp/test_overflow.c
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(int argc, char **argv) {
+    int *arr = malloc(10 * sizeof(int));
+    if (!arr) return 1;
+    int idx = argc + 10;
+    arr[idx] = 42;
+    printf("Value: %d\n", arr[idx]);
+    free(arr);
+    return 0;
+}
+EOF
+$ gcc -std=c11 -fsanitize=address -g /tmp/test_overflow.c -o /tmp/test_overflow
+$ /tmp/test_overflow
+=================================================================
+==39==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7b804d7e003c at pc 0x560d1efb423c bp 0x7fff17ad0500 sp 0x7fff17ad04f0
+WRITE of size 4 at 0x7b804d7e003c thread T0
+    #0 0x560d1efb423b in main /tmp/test_overflow.c:8
+    #1 0x7f404ea27780  (/usr/lib/libc.so.6+0x27780)
+    #2 0x7f404ea278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8)
+    #3 0x560d1efb40e4 in _start (/tmp/test_overflow+0x10e4)
+
+0x7b804d7e003c is located 4 bytes after 40-byte region [0x7b804d7e0010,0x7b804d7e0038)
+allocated by thread T0 here:
+    #0 0x7f404ef2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1)
+    #1 0x560d1efb41d1 in main /tmp/test_overflow.c:5
+    #2 0x7f404ea27780  (/usr/lib/libc.so.6+0x27780)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /tmp/test_overflow.c:8 in main
+==39==ABORTING
+$ rm -f /tmp/test_overflow.c /tmp/test_overflow
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-11-12. Your addresses and process IDs will differ.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>gcc -fsanitize=address -g</code> compiled the C source and linked it against the AddressSanitizer runtime library (<code>libasan</code>).</li>
+<li>The program allocated 40 bytes (10 integers &times; 4 bytes each) on the heap using <code>malloc</code>. ASan placed an invisible poisoned "redzone" around this allocation.</li>
+<li>When line 8 attempted to write to <code>arr[11]</code> (offset 44, which is 4 bytes beyond the 40-byte allocation), the compiler-inlined check saw that the target address fell within the poisoned redzone.</li>
+<li>AddressSanitizer immediately aborted execution, preventing corrupted data from being read or written.</li>
+<li>The error report pinpointed the bug: a heap buffer overflow at line 8 during a 4-byte write, exactly 4 bytes after the 40-byte block allocated at line 5.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Test how AddressSanitizer catches a use-after-free error. Write a small program that frees a pointer and then attempts to read from it:</p>
+
+<pre class="session" data-risk="scratch">
+$ cat &lt;&lt; 'EOF' &gt; /tmp/test_uaf.c
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void) {
+    int *val = malloc(sizeof(int));
+    *val = 100;
+    free(val);
+    printf("Value after free: %d\n", *val);
+    return 0;
+}
+EOF
+$ gcc -std=c11 -fsanitize=address -g /tmp/test_uaf.c -o /tmp/test_uaf
+$ /tmp/test_uaf 2&gt;&amp;1 | grep -E "ERROR: AddressSanitizer|READ of size"
+==ERROR: AddressSanitizer: heap-use-after-free on address ...
+READ of size 4 at ...
+$ rm -f /tmp/test_uaf.c /tmp/test_uaf
+</pre>
+
+<p>Observe how ASan identifies the bug as <code>heap-use-after-free</code>, showing both the line where the memory was freed and the line where the invalid read occurred.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>unrecognized command-line option '-fsanitize=address'</code></dt>
+<dd>Your compiler is too old or lacks sanitizer support. GCC 4.8 or later and Clang 3.1 or later support AddressSanitizer on x86-64 Linux.</dd>
+<dt><code>ASan report shows addresses but no line numbers</code></dt>
+<dd>You omitted the <code>-g</code> flag during compilation. Compile with <code>-g</code> to embed DWARF debugging symbols so ASan can resolve function names, file paths, and line numbers.</dd>
+<dt><code>Program runs and prints without triggering ASan</code></dt>
+<dd>The compiler optimizer may have eliminated the unused access or determined that a constant expression has no side effects. Ensure you compile with <code>-O1</code> or <code>-O0</code>, or pass input via command-line arguments so the compiler cannot optimize away memory operations.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> core utilities like the <code>tam</code> command and <code>libtam</code> foundational library are regularly verified with <code>-fsanitize=address,undefined</code> during development test runs. This ensures that command parsing, HTML rendering, terminal resizing, and PTY handling remain memory-safe and free from undefined behavior across all supported hardware.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why must -fsanitize=address be passed to both the compile step and the link step?</summary>
+<p>The compile step inserts instrumentation instructions before every memory load and store, while the link step links the AddressSanitizer runtime library (libasan) and replaces standard memory allocators (malloc and free) with instrumented versions. Without linking libasan, unresolved symbol errors occur at link time.</p>
+</details>
+<details class="q">
+<summary>How does AddressSanitizer differ from traditional static analysis like -Wall or cppcheck?</summary>
+<p>Static analysis inspects source code without running it, which cannot catch bugs that depend on runtime inputs, dynamic allocation sizes, or complex pointer aliasing. AddressSanitizer inspects actual memory accesses as the program runs, catching errors that only manifest under specific runtime conditions.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Sanitizer architecture: shadow memory, redzones, and performance tradeoffs</h2>
+
+<h3>Reference: Modern Compiler Sanitizers</h3>
+
+<table>
+<tr><th>Sanitizer</th><th>Compiler Flag</th><th>Defects Detected</th><th>Overhead</th><th>Compatibility</th></tr>
+<tr><td>AddressSanitizer (ASan)</td><td><code>-fsanitize=address</code></td><td>Out-of-bounds (heap, stack, globals), use-after-free, double-free, invalid free</td><td>~2&times; CPU, 2&ndash;3&times; RAM</td><td>Compatible with UBSan; incompatible with TSan</td></tr>
+<tr><td>UndefinedBehaviorSanitizer (UBSan)</td><td><code>-fsanitize=undefined</code></td><td>Signed integer overflow, null pointer dereference, misaligned pointers, invalid shifts</td><td>~1.2&times; CPU, negligible RAM</td><td>Compatible with ASan and TSan</td></tr>
+<tr><td>ThreadSanitizer (TSan)</td><td><code>-fsanitize=thread</code></td><td>Data races between threads, lock inversion deadlocks</td><td>~5&ndash;15&times; CPU, 5&ndash;10&times; RAM</td><td>Incompatible with ASan</td></tr>
+<tr><td>MemorySanitizer (MSan)</td><td><code>-fsanitize=memory</code></td><td>Uninitialized memory reads</td><td>~2.5&times; CPU, ~2&times; RAM</td><td>Clang only; requires fully instrumented libc</td></tr>
+<tr><td>LeakSanitizer (LSan)</td><td><code>-fsanitize=leak</code></td><td>Memory leaks (unfreed heap allocations at program exit)</td><td>Minimal CPU, negligible RAM</td><td>Integrated into ASan by default on Linux x86-64</td></tr>
+</table>
+
+<h3>How AddressSanitizer works internally</h3>
+
+<p>AddressSanitizer achieves its high performance (~2&times; slowdown compared to 20&ndash;50&times; for Valgrind) through two primary architectural components:</p>
+
+<ol>
+<li><strong>Shadow Memory Mapping:</strong> The virtual address space of the process is divided into application memory and shadow memory. Exactly one-eighth (12.5%) of the address space is reserved for shadow bytes. Every 8 bytes of application memory maps directly to 1 byte in shadow memory via a simple pointer calculation:
+<pre data-risk="read-only">
+shadow_address = (app_address &gt;&gt; 3) + SHADOW_OFFSET;
+</pre>
+On x86-64 Linux, <code>SHADOW_OFFSET</code> is typically <code>0x7fff8000</code> or <code>0x00007fff8000</code>.
+Each shadow byte encodes the state of its corresponding 8 application bytes:
+<ul>
+<li><code>0x00</code>: All 8 bytes are valid and addressable.</li>
+<li><code>0x01</code> to <code>0x07</code>: Only the first <em>k</em> bytes are valid (partially addressable tail of a buffer).</li>
+<li>Negative values (e.g. <code>0xfa</code>, <code>0xf1</code>, <code>0xfd</code>): The memory is completely unaddressable (poisoned). Special byte values distinguish heap redzones (<code>0xfa</code>), stack redzones (<code>0xf1</code>), freed memory (<code>0xfd</code>), and global redzones (<code>0xf9</code>).</li>
+</ul>
+</li>
+<li><strong>Compile-Time Code Instrumentation:</strong> Before every memory read or write of size <em>k</em> at address <code>addr</code>, the compiler inserts a fast, inlined check:
+<pre data-risk="read-only">
+byte = *( (addr &gt;&gt; 3) + SHADOW_OFFSET );
+if (byte != 0 &amp;&amp; ( (addr &amp; 7) + k &gt; byte )) {
+    __asan_report_error(addr, k, is_write);
+}
+</pre>
+Because the check involves only a shift, add, load, and branch, the CPU branch predictor evaluates it in 1&ndash;2 cycles on the common (valid) path.</li>
+<li><strong>Redzones and Quarantine:</strong> The instrumented <code>malloc</code> surrounds every heap allocation with poisoned redzones (typically 16 to 128 bytes). When memory is released via <code>free()</code>, it is not immediately returned to the system allocator; instead, it is placed into a quarantine queue poisoned with <code>0xfd</code>. This ensures that any subsequent use-after-free access will reliably hit poisoned memory even if other allocations occur immediately afterward.</li>
+</ol>
+
+<h3>Runtime environment options: ASAN_OPTIONS</h3>
+
+<p>You can control AddressSanitizer behavior without recompiling using the <code>ASAN_OPTIONS</code> environment variable:</p>
+
+<pre class="session" data-risk="read-only">
+$ ASAN_OPTIONS="detect_leaks=0:color=never:abort_on_error=1" ./my_program
+</pre>
+
+<table>
+<tr><th>Option</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>detect_leaks=0|1</code></td><td><code>1</code></td><td>Enable or disable LeakSanitizer at program exit. Useful to disable when running inside containers where <code>ptrace</code> is restricted.</td></tr>
+<tr><td><code>abort_on_error=0|1</code></td><td><code>0</code></td><td>Call <code>abort()</code> instead of <code>_exit()</code> when an error occurs, enabling core dump generation for post-mortem debugging with GDB.</td></tr>
+<tr><td><code>halt_on_error=0|1</code></td><td><code>1</code></td><td>Halt on the first error. Setting to <code>0</code> allows the program to continue executing to detect multiple defects in one run.</td></tr>
+<tr><td><code>quarantine_size_mb=N</code></td><td><code>256</code></td><td>Size of the quarantine queue in megabytes for tracking freed memory and catching use-after-free.</td></tr>
+<tr><td><code>symbolize=0|1</code></td><td><code>1</code></td><td>Demangle and symbolize stack frames using <code>addr2line</code> or an external symbolizer.</td></tr>
+</table>
+
+<h3>Combining sanitizers in development</h3>
+
+<p>For systems programming and library development, the recommended compilation flag combination combines AddressSanitizer with UndefinedBehaviorSanitizer:</p>
+
+<pre class="session" data-risk="read-only">
+$ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main.c -o my_tool
+</pre>
+
+<p>This catches both physical memory violations (buffer overruns, use-after-free) and logical undefined behaviors (signed integer overflow, shift out of bounds, null pointer dereferences) in a single unified test run.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why is AddressSanitizer incompatible with ThreadSanitizer in the same binary?</summary>
+<p>Both sanitizers require dedicated, conflicting shadow memory layouts and incompatible memory interception mechanisms. ASan uses shadow memory to record byte validity and redzones, whereas TSan uses shadow memory to record thread IDs and clock vectors for synchronization tracking. To test both memory safety and data races, projects maintain separate build targets.</p>
+</details>
+<details class="q">
+<summary>Why does ASan quarantine freed memory rather than immediately returning it to the OS allocator?</summary>
+<p>If freed memory were immediately reused by another malloc call, a dangling pointer from the first allocation might read or write into the new allocation without triggering a memory fault. The quarantine queue keeps freed memory poisoned for a period of time, ensuring that use-after-free bugs reliably trigger an immediate crash report.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li>Serebryany, K., Bruening, D., Potapenko, A., &amp; Vyukov, D. (2012). <em>AddressSanitizer: A Fast Address Sanity Checker</em>. USENIX Annual Technical Conference.</li>
+<li>LLVM Project. <em>AddressSanitizer: A fast memory error detector</em>. Clang Documentation.</li>
+<li>Free Software Foundation. <em>Program Instrumentation Options</em>. GNU Compiler Collection (GCC) Manual.</li>
+</ul>
+
+<h3>Improve it</h3>
+<p>Contribute toolchain and systems programming improvements in the public <a href="tam.html">tam</a> command repository.</p>
+</section>
+
+<h2>Where to next</h2>
+<ul>
+<li><a href="ecosystem/c11.html">The C11 programming language</a> &mdash; ISO C11 standard, compiler flags, and static assertions.</li>
+<li><a href="improve/toolchains.html">Toolchains and compilation</a> &mdash; native compilation, Make recipes, and multi-agent workflows.</li>
+<li><a href="ecosystem/object-files.html">Object files and linking</a> &mdash; C source files, object files, and static libraries.</li>
+<li><a href="ecosystem/libc.html">C standard libraries</a> &mdash; comparing glibc and musl.</li>
+<li><a href="tam.html">The tam command architecture</a> &mdash; native C11 implementation and development verification.</li>
+<li><a href="ecosystem/index.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li>
+</ul>
+</body>
+</html>

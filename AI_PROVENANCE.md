@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-12: Antigravity CLI `1.5.7` (`gemini-3.8-flash-high`) adds compiler sanitizers and AddressSanitizer guide page and glossary entries in corpus 0.79.0. [Record](docs/ai/2026-11-12-tam-sanitizers-guide-page.md).
+
 2026-11-12: Antigravity CLI `1.5.6` (`gemini-3.8-flash-high`) maps `]` to Tab and `[` to Shift-Tab for pager link navigation in command 0.54.2 / corpus 0.78.22. [Record](docs/ai/2026-11-12-tam-pager-bracket-link-selection.md).
 
 2026-11-11: Antigravity CLI `1.5.6` (`gemini-3.8-flash-high`) restores ANSI colors on 8-color Linux virtual consoles in command 0.54.1. [Record](docs/ai/2026-11-11-tam-vt-console-colors.md).
@@ -48,6 +50,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-12 | Compiler sanitizers and AddressSanitizer (ASan) guide page and glossary entries; corpus 0.79.0 | Antigravity CLI 1.5.7; Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`) | [Session record](docs/ai/2026-11-12-tam-sanitizers-guide-page.md) |
 | 2026-11-10 | Decouple command build ID from corpus edits in `Makefile` and `tools/dev.py`, add `install-corpus`, and accelerate dev install; tooling only, no version change | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-decouple-command-build-id-from-corpus.md) |
 | 2026-11-10 | Accelerate corpus development cycle with single-pass component coverage, lane-targeted dev loop, unit-test skip prompt, single-page linting, and `make preview`; tooling only, no version change | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-accelerate-corpus-dev-cycle.md) |
 | 2026-11-10 | Track `knowledge/component-coverage.json` in `make dev` generated outputs and index follow-up; tooling only, no version change | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-dev-component-coverage-index-followup.md) |

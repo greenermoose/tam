@@ -3,7 +3,7 @@
 **Last Update:** 2026-11-12
 **Owner:** Fred
 **Current Command Version:** `0.54.2`.
-**Current Corpus Version:** `0.78.22`.
+**Current Corpus Version:** `0.79.0`.
 
 Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
@@ -31,7 +31,7 @@ targets are goals to measure.
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.54.2 / 0.78.22 | Pager link navigation keys ([ ] work like Shift-Tab and Tab); Virtual terminal console colors; Rebind home-row keys to arrow synonyms (a s d f for Left, Up, Down, Right; j k l ; for Right, Down, Up, Left), and rebind g and backtick to Guide index; Bundle startup barrier; Attention line link activation/deactivation and Right Arrow jump/follow/next page navigation; Line Lb lens display (`0 Showing all text`); bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
+| `develop` | 0.54.2 / 0.79.0 | Compiler sanitizers and AddressSanitizer (ASan) guide page; Pager link navigation keys ([ ] work like Shift-Tab and Tab); Virtual terminal console colors; Rebind home-row keys to arrow synonyms (a s d f for Left, Up, Down, Right; j k l ; for Right, Down, Up, Left), and rebind g and backtick to Guide index; Bundle startup barrier; Attention line link activation/deactivation and Right Arrow jump/follow/next page navigation; Line Lb lens display (`0 Showing all text`); bundle identity and ownership lookup; Newest source; Arch hosts recognized by `ID` and `ID_LIKE` alone; quitting on the Linux console keeps the last page and leaves a fresh prompt line; `tam-boot` and `tam-meter` pages; two-row pager footer fixes; footer lines use attention-line color; complete alphabetical manual section listings; audit remediation A01–A12 (accurate bindings, plugin workflows, drive arguments, upgrade verification separation, authentication/sudo bounds, valid risk labels, predicate semantics, and real output captures); plan 26 Phases 1–5 hubs and zero-gap coverage; authoring page with HTML snippets and rendering for folds and asides; `tam-bundle` page and bundle glossary entry. Development installation is a separate developer-directed step. |
 | `origin/test` | 0.43.2 / 0.43.0 | Latest cached remote Test source at `eea4509`; not an installed-candidate claim. |
 | `origin/main` | 0.38.1 / 0.42.0 | Latest cached remote Run source at `c161190`; not an installed-candidate claim. |
 
@@ -283,6 +283,7 @@ in that candidate, not here.
 | **0.78.21 corpus** | Better explain keybindings on first steps page | Done (2026-11-12) | Better explain keybindings on first steps page |
 | **0.54.2 command** | Pager link navigation keys | Done (2026-11-12) | Make ] work like Tab (select next link) and [ work like Shift+Tab (select previous link). |
 | **0.78.22 corpus** | Navigation help and first steps jump keys | Done (2026-11-12) | Document ] and [ as link navigation keys in navigation help and first steps guide. |
+| **0.79.0 corpus** | Compiler sanitizers and AddressSanitizer (ASan) | Done (2026-11-12) | Adds `ecosystem/sanitizers.html` (ASan, UBSan, TSan, MSan, shadow memory architecture, redzones, quarantine) and `addresssanitizer` and `sanitizer` glossary entries, linked from ecosystem hub, c11 guide, toolchains, and the c11-systems path. |
 
 ## 4. Deferred direction, without reserved versions
 
