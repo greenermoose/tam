@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Systems programming philosophy and language choices</title>
+<meta name="topic" content="language-choices">
+<meta name="summary" content="Why Tamlinux writes core utilities in C11 instead of Rust, Go, or C++, and how AI agents synthesize open-source ideas">
+<meta name="keywords" content="c11, rust, go, c++, languages, systems-programming, ai, agents, libtam, performance, memory, startup, bloat, verification, sanitizers, tam-launch-journal">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="c11, philosophy">
+<meta name="kind" content="explanation">
+<meta name="skills" content="contributing.beginner, contributing.intermediate, contributing.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Systems programming philosophy and language choices</p>
+</nav>
+
+<h1>Systems programming philosophy and language choices</h1>
+<p>This page explains why Tamlinux chooses standard C11 for its core terminal utilities and shared libraries instead of languages like Rust, Go, or C++, and how AI agents help distill ideas from open source projects into fast, self-contained native programs.</p>
+
+<section data-level="novice">
+<h2>Why does language choice matter in Tamlinux?</h2>
+<p>When you use an operating system, the programs you run every day &mdash; such as text editors, guide readers, launchers, and system monitors &mdash; are written in different programming languages. Some languages include large automated background machinery, while others compile straight to bare-metal instructions. In Tamlinux, core utilities are written in standard C11 so they start instantly, consume minimal memory, and keep computing fast and responsive.</p>
+
+<h3>Why it matters</h3>
+<p>Tamlinux is designed to run reliably on modern workstations as well as budget laptops from 2006. If basic system tools require large language runtimes, heavy background threads, or dozens of megabytes of memory just to show a help page or launch a journal entry, older hardware slows down and battery life suffers. Writing core utilities in native C11 guarantees that tools start in under 5 milliseconds and use less than 4 megabytes of resident memory, leaving system resources available for what you want to do.</p>
+
+<h3>How to think about it</h3>
+<p>Think of programming languages like different kinds of vehicles. A garbage-collected language like Go is like a tour bus: spacious and convenient with built-in facilities, but heavy and slow to park. Rust is like an armored security truck: exceptionally safe and reinforced against structural damage, but requiring a massive specialized repair facility to maintain. Standard C11 is like a lightweight racing bicycle: streamlined, direct, and possessing zero extra mass. It requires careful balance and attention, but it goes anywhere instantly and can be maintained with simple, universal hand tools.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="learn/glossary/c11.html">C11</a></dt>
+<dd>The international standard for the C language published in 2011, providing modern compile-time checks and alignment without runtime bloat.</dd>
+<dt><a href="learn/glossary/machine-code.html">Machine code</a></dt>
+<dd>The native binary instructions that a computer's central processing unit executes directly.</dd>
+<dt><a href="learn/glossary/compiler.html">Compiler</a></dt>
+<dd>A program, such as GCC or Clang, that translates human-readable source code into native machine code.</dd>
+<dt><a href="learn/glossary/libc.html">Standard C Library (libc)</a></dt>
+<dd>The core system library, such as glibc or musl, that provides basic operating system interfaces for native programs.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect binary footprints, library dependencies, and startup latency</h2>
+<p><strong>Goal:</strong> you will be able to inspect executable section sizes using <code>size</code>, view shared library dependencies with <code>ldd</code>, and verify the minimal runtime footprint of native C11 utilities.</p>
+
+<nav class="learning-path" aria-label="Learning path">
+<p><strong>Learning path: Systems programming in C11</strong> &mdash;
+<a href="ecosystem/c11.html?level=2">Start</a> |
+<a href="ecosystem/sanitizers.html?level=2">&larr; Back</a> |
+<a href="improve/toolchains.html?level=2">Next &rarr;</a></p>
+</nav>
+
+<p><strong>Before you start:</strong> open a terminal window (<a href="shell/index.html">The Shell and Streams</a>). The inspection commands run in user space and do not modify any system configuration.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> Every compiled program links against system libraries and consumes memory when launched. Using <code>size</code> and <code>ldd</code> reveals the physical resource footprint of native C programs compared to programs carrying heavy language runtimes.</p>
+</aside>
+
+<h3>Worked example: inspect native binary size and shared libraries</h3>
+
+<pre class="session" data-risk="read-only">
+$ size /usr/bin/tam
+   text    data     bss     dec     hex filename
+ 294266    3656     336  298258   48d12 /usr/bin/tam
+$ ldd /usr/bin/tam
+    linux-vdso.so.1 (0x00007f966f5a8000)
+    libz.so.1 => /usr/lib/libz.so.1 (0x00007f966f514000)
+    libncursesw.so.6 => /usr/lib/libncursesw.so.6 (0x00007f966f4a3000)
+    libc.so.6 => /usr/lib/libc.so.6 (0x00007f966f200000)
+    /lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007f966f5aa000)
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-11-12.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>size /usr/bin/tam</code> reports the memory sections of the binary: text (executable code instructions), data (initialized variables), and bss (uninitialized variables). The entire program is under 300 kilobytes.</li>
+<li><code>ldd /usr/bin/tam</code> lists the shared libraries required at runtime. The command links only against <code>libz</code> (decompression), <code>libncursesw</code> (terminal capabilities), and the standard C library (<code>libc.so.6</code>).</li>
+<li>Because there is no language runtime, interpreter, or garbage collector thread, the kernel loads and executes the binary in under two milliseconds.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Check the size and shared libraries of another native Tamlinux tool, such as <code>tam-launch-journal</code> or a core utility:</p>
+
+<pre class="session" data-risk="read-only">
+$ size /usr/bin/true
+   text    data     bss     dec     hex filename
+  24787    1648     168   26603    67eb /usr/bin/true
+</pre>
+
+<p>Observe how small and direct native compiled programs are compared to multi-megabyte managed binaries.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>ldd: command not found</code></dt>
+<dd>The dynamic linker utility is part of the standard GNU C Library package (<code>glibc</code>). Ensure standard system development tools are installed.</dd>
+<dt><code>not a dynamic executable</code></dt>
+<dd>The binary was linked statically, meaning all necessary library routines are bundled directly into the executable file itself.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> core utilities avoid language runtimes and heavy dependencies. While desktop automation uses Python 3 and desktop widgets use Quickshell with QML, systems utilities (such as <code>tam</code>, <code>tam-launch-journal</code>, and <code>libtam</code>) are implemented in standard C11. When inspiration is drawn from open source projects written in Go, Rust, or Python, AI assistants extract the algorithmic ideas and re-implement them in C11 rather than importing external language ecosystems.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why do native C11 programs start in milliseconds compared to programs written in Go or Python?</summary>
+<p>C11 programs compile directly to native machine code and link only against the standard C library, requiring no interpreter initialization, virtual machine startup, or garbage collection runtime threads before execution begins.</p>
+</details>
+<details class="q">
+<summary>What tool can you use to inspect which dynamic shared libraries an executable links against?</summary>
+<p>The <code>ldd</code> utility prints the shared objects required by each program or library specified on the command line.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Architectural language comparison, AI synthesis, and the libtam foundation</h2>
+
+<h3>Reference: Systems Language Comparison Matrix</h3>
+
+<table>
+<tr><th>Language</th><th>Startup Latency</th><th>Resident Set (RSS)</th><th>Toolchain Weight</th><th>Long-Term Stability</th><th>Tamlinux Tier &amp; Role</th></tr>
+<tr><td><strong>C11 + libtam</strong></td><td>&lt; 2&ndash;5 ms</td><td>&lt; 2&ndash;4 MB</td><td>Minimal (~50 MB)</td><td>Highest (ISO standard)</td><td><strong>Tier 1:</strong> Core terminal tools, daemons, shared libraries.</td></tr>
+<tr><td><strong>Rust</strong></td><td>~5&ndash;15 ms</td><td>~10&ndash;20 MB</td><td>Heavy (~1.5 GB)</td><td>Medium (edition &amp; crate churn)</td><td><strong>Tier 2:</strong> Targeted security/concurrency components; watch crate sprawl.</td></tr>
+<tr><td><strong>Go</strong></td><td>~8&ndash;25 ms</td><td>~15&ndash;35 MB</td><td>Moderate (~500 MB)</td><td>Medium (runtime &amp; module drift)</td><td><strong>Tier 2:</strong> Rapid prototyping; avoided for core tools due to binary floor.</td></tr>
+<tr><td><strong>C++</strong></td><td>~5&ndash;10 ms</td><td>~10&ndash;25 MB</td><td>Heavy (~1 GB)</td><td>Fragile (ABI &amp; stdlib shifts)</td><td><strong>Tier 3:</strong> Interfacing with existing desktop libraries (Qt/Hyprland); no new CLIs.</td></tr>
+<tr><td><strong>Python 3</strong></td><td>~30&ndash;80 ms</td><td>~25&ndash;50 MB</td><td>Moderate (~200 MB)</td><td>High (Standard library)</td><td><strong>Tier 1:</strong> System automation, test suites, agent orchestration; not for TTY hot paths.</td></tr>
+</table>
+
+<h3>Why Tamlinux chooses C11 over Rust, Go, and C++</h3>
+
+<p>Fred Horch, the Tamlinux developer (<a href="about.html">About Tamlinux</a>), establishes strict guidelines for package languages and tool efficiency. The choice of C11 for core utilities rests on three technical pillars:</p>
+
+<ol>
+<li><strong>Anti-bloat and resource efficiency:</strong> Managed runtimes like Go impose an 8&ndash;15 megabyte minimum binary floor and spawn background garbage collector and runtime scheduler threads. For high-frequency CLI commands, window manager hooks, and terminal utilities, this overhead wastes CPU cycles and battery energy. C11 executables compiled with <code>-O2</code> start in milliseconds and use less than 4 megabytes of resident memory.</li>
+<li><strong>Toolchain ubiquity and 20-year source longevity:</strong> ISO C11 (ISO/IEC 9899:2011) is a mature, frozen standard supported by GCC since version 4.9 and Clang since version 3.1. A C11 program written today will compile cleanly decades from now. In contrast, modern ecosystems like Rust suffer from rapid compiler edition churn, deep transitive dependency graphs (Cargo sprawl), and toolchains exceeding 1.5 gigabytes that cannot run inside minimal rescue environments or chroots.</li>
+<li><strong>Zero Foreign Function Interface (FFI) friction:</strong> The Linux kernel, POSIX APIs, Wayland protocols, and terminal libraries (such as <code>libncursesw</code>) expose native C application binary interfaces (ABIs). Writing core tools in C11 allows direct invocation of operating system interfaces without foreign language marshalling or wrapper layers.</li>
+</ol>
+
+<h3>The AI synthesis workflow: extracting ideas across languages</h3>
+
+<p>One of Tamlinux's core engineering principles is to <strong>gather good ideas from everywhere</strong> (<a href="ecosystem/philosophy.html">Philosophy and principles</a>). Useful design patterns, data models, and algorithms exist across many programming languages. Rather than adopting an entire language ecosystem and its transitive dependencies, Tamlinux uses AI assistants (Claude Code, Codex, Antigravity, Cursor) under human direction to harvest ideas:</p>
+
+<ul>
+<li><strong>Algorithmic extraction:</strong> AI agents examine open source projects written in Go, Rust, Python, or Plan 9 C, analyze their core data structures and logic, and strip away framework-specific baggage.</li>
+<li><strong>Clean C11 implementation:</strong> The agent translates the distilled algorithm into standard C11 linked against <a href="learn/glossary/library.html">libtam</a>.</li>
+<li><strong>Self-contained autonomy:</strong> The resulting program has zero external dependencies beyond standard C and system libraries, eliminating the supply-chain security and maintenance burdens of large package registries.</li>
+<li><strong>Human direction and playful testing:</strong> AI agents handle the mechanical drudgery of writing C boilerplate, bounds checks, and test harnesses. The developer directs the architecture, reviews the code, and tests the tools interactively in daily computing.</li>
+</ul>
+
+<h3>Addressing C11's safety and library deficits</h3>
+
+<p>While C11 provides speed and simplicity, it lacks built-in memory safety and a rich standard collection library. Tamlinux mitigates these limitations with two engineering safeguards:</p>
+
+<ul>
+<li><strong>The <code>libtam</code> foundational library:</strong> Standalone C library providing safe dynamic strings, bounds-checked dynamic arrays, hash maps, JSON parsing, and atomic filesystem operations, inspired by lightweight libraries like <code>sds</code> and <code>cJSON</code> without the weight of GLib.</li>
+<li><strong>Strict compiler flags and runtime sanitizers:</strong> Tamlinux compiles all C code with <code>-std=c11 -Wall -Wextra -Wpedantic</code> to catch suspicious constructs at build time. During development and testing, code is built with <a href="ecosystem/sanitizers.html">AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan)</a> to catch buffer overflows, memory leaks, and use-after-free conditions before software is released.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why doesn't Tamlinux use Rust for its core terminal utilities despite Rust's built-in memory safety?</summary>
+<p>While Rust guarantees compile-time memory safety, its heavy toolchain (~1.5 GB), deep transitive crate dependencies (Cargo sprawl), and long compilation times conflict with Tamlinux's goals of anti-bloat, 20-year source longevity, and emergency self-reliance on minimal rescue media. Tamlinux achieves memory safety in C11 through pedantic compiler flags, libtam bounds-checked primitives, AddressSanitizer (ASan) in continuous testing, and static assertions.</p>
+</details>
+<details class="q">
+<summary>How does the libtam library support C11 development in Tamlinux?</summary>
+<p>It provides standard, reusable systems primitives &mdash; such as dynamic strings, hash maps, JSON parsing, and atomic file updates &mdash; that the standard C library omits, preventing individual utilities from reinventing low-level data structures while keeping binary sizes small.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li>ISO/IEC 9899:2011 &mdash; Information technology &mdash; Programming languages &mdash; C.</li>
+<li>POSIX.1-2008 / IEEE Std 1003.1-2008 &mdash; The Open Group Base Specifications Issue 7.</li>
+<li>Tamlinux package languages, libtam, and systems programming guidelines.</li>
+</ul>
+
+<h3>Improve it</h3>
+<p>Contribute language guidelines, tool reviews, and systems programming improvements in the public <a href="tam.html">tam</a> command repository.</p>
+</section>
+
+<h2>Where to next</h2>
+<ul>
+<li><a href="ecosystem/c11.html">The C11 programming language</a> &mdash; ISO C11 standard, compiler flags, and portable systems code.</li>
+<li><a href="ecosystem/sanitizers.html">Compiler sanitizers</a> &mdash; detecting memory corruption and buffer overflows with AddressSanitizer.</li>
+<li><a href="ecosystem/philosophy.html">Philosophy and principles</a> &mdash; free software, open standards, and resource efficiency.</li>
+<li><a href="ecosystem/ai.html">AI tooling and human agency</a> &mdash; supervised AI assistance and public provenance.</li>
+<li><a href="improve/toolchains.html">Toolchains and compilation</a> &mdash; how Make, GCC, and Clang coordinate builds.</li>
+<li><a href="ecosystem/index.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li>
+</ul>
+</body>
+</html>

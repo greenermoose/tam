@@ -4,7 +4,7 @@
 <title>The C11 programming language and portable systems code</title>
 <meta name="topic" content="c11">
 <meta name="summary" content="The ISO C11 standard, compiler flags, libc portability across glibc and musl, and native systems programming in Tamlinux">
-<meta name="keywords" content="c11, c, iso c11, std=c11, compiler, gcc, clang, libtam, tam, c23, c99, libc, glibc, musl, static-assert, generic, atomics, system-programming">
+<meta name="keywords" content="c11, c, iso c11, std=c11, compiler, gcc, clang, libtam, tam, c23, c99, libc, glibc, musl, static-assert, generic, atomics, system-programming, rust, go, c++, architecture, anti-bloat">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="learn">
 <meta name="parent" content="ecosystem/index.html">
@@ -26,7 +26,7 @@
 <p>When you run system utilities like the <code>tam</code> guide browser or inspection tools, they start instantly and use very little memory because they are compiled native programs written in standard C. Understanding why C is used and which standard revision governs it helps you appreciate how Tamlinux stays fast and reliable.</p>
 
 <h3>Why it matters</h3>
-<p>Core system utilities must be available under all operating conditions, including emergency recovery consoles when graphical desktop compositors, network access, or heavy language runtimes have failed. Writing utilities in standard C ensures they have no external runtime dependencies beyond the standard C library, start in under 5 milliseconds, and consume less than 4 megabytes of resident memory.</p>
+<p>Core system utilities must be available under all operating conditions, including emergency recovery consoles when graphical desktop compositors, network access, or heavy language runtimes have failed. While many modern tools are written in languages with large runtimes (like Go, Rust, or Python), writing core utilities in standard C ensures they have no external runtime dependencies beyond the standard C library, start in under 5 milliseconds, and consume less than 4 megabytes of resident memory. This anti-bloat design keeps Tamlinux responsive on hardware ranging from 2006-era budget laptops to modern multi-core workstations.</p>
 
 <h3>How to think about it</h3>
 <p>C is a compiled programming language where source code is translated directly into processor instructions by a compiler (such as GCC or Clang). Over the decades, the international C standard has evolved through major revisions: C89/C90, C99, C11, C17, and C23. C11 (ISO/IEC 9899:2011) represents a mature, universally supported standard that introduced essential features for modern 64-bit systems &mdash; including static assertions, memory alignment controls, and anonymous data structures &mdash; while maintaining complete portability across every Linux distribution and hardware generation.</p>
@@ -153,6 +153,18 @@ $ rm -f /tmp/c11_check
 <li><strong>Simplicity and anti-bloat:</strong> Core terminal tools like <code>tam</code> do not require complex newer features like binary embedding (<code>#embed</code>) or attribute specifiers. C11 provides the exact set of systems primitives required: deterministic types, memory alignment controls, and compile-time verification.</li>
 </ol>
 
+<h3>Why C11 instead of Rust, Go, or C++?</h3>
+
+<p>Modern systems software is frequently written in Rust, Go, or C++. While each language has distinct strengths, Tamlinux deliberately restricts core utilities to ISO C11 linked against <code>libtam</code>:</p>
+
+<ul>
+<li><strong>Rust:</strong> While Rust guarantees compile-time memory safety, its toolchain is enormous (~1.5 GB), compilation is slow on modest hardware, and typical projects accumulate hundreds of transitive dependencies (Cargo sprawl). In an emergency rescue environment or minimal musl chroot, compiling Rust tools is often impractical. Tamlinux instead achieves safety in C11 through pedantic compiler flags, <code>_Static_assert</code>, strict bounds-checked primitives in <code>libtam</code>, and <a href="ecosystem/sanitizers.html">AddressSanitizer (ASan)</a> testing.</li>
+<li><strong>Go:</strong> Go provides built-in concurrency with goroutines, but incurs an 8&ndash;15 MB binary size floor, spawns background runtime threads, and introduces garbage-collection pauses. These characteristics conflict with Tamlinux's anti-bloat principle of event-driven, bounded execution without background daemons.</li>
+<li><strong>C++:</strong> C++ offers powerful object and template abstractions, but code frequently suffers from template-instantiation bloat, complex cognitive overhead, and fragile application binary interface (ABI) stability across compiler and standard-library upgrades.</li>
+</ul>
+
+<p>Rather than importing entire language ecosystems, Tamlinux uses AI assistants under human direction to survey open source projects written in diverse languages, extract their best algorithmic concepts, and implement them as lean, self-contained C11 programs. For a comprehensive architectural comparison, see <a href="ecosystem/language-choices.html">systems programming philosophy and language choices</a>.</p>
+
 <h3>Key C11 features used in native Tamlinux code</h3>
 
 <ul>
@@ -202,6 +214,7 @@ cc ... -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=6
 
 <h2>Where to next</h2>
 <ul>
+<li><a href="ecosystem/language-choices.html">Systems programming philosophy and language choices</a> &mdash; why Tamlinux chooses C11 over Rust, Go, or C++, and AI synthesis.</li>
 <li><a href="ecosystem/sanitizers.html">Compiler sanitizers</a> &mdash; detecting memory corruption and buffer overflows with AddressSanitizer.</li>
 <li><a href="improve/toolchains.html">Toolchains and compilation</a> &mdash; how Make, GCC, and Clang coordinate builds.</li>
 <li><a href="ecosystem/assembly.html">Assembly language programming</a> &mdash; human-readable machine code mnemonics.</li>

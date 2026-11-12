@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-12: Antigravity CLI `1.5.7` (`gemini-3.8-flash-high`) adds systems programming philosophy and language choices guide page and expands C11 guide in corpus 0.80.0. [Record](docs/ai/2026-11-12-tam-language-choices-guide.md).
+
 2026-11-12: Antigravity CLI `1.5.7` (`gemini-3.8-flash-high`) adds compiler sanitizers and AddressSanitizer guide page and glossary entries in corpus 0.79.0. [Record](docs/ai/2026-11-12-tam-sanitizers-guide-page.md).
 
 2026-11-12: Antigravity CLI `1.5.6` (`gemini-3.8-flash-high`) maps `]` to Tab and `[` to Shift-Tab for pager link navigation in command 0.54.2 / corpus 0.78.22. [Record](docs/ai/2026-11-12-tam-pager-bracket-link-selection.md).
