@@ -289,17 +289,6 @@ Move the attention line down one line. From the breadcrumb row, return to the at
 .BR s ", " l ", " Up
 Move the attention line up one line. At the first document line, focus the last breadcrumb link; while the breadcrumb row is focused, move to the previous breadcrumb link.
 .TP
-.BR [ ", " ]
-Move the attention column left
-.RB ( [ )
-or right
-.RB ( ] )
-from link to link along the attention line, wrapping at either end. The
-column is a band as wide as the caught link, drawn down the whole screen; the
-link where it crosses the attention line is the selected link. Moving the
-attention line or following a link clears it. On the breadcrumb row these keys
-move between breadcrumb links. A line without links has nothing to catch.
-.TP
 .BR Space ", " PgDn
 Scroll down by one page: if there are enough remaining lines in the document,
 the last line showing on the screen becomes the first line; otherwise, show
@@ -322,7 +311,11 @@ line reach one row down to go all the way up.
 Jump to the bottom of the document. The fingers that move down one line reach
 one row down to go all the way down.
 .TP
-.BR Tab ", " Shift-Tab
+.BR Tab ", " ]
+.PD 0
+.TP
+.BR Shift\-Tab ", " [
+.PD
 Select the next or previous hyperlink anywhere on the page, in reading order,
 including the breadcrumb links. If no hyperlink has been selected yet, the
 first hyperlink visible on the screen is selected.
@@ -475,7 +468,7 @@ where the terminal cannot underline, followed by
 .B (not on page)
 when the page has no section at that level. The rest of the status row
 reads
-.B h Help  Esc Quit  [] Column
+.B h Help  Esc Quit  [] Select links
 and, while a link is selected, its target after
 .BR \-> ;
 the help page lists every other key. The command and corpus versions,

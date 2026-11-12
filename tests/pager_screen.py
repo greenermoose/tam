@@ -346,25 +346,18 @@ def main():
     assert b"\x1b[?2026h" not in rejected and b"\x1b[?2026l" not in rejected
     stop(pid, master)
 
-    # The attention column spans every content row at the caught link's
-    # columns, and moving the attention line clears it (D175).
+    # ] works like Tab to select next link; [ works like Shift-Tab to select previous link.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", page="nav-grid")
     for key in (b"k", b"k", b"]"):
         os.write(master, key)
         screen.feed(read_available(master))
     link_row = next(r for r in range(screen.rows) if "TopRight" in screen.line(r))
-    band_start = screen.line(link_row).index("TopRight")
-    band_end = band_start + len("TopRight")
-    heading_row = next(r for r in range(1, screen.rows) if "Nav grid" in screen.line(r))
-    for row in (heading_row, link_row + 1, screen.rows - 3):
-        for col in range(band_start, band_end):
-            assert "bg236" in screen.cells[row][col][1], (row, col, screen.cells[row][col])
-        assert "bg236" not in screen.cells[row][band_start - 1][1], (row, band_start - 1)
-        assert "bg236" not in screen.cells[row][band_end][1], (row, band_end)
-    assert "reverse" in screen.cells[link_row][band_start][1], screen.cells[link_row][band_start]
-    os.write(master, b"d")
+    tr_start = screen.line(link_row).index("TopRight")
+    assert "reverse" in screen.cells[link_row][tr_start][1], screen.cells[link_row][tr_start]
+    os.write(master, b"[")
     screen.feed(read_available(master))
-    assert "bg236" not in screen.cells[heading_row][band_start][1], screen.cells[heading_row][band_start]
+    tl_start = screen.line(link_row).index("TopLeft")
+    assert "reverse" in screen.cells[link_row][tl_start][1], screen.cells[link_row][tl_start]
     stop(pid, master)
 
     # Linux's eight-color profile keeps an interactive pager and uses reverse.

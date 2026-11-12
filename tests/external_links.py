@@ -87,7 +87,7 @@ def main():
     assert "Enter again opens it in browser-stub" in p.status(), p.status()
     assert not os.path.exists(out), "browser ran on the first press"
     # Any other key forgets the pending link and its prompt.
-    p.key(b"]")
+    p.key(b"N")
     assert "Enter again" not in p.status(), p.status()
     p.key(b"\r")
     assert "Enter again opens it in browser-stub" in p.status(), p.status()

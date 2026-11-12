@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-12: Antigravity CLI `1.5.6` (`gemini-3.8-flash-high`) maps `]` to Tab and `[` to Shift-Tab for pager link navigation in command 0.54.2 / corpus 0.78.22. [Record](docs/ai/2026-11-12-tam-pager-bracket-link-selection.md).
+
 2026-11-11: Antigravity CLI `1.5.6` (`gemini-3.8-flash-high`) restores ANSI colors on 8-color Linux virtual consoles in command 0.54.1. [Record](docs/ai/2026-11-11-tam-vt-console-colors.md).
 
 2026-11-11: Codex CLI `0.167.1` (`gpt-6.1-sol`) implements independent incremental corpus/C builds and a fast check/preview loop; tooling only. [Record](docs/ai/2026-11-11-tam-incremental-build.md).

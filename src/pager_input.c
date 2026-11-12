@@ -272,14 +272,12 @@ static void handle_key_inner(pager_t *st, unsigned char c)
             st->msg[0] = '\0';
         }
         break;
-    case '[':
-        move_column(st, -1);
-        break;
     case ']':
-        move_column(st, 1);
-        break;
     case '\t':
         select_next_link(st, 1, 1);
+        break;
+    case '[':
+        select_next_link(st, -1, 1);
         break;
     case 'N':
         if (st->search_query[0] != '\0') {
@@ -385,10 +383,9 @@ static void handle_key_inner(pager_t *st, unsigned char c)
 
 /* The attention column lives only on the line where it was raised: any key
  * that moves the attention line, changes the selection or the page clears
- * it. Only the bracket keys raise it. */
+ * it. */
 void handle_key(pager_t *st, unsigned char c)
 {
-    int column_key = c == '[' || c == ']';
     const tam_document_t *doc = st->doc;
     int line = st->cursor_line;
     int selected = st->selected;
@@ -411,7 +408,6 @@ void handle_key(pager_t *st, unsigned char c)
     if (st->doc != doc)
         st->show_address = 0;
     if (c == '\r' || c == '\n' || c == 'f' || c == 'j' ||
-        (!column_key && (st->doc != doc || st->cursor_line != line ||
-                         st->selected != selected)))
+        st->doc != doc || st->cursor_line != line || st->selected != selected)
         st->column_active = 0;
 }

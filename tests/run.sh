@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.54.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.54.2' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -300,20 +300,20 @@ def send_and_get_target(key):
     return last_target
 
 drain_pty(master, timeout=0.1, quiet=0.01)
-# 1. Tab from no selection selects the first link
-t1 = send_and_get_target(b"\t")
+# 1. ] from no selection selects the first link, exactly like Tab
+t1 = send_and_get_target(b"]")
 assert t1 == "first.html", f"expected first.html, got {t1}"
-# 2. Shift-Tab from first link wraps backward to last link
-t_wrap = send_and_get_target(b"\x1b[Z")
+# 2. [ from first link wraps backward to last link, exactly like Shift-Tab
+t_wrap = send_and_get_target(b"[")
 assert t_wrap == "info:dir", f"expected info:dir, got {t_wrap}"
-# 3. Tab forward wraps back to first link
-t1_tab = send_and_get_target(b"\t")
+# 3. ] forward wraps back to first link
+t1_tab = send_and_get_target(b"]")
 assert t1_tab == "first.html", f"expected first.html, got {t1_tab}"
 # 4. Tab forward selects second link
 t2 = send_and_get_target(b"\t")
 assert t2 == "second.html", f"expected second.html, got {t2}"
-# 5. Shift-Tab (ANSI CSI Z) circulates backward
-t3 = send_and_get_target(b"\x1b[Z")
+# 5. [ circulates backward to first link
+t3 = send_and_get_target(b"[")
 assert t3 == "first.html", f"expected first.html, got {t3}"
 # 6. Shift-Tab from first link wraps backward to last link
 t4 = send_and_get_target(b"\x1b[Z")
@@ -328,11 +328,17 @@ assert t7 == "tam:topics", f"expected tam:topics, got {t7}"
 # 8. N with no search active leaves the selected link unchanged
 t8 = send_and_get_target(b"N")
 assert t8 == "tam:topics", f"expected tam:topics, got {t8}"
+# 9. [ moves backward to previous link
+t9 = send_and_get_target(b"[")
+assert t9 == "tam:search", f"expected tam:search, got {t9}"
+# 10. ] moves forward to next link
+t10 = send_and_get_target(b"]")
+assert t10 == "tam:topics", f"expected tam:topics, got {t10}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures/link-cycle" || fail "interactive pager link navigation failed"
-    pass "pager link navigation: Tab forward and Shift-Tab backward circulation"
+    pass "pager link navigation: Tab and ] forward, Shift-Tab and [ backward circulation"
 
     # Pager home-row keys (D175) and Info dir rebind to i
     python3 -c '
@@ -395,21 +401,20 @@ def send_and_get_state(key):
     return pos, msg
 
 drain_pty(master, timeout=0.1, quiet=0.01)
-# The heading line has no links: [ and ] have nothing to catch.
-assert send_and_get_target(b"]") == "", "] caught a link on a line without links"
-assert send_and_get_target(b"[") == "", "[ caught a link on a line without links"
-
 # k moves the attention line down one row; the first link row catches tl.html.
 assert send_and_get_target(b"k") == ""
 t = send_and_get_target(b"k")
 assert t == "tl.html", f"expected k to reach the first link row, got {t}"
 
-# Right (]) and left ([) move along the line and wrap at either end.
-for key, want in ((b"]", "tr.html"), (b"[", "tl.html"), (b"]", "tr.html"), (b"[", "tl.html")):
-    t = send_and_get_target(key)
-    assert t == want, f"expected {key!r} to catch {want}, got {t}"
+# ] selects next link (tr.html), [ selects previous link (tl.html); both circulate across all links.
+assert send_and_get_target(b"]") == "tr.html"
+assert send_and_get_target(b"[") == "tl.html"
+assert send_and_get_target(b"[") == "index.html", "expected [ to move to breadcrumb link index.html"
+assert send_and_get_target(b"[") == "br.html", "expected [ to wrap backward to last link br.html"
+assert send_and_get_target(b"]") == "index.html", "expected ] to wrap forward to breadcrumb link index.html"
+assert send_and_get_target(b"]") == "tl.html", "expected ] to move to first content link tl.html"
 
-# Down (d) catches the first link on the next row; right moves along it.
+# Down (d) catches the first link on the next row; ] selects next link.
 assert send_and_get_target(b"d") == "bl.html"
 assert send_and_get_target(b"]") == "br.html"
 # Up (l, s) moves one row; moving up catches the last link on the row.
@@ -435,14 +440,14 @@ assert send_and_get_target(b"]") == "br.html"
 _, msg = send_and_get_state(b"f")
 assert msg == "cannot open br.html", f"expected f to follow br.html, got [{msg}]"
 
-assert send_and_get_target(b"]") == "bl.html"
+assert send_and_get_target(b"[") == "bl.html"
 _, msg = send_and_get_state(b"j")
 assert msg == "cannot open bl.html", f"expected j to follow bl.html, got [{msg}]"
 
 # Go back: a and ; are Left Arrow synonyms (at root, reports no earlier page).
 _, msg = send_and_get_state(b";")
 assert "no earlier page" in msg, f"expected ; to report no earlier page, got [{msg}]"
-send_and_get_target(b"]")
+send_and_get_target(b"[")
 _, msg = send_and_get_state(b"a")
 assert "no earlier page" in msg, f"expected a to report no earlier page, got [{msg}]"
 
@@ -477,7 +482,7 @@ os.write(m, b"q")
 os.waitpid(p, 0)
 
 ' "$TAM" "$root/tests/fixtures" "$root/tests/fixtures/guide" || fail "interactive pager home-row keys or i dir key failed"
-    pass "pager home-row keys: [ ] along the line, s/l d/k one row, a/; back, f/j follow, x/. c/ top and bottom, g guide, i dir"
+    pass "pager home-row keys: s/l d/k one row, a/; back, f/j follow, x/. c/ top and bottom, g guide, i dir"
 
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl, re
@@ -823,7 +828,7 @@ buf = drain_pty(master, timeout=0.1, quiet=0.01)
 # 1. Reading telemetry: verify status line contains position metric
 assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {buf}"
 # The status row lists only Help, Quit and link selection, then the version.
-assert b"h Help  Esc Quit  [] Column" in buf, f"status line missing key hints: {buf}"
+assert b"h Help  Esc Quit  [] Select links" in buf, f"status line missing key hints: {buf}"
 assert b"/ n/N" not in buf and b"q Quit" not in buf, f"status line kept old hints: {buf}"
 assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)(?:\x1b\(B\x1b\[m)?\x1b\[K", buf), f"status line missing version: {buf}"
 
