@@ -1,10 +1,10 @@
 # Absolute-beginner task coverage
 
-**Plan status:** Ready
-**Reviewed:** 2026-11-02
+**Plan status:** Completed
+**Reviewed:** 2026-11-13
 **Scope:** Corpus content plan for a reader who has never used a terminal; page set, command-reference scope and build order. Approved 2026-11-02 for implementation in slices.
 **Authority:** [Plan maintenance procedure](../../plan-maintenance.md) and the developer's instructions of 2026-11-02 (audience: absolute beginner; deliverable: a plan document; command reference: a hand-written curated subset).
-**Next action:** Slice 1 is implemented at corpus 0.61.0. The developer verifies the live key behaviour on the running session; Slice 2 starts only when directed.
+**Next action:** None. All four slices are delivered at corpus 0.81.0; learner review and packaged acceptance remain developer-directed and are not implied by this completion.
 
 **Decisions recorded 2026-11-02:** page granularity is one page per job family (option B); the skill registry gains `devices`, `security` and `accounts` at beginner and intermediate level; the page set and curated command subset below are approved.
 
@@ -234,6 +234,17 @@ Limits:
 
 ## Disposition
 
-Ready. The developer approved the page set, the curated command subset, job-family
-granularity and the `devices`, `security` and `accounts` skill domains on
-2026-11-02. Slice 1 is implemented; later slices wait for developer direction.
+Completed at corpus 0.81.0. The developer approved the page set, the curated
+command subset, job-family granularity and the `devices`, `security` and
+`accounts` skill domains on 2026-11-02. Slice 1 landed at corpus 0.61.0; the
+remaining slices landed at corpus 0.79.0–0.81.0
+([record](../../ai/2026-11-13-tam-dynamic-multipath-and-beginner-pages.md)).
+
+All 28 planned pages exist: nine `use/desktop/`, three `use/files/`, five
+`use/apps/`, five `use/security/`, one `use/people/` and five `use/commands/`.
+The three new skill domains are registered and the coverage report shows no page
+or path gaps at corpus 0.81.0.
+
+Learner review and packaged acceptance remain pending. The plan's acceptance
+criterion that a person who has never used a terminal completes each job is a
+learner test, not a structural check, and has not been run.

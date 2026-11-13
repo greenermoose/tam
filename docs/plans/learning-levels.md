@@ -15,8 +15,14 @@
 - Improve-track paths (corpus 0.67.0): Run lean (`hardware/resources`, `improve/efficiency`, `improve/zram`) and Improve your tools (`terminal`, `scripting`, `toolchains`, `ai-performance`).
 - Ecosystem goal paths (corpus 0.68.0): From atoms to bits, From gates to machine code, Cables and protocols, Display and GPU, How software runs (twenty pages).
 - Final anatomy batches (corpus 0.70.0): Session and desktop, Understand the design, Terminal stack, and Guide leftovers (twenty-one pages). Novice/learner anatomy warnings cleared.
+**Superseded 2026-11-13:** corpus 0.81.0 keeps `learn/` as the home of the path
+hubs, glossary, bibliography and skills map, and declares path membership on
+each page through `<meta name="paths">`. The bullet about eliminating the
+separate Learning track, and the earlier follow-up to retire `learn/paths/*`,
+no longer describe the design.
+
 **Authority:** The developer's decision D221 (2026-11-02, amending D184) and D185 (state directory).
-**Next action:** Learner review of migrated paths in `tam`, then packaged acceptance. Optional follow-ups: deepen thin Learner sections on former learner-only pages; retire or redirect separate `learn/paths/*` hubs once embedded paths are preferred.
+**Next action:** Learner review of migrated paths in `tam`, then packaged acceptance. Corpus 0.81.0 replaced the level hubs with topic paths driven by `<meta name="paths">`, so the old follow-up to retire or redirect `learn/paths/*` is withdrawn: those hubs are now the path entry points. Optional follow-up: deepen thin Learner sections on former learner-only pages.
 
 ## Current concept work (2026-10-27)
 

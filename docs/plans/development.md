@@ -1,8 +1,8 @@
 # tam development plan
 
 **Plan status:** Active
-**Reviewed:** 2026-10-27
-**Scope:** Living integration contract; current command 0.44.0 and corpus 0.45.5.
+**Reviewed:** 2026-11-13
+**Scope:** Living integration contract; current command 0.55.0 and corpus 0.81.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
