@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fingerprints and FIDO2 security keys</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="security.beginner, security.intermediate">
+<meta name="topic" content="fingerprint-and-fido">
+<meta name="summary" content="Enroll a built-in fingerprint sensor or USB FIDO2 security key for sudo and polkit prompts, or remove them cleanly">
+<meta name="keywords" content="fingerprint, fido2, yubikey, u2f, pam, polkit, clamshell, security key">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="people-and-security:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Fingerprints and FIDO2 security keys</p>
+</nav>
+
+<h1>Fingerprints and FIDO2 security keys</h1>
+<p>This page explains how to register a fingerprint reader or hardware FIDO2 key so you can approve administrator prompts with a quick touch while keeping your password as fallback.</p>
+
+<section data-level="novice">
+<h2>Unlocking prompts with a touch</h2>
+<p>Typing a long password many times a day can feel slow. If your laptop has a fingerprint reader, or if you carry a USB security key (FIDO2), Tamlinux can let you tap that hardware to approve permission prompts.</p>
+
+<h3>Why it matters</h3>
+<p>Hardware verification confirms you are physically sitting at the computer without encouraging you to choose an easy-to-guess password.</p>
+
+<h3>How to think about it</h3>
+<p>Fingerprints and security keys act as convenient backup keys on the same door: if your sensor is unreachable—for example when a laptop is docked with its lid closed—Tamlinux automatically falls back to asking for your password.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/fingerprint.html">Fingerprint authentication</a></dfn></dt>
+<dd>Verifying your identity by scanning a registered fingerprint through <code>fprintd</code>.</dd>
+<dt><dfn><a href="learn/glossary/fido.html">FIDO2</a></dfn></dt>
+<dd>A hardware token standard where tapping a physical USB or NFC key signs an authentication challenge.</dd>
+<dt><dfn><a href="learn/glossary/pam.html">PAM</a></dfn></dt>
+<dd>Pluggable Authentication Modules, the Linux layer that decides whether a password, fingerprint, or token satisfies a prompt.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Check hardware readiness, enroll, and remove</h2>
+<p><strong>Goal:</strong> verify whether your hardware has a supported fingerprint sensor or USB FIDO2 token before modifying PAM rules, and know the exact undo command.</p>
+<p><strong>Before you start:</strong> enrolling hardware changes <code>/etc/pam.d/sudo</code> and <code>/etc/pam.d/polkit-1</code> and installs driver packages if needed. Keep your user password handy and test in a second terminal before closing the first.</p>
+
+<h3>Worked example</h3>
+<p>Check read-only whether a supported fingerprint reader is detected and whether PAM currently checks <code>pam_fprintd</code> or <code>pam_u2f</code>:</p>
+<pre class="session" data-risk="read-only">
+$ tam-hw-fingerprint && echo "fingerprint reader present" || echo "no fingerprint reader"
+$ grep -E 'pam_(fprintd|u2f)\.so' /etc/pam.d/sudo /etc/pam.d/polkit-1 2>/dev/null
+</pre>
+<p>To enroll a fingerprint (installing <code>fprintd</code> and adding the clamshell lid gate), use the menu under <strong>Setup &rarr; Security &rarr; Fingerprint</strong> or run <code>tam-setup-security-fingerprint</code>. To register a FIDO2 key (installing <code>libfido2</code> and <code>pam-u2f</code>, writing <code>/etc/fido2/fido2</code>), use <code>tam-setup-security-fido2</code>.</p>
+
+<h3>Try it</h3>
+<p>Run the read-only <code>tam-hw-fingerprint</code> predicate in a terminal. Notice it exits quietly with status <code>0</code> when hardware is present or <code>1</code> when none is found, without modifying configuration.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Fingerprint prompt blocks while docked with the laptop lid shut</dt>
+<dd><code>tam-setup-security-fingerprint</code> inserts a clamshell gate reading <code>/proc/acpi/button/lid/*/state</code> so closed-lid sessions skip the sensor and ask for your password directly.</dd>
+<dt>Want to undo fingerprint or FIDO2 registration cleanly</dt>
+<dd>Run <code>tam-remove-security-fingerprint</code> or <code>tam-remove-security-fido2</code> (or use Menu &rarr; Remove &rarr; Security).</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Screen locking uses <code>hyprlock</code>, which talks to <code>fprintd</code> directly rather than modifying lock-screen PAM files; password authentication always stays available as fallback.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>What happens to your normal account password after registering a FIDO2 key or fingerprint?</summary>
+<p>Your password stays enabled as fallback if the sensor is unavailable, you leave the USB key behind, or the laptop lid is closed.</p>
+</details>
+<details class="q">
+<summary>Which commands cleanly remove PAM rules added by hardware authentication setup?</summary>
+<p><code>tam-remove-security-fingerprint</code> and <code>tam-remove-security-fido2</code>.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/security.html">Hardware Security and Privilege Management</a> &mdash; <code>tam-sudo-docker</code> and timed elevation details.</li>
+<li><a href="use/security/passwords.html">Passwords, sudo, and keeping secrets safe</a> &mdash; privilege prompts and password hygiene.</li>
+</ul>
+</body>
+</html>

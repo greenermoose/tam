@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Opening the web browser and setting your default</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.beginner, software.beginner">
+<meta name="topic" content="web-browser">
+<meta name="summary" content="Launch your browser from the desktop or terminal, open private windows, and inspect or change the default browser">
+<meta name="keywords" content="browser, chromium, firefox, default browser, tam-launch-browser, tam-default-browser">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Opening the web browser and setting your default</p>
+</nav>
+
+<h1>Opening the web browser and setting your default</h1>
+<p>This page shows how to open the web browser, start a private browsing window, and choose which installed browser handles links by default.</p>
+
+<section data-level="novice">
+<h2>Opening web pages cleanly</h2>
+<p>Press <code>Meta + Shift + B</code> to open or focus your web browser on the Tamlinux desktop, or choose a browser from the applications menu (<code>Ctrl + F12</code>).</p>
+
+<h3>Why it matters</h3>
+<p>Knowing the browser shortcut and default setting stops links clicked inside terminals, documents, or chat tools from opening an unexpected browser.</p>
+
+<h3>How to think about it</h3>
+<p>The desktop tracks one preferred browser via XDG desktop handlers so any command or clicked URL asks that browser to open it.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/http.html">HTTP</a></dfn></dt>
+<dd>Hypertext Transfer Protocol, the standard language web browsers use to fetch web pages (encrypted as <a href="learn/glossary/https.html">HTTPS</a>).</dd>
+<dt>Default handler</dt>
+<dd>The application that the desktop automatically launches when you open a matching file type or web link.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Launch, private mode, and check default browser</h2>
+<p><strong>Goal:</strong> inspect the currently configured default browser read-only, open a private session, and know how Tamlinux switches defaults reversibly.</p>
+<p><strong>Before you start:</strong> checking <code>tam-default-browser</code> with no arguments is read-only. Passing a browser name updates your XDG default browser handler and can be reversed at any time by passing the previous name.</p>
+
+<h3>Worked example</h3>
+<p>Print the current default browser identifier and resolve its launcher command read-only without launching a window:</p>
+<pre class="session" data-risk="read-only">
+$ tam-default-browser
+$ tam-browser-command chromium.desktop
+</pre>
+<p>To launch your default browser from a terminal (or open a private browsing window without leaving history in your normal profile):</p>
+<pre class="session" data-risk="user">
+$ tam-launch-browser --private
+</pre>
+<p>Supported defaults in <code>tam-default-browser</code> include <code>chromium</code>, <code>chrome</code>, <code>brave</code>, <code>brave-origin</code>, <code>edge</code>, <code>firefox</code>, and <code>zen</code> (for whichever browser is installed).</p>
+
+<h3>Try it</h3>
+<p>Run <code>tam-default-browser</code> in a terminal with no arguments to confirm what browser links use right now.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Switching defaults did not pick another browser</dt>
+<dd>Make sure that browser is actually installed first; Menu &rarr; Setup &rarr; Defaults only shows browsers detected via <code>tam-cmd-present</code>.</dd>
+<dt>Want to undo a default change</dt>
+<dd>Re-run <code>tam-default-browser &lt;previous-name&gt;</code> or switch back from the Menu.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux sets <code>BROWSER</code> to <code>tam-launch-browser</code> in default Bash startup configuration so terminal links open consistently.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>How do you inspect your current default browser without changing any settings?</summary>
+<p>Run <code>tam-default-browser</code> with no arguments.</p>
+</details>
+<details class="q">
+<summary>What flag starts a private browser session via <code>tam-launch-browser</code>?</summary>
+<p><code>--private</code>.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/apps/web-apps.html">Web apps in your menu</a> &mdash; open a single web service in its own focused window.</li>
+<li><a href="use/desktop/clipboard.html">Clipboard history</a> &mdash; paste copied URLs reliably.</li>
+</ul>
+</body>
+</html>

@@ -99,10 +99,11 @@ Naming the developer:
 - A **level** is Beginner (1), Intermediate (2) or Expert (3); All (0) shows
   every level. The reader's chosen level is their lens. Do not call levels
   "depths" or "routes".
-- A **path** is a reading order: the level paths ("Beginner path",
-  "Intermediate path", "Expert path") and the goal paths in `learn/paths/`.
-  Boot pages keep "fallback route" and "rescue route" for their own, separate
-  meaning.
+- A **path** is a topic-centered reading order defined by a hub page in
+  `learn/paths/<id>.html` (`kind="path"`) and `<meta name="paths" content="<id>:<step>, ...">`
+  on its step pages. The pager builds path navigation dynamically from `index.paths.tsv`
+  so a single page can belong to several paths. Boot pages keep "fallback route"
+  and "rescue route" for their own, separate meaning.
 - The desktop modifier is **Meta** (chords `Meta + K`; Hyprland tokens
   `META + …`). Do not write `SUPER + …` or “the SUPER key” in living pages.
   Historical Super/SUPER belongs only on `desktop/meta-key.html` and
@@ -132,9 +133,14 @@ remains valid during migration. Supplied kinds must be valid. Declare skills
 as comma-separated IDs in `<meta name="skills">`, for example
 `shell.beginner, shell.intermediate`. IDs come from
 `knowledge/learn/skills/skills.json`; a skill's level must be offered by the page.
-Goal paths may name skills at the levels they visit; their level metadata
-states the starting level. The skills map publishes the same can-do statements
-for readers.
+Topic paths may name skills at the levels they visit; their level metadata
+states the starting level. Declare path membership on step pages with
+`<meta name="paths" content="<id>:<step>, ...">`, where `<id>` is the `topic`
+of a `learn/paths/*.html` page (`kind="path"`) and `<step>` is a unique 1-based
+step number within that path. Do not write static `<nav class="learning-path">`
+blocks; the pager synthesizes path navigation dynamically and preserves the
+reader's active path across multi-path pages. The skills map publishes the same
+can-do statements for readers.
 
 Mark a term's first use with a glossary link, optionally inside `<dfn>`.
 Every `<dfn>` must contain a working link under `learn/glossary/`; definitions
@@ -153,21 +159,21 @@ corpus addresses retain the existing guide-link convention. Give each entry
 its own page: current readers support same-page anchors but do not resolve
 cross-page fragments. Glossary links likewise name a complete term page.
 
-`index.json` adds `kind` and `skills`. `index.kinds.tsv` and `index.skills.tsv`
-project them without altering the established ten-column `index.tsv`.
-These optional sidecars omit pages with no supplied kind/skills; absence means
+`index.json` adds `kind`, `skills`, and `paths`. `index.kinds.tsv`, `index.skills.tsv`,
+and `index.paths.tsv` project them without altering the established ten-column `index.tsv`.
+These optional sidecars omit pages with no supplied kind/skills/paths; absence means
 unclassified/unmapped, as the JSON and coverage report also show.
 `coverage.json` reports every skill cell's page/path coverage, explicit gaps,
 unclassified/unmapped pages and anatomy warnings. Read it with
 `python3 tools/report-coverage.py --warnings` after `make corpus`. A mapped
 page is a coverage claim, not learner validation or proof of mastery.
 
-`component-coverage.json` (plan 26 W1) maps each product component
-(`tamlinux/commands/*`, `fred.*` plugins, binding `.lua` files) to corpus
+`component-coverage.json` maps each product component
+(`tamlinux/commands/*`, `fred.*` plugins, binding `.lua` files, and `tamlinux-tools/src/*` tools) to corpus
 pages that mention its exact name, or to an exemption in
 `tools/component-coverage-exemptions.tsv`. Read or refresh with
 `python3 tools/report-component-coverage.py` (and `--json` / `--check`).
-`--check` is available but not yet required by `make corpus-and-test`.
+`make corpus-and-test` runs `--check --quiet` automatically via `corpus-check`.
 Style and teaching quality remain under [`corpus-style.md`](corpus-style.md).
 The unmapped list includes navigation and reference pages that may not need
 skill mappings; the per-cell page/path gaps identify missing teaching coverage.
@@ -211,8 +217,8 @@ Readers see the text that `tam show` renders, not the HTML.
 
 1. Claim the page, its section `index.html`, `knowledge/index.html`,
    `knowledge/index.json`, `knowledge/index.tsv`, `knowledge/index.parents.tsv`,
-   `knowledge/index.kinds.tsv`, `knowledge/index.skills.tsv`, `knowledge/coverage.json`,
-   `knowledge/version`,
+   `knowledge/index.kinds.tsv`, `knowledge/index.skills.tsv`, `knowledge/index.paths.tsv`,
+   `knowledge/coverage.json`, `knowledge/version`,
    your `docs/ai/` record, and `AI_PROVENANCE.md` while
    you edit it.
 2. Write the page from its sources. Keep a list of what you checked.
@@ -243,7 +249,7 @@ timestamps did not advance. Unchanged outputs keep their contents and mtimes.
 After committing page changes, run `make corpus` again and review and commit
 any changes to `knowledge/index.tsv`, `knowledge/index.json`,
 `knowledge/index.parents.tsv`, `knowledge/index.kinds.tsv`,
-`knowledge/index.skills.tsv` and `knowledge/coverage.json`.
+`knowledge/index.skills.tsv`, `knowledge/index.paths.tsv` and `knowledge/coverage.json`.
 Rerun `make corpus` after that index commit to
 refresh the build marker; a clean corpus/tooling tree reports no `-dirty`.
 No separate Python invocation is needed. Version bumps remain manual.

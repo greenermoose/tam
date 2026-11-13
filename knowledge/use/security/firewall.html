@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Checking and managing the host firewall</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="security.intermediate">
+<meta name="topic" content="host-firewall">
+<meta name="summary" content="Inspect whether the Tamlinux nftables host firewall or transitional UFW rules are active and understand safe rule changes">
+<meta name="keywords" content="firewall, nftables, ufw, ports, ssh, security, subnet, incoming">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="people-and-security:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Checking and managing the host firewall</p>
+</nav>
+
+<h1>Checking and managing the host firewall</h1>
+<p>This page explains what a host firewall does on your workstation, how Tamlinux inspects whether incoming network connections are blocked or allowed, and how firewall rules interact with SSH.</p>
+
+<section data-level="novice">
+<h2>Closing unused doors on the network</h2>
+<p>Whenever your computer joins a Wi-Fi or wired network, other devices on that network can probe your machine's numbered network ports. A host firewall drops unexpected incoming traffic while still letting your web browser and updates connect outward.</p>
+
+<h3>Why it matters</h3>
+<p>Default-drop incoming rules protect local services and shared workspaces from accidental exposure on untrusted networks.</p>
+
+<h3>How to think about it</h3>
+<p>Think of outgoing connections as requests you initiated yourself—replies to your requests are allowed back in automatically, while unsolicited knocks on closed ports are ignored.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/firewall.html">Firewall</a></dfn></dt>
+<dd>A kernel filter that inspects packets and drops or allows traffic according to policy rules.</dd>
+<dt><dfn><a href="learn/glossary/port.html">Port</a></dfn></dt>
+<dd>A numbered endpoint (such as 22 for SSH or 443 for HTTPS) identifying a network service on a host.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect firewall state before changing rules</h2>
+<p><strong>Goal:</strong> verify whether Tamlinux's <code>nftables</code> policy or transitional <code>ufw</code> frontend owns the firewall before touching rules or services.</p>
+<p><strong>Before you start:</strong> checking systemd service status is read-only. Changing live firewall rules on a remote machine can lock out your connection; prepare local console access and a rollback checkpoint first.</p>
+
+<h3>Worked example</h3>
+<p>Check read-only whether <code>nftables.service</code> is active on the workstation:</p>
+<pre class="session" data-risk="read-only">
+$ systemctl is-active nftables.service 2>/dev/null || echo "nftables inactive"
+</pre>
+<p>With administrator privileges, inspect the active owned <code>tamlinux-filter</code> table (or check transitional <code>ufw status</code> on systems before full nftables cutover):</p>
+<pre class="session" data-risk="system">
+$ sudo nft list table inet tamlinux-filter
+</pre>
+<p>The owned host template installs from <code>~/.local/share/tamlinux/nftables/tamlinux-host.conf.template</code> into <code>/etc/nftables.conf</code>. Its input chain defaults to <code>policy drop</code>, permits established/related connections, loopback, ICMP/ICMPv6, and restricts SSH (port 22), mDNS (5353), and LocalSend (53317) to your local home subnet.</p>
+
+<h3>Try it</h3>
+<p>Run <code>systemctl is-active nftables.service</code> without <code>sudo</code> to see whether the kernel ruleset service is running on your workstation. Remember that Docker keeps its own chains via iptables compatibility rather than modifying <code>tamlinux-filter</code>.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>tam-setup-security-sshd</code> says it skipped automatic firewall rules</dt>
+<dd>Neither an active <code>tamlinux-filter</code> policy nor <code>ufw</code> was detected. Verify <code>/etc/nftables.conf</code> syntax safely with <code>nft -c -f</code> during an approved maintenance step.</dd>
+<dt>Closing a service port after setup</dt>
+<dd>When <code>ufw</code> owns the transitional rule, <code>tam-remove-security-sshd</code> removes its SSH limit rule; when <code>nftables</code> owns <code>/etc/nftables.conf</code>, edit the owned file intentionally rather than mixing temporary runtime deletes.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux avoids running two conflicting firewall frontends together: <code>nftables</code> with table <code>inet tamlinux-filter</code> is the target owned firewall policy, replacing legacy <code>ufw</code> rules cleanly.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>What happens to replies for websites you open when the input chain uses <code>policy drop</code>?</summary>
+<p>They are accepted automatically by the <code>ct state { established, related } accept</code> rule because your workstation initiated the connection.</p>
+</details>
+<details class="q">
+<summary>Why should you check whether <code>nftables</code> or <code>ufw</code> owns the firewall before adding rules?</summary>
+<p>Mixing rules across two firewall managers causes conflicts or silent overrides when services reload.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/security/ssh.html">SSH keys and remote access</a> &mdash; how incoming SSH checks firewall ownership.</li>
+<li><a href="use/commands/network.html">Network commands</a> &mdash; read-only network diagnostics.</li>
+</ul>
+</body>
+</html>

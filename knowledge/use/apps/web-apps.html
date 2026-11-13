@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Installing and removing web apps</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.beginner, software.beginner">
+<meta name="topic" content="web-apps">
+<meta name="summary" content="Turn a website into a dedicated desktop app launcher cleanly and remove it with tam-webapp-remove">
+<meta name="keywords" content="webapp, web app, tam-webapp-install, tam-webapp-remove, tam-launch-webapp, launcher">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:8">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Installing and removing web apps</p>
+</nav>
+
+<h1>Installing and removing web apps</h1>
+<p>This page explains how to install a frequently used website as its own standalone launcher in the applications menu and how to remove that launcher cleanly later.</p>
+
+<section data-level="novice">
+<h2>Giving a web tool its own window</h2>
+<p>Instead of keeping ten tabs lost inside your main browser window, a web app creates a normal entry in your applications menu (<code>Ctrl + F12</code>) that opens one website in a clean app window with its own icon.</p>
+
+<h3>Why it matters</h3>
+<p>Because each web app is just a lightweight user desktop entry calling <code>tam-launch-webapp</code>, you can switch to it directly like any app and remove it later in seconds without leaving hidden background services behind.</p>
+
+<h3>How to think about it</h3>
+<p>Installing a web app writes a desktop shortcut file inside your personal user applications directory (<code>~/.local/share/applications/</code>); removing it deletes only that shortcut.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/desktop-environment.html">Launcher entry</a></dfn></dt>
+<dd>A small <code>.desktop</code> file telling the apps menu the name, icon, and command for an app.</dd>
+<dt><dfn><a href="learn/glossary/home-directory.html">Home directory</a></dfn></dt>
+<dd>Your user folder where personal web-app shortcuts are stored under <code>~/.local/share/applications/</code>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect installed web apps, install, and undo</h2>
+<p><strong>Goal:</strong> list existing web-app desktop launchers read-only and know the exact install and removal commands.</p>
+<p><strong>Before you start:</strong> checking existing <code>.desktop</code> entries in <code>~/.local/share/applications/</code> is read-only. Installing or deleting a launcher affects only your personal desktop entries.</p>
+
+<h3>Worked example</h3>
+<p>List user desktop entries that launch web apps via <code>tam-launch-webapp</code> read-only:</p>
+<pre class="session" data-risk="read-only">
+$ grep -l 'tam-launch-webapp' ~/.local/share/applications/*.desktop 2>/dev/null || echo "No web apps installed"
+</pre>
+<p>To install a new web app interactively from the menu (Menu &rarr; Install &rarr; Web App) or directly by arguments:</p>
+<pre class="session" data-risk="user">
+$ tam-webapp-install "My App" "https://example.org" "web-browser"
+</pre>
+<p>To undo and remove a web app launcher by picker or exact name:</p>
+<pre class="session" data-risk="user">
+$ tam-webapp-remove "My App"
+</pre>
+
+<h3>Try it</h3>
+<p>Run the read-only <code>grep -l 'tam-launch-webapp' ~/.local/share/applications/*.desktop</code> check in your terminal to see any web-app launchers currently in your menu.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Web app opens inside a regular tabbed window or fails to start</dt>
+<dd>Verify a supported browser is configured via <code>tam-default-browser</code>; <code>tam-launch-webapp</code> runs the site using your default supported browser engine.</dd>
+<dt>Created a test web app and want it gone immediately</dt>
+<dd>Run <code>tam-webapp-remove "&lt;Name&gt;"</code> (or Menu &rarr; Remove &rarr; Web App) to remove the desktop entry and notify cleanup.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><code>tam-webapp-remove</code> scans for <code>tam-launch-webapp</code> launchers via shared pattern matching and prompts safely through <code>tam-menu-select</code> when called with no name.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Where do personal web-app launcher entries live?</summary>
+<p>Under <code>~/.local/share/applications/</code> as <code>.desktop</code> files invoking <code>tam-launch-webapp</code>.</p>
+</details>
+<details class="q">
+<summary>Which command reverses <code>tam-webapp-install</code> cleanly?</summary>
+<p><code>tam-webapp-remove</code>.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/apps/browser.html">Opening the web browser</a> &mdash; inspect or switch the underlying default browser.</li>
+<li><a href="use/commands/packages.html">Package and update commands</a> &mdash; installing and removing full native software packages.</li>
+</ul>
+</body>
+</html>

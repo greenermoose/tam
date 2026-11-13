@@ -23,8 +23,27 @@ typedef struct {
 } tam_index_entry_t;
 
 typedef struct {
+    int   step;
+    char *path;
+    char *title;
+} tam_path_step_t;
+
+typedef struct {
+    char            *id;
+    char            *title;
+    char            *intro_path;
+    char            *summary;
+    char           **skills;
+    size_t           num_skills;
+    tam_path_step_t *steps;
+    size_t           num_steps;
+} tam_path_def_t;
+
+typedef struct {
     tam_index_entry_t *entries;
     size_t count;
+    tam_path_def_t *paths;
+    size_t num_paths;
 } tam_index_t;
 
 typedef struct {
@@ -98,5 +117,14 @@ tam_keyword_list_t *tam_index_get_keywords(const tam_index_t *idx, unsigned leve
 
 /* Free keyword list */
 void tam_keyword_list_free(tam_keyword_list_t *list);
+
+/* Look up a learning path definition by ID, or NULL. */
+const tam_path_def_t *tam_index_find_path(const tam_index_t *idx, const char *id);
+
+/* Collect all learning paths passing through `page_path`, up to `max_entries`.
+ * When `out_step_idx` is non-NULL, stores each path's 0-based step index. */
+size_t tam_index_paths_for_page(const tam_index_t *idx, const char *page_path,
+                                const tam_path_def_t **out_paths,
+                                size_t *out_step_idx, size_t max_entries);
 
 #endif /* TAM_INDEX_H */

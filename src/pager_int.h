@@ -46,6 +46,7 @@ typedef struct {
 typedef struct {
     char *href;
     char *selected_href;
+    char *active_path;
     int selected_link_id;
     int selected_header;
     int   top;
@@ -87,6 +88,7 @@ typedef struct {
     int             column_active;
     int             show_address;
     unsigned        lens; /* The reader's level lens (depth.h). */
+    char           *active_path; /* Currently followed learning path ID, or NULL. */
     char            version[64]; /* "v<command> (<corpus>)", right of the status row */
     unsigned char  *fold_open;
     size_t          nfold_open;

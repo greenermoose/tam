@@ -244,3 +244,113 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
     tam_index_free(idx);
     return tam_page_render(html, width);
 }
+
+static tam_str_t append_step_href(tam_str_t html, const char *path,
+                                  const char *path_id, unsigned level)
+{
+    char *enc_id = url_encode(path_id);
+    html = tam_str_cat_printf(html, "%s?path=%s", path, enc_id ? enc_id : path_id);
+    if (level != 0 && tam_level_name(level) != NULL) {
+        html = tam_str_cat_printf(html, "&amp;level=%s", tam_level_name(level));
+    }
+    free(enc_id);
+    return html;
+}
+
+tam_document_t *tam_paths_document(const char *root, const char *path_id,
+                                   unsigned level, int width)
+{
+    tam_index_t *idx = tam_index_load(root);
+    if (idx == NULL) {
+        return NULL;
+    }
+
+    if (path_id != NULL && path_id[0] != '\0') {
+        const tam_path_def_t *p = tam_index_find_path(idx, path_id);
+        if (p == NULL) {
+            tam_index_free(idx);
+            return NULL;
+        }
+        static const tam_crumb_t crumbs[] = {
+            { "index.html", "Guide" }, { "tam:paths", "Learning Paths" }, { NULL, "Path" }
+        };
+        tam_str_t doc_title = tam_str_cat(tam_str_new("Learning Path: "), p->title);
+        tam_str_t html = tam_page_begin(doc_title, NULL, crumbs, 3);
+        tam_str_free(doc_title);
+
+        html = tam_str_cat(html, "<h1>");
+        html = tam_html_cat(html, p->title);
+        html = tam_str_cat(html, "</h1>\n<p>");
+        html = tam_html_cat(html, p->summary);
+        html = tam_str_cat(html, "</p>\n");
+
+        if (p->num_steps == 0) {
+            html = tam_str_cat(html, "<p>No steps are assigned to this path yet.</p>\n");
+        } else {
+            html = tam_str_cat(html, "<p><a href=\"");
+            html = append_step_href(html, p->steps[0].path, p->id, level);
+            html = tam_str_cat(html, "\">Start this path</a>");
+            if (p->intro_path[0] != '\0') {
+                html = tam_str_cat_printf(html, " | <a href=\"%s\">Path overview and practice</a>",
+                                          p->intro_path);
+            }
+            html = tam_str_cat(html, "</p>\n<h2>Steps</h2>\n<ol>\n");
+            for (size_t i = 0; i < p->num_steps; i++) {
+                const tam_path_step_t *st = &p->steps[i];
+                const tam_index_entry_t *e = tam_index_lookup_path(idx, st->path);
+                html = tam_str_cat(html, "<li><a href=\"");
+                html = append_step_href(html, st->path, p->id, level);
+                html = tam_str_cat(html, "\">");
+                html = tam_html_cat(html, st->title);
+                html = tam_str_cat(html, "</a>");
+                if (e != NULL && e->summary != NULL && e->summary[0] != '\0') {
+                    html = tam_str_cat(html, " &mdash; ");
+                    html = tam_html_cat(html, e->summary);
+                }
+                html = tam_str_cat(html, "</li>\n");
+            }
+            html = tam_str_cat(html, "</ol>\n");
+        }
+        html = tam_str_cat(html, "<p><a href=\"tam:paths\">Browse all learning paths</a></p>\n");
+        tam_index_free(idx);
+        return tam_page_render(html, width);
+    }
+
+    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Learning Paths" } };
+    tam_str_t html = tam_page_begin("Learning Paths", NULL, crumbs, 2);
+    html = tam_str_cat(html,
+        "<h1>Learning Paths</h1>\n"
+        "<p>Curated routes constructed dynamically from page metadata.<br>\n"
+        "Follow any path to keep <strong>Back</strong>, <strong>Next</strong>, and <kbd>Right Arrow</kbd> "
+        "on that course even across shared pages.</p>\n");
+
+    if (idx->num_paths == 0) {
+        html = tam_str_cat(html, "<p>No learning paths are indexed.</p>\n");
+    } else {
+        html = tam_str_cat(html, "<dl>\n");
+        for (size_t i = 0; i < idx->num_paths; i++) {
+            const tam_path_def_t *p = &idx->paths[i];
+            char *enc_id = url_encode(p->id);
+            html = tam_str_cat_printf(html, "<dt><a href=\"tam:path?id=%s\">",
+                                      enc_id ? enc_id : p->id);
+            html = tam_html_cat(html, p->title);
+            html = tam_str_cat_printf(html, "</a> (%zu step%s)",
+                                      p->num_steps, p->num_steps == 1 ? "" : "s");
+            if (p->num_steps > 0) {
+                html = tam_str_cat(html, " &mdash; <a href=\"");
+                html = append_step_href(html, p->steps[0].path, p->id, level);
+                html = tam_str_cat(html, "\">Start</a>");
+            }
+            if (p->intro_path[0] != '\0') {
+                html = tam_str_cat_printf(html, " | <a href=\"%s\">Overview</a>", p->intro_path);
+            }
+            html = tam_str_cat(html, "</dt>\n<dd>");
+            html = tam_html_cat(html, p->summary);
+            html = tam_str_cat(html, "</dd>\n");
+            free(enc_id);
+        }
+        html = tam_str_cat(html, "</dl>\n");
+    }
+    tam_index_free(idx);
+    return tam_page_render(html, width);
+}

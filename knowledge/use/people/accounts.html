@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>User accounts and groups</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="accounts.beginner, accounts.intermediate, security.beginner">
+<meta name="topic" content="user-accounts">
+<meta name="summary" content="Identify your account, home folder, and groups, and add or remove another local account safely">
+<meta name="keywords" content="accounts, user, users, groups, id, home directory, useradd, usermod, userdel">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="people-and-security:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / User accounts and groups</p>
+</nav>
+
+<h1>User accounts and groups</h1>
+<p>This page explains how Linux identifies your user account, keeps your home folder separate from other people's files, and organizes permissions through groups.</p>
+
+<section data-level="novice">
+<h2>Who is using the computer?</h2>
+<p>Each person using a computer can have their own account with a separate name, password, and home folder under <code>/home/</code>. One account cannot open another person's private files by default.</p>
+
+<h3>Why it matters</h3>
+<p>Separate accounts keep personal documents, browser profiles, and preferences isolated while letting everyone share the installed operating system cleanly.</p>
+
+<h3>How to think about it</h3>
+<p>Your username is your nametag; your UID number is the numeric badge Linux checks underneath; and groups are shared clubs (such as audio or printer access) that grant specific device or admin rights.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/uid.html">UID</a></dfn></dt>
+<dd>The numeric user identifier Linux attaches to your account and every file you create.</dd>
+<dt><dfn><a href="learn/glossary/gid.html">GID</a></dfn></dt>
+<dd>The primary numeric group identifier for your account.</dd>
+<dt><dfn><a href="learn/glossary/home-directory.html">Home directory</a></dfn></dt>
+<dd>Your personal folder (usually <code>/home/&lt;username&gt;</code>) for documents and user configuration.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect your account and plan user changes</h2>
+<p><strong>Goal:</strong> read your account name, UID, home path, and group memberships safely, and understand the reversible boundaries before adding or changing another account.</p>
+<p><strong>Before you start:</strong> inspecting your own account requires no privileges. Creating, changing groups for, or deleting accounts requires administrator approval and should be planned with a clear rollback decision first.</p>
+
+<h3>Worked example</h3>
+<p>Inspect your own user ID, home folder, and current groups read-only:</p>
+<pre class="session" data-risk="read-only">
+$ id
+$ printf 'Home: %s\n' "$HOME"
+$ getent passwd "$USER"
+</pre>
+<p>To check whether another local user exists without creating or altering anything, query the local user database read-only:</p>
+<pre class="session" data-risk="read-only">
+$ getent passwd guest
+</pre>
+<p>Creating an unprivileged account with its own home directory uses standard Linux account tools (<code>useradd -m &lt;name&gt;</code> followed by <code>passwd &lt;name&gt;</code>), and adding supplementary access such as <code>wheel</code> uses <code>usermod -aG &lt;group&gt; &lt;name&gt;</code>. Notice the <code>-a</code> (append) flag: running <code>usermod -G</code> without <code>-a</code> replaces all supplementary groups instead of adding one.</p>
+
+<h3>Try it</h3>
+<p>Run <code>id</code> and <code>ls -ld "$HOME"</code> in a terminal. Verify who owns your home folder and check that the permission bits keep other accounts out of private directories.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A newly added group does not take effect immediately</dt>
+<dd>Group memberships are assigned at login. Sign out and sign back in (or start a fresh login session) before testing access.</dd>
+<dt>Forgot <code>-a</code> with <code>usermod -G</code></dt>
+<dd>Because missing <code>-a</code> drops previous supplementary groups, always record <code>id -Gn &lt;user&gt;</code> before modifying any group list.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Some groups (such as <code>wheel</code> for <code>sudo</code> or <code>docker</code> for the Docker socket) are effectively administrator-level. Only grant them to trusted accounts, and check <code>tam-sudo-docker --configured</code> before altering container group settings.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Why is <code>usermod -aG &lt;group&gt; &lt;user&gt;</code> safer than omitting <code>-a</code>?</summary>
+<p><code>-a</code> appends to existing supplementary groups; without it, <code>usermod -G</code> overwrites the user's previous group list.</p>
+</details>
+<details class="q">
+<summary>After adding your account to a new group, why might a running terminal still behave as if you are not in it?</summary>
+<p>Running processes keep the group list initialized when your login session started until you open a new login session.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/security/passwords.html">Passwords, sudo, and keeping secrets safe</a> &mdash; how user passwords and elevation prompts interact.</li>
+<li><a href="filesystem/permissions.html">Permissions and ownership</a> &mdash; control who can read, write, or execute files.</li>
+</ul>
+</body>
+</html>

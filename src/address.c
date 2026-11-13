@@ -41,7 +41,9 @@ int tam_addr_takes_lens(const char *href)
     return kind == TAM_ADDR_GUIDE ||
            (kind == TAM_ADDR_VIEW && (has_prefix(href, "tam:explain") ||
                                       has_prefix(href, "tam:topics") ||
-                                      has_prefix(href, "tam:keywords")));
+                                      has_prefix(href, "tam:keywords") ||
+                                      has_prefix(href, "tam:paths") ||
+                                      has_prefix(href, "tam:path")));
 }
 
 static int hex_value(char c)
@@ -152,6 +154,15 @@ static tam_document_t *load_topics(const tam_loader_ctx_t *c, const char *href, 
     return c->root != NULL ? tam_topics_document(c->root, view_level(href), w) : NULL;
 }
 
+static tam_document_t *load_paths(const tam_loader_ctx_t *c, const char *href, int w)
+{
+    if (c->root == NULL) return NULL;
+    char id[256] = {0};
+    if (!tam_addr_param(href, "id", id, sizeof(id)) && strncmp(href, "tam:path:", 9) == 0)
+        decode_into(href + 9, href + 9 + strcspn(href + 9, "?#"), id, sizeof(id));
+    return tam_paths_document(c->root, id[0] ? id : NULL, view_level(href), w);
+}
+
 static const struct {
     const char *prefix;
     tam_document_t *(*load)(const tam_loader_ctx_t *, const char *, int);
@@ -165,6 +176,8 @@ static const struct {
     { "tam:explain",  load_explain },
     { "tam:keywords", load_keywords },
     { "tam:topics",   load_topics },
+    { "tam:paths",    load_paths },
+    { "tam:path",     load_paths },
 };
 
 tam_document_t *tam_address_load(void *vctx, const char *href, int width)

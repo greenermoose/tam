@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>System, drive, power, and session commands</title>
+<meta name="kind" content="reference">
+<meta name="skills" content="devices.beginner, hardware.beginner, hardware.intermediate">
+<meta name="topic" content="system-commands">
+<meta name="summary" content="Hand-checked Tamlinux commands for CPU and memory stats, drive checks, power profiles, battery status, hibernation, and session actions">
+<meta name="keywords" content="system commands, tam-system-stats, tam-drive-info, tam-drive-select, tam-powerprofiles-list, tam-powerprofiles-set, tam-battery-status, tam-hibernation-available, tam-system-lock, tam-system-reboot">
+<meta name="level" content="learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/commands/index.html">
+<meta name="paths" content="command-line-fluency:11">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="use/commands/index.html">Command reference</a> / System, drive, power, and session commands</p>
+</nav>
+
+<h1>System, drive, power, and session commands</h1>
+<p>These commands report resource usage, inspect drives and batteries, manage power profiles, and lock or end your desktop session.</p>
+
+<h2>Diagnostics and drives</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-system-stats</code></td><td>Print compact CPU and memory usage stats for scripts or bars</td><td>Read-only</td><td><code>commands/tam-system-stats/tam-system-stats</code></td></tr>
+<tr><td><code>tam-hardware</code></td><td>Detect and report host hardware facts</td><td>Read-only</td><td><code>commands/tam-hardware/</code></td></tr>
+<tr><td><code>tam-drive-info /dev/&lt;drive&gt;</code></td><td>Print drive size, model, partition, and mount information</td><td>Read-only</td><td><code>commands/tam-drive-info/tam-drive-info</code></td></tr>
+<tr><td><code>tam-drive-select &lt;list&gt;</code></td><td>Prompt interactively to select a drive path safely</td><td>Read-only selector</td><td><code>commands/tam-drive-select/tam-drive-select</code></td></tr>
+<tr><td><code>tam-disk-speedtest</code></td><td>Measure storage sequential read/write speed in a scratch location</td><td>User (disk I/O test)</td><td><code>commands/tam-disk-speedtest/tam-disk-speedtest</code></td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ tam-system-stats
+</pre>
+
+<h2>Power profiles, battery, and hibernation</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-powerprofiles-list [--active-state]</code></td><td>List available power profiles ordered lowest power first</td><td>Read-only</td><td><code>commands/tam-powerprofiles-list/tam-powerprofiles-list</code></td></tr>
+<tr><td><code>tam-powerprofiles-set [autodetect|ac|battery] [profile]</code></td><td>Set and remember <code>power-saver</code>, <code>balanced</code>, or <code>performance</code> profile</td><td>User setting (undo by re-running with previous profile)</td><td><code>commands/tam-powerprofiles-set/tam-powerprofiles-set</code></td></tr>
+<tr><td><code>tam-battery-status</code></td><td>Print current battery charge and charging state</td><td>Read-only</td><td><code>commands/tam-battery-status/tam-battery-status</code></td></tr>
+<tr><td><code>tam-hibernation-available</code></td><td>Exit 0 when hibernation resume configuration is present, else non-zero</td><td>Read-only probe</td><td><code>commands/tam-hibernation-available/tam-hibernation-available</code></td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ tam-powerprofiles-list --active-state
+$ tam-hibernation-available && echo "hibernate ready" || echo "not configured"
+</pre>
+
+<h2>Session actions</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-system-lock</code></td><td>Lock the graphical session immediately via <code>hyprlock</code></td><td>User (unlock with password/auth)</td><td><code>commands/tam-system-lock/tam-system-lock</code></td></tr>
+<tr><td><code>tam-system-sleep-lock</code></td><td>Lock screen cleanly before suspend</td><td>User session</td><td><code>commands/tam-system-sleep-lock/tam-system-sleep-lock</code></td></tr>
+<tr><td><code>tam-system-logout</code></td><td>Exit the active compositor/login session cleanly</td><td>User session (close unsaved apps first)</td><td><code>commands/tam-system-logout/tam-system-logout</code></td></tr>
+<tr><td><code>tam-system-reboot</code></td><td>Initiate a clean system restart</td><td>System (save all work first)</td><td><code>commands/tam-system-reboot/tam-system-reboot</code></td></tr>
+<tr><td><code>tam-system-shutdown</code></td><td>Power off the machine cleanly</td><td>System (save all work first)</td><td><code>commands/tam-system-shutdown/tam-system-shutdown</code></td></tr>
+</table>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/resources.html">Resources and performance</a> &mdash; interpret RAM, PSI, and load measurements.</li>
+<li><a href="maintain/power.html">The progressive power ladder</a> &mdash; screen blanking, suspend, and hibernation policy.</li>
+<li><a href="use/commands/index.html">Command reference hub</a> &mdash; desktop, network, and package command groups.</li>
+</ul>
+</body>
+</html>

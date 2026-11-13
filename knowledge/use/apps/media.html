@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Viewing photos, playing media, and converting files</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.beginner, files.beginner">
+<meta name="topic" content="media-apps">
+<meta name="summary" content="View images, play music or videos with mpv, and convert screenshots or clips for sharing">
+<meta name="keywords" content="media, video, music, photos, mpv, imv, ffmpeg, transcode, tam-transcode">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:7">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Viewing photos, playing media, and converting files</p>
+</nav>
+
+<h1>Viewing photos, playing media, and converting files</h1>
+<p>This page explains how to look at pictures, play audio or video clips, and shrink large recordings for sharing without editing your original files in place.</p>
+
+<section data-level="novice">
+<h2>Pictures, music, and video clips</h2>
+<p>Tamlinux packages lightweight native tools for everyday media: <code>imv</code> views photos and screenshots, <code>mpv</code> plays audio and video, and <code>tam-transcode</code> shrinks or converts a clip or image into a smaller copy for sharing.</p>
+
+<h3>Why it matters</h3>
+<p>Screen recordings and camera photos can be large. Converting a copy makes them easy to share while leaving your original capture untouched.</p>
+
+<h3>How to think about it</h3>
+<p><code>tam-open</code> launches the right viewer automatically, and <code>tam-transcode</code> writes a new converted file beside the original instead of overwriting it.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/png.html">PNG</a></dfn></dt>
+<dd>A lossless picture format used for crisp screenshots and diagrams.</dd>
+<dt><dfn><a href="learn/glossary/file.html">File</a></dfn></dt>
+<dd>Your original media item on disk, preserved separately when making a transcoded copy.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect media properties and convert a copy safely</h2>
+<p><strong>Goal:</strong> inspect media duration or dimensions read-only with <code>ffprobe</code> and understand how <code>tam-transcode</code> picks format and resolution.</p>
+<p><strong>Before you start:</strong> running <code>ffprobe</code> on an existing image or video is read-only. When testing <code>tam-transcode</code>, practice on a copy inside a scratch folder first.</p>
+
+<h3>Worked example</h3>
+<p>Check whether a media file exists and inspect its streams read-only with <code>ffprobe</code>:</p>
+<pre class="session" data-risk="read-only">
+$ ffprobe -hide_banner -v error -show_entries stream=codec_name,width,height ~/Pictures/example.png
+</pre>
+<p>To play a clip or view a photo cleanly from the terminal:</p>
+<pre class="session" data-risk="read-only">
+$ tam-open ~/Pictures/example.png
+</pre>
+<p>When converting a video or picture to share via Menu &rarr; Transcode (or <code>tam-transcode</code>), interactive pickers guide you through choosing the file, format, and target resolution without memorizing long <code>ffmpeg</code> flags.</p>
+
+<h3>Try it</h3>
+<p>Run <code>command -v mpv ffmpeg ffprobe imv</code> in your terminal to see which packaged media tools are present, or take a small scratch screenshot and view it with <code>tam-open</code>.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Screen recording plays smoothly locally but fails to upload due to size</dt>
+<dd>Open the menu (<code>Meta + Space</code>) and choose Transcode (or run <code>tam-transcode</code>) to create a smaller copy while keeping the original recording.</dd>
+<dt>No audio plays in <code>mpv</code></dt>
+<dd>Check the active sound output sink with <code>tam-audio-output-sink</code> or follow <a href="use/desktop/audio.html">Changing volume and sound devices</a>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux pairs <code>tam-transcode</code> with native <code>ffmpeg</code> and <code>ffprobe</code>, plus <code>tam-menu-images</code> and <code>tam-transcode-ascii</code> for specialized terminal or menu asset workflows.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Which read-only tool inspects video resolution and codec details without altering the file?</summary>
+<p><code>ffprobe</code>.</p>
+</details>
+<details class="q">
+<summary>Which desktop launcher starts a screen-recording or picture conversion picker?</summary>
+<p><code>tam-transcode</code> (Menu &rarr; Transcode).</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/desktop/screenshots.html">Taking a screenshot or recording the screen</a> &mdash; create captures and annotations.</li>
+<li><a href="use/desktop/audio.html">Sound output and volume</a> &mdash; adjust output devices during playback.</li>
+</ul>
+</body>
+</html>

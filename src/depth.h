@@ -81,6 +81,16 @@ int tam_href_take_level(char *href, unsigned *level);
 int tam_href_put_level(const char *href, unsigned level, char *out,
                        size_t cap);
 
+/* Remove a "path=" query parameter from `href` in place. Returns 1 when
+ * present; sets *cleared to 1 if its value is empty, "none", or "off"
+ * (case-insensitive), otherwise writes the path ID into `out`. */
+int tam_href_take_path(char *href, char *out, size_t cap, int *cleared);
+
+/* Write `href` with "path=ID" added as a query parameter (before any
+ * "#fragment") when not already present; NULL/empty ID copies unchanged. */
+int tam_href_put_path(const char *href, const char *path_id, char *out,
+                      size_t cap);
+
 /* Split an href of the form "path[?level=NAME]". Returns a newly allocated
  * path without the query and stores the selected level bit (0 when there is
  * no query or when ?level=all or ?level=0) in *level. Returns NULL when the

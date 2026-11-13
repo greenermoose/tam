@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Finding and opening files</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="files.beginner, files.intermediate">
+<meta name="topic" content="finding-files">
+<meta name="summary" content="Search by filename or text content, reveal where a file lives, and open files with graphical or terminal tools">
+<meta name="keywords" content="find, grep, search, files, folders, nautilus, tam-open, path, reveal">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Finding and opening files</p>
+</nav>
+
+<h1>Finding and opening files</h1>
+<p>This page explains how to track down a file when you only know part of its name or a phrase inside it, and how to open or reveal its folder cleanly.</p>
+
+<section data-level="novice">
+<h2>Where did I save that document?</h2>
+<p>Every saved file lives inside a folder inside your home directory (such as <code>Documents</code>, <code>Downloads</code>, or <code>Pictures</code>). You can press <code>Meta + Shift + F</code> to open the graphical Files window, or use search commands in a terminal to check a whole directory tree at once.</p>
+
+<h3>Why it matters</h3>
+<p>Knowing how to locate a file safely read-only saves you from guessing or creating duplicate copies in random folders.</p>
+
+<h3>How to think about it</h3>
+<p>Searching by <em>filename</em> checks labels on folders and files, while searching by <em>content</em> reads inside text files to match a phrase you remember.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/path.html">Path</a></dfn></dt>
+<dd>The full folder address leading to a file, such as <code>~/Documents/notes.txt</code>.</dd>
+<dt><dfn><a href="learn/glossary/directory.html">Directory</a></dfn></dt>
+<dd>The Linux name for a folder containing files and subfolders.</dd>
+<dt><dfn><a href="learn/glossary/file.html">File</a></dfn></dt>
+<dd>A named stored document, script, picture, or data stream on disk.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Find by name or content in a scratch folder</h2>
+<p><strong>Goal:</strong> distinguish searching filenames with <code>find</code> from searching lines inside files with <code>grep</code>, without modifying any real documents.</p>
+<p><strong>Before you start:</strong> running <code>find</code> and <code>grep</code> on normal paths you own is read-only. Practice first in a scratch directory created with <code>mktemp -d</code>.</p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d)
+$ mkdir -p "$work/notes"
+$ printf 'grocery list: apples\n' &gt; "$work/notes/todo.txt"
+$ find "$work" -name '*todo*'
+$ grep -rn 'apples' "$work"
+$ rm -- "$work/notes/todo.txt" &amp;&amp; rmdir -- "$work/notes" "$work"
+</pre>
+<p><code>find</code> prints matching file paths by name. <code>grep -rn</code> walks subfolders recursively (<code>-r</code>) and prints the matching path, line number (<code>-n</code>), and text. To open a discovered file or folder from the terminal in its default app, pass its path to <code>tam-open &lt;path&gt;</code>.</p>
+
+<h3>Try it</h3>
+<p>Check your own Downloads folder safely read-only by running <code>find ~/Downloads -maxdepth 2 -type f</code>, or press <code>Meta + Shift + F</code> (<code>tam-launch-nautilus</code>) to browse folders visually.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>Permission denied</code> scrolling past in <code>find /</code></dt>
+<dd>Limit your search to your home directory (<code>find ~ ...</code>) or target subfolder rather than scanning restricted system trees like <code>/proc</code>.</dd>
+<dt><code>find</code> prints nothing when the file is capitalized differently</dt>
+<dd>Use <code>-iname</code> instead of <code>-name</code> for case-insensitive filename matching.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><code>tam-open &lt;path&gt;</code> opens directories, PDFs, images, text files, and URLs with the appropriate graphical or console handler without memorizing separate tools.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>When you remember a sentence inside a document but forgot its filename, which tool searches file contents?</summary>
+<p><code>grep -rn</code> (or <code>rg</code>) searches text inside files; <code>find -name</code> only checks filenames.</p>
+</details>
+<details class="q">
+<summary>What shortcut opens a graphical Files window on Tamlinux?</summary>
+<p><code>Meta + Shift + F</code> (running <code>tam-launch-nautilus</code>).</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/files/usb-drives.html">Using USB drives safely</a> &mdash; find plugged-in drives, copy files, and unmount cleanly.</li>
+<li><a href="shell/pipelines.html">Connecting programs</a> &mdash; filter command output with pipes.</li>
+</ul>
+</body>
+</html>

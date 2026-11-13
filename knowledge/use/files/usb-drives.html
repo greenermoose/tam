@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Using USB drives safely</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="files.beginner, devices.beginner">
+<meta name="topic" content="usb-drives">
+<meta name="summary" content="Find a plugged-in USB stick, copy files cleanly, and eject or unmount before unplugging">
+<meta name="keywords" content="usb, drive, thumb drive, mount, unmount, udiskie, udisksctl, copy, removable">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Using USB drives safely</p>
+</nav>
+
+<h1>Using USB drives safely</h1>
+<p>This page explains where removable USB drives appear on Tamlinux, how to copy files onto them, and why you should always eject or unmount before pulling the plug.</p>
+
+<section data-level="novice">
+<h2>Plugging in and removing a thumb drive</h2>
+<p>When you insert a USB flash drive in a graphical Tamlinux session, the desktop automatically makes it appear as a folder (usually under <code>/run/media/$USER/</code> and in the sidebar of the Files window, <code>Meta + Shift + F</code>).</p>
+
+<h3>Why it matters</h3>
+<p>Linux temporarily holds copied file data in memory before finishing the physical write to flash chips. Pulling a USB stick out early can leave half-written or corrupt files.</p>
+
+<h3>How to think about it</h3>
+<p><em>Mounting</em> attaches the drive's folders into your filesystem tree so programs can read and write it; <em>unmounting</em> flushes any pending writes cleanly so removing the cable is safe.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/mount.html">Mount</a></dfn></dt>
+<dd>Attach a filesystem on a storage device to a directory path so files become accessible.</dd>
+<dt><dfn><a href="learn/glossary/mount-point.html">Mount point</a></dfn></dt>
+<dd>The folder path where a connected filesystem appears, such as <code>/run/media/$USER/&lt;label&gt;</code>.</dd>
+<dt><dfn><a href="learn/glossary/usb.html">USB</a></dfn></dt>
+<dd>Universal Serial Bus, the connector standard used by external flash drives and peripherals.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect mounted drives and unmount cleanly</h2>
+<p><strong>Goal:</strong> verify where a removable drive is mounted read-only and unmount its filesystem cleanly before disconnecting.</p>
+<p><strong>Before you start:</strong> checking block devices is read-only. Never force-unmount or unplug while a copy command is still writing or a terminal still sits inside the mount folder.</p>
+
+<h3>Worked example</h3>
+<p>List connected drives, their filesystem types, and current mount folders read-only:</p>
+<pre class="session" data-risk="read-only">
+$ lsblk -o NAME,RM,SIZE,FSTYPE,LABEL,MOUNTPOINTS
+</pre>
+<p>Drives with <code>RM</code> equal to <code>1</code> are removable media. Inspect full hardware and mount details for a specific device path with:</p>
+<pre class="session" data-risk="read-only">
+$ tam-drive-info /dev/sda
+</pre>
+<p>When finished copying files, leave any terminal shell pointing inside the drive (for example <code>cd ~</code>), then unmount cleanly from the Files eject icon or run <code>udisksctl unmount -b /dev/sdX1</code> using your actual partition name.</p>
+
+<h3>Try it</h3>
+<p>Run <code>lsblk -o NAME,RM,SIZE,MOUNTPOINTS</code> in a terminal right now. Identify which drives are fixed internal storage (<code>RM=0</code>) and whether any removable storage (<code>RM=1</code>) is currently mounted.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Target is busy when unmounting</dt>
+<dd>An open terminal, editor, or file window still uses a file or folder inside the drive. Close the file or <code>cd</code> back to <code>~</code>, then unmount again.</dd>
+<dt>Plugged-in drive shows no mount point</dt>
+<dd>On a graphical session <code>udiskie</code> handles automounting; check <code>lsblk -f</code> to see whether a partition exists or requires unlocking (if encrypted).</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux launches <code>udiskie --automount</code> at desktop startup so removable drives mount automatically without requiring manual root commands.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Why is unmounting safer than immediately unplugging a USB drive after copying finishes?</summary>
+<p>Unmounting flushes buffered writes out of memory onto the drive and marks the filesystem clean before power is cut.</p>
+</details>
+<details class="q">
+<summary>What usually causes a &ldquo;target is busy&rdquo; error when unmounting?</summary>
+<p>A program still has a file open on the drive or a terminal's working directory is still inside the mount point.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/files/archives.html">Creating and opening archives</a> &mdash; pack multiple files into one portable <code>.tar.gz</code> or <code>.zip</code> file.</li>
+<li><a href="hardware/drives.html">Storage drives</a> &mdash; disk speed checks, LUKS, and <code>tam-drive-select</code>.</li>
+</ul>
+</body>
+</html>

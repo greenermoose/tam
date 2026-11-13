@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-13: Antigravity CLI `1.5.7` (`gemini-3.8-flash-high`) implements the dynamic `<meta name="paths">` multi-path navigation engine (command 0.55.0), retires the level hubs while preserving quizzes/capstones, authors the 17 remaining beginner pages plus `tam-journal` and `tam-file-select` guides, and enforces `tamlinux-tools` coverage in corpus 0.81.0. [Record](docs/ai/2026-11-13-tam-dynamic-multipath-and-beginner-pages.md).
+
 2026-11-12: Antigravity CLI `1.5.7` (`gemini-3.8-flash-high`) adds systems programming philosophy and language choices guide page and expands C11 guide in corpus 0.80.0. [Record](docs/ai/2026-11-12-tam-language-choices-guide.md).
 
 2026-11-12: Antigravity CLI `1.5.7` (`gemini-3.8-flash-high`) adds compiler sanitizers and AddressSanitizer guide page and glossary entries in corpus 0.79.0. [Record](docs/ai/2026-11-12-tam-sanitizers-guide-page.md).

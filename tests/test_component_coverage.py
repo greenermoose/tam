@@ -49,11 +49,38 @@ class ComponentCoverage(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_inventory_kinds(self):
-        rows = mod.inventory(self.product)
+        write(self.root / "tamlinux-tools" / "src" / "tam-bundle" / "main.c", "int main(void){return 0;}\n")
+        write(self.root / "tamlinux-tools" / "src" / "tam-journal.c", "int main(void){return 0;}\n")
+        rows = mod.inventory(self.product, self.root / "tamlinux-tools")
         ids = {r["id"]: r["kind"] for r in rows}
         self.assertEqual(ids["tam-demo"], "command")
         self.assertEqual(ids["fred.demo"], "plugin")
         self.assertEqual(ids["tiling.lua"], "bindings")
+        self.assertEqual(ids["tam-bundle"], "tool")
+        self.assertEqual(ids["tam-journal"], "tool")
+
+    def test_tamlinux_tools_coverage_and_gap(self):
+        write(self.root / "tamlinux-tools" / "src" / "tam-bundle" / "main.c", "int main(void){return 0;}\n")
+        write(self.root / "tamlinux-tools" / "src" / "tam-journal.c", "int main(void){return 0;}\n")
+        write(self.tam / "knowledge" / "use" / "journal.html", "<p>Use <code>tam-journal</code>.</p>\n")
+        code = mod.main([
+            "--root", str(self.tam),
+            "--tamlinux", str(self.product),
+            "--tamlinux-tools", str(self.root / "tamlinux-tools"),
+            "--quiet",
+            "--check",
+        ])
+        self.assertEqual(code, 1)
+        write(self.tam / "knowledge" / "use" / "demo.html",
+              "<p><code>tam-demo</code> fred.demo <code>tiling.lua</code> <code>tam-hidden-helper</code> <code>tam-bundle</code></p>\n")
+        code = mod.main([
+            "--root", str(self.tam),
+            "--tamlinux", str(self.product),
+            "--tamlinux-tools", str(self.root / "tamlinux-tools"),
+            "--quiet",
+            "--check",
+        ])
+        self.assertEqual(code, 0)
 
     def test_mention_covers_and_gap(self):
         write(

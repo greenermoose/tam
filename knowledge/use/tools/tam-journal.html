@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Keeping plain-text daily journals with tam-journal</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="files.beginner, desktop.beginner">
+<meta name="topic" content="tam-journal">
+<meta name="summary" content="Capture quick timestamped notes and edit daily YYYY-MM-DD.txt journals in Micro with tam-journal and Meta + Shift + J">
+<meta name="keywords" content="tam-journal, tam-launch-journal, journal, notes, micro, tamlinux-tools">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:11">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Keeping plain-text daily journals with tam-journal</p>
+</nav>
+
+<h1>Keeping plain-text daily journals with tam-journal</h1>
+<p>This page explains <code>tam-journal</code>, the plain-text daily notebook tool that opens today's dated file in Micro or appends timestamped quick notes atomically without corrupting earlier entries.</p>
+
+<section data-level="novice">
+<h2>Daily notes stored as ordinary files</h2>
+<p>Press <code>Meta + Shift + J</code> anywhere on the desktop to pop open a quick note prompt, or launch <strong>Today&rsquo;s journal</strong> from the menu or clock bar widget. Every note is stored as plain UTF-8 text named by date (for example <code>~/Journal/2026-11-12.txt</code>), so you can read, search, or back up your notes with ordinary tools forever.</p>
+
+<h3>Why it matters</h3>
+<p>Plain dated text files never lock your notes into a proprietary database and stay safe even if the power drops mid-edit.</p>
+
+<h3>How to think about it</h3>
+<p><code>tam-journal</code> edits a durable draft under <code>.drafts/</code> first, waits for you to save and close Micro (<code>Ctrl + S</code>, <code>Ctrl + Q</code>), and then commits cleanly.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/lockfile.html">Lockfile</a></dfn></dt>
+<dd>A per-day lock preventing two full-day edit sessions from overwriting each other.</dd>
+<dt><dfn><a href="learn/glossary/file.html">Plain text file</a></dfn></dt>
+<dd>UTF-8 text stored one file per day under <code>~/Journal</code> or <code>TAM_JOURNAL_DIR</code>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Capture quick notes or edit a dated entry safely</h2>
+<p><strong>Goal:</strong> open or append to a scratch journal directory via <code>TAM_JOURNAL_DIR</code> and understand how <code>tam-journal</code> handles locks, drafts, and bundle updates.</p>
+<p><strong>Before you start:</strong> checking <code>--help</code> or <code>--version</code> is read-only. Test commands with <code>TAM_JOURNAL_DIR</code> pointing to a temporary directory before opening your real <code>~/Journal</code>.</p>
+
+<h3>Worked example</h3>
+<p>Inspect usage and version without creating files:</p>
+<pre class="session" data-risk="read-only">
+$ tam-journal --help
+$ tam-journal --version
+</pre>
+<p>Open today's file in Micro inside a private scratch folder, or append a blank timestamped note directly from the terminal:</p>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d)
+$ TAM_JOURNAL_DIR="$work" tam-journal add
+$ ls -la "$work"
+$ rm -rf -- "$work"
+</pre>
+<p>Use <code>--date YYYY-MM-DD</code> to view or append to another calendar day. When invoked from the desktop shortcut (<code>Meta + Shift + J</code>), <code>tam-launch-journal add</code> launches <code>tam-journal add</code> in a floating terminal window.</p>
+
+<h3>Try it</h3>
+<p>Run <code>tam-journal --help</code> in a terminal, and check whether <code>~/Journal</code> already contains any dated <code>YYYY-MM-DD.txt</code> entries read-only with <code>ls ~/Journal</code>.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Message says today is already being edited</dt>
+<dd><code>tam-journal</code> holds an exclusive lock on full-day edits (<code>.YYYY-MM-DD.lock</code>) so another window cannot clobber your unsaved work. Finish or close the existing editor session, or use <code>tam-journal add</code> to append a timestamped snippet.</dd>
+<dt>Micro exited non-zero and left a draft behind</dt>
+<dd><code>tam-journal</code> preserves unsaved edits under <code>.drafts/</code> and prints the exact <code>Draft retained:</code> path rather than discarding what you typed.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Like other tools in the native tools suite, <code>tam-journal</code> checks <code>tam_bundle_guard</code> on startup and refuses edits while a Tamlinux bundle transaction is active so journal writes cannot race recovery.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>What is the difference between <code>tam-journal</code> and <code>tam-journal add</code>?</summary>
+<p>Running <code>tam-journal</code> opens the entire day's file under an edit lock, whereas <code>tam-journal add</code> opens a clean blank draft and appends it under an ISO timestamp.</p>
+</details>
+<details class="q">
+<summary>How do you aim <code>tam-journal</code> at a temporary directory for safe experiments?</summary>
+<p>Set <code>TAM_JOURNAL_DIR</code> to an absolute path.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/apps/editor.html">Opening and editing text files</a> &mdash; saving and undoing in Micro.</li>
+<li><a href="use/tools/tam-file-select.html">Selecting files natively with tam-file-select</a> &mdash; desktop portal file picker utility.</li>
+</ul>
+</body>
+</html>

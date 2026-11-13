@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Creating and opening archives (.tar.gz and .zip)</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="files.beginner">
+<meta name="topic" content="archives">
+<meta name="summary" content="Inspect, unpack, and create .tar.gz and .zip archives safely inside a temporary or target folder">
+<meta name="keywords" content="archive, tar, gzip, tar.gz, zip, unzip, compress, extract">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Creating and opening archives</p>
+</nav>
+
+<h1>Creating and opening archives (.tar.gz and .zip)</h1>
+<p>This page explains how compressed archive files bundle whole folders into one file for sharing or backup, and how to inspect their contents before unpacking them.</p>
+
+<section data-level="novice">
+<h2>Packing folders into a single file</h2>
+<p>An archive stores one or more files and folders—including their subfolders and filenames—inside a single portable file such as <code>project.tar.gz</code> or <code>photos.zip</code>.</p>
+
+<h3>Why it matters</h3>
+<p>Checking what is inside an archive before unpacking stops dozens of unexpected files from spilling straight into your current folder.</p>
+
+<h3>How to think about it</h3>
+<p>Think of an archive as a packed suitcase: <em>listing</em> lets you peek inside at the label list without unpacking, while <em>extracting</em> unpacks everything into the folder you choose.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/directory.html">Directory</a></dfn></dt>
+<dd>A folder whose entire tree can be bundled into one archive file.</dd>
+<dt><dfn><a href="learn/glossary/file.html">Archive file</a></dfn></dt>
+<dd>A single container file holding one or more packed files or folders, optionally compressed to save space.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>List before extracting in a scratch directory</h2>
+<p><strong>Goal:</strong> pack a scratch folder into <code>.tar.gz</code>, list its entries read-only, and unpack into an isolated empty folder cleanly.</p>
+<p><strong>Before you start:</strong> always list an unfamiliar archive before extracting so you know whether it unpacks one clean top-level folder or loose files.</p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d)
+$ mkdir -p "$work/src/sub" "$work/out"
+$ printf 'hello\n' &gt; "$work/src/sub/note.txt"
+$ tar -czf "$work/bundle.tar.gz" -C "$work/src" sub
+$ tar -tf "$work/bundle.tar.gz"
+$ tar -xzf "$work/bundle.tar.gz" -C "$work/out"
+$ cat "$work/out/sub/note.txt"
+$ rm -f -- "$work/bundle.tar.gz" "$work/src/sub/note.txt" "$work/out/sub/note.txt"
+$ rmdir -- "$work/src/sub" "$work/src" "$work/out/sub" "$work/out" "$work"
+</pre>
+<p>Notice the flags in <code>tar</code>: <code>-c</code> creates, <code>-t</code> lists contents read-only, <code>-x</code> extracts, <code>-z</code> uses gzip compression, <code>-f</code> names the archive file, and <code>-C</code> enters a target folder cleanly.</p>
+
+<h3>Try it</h3>
+<p>Run the scratch example above and inspect <code>tar -tf "$work/bundle.tar.gz"</code> output before extracting. If you work with a <code>.zip</code> file instead, use <code>unzip -l file.zip</code> to list entries and <code>unzip file.zip -d target-dir</code> to extract into a dedicated folder.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Files spilled loosely into your home or Downloads folder</dt>
+<dd>List archives first with <code>tar -tf</code> or <code>unzip -l</code>, and create a fresh empty destination directory with <code>mkdir</code> before extracting.</dd>
+<dt><code>unzip</code> reports command not found</dt>
+<dd>Some minimal environments omit <code>unzip</code>; <code>bsdtar -tf file.zip</code> or <code>tam-open file.zip</code> also handle zip archives cleanly.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Which <code>tar</code> flag previews archive paths without creating any extracted files?</summary>
+<p><code>-t</code> (for example <code>tar -tf archive.tar.gz</code>).</p>
+</details>
+<details class="q">
+<summary>How do you keep a loose archive from cluttering your current directory?</summary>
+<p>Extract into a fresh empty folder using <code>tar -xzf archive.tar.gz -C folder</code> or <code>unzip archive.zip -d folder</code>.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/files/finding-files.html">Finding and opening files</a> &mdash; locate extracted files and reveal their folders.</li>
+<li><a href="filesystem/permissions.html">Who can use a file</a> &mdash; understand preserved file modes after extraction.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Selecting files natively with tam-file-select</title>
+<meta name="kind" content="reference">
+<meta name="skills" content="files.beginner, desktop.beginner">
+<meta name="topic" content="tam-file-select">
+<meta name="summary" content="Invoke the native C XDG desktop portal file chooser with tam-file-select and handle picked paths and exit statuses in scripts">
+<meta name="keywords" content="tam-file-select, file picker, portal, xdg portal, directory picker, tamlinux-tools">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:12">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Selecting files natively with tam-file-select</p>
+</nav>
+
+<h1>Selecting files natively with tam-file-select</h1>
+<p><code>tam-file-select</code> is a fast C utility (linking <code>libtam</code>) that opens the desktop XDG file chooser portal so shell scripts and theme tools can ask you to pick files or folders cleanly.</p>
+
+<section data-level="novice">
+<h2>Picking a file cleanly from scripts and themes</h2>
+<p>When a desktop action—such as choosing a custom background image—needs you to pick a PNG or SVG file, <code>tam-file-select</code> opens your native graphical file dialog, prints the chosen file path to standard output, and exits immediately.</p>
+
+<h3>Why it matters</h3>
+<p>Delegating to the XDG portal avoids pulling heavy graphical toolkits into every small script while respecting your current desktop theme.</p>
+
+<h3>How to think about it</h3>
+<p>Every run returns one clear exit status: <code>0</code> when at least one path was chosen, <code>1</code> when you cancelled without choosing, and <code>2</code> if the portal could not open.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/exit-status.html">Exit status</a></dfn></dt>
+<dd>The numeric result code telling a calling script whether a file was chosen (0), cancelled (1), or failed (2).</dd>
+<dt><dfn><a href="learn/glossary/path.html">Path</a></dfn></dt>
+<dd>The chosen file or folder path printed one line per selection on stdout.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Options, filters, and exit codes</h2>
+<p><strong>Goal:</strong> call <code>tam-file-select</code> with optional title, multi-select, directory mode, or extension filters and handle cancellation cleanly in shell scripts.</p>
+<p><strong>Before you start:</strong> running <code>tam-file-select</code> requires an active graphical session with an XDG desktop portal backend. Cancelling the dialog makes no filesystem changes.</p>
+
+<h3>Worked example</h3>
+<p>Prompt the user for one image file (<code>png</code> or <code>svg</code>) without modifying any files:</p>
+<pre class="session" data-risk="read-only">
+$ picked=$(tam-file-select --title "Pick PNG or SVG" --extensions "png svg")
+$ printf 'exit=%s picked=%s\n' "$?" "$picked"
+</pre>
+<table>
+<tr><th>Option</th><th>Effect</th></tr>
+<tr><td><code>--title &lt;title&gt;</code></td><td>Set dialog window title (default: <code>Select file</code>)</td></tr>
+<tr><td><code>--multiple</code></td><td>Allow selecting multiple files, printed one path per line</td></tr>
+<tr><td><code>--directory</code></td><td>Select a folder instead of a file</td></tr>
+<tr><td><code>--extensions "&lt;ext ...&gt;"</code></td><td>Space-separated filename extension filter list</td></tr>
+</table>
+
+<h3>Try it</h3>
+<p>In a graphical terminal, run <code>tam-file-select --directory --title "Test pick"</code> and press Cancel to observe exit status <code>1</code> cleanly without touching any files.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Command exits with status 2</dt>
+<dd>Either no XDG desktop portal is available (for example on a headless text VT), an invalid flag was passed, or <code>tam_bundle_guard</code> refused execution while a bundle update is switching versions.</dd>
+<dt>Script fails when user presses Cancel</dt>
+<dd>Always handle exit status <code>1</code> explicitly instead of treating empty stdout under <code>set -e</code> as a selected filename.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><code>tam-file-select</code> guards against mid-upgrade state transitions via <code>tam_bundle_guard</code>, instructing users to inspect <code>tam-bundle status</code> from the console if a version switch or recovery is in progress.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>What exit status does <code>tam-file-select</code> return when the user cancels the dialog?</summary>
+<p>Exit status <code>1</code> (while <code>0</code> means a selection was printed and <code>2</code> means chooser failure).</p>
+</details>
+<details class="q">
+<summary>How should shell scripts separate multiple extensions passed to <code>--extensions</code>?</summary>
+<p>Space-separated inside quotes, for example <code>--extensions "png svg"</code>.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/tools/tam-journal.html">Keeping plain-text daily journals with tam-journal</a> &mdash; plain-text daily notebook utility.</li>
+<li><a href="ecosystem/tam-bundle.html">How tam-bundle installs and rolls back files</a> &mdash; atomic bundle switching and recovery guard.</li>
+</ul>
+</body>
+</html>

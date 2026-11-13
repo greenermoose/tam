@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SSH keys and remote access</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="security.intermediate">
+<meta name="topic" content="ssh-access">
+<meta name="summary" content="Generate SSH keys, connect to another machine, and enable or disable the local SSH server safely">
+<meta name="keywords" content="ssh, sshd, ssh-keygen, authorized_keys, remote access, keys, security">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="people-and-security:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / SSH keys and remote access</p>
+</nav>
+
+<h1>SSH keys and remote access</h1>
+<p>This page explains how SSH uses paired public and private keys to connect securely between computers, and how Tamlinux enables or removes incoming SSH access.</p>
+
+<section data-level="novice">
+<h2>Signing in without sending your password across the network</h2>
+<p>SSH (Secure Shell) lets you open a terminal on another computer over the network. Instead of typing a shared password on the remote machine, you keep a private key on your computer and copy only its matching public key to machines you want to access.</p>
+
+<h3>Why it matters</h3>
+<p>Key-based sign-in stops attackers from guessing weak passwords over the network, and keeps incoming remote access off completely on laptops that do not need it.</p>
+
+<h3>How to think about it</h3>
+<p>Your public key is like a padlock you give to another computer; your private key never leaves your machine and is the only key that opens that padlock. Keeping a passphrase on your private key protects it even if someone copies the file.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/ssh-key.html">SSH key</a></dfn></dt>
+<dd>A cryptographic key pair where the public half authorizes access and the private half proves ownership.</dd>
+<dt><dfn><a href="learn/glossary/passphrase.html">Passphrase</a></dfn></dt>
+<dd>A multi-word secret that encrypts a stored key on disk.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect SSH keys and server state safely</h2>
+<p><strong>Goal:</strong> verify existing SSH keys or server status read-only, generate a modern key safely, and understand how to undo incoming SSH server access.</p>
+<p><strong>Before you start:</strong> checking <code>~/.ssh</code> and <code>sshd.service</code> is read-only. Enabling incoming SSH access modifies firewall and daemon configuration and requires administrator approval.</p>
+
+<h3>Worked example</h3>
+<p>Check what SSH public keys already exist in your home directory and whether the incoming SSH daemon is enabled:</p>
+<pre class="session" data-risk="read-only">
+$ ls -la ~/.ssh/*.pub 2>/dev/null
+$ systemctl is-enabled sshd.service 2>/dev/null || echo "sshd disabled"
+</pre>
+<p>When creating a new key pair for connecting out to remote servers or code hosts, prefer Ed25519 with a passphrase:</p>
+<pre class="session" data-risk="user">
+$ ssh-keygen -t ed25519 -C "workstation-key"
+</pre>
+<p>Your public key sits in <code>~/.ssh/id_ed25519.pub</code> (safe to share); never share <code>~/.ssh/id_ed25519</code>.</p>
+
+<h3>Try it</h3>
+<p>Run <code>ssh -G localhost | head -n 5</code> read-only to see how your SSH client resolves configuration without opening a network connection. Only turn on incoming SSH if you intentionally manage this machine remotely: <code>tam-setup-security-sshd --help</code> prints usage without changing settings.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Permission denied (publickey) when connecting</dt>
+<dd>Verify that you copied the <code>.pub</code> file content (not the private key) into the target machine's <code>~/.ssh/authorized_keys</code> and that <code>~/.ssh</code> has mode <code>700</code>.</dd>
+<dt>Incoming SSH was turned on by mistake</dt>
+<dd>Disable the service cleanly with <code>tam-remove-security-sshd</code>, which stops and disables <code>sshd.service</code> and cleans transitional rules.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><code>tam-setup-security-sshd</code> writes drop-in <code>10-tamlinux-hardening.conf</code> to disable password logins after adding an authorized key, and checks whether <code>nftables</code> (<code>inet tamlinux-filter</code>) or transitional <code>ufw</code> owns the host firewall.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Which file of an SSH key pair is safe to paste into a remote server or web forge?</summary>
+<p>The public key file ending in <code>.pub</code>. Keep the matching private key file on your own machine with mode <code>600</code>.</p>
+</details>
+<details class="q">
+<summary>What reverses <code>tam-setup-security-sshd</code> when you no longer want incoming SSH access?</summary>
+<p>Run <code>tam-remove-security-sshd</code> to disable <code>sshd.service</code> and remove or review the SSH firewall rule.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/security/firewall.html">Checking and managing the host firewall</a> &mdash; inspect which incoming ports are open.</li>
+<li><a href="use/security/fingerprint-and-fido.html">Fingerprints and FIDO2 security keys</a> &mdash; hardware authentication on the machine itself.</li>
+</ul>
+</body>
+</html>

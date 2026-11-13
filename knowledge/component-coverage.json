@@ -1,11 +1,12 @@
 {
   "version": 1,
   "product_root": "/home/fred/Code/tamlinux/tamlinux",
+  "tools_root": null,
   "exemptions_file": "tools/component-coverage-exemptions.tsv",
   "counts": {
     "components": 251,
-    "covered": 181,
-    "exempt": 70,
+    "covered": 198,
+    "exempt": 53,
     "gap": 0,
     "unknown_exemptions": 0
   },
@@ -101,6 +102,7 @@
         "learn/glossary/unit.html",
         "learn/index.html",
         "learn/paths/command-line-fluency.html",
+        "learn/paths/files-and-apps.html",
         "learn/paths/index.html",
         "learn/paths/rescue.html",
         "learn/paths/session-and-desktop.html",
@@ -128,6 +130,11 @@
         "shell/jobs.html",
         "shell/tools.html",
         "tam.html",
+        "use/apps/browser.html",
+        "use/apps/documents-and-pdf.html",
+        "use/apps/editor.html",
+        "use/apps/media.html",
+        "use/apps/web-apps.html",
         "use/commands/desktop.html",
         "use/desktop/audio.html",
         "use/desktop/bluetooth.html",
@@ -138,8 +145,19 @@
         "use/desktop/night-light.html",
         "use/desktop/notifications.html",
         "use/desktop/screenshots.html",
+        "use/files/archives.html",
+        "use/files/finding-files.html",
+        "use/files/usb-drives.html",
         "use/index.html",
-        "use/recipes/voice.html"
+        "use/people/accounts.html",
+        "use/recipes/voice.html",
+        "use/security/disk-encryption.html",
+        "use/security/fingerprint-and-fido.html",
+        "use/security/firewall.html",
+        "use/security/passwords.html",
+        "use/security/ssh.html",
+        "use/tools/tam-file-select.html",
+        "use/tools/tam-journal.html"
       ],
       "status": "covered"
     },
@@ -206,6 +224,7 @@
       "kind": "command",
       "source": "commands/tam-audio-output-sink",
       "pages": [
+        "use/apps/media.html",
         "use/commands/desktop.html",
         "use/desktop/audio.html"
       ],
@@ -278,7 +297,8 @@
       "kind": "command",
       "source": "commands/tam-battery-status",
       "pages": [
-        "maintain/power.html"
+        "maintain/power.html",
+        "use/commands/system.html"
       ],
       "status": "covered"
     },
@@ -380,7 +400,8 @@
       "kind": "command",
       "source": "commands/tam-browser-command",
       "pages": [
-        "desktop/config.html"
+        "desktop/config.html",
+        "use/apps/browser.html"
       ],
       "status": "covered"
     },
@@ -514,8 +535,11 @@
       "id": "tam-cmd-present",
       "kind": "command",
       "source": "commands/tam-cmd-present",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "shell/tools.html",
+        "use/apps/browser.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "command-presence helper; not a user entry point (ballot 2A)",
         "date": "2026-11-04"
@@ -555,7 +579,9 @@
       "kind": "command",
       "source": "commands/tam-default-browser",
       "pages": [
-        "desktop/config.html"
+        "desktop/config.html",
+        "use/apps/browser.html",
+        "use/apps/web-apps.html"
       ],
       "status": "covered"
     },
@@ -564,7 +590,8 @@
       "kind": "command",
       "source": "commands/tam-default-editor",
       "pages": [
-        "shell/editors.html"
+        "shell/editors.html",
+        "use/apps/editor.html"
       ],
       "status": "covered"
     },
@@ -628,7 +655,8 @@
       "kind": "command",
       "source": "commands/tam-disk-speedtest",
       "pages": [
-        "hardware/drives.html"
+        "hardware/drives.html",
+        "use/commands/system.html"
       ],
       "status": "covered"
     },
@@ -647,7 +675,8 @@
       "kind": "command",
       "source": "commands/tam-dns",
       "pages": [
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "use/commands/network.html"
       ],
       "status": "covered"
     },
@@ -656,7 +685,10 @@
       "kind": "command",
       "source": "commands/tam-drive-info",
       "pages": [
-        "hardware/drives.html"
+        "hardware/drives.html",
+        "use/commands/system.html",
+        "use/files/usb-drives.html",
+        "use/security/disk-encryption.html"
       ],
       "status": "covered"
     },
@@ -665,7 +697,8 @@
       "kind": "command",
       "source": "commands/tam-drive-password",
       "pages": [
-        "hardware/drives.html"
+        "hardware/drives.html",
+        "use/security/disk-encryption.html"
       ],
       "status": "covered"
     },
@@ -674,7 +707,10 @@
       "kind": "command",
       "source": "commands/tam-drive-select",
       "pages": [
-        "hardware/drives.html"
+        "hardware/drives.html",
+        "use/commands/system.html",
+        "use/files/usb-drives.html",
+        "use/security/disk-encryption.html"
       ],
       "status": "covered"
     },
@@ -721,7 +757,8 @@
       "kind": "command",
       "source": "commands/tam-hardware",
       "pages": [
-        "hardware/drives.html"
+        "hardware/drives.html",
+        "use/commands/system.html"
       ],
       "status": "covered"
     },
@@ -730,7 +767,8 @@
       "kind": "command",
       "source": "commands/tam-hibernation-available",
       "pages": [
-        "maintain/power.html"
+        "maintain/power.html",
+        "use/commands/system.html"
       ],
       "status": "covered"
     },
@@ -791,8 +829,10 @@
       "id": "tam-hw-fingerprint",
       "kind": "command",
       "source": "commands/tam-hw-fingerprint",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/security/fingerprint-and-fido.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-hw-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -1092,7 +1132,8 @@
       "kind": "command",
       "source": "commands/tam-launch-browser",
       "pages": [
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/apps/browser.html"
       ],
       "status": "covered"
     },
@@ -1121,7 +1162,8 @@
       "source": "commands/tam-launch-editor",
       "pages": [
         "shell/editors.html",
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/apps/editor.html"
       ],
       "status": "covered"
     },
@@ -1143,7 +1185,8 @@
       "kind": "command",
       "source": "commands/tam-launch-journal",
       "pages": [
-        "ecosystem/language-choices.html"
+        "ecosystem/language-choices.html",
+        "use/tools/tam-journal.html"
       ],
       "status": "covered"
     },
@@ -1152,7 +1195,8 @@
       "kind": "command",
       "source": "commands/tam-launch-nautilus",
       "pages": [
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/files/finding-files.html"
       ],
       "status": "covered"
     },
@@ -1218,7 +1262,8 @@
       "kind": "command",
       "source": "commands/tam-launch-tui",
       "pages": [
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/apps/editor.html"
       ],
       "status": "covered"
     },
@@ -1227,7 +1272,8 @@
       "kind": "command",
       "source": "commands/tam-launch-webapp",
       "pages": [
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/apps/web-apps.html"
       ],
       "status": "covered"
     },
@@ -1268,8 +1314,10 @@
       "id": "tam-menu-images",
       "kind": "command",
       "source": "commands/tam-menu-images",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/apps/media.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-menu-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -1289,8 +1337,10 @@
       "id": "tam-menu-select",
       "kind": "command",
       "source": "commands/tam-menu-select",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/apps/web-apps.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-menu-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -1367,7 +1417,8 @@
       "kind": "command",
       "source": "commands/tam-network-band",
       "pages": [
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "use/commands/network.html"
       ],
       "status": "covered"
     },
@@ -1376,7 +1427,8 @@
       "kind": "command",
       "source": "commands/tam-network-password",
       "pages": [
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "use/commands/network.html"
       ],
       "status": "covered"
     },
@@ -1385,7 +1437,8 @@
       "kind": "command",
       "source": "commands/tam-network-qr",
       "pages": [
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "use/commands/network.html"
       ],
       "status": "covered"
     },
@@ -1394,7 +1447,8 @@
       "kind": "command",
       "source": "commands/tam-network-speedtest",
       "pages": [
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "use/commands/network.html"
       ],
       "status": "covered"
     },
@@ -1404,7 +1458,8 @@
       "source": "commands/tam-network-status",
       "pages": [
         "ecosystem/cables-and-signaling.html",
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "use/commands/network.html"
       ],
       "status": "covered"
     },
@@ -1474,7 +1529,11 @@
       "kind": "command",
       "source": "commands/tam-open",
       "pages": [
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/apps/documents-and-pdf.html",
+        "use/apps/media.html",
+        "use/files/archives.html",
+        "use/files/finding-files.html"
       ],
       "status": "covered"
     },
@@ -1491,8 +1550,10 @@
       "id": "tam-pkg-add",
       "kind": "command",
       "source": "commands/tam-pkg-add",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "packaging helper; user guide uses hub/update pages (ballot 2A)",
         "date": "2026-11-04"
@@ -1502,8 +1563,10 @@
       "id": "tam-pkg-aur-install",
       "kind": "command",
       "source": "commands/tam-pkg-aur-install",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "packaging helper; user guide uses hub/update pages (ballot 2A)",
         "date": "2026-11-04"
@@ -1513,8 +1576,10 @@
       "id": "tam-pkg-drop",
       "kind": "command",
       "source": "commands/tam-pkg-drop",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "packaging helper; user guide uses hub/update pages (ballot 2A)",
         "date": "2026-11-04"
@@ -1524,8 +1589,11 @@
       "id": "tam-pkg-install",
       "kind": "command",
       "source": "commands/tam-pkg-install",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/apps/documents-and-pdf.html",
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "packaging helper; user guide uses hub/update pages (ballot 2A)",
         "date": "2026-11-04"
@@ -1535,8 +1603,10 @@
       "id": "tam-pkg-missing",
       "kind": "command",
       "source": "commands/tam-pkg-missing",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "packaging helper; user guide uses hub/update pages (ballot 2A)",
         "date": "2026-11-04"
@@ -1546,8 +1616,10 @@
       "id": "tam-pkg-present",
       "kind": "command",
       "source": "commands/tam-pkg-present",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "packaging helper; user guide uses hub/update pages (ballot 2A)",
         "date": "2026-11-04"
@@ -1557,8 +1629,10 @@
       "id": "tam-pkg-remove",
       "kind": "command",
       "source": "commands/tam-pkg-remove",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "packaging helper; user guide uses hub/update pages (ballot 2A)",
         "date": "2026-11-04"
@@ -1579,7 +1653,8 @@
       "kind": "command",
       "source": "commands/tam-powerprofiles-list",
       "pages": [
-        "maintain/power.html"
+        "maintain/power.html",
+        "use/commands/system.html"
       ],
       "status": "covered"
     },
@@ -1588,7 +1663,8 @@
       "kind": "command",
       "source": "commands/tam-powerprofiles-set",
       "pages": [
-        "maintain/power.html"
+        "maintain/power.html",
+        "use/commands/system.html"
       ],
       "status": "covered"
     },
@@ -1625,7 +1701,8 @@
       "kind": "command",
       "source": "commands/tam-remove-security-fido2",
       "pages": [
-        "hardware/security.html"
+        "hardware/security.html",
+        "use/security/fingerprint-and-fido.html"
       ],
       "status": "covered"
     },
@@ -1634,7 +1711,8 @@
       "kind": "command",
       "source": "commands/tam-remove-security-fingerprint",
       "pages": [
-        "hardware/security.html"
+        "hardware/security.html",
+        "use/security/fingerprint-and-fido.html"
       ],
       "status": "covered"
     },
@@ -1643,7 +1721,9 @@
       "kind": "command",
       "source": "commands/tam-remove-security-sshd",
       "pages": [
-        "hardware/security.html"
+        "hardware/security.html",
+        "use/security/firewall.html",
+        "use/security/ssh.html"
       ],
       "status": "covered"
     },
@@ -1765,7 +1845,8 @@
       "kind": "command",
       "source": "commands/tam-restart-wifi",
       "pages": [
-        "hardware/networking.html"
+        "hardware/networking.html",
+        "use/commands/network.html"
       ],
       "status": "covered"
     },
@@ -1803,7 +1884,8 @@
       "kind": "command",
       "source": "commands/tam-setup-security-fido2",
       "pages": [
-        "hardware/security.html"
+        "hardware/security.html",
+        "use/security/fingerprint-and-fido.html"
       ],
       "status": "covered"
     },
@@ -1812,7 +1894,8 @@
       "kind": "command",
       "source": "commands/tam-setup-security-fingerprint",
       "pages": [
-        "hardware/security.html"
+        "hardware/security.html",
+        "use/security/fingerprint-and-fido.html"
       ],
       "status": "covered"
     },
@@ -1821,7 +1904,9 @@
       "kind": "command",
       "source": "commands/tam-setup-security-sshd",
       "pages": [
-        "hardware/security.html"
+        "hardware/security.html",
+        "use/security/firewall.html",
+        "use/security/ssh.html"
       ],
       "status": "covered"
     },
@@ -1869,7 +1954,9 @@
       "source": "commands/tam-sudo-docker",
       "pages": [
         "hardware/security.html",
-        "improve/scripting.html"
+        "improve/scripting.html",
+        "use/people/accounts.html",
+        "use/security/fingerprint-and-fido.html"
       ],
       "status": "covered"
     },
@@ -1887,7 +1974,8 @@
       "kind": "command",
       "source": "commands/tam-sudo-passwordless",
       "pages": [
-        "hardware/security.html"
+        "hardware/security.html",
+        "use/security/passwords.html"
       ],
       "status": "covered"
     },
@@ -1908,7 +1996,9 @@
       "source": "commands/tam-system-lock",
       "pages": [
         "use/commands/desktop.html",
-        "use/desktop/lock-and-idle.html"
+        "use/commands/system.html",
+        "use/desktop/lock-and-idle.html",
+        "use/security/disk-encryption.html"
       ],
       "status": "covered"
     },
@@ -1916,8 +2006,10 @@
       "id": "tam-system-logout",
       "kind": "command",
       "source": "commands/tam-system-logout",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/system.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-system-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -1927,8 +2019,10 @@
       "id": "tam-system-reboot",
       "kind": "command",
       "source": "commands/tam-system-reboot",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/system.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-system-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -1938,8 +2032,10 @@
       "id": "tam-system-shutdown",
       "kind": "command",
       "source": "commands/tam-system-shutdown",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/system.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-system-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -1949,8 +2045,10 @@
       "id": "tam-system-sleep-lock",
       "kind": "command",
       "source": "commands/tam-system-sleep-lock",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/system.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-system-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -1960,8 +2058,10 @@
       "id": "tam-system-stats",
       "kind": "command",
       "source": "commands/tam-system-stats",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/system.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-system-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -2411,7 +2511,8 @@
       "kind": "command",
       "source": "commands/tam-transcode",
       "pages": [
-        "desktop/capture.html"
+        "desktop/capture.html",
+        "use/apps/media.html"
       ],
       "status": "covered"
     },
@@ -2420,7 +2521,8 @@
       "kind": "command",
       "source": "commands/tam-transcode-ascii",
       "pages": [
-        "desktop/capture.html"
+        "desktop/capture.html",
+        "use/apps/media.html"
       ],
       "status": "covered"
     },
@@ -2449,7 +2551,8 @@
       "pages": [
         "improve/scripting.html",
         "maintain/snapper.html",
-        "maintain/updates.html"
+        "maintain/updates.html",
+        "use/commands/packages.html"
       ],
       "status": "covered"
     },
@@ -2457,8 +2560,10 @@
       "id": "tam-update-firmware",
       "kind": "command",
       "source": "commands/tam-update-firmware",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "use/commands/packages.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-update-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -2507,7 +2612,8 @@
       "kind": "command",
       "source": "commands/tam-webapp-install",
       "pages": [
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/apps/web-apps.html"
       ],
       "status": "covered"
     },
@@ -2516,7 +2622,8 @@
       "kind": "command",
       "source": "commands/tam-webapp-remove",
       "pages": [
-        "shell/tools.html"
+        "shell/tools.html",
+        "use/apps/web-apps.html"
       ],
       "status": "covered"
     },
@@ -2540,7 +2647,8 @@
       "kind": "command",
       "source": "commands/tam-workstation-upgrade",
       "pages": [
-        "maintain/troubleshooting.html"
+        "maintain/troubleshooting.html",
+        "use/commands/packages.html"
       ],
       "status": "covered"
     },

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Network commands</title>
+<meta name="kind" content="reference">
+<meta name="skills" content="networking.beginner, networking.intermediate">
+<meta name="topic" content="network-commands">
+<meta name="summary" content="Hand-checked Tamlinux commands for connection status, Wi-Fi passwords and QR codes, speed tests, DNS, and Wi-Fi restarts">
+<meta name="keywords" content="network commands, tam-network-status, tam-network-password, tam-network-qr, tam-network-speedtest, tam-dns, tam-restart-wifi">
+<meta name="level" content="learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/commands/index.html">
+<meta name="paths" content="command-line-fluency:9">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="use/commands/index.html">Command reference</a> / Network commands</p>
+</nav>
+
+<h1>Network commands</h1>
+<p>These hand-checked Tamlinux commands inspect your active connection, inspect or share Wi-Fi details, check DNS resolvers, and restart Wi-Fi when needed.</p>
+
+<h2>Connection status and diagnostics</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-network-status</code></td><td>Print active type (ethernet, wifi, disconnected), SSID, signal, and frequency</td><td>Read-only</td><td><code>commands/tam-network-status/tam-network-status</code></td></tr>
+<tr><td><code>tam-network-status --verbose</code></td><td>Print detailed route, link, and gateway ping key/value lines</td><td>Read-only</td><td><code>commands/tam-network-status/tam-network-status</code></td></tr>
+<tr><td><code>tam-network-band</code></td><td>Print the active Wi-Fi radio band</td><td>Read-only</td><td><code>commands/tam-network-band/tam-network-band</code></td></tr>
+<tr><td><code>tam-network-speedtest</code></td><td>Measure live internet speed in one direction</td><td>User (network transfer)</td><td><code>commands/tam-network-speedtest/tam-network-speedtest</code></td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ tam-network-status --verbose
+</pre>
+
+<h2>Wi-Fi credentials and sharing</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-network-password</code></td><td>Print the active Wi-Fi connection password locally</td><td>Read-only (handles secret locally)</td><td><code>commands/tam-network-password/tam-network-password</code></td></tr>
+<tr><td><code>tam-network-qr</code></td><td>Render a terminal QR matrix for the active Wi-Fi network</td><td>Read-only (screen displays Wi-Fi key)</td><td><code>commands/tam-network-qr/tam-network-qr</code></td></tr>
+</table>
+
+<h2>DNS configuration and Wi-Fi restart</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-dns</code></td><td>Show the current system DNS configuration without changing it</td><td>Read-only</td><td><code>commands/tam-dns/tam-dns</code></td></tr>
+<tr><td><code>tam-dns &lt;Cloudflare|Google|DHCP|Custom&gt;</code></td><td>Set system DNS via <code>pkexec</code> Polkit prompt (<code>20-tamlinux-dns.conf</code>); undo with <code>tam-dns DHCP</code></td><td>System (privileged prompt)</td><td><code>commands/tam-dns/tam-dns</code></td></tr>
+<tr><td><code>tam-restart-wifi</code></td><td>Unblock and restart Wi-Fi connectivity when the radio stalls</td><td>System (drops active Wi-Fi briefly)</td><td><code>commands/tam-restart-wifi/tam-restart-wifi</code></td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ tam-dns
+</pre>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/networking.html">Network connections and DNS</a> &mdash; diagnose link, IP address, and name-resolution faults step by step.</li>
+<li><a href="use/recipes/network.html">Check the network recipe</a> &mdash; quick checklist before changing DNS or restarting services.</li>
+<li><a href="use/commands/index.html">Command reference hub</a> &mdash; desktop, packages, and system command lists.</li>
+</ul>
+</body>
+</html>

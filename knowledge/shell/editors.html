@@ -11,6 +11,7 @@
 <meta name="track" content="learn">
 <meta name="parent" content="shell/index.html">
 <meta name="prereqs" content="shell">
+<meta name="paths" content="command-line-fluency:3">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -41,12 +42,6 @@
 <h2>Open a file for editing</h2>
 <p><strong>Goal:</strong> you will be able to open a text file with the packaged edit path.</p>
 
-<nav class="learning-path" aria-label="Learning path">
-<p><strong>Learning path: Shell day to day</strong> &mdash;
-<a href="shell/tools.html?level=2">Start</a> |
-<a href="shell/tools.html?level=2">&larr; Back</a> |
-<a href="shell/index.html?level=2">Next &rarr;</a></p>
-</nav>
 
 <h3>Worked example</h3>
 <ol>
@@ -54,6 +49,17 @@
 <li>Open a scratch file in your home directory, type a short line, save, and quit.</li>
 <li>If a desktop recipe opens an editor for you (for example clipboard practice), use Meta + V to paste into it.</li>
 </ol>
+
+<h3>Try it</h3>
+<p>Run <code>tam-default-editor</code> read-only with no arguments in a terminal to confirm which editor is active, then create and remove a temporary draft file under <code>mktemp -d</code> with <code>tam-launch-editor --inline</code>.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Changes vanished after closing the editor</dt>
+<dd>Verify you saved with <code>Ctrl + S</code> (in Micro) or your editor's write command before quitting.</dd>
+<dt>Wrong editor opened</dt>
+<dd>Run <code>tam-default-editor</code> to inspect the configured identifier and adjust only if intended.</dd>
+</dl>
 
 <aside class="tamlinux">
 <p>Review windows for plans and drafts may use Micro; that is a session preference, not a requirement for every file. Config editing uses <code>tam-launch-config-editor</code> when a recipe points at settings.</p>

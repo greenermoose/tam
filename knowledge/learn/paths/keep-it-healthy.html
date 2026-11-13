@@ -2,9 +2,9 @@
 <html>
 <head>
 <title>Keep it healthy</title>
-<meta name="topic" content="keep-it-healthy-path">
+<meta name="topic" content="keep-it-healthy">
 <meta name="summary" content="Identify update owners, read focused logs and plan recovery at the matching layer">
-<meta name="keywords" content="path, healthy, updates, logs, rollback, recovery, ownership, learner">
+<meta name="keywords" content="path, healthy, updates, logs, rollback, recovery, ownership, learner, keep-it-healthy-path">
 <meta name="level" content="learner">
 <meta name="track" content="learn">
 <meta name="parent" content="learn/paths/index.html">
@@ -99,10 +99,17 @@ tam-deploy procedure.</li></ol>
 <p>You finish with a decision record, not a package transaction. The next
 real change needs its own verified recovery evidence.</p>
 </details>
+<section class="quiz">
+<h3>Check yourself: readiness and scope</h3>
+<details class="q"><summary>What if the recovery evidence is missing?</summary>
+<p>Record the unknown and leave the real change pending rather than inventing a rollback point.</p></details>
+<details class="q"><summary>After querying package ownership, a process still shows old output. Why check PATH and running processes separately?</summary>
+<p>A wrong <code>PATH</code> entry can select an un-updated binary, and an already-running process can continue mapping old code after disk files change. Querying package ownership alone proves neither.</p></details>
+</section>
 <h2>Next paths</h2>
 <p><a href="learn/paths/rescue.html?level=2">Rescue</a>: choose and audit recovery procedures for failed updates and startup failures.</p>
-<ul><li><a href="intermediate.html?level=2">Learner path</a>: extend your system model.</li>
-<li><a href="expert.html?level=3">Expert path</a>: investigate internals and failure modes.</li>
+<ul><li><a href="learn/paths/command-line-fluency.html?level=2">Command-line fluency</a>: extend your shell and process model.</li>
+<li><a href="learn/paths/diagnose-from-principles.html?level=3">Diagnose from first principles</a>: investigate internals and failure modes.</li>
 <li><a href="learn/paths/index.html">All goal paths</a>.</li></ul>
 </body>
 </html>

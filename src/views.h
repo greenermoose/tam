@@ -10,6 +10,8 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
 tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, int width);
 tam_document_t *tam_topic_guide_document(const char *root, const char *topic,
                                          unsigned level, int width);
+tam_document_t *tam_paths_document(const char *root, const char *path_id,
+                                   unsigned level, int width);
 
 /* A guide page (or the page read from standard input), with its levels and
  * folds applied. */

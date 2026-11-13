@@ -270,6 +270,7 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
     prereqs = []
     page_kind = ""
     skills = []
+    paths = []
 
     for tag in re.findall(r'<meta\b(?:[^>"\'/]|"[^"]*"|\'[^\']*\')*>', text, re.I):
         name = extract_attr(tag, "name")
@@ -302,6 +303,23 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
             page_kind = content.strip()
         elif name_lower == "skills":
             skills.extend(split_list(content))
+        elif name_lower == "paths":
+            seen_page_paths = {p["id"] for p in paths}
+            for item in split_list(content):
+                pid, sep, step_raw = item.partition(":")
+                pid = pid.strip()
+                step_raw = step_raw.strip()
+                if not sep or not TOPIC_RE.match(pid):
+                    errors.append(f"{rel_path}: path entry {item!r} must be '<path-id>:<step>' with slug path ID")
+                    continue
+                if not step_raw.isdigit() or int(step_raw) < 1:
+                    errors.append(f"{rel_path}: path step in {item!r} must be a positive integer")
+                    continue
+                if pid in seen_page_paths:
+                    errors.append(f"{rel_path}: duplicate path ID {pid!r} in paths metadata")
+                    continue
+                seen_page_paths.add(pid)
+                paths.append({"id": pid, "step": int(step_raw)})
 
     # Laddered sections define the page's levels; smaller tagged blocks may
     # refine any of those levels without adding another ladder section.
@@ -348,6 +366,7 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
         "prereqs": prereqs,
         "kind": page_kind,
         "skills": skills,
+        "paths": paths,
         "rev": rev,
         "updated": updated,
     }
@@ -628,7 +647,7 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
                         warnings.append({"path": path, "level": level, "forbidden": forbidden})
                 continue
             if level == "learner":
-                required = ["goal:", "worked example", "try it", "if it goes wrong", "learning path:"]
+                required = ["goal:", "worked example", "try it", "if it goes wrong"]
                 missing = [name for name in required if name not in text]
                 if not section["quiz"]:
                     missing.append("quiz")
@@ -669,6 +688,41 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
             "unmapped_pages": sorted(e["path"] for e in entries if not e["skills"])}
 
 
+def _clean_tsv(value):
+    return re.sub(r"[\t\r\n]+", " ", value or "").strip()
+
+
+def validate_global_entries(entries, errors):
+    seen_topics = {}
+    topics = set()
+    for e in entries:
+        topic = e["topic"]
+        if topic in seen_topics:
+            errors.append(f"{e['path']}: duplicate topic {topic!r} (already used by {seen_topics[topic]})")
+        else:
+            seen_topics[topic] = e["path"]
+            topics.add(topic)
+
+    for e in entries:
+        for p in e["prereqs"]:
+            if p not in topics:
+                errors.append(f"{e['path']}: prerequisite {p!r} is not a topic")
+
+    path_defs = {e["topic"]: e for e in entries if e.get("kind") == "path"}
+    seen_steps = {}
+    for e in entries:
+        for ref in e.get("paths", []):
+            pid, step = ref["id"], ref["step"]
+            if pid not in path_defs:
+                errors.append(f"{e['path']}: unknown learning path {pid!r}")
+                continue
+            key = (pid, step)
+            if key in seen_steps:
+                errors.append(f"{e['path']}: duplicate step {step} on path {pid!r} (already used by {seen_steps[key]})")
+            else:
+                seen_steps[key] = e["path"]
+
+
 def index_outputs(entries, coverage):
     # Sort entries by topic
     entries.sort(key=lambda e: e["topic"])
@@ -679,6 +733,8 @@ def index_outputs(entries, coverage):
     parents = ["path\tparent\n"]
     kinds = ["path\tkind\n"]
     skills = ["path\tskills\n"]
+    path_defs = {}
+    path_steps = {}
     for e in entries:
         kws = ", ".join(e["keywords"])
         prereqs = ", ".join(e["prereqs"])
@@ -689,12 +745,31 @@ def index_outputs(entries, coverage):
             kinds.append(f"{e['path']}\t{e['kind']}\n")
         if e['skills']:
             skills.append(f"{e['path']}\t{','.join(e['skills'])}\n")
+        if e['kind'] == "path":
+            path_defs[e["topic"]] = e
+        for ref in e.get("paths", []):
+            path_steps.setdefault(ref["id"], []).append((ref["step"], e["path"], e["title"]))
+
+    paths_tsv = ["record\tpath_id\targ1\targ2\targ3\targ4\n"]
+    for pid in sorted(path_defs):
+        pdef = path_defs[pid]
+        paths_tsv.append(
+            f"P\t{_clean_tsv(pid)}\t{_clean_tsv(pdef['title'])}\t"
+            f"{_clean_tsv(pdef['path'])}\t{_clean_tsv(pdef['summary'])}\t"
+            f"{','.join(pdef['skills'])}\n"
+        )
+        for step, page_path, page_title in sorted(path_steps.get(pid, []), key=lambda x: (x[0], x[1])):
+            paths_tsv.append(
+                f"S\t{_clean_tsv(pid)}\t{step}\t{_clean_tsv(page_path)}\t"
+                f"{_clean_tsv(page_title)}\t\n"
+            )
 
     outputs = {
         "index.tsv": "".join(rows),
         "index.parents.tsv": "".join(parents),
         "index.kinds.tsv": "".join(kinds),
         "index.skills.tsv": "".join(skills),
+        "index.paths.tsv": "".join(paths_tsv),
         "coverage.json": json.dumps(coverage, indent=2) + "\n",
         "index.json": json.dumps(entries, indent=2) + "\n",
     }
@@ -717,11 +792,7 @@ def reference_main(root=None):
         entry = parse_page(root, html_file, rel, errors, git_cache=git_cache)
         entries.append(entry)
 
-    topics = {e["topic"] for e in entries}
-    for e in entries:
-        for p in e["prereqs"]:
-            if p not in topics:
-                errors.append(f"{e['path']}: prerequisite {p!r} is not a topic")
+    validate_global_entries(entries, errors)
 
     version_file = knowledge_dir / "version"
     if not version_file.is_file():

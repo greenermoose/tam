@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Reading PDFs, documents, and printing</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.beginner, files.beginner">
+<meta name="topic" content="documents-and-pdf">
+<meta name="summary" content="Open PDF documents with Tamlinux viewers and check local printer setup before printing">
+<meta name="keywords" content="pdf, documents, zathura, evince, tam-open, print, cups, printing">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Reading PDFs, documents, and printing</p>
+</nav>
+
+<h1>Reading PDFs, documents, and printing</h1>
+<p>This page explains how to open PDF and office documents on Tamlinux and how to check available document viewers and CUPS printing safely before changing printer settings.</p>
+
+<section data-level="novice">
+<h2>Opening a PDF or document file</h2>
+<p>When someone sends you a PDF form or manual, you can open it from the Files window (<code>Meta + Shift + F</code>) or run <code>tam-open &lt;file.pdf&gt;</code> in a terminal. Tamlinux automatically looks for an installed viewer (such as <code>zathura</code>, <code>evince</code>, or <code>chromium</code>).</p>
+
+<h3>Why it matters</h3>
+<p>Opening a read-only viewer lets you read pages, search text, and check layout without altering the original file.</p>
+
+<h3>How to think about it</h3>
+<p><code>tam-open</code> inspects the file format itself rather than guessing blindly, then hands the document to whichever supported viewer is present on your workstation.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/file.html">File</a></dfn></dt>
+<dd>A stored document such as a PDF, text note, or spreadsheet on disk.</dd>
+<dt><dfn><a href="learn/glossary/executable.html">Executable</a></dfn></dt>
+<dd>An installed viewer or tool program available on your <code>PATH</code>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Verify viewers and printer availability read-only</h2>
+<p><strong>Goal:</strong> check which PDF viewer and print queues are active on your machine read-only before opening or printing documents.</p>
+<p><strong>Before you start:</strong> checking installed commands and print queue status is read-only and prints nothing to paper.</p>
+
+<h3>Worked example</h3>
+<p>Check which PDF viewers are currently on your <code>PATH</code> and whether CUPS (Common Unix Printing System) has configured queues:</p>
+<pre class="session" data-risk="read-only">
+$ command -v zathura evince chromium
+$ lpstat -p 2>/dev/null || echo "No printer queues configured"
+</pre>
+<p>When a PDF viewer such as <code>zathura</code> or <code>evince</code> is installed, <code>tam-open report.pdf</code> launches it directly in a graphical session; if neither dedicated viewer is installed, <code>tam-open</code> falls back to Chromium to display the PDF.</p>
+
+<h3>Try it</h3>
+<p>Run <code>command -v zathura evince chromium</code> in your terminal to see which PDF viewer your system would pick first.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A PDF opens in the browser instead of a dedicated viewer</dt>
+<dd>No dedicated viewer (<code>zathura</code> or <code>evince</code>) was found in <code>PATH</code>. Install one with <code>tam-pkg-install</code> if you prefer a keyboard-driven viewer.</dd>
+<dt>Printing fails or prints nothing</dt>
+<dd>Check <code>systemctl status cups</code> read-only and inspect <code>lpstat -t</code> before re-sending a print job multiple times.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux hardens CUPS system-group ownership defaults in native system configuration; inspect printer status with <code>lpstat</code> before reaching for administrator privileges.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>In what order does <code>tam-open</code> look for a graphical PDF viewer?</summary>
+<p>It checks for <code>zathura</code>, then <code>evince</code>, then falls back to <code>chromium</code> if installed.</p>
+</details>
+<details class="q">
+<summary>How can you check whether any printers are ready without printing a test page?</summary>
+<p>Run <code>lpstat -p</code> read-only.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/apps/media.html">Viewing photos, playing audio/video, and converting media</a> &mdash; images, video playback, and transcoding.</li>
+<li><a href="use/apps/browser.html">Opening the web browser</a> &mdash; handling links and web-based forms.</li>
+</ul>
+</body>
+</html>

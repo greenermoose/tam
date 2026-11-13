@@ -18,7 +18,7 @@ COVERAGE_TOOL = (
 )
 MAKEFILE = BUILDER.parent.parent / "Makefile"
 INDEXES = ("index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
-           "index.skills.tsv", "coverage.json")
+           "index.skills.tsv", "index.paths.tsv", "coverage.json")
 
 spec = importlib.util.spec_from_file_location("build_index_tool", str(BUILDER))
 build_index_mod = importlib.util.module_from_spec(spec)
@@ -534,6 +534,63 @@ class BuildIndex(unittest.TestCase):
         result = self.build(root)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("does not match parent part", result.stderr)
+
+    def test_duplicate_topic_is_rejected(self):
+        root = self.fixture("0.81.0", {
+            "index.html": page("Guide"),
+            "use/first.html": page("First", "use", "index.html").replace(
+                'content="first"', 'content="displays"'),
+            "maintain/second.html": page("Second", "maintain", "index.html").replace(
+                'content="second"', 'content="displays"'),
+        })
+        result = self.build(root)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("duplicate topic 'displays'", result.stderr)
+
+    def test_meta_paths_build_sidecar_and_validate_steps(self):
+        path_a = page("Shell Basics", "learn", "index.html").replace(
+            'content="shell-basics"', 'content="shell-basics"'
+        ).replace(
+            "</head>", '<meta name="kind" content="path"></head>'
+        )
+        path_b = page("Rescue Flow", "learn", "index.html").replace(
+            "</head>", '<meta name="kind" content="path"></head>'
+        )
+        shared = page("Pipelines", "use", "index.html").replace(
+            "</head>", '<meta name="paths" content="shell-basics:2, rescue-flow:1"></head>'
+        )
+        first = page("Prompt", "use", "index.html").replace(
+            "</head>", '<meta name="paths" content="shell-basics:1"></head>'
+        )
+        root = self.fixture("0.81.0", {
+            "index.html": page("Guide"),
+            "learn/paths/shell-basics.html": path_a,
+            "learn/paths/rescue-flow.html": path_b,
+            "use/pipelines.html": shared,
+            "use/prompt.html": first,
+        })
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        tsv = (root / "knowledge/index.paths.tsv").read_text()
+        self.assertIn("P\tshell-basics\tShell Basics\tlearn/paths/shell-basics.html", tsv)
+        self.assertIn("S\tshell-basics\t1\tuse/prompt.html\tPrompt", tsv)
+        self.assertIn("S\tshell-basics\t2\tuse/pipelines.html\tPipelines", tsv)
+        self.assertIn("S\trescue-flow\t1\tuse/pipelines.html\tPipelines", tsv)
+
+        for bad_meta, err in (
+            ("missing-path:1", "unknown learning path 'missing-path'"),
+            ("shell-basics", "must be '<path-id>:<step>'"),
+            ("shell-basics:0", "must be a positive integer"),
+            ("shell-basics:1, shell-basics:2", "duplicate path ID 'shell-basics'"),
+            ("shell-basics:1", "duplicate step 1 on path 'shell-basics'"),
+        ):
+            with self.subTest(bad_meta=bad_meta):
+                (root / "knowledge/use/pipelines.html").write_text(
+                    shared.replace("shell-basics:2, rescue-flow:1", bad_meta)
+                )
+                bad = self.build(root)
+                self.assertEqual(bad.returncode, 1)
+                self.assertIn(err, bad.stderr)
 
 
 if __name__ == "__main__":

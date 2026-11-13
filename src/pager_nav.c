@@ -147,6 +147,13 @@ void pager_reflow(pager_t *st, int width)
     }
 }
 
+static int same_opt_str(const char *a, const char *b)
+{
+    if (a == NULL && b == NULL) return 1;
+    if (a == NULL || b == NULL) return 0;
+    return strcmp(a, b) == 0;
+}
+
 static void history_push(pager_t *st, const char *href, int top,
                          int cursor_line)
 {
@@ -155,6 +162,8 @@ static void history_push(pager_t *st, const char *href, int top,
     st->history[st->nhistory].href = strdup(href);
     const linkref_t *sel = selected_link(st);
     st->history[st->nhistory].selected_href = sel ? strdup(sel->href) : NULL;
+    st->history[st->nhistory].active_path =
+        st->active_path ? strdup(st->active_path) : NULL;
     st->history[st->nhistory].selected_link_id = sel ? sel->link_id : 0;
     st->history[st->nhistory].selected_header = sel ? sel->header : 0;
     st->history[st->nhistory].top = top;
@@ -180,6 +189,8 @@ static void forward_push(pager_t *st, const char *href, int top,
     st->forward[st->nforward].href = strdup(href);
     const linkref_t *sel = selected_link(st);
     st->forward[st->nforward].selected_href = sel ? strdup(sel->href) : NULL;
+    st->forward[st->nforward].active_path =
+        st->active_path ? strdup(st->active_path) : NULL;
     st->forward[st->nforward].selected_link_id = sel ? sel->link_id : 0;
     st->forward[st->nforward].selected_header = sel ? sel->header : 0;
     st->forward[st->nforward].top = top;
@@ -203,6 +214,7 @@ static void forward_clear(pager_t *st)
         nav_state_t *state = &st->forward[--st->nforward];
         free(state->href);
         free(state->selected_href);
+        free(state->active_path);
     }
     free(st->forward);
     st->forward = NULL;
@@ -324,20 +336,50 @@ int lens_href(const char *href)
     return tam_addr_takes_lens(href);
 }
 
-/* Load `href` (stored without level=) at the reader's lens. A view that
- * cannot be shown at the lens is loaded at every level instead. */
-tam_document_t *load_at_lens(pager_t *st, const char *href)
+/* Load `href` (stored without level= or path=) at the reader's lens and
+ * active learning path. A view that cannot be shown at the lens is loaded
+ * at every level instead. */
+static tam_document_t *load_at_context(const pager_t *st, const char *href,
+                                       const char *path_id)
 {
+    int with_path = path_id != NULL && path_id[0] != '\0' &&
+                    tam_addr_kind(href) == TAM_ADDR_GUIDE &&
+                    !tam_addr_param(href, "path", (char[8]){0}, 8);
     if (st->lens != 0 && lens_href(href)) {
-        size_t cap = strlen(href) + 32;
+        size_t cap = strlen(href) + (with_path ? strlen(path_id) : 0) + 64;
+        char *buf = malloc(cap);
         char *target = malloc(cap);
-        if (!target) return NULL;
-        int ok = tam_href_put_level(href, st->lens, target, cap);
+        if (!buf || !target) {
+            free(buf);
+            free(target);
+            return NULL;
+        }
+        int ok = tam_href_put_level(href, st->lens, buf, cap);
+        if (ok && with_path) {
+            ok = tam_href_put_path(buf, path_id, target, cap);
+        } else if (ok) {
+            snprintf(target, cap, "%s", buf);
+        }
         tam_document_t *nd = ok ? st->load(st->ctx, target, content_width(st)) : NULL;
+        free(buf);
         free(target);
         if (nd != NULL) return nd;
     }
+    if (with_path) {
+        size_t cap = strlen(href) + strlen(path_id) + 32;
+        char *target = malloc(cap);
+        if (!target) return NULL;
+        int ok = tam_href_put_path(href, path_id, target, cap);
+        tam_document_t *nd = ok ? st->load(st->ctx, target, content_width(st)) : NULL;
+        free(target);
+        return nd;
+    }
     return st->load(st->ctx, href, content_width(st));
+}
+
+tam_document_t *load_at_lens(pager_t *st, const char *href)
+{
+    return load_at_context(st, href, st->active_path);
 }
 
 /* tam never fetches a web page. An external link opens in the reader's own
@@ -435,8 +477,9 @@ void follow(pager_t *st, const char *href)
         follow_external(st, href);
         return;
     }
-    /* A link that names a level sets the lens; history keeps the address
-     * without it, so Back and Forward show pages at the current lens. */
+    /* A link that names a level sets the lens, and a guide link carrying
+     * ?path= sets/switches/clears the active learning path; history keeps
+     * cur_href without them while tracking active_path per history frame. */
     char bare[600];
     snprintf(bare, sizeof(bare), "%s", href);
     unsigned named = 0;
@@ -445,13 +488,42 @@ void follow(pager_t *st, const char *href)
         st->lens = named;
         tam_lens_set(named);
     }
+    char next_path_buf[256] = {0};
+    int path_cleared = 0;
+    int had_path_param = tam_addr_kind(bare) == TAM_ADDR_GUIDE &&
+                         tam_href_take_path(bare, next_path_buf,
+                                            sizeof(next_path_buf), &path_cleared);
+    char *next_active = NULL;
+    if (had_path_param) {
+        if (!path_cleared && next_path_buf[0] != '\0')
+            next_active = strdup(next_path_buf);
+    } else if (st->active_path != NULL) {
+        next_active = strdup(st->active_path);
+    }
+
     href = bare;
-    tam_document_t *nd = load_at_lens(st, href);
+    tam_document_t *nd = load_at_context(st, href, next_active);
     if (nd == NULL) {
+        free(next_active);
         if (strcmp(href, "index.html") == 0)
             snprintf(st->msg, sizeof(st->msg), "Guide unavailable; Left Arrow returns to the previous page");
         else
             snprintf(st->msg, sizeof(st->msg), "cannot open %.140s", href);
+        return;
+    }
+    if (had_path_param && st->cur_href != NULL && strcmp(href, st->cur_href) == 0) {
+        tam_document_free(nd);
+        history_push(st, st->cur_href, st->top, st->cursor_line);
+        forward_clear(st);
+        free(st->active_path);
+        st->active_path = next_active;
+        if (!reload_in_place(st)) {
+            st->msg[0] = '\0';
+        } else if (st->active_path != NULL) {
+            snprintf(st->msg, sizeof(st->msg), "Following path: %.120s", st->active_path);
+        } else {
+            snprintf(st->msg, sizeof(st->msg), "Left learning path");
+        }
         return;
     }
     free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
@@ -461,6 +533,8 @@ void follow(pager_t *st, const char *href)
     pager_clear_search(st);
     free(st->cur_href);
     st->cur_href = strdup(href);
+    free(st->active_path);
+    st->active_path = next_active;
     tam_document_free(st->doc);
     st->doc = nd;
     pager_build_links(st);
@@ -738,6 +812,7 @@ void pager_return_from_help(pager_t *st)
         nav_state_t discarded = st->history[--st->nhistory];
         free(discarded.href);
         free(discarded.selected_href);
+        free(discarded.active_path);
     }
     go_back(st);
 }
@@ -749,21 +824,24 @@ void go_back(pager_t *st)
         return;
     }
     nav_state_t prev = st->history[--st->nhistory];
-    if (strcmp(prev.href, st->cur_href) == 0) {
+    if (strcmp(prev.href, st->cur_href) == 0 &&
+        same_opt_str(prev.active_path, st->active_path)) {
         forward_push(st, st->cur_href, st->top, st->cursor_line);
         pager_clear_search(st);
         free(prev.href);
+        free(prev.active_path);
         restore_logical_nav_state(st, &prev);
         free(prev.selected_href);
         st->msg[0] = '\0';
         return;
     }
-    tam_document_t *nd = load_at_lens(st, prev.href);
+    tam_document_t *nd = load_at_context(st, prev.href, prev.active_path);
     if (nd == NULL) {
         st->nhistory++;
         snprintf(st->msg, sizeof(st->msg), "cannot open %s", prev.href);
         free(prev.href);
         free(prev.selected_href);
+        free(prev.active_path);
         return;
     }
     free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
@@ -772,6 +850,8 @@ void go_back(pager_t *st)
     pager_clear_search(st);
     free(st->cur_href);
     st->cur_href = prev.href;
+    free(st->active_path);
+    st->active_path = prev.active_path;
     tam_document_free(st->doc);
     st->doc = nd;
     pager_build_links(st);
@@ -786,21 +866,24 @@ void go_forward(pager_t *st)
         return;
     }
     nav_state_t next = st->forward[--st->nforward];
-    if (strcmp(next.href, st->cur_href) == 0) {
+    if (strcmp(next.href, st->cur_href) == 0 &&
+        same_opt_str(next.active_path, st->active_path)) {
         history_push(st, st->cur_href, st->top, st->cursor_line);
         pager_clear_search(st);
         free(next.href);
+        free(next.active_path);
         restore_logical_nav_state(st, &next);
         free(next.selected_href);
         st->msg[0] = '\0';
         return;
     }
-    tam_document_t *nd = load_at_lens(st, next.href);
+    tam_document_t *nd = load_at_context(st, next.href, next.active_path);
     if (nd == NULL) {
         st->nforward++;
         snprintf(st->msg, sizeof(st->msg), "cannot open %s", next.href);
         free(next.href);
         free(next.selected_href);
+        free(next.active_path);
         return;
     }
     free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
@@ -809,6 +892,8 @@ void go_forward(pager_t *st)
     pager_clear_search(st);
     free(st->cur_href);
     st->cur_href = next.href;
+    free(st->active_path);
+    st->active_path = next.active_path;
     tam_document_free(st->doc);
     st->doc = nd;
     pager_build_links(st);

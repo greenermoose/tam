@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.54.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.55.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -2036,6 +2036,157 @@ assert "INPUT_SECRET" in p.key(b"r")
 p.quit()
 ' "$TAM" "$root/tests/fixtures/guide" "$root/tests/fixtures/tldr" "$tmp" || fail "interactive pager level lens test failed"
     pass "level lens: 0-3 persist across links, Back and restarts; TAM_LEVEL and --level override; level line, markers and status row"
+
+    # Multi-path interactive navigation: picker, course switching, off-path detour + Back
+    python3 - "$TAM" "$root/tools/build-index.py" "$tmp" <<'PYMPATH'
+import importlib.util, os, pty, re, select, struct, sys, termios, time, fcntl
+from pathlib import Path
+
+tam, builder_path, tmp = sys.argv[1:]
+multi = Path(tmp) / "multi-path-corpus"
+kb = multi / "knowledge"
+(kb / "learn/paths").mkdir(parents=True, exist_ok=True)
+(kb / "use").mkdir(parents=True, exist_ok=True)
+(kb / "version").write_text("0.81.0\n")
+
+def mk(title, track, parent, body, extra_meta=""):
+    nav = "" if title == "Guide" else (
+        f'<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / {title}</p></nav>'
+    )
+    topic = title.lower().replace(" ", "-")
+    return (
+        f"<!doctype html><html><head><title>{title}</title>"
+        f'<meta name="topic" content="{topic}">'
+        f'<meta name="summary" content="{title} summary">'
+        f'<meta name="level" content="novice">'
+        f'<meta name="track" content="{track}">'
+        + (f'<meta name="parent" content="{parent}">' if parent else "")
+        + extra_meta
+        + f"</head><body>{nav}<h1>{title}</h1>{body}</body></html>\n"
+    )
+
+(kb / "index.html").write_text(mk("Guide", "", None, "<p>Root.</p>"))
+(kb / "learn/paths/alpha.html").write_text(
+    mk("Alpha Track", "learn", "index.html", "<p>Alpha intro.</p>", '<meta name="kind" content="path">')
+    .replace('content="alpha-track"', 'content="alpha"')
+)
+(kb / "learn/paths/beta.html").write_text(
+    mk("Beta Track", "learn", "index.html", "<p>Beta intro.</p>", '<meta name="kind" content="path">')
+    .replace('content="beta-track"', 'content="beta"')
+)
+(kb / "use/shared.html").write_text(
+    mk("Shared Step", "use", "index.html", '<p>Common lesson. See <a href="use/detour.html">Detour</a>.</p>',
+       '<meta name="paths" content="alpha:1, beta:1">')
+)
+(kb / "use/alpha2.html").write_text(
+    mk("Alpha Two", "use", "index.html", "<p>Second alpha.</p>", '<meta name="paths" content="alpha:2">')
+)
+(kb / "use/beta2.html").write_text(
+    mk("Beta Two", "use", "index.html", "<p>Second beta.</p>", '<meta name="paths" content="beta:2">')
+)
+(kb / "use/detour.html").write_text(
+    mk("Detour Page", "use", "index.html", "<p>Side note.</p>")
+)
+
+spec = importlib.util.spec_from_file_location("bidx", builder_path)
+bidx = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bidx)
+rc = bidx.main(multi)
+assert rc == 0, f"build-index failed on multi-path fixture: rc={rc}"
+
+def strip_ansi(s):
+    return re.sub(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|[()][0-~])", "", s)
+
+class Pager:
+    def __init__(self, args, state):
+        self.master, slave = pty.openpty()
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 140, 0, 0))
+        self.pid = os.fork()
+        if self.pid == 0:
+            os.close(self.master)
+            os.setsid()
+            fcntl.ioctl(slave, termios.TIOCSCTTY, 0)
+            os.dup2(slave, 0); os.dup2(slave, 1); os.dup2(slave, 2)
+            os.close(slave)
+            os.environ["TAM_KNOWLEDGE_DIR"] = str(kb)
+            os.environ["XDG_STATE_HOME"] = state
+            os.environ.pop("TAM_LEVEL", None)
+            os.execl(tam, tam, *args)
+        os.close(slave)
+        self.screen = self.drain(timeout=0.10, quiet=0.01)
+
+    def drain(self, timeout=0.05, quiet=0.008):
+        buf = bytearray()
+        deadline = time.monotonic() + timeout
+        while True:
+            wait = quiet if buf else max(0.0, deadline - time.monotonic())
+            ready, _, _ = select.select([self.master], [], [], wait)
+            if not ready:
+                break
+            try:
+                part = os.read(self.master, 65536)
+            except OSError:
+                break
+            if not part:
+                break
+            buf.extend(part)
+        return strip_ansi(buf.decode("utf-8", "replace"))
+
+    def key(self, k):
+        self.drain(timeout=0.002, quiet=0.001)
+        os.write(self.master, k)
+        out = self.drain(timeout=0.05, quiet=0.008)
+        self.screen += out
+        return out
+
+    def quit(self):
+        os.write(self.master, b"q")
+        os.waitpid(self.pid, 0)
+        os.close(self.master)
+
+state = os.path.join(tmp, "mpath-state")
+
+def click_target(p, substr):
+    for _ in range(12):
+        out = p.key(b"\t")
+        if substr in out:
+            return p.key(b"\r")
+    raise AssertionError(f"never saw target {substr!r} while tabbing: {p.screen}")
+
+# 1. Unattached shared page offers Follow a path from here; picking Alpha activates it.
+p = Pager(["show", "use/shared"], state)
+assert "Follow a path from here:" in p.screen, p.screen
+assert "Alpha Track (Step 1 of 2)" in p.screen and "Beta Track (Step 1 of 2)" in p.screen, p.screen
+b = click_target(p, "use/shared.html?path=alpha")
+assert "Following path: alpha" in b, b
+assert "Learning path: Alpha Track (Step 1 of 2)" in b, b
+assert "Next: Alpha Two" in b, b
+assert "Switch course: Beta Track (Step 1 of 2)" in b, b
+
+# 2. Switch course stays on same page and flips Next target to Beta Two.
+b = click_target(p, "use/shared.html?path=beta")
+assert "Following path: beta" in b, b
+assert "Learning path: Beta Track (Step 1 of 2)" in b, b
+assert "Next: Beta Two" in b, b
+
+# 3. Follow Next: Beta Two -> keeps Beta active and shows Path complete.
+b = click_target(p, "use/beta2.html?path=beta")
+assert "Second beta." in b, b
+assert "Learning path: Beta Track (Step 2 of 2)" in b, b
+assert "Path complete" in b, b
+
+# 4. Left Arrow returns to Shared Step on Beta; following Detour shows Active path + Resume path; Left Arrow returns to Shared Step on Beta.
+b = p.key(b"\x1b[D")
+assert "Learning path: Beta Track (Step 1 of 2)" in b, b
+b = click_target(p, "use/detour.html")
+assert "Side note." in b, b
+assert "Active path: Beta Track (off-path page)" in b, b
+assert "Resume path" in b, b
+b = p.key(b"\x1b[D")
+assert "Learning path: Beta Track (Step 1 of 2)" in b, b
+p.quit()
+PYMPATH
+    pass "multi-path PTY navigation: course picker, switch course, path continuity, and detour recovery"
 fi
 
 

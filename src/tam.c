@@ -490,6 +490,8 @@ static int cmd_show(int n, char **args)
 
     if (page != NULL && strcmp(page, "topics") == 0) {
         page = "tam:topics";
+    } else if (page != NULL && strcmp(page, "paths") == 0) {
+        page = "tam:paths";
     }
     tam_addr_kind_t kind = tam_addr_kind(page);
     if (kind == TAM_ADDR_MAN || kind == TAM_ADDR_INFO || kind == TAM_ADDR_TLDR ||
@@ -542,9 +544,12 @@ static int cmd_show(int n, char **args)
         }
     } else {
         resolve_page(root, page, href, sizeof(href));
-        if (level != 0 && strchr(href, '?') == NULL) {
-            size_t hlen = strlen(href);
-            snprintf(href + hlen, sizeof(href) - hlen, "?level=%s", tam_level_name(level));
+        char existing_lvl[32];
+        if (level != 0 && !tam_addr_param(href, "level", existing_lvl, sizeof(existing_lvl))) {
+            char with_lvl[600];
+            if (tam_href_put_level(href, level, with_lvl, sizeof(with_lvl))) {
+                snprintf(href, sizeof(href), "%s", with_lvl);
+            }
         }
     }
 

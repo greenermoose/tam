@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Package and update commands</title>
+<meta name="kind" content="reference">
+<meta name="skills" content="software.beginner, software.intermediate, updates.beginner">
+<meta name="topic" content="package-commands">
+<meta name="summary" content="Hand-checked Tamlinux commands to check installed packages, install or remove software, inspect updates, and check firmware">
+<meta name="keywords" content="package commands, tam-pkg-add, tam-pkg-install, tam-pkg-remove, tam-pkg-present, tam-update, tam-update-firmware, tam-workstation-upgrade">
+<meta name="level" content="learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/commands/index.html">
+<meta name="paths" content="command-line-fluency:10">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / <a href="use/commands/index.html">Command reference</a> / Package and update commands</p>
+</nav>
+
+<h1>Package and update commands</h1>
+<p>These commands check installed system packages, install or remove applications through Tamlinux wrappers, check pending updates read-only, and check device firmware.</p>
+
+<h2>Read-only package predicates</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-pkg-present &lt;pkg...&gt;</code></td><td>Exit 0 when all named native packages are installed</td><td>Read-only</td><td><code>commands/tam-pkg-present/tam-pkg-present</code></td></tr>
+<tr><td><code>tam-pkg-missing &lt;pkg...&gt;</code></td><td>Print which named packages are missing</td><td>Read-only</td><td><code>commands/tam-pkg-missing/tam-pkg-missing</code></td></tr>
+<tr><td><code>tam-pkg-drop &lt;pkg...&gt;</code></td><td>Check package presence in scripts safely</td><td>Read-only</td><td><code>commands/tam-pkg-drop/tam-pkg-drop</code></td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ tam-pkg-present bash && echo "installed"
+</pre>
+
+<h2>Adding, removing, and updating software</h2>
+<table>
+<tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
+<tr><td><code>tam-pkg-install</code></td><td>Pick repository packages interactively and install via <code>tam-pkg-add</code></td><td>System (privileged; undo via <code>tam-pkg-remove</code> or recorded snapshot)</td><td><code>commands/tam-pkg-install/tam-pkg-install</code></td></tr>
+<tr><td><code>tam-pkg-add &lt;pkg...&gt;</code></td><td>Non-interactive Arch native package installer refusing inherited third-party repo dependencies</td><td>System (privileged; record rollback checkpoint first)</td><td><code>commands/tam-pkg-add/tam-pkg-add</code></td></tr>
+<tr><td><code>tam-pkg-aur-install</code></td><td>Pick AUR packages in interactive finder and build via <code>yay</code></td><td>System (privileged; verify AUR recipe first)</td><td><code>commands/tam-pkg-aur-install/tam-pkg-aur-install</code></td></tr>
+<tr><td><code>tam-pkg-remove</code></td><td>Pick explicitly installed packages interactively and remove them with unneeded dependencies</td><td>System (privileged; verify before confirming)</td><td><code>commands/tam-pkg-remove/tam-pkg-remove</code></td></tr>
+<tr><td><code>tam-update --check</code></td><td>List pending updates read-only without applying any transaction</td><td>Read-only</td><td><code>commands/tam-update/tam-update</code></td></tr>
+<tr><td><code>tam-update --apply</code></td><td>Run native update transaction (keep a Snapper/Home Manager rollback boundary first)</td><td>System (privileged)</td><td><code>commands/tam-update/tam-update</code></td></tr>
+<tr><td><code>tam-update-firmware --check</code></td><td>Query pending <code>fwupdmgr</code> firmware updates without flashing</td><td>Read-only</td><td><code>commands/tam-update-firmware/tam-update-firmware</code></td></tr>
+<tr><td><code>tam-workstation-upgrade</code></td><td>Upgrade Tamlinux workstation assembly from text login using released assembly coordinates</td><td>System (privileged; requires verified assembly digest)</td><td><code>commands/tam-workstation-upgrade/tam-workstation-upgrade</code></td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ tam-update --check
+$ tam-update-firmware --check
+</pre>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="maintain/updates.html">Checking and updating your software</a> &mdash; package ownership and rollback boundaries.</li>
+<li><a href="maintain/snapper.html">Snapper: Btrfs snapshots for system rollbacks</a> &mdash; snapshot safety before system package changes.</li>
+<li><a href="use/commands/index.html">Command reference hub</a> &mdash; return to all command groups.</li>
+</ul>
+</body>
+</html>

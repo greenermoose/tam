@@ -10,8 +10,8 @@
  *   man:NAME[(SEC)]          a manual page ("man:" alone: the Man pages view)
  *   info:MANUAL[/NODE]       an Info node
  *   tldr:[PLATFORM/]NAME     a tldr page
- *   tam:VIEW...              a generated view: topics, keywords, explain,
- *                            search, man, tldr
+ *   tam:VIEW...              a generated view: topics, keywords, paths, path,
+ *                            explain, search, man, tldr
  *   tam:help, tam:prompt:*, tam:fold:*   pager actions, never loaded
  *   anything with "://", or another scheme   external, never fetched
  */

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Map Tamlinux product components to corpus page mentions (plan 26 W1).
 
-Inventory (sibling product tree, override with TAMLINUX_ROOT):
+Inventory (sibling product trees, override with TAMLINUX_ROOT / TAMLINUX_TOOLS_ROOT):
   - tamlinux/commands/<name>/          → kind command
   - tamlinux/desktop/plugins/fred.*/   → kind plugin
   - tamlinux/desktop/.../bindings/*.lua → kind bindings (one row per file)
+  - tamlinux-tools/src/<name>/ or *.c  → kind tool
 
 A component is covered when any knowledge/*.html page contains its id as a
 whole word. Quality of teaching is out of scope; see corpus-style.md.
@@ -12,8 +13,7 @@ whole word. Quality of teaching is out of scope; see corpus-style.md.
 Exemptions: tools/component-coverage-exemptions.tsv (id, kind, reason, date).
 
 Default: print a human table. --json writes knowledge/component-coverage.json.
---check exits 1 when any non-exempt component has no page mention (not wired
-into make corpus-and-test until a first exemption baseline exists).
+--check exits 1 when any non-exempt component has no page mention.
 """
 
 from __future__ import annotations
@@ -26,54 +26,88 @@ import sys
 from pathlib import Path
 
 
-KINDS = ("command", "plugin", "bindings")
+KINDS = ("command", "plugin", "bindings", "tool")
 
 
 def tam_root(args_root: Path) -> Path:
     return args_root.resolve()
 
 
-def resolve_tamlinux(tam: Path, explicit: Path | None) -> Path | None:
+def resolve_sibling(tam: Path, explicit: Path | None, env_name: str, default_name: str) -> Path | None:
     if explicit is not None:
         return explicit.resolve() if explicit.is_dir() else None
-    env = os.environ.get("TAMLINUX_ROOT")
+    env = os.environ.get(env_name)
     if env:
         path = Path(env)
         return path.resolve() if path.is_dir() else None
-    sibling = tam.parent / "tamlinux"
+    sibling = tam.parent / default_name
     return sibling.resolve() if sibling.is_dir() else None
 
 
-def inventory(product: Path) -> list[dict]:
+def resolve_tamlinux(tam: Path, explicit: Path | None) -> Path | None:
+    return resolve_sibling(tam, explicit, "TAMLINUX_ROOT", "tamlinux")
+
+
+def resolve_tamlinux_tools(tam: Path, explicit: Path | None) -> Path | None:
+    return resolve_sibling(tam, explicit, "TAMLINUX_TOOLS_ROOT", "tamlinux-tools")
+
+
+def tools_inventory(tools_root: Path) -> list[dict]:
     rows: list[dict] = []
-    commands = product / "commands"
-    if commands.is_dir():
-        for path in sorted(commands.iterdir()):
-            if path.is_dir() and not path.name.startswith("."):
-                rows.append({
-                    "id": path.name,
-                    "kind": "command",
-                    "source": os.path.relpath(path, product),
-                })
-    plugins = product / "desktop" / "plugins"
-    if plugins.is_dir():
-        for path in sorted(plugins.glob("fred.*")):
-            if path.is_dir():
-                rows.append({
-                    "id": path.name,
-                    "kind": "plugin",
-                    "source": os.path.relpath(path, product),
-                })
-    bindings = (
-        product / "desktop" / "session" / "hypr" / "tamlinux" / "bindings"
-    )
-    if bindings.is_dir():
-        for path in sorted(bindings.glob("*.lua")):
+    src = tools_root / "src"
+    if not src.is_dir():
+        return rows
+    for path in sorted(src.iterdir()):
+        if path.name.startswith("."):
+            continue
+        if path.is_dir():
             rows.append({
                 "id": path.name,
-                "kind": "bindings",
-                "source": os.path.relpath(path, product),
+                "kind": "tool",
+                "source": os.path.relpath(path, tools_root),
             })
+        elif path.is_file() and path.suffix == ".c":
+            rows.append({
+                "id": path.stem,
+                "kind": "tool",
+                "source": os.path.relpath(path, tools_root),
+            })
+    return rows
+
+
+def inventory(product: Path | None, tools_root: Path | None = None) -> list[dict]:
+    rows: list[dict] = []
+    if product is not None:
+        commands = product / "commands"
+        if commands.is_dir():
+            for path in sorted(commands.iterdir()):
+                if path.is_dir() and not path.name.startswith("."):
+                    rows.append({
+                        "id": path.name,
+                        "kind": "command",
+                        "source": os.path.relpath(path, product),
+                    })
+        plugins = product / "desktop" / "plugins"
+        if plugins.is_dir():
+            for path in sorted(plugins.glob("fred.*")):
+                if path.is_dir():
+                    rows.append({
+                        "id": path.name,
+                        "kind": "plugin",
+                        "source": os.path.relpath(path, product),
+                    })
+        bindings = (
+            product / "desktop" / "session" / "hypr" / "tamlinux" / "bindings"
+        )
+        if bindings.is_dir():
+            for path in sorted(bindings.glob("*.lua")):
+                rows.append({
+                    "id": path.name,
+                    "kind": "bindings",
+                    "source": os.path.relpath(path, product),
+                })
+    if tools_root is not None:
+        rows.extend(tools_inventory(tools_root))
     return rows
 
 
@@ -151,12 +185,13 @@ def pages_mentioning(knowledge: Path, ident: str, blob: str | None = None) -> li
     return hits
 
 
-def build_report(tam: Path, product: Path | None, pages=None, components=None, comp_hits=None) -> dict:
+def build_report(tam: Path, product: Path | None, pages=None, components=None, comp_hits=None,
+                 tools_root: Path | None = None) -> dict:
     exemptions_path = tam / "tools" / "component-coverage-exemptions.tsv"
     exemptions = load_exemptions(exemptions_path)
     knowledge = tam / "knowledge"
     if components is None:
-        components = inventory(product) if product is not None else []
+        components = inventory(product, tools_root=tools_root) if (product is not None or tools_root is not None) else []
     if pages is None:
         pages = load_corpus_pages(knowledge) if components else []
     if comp_hits is None:
@@ -188,6 +223,7 @@ def build_report(tam: Path, product: Path | None, pages=None, components=None, c
     return {
         "version": 1,
         "product_root": str(product) if product else None,
+        "tools_root": str(tools_root) if tools_root else None,
         "exemptions_file": str(exemptions_path.relative_to(tam)),
         "counts": {
             "components": len(rows),
@@ -202,11 +238,14 @@ def build_report(tam: Path, product: Path | None, pages=None, components=None, c
 
 
 def print_table(report: dict) -> None:
-    if report["product_root"] is None:
+    if report["product_root"] is None and report.get("tools_root") is None:
         print("No tamlinux product tree found (set TAMLINUX_ROOT or keep ../tamlinux).")
         print("Skipped component inventory.")
         return
-    print(f"Product: {report['product_root']}")
+    if report["product_root"]:
+        print(f"Product: {report['product_root']}")
+    if report.get("tools_root"):
+        print(f"Tools: {report['tools_root']}")
     print(
         f"Components: {report['counts']['components']}  "
         f"covered: {report['counts']['covered']}  "
@@ -244,6 +283,12 @@ def main(argv: list[str] | None = None) -> int:
         help="tamlinux product root (default: TAMLINUX_ROOT or ../tamlinux)",
     )
     parser.add_argument(
+        "--tamlinux-tools",
+        type=Path,
+        default=None,
+        help="tamlinux-tools root (default: TAMLINUX_TOOLS_ROOT or ../tamlinux-tools)",
+    )
+    parser.add_argument(
         "--json",
         nargs="?",
         const="knowledge/component-coverage.json",
@@ -263,7 +308,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     tam = tam_root(args.root)
     product = resolve_tamlinux(tam, args.tamlinux)
-    report = build_report(tam, product)
+    tools_root = resolve_tamlinux_tools(tam, args.tamlinux_tools)
+    report = build_report(tam, product, tools_root=tools_root)
     if not args.quiet:
         print_table(report)
     if args.json is not None:
@@ -283,7 +329,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.tamlinux is not None and report["product_root"] is None:
         print(f"--tamlinux: {args.tamlinux} is not a directory", file=sys.stderr)
         return 1
-    if args.check and report["product_root"] is None:
+    if args.tamlinux_tools is not None and report.get("tools_root") is None:
+        print(f"--tamlinux-tools: {args.tamlinux_tools} is not a directory", file=sys.stderr)
+        return 1
+    if args.check and report["product_root"] is None and report.get("tools_root") is None:
         if not args.quiet:
             print("--check: no product tree; skipped check", file=sys.stderr)
         return 0

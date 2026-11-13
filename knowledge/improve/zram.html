@@ -11,6 +11,7 @@
 <meta name="prereqs" content="improve, resources">
 <meta name="kind" content="how-to">
 <meta name="skills" content="hardware.beginner, hardware.intermediate, hardware.expert">
+<meta name="paths" content="run-lean:3">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -43,12 +44,6 @@
 <section data-level="learner">
 <h2>Inspecting active ZRAM swap</h2>
 <p><strong>Goal:</strong> you will be able to query active compressed RAM swap using <code>zramctl</code>, identify compressed versus uncompressed memory metrics, and recognize when ZRAM is protecting your workstation from disk thrashing.</p>
-<nav class="learning-path" aria-label="Learning path">
-<p><strong>Learning path: Run lean</strong> &mdash;
-<a href="hardware/resources.html?level=2">Start</a> |
-<a href="improve/efficiency.html?level=2">&larr; Back</a> |
-<a href="hardware/resources.html?level=2">Next &rarr;</a></p>
-</nav>
 <p><strong>Before you start:</strong> open a terminal (<a href="shell/index.html">The Shell and Streams</a>). Review basic memory and resource monitoring (<a href="hardware/resources.html">Resources and Performance</a>). These inspection commands are completely read-only and do not alter system configuration or running processes.</p>
 <aside class="first-time">
 <p>When running diagnostic commands like <code>zramctl</code>, you do not need administrative or root privileges for read queries. The output displays active devices directly in your terminal. If the command displays a single device like <code>/dev/zram0</code> mounted at <code>[SWAP]</code>, compressed in-RAM swap is active and handling memory pressure automatically.</p>

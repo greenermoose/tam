@@ -207,6 +207,34 @@ printf '%s\n' "$out" | grep -q 'Other installation' \
     && fail "user data directory shadowed the binary's own corpus"
 pass "own corpus precedes user data directory"
 
+# Multi-path views and query-parameter order independence on the live corpus.
+p_list=$(guide paths --pipe)
+p_pseudo=$(guide tam:paths --pipe)
+[ "$p_list" = "$p_pseudo" ] || fail "show paths and tam:paths differ"
+printf '%s\n' "$p_list" | grep -q 'First steps' || fail "tam:paths missing First steps"
+printf '%s\n' "$p_list" | grep -q 'Everyday desktop tasks' || fail "tam:paths missing Everyday desktop tasks"
+
+p_hub=$(guide 'tam:path?id=first-steps' --pipe)
+printf '%s\n' "$p_hub" | grep -q 'First steps' || fail "tam:path?id=first-steps missing heading"
+printf '%s\n' "$p_hub" | grep -q 'Start this path' || fail "tam:path?id=first-steps missing Start link"
+printf '%s\n' "$p_hub" | grep -q '^Steps$' || fail "tam:path?id=first-steps missing Steps section"
+
+p_page_hub=$(guide learn/paths/first-steps --pipe)
+printf '%s\n' "$p_page_hub" | grep -q 'Steps on this path' || fail "learn/paths/first-steps missing Steps on this path"
+
+p_unattached=$(guide use/desktop/screenshots --pipe)
+printf '%s\n' "$p_unattached" | grep -q 'Follow a path from here:' || fail "unattached page missing Follow a path from here"
+printf '%s\n' "$p_unattached" | grep -q 'First steps' || fail "unattached page missing First steps choice"
+printf '%s\n' "$p_unattached" | grep -q 'Settle in from macOS or Windows' || fail "unattached page missing Settle in from macOS or Windows choice"
+printf '%s\n' "$p_unattached" | grep -q 'Everyday desktop tasks' || fail "unattached page missing Everyday desktop tasks choice"
+
+p_order_a=$(guide 'use/desktop/screenshots?level=2&path=settle-in' --pipe)
+p_order_b=$(guide 'use/desktop/screenshots?path=settle-in&level=2' --pipe)
+[ "$p_order_a" = "$p_order_b" ] || fail "level/path query order changed rendered output"
+printf '%s\n' "$p_order_a" | grep -q 'Learning path: Settle in from macOS or Windows' || fail "active path footer missing Settle in from macOS or Windows"
+printf '%s\n' "$p_order_a" | grep -q 'Switch course:' || fail "multi-path page missing Switch course links"
+pass "multi-path index, path hub, course picker, and query order independence work"
+
 # A staged install relocated away from the source tree finds its corpus via
 # XDG_DATA_DIRS and still shows pages.
 stage="$tmp/stage/usr"

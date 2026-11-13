@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Opening and editing text files</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.beginner, customizing.beginner">
+<meta name="topic" content="text-editor-app">
+<meta name="summary" content="Open a text file in Micro or your configured default editor, edit cleanly, and save or cancel without a mouse">
+<meta name="keywords" content="editor, micro, tam-launch-editor, tam-default-editor, save, quit, text file">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="files-and-apps:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Opening and editing text files</p>
+</nav>
+
+<h1>Opening and editing text files</h1>
+<p>This page shows how to open, edit, save, and close plain text files without needing a mouse using Tamlinux's baseline editor (<code>micro</code>) and launcher tools.</p>
+
+<section data-level="novice">
+<h2>Simple text editing with familiar keys</h2>
+<p>If you have ever edited text in a modern desktop editor, <code>micro</code> uses the same familiar keys: type normally to insert text, <code>Ctrl + S</code> saves, <code>Ctrl + Z</code> undoes, and <code>Ctrl + Q</code> quits.</p>
+
+<h3>Why it matters</h3>
+<p>Configuration files, daily journals, and small scripts are all plain text files. Being able to open one, change one line, and quit cleanly gets you past most routine tasks.</p>
+
+<h3>How to think about it</h3>
+<p><code>micro</code> shows a help bar at the bottom of the window. Nothing changes in a saved file until you press <code>Ctrl + S</code>, and if you change your mind before saving you can quit without writing.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/terminal.html">Terminal</a></dfn></dt>
+<dd>The text window where terminal editors such as <code>micro</code> run.</dd>
+<dt><dfn><a href="learn/glossary/file.html">Plain text file</a></dfn></dt>
+<dd>A file containing readable characters without hidden word-processor formatting.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Practice editing in a scratch file and inspect defaults</h2>
+<p><strong>Goal:</strong> edit and save a scratch text file using <code>micro</code> or <code>tam-launch-editor</code>, and inspect which default editor Tamlinux configures.</p>
+<p><strong>Before you start:</strong> checking <code>tam-default-editor</code> is read-only. Practice saving and undoing in a fresh temporary file before opening real configuration files.</p>
+
+<h3>Worked example</h3>
+<p>Check your configured default editor read-only, then open a disposable temporary file inline in your current terminal:</p>
+<pre class="session" data-risk="read-only">
+$ tam-default-editor
+</pre>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d)
+$ printf 'first line\n' &gt; "$work/draft.txt"
+$ tam-launch-editor --inline "$work/draft.txt"
+$ cat "$work/draft.txt"
+$ rm -- "$work/draft.txt" &amp;&amp; rmdir -- "$work"
+</pre>
+<p>Inside <code>micro</code>, add a line, press <code>Ctrl + S</code> to save, and press <code>Ctrl + Q</code> to exit back to the prompt. Omitting <code>--inline</code> launches terminal editors in their own window via <code>tam-launch-tui</code> (and launches graphical editors directly).</p>
+
+<h3>Try it</h3>
+<p>Run <code>tam-default-editor</code> read-only to confirm your active editor, and practice editing a throwaway temporary file before touching real dotfiles.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Pressed a wrong key in Micro before saving</dt>
+<dd>Press <code>Ctrl + Z</code> to undo, or press <code>Ctrl + Q</code> and choose <code>n</code> at the save prompt to discard edits.</dd>
+<dt>Graphical editor launched inside terminal instead of window (or vice versa)</dt>
+<dd>Use <code>tam-launch-editor --inline &lt;path&gt;</code> when you want the editor inside your active shell, or omit <code>--inline</code> to spawn its own desktop window.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>When no custom editor is selected under user state, Tamlinux falls back cleanly to <code>micro</code> as the baseline editor and sets <code>EDITOR="tam-launch-editor --inline"</code> in Bash.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>What keys save and quit in Micro?</summary>
+<p><code>Ctrl + S</code> saves the file and <code>Ctrl + Q</code> quits the editor.</p>
+</details>
+<details class="q">
+<summary>What happens when you omit <code>--inline</code> on <code>tam-launch-editor</code>?</summary>
+<p>A terminal editor opens in its own desktop terminal window instead of occupying your current shell.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="improve/terminal.html">Terminal and editor ergonomics</a> &mdash; automatic live reload when tools modify files on disk.</li>
+<li><a href="shell/editors.html">Text editors in the shell</a> &mdash; comparing editors across tasks.</li>
+</ul>
+</body>
+</html>

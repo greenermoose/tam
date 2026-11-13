@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Disk encryption and LUKS passphrases</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="security.beginner, security.intermediate">
+<meta name="topic" content="disk-encryption">
+<meta name="summary" content="Understand what LUKS full-disk encryption protects, how unlocking works at startup, and how drive passphrases are changed">
+<meta name="keywords" content="encryption, luks, disk, passphrase, tpm, unlock, recovery, drive">
+<meta name="level" content="novice, learner">
+<meta name="track" content="use">
+<meta name="parent" content="use/index.html">
+<meta name="paths" content="people-and-security:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Disk encryption and LUKS passphrases</p>
+</nav>
+
+<h1>Disk encryption and LUKS passphrases</h1>
+<p>This page explains what full-disk encryption protects while your computer is turned off, why unlocking happens early at boot, and how Tamlinux manages encrypted drives.</p>
+
+<section data-level="novice">
+<h2>Locking your drive when the machine is off</h2>
+<p>If someone removes the storage drive from a powered-off laptop, disk encryption scrambles the files on that drive so they look like random noise without the unlock passphrase or key.</p>
+
+<h3>Why it matters</h3>
+<p>Your login password stops someone sitting at a locked screen, while disk encryption protects your files even if the physical laptop or SSD is lost or stolen.</p>
+
+<h3>How to think about it</h3>
+<p>Think of disk encryption as locking the entire filing cabinet while the computer is shut down. Once you unlock the drive at startup, the running system can read files normally until you power off again (or lock the screen while away).</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/encryption.html">Encryption</a></dfn></dt>
+<dd>Scrambling stored bytes with a secret key so they cannot be read without unlocking them.</dd>
+<dt><dfn><a href="learn/glossary/luks.html">LUKS</a></dfn></dt>
+<dd>Linux Unified Key Setup, the standard Linux disk-encryption format used on root and external drives.</dd>
+<dt><dfn><a href="learn/glossary/boot.html">Boot</a></dfn></dt>
+<dd>The early startup sequence that unlocks encrypted storage before launching your desktop.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect encrypted drives and manage passphrases safely</h2>
+<p><strong>Goal:</strong> distinguish what is encrypted from unencrypted boot partitions and inspect LUKS drives safely without altering key slots.</p>
+<p><strong>Before you start:</strong> listing block devices and partition types is read-only. Changing a LUKS passphrase modifies disk header key slots; ensure you keep at least one tested recovery passphrase stored safely offline before changing slots.</p>
+
+<h3>Worked example</h3>
+<p>List block devices, filesystems, and mount points read-only to see which partitions hold <code>crypto_LUKS</code> versus your EFI boot partition:</p>
+<pre class="session" data-risk="read-only">
+$ lsblk -f
+</pre>
+<p>You can inspect detailed size, model, and mount information for a specific device path without changing it:</p>
+<pre class="session" data-risk="read-only">
+$ tam-drive-info /dev/nvme0n1
+</pre>
+<p>When a drive uses LUKS, notice that the small EFI system partition (containing the boot loader and kernel images) remains unencrypted so your firmware can start the unlock prompt.</p>
+
+<h3>Try it</h3>
+<p>Run <code>lsblk -o NAME,TYPE,FSTYPE,MOUNTPOINTS</code> in a terminal. Identify which partition carries <code>crypto_LUKS</code> and which mapped device sits underneath your root filesystem.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Passphrase rejected at boot unlock</dt>
+<dd>Check keyboard layout or Caps Lock, since early boot prompts normally default to US layout. Test carefully before repeating wrong attempts.</dd>
+<dt>Need to update an encrypted drive passphrase</dt>
+<dd>Menu &rarr; Update &rarr; Password &rarr; Drive Encryption runs <code>tam-drive-password</code> (which selects drives via <code>tam-drive-select</code>). Never remove the only working key slot before verifying the replacement passphrase.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Disk encryption protects data at rest when powered down or hibernated; while unlocked and running, rely on screen locking (<code>Meta + Escape</code> or <code>tam-system-lock</code>) and normal file permissions.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Does disk encryption replace locking your screen when you step away from a running laptop?</summary>
+<p>No. Once booted, the encrypted drive is unlocked in memory; you still need screen locking and user permissions while running.</p>
+</details>
+<details class="q">
+<summary>Which read-only command helps identify whether a partition uses <code>crypto_LUKS</code>?</summary>
+<p><code>lsblk -f</code> (or <code>blkid -t TYPE=crypto_LUKS</code> read-only with privileges).</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="hardware/drives.html">Storage drives</a> &mdash; drive health, speed tests, and drive selection.</li>
+<li><a href="maintain/boot-recovery.html">Linux boot fallbacks and rescue routes</a> &mdash; unlocking and mounting encrypted storage during recovery.</li>
+</ul>
+</body>
+</html>

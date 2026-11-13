@@ -11,6 +11,7 @@
 <meta name="track" content="learn">
 <meta name="parent" content="shell/index.html">
 <meta name="prereqs" content="shell">
+<meta name="paths" content="command-line-fluency:2">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -43,12 +44,6 @@
 <h2>Open the launcher and a TUI</h2>
 <p><strong>Goal:</strong> you will be able to start an app from the launcher and recognize a TUI wrapper.</p>
 
-<nav class="learning-path" aria-label="Learning path">
-<p><strong>Learning path: Shell day to day</strong> &mdash;
-<a href="shell/tools.html?level=2">Start</a> |
-<a href="shell/index.html?level=2">&larr; Back</a> |
-<a href="shell/editors.html?level=2">Next &rarr;</a></p>
-</nav>
 
 <h3>Worked example</h3>
 <ol>
@@ -56,6 +51,17 @@
 <li>Launch a terminal utility in its own window with <code>tam-launch-tui &lt;command&gt;</code> (such as <code>tam-launch-tui btop</code>) or open a web application URL with <code>tam-launch-webapp &lt;url&gt;</code>.</li>
 <li>Prefer menus for daily use; use the commands when a binding or script needs an exact path.</li>
 </ol>
+
+<h3>Try it</h3>
+<p>Run <code>command -v tam-launch-terminal tam-launch-tui tam-open</code> read-only to confirm those launcher tools exist on your <code>PATH</code> without spawning extra windows.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A web app or TUI command says executable not found</dt>
+<dd>Verify the underlying target program or browser is installed via <code>tam-cmd-present</code> before changing launcher wrappers.</dd>
+<dt>Extra terminal windows opened unexpectedly</dt>
+<dd>Prefer <code>tam-launch-or-focus</code> or <code>tam-launch-editor --inline</code> when you want an existing terminal or focused window instead of a new spawn.</dd>
+</dl>
 
 <aside class="tamlinux">
 <p>Capture and toggle menus are separate: Meta + Ctrl + C (<code>tam-menu toggle capture</code>), Meta + Ctrl + O (<code>tam-menu toggle toggle</code>). See

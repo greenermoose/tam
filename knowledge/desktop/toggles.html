@@ -11,6 +11,7 @@
 <meta name="track" content="use">
 <meta name="parent" content="desktop/index.html">
 <meta name="prereqs" content="desktop">
+<meta name="paths" content="desktop-basics:7">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -43,12 +44,6 @@
 <h2>Find the toggle menu</h2>
 <p><strong>Goal:</strong> you will be able to open the Toggle menu and recognize idle versus night-light controls.</p>
 
-<nav class="learning-path" aria-label="Learning path">
-<p><strong>Learning path: Everyday desktop tasks</strong> &mdash;
-<a href="use/desktop/lock-and-idle.html?level=2">Start</a> |
-<a href="desktop/clipboard.html?level=2">&larr; Back</a> |
-<a href="desktop/notifications.html?level=2">Next &rarr;</a></p>
-</nav>
 
 <h3>Worked example</h3>
 <ol>
@@ -60,6 +55,14 @@
 
 <h3>Try it</h3>
 <p>Open and dismiss the Toggle menu once. Do not disable idle on a laptop you will leave unattended.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A setting stayed off or on unexpectedly</dt>
+<dd>Check the explicit read-only status subcommand when supported (such as <code>tam-toggle-idle status</code> or <code>tam-toggle-nightlight --status</code>) before pressing the toggle chord again.</dd>
+<dt>Toggle menu does not appear</dt>
+<dd>Inspect packaged keybindings with <code>Meta + K</code> to see whether a local override rebound <code>Meta + Ctrl + O</code>.</dd>
+</dl>
 
 <section class="quiz">
 <h3>Check yourself</h3>

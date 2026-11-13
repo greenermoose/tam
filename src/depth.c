@@ -222,43 +222,56 @@ void tam_lens_set(unsigned level)
     free(path);
 }
 
-int tam_href_take_level(char *href, unsigned *level)
+static int take_query_param(char *href, const char *key, char *out, size_t cap)
 {
-    if (href == NULL) {
+    if (href == NULL || key == NULL) {
         return 0;
     }
+    size_t klen = strlen(key);
     char *q = strchr(href, '?');
-    while (q != NULL) {
-        char *param = q + 1;
-        char *end = param + strcspn(param, "&#");
-        if (strncmp(param, "level=", 6) == 0) {
-            char value[32];
-            size_t n = (size_t)(end - (param + 6));
-            if (n >= sizeof(value)) {
-                n = sizeof(value) - 1;
+    if (q == NULL) {
+        return 0;
+    }
+    char *p = q + 1;
+    while (*p != '\0' && *p != '#') {
+        char *end = p + strcspn(p, "&#");
+        if ((size_t)(end - p) > klen && strncmp(p, key, klen) == 0 && p[klen] == '=') {
+            if (out != NULL && cap > 0) {
+                size_t n = (size_t)(end - (p + klen + 1));
+                if (n >= cap) {
+                    n = cap - 1;
+                }
+                memcpy(out, p + klen + 1, n);
+                out[n] = '\0';
             }
-            memcpy(value, param + 6, n);
-            value[n] = '\0';
-            unsigned bit = 0;
-            int ok = tam_level_parse_arg(value, &bit);
-            /* Drop "level=..." with the separator before it; when it was the
-             * first parameter, the next one (if any) takes over the '?'. */
             if (*end == '&') {
-                memmove(param, end + 1, strlen(end + 1) + 1);
+                memmove(p, end + 1, strlen(end + 1) + 1);
             } else {
-                memmove(q, end, strlen(end) + 1);
+                char *cut = (p == q + 1) ? q : (p - 1);
+                memmove(cut, end, strlen(end) + 1);
             }
-            if (ok && level != NULL) {
-                *level = bit;
-            }
-            return ok;
+            return 1;
         }
         if (*end != '&') {
             break;
         }
-        q = end;
+        p = end + 1;
     }
     return 0;
+}
+
+int tam_href_take_level(char *href, unsigned *level)
+{
+    char value[32];
+    if (!take_query_param(href, "level", value, sizeof(value))) {
+        return 0;
+    }
+    unsigned bit = 0;
+    int ok = tam_level_parse_arg(value, &bit);
+    if (ok && level != NULL) {
+        *level = bit;
+    }
+    return ok;
 }
 
 int tam_href_put_level(const char *href, unsigned level, char *out,
@@ -277,6 +290,47 @@ int tam_href_put_level(const char *href, unsigned level, char *out,
     return n > 0 && (size_t)n < cap;
 }
 
+int tam_href_take_path(char *href, char *out, size_t cap, int *cleared)
+{
+    if (out != NULL && cap > 0) {
+        out[0] = '\0';
+    }
+    if (cleared != NULL) {
+        *cleared = 0;
+    }
+    char value[256];
+    if (!take_query_param(href, "path", value, sizeof(value))) {
+        return 0;
+    }
+    if (value[0] == '\0' || strcasecmp(value, "none") == 0 ||
+        strcasecmp(value, "off") == 0) {
+        if (cleared != NULL) {
+            *cleared = 1;
+        }
+        return 1;
+    }
+    if (out != NULL && cap > 0) {
+        snprintf(out, cap, "%s", value);
+    }
+    return 1;
+}
+
+int tam_href_put_path(const char *href, const char *path_id, char *out,
+                      size_t cap)
+{
+    if (href == NULL) {
+        return 0;
+    }
+    if (path_id == NULL || path_id[0] == '\0') {
+        return snprintf(out, cap, "%s", href) < (int)cap;
+    }
+    size_t base = strcspn(href, "#");
+    const char *sep = memchr(href, '?', base) != NULL ? "&" : "?";
+    int n = snprintf(out, cap, "%.*s%spath=%s%s", (int)base, href, sep,
+                     path_id, href + base);
+    return n > 0 && (size_t)n < cap;
+}
+
 char *tam_depth_split_href(const char *href, unsigned *level)
 {
     *level = 0;
@@ -287,13 +341,33 @@ char *tam_depth_split_href(const char *href, unsigned *level)
     if (q == NULL) {
         return strdup(href);
     }
-    static const char key[] = "level=";
-    if (strncmp(q + 1, key, sizeof(key) - 1) != 0) {
+    unsigned bit = 0;
+    const char *p = q + 1;
+    if (*p == '\0' || *p == '#') {
         return NULL;
     }
-    unsigned bit = 0;
-    if (!tam_level_parse_arg(q + sizeof(key), &bit)) {
-        return NULL;
+    while (*p != '\0' && *p != '#') {
+        const char *end = p + strcspn(p, "&#");
+        if (strncmp(p, "level=", 6) == 0) {
+            char value[32];
+            size_t vlen = (size_t)(end - (p + 6));
+            if (vlen == 0 || vlen >= sizeof(value)) {
+                return NULL;
+            }
+            memcpy(value, p + 6, vlen);
+            value[vlen] = '\0';
+            if (!tam_level_parse_arg(value, &bit)) {
+                return NULL;
+            }
+        } else if (strncmp(p, "path=", 5) == 0) {
+            /* Path query selection is handled by the corpus path loader. */
+        } else {
+            return NULL;
+        }
+        if (*end != '&') {
+            break;
+        }
+        p = end + 1;
     }
     size_t n = (size_t)(q - href);
     char *path = malloc(n + 1);

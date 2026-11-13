@@ -25,10 +25,10 @@ from types import SimpleNamespace
 
 sys.dont_write_bytecode = True
 
-SCHEMA = 1
+SCHEMA = 2
 OUTPUTS = {"index.tsv", "index.json", "index.parents.tsv", "index.kinds.tsv",
-           "index.skills.tsv", "coverage.json", "component-coverage.json",
-           "tldr/index.tsv", ".build_id"}
+           "index.skills.tsv", "index.paths.tsv", "coverage.json",
+           "component-coverage.json", "tldr/index.tsv", ".build_id"}
 REVISION = re.compile(r"^Rev [1-9][0-9]* Last updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}$", re.M)
 HREF = re.compile(r'''href=["']([^"']+)["']''')
 
@@ -272,7 +272,7 @@ def process(root, mode, state, snap, reader=None, full=False):
         # The cached raw entry must keep its authored parent (legacy fallback is derived).
         entry = {key: row["entry"][key] for key in (
             "topic", "path", "title", "summary", "keywords", "levels", "track",
-            "parent", "prereqs", "kind", "skills", "rev", "updated")}
+            "parent", "prereqs", "kind", "skills", "paths", "rev", "updated")}
         entry["rev"], entry["updated"] = builder.git_page_revision(
             root, root / "knowledge" / rel, rel, git_cache=history)
         entries.append(entry)
@@ -283,11 +283,7 @@ def process(root, mode, state, snap, reader=None, full=False):
         errors.append(f"knowledge/version: invalid or missing version {version!r}")
     else:
         builder.check_hierarchy(root / "knowledge", entries, version, errors, pages=pages)
-    topics = {entry["topic"] for entry in entries}
-    for entry in entries:
-        for prereq in entry["prereqs"]:
-            if prereq not in topics:
-                errors.append(f"{entry['path']}: prerequisite {prereq!r} is not a topic")
+    builder.validate_global_entries(entries, errors)
     parsed = {rel: SimpleNamespace(**row["learning"]) for rel, row in pages.items()}
     learning = builder.learning_metadata(root / "knowledge", entries, errors, parsed=parsed)
     if errors:

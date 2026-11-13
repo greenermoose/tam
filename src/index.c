@@ -176,6 +176,91 @@ static void load_parent_projection(tam_index_t *idx, const char *root)
     free(content);
 }
 
+static tam_path_def_t *find_path_mut(tam_index_t *idx, const char *id)
+{
+    if (idx == NULL || id == NULL || id[0] == '\0') return NULL;
+    for (size_t i = 0; i < idx->num_paths; i++) {
+        if (strcasecmp(idx->paths[i].id, id) == 0)
+            return &idx->paths[i];
+    }
+    return NULL;
+}
+
+static void load_paths_projection(tam_index_t *idx, const char *root)
+{
+    char *path = tam_path_join(root, "index.paths.tsv");
+    if (path == NULL) return;
+    char *content = tam_fs_read_file(path, NULL);
+    free(path);
+    if (content == NULL) return; /* Older corpora have no paths projection. */
+
+    size_t pcap = 0;
+    char *line = content;
+    bool header = true;
+    while (line != NULL && *line != '\0') {
+        char *next = strchr(line, '\n');
+        if (next != NULL) {
+            *next = '\0';
+            next++;
+        }
+        char *trimmed = trim_string(line);
+        if (*trimmed == '\0') {
+            line = next;
+            continue;
+        }
+        if (header) {
+            header = false;
+            line = next;
+            continue;
+        }
+        char *cols[6] = {0};
+        char *cur = trimmed;
+        for (int c = 0; c < 6 && cur != NULL; c++) {
+            cols[c] = cur;
+            char *tab = strchr(cur, '\t');
+            if (tab != NULL) {
+                *tab = '\0';
+                cur = tab + 1;
+            } else {
+                cur = NULL;
+            }
+        }
+        if (cols[0] != NULL && strcmp(cols[0], "P") == 0 &&
+            cols[1] != NULL && cols[1][0] != '\0') {
+            if (idx->num_paths >= pcap) {
+                size_t next_cap = pcap ? pcap * 2 : 16;
+                tam_path_def_t *re = realloc(idx->paths, next_cap * sizeof(*re));
+                if (re == NULL) break;
+                idx->paths = re;
+                pcap = next_cap;
+            }
+            tam_path_def_t *p = &idx->paths[idx->num_paths++];
+            memset(p, 0, sizeof(*p));
+            p->id = strdup(cols[1]);
+            p->title = cols[2] && cols[2][0] ? strdup(cols[2]) : strdup(cols[1]);
+            p->intro_path = cols[3] && cols[3][0] ? strdup(cols[3]) : strdup("");
+            p->summary = cols[4] ? strdup(cols[4]) : strdup("");
+            p->skills = cols[5] ? split_list(cols[5], &p->num_skills) : NULL;
+        } else if (cols[0] != NULL && strcmp(cols[0], "S") == 0 &&
+                   cols[1] != NULL && cols[2] != NULL && cols[3] != NULL) {
+            tam_path_def_t *p = find_path_mut(idx, cols[1]);
+            if (p != NULL) {
+                tam_path_step_t *re = realloc(
+                    p->steps, (p->num_steps + 1) * sizeof(*p->steps));
+                if (re != NULL) {
+                    p->steps = re;
+                    tam_path_step_t *st = &p->steps[p->num_steps++];
+                    st->step = atoi(cols[2]);
+                    st->path = strdup(cols[3]);
+                    st->title = cols[4] && cols[4][0] ? strdup(cols[4]) : strdup(cols[3]);
+                }
+            }
+        }
+        line = next;
+    }
+    free(content);
+}
+
 tam_index_t *tam_index_load(const char *root)
 {
     if (root == NULL) {
@@ -282,6 +367,7 @@ tam_index_t *tam_index_load(const char *root)
     }
 
     load_parent_projection(idx, root);
+    load_paths_projection(idx, root);
     free(content);
     return idx;
 }
@@ -309,7 +395,55 @@ void tam_index_free(tam_index_t *idx)
         free(e->prereqs);
     }
     free(idx->entries);
+    for (size_t i = 0; i < idx->num_paths; i++) {
+        tam_path_def_t *p = &idx->paths[i];
+        free(p->id);
+        free(p->title);
+        free(p->intro_path);
+        free(p->summary);
+        for (size_t k = 0; k < p->num_skills; k++) {
+            free(p->skills[k]);
+        }
+        free(p->skills);
+        for (size_t k = 0; k < p->num_steps; k++) {
+            free(p->steps[k].path);
+            free(p->steps[k].title);
+        }
+        free(p->steps);
+    }
+    free(idx->paths);
     free(idx);
+}
+
+const tam_path_def_t *tam_index_find_path(const tam_index_t *idx, const char *id)
+{
+    if (idx == NULL || id == NULL || id[0] == '\0') return NULL;
+    for (size_t i = 0; i < idx->num_paths; i++) {
+        if (strcasecmp(idx->paths[i].id, id) == 0)
+            return &idx->paths[i];
+    }
+    return NULL;
+}
+
+size_t tam_index_paths_for_page(const tam_index_t *idx, const char *page_path,
+                                const tam_path_def_t **out_paths,
+                                size_t *out_step_idx, size_t max_entries)
+{
+    if (idx == NULL || page_path == NULL || page_path[0] == '\0' || max_entries == 0)
+        return 0;
+    size_t n = 0;
+    for (size_t i = 0; i < idx->num_paths && n < max_entries; i++) {
+        const tam_path_def_t *p = &idx->paths[i];
+        for (size_t s = 0; s < p->num_steps; s++) {
+            if (p->steps[s].path != NULL && strcasecmp(p->steps[s].path, page_path) == 0) {
+                if (out_paths != NULL) out_paths[n] = p;
+                if (out_step_idx != NULL) out_step_idx[n] = s;
+                n++;
+                break;
+            }
+        }
+    }
+    return n;
 }
 
 const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const char *path)

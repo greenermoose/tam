@@ -11,6 +11,7 @@
 <meta name="prereqs" content="improve, toolchains">
 <meta name="kind" content="how-to">
 <meta name="skills" content="contributing.beginner, contributing.intermediate, contributing.expert">
+<meta name="paths" content="build-and-contribute:2">
 </head>
 <body>
 <nav aria-label="Breadcrumb">
@@ -47,12 +48,6 @@
 <section data-level="learner">
 <h2>Inspect subcommands and compile a local build</h2>
 <p><strong>Goal:</strong> you will be able to inspect installed <code>tam</code> version metadata, compile the standalone C binary from source with Make, and test the newly compiled binary safely without altering system packages.</p>
-<nav class="learning-path" aria-label="Learning path">
-<p><strong>Learning path: Guide leftovers</strong> &mdash;
-<a href="ecosystem/philosophy.html?level=2">Start</a> |
-<a href="man/index.html?level=2">&larr; Back</a> |
-<a href="ecosystem/philosophy.html?level=2">Next &rarr;</a></p>
-</nav>
 <p><strong>Before you start:</strong> open a terminal inside the <code>tam</code> repository checkout. Compiling locally requires standard developer tools (GCC or Clang, Make, and header libraries). Inspecting versions is read-only. See <a href="improve/terminal.html">Terminal and editor ergonomics</a> and <a href="improve/toolchains.html">Native toolchains and multi-agent workflows</a> for environment prerequisites.</p>
 <aside class="first-time">
 <p>Make is a build automation tool that reads a <code>Makefile</code> to compile source code into executable programs. Running <code>make command</code> compiles only the C executable under <code>build/tam</code>. In terminal sessions, <code>$</code> represents your shell prompt; do not type it.</p>
@@ -70,8 +65,8 @@ Repository Lanes and Build Pipeline:
  `make command`                                   `make corpus`
        |                                                |
        v                                                v
-  `build/tam`                                      `index.tsv`, `coverage.json`
- (C11 standalone)                                 (Metadata &amp; search index)
+  `build/tam`                                      `index.tsv`, `index.paths.tsv`, `coverage.json`
+ (C11 standalone)                                 (Metadata, paths &amp; search index)
        \                                                /
         \                                              /
          +--------------------+-----------------------+
@@ -83,17 +78,17 @@ Repository Lanes and Build Pipeline:
                (Isolated user development generation)
 </pre>
 
-<p>The <code>tam</code> repository is organized into two independent workstream lanes: the <strong>Command lane</strong> (C source code under <code>src/</code>) and the <strong>Corpus lane</strong> (HTML documentation under <code>knowledge/</code>). Two agents can work concurrently if each claims one lane. The command binary links <code>libtam</code> and <code>zlib</code> and dynamically discovers corpus metadata at runtime.</p>
+<p>The <code>tam</code> repository is organized into two independent workstream lanes: the <strong>Command lane</strong> (C source code under <code>src/</code>) and the <strong>Corpus lane</strong> (HTML documentation under <code>knowledge/</code>). Two agents can work concurrently if each claims one lane. The command binary links static <code>libtam</code> (<code>libtam.a</code>) and <code>zlib</code> and dynamically discovers corpus metadata and <code>&lt;meta name="paths"&gt;</code> step graphs at runtime.</p>
 <h3>Worked example: Inspect version metadata and build the command</h3>
 <pre class="session" data-risk="read-only">
 $ ./build/tam --version
-tam command 0.48.1 (dev 4788787)
-knowledge corpus 0.59.0 (dev 4788787)
-libtam 0.4.0
-Tamlinux cultivar KBN WB 0.6.1
+tam command 0.55.0
+knowledge corpus 0.81.0
+libtam 0.7.0
+Tamlinux cultivar 0.6.22
 $ make -C /home/alex/src/tam command
 make: Entering directory '/home/alex/src/tam'
-cc -DTAM_DATADIR=\"/usr/local/share/tamlinux/knowledge\" -DTAM_BUILD=\"4788787\" -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -I/home/alex/.local/dev/include src/tam.c ... -L/home/alex/.local/dev/lib -ltam -lz -lncursesw -o build/tam
+cc -DTAM_DATADIR=\"/usr/local/share/tamlinux/knowledge\" -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -I/home/alex/.local/dev/include src/tam.c ... /home/alex/.local/dev/lib/libtam.a -lz -lncursesw -o build/tam
 make: Leaving directory '/home/alex/src/tam'
 </pre>
 
@@ -117,8 +112,8 @@ $ make test-command
 <dd>The <code>libtam</code> header files are not installed under <code>/usr/include</code> or your configured <code>LIBTAM_PREFIX</code> (e.g. <code>~/.local/dev/include</code>). Pass <code>LIBTAM_PREFIX=$HOME/.local/dev</code> when invoking Make.</dd>
 <dt>fatal error: zlib.h: No such file or directory</dt>
 <dd>The zlib compression development headers are missing. On Arch Linux, install native zlib using <code>pacman -S zlib</code>.</dd>
-<dt>build/tam: error while loading shared libraries: libtam.so</dt>
-<dd>The dynamic linker cannot locate <code>libtam.so</code> at runtime. Verify that the RPATH was set during compilation or export <code>LD_LIBRARY_PATH=$HOME/.local/dev/lib</code>.</dd>
+<dt>build/tam: error while loading shared libraries</dt>
+<dd>Packaged and standard Make builds link static <code>libtam.a</code> directly into <code>build/tam</code>; if testing an override dynamic build, inspect <code>LIBTAM_CFLAGS</code>/<code>LIBTAM_LIBS</code> or <code>ldd ./build/tam</code>.</dd>
 </dl>
 <aside class="tamlinux">
 <p>On Tamlinux, development builds and production releases adhere to strict lifecycle boundaries. Developers and AI coding agents build and test candidates locally using user prefixes (<code>~/.local/dev</code>) or transactional generation directories (<code>~/.local/dev/opt/tam/generations/</code>). However, production software never reaches the system from ad-hoc checkouts or copied payloads; it arrives solely through recorded <code>tamlinux-packages</code> assemblies deployed via Home Manager and <code>tam-deploy</code>. See the <cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Tamlinux package deployment contract</a></cite>.</p>
@@ -147,7 +142,7 @@ $ make test-command
 <tr><td>Warning policy</td><td><code>-Wall -Wextra -Wpedantic</code></td><td>Strict compiler warnings</td><td>Treats questionable constructs and portability violations as errors</td></tr>
 <tr><td>Baked-in datadir</td><td><code>-DTAM_DATADIR=\"$(DATADIR)\"</code></td><td>Preprocessor macro</td><td>Fallback path to installed documentation corpus when unconfigured</td></tr>
 <tr><td>Build identifier</td><td><code>-DTAM_BUILD=\"$(TAM_BUILD_ID)\"</code></td><td>Git describe hash</td><td>Embeds exact commit revision into binary version strings</td></tr>
-<tr><td>libtam linkage</td><td><code>-ltam</code></td><td>Shared C library</td><td>Provides dynamic strings, safe filesystem I/O, terminal dimensions</td></tr>
+<tr><td>libtam linkage</td><td>Static <code>libtam.a</code></td><td>Foundational C library</td><td>Provides dynamic strings, safe filesystem I/O, terminal dimensions, and portal helpers</td></tr>
 <tr><td>zlib linkage</td><td><code>-lz</code></td><td>Shared compression library</td><td>Decompresses GNU Info <code>.info.gz</code> documents in memory</td></tr>
 <tr><td>ncurses linkage</td><td><code>-lncursesw</code></td><td>Wide-character terminal library</td><td>Underlying terminal I/O and capability management; see <a href="ecosystem/ncurses.html">ncurses</a></td></tr>
 <tr><td>Active generation</td><td><code>~/.local/dev/opt/tam/current</code></td><td>Atomic symlink</td><td>Points to active transactional build generation without downtime</td></tr>
@@ -158,9 +153,10 @@ $ make test-command
 <table>
 <tr><th>Subcommand</th><th>Purpose</th><th>Description</th></tr>
 <tr><td><code>tam hi</code></td><td>Orientation</td><td>First-run onboarding guide; records welcome state upon completion (also available as <code>tam hello</code>).</td></tr>
-<tr><td><code>tam show [PAGE]</code></td><td>Guide Reader</td><td>Opens the offline guide or specific page in the built-in pager (or clean text with <code>--pipe</code>); supports <code>--level</code>.</td></tr>
+<tr><td><code>tam show [PAGE]</code></td><td>Guide Reader</td><td>Opens the offline guide or specific page in the built-in pager (or clean text with <code>--pipe</code>); supports <code>--level</code>, <code>tam:paths</code>, and <code>tam:path?id=...</code>.</td></tr>
 <tr><td><code>tam search TERM...</code></td><td>Search</td><td>Ranked keyword search across guide topics, summaries, and tags; supports <code>--json</code>.</td></tr>
 <tr><td><code>tam explain [TOPIC]</code></td><td>Topic Guides</td><td>Dynamic topic guides matching keywords, or bare <code>tam explain</code> to browse all topic keywords in the pager.</td></tr>
+<tr><td><code>tam where PATH</code></td><td>Ownership Lookup</td><td>Reports <code>tam-bundle</code> ownership first, otherwise queries the native package manager (<code>pacman -Qo</code> or <code>xbps-query -o</code>).</td></tr>
 <tr><td><code>tam man [SEC] PAGE</code></td><td>Manual Pages</td><td>Interactive roff manual page reader with active hyperlinked cross-references.</td></tr>
 <tr><td><code>tam info [MAN [NODE]]</code></td><td>GNU Info</td><td>Native Texinfo documentation browser with hyperlinked node menus and key navigation.</td></tr>
 <tr><td><code>tam tldr [CMD]</code></td><td>tldr Pages</td><td>Curated offline command-example pages from <code>tldr-pages</code> with hyperlinked references and index browsing.</td></tr>
@@ -233,10 +229,10 @@ Release (Tamlinux release)
 
 <pre class="session" data-risk="read-only">
 $ time ./build/tam --version
-tam command 0.48.1 (dev 4788787)
-knowledge corpus 0.59.0 (dev 4788787)
-libtam 0.4.0
-Tamlinux cultivar KBN WB 0.6.1
+tam command 0.55.0
+knowledge corpus 0.81.0
+libtam 0.7.0
+Tamlinux cultivar 0.6.22
 
 real	0m0.003s
 user	0m0.001s

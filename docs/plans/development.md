@@ -443,6 +443,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-12:** Command 0.55.0 (minor) & Corpus 0.81.0 (minor): Replace static `<nav class="learning-path">` blocks and `paths.json` with a dynamic `<meta name="paths" content="<id>:<step>, ...">` index (`index.paths.tsv`, `SCHEMA=2`) and sticky pager path tracking (`tam:paths`, `tam:path?id=`, `Switch course`, `Follow a path from here`, `Resume path`); retire standalone `beginner`/`intermediate`/`expert` hubs after migrating quizzes and capstones to topic paths; author the 17 remaining beginner backlog pages plus `use/tools/tam-journal.html` and `use/tools/tam-file-select.html` (`tamlinux-tools`); close all skill/anatomy gaps; enforce `report-component-coverage.py --check` (covering `tamlinux` and `tamlinux-tools`) inside `corpus-check`.
 - **2026-11-11:** Implement the approved [incremental corpus build](incremental-corpus-build.md):
   separate fast editing commands and independent C/corpus builds, content-hashed
   on-demand cache, uncached full verification, and precise compiler dependencies.

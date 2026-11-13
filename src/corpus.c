@@ -305,12 +305,238 @@ static char *related_at_level(const tam_index_t *idx,
     return out;
 }
 
+static const char *find_tag_ci(const char *haystack, const char *needle)
+{
+    size_t nlen = strlen(needle);
+    for (const char *p = haystack; *p != '\0'; p++) {
+        if (*p == '<' && strncasecmp(p, needle, nlen) == 0) {
+            return p;
+        }
+    }
+    return NULL;
+}
+
+static tam_str_t append_path_link(tam_str_t html, const char *page,
+                                  const char *path_id, const char *label)
+{
+    char *enc = path_id != NULL ? url_encode(path_id) : NULL;
+    if (enc != NULL) {
+        html = tam_str_cat_printf(html, "<a href=\"%s?path=%s\">", page, enc);
+        free(enc);
+    } else {
+        html = tam_str_cat_printf(html, "<a href=\"%s\">", page);
+    }
+    html = tam_html_cat(html, label);
+    html = tam_str_cat(html, "</a>");
+    return html;
+}
+
+static char *splice_path_markup(const char *src, size_t len, const tam_index_t *idx,
+                                const char *rel, const char *path_id)
+{
+    if (idx == NULL || idx->num_paths == 0) {
+        return NULL;
+    }
+
+    const tam_index_entry_t *entry = tam_index_lookup_path(idx, rel);
+    const tam_path_def_t *self_path =
+        (entry != NULL && entry->topic != NULL) ? tam_index_find_path(idx, entry->topic) : NULL;
+
+    const tam_path_def_t *active =
+        (path_id != NULL && path_id[0] != '\0') ? tam_index_find_path(idx, path_id) : NULL;
+    const tam_path_def_t *member_paths[32];
+    size_t member_steps[32];
+    size_t nmember = tam_index_paths_for_page(idx, rel, member_paths, member_steps, 32);
+
+    size_t active_idx = (size_t)-1;
+    if (active != NULL) {
+        for (size_t i = 0; i < nmember; i++) {
+            if (member_paths[i] == active) {
+                active_idx = i;
+                break;
+            }
+        }
+    }
+
+    int want_steps = (self_path != NULL && self_path->num_steps > 0);
+    int want_nav = (active != NULL || nmember > 0);
+    if (!want_steps && !want_nav) {
+        return NULL;
+    }
+
+    tam_str_t head_extra = tam_str_new("");
+    if (active != NULL && active_idx != (size_t)-1) {
+        size_t pos = member_steps[active_idx];
+        char *enc_active = url_encode(active->id);
+        const char *pid = enc_active ? enc_active : active->id;
+        if (pos > 0) {
+            head_extra = tam_str_cat_printf(
+                head_extra, "<meta name=\"prev\" content=\"%s?path=%s\">\n",
+                active->steps[pos - 1].path, pid);
+        } else if (active->intro_path[0] != '\0' && strcasecmp(active->intro_path, rel) != 0) {
+            head_extra = tam_str_cat_printf(
+                head_extra, "<meta name=\"prev\" content=\"%s\">\n", active->intro_path);
+        }
+        if (pos + 1 < active->num_steps) {
+            head_extra = tam_str_cat_printf(
+                head_extra, "<meta name=\"next\" content=\"%s?path=%s\">\n",
+                active->steps[pos + 1].path, pid);
+        }
+        free(enc_active);
+    }
+
+    tam_str_t body_extra = tam_str_new("");
+    if (want_steps) {
+        body_extra = tam_str_cat(body_extra,
+            "\n<section class=\"path-steps\">\n<h2>Steps on this path</h2>\n<ol>\n");
+        for (size_t i = 0; i < self_path->num_steps; i++) {
+            const tam_path_step_t *st = &self_path->steps[i];
+            const tam_index_entry_t *step_e = tam_index_lookup_path(idx, st->path);
+            body_extra = tam_str_cat(body_extra, "<li>");
+            body_extra = append_path_link(body_extra, st->path, self_path->id, st->title);
+            if (step_e != NULL && step_e->summary != NULL && step_e->summary[0] != '\0') {
+                body_extra = tam_str_cat(body_extra, " &mdash; ");
+                body_extra = tam_html_cat(body_extra, step_e->summary);
+            }
+            body_extra = tam_str_cat(body_extra, "</li>\n");
+        }
+        body_extra = tam_str_cat(body_extra, "</ol>\n</section>\n");
+    }
+
+    if (want_nav) {
+        body_extra = tam_str_cat(body_extra, "\n<nav class=\"learning-path\" aria-label=\"Learning path\">\n");
+        if (active != NULL && active_idx != (size_t)-1) {
+            size_t pos = member_steps[active_idx];
+            char *enc_id = url_encode(active->id);
+            body_extra = tam_str_cat_printf(
+                body_extra, "<p><strong>Learning path:</strong> <a href=\"tam:path?id=%s\">",
+                enc_id ? enc_id : active->id);
+            free(enc_id);
+            body_extra = tam_html_cat(body_extra, active->title);
+            body_extra = tam_str_cat_printf(body_extra, "</a> (Step %zu of %zu)",
+                                            pos + 1, active->num_steps);
+            if (pos > 0) {
+                char label[256];
+                snprintf(label, sizeof(label), "Back: %s", active->steps[pos - 1].title);
+                body_extra = tam_str_cat(body_extra, " &mdash; ");
+                body_extra = append_path_link(body_extra, active->steps[pos - 1].path,
+                                              active->id, label);
+            }
+            if (pos + 1 < active->num_steps) {
+                char label[256];
+                snprintf(label, sizeof(label), "Next: %s", active->steps[pos + 1].title);
+                body_extra = tam_str_cat(body_extra, " | ");
+                body_extra = append_path_link(body_extra, active->steps[pos + 1].path,
+                                              active->id, label);
+            } else {
+                body_extra = tam_str_cat(body_extra, " | Path complete (<a href=\"tam:paths\">All paths</a>)");
+            }
+            body_extra = tam_str_cat_printf(body_extra, " | <a href=\"%s?path=none\">Leave path</a></p>\n", rel);
+
+            if (nmember > 1) {
+                body_extra = tam_str_cat(body_extra, "<p><strong>Switch course:</strong> ");
+                int first = 1;
+                for (size_t i = 0; i < nmember; i++) {
+                    if (member_paths[i] == active) continue;
+                    if (!first) body_extra = tam_str_cat(body_extra, " | ");
+                    char label[256];
+                    snprintf(label, sizeof(label), "%s (Step %zu of %zu)",
+                             member_paths[i]->title, member_steps[i] + 1,
+                             member_paths[i]->num_steps);
+                    body_extra = append_path_link(body_extra, rel, member_paths[i]->id, label);
+                    first = 0;
+                }
+                body_extra = tam_str_cat(body_extra, "</p>\n");
+            }
+        } else if (active != NULL) {
+            char *enc_id = url_encode(active->id);
+            body_extra = tam_str_cat_printf(
+                body_extra, "<p><strong>Active path:</strong> <a href=\"tam:path?id=%s\">",
+                enc_id ? enc_id : active->id);
+            free(enc_id);
+            body_extra = tam_html_cat(body_extra, active->title);
+            body_extra = tam_str_cat(body_extra, "</a> (off-path page)");
+            if (active->num_steps > 0) {
+                body_extra = tam_str_cat(body_extra, " &mdash; ");
+                body_extra = append_path_link(body_extra, active->steps[0].path,
+                                              active->id, "Resume path");
+            } else if (active->intro_path[0] != '\0') {
+                body_extra = tam_str_cat_printf(body_extra, " &mdash; <a href=\"%s\">Resume path</a>",
+                                                active->intro_path);
+            }
+            body_extra = tam_str_cat_printf(body_extra, " | <a href=\"%s?path=none\">Leave path</a></p>\n", rel);
+
+            if (nmember > 0) {
+                body_extra = tam_str_cat(body_extra, "<p><strong>Follow a path from here:</strong> ");
+                for (size_t i = 0; i < nmember; i++) {
+                    if (i > 0) body_extra = tam_str_cat(body_extra, " | ");
+                    char label[256];
+                    snprintf(label, sizeof(label), "%s (Step %zu of %zu)",
+                             member_paths[i]->title, member_steps[i] + 1,
+                             member_paths[i]->num_steps);
+                    body_extra = append_path_link(body_extra, rel, member_paths[i]->id, label);
+                }
+                body_extra = tam_str_cat(body_extra, "</p>\n");
+            }
+        } else {
+            body_extra = tam_str_cat(body_extra, "<p><strong>Follow a path from here:</strong> ");
+            for (size_t i = 0; i < nmember; i++) {
+                if (i > 0) body_extra = tam_str_cat(body_extra, " | ");
+                char label[256];
+                snprintf(label, sizeof(label), "%s (Step %zu of %zu)",
+                         member_paths[i]->title, member_steps[i] + 1,
+                         member_paths[i]->num_steps);
+                body_extra = append_path_link(body_extra, rel, member_paths[i]->id, label);
+            }
+            body_extra = tam_str_cat(body_extra, " | <a href=\"tam:paths\">All paths</a></p>\n");
+        }
+        body_extra = tam_str_cat(body_extra, "</nav>\n");
+    }
+
+    const char *head_end = head_extra[0] != '\0' ? find_tag_ci(src, "</head>") : NULL;
+    const char *body_end = body_extra[0] != '\0' ? find_tag_ci(src, "</body>") : NULL;
+    if (head_end != NULL && body_end != NULL && head_end > body_end) {
+        head_end = NULL;
+    }
+
+    tam_str_t combined = tam_str_new("");
+    const char *cursor = src;
+    if (head_end != NULL) {
+        combined = tam_str_cat_len(combined, cursor, (size_t)(head_end - cursor));
+        combined = tam_str_cat(combined, head_extra);
+        cursor = head_end;
+    } else if (head_extra[0] != '\0') {
+        combined = tam_str_cat(combined, head_extra);
+    }
+    if (body_end != NULL) {
+        combined = tam_str_cat_len(combined, cursor, (size_t)(body_end - cursor));
+        combined = tam_str_cat(combined, body_extra);
+        cursor = body_end;
+        combined = tam_str_cat_len(combined, cursor, (size_t)((src + len) - cursor));
+    } else {
+        combined = tam_str_cat_len(combined, cursor, (size_t)((src + len) - cursor));
+        combined = tam_str_cat(combined, body_extra);
+    }
+
+    tam_str_free(head_extra);
+    tam_str_free(body_extra);
+    char *out = strdup(combined);
+    tam_str_free(combined);
+    return out;
+}
+
 /* Read a corpus page and prepare it at its selected level. `href` may carry
- * "?level=NAME". A page without that level is shown whole under a banner.
- * Returns NULL when the page is missing or unreadable. */
+ * "?level=NAME" and/or "?path=ID". A page without that level is shown whole
+ * under a banner. Returns NULL when the page is missing or unreadable. */
 char *read_corpus_page(const char *root, const char *href,
                        size_t *out_len, tam_depth_info_t *info)
 {
+    char path_id[256] = {0};
+    if (tam_addr_param(href, "path", path_id, sizeof(path_id))) {
+        if (strcasecmp(path_id, "none") == 0 || strcasecmp(path_id, "off") == 0) {
+            path_id[0] = '\0';
+        }
+    }
     unsigned level = 0;
     char *rel = tam_depth_split_href(href, &level);
     if (rel == NULL) {
@@ -332,6 +558,7 @@ char *read_corpus_page(const char *root, const char *href,
     char updated[64] = {0};
     char *related = NULL;
     tam_index_t *idx = tam_index_load(root);
+    char *spliced = NULL;
     if (idx != NULL) {
         const tam_index_entry_t *e = tam_index_lookup_path(idx, rel);
         if (e != NULL && e->rev > 0 && e->updated != NULL && e->updated[0] != '\0') {
@@ -341,9 +568,13 @@ char *read_corpus_page(const char *root, const char *href,
         if (e != NULL && level != 0 && !(tam_depth_declared(src, len) & level)) {
             related = related_at_level(idx, e, level);
         }
+        spliced = splice_path_markup(src, len, idx, rel, path_id);
         tam_index_free(idx);
     }
-    char *numbered = tam_fold_number(src, len);
+    const char *work_src = spliced != NULL ? spliced : src;
+    size_t work_len = spliced != NULL ? strlen(spliced) : len;
+    char *numbered = tam_fold_number(work_src, work_len);
+    free(spliced);
     if (numbered == NULL) { free(related); free(src); free(rel); return NULL; }
     char *html = tam_depth_apply_rev(numbered, strlen(numbered), rel, level, rev,
                                      updated[0] ? updated : NULL, related,

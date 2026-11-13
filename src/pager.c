@@ -95,6 +95,14 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     if (named_level)
         tam_lens_override(named);
     st.lens = tam_lens_get();
+    if (tam_addr_kind(st.cur_href) == TAM_ADDR_GUIDE) {
+        char init_path[256] = {0};
+        int cleared = 0;
+        if (tam_href_take_path(st.cur_href, init_path, sizeof(init_path), &cleared) &&
+            !cleared && init_path[0] != '\0') {
+            st.active_path = strdup(init_path);
+        }
+    }
     {
         char *root = tam_find_knowledge_root();
         char *corpus = tam_corpus_version(root);
@@ -122,6 +130,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         tam_document_free(st.doc);
         free(st.fold_open);
         free(st.cur_href);
+        free(st.active_path);
         free(st.links);
         return rc;
     }
@@ -134,6 +143,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         tam_document_free(st.doc);
         free(st.fold_open);
         free(st.cur_href);
+        free(st.active_path);
         free(st.links);
         return rc;
     }
@@ -162,6 +172,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
             tam_document_free(st.doc);
             free(st.fold_open);
             free(st.cur_href);
+            free(st.active_path);
             free(st.links);
             return 1;
         }
@@ -178,6 +189,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         tam_document_free(st.doc);
         free(st.fold_open);
         free(st.cur_href);
+        free(st.active_path);
         free(st.links);
         return 1;
     }
@@ -195,6 +207,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         tam_document_free(st.doc);
         free(st.fold_open);
         free(st.cur_href);
+        free(st.active_path);
         free(st.links);
         return 1;
     }
@@ -278,17 +291,20 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         nav_state_t *state = &st.history[--st.nhistory];
         free(state->href);
         free(state->selected_href);
+        free(state->active_path);
     }
     free(st.history);
     while (st.nforward > 0) {
         nav_state_t *state = &st.forward[--st.nforward];
         free(state->href);
         free(state->selected_href);
+        free(state->active_path);
     }
     free(st.forward);
     free(st.links);
     free(st.fold_open);
     free(st.cur_href);
+    free(st.active_path);
     free(st.pending_external);
     pager_clear_search(&st);
     tam_document_free(st.doc);

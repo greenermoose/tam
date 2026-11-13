@@ -11,6 +11,7 @@
 <meta name="prereqs" content="maintain, filesystem">
 <meta name="kind" content="tutorial">
 <meta name="skills" content="updates.beginner, updates.intermediate, updates.expert, software.beginner, software.intermediate, software.expert">
+<meta name="paths" content="people-and-security:9, keep-it-healthy:4">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="maintain/index.html">System Maintenance and Reliability</a> / Checking and updating your software</p></nav>
@@ -38,12 +39,6 @@
 <h2>Inspect a package without changing it</h2>
 <p><strong>Goal:</strong> you will be able to read an installed package version and distinguish inspection from an update.</p>
 
-<nav class="learning-path" aria-label="Learning path">
-<p><strong>Learning path: Maintaining Tamlinux</strong> &mdash;
-<a href="maintain/index.html?level=2">Start</a> |
-<a href="maintain/index.html?level=2">&larr; Back</a> |
-<a href="maintain/rollback.html?level=2">Next &rarr;</a></p>
-</nav>
 
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
@@ -105,6 +100,19 @@ $ pacman -Qo /usr/bin/bash
 </pre>
 <p>Captured on an Arch Linux workstation, 2026-10-21. <code>-Qo</code> identifies the package responsible for a specific filesystem path.</p>
 
+<p>To compare a filesystem name against an open file descriptor (explaining how an already-running process keeps old code after an on-disk replacement), run this read-only-to-system scratch experiment:</p>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d)
+$ printf 'old\n' &gt; "$work/active.txt"
+$ exec 3&lt; "$work/active.txt"
+$ printf 'new\n' &gt; "$work/next.txt" &amp;&amp; mv "$work/next.txt" "$work/active.txt"
+$ cat "$work/active.txt"; cat &lt;&amp;3
+new
+old
+$ exec 3&lt;&amp;-; rm -- "$work/active.txt" &amp;&amp; rmdir -- "$work"
+</pre>
+<p>Captured on Arch Linux. Descriptor 3 still refers to the unlinked original inode while opening <code>active.txt</code> by name reaches the replacement inode.</p>
+
 <h3>Sources</h3>
 <ul><li><a href="man:pacman(8)">pacman(8)</a>: package manager utility.</li>
 <li><cite data-ref="deployment"><a href="learn/bibliography/deployment.html">Tamlinux Architecture</a></cite>: rootstock, cultivar, and generational rollbacks.</li></ul>
@@ -115,6 +123,10 @@ $ pacman -Qo /usr/bin/bash
 <details class="q">
 <summary>Why must the rollback boundary match the layer being updated?</summary>
 <p>Reverting a user configuration generation cannot undo changes made to the root filesystem packages, and vice versa. Each layer requires its corresponding recovery tool.</p>
+</details>
+<details class="q">
+<summary>What does an immutable generation omit?</summary>
+<p>Mutable documents/settings and potentially other native or boot state; recovery planning must identify each affected boundary.</p>
 </details>
 </section>
 </section>
