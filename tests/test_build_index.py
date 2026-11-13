@@ -593,5 +593,128 @@ class BuildIndex(unittest.TestCase):
                 self.assertIn(err, bad.stderr)
 
 
+    def test_path_contract_accepts_a_conforming_page(self):
+        root = self.fixture("0.82.0", self.path_documents())
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_path_contract_is_not_retroactive_before_0_82(self):
+        body = PATH_BODY.replace("<h2>Stage 2: Second</h2>", "").replace(
+            "<h2>Stage 3: Third</h2>", "")
+        root = self.fixture("0.81.0", self.path_documents(body))
+        self.assertEqual(self.build(root).returncode, 0)
+
+    def test_path_contract_rejects_each_broken_shape(self):
+        cases = (
+            ("two stages",
+             lambda body: body.replace("<h2>Stage 3: Third</h2>", ""),
+             "path needs three to six stages"),
+            ("link without a lens",
+             lambda body: body.replace('href="use/first.html?level=1"',
+                                       'href="use/first.html"', 1),
+             "needs a ?level=0-3 lens"),
+            ("link with a bad lens",
+             lambda body: body.replace('use/first.html?level=1',
+                                       'use/first.html?level=7', 1),
+             "needs a ?level=0-3 lens"),
+            ("five steps in one stage",
+             lambda body: body.replace(
+                 '<li><a href="use/first.html?level=1">First</a></li>',
+                 '<li><a href="use/first.html?level=1">First</a></li>' +
+                 "".join('<li><a href="use/second.html?level=1">More</a></li>'
+                         for _ in range(4)), 1),
+             "needs one to four page steps"),
+            ("missing step page",
+             lambda body: body.replace('use/first.html?level=1',
+                                       'use/absent.html?level=1', 1),
+             "does not name an existing page"),
+            ("stage without a quiz",
+             lambda body: body.replace(STAGE_TWO_QUIZ, ""),
+             "stage 2 needs a checkpoint quiz"),
+            ("quiz without a question",
+             lambda body: body.replace("<summary>Which page?</summary>",
+                                       "<summary></summary>"),
+             "quiz needs a question summary"),
+            ("quiz without an answer",
+             lambda body: body.replace("<p>The first page.</p>", "<p></p>"),
+             "quiz needs an answer"),
+            ("capstone without a solution",
+             lambda body: body.replace(CAPSTONE_SOLUTION, ""),
+             "capstone needs exactly one folded solution"),
+            ("capstone with two solutions",
+             lambda body: body.replace(CAPSTONE_SOLUTION, CAPSTONE_SOLUTION * 2),
+             "capstone needs exactly one folded solution"),
+            ("missing capstone heading",
+             lambda body: body.replace("<h2>Capstone: Put it together</h2>",
+                                       "<h2>Practice</h2>"),
+             "path needs exactly one capstone heading"),
+            ("next paths without a link",
+             lambda body: body.replace(
+                 '<li><a href="use/first.html?level=1">First again</a></li>',
+                 "<li>More later.</li>"),
+             "Next paths needs at least one internal link"),
+            ("missing next paths heading",
+             lambda body: body.replace("<h2>Next paths</h2>",
+                                       "<h2>Afterwards</h2>"),
+             "path needs one Next paths heading"),
+        )
+        for label, mutate, message in cases:
+            with self.subTest(case=label):
+                root = self.fixture("0.82.0", self.path_documents(mutate(PATH_BODY)))
+                result = self.build(root)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(message, result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_path_steps_must_be_contiguous_from_one(self):
+        documents = self.path_documents()
+        for rel, step in (("use/second.html", 2), ("use/third.html", 4)):
+            documents[rel] = documents[rel].replace(
+                "</head>", f'<meta name="paths" content="goal:{step}"></head>')
+        root = self.fixture("0.82.0", documents)
+        result = self.build(root)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("steps [2, 4] are not contiguous from 1", result.stderr)
+
+    def path_documents(self, body=None):
+        body = PATH_BODY if body is None else body
+        return {
+            "index.html": page("Guide"),
+            "use/first.html": page("First", "use", "index.html"),
+            "use/second.html": page("Second", "use", "index.html"),
+            "use/third.html": page("Third", "use", "index.html"),
+            "learn/paths/goal.html": page("Goal", "learn", "index.html").replace(
+                "</head>", '<meta name="kind" content="path"></head>'
+            ).replace("</body>", body + "</body>"),
+        }
+
+
+PATH_BODY = """
+<h2>Stage 1: First</h2>
+<ol><li><a href="use/first.html?level=1">First</a></li></ol>
+<section class="quiz"><h3>Checkpoint</h3>
+<details class="q"><summary>Which page?</summary><p>The first page.</p></details></section>
+<h2>Stage 2: Second</h2>
+<ol><li><a href="use/second.html?level=1">Second</a></li></ol>
+<section class="quiz"><h3>Checkpoint</h3>
+<details class="q"><summary>Which page now?</summary><p>The second page.</p></details></section>
+<h2>Stage 3: Third</h2>
+<ol><li><a href="use/third.html?level=1">Third</a></li></ol>
+<section class="quiz"><h3>Checkpoint</h3>
+<details class="q"><summary>Last page?</summary><p>The third page.</p></details></section>
+<h2>Capstone: Put it together</h2>
+<p>Do the whole task in a scratch folder.</p>
+<details class="solution"><p>Worked answer.</p></details>
+<h2>Next paths</h2>
+<ul><li><a href="use/first.html?level=1">First again</a></li></ul>
+"""
+
+STAGE_TWO_QUIZ = """
+<section class="quiz"><h3>Checkpoint</h3>
+<details class="q"><summary>Which page now?</summary><p>The second page.</p></details></section>"""
+
+CAPSTONE_SOLUTION = '<details class="solution"><p>Worked answer.</p></details>'
+
+
 if __name__ == "__main__":
     unittest.main()

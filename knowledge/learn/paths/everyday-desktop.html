@@ -3,7 +3,7 @@
 <head>
 <title>Everyday desktop tasks</title>
 <meta name="topic" content="everyday-desktop">
-<meta name="summary" content="Screenshots, clipboard, sound, Bluetooth, displays, and idle lock without opening a terminal.">
+<meta name="summary" content="Screenshots, clipboard, sound, Bluetooth, displays, input comfort, locking and night light without opening a terminal first.">
 <meta name="keywords" content="path, everyday-desktop, everyday-desktop-path, screenshots, clipboard, sound, bluetooth, displays, idle, night-light">
 <meta name="level" content="novice">
 <meta name="track" content="learn">
@@ -14,29 +14,117 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Everyday desktop tasks</p></nav>
 <h1>Everyday desktop tasks</h1>
-<p>These step-by-step guides cover the desktop tasks you need most days without touching a terminal first.</p>
+<p>This path covers the desktop jobs you do most days without opening a terminal first: capture, clipboard, notifications, sound, Bluetooth, screens, input comfort, locking and night light.</p>
+<p>Each step uses the packaged desktop controls, so you can undo it from the same menu or chord. The read-only status commands are safe; connecting a device or changing a display affects only your current session.</p>
 
 <h2>Stage 1: Capture and share</h2>
-<p>Take screenshots, inspect clipboard history, and review desktop notifications safely.</p>
+<ol>
+<li><a href="use/desktop/screenshots.html?level=1">Taking a screenshot or recording the screen</a> &mdash; capture a region, copy text from it, or record a short clip.</li>
+<li><a href="use/desktop/clipboard.html?level=1">Finding something you copied earlier</a> &mdash; copy, paste, and recover an earlier item.</li>
+<li><a href="use/desktop/notifications.html?level=1">Reading and dismissing notifications</a> &mdash; dismiss a pop-up, open history, and silence alerts.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Does copying text to the clipboard save it permanently to a file?</summary>
-<p>No. The clipboard holds a temporary selection until replaced or cleared; save important text in a real file.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Does copying text to the clipboard save it permanently?</summary>
+<p>No. The clipboard holds a temporary selection until it is replaced or cleared. Save important text in a real file.</p>
+</details>
+<details class="q">
+<summary>If notifications are silenced, can you still read an earlier message?</summary>
+<p>Yes. Silencing stops new pop-ups; the message is still recorded in history, which <code>Meta + Shift + H</code> opens.</p>
+</details>
 </section>
 
-<h2>Stage 2: Devices and screen comfort</h2>
-<p>Connect audio and Bluetooth devices, scale displays cleanly, and configure keyboard, touchpad, screen locking, and night light.</p>
+<h2>Stage 2: Sound and wireless devices</h2>
+<ol>
+<li><a href="use/desktop/audio.html?level=1">Changing the volume and choosing speakers or headphones</a> &mdash; raise, lower and mute sound, and switch outputs.</li>
+<li><a href="use/desktop/bluetooth.html?level=1">Connecting Bluetooth headphones or a mouse</a> &mdash; pair, connect, and remove a device.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Why adjust display scaling or night light from a reversible setting before editing dotfiles?</summary>
-<p>Reversible controls let you confirm legibility and undo immediately without breaking session startup files.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which command prints the current audio output sink?</summary>
+<p><code>tam-audio-output-sink</code>. The audio panel is <code>Meta + Ctrl + A</code>.</p>
+</details>
+<details class="q">
+<summary>Why does a paired device not need pairing mode every time?</summary>
+<p>Pairing exchanges and stores a key, which the computer and device reuse when they connect later.</p>
+</details>
 </section>
+
+<h2>Stage 3: Screens and their hardware</h2>
+<ol>
+<li><a href="use/desktop/displays.html?level=1">Arranging your screens and changing brightness</a> &mdash; brightness, text size, monitor arrangement and mirroring.</li>
+<li><a href="hardware/displays.html?level=1">Displays and Monitors</a> &mdash; how panels, scaling and multi-head layouts work underneath.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why adjust scaling or brightness from the desktop controls before editing configuration files?</summary>
+<p>The controls are reversible and take effect immediately, so you can confirm legibility and undo without risking session startup files.</p>
+</details>
+<details class="q">
+<summary>Which command reports the current text size?</summary>
+<p><code>tam-display-text-size</code>. It prints the text size, scaling factor and terminal font.</p>
+</details>
+</section>
+
+<h2>Stage 4: Input, locking and night light</h2>
+<ol>
+<li><a href="use/desktop/keyboard-touchpad.html?level=1">Turning the touchpad on or off and finding keyboard shortcuts</a> &mdash; touchpad, keyboard backlight and the keybinding lookup.</li>
+<li><a href="hardware/input.html?level=1">Input Devices</a> &mdash; how keyboards, pointing devices and touchscreens reach the desktop.</li>
+<li><a href="use/desktop/lock-and-idle.html?level=1">Locking the screen and keeping it awake</a> &mdash; lock, unlock, and pause idle locking for a long job.</li>
+<li><a href="use/desktop/night-light.html?level=1">Making the screen warmer at night</a> &mdash; turn the blue-light filter on and off and check its state.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which chord locks the screen, and which pauses idle locking?</summary>
+<p><code>Meta + Ctrl + L</code> locks; <code>Meta + Ctrl + I</code> toggles Stay Awake. The Stay Awake toggle is silent, so confirm it with <code>tam-toggle-idle status</code>.</p>
+</details>
+<details class="q">
+<summary>In <code>tam-toggle-idle status</code>, what does <code>"enabled":false</code> mean?</summary>
+<p>Stay Awake is off, so normal idle behaviour applies. It does not mean the status command failed.</p>
+</details>
+</section>
+
+<h2>Capstone: Set up an evening of work, then put it back</h2>
+<p>Record the current display, audio, night-light and idle state. Turn night light on, capture and paste a screenshot, lock and unlock the screen, then turn night light off. Finish by comparing the four recorded values with the current ones.</p>
+<details class="solution">
+<p>Run these four read-only commands first and write down what each prints. They only report state.</p>
+<pre class="session" data-risk="read-only">
+$ tam-display-text-size
+text size: 12 px
+gtk text-scaling-factor: 1.0
+terminal font: 9 pt
+$ tam-audio-output-sink
+alsa_output.pci-0000_05_00.1.hdmi-stereo-extra1
+$ tam-toggle-nightlight --status
+{"enabled":false,"temperature":null}
+$ tam-toggle-idle status
+{"enabled":false,"class":"disabled","tooltip":"Stay Awake"}
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-11-13. Your values will differ with your hardware and settings.</p>
+<ol>
+<li>Press <code>Meta + Ctrl + J</code> to turn night light on. Run <code>tam-toggle-nightlight --status</code> again; the filter should now report <code>"enabled":true</code>.</li>
+<li>Press <code>Print Screen</code>, drag a box around one empty window, and release. The picture is saved and copied.</li>
+<li>Press <code>Meta + Ctrl + V</code> to open clipboard history, choose the screenshot, and paste it into a scratch editor. Close the editor without saving.</li>
+<li>Press <code>Meta + Ctrl + L</code>, type your login password, and press Return. Your windows return as they were.</li>
+<li>Press <code>Meta + Ctrl + J</code> again to turn night light off, and confirm the status reports <code>"enabled":false</code>.</li>
+</ol>
+<p>Run the four commands once more. The display, audio and idle values should match what you wrote down, and night light should be off. If a value changed, use the same desktop control to restore it; nothing here needs a file edit. If <code>tam-toggle-nightlight --status</code> reports an error, check that you are in a graphical session.</p>
+</details>
 
 <h2>Next paths</h2>
 <ul>
-<li><a href="learn/paths/desktop-basics.html">Desktop basics</a>: tiling windows, workspaces, and desktop shortcuts.</li>
-<li><a href="learn/paths/files-and-apps.html">Files and applications</a>: where your files live and how apps are installed.</li>
-<li><a href="learn/paths/index.html">All topic paths</a>.</li>
+<li><a href="learn/paths/desktop-basics.html?level=1">Desktop basics</a> &mdash; tiling windows, workspaces, the bar and voice controls.</li>
+<li><a href="learn/paths/files-and-apps.html?level=1">Files and applications</a> &mdash; where files live, and how apps are launched and installed.</li>
+<li><a href="learn/paths/make-it-yours.html?level=1">Make it yours</a> &mdash; change appearance and bindings with a written undo plan.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
 </ul>
 </body>
 </html>

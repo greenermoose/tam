@@ -3,7 +3,7 @@
 <head>
 <title>Terminal stack</title>
 <meta name="topic" content="terminal-stack">
-<meta name="summary" content="Terminfo capabilities, ncurses TUI rendering, bitmap and vector fonts, theming, and Lua configuration.">
+<meta name="summary" content="Follow text from program to pixels: terminfo capabilities, ncurses rendering, fonts, themes, and Lua configuration.">
 <meta name="keywords" content="path, terminal-stack, terminal-stack-path, terminfo, ncurses, fonts, themes, lua">
 <meta name="level" content="learner">
 <meta name="track" content="learn">
@@ -14,18 +14,92 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Terminal stack</p></nav>
 <h1>Terminal stack</h1>
-<p>These guides trace how terminal programs discover display capabilities via terminfo, draw interfaces with ncurses, render fonts, and stay visually consistent across themes.</p>
+<p>This path follows one character from a program to the pixels on screen: terminfo capabilities, ncurses drawing, font selection, colour themes, and the Lua configuration that ties the desktop together. It suits readers who are already comfortable typing commands.</p>
+<p>The examples read state and change only a variable inside one command. Editing your desktop configuration is a separate, reversible task for the last stage.</p>
 
+<h2>Stage 1: How a terminal draws text</h2>
+<ol>
+<li><a href="ecosystem/terminfo-and-termcap.html?level=2">How terminals display text</a> &mdash; escape sequences, <code>TERM</code>, terminfo, <code>tput</code> and <code>infocmp</code>.</li>
+<li><a href="ecosystem/ncurses.html?level=2">ncurses</a> &mdash; the virtual screen, wide-character support, and how <code>tam</code> links it.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Why does setting <code>TERM</code> to an unsupported name break full-screen programs?</summary>
-<p>TUI programs query the terminfo database for the advertised <code>TERM</code> to look up cursor and color escape sequences; a mismatch emits the wrong control bytes.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What does a full-screen program look up from terminfo?</summary>
+<p>The cursor, colour and screen-control escape sequences for the terminal named by <code>TERM</code>. If the name and the real terminal disagree, the program emits the wrong control bytes.</p>
+</details>
+<details class="q">
+<summary>Why does <code>tam</code> link <code>libncursesw</code> rather than the narrow ncurses library?</summary>
+<p>The wide-character library handles Unicode text and cell widths correctly. The narrow library is not enough for the guide's content.</p>
+</details>
 </section>
+
+<h2>Stage 2: Text and colour on screen</h2>
+<ol>
+<li><a href="ecosystem/fonts.html?level=2">Typography, fonts and text rendering</a> &mdash; Fontconfig, font files, rasterization and the <code>tam-font-*</code> helpers.</li>
+<li><a href="ecosystem/themes.html?level=2">Color systems, displays and desktop theming</a> &mdash; palettes, contrast, and the transactional theme engine.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which command reports the font Fontconfig picks for <code>monospace</code>?</summary>
+<p><code>fc-match monospace</code>. Add <code>-f "%{file}: %{family}\n"</code> when you need the file path and family together.</p>
+</details>
+<details class="q">
+<summary>Where does the current theme link point?</summary>
+<p><code>~/.local/state/tamlinux/current/theme</code>, which points at an isolated, timestamped generation. Switching themes swaps that link atomically rather than editing files one by one.</p>
+</details>
+</section>
+
+<h2>Stage 3: Configure the desktop in Lua</h2>
+<ol>
+<li><a href="ecosystem/lua.html?level=2">Lua: a language for giving programs instructions</a> &mdash; the interpreter, the desktop configuration tree, and the host C API.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which file is the desktop's Lua entry point?</summary>
+<p><code>~/.config/hypr/hyprland.lua</code>. It prepares module paths and loads the packaged baseline plus your bindings and monitor files.</p>
+</details>
+<details class="q">
+<summary>Does <code>hyprctl repl</code> change the configuration on disk?</summary>
+<p>No. It evaluates Lua in the running compositor. A durable change belongs in a configuration file with a written undo step.</p>
+</details>
+</section>
+
+<h2>Capstone: Diagnose a terminal that refuses to start</h2>
+<p>A full-screen program prints <em>unknown terminal type</em> and exits. Work out whether the program, the terminal emulator or the environment is wrong, using only read-only queries and a variable that lasts for one command.</p>
+<details class="solution">
+<p>Start by recording what the shell advertises, then ask the terminfo database whether it agrees. The demonstration below sets <code>TERM</code> only for the command that follows, so your session is unchanged afterwards.</p>
+<pre class="session" data-risk="read-only">
+$ printenv TERM
+xterm-256color
+$ infocmp >/dev/null; echo "infocmp exit=$?"
+infocmp exit=0
+$ TERM=definitely-not-a-terminal tput cols
+tput: unknown terminal "definitely-not-a-terminal"
+$ TERM=definitely-not-a-terminal clear
+'definitely-not-a-terminal': unknown terminal type.
+</pre>
+<p>Captured on Arch Linux, 2026-11-13. <code>tput</code> exits 3 and <code>clear</code> exits 1 for an unknown name. The database is healthy because <code>infocmp</code> succeeded for the real <code>TERM</code>; the failure follows the name you supplied.</p>
+<ol>
+<li><code>printenv TERM</code> shows the name the program will query.</li>
+<li><code>infocmp</code> compares that name with the installed terminfo database. A match means the database entry exists.</li>
+<li>The failing command changes only its own environment. If the error follows the changed name, the name is the problem, not the program.</li>
+<li>Restore the real value and confirm: <code>TERM=xterm-256color tput cols</code> prints your width, for example <code>80</code>.</li>
+</ol>
+<p>If the real <code>TERM</code> also fails <code>infocmp</code>, the entry is missing or the database path is wrong; that is a package question, not a configuration typo. Do not "fix" it by exporting a random terminal name in your shell startup file.</p>
+</details>
 
 <h2>Next paths</h2>
 <ul>
-<li><a href="learn/paths/session-and-desktop.html">Session and desktop</a>: virtual consoles, graphical compositors, and input devices.</li>
-<li><a href="learn/paths/command-line-fluency.html">Command-line fluency</a>: pipelines, jobs, and shell usage inside the terminal.</li>
+<li><a href="learn/paths/command-line-fluency.html?level=2">Command-line fluency</a> &mdash; extend the shell and process model these programs run in.</li>
+<li><a href="learn/paths/session-and-desktop.html?level=2">Session and desktop</a> &mdash; follow login, the compositor and input into a working desktop.</li>
+<li><a href="learn/paths/make-it-yours.html?level=2">Make it yours</a> &mdash; change fonts, colours and bindings with a written undo plan.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
 </ul>
 </body>
 </html>

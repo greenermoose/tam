@@ -722,6 +722,131 @@ def validate_global_entries(entries, errors):
             else:
                 seen_steps[key] = e["path"]
 
+    for pid, path_def in path_defs.items():
+        steps = sorted(step for (path_id, step) in seen_steps if path_id == pid)
+        if steps != list(range(1, len(steps) + 1)):
+            errors.append(f"{path_def['path']}: path {pid!r} steps {steps} "
+                          f"are not contiguous from 1")
+
+
+PATH_H2_RE = re.compile(r'<h2\b[^>]*>(.*?)</h2>', re.I | re.S)
+PATH_STAGE_RE = re.compile(r'^(?:Stage\s+(\d+)\s*:|\s*(\d+)\.)\s*(.*)$', re.I | re.S)
+PATH_LEVEL_RE = re.compile(r'level=[0-3]')
+PATH_DETAILS_RE = re.compile(r'<details\b([^>]*)>(.*?)</details>', re.I | re.S)
+PATH_HREF_RE = re.compile(r'<a\b[^>]*href\s*=\s*["\']([^"\']+)["\']', re.I)
+PATH_NON_PAGES = ("learn/glossary/", "learn/bibliography/", "learn/paths/")
+
+
+def _plain(fragment):
+    return re.sub(r'<[^>]+>', '', fragment).strip()
+
+
+def _class_tokens(attrs):
+    match = re.search(r'class\s*=\s*["\']([^"\']*)["\']', attrs, re.I)
+    return match.group(1).split() if match else []
+
+
+def validate_path_pages(knowledge, entries, errors, version="0.0.0", texts=None):
+    """Enforce the Paths contract in docs/corpus-pedagogy.md.
+
+    A path page has three to six numbered stages, each with one to four
+    existing page steps at a stated lens and a checkpoint quiz, then one
+    capstone with a folded solution and a Next paths list. Corpora before
+    0.82.0 keep their historical pages and are not re-checked."""
+    try:
+        current = tuple(int(part) for part in version.split(".")[:2])
+    except ValueError:
+        current = (0, 0)
+    if current < (0, 82):
+        return
+    for entry in entries:
+        if entry.get("kind") != "path":
+            continue
+        rel = entry["path"]
+        text = texts.get(rel) if texts is not None else None
+        if text is None:
+            page = knowledge / rel
+            if not page.is_file():
+                continue
+            text = page.read_text(encoding="utf-8", errors="replace")
+        headings = [(match.start(), match.end(), _plain(match.group(1)))
+                    for match in PATH_H2_RE.finditer(text)]
+        stages = []
+        for index, (_, end, label) in enumerate(headings):
+            match = PATH_STAGE_RE.match(label)
+            if not match:
+                continue
+            stop = headings[index + 1][0] if index + 1 < len(headings) else len(text)
+            stages.append((int(match.group(1) or match.group(2)), label,
+                           text[end:stop]))
+        if not 3 <= len(stages) <= 6:
+            errors.append(f"{rel}: path needs three to six stages, found {len(stages)}")
+        numbers = [number for number, _, _ in stages]
+        if numbers != list(range(1, len(numbers) + 1)):
+            errors.append(f"{rel}: path stages {numbers} are not numbered from 1")
+        for number, _, body in stages:
+            steps = []
+            for link in PATH_HREF_RE.findall(body):
+                target, _, query = link.partition("?")
+                if target.startswith(("http://", "https://", "mailto:", "man:", "tam:", "#")):
+                    continue
+                if target.startswith(PATH_NON_PAGES) or target == "index.html":
+                    continue
+                if not PATH_LEVEL_RE.fullmatch(query):
+                    errors.append(f"{rel}: stage {number} link {link!r} "
+                                  f"needs a ?level=0-3 lens")
+                    continue
+                target = target.split("#", 1)[0]
+                if not (knowledge / target).is_file():
+                    errors.append(f"{rel}: stage {number} step {target!r} "
+                                  f"does not name an existing page")
+                    continue
+                steps.append(target)
+            if not 1 <= len(steps) <= 4:
+                errors.append(f"{rel}: stage {number} needs one to four page steps, "
+                              f"found {len(steps)}")
+            quizzes = [(attrs, block) for attrs, block in PATH_DETAILS_RE.findall(body)
+                       if "q" in _class_tokens(attrs)]
+            if not quizzes:
+                errors.append(f"{rel}: stage {number} needs a checkpoint quiz")
+            for _, block in quizzes:
+                summary = re.search(r'<summary\b[^>]*>(.*?)</summary>', block, re.I | re.S)
+                if not summary or not _plain(summary.group(1)):
+                    errors.append(f"{rel}: stage {number} quiz needs a question summary")
+                answer = re.sub(r'<summary\b[^>]*>.*?</summary>', '', block, count=1,
+                                flags=re.I | re.S)
+                if not _plain(answer):
+                    errors.append(f"{rel}: stage {number} quiz needs an answer")
+        capstones = [(index, label) for index, (_, _, label) in enumerate(headings)
+                     if label.lower().startswith("capstone")]
+        if len(capstones) != 1:
+            errors.append(f"{rel}: path needs exactly one capstone heading, "
+                          f"found {len(capstones)}")
+        else:
+            index = capstones[0][0]
+            start = headings[index][1]
+            stop = headings[index + 1][0] if index + 1 < len(headings) else len(text)
+            solutions = [(attrs, block) for attrs, block in
+                         PATH_DETAILS_RE.findall(text[start:stop])
+                         if "solution" in _class_tokens(attrs)]
+            if len(solutions) != 1:
+                errors.append(f"{rel}: capstone needs exactly one folded solution, "
+                              f"found {len(solutions)}")
+            elif not _plain(solutions[0][1]):
+                errors.append(f"{rel}: capstone solution is empty")
+        nexts = [(index, label) for index, (_, _, label) in enumerate(headings)
+                 if label.lower().startswith("next path")]
+        if len(nexts) != 1:
+            errors.append(f"{rel}: path needs one Next paths heading, found {len(nexts)}")
+        else:
+            index = nexts[0][0]
+            start = headings[index][1]
+            stop = headings[index + 1][0] if index + 1 < len(headings) else len(text)
+            body = text[start:stop]
+            if not any(not link.startswith(("http://", "https://", "mailto:", "man:", "tam:"))
+                       for link in PATH_HREF_RE.findall(body)):
+                errors.append(f"{rel}: Next paths needs at least one internal link")
+
 
 def index_outputs(entries, coverage):
     # Sort entries by topic
@@ -802,9 +927,11 @@ def reference_main(root=None):
         if not re.match(r'^\d+\.\d+\.\d+', v_str):
             errors.append(f"knowledge/version: invalid version {v_str!r} (expected X.Y.Z)")
 
-    check_hierarchy(knowledge_dir, entries, version_file.read_text(encoding="utf-8").strip()
-                    if version_file.is_file() else "0.0.0", errors)
+    version = (version_file.read_text(encoding="utf-8").strip()
+               if version_file.is_file() else "0.0.0")
+    check_hierarchy(knowledge_dir, entries, version, errors)
     coverage = learning_metadata(knowledge_dir, entries, errors)
+    validate_path_pages(knowledge_dir, entries, errors, version)
 
     if errors:
         for message in errors:

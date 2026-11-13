@@ -286,6 +286,8 @@ def process(root, mode, state, snap, reader=None, full=False):
     builder.validate_global_entries(entries, errors)
     parsed = {rel: SimpleNamespace(**row["learning"]) for rel, row in pages.items()}
     learning = builder.learning_metadata(root / "knowledge", entries, errors, parsed=parsed)
+    builder.validate_path_pages(root / "knowledge", entries, errors, version,
+                                texts=snap.texts)
     if errors:
         raise CorpusError("\n".join("Error: " + error for error in errors))
     outputs = builder.index_outputs(entries, learning)

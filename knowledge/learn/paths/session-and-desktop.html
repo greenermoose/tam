@@ -21,9 +21,11 @@
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which compositor does Tamlinux run today?</summary><p>Hyprland. Sway is planned.</p></details></section>
 <h2>Stage 3: Input</h2>
 <p><a href="ecosystem/evdev.html?level=2">evdev</a> and <a href="desktop/meta-key.html?level=2">the Meta key</a>.</p>
-<p>Everyday input tasks: <a href="use/desktop/keyboard-touchpad.html">touchpad and shortcuts</a>,
-<a href="use/desktop/audio.html">sound devices</a>, and <a href="use/desktop/bluetooth.html">Bluetooth devices</a>.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>If keys work on a VT but not in the GUI, where is the fault more likely?</summary><p>In the graphical input path (compositor, seat, libinput) rather than the physical keyboard alone.</p></details></section>
+<h2>Stage 4: Everyday devices</h2>
+<p><a href="use/desktop/keyboard-touchpad.html?level=2">touchpad and shortcuts</a>,
+<a href="use/desktop/audio.html?level=2">sound devices</a>, and <a href="use/desktop/bluetooth.html?level=2">Bluetooth devices</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which command prints the current audio output sink?</summary><p><code>tam-audio-output-sink</code>. The audio panel is <code>Meta + Ctrl + A</code>.</p></details></section>
 <h2>Capstone</h2>
 <p>Write the shortest recovery note for "GUI frozen, keyboard dead in GUI": VT chord, what you will record, what you will not restart yet.</p>
 <details class="solution"><p>Use Ctrl+Alt+Fn to reach a text console. Record time, last action, whether VTs accept input, and whether <code>tam-desktop</code> or the compositor process is alive. Do not restart display managers as a first guess; collect evidence first.</p></details>

@@ -248,6 +248,12 @@ Every path page uses [`templates/path.html`](templates/path.html):
 
 Use only pages that exist. Mark a stage without a page as planned.
 
+From corpus 0.82.0 the build enforces this contract: `validate_path_pages` in
+`tools/build-index.py` fails a path page that lacks three to six numbered
+stages, a levelled step link, a checkpoint, one capstone solution, or next
+paths. Write to the template first; the check names the page and the missing
+part.
+
 **Goal-path catalog.** Add each path when its pages exist.
 
 | Path | Gain | Levels |

@@ -3,8 +3,8 @@
 <head>
 <title>Files and applications</title>
 <meta name="topic" content="files-and-apps">
-<meta name="summary" content="Understand where files live, inspect and search text, manage permissions, and launch or install apps.">
-<meta name="keywords" content="path, files-and-apps, files-and-apps-path, files, directories, apps, permissions, mounts">
+<meta name="summary" content="Find and inspect files, move data safely, manage permissions, and open, install or remove applications.">
+<meta name="keywords" content="path, files-and-apps, files-and-apps-path, files, directories, apps, permissions, mounts, archives">
 <meta name="level" content="novice">
 <meta name="track" content="learn">
 <meta name="parent" content="learn/paths/index.html">
@@ -14,29 +14,132 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Files and applications</p></nav>
 <h1>Files and applications</h1>
-<p>These guides show how Tamlinux organizes your home directory, USB drives, permissions, and graphical or terminal applications.</p>
+<p>This path shows where files live, how to find and move them safely, and how to open or install the applications that use them. It starts with the home folder and a temporary practice directory.</p>
+<p>Practice in temporary folders and on copies. A move, extraction or removal is hard to undo once it succeeds, so read the listing before you act on real documents.</p>
 
-<h2>Stage 1: Locate, read, and check files</h2>
-<p>Start by learning where personal documents sit, how to search inside text safely read-only, and how file owners work.</p>
+<h2>Stage 1: Where files live</h2>
+<ol>
+<li><a href="filesystem/index.html?level=1">Files and folders</a> &mdash; the home folder, system folders, and what each is for.</li>
+<li><a href="use/files/finding-files.html?level=1">Finding and opening files</a> &mdash; search by name or text content inside a scratch folder.</li>
+<li><a href="filesystem/permissions.html?level=1">Who can use a file</a> &mdash; read, write and execute bits, numeric modes, and directory access.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Should you save everyday documents in <code>/tmp</code>?</summary>
-<p>No. <code>/tmp</code> is for temporary scratch data and may be cleared across reboots; store lasting work under your home directory.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Should everyday documents be saved in <code>/tmp</code>?</summary>
+<p>No. <code>/tmp</code> is scratch space and may be cleared across reboots. Lasting work belongs under your home directory.</p>
+</details>
+<details class="q">
+<summary><code>chmod</code> printed nothing. Did it fail?</summary>
+<p>Not necessarily. Many successful commands are silent. Inspect the mode with <code>stat -c '%A %a %n' FILE</code> before assuming failure.</p>
+</details>
 </section>
 
-<h2>Stage 2: Launch and inspect apps</h2>
-<p>Open apps from menus or a terminal so diagnostic output is visible if something fails to start.</p>
+<h2>Stage 2: Move data safely</h2>
+<ol>
+<li><a href="use/files/usb-drives.html?level=1">Using USB drives safely</a> &mdash; find a stick, copy files, and unmount before unplugging.</li>
+<li><a href="use/files/archives.html?level=1">Creating and opening archives</a> &mdash; list a <code>.tar.gz</code> or <code>.zip</code> before extracting it.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Why launch a misbehaving graphical program from a terminal once?</summary>
-<p>The terminal shows standard error messages that a menu launcher hides.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What must you do before unplugging a USB stick?</summary>
+<p>Unmount or eject it, and wait for the desktop to confirm. Pulling it while writes are pending can corrupt the filesystem.</p>
+</details>
+<details class="q">
+<summary>Why list an archive before extracting it?</summary>
+<p>The listing shows the paths it contains, so you can choose a target folder and notice unexpected absolute paths or entries before they land.</p>
+</details>
 </section>
+
+<h2>Stage 3: Open and edit</h2>
+<ol>
+<li><a href="use/apps/browser.html?level=1">Opening the web browser and setting your default</a> &mdash; launch, open a private window, and check the default browser.</li>
+<li><a href="use/apps/editor.html?level=1">Opening and editing text files</a> &mdash; edit a scratch file in Micro and save or cancel cleanly.</li>
+<li><a href="use/apps/documents-and-pdf.html?level=1">Reading PDFs, documents, and printing</a> &mdash; check viewers and printer queues before printing.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why launch a misbehaving graphical program from a terminal once?</summary>
+<p>The terminal shows standard error messages that a menu launcher hides.</p>
+</details>
+<details class="q">
+<summary>Which command reports configured printer queues?</summary>
+<p><code>lpstat -p</code>. If it prints nothing, no queue is configured yet.</p>
+</details>
+</section>
+
+<h2>Stage 4: Media and web apps</h2>
+<ol>
+<li><a href="use/apps/media.html?level=1">Viewing photos, playing media, and converting files</a> &mdash; inspect media properties and convert a copy.</li>
+<li><a href="use/apps/web-apps.html?level=1">Installing and removing web apps</a> &mdash; give a site its own window and remove it again.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>When converting a photo or clip, what should you protect?</summary>
+<p>The original. Write the converted copy to a new file name and check it before replacing anything.</p>
+</details>
+<details class="q">
+<summary>How do you undo a web app installation?</summary>
+<p>Remove it with <code>tam-webapp-remove "NAME"</code>, using the same name you installed it with.</p>
+</details>
+</section>
+
+<h2>Stage 5: Everyday file tools</h2>
+<ol>
+<li><a href="use/tools/tam-journal.html?level=1">Keeping plain-text daily journals with tam-journal</a> &mdash; timestamped notes in one dated text file per day.</li>
+<li><a href="use/tools/tam-file-select.html?level=1">Selecting files natively with tam-file-select</a> &mdash; ask for a file or folder from a script and handle the exit status.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Where does <code>tam-journal</code> store a day's entry?</summary>
+<p>In a plain UTF-8 file named by date, for example <code>~/Journal/2026-11-12.txt</code>, or under <code>TAM_JOURNAL_DIR</code> when that is set.</p>
+</details>
+<details class="q">
+<summary>What does <code>tam-file-select</code> return when you cancel the dialog?</summary>
+<p>Exit status 1. Status 0 means at least one path was printed, and 2 means the chooser could not open.</p>
+</details>
+</section>
+
+<h2>Capstone: Pack, inspect, unpack and verify a folder</h2>
+<p>In a fresh temporary directory, create a small folder with one text file. Pack it into a <code>.tar.gz</code>, list the archive before extracting, extract it into a second folder, and compare the extracted file with the original. Then remove everything you made.</p>
+<details class="solution">
+<p>These commands touch only a new temporary directory. The archive stores the folder name, so extraction into a separate output folder keeps the two copies apart.</p>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d)
+$ mkdir -p "$work/src/sub" "$work/out"
+$ printf 'hello\n' > "$work/src/sub/note.txt"
+$ tar -czf "$work/bundle.tar.gz" -C "$work/src" sub
+$ tar -tzf "$work/bundle.tar.gz"
+sub/
+sub/note.txt
+$ tar -xzf "$work/bundle.tar.gz" -C "$work/out"
+$ cat "$work/out/sub/note.txt"
+hello
+</pre>
+<p>Captured on Arch Linux, 2026-11-13. The listing confirms the archive holds <code>sub/</code> and <code>sub/note.txt</code>; the final <code>cat</code> confirms the extracted copy is readable.</p>
+<pre class="session" data-risk="scratch">
+$ cmp "$work/src/sub/note.txt" "$work/out/sub/note.txt" && echo "same contents"
+same contents
+$ rm -rf -- "$work"
+</pre>
+<p><code>cmp</code> prints nothing and exits 0 when the files match, so the echoed line is the check. Removing the temporary directory is safe because it holds only the practice copy. If the archive listing shows an unexpected path, stop before extracting and inspect it; do not extract over real folders.</p>
+</details>
 
 <h2>Next paths</h2>
 <ul>
-<li><a href="learn/paths/people-and-security.html">People and security</a>: accounts, passwords, privileges, and update trust.</li>
-<li><a href="learn/paths/command-line-fluency.html">Command-line fluency</a>: pipelines, jobs, and shell composition.</li>
-<li><a href="learn/paths/index.html">All topic paths</a>.</li>
+<li><a href="learn/paths/people-and-security.html?level=1">People and security</a> &mdash; accounts, keys, privileges and trusted updates.</li>
+<li><a href="learn/paths/command-line-fluency.html?level=1">Command-line fluency</a> &mdash; pipelines, jobs and small scripts.</li>
+<li><a href="learn/paths/desktop-basics.html?level=1">Desktop basics</a> &mdash; the windows and workspaces these apps open into.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
 </ul>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <title>Systems programming in C11</title>
 <meta name="topic" content="c11-systems">
-<meta name="summary" content="ISO C11 portability, ELF object files and linking, runtime sanitizers, and language trade-offs in Tamlinux.">
+<meta name="summary" content="Portable ISO C11, object files and linking, runtime sanitizers, and language trade-offs in Tamlinux.">
 <meta name="keywords" content="path, c11-systems, c11-systems-path, c11, compiler, linker, sanitizers, languages">
 <meta name="level" content="expert">
 <meta name="track" content="learn">
@@ -14,18 +14,116 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Systems programming in C11</p></nav>
 <h1>Systems programming in C11</h1>
-<p>These guides explain why Tamlinux core utilities target portable ISO C11, how compilation and linking produce native binaries, and how sanitizers catch memory bugs during development.</p>
+<p>This path is for readers who will read or change C code: portable ISO C11, how the compiler and linker turn source into a native binary, how sanitizers find memory bugs, and why Tamlinux writes its core utilities in C11. It assumes you can compile and run a program from a terminal.</p>
+<p>Every exercise builds in a fresh temporary directory. Nothing installs, and no system binary is replaced.</p>
 
+<h2>Stage 1: Write portable C11</h2>
+<ol>
+<li><a href="ecosystem/c11.html?level=3">The C11 programming language and portable systems code</a> &mdash; the standard, compiler flags, libc portability and native systems programming.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Why pair C11 source with AddressSanitizer and UndefinedBehaviorSanitizer in tests?</summary>
-<p>Compiler warnings catch static issues at build time, while ASan and UBSan trap out-of-bounds accesses, use-after-free bugs, and undefined behavior during test runs.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which value of <code>__STDC_VERSION__</code> identifies C11?</summary>
+<p><code>201112L</code>. Compile with <code>-std=c11</code> and inspect the macro with <code>gcc -dM -E</code>.</p>
+</details>
+<details class="q">
+<summary>Why does the build define <code>_DEFAULT_SOURCE</code> and <code>_XOPEN_SOURCE</code>?</summary>
+<p>They expose the POSIX interfaces the code needs while keeping the language target portable ISO C11. They are feature-test macros, not compiler extensions.</p>
+</details>
 </section>
+
+<h2>Stage 2: Compile, inspect and link</h2>
+<ol>
+<li><a href="ecosystem/object-files.html?level=3">Object files, static libraries, and compilation stages</a> &mdash; source to <code>.o</code> to <code>.a</code>, ELF sections, and selective linking.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What does <code>gcc -c</code> stop before?</summary>
+<p>Linking. It produces an object file with unresolved references that the linker resolves later.</p>
+</details>
+<details class="q">
+<summary>Which tools list archive members and ELF sections?</summary>
+<p><code>ar -t libNAME.a</code> lists members; <code>readelf -S FILE.o</code> lists sections such as <code>.text</code>, <code>.rodata</code> and <code>.rela.text</code>.</p>
+</details>
+</section>
+
+<h2>Stage 3: Find memory bugs and weigh the trade-offs</h2>
+<ol>
+<li><a href="ecosystem/sanitizers.html?level=3">Compiler sanitizers, AddressSanitizer, and memory safety in C</a> &mdash; redzones, shadow memory, and a sanitized build.</li>
+<li><a href="ecosystem/language-choices.html?level=3">Systems programming philosophy and language choices</a> &mdash; binary size, dependencies, startup, and why C11.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What does AddressSanitizer place around each object, and where does it record the result?</summary>
+<p>Redzones around allocated and stack objects, tracked in shadow memory. A read or write into a redzone is reported with the source line.</p>
+</details>
+<details class="q">
+<summary>Does a warning-free build prove there is no memory bug?</summary>
+<p>No. Warnings catch some static problems; out-of-bounds or use-after-free behaviour needs a sanitizer run or a test that exercises the path.</p>
+</details>
+</section>
+
+<h2>Capstone: Build, catch and fix an out-of-bounds read</h2>
+<p>Create a two-file program whose loop reads one element past a three-element array. Build it with AddressSanitizer and UndefinedBehaviorSanitizer, read the report, fix the loop bound, and rebuild until the run is clean.</p>
+<details class="solution">
+<p>Work in a temporary directory. The first file holds the bug; the second supplies the data and calls it.</p>
+<pre>
+int total(const int *values, int count)
+{
+    int sum = 0;
+    for (int i = 0; i &lt;= count; i++)
+        sum += values[i];
+    return sum;
+}
+</pre>
+<pre>
+#include &lt;stdio.h&gt;
+
+int total(const int *values, int count);
+
+int main(void)
+{
+    int values[3] = {2, 4, 6};
+    printf("total: %d\n", total(values, 3));
+    return 0;
+}
+</pre>
+<p>Save the first as <code>total.c</code> and the second as <code>main.c</code>, then build and run:</p>
+<pre class="session" data-risk="scratch">
+$ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main.c total.c -o stats
+$ ./stats
+=================================================================
+==3686666==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7b41da0f002c
+READ of size 4 at 0x7b41da0f002c thread T0
+    #0 0x55d5d030645e in total /tmp/.../total.c:5
+    #1 0x55d5d03062cc in main /tmp/.../main.c:8
+...
+    [32, 44) 'values' (line 7) &lt;== Memory access at offset 44 overflows this variable
+</pre>
+<p>Captured with GCC 16.2.1 on Arch Linux, 2026-11-13; addresses and process IDs differ on every run. The report names the function, the source line and the object that overflowed. The compiler had accepted the code without a warning, so only the sanitized run exposed it.</p>
+<p>Change the loop condition in <code>total.c</code> from <code>i &lt;= count</code> to <code>i &lt; count</code>, then rebuild and run:</p>
+<pre class="session" data-risk="scratch">
+$ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main.c total.c -o stats
+$ ./stats
+total: 12
+$ echo "exit=$?"
+exit=0
+</pre>
+<p>The sum is 2 + 4 + 6 = 12 and the process exits 0 with no sanitizer output. A clean run is the check; silence alone would not prove correctness, but a nonzero exit or a report does prove a problem. Remove the temporary directory when you are done.</p>
+</details>
 
 <h2>Next paths</h2>
 <ul>
-<li><a href="learn/paths/build-and-contribute.html">Build and contribute</a>: building, testing, and submitting changes.</li>
-<li><a href="learn/paths/from-gates-to-machine.html">From gates to machine code</a>: architecture, instructions, and assembly underneath compiled binaries.</li>
+<li><a href="learn/paths/build-and-contribute.html?level=3">Build and contribute</a> &mdash; set up the toolchain and prepare a focused source change.</li>
+<li><a href="learn/paths/from-gates-to-machine.html?level=2">From gates to machine code</a> &mdash; the architecture and assembly underneath a compiled binary.</li>
+<li><a href="learn/paths/command-line-fluency.html?level=2">Command-line fluency</a> &mdash; the shell and process model around these builds.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
 </ul>
 </body>
 </html>

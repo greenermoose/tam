@@ -3,7 +3,7 @@
 <head>
 <title>Desktop basics</title>
 <meta name="topic" content="desktop-basics">
-<meta name="summary" content="Navigate the Tamlinux tiling desktop: Meta key bindings, windows, workspaces, bar, and voice controls.">
+<meta name="summary" content="Navigate the Tamlinux tiling desktop: Meta key bindings, windows, workspaces, the bar, capture, and voice controls.">
 <meta name="keywords" content="path, desktop-basics, desktop-basics-path, sway, waybar, workspaces, hotkeys, meta, voice">
 <meta name="level" content="novice">
 <meta name="track" content="learn">
@@ -14,19 +14,125 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Desktop basics</p></nav>
 <h1>Desktop basics</h1>
-<p>These guides teach the layout and controls of the Tamlinux desktop environment from the Meta key through windows, workspaces, and voice controls.</p>
+<p>This path teaches the keyboard-first Tamlinux desktop from the Meta key outward: windows, workspaces, the top bar, screen capture and voice. It assumes you can already log in and see the graphical desktop.</p>
+<p>Every exercise uses empty practice windows, so no work is at risk. Do not close, move or capture a window that holds something you have not saved.</p>
 
+<h2>Stage 1: Meet the desktop and its command key</h2>
+<ol>
+<li><a href="desktop/index.html?level=1">The Tamlinux Desktop</a> &mdash; what the graphical desktop is, and how to open a terminal and recover your place.</li>
+<li><a href="desktop/meta-key.html?level=1">The Meta key</a> &mdash; find the key and use it for the system menu, the keybindings list and a practice terminal.</li>
+<li><a href="desktop/hotkeys.html?level=1">Desktop hotkeys</a> &mdash; open the live keybindings list and try one safe chord.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Where can you view the active packaged keybindings on a running desktop?</summary>
-<p>Press <code>Meta + K</code> to open the packaged keybinding cheatsheet, or inspect your desktop configuration page.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which chord opens the live keybindings list?</summary>
+<p><code>Meta + K</code>, which runs <code>tam-menu-keybindings</code>. Check it on your own machine because personal overrides can change a chord.</p>
+</details>
+<details class="q">
+<summary>Which window does <code>Meta + Q</code> close?</summary>
+<p>Only the focused window. Confirm focus and save work first; practice with an empty terminal.</p>
+</details>
 </section>
+
+<h2>Stage 2: Arrange windows and workspaces</h2>
+<ol>
+<li><a href="desktop/windows.html?level=1">Windows and layouts</a> &mdash; move focus, toggle floating, and tell tiling from overlapping windows.</li>
+<li><a href="desktop/workspaces.html?level=1">Organizing windows and screens</a> &mdash; switch workspaces, move one window, and return both to where they started.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which chord toggles floating and tiling for the focused window?</summary>
+<p><code>Meta + T</code>. Press it again to undo. Check <code>Meta + K</code> if your overrides differ.</p>
+</details>
+<details class="q">
+<summary>Is switching workspace the same as moving a window to another workspace?</summary>
+<p>No. A switch changes the workspace you are viewing; a move changes which workspace holds the focused window.</p>
+</details>
+</section>
+
+<h2>Stage 3: Read the bar and its controls</h2>
+<ol>
+<li><a href="desktop/bar.html?level=1">The top bar</a> &mdash; hide and show the bar and open one of its modules.</li>
+<li><a href="desktop/toggles.html?level=1">Desktop toggles</a> &mdash; find the idle, night light and silence switches.</li>
+<li><a href="desktop/notifications.html?level=1">Notifications</a> &mdash; dismiss a pop-up, open history, and silence new alerts.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Which chord hides or shows the top bar?</summary>
+<p><code>Meta + Shift + Space</code>. Toggle it back so the bar is visible when you finish.</p>
+</details>
+<details class="q">
+<summary>If notifications are silenced, is a message lost?</summary>
+<p>No. It is recorded in history, which <code>Meta + Shift + H</code> opens.</p>
+</details>
+</section>
+
+<h2>Stage 4: Copy and capture</h2>
+<ol>
+<li><a href="desktop/clipboard.html?level=1">Clipboard</a> &mdash; copy and paste with Meta, then recover an earlier item from history.</li>
+<li><a href="desktop/capture.html?level=1">Screen capture</a> &mdash; start a screenshot and find the saved picture.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Does copying text to the clipboard save it permanently?</summary>
+<p>No. The clipboard holds a temporary selection until it is replaced or cleared. Save important text in a real file.</p>
+</details>
+<details class="q">
+<summary>Which command does a plain <code>Print Screen</code> start?</summary>
+<p><code>tam-capture-screenshot</code> in selection mode. The Capture menu is <code>Meta + Ctrl + C</code>.</p>
+</details>
+</section>
+
+<h2>Stage 5: Arrive from another system and use voice</h2>
+<ol>
+<li><a href="desktop/transition.html?level=1">Coming from Mac or Windows</a> &mdash; find where familiar actions moved.</li>
+<li><a href="desktop/voice.html?level=1">Voice dictation</a> &mdash; start and stop dictation into the focused window.</li>
+<li><a href="desktop/voice-commands.html?level=1">Shell voice commands</a> &mdash; see how a transcript reaches the prompt without running.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Does a dictated shell command run automatically?</summary>
+<p>No. The transcript is inserted at the prompt for you to read, edit and submit yourself.</p>
+</details>
+<details class="q">
+<summary>Which modifier belongs to the desktop rather than the focused application?</summary>
+<p>Meta. Control usually acts inside the focused program, while Meta chords manage windows, workspaces and menus.</p>
+</details>
+</section>
+
+<h2>Capstone: Set up, capture and leave a clean desktop</h2>
+<p>Record your starting workspace, then open two empty terminals. Float one with <code>Meta + T</code> and tile it back. Move the other to workspace 2 with <code>Meta + Shift + 2</code> and follow it. Hide and show the top bar once. Take a screenshot of one empty terminal with <code>Print Screen</code>, paste it into a scratch editor with <code>Meta + V</code>, and close the editor without saving. Return to your starting workspace and close both practice terminals after confirming focus.</p>
+<details class="solution">
+<p>The bindings below are checked against the packaged session definitions; live behaviour on your keyboard still needs your own confirmation. If a chord does nothing, open <code>Meta + K</code> and compare.</p>
+<ol>
+<li>Note the workspace number shown in the bar. That number is your undo target.</li>
+<li>Press <code>Meta + Return</code> twice to open two empty terminals.</li>
+<li>Focus one terminal and press <code>Meta + T</code>. It floats. Press <code>Meta + T</code> again so it tiles.</li>
+<li>Focus the other terminal and press <code>Meta + Shift + 2</code>. You move to workspace 2 with it.</li>
+<li>Press <code>Meta + Shift + Space</code> to hide the bar, then the same chord to show it.</li>
+<li>Press <code>Print Screen</code>, drag a box around the empty terminal, and release. The picture is saved and copied.</li>
+<li>Open a scratch editor, press <code>Meta + V</code>, and close the editor without saving. The screenshot stays in the clipboard history at <code>Meta + Ctrl + V</code>.</li>
+<li>Return to your starting workspace with <code>Meta +</code> its number. Focus each practice terminal and press <code>Meta + Q</code>.</li>
+</ol>
+<p>You are finished when the bar is visible, both practice windows are gone, and you are back on the workspace you recorded. A screenshot exists in the capture tool's saved location and in clipboard history. If the windows followed you instead of staying on workspace 2, you switched workspaces instead of moving the window; return, focus the window, and repeat the move chord.</p>
+</details>
 
 <h2>Next paths</h2>
 <ul>
-<li><a href="learn/paths/everyday-desktop.html">Everyday desktop tasks</a>: screenshots, clipboard, sound, Bluetooth, and displays.</li>
-<li><a href="learn/paths/make-it-yours.html">Make it yours</a>: customize themes, fonts, and bindings reversibly.</li>
-<li><a href="learn/paths/session-and-desktop.html">Session and desktop</a>: how TTY login, display manager, and Wayland compositor work underneath.</li>
+<li><a href="learn/paths/everyday-desktop.html?level=1">Everyday desktop tasks</a> &mdash; screenshots, clipboard, sound, Bluetooth, displays and idle lock.</li>
+<li><a href="learn/paths/make-it-yours.html?level=1">Make it yours</a> &mdash; practice a reversible customization and name its recovery.</li>
+<li><a href="learn/paths/session-and-desktop.html?level=2">Session and desktop</a> &mdash; how login, the compositor and input devices work underneath.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
 </ul>
 </body>
 </html>

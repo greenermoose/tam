@@ -3,7 +3,7 @@
 <head>
 <title>People and security</title>
 <meta name="topic" content="people-and-security">
-<meta name="summary" content="User accounts, passwords and keys, elevated privileges with sudo, and trusted system updates.">
+<meta name="summary" content="User accounts, passwords and keys, elevated privileges, network and disk boundaries, and trusted system updates.">
 <meta name="keywords" content="path, people-and-security, people-and-security-path, accounts, passwords, ssh, sudo, security, trust">
 <meta name="level" content="novice">
 <meta name="track" content="learn">
@@ -14,29 +14,138 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / People and security</p></nav>
 <h1>People and security</h1>
-<p>These guides explain how ordinary user accounts stay separated from system changes, how secrets work, and why signed updates matter.</p>
+<p>This path explains who you are on the machine, how secrets and keys work, which doors are open, and how to keep software changes recoverable. It suits anyone who uses a shared or portable computer.</p>
+<p>Every exercise here is read-only: no account, password, key, firewall rule or disk is changed. Changing authentication or disk settings is privileged work that needs its own recovery point and explicit approval.</p>
 
 <h2>Stage 1: Identity and secrets</h2>
-<p>Learn the boundary between your daily account and privileged operations, and how passwords, keys, and lock screens protect stored data.</p>
+<ol>
+<li><a href="use/security/passwords.html?level=1">Passwords, sudo, and keeping secrets safe</a> &mdash; why your daily account has limits, and where secrets must not be written.</li>
+<li><a href="use/people/accounts.html?level=1">User accounts and groups</a> &mdash; identify your account, home folder and groups, and plan a second account.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Why run daily work as an unprivileged user rather than <code>root</code>?</summary>
-<p>Mistakes or buggy programs running under your user account cannot silently rewrite system-wide binaries or boot files.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why do daily work as an ordinary user rather than <code>root</code>?</summary>
+<p>Mistakes and buggy programs then cannot silently rewrite system binaries or boot files. Privilege is requested only for the action that needs it.</p>
+</details>
+<details class="q">
+<summary>Which command lists the groups your account belongs to?</summary>
+<p><code>id -Gn</code> prints group names; <code>id</code> also shows the numeric user and group IDs.</p>
+</details>
 </section>
 
-<h2>Stage 2: Privileges and trusted software</h2>
-<p>Understand when privilege prompts appear, what hardware security protects, and how rollback boundaries safeguard updates.</p>
+<h2>Stage 2: Keys and hardware tokens</h2>
+<ol>
+<li><a href="use/security/ssh.html?level=1">SSH keys and remote access</a> &mdash; generate a key, connect to another machine, and inspect the local server state.</li>
+<li><a href="use/security/fingerprint-and-fido.html?level=1">Fingerprints and FIDO2 security keys</a> &mdash; check hardware readiness and see which PAM modules are enrolled.</li>
+</ol>
 <section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Should you paste arbitrary commands with <code>sudo</code> without knowing what files they touch?</summary>
-<p>No. Privileged commands can alter system files and boot state; verify ownership and a rollback point first.</p></details>
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What crosses the network when you sign in with an SSH key?</summary>
+<p>A proof signed with your private key. The private key itself stays on your machine; only the public key is installed on the server.</p>
+</details>
+<details class="q">
+<summary>Which files show whether a fingerprint or FIDO2 module is enrolled for privilege prompts?</summary>
+<p>The PAM stacks under <code>/etc/pam.d/</code>, for example <code>sudo</code> and <code>polkit-1</code>. Reading them needs no change.</p>
+</details>
 </section>
+
+<h2>Stage 3: Network and disk boundaries</h2>
+<ol>
+<li><a href="use/security/firewall.html?level=1">Checking and managing the host firewall</a> &mdash; inspect the active firewall before changing a rule.</li>
+<li><a href="use/security/disk-encryption.html?level=1">Disk encryption and LUKS passphrases</a> &mdash; what full-disk encryption protects and when the drive is unlocked.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What does LUKS protect, and when?</summary>
+<p>Data at rest while the machine is powered off or the drive is locked. Once unlocked, the running system can read the files normally.</p>
+</details>
+<details class="q">
+<summary>Which command reports whether the host firewall service is active?</summary>
+<p><code>systemctl is-active nftables.service</code>. It prints the state and exits non-zero when the service is not active.</p>
+</details>
+</section>
+
+<h2>Stage 4: Privilege and file permissions</h2>
+<ol>
+<li><a href="hardware/security.html?level=1">Hardware Security and Privilege Management</a> &mdash; how tokens, PAM and polkit authorize an administrative action.</li>
+<li><a href="filesystem/permissions.html?level=1">Who can use a file</a> &mdash; read, write and execute bits, and directory traversal.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why does a privilege prompt appear for some actions but not others?</summary>
+<p>The action needs to change system-wide state. Ordinary work inside your home folder does not, so it runs as your user.</p>
+</details>
+<details class="q">
+<summary>Does a file's mode alone decide who can open it?</summary>
+<p>No. Owner, group and other bits combine with directory traversal permission, and a privileged process can bypass ordinary checks.</p>
+</details>
+</section>
+
+<h2>Stage 5: Trusted change</h2>
+<ol>
+<li><a href="maintain/updates.html?level=1">Checking and updating your software</a> &mdash; identify the owner and prepare recovery before changing software.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What must exist before a real update changes installed software?</summary>
+<p>A verified recovery point for the affected boundary, plus a way to check the new version afterwards. Without it, the change stays pending.</p>
+</details>
+<details class="q">
+<summary>Does restoring a software generation also restore an edited document?</summary>
+<p>No. Package recovery and your own data are separate. Documents need their own backup or documented recovery method.</p>
+</details>
+</section>
+
+<h2>Capstone: Audit your account and write a change note, read-only</h2>
+<p>Collect a short, read-only picture of your account and this machine's security boundaries: your identity and groups, whether a password is set, how many public SSH keys exist, whether the SSH server is enabled, whether the firewall is active, and whether a disk is encrypted. Then write a four-line note for a future software update.</p>
+<details class="solution">
+<p>Run these commands as your ordinary user. None of them changes anything, and none prints a private key.</p>
+<pre class="session" data-risk="read-only">
+$ id
+uid=1000(alex) gid=1000(alex) groups=1000(alex),998(wheel)
+$ id -Gn
+alex wheel
+$ passwd --status
+alex P 2026-09-03 -1 -1 -1 -1
+$ ls -la ~/.ssh/*.pub
+-rw-r--r-- 1 alex alex 102 Sep  4 10:09 /home/alex/.ssh/id_ed25519_work.pub
+$ systemctl is-enabled sshd.service
+enabled
+$ systemctl is-active nftables.service
+inactive
+$ lsblk -f -o NAME,FSTYPE,FSVER,LABEL
+NAME        FSTYPE      FSVER LABEL
+nvme0n1
+├─nvme0n1p1 vfat        FAT32  EFI
+└─nvme0n1p2 crypto_LUKS 2
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-11-13; your output will differ. <code>P</code> in the password status means a password is set. <code>crypto_LUKS</code> identifies an encrypted device; it does not mean the disk is unlocked or that the passphrase is known.</p>
+<p>Now write the note. Keep it to four lines:</p>
+<ol>
+<li><strong>Current state:</strong> the values you just collected, one per line or grouped.</li>
+<li><strong>Owner:</strong> who or what supplies the change, for example the native package manager or a recorded Tamlinux assembly.</li>
+<li><strong>Verification:</strong> the command you will run afterwards and the value you expect.</li>
+<li><strong>Recovery:</strong> the exact checkpoint or backup you would need, or <em>unknown</em>.</li>
+</ol>
+<p>If the recovery line says <em>unknown</em>, the real change stays pending. Do not invent a checkpoint identifier, and do not enable a passwordless privilege window to make the exercise easier. The audit itself is the deliverable.</p>
+</details>
 
 <h2>Next paths</h2>
 <ul>
-<li><a href="learn/paths/keep-it-healthy.html">Keep it healthy</a>: inspect installed packages, logs, and update recovery boundaries.</li>
-<li><a href="learn/paths/rescue.html">Rescue</a>: snapshots and boot recovery when updates go wrong.</li>
-<li><a href="learn/paths/index.html">All topic paths</a>.</li>
+<li><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a> &mdash; read focused logs and plan recovery at the matching layer.</li>
+<li><a href="learn/paths/rescue.html?level=2">Rescue</a> &mdash; choose a recovery procedure for a failed update or startup.</li>
+<li><a href="learn/paths/command-line-fluency.html?level=2">Command-line fluency</a> &mdash; read and adapt the commands this path used.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
 </ul>
 </body>
 </html>

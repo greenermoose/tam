@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-11-13
-**Scope:** Living integration contract; current command 0.55.0 and corpus 0.81.0.
+**Scope:** Living integration contract; current command 0.55.0 and corpus 0.82.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -443,6 +443,22 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-13:** Corpus 0.82.0 (minor): Enforce the Paths contract from
+  `docs/corpus-pedagogy.md` in the corpus build. `validate_path_pages` checks
+  every `kind=path` page for three to six numbered stages, one to four
+  existing page steps at an explicit `?level=0-3` lens, a checkpoint quiz per
+  stage, exactly one capstone with a folded solution, and a Next paths list;
+  `validate_global_entries` rejects path steps that are not contiguous from
+  1. Rewrite the six thin topic paths (`desktop-basics`, `everyday-desktop`,
+  `files-and-apps`, `people-and-security`, `terminal-stack`, `c11-systems`)
+  to the path template, and normalize `first-steps`,
+  `diagnose-from-principles`, `rescue`, `make-it-yours`,
+  `session-and-desktop` and `settle-in` without changing their
+  `<meta name="paths">` records. Reconcile the 0.81.0 plan records: mark
+  absolute-beginner coverage Completed and correct the roadmap claim that the
+  six new topic paths kept capstones. The independent audit of 0.82.0 is the
+  next stage and needs the developer's word; learner review and packaged
+  acceptance remain pending.
 - **2026-11-12:** Command 0.55.0 (minor) & Corpus 0.81.0 (minor): Replace static `<nav class="learning-path">` blocks and `paths.json` with a dynamic `<meta name="paths" content="<id>:<step>, ...">` index (`index.paths.tsv`, `SCHEMA=2`) and sticky pager path tracking (`tam:paths`, `tam:path?id=`, `Switch course`, `Follow a path from here`, `Resume path`); retire standalone `beginner`/`intermediate`/`expert` hubs after migrating quizzes and capstones to topic paths; author the 17 remaining beginner backlog pages plus `use/tools/tam-journal.html` and `use/tools/tam-file-select.html` (`tamlinux-tools`); close all skill/anatomy gaps; enforce `report-component-coverage.py --check` (covering `tamlinux` and `tamlinux-tools`) inside `corpus-check`.
 - **2026-11-11:** Implement the approved [incremental corpus build](incremental-corpus-build.md):
   separate fast editing commands and independent C/corpus builds, content-hashed
