@@ -6,7 +6,7 @@
 - **CLI Tool:** Codex CLI `0.169.0` and Antigravity CLI `1.5.9`
 - **Model:** GPT-6 Astra (`gpt-6-astra`), Claude Opus 5.5 (High) (`claude-opus-5-5-high`), and Gemini 4 Argon (Medium) (`gemini-4-argon-medium`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** pending
+- **Commits:** `ead79cf` and the commit that refreshes the corpus index and this record
 - **Authorship:** Fred directed the subject-first corpus reorganization, consolidation of the four overlapping catalog views into four clear reader entry points (`Browse subjects`, `Learn step by step`, `Search`, `Sources and further reading`), and the session handoff after Codex hit its usage limit; Codex CLI designed the subject-library plan, migrated the 1,081 baseline pages into canonical subject folders with 55 hubs, merged five duplicate pages, implemented `index.kinds.tsv` and grouped search in `src/`, and added `docs/plans/subject-library.md`, `docs/corpus-migration.tsv`, `docs/curriculum-gaps.md`, and `tests/test_library_discovery.py`; Antigravity CLI took over the work, removed empty legacy directories, replaced boilerplate sub-hub summaries and ordered subject-hub entries by prerequisite progression, updated remaining test assertions and render fixture `tests/render/blocks.html`, completed verification, and finalized the plan and roadmap records.
 - **Checked against:** `AGENTS.md`, `ROADMAP.md`, `docs/plans/subject-library.md`, `docs/plans/development.md`, `docs/corpus-authoring.md`, `src/index.c`, `src/views.c`, `src/discovery.c`, `src/install.c`, `tools/build-index.py`, `tools/lint-corpus.py`, `tests/run.sh`, `tests/guide.sh`, `tests/test_library_discovery.py`
 
