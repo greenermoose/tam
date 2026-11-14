@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-13: opencode `v2.2.5` (`big-pickle`) and Antigravity CLI `1.5.8` (`gemini-4-hydrogen-medium`) add the `ecosystem/terminal-input/` section (hub plus eight three-level pages) and four key-input glossary entries (`scancode`, `keycode`, `keysym`, `control-character`) in corpus 0.83.0. [Record](docs/ai/2026-11-13-tam-terminal-input-section.md).
+
 2026-11-13: Codex CLI `0.169.0` (`gpt-6.1-sol`) converts the three README files to plain text and updates plan-index parsing, link checking and fixtures. [Record](docs/ai/2026-11-13-plain-readmes.md).
 
 2026-11-13: opencode `v2.2.5` (`big-pickle`) links every one of the 164 indexed path steps as a levelled stage link from its hub, closing the gap left by corpus 0.82.0, in corpus 0.82.1. [Record](docs/ai/2026-11-13-tam-corpus-0821-path-steps.md).
