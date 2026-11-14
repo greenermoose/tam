@@ -19,7 +19,9 @@ For an introduction, read <a href="maintain/boot-recovery.html?level=1">how to r
 <p>The exercises inspect information without changing the system or use temporary
 files. A real repair needs a separately approved procedure suited to the affected computer.</p>
 <h2>Stage 1: Locate the failure boundary</h2>
-<ol><li>Read <a href="maintain/boot.html?level=2">Boot artifacts and installed state</a>.</li>
+<ol><li>If the machine will not resume from sleep or rest, start with
+<a href="maintain/power.html?level=2">when your computer rests or sleeps</a>.</li>
+<li>Read <a href="maintain/boot.html?level=2">Boot artifacts and installed state</a>.</li>
 <li>Work through the dependency model in
 <a href="maintain/boot-recovery.html?level=2">Boot fallbacks and rescue routes</a>.</li>
 <li>Record the symptom, time, last observed stage and the next unknown. Name
@@ -44,6 +46,9 @@ unknown unless you have actual evidence. Never substitute the teaching IDs.</li>
 
 <h2>Stage 3: Plan access before a repair</h2>
 <ol><li>Work through <a href="maintain/recovery.html?level=2">Emergency recovery planning</a>.</li>
+<li>Read <a href="maintain/checkpoint.html?level=2">saving a recovery point before a change</a>
+and name the checkpoint or retained generation a real repair would need. Do not
+create or activate one in this exercise.</li>
 <li>Choose an access method appropriate to the reached stage: configured
 text login for a session failure, or independently prepared rescue media
 when installed startup cannot work.</li>
@@ -60,6 +65,8 @@ if storage, credentials or recovery source cannot be confirmed.</li></ol>
 <ol><li>Switch to <a href="maintain/boot-recovery.html?level=3">Fallback independence</a>.</li>
 <li>Read <a href="maintain/boot.html?level=3">Boot generation dependencies</a>
 and <a href="maintain/snapper.html?level=3">Snapper metadata and restoration semantics</a>.</li>
+<li>Include <a href="hardware/drives.html?level=3">storage drives and encryption</a>
+when the plan depends on device identity, unlock state or a separate data device.</li>
 <li>Audit the paper plan for an intact image with wrong root parameters,
 explicit subvolume selection, excluded mounts and a shared failed device.
 Before a real change, retain a verified rollback point and approve one specific

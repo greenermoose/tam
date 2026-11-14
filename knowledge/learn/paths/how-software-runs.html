@@ -22,6 +22,9 @@
 <h2>Stage 3: Init and boot context</h2>
 <p><a href="ecosystem/init.html?level=2">Init and services</a> and <a href="maintain/boot-phases.html?level=2">Boot phases</a>: who starts services after the kernel.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which init runs on current Arch-based Tamlinux?</summary><p>systemd. Runit is planned for a future rootstock.</p></details></section>
+<h2>Stage 4: Delivery and ownership</h2>
+<p><a href="ecosystem/package-versions.html?level=2">Package versions</a>: follow a source revision through the delivered package to the process that is actually running.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a source commit prove what the running command contains?</summary><p>No. Resolve the executable's owner and version, then inspect a running process separately.</p></details></section>
 <h2>Capstone</h2>
 <p>Pick <code>tam --version</code>. Name the process, the package/delivery story you would check next, and one service you would not blame without evidence.</p>
 <details class="solution"><p>The command runs as your user process. Next evidence is path resolution and assembly or package ownership (<a href="ecosystem/package-versions.html">package versions</a>). Do not restart unrelated system units because a version string looks odd.</p></details>

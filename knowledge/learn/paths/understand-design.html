@@ -13,18 +13,24 @@
 <h1>Understand the design</h1>
 <p>These readings explain how the parts of Tamlinux fit together.</p>
 <p>Fred Horch, the Tamlinux developer, uses <a href="learn/glossary/rootstock.html">rootstock</a> for the third-party base system (today Arch Linux) and <a href="learn/glossary/cultivar.html">cultivar</a> for Tamlinux's own release software. Planned rootstock moves are under <a href="ecosystem/distros.html">distributions and rootstocks</a>.</p>
-<h2>Stage 1: Find the layers</h2>
-<p><a href="ecosystem/packaging.html?level=2">Find the layers</a>: Read the package ownership lesson and distinguish rootstock packages, the user assembly and mutable settings.</p>
+<h2>Stage 1: Why Tamlinux exists</h2>
+<p><a href="ecosystem/philosophy.html?level=2">Philosophy</a> names the three commitments: free software, open standards and resource efficiency. <a href="ecosystem/sustainability.html?level=2">Sustainability</a> turns the third into a practice: hardware longevity, less e-waste, and capability-based profiles rather than a new machine per release.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which commitment makes a software choice a long-term hardware decision?</summary><p>Resource efficiency, read through sustainability: a heavier stack shortens the useful life of the machine it runs on.</p></details></section>
+<h2>Stage 2: Rootstocks and delivery</h2>
+<p><a href="ecosystem/distros.html?level=2">Rootstocks</a>: Arch Linux today, Void next and antiX Core as fallback, and why the base can move without changing what you use. Then <a href="ecosystem/packaging.html?level=2">how software is delivered</a>: distinguish rootstock packages, the user assembly and mutable settings.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a user-generation rollback necessarily restore personal files?</summary><p>No. Mutable files need their own recovery method.</p></details></section>
-<h2>Stage 2: Trace a version</h2>
-<p><a href="ecosystem/package-versions.html?level=2">Trace a version</a>: Follow the lesson to distinguish a source revision from a selected package output.</p>
+<h2>Stage 3: Trace a version</h2>
+<p><a href="ecosystem/package-versions.html?level=2">Trace a version</a>: distinguish a source revision from a selected package output. Then <a href="ecosystem/nix.html?level=2">Nix and Home Manager</a>: a description becomes an immutable store path, and modules become a switchable user generation.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a source commit alone prove what is running?</summary><p>No. Establish the selected package and runtime as separate evidence.</p></details></section>
-<h2>Stage 3: Trace login and session</h2>
+<h2>Stage 4: Login and session</h2>
 <p>Current Tamlinux cultivars use console-first login: you authenticate at a text prompt, then start the desktop with <code>tam-desktop</code> when you want graphics. Read <a href="ecosystem/ttys-and-virtual-consoles.html?level=2">TTYs and virtual consoles</a> for the text route, then <a href="ecosystem/sddm.html?level=2">display managers</a> to understand graphical greeters as an optional or historical alternative. Compare authentication, session launch and desktop startup as separate boundaries.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does successful authentication prove the desktop is working?</summary><p>No. Authentication, session launch and rendering have separate failure boundaries. On console-first systems, the desktop starts only when you run <code>tam-desktop</code>.</p></details></section>
-<h2>Stage 4: Kernel, init and compositor</h2>
-<p>Read <a href="ecosystem/kernel-and-processes.html?level=2">Kernel and processes</a>, <a href="ecosystem/init.html?level=2">Init</a>, <a href="ecosystem/compositors.html?level=2">Compositors</a> and <a href="ecosystem/nix.html?level=2">Nix and Home Manager</a>. Name which layer owns a stuck GUI versus a wrong package binary.</p>
+<h2>Stage 5: Kernel, init and the desktop</h2>
+<p>Read <a href="ecosystem/kernel-and-processes.html?level=2">Kernel and processes</a>, <a href="ecosystem/init.html?level=2">Init</a> and <a href="ecosystem/compositors.html?level=2">Compositors</a>. Then <a href="ecosystem/toolkits.html?level=2">the bar and menus</a>: Quickshell, Qt Quick and QML draw the shell around your windows. Name which layer owns a stuck GUI versus a wrong package binary.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which layer owns arranging windows on screen today?</summary><p>The Hyprland compositor (Wayland), not Nix itself.</p></details></section>
+<h2>Stage 6: Change software safely</h2>
+<p><a href="ecosystem/patches.html?level=2">Carried patches</a> explain why Tamlinux publishes fixes on public forks, verifies the build and retires the patch when upstream lands. <a href="ecosystem/virtualization.html?level=2">Virtualization</a> gives you a clean room to try a change without touching the installed system.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>What makes a carried patch temporary?</summary><p>It retires when the upstream release contains the fix. Until then it is published, verified and carried, not treated as a permanent fork.</p></details></section>
 <h2>Capstone</h2><p>Explain where you would investigate a changed application setting, a missing native service and an unexpected command version. Name the evidence you would seek without changing the system.</p>
 <details class="solution"><p>For a changed theme, first identify the active user configuration and its previous value. For a missing system service, inspect its unit and system journal. For a command version, resolve the executable path and identify its package; inspect a running process separately. A user-generation rollback need not restore mutable files.</p></details>
 <h2>Next paths</h2><p><a href="learn/paths/keep-it-healthy.html?level=2">Keep it healthy</a>; <a href="learn/paths/index.html">all goal paths</a>.</p>

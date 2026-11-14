@@ -1,15 +1,15 @@
 # Corpus 0.82 — Trustworthy paths
 
 **Plan status:** In progress. Phases 0–2 delivered on 2026-11-13 at corpus
-0.82.0; Phase 3 (independent audit) waits for Fred's word; Phases 4–5 follow
-the audit.
+0.82.0, and the hub-to-step gap was closed at corpus 0.82.1; Phase 3
+(independent audit) waits for Fred's word; Phases 4–5 follow the audit.
 **Reviewed:** 2026-11-13
 **Scope:** `tam` corpus lane, with one read-only audit report and possible command-lane fixes.
 **Authority:** `tam/AGENTS.md`, `tam/docs/plan-maintenance.md`,
 `tam/docs/corpus-audit.md`, `tam/docs/corpus-pedagogy.md` §Paths, and Fred's
 direction of 2026-11-13.
 **Next action:** On Fred's word, commission the Claude Code audit of corpus
-0.82.0 (Phase 3). Phases 4–5 then follow its findings.
+0.82.1 (Phase 3). Phases 4–5 then follow its findings.
 
 ## Problem
 
@@ -282,6 +282,17 @@ Phases 0–2 landed on 2026-11-13.
   steps. Stage links must name an existing page with `?level=0-3`; glossary,
   bibliography, `learn/paths/` and `index.html` links are not counted as
   steps. Fixture tests cover each failure mode.
+- **Hub-to-step completion (corpus 0.82.1):** the contract passed at 0.82.0
+  while 11 hubs still did not link every step in their own
+  `index.paths.tsv` record — 32 steps in total. All 12 remaining hubs now
+  link every step as a levelled stage link. Missing steps joined an existing
+  stage where it had room (at most four links); otherwise a new stage with
+  its own checkpoint was added (still at most six stages).
+  `understand-design` and `command-line-fluency` were restructured to six and
+  five stages so their full step lists are covered. No
+  `<meta name="paths">` record changed. Verified by a script that parses each
+  hub's stage headings and counts only levelled links to existing pages:
+  **0 hubs with unlinked steps**, 164 of 164 steps linked.
 - **Still open:** the private backlog reconciliation (plan 26) needs its own
   repository and claim. Phase 3 awaits Fred's word. Learner review and
   packaged acceptance remain pending and are not implied by this milestone.

@@ -13,13 +13,13 @@
 <h1>Build and contribute</h1>
 <p>These readings help you practice building a small program and prepare a change to share.</p>
 <h2>Stage 1: Understand ownership</h2>
-<p><a href="tam.html?level=3">Understand ownership</a>: Read the command architecture and source-stage boundaries.</p>
+<p>Start with <a href="learn/tam.html?level=3">using the tam guide command</a>: read a page, follow a link and use a path. Then <a href="tam.html?level=3">understand ownership</a>: the command architecture and source-stage boundaries.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a successful local build install or release it?</summary><p>No. Build, installation and release are separate actions.</p></details></section>
 <h2>Stage 2: Prepare a change</h2>
-<p><a href="improve/toolchains.html?level=3">Prepare a change</a>: Read the build and coordination contract; identify the relevant project instructions before editing.</p>
+<p>Read <a href="improve/scripting.html?level=3">writing instructions your computer can repeat</a> for the shell scripting the build and test commands assume. Then <a href="improve/toolchains.html?level=3">prepare a change</a>: read the build and coordination contract and identify the relevant project instructions before editing.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Why limit a claim and commit to the paths you change?</summary><p>Other work can share the checkout; narrow claims and commits preserve its boundaries.</p></details></section>
 <h2>Stage 3: Share responsibly</h2>
-<p><a href="ecosystem/patches.html?level=3">Share responsibly</a>: Read the patch and upstream-policy discussion before proposing an upstream change.</p>
+<p>Read <a href="improve/authoring.html?level=3">authoring knowledge pages</a> for the page contract and its checks, and <a href="improve/contributing.html?level=3">contributing to Tamlinux</a> for the route a change takes. Then <a href="ecosystem/patches.html?level=3">share responsibly</a>: read the patch and upstream-policy discussion before proposing an upstream change.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a carried patch mean every upstream will accept an AI-assisted submission?</summary><p>No. Check each project policy and the authorized route before posting.</p></details></section>
 <h2>Capstone</h2><p>Build and run a small program in a fresh temporary directory, make a small change to its source, and build and run it again. Then propose a source correction: name the repository and files, a test that detects the problem, and a verification and handoff. Do not modify the live system.</p>
 <details class="solution"><p>This example requires an installed C compiler. Paste the whole block in a shell; it removes only the two files it creates and then the empty directory.</p><pre data-risk="scratch">if task_dir=$(mktemp -d); then

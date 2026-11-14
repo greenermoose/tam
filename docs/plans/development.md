@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-11-13
-**Scope:** Living integration contract; current command 0.55.0 and corpus 0.82.0.
+**Scope:** Living integration contract; current command 0.55.0 and corpus 0.82.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -443,6 +443,18 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-13:** Corpus 0.82.1 (patch): Close the hub-to-step gap left by
+  0.82.0. Twelve path hubs (`work-with-ai-locally`, `settle-in`,
+  `first-steps`, `diagnose-from-principles`, `display-and-gpu`,
+  `keep-it-healthy`, `make-it-yours`, `rescue`, `build-and-contribute`,
+  `how-software-runs`, `understand-design`, `command-line-fluency`) now link
+  every step in their `index.paths.tsv` record as a levelled stage link.
+  Missing steps join an existing stage when it has room, otherwise a new
+  stage with its own checkpoint is added; `understand-design` and
+  `command-line-fluency` are restructured to five and six stages. No
+  `<meta name="paths">` record changed. The independent audit of 0.82
+  remains the next stage and needs the developer's word; learner review and
+  packaged acceptance remain pending.
 - **2026-11-13:** Corpus 0.82.0 (minor): Enforce the Paths contract from
   `docs/corpus-pedagogy.md` in the corpus build. `validate_path_pages` checks
   every `kind=path` page for three to six numbered stages, one to four
