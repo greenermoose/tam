@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Linux text console</title>
+<meta name="topic" content="terminal-input-linux-console">
+<meta name="summary" content="How a Linux virtual console turns key presses into bytes and escape sequences, what Ctrl+Alt+F2 does, and how console keymaps differ from XKB">
+<meta name="keywords" content="terminal-input-linux-console, linux console, virtual console, vt, keymap, showkey, dumpkeys, console_codes, ctrl+alt+f2">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/terminal-input/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
+<meta name="prereqs" content="terminal-input">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/terminal-input/index.html">How a key press becomes input</a> / The Linux text console</p>
+</nav>
+
+<h1>The Linux text console</h1>
+
+<p>This page explains the text screens you can reach with <code>Ctrl + Alt + F2</code>, how the kernel turns keys into input there, and why a key can behave differently from the same key in a terminal window.</p>
+
+<section data-level="novice">
+<h2>A text screen without a desktop</h2>
+
+<p>A Linux computer can show several text screens at once. Each one is a <a href="learn/glossary/virtual-console.html">virtual console</a>, often shortened to VT. You can switch between them with the keyboard. Each screen can run its own login and its own programs, and each one keeps working while the others are hidden.</p>
+
+<p>On most systems <code>Ctrl + Alt + F1</code> through <code>Ctrl + Alt + F12</code> select a text screen. One of those screens may also hold the graphical desktop. The exact number depends on how the machine started, so the safe rule is to look before you switch.</p>
+
+<h3>Why it matters</h3>
+
+<p>The text console is the usual recovery route when the desktop is stuck. It also shows a different keyboard path: there is no compositor and no terminal emulator, so the kernel itself decides what each key sends. That makes it a clean place to test a keyboard and a useful contrast with a terminal window.</p>
+
+<h3>How to think about it</h3>
+
+<p>Think of a building with several identical offices. Only one office has its light on. The keyboard is the person at the front desk: pressing <code>Ctrl + Alt + F2</code> asks the building manager to switch the light to office 2. The person keeps typing at the same desk, but a different office now receives the paper. Nothing is copied between offices unless a program arranged it.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt><a href="learn/glossary/virtual-console.html">Virtual console</a></dt>
+<dd>A text screen managed by the Linux kernel, separate from a terminal window inside a desktop.</dd>
+<dt><a href="learn/glossary/teletype.html">Teletype (TTY)</a></dt>
+<dd>The historical name for a text terminal; Linux still calls its terminal devices TTYs.</dd>
+<dt>Keymap</dt>
+<dd>A table that tells the kernel which character or action each key produces. Console keymaps live under <code>/usr/share/kbd/keymaps/</code>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect a key on a text console</h2>
+
+<p><strong>Goal:</strong> you will be able to switch to a text console, identify the bytes and keycodes a key produces there, and return to your desktop safely.</p>
+
+<h3>Worked example</h3>
+
+<p>First, find which text screen is active without leaving the session. The kernel exposes the answer in sysfs.</p>
+
+<pre class="session" data-risk="read-only">
+$ cat /sys/class/tty/tty0/active
+tty1
+$ ls -l /dev/tty0 /dev/tty1
+crw------- 1 root tty 4, 0 Nov  9 15:46 /dev/tty0
+crw------- 1 fred tty 4, 1 Nov 12 21:10 /dev/tty1
+</pre>
+
+<p>Captured on Arch Linux, 2026-11-13. <code>tty1</code> is the active console. <code>/dev/tty0</code> is the current console and belongs to root; <code>/dev/tty1</code> is the first console device and belongs to the logged-in user. Your numbers and owners will differ.</p>
+
+<p>The <code>linux</code> terminfo entry describes the escape sequences the console expects. Its function keys differ from foot's.</p>
+
+<pre class="session" data-risk="read-only">
+$ infocmp -1 linux | grep -E '^\s+(kbs|kcuu1|kcub1|khome|kf1|kf5)='
+	kbs=^?,
+	kcub1=\E[D,
+	kcuu1=\E[A,
+	kf1=\E[[A,
+	kf5=\E[[E,
+	khome=\E[1~,
+</pre>
+
+<p>Captured on Arch Linux, 2026-11-13. <code>\E</code> means the escape byte <code>0x1B</code>. The Linux console sends <code>ESC [ A</code> for Up and <code>ESC [ [ A</code> for F1. foot sends <code>ESC O A</code> and <code>ESC O P</code> for the same keys, which is why a program that hard-codes one terminal's sequences fails on the other.</p>
+
+<h3>Try it</h3>
+
+<p>Do this on a text console, not in a terminal window. Save your work first, and note which function key returns to your desktop.</p>
+
+<pre class="session" data-risk="read-only">
+$ showkey -a
+$ showkey -k
+$ dumpkeys | grep -E 'keycode +(14|28|57|59) '
+</pre>
+
+<p><code>showkey -a</code> prints the decimal, octal and hexadecimal value of each key according to the current keymap. Press <code>a</code>, <code>Ctrl + H</code>, Backspace, Up and F1, and compare the values. <code>showkey -k</code> prints kernel keycodes instead. <code>dumpkeys</code> prints the loaded keymap. Each mode ends after ten seconds without a key press, except <code>-a</code>, which ends on <code>Ctrl + D</code>.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>Couldn't get a file descriptor referring to the console</code></dt>
+<dd><code>showkey</code>, <code>dumpkeys</code> and <code>loadkeys</code> need a real console. They do not work in a terminal window or over SSH. Switch to a VT first.</dd>
+<dt>The screen is black after switching</dt>
+<dd>Wait a moment. The console may be blanked, or the display may be reconfiguring. Press a key, then try the function key that returns to your desktop. Do not press a sequence of random keys in a panic.</dd>
+<dt>The keyboard does not respond on the console</dt>
+<dd>The console may be in an unusual keyboard mode, or the kernel may be busy. Try another VT. If the whole machine is unresponsive, use the emergency recovery procedure rather than guessing.</dd>
+<dt>You cannot return to the desktop</dt>
+<dd>The desktop may be on a different VT number. Try <code>Ctrl + Alt + F1</code> through <code>Ctrl + Alt + F7</code>, pausing between attempts. If the desktop crashed, the text console is now the place to diagnose it.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the active console is reported by the kernel, not chosen by a Tamlinux convention. Read <code>/sys/class/tty/tty0/active</code> or run <code>fgconsole</code> on a console before assuming that <code>F1</code> or <code>F2</code> returns to the desktop.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Does <code>Ctrl + Alt + F2</code> send a special byte to the program on the current console?</summary>
+<p>No. The kernel's console keymap maps the chord to the action <code>Console_2</code>, and the console driver switches the active VT. The program on the old console does not receive a key press; it simply stops being the visible console.</p>
+</details>
+<details class="q">
+<summary>Why does F1 produce <code>ESC [ [ A</code> on the Linux console but <code>ESC O P</code> in foot?</summary>
+<p>The two terminals use different key encodings, described by different terminfo entries. The program asks terminfo for the sequence, or parses both. The physical key and the kernel keycode can be the same while the terminal bytes differ.</p>
+</details>
+<details class="q">
+<summary>Is the console keycode for a letter the same as the XKB keycode?</summary>
+<p>No. The console keymap uses kernel keycodes, such as <code>30</code> for <code>a</code>. XKB and Wayland use the kernel keycode plus 8, so the same key is <code>38</code>. The console never adds that offset.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: the console input path</h2>
+
+<table>
+<tr><th>Stage</th><th>Console behaviour</th><th>Interface</th></tr>
+<tr><td>Keyboard driver</td><td><code>atkbd</code> for PS/2, <code>usbhid</code> for USB</td><td>kernel input core</td></tr>
+<tr><td>Key event</td><td><code>EV_KEY</code> with a Linux keycode</td><td>evdev, <code>/dev/input/event*</code></td></tr>
+<tr><td>Console keymap</td><td>keycode plus modifiers to keysym or action</td><td><code>/usr/share/kbd/keymaps/</code></td></tr>
+<tr><td>Keyboard mode</td><td><code>K_XLATE</code> converts to bytes; <code>K_RAW</code> and <code>K_MEDIUMRAW</code> pass codes</td><td><code>KDSKBMODE</code>, <code>KDGKBMODE</code></td></tr>
+<tr><td>Console driver</td><td>writes bytes to the VT input queue</td><td><code>/dev/ttyN</code></td></tr>
+<tr><td>Program</td><td>reads bytes, or parses escape sequences</td><td><code>read(2)</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>The kernel's keyboard driver turns a hardware event into a Linux keycode, the same <code>KEY_A = 30</code> numbering described on <a href="ecosystem/terminal-input/key-press-anatomy.html">From key press to character</a>. The console layer then looks up that keycode in the loaded keymap. A keymap line names a keycode and the keysym or action it produces under a modifier combination. These lines come from the default US keymap on the machine where this page was checked:</p>
+
+<pre>
+alt_is_meta
+keycode  14 = Delete
+keycode  15 = Tab
+keycode  28 = Return
+keycode  29 = Control
+keycode  42 = Shift
+keycode  56 = Alt
+keycode  57 = space
+	control	keycode  57 = nul
+</pre>
+
+<p>Keycode 14 is the Backspace position, named <code>Delete</code> in this keymap; keycode 15 is Tab, 28 is Return, 29 is Control, 42 is Shift, and 56 is Alt. <code>alt_is_meta</code> makes Alt act as a Meta modifier. The line for keycode 57 says that <code>Ctrl + Space</code> produces NUL.</p>
+
+<p>Function keys and console switches are ordinary keymap entries too. The default keymap defines F1 to F10 on keycodes 59 to 68, F11 and F12 on 87 and 88, and the console switches as actions:</p>
+
+<pre>
+plain keycode  59 = F1
+plain keycode  60 = F2
+plain keycode  87 = F11
+plain keycode  88 = F12
+alt keycode  59 = Console_1
+alt keycode  60 = Console_2
+control alt keycode  59 = Console_1
+control alt keycode  60 = Console_2
+</pre>
+
+<p>That is the precise meaning of <code>Ctrl + Alt + F2</code>: the keymap maps Control plus Alt plus keycode 60 to <code>Console_2</code>. The console driver then activates VT 2. A program can influence that switch only if it has put the VT into process mode; it cannot intercept the key as ordinary input.</p>
+
+<p>In <code>K_XLATE</code> mode the console converts the resulting keysym to a byte or an escape sequence. Printable keysyms become their character code; function keys use the console's own strings, such as <code>ESC [ [ A</code> for F1 and <code>ESC [ 17~</code> for F6. The program reads those bytes from its controlling terminal.</p>
+
+<h3>Advanced usage</h3>
+
+<p>The kernel exposes keyboard and VT state through ioctls. These are reference forms, not commands to run casually.</p>
+
+<table>
+<tr><th>Request</th><th>Purpose</th></tr>
+<tr><td><code>KDGKBMODE</code>, <code>KDSKBMODE</code></td><td>Read or set <code>K_RAW</code>, <code>K_XLATE</code>, <code>K_MEDIUMRAW</code>, <code>K_UNICODE</code> or <code>K_OFF</code></td></tr>
+<tr><td><code>KDGKBMETA</code>, <code>KDSKBMETA</code></td><td>Read or set meta handling: <code>K_METABIT</code> or <code>K_ESCPREFIX</code></td></tr>
+<tr><td><code>KDGKBENT</code>, <code>KDSKBENT</code></td><td>Read or write one keymap entry</td></tr>
+<tr><td><code>KDGKBSENT</code>, <code>KDSKBSENT</code></td><td>Read or write a function-key string</td></tr>
+<tr><td><code>KDGKBDIACR</code>, <code>KDSKBDIACR</code></td><td>Read or write dead-key diacritics</td></tr>
+<tr><td><code>VT_ACTIVATE</code>, <code>VT_WAITACTIVE</code></td><td>Request a VT and wait for the switch</td></tr>
+<tr><td><code>VT_GETSTATE</code></td><td>Read the active VT and the VT state flags</td></tr>
+<tr><td><code>VT_SETMODE</code></td><td>Choose <code>VT_AUTO</code> or <code>VT_PROCESS</code> switching</td></tr>
+<tr><td><code>VT_RELDISP</code></td><td>Allow or refuse a switch in process mode</td></tr>
+<tr><td><code>VT_OPENQRY</code>, <code>VT_DISALLOCATE</code></td><td>Find a free VT or release one</td></tr>
+</table>
+
+<p><code>K_RAW</code> delivers raw keyboard bytes, <code>K_MEDIUMRAW</code> delivers keycodes, and <code>K_XLATE</code> delivers translated characters. <code>K_UNICODE</code> is a UTF-8-aware translation mode, and <code>K_OFF</code> disables keyboard input. <code>K_METABIT</code> sets the high bit of a byte for Alt; <code>K_ESCPREFIX</code> prefixes it with ESC instead, which is the safer choice for UTF-8.</p>
+
+<p>The console implements a subset of VT102 and ECMA-48 as documented in <a href="man:console_codes(4)">console_codes(4)</a>. It recognises BEL, BS, HT, LF, VT, FF, CR, SO, SI, CAN, SUB, ESC and DEL, and it supports cursor movement, erase, colour and mode setting. <code>ESC [ ? 1 h</code> enables DECCKM, which makes cursor keys send <code>ESC O</code> instead of <code>ESC [</code>. <code>ESC =</code> and <code>ESC &gt;</code> select application and numeric keypad modes.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Process-mode VTs.</strong> A program that has called <code>VT_SETMODE</code> with <code>VT_PROCESS</code> must acknowledge a switch with <code>VT_RELDISP</code>. Until it does, the console can appear to ignore the function key.</li>
+<li><strong><code>Ctrl + Alt + Del</code> is not a terminal key.</strong> The kernel or init handles it as a reboot request. Its effect depends on the running init and its configuration.</li>
+<li><strong>Magic SysRq.</strong> <code>Alt + SysRq + letter</code> is handled by the kernel's sysrq code when enabled. It is not delivered to the console program.</li>
+<li><strong>Serial consoles.</strong> A console on <code>ttyS0</code> receives bytes from a serial line, not from a local keyboard. The same line discipline and terminal semantics apply, but there is no console keymap and no <code>Ctrl + Alt + Fn</code>.</li>
+<li><strong>Kernel messages can overwrite the screen.</strong> A warning printed to the console changes what you see without changing the program's input. Read the kernel log rather than assuming the program drew the text.</li>
+<li><strong>Keycode remapping is persistent only if loaded.</strong> <code>loadkeys</code> changes the running console; a reboot restores the configured keymap unless the change was installed in the system configuration.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A user says <code>Ctrl + Alt + F2</code> does nothing on a machine where the desktop is healthy. What layers would you check, and in what order, before changing the keymap?</summary>
+<p>First confirm that a second VT exists and is not already active: read <code>/sys/class/tty/tty0/active</code> or run <code>fgconsole</code> on a console. Then check whether the focused application or compositor grabbed the chord; a full-screen compositor may handle it before the kernel sees it, or the kernel may be in a VT process mode that refuses the switch. Next check whether the keymap still maps Control+Alt+F2 to <code>Console_2</code> and whether the function key produces the expected keycode. Only after those should you consider reloading a keymap, because the evidence so far does not show a keymap fault.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:console_codes(4)">console_codes(4)</a>, <a href="man:console_ioctl(4)">console_ioctl(4)</a>, <a href="man:keymaps(5)">keymaps(5)</a>, <a href="man:showkey(1)">showkey(1)</a>, <a href="man:dumpkeys(1)">dumpkeys(1)</a>, <a href="man:loadkeys(1)">loadkeys(1)</a>, and the default keymaps under <code>/usr/share/kbd/keymaps/</code>.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/terminal-input/foot.html">Keys inside foot</a> &mdash; the graphical path for comparison.</li>
+<li><a href="ecosystem/terminal-input/line-discipline.html">The kernel's line editor</a> &mdash; what happens to the bytes after the console writes them.</li>
+<li><a href="ecosystem/ttys-and-virtual-consoles.html">TTYs and virtual consoles</a> &mdash; terminal architecture and seat handover.</li>
+<li><a href="maintain/recovery.html">Emergency recovery</a> &mdash; what to do when the console is the only route left.</li>
+</ul>
+</body>
+</html>

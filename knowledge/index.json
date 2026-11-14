@@ -4268,6 +4268,33 @@
     "updated": "2026-11-04 16:05"
   },
   {
+    "topic": "glossary-control-character",
+    "path": "learn/glossary/control-character.html",
+    "title": "Control character",
+    "summary": "Control character: an ASCII code below 0x20 or the delete code 0x7F, often produced by the Ctrl key.",
+    "keywords": [
+      "glossary-control-character",
+      "control character",
+      "control code",
+      "ctrl",
+      "ascii",
+      "c0",
+      "del",
+      "backspace"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "learn/glossary/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:17"
+  },
+  {
     "topic": "glossary-core",
     "path": "learn/glossary/core.html",
     "title": "Core",
@@ -7169,6 +7196,57 @@
     "updated": "2026-11-04 16:05"
   },
   {
+    "topic": "glossary-keycode",
+    "path": "learn/glossary/keycode.html",
+    "title": "Keycode",
+    "summary": "Keycode: a number for a key, with different numbering in the Linux kernel and in XKB or Wayland.",
+    "keywords": [
+      "glossary-keycode",
+      "keycode",
+      "key code",
+      "linux keycode",
+      "xkb keycode",
+      "wayland keycode",
+      "evdev"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "learn/glossary/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:17"
+  },
+  {
+    "topic": "glossary-keysym",
+    "path": "learn/glossary/keysym.html",
+    "title": "Keysym",
+    "summary": "Keysym: the symbolic meaning of a key, such as a, A, Return or BackSpace, used by X11 and XKB.",
+    "keywords": [
+      "glossary-keysym",
+      "keysym",
+      "key symbol",
+      "xkb",
+      "x11",
+      "keysymdef"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "learn/glossary/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:17"
+  },
+  {
     "topic": "glossary-kms",
     "path": "learn/glossary/kms.html",
     "title": "KMS - Kernel Mode Setting",
@@ -9768,6 +9846,32 @@
     "paths": [],
     "rev": 1,
     "updated": "2026-11-04 16:05"
+  },
+  {
+    "topic": "glossary-scancode",
+    "path": "learn/glossary/scancode.html",
+    "title": "Scancode",
+    "summary": "Scancode: the keyboard",
+    "keywords": [
+      "glossary-scancode",
+      "scancode",
+      "scan code",
+      "keyboard",
+      "key press",
+      "ps/2",
+      "usb hid"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "learn/glossary/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:17"
   },
   {
     "topic": "glossary-screenshot",
@@ -12473,6 +12577,41 @@
     "paths": [],
     "rev": 4,
     "updated": "2026-10-29 12:09"
+  },
+  {
+    "topic": "key-press-anatomy",
+    "path": "ecosystem/terminal-input/key-press-anatomy.html",
+    "title": "From key press to character",
+    "summary": "The five numbers a single key has: scancode, Linux keycode, Wayland keycode, keysym, and the byte a program reads",
+    "keywords": [
+      "key-press-anatomy",
+      "scancode",
+      "keycode",
+      "keysym",
+      "usb hid",
+      "evdev",
+      "xkb",
+      "wayland",
+      "keyboard layout",
+      "input event"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "devices.beginner",
+      "devices.intermediate",
+      "hardware.intermediate"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:28"
   },
   {
     "topic": "keyboard-touchpad",
@@ -15684,6 +15823,308 @@
     ],
     "rev": 14,
     "updated": "2026-11-13 05:26"
+  },
+  {
+    "topic": "terminal-control-codes",
+    "path": "ecosystem/terminal-input/control-codes.html",
+    "title": "Control characters and the Ctrl key",
+    "summary": "How Ctrl chords become ASCII control bytes, why Backspace is usually 0x7F, and how the terminal and line discipline assign meanings",
+    "keywords": [
+      "terminal-control-codes",
+      "control character",
+      "control code",
+      "ctrl",
+      "ctrl+h",
+      "backspace",
+      "del",
+      "ascii",
+      "c0",
+      "signal",
+      "stty"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "shell.beginner",
+      "shell.intermediate",
+      "shell.expert"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:20"
+  },
+  {
+    "topic": "terminal-escape-sequences",
+    "path": "ecosystem/terminal-input/escape-sequences.html",
+    "title": "Escape sequences",
+    "summary": "How arrow keys, function keys and terminal controls become multi-byte escape sequences, how the CSI and SS3 forms are built, and how programs decode them",
+    "keywords": [
+      "terminal-escape-sequences",
+      "escape sequence",
+      "csi",
+      "ss3",
+      "control sequence introducer",
+      "ansi",
+      "ecma-48",
+      "terminfo",
+      "tput",
+      "arrow key",
+      "function key",
+      "esc delay",
+      "bracketed paste",
+      "osc"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "shell.beginner",
+      "shell.intermediate",
+      "shell.expert"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:25"
+  },
+  {
+    "topic": "terminal-input",
+    "path": "ecosystem/terminal-input/index.html",
+    "title": "How a key press becomes input",
+    "summary": "The full path from a physical key press to the characters, control codes, escape sequences, signals and terminal events a program receives",
+    "keywords": [
+      "terminal-input",
+      "keyboard input",
+      "key press",
+      "scancode",
+      "keycode",
+      "keysym",
+      "control character",
+      "control code",
+      "escape sequence",
+      "line discipline",
+      "terminal",
+      "virtual console",
+      "foot",
+      "ctrl+h",
+      "backspace",
+      "keybinding"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/index.html",
+    "prereqs": [],
+    "kind": "hub",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:17"
+  },
+  {
+    "topic": "terminal-input-choosing-keys",
+    "path": "ecosystem/terminal-input/choosing-keys.html",
+    "title": "Choosing a keybinding",
+    "summary": "How to choose a key or chord that means the same thing at every layer, using the Ctrl+H help conflict in a libtam editor as the worked case",
+    "keywords": [
+      "terminal-input-choosing-keys",
+      "keybinding",
+      "ctrl+h",
+      "backspace",
+      "del",
+      "kbs",
+      "terminfo",
+      "readline",
+      "conflict",
+      "help key",
+      "tam-edit",
+      "libtam"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "shell.beginner",
+      "shell.intermediate",
+      "contributing.beginner",
+      "troubleshooting.intermediate"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:27"
+  },
+  {
+    "topic": "terminal-input-foot",
+    "path": "ecosystem/terminal-input/foot.html",
+    "title": "Keys inside foot",
+    "summary": "How the foot terminal emulator turns Wayland key events into bytes, Backspace and Ctrl+Backspace, Alt as an escape prefix, function keys, application cursor mode and modern key protocols",
+    "keywords": [
+      "terminal-input-foot",
+      "foot",
+      "wayland",
+      "terminal emulator",
+      "pseudo-terminal",
+      "backspace",
+      "ctrl+h",
+      "application cursor mode",
+      "decckm",
+      "smkx",
+      "kitty keyboard protocol",
+      "modifyotherkeys",
+      "escape prefix"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "desktop.beginner",
+      "desktop.intermediate",
+      "desktop.expert"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:25"
+  },
+  {
+    "topic": "terminal-input-line-discipline",
+    "path": "ecosystem/terminal-input/line-discipline.html",
+    "title": "The kernel's line editor",
+    "summary": "How the terminal line discipline turns typed bytes into edited lines, signals and end-of-file, and what changes when a program switches to raw mode",
+    "keywords": [
+      "terminal-input-line-discipline",
+      "line discipline",
+      "termios",
+      "canonical mode",
+      "raw mode",
+      "stty",
+      "erase",
+      "kill",
+      "werase",
+      "eof",
+      "sigint",
+      "icrnl",
+      "onlcr",
+      "ixon",
+      "icanon",
+      "vmin",
+      "vtime"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "shell.beginner",
+      "shell.intermediate",
+      "processes.beginner",
+      "processes.intermediate"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:28"
+  },
+  {
+    "topic": "terminal-input-linux-console",
+    "path": "ecosystem/terminal-input/linux-console.html",
+    "title": "The Linux text console",
+    "summary": "How a Linux virtual console turns key presses into bytes and escape sequences, what Ctrl+Alt+F2 does, and how console keymaps differ from XKB",
+    "keywords": [
+      "terminal-input-linux-console",
+      "linux console",
+      "virtual console",
+      "vt",
+      "keymap",
+      "showkey",
+      "dumpkeys",
+      "console_codes",
+      "ctrl+alt+f2"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "desktop.beginner",
+      "desktop.intermediate",
+      "desktop.expert"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:20"
+  },
+  {
+    "topic": "terminal-input-other-contexts",
+    "path": "ecosystem/terminal-input/other-contexts.html",
+    "title": "Other places keys are handled",
+    "summary": "Who consumes a key press before the program sees it: desktop shortcuts, terminal bindings, shells, editors, tmux, SSH, browsers and input methods",
+    "keywords": [
+      "terminal-input-other-contexts",
+      "keybinding",
+      "shortcut",
+      "focus",
+      "tmux",
+      "ssh",
+      "readline",
+      "editor mode",
+      "browser",
+      "input method",
+      "xwayland",
+      "key grab"
+    ],
+    "levels": [
+      "beginner"
+    ],
+    "track": "learn",
+    "parent": "ecosystem/terminal-input/index.html",
+    "prereqs": [
+      "terminal-input"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "desktop.beginner",
+      "desktop.intermediate",
+      "shell.beginner",
+      "shell.intermediate",
+      "troubleshooting.beginner"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-14 02:26"
   },
   {
     "topic": "terminal-stack",

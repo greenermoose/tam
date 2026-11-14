@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head>
+<title>Keysym</title>
+<meta name="topic" content="glossary-keysym">
+<meta name="summary" content="Keysym: the symbolic meaning of a key, such as a, A, Return or BackSpace, used by X11 and XKB.">
+<meta name="keywords" content="glossary-keysym, keysym, key symbol, xkb, x11, keysymdef">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / Keysym</p></nav>
+<h1>Keysym</h1>
+<p>A keysym is the symbolic meaning a keyboard layout gives to a key, such as <code>a</code>, <code>A</code>, <code>Return</code> or <code>BackSpace</code>.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>A keysym is a name for what a key should mean. Pressing the same key with Shift gives a different keysym, so the layout can change meaning without changing the hardware.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>XKB turns a <a href="learn/glossary/keycode.html">keycode</a> and modifier state into a keysym. Letters use their character value, so <code>a</code> is <code>0x0061</code> and <code>A</code> is <code>0x0041</code>. Named keys use values in a private range, so <code>BackSpace</code> is <code>0xFF08</code> and <code>Return</code> is <code>0xFF0D</code>. A terminal emulator then decides which bytes represent that keysym.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>Keysyms are 32-bit values defined in <code>xkbcommon-keysyms.h</code> and the older <code>X11/keysymdef.h</code>. Values below <code>0x100</code> coincide with Latin-1, <code>0x01000100</code> and above carry Unicode, and <code>0xFF00</code> to <code>0xFFFF</code> hold function keys, cursor keys and modifiers. XKB keymaps can map one keycode to several keysyms per shift level and can attach actions such as <code>SetMods</code>. A keysym is not a character: <code>BackSpace</code> has no printable form, and <code>dead_acute</code> starts a compose sequence. The <code>xkbcli how-to-type</code> tool shows which keycode and modifiers produce a requested keysym.</p></section>
+<p><a href="ecosystem/terminal-input/key-press-anatomy.html">From key press to character</a>; <a href="learn/glossary/index.html">All glossary terms</a>.</p>
+</body></html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Other places keys are handled</title>
+<meta name="topic" content="terminal-input-other-contexts">
+<meta name="summary" content="Who consumes a key press before the program sees it: desktop shortcuts, terminal bindings, shells, editors, tmux, SSH, browsers and input methods">
+<meta name="keywords" content="terminal-input-other-contexts, keybinding, shortcut, focus, tmux, ssh, readline, editor mode, browser, input method, xwayland, key grab">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/terminal-input/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, shell.beginner, shell.intermediate, troubleshooting.beginner">
+<meta name="prereqs" content="terminal-input">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/terminal-input/index.html">How a key press becomes input</a> / Other places keys are handled</p>
+</nav>
+
+<h1>Other places keys are handled</h1>
+
+<p>This page maps the places that can take a key press before the program you are looking at, and shows how to find out which one took it.</p>
+
+<section data-level="novice">
+<h2>Several programs share one keyboard</h2>
+
+<p>You press one key, but several programs are running. The desktop, the terminal window, the shell, an editor, a multiplexer and a remote server may all care about that key. Only one of them gets to act on it.</p>
+
+<p>The rule is usually focus plus priority. The desktop sees every key first and may act on a shortcut. Then the focused window sees it, and the terminal may act on its own shortcuts. Whatever is left is written to the program as bytes. If a program never receives a key you pressed, something earlier in that list took it.</p>
+
+<h3>Why it matters</h3>
+
+<p>"This shortcut does not work" is rarely one problem. It may be a desktop shortcut, a terminal shortcut, a shell binding, or a missing byte. Without knowing the order, you cannot tell which. With the order, the first test is obvious: find the earliest layer that reacts.</p>
+
+<h3>How to think about it</h3>
+
+<p>Think of a queue of assistants between you and a specialist. Each assistant may take the paper if it has an instruction for that word. Only the assistants who do not care pass it on. When the specialist says "I never saw it", you ask each assistant in turn.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt><a href="learn/glossary/keybinding.html">Keybinding</a></dt>
+<dd>An instruction that a particular program runs when a key or chord is pressed.</dd>
+<dt><a href="learn/glossary/focus.html">Focus</a></dt>
+<dd>The window or field that receives typing. Only one has it at a time.</dd>
+<dt>Prefix key</dt>
+<dd>A key that makes the next key a command instead of text, used by tmux and screen.</dd>
+<dt><a href="learn/glossary/readline.html">Readline</a></dt>
+<dd>The line-editing library used by many shells and interactive programs.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Find the layer that took the key</h2>
+
+<p><strong>Goal:</strong> you will be able to trace one chord through desktop, terminal, shell and program, and identify which layer consumed it.</p>
+
+<h3>Worked example</h3>
+
+<p>Take <code>Ctrl + Shift + C</code>. In foot it copies the selection, because foot binds it. The bytes never reach the program in the window.</p>
+
+<pre class="session" data-risk="read-only">
+$ man 5 foot.ini | col -b | grep -A2 '^     clipboard-copy'
+     clipboard-copy
+	 Copies  the  current  selection  into  the  clipboard.  Default:  Con‐
+	 trol+Shift+c XF86Copy.
+</pre>
+
+<p>Now compare with <code>Ctrl + C</code>, which foot does not bind as a shortcut. foot sends <code>0x03</code>, the line discipline turns it into <code>SIGINT</code>, and the foreground command stops. The same physical <code>C</code> key, with a different modifier set, is handled at a different layer.</p>
+
+<table>
+<tr><th>Chord</th><th>Layer that acts</th><th>What the program receives</th></tr>
+<tr><td>Desktop shortcut, such as a workspace switch</td><td>compositor</td><td>nothing</td></tr>
+<tr><td><code>Ctrl + Shift + C</code> in foot</td><td>terminal emulator</td><td>nothing</td></tr>
+<tr><td><code>Ctrl + C</code> at a prompt</td><td>line discipline</td><td><code>SIGINT</code>, not a byte</td></tr>
+<tr><td><code>Ctrl + A</code> at a Bash prompt</td><td>Readline inside the shell</td><td>the shell moves the cursor</td></tr>
+<tr><td><code>Ctrl + K</code> in a full-screen editor</td><td>the editor</td><td>the editor deletes to end of line</td></tr>
+<tr><td>An ordinary letter</td><td>the program</td><td>one byte</td></tr>
+</table>
+
+<p>The order of the layers is what makes this predictable. A key travels from the compositor inward, and each layer either consumes it or passes it on.</p>
+
+<h3>Try it</h3>
+
+<p>Test one chord at a time. These commands are read-only and do not change any bindings.</p>
+
+<pre class="session" data-risk="read-only">
+$ bind -p | grep -E '\\C-a|\\C-h|\\C-k|\\C-l' | head
+$ cat -v
+</pre>
+
+<p>With <code>cat -v</code> running, press <code>Ctrl + A</code> and then Enter. You see <code>^A</code>, because <code>cat</code> does not bind <code>Ctrl + A</code>; the byte was passed through. Exit and press <code>Ctrl + A</code> at the prompt: the cursor jumps to the start of the line, because Bash's Readline took it. Then try <code>Ctrl + Shift + C</code> inside <code>cat -v</code>: nothing appears, because foot took it before the program saw anything.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>A desktop shortcut fires instead of the program</dt>
+<dd>The compositor consumed the chord. Choose a different chord for the program, or change the desktop binding if the program's need is stronger.</dd>
+<dt>A chord does nothing anywhere</dt>
+<dd>Something consumed it silently. Check the terminal's key bindings, then the desktop's, then any multiplexer or editor that is running.</dd>
+<dt>A tmux session ignores normal typing</dt>
+<dd>A prefix key is pending. Press the prefix twice to send it literally, or press <code>Escape</code> to cancel the pending command.</dd>
+<dt>Keys work locally but not over SSH</dt>
+<dd>The remote <code>TERM</code> may name a terminal whose sequences differ, or no terminal was allocated. Check <code>echo $TERM</code> on both sides and whether the session has a tty.</dd>
+<dt>Function keys insert odd characters in a remote session</dt>
+<dd>The remote terminfo entry and the local terminal disagree. Forward the right <code>TERM</code>, or install the matching entry on the server.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> desktop shortcuts belong to the compositor and are configured in its bindings, while terminal shortcuts belong to foot's own configuration. The two sets are separate, and a chord can appear in both. Check the compositor first, because it sees the key first.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does <code>Ctrl + Shift + C</code> not stop a running command in foot?</summary>
+<p>foot binds that chord to copying the selection and consumes it. The program never receives <code>0x03</code>. <code>Ctrl + C</code> without Shift is not bound by foot, so it reaches the line discipline and becomes <code>SIGINT</code>.</p>
+</details>
+<details class="q">
+<summary>Who handles a key first: the shell or the compositor?</summary>
+<p>The compositor. It receives the key from the kernel, applies layout and modifier state, and checks its own shortcuts before delivering the key to the focused window. The shell only sees bytes that survive the layers in between.</p>
+</details>
+<details class="q">
+<summary>Does SSH forward key presses to the server?</summary>
+<p>No. The local terminal turns keys into bytes, and SSH forwards those bytes through a pseudo-terminal on the server. The server's programs read bytes under the server's <code>TERM</code>, so a terminal mismatch changes what the remote program believes about the keyboard.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: dispatch order and interception points</h2>
+
+<table>
+<tr><th>Order</th><th>Layer</th><th>Mechanism</th><th>What it can consume</th></tr>
+<tr><td>1</td><td>kernel input</td><td>evdev</td><td>nothing by policy; it reports keycodes</td></tr>
+<tr><td>2</td><td>compositor</td><td>Wayland bindings, X11 grabs under XWayland</td><td>global shortcuts, including keys a client wanted</td></tr>
+<tr><td>3</td><td>terminal emulator</td><td><code>[key-bindings]</code>, <code>[mouse-bindings]</code>, URL and regex modes</td><td>its own chords, before writing to the pty</td></tr>
+<tr><td>4</td><td>line discipline</td><td>termios special characters</td><td>erase, kill, EOF, signal and flow characters</td></tr>
+<tr><td>5</td><td>shell or REPL</td><td>Readline or similar line editor</td><td>editing and history chords</td></tr>
+<tr><td>6</td><td>full-screen program</td><td>raw mode plus its own decoder</td><td>everything it chooses to interpret</td></tr>
+<tr><td>7</td><td>remote session</td><td>SSH pty, tmux, screen</td><td>prefix keys and its own bindings</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>On Wayland there is no passive key grab for ordinary clients. The compositor owns the keyboard, decides focus, and sends <code>wl_keyboard.key</code> only to the focused surface. A compositor binding is evaluated before delivery, so an application cannot win against a global shortcut. Some compositors offer a way to exempt a window or to bind a chord only in certain conditions, but the default order stands.</p>
+
+<p>X11 applications under XWayland are different. X11 has <code>XGrabKey</code>, and a grab can take a chord for one client regardless of focus. A misbehaving or misconfigured X11 program can therefore swallow a key for the whole session, which is one reason a "keyboard problem" sometimes disappears when an unrelated window closes.</p>
+
+<p>A terminal emulator is a client like any other. foot receives keycodes and decides between its own bindings and encoding bytes for the program. Its manual notes that key bindings use the translated form of a chord, so <code>Control+Shift+c</code> matches the character the layout produces, while raw-mode bindings match the key position. That distinction matters on layouts where Shift changes the character.</p>
+
+<p>Inside the pty, the line discipline runs next. After that, a shell's Readline consumes its editing chords. A full-screen program clears the discipline's editing and signal handling and parses bytes itself, which is why the same chord can be a signal at the prompt and a command inside an editor.</p>
+
+<p>Remote and multiplexed sessions add their own layer:</p>
+
+<ul>
+<li><strong>SSH</strong> allocates a pseudo-terminal with <code>-t</code> and forwards bytes. It does not forward keys or layouts. The server's <code>TERM</code> comes from the client's environment, subject to <code>SendEnv</code> and the server's <code>AcceptEnv</code>, and the remote terminfo entry must describe the client terminal.</li>
+<li><strong>tmux</strong> and <strong>screen</strong> run a terminal emulator of their own on the server side. They publish a <code>TERM</code> value such as <code>tmux-256color</code> or <code>screen-256color</code>, re-encode keys for the inner program, and consume their prefix key before anything else. Extended key reporting must be enabled on both sides to survive the trip.</li>
+<li><strong>Nested sessions</strong> multiply the prefixes: a tmux inside SSH inside foot has two prefix layers and two terminal descriptions, and the inner program sees the innermost one.</li>
+<li><strong>Web terminals</strong> run a terminal emulator in the browser and send its bytes to a server. The browser's own shortcuts still apply first, so a chord can be lost before the emulator sees it.</li>
+<li><strong>Input methods</strong> sit beside the key path. When they are active, they may consume keys to compose text and commit the result, so the application receives text rather than the key that produced it.</li>
+<li><strong>Accessibility tools</strong> can intercept keys globally. Sticky keys change modifier timing, and an on-screen keyboard injects events through a virtual keyboard protocol, which some applications treat differently from real hardware.</li>
+</ul>
+
+<h3>Advanced usage</h3>
+
+<p>These commands observe each layer without changing it.</p>
+
+<pre class="session" data-risk="read-only">
+$ wev
+$ libinput debug-events --show-keycodes
+$ bind -p | grep -c .
+$ tmux list-keys | head
+$ foot --version
+$ printf 'TERM=%s\n' "$TERM"
+</pre>
+
+<p><code>wev</code> shows what reaches a Wayland surface, including keycodes and modifier masks, so it distinguishes "the compositor took it" from "the window received it". <code>libinput debug-events</code> shows the layer below the compositor. <code>bind -p</code> lists Readline bindings, <code>tmux list-keys</code> lists the multiplexer's, and the last two commands identify the terminal and its advertised type.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>A grab outlives its program.</strong> A crashed X11 client can leave a passive grab that persists until the connection closes, which usually happens when the process exits.</li>
+<li><strong>Layout-dependent bindings.</strong> A binding on a character can move when the layout changes; a binding on a key position does not. Decide which one you mean.</li>
+<li><strong>Terminal shortcuts that shadow control bytes.</strong> Binding a chord the terminal already uses makes it unreachable for the program, even if the program has a better use for it.</li>
+<li><strong>Prefix keys and pasted text.</strong> A paste containing the prefix key can trigger a multiplexer command. Bracketed paste does not protect a multiplexer's own prefix handling.</li>
+<li><strong>Missing pty.</strong> A command run without a terminal has no line discipline and no window size. Interactive programs may refuse to start or behave differently.</li>
+<li><strong>Terminal type mismatch.</strong> A remote <code>TERM</code> that names the wrong terminal produces wrong sequences in both directions: keys are misread and screen updates are garbled.</li>
+<li><strong>Suspended jobs.</strong> A stopped job keeps the terminal settings it had at the moment it stopped. Resuming it restores those settings, which can undo a change made in between.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A user reports that <code>Ctrl + Shift + R</code> does nothing in an editor running inside tmux inside foot, although the editor's documentation says it reloads the file. Give an ordered diagnosis.</summary>
+<p>Start at the outermost layer. In foot, <code>Control+Shift+r</code> starts scrollback search by default, so the chord is probably consumed before the pty; confirm with <code>wev</code> and by testing the same chord in a plain foot window without tmux. If foot passes it, check tmux: it has its own key table, and the chord may be bound or swallowed by the prefix handling; <code>tmux list-keys</code> answers that. Then check whether tmux forwards the extended encoding the editor needs, and whether the inner <code>TERM</code> supports it. Only after those should you look at the editor, for example whether it enabled the keyboard protocol it uses for that chord. Each step names one layer, so the first layer that blocks the chord is the one to change.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:foot.ini(5)">foot.ini(5)</a>, <a href="man:tmux(1)">tmux(1)</a>, <a href="man:ssh(1)">ssh(1)</a>, <a href="man:readline(3)">readline(3)</a>, <a href="man:wev(1)">wev(1)</a>, <a href="man:libinput-debug-events(1)">libinput-debug-events(1)</a>, and the Wayland keyboard protocol documentation.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/terminal-input/choosing-keys.html">Choosing a keybinding</a> &mdash; picking chords that survive these layers.</li>
+<li><a href="ecosystem/terminal-input/foot.html">Keys inside foot</a> &mdash; the terminal's own bindings and encodings.</li>
+<li><a href="ecosystem/terminal-input/line-discipline.html">The kernel's line editor</a> &mdash; the layer just inside the pty.</li>
+<li><a href="use/security/ssh.html">Secure Shell</a> &mdash; remote sessions in more detail.</li>
+</ul>
+</body>
+</html>

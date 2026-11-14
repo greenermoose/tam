@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>From key press to character</title>
+<meta name="topic" content="key-press-anatomy">
+<meta name="summary" content="The five numbers a single key has: scancode, Linux keycode, Wayland keycode, keysym, and the byte a program reads">
+<meta name="keywords" content="key-press-anatomy, scancode, keycode, keysym, usb hid, evdev, xkb, wayland, keyboard layout, input event">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/terminal-input/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="devices.beginner, devices.intermediate, hardware.intermediate">
+<meta name="prereqs" content="terminal-input">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/terminal-input/index.html">How a key press becomes input</a> / From key press to character</p>
+</nav>
+
+<h1>From key press to character</h1>
+
+<p>This page follows the letter <code>a</code> and the Backspace key through every layer that gives a key a number or a meaning.</p>
+
+<section data-level="novice">
+<h2>One key, several names</h2>
+
+<p>When you press a key, the computer does not receive a letter. It receives a series of numbers, and each layer gives the key a new name. The keyboard names the switch. The kernel names the key. The keyboard layout names the symbol. The terminal names the bytes. The program finally decides what those bytes mean.</p>
+
+<h3>Why it matters</h3>
+
+<p>When a key types the wrong character, does nothing, or triggers the wrong command, the cause is one of these layers. Knowing the names lets you ask a precise question: did the layout change the symbol, or did the terminal send a different byte? Without the names, every problem looks like "the keyboard is broken".</p>
+
+<h3>How to think about it</h3>
+
+<p>Think of a parcel with a new label added at each depot. The sender writes a stock number. The first depot writes a route number. The second writes a local address. The final courier writes a door number. Every label is correct for its own depot, but only the last one tells you where the parcel arrives. A key press travels the same way, and the last label is the byte the program reads.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt><a href="learn/glossary/scancode.html">Scancode</a></dt>
+<dd>The keyboard's own code for a physical key, before the computer applies a layout.</dd>
+<dt><a href="learn/glossary/keycode.html">Keycode</a></dt>
+<dd>A number software uses for a key. The Linux kernel and XKB number keys differently.</dd>
+<dt><a href="learn/glossary/keysym.html">Keysym</a></dt>
+<dd>The symbolic meaning a layout gives a key, such as <code>a</code>, <code>A</code>, or <code>BackSpace</code>.</dd>
+<dt><a href="learn/glossary/character-encoding.html">Character encoding</a></dt>
+<dd>The rule that turns a character into bytes. ASCII and UTF-8 are common encodings.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read the chain for one key</h2>
+
+<p><strong>Goal:</strong> you will be able to trace a key from its hardware code to the byte a program receives, and say which layer owns each number.</p>
+
+<h3>Worked example</h3>
+
+<p>The <code>xkbcli</code> tool asks the active XKB rules which keycode and modifiers produce a requested keysym. This is the same lookup a Wayland compositor performs.</p>
+
+<pre class="session" data-risk="read-only">
+$ xkbcli how-to-type --layout us a | sed -n '1,8p'
+keysym: a (0x0061)
+
+=== Direct access ===
+
+KEYCODE  KEY NAME  LAYOUT   LAYOUT NAME          LEVEL#  MODIFIERS
+38       AC01      1        English (US)         1       [ ]
+</pre>
+
+<p>Captured on Arch Linux, 2026-11-13, with xkbcommon 1.13.2. The keycode <code>38</code> is the XKB and Wayland number. The kernel's own number for the same key is <code>30</code>. The difference is the historical X11 offset of 8.</p>
+
+<table>
+<tr><th>Layer</th><th><code>a</code></th><th><code>h</code></th><th>Backspace</th></tr>
+<tr><td>USB HID usage</td><td><code>0x04</code></td><td><code>0x0B</code></td><td><code>0x2A</code></td></tr>
+<tr><td>Linux keycode</td><td><code>30</code> (<code>KEY_A</code>)</td><td><code>35</code> (<code>KEY_H</code>)</td><td><code>14</code> (<code>KEY_BACKSPACE</code>)</td></tr>
+<tr><td>Wayland and XKB keycode</td><td><code>38</code></td><td><code>43</code></td><td><code>22</code></td></tr>
+<tr><td>Keysym</td><td><code>0x0061</code> (<code>a</code>)</td><td><code>0x0068</code> (<code>h</code>)</td><td><code>0xFF08</code> (<code>BackSpace</code>)</td></tr>
+<tr><td>Byte a terminal sends</td><td><code>0x61</code></td><td><code>0x68</code></td><td><code>0x7F</code> (foot)</td></tr>
+</table>
+
+<p>The last row is the first row a program can see. Everything above it has already happened before the program runs its own key handling.</p>
+
+<h3>Try it</h3>
+
+<p>Ask the layout for three more keys, then confirm the byte for a letter.</p>
+
+<pre class="session" data-risk="read-only">
+$ xkbcli how-to-type --layout us z | sed -n '1,6p'
+$ xkbcli how-to-type --layout us 0 | sed -n '1,6p'
+$ xkbcli how-to-type --layout us --keysym BackSpace | sed -n '1,8p'
+$ printf 'a' | od -An -tx1
+</pre>
+
+<p>Compare the keycode in each answer. Notice that the Backspace keysym has a keycode in the twenties, while a letter has one in the thirties or forties. The numbering is not alphabetical; it follows the physical keyboard matrix.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>xkbcli: command not found</code></dt>
+<dd>The tool comes from the <code>libxkbcommon</code> package. The command is optional; the rest of the page still applies.</dd>
+<dt>A different keycode than the table</dt>
+<dd>You are using a different layout, variant, or keyboard model. Add <code>--layout</code> and <code>--variant</code> to match your session, or read the layout from <code>setxkbmap -query</code>.</dd>
+<dt><code>No such file or directory</code> for a device</dt>
+<dd>Device names such as <code>/dev/input/event0</code> are not stable. List them with <code>ls -l /dev/input/by-id/</code> instead of guessing a number.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the input chain is the standard Linux one: kernel driver, evdev, compositor, XKB, terminal. Tamlinux does not insert a remapping layer of its own before the compositor, so a standard tool such as <code>xkbcli</code> describes the same path the desktop uses.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Is <code>30</code> or <code>38</code> the Linux kernel keycode for the <code>a</code> key?</summary>
+<p><code>30</code> is the kernel keycode, <code>KEY_A</code>. <code>38</code> is the XKB and Wayland keycode, which is the kernel number plus 8. A terminal receives the second number, so a bug report that quotes <code>38</code> is usually talking about the compositor side.</p>
+</details>
+<details class="q">
+<summary>Why can the same physical key produce <code>a</code> on one machine and <code>q</code> on another?</summary>
+<p>The hardware code can be identical while the active keyboard layout maps it to a different keysym. The layout, not the switch, changed. A remap at the XKB layer leaves the kernel keycode untouched.</p>
+</details>
+<details class="q">
+<summary>A program reads the byte <code>0x61</code>. Which layers has the key press already passed?</summary>
+<p>All of them up to the terminal encoder: hardware, kernel driver, evdev, compositor, XKB, and the terminal's byte encoder. The program is now at the last layer and sees only the byte, not the key that produced it.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: the same key at every layer</h2>
+
+<table>
+<tr><th>Stage</th><th><code>a</code></th><th><code>h</code></th><th>Backspace</th><th>Interface</th></tr>
+<tr><td>USB HID usage</td><td><code>0x04</code></td><td><code>0x0B</code></td><td><code>0x2A</code></td><td>HID report</td></tr>
+<tr><td>PS/2 set-1 make</td><td><code>0x1E</code></td><td><code>0x23</code></td><td><code>0x0E</code></td><td>i8042, IRQ 1</td></tr>
+<tr><td>PS/2 set-1 break</td><td><code>0x9E</code></td><td><code>0xA3</code></td><td><code>0x8E</code></td><td>i8042, IRQ 1</td></tr>
+<tr><td>Linux keycode</td><td><code>30</code></td><td><code>35</code></td><td><code>14</code></td><td><code>KEY_A</code>, <code>KEY_H</code>, <code>KEY_BACKSPACE</code></td></tr>
+<tr><td>evdev event</td><td><code>EV_KEY</code> <code>30</code></td><td><code>EV_KEY</code> <code>35</code></td><td><code>EV_KEY</code> <code>14</code></td><td><code>/dev/input/event*</code></td></tr>
+<tr><td>Wayland key</td><td><code>38</code></td><td><code>43</code></td><td><code>22</code></td><td><code>wl_keyboard.key</code></td></tr>
+<tr><td>Keysym</td><td><code>0x0061</code></td><td><code>0x0068</code></td><td><code>0xFF08</code></td><td>XKB</td></tr>
+<tr><td>Terminal byte</td><td><code>0x61</code></td><td><code>0x68</code></td><td><code>0x7F</code> or <code>0x08</code></td><td>terminal encoder</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>A USB keyboard does not send letters. It sends a report containing a modifier byte and up to six usage IDs. The usage ID <code>0x04</code> means the key in the <code>a</code> position on a US keyboard. The kernel's <code>usbhid</code> driver maps the usage to a Linux keycode, and the input core emits an event through the evdev interface:</p>
+
+<pre>
+struct input_event {
+    struct timeval time;   /* timestamp */
+    __u16 type;            /* EV_KEY */
+    __u16 code;            /* KEY_A = 30 */
+    __s32 value;           /* 1 press, 0 release, 2 repeat */
+};
+</pre>
+
+<p>On a graphical session, <code>libinput</code> reads those events through the seat manager. The compositor applies its keymap and sends <code>wl_keyboard.key</code> with the value <code>code + 8</code>, plus a <code>wl_keyboard.modifiers</code> event describing Shift, Ctrl, Alt, Meta, Caps Lock and Num Lock. The client passes the keycode and modifier mask to <code>xkb_state_key_get_one_sym</code>, which returns a keysym. The terminal emulator then runs its own encoder: printable keysyms become UTF-8 bytes, cursor keys become escape sequences, and chords may become control bytes.</p>
+
+<p>On a kernel virtual console the compositor is absent. The kernel keyboard driver applies the console keymap directly and, in <code>K_XLATE</code> mode, converts the resulting keysym to bytes or escape sequences for the foreground program. <a href="ecosystem/terminal-input/linux-console.html">The Linux text console</a> covers that path.</p>
+
+<h3>Advanced usage</h3>
+
+<p>These commands are illustrative. They read device and layout information; none changes a setting.</p>
+
+<pre class="session" data-risk="read-only">
+$ ls -l /dev/input/by-id/
+$ evtest /dev/input/by-id/usb-Example_Keyboard-event-kbd
+$ wev
+$ xkbcli compile-keymap --layout us | head -20
+</pre>
+
+<p><code>evtest</code> prints the raw <code>input_event</code> stream, including <code>EV_MSC</code> scan codes when the driver supplies them. <code>wev</code> prints Wayland events for the focused surface, including keycodes and modifier state. <code>xkbcli compile-keymap</code> prints the keymap a compositor would compile from the same rules.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Key repeat</strong> is a third event value, <code>2</code>, between press and release. A program that treats every non-zero value as a fresh press will repeat an action while a key is held.</li>
+<li><strong>Multiple keyboards</strong> can have different layouts or be merged into one seat. A keycode is only meaningful together with the device and keymap that produced it.</li>
+<li><strong>Media and vendor keys</strong> may arrive as <code>EV_KEY</code> codes outside the letter range, or as <code>EV_MSC</code> scan codes that no keymap entry covers. They may need a udev hardware database entry or <code>setkeycodes</code>.</li>
+<li><strong>Compose and dead keys</strong> produce a keysym only after a sequence. <code>dead_acute</code> followed by <code>e</code> becomes an <code>e</code> with an acute accent; no single key press carries the final character.</li>
+<li><strong>Layout groups</strong> let one keycode produce different keysyms depending on the selected group. The group is part of the modifier state, so the same keycode is not enough to predict the symbol.</li>
+<li><strong>Input methods</strong> can intercept keys before the application and commit text rather than keysyms. The application then receives composed text, not the original key events.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A user reports that one physical key types <code>z</code> in one window and <code>y</code> in another, while <code>evtest</code> shows the same kernel keycode. Where should you look, and what would you check first?</summary>
+<p>The kernel and hardware are consistent, so the difference is above evdev. Check the keymap or layout in each client: Wayland clients normally share the compositor's keymap, but a client can compile its own XKB keymap, an X11 application can have a different group, and an input method can compose text. Start with <code>xkbcli how-to-type</code> or <code>setxkbmap -query</code> for the session, then compare the two clients' environments and any per-application layout setting. Do not change the kernel keycode; the evidence says it is not the variable.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:evdev(4)">evdev(4)</a>, <a href="man:libinput(4)">libinput(4)</a>, <a href="man:showkey(1)">showkey(1)</a>, the USB HID Usage Tables, the XKB specification, and the kernel documentation under <code>Documentation/input/</code>.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/terminal-input/control-codes.html">Control characters and the Ctrl key</a> &mdash; what happens after a keysym becomes a control byte.</li>
+<li><a href="ecosystem/terminal-input/linux-console.html">The Linux text console</a> &mdash; the same chain without a compositor.</li>
+<li><a href="ecosystem/evdev.html">The Linux input subsystem and evdev</a> &mdash; the kernel interface in more detail.</li>
+</ul>
+</body>
+</html>

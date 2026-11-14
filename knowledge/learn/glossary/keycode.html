@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head>
+<title>Keycode</title>
+<meta name="topic" content="glossary-keycode">
+<meta name="summary" content="Keycode: a number for a key, with different numbering in the Linux kernel and in XKB or Wayland.">
+<meta name="keywords" content="glossary-keycode, keycode, key code, linux keycode, xkb keycode, wayland keycode, evdev">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / Keycode</p></nav>
+<h1>Keycode</h1>
+<p>A keycode is a number that identifies a key to software, after the keyboard's own <a href="learn/glossary/scancode.html">scancode</a> has been translated.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>A keycode is the computer's number for a key. It is not the character the key types. Software uses the number plus the modifier keys to decide what the key means.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>The name is used for two different numbering schemes. The Linux kernel calls <code>KEY_A</code> keycode <code>30</code> and <code>KEY_H</code> keycode <code>35</code>; this is the number in an <code>input_event</code> from <a href="learn/glossary/evdev.html">evdev</a>. XKB, X11 and Wayland use the same event number plus 8, so the same keys are keycode <code>38</code> and <code>43</code>. A terminal receives the second kind. Always say which numbering you mean.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>The kernel keycode space is defined by <code>linux/input-event-codes.h</code>; <code>KEY_A</code> is 30 and the maximum is above 255. X11 and Wayland keycodes are offset by 8 to preserve the historical X11 range, so <code>wl_keyboard.key</code> is the evdev code plus 8. XKB maps that number through the active keymap to a <a href="learn/glossary/keysym.html">keysym</a>. Remapping can happen at any level: <code>setkeycodes</code> changes kernel keycodes, <code>udev</code> hardware databases and XKB options change the layout, and a compositor can rewrite events before a client sees them.</p></section>
+<p><a href="ecosystem/terminal-input/key-press-anatomy.html">From key press to character</a>; <a href="learn/glossary/index.html">All glossary terms</a>.</p>
+</body></html>

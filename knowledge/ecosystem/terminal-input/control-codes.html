@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Control characters and the Ctrl key</title>
+<meta name="topic" content="terminal-control-codes">
+<meta name="summary" content="How Ctrl chords become ASCII control bytes, why Backspace is usually 0x7F, and how the terminal and line discipline assign meanings">
+<meta name="keywords" content="terminal-control-codes, control character, control code, ctrl, ctrl+h, backspace, del, ascii, c0, signal, stty">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/terminal-input/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shell.beginner, shell.intermediate, shell.expert">
+<meta name="prereqs" content="terminal-input">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/terminal-input/index.html">How a key press becomes input</a> / Control characters and the Ctrl key</p>
+</nav>
+
+<h1>Control characters and the Ctrl key</h1>
+
+<p>This page explains the bytes that chords such as <code>Ctrl + A</code> and <code>Ctrl + H</code> produce, and why the same byte can mean different things to different programs.</p>
+
+<section data-level="novice">
+<h2>The Ctrl key writes numbers, not letters</h2>
+
+<p>Holding Ctrl and pressing a letter does not type that letter. It sends a small number instead. <code>Ctrl + A</code> sends the number 1, <code>Ctrl + C</code> sends 3, and <code>Ctrl + H</code> sends 8. These small numbers are called <a href="learn/glossary/control-character.html">control characters</a>.</p>
+
+<p>Each number has a job. Some move the cursor. Some tell the terminal to beep or clear the screen. Some ask the operating system to stop the program. Some are just data that a program reads and interprets for itself.</p>
+
+<h3>Why it matters</h3>
+
+<p>Control characters are why <code>Ctrl + C</code> stops a command, why <code>Ctrl + D</code> closes a shell, and why Backspace sometimes deletes a character and sometimes does nothing. They also explain why a shortcut that works in one program can fail in another: the byte is the same, but the program reading it gives it a different job.</p>
+
+<h3>How to think about it</h3>
+
+<p>Imagine a telephone keypad where each key can send either a spoken word or a tone. The Ctrl key switches the keypad into tone mode. The tone itself has no meaning; the receiving office decides whether a tone means "hang up", "redial", or "transfer". A control byte is a tone, and the program at the other end is the office.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt><a href="learn/glossary/ascii.html">ASCII</a></dt>
+<dd>The old seven-bit character code that gives numbers to letters and to the control characters.</dd>
+<dt><a href="learn/glossary/control-character.html">Control character</a></dt>
+<dd>A code below <code>0x20</code>, or <code>0x7F</code>, that usually asks for an action instead of printing a symbol.</dd>
+<dt><a href="learn/glossary/signal.html">Signal</a></dt>
+<dd>A short notification the kernel sends to a running program, often triggered by a control character.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Predict the byte behind a chord</h2>
+
+<p><strong>Goal:</strong> you will be able to say which byte a Ctrl chord produces, and tell whether the terminal, the kernel, or the program will act on it.</p>
+
+<h3>Worked example</h3>
+
+<p>The <code>printf</code> command can write exact byte values. <code>od</code> then shows them in hexadecimal and as visible escapes.</p>
+
+<pre class="session" data-risk="read-only">
+$ printf '\001\002\003\010\011\012\015\033\037\177\n' | od -An -tx1 -c
+  01  02  03  08  09  0a  0d  1b  1f  7f  0a
+ 001 002 003  \b  \t  \n  \r 033 037 177  \n
+</pre>
+
+<p>Captured on Arch Linux, 2026-11-13. Read the two lines together: the first line is hexadecimal, the second is the character or escape name. <code>0x08</code> is <code>\b</code>, <code>0x09</code> is <code>\t</code>, <code>0x0A</code> is <code>\n</code>, and <code>0x7F</code> has no short name, so <code>od</code> prints <code>177</code> in octal.</p>
+
+<table>
+<tr><th>Chord</th><th>Byte</th><th>Common name</th><th>What often happens</th></tr>
+<tr><td><code>Ctrl + @</code> or <code>Ctrl + Space</code></td><td><code>0x00</code></td><td>NUL</td><td>Ignored, or read as a null byte</td></tr>
+<tr><td><code>Ctrl + A</code></td><td><code>0x01</code></td><td>SOH</td><td>Shell moves to the start of the line</td></tr>
+<tr><td><code>Ctrl + C</code></td><td><code>0x03</code></td><td>ETX</td><td>Kernel sends <code>SIGINT</code> to the foreground job</td></tr>
+<tr><td><code>Ctrl + D</code></td><td><code>0x04</code></td><td>EOT</td><td>End of input; at an empty prompt it closes the shell</td></tr>
+<tr><td><code>Ctrl + H</code></td><td><code>0x08</code></td><td>BS</td><td>Backspace, if the terminal or line discipline treats it that way</td></tr>
+<tr><td><code>Ctrl + I</code></td><td><code>0x09</code></td><td>HT</td><td>Tab, or completion</td></tr>
+<tr><td><code>Ctrl + J</code></td><td><code>0x0A</code></td><td>LF</td><td>New line; often the same as Enter</td></tr>
+<tr><td><code>Ctrl + M</code></td><td><code>0x0D</code></td><td>CR</td><td>Carriage return; often the real Enter byte</td></tr>
+<tr><td><code>Ctrl + [</code></td><td><code>0x1B</code></td><td>ESC</td><td>Starts an escape sequence</td></tr>
+<tr><td><code>Ctrl + ?</code></td><td><code>0x7F</code></td><td>DEL</td><td>Erase, on most Linux terminals</td></tr>
+</table>
+
+<p>The rule behind the letters is simple. An uppercase letter has an ASCII code from <code>0x41</code> to <code>0x5A</code>. Clear the top three bits by combining the value with <code>0x1F</code>, and you get <code>0x01</code> to <code>0x1A</code>. So <code>A</code> becomes 1, <code>H</code> becomes 8, and <code>M</code> becomes 13.</p>
+
+<h3>Try it</h3>
+
+<p>Ask the terminal what its special characters are, then compare two bytes that both claim to be Backspace.</p>
+
+<pre class="session" data-risk="read-only">
+$ stty -a | tr ';' '\n' | grep -E 'erase|kill|eof|intr|susp|werase|lnext'
+$ printf '\010' | od -An -tx1 -c
+$ printf '\177' | od -An -tx1 -c
+</pre>
+
+<p><code>stty -a</code> prints the current terminal settings. Look for <code>erase</code>: it names the byte that erases one character. On most Linux terminals it is <code>^?</code>, which is <code>0x7F</code>. The two <code>printf</code> lines prove that <code>0x08</code> and <code>0x7F</code> are different bytes even though both are called Backspace in ordinary speech.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>The terminal stops printing and seems frozen</dt>
+<dd><code>Ctrl + S</code> is the stop-flow character. Press <code>Ctrl + Q</code> to resume. This is the line discipline, not a crash.</dd>
+<dt>A command disappears and the prompt returns with a job number</dt>
+<dd><code>Ctrl + Z</code> sent <code>SIGTSTP</code> and stopped the job. Type <code>fg</code> to bring it back, or <code>jobs</code> to list it.</dd>
+<dt><code>Ctrl + C</code> does not stop a program</dt>
+<dd>The program may be ignoring or handling <code>SIGINT</code>, or it may have put the terminal in raw mode. Try <code>Ctrl + \</code> for <code>SIGQUIT</code>, then <code>kill</code> by process ID if needed.</dd>
+<dt>Backspace prints <code>^H</code> instead of deleting</dt>
+<dd>The program is receiving <code>0x08</code> and is not treating it as erase. Check <code>stty erase</code>; a raw-mode program must handle the byte itself.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the terminal stack follows the usual Linux defaults, so <code>stty</code> reports <code>erase = ^?</code> and <code>intr = ^C</code> in a normal session. Tamlinux does not ship a custom line discipline; changes come from the terminal emulator, the shell, or <code>stty</code> settings in that session.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which byte does <code>Ctrl + H</code> send, and which byte does the Backspace key usually send in foot?</summary>
+<p><code>Ctrl + H</code> sends <code>0x08</code>, the ASCII BS control. foot sends <code>0x7F</code> for Backspace. They are different bytes, which is why a program can usually tell them apart.</p>
+</details>
+<details class="q">
+<summary>Why can a program not tell <code>Ctrl + I</code> from the Tab key on a legacy terminal?</summary>
+<p>Both produce the same byte, <code>0x09</code>. The terminal protocol has no separate code for them in legacy mode. A modern protocol such as the kitty keyboard protocol can report them separately, but only if the program asks for it.</p>
+</details>
+<details class="q">
+<summary>Is <code>Ctrl + C</code> always a request to stop the program?</summary>
+<p>No. The byte <code>0x03</code> is only a signal request when the line discipline has <code>ISIG</code> enabled and the byte matches the <code>intr</code> character. In raw mode the program receives <code>0x03</code> as data and may use it for copy, cancel, or anything else.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: the C0 control set</h2>
+
+<table>
+<tr><th>Byte</th><th>Chord</th><th>ASCII name</th><th>Typical terminal or line-discipline role</th></tr>
+<tr><td><code>0x00</code></td><td><code>Ctrl + @</code>, <code>Ctrl + Space</code></td><td>NUL</td><td>Ignored, or a null data byte</td></tr>
+<tr><td><code>0x01</code></td><td><code>Ctrl + A</code></td><td>SOH</td><td>Readline beginning-of-line</td></tr>
+<tr><td><code>0x02</code></td><td><code>Ctrl + B</code></td><td>STX</td><td>Readline backward-char</td></tr>
+<tr><td><code>0x03</code></td><td><code>Ctrl + C</code></td><td>ETX</td><td><code>intr</code>, usually <code>SIGINT</code></td></tr>
+<tr><td><code>0x04</code></td><td><code>Ctrl + D</code></td><td>EOT</td><td><code>eof</code>; makes a pending line available</td></tr>
+<tr><td><code>0x05</code></td><td><code>Ctrl + E</code></td><td>ENQ</td><td>Readline end-of-line</td></tr>
+<tr><td><code>0x06</code></td><td><code>Ctrl + F</code></td><td>ACK</td><td>Readline forward-char</td></tr>
+<tr><td><code>0x07</code></td><td><code>Ctrl + G</code></td><td>BEL</td><td>Bell; readline abort</td></tr>
+<tr><td><code>0x08</code></td><td><code>Ctrl + H</code></td><td>BS</td><td><code>erase</code> if configured; otherwise data</td></tr>
+<tr><td><code>0x09</code></td><td><code>Ctrl + I</code></td><td>HT</td><td>Tab; completion</td></tr>
+<tr><td><code>0x0A</code></td><td><code>Ctrl + J</code></td><td>LF</td><td>Newline; affected by <code>ICRNL</code> and <code>INLCR</code></td></tr>
+<tr><td><code>0x0B</code></td><td><code>Ctrl + K</code></td><td>VT</td><td>Vertical tab; readline kill-line</td></tr>
+<tr><td><code>0x0C</code></td><td><code>Ctrl + L</code></td><td>FF</td><td>Form feed; clear screen</td></tr>
+<tr><td><code>0x0D</code></td><td><code>Ctrl + M</code></td><td>CR</td><td>Carriage return; usually the Enter byte</td></tr>
+<tr><td><code>0x0E</code></td><td><code>Ctrl + N</code></td><td>SO</td><td>Shift out; readline next-history</td></tr>
+<tr><td><code>0x0F</code></td><td><code>Ctrl + O</code></td><td>SI</td><td>Shift in; <code>discard</code> output</td></tr>
+<tr><td><code>0x10</code></td><td><code>Ctrl + P</code></td><td>DLE</td><td>Readline previous-history</td></tr>
+<tr><td><code>0x11</code></td><td><code>Ctrl + Q</code></td><td>DC1</td><td><code>start</code>; resume output (XON)</td></tr>
+<tr><td><code>0x12</code></td><td><code>Ctrl + R</code></td><td>DC2</td><td><code>rprnt</code>; reprint the line</td></tr>
+<tr><td><code>0x13</code></td><td><code>Ctrl + S</code></td><td>DC3</td><td><code>stop</code>; pause output (XOFF)</td></tr>
+<tr><td><code>0x14</code></td><td><code>Ctrl + T</code></td><td>DC4</td><td>Readline transpose-chars</td></tr>
+<tr><td><code>0x15</code></td><td><code>Ctrl + U</code></td><td>NAK</td><td><code>kill</code>; erase the line</td></tr>
+<tr><td><code>0x16</code></td><td><code>Ctrl + V</code></td><td>SYN</td><td><code>lnext</code>; quote the next character</td></tr>
+<tr><td><code>0x17</code></td><td><code>Ctrl + W</code></td><td>ETB</td><td><code>werase</code>; erase the previous word</td></tr>
+<tr><td><code>0x18</code></td><td><code>Ctrl + X</code></td><td>CAN</td><td>Cancel an escape sequence; readline prefix</td></tr>
+<tr><td><code>0x19</code></td><td><code>Ctrl + Y</code></td><td>EM</td><td>Readline yank</td></tr>
+<tr><td><code>0x1A</code></td><td><code>Ctrl + Z</code></td><td>SUB</td><td><code>susp</code>, usually <code>SIGTSTP</code></td></tr>
+<tr><td><code>0x1B</code></td><td><code>Ctrl + [</code></td><td>ESC</td><td>Start of an escape sequence</td></tr>
+<tr><td><code>0x1C</code></td><td><code>Ctrl + \</code></td><td>FS</td><td><code>quit</code>, usually <code>SIGQUIT</code></td></tr>
+<tr><td><code>0x1D</code></td><td><code>Ctrl + ]</code></td><td>GS</td><td>Escape character in some protocols</td></tr>
+<tr><td><code>0x1E</code></td><td><code>Ctrl + ^</code></td><td>RS</td><td>Record separator; rarely special</td></tr>
+<tr><td><code>0x1F</code></td><td><code>Ctrl + _</code></td><td>US</td><td>Unit separator; often undo</td></tr>
+<tr><td><code>0x7F</code></td><td><code>Ctrl + ?</code></td><td>DEL</td><td><code>erase</code> on most Linux terminals</td></tr>
+</table>
+
+<p>The shell column is a set of common defaults, not a standard. Readline bindings differ between shells and configurations, so check <code>bind -p</code> rather than assuming.</p>
+
+<h3>How it works</h3>
+
+<p>For letters, the transformation is the mask <code>code &amp; 0x1F</code>. The same arithmetic covers the punctuation cases that matter: <code>@</code> is <code>0x40</code> and becomes <code>0x00</code>; <code>[</code> is <code>0x5B</code> and becomes <code>0x1B</code>; <code>\</code> is <code>0x5C</code> and becomes <code>0x1C</code>; <code>]</code> is <code>0x5D</code> and becomes <code>0x1D</code>; <code>^</code> is <code>0x5E</code> and becomes <code>0x1E</code>; <code>_</code> is <code>0x5F</code> and becomes <code>0x1F</code>.</p>
+
+<p><code>Ctrl + ?</code> is the exception in ordinary speech. Applying the mask to <code>?</code> (<code>0x3F</code>) gives <code>0x1F</code>, but terminals send <code>0x7F</code>, the DEL code. DEL historically meant "rub out" on paper tape: a frame with every hole punched, which a reader could ignore. Video terminals reused it as the erase key because BS was still needed to move the cursor left for other purposes.</p>
+
+<p>That history created the modern split. The ASCII BS code is <code>0x08</code>. The rubout code is <code>0x7F</code>. A terminal can send either when the Backspace key is pressed. xterm exposes the choice through <code>backarrowKey</code> and the DECBKM mode; foot documents that it always sends DEL for Backspace and BS for <code>Ctrl + Backspace</code>, and that it does not implement DECBKM. On the kernel side, <code>stty erase</code> selects which byte the line discipline treats as erase; only one byte can hold that role at a time. In raw mode the line discipline does not erase at all, and the program sees whichever byte arrived.</p>
+
+<p>This is exactly where a key parser can lose information. libtam 0.7.0's <code>tam_key</code> decoder maps both <code>0x08</code> and <code>0x7F</code> to <code>TAM_KEY_BACKSPACE</code>. That is convenient for an editor that only needs a delete action, but it makes <code>Ctrl + H</code> indistinguishable from Backspace. <a href="ecosystem/terminal-input/choosing-keys.html">Choosing a keybinding</a> treats that as a design problem rather than a decoding bug.</p>
+
+<h3>Advanced usage</h3>
+
+<p>These snippets show the same byte under different settings. They are illustrative; run them in a scratch <code>script</code> session if you do not want to change the current terminal.</p>
+
+<pre class="session" data-risk="scratch">
+$ script -qec 'stty erase ^H; stty -a | grep -o "erase = [^;]*"' /dev/null
+$ script -qec 'stty erase ^?; stty -a | grep -o "erase = [^;]*"' /dev/null
+$ printf '\010\177' | cat -v
+</pre>
+
+<p><code>cat -v</code> prints control bytes in caret notation, so <code>0x08</code> appears as <code>^H</code> and <code>0x7F</code> as <code>^?</code>. The two settings change which byte the line discipline consumes as erase; the bytes on the wire do not change.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Both bytes can arrive.</strong> A terminal may send <code>0x08</code> for Backspace and <code>0x7F</code> for Delete, or the reverse. A robust program should handle both, or the terminal should be configured consistently.</li>
+<li><strong>Raw mode bypasses the line discipline.</strong> Editors, pagers and full-screen programs call <code>tcsetattr</code> with <code>ICANON</code> and <code>ISIG</code> cleared. They must implement erase, signals and line editing themselves.</li>
+<li><strong>Meta is not a control byte.</strong> Some old terminals set bit 7 of the byte for Alt, producing <code>0x80</code> and above. That conflicts with UTF-8, so modern terminals prefix the byte with ESC instead. See <a href="ecosystem/terminal-input/foot.html">Keys inside foot</a>.</li>
+<li><strong>8-bit C1 controls.</strong> Bytes <code>0x80</code> to <code>0x9F</code> duplicate some ESC sequences in ISO 8859-1, but they are not valid UTF-8. A terminal in UTF-8 mode must not treat a bare <code>0x9B</code> as CSI.</li>
+<li><strong>Pasting control bytes.</strong> A paste can contain <code>0x03</code> or <code>0x1B</code>. Bracketed paste lets an editor distinguish pasted text from typed keys and avoid executing it as commands.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A user runs <code>stty erase ^H</code>. What now happens when they press Backspace, and what happens when they press <code>Ctrl + H</code>? What does a program in raw mode see?</summary>
+<p>With <code>erase = ^H</code>, the line discipline consumes <code>0x08</code> as the erase character. Backspace still sends whatever the terminal sends: in foot that is <code>0x7F</code>, which is no longer the erase byte, so it becomes ordinary input and may appear as <code>^?</code>. <code>Ctrl + H</code> sends <code>0x08</code> and now erases a character. A program in raw mode sees both bytes unchanged, because raw mode clears <code>ICANON</code>; it must decide for itself what <code>0x08</code> and <code>0x7F</code> mean. This is why changing <code>erase</code> can appear to fix one program and break another.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:ascii(7)">ascii(7)</a>, <a href="man:console_codes(4)">console_codes(4)</a>, <a href="man:termios(3)">termios(3)</a>, <a href="man:stty(1)">stty(1)</a>, <a href="man:foot(1)">foot(1)</a>, and libtam <code>src/tam_key.c</code>.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/terminal-input/line-discipline.html">The kernel's line editor</a> &mdash; what happens to these bytes after the terminal sends them.</li>
+<li><a href="ecosystem/terminal-input/choosing-keys.html">Choosing a keybinding</a> &mdash; why <code>Ctrl + H</code> is a poor choice for help.</li>
+<li><a href="ecosystem/terminal-input/escape-sequences.html">Escape sequences</a> &mdash; what <code>0x1B</code> starts.</li>
+</ul>
+</body>
+</html>

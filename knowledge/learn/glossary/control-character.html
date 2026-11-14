@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head>
+<title>Control character</title>
+<meta name="topic" content="glossary-control-character">
+<meta name="summary" content="Control character: an ASCII code below 0x20 or the delete code 0x7F, often produced by the Ctrl key.">
+<meta name="keywords" content="glossary-control-character, control character, control code, ctrl, ascii, c0, del, backspace">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / Control character</p></nav>
+<h1>Control character</h1>
+<p>A control character is a code that tells a terminal or a program to do something rather than print a visible symbol.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>Control characters are the codes produced by chords such as <code>Ctrl + C</code> and <code>Ctrl + H</code>. Some move the cursor, some send a signal to stop a program, and some are ordinary data that a program interprets for itself.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>In <a href="learn/glossary/ascii.html">ASCII</a>, codes <code>0x00</code> to <code>0x1F</code> and <code>0x7F</code> are control characters. Holding Ctrl and pressing a letter normally clears bits 5 and 6 of the letter's code, so <code>Ctrl + A</code> is <code>0x01</code>, <code>Ctrl + H</code> is <code>0x08</code>, and <code>Ctrl + M</code> is <code>0x0D</code>. The byte alone does not say what will happen: the terminal, the kernel's line discipline and the receiving program each assign meanings.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>The C0 controls are named in <code>ascii(7)</code>: NUL, SOH, STX, ETX, EOT, ENQ, ACK, BEL, BS, HT, LF, VT, FF, CR, SO, SI, DLE, DC1, DC2, DC3, DC4, NAK, SYN, ETB, CAN, EM, SUB, ESC, FS, GS, RS, US, followed by DEL at <code>0x7F</code>. A terminal may treat BS, HT, LF, VT, FF, CR, SO, SI, CAN, SUB, ESC and DEL as commands; the line discipline may treat INTR, QUIT and SUSP as signal requests; and a program may treat any remaining byte as data. <code>0x08</code> and <code>0x7F</code> both mean backspace in different conventions, which is why they collide. In UTF-8, the 8-bit C1 range is encoded as <code>0xC2 0x80</code> to <code>0xC2 0x9F</code>, so a raw <code>0x9B</code> byte is not valid UTF-8 and modern terminals use <code>ESC [</code> instead.</p></section>
+<p><a href="ecosystem/terminal-input/control-codes.html">Control characters and the Ctrl key</a>; <a href="learn/glossary/index.html">All glossary terms</a>.</p>
+</body></html>

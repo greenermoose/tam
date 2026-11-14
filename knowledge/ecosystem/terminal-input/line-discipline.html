@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The kernel's line editor</title>
+<meta name="summary" content="How the terminal line discipline turns typed bytes into edited lines, signals and end-of-file, and what changes when a program switches to raw mode">
+<meta name="topic" content="terminal-input-line-discipline">
+<meta name="keywords" content="terminal-input-line-discipline, line discipline, termios, canonical mode, raw mode, stty, erase, kill, werase, eof, sigint, icrnl, onlcr, ixon, icanon, vmin, vtime">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/terminal-input/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shell.beginner, shell.intermediate, processes.beginner, processes.intermediate">
+<meta name="prereqs" content="terminal-input">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/terminal-input/index.html">How a key press becomes input</a> / The kernel's line editor</p>
+</nav>
+
+<h1>The kernel's line editor</h1>
+
+<p>This page explains what the kernel does with the bytes a terminal sends before a program reads them: editing a line, echoing it back, sending signals, and reporting end of input.</p>
+
+<section data-level="novice">
+<h2>The editor you never started</h2>
+
+<p>When you type at a shell prompt, the letters appear as you type and nothing runs until you press Enter. Something is collecting and editing that line, and it is not the shell. It is a part of the kernel called the line discipline, attached to your terminal.</p>
+
+<p>The line discipline is why Backspace works before a command runs, why <code>Ctrl + C</code> stops a command, and why <code>Ctrl + D</code> can close a shell. It is a small, quiet editor that sits between the keyboard and every ordinary program.</p>
+
+<h3>Why it matters</h3>
+
+<p>Most confusing terminal behaviour belongs here. A program that "ignores Backspace" may have switched the line discipline off. A prompt that prints two blank lines for every Enter may have the wrong newline translation. Knowing that this layer exists tells you whether to change the program, the terminal, or the terminal settings.</p>
+
+<h3>How to think about it</h3>
+
+<p>Think of a receptionist with a notepad. You dictate letters, the receptionist writes them on the pad, crosses out mistakes when you say so, and only hands the page to the manager when you say "done". Some visitors ask the receptionist to step out of the room, and then they speak to the manager directly. That request is what a full-screen program does when it switches to raw mode.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Line discipline</dt>
+<dd>The kernel layer that edits terminal input, echoes it, and turns some characters into signals.</dd>
+<dt>Canonical mode</dt>
+<dd>The usual line-at-a-time mode. Input is edited and delivered after Enter.</dd>
+<dt>Raw mode</dt>
+<dd>A mode in which the line discipline passes bytes straight through with no editing, echoes or signals.</dd>
+<dt><a href="learn/glossary/signal.html">Signal</a></dt>
+<dd>A short notification the kernel sends to a process, such as <code>SIGINT</code> when you press <code>Ctrl + C</code>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read the terminal's settings</h2>
+
+<p><strong>Goal:</strong> you will be able to read the line discipline's settings, say which byte does what, and explain why a program does not receive a key until you press Enter.</p>
+
+<h3>Worked example</h3>
+
+<p>The <code>stty</code> command prints and changes the settings of the terminal it is attached to.</p>
+
+<pre class="session" data-risk="read-only">
+$ stty -a
+speed 38400 baud; rows 0; columns 0; line = 0;
+intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = &lt;undef&gt;;
+eol2 = &lt;undef&gt;; swtch = &lt;undef&gt;; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R;
+werase = ^W; lnext = ^V; discard = ^O; min = 1; time = 0;
+-parenb -parodd -cmspar cs8 -hupcl -cstopb cread -clocal -crtscts
+-ignbrk -brkint -ignpar -parmrk -inpck -istrip -inlcr -igncr icrnl ixon -ixoff
+-iuclc -ixany -imaxbel -iutf8
+opost -olcuc -ocrnl onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 ff0
+isig icanon iexten echo echoe echok -echonl -noflsh -xcase -tostop -echoprt
+echoctl echoke -flusho -extproc
+</pre>
+
+<p>Captured on Arch Linux, 2026-11-13, in a scratch terminal. The rows and columns are zero because that session had no real display size, and your flags will differ in places, particularly <code>iutf8</code>.</p>
+
+<p>The first block names the special characters. The blocks below are flags: a leading <code>-</code> means the flag is off. The ones that matter for ordinary typing are:</p>
+
+<table>
+<tr><th>Setting</th><th>Meaning</th></tr>
+<tr><td><code>intr = ^C</code></td><td><code>0x03</code> sends <code>SIGINT</code></td></tr>
+<tr><td><code>quit = ^\</code></td><td><code>0x1C</code> sends <code>SIGQUIT</code></td></tr>
+<tr><td><code>susp = ^Z</code></td><td><code>0x1A</code> sends <code>SIGTSTP</code></td></tr>
+<tr><td><code>erase = ^?</code></td><td><code>0x7F</code> erases one character</td></tr>
+<tr><td><code>kill = ^U</code></td><td><code>0x15</code> erases the whole line</td></tr>
+<tr><td><code>werase = ^W</code></td><td><code>0x17</code> erases the previous word</td></tr>
+<tr><td><code>rprnt = ^R</code></td><td><code>0x12</code> reprints the line</td></tr>
+<tr><td><code>lnext = ^V</code></td><td><code>0x16</code> quotes the next byte, so it is not interpreted</td></tr>
+<tr><td><code>eof = ^D</code></td><td><code>0x04</code> reports end of input</td></tr>
+<tr><td><code>start = ^Q</code>, <code>stop = ^S</code></td><td><code>0x11</code> and <code>0x13</code> resume and pause output</td></tr>
+<tr><td><code>icanon</code></td><td>line-at-a-time editing is on</td></tr>
+<tr><td><code>isig</code></td><td>the signal characters are active</td></tr>
+<tr><td><code>echo</code></td><td>typed characters are printed back</td></tr>
+<tr><td><code>icrnl</code></td><td>input CR <code>0x0D</code> is converted to LF <code>0x0A</code></td></tr>
+<tr><td><code>onlcr</code></td><td>output LF is converted to CR LF</td></tr>
+<tr><td><code>ixon</code></td><td><code>Ctrl + S</code> and <code>Ctrl + Q</code> control output flow</td></tr>
+</table>
+
+<p>Two of these explain very common sights. <code>echo</code> is why you see your typing at all: the terminal does not print your keys, the kernel echoes them. <code>icrnl</code> is why Enter usually reaches a program as <code>0x0A</code> even though the terminal sent <code>0x0D</code>.</p>
+
+<p>End of input works by position, not by a byte arriving at the program. At an empty line, <code>Ctrl + D</code> makes a pending <code>read</code> return zero bytes, which a program interprets as end of input. In the middle of a line it hands over the text typed so far without a newline, and the program reads those characters normally.</p>
+
+<h3>Try it</h3>
+
+<p>Compare what a program receives in canonical mode with what it receives after the line discipline is cleared. Use a scratch window, because raw mode changes your typing.</p>
+
+<pre class="session" data-risk="scratch">
+$ printf 'type a few keys, then Enter\n'
+$ cat
+$ stty -icanon -echo min 1 time 0
+$ od -An -tx1 -c
+$ stty sane
+</pre>
+
+<p>In the first <code>cat</code>, nothing arrives until you press Enter. In the raw-mode <code>od</code>, each key arrives immediately, Backspace is no longer an editing command, and <code>Ctrl + C</code> is a byte instead of a signal. Type six or seven keys, press Enter, then press <code>Ctrl + D</code>, and finish with <code>stty sane</code> so the window is usable again.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>Nothing you type is displayed</dt>
+<dd><code>echo</code> is off, usually because a program asked for a password or died before restoring the terminal. Type <code>stty sane</code> and press Enter, then <code>reset</code> if needed.</dd>
+<dt>Enter prints a blank line but the command does not run</dt>
+<dd>The program may be waiting for a different terminator, or input translation may be wrong. Check <code>stty -a | grep -E 'icrnl|inlcr|igncr'</code>.</dd>
+<dt>Output stops in the middle of a long listing</dt>
+<dd><code>Ctrl + S</code> paused the output. Press <code>Ctrl + Q</code>.</dd>
+<dt>A command is stopped instead of terminated</dt>
+<dd><code>Ctrl + Z</code> sends <code>SIGTSTP</code>, which suspends the job. Use <code>fg</code> to resume it or <code>kill %1</code> to end it.</dd>
+<dt><code>stty: standard input: Inappropriate ioctl for device</code></dt>
+<dd>Standard input is not a terminal, for example in a pipeline or a script run by cron. Redirect from the terminal device, <code>stty -a &lt; /dev/tty</code>, or run it interactively.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the line discipline is part of the kernel, so its defaults are the kernel's, not a Tamlinux choice. Tamlinux does not change them globally. Per-session settings come from the shell, from <code>stty</code>, or from whatever program currently owns the terminal.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does the shell not see your typing until you press Enter?</summary>
+<p>Because <code>icanon</code> is on. The line discipline buffers input, applies editing such as erase and kill, echoes the result, and delivers the completed line when Enter arrives. The shell reads a whole line at a time.</p>
+</details>
+<details class="q">
+<summary>What is the difference between <code>Ctrl + D</code> at an empty prompt and in the middle of a word?</summary>
+<p>At an empty line it makes the pending read return zero bytes, which looks like end of input and usually closes the shell. Mid-line it delivers the characters typed so far without a newline, so the shell runs them as a partial line.</p>
+</details>
+<details class="q">
+<summary>Does the terminal send <code>0x0A</code> when you press Enter?</summary>
+<p>Usually not. The Enter key sends CR, <code>0x0D</code>, and <code>icrnl</code> converts it to <code>0x0A</code> before the program reads it. With <code>icrnl</code> off, the program sees <code>0x0D</code>, which is a classic cause of strange line endings.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: termios and the N_TTY discipline</h2>
+
+<p>The settings come from a <code>struct termios</code> with four flag words and a table of special characters:</p>
+
+<pre>
+struct termios {
+    tcflag_t c_iflag;    /* input flags: ICRNL, IXON, IUTF8, ... */
+    tcflag_t c_oflag;    /* output flags: OPOST, ONLCR, ... */
+    tcflag_t c_cflag;    /* control flags: CS8, CREAD, CLOCAL, ... */
+    tcflag_t c_lflag;    /* local flags: ICANON, ISIG, ECHO, IEXTEN, ... */
+    cc_t     c_cc[NCCS]; /* VINTR, VQUIT, VERASE, VKILL, VEOF, ... */
+    speed_t  c_ispeed;
+    speed_t  c_ospeed;
+};
+</pre>
+
+<table>
+<tr><th>Flag</th><th>Word</th><th>Effect</th></tr>
+<tr><td><code>ICRNL</code></td><td><code>c_iflag</code></td><td>translate input CR to NL</td></tr>
+<tr><td><code>INLCR</code>, <code>IGNCR</code></td><td><code>c_iflag</code></td><td>translate NL to CR, or drop CR</td></tr>
+<tr><td><code>ISTRIP</code></td><td><code>c_iflag</code></td><td>clear the eighth bit of input bytes</td></tr>
+<tr><td><code>IXON</code>, <code>IXOFF</code>, <code>IXANY</code></td><td><code>c_iflag</code></td><td>software flow control</td></tr>
+<tr><td><code>IUTF8</code></td><td><code>c_iflag</code></td><td>make erase remove a whole UTF-8 character</td></tr>
+<tr><td><code>OPOST</code>, <code>ONLCR</code></td><td><code>c_oflag</code></td><td>output post-processing, NL to CR NL</td></tr>
+<tr><td><code>ICANON</code></td><td><code>c_lflag</code></td><td>canonical line editing</td></tr>
+<tr><td><code>ISIG</code></td><td><code>c_lflag</code></td><td>enable <code>VINTR</code>, <code>VQUIT</code>, <code>VSUSP</code> signals</td></tr>
+<tr><td><code>IEXTEN</code></td><td><code>c_lflag</code></td><td>enable <code>VLNEXT</code> and <code>VDISCARD</code></td></tr>
+<tr><td><code>ECHO</code>, <code>ECHOE</code>, <code>ECHOK</code>, <code>ECHOCTL</code>, <code>ECHOKE</code></td><td><code>c_lflag</code></td><td>echo the input, and echo editing in a readable way</td></tr>
+<tr><td><code>NOFLSH</code></td><td><code>c_lflag</code></td><td>do not flush queues when a signal character arrives</td></tr>
+<tr><td><code>TOSTOP</code></td><td><code>c_lflag</code></td><td>send <code>SIGTTOU</code> to a background writer</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>The discipline is implemented in the kernel's N_TTY code, reached through the tty layer for a pseudo-terminal or a real console. In canonical mode it keeps a line buffer, applies erase, word-erase and kill to that buffer, and wakes a reader when a line delimiter arrives. The buffer is bounded; a line longer than the limit is truncated or refused, and the terminal may beep. A reader's <code>read</code> returns at most one line, so a large write by the program does not correspond to one read by the reader.</p>
+
+<p>The special characters are interpreted before the buffer, in this order of precedence:</p>
+
+<ol>
+<li><code>VLNEXT</code> quotes the following byte, so the next character is inserted literally.</li>
+<li><code>VINTR</code>, <code>VQUIT</code> and <code>VSUSP</code> generate signals when <code>ISIG</code> is set. The signal goes to the foreground process group of the terminal, which is why <code>Ctrl + C</code> reaches the running command and not the shell.</li>
+<li><code>VSTOP</code> and <code>VSTART</code> control output when <code>IXON</code> is set.</li>
+<li><code>VERASE</code>, <code>VWERASE</code>, <code>VKILL</code> and <code>VREPRINT</code> edit the current line when <code>ICANON</code> is set.</li>
+<li><code>VEOF</code> ends the current line without adding a delimiter, and returns zero bytes when the line is empty.</li>
+</ol>
+
+<p>Signals flush the input and output queues unless <code>NOFLSH</code> is set. That is why a partially typed line disappears after <code>Ctrl + C</code>. The signal disposition belongs to the program: it may catch <code>SIGINT</code>, ignore it, or die. <code>SIGQUIT</code> additionally asks for a core dump by default, and <code>SIGTSTP</code> stops the process until it is continued.</p>
+
+<h3>Advanced usage</h3>
+
+<p>Full-screen programs commonly build their mode with <code>cfmakeraw</code>, then restore the saved settings on exit:</p>
+
+<pre>
+struct termios saved, raw;
+tcgetattr(fd, &amp;saved);
+raw = saved;
+cfmakeraw(&amp;raw);          /* clears ICANON, ISIG, ECHO, IEXTEN, IXON, ICRNL, OPOST */
+raw.c_cc[VMIN] = 1;       /* return when one byte is available */
+raw.c_cc[VTIME] = 0;      /* no inter-byte timer */
+tcsetattr(fd, TCSAFLUSH, &amp;raw);
+/* ... read bytes, decode keys, draw ... */
+tcsetattr(fd, TCSAFLUSH, &amp;saved);
+</pre>
+
+<p>In non-canonical mode, <code>VMIN</code> and <code>VTIME</code> decide when a read returns: <code>VMIN</code> is the minimum byte count and <code>VTIME</code> is a timeout in tenths of a second. <code>VMIN = 1, VTIME = 0</code> is a blocking single-byte read, which is what most key decoders want. <code>VMIN = 0, VTIME = n</code> is a timed read, useful for deciding that a lone ESC is the Esc key and not the start of a sequence.</p>
+
+<p>Other parts of the tty layer matter to the same programs:</p>
+
+<ul>
+<li><strong>Window size.</strong> <code>TIOCGWINSZ</code> and <code>TIOCSWINSZ</code> read and set rows and columns; a change raises <code>SIGWINCH</code>, which a full-screen program handles by redrawing.</li>
+<li><strong>Foreground group.</strong> <code>tcgetpgrp</code> and <code>tcsetpgrp</code> decide which process group receives the signal characters. A background group that reads from the terminal gets <code>SIGTTIN</code> and stops.</li>
+<li><strong>Flow control.</strong> <code>tcflow</code> can pause and resume output, and <code>IXON</code> does the same for the special characters.</li>
+<li><strong>Pending output.</strong> <code>TCSAFLUSH</code> discards unread input, while <code>TCSADRAIN</code> waits for output to drain. Choosing wrongly loses typed characters or leaves bytes for the next reader.</li>
+</ul>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>No terminal at all.</strong> Without a controlling terminal, these ioctls fail with <code>ENOTTY</code>. This is normal for a program run from cron, or for a remote command started without a pseudo-terminal such as <code>ssh -T</code>.</li>
+<li><strong>UTF-8 erase without <code>IUTF8</code>.</strong> With the flag off, one erase removes one byte, so erasing a multi-byte character leaves invalid fragments.</li>
+<li><strong>Binary data through a terminal.</strong> Canonical mode interprets <code>0x03</code>, <code>0x04</code>, <code>0x11</code> and <code>0x13</code> as commands. Binary transfers need raw mode and usually a different transport.</li>
+<li><strong>Literal CR in input.</strong> With <code>ICRNL</code> on, a program cannot receive <code>0x0D</code> from the keyboard. A protocol that needs it must disable the translation.</li>
+<li><strong>Password prompts.</strong> They clear <code>ECHO</code> and restore it afterwards, which is why an interrupted password prompt can leave typing invisible.</li>
+<li><strong>Terminal injection.</strong> Writing to another terminal's input queue was historically possible through <code>TIOCSTI</code>. Modern kernels restrict it, and a program should not rely on it.</li>
+<li><strong>Detached processes.</strong> A process that keeps a tty open after its session ends can receive <code>SIGHUP</code>. Some programs ignore it; most should exit.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A full-screen editor exits after a crash. The shell prompt returns, but typed characters are not shown, Enter does not run commands, and <code>Ctrl + C</code> prints <code>^C</code> instead of stopping anything. Explain the state and the safest recovery.</summary>
+<p>The editor set raw mode and died before restoring the saved settings. <code>ECHO</code>, <code>ICANON</code> and <code>ISIG</code> are still cleared, so the shell's input is not echoed, lines are not assembled, and the signal characters arrive as ordinary bytes. The settings belong to the terminal, so a new program inherits them. Type <code>stty sane</code> followed by Enter, which works even though nothing appears; if the terminal still misbehaves, run <code>reset</code>, or close the terminal window, which destroys the pseudo-terminal and its settings. Do not reinstall the editor: the fault is an interrupted cleanup, not a broken binary.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:termios(3)">termios(3)</a>, <a href="man:stty(1)">stty(1)</a>, <a href="man:tty_ioctl(4)">tty_ioctl(4)</a>, the Linux kernel documentation for the tty layer, and the N_TTY implementation in <code>drivers/tty/n_tty.c</code>.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/terminal-input/escape-sequences.html">Escape sequences</a> &mdash; what a raw-mode program does with the bytes it now receives.</li>
+<li><a href="ecosystem/terminal-input/control-codes.html">Control characters and the Ctrl key</a> &mdash; where the bytes come from.</li>
+<li><a href="ecosystem/ttys-and-virtual-consoles.html">TTYs and virtual consoles</a> &mdash; the devices and sessions behind the discipline.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Keys inside foot</title>
+<meta name="topic" content="terminal-input-foot">
+<meta name="summary" content="How the foot terminal emulator turns Wayland key events into bytes, Backspace and Ctrl+Backspace, Alt as an escape prefix, function keys, application cursor mode and modern key protocols">
+<meta name="keywords" content="terminal-input-foot, foot, wayland, terminal emulator, pseudo-terminal, backspace, ctrl+h, application cursor mode, decckm, smkx, kitty keyboard protocol, modifyotherkeys, escape prefix">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/terminal-input/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.beginner, desktop.intermediate, desktop.expert">
+<meta name="prereqs" content="terminal-input">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / <a href="ecosystem/terminal-input/index.html">How a key press becomes input</a> / Keys inside foot</p>
+</nav>
+
+<h1>Keys inside foot</h1>
+
+<p>This page follows a key press inside a terminal window: how the compositor delivers it to the foot terminal emulator, and what foot writes to the program that runs in that window.</p>
+
+<section data-level="novice">
+<h2>A window that acts like a text screen</h2>
+
+<p>A terminal window is not a text screen. It is a program that pretends to be one. The program is called a terminal emulator, and the one used in this section is foot, which runs on <a href="learn/glossary/wayland.html">Wayland</a>.</p>
+
+<p>Inside the window you see a shell prompt and the output of commands. The shell does not talk to the keyboard directly. foot reads your key presses, decides which bytes represent them, and hands those bytes to the shell through a private connection called a pseudo-terminal.</p>
+
+<h3>Why it matters</h3>
+
+<p>Two things can go wrong when you press a key in a terminal window. foot may send a byte you did not expect, or the program may expect a different byte from the one foot sent. The first is the terminal's job; the second is the program's job. This page separates them, so you can tell which one is at fault.</p>
+
+<h3>How to think about it</h3>
+
+<p>Think of a translator sitting between two people. You speak a key press. The shell understands bytes. foot translates, and its dictionary is not the same as the one used on a text console. If a translation surprises you, ask the translator what it sent, not what you said.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Terminal emulator</dt>
+<dd>A program that behaves like a text terminal inside a graphical window. foot is one; so are Alacritty, Kitty and GNOME Terminal.</dd>
+<dt>Pseudo-terminal</dt>
+<dd>A pair of connected devices that lets one program act as a terminal for another. foot holds the master side; the shell holds the slave side.</dd>
+<dt>Modifier key</dt>
+<dd>A key that changes another key instead of producing a character, such as Shift, Ctrl and Alt.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Ask foot what it sends</h2>
+
+<p><strong>Goal:</strong> you will be able to predict the bytes foot sends for ordinary keys, Backspace, <code>Ctrl + Backspace</code>, Alt chords, and function keys, and verify the answer inside a terminal window.</p>
+
+<h3>Worked example</h3>
+
+<p>The terminal database records what a terminal is supposed to send. <code>infocmp</code> prints that record for the <code>foot</code> entry.</p>
+
+<pre class="session" data-risk="read-only">
+$ infocmp -1 foot | grep -E '^\s+(kbs|kcuu1|kcub1|kf1|kf5|khome|kend)='
+	kbs=^?,
+	kcub1=\EOD,
+	kcuu1=\EOA,
+	kend=\EOF,
+	kf1=\EOP,
+	kf5=\E[15~,
+	khome=\EOH,
+</pre>
+
+<p>Captured on Arch Linux, 2026-11-13, with foot 1.28.0. <code>\E</code> is the escape byte <code>0x1B</code> and <code>^?</code> is <code>0x7F</code>. So foot sends <code>0x7F</code> for Backspace, and <code>ESC O A</code> for Up.</p>
+
+<p>There is a qualification that matters for diagnosing real problems. The value of <code>kcuu1</code> in the database is the sequence used in application cursor mode, which a full-screen program requests. Pressed at an ordinary shell prompt, Up sends <code>ESC [ A</code>. Both are correct; they belong to different modes.</p>
+
+<pre class="session" data-risk="read-only">
+$ tput smkx | od -An -c
+ 033   [   ?   1   h 033   =
+$ TERM=foot tput kcuu1 | od -An -c
+ 033   O   A
+</pre>
+
+<p>The first command shows the request a program sends to switch the cursor keys into application mode: <code>ESC [ ? 1 h</code> enables the DECCKM mode and <code>ESC =</code> selects application keypad mode. After that request, Up sends <code>ESC O A</code>, which is the sequence <code>kcuu1</code> names.</p>
+
+<h3>Try it</h3>
+
+<p>Run this inside foot. The <code>Ctrl + V</code> prefix, called the literal-next character, tells the line discipline to pass the next byte through instead of acting on it. That makes control bytes visible in ordinary typing.</p>
+
+<pre class="session" data-risk="scratch">
+$ cat -v
+</pre>
+
+<p>Then press these keys, pressing Enter after each, and compare with the explanation. End with <code>Ctrl + D</code>.</p>
+
+<table>
+<tr><th>Key</th><th>What you see</th><th>Why</th></tr>
+<tr><td><code>Ctrl + V</code>, then <code>Ctrl + A</code></td><td><code>^A</code></td><td><code>0x01</code> is shown in caret notation</td></tr>
+<tr><td><code>Ctrl + V</code>, then Backspace</td><td><code>^?</code></td><td>foot sent <code>0x7F</code></td></tr>
+<tr><td><code>Ctrl + V</code>, then <code>Ctrl + Backspace</code></td><td><code>^H</code></td><td>foot sent <code>0x08</code></td></tr>
+<tr><td><code>Ctrl + V</code>, then Alt and <code>a</code></td><td><code>^[a</code></td><td>Alt is sent as an escape prefix</td></tr>
+<tr><td><code>Ctrl + V</code>, then Up</td><td><code>^[[A</code></td><td>A three-byte cursor sequence</td></tr>
+</table>
+
+<p>For exact bytes rather than caret notation, feed the keys to <code>od</code> instead:</p>
+
+<pre class="session" data-risk="scratch">
+$ od -An -tx1 -c
+</pre>
+
+<p>Press a few keys, press Enter, then <code>Ctrl + D</code>. The output shows the bytes foot wrote, including the byte the line discipline added for Enter.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>Backspace prints <code>^H</code> and does not delete</dt>
+<dd>You are in a context that receives <code>0x08</code>, usually because you pressed <code>Ctrl + Backspace</code>, or because the program is in raw mode and does not treat the byte as erase.</dd>
+<dt><code>cat -v</code> shows nothing until you press Enter</dt>
+<dd>That is canonical mode: the line discipline holds the line until Enter, then hands it to <code>cat</code>. <code>Ctrl + V</code> works because literal-next is handled before the line is complete.</dd>
+<dt>Typing produces strange characters after a raw-mode program exits</dt>
+<dd>The program left the terminal in raw mode. Type <code>stty sane</code> followed by Enter, or run <code>reset</code>. Closing the window also restores a fresh terminal.</dd>
+<dt><code>infocmp: couldn't open terminfo file foot</code></dt>
+<dd>The <code>TERM</code> value is different, or the terminfo database does not have the entry. Print <code>echo $TERM</code> and use that name.</dd>
+<dt>Arrow keys insert <code>^[[A</code> as text</dt>
+<dd>The program is reading bytes but not decoding escape sequences, which happens when a program expects a different terminal type. Check <code>TERM</code> and the program's documentation.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> foot is the terminal emulator used by the desktop session, and it reads the same Wayland key events as every other application. Tamlinux does not patch foot's key encoder, so the sequences described here match the upstream foot documentation for the installed version.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Which byte does foot send when you press Backspace, and which when you press <code>Ctrl + Backspace</code>?</summary>
+<p>Backspace sends <code>0x7F</code>, the DEL code. <code>Ctrl + Backspace</code> sends <code>0x08</code>, the ASCII BS code. foot documents both, and it does not implement the DECBKM mode that would let a program ask for BS instead.</p>
+</details>
+<details class="q">
+<summary>Why does the database say Up is <code>ESC O A</code> when pressing Up at a prompt sends <code>ESC [ A</code>?</summary>
+<p>The database value describes application cursor mode, which a full-screen program requests by sending <code>ESC [ ? 1 h</code>. At an ordinary prompt that mode is off, so foot uses the normal form <code>ESC [ A</code>. Both sequences are correct in their own mode.</p>
+</details>
+<details class="q">
+<summary>What does pressing Alt and <code>a</code> send?</summary>
+<p><code>ESC</code> followed by <code>a</code>, that is <code>0x1B 0x61</code>. foot prefixes the key with an escape byte instead of setting the high bit of the character.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: the Wayland-to-pty path</h2>
+
+<table>
+<tr><th>Stage</th><th>foot behaviour</th><th>Interface</th></tr>
+<tr><td>Compositor focus</td><td>delivers <code>enter</code>, then <code>key</code> and <code>modifiers</code></td><td><code>wl_keyboard</code></td></tr>
+<tr><td>Key code</td><td>Wayland keycode, kernel keycode plus 8</td><td><code>wl_keyboard.key</code></td></tr>
+<tr><td>Layout</td><td>compiled XKB keymap from the compositor</td><td><code>wl_keyboard.keymap</code>, xkbcommon</td></tr>
+<tr><td>Encoding</td><td>keysym or chord becomes bytes</td><td>internal encoder</td></tr>
+<tr><td>Write</td><td>bytes written to the master side</td><td><code>/dev/ptmx</code></td></tr>
+<tr><td>Line discipline</td><td>echo, erase, signals, or pass-through</td><td>slave side, <code>/dev/pts/N</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>foot receives <code>wl_keyboard.key</code> with a Wayland keycode, plus a <code>wl_keyboard.modifiers</code> event carrying the Shift, Ctrl, Alt, Meta, Caps Lock and Num Lock state. It applies the compositor's keymap with xkbcommon and obtains a keysym. From there it chooses one of several encodings:</p>
+
+<ul>
+<li><strong>Printable keysym.</strong> The character is encoded as UTF-8 and written unchanged. A keysym that is not printable but has a Unicode equivalent is sent as its character when the layout says so.</li>
+<li><strong>Ctrl with a letter or symbol.</strong> The control byte is derived from the character with the mask <code>&amp; 0x1F</code>, so <code>Ctrl + H</code> is <code>0x08</code>. <code>Ctrl + Space</code> and <code>Ctrl + @</code> become <code>0x00</code>; <code>Ctrl + ?</code> becomes <code>0x7F</code>.</li>
+<li><strong>Alt with any key.</strong> Alt is not a control byte in foot. It prefixes the key's own encoding with <code>ESC</code>, so Alt and <code>a</code> is <code>ESC a</code> and Alt and Up is <code>ESC ESC [ A</code>.</li>
+<li><strong>Cursor keys, function keys and editing keys.</strong> These use fixed sequences, normally the <code>ESC [</code> form and the <code>ESC O</code> form in application cursor mode. Modified cursor keys use the xterm parameter form, where the modifier is encoded as a number after a semicolon.</li>
+<li><strong>Backspace.</strong> <code>0x7F</code>. <code>Ctrl + Backspace</code> is <code>0x08</code>. foot's manual states that DECBKM is not implemented, so a program cannot ask foot to send <code>0x08</code> for Backspace through that mode.</li>
+</ul>
+
+<p>The escape byte prefix is why <code>Ctrl + [</code> and the Esc key are hard to distinguish: both produce <code>0x1B</code>. A program reads <code>0x1B</code> and cannot know whether the reader pressed Esc or a chord, unless the terminal reports the chord separately.</p>
+
+<h3>Advanced usage</h3>
+
+<p>foot implements two mechanisms that remove some of that ambiguity. Both are opt-in: a program must ask, and a program that does not ask sees the legacy bytes.</p>
+
+<p><strong>modifyOtherKeys.</strong> The program enables it with <code>CSI &gt; 4 ; 2 m</code>, and foot also has a default level for programs that do not ask. Once enabled, a chord that would otherwise be a single control byte is reported as <code>CSI 27 ; modifier ; code ~</code>, so the reader's exact chord can be recovered. foot's changelog records support from 1.10.0 and states that the default level is 1, with level 0 not supported.</p>
+
+<p><strong>The kitty keyboard protocol.</strong> A program enables it with <code>CSI &gt; flags u</code> and can query the current flags with <code>CSI ? u</code>. The flags select progressively more information: disambiguate escape codes, report event types such as press and release, report alternate keys, report all keys as escape codes, and report associated text. foot's changelog records initial support in 1.10.2 and the wider set of flags in 1.10.3. With disambiguation enabled, <code>Ctrl + I</code> and Tab, <code>Ctrl + M</code> and Enter, and <code>Ctrl + [</code> and Esc become distinguishable, which no legacy encoding can do.</p>
+
+<pre class="session" data-risk="read-only">
+$ infocmp -1 foot | grep -E '^\s+(XM|kmous|Ms|colors|pairs)='
+$ man 7 foot-ctlseqs | col -b | grep -n -m 5 -i 'modifyOtherKeys'
+</pre>
+
+<p>The first command reads optional capabilities from the terminfo entry; the second searches foot's control-sequence reference for the keyboard protocols. Neither changes any state.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Application cursor mode leaks.</strong> A program that sends <code>ESC [ ? 1 h</code> and exits without sending <code>ESC [ ? 1 l</code> leaves the terminal in that mode, so the shell sees <code>ESC O A</code> for Up. A modern shell usually repairs the mode, but a crash may not.</li>
+<li><strong>Aliased keys.</strong> Tab and <code>Ctrl + I</code> are one byte, as are Enter and <code>Ctrl + M</code>. Only the modern protocols separate them.</li>
+<li><strong>Key repeat</strong> is generated by the compositor, and foot sees a stream of press events. A program using the kitty protocol can receive repeat and release events, which changes what "one key press" means.</li>
+<li><strong>Layout groups and dead keys.</strong> The keysym depends on the active group and on pending dead keys. A dead key produces no bytes until the following key completes the character.</li>
+<li><strong>Input methods.</strong> When an input method is active for the window, composed text may arrive through <code>text-input</code> or as committed strings, not as individual key events. The bytes the program reads are then text, not keys.</li>
+<li><strong>Text bindings and key bindings.</strong> foot's configuration can bind a chord to text or to an action. A binding that foot consumes never reaches the program, which looks like a missing keystroke rather than a wrong byte.</li>
+<li><strong>Bracketed paste.</strong> foot supports the bracketed-paste mode, so an editor can tell pasted text from typed keys and avoid executing a pasted <code>0x03</code> as a command.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A program running in foot reports that Up arrives as <code>ESC O A</code> in one session and <code>ESC [ A</code> in another, with the same foot version and the same keyboard. What is the most likely explanation, and what would you check before touching the terminfo entry?</summary>
+<p>The two sessions are in different cursor-key modes. The first program enabled application cursor mode with <code>ESC [ ? 1 h</code>, which is what <code>tput smkx</code> and ncurses' <code>keypad(TRUE)</code> do; the other did not. Check which program is running, whether it calls keypad or sends smkx, and whether a previous program left the mode enabled after exiting. The terminfo entry is not wrong: it records the application-mode sequence, and a correct program either uses the mode it requested or accepts both forms. Changing the database would break the program that does request the mode.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<p><a href="man:foot(1)">foot(1)</a>, <a href="man:foot.ini(5)">foot.ini(5)</a>, <a href="man:foot-ctlseqs(7)">foot-ctlseqs(7)</a>, the foot changelog for versions 1.10.0 to 1.10.3, the kitty keyboard protocol specification, <a href="man:termios(3)">termios(3)</a>, and the <code>foot</code> terminfo entry.</p>
+</section>
+
+<h2>Where next</h2>
+
+<ul>
+<li><a href="ecosystem/terminal-input/line-discipline.html">The kernel's line editor</a> &mdash; what happens to foot's bytes before the program reads them.</li>
+<li><a href="ecosystem/terminal-input/escape-sequences.html">Escape sequences</a> &mdash; how the multi-byte sequences are structured.</li>
+<li><a href="ecosystem/terminal-input/linux-console.html">The Linux text console</a> &mdash; the same job done by the kernel.</li>
+<li><a href="ecosystem/terminfo-and-termcap.html">How terminals display text</a> &mdash; the output side of the same database.</li>
+</ul>
+</body>
+</html>
