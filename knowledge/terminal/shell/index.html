@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Giving your computer written instructions</title>
+<meta name="topic" content="shell">
+<meta name="summary" content="Unix philosophy, standard streams, and execution">
+<meta name="keywords" content="shell, streams, stdin, stdout, stderr, sh, bash, aliases, ls, channels">
+<meta name="level" content="novice, learner">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/index.html">
+<meta name="kind" content="explanation">
+<meta name="skills" content="shell.novice">
+<meta name="paths" content="first-steps:6, command-line-fluency:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / Giving your computer written instructions</p></nav>
+
+
+<h1>Giving your computer written instructions</h1>
+<p>This page explains how to give your computer written instructions and read its replies.</p>
+
+<section data-level="novice">
+<h2>What is a shell?</h2>
+<p>A terminal is a place to type instructions and read replies. A shell is the program that reads those instructions. You can connect small programs to do more work together.</p>
+
+<h3>Why it matters</h3>
+<p>Recognizing what is a command and what is output helps you avoid typing a reply as if it were an instruction, or mistaking an error message for ordinary results.</p>
+
+<h3>How to think about it</h3>
+<p>Think of the shell as a receptionist who takes your written request, hands it to the right office, and brings back the reply. The three common reply channels are ordinary results, error messages, and the text you type in.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/s/shell.html">Shell</a></dfn></dt><dd>The program that reads typed instructions and starts other programs.</dd>
+<dt><dfn><a href="glossary/s/stream.html">Stream</a></dfn></dt><dd>A continuous flow of text into or out of a program.</dd>
+<dt><dfn><a href="glossary/t/terminal.html">Terminal</a></dfn></dt><dd>The window or console where you type and read text.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Commands and streams</h2>
+<p><strong>Goal:</strong> recognize a command, its output, and the streams a shell connects.</p>
+
+
+<p><strong>Before you start:</strong> use a terminal and read <a href="paths/first-steps.html">First steps</a>. This example changes no files.</p>
+<aside class="first-time"><p><strong>New to this?</strong> Type the text after the dollar sign at your prompt and press Enter. The next line is output.</p></aside>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ printf '%s\n' hello
+hello
+</pre>
+<p>Captured on Arch Linux, 2026-10-27. The shell runs <code>printf</code>; the word on the second line is its output.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>You typed a command after the prompt.</li>
+<li>The shell started <code>printf</code> with the argument <code>hello</code>.</li>
+<li>The program wrote <code>hello</code> to standard output, which appeared on your screen.</li>
+</ol>
+
+<h3>The standard streams</h3>
+<p>A program started by the shell usually has three standard streams:</p>
+<dl>
+<dt>0 &mdash; standard input (stdin)</dt>
+<dd>Where the program reads input, usually from your terminal.</dd>
+<dt>1 &mdash; standard output (stdout)</dt>
+<dd>Where normal output goes, usually to your terminal screen.</dd>
+<dt>2 &mdash; standard error (stderr)</dt>
+<dd>Where messages about errors, warnings and progress go, separate from normal output.</dd>
+</dl>
+<p>A pipe (<code>|</code>) normally passes standard output to another program while error messages stay separate.</p>
+
+<h3>Try it</h3>
+<p>Change <code>hello</code> to <code>pear</code> in the example and predict the output before running it.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The terminal shows a continuation prompt</dt>
+<dd>Check quotes and spacing. Ctrl+C cancels unfinished input; it does not undo commands that already ran.</dd>
+<dt>You want to practice redirection</dt>
+<dd>Redirection with <code>&gt;</code> can overwrite a file. Practice only in a fresh temporary directory.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>The <code>tam hello</code> and <code>tam hi</code> subcommands both open Welcome; they do not require a shell alias.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Which stream ordinarily carries diagnostics?</summary>
+<p>Standard error, stream 2, is separate from normal standard output.</p></details>
+<details class="q"><summary>Does the dollar sign in a sample need to be typed?</summary>
+<p>No. It represents a prompt; type the command after it.</p></details>
+</section>
+</section>
+
+<h2>Next</h2><p><a href="terminal/shell/pipelines.html">Connecting programs</a> &mdash; pass output from one program to another.</p>
+<h2>Related</h2><ul><li><a href="terminal/shell/jobs.html">Managing running programs</a> &mdash; foreground and background processes.</li><li><a href="terminal/shell/tools.html">Shell tools</a> &mdash; launchers, TUIs, and web apps.</li><li><a href="desktop/apps/editor.html">Editors</a> &mdash; open and change text files.</li><li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li></ul>
+</body>
+</html>

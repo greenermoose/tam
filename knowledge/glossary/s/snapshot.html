@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head>
+<title>Snapshot</title>
+<meta name="topic" content="glossary-snapshot">
+<meta name="summary" content="Snapshot: definition and recovery boundary at each level">
+<meta name="keywords" content="glossary-snapshot, learning, recovery">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Snapshot</p></nav>
+
+<h1>Snapshot</h1>
+<p>A snapshot records the state of stored information at a particular time.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>A saved state of a filesystem subvolume. It can help recover an earlier file, but a copy on the same drive does not protect against loss of that drive.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>A Btrfs snapshot initially shares file extents with its source subvolume. Later changes can diverge. A snapshot does not recursively include nested subvolumes or separately mounted filesystems.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>A snapshot is itself a subvolume with an initial shared extent set and independent identity. Read-only flags, mount selection, excluded subvolumes and application consistency define its recovery boundary; independent backups remain necessary.</p></section>
+<p><a href="systems/recovery/checkpoint.html">Checkpoints and rollback points</a>;
+<a href="systems/recovery/rollback.html">Snapshots and generation rollbacks</a>;
+<a href="glossary/c/checkpoint.html">Checkpoint glossary entry</a>;
+<a href="systems/recovery/recovery.html">Emergency recovery</a>;
+<a href="glossary/index.html">All glossary terms</a>.</p>
+<h2>Learn more</h2><ul><li><a href="systems/recovery/rollback.html">Returning to an earlier working state</a></li><li><a href="systems/recovery/checkpoint.html">Saving a recovery point before a change</a></li><li><a href="systems/recovery/snapper.html">Using Snapper to help recover information</a></li><li><a href="systems/boot/boot-recovery.html">When your computer cannot start</a></li></ul>
+</body></html>

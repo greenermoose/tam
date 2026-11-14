@@ -156,56 +156,19 @@ tam_document_t *tam_topic_guide_document(const char *root, const char *topic, un
 
 tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, int width)
 {
-    tam_index_t *idx = tam_index_load(root);
-    if (idx == NULL) {
-        return NULL;
-    }
-    tam_keyword_list_t *list = tam_index_get_keywords(idx, level);
-    if (list == NULL) {
-        tam_index_free(idx);
-        return NULL;
-    }
-
-    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Keyword Index" } };
-    tam_str_t html = tam_page_begin("Keyword Index", NULL, crumbs, 2);
-    if (level != 0) {
-        html = tam_str_cat_printf(html, "<h1>Keyword Index (%s)</h1>\n", tam_level_name(level));
-    } else {
-        html = tam_str_cat(html, "<h1>Keyword Index</h1>\n");
-    }
-    html = tam_str_cat(html,
-        "<p>Every word <code>tam explain</code> recognizes and what it leads to.<br>\n"
-        "Select a keyword with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to see its topic guide. "
-        "Press <kbd>`</kbd> for the guide index, or <kbd>q</kbd> to quit.</p>\n"
-        "<table>\n"
-        "<tr><th>Keyword</th><th>Pages</th><th>Covers</th></tr>\n");
-
-    for (size_t i = 0; i < list->count; i++) {
-        char *enc_kw = url_encode(list->items[i].keyword);
-        char *esc_kw = tam_html_escape(list->items[i].keyword);
-        char *esc_sum = tam_html_escape(list->items[i].primary_summary);
-        size_t cnt = list->items[i].count;
-
-        if (level != 0) {
-            html = tam_str_cat_printf(html,
-                "<tr><td><a href=\"tam:explain?topic=%s&amp;level=%s\">%s</a></td><td>%zu page%s</td><td>%s</td></tr>\n",
-                enc_kw ? enc_kw : "", tam_level_name(level), esc_kw, cnt, (cnt == 1 ? "" : "s"), esc_sum);
-        } else {
-            html = tam_str_cat_printf(html,
-                "<tr><td><a href=\"tam:explain?topic=%s\">%s</a></td><td>%zu page%s</td><td>%s</td></tr>\n",
-                enc_kw ? enc_kw : "", esc_kw, cnt, (cnt == 1 ? "" : "s"), esc_sum);
-        }
-        free(enc_kw);
-        free(esc_kw);
-        free(esc_sum);
-    }
-    html = tam_str_cat(html, "</table>\n");
-    tam_keyword_list_free(list);
-    tam_index_free(idx);
-    return tam_page_render(html, width);
+    (void)level;
+    return tam_guide_search_document(root, NULL, width);
 }
 
-tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
+static int entry_title_order(const void *a, const void *b)
+{
+    const tam_index_entry_t *ea = *(const tam_index_entry_t * const *)a;
+    const tam_index_entry_t *eb = *(const tam_index_entry_t * const *)b;
+    int cmp = strcasecmp(ea->title, eb->title);
+    return cmp ? cmp : strcmp(ea->path, eb->path);
+}
+
+tam_document_t *tam_catalog_document(const char *root, unsigned level, int width)
 {
     tam_index_t *idx = tam_index_load(root);
     if (idx == NULL) {
@@ -227,21 +190,54 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
         "<table>\n"
         "<tr><th>Topic</th><th>Covers</th></tr>\n");
 
+    const tam_index_entry_t **ordered = calloc(idx->count ? idx->count : 1, sizeof(*ordered));
+    if (ordered == NULL) { tam_index_free(idx); tam_str_free(html); return NULL; }
+    for (size_t i = 0; i < idx->count; i++) ordered[i] = &idx->entries[i];
+    qsort(ordered, idx->count, sizeof(*ordered), entry_title_order);
     for (size_t i = 0; i < idx->count; i++) {
-        const tam_index_entry_t *e = &idx->entries[i];
+        const tam_index_entry_t *e = ordered[i];
         if (level != 0) {
             html = tam_str_cat_printf(html, "<tr><td><a href=\"%s?level=%s\">",
                                       e->path, tam_level_name(level));
         } else {
             html = tam_str_cat_printf(html, "<tr><td><a href=\"%s\">", e->path);
         }
-        html = tam_html_cat(html, e->topic);
+        html = tam_html_cat(html, e->title);
         html = tam_str_cat(html, "</a></td><td>");
         html = tam_html_cat(html, e->summary);
         html = tam_str_cat(html, "</td></tr>\n");
     }
     html = tam_str_cat(html, "</table>\n");
+    free(ordered);
     tam_index_free(idx);
+    return tam_page_render(html, width);
+}
+
+tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
+{
+    tam_index_t *idx = tam_index_load(root);
+    if (idx == NULL) return NULL;
+    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Browse subjects" } };
+    tam_str_t html = tam_page_begin("Browse subjects", NULL, crumbs, 2);
+    html = tam_str_cat(html, "<h1>Browse subjects</h1><p>Choose a subject. Its opening page introduces the ideas, practical tasks, and reading order.</p><dl>");
+    size_t shown = 0;
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        const char *subjects[] = {"hardware", "systems", "terminal", "networking", "security", "programming", "desktop", "tamlinux"};
+        int subject = 0;
+        for (size_t j = 0; j < sizeof(subjects)/sizeof(subjects[0]); j++)
+            if (e->track && strcmp(e->track, subjects[j]) == 0) subject = 1;
+        if (!subject || !e->parent || strcmp(e->parent, "index.html") != 0) continue;
+        html = tam_str_cat_printf(html, "<dt><a href=\"%s\">", e->path);
+        html = tam_html_cat(html, e->title);
+        html = tam_str_cat(html, "</a></dt><dd>");
+        html = tam_html_cat(html, e->summary);
+        html = tam_str_cat(html, "</dd>");
+        shown++;
+    }
+    html = tam_str_cat(html, "</dl><p><a href=\"tam:catalog\">All pages A–Z</a> · <a href=\"tam:paths\">Learn step by step</a> · <a href=\"tam:search\">Search</a></p>");
+    tam_index_free(idx);
+    if (!shown) { tam_str_free(html); return tam_catalog_document(root, level, width); }
     return tam_page_render(html, width);
 }
 
@@ -319,17 +315,30 @@ tam_document_t *tam_paths_document(const char *root, const char *path_id,
     static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Learning Paths" } };
     tam_str_t html = tam_page_begin("Learning Paths", NULL, crumbs, 2);
     html = tam_str_cat(html,
-        "<h1>Learning Paths</h1>\n"
-        "<p>Curated routes constructed dynamically from page metadata.<br>\n"
+        "<h1>Learn step by step</h1>\n"
+        "<p>Choose what you want to understand or do. Read the overview for prerequisites, stages, and a final task.<br>\n"
         "Follow any path to keep <strong>Back</strong>, <strong>Next</strong>, and <kbd>Right Arrow</kbd> "
         "on that course even across shared pages.</p>\n");
 
     if (idx->num_paths == 0) {
         html = tam_str_cat(html, "<p>No learning paths are indexed.</p>\n");
     } else {
-        html = tam_str_cat(html, "<dl>\n");
+        const char *groups[] = {"hardware", "systems", "terminal", "networking", "security", "programming", "desktop", "tamlinux", "help", "other"};
+        for (size_t g = 0; g < sizeof(groups)/sizeof(groups[0]); g++) {
+        int opened = 0;
         for (size_t i = 0; i < idx->num_paths; i++) {
             const tam_path_def_t *p = &idx->paths[i];
+            const tam_index_entry_t *first = p->num_steps ? tam_index_lookup_path(idx, p->steps[0].path) : NULL;
+            const char *group = first && first->track ? first->track : "other";
+            size_t match = 0;
+            for (; match + 1 < sizeof(groups)/sizeof(groups[0]); match++)
+                if (strcmp(group, groups[match]) == 0) break;
+            if (match != g) continue;
+            if (!opened) {
+                html = tam_str_cat(html, "<h2>");
+                html = tam_html_cat(html, strcmp(groups[g], "help") == 0 ? "Getting started" : groups[g]);
+                html = tam_str_cat(html, "</h2><dl>"); opened = 1;
+            }
             char *enc_id = url_encode(p->id);
             html = tam_str_cat_printf(html, "<dt><a href=\"tam:path?id=%s\">",
                                       enc_id ? enc_id : p->id);
@@ -349,7 +358,8 @@ tam_document_t *tam_paths_document(const char *root, const char *path_id,
             html = tam_str_cat(html, "</dd>\n");
             free(enc_id);
         }
-        html = tam_str_cat(html, "</dl>\n");
+        if (opened) html = tam_str_cat(html, "</dl>\n");
+        }
     }
     tam_index_free(idx);
     return tam_page_render(html, width);

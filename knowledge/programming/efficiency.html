@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How software can wait for work efficiently</title>
+<meta name="topic" content="efficiency">
+<meta name="summary" content="Eliminating periodic polling loops with inotify, epoll, and Wayland compositor event sockets to keep CPU idle and save energy">
+<meta name="keywords" content="efficiency, zero-polling, polling, inotify, epoll, wayland, idle, power, wakeups, events, cpu">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/index.html">
+<meta name="prereqs" content="improve, power">
+<meta name="kind" content="how-to">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+<meta name="paths" content="run-lean:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / How software can wait for work efficiently</p></nav>
+
+
+<h1>How software can wait for work efficiently</h1>
+<p>This page explains how software can wait for work without repeatedly checking for it.</p>
+<h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="systems/power.html">When your computer rests or sleeps</a></p>
+<p>Repeatedly checking for work can use energy even when nothing needs attention. Programs can instead wait to be notified when something happens.</p>
+
+<section data-level="novice">
+<h2>What wastes idle CPU time?</h2>
+<p>Naive automation scripts often check status using <code>while true; do check; sleep 1; done</code> loops. Waking up every second prevents modern CPU cores from dropping into low-power package C-states (such as C8 or C10), tripling idle battery drain and generating unnecessary heat even when the laptop lid is closed.</p>
+<h3>Why it matters</h3>
+<p>Naive automation scripts often check status using <code>while true; do check; sleep 1; done</code> loops. Waking up every second prevents modern CPU cores from dropping into low-power package C-states (such as C8 or C10), tripling idle battery drain and generating unnecessary heat even when the laptop lid is closed.</p>
+<h3>How to think about it</h3>
+<p>Periodic wakeups keep CPUs out of deep idle. Prefer work that runs when an event arrives instead of polling on a timer.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/c/context-switch.html">Context switch</a></dt>
+<dd>The kernel operation of saving one process's execution state and restoring another to run on a CPU core.</dd>
+<dt><a href="glossary/c/c-state.html">C-state</a></dt>
+<dd>An operating state of a processor core; C0 is active execution, while higher states (C1 to C10) progressively power down clock domains and caches to conserve energy.</dd>
+</dl>
+<p>An idle <dfn><a href="glossary/p/process.html">process</a></dfn> sleeps in the kernel and consumes zero CPU cycles until an event arrives.</p>
+</section>
+
+<section data-level="learner">
+<h2>Identifying CPU wakeups and idle efficiency</h2>
+<p><strong>Goal:</strong> you will be able to measure processor wakeups, context switches, and CPU idle percentages using <code>vmstat</code> to verify system efficiency.</p>
+<p><strong>Before you start:</strong> open a terminal (<a href="terminal/shell/index.html">The Shell and Streams</a>). Review the <a href="systems/power.html">Progressive Power Ladder</a> for sleep levels and system power management. The monitoring commands here are strictly read-only queries.</p>
+<aside class="first-time">
+<p>When measuring idle system performance, avoid moving the mouse cursor or pressing keys while the benchmark runs. Moving the mouse sends input events that wake up the compositor and inflate interrupt counts. Run the command, wait a few seconds without touching inputs, and observe the numbers.</p>
+</aside>
+<h3>Mental model</h3>
+<pre>
+Polling Loop (Naive)                      Event-Driven (inotify)
+-------------------                      ----------------------
+while true; do                           inotifywait -e modify file.txt
+  check_file                                 |
+  sleep 1  &lt;-- CPU wakes every second        | [waits for an event]
+done                                           v
+[Wastes energy, misses changes]          File modified -&gt; kernel wakes script
+</pre>
+
+<p>A polling loop wakes the CPU every interval, even when nothing has changed. If changes occur between sleeps, they can be missed or delayed. In contrast, <code>inotifywait</code> registers an inotify watch in the Linux kernel and calls <code>read(2)</code> on the inotify file descriptor. The waiting process can block until an event (such as <code>modify</code>, <code>create</code>, or <code>delete</code>) is reported. Delivery and application processing take time; measure the actual workload rather than assuming zero CPU use or instant delivery.</p>
+<h3>Worked example: Sample CPU wakeups and context switches with vmstat</h3>
+<pre class="session" data-risk="read-only">
+$ vmstat 1 3
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu
+ 3  0 3069652 14807812 188 9215968  23   37   181   152  919    2  1  1 98  0  0  0
+ 1  0 3069652 14807812 188 9216304   0    0     0    64 4947 6298  1  1 98  0  0  0
+ 2  0 3069652 14809860 188 9216400   0    0     0   504 5034 6530  1  1 98  0  0  0
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<ol>
+<li><code>vmstat 1 3</code> takes three 1-second samples of system activity. The first line reports averages since boot; subsequent lines report exact activity during each 1-second interval.</li>
+<li>The <code>cs</code> (context switches) column shows how many times the kernel switched execution between processes.</li>
+<li>The <code>in</code> (interrupts) column counts hardware and timer interrupts received by the CPU.</li>
+<li>The <code>id</code> (idle percentage) column shows the percentage of CPU time spent in the idle task (here 98%), while <code>us</code> (user) and <code>sy</code> (system) show active processing time.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>vmstat 2 2</code> to sample over 2-second windows. Observe how leaving the system untouched yields high idle percentages (95%+) and steady context switch rates.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Context switches (cs) spike into tens of thousands</dt>
+<dd>A background process or browser tab is actively running a high-frequency polling loop or animation. Identify it using <code>top</code> or <code>htop</code> sorted by CPU usage.</dd>
+<dt>Idle column (id) drops below 80% with no visible apps</dt>
+<dd>A background indexing service, compilation, or misbehaving background daemon is consuming CPU cycles. Inspect active processes with <code>ps aux --sort=-%cpu | head -10</code>.</dd>
+<dt>Command vmstat not found</dt>
+<dd><code>vmstat</code> is part of the standard <code>procps-ng</code> package included with every base Arch Linux installation.</dd>
+</dl>
+<aside class="tamlinux">
+<p>On Tamlinux, desktop widgets and status monitors (such as <code>fred.*</code> plugins and Quickshell bars) can use events such as Wayland and D-Bus notifications. Whether a particular component polls and how much power it draws require inspection and measurement.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is the first output line of <code>vmstat 1 3</code> different from the subsequent lines?</summary>
+<p>The first line prints system-wide averages accumulated since the machine booted. Only the second and subsequent lines report activity measured over the exact sampling interval (1 second).</p>
+</details>
+<details class="q">
+<summary>What does a low <code>id</code> (idle) percentage in <code>vmstat</code> indicate?</summary>
+<p>It indicates that processor cores are spending substantial time executing user or system code, preventing the CPU from entering energy-saving sleep states.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Kernel event multiplexing and Wayland event loops</h2>
+
+<h3>Reference: Linux event multiplexers and socket interfaces</h3>
+
+<table>
+<tr><th>Interface</th><th>Complexity</th><th>Kernel mechanism</th><th>Behavior</th></tr>
+<tr><td><code>epoll_create1(2)</code></td><td>$O(1)$</td><td>Creates an epoll file descriptor with <code>EPOLL_CLOEXEC</code>.</td><td>Initializes kernel event ready-list and interest tree.</td></tr>
+<tr><td><code>epoll_ctl(2)</code></td><td>$O(1)$</td><td>Adds, modifies, or removes watched descriptors (sockets, timers, inotify handles).</td><td>Configures monitored event masks (e.g. <code>EPOLLIN</code>, <code>EPOLLET</code>).</td></tr>
+<tr><td><code>epoll_wait(2)</code></td><td>$O(1)$</td><td>Blocks process execution until one or more descriptors become ready.</td><td>Timeout <code>-1</code> waits without a timeout until an event or interruption.</td></tr>
+<tr><td><code>wl_display_get_fd()</code></td><td>Wayland API</td><td>Retrieves the Wayland display UNIX domain socket descriptor.</td><td>Enables registering the compositor socket directly into an <code>epoll</code> loop.</td></tr>
+<tr><td><code>wl_display_dispatch()</code></td><td>Wayland API</td><td>Processes pending events from the compositor and flushes the outgoing request buffer.</td><td>Executes client callbacks and returns immediately to the event loop.</td></tr>
+</table>
+
+<h3>How it works: epoll and Wayland event dispatching</h3>
+
+<p>Linux provides <code>epoll</code> as an $O(1)$ event multiplexer. Rather than iterating over an array of file descriptors on each check (like $O(N)$ <code>select</code> or <code>poll</code>), <code>epoll_wait(2)</code> sleeps until the Linux kernel's ready-list receives a notification from a device driver, timer, or socket buffer.</p>
+
+<p>Tamlinux desktop components communicate with the display server over a UNIX domain stream socket located at <code>$XDG_RUNTIME_DIR/wayland-0</code> (or <code>wayland-1</code>). Window title updates, workspace changes, and pointer events are delivered through the Wayland wire protocol:</p>
+
+<ol>
+<li>The application retrieves the Wayland socket file descriptor with <code>wl_display_get_fd()</code>.</li>
+<li>The descriptor is registered into the process's main <code>epoll</code> instance with <code>EPOLLIN</code>.</li>
+<li>The main thread calls <code>epoll_wait(epfd, events, MAX_EVENTS, -1)</code>. A timeout of <code>-1</code> waits without a timeout, subject to events and interruptions.</li>
+<li>When the compositor writes state changes, the kernel wakes the process, which calls <code>wl_display_dispatch()</code> to process messages and immediately returns to sleep.</li>
+</ol>
+
+<p>Event-driven interfaces can reduce unnecessary work. Individual components may also use timers or polling; inspect and measure the component of interest.</p>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Reducing unnecessary wakeups is one way to pursue efficiency. CPU idle states, power and fan behavior depend on hardware and the whole workload; compare measurements under controlled conditions before claiming an improvement.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ul>
+<li><strong>Inotify queue overflow:</strong> If filesystem changes occur faster than user space can consume them, the kernel inotify event queue overflows (<code>IN_Q_OVERFLOW</code>), and intervening events are lost. High-volume watchers must fall back to a full directory scan when an overflow event is received.</li>
+<li><strong>Epoll thundering herd:</strong> If multiple worker threads wait on the same epoll descriptor with <code>EPOLLET</code> (edge-triggered), multiple threads may wake simultaneously for a single event unless <code>EPOLLONESHOT</code> or dedicated per-thread descriptors are used.</li>
+<li><strong>Timer integration:</strong> Avoid creating separate worker threads that sleep. Use <code>timerfd_create(2)</code> to obtain a file descriptor for timer expirations and multiplex it directly within the main <code>epoll</code> loop.</li>
+</ul>
+
+<h3>Explore: Inspect active Wayland socket and epoll handles</h3>
+
+<p>Inspect active Wayland display sockets in your runtime directory:</p>
+
+<pre class="session" data-risk="read-only">
+$ ls -la "$XDG_RUNTIME_DIR"/wayland-*
+srwxr-xr-x 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1
+-rw-r----- 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1.lock
+</pre>
+
+<p>Notice that the Wayland socket is a UNIX domain stream socket (denoted by <code>s</code> in file permissions). Event-driven clients register this descriptor with <code>epoll</code> to sleep with zero CPU overhead until the compositor sends input or frame events.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does <code>epoll</code> scale efficiently to thousands of file descriptors while <code>select</code> degrades linearly?</summary>
+<p><code>select</code> requires passing an entire descriptor set to the kernel on every call and iterating across all descriptors ($O(N)$). <code>epoll</code> registers descriptors once in kernel memory and returns only the descriptors that are ready ($O(1)$), eliminating per-call memory copies and scans.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="man:epoll(7)">epoll(7)</a> &mdash; I/O event notification facility.</li>
+<li><a href="man:epoll_wait(2)">epoll_wait(2)</a> &mdash; wait for an I/O event on an epoll file descriptor.</li>
+<li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; inotify(7) and epoll(7) API specifications.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Tamlinux power efficiency policies and sleep state configurations are coordinated in <a href="systems/power.html">The Progressive Power Ladder</a> and documented under <code>tamlinux/desktop/</code>.</p>
+</section>
+
+<h2>Next</h2><p><a href="systems/memory-compression.html">Memory compression with ZRAM</a> &mdash; double available memory with in-RAM swap.</p>
+<h2>Related</h2><ul><li><a href="terminal/configuration.html">Terminal and editor ergonomics</a> &mdash; fast shell startup and Micro live reload.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
+</body>
+</html>

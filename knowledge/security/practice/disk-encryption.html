@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Disk encryption and LUKS passphrases</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="security.novice, security.learner, security.expert">
+<meta name="topic" content="disk-encryption">
+<meta name="summary" content="Understand what LUKS full-disk encryption protects, how unlocking works at startup, and how drive passphrases are changed">
+<meta name="keywords" content="encryption, luks, disk, passphrase, tpm, unlock, recovery, drive">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="security">
+<meta name="parent" content="security/practice/index.html">
+<meta name="paths" content="people-and-security:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/practice/index.html">Protect your computer</a> / Disk encryption and LUKS passphrases</p></nav>
+
+
+<h1>Disk encryption and LUKS passphrases</h1>
+<p>This page explains what full-disk encryption protects while your computer is turned off, why unlocking happens early at boot, and how Tamlinux manages encrypted drives.</p>
+
+<section data-level="novice">
+<h2>Locking your drive when the machine is off</h2>
+<p>If someone removes the storage drive from a powered-off laptop, disk encryption scrambles the files on that drive so they look like random noise without the unlock passphrase or key.</p>
+
+<h3>Why it matters</h3>
+<p>Your login password stops someone sitting at a locked screen, while disk encryption protects your files even if the physical laptop or SSD is lost or stolen.</p>
+
+<h3>How to think about it</h3>
+<p>Think of disk encryption as locking the entire filing cabinet while the computer is shut down. Once you unlock the drive at startup, the running system can read files normally until you power off again (or lock the screen while away).</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/e/encryption.html">Encryption</a></dfn></dt>
+<dd>Scrambling stored bytes with a secret key so they cannot be read without unlocking them.</dd>
+<dt><dfn><a href="glossary/l/luks.html">LUKS</a></dfn></dt>
+<dd>Linux Unified Key Setup, the standard Linux disk-encryption format used on root and external drives.</dd>
+<dt><dfn><a href="glossary/b/boot.html">Boot</a></dfn></dt>
+<dd>The early startup sequence that unlocks encrypted storage before launching your desktop.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect encrypted drives and manage passphrases safely</h2>
+<p><strong>Goal:</strong> distinguish what is encrypted from unencrypted boot partitions and inspect LUKS drives safely without altering key slots.</p>
+<p><strong>Before you start:</strong> listing block devices and partition types is read-only. Changing a LUKS passphrase modifies disk header key slots; ensure you keep at least one tested recovery passphrase stored safely offline before changing slots.</p>
+
+<h3>Worked example</h3>
+<p>List block devices, filesystems, and mount points read-only to see which partitions hold <code>crypto_LUKS</code> versus your EFI boot partition:</p>
+<pre class="session" data-risk="read-only">
+$ lsblk -f
+</pre>
+<p>You can inspect detailed size, model, and mount information for a specific device path without changing it:</p>
+<pre class="session" data-risk="read-only">
+$ tam-drive-info /dev/nvme0n1
+</pre>
+<p>When a drive uses LUKS, notice that the small EFI system partition (containing the boot loader and kernel images) remains unencrypted so your firmware can start the unlock prompt.</p>
+
+<h3>Try it</h3>
+<p>Run <code>lsblk -o NAME,TYPE,FSTYPE,MOUNTPOINTS</code> in a terminal. Identify which partition carries <code>crypto_LUKS</code> and which mapped device sits underneath your root filesystem.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Passphrase rejected at boot unlock</dt>
+<dd>Check keyboard layout or Caps Lock, since early boot prompts normally default to US layout. Test carefully before repeating wrong attempts.</dd>
+<dt>Need to update an encrypted drive passphrase</dt>
+<dd>Menu &rarr; Update &rarr; Password &rarr; Drive Encryption runs <code>tam-drive-password</code> (which selects drives via <code>tam-drive-select</code>). Never remove the only working key slot before verifying the replacement passphrase.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Disk encryption protects data at rest when powered down or hibernated; while unlocked and running, rely on screen locking (<code>Meta + Escape</code> or <code>tam-system-lock</code>) and normal file permissions.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Does disk encryption replace locking your screen when you step away from a running laptop?</summary>
+<p>No. Once booted, the encrypted drive is unlocked in memory; you still need screen locking and user permissions while running.</p>
+</details>
+<details class="q">
+<summary>Which read-only command helps identify whether a partition uses <code>crypto_LUKS</code>?</summary>
+<p><code>lsblk -f</code> (or <code>blkid -t TYPE=crypto_LUKS</code> read-only with privileges).</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>LUKS2 architecture, AES-XTS, and TPM2 PCR binding</h2>
+<h3>Reference</h3>
+<p>LUKS2 stores redundant JSON metadata headers and up to 32 key slots at the start of a block device. Each active key slot wraps the same 256-bit or 512-bit volume master key using a key derived from a passphrase (via Argon2id) or a TPM2-sealed secret.</p>
+<h3>How it works</h3>
+<p>The kernel <code>dm-crypt</code> target typically encrypts 512-byte or 4096-byte sectors with <strong>AES-XTS-plain64</strong>: XTS splits the 512-bit key into two 256-bit AES keys (<code>K1</code> for block ciphering, <code>K2</code> for GF(2^128) tweak multiplication by sector number), ensuring identical plaintext blocks in different sectors produce distinct ciphertext without per-sector IV storage overhead.</p>
+<h3>Edge cases</h3>
+<dl>
+<dt>Malleability without authenticated encryption</dt>
+<dd>Plain AES-XTS provides confidentiality, not integrity: an attacker with repeated physical disk access can flip bits in a 16-byte block (causing localized plaintext corruption). Combining <code>dm-crypt</code> with <code>dm-integrity</code> or <code>dm-verity</code> adds per-sector authentication tags at a storage and IOPS cost.</dd>
+<dt>Evil-maid attacks on unencrypted <code>/boot</code> or EFI</dt>
+<dd>Without Secure Boot and measured-boot TPM2 PCR policies (<code>systemd-cryptenroll --tpm2-pcrs=7+11</code>), an attacker with physical access can tamper with the initramfs on the EFI partition to capture the unlock passphrase.</dd>
+</dl>
+<details class="q open">
+<summary>Research frontier: How do confidential-computing SEV-SNP/TDX memory encryption and hardware inline crypto engines interact with <code>dm-crypt</code>?</summary>
+<p>Hardware inline encryption engines (OPAL / NVMe crypto) offload XTS from CPU cores, while confidential VMs bind disk-unlock keys to remote hardware attestation over measured boot quotes.</p>
+</details>
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>cryptsetup(8)</code> and <code>systemd-cryptenroll(1)</code>.</li>
+</ul>
+</section>
+
+<h2>Next</h2><p><a href="systems/storage/drives.html">Storage drives</a> &mdash; drive health, speed tests, and drive selection.</p>
+<h2>Related</h2><ul><li><a href="systems/boot/boot-recovery.html">Linux boot fallbacks and rescue routes</a> &mdash; unlocking and mounting encrypted storage during recovery.</li></ul>
+</body>
+</html>

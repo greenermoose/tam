@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Error detection, correction, and channel reliability</title>
+<meta name="topic" content="error-detection-and-correction">
+<meta name="summary" content="Parity bits, checksums, Cyclic Redundancy Checks (CRCs), ARQ retransmission, and Forward Error Correction (Hamming codes)">
+<meta name="keywords" content="error-detection, error-correction, parity, checksum, crc, crc-32, crc-16, hamming, forward-error-correction, fec, arq, stop-and-wait, selective-repeat">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/signals/index.html">
+<meta name="prereqs" content="communication-protocols, digital-logic">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert, signals.novice, signals.learner, signals.expert">
+<meta name="paths" content="cables-and-protocols:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> / <a href="hardware/signals/index.html">Signals and cables</a> / Error detection, correction, and channel reliability</p></nav>
+
+
+<h1>Error detection, correction, and channel reliability</h1>
+<p>This page explains why physical transmission channels corrupt digital data, how mathematical detection algorithms identify corrupted bits, and how forward error correction and retransmission protocols guarantee reliability across imperfect hardware.</p>
+<h2>Before this</h2><p><a href="networking/communication-protocols.html">Communication protocols, framing, and data rates</a> · <a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></p>
+<p>In a purely theoretical world, a wire conveys 1s and 0s with mathematical perfection. In the physical universe, conductors pass through electromagnetic fields, radio waves encounter atmospheric moisture, and microscopic thermal fluctuations agitate electrons inside semiconductors. Communication engineering assumes that every physical medium is inherently hostile and lossy. By appending structured redundant bits to messages &mdash; ranging from simple parity bits to multi-dimensional Cyclic Redundancy Checks and Forward Error Correction codes &mdash; computers detect errors immediately or reconstruct damaged data in flight without retransmission.</p>
+
+<section data-level="novice">
+<h2>How do systems catch bit errors?</h2>
+<p>Computers control critical real-world systems, from banking transactions and hard drives to automotive brakes and medical monitors. If a cosmic ray, a nearby motor spark, or a loose connector cable causes a <code>0</code> to become a <code>1</code> unnoticed, a monetary transfer of $100 could silently become $10,000, or a machine code instruction could jump into unmapped memory and crash the kernel. Error detection provides the mathematical safety net that protects digital logic from physical reality.</p>
+<h3>Why it matters</h3>
+<p>Computers control critical real-world systems, from banking transactions and hard drives to automotive brakes and medical monitors. If a cosmic ray, a nearby motor spark, or a loose connector cable causes a <code>0</code> to become a <code>1</code> unnoticed, a monetary transfer of $100 could silently become $10,000, or a machine code instruction could jump into unmapped memory and crash the kernel. Error detection provides the mathematical safety net that protects digital logic from physical reality.</p>
+<h3>How to think about it</h3>
+<p>New to this? Think of a parity bit like a quick count verification.</p>
+<h3>New words</h3>
+<ul>
+<li><strong><dfn><a href="glossary/p/parity.html">Parity</a></dfn>:</strong> An error-detection method where an extra binary bit is added to a data sequence to ensure the total number of set bits (1s) is always even or always odd.</li>
+<li><strong>Bit Flip:</strong> An unintentional change in the state of a digital bit from 0 to 1, or 1 to 0, caused by electromagnetic interference, thermal noise, or voltage fluctuations.</li>
+<li><strong>Payload:</strong> The actual meaningful data being transmitted, excluding synchronization bits, headers, and error check codes.</li>
+</ul>
+</section>
+
+<section data-level="learner">
+<h2>Noise, corrupted bits, and parity verification</h2>
+<p><strong>Goal:</strong> you will be able to explain how physical noise flips bits on communication lines, and calculate even and odd parity bits to detect single-bit errors.</p>
+<p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The commands in this section run standard Python one-liners to calculate parity on ASCII text.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> Think of a parity bit like a quick count verification. If you pack a box with three apples and write "odd number of apples" on the outside tape, the recipient opens the box and counts them. If they count four apples (or two), they instantly know something went wrong during shipment, even without knowing which apple was damaged.</p>
+</aside>
+<h3>Worked example: calculate even and odd parity for ASCII characters</h3>
+<p>In standard 7-bit ASCII, the uppercase letter <code>'A'</code> has binary code <code>1000001</code> (two 1s). The letter <code>'C'</code> has binary code <code>1000011</code> (three 1s). Let us calculate the required parity bit for both:</p>
+
+<pre class="session" data-risk="read-only">
+$ python3 -c '
+for char in ["A", "C"]:
+    bits = f"{ord(char):07b}"
+    ones = bits.count("1")
+    even_p = 0 if ones % 2 == 0 else 1
+    odd_p  = 1 if ones % 2 == 0 else 0
+    print(f"Char: {char} | Bits: {bits} (ones: {ones}) | Even parity: {even_p} | Odd parity: {odd_p}")
+'
+Char: A | Bits: 1000001 (ones: 2) | Even parity: 0 | Odd parity: 1
+Char: C | Bits: 1000011 (ones: 3) | Even parity: 1 | Odd parity: 0
+</pre>
+
+<p>Understanding the calculation:</p>
+<ol>
+<li><strong>Even Parity Rule:</strong> The parity bit is chosen so that the total count of 1s in the complete frame (data bits + parity bit) is an <strong>even number</strong>. For <code>'A'</code> (two 1s), parity is <code>0</code> (total remains 2). For <code>'C'</code> (three 1s), parity is <code>1</code> (total becomes 4).</li>
+<li><strong>Odd Parity Rule:</strong> The parity bit is chosen so that the total count of 1s is an <strong>odd number</strong>. For <code>'A'</code> (two 1s), parity is <code>1</code> (total becomes 3). For <code>'C'</code> (three 1s), parity is <code>0</code> (total remains 3).</li>
+<li><strong>Receiver Verification:</strong> When the receiver receives the 8 bits, it counts the 1s. If even parity was agreed upon and the count arrives odd, the receiver immediately asserts a <dfn><a href="glossary/p/parity.html">parity</a></dfn> error flag.</li>
+</ol>
+<h3>Try it</h3>
+<p>Compute the parity bit for the lowercase character <code>'z'</code> (binary <code>1111010</code>, five 1s) under Even parity. Verify whether an incoming byte with binary <code>11110101</code> passes or fails an Even parity check:</p>
+
+<pre class="session" data-risk="read-only">
+$ python3 -c '
+bits = "1111010"
+ones = bits.count("1")
+even_bit = 1 if ones % 2 != 0 else 0
+incoming = "11110101"
+valid = incoming.count("1") % 2 == 0
+print(f"Calculated parity bit: {even_bit} | Incoming valid under Even Parity: {valid}")
+'
+Calculated parity bit: 1 | Incoming valid under Even Parity: True
+</pre>
+<h3>If it goes wrong</h3>
+<p>If parity checking fails to catch an error, remember the fundamental limitation of single-bit parity:</p>
+<ul>
+<li><strong>The Double-Bit Blind Spot:</strong> If electrical noise is severe enough to flip <strong>two</strong> bits within the same byte (for example, <code>1000001</code> becomes <code>1000111</code>), the number of 1s increases by two. The total count remains even, and the parity check reports that the corrupted byte is completely valid. Single-bit parity detects all single-bit errors, but fails completely on any even number of bit flips.</li>
+</ul>
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> Tamlinux integrates end-to-end cryptographic checksumming across its package assembly pipeline. Every binary assembly in <code>tamlinux-packages</code> is signed and verified using SHA-256 digests. At the kernel stream layer, serial consoles configure hardware parity checking through termios flags, and network interfaces offload CRC-32 calculation directly into hardware NIC silicon (checksum offloading).</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>A serial sensor transmits the 7-bit ASCII character 'M' (binary 1001101) using Even parity. What value should the transmitter assign to the parity bit?</summary>
+<p>The parity bit must be 0. Counting the 1s in <code>1001101</code> yields four 1s. Since 4 is already an even number, adding a parity bit of 0 keeps the total count even (four 1s).</p>
+</details>
+<details class="q">
+<summary>Why can simple single-bit parity not detect two simultaneous bit flips in the same character?</summary>
+<p>Because flipping two bits either increases the count of 1s by 2, decreases it by 2, or keeps it unchanged (if one 0 becomes 1 and one 1 becomes 0). In all three cases, the even/odd mathematical parity of the total sum remains unchanged, completely fooling the receiver's parity check.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Forward Error Correction (FEC), Hamming codes, and Bit Error Rate (BER)</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Coding Family</th><th>Standard / Domain</th><th>Code Parameters (n, k)</th><th>Min Hamming Distance (d_min)</th><th>Correction Capability</th><th>Primary Use Case</th></tr>
+<tr><td>Hamming Code</td><td>Hamming(7,4)</td><td>n=7, k=4 (r=3)</td><td>d_min = 3</td><td>Corrects 1 bit; detects 2 bits</td><td>ECC RAM memory (SECDED), satellite telemetry</td></tr>
+<tr><td>Hamming Extended</td><td>Hamming(8,4) SECDED</td><td>n=8, k=4 (r=4)</td><td>d_min = 4</td><td>Single Error Correct, Double Error Detect</td><td>Server DDR4 / DDR5 ECC DIMMs, CPU cache SRAM</td></tr>
+<tr><td>Reed-Solomon</td><td>RS(255, 223)</td><td>n=255 bytes, k=223</td><td>d_min = 33 bytes</td><td>Corrects up to 16 byte burst errors</td><td>CD/DVD storage, QR codes, deep-space DSN probes</td></tr>
+<tr><td>LDPC (Low-Density Parity)</td><td>IEEE 802.3an (10GBASE-T)</td><td>Block size 2048 bits</td><td>Iterative graph-based</td><td>Approaches Shannon theoretical limit</td><td>10GbE copper Ethernet, Wi-Fi 6/7, 5G NR data channels</td></tr>
+<tr><td>PCIe Gen 6 FEC</td><td>PCI-SIG PCIe 6.0</td><td>Lightweight latency FEC</td><td>Combined with CRC-32</td><td>Corrects PAM-4 multi-bit flit errors</td><td>64 GT/s server interconnects, CXL coherent memory</td></tr>
+</table>
+
+<h3>How it works: Coding Theory and Forward Error Correction (FEC)</h3>
+
+<p>ARQ protocols provide reliability by retransmitting bad packets. However, in real-time video streaming, deep-space communication (where a round-trip delay to Mars takes 30 minutes), or multi-gigabit server memory buses, retransmission is impossible or unacceptably slow. <strong>Forward Error Correction (FEC)</strong> solves this problem by adding structured mathematical redundancy that allows the receiver not only to <em>detect</em> an error, but to <em>correct</em> it immediately on the fly without contacting the sender.</p>
+
+<ol>
+<li><strong>Hamming Distance (d_min):</strong> The Hamming distance between two binary codewords is the number of bit positions in which they differ. Richard Hamming established fundamental mathematical theorems governing coding distance:
+  <ul>
+  <li>To <strong>detect</strong> <code>e</code> bit errors, a code must have a minimum Hamming distance of:
+  <pre data-risk="read-only">
+  d_min &gt;= e + 1
+  </pre>
+  </li>
+  <li>To <strong>correct</strong> <code>t</code> bit errors, a code must have a minimum Hamming distance of:
+  <pre data-risk="read-only">
+  d_min &gt;= 2 * t + 1
+  </pre>
+  </li>
+  </ul>
+  Because valid codewords are separated by at least <code>2*t + 1</code> bits of difference in multidimensional vector space, if fewer than <code>t</code> bits flip, the corrupted codeword is still closer to the original codeword than to any other valid codeword, allowing unambiguous geometric correction.
+</li>
+<li><strong>The Hamming(7,4) Code:</strong> Takes 4 data bits (<code>d1, d2, d3, d4</code>) and generates 3 parity bits (<code>p1, p2, p3</code>) to create a 7-bit codeword. The parity bits are placed at bit positions that are powers of 2 (positions 1, 2, and 4), covering overlapping subsets of the data bits:
+  <ul>
+  <li><code>p1</code> (position 1) covers positions 1, 3, 5, 7.</li>
+  <li><code>p2</code> (position 2) covers positions 2, 3, 6, 7.</li>
+  <li><code>p3</code> (position 4) covers positions 4, 5, 6, 7.</li>
+  </ul>
+</li>
+<li><strong>Syndrome Decoding:</strong> When the 7-bit codeword is received, the receiver computes three syndrome bits (<code>s1, s2, s3</code>) by recalculating the parity across the respective subsets.
+  <ul>
+  <li>If <code>(s3, s2, s1) == (0, 0, 0)</code>, no error occurred.</li>
+  <li>If <code>(s3, s2, s1) != (0, 0, 0)</code>, the binary value of the syndrome directly points to the <strong>exact bit position</strong> (from 1 to 7) that was inverted! The receiver simply flips that bit back, perfectly restoring the original data.</li>
+  </ul>
+</li>
+</ol>
+
+<h3>Bit Error Rate (BER)</h3>
+
+<p>In physical link engineering, channel quality is quantified by the <strong>Bit Error Rate (BER)</strong>:</p>
+
+<pre data-risk="read-only">
+BER = Errored_Bits / Total_Bits_Transmitted
+</pre>
+
+<ul>
+<li>Standard enterprise copper Ethernet links target a pre-FEC BER of less than <code>10^-12</code> (fewer than one error in one trillion bits).</li>
+<li>Ultra-high-speed PCIe Gen 6 links operating with PAM-4 multi-level signaling operate with a raw pre-FEC BER of <code>10^-5</code> to <code>10^-6</code>. Without FEC, such a link would fail instantly. By applying low-latency FEC hardware decoding at the physical layer, the post-FEC BER is crushed down to less than <code>10^-27</code>, delivering decades of error-free operation.</li>
+</ul>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux prioritizes mathematical verifiability and fault isolation across its system software stack. In high-reliability computing, silent data corruption (cosmic-ray bit flips or degrading transmission lines) is far more dangerous than an outright system panic. By leveraging kernel error counters, hardware ECC reporting via EDAC (Error Detection and Correction), and deterministic checksum algorithms across storage and network layers, Tamlinux ensures that physical channel degradations are exposed to systems operators before data loss occurs.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ul>
+<li><strong>Hamming SECDED Triple-Bit Error:</strong> A Standard SECDED (Single Error Correction, Double Error Detection) Hamming code with <code>d_min = 4</code> correctly detects double-bit errors and corrects single-bit errors. However, if three bits flip simultaneously, the syndrome vector can masquerade as a single-bit error pointing to an innocent bit, causing the decoder to flip the wrong bit and silently corrupt data (miscorrection).</li>
+<li><strong>CRC Collision Aliasing:</strong> While CRC-32 detects all single-burst errors up to 32 bits long, a burst error longer than 32 bits has a <code>1 in 2^32</code> probability of producing the exact same remainder as the original data. In mission-critical storage, secondary checksums (e.g. SHA-256 in file systems like ZFS or btrfs) prevent CRC collision aliasing.</li>
+<li><strong>Stop-and-Wait ACK Loss Deadlock:</strong> If a transmitter sends a packet and the receiver replies with an ACK, but the ACK packet itself is destroyed by electrical noise along the return wire, the transmitter will time out and retransmit the packet. The receiver must maintain sequence numbers (0 and 1) to recognize that the second packet is a duplicate, rather than appending duplicate data to the application stream.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Simulate Hamming(7,4) syndrome error correction directly in Python. Observe how flipping bit 5 in a 7-bit codeword causes the syndrome vector to evaluate to binary 5 (<code>101</code>), identifying and fixing the corrupted bit:</p>
+
+<pre class="session" data-risk="read-only">
+$ python3 -c '
+# 4 data bits: d = [1, 0, 1, 1] (placed at positions 3, 5, 6, 7)
+d1, d2, d3, d4 = 1, 0, 1, 1
+p1 = d1 ^ d2 ^ d4  # covers 1, 3, 5, 7
+p2 = d1 ^ d3 ^ d4  # covers 2, 3, 6, 7
+p3 = d2 ^ d3 ^ d4  # covers 4, 5, 6, 7
+codeword = [p1, p2, d1, p3, d2, d3, d4]
+print(f"Transmitted codeword: {codeword}")
+
+# Corrupt bit at position 5 (index 4)
+received = list(codeword)
+received[4] ^= 1
+print(f"Received (corrupted at pos 5): {received}")
+
+# Calculate syndrome bits
+s1 = received[0] ^ received[2] ^ received[4] ^ received[6]
+s2 = received[1] ^ received[2] ^ received[5] ^ received[6]
+s3 = received[3] ^ received[4] ^ received[5] ^ received[6]
+syndrome = (s3 &lt;&lt; 2) | (s2 &lt;&lt; 1) | s1
+print(f"Calculated syndrome: {syndrome} (binary: {syndrome:03b})")
+if syndrome != 0:
+    received[syndrome - 1] ^= 1
+    print(f"Corrected codeword: {received}")
+'
+Transmitted codeword: [0, 1, 1, 0, 0, 1, 1]
+Received (corrupted at pos 5): [0, 1, 1, 0, 1, 1, 1]
+Calculated syndrome: 5 (binary: 101)
+Corrected codeword: [0, 1, 1, 0, 0, 1, 1]
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>If a code has a minimum Hamming distance of d_min = 5, how many bit errors can it guarantee to correct, and how many can it guarantee to detect?</summary>
+<p>Using the Hamming distance formulas:
+1. To correct <code>t</code> errors, <code>d_min &gt;= 2*t + 1</code>. With <code>d_min = 5</code>, <code>2*t + 1 &lt;= 5</code> gives <code>t = 2</code>. The code can guarantee correction of up to 2 bit errors.
+2. If used for detection only, <code>d_min &gt;= e + 1</code> gives <code>e = 4</code>. The code can guarantee detection of up to 4 bit errors without correction.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li>Hamming, R. W. (1950). <em>Error Detecting and Error Correcting Codes</em>. Bell System Technical Journal.</li>
+<li>Peterson, W. W., &amp; Weldon, E. J. (1972). <em>Error-Correcting Codes</em> (2nd ed.). MIT Press.</li>
+<li>PCI-SIG. <em>PCI Express Base Specification Revision 6.0</em>.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Contribute serial error diagnostics and FEC simulation scripts in the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
+</section>
+
+<h2>Next</h2><p><a href="hardware/diagnostics/hardware-diagnostics.html">Hardware diagnostics: troubleshooting cables and communication boards</a> &mdash; multimeter testing, loopback plugs, oscilloscopes, and PCB repair.</p>
+<h2>Related</h2><ul><li><a href="networking/communication-protocols.html">Communication protocols, framing, and data rates</a> &mdash; baud rate vs bit rate, packet framing, and flow control.</li><li><a href="hardware/signals/cables-and-signaling.html">Transmission media: electrical cables, optical fiber, and wireless waves</a> &mdash; physical media, differential signaling, and antenna physics.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>
+</body>
+</html>

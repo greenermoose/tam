@@ -68,10 +68,7 @@ idx_title=$(sed -n 's:.*<h1[^>]*>\(.*\)</h1>.*:\1:p' "$knowledge/index.html" | s
 [ -n "$idx_title" ] || fail "index.html has no <h1> heading"
 printf '%s\n' "$idx" | grep -Fq "$idx_title" || fail "index missing its heading '$idx_title'"
 printf '%s\n' "$idx" | grep -q '^Links:' || fail "index missing link appendix"
-for entry in 'install/index.html' 'learn/index.html' 'use/index.html' \
-             'maintain/index.html' 'improve/index.html' 'tam:prompt:guide-search' \
-             'tam:prompt:page-search' 'tam:help' \
-             'tam:topics' 'tam:man' 'info:dir' 'tam:tldr'; do
+for entry in 'tam:topics' 'tam:paths' 'tam:search' 'bibliography/index.html'; do
     printf '%s\n' "$idx" | grep -Fq "$entry" || fail "index missing $entry"
 done
 pass "index text includes links appendix"
@@ -85,23 +82,23 @@ search_destinations() {
     printf '%s\n' "$out" | grep -Fq "($expected)" \
         || fail "search '$query' missing destination $expected"
 }
-search_destinations install install/index.html
-search_destinations learning learn/index.html
-search_destinations workspaces desktop/workspaces.html
-search_destinations permissions filesystem/permissions.html
-search_destinations snapper maintain/snapper.html
-search_destinations limine-snapper-sync maintain/snapper.html
-search_destinations tty ecosystem/ttys-and-virtual-consoles.html
-search_destinations vt ecosystem/ttys-and-virtual-consoles.html
-search_destinations 'boot recovery' maintain/boot-recovery.html
-search_destinations packaging ecosystem/packaging.html
-search_destinations man man/index.html
-search_destinations info learn/documentation.html
+search_destinations install tamlinux/install.html
+search_destinations learning help/learning.html
+search_destinations workspaces desktop/navigation/workspaces.html
+search_destinations permissions security/permissions.html
+search_destinations snapper systems/recovery/snapper.html
+search_destinations limine-snapper-sync systems/recovery/snapper.html
+search_destinations tty terminal/ttys-and-virtual-consoles.html
+search_destinations vt terminal/ttys-and-virtual-consoles.html
+search_destinations 'boot recovery' systems/boot/boot-recovery.html
+search_destinations packaging systems/packages/packaging.html
+search_destinations man help/manuals.html
+search_destinations info help/documentation.html
 pass "acceptance queries reach their expected guide destinations"
 
 # Curated topic lookup must reach the authored page. Read its actual title:
 # teaching revisions may change wording without changing the command contract.
-updates_title=$(sed -n 's:.*<h1[^>]*>\(.*\)</h1>.*:\1:p' "$knowledge/maintain/updates.html" | sed 's/<[^>]*>//g' | head -n 1)
+updates_title=$(sed -n 's:.*<h1[^>]*>\(.*\)</h1>.*:\1:p' "$knowledge/systems/maintenance/updates.html" | sed 's/<[^>]*>//g' | head -n 1)
 [ -n "$updates_title" ] || fail "updates page has no heading"
 updates=$(env TAM_KNOWLEDGE_DIR="$knowledge" "$TAM" explain updates --pipe)
 printf '%s\n' "$updates" | grep -Fq "$updates_title" \
@@ -110,8 +107,8 @@ pass "updates topic resolves without freezing its teaching-page title"
 
 page_count=$(printf '%s\n' "$pages" | wc -l)
 [ "$page_count" -ge 55 ] || fail "expected all 50 baseline and five new pages; found $page_count"
-for p in learn/index.html use/index.html learn/tam.html \
-         learn/documentation.html learn/practice.html; do
+for p in help/learning.html desktop/tasks/index.html help/tam.html \
+         help/documentation.html help/practice.html; do
     [ -f "$knowledge/$p" ] || fail "missing required new page $p"
 done
 pass "all baseline pages and five required learning/navigation pages are present"
@@ -122,23 +119,23 @@ a=$(guide --pipe welcome)
 b=$(guide --pipe welcome.html)
 [ "$a" = "$b" ] || fail "welcome and welcome.html differ"
 a=$(guide --pipe install)
-b=$(guide --pipe install/index.html)
-[ "$a" = "$b" ] || fail "install and install/index.html differ"
+b=$(guide --pipe tamlinux/install.html)
+[ "$a" = "$b" ] || fail "install and tamlinux/install.html differ"
 a=$(guide --pipe shell)
-b=$(guide --pipe shell/index.html)
-[ "$a" = "$b" ] || fail "shell and shell/index.html differ"
-a=$(guide --pipe desktop)
-b=$(guide --pipe desktop/index.html)
-[ "$a" = "$b" ] || fail "desktop and desktop/index.html differ"
+b=$(guide --pipe terminal/shell/index.html)
+[ "$a" = "$b" ] || fail "shell and terminal/shell/index.html differ"
+a=$(guide --pipe desktop/navigation)
+b=$(guide --pipe desktop/navigation/index.html)
+[ "$a" = "$b" ] || fail "desktop and desktop/navigation/index.html differ"
 a=$(guide --pipe filesystem)
-b=$(guide --pipe filesystem/index.html)
-[ "$a" = "$b" ] || fail "filesystem and filesystem/index.html differ"
-a=$(guide --pipe maintain)
-b=$(guide --pipe maintain/index.html)
-[ "$a" = "$b" ] || fail "maintain and maintain/index.html differ"
-a=$(guide --pipe improve)
-b=$(guide --pipe improve/index.html)
-[ "$a" = "$b" ] || fail "improve and improve/index.html differ"
+b=$(guide --pipe systems/storage/hierarchy.html)
+[ "$a" = "$b" ] || fail "filesystem and systems/storage/hierarchy.html differ"
+a=$(guide --pipe systems/maintenance)
+b=$(guide --pipe systems/maintenance/index.html)
+[ "$a" = "$b" ] || fail "maintain and systems/maintenance/index.html differ"
+a=$(guide --pipe tamlinux/development)
+b=$(guide --pipe tamlinux/development/index.html)
+[ "$a" = "$b" ] || fail "improve and tamlinux/development/index.html differ"
 pass "extensionless page names resolve"
 
 # Referenced links exist on disk. The corpus uses root-relative hrefs
@@ -219,17 +216,17 @@ printf '%s\n' "$p_hub" | grep -q 'First steps' || fail "tam:path?id=first-steps 
 printf '%s\n' "$p_hub" | grep -q 'Start this path' || fail "tam:path?id=first-steps missing Start link"
 printf '%s\n' "$p_hub" | grep -q '^Steps$' || fail "tam:path?id=first-steps missing Steps section"
 
-p_page_hub=$(guide learn/paths/first-steps --pipe)
-printf '%s\n' "$p_page_hub" | grep -q 'Steps on this path' || fail "learn/paths/first-steps missing Steps on this path"
+p_page_hub=$(guide paths/first-steps --pipe)
+printf '%s\n' "$p_page_hub" | grep -q 'Steps on this path' || fail "paths/first-steps missing Steps on this path"
 
-p_unattached=$(guide use/desktop/screenshots --pipe)
+p_unattached=$(guide desktop/tasks/screenshots --pipe)
 printf '%s\n' "$p_unattached" | grep -q 'Follow a path from here:' || fail "unattached page missing Follow a path from here"
 printf '%s\n' "$p_unattached" | grep -q 'First steps' || fail "unattached page missing First steps choice"
 printf '%s\n' "$p_unattached" | grep -q 'Settle in from macOS or Windows' || fail "unattached page missing Settle in from macOS or Windows choice"
 printf '%s\n' "$p_unattached" | grep -q 'Everyday desktop tasks' || fail "unattached page missing Everyday desktop tasks choice"
 
-p_order_a=$(guide 'use/desktop/screenshots?level=2&path=settle-in' --pipe)
-p_order_b=$(guide 'use/desktop/screenshots?path=settle-in&level=2' --pipe)
+p_order_a=$(guide 'desktop/tasks/screenshots?level=2&path=settle-in' --pipe)
+p_order_b=$(guide 'desktop/tasks/screenshots?path=settle-in&level=2' --pipe)
 [ "$p_order_a" = "$p_order_b" ] || fail "level/path query order changed rendered output"
 printf '%s\n' "$p_order_a" | grep -q 'Learning path: Settle in from macOS or Windows' || fail "active path footer missing Settle in from macOS or Windows"
 printf '%s\n' "$p_order_a" | grep -q 'Switch course:' || fail "multi-path page missing Switch course links"

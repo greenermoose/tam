@@ -447,7 +447,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     /* Check 0: privilege_pkexec (detect-and-degrade, R-A5) */
     snprintf(checks[0].task_id, sizeof(checks[0].task_id), "privilege_pkexec");
     snprintf(checks[0].name, sizeof(checks[0].name), "Privilege tool presence");
-    snprintf(checks[0].help_ref, sizeof(checks[0].help_ref), "maintain/recovery.html");
+    snprintf(checks[0].help_ref, sizeof(checks[0].help_ref), "systems/recovery/recovery.html");
     if (is_command_available("pkexec")) {
         snprintf(checks[0].status, sizeof(checks[0].status), "pass");
         checks[0].pass = true;
@@ -475,7 +475,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     /* Check 1: storage_btrfs */
     snprintf(checks[1].task_id, sizeof(checks[1].task_id), "storage_btrfs");
     snprintf(checks[1].name, sizeof(checks[1].name), "Root filesystem Btrfs snapshot support");
-    snprintf(checks[1].help_ref, sizeof(checks[1].help_ref), "maintain/rollback.html");
+    snprintf(checks[1].help_ref, sizeof(checks[1].help_ref), "systems/recovery/rollback.html");
     if (strcasecmp(root_fs, "btrfs") == 0) {
         snprintf(checks[1].status, sizeof(checks[1].status), "pass");
         checks[1].pass = true;
@@ -503,7 +503,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     /* Check 2: storage_root_space */
     snprintf(checks[2].task_id, sizeof(checks[2].task_id), "storage_root_space");
     snprintf(checks[2].name, sizeof(checks[2].name), "Root filesystem free space");
-    snprintf(checks[2].help_ref, sizeof(checks[2].help_ref), "maintain/rollback.html");
+    snprintf(checks[2].help_ref, sizeof(checks[2].help_ref), "systems/recovery/rollback.html");
     struct statvfs sv;
     if (statvfs("/", &sv) == 0) {
         uint64_t total = (uint64_t)sv.f_blocks * sv.f_frsize;
@@ -550,7 +550,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     /* Check 3: init_systemd */
     snprintf(checks[3].task_id, sizeof(checks[3].task_id), "init_systemd");
     snprintf(checks[3].name, sizeof(checks[3].name), "System init and journal supervision");
-    snprintf(checks[3].help_ref, sizeof(checks[3].help_ref), "maintain/logs.html");
+    snprintf(checks[3].help_ref, sizeof(checks[3].help_ref), "systems/maintenance/logs.html");
     const char *init = get_init_system();
     if (strcmp(init, "systemd") == 0) {
         snprintf(checks[3].status, sizeof(checks[3].status), "pass");
@@ -587,7 +587,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     /* Check 4: graphics_card */
     snprintf(checks[4].task_id, sizeof(checks[4].task_id), "graphics_card");
     snprintf(checks[4].name, sizeof(checks[4].name), "Direct Rendering Manager graphics device");
-    snprintf(checks[4].help_ref, sizeof(checks[4].help_ref), "maintain/power.html");
+    snprintf(checks[4].help_ref, sizeof(checks[4].help_ref), "systems/power.html");
     if (strstr(gpu_dev, "available") != NULL) {
         snprintf(checks[4].status, sizeof(checks[4].status), "pass");
         checks[4].pass = true;
@@ -613,7 +613,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     /* Check 5: package_manager */
     snprintf(checks[5].task_id, sizeof(checks[5].task_id), "package_manager");
     snprintf(checks[5].name, sizeof(checks[5].name), "Package management tools availability");
-    snprintf(checks[5].help_ref, sizeof(checks[5].help_ref), "maintain/updates.html");
+    snprintf(checks[5].help_ref, sizeof(checks[5].help_ref), "systems/maintenance/updates.html");
     if (strcmp(pkg_tools, "none detected") != 0 && pkg_tools[0] != '\0') {
         snprintf(checks[5].status, sizeof(checks[5].status), "pass");
         checks[5].pass = true;
@@ -639,7 +639,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
     /* Check 6: kernel_release */
     snprintf(checks[6].task_id, sizeof(checks[6].task_id), "kernel_release");
     snprintf(checks[6].name, sizeof(checks[6].name), "Host kernel release and architecture");
-    snprintf(checks[6].help_ref, sizeof(checks[6].help_ref), "maintain/recovery.html");
+    snprintf(checks[6].help_ref, sizeof(checks[6].help_ref), "systems/recovery/recovery.html");
     snprintf(checks[6].status, sizeof(checks[6].status), "pass");
     checks[6].pass = true;
     checks[6].fail = false;
@@ -655,7 +655,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
      * one Omarchy's installer copied in (D181). */
     snprintf(checks[7].task_id, sizeof(checks[7].task_id), "os_identity");
     snprintf(checks[7].name, sizeof(checks[7].name), "Operating system identity");
-    snprintf(checks[7].help_ref, sizeof(checks[7].help_ref), "maintain/index.html");
+    snprintf(checks[7].help_ref, sizeof(checks[7].help_ref), "systems/maintenance/index.html");
     os_release_t etc_os;
     os_release_t vendor_os;
     bool have_etc = parse_os_release_file("/etc/os-release", &etc_os);
@@ -689,7 +689,7 @@ static void collect_checks(check_item_t *checks, size_t max_checks,
      * has no deployment to report. */
     snprintf(checks[8].task_id, sizeof(checks[8].task_id), "tamlinux_version");
     snprintf(checks[8].name, sizeof(checks[8].name), "Tamlinux deployment for this user");
-    snprintf(checks[8].help_ref, sizeof(checks[8].help_ref), "tam.html");
+    snprintf(checks[8].help_ref, sizeof(checks[8].help_ref), "tamlinux/development/tam.html");
     char *version = cultivar_version();
     char *user = cultivar_user();
     char *vpath = cultivar_path("version");

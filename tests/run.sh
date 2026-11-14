@@ -51,7 +51,7 @@ pass "bare invocation prints an introduction and writes no state"
 # a legacy ten-column index must continue to load as well.
 compat="$tmp/index-compat"
 mkdir -p "$compat/shell"
-cp "$knowledge/shell/pipelines.html" "$compat/shell/pipelines.html"
+cp "$knowledge/terminal/shell/pipelines.html" "$compat/shell/pipelines.html"
 cp "$knowledge/index.html" "$compat/index.html"
 printf 'topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n' > "$compat/index.tsv"
 printf 'pipelines\tshell/pipelines.html\tPipelines\tSummary\tpipes\tbeginner\tuse\t\t7\t2026-10-18 10:25\n' >> "$compat/index.tsv"
@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.56.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.57.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -217,9 +217,9 @@ printf '%s\n' "$sh_out" | grep -q 'Fixture Guide' || fail "tam show --pipe faile
 sh_page=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Fixture Welcome' || fail "tam show welcome failed"
 sh_topics=$("$TAM" show topics --pipe)
-printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z' || fail "tam show topics failed"
+printf '%s\n' "$sh_topics" | grep -q 'Browse subjects' || fail "tam show topics failed"
 sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
-printf '%s\n' "$sh_topics_pseudo" | grep -q 'Topics A to Z' || fail "tam show tam:topics failed"
+printf '%s\n' "$sh_topics_pseudo" | grep -q 'Browse subjects' || fail "tam show tam:topics failed"
 
 # page: addresses, tam:keywords, and tam:explain under show
 sh_pipe1=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show page:shell/pipelines --pipe) || fail "show page:shell/pipelines --pipe failed"
@@ -2239,7 +2239,7 @@ pass "folds: pipe answers collected, non-terminal show, stable IDs and block-lev
 ex_out=$("$TAM" explain pipelines --pipe)
 printf '%s\n' "$ex_out" | grep -q 'Connecting programs' || fail "explain pipelines failed"
 ex_pipe=$("$TAM" explain '>' --pipe)
-printf '%s\n' "$ex_pipe" | grep -Fq 'shell/pipelines.html' || fail "explain '>' failed"
+printf '%s\n' "$ex_pipe" | grep -Fq 'terminal/shell/pipelines.html' || fail "explain '>' failed"
 ex_pipe_sym=$("$TAM" explain '|' --pipe)
 printf '%s\n' "$ex_pipe_sym" | grep -q 'Connecting programs' || fail "explain '|' failed"
 ex_pipe_q1=$("$TAM" explain "'|'" --pipe)
@@ -2247,9 +2247,9 @@ printf '%s\n' "$ex_pipe_q1" | grep -q 'Connecting programs' || fail "explain \"'
 ex_pipe_q2=$("$TAM" explain '"|"' --pipe)
 printf '%s\n' "$ex_pipe_q2" | grep -q 'Connecting programs' || fail "explain '\"|\"' failed"
 ex_browse=$("$TAM" explain browse --pipe)
-printf '%s\n' "$ex_browse" | grep -q 'Tamlinux User Guide' || fail "explain browse failed"
+printf '%s\n' "$ex_browse" | grep -q 'Your Tamlinux reference' || fail "explain browse failed"
 ex_show=$("$TAM" explain show --pipe)
-printf '%s\n' "$ex_show" | grep -q 'Tamlinux User Guide' || fail "explain show failed"
+printf '%s\n' "$ex_show" | grep -q 'Your Tamlinux reference' || fail "explain show failed"
 ex_man=$("$TAM" explain man --pipe)
 printf '%s\n' "$ex_man" | grep -q 'Finding instructions for programs' || fail "explain man failed"
 
@@ -2290,7 +2290,7 @@ printf '%s\n' "$ex_rec" | grep -q 'Emergency Disaster Recovery' || fail "explain
 
 # Improve track curated topics.
 ex_imp=$("$TAM" explain improve --pipe)
-printf '%s\n' "$ex_imp" | grep -q 'Extending and Improving Your Workstation' || fail "explain improve failed"
+printf '%s\n' "$ex_imp" | grep -q 'Developing Tamlinux' || fail "explain improve failed"
 ex_eff=$("$TAM" explain efficiency --pipe)
 printf '%s\n' "$ex_eff" | grep -q 'How software can wait for work efficiently' || fail "explain efficiency failed"
 ex_zram=$("$TAM" explain zram --pipe)
@@ -2319,16 +2319,16 @@ printf '%s\n' "$ex_help" | grep -q 'tam show' || fail "explain --help missing sh
 
 # Bare explain displays dynamic topic keywords catalog.
 ex_kw=$("$TAM" explain --pipe)
-printf '%s\n' "$ex_kw" | grep -q 'Keyword Index' || fail "bare explain missing Keyword Index"
-printf '%s\n' "$ex_kw" | grep -q 'Keyword  *Pages  *Covers' || fail "bare explain missing table heading"
+printf '%s\n' "$ex_kw" | grep -q 'Guide Search' || fail "bare explain missing search entrance"
+printf '%s\n' "$ex_kw" | grep -q 'All pages A' || fail "bare explain missing secondary catalog"
 printf '%s\n' "$ex_kw" | grep -q 'tam' || fail "bare explain missing tam topic keyword"
-printf '%s\n' "$ex_kw" | grep -q 'pipelines' || fail "bare explain missing pipelines topic keyword"
+printf '%s\n' "$ex_kw" | grep -q 'Search for a word' || fail "bare explain missing search action"
 
 # tam explain TOPIC displays a Topic Guide (never takes user directly to a page)
 ex_tg_tam=$("$TAM" explain tam --pipe)
 printf '%s\n' "$ex_tg_tam" | grep -q 'Topic Guide: tam' || fail "explain tam missing Topic Guide header"
 printf '%s\n' "$ex_tg_tam" | grep -q 'The tam Command' || fail "explain tam missing The tam Command page"
-printf '%s\n' "$ex_tg_tam" | grep -q 'tam.html' || fail "explain tam missing tam.html link"
+printf '%s\n' "$ex_tg_tam" | grep -q 'tamlinux/development/tam.html' || fail "explain tam missing tamlinux/development/tam.html link"
 
 # tam show tam directly displays the dedicated tam page
 sh_tam=$("$TAM" show tam --pipe)
@@ -2378,12 +2378,12 @@ printf '%s\n' "$ex_expert_terse" | grep -qx 'welcome' || fail "expert terse miss
 
 # Multi-word explain resolves via search fallback path.
 ex_multi=$("$TAM" explain cpu load --pipe)
-printf '%s\n' "$ex_multi" | grep -q 'hardware/resources.html' || fail "explain cpu load failed"
+printf '%s\n' "$ex_multi" | grep -q 'systems/maintenance/resources.html' || fail "explain cpu load failed"
 
 # Topic guide depth ladder: tam explain --level LEVEL TOPIC
 ex_tg_lvl_b=$("$TAM" explain --level novice pipelines --pipe)
 printf '%s\n' "$ex_tg_lvl_b" | grep -q 'Topic Guide: pipelines (novice Level)' || fail "explain --level novice pipelines failed"
-printf '%s\n' "$ex_tg_lvl_b" | grep -q 'shell/pipelines.html?level=novice' || fail "explain --level novice missing link target"
+printf '%s\n' "$ex_tg_lvl_b" | grep -q 'terminal/shell/pipelines.html?level=novice' || fail "explain --level novice missing link target"
 
 # Direct page depth ladder: tam show --level LEVEL PAGE
 sh_lua_b=$("$TAM" show --level novice lua --pipe)
@@ -2544,11 +2544,10 @@ sh_lvl_all=$(fixture_show pipelines --pipe)
 [ "$("$TAM" explain topics --level 0 --terse)" = "$ex_terse" ] || fail "explain topics --level 0 --terse differs from all levels"
 [ "$("$TAM" explain topics --level all --terse)" = "$ex_terse" ] || fail "explain topics --level all --terse differs from all levels"
 
-# Catalog listing filtered by level
+# A selected lens still opens the shared search entrance.
 ex_cat_expert=$("$TAM" explain --level expert)
-printf '%s\n' "$ex_cat_expert" | grep 'Keyword Index (expert)' >/dev/null || fail "explain --level expert missing heading"
-printf '%s\n' "$ex_cat_expert" | grep 'pipelines' >/dev/null || fail "expert catalog missing pipelines"
-printf '%s\n' "$ex_cat_expert" | grep 'jobs' >/dev/null || fail "expert catalog missing jobs"
+printf '%s\n' "$ex_cat_expert" | grep 'Guide Search' >/dev/null || fail "expert search entrance missing heading"
+printf '%s\n' "$ex_cat_expert" | grep 'Search for a word' >/dev/null || fail "expert search entrance missing action"
 
 # Invalid level argument produces exit code 2 (usage error)
 if "$TAM" explain --level invalid pipelines >/dev/null 2>&1; then fail "explain --level invalid exited 0"; fi
@@ -2578,17 +2577,17 @@ pass "whatis subcommand operates as an exact synonym for explain"
 # Canonical query: "change file owner" -> permissions page
 s_owner=$("$TAM" search "change file owner")
 printf '%s\n' "$s_owner" | grep -q 'permissions' || fail "search 'change file owner' missing permissions topic"
-printf '%s\n' "$s_owner" | grep -q 'filesystem/permissions.html' || fail "search 'change file owner' missing permissions page"
+printf '%s\n' "$s_owner" | grep -q 'security/permissions.html' || fail "search 'change file owner' missing permissions page"
 printf '%s\n' "$s_owner" | grep -q 'Levels:' || fail "search missing Levels indicator"
 if printf '%s\n' "$s_owner" | grep -q 'Depth'; then fail "search still says Depth"; fi
-printf '%s\n' "$s_owner" | grep -q 'track: use' || fail "search missing track indicator"
+printf '%s\n' "$s_owner" | grep -q 'track: security' || fail "search missing track indicator"
 
 # JSON output
 s_json=$("$TAM" search --json "change file owner")
 printf '%s\n' "$s_json" | grep -q '"topic": "permissions"' || fail "search --json missing topic field"
-printf '%s\n' "$s_json" | grep -q '"page": "filesystem/permissions.html"' || fail "search --json missing page field"
+printf '%s\n' "$s_json" | grep -q '"page": "security/permissions.html"' || fail "search --json missing page field"
 printf '%s\n' "$s_json" | grep -q '"levels":' || fail "search --json missing levels field"
-printf '%s\n' "$s_json" | grep -q '"track": "use"' || fail "search --json missing track field"
+printf '%s\n' "$s_json" | grep -q '"track": "security"' || fail "search --json missing track field"
 
 # Piped plain text has no escapes
 if "$TAM" search --pipe "change file owner" | grep -q "$esc"; then
@@ -2603,10 +2602,10 @@ fi
 "$TAM" search "check disk space" | grep -q 'resources' || fail "search 'check disk space' failed"
 "$TAM" search "multi monitor" | grep -q 'workspaces' || fail "search 'multi monitor' failed"
 "$TAM" search "man pages" | grep -q 'man' || fail "search 'man pages' failed"
-"$TAM" search sway | grep -q 'ecosystem/compositors.html' || fail "search 'sway' failed"
-"$TAM" search runit | grep -q 'ecosystem/init.html' || fail "search 'runit' failed"
-"$TAM" search "carried patch" | grep -q 'ecosystem/patches.html' || fail "search 'carried patch' failed"
-"$TAM" search lua | grep -q 'ecosystem/lua.html' || fail "search 'lua' failed"
+"$TAM" search sway | grep -q 'desktop/session/compositors.html' || fail "search 'sway' failed"
+"$TAM" search runit | grep -q 'systems/init.html' || fail "search 'runit' failed"
+"$TAM" search "carried patch" | grep -q 'tamlinux/development/patches.html' || fail "search 'carried patch' failed"
+"$TAM" search lua | grep -q 'programming/lua.html' || fail "search 'lua' failed"
 
 # Out-of-corpus query produces clear miss banner and exits 1 (no auto-redirect)
 if "$TAM" search cron >/dev/null 2>&1; then fail "search cron unexpectedly exited 0"; fi
@@ -2710,7 +2709,7 @@ printf '%s\n' "$chk_btrfs" | grep -q '"status": "pass"' || fail "--check storage
 printf '%s\n' "$chk_btrfs" | grep -q '"pass": true' || fail "--check storage_btrfs missing pass boolean"
 printf '%s\n' "$chk_btrfs" | grep -q '"fail": false' || fail "--check storage_btrfs missing fail boolean"
 printf '%s\n' "$chk_btrfs" | grep -q '"evidence":' || fail "--check storage_btrfs missing evidence"
-printf '%s\n' "$chk_btrfs" | grep -q '"help_ref": "maintain/rollback.html"' || fail "--check storage_btrfs missing help_ref"
+printf '%s\n' "$chk_btrfs" | grep -q '"help_ref": "systems/recovery/rollback.html"' || fail "--check storage_btrfs missing help_ref"
 printf '%s\n' "$chk_btrfs" | grep -q '"source": "tam inspect"' || fail "--check storage_btrfs missing source"
 printf '%s\n' "$chk_btrfs" | grep -q '"schema_version": "1.0.0"' || fail "--check storage_btrfs missing schema_version"
 
@@ -3122,7 +3121,7 @@ pass "man page cache: one file per source, reused, refreshed when the source cha
 # a guide address never leaves the guide.
 "$TAM" show man: --pipe | grep -q 'Man pages' || fail "man: did not open the Man pages view"
 TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show tam:keywords --level 3 --pipe \
-    | grep -q 'Keyword Index (expert)' || fail "--level did not reach tam:keywords"
+    | grep -q 'Guide Search' || fail "--level did not reach tam:keywords"
 TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show "tam:explain?topic=pipelines" --level 3 --pipe \
     | grep -q 'Topic Guide: pipelines (expert Level)' || fail "--level did not reach tam:explain"
 for bad in "page:../run.sh" "page:shell/../../run.sh" "../run.sh"; do
@@ -3497,3 +3496,5 @@ else
 fi
 
 printf 'All tam command tests passed.\n'
+
+python3 -B -m unittest -q tests.test_library_discovery

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Communication protocols, framing, and data rates</title>
+<meta name="topic" content="communication-protocols">
+<meta name="summary" content="Baud rate vs bit rate, packet framing, UART frame structure, flow control, and line coding">
+<meta name="keywords" content="communication-protocols, protocols, baud, baud-rate, bit-rate, framing, uart, 8n1, rts-cts, xon-xoff, flow-control, pam4, nrz, manchester">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/index.html">
+<meta name="prereqs" content="serial-and-parallel, cables-and-signaling">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert, signals.novice, signals.learner, signals.expert">
+<meta name="paths" content="cables-and-protocols:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / Communication protocols, framing, and data rates</p></nav>
+
+
+<h1>Communication protocols, framing, and data rates</h1>
+<p>This page explains how communication protocols format digital data into framed messages, the precise difference between baud rate and bit rate, and how flow control prevents data loss.</p>
+<h2>Before this</h2><p><a href="hardware/signals/serial-and-parallel.html">Serial and parallel communication channels</a> · <a href="hardware/signals/cables-and-signaling.html">Transmission media: electrical cables, optical fiber, and wireless waves</a></p>
+<p>Having a physical cable or radio wave is only the first step in communication. Without agreed-upon rules, a receiver hears only meaningless voltage changes or bursts of radio static. A communication protocol establishes the shared language of computing: defining when a message starts, how fast symbols change, how bits are grouped into bytes, how flow control pauses transmission when buffers fill, and how errors are flagged. Understanding protocol framing and rate metrics allows you to configure terminals, troubleshoot serial devices, and evaluate network throughput.</p>
+
+<section data-level="novice">
+<h2>What is a communication protocol?</h2>
+<p>Two devices connected by a perfect cable will fail completely if their protocol settings do not match. If one device transmits at 9600 baud and the other listens at 115200 baud, or if one expects 8-bit bytes while the other expects 7-bit characters, the receiver outputs completely unreadable garbage. Knowing how protocol parameters are structured lets you set up serial consoles, configure microcontroller links, and recognize why data gets corrupted.</p>
+<h3>Why it matters</h3>
+<p>Two devices connected by a perfect cable will fail completely if their protocol settings do not match. If one device transmits at 9600 baud and the other listens at 115200 baud, or if one expects 8-bit bytes while the other expects 7-bit characters, the receiver outputs completely unreadable garbage. Knowing how protocol parameters are structured lets you set up serial consoles, configure microcontroller links, and recognize why data gets corrupted.</p>
+<h3>How to think about it</h3>
+<p>New to this? A protocol is simply an agreed-upon set of rules for conversation.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/b/baud-rate.html">Baud rate</a></dt>
+<dd>The number of electrical signal state transitions or symbols occurring on a communication channel per second.</dd>
+<dt><a href="glossary/b/bit-rate.html">Bit rate</a></dt>
+<dd>The total number of binary information bits transferred across a connection per second.</dd>
+<dt><a href="glossary/f/framing.html">Framing</a></dt>
+<dd>The practice of organizing raw bit streams into discrete packets with defined starting and ending boundaries.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Protocols, baud rate vs bit rate, and packet framing</h2>
+<p><strong>Goal:</strong> you will be able to define what a communication protocol is, distinguish between baud rate and bit rate, and explain the purpose of packet framing.</p>
+<p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The commands in this section inspect terminal line characteristics without altering your connection.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> A protocol is simply an agreed-upon set of rules for conversation. Just as human conversation requires agreeing on a language, speaking at a pace the listener can follow, and taking turns without shouting over one another, computer protocols define identical rules for hardware devices.</p>
+</aside>
+<h3>Mental model</h3>
+<pre>
+Universal Asynchronous Receiver-Transmitter (UART) Frame Anatomy:
+
+Line Voltage
+(+V) Idle (Mark) ----\                                /---- Stop (Mark) ---- Idle
+                      \                              /
+(0V)                   \--[D0][D1][D2][D3][D4][D5][D6][D7][P]--/
+                         ^                                ^  ^
+                      Start Bit                        Parity Stop Bit
+                      (Space)                          (Opt)  (1 or 2 bits)
+                      (1 bit)   &lt;--- 8 Data Bits ---&gt;  (1 bit)
+                                (Sent LSB First)
+
+Flow Control Pacing:
+  Hardware (Out-of-band):
+    Transmitter ---[ TX Data Wire ]---&gt; Receiver
+    Transmitter &lt;--[ CTS Line: HIGH (Ready) / LOW (Pause) ]-- Receiver  (Instantaneous!)
+
+  Software (In-band):
+    Transmitter ---[ TX Data Wire: Text Stream ]---&gt; Receiver
+    Transmitter &lt;--[ RX Wire: Sends ASCII 0x13 (XOFF) ]-- Receiver  (Subject to buffer lag!)
+</pre>
+<h3>Worked example: query and set serial line speed</h3>
+<pre class="session" data-risk="read-only">
+$ stty speed
+38400
+
+$ python3 -c 'baud=115200; bits_per_char=10; print(f"Max throughput: {baud/bits_per_char:.0f} bytes/sec ({baud*8/bits_per_char/1000:.1f} kbps)")'
+Max throughput: 115200 bytes/sec (92.2 kbps)
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-01. The terminal queries its configured communication speed and calculates theoretical byte throughput.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>stty speed</code> prints the baud rate configured on standard input (38,400 baud).</li>
+<li>The Python calculation demonstrates how serial framing affects transfer speed: in standard asynchronous serial communication, each 8-bit byte of data requires 10 physical bit periods on the wire (1 Start bit + 8 Data bits + 1 Stop bit).</li>
+<li>At 115,200 baud, the line transmits a maximum of 11,520 payload bytes per second (92.2 kbps net data throughput), with 20% of the raw bandwidth consumed by framing overhead.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>stty -a</code> and locate the line containing <code>cs8</code>. <code>cs8</code> stands for "character size 8 bits". Test changing to 7-bit characters in a subshell using <code>(stty cs7; stty -a | grep -o "cs[0-9]")</code> and observe how the driver adapts.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Terminal prints strange hieroglyphs or high-ASCII box-drawing characters</dt>
+<dd>The terminal baud rate does not match the connected hardware, causing the receiver to sample in the middle of transitions. Set the standard baud rate using <code>stty 115200</code>.</dd>
+<dt>Output pauses and appears completely frozen</dt>
+<dd>You may have accidentally pressed Ctrl+S, which transmits the software flow control XOFF character. Press Ctrl+Q (XON) to resume transmission.</dd>
+</dl>
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> serial line disciplines are managed through the kernel tty core. When configuring serial login terminals (`agetty`), Tamlinux units explicitly pass `115200,38400,9600` in their unit definitions. If a remote console cannot synchronize at 115,200 baud, `agetty` automatically steps down through the fallback baud rates upon receiving a break signal.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>When does baud rate equal bit rate, and when do they differ?</summary>
+<p>Baud rate equals bit rate when each electrical symbol transition represents exactly one binary bit (two-level binary signaling). They differ when multi-level modulation is used: if each symbol represents 4 voltage states (2 bits per symbol), the bit rate is twice the baud rate.</p>
+</details>
+<details class="q">
+<summary>Why must an asynchronous serial frame include a Start bit?</summary>
+<p>Because there is no shared clock wire. When the line is resting in the idle high state, the receiver does not know when data will arrive. The Start bit forces a sudden high-to-low voltage transition that wakes up and synchronizes the receiver's local timer so it can sample subsequent bits at precise intervals.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Modulation, Nyquist and Shannon limits, and line coding</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Line Coding / Modulation</th><th>Bits / Symbol</th><th>Clock Recovery</th><th>DC Balance</th><th>Primary Application</th></tr>
+<tr><td>Non-Return-to-Zero (NRZ)</td><td>1 bit / baud</td><td>Poor (Fails on long runs of 0s or 1s)</td><td>No (Suffers baseline wander)</td><td>RS-232, internal microcontroller buses</td></tr>
+<tr><td>Non-Return-to-Zero Inverted (NRZI)</td><td>1 bit / baud</td><td>Requires bit-stuffing (transitions on 0)</td><td>Partial</td><td>USB 2.0 Full-Speed / High-Speed</td></tr>
+<tr><td>Manchester Encoding</td><td>0.5 bits / baud (50% overhead)</td><td>Guaranteed (Transition in every bit cell)</td><td>Yes (Perfect zero DC bias)</td><td>10BASE-T Ethernet, RFID, aerospace telemetry</td></tr>
+<tr><td>8b/10b Encoding</td><td>0.8 bits / baud (20% overhead)</td><td>Guaranteed (Max 5 consecutive identical bits)</td><td>Yes (Bounded running disparity)</td><td>PCIe Gen 1/2, SATA, DisplayPort, USB 3.0</td></tr>
+<tr><td>128b/130b Encoding</td><td>0.984 bits / baud (1.5% overhead)</td><td>Scrambler-based pseudo-random transitions</td><td>Yes</td><td>PCIe Gen 3/4/5, USB4</td></tr>
+<tr><td>PAM-4 (4-Level Pulse Amplitude)</td><td>2 bits / baud</td><td>Multi-level DSP clock recovery</td><td>Yes</td><td>PCIe Gen 6, 100G/400G Ethernet (802.3ck)</td></tr>
+<tr><td>1024-QAM</td><td>10 bits / baud</td><td>Complex carrier constellation tracking</td><td>Yes</td><td>Wi-Fi 6 (802.11ax), DOCSIS 3.1 cable modems</td></tr>
+</table>
+
+<h3>How it works: mathematical channel limits</h3>
+
+<p>Every physical communication channel is bounded by the laws of physics and information theory:</p>
+
+<ol>
+<li><strong>The Nyquist Limit (Noiseless Channels):</strong> In 1928, Harry Nyquist proved that the maximum symbol transmission rate over an analog channel is strictly twice its analog bandwidth ($B$ in Hertz):
+<pre data-risk="read-only">
+Max Baud Rate = 2 * B
+Max Bit Rate = 2 * B * log2( M )
+</pre>
+Where $M$ is the number of discrete signal voltage levels. Doubling the analog bandwidth doubles the possible symbol rate; doubling the voltage states ($M$) increases bit rate logarithmically.</li>
+<li><strong>The Shannon-Hartley Theorem (Noisy Channels):</strong> In 1948, Claude Shannon proved that physical thermal noise sets the absolute theoretical upper limit on error-free information capacity (<code>C</code> in bps) across any noisy channel:
+<pre data-risk="read-only">
+Capacity = B * log2( 1 + Signal_Power / Noise_Power )
+</pre>
+Even with infinite voltage levels (as <code>M</code> approaches infinity), channel capacity cannot exceed Shannon's limit: as voltage levels are packed closer together, thermal noise causes adjacent states to blur into each other, triggering bit errors. Increasing data rate across fixed bandwidth requires either boosting signal power or reducing physical noise.</li>
+</ol>
+
+<h3>Line coding mechanics: DC balance and run-length limiting</h3>
+
+<p>Raw digital bit streams cannot be transmitted directly across high-speed AC-coupled channels without encoding:</p>
+
+<ul>
+<li><strong>Baseline Wander:</strong> High-speed serial links place ceramic capacitors in series with differential lines to block DC ground offsets between devices. If a data stream contains a long string of consecutive 1s, the capacitor charges up, shifting the zero-voltage reference level (baseline wander). The receiver's comparator threshold drifts, causing subsequent bits to be misinterpreted.</li>
+<li><strong>Run-Length Limiting (RLL):</strong> Phase-Locked Loops in Clock Data Recovery (CDR) circuits require frequent voltage edges to stay synchronized. Encodings like <strong>8b/10b</strong> map every 8-bit byte to a 10-bit symbol chosen from a codebook that limits maximum consecutive identical bits to five, and tracks <em>running disparity</em> (+1 or -1) to guarantee long-term zero DC bias.</li>
+</ul>
+
+<h3>Linux kernel tty architecture and termios</h3>
+
+<p>In the Linux operating system, serial communication is abstracted by the kernel <strong>tty subsystem</strong>:</p>
+
+<pre data-risk="read-only">
+[ User Space Application ] &lt;--- read(2) / write(2)
+          |
+[ POSIX Line Discipline (N_TTY) ] &lt;--- Canonical line editing, echo, signal generation
+          |
+[ Kernel Serial Core (serial_core.c) ] &lt;--- termios state, baud rate prescalers
+          |
+[ Hardware UART Driver (8250/16550) ] &lt;--- MMIO / Port I/O register access, DMA, FIFO
+          |
+[ Physical UART Silicon &amp; Transceiver ] &lt;--- Serial Pin Voltage Swings
+</pre>
+
+<p>Applications configure the interface via the POSIX <code>struct termios</code> data structure using <code>tcgetattr(3)</code> and <code>tcsetattr(3)</code>. The structure separates control flags into four bitmasks:</p>
+<ul>
+<li><code>c_iflag</code>: Input processing (e.g. <code>IXON</code> for software flow control, <code>IGNPAR</code> to ignore framing errors).</li>
+<li><code>c_oflag</code>: Output processing (e.g. <code>OPOST</code> to translate newline characters to carriage-return newline pairs).</li>
+<li><code>c_cflag</code>: Hardware control (e.g. <code>CSIZE</code> bitmask for character size, <code>PARENB</code> for parity, <code>CSTOPB</code> for stop bits, <code>CRTSCTS</code> for hardware flow control).</li>
+<li><code>c_lflag</code>: Local line discipline modes (e.g. <code>ICANON</code> for canonical line buffering, <code>ECHO</code> for key reflection, <code>ISIG</code> to generate <code>SIGINT</code> on Ctrl+C).</li>
+</ul>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux preserves pure Unix stream semantics across its terminal and console architecture. By strictly separating hardware UART drivers from POSIX line disciplines, Tamlinux ensures that diagnostic commands, headless serial consoles, and accessibility screen readers operate across identical, predictable APIs. Hardware flow control is enforced on all automated test harnesses, guaranteeing zero dropped bytes during unattended kernel boot logging.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ul>
+<li><strong>Inter-Symbol Interference (ISI) from Slew Rate Limiting:</strong> When cable capacitance is high, voltage pulses cannot rise or fall instantaneously (<code>t_rise approx 2.2 * R * C</code>). If the baud period is shorter than the rise time, the signal never reaches full voltage before transitioning to the next bit, causing the pulse to smear into adjacent symbol periods.</li>
+<li><strong>Baud Divisor Quantization Error:</strong> Hardware UARTs generate baud rates by dividing a master crystal oscillator frequency (e.g. 1.8432 MHz or 24 MHz) by an integer divisor register. If the target baud rate cannot be divided evenly, the actual generated baud rate will deviate from the nominal rate. If divisor quantization error exceeds 2.5%, the receiver will reliably lose synchronization on multi-byte transfers.</li>
+<li><strong>Flow Control Deadlock:</strong> When two devices communicate with hardware flow control enabled, but each device incorrectly configures its CTS pin as an input waiting for the other side to assert RTS before asserting its own, both devices freeze indefinitely in a mutual wait state.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Inspect active POSIX terminal flags on your current session using Python's <code>termios</code> module:</p>
+
+<pre class="session" data-risk="read-only">
+$ python3 -c 'import termios, sys; attrs = termios.tcgetattr(sys.stdin); print(f"c_cflag: {attrs[2]:#x}, ispeed: {attrs[4]}, ospeed: {attrs[5]}")'
+c_cflag: 0x4bf, ispeed: 38400, ospeed: 38400
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>According to the Shannon-Hartley theorem, why can you not achieve infinite data rate across a channel simply by dividing voltage into thousands of microscopic levels?</summary>
+<p>Because every physical transmission channel contains thermal Johnson-Nyquist noise generated by the random thermal agitation of charge carriers (<code>P_noise = k_B * T * B</code>). As voltage levels are divided into thousands of microscopic steps, the voltage separation between adjacent states becomes smaller than the random thermal noise fluctuations. Noise causes the receiver to misread states, generating errors that collapse error-free information capacity.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li>Nyquist, H. (1928). <em>Certain Topics in Telegraph Transmission Theory</em>. Transactions of the AIEE.</li>
+<li>Shannon, C. E. (1948). <em>A Mathematical Theory of Communication</em>. Bell System Technical Journal.</li>
+<li>IEEE Standards Association. <em>IEEE Standard for Ethernet &mdash; Section 802.3ck (100 Gb/s and 400 Gb/s Electrical Interfaces)</em>.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Contribute terminal speed optimizations and serial communication diagnostics in the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
+</section>
+
+<h2>Next</h2><p><a href="hardware/signals/error-detection-and-correction.html">Error detection, correction, and channel reliability</a> &mdash; parity, checksums, CRCs, and Hamming codes.</p>
+<h2>Related</h2><ul><li><a href="hardware/diagnostics/hardware-diagnostics.html">Hardware diagnostics: troubleshooting cables and communication boards</a> &mdash; multimeter testing, loopbacks, and board repair.</li><li><a href="hardware/signals/serial-and-parallel.html">Serial and parallel communication channels</a> &mdash; simplex, half-duplex, and full-duplex architectures.</li><li><a href="hardware/signals/cables-and-signaling.html">Transmission media: electrical cables, optical fiber, and wireless waves</a> &mdash; copper, fiber, and radio physics.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>
+</body>
+</html>

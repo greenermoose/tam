@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Making better use of working memory</title>
+<meta name="topic" content="zram">
+<meta name="summary" content="How compressed memory can help when a computer runs short of working memory">
+<meta name="keywords" content="zram, memory, ram, compression, swap, lz4, zstd, paging, thrashing, zramctl">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/index.html">
+<meta name="prereqs" content="improve, resources">
+<meta name="kind" content="how-to">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+<meta name="paths" content="run-lean:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / Making better use of working memory</p></nav>
+
+
+<h1>Making better use of working memory</h1>
+<p>This page explains one way a computer can make better use of its working memory.</p>
+<h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="systems/maintenance/resources.html">How your computer uses its resources</a></p>
+<p>When working memory runs short, a computer can move some information elsewhere. ZRAM compresses information in memory to make room; the benefit depends on the information and the machine.</p>
+
+<section data-level="novice">
+<h2>What is ZRAM?</h2>
+<p>When applications allocate more memory than physical RAM can hold, a traditional system pages data out to mechanical disks or NVMe drives, causing devastating input/output latency spikes and frozen interfaces. ZRAM creates a fast compressed block device in physical memory, compressing idle pages in microseconds via CPU instructions rather than waiting milliseconds for storage disks.</p>
+<h3>Why it matters</h3>
+<p>When applications allocate more memory than physical RAM can hold, a traditional system pages data out to mechanical disks or NVMe drives, causing devastating input/output latency spikes and frozen interfaces. ZRAM creates a fast compressed block device in physical memory, compressing idle pages in microseconds via CPU instructions rather than waiting milliseconds for storage disks.</p>
+<h3>How to think about it</h3>
+<p>ZRAM compresses pages in RAM as swap. It can absorb memory pressure quickly, but it is not the same as adding physical memory.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/z/zram.html">ZRAM</a></dt>
+<dd>A Linux kernel driver that creates a virtual block device in physical RAM where all stored data is compressed on the fly.</dd>
+<dt><a href="glossary/p/paging.html">Paging</a></dt>
+<dd>The operating system mechanism that moves chunks of memory (pages) between physical RAM and swap space to manage memory pressure.</dd>
+<dt><a href="glossary/d/disk-thrashing.html">Disk thrashing</a></dt>
+<dd>A severe performance freeze occurring when the system spends more time reading and writing swap pages to disk than executing user instructions.</dd>
+</dl>
+<p>When system memory is constrained, an inactive <dfn><a href="glossary/p/process.html">process</a></dfn> has its anonymous memory pages compressed into ZRAM.</p>
+</section>
+
+<section data-level="learner">
+<h2>Inspecting active ZRAM swap</h2>
+<p><strong>Goal:</strong> you will be able to query active compressed RAM swap using <code>zramctl</code>, identify compressed versus uncompressed memory metrics, and recognize when ZRAM is protecting your workstation from disk thrashing.</p>
+<p><strong>Before you start:</strong> open a terminal (<a href="terminal/shell/index.html">The Shell and Streams</a>). Review basic memory and resource monitoring (<a href="systems/maintenance/resources.html">Resources and Performance</a>). These inspection commands are completely read-only and do not alter system configuration or running processes.</p>
+<aside class="first-time">
+<p>When running diagnostic commands like <code>zramctl</code>, you do not need administrative or root privileges for read queries. The output displays active devices directly in your terminal. If the command displays a single device like <code>/dev/zram0</code> mounted at <code>[SWAP]</code>, compressed in-RAM swap is active and handling memory pressure automatically.</p>
+</aside>
+<h3>Mental model</h3>
+<pre>
+Physical RAM (e.g. 32 GB)
++-------------------------------------------------------------+
+| Active Application Memory (Anonymous &amp; File Pages)          |
++-------------------------------------------------------------+
+| ZRAM Allocated Pool (zsmalloc)                              |
+| +---------------------------------------------------------+ |
+| | Compressed Data (COMPR) + Slab Metadata = TOTAL         | |
+| | (e.g. 2.3 MiB stores 6.9 MiB of uncompressed DATA)      | |
+| +---------------------------------------------------------+ |
++-------------------------------------------------------------+
+               ^
+               | Pages compressed in RAM (Prio 100)
+               v
+    [Kernel Virtual Memory Subsystem]
+               |
+               | Spills over only if ZRAM exhausts (Prio 0)
+               v
+Disk Swapfile (/swap/swapfile on NVMe/SSD)
+</pre>
+
+<p>The Linux kernel virtual memory subsystem prioritizes swap devices numerically: the device with the highest priority receives swapped pages first. By giving <code>/dev/zram0</code> priority 100 and disk swap priority 0, the kernel absorbs all initial memory pressure directly in fast, compressed RAM. Only if ZRAM becomes completely saturated does page eviction spill over to persistent disk storage.</p>
+<h3>Worked example: Inspect compressed RAM swap devices</h3>
+<pre class="session" data-risk="read-only">
+$ zramctl
+NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
+/dev/zram0 zstd         28.3G  6.9M  2.3M    4M         [SWAP]
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25. Your output will differ depending on current RAM size and running workloads.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>zramctl</code> queries the Linux kernel's ZRAM driver and displays configured compressed memory block devices.</li>
+<li><code>NAME (/dev/zram0)</code> is the kernel compressed block device operating directly in physical RAM.</li>
+<li><code>ALGORITHM (zstd)</code> indicates the stream compression engine used to compress inactive memory pages.</li>
+<li><code>DISKSIZE (28.3G)</code> represents the maximum uncompressed swap boundary presented to the operating system's virtual memory manager.</li>
+<li><code>DATA (6.9M)</code> is the original uncompressed volume of memory pages paged into swap.</li>
+<li><code>COMPR (2.3M)</code> and <code>TOTAL (4M)</code> show the actual physical RAM consumed to store that paged data, including compression overhead and memory allocator metadata.</li>
+<li><code>MOUNTPOINT ([SWAP])</code> confirms the device is actively registered as system swap.</li>
+</ol>
+<h3>Try it</h3>
+<p>Inspect your overall system swap and memory summary using <code>swapon --show</code> and <code>free -h</code>. Notice that <code>/dev/zram0</code> appears as a high-priority swap partition alongside your physical memory counters, confirming that swap operations target RAM rather than disk.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>zramctl</code> returns nothing (empty output)</dt>
+<dd>No ZRAM device has been configured or initialized by the kernel. Check system service status with <code>systemctl status systemd-zram-setup@zram0.service</code>.</dd>
+<dt>DATA shows 0B and COMPR shows 0B</dt>
+<dd>Your workstation has plenty of free physical RAM, so the kernel has not yet needed to page out any inactive memory. This is healthy and normal under light workloads.</dd>
+<dt>TOTAL exceeds DATA under very small loads</dt>
+<dd>When storing only a few kilobytes of data, allocator tracking overhead and page table structures can momentarily exceed raw compressed data size. As more pages are paged in, compression savings vastly outweigh allocator overhead.</dd>
+</dl>
+<aside class="tamlinux">
+<p>On Tamlinux, ZRAM is managed declaratively via <code>systemd-zram-generator</code> configured in <code>/etc/systemd/zram-generator.conf</code>. Tamlinux configures <code>zram-size = ram</code> using the modern <code>zstd</code> compression algorithm at swap priority 100. This provides approximately 3:1 compression density, ensuring even a fully utilized ZRAM device occupies only about one third of physical RAM while leaving disk swap strictly as a zero-priority emergency fallback.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What is the key difference between <code>DATA</code> and <code>COMPR</code> in <code>zramctl</code> output?</summary>
+<p><code>DATA</code> is the original uncompressed size of memory pages paged out by the kernel, while <code>COMPR</code> is the actual physical memory consumed after compressing those pages.</p>
+</details>
+<details class="q">
+<summary>Why is swapping to ZRAM over 100 times faster than traditional disk swap?</summary>
+<p>ZRAM compresses and decompresses pages directly in physical memory using CPU instructions in microseconds, avoiding the millisecond latency and I/O bottlenecks of physical storage drives.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>zsmalloc kernel allocator and compression algorithms</h2>
+
+<h3>Reference: Compression algorithms and kernel slab structures</h3>
+
+<table>
+<tr><th>Algorithm / Layer</th><th>Compression ratio</th><th>Decompression speed</th><th>Kernel architectural role</th></tr>
+<tr><td><code>lz4</code></td><td>~2.0x &ndash; 2.2x</td><td>&gt;4,000 MB/s</td><td>Ultra-fast decompression; lowest CPU overhead under heavy interactive multi-core workloads.</td></tr>
+<tr><td><code>zstd</code></td><td>~2.7x &ndash; 3.2x</td><td>~1,200 MB/s</td><td>Default on Tamlinux; maximum density to double or triple effective RAM capacity without disk I/O.</td></tr>
+<tr><td><code>zsmalloc</code></td><td>Variable</td><td>Direct pointer mapping</td><td>Kernel memory slab allocator designed specifically to pack variable-sized compressed chunks into page clusters.</td></tr>
+</table>
+
+<h3>How it works: The kernel memory writeback path</h3>
+
+<p>When anonymous memory pressure increases, the Linux kernel's memory management subsystem reclaims physical pages through the swap abstraction:</p>
+
+<ol>
+<li>The kernel memory management subsystem selects inactive anonymous pages from the LRU (Least Recently Used) list.</li>
+<li>The virtual memory manager dispatches block I/O requests to the swap device <code>/dev/zram0</code>.</li>
+<li>The ZRAM block device driver intercepts the bio requests and dispatches the memory buffers to multi-threaded compression streams using per-CPU workqueues.</li>
+<li>The compressed chunk is allocated into a <code>zsmalloc</code> slab pool. Unlike the kernel's buddy allocator, which operates on power-of-two page alignments (4 KiB, 8 KiB, etc.) and causes severe internal fragmentation for compressed data, <code>zsmalloc</code> groups heterogeneous variable-sized compressed chunks into multi-page clusters (known as <em>zspages</em>), achieving over 90% allocation packing efficiency.</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>A responsive developer workstation must never experience whole-system lockups when launching heavy compilation toolchains, browser test suites, or local AI inference models. By deploying ZRAM backed by <code>zstd</code> and configured via <code>systemd-zram-generator</code>, Tamlinux expands usable memory capacity by 100% to 200% entirely in RAM. Because ZRAM operations execute at memory bus speeds with zero disk head contention or NVMe queue saturation, the desktop user interface remains fluid even under severe memory pressure.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ul>
+<li><strong>Incompressible pages:</strong> Certain data types (such as encrypted payloads, compressed archives, or already-compressed media) cannot be compressed further. When <code>zsmalloc</code> determines that compressed output plus metadata equals or exceeds 4096 bytes, the driver stores the page uncompressed to avoid wasting memory.</li>
+<li><strong>Memory limit exhaustion:</strong> If ZRAM reaches its maximum configured memory limit and no secondary disk swap exists, the kernel triggers the Out-Of-Memory (OOM) killer. Tamlinux prevents this by providing a secondary zero-priority disk swapfile for emergency spillover.</li>
+<li><strong>CPU latency trade-off:</strong> While <code>zstd</code> achieves higher compression than <code>lz4</code>, it consumes slightly more CPU instructions during compression. On battery-constrained or low-power embedded processors, <code>lz4</code> can be selected to minimize CPU energy consumption.</li>
+</ul>
+
+<h3>Explore: Inspect kernel zram sysfs attributes directly</h3>
+
+<p>Inspect the kernel driver's runtime statistics directly through the <code>/sys/block/zram0/</code> virtual filesystem:</p>
+
+<pre class="session" data-risk="read-only">
+$ cat /sys/block/zram0/comp_algorithm
+lzo-rle lzo lz4 lz4hc [zstd] deflate 842
+$ cat /sys/block/zram0/mm_stat
+ 7237632  2419127  4218880        0 11472896       41        0       62      136
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+
+<p>The <code>comp_algorithm</code> file displays available kernel compression engines with the active engine in brackets. <code>mm_stat</code> exposes raw kernel counters: original size, compressed size, allocated memory, memory limit, maximum peak memory used, zero pages count, and recompression counters.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does the kernel's traditional buddy allocator cause unacceptable internal fragmentation for compressed RAM swap?</summary>
+<p>The standard buddy allocator allocates memory only in power-of-two page chunks (e.g. 4 KiB, 8 KiB). Compressed memory pages produce variable, odd-sized chunks (e.g. 1,420 bytes). Allocating a full 4 KiB page to store 1,420 bytes wastes over 65% of the allocated space as internal fragmentation. <code>zsmalloc</code> solves this by clustering heterogeneous compressed chunks tightly into multi-page objects.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><a href="man:zramctl(8)">zramctl(8)</a> &mdash; compressed memory block device control utility.</li>
+<li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; swapon(2), swapoff(2), and kernel virtual memory subsystem interfaces.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Workstation memory policies and swap configurations are managed declaratively in the Tamlinux packaging and desktop repos under <code>tamlinux/systemd/</code> and <code>/etc/systemd/zram-generator.conf</code>.</p>
+</section>
+
+<h2>Next</h2><p><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; examine overall RAM, CPU load, and PSI pressure metrics.</p>
+<h2>Related</h2><ul><li><a href="terminal/configuration.html">Terminal and editor ergonomics</a> &mdash; explore sub-10ms shell startup and Micro live reload.</li><li><a href="programming/c/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; build native C projects and coordinate shared checkouts.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
+</body>
+</html>

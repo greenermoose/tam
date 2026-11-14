@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The microarchitectural instruction cycle</title>
+<meta name="topic" content="instruction-cycle">
+<meta name="summary" content="How bits travel from storage and DRAM to CPU caches, get fetched, decoded, executed by processor units, and written back as results">
+<meta name="keywords" content="instruction-cycle, microarchitecture, fetch, decode, execute, memory-access, writeback, pipeline, instruction-pointer, program-counter, alu, cache-line, micro-ops, uops, registers, mmu">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/architecture/index.html">
+<meta name="prereqs" content="computer-architecture, digital-logic">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+<meta name="paths" content="from-gates-to-machine:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> / <a href="hardware/architecture/index.html">Computer architecture</a> / The microarchitectural instruction cycle</p></nav>
+
+
+<h1>The microarchitectural instruction cycle</h1>
+<p>This page explains how a computer processor continuously fetches instructions from memory, interprets their binary codes, executes calculations, and records the results.</p>
+<h2>Before this</h2><p><a href="hardware/architecture/computer-architecture.html">Computer architecture and hardware systems</a> · <a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></p>
+<p>Every software program on your computer &mdash; from a simple shell script to the Linux kernel itself &mdash; eventually compiles into a stream of raw binary machine instructions. The processor operates as an automated engine that loops through discrete microarchitectural phases billions of times per second: pulling bytes from cache into registers, decoding binary opcodes into electrical control signals, calculating results in the ALU, and committing values to memory.</p>
+
+<section data-level="novice">
+<h2>What is the instruction cycle?</h2>
+<p>Computers do not read entire programs at once. The processor reads small, numbered instructions one step at a time. Understanding this execution loop explains what a program counter is, how branches change code flow, and why fast CPU caches are essential to prevent processor starvation.</p>
+<h3>Why it matters</h3>
+<p>Computers do not read entire programs at once. The processor reads small, numbered instructions one step at a time. Understanding this execution loop explains what a program counter is, how branches change code flow, and why fast CPU caches are essential to prevent processor starvation.</p>
+<h3>How to think about it</h3>
+<p>New to this? The Instruction Pointer (often called the Program Counter or PC) is a special CPU register that holds the memory address of the next instruction waiting to be executed.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/f/fetch.html">Fetch</a></dt>
+<dd>The microarchitectural phase where instruction bytes are read from cache or memory into the processor core.</dd>
+<dt><a href="glossary/d/decode.html">Decode</a></dt>
+<dd>The phase where the processor translates raw binary opcode bits into internal execution control signals.</dd>
+<dt><a href="glossary/e/execute.html">Execute</a></dt>
+<dd>The phase where functional units (like the ALU) perform the requested arithmetic, logical, or control operation.</dd>
+<dt><a href="glossary/o/opcode.html">Opcode</a></dt>
+<dd>Operation Code; the specific portion of a machine instruction that specifies the operation to be performed.</dd>
+</dl>
+<p>A sequence of instructions stored in an executable file forms a <dfn><a href="glossary/p/program.html">program</a></dfn>.</p>
+</section>
+
+<section data-level="learner">
+<h2>The fundamental loop: fetch, decode, and execute</h2>
+<p><strong>Goal:</strong> you will be able to describe the three primary stages of processor execution (Fetch, Decode, Execute) and inspect processor cache structures that deliver instructions to the execution core.</p>
+<p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The inspection commands in this section read kernel sysfs information without altering hardware state.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> The <strong>Instruction Pointer</strong> (often called the Program Counter or PC) is a special CPU register that holds the memory address of the next instruction waiting to be executed. As each instruction finishes, the processor automatically advances the pointer to the next instruction in sequence, unless a jump or branch directs it elsewhere.</p>
+</aside>
+<h3>Worked example: inspect L1 instruction cache attributes</h3>
+<pre class="session" data-risk="read-only">
+$ cat /sys/devices/system/cpu/cpu0/cache/index1/type
+Instruction
+
+$ cat /sys/devices/system/cpu/cpu0/cache/index1/size
+32K
+
+$ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
+64
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-01.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>index1</code> in sysfs exposes the processor core's dedicated Level 1 <strong>Instruction Cache (L1i)</strong>.</li>
+<li>The cache size is 32 Kilobytes per core, sitting directly adjacent to the instruction decoder on the silicon die.</li>
+<li>The coherency line size is 64 bytes. When the processor fetches an instruction, it pulls a full 64-byte chunk of <a href="glossary/m/machine-code.html">machine code</a> into L1i, ensuring that subsequent sequential instructions can be fetched with zero wait states.</li>
+</ol>
+<h3>Try it</h3>
+<p>Query your CPU core execution capabilities and flags using <code>lscpu | grep -i flags</code>. Look for vector execution flags such as <code>avx2</code>, <code>fma</code>, or <code>sse4_2</code> that provide specialized hardware execution units.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>/sys/devices/system/cpu/cpu0/cache/index1: No such file or directory</code></dt>
+<dd>The kernel sysfs interface is unmounted or running inside an unprivileged container. Inspect cache properties using <code>lscpu -C</code> instead.</dd>
+</dl>
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> performance-critical core tools (like the <code>tam</code> command and <code>libtam</code>) are compiled with <code>-O2</code> optimization, which enables instruction scheduling and loop vectorization. Instruction scheduling rearranges machine instructions so that independent instructions fill latency slots between memory loads and dependent calculations, preventing pipeline stalls without modifying program semantics.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What role does the Instruction Pointer (or Program Counter) play during the Fetch stage?</summary>
+<p>It stores the memory address of the next machine instruction. The fetch unit reads the memory or cache at that specific address to pull instruction bytes into the processor.</p>
+</details>
+<details class="q">
+<summary>What happens to the Instruction Pointer when a conditional branch (like an IF statement) evaluates to TRUE?</summary>
+<p>Instead of advancing sequentially to the next adjacent instruction, the execution unit writes the branch target address directly into the Instruction Pointer, redirecting subsequent fetches to the new code location.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Out-of-order execution, micro-ops, and register renaming</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Microarchitectural Engine</th><th>Pipeline Phase</th><th>Primary Function</th><th>Capacity / Width</th></tr>
+<tr><td>Branch Prediction Unit (BPU)</td><td>Pre-Fetch</td><td>Predicts branch direction and target address using branch history tables and TAGE algorithms</td><td>Thousands of branch history entries</td></tr>
+<tr><td>Instruction Decoder</td><td>Decode</td><td>Decodes variable-length x86 instructions (1-15 bytes) into fixed-length RISC micro-operations (uops)</td><td>Typically 4 to 6 instructions decoded per cycle</td></tr>
+<tr><td>Decoded Stream Buffer (uop Cache)</td><td>Decode / Dispatch</td><td>Caches already-decoded uops, completely bypassing x86 instruction decoding for hot loops</td><td>~1.5 K to 4 K uops</td></tr>
+<tr><td>Register Alias Table (RAT)</td><td>Rename</td><td>Maps architectural registers (%rax, %rbx) to a large physical register file (PRF), eliminating WAR/WAW hazards</td><td>~160 to 256 physical registers</td></tr>
+<tr><td>Reservation Stations / Scheduler</td><td>Dispatch / Schedule</td><td>Holds uops until their required operands are available, then dispatches them out-of-order to execution ports</td><td>~100 to 180 scheduler entries</td></tr>
+<tr><td>Reorder Buffer (ROB)</td><td>Retirement / Commit</td><td>Tracks out-of-order instructions and retires them in strict original program order, preserving precise exceptions</td><td>~256 to 512 ROB entries</td></tr>
+</table>
+
+<h3>How it works: the Out-of-Order (OoO) Superscalar pipeline</h3>
+
+<p>Modern high-performance x86-64 processors (such as AMD Zen and Intel Core) do not execute instructions strictly in order. Internally, they translate CISC x86 instructions into an internal stream of RISC-like <strong>micro-operations (uops)</strong> and execute them dynamically:</p>
+
+<ol>
+<li><strong>Instruction Fetch &amp; uop Cache:</strong> The Branch Predictor speculates ahead. The fetch unit pulls bytes from L1i cache into the decoders. If the instructions reside in the uop cache (Decoded Stream Buffer), the power-hungry variable-length instruction decoders are bypassed entirely.</li>
+<li><strong>Register Renaming:</strong> Architectural registers (e.g. 16 general-purpose registers in x86-64) create false data dependencies: Write-After-Read (WAR) and Write-After-Write (WAW). The Register Alias Table renames architectural registers to a pool of over 200 physical registers, dissolving false dependencies.</li>
+<li><strong>Out-of-Order Dispatch:</strong> uops enter the Reservation Stations. Each cycle, the scheduler checks which uops have all their source operands ready. As soon as operands are available, uops are dispatched to parallel execution ports (multiple integer ALUs, vector SIMD units, branch units, load/store units) regardless of original program order.</li>
+<li><strong>In-Order Retirement via Reorder Buffer (ROB):</strong> Although instructions execute out of order as fast as hardware permits, the CPU must preserve the illusion of sequential execution. Every uop is tracked by the circular Reorder Buffer. Results are committed to the architectural state strictly in original program order. If an exception occurs (such as a page fault or divide-by-zero) or a branch was mispredicted, all speculative uops younger than the fault are wiped from the pipeline without modifying permanent architectural state (&ldquo;precise exceptions&rdquo;).</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Understanding microarchitectural retirement and cache structures informs Tamlinux software optimization. In the <code>tam</code> command implementation, critical data structures (such as page search indexes and navigation tables) are laid out contiguously in memory rather than as fragmented pointer trees. Contiguous memory access enables the CPU hardware prefetcher to detect streaming patterns, pulling cache lines into L1 and L2 caches before the execution core even issues load instructions, achieving sub-5 millisecond response times.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ul>
+<li><strong>Speculative Execution Side-Channels (Spectre):</strong> When the branch predictor speculates down a path that is later rolled back, speculative memory loads leave cache footprint changes. Attackers can measure memory access timing to infer secret cryptographic keys or kernel memory. Mitigations include barrier instructions (<code>lfence</code>), Retpolines, and Indirect Branch Restricted Speculation (IBRS).</li>
+<li><strong>Denormalized Floating-Point Stalls:</strong> When floating-point calculations produce numbers extremely close to zero (denormals), hardware ALUs often cannot process them in single-cycle pipelines and trap to microcode, slowing execution by orders of magnitude.</li>
+<li><strong>Store-to-Load Forwarding Failure:</strong> When a program stores data to memory and immediately loads it back using a mismatched address offset or larger data size, the processor cannot forward the data directly from the Store Buffer to the Load Queue, causing an expensive pipeline stall.</li>
+</ul>
+
+<h3>Explore</h3>
+
+<p>Inspect the microarchitectural CPU model and stepping details:</p>
+
+<pre class="session" data-risk="read-only">
+$ grep -E "vendor_id|cpu family|model|stepping" /proc/cpuinfo | head -n 4
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 104
+stepping	: 1
+</pre>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why must an out-of-order processor retire instructions in strict original program order through a Reorder Buffer (ROB)?</summary>
+<p>To ensure precise architectural state and precise exception handling. If an instruction causes a hardware exception (such as a page fault), the operating system expects all previous instructions to be completely committed, and no subsequent instructions to have modified memory or registers. The ROB guarantees that results are only made permanent when all prior instructions have completed successfully.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li>Shen, J. P., &amp; Lipasti, M. H. <em>Modern Processor Design: Fundamentals of Superscalar Processors</em>.</li>
+<li>AMD64 Architecture Programmer's Manual, Volume 2: System Programming.</li>
+<li>Intel 64 and IA-32 Architectures Optimization Reference Manual.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Contribute microarchitectural performance measurements to the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
+</section>
+
+<h2>Next</h2><p><a href="programming/assembly.html">Assembly language programming</a> &mdash; examine the instructions that drive the processor pipeline.</p>
+<h2>Related</h2><ul><li><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a> &mdash; how circuits form the ALUs and registers of the pipeline.</li><li><a href="hardware/architecture/computer-architecture.html">Computer architecture</a> &mdash; CPU, memory, and bus system organization.</li><li><a href="programming/c/toolchains.html">Toolchains and compilation</a> &mdash; how compilers emit optimized machine code.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>
+</body>
+</html>

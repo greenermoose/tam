@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Display interfaces, video cables, and connectors</title>
+<meta name="topic" content="display-cables">
+<meta name="summary" content="Motherboard versus GPU ports, analog VGA, digital DVI, HDMI, DisplayPort, USB-C DP Alt Mode, Thunderbolt, and DRM connector diagnostics">
+<meta name="keywords" content="display-cables, connectors, hdmi, displayport, vga, dvi, usb-c, thunderbolt, edid, ddc, mst, dsc, alt-mode, bandwidth">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/displays/index.html">
+<meta name="prereqs" content="computer-graphics, gpu-architecture">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+<meta name="paths" content="display-and-gpu:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> / <a href="hardware/displays/index.html">Graphics and display hardware</a> / Display interfaces, video cables, and connectors</p></nav>
+
+
+<h1>Display interfaces, video cables, and connectors</h1>
+<p>This page explains the physical cables, electrical connectors, and digital protocols that carry video from a computer to a display.</p>
+<h2>Before this</h2><p><a href="hardware/displays/computer-graphics.html">Computer graphics and the rendering pipeline</a> · <a href="hardware/architecture/gpu-architecture.html">Graphics processing units and CPU-GPU architecture</a></p>
+<p>Connecting a monitor to a computer seems as simple as plugging in a cable. Yet beneath that physical plug lies a complex world of high-speed electronic engineering. Video interfaces have transitioned from analog voltage waveforms to high-bandwidth digital networks transmitting gigabits of packetized data per second. Understanding display connectors ensures you plug cables into the correct ports, choose the right adapters, and achieve full native resolution and refresh rates on your workstation.</p>
+
+<section data-level="novice">
+<h2>What do display cables carry?</h2>
+<p>One of the most common hardware setup mistakes on desktop workstations is plugging a monitor cable into the motherboard I/O panel rather than the dedicated graphics card. When this happens, the monitor may stay completely black, or your computer may run on weak integrated graphics while a powerful dedicated graphics card sits completely idle.</p>
+<h3>Why it matters</h3>
+<p>One of the most common hardware setup mistakes on desktop workstations is plugging a monitor cable into the motherboard I/O panel rather than the dedicated graphics card. When this happens, the monitor may stay completely black, or your computer may run on weak integrated graphics while a powerful dedicated graphics card sits completely idle.</p>
+<h3>How to think about it</h3>
+<p>New to this? Desktop computer towers have two separate areas with video ports on the back: the vertical motherboard I/O panel near the top, and the horizontal expansion slots near the middle or bottom.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/v/vga.html">VGA</a></dt>
+<dd>Video Graphics Array; an analog 15-pin computer display standard introduced by IBM in 1987.</dd>
+<dt><a href="glossary/h/hdmi.html">HDMI</a></dt>
+<dd>High-Definition Multimedia Interface; a digital audio/video connector standard common in consumer electronics.</dd>
+<dt><a href="glossary/d/displayport.html">DisplayPort</a></dt>
+<dd>A packet-based digital display interface standard developed by VESA for computer monitors.</dd>
+<dt><a href="glossary/a/alt-mode.html">Alt Mode</a></dt>
+<dd>Alternate Mode; a feature of USB Type-C that reconfigures physical pins to carry native DisplayPort signals.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Identifying video ports: Motherboards, graphics cards, and cable types</h2>
+<p><strong>Goal:</strong> you will be able to distinguish motherboard video ports from graphics card ports, identify the primary display connector shapes, and check which physical connectors are active on your computer.</p>
+<p><strong>Before you start:</strong> open a terminal window. All commands in this section inspect system hardware ports without making any changes to your computer.</p>
+<aside class="first-time">
+<p><strong>New to this?</strong> Desktop computer towers have two separate areas with video ports on the back: the vertical motherboard I/O panel near the top, and the horizontal expansion slots near the middle or bottom. Dedicated graphics cards always sit in the horizontal expansion slots.</p>
+</aside>
+<h3>Mental model</h3>
+<pre>
+1. Analog Video (VGA / DE-15):
+   [Digital Framebuffer] ──&gt; [RAMDAC (Digital to Analog)] ──&gt; [Continuous Voltage (0.7V p-p)] ──&gt; [Monitor ADC]
+   (Subject to electrical resistance, cable length degradation, ghosting, and phase jitter)
+
+2. Digital Stream Video (HDMI / TMDS):
+   [Digital Framebuffer] ──&gt; [TMDS Encoder (8b/10b)] ──&gt; [Clock Lane + 3 Data Lanes] ──&gt; [Digital Panel]
+   (Raster beam model: continuous pixel clock synchronized with horizontal and vertical blanking)
+
+3. Packetized Network Video (DisplayPort / Main Link):
+   [Digital Framebuffer] ──&gt; [Micro-Packet Framing] ──&gt; [1, 2, or 4 Embedded-Clock Lanes] ──&gt; [Panel Receiver]
+   (Network model: packetized data stream; supports Multi-Stream Transport daisy-chaining)
+
+4. USB Type-C DisplayPort Alternate Mode:
+   [Type-C Controller] ──&gt; Reassigns 4 High-Speed Differential Pairs ──&gt; Native DisplayPort Main Link
+   (Carries 4K/8K video while retaining USB 2.0 data lines and 100W USB Power Delivery)
+</pre>
+<h3>Worked example: inspect active physical display connectors on Linux</h3>
+<pre class="session" data-risk="read-only">
+$ for port in /sys/class/drm/card1-*; do
+    echo "$(basename "$port"): $(cat "$port/status" 2&gt;/dev/null)"
+  done
+card1-DP-1: connected
+card1-DP-2: connected
+card1-HDMI-A-1: connected
+</pre>
+
+<p>Captured on a Tamlinux workstation, 2026-11-01. Your port names and connection statuses will reflect your physical setup.</p>
+<h3>What just happened</h3>
+<ol>
+<li>The shell script loops through each display connector registered under graphics controller 1 in the Linux sysfs tree.</li>
+<li>The system identifies two physical DisplayPort interfaces (<code>DP-1</code>, <code>DP-2</code>) and one HDMI interface (<code>HDMI-A-1</code>), reporting that all three ports currently have monitors connected and powered on.</li>
+</ol>
+<h3>Try it</h3>
+<p>Inspect the back of your computer or the sides of your laptop. Identify each video port by its physical shape, then run the command above to see how the Linux kernel names each port.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Monitor displays &ldquo;No Signal&rdquo; when plugged into the desktop</dt>
+<dd>You may have plugged the cable into the motherboard vertical I/O panel instead of the dedicated graphics card horizontal bracket. Move the cable to the lower horizontal ports.</dd>
+<dt>A connected port reports <code>disconnected</code> in sysfs</dt>
+<dd>The display cable is not fully seated, the monitor is powered off, or the monitor is set to a different input source (e.g., set to HDMI 2 while plugged into HDMI 1). Check monitor input settings.</dd>
+</dl>
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> multi-monitor stability is treated with great care. The Tamlinux desktop uses standard Wayland protocols (<code>wl_output</code> and <code>wlr-output-management</code>) to handle hotplugging dynamically, ensuring windows preserve their assigned workspaces when external cables are disconnected and reconnected.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does plugging a monitor into the upper motherboard port often result in a black screen on a desktop tower?</summary>
+<p>When a dedicated graphics card is installed in a PCIe slot, most motherboards automatically disable the CPU&apos;s integrated graphics to prevent hardware conflicts, leaving the motherboard video ports unpowered.</p>
+</details>
+<details class="q">
+<summary>How can you physically tell a DisplayPort plug apart from an HDMI plug?</summary>
+<p>An HDMI connector has two symmetrical angled corners at the bottom (forming a trapezoid). A DisplayPort connector has only one angled corner (the other three are square 90-degree corners), and often has mechanical release latches on top.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>DRM connector topology, EDID parsing, and the DisplayPort AUX channel</h2>
+
+<h3>Reference: Linux DRM connector types in kernel source (`include/uapi/drm/drm_mode.h`)</h3>
+
+<table>
+<tr><th>Connector Type ID</th><th>Kernel Constant</th><th>Physical Connector Standard</th><th>Signaling Interface</th></tr>
+<tr><td>0</td><td><code>DRM_MODE_CONNECTOR_Unknown</code></td><td>Unidentified port</td><td>Fallback</td></tr>
+<tr><td>1</td><td><code>DRM_MODE_CONNECTOR_VGA</code></td><td>15-pin DE-15</td><td>Analog RGB + H/V Sync</td></tr>
+<tr><td>2</td><td><code>DRM_MODE_CONNECTOR_DVII</code></td><td>DVI-Integrated</td><td>Digital TMDS + Analog RGB</td></tr>
+<tr><td>3</td><td><code>DRM_MODE_CONNECTOR_DVID</code></td><td>DVI-Digital</td><td>Digital TMDS only</td></tr>
+<tr><td>10</td><td><code>DRM_MODE_CONNECTOR_DisplayPort</code></td><td>DisplayPort (Standard &amp; Mini)</td><td>Packetized Main Link + AUX</td></tr>
+<tr><td>11</td><td><code>DRM_MODE_CONNECTOR_HDMIA</code></td><td>HDMI Type-A (Standard)</td><td>Digital TMDS / FRL + DDC</td></tr>
+<tr><td>14</td><td><code>DRM_MODE_CONNECTOR_eDP</code></td><td>Embedded DisplayPort</td><td>Internal laptop panel ribbon</td></tr>
+<tr><td>16</td><td><code>DRM_MODE_CONNECTOR_USB</code></td><td>USB Type-C Alt Mode / DisplayLink</td><td>Multiplexed serial transport</td></tr>
+</table>
+
+<h3>How it works: The DisplayPort link training and AUX transaction handshake</h3>
+
+<p>When you plug a DisplayPort cable into a computer, the connection establishes itself through an automated, low-level hardware handshake before any video is transmitted:</p>
+
+<ol>
+<li><strong>Hot-Plug Detection (HPD):</strong> The monitor pulls the HPD pin high (3.3V). This triggers an electrical interrupt on the GPU, causing the Linux kernel DRM driver to initiate discovery.</li>
+<li><strong>AUX Channel Handshake:</strong> The GPU issues bidirectional half-duplex transactions across the 1 Mbps Manchester-encoded AUX channel to read the monitor&apos;s <strong>DPCD</strong> (DisplayPort Configuration Data) at address <code>0x00000</code>. The GPU reads:
+  <ul>
+  <li>Maximum supported link rate (RBR: 1.62 Gbps, HBR: 2.7 Gbps, HBR2: 5.4 Gbps, HBR3: 8.1 Gbps, or UHBR: up to 20 Gbps per lane).</li>
+  <li>Supported lane count (1, 2, or 4 lanes).</li>
+  <li>Downstream port capabilities and Display Stream Compression (DSC) support.</li>
+  </ul>
+</li>
+<li><strong>EDID Reading:</strong> Over the same AUX channel (via I2C-over-AUX), the GPU queries the monitor&apos;s 128-byte basic <dfn><a href="glossary/e/edid.html">EDID</a></dfn> block and any CTA-861 extension blocks, learning panel manufacturer, native resolution, and chromaticity coordinates.</li>
+<li><strong>Link Training:</strong> The GPU and monitor execute a closed-loop feedback training sequence across the Main Link lanes:
+  <ul>
+  <li><strong>Clock Recovery:</strong> The GPU transmits training pattern 1 (TPS1). The monitor adjusts its Phase-Locked Loop (PLL) receivers and signals lock over the AUX channel.</li>
+  <li><strong>Channel Equalization:</strong> The GPU transmits training pattern 2/3/4 (TPS2/3/4) to adjust pre-emphasis and voltage swing levels, compensating for high-frequency attenuation caused by the physical cable copper.</li>
+  </ul>
+</li>
+<li><strong>Stream Transmission:</strong> Once equalized, link training finishes and the GPU begins transmitting micro-packetized video and audio data.</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Tamlinux relies on standard Linux Direct Rendering Manager sysfs interfaces to discover, query, and monitor display hardware. Because all connector states, EDID blocks, and link modes are exposed as transparent kernel file interfaces under <code>/sys/class/drm/</code>, system diagnosis requires no proprietary vendor tools or heavy background daemons.</p>
+
+<h3>Edge cases and failure modes</h3>
+
+<ol>
+<li><strong>Cable Signal Degradation and Link Fallback:</strong> If a DisplayPort cable has poor shielding or excessive length, high-frequency signal noise corrupts link training. Modern DisplayPort drivers gracefully fall back to lower link rates (e.g., dropping from HBR3 to HBR2, or reducing 4 lanes to 2 lanes). The monitor continues working, but maximum resolution or refresh rate is reduced.</li>
+<li><strong>Corrupted or Missing EDID:</strong> Defective cables with broken DDC/AUX wiring fail to return an EDID block. The Linux kernel logs <code>[drm] EDID checksum invalid</code> and defaults to a safe fallback resolution (1024 &times; 768). Users can force valid timings using kernel command-line arguments (such as <code>drm.edid_firmware</code>) to load a custom binary EDID from <code>/lib/firmware/edid/</code>.</li>
+</ol>
+
+<h3>Explore: decode monitor EDID with edid-decode</h3>
+
+<pre class="session" data-risk="read-only">
+$ if command -v edid-decode &gt;/dev/null; then
+    edid-decode &lt; /sys/class/drm/card1-HDMI-A-1/edid | grep -E "Manufacturer:|Model:|Detailed Timing"
+  else
+    hexdump -C /sys/class/drm/card1-HDMI-A-1/edid | head -n 4
+  fi
+00000000  00 ff ff ff ff ff ff 00  34 a9 b8 a0 01 01 01 01  |........4.......|
+00000010  1a 1f 01 03 80 34 20 78  ea 7b 35 a6 55 51 9e 26  |.....4 x.{5.UQ.&amp;|
+00000020  0f 50 54 a5 4b 00 71 4f  81 00 81 c0 81 80 a9 c0  |.PT.K.qO........|
+00000030  b3 00 d1 c0 01 01 02 3a  80 18 71 38 2d 40 58 2c  |.......:..q8-@X,|
+</pre>
+
+<p>The raw binary EDID block contains the exact pixel clock, horizontal blanking, vertical sync pulses, and manufacturer ID programmed into the display hardware at the factory.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q open">
+<summary>Why does DisplayPort use an AUX channel rather than a simple I2C clock and data wire like VGA and HDMI?</summary>
+<p>Legacy VGA and HDMI use an I2C bus operating at a slow 100 kHz clock, capable only of reading static EDID blocks. DisplayPort&apos;s AUX channel is an active high-speed (1 Mbps to 720 Mbps) bidirectional link that performs real-time link training, manages dynamic DPCD power states, reports audio formats, and controls sideband devices.</p>
+</details>
+<details class="q open">
+<summary>How does Display Stream Compression (DSC) allow 4K video at 240 Hz across a cable that physically lacks the raw bandwidth for it?</summary>
+<p>DSC is a mathematically low-latency, visually lossless compression algorithm embedded in the GPU display engine and monitor timing controller. It compresses pixel data line-by-line by up to a 3:1 ratio before sending it across the physical DisplayPort cable. The monitor uncompresses the line in hardware in real time with less than a microsecond of latency, allowing higher resolutions and refresh rates over existing physical wiring.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><cite data-ref="vesa-displayport"><a href="bibliography/vesa-displayport.html">VESA DisplayPort Standard</a></cite> &mdash; Video Electronics Standards Association. Main Link, AUX channel, DPCD, and link training protocols.</li>
+<li><cite data-ref="hdmi-spec"><a href="bibliography/hdmi-spec.html">HDMI Specification</a></cite> &mdash; HDMI Licensing Administrator. TMDS, Fixed Rate Link (FRL), and electrical physical layers.</li>
+<li><cite data-ref="drm-kms"><a href="bibliography/drm-kms.html">Linux DRM/KMS Documentation</a></cite> &mdash; Kernel display connector structures, EDID helpers, and hotplug event handling.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Inspect the display connector states on your system. Run <code>for p in /sys/class/drm/card*-*/status; do echo "$p: $(cat "$p")"; done</code>. Try testing an external monitor connection to observe how the kernel automatically creates and updates connector device entries in sysfs upon cable insertion.</p>
+</section>
+
+<h2>Next</h2><p><a href="hardware/displays/computer-graphics.html">Computer graphics and the rendering pipeline</a> &mdash; learn how the images transmitted across these cables are rendered in memory.</p>
+<h2>Related</h2><ul><li><a href="hardware/architecture/gpu-architecture.html">Graphics processing units and CPU-GPU architecture</a> &mdash; explore the GPU silicon that drives these display connectors.</li><li><a href="hardware/displays/display-history.html">Computer displays and the history of visual output</a> &mdash; trace the physical evolution of screens from vacuum tubes to touchscreens.</li><li><a href="desktop/navigation/workspaces.html">Organizing windows and screens</a> &mdash; learn how to manage workspaces across multi-monitor setups.</li></ul>
+
+</body>
+</html>

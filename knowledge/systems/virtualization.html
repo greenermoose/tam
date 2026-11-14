@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Trying software in a separate computer</title>
+<meta name="topic" content="virtualization">
+<meta name="summary" content="Virtual machines and containers for clean-room testing and isolated development">
+<meta name="keywords" content="virtualization, emulation, qemu, kvm, containers, docker, podman, clean-room, testing, containment, isolation, systemd-nspawn, systemd-detect-virt">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/index.html">
+<meta name="prereqs" content="improve, toolchains">
+<meta name="kind" content="how-to">
+<meta name="skills" content="contributing.novice, contributing.learner, contributing.expert">
+<meta name="paths" content="understand-design:8">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / Trying software in a separate computer</p></nav>
+
+
+<h1>Trying software in a separate computer</h1>
+<p>This page explains how to try software in a separate simulated computer.</p>
+<h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
+<p>A simulated computer gives you a separate place to try software and system changes. This can help you investigate problems without changing the computer you rely on.</p>
+
+<section data-level="novice">
+<h2>What is virtualization for?</h2>
+<p>Developing low-level workstation components, system configurations, or installation scripts carries risk. Testing on a primary machine can leave orphaned packages, corrupt boot configurations, or cause data loss. Virtualization and containers provide isolated, disposable environments where experiments run safely without risking your daily-driver setup.</p>
+<h3>Why it matters</h3>
+<p>Developing low-level workstation components, system configurations, or installation scripts carries risk. Testing on a primary machine can leave orphaned packages, corrupt boot configurations, or cause data loss. Virtualization and containers provide isolated, disposable environments where experiments run safely without risking your daily-driver setup.</p>
+<h3>How to think about it</h3>
+<p>Virtualization lets one computer run another operating system inside simulated hardware. Containers share the host kernel but isolate processes, users, and filesystems.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/v/virtual-machine.html">Virtual machine</a></dt>
+<dd>An isolated computing environment that emulates physical hardware, running its own complete guest kernel and operating system.</dd>
+<dt><a href="glossary/c/container.html">Container</a></dt>
+<dd>An isolated user-space environment sharing the host Linux kernel, using namespaces and cgroups for process and filesystem boundaries.</dd>
+<dt><a href="glossary/c/clean-room-testing.html">Clean-room testing</a></dt>
+<dd>Testing software and system scripts in an isolated, pristine environment devoid of pre-existing user configurations or non-standard packages.</dd>
+</dl>
+<p>Every contained workload runs as an isolated <dfn><a href="glossary/p/process.html">process</a></dfn> tree under an identifiable configuration <dfn><a href="glossary/o/owner.html">owner</a></dfn>.</p>
+</section>
+
+<section data-level="learner">
+<h2>Detect execution environments and verify virtualization support</h2>
+<p><strong>Goal:</strong> you will be able to detect whether your environment is running inside a virtual machine or container, inspect hardware virtualization acceleration support, and understand why clean-room testing protects your primary workstation.</p>
+<p><strong>Before you start:</strong> open a terminal. Checking virtualization status and hardware acceleration capabilities uses read-only commands that require no administrative privileges. See <a href="programming/c/toolchains.html">Toolchains and Native Compilation</a> for build environment fundamentals.</p>
+<aside class="first-time">
+<p>Virtualization lets one computer run another operating system inside simulated hardware. Containers share the host kernel but isolate processes, users, and filesystems. Commands like <code>systemd-detect-virt</code> reveal your current runtime environment without modifying any system state.</p>
+</aside>
+<h3>Mental model</h3>
+<pre>
+Bare-Metal Host:
++-------------------------------------------------------+
+| Linux Kernel (KVM, namespaces, cgroups, /dev/kvm)     |
++-------------------------------------------------------+
+      |                                       |
+[Virtual Machine (QEMU/KVM)]            [Container / nspawn]
++--------------------------+            +-------------------+
+| Virtual Hardware (virtio)|            | Shared Host Kernel|
+| Independent Guest Kernel |            | Isolated Userland |
+| Independent Rootfs / EFI |            | (PID/Mount/Net NS)|
++--------------------------+            +-------------------+
+Use: Bootloader, kernel, initramfs,     Use: Fast tool/build
+     clean-room OS installation              package verification
+</pre>
+
+<p>Virtual machines emulate full hardware, booting an independent kernel with its own memory and device drivers. Containers isolate user space using Linux kernel namespaces (PID, mount, network, IPC) and control groups (cgroups), sharing the host kernel for minimal resource overhead and instant startup.</p>
+<h3>Worked example: Check runtime virtualization and KVM availability</h3>
+<pre class="session" data-risk="read-only">
+$ systemd-detect-virt
+none
+$ ls -l /dev/kvm
+crw-rw-rw- 1 root kvm 10, 232 Oct 23 14:15 /dev/kvm
+</pre>
+
+<p>Captured on an Arch Linux workstation, 2026-10-25.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>systemd-detect-virt</code> returned <code>none</code>, confirming that the current shell is executing directly on physical bare-metal hardware rather than within a guest virtual machine or container.</li>
+<li><code>ls -l /dev/kvm</code> confirms that the Kernel-based Virtual Machine (KVM) character device is present with read-write permissions (mode 0666), enabling hardware-accelerated virtualization for QEMU virtual machines.</li>
+</ol>
+<h3>Try it</h3>
+<p>Query CPU hardware virtualization extension flags (such as Intel VT-x or AMD-V) using <code>lscpu</code>:</p>
+
+<pre class="session" data-risk="read-only">
+$ lscpu | grep -i Virtualization
+Virtualization:                          AMD-V
+</pre>
+
+<p>You can also list all virtualization and container technologies recognized by systemd with <code>systemd-detect-virt --list</code>.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>systemd-detect-virt prints 'kvm', 'qemu', or 'systemd-nspawn'</dt>
+<dd>The shell is currently running inside a virtual machine or container guest rather than directly on bare metal.</dd>
+<dt>/dev/kvm does not exist or Permission denied</dt>
+<dd>Hardware virtualization (Intel VT-x or AMD-V) is disabled in the system UEFI/BIOS firmware, or the <code>kvm</code> kernel module is not loaded.</dd>
+<dt>systemd-detect-virt exits with code 1</dt>
+<dd>This is expected on bare-metal systems: <code>systemd-detect-virt</code> prints <code>none</code> and returns exit status 1 to allow shell scripts to branch on virtualization presence.</dd>
+</dl>
+<aside class="tamlinux">
+<p>On Tamlinux, all system software and packaging configurations must be reproducible. When developing changes to boot scripts, packaging hooks, or system services, clean-room testing in isolated virtual machines or containers ensures that changes are verified before being proposed or deployed. Workstation software reaches production exclusively through recorded packages. See the <cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux API reference</a></cite>.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What does <code>systemd-detect-virt</code> output when run on a native, bare-metal workstation?</summary>
+<p>It outputs <code>none</code> and exits with status 1, indicating that execution is not contained within any virtual machine or container.</p>
+</details>
+<details class="q">
+<summary>Why is hardware acceleration via <code>/dev/kvm</code> critical when running virtual machines in QEMU?</summary>
+<p>Without KVM hardware acceleration, QEMU must emulate every CPU instruction in software via TCG (Tiny Code Generator), which is orders of magnitude slower. KVM allows guest CPU instructions to execute directly on host processor cores at near-native speed.</p>
+</details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Hypervisor interfaces, paravirtualization, and automated test harnesses</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Interface / Component</th><th>Path or Protocol</th><th>Mechanism</th><th>Function</th></tr>
+<tr><td>KVM character device</td><td><code>/dev/kvm</code></td><td>Character device (major 10, minor 232)</td><td>Kernel ioctl interface for hardware-assisted CPU/memory execution</td></tr>
+<tr><td>CPU virtualization hooks</td><td><code>kvm_amd</code> / <code>kvm_intel</code></td><td>Kernel modules</td><td>CPU vendor-specific virtualization (AMD SVM / Intel VMX)</td></tr>
+<tr><td>Nested virtualization</td><td><code>/sys/module/kvm_amd/parameters/nested</code></td><td>Kernel parameter</td><td>Allows running KVM hypervisors inside guest virtual machines</td></tr>
+<tr><td>Virtio paravirtualization</td><td><code>virtio_net</code>, <code>virtio_blk</code>, <code>virtio_pci</code></td><td>Circular memory rings (<code>vring</code>)</td><td>High-throughput, low-latency I/O bypassing emulated hardware</td></tr>
+<tr><td>Virtio serial console</td><td><code>virtio-console</code> / <code>ttyS0</code></td><td>Character device stream</td><td>Line-buffered guest console streams for automated test assertion capture</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>Modern Linux virtualization combines hardware-assisted CPU virtualization with paravirtualized I/O devices:</p>
+
+<ol>
+<li><strong>Hardware-Assisted CPU Execution:</strong>
+The host kernel configures the CPU hardware virtualization extensions (AMD SVM or Intel VMX). When QEMU executes guest code via the <code>KVM_RUN</code> ioctl, the host processor switches into guest mode (executing <code>VMRUN</code> on AMD or <code>VMLAUNCH</code>/<code>VMRESUME</code> on Intel). The guest OS executes unprivileged instructions directly on the physical processor cores at bare-metal speeds.</li>
+
+<li><strong>VM-Exits and Emulation Handling:</strong>
+When the guest OS performs a sensitive operation &mdash; such as accessing privileged control registers, executing I/O port instructions, or encountering a page fault on unmapped memory &mdash; the CPU halts guest execution and triggers a <em>VM-Exit</em>. Control returns to the KVM kernel module, which either handles the exit directly in kernel space or delegates device emulation to QEMU in user space.</li>
+
+<li><strong>Paravirtualized I/O with Virtio:</strong>
+Emulating legacy hardware controllers (such as IDE disks or Intel e1000 network cards) requires thousands of costly VM-Exits per second. Modern clean-room testing uses <em>Virtio</em>: standardized, cooperative drivers where the guest OS and host hypervisor communicate via shared-memory circular ring buffers (<code>vring</code>). Virtio block devices (<code>virtio-blk</code>) and network devices (<code>virtio-net</code>) batch operations and eliminate unnecessary exits, delivering near-native storage and networking throughput.</li>
+
+<li><strong>Headless Automated Test Harnesses:</strong>
+Automated testing harnesses launch QEMU with a direct kernel boot:
+<pre data-risk="read-only">
+qemu-system-x86_64 -m 2048 -enable-kvm -kernel /boot/vmlinuz-linux \
+  -initrd /boot/initramfs-linux.img \
+  -append "console=ttyS0 earlyprintk=serial,ttyS0,115200" \
+  -display none -serial stdio -no-reboot
+</pre>
+Test scripts capture standard output, asserting expected kernel log messages, systemd target milestones, and failure recoveries without graphical dependencies or manual interaction.</li>
+</ol>
+
+<h3>Why Tamlinux chose this</h3>
+
+<p>Clean-room verification is an essential safety barrier. Testing system-level changes, package hooks, and boot configurations in isolated virtual environments guarantees that regressions are caught before affecting production hardware. By preferring paravirtualized standards like Virtio and standard systemd detection tools, testing workflows remain reproducible, unprivileged, and scriptable.</p>
+</section>
+
+<h2>Sources and further reading</h2><ul><li><a href="bibliography/linux-api.html">Linux man-pages</a></li></ul>
+</body>
+</html>

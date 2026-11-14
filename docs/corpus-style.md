@@ -50,7 +50,7 @@ Those controls complement Where next / See also; they do not replace them.
 ## Voice
 
 - Plain language. Prefer everyday words; define or link every technical term
-  on first use (`ecosystem/terminology.html` or the glossary).
+  on first use (`tamlinux/design/terminology.html` or the glossary).
 - Second person and active voice ("You open…", "Run…").
 - Short sentences. One idea per sentence when teaching novices.
 - At most one light touch of humour per page. Never mock the reader.

@@ -192,10 +192,10 @@ class LintCorpus(unittest.TestCase):
     # H: worktrees
     def test_h1_worktree_elsewhere(self):
         self.check("<p>Use a Git worktree.</p>", [self.finding(
-            "WORKTREE", "worktrees are mentioned only in improve/toolchains.html")], 1)
+            "WORKTREE", "worktrees are mentioned only in programming/c/toolchains.html")], 1)
 
     def test_h2_worktree_on_toolchains_page(self):
-        self.check("<p>Use a Git worktree.</p>", [], 0, path="improve/toolchains.html")
+        self.check("<p>Use a Git worktree.</p>", [], 0, path="programming/c/toolchains.html")
 
     # H2: SUPER as desktop modifier (D217)
     def test_h3_super_chord_elsewhere(self):

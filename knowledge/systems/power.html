@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html><head>
+<title>When your computer rests or sleeps</title>
+<meta name="topic" content="power">
+<meta name="summary" content="Distinguish display blanking, suspend and hibernation, inspect kernel capabilities, and plan bounded wake diagnosis">
+<meta name="keywords" content="power, dpms, blanking, suspend, sleep, s3, s2idle, hibernate, hibernation, s4, shift, wake, display, image_size">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/index.html">
+<meta name="prereqs" content="maintain, resources">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+<meta name="paths" content="rescue:2">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / When your computer rests or sleeps</p></nav>
+
+<h1>When your computer rests or sleeps</h1>
+<p>This page explains what happens when your computer rests, sleeps, or saves its state before turning off.</p>
+<h2>Before this</h2><p><a href="systems/maintenance/index.html">System Maintenance and Reliability</a> · <a href="systems/maintenance/resources.html">How your computer uses its resources</a></p>
+<p>Turning off the screen, putting the computer to sleep, and saving its state before power-off are different choices. This page explains what each preserves.</p>
+<section data-level="novice">
+<h2>What are blanking, suspend, and hibernation?</h2>
+<p>Turning off a monitor does not stop a
+download. Losing power during ordinary suspend can lose the session held in RAM.</p>
+<h3>Why it matters</h3>
+<p>Turning off a monitor does not stop a
+download. Losing power during ordinary suspend can lose the session held in RAM.</p>
+<h3>How to think about it</h3>
+<p>A dark screen is not sleep. Suspend keeps the session in powered RAM; hibernation writes a memory image to storage first. On laptops, power profiles balance speed and battery life.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/dpms.html">DPMS</a></dt><dd>Display Power Management Signaling; display power control, distinct from system sleep.</dd>
+<dt><a href="glossary/s/suspend.html">Suspend</a></dt><dd>A low-power system state retaining the session in RAM.</dd>
+<dt><a href="glossary/h/hibernation.html">Hibernation</a></dt><dd>Saving a memory image to storage so the session can be restored later.</dd></dl>
+<p>A <dfn><a href="glossary/p/process.html">process</a></dfn> is a running
+instance of a program; display blanking alone does not suspend it.</p>
+<h3>Next step</h3><p>At Learner, distinguish an available mode from a
+selected mode and a successful wake.</p>
+</section>
+
+<section data-level="learner">
+<h2>Tell display blanking from system sleep</h2>
+<p><strong>Goal:</strong> you will be able to name the three states and read
+which sleep labels your kernel offers, without putting the machine to sleep.</p>
+<p><strong>Before you start:</strong> use a terminal; the examples only read
+information from the kernel (the operating system's core). See <a href="paths/first-steps.html?level=1">First steps</a>
+for terminal help and <a href="systems/maintenance/resources.html?level=1">resources</a>
+for an introduction to memory.</p>
+<aside class="first-time"><p>RAM is working memory used by running programs.
+It needs power to retain data. The files below are kernel interfaces: reading
+them asks a question; writing to them can change system behavior. This lesson
+uses <code>cat</code> to read only.</p></aside>
+<h3>Mental model</h3>
+<pre>
+desktop request -> system sleep policy -> kernel mode -> devices / firmware
+display blanking -------------------------------------> display power
+</pre>
+<p>The lines are separate. Kernel capability, a selected mode, policy approval
+and a successful wake are four different claims.</p>
+<h3>Worked example: Read available labels</h3>
+<pre class="session">
+$ cat /sys/power/state
+freeze mem disk
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-22. Your list may differ.</p>
+<ol><li><code>freeze</code> names suspend-to-idle.</li>
+<li><code>mem</code> requests the suspend variant selected through
+<code>mem_sleep</code>, explained at Learner.</li>
+<li><code>disk</code> names hibernation. Its presence is a kernel capability,
+not proof that storage, resume setup and drivers can complete a round trip.</li></ol>
+<table><tr><th>State</th><th>What continues or survives?</th><th>What to remember</th></tr>
+<tr><td>Display blanking (DPMS)</td><td>The session and programs can keep running.</td><td>A dark screen is not proof of sleep or a secure lock.</td></tr>
+<tr><td>Suspend</td><td>The session remains in powered RAM; normal user programs stop executing.</td><td>Wake sources and power use depend on hardware and the suspend variant.</td></tr>
+<tr><td>Hibernation</td><td>A memory image is saved to persistent storage before the final low-power state.</td><td>Resume needs a working storage and boot path; the image is not a backup.</td></tr></table>
+<h3>Try it</h3>
+<p>Read the list on your own machine. Then classify these two descriptions:
+“the display is off but music still plays” and “the session is saved to disk
+before power-down.” No sleep experiment is needed.</p>
+<details class="solution"><p>The first is consistent with display blanking;
+it does not prove the precise desktop policy. The second describes hibernation.</p></details>
+<h3>If it goes wrong</h3>
+<p>A missing file or missing label can reflect kernel or platform support.
+Record exactly what you read; do not add a label by writing into the file.
+If a display is already dark, try a modifier such as Shift rather than Enter,
+then wait until you can see the focused window. Whether that input can wake
+the machine depends on its configuration and hardware. Nothing read here needs undo.</p>
+<aside class="tamlinux"><p><code>fred.workspaces</code> has per-display power controls. They are distinct
+from a system-sleep request. Check battery state with <code>tam-battery-status</code> and inspect active power profiles with <code>tam-powerprofiles-list</code>. The packaged <code>tam-hibernate-swap</code> hook
+attempts to drain zram swap before the hibernation leg and restore it afterwards,
+with time and disk-headroom guards. It can skip or fail a drain; its presence
+does not prove a successful hibernation. Do not run the hook manually for this lesson.</p></aside>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Does turning off a monitor stop a background download?</summary><p>No. Display blanking affects the display. A separate system-sleep action can stop normal program execution.</p></details>
+<details class="q"><summary>Does <code>disk</code> in the list prove hibernation is ready to use?</summary><p>No. The kernel offers the interface, but storage capacity, resume configuration, policy and driver behavior still matter.</p></details></section>
+</section>
+<section data-level="expert">
+<h2>Reason about image allocation and resume boundaries</h2>
+<h3>Reference and how it works</h3>
+<p>Hibernation freezes activity, prepares a memory image and saves it to
+storage. The final mode can use firmware-assisted ACPI S4 or power down.
+A restore kernel must locate and load the image before handing control back
+to the saved kernel. Image creation, storage write, power-down and device
+restoration are separate failure boundaries.</p>
+<p><code>/sys/power/image_size</code> is a best-effort upper limit in bytes,
+not a preallocated buffer or a report of the last image's size. If the target
+cannot be met, the kernel can still try the smallest possible image. Zero
+requests the smallest possible image; it does not guarantee allocation,
+successful resume, or reclamation of every clean cache page.</p>
+<p>Zram swap consumes RAM. Hibernation also needs memory while preparing its
+image, as well as usable persistent swap for the image. Plenty of free disk
+space does not establish enough allocation headroom in RAM. Conversely, a
+small image target does not establish enough free space on the resume device.
+Inspect each budget separately.</p>
+<h3>Think through a failure</h3>
+<p>If image allocation fails, I first locate that stage in kernel and sleep
+service evidence. I compare RAM pressure, zram use and persistent swap
+headroom before proposing a parameter change. If the image was written and
+the desktop later remains dark, I instead investigate resume and device
+restoration. A display-link failure cannot be repaired by assuming every
+hibernation problem is an image-size problem.</p>
+<h3>Edge cases, energy and recovery</h3>
+<p>Wake sources, suspend residency and standby draw depend on firmware,
+devices and policy. Neither a watt figure nor a fixed wake time follows from
+a sleep label. Measure energy and latency on the actual hardware, and keep
+display power, platform standby and external peripherals in the measurement's
+scope. Hibernation permits RAM to lose power after the image is saved, but
+does not promise literal zero wall-plug draw.</p>
+<p>Do not modify filesystems from another operating system and then resume an
+old hibernation image that still describes their earlier state. Resume needs
+a compatible, intact storage and boot path. The image preserves a session;
+it does not replace independent data backups.</p>
+<h3>Explore</h3>
+<p>Prepare a read-only failure matrix with four rows: image allocation,
+image write, image load and device restore. For each, name one observation
+that locates failure there and one competing explanation. Record unknowns
+instead of forcing an empty journal query into a verdict.</p>
+<p>Any later system-changing trial needs its own agreed procedure, saved work
+and recorded rollback point before changing one parameter. This exercise
+does not change sysfs values, swap, boot parameters or sleep policy.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary>Why might <code>image_size=0</code> fail to fix an allocation error even with abundant disk swap?</summary><p>It asks for a minimal image, rather than guaranteeing sufficient working RAM. Unsavable or unreclaimable memory, zram pressure and allocation requirements can still prevent image preparation. Locate the failing stage and test a specific explanation; disk space and RAM headroom are different budgets.</p></details>
+<details class="q open"><summary>What would a claim of successful hibernation and wake need beyond the available-state list?</summary><p>Evidence of the requested policy, completed image write and restore, working devices and session after resume, and an explicit hardware/configuration scope. Energy and wake-time claims additionally need measurements. One successful cycle does not establish reliability across workloads.</p></details></section>
+<h3>Power and battery management commands</h3>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+<tr><td><code>tam-battery-status</code></td><td>Report battery percentage, time to empty or full, and power draw (<code>--shell</code> for scripts)</td></tr>
+<tr><td><code>tam-battery-low</code></td><td>Shell notification alert executed when battery charge drops to 10%</td></tr>
+<tr><td><code>tam-powerprofiles-list</code></td><td>List supported platform power profiles (<code>--active-state</code> shows active profile)</td></tr>
+<tr><td><code>tam-powerprofiles-set</code></td><td>Switch and remember power profile for AC mains vs battery power</td></tr>
+<tr><td><code>tam-hibernation-available</code></td><td>Succeed when platform kernel and swap support hibernation</td></tr>
+<tr><td><code>suspend-unless-stay-awake</code></td><td>Suspend the workstation unless the Stay Awake toggle is engaged</td></tr>
+<tr><td><code>tam-meter</code></td><td>Sample APU power, temperature and wakeups (<code>now</code>, <code>top</code>), or take a settled reading; see <a href="hardware/energy/measurement.html">How much power your computer uses</a></td></tr>
+<tr><td><code>tam-nut</code></td><td>Hardware inspection and environment verification in laptop bootstrap (<code>tam-nut inspect</code>)</td></tr>
+</table>
+<h3>Sources and improve it</h3>
+<p>Read <a href="man:systemd-sleep(8)">systemd-sleep(8)</a> and
+<a href="man:systemd-sleep.conf(5)">systemd-sleep.conf(5)</a>, offline if installed.
+The kernel's System Sleep States and sysfs power ABI documentation are the
+primary references for these interfaces. Tamlinux's public source is
+<code>greenermoose/tamlinux</code>, under
+<code>desktop/native/defaults/root/usr/lib/systemd/system-sleep/tam-hibernate-swap</code>.
+Propose lesson improvements in <code>greenermoose/tam</code> with a bounded,
+redacted example; label observations separately from proposed causes.</p>
+</section>
+<p>Continue with <a href="systems/maintenance/logs.html">log evidence</a>,
+<a href="systems/recovery/recovery.html">recovery</a>, or the
+<a href="paths/keep-it-healthy.html?level=2">Keep it healthy path</a>.</p>
+</body></html>

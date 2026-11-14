@@ -19,11 +19,11 @@ from pathlib import Path
 
 EXTRA_SUBCOMMANDS = {"help", "--help", "-h", "--version", "-V"}
 LATEX_WORDS = r"\\(?:rightarrow|leftarrow|times|approx|text|frac|cdot)\b"
-WORKTREE_PAGE = "knowledge/improve/toolchains.html"
+WORKTREE_PAGE = "knowledge/programming/c/toolchains.html"
 # Historical Super/SUPER explanation only (D217). Living chords use Meta/META.
 SUPER_MOD_PAGES = {
-    "knowledge/desktop/meta-key.html",
-    "knowledge/learn/glossary/meta.html",
+    "knowledge/desktop/navigation/meta-key.html",
+    "knowledge/glossary/m/meta.html",
 }
 SUPER_MOD = re.compile(
     r"(?:\bSUPER\s*\+|\bSUPER\+|\bSuper\s*\+|\bSuper\+|"
@@ -188,7 +188,7 @@ class Page:
         if self.rel != WORKTREE_PAGE:
             for m in re.finditer(r"worktree", self.text, re.I):
                 self.add(m.start(), "WORKTREE",
-                         "worktrees are mentioned only in improve/toolchains.html")
+                         "worktrees are mentioned only in programming/c/toolchains.html")
         if self.rel not in SUPER_MOD_PAGES:
             for m in SUPER_MOD.finditer(self.text):
                 self.add(m.start(), "SUPER-MOD",

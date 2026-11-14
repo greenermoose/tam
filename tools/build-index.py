@@ -19,6 +19,7 @@ requires explicit parents and track ownership.
 from datetime import datetime, timezone
 import json
 from html.parser import HTMLParser
+from html import unescape
 import re
 import subprocess
 import sys
@@ -27,10 +28,94 @@ from pathlib import Path
 
 LEVELS = ("novice", "learner", "expert")
 CANONICAL_LEVELS = ("novice", "learner", "expert")
-TRACKS = ("install", "learn", "use", "maintain", "improve")
+SUBJECTS = ("hardware", "systems", "terminal", "networking", "security", "programming", "desktop", "tamlinux")
+TRACKS = SUBJECTS + ("paths", "glossary", "bibliography", "skills", "help", "install", "learn", "use", "maintain", "improve")
 # D221 migrated pages: new novice/learner anatomy is hard-enforced only here
 # until the rest of the corpus migrates (warnings elsewhere).
 D221_PILOT_PAGES = frozenset({
+    "terminal/shell/pipelines.html",
+    "terminal/shell/index.html",
+    "terminal/shell/jobs.html",
+    "security/permissions.html",
+    "systems/storage/hierarchy.html",
+    "systems/maintenance/updates.html",
+    "systems/maintenance/index.html",
+    "systems/recovery/rollback.html",
+    "desktop/navigation/index.html",
+    "desktop/navigation/meta-key.html",
+    "desktop/navigation/workspaces.html",
+    "networking/connections.html",
+    "systems/maintenance/logs.html",
+    "help/documentation.html",
+    "desktop/navigation/voice.html",
+    "desktop/navigation/voice-commands.html",
+    "desktop/tasks/screenshots.html",
+    "desktop/tasks/clipboard.html",
+    "desktop/tasks/notifications.html",
+    "desktop/tasks/audio.html",
+    "desktop/tasks/bluetooth.html",
+    "desktop/tasks/displays.html",
+    "desktop/tasks/keyboard-touchpad.html",
+    "desktop/tasks/lock-and-idle.html",
+    "desktop/tasks/night-light.html",
+    "systems/recovery/recovery.html",
+    "systems/power.html",
+    "systems/boot/boot.html",
+    "systems/boot/boot-recovery.html",
+    "systems/recovery/snapper.html",
+    "systems/recovery/checkpoint.html",
+    "systems/maintenance/resources.html",
+    "programming/efficiency.html",
+    "systems/memory-compression.html",
+    "terminal/configuration.html",
+    "programming/scripting.html",
+    "programming/c/toolchains.html",
+    "programming/ai/local-inference.html",
+    "hardware/foundations/matter-and-energy.html",
+    "hardware/foundations/circuits-and-power.html",
+    "hardware/foundations/digital-logic.html",
+    "hardware/architecture/computer-architecture.html",
+    "hardware/architecture/instruction-cycle.html",
+    "programming/assembly.html",
+    "hardware/signals/serial-and-parallel.html",
+    "hardware/signals/cables-and-signaling.html",
+    "networking/communication-protocols.html",
+    "hardware/signals/error-detection-and-correction.html",
+    "hardware/diagnostics/hardware-diagnostics.html",
+    "hardware/displays/computer-graphics.html",
+    "hardware/architecture/gpu-architecture.html",
+    "hardware/displays/display-cables.html",
+    "hardware/displays/display-history.html",
+    "desktop/session/compositors.html",
+    "systems/kernel-and-processes.html",
+    "systems/storage/filesystems.html",
+    "systems/init.html",
+    "tamlinux/development/package-versions.html",
+    "programming/c/c11.html",
+    "terminal/ttys-and-virtual-consoles.html",
+    "desktop/session/sddm.html",
+    "desktop/session/evdev.html",
+    "systems/packages/packaging.html",
+    "systems/packages/nix.html",
+    "tamlinux/design/distros.html",
+    "tamlinux/development/patches.html",
+    "systems/virtualization.html",
+    "programming/interfaces/toolkits.html",
+    "terminal/terminfo-and-termcap.html",
+    "programming/interfaces/ncurses.html",
+    "desktop/appearance/fonts.html",
+    "desktop/appearance/themes.html",
+    "programming/lua.html",
+    "tamlinux/design/philosophy.html",
+    "hardware/energy/sustainability.html",
+    "tamlinux/development/ai.html",
+    "help/tam.html",
+    "help/practice.html",
+    "help/manuals.html",
+    "tamlinux/development/tam.html",
+})
+
+LEGACY_PILOT_PAGES = frozenset({
     "shell/pipelines.html",
     "shell/index.html",
     "shell/jobs.html",
@@ -112,6 +197,8 @@ D221_PILOT_PAGES = frozenset({
     "man/index.html",
     "tam.html",
 })
+D221_PILOT_PAGES = D221_PILOT_PAGES | LEGACY_PILOT_PAGES
+
 # A topic is one command-line word and one line of `tam explain topics --terse`.
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
@@ -244,7 +331,7 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
 
     # Title
     m_title = re.search(r'<title>(.*?)</title>', text, re.I | re.S)
-    title = m_title.group(1).strip() if m_title else ""
+    title = unescape(m_title.group(1).strip()) if m_title else ""
 
     # H1
     m_h1 = re.search(r'<h1>(.*?)</h1>', text, re.I | re.S)
@@ -269,6 +356,7 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
         content = extract_attr(tag, "content")
         if not name or content is None:
             continue
+        content = unescape(content)
         name_lower = name.lower()
         if name_lower == "topic":
             topic = content.strip()
@@ -546,7 +634,9 @@ class LearningHTML(HTMLParser):
 
 def learning_metadata(knowledge, entries, errors, parsed=None):
     """Optional additive metadata: legacy corpora need no registry or kinds."""
-    registry_path = knowledge / "learn/skills/skills.json"
+    registry_path = knowledge / "skills/skills.json"
+    if not registry_path.exists():
+        registry_path = knowledge / "learn/skills/skills.json"
     cells = []
     enforce_tracks = []
     if registry_path.exists():
@@ -581,7 +671,7 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
                   for e in entries}
     bibliography = {}
     for path, document in parsed.items():
-        if not path.startswith("learn/bibliography/"):
+        if not path.startswith(("bibliography/", "learn/bibliography/")):
             continue
         for ref in document.reference_ids:
             if not re.fullmatch(r"[a-z][a-z0-9-]*", ref) or ref in bibliography:
@@ -600,7 +690,7 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
         for node in parsed[path].refs:
             links = node["links"]
             if node["tag"] == "dfn":
-                glossary = [link for link in links if link.split("?", 1)[0].split("#", 1)[0].startswith("learn/glossary/")]
+                glossary = [link for link in links if link.split("?", 1)[0].split("#", 1)[0].startswith(("glossary/", "learn/glossary/"))]
                 if not glossary:
                     errors.append(f"{path}: dfn requires a glossary link")
                 for link in glossary:
@@ -683,6 +773,23 @@ def validate_global_entries(entries, errors):
             if p not in topics:
                 errors.append(f"{e['path']}: prerequisite {p!r} is not a topic")
 
+    by_topic = {e["topic"]: e for e in entries}
+    done = set()
+    visiting = set()
+    def visit(topic):
+        if topic in visiting:
+            errors.append(f"{by_topic[topic]['path']}: prerequisite cycle at {topic!r}")
+            return
+        if topic in done or topic not in by_topic:
+            return
+        visiting.add(topic)
+        for prerequisite in by_topic[topic]["prereqs"]:
+            visit(prerequisite)
+        visiting.remove(topic)
+        done.add(topic)
+    for topic in by_topic:
+        visit(topic)
+
     path_defs = {e["topic"]: e for e in entries if e.get("kind") == "path"}
     seen_steps = {}
     for e in entries:
@@ -709,7 +816,7 @@ PATH_STAGE_RE = re.compile(r'^(?:Stage\s+(\d+)\s*:|\s*(\d+)\.)\s*(.*)$', re.I | 
 PATH_LEVEL_RE = re.compile(r'level=[0-3]')
 PATH_DETAILS_RE = re.compile(r'<details\b([^>]*)>(.*?)</details>', re.I | re.S)
 PATH_HREF_RE = re.compile(r'<a\b[^>]*href\s*=\s*["\']([^"\']+)["\']', re.I)
-PATH_NON_PAGES = ("learn/glossary/", "learn/bibliography/", "learn/paths/")
+PATH_NON_PAGES = ("glossary/", "bibliography/", "paths/", "learn/glossary/", "learn/bibliography/", "learn/paths/")
 
 
 def _plain(fragment):

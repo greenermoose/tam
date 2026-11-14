@@ -7,12 +7,13 @@
 
 typedef struct {
     char *topic;       /* primary topic name, e.g. "pipelines" */
-    char *path;        /* relative path in corpus, e.g. "shell/pipelines.html" */
+    char *path;        /* relative path in corpus, e.g. "terminal/shell/pipelines.html" */
     char *title;       /* title, e.g. "Shell pipelines and redirection" */
     char *summary;     /* summary, e.g. "Shell pipelines, redirection, and core filters" */
     char *level;       /* declared levels, e.g. "novice,learner,expert" */
     unsigned levels;   /* TAM_LEVEL_* mask parsed from level (see depth.h) */
     char *track;       /* track, e.g. "use", "maintain", "improve" */
+    char *kind;        /* optional page kind from index.kinds.tsv */
     char *parent;      /* canonical parent page path; NULL in older indexes */
     char **keywords;   /* array of keyword/alias strings */
     size_t num_keywords;
@@ -55,10 +56,13 @@ typedef struct {
 /* Load index from knowledge root (index.tsv). Returns NULL on error. */
 tam_index_t *tam_index_load(const char *root);
 
+/* Reader-facing purpose; older corpora use path/topic fallback. */
+const char *tam_index_purpose(const tam_index_entry_t *entry);
+
 /* Free index */
 void tam_index_free(tam_index_t *idx);
 
-/* Lookup entry by relative corpus path (e.g. "shell/pipelines.html"). Returns entry or NULL. */
+/* Lookup entry by relative corpus path (e.g. "terminal/shell/pipelines.html"). Returns entry or NULL. */
 const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const char *path);
 
 /* Exact alias lookup (case-insensitive, trims outer quotes). Returns entry or NULL. */

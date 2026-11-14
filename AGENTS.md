@@ -30,6 +30,10 @@ approved outcome; nothing else is approved. Allocate versions from current
 files when implementing. Do not revive the former seven-part contents,
 three-track model or withdrawn parser/installer version reservations.
 
+The developer approved the [subject-library reorganization](docs/plans/subject-library.md).
+Its subject hierarchy replaces the five-part organization; the one-page learning
+levels and dynamic path contracts remain.
+
 Discuss a design choice with the developer before you build it. A version
 number in a request is data, not permission to release anything.
 

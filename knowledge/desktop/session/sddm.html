@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Display Managers: SDDM</title>
+<meta name="topic" content="sddm">
+<meta name="summary" content="Display managers, login greeters, and session management: graphical login with SDDM, text login, and session inspection">
+<meta name="keywords" content="sddm, display manager, display managers, login, greeter, autologin, session, sessions, wayland-sessions, qt6, qml, tam-session">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/session/index.html">
+<meta name="prereqs" content="ecosystem, compositors">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.novice, desktop.learner, desktop.expert">
+<meta name="paths" content="session-and-desktop:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/session/index.html">Login, input and sessions</a> / Display Managers: SDDM</p></nav>
+
+
+<h1>Display Managers: SDDM</h1>
+<p>This page explains graphical sign-in screens and how they differ from text console login.</p>
+<h2>Before this</h2><p><a href="tamlinux/components.html">Understanding the whole system</a> · <a href="desktop/session/compositors.html">How windows appear on your screen</a></p>
+<p>SDDM is a display manager: a program that shows a sign-in screen and starts a desktop. Many systems, including current Tamlinux cultivars, sign in on a text screen instead and start the desktop only when asked.</p>
+<section data-level="novice">
+<h2>What is a display manager?</h2>
+<p>The route determines what to inspect when the desktop does not appear.</p>
+<h3>Why it matters</h3>
+<p>The route determines what to inspect when the desktop does not appear.</p>
+<h3>How to think about it</h3>
+<p>New to this? A console is a full-screen text interface.</p>
+<h3>New words</h3>
+<p>A <a href="glossary/p/process.html">process</a> is a running program. A session is the environment for a logged-in user.</p>
+<h3>Next step</h3><p>Read <a href="terminal/ttys-and-virtual-consoles.html">virtual consoles</a> before attempting recovery.</p>
+</section>
+
+<section data-level="learner">
+<h2>Recognize the login route</h2>
+<p><strong>Goal:</strong> distinguish a graphical sign-in from a text console login.</p>
+<p><strong>Before you start:</strong> read <a href="glossary/v/virtual-console.html">virtual console</a> and <a href="glossary/t/terminal.html">terminal</a>. The examples only read information.</p>
+<aside class="first-time"><p><strong>New to this?</strong> A console is a full-screen text interface. A prompt asks for input; a password normally does not appear as you type. Do not type the leading dollar sign in examples.</p></aside>
+<h3>Mental model</h3>
+<p>A service may start a graphical greeter; authentication opens a user session; a session starts a desktop. A text getty can offer a separate login. None of these observations alone proves the others succeeded.</p>
+<h3>Worked example: find the service tool</h3>
+<pre class="session" data-risk="read-only">$ command -v systemctl
+/usr/bin/systemctl</pre>
+<p>Captured on Arch Linux, 2026-10-27. Your path may differ. This finds a tool; it does not prove SDDM is installed or running. If available, <code>systemctl status sddm</code> reads its status; press q to leave the display.</p>
+<h3>Try it</h3>
+<p>Find the tool on your own machine. If it is available, inspect SDDM's status without changing it. If the service is absent, that result is useful evidence, not proof that login is broken.</p>
+<h3>If it goes wrong</h3>
+<p>If the tool is missing or cannot reach the service manager, use the documentation for your system and record the message. A blank screen can have several causes; see <a href="systems/recovery/recovery.html">recovery</a>.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> Current cultivars use console-first login: you sign in at a text prompt, then start the graphical desktop with <code>tam-desktop</code> when you want it. SDDM is not packaged on that route. Older installations may still use a graphical greeter; identify the route from evidence before restarting any login service. Do not assume a particular VT or greeter from this guide alone.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a missing SDDM service prove a text login cannot work?</summary><p>No. Text login and graphical login are separate routes.</p></details><details class="q"><summary>Does finding systemctl prove SDDM is active?</summary><p>No. It establishes only that the command is available; inspect the service separately.</p></details></section>
+</section>
+<section data-level="expert">
+<h2>Configuration and failure boundaries</h2>
+<p>Where SDDM is installed, it reads vendor drop-ins in <code>/usr/lib/sddm/sddm.conf.d/</code>, administrator drop-ins in <code>/etc/sddm.conf.d/</code>, then <code>/etc/sddm.conf</code>; later settings override earlier ones. Consult the installed <code>sddm.conf(5)</code> and inspect the selected session entry instead of assuming a fixed session command. The native greeter has username, session and password controls; packaged defaults do not choose a local account or enable automatic login. Authentication uses PAM and session registration may use logind. A greeter, authentication, session launch and compositor are separate failure points.</p>
+<p>Do not restart SDDM as an exploratory check: a restart can end graphical sessions. Capture the relevant status and journal first, keep an independent recovery route, and follow a reviewed procedure for any login change.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>A greeter accepts credentials but the desktop does not appear. What evidence separates authentication from session launch?</summary><p>Compare authentication and session journal messages, the registered session, and the selected session entry. An accepted password alone does not establish a successful desktop launch.</p></details></section>
+</section>
+<h2>Next</h2><p><a href="desktop/session/compositors.html">Compositors and windowing</a> &mdash; Wayland compositors: Sway and Hyprland.</p>
+<h2>Related</h2><ul><li><a href="terminal/ttys-and-virtual-consoles.html">TTYs and virtual consoles</a> &mdash; Terminal architecture, virtual terminals (VTs), PTYs, and seat handover.</li><li><a href="programming/interfaces/toolkits.html">Desktop shell and UI toolkits</a> &mdash; Quickshell, QML, and the Tamlinux shell.</li><li><a href="systems/recovery/recovery.html">Emergency disaster recovery</a> &mdash; Virtual consoles, Magic SysRq REISUB, and chroot repair.</li><li><a href="index.html">Guide index</a> &mdash; Return to the overarching Tamlinux User Guide.</li></ul>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Voice Dictation on the Desktop</title>
+<meta name="topic" content="voice">
+<meta name="summary" content="Using local voice dictation to enter text into any window">
+<meta name="keywords" content="voice, dictation, voxtype, whisper, speech, speech-to-text, microphone, f9, wtype">
+<meta name="level" content="novice, learner">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/navigation/index.html">
+<meta name="kind" content="how-to">
+<meta name="skills" content="desktop.novice">
+<meta name="paths" content="desktop-basics:12">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/navigation/index.html">The Tamlinux Desktop</a> / Voice Dictation on the Desktop</p></nav>
+
+
+<h1>Voice Dictation on the Desktop</h1>
+<p>This page explains how to speak to enter text directly into any focused window without straining your hands or sending your audio to the cloud.</p>
+<p>All voice recognition on Tamlinux runs entirely on your local computer using an on-device neural network. No audio, transcripts, or personal data ever leave your machine.</p>
+
+<section data-level="novice">
+<h2>What is local voice dictation?</h2>
+<p>Dictation turns spoken words into typed text in the focused window. Tamlinux does that on your machine: audio stays in memory, a local Whisper model transcribes it, and a virtual keyboard types the result.</p>
+<p>Two shortcuts start recording: hold <strong>F9</strong> (push-to-talk), or press <strong>Meta + Ctrl + X</strong> once to start and again to stop.</p>
+
+<h3>Why it matters</h3>
+<p>Dictation speeds note-taking and can relieve wrist strain. Keeping recognition on-device means you do not send speech to a remote service.</p>
+
+<h3>How to think about it</h3>
+<p>Think of dictation as a microphone plus a typer: the compositor starts recording, Whisper turns sound into words, and <code>wtype</code> injects keystrokes into the focused window as if you typed them.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/f/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard and simulated typing input.</dd>
+<dt><dfn><a href="glossary/t/terminal.html">Terminal</a></dfn></dt><dd>A window where you interact with command line programs and text.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Dictate a sentence into a window</h2>
+<p><strong>Goal:</strong> you will be able to speak a sentence and have it typed into a text editor or terminal without typing the words yourself.</p>
+
+
+<p><strong>Before you start:</strong> ensure your microphone is plugged in and selected as the default recording device. Open an empty text editor or terminal.</p>
+<aside class="first-time"><p>F9 is push-to-talk. Press and hold F9 while you speak, then release F9 when you finish. Meta + Ctrl + X toggles start and stop with separate presses.</p></aside>
+
+<h3>Worked example</h3>
+<ol>
+<li>Click into your empty practice window so it has focus.</li>
+<li>Press and hold F9. A small on-screen indicator shows that the system is recording.</li>
+<li>Speak clearly: "Tamlinux runs speech recognition entirely on my local machine."</li>
+<li>Release F9. The indicator shows transcribing, and within one to two seconds the text is typed at your cursor.</li>
+</ol>
+<p>This walkthrough is checked against the packaged Voxtype bindings, not a claim that a GUI acceptance test was performed in your session.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The compositor detected F9 and told the Voxtype daemon to start recording.</li>
+<li>The daemon captured audio in memory through PipeWire.</li>
+<li>On release, the local Whisper model converted the sound into text.</li>
+<li><code>wtype</code> injected Wayland keyboard events into the focused window.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Hold F9, speak a brief phrase, then release. Or press Meta + Ctrl + X once to start and again to stop. Confirm the text appears only in the focused window.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No text appears after speaking</dt>
+<dd>Check that the microphone is unmuted and set as default. In a terminal, run <code>systemctl --user status voxtype</code>.</dd>
+<dt>A word is misheard</dt>
+<dd>Speak at a steady pace. Custom replacements can be added under <code>[text] replacements</code> in <code>~/.config/voxtype/config.toml</code>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Shell prompts use a separate F10 path that validates commands before inserting them. See <a href="desktop/navigation/voice-commands.html?level=2">Shell voice commands</a>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Where is your voice recording sent during dictation?</summary>
+<p>Nowhere outside your machine. Audio is held in local memory and processed on your own CPU by an on-device Whisper model.</p></details>
+<details class="q"><summary>How does the transcribed text enter the active application?</summary>
+<p>A virtual keyboard injector (<code>wtype</code>) sends Wayland keyboard events to the focused window.</p></details>
+</section>
+</section>
+
+<h2>Key reference</h2>
+<table>
+<tr><th>Shortcut</th><th>Action</th><th>Behavior</th></tr>
+<tr><td>F9</td><td>Push-to-talk dictation</td><td>Hold to record; release to stop and transcribe</td></tr>
+<tr><td>Meta + Ctrl + X</td><td>Toggle dictation</td><td>Starts on first press; stops and transcribes on second</td></tr>
+</table>
+
+<h2>How dictation works under the hood</h2>
+<ol>
+  <li><strong>Audio capture:</strong> PipeWire records 16 kHz 16-bit mono audio into daemon memory. No audio files are written to disk.</li>
+  <li><strong>Inference:</strong> whisper.cpp runs OpenAI's Whisper model (<code>ggml-small.en.bin</code> under <code>~/.local/share/voxtype/models/</code>).</li>
+  <li><strong>Context optimization:</strong> Short clips skip unnecessary padding so typical phrases finish in about a second.</li>
+  <li><strong>Window injection:</strong> <code>wtype</code> injects keystrokes into the active Wayland surface.</li>
+</ol>
+</body>
+</html>

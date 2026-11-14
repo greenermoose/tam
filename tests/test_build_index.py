@@ -60,6 +60,29 @@ class BuildIndex(unittest.TestCase):
         path.write_text(json.dumps({"version": 1, "cells": cells}))
         return path
 
+    def test_subject_hierarchy_and_escaped_search_terms(self):
+        docs = {
+            "index.html": page("Guide"),
+            "security/index.html": page("Security", "security", "index.html"),
+            "security/topic.html": page("Topic", "security", "security/index.html", [("security/index.html", "Security")]).replace('</head>', '<meta name="keywords" content="&gt;, A &amp; B"></head>'),
+        }
+        root = self.fixture("0.90.0", docs)
+        result = self.build(root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads((root / "knowledge/index.json").read_text())
+        topic = next(e for e in data if e["topic"] == "topic")
+        self.assertEqual(topic["parent"], "security/index.html")
+        self.assertIn(">", topic["keywords"])
+        self.assertIn("A & B", topic["keywords"])
+
+    def test_prerequisite_cycles_are_rejected(self):
+        docs = {"index.html": page("Guide"),
+                "a.html": page("A", "help", "index.html", prereqs="b"),
+                "b.html": page("B", "help", "index.html", prereqs="a")}
+        result = self.build(self.fixture("0.90.0", docs))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("prerequisite cycle", result.stderr)
+
     def test_learning_sidecars_and_truthful_page_path_gaps(self):
         text = page("Guide").replace("</head>", '<meta name="kind" content="tutorial"><meta name="skills" content="shell.novice"></head>')
         root = self.fixture("0.39.0", {"index.html": text})

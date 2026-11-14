@@ -3,26 +3,26 @@
 Read this before you add or change a page under `knowledge/`. It supplements
 `AGENTS.md`, which covers claims, lanes, versions and provenance.
 
-The current five-part organization and metadata contract were delivered in
-corpus 0.31.0 under the [authoritative knowledge-system plan](plans/knowledge-system-0.31.0.md).
-The plan records its page mapping, hierarchy rules and verification. Preserve
-those contracts when adding content. Plan/note status and closure follow
-[plan maintenance](plan-maintenance.md).
+The subject library is defined by [the current organization plan](plans/subject-library.md).
+Canonical subject tracks are `hardware`, `systems`, `terminal`, `networking`,
+`security`, `programming`, `desktop`, and `tamlinux`. Shared tracks are `paths`,
+`glossary`, `bibliography`, `skills`, and `help`. The root has an empty track.
+Every other page declares its canonical `parent`; folder hubs form the parent
+chain back to the root. Breadcrumbs match that chain. Older corpora retain
+their historical tracks and directory fallback when read by the command.
 
-The new track values are `install`, `learn`, `use`, `maintain` and `improve`.
-Every non-root page in corpus 0.31.0 declares `<meta name="parent" ...>` with
-its canonical parent path relative to `knowledge/`, including `.html`. The
-guide root has no parent and has an empty track because it is shared
-navigation. Parent chains must reach `index.html` without cycles, breadcrumbs
-must list the declared ancestors, and each page's track must match its
-top-level part. Older corpora may omit `parent`; `tools/build-index.py` then
-uses the historical directory hierarchy so corpus 0.30.0 remains readable.
+The index column layout and optional parent, kind, skill, and path sidecars
+remain compatible. New folders need a hub. Choose a subject home by what the
+page principally teaches, then cross-link other subjects. Do not duplicate a
+lesson to place it in a second section. Keep task and learning-path navigation
+separate from canonical ownership.
 
-The generated `index.tsv` keeps its established ten-column layout so readers
-from earlier command versions continue to load it without changing `updated`.
-The JSON entry gains an additive `parent` field, and `index.parents.tsv`
-projects each page path to its parent for command readers that support logical
-hierarchy. Older corpora without that sidecar use the directory fallback.
+Use Before this for actual prerequisites, Next for recommended continuation,
+Related for other useful branches, and Sources and further reading for evidence
+and deeper study. Keep prerequisite metadata and visible links in agreement.
+Keywords include ordinary phrasing, acronyms, and synonyms; they power Search,
+not a separate catalog. Glossary entries live in `glossary/<initial>/` and link
+back to teaching pages. Bibliography entries retain stable citation IDs.
 
 The corpus is public product documentation. Readers trust it to describe the
 Tamlinux they are running, so the rules below are about one thing: every
@@ -103,14 +103,14 @@ Naming the developer:
   `expert` sections so a reader can progress from zero prior technical
   knowledge to expert mastery.
 - A **path** is a topic-centered reading order defined by a hub page in
-  `learn/paths/<id>.html` (`kind="path"`) and `<meta name="paths" content="<id>:<step>, ...">`
+  `paths/<id>.html` (`kind="path"`) and `<meta name="paths" content="<id>:<step>, ...">`
   on its step pages. The pager builds path navigation dynamically from `index.paths.tsv`
   so a single page can belong to several paths. Boot pages keep "fallback route"
   and "rescue route" for their own, separate meaning.
 - The desktop modifier is **Meta** (chords `Meta + K`; Hyprland tokens
   `META + …`). Do not write `SUPER + …` or “the SUPER key” in living pages.
-  Historical Super/SUPER belongs only on `desktop/meta-key.html` and
-  `learn/glossary/meta.html` (D217). `lint-corpus.py` rule `SUPER-MOD`
+  Historical Super/SUPER belongs only on `desktop/navigation/meta-key.html` and
+  `glossary/m/meta.html` (D217). `lint-corpus.py` rule `SUPER-MOD`
   enforces this.
 
 ## How a page teaches
@@ -135,24 +135,24 @@ Pages may declare `<meta name="kind">` as `tutorial`, `how-to`, `reference`,
 remains valid during migration. Supplied kinds must be valid. Declare skills
 as comma-separated IDs in `<meta name="skills">`, for example
 `shell.novice, shell.learner`. IDs come from
-`knowledge/learn/skills/skills.json`; a skill's level must be offered by the page.
+`knowledge/skills/skills.json`; a skill's level must be offered by the page.
 Topic paths may name skills at the levels they visit; their level metadata
 states the starting level. Declare path membership on step pages with
 `<meta name="paths" content="<id>:<step>, ...">`, where `<id>` is the `topic`
-of a `learn/paths/*.html` page (`kind="path"`) and `<step>` is a unique 1-based
+of a `paths/*.html` page (`kind="path"`) and `<step>` is a unique 1-based
 step number within that path. Do not write static `<nav class="learning-path">`
 blocks; the pager synthesizes path navigation dynamically and preserves the
 reader's active path across multi-path pages. The skills map publishes the same
 can-do statements for readers.
 
 Mark a term's first use with a glossary link, optionally inside `<dfn>`.
-Every `<dfn>` must contain a working link under `learn/glossary/`; definitions
+Every `<dfn>` must contain a working link under `glossary/`; definitions
 themselves can use ordinary headings and paragraphs. A citation uses a stable
 bibliography ID and its exact entry link:
 
 ```html
-<dfn><a href="learn/glossary/stream.html">stream</a></dfn>
-<cite data-ref="bash"><a href="learn/bibliography/bash.html">Bash manual</a></cite>
+<dfn><a href="glossary/s/stream.html">stream</a></dfn>
+<cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>
 ```
 
 Bibliography entries use `<section class="reference" id="bash">` and annotate
@@ -225,9 +225,8 @@ Readers see the text that `tam show` renders, not the HTML.
    your `docs/ai/` record, and `AI_PROVENANCE.md` while
    you edit it.
 2. Write the page from its sources. Keep a list of what you checked.
-3. Link it from its canonical part hub and appropriate learning/task routes.
-   The Guide root links the five part hubs and shared utilities; it does not list
-   every chapter. Keep cross-links contextual without changing a page's home.
+3. Link it from its canonical subject hub and appropriate learning/task routes.
+   The Guide root offers Browse subjects, Learn step by step, Search, and Sources; it does not list every chapter. Keep cross-links contextual without changing a page's home.
 4. Run `make corpus` to regenerate the indexes and coverage report.
 5. If a note in `docs/plans/corpus/` asked for the page, confirm each query it
    records now finds the intended page (`tam explain <query>`), and close the

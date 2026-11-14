@@ -593,7 +593,7 @@ static void print_explain_usage(void)
     fputs(
         "tam explain (or tam whatis) - display a topic guide to concepts in the Tamlinux guide\n\n"
         "Usage:\n"
-        "  tam explain                 browse all topic keywords in the pager\n"
+        "  tam explain                 search or browse the reference in the pager\n"
         "  tam whatis TOPIC            look up or display a topic guide for TOPIC\n"
         "  tam explain TOPIC           display a topic guide for TOPIC in the pager\n"
         "  tam explain TOPIC --pipe    print topic guide as plain text\n"
@@ -601,7 +601,7 @@ static void print_explain_usage(void)
         "  tam explain topics          interactive list of topics with live hyperlinks\n"
         "  tam explain topics --pipe   print available topics as plain text\n"
         "  tam explain -               read topic keyword from standard input\n\n"
-        "Run 'tam explain' to browse all available topic keywords.\n"
+        "Run 'tam explain' to open the search entrance.\n"
         "Run 'tam explain <topic>' to view a specific topic guide.\n"
         "Run 'tam show' to open the offline guide.\n",
         stdout);

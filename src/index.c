@@ -176,6 +176,42 @@ static void load_parent_projection(tam_index_t *idx, const char *root)
     free(content);
 }
 
+static void load_kind_projection(tam_index_t *idx, const char *root)
+{
+    char *path = tam_path_join(root, "index.kinds.tsv");
+    if (path == NULL) return;
+    char *content = tam_fs_read_file(path, NULL);
+    free(path);
+    if (content == NULL) return; /* Older corpora have no parent projection. */
+
+    char *line = content;
+    bool header = true;
+    while (line != NULL && *line != '\0') {
+        char *next = strchr(line, '\n');
+        if (next != NULL) {
+            *next = '\0';
+            next++;
+        }
+        if (header) {
+            header = false;
+            line = next;
+            continue;
+        }
+        char *tab = strchr(line, '\t');
+        if (tab != NULL) {
+            *tab++ = '\0';
+            const tam_index_entry_t *found = tam_index_lookup_path(idx, line);
+            if (found != NULL && *tab != '\0') {
+                tam_index_entry_t *entry = (tam_index_entry_t *)found;
+                free(entry->kind);
+                entry->kind = strdup(tab);
+            }
+        }
+        line = next;
+    }
+    free(content);
+}
+
 static tam_path_def_t *find_path_mut(tam_index_t *idx, const char *id)
 {
     if (idx == NULL || id == NULL || id[0] == '\0') return NULL;
@@ -344,6 +380,7 @@ tam_index_t *tam_index_load(const char *root)
             entry->summary = cols[3] ? strdup(cols[3]) : strdup("");
             entry->keywords = split_list(cols[4], &entry->num_keywords);
             entry->parent = NULL;
+            entry->kind = NULL;
             if (has_level_col) {
                 entry->level = (cols[5] && cols[5][0]) ? strdup(cols[5]) : NULL;
                 entry->levels = tam_level_parse_list(entry->level);
@@ -367,6 +404,7 @@ tam_index_t *tam_index_load(const char *root)
     }
 
     load_parent_projection(idx, root);
+    load_kind_projection(idx, root);
     load_paths_projection(idx, root);
     free(content);
     return idx;
@@ -384,6 +422,7 @@ void tam_index_free(tam_index_t *idx)
         free(e->level);
         free(e->track);
         free(e->parent);
+        free(e->kind);
         free(e->updated);
         for (size_t k = 0; k < e->num_keywords; k++) {
             free(e->keywords[k]);
@@ -562,13 +601,26 @@ static bool contains_word_ci(const char *haystack, const char *needle)
 static bool is_glossary_index_entry(const tam_index_entry_t *e)
 {
     if (e == NULL || e->path == NULL) return false;
-    if (strcmp(e->path, "learn/glossary/index.html") == 0) return false;
+    if (e->kind != NULL) return strcmp(e->kind, "glossary") == 0;
+    if (strncmp(e->path, "glossary/", 9) == 0 && !strstr(e->path, "/index.html")) return true;
+    if (strcmp(e->path, "glossary/index.html") == 0) return false;
     if (strncmp(e->path, "learn/glossary/", 15) == 0) return true;
     if (e->topic != NULL && strcmp(e->topic, "glossary") != 0 &&
         strncmp(e->topic, "glossary-", 9) == 0) return true;
     if (e->track != NULL && strcmp(e->track, "glossary") == 0 &&
         e->topic != NULL && strcmp(e->topic, "glossary") != 0) return true;
     return false;
+}
+
+const char *tam_index_purpose(const tam_index_entry_t *e)
+{
+    if (is_glossary_index_entry(e)) return "Definitions";
+    const char *k = e->kind ? e->kind : "";
+    if (strcmp(k, "path") == 0) return "Learning paths";
+    if (strcmp(k, "how-to") == 0 || strcmp(k, "tutorial") == 0) return "Practical guidance";
+    if (strcmp(k, "bibliography") == 0) return "Sources";
+    if (strcmp(k, "hub") == 0) return "Subject guides";
+    return "Explanations and reference";
 }
 
 static int score_glossary_candidate(const char *q, size_t qlen, const char *cand)
@@ -802,7 +854,8 @@ size_t tam_index_search(const tam_index_t *idx, const char *query,
         const char *match_type;
     } scored_entry_t;
 
-    scored_entry_t scored[64];
+    scored_entry_t *scored = calloc(idx->count ? idx->count : 1, sizeof(*scored));
+    if (scored == NULL) return found;
     size_t nscored = 0;
 
     for (size_t i = 0; i < idx->count; i++) {
@@ -883,7 +936,7 @@ size_t tam_index_search(const tam_index_t *idx, const char *query,
             score += 35; /* All query terms matched */
         }
 
-        if (score > 0 && nscored < 64) {
+        if (score > 0) {
             scored[nscored].entry = e;
             scored[nscored].score = score;
             scored[nscored].match_type = "terms";
@@ -926,7 +979,9 @@ size_t tam_index_search(const tam_index_t *idx, const char *query,
     /* Sort scored entries by score descending */
     for (size_t i = 0; i < nscored; i++) {
         for (size_t j = i + 1; j < nscored; j++) {
-            if (scored[j].score > scored[i].score) {
+            if (scored[j].score > scored[i].score ||
+                (scored[j].score == scored[i].score &&
+                 strcasecmp(scored[j].entry->title, scored[i].entry->title) < 0)) {
                 scored_entry_t tmp = scored[i];
                 scored[i] = scored[j];
                 scored[j] = tmp;
@@ -941,6 +996,7 @@ size_t tam_index_search(const tam_index_t *idx, const char *query,
         found++;
     }
 
+    free(scored);
     return found;
 }
 

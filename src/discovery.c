@@ -19,7 +19,7 @@ tam_document_t *tam_guide_search_document(const char *root,
         html = tam_str_cat(html,
             "<p>Search the installed Tamlinux Guide. This searches guide topics and pages; "
             "manual lookup is available from <a href=\"tam:man\">Man pages</a>.</p>\n"
-            "<p><a href=\"tam:prompt:guide-search\">Start a Guide search</a></p>\n");
+            "<p><a href=\"tam:prompt:guide-search\">Search for a word, subject, or task</a></p>\n");
     } else if (root == NULL) {
         html = tam_str_cat(html, "<p>The offline Guide is not installed, so Guide Search is unavailable.</p>\n");
     } else {
@@ -27,35 +27,49 @@ tam_document_t *tam_guide_search_document(const char *root,
         if (idx == NULL) {
             html = tam_str_cat(html, "<p>The Guide index could not be loaded.</p>\n");
         } else {
-            tam_search_result_t results[32];
-            size_t found = tam_index_search(idx, query, results, 32);
+            tam_search_result_t *results = calloc(idx->count ? idx->count : 1, sizeof(*results));
+            size_t found = results ? tam_index_search(idx, query, results, idx->count) : 0;
             html = tam_str_cat(html, "<p>Results for <strong>");
             html = tam_html_cat(html, query);
             html = tam_str_cat(html, "</strong>:</p>\n");
             if (found == 0 || results[0].score <= 0) {
                 html = tam_str_cat(html, "<p>No Guide pages matched this search.</p>\n");
             } else {
-                html = tam_str_cat(html, "<table><tr><th>Guide page</th><th>Summary</th><th>Track</th></tr>\n");
-                for (size_t i = 0; i < found; i++) {
-                    const tam_index_entry_t *e = results[i].entry;
-                    html = tam_str_cat_printf(html, "<tr><td><a href=\"%s\">", e->path);
-                    html = tam_html_cat(html, e->topic);
-                    html = tam_str_cat(html, "</a><br>");
-                    html = tam_html_cat(html, e->title);
-                    html = tam_str_cat(html, "</td><td>");
-                    html = tam_html_cat(html, e->summary);
-                    html = tam_str_cat(html, "</td><td>");
-                    html = tam_html_cat(html, e->track);
-                    html = tam_str_cat(html, "</td></tr>\n");
+                const char *purposes[] = {"Definitions", "Practical guidance", "Explanations and reference", "Learning paths", "Subject guides", "Sources"};
+                for (size_t g = 0; g < sizeof(purposes)/sizeof(purposes[0]); g++) {
+                    size_t shown = 0;
+                    for (size_t i = 0; i < found; i++) {
+                        const tam_index_entry_t *e = results[i].entry;
+                        if (strcmp(tam_index_purpose(e), purposes[g]) != 0) continue;
+                        if (shown == 0) {
+                            html = tam_str_cat_printf(html, "<h2>%s</h2><dl>", purposes[g]);
+                        }
+                        if (shown == 5) html = tam_str_cat(html, "</dl><details><summary>More matches</summary><dl>");
+                        html = tam_str_cat_printf(html, "<dt><a href=\"%s\">", e->path);
+                        html = tam_html_cat(html, e->title);
+                        html = tam_str_cat(html, "</a></dt><dd>");
+                        html = tam_html_cat(html, e->summary);
+                        html = tam_str_cat(html, "</dd>");
+                        shown++;
+                    }
+                    if (shown) html = tam_str_cat(html, "</dl>");
+                    if (shown > 5) html = tam_str_cat(html, "</details>");
                 }
-                html = tam_str_cat(html, "</table>\n");
             }
+            free(results);
             html = tam_str_cat(html,
                 "<p><a href=\"tam:prompt:guide-search\">Search again</a> · "
                 "<a href=\"tam:man\">Find a manual page</a></p>\n");
             tam_index_free(idx);
         }
     }
+    if (root != NULL) {
+        tam_index_t *idx = tam_index_load(root);
+        const tam_index_entry_t *glossary = idx ? tam_index_lookup_alias(idx, "glossary") : NULL;
+        if (glossary) html = tam_str_cat_printf(html, "<p><a href=\"%s\">Glossary A–Z</a></p>", glossary->path);
+        tam_index_free(idx);
+    }
+    html = tam_str_cat(html, "<p><a href=\"tam:topics\">Browse subjects</a> · <a href=\"tam:catalog\">All pages A–Z</a></p>");
     return tam_page_render(html, width);
 }
 

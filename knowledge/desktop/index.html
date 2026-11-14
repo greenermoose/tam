@@ -1,139 +1,26 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>The Tamlinux Desktop</title>
-<meta name="topic" content="desktop">
-<meta name="summary" content="Tiling window manager basics and keyboard flow">
-<meta name="keywords" content="desktop, wayland, tiling, hotkeys, shortcuts, keys, keybindings">
-<meta name="level" content="novice, learner, expert">
-<meta name="track" content="use">
-<meta name="parent" content="use/index.html">
-<meta name="kind" content="tutorial">
-<meta name="skills" content="desktop.novice">
-<meta name="paths" content="settle-in:2, desktop-basics:1, make-it-yours:1, display-and-gpu:6, session-and-desktop:5">
-</head>
-<body>
-<nav aria-label="Breadcrumb">
-<p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / The Tamlinux Desktop</p>
-</nav>
-<h1>The Tamlinux Graphical Desktop</h1>
-<p>This page explains the graphical desktop where you can use your keyboard, mouse, or voice to control your computer.</p>
-
-<section data-level="novice">
-<h2>What is the graphical desktop?</h2>
-<p>"Graphical" means your computer can draw shapes on a screen, not only rows of text. When you first boot Tamlinux you arrive in a text-only shell. From there, <code>tam-desktop</code> opens the graphical Tamlinux desktop.</p>
-<p>The <dfn><a href="learn/glossary/meta.html">Meta key</a></dfn> (often marked with a Windows logo) is the main command key for the desktop. Meta + Space opens the system menu; Meta + Return opens a terminal; Meta + K lists keybindings.</p>
-
-<h3>Why it matters</h3>
-<p>Knowing a few desktop chords lets you open tools and recover focus without hunting through menus, which keeps a keyboard-driven desktop usable.</p>
-
-<h3>How to think about it</h3>
-<p>Think of Meta as the desktop's command key: it talks to the window manager about windows and workspaces, while Control usually talks to the program inside a window.</p>
-
-<h3>New words</h3>
-<dl>
-<dt><dfn><a href="learn/glossary/meta.html">Meta key</a></dfn></dt><dd>The primary desktop modifier key.</dd>
-<dt><dfn><a href="learn/glossary/focus.html">Focus</a></dfn></dt><dd>The window receiving keyboard input.</dd>
-<dt><dfn><a href="learn/glossary/tiling.html">Tiling</a></dfn></dt><dd>Layout where the compositor arranges windows side by side.</dd>
-</dl>
-</section>
-
-<section data-level="learner">
-<h2>Open a window and recover your place</h2>
-<p><strong>Goal:</strong> you will be able to open an empty terminal, change its layout and return to your starting window.</p>
-
-
-<p><strong>Before you start:</strong> save work in existing windows and read <a href="welcome.html?level=1">Welcome</a>. Practice only with a new empty terminal.</p>
-<aside class="first-time"><p>Meta is usually the key with a Windows logo. A plus sign means hold the keys together, not type a plus. These keys go to the desktop, not into the terminal text.</p></aside>
-
-<h3>Worked example</h3>
-<ol>
-<li>Note your current window and workspace.</li>
-<li>Press Meta + Return to request a new terminal.</li>
-<li>With that empty terminal focused, press Meta + T to toggle floating/tiling. Press it again to undo.</li>
-<li>Press Meta + Q to close only that empty terminal.</li>
-</ol>
-<p>This walkthrough is checked against the packaged bindings, not a claim that a GUI acceptance test was performed in your session.</p>
-
-<h3>What just happened</h3>
-<ol>
-<li>The terminal launcher opened an application.</li>
-<li>The compositor changed the focused window's layout mode.</li>
-<li>The close request applied to the focused window. Focus matters before closing.</li>
-</ol>
-
-<h3>Try it</h3>
-<p>Open two empty terminals. Use Meta + Left/Right/Up/Down to move focus when another window is there. Identify the focused window before closing either. Keep real work untouched.</p>
-
-<h3>If it goes wrong</h3>
-<dl>
-<dt>A shortcut does nothing</dt>
-<dd>Check Meta + K and your overrides. A directional focus request needs a window in that direction.</dd>
-<dt>A window seems missing</dt>
-<dd>Check the workspace and fullscreen/floating state before launching another copy.</dd>
-</dl>
-
-<aside class="tamlinux">
-<p>Ctrl + Alt + F2 and other function keys switch to text virtual terminals for recovery when the graphical session is stuck.</p>
-</aside>
-
-<section class="quiz">
-<h3>Check yourself</h3>
-<details class="q"><summary>Which window does Meta + Q close?</summary>
-<p>The currently focused window. Check focus and save work first; practice with an empty terminal.</p></details>
-<details class="q"><summary>Does tiling mean windows can never overlap?</summary>
-<p>No. Floating windows and other modes can overlap.</p></details>
-</section>
-</section>
-
-<h2>Key reference</h2>
-<table>
-<tr><th>Key</th><th>Packaged action</th></tr>
-<tr><td>Meta + Return</td><td>Terminal</td></tr>
-<tr><td>Meta + Space</td><td>Tamlinux menu</td></tr>
-<tr><td>Ctrl + F12</td><td>Apps menu</td></tr>
-<tr><td>Meta + K</td><td>Keybindings</td></tr>
-<tr><td>Meta + Q</td><td>Close window</td></tr>
-<tr><td>Meta + T</td><td>Floating/tiling toggle</td></tr>
-</table>
-<p><a href="https://github.com/greenermoose/tamlinux/tree/develop/desktop/session/hypr/tamlinux/bindings">Packaged binding sources (online)</a>.</p>
-
-<section data-level="expert">
-<h2>Desktop guide map</h2>
-<p>Core hubs for everyday desktop work:</p>
-<ul>
-<li><a href="desktop/hotkeys.html">Desktop hotkeys</a> — binding files and Meta + K</li>
-<li><a href="desktop/windows.html">Windows and layouts</a> — focus, float, <code>tam-hyprland-*</code> helpers</li>
-<li><a href="desktop/bar.html">The top bar</a> — <code>fred.*</code> plugins</li>
-<li><a href="desktop/capture.html">Screen capture</a> — screenshots, recording, OCR</li>
-<li><a href="desktop/clipboard.html">Clipboard</a> — copy, paste, history</li>
-<li><a href="desktop/toggles.html">Desktop toggles</a> — idle, night light, silence</li>
-<li><a href="desktop/notifications.html">Notifications</a> — alerts and history</li>
-<li><a href="desktop/transition.html">Coming from Mac or Windows</a> — orientation</li>
-<li><a href="desktop/config.html">Desktop configuration</a> — packaged defaults and dotfiles</li>
-<li><a href="desktop/theming.html">Desktop theming</a> — wallpapers, colors, and fonts</li>
-</ul>
-</section>
-
-<h2>Where next</h2>
-<ul>
-<li><a href="desktop/transition.html">Coming from Mac or Windows</a> — if you are new to Linux desktops.</li>
-<li><a href="desktop/hotkeys.html">Desktop hotkeys</a> — look up chords.</li>
-<li><a href="desktop/windows.html">Windows and layouts</a> — move and tile.</li>
-<li><a href="desktop/capture.html">Screen capture</a> — screenshots and recording.</li>
-<li><a href="desktop/config.html">Desktop configuration</a> — customize defaults.</li>
-<li><a href="desktop/theming.html">Desktop theming</a> — customize appearance and fonts.</li>
-<li><a href="desktop/bar.html">The top bar</a> — status plugins.</li>
-</ul>
-
-<h2>See also</h2>
-<ul>
-<li><a href="desktop/meta-key.html">The Meta key</a></li>
-<li><a href="desktop/workspaces.html">Organizing windows and screens</a></li>
-<li><a href="desktop/clipboard.html">Clipboard</a></li>
-<li><a href="desktop/toggles.html">Desktop toggles</a></li>
-<li><a href="desktop/notifications.html">Notifications</a></li>
-<li><a href="use/desktop/screenshots.html">Screenshots</a></li>
-</ul>
-</body>
-</html>
+<html><head>
+<title>Desktop and applications</title>
+<meta name="topic" content="hub-desktop">
+<meta name="summary" content="Find your way around the graphical desktop and get everyday work done.">
+<meta name="keywords" content="desktop and applications">
+<meta name="level" content="novice">
+<meta name="kind" content="hub">
+<meta name="track" content="desktop">
+<meta name="parent" content="index.html">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / Desktop and applications</p></nav>
+<h1>Desktop and applications</h1>
+<p>Find your way around the graphical desktop and get everyday work done.</p>
+<h2>Start here</h2><p><a href="desktop/navigation/index.html">The Tamlinux Desktop</a> introduces the subject. Choose Novice for a gentle introduction, Learner for practice, or Expert for detailed reference.</p>
+<h2>Explore</h2><ul><li><a href="desktop/navigation/index.html">The Tamlinux Desktop</a> — Tiling window manager basics and keyboard flow</li>
+<li><a href="desktop/tasks/index.html">Everyday desktop tasks</a> — Set up displays, audio, Bluetooth, clipboard, screen capture, notifications, and screen locking.</li>
+<li><a href="desktop/apps/index.html">Applications</a> — Choose and use desktop, terminal, and web applications for editing, browsing, documents, and media.</li>
+<li><a href="desktop/appearance/index.html">Appearance and accessibility</a> — Adjust themes, color contrast, and fonts across the desktop and terminal.</li>
+<li><a href="desktop/session/index.html">Login, input and sessions</a> — Configure graphical login, Wayland compositors, keyboard input devices, and session startup.</li>
+<li><a href="desktop/displays.html">Displays and Monitors</a> — Monitors, scaling, multi-head layouts, and console display control on Tamlinux</li>
+<li><a href="desktop/input.html">Input Devices</a> — Keyboards, mice, touchpads, touchscreens, and input tuning in Tamlinux</li>
+<li><a href="desktop/recipes/index.html">Everyday recipes</a> — Short how-tos for common Tamlinux workstation tasks</li>
+<li><a href="desktop/commands.html">Desktop commands</a> — Hand-checked commands for screenshots, sound, Bluetooth, displays, input, locking, and night light</li>
+</ul><h2>Learn and look up</h2><p><a href="tam:paths">Learn step by step</a> · <a href="tam:search">Search for a term or task</a></p>
+</body></html>

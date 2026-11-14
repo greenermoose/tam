@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Reading messages about what happened</title>
+<meta name="topic" content="logs">
+<meta name="summary" content="Record symptoms, select journal evidence by boot, unit and time, and test competing explanations">
+<meta name="keywords" content="logs, log, journalctl, systemd, dmesg, ring buffer, diagnostics, boot, priority, errors, journal">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/maintenance/index.html">
+<meta name="prereqs" content="maintain, shell">
+<meta name="kind" content="how-to">
+<meta name="skills" content="troubleshooting.novice, troubleshooting.learner, troubleshooting.expert">
+<meta name="paths" content="keep-it-healthy:3, diagnose-from-principles:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/maintenance/index.html">System Maintenance and Reliability</a> / Reading messages about what happened</p></nav>
+
+<h1>Reading messages about what happened</h1>
+<p>This page explains how to read messages recorded by your computer when investigating a problem.</p>
+<h2>Before this</h2><p><a href="systems/maintenance/index.html">System Maintenance and Reliability</a> · <a href="terminal/shell/index.html">Giving your computer written instructions</a></p>
+<p>A log is a record of messages from a program or system. Start with what happened and when; a single alarming message does not necessarily explain the problem.</p>
+
+<section data-level="novice">
+<h2>What is the journal?</h2>
+<p>The journal is a collection of structured messages your system keeps. A unit is a named systemd component, such as a service. A boot is one run of the kernel from startup until shutdown or restart.</p>
+
+<h3>Why it matters</h3>
+<p>“The display went dark after waking at 14:10” gives a helper a place to start. “Linux is broken” does not. Reading a small, bounded piece of the journal is how you turn a vague complaint into evidence.</p>
+
+<h3>How to think about it</h3>
+<p>Think of the journal as a diary with filters: which boot, which component, which time window. Narrowing those filters changes what you see without changing the system.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/j/journal.html">Journal</a></dt><dd>A collection of structured log entries.</dd>
+<dt><a href="glossary/u/unit.html">Unit</a></dt><dd>A named component managed by systemd.</dd>
+<dt><a href="glossary/b/boot.html">Boot</a></dt><dd>One run of the kernel, from startup until shutdown or restart.</dd>
+</dl>
+<p>A <dfn><a href="glossary/f/filter.html">filter</a></dfn> selects entries from a larger collection.</p>
+</section>
+
+<section data-level="learner">
+<h2>Read a small piece of the journal</h2>
+<p><strong>Goal:</strong> you will be able to read recent messages for one unit and report what happened without changing the system.</p>
+
+
+<p><strong>Before you start:</strong> open a terminal. Read <a href="paths/first-steps.html?level=1">First steps</a> if needed. These commands only read logs; they do not restart services or remove evidence.</p>
+<aside class="first-time"><p>Type the command after <code>$</code>, without typing that prompt. <code>--no-pager</code> prints the result and returns to your shell.</p></aside>
+
+<h3>Worked example</h3>
+<pre class="session">
+$ journalctl -b -u systemd-journald.service -n 1 --no-pager -o cat
+Received client request to flush runtime journal.
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-22. Your message may differ, or you may have no accessible matching entry.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>-b</code> selects the current boot.</li>
+<li><code>-u</code> selects the journal service; <code>-n 1</code> limits the result to its latest entry.</li>
+<li><code>-o cat</code> prints only message text. For diagnosis, keep timestamps by leaving out <code>-o cat</code>.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Read the last two messages from the same unit, with their normal timestamps:</p>
+<pre>
+journalctl -b -u systemd-journald.service -n 2 --no-pager
+</pre>
+<p>Tell a helper your symptom, the time and timezone, the command you used, and what you actually saw. Review excerpts for private information before sharing.</p>
+
+<p>When you need a tighter window, combine boot, unit and time. An empty invented unit shows the limit of a filter without causing a failure:</p>
+<pre class="session">
+$ journalctl -b -u tam-lesson-example.service -n 5 --no-pager
+-- No entries --
+</pre>
+<p>Captured on an Arch Linux workstation, 2026-10-22. For a real symptom, use the real unit and a time window such as <code>--since</code> / <code>--until</code>.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No entries</dt>
+<dd>There may be no retained messages matching that boot and unit, or your account cannot read them. A permission notice means access is limited; keep the notice and ask for help rather than changing log permissions.</dd>
+<dt>Wrong service's messages</dt>
+<dd>System and user scopes differ, or the unit name is wrong. Confirm scope with or without <code>--user</code> before retrying.</dd>
+<dt>Only a final error</dt>
+<dd>A priority filter may have hidden earlier context. Remove <code>-p</code> while keeping the boot and time bounds.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>The system journal and the shell's user services are different scopes. A desktop symptom can need both user-service evidence and kernel evidence. Describe the failing layer before proposing a restart; the <a href="systems/recovery/recovery.html?level=2">recovery lesson</a> separates session recovery from boot and data recovery.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>What does <code>-b</code> select here?</summary><p>The current boot. It does not mean every saved boot or every login session.</p></details>
+<details class="q"><summary>Does one error message prove why your application stopped?</summary><p>No. Match its boot, time and component to the observed symptom, then check surrounding evidence. An unrelated error can occur nearby.</p></details>
+<details class="q"><summary>A previous-boot query returns nothing. Can you conclude the crash left no evidence?</summary><p>No. First check boot retention, permissions, scope, unit and time bounds. The query only describes entries it could select.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Separate missing evidence from competing causes</h2>
+<h3>Reference and how it works</h3>
+<p>Different journal fields combine as AND; alternative values for the same field combine as OR. A separate <code>+</code> combines match groups as OR. Use <a href="man:systemd.journal-fields(7)">journal fields</a> when a unit selector is too broad. Preserve the query with the boot ID and time bounds so another investigator can repeat the selection.</p>
+<p>The kernel's <code>printk</code> messages occupy a bounded ring buffer. <code>dmesg</code> reads kernel messages, not saved prior boots. Journald can retain kernel messages beyond that buffer's lifetime. Volatile storage under <code>/run/log/journal</code> does not survive reboot; persistent storage is under <code>/var/log/journal</code>. Configuration, access and retention determine which history a query can actually read.</p>
+<p><code>journalctl --verify</code> checks internal journal-file consistency. Authenticity verification additionally requires a journal created with Forward Secure Sealing and the matching verification key supplied with <code>--verify-key</code>. A structural pass does not prove that all events were recorded or that a message's causal interpretation is correct.</p>
+<h3>Think through a diagnosis</h3>
+<p>Suppose a display is dark after wake. First separate “the machine never resumed” from “the machine resumed but the display did not.” Match the reported time to kernel sleep/resume messages and session evidence. Evidence that a session process continued after resume weakens the first explanation; it does not prove the monitor link is healthy. If the journal ends abruptly, leave both a hard hang and missing/unflushed evidence open. Each branch needs an observation that could disprove it.</p>
+<h3>Edge cases and cost</h3>
+<p>Rate limiting, retention, unavailable disks and unflushed writes can leave gaps. Wall-clock adjustments complicate time matching; compare monotonic timestamps within the same boot using <code>-o short-monotonic</code> when needed. Broad scans and continuous follow mode add work and noise. Prefer a bounded query, then widen it deliberately.</p>
+<p>Keep evidence before proposing a storage change. Vacuuming removes archived journal files and cannot be undone without a separate copy; it is not a diagnostic step. Nothing in this lesson changes retention or requests cleanup.</p>
+<h3>Explore</h3>
+<p>For a known event, write two explanations, the evidence each predicts and a bounded query that could contradict each one. Distinguish an absent message from a message that explicitly reports failure. Do not trigger a crash to fill an evidence gap.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Why is “the last error before the crash caused it” an incomplete conclusion?</summary><p>The last retained message may be unrelated, delayed, or followed by messages that were never flushed. Correlate component state, timestamps and a discriminating prediction. State what remains unknown and what observation would change the explanation.</p></details>
+</section>
+<h3>Sources and improve it</h3>
+<p>Read <a href="man:journalctl(1)">journalctl(1)</a>, <a href="man:journald.conf(5)">journald.conf(5)</a> and <a href="man:dmesg(1)">dmesg(1)</a>, offline if installed. Suggest a clearer diagnostic lesson in the public <code>greenermoose/tam</code> repository with a minimal, redacted example and the exact query; private machine logs need not be published.</p>
+</section>
+<p>Continue with <a href="systems/power.html">power and wake evidence</a> or return to <a href="systems/maintenance/index.html">Maintaining</a>.</p>
+</body>
+</html>

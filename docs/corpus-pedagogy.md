@@ -46,11 +46,11 @@ Two rules are Tamlinux's own:
   Pages declare levels in `<meta name="level">`. The older `beginner` and
   `intermediate` names are retired and must not be used in pages, skill IDs,
   or tooling.
-- **Path:** a reading order through the material. Learning paths are embedded
-  directly inside every topic page's Learner (2) text, showing the starting
-  point (`Start`), previous stop (`Back`), and next stop (`Next`) with
-  `?level=2`. The separate `Learning` (`learn/`) corpus track is eliminated in
-  favor of discovery within each page.
+- **Path:** a reading order through existing topic pages. The generated
+  `tam:paths` catalog is the single path inventory. Authored path hubs explain
+  outcomes, prerequisites, stages, checkpoints, and capstones. Page metadata
+  supplies membership; the reader supplies Back and Next controls dynamically.
+  A page can belong to several paths without being copied.
 - Do not call levels "depths" or "routes". Boot pages keep "fallback route"
   and "rescue route" for their own meaning.
 
@@ -211,7 +211,7 @@ content="<id>:<step>">`) sequence pages into a logical dependency order:
   zero prior technical knowledge and be understandable by anyone who can read.
 - **No unexplained jargon:** Introduce terminology and concepts in dependency
   order. Define every technical term at first use with `<dfn><a
-  href="learn/glossary/...">` or in an earlier step on the path.
+  href="glossary/...">` or in an earlier step on the path.
 - **Backward recovery:** If a reader lands on a page that feels too advanced,
   stepping backward along the path must lead them to the prerequisites they
   need until they reach a page they understand.
@@ -304,18 +304,18 @@ are nonfatal during that migration. See the authoring guide for exact metadata
 and citation markup, and `tools/report-coverage.py` for cells without pages or
 paths. Source availability does not establish learner acceptance.
 
-- **Skills map** (`learn/skills/`). Domains: Desktop, Shell, Files and
+- **Skills map** (`skills/`). Domains: Desktop, Shell, Files and
   permissions, Processes, Software and packages, Updates and rollback, Boot
   and recovery, Hardware and displays, Signals and cables, Networking,
   Troubleshooting, Customizing, Contributing. Each domain has can-do cells at
   the three levels. Pages and paths name their cells in `<meta name="skills">`.
-- **Self-placement** (`learn/placement.html`). For each level, a "you will
+- **Self-placement** (`help/placement.html`). For each level, a "you will
   recognize yourself if…" description and folded questions. It ends in
   links that set the lens.
-- **Glossary** (`learn/glossary/`). One definition per level, plain to
+- **Glossary** (`glossary/`). One definition per level, plain to
   precise to standard, with the botanical terms included. Mark a term's
   first use on a page with `<dfn>` or a glossary link.
-- **Bibliography** (`learn/bibliography/`). Each entry has a stable ID and
+- **Bibliography** (`bibliography/`). Each entry has a stable ID and
   notes its level, cost, whether it is offline or online, and its license.
   Cite entries with `<cite data-ref="id">`.
 - **Further structures, after the scaffolding:** a FAQ in each part (real

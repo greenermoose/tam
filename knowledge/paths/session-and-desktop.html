@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head>
+<title>Session and desktop</title>
+<meta name="topic" content="session-and-desktop">
+<meta name="summary" content="Follow console login, compositor and input into a working desktop">
+<meta name="keywords" content="path, session, desktop, login, compositor, evdev, tam-desktop, session-and-desktop-path">
+<meta name="level" content="learner">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="desktop.novice, desktop.learner, desktop.expert, boot.novice">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Session and desktop</p></nav>
+
+<h1>Session and desktop</h1>
+<p>These readings follow sign-in from a text console to a graphical desktop and back.</p>
+<h2>Stage 1: Consoles and login</h2>
+<p><a href="terminal/ttys-and-virtual-consoles.html?level=2">TTYs and virtual consoles</a>, then <a href="desktop/session/sddm.html?level=2">display managers</a> as the optional or historical greeter model. Current cultivars: text login, then <code>tam-desktop</code>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>On console-first Tamlinux, when does the graphical desktop start?</summary><p>When you run <code>tam-desktop</code> (or an equivalent documented launcher), not automatically at greeter time.</p></details></section>
+<h2>Stage 2: Compositor</h2>
+<p><a href="desktop/session/compositors.html?level=2">Compositors</a> and <a href="desktop/navigation/index.html?level=1">the desktop</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which compositor does Tamlinux run today?</summary><p>Hyprland. Sway is planned.</p></details></section>
+<h2>Stage 3: Input</h2>
+<p><a href="desktop/session/evdev.html?level=2">evdev</a> and <a href="desktop/navigation/meta-key.html?level=2">the Meta key</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>If keys work on a VT but not in the GUI, where is the fault more likely?</summary><p>In the graphical input path (compositor, seat, libinput) rather than the physical keyboard alone.</p></details></section>
+<h2>Stage 4: Everyday devices</h2>
+<p><a href="desktop/tasks/keyboard-touchpad.html?level=2">touchpad and shortcuts</a>,
+<a href="desktop/tasks/audio.html?level=2">sound devices</a>, and <a href="desktop/tasks/bluetooth.html?level=2">Bluetooth devices</a>.</p>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Which command prints the current audio output sink?</summary><p><code>tam-audio-output-sink</code>. The audio panel is <code>Meta + Ctrl + A</code>.</p></details></section>
+<h2>Capstone</h2>
+<p>Write the shortest recovery note for "GUI frozen, keyboard dead in GUI": VT chord, what you will record, what you will not restart yet.</p>
+<details class="solution"><p>Use Ctrl+Alt+Fn to reach a text console. Record time, last action, whether VTs accept input, and whether <code>tam-desktop</code> or the compositor process is alive. Do not restart display managers as a first guess; collect evidence first.</p></details>
+<h2>Next paths</h2>
+<p><a href="paths/diagnose-from-principles.html?level=3">Diagnose from first principles</a>; <a href="paths/display-and-gpu.html?level=2">Display and GPU</a>.</p>
+</body></html>

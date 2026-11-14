@@ -19,6 +19,15 @@ the 0.31.0/0.32.0 upgrade workflow have landed in source. Package assembly and d
 developer-directed work. Maintain this living contract using the
 [plan maintenance procedure](../plan-maintenance.md); closed plans are historical.
 
+## Current organization contract
+
+The approved [subject-library plan](subject-library.md) owns command 0.57.0 and
+corpus 0.90.0. Eight subjects organize the canonical pages. Browse subjects,
+Learn step by step, Search, and Sources provide the main entrances. Parent
+metadata follows folder hubs; keyword metadata powers lookup; optional kinds
+classify results. The old five-part layout is historical. Index formats stay
+compatible; the current corpus makes a clean page-address break.
+
 ## Purpose and ownership
 
 Give users one useful entry point for installing, learning, using, maintaining
@@ -101,7 +110,7 @@ identity after the index commit, without repeating content validation.
 | `tam show [PAGE]` | Implemented | Open the local guide in the built-in pager when interactive (e.g. `tam show tam` opens `knowledge/tam.html`); readable text when piped or not a terminal. Preserves path-based semantics and navigates directly to a page. |
 | `tam welcome` | Implemented | Explicit orientation; record welcome only after successful display. |
 | `tam hello`, `tam hi` | Implemented | Friendly orientation shortcuts; exact aliases for `tam welcome`. |
-| `tam explain` | Implemented | Always launch the built-in pager displaying the dynamic list of all topic keywords from corpus metadata (or clean text when piped). |
+| `tam explain` | Implemented | Open the search entrance, with secondary glossary and alphabetical page lookup (or clean text when piped). |
 | `tam explain <topic>` | Implemented | Always display a dynamic topic guide for `<topic>` in the built-in pager (or clean text when piped), listing all matching pages with each page explained. Never takes you directly to a page. |
 | `tam explain topics` | Implemented | Interactive hyperlinked topic browser in pager (or clean text when piped); supports `--level LEVEL`, `--terse` (slugs only for pipes/scripts), and `--verbose` (exhaustive keywords/summaries). |
 | `tam inspect` | Implemented | Read-only host facts, capability detection, and system health findings (the old `tam install inspect` form is retired). Supports `--json`, `--check [ID]`. |
@@ -442,6 +451,9 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-11-14:** Command 0.57.0 (minor): subject browsing, unified search, page-kind lookup, and one generated learning-path catalog. Corpus 0.90.0 reorganizes canonical subject homes with a clean address break.
+
 
 - **2026-11-13:** Corpus 0.82.1 (patch): Close the hub-to-step gap left by
   0.82.0. Twelve path hubs (`work-with-ai-locally`, `settle-in`,
@@ -1348,3 +1360,8 @@ resolve superseded schedules. Do not execute a former plan from this history.
   in `paths.json`; expand D221 hard-enforcement.
 - **2026-11-02:** Corpus 0.70.0 (minor): Migrate final D221 batches
   (session/desktop, understand-design, terminal stack, guide leftovers).
+
+### 2026-11-14 — Subject library (command 0.57.0 / corpus 0.90.0)
+
+The developer approved subjects first, targeted editorial repair, four reader
+entrances, and a clean page-address break. See [subject-library.md](subject-library.md).

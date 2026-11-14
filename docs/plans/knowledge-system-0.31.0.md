@@ -1,5 +1,9 @@
 # Five-part Tamlinux knowledge system — corpus 0.31.0
 
+Organization superseded by [Subject library and discovery](subject-library.md).
+The original delivery below is historical; reader compatibility and teaching
+contracts survive where the current plan retains them.
+
 **Plan status:** Completed
 **Reviewed:** 2026-10-18
 **Scope:** Corpus 0.31.0 and companion command 0.30.0; organization, learning,

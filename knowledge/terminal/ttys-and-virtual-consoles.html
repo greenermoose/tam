@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Text screens and terminal windows</title>
+<meta name="topic" content="ttys-and-vts">
+<meta name="summary" content="Terminal subsystem architecture, Linux virtual consoles (VTs), pseudo-terminals (PTYs), switching hotkeys, and display manager seat handover">
+<meta name="keywords" content="ttys-and-vts, tty, ttys, vt, vts, virtual terminal, virtual terminals, virtual console, virtual consoles, pty, pts, terminal, console, termios, line discipline, chvt, fgconsole, seatd, logind, agetty">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/index.html">
+<meta name="prereqs" content="ecosystem, compositors">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.novice, desktop.learner, desktop.expert">
+<meta name="paths" content="session-and-desktop:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / Text screens and terminal windows</p></nav>
+
+
+<h1>Text screens and terminal windows</h1>
+<p>This page explains ways to type and read text on a computer, with or without a desktop.</p>
+<h2>Before this</h2><p><a href="tamlinux/components.html">Understanding the whole system</a> · <a href="desktop/session/compositors.html">How windows appear on your screen</a></p>
+<p>A virtual console is a text screen you can use outside the desktop. A terminal is a place to type and read text; a terminal window works inside the desktop.</p>
+<section data-level="novice">
+<h2>What are TTYs and virtual consoles?</h2>
+<p>A text login may remain usable when a graphical application is stuck, but display, kernel or input failures can affect it too.</p>
+<h3>Why it matters</h3>
+<p>A text login may remain usable when a graphical application is stuck, but display, kernel or input failures can affect it too.</p>
+<h3>How to think about it</h3>
+<p>New to this? A path names a place in the filesystem.</p>
+<h3>New words</h3>
+<p>A <a href="glossary/k/kernel.html">kernel</a> manages hardware and processes; a <a href="glossary/p/path.html">path</a> identifies a filesystem location.</p><h3>Next step</h3><p>Read <a href="systems/recovery/recovery.html">recovery</a> before relying on a console during a fault.</p>
+</section>
+
+<section data-level="learner">
+<h2>Recognize a virtual console</h2>
+<p><strong>Goal:</strong> identify a virtual console and its limits as a recovery route.</p>
+<p><strong>Before you start:</strong> read <a href="glossary/t/terminal.html">terminal</a> and <a href="glossary/v/virtual-console.html">virtual console</a>. The example reads a system path.</p>
+<aside class="first-time"><p><strong>New to this?</strong> A path names a place in the filesystem. Type only what follows the dollar sign and press Enter. Do not switch consoles during an unsaved task.</p></aside>
+<h3>Mental model</h3>
+<p>A kernel VT supplies a console surface; a getty may offer a text login there. A desktop terminal uses a PTY pair: the emulator handles one end and the shell uses the other. A session manager and graphics driver contribute their own state.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">$ ls -d /sys/class/tty/tty0
+/sys/class/tty/tty0</pre><p>Captured on Arch Linux, 2026-10-27. This shows a kernel interface exists; it does not show which console has a login or a desktop. Your system may differ.</p>
+<h3>Try it</h3>
+<p>Run the read-only example. Identify the directory shown and compare it with a terminal window's <code>tty</code> output, if the command is available.</p>
+<h3>If it goes wrong</h3>
+<p>A missing path or a blank screen does not identify the cause. A graphical session, console display, login service and keyboard are separate dependencies. Use <a href="systems/recovery/recovery.html">recovery</a> for alternatives.</p>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the 0.5 text-startup design provides a text login and a second console, with the desktop started explicitly. Other installed versions can use graphical login. Check the selected installation rather than assuming F1, F2 or F3 is always the right return key.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><details class="q"><summary>Does a tty0 path guarantee a usable text login?</summary><p>No. A display, input and a login service must also work.</p></details><details class="q"><summary>Is a terminal window the same as a kernel virtual console?</summary><p>No. A terminal window normally uses a pseudo-terminal; a virtual console is managed by the kernel.</p></details></section>
+</section>
+<section data-level="expert"><h2>Terminal and display boundaries</h2><p>A PTY is a master/slave pair; programs on the slave use terminal semantics while an emulator drives the master. The line discipline can handle editing and signal characters depending on termios settings: canonical mode ordinarily delivers completed lines, while applications can configure noncanonical input. With signal generation enabled, Ctrl+C requests SIGINT for the foreground process group. A controlling terminal, foreground process group and session have distinct roles; see <code>pty(7)</code> and <code>termios(3)</code>.</p><p>VT switching may require coordination among the active session, seat manager, display driver and compositor. Failure to display a console is evidence to investigate, not proof of a particular DRM failure. Avoid switching or changing VT modes on a working session merely to diagnose an unrelated fault.</p><section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>What must you distinguish before attributing a blank VT to a failed compositor?</summary><p>Check input response, kernel and session state, login availability and display output. Each can fail independently; a blank screen alone cannot identify the failing layer.</p></details></section></section>
+<h2>Next</h2><p><a href="terminal/terminfo-and-termcap.html">How terminals display text</a>; <a href="programming/interfaces/ncurses.html">ncurses</a>; <a href="desktop/session/sddm.html">Display managers and login</a>; <a href="systems/recovery/recovery.html">recovery</a>; <a href="index.html">Guide</a>.</p></body></html>

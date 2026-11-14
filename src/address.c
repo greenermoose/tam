@@ -149,6 +149,11 @@ static tam_document_t *load_keywords(const tam_loader_ctx_t *c, const char *href
     return c->root != NULL ? tam_topic_keywords_document(c->root, view_level(href), w) : NULL;
 }
 
+static tam_document_t *load_catalog(const tam_loader_ctx_t *c, const char *href, int w)
+{
+    return tam_catalog_document(c->root, view_level(href), w);
+}
+
 static tam_document_t *load_topics(const tam_loader_ctx_t *c, const char *href, int w)
 {
     return c->root != NULL ? tam_topics_document(c->root, view_level(href), w) : NULL;
@@ -176,6 +181,7 @@ static const struct {
     { "tam:explain",  load_explain },
     { "tam:keywords", load_keywords },
     { "tam:topics",   load_topics },
+    { "tam:catalog",  load_catalog },
     { "tam:paths",    load_paths },
     { "tam:path",     load_paths },
 };

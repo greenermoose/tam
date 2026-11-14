@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How windows appear on your screen</title>
+<meta name="topic" content="compositors">
+<meta name="summary" content="Wayland compositors: Hyprland today, Sway planned, and blank-screen checks">
+<meta name="keywords" content="compositor, sway, hyprland, wayland, wlroots, blank screen, drm">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/session/index.html">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="desktop.novice, desktop.learner, desktop.expert">
+<meta name="paths" content="session-and-desktop:3, display-and-gpu:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/session/index.html">Login, input and sessions</a> / How windows appear on your screen</p></nav>
+
+
+<h1>How windows appear on your screen</h1>
+<p>This page explains the software that puts windows on your screen and lets you move among them.</p>
+
+<section data-level="novice">
+<h2>What does a compositor do?</h2>
+<p>A frozen GUI often needs a text console, not more mouse clicks in a stuck compositor.</p>
+<h3>Why it matters</h3>
+<p>A frozen GUI often needs a text console, not more mouse clicks in a stuck compositor.</p>
+<h3>How to think about it</h3>
+<p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p>
+<h3>New words</h3>
+<dl><dt><a href="glossary/c/compositor.html">Compositor</a></dt><dd>Program that draws and places windows.</dd>
+<dt><a href="glossary/w/wayland.html">Wayland</a></dt><dd>Protocol used by modern Linux desktops.</dd></dl>
+<h3>Next step</h3>
+<p><a href="desktop/navigation/index.html?level=1">The Tamlinux desktop</a>.</p>
+</section>
+
+<section data-level="learner">
+<h2>The compositor draws the desktop</h2>
+<p><strong>Goal:</strong> you will be able to say what a <dfn><a href="glossary/c/compositor.html">compositor</a></dfn> is and that Tamlinux uses <dfn><a href="glossary/h/hyprland.html">Hyprland</a></dfn> today on <dfn><a href="glossary/w/wayland.html">Wayland</a></dfn>.</p>
+<p><strong>Before you start:</strong> you need a working graphical session or a text console. Do not restart display services while learning.</p>
+<aside class="first-time"><p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p></aside>
+<h3>Mental model</h3>
+<p>A Wayland compositor presents application surfaces and manages placement and input. The desktop shell (panels, menus) is separate. Tamlinux runs <strong>Hyprland</strong> today and has selected <strong>Sway</strong> on <strong>wlroots</strong> as a long-term planned compositor.</p>
+<h3>Worked example</h3>
+<p>From a working desktop, press Meta + K and confirm keybindings still list Meta + Return. That shows the compositor is receiving keys. If nothing responds, move to a virtual console instead of forcing power off.</p>
+<h3>Try it</h3>
+<p>Press Meta + Return to open a terminal, then Meta + Q to close only that empty window.</p>
+<h3>If it goes wrong</h3>
+<dl><dt>No response to Meta keys</dt><dd>Switch to a VT with Ctrl + Alt + Fn and continue from text.</dd></dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> check packaged bindings under the product session tree, not stock Hyprland defaults.</p></aside>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q"><summary>Is the compositor the same as a web browser window?</summary><p>No. The compositor is the display server that places all windows; a browser is one client.</p></details>
+</section>
+</section>
+<section data-level="expert">
+<h2>Blank-screen boundaries</h2>
+<p>Separate panel power, cable/protocol, DRM/KMS programming, compositor process, and client faults. Plugin ABI churn and carried multi-monitor patches are reasons Tamlinux plans to leave Hyprland; contribution policy also blocks some upstream paths. Capture <code>hyprctl</code> or DRM connector evidence from a working VT when documenting a fault. Do not restart display stacks as a first exploratory step.</p>
+<section class="quiz"><h3>Check yourself</h3>
+<details class="q open"><summary>Text VTs work but the GUI is black. Which layer have you roughly cleared?</summary><p>Early boot and basic input/GPU text paths are at least partly alive. Focus on the graphical session, compositor, and display modes next.</p></details>
+</section>
+<ul><li><a href="hardware/displays/computer-graphics.html">Computer graphics</a></li>
+<li><a href="hardware/displays/display-cables.html">Display cables</a></li>
+<li><a href="paths/display-and-gpu.html">Display and GPU path</a></li></ul>
+</section>
+</body>
+</html>

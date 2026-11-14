@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Administrative privileges</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="security.novice, security.learner, hardware.expert">
+<meta name="topic" content="hardware-security">
+<meta name="summary" content="Understand sudo authorization, Docker privileges, and bounded administrative access">
+<meta name="keywords" content="security, fido2, fingerprint, sshd, sudo, docker, authentication, pam, polkit">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="security">
+<meta name="parent" content="security/index.html">
+<meta name="prereqs" content="shell">
+<meta name="paths" content="people-and-security:7, security-protocols-and-access-control:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / Administrative privileges</p></nav>
+
+
+<h1>Administrative privileges</h1>
+<p>This page explains when a program can act as an administrator and how to inspect that authority.</p>
+<h2>Before this</h2><p><a href="terminal/shell/index.html">Giving your computer written instructions</a></p>
+
+<section data-level="novice">
+<h2>What is administrative privilege?</h2>
+<p>Some changes affect everyone using the computer. Administrative privilege is the authority to make those changes.</p>
+<h3>Why it matters</h3><p>A program with this authority can change system files and settings. Grant it only for a task you understand.</p>
+<h3>How to think about it</h3><p>Your account is your everyday identity; administrator access grants additional authority. A temporary grant still gives broad power while it lasts.</p>
+<h3>New words</h3><p><a href="glossary/p/privilege.html">Privilege</a> means permission to perform an operation. <a href="glossary/s/sudo.html">Sudo</a> can run a command with another user's authority.</p>
+</section>
+<section data-level="learner">
+<h2>Inspect administrative authority safely</h2>
+<p><strong>Goal:</strong> you will be able to check privilege configurations and understand the scope of temporary authorization.</p>
+
+
+<h3>Worked example</h3>
+<ol>
+<li>Check whether your current session requires sudo to interact with Docker:
+<pre class="session" data-risk="read-only">
+$ tam-sudo-docker; echo "Exit status: $?"
+Exit status: 0
+</pre>
+This silent predicate returns exit 0 when sudo is required, or exit 1 when Docker is directly accessible.
+</li>
+<li>When performing temporary administrative maintenance, you can enable a bounded passwordless sudo window (for example, 15 minutes):
+<pre class="session" data-risk="system">
+$ tam-sudo-passwordless 15
+</pre>
+Note that during this active window, any process running as your user can execute any root command without prompting; the timeout limits only the duration, not the scope of authority.
+</li>
+<li>In scripts requiring repeated administrative actions, <code>tam-sudo-keepalive</code> keeps the authorization token fresh in the background while the parent script runs.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>tam-sudo-docker --configured; echo $?</code> in your terminal. With <code>--configured</code>, it checks account group membership rather than the live socket, returning exit 0 if the user will need sudo after logging in or exit 1 if the docker group is configured.</p>
+
+<h3>If it goes wrong</h3><p>If authorization fails, stop and check which account and command are involved. Do not broaden permissions to hide the error. For a failed hardware prompt, see <a href="security/practice/fingerprint-and-fido.html">fingerprint and FIDO2 authentication</a>; use your normal account password as fallback.</p>
+
+<aside class="tamlinux">
+<p>Every privileged step in Tamlinux requires explicit authorization; always record a rollback point before modifying system authentication configurations.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>What command checks if Docker requires sudo?</summary>
+<p><code>tam-sudo-docker</code>.</p></details>
+<details class="q"><summary>How long does a temporary tam-sudo-passwordless window last by default?</summary>
+<p>15 minutes, with automatic native cleanup.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Security setup and privilege command family</h2>
+<table>
+<tr><th>Command</th><th>Role</th></tr>
+
+
+
+
+
+
+<tr><td><code>tam-setup-security-sudoless-docker</code></td><td>Add user to docker group after explicit root-equivalence confirmation</td></tr>
+<tr><td><code>tam-remove-security-sudoless-docker</code></td><td>Remove user from docker group and restore sudo requirements</td></tr>
+<tr><td><code>tam-sudo-docker</code></td><td>Predicate returning exit 0 when Docker requires sudo, exit 1 when accessible directly</td></tr>
+<tr><td><code>tam-sudo-keepalive</code></td><td>Maintain an active sudo authentication token during long-running tasks</td></tr>
+<tr><td><code>tam-sudo-passwordless</code></td><td>Temporarily activate bounded passwordless sudo for a specified number of minutes</td></tr>
+</table>
+<p>Hardware authentication and SSH setup have their own procedures. See <a href="security/practice/fingerprint-and-fido.html">hardware authentication</a> and <a href="security/practice/ssh.html">SSH access</a> before changing those boundaries.</p>
+</section>
+
+<h2>Next</h2><p><a href="systems/storage/drives.html">Storage drives and encryption</a> — full disk encryption and LUKS passphrases.</p>
+<h2>Related</h2><ul><li><a href="systems/recovery/recovery.html">System recovery</a> — emergency access and rollback points.</li><li><a href="desktop/session/config.html">Desktop configuration</a> — application defaults and settings preservation.</li></ul>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Files and folders</title>
+<meta name="topic" content="filesystem">
+<meta name="summary" content="Linux filesystem hierarchy (/etc, /home, /proc, /sys)">
+<meta name="keywords" content="filesystem, files, hierarchy, directories, proc, sys, etc, usr, var, fhs, /etc, root">
+<meta name="level" content="novice, learner">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/storage/index.html">
+<meta name="kind" content="explanation">
+<meta name="skills" content="files.novice">
+<meta name="paths" content="first-steps:4, settle-in:9, command-line-fluency:4, files-and-apps:9">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/storage/index.html">Files and storage</a> / Files and folders</p></nav>
+
+
+<h1>Files and folders</h1>
+<p>This page explains how a computer stores and organizes documents and other information.</p>
+
+<section data-level="novice">
+<h2>What are files and folders?</h2>
+<p>A file holds information, such as a document or picture. A folder, also called a directory, can hold files and other folders. A path is the name that tells the computer where to find one.</p>
+<p>Linux arranges folders inside other folders, starting at the root folder, written <code>/</code>. A path such as <code>/home/alex</code> starts at that root and names the folder <code>alex</code> inside <code>home</code>.</p>
+
+<h3>Why it matters</h3>
+<p>Reading a path before running a command helps you understand what the command will affect, so you do not change the wrong file by accident.</p>
+
+<h3>How to think about it</h3>
+<p>Think of the filesystem as a filing cabinet. Drawers are folders, papers are files, and the path is the address written on the outside of a drawer so you can find the right one.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/f/file.html">File</a></dfn></dt><dd>A named collection of information the computer can store and retrieve.</dd>
+<dt><dfn><a href="glossary/d/directory.html">Directory</a></dfn></dt><dd>A folder that can contain files and other directories.</dd>
+<dt><dfn><a href="glossary/p/path.html">Path</a></dfn></dt><dd>The address that names a location in the folder tree.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Finding your place</h2>
+<p><strong>Goal:</strong> distinguish a file, directory and path, and identify common parts of the filesystem.</p>
+
+
+<p><strong>Before you start:</strong> open a <a href="glossary/t/terminal.html">terminal</a>. This example only reads a directory name.</p>
+<aside class="first-time"><p><strong>New to this?</strong> The dollar sign represents your prompt. Type the command after it, then press Enter.</p></aside>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ls -d /tmp
+/tmp
+</pre>
+<p>Captured on Arch Linux, 2026-10-27. <code>ls</code> displays files and folders; <code>-d</code> asks it to display the named directory itself, rather than list its contents.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>You asked <code>ls</code> to name the directory <code>/tmp</code>.</li>
+<li>The command printed that path, confirming the directory exists for you.</li>
+<li>No files were created or deleted.</li>
+</ol>
+
+<h3>Key directories</h3>
+<table>
+<tr><th>Directory</th><th>Purpose</th></tr>
+<tr><td>/</td><td>The root folder containing the rest of the folder tree</td></tr>
+<tr><td>/home</td><td>Personal folders for users</td></tr>
+<tr><td>/etc</td><td>System settings for this computer</td></tr>
+<tr><td>/usr</td><td>Programs and supporting files</td></tr>
+<tr><td>/var</td><td>Changing system data, including logs</td></tr>
+<tr><td>/tmp</td><td>Temporary files</td></tr>
+<tr><td>/proc</td><td>Information about running programs and the system</td></tr>
+<tr><td>/sys</td><td>Information and controls for devices and the system</td></tr>
+<tr><td>/dev</td><td>Special entries programs use to access devices</td></tr>
+</table>
+
+<p><code>/proc</code> and <code>/sys</code> are virtual filesystems: their entries provide information from the kernel. They are not ordinary stored files.</p>
+
+<h3>Try it</h3>
+<p>Use <code>ls -d /proc</code> to inspect another named directory. Compare its purpose in the table; the command does not show its contents.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No such file or directory</dt>
+<dd>Check spelling. Start again from a path you know exists, such as <code>/tmp</code>.</dd>
+<dt>Permission denied</dt>
+<dd>Read the message. Do not add privilege merely to make an unfamiliar example work.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>What is the difference between a directory and a path?</summary>
+<p>A directory organizes entries; a path names a location in the hierarchy.</p></details>
+<details class="q"><summary>Are /proc entries necessarily ordinary stored files?</summary>
+<p>No. They expose interfaces and information provided by the kernel.</p></details>
+</section>
+</section>
+
+<h2>Next</h2><p><a href="systems/storage/finding-files.html">Finding and opening files</a> &mdash; locate files by name or content.</p>
+<h2>Related</h2><ul><li><a href="systems/storage/usb-drives.html">Using USB drives safely</a> &mdash; copy files to removable media and unmount cleanly.</li><li><a href="systems/storage/archives.html">Creating and opening archives</a> &mdash; inspect and unpack <code>.tar.gz</code> and <code>.zip</code> files.</li><li><a href="security/permissions.html">Who can use a file</a> &mdash; ownership and access modes.</li><li><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; RAM, swap, and CPU metrics.</li><li><a href="index.html">Guide index</a> &mdash; return to the full list of topics.</li></ul>
+</body>
+</html>
