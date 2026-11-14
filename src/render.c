@@ -25,6 +25,12 @@ enum {
     B_META  /* <p class="level-line">: dimmed, right-aligned when it fits */
 };
 
+enum {
+    ALIGN_LEFT = 0,
+    ALIGN_CENTER,
+    ALIGN_RIGHT
+};
+
 typedef struct {
     tam_span_t *runs;
     size_t      nruns;
@@ -48,7 +54,7 @@ typedef struct {
 
 typedef struct {
     int          kind;
-    int          level;   /* heading level or list depth */
+    int          level;   /* heading level, list depth, or B_PARA alignment */
     int          ordered;
     int          number;
     tam_span_t  *runs;
@@ -802,7 +808,19 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
             char *cls = extract_attr(s, end, "class");
             int meta = cls != NULL && strcmp(cls, "level-line") == 0;
             free(cls);
-            parser_begin_block(p, meta ? B_META : B_PARA, 0, 0, 0);
+            int align = ALIGN_LEFT;
+            char *al = extract_attr(s, end, "align");
+            if (al != NULL) {
+                if (strcasecmp(al, "center") == 0) {
+                    align = ALIGN_CENTER;
+                } else if (strcasecmp(al, "right") == 0) {
+                    align = ALIGN_RIGHT;
+                } else if (strcasecmp(al, "left") == 0) {
+                    align = ALIGN_LEFT;
+                }
+                free(al);
+            }
+            parser_begin_block(p, meta ? B_META : B_PARA, align, 0, 0);
         }
         return;
     }
@@ -1996,18 +2014,20 @@ static size_t lead_lines(const blocklist_t *blocks, const linelist_t *out)
     return n < out->n ? n : 0;
 }
 
-/* Pad a line on the left so it ends at the right margin. A line that wrapped
- * stays left-aligned, so it never breaks awkwardly at the right. */
-static void align_right(tam_line_t *line, int width)
+static size_t line_display_width(const tam_line_t *line)
 {
     size_t used = 0;
     for (size_t i = 0; i < line->nspans; i++) {
         used += dwidth(line->spans[i].text, strlen(line->spans[i].text));
     }
-    if ((int)used >= width) {
+    return used;
+}
+
+static void pad_line_left(tam_line_t *line, size_t pad)
+{
+    if (pad == 0 || line->nspans == 0) {
         return;
     }
-    size_t pad = (size_t)width - used;
     tam_span_t *spans = realloc(line->spans, (line->nspans + 1) * sizeof(*spans));
     if (spans == NULL) {
         return;
@@ -2023,6 +2043,27 @@ static void align_right(tam_line_t *line, int width)
     spans[0] = (tam_span_t){ .text = text };
     line->spans = spans;
     line->nspans++;
+}
+
+/* Pad a line on the left so it ends at the right margin. A level-line that
+ * wrapped stays left-aligned, so it never breaks awkwardly at the right. */
+static void align_right(tam_line_t *line, int width)
+{
+    size_t used = line_display_width(line);
+    if (used == 0 || (int)used >= width) {
+        return;
+    }
+    pad_line_left(line, (size_t)width - used);
+}
+
+/* Pad a line on the left so it is centered within width. */
+static void align_center(tam_line_t *line, int width)
+{
+    size_t used = line_display_width(line);
+    if (used == 0 || (int)used >= width) {
+        return;
+    }
+    pad_line_left(line, ((size_t)width - used) / 2);
 }
 
 static void layout_document(const blocklist_t *blocks, int width,
@@ -2076,6 +2117,14 @@ static void layout_document(const blocklist_t *blocks, int width,
         layout_flow(out, b->runs, b->nruns, width, pfx);
         if (b->kind == B_META && out->n == first + 1) {
             align_right(&out->v[first], width);
+        } else if (b->kind == B_PARA && b->level == ALIGN_CENTER) {
+            for (size_t ln = first; ln < out->n; ln++) {
+                align_center(&out->v[ln], width);
+            }
+        } else if (b->kind == B_PARA && b->level == ALIGN_RIGHT) {
+            for (size_t ln = first; ln < out->n; ln++) {
+                align_right(&out->v[ln], width);
+            }
         }
     }
 }

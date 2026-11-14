@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.58.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -248,6 +248,12 @@ sh_colspan=$(printf '%s\n' "$colspan_html" | "$TAM" show - --pipe)
 printf '%s\n' "$sh_colspan" | grep -q 'Key  Context            Action' || fail "colspan table header alignment failed"
 printf '%s\n' "$sh_colspan" | grep -q 'Right Arrow (or f / j)  Follow active link' || fail "colspan=2 cell failed to span columns"
 printf '%s\n' "$sh_colspan" | grep -q 'Tab  Anywhere           Select next link' || fail "colspan table normal row alignment failed"
+
+align_html='<p align="left">Left text</p><p align="center">Centered text</p><p align="right">Right text</p>'
+sh_align=$(printf '%s\n' "$align_html" | "$TAM" show - --pipe)
+printf '%s\n' "$sh_align" | grep -q '^Left text$' || fail "p align=left failed"
+printf '%s\n' "$sh_align" | grep -q '^                                 Centered text$' || fail "p align=center failed"
+printf '%s\n' "$sh_align" | grep -q '^                                                                      Right text$' || fail "p align=right failed"
 
 if "$TAM" browse >/dev/null 2>&1; then fail "tam browse unexpectedly succeeded"; fi
 "$TAM" browse 2>&1 | grep -q "unrecognized argument 'browse'" || fail "tam browse missing unrecognized argument message"
