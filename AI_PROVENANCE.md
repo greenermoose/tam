@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-13: opencode `v2.2.5` (`big-pickle`) links every one of the 164 indexed path steps as a levelled stage link from its hub, closing the gap left by corpus 0.82.0, in corpus 0.82.1. [Record](docs/ai/2026-11-13-tam-corpus-0821-path-steps.md).
+
 2026-11-13: opencode `v2.2.5` (`big-pickle`) rewrites the six thin topic paths to the path template, normalizes older hubs, enforces the path contract in the corpus build with fixture tests, and reconciles the 0.81.0 plan records in corpus 0.82.0. [Record](docs/ai/2026-11-13-tam-corpus-082-trustworthy-paths.md).
 
 2026-11-13: Antigravity CLI `1.5.7` (`gemini-3.8-flash-high`) implements the dynamic `<meta name="paths">` multi-path navigation engine (command 0.55.0), retires the level hubs while preserving quizzes/capstones, authors the 17 remaining beginner pages plus `tam-journal` and `tam-file-select` guides, and enforces `tamlinux-tools` coverage in corpus 0.81.0. [Record](docs/ai/2026-11-13-tam-dynamic-multipath-and-beginner-pages.md).
@@ -56,6 +58,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-13 | Corpus 0.82.1: every one of the 164 indexed path steps linked as a levelled stage link from its hub | opencode 2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-13-tam-corpus-0821-path-steps.md) |
 | 2026-11-13 | Corpus 0.82.0: six thin topic paths rewritten to the path template, older hubs normalized, path-contract enforcement in the corpus build, and 0.81.0 plan records reconciled | opencode 2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-13-tam-corpus-082-trustworthy-paths.md) |
 | 2026-11-12 | Compiler sanitizers and AddressSanitizer (ASan) guide page and glossary entries; corpus 0.79.0 | Antigravity CLI 1.5.7; Gemini 3.8 Flash (High) (`gemini-3.8-flash-high`) | [Session record](docs/ai/2026-11-12-tam-sanitizers-guide-page.md) |
 | 2026-11-10 | Decouple command build ID from corpus edits in `Makefile` and `tools/dev.py`, add `install-corpus`, and accelerate dev install; tooling only, no version change | Antigravity CLI 1.5.5; Gemini 3.8 Flash (High) (`gemini-3.8-flash`) | [Session record](docs/ai/2026-11-10-tam-decouple-command-build-id-from-corpus.md) |
