@@ -3,11 +3,11 @@
 <head>
 <title>Checking and managing the host firewall</title>
 <meta name="kind" content="how-to">
-<meta name="skills" content="security.learner">
+<meta name="skills" content="security.learner, security.expert">
 <meta name="topic" content="host-firewall">
 <meta name="summary" content="Inspect whether the Tamlinux nftables host firewall or transitional UFW rules are active and understand safe rule changes">
 <meta name="keywords" content="firewall, nftables, ufw, ports, ssh, security, subnet, incoming">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="paths" content="people-and-security:5">
@@ -82,6 +82,29 @@ $ sudo nft list table inet tamlinux-filter
 <p>Mixing rules across two firewall managers causes conflicts or silent overrides when services reload.</p>
 </details>
 </section>
+</section>
+
+<section data-level="expert">
+<h2>Netfilter hooks, nftables bytecode, and conntrack state</h2>
+<h3>Reference</h3>
+<p>Linux packet filtering executes inside kernel <strong>Netfilter</strong> hooks (<code>ingress</code>, <code>prerouting</code>, <code>input</code>, <code>forward</code>, <code>output</code>, <code>postrouting</code>). <code>nftables</code> compiles human-readable rulesets in <code>/etc/nftables.conf</code> into register-based <code>nf_tables</code> VM expressions evaluated atomically in the kernel without full table-lock reloads.</p>
+<h3>How it works</h3>
+<p>Stateful rules rely on <code>nf_conntrack</code>, which tracks 5-tuple flows (<code>src, dst, proto, sport, dport</code>) and classifies packets as <code>new</code>, <code>established</code>, <code>related</code> (such as ICMP errors tied to an active flow), or <code>invalid</code>. Dropping <code>ct state invalid</code> early and accepting <code>established,related</code> before per-port checks keeps hot-path packet latency bounded.</p>
+<h3>Edge cases</h3>
+<dl>
+<dt>Docker and the <code>forward</code> hook</dt>
+<dd>Published container ports traverse the <code>prerouting</code> DNAT and <code>forward</code> hooks rather than host <code>input</code>. A host <code>policy drop</code> on <code>input</code> does not block container-exposed ports unless <code>forward</code> rules or <code>127.0.0.1</code> port bindings constrain them.</dd>
+<dt>ICMPv6 Neighbor Discovery</dt>
+<dd>Blocking all ICMPv6 breaks IPv6 NDP (<code>nd-neighbor-solicit</code>, <code>nd-router-advert</code>) and Path MTU Discovery, so <code>inet</code> family tables must permit essential ICMPv6 types explicitly.</dd>
+</dl>
+<details class="q open">
+<summary>Research frontier: How does XDP / eBPF packet filtering complement <code>nftables</code> at line rate?</summary>
+<p>XDP (eXpress Data Path) executes verified eBPF programs in the NIC driver before <code>sk_buff</code> allocation, enabling multi-million-pps DDoS drops and stateless mitigation ahead of the Netfilter stack.</p>
+</details>
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>nft(8)</code>.</li>
+</ul>
 </section>
 
 <h2>Where next</h2>

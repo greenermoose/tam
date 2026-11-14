@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Authentication, Authorization, and Linux Access Control</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="security.novice, security.learner, security.expert">
+<meta name="topic" content="authentication-and-authorization">
+<meta name="summary" content="How systems verify identity (passwords, Argon2id, FIDO2, PAM) and enforce what principals can do (DAC, MAC, RBAC, ABAC, ReBAC, Linux UIDs, capabilities, seccomp, and namespaces).">
+<meta name="keywords" content="authentication, authorization, authn, authz, pam, argon2id, dac, mac, rbac, abac, rebac, capabilities, seccomp, user namespaces, polkit">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="paths" content="security-protocols-and-access-control:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Linux Ecosystem</a> / Authentication, Authorization, and Linux Access Control</p>
+</nav>
+
+<h1>Authentication, Authorization, and Linux Access Control</h1>
+<p>How a computer decides who you are, how it decides what you are allowed to touch, and how Linux enforces those rules from PAM logins down to kernel system calls.</p>
+
+<section data-level="novice">
+<h2>Who you are vs. what you are allowed to do</h2>
+<p>Every security check has two separate halves that are easy to mix up:</p>
+<ul>
+<li><strong>Authentication (AuthN):</strong> proving who you are—like showing a photo ID or tapping a badge at a building entrance.</li>
+<li><strong>Authorization (AuthZ):</strong> checking what that proven identity is allowed to do—like whether your badge opens only your office floor or also the server room.</li>
+</ul>
+<p>Computers usually check your identity using one or more of three kinds of proof, often called <strong>factors</strong>:</p>
+<ol>
+<li><strong>Something you know:</strong> a password or PIN.</li>
+<li><strong>Something you have:</strong> a physical USB security key or a phone holding a secret key.</li>
+<li><strong>Something you are:</strong> a fingerprint or face scan.</li>
+</ol>
+<p>Using two different kinds together—such as a password plus a USB key—is called multi-factor authentication (MFA), because stealing just one factor is no longer enough to impersonate you.</p>
+
+<h3>Why it matters</h3>
+<p>If an app checks who you are but forgets to check what you are allowed to do, any logged-in user can read someone else's private files. Both halves must work together on every request.</p>
+
+<h3>How to think about it</h3>
+<p>Even inside your own laptop, programs run as different workers with different badges. Your web browser does not need the master key to overwrite system files; keeping authentication and authorization distinct lets the operating system confine each program to its own workspace.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/authorization.html">Authorization</a></dfn></dt>
+<dd>Deciding whether an authenticated user or program is permitted to perform an action on a resource.</dd>
+<dt><dfn><a href="learn/glossary/pam.html">PAM</a></dfn></dt>
+<dd>Pluggable Authentication Modules, the Linux framework that lets login, <code>sudo</code>, and lock screens share password, fingerprint, and hardware-key checks.</dd>
+<dt><dfn><a href="learn/glossary/dac.html">Discretionary Access Control (DAC)</a></dfn></dt>
+<dd>An access model where the owner of a file decides who may read, change, or run it.</dd>
+<dt><dfn><a href="learn/glossary/mac-access-control.html">Mandatory Access Control (MAC)</a></dfn></dt>
+<dd>System-wide rules enforced by the operating system that even a file's owner cannot override.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspecting PAM, Linux capabilities, and process credentials</h2>
+<p><strong>Goal:</strong> inspect how Linux represents your user identity, capabilities, and PAM authentication stacks without changing system configuration.</p>
+<p><strong>Before you start:</strong> Linux separates authentication (handled in user space by PAM or D-Bus helpers like Polkit) from authorization (enforced by the kernel on every file open, socket bind, or syscall).</p>
+
+<h3>Worked example</h3>
+<p>List the active PAM service files under <code>/etc/pam.d/</code> and inspect your process capability bounding set with <code>capsh --print</code>:</p>
+<pre class="session" data-risk="read-only">
+$ ls -la /etc/pam.d/ | head -n 10
+total 100
+drwxr-xr-x 1 nobody nobody  396 Oct 23 13:41 .
+drwxr-xr-x 1 nobody nobody 3880 Nov 13 05:34 ..
+-rw-r--r-- 1 nobody nobody  234 Sep 21 07:54 chfn
+-rw-r--r-- 1 nobody nobody  103 Jul 30 06:04 chpasswd
+-rw-r--r-- 1 nobody nobody  234 Sep 21 07:54 chsh
+-rw-r--r-- 1 nobody nobody   87 Oct  5 12:50 cups
+-rw-r--r-- 1 nobody nobody  126 Sep  4 01:31 hyprlock
+-rw-r--r-- 1 nobody nobody  222 Sep 21 07:54 login
+-rw-r--r-- 1 nobody nobody  103 Jul 30 06:04 newusers
+$ capsh --print | head -n 6
+Current: =
+Bounding set =
+Ambient set =
+Current IAB: !cap_chown,!cap_dac_override,!cap_dac_read_search,!cap_fowner,!cap_fsetid,!cap_kill,!cap_setgid,!cap_setuid,!cap_setpcap,!cap_linux_immutable,!cap_net_bind_service,!cap_net_broadcast,!cap_net_admin,!cap_net_raw,!cap_ipc_lock,!cap_ipc_owner,!cap_sys_module,!cap_sys_rawio,!cap_sys_chroot,!cap_sys_ptrace,!cap_sys_pacct,!cap_sys_admin,!cap_sys_boot,!cap_sys_nice,!cap_sys_resource,!cap_sys_time,!cap_sys_tty_config,!cap_mknod,!cap_lease,!cap_audit_write,!cap_audit_control,!cap_setfcap,!cap_mac_override,!cap_mac_admin,!cap_syslog,!cap_wake_alarm,!cap_block_suspend,!cap_audit_read,!cap_perfmon,!cap_bpf,!cap_checkpoint_restore
+Securebits: 00/0x0/1'b0 (no-new-privs=1)
+ secure-noroot: no (unlocked)
+</pre>
+<p>In a normal desktop shell, <code>Current: =</code> means your shell holds zero elevated Linux capabilities. When a program only needs to bind a low-numbered network port, an administrator can grant just <code>CAP_NET_BIND_SERVICE</code> instead of full root power.</p>
+<p>Across larger systems, authorization policies follow distinct models:</p>
+<ul>
+<li><strong>DAC:</strong> file owners set permissions (<code>chmod</code>, POSIX ACLs).</li>
+<li><strong>MAC:</strong> kernel LSMs (SELinux, AppArmor) enforce administrator-locked labels.</li>
+<li><strong>RBAC (Role-Based Access Control):</strong> permissions attach to roles (such as <code>auditor</code> or <code>wheel</code>) rather than individual names.</li>
+<li><strong>ABAC (Attribute-Based Access Control):</strong> rules evaluate subject, resource, and context attributes (time, device posture, network).</li>
+<li><strong>ReBAC (Relationship-Based Access Control):</strong> access follows graph edges (such as "owner of folder containing document", popularized by Google Zanzibar).</li>
+</ul>
+
+<h3>Try it</h3>
+<p>Run <code>id</code> and <code>capsh --print | head -n 4</code> in your terminal to see your numeric UID, group memberships, and capability sets.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Adding a user to a privileged group (like <code>wheel</code> or <code>docker</code>) does not seem to take effect</dt>
+<dd>Group memberships are loaded at login time into the process credential structure. Log out and back in (or start a fresh login session) for new group memberships to apply.</dd>
+<dt>Granting <code>docker</code> group membership casually</dt>
+<dd>A user who can instruct a root-owned daemon to bind-mount <code>/</code> effectively has root access. Prefer rootless containers or explicit <code>sudo</code> wrappers such as <code>tam-sudo-docker</code>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux keeps desktop elevation explicit: <code>sudo</code> and <code>polkit</code> share PAM hardware-token rules when enrolled, while unprivileged user sessions carry zero ambient capabilities.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>What is the difference between authentication and authorization?</summary>
+<p>Authentication verifies who a principal is (for example, checking a password hash or FIDO2 signature); authorization decides whether that principal is allowed to perform a requested action.</p>
+</details>
+<details class="q">
+<summary>Why are Linux capabilities safer than making a helper binary full root?</summary>
+<p>Capabilities split root's omnipotence into fine-grained privileges (such as <code>CAP_NET_RAW</code> or <code>CAP_NET_BIND_SERVICE</code>), limiting what a compromised binary can do.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Password KDFs, PAM state machines, Linux credentials, and modern authorization architectures</h2>
+
+<h3>Reference: credential storage and password KDFs</h3>
+<p>Local password authentication never stores plaintext passwords. Modern Linux <code>/etc/shadow</code> entries use memory-hard key derivation functions—principally <strong>Argon2id</strong> (RFC 9106, winner of the Password Hashing Competition) or <strong>yescrypt</strong>—parameterized by memory cost <code>m</code>, time cost <code>t</code>, and parallelism <code>p</code> alongside a per-user 128-bit random salt. Memory hardness forces GPU/ASIC brute-force crackers to pay DRAM bandwidth and area costs rather than only ALU cycles. Verification must compare derived digests in constant time to avoid timing side channels.</p>
+
+<h3>How it works: PAM, Polkit, Linux UIDs, capabilities, seccomp-bpf, and user namespaces</h3>
+<p><strong>PAM state machine:</strong> <code>libpam</code> evaluates four independent stacks per service—<code>auth</code> (verify identity and set credentials), <code>account</code> (expiry, time, host restrictions), <code>session</code> (audit, keyring, mount setup/teardown), and <code>password</code> (token updates). Control flags (<code>required</code>, <code>requisite</code>, <code>sufficient</code>, <code>optional</code>, or bracketed jump syntax <code>[success=1 default=ignore]</code>) compose short-circuiting boolean pipelines. Note that a <code>sufficient</code> hardware module (<code>pam_fprintd</code> or <code>pam_u2f</code>) placed before <code>pam_unix</code> lets hardware touch satisfy <code>auth</code> while preserving password fallback.</p>
+<p><strong>Polkit:</strong> unprivileged desktop clients talk over D-Bus to privileged system daemons (<code>systemd-logind</code>, <code>NetworkManager</code>, <code>udisks2</code>). Rather than running the UI as root, the daemon queries <code>polkitd</code> with an action ID and subject PID/UID; <code>polkitd</code> evaluates JavaScript/rule policies (<code>/etc/polkit-1/rules.d/</code>) and, when interactive authorization is required, delegates credential verification to a local Polkit authentication agent via PAM.</p>
+<p><strong>Linux kernel credential model (<code>struct cred</code>):</strong> every task carries four UID/GID tuples: real (<code>uid</code>, who owns the process), effective (<code>euid</code>, checked by most permission checks), saved set-user-ID (<code>suid</code>, allowing temporary privilege drop and re-acquire), and filesystem (<code>fsuid</code>, used for VFS checks by file servers). On <code>execve()</code> of a setuid binary or file with filesystem capabilities (<code>security.capability</code> xattr), the kernel computes new capability sets <code>P'</code> from permitted, inheritable, effective, bounding, and ambient bitmasks unless <code>PR_SET_NO_NEW_PRIVS</code> is set (which irreversibly blocks privilege gain across <code>execve()</code>, enabling unprivileged sandboxes).</p>
+<p><strong>Syscall filtering and namespaces:</strong> <code>seccomp-bpf</code> attaches a classic BPF bytecode filter to a task that inspects <code>seccomp_data</code> (syscall number, architecture, scalar arguments—never dereferenced pointers, avoiding TOCTOU in the filter) and returns <code>SECCOMP_RET_ALLOW</code>, <code>ERRNO</code>, <code>TRAP</code>, or <code>KILL_PROCESS</code>. <strong>User namespaces</strong> (<code>CLONE_NEWUSER</code>) map an unprivileged outer UID to UID 0 inside a namespace so containers can hold namespaced capabilities without gaining host privileges—though exposing new kernel attack surface (<code>ioctl</code>, netfilter, overlayfs) inside user namespaces remains a major privilege-escalation vector.</p>
+
+<h3>Edge cases and open research problems</h3>
+<dl>
+<dt>OAuth 2.0 / OIDC and ReBAC vs. confused deputies</dt>
+<dd>Distributed authorization separates Identity Providers (IdP) issuing signed JWTs/OIDC tokens from Policy Decision Points (OPA/Rego, Cedar, Zanzibar ReBAC). Subtle failure modes include token-audience confusion, algorithm confusion (<code>alg=none</code> or HS256/RS256 key confusion), and stale revocation caches violating complete mediation.</dd>
+<dt>Capability-based vs. ambient-authority OS designs</dt>
+<dd>POSIX ambient authority ties rights to a global UID namespace, making fine-grained sandboxing awkward. Object-capability systems (Capsicum, seL4, WASI preview 2) bind rights to unforgeable handles, eliminating whole classes of path-traversal and confused-deputy bugs.</dd>
+<dt>Kernel attack surface in unprivileged sandboxes</dt>
+<dd>Features designed to harden apps (user namespaces, eBPF, io_uring) repeatedly introduce kernel memory-corruption bugs reachable by unprivileged processes, driving research into Rust-in-Linux, syscall-surface minimization, and formal verification of access-control hooks (LSMs).</dd>
+</dl>
+
+<details class="q open">
+<summary>Research frontier: How can distributed authorization systems (Zanzibar/ReBAC, Cedar) guarantee low-latency complete mediation without stale-cache privilege escalation?</summary>
+<p>Global replication introduces consistency windows where a revoked permission remains cached at a regional PDP. Zanzibar's "zookie" causality tokens bound staleness to at-least-as-fresh-as-write timestamps, while ongoing research explores formal policy verification (SMT-backed analysis in Cedar) and cryptographic capability tokens (Macaroons, Biscuits) that support offline attenuation.</p>
+</details>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>credentials(7)</code>, <code>capabilities(7)</code>, <code>user_namespaces(7)</code>, <code>seccomp(2)</code>, and <code>pam(8)</code>.</li>
+<li><cite data-ref="saltzer-schroeder"><a href="learn/bibliography/saltzer-schroeder.html">Saltzer &amp; Schroeder (1975)</a></cite> &mdash; The Protection of Information in Computer Systems.</li>
+</ul>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="filesystem/permissions.html">Understanding file permissions</a> &mdash; Step 4 on the Security Protocols and Access Control path.</li>
+<li><a href="hardware/security.html">Hardware Security and Privilege Management</a> &mdash; Step 5 on the path.</li>
+<li><a href="learn/paths/security-protocols-and-access-control.html?level=1">Security Protocols and Access Control path</a> &mdash; full learning sequence.</li>
+</ul>
+</body>
+</html>

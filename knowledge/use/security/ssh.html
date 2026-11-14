@@ -3,11 +3,11 @@
 <head>
 <title>SSH keys and remote access</title>
 <meta name="kind" content="how-to">
-<meta name="skills" content="security.learner">
+<meta name="skills" content="security.learner, security.expert">
 <meta name="topic" content="ssh-access">
 <meta name="summary" content="Generate SSH keys, connect to another machine, and enable or disable the local SSH server safely">
 <meta name="keywords" content="ssh, sshd, ssh-keygen, authorized_keys, remote access, keys, security">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="paths" content="people-and-security:3">
@@ -83,6 +83,30 @@ $ ssh-keygen -t ed25519 -C "workstation-key"
 <p>Run <code>tam-remove-security-sshd</code> to disable <code>sshd.service</code> and remove or review the SSH firewall rule.</p>
 </details>
 </section>
+</section>
+
+<section data-level="expert">
+<h2>OpenSSH key formats, privilege separation, and agent-forwarding risks</h2>
+<h3>Reference</h3>
+<p>Modern OpenSSH keys (<code>ssh-ed25519</code>, <code>sk-ssh-ed25519@openssh.com</code> for FIDO2 hardware-backed keys) store private keys encrypted with AES-256-CTR + bcrypt KDF. Server host keys authenticate the server during the SSH key-exchange transcript signature.</p>
+<h3>How it works</h3>
+<p><code>sshd</code> enforces privilege separation: an unprivileged pre-authentication sandboxed child parses untrusted network packets and performs key exchange, while the privileged monitor holds host private keys and spawns the user session only after authentication succeeds. For multi-hop connections, <code>ProxyJump</code> (<code>-J</code>) tunnels end-to-end encrypted SSH over an intermediate hop's TCP forwarding channel without exposing your local <code>ssh-agent</code> Unix socket to the jump host.</p>
+<h3>Edge cases</h3>
+<dl>
+<dt>Why <code>ForwardAgent yes</code> is dangerous on untrusted hosts</dt>
+<dd>Agent forwarding exposes your <code>SSH_AUTH_SOCK</code> socket to root on the intermediate server, allowing an attacker there to request signatures from your local keys for as long as the session stays open.</dd>
+<dt><code>StrictModes</code> and file permissions</dt>
+<dd><code>sshd</code> refuses public-key login if <code>~</code>, <code>~/.ssh</code>, or <code>~/.ssh/authorized_keys</code> is group- or world-writable, preventing local users from injecting keys.</dd>
+</dl>
+<details class="q open">
+<summary>Research frontier: How do hybrid post-quantum key exchanges like <code>mlkem768x25519-sha256</code> protect SSH sessions against Harvest Now, Decrypt Later?</summary>
+<p>Combining X25519 with ML-KEM-768 in a single key exchange ensures session keys remain confidential unless an adversary breaks both classical ECDH and Module-LWE, thwarting passive capture of today's SSH traffic.</p>
+</details>
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="rfc4251-ssh"><a href="learn/bibliography/rfc4251-ssh.html">RFC 4251–4254</a></cite> &mdash; SSH Protocol Architecture.</li>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>sshd_config(5)</code> and <code>ssh_config(5)</code>.</li>
+</ul>
 </section>
 
 <h2>Where next</h2>

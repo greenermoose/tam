@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Computer Security Principles and Threat Modeling</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="security.novice, security.learner, security.expert">
+<meta name="topic" content="computer-security-principles">
+<meta name="summary" content="From locks and trust boundaries to Saltzer-Schroeder principles, Lampson's access matrix, Bell-LaPadula, noninterference, and hardware side channels.">
+<meta name="keywords" content="computer security, cia triad, least privilege, threat model, stride, bell-lapadula, biba, tcb, confused deputy, toctou, spectre, meltdown">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="paths" content="security-protocols-and-access-control:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Linux Ecosystem</a> / Computer Security Principles and Threat Modeling</p>
+</nav>
+
+<h1>Computer Security Principles and Threat Modeling</h1>
+<p>What it means for a computer system to be secure, how defenders decide what can go wrong, and the formal models behind operating systems and hardware isolation.</p>
+
+<section data-level="novice">
+<h2>What security actually protects</h2>
+<p>Before touching commands or code, security starts with three everyday questions about any piece of information—whether it is a diary, a bank balance, or a photo on your laptop:</p>
+<ul>
+<li><strong>Confidentiality (keeping secrets):</strong> only the people you choose can read it.</li>
+<li><strong>Integrity (preventing tampering):</strong> nobody can silently alter it or swap it for a fake.</li>
+<li><strong>Availability (keeping it usable):</strong> you can still open and use it when you need it, without someone locking you out or crashing the machine.</li>
+</ul>
+<p>A fourth idea, <strong>accountability</strong>, asks: if something goes wrong, can we reliably tell who or what performed the action?</p>
+
+<h3>Why it matters</h3>
+<p>No lock is useful if a window next to it is wide open. Before buying locks, you have to ask what you are protecting, who might try to break in, and what tools they might use. That checklist is called a threat model.</p>
+
+<h3>How to think about it</h3>
+<p>Imagine running a small library. You do not give every visitor the master key to the archive room, the cash register, and the front door; each person gets only the key for what they actually need. In computing, that rule is called <strong>least privilege</strong>: give every user and every program the smallest set of powers needed to do its job, so a single mistake or broken lock does minimal harm.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/threat-model.html">Threat model</a></dfn></dt>
+<dd>A structured description of what you are protecting, who might attack it, and which paths they could use.</dd>
+<dt><dfn><a href="learn/glossary/least-privilege.html">Least privilege</a></dfn></dt>
+<dd>Giving each user or program only the minimum rights needed for its task.</dd>
+<dt><dfn><a href="learn/glossary/side-channel.html">Side-channel attack</a></dfn></dt>
+<dd>Learning a secret indirectly—such as by timing how fast a lock clicks or watching power usage—instead of breaking the lock head-on.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspecting trust boundaries, STRIDE, and process isolation</h2>
+<p><strong>Goal:</strong> read a Linux process's kernel isolation flags and practice mapping a feature with a STRIDE threat model.</p>
+<p><strong>Before you start:</strong> every boundary where data crosses from untrusted input (network, USB drive, unprivileged user) to privileged code (kernel, root service) is a <em>trust boundary</em>. The <strong>Trusted Computing Base (TCB)</strong> is the set of hardware, firmware, and software components that must work correctly for the security policy to hold.</p>
+
+<h3>Worked example</h3>
+<p>Every Linux process exposes its current privilege and isolation state in <code>/proc/self/status</code>. You can inspect whether a shell is blocked from gaining new privileges (<code>NoNewPrivs</code>) and whether system-call filtering (<code>Seccomp</code>) is active:</p>
+<pre class="session" data-risk="read-only">
+$ grep -E '^(Uid|Gid|NoNewPrivs|Seccomp|CapEff):' /proc/self/status
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+CapEff:	0000000000000000
+NoNewPrivs:	1
+Seccomp:	2
+</pre>
+<p>Here <code>Uid</code> <code>1000</code> is an unprivileged user across all four user-ID slots (real, effective, saved, filesystem), effective capabilities (<code>CapEff</code>) are all zeros, <code>NoNewPrivs: 1</code> prevents <code>setuid</code> binaries from elevating privileges, and <code>Seccomp: 2</code> shows filter-mode syscall sandboxing is active.</p>
+<p>When reviewing a design, engineers walk each trust boundary with the <strong>STRIDE</strong> mnemonic:</p>
+<ul>
+<li><strong>Spoofing:</strong> pretending to be another user or server (mitigated by authentication).</li>
+<li><strong>Tampering:</strong> modifying data in transit or on disk (mitigated by integrity checks and MACs).</li>
+<li><strong>Repudiation:</strong> denying an action occurred (mitigated by tamper-evident audit logs and signatures).</li>
+<li><strong>Information disclosure:</strong> leaking secrets (mitigated by encryption and confidentiality controls).</li>
+<li><strong>Denial of service:</strong> exhausting CPU, memory, or bandwidth (mitigated by quotas and rate limits).</li>
+<li><strong>Elevation of privilege:</strong> gaining unauthorized rights (mitigated by least privilege and sandboxing).</li>
+</ul>
+
+<h3>Try it</h3>
+<p>Run <code>grep -E '^(Uid|NoNewPrivs|Seccomp|CapEff):' /proc/self/status</code> in your terminal. In an interactive desktop shell outside a sandbox, <code>NoNewPrivs</code> and <code>Seccomp</code> are typically <code>0</code>; inside a sandboxed service or container, one or both are non-zero.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Confusing encryption with access control</dt>
+<dd>Encrypting a file on disk protects it when the key is absent (for example, a powered-off stolen laptop), not after the operating system unlocks the disk for a running session. Process isolation and file permissions still matter while logged in.</dd>
+<dt>Overlooking TOCTOU races</dt>
+<dd>Checking a file's permissions and then opening it by path creates a Time-of-Check to Time-of-Use (TOCTOU) window where an attacker can swap the path for a symlink. Safe programs open once and operate on the file descriptor (<code>fstat</code>, <code>openat</code>).</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, daily work runs under an unprivileged account, hardware security helpers run only when explicitly invoked, and system-wide updates are isolated to declared package assemblies rather than ad-hoc scripts.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Answer before revealing the explanation.</p>
+<details class="q">
+<summary>Why is keeping the Trusted Computing Base (TCB) small a core security goal?</summary>
+<p>Any bug inside the TCB can defeat the entire security policy. Moving parsers, network handlers, and UI code outside the TCB reduces the code that must be trusted and audited.</p>
+</details>
+<details class="q">
+<summary>Which STRIDE category describes an unprivileged process tricking a privileged helper into overwriting an arbitrary file?</summary>
+<p>Elevation of privilege (often combined with a Confused Deputy flaw, where the privileged helper acts on the caller's behalf without checking the caller's own rights to the target).</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Formal security models, Saltzer–Schroeder principles, and microarchitectural limits</h2>
+
+<h3>Reference: Saltzer and Schroeder's eight design principles</h3>
+<p>Saltzer and Schroeder (1975) established the enduring engineering principles for protection mechanisms <cite data-ref="saltzer-schroeder"><a href="learn/bibliography/saltzer-schroeder.html">[Saltzer &amp; Schroeder]</a></cite>:</p>
+<ol>
+<li><strong>Economy of mechanism:</strong> keep the protection design as small and simple as possible so defects are easy to find.</li>
+<li><strong>Fail-safe defaults:</strong> base access decisions on permission rather than exclusion; default to deny.</li>
+<li><strong>Complete mediation:</strong> check every access to every object against the authority database—do not cache unchecked handles across policy changes.</li>
+<li><strong>Open design:</strong> security must not depend on keeping the mechanism secret (parallel to Kerckhoffs's principle in cryptography).</li>
+<li><strong>Separation of privilege:</strong> require two independent conditions (two keys) for critical actions where practical.</li>
+<li><strong>Least privilege:</strong> operate every program and user with the minimal privileges required for the task.</li>
+<li><strong>Least common mechanism:</strong> minimize mechanisms shared across mutually untrusting users (shared caches, temp directories, predictors) to limit covert channels.</li>
+<li><strong>Psychological acceptability:</strong> the security interface must match the user's mental model so users do not bypass it.</li>
+</ol>
+<p>A <strong>reference monitor</strong> is the abstract machine mediating all subject-to-object accesses; to be sound it must be <em>tamperproof</em>, <em>always invoked</em> (complete mediation), and <em>small enough to be verified</em> (verifiability).</p>
+
+<h3>How it works: Lampson's access matrix, HRU undecidability, and lattice models</h3>
+<p>Lampson (1971) modeled protection state as a triple <code>(S, O, A)</code>: a set of subjects <code>S</code>, objects <code>O</code>, and an access matrix <code>A[s, o]</code> containing rights such as <code>{read, write, own}</code>. Because matrices are sparse, systems implement them either by columns (<strong>Access Control Lists</strong>, stored on objects) or by rows (<strong>Capabilities</strong>, unforgeable tokens held by subjects).</p>
+<p>Harrison, Ruzzo, and Ullman (HRU, 1976) formalized state transitions over the access matrix as primitive commands. They proved that in general, the <strong>safety problem</strong>—deciding whether a given configuration can ever leak a right <code>r</code> to an unauthorized subject—is <em>undecidable</em> by reduction from the Halting Problem (though decidable in restricted mono-operational or typed systems such as Take-Grant).</p>
+<p>To reason about information flow rather than merely object access, lattice models order security labels <code>(L, &lt;=)</code>:</p>
+<ul>
+<li><strong>Bell–LaPadula (confidentiality) <cite data-ref="bell-lapadula"><a href="learn/bibliography/bell-lapadula.html">[Bell &amp; LaPadula]</a></cite>:</strong> enforces the <em>Simple Security Property</em> (no read up: subject <code>s</code> may read object <code>o</code> only if <code>L(o) &lt;= L(s)</code>) and the <em>*-Property</em> (no write down: <code>s</code> may write <code>o</code> only if <code>L(s) &lt;= L(o)</code>), preventing a compromised high-clearance process from copying secrets to low-clearance files.</li>
+<li><strong>Biba (integrity, 1977):</strong> dual of Bell–LaPadula—<em>no read down</em> (do not taint high-integrity computation with untrusted input) and <em>no write up</em> (untrusted subjects cannot modify high-integrity objects).</li>
+<li><strong>Clark–Wilson (commercial integrity, 1987):</strong> models integrity through well-formed transactions (Transformation Procedures) that move Constrained Data Items from one valid state to another, enforcing separation of duty.</li>
+<li><strong>Noninterference (Goguen &amp; Meseguer, 1982):</strong> defines end-to-end confidentiality semantically: high-level inputs <code>H</code> must have zero observable effect on low-level outputs <code>L</code>. Formally verified kernels such as <strong>seL4</strong> prove noninterference and functional correctness down to C/binary semantics, while capability systems such as <strong>Capsicum</strong> eliminate ambient authority at the OS API layer.</li>
+</ul>
+
+<h3>Edge cases and open research problems</h3>
+<dl>
+<dt>Confused Deputy and ambient authority</dt>
+<dd>When a privileged server resolves pathnames or URLs using its own authority rather than the caller's capability, an attacker can redirect the server's privilege against a protected target (Hardy, 1988). Capability-passing APIs bind authority directly to the unforgeable object reference.</dd>
+<dt>Microarchitectural side channels (Spectre, Meltdown, covert timing)</dt>
+<dd>Speculative execution, out-of-order pipelines, and shared CPU caches violate Saltzer–Schroeder's "least common mechanism" at the hardware layer. Transient instructions leave microarchitectural traces measurable via Flush+Reload or Prime+Probe, leaking across kernel/user and VM boundaries even when architectural state is sound. Mitigations include KPTI, retpoline/IBRS, constant-time programming, and hardware partitioning.</dd>
+<dt>Memory safety vs. spatial/temporal isolation</dt>
+<dd>Buffer overflows, use-after-free, and type confusion break the language-level abstraction that OS boundaries assume. Modern mitigations combine type-safe languages (Rust), ASLR, DEP/NX, CFI, PAC, and hardware capability architectures (CHERI), alongside fuzzing and formal verification.</dd>
+</dl>
+
+<details class="q open">
+<summary>Research frontier: How can capability hardware (CHERI) and formal verification close the gap between OS security models and real processors?</summary>
+<p>Traditional ISAs enforce isolation only at page-table granularity, leaving intra-process memory corruption unchecked. CHERI extends pointers with architectural bounds and permissions so compartmentalization and least privilege hold inside a single address space, while projects like seL4 and CompCert explore machine-checked proofs across compiler, kernel, and hardware specification boundaries.</p>
+</details>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="saltzer-schroeder"><a href="learn/bibliography/saltzer-schroeder.html">Saltzer &amp; Schroeder (1975)</a></cite> &mdash; The Protection of Information in Computer Systems.</li>
+<li><cite data-ref="bell-lapadula"><a href="learn/bibliography/bell-lapadula.html">Bell &amp; LaPadula (1976)</a></cite> &mdash; Secure Computer System: Unified Exposition and Multics Interpretation.</li>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>proc(5)</code>, <code>seccomp(2)</code>, and <code>capabilities(7)</code>.</li>
+</ul>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="use/security/passwords.html">Passwords, sudo, and keeping secrets safe</a> &mdash; Step 2 on the Security Protocols and Access Control path.</li>
+<li><a href="ecosystem/authentication-and-authorization.html">Authentication, Authorization, and Linux Access Control</a> &mdash; Step 3 on the path.</li>
+<li><a href="learn/paths/security-protocols-and-access-control.html?level=1">Security Protocols and Access Control path</a> &mdash; full learning sequence.</li>
+</ul>
+</body>
+</html>

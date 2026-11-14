@@ -11,7 +11,7 @@
 <meta name="prereqs" content="filesystem">
 <meta name="kind" content="tutorial">
 <meta name="skills" content="files.novice, files.learner, files.expert">
-<meta name="paths" content="first-steps:5, files-and-apps:10, people-and-security:8, command-line-fluency:5">
+<meta name="paths" content="first-steps:5, files-and-apps:10, people-and-security:8, command-line-fluency:5, security-protocols-and-access-control:4">
 </head>
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="use/index.html">Using Tamlinux</a> / Who can use a file</p></nav>
@@ -124,6 +124,9 @@ rmdir -- "$work"
 
 <h3>Directory permissions vs file permissions</h3>
 <p>On directories, the execute bit (<code>x</code>) means search/traversal: the right to enter the directory and access files inside. The read bit (<code>r</code>) allows listing directory entries. Without <code>x</code>, a user cannot access inodes inside even if they know file names.</p>
+
+<h3>POSIX ACLs, setuid, and dynamic-linker hardening</h3>
+<p>Beyond the classic 9-bit mode, <strong>POSIX Access Control Lists (ACLs)</strong> stored in <code>system.posix_acl_access</code> extended attributes grant per-user or per-group rights (<code>getfacl</code>/<code>setfacl</code>), bounded by an effective <code>mask::</code> entry. On executable files, the <code>setuid</code> (<code>4000</code>) and <code>setgid</code> (<code>2000</code>) bits change effective credentials at <code>execve()</code>, which also sets the ELF auxiliary vector flag <code>AT_SECURE=1</code> so the dynamic linker strips dangerous environment variables such as <code>LD_PRELOAD</code> and <code>LD_LIBRARY_PATH</code>.</p>
 
 <h3>Illustrative reference</h3>
 <pre data-risk="scratch">

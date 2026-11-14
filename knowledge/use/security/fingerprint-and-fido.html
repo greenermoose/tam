@@ -3,11 +3,11 @@
 <head>
 <title>Fingerprints and FIDO2 security keys</title>
 <meta name="kind" content="how-to">
-<meta name="skills" content="security.novice, security.learner">
+<meta name="skills" content="security.novice, security.learner, security.expert">
 <meta name="topic" content="fingerprint-and-fido">
 <meta name="summary" content="Enroll a built-in fingerprint sensor or USB FIDO2 security key for sudo and polkit prompts, or remove them cleanly">
 <meta name="keywords" content="fingerprint, fido2, yubikey, u2f, pam, polkit, clamshell, security key">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="paths" content="people-and-security:4">
@@ -81,6 +81,29 @@ $ grep -E 'pam_(fprintd|u2f)\.so' /etc/pam.d/sudo /etc/pam.d/polkit-1 2>/dev/nul
 <p><code>tam-remove-security-fingerprint</code> and <code>tam-remove-security-fido2</code>.</p>
 </details>
 </section>
+</section>
+
+<section data-level="expert">
+<h2>FIDO2/CTAP2 cryptography, PAM composition, and biometric limits</h2>
+<h3>Reference</h3>
+<p>FIDO2 combines WebAuthn (for browsers) with CTAP2 (Client to Authenticator Protocol 2 over USB HID, NFC, or BLE). Each Relying Party receives a distinct ECDSA P-256 or Ed25519 key pair bound to its Relying Party ID (RP ID), preventing cross-site tracking and phishing.</p>
+<h3>How it works</h3>
+<p><code>pam_u2f</code> issues a 32-byte random challenge over <code>libfido2</code>; the hardware token signs <code>SHA-256(rpId) || flags || signCount || challenge</code> inside its secure element only after physical user presence (UP) and optional user verification (UV/PIN). For biometrics, <code>pam_fprintd</code> communicates over D-Bus with <code>fprintd</code>, which matches sensor templates locally—though unlike FIDO2, a biometric match alone does not produce a cryptographic signature over a remote challenge.</p>
+<h3>Edge cases</h3>
+<dl>
+<dt>Match-on-host vs. match-on-chip fingerprint readers</dt>
+<dd>On match-on-host sensors, raw image frames cross USB to user-space drivers (<code>libfprint</code>), whereas match-on-chip sensors verify templates inside the sensor ASIC and return a signed verdict.</dd>
+<dt>PAM short-circuiting</dt>
+<dd>Placing <code>sufficient</code> before <code>pam_unix</code> lets a physical token pass <code>auth</code> while preserving password fallback; <code>pam_succeed_if</code> or clamshell gates prevent closed-lid <code>fprintd</code> timeouts.</dd>
+</dl>
+<details class="q open">
+<summary>Research frontier: How can post-quantum signatures fit within CTAP2 hardware token memory and latency budgets?</summary>
+<p>ML-DSA signatures (2.4–4.6 KB) exceed legacy 64-byte ECDSA USB HID frames and constrained smart-card RAM, driving work on stateful/stateless hash-based or compact lattice signatures on next-generation authenticators.</p>
+</details>
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>pam(8)</code> and <code>pam_u2f(8)</code>.</li>
+</ul>
 </section>
 
 <h2>Where next</h2>

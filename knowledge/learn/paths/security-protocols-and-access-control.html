@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Security protocols and access control</title>
+<meta name="topic" content="security-protocols-and-access-control">
+<meta name="summary" content="Goal path from zero prior technical knowledge to threat modeling, authentication, Linux access control, TLS, SSH, and formal protocol verification.">
+<meta name="keywords" content="path, computer security, threat model, authentication, authorization, permissions, tls, ssh, protocols">
+<meta name="level" content="novice">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="security.novice, security.learner, security.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Security protocols and access control</p>
+</nav>
+
+<h1>Security protocols and access control</h1>
+<p>This path starts from everyday ideas—locks, secrets, and trust boundaries—with zero prior technical knowledge assumed, and builds step by step to Linux kernel credentials, TLS 1.3, SSH internals, and formal protocol verification.</p>
+<p>If any page feels too advanced, step back one stop along the path until the terms feel familiar. Every exercise uses read-only commands.</p>
+
+<h2>Stage 1: Security principles and threat modeling</h2>
+<ol>
+<li><a href="ecosystem/computer-security-principles.html?level=1">Computer Security Principles and Threat Modeling</a> &mdash; CIA triad, STRIDE, Saltzer–Schroeder principles, Lampson's matrix, Bell–LaPadula, and side channels.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before moving to Stage 2.</p>
+<details class="q">
+<summary>What are the three core properties of the CIA triad, and why does a threat model come before choosing tools?</summary>
+<p>Confidentiality (keeping secrets), Integrity (preventing tampering), and Availability (keeping systems usable). A threat model identifies what you are protecting and who might attack it so defenses match real risks.</p>
+</details>
+</section>
+
+<h2>Stage 2: Passwords, authentication, and authorization</h2>
+<ol>
+<li><a href="use/security/passwords.html?level=1">Passwords, sudo, and keeping secrets safe</a> &mdash; normal accounts vs. administrator elevation and secrets hygiene.</li>
+<li><a href="ecosystem/authentication-and-authorization.html?level=2">Authentication, Authorization, and Linux Access Control</a> &mdash; Argon2id, PAM stacks, DAC/MAC/RBAC/ABAC/ReBAC, Linux UIDs, capabilities, and <code>seccomp-bpf</code>.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before moving to Stage 3.</p>
+<details class="q">
+<summary>How do Discretionary Access Control (DAC) and Mandatory Access Control (MAC) differ?</summary>
+<p>In DAC, resource owners choose who gets access; in MAC, system-wide kernel policies restrict subjects and objects in ways even resource owners cannot override.</p>
+</details>
+</section>
+
+<h2>Stage 3: Filesystem permissions and POSIX ACLs</h2>
+<ol>
+<li><a href="filesystem/permissions.html?level=2">Who can use a file</a> &mdash; read/write/execute bits, directory search rights, POSIX ACLs, and dynamic-linker hardening.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before moving to Stage 4.</p>
+<details class="q">
+<summary>Why does Linux require execute (<code>x</code>) permission on a directory to read a file inside it?</summary>
+<p>On directories, <code>x</code> grants traversal/search permission to resolve names to inodes; <code>r</code> alone only lists filenames without letting you open them.</p>
+</details>
+</section>
+
+<h2>Stage 4: Hardware authentication and privilege helpers</h2>
+<ol>
+<li><a href="hardware/security.html?level=2">Hardware Security and Privilege Management</a> &mdash; <code>tam-setup-security-*</code> helpers, <code>tam-sudo-docker</code>, and bounded privilege elevation.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before moving to Stage 5.</p>
+<details class="q">
+<summary>Why does hardware FIDO2 authentication resist phishing better than a typed password?</summary>
+<p>A FIDO2 authenticator signs a challenge bound cryptographically to the exact origin/Relying Party ID, so a lookalike site cannot replay the signature elsewhere.</p>
+</details>
+</section>
+
+<h2>Stage 5: Transport security: TLS, HTTPS, and SSH</h2>
+<ol>
+<li><a href="ecosystem/tls-and-https.html?level=2">SSL, TLS, and HTTPS</a> &mdash; TLS 1.3 1-RTT handshake, HKDF key schedule, X.509 PKI, and HTTP/1.1–HTTP/3.</li>
+<li><a href="ecosystem/ssh-protocol.html?level=2">The SSH Protocol Internals</a> &mdash; RFC 4251–4254 binary packet protocol, TOFU host keys, strict-kex, and agent-forwarding risks.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before moving to Stage 6.</p>
+<details class="q">
+<summary>Why is <code>ssh -J</code> (<code>ProxyJump</code>) safer than <code>ForwardAgent yes</code> when crossing an intermediate host?</summary>
+<p><code>ProxyJump</code> tunnels end-to-end encrypted SSH traffic through the jump host without exposing your local <code>ssh-agent</code> signing socket to root on that intermediate machine.</p>
+</details>
+</section>
+
+<h2>Stage 6: Network, messaging, and identity protocols</h2>
+<ol>
+<li><a href="ecosystem/security-protocols.html?level=3">Network, Messaging, and Identity Security Protocols</a> &mdash; WireGuard (Noise), IPsec, Signal Double Ratchet, Kerberos, OAuth 2.0/OIDC, DNSSEC, FIDO2, and ProVerif/Tamarin.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before moving to the capstone.</p>
+<details class="q">
+<summary>What two properties does Signal's Double Ratchet combine to protect long-lived messaging conversations?</summary>
+<p>A Diffie–Hellman ratchet and a symmetric KDF chain ratchet, providing both forward secrecy for past messages and post-compromise (future) secrecy after a temporary state leak.</p>
+</details>
+</section>
+
+<h2>Capstone: Inspect your session's security boundaries read-only</h2>
+<p>Check your own Tamlinux session's security posture read-only: process isolation flags (<code>/proc/self/status</code>), capability sets (<code>capsh --print</code>), SSH client negotiation defaults (<code>ssh -G localhost</code>), and firewall service status to see how kernel access control and cryptographic protocols work together.</p>
+<details class="solution">
+<p>Run these read-only commands in a terminal:</p>
+<pre class="session" data-risk="read-only">
+$ grep -E '^(Uid|NoNewPrivs|Seccomp|CapEff):' /proc/self/status
+$ capsh --print | head -n 4
+$ ssh -G localhost | grep -E '^(kexalgorithms|ciphers|macs) '
+$ systemctl is-active nftables.service 2>/dev/null || echo "nftables inactive"
+</pre>
+<p>Verify that your shell runs as an unprivileged UID with zero ambient capabilities, confirm modern post-quantum/AEAD SSH algorithms, and check host firewall state before enabling any network service.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="learn/paths/cryptography-and-quantum-safety.html?level=1">Cryptography and quantum safety</a> &mdash; deep dive into ciphers, SHA hashes, public-key math, and post-quantum standards.</li>
+<li><a href="learn/paths/people-and-security.html?level=1">People and security</a> &mdash; practical Tamlinux account, SSH, firewall, and disk-encryption tasks.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
+</ul>
+</body>
+</html>

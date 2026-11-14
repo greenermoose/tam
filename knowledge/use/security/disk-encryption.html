@@ -3,11 +3,11 @@
 <head>
 <title>Disk encryption and LUKS passphrases</title>
 <meta name="kind" content="explanation">
-<meta name="skills" content="security.novice, security.learner">
+<meta name="skills" content="security.novice, security.learner, security.expert">
 <meta name="topic" content="disk-encryption">
 <meta name="summary" content="Understand what LUKS full-disk encryption protects, how unlocking works at startup, and how drive passphrases are changed">
 <meta name="keywords" content="encryption, luks, disk, passphrase, tpm, unlock, recovery, drive">
-<meta name="level" content="novice, learner">
+<meta name="level" content="novice, learner, expert">
 <meta name="track" content="use">
 <meta name="parent" content="use/index.html">
 <meta name="paths" content="people-and-security:6">
@@ -84,6 +84,29 @@ $ tam-drive-info /dev/nvme0n1
 <p><code>lsblk -f</code> (or <code>blkid -t TYPE=crypto_LUKS</code> read-only with privileges).</p>
 </details>
 </section>
+</section>
+
+<section data-level="expert">
+<h2>LUKS2 architecture, AES-XTS, and TPM2 PCR binding</h2>
+<h3>Reference</h3>
+<p>LUKS2 stores redundant JSON metadata headers and up to 32 key slots at the start of a block device. Each active key slot wraps the same 256-bit or 512-bit volume master key using a key derived from a passphrase (via Argon2id) or a TPM2-sealed secret.</p>
+<h3>How it works</h3>
+<p>The kernel <code>dm-crypt</code> target typically encrypts 512-byte or 4096-byte sectors with <strong>AES-XTS-plain64</strong>: XTS splits the 512-bit key into two 256-bit AES keys (<code>K1</code> for block ciphering, <code>K2</code> for GF(2^128) tweak multiplication by sector number), ensuring identical plaintext blocks in different sectors produce distinct ciphertext without per-sector IV storage overhead.</p>
+<h3>Edge cases</h3>
+<dl>
+<dt>Malleability without authenticated encryption</dt>
+<dd>Plain AES-XTS provides confidentiality, not integrity: an attacker with repeated physical disk access can flip bits in a 16-byte block (causing localized plaintext corruption). Combining <code>dm-crypt</code> with <code>dm-integrity</code> or <code>dm-verity</code> adds per-sector authentication tags at a storage and IOPS cost.</dd>
+<dt>Evil-maid attacks on unencrypted <code>/boot</code> or EFI</dt>
+<dd>Without Secure Boot and measured-boot TPM2 PCR policies (<code>systemd-cryptenroll --tpm2-pcrs=7+11</code>), an attacker with physical access can tamper with the initramfs on the EFI partition to capture the unlock passphrase.</dd>
+</dl>
+<details class="q open">
+<summary>Research frontier: How do confidential-computing SEV-SNP/TDX memory encryption and hardware inline crypto engines interact with <code>dm-crypt</code>?</summary>
+<p>Hardware inline encryption engines (OPAL / NVMe crypto) offload XTS from CPU cores, while confidential VMs bind disk-unlock keys to remote hardware attestation over measured boot quotes.</p>
+</details>
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="linux-api"><a href="learn/bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; <code>cryptsetup(8)</code> and <code>systemd-cryptenroll(1)</code>.</li>
+</ul>
 </section>
 
 <h2>Where next</h2>
