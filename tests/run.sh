@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.57.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.58.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -242,6 +242,12 @@ printf '%s\n' "$sh_stdin" | grep -q 'First letter' || fail "tam show - failed to
 printf '%s\n' "$sh_stdin" | grep -q 'Name  Value' || fail "tam show - failed to render table headers"
 printf '%s\n' "$sh_stdin" | grep -q -- '----  -----' || fail "tam show - failed to render table separator"
 printf '%s\n' "$sh_stdin" | grep -q 'Foo   Bar' || fail "tam show - failed to render table cells"
+
+colspan_html='<table><tr><th>Key</th><th>Context</th><th>Action</th></tr><tr><td colspan="2">Right Arrow (or f / j)</td><td>Follow active link</td></tr><tr><td>Tab</td><td>Anywhere</td><td>Select next link</td></tr></table>'
+sh_colspan=$(printf '%s\n' "$colspan_html" | "$TAM" show - --pipe)
+printf '%s\n' "$sh_colspan" | grep -q 'Key  Context            Action' || fail "colspan table header alignment failed"
+printf '%s\n' "$sh_colspan" | grep -q 'Right Arrow (or f / j)  Follow active link' || fail "colspan=2 cell failed to span columns"
+printf '%s\n' "$sh_colspan" | grep -q 'Tab  Anywhere           Select next link' || fail "colspan table normal row alignment failed"
 
 if "$TAM" browse >/dev/null 2>&1; then fail "tam browse unexpectedly succeeded"; fi
 "$TAM" browse 2>&1 | grep -q "unrecognized argument 'browse'" || fail "tam browse missing unrecognized argument message"

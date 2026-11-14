@@ -29,6 +29,7 @@ typedef struct {
     tam_span_t *runs;
     size_t      nruns;
     int         is_header;
+    size_t      colspan;
 } tam_table_cell_t;
 
 typedef struct {
@@ -458,6 +459,7 @@ typedef struct {
     int          in_tr;
     int          in_cell;
     int          cell_is_header;
+    size_t       cell_colspan;
 
     char        *nav_next;
     char        *nav_prev;
@@ -516,17 +518,23 @@ static void parser_finish_cell(parser_t *p)
     c->runs = p->runs.v;
     c->nruns = p->runs.n;
     c->is_header = p->cell_is_header;
+    c->colspan = p->cell_colspan ? p->cell_colspan : 1;
     if (c->is_header) {
         row->is_header_row = 1;
         for (size_t k = 0; k < c->nruns; k++) {
             c->runs[k].style |= TAM_STYLE_BOLD;
         }
     }
-    if (row->ncells > p->curr_table->ncols) {
-        p->curr_table->ncols = row->ncells;
+    size_t row_cols = 0;
+    for (size_t i = 0; i < row->ncells; i++) {
+        row_cols += row->cells[i].colspan ? row->cells[i].colspan : 1;
+    }
+    if (row_cols > p->curr_table->ncols) {
+        p->curr_table->ncols = row_cols;
     }
     spanlist_init(&p->runs);
     p->in_cell = 0;
+    p->cell_colspan = 0;
 }
 
 static void parser_begin_block(parser_t *p, int kind, int level, int ordered,
@@ -967,6 +975,16 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
             parser_finish_cell(p);
             p->in_cell = 1;
             p->cell_is_header = (strcmp(name, "th") == 0);
+            p->cell_colspan = 1;
+            char *cs = extract_attr(s, end, "colspan");
+            if (cs != NULL) {
+                char *endp = NULL;
+                unsigned long val = strtoul(cs, &endp, 10);
+                if (endp != cs && val >= 1 && val <= 64) {
+                    p->cell_colspan = (size_t)val;
+                }
+                free(cs);
+            }
             spanlist_init(&p->runs);
         }
         return;
@@ -1615,6 +1633,20 @@ done:
     *out_nlines = nlines;
 }
 
+static const tam_table_cell_t *row_cell_at_col(const tam_table_row_t *row,
+                                               size_t target_col)
+{
+    size_t col = 0;
+    for (size_t i = 0; i < row->ncells; i++) {
+        size_t span = row->cells[i].colspan ? row->cells[i].colspan : 1;
+        if (target_col >= col && target_col < col + span) {
+            return &row->cells[i];
+        }
+        col += span;
+    }
+    return NULL;
+}
+
 static void layout_table_stacked(linelist_t *out, const tam_table_t *t, int width)
 {
     size_t header = t->nrows > 0 && t->rows[0].is_header_row ? 0 : (size_t)-1;
@@ -1624,20 +1656,37 @@ static void layout_table_stacked(linelist_t *out, const tam_table_t *t, int widt
         const tam_table_row_t *row = &t->rows[r];
         if (!first_item) linelist_blank(out);
         first_item = 0;
-        for (size_t c = 0; c < row->ncells; c++) {
+        size_t col = 0;
+        for (size_t i = 0; i < row->ncells; i++) {
+            const tam_table_cell_t *cell = &row->cells[i];
+            size_t span = cell->colspan ? cell->colspan : 1;
             char label[160];
             size_t used = 0;
-            if (header != (size_t)-1 && c < t->rows[header].ncells) {
-                const tam_table_cell_t *h = &t->rows[header].cells[c];
-                for (size_t k = 0; k < h->nruns && used + 1 < sizeof(label); k++) {
-                    const char *text = h->runs[k].text != NULL ? h->runs[k].text : "";
-                    size_t n = strlen(text);
-                    if (n > sizeof(label) - used - 1) n = sizeof(label) - used - 1;
-                    memcpy(label + used, text, n);
-                    used += n;
+            if (header != (size_t)-1) {
+                const tam_table_cell_t *prev_h = NULL;
+                for (size_t s = 0; s < span; s++) {
+                    const tam_table_cell_t *h =
+                        row_cell_at_col(&t->rows[header], col + s);
+                    if (h == NULL || h == prev_h) continue;
+                    prev_h = h;
+                    if (used > 0 && used + 3 < sizeof(label)) {
+                        memcpy(label + used, " / ", 3);
+                        used += 3;
+                    }
+                    for (size_t k = 0; k < h->nruns && used + 1 < sizeof(label); k++) {
+                        const char *text = h->runs[k].text != NULL ? h->runs[k].text : "";
+                        size_t n = strlen(text);
+                        if (n > sizeof(label) - used - 1) n = sizeof(label) - used - 1;
+                        memcpy(label + used, text, n);
+                        used += n;
+                    }
                 }
-            } else {
-                int n = snprintf(label, sizeof(label), "Column %zu", c + 1);
+            }
+            if (used == 0) {
+                int n = span > 1
+                    ? snprintf(label, sizeof(label), "Columns %zu-%zu",
+                               col + 1, col + span)
+                    : snprintf(label, sizeof(label), "Column %zu", col + 1);
                 used = n > 0 ? (size_t)n : 0;
                 if (used >= sizeof(label)) used = sizeof(label) - 1;
             }
@@ -1646,7 +1695,6 @@ static void layout_table_stacked(linelist_t *out, const tam_table_t *t, int widt
             spanlist_init(&runs);
             if (used > 0) spanlist_append(&runs, label, used, TAM_STYLE_BOLD, NULL, 0);
             spanlist_append(&runs, ": ", 2, 0, NULL, 0);
-            const tam_table_cell_t *cell = &row->cells[c];
             for (size_t k = 0; k < cell->nruns; k++) {
                 const tam_span_t *sp = &cell->runs[k];
                 if (sp->text != NULL)
@@ -1655,6 +1703,7 @@ static void layout_table_stacked(linelist_t *out, const tam_table_t *t, int widt
             }
             layout_flow(out, runs.v, runs.n, width, "");
             spanlist_free(&runs);
+            col += span;
         }
     }
 }
@@ -1680,15 +1729,47 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
     }
     for (size_t r = 0; r < t->nrows; r++) {
         const tam_table_row_t *row = &t->rows[r];
-        for (size_t c = 0; c < row->ncells && c < ncols; c++) {
-            size_t l = cell_text_len(&row->cells[c]);
-            if ((int)l > col_w[c]) {
-                col_w[c] = (int)l;
+        size_t col = 0;
+        for (size_t i = 0; i < row->ncells && col < ncols; i++) {
+            size_t span = row->cells[i].colspan ? row->cells[i].colspan : 1;
+            if (col + span > ncols) {
+                span = ncols - col;
             }
-            size_t w = cell_longest_word(&row->cells[c]);
-            if ((int)w > floor_w[c]) {
-                floor_w[c] = (int)w;
+            if (span == 1) {
+                size_t l = cell_text_len(&row->cells[i]);
+                if ((int)l > col_w[col]) {
+                    col_w[col] = (int)l;
+                }
+                size_t w = cell_longest_word(&row->cells[i]);
+                if ((int)w > floor_w[col]) {
+                    floor_w[col] = (int)w;
+                }
             }
+            col += span;
+        }
+    }
+    for (size_t r = 0; r < t->nrows; r++) {
+        const tam_table_row_t *row = &t->rows[r];
+        size_t col = 0;
+        for (size_t i = 0; i < row->ncells && col < ncols; i++) {
+            size_t span = row->cells[i].colspan ? row->cells[i].colspan : 1;
+            if (col + span > ncols) {
+                span = ncols - col;
+            }
+            if (span > 1) {
+                int span_w = 0;
+                for (size_t s = 0; s < span; s++) {
+                    span_w += col_w[col + s];
+                    if (s + 1 < span) {
+                        span_w += 2;
+                    }
+                }
+                int l = (int)cell_text_len(&row->cells[i]);
+                if (l > span_w) {
+                    col_w[col + span - 1] += l - span_w;
+                }
+            }
+            col += span;
         }
     }
 
@@ -1696,12 +1777,49 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
      * its longest word, but not below TABLE_MIN_COL unless its widest cell
      * is narrower; a column of one-word cells never wraps. */
     enum { TABLE_MIN_COL = 12 };
-    int total_w = 0;
-    int floor_total = 0;
     for (size_t c = 0; c < ncols; c++) {
         if (floor_w[c] < TABLE_MIN_COL) {
             floor_w[c] = col_w[c] < TABLE_MIN_COL ? col_w[c] : TABLE_MIN_COL;
         }
+    }
+    for (size_t r = 0; r < t->nrows; r++) {
+        const tam_table_row_t *row = &t->rows[r];
+        size_t col = 0;
+        for (size_t i = 0; i < row->ncells && col < ncols; i++) {
+            size_t span = row->cells[i].colspan ? row->cells[i].colspan : 1;
+            if (col + span > ncols) {
+                span = ncols - col;
+            }
+            if (span > 1) {
+                int span_floor = 0;
+                for (size_t s = 0; s < span; s++) {
+                    span_floor += floor_w[col + s];
+                    if (s + 1 < span) {
+                        span_floor += 2;
+                    }
+                }
+                int w = (int)cell_longest_word(&row->cells[i]);
+                while (span_floor < w) {
+                    size_t target = span;
+                    for (size_t s = span; s > 0; s--) {
+                        if (floor_w[col + s - 1] < col_w[col + s - 1]) {
+                            target = s - 1;
+                            break;
+                        }
+                    }
+                    if (target == span) {
+                        break;
+                    }
+                    floor_w[col + target]++;
+                    span_floor++;
+                }
+            }
+            col += span;
+        }
+    }
+    int total_w = 0;
+    int floor_total = 0;
+    for (size_t c = 0; c < ncols; c++) {
         total_w += col_w[c];
         floor_total += floor_w[c];
         if (c + 1 < ncols) {
@@ -1734,26 +1852,52 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
     free(floor_w);
     for (size_t r = 0; r < t->nrows; r++) {
         const tam_table_row_t *row = &t->rows[r];
-        spanlist_t **cell_sub = calloc(ncols, sizeof(spanlist_t *));
-        size_t *n_sub = calloc(ncols, sizeof(size_t));
+        size_t ncells = row->ncells;
+        spanlist_t **cell_sub = ncells ? calloc(ncells, sizeof(spanlist_t *)) : NULL;
+        size_t *n_sub = ncells ? calloc(ncells, sizeof(size_t)) : NULL;
         size_t max_h = 1;
 
-        for (size_t c = 0; c < ncols; c++) {
-            if (c < row->ncells) {
-                cell_wrap(&row->cells[c], col_w[c], &cell_sub[c], &n_sub[c]);
-                if (n_sub[c] > max_h) {
-                    max_h = n_sub[c];
+        size_t col = 0;
+        for (size_t i = 0; i < ncells && col < ncols; i++) {
+            size_t span = row->cells[i].colspan ? row->cells[i].colspan : 1;
+            if (col + span > ncols) {
+                span = ncols - col;
+            }
+            int cell_w = 0;
+            for (size_t s = 0; s < span; s++) {
+                cell_w += col_w[col + s];
+                if (s + 1 < span) {
+                    cell_w += 2;
                 }
             }
+            if (cell_sub != NULL && n_sub != NULL) {
+                cell_wrap(&row->cells[i], cell_w, &cell_sub[i], &n_sub[i]);
+                if (n_sub[i] > max_h) {
+                    max_h = n_sub[i];
+                }
+            }
+            col += span;
         }
 
         for (size_t h = 0; h < max_h; h++) {
             spanlist_t line;
             spanlist_init(&line);
-            for (size_t c = 0; c < ncols; c++) {
+            col = 0;
+            for (size_t i = 0; i < ncells && col < ncols; i++) {
+                size_t span = row->cells[i].colspan ? row->cells[i].colspan : 1;
+                if (col + span > ncols) {
+                    span = ncols - col;
+                }
+                int cell_w = 0;
+                for (size_t s = 0; s < span; s++) {
+                    cell_w += col_w[col + s];
+                    if (s + 1 < span) {
+                        cell_w += 2;
+                    }
+                }
                 int printed_w = 0;
-                if (cell_sub[c] != NULL && h < n_sub[c]) {
-                    spanlist_t *sub = &cell_sub[c][h];
+                if (cell_sub != NULL && cell_sub[i] != NULL && h < n_sub[i]) {
+                    spanlist_t *sub = &cell_sub[i][h];
                     for (size_t k = 0; k < sub->n; k++) {
                         spanlist_append(&line, sub->v[k].text,
                                         strlen(sub->v[k].text), sub->v[k].style,
@@ -1762,27 +1906,31 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
                                                  strlen(sub->v[k].text));
                     }
                 }
-                int pad = col_w[c] - printed_w;
-                if (pad > 0 && c + 1 < ncols) {
-                    char sp[160];
-                    size_t m = (size_t)pad < sizeof(sp) ? (size_t)pad : sizeof(sp) - 1;
-                    memset(sp, ' ', m);
-                    sp[m] = '\0';
-                    spanlist_append(&line, sp, m, 0, NULL, 0);
+                int pad = cell_w - printed_w;
+                if (pad > 0 && i + 1 < ncells && col + span < ncols) {
+                    while (pad > 0) {
+                        char sp[160];
+                        size_t m = (size_t)pad < sizeof(sp) - 1 ? (size_t)pad : sizeof(sp) - 1;
+                        memset(sp, ' ', m);
+                        sp[m] = '\0';
+                        spanlist_append(&line, sp, m, 0, NULL, 0);
+                        pad -= (int)m;
+                    }
                 }
-                if (c + 1 < ncols) {
+                if (i + 1 < ncells && col + span < ncols) {
                     spanlist_append(&line, "  ", 2, 0, NULL, 0);
                 }
+                col += span;
             }
             linelist_push(out, &line);
         }
 
-        for (size_t c = 0; c < ncols; c++) {
-            if (cell_sub[c] != NULL) {
-                for (size_t h = 0; h < n_sub[c]; h++) {
-                    spanlist_free(&cell_sub[c][h]);
+        for (size_t i = 0; i < ncells; i++) {
+            if (cell_sub != NULL && cell_sub[i] != NULL) {
+                for (size_t h = 0; h < n_sub[i]; h++) {
+                    spanlist_free(&cell_sub[i][h]);
                 }
-                free(cell_sub[c]);
+                free(cell_sub[i]);
             }
         }
         free(cell_sub);
@@ -1791,8 +1939,19 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
         if (row->is_header_row) {
             spanlist_t sepline;
             spanlist_init(&sepline);
-            for (size_t c = 0; c < ncols; c++) {
-                int dashes = col_w[c];
+            col = 0;
+            for (size_t i = 0; i < ncells && col < ncols; i++) {
+                size_t span = row->cells[i].colspan ? row->cells[i].colspan : 1;
+                if (col + span > ncols) {
+                    span = ncols - col;
+                }
+                int dashes = 0;
+                for (size_t s = 0; s < span; s++) {
+                    dashes += col_w[col + s];
+                    if (s + 1 < span) {
+                        dashes += 2;
+                    }
+                }
                 char *dash_buf = malloc((size_t)dashes + 1);
                 if (dash_buf != NULL) {
                     memset(dash_buf, '-', (size_t)dashes);
@@ -1800,7 +1959,21 @@ static void layout_table(linelist_t *out, const tam_table_t *t, int width)
                     spanlist_append(&sepline, dash_buf, (size_t)dashes, 0, NULL, 0);
                     free(dash_buf);
                 }
-                if (c + 1 < ncols) {
+                if (col + span < ncols) {
+                    spanlist_append(&sepline, "  ", 2, 0, NULL, 0);
+                }
+                col += span;
+            }
+            for (; col < ncols; col++) {
+                int dashes = col_w[col];
+                char *dash_buf = malloc((size_t)dashes + 1);
+                if (dash_buf != NULL) {
+                    memset(dash_buf, '-', (size_t)dashes);
+                    dash_buf[dashes] = '\0';
+                    spanlist_append(&sepline, dash_buf, (size_t)dashes, 0, NULL, 0);
+                    free(dash_buf);
+                }
+                if (col + 1 < ncols) {
                     spanlist_append(&sepline, "  ", 2, 0, NULL, 0);
                 }
             }

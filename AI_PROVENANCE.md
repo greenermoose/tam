@@ -275,3 +275,4 @@ model for each session.
 | 2026-11-07 | Two-row footer fixes, command 0.50.2; `tam-boot` and `tam-meter` pages, corpus 0.76.0 | Claude Code 2.1.319; `claude-opus-5-5` | [Session record](docs/ai/2026-11-07-tam-footer-fixes-and-command-pages.md) |
 | 2026-11-08 | Console exit keeps the last page and leaves a fresh prompt line, command 0.50.3 | Claude Code 2.1.319; `claude-opus-5-5` | [Session record](docs/ai/2026-11-08-tam-console-exit-scroll.md) |
 | 2026-11-09 | Arch host profile without the `omarchy` ID, command 0.50.4 | Claude Code 2.1.321; `claude-opus-5-5` | [Session record](docs/ai/2026-11-09-tam-arch-host-profile.md) |
+| 2026-11-14 | Table `colspan` cell spanning in `src/render.c`, command 0.58.0 | Antigravity CLI 1.5.9; `gemini-4-argon-medium` | [Session record](docs/ai/2026-11-14-table-colspan.md) |
