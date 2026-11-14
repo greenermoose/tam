@@ -79,7 +79,15 @@ $ infocmp -1 linux | grep -E '^\s+(kbs|kcuu1|kcub1|khome|kf1|kf5)='
 	khome=\E[1~,
 </pre>
 
-<p>Captured on Arch Linux, 2026-11-13. <code>\E</code> means the escape byte <code>0x1B</code>. The Linux console sends <code>ESC [ A</code> for Up and <code>ESC [ [ A</code> for F1. foot sends <code>ESC O A</code> and <code>ESC O P</code> for the same keys, which is why a program that hard-codes one terminal's sequences fails on the other.</p>
+<p>Captured on Arch Linux, 2026-11-13. <code>\E</code> means the escape byte <code>0x1B</code>. The Linux console sends <code>ESC [ A</code> for Up and <code>ESC [ [ A</code> for F1. Unmodified function keys pass through to applications: <code>F1</code>&ndash;<code>F5</code> send <code>\x1b[[A</code>&ndash;<code>\x1b[[E</code>, and <code>F6</code>&ndash;<code>F12</code> send <code>\x1b[17~</code>&ndash;<code>\x1b[24~</code>. foot sends <code>ESC O A</code> for application Up and <code>ESC O P</code> for F1, which is why a program that hard-codes one terminal's sequences fails on the other.</p>
+
+<p>Modifier chords behave differently on a stock Linux VT keymap (<code>TERM=linux</code>, <code>/dev/ttyN</code>) than in a desktop terminal emulator:</p>
+
+<ul>
+<li><code>Alt + &lt;ASCII char&gt;</code> works via <code>ESC</code> prefixing (configured with <code>setmetamode esc</code>).</li>
+<li><code>Alt + Left</code>, <code>Alt + Right</code>, <code>Alt + F1</code>..<code>F12</code>, and <code>Ctrl + Alt + F1</code>..<code>F12</code> are intercepted by the kernel VT driver for switching virtual consoles and never reach the program.</li>
+<li><code>Alt + Up</code> / <code>Alt + Down</code> and <code>Ctrl + Arrow</code> / <code>Shift + Arrow</code> do not emit xterm <code>CSI 1;&lt;mod&gt;...</code> sequences on a stock Linux VT keymap.</li>
+</ul>
 
 <h3>Try it</h3>
 
@@ -170,11 +178,13 @@ alt keycode  59 = Console_1
 alt keycode  60 = Console_2
 control alt keycode  59 = Console_1
 control alt keycode  60 = Console_2
+alt keycode 105 = Decr_Console
+alt keycode 106 = Incr_Console
 </pre>
 
-<p>That is the precise meaning of <code>Ctrl + Alt + F2</code>: the keymap maps Control plus Alt plus keycode 60 to <code>Console_2</code>. The console driver then activates VT 2. A program can influence that switch only if it has put the VT into process mode; it cannot intercept the key as ordinary input.</p>
+<p>That is the precise meaning of <code>Ctrl + Alt + F2</code> (and <code>Alt + F2</code>, or <code>Alt + Left</code> / <code>Alt + Right</code>): the keymap maps Control plus Alt plus keycode 60 to <code>Console_2</code>, and Alt plus keycodes 105 and 106 to <code>Decr_Console</code> and <code>Incr_Console</code>. The console driver then switches the active VT. A program can influence that switch only if it has put the VT into process mode; it cannot intercept the key as ordinary input.</p>
 
-<p>In <code>K_XLATE</code> mode the console converts the resulting keysym to a byte or an escape sequence. Printable keysyms become their character code; function keys use the console's own strings, such as <code>ESC [ [ A</code> for F1 and <code>ESC [ 17~</code> for F6. The program reads those bytes from its controlling terminal.</p>
+<p>In <code>K_XLATE</code> mode the console converts the resulting keysym to a byte or an escape sequence. Printable keysyms become their character code, and <code>Alt + &lt;ASCII char&gt;</code> works via <code>ESC</code> prefixing when meta mode is <code>K_ESCPREFIX</code> (<code>setmetamode esc</code>). Unmodified <code>F1</code>&ndash;<code>F12</code> pass through to applications using the console's own strings: <code>F1</code>&ndash;<code>F5</code> send <code>\x1b[[A</code>&ndash;<code>\x1b[[E</code>, and <code>F6</code>&ndash;<code>F12</code> send <code>\x1b[17~</code>&ndash;<code>\x1b[24~</code> (skipping <code>16~</code> and <code>22~</code>). By contrast, <code>Alt + Up</code> / <code>Alt + Down</code> and <code>Ctrl + Arrow</code> / <code>Shift + Arrow</code> do not emit xterm <code>CSI 1;&lt;mod&gt;...</code> sequences on a stock Linux VT keymap.</p>
 
 <h3>Advanced usage</h3>
 
@@ -219,7 +229,7 @@ control alt keycode  60 = Console_2
 
 <h3>Sources</h3>
 
-<p><a href="man:console_codes(4)">console_codes(4)</a>, <a href="man:console_ioctl(4)">console_ioctl(4)</a>, <a href="man:keymaps(5)">keymaps(5)</a>, <a href="man:showkey(1)">showkey(1)</a>, <a href="man:dumpkeys(1)">dumpkeys(1)</a>, <a href="man:loadkeys(1)">loadkeys(1)</a>, and the default keymaps under <code>/usr/share/kbd/keymaps/</code>.</p>
+<p><a href="man:console_codes(4)">console_codes(4)</a>, <a href="man:console_ioctl(4)">console_ioctl(4)</a>, <a href="man:keymaps(5)">keymaps(5)</a>, <a href="man:showkey(1)">showkey(1)</a>, <a href="man:dumpkeys(1)">dumpkeys(1)</a>, <a href="man:loadkeys(1)">loadkeys(1)</a>, <a href="man:setmetamode(1)">setmetamode(1)</a>, and the default keymaps under <code>/usr/share/kbd/keymaps/</code>.</p>
 </section>
 
 <h2>Where next</h2>

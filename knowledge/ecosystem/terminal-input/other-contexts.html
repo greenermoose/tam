@@ -101,9 +101,9 @@ $ cat -v
 <dt>A tmux session ignores normal typing</dt>
 <dd>A prefix key is pending. Press the prefix twice to send it literally, or press <code>Escape</code> to cancel the pending command.</dd>
 <dt>Keys work locally but not over SSH</dt>
-<dd>The remote <code>TERM</code> may name a terminal whose sequences differ, or no terminal was allocated. Check <code>echo $TERM</code> on both sides and whether the session has a tty.</dd>
-<dt>Function keys insert odd characters in a remote session</dt>
-<dd>The remote terminfo entry and the local terminal disagree. Forward the right <code>TERM</code>, or install the matching entry on the server.</dd>
+<dd>The byte pipeline is: Client OS &rarr; client terminal emulator (translates keys to bytes) &rarr; <code>ssh</code> (transparent byte pipe) &rarr; remote <code>sshd</code> + PTY &rarr; TUI in raw mode. Standalone <code>ssh</code> does not alter key codes; the client terminal emulator (or an all-in-one client such as PuTTY) does. Check <code>echo $TERM</code> on both sides, whether the session has a tty, and whether the remote client sends <code>0x08</code> instead of <code>0x7F</code> for Backspace.</dd>
+<dt>Function keys insert literal <code>OP</code> or <code>[[A</code> over a slow SSH link</dt>
+<dd>Network jitter split the leading <code>0x1B</code> byte from the rest of the sequence, so the program's <code>Esc</code> timeout fired early. Use a single-byte fallback such as <code>Ctrl + G</code> for Help, or increase the program's <code>Esc</code> delay.</dd>
 </dl>
 
 <aside class="tamlinux">
@@ -155,7 +155,13 @@ $ cat -v
 <p>Remote and multiplexed sessions add their own layer:</p>
 
 <ul>
-<li><strong>SSH</strong> allocates a pseudo-terminal with <code>-t</code> and forwards bytes. It does not forward keys or layouts. The server's <code>TERM</code> comes from the client's environment, subject to <code>SendEnv</code> and the server's <code>AcceptEnv</code>, and the remote terminfo entry must describe the client terminal.</li>
+<li><strong>SSH and slow or jittery links.</strong> The remote byte pipeline is: Client OS &rarr; client terminal emulator (translates keys to bytes) &rarr; <code>ssh</code> (transparent byte pipe) &rarr; remote <code>sshd</code> + PTY &rarr; TUI in raw mode. Standalone <code>ssh</code> does not alter key codes; the client terminal emulator (or an all-in-one client such as PuTTY) does. The server's <code>TERM</code> comes from the client's environment, subject to <code>SendEnv</code> and the server's <code>AcceptEnv</code>, and the remote terminfo entry must describe the client terminal. Three specific hazards appear on remote and serial links:
+  <ul>
+  <li><strong><code>Ctrl + H</code> (<code>0x08</code>) vs. Backspace (<code>0x7F</code> / <code>0x08</code>):</strong> <code>Ctrl + H</code> sends <code>0x08</code>, which collides with Backspace on some serial, SSH, and PuTTY setups and with <code>Ctrl + Backspace</code> on many terminals. TUIs should accept both <code>0x7F</code> and <code>0x08</code> as Backspace and avoid <code>Ctrl + H</code> for Help (prefer <code>F1</code> plus single-byte <code>Ctrl + G</code> (<code>0x07</code>)).</li>
+  <li><strong><code>Esc</code>-timeout split risk for <code>F1</code> and <code>Alt</code> chords:</strong> On slow or jittery links, if <code>0x1B</code> arrives in an earlier packet than the rest of <code>F1</code> (<code>4F 50</code> or <code>5B 5B 41</code>), a short <code>Esc</code> timeout fires <code>Esc</code> and inserts literal <code>OP</code> or <code>[[A</code> into the buffer (or a naive parser decodes <code>1B 4F</code> as <code>Alt + O</code> followed by <code>P</code>).</li>
+  <li><strong>Mitigation:</strong> Treat <code>\x1bO</code> (<code>SS3</code>) and <code>\x1b[</code> (<code>CSI</code>) as unambiguous prefixes that wait longer for sequence completion once the second byte arrives, and provide single-byte <code>Ctrl</code> fallbacks such as <code>Ctrl + G</code> (<code>0x07</code>) for Help.</li>
+  </ul>
+</li>
 <li><strong>tmux</strong> and <strong>screen</strong> run a terminal emulator of their own on the server side. They publish a <code>TERM</code> value such as <code>tmux-256color</code> or <code>screen-256color</code>, re-encode keys for the inner program, and consume their prefix key before anything else. Extended key reporting must be enabled on both sides to survive the trip.</li>
 <li><strong>Nested sessions</strong> multiply the prefixes: a tmux inside SSH inside foot has two prefix layers and two terminal descriptions, and the inner program sees the innermost one.</li>
 <li><strong>Web terminals</strong> run a terminal emulator in the browser and send its bytes to a server. The browser's own shortcuts still apply first, so a chord can be lost before the emulator sees it.</li>

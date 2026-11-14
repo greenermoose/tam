@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-14: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) expands `ecosystem/terminal-input/` (`choosing-keys.html`, `linux-console.html`, `other-contexts.html`, `escape-sequences.html`) with TUI keybinding tradeoffs, Linux kernel VT keymap details, SSH/slow-link Esc-timeout handling, and F1–F12 hex tables in corpus 0.88.1. [Record](docs/ai/2026-11-14-tam-terminal-input-keys.md).
+
 2026-11-13: opencode `v2.2.5` (`big-pickle`) and Antigravity CLI `1.5.8` (`gemini-4-hydrogen-medium`) add the `ecosystem/terminal-input/` section (hub plus eight three-level pages) and four key-input glossary entries (`scancode`, `keycode`, `keysym`, `control-character`) in corpus 0.83.0. [Record](docs/ai/2026-11-13-tam-terminal-input-section.md).
 
 2026-11-13: Codex CLI `0.169.0` (`gpt-6.1-sol`) converts the three README files to plain text and updates plan-index parsing, link checking and fixtures. [Record](docs/ai/2026-11-13-plain-readmes.md).

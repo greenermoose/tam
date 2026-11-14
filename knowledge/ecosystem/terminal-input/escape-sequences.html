@@ -161,6 +161,29 @@ $ TERM=linux tput kend | od -An -c
 
 <p>Modifiers on cursor keys and function keys use the parameter form <code>1 ; n</code>, where <code>n</code> is one plus a bitmask: Shift is 1, Alt is 2, Ctrl is 4, so Shift plus Up is <code>ESC [ 1 ; 2 A</code>, Alt plus Up is <code>ESC [ 1 ; 3 A</code>, and Ctrl plus Up is <code>ESC [ 1 ; 5 A</code>. The same convention applies to keys encoded with a numeric final byte, such as <code>ESC [ 15 ; 5 ~</code> for Ctrl plus F5.</p>
 
+<h3>Function-key encodings across environments</h3>
+
+<p>Function keys illustrate why parsers cannot hard-code a single byte string. All common 7-bit forms begin with the escape byte <code>\x1b</code> (<code>0x1B</code>, <code>ESC</code>), followed by either <code>O</code> (<code>\x1bO</code>, hex <code>1B 4F</code>, <code>SS3</code>, capital letter <code>O</code>) or <code>[</code> (<code>\x1b[</code>, hex <code>1B 5B</code>, <code>CSI</code>):</p>
+
+<table>
+<tr><th>Environment</th><th>Notation</th><th>Hex Bytes</th><th>ASCII Breakdown</th></tr>
+<tr><td>xterm / GNOME Terminal / Kitty / Alacritty / macOS / Windows Terminal</td><td><code>\x1bOP</code></td><td><code>1B 4F 50</code></td><td><code>ESC 'O' 'P'</code></td></tr>
+<tr><td>Linux kernel VT (<code>TERM=linux</code>)</td><td><code>\x1b[[A</code></td><td><code>1B 5B 5B 41</code></td><td><code>ESC '[' '[' 'A'</code></td></tr>
+<tr><td>Older VT220 / rxvt / some screen configs</td><td><code>\x1b[11~</code></td><td><code>1B 5B 31 31 7E</code></td><td><code>ESC '[' '1' '1' '~'</code></td></tr>
+<tr><td>8-bit C1 SS3 (legacy 8-bit terminals)</td><td><code>\x8fP</code></td><td><code>8F 50</code></td><td><code>SS3 'P'</code></td></tr>
+<tr><td>Modified F1 (e.g., <code>Shift + F1</code> in xterm)</td><td><code>\x1b[1;2P</code></td><td><code>1B 5B 31 3B 32 50</code></td><td><code>ESC '[' '1' ';' '2' 'P'</code></td></tr>
+</table>
+
+<p>Across <code>F1</code>&ndash;<code>F12</code>, terminals split into three main families (the VT220 numbering skips <code>16</code> and <code>22</code> for historical keys on DEC LK201 keyboards):</p>
+
+<table>
+<tr><th>Keys</th><th>xterm / foot</th><th>Linux kernel VT (<code>TERM=linux</code>)</th><th>VT220 / rxvt</th></tr>
+<tr><td><code>F1</code>&ndash;<code>F4</code></td><td><code>\x1bOP</code>&ndash;<code>\x1bOS</code></td><td><code>\x1b[[A</code>&ndash;<code>\x1b[[D</code></td><td><code>\x1b[11~</code>&ndash;<code>\x1b[14~</code></td></tr>
+<tr><td><code>F5</code></td><td><code>\x1b[15~</code></td><td><code>\x1b[[E</code></td><td><code>\x1b[15~</code></td></tr>
+<tr><td><code>F6</code>&ndash;<code>F10</code></td><td><code>\x1b[17~</code>&ndash;<code>\x1b[21~</code></td><td><code>\x1b[17~</code>&ndash;<code>\x1b[21~</code></td><td><code>\x1b[17~</code>&ndash;<code>\x1b[21~</code></td></tr>
+<tr><td><code>F11</code>&ndash;<code>F12</code></td><td><code>\x1b[23~</code>&ndash;<code>\x1b[24~</code></td><td><code>\x1b[23~</code>&ndash;<code>\x1b[24~</code></td><td><code>\x1b[23~</code>&ndash;<code>\x1b[24~</code></td></tr>
+</table>
+
 <h3>How it works</h3>
 
 <p>A terminal emulator has two jobs with this grammar. On the input side it writes the sequences for the keys it decides to encode. On the output side it parses the byte stream from the program and performs the requested actions. Input sequences are the ones a program reads; output sequences are the ones a program writes.</p>
@@ -174,7 +197,7 @@ $ TERM=linux tput kend | od -An -c
 <li>Decode the pair of introducer and final byte, with parameters, into a key symbol. If the sequence is unknown, discard it or pass it through.</li>
 </ol>
 
-<p>The timeout in step 2 is the famous Esc delay. A program cannot know whether <code>0x1B</code> is a complete key or the start of a longer sequence until either more bytes arrive or a short wait expires. Editors expose the wait as <code>ESCDELAY</code> or an equivalent setting. A program that sets the wait to zero breaks every function key; one that sets it too long makes Esc feel unresponsive.</p>
+<p>The timeout in step 2 is the famous Esc delay. A program cannot know whether <code>0x1B</code> is a complete key or the start of a longer sequence until either more bytes arrive or a short wait expires. Editors expose the wait as <code>ESCDELAY</code> or an equivalent setting. A program that sets the wait to zero breaks every function key; one that sets it too long makes Esc feel unresponsive. Over slow or jittery SSH links, if <code>0x1B</code> arrives before the rest of <code>F1</code> (<code>4F 50</code> or <code>5B 5B 41</code>), an early timeout fires <code>Esc</code> and inserts literal <code>OP</code> or <code>[[A</code> into the buffer (or a naive parser decodes <code>1B 4F</code> as <code>Alt + O</code> followed by <code>P</code>). Robust decoders treat <code>\x1bO</code> (<code>SS3</code>) and <code>\x1b[</code> (<code>CSI</code>) as unambiguous prefixes that wait longer for sequence completion once the second byte arrives.</p>
 
 <p>Curses libraries avoid most of this decoding work. <code>keypad(TRUE)</code> makes ncurses send <code>smkx</code>, which enables application cursor mode, and then translate the terminal's sequences into <code>KEY_UP</code>, <code>KEY_F(1)</code> and similar constants. That is why the sequence a program receives depends on whether it enabled keypad mode, and why the database records the application-mode form.</p>
 

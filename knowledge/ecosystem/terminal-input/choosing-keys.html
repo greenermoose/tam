@@ -101,6 +101,14 @@ $ bind -p | grep -E 'C-h|C-\?'
 
 <p><code>nano</code> takes the other route: its help key is <code>Ctrl + G</code>, and <code>Ctrl + H</code> is left to mean Backspace. That is a useful precedent for any terminal program: do not put a command on a byte the reader expects to delete something.</p>
 
+<p>Each of the three common key families in a terminal program carries a distinct set of tradeoffs:</p>
+
+<ul>
+<li><strong><code>Ctrl + &lt;key&gt;</code>:</strong> sends a single byte (<code>0x01</code>&ndash;<code>0x1A</code>), has zero <code>Esc</code>-timeout ambiguity, and is rarely intercepted by window managers. However, it suffers from ASCII control collisions (<code>Ctrl + I</code> = Tab, <code>Ctrl + M</code> = Enter, <code>Ctrl + J</code> = LF, <code>Ctrl + H</code> = <code>0x08</code> / Backspace, <code>Ctrl + [</code> = Esc), cannot distinguish <code>Ctrl + Shift</code> or <code>Ctrl + &lt;punctuation&gt;</code> without an extended protocol such as the kitty keyboard protocol (<code>CSI u</code>), and collides with multiplexer or container detach prefixes (<code>Ctrl + B</code> in tmux, <code>Ctrl + A</code> in screen, <code>Ctrl + P</code> / <code>Ctrl + Q</code> for container detach).</li>
+<li><strong><code>Alt + &lt;key&gt;</code>:</strong> avoids ASCII control-byte collisions. However, it is heavily claimed by window managers, compositors, desktop environments and terminals (<code>Alt + Tab</code>, <code>Alt + F4</code>, <code>Alt + 1</code>..<code>9</code>, and tiling window manager <code>Mod1</code> bindings), introduces <code>Esc</code>-prefix (<code>0x1B</code> + <code>&lt;key&gt;</code>) timing ambiguity over slow links, and runs into macOS Option key quirks where Option composes accented characters instead of sending an Escape prefix unless configured otherwise.</li>
+<li><strong>Function keys (<code>F1</code>&ndash;<code>F12</code>):</strong> never collide with printable text or ASCII control bytes, and <code>F1</code> is the standard Help key (often paired with a single-byte <code>Ctrl + G</code> (<code>0x07</code>) fallback). Their downsides are differing byte sequences across terminals, <code>Esc</code>-timeout split risk over slow links, and kernel VT switching on <code>Alt + F1</code>..<code>F12</code> and <code>Ctrl + Alt + F1</code>..<code>F12</code>.</li>
+</ul>
+
 <h3>Try it</h3>
 
 <p>Check a candidate key at each layer before you adopt it. Choose the chord you are considering and replace <code>C-h</code> below.</p>
@@ -221,7 +229,16 @@ if (byte == bs) {
 <li><strong>People.</strong> Is it reachable one-handed, does it work on the layouts you support, and is it documented in the program's help?</li>
 </ol>
 
-<p>For <code>tam-edit</code>, the resolution that follows from these rules is to stop treating <code>Ctrl + H</code> as available. Help belongs on a key that cannot be a text character and is not a line-discipline character: <code>F1</code>, with <code>?</code> as an alias when the editor is not accepting text, and a configurable binding for readers who prefer something else. The decoder should still read <code>kbs</code> and report the two bytes separately, because other commands may want the distinction even if help no longer does.</p>
+<h3>Reference: Ctrl vs. Alt vs. F-keys</h3>
+
+<table>
+<tr><th>Key family</th><th>Wire encoding</th><th>Esc-timeout risk</th><th>WM interception</th><th>Main pitfalls</th></tr>
+<tr><td><code>Ctrl + &lt;key&gt;</code></td><td>Single byte (<code>0x01</code>&ndash;<code>0x1A</code>)</td><td>None</td><td>Rare</td><td>ASCII collisions (<code>Ctrl+I</code>=Tab, <code>Ctrl+M</code>=Enter, <code>Ctrl+J</code>=LF, <code>Ctrl+H</code>=<code>0x08</code>/BS, <code>Ctrl+[</code>=Esc); no <code>Ctrl+Shift</code> or <code>Ctrl+&lt;punctuation&gt;</code> without Kitty <code>CSI u</code>; multiplexer/detach prefixes (<code>Ctrl+B</code> tmux, <code>Ctrl+A</code> screen, <code>Ctrl+P</code>/<code>Ctrl+Q</code> container detach)</td></tr>
+<tr><td><code>Alt + &lt;key&gt;</code></td><td><code>0x1B</code> + <code>&lt;key&gt;</code> (Esc-prefixed)</td><td>High over slow links</td><td>Heavy (<code>Alt+Tab</code>, <code>Alt+F4</code>, <code>Alt+1..9</code>, tiling WM <code>Mod1</code>)</td><td>Desktop/terminal grabs; <code>Esc</code>-prefix timing ambiguity; macOS Option key quirks</td></tr>
+<tr><td><code>F1</code>&ndash;<code>F12</code></td><td>Multi-byte <code>SS3</code> or <code>CSI</code> sequence</td><td>Moderate if <code>0x1B</code> splits from rest</td><td>Low (except <code>Alt+F1..F12</code> / <code>Ctrl+Alt+F1..F12</code> on Linux VT)</td><td>Terminal-dependent sequences (<code>\x1bOP</code> vs. <code>\x1b[[A</code> vs. <code>\x1b[11~</code>); stripped keyboards need a single-byte fallback such as <code>Ctrl+G</code> for Help</td></tr>
+</table>
+
+<p>For <code>tam-edit</code>, the resolution that follows from these rules is to stop treating <code>Ctrl + H</code> as available. Help belongs on a key that cannot be a text character and is not a line-discipline character: <code>F1</code>, with single-byte <code>Ctrl + G</code> (<code>0x07</code>) as a slow-link and compact-keyboard fallback, <code>?</code> as an alias when the editor is not accepting text, and a configurable binding for readers who prefer something else. The decoder should accept both <code>0x7F</code> and <code>0x08</code> as Backspace (or read <code>kbs</code> and report the two bytes separately when a terminal distinguishes them).</p>
 
 <h3>Edge cases</h3>
 
@@ -230,8 +247,8 @@ if (byte == bs) {
 <li><strong>Users who change <code>erase</code>.</strong> <code>stty erase ^H</code> changes what the line discipline erases, but not what the terminal sends. A program in canonical mode then sees a different byte consumed than <code>kbs</code> suggests.</li>
 <li><strong>Delete versus Backspace.</strong> Some keyboards have both keys and send different bytes for each, such as <code>ESC [ 3 ~</code> for Delete. Do not assume the two are interchangeable.</li>
 <li><strong>Layouts that move punctuation.</strong> A chord defined on a character moves with the layout. A chord defined on a key position does not. Pick deliberately and document which one you mean.</li>
-<li><strong>Meta and Alt.</strong> Alt sends an ESC prefix, so Alt and a letter is the same bytes as Esc followed by that letter. A binding on <code>ESC</code> plus a letter can therefore fire from two different intentions.</li>
-<li><strong>Terminal multiplexers.</strong> tmux may rewrite the sequence for the inner program. A binding that depends on one terminal's exact bytes can break even when the outer terminal is unchanged.</li>
+<li><strong>Meta and Alt.</strong> Alt sends an ESC prefix, so Alt and a letter is the same bytes as Esc followed by that letter. A binding on <code>ESC</code> plus a letter can therefore fire from two different intentions. On macOS, the Option key often composes accented characters instead of sending an ESC prefix unless the terminal maps Option to Esc+.</li>
+<li><strong>Terminal multiplexers and container detach keys.</strong> tmux (<code>Ctrl + B</code>), GNU screen (<code>Ctrl + A</code>), and container runtimes (<code>Ctrl + P</code> / <code>Ctrl + Q</code>) intercept their prefix keys before the inner program sees them. tmux may also rewrite sequences for the inner program, so a binding that depends on one terminal's exact bytes can break even when the outer terminal is unchanged.</li>
 <li><strong>Accessibility.</strong> Sticky keys and on-screen keyboards change modifier timing and event order. A chord that requires three simultaneous keys is harder to use with those tools.</li>
 </ul>
 
