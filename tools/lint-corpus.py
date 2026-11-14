@@ -126,7 +126,7 @@ class PedagogyParser(HTMLParser):
         tag, attrs = node["tag"], node["attrs"]
         text = "".join(node["text"])
         offset = self.page.starts[node["line"] - 1]
-        if re.fullmatch(r"h[1-6]", tag) and re.match(r"\s*(Beginner|Intermediate|Expert)\s*:", text, re.I):
+        if re.fullmatch(r"h[1-6]", tag) and re.match(r"\s*(Novice|Learner|Beginner|Intermediate|Expert)\s*:", text, re.I):
             self.page.add(offset, "LEVEL-PREFIX", "level heading prefixes are generated; remove the hand-typed prefix")
         if tag == "details" and "q" in (attrs.get("class") or "").split():
             if not node["summary"]:

@@ -6,9 +6,9 @@
 /* Level ladder (milestone 7; the reader's lens since TCK21).
  *
  * A guide page declares the levels it offers with
- *   <meta name="level" content="beginner, intermediate, expert">
+ *   <meta name="level" content="novice, learner, expert">
  * and, when it offers more than one, wraps each level's material in
- *   <section data-level="beginner"> ... </section>
+ *   <section data-level="novice"> ... </section>
  * Material outside level sections (title, summary, "where to next") is shared
  * by every level. Selecting a level removes the other levels' sections; the
  * page is never rewritten on disk.
@@ -17,25 +17,21 @@
  * Following such a link sets the reader's lens. */
 
 enum {
-    TAM_LEVEL_BEGINNER     = 1u << 0,
-    TAM_LEVEL_INTERMEDIATE = 1u << 1,
-    TAM_LEVEL_EXPERT       = 1u << 2
+    TAM_LEVEL_NOVICE  = 1u << 0,
+    TAM_LEVEL_LEARNER = 1u << 1,
+    TAM_LEVEL_EXPERT  = 1u << 2
 };
 
-#define TAM_LEVEL_NOVICE   TAM_LEVEL_BEGINNER
-#define TAM_LEVEL_LEARNER  TAM_LEVEL_INTERMEDIATE
-
 #define TAM_LEVEL_ALL \
-    (TAM_LEVEL_BEGINNER | TAM_LEVEL_INTERMEDIATE | TAM_LEVEL_EXPERT)
+    (TAM_LEVEL_NOVICE | TAM_LEVEL_LEARNER | TAM_LEVEL_EXPERT)
 
-/* One level name ("novice"|"beginner"|"1", "learner"|"intermediate"|"2",
- * "expert"|"3"; case-insensitive) to its bit, or 0 when the name is not
- * a single level. */
+/* One level name ("novice"|"1", "learner"|"2", "expert"|"3";
+ * case-insensitive) to its bit, or 0 when the name is not a single level. */
 unsigned tam_level_parse(const char *name);
 
 /* Parse a CLI or query level argument ("0"|"all" -> *level = 0, returns 1;
- * "1"|"novice"|"beginner", "2"|"learner"|"intermediate", "3"|"expert"
- * -> *level = bit, returns 1; anything else -> returns 0). */
+ * "1"|"novice", "2"|"learner", "3"|"expert" -> *level = bit, returns 1;
+ * anything else -> returns 0). */
 int tam_level_parse_arg(const char *arg, unsigned *level);
 
 /* A comma- or space-separated list of level names to a mask. Unknown names

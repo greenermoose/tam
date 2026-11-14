@@ -34,13 +34,6 @@ unsigned tam_level_parse(const char *name)
             return LEVELS[i].bit;
         }
     }
-    /* Backwards compatibility aliases: beginner -> novice (1), intermediate -> learner (2) */
-    if (strcasecmp(name, "beginner") == 0) {
-        return TAM_LEVEL_NOVICE;
-    }
-    if (strcasecmp(name, "intermediate") == 0) {
-        return TAM_LEVEL_LEARNER;
-    }
     return 0;
 }
 

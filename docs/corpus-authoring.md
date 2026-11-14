@@ -96,9 +96,12 @@ Naming the developer:
 
 ## Terms
 
-- A **level** is Beginner (1), Intermediate (2) or Expert (3); All (0) shows
+- A **level** is Novice (1), Learner (2) or Expert (3); All (0) shows
   every level. The reader's chosen level is their lens. Do not call levels
-  "depths" or "routes".
+  "depths" or "routes", and do not use the superseded terms "beginner" or
+  "intermediate". Every content page must provide `novice`, `learner`, and
+  `expert` sections so a reader can progress from zero prior technical
+  knowledge to expert mastery.
 - A **path** is a topic-centered reading order defined by a hub page in
   `learn/paths/<id>.html` (`kind="path"`) and `<meta name="paths" content="<id>:<step>, ...">`
   on its step pages. The pager builds path navigation dynamically from `index.paths.tsv`
@@ -131,7 +134,7 @@ Pages may declare `<meta name="kind">` as `tutorial`, `how-to`, `reference`,
 `explanation`, `path`, `hub`, `glossary` or `bibliography`. Missing metadata
 remains valid during migration. Supplied kinds must be valid. Declare skills
 as comma-separated IDs in `<meta name="skills">`, for example
-`shell.beginner, shell.intermediate`. IDs come from
+`shell.novice, shell.learner`. IDs come from
 `knowledge/learn/skills/skills.json`; a skill's level must be offered by the page.
 Topic paths may name skills at the levels they visit; their level metadata
 states the starting level. Declare path membership on step pages with

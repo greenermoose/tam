@@ -3,9 +3,9 @@
 knowledge/index.tsv, knowledge/index.json and knowledge/index.parents.tsv.
 
 Each page declares its metadata in <meta> tags: topic, summary, keywords,
-level, track, optional parent and prereqs. Level lists the depths a page offers (beginner,
-intermediate, expert); a page offering more than one wraps each depth in
-<section data-level="..."> (the content-depth ladder). The build fails on
+level, track, optional parent and prereqs. Level lists the lenses a page offers (novice,
+learner, expert); a page offering more than one wraps each level in
+<section data-level="..."> (the content-level ladder). The build fails on
 unknown levels or tracks, on topics that are not slugs, on prerequisites that
 name no topic, and on laddered pages whose sections do not match their declared levels.
 
@@ -25,9 +25,8 @@ import sys
 import argparse
 from pathlib import Path
 
-LEVELS = ("beginner", "intermediate", "expert", "novice", "learner")
+LEVELS = ("novice", "learner", "expert")
 CANONICAL_LEVELS = ("novice", "learner", "expert")
-LEGACY_LEVELS = ("beginner", "intermediate", "expert")
 TRACKS = ("install", "learn", "use", "maintain", "improve")
 # D221 migrated pages: new novice/learner anatomy is hard-enforced only here
 # until the rest of the corpus migrates (warnings elsewhere).
@@ -118,18 +117,11 @@ TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
 def level_matches(skill_level, page_levels):
-    if skill_level in page_levels:
-        return True
-    if skill_level == "beginner" and "novice" in page_levels:
-        return True
-    if skill_level == "intermediate" and "learner" in page_levels:
-        return True
-    return False
+    return skill_level in page_levels
 
 
 def order_levels(declared):
-    order = CANONICAL_LEVELS if any(lvl in ("novice", "learner") for lvl in declared) else LEGACY_LEVELS
-    return [v for v in order if v in declared]
+    return [v for v in CANONICAL_LEVELS if v in declared]
 
 
 def extract_attr(tag, attr):
@@ -264,7 +256,7 @@ def parse_page(root, path, rel_path, errors, git_cache=None, text=None):
     topic = None
     summary = None
     keywords = []
-    levels = ["beginner"]
+    levels = ["novice"]
     track = "use"
     parent = None
     prereqs = []
@@ -575,7 +567,7 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
                             for k in ("id", "domain", "level", "can_do")) or
                     cell["level"] not in LEVELS or
                     cell["id"] != cell["domain"] + "." + cell["level"] or
-                    not re.fullmatch(r"[a-z][a-z0-9-]*\.(beginner|intermediate|expert)", cell["id"]) or
+                    not re.fullmatch(r"[a-z][a-z0-9-]*\.(novice|learner|expert)", cell["id"]) or
                     cell["id"] in seen):
                     raise ValueError("invalid or duplicate skill cell")
                 seen.add(cell["id"])
@@ -628,7 +620,7 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
             continue
         for section in parsed[path].sections:
             level = section["attrs"]["data-level"]
-            if level not in {"beginner", "intermediate", "novice", "learner"}:
+            if level not in {"novice", "learner"}:
                 continue
             text = " ".join(section["text"]).lower()
             if level == "novice":
@@ -658,23 +650,6 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
                     else:
                         warnings.append({"path": path, "level": level, "missing": missing})
                 continue
-            required = (["goal:", "why it matters:", "before you start:", "worked example",
-                         "try it", "if it goes wrong", "new words", "next step"]
-                        if level == "beginner" else
-                        ["goal:", "mental model", "worked example", "completion task",
-                         "independent task", "choosing", "troubleshooting", "further reading"])
-            missing = [name for name in required if name not in text]
-            if not section["quiz"]:
-                missing.append("quiz")
-            if level == "beginner" and not section["first-time"]:
-                missing.append("New to this? aside")
-            if level == "intermediate" and not section["tamlinux"]:
-                missing.append("On Tamlinux aside")
-            if missing:
-                if entry["track"] in enforce_tracks:
-                    errors.append(f"{path}: {level} anatomy: missing " + ", ".join(missing))
-                else:
-                    warnings.append({"path": path, "level": level, "missing": missing})
     coverage = []
     for cell in cells:
         matched = [entry for entry in entries if cell["id"] in entry["skills"]]

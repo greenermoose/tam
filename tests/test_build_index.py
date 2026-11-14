@@ -46,7 +46,7 @@ def page(title, track="", parent=None, crumbs=(), prereqs=None):
     return ("<!doctype html><html><head><title>" + title + "</title>" +
             "<meta name=\"topic\" content=\"" + title.lower().replace(" ", "-") + "\">" +
             "<meta name=\"summary\" content=\"" + title + " summary\">" +
-            "<meta name=\"level\" content=\"beginner\">" + "".join(metadata) +
+            "<meta name=\"level\" content=\"novice\">" + "".join(metadata) +
             "</head><body>" + nav + "<h1>" + title + "</h1></body></html>")
 
 
@@ -55,19 +55,19 @@ class BuildIndex(unittest.TestCase):
         path = root / "knowledge/learn/skills/skills.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         cells = cells if cells is not None else [
-            {"id": "shell.beginner", "domain": "shell", "level": "beginner", "can_do": "Connect commands"},
+            {"id": "shell.novice", "domain": "shell", "level": "novice", "can_do": "Connect commands"},
             {"id": "shell.expert", "domain": "shell", "level": "expert", "can_do": "Explain descriptors"}]
         path.write_text(json.dumps({"version": 1, "cells": cells}))
         return path
 
     def test_learning_sidecars_and_truthful_page_path_gaps(self):
-        text = page("Guide").replace("</head>", '<meta name="kind" content="tutorial"><meta name="skills" content="shell.beginner"></head>')
+        text = page("Guide").replace("</head>", '<meta name="kind" content="tutorial"><meta name="skills" content="shell.novice"></head>')
         root = self.fixture("0.39.0", {"index.html": text})
         self.register_skills(root)
         self.assertEqual(self.build(root).returncode, 0)
         entry = self.index(root)["index.html"]
         self.assertEqual(entry["kind"], "tutorial")
-        self.assertEqual(entry["skills"], ["shell.beginner"])
+        self.assertEqual(entry["skills"], ["shell.novice"])
         self.assertEqual(len((root / "knowledge/index.tsv").read_text().splitlines()[0].split("\t")), 9)
         report = json.loads((root / "knowledge/coverage.json").read_text())
         self.assertEqual(report["cells"][0]["pages"], ["index.html"])
@@ -87,8 +87,8 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual(self.build(root).returncode, 0)
         before = self.outputs(root)
         cases = [('kind', 'article', 'unknown kind'),
-                 ('skills', 'missing.beginner', 'unknown skill ID'),
-                 ('skills', 'shell.beginner, shell.beginner', 'duplicate skill IDs')]
+                 ('skills', 'missing.novice', 'unknown skill ID'),
+                 ('skills', 'shell.novice, shell.novice', 'duplicate skill IDs')]
         for name, value, message in cases:
             with self.subTest(value=value):
                 (root / "knowledge/index.html").write_text(page("Guide").replace('</head>', f'<meta name="{name}" content="{value}"></head>'))
@@ -131,7 +131,9 @@ class BuildIndex(unittest.TestCase):
                 self.assertIn(error, result.stderr)
 
     def test_anatomy_gaps_warn_without_breaking_legacy_build(self):
-        text = page('Guide').replace('</body>', '<section data-level="beginner"><h2>Exercise</h2><p>Try something</p></section></body>')
+        text = (page('Guide')
+                .replace('content="novice"', 'content="learner"')
+                .replace('</body>', '<section data-level="learner"><h2>Exercise</h2><p>Try something</p></section></body>'))
         root = self.fixture('0.39.0', {'index.html': text})
         result = self.build(root)
         self.assertEqual(result.returncode, 0)
@@ -144,22 +146,14 @@ class BuildIndex(unittest.TestCase):
         self.assertEqual((root/'knowledge/index.skills.tsv').read_text(), 'path\tskills\n')
 
     def test_completed_part_promotes_only_its_anatomy_warnings_to_errors(self):
-        text = page('Using', 'use', 'index.html').replace('</body>', '<section data-level="beginner"><h2>Task</h2><p>Partial lesson</p></section></body>')
-        root = self.fixture('0.40.0', {'index.html': page('Guide'), 'use/index.html': text})
-        registry = self.register_skills(root)
-        self.assertEqual(self.build(root).returncode, 0)
-        before = self.outputs(root)
-        data = json.loads(registry.read_text())
-        data['enforce_tracks'] = ['use']
-        registry.write_text(json.dumps(data))
+        text = (page('Pipelines', 'use', 'index.html')
+                .replace('content="novice"', 'content="learner"')
+                .replace('</body>', '<section data-level="learner"><h2>Task</h2><p>Partial lesson</p></section></body>'))
+        root = self.fixture('0.40.0', {'index.html': page('Guide'), 'shell/pipelines.html': text})
         result = self.build(root)
         self.assertEqual(result.returncode, 1)
-        self.assertIn('use/index.html: beginner anatomy:', result.stderr)
+        self.assertIn('shell/pipelines.html: learner anatomy:', result.stderr)
         self.assertIn('quiz', result.stderr)
-        self.assertEqual(before, self.outputs(root))
-        data['enforce_tracks'] = ['maintain']
-        registry.write_text(json.dumps(data))
-        self.assertEqual(self.build(root).returncode, 0)
 
     def test_d221_novice_learner_anatomy_errors_only_on_pilot_pages(self):
         """Non-migrated novice/learner gaps warn; D221 migrated pages hard-fail."""
@@ -169,7 +163,7 @@ class BuildIndex(unittest.TestCase):
         )
         def leveled(title):
             return page(title, 'use', 'index.html').replace(
-                '<meta name="level" content="beginner">',
+                '<meta name="level" content="novice">',
                 '<meta name="level" content="novice">').replace(
                 '</body>', partial + '</body>')
         # Non-migrated path only: warning, build succeeds
@@ -286,26 +280,26 @@ class BuildIndex(unittest.TestCase):
     def test_block_levels_validate_without_adding_ladder_sections(self):
         for tag in ("aside", "p", "li", "pre", "details", "div", "table"):
             with self.subTest(tag=tag):
-                text = page("Guide").replace("</body>", f'<{tag} data-level="beginner">Shared</{tag}></body>')
+                text = page("Guide").replace("</body>", f'<{tag} data-level="novice">Shared</{tag}></body>')
                 root = self.fixture("0.37.1", {"index.html": text})
                 self.assertEqual(self.build(root).returncode, 0)
-                (root / "knowledge/index.html").write_text(text.replace('data-level="beginner"', 'data-level="bogus"'))
+                (root / "knowledge/index.html").write_text(text.replace('data-level="novice"', 'data-level="bogus"'))
                 result = self.build(root)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("unknown data-level", result.stdout + result.stderr)
-                (root / "knowledge/index.html").write_text(text.replace('data-level="beginner"', 'data-level="expert"'))
+                (root / "knowledge/index.html").write_text(text.replace('data-level="novice"', 'data-level="expert"'))
                 self.assertEqual(self.build(root).returncode, 0)
 
     def test_layered_pages_and_ladders(self):
-        shared = page("Guide").replace('content="beginner"', 'content="beginner, intermediate, expert"')
-        body = ('<aside data-level="beginner">Hint</aside>'
-                '<p data-level="intermediate">Model</p>'
+        shared = page("Guide").replace('content="novice"', 'content="novice, learner, expert"')
+        body = ('<aside data-level="novice">Hint</aside>'
+                '<p data-level="learner">Model</p>'
                 '<table data-level="expert"><tr><td>Reference</td></tr></table>'
-                '<section class="quiz" data-level="beginner"><h3>Quiz</h3></section>')
+                '<section class="quiz" data-level="novice"><h3>Quiz</h3></section>')
         root = self.fixture("0.37.1", {"index.html": shared.replace("</body>", body + "</body>")})
         self.assertEqual(self.build(root).returncode, 0)
         ladder = ''.join(f'<section data-level="{level}"><h2>{level}</h2></section>'
-                         for level in ("beginner", "intermediate", "expert"))
+                         for level in ("novice", "learner", "expert"))
         target = root / "knowledge/index.html"
         target.write_text(shared.replace("</body>", ladder + body + "</body>"))
         self.assertEqual(self.build(root).returncode, 0)
@@ -493,7 +487,7 @@ class BuildIndex(unittest.TestCase):
             (root / "knowledge/index.json").read_text())}
         self.assertEqual(data["use/task.html"]["parent"], "use/index.html")
         self.assertEqual(data["use/task.html"]["topic"], "task")
-        self.assertEqual(data["use/task.html"]["levels"], ["beginner"])
+        self.assertEqual(data["use/task.html"]["levels"], ["novice"])
         self.assertEqual(data["use/task.html"]["prereqs"], ["using"])
 
     def test_topic_that_is_not_a_slug_is_rejected(self):

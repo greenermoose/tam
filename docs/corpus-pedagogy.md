@@ -43,8 +43,9 @@ Two rules are Tamlinux's own:
 
 - **Level:** Novice (1), Learner (2) or Expert (3) (D221, amending D184).
   **All** (0) shows every level. The reader's chosen level is their *lens*.
-  Pages declare levels in `<meta name="level">`. `beginner` and `intermediate`
-  remain accepted backwards-compatible aliases for Novice and Learner.
+  Pages declare levels in `<meta name="level">`. The older `beginner` and
+  `intermediate` names are retired and must not be used in pages, skill IDs,
+  or tooling.
 - **Path:** a reading order through the material. Learning paths are embedded
   directly inside every topic page's Learner (2) text, showing the starting
   point (`Start`), previous stop (`Back`), and next stop (`Next`) with
@@ -80,7 +81,7 @@ remain `alex`.
   wants to get work done without breaking anything. Write beginner sections
   and First steps for Sam.
 - **Priya** uses Linux servers at work and is new to Wayland, tiling and Nix.
-  Priya wants to understand what is running. Write intermediate sections for
+  Priya wants to understand what is running. Write Learner sections for
   Priya.
 - **Kai** is a developer or administrator who wants to change Tamlinux, debug
   it and contribute. Write expert sections for Kai.
@@ -195,11 +196,31 @@ will replace. Full rules live in [`corpus-style.md`](corpus-style.md).
 - Fade ladders and Parsons problems are optional Learner devices, not a
   default for every page.
 
+## Paths, prerequisites, and the junior-high baseline
+
+Our goal for every topic is to take a reader with **no prior technical knowledge**
+all the way to **world-expert, PhD-research mastery**. Every content page
+provides `novice`, `learner`, and `expert` text, and paths (`<meta name="paths"
+content="<id>:<step>">`) sequence pages into a logical dependency order:
+
+- **Junior-high baseline:** Assume only a junior-high school understanding of
+  mathematics, science, and history. Anything beyond that—whether modular
+  arithmetic, Boolean logic, kernel privilege rings, or lattice problems—must
+  be explained carefully along the path before it is used.
+- **Zero-knowledge entry:** The first page (`step 1`) of every path must assume
+  zero prior technical knowledge and be understandable by anyone who can read.
+- **No unexplained jargon:** Introduce terminology and concepts in dependency
+  order. Define every technical term at first use with `<dfn><a
+  href="learn/glossary/...">` or in an earlier step on the path.
+- **Backward recovery:** If a reader lands on a page that feels too advanced,
+  stepping backward along the path must lead them to the prerequisites they
+  need until they reach a page they understand.
+
 ## Self-quizzes
 
-Every beginner and intermediate section ends with a quiz. Expert sections
-use open prompts. Write each question as a `<details class="q">` inside a
-`<section class="quiz">`:
+Every Learner section ends with a quiz (Novice sections never include quizzes
+or worked examples). Expert sections use open prompts. Write each question as
+a `<details class="q">` inside a `<section class="quiz">`:
 
 ```html
 <section class="quiz">
@@ -214,10 +235,9 @@ arguments.</p>
 </section>
 ```
 
-- **Beginner question types:** recall, predict the output, "which key…?".
-- **Intermediate question types:** scenario ("you see X; what do you check
-  first?"), spot the bug, classify ("which layer owns this file?"), Parsons
-  problems.
+- **Learner question types:** recall, predict the output, scenario ("you see X;
+  what do you check first?"), spot the bug, classify ("which layer owns this
+  file?"), Parsons problems.
 - **Expert question types:** trade-offs, "what breaks if…?", open prompts.
   Use `class="q open"`; the pager labels them "Model answer". Present one
   sound line of reasoning, not the only one.

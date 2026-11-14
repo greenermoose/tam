@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.55.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.55.1' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -1879,7 +1879,7 @@ assert "3 Showing expert text" in p.first, p.first
 # A link that names a level sets the lens.
 for _ in range(12):
     b = p.key(b"\t")
-    if "-> shell/pipelines.html?level=beginner" in b:
+    if "-> shell/pipelines.html?level=novice" in b:
         break
 else:
     raise AssertionError("no beginner link on the page")
@@ -2360,17 +2360,17 @@ ex_multi=$("$TAM" explain cpu load --pipe)
 printf '%s\n' "$ex_multi" | grep -q 'hardware/resources.html' || fail "explain cpu load failed"
 
 # Topic guide depth ladder: tam explain --level LEVEL TOPIC
-ex_tg_lvl_b=$("$TAM" explain --level beginner pipelines --pipe)
-printf '%s\n' "$ex_tg_lvl_b" | grep -q 'Topic Guide: pipelines (novice Level)' || fail "explain --level beginner pipelines failed"
-printf '%s\n' "$ex_tg_lvl_b" | grep -q 'shell/pipelines.html?level=novice' || fail "explain --level beginner missing link target"
+ex_tg_lvl_b=$("$TAM" explain --level novice pipelines --pipe)
+printf '%s\n' "$ex_tg_lvl_b" | grep -q 'Topic Guide: pipelines (novice Level)' || fail "explain --level novice pipelines failed"
+printf '%s\n' "$ex_tg_lvl_b" | grep -q 'shell/pipelines.html?level=novice' || fail "explain --level novice missing link target"
 
 # Direct page depth ladder: tam show --level LEVEL PAGE
-sh_lua_b=$("$TAM" show --level beginner lua --pipe)
-printf '%s\n' "$sh_lua_b" | grep -q 'Why Lua is included' || fail "show --level beginner lua failed"
-if printf '%s\n' "$sh_lua_b" | grep -q 'shared stack'; then fail "beginner lua contains expert section"; fi
+sh_lua_b=$("$TAM" show --level novice lua --pipe)
+printf '%s\n' "$sh_lua_b" | grep -q 'Why Lua is included' || fail "show --level novice lua failed"
+if printf '%s\n' "$sh_lua_b" | grep -q 'shared stack'; then fail "novice lua contains expert section"; fi
 sh_lua_e=$("$TAM" show --level expert lua --pipe)
 printf '%s\n' "$sh_lua_e" | grep -q 'How a host embeds Lua' || fail "show --level expert lua failed"
-if printf '%s\n' "$sh_lua_e" | grep -q 'Why Lua is included'; then fail "expert lua contains beginner section"; fi
+if printf '%s\n' "$sh_lua_e" | grep -q 'Why Lua is included'; then fail "expert lua contains novice section"; fi
 
 # Unmatched topic: clear diagnostic and reference to show.
 if "$TAM" explain no_such_topic >/dev/null 2>&1; then fail "unmatched topic exited 0"; fi
@@ -2390,24 +2390,24 @@ fi
 fixture_show() {
     env TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show "$@"
 }
-sh_lvl_b=$(fixture_show --level beginner pipelines --pipe)
-printf '%s\n' "$sh_lvl_b" | grep -q '^Beginner' || fail "show --level beginner pipelines failed"
-printf '%s\n' "$sh_lvl_b" | grep -q 'Use a pipe to count lines' || fail "show --level beginner missing fixture content"
-if printf '%s\n' "$sh_lvl_b" | grep -q '^Expert'; then fail "beginner level contains expert section"; fi
-printf '%s\n' "$sh_lvl_b" | grep -qE '^ +Hiding expert text \(03 show\)$' || fail "beginner level missing hidden-section marker"
-printf '%s\n' "$sh_lvl_b" | grep -qE '^ +Hiding learner text \(02 show\)$' || fail "beginner level missing learner hidden-section marker"
+sh_lvl_b=$(fixture_show --level novice pipelines --pipe)
+printf '%s\n' "$sh_lvl_b" | grep -q '^Novice' || fail "show --level novice pipelines failed"
+printf '%s\n' "$sh_lvl_b" | grep -q 'Use a pipe to count lines' || fail "show --level novice missing fixture content"
+if printf '%s\n' "$sh_lvl_b" | grep -q '^Expert'; then fail "novice level contains expert section"; fi
+printf '%s\n' "$sh_lvl_b" | grep -qE '^ +Hiding expert text \(03 show\)$' || fail "novice level missing hidden-section marker"
+printf '%s\n' "$sh_lvl_b" | grep -qE '^ +Hiding learner text \(02 show\)$' || fail "novice level missing learner hidden-section marker"
 
-sh_lvl_i=$(fixture_show --level intermediate pipelines --pipe)
-printf '%s\n' "$sh_lvl_i" | grep -q '^Intermediate' || fail "show --level intermediate pipelines failed"
-printf '%s\n' "$sh_lvl_i" | grep -q 'Redirection of standard error' || fail "show --level intermediate missing fixture content"
-if printf '%s\n' "$sh_lvl_i" | grep -q '^Beginner'; then fail "intermediate level contains beginner section"; fi
-printf '%s\n' "$sh_lvl_i" | grep -qE '^ +Hiding novice text \(01 show\)$' || fail "intermediate level missing novice hidden-section marker"
-printf '%s\n' "$sh_lvl_i" | grep -qE '^ +Hiding expert text \(03 show\)$' || fail "intermediate level missing expert hidden-section marker"
+sh_lvl_i=$(fixture_show --level learner pipelines --pipe)
+printf '%s\n' "$sh_lvl_i" | grep -q '^Learner' || fail "show --level learner pipelines failed"
+printf '%s\n' "$sh_lvl_i" | grep -q 'Redirection of standard error' || fail "show --level learner missing fixture content"
+if printf '%s\n' "$sh_lvl_i" | grep -q '^Novice'; then fail "learner level contains novice section"; fi
+printf '%s\n' "$sh_lvl_i" | grep -qE '^ +Hiding novice text \(01 show\)$' || fail "learner level missing novice hidden-section marker"
+printf '%s\n' "$sh_lvl_i" | grep -qE '^ +Hiding expert text \(03 show\)$' || fail "learner level missing expert hidden-section marker"
 
 sh_lvl_e=$(fixture_show --level expert pipelines --pipe)
 printf '%s\n' "$sh_lvl_e" | grep -q '^Expert' || fail "show --level expert pipelines failed"
 printf '%s\n' "$sh_lvl_e" | grep -q 'Every redirection is applied' || fail "show --level expert missing fixture content"
-if printf '%s\n' "$sh_lvl_e" | grep -q '^Beginner'; then fail "expert level contains beginner section"; fi
+if printf '%s\n' "$sh_lvl_e" | grep -q '^Novice'; then fail "expert level contains novice section"; fi
 printf '%s\n' "$sh_lvl_e" | grep -qE '^ +Hiding novice text \(01 show\)$' || fail "expert level missing novice hidden-section marker"
 printf '%s\n' "$sh_lvl_e" | grep -qE '^ +Hiding learner text \(02 show\)$' || fail "expert level missing learner hidden-section marker"
 
@@ -2440,18 +2440,18 @@ import sys
 tam, corpus = sys.argv[1], Path(sys.argv[2])
 corpus.mkdir()
 (corpus / "index.html").write_text(
-    '<html><head><meta name="level" content="beginner"></head>'
-    '<body><h1>Banner fixture</h1><section data-level="beginner">'
-    '<h2>Beginner</h2><p>Read this page.</p></section></body></html>'
+    '<html><head><meta name="level" content="novice"></head>'
+    '<body><h1>Banner fixture</h1><section data-level="novice">'
+    '<h2>Novice</h2><p>Read this page.</p></section></body></html>'
 )
 header = "topic path title summary keywords level track prereqs rev updated".split()
 
-def entry(topic, title, parent, prereqs="", level="intermediate", track="other"):
+def entry(topic, title, parent, prereqs="", level="learner", track="other"):
     path = "index.html" if topic == "current" else topic + ".html"
     return [topic, path, title, "Summary", topic, level, track, prereqs,
             "1", "2026-10-21 06:00"], parent
 
-current = entry("current", "Current", "parent.html", "shell, pipes", "beginner", "use")
+current = entry("current", "Current", "parent.html", "shell, pipes", "novice", "use")
 parent = entry("parent", "Parent", "root.html", "shell, pipes", track="use")
 sibling = entry("sibling", "Sibling", "parent.html", "shell, pipes", track="use")
 child = entry("child", "Child", "index.html")
@@ -2500,23 +2500,23 @@ printf 'expert\n' > "$tmp/pipe-lens/tamlinux/tam/level"
 
 # Numeric and 'all' level synonyms (0|all, 1|novice|beginner, 2|learner|intermediate, 3|expert)
 sh_lvl_all=$(fixture_show pipelines --pipe)
-[ "$(fixture_show --level 1 pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level 1 differs from beginner"
-[ "$(fixture_show --level novice pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level novice differs from beginner"
-[ "$(fixture_show --level 2 pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level 2 differs from intermediate"
-[ "$(fixture_show --level learner pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level learner differs from intermediate"
+[ "$(fixture_show --level 1 pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level 1 differs from novice"
+[ "$(fixture_show --level novice pipelines --pipe)" = "$sh_lvl_b" ] || fail "show --level novice differs from novice"
+[ "$(fixture_show --level 2 pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level 2 differs from learner"
+[ "$(fixture_show --level learner pipelines --pipe)" = "$sh_lvl_i" ] || fail "show --level learner differs from learner"
 [ "$(fixture_show --level 3 pipelines --pipe)" = "$sh_lvl_e" ] || fail "show --level 3 differs from expert"
 [ "$(fixture_show --level expert pipelines --pipe)" = "$sh_lvl_e" ] || fail "show --level expert differs from 3"
 [ "$(fixture_show --level 0 pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level 0 differs from all levels"
 [ "$(fixture_show --level all pipelines --pipe)" = "$sh_lvl_all" ] || fail "show --level all differs from all levels"
-[ "$(fixture_show "pipelines?level=1" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=1 differs from beginner"
-[ "$(fixture_show "pipelines?level=novice" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=novice differs from beginner"
-[ "$(fixture_show "pipelines?level=2" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=2 differs from intermediate"
-[ "$(fixture_show "pipelines?level=learner" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=learner differs from intermediate"
+[ "$(fixture_show "pipelines?level=1" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=1 differs from novice"
+[ "$(fixture_show "pipelines?level=novice" --pipe)" = "$sh_lvl_b" ] || fail "show pipelines?level=novice differs from novice"
+[ "$(fixture_show "pipelines?level=2" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=2 differs from learner"
+[ "$(fixture_show "pipelines?level=learner" --pipe)" = "$sh_lvl_i" ] || fail "show pipelines?level=learner differs from learner"
 [ "$(fixture_show "pipelines?level=3" --pipe)" = "$sh_lvl_e" ] || fail "show pipelines?level=3 differs from expert"
 [ "$(fixture_show "pipelines?level=0" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=0 differs from all levels"
 [ "$(fixture_show "pipelines?level=all" --pipe)" = "$sh_lvl_all" ] || fail "show pipelines?level=all differs from all levels"
 
-[ "$("$TAM" explain --level 1 pipelines --pipe)" = "$ex_tg_lvl_b" ] || fail "explain --level 1 pipelines differs from beginner"
+[ "$("$TAM" explain --level 1 pipelines --pipe)" = "$ex_tg_lvl_b" ] || fail "explain --level 1 pipelines differs from novice"
 [ "$("$TAM" explain --level 0 pipelines --pipe)" = "$ex_out" ] || fail "explain --level 0 pipelines differs from all levels"
 [ "$("$TAM" explain --level all pipelines --pipe)" = "$ex_out" ] || fail "explain --level all pipelines differs from all levels"
 [ "$("$TAM" explain topics --level 3 --terse)" = "$ex_expert_terse" ] || fail "explain topics --level 3 --terse differs from expert"
@@ -2542,8 +2542,8 @@ pass "explain resolves curated topics, handles misses, and treats shell strings 
 # whatis subcommand: exact synonym for explain
 whatis_out=$("$TAM" whatis pipelines --pipe)
 [ "$whatis_out" = "$ex_out" ] || fail "whatis pipelines differs from explain pipelines"
-whatis_lvl=$("$TAM" whatis --level beginner pipelines --pipe)
-[ "$whatis_lvl" = "$ex_tg_lvl_b" ] || fail "whatis --level beginner pipelines differs from explain"
+whatis_lvl=$("$TAM" whatis --level novice pipelines --pipe)
+[ "$whatis_lvl" = "$ex_tg_lvl_b" ] || fail "whatis --level novice pipelines differs from explain"
 whatis_topics=$("$TAM" whatis topics --pipe)
 [ "$whatis_topics" = "$ex_topics" ] || fail "whatis topics differs from explain topics"
 if "$TAM" whatis no_such_topic >/dev/null 2>&1; then fail "whatis unmatched topic exited 0"; fi
@@ -3356,8 +3356,8 @@ printf "%s\n" "${COMPREPLY[@]}"
 printf '%s\n' "$bash_level_test" | grep -q 'all' || fail "bash completion missing level all"
 printf '%s\n' "$bash_level_test" | grep -q 'novice' || fail "bash completion missing level novice"
 printf '%s\n' "$bash_level_test" | grep -q 'learner' || fail "bash completion missing level learner"
-printf '%s\n' "$bash_level_test" | grep -q 'beginner' || fail "bash completion missing level beginner"
-printf '%s\n' "$bash_level_test" | grep -q 'intermediate' || fail "bash completion missing level intermediate"
+printf '%s\n' "$bash_level_test" | # beginner removed || fail "bash completion missing level beginner"
+printf '%s\n' "$bash_level_test" | # intermediate removed || fail "bash completion missing level intermediate"
 printf '%s\n' "$bash_level_test" | grep -q 'expert' || fail "bash completion missing level expert"
 printf '%s\n' "$bash_level_test" | grep -qx '0' || fail "bash completion missing level 0"
 printf '%s\n' "$bash_level_test" | grep -qx '1' || fail "bash completion missing level 1"

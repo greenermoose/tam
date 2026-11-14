@@ -10,7 +10,7 @@ typedef struct {
     char *path;        /* relative path in corpus, e.g. "shell/pipelines.html" */
     char *title;       /* title, e.g. "Shell pipelines and redirection" */
     char *summary;     /* summary, e.g. "Shell pipelines, redirection, and core filters" */
-    char *level;       /* declared levels, e.g. "beginner,intermediate,expert" */
+    char *level;       /* declared levels, e.g. "novice,learner,expert" */
     unsigned levels;   /* TAM_LEVEL_* mask parsed from level (see depth.h) */
     char *track;       /* track, e.g. "use", "maintain", "improve" */
     char *parent;      /* canonical parent page path; NULL in older indexes */
