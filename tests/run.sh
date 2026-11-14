@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.55.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.56.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -414,11 +414,14 @@ assert send_and_get_target(b"[") == "br.html", "expected [ to wrap backward to l
 assert send_and_get_target(b"]") == "index.html", "expected ] to wrap forward to breadcrumb link index.html"
 assert send_and_get_target(b"]") == "tl.html", "expected ] to move to first content link tl.html"
 
-# Down (d) catches the first link on the next row; ] selects next link.
+# Down (d) steps across links on the row, then catches the first link on the next row; ] selects next link.
+assert send_and_get_target(b"d") == "tr.html"
 assert send_and_get_target(b"d") == "bl.html"
 assert send_and_get_target(b"]") == "br.html"
-# Up (l, s) moves one row; moving up catches the last link on the row.
+# Up (l, s) steps backward across links on the row, then catches the last link on the previous row.
+assert send_and_get_target(b"l") == "bl.html"
 assert send_and_get_target(b"l") == "tr.html"
+assert send_and_get_target(b"s") == "tl.html"
 assert send_and_get_target(b"s") == "", "moving off the link row deactivates the link"
 
 # Bottom (c, ,) and top (x, .) jump to the ends of the page; G is retired.
@@ -1429,23 +1432,38 @@ assert "L2 1-4/4" in pos and target == "", f"expected blank line, got: {pos} {ta
 title, pos, target, msg, has_tint = send_key(b"k")
 assert "L3 1-4/4" in pos and target == "tl.html", f"expected downward sweep to catch first link tl.html, got: {target}"
 
-# 3. Third k moves onto links line 2: downward sweep catches FIRST link (bl.html)
+# 3. Third k steps to SECOND link on line 1 (tr.html)
 title, pos, target, msg, has_tint = send_key(b"k")
-assert "L4 1-4/4" in pos and target == "bl.html", f"expected downward sweep to catch first link bl.html, got: {target}"
+assert "L3 1-4/4" in pos and target == "tr.html", f"expected k to step to second link tr.html, got: {pos} {target}"
 
-# 4. Tab advances on line 2 to br.html
-title, pos, target, msg, has_tint = send_key(b"\t")
-assert target == "br.html", f"expected Tab to advance to br.html, got: {target}"
+# 4. Fourth k moves onto links line 2: downward sweep catches FIRST link (bl.html)
+title, pos, target, msg, has_tint = send_key(b"k")
+assert "L4 1-4/4" in pos and target == "bl.html", f"expected downward sweep to catch first link bl.html, got: {pos} {target}"
 
-# 5. Upward sweep (l) back to line 1: catches LAST link (tr.html)
+# 5. Fifth k steps to SECOND link on line 2 (br.html)
+title, pos, target, msg, has_tint = send_key(b"k")
+assert "L4 1-4/4" in pos and target == "br.html", f"expected k to step to second link br.html, got: {pos} {target}"
+
+# 6. Sixth k at last link on last line stays at br.html (verified by stepping back with l)
+send_key(b"k")
+
+# 7. Upward sweep (l) steps to FIRST link on line 2 (bl.html)
 title, pos, target, msg, has_tint = send_key(b"l")
-assert "L3 1-4/4" in pos and target == "tr.html", f"expected upward sweep to catch last link tr.html, got: {target}"
+assert "L4 1-4/4" in pos and target == "bl.html", f"expected upward sweep on line 2 to step to bl.html, got: {pos} {target}"
 
-# 6. Upward sweep (l) to blank line: link deactivates when moving off its line
+# 8. Upward sweep (l) back to line 1: catches LAST link (tr.html)
+title, pos, target, msg, has_tint = send_key(b"l")
+assert "L3 1-4/4" in pos and target == "tr.html", f"expected upward sweep to catch last link tr.html, got: {pos} {target}"
+
+# 9. Upward sweep (l) steps to FIRST link on line 1 (tl.html)
+title, pos, target, msg, has_tint = send_key(b"l")
+assert "L3 1-4/4" in pos and target == "tl.html", f"expected upward sweep on line 1 to step to tl.html, got: {pos} {target}"
+
+# 10. Upward sweep (l) to blank line: link deactivates when moving off its line
 title, pos, target, msg, has_tint = send_key(b"l")
 assert "L2 1-4/4" in pos and target == "", f"expected link to deactivate on blank line, got: {target}"
 
-# 7. Upward sweep (l) to heading line: no link on heading line
+# 11. Upward sweep (l) to heading line: no link on heading line
 title, pos, target, msg, has_tint = send_key(b"l")
 assert "L1 1-4/4" in pos and target == "", f"expected no link on heading line, got: {target}"
 
@@ -1505,7 +1523,8 @@ get_state(timeout=0.08)
 send_key(b"k")
 send_key(b"k")
 send_key(b"k")
-title, pos, target, msg, _ = send_key(b"\t")
+send_key(b"k")
+title, pos, target, msg, _ = send_key(b"k")
 assert "L4 1-4/4" in pos and target == "br.html", f"expected L4 1-4/4 br.html before jump, got: {pos} {target}"
 # Jump to index.html via backtick (`), then scroll down 1 line on index.html
 title, pos, target, msg, _ = send_key(b"`")
@@ -2949,7 +2968,10 @@ title, target = parse_info(drain(master))
 assert target == "index.html", f"s did not move to the previous breadcrumb: {target}"
 os.write(master, b"d")
 title, target = parse_info(drain(master))
-assert target != "index.html" and target != "tam:man", f"d did not return from the breadcrumb to the page: {target}"
+assert target == "tam:man", f"d did not move to the next breadcrumb: {target}"
+os.write(master, b"d")
+title, target = parse_info(drain(master))
+assert target != "index.html" and target != "tam:man", f"d did not return from the last breadcrumb to the page: {target}"
 os.write(master, b"x\x1b[A")
 title, target = parse_info(drain(master))
 assert target == "tam:man", f"Up did not return from the document to the breadcrumb: {target}"

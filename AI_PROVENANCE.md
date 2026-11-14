@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-14: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) updates `src/pager_links.c` so `Down` and `Up` step through multiple active links on the attention line (and forward through breadcrumb links) before moving to the next or previous line in command 0.56.0. [Record](docs/ai/2026-11-14-tam-up-down-line-links.md).
+
 2026-11-14: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) fixes `src/pager_draw.c` so interior spaces in unselected links receive link underlining while boundary spaces remain unstyled in command 0.55.2. [Record](docs/ai/2026-11-14-tam-link-interior-spaces.md).
 
 2026-11-14: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) audits the `tam` knowledge corpus for undefined technical terms, adds 404 glossary pages (including family overviews and individual slugs), 10 bibliography entries (`ECMA-48`, `ISO 8859-1`, `ISO/IEC 9899`, `ISO/IEC 21031`, `IEEE 802.3an`, `RFC 5280`, `RFC 5869`, `RFC 9106`, `CTA-861`, `WCAG`), a `Bibliography` link on `knowledge/index.html`, and `<dfn>`/`<cite>` links in `escape-sequences.html` and `linux-console.html` in corpus 0.89.0. [Record](docs/ai/2026-11-14-tam-corpus-undefined-terms-audit.md).

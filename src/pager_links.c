@@ -357,15 +357,50 @@ static void select_horizontal_header_link(pager_t *st, int dir)
     st->msg[0] = '\0';
 }
 
-/* Up and down move the attention line one row. Up from the first line enters
- * the breadcrumb row; there, up moves to the previous breadcrumb link and
- * down returns to the attention line. */
+/* Step to the next (dir > 0) or previous (dir < 0) link on the current
+ * attention line. Returns 1 if the selection changed on the line, or 0 if
+ * the attention line should move to the next/previous row. */
+static int step_link_on_line(pager_t *st, int dir)
+{
+    int first = -1, last = -1, prev = -1, next = -1, on_line = 0;
+    for (size_t i = 0; i < st->nlinks; i++) {
+        const linkref_t *l = &st->links[i];
+        if (l->header || l->line_start > (size_t)st->cursor_line ||
+            l->line_end < (size_t)st->cursor_line) {
+            continue;
+        }
+        if (first < 0) first = (int)i;
+        last = (int)i;
+        if ((int)i < st->selected) prev = (int)i;
+        else if ((int)i == st->selected) on_line = 1;
+        else if (next < 0) next = (int)i;
+    }
+    if (first < 0) return 0;
+    if (!on_line) {
+        st->selected = dir > 0 ? first : last;
+    } else if (dir > 0) {
+        if (next < 0) return 0;
+        st->selected = next;
+    } else {
+        if (prev < 0) return 0;
+        st->selected = prev;
+    }
+    st->msg[0] = '\0';
+    return 1;
+}
+
+/* Up and down step through links on the attention line before moving to the
+ * previous or next row. Up from the first line enters the breadcrumb row;
+ * there, up moves to the previous breadcrumb link and down steps forward
+ * through breadcrumb links before returning to the attention line. */
 void move_line_up(pager_t *st)
 {
     if (breadcrumb_focused(st)) {
         int previous = st->selected - 1;
         if (previous >= 0 && st->links[previous].header) st->selected = previous;
         st->msg[0] = '\0';
+    } else if (step_link_on_line(st, -1)) {
+        /* Stepped to the previous link on the current attention line. */
     } else if (st->cursor_line <= 0 && st->height > 2 &&
                st->doc->location.nspans > 0 && select_breadcrumb(st)) {
         /* The fixed location line is above the document's first line. */
@@ -376,10 +411,19 @@ void move_line_up(pager_t *st)
 
 void move_line_down(pager_t *st)
 {
-    if (breadcrumb_focused(st))
-        leave_breadcrumb(st);
-    else
+    if (breadcrumb_focused(st)) {
+        int next = st->selected + 1;
+        if (next >= 0 && (size_t)next < st->nlinks && st->links[next].header) {
+            st->selected = next;
+            st->msg[0] = '\0';
+        } else {
+            leave_breadcrumb(st);
+        }
+    } else if (step_link_on_line(st, 1)) {
+        /* Stepped to the next link on the current attention line. */
+    } else {
         set_cursor_line(st, st->cursor_line + 1, 1);
+    }
 }
 
 /* Space and Page Down scroll down by one page with one line of overlap: the
