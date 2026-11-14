@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Public-Key Cryptography, Elliptic Curves, and PKI</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="cryptography.novice, cryptography.learner, cryptography.expert">
+<meta name="topic" content="public-key-cryptography">
+<meta name="summary" content="Diffie-Hellman, RSA, elliptic curve cryptography (Curve25519/Ed25519), digital signatures, and X.509 PKI">
+<meta name="keywords" content="public key, asymmetric, diffie-hellman, rsa, ecc, curve25519, ed25519, x509, pki, digital signature, certificate">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="cryptographic-hashes">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Public-Key Cryptography, Elliptic Curves, and PKI</p>
+</nav>
+
+<h1>Public-Key Cryptography, Elliptic Curves, and PKI</h1>
+<p>This page explains how two computers agree on a secret over an open network and verify identities using linked public and private keys.</p>
+
+<section data-level="novice">
+<h2>Sharing secrets with strangers without meeting first</h2>
+<p><dfn><a href="learn/glossary/asymmetric-encryption.html">Asymmetric encryption</a></dfn> (also called public-key cryptography) solves a puzzle that baffled code-makers for centuries: how can two people who have never met—and who can only talk in a room full of eavesdroppers—agree on a secret key or prove who sent a message?</p>
+
+<h3>Why it matters</h3>
+<p>You cannot drive to a website's data center to exchange a secret USB stick before shopping online. Public-key cryptography lets your browser and a server invent a fresh secret key in milliseconds over public Wi-Fi, and lets software authors attach tamper-proof <dfn><a href="learn/glossary/digital-signature.html">digital signatures</a></dfn> to updates.</p>
+
+<h3>How to think about it</h3>
+<p>Imagine a special padlock with two keys: you hand out open copies of the padlock (your <strong>public key</strong>) to anyone in the world. Anyone can snap that padlock shut on a box, yet only your single <strong>private key</strong>—kept locked in your pocket—can open it. For signatures, the direction flips: you stamp a wax seal with your private key, and anyone can check that the seal matches your public key.</p>
+<p>To know which public key truly belongs to your bank rather than an imposter, a trusted <dfn><a href="learn/glossary/certificate-authority.html">certificate authority</a></dfn> signs a digital passport (<dfn><a href="learn/glossary/x509.html">X.509</a></dfn> certificate) binding the bank's name to its public key.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/asymmetric-encryption.html">Asymmetric encryption</a></dfn></dt>
+<dd>Cryptography using a public key for locking/verifying and a separate private key for unlocking/signing.</dd>
+<dt><dfn><a href="learn/glossary/diffie-hellman.html">Diffie-Hellman</a></dfn></dt>
+<dd>A mathematical trick allowing two parties to agree on a shared secret over a public channel.</dd>
+<dt><dfn><a href="learn/glossary/rsa.html">RSA</a></dfn></dt>
+<dd>An early public-key system built on the difficulty of factoring huge numbers into prime factors.</dd>
+<dt><dfn><a href="learn/glossary/ecc.html">ECC</a></dfn></dt>
+<dd>Elliptic Curve Cryptography: modern public-key math using points on curves for smaller, faster keys.</dd>
+<dt><dfn><a href="learn/glossary/digital-signature.html">Digital signature</a></dfn></dt>
+<dd>A mathematical seal made with a private key and checked by anyone with the public key.</dd>
+<dt><dfn><a href="learn/glossary/certificate-authority.html">Certificate authority</a></dfn></dt>
+<dd>A trusted organization that signs certificates vouching for who owns a public key.</dd>
+<dt><dfn><a href="learn/glossary/x509.html">X.509</a></dfn></dt>
+<dd>The standard digital certificate format used by TLS and HTTPS.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Creating Ed25519 signatures and inspecting X.509 certificates</h2>
+<p><strong>Goal:</strong> you will be able to generate an Ed25519 key pair, sign and verify a scratch file, and inspect the fields inside an X.509 certificate.</p>
+<p><strong>Before you start:</strong> run all key-generation experiments inside a temporary <code>mktemp -d</code> directory and remove it when finished.</p>
+
+<h3>Worked example</h3>
+<p>Generate an Ed25519 private/public key pair, sign a file, verify the signature, and create and inspect a self-signed X.509 certificate:</p>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d) &amp;&amp; cd "$work"
+$ printf 'Secret message for Tamlinux.\n' &gt; msg.txt
+$ openssl genpkey -algorithm Ed25519 -out ed_priv.pem
+$ openssl pkey -in ed_priv.pem -pubout -out ed_pub.pem
+$ openssl pkeyutl -sign -inkey ed_priv.pem -rawin -in msg.txt -out msg.sig
+$ openssl pkeyutl -verify -pubin -inkey ed_pub.pem -rawin -in msg.txt -sigfile msg.sig
+Signature Verified Successfully
+$ openssl req -x509 -new -key ed_priv.pem -subj "/CN=tamlinux.example" -days 30 -out cert.pem
+$ openssl x509 -in cert.pem -noout -subject -issuer -dates -pubkey
+subject=CN=tamlinux.example
+issuer=CN=tamlinux.example
+notBefore=Nov 14 11:41:25 2026 GMT
+notAfter=Dec 14 11:41:25 2026 GMT
+-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEAZ5sIPnh5KSAKNreUSd9SkiCm33Uxdl7qtT32huXwHpo=
+-----END PUBLIC KEY-----
+$ rm -rf "$work"
+</pre>
+<p>Captured on Arch Linux, 2026-11-14; generated keys and timestamps will differ on your system.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>openssl genpkey -algorithm Ed25519</code> created a 256-bit Ed25519 private key in PEM format, and <code>openssl pkey -pubout</code> extracted its 32-byte public key.</li>
+<li><code>openssl pkeyutl -sign</code> signed <code>msg.txt</code> with the private key, and <code>-verify</code> proved the file matched using only <code>ed_pub.pem</code>.</li>
+<li><code>openssl x509</code> displayed the certificate's subject, issuer, validity window, and embedded public key. Notice that in a real CA-issued certificate, <code>issuer</code> is the CA rather than the subject itself, and hostnames are listed in the <code>Subject Alternative Name</code> (SAN) extension.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Before deleting your scratch directory, modify one character of <code>msg.txt</code> and rerun <code>openssl pkeyutl -verify</code> to see signature verification fail immediately.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>Signature Verification Failure</code></dt>
+<dd>The file was altered after signing, the wrong public key was supplied, or the signature file was truncated.</dd>
+<dt>Self-signed certificate rejected by browsers or <code>curl</code></dt>
+<dd>Browsers trust only certificates chained to a root CA in the system trust store (<code>/etc/ssl/certs/</code> on Linux) unless explicitly pinned or trusted.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, system CA trust anchors live under <code>/etc/ca-certificates/</code> and <code>/etc/ssl/certs/</code> (managed via Arch's <code>ca-certificates</code> package), and SSH (<a href="use/security/ssh.html">SSH keys</a>) defaults to Ed25519 rather than legacy RSA.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why do modern systems prefer Ed25519 / X25519 over 2048-bit RSA?</summary>
+<p>A 256-bit Ed25519/X25519 key achieves roughly the same 128-bit classical security level as a 3072-bit RSA key while being far faster, immune to RSA padding-oracle pitfalls, and deterministic in signing.</p>
+</details>
+<details class="q">
+<summary>If an attacker intercepts your public key, can they derive your private key from it?</summary>
+<p>Not with classical computers: deriving the private key requires solving integer factorization (RSA) or the discrete logarithm problem on the group/curve (DH/ECC), which is computationally infeasible for properly sized keys.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Number theory, RSA, elliptic curves, and X.509 PKI</h2>
+<p><strong>Reference:</strong> classical public-key cryptography rests on three algebraic hardness assumptions: Integer Factorization (IFP), Finite-Field Discrete Logarithm (DLP/CDH/DDH), and Elliptic Curve Discrete Logarithm (ECDLP).</p>
+
+<table>
+<tr><th>Scheme</th><th>Group / Ring</th><th>Classical Security (128-bit)</th><th>Key / Signature Size</th></tr>
+<tr><td>RSA-3072 (OAEP / PSS)</td><td><code>ℤ_N*</code>, <code>N = p·q</code></td><td>3072-bit modulus</td><td>384 B / 384 B</td></tr>
+<tr><td>X25519 (ECDH)</td><td>Montgomery Curve25519 over <code>𝔽_(2^255-19)</code></td><td>255-bit field (~128-bit)</td><td>32 B public key</td></tr>
+<tr><td>Ed25519 (EdDSA)</td><td>Twisted Edwards curve birational to Curve25519</td><td>255-bit field (~128-bit)</td><td>32 B key / 64 B sig</td></tr>
+<tr><td>ECDSA P-256</td><td>Short Weierstrass NIST P-256</td><td>256-bit prime field</td><td>32–65 B key / 64 B sig</td></tr>
+</table>
+
+<h3>How it works: algebraic foundations</h3>
+<p><strong>Extended Euclidean Algorithm &amp; CRT:</strong> Given <code>a, b ∈ ℤ</code>, the Extended Euclidean Algorithm computes <code>g = gcd(a, b)</code> and Bézout coefficients <code>x, y</code> such that <code>a·x + b·y = g</code> in <code>O((log a)²)</code> bit operations. When <code>gcd(e, φ(N)) = 1</code>, this yields the modular inverse <code>d = e^(-1) mod φ(N)</code>. The Chinese Remainder Theorem (CRT) states that for coprime <code>p, q</code>, <code>ℤ_(pq) ≅ ℤ_p × ℤ_q</code>, accelerating RSA private operations by ~4× by computing modulo <code>p</code> and <code>q</code> separately.</p>
+<p><strong>RSA &amp; Padding:</strong> KeyGen chooses primes <code>p, q</code>, sets <code>N = p·q</code>, <code>φ(N) = (p-1)(q-1)</code>, and <code>e·d ≡ 1 (mod φ(N))</code>. Textbook RSA (<code>m^e mod N</code>) is deterministically malleable (<code>(m_1^e)(m_2^e) ≡ (m_1·m_2)^e mod N</code>) and fails IND-CPA. Secure RSA requires randomized padding: <strong>RSA-OAEP</strong> (Bellare–Rogaway, proved IND-CCA2 in the ROM) for encryption and <strong>RSA-PSS</strong> (proved EUF-CMA in the ROM) for signatures.</p>
+<p><strong>Diffie–Hellman (DH) &amp; ElGamal:</strong> In a prime-order subgroup <code>G = ⟨g⟩</code> of order <code>q</code>, Alice picks <code>a ← ℤ_q</code>, sends <code>g^a</code>; Bob picks <code>b ← ℤ_q</code>, sends <code>g^b</code>; both compute <code>g^(ab)</code>. Computing <code>g^(ab)</code> from <code>(g, g^a, g^b)</code> is CDH; distinguishing <code>g^(ab)</code> from random <code>g^c</code> is DDH. Unauthenticated DH is vulnerable to active Man-in-the-Middle (MITM), so protocols bind ephemeral DH shares with signatures or MACs.</p>
+<p><strong>Elliptic Curve Cryptography (ECC):</strong> Over a prime field <code>𝔽_p</code> (<code>p &gt; 3</code>), a Weierstrass curve <code>E: y² ≡ x³ + ax + b (mod p)</code> (with <code>4a³ + 27b² ≠ 0</code>) plus a point at infinity <code>O</code> forms an abelian group under the chord-and-tangent law. Scalar multiplication <code>[k]P</code> takes <code>O(log k)</code> point additions/doublings, while recovering <code>k</code> from <code>(P, [k]P)</code> (ECDLP) resists subexponential index-calculus attacks, taking <code>O(√q)</code> via Pollard's rho. <strong>Curve25519</strong> (<code>y² = x³ + 486662x² + x mod (2^255 - 19)</code>) enables the constant-time x-only Montgomery ladder (immune to branch/cache timing and invalid-curve attacks via clamping), while <strong>Ed25519</strong> derives its signing nonce deterministically as <code>r = H(prefix || M)</code>, eliminating catastrophic ECDSA nonce-reuse failures.</p>
+<p><strong>X.509 &amp; PKI Trust Anchors:</strong> X.509 certificates (RFC 5280) encode ASN.1 DER structures binding a DNS SAN to a SubjectPublicKeyInfo. Because any compromised CA could issue a rogue certificate, modern web PKI enforces <strong>Certificate Transparency (CT)</strong>—append-only Merkle hash trees logging every issued certificate publicly—alongside OCSP stapling and DNS CAA records.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>ECDSA nonce reuse &amp; biased nonces:</strong> In ECDSA, signing two messages with the same ephemeral nonce <code>k</code> leaks the private key algebraically: <code>k = (H(m_1) - H(m_2)) / (s_1 - s_2) mod q</code>, then <code>d = (s·k - H(m)) / r mod q</code>. Even a few bits of nonce bias across many signatures falls to lattice reduction (LLL/BKZ) attacks.</li>
+<li><strong>Bleichenbacher's RSA PKCS#1 v1.5 oracle (1998):</strong> Server error differences distinguishing valid vs. invalid PKCS#1 v1.5 padding let an attacker decrypt ciphertexts or forge signatures in ~10^6 adaptive queries—and variants (ROBOT, Marvin) continue to resurface. Always prefer X25519/Ed25519 or OAEP/PSS.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why do elliptic curves achieve 128-bit security with 256-bit keys, whereas finite-field Diffie-Hellman and RSA require ~3072-bit keys?</summary>
+<p>In Z_N* and F_p*, subexponential algorithms (Number Field Sieve, index calculus) exploit smooth numbers and algebraic structure in L_N[1/3] time. On well-chosen elliptic curves without special structure (non-supersingular, embedding degree large), no index-calculus subexponential attack is known, leaving generic O(sqrt(q)) Pollard's rho algorithms as the best classical attack.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="katz-lindell"><a href="learn/bibliography/katz-lindell.html">Introduction to Modern Cryptography</a></cite> (Chapters 8–13: Number theory, DH, RSA, ECC, signatures).</li>
+<li><cite data-ref="boneh-shoup"><a href="learn/bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 10–16: Public-key encryption, signatures, elliptic curves).</li>
+</ul>
+</section>
+</body>
+</html>

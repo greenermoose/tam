@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Symmetric Cryptography and Authenticated Encryption</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="cryptography.novice, cryptography.learner, cryptography.expert">
+<meta name="topic" content="symmetric-cryptography">
+<meta name="summary" content="Block and stream ciphers, AES and ChaCha20 internals, modes of operation, Galois fields, and AEAD security">
+<meta name="keywords" content="symmetric, aes, chacha20, gcm, poly1305, aead, block cipher, stream cipher, nonce, luks">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="cryptography-foundations">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Symmetric Cryptography and Authenticated Encryption</p>
+</nav>
+
+<h1>Symmetric Cryptography and Authenticated Encryption</h1>
+<p>This page explains how a single shared secret key scrambles bulk data quickly and seals it against tampering.</p>
+
+<section data-level="novice">
+<h2>Locking and sealing data with one shared key</h2>
+<p><dfn><a href="learn/glossary/symmetric-encryption.html">Symmetric encryption</a></dfn> uses the exact same secret key to scramble (encrypt) and unscramble (decrypt) information. Because it relies on fast bitwise operations—shifting, mixing, and adding—it can encrypt gigabytes per second, making it the workhorse behind full-disk encryption, Wi-Fi, and web traffic.</p>
+
+<h3>Why it matters</h3>
+<p>Confidentiality alone is not enough: if an attacker flips a few bits in an encrypted message without being noticed, they could change a bank transfer amount or corrupt a program. Modern symmetric systems therefore pair encryption with a tamper-evident seal so any modification is caught before the data is trusted.</p>
+
+<h3>How to think about it</h3>
+<p>Imagine putting a letter inside a locked steel box (encryption) and wrapping a numbered tamper-evident wax seal around the latch (authentication). Even if someone shakes or dents the box in transit, the broken seal warns you immediately not to trust what is inside.</p>
+<p>Also, if you encrypt two identical paragraphs with the same key, you must never produce identical scrambled text—otherwise an eavesdropper sees repeating patterns. Adding a fresh one-time starting number called a <strong>nonce</strong> (number used once) ensures that encrypting the same message twice yields completely different ciphertext.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/symmetric-encryption.html">Symmetric encryption</a></dfn></dt>
+<dd>Scrambling and unscrambling data with the same shared secret key.</dd>
+<dt><dfn><a href="learn/glossary/aead.html">AEAD</a></dfn></dt>
+<dd>Authenticated Encryption with Associated Data: locking data and sealing it against tampering in one step.</dd>
+<dt><dfn><a href="learn/glossary/mac.html">MAC</a></dfn></dt>
+<dd>Message Authentication Code: a short tag made with a secret key to prove a message was not altered.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Encrypting files and spotting key-derivation headers</h2>
+<p><strong>Goal:</strong> you will be able to encrypt and decrypt a scratch file safely with OpenSSL using AES-256 and PBKDF2 key derivation, and inspect why salting changes the ciphertext.</p>
+<p><strong>Before you start:</strong> work inside a temporary directory created with <code>mktemp -d</code> so no scratch files remain in your home folder.</p>
+
+<h3>Worked example</h3>
+<p>Create a scratch file, encrypt it with AES-256-CBC and PBKDF2 key derivation, inspect the first 32 bytes of the encrypted file, and decrypt it:</p>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d) &amp;&amp; cd "$work"
+$ printf 'Secret message for Tamlinux.\n' &gt; msg.txt
+$ openssl enc -aes-256-cbc -pbkdf2 -salt -in msg.txt -out msg.enc -pass pass:demo-passphrase-2026
+$ od -tx1 -N 32 msg.enc
+0000000 53 61 6c 74 65 64 5f 5f c5 76 5e 0c 91 95 09 3d
+0000020 38 0c 0c 2d 44 97 a2 cc 98 9a 7e ee 7f 62 19 40
+0000040
+$ openssl enc -d -aes-256-cbc -pbkdf2 -in msg.enc -pass pass:demo-passphrase-2026
+Secret message for Tamlinux.
+$ rm -rf "$work"
+</pre>
+<p>Captured on Arch Linux, 2026-11-14; the random salt and ciphertext bytes will differ on every run.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The first 8 bytes of <code>msg.enc</code> (<code>53 61 6c 74 65 64 5f 5f</code>) spell <code>Salted__</code> in ASCII, followed by an 8-byte random salt (<code>c5 76 5e ...</code>).</li>
+<li><code>-pbkdf2</code> stretches the passphrase with the random salt to derive both an encryption key and an initialization vector (IV), so encrypting the same file twice with the same passphrase produces different ciphertexts.</li>
+<li>Note that <code>openssl enc</code> defaults to unauthenticated modes (CBC) without a MAC; for real file encryption, prefer authenticated tools such as <code>age</code>, <code>gpg</code>, or LUKS2 rather than raw <code>openssl enc</code>.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>In a scratch directory, encrypt the same text twice with <code>-aes-256-cbc -pbkdf2</code> and compare the outputs with <code>cmp</code>. Never pass real secrets via <code>-pass pass:...</code> on the command line (shell history and <code>ps</code> can see arguments); omit <code>-pass</code> so OpenSSL prompts interactively.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>bad decrypt</code> error</dt>
+<dd>The passphrase is wrong, the file was truncated, or the decryption command omitted <code>-pbkdf2</code> when encryption used it.</dd>
+<dt>ECB mode warning or repeated blocks</dt>
+<dd>Never use <code>-aes-256-ecb</code>: ECB encrypts identical 16-byte blocks identically, leaking structure in images and structured files.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, full-disk encryption (<a href="use/security/disk-encryption.html">LUKS2</a>) uses <code>aes-xts-plain64</code> (a tweakable block cipher mode designed for fixed-sector storage where ciphertext cannot expand to hold a MAC tag), while TLS 1.3 and WireGuard use AEAD suites (<code>AES-256-GCM</code> and <code>ChaCha20-Poly1305</code>).</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is ECB (Electronic Codebook) mode unsafe for encrypting anything longer than a single random block?</summary>
+<p>ECB encrypts each 16-byte plaintext block independently with the same key, so identical plaintext blocks produce identical ciphertext blocks and reveal patterns.</p>
+</details>
+<details class="q">
+<summary>What does AEAD add beyond plain encryption?</summary>
+<p>AEAD computes an authentication tag over both the ciphertext and any unencrypted associated headers (AAD), so decryption rejects any tampered packet before releasing plaintext.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Cipher constructions, Galois fields, AEAD, and cryptanalysis</h2>
+<p><strong>Reference:</strong> a block cipher <code>E: {0,1}^k × {0,1}^n → {0,1}^n</code> is modeled as a Pseudorandom Permutation (PRP). Security requires that no PPT adversary can distinguish <code>E_K(·)</code> from a uniform random permutation over <code>{0,1}^n</code>.</p>
+
+<table>
+<tr><th>Primitive</th><th>Structure</th><th>Key / Block / Nonce</th><th>Core Operations</th></tr>
+<tr><td>AES-128 / 256</td><td>SPN (10 / 14 rounds)</td><td>128 or 256 / 128 / mode</td><td><code>SubBytes</code> (<code>GF(2^8)</code>), <code>ShiftRows</code>, <code>MixColumns</code>, <code>AddRoundKey</code></td></tr>
+<tr><td>ChaCha20</td><td>ARX stream (20 rounds)</td><td>256 / 512 state / 96</td><td>32-bit Modular Add, Rotate, XOR quarter-round</td></tr>
+<tr><td>AES-GCM</td><td>AEAD (CTR + GHASH)</td><td>128 or 256 / 128 / 96</td><td>CTR encryption + polynomial MAC in <code>GF(2^128)</code></td></tr>
+<tr><td>ChaCha20-Poly1305</td><td>AEAD (Encrypt-then-MAC)</td><td>256 / stream / 96</td><td>ChaCha20 keystream + Poly1305 mod <code>2^130 - 5</code></td></tr>
+</table>
+
+<h3>How it works: AES, ChaCha20, and AEAD</h3>
+<p><strong>AES (Rijndael) Internals:</strong> AES operates on a 4×4 byte state matrix in the finite field <code>GF(2^8) = 𝔽_2[x] / (x^8 + x^4 + x^3 + x + 1)</code>. Each round applies four layers: (1) <code>SubBytes</code>, the only nonlinear step, computes the multiplicative inverse in <code>GF(2^8)</code> (mapping 0 to 0) followed by an affine map over <code>𝔽_2</code>; (2) <code>ShiftRows</code> cyclically shifts row <code>i</code> left by <code>i</code> bytes; (3) <code>MixColumns</code> multiplies each column by a fixed Maximum Distance Separable (MDS) circulant matrix over <code>GF(2^8)</code> (branch number 5, maximizing diffusion); (4) <code>AddRoundKey</code> XORs the round subkey.</p>
+<p><strong>ChaCha20 ARX Design:</strong> Rather than S-boxes (which risk cache-timing side channels in software without AES-NI), ChaCha20 initializes a 4×4 matrix of 32-bit words (constants <code>"expand 32-byte k"</code>, 256-bit key, 32-bit block counter, 96-bit nonce) and applies 20 rounds (10 column + 10 diagonal) of quarter-rounds using only <code>a += b; d ^= a; d &lt;&lt;&lt;= 16</code> and similar Add-Rotate-XOR steps. Every operation runs in constant time on general-purpose CPUs.</p>
+<p><strong>GCM and Poly1305 Authentication:</strong> AES-GCM encrypts plaintext with AES-CTR starting at counter 2, then computes <code>GHASH(H, AAD, C)</code> where <code>H = E_K(0^128)</code> by evaluating a polynomial <code>∑ X_i · H^i</code> in <code>GF(2^128)</code> (irreducible polynomial <code>x^128 + x^7 + x^2 + x + 1</code>) and XORing <code>E_K(nonce || 1)</code>. ChaCha20-Poly1305 derives a one-time Poly1305 key from ChaCha20 block 0 and evaluates a polynomial modulo the prime <code>2^130 - 5</code> over blocks of AAD and ciphertext.</p>
+<p><strong>Cryptanalysis Foundations:</strong> <em>Differential cryptanalysis</em> (Biham–Shamir) tracks how input XOR differences <code>ΔX</code> propagate to output differences <code>ΔY</code> with high probability across rounds; <em>linear cryptanalysis</em> (Matsui) finds high-bias linear approximations <code>(α · P) ⊕ (β · C) = (γ · K)</code>. Wide-trail design in AES bounds the minimum number of active S-boxes across any 4-round trail to 25, defeating both attacks.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>Nonce reuse in CTR/GCM/ChaCha20:</strong> Encrypting two messages under the same <code>(Key, Nonce)</code> immediately leaks <code>C_1 ⊕ C_2 = P_1 ⊕ P_2</code>. Worse, in AES-GCM, nonce reuse lets an attacker recover the GHASH authentication key <code>H</code> via polynomial root-finding in <code>GF(2^128)</code> (Joux's Forbidden Attack), forging arbitrary future tags. Use random 192-bit nonces (XChaCha20) or AES-GCM-SIV when nonce uniqueness cannot be guaranteed.</li>
+<li><strong>Cache-timing attacks on table-based AES:</strong> Software T-table implementations index RAM by secret-dependent bytes, leaking AES keys across shared CPU caches (Bernstein 2005). Production systems must use hardware instructions (AES-NI / ARMv8 Crypto) or constant-time bit-sliced / ARX designs.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why does nonce reuse in AES-GCM break integrity as well as confidentiality, whereas nonce reuse in CBC mode only leaks the first-block prefix equality?</summary>
+<p>In AES-GCM, the authentication tag is a polynomial in GF(2^128) masked by E_K(nonce || 1). Subtracting (XORing) two tags generated with the same (K, nonce) cancels the mask E_K(nonce || 1), leaving a polynomial equation in H whose coefficients are known ciphertexts. Solving for H recovers the MAC key permanently. In CBC, reusing an IV leaks equality of identical prefix blocks without exposing any MAC key.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="katz-lindell"><a href="learn/bibliography/katz-lindell.html">Introduction to Modern Cryptography</a></cite> (Chapters 4–6: Block ciphers, modes, AEAD).</li>
+<li><cite data-ref="boneh-shoup"><a href="learn/bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 3–4, 8–9: AES, ChaCha20, GHASH, Poly1305).</li>
+</ul>
+</section>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Foundations of Cryptography</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="cryptography.novice, cryptography.learner, cryptography.expert">
+<meta name="topic" content="cryptography-foundations">
+<meta name="summary" content="Kerckhoffs's principle, randomness, modular arithmetic, information-theoretic secrecy, and formal computational security games">
+<meta name="keywords" content="cryptography, kerckhoffs, entropy, randomness, modular arithmetic, one-time pad, shannon, ind-cpa, ind-cca2, random oracle">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="digital-logic">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Foundations of Cryptography</p>
+</nav>
+
+<h1>Foundations of Cryptography</h1>
+<p>This page explains how mathematics turns a short secret key into a shield that keeps messages private and proves they have not been altered.</p>
+
+<section data-level="novice">
+<h2>Keeping secrets without hiding the rules</h2>
+<p>Cryptography is the science of protecting information when untrusted people or computers can watch, copy, or tamper with the messages. Instead of hiding how the system works, modern cryptography publishes the rules in the open and relies only on keeping a secret number, called a key, private.</p>
+
+<h3>Why it matters</h3>
+<p>Every time you check your bank balance, install a software update, or unlock an encrypted laptop, strangers' routers and cables carry your bytes. If the security depended on keeping the software secret, one stolen phone or reverse-engineered program would break security for everyone. Putting all secrecy into an easily replaceable key lets billions of people safely share the same open-source tools.</p>
+
+<h3>How to think about it</h3>
+<p>Think of a physical combination padlock sold in hardware stores. Everyone can buy the same padlock, take it apart, and see how its gears work. That openness does not help a thief open your locker, because only you know your 3-number combination—and if someone peeks at your combination, you can spin the dial to a new one without inventing a new padlock.</p>
+<p>To build these locks in software, cryptography uses "clock arithmetic" (also called modular arithmetic): just as 10 o'clock plus 5 hours wraps around to 3 o'clock on a 12-hour clock, computers wrap numbers around a fixed size using remainders. Multiplying or mixing numbers forward is easy, while working backward without the key is astronomically slow.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/encryption.html">Encryption</a></dfn></dt>
+<dd>Scrambling readable data into ciphertext so only someone with the right key can read it.</dd>
+<dt><dfn><a href="learn/glossary/cipher.html">Cipher</a></dfn></dt>
+<dd>The public mathematical recipe used to scramble and unscramble data with a key.</dd>
+<dt><dfn><a href="learn/glossary/hash.html">Hash</a></dfn></dt>
+<dd>A fixed-size fingerprint computed from data so any tiny change produces a completely different result.</dd>
+<dt><dfn><a href="learn/glossary/authentication.html">Authentication</a></dfn></dt>
+<dd>Proving who sent a message or who is trying to sign in.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Generating and testing cryptographic randomness</h2>
+<p><strong>Goal:</strong> you will be able to generate unpredictable random keys from the Linux kernel entropy pool and explain why predictability breaks every cipher.</p>
+<p><strong>Before you start:</strong> generating random bytes with <code>openssl rand</code> is read-only to the system and safe to run in any terminal.</p>
+
+<aside class="first-time">
+<p><strong>New to this?</strong> The <code>$</code> sign marks the shell prompt; do not type it. Hexadecimal (base-16) uses digits <code>0-9</code> and letters <code>a-f</code>, so two hex characters represent one 8-bit byte.</p>
+</aside>
+
+<h3>Worked example</h3>
+<p>Generate two 128-bit (16-byte) random values using OpenSSL, which reads from the kernel's cryptographic random number generator:</p>
+<pre class="session" data-risk="read-only">
+$ openssl rand -hex 16
+656fe5d8272a1d3b9bd038cd972aeaf0
+$ openssl rand -hex 16
+2d358d280579afa3edc8bd324b668a40
+</pre>
+<p>Captured on Arch Linux, 2026-11-14; your output will differ every time.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>openssl rand -hex 16</code> requested 16 random bytes (128 bits) from the operating system's cryptographic generator (<code>getrandom(2)</code>) and printed them as 32 hexadecimal characters.</li>
+<li>Running the exact same command a second time produced a completely unrelated 128-bit value. Even an attacker who saw the first output cannot predict the next bit of the second output.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>openssl rand -base64 32</code> to generate a 256-bit key in Base64, then inspect <code>cat /proc/sys/kernel/random/entropy_avail</code> to see the Linux kernel's current entropy estimate (typically 256 bits on modern kernels).</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>openssl: command not found</code></dt>
+<dd>Install the <code>openssl</code> package with your native package manager, or read 16 bytes directly with <code>head -c 16 /dev/urandom | od -tx1 -An</code>.</dd>
+<dt>A script uses <code>$RANDOM</code> in Bash for a key</dt>
+<dd>Do not use shell <code>$RANDOM</code> or <code>rand()</code> in C for secrets: they are non-cryptographic linear generators whose entire state can be recovered from a few outputs.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, kernel <code>getrandom(2)</code> and <code>/dev/urandom</code> draw from a ChaCha20-based CSPRNG seeded from hardware timing, interrupt jitter, and CPU RNG instructions when available; never read <code>/dev/random</code> in scripts expecting it to "have higher quality" on modern Linux, as both interfaces share the same seeded pool.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>According to Kerckhoffs's principle, what happens if an attacker obtains the exact source code of your encryption program?</summary>
+<p>Your encrypted messages remain safe as long as your secret key remains secret and unpredictable. Security must never depend on hiding the algorithm.</p>
+</details>
+<details class="q">
+<summary>Why is a 128-bit key considered unguessable by brute force, whereas a 32-bit key is weak?</summary>
+<p>Each extra bit doubles the search space. A 32-bit key has about 4 billion possibilities (seconds on a laptop), whereas a 128-bit key has 2^128 (~3.4 * 10^38) possibilities.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Information-theoretic secrecy, reductions, and security games</h2>
+<p><strong>Reference:</strong> let <code>λ</code> denote the security parameter (typically 128 or 256 bits). A function <code>negl(λ)</code> is negligible if for every positive polynomial <code>p(·)</code>, there exists <code>λ_0</code> such that <code>negl(λ) &lt; 1/p(λ)</code> for all <code>λ &gt; λ_0</code>. Adversaries are modeled as probabilistic polynomial-time (PPT) Turing machines.</p>
+
+<table>
+<tr><th>Security Notion</th><th>Adversary Goal</th><th>Oracle Access</th><th>Typical Primitive</th></tr>
+<tr><td>Perfect Secrecy</td><td>Distinguish <code>Enc(k, m_0)</code> from <code>Enc(k, m_1)</code></td><td>Unbounded computation</td><td>One-Time Pad (<code>|K| ≥ |M|</code>)</td></tr>
+<tr><td>IND-CPA</td><td>Distinguish encryptions of chosen <code>m_0, m_1</code></td><td>Encryption oracle</td><td>AES-CTR / randomized symmetric</td></tr>
+<tr><td>IND-CCA2</td><td>Distinguish challenge ciphertext</td><td>Encryption + Decryption (except challenge)</td><td>AEAD (AES-GCM), RSA-OAEP</td></tr>
+<tr><td>EUF-CMA</td><td>Forge valid tag/sig on fresh message <code>m*</code></td><td>MAC / Signing oracle</td><td>HMAC-SHA256, Ed25519, ML-DSA</td></tr>
+</table>
+
+<h3>How it works: from Shannon to computational reductions</h3>
+<p><strong>Shannon's Perfect Secrecy:</strong> A cipher <code>(Gen, Enc, Dec)</code> achieves perfect secrecy if for all messages <code>m_0, m_1 ∈ M</code> and all ciphertexts <code>c ∈ C</code>, <code>Pr[Enc(K, m_0) = c] = Pr[Enc(K, m_1) = c]</code>. Equivalently, ciphertext reveals zero Shannon mutual information: <code>I(M; C) = 0</code>. Shannon's theorem proves this requires <code>|K| ≥ |M|</code> (entropy <code>H(K) ≥ H(M)</code>), which the One-Time Pad (<code>c = m ⊕ k</code>) saturates. Reusing a pad key <code>k</code> leaks <code>c_1 ⊕ c_2 = m_1 ⊕ m_2</code>, catastrophically breaking secrecy.</p>
+<p><strong>Computational Security &amp; Reductions:</strong> To reuse a short key <code>|k| = λ</code> for gigabytes of data, modern cryptography relaxes unbounded adversaries to PPT adversaries and zero advantage to <code>negl(λ)</code>. Security is proved by <em>reduction</em>: show that if an efficient adversary <code>A</code> breaks scheme <code>Π</code> with non-negligible advantage <code>ε(λ)</code>, we can wrap <code>A</code> inside a PPT algorithm <code>B</code> that solves a conjectured hard problem (e.g., PRF indistinguishability, integer factoring, CDH/DDH, or Module-LWE) with non-negligible advantage.</p>
+<p><strong>Modular Arithmetic &amp; Algebraic Foundations:</strong> Many asymmetric schemes operate in the multiplicative group <code>(ℤ_p*, ×)</code> of integers modulo a prime <code>p</code>, or <code>ℤ_N*</code> for composite <code>N = p·q</code>. Under division, <code>a ≡ b (mod n)</code> means <code>n | (a - b)</code>. By Fermat's Little Theorem, for prime <code>p</code> and <code>gcd(a, p) = 1</code>, <code>a^(p-1) ≡ 1 (mod p)</code>; Euler's theorem generalizes this to <code>a^φ(N) ≡ 1 (mod N)</code> where <code>φ(N) = (p-1)(q-1)</code>.</p>
+<p><strong>Random Oracle Model (ROM) vs. Standard Model:</strong> In the ROM, a hash function <code>H</code> is idealized as a truly random public function queried via an oracle. ROM proofs are tight and practical (e.g., RSA-OAEP, Schnorr/Ed25519), though Canetti–Goldreich–Halevi (1998) proved artificial schemes exist that are secure in the ROM yet insecure under every concrete hash instantiation.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>CSPRNG state compromise &amp; VM snapshots:</strong> Cloning a virtual machine or container after boot can duplicate the CSPRNG state if no post-clone reseed (such as VMGenID or kernel <code>getrandom</code> mixing) occurs, causing identical nonces or keys across clones.</li>
+<li><strong>Concrete vs. asymptotic bounds:</strong> A scheme proved secure up to <code>q² / 2^128</code> fails at <code>q = 2^64</code> queries (birthday bound) regardless of asymptotic notation; block-size limits (e.g., 64-bit blocks in legacy 3DES/Blowfish, Sweet32) fail far earlier than key-size limits.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why is IND-CPA alone insufficient for real-world network protocols, and what concrete attack exploits IND-CPA-only encryption?</summary>
+<p>IND-CPA does not prevent an attacker from modifying ciphertexts in flight or abusing a server as a decryption/padding oracle. Classic CBC-mode padding oracle attacks (Vaudenay, 2002) and malleability attacks against unauthenticated CTR mode exploit IND-CPA schemes to recover full plaintext byte-by-byte without knowing the key. Real protocols require IND-CCA2 / Authenticated Encryption (INT-CTXT).</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="katz-lindell"><a href="learn/bibliography/katz-lindell.html">Introduction to Modern Cryptography</a></cite> (Chapters 1–3: Perfect secrecy, computational security, IND-CPA/CCA2).</li>
+<li><cite data-ref="boneh-shoup"><a href="learn/bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 2, 5, 9: Shannon secrecy, PRFs, authenticated encryption).</li>
+</ul>
+</section>
+</body>
+</html>
