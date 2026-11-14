@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>PCR (Platform Configuration Register)</title>
+<meta name="topic" content="glossary-pcr">
+<meta name="summary" content="PCR: Tamper-evident TPM register storing cryptographic measurements of boot stages.">
+<meta name="keywords" content="glossary-pcr, pcr, tpm pcr, measured boot">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / PCR (Platform Configuration Register)</p></nav>
+<h1>PCR (Platform Configuration Register)</h1>
+<p>Tamper-evident TPM register storing cryptographic measurements of boot stages.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>A PCR is a special locked counter inside the TPM security chip that records a fingerprint of every step during startup.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>LUKS2 + TPM2 auto-unlock seals the disk key to specific PCR values (like PCR 7 for Secure Boot state) so tampering blocks unlock.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>TPM 2.0 append-only hash register updated via PCR_Extend(H(old || new)); policies bind keys to expected SHA-256 PCR digests.</p></section>
+<p><a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>

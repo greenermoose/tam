@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>PIE (Position-Independent Executable)</title>
+<meta name="topic" content="glossary-pie">
+<meta name="summary" content="PIE: Compiled executable whose machine code can load at any random virtual address for ASLR.">
+<meta name="keywords" content="glossary-pie, pie, position-independent executable">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / PIE (Position-Independent Executable)</p></nav>
+<h1>PIE (Position-Independent Executable)</h1>
+<p>Compiled executable whose machine code can load at any random virtual address for ASLR.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>A PIE program is compiled so Linux can place it at a different random memory address every time it starts.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>Modern GCC and Clang enable -fPIE -pie by default so ASLR protects the main program binary as well as libraries.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>ELF ET_DYN executable using PC-relative addressing and GOT/PLT indirection so the kernel randomizes its base load address.</p></section>
+<p><a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>

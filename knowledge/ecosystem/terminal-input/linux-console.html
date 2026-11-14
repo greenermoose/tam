@@ -206,7 +206,7 @@ alt keycode 106 = Incr_Console
 
 <p><code>K_RAW</code> delivers raw keyboard bytes, <code>K_MEDIUMRAW</code> delivers keycodes, and <code>K_XLATE</code> delivers translated characters. <code>K_UNICODE</code> is a UTF-8-aware translation mode, and <code>K_OFF</code> disables keyboard input. <code>K_METABIT</code> sets the high bit of a byte for Alt; <code>K_ESCPREFIX</code> prefixes it with ESC instead, which is the safer choice for UTF-8.</p>
 
-<p>The console implements a subset of VT102 and ECMA-48 as documented in <a href="man:console_codes(4)">console_codes(4)</a>. It recognises BEL, BS, HT, LF, VT, FF, CR, SO, SI, CAN, SUB, ESC and DEL, and it supports cursor movement, erase, colour and mode setting. <code>ESC [ ? 1 h</code> enables DECCKM, which makes cursor keys send <code>ESC O</code> instead of <code>ESC [</code>. <code>ESC =</code> and <code>ESC &gt;</code> select application and numeric keypad modes.</p>
+<p>The console implements a subset of <dfn><a href="learn/glossary/vt102.html">VT102</a></dfn> and <dfn><a href="learn/glossary/ecma-48.html">ECMA-48</a></dfn> as documented in <a href="man:console_codes(4)">console_codes(4)</a>. It recognises BEL, BS, HT, LF, VT, FF, CR, SO, SI, CAN, SUB, ESC and DEL, and it supports cursor movement, erase, colour and mode setting. <code>ESC [ ? 1 h</code> enables DECCKM, which makes cursor keys send <code>ESC O</code> instead of <code>ESC [</code>. <code>ESC =</code> and <code>ESC &gt;</code> select application and numeric keypad modes.</p>
 
 <h3>Edge cases</h3>
 

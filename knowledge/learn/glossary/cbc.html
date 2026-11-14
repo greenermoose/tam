@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>CBC (Cipher Block Chaining)</title>
+<meta name="topic" content="glossary-cbc">
+<meta name="summary" content="CBC: Classic block-cipher mode that XORs each plaintext block with the previous ciphertext block.">
+<meta name="keywords" content="glossary-cbc, cbc, cipher block chaining">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / CBC (Cipher Block Chaining)</p></nav>
+<h1>CBC (Cipher Block Chaining)</h1>
+<p>Classic block-cipher mode that XORs each plaintext block with the previous ciphertext block.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>CBC is an older encryption mode that chains data blocks together so identical blocks do not encrypt the same way.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>CBC requires padding and a separate MAC (Encrypt-then-MAC) to avoid padding-oracle attacks; modern protocols prefer AEAD modes.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>Block cipher mode C_i = E_K(P_i XOR C_{i-1}) with C_0 = IV; vulnerable to padding oracles if unauthenticated.</p></section>
+<p><a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>

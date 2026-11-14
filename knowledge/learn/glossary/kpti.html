@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>KPTI (Kernel Page-Table Isolation)</title>
+<meta name="topic" content="glossary-kpti">
+<meta name="summary" content="KPTI: Kernel mitigation against Meltdown that unmaps kernel memory while user programs run.">
+<meta name="keywords" content="glossary-kpti, kpti, meltdown mitigation">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / KPTI (Kernel Page-Table Isolation)</p></nav>
+<h1>KPTI (Kernel Page-Table Isolation)</h1>
+<p>Kernel mitigation against Meltdown that unmaps kernel memory while user programs run.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>KPTI hides the Linux kernel's memory map whenever normal apps are running so speculative CPU bugs cannot peek at kernel secrets.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>Introduced to mitigate Meltdown (CVE-2017-5754), KPTI separates user and kernel page tables at the cost of extra TLB flushes.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>Linux x86_64 page-table split (formerly KAISER) keeping only minimal trampoline mappings in user CR3.</p></section>
+<p><a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>

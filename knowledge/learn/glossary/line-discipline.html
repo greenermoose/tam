@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>Line discipline</title>
+<meta name="topic" content="glossary-line-discipline">
+<meta name="summary" content="Line discipline: Kernel software layer between a TTY/PTY driver and user programs that handles line editing and signals.">
+<meta name="keywords" content="glossary-line-discipline, line discipline, n_tty, termios">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/glossary/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/glossary/index.html">Glossary</a> / Line discipline</p></nav>
+<h1>Line discipline</h1>
+<p>Kernel software layer between a TTY/PTY driver and user programs that handles line editing and signals.</p>
+<section data-level="novice"><h2>Novice definition</h2><p>The line discipline is the kernel's built-in helper that makes Backspace, Enter, and Ctrl+C work in a basic terminal.</p></section>
+<section data-level="learner"><h2>Learner definition</h2><p>Linux's N_TTY line discipline sits between the hardware or PTY driver and your shell, translating Ctrl+C to SIGINT and buffering lines in canonical mode.</p></section>
+<section data-level="expert"><h2>Expert definition</h2><p>Kernel TTY line discipline (default N_TTY in drivers/tty/n_tty.c) configured via termios ioctls; handles input/output byte translations (ICRNL, ONLCR), canonical buffering, and ISIG signal generation.</p></section>
+<p><a href="learn/glossary/index.html">All glossary terms</a>; <a href="learn/bibliography/index.html">reference sources</a>.</p>
+</body></html>
