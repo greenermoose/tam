@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quantum Computing and Quantum-Safe Cryptography</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="cryptography.novice, cryptography.learner, cryptography.expert">
+<meta name="topic" content="quantum-safe-cryptography">
+<meta name="summary" content="Why quantum computers break RSA and ECC, Shor's and Grover's algorithms, and NIST post-quantum standards (ML-KEM, ML-DSA, SLH-DSA)">
+<meta name="keywords" content="quantum, post-quantum, quantum-safe, pqc, shor, grover, ml-kem, ml-dsa, slh-dsa, lattice, lwe, hybrid, x25519mlkem768">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="public-key-cryptography">
+<meta name="paths" content="cryptography-and-quantum-safety:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Quantum Computing and Quantum-Safe Cryptography</p>
+</nav>
+
+<h1>Quantum Computing and Quantum-Safe Cryptography</h1>
+<p>This page explains why future quantum computers threaten today's public-key locks and how quantum-safe algorithms protect data before those machines arrive.</p>
+
+<section data-level="novice">
+<h2>Why quantum computers change the rules</h2>
+<p>Normal computers store information in bits that are strictly <code>0</code> or <code>1</code>. A <dfn><a href="learn/glossary/quantum.html">quantum</a></dfn> computer uses quantum bits (<strong>qubits</strong>) that can exist in a combined wave-like state called <strong>superposition</strong> and cancel out wrong answers through <strong>interference</strong>. That does not make a quantum computer faster at everything, but it allows clever algorithms to solve certain structured math puzzles—especially finding repeating patterns in huge numbers—vastly faster than any classical supercomputer.</p>
+
+<h3>Why it matters</h3>
+<p>Today's RSA and elliptic-curve locks rely on factoring and discrete-log puzzles that would take classical computers billions of years. A large, error-corrected quantum computer could break those locks in hours. Even though such machines do not exist yet, attackers can record encrypted internet traffic today and store it until a quantum computer is built—a threat known as <strong>Harvest Now, Decrypt Later</strong>.</p>
+<p><dfn><a href="learn/glossary/post-quantum.html">Post-quantum</a></dfn> (or <strong>quantum-safe</strong>) algorithms run on ordinary laptops and servers today, using different math puzzles—such as multidimensional grids called <dfn><a href="learn/glossary/lattice.html">lattices</a></dfn> or pure hash trees—that neither classical nor quantum computers know how to shortcut.</p>
+
+<h3>How to think about it</h3>
+<p>Imagine two different locks on a safe: a combination dial (RSA/ECC) and a thousand-dimensional maze (<a href="learn/glossary/lattice.html">lattice</a>). A quantum computer turns out to have a master stethoscope for listening to the repeating clicks of the combination dial, opening it effortlessly—while still getting lost in the multidimensional maze just like an ordinary computer.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/quantum.html">Quantum</a></dfn></dt>
+<dd>Physics of atomic-scale discrete states, leveraged by qubits to compute via superposition and wave interference.</dd>
+<dt><dfn><a href="learn/glossary/post-quantum.html">Post-quantum cryptography</a></dfn></dt>
+<dd>Classical encryption and signature algorithms designed to withstand attacks by both ordinary and quantum computers.</dd>
+<dt><dfn><a href="learn/glossary/lattice.html">Lattice</a></dfn></dt>
+<dd>A repeating grid of points in hundreds of dimensions whose shortest-vector and noisy-equation puzzles resist quantum speedups.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Checking quantum-safe hybrid algorithms on Tamlinux</h2>
+<p><strong>Goal:</strong> you will be able to inspect the post-quantum and hybrid algorithms already active in OpenSSL and OpenSSH on your workstation.</p>
+<p><strong>Before you start:</strong> querying supported algorithms with <code>openssl list</code> and <code>ssh -Q</code> is read-only and changes nothing.</p>
+
+<h3>Worked example</h3>
+<p>Check the post-quantum Key Encapsulation Mechanisms (KEMs) and signature algorithms available in OpenSSL 3.6.5, and the hybrid key exchanges in OpenSSH:</p>
+<pre class="session" data-risk="read-only">
+$ openssl list -kem-algorithms | grep -iE 'ml-?kem'
+  { 2.16.840.1.101.3.4.4.1, id-alg-ml-kem-512, ML-KEM-512, MLKEM512 } @ default
+  { 2.16.840.1.101.3.4.4.2, id-alg-ml-kem-768, ML-KEM-768, MLKEM768 } @ default
+  { 2.16.840.1.101.3.4.4.3, id-alg-ml-kem-1024, ML-KEM-1024, MLKEM1024 } @ default
+  X25519MLKEM768 @ default
+  X448MLKEM1024 @ default
+  SecP256r1MLKEM768 @ default
+  SecP384r1MLKEM1024 @ default
+
+$ openssl list -signature-algorithms | grep -iE 'ml-?dsa|slh-dsa' | head -n 6
+  { 2.16.840.1.101.3.4.3.17, id-ml-dsa-44, ML-DSA-44, MLDSA44 } @ default
+  { 2.16.840.1.101.3.4.3.18, id-ml-dsa-65, ML-DSA-65, MLDSA65 } @ default
+  { 2.16.840.1.101.3.4.3.19, id-ml-dsa-87, ML-DSA-87, MLDSA87 } @ default
+  { 2.16.840.1.101.3.4.3.20, id-slh-dsa-sha2-128s, SLH-DSA-SHA2-128s } @ default
+  { 2.16.840.1.101.3.4.3.21, id-slh-dsa-sha2-128f, SLH-DSA-SHA2-128f } @ default
+  { 2.16.840.1.101.3.4.3.22, id-slh-dsa-sha2-192s, SLH-DSA-SHA2-192s } @ default
+</pre>
+<p>Captured on Arch Linux (OpenSSL 3.6.5), 2026-11-14; algorithm names reflect your installed OpenSSL version.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>OpenSSL lists NIST's standardized <code>ML-KEM</code>, <code>ML-DSA</code>, and <code>SLH-DSA</code> primitives directly in the <code>default</code> provider.</li>
+<li>Hybrid groups such as <code>X25519MLKEM768</code> combine classical X25519 with post-quantum ML-KEM-768 so an attacker must break <em>both</em> algorithms to recover the session key.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>ssh -G localhost | grep '^kexalgorithms'</code> to verify that your OpenSSH client already places <code>mlkem768x25519-sha256</code> and <code>sntrup761x25519-sha512</code> ahead of classical-only ECDH.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Older remote server rejects hybrid KEX or TLS <code>X25519MLKEM768</code></dt>
+<dd>Middleboxes with tiny TCP initial buffers occasionally drop large post-quantum ClientHello packets (~1.2 KB). Updating the server or middlebox is the proper fix; never permanently disable PQ hybrids globally.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, OpenSSH 10.6+ and OpenSSL 3.6+ already negotiate <code>mlkem768x25519-sha256</code> and <code>X25519MLKEM768</code> by default, mitigating Harvest-Now-Decrypt-Later risks transparently.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why do protocols deploy hybrid key exchange like <code>X25519MLKEM768</code> instead of switching solely to ML-KEM overnight?</summary>
+<p>Hybrid key exchange combines a battle-tested classical primitive (X25519) with a newer post-quantum primitive (ML-KEM-768). Even if a subtle mathematical flaw were discovered in ML-KEM, the session remains classically secure—and vice versa against a quantum computer.</p>
+</details>
+<details class="q">
+<summary>Does AES-256 need to be replaced by a lattice cipher to stay quantum-safe?</summary>
+<p>No. Quantum computers do not break AES in polynomial time; Grover's algorithm only offers a quadratic speedup, reducing AES-256 from 2^256 to roughly 2^128 quantum operations, which remains secure.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Shor's &amp; Grover's algorithms and NIST PQC mathematical families</h2>
+<p><strong>Reference:</strong> quantum speedups divide sharply into <strong>exponential/polynomial breaks</strong> against abelian hidden-subgroup problems (Shor) and <strong>quadratic speedups</strong> against unstructured search (Grover).</p>
+
+<table>
+<tr><th>Primitive / Problem</th><th>Best Classical</th><th>Best Quantum</th><th>Post-Quantum Status</th></tr>
+<tr><td>RSA / DH / ECDLP</td><td>Subexponential / <code>O(√q)</code></td><td><strong>Shor:</strong> <code>O((log N)³)</code></td><td><strong>Broken</strong> by fault-tolerant QC</td></tr>
+<tr><td>AES-128 / AES-256</td><td><code>2^128</code> / <code>2^256</code></td><td><strong>Grover:</strong> <code>O(2^64)</code> / <code>O(2^128)</code></td><td>AES-256 safe (depth constraints make even AES-128 hard)</td></tr>
+<tr><td>SHA-256 / SHA3-256</td><td>Collision <code>2^128</code></td><td>BHT <code>O(2^(n/3))</code> (high memory) / Grover <code>2^128</code> preimage</td><td>256-bit hashes remain secure</td></tr>
+<tr><td>ML-KEM (FIPS 203)</td><td>Module-LWE (BKZ lattice)</td><td>No polynomial speedup known</td><td>Standardized KEM (Kyber)</td></tr>
+<tr><td>ML-DSA (FIPS 204)</td><td>Module-LWE / Module-SIS</td><td>No polynomial speedup known</td><td>Standardized Signature (Dilithium)</td></tr>
+<tr><td>SLH-DSA (FIPS 205)</td><td>Hash preimage / 2nd-preimage</td><td>Grover quadratic only</td><td>Conservative stateless hash-based sig (SPHINCS+)</td></tr>
+</table>
+
+<h3>How it works: quantum threats and post-quantum hardness</h3>
+<p><strong>Shor's Algorithm (1994):</strong> Factoring <code>N = p·q</code> reduces to finding the period <code>r</code> of <code>f(x) = a^x mod N</code>; similarly, DLP reduces to finding the period of <code>f(x_1, x_2) = g^(x_1) · y^(-x_2) mod p</code>. A quantum computer prepares an equal superposition over indices, computes <code>f(x)</code> coherently, and applies the <strong>Quantum Fourier Transform (QFT)</strong> so constructive interference peaks at integer multiples of <code>2^m / r</code>, recovering <code>r</code> via continued fractions in <code>O((log N)³)</code> gates. Every deployed RSA, DH, DSA, ECDSA, and EdDSA system falls completely once fault-tolerant logical qubits scale to thousands.</p>
+<p><strong>Grover's Algorithm (1996):</strong> Given an unstructured black-box predicate <code>f: {0,1}^n → {0,1}</code> with a unique solution, amplitude amplification rotates the state vector toward the marked item in <code>O(2^(n/2))</code> sequential oracle queries. Because Grover parallelizes poorly (splitting among <code>P</code> machines saves only <code>√P</code>), AES-256 retains ≥128-bit quantum security.</p>
+<p><strong>Lattice-Based Cryptography (ML-KEM &amp; ML-DSA):</strong> A lattice <code>L(B) = { B·z : z ∈ ℤ^n }</code> has hard worst-case problems such as Shortest Vector Problem (SVP). Regev's <strong>Learning With Errors (LWE)</strong> asks to distinguish <code>(A, b = A·s + e mod q)</code> from uniform, where <code>e</code> is a small discrete-Gaussian/binomial error vector—proved at least as hard as worst-case quantum GapSVP. <strong>Module-LWE</strong> operates over polynomial rings <code>R_q = ℤ_q[X]/(X^n + 1)</code> (<code>n = 256, q = 3329</code> for ML-KEM; <code>q = 8380417</code> for ML-DSA), enabling fast Number Theoretic Transform (NTT) multiplication. ML-KEM uses Fujisaki–Okamoto (FO) transformation to lift CPA-secure PKE to IND-CCA2 KEM; ML-DSA uses Fiat–Shamir with Aborts.</p>
+<p><strong>Stateless Hash-Based Signatures (SLH-DSA / SPHINCS+):</strong> Built purely from WOTS+ one-time signatures, FORS few-time signatures, and a hypertree of Merkle trees, SLH-DSA requires <em>no</em> algebraic assumption—only second-preimage / tweakable hash security—trading larger signatures (~8–50 KB) for conservative mathematical certainty.</p>
+<p><strong>Code-Based &amp; Isogeny Lessons:</strong> Code-based KEMs (Classic McEliece, HQC) rely on syndrome decoding of linear error-correcting codes. Conversely, supersingular isogeny key exchange (SIKE/SIDH) was completely broken classically in 2022 by Castryck–Decru using Kani's theorem on auxiliary torsion-point information—underscoring why crypto-agility and hybrid deployments are essential.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>FO-transform decapsulation timing side channels:</strong> In ML-KEM, implicit rejection re-encrypts the decrypted message and compares ciphertexts; any branch or timing difference during re-encryption or ciphertext comparison leaks the secret key (KyberSlash). Constant-time division-free arithmetic is mandatory.</li>
+<li><strong>Statefulness hazard in XMSS/LMS vs. SLH-DSA:</strong> Stateful hash-based schemes (XMSS/LMS) catastrophically lose security if an index is ever reused (e.g., VM snapshot rollback); stateless SLH-DSA avoids this via randomized signing and a large hypertree.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why does Module-LWE remain secure against Shor's algorithm even though it uses algebraic rings?</summary>
+<p>Shor's algorithm solves the Hidden Subgroup Problem (HSP) over abelian groups where the secret is a global periodic subgroup. LWE and Module-LWE inject small non-algebraic error terms e into modular linear equations; the noise destroys exact periodicity, and no efficient quantum reduction to an abelian HSP is known.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="nist-pqc"><a href="learn/bibliography/nist-pqc.html">NIST PQC Standards (FIPS 203, 204, 205)</a></cite>.</li>
+<li><cite data-ref="boneh-shoup"><a href="learn/bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Post-quantum KEM and lattice foundations).</li>
+</ul>
+</section>
+</body>
+</html>

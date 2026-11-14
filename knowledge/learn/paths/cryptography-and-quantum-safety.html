@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cryptography and quantum safety</title>
+<meta name="topic" content="cryptography-and-quantum-safety">
+<meta name="summary" content="Build from zero prior knowledge to modern symmetric ciphers, SHA hashes, public-key math, and post-quantum cryptography.">
+<meta name="keywords" content="path, cryptography, quantum-safe, sha, aes, rsa, ecc, ml-kem, ml-dsa, post-quantum">
+<meta name="level" content="novice">
+<meta name="track" content="learn">
+<meta name="parent" content="learn/paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="cryptography.novice, cryptography.learner, cryptography.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="learn/paths/index.html">Choose what you want to learn</a> / Cryptography and quantum safety</p></nav>
+<h1>Cryptography and quantum safety</h1>
+<p>This path takes you from zero prior technical knowledge—assuming only junior-high math and science—through modern ciphers, SHA hashes, public-key math, and post-quantum cryptography.</p>
+<p>If any page feels too advanced, step back one stop along the path until the terms feel familiar. Every exercise uses read-only commands or temporary scratch directories.</p>
+
+<h2>Stage 1: Foundations and randomness</h2>
+<ol>
+<li><a href="ecosystem/cryptography-foundations.html?level=1">Foundations of Cryptography</a> &mdash; Kerckhoffs's principle, clock arithmetic, randomness, and formal security games.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why does modern cryptography publish its algorithms instead of keeping them secret?</summary>
+<p>By Kerckhoffs's principle, security rests solely on keeping the key secret so public scrutiny can find flaws and keys can be rotated easily.</p>
+</details>
+</section>
+
+<h2>Stage 2: Symmetric encryption and AEAD</h2>
+<ol>
+<li><a href="ecosystem/symmetric-cryptography.html?level=1">Symmetric Cryptography and Authenticated Encryption</a> &mdash; shared-key ciphers, AES, ChaCha20, nonces, and tamper-evident AEAD.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What happens if you reuse the same (Key, Nonce) pair in AES-GCM?</summary>
+<p>Reusing a nonce leaks the XOR of plaintexts and allows an attacker to recover the GHASH authentication key and forge future tags.</p>
+</details>
+</section>
+
+<h2>Stage 3: Cryptographic hashes, SHA, and KDFs</h2>
+<ol>
+<li><a href="ecosystem/cryptographic-hashes.html?level=1">Cryptographic Hash Functions, SHA, HMAC, and Key Derivation</a> &mdash; digital fingerprints, SHA-256 vs. SHA-3, HMAC, and Argon2id.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why can a fast hash like SHA-256 check a file download safely yet still be unsafe for storing user passwords?</summary>
+<p>Attackers can test billions of password guesses per second against fast hashes; password storage needs salted, memory-hard KDFs like Argon2id or yescrypt.</p>
+</details>
+</section>
+
+<h2>Stage 4: Public-key cryptography and PKI</h2>
+<ol>
+<li><a href="ecosystem/public-key-cryptography.html?level=1">Public-Key Cryptography, Elliptic Curves, and PKI</a> &mdash; Diffie-Hellman, RSA, Curve25519/Ed25519 signatures, and X.509 certificates.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>What binds a website's domain name to its public key in HTTPS?</summary>
+<p>An X.509 certificate signed by a trusted Certificate Authority (and publicly logged in Certificate Transparency).</p>
+</details>
+</section>
+
+<h2>Stage 5: Quantum computing and quantum-safe algorithms</h2>
+<ol>
+<li><a href="ecosystem/quantum-safe-cryptography.html?level=1">Quantum Computing and Quantum-Safe Cryptography</a> &mdash; Shor's and Grover's algorithms, Harvest Now Decrypt Later, ML-KEM, ML-DSA, and SLH-DSA.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer these before you go on.</p>
+<details class="q">
+<summary>Why do quantum computers break RSA and ECC in polynomial time while AES-256 remains safe?</summary>
+<p>Shor's algorithm uses the Quantum Fourier Transform to solve factoring and discrete logarithms exponentially faster, whereas Grover's algorithm only halves the effective bit-strength of unstructured symmetric search (leaving AES-256 at ~128-bit quantum security).</p>
+</details>
+</section>
+
+<h2>Capstone: Audit your workstation's cryptographic primitives, read-only</h2>
+<p>Verify that your workstation's OpenSSL and OpenSSH tools provide modern AEAD ciphers, SHA-2/SHA-3 hashes, Ed25519 signatures, and post-quantum hybrid key exchange without changing any system file.</p>
+<details class="solution">
+<p>Run these read-only checks in a terminal:</p>
+<pre class="session" data-risk="read-only">
+$ printf 'tamlinux' | sha256sum
+$ openssl ciphers -v -s -tls1_3
+$ openssl list -kem-algorithms | grep -iE 'ml-?kem'
+$ ssh -G localhost | grep '^kexalgorithms'
+</pre>
+<p>Confirm that TLS 1.3 offers only AEAD suites, OpenSSL lists <code>ML-KEM-768</code> and <code>X25519MLKEM768</code>, and OpenSSH prefers <code>mlkem768x25519-sha256</code> / <code>sntrup761x25519-sha512</code> ahead of classical-only ECDH.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="learn/paths/people-and-security.html?level=1">People and security</a> &mdash; practical account, SSH, firewall, and disk-encryption tasks on Tamlinux.</li>
+<li><a href="learn/paths/index.html">All goal paths</a>.</li>
+</ul>
+</body>
+</html>
