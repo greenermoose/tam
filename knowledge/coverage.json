@@ -195,6 +195,8 @@
       "level": "novice",
       "can_do": "Recognise a privileged action and protect an account, key or secret",
       "pages": [
+        "ecosystem/authentication-and-authorization.html",
+        "ecosystem/computer-security-principles.html",
         "hardware/security.html",
         "use/commands/desktop.html",
         "use/desktop/lock-and-idle.html",
@@ -204,7 +206,8 @@
         "use/security/passwords.html"
       ],
       "paths": [
-        "learn/paths/people-and-security.html"
+        "learn/paths/people-and-security.html",
+        "learn/paths/security-protocols-and-access-control.html"
       ],
       "page_gap": false,
       "path_gap": false
@@ -215,6 +218,8 @@
       "level": "learner",
       "can_do": "Choose between password, key and hardware authentication and recover access",
       "pages": [
+        "ecosystem/authentication-and-authorization.html",
+        "ecosystem/computer-security-principles.html",
         "hardware/security.html",
         "use/security/disk-encryption.html",
         "use/security/fingerprint-and-fido.html",
@@ -222,7 +227,8 @@
         "use/security/ssh.html"
       ],
       "paths": [
-        "learn/paths/people-and-security.html"
+        "learn/paths/people-and-security.html",
+        "learn/paths/security-protocols-and-access-control.html"
       ],
       "page_gap": false,
       "path_gap": false
@@ -233,13 +239,22 @@
       "level": "expert",
       "can_do": "Audit trust roots, key storage, privilege boundaries, and protocol threat models",
       "pages": [
+        "ecosystem/authentication-and-authorization.html",
+        "ecosystem/computer-security-principles.html",
         "ecosystem/security-protocols.html",
         "ecosystem/ssh-protocol.html",
-        "ecosystem/tls-and-https.html"
+        "ecosystem/tls-and-https.html",
+        "use/security/disk-encryption.html",
+        "use/security/fingerprint-and-fido.html",
+        "use/security/firewall.html",
+        "use/security/passwords.html",
+        "use/security/ssh.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/security-protocols-and-access-control.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "cryptography.novice",
@@ -250,14 +265,17 @@
         "ecosystem/cryptographic-hashes.html",
         "ecosystem/cryptography-foundations.html",
         "ecosystem/public-key-cryptography.html",
+        "ecosystem/quantum-safe-cryptography.html",
         "ecosystem/security-protocols.html",
         "ecosystem/ssh-protocol.html",
         "ecosystem/symmetric-cryptography.html",
         "ecosystem/tls-and-https.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/cryptography-and-quantum-safety.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "cryptography.learner",
@@ -268,14 +286,17 @@
         "ecosystem/cryptographic-hashes.html",
         "ecosystem/cryptography-foundations.html",
         "ecosystem/public-key-cryptography.html",
+        "ecosystem/quantum-safe-cryptography.html",
         "ecosystem/security-protocols.html",
         "ecosystem/ssh-protocol.html",
         "ecosystem/symmetric-cryptography.html",
         "ecosystem/tls-and-https.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/cryptography-and-quantum-safety.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "cryptography.expert",
@@ -286,14 +307,17 @@
         "ecosystem/cryptographic-hashes.html",
         "ecosystem/cryptography-foundations.html",
         "ecosystem/public-key-cryptography.html",
+        "ecosystem/quantum-safe-cryptography.html",
         "ecosystem/security-protocols.html",
         "ecosystem/ssh-protocol.html",
         "ecosystem/symmetric-cryptography.html",
         "ecosystem/tls-and-https.html"
       ],
-      "paths": [],
+      "paths": [
+        "learn/paths/cryptography-and-quantum-safety.html"
+      ],
       "page_gap": false,
-      "path_gap": true
+      "path_gap": false
     },
     {
       "id": "accounts.novice",
@@ -1148,6 +1172,7 @@
     "install/index.html",
     "learn/about/fred.html",
     "learn/bibliography/bash.html",
+    "learn/bibliography/bell-lapadula.html",
     "learn/bibliography/boneh-shoup.html",
     "learn/bibliography/coreutils.html",
     "learn/bibliography/deployment.html",
@@ -1160,10 +1185,12 @@
     "learn/bibliography/linux-api.html",
     "learn/bibliography/nist-fips-180-4.html",
     "learn/bibliography/nist-fips-202.html",
+    "learn/bibliography/nist-pqc.html",
     "learn/bibliography/pacman.html",
     "learn/bibliography/real-time-rendering.html",
     "learn/bibliography/rfc4251-ssh.html",
     "learn/bibliography/rfc8446-tls13.html",
+    "learn/bibliography/saltzer-schroeder.html",
     "learn/bibliography/vesa-displayport.html",
     "learn/documentation.html",
     "learn/glossary/abi.html",
@@ -1188,6 +1215,7 @@
     "learn/glossary/assembly-tamlinux.html",
     "learn/glossary/asymmetric-encryption.html",
     "learn/glossary/authentication.html",
+    "learn/glossary/authorization.html",
     "learn/glossary/backlight.html",
     "learn/glossary/bandgap.html",
     "learn/glossary/bandwidth.html",
@@ -1247,6 +1275,7 @@
     "learn/glossary/crt.html",
     "learn/glossary/cultivar.html",
     "learn/glossary/current.html",
+    "learn/glossary/dac.html",
     "learn/glossary/daemon.html",
     "learn/glossary/dc.html",
     "learn/glossary/ddc.html",
@@ -1377,7 +1406,9 @@
     "learn/glossary/keysym.html",
     "learn/glossary/kms.html",
     "learn/glossary/latency.html",
+    "learn/glossary/lattice.html",
     "learn/glossary/lcd.html",
+    "learn/glossary/least-privilege.html",
     "learn/glossary/libc.html",
     "learn/glossary/libncursesw.html",
     "learn/glossary/library.html",
@@ -1390,6 +1421,7 @@
     "learn/glossary/loopback.html",
     "learn/glossary/luks.html",
     "learn/glossary/luminance.html",
+    "learn/glossary/mac-access-control.html",
     "learn/glossary/mac-address.html",
     "learn/glossary/mac.html",
     "learn/glossary/machine-code.html",
@@ -1449,6 +1481,7 @@
     "learn/glossary/polkit.html",
     "learn/glossary/port.html",
     "learn/glossary/posix.html",
+    "learn/glossary/post-quantum.html",
     "learn/glossary/pot.html",
     "learn/glossary/ppi.html",
     "learn/glossary/privilege.html",
@@ -1505,6 +1538,7 @@
     "learn/glossary/shared-library.html",
     "learn/glossary/shebang.html",
     "learn/glossary/shell.html",
+    "learn/glossary/side-channel.html",
     "learn/glossary/signal.html",
     "learn/glossary/snapshot.html",
     "learn/glossary/snr.html",
@@ -1539,6 +1573,7 @@
     "learn/glossary/terminfo.html",
     "learn/glossary/theme.html",
     "learn/glossary/thread.html",
+    "learn/glossary/threat-model.html",
     "learn/glossary/throughput.html",
     "learn/glossary/tiling.html",
     "learn/glossary/tlb.html",
