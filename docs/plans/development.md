@@ -2,7 +2,7 @@
 
 **Plan status:** Active
 **Reviewed:** 2026-11-13
-**Scope:** Living integration contract; current command 0.55.1 and corpus 0.84.0.
+**Scope:** Living integration contract; current command 0.55.2 and corpus 0.84.0.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
 [plan index](README), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
@@ -472,6 +472,7 @@ record remains explicit in that plan and the index; it is not silently closed.
   next stage and needs the developer's word; learner review and packaged
   acceptance remain pending.
 - **2026-11-12:** Command 0.55.0 (minor) & Corpus 0.81.0 (minor): Replace static `<nav class="learning-path">` blocks and `paths.json` with a dynamic `<meta name="paths" content="<id>:<step>, ...">` index (`index.paths.tsv`, `SCHEMA=2`) and sticky pager path tracking (`tam:paths`, `tam:path?id=`, `Switch course`, `Follow a path from here`, `Resume path`); retire standalone `beginner`/`intermediate`/`expert` hubs after migrating quizzes and capstones to topic paths; author the 17 remaining beginner backlog pages plus `use/tools/tam-journal.html` and `use/tools/tam-file-select.html` (`tamlinux-tools`); close all skill/anatomy gaps; enforce `report-component-coverage.py --check` (covering `tamlinux` and `tamlinux-tools`) inside `corpus-check`.
+- **2026-11-14:** Command 0.55.2 (patch): Underline interior spaces in unselected links in `src/pager_draw.c` while keeping leading and trailing boundary spaces unstyled.
 - **2026-11-14:** Command 0.55.1 (patch) & Corpus 0.84.0 (minor): Remove retired `beginner`/`intermediate` level aliases from `src/`, `completions/`, `tools/`, `docs/`, `tests/`, `skills.json`, and `<meta name="skills">`; update `skills.json` with missing `.expert` cells and the `cryptography` domain; document the junior-high-to-world-expert path pedagogy contract in `docs/corpus-pedagogy.md` and `docs/corpus-authoring.md`.
 - **2026-11-11:** Implement the approved [incremental corpus build](incremental-corpus-build.md):
   separate fast editing commands and independent C/corpus builds, content-hashed

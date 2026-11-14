@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.55.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.55.2' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -733,7 +733,9 @@ def drain_pty(fd, timeout=0.04, quiet=0.005):
         buf.extend(part)
     return bytes(buf)
 
-drain_pty(master, timeout=0.1, quiet=0.01)
+buf = drain_pty(master, timeout=0.1, quiet=0.01)
+assert b"\x1b[4m " not in buf, "unselected link underlined leading space"
+assert b"the desktop guide" in buf, "interior spaces in unselected link lost underline"
 
 os.write(master, b"\t")
 buf = drain_pty(master, timeout=0.04, quiet=0.005)

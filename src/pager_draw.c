@@ -374,10 +374,10 @@ static void emit_line(const tam_line_t *line, int width,
                 }
             }
             int link_space = is_link && isspace((unsigned char)t[char_start]);
-            int selected_interior_space = link_space && is_sel &&
+            int interior_space = link_space &&
                 link_space_is_interior(t, len, char_start);
             int span_style = !hit &&
-                (sp->href != NULL ? (!link_space || selected_interior_space)
+                (sp->href != NULL ? (!link_space || interior_space)
                                   : sp->style != 0);
             int style_key = hit ? 2 + hit : span_style ? 1 : 0;
             int tint = attention || (band && col >= band_start && col < band_end);
