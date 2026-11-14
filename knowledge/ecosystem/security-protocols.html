@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Network, Messaging, and Identity Security Protocols</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="cryptography.novice, cryptography.learner, cryptography.expert, security.expert">
+<meta name="topic" content="security-protocols">
+<meta name="summary" content="WireGuard (Noise), IPsec, Signal (X3DH and Double Ratchet), Kerberos, OAuth 2.0/OIDC, DNSSEC, FIDO2/WebAuthn, and formal protocol verification">
+<meta name="keywords" content="wireguard, noise, ipsec, signal, double ratchet, x3dh, kerberos, oauth2, oidc, jwt, dnssec, fido2, webauthn, dolev-yao, proverif">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="ssh-protocol">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / Network, Messaging, and Identity Security Protocols</p>
+</nav>
+
+<h1>Network, Messaging, and Identity Security Protocols</h1>
+<p>This page explains how modern protocols beyond TLS and SSH secure VPN tunnels, end-to-end encrypted chat, internet name lookups, and passwordless logins.</p>
+
+<section data-level="novice">
+<h2>Different security tools for different jobs</h2>
+<p>TLS and SSH protect individual connections, but computers also need to encrypt entire network tunnels (VPNs), protect private chat messages even when servers are hacked, verify internet domain names (<dfn><a href="learn/glossary/dns.html">DNS</a></dfn>), and let you sign in to websites with a hardware security key instead of a password.</p>
+
+<h3>Why it matters</h3>
+<p>Each environment has different rules: a chat app must work even when your friend's phone is turned off; a VPN must recover instantly when your laptop switches from Wi-Fi to a phone hotspot; and a login system must verify your identity without giving every website your password.</p>
+
+<h3>How to think about it</h3>
+<p>Think of protocols as specialized vehicles built from the same engine parts (hashes, symmetric AEAD ciphers, and public-key signatures): WireGuard is a stripped-down armored courier carrying IP packets; the Signal protocol shreds and replaces its keys after every single text message; and FIDO2 is a physical badge that signs a unique challenge for each website so phishing pages cannot reuse it.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/fido.html">FIDO2</a></dfn></dt>
+<dd>An open standard using hardware-backed public/private keys so websites and machines verify you without passwords.</dd>
+<dt><dfn><a href="learn/glossary/digital-signature.html">Digital signature</a></dfn></dt>
+<dd>A cryptographic proof used by DNSSEC, FIDO2, and tokens to verify who issued a record or challenge.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspecting DNS, WireGuard, and FIDO2 readiness read-only</h2>
+<p><strong>Goal:</strong> you will be able to inspect local kernel WireGuard/FIDO2 readiness and understand how modern protocols compose primitives without changing system configuration.</p>
+<p><strong>Before you start:</strong> checking loaded kernel modules and installed tools is read-only.</p>
+
+<h3>Worked example</h3>
+<p>Check whether the Linux kernel supports WireGuard natively and whether FIDO2/U2F tools are present on the workstation:</p>
+<pre class="session" data-risk="read-only">
+$ modinfo -n wireguard 2&gt;/dev/null || zgrep -s CONFIG_WIREGUARD /proc/config.gz || echo "check kernel config"
+$ command -v wg fido2-token pamu2fcfg || true
+</pre>
+<p>Your output will reflect which optional VPN and hardware-token packages are installed on your machine.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>Modern Linux kernels include WireGuard directly in-tree, routing encrypted UDP packets via <em>cryptokey routing</em> (mapping each peer's public key to allowed IP ranges).</li>
+<li>Tools like <code>fido2-token</code> and <code>pamu2fcfg</code> bridge hardware FIDO2 keys to local PAM and WebAuthn authenticators.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>On an online machine with <code>bind</code> tools installed, run <code>dig +dnssec example.com A</code> to observe <code>RRSIG</code> cryptographic signatures returned alongside DNS records.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>wg: command not found</code></dt>
+<dd>Install <code>wireguard-tools</code> with your native package manager if you plan to inspect or configure WireGuard interfaces.</dd>
+<dt>OAuth2 / JWT login failures after clock drift</dt>
+<dd>Short-lived tokens (Kerberos tickets, JWT <code>exp</code>/<code>nbf</code> claims) reject requests when system clocks drift; verify NTP synchronization with <code>timedatectl status</code>.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, hardware FIDO2 keys integrate directly with PAM and Polkit via <code>tam-setup-security-fido2</code> (<a href="hardware/security.html">Hardware Security and Privilege Management</a>), binding physical presence to local privilege prompts.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>How does FIDO2 / WebAuthn defeat phishing sites that look identical to your bank?</summary>
+<p>The browser passes the real origin (e.g. <code>evil-bank.example</code>) in <code>clientDataJSON</code> to the hardware token, which signs only for keys scoped to the legitimate relying-party ID; a signature for a lookalike domain fails verification at the real bank.</p>
+</details>
+<details class="q">
+<summary>Why does WireGuard avoid complex cipher-suite negotiation unlike IPsec?</summary>
+<p>WireGuard fixes a single modern cryptographic suite (Noise_IKpsk2, Curve25519, ChaCha20-Poly1305, BLAKE2s) with tiny code surface, eliminating downgrade attacks and negotiation state bugs.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>WireGuard, Signal Double Ratchet, Kerberos, OIDC, and formal verification</h2>
+<p><strong>Reference:</strong> advanced protocol design balances latency, statefulness, compromise recovery, and formal verifiability under active network adversaries.</p>
+
+<table>
+<tr><th>Protocol</th><th>Core Primitives</th><th>Key Security Properties</th></tr>
+<tr><td>WireGuard (Noise_IKpsk2)</td><td>Curve25519, ChaCha20-Poly1305, BLAKE2s</td><td>1-RTT mutual auth, identity hiding, DoS cookie, ~4k LoC</td></tr>
+<tr><td>Signal (X3DH + Double Ratchet)</td><td>X25519, Ed25519/XEdDSA, HKDF, AES-GCM/HMAC</td><td>Asynchronous key agreement, forward secrecy + post-compromise security</td></tr>
+<tr><td>Kerberos v5</td><td>Symmetric AEAD (AES-256-CTS-HMAC-SHA384)</td><td>Trusted KDC / TGT, mutually authenticated intranet SSO</td></tr>
+<tr><td>OAuth 2.0 + OIDC + PKCE</td><td>TLS 1.3 + SHA-256 code challenge + JWS/EdDSA</td><td>Delegated authorization &amp; federated identity; PKCE stops code interception</td></tr>
+<tr><td>DNSSEC / RPKI</td><td>ECDSA P-256 / Ed25519 signatures over RRsets / ROAs</td><td>Origin authenticity &amp; integrity of DNS / BGP prefix-to-AS bindings</td></tr>
+</table>
+
+<h3>How it works: protocol mechanics and formal models</h3>
+<p><strong>WireGuard &amp; the Noise Protocol Framework:</strong> WireGuard instantiates <code>Noise_IKpsk2</code>: the initiator already knows the responder's static Curve25519 key <code>S_r</code>, performs ephemeral-static and ephemeral-ephemeral DH (<code>es</code>, <code>ee</code>, <code>ss</code>, optional <code>psk</code>) mixed into chaining key <code>ck</code> and transcript hash <code>h</code> via BLAKE2s, and sends a single 148-byte initiation packet. A stateless responder under flood sends an encrypted MAC2 cookie before allocating state.</p>
+<p><strong>Signal Protocol (X3DH &amp; Double Ratchet):</strong> To message an offline peer, X3DH combines four DH values between identity keys <code>(IK_A, IK_B)</code>, signed prekey <code>SPK_B</code>, one-time prekey <code>OPK_B</code>, and ephemeral <code>EK_A</code>. Afterward, the <strong>Double Ratchet</strong> advances a symmetric-key KDF chain per message (providing per-message <em>forward secrecy</em>) and performs a new DH ratchet step whenever message direction reverses (providing <em>post-compromise security</em> / self-healing after a temporary state leak).</p>
+<p><strong>OAuth 2.0 / OIDC &amp; JWT Pitfalls:</strong> Public clients use Authorization Code flow with <strong>PKCE</strong> (sending <code>SHA-256(code_verifier)</code> so an intercepted authorization code cannot be redeemed). JSON Web Tokens (JWTs) fail catastrophically when libraries trust the unverified <code>alg</code> header (<code>"alg": "none"</code> bypass or RSA-vs-HMAC key-confusion where an HMAC check uses the server's public RSA key).</p>
+<p><strong>Formal Protocol Verification:</strong> Protocols are analyzed under the <strong>Dolev–Yao adversary model</strong> (attacker controls the entire network—intercepting, replaying, and synthesizing messages—while cryptography is idealized as black-box algebra). Automated tools such as <strong>ProVerif</strong> (applied pi-calculus) and <strong>Tamarin Prover</strong> (multiset rewriting) symbolically prove secrecy and injective agreement or discover subtle multi-session reflection and downgrade counterexamples.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>Triple-ratchet / out-of-order skipped keys in Signal:</strong> Storing skipped message keys for out-of-order UDP/mobile delivery creates a bounded window where a device compromise could decrypt recent skipped messages unless caps and deletion policies are enforced.</li>
+<li><strong>Needham–Schroeder / Kerberos clock &amp; KDC trust:</strong> The KDC is a total single point of compromise (Golden Ticket attacks if the <code>krbtgt</code> key leaks), and replay caches must cover the full clock-skew window.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>What is the difference between Forward Secrecy and Post-Compromise Security (PCS) in the Signal Double Ratchet?</summary>
+<p>Forward secrecy guarantees that compromising a device's current state cannot decrypt past messages (achieved by one-way symmetric KDF ratcheting and deleting old message keys). Post-compromise security guarantees that if an attacker steals current state today and stops observing, future fresh DH ratchet exchanges heal the session so the attacker is locked out again.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="boneh-shoup"><a href="learn/bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapters 21–22: Key exchange, Signal/Noise concepts, authentication protocols).</li>
+</ul>
+</section>
+</body>
+</html>

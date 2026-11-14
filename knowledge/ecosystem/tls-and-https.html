@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SSL, TLS, and HTTPS</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="cryptography.novice, cryptography.learner, cryptography.expert, security.expert">
+<meta name="topic" content="tls-and-https">
+<meta name="summary" content="How SSL evolved into TLS 1.3, the 1-RTT handshake and HKDF key schedule, record protection, and HTTPS over HTTP/1.1, HTTP/2, and HTTP/3">
+<meta name="keywords" content="ssl, tls, tls 1.3, https, handshake, hkdf, forward secrecy, alpn, sni, ech, hsts, quic, poodle, heartbleed">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="learn">
+<meta name="parent" content="ecosystem/index.html">
+<meta name="prereqs" content="public-key-cryptography">
+</head>
+<body>
+<nav aria-label="Breadcrumb">
+<p><a href="index.html">Guide</a> / <a href="learn/index.html">Learning Tamlinux</a> / <a href="ecosystem/index.html">The Tamlinux Ecosystem and Its Choices</a> / SSL, TLS, and HTTPS</p>
+</nav>
+
+<h1>SSL, TLS, and HTTPS</h1>
+<p>This page explains how SSL and its modern replacement TLS protect web browsing and network connections, and how HTTPS combines HTTP with TLS.</p>
+
+<section data-level="novice">
+<h2>The padlock behind secure websites</h2>
+<p>When you visit a website whose address starts with <code>https://</code>, your browser uses <dfn><a href="learn/glossary/tls.html">TLS</a></dfn> (Transport Layer Security) to encrypt the connection. Older websites and textbooks often call this <strong>SSL</strong> (Secure Sockets Layer), which was the original 1990s protocol; SSL had serious design flaws and was retired in favor of TLS.</p>
+
+<h3>Why it matters</h3>
+<p>Plain HTTP sends web pages, passwords, and cookies as readable text across every Wi-Fi access point and internet router between you and the server. <dfn><a href="learn/glossary/https.html">HTTPS</a></dfn> wraps HTTP inside TLS so eavesdroppers cannot read what you send, attackers cannot silently inject ads or malware into pages in flight, and your browser verifies that the server really owns the domain name in the address bar.</p>
+
+<h3>How to think about it</h3>
+<p>Think of plain HTTP as mailing a postcard: every postal worker along the route can read it or cross out a word. HTTPS puts that postcard inside a tamper-proof armored envelope. Before sending any web page, the browser and server run a quick greeting called a <strong>handshake</strong>: the server shows its <dfn><a href="learn/glossary/x509.html">X.509</a></dfn> passport, both sides invent a fresh one-time session key, and only then does the browser ask for the web page.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="learn/glossary/tls.html">TLS</a></dfn></dt>
+<dd>Transport Layer Security: the modern protocol that encrypts and authenticates network connections, replacing SSL.</dd>
+<dt><dfn><a href="learn/glossary/https.html">HTTPS</a></dfn></dt>
+<dd>Hypertext Transfer Protocol Secure: standard web traffic (HTTP) carried inside an encrypted TLS tunnel.</dd>
+<dt><dfn><a href="learn/glossary/forward-secrecy.html">Forward secrecy</a></dfn></dt>
+<dd>Using throwaway per-connection keys so stealing a server's long-term key later cannot decrypt past traffic.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspecting TLS 1.3 cipher suites and a live handshake</h2>
+<p><strong>Goal:</strong> you will be able to list the TLS 1.3 cipher suites supported by OpenSSL on your machine and read the negotiated protocol version, cipher suite, key-exchange group, and certificate fields of a TLS handshake.</p>
+<p><strong>Before you start:</strong> listing OpenSSL ciphers is read-only; running a test <code>s_server</code> in a temporary <code>mktemp -d</code> folder lets you inspect a real TLS 1.3 handshake locally without needing internet access.</p>
+
+<h3>Worked example</h3>
+<p>List the three AEAD cipher suites available in TLS 1.3, then run a local loopback TLS 1.3 handshake in a temporary directory:</p>
+<pre class="session" data-risk="scratch">
+$ openssl ciphers -v -s -tls1_3
+TLS_AES_256_GCM_SHA384         TLSv1.3 Kx=any      Au=any   Enc=AESGCM(256)            Mac=AEAD
+TLS_CHACHA20_POLY1305_SHA256   TLSv1.3 Kx=any      Au=any   Enc=CHACHA20/POLY1305(256) Mac=AEAD
+TLS_AES_128_GCM_SHA256         TLSv1.3 Kx=any      Au=any   Enc=AESGCM(128)            Mac=AEAD
+
+$ work=$(mktemp -d)
+$ openssl req -x509 -newkey rsa:2048 -nodes -keyout "$work/key.pem" -out "$work/cert.pem" -subj "/CN=localhost" -days 1 2&gt;/dev/null
+$ openssl s_server -key "$work/key.pem" -cert "$work/cert.pem" -accept 18443 -tls1_3 -quiet &gt;/dev/null 2&gt;&amp;1 &amp;
+$ spid=$!
+$ sleep 0.3
+$ printf 'HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n' | openssl s_client -connect 127.0.0.1:18443 -tls1_3 -brief
+Connecting to 127.0.0.1
+Can't use SSL_get_servername
+depth=0 CN=localhost
+verify error:num=18:self-signed certificate
+CONNECTION ESTABLISHED
+Protocol version: TLSv1.3
+Ciphersuite: TLS_AES_256_GCM_SHA384
+Peer certificate: CN=localhost
+Hash used: SHA256
+Signature type: rsa_pss_rsae_sha256
+Verification error: self-signed certificate
+Negotiated TLS1.3 group: X25519MLKEM768
+DONE
+$ kill "$spid" &amp;&amp; rm -rf "$work"
+</pre>
+<p>Captured on Arch Linux (OpenSSL 3.6.5), 2026-11-14; the negotiated group and cipher suite depend on your installed OpenSSL version.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>openssl ciphers -v -s -tls1_3</code> showed only AEAD suites: TLS 1.3 removed all unauthenticated CBC, RC4, and static RSA ciphers.</li>
+<li><code>openssl s_client -tls1_3 -brief</code> connected to the local test server, negotiated <code>TLSv1.3</code> with <code>TLS_AES_256_GCM_SHA384</code>, signed the handshake with <code>rsa_pss_rsae_sha256</code>, and established the shared secret using the post-quantum hybrid group <code>X25519MLKEM768</code>.</li>
+<li><code>verify error:num=18:self-signed certificate</code> appeared because the scratch certificate was not signed by a CA in <code>/etc/ssl/certs/</code>; real browsers abort the connection on this error.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>On an online machine, run <code>curl -vI https://example.com 2&gt;&amp;1 | grep -E 'SSL connection|ALPN|subject:'</code> to observe TLS version, ALPN protocol negotiation (such as <code>h2</code> for HTTP/2), and certificate verification against the system trust store.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>verify error:num=20:unable to get local issuer certificate</code></dt>
+<dd>The server forgot to send an intermediate CA certificate, or your system's <code>ca-certificates</code> bundle is missing or outdated.</dd>
+<dt><code>no protocols available</code></dt>
+<dd>The server only speaks retired SSL 3.0 / TLS 1.0–1.1, which modern clients refuse for security.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>On Tamlinux, system-wide TLS trust anchors are managed by Arch's <code>ca-certificates</code> package under <code>/etc/ca-certificates/</code>; <code>pacman</code>, <code>curl</code>, and browsers all verify HTTPS chains against that store.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why did TLS 1.3 remove static RSA key exchange?</summary>
+<p>Static RSA key exchange encrypts the pre-master secret under the server's long-term public key, providing no forward secrecy: anyone recording traffic today could decrypt it years later if the server's private key is stolen.</p>
+</details>
+<details class="q">
+<summary>What does ALPN (Application-Layer Protocol Negotiation) decide during the TLS handshake?</summary>
+<p>ALPN lets client and server agree on the application protocol carried inside TLS—such as HTTP/2 (<code>h2</code>) or HTTP/1.1 (<code>http/1.1</code>)—without an extra network round trip.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>TLS 1.3 RFC 8446 state machine, HKDF key schedule, and HTTPS</h2>
+<p><strong>Reference:</strong> TLS 1.3 (RFC 8446) separates the protocol into the <strong>Handshake Protocol</strong> (key agreement, server/client authentication, parameter negotiation) and the <strong>Record Layer</strong> (authenticated symmetric framing). Every TLS 1.3 cipher suite specifies only an AEAD algorithm and an HKDF hash—never key-exchange or signature algorithms, which are negotiated independently via extensions.</p>
+
+<pre>
+Client                                           Server
+------                                           ------
+ClientHello
+  + key_share (e.g. X25519 / X25519MLKEM768)
+  + signature_algorithms
+  + server_name (SNI) / ALPN     ------------&gt;
+                                            ServerHello
+                                              + key_share
+                                  {EncryptedExtensions}
+                                  {CertificateRequest*}
+                                         {Certificate*}
+                                   {CertificateVerify*}
+                                             {Finished}
+                                 &lt;------------
+{Certificate*}
+{CertificateVerify*}
+{Finished}                       ------------&gt;
+[Application Data]               &lt;-----------&gt; [Application Data]
+
+* optional   {} encrypted with Handshake keys   [] encrypted with Application keys
+</pre>
+
+<h3>How it works: historical attacks, HKDF key schedule, and HTTPS</h3>
+<p><strong>Why SSL 2.0/3.0 through TLS 1.2 Were Retired/Hardened:</strong> Legacy SSL/TLS suffered structural flaws: SSL 3.0's MAC-then-Encrypt CBC padding enabled <strong>POODLE</strong> (adaptive padding oracle); predictable CBC IVs enabled <strong>BEAST</strong>; timing differences in MAC verification enabled <strong>Lucky13</strong>; TLS-level DEFLATE compression leaked secrets via ciphertext length (<strong>CRIME</strong> / <strong>BREACH</strong>); export-grade cipher downgrades enabled <strong>FREAK</strong> and <strong>Logjam</strong>; and C memory-safety bugs in heartbeat parsing caused <strong>Heartbleed</strong>. TLS 1.3 eliminates all CBC/RC4/compression/export/static-RSA modes and encrypts all handshake messages after <code>ServerHello</code>.</p>
+<p><strong>TLS 1.3 Key Schedule (HKDF):</strong> TLS 1.3 derives all traffic keys via <code>HKDF-Extract(salt, IKM)</code> and <code>HKDF-Expand-Label(Secret, Label, TranscriptHash, Length)</code>:</p>
+<ol>
+<li><code>Early Secret = HKDF-Extract(0, PSK or 0)</code> → derives <code>client_early_traffic_secret</code> (0-RTT) and <code>derived_secret</code>.</li>
+<li><code>Handshake Secret = HKDF-Extract(derived_secret, (EC)DHE shared secret)</code> → derives <code>client_handshake_traffic_secret</code> and <code>server_handshake_traffic_secret</code>, encrypting certificates and identities against passive observers.</li>
+<li><code>Master Secret = HKDF-Extract(derived_secret, 0)</code> → derives <code>client_application_traffic_secret_0</code>, <code>server_application_traffic_secret_0</code>, <code>exporter_master_secret</code>, and <code>resumption_master_secret</code>.</li>
+</ol>
+<p>Every key derivation binds the running <code>Transcript-Hash(ClientHello || ... || Message)</code>, preventing downgrade attacks (supplemented by a sentinel value in <code>ServerHello.random</code> when negotiating TLS 1.2/1.1). <code>CertificateVerify</code> signs <code>"TLS 1.3, server CertificateVerify" || 0x00 || Transcript-Hash</code>, cryptographically binding identity to the ephemeral key exchange.</p>
+<p><strong>HTTPS &amp; Transport Evolution:</strong> HTTP/1.1 pipelines sequentially over TCP; HTTP/2 multiplexes streams over one TLS/TCP connection (still vulnerable to TCP head-of-line blocking); <strong>HTTP/3</strong> runs over <strong>QUIC</strong> (UDP), embedding TLS 1.3 handshake messages directly inside QUIC CRYPTO frames and protecting packet headers/payloads with AEAD keys derived from TLS 1.3 traffic secrets. Web security headers (<strong>HSTS</strong> to block SSL-stripping, <strong>CSP</strong>, and <strong>Encrypted Client Hello (ECH)</strong> to encrypt SNI under a DNS HTTPS-record public key) close metadata and downgrade gaps.</p>
+
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><strong>0-RTT Early Data Replay:</strong> TLS 1.3 allows sending application data in the first flight using a PSK, but 0-RTT data is <em>not</em> forward-secret until the 1-RTT handshake completes and <strong>cannot be protected against replay</strong> by the TLS layer alone. Servers must reject 0-RTT for non-idempotent HTTP requests (e.g., <code>POST</code> payments).</li>
+<li><strong>TLS-terminating proxies &amp; middleboxes:</strong> Corporate inspection proxies and CDNs terminate TLS, re-encrypting or inspecting plaintext; misconfigured proxies frequently reintroduce weak cipher suites, skip upstream certificate validation, or leak private keys across tenants.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>How does TLS 1.3 prevent a downgrade attack from TLS 1.3 to TLS 1.2 even though ServerHello is sent in plaintext?</summary>
+<p>First, both TLS 1.3 and TLS 1.2 sign the full handshake transcript (so altering ClientHello supported_versions breaks CertificateVerify/Finished). Second, RFC 8446 places a fixed 8-byte magic sentinel in the last 8 bytes of ServerHello.random when a TLS 1.3 server downgrades to TLS 1.2 or 1.1; a TLS 1.3-capable client detects this sentinel and immediately aborts with illegal_parameter.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<ul>
+<li><cite data-ref="rfc8446-tls13"><a href="learn/bibliography/rfc8446-tls13.html">RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3</a></cite>.</li>
+<li><cite data-ref="boneh-shoup"><a href="learn/bibliography/boneh-shoup.html">A Graduate Course in Applied Cryptography</a></cite> (Chapter 21: Authenticated key exchange and TLS 1.3).</li>
+</ul>
+</section>
+</body>
+</html>
