@@ -163,7 +163,7 @@ class DevLoopTest(unittest.TestCase):
 
         (root / "Makefile").write_text(FIXTURE_MAKEFILE, encoding="utf-8")
         (root / "ROADMAP.md").write_text(ROADMAP_TEMPLATE, encoding="utf-8")
-        (root / "README.md").write_text("# tam\n", encoding="utf-8")
+        (root / "README").write_text("# tam\n", encoding="utf-8")
         (root / "docs" / "plans" / "development.md").write_text(
             DEVELOPMENT_TEMPLATE, encoding="utf-8"
         )
@@ -322,7 +322,7 @@ class DevLoopTest(unittest.TestCase):
         )
         (root / "src" / "tam.c").write_text("int main(void) { return 1; }\n", encoding="utf-8")
         (root / "src" / "helper.c").write_text("int helper(void) { return 0; }\n", encoding="utf-8")
-        (root / "README.md").write_text("# tam updated\n", encoding="utf-8")
+        (root / "README").write_text("# tam updated\n", encoding="utf-8")
         (root / "knowledge" / "index.tsv").write_text("dirty generated\n", encoding="utf-8")
         (root / "knowledge" / "coverage.json").write_text("{}\n", encoding="utf-8")
         (root / "knowledge" / "component-coverage.json").write_text("{}\n", encoding="utf-8")
@@ -343,7 +343,7 @@ class DevLoopTest(unittest.TestCase):
         self.assertEqual(res.returncode, 0, res.stdout + res.stderr)
         self.assertIn("Corpus (knowledge/):\n  knowledge/use/index.html", res.stdout)
         self.assertIn("Command (src/):\n  src/helper.c (untracked)", res.stdout)
-        self.assertIn("Other:\n  README.md", res.stdout)
+        self.assertIn("Other:\n  README", res.stdout)
         self.assertIn("Excluded paths (claimed by another session):", res.stdout)
         self.assertIn("src/tam.c", res.stdout)
         self.assertIn("owner claude", res.stdout)
@@ -598,8 +598,8 @@ class DevLoopTest(unittest.TestCase):
         # Advance origin/develop from a second clone so upstream is ahead
         other_clone = root.parent / "other-clone"
         subprocess.run(["git", "clone", "-q", "-b", "develop", str(root.parent / "origin.git"), str(other_clone)], check=True)
-        (other_clone / "README.md").write_text("# upstream change\n", encoding="utf-8")
-        self.git(other_clone, "add", "README.md")
+        (other_clone / "README").write_text("# upstream change\n", encoding="utf-8")
+        self.git(other_clone, "add", "README")
         self.git(other_clone, "commit", "-qm", "Upstream commit")
         self.git(other_clone, "push", "-q", "origin", "develop")
 

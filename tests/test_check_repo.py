@@ -20,7 +20,7 @@ ROADMAP_FIXTURE = """# tam Roadmap
 **Reviewed:** 2026-10-20. **Owner:** Fred (developer).
 **Current Command Version:** `0.32.0`. **Current Corpus Version:** `0.34.0`.
 
-Read the [plan index](docs/plans/README.md) and [development contract](docs/plans/development.md).
+Read the [plan index](docs/plans/README) and [development contract](docs/plans/development.md).
 
 ## 2. Delivered history
 
@@ -41,7 +41,7 @@ DEVELOPMENT_FIXTURE = """# tam development plan
 **Plan status:** Active
 **Reviewed:** 2026-10-20
 **Scope:** Living integration contract.
-**Authority:** [roadmap](../../ROADMAP.md) and [plan index](README.md).
+**Authority:** [roadmap](../../ROADMAP.md) and [plan index](README).
 **Next action:** Maintain contract.
 
 ## Decision record
@@ -58,12 +58,15 @@ DEV_LOOP_FIXTURE = """# Developer loop
 **Next action:** Developer acceptance.
 """
 
-PLANS_README_FIXTURE = """# tam plan index
+PLANS_README_FIXTURE = """TAM PLAN INDEX
 
-| Plan | Status | Disposition |
-| --- | --- | --- |
-| [Developer loop](dev-loop.md) | In progress | TCK11 and TCK12 implemented. |
-| [Development contract](development.md) | Active | Living contract. |
+Plan: Developer loop <dev-loop.md>
+  Status: In progress
+  Disposition: TCK11 and TCK12 implemented.
+
+Plan: Development contract <development.md>
+  Status: Active
+  Disposition: Living contract.
 """
 
 AGENTS_FIXTURE = """# Working on tam with an AI agent
@@ -76,7 +79,7 @@ See [ROADMAP.md](ROADMAP.md).
 | --- | --- | --- | --- |
 | Command | `src/`, `tests/run.sh` | `make command` | `make test-command` |
 | Corpus | `knowledge/`, `tools/` | `make corpus` | `make corpus-and-test` |
-| Shared | `Makefile`, `ROADMAP.md`, `README.md`, `docs/plans/` | | `make test` |
+| Shared | `Makefile`, `ROADMAP.md`, `README`, `docs/plans/` | | `make test` |
 """
 
 MAKEFILE_FIXTURE = """BUILD := build
@@ -97,7 +100,7 @@ Categories:
 
 - `AGENTS.md` — *you edit*. Agent rules and lane table.
 - `Makefile` — *you edit*. Build and test targets.
-- `README.md` — *you edit*. Overview and command reference.
+- `README` — *you edit*. Overview and command reference.
 - `ROADMAP.md` — *script edits*. Component versions and delivered history.
 - `build/` — *generated, never edit*. Compiled binary output.
 - `docs/` — *you edit*. Project documentation.
@@ -125,9 +128,9 @@ class CheckRepoTest(unittest.TestCase):
 
         (root / ".gitignore").write_text("build/\n__pycache__/\n", encoding="utf-8")
         (root / "Makefile").write_text(MAKEFILE_FIXTURE, encoding="utf-8")
-        (root / "README.md").write_text(
-            "# tam\n\nSee [ROADMAP](ROADMAP.md#1-vision) and `[ignored](missing.md)`.\n"
-            "```markdown\n[fenced](also-missing.md)\n```\n",
+        (root / "README").write_text(
+            "TAM\n\nSee ROADMAP <ROADMAP.md>, section 1 VISION.\n"
+            "    [example](also-missing.md)\n",
             encoding="utf-8",
         )
         (root / "ROADMAP.md").write_text(ROADMAP_FIXTURE, encoding="utf-8")
@@ -146,13 +149,13 @@ class CheckRepoTest(unittest.TestCase):
         )
         (root / "tools" / "check-repo.py").write_text("#!/usr/bin/env python3\n", encoding="utf-8")
         (root / "docs" / "repo-map.md").write_text(REPO_MAP_FIXTURE, encoding="utf-8")
-        (root / "docs" / "plans" / "README.md").write_text(PLANS_README_FIXTURE, encoding="utf-8")
+        (root / "docs" / "plans" / "README").write_text(PLANS_README_FIXTURE, encoding="utf-8")
         (root / "docs" / "plans" / "development.md").write_text(
             DEVELOPMENT_FIXTURE, encoding="utf-8"
         )
         (root / "docs" / "plans" / "dev-loop.md").write_text(DEV_LOOP_FIXTURE, encoding="utf-8")
-        (root / "docs" / "ai" / "README.md").write_text(
-            "# AI records\n\nSee [ plans ](../plans/README.md).\n",
+        (root / "docs" / "ai" / "README").write_text(
+            "AI RECORDS\n\nSee plans <../plans/README>.\n",
             encoding="utf-8",
         )
 
@@ -268,30 +271,47 @@ class CheckRepoTest(unittest.TestCase):
         subprocess.run(["git", "add", "docs/plans/orphan.md"], cwd=root, check=True)
         findings = check_mod.check_repo(root)
         self.assertEqual(len(findings), 1, findings)
-        self.assert_finding_details(findings[0], "docs/plans/README.md", 6, "Plan index")
+        self.assert_finding_details(findings[0], "docs/plans/README", len(PLANS_README_FIXTURE.splitlines()), "Plan index")
         self.assertIn("orphan.md", findings[0])
 
-        # Duplicate row in README.md for an existing plan file
+        # Duplicate row in README for an existing plan file
         root2 = self.make_clean_fixture()
-        (root2 / "docs" / "plans" / "README.md").write_text(
-            PLANS_README_FIXTURE + "| [Developer loop](dev-loop.md) | In progress | Duplicate. |\n",
+        (root2 / "docs" / "plans" / "README").write_text(
+            PLANS_README_FIXTURE + "Plan: Developer loop <dev-loop.md>\n  Status: In progress\n  Disposition: Duplicate.\n",
             encoding="utf-8",
         )
         findings2 = check_mod.check_repo(root2)
         self.assertEqual(len(findings2), 1, findings2)
-        self.assert_finding_details(findings2[0], "docs/plans/README.md", 7, "Plan index")
+        self.assert_finding_details(findings2[0], "docs/plans/README", len(PLANS_README_FIXTURE.splitlines()) + 1, "Plan index")
         self.assertIn("dev-loop.md", findings2[0])
 
-        # Row in README.md for missing plan file
+        # Row in README for missing plan file
         root3 = self.make_clean_fixture()
-        (root3 / "docs" / "plans" / "README.md").write_text(
-            PLANS_README_FIXTURE + "| [Ghost plan](ghost.md) | Ready | Missing file. |\n",
+        (root3 / "docs" / "plans" / "README").write_text(
+            PLANS_README_FIXTURE + "Plan: Ghost plan <ghost.md>\n  Status: Ready\n  Disposition: Missing file.\n",
             encoding="utf-8",
         )
         findings3 = check_mod.check_plan_index(root3)
         self.assertEqual(len(findings3), 1, findings3)
-        self.assert_finding_details(findings3[0], "docs/plans/README.md", 7, "Plan index")
+        self.assert_finding_details(findings3[0], "docs/plans/README", len(PLANS_README_FIXTURE.splitlines()) + 1, "Plan index")
         self.assertIn("ghost.md", findings3[0])
+
+    def test_plain_plan_records_support_nested_paths_and_wrapped_dispositions(self):
+        root = self.make_clean_fixture()
+        plan = root / "docs/plans/corpus/example.md"
+        plan.parent.mkdir()
+        plan.write_text("# Example\n")
+        index = root / "docs/plans/README"
+        index.write_text(index.read_text() +
+                         "Plan: " + "A long descriptive title " * 5 + "<corpus/example.md>\n"
+                         "  Status: Completed\n"
+                         "  Disposition: First line, with further detail\n"
+                         "  preserved on another line.\n")
+        self.assertEqual(check_mod.check_plan_index(root), [])
+        index.unlink()
+        findings = check_mod.check_plan_index(root)
+        self.assertEqual(len(findings), 1)
+        self.assertIn("missing docs/plans/README", findings[0])
 
     def test_repository_map_drift_fails(self):
         # Missing entry in docs/repo-map.md for a new top-level directory
@@ -331,13 +351,13 @@ class CheckRepoTest(unittest.TestCase):
 
     def test_relative_links_drift_fails(self):
         root = self.make_clean_fixture()
-        (root / "README.md").write_text(
-            "# tam\n\nBroken link to [nonexistent guide](docs/no-such-file.md#sec).\n",
+        (root / "README").write_text(
+            "TAM\n\nBroken link to nonexistent guide <docs/no-such-file.md>.\n",
             encoding="utf-8",
         )
         findings = check_mod.check_repo(root)
         self.assertEqual(len(findings), 1, findings)
-        self.assert_finding_details(findings[0], "README.md", 3, "Relative links")
+        self.assert_finding_details(findings[0], "README", 3, "Relative links")
         self.assertIn("docs/no-such-file.md", findings[0])
 
     def test_lane_table_drift_fails(self):

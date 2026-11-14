@@ -4,7 +4,7 @@
 **Reviewed:** 2026-11-13
 **Scope:** Living integration contract; current command 0.55.0 and corpus 0.82.1.
 **Authority:** The developer's current decisions; [roadmap](../../ROADMAP.md),
-[plan index](README.md), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
+[plan index](README), [corpus 0.31.0 work plan](knowledge-system-0.31.0.md),
 the [upgrade/stage-switching plan](upgrade.md), [corpus build plan](corpus-build.md),
 [developer loop plan](dev-loop.md), [pager quick keys plan](pager-quick-keys.md) and
 [learning levels plan](learning-levels.md) and [external-links plan](external-links.md).
@@ -61,7 +61,7 @@ corpus from `TAM_KNOWLEDGE_DIR` or the installed `DATADIR`, so a corpus edit
 needs no recompile and a source edit needs no corpus change. Two agents may
 edit the two lanes at once, each claiming only its lane's paths with
 `tam-work` ([`AGENTS.md`](../../AGENTS.md)). Shared integration files (`Makefile`,
-`tests/run.sh`, `tests/guide.sh`, `AI_PROVENANCE.md`, `README.md`,
+`tests/run.sh`, `tests/guide.sh`, `AI_PROVENANCE.md`, `README`,
 `ROADMAP.md`, `docs/`) move by handoff, never concurrently. An agent working
 on something that tightly couples the two — for example adding parser support
 for a construct and then using it in the corpus — claims both lanes.

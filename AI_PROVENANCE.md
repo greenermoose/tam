@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-13: Codex CLI `0.169.0` (`gpt-6.1-sol`) converts the three README files to plain text and updates plan-index parsing, link checking and fixtures. [Record](docs/ai/2026-11-13-plain-readmes.md).
+
 2026-11-13: opencode `v2.2.5` (`big-pickle`) links every one of the 164 indexed path steps as a levelled stage link from its hub, closing the gap left by corpus 0.82.0, in corpus 0.82.1. [Record](docs/ai/2026-11-13-tam-corpus-0821-path-steps.md).
 
 2026-11-13: opencode `v2.2.5` (`big-pickle`) rewrites the six thin topic paths to the path template, normalizes older hubs, enforces the path contract in the corpus build with fixture tests, and reconciles the 0.81.0 plan records in corpus 0.82.0. [Record](docs/ai/2026-11-13-tam-corpus-082-trustworthy-paths.md).

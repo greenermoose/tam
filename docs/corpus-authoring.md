@@ -266,7 +266,7 @@ When the developer asks for a note rather than a page, copy
 `docs/plans/corpus/TEMPLATE.md` to `docs/plans/corpus/<topic>.md` and fill it
 in, in about twenty lines. Do not draft the page itself; the author outlines it
 when writing it.
-Add the note to `docs/plans/README.md`, with the status and next action the
+Add the note to `docs/plans/README`, with the status and next action the
 developer's request supports. Do not leave an implemented note labeled Open.
 
 ## Audits

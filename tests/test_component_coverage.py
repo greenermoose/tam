@@ -28,8 +28,8 @@ class ComponentCoverage(unittest.TestCase):
             self.tam / "tools" / "component-coverage-exemptions.tsv",
             "# id\tkind\treason\tdate\n",
         )
-        write(self.product / "commands" / "tam-demo" / "README.md", "demo\n")
-        write(self.product / "commands" / "tam-hidden-helper" / "README.md", "helper\n")
+        write(self.product / "commands" / "tam-demo" / "README", "demo\n")
+        write(self.product / "commands" / "tam-hidden-helper" / "README", "helper\n")
         write(
             self.product / "desktop" / "plugins" / "fred.demo" / "manifest.json",
             "{}\n",

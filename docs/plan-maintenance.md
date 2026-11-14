@@ -13,7 +13,7 @@ have distinct jobs:
    dependencies and deferred ideas. It does not duplicate detailed work items.
 2. `docs/plans/development.md` is the living integration contract: ownership,
    current behavior, architectural invariants, versioning and decision history.
-3. `docs/plans/README.md` inventories every plan, its status and its disposition.
+3. `docs/plans/README` inventories every plan, its status and its disposition.
 4. One authoritative feature plan owns each approved outcome, including its
    acceptance criteria and implementation handoff. Other plans link to it.
 5. `docs/ai/` records what happened and why; it is evidence, not a task queue.
@@ -82,7 +82,14 @@ Perform these checks whenever a plan changes, when a milestone finishes, and
 before handing work to another agent:
 
 - Enumerate `rg --files docs/plans -g '*.md'`. Every plan/note has exactly one
-  index row; only `README.md` is the inventory itself. Templates are listed.
+  Plan entry; only `README` is the inventory itself. Templates are listed.
+  Each entry has this plain text form:
+
+  ```text
+  Plan: Example title <example.md>
+    Status: Completed
+    Disposition: Full evidence or next-action text, wrapped as needed.
+  ```
 - Check the required fields, matching index status, replacement/evidence links,
   and that every relative link in changed planning documents resolves.
 - Compare roadmap/development current versions with the version files. Clearly
@@ -96,4 +103,4 @@ before handing work to another agent:
   Run code tests only when code changes warrant them; link checking cannot
   establish product behavior.
 
-The 2026-10-18 reconciliation is recorded in the [plan index](plans/README.md).
+The 2026-10-18 reconciliation is recorded in the [plan index](plans/README).

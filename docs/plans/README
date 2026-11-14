@@ -1,0 +1,212 @@
+TAM PLAN INDEX
+
+Command 0.53.0 integrates the shared bundle startup barrier. Delivery follows
+the public bundle plan
+<https://github.com/greenermoose/tamlinux-tools/blob/develop/docs/plans/tam-bundle.md>.
+
+Reviewed 2026-10-27 (current work and branch handoff) under the plan
+maintenance procedure <../plan-maintenance.md>. This is the complete inventory
+of plans and corpus notes in this directory. Read status/disposition before a
+historical body. A closed plan is not a task queue. ROADMAP.md gives priority;
+development.md gives the current contract.
+
+
+CURRENT WORK
+
+Plan: Fast independent command and corpus builds <incremental-corpus-build.md>
+  Status: Completed
+  Disposition: Five-run medians: unchanged 0.214s, one-page checks 0.583s,
+  100-page checks 1.443s; artifact parity and integrated checks pass with the
+  existing journal coverage gap recorded.
+
+Plan: Test suite speedup under 15 seconds <test-suite-speedup.md>
+  Status: Completed
+  Disposition: Historical 106.19s → 14.51s result recorded in the plan;
+  current corpus workflow performance is owned by the incremental build plan.
+
+Plan: Absolute-beginner task coverage <corpus/absolute-beginner-coverage.md>
+  Status: Completed
+  Disposition: Approved 2026-11-02; all 28 pages delivered at corpus 0.61.0
+  and 0.79.0–0.81.0, with the devices, security and accounts domains and no
+  coverage gaps. Learner review and packaged acceptance remain pending.
+
+Plan: Corpus 0.82: trustworthy paths <corpus/trustworthy-paths.md>
+  Status: In progress
+  Disposition: Approved 2026-11-13. Phases 0–2 delivered at corpus 0.82.0: the
+  six thin topic paths rewritten to the path template, older hubs normalized,
+  and validate_path_pages plus step-contiguity checks added with fixture
+  tests. Corpus 0.82.1 links all 164 indexed steps as levelled stage links
+  from their 23 hubs. Phase 3 (independent Claude Code audit) waits for the
+  developer's word; learner review and packaged acceptance remain pending.
+
+Plan: Learning levels, goal paths and self-quizzes <learning-levels.md>
+  Status: In progress
+  Disposition: D221 approved 2026-10-20/21 (Tamlinux decision D184; planning
+  record <../ai/2026-10-21-tam-learning-levels-plan.md>). TCK20–TCK25 and the
+  D221 level/path migration are delivered through corpus 0.81.0, which
+  replaced the level hubs with <meta name="paths"> topic paths. Only learner
+  review and packaged acceptance remain.
+
+Plan: External links in the reader’s browser <external-links.md>
+  Status: In progress
+  Disposition: Command 0.44.0 source integrated from feature/external-links at
+  abf0262; automated verification recorded in the plan. Fred reports that
+  external links work; the candidate, environments and full acceptance matrix
+  remain unrecorded.
+
+Plan: The Meta key and desktop modifiers <corpus/keyboard-modifiers.md>
+  Status: Completed
+  Disposition: Shipped in corpus 0.56.0 (desktop/meta-key.html,
+  learn/glossary/meta.html); closed 2026-11-02 (stale Ready).
+
+Plan: Common pitfall → Best practice <common-pitfall-to-best-practice.md>
+  Status: Completed
+  Disposition: Corpus 0.35.2: 16 pages lead with the correct action (ae1fa41,
+  index ca25c8f); audit report
+  <../ai/2026-10-20-common-pitfall-to-best-practice-audit.md> and session
+  record <../ai/2026-10-20-tam-common-pitfall-best-practice.md>. Corpus only;
+  package stages remain developer-directed.
+
+Plan: Pager quick keys, address display and status row <pager-quick-keys.md>
+  Status: Completed
+  Disposition: Approved and completed 2026-10-20 (Tamlinux decision D176;
+  planning record <../ai/2026-10-20-tam-pager-quick-keys-plan.md>; session
+  record <../ai/2026-10-20-tam-pager-quick-keys.md>). TCK15–TCK19 delivered in
+  command 0.34.0 / corpus 0.35.1.
+
+Plan: Developer loop: make dev and drift checks <dev-loop.md>
+  Status: Completed
+  Disposition: Approved and closed 2026-10-20 (planning record
+  <../ai/2026-10-20-tam-dev-loop-plan.md>). TCK11 (make dev, ce4b617), TCK12
+  (make check-repo, docs/repo-map.md), TCK13 (pager tests on
+  tests/fixtures/guide/, ee845af) and TCK14 (make dev names the failing check,
+  e8da257); developer acceptance by the corpus 0.34.1 run (98222ff, 4d41d84).
+  Non-interactive live-corpus assertions are on hold (roadmap section 4).
+  Tooling and tests only; no component version change.
+
+Plan: Home-row pager keys and attention column <pager-home-row-keys.md>
+  Status: Completed
+  Disposition: TCK10 (home-row pager keys), command 0.32.0 / corpus 0.33.5,
+  decided in D175. Full suite passed; see the session record
+  <../ai/2026-10-20-tam-pager-home-row-keys.md>. Interactive review by the
+  developer and packaged acceptance remain developer-directed.
+
+Plan: Reliable corpus builds <corpus-build.md>
+  Status: Completed
+  Disposition: TCK9 (reliable corpus builds), corpus 0.32.2: pages/Git
+  metadata rechecked; corpus-and-test replaces test-corpus. Focused, parallel
+  and integrated checks passed; see the session record
+  <../ai/2026-10-19-tam-corpus-build.md>.
+
+Plan: Version checks, source upgrade and stage switching <upgrade.md>
+  Status: Completed
+  Disposition: TCK6–TCK8, full source tests, isolated source build, live
+  metadata check and developer-directed first activation completed. The
+  development prefix was first activated at command 0.31.1 / corpus 0.32.0 and
+  now holds later developer builds (tam --version reports them); package-stage
+  acceptance remains developer-directed. See the Luna handoff
+  <../handoffs/tam-upgrade-luna.md> for the historical implementation record.
+
+Plan: Knowledge system, corpus 0.31.0 <knowledge-system-0.31.0.md>
+  Status: Completed
+  Disposition: Command 0.30.0 / corpus 0.31.0; TCK1–TCK5 completed in e0215fd,
+  0b3f008, 52e71f7, 597cb71, f4fa539. Automated acceptance passed; package and
+  physical review remain developer-directed.
+
+Plan: Development contract <development.md>
+  Status: Active
+  Disposition: Living ownership, behavior and integration contract;
+  incorporate each overhaul slice without rewriting historical decisions.
+
+Plan: Pager display portability <pager-display-portability.md>
+  Status: In progress
+  Disposition: Command 0.38.1 fixes text/blank cursor drift on resize with PTY
+  coverage; real Linux-console/Foot acceptance of an exact packaged candidate
+  remains pending on the developer's instruction.
+
+
+CLOSED PLANS RETAINED AT STABLE ADDRESSES
+
+Plan: Offline guide <offline-guide.md>
+  Status: Completed
+  Disposition: Command 0.1.0, 51f43f6; native renderer survives. New
+  organization/navigation follows the overhaul.
+
+Plan: Orientation and explanation <orientation-and-explanation.md>
+  Status: Completed
+  Disposition: Command 0.4.0, b01faf9; current explain semantics are in the
+  development contract.
+
+Plan: Installation inspection <installation-inspection.md>
+  Status: Completed
+  Disposition: Command 0.5.0, dd2793a; installer execution remains separately
+  deferred.
+
+Plan: Explain topic scaling <explain-topic-scaling.md>
+  Status: Superseded
+  Disposition: Replace obsolete phases/domain proposals with the corpus 0.31.0
+  plan. Preserve implemented index/search, retire unimplemented flags and
+  thresholds as assignments.
+
+Plan: Grounded ask <grounded-ask.md>
+  Status: Completed
+  Disposition: Command 0.17.0, e929ee5; existing opt-in/corpus-grounding
+  contract survives.
+
+Plan: User Guide and man page <user-guide-and-man-page.md>
+  Status: Superseded
+  Disposition: Delivered originally in command/corpus 0.20.0, a1a08ab; replace
+  seven parts and three-track organization with the corpus 0.31.0 plan.
+
+Plan: Help message redesign <help-message-redesign.md>
+  Status: Completed
+  Disposition: 9464b0f; final developer decisions in the linked verification
+  record override draft examples.
+
+Plan: Info subsystem <info-subsystem.md>
+  Status: Completed
+  Disposition: Command 0.22.0, a5a3b4f; parser/URI behavior survives; new
+  common navigation follows the overhaul.
+
+Plan: Topic guides and tam page <topic-guides-and-tam-page.md>
+  Status: Completed
+  Disposition: Command 0.23.0, a32f983; show/explain separation survives;
+  track labels and user guidance follow the overhaul.
+
+Plan: Independent versions and corpus alignment <decoupled-versioning-and-corpus-alignment.md>
+  Status: Completed
+  Disposition: Command/corpus 0.24.0, a8cc06a; independent versions survive.
+
+Plan: TTYs and virtual consoles <corpus-ttys-and-vts.md>
+  Status: Completed
+  Disposition: Corpus 0.27.0, 8458674, corrected in 91d2c47; page exists, new
+  home is Learning.
+
+Plan: Boot fallback and rescue <corpus/linux-fallback-rescue.md>
+  Status: Completed
+  Disposition: Corpus 0.29.0, b9c17ed, index 9de0735; remains Maintaining.
+
+Plan: Snapper <corpus/snapper.md>
+  Status: Completed
+  Disposition: Corpus 0.30.0, d13c1f6; remains Maintaining. The previously
+  open note is closed.
+
+Each closed plan's preamble links its verification/evidence and defines
+exactly what survives. The overhaul owns all new organizational work; none of
+these historical plans creates an additional corpus release assignment.
+
+
+TEMPLATES
+
+Plan: Feature plan template <TEMPLATE.md>
+  Status: Template
+  Disposition: A new proposal with explicit scope, evidence and disposition.
+
+Plan: Corpus note template <corpus/TEMPLATE.md>
+  Status: Template
+  Disposition: A small missing-content request; same maintenance rules.
+
+The index itself is the inventory, not a feature plan. Future ideas such as
+installer execution, stateful progression and syntax dissection are deferred
+in the roadmap; their presence in an old design is not implementation
+approval.

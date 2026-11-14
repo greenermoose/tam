@@ -15,7 +15,7 @@ the same path-claim rules; old briefs do not assign work or override them.
 - `docs/plans/development.md`: ownership, lanes, versioning and the decision
   record. Read the section you need, not the whole file.
 - A milestone's own plan in `docs/plans/`, when the roadmap links one.
-- `docs/plans/README.md`: every plan's current status and replacement/evidence.
+- `docs/plans/README`: every plan's current status and replacement/evidence.
 - Before creating, revising or closing a plan, follow `docs/plan-maintenance.md`.
   Update the plan index, roadmap and current development contract together.
   Read a closed plan as history; its old task list assigns no new work.
@@ -57,7 +57,7 @@ work is committed, or when it is cancelled.
 | --- | --- | --- | --- |
 | Command | `src/`, `bin/`, `completions/`, `man/`, `tests/render/`, `tests/render.sh` | `make command` | `make test-command` |
 | Corpus | `knowledge/`, `tools/`, `tests/test_lint_corpus.py`, `tests/test_build_index.py` | `make corpus` | `make corpus-and-test` |
-| Shared | `Makefile`, `tests/run.sh`, `tests/guide.sh`, `ROADMAP.md`, `README.md`, `AI_PROVENANCE.md`, `docs/plans/` | | `make test` |
+| Shared | `Makefile`, `tests/run.sh`, `tests/guide.sh`, `ROADMAP.md`, `README`, `AI_PROVENANCE.md`, `docs/plans/` | | `make test` |
 
 Two agents can work at once if each claims one lane. Claim both lanes for a
 change that couples them, such as new renderer support and the pages that

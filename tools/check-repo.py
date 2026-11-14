@@ -7,9 +7,9 @@ Checks the copied-fact invariants defined in docs/plans/dev-loop.md (TCK12, TCK1
   1. Command version (src/version.h -> tests/run.sh, ROADMAP.md, development.md)
   2. Corpus version (knowledge/version -> ROADMAP.md)
   3. Build inputs (src/*.c and src/*.h -> Makefile SRC and DEPS)
-  4. Plan index (docs/plans/**/*.md -> docs/plans/README.md)
+  4. Plan index (docs/plans/**/*.md -> docs/plans/README)
   5. Repository map (top-level entries and docs/ subdirectories -> docs/repo-map.md)
-  6. Relative links (tracked *.md files -> existing target paths)
+  6. Relative links (tracked Markdown and README files -> existing target paths)
   7. Lane table (AGENTS.md lane table -> existing paths)
   8. Pager fixtures (tests/run.sh interactive tests -> tests/fixtures/, not knowledge/)
 
@@ -451,15 +451,15 @@ def check_build_inputs(root):
 def check_plan_index(root):
     findings = []
     plans_dir = root / "docs" / "plans"
-    readme_rel = "docs/plans/README.md"
+    readme_rel = "docs/plans/README"
     readme_lines = read_lines(root, readme_rel)
     if readme_lines is None:
         return [
             format_finding(
                 readme_rel, 1, "Plan index",
-                "missing docs/plans/README.md",
-                "one index row per Markdown file under docs/plans/",
-                "restore docs/plans/README.md",
+                "missing docs/plans/README",
+                "one Plan entry per Markdown file under docs/plans/",
+                "restore docs/plans/README",
             )
         ]
 
@@ -467,10 +467,9 @@ def check_plan_index(root):
     if plans_dir.is_dir():
         for p in plans_dir.rglob("*.md"):
             rel = p.relative_to(plans_dir).as_posix()
-            if rel != "README.md":
-                disk_plans.add(rel)
+            disk_plans.add(rel)
 
-    row_link_re = re.compile(r"^\|\s*\[(?:`[^`]*`|[^\[\]])+\]\(([^)]+)\)\s*\|")
+    row_link_re = re.compile(r"^Plan: .+ <([^<>]+)>$")
     rows_by_target = {}
     for idx, line in enumerate(readme_lines, 1):
         m = row_link_re.match(line)
@@ -488,9 +487,9 @@ def check_plan_index(root):
             findings.append(
                 format_finding(
                     readme_rel, line_nums[0], "Plan index",
-                    f"index row links to missing file 'docs/plans/{target}'",
+                    f"Plan entry links to missing file 'docs/plans/{target}'",
                     "only existing Markdown files under docs/plans/",
-                    f"remove the row for '{target}' on {readme_rel}:{line_nums[0]} or create docs/plans/{target}",
+                    f"remove the entry for '{target}' on {readme_rel}:{line_nums[0]} or create docs/plans/{target}",
                 )
             )
         if len(line_nums) > 1:
@@ -498,9 +497,9 @@ def check_plan_index(root):
                 findings.append(
                     format_finding(
                         readme_rel, dup_line, "Plan index",
-                        f"duplicate index row for 'docs/plans/{target}' (first on line {line_nums[0]})",
-                        f"exactly one row for '{target}' in {readme_rel}",
-                        f"remove the duplicate row on {readme_rel}:{dup_line}",
+                        f"duplicate Plan entry for 'docs/plans/{target}' (first on line {line_nums[0]})",
+                        f"exactly one entry for '{target}' in {readme_rel}",
+                        f"remove the duplicate entry on {readme_rel}:{dup_line}",
                     )
                 )
 
@@ -510,9 +509,9 @@ def check_plan_index(root):
             findings.append(
                 format_finding(
                     readme_rel, last_line, "Plan index",
-                    f"missing index row for 'docs/plans/{plan_rel}'",
-                    f"exactly one table row linking to '{plan_rel}' in {readme_rel}",
-                    f"add a row for '{plan_rel}' to {readme_rel}",
+                    f"missing Plan entry for 'docs/plans/{plan_rel}'",
+                    f"exactly one 'Plan: Title <{plan_rel}>' entry in {readme_rel}",
+                    f"add a Plan entry for '{plan_rel}' to {readme_rel}",
                 )
             )
 
@@ -640,7 +639,7 @@ def check_repo_map(root):
 
 def list_tracked_markdown(root):
     res = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "*.md"],
+        ["git", "-C", str(root), "ls-files", "*.md", "README", "**/README"],
         capture_output=True,
         text=True,
         check=False,
@@ -649,8 +648,8 @@ def list_tracked_markdown(root):
         return sorted(res.stdout.splitlines())
     return sorted(
         p.relative_to(root).as_posix()
-        for p in root.rglob("*.md")
-        if ".git" not in p.parts
+        for p in root.rglob("*")
+        if ".git" not in p.parts and p.is_file() and (p.suffix == ".md" or p.name == "README")
     )
 
 
@@ -665,16 +664,21 @@ def check_relative_links(root):
             continue
         md_parent = (root / md_rel).parent
         in_fence = False
+        plain = Path(md_rel).name == "README"
         for idx, line in enumerate(lines, 1):
+            if plain:
+                if line.startswith("    "):
+                    continue
+                targets = re.findall(r"<([^<>\s]+)>", line)
+                targets = [t for t in targets if "/" in t or "." in t or t in ("README", "LICENSE", "NOTICE")]
+            else:
+                targets = [m.group(2) for m in token_re.finditer(line) if m.group(2) is not None]
             if re.match(r"^\s*(`{3,}|~{3,})", line):
                 in_fence = not in_fence
                 continue
             if in_fence:
                 continue
-            for m in token_re.finditer(line):
-                raw_target = m.group(2)
-                if raw_target is None:
-                    continue
+            for raw_target in targets:
                 target = raw_target.strip().strip("<>")
                 if not target:
                     continue

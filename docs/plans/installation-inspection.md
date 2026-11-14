@@ -9,7 +9,7 @@
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development
-> contract and current scope to the [plan index](README.md).
+> contract and current scope to the [plan index](README).
 
 ## Original design record
 

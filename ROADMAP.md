@@ -9,7 +9,7 @@ Versions above come from `src/version.h` and `knowledge/version`; future targets
 below are not delivered versions.
 
 This roadmap sets priority and outcome.
-Read the [plan index](docs/plans/README.md) for status, the
+Read the [plan index](docs/plans/README) for status, the
 [development contract](docs/plans/development.md) for behavior/invariants, and the
 [plan maintenance procedure](docs/plan-maintenance.md) when changing any plan.
 
@@ -315,7 +315,7 @@ Fred's 2026-10-18 decision replaces the old seven-part contents and
 three-track organizational model with the five-part spine. The former future
 version sequence and feature-reference matrix are retired as scheduling
 authorities; delivered history above remains history. The
-[plan index](docs/plans/README.md) records every plan's disposition and links
+[plan index](docs/plans/README) records every plan's disposition and links
 old designs to their successor at stable paths.
 
 Plans close only with evidence or an explicit replacement/retirement. Update

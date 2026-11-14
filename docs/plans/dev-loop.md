@@ -84,7 +84,7 @@ the commit that completes each slice.
 Files: `Makefile` (add `dev` to `.PHONY`, and
 `dev: ; @python3 tools/dev.py $(if $(DRY_RUN),--dry-run)`; also run the new
 test from `test`), `tools/dev.py` (new), `tests/test_dev.py` (new),
-`README.md` (a short "Editing and installing a development build" section),
+`README` (a short "Editing and installing a development build" section),
 `AGENTS.md` (one line: `make dev` is the developer's loop; agents do not run it).
 
 `tools/dev.py` reads top to bottom with one function per step, uses the
@@ -168,9 +168,9 @@ expected value and the fix.
 | Command version | `src/version.h` | `tests/run.sh` assertion; `ROADMAP.md` header and `develop` row; a delivered-history row and a decision-record entry naming it |
 | Corpus version | `knowledge/version` | `ROADMAP.md` header and `develop` row; a delivered-history row naming it |
 | Build inputs | `src/*.c` and `src/*.h` on disk | `SRC` and `DEPS` in `Makefile` |
-| Plan index | Markdown files under `docs/plans/` | exactly one row each in `docs/plans/README.md`, and no row for a missing file |
+| Plan index | Markdown files under `docs/plans/` | exactly one Plan entry each in `docs/plans/README`, and no entry for a missing file |
 | Repository map | top-level entries and `docs/` subdirectories | one line each in `docs/repo-map.md`, and no line for a missing entry |
-| Relative links | every tracked `*.md` file | each relative link target exists (fragment ignored) |
+| Relative links | every tracked `*.md` and plain `README` file | each relative link target exists (fragment ignored) |
 | Lane table | path lists in the `AGENTS.md` lane table | each named path exists |
 | Pager fixtures (TCK13) | `tests/fixtures/` | interactive tests in `tests/run.sh` do not read `knowledge/` unless marked `# live-corpus: <reason>` |
 
