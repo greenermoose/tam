@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.10' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.11' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -2044,6 +2044,7 @@ assert "Move to a [+] line to show an answer" in b and "SECRET_ALPHA" not in b, 
 p.key(b"\t")
 b = p.key(b"+")
 assert "SECRET_ALPHA" in b and "[-] Answer (<- to hide)" in b and "Quiz 1/2 revealed" in b, b
+assert "| SECRET_ALPHA" in b and "+---" in b, b
 b = p.key(b"+")
 assert "Quiz 0/2 revealed" not in b, f"+ on a shown answer hid it: {b}"
 b = p.key(b"-")

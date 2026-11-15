@@ -159,7 +159,6 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
             x->folds = next;
             x->folds[x->nfolds++] = (tam_fold_t){ id, cls(s, t, "q"), opened };
             str(out, "<div"); add(out, s + t.attrs, t.end - t.attrs);
-            if (!x->pipe && first_time && opened) str(out, "<tam-box>");
             if (x->pipe || summary.name[0] || !first_time) {
                 str(out, "<p>");
                 if (x->pipe) { snprintf(line, sizeof(line), "%u. ", id); str(out, line); }
@@ -168,6 +167,7 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
                 str(out, "</p>");
             }
             if (!x->pipe) {
+                if (opened) str(out, "<tam-box>");
                 /* The hint names the arrow keys; +, -, Enter, r and * also work. */
                 snprintf(line, sizeof(line),
                          "<p><a href=\"tam:fold:%u\">[%c] %s (%s)</a></p>",
@@ -183,7 +183,7 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
                 str(answers, line); add(answers, content.s ? content.s : "", content.n);
                 add(answers, nested_answers.s, nested_answers.n);
             } else if (opened) add(out, content.s ? content.s : "", content.n);
-            if (!x->pipe && first_time && opened) str(out, "</tam-box>");
+            if (!x->pipe && opened) str(out, "</tam-box>");
             if (content.failed || nested_answers.failed) out->failed = 1;
             free(nested_answers.s);
             free(content.s);
