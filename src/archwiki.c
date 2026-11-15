@@ -561,8 +561,6 @@ tam_document_t *tam_archwiki_load(const char *spec, int width)
 
     const char *display_title = title ? title : resolved_slug;
     tam_str_t html = tam_page_begin(display_title, NULL, NULL, 0);
-    html = tam_str_cat(html, "<p><a href=\"tam:archwiki\">Arch Wiki index</a> · "
-                             "<a href=\"index.html\">Guide index</a></p>\n");
     html = tam_str_cat(html, "<h1>");
     html = tam_html_cat(html, display_title);
     html = tam_str_cat(html, "</h1>\n");

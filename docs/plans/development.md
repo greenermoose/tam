@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-15:** Command 0.60.2 (patch): Remove the injected `Arch Wiki index · Guide index` line from `tam_archwiki_load` in `src/archwiki.c` so the top breadcrumb row stands alone.
+
 - **2026-11-15:** Command 0.60.1 (patch): Move Starting points above `Open an Arch Wiki page` as a two-column `<table>` and remove `Browse by letter:` text from `append_az_bar` in `src/archwiki.c`.
 - **2026-11-15:** Command 0.60.0 (minor): Add offline Arch Wiki subsystem (`src/archwiki.c`, `src/archwiki.h`, `bin/tam-archwiki`) supporting `tam archwiki`, `archwiki:PAGE`, and `tam:archwiki*` views with HTML body extraction, link rewriting, A–Z browsing, and keyword search over `arch-wiki-docs` (`/usr/share/doc/arch-wiki/html/en` or `$TAM_ARCHWIKI_DIR`).
 
