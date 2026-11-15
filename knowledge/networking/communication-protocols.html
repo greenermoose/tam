@@ -149,10 +149,10 @@ Even with infinite voltage levels (as <code>M</code> approaches infinity), chann
 
 <p>Raw digital bit streams cannot be transmitted directly across high-speed AC-coupled channels without encoding:</p>
 
-<ul>
-<li><strong>Baseline Wander:</strong> High-speed serial links place ceramic capacitors in series with differential lines to block DC ground offsets between devices. If a data stream contains a long string of consecutive 1s, the capacitor charges up, shifting the zero-voltage reference level (baseline wander). The receiver's comparator threshold drifts, causing subsequent bits to be misinterpreted.</li>
-<li><strong>Run-Length Limiting (RLL):</strong> Phase-Locked Loops in Clock Data Recovery (CDR) circuits require frequent voltage edges to stay synchronized. Encodings like <strong>8b/10b</strong> map every 8-bit byte to a 10-bit symbol chosen from a codebook that limits maximum consecutive identical bits to five, and tracks <em>running disparity</em> (+1 or -1) to guarantee long-term zero DC bias.</li>
-</ul>
+<table>
+<tr><td><strong>Baseline Wander</strong></td><td>High-speed serial links place ceramic capacitors in series with differential lines to block DC ground offsets between devices. If a data stream contains a long string of consecutive 1s, the capacitor charges up, shifting the zero-voltage reference level (baseline wander). The receiver's comparator threshold drifts, causing subsequent bits to be misinterpreted.</td></tr>
+<tr><td><strong>Run-Length Limiting (RLL)</strong></td><td>Phase-Locked Loops in Clock Data Recovery (CDR) circuits require frequent voltage edges to stay synchronized. Encodings like <strong>8b/10b</strong> map every 8-bit byte to a 10-bit symbol chosen from a codebook that limits maximum consecutive identical bits to five, and tracks <em>running disparity</em> (+1 or -1) to guarantee long-term zero DC bias.</td></tr>
+</table>
 
 <h3>Linux kernel tty architecture and termios</h3>
 
@@ -171,12 +171,12 @@ Even with infinite voltage levels (as <code>M</code> approaches infinity), chann
 </pre>
 
 <p>Applications configure the interface via the POSIX <code>struct termios</code> data structure using <code>tcgetattr(3)</code> and <code>tcsetattr(3)</code>. The structure separates control flags into four bitmasks:</p>
-<ul>
-<li><code>c_iflag</code>: Input processing (e.g. <code>IXON</code> for software flow control, <code>IGNPAR</code> to ignore framing errors).</li>
-<li><code>c_oflag</code>: Output processing (e.g. <code>OPOST</code> to translate newline characters to carriage-return newline pairs).</li>
-<li><code>c_cflag</code>: Hardware control (e.g. <code>CSIZE</code> bitmask for character size, <code>PARENB</code> for parity, <code>CSTOPB</code> for stop bits, <code>CRTSCTS</code> for hardware flow control).</li>
-<li><code>c_lflag</code>: Local line discipline modes (e.g. <code>ICANON</code> for canonical line buffering, <code>ECHO</code> for key reflection, <code>ISIG</code> to generate <code>SIGINT</code> on Ctrl+C).</li>
-</ul>
+<table>
+<tr><td><code>c_iflag</code></td><td>Input processing (e.g. <code>IXON</code> for software flow control, <code>IGNPAR</code> to ignore framing errors).</td></tr>
+<tr><td><code>c_oflag</code></td><td>Output processing (e.g. <code>OPOST</code> to translate newline characters to carriage-return newline pairs).</td></tr>
+<tr><td><code>c_cflag</code></td><td>Hardware control (e.g. <code>CSIZE</code> bitmask for character size, <code>PARENB</code> for parity, <code>CSTOPB</code> for stop bits, <code>CRTSCTS</code> for hardware flow control).</td></tr>
+<tr><td><code>c_lflag</code></td><td>Local line discipline modes (e.g. <code>ICANON</code> for canonical line buffering, <code>ECHO</code> for key reflection, <code>ISIG</code> to generate <code>SIGINT</code> on Ctrl+C).</td></tr>
+</table>
 
 <h3>Why Tamlinux chose this</h3>
 

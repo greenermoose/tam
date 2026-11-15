@@ -75,21 +75,21 @@ version.</p>
 <p>Tamlinux follows <strong>freedesktop.org (XDG)</strong> specifications so that
 its parts work with the rest of the free desktop:</p>
 
-<ul>
-<li><strong>XDG directories:</strong> configuration in <code>~/.config</code>, data in <code>~/.local/share</code>, and state in <code>~/.local/state</code>.</li>
-<li><strong>Standard protocols:</strong> the shell talks to the compositor through standard Wayland protocols such as <code>wlr-layer-shell</code> and <code>ext-workspace-v1</code> wherever they exist.</li>
-<li><strong>Standard formats:</strong> applications are described by <code>.desktop</code> files; icons and menus follow shared specifications.</li>
-</ul>
+<table>
+<tr><td><strong>XDG directories</strong></td><td>configuration in <code>~/.config</code>, data in <code>~/.local/share</code>, and state in <code>~/.local/state</code>.</td></tr>
+<tr><td><strong>Standard protocols</strong></td><td>the shell talks to the compositor through standard Wayland protocols such as <code>wlr-layer-shell</code> and <code>ext-workspace-v1</code> wherever they exist.</td></tr>
+<tr><td><strong>Standard formats</strong></td><td>applications are described by <code>.desktop</code> files; icons and menus follow shared specifications.</td></tr>
+</table>
 
 <h2>Resource efficiency</h2>
 
 <p>Reducing unnecessary work can improve responsiveness or energy use. Verify the effect on the actual workload and hardware:</p>
 
-<ul>
-<li><strong>No polling loops:</strong> work is event-driven and bounded; software sleeps until something happens.</li>
-<li><strong>No unnecessary daemons:</strong> if a feature can be an on-demand command, it should not run permanently in the background.</li>
-<li><strong>Self-reporting:</strong> tools say what they did and what failed, so problems can be diagnosed rather than guessed at.</li>
-</ul>
+<table>
+<tr><td><strong>No polling loops</strong></td><td>work is event-driven and bounded; software sleeps until something happens.</td></tr>
+<tr><td><strong>No unnecessary daemons</strong></td><td>if a feature can be an on-demand command, it should not run permanently in the background.</td></tr>
+<tr><td><strong>Self-reporting</strong></td><td>tools say what they did and what failed, so problems can be diagnosed rather than guessed at.</td></tr>
+</table>
 
 <h2>Human direction</h2>
 

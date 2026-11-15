@@ -68,10 +68,10 @@ Clock Skew in Parallel Buses:
 
 <p>When sending data, the receiver must know <em>when</em> to sample the line to distinguish a 0 from a 1. Digital communication solves this through two primary timing models:</p>
 
-<ul>
-<li><strong>Synchronous communication:</strong> A dedicated physical wire carries a pulsating <strong>clock signal</strong> alongside the data wires. The receiver samples the data wire strictly on the rising or falling edge of that clock pulse. Examples include SPI (Serial Peripheral Interface), I²C, and internal CPU memory buses.</li>
-<li><strong>Asynchronous communication:</strong> There is no separate clock wire. The transmitter and receiver agree in advance on an exact transmission speed (<a href="glossary/b/baud-rate.html">baud rate</a>). The line rests at high voltage (Idle / Mark). When a byte is sent, the transmitter pulls the line low for one bit duration (the Start bit), which resets and aligns the receiver's internal timer. The receiver then samples the line at precise fractional intervals to read the data bits before returning to line reset (the Stop bit). The classic example is the Universal Asynchronous Receiver-Transmitter (UART / RS-232).</li>
-</ul>
+<table>
+<tr><td><strong>Synchronous communication</strong></td><td>A dedicated physical wire carries a pulsating <strong>clock signal</strong> alongside the data wires. The receiver samples the data wire strictly on the rising or falling edge of that clock pulse. Examples include SPI (Serial Peripheral Interface), I²C, and internal CPU memory buses.</td></tr>
+<tr><td><strong>Asynchronous communication</strong></td><td>There is no separate clock wire. The transmitter and receiver agree in advance on an exact transmission speed (<a href="glossary/b/baud-rate.html">baud rate</a>). The line rests at high voltage (Idle / Mark). When a byte is sent, the transmitter pulls the line low for one bit duration (the Start bit), which resets and aligns the receiver's internal timer. The receiver then samples the line at precise fractional intervals to read the data bits before returning to line reset (the Stop bit). The classic example is the Universal Asynchronous Receiver-Transmitter (UART / RS-232).</td></tr>
+</table>
 <h3>Worked example: inspect terminal serial line settings</h3>
 <pre class="session" data-risk="read-only">
 $ stty -a | head -2

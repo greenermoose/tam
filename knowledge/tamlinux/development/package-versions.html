@@ -179,17 +179,12 @@ nix flake check
 Set the candidate Tamlinux letter in <code>VERSION</code> (e.g. <code>0.5.4-a</code>) following candidate letter rules. Commit and push the updated assembly definition to <code>develop</code>.</li>
 
 <li><strong>Promotion to Test, Run, and Dev Override Cleanup:</strong>
-<ul>
-<li><strong>Test:</strong> On the developer's explicit "Test" instruction, promote the candidate commit to the <code>test</code> branch (fast-forward only). Deploy using <code>tam-deploy test</code>.</li>
-<li><strong>Clean up the dev override:</strong> Right after the deploy that delivers the pinned version, remove the development override:
-<pre data-risk="read-only">
-make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev
-hash -r
-</pre>
-Confirm <code>type -a tam</code> points back to <code>~/.local/bin/tam</code>.</li>
-<li><strong>Run:</strong> After thorough daily-driver testing, on the developer's explicit "Run" instruction, promote the exact same tested commit to <code>main</code> with <code>tam-deploy run</code>.</li>
-<li><strong>Release:</strong> When all planned steps for the version are accepted, tag the release on GitHub with release notes on the developer's explicit "Release" instruction.</li>
-</ul>
+<table>
+<tr><td><strong>Test</strong></td><td>On the developer's explicit "Test" instruction, promote the candidate commit to the <code>test</code> branch (fast-forward only). Deploy using <code>tam-deploy test</code>.</td></tr>
+<tr><td><strong>Clean up the dev override</strong></td><td>Right after the deploy that delivers the pinned version, remove the development override: <pre data-risk="read-only"> make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev hash -r </pre> Confirm <code>type -a tam</code> points back to <code>~/.local/bin/tam</code>.</td></tr>
+<tr><td><strong>Run</strong></td><td>After thorough daily-driver testing, on the developer's explicit "Run" instruction, promote the exact same tested commit to <code>main</code> with <code>tam-deploy run</code>.</td></tr>
+<tr><td><strong>Release</strong></td><td>When all planned steps for the version are accepted, tag the release on GitHub with release notes on the developer's explicit "Release" instruction.</td></tr>
+</table>
 </li>
 </ol>
 

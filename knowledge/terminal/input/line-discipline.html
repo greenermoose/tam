@@ -221,12 +221,12 @@ tcsetattr(fd, TCSAFLUSH, &amp;saved);
 
 <p>Other parts of the tty layer matter to the same programs:</p>
 
-<ul>
-<li><strong>Window size.</strong> <code>TIOCGWINSZ</code> and <code>TIOCSWINSZ</code> read and set rows and columns; a change raises <code>SIGWINCH</code>, which a full-screen program handles by redrawing.</li>
-<li><strong>Foreground group.</strong> <code>tcgetpgrp</code> and <code>tcsetpgrp</code> decide which process group receives the signal characters. A background group that reads from the terminal gets <code>SIGTTIN</code> and stops.</li>
-<li><strong>Flow control.</strong> <code>tcflow</code> can pause and resume output, and <code>IXON</code> does the same for the special characters.</li>
-<li><strong>Pending output.</strong> <code>TCSAFLUSH</code> discards unread input, while <code>TCSADRAIN</code> waits for output to drain. Choosing wrongly loses typed characters or leaves bytes for the next reader.</li>
-</ul>
+<table>
+<tr><td><strong>Window size</strong></td><td><code>TIOCGWINSZ</code> and <code>TIOCSWINSZ</code> read and set rows and columns; a change raises <code>SIGWINCH</code>, which a full-screen program handles by redrawing.</td></tr>
+<tr><td><strong>Foreground group</strong></td><td><code>tcgetpgrp</code> and <code>tcsetpgrp</code> decide which process group receives the signal characters. A background group that reads from the terminal gets <code>SIGTTIN</code> and stops.</td></tr>
+<tr><td><strong>Flow control</strong></td><td><code>tcflow</code> can pause and resume output, and <code>IXON</code> does the same for the special characters.</td></tr>
+<tr><td><strong>Pending output</strong></td><td><code>TCSAFLUSH</code> discards unread input, while <code>TCSADRAIN</code> waits for output to drain. Choosing wrongly loses typed characters or leaves bytes for the next reader.</td></tr>
+</table>
 
 <h3>Edge cases</h3>
 

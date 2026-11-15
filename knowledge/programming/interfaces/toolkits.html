@@ -47,11 +47,11 @@ builds its own shell, the <strong>Tamlinux shell</strong>, with
 <p>Quickshell is a toolkit for building desktop shells in QML on top of
 Qt Quick:</p>
 
-<ul>
-<li><strong>Declarative and reactive:</strong> QML properties bind directly to system state, so the interface updates when the state changes, without polling.</li>
-<li><strong>Layer-shell panels:</strong> bars and panels anchor to screen edges through the <code>wlr-layer-shell</code> protocol and reserve space for themselves.</li>
-<li><strong>Multiple monitors:</strong> a bar per output follows displays as they are connected and disconnected.</li>
-</ul>
+<table>
+<tr><td><strong>Declarative and reactive</strong></td><td>QML properties bind directly to system state, so the interface updates when the state changes, without polling.</td></tr>
+<tr><td><strong>Layer-shell panels</strong></td><td>bars and panels anchor to screen edges through the <code>wlr-layer-shell</code> protocol and reserve space for themselves.</td></tr>
+<tr><td><strong>Multiple monitors</strong></td><td>a bar per output follows displays as they are connected and disconnected.</td></tr>
+</table>
 
 <h2>Independence from Omarchy</h2>
 
@@ -60,19 +60,19 @@ their MIT notices. Independence from Omarchy as a runtime dependency is complete
 a Tamlinux desktop installs without Omarchy software, packages, or servers.
 Omarchy remains a peer project that Tamlinux watches for useful ideas and fixes.</p>
 
-<ul>
-<li><strong>Standard protocols first:</strong> a shared, compositor-neutral layer reads workspace and output facts from standard Wayland protocols such as <code>ext-workspace-v1</code> and <code>wl_output</code>; small per-compositor adapters fill only the gaps. This is what lets the same shell move from Hyprland to Sway.</li>
-<li><strong>Shared components:</strong> plugins use a common hover tooltip and a shared version footer in their panels.</li>
-<li><strong>Copyleft:</strong> the shell is maintained publicly in the <code>tamlinux</code> repository under GPL-3.0-or-later.</li>
-</ul>
+<table>
+<tr><td><strong>Standard protocols first</strong></td><td>a shared, compositor-neutral layer reads workspace and output facts from standard Wayland protocols such as <code>ext-workspace-v1</code> and <code>wl_output</code>; small per-compositor adapters fill only the gaps. This is what lets the same shell move from Hyprland to Sway.</td></tr>
+<tr><td><strong>Shared components</strong></td><td>plugins use a common hover tooltip and a shared version footer in their panels.</td></tr>
+<tr><td><strong>Copyleft</strong></td><td>the shell is maintained publicly in the <code>tamlinux</code> repository under GPL-3.0-or-later.</td></tr>
+</table>
 
 <h2>Alternatives considered</h2>
 
-<ul>
-<li><strong>Waybar:</strong> a capable, lightweight status bar, but focused on bar modules rather than rich interactive panels.</li>
-<li><strong>Astal and AGS:</strong> GTK widget frameworks scripted in TypeScript through GJS.</li>
-<li><strong>EWW:</strong> a standalone widget engine in Rust with its own configuration language, Yuck.</li>
-</ul>
+<table>
+<tr><td><strong>Waybar</strong></td><td>a capable, lightweight status bar, but focused on bar modules rather than rich interactive panels.</td></tr>
+<tr><td><strong>Astal and AGS</strong></td><td>GTK widget frameworks scripted in TypeScript through GJS.</td></tr>
+<tr><td><strong>EWW</strong></td><td>a standalone widget engine in Rust with its own configuration language, Yuck.</td></tr>
+</table>
 <h3>Try it</h3>
 <p>Name the toolkit and the interface in that example.</p><details class="solution"><p>Quickshell is the toolkit; the Tamlinux shell provides the desktop interface. The compositor is a separate component.</p></details>
 <h3>If it goes wrong</h3>

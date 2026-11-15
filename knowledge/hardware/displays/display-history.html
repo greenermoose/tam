@@ -135,11 +135,11 @@ $ head -n 1 /sys/class/drm/card1-*/modes
 <li><strong>Slot Allocation:</strong> The kernel&apos;s <code>hid-multitouch</code> driver maps the hardware contact to an available multi-touch slot using <code>ABS_MT_SLOT</code>.</li>
 <li><strong>Tracking ID:</strong> The driver assigns an <code>ABS_MT_TRACKING_ID</code>. As your finger glides across the glass, subsequent reports update <code>ABS_MT_POSITION_X</code> and <code>ABS_MT_POSITION_Y</code> within that exact same slot.</li>
 <li><strong>Touch Contact Lifecycles:</strong>
-  <ul>
-  <li><strong>Finger Down:</strong> The kernel emits <code>ABS_MT_TRACKING_ID &lt;positive integer&gt;</code> followed by coordinate updates.</li>
-  <li><strong>Finger Motion:</strong> Coordinates update continuously; no tracking ID is re-emitted because the slot remains active.</li>
-  <li><strong>Finger Up:</strong> The kernel emits <code>ABS_MT_TRACKING_ID -1</code> to indicate that the touch contact has lifted from the screen.</li>
-  </ul>
+  <table>
+<tr><td><strong>Finger Down</strong></td><td>The kernel emits <code>ABS_MT_TRACKING_ID &lt;positive integer&gt;</code> followed by coordinate updates.</td></tr>
+<tr><td><strong>Finger Motion</strong></td><td>Coordinates update continuously; no tracking ID is re-emitted because the slot remains active.</td></tr>
+<tr><td><strong>Finger Up</strong></td><td>The kernel emits <code>ABS_MT_TRACKING_ID -1</code> to indicate that the touch contact has lifted from the screen.</td></tr>
+</table>
 </li>
 <li><strong>Compositor Handling:</strong> Wayland compositors (like Hyprland and Sway) consume these slotted events via <code>libinput</code>, converting raw hardware digitizer coordinates into window surface touch gestures (tap, scroll, pinch-to-zoom).</li>
 </ol>

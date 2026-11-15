@@ -30,11 +30,11 @@
 <h3>How to think about it</h3>
 <p>New to this? Think of a parity bit like a quick count verification.</p>
 <h3>New words</h3>
-<ul>
-<li><strong><dfn><a href="glossary/p/parity.html">Parity</a></dfn>:</strong> An error-detection method where an extra binary bit is added to a data sequence to ensure the total number of set bits (1s) is always even or always odd.</li>
-<li><strong>Bit Flip:</strong> An unintentional change in the state of a digital bit from 0 to 1, or 1 to 0, caused by electromagnetic interference, thermal noise, or voltage fluctuations.</li>
-<li><strong>Payload:</strong> The actual meaningful data being transmitted, excluding synchronization bits, headers, and error check codes.</li>
-</ul>
+<table>
+<tr><td><strong><dfn><a href="glossary/p/parity.html">Parity</a></dfn></strong></td><td>An error-detection method where an extra binary bit is added to a data sequence to ensure the total number of set bits (1s) is always even or always odd.</td></tr>
+<tr><td><strong>Bit Flip</strong></td><td>An unintentional change in the state of a digital bit from 0 to 1, or 1 to 0, caused by electromagnetic interference, thermal noise, or voltage fluctuations.</td></tr>
+<tr><td><strong>Payload</strong></td><td>The actual meaningful data being transmitted, excluding synchronization bits, headers, and error check codes.</td></tr>
+</table>
 </section>
 
 <section data-level="learner">
@@ -136,11 +136,11 @@ Calculated parity bit: 1 | Incoming valid under Even Parity: True
   Because valid codewords are separated by at least <code>2*t + 1</code> bits of difference in multidimensional vector space, if fewer than <code>t</code> bits flip, the corrupted codeword is still closer to the original codeword than to any other valid codeword, allowing unambiguous geometric correction.
 </li>
 <li><strong>The Hamming(7,4) Code:</strong> Takes 4 data bits (<code>d1, d2, d3, d4</code>) and generates 3 parity bits (<code>p1, p2, p3</code>) to create a 7-bit codeword. The parity bits are placed at bit positions that are powers of 2 (positions 1, 2, and 4), covering overlapping subsets of the data bits:
-  <ul>
-  <li><code>p1</code> (position 1) covers positions 1, 3, 5, 7.</li>
-  <li><code>p2</code> (position 2) covers positions 2, 3, 6, 7.</li>
-  <li><code>p3</code> (position 4) covers positions 4, 5, 6, 7.</li>
-  </ul>
+  <table>
+<tr><td><code>p1</code></td><td>(position 1) covers positions 1, 3, 5, 7.</td></tr>
+<tr><td><code>p2</code></td><td>(position 2) covers positions 2, 3, 6, 7.</td></tr>
+<tr><td><code>p3</code></td><td>(position 4) covers positions 4, 5, 6, 7.</td></tr>
+</table>
 </li>
 <li><strong>Syndrome Decoding:</strong> When the 7-bit codeword is received, the receiver computes three syndrome bits (<code>s1, s2, s3</code>) by recalculating the parity across the respective subsets.
   <ul>

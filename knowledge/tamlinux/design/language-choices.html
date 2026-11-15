@@ -143,21 +143,21 @@ $ size /usr/bin/true
 
 <p>One of Tamlinux's core engineering principles is to <strong>gather good ideas from everywhere</strong> (<a href="tamlinux/design/philosophy.html">Philosophy and principles</a>). Useful design patterns, data models, and algorithms exist across many programming languages. Rather than adopting an entire language ecosystem and its transitive dependencies, Tamlinux uses AI assistants (Claude Code, Codex, Antigravity, Cursor) under human direction to harvest ideas:</p>
 
-<ul>
-<li><strong>Algorithmic extraction:</strong> AI agents examine open source projects written in Go, Rust, Python, or Plan 9 C, analyze their core data structures and logic, and strip away framework-specific baggage.</li>
-<li><strong>Clean C11 implementation:</strong> The agent translates the distilled algorithm into standard C11 linked against <a href="glossary/l/library.html">libtam</a>.</li>
-<li><strong>Self-contained autonomy:</strong> The resulting program has zero external dependencies beyond standard C and system libraries, eliminating the supply-chain security and maintenance burdens of large package registries.</li>
-<li><strong>Human direction and playful testing:</strong> AI agents handle the mechanical drudgery of writing C boilerplate, bounds checks, and test harnesses. The developer directs the architecture, reviews the code, and tests the tools interactively in daily computing.</li>
-</ul>
+<table>
+<tr><td><strong>Algorithmic extraction</strong></td><td>AI agents examine open source projects written in Go, Rust, Python, or Plan 9 C, analyze their core data structures and logic, and strip away framework-specific baggage.</td></tr>
+<tr><td><strong>Clean C11 implementation</strong></td><td>The agent translates the distilled algorithm into standard C11 linked against <a href="glossary/l/library.html">libtam</a>.</td></tr>
+<tr><td><strong>Self-contained autonomy</strong></td><td>The resulting program has zero external dependencies beyond standard C and system libraries, eliminating the supply-chain security and maintenance burdens of large package registries.</td></tr>
+<tr><td><strong>Human direction and playful testing</strong></td><td>AI agents handle the mechanical drudgery of writing C boilerplate, bounds checks, and test harnesses. The developer directs the architecture, reviews the code, and tests the tools interactively in daily computing.</td></tr>
+</table>
 
 <h3>Addressing C11's safety and library deficits</h3>
 
 <p>While C11 provides speed and simplicity, it lacks built-in memory safety and a rich standard collection library. Tamlinux mitigates these limitations with two engineering safeguards:</p>
 
-<ul>
-<li><strong>The <code>libtam</code> foundational library:</strong> Standalone C library providing safe dynamic strings, bounds-checked dynamic arrays, hash maps, JSON parsing, and atomic filesystem operations, inspired by lightweight libraries like <code>sds</code> and <code>cJSON</code> without the weight of GLib.</li>
-<li><strong>Strict compiler flags and runtime sanitizers:</strong> Tamlinux compiles all C code with <code>-std=c11 -Wall -Wextra -Wpedantic</code> to catch suspicious constructs at build time. During development and testing, code is built with <a href="programming/c/sanitizers.html">AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan)</a> to catch buffer overflows, memory leaks, and use-after-free conditions before software is released.</li>
-</ul>
+<table>
+<tr><td><strong>The <code>libtam</code> foundational library</strong></td><td>Standalone C library providing safe dynamic strings, bounds-checked dynamic arrays, hash maps, JSON parsing, and atomic filesystem operations, inspired by lightweight libraries like <code>sds</code> and <code>cJSON</code> without the weight of GLib.</td></tr>
+<tr><td><strong>Strict compiler flags and runtime sanitizers</strong></td><td>Tamlinux compiles all C code with <code>-std=c11 -Wall -Wextra -Wpedantic</code> to catch suspicious constructs at build time. During development and testing, code is built with <a href="programming/c/sanitizers.html">AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan)</a> to catch buffer overflows, memory leaks, and use-after-free conditions before software is released.</td></tr>
+</table>
 
 <section class="quiz">
 <h3>Check yourself</h3>

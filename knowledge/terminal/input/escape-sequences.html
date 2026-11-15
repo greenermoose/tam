@@ -205,10 +205,10 @@ $ TERM=linux tput kend | od -An -c
 
 <p>Two extensions carry information the legacy encoding cannot:</p>
 
-<ul>
-<li><strong>modifyOtherKeys</strong> reports a modified key as <code>ESC [ 27 ; modifier ; code ~</code>, where <code>code</code> is the character code. It disambiguates chords such as <code>Ctrl + I</code> from Tab.</li>
-<li><strong>The kitty keyboard protocol</strong> reports a key as <code>ESC [ code ; modifier u</code>, with optional sub-parameters for event type, alternate keys and associated text. It also reports key release and repeat events.</li>
-</ul>
+<table>
+<tr><td><strong>modifyOtherKeys</strong></td><td>reports a modified key as <code>ESC [ 27 ; modifier ; code ~</code>, where <code>code</code> is the character code. It disambiguates chords such as <code>Ctrl + I</code> from Tab.</td></tr>
+<tr><td><strong>The kitty keyboard protocol</strong></td><td>reports a key as <code>ESC [ code ; modifier u</code>, with optional sub-parameters for event type, alternate keys and associated text. It also reports key release and repeat events.</td></tr>
+</table>
 
 <p>The output side includes replies that programs must read carefully. A device attributes query returns a sequence such as <code>ESC [ ? 1 ; 2 c</code>, and a cursor position report returns <code>ESC [ row ; col R</code>. These replies are written by the terminal into the same input stream the program reads, so a program that queries the terminal and then reads a key must skip the reply. A program that prints a fake reply can confuse the next reader, which is one reason to distrust escape sequences that arrive from untrusted output rather than from the keyboard.</p>
 

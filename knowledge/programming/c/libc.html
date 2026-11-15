@@ -26,18 +26,18 @@ both.</p>
 
 <h2>The two libraries</h2>
 
-<ul>
-<li><strong>glibc (the GNU C Library):</strong> the standard C library of most Linux distributions. Feature-complete, heavily optimized, and the library that pre-built binary software expects.</li>
-<li><strong>musl:</strong> a small, simple, standards-focused C library with first-class static linking, used by Alpine Linux and available on Void.</li>
-</ul>
+<table>
+<tr><td><strong>glibc (the GNU C Library)</strong></td><td>the standard C library of most Linux distributions. Feature-complete, heavily optimized, and the library that pre-built binary software expects.</td></tr>
+<tr><td><strong>musl</strong></td><td>a small, simple, standards-focused C library with first-class static linking, used by Alpine Linux and available on Void.</td></tr>
+</table>
 
 <h2>Workstation trade-offs</h2>
 
-<ul>
-<li><strong>Pre-built software:</strong> binaries such as Google Chrome and VS Code are built for glibc. On musl they need a compatibility layer such as <code>gcompat</code> or a glibc environment.</li>
-<li><strong>Proprietary drivers:</strong> proprietary GPU drivers are built for glibc. Open-source Mesa drivers work with either.</li>
-<li><strong>Size and speed:</strong> musl is smaller; glibc's tuned routines can be faster for some workloads.</li>
-</ul>
+<table>
+<tr><td><strong>Pre-built software</strong></td><td>binaries such as Google Chrome and VS Code are built for glibc. On musl they need a compatibility layer such as <code>gcompat</code> or a glibc environment.</td></tr>
+<tr><td><strong>Proprietary drivers</strong></td><td>proprietary GPU drivers are built for glibc. Open-source Mesa drivers work with either.</td></tr>
+<tr><td><strong>Size and speed</strong></td><td>musl is smaller; glibc's tuned routines can be faster for some workloads.</td></tr>
+</table>
 
 <h2>The Tamlinux approach</h2>
 

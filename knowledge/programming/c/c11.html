@@ -152,27 +152,23 @@ $ rm -f /tmp/c11_check
 
 <p>Modern systems software is frequently written in Rust, Go, or C++. While each language has distinct strengths, Tamlinux deliberately restricts core utilities to ISO C11 linked against <code>libtam</code>:</p>
 
-<ul>
-<li><strong>Rust:</strong> While Rust guarantees compile-time memory safety, its toolchain is enormous (~1.5 GB), compilation is slow on modest hardware, and typical projects accumulate hundreds of transitive dependencies (Cargo sprawl). In an emergency rescue environment or minimal musl chroot, compiling Rust tools is often impractical. Tamlinux instead achieves safety in C11 through pedantic compiler flags, <code>_Static_assert</code>, strict bounds-checked primitives in <code>libtam</code>, and <a href="programming/c/sanitizers.html">AddressSanitizer (ASan)</a> testing.</li>
-<li><strong>Go:</strong> Go provides built-in concurrency with goroutines, but incurs an 8&ndash;15 MB binary size floor, spawns background runtime threads, and introduces garbage-collection pauses. These characteristics conflict with Tamlinux's anti-bloat principle of event-driven, bounded execution without background daemons.</li>
-<li><strong>C++:</strong> C++ offers powerful object and template abstractions, but code frequently suffers from template-instantiation bloat, complex cognitive overhead, and fragile application binary interface (ABI) stability across compiler and standard-library upgrades.</li>
-</ul>
+<table>
+<tr><td><strong>Rust</strong></td><td>While Rust guarantees compile-time memory safety, its toolchain is enormous (~1.5 GB), compilation is slow on modest hardware, and typical projects accumulate hundreds of transitive dependencies (Cargo sprawl). In an emergency rescue environment or minimal musl chroot, compiling Rust tools is often impractical. Tamlinux instead achieves safety in C11 through pedantic compiler flags, <code>_Static_assert</code>, strict bounds-checked primitives in <code>libtam</code>, and <a href="programming/c/sanitizers.html">AddressSanitizer (ASan)</a> testing.</td></tr>
+<tr><td><strong>Go</strong></td><td>Go provides built-in concurrency with goroutines, but incurs an 8&ndash;15 MB binary size floor, spawns background runtime threads, and introduces garbage-collection pauses. These characteristics conflict with Tamlinux's anti-bloat principle of event-driven, bounded execution without background daemons.</td></tr>
+<tr><td><strong>C++</strong></td><td>C++ offers powerful object and template abstractions, but code frequently suffers from template-instantiation bloat, complex cognitive overhead, and fragile application binary interface (ABI) stability across compiler and standard-library upgrades.</td></tr>
+</table>
 
 <p>Rather than importing entire language ecosystems, Tamlinux uses AI assistants under human direction to survey open source projects written in diverse languages, extract their best algorithmic concepts, and implement them as lean, self-contained C11 programs. For a comprehensive architectural comparison, see <a href="tamlinux/design/language-choices.html">systems programming philosophy and language choices</a>.</p>
 
 <h3>Key C11 features used in native Tamlinux code</h3>
 
-<ul>
-<li><strong>Static Assertions (<code>_Static_assert</code>):</strong> Allows the compiler to verify architectural assumptions at build time rather than runtime. For example, validating that memory buffers and packet headers match expected hardware structures:
-<pre data-risk="read-only">
-_Static_assert(sizeof(off_t) == 8, "Large file support (64-bit off_t) required");
-</pre>
-</li>
-<li><strong>Anonymous Structures and Unions:</strong> Allows nested struct and union fields to be accessed directly without redundant wrapper identifiers, keeping parser and display code concise and readable.</li>
-<li><strong>Type-Generic Expressions (<code>_Generic</code>):</strong> Enables compile-time function selection based on argument types, allowing safe polymorphic macros without the overhead or complexity of C++ templates.</li>
-<li><strong>Memory Alignment (<code>_Alignas</code> and <code>_Alignof</code>):</strong> Provides portable, language-standard control over memory alignment for high-performance I/O buffers and cache-line boundary alignment.</li>
-<li><strong>Removal of Unsafe Interfaces:</strong> C11 officially removed the inherently unsafe <code>gets()</code> function from the C standard library, codifying safe buffer boundaries into the language core.</li>
-</ul>
+<table>
+<tr><td><strong>Static Assertions (<code>_Static_assert</code>)</strong></td><td>Allows the compiler to verify architectural assumptions at build time rather than runtime. For example, validating that memory buffers and packet headers match expected hardware structures: <pre data-risk="read-only"> _Static_assert(sizeof(off_t) == 8, "Large file support (64-bit off_t) required"); </pre></td></tr>
+<tr><td><strong>Anonymous Structures and Unions</strong></td><td>Allows nested struct and union fields to be accessed directly without redundant wrapper identifiers, keeping parser and display code concise and readable.</td></tr>
+<tr><td><strong>Type-Generic Expressions (<code>_Generic</code>)</strong></td><td>Enables compile-time function selection based on argument types, allowing safe polymorphic macros without the overhead or complexity of C++ templates.</td></tr>
+<tr><td><strong>Memory Alignment (<code>_Alignas</code> and <code>_Alignof</code>)</strong></td><td>Provides portable, language-standard control over memory alignment for high-performance I/O buffers and cache-line boundary alignment.</td></tr>
+<tr><td><strong>Removal of Unsafe Interfaces</strong></td><td>C11 officially removed the inherently unsafe <code>gets()</code> function from the C standard library, codifying safe buffer boundaries into the language core.</td></tr>
+</table>
 
 <h3>Explore: inspect the compiler invocation for tam</h3>
 

@@ -199,12 +199,12 @@ Run (tam.git @ main ──► tamlinux-packages main)
    ▼  Cultivar release tag &amp; generation snapshot
 Release (Tamlinux release)
 </pre>
-<ul>
-<li><strong>Develop:</strong> Engineers and AI coding agents work in one shared clone on <code>develop</code>, claiming paths with <code>tam-work</code> and verifying changes with <code>make check</code>.</li>
-<li><strong>Test:</strong> Candidate commits are fast-forward promoted to <code>test</code> and pinned in <code>tamlinux-packages</code> via flake hashes. Home Manager builds the package outputs into <code>/nix/store</code>.</li>
-<li><strong>Run:</strong> After daily-driver acceptance, the tested commit promotes to <code>main</code>. Crucially, package outputs are <strong>not rebuilt</strong>: the identical byte-for-byte artifacts verified in Test are deployed to Run.</li>
-<li><strong>Release:</strong> On explicit developer instruction, accepted commits on <code>main</code> receive paired release tags (e.g. <code>tam-0.31.0-corpus-0.32.1</code>). If defects occur, <dfn><a href="glossary/r/rollback.html">rollback</a></dfn> to the prior Home Manager generation restores the earlier working state.</li>
-</ul>
+<table>
+<tr><td><strong>Develop</strong></td><td>Engineers and AI coding agents work in one shared clone on <code>develop</code>, claiming paths with <code>tam-work</code> and verifying changes with <code>make check</code>.</td></tr>
+<tr><td><strong>Test</strong></td><td>Candidate commits are fast-forward promoted to <code>test</code> and pinned in <code>tamlinux-packages</code> via flake hashes. Home Manager builds the package outputs into <code>/nix/store</code>.</td></tr>
+<tr><td><strong>Run</strong></td><td>After daily-driver acceptance, the tested commit promotes to <code>main</code>. Crucially, package outputs are <strong>not rebuilt</strong>: the identical byte-for-byte artifacts verified in Test are deployed to Run.</td></tr>
+<tr><td><strong>Release</strong></td><td>On explicit developer instruction, accepted commits on <code>main</code> receive paired release tags (e.g. <code>tam-0.31.0-corpus-0.32.1</code>). If defects occur, <dfn><a href="glossary/r/rollback.html">rollback</a></dfn> to the prior Home Manager generation restores the earlier working state.</td></tr>
+</table>
 </li>
 </ol>
 

@@ -158,11 +158,11 @@ P_rx = P_tx - (alpha * Length + N_connectors * Loss_connector + N_splices * Loss
 
 <p>To evaluate transmission quality across physical media, engineers probe differential pairs with high-speed digital oscilloscopes to generate an <strong>eye diagram</strong> (overlaying thousands of consecutive bit transitions triggered on the clock):</p>
 
-<ul>
-<li><strong>Eye Height:</strong> The vertical opening between high and low voltage levels. Represents the channel's <strong>noise margin</strong>. A collapsed eye height indicates severe line attenuation or high contact resistance.</li>
-<li><strong>Eye Width:</strong> The horizontal time opening between rising and falling edges. Represents <strong>timing jitter</strong>. A narrow eye indicates clock instability, Phase-Locked Loop phase noise, or inter-symbol interference (ISI).</li>
-<li><strong>Eye Mask Violations:</strong> Standards define a geometric diamond mask in the center of the eye. If signal ringing, overshoot, or impedance reflections cross into the mask, bit decoding errors are guaranteed.</li>
-</ul>
+<table>
+<tr><td><strong>Eye Height</strong></td><td>The vertical opening between high and low voltage levels. Represents the channel's <strong>noise margin</strong>. A collapsed eye height indicates severe line attenuation or high contact resistance.</td></tr>
+<tr><td><strong>Eye Width</strong></td><td>The horizontal time opening between rising and falling edges. Represents <strong>timing jitter</strong>. A narrow eye indicates clock instability, Phase-Locked Loop phase noise, or inter-symbol interference (ISI).</td></tr>
+<tr><td><strong>Eye Mask Violations</strong></td><td>Standards define a geometric diamond mask in the center of the eye. If signal ringing, overshoot, or impedance reflections cross into the mask, bit decoding errors are guaranteed.</td></tr>
+</table>
 
 <h3>Why Tamlinux chose this</h3>
 

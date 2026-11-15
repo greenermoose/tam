@@ -158,11 +158,11 @@ amdgpudrmfb
   </pre>
   Operating systems and compositors map this region using <code>mmap()</code> or pass memory handles directly to GPU hardware controllers via DMA buffers (<code>dma-buf</code>).</li>
 <li><strong>Double-Buffering and Page Flipping:</strong> If an application drew directly into the active scanout framebuffer, the monitor&apos;s raster beam would display partial drawings mid-render, causing visual tearing. Modern graphics systems use double-buffering:
-  <ul>
-  <li><strong>Front Buffer:</strong> The completed frame currently being scanned out to the physical monitor.</li>
-  <li><strong>Back Buffer:</strong> An off-screen buffer where the GPU or software rasterizer renders the next incoming frame.</li>
-  <li><strong>Page Flip:</strong> During the vertical blanking interval (V-Blank)&mdash;when the display beam moves from bottom to top&mdash;the kernel DRM driver adjusts the scanout base register to point to the back buffer, turning it into the new front buffer instantaneously.</li>
-  </ul>
+  <table>
+<tr><td><strong>Front Buffer</strong></td><td>The completed frame currently being scanned out to the physical monitor.</td></tr>
+<tr><td><strong>Back Buffer</strong></td><td>An off-screen buffer where the GPU or software rasterizer renders the next incoming frame.</td></tr>
+<tr><td><strong>Page Flip</strong></td><td>During the vertical blanking interval (V-Blank)&mdash;when the display beam moves from bottom to top&mdash;the kernel DRM driver adjusts the scanout base register to point to the back buffer, turning it into the new front buffer instantaneously.</td></tr>
+</table>
 </li>
 </ol>
 

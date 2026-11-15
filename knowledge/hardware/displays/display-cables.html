@@ -140,10 +140,10 @@ card1-HDMI-A-1: connected
 </li>
 <li><strong>EDID Reading:</strong> Over the same AUX channel (via I2C-over-AUX), the GPU queries the monitor&apos;s 128-byte basic <dfn><a href="glossary/e/edid.html">EDID</a></dfn> block and any CTA-861 extension blocks, learning panel manufacturer, native resolution, and chromaticity coordinates.</li>
 <li><strong>Link Training:</strong> The GPU and monitor execute a closed-loop feedback training sequence across the Main Link lanes:
-  <ul>
-  <li><strong>Clock Recovery:</strong> The GPU transmits training pattern 1 (TPS1). The monitor adjusts its Phase-Locked Loop (PLL) receivers and signals lock over the AUX channel.</li>
-  <li><strong>Channel Equalization:</strong> The GPU transmits training pattern 2/3/4 (TPS2/3/4) to adjust pre-emphasis and voltage swing levels, compensating for high-frequency attenuation caused by the physical cable copper.</li>
-  </ul>
+  <table>
+<tr><td><strong>Clock Recovery</strong></td><td>The GPU transmits training pattern 1 (TPS1). The monitor adjusts its Phase-Locked Loop (PLL) receivers and signals lock over the AUX channel.</td></tr>
+<tr><td><strong>Channel Equalization</strong></td><td>The GPU transmits training pattern 2/3/4 (TPS2/3/4) to adjust pre-emphasis and voltage swing levels, compensating for high-frequency attenuation caused by the physical cable copper.</td></tr>
+</table>
 </li>
 <li><strong>Stream Transmission:</strong> Once equalized, link training finishes and the GPU begins transmitting micro-packetized video and audio data.</li>
 </ol>

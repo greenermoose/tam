@@ -70,12 +70,12 @@
 
 <p>Modern Linux desktop rendering is split into distinct modular layers:</p>
 
-<ul>
-<li><strong>Fontconfig:</strong> searches system directories (such as <code>/usr/share/fonts</code> and <code>~/.local/share/fonts</code>), parses XML configuration rules, and computes mathematical scores to match application font queries to real files on disk.</li>
-<li><strong>FreeType:</strong> loads font files, executes TrueType bytecode or CFF hinting, parses outline coordinates, and rasterizes vector curves into grayscale or subpixel anti-aliased pixel maps.</li>
-<li><strong>HarfBuzz:</strong> the universal text shaping engine. Simple Latin scripts require little shaping, but complex scripts (such as Arabic, Devanagari, or connected cursives) require contextual glyph substitution and positional anchoring. HarfBuzz turns a sequence of Unicode codepoints into positioned glyph indices.</li>
-<li><strong>Pango / Qt:</strong> high-level layout libraries that break paragraphs into lines, handle bidirectional text flow, call HarfBuzz for shaping, and invoke FreeType or Cairo to draw the glyphs onto surfaces.</li>
-</ul>
+<table>
+<tr><td><strong>Fontconfig</strong></td><td>searches system directories (such as <code>/usr/share/fonts</code> and <code>~/.local/share/fonts</code>), parses XML configuration rules, and computes mathematical scores to match application font queries to real files on disk.</td></tr>
+<tr><td><strong>FreeType</strong></td><td>loads font files, executes TrueType bytecode or CFF hinting, parses outline coordinates, and rasterizes vector curves into grayscale or subpixel anti-aliased pixel maps.</td></tr>
+<tr><td><strong>HarfBuzz</strong></td><td>the universal text shaping engine. Simple Latin scripts require little shaping, but complex scripts (such as Arabic, Devanagari, or connected cursives) require contextual glyph substitution and positional anchoring. HarfBuzz turns a sequence of Unicode codepoints into positioned glyph indices.</td></tr>
+<tr><td><strong>Pango / Qt</strong></td><td>high-level layout libraries that break paragraphs into lines, handle bidirectional text flow, call HarfBuzz for shaping, and invoke FreeType or Cairo to draw the glyphs onto surfaces.</td></tr>
+</table>
 <h3>Worked example: query the active monospace font</h3>
 <pre class="session" data-risk="read-only">
 $ fc-match monospace

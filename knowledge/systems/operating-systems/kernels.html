@@ -57,11 +57,11 @@ cited; both designs remain in wide use.</p>
 
 <h2>What a microkernel does not give you for free</h2>
 
-<ul>
-<li><strong>Restarting is not recovering.</strong> Restarting a crashed file-system server does not restore the data it held in memory, and its clients must be written to reconnect.</li>
-<li><strong>Isolation needs hardware help.</strong> A driver that controls a device able to write anywhere in memory (direct memory access) is only contained if an IOMMU restricts that device.</li>
-<li><strong>The label is not the measurement.</strong> Whether a system is faster, safer or more reliable depends on its implementation, not its category. Tam 2.0 research measures these rather than assuming them.</li>
-</ul>
+<table>
+<tr><td><strong>Restarting is not recovering</strong></td><td>Restarting a crashed file-system server does not restore the data it held in memory, and its clients must be written to reconnect.</td></tr>
+<tr><td><strong>Isolation needs hardware help</strong></td><td>A driver that controls a device able to write anywhere in memory (direct memory access) is only contained if an IOMMU restricts that device.</td></tr>
+<tr><td><strong>The label is not the measurement</strong></td><td>Whether a system is faster, safer or more reliable depends on its implementation, not its category. Tam 2.0 research measures these rather than assuming them.</td></tr>
+</table>
 
 <h2>Hybrid kernels</h2>
 
@@ -72,10 +72,10 @@ where code runs, not a separate theory.</p>
 
 <h2>Other designs</h2>
 
-<ul>
-<li><strong>Exokernels</strong> expose hardware resources almost directly and leave abstractions to libraries in each application. They remain mostly research.</li>
-<li><strong>Unikernels</strong> compile one application together with just the operating-system code it needs into a single image, usually to run in a virtual machine.</li>
-</ul>
+<table>
+<tr><td><strong>Exokernels</strong></td><td>expose hardware resources almost directly and leave abstractions to libraries in each application. They remain mostly research.</td></tr>
+<tr><td><strong>Unikernels</strong></td><td>compile one application together with just the operating-system code it needs into a single image, usually to run in a virtual machine.</td></tr>
+</table>
 
 <h2>Where user programs meet the kernel</h2>
 

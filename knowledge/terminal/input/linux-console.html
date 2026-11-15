@@ -83,11 +83,11 @@ $ infocmp -1 linux | grep -E '^\s+(kbs|kcuu1|kcub1|khome|kf1|kf5)='
 
 <p>Modifier chords behave differently on a stock Linux VT keymap (<code>TERM=linux</code>, <code>/dev/ttyN</code>) than in a desktop terminal emulator:</p>
 
-<ul>
-<li><code>Alt + &lt;ASCII char&gt;</code> works via <code>ESC</code> prefixing (configured with <code>setmetamode esc</code>).</li>
-<li><code>Alt + Left</code>, <code>Alt + Right</code>, <code>Alt + F1</code>..<code>F12</code>, and <code>Ctrl + Alt + F1</code>..<code>F12</code> are intercepted by the kernel VT driver for switching virtual consoles and never reach the program.</li>
-<li><code>Alt + Up</code> / <code>Alt + Down</code> and <code>Ctrl + Arrow</code> / <code>Shift + Arrow</code> do not emit xterm <code>CSI 1;&lt;mod&gt;...</code> sequences on a stock Linux VT keymap.</li>
-</ul>
+<table>
+<tr><td><code>Alt + &lt;ASCII char&gt;</code></td><td>works via <code>ESC</code> prefixing (configured with <code>setmetamode esc</code>).</td></tr>
+<tr><td><code>Alt + Left</code></td><td><code>Alt + Right</code>, <code>Alt + F1</code>..<code>F12</code>, and <code>Ctrl + Alt + F1</code>..<code>F12</code> are intercepted by the kernel VT driver for switching virtual consoles and never reach the program.</td></tr>
+<tr><td><code>Alt + Up</code></td><td>/ <code>Alt + Down</code> and <code>Ctrl + Arrow</code> / <code>Shift + Arrow</code> do not emit xterm <code>CSI 1;&lt;mod&gt;...</code> sequences on a stock Linux VT keymap.</td></tr>
+</table>
 
 <h3>Try it</h3>
 

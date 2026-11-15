@@ -100,11 +100,11 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 <section data-level="expert">
 <h2>SHA-256, Keccak sponge, collision bounds, HMAC, and Argon2id</h2>
 <p><strong>Reference:</strong> an <code>n</code>-bit cryptographic hash <code>H: {0,1}* → {0,1}^n</code> must satisfy three hardness properties against PPT adversaries:</p>
-<ul>
-<li><strong>Preimage resistance (one-wayness):</strong> given <code>y</code>, finding <code>x</code> with <code>H(x) = y</code> requires <code>~2^n</code> work.</li>
-<li><strong>Second-preimage resistance:</strong> given <code>x_1</code>, finding <code>x_2 ≠ x_1</code> with <code>H(x_2) = H(x_1)</code> requires <code>~2^n</code> work.</li>
-<li><strong>Collision resistance:</strong> finding any pair <code>(x_1, x_2)</code> with <code>x_1 ≠ x_2</code> and <code>H(x_1) = H(x_2)</code> requires <code>~2^(n/2)</code> work by the birthday paradox (e.g., <code>2^128</code> for SHA-256).</li>
-</ul>
+<table>
+<tr><td><strong>Preimage resistance (one-wayness)</strong></td><td>given <code>y</code>, finding <code>x</code> with <code>H(x) = y</code> requires <code>~2^n</code> work.</td></tr>
+<tr><td><strong>Second-preimage resistance</strong></td><td>given <code>x_1</code>, finding <code>x_2 ≠ x_1</code> with <code>H(x_2) = H(x_1)</code> requires <code>~2^n</code> work.</td></tr>
+<tr><td><strong>Collision resistance</strong></td><td>finding any pair <code>(x_1, x_2)</code> with <code>x_1 ≠ x_2</code> and <code>H(x_1) = H(x_2)</code> requires <code>~2^(n/2)</code> work by the birthday paradox (e.g., <code>2^128</code> for SHA-256).</td></tr>
+</table>
 
 <table>
 <tr><th>Family</th><th>Construction</th><th>Internal State / Digest</th><th>Status &amp; Notes</th></tr>

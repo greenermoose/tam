@@ -30,11 +30,11 @@
 <h3>How to think about it</h3>
 <p>New to this? Before touching any diagnostic software or command-line tools, always look at the physical hardware with your eyes and touch it with your hands.</p>
 <h3>New words</h3>
-<ul>
-<li><strong>Device Node:</strong> A special file in the <code>/dev</code> filesystem (such as <code>/dev/ttyS0</code> or <code>/dev/ttyUSB0</code>) that acts as an interface between user-space applications and a kernel hardware driver.</li>
-<li><strong>Strain Relief:</strong> A molded rubber or plastic collar where a flexible cable joins a rigid connector plug, designed to prevent tight bending that snaps internal copper conductors.</li>
-<li><strong>Enumeration:</strong> The initial process where an operating system detects a newly attached hardware device, queries its vendor and product IDs, and loads the corresponding driver.</li>
-</ul>
+<table>
+<tr><td><strong>Device Node</strong></td><td>A special file in the <code>/dev</code> filesystem (such as <code>/dev/ttyS0</code> or <code>/dev/ttyUSB0</code>) that acts as an interface between user-space applications and a kernel hardware driver.</td></tr>
+<tr><td><strong>Strain Relief</strong></td><td>A molded rubber or plastic collar where a flexible cable joins a rigid connector plug, designed to prevent tight bending that snaps internal copper conductors.</td></tr>
+<tr><td><strong>Enumeration</strong></td><td>The initial process where an operating system detects a newly attached hardware device, queries its vendor and product IDs, and loads the corresponding driver.</td></tr>
+</table>
 </section>
 
 <section data-level="learner">
@@ -111,11 +111,11 @@ crw-rw---- 1 root dialout 188, 0 Nov  1 14:15 /dev/ttyUSB0
 
 <ol>
 <li><strong>Oscilloscope Waveform Probing:</strong>
-  <ul>
-  <li><strong>Voltage Swing Verification:</strong> Connect oscilloscope probe ground clip to circuit Signal Ground (GND). Probe the TX output pin under active transmission. For RS-232, verify clean transitions between approximately <code>-9V</code> (Mark) and <code>+9V</code> (Space). For 3.3V TTL UART, verify transitions between <code>0.0V</code> and <code>3.3V</code>.</li>
-  <li><strong>Slew Rate and Capacitive Rounding:</strong> If square pulses appear rounded like shark fins or shark teeth, excessive cable capacitance or an overly long cable run is filtering out high frequencies. The signal fails to reach valid logic thresholds before the bit period expires, generating framing errors.</li>
-  <li><strong>Ringing and Reflections:</strong> If voltage pulses exhibit large oscillating spikes (overshoot and undershoot) immediately following rising and falling edges, the transmission line lacks proper characteristic impedance termination. Install a terminating resistor (e.g. 120 ohms for RS-485) across the differential pair at the furthest receiver.</li>
-  </ul>
+  <table>
+<tr><td><strong>Voltage Swing Verification</strong></td><td>Connect oscilloscope probe ground clip to circuit Signal Ground (GND). Probe the TX output pin under active transmission. For RS-232, verify clean transitions between approximately <code>-9V</code> (Mark) and <code>+9V</code> (Space). For 3.3V TTL UART, verify transitions between <code>0.0V</code> and <code>3.3V</code>.</td></tr>
+<tr><td><strong>Slew Rate and Capacitive Rounding</strong></td><td>If square pulses appear rounded like shark fins or shark teeth, excessive cable capacitance or an overly long cable run is filtering out high frequencies. The signal fails to reach valid logic thresholds before the bit period expires, generating framing errors.</td></tr>
+<tr><td><strong>Ringing and Reflections</strong></td><td>If voltage pulses exhibit large oscillating spikes (overshoot and undershoot) immediately following rising and falling edges, the transmission line lacks proper characteristic impedance termination. Install a terminating resistor (e.g. 120 ohms for RS-485) across the differential pair at the furthest receiver.</td></tr>
+</table>
 </li>
 <li><strong>Logic Analyzer Protocol Decoding:</strong>
   <ul>

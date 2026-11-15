@@ -90,10 +90,10 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 <ol>
 <li><code>lspci</code> locates the graphics controller at PCI bus address <code>05:00.0</code>. It identifies the hardware as an AMD Radeon graphics processor (Lucienne architecture) and confirms that the open-source <code>amdgpu</code> kernel driver is managing the device.</li>
 <li><code>ls -l /dev/dri/</code> exposes the character device nodes created by the Linux Direct Rendering Manager:
-  <ul>
-  <li><code>card1</code>: The master KMS display node, used by the Wayland compositor to control screen modes and outputs.</li>
-  <li><code>renderD128</code>: The unprivileged render node, used by applications and games to submit 3D rendering and compute tasks without needing display management rights.</li>
-  </ul>
+  <table>
+<tr><td><code>card1</code></td><td>The master KMS display node, used by the Wayland compositor to control screen modes and outputs.</td></tr>
+<tr><td><code>renderD128</code></td><td>The unprivileged render node, used by applications and games to submit 3D rendering and compute tasks without needing display management rights.</td></tr>
+</table>
 </li>
 </ol>
 <h3>Try it</h3>

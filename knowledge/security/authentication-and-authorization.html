@@ -22,10 +22,10 @@
 <section data-level="novice">
 <h2>Who you are vs. what you are allowed to do</h2>
 <p>Every security check has two separate halves that are easy to mix up:</p>
-<ul>
-<li><strong>Authentication (AuthN):</strong> proving who you are—like showing a photo ID or tapping a badge at a building entrance.</li>
-<li><strong>Authorization (AuthZ):</strong> checking what that proven identity is allowed to do—like whether your badge opens only your office floor or also the server room.</li>
-</ul>
+<table>
+<tr><td><strong>Authentication (AuthN)</strong></td><td>proving who you are—like showing a photo ID or tapping a badge at a building entrance.</td></tr>
+<tr><td><strong>Authorization (AuthZ)</strong></td><td>checking what that proven identity is allowed to do—like whether your badge opens only your office floor or also the server room.</td></tr>
+</table>
 <p>Computers usually check your identity using one or more of three kinds of proof, often called <strong>factors</strong>:</p>
 <ol>
 <li><strong>Something you know:</strong> a password or PIN.</li>
@@ -82,13 +82,13 @@ Securebits: 00/0x0/1'b0 (no-new-privs=1)
 </pre>
 <p>In a normal desktop shell, <code>Current: =</code> means your shell holds zero elevated Linux capabilities. When a program only needs to bind a low-numbered network port, an administrator can grant just <code>CAP_NET_BIND_SERVICE</code> instead of full root power.</p>
 <p>Across larger systems, authorization policies follow distinct models:</p>
-<ul>
-<li><strong>DAC:</strong> file owners set permissions (<code>chmod</code>, POSIX ACLs).</li>
-<li><strong>MAC:</strong> kernel LSMs (SELinux, AppArmor) enforce administrator-locked labels.</li>
-<li><strong>RBAC (Role-Based Access Control):</strong> permissions attach to roles (such as <code>auditor</code> or <code>wheel</code>) rather than individual names.</li>
-<li><strong>ABAC (Attribute-Based Access Control):</strong> rules evaluate subject, resource, and context attributes (time, device posture, network).</li>
-<li><strong>ReBAC (Relationship-Based Access Control):</strong> access follows graph edges (such as "owner of folder containing document", popularized by Google Zanzibar).</li>
-</ul>
+<table>
+<tr><td><strong>DAC</strong></td><td>file owners set permissions (<code>chmod</code>, POSIX ACLs).</td></tr>
+<tr><td><strong>MAC</strong></td><td>kernel LSMs (SELinux, AppArmor) enforce administrator-locked labels.</td></tr>
+<tr><td><strong>RBAC (Role-Based Access Control)</strong></td><td>permissions attach to roles (such as <code>auditor</code> or <code>wheel</code>) rather than individual names.</td></tr>
+<tr><td><strong>ABAC (Attribute-Based Access Control)</strong></td><td>rules evaluate subject, resource, and context attributes (time, device posture, network).</td></tr>
+<tr><td><strong>ReBAC (Relationship-Based Access Control)</strong></td><td>access follows graph edges (such as "owner of folder containing document", popularized by Google Zanzibar).</td></tr>
+</table>
 
 <h3>Try it</h3>
 <p>Run <code>id</code> and <code>capsh --print | head -n 4</code> in your terminal to see your numeric UID, group memberships, and capability sets.</p>

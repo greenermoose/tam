@@ -170,21 +170,21 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 
 <p>Computer power supplies and motherboards incorporate dedicated hardware supervisor ICs that monitor voltages and currents in real time:</p>
 
-<ul>
-<li><strong>Over-Current Protection (OCP):</strong> Current-sensing shunt resistors detect if current through any rail exceeds safe wire ratings. If tripped, the controller halts switching pulses within microseconds to prevent wire melting.</li>
-<li><strong>Over-Voltage Protection (OVP):</strong> Voltage divider circuits verify rails do not exceed specifications. If a failed MOSFET shorts the 12V input directly to a 1.0V CPU line, OVP clamps the rail and shuts down the supply before the silicon die vaporizes.</li>
-<li><strong>Short-Circuit Protection (SCP):</strong> Detects instantaneous impedance drops between positive rails and ground, cutting power before fires can start.</li>
-<li><strong>Transient Voltage Suppression (TVS):</strong> Solid-state avalanche diodes soldered adjacent to external connector pins (USB, Ethernet, HDMI). When static electricity (which can exceed 15,000 volts) strikes an exposed pin, the TVS diode breaks down reversibly in less than 1 nanosecond, shunting the discharge energy safely to chassis ground.</li>
-</ul>
+<table>
+<tr><td><strong>Over-Current Protection (OCP)</strong></td><td>Current-sensing shunt resistors detect if current through any rail exceeds safe wire ratings. If tripped, the controller halts switching pulses within microseconds to prevent wire melting.</td></tr>
+<tr><td><strong>Over-Voltage Protection (OVP)</strong></td><td>Voltage divider circuits verify rails do not exceed specifications. If a failed MOSFET shorts the 12V input directly to a 1.0V CPU line, OVP clamps the rail and shuts down the supply before the silicon die vaporizes.</td></tr>
+<tr><td><strong>Short-Circuit Protection (SCP)</strong></td><td>Detects instantaneous impedance drops between positive rails and ground, cutting power before fires can start.</td></tr>
+<tr><td><strong>Transient Voltage Suppression (TVS)</strong></td><td>Solid-state avalanche diodes soldered adjacent to external connector pins (USB, Ethernet, HDMI). When static electricity (which can exceed 15,000 volts) strikes an exposed pin, the TVS diode breaks down reversibly in less than 1 nanosecond, shunting the discharge energy safely to chassis ground.</td></tr>
+</table>
 
 <h3>Safety Earth versus Signal Ground: the ground loop hazard</h3>
 
 <p>Every electrical system distinguishes between two different types of "ground":</p>
 
-<ul>
-<li><strong>Safety Earth (Protective Earth / PE):</strong> The third prong on an AC mains plug. It connects the metal chassis of the power supply and computer case directly to the physical soil of the building electrical service. If an internal wire frays and touches the metal case, the fault current rushes down the Safety Earth wire, immediately tripping the room's circuit breaker rather than electrocuting someone who touches the case.</li>
-<li><strong>Signal Ground (GND):</strong> The common reference point (0 volts) for electronic logic circuits inside the computer.</li>
-</ul>
+<table>
+<tr><td><strong>Safety Earth (Protective Earth / PE)</strong></td><td>The third prong on an AC mains plug. It connects the metal chassis of the power supply and computer case directly to the physical soil of the building electrical service. If an internal wire frays and touches the metal case, the fault current rushes down the Safety Earth wire, immediately tripping the room's circuit breaker rather than electrocuting someone who touches the case.</td></tr>
+<tr><td><strong>Signal Ground (GND)</strong></td><td>The common reference point (0 volts) for electronic logic circuits inside the computer.</td></tr>
+</table>
 
 <p>When two computers located in different parts of a building are connected by a shielded copper cable (such as an RS-232 serial cable or unisolated audio line), subtle differences in electrical building wiring mean the earth potential at Computer A may be 2 or 3 volts different from Computer B. This voltage difference drives a continuous stray current through the cable shield &mdash; a phenomenon known as a <strong>ground loop</strong>. Ground loops introduce 50/60 Hz hum, induce logic errors in communication lines, and in severe industrial environments can melt cable shielding. Engineers eliminate ground loops by using differential signaling, optical fiber cables, or galvanic optoisolators.</p>
 

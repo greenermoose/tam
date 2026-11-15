@@ -55,23 +55,23 @@ improve its performance per watt.</p>
 
 <h2>The current rootstock: Arch Linux</h2>
 
-<ul>
-<li><strong>Why Arch today:</strong> rolling releases bring current kernels, Mesa, Qt 6, and Wayland protocols, and keep the system maintained without whole-OS reinstalls.</li>
-<li><strong>Packaging:</strong> <code>pacman</code> with simple <code>PKGBUILD</code> recipes. Locally patched packages are served from a dedicated repository listed first in <code>/etc/pacman.conf</code>; see <a href="tamlinux/development/patches.html">Carried patches</a>.</li>
-<li><strong>Why move on:</strong> Arch is built around systemd, while the long-term target is a minimal rootstock without it.</li>
-</ul>
+<table>
+<tr><td><strong>Why Arch today</strong></td><td>rolling releases bring current kernels, Mesa, Qt 6, and Wayland protocols, and keep the system maintained without whole-OS reinstalls.</td></tr>
+<tr><td><strong>Packaging</strong></td><td><code>pacman</code> with simple <code>PKGBUILD</code> recipes. Locally patched packages are served from a dedicated repository listed first in <code>/etc/pacman.conf</code>; see <a href="tamlinux/development/patches.html">Carried patches</a>.</td></tr>
+<tr><td><strong>Why move on</strong></td><td>Arch is built around systemd, while the long-term target is a minimal rootstock without it.</td></tr>
+</table>
 
 <h2>The target: Void Linux</h2>
 
 <p>Tamlinux plans to try <strong>Void Linux</strong> as its minimal rootstock, from
 step 1.2 of the roadmap:</p>
 
-<ul>
-<li><strong>Independent:</strong> Void is built from scratch, not derived from Debian or Red Hat.</li>
-<li><strong>runit:</strong> Void uses runit for init and service supervision instead of systemd; see <a href="systems/init.html">Init and service supervision</a>.</li>
-<li><strong>XBPS:</strong> a package manager written in C, with source packages built cleanly by <code>xbps-src</code>. Tamlinux plans to deliver native <code>xbps-src</code> packages built from the same sources as its Nix package.</li>
-<li><strong>glibc and musl:</strong> Void offers both C libraries, which allows a measured comparison; see <a href="programming/c/libc.html">C standard libraries</a>.</li>
-</ul>
+<table>
+<tr><td><strong>Independent</strong></td><td>Void is built from scratch, not derived from Debian or Red Hat.</td></tr>
+<tr><td><strong>runit</strong></td><td>Void uses runit for init and service supervision instead of systemd; see <a href="systems/init.html">Init and service supervision</a>.</td></tr>
+<tr><td><strong>XBPS</strong></td><td>a package manager written in C, with source packages built cleanly by <code>xbps-src</code>. Tamlinux plans to deliver native <code>xbps-src</code> packages built from the same sources as its Nix package.</td></tr>
+<tr><td><strong>glibc and musl</strong></td><td>Void offers both C libraries, which allows a measured comparison; see <a href="programming/c/libc.html">C standard libraries</a>.</td></tr>
+</table>
 
 <h2>The fallback: antiX Core</h2>
 
@@ -81,12 +81,12 @@ running well on older, low-resource hardware.</p>
 
 <h2>Other distributions considered</h2>
 
-<ul>
-<li><strong>Debian:</strong> the upstream of many distributions and a benchmark for packaging standards, but its stable releases move slowly for desktop development.</li>
-<li><strong>Alpine Linux:</strong> very small, built on musl and BusyBox; shows how small a rootstock can be, but less suited to a daily graphical workstation.</li>
-<li><strong>Puppy Linux and Tiny Core:</strong> demonstrations of running entirely from RAM, relevant to hardware longevity.</li>
-<li><strong>Gentoo:</strong> source-based and highly tunable, but full source builds are impractical on older hardware.</li>
-</ul>
+<table>
+<tr><td><strong>Debian</strong></td><td>the upstream of many distributions and a benchmark for packaging standards, but its stable releases move slowly for desktop development.</td></tr>
+<tr><td><strong>Alpine Linux</strong></td><td>very small, built on musl and BusyBox; shows how small a rootstock can be, but less suited to a daily graphical workstation.</td></tr>
+<tr><td><strong>Puppy Linux and Tiny Core</strong></td><td>demonstrations of running entirely from RAM, relevant to hardware longevity.</td></tr>
+<tr><td><strong>Gentoo</strong></td><td>source-based and highly tunable, but full source builds are impractical on older hardware.</td></tr>
+</table>
 
 <p>For a description of each of these systems and many more, and for the
 microkernel research planned for Tam 2.0, see the
