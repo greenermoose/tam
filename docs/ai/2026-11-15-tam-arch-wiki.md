@@ -1,8 +1,8 @@
-# Offline Arch Wiki Integration (command 0.60.0 / corpus 0.93.6)
+# Offline Arch Wiki Integration (command 0.60.0–0.60.1 / corpus 0.93.6)
 
 - **Date:** 2026-11-15
-- **Time:** 12:42 to 12:50 -05:00
-- **Stage:** Develop — installed `arch-wiki-docs`, added native `tam archwiki` / `archwiki:` / `tam:archwiki*` support (command 0.60.0), and linked Arch Wiki from the Guide index and documentation help (corpus 0.93.6).
+- **Time:** 12:42 to 12:55 -05:00
+- **Stage:** Develop — installed `arch-wiki-docs`, added native `tam archwiki` / `archwiki:` / `tam:archwiki*` support (command 0.60.0–0.60.1), and linked Arch Wiki from the Guide index and documentation help (corpus 0.93.6).
 - **CLI Tool:** Antigravity CLI 1.5.9
 - **Model:** Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`)
 - **Transcript:** Retained privately by the author.

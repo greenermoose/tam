@@ -609,7 +609,7 @@ static tam_document_t *archwiki_error_document(const char *title, const char *ms
 
 static tam_str_t append_az_bar(tam_str_t body)
 {
-    body = tam_str_cat(body, "<p>Browse by letter: <a href=\"tam:archwiki:list\">All</a>");
+    body = tam_str_cat(body, "<p><a href=\"tam:archwiki:list\">All</a>");
     for (char c = 'a'; c <= 'z'; c++) {
         char upper = (char)toupper((unsigned char)c);
         body = tam_str_cat_printf(body,
@@ -639,22 +639,7 @@ static tam_document_t *archwiki_landing_document(const char *root, int width)
             "<code>arch-wiki-docs</code> package with <code>pacman -S arch-wiki-docs</code>.</p>\n");
     }
 
-    body = tam_str_cat(body,
-        "<ul>\n"
-        "<li><a href=\"tam:prompt:archwiki-open\">Open an Arch Wiki page</a> by title "
-        "(for example <code>Pacman</code> or <code>Systemd</code>).</li>\n"
-        "<li><a href=\"tam:prompt:archwiki-keyword\">Find by keyword</a> across Arch Wiki page titles.</li>\n");
-    if (total > 0) {
-        body = tam_str_cat_printf(body,
-            "<li><a href=\"tam:archwiki:list\">Browse all %zu Arch Wiki pages</a> in the A-Z index.</li>\n",
-            total);
-    } else {
-        body = tam_str_cat(body,
-            "<li><a href=\"tam:archwiki:list\">Browse Arch Wiki pages</a> in the A-Z index.</li>\n");
-    }
-    body = tam_str_cat(body, "</ul>\n<h2>Browse index</h2>\n");
-    body = append_az_bar(body);
-    body = tam_str_cat(body, "<h2>Starting points</h2>\n<ul>\n");
+    body = tam_str_cat(body, "<h2>Starting points</h2>\n<table>\n");
 
     static const struct { const char *slug; const char *label; const char *desc; } starts[] = {
         {"Arch_Linux", "Arch Linux", "Overview and principles of Arch Linux"},
@@ -672,15 +657,28 @@ static tam_document_t *archwiki_landing_document(const char *root, int width)
         if (p != NULL) {
             free(p);
             body = tam_str_cat_printf(body,
-                "<li><a href=\"archwiki:%s\">%s</a> — %s</li>\n",
+                "<tr><td><a href=\"archwiki:%s\">%s</a></td><td>%s</td></tr>\n",
                 starts[i].slug, starts[i].label, starts[i].desc);
             any_start++;
         }
     }
     if (!any_start) {
-        body = tam_str_cat(body, "<li>Use Open an Arch Wiki page or Browse index above.</li>\n");
+        body = tam_str_cat(body, "<tr><td colspan=\"2\">Use Open an Arch Wiki page or Browse index below.</td></tr>\n");
     }
-    body = tam_str_cat(body, "</ul>\n");
+    body = tam_str_cat(body, "</table>\n<ul>\n"
+        "<li><a href=\"tam:prompt:archwiki-open\">Open an Arch Wiki page</a> by title "
+        "(for example <code>Pacman</code> or <code>Systemd</code>).</li>\n"
+        "<li><a href=\"tam:prompt:archwiki-keyword\">Find by keyword</a> across Arch Wiki page titles.</li>\n");
+    if (total > 0) {
+        body = tam_str_cat_printf(body,
+            "<li><a href=\"tam:archwiki:list\">Browse all %zu Arch Wiki pages</a> in the A-Z index.</li>\n",
+            total);
+    } else {
+        body = tam_str_cat(body,
+            "<li><a href=\"tam:archwiki:list\">Browse Arch Wiki pages</a> in the A-Z index.</li>\n");
+    }
+    body = tam_str_cat(body, "</ul>\n<h2>Browse index</h2>\n");
+    body = append_az_bar(body);
 
     tam_document_t *doc = archwiki_html_document("Arch Wiki", body, width);
     tam_str_free(body);
