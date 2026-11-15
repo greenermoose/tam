@@ -172,7 +172,7 @@ _corpus-and-test: corpus-check
 
 corpus-tool-tests:
 ifeq ($(SKIP_UNIT_TESTS),)
-	@$(RUN_TIMED) "Corpus tooling unit tests" python3 -B -m unittest -q tests/test_lint_corpus.py tests/test_build_index.py tests/test_component_coverage.py tests/test_corpus_pipeline.py
+	@$(RUN_TIMED) "Corpus tooling unit tests" python3 -B -m unittest -q tests/test_lint_corpus.py tests/test_build_index.py tests/test_component_coverage.py tests/test_corpus_pipeline.py tests/test_glossary_index.py
 else
 	@printf '%s\n' 'tam: tooling unit tests skipped (SKIP_UNIT_TESTS).'
 endif

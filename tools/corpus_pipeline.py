@@ -400,9 +400,17 @@ def process(root, mode, state, snap, reader=None, full=False):
     return next_state
 
 
-def run(root=None, mode="build", reader=None):
+def run(root=None, mode="build", reader=None, fix_glossary=False):
     root = Path(root).resolve() if root else Path(__file__).resolve().parent.parent
+    glossary = load_module("glossary_index")
     try:
+        if mode == "check":
+            interactive = sys.stdin.isatty() and not fix_glossary
+            glossary.check_glossary_placement(
+                root / "knowledge", fix=fix_glossary, interactive=interactive
+            )
+        if mode in {"build", "check"}:
+            glossary.generate_glossary_indexes(root / "knowledge", write_fn=atomic_write)
         with cache_lock(root) as path:
             enabled = os.environ.get("CORPUS_CACHE", "1") != "0"
             state = read_cache(path) if enabled else {}
@@ -419,7 +427,7 @@ def run(root=None, mode="build", reader=None):
                     state = {}
                     if attempt:
                         raise CorpusError("inputs kept changing; save your files and retry")
-    except (CorpusError, OSError, subprocess.TimeoutExpired, ValueError) as error:
+    except (CorpusError, glossary.GlossaryPlacementError, OSError, subprocess.TimeoutExpired, ValueError) as error:
         print(f"corpus: {error}", file=sys.stderr)
         return 1
 
@@ -430,13 +438,16 @@ def main():
     parser.add_argument("--root", type=Path)
     parser.add_argument("--reader")
     parser.add_argument("--page", default="")
+    parser.add_argument("--fix-glossary", action="store_true",
+                        help="Move misplaced glossary pages to the folder matching their title")
     args = parser.parse_args()
     root = (args.root or Path(__file__).resolve().parent.parent).resolve()
     if args.mode == "identity":
         with cache_lock(root):
             identity(root)
         return 0
-    status = run(root, "build" if args.mode == "preview" else args.mode, args.reader)
+    status = run(root, "build" if args.mode == "preview" else args.mode, args.reader,
+                 fix_glossary=args.fix_glossary)
     if status or args.mode != "preview":
         return status
     try:

@@ -263,7 +263,7 @@ class BuildIndex(unittest.TestCase):
         shutil.copyfile(MAKEFILE, root / "Makefile")
         (root / "tools").mkdir()
         shutil.copyfile(BUILDER, root / "tools/build-index.py")
-        for name in ("corpus_pipeline.py", "build-tldr-index.py"):
+        for name in ("corpus_pipeline.py", "build-tldr-index.py", "glossary_index.py"):
             shutil.copyfile(BUILDER.parent / name, root / "tools" / name)
         # `make corpus` also regenerates component-coverage.json (plan 26 W1).
         shutil.copyfile(
@@ -438,6 +438,7 @@ class BuildIndex(unittest.TestCase):
             "test_build_index.py",
             "test_component_coverage.py",
             "test_corpus_pipeline.py",
+            "test_glossary_index.py",
         ):
             (root / "tests" / name).write_text(
                 "from pathlib import Path\nimport unittest\n"
