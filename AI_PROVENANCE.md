@@ -1,5 +1,6 @@
 # AI collaboration and provenance
 
+2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) converts the remaining five `<ul>` lists on `knowledge/systems/operating-systems/index.html` into two-column `<table>` elements (corpus 0.93.5). [Record](docs/ai/2026-11-15-tam-os-index-tables.md).
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) converts `Explore` `<ul>` menus across 30 hub pages and `tools/glossary_index.py` (regenerating the 25 glossary letter index pages) into two-column `<table>` elements (corpus 0.93.4). [Record](docs/ai/2026-11-15-tam-explore-tables.md).
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) converts 60 definition and example `<ul>` lists across `knowledge/systems/operating-systems/microkernels.html` and 38 other corpus pages into two-column `<table>` elements (corpus 0.93.3). [Record](docs/ai/2026-11-15-tam-definition-tables.md).
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) preserves blank lines around `<p>` and `<h1>`–`<h6>` (removing `tight_next` on `<section>`), extends heading parsing to `<h1>`–`<h6>`, and ignores blank separator lines for box `B_META` right-alignment in `src/render.c` (command 0.59.14). [Record](docs/ai/2026-11-15-tam-p-and-heading-blank-lines.md).
