@@ -224,12 +224,12 @@ def _render_letter_index(letter: str, items: list[tuple[str, str, str]]) -> str:
         f'<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A\u2013Z</a> / Terms beginning with {upper}</p></nav>',
         f"<h1>Terms beginning with {upper}</h1>",
         f"<p>Glossary definitions for technical terms and acronyms beginning with {upper}.</p>",
-        "<h2>Explore</h2><ul>"
+        "<h2>Explore</h2><table>\n"
         + "\n".join(
-            f'<li><a href="glossary/{letter}/{filename}">{html.escape(title, quote=True)}</a> \u2014 {html.escape(summary, quote=True)}</li>'
+            f'<tr><td><a href="glossary/{letter}/{filename}">{html.escape(title, quote=True)}</a></td><td>{html.escape(summary, quote=True)}</td></tr>'
             for title, filename, summary in items
         ),
-        "</ul>",
+        "</table>",
         "</body></html>",
     ]
     return "\n".join(lines) + "\n"
