@@ -1305,6 +1305,36 @@ static size_t peek_following_punct(const tam_span_t *runs, size_t nruns,
     return 0;
 }
 
+/* Display width of any non-whitespace tokens immediately following (r, i)
+ * with no intervening whitespace, plus any trailing punctuation token that
+ * peek_following_punct reserves after that unspaced cluster. */
+static size_t peek_unspaced_and_punct(const tam_span_t *runs, size_t nruns,
+                                      size_t r, size_t i)
+{
+    size_t rr = r;
+    size_t k = i;
+    size_t w = 0;
+
+    while (rr < nruns) {
+        const char *t = runs[rr].text;
+        size_t tl = (t != NULL) ? strlen(t) : 0;
+        if (k >= tl) {
+            rr++;
+            k = 0;
+            continue;
+        }
+        if (isspace((unsigned char)t[k])) {
+            break;
+        }
+        size_t s = k;
+        while (k < tl && !isspace((unsigned char)t[k]) && t[k] != '\n') {
+            k++;
+        }
+        w += dwidth(t + s, k - s);
+    }
+    return w + peek_following_punct(runs, nruns, rr, k);
+}
+
 static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                         int width, const char *prefix)
 {
@@ -1349,9 +1379,14 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
             size_t wb = i - ws;
             size_t wl = dwidth(t + ws, wb);
             int sep = (col > (int)lead && had_space) ? 1 : 0;
-            size_t extra = peek_following_punct(runs, nruns, r, i);
-            if (col > (int)lead && !all_punct(t + ws, wb) &&
-                col + sep + (int)(wl + extra) > width) {
+            size_t extra = had_space
+                ? peek_unspaced_and_punct(runs, nruns, r, i)
+                : 0;
+            int should_break = had_space
+                ? (col > (int)lead && !all_punct(t + ws, wb) &&
+                   col + sep + (int)(wl + extra) > width)
+                : (col > (int)lead && col + (int)wl > width);
+            if (should_break) {
                 out->logical_offset = line_offset;
                 linelist_push(out, &line);
                 line_offset = run_base + ws;
@@ -1569,9 +1604,14 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
             size_t wb = i - ws;
             size_t wl = dwidth(t + ws, wb);
             int sep = (col > 0 && had_space) ? 1 : 0;
-            size_t extra = peek_following_punct(cell->runs, cell->nruns, r, i);
-            if (col > 0 && !all_punct(t + ws, wb) &&
-                col + sep + (int)(wl + extra) > max_w) {
+            size_t extra = had_space
+                ? peek_unspaced_and_punct(cell->runs, cell->nruns, r, i)
+                : 0;
+            int should_break = had_space
+                ? (col > 0 && !all_punct(t + ws, wb) &&
+                   col + sep + (int)(wl + extra) > max_w)
+                : (col > 0 && col + (int)wl > max_w);
+            if (should_break) {
                 if (nlines == cap) {
                     cap = cap ? cap * 2 : 4;
                     lines = realloc(lines, cap * sizeof(*lines));

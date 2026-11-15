@@ -1,12 +1,12 @@
 # Fix inline tag extra spacing in `src/render.c` (command 0.59.3)
 
 - **Date:** 2026-11-15
-- **Time:** 06:36 to 06:40 -05:00
-- **Stage:** Develop — fix inline tag word-separator spacing in `src/render.c` (command 0.59.3)
+- **Time:** 06:36 to 06:53 -05:00
+- **Stage:** Develop — fix inline tag word-separator spacing and unspaced cluster wrapping in `src/render.c` (command 0.59.3–0.59.4)
 - **CLI Tool:** Antigravity CLI 1.5.9
 - **Model:** Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** pending (current commit)
+- **Commits:** `6aa9971` (0.59.3), and the commit that adds this update (0.59.4)
 - **Authorship:** Fred directed fixing the `tam` command pager so it does not inject extra spaces around `<i>` tags such as `"<i>synonyms</i>"` on `welcome.html`; Antigravity fixed `layout_flow` and `wrap_cell` in `src/render.c`, added a render golden case in `tests/render/blocks.html`, bumped `TAM_COMMAND_VERSION` to `0.59.3`, and updated roadmap/provenance records.
 - **Checked against:** `src/render.c`, `src/version.h`, `knowledge/welcome.html`, `tests/render/blocks.html`, `tests/render/blocks.txt`, `tests/run.sh`, `ROADMAP.md`, `docs/plans/development.md`, `AI_PROVENANCE.md`, `agy --version`
 
@@ -17,10 +17,13 @@
 > "<i>synonyms</i>"
 >
 > is rendered with spaces in it. Fix that. The render should be "synonyms" with synonyms in italics and no spaces around it.
+>
+> This is slightly better, but why is the trailing " line wrapping?
 
 ## Key decisions
 
 - Changed `layout_flow` and `wrap_cell` in `src/render.c` to compute `sep` directly from `had_space` (`(col > (int)lead && had_space)` and `(col > 0 && had_space)`), removing the punctuation/bracket heuristics (`tight`, `attach`, `prev`) that injected spaces between adjacent inline runs with no HTML whitespace (such as `"` and `<i>synonyms</i>`).
+- Added `peek_unspaced_and_punct` in `src/render.c` and restricted line-breaking in `layout_flow` and `wrap_cell` to whitespace boundaries (unless a single token overflows), so unspaced inline clusters like `"<i>synonyms</i>",` wrap together as one unit rather than stranding `",` on the next line.
 
 ## Verification
 
