@@ -283,3 +283,4 @@ model for each session.
 | 2026-11-14 | Paragraph `align="left|center|right"` support in `src/render.c`, command 0.59.0 | Antigravity CLI 1.5.9; `gemini-4-argon-medium` | [Session record](docs/ai/2026-11-14-paragraph-align.md) |
 | 2026-11-14 | Update `tam:topics` wording and alphabetize topics in `src/views.c`, command 0.59.1 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) | [Session record](docs/ai/2026-11-14-tam-topics-wording.md) |
 | 2026-11-14 | Update `tam:catalog` wording and table headers in `src/views.c`, command 0.59.2 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) | [Session record](docs/ai/2026-11-14-tam-catalog-wording.md) |
+| 2026-11-14 | Add alphabetized People table to `knowledge/bibliography/index.html`, corpus 0.92.2 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-14-bibliography-people-list.md) |
