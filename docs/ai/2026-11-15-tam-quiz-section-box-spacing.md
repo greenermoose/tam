@@ -1,12 +1,12 @@
-# Quiz summary/details spacing, section spacing, and box lens alignment (command 0.59.12)
+# Quiz summary/details spacing, section spacing, and box lens alignment (commands 0.59.12–0.59.13)
 
 - **Date:** 2026-11-15
 - **Time:** 11:35 to 11:48 -05:00
-- **Stage:** Develop; command `0.59.12`
+- **Stage:** Develop; commands `0.59.12` and `0.59.13`
 - **CLI Tool:** Antigravity CLI `1.5.9`
 - **Model:** Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** pending commit on `develop`
+- **Commits:** `0eeda93` and the commit that adds `0.59.13`
 - **Authorship:** Fred directed the layout behavior and clarified the four spacing/padding rules; Antigravity CLI implemented the changes in `src/fold.c` and `src/render.c`, updated render goldens, and added the PTY test.
 - **Checked against:** `src/fold.c`, `src/render.c`, `src/depth.c`, `src/version.h`, `tests/render.sh`, `tests/run.sh`, `ROADMAP.md`, `docs/plans/development.md`.
 
@@ -18,10 +18,11 @@
 > 2 <section> tags should not add any blank lines. There should be no blank lines between the sections. Each section should start on the next line, and then tags inside the section should determine spacing from there.
 > 3 showing lens should righ-align to the box's content width rather than the full terminal width
 > 4 you can keep that one space
+> When answer is selected, do not add a blank line above it.
 
 ## Key decisions
 
-- In `src/fold.c`, closed folds with a summary emit `<br>` between the summary and the `[+]` toggle link inside the same `<p>` so there is no blank line between them when closed, while open folds still place the summary outside `<tam-box>` above the boxed `[-]` header.
+- In `src/fold.c`, closed folds with a summary emit `<br>` between the summary and the `[+]` toggle link inside the same `<p>` so there is no blank line between them when closed; expanded folds with a summary emit `<tam-box class="tight">` so `layout_document` in `src/render.c` omits the blank line above the opened answer box too (while `<aside class="first-time">` keeps `<tam-box>` with a blank line above it).
 - In `src/render.c`, `<section>` and `</section>` set `tight_next` (cleared on `<tam-box>`) so the first block after a section boundary starts on the next line without an added blank line, and `blocks_are_tight` also keeps blocks immediately following `B_META` (`Showing <level> text`) tight in both `layout_document` and `layout_box`.
 - In `layout_box` (`src/render.c`), `B_META` lines are laid out without right-padding first so they do not stretch the box to the terminal width, and single-line `B_META` lines are right-aligned to `box_inner_w` once the box width is known.
 

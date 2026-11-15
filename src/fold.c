@@ -159,7 +159,8 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
             x->folds = next;
             x->folds[x->nfolds++] = (tam_fold_t){ id, cls(s, t, "q"), opened };
             str(out, "<div"); add(out, s + t.attrs, t.end - t.attrs);
-            if (x->pipe || summary.name[0] || !first_time) {
+            int has_summary = summary.name[0] || !first_time;
+            if (x->pipe || has_summary) {
                 str(out, "<p>");
                 if (x->pipe) { snprintf(line, sizeof(line), "%u. ", id); str(out, line); }
                 if (summary.name[0]) add(out, s + summary.end, summary_end.start - summary.end);
@@ -168,8 +169,8 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
                 else str(out, "</p>");
             }
             if (!x->pipe) {
-                if (opened) str(out, "<tam-box><p>");
-                else if (!(summary.name[0] || !first_time)) str(out, "<p>");
+                if (opened) str(out, has_summary ? "<tam-box class=\"tight\"><p>" : "<tam-box><p>");
+                else if (!has_summary) str(out, "<p>");
                 /* The hint names the arrow keys; +, -, Enter, r and * also work. */
                 snprintf(line, sizeof(line),
                          "<a href=\"tam:fold:%u\">[%c] %s (%s)</a></p>",

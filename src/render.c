@@ -832,6 +832,11 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
                 p->box_depth--;
             }
         } else {
+            char *cls = extract_attr(s, end, "class");
+            if (cls != NULL && strcmp(cls, "tight") == 0) {
+                p->tight_next = 1;
+            }
+            free(cls);
             if (p->box_depth == 0) {
                 p->box_seq++;
             }
@@ -2330,8 +2335,9 @@ static void layout_document(const blocklist_t *blocks, int width,
         const tam_block_t *b = &blocks->v[i];
         if (i > 0) {
             const tam_block_t *prev = &blocks->v[i - 1];
-            int tight = b->box == 0 && prev->box == 0 &&
-                        blocks_are_tight(prev, b);
+            int tight = (b->box == 0 && prev->box == 0 &&
+                         blocks_are_tight(prev, b)) ||
+                        (b->box > 0 && prev->box != b->box && b->tight_before);
             if (!tight) {
                 out->logical_block = i;
                 out->logical_offset = 0;
