@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-15:** Command 0.59.3 (patch): Fix `layout_flow` and `wrap_cell` in `src/render.c` to insert word-separator spaces only when `had_space` is set, preventing extra spaces around inline tags such as `"<i>synonyms</i>"`.
 - **2026-11-14:** Command 0.59.2 (patch): Update `tam:catalog` wording in `src/views.c` (`Guide > Catalog`, `All Pages A to Z`, `Page` / `Subject Matter` table headers) and remove the intro paragraph.
 - **2026-11-14:** Command 0.59.1 (patch): Update `tam:topics` wording in `src/views.c` (`Browse topics`, `Topics Covered in Your Tamlinux User Guide`), remove the "Choose a subject" intro line, and sort topics alphabetically by title.
 - **2026-11-14:** Command 0.59.0 (minor): Support `align="left"`, `align="center"`, and `align="right"` on `<p>` elements in `src/render.c`.

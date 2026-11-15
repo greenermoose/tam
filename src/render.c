@@ -1315,7 +1315,6 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
 
     spanlist_t line;
     int col = 0;
-    int prev = 0;
     int had_space = 0;
     size_t run_base = 0;
     size_t line_offset = 0;
@@ -1334,7 +1333,6 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                 line_offset = run_base + i + 1;
                 start_line(&line, prefix, lead, 0);
                 col = (int)lead;
-                prev = 0;
                 had_space = 0;
                 i++;
                 continue;
@@ -1350,9 +1348,7 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
             }
             size_t wb = i - ws;
             size_t wl = dwidth(t + ws, wb);
-            int tight = !had_space && strchr(",.;:!?%)]}", t[ws]) != NULL;
-            int attach = !had_space && (prev == '(' || prev == '[' || prev == '{');
-            int sep = (col > (int)lead && !tight && !attach) ? 1 : 0;
+            int sep = (col > (int)lead && had_space) ? 1 : 0;
             size_t extra = peek_following_punct(runs, nruns, r, i);
             if (col > (int)lead && !all_punct(t + ws, wb) &&
                 col + sep + (int)(wl + extra) > width) {
@@ -1362,7 +1358,6 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                 start_line(&line, prefix, lead, 0);
                 col = (int)lead;
                 sep = 0;
-                prev = 0;
             }
             if (sep) {
                 spanlist_append(&line, " ", 1, runs[r].style, runs[r].href,
@@ -1395,14 +1390,12 @@ static void layout_flow(linelist_t *out, const tam_span_t *runs, size_t nruns,
                         col += cells;
                     }
                 }
-                prev = (unsigned char)t[ws + wb - 1];
                 had_space = 0;
                 continue;
             }
             spanlist_append(&line, t + ws, wb, runs[r].style, runs[r].href,
                             runs[r].link_id);
             col += (int)wl;
-            prev = (unsigned char)t[ws + wb - 1];
             had_space = 0;
         }
         run_base += tl;
@@ -1542,7 +1535,6 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
     spanlist_t cur;
     spanlist_init(&cur);
     int col = 0;
-    int prev = 0;
     int had_space = 0;
 
     for (size_t r = 0; r < cell->nruns; r++) {
@@ -1561,7 +1553,6 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                 lines[nlines++] = cur;
                 spanlist_init(&cur);
                 col = 0;
-                prev = 0;
                 had_space = 0;
                 i++;
                 continue;
@@ -1577,9 +1568,7 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
             }
             size_t wb = i - ws;
             size_t wl = dwidth(t + ws, wb);
-            int tight = !had_space && strchr(",.;:!?%)]}", t[ws]) != NULL;
-            int attach = !had_space && (prev == '(' || prev == '[' || prev == '{');
-            int sep = (col > 0 && !tight && !attach) ? 1 : 0;
+            int sep = (col > 0 && had_space) ? 1 : 0;
             size_t extra = peek_following_punct(cell->runs, cell->nruns, r, i);
             if (col > 0 && !all_punct(t + ws, wb) &&
                 col + sep + (int)(wl + extra) > max_w) {
@@ -1591,7 +1580,6 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                 spanlist_init(&cur);
                 col = 0;
                 sep = 0;
-                prev = 0;
             }
             if (sep) {
                 spanlist_append(&cur, " ", 1, cell->runs[r].style, cell->runs[r].href,
@@ -1629,14 +1617,12 @@ static void cell_wrap(const tam_table_cell_t *cell, int max_w,
                         col += cells;
                     }
                 }
-                prev = (unsigned char)t[ws + wb - 1];
                 had_space = 0;
                 continue;
             }
             spanlist_append(&cur, t + ws, wb, cell->runs[r].style, cell->runs[r].href,
                             cell->runs[r].link_id);
             col += (int)wl;
-            prev = (unsigned char)t[ws + wb - 1];
             had_space = 0;
         }
     }
