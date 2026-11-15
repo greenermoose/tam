@@ -277,3 +277,4 @@ model for each session.
 | 2026-11-09 | Arch host profile without the `omarchy` ID, command 0.50.4 | Claude Code 2.1.321; `claude-opus-5-5` | [Session record](docs/ai/2026-11-09-tam-arch-host-profile.md) |
 | 2026-11-14 | Table `colspan` cell spanning in `src/render.c`, command 0.58.0 | Antigravity CLI 1.5.9; `gemini-4-argon-medium` | [Session record](docs/ai/2026-11-14-table-colspan.md) |
 | 2026-11-14 | Paragraph `align="left|center|right"` support in `src/render.c`, command 0.59.0 | Antigravity CLI 1.5.9; `gemini-4-argon-medium` | [Session record](docs/ai/2026-11-14-paragraph-align.md) |
+| 2026-11-14 | Update `tam:topics` wording and alphabetize topics in `src/views.c`, command 0.59.1 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) | [Session record](docs/ai/2026-11-14-tam-topics-wording.md) |

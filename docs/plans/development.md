@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-14:** Command 0.59.1 (patch): Update `tam:topics` wording in `src/views.c` (`Browse topics`, `Topics Covered in Your Tamlinux User Guide`), remove the "Choose a subject" intro line, and sort topics alphabetically by title.
 - **2026-11-14:** Command 0.59.0 (minor): Support `align="left"`, `align="center"`, and `align="right"` on `<p>` elements in `src/render.c`.
 - **2026-11-14:** Command 0.58.0 (minor): Support `colspan` on `<th>` and `<td>` elements in `src/render.c`, spanning multi-column cells across the combined widths of spanned columns and their 2-space inter-column gaps in both tabular and stacked table layouts.
 - **2026-11-14:** Command 0.57.0 (minor): subject browsing, unified search, page-kind lookup, and one generated learning-path catalog. Corpus 0.90.0 reorganizes canonical subject homes with a clean address break.

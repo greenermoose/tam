@@ -217,24 +217,31 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
 {
     tam_index_t *idx = tam_index_load(root);
     if (idx == NULL) return NULL;
-    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Browse subjects" } };
-    tam_str_t html = tam_page_begin("Browse subjects", NULL, crumbs, 2);
-    html = tam_str_cat(html, "<h1>Browse subjects</h1><p>Choose a subject. Its opening page introduces the ideas, practical tasks, and reading order.</p><dl>");
+    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Browse topics" } };
+    tam_str_t html = tam_page_begin("Browse topics", NULL, crumbs, 2);
+    html = tam_str_cat(html, "<h1>Topics Covered in Your Tamlinux User Guide</h1><dl>");
+    const tam_index_entry_t **ordered = calloc(idx->count ? idx->count : 1, sizeof(*ordered));
+    if (ordered == NULL) { tam_index_free(idx); tam_str_free(html); return NULL; }
     size_t shown = 0;
+    static const char * const subjects[] = {"hardware", "systems", "terminal", "networking", "security", "programming", "desktop", "tamlinux"};
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        const char *subjects[] = {"hardware", "systems", "terminal", "networking", "security", "programming", "desktop", "tamlinux"};
         int subject = 0;
         for (size_t j = 0; j < sizeof(subjects)/sizeof(subjects[0]); j++)
             if (e->track && strcmp(e->track, subjects[j]) == 0) subject = 1;
         if (!subject || !e->parent || strcmp(e->parent, "index.html") != 0) continue;
+        ordered[shown++] = e;
+    }
+    qsort(ordered, shown, sizeof(*ordered), entry_title_order);
+    for (size_t i = 0; i < shown; i++) {
+        const tam_index_entry_t *e = ordered[i];
         html = tam_str_cat_printf(html, "<dt><a href=\"%s\">", e->path);
         html = tam_html_cat(html, e->title);
         html = tam_str_cat(html, "</a></dt><dd>");
         html = tam_html_cat(html, e->summary);
         html = tam_str_cat(html, "</dd>");
-        shown++;
     }
+    free(ordered);
     html = tam_str_cat(html, "</dl><p><a href=\"tam:catalog\">All pages A–Z</a> · <a href=\"tam:paths\">Learn step by step</a> · <a href=\"tam:search\">Search</a></p>");
     tam_index_free(idx);
     if (!shown) { tam_str_free(html); return tam_catalog_document(root, level, width); }

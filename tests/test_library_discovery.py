@@ -65,10 +65,16 @@ class LibraryDiscovery(unittest.TestCase):
 
     def test_subject_browser_is_not_a_flat_term_catalog(self):
         self.add('security','security/index.html','Security','security','hub')
+        self.add('networking','networking/index.html','Networking','networking','hub')
+        self.add('systems','systems/index.html','Operating systems','systems','hub')
         self.add('word','glossary/w/word.html','Word','word','glossary','glossary','glossary/index.html')
         out=self.run_tam('show','tam:topics','--pipe')
-        self.assertIn('Browse subjects',out)
+        self.assertIn('Browse topics',out)
+        self.assertIn('Topics Covered in Your Tamlinux User Guide',out)
+        self.assertNotIn('Choose a subject',out)
         self.assertIn('Security',out)
+        self.assertLess(out.index('Networking'),out.index('Operating systems'))
+        self.assertLess(out.index('Operating systems'),out.index('Security'))
         self.assertNotIn('Word',out)
         self.assertIn('All pages A',out)
         out=self.run_tam('explain','--pipe')

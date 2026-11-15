@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.1' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -217,9 +217,10 @@ printf '%s\n' "$sh_out" | grep -q 'Fixture Guide' || fail "tam show --pipe faile
 sh_page=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Fixture Welcome' || fail "tam show welcome failed"
 sh_topics=$("$TAM" show topics --pipe)
-printf '%s\n' "$sh_topics" | grep -q 'Browse subjects' || fail "tam show topics failed"
+printf '%s\n' "$sh_topics" | grep -q 'Browse topics' || fail "tam show topics failed"
+printf '%s\n' "$sh_topics" | grep -q 'Topics Covered in Your Tamlinux User Guide' || fail "tam show topics heading failed"
 sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
-printf '%s\n' "$sh_topics_pseudo" | grep -q 'Browse subjects' || fail "tam show tam:topics failed"
+printf '%s\n' "$sh_topics_pseudo" | grep -q 'Browse topics' || fail "tam show tam:topics failed"
 
 # page: addresses, tam:keywords, and tam:explain under show
 sh_pipe1=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show page:shell/pipelines --pipe) || fail "show page:shell/pipelines --pipe failed"
