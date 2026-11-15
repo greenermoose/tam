@@ -6,7 +6,7 @@
 - **CLI Tool:** Antigravity CLI 1.5.9
 - **Model:** Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`)
 - **Transcript:** Retained privately by the author.
-- **Commits:** pending
+- **Commits:** `704a8ac` and follow-up index/record commit
 - **Authorship:** Fred requested a Kerberos glossary page; Antigravity CLI authored `knowledge/glossary/k/kerberos.html`, linked it in `knowledge/glossary/k/index.html`, bumped `knowledge/version` to `0.91.0`, rebuilt the corpus indexes, and updated `ROADMAP.md`.
 - **Checked against:** `knowledge/glossary/k/kdc.html`, `knowledge/glossary/t/tgt.html`, `knowledge/glossary/c/cts-hmac.html`, `knowledge/glossary/n/ntp.html`, `knowledge/security/protocols/security-protocols.html`, `knowledge/glossary/k/index.html`, `knowledge/version`, `ROADMAP.md`
 
