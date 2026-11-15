@@ -57,6 +57,7 @@ typedef struct {
     int          level;   /* heading level, list depth, or B_PARA alignment */
     int          ordered;
     int          number;
+    int          box;     /* non-zero when inside <tam-box> */
     tam_span_t  *runs;
     size_t       nruns;
     tam_table_t *table;  /* non-NULL for B_TABLE */
@@ -212,7 +213,7 @@ static void linelist_blank(linelist_t *ll)
 }
 
 static void blocklist_add(blocklist_t *bl, int kind, int level, int ordered,
-                          int number, tam_span_t *runs, size_t nruns)
+                          int number, int box, tam_span_t *runs, size_t nruns)
 {
     if (bl->n == bl->cap) {
         size_t cap = bl->cap ? bl->cap * 2 : 8;
@@ -224,6 +225,7 @@ static void blocklist_add(blocklist_t *bl, int kind, int level, int ordered,
     b->level = level;
     b->ordered = ordered;
     b->number = number;
+    b->box = box;
     b->runs = runs;
     b->nruns = nruns;
     b->table = NULL;
@@ -250,7 +252,7 @@ static void table_free(tam_table_t *t)
     free(t);
 }
 
-static void blocklist_add_table(blocklist_t *bl, tam_table_t *table)
+static void blocklist_add_table(blocklist_t *bl, int box, tam_table_t *table)
 {
     if (bl->n == bl->cap) {
         size_t cap = bl->cap ? bl->cap * 2 : 8;
@@ -262,6 +264,7 @@ static void blocklist_add_table(blocklist_t *bl, tam_table_t *table)
     b->level = 0;
     b->ordered = 0;
     b->number = 0;
+    b->box = box;
     b->runs = NULL;
     b->nruns = 0;
     b->table = table;
@@ -472,6 +475,8 @@ typedef struct {
     char        *nav_up;
     char        *nav_top;
     int           in_breadcrumb;
+    int           box_depth;
+    int           box_seq;
 } parser_t;
 
 static void list_push(parser_t *p, int ordered)
@@ -499,8 +504,9 @@ static void parser_end_block(parser_t *p)
         return;
     }
     if (p->kind == B_HR || p->runs.n > 0) {
+        int box = p->box_depth > 0 ? p->box_seq : 0;
         blocklist_add(&p->blocks, p->kind, p->level, p->ordered, p->number,
-                      p->runs.v, p->runs.n);
+                      box, p->runs.v, p->runs.n);
         spanlist_init(&p->runs);
     } else {
         spanlist_free(&p->runs);
@@ -801,6 +807,20 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
         parser_end_block(p);
         return;
     }
+    if (strcmp(name, "tam-box") == 0) {
+        parser_end_block(p);
+        if (closing) {
+            if (p->box_depth > 0) {
+                p->box_depth--;
+            }
+        } else {
+            if (p->box_depth == 0) {
+                p->box_seq++;
+            }
+            p->box_depth++;
+        }
+        return;
+    }
     if (strcmp(name, "p") == 0) {
         if (closing) {
             parser_end_block(p);
@@ -944,7 +964,8 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
             p->in_table = 0;
             if (p->curr_table != NULL) {
                 if (p->curr_table->nrows > 0) {
-                    blocklist_add_table(&p->blocks, p->curr_table);
+                    int box = p->box_depth > 0 ? p->box_seq : 0;
+                    blocklist_add_table(&p->blocks, box, p->curr_table);
                 } else {
                     table_free(p->curr_table);
                 }
@@ -2092,66 +2113,214 @@ static void align_center(tam_line_t *line, int width)
     pad_line_left(line, ((size_t)width - used) / 2);
 }
 
+static void layout_single_block(const blocklist_t *blocks, size_t i, int width,
+                                linelist_t *out)
+{
+    out->logical_block = i;
+    out->logical_offset = 0;
+    const tam_block_t *b = &blocks->v[i];
+
+    if (b->kind == B_HR) {
+        spanlist_t l;
+        spanlist_init(&l);
+        int n = width < 72 ? width : 72;
+        if (n < 3) {
+            n = 3;
+        }
+        char *dash = malloc((size_t)n + 1);
+        memset(dash, '-', (size_t)n);
+        dash[n] = '\0';
+        spanlist_append(&l, dash, (size_t)n, 0, NULL, 0);
+        free(dash);
+        linelist_push(out, &l);
+        return;
+    }
+    if (b->kind == B_PRE) {
+        layout_pre(out, b->runs, b->nruns, width);
+        return;
+    }
+    if (b->kind == B_TABLE && b->table != NULL) {
+        layout_table(out, b->table, width);
+        return;
+    }
+    char pfx[80];
+    block_prefix(b, pfx, sizeof(pfx));
+    size_t first = out->n;
+    layout_flow(out, b->runs, b->nruns, width, pfx);
+    if (b->kind == B_META && out->n == first + 1) {
+        align_right(&out->v[first], width);
+    } else if (b->kind == B_PARA && b->level == ALIGN_CENTER) {
+        for (size_t ln = first; ln < out->n; ln++) {
+            align_center(&out->v[ln], width);
+        }
+    } else if (b->kind == B_PARA && b->level == ALIGN_RIGHT) {
+        for (size_t ln = first; ln < out->n; ln++) {
+            align_right(&out->v[ln], width);
+        }
+    }
+}
+
+static void layout_box_push_border(linelist_t *out, size_t logical_block,
+                                   const char *left, char fill, size_t count,
+                                   const char *right)
+{
+    out->logical_block = logical_block;
+    out->logical_offset = 0;
+    spanlist_t l;
+    spanlist_init(&l);
+    size_t ll = strlen(left);
+    size_t rl = strlen(right);
+    char *buf = malloc(ll + count + rl + 1);
+    if (buf != NULL) {
+        memcpy(buf, left, ll);
+        memset(buf + ll, fill, count);
+        memcpy(buf + ll + count, right, rl);
+        buf[ll + count + rl] = '\0';
+        spanlist_append(&l, buf, ll + count + rl, 0, NULL, 0);
+        free(buf);
+    }
+    linelist_push(out, &l);
+}
+
+static void layout_box(const blocklist_t *blocks, size_t start, size_t end,
+                       int width, linelist_t *out)
+{
+    linelist_t hdr;
+    memset(&hdr, 0, sizeof(hdr));
+    layout_single_block(blocks, start, width, &hdr);
+
+    size_t hdr_w = hdr.n > 0 ? line_display_width(&hdr.v[hdr.n - 1]) : 0;
+
+    int inner_max = width > 5 ? width - 5 : 1;
+    linelist_t body;
+    memset(&body, 0, sizeof(body));
+    for (size_t k = start + 1; k < end; k++) {
+        if (k > start + 1) {
+            const tam_block_t *b = &blocks->v[k];
+            const tam_block_t *prev = &blocks->v[k - 1];
+            int tight = (b->kind == B_LIST && prev->kind == B_LIST &&
+                         b->level == prev->level) ||
+                        (b->kind == B_DD && prev->kind == B_DT) ||
+                        (b->kind == B_PRE && prev->kind == B_DT);
+            if (!tight) {
+                body.logical_block = k;
+                body.logical_offset = 0;
+                linelist_blank(&body);
+            }
+        }
+        layout_single_block(blocks, k, inner_max, &body);
+    }
+
+    size_t max_body_w = 0;
+    for (size_t k = 0; k < body.n; k++) {
+        size_t w = line_display_width(&body.v[k]);
+        if (w > max_body_w) {
+            max_body_w = w;
+        }
+    }
+
+    size_t box_inner_w = max_body_w;
+    if (hdr_w >= 2 && box_inner_w < hdr_w - 2) {
+        box_inner_w = hdr_w - 2;
+    }
+
+    for (size_t k = 0; k + 1 < hdr.n; k++) {
+        out->logical_block = hdr.v[k].logical_block;
+        out->logical_offset = hdr.v[k].logical_offset;
+        linelist_grow(out);
+        out->v[out->n++] = hdr.v[k];
+    }
+    if (hdr.n > 0) {
+        tam_line_t top = hdr.v[hdr.n - 1];
+        size_t total_w = 5 + box_inner_w;
+        size_t dashes = total_w > hdr_w + 2 ? total_w - hdr_w - 2 : 1;
+        spanlist_t sl = { .v = top.spans, .n = top.nspans, .cap = top.nspans };
+        char *tail = malloc(1 + dashes + 2);
+        if (tail != NULL) {
+            tail[0] = ' ';
+            memset(tail + 1, '-', dashes);
+            tail[1 + dashes] = '+';
+            tail[2 + dashes] = '\0';
+            spanlist_append(&sl, tail, dashes + 2, 0, NULL, 0);
+            free(tail);
+        }
+        out->logical_block = start;
+        out->logical_offset = 0;
+        linelist_push(out, &sl);
+    }
+    free(hdr.v);
+
+    layout_box_push_border(out, start + 1 < end ? start + 1 : start,
+                           " |", ' ', box_inner_w + 2, "|");
+
+    for (size_t k = 0; k < body.n; k++) {
+        tam_line_t *bl = &body.v[k];
+        size_t lw = line_display_width(bl);
+        size_t rpad = box_inner_w > lw ? box_inner_w - lw + 1 : 1;
+        tam_span_t *spans = malloc((bl->nspans + 2) * sizeof(*spans));
+        if (spans != NULL) {
+            spans[0] = (tam_span_t){ .text = strdup(" | ") };
+            for (size_t m = 0; m < bl->nspans; m++) {
+                spans[1 + m] = bl->spans[m];
+            }
+            char *right = malloc(rpad + 2);
+            if (right != NULL) {
+                memset(right, ' ', rpad);
+                right[rpad] = '|';
+                right[rpad + 1] = '\0';
+            }
+            spans[1 + bl->nspans] = (tam_span_t){ .text = right };
+            free(bl->spans);
+            out->logical_block = bl->logical_block;
+            out->logical_offset = bl->logical_offset;
+            linelist_grow(out);
+            out->v[out->n++] = (tam_line_t){
+                .spans = spans,
+                .nspans = bl->nspans + 2,
+                .logical_block = bl->logical_block,
+                .logical_offset = bl->logical_offset
+            };
+        }
+    }
+    free(body.v);
+
+    layout_box_push_border(out, end - 1, " |", ' ', box_inner_w + 2, "|");
+    layout_box_push_border(out, end - 1, " +", '-', box_inner_w + 2, "+");
+}
+
 static void layout_document(const blocklist_t *blocks, int width,
                             linelist_t *out)
 {
     if (width < 1) width = 1;
 
-    for (size_t i = 0; i < blocks->n; i++) {
-        out->logical_block = i;
-        out->logical_offset = 0;
+    for (size_t i = 0; i < blocks->n;) {
         const tam_block_t *b = &blocks->v[i];
         if (i > 0) {
             const tam_block_t *prev = &blocks->v[i - 1];
-            int tight = (b->kind == B_LIST && prev->kind == B_LIST &&
-                         b->level == prev->level) ||
-                        (b->kind == B_DD && prev->kind == B_DT) ||
-                        (b->kind == B_PRE && prev->kind == B_DT) ||
-                        (prev->kind == B_META && (b->kind == B_META ||
-                         b->kind == B_HEAD));
+            int tight = b->box == 0 && prev->box == 0 &&
+                        ((b->kind == B_LIST && prev->kind == B_LIST &&
+                          b->level == prev->level) ||
+                         (b->kind == B_DD && prev->kind == B_DT) ||
+                         (b->kind == B_PRE && prev->kind == B_DT) ||
+                         (prev->kind == B_META && (b->kind == B_META ||
+                          b->kind == B_HEAD)));
             if (!tight) {
+                out->logical_block = i;
+                out->logical_offset = 0;
                 linelist_blank(out);
             }
         }
-
-        if (b->kind == B_HR) {
-            spanlist_t l;
-            spanlist_init(&l);
-            int n = width < 72 ? width : 72;
-            if (n < 3) {
-                n = 3;
+        if (b->box > 0) {
+            size_t end = i + 1;
+            while (end < blocks->n && blocks->v[end].box == b->box) {
+                end++;
             }
-            char *dash = malloc((size_t)n + 1);
-            memset(dash, '-', (size_t)n);
-            dash[n] = '\0';
-            spanlist_append(&l, dash, (size_t)n, 0, NULL, 0);
-            free(dash);
-            linelist_push(out, &l);
+            layout_box(blocks, i, end, width, out);
+            i = end;
             continue;
         }
-        if (b->kind == B_PRE) {
-            layout_pre(out, b->runs, b->nruns, width);
-            continue;
-        }
-        if (b->kind == B_TABLE && b->table != NULL) {
-            layout_table(out, b->table, width);
-            continue;
-        }
-        char pfx[80];
-        block_prefix(b, pfx, sizeof(pfx));
-        size_t first = out->n;
-        layout_flow(out, b->runs, b->nruns, width, pfx);
-        if (b->kind == B_META && out->n == first + 1) {
-            align_right(&out->v[first], width);
-        } else if (b->kind == B_PARA && b->level == ALIGN_CENTER) {
-            for (size_t ln = first; ln < out->n; ln++) {
-                align_center(&out->v[ln], width);
-            }
-        } else if (b->kind == B_PARA && b->level == ALIGN_RIGHT) {
-            for (size_t ln = first; ln < out->n; ln++) {
-                align_right(&out->v[ln], width);
-            }
-        }
+        layout_single_block(blocks, i, width, out);
+        i++;
     }
 }
 
@@ -2170,7 +2339,8 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     if (p.curr_table != NULL) {
         parser_finish_cell(&p);
         if (p.curr_table->nrows > 0) {
-            blocklist_add_table(&p.blocks, p.curr_table);
+            int box = p.box_depth > 0 ? p.box_seq : 0;
+            blocklist_add_table(&p.blocks, box, p.curr_table);
         } else {
             table_free(p.curr_table);
         }

@@ -146,7 +146,8 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
                 if (strcmp(summary.name, "summary")) summary.name[0] = 0;
                 else { summary_end = matching(s, end.start, summary); body = summary_end.end; }
             }
-            const char *label = cls(s, t, "first-time") ? "New to this?" :
+            int first_time = !strcmp(t.name, "aside") && cls(s, t, "first-time");
+            const char *label = first_time ? "You may want to know..." :
                 cls(s, t, "solution") ? "Solution" : cls(s, t, "hint") ? "Hint" :
                 cls(s, t, "q") && cls(s, t, "open") ? "Model answer" : "Answer";
             char value[32] = "0", line[160];
@@ -158,11 +159,14 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
             x->folds = next;
             x->folds[x->nfolds++] = (tam_fold_t){ id, cls(s, t, "q"), opened };
             str(out, "<div"); add(out, s + t.attrs, t.end - t.attrs);
-            str(out, "<p>");
-            if (x->pipe) { snprintf(line, sizeof(line), "%u. ", id); str(out, line); }
-            if (summary.name[0]) add(out, s + summary.end, summary_end.start - summary.end);
-            else str(out, label);
-            str(out, "</p>");
+            if (!x->pipe && first_time && opened) str(out, "<tam-box>");
+            if (x->pipe || summary.name[0] || !first_time) {
+                str(out, "<p>");
+                if (x->pipe) { snprintf(line, sizeof(line), "%u. ", id); str(out, line); }
+                if (summary.name[0]) add(out, s + summary.end, summary_end.start - summary.end);
+                else str(out, label);
+                str(out, "</p>");
+            }
             if (!x->pipe) {
                 /* The hint names the arrow keys; +, -, Enter, r and * also work. */
                 snprintf(line, sizeof(line),
@@ -179,6 +183,7 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
                 str(answers, line); add(answers, content.s ? content.s : "", content.n);
                 add(answers, nested_answers.s, nested_answers.n);
             } else if (opened) add(out, content.s ? content.s : "", content.n);
+            if (!x->pipe && first_time && opened) str(out, "</tam-box>");
             if (content.failed || nested_answers.failed) out->failed = 1;
             free(nested_answers.s);
             free(content.s);

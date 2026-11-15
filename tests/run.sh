@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.9' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.10' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -2283,6 +2283,66 @@ for block in ("ASIDE", "PARAGRAPH", "ITEM", "PRE", "QUESTION", "ANSWER", "DIV", 
 assert "NESTED_DIV" in s and "SHARED_ANSWER" in s, s
 PYFOLD
 pass "folds: pipe answers collected, non-terminal show, stable IDs and block-level filtering"
+
+# First-time aside: closed label without duplicate heading, and boxed layout when open.
+python3 - "$TAM" "$root/tests/fixtures/guide" <<'PYASIDE'
+import fcntl, os, pty, re, select, shutil, struct, subprocess, sys, tempfile, termios, time
+
+tam, guide = sys.argv[1:]
+def strip_ansi(s):
+    s = re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", s)
+    s = re.sub(r"\x1b\([A-Za-z0-9]", "", s)
+    s = re.sub(r"\x1b\][^\x07]*\x07", "", s)
+    return s
+
+with tempfile.TemporaryDirectory() as td:
+    gdir = os.path.join(td, "guide")
+    shutil.copytree(guide, gdir)
+    with open(os.path.join(gdir, "aside.html"), "w") as f:
+        f.write(
+            "<!doctype html><html><head><title>Aside fixture</title></head><body>\n"
+            "<h1>Aside fixture</h1>\n"
+            "<aside class=\"first-time\">\n"
+            "<p>Text goes here, with one line above and below and one space padding left and right.</p>\n"
+            "<p>Size of box depends on longest line. Long lines do word wrapping as normal.</p>\n"
+            "</aside>\n"
+            "</body></html>\n"
+        )
+    master, slave = pty.openpty()
+    fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 95, 0, 0))
+    env = {**os.environ, "TAM_KNOWLEDGE_DIR": gdir, "TERM": "xterm-256color"}
+    proc = subprocess.Popen([tam, "show", "aside.html"], stdin=slave, stdout=slave, stderr=slave, env=env, close_fds=True)
+    os.close(slave)
+    def drain(timeout=0.3, quiet=0.02):
+        buf = bytearray()
+        deadline = time.monotonic() + timeout
+        while True:
+            wait = quiet if buf else max(0.0, deadline - time.monotonic())
+            r, _, _ = select.select([master], [], [], wait)
+            if not r:
+                break
+            try:
+                part = os.read(master, 65536)
+            except OSError:
+                break
+            if not part:
+                break
+            buf.extend(part)
+        return strip_ansi(buf.decode("utf-8", "replace"))
+    closed = drain()
+    assert "[+] You may want to know... (-> to show)" in closed, closed
+    assert "New to this?" not in closed, closed
+    os.write(master, b"*")
+    opened = drain()
+    assert "[-] You may want to know... (<- to hide) ----------------------------------------------+" in opened, opened
+    assert " | Text goes here, with one line above and below and one space padding left and right. |" in opened, opened
+    assert " | Size of box depends on longest line. Long lines do word wrapping as normal.         |" in opened, opened
+    assert " +-------------------------------------------------------------------------------------+" in opened, opened
+    os.write(master, b"q")
+    proc.wait(timeout=2)
+    os.close(master)
+PYASIDE
+pass "first-time aside: single toggle label when closed and boxed layout when open"
 
 # Explain command: curated topics resolve, bare explain lists topics, and errors report cleanly.
 ex_out=$("$TAM" explain pipelines --pipe)

@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) changes `<aside class="first-time">` to display `[+] You may want to know... (-> to show)` without a duplicate heading when closed and surrounds open first-time asides with a word-wrapped ASCII box in `src/fold.c` and `src/render.c` (command 0.59.10). [Record](docs/ai/2026-11-15-tam-first-time-aside-box.md).
+
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) keeps the attention line and viewport anchored on the focused lens line across lens changes in `src/pager_nav.c` and `src/pager_input.c` (command 0.59.9). [Record](docs/ai/2026-11-15-tam-lens-line-anchor.md).
 
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) simplifies lens lines to `Showing <level> text` / `Hiding <level> text` and cycles lenses 0–3 on Left/Right/Return when focused in `src/depth.c`, `src/pager_nav.c`, and `src/pager_input.c` (command 0.59.8). [Record](docs/ai/2026-11-15-tam-lens-line-cycling.md).
