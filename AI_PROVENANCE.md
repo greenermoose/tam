@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) keeps the attention line and viewport anchored on the focused lens line across lens changes in `src/pager_nav.c` and `src/pager_input.c` (command 0.59.9). [Record](docs/ai/2026-11-15-tam-lens-line-anchor.md).
+
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) simplifies lens lines to `Showing <level> text` / `Hiding <level> text` and cycles lenses 0–3 on Left/Right/Return when focused in `src/depth.c`, `src/pager_nav.c`, and `src/pager_input.c` (command 0.59.8). [Record](docs/ai/2026-11-15-tam-lens-line-cycling.md).
 
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) highlights the breadcrumb row as the attention line when focused in `src/pager_draw.c` (command 0.59.7). [Record](docs/ai/2026-11-15-tam-breadcrumb-attention-line.md).

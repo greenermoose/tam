@@ -737,38 +737,6 @@ void toggle_all_folds(pager_t *st)
     if (reload_in_place(st)) fold_message(st);
 }
 
-void set_lens(pager_t *st, unsigned char key)
-{
-    unsigned level = 0;
-    if (!tam_level_parse_arg((char[]){ (char)key, '\0' }, &level)) {
-        return;
-    }
-    int number = tam_level_number(level);
-    const char *label = tam_level_label(level);
-    if (level == st->lens) {
-        snprintf(st->msg, sizeof(st->msg), "already at Level %d %s", number,
-                 label);
-        return;
-    }
-    st->lens = level;
-    tam_lens_set(level);
-    if (!lens_href(st->cur_href) || !reload_in_place(st)) {
-        snprintf(st->msg, sizeof(st->msg),
-                 "Level %d %s set; this page has one level", number, label);
-        return;
-    }
-    if (st->doc->levels != 0 && level != 0 && !(st->doc->levels & level))
-        snprintf(st->msg, sizeof(st->msg),
-                 "Level %d %s set; this page has no %s text", number,
-                 label, label);
-    else if (st->doc->hidden > 0)
-        snprintf(st->msg, sizeof(st->msg), "Level %d %s: %d section%s hidden",
-                 number, label, st->doc->hidden,
-                 st->doc->hidden == 1 ? "" : "s");
-    else
-        snprintf(st->msg, sizeof(st->msg), "Level %d %s set", number, label);
-}
-
 static int is_lens_line(const tam_line_t *line)
 {
     if (line == NULL) {
@@ -794,22 +762,19 @@ int lens_line_here(const pager_t *st)
     return is_lens_line(&st->doc->lines[st->cursor_line]);
 }
 
-void cycle_lens(pager_t *st, int dir)
+static size_t lens_line_ordinal(const pager_t *st)
 {
-    if (!lens_line_here(st)) {
-        return;
-    }
     size_t ord = 0;
     for (int i = 0; i < st->cursor_line; i++) {
         if (is_lens_line(&st->doc->lines[i])) {
             ord++;
         }
     }
-    int cursor_row = st->cursor_line - st->top;
-    int cur = tam_level_number(st->lens);
-    int next = (cur + (dir < 0 ? 3 : 1)) % 4;
-    set_lens(st, (unsigned char)('0' + next));
+    return ord;
+}
 
+static void anchor_to_lens_line(pager_t *st, size_t ord, int cursor_row)
+{
     if (st->doc == NULL || st->doc->lines == NULL) {
         return;
     }
@@ -824,16 +789,68 @@ void cycle_lens(pager_t *st, int dir)
             seen++;
         }
     }
-    if (target >= 0) {
-        int usable = content_rows(st);
-        int max_top = (int)st->doc->nlines - usable;
-        if (max_top < 0) max_top = 0;
-        int top = target - cursor_row;
-        if (top < 0) top = 0;
-        if (top > max_top) top = max_top;
-        st->top = top;
-        set_cursor_line(st, target, dir < 0 ? -1 : 1);
+    if (target < 0) {
+        return;
     }
+    int usable = content_rows(st);
+    if (cursor_row < 0) cursor_row = 0;
+    if (cursor_row >= usable) cursor_row = usable - 1;
+    int max_top = (int)st->doc->nlines - usable;
+    if (max_top < 0) max_top = 0;
+    int top = target - cursor_row;
+    if (top < 0) top = 0;
+    if (top > max_top) top = max_top;
+    st->top = top;
+    set_cursor_line(st, target, 1);
+}
+
+void set_lens(pager_t *st, unsigned char key)
+{
+    unsigned level = 0;
+    if (!tam_level_parse_arg((char[]){ (char)key, '\0' }, &level)) {
+        return;
+    }
+    int number = tam_level_number(level);
+    const char *label = tam_level_label(level);
+    if (level == st->lens) {
+        snprintf(st->msg, sizeof(st->msg), "already at Level %d %s", number,
+                 label);
+        return;
+    }
+    int on_lens = lens_line_here(st);
+    size_t ord = on_lens ? lens_line_ordinal(st) : 0;
+    int cursor_row = st->cursor_line - st->top;
+
+    st->lens = level;
+    tam_lens_set(level);
+    if (!lens_href(st->cur_href) || !reload_in_place(st)) {
+        snprintf(st->msg, sizeof(st->msg),
+                 "Level %d %s set; this page has one level", number, label);
+        return;
+    }
+    if (on_lens) {
+        anchor_to_lens_line(st, ord, cursor_row);
+    }
+    if (st->doc->levels != 0 && level != 0 && !(st->doc->levels & level))
+        snprintf(st->msg, sizeof(st->msg),
+                 "Level %d %s set; this page has no %s text", number,
+                 label, label);
+    else if (st->doc->hidden > 0)
+        snprintf(st->msg, sizeof(st->msg), "Level %d %s: %d section%s hidden",
+                 number, label, st->doc->hidden,
+                 st->doc->hidden == 1 ? "" : "s");
+    else
+        snprintf(st->msg, sizeof(st->msg), "Level %d %s set", number, label);
+}
+
+void cycle_lens(pager_t *st, int dir)
+{
+    if (!lens_line_here(st)) {
+        return;
+    }
+    int cur = tam_level_number(st->lens);
+    int next = (cur + (dir < 0 ? 3 : 1)) % 4;
+    set_lens(st, (unsigned char)('0' + next));
 }
 
 int is_help_page(const char *href)

@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.8' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.9' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -1876,32 +1876,45 @@ assert saved(state) == "learner", saved(state)
 
 # Moving attention to an in-page lens line and pressing Return, Right Arrow, f, j
 # increments (2->3->0->1->2) and Left Arrow, a, ; decrements (2->1->0->3->2),
-# toggling the section on or off while keeping attention on that lens line.
+# toggling the section on or off while keeping attention on that lens line
+# and keeping the attention line visible in the viewport.
+import re
+def assert_attention_visible(screen, expected_lens):
+    assert expected_lens in screen, (expected_lens, screen)
+    m = re.search(r"L(\d+) (\d+)-(\d+)/(\d+)", screen)
+    assert m, f"missing line/range in screen: {screen}"
+    line_no, first_no, last_no = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    assert first_no <= line_no <= last_no, f"attention line L{line_no} outside {first_no}-{last_no}: {screen}"
+
 p.key(b".")
 for _ in range(6):
     p.key(b"k")
 b_ret = p.key(b"\r")
-assert "0123 showing Expert text" in b_ret, b_ret
+assert_attention_visible(b_ret, "0123 showing Expert text")
 assert saved(state) == "expert", saved(state)
 b_arr = p.key(b"\x1b[C")
-assert "0123 showing All text" in b_arr, b_arr
+assert_attention_visible(b_arr, "0123 showing All text")
 assert saved(state) == "all", saved(state)
 b_f = p.key(b"f")
-assert "0123 showing Novice text" in b_f, b_f
+assert_attention_visible(b_f, "0123 showing Novice text")
 assert saved(state) == "novice", saved(state)
 b_j = p.key(b"j")
-assert "0123 showing Learner text" in b_j, b_j
+assert_attention_visible(b_j, "0123 showing Learner text")
 assert saved(state) == "learner", saved(state)
 b_left = p.key(b"\x1b[D")
-assert "0123 showing Novice text" in b_left, b_left
+assert_attention_visible(b_left, "0123 showing Novice text")
 assert saved(state) == "novice", saved(state)
 b_a = p.key(b"a")
-assert "0123 showing All text" in b_a, b_a
+assert_attention_visible(b_a, "0123 showing All text")
 assert saved(state) == "all", saved(state)
 b_semi = p.key(b";")
-assert "0123 showing Expert text" in b_semi, b_semi
+assert_attention_visible(b_semi, "0123 showing Expert text")
 assert saved(state) == "expert", saved(state)
-p.key(b"2")
+# Direct digit keys on a lens line also keep attention on that lens line.
+b_one = p.key(b"1")
+assert_attention_visible(b_one, "0123 showing Novice text")
+b_two = p.key(b"2")
+assert_attention_visible(b_two, "0123 showing Learner text")
 assert saved(state) == "learner", saved(state)
 
 # The lens holds across a link to a single-level page, which opens under a

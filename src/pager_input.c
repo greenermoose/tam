@@ -172,11 +172,6 @@ static void pager_right_arrow(pager_t *st)
  * action code. This keeps arrow/page keys working without a full key table. */
 static void handle_key_inner(pager_t *st, unsigned char c)
 {
-    int usable = content_rows(st);
-    int max_top = (int)st->doc->nlines - usable;
-    if (max_top < 0) {
-        max_top = 0;
-    }
 
     switch (c) {
     case 'q':
@@ -377,6 +372,11 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         break;
     }
 
+    int usable = content_rows(st);
+    int max_top = st->doc != NULL ? (int)st->doc->nlines - usable : 0;
+    if (max_top < 0) {
+        max_top = 0;
+    }
     if (st->top < 0) {
         st->top = 0;
     }
