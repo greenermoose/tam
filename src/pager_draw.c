@@ -573,7 +573,7 @@ int draw(pager_t *st)
         }
     }
 
-    /* F1: lens digits + keys + version. */
+    /* F1: keys + lens digits + version. */
     int lens_number = tam_level_number(st->lens);
     int underline = g_term != NULL && g_term->underline != NULL &&
                     (g_term->ncv < 0 || !(g_term->ncv & 2));
@@ -594,7 +594,7 @@ int draw(pager_t *st)
         strncat(lens_part, " (not on page)", sizeof(lens_part) - strlen(lens_part) - 1);
 
     static const char *const keys[] = {
-        "h Help  Esc Quit  [] Select links  asdf jkl; Navigate", "h Help  Esc Quit"
+        "asdf jkl; Navigate  [] Select links  h Help  q Quit", "h Help  q Quit"
     };
     int ver_w = (int)tam_display_width(st->version, strlen(st->version));
     int lens_w = (int)tam_display_width(lens_part, strlen(lens_part));
@@ -603,15 +603,14 @@ int draw(pager_t *st)
     for (size_t k = 0; k < sizeof(keys) / sizeof(keys[0]) && key_text == NULL; k++)
         if ((int)tam_display_width(keys[k], strlen(keys[k])) + 3 <= room)
             key_text = keys[k];
-    if (key_text != NULL)
-        room -= (int)tam_display_width(key_text, strlen(key_text)) + 3;
 
-    snprintf(footer1, sizeof(footer1), "%s", lens_part);
-    /* lens_part starts footer1, so digit_at is already absolute. */
-    lens_digit = digit_at;
     if (key_text != NULL) {
-        strncat(footer1, " | ", sizeof(footer1) - strlen(footer1) - 1);
-        strncat(footer1, key_text, sizeof(footer1) - strlen(footer1) - 1);
+        snprintf(footer1, sizeof(footer1), "%s | ", key_text);
+        lens_digit = strlen(footer1) + digit_at;
+        strncat(footer1, lens_part, sizeof(footer1) - strlen(footer1) - 1);
+    } else {
+        snprintf(footer1, sizeof(footer1), "%s", lens_part);
+        lens_digit = digit_at;
     }
     if (ver_w > 0) {
         int used = (int)tam_display_width(footer1, strlen(footer1));

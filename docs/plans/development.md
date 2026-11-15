@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-15:** Command 0.59.5 (patch): Reorder the bottom status row in `src/pager_draw.c` to place keybindings first (`asdf jkl; Navigate  [] Select links  h Help  q Quit`, narrow fallback `h Help  q Quit`) followed by ` | ` and the lens (`0123 showing ...`), with the version right-aligned.
 - **2026-11-15:** Command 0.59.4 (patch): Keep unspaced inline clusters (such as `"<i>synonyms</i>",`) together across line wraps in `layout_flow` and `wrap_cell` in `src/render.c`.
 - **2026-11-15:** Command 0.59.3 (patch): Fix `layout_flow` and `wrap_cell` in `src/render.c` to insert word-separator spaces only when `had_space` is set, preventing extra spaces around inline tags such as `"<i>synonyms</i>"`.
 - **2026-11-14:** Command 0.59.2 (patch): Update `tam:catalog` wording in `src/views.c` (`Guide > Catalog`, `All Pages A to Z`, `Page` / `Subject Matter` table headers) and remove the intro paragraph.

@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.4' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.5' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -845,9 +845,9 @@ buf = drain_pty(master, timeout=0.1, quiet=0.01)
 
 # 1. Reading telemetry: verify status line contains position metric
 assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {buf}"
-# The status row lists only Help, Quit and link selection, then the version.
-assert b"h Help  Esc Quit  [] Select links" in buf, f"status line missing key hints: {buf}"
-assert b"/ n/N" not in buf and b"q Quit" not in buf, f"status line kept old hints: {buf}"
+# The status row lists Navigate, Select links, Help and Quit, then the lens and version.
+assert b"asdf jkl; Navigate  [] Select links  h Help  q Quit | " in buf and b"123 showing All text" in buf, f"status line missing key hints: {buf}"
+assert b"/ n/N" not in buf and b"Esc Quit" not in buf, f"status line kept old hints: {buf}"
 assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)(?:\x1b\(B\x1b\[m)?\x1b\[K", buf), f"status line missing version: {buf}"
 
 # 2. In-pager text search: search for "redirection"
@@ -1978,7 +1978,7 @@ b = p.key(b"1")
 assert "Level 1 Novice set; this page has one level" in b, b
 p.quit()
 
-# Footer: the lower row leads with the lens, "0123 showing Novice text", at
+# Footer: the lower row shows the lens, "0123 showing Novice text", at
 # every width; the row above holds the line and range.
 for cols in (120, 80, 40):
     p = Pager(["show", "shell/pipelines"], state, cols=cols)
@@ -1986,7 +1986,7 @@ for cols in (120, 80, 40):
     b = p.key(b"x")
     text = p.first + b
     at = max(text.rfind("L1 "), text.rfind("Lb "))
-    status = text[at:at + 60] if at >= 0 else ""
+    status = text[at:] if at >= 0 else ""
     assert "0123 showing Novice text" in status, f"{cols} columns: {status!r}"
     p.quit()
 
