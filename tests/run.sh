@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.13' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.14' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -2147,8 +2147,38 @@ for exp in [
     " +-----------------------------------------------------------+",
 ]:
     assert exp in b, (exp, b)
-assert "1-13/13" in b, b
+assert "1-17/17" in b, b
 p.quit()
+
+# <p> and <h1>..<h6> render with one blank line before (unless first) and after (unless last);
+# <section> does not suppress blank lines around <p> or headings.
+p = Pager(["show", "-"], state, env={"TAM_LEVEL": "all"}, cols=80, stdin=(
+    b"<table><tr><td><code>q</code></td><td>quit</td></tr></table>\n"
+    b"<p><section class=\"quiz\">\n"
+    b"<details class=\"q\">\n"
+    b"<summary><i>When you read this guide, how much detail do you want?</i></summary>\n"
+    b"<section data-level=\"novice\"><code>1</code> Novice text only</section>\n"
+    b"</details>\n"
+    b"</section></p>\n"
+    b"<p>nextline</p>"
+))
+assert "When you read this guide, how much detail do you want?" in p.first, p.first
+assert "[+] Answer (-> to show)" in p.first, p.first
+assert "nextline" in p.first, p.first
+assert "1-6/6" in p.first, p.first
+p.quit()
+
+import subprocess
+pipe_out = subprocess.check_output(
+    [tam, "show", "--pipe", "-"],
+    input="<h1>H1</h1><h2>H2</h2><h3>H3</h3><h4>H4</h4><h5>H5</h5><h6>H6</h6><p>Last</p>",
+    env={**os.environ, "TAM_KNOWLEDGE_DIR": guide, "XDG_STATE_HOME": state},
+    text=True,
+)
+hlines = [ln.rstrip() for ln in pipe_out.splitlines()]
+assert hlines == [
+    "H1", "", "H2", "", "H3", "", "H4", "", "H5", "", "H6", "", "Last"
+], hlines
 ' "$TAM" "$root/tests/fixtures/guide" "$root/tests/fixtures/tldr" "$tmp" || fail "interactive pager level lens test failed"
     pass "level lens: 0-3 persist across links, Back and restarts; TAM_LEVEL and --level override; level line, markers and status row"
 

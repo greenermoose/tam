@@ -1,5 +1,6 @@
 # AI collaboration and provenance
 
+2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) preserves blank lines around `<p>` and `<h1>`–`<h6>` (removing `tight_next` on `<section>`), extends heading parsing to `<h1>`–`<h6>`, and ignores blank separator lines for box `B_META` right-alignment in `src/render.c` (command 0.59.14). [Record](docs/ai/2026-11-15-tam-p-and-heading-blank-lines.md).
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) suppresses the blank line above opened answer boxes with `<tam-box class="tight">` in `src/fold.c` and `src/render.c` (command 0.59.13). [Record](docs/ai/2026-11-15-tam-quiz-section-box-spacing.md).
 
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) omits the blank line between quiz summary and closed toggle in `src/fold.c`, omits extra blank lines around `<section>` boundaries, and right-aligns `Showing <level> text` inside `<tam-box>` to the box's content width in `src/render.c` (command 0.59.12). [Record](docs/ai/2026-11-15-tam-quiz-section-box-spacing.md).

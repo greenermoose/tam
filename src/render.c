@@ -815,12 +815,8 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
         parser_end_block(p);
         return;
     }
-    if (strcmp(name, "section") == 0) {
-        parser_end_block(p);
-        p->tight_next = 1;
-        return;
-    }
-    if (strcmp(name, "article") == 0 || strcmp(name, "div") == 0) {
+    if (strcmp(name, "section") == 0 || strcmp(name, "article") == 0 ||
+        strcmp(name, "div") == 0) {
         parser_end_block(p);
         return;
     }
@@ -867,7 +863,7 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
         }
         return;
     }
-    if (name[0] == 'h' && name[1] >= '1' && name[1] <= '3' && name[2] == '\0') {
+    if (name[0] == 'h' && name[1] >= '1' && name[1] <= '6' && name[2] == '\0') {
         if (closing) {
             parser_end_block(p);
         } else {
@@ -2253,9 +2249,11 @@ static void layout_box(const blocklist_t *blocks, size_t start, size_t end,
 
     for (size_t k = 0; k < body.n; k++) {
         size_t lb = body.v[k].logical_block;
-        if (blocks->v[lb].kind == B_META) {
-            int single = !(k > 0 && body.v[k - 1].logical_block == lb) &&
-                         !(k + 1 < body.n && body.v[k + 1].logical_block == lb);
+        if (blocks->v[lb].kind == B_META && body.v[k].nspans > 0) {
+            int single = !(k > 0 && body.v[k - 1].nspans > 0 &&
+                           body.v[k - 1].logical_block == lb) &&
+                         !(k + 1 < body.n && body.v[k + 1].nspans > 0 &&
+                           body.v[k + 1].logical_block == lb);
             if (single) {
                 align_right(&body.v[k], (int)box_inner_w);
             }
