@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.5' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.6' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -1842,8 +1842,9 @@ assert saved(state) is None, "pressing the current lens wrote state"
 # 2 re-renders in place: level line, hidden-section markers, status, message.
 b = p.key(b"2")
 assert "2 Showing learner text" in b, b
-assert "Hiding novice text (01 show)" in b, b
-assert "Hiding expert text (03 show)" in b, b
+assert "01 show novice text" in b, b
+assert "13 hide learner text" in b, b
+assert "03 show expert text" in b, b
 assert "Level 2 Learner: 2 sections hidden" in b, b
 assert "0123 showing Learner text" in b, b
 assert saved(state) == "learner", saved(state)
@@ -1944,25 +1945,26 @@ assert "0 Showing all text" in p.first, p.first
 
 # Pressing 0, 1, 2, 3 in the pager selects each level and updates line b with distinct highlighting.
 assert b"\x1b[36m0" in p.last_raw and b"\x1b[36m all" in p.last_raw, f"level 0 not cyan: {p.last_raw}"
+assert "23 hide novice text" in p.first, p.first
 b1 = p.key(b"1")
 assert "1 Showing novice text" in b1, b1
-assert "Hiding learner text (02 show)" in b1, b1
-assert "Hiding expert text (03 show)" in b1, b1
+assert "02 show learner text" in b1, b1
+assert "03 show expert text" in b1, b1
 assert b"\x1b[32m1" in p.last_raw and b"\x1b[32m novice" in p.last_raw, f"level 1 not green: {p.last_raw}"
-assert b"\x1b[33m learner" in p.last_raw, f"hiding learner not yellow: {p.last_raw}"
-assert b"\x1b[35m expert" in p.last_raw, f"hiding expert not magenta: {p.last_raw}"
+assert b"\x1b[33m learner text" in p.last_raw, f"show learner text not yellow: {p.last_raw}"
+assert b"\x1b[35m expert text" in p.last_raw, f"show expert text not magenta: {p.last_raw}"
 b2 = p.key(b"2")
 assert "2 Showing learner text" in b2, b2
-assert "Hiding novice text (01 show)" in b2, b2
-assert "Hiding expert text (03 show)" in b2, b2
+assert "01 show novice text" in b2, b2
+assert "13 hide learner text" in b2, b2
 assert b"\x1b[33m2" in p.last_raw and b"\x1b[33m learner" in p.last_raw, f"level 2 not yellow: {p.last_raw}"
-assert b"\x1b[32m novice" in p.last_raw, f"hiding novice not green: {p.last_raw}"
-assert b"\x1b[35m expert" in p.last_raw, f"hiding expert not magenta: {p.last_raw}"
+assert b"\x1b[32m novice text" in p.last_raw, f"show novice text not green: {p.last_raw}"
 b3 = p.key(b"3")
 assert "3 Showing expert text" in b3, b3
-assert "Hiding learner text (02 show)" in b3, b3
+assert "02 show learner text" in b3, b3
+assert "12 hide expert text" in b3, b3
 assert b"\x1b[35m3" in p.last_raw and b"\x1b[35m expert" in p.last_raw, f"level 3 not magenta: {p.last_raw}"
-assert b"\x1b[33m learner" in p.last_raw, f"hiding learner not yellow: {p.last_raw}"
+assert b"\x1b[33m learner text" in p.last_raw, f"show learner text not yellow: {p.last_raw}"
 b0 = p.key(b"0")
 assert "0 Showing all text" in b0, b0
 assert b"\x1b[36m0" in p.last_raw and b"\x1b[36m all" in p.last_raw, f"level 0 not cyan: {p.last_raw}"
@@ -2428,22 +2430,25 @@ sh_lvl_b=$(fixture_show --level novice pipelines --pipe)
 printf '%s\n' "$sh_lvl_b" | grep -q '^Novice' || fail "show --level novice pipelines failed"
 printf '%s\n' "$sh_lvl_b" | grep -q 'Use a pipe to count lines' || fail "show --level novice missing fixture content"
 if printf '%s\n' "$sh_lvl_b" | grep -q '^Expert'; then fail "novice level contains expert section"; fi
-printf '%s\n' "$sh_lvl_b" | grep -qE '^ +Hiding expert text \(03 show\)$' || fail "novice level missing hidden-section marker"
-printf '%s\n' "$sh_lvl_b" | grep -qE '^ +Hiding learner text \(02 show\)$' || fail "novice level missing learner hidden-section marker"
+printf '%s\n' "$sh_lvl_b" | grep -qE '^ +23 hide novice text$' || fail "novice level missing novice hide notice"
+printf '%s\n' "$sh_lvl_b" | grep -qE '^ +03 show expert text$' || fail "novice level missing hidden-section marker"
+printf '%s\n' "$sh_lvl_b" | grep -qE '^ +02 show learner text$' || fail "novice level missing learner hidden-section marker"
 
 sh_lvl_i=$(fixture_show --level learner pipelines --pipe)
 printf '%s\n' "$sh_lvl_i" | grep -q '^Learner' || fail "show --level learner pipelines failed"
 printf '%s\n' "$sh_lvl_i" | grep -q 'Redirection of standard error' || fail "show --level learner missing fixture content"
 if printf '%s\n' "$sh_lvl_i" | grep -q '^Novice'; then fail "learner level contains novice section"; fi
-printf '%s\n' "$sh_lvl_i" | grep -qE '^ +Hiding novice text \(01 show\)$' || fail "learner level missing novice hidden-section marker"
-printf '%s\n' "$sh_lvl_i" | grep -qE '^ +Hiding expert text \(03 show\)$' || fail "learner level missing expert hidden-section marker"
+printf '%s\n' "$sh_lvl_i" | grep -qE '^ +01 show novice text$' || fail "learner level missing novice hidden-section marker"
+printf '%s\n' "$sh_lvl_i" | grep -qE '^ +13 hide learner text$' || fail "learner level missing learner hide notice"
+printf '%s\n' "$sh_lvl_i" | grep -qE '^ +03 show expert text$' || fail "learner level missing expert hidden-section marker"
 
 sh_lvl_e=$(fixture_show --level expert pipelines --pipe)
 printf '%s\n' "$sh_lvl_e" | grep -q '^Expert' || fail "show --level expert pipelines failed"
 printf '%s\n' "$sh_lvl_e" | grep -q 'Every redirection is applied' || fail "show --level expert missing fixture content"
 if printf '%s\n' "$sh_lvl_e" | grep -q '^Novice'; then fail "expert level contains novice section"; fi
-printf '%s\n' "$sh_lvl_e" | grep -qE '^ +Hiding novice text \(01 show\)$' || fail "expert level missing novice hidden-section marker"
-printf '%s\n' "$sh_lvl_e" | grep -qE '^ +Hiding learner text \(02 show\)$' || fail "expert level missing learner hidden-section marker"
+printf '%s\n' "$sh_lvl_e" | grep -qE '^ +01 show novice text$' || fail "expert level missing novice hidden-section marker"
+printf '%s\n' "$sh_lvl_e" | grep -qE '^ +02 show learner text$' || fail "expert level missing learner hidden-section marker"
+printf '%s\n' "$sh_lvl_e" | grep -qE '^ +12 hide expert text$' || fail "expert level missing expert hide notice"
 
 # A page without the requested level opens under its level line, exit 0.
 sh_banner=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --level 2 welcome --pipe) \

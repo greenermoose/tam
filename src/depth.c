@@ -584,8 +584,6 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
     int hidden = 0;
     buf_t b = {0};
 
-    unsigned section_labels[128] = {0};
-    size_t nsections = 0;
     size_t i = 0;
     while (i < len) {
         if (src[i] == '<') {
@@ -609,16 +607,26 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                     if (filter != 0 && bit != 0 && bit != filter) {
                         size_t next = skip_block(src, len, e, block);
                         if (strcmp(block, "section") == 0) {
+                            int n = tam_level_number(bit);
                             char mark[128];
                             snprintf(mark, sizeof(mark),
-                                     "\n<p class=\"level-line\">Hiding <span class=\"lvl-%d\">%s</span> text (0%d show)</p>\n",
-                                     tam_level_number(bit), tam_level_name(bit),
-                                     tam_level_number(bit));
+                                     "\n<p class=\"level-line\">0%d show <span class=\"lvl-%d\">%s text</span></p>\n",
+                                     n, n, tam_level_name(bit));
                             buf_str(&b, mark);
                             hidden++;
                         }
                         i = next;
                         continue;
+                    }
+                    if (bit != 0 && strcmp(block, "section") == 0) {
+                        int n = tam_level_number(bit);
+                        int a = (n == 1) ? 2 : 1;
+                        int b_num = (n == 3) ? 2 : 3;
+                        char mark[128];
+                        snprintf(mark, sizeof(mark),
+                                 "\n<p class=\"level-line\">%d%d hide <span class=\"lvl-%d\">%s text</span></p>\n",
+                                 a, b_num, n, tam_level_name(bit));
+                        buf_str(&b, mark);
                     }
                 }
             }
@@ -633,22 +641,8 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
         }
         if (src[i] == '<') {
             size_t e = tag_end(src, len, i);
-            if (tag_is(src, len, i, "section", 0)) {
-                char value[32];
-                unsigned bit = tag_attr(src, i + 1, e, "data-level", value, sizeof(value))
-                    ? tam_level_parse(value) : 0;
-                if (nsections < 128) section_labels[nsections++] = level == 0 ? bit : 0;
-            } else if (tag_is(src, len, i, "section", 1) && nsections) nsections--;
             size_t stop = e < len ? e + 1 : len;
             buf_add(&b, src + i, stop - i);
-            if (nsections && section_labels[nsections - 1] &&
-                (tag_is(src, len, i, "h1", 0) || tag_is(src, len, i, "h2", 0) ||
-                 tag_is(src, len, i, "h3", 0))) {
-                unsigned bit = section_labels[nsections - 1];
-                char label[64];
-                snprintf(label, sizeof(label), "[%d %s] ", tam_level_number(bit), tam_level_label(bit));
-                buf_str(&b, label); section_labels[nsections - 1] = 0;
-            }
             i = stop;
         } else { buf_add(&b, src + i, 1); i++; }
     }

@@ -2108,7 +2108,7 @@ static void layout_document(const blocklist_t *blocks, int width,
                         (b->kind == B_DD && prev->kind == B_DT) ||
                         (b->kind == B_PRE && prev->kind == B_DT) ||
                         (prev->kind == B_META && (b->kind == B_META ||
-                         (b->kind == B_HEAD && b->level == 1)));
+                         b->kind == B_HEAD));
             if (!tight) {
                 linelist_blank(out);
             }

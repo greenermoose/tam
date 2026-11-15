@@ -778,19 +778,16 @@ int hiding_line_here(const pager_t *st)
         return 0;
     }
     const tam_line_t *line = &st->doc->lines[st->cursor_line];
-    int has_hiding = 0;
-    int has_show = 0;
     for (size_t i = 0; i < line->nspans; i++) {
         const char *t = line->spans[i].text;
         if (t == NULL) continue;
-        if (strstr(t, "Hiding") != NULL) {
-            has_hiding = 1;
-        }
-        if (strstr(t, " show)") != NULL) {
-            has_show = 1;
+        if (strstr(t, "01 show") != NULL ||
+            strstr(t, "02 show") != NULL ||
+            strstr(t, "03 show") != NULL) {
+            return 1;
         }
     }
-    return has_hiding && has_show;
+    return 0;
 }
 
 int is_help_page(const char *href)
