@@ -339,6 +339,10 @@ int pager_prompt_action(pager_t *st, const char *href, char *out,
         label = "tldr command: "; route = "tam:tldr:open?query=";
     } else if (strcmp(href, "tam:prompt:tldr-keyword") == 0) {
         label = "tldr keyword: "; route = "tam:tldr:keyword?query=";
+    } else if (strcmp(href, "tam:prompt:archwiki-open") == 0) {
+        label = "Arch Wiki page: "; route = "tam:archwiki:open?query=";
+    } else if (strcmp(href, "tam:prompt:archwiki-keyword") == 0) {
+        label = "Arch Wiki keyword: "; route = "tam:archwiki:keyword?query=";
     } else return 0;
 
     char input[128];

@@ -1251,6 +1251,18 @@ void tam_document_ensure_location(tam_document_t *doc, const char *href)
         location_append(doc, doc->title ? doc->title : href + 9, NULL);
         return;
     }
+    if (strncmp(href, "archwiki:", 9) == 0) {
+        location_append(doc, "Guide", "index.html");
+        location_append(doc, "Arch Wiki", "tam:archwiki");
+        location_append(doc, doc->title ? doc->title : href + 9, NULL);
+        return;
+    }
+    if (strncmp(href, "tam:archwiki:", 13) == 0) {
+        location_append(doc, "Guide", "index.html");
+        location_append(doc, "Arch Wiki", "tam:archwiki");
+        location_append(doc, doc->title ? doc->title : href + 13, NULL);
+        return;
+    }
     if (strncmp(href, "info:", 5) == 0) {
         const char *spec = href + 5;
         location_append(doc, "Guide", "index.html");

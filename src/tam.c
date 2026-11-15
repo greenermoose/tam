@@ -14,6 +14,7 @@
 #include "pager.h"
 #include "render.h"
 #include "tldr.h"
+#include "archwiki.h"
 #include "views.h"
 
 #include <errno.h>
@@ -168,6 +169,8 @@ static void print_tam_help(int tier)
             "      browse GNU Info manuals with hyperlinked menus and cross-references\n"
             "  tam tldr [COMMAND...] [--platform OS] [--pipe]\n"
             "      browse or view concise tldr command-example pages with hyperlinked references\n"
+            "  tam archwiki [PAGE...] [--list] [--search KEYWORD] [--pipe]\n"
+            "      browse or view offline Arch Wiki documentation with hyperlinked references\n"
             "  tam ask [--json] [--model MODEL] [--server URL] QUESTION\n"
             "      query a local AI model for answers from the guide to any question\n\n"
             "  tam upgrade [--check|--apply] [--channel STAGE] [--json]\n"
@@ -194,6 +197,7 @@ static void print_tam_help(int tier)
             "Environment:\n"
             "  TAM_KNOWLEDGE_DIR         override path to offline HTML guide corpus\n"
             "  TAM_TLDR_DIR              override path to offline curated tldr directory\n"
+            "  TAM_ARCHWIKI_DIR          override path to offline Arch Wiki HTML directory\n"
             "  TAM_ASK_MODEL             default local LLM name (default: qwen2.5-coder:1.5b)\n"
             "  TAM_ASK_SERVER            default local inference URL (default: http://127.0.0.1:11434)\n\n"
             "Run 'tam <subcommand> --help' for options specific to any subcommand.\n",
@@ -218,6 +222,7 @@ static void print_tam_help(int tier)
         "  tam man [SECTION] PAGE    view hyperlinked manual page\n"
         "  tam info [MANUAL [NODE]]  browse GNU Info manuals\n"
         "  tam tldr [COMMAND]        browse or view command example pages\n"
+        "  tam archwiki [PAGE]       browse or view offline Arch Wiki documentation\n"
         "  tam ask QUESTION          ask a local AI model (if available)\n\n"
         "System subcommands to try:\n"
         "  tam inspect               inspect system components\n"
@@ -495,7 +500,7 @@ static int cmd_show(int n, char **args)
     }
     tam_addr_kind_t kind = tam_addr_kind(page);
     if (kind == TAM_ADDR_MAN || kind == TAM_ADDR_INFO || kind == TAM_ADDR_TLDR ||
-        kind == TAM_ADDR_VIEW) {
+        kind == TAM_ADDR_ARCHWIKI || kind == TAM_ADDR_VIEW) {
         /* --level applies to a view that takes the lens and names none. */
         char addr[600];
         char named[32];
@@ -517,6 +522,8 @@ static int cmd_show(int n, char **args)
                 fprintf(stderr, TAM_COMMAND_NAME ": no info manual or node found for '%s'\n", page + 5);
             else if (kind == TAM_ADDR_TLDR)
                 fprintf(stderr, TAM_COMMAND_NAME ": no tldr page found for '%s'\n", page + 5);
+            else if (kind == TAM_ADDR_ARCHWIKI)
+                fprintf(stderr, TAM_COMMAND_NAME ": no Arch Wiki page found for '%s'\n", page + 9);
             else
                 fprintf(stderr, TAM_COMMAND_NAME ": could not open discovery page '%s'\n", page);
             free(root);
@@ -1059,6 +1066,9 @@ int main(int argc, char **argv)
     }
     if (strcmp(arg, "tldr") == 0) {
         return tam_cmd_tldr(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "archwiki") == 0) {
+        return tam_cmd_archwiki(argc - 2, argv + 2);
     }
     if (strcmp(arg, "ask") == 0) {
         return tam_cmd_ask(argc - 2, argv + 2);

@@ -10,8 +10,9 @@
  *   man:NAME[(SEC)]          a manual page ("man:" alone: the Man pages view)
  *   info:MANUAL[/NODE]       an Info node
  *   tldr:[PLATFORM/]NAME     a tldr page
+ *   archwiki:PAGE[#FRAG]     an Arch Wiki page ("archwiki:" alone: Arch Wiki view)
  *   tam:VIEW...              a generated view: topics, keywords, paths, path,
- *                            explain, search, man, tldr
+ *                            explain, search, man, tldr, archwiki
  *   tam:help, tam:prompt:*, tam:fold:*   pager actions, never loaded
  *   anything with "://", or another scheme   external, never fetched
  */
@@ -23,6 +24,7 @@ typedef enum {
     TAM_ADDR_MAN,
     TAM_ADDR_INFO,
     TAM_ADDR_TLDR,
+    TAM_ADDR_ARCHWIKI,
     TAM_ADDR_VIEW,
     TAM_ADDR_ACTION,
     TAM_ADDR_EXTERNAL

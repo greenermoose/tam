@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-15:** Command 0.60.0 (minor): Add offline Arch Wiki subsystem (`src/archwiki.c`, `src/archwiki.h`, `bin/tam-archwiki`) supporting `tam archwiki`, `archwiki:PAGE`, and `tam:archwiki*` views with HTML body extraction, link rewriting, A–Z browsing, and keyword search over `arch-wiki-docs` (`/usr/share/doc/arch-wiki/html/en` or `$TAM_ARCHWIKI_DIR`).
+
 - **2026-11-15:** Command 0.59.13 (patch): Emit `<tam-box class="tight">` for expanded folds that have a preceding summary in `src/fold.c` and suppress the blank line before `tight` boxes in `layout_document` (`src/render.c`) so opened answers sit directly below their question.
 - **2026-11-15:** Command 0.59.14 (patch): Do not set `tight_next` on `<section>` in `src/render.c` so `<p>` and heading elements render with one blank line before (unless first) and after (unless last); extend `B_HEAD` tag parsing from `h1`–`h3` to `h1`–`h6`; ignore blank separator lines when checking single-line `B_META` right-alignment in `layout_box`.
 - **2026-11-15:** Command 0.59.12 (patch): Omit the blank line between `<summary>` and the closed `[+]` toggle in `src/fold.c`, omit extra blank lines at `<section>` boundaries and after `B_META` (`Showing <level> text`) lines, and right-align `Showing <level> text` inside `<tam-box>` to the box's content width rather than the full terminal width in `src/render.c`.
@@ -1376,6 +1378,10 @@ resolve superseded schedules. Do not execute a former plan from this history.
   in `paths.json`; expand D221 hard-enforcement.
 - **2026-11-02:** Corpus 0.70.0 (minor): Migrate final D221 batches
   (session/desktop, understand-design, terminal stack, guide leftovers).
+
+### 2026-11-15 — Offline Arch Wiki integration (command 0.60.0 / corpus 0.93.6)
+
+Added native `tam archwiki`, `archwiki:PAGE`, and `tam:archwiki*` support (`src/archwiki.c`, `bin/tam-archwiki`) reading offline `arch-wiki-docs` HTML (`/usr/share/doc/arch-wiki/html/en` or `$TAM_ARCHWIKI_DIR`), and linked `Arch Wiki` from `knowledge/index.html` and `knowledge/help/documentation.html`.
 
 ### 2026-11-14 — Subject library (command 0.57.0 / corpus 0.90.0)
 

@@ -1,6 +1,7 @@
 #include <tam.h>
 
 #include "address.h"
+#include "archwiki.h"
 #include "depth.h"
 #include "discovery.h"
 #include "info.h"
@@ -28,6 +29,7 @@ tam_addr_kind_t tam_addr_kind(const char *href)
     if (has_prefix(href, "man:")) return TAM_ADDR_MAN;
     if (has_prefix(href, "info:")) return TAM_ADDR_INFO;
     if (has_prefix(href, "tldr:")) return TAM_ADDR_TLDR;
+    if (has_prefix(href, "archwiki:")) return TAM_ADDR_ARCHWIKI;
     if (strcmp(href, "tam:help") == 0 || has_prefix(href, "tam:prompt:") ||
         has_prefix(href, "tam:fold:"))
         return TAM_ADDR_ACTION;
@@ -121,6 +123,18 @@ static tam_document_t *load_tldr_view(const tam_loader_ctx_t *c, const char *hre
     return tam_tldr_uri_document(href, w);
 }
 
+static tam_document_t *load_archwiki(const tam_loader_ctx_t *c, const char *href, int w)
+{
+    (void)c;
+    return href[9] == '\0' ? tam_archwiki_uri_document("tam:archwiki", w) : tam_archwiki_load(href + 9, w);
+}
+
+static tam_document_t *load_archwiki_view(const tam_loader_ctx_t *c, const char *href, int w)
+{
+    (void)c;
+    return tam_archwiki_uri_document(href, w);
+}
+
 static tam_document_t *load_man_view(const tam_loader_ctx_t *c, const char *href, int w)
 {
     (void)c;
@@ -175,7 +189,9 @@ static const struct {
     { "man:",         load_man },
     { "info:",        load_info },
     { "tldr:",        load_tldr },
+    { "archwiki:",    load_archwiki },
     { "tam:tldr",     load_tldr_view },
+    { "tam:archwiki", load_archwiki_view },
     { "tam:man",      load_man_view },
     { "tam:search",   load_search },
     { "tam:explain",  load_explain },

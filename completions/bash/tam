@@ -6,7 +6,7 @@ _tam_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    local subcommands="show welcome hello hi explain whatis search man info tldr inspect check install ask upgrade switch help"
+    local subcommands="show welcome hello hi explain whatis search man info tldr archwiki inspect check install ask upgrade switch help"
     local global_flags="--help -h --pipe --terse --verbose --version -v -V"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
@@ -40,7 +40,7 @@ _tam_completions() {
             if [ "$prev" = "--level" ]; then
                 COMPREPLY=($(compgen -W "all novice learner expert 0 1 2 3" -- "$cur"))
             else
-                COMPREPLY=($(compgen -W "tam:search tam:man tam:tldr --pipe --level" -- "$cur"))
+                COMPREPLY=($(compgen -W "tam:search tam:man tam:tldr tam:archwiki --pipe --level" -- "$cur"))
             fi
             ;;
         welcome|hello|hi)
@@ -72,6 +72,13 @@ _tam_completions() {
                 COMPREPLY=($(compgen -W "tar grep find git systemctl pacman btrfs hyprctl curl ssh --list --search --platform --pipe --help -h" -- "$cur"))
             fi
             ;;
+        archwiki)
+            if [[ "$cur" == -* ]]; then
+                COMPREPLY=($(compgen -W "--list -l --search --keyword --pipe --help -h" -- "$cur"))
+            else
+                COMPREPLY=($(compgen -W "Arch_Linux Installation_guide Pacman Systemd Hyprland Btrfs Network_configuration --list --search --pipe --help -h" -- "$cur"))
+            fi
+            ;;
         ask)
             if [ "$prev" = "--model" ] || [ "$prev" = "--server" ]; then
                 COMPREPLY=()
@@ -96,4 +103,4 @@ _tam_completions() {
     esac
 }
 
-complete -F _tam_completions tam tam-man tam-info tam-tldr
+complete -F _tam_completions tam tam-man tam-info tam-tldr tam-archwiki

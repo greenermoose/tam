@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.14' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.60.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -3465,6 +3465,77 @@ set -e
 
 pass "tam tldr subcommand, index discovery, option formatting, and hyperlinks"
 
+# ----------------------------------------------------------------------------
+# Native Arch Wiki Subsystem (tam archwiki)
+# ----------------------------------------------------------------------------
+aw_fix="$tmp/archwiki"
+mkdir -p "$aw_fix"
+cat >"$aw_fix/Arch_Linux.html" <<'EOF'
+<!DOCTYPE html><html><head><title>Arch Linux - ArchWiki</title></head><body>
+<nav id="mw-panel-toc"><button>Toggle</button>Sidebar TOC</nav>
+<div id="mw-content-text" class="mw-body-content">
+<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr">
+<p>Arch Linux uses <a href="../en/Pacman.html">pacman</a> and <a href="https://kernel.org/">Linux</a>.</p>
+<p>See <a href="#Principles">Principles</a> and <a href="../Special:Categories.html">Categories</a>.</p>
+</div></div>
+<div id="catlinks">Category: About Arch</div>
+</body></html>
+EOF
+cat >"$aw_fix/Pacman.html" <<'EOF'
+<!DOCTYPE html><html><head><title>pacman - ArchWiki</title></head><body>
+<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr">
+<p>The pacman package manager for <a href="../en/Arch_Linux.html#Principles">Arch Linux</a>.</p>
+</div>
+<div id="catlinks">Category: Package management</div>
+</body></html>
+EOF
+
+[ -x "$root/bin/tam-archwiki" ] || fail "bin/tam-archwiki is missing or not executable"
+aw_wrap=$(TAM_ARCHWIKI_DIR="$aw_fix" "$root/bin/tam-archwiki" Pacman --pipe)
+printf '%s\n' "$aw_wrap" | grep -q 'pacman package manager' || fail "bin/tam-archwiki did not delegate to tam archwiki"
+
+aw_landing=$(TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki --pipe)
+printf '%s\n' "$aw_landing" | grep -q '^Guide > Arch Wiki$' || fail "tam archwiki landing missing location trail"
+printf '%s\n' "$aw_landing" | grep -q 'tam:prompt:archwiki-open' || fail "tam archwiki landing missing open prompt link"
+printf '%s\n' "$aw_landing" | grep -q 'tam:prompt:archwiki-keyword' || fail "tam archwiki landing missing keyword prompt link"
+printf '%s\n' "$aw_landing" | grep -q 'tam:archwiki:list' || fail "tam archwiki landing missing list link"
+
+aw_page=$(TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki Arch Linux --pipe)
+printf '%s\n' "$aw_page" | grep -q '^Guide > Arch Wiki > Arch Linux$' || fail "tam archwiki Arch Linux missing location trail"
+printf '%s\n' "$aw_page" | grep -q 'archwiki:Pacman' || fail "tam archwiki Arch Linux missing rewritten archwiki:Pacman link"
+printf '%s\n' "$aw_page" | grep -q 'https://kernel.org/' || fail "tam archwiki Arch Linux missing external link"
+if printf '%s\n' "$aw_page" | grep -q 'Sidebar TOC'; then
+    fail "tam archwiki leaked sidebar TOC"
+fi
+if printf '%s\n' "$aw_page" | grep -q 'Category: About Arch'; then
+    fail "tam archwiki leaked catlinks footer"
+fi
+
+aw_list=$(TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki --list --pipe)
+printf '%s\n' "$aw_list" | grep -q '^Guide > Arch Wiki > Arch Wiki index$' || fail "tam archwiki --list missing location trail"
+printf '%s\n' "$aw_list" | grep -q 'archwiki:Pacman' || fail "tam archwiki --list missing Pacman"
+
+aw_kw=$(TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki --search Pacman --pipe)
+printf '%s\n' "$aw_kw" | grep -q 'archwiki:Pacman' || fail "tam archwiki --search Pacman failed"
+
+show_aw=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show archwiki:Pacman --pipe)
+printf '%s\n' "$show_aw" | grep -q '^Guide > Arch Wiki > pacman$' || fail "tam show archwiki:Pacman failed"
+
+show_aw_idx=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show tam:archwiki --pipe)
+printf '%s\n' "$show_aw_idx" | grep -q '^Guide > Arch Wiki$' || fail "tam show tam:archwiki failed"
+
+"$TAM" archwiki --help | grep -q 'tam archwiki - browse offline Arch Wiki documentation' || fail "tam archwiki --help missing title"
+set +e
+TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki No_Such_Arch_Wiki_Page >/dev/null 2>&1
+rc_aw_miss=$?
+TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki --bad-flag >/dev/null 2>&1
+rc_aw_flag=$?
+set -e
+[ "$rc_aw_miss" -eq 1 ] || fail "expected exit 1 on missing archwiki page, got $rc_aw_miss"
+[ "$rc_aw_flag" -eq 2 ] || fail "expected exit 2 on invalid archwiki flag, got $rc_aw_flag"
+
+pass "tam archwiki subcommand, index discovery, HTML extraction, and hyperlinks"
+
 # Shell completion scripts verification (Tamlinux supports bash)
 bash -n "$root/completions/bash/tam" || fail "bash completion syntax error"
 
@@ -3479,6 +3550,7 @@ printf "%s\n" "${COMPREPLY[@]}"
 printf '%s\n' "$bash_test" | grep -q 'show' || fail "bash completion missing show subcommand"
 printf '%s\n' "$bash_test" | grep -q 'info' || fail "bash completion missing info subcommand"
 printf '%s\n' "$bash_test" | grep -q 'tldr' || fail "bash completion missing tldr subcommand"
+printf '%s\n' "$bash_test" | grep -q 'archwiki' || fail "bash completion missing archwiki subcommand"
 printf '%s\n' "$bash_test" | grep -q 'inspect' || fail "bash completion missing inspect subcommand"
 printf '%s\n' "$bash_test" | grep -q 'check' || fail "bash completion missing check subcommand"
 printf '%s\n' "$bash_test" | grep -q 'install' || fail "bash completion missing install subcommand"
