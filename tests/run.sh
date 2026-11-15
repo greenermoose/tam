@@ -2260,9 +2260,9 @@ printf '%s\n' "$ex_pipe_q1" | grep -q 'Connecting programs' || fail "explain \"'
 ex_pipe_q2=$("$TAM" explain '"|"' --pipe)
 printf '%s\n' "$ex_pipe_q2" | grep -q 'Connecting programs' || fail "explain '\"|\"' failed"
 ex_browse=$("$TAM" explain browse --pipe)
-printf '%s\n' "$ex_browse" | grep -q 'Your Tamlinux reference' || fail "explain browse failed"
+printf '%s\n' "$ex_browse" | grep -q 'Your Tamlinux User Guide' || fail "explain browse failed"
 ex_show=$("$TAM" explain show --pipe)
-printf '%s\n' "$ex_show" | grep -q 'Your Tamlinux reference' || fail "explain show failed"
+printf '%s\n' "$ex_show" | grep -q 'Your Tamlinux User Guide' || fail "explain show failed"
 ex_man=$("$TAM" explain man --pipe)
 printf '%s\n' "$ex_man" | grep -q 'Finding instructions for programs' || fail "explain man failed"
 
