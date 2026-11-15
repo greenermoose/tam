@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) adds `knowledge/desktop/session/start.html` for `start` (`tam-start`), links it from `knowledge/desktop/session/index.html` and `knowledge/welcome.html`, and rebuilds corpus indexes in corpus 0.93.0. [Record](docs/ai/2026-11-15-tam-start-page.md).
+
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) reorders the bottom status row keybindings and lens in `src/pager_draw.c` (command 0.59.5). [Record](docs/ai/2026-11-15-tam-pager-bottom-line-order.md).
 
 2026-11-14: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) adds `glossary/i/ietf.html`, `glossary/r/rfc.html`, and `networking/ietf-and-rfcs.html`, links them from their parent hubs, and rebuilds the corpus indexes in corpus 0.92.0. [Record](docs/ai/2026-11-14-ietf-and-rfc-pages.md).

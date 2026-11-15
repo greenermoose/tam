@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The start menu (tam-start)</title>
+<meta name="kind" content="reference">
+<meta name="skills" content="desktop.novice, desktop.learner, shell.novice">
+<meta name="topic" content="tam-start">
+<meta name="summary" content="Choose what to do after logging into a text console with start (tam-start), without starting graphics automatically">
+<meta name="keywords" content="start, tam-start, workstation menu, text login, activities menu, tam-desktop, console">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/session/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/session/index.html">Login, input and sessions</a> / The start menu (tam-start)</p></nav>
+
+<h1>The start menu (tam-start)</h1>
+
+<p>The <code>start</code> command (installed as <code>tam-start</code>) opens a keyboard-driven menu after you sign in at a text console so you can choose what to run next.</p>
+
+<section data-level="novice">
+<h2>Choosing what to do from a text screen</h2>
+<p>When you sign in at a plain text <dfn><a href="glossary/t/terminal.html">terminal</a></dfn> instead of a graphical login screen, you are at a <dfn><a href="glossary/s/shell.html">shell</a></dfn> prompt. Running <code>tam-start</code> (or <code>start</code>) shows a numbered or lettered list of activities you can launch right away. Opening the menu never starts graphics by itself; you stay in text mode until you pick the graphical desktop.</p>
+
+<p>You can use the menu to:</p>
+<ul>
+<li>Start the Tamlinux graphical desktop (<code>tam-desktop</code>).</li>
+<li>Open this offline Guide, the Keyword Index, the Glossary, Manual Pages, Info Manuals, or TLDR pages.</li>
+<li>Start a terminal AI assistant if one is installed.</li>
+<li>Run quick system checks such as live power usage (<code>tam-meter top</code>) or boot timing (<code>tam-boot</code>).</li>
+</ul>
+
+<h3>Keys inside the menu</h3>
+<table>
+<tr><th>Key</th><th>What it does</th></tr>
+<tr><td><code>Up</code> / <code>Down</code></td><td>Move the highlight between items</td></tr>
+<tr><td><code>Enter</code> or <code>Right</code></td><td>Start the highlighted item</td></tr>
+<tr><td><code>a</code>&ndash;<code>z</code></td><td>Start the item with that shortcut letter</td></tr>
+<tr><td><code>Space</code> or <code>Page Down</code></td><td>Move to the next page of items</td></tr>
+<tr><td><code>`</code> (backtick) or <code>Page Up</code></td><td>Move to the previous page of items</td></tr>
+<tr><td><code>Home</code> / <code>End</code></td><td>Jump to the first or last item</td></tr>
+<tr><td><code>Esc</code>, <code>Backspace</code>, or <code>Delete</code></td><td>Leave the menu and return to the shell</td></tr>
+</table>
+</section>
+
+<section data-level="learner">
+<h2>Checking which activities are available</h2>
+<p><code>tam-start</code> reads its menu from a catalog file (<code>menu.json</code>) and checks whether each item's command is present on your <code>PATH</code>. You can inspect the catalog from any terminal without opening the interactive screen.</p>
+
+<pre class="session" data-risk="read-only">
+$ tam-start --check
+ ✗ [a] Start graphical desktop shell (tam-desktop)
+ ✗ [b] Tamlinux Guide (tam)
+ ✗ [c] Keyword Index (tam)
+ ✗ [d] Glossary (tam)
+ ✗ [e] Manual Pages (tam)
+ ✗ [f] Info Manuals (tam)
+ ✗ [g] TLDR Pages (tam)
+ ✗ [h] Claude Code (claude)
+ ✗ [i] Codex (codex)
+ ✓ [j] Antigravity CLI (agy)
+ ✗ [k] OpenCode (opencode)
+ ✗ [l] Grok CLI (grok)
+ ✗ [m] See what's using power (tam-meter)
+ ✗ [n] Explain this boot (tam-boot)
+
+1/14 activities installed on this system.
+v0.3.0
+</pre>
+
+<p>The <code>--list</code> option prints the full table with each item's shortcut letter, internal ID, exact command, installation status, and description:</p>
+
+<pre class="session" data-risk="read-only">
+$ tam-start --list
+Letter   ID               Command                   Installed  Description
+──────────────────────────────────────────────────────────────────────────────────────────
+a        desktop          tam-desktop               no         Leave the text shell and start the Tamlinux Hyprland desktop
+b        tam-guide        tam show                  no         Browse the offline Tamlinux knowledge guide in the terminal pager
+...
+</pre>
+
+<aside class="peek">
+<p><code>--list</code> and <code>--check</code> are read-only queries: they never activate a pending system switch and never launch an interactive screen.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>If you open <code>tam-start</code> on a text console and decide you just want a shell prompt, what happens?</summary>
+<p>Press <code>Esc</code>, <code>Backspace</code>, or <code>Delete</code>. The menu restores the terminal and returns to your shell without starting the graphical desktop.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Implementation, bundle activation, and options</h2>
+<p><code>start</code> is a pure C program linked only against <code>libtam</code> and <code>libc</code>, with no Python runtime dependency. In the workstation layout it is installed as <code>tam-start</code>.</p>
+
+<table>
+<tr><th>Option</th><th>Behavior</th></tr>
+<tr><td><code>--list</code></td><td>Print the catalog table (letter, ID, argv, <code>PATH</code> check, description) and exit</td></tr>
+<tr><td><code>--check</code></td><td>Print per-activity availability, installed count, and version</td></tr>
+<tr><td><code>--version</code>, <code>-V</code></td><td>Print <code>start &lt;version&gt;</code> and exit</td></tr>
+<tr><td><code>--help</code>, <code>-h</code></td><td>Print usage summary and exit</td></tr>
+</table>
+
+<p>When invoked as <code>tam-start</code> in interactive mode (without <code>--list</code> or <code>--check</code>), it runs <code>tam-bundle session-activate</code> to finish any prepared <dfn><a href="glossary/b/bundle.html">bundle</a></dfn> switch before drawing the menu. If the active target changes, it re-executes <code>tam-start</code> so the menu reflects the newly active version. Before loading <code>menu.json</code>, it also checks <code>tam_bundle_guard</code> and exits with a recovery message if a bundle switch is in progress or needs attention.</p>
+
+<p>Interactive mode requires a <dfn><a href="glossary/t/tty.html">TTY</a></dfn> on both standard input and standard output; otherwise it exits with an error. Selecting an item restores terminal attributes before running the chosen command.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="welcome.html">Welcome</a> &mdash; Return to the Tamlinux orientation page</li>
+<li><a href="desktop/session/sddm.html">Display Managers: SDDM</a> &mdash; Graphical login, text login, and session inspection</li>
+<li><a href="systems/packages/tam-bundle.html">How tam-bundle installs and rolls back files</a> &mdash; How bundle switching and recovery work</li>
+</ul>
+
+</body>
+</html>
