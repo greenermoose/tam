@@ -146,15 +146,19 @@ static void read_sync_reply(pager_t *st, int fd)
 
 static void pager_left_arrow(pager_t *st)
 {
-    if (!hide_fold_here(st)) go_back(st);
+    if (lens_line_here(st)) {
+        cycle_lens(st, -1);
+    } else if (!hide_fold_here(st)) {
+        go_back(st);
+    }
 }
 
 static void pager_right_arrow(pager_t *st)
 {
     if (toggle_fold_here(st)) {
         /* An answer on the attention line. */
-    } else if (hiding_line_here(st)) {
-        set_lens(st, '0');
+    } else if (lens_line_here(st)) {
+        cycle_lens(st, 1);
     } else if (st->selected >= 0) {
         follow_selected(st);
     } else if (st->nforward > 0) {
@@ -286,8 +290,8 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         break;
     case '\r':
     case '\n': {
-        if (hiding_line_here(st)) {
-            set_lens(st, '0');
+        if (lens_line_here(st)) {
+            cycle_lens(st, 1);
         } else {
             follow_selected(st);
         }

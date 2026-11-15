@@ -769,25 +769,71 @@ void set_lens(pager_t *st, unsigned char key)
         snprintf(st->msg, sizeof(st->msg), "Level %d %s set", number, label);
 }
 
-int hiding_line_here(const pager_t *st)
+static int is_lens_line(const tam_line_t *line)
 {
-    if (st == NULL || st->doc == NULL || st->doc->lines == NULL) {
+    if (line == NULL) {
+        return 0;
+    }
+    for (size_t i = 0; i < line->nspans; i++) {
+        if (line->spans[i].style & TAM_STYLE_LVL_MASK) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int lens_line_here(const pager_t *st)
+{
+    if (st == NULL || st->doc == NULL || st->doc->lines == NULL ||
+        breadcrumb_focused(st)) {
         return 0;
     }
     if (st->cursor_line < 0 || (size_t)st->cursor_line >= st->doc->nlines) {
         return 0;
     }
-    const tam_line_t *line = &st->doc->lines[st->cursor_line];
-    for (size_t i = 0; i < line->nspans; i++) {
-        const char *t = line->spans[i].text;
-        if (t == NULL) continue;
-        if (strstr(t, "01 show") != NULL ||
-            strstr(t, "02 show") != NULL ||
-            strstr(t, "03 show") != NULL) {
-            return 1;
+    return is_lens_line(&st->doc->lines[st->cursor_line]);
+}
+
+void cycle_lens(pager_t *st, int dir)
+{
+    if (!lens_line_here(st)) {
+        return;
+    }
+    size_t ord = 0;
+    for (int i = 0; i < st->cursor_line; i++) {
+        if (is_lens_line(&st->doc->lines[i])) {
+            ord++;
         }
     }
-    return 0;
+    int cursor_row = st->cursor_line - st->top;
+    int cur = tam_level_number(st->lens);
+    int next = (cur + (dir < 0 ? 3 : 1)) % 4;
+    set_lens(st, (unsigned char)('0' + next));
+
+    if (st->doc == NULL || st->doc->lines == NULL) {
+        return;
+    }
+    size_t seen = 0;
+    int target = -1;
+    for (size_t i = 0; i < st->doc->nlines; i++) {
+        if (is_lens_line(&st->doc->lines[i])) {
+            if (seen == ord) {
+                target = (int)i;
+                break;
+            }
+            seen++;
+        }
+    }
+    if (target >= 0) {
+        int usable = content_rows(st);
+        int max_top = (int)st->doc->nlines - usable;
+        if (max_top < 0) max_top = 0;
+        int top = target - cursor_row;
+        if (top < 0) top = 0;
+        if (top > max_top) top = max_top;
+        st->top = top;
+        set_cursor_line(st, target, dir < 0 ? -1 : 1);
+    }
 }
 
 int is_help_page(const char *href)

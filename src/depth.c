@@ -527,10 +527,10 @@ static size_t skip_block(const char *src, size_t len, size_t open_end, const cha
 }
 
 /* The level line and, when the lens level is missing, the relatives line:
- *   <0|1|2|3> Showing <all|novice|learner|expert> text
+ *   Showing <all|novice|learner|expert> text
  *   See also -> <related>
  * Both are class="level-line" paragraphs, which the renderer dims and
- * right-aligns; the lens digit and the level name carry the level color. */
+ * right-aligns; the "<level> text" span carries the level color. */
 static void level_lines(buf_t *b, unsigned shown, unsigned level,
                         int missing, const char *related)
 {
@@ -539,9 +539,9 @@ static void level_lines(buf_t *b, unsigned shown, unsigned level,
     const char *name = n == 0 ? "all" : LEVELS[n - 1].name;
     char line[128];
     snprintf(line, sizeof(line),
-             "<p class=\"level-line\"><span class=\"lvl-%u\">%u</span> Showing "
-             "<span class=\"lvl-%u\">%s</span> text</p>\n",
-             n, n, n, name);
+             "<p class=\"level-line\">Showing "
+             "<span class=\"lvl-%u\">%s text</span></p>\n",
+             n, name);
     buf_str(b, line);
     if (level != 0 && missing && related != NULL && related[0] != '\0') {
         buf_str(b, "<p class=\"level-line\">See also -&gt; ");
@@ -610,8 +610,8 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                             int n = tam_level_number(bit);
                             char mark[128];
                             snprintf(mark, sizeof(mark),
-                                     "\n<p class=\"level-line\">0%d show <span class=\"lvl-%d\">%s text</span></p>\n",
-                                     n, n, tam_level_name(bit));
+                                     "\n<p class=\"level-line\">Hiding <span class=\"lvl-%d\">%s text</span></p>\n",
+                                     n, tam_level_name(bit));
                             buf_str(&b, mark);
                             hidden++;
                         }
@@ -620,12 +620,10 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                     }
                     if (bit != 0 && strcmp(block, "section") == 0) {
                         int n = tam_level_number(bit);
-                        int a = (n == 1) ? 2 : 1;
-                        int b_num = (n == 3) ? 2 : 3;
                         char mark[128];
                         snprintf(mark, sizeof(mark),
-                                 "\n<p class=\"level-line\">%d%d hide <span class=\"lvl-%d\">%s text</span></p>\n",
-                                 a, b_num, n, tam_level_name(bit));
+                                 "\n<p class=\"level-line\">Showing <span class=\"lvl-%d\">%s text</span></p>\n",
+                                 n, tam_level_name(bit));
                         buf_str(&b, mark);
                     }
                 }
