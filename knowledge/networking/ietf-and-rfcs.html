@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The IETF and how RFCs work</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="ietf-and-rfcs">
+<meta name="summary" content="How the Internet Engineering Task Force develops open internet standards and how the RFC document series works">
+<meta name="keywords" content="ietf, rfc, request for comments, internet-draft, standards track, bcp, working group, iesg, iab, irtf, rough consensus, running code">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/index.html">
+<meta name="prereqs" content="networking">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / The IETF and how RFCs work</p></nav>
+
+<h1>The IETF and how RFCs work</h1>
+<p>This page explains how the Internet Engineering Task Force develops open internet standards and how numbered RFC documents are created, updated, and read.</p>
+<h2>Before this</h2><p><a href="networking/connections.html">Network connections and DNS</a></p>
+
+<section data-level="novice">
+<h2>Who writes the rules of the internet?</h2>
+<p>When your computer loads a website, checks email, or connects over Wi-Fi, it follows shared technical rules written down by an open community called the <dfn><a href="glossary/i/ietf.html">IETF</a></dfn> (Internet Engineering Task Force). Those written rules are published as free, numbered documents called <dfn><a href="glossary/r/rfc.html">RFCs</a></dfn> (Requests for Comments).</p>
+
+<h3>Why it matters</h3>
+<p>No single company owns the internet. Because the IETF publishes its specifications openly and without paywalls, a Linux laptop, an Android phone, a web server, and a home router built by completely different teams can all understand each other.</p>
+
+<h3>How to think about it</h3>
+<p>Think of RFCs as a public, numbered recipe book for network <dfn><a href="glossary/p/protocol.html">protocols</a></dfn>. Anyone can suggest a new recipe, test it in real software, and point out mistakes before it becomes an official standard. Once an RFC number is printed, that page of the recipe book is never silently rewritten—if a recipe needs a fix years later, the community publishes a new RFC number that points back to the old one.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/i/ietf.html">IETF</a></dfn></dt>
+<dd>Internet Engineering Task Force: the open international community that develops core internet standards.</dd>
+<dt><dfn><a href="glossary/r/rfc.html">RFC</a></dfn></dt>
+<dd>Request for Comments: a numbered, permanent technical document in the internet standards series.</dd>
+<dt><dfn><a href="glossary/p/protocol.html">Protocol</a></dfn></dt>
+<dd>An agreed-upon set of rules for formatting and exchanging messages between computers.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>How an idea becomes an RFC</h2>
+<p><strong>Goal:</strong> you will be able to trace how an Internet-Draft moves through an IETF working group to become an RFC, and tell whether an RFC is an active standard, a best practice, or replaced by a newer document.</p>
+<p><strong>Before you start:</strong> you do not need special software to read RFCs; they are published as plain text and HTML online without membership fees.</p>
+
+<h3>Mental model</h3>
+<pre>
+Idea --&gt; Internet-Draft (draft-..., expires after 6 months)
+            |
+            v  working group review + rough consensus + running code
+         IESG approval
+            |
+            v  RFC Production Center editing
+         RFC NNNN (immutable, permanent number)
+            |
+            v  later improvements or replacements
+         RFC NNNN+k (Updates or Obsoletes RFC NNNN)
+</pre>
+
+<p>The IETF operates without formal paid memberships: individuals participate on public mailing lists, in working groups, and at meetings. Its guiding principle is <em>rough consensus and running code</em>—agreements are judged by whether technical objections have been addressed and working implementations exist, not by a simple majority vote.</p>
+
+<p>The name <strong>Request for Comments</strong> dates back to 1969 on the early ARPANET, when Steve Crocker used a modest title for notes inviting feedback from peers. Today the name is historical: once an RFC is published, its text is frozen forever so citations stay reliable. Corrections are recorded separately as <em>errata</em>, and protocol revisions receive a brand-new RFC number.</p>
+
+<h3>Worked example</h3>
+<p>Every RFC begins with a standardized metadata header block. Reading these few lines tells you whether the document is current or superseded:</p>
+<pre>
+Internet Engineering Task Force (IETF)                       E. Rescorla
+Request for Comments: 8446                                       Mozilla
+Obsoletes: 5077, 5246, 6961                                  August 2018
+Updates: 5705, 6066
+Category: Standards Track
+</pre>
+<p>From this header you can immediately see three facts: RFC 8446 (TLS 1.3) is on the <strong>Standards Track</strong>, it completely replaces (<code>Obsoletes</code>) RFC 5246 (TLS 1.2) and two related RFCs, and it modifies (<code>Updates</code>) parts of RFC 5705 and RFC 6066. Inside the body, capitalized words such as <code>MUST</code>, <code>SHOULD</code>, and <code>MAY</code> carry precise compliance meanings defined in RFC 2119 and RFC 8174 (together known as <strong>BCP 14</strong>).</p>
+
+<h3>Try it</h3>
+<p>Search this guide offline with <code>tam search rfc</code> and open one of the numbered RFC entries (such as RFC 5280 or RFC 9106) to see how Tamlinux summarizes its category and scope. If you are online, open <code>https://datatracker.ietf.org/doc/html/rfc8446</code> and check its top-left header block for <code>Category</code>, <code>Obsoletes</code>, and <code>Updates</code>.</p>
+
+<h3>If it goes wrong</h3>
+<p>If a search for an RFC number turns up a draft name such as <code>draft-ietf-...</code> instead, the specification is still an unapproved Internet-Draft and has not been assigned an RFC number yet. If the IETF Datatracker shows an <code>Obsoleted by</code> banner at the top of an RFC, follow that link to the newer specification before relying on it.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>If engineers discover a flaw in RFC 8446, do they edit the text of RFC 8446 directly?</summary>
+<p>No. Published RFCs are immutable archival documents. Minor typos or clarifications are logged as errata, while protocol changes are published in a new RFC that lists <code>Updates: 8446</code> or <code>Obsoletes: 8446</code> in its header.</p>
+</details>
+<details class="q">
+<summary>Who can join an IETF working group mailing list or submit an Internet-Draft?</summary>
+<p>Anyone. The IETF has no corporate or individual membership fee; participation is open to any person willing to contribute to the technical discussion.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>IETF governance, RFC streams, and standards maturity</h2>
+<p><strong>Reference:</strong> The IETF standards process is codified in BCP 9 (RFC 2026, as updated by RFC 6410 and related BCPs), while the RFC series governance model is defined in RFC 9280.</p>
+
+<h3>Organizational structure</h3>
+<ul>
+<li><strong>Working Groups (WGs) and Areas:</strong> Technical work happens in chartered WGs grouped under functional Areas (Applications and Real-Time, General, Internet, Operations and Management, Routing, Security, and Web and Internet Transport). Each Area is led by Area Directors (ADs).</li>
+<li><strong>IESG (Internet Engineering Steering Group):</strong> Composed of the Area Directors and the IETF Chair; responsible for technical management of IETF activities, chartering WGs, and approving IETF-stream documents for publication.</li>
+<li><strong>IAB (Internet Architecture Board):</strong> Provides long-range architectural oversight, manages external liaisons, and acts as an appeals body above the IESG.</li>
+<li><strong>IRTF (Internet Research Task Force):</strong> Sister organization focused on longer-term research groups (such as the Crypto Forum Research Group, CFRG, which developed Curve25519 and Argon2 specifications) rather than immediate engineering standards.</li>
+<li><strong>RFC Production Center (RPC):</strong> Copy-edits, formats, assigns permanent numbers, and publishes approved drafts across all four streams under policies set by the RFC Series Approval Board (RSAB) and advised by the RFC Series Consulting Editor (RSCE).</li>
+</ul>
+
+<h3>The four RFC streams</h3>
+<table>
+<tr><th>Stream</th><th>Originator</th><th>Typical content</th></tr>
+<tr><td>IETF</td><td>IETF Working Groups or AD-sponsored</td><td>Standards Track protocols, BCPs, Informational, Experimental</td></tr>
+<tr><td>IAB</td><td>Internet Architecture Board</td><td>Architectural guidance, liaison and oversight statements</td></tr>
+<tr><td>IRTF</td><td>IRTF Research Groups</td><td>Research outputs (Informational or Experimental; never Standards Track)</td></tr>
+<tr><td>Independent</td><td>Independent Submissions Editor (ISE)</td><td>Individual proposals, third-party algorithm descriptions, April 1st RFCs</td></tr>
+</table>
+
+<h3>Document lifecycle and maturity levels</h3>
+<p>An unapproved specification circulates as an <strong>Internet-Draft</strong> (named <code>draft-ietf-&lt;wg&gt;-&lt;topic&gt;-NN</code> for WG items or <code>draft-&lt;author&gt;-&lt;topic&gt;-NN</code> for individual submissions), which automatically expires after 185 days unless updated. Moving a WG draft to publication requires Working Group Last Call (WGLC), IETF-wide Last Call, an IESG ballot (where any AD may raise a blocking <code>DISCUSS</code> position), and final author review (<code>AUTH48</code>) with the RFC Production Center.</p>
+
+<p>Under RFC 6410 (which reduced the original three-step Standards Track to two steps), Standards Track RFCs have two maturity levels: <strong>Proposed Standard</strong> (the entry-level specification after thorough review) and <strong>Internet Standard</strong> (elevated after widespread deployment and interoperable implementations; also assigned an <code>STD</code> number). Other categories are <strong>Best Current Practice (BCP)</strong> (operational or process rules with a separate <code>BCP</code> series number that can point to newer RFCs over time), <strong>Informational</strong>, <strong>Experimental</strong>, and <strong>Historic</strong>.</p>
+
+<h3>Trade-offs and common pitfalls</h3>
+<ul>
+<li><strong>Confusing RFC existence with Standards Track status:</strong> An RFC number alone does not make a document a standard. Independent-stream, Informational, Experimental, and Historic RFCs are not IETF consensus standards.</li>
+<li><strong>Citing obsoleted specifications:</strong> Always check the RFC datatracker or <code>Obsoletes:</code>/<code>Updates:</code> headers before implementing; for example, RFC 5246 (TLS 1.2) is obsoleted by RFC 8446 (TLS 1.3), and RFC 2119 is updated by RFC 8174.</li>
+<li><strong>Misreading BCP 14 requirement keywords:</strong> In RFC 2119, <code>SHOULD</code> (<code>RECOMMENDED</code>) does not mean optional; it means valid reasons may exist to ignore an item, but the full implications must be understood and weighed before choosing a different course.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is an IRTF document such as RFC 9106 (Argon2) published as Informational rather than Standards Track?</summary>
+<p>The IRTF stream publishes research group outputs (Informational or Experimental) and does not produce IETF Standards Track documents. When the IETF adopts an IRTF algorithm into a protocol (such as X25519 in TLS 1.3), an IETF Working Group references it or specifies its profile on the Standards Track.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/connections.html">Network connections and DNS</a> &mdash; see how DNS, IP routing, and links work on your machine.</li>
+<li><a href="security/protocols/tls-and-https.html">SSL, TLS, and HTTPS</a> &mdash; explore an IETF Standards Track protocol (RFC 8446) in practice.</li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+<li><a href="security/protocols/ssh-protocol.html">The SSH Protocol Internals</a> &mdash; RFC 4251–4254 protocol architecture.</li>
+<li><a href="glossary/i/ietf.html">IETF</a> &mdash; glossary definition.</li>
+<li><a href="glossary/r/rfc.html">RFC</a> &mdash; glossary definition.</li>
+</ul>
+</body>
+</html>

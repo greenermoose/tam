@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-14: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) adds `glossary/i/ietf.html`, `glossary/r/rfc.html`, and `networking/ietf-and-rfcs.html`, links them from their parent hubs, and rebuilds the corpus indexes in corpus 0.92.0. [Record](docs/ai/2026-11-14-ietf-and-rfc-pages.md).
+
 2026-11-14: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) adds the `Kerberos` glossary page (`knowledge/glossary/k/kerberos.html`), links it from `knowledge/glossary/k/index.html`, and rebuilds the corpus indexes in corpus 0.91.0. [Record](docs/ai/2026-11-14-tam-glossary-kerberos.md).
 
 2026-11-14: Codex CLI `0.169.0` (`gpt-6-astra`) and Antigravity CLI `1.5.9` (`claude-opus-5-5-high`, `gemini-4-argon-medium`) reorganize the `tam` knowledge corpus into eight canonical subjects and five shared facilities (corpus 0.90.0) and implement subject browsing, alphabetical page catalog, page-kind lookup, and unified grouped search across the full index (command 0.57.0). [Record](docs/ai/2026-11-14-tam-subject-library.md).
