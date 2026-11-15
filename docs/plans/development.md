@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-15:** Command 0.59.12 (patch): Omit the blank line between `<summary>` and the closed `[+]` toggle in `src/fold.c`, omit extra blank lines at `<section>` boundaries and after `B_META` (`Showing <level> text`) lines, and right-align `Showing <level> text` inside `<tam-box>` to the box's content width rather than the full terminal width in `src/render.c`.
 - **2026-11-15:** Command 0.59.11 (patch): Wrap all expanded interactive folds (`<details>` questions, answers, model answers, hints, solutions as well as `<aside class="first-time">`) in `<tam-box>...</tam-box>` in `src/fold.c` so they show the same border box when opened.
 - **2026-11-15:** Command 0.59.10 (patch): Change `<aside class="first-time">` toggle label to `"You may want to know..."`, omit the duplicate heading line above the toggle in interactive mode, and surround open `<aside class="first-time">` blocks with an ASCII box border (`[-] You may want to know... (<- to hide) ---...+`, ` | ... |`, ` +---...+`) sized to the longest wrapped line in `src/fold.c` and `src/render.c`.
 - **2026-11-15:** Command 0.59.9 (patch): Anchor the attention line and viewport on the focused lens line inside `set_lens` (`src/pager_nav.c`) for all lens changes (`0–3` as well as cycling), and compute `max_top` after key dispatch in `handle_key_inner` (`src/pager_input.c`) so `st->top` is not clamped to the pre-reload document height.

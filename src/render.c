@@ -58,6 +58,7 @@ typedef struct {
     int          ordered;
     int          number;
     int          box;     /* non-zero when inside <tam-box> */
+    int          tight_before;
     tam_span_t  *runs;
     size_t       nruns;
     tam_table_t *table;  /* non-NULL for B_TABLE */
@@ -213,7 +214,8 @@ static void linelist_blank(linelist_t *ll)
 }
 
 static void blocklist_add(blocklist_t *bl, int kind, int level, int ordered,
-                          int number, int box, tam_span_t *runs, size_t nruns)
+                          int number, int box, int tight_before,
+                          tam_span_t *runs, size_t nruns)
 {
     if (bl->n == bl->cap) {
         size_t cap = bl->cap ? bl->cap * 2 : 8;
@@ -226,6 +228,7 @@ static void blocklist_add(blocklist_t *bl, int kind, int level, int ordered,
     b->ordered = ordered;
     b->number = number;
     b->box = box;
+    b->tight_before = tight_before;
     b->runs = runs;
     b->nruns = nruns;
     b->table = NULL;
@@ -252,7 +255,8 @@ static void table_free(tam_table_t *t)
     free(t);
 }
 
-static void blocklist_add_table(blocklist_t *bl, int box, tam_table_t *table)
+static void blocklist_add_table(blocklist_t *bl, int box, int tight_before,
+                                tam_table_t *table)
 {
     if (bl->n == bl->cap) {
         size_t cap = bl->cap ? bl->cap * 2 : 8;
@@ -265,6 +269,7 @@ static void blocklist_add_table(blocklist_t *bl, int box, tam_table_t *table)
     b->ordered = 0;
     b->number = 0;
     b->box = box;
+    b->tight_before = tight_before;
     b->runs = NULL;
     b->nruns = 0;
     b->table = table;
@@ -477,6 +482,8 @@ typedef struct {
     int           in_breadcrumb;
     int           box_depth;
     int           box_seq;
+    int           tight_next;
+    int           block_tight;
 } parser_t;
 
 static void list_push(parser_t *p, int ordered)
@@ -506,11 +513,15 @@ static void parser_end_block(parser_t *p)
     if (p->kind == B_HR || p->runs.n > 0) {
         int box = p->box_depth > 0 ? p->box_seq : 0;
         blocklist_add(&p->blocks, p->kind, p->level, p->ordered, p->number,
-                      box, p->runs.v, p->runs.n);
+                      box, p->block_tight, p->runs.v, p->runs.n);
         spanlist_init(&p->runs);
     } else {
+        if (p->block_tight) {
+            p->tight_next = 1;
+        }
         spanlist_free(&p->runs);
     }
+    p->block_tight = 0;
     p->has_block = 0;
     p->kind = 0;
 }
@@ -557,6 +568,8 @@ static void parser_begin_block(parser_t *p, int kind, int level, int ordered,
     p->level = level;
     p->ordered = ordered;
     p->number = number;
+    p->block_tight = p->tight_next;
+    p->tight_next = 0;
     p->has_block = 1;
 }
 
@@ -802,13 +815,18 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
         parser_end_block(p);
         return;
     }
-    if (strcmp(name, "section") == 0 || strcmp(name, "article") == 0 ||
-        strcmp(name, "div") == 0) {
+    if (strcmp(name, "section") == 0) {
+        parser_end_block(p);
+        p->tight_next = 1;
+        return;
+    }
+    if (strcmp(name, "article") == 0 || strcmp(name, "div") == 0) {
         parser_end_block(p);
         return;
     }
     if (strcmp(name, "tam-box") == 0) {
         parser_end_block(p);
+        p->tight_next = 0;
         if (closing) {
             if (p->box_depth > 0) {
                 p->box_depth--;
@@ -965,7 +983,9 @@ static void parser_handle_tag(parser_t *p, const char *src, const tam_tag_t *t)
             if (p->curr_table != NULL) {
                 if (p->curr_table->nrows > 0) {
                     int box = p->box_depth > 0 ? p->box_seq : 0;
-                    blocklist_add_table(&p->blocks, box, p->curr_table);
+                    blocklist_add_table(&p->blocks, box, p->tight_next,
+                                        p->curr_table);
+                    p->tight_next = 0;
                 } else {
                     table_free(p->curr_table);
                 }
@@ -2114,7 +2134,7 @@ static void align_center(tam_line_t *line, int width)
 }
 
 static void layout_single_block(const blocklist_t *blocks, size_t i, int width,
-                                linelist_t *out)
+                                linelist_t *out, int right_align_meta)
 {
     out->logical_block = i;
     out->logical_offset = 0;
@@ -2147,7 +2167,7 @@ static void layout_single_block(const blocklist_t *blocks, size_t i, int width,
     block_prefix(b, pfx, sizeof(pfx));
     size_t first = out->n;
     layout_flow(out, b->runs, b->nruns, width, pfx);
-    if (b->kind == B_META && out->n == first + 1) {
+    if (b->kind == B_META && right_align_meta && out->n == first + 1) {
         align_right(&out->v[first], width);
     } else if (b->kind == B_PARA && b->level == ALIGN_CENTER) {
         for (size_t ln = first; ln < out->n; ln++) {
@@ -2182,12 +2202,22 @@ static void layout_box_push_border(linelist_t *out, size_t logical_block,
     linelist_push(out, &l);
 }
 
+static int blocks_are_tight(const tam_block_t *prev, const tam_block_t *b)
+{
+    return b->tight_before ||
+           prev->kind == B_META ||
+           (b->kind == B_LIST && prev->kind == B_LIST &&
+            b->level == prev->level) ||
+           (b->kind == B_DD && prev->kind == B_DT) ||
+           (b->kind == B_PRE && prev->kind == B_DT);
+}
+
 static void layout_box(const blocklist_t *blocks, size_t start, size_t end,
                        int width, linelist_t *out)
 {
     linelist_t hdr;
     memset(&hdr, 0, sizeof(hdr));
-    layout_single_block(blocks, start, width, &hdr);
+    layout_single_block(blocks, start, width, &hdr, 1);
 
     size_t hdr_w = hdr.n > 0 ? line_display_width(&hdr.v[hdr.n - 1]) : 0;
 
@@ -2195,20 +2225,12 @@ static void layout_box(const blocklist_t *blocks, size_t start, size_t end,
     linelist_t body;
     memset(&body, 0, sizeof(body));
     for (size_t k = start + 1; k < end; k++) {
-        if (k > start + 1) {
-            const tam_block_t *b = &blocks->v[k];
-            const tam_block_t *prev = &blocks->v[k - 1];
-            int tight = (b->kind == B_LIST && prev->kind == B_LIST &&
-                         b->level == prev->level) ||
-                        (b->kind == B_DD && prev->kind == B_DT) ||
-                        (b->kind == B_PRE && prev->kind == B_DT);
-            if (!tight) {
-                body.logical_block = k;
-                body.logical_offset = 0;
-                linelist_blank(&body);
-            }
+        if (k > start + 1 && !blocks_are_tight(&blocks->v[k - 1], &blocks->v[k])) {
+            body.logical_block = k;
+            body.logical_offset = 0;
+            linelist_blank(&body);
         }
-        layout_single_block(blocks, k, inner_max, &body);
+        layout_single_block(blocks, k, inner_max, &body, 0);
     }
 
     size_t max_body_w = 0;
@@ -2222,6 +2244,17 @@ static void layout_box(const blocklist_t *blocks, size_t start, size_t end,
     size_t box_inner_w = max_body_w;
     if (hdr_w >= 2 && box_inner_w < hdr_w - 2) {
         box_inner_w = hdr_w - 2;
+    }
+
+    for (size_t k = 0; k < body.n; k++) {
+        size_t lb = body.v[k].logical_block;
+        if (blocks->v[lb].kind == B_META) {
+            int single = !(k > 0 && body.v[k - 1].logical_block == lb) &&
+                         !(k + 1 < body.n && body.v[k + 1].logical_block == lb);
+            if (single) {
+                align_right(&body.v[k], (int)box_inner_w);
+            }
+        }
     }
 
     for (size_t k = 0; k + 1 < hdr.n; k++) {
@@ -2298,12 +2331,7 @@ static void layout_document(const blocklist_t *blocks, int width,
         if (i > 0) {
             const tam_block_t *prev = &blocks->v[i - 1];
             int tight = b->box == 0 && prev->box == 0 &&
-                        ((b->kind == B_LIST && prev->kind == B_LIST &&
-                          b->level == prev->level) ||
-                         (b->kind == B_DD && prev->kind == B_DT) ||
-                         (b->kind == B_PRE && prev->kind == B_DT) ||
-                         (prev->kind == B_META && (b->kind == B_META ||
-                          b->kind == B_HEAD)));
+                        blocks_are_tight(prev, b);
             if (!tight) {
                 out->logical_block = i;
                 out->logical_offset = 0;
@@ -2319,7 +2347,7 @@ static void layout_document(const blocklist_t *blocks, int width,
             i = end;
             continue;
         }
-        layout_single_block(blocks, i, width, out);
+        layout_single_block(blocks, i, width, out, 1);
         i++;
     }
 }
@@ -2340,7 +2368,8 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
         parser_finish_cell(&p);
         if (p.curr_table->nrows > 0) {
             int box = p.box_depth > 0 ? p.box_seq : 0;
-            blocklist_add_table(&p.blocks, box, p.curr_table);
+            blocklist_add_table(&p.blocks, box, p.tight_next, p.curr_table);
+            p.tight_next = 0;
         } else {
             table_free(p.curr_table);
         }

@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) omits the blank line between quiz summary and closed toggle in `src/fold.c`, omits extra blank lines around `<section>` boundaries, and right-aligns `Showing <level> text` inside `<tam-box>` to the box's content width in `src/render.c` (command 0.59.12). [Record](docs/ai/2026-11-15-tam-quiz-section-box-spacing.md).
+
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) wraps all expanded interactive folds (questions, answers, hints, solutions) in `<tam-box>` in `src/fold.c` so they show the same border box as open first-time asides (command 0.59.11). [Record](docs/ai/2026-11-15-tam-fold-answer-box.md).
 
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) changes `<aside class="first-time">` to display `[+] You may want to know... (-> to show)` without a duplicate heading when closed and surrounds open first-time asides with a word-wrapped ASCII box in `src/fold.c` and `src/render.c` (command 0.59.10). [Record](docs/ai/2026-11-15-tam-first-time-aside-box.md).

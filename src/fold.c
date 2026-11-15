@@ -164,13 +164,15 @@ static void transform(transform_t *x, size_t from, size_t to, buf_t *out,
                 if (x->pipe) { snprintf(line, sizeof(line), "%u. ", id); str(out, line); }
                 if (summary.name[0]) add(out, s + summary.end, summary_end.start - summary.end);
                 else str(out, label);
-                str(out, "</p>");
+                if (!x->pipe && !opened) str(out, "<br>");
+                else str(out, "</p>");
             }
             if (!x->pipe) {
-                if (opened) str(out, "<tam-box>");
+                if (opened) str(out, "<tam-box><p>");
+                else if (!(summary.name[0] || !first_time)) str(out, "<p>");
                 /* The hint names the arrow keys; +, -, Enter, r and * also work. */
                 snprintf(line, sizeof(line),
-                         "<p><a href=\"tam:fold:%u\">[%c] %s (%s)</a></p>",
+                         "<a href=\"tam:fold:%u\">[%c] %s (%s)</a></p>",
                          id, opened ? '-' : '+', label,
                          opened ? "&lt;- to hide" : "-&gt; to show");
                 str(out, line);

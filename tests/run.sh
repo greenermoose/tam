@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.11' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.12' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -2104,6 +2104,49 @@ p = Pager(["show", "-"], state, env={"TAM_LEVEL": "all"},
           stdin=b"<h1>Input quiz</h1><details class=\"q\"><summary>Input?</summary>INPUT_SECRET</details>")
 assert "INPUT_SECRET" not in p.first, p.first
 assert "INPUT_SECRET" in p.key(b"r")
+p.quit()
+
+# Quiz summary/details spacing, section spacing, and box-width lens alignment.
+import shutil
+quiz_kb = os.path.join(tmp, "quiz_kb")
+shutil.rmtree(quiz_kb, ignore_errors=True)
+shutil.copytree(guide, quiz_kb)
+with open(os.path.join(quiz_kb, "quiz.html"), "w") as f:
+    f.write(
+        "<!doctype html><html><head><title>Quiz</title></head><body><h1>Quiz</h1>"
+        "<section class=\"quiz\">"
+        "<details class=\"q\">"
+        "<summary><i>When you read this guide, how much detail do you want?</i></summary>"
+        "<section data-level=\"novice\"><code>1</code> Novice text only</section>"
+        "<section data-level=\"learner\"><code>2</code> Learner text only (with teaching examples for practice)</section>"
+        "<section data-level=\"expert\"><code>3</code> Expert text only (with usage examples as reminders)</section>"
+        "<code>0</code> All text - you get the whole enchilada!"
+        "</details>"
+        "</section></body></html>"
+    )
+p = Pager(["show", "quiz.html"], state,
+          env={"TAM_LEVEL": "all", "TAM_KNOWLEDGE_DIR": quiz_kb}, cols=80)
+assert "When you read this guide, how much detail do you want?" in p.first, p.first
+assert "[+] Answer (-> to show)" in p.first, p.first
+# Closed: no blank line between summary and [+] Answer (-> to show).
+idx_q = p.first.index("how much detail do you want?")
+idx_a = p.first.index("[+] Answer (-> to show)")
+between = p.first[idx_q + len("how much detail do you want?"):idx_a]
+assert len(between) < 80 and "\n\n" not in between, repr(between)
+b = p.key(b"r")
+for exp in [
+    "[-] Answer (<- to hide) -------------------------------------+",
+    " |                                                           |",
+    " |                                       Showing novice text |",
+    " | 1 Novice text only                                        |",
+    " |                                      Showing learner text |",
+    " | 2 Learner text only (with teaching examples for practice) |",
+    " |                                       Showing expert text |",
+    " | 3 Expert text only (with usage examples as reminders)     |",
+    " | 0 All text - you get the whole enchilada!                 |",
+    " +-----------------------------------------------------------+",
+]:
+    assert exp in b, (exp, b)
 p.quit()
 ' "$TAM" "$root/tests/fixtures/guide" "$root/tests/fixtures/tldr" "$tmp" || fail "interactive pager level lens test failed"
     pass "level lens: 0-3 persist across links, Back and restarts; TAM_LEVEL and --level override; level line, markers and status row"
