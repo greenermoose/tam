@@ -175,20 +175,17 @@ tam_document_t *tam_catalog_document(const char *root, unsigned level, int width
         return NULL;
     }
 
-    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Topics" } };
-    tam_str_t html = tam_page_begin("Topics A to Z", NULL, crumbs, 2);
+    static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Catalog" } };
+    tam_str_t html = tam_page_begin("All Pages A to Z", NULL, crumbs, 2);
     if (level != 0) {
-        html = tam_str_cat_printf(html, "<h1>Topics A to Z (%s)</h1>\n",
+        html = tam_str_cat_printf(html, "<h1>All Pages A to Z (%s)</h1>\n",
                                   tam_level_name(level));
     } else {
-        html = tam_str_cat(html, "<h1>Topics A to Z</h1>\n");
+        html = tam_str_cat(html, "<h1>All Pages A to Z</h1>\n");
     }
     html = tam_str_cat(html,
-        "<p>Every topic tam can explain, one line each.<br>\n"
-        "Select a topic with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to read it. "
-        "Press <kbd>`</kbd> for the guide index, or <kbd>q</kbd> to quit.</p>\n"
         "<table>\n"
-        "<tr><th>Topic</th><th>Covers</th></tr>\n");
+        "<tr><th>Page</th><th>Subject Matter</th></tr>\n");
 
     const tam_index_entry_t **ordered = calloc(idx->count ? idx->count : 1, sizeof(*ordered));
     if (ordered == NULL) { tam_index_free(idx); tam_str_free(html); return NULL; }

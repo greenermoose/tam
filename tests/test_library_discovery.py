@@ -81,4 +81,17 @@ class LibraryDiscovery(unittest.TestCase):
         self.assertIn('Search for a word',out)
         self.assertNotIn('Keyword Index',out)
 
+    def test_catalog_lists_all_pages_alphabetically(self):
+        self.add('security','security/index.html','Security','security','hub')
+        self.add('networking','networking/index.html','Networking','networking','hub')
+        self.add('word','glossary/w/word.html','Word','word','glossary','glossary','glossary/index.html')
+        out=self.run_tam('show','tam:catalog','--pipe')
+        self.assertIn('Guide > Catalog',out)
+        self.assertIn('All Pages A to Z',out)
+        self.assertIn('Page',out)
+        self.assertIn('Subject Matter',out)
+        self.assertNotIn('Every topic tam can explain',out)
+        self.assertLess(out.index('Networking'),out.index('Security'))
+        self.assertLess(out.index('Security'),out.index('Word'))
+
 if __name__=='__main__':unittest.main()

@@ -92,7 +92,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.59.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.59.2' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
@@ -1349,9 +1349,9 @@ def get_status_info(key=None):
         target = last.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     return (title, target)
 
-# 1. Initial page is Topics A to Z
+# 1. Initial page is All Pages A to Z
 title, _ = get_status_info()
-assert title == "Topics A to Z", f"unexpected topics title: {title}"
+assert title == "All Pages A to Z", f"unexpected topics title: {title}"
 
 # 2. Tab selects first topic link
 title, target = get_status_info(b"\t")
@@ -1359,11 +1359,11 @@ assert target != "", "expected link target to be selected by Tab"
 
 # 3. Enter follows selected topic link into explanation
 title_topic, _ = get_status_info(b"\r")
-assert title_topic != "Topics A to Z", f"did not follow link into topic explanation: {title_topic}"
+assert title_topic != "All Pages A to Z", f"did not follow link into topic explanation: {title_topic}"
 
-# 4. u returns to topics page
+# 4. u returns to catalog page
 title_back, _ = get_status_info(b"u")
-assert title_back == "Topics A to Z", f"did not return to topics page: {title_back}"
+assert title_back == "All Pages A to Z", f"did not return to topics page: {title_back}"
 
 # 5. Backtick (`) jumps to root guide index.html
 title_home, _ = get_status_info(b"`")
