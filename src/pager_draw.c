@@ -110,19 +110,35 @@ int content_width(const pager_t *st)
     return width;
 }
 
+static int breadcrumb_attention(const pager_t *st)
+{
+    return st != NULL && st->doc != NULL && st->height > 2 &&
+           st->doc->location.nspans > 0 && breadcrumb_focused(st);
+}
+
 static void emit_location_line(pager_t *st, int width, const linkref_t *sel)
 {
+    int attention = breadcrumb_attention(st);
     int col = 0;
+    if (attention) emit_attention(1);
     for (size_t i = 0; i < st->doc->location.nspans && col < width; i++) {
         const tam_span_t *sp = &st->doc->location.spans[i];
         const char *text = sp->text ? sp->text : "";
         size_t bytes = status_byte_limit(text, width - col);
         if (bytes == 0) break;
         int selected = sel != NULL && sel->header && sel->span == sp;
-        (void)emit_style(sp, selected);
+        int styled = emit_style(sp, selected);
         outn(text, bytes);
-        if (sp->href != NULL) emit_reset(0);
+        if (styled || sp->href != NULL) emit_reset(attention);
         col += (int)tam_display_width(text, bytes);
+    }
+    if (attention) {
+        emit_attention(1);
+        while (col < width) {
+            outn(" ", 1);
+            col++;
+        }
+        emit_reset(0);
     }
 }
 
@@ -322,7 +338,8 @@ static void emit_line(const tam_line_t *line, int width,
                       const linkref_t *sel, size_t line_idx,
                       const pager_t *st)
 {
-    int attention = st != NULL && (int)line_idx == st->cursor_line;
+    int attention = st != NULL && !breadcrumb_attention(st) &&
+                    (int)line_idx == st->cursor_line;
     int col = 0;
     size_t byte_pos = 0;
     size_t hit_first = 0;
@@ -472,8 +489,13 @@ int draw(pager_t *st)
     g_capture = NULL;
     int content_row = 0;
     int has_header = st->height > 2 && st->doc->location.nspans > 0;
+    int bread_attention = breadcrumb_attention(st);
     if (has_header) {
         g_capture = &frame[0];
+        if (g_term != NULL && g_term->gutter) {
+            char marker = bread_attention ? '>' : ' ';
+            outn(&marker, 1);
+        }
         emit_location_line(st, paint_width, sel);
         content_row = 1;
     }
@@ -481,13 +503,14 @@ int draw(pager_t *st)
         g_capture = &frame[content_row + row];
         int li = st->top + row;
         if (g_term != NULL && g_term->gutter) {
-            char marker = li == st->cursor_line ? '>' : ' ';
+            char marker = (!bread_attention && li == st->cursor_line) ? '>' : ' ';
             outn(&marker, 1);
         }
         if (li < (int)st->doc->nlines) {
             emit_line(&st->doc->lines[li], paint_width, sel, (size_t)li, st);
         }
-        if (li >= (int)st->doc->nlines && (int)li == st->cursor_line) {
+        if (li >= (int)st->doc->nlines && !bread_attention &&
+            (int)li == st->cursor_line) {
             emit_attention(1);
             for (int c = 0; c < paint_width; c++) out(" ");
             emit_reset(0);

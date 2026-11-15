@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-15:** Command 0.59.7 (patch): Highlight the breadcrumb row (`emit_location_line` in `src/pager_draw.c`) across its full width with the attention-line style when `breadcrumb_focused(st)` is true (with `height > 2` and `location.nspans > 0`), and suppress the attention highlight on content rows while the breadcrumb row is focused.
 - **2026-11-15:** Command 0.59.6 (patch): Replace `[N Level]` section heading prefixes and `Hiding <level> text (0N show)` hidden markers in `src/depth.c` with right-aligned `<p class="level-line">` notices (`23 hide novice text` / `01 show novice text`, with `<level> text` in the lens color); keep `B_META` tight above any `B_HEAD` in `src/render.c`; update `hiding_line_here` in `src/pager_nav.c` for `01 show`/`02 show`/`03 show`.
 - **2026-11-15:** Command 0.59.5 (patch): Reorder the bottom status row in `src/pager_draw.c` to place keybindings first (`asdf jkl; Navigate  [] Select links  h Help  q Quit`, narrow fallback `h Help  q Quit`) followed by ` | ` and the lens (`0123 showing ...`), with the version right-aligned.
 - **2026-11-15:** Command 0.59.4 (patch): Keep unspaced inline clusters (such as `"<i>synonyms</i>",`) together across line wraps in `layout_flow` and `wrap_cell` in `src/render.c`.

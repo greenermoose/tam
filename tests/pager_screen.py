@@ -226,6 +226,14 @@ def main():
     assert "bg236" in focus_attrs and "fg15" in focus_attrs, focus_attrs
     assert b"\x1b[2J" not in initial
 
+    os.write(master, b"\x1b[A")
+    screen.feed(read_available(master))
+    assert focused_rows(screen) == [0], focused_rows(screen)
+    assert "bg236" in screen.cells[0][-2][1] and "fg15" in screen.cells[0][-2][1], screen.cells[0][-2][1]
+    os.write(master, b"\x1b[B")
+    screen.feed(read_available(master))
+    assert focused_rows(screen) == [1], focused_rows(screen)
+
     os.write(master, b"h")
     help_frame = read_available(master)
     screen.feed(help_frame)

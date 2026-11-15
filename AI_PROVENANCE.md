@@ -1,5 +1,7 @@
 # AI collaboration and provenance
 
+2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) highlights the breadcrumb row as the attention line when focused in `src/pager_draw.c` (command 0.59.7). [Record](docs/ai/2026-11-15-tam-breadcrumb-attention-line.md).
+
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) replaces `[N Level]` section prefixes and `Hiding ... text (0N show)` markers with right-aligned `23 hide <level> text` / `0N show <level> text` notices in `src/depth.c`, `src/render.c`, and `src/pager_nav.c` (command 0.59.6). [Record](docs/ai/2026-11-15-tam-lensed-section-notices.md).
 
 2026-11-15: Antigravity CLI `1.5.9` (`gemini-4-hydrogen-medium`) adds `knowledge/desktop/session/start.html` for `start` (`tam-start`), links it from `knowledge/desktop/session/index.html` and `knowledge/welcome.html`, and rebuilds corpus indexes in corpus 0.93.0. [Record](docs/ai/2026-11-15-tam-start-page.md).
