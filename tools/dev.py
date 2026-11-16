@@ -1043,7 +1043,7 @@ def step_install(root, changes=None):
         if cmd_res.returncode != 0:
             raise DevError(f"make command failed:\n{cmd_res.stdout.strip()}")
 
-    default_raw = "~/.local/dev"
+    default_raw = "~/.local"
     default_expanded = os.path.expanduser(default_raw)
     raw_prefix = read_answer(f"Install prefix [{default_raw}]: ").strip() or default_raw
     expanded_prefix = os.path.expanduser(raw_prefix)

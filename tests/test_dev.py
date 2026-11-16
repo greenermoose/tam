@@ -147,7 +147,7 @@ class DevLoopTest(unittest.TestCase):
         root = workspace / "tam"
         registry = workspace / "coordination"
         home = workspace / "home"
-        dev_prefix = home / ".local" / "dev"
+        dev_prefix = home / ".local"
         (dev_prefix / "bin").mkdir(parents=True)
         installed = dev_prefix / "bin/tam"
         installed.write_text('#!/bin/sh\necho "tam command 0.32.0"\n')
@@ -620,7 +620,7 @@ class DevLoopTest(unittest.TestCase):
         )
         custom_prefix = root.parent / "custom-prefix"
         (custom_prefix / "bin").mkdir(parents=True)
-        shutil.copy(Path(env["HOME"]) / ".local/dev/bin/tam", custom_prefix / "bin/tam")
+        shutil.copy(Path(env["HOME"]) / ".local/bin/tam", custom_prefix / "bin/tam")
         custom_env = {
             **env,
             "PATH": f"{custom_prefix / 'bin'}:{env['PATH']}",

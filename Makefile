@@ -17,12 +17,12 @@
 CC       ?= cc
 CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
 
-# When Nix is detected (e.g. Tamlinux with Home Manager, where ~/.local/bin is
-# store-linked and /usr/local is retired), default development installs to the
-# user development prefix $(HOME)/.local/dev rather than root-owned /usr/local.
+# When Nix is detected (e.g. Tamlinux, where /usr/local is retired), default
+# development installs to the user prefix $(HOME)/.local (installing tam into
+# ~/.local/bin) rather than root-owned /usr/local.
 ifndef PREFIX
   ifneq ($(or $(NIX_PROFILES),$(wildcard $(HOME)/.nix-profile)),)
-    PREFIX := $(HOME)/.local/dev
+    PREFIX := $(HOME)/.local
   else
     PREFIX := /usr/local
   endif

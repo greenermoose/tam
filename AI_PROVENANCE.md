@@ -100,6 +100,7 @@ model for each session.
 
 | Date | Work | Tool and model | Evidence |
 | --- | --- | --- | --- |
+| 2026-11-15 | Default `tam` development installs (`Makefile`, `tools/dev.py`, `README`, tests) to `~/.local` (`~/.local/bin`) instead of `~/.local/dev`; tooling only, no version change | Antigravity CLI 1.5.9; Gemini 4 Hydrogen Medium (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-15-tam-local-bin-install-prefix.md) |
 | 2026-11-14 | Retire `beginner`/`intermediate` aliases, add zero-to-expert path pedagogy, cryptography/protocols/post-quantum/security curriculum & two paths (command 0.55.1; corpus 0.84.0–0.88.0) | Antigravity CLI 1.5.9; Gemini 4 Hydrogen Medium (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-14-tam-cryptography-and-security-curriculum.md) |
 | 2026-11-13 | Corpus 0.82.1: every one of the 164 indexed path steps linked as a levelled stage link from its hub | opencode 2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-13-tam-corpus-0821-path-steps.md) |
 | 2026-11-13 | Corpus 0.82.0: six thin topic paths rewritten to the path template, older hubs normalized, path-contract enforcement in the corpus build, and 0.81.0 plan records reconciled | opencode 2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-13-tam-corpus-082-trustworthy-paths.md) |
