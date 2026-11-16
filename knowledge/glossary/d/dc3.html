@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DC3 (Device Control 3 / XOFF, 0x13)</p></nav>
 
 <h1>DC3 (Device Control 3 / XOFF, 0x13)</h1>
-<p>ASCII 0x13 control character (Ctrl+S), used as XOFF to pause terminal output.</p>
-<section data-level="novice"><p>DC3 (Ctrl+S) is the 'pause output' code that freezes scrolling in a terminal until you press Ctrl+Q.</p></section>
-<section data-level="learner"><p>Part of the <a href="glossary/c/c0-control-codes.html">C0 control codes</a>, DC3 acts as XOFF in software flow control (IXON).</p></section>
-<section data-level="expert"><p>ASCII 0x13 (DC3 / XOFF, Ctrl+S). Suspends TTY output in the kernel line discipline when IXON is set.</p></section>
+<p>DC3 (Device Control 3, also called XOFF) is an ASCII control code (0x13, typed with Ctrl+S) used in terminals to pause scrolling output.</p>
+<section data-level="novice"><p>When text is scrolling past too fast to read in a terminal, Ctrl+S acts like a pause button that freezes the screen until you press Ctrl+Q to continue. Because Ctrl+S means "Save" in most desktop programs, people often press it by habit in a terminal and think the window has crashed.</p></section>
+<section data-level="learner"><p>Part of the <a href="glossary/c/c0-control-codes.html">C0 control codes</a>, DC3 acts as XOFF in software flow control (<code>IXON</code>). Pressing Ctrl+S pauses screen output without killing the running command; disabling flow control with <code>stty -ixon</code> lets Ctrl+S pass to editors or forward history search instead.</p>
+<details class="q"><summary>If you accidentally press Ctrl+S in a terminal, does it cancel the running command?</summary><p>No. DC3 (0x13) only tells the terminal driver to pause sending output to the screen while <code>IXON</code> is enabled. The command keeps running until its output buffer fills, and pressing Ctrl+Q (DC1) resumes display.</p></details></section>
+<section data-level="expert"><p>ASCII 0x13 (DC3 / XOFF, <code>^S</code>). In the Linux <code>n_tty</code> line discipline with <code>IXON</code> enabled, receiving <code>c_cc[VSTOP]</code> (default <code>0x13</code>) sets the TTY stopped flag and halts driver writes until <code>VSTART</code> (or any character if <code>IXANY</code> is set) arrives. A foreground writer eventually blocks in <code>n_tty_write()</code> once the ring buffer fills (or returns <code>EAGAIN</code> under <code>O_NONBLOCK</code>). With <code>IXOFF</code> set, the kernel itself emits <code>VSTOP</code> upstream when its receive buffer nears capacity.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Clock signal</p></nav>
 
 <h1>Clock signal</h1>
-<p>A regular timing pulse that coordinates digital circuits.</p>
-<section data-level="novice"><p>A clock signal is the steady beat that keeps a computer&#x27;s parts working in step.</p></section>
-<section data-level="learner"><p>A clock signal alternates high and low to sequence logic; its frequency is measured in hertz.</p></section>
-<section data-level="expert"><p>A clock signal is a periodic square wave distributed to synchronous circuits, defining setup and hold windows and clock domains.</p></section>
+<p>A steady, repeating electrical pulse that synchronizes operations across digital circuits.</p>
+<section data-level="novice"><p>Think of a clock signal like a metronome or drummer keeping a marching band in step so nobody bumps into each other. Inside a computer, that steady beat—happening billions of times each second—tells the processor and memory when to take their next step together.</p></section>
+<section data-level="learner"><p>Clock frequency is measured in hertz (Hz); modern CPUs run at gigahertz (GHz), meaning billions of pulses per second. Frequency alone does not equal speed, though—processors also raise or lower their clock speed dynamically to save battery or avoid overheating, which you can inspect on Linux under <code>/sys/devices/system/cpu/cpufreq</code>.</p>
+<details class="q"><summary>Why can a 3.5 GHz modern processor outperform an older 4.0 GHz processor?</summary><p>Clock frequency only counts ticks per second, not how much work happens per tick. Newer CPUs execute more instructions per cycle and have larger, faster caches and better branch prediction.</p></details></section>
+<section data-level="expert"><p>A clock signal is a periodic square wave distributed across balanced clock trees (such as H-trees) to edge-triggered flip-flops in synchronous logic. Timing closure requires every combinational path to satisfy setup and hold windows around the active edge, bounded by clock skew and jitter. Dynamic power scales roughly as <code>C × V² × f</code>, driving DVFS (Dynamic Voltage and Frequency Scaling) and clock gating; signals crossing between asynchronous clock domains (CDC) risk metastability and require multi-stage synchronizers or Gray-coded FIFOs.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

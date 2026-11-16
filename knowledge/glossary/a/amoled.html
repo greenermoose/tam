@@ -13,9 +13,12 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / AMOLED (Active-Matrix Organic Light-Emitting Diode)</p></nav>
 
 <h1>AMOLED (Active-Matrix Organic Light-Emitting Diode)</h1>
-<p>Self-emissive OLED display using an active thin-film transistor backplane per pixel.</p>
-<section data-level="novice"><p>AMOLED is a type of OLED screen where each pixel lights itself up and is switched individually for deep blacks.</p></section>
-<section data-level="learner"><p>Common on laptops and phones, AMOLED panels turn off black pixels completely, saving power on dark themes.</p></section>
-<section data-level="expert"><p>Active-matrix OLED using LTPS/LTPO TFT pixel circuits to drive organic emitters with near-infinite static contrast.</p></section>
+<p>A type of OLED display where each pixel makes its own light and is controlled by an active grid of tiny transistors.</p>
+<section data-level="novice"><p>Regular LCD screens work like a flashlight shining behind stained glass: even when the screen shows pure black, the backlight is still on and some light leaks through. On an AMOLED screen, every tiny dot is its own microscopic bulb that can turn completely off. That is why black areas look truly dark and why dark mode can save battery on phones and laptops.</p></section>
+<section data-level="learner">
+<p>On Linux laptops with AMOLED panels, dark themes genuinely reduce power draw, and software brightness sliders may behave differently because OLED panels often dim using pulse-width modulation (PWM) at low brightness, which can cause visible flicker for sensitive eyes. Unlike LCDs, AMOLED pixels age unevenly if static UI elements (such as a bright top bar or dock) stay in the same spot for thousands of hours, leading to burn-in.</p>
+<details class="q"><summary>Why does switching a laptop with an AMOLED screen to a dark theme save more battery than on an LCD laptop?</summary><p>An LCD keeps its backlight powered across the entire panel regardless of image color, whereas an AMOLED pixel draws almost zero power when displaying true black because its organic diode is turned off.</p></details>
+</section>
+<section data-level="expert"><p>AMOLED pairs self-emissive organic electroluminescent diodes with an active-matrix thin-film transistor (TFT) backplane—typically LTPS (low-temperature polysilicon) or LTPO (low-temperature polycrystalline oxide)—using at least a 2T1C pixel circuit to hold gate voltage between refreshes. LTPO backplanes reduce leakage current enough to dynamically scale refresh rates down to 1 Hz without flicker. Trade-offs include Pentile (RG-BG) subpixel layouts that lower effective red/blue spatial resolution relative to RGB stripe LCDs, differential blue-emitter luminance decay requiring factory compensation tables, and DC-dimming versus PWM trade-offs where low-duty-cycle PWM shifts gamma and induces chromaticity drift at low luminance.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

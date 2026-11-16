@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EPUB (Electronic Publication)</p></nav>
 
 <h1>EPUB (Electronic Publication)</h1>
-<p>Open reflowable e-book format built from zipped XHTML, CSS, and metadata.</p>
-<section data-level="novice"><p>EPUB is an open e-book format whose text reflows neatly to fit any screen size.</p></section>
-<section data-level="learner"><p>Unlike fixed-page PDFs, EPUB files adapt font size and line wrapping dynamically.</p></section>
-<section data-level="expert"><p>W3C/IDPF ZIP container (application/epub+zip) bundling OPF spine, XHTML content documents, and CSS.</p></section>
+<p>Electronic Publication: an open, reflowable e-book format built from zipped web pages, stylesheets, and metadata.</p>
+<section data-level="novice"><p>A PDF is like a printed page photographed onto your screen—if you zoom in on a phone, you end up scrolling sideways. An EPUB book works more like a responsive web page: the text automatically wraps and resizes to fit your phone, tablet, or e-reader comfortably.</p></section>
+<section data-level="learner"><p>Because an EPUB file is actually a standard ZIP archive containing HTML and CSS files, you can inspect or extract it with <code>unzip</code>, and read it on Linux with viewers like Foliate, Calibre, or Okular. Unlike PDFs, EPUBs let readers change fonts, margins, and dark-mode colors cleanly, though fixed-layout EPUBs exist for comics and textbooks.</p><details class="q"><summary>Why can you inspect the contents of an unencrypted EPUB file using standard ZIP tools?</summary><p>The EPUB specification packages all chapters, images, stylesheets, and navigation metadata inside a standard ZIP container (with an uncompressed <code>mimetype</code> file first), so tools like <code>unzip</code> can list and extract them directly.</p></details></section>
+<section data-level="expert"><p>Standardized by the W3C (EPUB 3.3, MIME type <code>application/epub+zip</code>), the Open Container Format (OCF) requires an uncompressed <code>mimetype</code> entry as the first file in the ZIP archive, followed by <code>META-INF/container.xml</code> pointing to the Open Packaging Format (OPF) XML manifest and spine. Content documents use XHTML5 (with optional CSS, SVG, MathML, and Media Overlays), while navigation relies on an HTML <code>nav</code> document replacing EPUB 2’s NCX.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

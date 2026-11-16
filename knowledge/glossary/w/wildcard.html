@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / Wildcard</p></nav>
 
 <h1>Wildcard</h1>
-<p>A pattern character that matches other characters.</p>
-<section data-level="novice"><p>A wildcard is a stand-in symbol like * that matches any text in a name.</p></section>
-<section data-level="learner"><p>A wildcard is a metacharacter in filename patterns, expanded by the shell or matched by a tool.</p></section>
-<section data-level="expert"><p>A wildcard is a pattern token with language-specific matching rules, such as shell globbing or regular-expression quantifiers.</p></section>
+<p>A wildcard is a special placeholder character in a pattern that matches one or more unspecified characters, most commonly used to select groups of files or filter text.</p>
+<section data-level="novice"><p>Think of a wildcard like a blank tile in a word game that can stand in for any letters. Typing <code>*.txt</code> is a shortcut for saying “every file whose name ends with <code>.txt</code>” without having to type each filename yourself.</p></section>
+<section data-level="learner"><p>In Linux shells such as Bash and Zsh, wildcards (<code>*</code>, <code>?</code>, <code>[a-z]</code>) are glob patterns that the shell expands into matching filenames <em>before</em> the command runs. That is why you quote patterns passed to <code>find -name '*.log'</code> or <code>grep</code>: otherwise the shell expands them in the current directory first, and regular expressions use <code>*</code> as a repetition quantifier rather than a standalone filename wildcard.</p>
+<details class="q"><summary>Why should you quote <code>*.log</code> in <code>find . -name '*.log'</code>?</summary><p>Without quotes, the shell expands <code>*.log</code> against files in the current directory before <code>find</code> starts, which either searches for the wrong literal names or fails if multiple files match.</p></details></section>
+<section data-level="expert"><p>POSIX shell globbing (<code>fnmatch</code>) defines <code>*</code> (zero or more non-<code>/</code> characters), <code>?</code> (one character), and bracket expressions (<code>[!...]</code>), excluding leading dots unless matched explicitly or via <code>dotglob</code>—distinct from regex syntax where <code>*</code> quantifies the preceding atom. Edge cases include unmatched-glob behavior (passed literally in POSIX <code>sh</code>/Bash unless <code>nullglob</code> or <code>failglob</code> is set, whereas Zsh errors by default) and filenames starting with <code>-</code> being parsed as command flags after expansion unless prefixed with <code>./*</code> or <code>--</code>.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

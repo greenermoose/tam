@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / Refresh rate</p></nav>
 
 <h1>Refresh rate</h1>
-<p>How many times per second a display redraws.</p>
-<section data-level="novice"><p>Refresh rate is how often a screen updates its picture, measured in hertz.</p></section>
-<section data-level="learner"><p>Refresh rate is the number of full frames per second a display scans out, such as 60 Hz or 144 Hz.</p></section>
-<section data-level="expert"><p>Refresh rate is the display scan-out frequency, tied to pixel clock, blanking intervals, and variable-refresh capabilities.</p></section>
+<p>Refresh rate is the number of times per second a display redraws its entire image, measured in hertz (Hz).</p>
+<section data-level="novice"><p>Just like a flipbook looks smoother when you flip pages faster, a monitor looks smoother when it updates the picture more times each second. A 60 Hz screen redraws 60 times per second, while a 120 Hz or 144 Hz screen redraws more than twice as often, making mouse movement, scrolling, and fast games feel noticeably fluid.</p></section>
+<section data-level="learner"><p>Refresh rate (how often the monitor scans out a frame) is distinct from frame rate (FPS, how many frames per second your GPU renders). If a GPU produces 90 FPS on a fixed 60 Hz display without synchronization, you can see screen tearing (two half-frames on screen at once). Variable Refresh Rate (VRR / FreeSync / G-Sync) lets the monitor adjust its refresh rate dynamically to match the GPU.</p><details class="q"><summary>If a game runs at 120 FPS on a 60 Hz monitor, will you see 120 distinct images per second?</summary><p>No. The monitor physically scans out only 60 frames per second, so at most 60 complete images can be displayed each second; extra rendered frames are either dropped by V-Sync or cause tearing mid-scanout.</p></details></section>
+<section data-level="expert"><p>Total link bandwidth depends on (H_active + H_blank) × (V_active + V_blank) × refresh_rate × bpp, where blanking intervals (front porch, sync pulse, back porch) allow CRT retrace or digital audio/InfoFrame transport. CVT-RB (Coordinated Video Timings – Reduced Blanking) shrinks blanking overhead to fit higher refresh rates within DisplayPort or HDMI pixel clocks. Under VRR, active scan-out timing stays fixed while the vertical front porch stretches within [VRR_min, VRR_max] until the next page flip.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

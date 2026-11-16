@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EFI - Extensible Firmware Interface</p></nav>
 
 <h1>EFI - Extensible Firmware Interface</h1>
-<p>The firmware interface that replaced the legacy BIOS.</p>
-<section data-level="novice"><p>EFI is the modern startup system that finds and launches the operating system.</p></section>
-<section data-level="learner"><p>Extensible Firmware Interface defines boot services, runtime services, and executable images loaded from an EFI System Partition.</p></section>
-<section data-level="expert"><p>EFI is the interface specification underlying UEFI, with protocols, handles, events, and PE/COFF executable images.</p></section>
+<p>EFI (Extensible Firmware Interface) is the programmable firmware interface specification that replaced the legacy PC BIOS.</p>
+<section data-level="novice"><p>EFI is the modern startup manager built into your computer’s motherboard. Old BIOS firmware could only run tiny, rigid startup instructions from the very beginning of a disk; EFI works more like a mini-operating system that can read files, check hardware, and launch your main operating system cleanly.</p></section>
+<section data-level="learner"><p>Now standardized as UEFI, EFI provides Boot Services (loading <code>.efi</code> boot loaders from an EFI System Partition) and Runtime Services (managing NVRAM boot entries and system resets). On Linux, you can inspect firmware variables under <code>/sys/firmware/efi/efivars</code> and update boot order with <code>efibootmgr</code>—a sharp contrast to legacy BIOS, which relied on a 512-byte MBR boot sector in 16-bit real mode.</p>
+<details class="q"><summary>What changes when the Linux kernel calls <code>ExitBootServices()</code> during startup?</summary><p>Firmware shuts down its Boot Services and releases boot-time memory to the kernel; afterward, only EFI Runtime Services (such as NVRAM variable access and reboot) remain available.</p></details></section>
+<section data-level="expert"><p>EFI/UEFI exposes an <code>EFI_SYSTEM_TABLE</code> of Handles and GUID-identified Protocols and executes PE32+ (PE/COFF) images marked with subsystem <code>EFI_IMAGE_SUBSYSTEM_EFI_APPLICATION</code>. The kernel’s <code>CONFIG_EFI_STUB</code> lets Linux itself act as an EFI executable, validating the memory map key at <code>ExitBootServices()</code> and accessing NVRAM variables tagged with <code>NON_VOLATILE</code>, <code>BOOTSERVICE_ACCESS</code>, and <code>RUNTIME_ACCESS</code> attributes.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

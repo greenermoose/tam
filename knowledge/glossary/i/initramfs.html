@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / Initramfs (initial RAM filesystem)</p></nav>
 
 <h1>Initramfs (initial RAM filesystem)</h1>
-<p>A small temporary filesystem used during early boot.</p>
-<section data-level="novice"><p>An initramfs is a temporary startup filesystem that helps the kernel find and mount the real system.</p></section>
-<section data-level="learner"><p>The initial RAM filesystem provides drivers and scripts needed to assemble storage, decrypt volumes, and mount the root filesystem.</p></section>
-<section data-level="expert"><p>An initramfs is a cpio archive loaded into a tmpfs, executed by the kernel as early user space before the real root is mounted.</p></section>
+<p>A small, temporary in-memory filesystem loaded during early boot so the kernel can prepare storage and mount the real root filesystem.</p>
+<section data-level="novice"><p>Think of an initramfs as a compact travel toolkit the computer unpacks into memory right as it wakes up. Before the main drive is unlocked and ready, the computer uses the tools inside that toolkit—like a key prompt for an encrypted disk or a driver for a storage card—to open the main system and hand off control.</p></section>
+<section data-level="learner"><p>The bootloader loads both the Linux kernel and the initramfs image into RAM before starting the kernel. On systems using full-disk encryption (LUKS), LVM, RAID, or network root filesystems, the initramfs provides the user-space utilities and kernel modules needed to prompt for a passphrase, assemble volumes, and mount the real root filesystem.</p>
+<details class="q"><summary>Why can’t the Linux kernel always mount the root filesystem directly without an initramfs?</summary><p>Because the root filesystem may sit on an encrypted LUKS volume, LVM/RAID array, or storage device whose unlock utilities or modular drivers are not compiled directly into the kernel binary.</p></details></section>
+<section data-level="expert"><p>An initramfs is a (usually compressed) <code>newc</code>-format <code>cpio</code> archive—optionally prefixed with uncompressed CPU microcode—that the kernel unpacks into an internal <code>rootfs</code> (a <code>tmpfs</code>/<code>ramfs</code> instance) and executes <code>/init</code> as early <code>PID 1</code>. Unlike the legacy block-device <code>initrd</code> (which relied on a ramdisk driver and <code>pivot_root</code>), <code>initramfs</code> transitions via <code>switch_root</code>, deleting the temporary <code>rootfs</code> contents to reclaim RAM before execing the real <code>/sbin/init</code>.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="systems/boot/boot.html">How your computer starts</a></li></ul>
 </body></html>

@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / Build</p></nav>
 
 <h1>Build</h1>
-<p>The process of turning source into runnable software.</p>
-<section data-level="novice"><p>To build is to take source code and produce a program or package.</p></section>
-<section data-level="learner"><p>A build runs configuration, compilation, linking, and packaging steps, often orchestrated by a build system.</p></section>
-<section data-level="expert"><p>A build is a reproducible or incremental derivation of artifacts from sources, inputs, and toolchain under declared rules.</p></section>
+<p>The process of turning human-readable source files into runnable software or installable packages.</p>
+<section data-level="novice"><p>Think of building software like baking from a recipe: source code is the list of ingredients and instructions, and building is mixing and baking them into a finished program you can actually run. Computers cannot run most human-written code directly until it is translated and assembled into machine-ready form.</p></section>
+<section data-level="learner"><p>On Linux, a build usually runs through distinct stages—configuring options and finding libraries, compiling source files into object code, linking them into executables or shared libraries, and optionally packaging the output. Tools such as <code>make</code>, <code>cmake</code>, and <code>meson</code> track timestamps so incremental builds only recompile what changed.</p><details class="q"><summary>Why does an incremental build sometimes fail or produce stale output after you change a header or build option?</summary><p>Incremental builds skip steps whose tracked inputs look unchanged. If a build script misses a header dependency, or if you change a compiler flag without cleaning old object files, old compiled pieces get linked with new ones and cause subtle bugs or link errors.</p></details></section>
+<section data-level="expert"><p>Builds trade speed (incremental caching, parallel <code>-j</code> job slots, precompiled headers) against hermiticity and reproducibility. Non-hermetic builds leak host state—<code>PATH</code>, locale, timestamps, or ambient headers—breaking bit-for-bit reproducibility. Reproducible builds pin toolchain versions, normalize <code>SOURCE_DATE_EPOCH</code>, remap build paths with <code>-ffile-prefix-map</code>, and isolate inputs in sandboxes or chroots so identical inputs yield identical output digests.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

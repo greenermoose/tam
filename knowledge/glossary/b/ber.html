@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / BER - Bit Error Rate</p></nav>
 
 <h1>BER - Bit Error Rate</h1>
-<p>The rate at which bits are received incorrectly.</p>
-<section data-level="novice"><p>BER is a measure of how many bits get damaged during transmission.</p></section>
-<section data-level="learner"><p>Bit error rate is the number of incorrect bits divided by the total bits received.</p></section>
-<section data-level="expert"><p>BER is the probability or measured ratio of bit errors over a channel, often quoted before and after forward error correction.</p></section>
+<p>The fraction of transmitted bits that arrive flipped or corrupted over a communication channel.</p>
+<section data-level="novice"><p>Imagine whispering a 100-letter message across a noisy room and 1 letter gets misheard—your error rate is 1%. BER measures that same idea for digital data: out of all the 1s and 0s sent over a wire, fiber, or wireless link, it tells you how many arrived wrong because of noise or interference.</p></section>
+<section data-level="learner"><p>BER is calculated as <code>error bits / total bits received</code> and is usually written in scientific notation (such as <code>10<sup>−12</sup></code> for high-speed wired links). A lower BER means a cleaner signal. Note that BER measures raw bit flips on the physical link, whereas packet loss measures whole frames or packets dropped higher up—often after a single bit error causes a checksum (CRC) failure.</p>
+<details class="q"><summary>If a Gigabit Ethernet link has a BER of 10<sup>−12</sup>, roughly how often would a single bit error occur at full 1 Gbps?</summary><p>At 10<sup>9</sup> bits per second, 10<sup>12</sup> bits pass every 1,000 seconds (about 16.7 minutes), so you would expect roughly one bit error every 17 minutes.</p></details></section>
+<section data-level="expert"><p>Formally the empirical ratio or statistical probability <code>P_b</code> of bit errors at the receiver decision circuit. In modern links, engineers distinguish <strong>pre-FEC BER</strong> (raw channel errors before Forward Error Correction, e.g., <code>10<sup>−4</sup></code>–<code>10<sup>−5</sup></code> on 25G/100G PAM-4 lanes) from <strong>post-FEC BER</strong> (residual errors after Reed–Solomon or LDPC decoding, typically required to be <code>&lt; 10<sup>−12</sup></code> or <code>&lt; 10<sup>−15</sup></code>). For uncoded BPSK over AWGN, <code>BER = Q(√(2 E_b / N_0))</code>; in hardware testing, BER is measured with PRBS patterns (e.g., PRBS31) and visualized as a bathtub curve against sampling phase and voltage thresholds.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

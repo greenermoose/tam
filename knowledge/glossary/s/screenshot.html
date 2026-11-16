@@ -13,10 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Screenshot</p></nav>
 
 <h1>Screenshot</h1>
-<p>A capture of what is on screen.</p>
-<section data-level="novice"><p>A screenshot is a picture of your screen at one moment.</p></section>
-<section data-level="learner"><p>A screenshot captures framebuffer or compositor output, optionally a window or region, into an image.</p></section>
-<section data-level="expert"><p>A screenshot is a compositor or display-server capture using shared memory, DMA-BUF, or screencopy protocols, with color and cursor handling.</p></section>
+<p>An image file that captures what is currently displayed on a computer screen, a specific window, or a selected region.</p>
+<section data-level="novice"><p>A screenshot is a digital photo of your screen taken by the computer itself. It is a quick way to save an error message, share what you are looking at with someone else, or keep a record of something on screen without using a phone camera.</p></section>
+<section data-level="learner"><p>Most Linux desktops bind <code>Print Screen</code> to capture the full screen, a single window, or a dragged rectangle, saving a PNG image (and optionally copying it to the clipboard). On Wayland desktops, individual apps cannot silently grab the whole screen for security reasons; instead, a system portal asks you to confirm or select what to capture.</p><details class="q"><summary>Why do older X11 screenshot tools often fail or capture only a black rectangle on a Wayland session?</summary><p>Wayland isolates each application’s buffers so clients cannot read other windows or the global framebuffer directly; screenshots must go through the compositor or <code>xdg-desktop-portal</code> with user consent.</p></details></section>
+<section data-level="expert"><p>On X11, tools such as <code>scrot</code> or <code>import</code> read the root window via <code>XGetImage</code> or MIT-SHM. On Wayland, compositors mediate capture either through <code>xdg-desktop-portal</code> (<code>org.freedesktop.portal.Screenshot</code> / PipeWire streams) or privileged wlroots protocols like <code>wlr-screencopy-unstable-v1</code> (passing <code>wl_shm</code> or DMA-BUF frames). Implementation subtleties include composite cursor plane inclusion, per-output fractional scaling transforms, and HDR/wide-gamut color-space conversion (e.g., linear/PQ buffers tonemapped or tagged with sRGB ICC profiles upon PNG encoding).</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/tasks/screenshots.html">Taking a screenshot or recording the screen</a></li></ul>
 </body></html>

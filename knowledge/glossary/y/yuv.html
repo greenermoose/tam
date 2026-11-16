@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/y/index.html">Terms beginning with Y</a> / YUV</p></nav>
 
 <h1>YUV</h1>
-<p>A color model that separates brightness from color.</p>
-<section data-level="novice"><p>YUV stores brightness separately from color, which saves bandwidth in video.</p></section>
-<section data-level="learner"><p>YUV represents luma and two chroma components, often subsampled for video compression.</p></section>
-<section data-level="expert"><p>YUV is a family of luma-chroma color representations with BT.601/709/2020 matrices, chroma subsampling, and limited or full range.</p></section>
+<p>A family of color representations that separate image brightness (luma) from color information (chroma).</p>
+<section data-level="novice"><p>Human eyes notice fine details in light and shadow much more sharply than tiny shifts in color. Instead of storing full red, green, and blue values for every dot like RGB does, YUV splits brightness into its own channel and stores color separately—letting video streams shrink color detail without looking blurry to our eyes.</p></section>
+<section data-level="learner"><p>In digital video tools such as <code>ffmpeg</code>, you frequently see pixel formats like <code>yuv420p</code> (YCbCr with 4:2:0 chroma subsampling). In 4:2:0, every pixel keeps its full-resolution brightness (<code>Y</code>), while each 2×2 block of pixels shares one pair of color values (<code>U</code>/<code>Cb</code> and <code>V</code>/<code>Cr</code>), cutting raw data size in half compared to 4:4:4 RGB. Watch for color-range mismatches (limited TV range 16–235 vs. full 0–255), which cause washed-out blacks or crushed shadows during playback.</p>
+<details class="q"><summary>Why do most H.264 and AV1 video files use <code>yuv420p</code> instead of RGB?</summary><p>Human vision is less sensitive to color resolution than brightness resolution. Subsampling chroma to 4:2:0 (one color sample per 2×2 luma block) cuts raw pixel bandwidth by 50% before compression even begins, with minimal visible loss on natural video.</p></details></section>
+<section data-level="expert"><p>While “YUV” historically referred to analog PAL chrominance scaling, digital video uses Y′CbCr—gamma-corrected luma <code>Y′</code> and difference channels <code>Cb</code>/<code>Cr</code> defined by standardized color matrices (BT.601 for SD, BT.709 for HD, BT.2020 for UHD/HDR). Planar formats (<code>I420</code>/<code>NV12</code>) vs. packed formats (<code>YUYV</code>) govern GPU/hardware-decoder memory layout (VA-API/V4L2), and incorrect matrix coefficients or limited-vs-full quantization range flags cause subtle hue shifts and luminance clipping.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DHCP - Dynamic Host Configuration Protocol</p></nav>
 
 <h1>DHCP - Dynamic Host Configuration Protocol</h1>
-<p>The protocol that hands out network settings automatically.</p>
-<section data-level="novice"><p>DHCP is how a computer gets an IP address and other settings when it joins a network.</p></section>
-<section data-level="learner"><p>Dynamic Host Configuration Protocol leases addresses and supplies gateway, DNS, and other options.</p></section>
-<section data-level="expert"><p>DHCP is a BOOTP-derived client-server protocol with discover, offer, request, and acknowledge messages, leases, and relay agents.</p></section>
+<p>The network protocol that automatically assigns IP addresses and basic network settings to devices joining a network.</p>
+<section data-level="novice"><p>When your laptop connects to home or coffee-shop Wi-Fi, you do not have to type in a numeric network address by hand. DHCP acts like a hotel front desk: your device asks for a room, and the router hands it a temporary IP address along with the directions it needs to reach the internet.</p></section>
+<section data-level="learner"><p>A DHCP server leases an IPv4 address for a limited time and bundles options such as the subnet mask, default gateway, and DNS servers. On Linux, clients like <code>NetworkManager</code>, <code>systemd-networkd</code>, or <code>dhcpcd</code> renew the lease automatically at half the lease duration (T1); you can inspect the active address and route with <code>ip addr</code> and <code>ip route</code>.</p><details class="q"><summary>What happens if a DHCP server goes offline while a client’s lease is still active?</summary><p>The client keeps using its leased IP address until the lease expires, attempting to renew at T1 and rebind at T2 before losing the address.</p></details></section>
+<section data-level="expert"><p>A BOOTP-derived UDP protocol (ports 67/68 for IPv4; RFC 2131) using the four-step DORA exchange (Discover, Offer, Request, Acknowledge) and DHCP relay agents (<code>giaddr</code>, Option 82) across routed subnets. Operational failure modes include rogue DHCP servers on L2 segments, broadcast-filtering misconfigurations, and pool exhaustion; IPv6 uses SLAAC (ICMPv6 RA) and/or DHCPv6 (UDP 546/547) governed by RA M/O flags.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

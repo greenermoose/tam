@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/q/index.html">Terms beginning with Q</a> / QUIC</p></nav>
 
 <h1>QUIC</h1>
-<p>Encrypted, multiplexed UDP transport protocol (RFC 9000) underlying HTTP/3.</p>
-<section data-level="novice"><p>QUIC is a modern, fast replacement for TCP built on UDP with TLS 1.3 encryption always turned on.</p></section>
-<section data-level="learner"><p>Used by HTTP/3, QUIC eliminates head-of-line blocking between streams and supports connection migration across Wi-Fi and cellular.</p></section>
-<section data-level="expert"><p>IETF RFC 9000 / 9001 UDP transport integrating TLS 1.3 handshake, independent stream multiplexing, and 0-RTT/1-RTT setup.</p></section>
+<p>An encrypted, multiplexed transport protocol built on top of UDP (RFC 9000) that powers HTTP/3 for faster, more resilient network connections.</p>
+<section data-level="novice"><p>Traditional web connections use TCP, which sends everything in a single line—if one packet gets lost, every file or tab sharing that connection has to wait. QUIC sends multiple independent streams over UDP with encryption always turned on, so losing one packet only pauses that stream and moving from Wi-Fi to cellular does not drop your session.</p></section>
+<section data-level="learner"><p>Unlike TCP plus TLS, where transport and encryption handshakes happen one after another in kernel space, QUIC combines them into a single 1-RTT setup (or 0-RTT for repeat visits) in userspace over UDP port 443. You can inspect QUIC sockets with <code>ss -u</code>, though networks that block or rate-limit UDP 443 cause browsers to fall back to HTTP/2 over TCP.</p>
+<details class="q"><summary>Why does packet loss on one HTTP/3 stream not stall other streams in the same QUIC connection?</summary><p>TCP exposes a single ordered byte stream to the application, causing head-of-line blocking when any packet is missing; QUIC tracks stream offsets independently per stream, so other streams can deliver received data immediately.</p></details></section>
+<section data-level="expert"><p>Defined in RFC 9000 (transport) and RFC 9001 (TLS 1.3 integration), QUIC encrypts headers and payloads—leaving only connection IDs (CIDs) and key-phase/spin bits visible—to prevent middlebox ossification and enable NAT-surviving connection migration. Monotonic packet numbers avoid TCP’s retransmission ambiguity, while trade-offs include higher userspace per-packet CPU overhead unless UDP GSO/GRO (<code>UDP_SEGMENT</code>) or kernel-bypass optimizations are used.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

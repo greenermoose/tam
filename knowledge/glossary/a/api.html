@@ -13,9 +13,12 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / API - Application Programming Interface</p></nav>
 
 <h1>API - Application Programming Interface</h1>
-<p>A defined way for software to call another piece of software.</p>
-<section data-level="novice"><p>An API is the set of commands and rules one program offers to another.</p></section>
-<section data-level="learner"><p>An application programming interface specifies functions, types, and behavior that callers can rely on.</p></section>
-<section data-level="expert"><p>An API is a source-level contract of names, signatures, types, and semantics, distinct from the binary ABI that implements it.</p></section>
+<p>A defined contract of functions, data structures, and rules that lets one piece of software talk to another.</p>
+<section data-level="novice"><p>Think of an API like a restaurant menu. You do not need to walk into the kitchen and know how the stove works; you just order from the list of dishes using the exact names on the menu, and the kitchen hands back your food. In the same way, an API lets one program ask another program or the operating system to do a job without knowing its inner code.</p></section>
+<section data-level="learner">
+<p>On Linux, you encounter APIs at several layers: C programs call the POSIX/libc API (functions like <code>open()</code> and <code>read()</code>), GUI apps call toolkit APIs (GTK or Qt), and web clients call HTTP/REST APIs. A crucial distinction during library upgrades is that source-level compatibility (the API—function names and argument types) can remain intact even when binary compatibility breaks, requiring programs to be recompiled against the new headers.</p>
+<details class="q"><summary>Why might a compiled program fail to run after a shared library upgrade even though the library’s source code API did not change?</summary><p>The binary layout (ABI)—such as struct field offsets, enum sizes, or symbol versions—can change without altering the source-level API, breaking already-compiled binaries until they are rebuilt.</p></details>
+</section>
+<section data-level="expert"><p>An API defines a source-level syntactic and semantic contract—function signatures, type definitions, error conventions, ownership/lifetime invariants, and thread-safety guarantees—whereas an ABI (Application Binary Interface) fixes the compiled machine-level representation (calling conventions, struct padding/alignment, vtable layout, name mangling, and ELF symbol versioning). In Linux user space, libraries like <code>glibc</code> maintain backward ABI compatibility across releases via <code>.symver</code> versioned symbols so older binaries bind to legacy entry points while new compilations link against updated ones. By contrast, the Linux kernel guarantees a stable user-space syscall ABI (<code>uapi</code>) while intentionally offering no stable internal kernel module API or ABI across releases.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

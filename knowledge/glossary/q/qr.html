@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/q/index.html">Terms beginning with Q</a> / QR code (Quick Response code)</p></nav>
 
 <h1>QR code (Quick Response code)</h1>
-<p>2D matrix barcode with built-in Reed-Solomon error correction.</p>
-<section data-level="novice"><p>A QR code is a square black-and-white grid barcode that phone cameras can read even if part of it is smudged.</p></section>
-<section data-level="learner"><p>QR codes use Reed-Solomon error correction (7% to 30% recovery) so links or Wi-Fi credentials scan reliably.</p></section>
-<section data-level="expert"><p>ISO/IEC 18004 2D matrix symbology with finder patterns, timing tracks, and Reed-Solomon GF(2^8) FEC.</p></section>
+<p>A two-dimensional matrix barcode that stores text, links, or binary data and includes built-in error correction so scanners can still read damaged codes.</p>
+<section data-level="novice"><p>Think of a QR code as a square black-and-white pattern that a phone camera can read in an instant. Even if part of the square is smudged, folded, or covered by a small logo, the pattern carries spare backup clues so the scanner can still recover the exact link or Wi-Fi password.</p></section>
+<section data-level="learner"><p>On Linux desktops and terminals, tools like <code>qrencode</code> generate QR codes for sharing URLs, TOTP secrets, or Wi-Fi credentials, while <code>zbarimg</code> decodes them. Encoders offer four error-correction levels—L (7%), M (15%), Q (25%), and H (30%)—trading higher data capacity for stronger damage tolerance.</p>
+<details class="q"><summary>Why does choosing a higher error-correction level make a QR code denser for the same text?</summary><p>Higher error-correction levels append more Reed–Solomon parity codewords alongside the payload, forcing the encoder to step up to a larger module grid (higher QR version) to fit both data and recovery bytes.</p></details></section>
+<section data-level="expert"><p>Standardized in ISO/IEC 18004, QR symbols span Version 1 (21×21 modules) to Version 40 (177×177) with finder, alignment, and timing patterns plus a format-selected XOR mask to avoid large monochrome regions. Payloads encode in numeric, alphanumeric, byte, or Kanji modes and use Reed–Solomon forward error correction over GF(2⁸) (primitive polynomial x⁸ + x⁴ + x³ + x² + 1) to correct erasures and unknown symbol errors up to half the parity budget.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

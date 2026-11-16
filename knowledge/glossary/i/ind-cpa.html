@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IND-CPA (Indistinguishability under Chosen-Plaintext Attack)</p></nav>
 
 <h1>IND-CPA (Indistinguishability under Chosen-Plaintext Attack)</h1>
-<p>Baseline semantic security property against passive eavesdroppers who can choose plaintexts.</p>
-<section data-level="novice"><p>IND-CPA means an attacker cannot tell which of two messages was encrypted, even if they get to see other messages encrypted.</p></section>
-<section data-level="learner"><p>Randomized encryption (using a fresh IV or nonce) is required for IND-CPA; deterministic modes like ECB fail it.</p></section>
-<section data-level="expert"><p>Left-or-right indistinguishability game with an encryption oracle only; weaker than IND-CCA2 and INT-CTXT.</p></section>
+<p>A baseline encryption security property ensuring an eavesdropper who can choose messages to be encrypted still cannot tell which of two plaintexts a ciphertext hides.</p>
+<section data-level="novice"><p>Suppose an eavesdropper watches you send scrambled messages and can even trick you into encrypting specific words of their choice to study the output. IND-CPA means that if you encrypt either “yes” or “no”, the eavesdropper still cannot tell which one you sent—not even by noticing that identical messages look the same.</p></section>
+<section data-level="learner"><p>Deterministic encryption modes such as AES-ECB fail IND-CPA because encrypting the same plaintext block twice produces identical ciphertext, leaking patterns. Achieving IND-CPA requires randomized encryption using a fresh initialization vector (IV) or unique nonce (as in AES-CTR or AES-CBC with an unpredictable IV) for every message.</p>
+<details class="q"><summary>Why does AES in ECB mode fail IND-CPA even though AES itself is a strong block cipher?</summary><p>Because ECB is deterministic: encrypting the same plaintext twice produces identical ciphertexts, allowing an attacker to distinguish a repeated message from a different one.</p></details></section>
+<section data-level="expert"><p>Formally, a PPT adversary with an encryption oracle E_k(·) chooses two equal-length plaintexts (m0, m1), receives c* = E_k(mb), and must guess b with advantage negligible over 1/2. Because IND-CPA grants no decryption oracle, it does not prevent ciphertext malleability (for example, flipping bits in AES-CTR ciphertext flips the corresponding plaintext bits predictably); defending against active attackers requires pairing IND-CPA with INT-CTXT or using an IND-CCA2 scheme.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / RAM - Random-Access Memory</p></nav>
 
 <h1>RAM - Random-Access Memory</h1>
-<p>Fast working memory that loses its contents when power is off.</p>
-<section data-level="novice"><p>RAM is the computer&#x27;s short-term workspace where running programs and open files live.</p></section>
-<section data-level="learner"><p>Random-access memory holds code and data for the CPU; it is volatile and much faster than storage.</p></section>
-<section data-level="expert"><p>RAM is volatile semiconductor memory addressed by the processor, typically DRAM, holding the active working set and kernel structures.</p></section>
+<p>Fast, temporary working memory that holds active programs and data while a computer is running, clearing its contents when power is turned off.</p>
+<section data-level="novice"><p>Think of RAM as your desk, while your SSD or hard drive is a filing cabinet. To run apps or edit files quickly, the computer pulls them out of the cabinet and spreads them on the desk; a bigger desk lets you keep more open at once without shuffling files back and forth, and everything on the desk clears when you shut down.</p></section>
+<section data-level="learner"><p>On Linux, tools like <code>free -h</code> show both memory used by programs and memory borrowed for the kernel’s disk page cache, which speeds up repeated file reads. When physical RAM fills up, the kernel moves inactive pages to swap (or compressed <code>zram</code>) before resorting to the Out-Of-Memory (OOM) killer.</p>
+<details class="q"><summary>Why does <code>free -h</code> often show very little “free” RAM on a healthy Linux system?</summary><p>Linux uses otherwise idle RAM as a disk page cache to speed up file access; that cached memory counts toward “available” RAM because the kernel can reclaim clean cache pages instantly whenever an application needs memory.</p></details></section>
+<section data-level="expert"><p>Main system RAM is typically synchronous DRAM (DDR4/DDR5), storing bits as charge in capacitors that require periodic refresh (tREFI) and row-activation/precharge cycles across multi-channel buses. On multi-socket systems, NUMA topology makes remote-node DRAM access slower than local-node access; under memory pressure, Linux page reclaim balances anonymous vs. file-backed LRU lists, transparent huge pages (THP), and Pressure Stall Information (PSI).</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="hardware/architecture/computer-architecture.html">Computer architecture and hardware systems</a></li><li><a href="systems/maintenance/resources.html">How your computer uses its resources</a></li></ul>
 </body></html>

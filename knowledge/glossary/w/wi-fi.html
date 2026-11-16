@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / Wi-Fi</p></nav>
 
 <h1>Wi-Fi</h1>
-<p>The common wireless local-network technology.</p>
-<section data-level="novice"><p>Wi-Fi is the radio technology that connects devices to a network without cables.</p></section>
-<section data-level="learner"><p>Wi-Fi is the IEEE 802.11 family, using radio channels, association, authentication, and encryption.</p></section>
-<section data-level="expert"><p>Wi-Fi is a set of 802.11 PHY and MAC standards with OFDM, MIMO, channel access, roaming, and WPA security.</p></section>
+<p>Wi-Fi is the standard wireless networking technology that connects laptops, phones, and other devices to a local network and the internet using radio waves.</p>
+<section data-level="novice"><p>Wi-Fi replaces the network cable between your computer and router with two-way radio signals. Just like people in a busy room take turns speaking so they do not talk over each other, nearby Wi-Fi devices share radio channels to send and receive data.</p></section>
+<section data-level="learner"><p>Wi-Fi implements the IEEE 802.11 family across bands such as 2.4 GHz (longer range, more interference), 5 GHz (higher speeds, shorter range), and 6 GHz (Wi-Fi 6E/7). On Linux, utilities like <code>iw</code> and <code>nmcli</code> show which band, channel width, signal strength, and WPA2/WPA3 security mode a connection uses.</p>
+<details class="q"><summary>Why does a 2.4 GHz Wi-Fi signal often reach farther through walls than 5 GHz, even though 5 GHz is usually faster?</summary><p>Lower-frequency 2.4 GHz radio waves attenuate less through walls, while 5 GHz offers wider, less crowded channels that carry more data per second at shorter range.</p></details></section>
+<section data-level="expert"><p>Wi-Fi comprises IEEE 802.11 PHY and MAC specifications: CSMA/CA medium access with DCF/EDCA contention and optional RTS/CTS for hidden-node mitigation, OFDM/OFDMA modulation with MU-MIMO and high-order QAM (up to 4096-QAM in 802.11be), and management/control frames handling beacon discovery, association, roaming, and WPA2/WPA3-SAE 4-way key handshakes. In the Linux kernel, <code>cfg80211</code> and <code>mac80211</code> separate regulatory/configuration interfaces and softMAC frame scheduling from userspace supplicants (<code>wpa_supplicant</code>, <code>iwd</code>).</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

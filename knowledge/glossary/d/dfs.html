@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DFS (Dynamic Frequency Selection)</p></nav>
 
 <h1>DFS (Dynamic Frequency Selection)</h1>
-<p>Wi-Fi 5 GHz mechanism that detects weather/aviation radar and vacates shared channels.</p>
-<section data-level="novice"><p>DFS lets Wi-Fi routers use extra 5 GHz channels as long as they listen and move away if nearby radar appears.</p></section>
-<section data-level="learner"><p>If a 5 GHz Wi-Fi connection drops briefly for channel scanning, DFS radar avoidance may be active.</p></section>
-<section data-level="expert"><p>IEEE 802.11h / regulatory 5 GHz UNII-2 mechanism requiring Channel Availability Check (CAC) and In-Service Monitoring.</p></section>
+<p>A 5 GHz Wi-Fi mechanism that listens for weather or aviation radar and vacates shared channels when radar is detected.</p>
+<section data-level="novice"><p>Some 5 GHz Wi-Fi channels are shared with airport and weather radar. Dynamic Frequency Selection (DFS) is the polite rule that lets Wi-Fi routers borrow those less-crowded channels as long as they listen first and immediately switch away if a radar pulse shows up.</p></section>
+<section data-level="learner"><p>On Linux, regulatory rules for DFS channels (UNII-2 and UNII-2 Extended) depend on your wireless regulatory domain (<code>iw reg get</code>). Before a router or access point can transmit on a DFS channel, it must listen silently for a Channel Availability Check (often 60 seconds, or longer on weather-radar channels), which can delay 5 GHz availability after a reboot or cause brief disconnects if radar triggers a channel switch.</p><details class="q"><summary>Why can a 5 GHz access point take a minute or more to appear after booting on a DFS channel?</summary><p>The access point must complete a silent Channel Availability Check to verify no radar is using the frequency before transmitting.</p></details></section>
+<section data-level="expert"><p>Defined in IEEE 802.11h and regional regulatory domains (FCC/ETSI), DFS mandates an initial Channel Availability Check (CAC, typically 60 s, up to 600 s in ETSI weather-radar sub-bands 5600–5650 MHz) and continuous In-Service Monitoring. Upon radar signature detection, the AP must cease transmissions within the Channel Move Time (10 s), broadcast a Channel Switch Announcement (CSA), and place the channel into a 30-minute Non-Occupancy Period.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

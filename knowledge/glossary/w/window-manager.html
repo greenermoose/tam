@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / Window manager</p></nav>
 
 <h1>Window manager</h1>
-<p>Software that places and controls windows.</p>
-<section data-level="novice"><p>A window manager is the part of the desktop that decides where windows go and how you move or resize them.</p></section>
-<section data-level="learner"><p>A window manager manages window geometry, focus, decorations, and stacking or tiling policy.</p></section>
-<section data-level="expert"><p>A window manager is an X11 or Wayland client/server component implementing window lifecycle, focus, layout, and compositor integration.</p></section>
+<p>A window manager is the desktop software that controls where application windows appear on screen, how they are sized, and which window receives your keyboard and mouse input.</p>
+<section data-level="novice"><p>If open apps are papers on a desk, the window manager is the organizer that decides whether they overlap in piles or sit neatly side by side, and lets you move, resize, focus, or close them.</p></section>
+<section data-level="learner"><p>Linux window managers generally follow either a floating/stacking model (windows overlap freely with titlebars and drag handles, as in GNOME or Xfce) or a tiling model (windows automatically divide the screen without overlapping, driven largely by shortcuts such as <code>Meta</code> + arrow keys, as in Sway or i3). Knowing which model you use explains why windows either stack or snap into grids on launch.</p>
+<details class="q"><summary>What is the main difference between a floating window manager and a tiling window manager?</summary><p>A floating window manager lets windows overlap at arbitrary positions, while a tiling window manager automatically arranges windows into non-overlapping regions to fill the screen.</p></details></section>
+<section data-level="expert"><p>Architecture differs sharply between X11 and Wayland. On X11, a window manager (such as i3 or Openbox) is a separate X client that selects <code>SubstructureRedirectMask</code> on the root window to intercept <code>MapRequest</code> and <code>ConfigureRequest</code> events, reparents frames for decorations, and coordinates via ICCCM/EWMH—separate from an optional compositor (<code>picom</code>). On Wayland, window management, display serving, and compositing are unified in one process (such as Sway, Mutter, or KWin) that owns DRM/KMS outputs, enforces <code>xdg-shell</code> surface lifecycle and focus policies, and composites client buffers directly.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

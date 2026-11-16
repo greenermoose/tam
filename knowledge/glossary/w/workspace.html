@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / Workspace</p></nav>
 
 <h1>Workspace</h1>
-<p>A workspace is a group of windows you can switch between.</p>
-<section data-level="novice"><p>A group of windows you can switch between.</p></section>
-<section data-level="learner"><p>A compositor-managed group of windows; viewing another workspace is different from moving a window into it.</p></section>
-<section data-level="expert"><p>A grouping and visibility abstraction whose display mapping and movement semantics depend on the compositor. Distinguish focus changes, window moves and whole-workspace output moves.</p></section>
+<p>A workspace is a named or numbered group of windows that you can switch between to keep different tasks separated on the same screen.</p>
+<section data-level="novice"><p>Think of a workspace like having several clean desks in one room. You can keep your web browser on Desk 1 and your editor on Desk 2, and switch between desks with a shortcut instead of minimizing windows on one crowded screen.</p></section>
+<section data-level="learner"><p>In Linux window managers and compositors, viewing another workspace is different from moving the focused window to it: one changes what you see, while the other relocates the window without necessarily following it. On multi-monitor setups, also notice whether workspaces are bound to each monitor individually or can be pulled across screens.</p>
+<details class="q"><summary>If you switch to workspace 2 and a window you wanted stays on workspace 1, which action did you perform?</summary><p>You changed the active workspace view rather than moving the window; relocating the window requires a “move window to workspace” shortcut or action.</p></details></section>
+<section data-level="expert"><p>A compositor-managed grouping and visibility abstraction (or <code>_NET_CURRENT_DESKTOP</code> in X11 EWMH) whose output mapping and migration semantics depend on the compositor. In per-output models (such as Sway/i3), each workspace is bound to a <code>wl_output</code> and switching workspaces swaps the visible render tree on that output without altering client <code>xdg-shell</code> state; distinguish focus changes, container/window moves between workspaces, and whole-workspace moves across physical outputs.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/navigation/workspaces.html">Organizing windows and screens</a></li></ul>
 </body></html>

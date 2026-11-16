@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / Bus</p></nav>
 
 <h1>Bus</h1>
-<p>A shared pathway that carries data or control signals.</p>
-<section data-level="novice"><p>A bus is a set of wires or a link that lets computer parts exchange information.</p></section>
-<section data-level="learner"><p>A bus carries addresses, data, and control signals between components; modern systems use point-to-point links and fabrics.</p></section>
-<section data-level="expert"><p>A bus is a shared or switched interconnect with arbitration, protocol, width, and timing rules for transferring transactions.</p></section>
+<p>A shared communication pathway inside a computer that carries data, addresses, and control signals between components.</p>
+<section data-level="novice"><p>A bus is like a multi-lane highway inside your computer connecting the processor, memory, and parts such as drives or keyboards. Without a shared pathway, every single component would need its own dedicated bundle of wires to every other component, which would be impossible to fit on a circuit board.</p></section>
+<section data-level="learner"><p>On Linux, you encounter buses when inspecting hardware with tools like <code>lspci</code> (PCIe) or <code>lsusb</code> (USB). Older buses such as parallel PCI shared one set of wires among all attached devices, whereas modern interconnects like PCI Express use dedicated point-to-point lanes managed by switches so devices spend less time waiting for a turn.</p><details class="q"><summary>Why did modern computers replace shared parallel buses like PCI with point-to-point links like PCIe?</summary><p>At high clock speeds, signals on a shared parallel bus suffer from electrical skew and bus contention because every device competes for the same wires. Point-to-point serial links give each device dedicated lanes, enabling higher frequencies and simultaneous transfers.</p></details></section>
+<section data-level="expert"><p>A bus or interconnect defines electrical signaling, transaction framing, addressing, width, and arbitration rules. Shared-medium buses require an arbiter and suffer capacitive loading that scales with slot count; switched fabrics like PCIe use split-transaction packet protocols (TLPs over DLLPs and physical lanes with 8b/10b or 128b/130b encoding) where read requests and completions are decoupled, enabling out-of-order completion, DMA coherency, and dynamic lane-width negotiation.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

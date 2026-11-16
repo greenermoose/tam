@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / Toolkit</p></nav>
 
 <h1>Toolkit</h1>
-<p>A library for building graphical interfaces.</p>
-<section data-level="novice"><p>A toolkit is a set of programming tools and widgets for making windows and buttons.</p></section>
-<section data-level="learner"><p>A GUI toolkit provides widgets, layout, input handling, and rendering abstractions for applications.</p></section>
-<section data-level="expert"><p>A toolkit is a widget and rendering library such as GTK or Qt, with theme engines, accessibility interfaces, and compositor integration.</p></section>
+<p>A GUI toolkit is a software library that provides reusable interface controls (widgets), layout rules, text rendering, and input handling for building graphical applications.</p>
+<section data-level="novice"><p>Instead of drawing every button, scrollbar, and text box pixel by pixel from scratch, app developers pick a toolkit—like a box of pre-built LEGO parts for user interfaces. Because different apps share the same toolkit, their menus, file dialogs, and keyboard shortcuts look and behave consistently.</p></section>
+<section data-level="learner"><p>On Linux desktops, the two dominant toolkits are GTK (used by GNOME, GIMP, and many desktop utilities) and Qt (used by KDE Plasma, VLC, and OBS Studio), alongside cross-platform toolkits like SDL or Electron/Chromium. A toolkit decides how widgets scale on HiDPI monitors, which theme or color scheme an app follows, and whether it speaks Wayland natively or falls back to X11/XWayland.</p><details class="q"><summary>Why do some Linux apps ignore a dark-mode toggle or look different from others on the same desktop?</summary><p>Apps built with different toolkits (such as GTK versus Qt, or older major versions like GTK 3 versus GTK 4) read different theme engines and settings portals unless a desktop integration bridge synchronizes them.</p></details></section>
+<section data-level="expert"><p>A modern toolkit encapsulates an event loop, scene graph or widget tree, GPU-accelerated compositor backend (e.g., GSK in GTK 4, Qt Quick RHI), text shaping (Pango/HarfBuzz), and platform integration via Wayland protocols (<code>xdg-shell</code>, <code>text-input-v3</code>) or X11. It also exposes accessibility trees over AT-SPI2/D-Bus for screen readers and delegates privileged operations like file picking or screenshots to XDG Desktop Portals so sandboxed Flatpak/containerized clients do not require direct host filesystem access.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

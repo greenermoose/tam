@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / RAPL (Running Average Power Limit)</p></nav>
 
 <h1>RAPL (Running Average Power Limit)</h1>
-<p>Intel/AMD CPU hardware counters and power-capping interface exposed by Linux powercap.</p>
-<section data-level="novice"><p>RAPL is a built-in energy meter inside modern Intel and AMD processors that reports how many watts the CPU is using.</p></section>
-<section data-level="learner"><p>Linux exposes RAPL counters under /sys/class/powercap/intel-rapl/ (readable by root or tam-meter) for energy profiling.</p></section>
-<section data-level="expert"><p>MSR-based energy-counter and PL1/PL2 power-limit architecture exposed via Linux powercap sysfs.</p></section>
+<p>Running Average Power Limit—a hardware energy-monitoring and power-capping interface in Intel and AMD processors, exposed on Linux through the <code>powercap</code> subsystem.</p>
+<section data-level="novice"><p>Modern processors include a built-in power meter that tracks how much electricity the chip uses and lets the system set a wattage limit so a laptop stays cool and saves battery. On Linux, RAPL is the interface that reads those energy numbers and enforces those power limits.</p></section>
+<section data-level="learner"><p>Linux exposes RAPL domains (such as <code>package-0</code>, <code>core</code>, and <code>dram</code>) under <code>/sys/class/powercap/intel-rapl/</code> as cumulative microjoule counters (<code>energy_uj</code>). Dividing the difference between two readings by elapsed time gives average watts, which tools like <code>tam-meter</code> use since <code>energy_uj</code> is restricted from direct unprivileged reads.</p>
+<details class="q"><summary>Why did Linux restrict unprivileged read access to RAPL <code>energy_uj</code> files?</summary><p>Fine-grained power measurements can act as a side channel (the PLATYPUS attack) that leaks cryptographic keys or secret data based on instruction-dependent power draw, so access is restricted to privileged readers.</p></details></section>
+<section data-level="expert"><p>RAPL relies on model-specific registers (MSRs) updated roughly every ~1 ms via an on-die energy model scaled by <code>MSR_RAPL_POWER_UNIT</code>. Its 32-bit energy counters wrap under sustained load, requiring periodic sampling to avoid missed overflows; on the control side, PL1 (sustained TDP) and PL2 (short-term turbo ceiling with time window Tau) govern power capping alongside firmware and DPTF overrides.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

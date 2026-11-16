@@ -13,10 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / Headroom</p></nav>
 
 <h1>Headroom</h1>
-<p>Extra capacity kept in reserve.</p>
-<section data-level="novice"><p>Headroom is the spare space or capacity left so a system can handle growth or bursts.</p></section>
-<section data-level="learner"><p>Headroom is the margin between current use and a limit, such as free disk, memory, or bandwidth.</p></section>
-<section data-level="expert"><p>Headroom is an operational reserve measured against a hard or soft limit, used for burst absorption, snapshots, and recovery.</p></section>
+<p>Headroom is the extra capacity—such as free disk space, unused memory, or spare network bandwidth—kept in reserve below a system’s maximum limit.</p>
+<section data-level="novice"><p>Think of headroom like keeping a few inches of empty space at the top of a backpack or a little extra gas in your tank. If a disk or memory fills all the way to 100%, a computer slows down or crashes when a program needs even a tiny bit more room. Leaving headroom keeps everyday tasks running smoothly.</p></section>
+<section data-level="learner"><p>In Linux, running out of disk headroom prevents logs, package updates, or login sessions from writing temporary files; similarly, running without memory headroom forces heavy swapping or triggers the OOM killer. Filesystems like ext4 even reserve a small percentage (by default 5% for <code>root</code>) so an ordinary user filling the disk does not lock out system recovery.</p><details class="q"><summary>Why does Linux ext4 reserve a portion of disk space (often 5%) for the root user by default?</summary><p>It preserves disk headroom so critical system daemons, root login, and recovery tools can still write temporary files and logs—and reduces file fragmentation—even if a regular user fills the rest of the filesystem.</p></details></section>
+<section data-level="expert"><p>Headroom acts as an operational buffer against non-linear performance cliffs and allocation failures: copy-on-write filesystems (Btrfs, ZFS) suffer severe metadata fragmentation and sluggish block-group allocation above ~80–85% occupancy; SSDs require over-provisioning and free erase blocks for garbage collection and wear leveling; and Linux memory management relies on <code>vm.min_free_kbytes</code> watermarks so atomic/IRQ allocations succeed without blocking on direct reclaim. Capacity planning sizes headroom for peak bursts, atomic updates, and snapshot retention rather than steady-state averages.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="systems/maintenance/resources.html">How your computer uses its resources</a></li></ul>
 </body></html>

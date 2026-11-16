@@ -13,10 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Palette</p></nav>
 
 <h1>Palette</h1>
-<p>A chosen set of colors.</p>
-<section data-level="novice"><p>A palette is the set of colors a design or image uses.</p></section>
-<section data-level="learner"><p>A palette is a bounded color set, often indexed or generated from semantic roles.</p></section>
-<section data-level="expert"><p>A palette is a color collection with defined roles and values, sometimes quantized or mapped through a color space and theme engine.</p></section>
+<p>A palette is a curated set of colors used to keep an image, user interface, or theme visually consistent.</p>
+<section data-level="novice"><p>Think of a palette like the small tray of paint colors an artist mixes before starting a painting. Instead of picking a brand-new random shade every time you draw a button or an icon, a design picks a small set of matching colors ahead of time. That way everything on your screen—windows, text, and highlights—looks cohesive and stays easy to read.</p></section>
+<section data-level="learner"><p>In desktop theming and UI design, a palette assigns semantic roles—such as background, surface, foreground text, accent, and warning—so switching between light and dark themes updates every app consistently. In image formats like PNG or GIF, an indexed palette (color lookup table) stores a fixed list of colors (often up to 256) and lets each pixel store a small index instead of full RGB values, shrinking file size.</p><details class="q"><summary>Why does a theme palette define roles like “surface” and “accent” instead of just naming “blue” and “gray”?</summary><p>Role-based names decouple meaning from appearance. When you switch from a light theme to a dark theme, “surface” and “foreground” can swap lightness automatically without rewriting every widget’s styling.</p></details></section>
+<section data-level="expert"><p>Palette design spans both colorimetry and data representation. UI theme engines (such as Material You/Monet, Base16, or CSS custom-property systems) generate perceptually uniform tonal ramps in spaces like OKLCH or HCT so contrast ratios meet WCAG AA/AAA targets across dynamic accent shifts. In raster graphics, palette quantization algorithms (median cut, octree, NeuQuant) map 24-bit sRGB pixels into a 1–8 bit CLUT with optional Floyd–Steinberg dithering to trade quantization banding for high-frequency spatial noise; on the web and desktop, mismatched ICC profiles or unmanaged sRGB/Display P3 conversions can shift palette colors across monitors.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/appearance/themes.html">Color systems, displays and desktop theming</a></li></ul>
 </body></html>

@@ -13,9 +13,12 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / ARQ (Automatic Repeat Request)</p></nav>
 
 <h1>ARQ (Automatic Repeat Request)</h1>
-<p>Error-control protocol that detects corrupt frames and requests retransmission.</p>
-<section data-level="novice"><p>ARQ is the simple rule 'if a packet arrives damaged or goes missing, ask the sender to send it again'.</p></section>
-<section data-level="learner"><p>TCP, Wi-Fi MAC frames, and many serial links use ARQ (Stop-and-Wait, Go-Back-N, or Selective Repeat) with ACK/NAK.</p></section>
-<section data-level="expert"><p>Link/transport reliability mechanism pairing CRC/checksum detection with ACK/NAK and timeouts for lossless delivery.</p></section>
+<p>Automatic Repeat Request—a communication rule where a receiver checks incoming data for errors and asks the sender to retransmit anything damaged or missing.</p>
+<section data-level="novice"><p>Imagine reading a phone number over a noisy connection: if part of it is garbled, you say “say that last part again” until you hear it clearly. ARQ works the same way for computers, letting two devices turn a noisy cable or Wi-Fi signal into a reliable connection by automatically re-sending lost or corrupted pieces.</p></section>
+<section data-level="learner">
+<p>You rely on ARQ every time you use Wi-Fi or load a web page over TCP: the receiver verifies a checksum or CRC, sends an acknowledgment (<code>ACK</code>) for good frames, and triggers a resend (via a negative acknowledgment <code>NAK</code> or a timeout) when frames go missing. The trade-off is latency: ARQ guarantees accuracy at the cost of waiting for retransmissions, which is why real-time voice and video calls often use UDP without ARQ rather than stalling playback.</p>
+<details class="q"><summary>Why do real-time video calls often avoid TCP’s ARQ retransmission behavior?</summary><p>Waiting for lost packets to be detected and retransmitted adds jitter and stalls playback; real-time audio/video usually prefers dropping an occasional late frame over delaying newer frames.</p></details>
+</section>
+<section data-level="expert"><p>ARQ protocols pair error-detecting codes (CRC-32 at link layers, 16-bit Internet checksum at transport) with sequence numbers, <code>ACK</code>/<code>NAK</code> feedback, and retransmission timers across three classical schemes: Stop-and-Wait (window size 1, throughput bounded by RTT), Go-Back-N (sliding window of size N, simple receiver, retransmits all frames from the first lost packet), and Selective Repeat (receiver buffers out-of-order frames and <code>SACK</code>s individual gaps, maximizing link utilization at higher buffer cost). Modern wireless links (LTE/5G, Wi-Fi) combine ARQ with Forward Error Correction in Hybrid ARQ (HARQ)—using Chase combining or Incremental Redundancy—to decode partially corrupted frames before requesting a full retransmission.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

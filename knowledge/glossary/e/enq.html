@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / ENQ (Enquiry, 0x05)</p></nav>
 
 <h1>ENQ (Enquiry, 0x05)</h1>
-<p>ASCII 0x05 control character (Ctrl+E).</p>
-<section data-level="novice"><p>ENQ is an old teletype code (byte 0x05) asking the other machine 'who are you?'; today Ctrl+E sends this byte.</p></section>
-<section data-level="learner"><p>Part of the <a href="glossary/c/c0-control-codes.html">C0 control codes</a>, ENQ (Ctrl+E) jumps to the end of the line in Readline.</p></section>
-<section data-level="expert"><p>ASCII 0x05 (ENQ). Historically triggered a terminal answerback string; in modern shells it is bound to end-of-line.</p></section>
+<p>Enquiry (ASCII <code>0x05</code>), an early communications control character traditionally used to request identification or status, and today commonly typed as Ctrl+E.</p>
+<section data-level="novice"><p>Long before modern screens, teletype machines used invisible control codes to coordinate over phone lines. ENQ was the “who are you?” code asking the remote machine to send back its name; on today’s keyboards, pressing Ctrl+E sends that same byte, which shells usually use to jump to the end of the line.</p></section>
+<section data-level="learner"><p>As one of the <a href="glossary/c/c0-control-codes.html">C0 control codes</a>, byte <code>0x05</code> is no longer interpreted by Linux terminals as a hardware status request. Instead, interactive line editors like GNU Readline (used by Bash) bind Ctrl+E to <code>end-of-line</code>, complementing Ctrl+A (<code>0x01</code>, start of line).</p><details class="q"><summary>Why does pressing Ctrl+E move the cursor to the end of the line in Bash instead of querying a terminal name?</summary><p>The terminal sends byte <code>0x05</code> to the foreground program, and Readline maps that byte to its Emacs-style <code>end-of-line</code> editing command rather than an answerback trigger.</p></details></section>
+<section data-level="expert"><p>Defined as ASCII <code>0x05</code> (<code>ENQ</code>, Ctrl+E), the code originally triggered a terminal’s programmable answerback string in serial and X3.64 workflows—a behavior that became a security hazard when untrusted text could inject ENQ to spoof user input. Modern terminal emulators either disable answerback by default or leave it empty, allowing the byte to pass transparently through the TTY line discipline to applications.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

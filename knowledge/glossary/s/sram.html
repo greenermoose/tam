@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SRAM - Static Random-Access Memory</p></nav>
 
 <h1>SRAM - Static Random-Access Memory</h1>
-<p>A fast memory technology that holds bits in circuits.</p>
-<section data-level="novice"><p>SRAM is very fast memory used in caches; it keeps a bit stable as long as power is on.</p></section>
-<section data-level="learner"><p>Static RAM stores each bit in a bistable transistor circuit, needing no refresh and trading density for speed.</p></section>
-<section data-level="expert"><p>SRAM is volatile memory built from cross-coupled inverters; it is used for caches, registers, and small on-chip buffers.</p></section>
+<p>A fast type of computer memory that holds each bit in a small transistor circuit as long as power stays on.</p>
+<section data-level="novice"><p>Imagine a row of light switches that stay in whatever position you flip them to until the power goes out. Because the computer does not have to keep reminding each switch what state it is in, it can read and write data almost instantly, which is why processors keep their closest scratchpad memory in SRAM.</p></section>
+<section data-level="learner"><p>Inside a Linux system, SRAM is not what you buy as RAM sticks—those are DRAM, which stores bits in tiny capacitors that leak charge and must be refreshed thousands of times per second. SRAM needs no refresh cycle, so CPUs use it for L1, L2, and L3 caches and registers, trading much higher cost and lower density for nanosecond-scale latency.</p><details class="q"><summary>Why isn’t main system memory (RAM) built out of SRAM if it is so much faster?</summary><p>A standard SRAM cell takes six transistors per bit, whereas DRAM uses one transistor and one capacitor. Building gigabytes of main memory out of SRAM would be far larger, hotter, and vastly more expensive than DRAM.</p></details></section>
+<section data-level="expert"><p>A typical 6T CMOS SRAM cell uses two cross-coupled inverters (four transistors) forming a bistable latch plus two access transistors gated by the wordline onto differential bitlines (<code>BL</code>, <code>/BL</code>). Read stability requires sizing pull-down transistors stronger than access transistors to prevent destructive read upsets, while write-ability requires the opposite ratio. Beyond CPU caches, SRAM appears in microcontroller on-chip memory and FPGA LUTs; its static leakage power scales with cell count, making power-gating and retention-voltage scaling critical in modern SoCs.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

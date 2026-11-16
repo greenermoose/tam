@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Clipboard</p></nav>
 
 <h1>Clipboard</h1>
-<p>A temporary place for copied data.</p>
-<section data-level="novice"><p>The clipboard is where copied text or images wait until you paste them.</p></section>
-<section data-level="learner"><p>A clipboard stores copied data for pasting, often as multiple MIME types negotiated between applications.</p></section>
-<section data-level="expert"><p>A clipboard is a selection or data-transfer protocol with ownership, MIME offers, and persistence managed by the compositor or toolkit.</p></section>
+<p>A temporary holding area provided by the desktop environment for transferring copied or cut data between applications.</p>
+<section data-level="novice"><p>Think of the clipboard like a small holding tray on your desk. When you copy or cut a sentence or picture in one app, it waits on that tray until you paste it into another app—or until you copy something else, which replaces what was there before.</p></section>
+<section data-level="learner"><p>On Linux desktops, there are two separate mechanisms: the standard clipboard (<code>Ctrl+C</code> / <code>Ctrl+V</code>) and the primary selection, where highlighting text lets you paste it with a middle mouse click. When you copy from a browser or document, the source app offers multiple formats (plain text, HTML, or an image) so the receiving app can pick the best fit—and if you close the source app before pasting, the data can disappear unless a clipboard manager saves it.</p>
+<details class="q"><summary>Why does pasting into a plain text editor strip fonts and links from copied web text, while pasting into a word processor keeps them?</summary><p>The source app advertises multiple MIME formats (such as <code>text/plain</code> and <code>text/html</code>), and each receiving app requests the richest format it supports.</p></details></section>
+<section data-level="expert"><p>In both X11 (ICCCM <code>CLIPBOARD</code> / <code>PRIMARY</code> selections) and Wayland (<code>wl_data_device</code> / <code>zwlr_data_control_v1</code>), clipboard transfer is lazy and peer-to-peer: the owner advertises offered MIME types without copying payload bytes upfront. On paste, data streams on demand over a pipe file descriptor (<code>wl_data_offer.receive</code>) or X11 property transfer (<code>INCR</code> for large payloads). Because ownership ends when the source client exits, persistence requires a clipboard manager to eagerly read and re-offer data; Wayland also restricts background reads to focused surfaces or privileged protocols to prevent silent snooping on copied secrets.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/tasks/clipboard.html">Finding something you copied earlier</a></li><li><a href="desktop/tasks/screenshots.html">Taking a screenshot or recording the screen</a></li></ul>
 </body></html>

@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DDR4 (Double Data Rate 4 SDRAM)</p></nav>
 
 <h1>DDR4 (Double Data Rate 4 SDRAM)</h1>
-<p>Fourth-generation mainstream system RAM standard (1.2 V, 64-bit channels).</p>
-<section data-level="novice"><p>DDR4 is the widely used generation of system RAM in laptops and desktops from roughly 2014 to 2022.</p></section>
-<section data-level="learner"><p>Unlike DDR5, standard consumer DDR4 lacks on-die ECC unless server ECC RDIMMs/UDIMMs are used.</p></section>
-<section data-level="expert"><p>JEDEC JESD79-4 synchronous DRAM at 1.2 V, 1600-3200 MT/s, 8n prefetch, and 64-bit (+8-bit optional ECC) channels.</p></section>
+<p>DDR4 (Double Data Rate 4 SDRAM) is the fourth-generation mainstream system memory standard, operating at 1.2 V with 64-bit channels.</p>
+<section data-level="novice"><p>RAM is a computer’s short-term workbench where active programs and open files sit while the processor uses them. DDR4 was the standard type of desktop and laptop memory from roughly 2014 to 2022, and its physical notch is placed differently from older DDR3 and newer DDR5 sticks so you cannot plug the wrong generation into a motherboard.</p></section>
+<section data-level="learner"><p>Unlike DDR5, standard consumer DDR4 UDIMMs and SO-DIMMs have no built-in error correction; protecting against bit flips requires server-grade ECC RDIMMs or ECC UDIMMs with a 72-bit bus and a supporting CPU and motherboard. On Linux, you can check installed DDR4 speeds, slot population, and ECC status with <code>dmidecode -t memory</code> or <code>edac-util</code>.</p>
+<details class="q"><summary>Can you install a DDR4 stick into a DDR5 motherboard slot, and why?</summary><p>No. DDR4 and DDR5 use different pinouts, operating voltages (1.2 V vs. 1.1 V), and channel layouts, so the alignment key notch on the module is shifted to physically prevent mixing generations.</p></details></section>
+<section data-level="expert"><p>JEDEC JESD79-4 synchronous DRAM: 1.2 V VDD (2.5 V VPP wordline boost), 1600–3200 MT/s nominal JEDEC bins, 8n prefetch, 16 internal banks across 4 bank groups, and a single 64-bit data channel (+8-bit optional sideband ECC) per DIMM with motherboard-hosted VRM regulation. Compared to DDR3’s 8 flat banks, bank groups reduce consecutive access penalties within different groups. Known hardware trade-offs include Rowhammer vulnerability (partially mitigated by Target Row Refresh, though multi-sided patterns can bypass in-DRAM TRR) and rank-interleaving effects on memory controller latency.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

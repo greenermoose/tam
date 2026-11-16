@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / Allowlist</p></nav>
 
 <h1>Allowlist</h1>
-<p>A list of things that are explicitly permitted.</p>
-<section data-level="novice"><p>An allowlist names the programs or addresses that are allowed, and everything else is blocked.</p></section>
-<section data-level="learner"><p>An allowlist implements default-deny policy by enumerating permitted items.</p></section>
-<section data-level="expert"><p>An allowlist is a positive security policy with explicit entries and default denial, contrasted with a denylist.</p></section>
+<p>A list of items—such as programs, hosts, or commands—that are explicitly permitted while everything else is denied.</p>
+<section data-level="novice"><p>Think of an allowlist like a guest list at a door: if your name is on the list, you get in, and everyone else is turned away automatically. In computing, an allowlist names the specific programs, addresses, or actions that are trusted, so anything unknown is blocked by default.</p></section>
+<section data-level="learner"><p>An allowlist implements a default-deny policy, in contrast to a denylist (which allows everything except known bad items). On Linux, you see allowlists in firewalls that drop all incoming ports except 22 and 443, SSH <code>AllowUsers</code> rules, or voice-command grammars that only accept approved phrases; they provide stronger protection against unknown threats at the cost of updating the list when legitimate new items are added.</p>
+<details class="q"><summary>Why is an allowlist generally safer than a denylist for access control?</summary><p>A denylist only blocks known bad items, so any new, renamed, or unforeseen item is allowed through by default. An allowlist enforces default-deny: everything unknown is blocked unless explicitly approved.</p></details></section>
+<section data-level="expert"><p>An allowlist enforces a closed-world authorization predicate (<code>permit(x) ⇔ x ∈ A</code>), resisting bypasses via novel payloads or unexpected inputs provided inputs are canonicalized before evaluation (e.g., resolving symlinks or normalizing paths). In Linux security, allowlisting underpins <code>seccomp-bpf</code> syscall filters, AppArmor/SELinux policy rules, and <code>nftables</code> default-drop chains. Common failure modes include overly broad wildcards and TOCTOU races if an allowlisted path is writable by untrusted users.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/navigation/voice-commands.html">Shell Voice Commands</a></li></ul>
 </body></html>

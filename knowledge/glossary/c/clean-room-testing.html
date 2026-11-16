@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Clean-room testing</p></nav>
 
 <h1>Clean-room testing</h1>
-<p>Testing in a fresh, uncontaminated environment.</p>
-<section data-level="novice"><p>Clean-room testing means checking software on a fresh system with no leftover settings or files.</p></section>
-<section data-level="learner"><p>Clean-room testing builds or installs from scratch in an isolated environment to catch hidden dependencies.</p></section>
-<section data-level="expert"><p>Clean-room testing reproduces the target environment from declared inputs, excluding developer state, caches, and unrecorded host artifacts.</p></section>
+<p>Testing software in a fresh, isolated environment built strictly from declared inputs, free of leftover files, caches, or personal settings.</p>
+<section data-level="novice"><p>If you want to prove a cooking recipe works for anyone, you should not test it in a messy kitchen full of leftover ingredients—you might accidentally grab something you forgot to write down. Clean-room testing starts with an empty, spotless kitchen so any missing ingredient is caught right away.</p></section>
+<section data-level="learner"><p>On Linux, software often passes tests on a developer’s machine only to fail for other users because it quietly depended on an extra installed package, an environment variable, or a cached file in <code>~/.config</code>. Running builds and tests inside a fresh container, virtual machine, or sandbox exposes those hidden dependencies immediately.</p>
+<details class="q"><summary>Why can a test suite pass on a developer’s workstation yet fail in clean-room testing?</summary><p>The workstation often holds extra libraries, cached build artifacts, or personal config files that satisfy an undeclared dependency, whereas a clean-room environment starts without any of that hidden state.</p></details></section>
+<section data-level="expert"><p>Clean-room testing enforces hermeticity and reproducibility by constructing the build and test root from an explicit dependency closure—excluding ambient host paths (<code>/usr/lib</code>, <code>$HOME</code>), unrecorded network fetches, and mutable caches. In Linux packaging and CI (e.g., Nix sandboxes, <code>systemd-nspawn</code> chroots, or ephemeral OCI containers with read-only inputs and tmpfs overlays), it verifies that declared inputs are both necessary and sufficient while surfacing non-determinism from timestamps, host CPU flags, or leaked environment variables. It is distinct from legal “clean-room design,” which re-implements a specification without inspecting proprietary source code.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="systems/virtualization.html">Trying software in a separate computer</a></li></ul>
 </body></html>

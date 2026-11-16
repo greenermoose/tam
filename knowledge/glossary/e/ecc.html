@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / ECC - Error-Correcting Code</p></nav>
 
 <h1>ECC - Error-Correcting Code</h1>
-<p>Error-correcting code that detects and fixes some memory errors.</p>
-<section data-level="novice"><p>ECC is extra checking data that lets memory find and correct small errors instead of crashing.</p></section>
-<section data-level="learner"><p>Error-correcting code adds redundant bits so memory can detect and often correct single-bit errors.</p></section>
-<section data-level="expert"><p>ECC is a coding scheme, commonly SECDED for memory, that adds parity or Hamming bits to detect and correct errors within a code word.</p></section>
+<p>A coding scheme—widely used in server memory, CPU caches, and storage—that adds redundant check bits so hardware can detect and automatically fix small data errors.</p>
+<section data-level="novice"><p>Cosmic rays and electrical noise can occasionally flip a single 0 to a 1 inside computer memory, like a typo sneaking into a printed page. ECC acts like a built-in proofreader that stores extra summary bits alongside your data, quietly fixing single-bit typos before they crash a program or corrupt a file.</p></section>
+<section data-level="learner"><p>While standard desktop RAM stores 64 bits per word, ECC DIMMs store 72 bits (8 extra parity bits) using a SECDED (Single-Error Correction, Double-Error Detection) code. On Linux, the EDAC subsystem logs corrected and uncorrected memory events to the kernel log and <code>/sys/devices/system/edac/mc/</code>, letting administrators spot a failing DIMM before an uncorrectable error triggers a Machine Check Exception.</p>
+<details class="q"><summary>What happens when SECDED ECC memory encounters a single-bit flip versus a double-bit flip in the same 64-bit word?</summary><p>The memory controller automatically fixes a single-bit flip in hardware and logs a Corrected Error (CE), whereas a double-bit flip is flagged as an Uncorrected Error (UE) and typically halts the system or kills the affected process to prevent silent data corruption.</p></details></section>
+<section data-level="expert"><p>Server DRAM commonly uses a (72, 64) Hsiao or extended Hamming SECDED code (minimum Hamming distance 4), allowing syndrome decoding to locate and invert any 1-bit error while flagging any 2-bit error (3+ bit errors can alias). Higher-reliability platforms add Chipkill/SDDC by striping codewords across multiple x4 DRAM devices or using Reed–Solomon symbols. DDR5 also introduces on-die ECC inside each DRAM chip to offset shrinking cell capacitance; note that on-die ECC corrects internal die faults silently unless host-visible link/sideband ECC is also enabled.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="security/cryptography/public-key-cryptography.html">Public-Key Cryptography, Elliptic Curves, and PKI</a></li></ul>
 </body></html>

@@ -13,10 +13,11 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Color temperature</p></nav>
 
 <h1>Color temperature</h1>
-<p>A measure of how warm or cool white light looks.</p>
-<section data-level="novice"><p>Color temperature describes whether white light looks reddish and warm or bluish and cool, measured in kelvin.</p></section>
-<section data-level="learner"><p>Color temperature is the blackbody temperature whose hue approximates a white point, such as 6500 K for daylight.</p></section>
-<section data-level="expert"><p>Color temperature is a correlated color temperature in kelvin, used with white-point chromaticity and display calibration.</p></section>
+<p>A scale in kelvin describing whether white light appears warm (reddish-yellow) or cool (bluish).</p>
+<section data-level="novice"><p>Think of heating a piece of metal: at first it glows warm red-orange, and as it gets much hotter it turns bright white and then bluish-white. Surprisingly, lower color-temperature numbers (like 2700 K) look cozy and warm like candlelight, while higher numbers (like 6500 K or 9000 K) look crisp and cool like an overcast sky.</p></section>
+<section data-level="learner"><p>Most computer monitors and web graphics target a standard white point of <code>6500 K</code> (daylight). When you turn on Night Light on a Linux desktop in the evening, it lowers the display’s color temperature (for example, toward <code>3500 K–4500 K</code>) by dialing back blue light so the screen looks warmer and gentler in a dark room.</p>
+<details class="q"><summary>If you want your screen to look warmer and less blue at night, should you raise or lower its color temperature in kelvin?</summary><p>Lower it. Warm, amber-red light corresponds to lower kelvin values (around 2700 K–4000 K), whereas higher kelvin values look cooler and bluer.</p></details></section>
+<section data-level="expert"><p>Color temperature is defined by Planck’s blackbody radiation locus in CIE chromaticity space; non-Planckian sources such as LEDs use Correlated Color Temperature (CCT), projecting <code>(u, v)</code> coordinates onto the nearest point on the Planckian locus, often paired with a <code>Duv</code> (green–magenta) offset. The CIE daylight standard illuminant (<code>x ≈ 0.3127, y ≈ 0.3290</code>, CCT ≈ 6504 K) anchors sRGB and Rec. 709; Linux compositors and ICC calibration (<code>colord</code>, Wayland color management) shift white points via 1D/3D gamma LUTs or Bradford chromatic adaptation at the cost of reduced peak luminance.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/tasks/night-light.html">Making the screen warmer at night</a></li></ul>
 </body></html>

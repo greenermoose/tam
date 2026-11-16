@@ -13,10 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Encryption</p></nav>
 
 <h1>Encryption</h1>
-<p>Scrambling data so only authorized people can read it.</p>
-<section data-level="novice"><p>Encryption turns readable data into a secret code that can be unlocked with the right key.</p></section>
-<section data-level="learner"><p>Encryption uses a cipher and key to make data confidential; decryption reverses it with the correct key.</p></section>
-<section data-level="expert"><p>Encryption is a reversible cryptographic transformation providing confidentiality, with authenticated modes also protecting integrity.</p></section>
+<p>The process of scrambling readable data into an unreadable form so that only someone with the right key can decode it.</p>
+<section data-level="novice"><p>Encryption works like locking a message inside a strongbox before sending it or storing it on a laptop. Anyone who intercepts the box—or steals the laptop—can see that something is there, but without the matching key they see only meaningless scrambled data.</p></section>
+<section data-level="learner"><p>In everyday Linux use, encryption protects both data at rest (such as LUKS full-disk encryption) and data in transit (such as TLS for HTTPS and SSH for remote shells). Symmetric encryption uses one shared key for speed, while asymmetric (public-key) encryption uses a public/private key pair to exchange keys or verify identity without sharing secrets beforehand.</p><details class="q"><summary>If encryption keeps data confidential, why do modern protocols also need authentication or integrity checks?</summary><p>Plain encryption hides the content, but without integrity protection an attacker could flip bits in transit and corrupt or alter the decrypted message undetected.</p></details></section>
+<section data-level="expert"><p>Modern encryption relies on AEAD (Authenticated Encryption with Associated Data) constructions such as AES-GCM or ChaCha20-Poly1305, which bind confidentiality to a cryptographic MAC tag to defeat chosen-ciphertext and padding-oracle attacks. Security depends critically on non-repeating nonces/IVs, proper key derivation (e.g., Argon2id for passphrases, HKDF for session keys), and side-channel-resistant constant-time implementations.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="security/practice/disk-encryption.html">Disk encryption and LUKS passphrases</a></li><li><a href="security/cryptography/cryptography-foundations.html">Foundations of Cryptography</a></li></ul>
 </body></html>

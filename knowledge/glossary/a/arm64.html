@@ -13,9 +13,12 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / ARM64 (AArch64)</p></nav>
 
 <h1>ARM64 (AArch64)</h1>
-<p>64-bit ARM processor architecture used in modern servers, phones, and Apple Silicon.</p>
-<section data-level="novice"><p>ARM64 is the 64-bit version of the power-efficient ARM processor family.</p></section>
-<section data-level="learner"><p>While Tamlinux currently targets x86_64 (AMD64), Linux and C11 codebases keep ARM64 portability in mind.</p></section>
-<section data-level="expert"><p>ARMv8-A / ARMv9-A 64-bit execution state (AArch64) with 31 general-purpose 64-bit registers and fixed 32-bit instruction encoding.</p></section>
+<p>The 64-bit version of the Arm processor architecture (officially called AArch64), used in modern smartphones, Apple Silicon Macs, and energy-efficient cloud servers.</p>
+<section data-level="novice"><p>Just as PCs moved from 32-bit to 64-bit chips so they could use more memory and run faster, Arm chips made the same leap with ARM64. Today, almost every modern phone, newer Raspberry Pi, and Arm-based server runs in 64-bit ARM64 mode.</p></section>
+<section data-level="learner">
+<p>In Linux, you will see this architecture called <code>arm64</code> (Debian/Ubuntu, Linux kernel <code>arch/arm64</code>) or <code>aarch64</code> (GCC triples, <code>uname -m</code>, Fedora/Arch)—both refer to the same 64-bit instruction set. While Tamlinux currently targets <code>x86_64</code> (<code>AMD64</code>), Linux and C11 codebases keep ARM64 portability in mind, since assumptions that hold on x86 (such as strict memory ordering or <code>char</code> being signed by default) can expose hidden bugs on ARM64.</p>
+<details class="q"><summary>On Linux, what is the difference between <code>arm64</code> and <code>aarch64</code>?</summary><p>They refer to the exact same 64-bit Arm architecture: <code>aarch64</code> is Arm’s official execution-state name used by toolchains and <code>uname -m</code>, while <code>arm64</code> is the package and kernel directory name used by Debian/Ubuntu and Linux.</p></details>
+</section>
+<section data-level="expert"><p>ARM64 corresponds to the AArch64 execution state introduced in ARMv8-A (and extended in ARMv9-A), featuring 31 general-purpose 64-bit registers (<code>X0</code>–<code>X30</code>, with <code>X30</code> as the link register), a dedicated zero register (<code>XZR</code>/<code>WZR</code>), separate stack pointers per exception level (<code>SP_EL0</code>–<code>SP_EL3</code>), and fixed-width 32-bit instruction encoding. The AAPCS64 ABI passes up to eight integer arguments in <code>X0</code>–<code>X7</code> and eight SIMD/FP arguments in <code>V0</code>–<code>V7</code>. Notable portability differences from x86-64 include unsigned <code>char</code> by default in C, weakly ordered memory requiring acquire/release (<code>LDAR</code>/<code>STLR</code>) or LSE atomics for synchronization, selectable 4 KB / 16 KB / 64 KB page sizes, and hardware features such as Pointer Authentication (PAC) and Memory Tagging Extension (MTE).</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

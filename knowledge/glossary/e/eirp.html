@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EIRP (Effective Isotropic Radiated Power)</p></nav>
 
 <h1>EIRP (Effective Isotropic Radiated Power)</h1>
-<p>Measure of total radiated radio power combining transmitter output and antenna gain.</p>
-<section data-level="novice"><p>EIRP measures how strongly a Wi-Fi or radio device broadcasts in its strongest direction, which regulators cap by law.</p></section>
-<section data-level="learner"><p>Calculated in dBm as (TX power - cable loss + antenna gain), EIRP limits vary by country and Wi-Fi band.</p></section>
-<section data-level="expert"><p>Equivalent power an isotropic antenna would need to match peak directional power flux density: P_EIRP(dBm) = P_TX - L_c + G_ant.</p></section>
+<p>EIRP (Effective Isotropic Radiated Power) is a measure of how much radio power a transmitter and its antenna radiate in the direction of strongest signal.</p>
+<section data-level="novice"><p>Imagine a bare light bulb versus a flashlight: both use the same bulb, but the flashlight’s reflector focuses the light into a much brighter beam in one direction. EIRP measures how strong a Wi-Fi or radio signal is in its brightest direction, which is why radio regulators limit EIRP by law rather than just the chip’s raw power.</p></section>
+<section data-level="learner"><p>EIRP is calculated in dBm as <code>TX power (dBm) − cable loss (dB) + antenna gain (dBi)</code>, meaning a high-gain antenna raises EIRP even if the radio’s output stays the same. On Linux, the kernel’s <code>cfg80211</code> regulatory database enforces regional EIRP caps per Wi-Fi band, which you can inspect with <code>iw reg get</code> and <code>iw dev wlan0 info</code>.</p>
+<details class="q"><summary>If a Wi-Fi card outputs 20 dBm into a 6 dBi antenna with 1 dB of cable loss, what is its EIRP—and what must you do if the local limit is 20 dBm?</summary><p>The EIRP is 20 − 1 + 6 = 25 dBm. To stay legal under a 20 dBm cap, you must lower the card’s TX power to 15 dBm.</p></details></section>
+<section data-level="expert"><p>EIRP is the power a theoretical lossless isotropic radiator would need to emit to match the peak far-field power flux density <code>S = P_EIRP / (4πr²)</code>, given linearly by <code>P_EIRP = P_TX · G_ant / L_c</code> or logarithmically by <code>P_EIRP(dBm) = P_TX(dBm) − L_c(dB) + G_ant(dBi)</code>. Unlike ERP (referenced to a half-wave dipole, where <code>EIRP = ERP + 2.15 dB</code>), EIRP uses an isotropic reference; in 6 GHz Wi-Fi (LPI/VLP), regulators pair total EIRP ceilings with power spectral density (dBm/MHz) limits and Transmit Power Control (TPC).</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

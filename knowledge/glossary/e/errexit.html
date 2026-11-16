@@ -13,10 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Errexit</p></nav>
 
 <h1>Errexit</h1>
-<p>A shell option that stops after a failed command.</p>
-<section data-level="novice"><p>Errexit is a shell setting that makes a script quit when a command fails.</p></section>
-<section data-level="learner"><p>set -e enables errexit, exiting on an unhandled nonzero command status, with important exceptions in conditions and pipelines.</p></section>
-<section data-level="expert"><p>errexit is a POSIX shell option with nontrivial suppression rules in conditionals, &amp;&amp;/|| lists, pipelines, and subshells.</p></section>
+<p>A POSIX shell option (enabled with <code>set -e</code>) that makes a script exit immediately when a command fails with a nonzero exit status.</p>
+<section data-level="novice"><p>Normally, if one step in a shell script fails, the script keeps marching forward and runs the next lines anyway—which can turn a small mistake into a bigger mess. Turning on <code>errexit</code> acts like an emergency stop: as soon as a command fails unexpectedly, the script halts right there.</p></section>
+<section data-level="learner"><p>You enable it with <code>set -e</code> (or <code>set -o errexit</code>) at the top of a script. However, <code>errexit</code> deliberately does not exit when a failing command is part of an <code>if</code> condition, a <code>while</code>/<code>until</code> test, a <code>!</code> negation, or the left-hand side of <code>&amp;&amp;</code> or <code>||</code>—because those constructs check failure on purpose.</p><details class="q"><summary>Why doesn’t <code>set -e</code> abort a script when <code>grep -q pattern file</code> returns 1 inside <code>if grep -q pattern file; then ...</code>?</summary><p>POSIX disables <code>errexit</code> while evaluating the condition of an <code>if</code> statement so scripts can test commands that legitimately return nonzero statuses without aborting.</p></details></section>
+<section data-level="expert"><p>POSIX <code>errexit</code> has subtle suppression and scope rules: in a pipeline without <code>pipefail</code>, only the last command’s exit status triggers exit; inside compound commands tested by <code>if</code>, <code>&amp;&amp;</code>, or <code>||</code>, suppression propagates dynamically into called shell functions, often surprising authors. Moreover, command substitutions in assignments (<code>x=$(failing_cmd)</code>) trigger <code>errexit</code>, whereas <code>local x=$(failing_cmd)</code> in Bash masks the failure because <code>local</code> itself succeeds and returns 0.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="programming/scripting.html">Writing instructions your computer can repeat</a></li></ul>
 </body></html>

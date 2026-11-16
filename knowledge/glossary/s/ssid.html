@@ -13,10 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SSID - Service Set Identifier</p></nav>
 
 <h1>SSID - Service Set Identifier</h1>
-<p>The name of a Wi-Fi network.</p>
-<section data-level="novice"><p>An SSID is the name you see when choosing a Wi-Fi network.</p></section>
-<section data-level="learner"><p>The service set identifier labels a wireless network; multiple access points can share one SSID.</p></section>
-<section data-level="expert"><p>An SSID is an 802.11 network name carried in beacon and probe frames, up to 32 octets, often paired with BSSID and security settings.</p></section>
+<p>The human-readable name that identifies a Wi-Fi wireless network.</p>
+<section data-level="novice"><p>When you open your laptop’s Wi-Fi menu and see names like <code>HomeWiFi</code> or <code>CafeGuest</code>, each of those names is an SSID. It is simply the sign on the door telling your device which wireless network to join.</p></section>
+<section data-level="learner"><p>On Linux, tools like <code>nmcli device wifi list</code> or <code>iwctl</code> scan for nearby SSIDs. Multiple physical access points in an office or campus often broadcast the exact same SSID so your device can roam between them, while each radio actually has its own hardware MAC address (called a BSSID). Hiding an SSID stops it from appearing in simple menus, but devices still broadcast the name when probing for saved networks.</p><details class="q"><summary>If two Wi-Fi routers in a building share the same SSID, how does your device tell their individual radios apart?</summary><p>Each radio has a unique BSSID (its wireless MAC address), which lets the Wi-Fi driver pick the strongest access point and roam between them under the same network name.</p></details></section>
+<section data-level="expert"><p>In IEEE 802.11, the SSID Information Element (Element ID <code>0</code>) is a variable-length octet string of <code>0</code>–<code>32</code> bytes carried in Beacon, Probe Request, Probe Response, and Association frames. It is an opaque byte sequence rather than strictly UTF-8, and a <code>0</code>-length SSID represents a wildcard probe or suppressed ("hidden") SSID in beacons. Because 802.11 management frames were historically unencrypted, passive sniffers can capture an SSID from client Probe Requests or Association frames even when beacons omit it.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="networking/connections.html">Network connections and DNS</a></li></ul>
 </body></html>

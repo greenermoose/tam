@@ -13,9 +13,9 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SSD - Solid-State Drive</p></nav>
 
 <h1>SSD - Solid-State Drive</h1>
-<p>Storage with no moving parts.</p>
-<section data-level="novice"><p>An SSD is a fast storage device that keeps data in flash chips instead of spinning disks.</p></section>
-<section data-level="learner"><p>A solid-state drive uses NAND flash and a controller to provide persistent storage with low latency.</p></section>
-<section data-level="expert"><p>An SSD is a flash-based block device with FTL mapping, wear leveling, and NVMe or SATA transport.</p></section>
+<p>A non-volatile storage device that stores data on flash memory chips rather than spinning magnetic platters.</p>
+<section data-level="novice"><p>Older hard drives store files on spinning disks with a tiny moving arm, much like a record player. An SSD has no moving parts—it stores files electronically on memory chips, so your computer boots faster, opens apps almost immediately, and is much less likely to be damaged by a bump.</p></section>
+<section data-level="learner"><p>On Linux, SSDs typically appear as <code>/dev/nvme0n1</code> (over PCIe/NVMe) or <code>/dev/sda</code> (over SATA). Unlike spinning disks, flash memory cannot overwrite a single page in place—it must erase whole blocks first—so the OS periodically sends <code>TRIM</code> (<code>fstrim</code>) commands to tell the drive’s controller which deleted blocks are safe to erase in the background.</p><details class="q"><summary>Why does Linux run <code>fstrim</code> periodically on SSDs even though spinning hard drives do not need it?</summary><p>Flash cells must be erased in large blocks before being rewritten. Without <code>TRIM</code>, the SSD controller does not know which deleted filesystem blocks are free, causing extra internal copying (write amplification) and slower writes.</p></details></section>
+<section data-level="expert"><p>An SSD embeds a Flash Translation Layer (FTL) in its controller to map logical block addresses (LBAs) to physical NAND pages, perform dynamic/static wear leveling, manage bad blocks, and run garbage collection. Because NAND program/erase cycles degrade oxide layers and erase blocks (often megabytes) are far larger than 4 KiB pages, unaligned or un-trimmed writes increase write amplification factor (WAF). NVMe replaces legacy AHCI’s single 32-command queue with up to 64K queues of 64K commands each, aligning with multi-core Linux <code>blk-mq</code> submission queues.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

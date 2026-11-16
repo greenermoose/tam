@@ -13,9 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / Raster graphics</p></nav>
 
 <h1>Raster graphics</h1>
-<p>Images made of a grid of pixels.</p>
-<section data-level="novice"><p>Raster graphics are pictures built from pixels, like a photo or screenshot.</p></section>
-<section data-level="learner"><p>Raster graphics store a pixel grid; enlarging them reveals individual pixels unless resampled.</p></section>
-<section data-level="expert"><p>Raster graphics are sampled images with a fixed pixel matrix, channels, and color space, subject to quantization and resampling artifacts.</p></section>
+<p>Digital images represented as a rectangular grid of colored dots (pixels), such as photographs, screenshots, and web graphics.</p>
+<section data-level="novice"><p>Zoom way in on a digital photo and you will see tiny colored squares—those are pixels. Raster graphics store a picture by recording the color of every square in that grid, which works well for detailed photos and shading, though zooming in too far makes the squares look blocky or blurry.</p></section>
+<section data-level="learner"><p>Unlike vector graphics (such as SVG), which store mathematical paths that scale cleanly to any size, raster formats like PNG (lossless) and JPEG or WebP store fixed pixel dimensions. Resizing a raster image in tools like GIMP or ImageMagick requires resampling—blending or inventing pixels—which can soften sharp edges.</p>
+<details class="q"><summary>Why does enlarging a raster image make it blurry or blocky, while enlarging an SVG stays crisp?</summary><p>A raster file only contains a fixed grid of sampled pixels, so enlarging it forces interpolation between existing samples; an SVG stores geometric equations that are re-rasterized cleanly at the new target resolution.</p></details></section>
+<section data-level="expert"><p>Formally, a raster image is a 2D discrete lattice of samples over color channels (such as sRGB, linear RGB, or YCbCr) with finite bit depth (8, 10, 16 bits/channel, or half-float HDR) and optional straight or premultiplied alpha. Resampling applies a reconstruction filter (nearest-neighbor, bilinear, bicubic, or Lanczos) governed by the Nyquist–Shannon sampling theorem: downsampling without a low-pass prefilter causes spatial aliasing (moiré), while bit-depth reduction introduces quantization banding unless dithered.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>

@@ -13,10 +13,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / Desktop environment</p></nav>
 
 <h1>Desktop environment</h1>
-<p>A complete graphical desktop built from several components.</p>
-<section data-level="novice"><p>A desktop environment is the full graphical workspace, including panels, settings, file manager, and apps.</p></section>
-<section data-level="learner"><p>A desktop environment bundles a window manager or compositor, shell, settings, and utilities with a consistent interface.</p></section>
-<section data-level="expert"><p>A desktop environment is an integrated session stack of compositor, shell, settings daemons, portal services, and applications sharing a design system.</p></section>
+<p>A complete graphical desktop built from several coordinated components.</p>
+<section data-level="novice"><p>When you turn on a computer and see a wallpaper, a taskbar, icons, a file browser, and a settings app that all look and work together, you are using a desktop environment. Think of it as a furnished apartment: instead of buying a bare room and picking out every lamp and chair yourself, everything is already arranged in one matching style.</p></section>
+<section data-level="learner"><p>A desktop environment (such as GNOME, KDE Plasma, or Xfce) bundles a display server integration (Wayland compositor or X11 window manager), a panel or shell, a settings daemon, notification handling, and core utilities. By contrast, a standalone window manager or compositor handles only window placement and keybindings, leaving you to assemble bars, launchers, and automounting separately.</p><details class="q"><summary>What is the practical difference between installing a desktop environment and installing only a window manager?</summary><p>A desktop environment provides integrated settings, notifications, power management, and default apps out of the box, whereas a standalone window manager only manages windows and requires you to configure those services yourself.</p></details></section>
+<section data-level="expert"><p>An integrated user-session stack spanning a Wayland compositor (or X11 WM and compositor), shell UI, D-Bus-activated settings and power daemons (e.g., <code>systemd --user</code> units, <code>xdg-desktop-portal</code> backends for sandboxed file and screen-share access), Polkit authentication agents, and a shared toolkit/icon theme. Portal and D-Bus interface mismatches—rather than window rendering—are the typical failure mode when mixing components across environments.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/apps/web-apps.html">Installing and removing web apps</a></li></ul>
 </body></html>
