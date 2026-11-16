@@ -4,6 +4,7 @@
 #include "address.h"
 
 #include "tldr.h"
+#include "documentation.h"
 #include "depth.h"
 #include "discovery.h"
 #include "html.h"
@@ -128,6 +129,10 @@ char *tam_find_tldr_root(const char *knowledge_root)
     if (env != NULL && env[0] != '\0') {
         return tldr_dir_ok(env) ? strdup(env) : NULL;
     }
+
+    char *host = tam_documentation_root("tldr");
+    if (tldr_dir_ok(host)) return host;
+    free(host);
 
     if (knowledge_root != NULL && knowledge_root[0] != '\0') {
         char cand[1024];

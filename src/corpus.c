@@ -1,3 +1,4 @@
+#include "documentation.h"
 /* The offline guide: finding the corpus, resolving page names, and reading
  * a page at a level with its folds and the related pages for its level line. */
 
@@ -554,6 +555,11 @@ char *read_corpus_page(const char *root, const char *href,
         free(rel);
         return NULL;
     }
+    char *available = tam_documentation_markup(src, len);
+    if (!available) { free(src); free(rel); return NULL; }
+    free(src);
+    src = available;
+    len = strlen(src);
     int rev = 0;
     char updated[64] = {0};
     char *related = NULL;

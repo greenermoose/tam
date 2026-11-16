@@ -314,3 +314,5 @@ model for each session.
 | 2026-11-15 | Add ISO glossary page (`glossary/i/iso.html`), corpus 0.94.0 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-15-tam-glossary-iso.md) |
 | 2026-11-15 | Remove redundant `Novice/Learner/Expert definition` headings from all 830 glossary pages, corpus 0.94.1 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-15-tam-glossary-remove-level-headings.md) |
 | 2026-11-15 | Differentiate Novice, Learner (with self-check questions), and Expert sections across all 830 glossary pages, corpus 0.94.2 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-15-tam-glossary-differentiate-levels.md) |
+
+2026-11-16: Codex CLI 0.169.0 (`gpt-6.1-sol`) implements optional documentation and native delivery fixes. [Record](docs/ai/2026-11-16-0.6.28.md).

@@ -54,6 +54,10 @@ static char *trim_in_place(char *s);
 static const struct passwd *cultivar_passwd(void);
 static char *cultivar_file(const char *leaf);
 
+#ifndef TAM_BUNDLE_ROOT
+#define TAM_BUNDLE_ROOT ""
+#endif
+
 typedef struct { char *name, *version; } bundle_identity_t;
 
 static int bundle_identity_line(void *user, size_t line, int format, char **fields, size_t n)
@@ -76,22 +80,27 @@ static int bundle_identity_line(void *user, size_t line, int format, char **fiel
  * the identity reported by a development or old-delivery command. */
 static char *bundle_identity(char **version)
 {
-    char exe[PATH_MAX];
-    ssize_t n = readlink("/proc/self/exe", exe, sizeof exe - 1);
-    if (n <= 0 || n >= (ssize_t)sizeof exe - 1) return NULL;
-    exe[n] = '\0';
-    char *slash = strrchr(exe, '/');
-    if (!slash) return NULL;
-    *slash = '\0';
-    slash = strrchr(exe, '/');
-    if (!slash || strcmp(slash + 1, "bin") != 0) return NULL;
-    *slash = '\0';
-    char *path = tam_path_join(exe, "BUNDLE");
+    char *path = NULL;
+    if (TAM_BUNDLE_ROOT[0]) {
+        path = tam_path_join(TAM_BUNDLE_ROOT, "BUNDLE");
+    } else {
+        char exe[PATH_MAX];
+        ssize_t n = readlink("/proc/self/exe", exe, sizeof exe - 1);
+        if (n <= 0 || n >= (ssize_t)sizeof exe - 1) return NULL;
+        exe[n] = '\0';
+        char *slash = strrchr(exe, '/');
+        if (!slash) return NULL;
+        *slash = '\0';
+        slash = strrchr(exe, '/');
+        if (!slash || strcmp(slash + 1, "bin") != 0) return NULL;
+        *slash = '\0';
+        path = tam_path_join(exe, "BUNDLE");
+    }
     size_t len = 0;
     char *text = path ? tam_fs_read_file(path, &len) : NULL;
     bundle_identity_t b = {0};
     tam_rec_error_t error;
-    bool valid = text && tam_rec_parse(text, len, 2, 1, bundle_identity_line, &b, &error) == 0 &&
+    bool valid = text && tam_rec_parse(text, len, 2, TAM_BUNDLE_ROOT[0] ? 2 : 1, bundle_identity_line, &b, &error) == 0 &&
                  b.name && strcmp(b.name, "tamlinux") == 0 && b.version;
     free(text); free(b.name);
     if (!valid) { free(path); free(b.version); return NULL; }
@@ -146,6 +155,10 @@ char *cultivar_user(void)
 
 char *cultivar_path(const char *leaf)
 {
+    if (TAM_BUNDLE_ROOT[0]) {
+        if (strcmp(leaf, "version") == 0) return tam_path_join(TAM_BUNDLE_ROOT, "BUNDLE");
+        if (strcmp(leaf, "cultivar") == 0) return tam_path_join(TAM_BUNDLE_ROOT, "share/tamlinux/cultivar");
+    }
     char *bundle = bundle_identity(NULL);
     if (bundle) {
         if (strcmp(leaf, "version") == 0) return bundle;
@@ -213,6 +226,7 @@ char *cultivar_version(void)
     char *version = NULL;
     char *bundle = bundle_identity(&version);
     if (bundle) { free(bundle); return version; }
+    if (TAM_BUNDLE_ROOT[0]) return NULL;
     char *from_file = cultivar_file("version");
     if (from_file != NULL) {
         return from_file;

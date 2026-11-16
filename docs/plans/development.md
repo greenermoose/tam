@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-16:** Command 0.61.0 (minor): native format-2 identity; optional host documentation beneath `/usr/share/doc`; data-doc-source and data-doc-missing corpus markup. Corpus 0.95.0 supplies the availability messages. See [optional documentation](optional-documentation.md).
+
 - **2026-11-15:** Command 0.60.2 (patch): Remove the injected `Arch Wiki index · Guide index` line from `tam_archwiki_load` in `src/archwiki.c` so the top breadcrumb row stands alone.
 
 - **2026-11-15:** Command 0.60.1 (patch): Move Starting points above `Open an Arch Wiki page` as a two-column `<table>` and remove `Browse by letter:` text from `append_az_bar` in `src/archwiki.c`.

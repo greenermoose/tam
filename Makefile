@@ -29,6 +29,8 @@ ifndef PREFIX
 endif
 
 BINDIR   ?= $(PREFIX)/bin
+BUNDLE_ROOT ?=
+DOCDIR ?= /usr/share/doc
 DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
 MANDIR   ?= $(PREFIX)/share/man
 BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
@@ -52,7 +54,7 @@ TERMINFO_LIBS   ?= $(shell pkg-config --libs ncursesw 2>/dev/null || echo -ltinf
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/identity.c src/corpus.c src/views.c src/address.c src/html.c src/html_scan.c src/render.c src/display.c src/pager.c src/pager_draw.c src/pager_input.c src/pager_links.c src/pager_nav.c src/pager_search.c src/pager_screen.c src/external.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/archwiki.c src/upgrade.c
+SRC   := src/tam.c src/identity.c src/documentation.c src/corpus.c src/views.c src/address.c src/html.c src/html_scan.c src/render.c src/display.c src/pager.c src/pager_draw.c src/pager_input.c src/pager_links.c src/pager_nav.c src/pager_search.c src/pager_screen.c src/external.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/archwiki.c src/upgrade.c
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/index.paths.tsv knowledge/coverage.json knowledge/component-coverage.json
 
 OBJS  := $(SRC:src/%.c=$(BUILD)/%.o)
@@ -70,6 +72,7 @@ TAM_BUILD_ID = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%h -- $(TAM_SOU
 TAM_SOURCE_REVISION = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%H -- $(TAM_SOURCES) 2>/dev/null),$(shell git -C "$(CURDIR)" rev-parse HEAD 2>/dev/null))
 TAM_SOURCE_DIRTY = $(if $(strip $(shell git -C "$(CURDIR)" status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),1,0)
 
+CPPFLAGS += -DTAM_BUNDLE_ROOT=\"$(BUNDLE_ROOT)\" -DTAM_DOCDIR=\"$(DOCDIR)\"
 CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"
 IDENTITY_FLAGS = -DTAM_BUILD=\"$(TAM_BUILD_ID)\" -DTAM_SOURCE_REVISION=\"$(TAM_SOURCE_REVISION)\" -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 COMPILE_CONFIG = $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS)
@@ -209,11 +212,16 @@ check-clean-tree:
 	fi; \
 	exit 1
 
+install-tldr:
+	install -d $(DESTDIR)$(DOCDIR)/tldr
+	cp -R knowledge/tldr/. $(DESTDIR)$(DOCDIR)/tldr/
+
 install-corpus:
 	@$(MAKE) --no-print-directory check-clean-tree
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
+	rm -rf $(DESTDIR)$(DATADIR)/tldr
 
 install: all
 	@$(MAKE) --no-print-directory check-clean-tree
@@ -227,6 +235,7 @@ install: all
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
+	rm -rf $(DESTDIR)$(DATADIR)/tldr
 	install -d $(DESTDIR)$(MANDIR)/man1
 	install -m 644 man/tam.1 $(DESTDIR)$(MANDIR)/man1/tam.1
 	install -d $(DESTDIR)$(BASHCOMPDIR)
@@ -245,3 +254,8 @@ uninstall:
 
 clean:
 	rm -rf $(BUILD)
+
+# C contract fixtures must link the same core library as this build.
+ifdef LIBTAM_PREFIX
+export LIBTAM_TEST_PREFIX := $(LIBTAM_PREFIX)
+endif

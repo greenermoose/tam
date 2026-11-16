@@ -99,6 +99,9 @@ class PedagogyParser(HTMLParser):
             return
         node = {"tag": tag, "attrs": dict(attrs), "line": self.getpos()[0],
                 "text": [], "body": [], "summary": False}
+        for attribute, expected_tag in (("data-doc-source", "a"), ("data-doc-missing", "span")):
+            if attribute in node["attrs"] and (tag != expected_tag or node["attrs"][attribute] not in {"info", "tldr", "archwiki"}):
+                self.page.add(self.page.starts[node["line"] - 1], "DOC-SOURCE", "invalid documentation availability attribute")
         if tag == "summary" and self.stack and self.stack[-1]["tag"] == "details":
             self.stack[-1]["summary"] = True
         self.stack.append(node)

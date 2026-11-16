@@ -3,6 +3,7 @@
 
 #include "address.h"
 #include "archwiki.h"
+#include "documentation.h"
 #include "html.h"
 #include "pager.h"
 #include "render.h"
@@ -128,9 +129,9 @@ char *tam_find_archwiki_root(void)
     if (env != NULL && env[0] != '\0') {
         return archwiki_dir_ok(env) ? strdup(env) : NULL;
     }
-    if (archwiki_dir_ok(ARCHWIKI_DEFAULT_DIR)) {
-        return strdup(ARCHWIKI_DEFAULT_DIR);
-    }
+    char *path = tam_documentation_root("archwiki");
+    if (archwiki_dir_ok(path)) return path;
+    free(path);
     return NULL;
 }
 

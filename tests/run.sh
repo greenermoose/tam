@@ -92,8 +92,9 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.60.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.61.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
+python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
 "$TAM" --version | grep -q 'knowledge corpus' || fail "--version missing knowledge corpus"
 "$TAM" --version | grep -q 'libtam' || fail "--version missing libtam"
@@ -475,7 +476,12 @@ assert b"Link fixture index" in buf, f"expected g to jump to index, got {buf}"
 os.write(master, b"q")
 os.waitpid(pid, 0)
 
-# 3. Test key i jumps to info:dir
+# 3. Test key i jumps to a private Info directory, independent of host packages.
+import tempfile
+info_fixture = tempfile.TemporaryDirectory()
+with open(info_fixture.name + "/dir", "w") as index:
+    index.write("File: dir, Node: Top\n\nGNU Info Directory\n* Menu:\n* Fixture: (fixture). Test manual.\n")
+os.environ["INFOPATH"] = info_fixture.name
 m, s = pty.openpty()
 fcntl.ioctl(s, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 160, 0, 0))
 p = os.fork()
@@ -3334,6 +3340,19 @@ pass "one tag scanner: attributes are name=value pairs, breadcrumb links are <a>
 # -----------------------------------------------------------------------------
 # Milestone 14: GNU Info Subsystem (tam info)
 # -----------------------------------------------------------------------------
+# Keep optional documentation tests independent of host packages.
+export INFOPATH="$tmp/info-fixture"
+mkdir -p "$INFOPATH"
+python3 - "$INFOPATH" <<'INFO_FIXTURE'
+from pathlib import Path
+import sys
+root=Path(sys.argv[1])
+(root/'dir').write_text("File: dir, Node: Top\n\nGNU Info Directory\n* Menu:\n* Coreutils: (coreutils). Test manual.\n")
+(root/'coreutils.info').write_text("\x1f\nFile: coreutils.info, Node: Top, Next: head invocation, Up: (dir)\n\nGNU Coreutils\n*************\nTest manual.\n\x1f\nFile: coreutils.info, Node: head invocation, Up: Top\n\nhead invocation\n===============\nOutput the first part of files.\nSee *note Common options::.\n")
+(root/'libc.info').write_text("Indirect:\nlibc.info-1: 0\n\x1f\nTag Table:\n(Indirect)\nNode: Top\x7f0\nNode: Unconstrained Allocation\x7f100\n\x1f\nEnd Tag Table\n")
+(root/'libc.info-1').write_text("\x1f\nFile: libc.info, Node: Top, Up: (dir)\n\nThe GNU C Library Reference Manual\n**********************************\nTest split manual.\n\x1f\nFile: libc.info, Node: Unconstrained Allocation, Up: Top\n\nUnconstrained Allocation\n***********************\nTest split node.\n")
+INFO_FIXTURE
+
 # Wrapper script bin/tam-info delegates to tam info.
 if [ -x "$root/bin/tam-info" ]; then
     info_wrap=$("$root/bin/tam-info" --pipe)

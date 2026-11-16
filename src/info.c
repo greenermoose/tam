@@ -10,6 +10,7 @@
 #include "pager.h"
 #include "render.h"
 #include "tldr.h"
+#include "documentation.h"
 
 #include <ctype.h>
 #include <dirent.h>
@@ -113,18 +114,11 @@ int tam_info_locate(const char *manual, char *path_out, size_t path_cap)
         }
     }
 
-    /* 2. Standard directories */
-    static const char *std_dirs[] = {
-        "/usr/share/info",
-        "/usr/local/share/info",
-    };
-    size_t ndirs = sizeof(std_dirs) / sizeof(std_dirs[0]);
-
-    for (size_t i = 0; i < ndirs; i++) {
-        if (locate_in_dir(std_dirs[i], manual, path_out, path_cap)) {
-            return 1;
-        }
-    }
+    /* Canonical host documentation, shared with guide availability. */
+    char *docroot = tam_documentation_root("info");
+    int found = docroot && locate_in_dir(docroot, manual, path_out, path_cap);
+    free(docroot);
+    if (found) return 1;
 
     /* 3. User local directory */
     const char *xdg = getenv("XDG_DATA_HOME");

@@ -276,3 +276,11 @@ developer's request supports. Do not leave an implemented note labeled Open.
 An independent agent reviews the corpus on a cadence; see
 `docs/corpus-audit.md`. An audit finds what a checker cannot, so the sourcing
 rule above is what keeps a page out of the next audit report.
+
+## Optional host documentation
+
+Use `data-doc-source="info"`, `"tldr"` or `"archwiki"` on an anchor to retain
+its label without a link while that collection is absent. Put the fallback
+text in `<span data-doc-missing="info"> (not installed)</span>` using the
+same identifier. This works on every corpus page. Do not place host-dependent
+messages in C code or bake a build machine's availability into HTML.
