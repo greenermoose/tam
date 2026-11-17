@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head>
+<title>Classic text editors</title>
+<meta name="topic" content="hub-terminal-editors">
+<meta name="summary" content="Meet the line editor ex, the screen editor vi, GNU Emacs, and the long argument between them.">
+<meta name="keywords" content="classic editors, text editors, vi, vim, ex, emacs, ed, micro, modal editing, editor war">
+<meta name="level" content="novice">
+<meta name="kind" content="hub">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/index.html">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / Classic text editors</p></nav>
+
+<h1>Classic text editors</h1>
+
+<p>Three text editors shaped how programmers work at a terminal, and two of them are still argued about.</p>
+
+<p><a href="terminal/editors/ex.html">ex</a> edits by line number and command. <a href="terminal/editors/vi.html">vi</a> puts a full screen in front of the same command language and adds modes. <a href="terminal/editors/emacs.html">GNU Emacs</a> takes the opposite approach: one modeless editor that runs named commands and can be extended while it runs. The <a href="terminal/editors/emacs-vs-vi.html">Emacs versus vi debate</a> is the long cultural argument that grew around the two philosophies.</p>
+
+<h2>Start here</h2>
+
+<p>If you only want to open, change, and save a file today, use the editor Tamlinux provides by default and read <a href="desktop/apps/editor.html">Opening and editing text files</a>. Come back to this section when you meet a system where vi or Emacs is the editor already installed, need to edit files by command in a script, or want to understand why these programs still have devoted users.</p>
+
+<h2>Explore</h2>
+
+<table>
+<tr><td><a href="terminal/editors/ex.html">The ex line editor</a></td><td>Addresses, substitutions, global commands, and the command language beneath vi</td></tr>
+<tr><td><a href="terminal/editors/vi.html">The vi screen editor</a></td><td>Modal editing: motions, operators, registers, and the ex command line</td></tr>
+<tr><td><a href="terminal/editors/emacs.html">GNU Emacs</a></td><td>Buffers, key chords, Emacs Lisp, modes, packages, and batch editing</td></tr>
+<tr><td><a href="terminal/editors/emacs-vs-vi.html">The great Emacs versus vi debate</a></td><td>The history, the jokes, the real differences, and how to choose without taking sides</td></tr>
+</table>
+
+<h2>Which editor is installed?</h2>
+
+<p>Tamlinux's baseline editor is <code>micro</code>, which uses familiar <code>Ctrl + S</code> and <code>Ctrl + Q</code> shortcuts. The editors in this section are optional packages. That is a Tamlinux default, not a judgement about the editors: each page says what its editor is good at and when another tool is the better choice.</p>
+
+<p>Run these commands to see what your system has. None of them changes anything.</p>
+
+<pre class="session">
+$ for editor in micro vi vim emacs; do printf '%-6s ' "$editor"; command -v "$editor" || echo 'not installed'; done
+micro  /usr/bin/micro
+vi     not installed
+vim    not installed
+emacs  not installed
+</pre>
+
+<p>Captured on an Arch-based Tamlinux system, 2026-11-16. Your output will differ if you installed one of these editors.</p>
+
+<h2>Learn and look up</h2>
+
+<p><a href="terminal/index.html">Terminals and shells</a> · <a href="tam:search">Search for a term or task</a> · <a href="glossary/index.html">Glossary A&ndash;Z</a></p>
+</body></html>

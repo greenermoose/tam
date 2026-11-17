@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Modal editing</title>
+<meta name="topic" content="glossary-modal-editing">
+<meta name="summary" content="Modal editing: Editing in which the meaning of a key depends on the editor's current mode.">
+<meta name="keywords" content="glossary-modal-editing, modal editing, mode, command mode, insert mode, vi, vim, modeless, emacs">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A&ndash;Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / Modal editing</p></nav>
+
+<h1>Modal editing</h1>
+<p>Modal editing is an editing design in which the same keys mean different things depending on the editor's current mode.</p>
+<section data-level="novice"><p>In most programs, pressing <code>d</code> types the letter d. In a modal editor, <code>d</code> means &ldquo;delete&rdquo; until you deliberately switch to a mode where typing inserts text. vi works this way. In command mode its letters are instructions; in insert mode they are ordinary text. Pressing Escape leaves insert mode and returns you to commands. The benefit is that short key sequences become a compact language for changing text. The cost is that a beginner can type a command while expecting letters, or type letters while expecting a command, and see something unexpected.</p></section>
+<section data-level="learner"><p>vi's two main modes are command mode, where keystrokes are editing commands, and insert mode, where they become file text. A few more modes exist: the colon command line, visual selection, and replace mode. Vim shows <code>-- INSERT --</code> at the bottom of the screen, but classic vi gives no indicator, so the Escape key is the habit that keeps you oriented. Modal editing is a contrast with modeless editing, the design used by GNU Emacs and by most graphical editors. In a modeless editor, typing inserts text and commands use modifier keys or have names, so there is no mode to enter or leave. Other modal editors include Kakoune and Helix, which follow vi's idea but change the order of operations. Modal input is not unique to editors either: games and drawing programs often use modes to give one key several meanings.</p><details class="q"><summary>You open vi and press <code>i</code>, then type a sentence. Why does pressing Escape matter before saving?</summary><p>While you are in insert mode, <code>:</code> is just a character, so <code>:wq</code> would be typed into the file. Escape returns you to command mode, where <code>:</code> starts the ex command line and <code>:wq</code> writes and quits.</p></details></section>
+<section data-level="expert"><p>Modal editing is a finite-state design layered on a command grammar. In vi, the normal mode parses an optional count, an operator, another optional count, and a motion, as in <code>d2w</code>; a doubled operator applies to whole lines, as in <code>dd</code>. Vim and Neovim extend this with text objects (<code>ci&quot;</code>, <code>yap</code>), operator-pending state, visual and blockwise visual modes, a command-line mode, replace mode, and a terminal-job mode. The design gives terse composability but introduces mode errors: a command typed in the wrong mode does the wrong thing, and a text sequence typed in command mode can trigger destructive commands. Vim's <code>showmode</code> and mode indicators reduce this risk without removing it. POSIX vi describes only open and visual modes and refers to ex for the command language, so the exact mode set is an implementation matter. Emacs is the usual modeless counterexample: every action is a named command reached by a key chord, so the same key means one thing regardless of an insert state.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="terminal/editors/vi.html">The vi screen editor</a></li><li><a href="terminal/editors/emacs.html">GNU Emacs</a></li><li><a href="terminal/editors/emacs-vs-vi.html">The great Emacs versus vi debate</a></li><li><a href="glossary/l/line-editor.html">Line editor</a></li></ul>
+</body></html>

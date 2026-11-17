@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The vi screen editor</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shell.novice, shell.learner, files.novice">
+<meta name="topic" content="vi-editor">
+<meta name="summary" content="Learn vi's modal editing: motions, operators, registers, and the ex command line beneath the screen">
+<meta name="keywords" content="vi, vim, neovim, modal editing, command mode, insert mode, motion, operator, register, swap file, ex-vi-compat, hjkl">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/editors/index.html">
+<meta name="prereqs" content="shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/editors/index.html">Classic text editors</a> / The vi screen editor</p></nav>
+
+<h1>The vi screen editor</h1>
+
+<p>This page explains vi, the screen editor whose letters are commands until you deliberately switch into a mode where typing inserts text.</p>
+
+<section data-level="novice">
+<h2>A screen with two jobs</h2>
+
+<p>Most editors have one job: whatever you type appears in the file. vi has two. In <dfn><a href="glossary/m/modal-editing.html">modal editing</a></dfn>, the same keys mean different things depending on the current mode. In command mode, <code>d</code> means delete, <code>w</code> means word, and <code>i</code> means insert. In insert mode, <code>d</code>, <code>w</code>, and <code>i</code> are just letters.</p>
+
+<p>That sounds inconvenient until you see the trade. Commands compose. <code>dw</code> deletes a word, <code>d2w</code> deletes two words, <code>dd</code> deletes a line, and <code>3dd</code> deletes three lines. The keyboard becomes a small language for changing text, and your hands rarely leave the main letter keys.</p>
+
+<h3>Why it matters</h3>
+
+<p>vi is the common editor on Unix-like systems and inside many tools that borrow its keys. If you administer a machine with no graphical desktop, or open a file in a rescue environment, vi or one of its clones is often what exists. Learning a few commands turns a stuck moment into a two-second edit.</p>
+
+<h3>How to think about it</h3>
+
+<p>Think of a craftsperson at a bench. In command mode you are naming actions: "delete this word", "change inside the quotation marks", "go to the end". In insert mode you have picked up a pencil and are writing. Pressing Escape puts the pencil down and returns you to naming actions. The confusion beginners feel comes from not noticing which of the two states they are in.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt><a href="glossary/m/modal-editing.html">Modal editing</a></dt>
+<dd>Editing in which the meaning of a key depends on the editor's current mode.</dd>
+<dt>Command mode</dt>
+<dd>The mode where keystrokes are editing commands, such as <code>dd</code> or <code>p</code>.</dd>
+<dt>Insert mode</dt>
+<dd>The mode where ordinary typing becomes file text. Escape returns to command mode.</dd>
+<dt>Motion</dt>
+<dd>A command that moves the cursor, such as <code>w</code> for the next word or <code>$</code> for the end of a line.</dd>
+<dt>Operator</dt>
+<dd>A command that acts on the text a motion reaches, such as <code>d</code> for delete or <code>y</code> for copy.</dd>
+<dt><a href="glossary/b/buffer.html">Buffer</a></dt>
+<dd>The in-memory copy of the file being edited.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Open, change, save, and quit</h2>
+
+<p><strong>Goal:</strong> you will be able to open a file in vi, insert text, delete and restore a line, save the file, quit without saving when you must, and get out of a mode you did not mean to enter.</p>
+
+<h3>Worked example</h3>
+
+<p>The capture below replays normal-mode keystrokes through ex's <code>normal!</code> command so the output stays readable in a noninteractive session. In a real vi session you type the same keys directly, without the word <code>normal!</code>.</p>
+
+<pre class="session" data-risk="scratch">
+$ printf 'one\ntwo\nthree\n' &gt; words.txt
+$ ex -s words.txt &lt;&lt;'EOF'
+normal! 1Gdd
+normal! Gp
+1,$p
+wq
+EOF
+two
+three
+one
+</pre>
+
+<p>Captured with Vim 9.2 in ex mode on an Arch-based system, 2026-11-16. The keys are standard vi.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>1G</code> moved to line 1. <code>dd</code> deleted that line into the unnamed buffer.</li>
+<li><code>G</code> moved to the last line. <code>p</code> put the deleted line below it.</li>
+<li><code>1,$p</code> printed the whole buffer through the ex command line, showing the new order.</li>
+<li><code>wq</code> wrote the file and quit.</li>
+</ol>
+
+<p>For ordinary interactive editing, the core sequence is:</p>
+
+<table>
+<tr><th>Keys</th><th>Effect</th></tr>
+<tr><td><code>vi file</code></td><td>Open the file. The cursor starts in command mode.</td></tr>
+<tr><td><code>i</code></td><td>Enter insert mode before the cursor. Type your text.</td></tr>
+<tr><td><code>Esc</code></td><td>Leave insert mode and return to command mode.</td></tr>
+<tr><td><code>h</code> <code>j</code> <code>k</code> <code>l</code></td><td>Move left, down, up, right.</td></tr>
+<tr><td><code>x</code>, <code>dd</code></td><td>Delete one character, or one whole line.</td></tr>
+<tr><td><code>u</code></td><td>Undo the last change. In classic vi this is one level; Vim keeps more.</td></tr>
+<tr><td><code>/text</code> then Enter</td><td>Search forward. <code>n</code> finds the next match.</td></tr>
+<tr><td><code>:w</code>, <code>:wq</code></td><td>Write the file, or write and quit.</td></tr>
+<tr><td><code>:q!</code></td><td>Quit and discard unsaved changes.</td></tr>
+</table>
+
+<h3>Try it</h3>
+
+<p>In a scratch directory, create a file with three lines. Open it with vi, move to the second line with <code>j</code>, delete it with <code>dd</code>, undo with <code>u</code>, then delete it again. Save with <code>:wq</code> and confirm with <code>cat</code>. Reopen the file, type <code>i</code>, add a line, press Esc, and quit without saving with <code>:q!</code>. Check that the file is unchanged. Remove the scratch directory afterwards.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt>Typing letters produces text instead of commands</dt>
+<dd>You are in insert mode. Press Esc once, then try the command again. If the screen beeps or flashes, Esc was already pressed and you are in command mode.</dd>
+<dt>A command does nothing, or <code>:</code> appears as text</dt>
+<dd>You are still in insert mode. Press Esc first. In Vim the bottom line often says <code>-- INSERT --</code>; classic vi gives no such indicator, which is why the mode is easy to lose track of.</dd>
+<dt><code>E37: No write since last change</code></dt>
+<dd>You asked to quit with unsaved changes. Use <code>:wq</code> to save them or <code>:q!</code> to discard them. Decide which one you mean before pressing Enter.</dd>
+<dt><code>E325: ATTENTION</code> and a <code>.file.swp</code> name</dt>
+<dd>A swap file exists, usually because another session is editing the file or an earlier session crashed. Check whether another terminal has the file open. If the old session is gone, open the file and use <code>:recover</code> to inspect the recovered buffer, then write it and remove the stale swap file only after you are sure.</dd>
+<dt>Arrow keys print <code>A</code>, <code>B</code>, <code>C</code>, <code>D</code></dt>
+<dd>This is classic vi behaviour: the terminal sends escape sequences and vi does not interpret them as arrows. Use <code>h</code>, <code>j</code>, <code>k</code>, and <code>l</code>. Vim usually understands the arrow keys, so this symptom points to a strict vi or a terminal mismatch.</dd>
+<dt>The screen is garbled after a resize</dt>
+<dd>Press <code>Ctrl + L</code> to redraw. If the terminal is still confused, save your work, quit, and run <code>reset</code> at the shell prompt.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux provides <code>micro</code> as its baseline editor, not vi. On the Arch-based system checked for this page, the <code>vi</code> command comes from the optional <code>ex-vi-compat</code> package. Its <code>vi</code> is a small wrapper that runs <code>vim -C</code>: Vim in vi-compatible mode, ignoring Vim configuration except <code>EXINIT</code> and <code>.exrc</code>. You therefore get Vim's bug fixes and terminal handling with vi's defaults, not a historical vi binary. Other systems may provide <code>nvi</code>, BusyBox vi, or another clone.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>You press <code>dd</code>, then <code>p</code>. Where does the deleted line go?</summary>
+<p><code>dd</code> removes the line and stores it in the unnamed buffer. <code>p</code> puts that text after the current line, so the line reappears one line lower. <code>P</code> would put it before the current line.</p>
+</details>
+<details class="q">
+<summary>Why does <code>d2w</code> delete two words rather than a word and then something else?</summary>
+<p>A count before a motion multiplies the motion: <code>2w</code> reaches two words forward. The operator <code>d</code> then deletes everything from the cursor to that destination. Counts and operators compose instead of being separate commands.</p>
+</details>
+<details class="q">
+<summary>What is the safest first action when vi shows a swap-file warning?</summary>
+<p>Stop and find out whether another session is editing the file. If one is, quit this session and use the other one. If the other session crashed, use <code>:recover</code> and compare the recovered text with the file on disk before overwriting anything. Deleting the swap file first destroys the evidence.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Grammar, buffers, and implementations</h2>
+
+<h3>Reference</h3>
+
+<p>vi's command language takes an optional count, an operator, another optional count, and a motion: <code>[count] operator [count] motion</code>. A doubled operator works on whole lines: <code>dd</code>, <code>cc</code>, <code>yy</code>. A handful of commands take a text object or a search target instead of a simple motion.</p>
+
+<table>
+<tr><th>Part</th><th>Examples</th><th>Meaning</th></tr>
+<tr><td>Motions</td><td><code>h j k l w b e 0 ^ $ G</code></td><td>Character, word, line, and buffer movement. <code>gg</code> is a Vim extension for the first line.</td></tr>
+<tr><td>Search motions</td><td><code>f x</code>, <code>t x</code>, <code>%</code></td><td>Move to or before a character; <code>%</code> jumps to the matching bracket.</td></tr>
+<tr><td>Operators</td><td><code>d c y</code></td><td>Delete, change, or yank the text a motion reaches.</td></tr>
+<tr><td>Put and undo</td><td><code>p P u .</code></td><td>Put after or before, undo one change, repeat the last change.</td></tr>
+<tr><td>Registers</td><td><code>"a</code>, <code>"1</code>, <code>"_</code></td><td>Named, numbered, and, in Vim, black-hole registers used before a command.</td></tr>
+<tr><td>Marks</td><td><code>ma</code>, <code>'a</code></td><td>Set and return to a named position.</td></tr>
+<tr><td>Ex command line</td><td><code>:</code></td><td>Run ex commands such as <code>:s</code>, <code>:g</code>, and <code>:w</code>.</td></tr>
+<tr><td>Visual selection</td><td><code>v</code>, <code>V</code>, <code>Ctrl + V</code></td><td>Vim extensions for character, line, and block selection. POSIX "visual mode" means the full-screen mode, not this selection.</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>vi keeps an edit buffer, a cursor position, a set of registers, marks, and an undo state. The screen is a view of the buffer, not the file. Changes accumulate in memory until <code>:w</code> writes them. In Vim, the undo tree also records branches, and an optional undo file can persist that history across sessions.</p>
+
+<p>vi and ex are two interfaces to the same state. POSIX specifies the screen editor in the vi utility and the command language in the ex utility; the vi specification covers only open and visual modes and refers to ex for the rest. <code>Q</code> enters ex mode; the ex command <code>visual</code> returns to the screen. A colon in vi starts an ex command line, which is why the same <code>s</code>, <code>g</code>, and <code>w</code> commands work in both.</p>
+
+<p>Compatibility is an implementation choice, not a single behaviour. Vim starts with <code>nocompatible</code> when it finds a vimrc, and with <code>compatible</code> when invoked as <code>vi</code> or with <code>-C</code>. The <code>compatible</code> option changes many small defaults, including the behaviour of some commands and options. <code>vim -u NONE</code> skips your vimrc; <code>--noplugin</code> also skips plugins. Neither makes Vim identical to a 1970s vi, and neither is needed just to edit a file.</p>
+
+<p>Swap files are a Vim feature, not part of POSIX vi. Vim writes <code>.filename.swp</code> in the same directory by default, updating it after a period of inactivity and after a number of typed characters. If the process dies, the swap file holds enough information to recover. <code>:recover</code> reads it; <code>vim -r file</code> does the same from the shell; <code>:preserve</code> forces a swap write; <code>:set noswapfile</code> or <code>-n</code> disables the protection. The trade is explicit: no swap file means no crash recovery for that session.</p>
+
+<h3>Advanced usage</h3>
+
+<p>Operators compose with counts and motions rather than forming a fixed list. These examples are illustrative Vim commands, not exercises:</p>
+
+<pre class="session">
+d2w      delete two words
+ci"      change the text inside the next double quotes
+yap      yank the current paragraph, including surrounding blank lines
+&gt;&gt;       indent the current line one shiftwidth
+3dd      delete three lines
+:g/TODO/d    delete every line containing TODO
+:%s/old/new/gc   replace every old with new, asking before each change
+</pre>
+
+<p><code>ci"</code>, <code>yap</code>, and <code>&gt;&gt;</code> are Vim text-object and operator extensions. A strict POSIX vi does not provide them. Macros are likewise implementation-specific: Vim records with <code>qa</code>, ends with <code>q</code>, and replays with <code>@a</code>. POSIX vi instead has the <code>@</code> command for executing a named buffer, which is powerful but less convenient for recording.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Modelines are executable input.</strong> Vim can read settings from a comment in the first or last few lines of a file. A malicious file can therefore try to set options when opened. Use <code>:set nomodeline</code> for untrusted files, or start Vim with modelines disabled. Do not treat a modeline as harmless metadata.</li>
+<li><strong>Encodings and BOMs.</strong> <code>:set encoding</code> controls Vim's internal encoding; <code>fileencoding</code> and <code>fileencodings</code> control conversion on read and write. Reopen a wrongly decoded file with <code>:e ++enc=latin1</code> instead of retyping it. A byte-order mark can survive a round trip and surprise the next tool.</li>
+<li><strong>Very large files.</strong> Swap files add disk writes, syntax highlighting costs memory and time, and one enormous line is slow to redraw. <code>-n</code>, <code>:syntax off</code>, and a larger <code>updatetime</code> can help, at the cost of crash recovery and feedback.</li>
+<li><strong>Concurrent editing.</strong> Two Vim sessions on one file can both write and silently lose one set of changes. The swap warning is the protection, not an obstacle; do not disable it just to silence the message.</li>
+<li><strong>Read-only files.</strong> <code>view</code> and <code>vim -R</code> open read-only. <code>:w</code> still fails if the file permissions forbid writing; use the proper ownership or a deliberate save-as, not a workaround that leaves a root-owned file behind.</li>
+<li><strong>Terminal and locale assumptions.</strong> vi assumes a terminal that can address the screen and a locale whose encoding matches the file. A mismatch produces broken accents, wrong cursor positions, or a corrupted display. <code>Ctrl + L</code> redraws; <code>reset</code> repairs the terminal after exit.</li>
+<li><strong>Undo is not a backup.</strong> Vim's undo history can be lost with the process, and a write can overwrite a good file with bad text. Keep important files under version control or take a copy before a large mechanical edit.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A colleague opens a downloaded file in Vim and reports that the editor "changed settings by itself" before any key was pressed. What mechanism explains this, and what would you inspect and change?</summary>
+<p>Vim's modeline feature reads specially formatted comments near the start or end of a file and applies the options they name. Opening the file is enough; no keystroke is required. Inspect the first and last few lines for a <code>vim:</code> modeline, check <code>:set modeline?</code>, and disable modeline processing for untrusted content with <code>:set nomodeline</code> or a startup rule. Treat the file as untrusted input, not as a harmless text document. The broader lesson is that an editor which executes file-provided configuration has a larger attack surface than one that only displays bytes.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><cite data-ref="posix-vi"><a href="bibliography/posix-vi.html">POSIX vi and ex</a></cite> &mdash; the standardized command language, modes, buffers, and exit status.</li>
+<li><cite data-ref="vim"><a href="bibliography/vim.html">Vim documentation</a></cite> &mdash; compatibility options, swap files, modelines, encodings, and the differences from vi.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Add a command only with its exact syntax and a captured result, and name the implementation and version. Distinguish POSIX vi behaviour from Vim and Neovim extensions instead of presenting one clone's features as universal.</p>
+</section>
+
+<h2>Next</h2>
+
+<p><a href="terminal/editors/emacs.html">GNU Emacs</a> &mdash; the modeless editor built on a different set of assumptions.</p>
+
+<h2>Related</h2>
+
+<ul>
+<li><a href="terminal/editors/ex.html">The ex line editor</a> &mdash; the command language behind the colon.</li>
+<li><a href="terminal/editors/emacs-vs-vi.html">The great Emacs versus vi debate</a> &mdash; why the two philosophies became a cultural argument.</li>
+<li><a href="glossary/m/modal-editing.html">Modal editing</a> &mdash; the definition and the cost of switching modes.</li>
+<li><a href="terminal/configuration.html">A comfortable place to type and edit text</a> &mdash; terminal and editor settings on Tamlinux.</li>
+</ul>
+</body>
+</html>

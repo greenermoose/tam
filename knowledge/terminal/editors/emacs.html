@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GNU Emacs</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shell.novice, shell.learner, files.novice">
+<meta name="topic" content="gnu-emacs">
+<meta name="summary" content="Learn GNU Emacs: buffers, key chords, modes, Emacs Lisp, packages, and batch editing from the terminal">
+<meta name="keywords" content="emacs, gnu emacs, emacs-nox, emacs-wayland, buffer, keybinding, chord, meta key, emacs lisp, init.el, package.el, org-mode, emacsclient, batch">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/editors/index.html">
+<meta name="prereqs" content="shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/editors/index.html">Classic text editors</a> / GNU Emacs</p></nav>
+
+<h1>GNU Emacs</h1>
+
+<p>This page explains GNU Emacs, a modeless editor in which every action is a named command that can be reached by a keyboard shortcut or by name.</p>
+
+<section data-level="novice">
+<h2>One editor, many named commands</h2>
+
+<p>Emacs does not have an insert mode. Ordinary typing inserts text, and a key combination such as <code>Ctrl + X</code> followed by <code>Ctrl + S</code> runs a command. That command is not a secret code: it has a name, <code>save-buffer</code>, and you can run any command by typing its name instead of its shortcut.</p>
+
+<p>The design is called modeless editing. vi asks which mode you are in; Emacs asks which command you want. Commands are ordinary functions written in Emacs Lisp, the programming language built into the editor. That is why Emacs can be a file editor, a Git interface, a mail client, a calendar, and a document authoring system without becoming several programs.</p>
+
+<h3>Why it matters</h3>
+
+<p>Emacs is a long-lived, self-documenting environment. It can tell you what a key does, show the documentation for a command, and let you change the behaviour while it runs. It is available on most operating systems, works in a terminal or a graphical window, and keeps the same editing model across them. For a reader who spends hours in text, that consistency is valuable.</p>
+
+<h3>How to think about it</h3>
+
+<p>Think of a workshop where every tool has a name and a labelled hook on the wall. You can learn the hook for the tools you use often, or ask for a tool by name. The workshop also contains a manual and a workshop for building new tools. The cost is that the wall is large: there are hundreds of commands, and no one knows them all. You do not have to.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt>Modeless</dt>
+<dd>An editor design in which typing inserts text and commands are separate actions, so there is no separate insert mode.</dd>
+<dt><a href="glossary/b/buffer.html">Buffer</a></dt>
+<dd>The in-memory text Emacs is editing. A buffer may visit a file, or may exist only inside Emacs.</dd>
+<dt>Keybinding</dt>
+<dd>The association between a key or key sequence and a command. <code>C-x C-s</code> is the default binding for saving a buffer.</dd>
+<dt><a href="glossary/m/meta.html">Meta key</a></dt>
+<dd>The modifier written <code>M-</code> in Emacs documentation. On most keyboards it is Alt; on a terminal without a working Meta key, press Esc and then the next key.</dd>
+<dt>Major mode</dt>
+<dd>The mode that defines the main behaviour of a buffer, such as text mode, programming mode, or a specific language mode.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Edit, save, quit, and ask for help</h2>
+
+<p><strong>Goal:</strong> you will be able to open a file in Emacs, type and change text, save it, exit, cancel a command you did not mean to start, and find the documentation for a key or command.</p>
+
+<h3>Notation</h3>
+
+<p>Emacs writes key sequences with prefixes. <code>C-</code> means hold Ctrl while pressing the next key, and <code>M-</code> means hold Meta (usually Alt). <code>C-x C-s</code> means press Ctrl and X, release, then press Ctrl and S. <code>C-x</code> on its own is a prefix: Emacs waits for the rest of the sequence. <code>M-x</code> means hold Meta and press X, then type a command name and press Enter.</p>
+
+<h3>Worked example</h3>
+
+<p>Emacs can run without a window and without your initialization file, which makes it useful in scripts and in a terminal. This batch command visits a file, replaces every <code>beta</code> with <code>BETA</code>, and saves the buffer.</p>
+
+<pre class="session" data-risk="scratch">
+$ printf 'alpha\nbeta\ngamma\n' &gt; words.txt
+$ emacs -Q --batch words.txt --eval '(progn (goto-char (point-min)) (while (re-search-forward "beta" nil t) (replace-match "BETA")) (save-buffer))'
+$ cat words.txt
+alpha
+BETA
+gamma
+</pre>
+
+<p>Captured with GNU Emacs 31.1 from the Arch package on 2026-11-16. The distro package was unpacked in a scratch directory, and the batch command printed nothing on success. The same command works with an installed <code>emacs</code>.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>-Q</code> started Emacs with minimum customization; <code>--batch</code> ran it without a display and without your init file.</li>
+<li><code>words.txt</code> became the current buffer, and <code>--eval</code> ran one Emacs Lisp form.</li>
+<li><code>goto-char</code> moved to the start of the buffer; the loop searched for <code>beta</code> and replaced each match.</li>
+<li><code>save-buffer</code> wrote the buffer back to the file. Batch mode does not save for you; the explicit call does.</li>
+</ol>
+
+<h3>The keys you need first</h3>
+
+<table>
+<tr><th>Keys</th><th>Command</th><th>Effect</th></tr>
+<tr><td><code>C-x C-f</code></td><td><code>find-file</code></td><td>Open a file, or create a new buffer for a path.</td></tr>
+<tr><td><code>C-x C-s</code></td><td><code>save-buffer</code></td><td>Save the current buffer to its file.</td></tr>
+<tr><td><code>C-x C-c</code></td><td><code>save-buffers-kill-terminal</code></td><td>Offer to save changed buffers, then exit.</td></tr>
+<tr><td><code>C-g</code></td><td><code>keyboard-quit</code></td><td>Cancel a command, a prefix, or a minibuffer prompt.</td></tr>
+<tr><td><code>C-s</code></td><td><code>isearch-forward</code></td><td>Search forward as you type. <code>C-r</code> searches backward.</td></tr>
+<tr><td><code>M-%</code></td><td><code>query-replace</code></td><td>Replace text with confirmation for each match.</td></tr>
+<tr><td><code>C-/</code> or <code>C-_</code></td><td><code>undo</code></td><td>Undo the last change.</td></tr>
+<tr><td><code>C-h t</code></td><td><code>help-with-tutorial</code></td><td>Open Emacs's own hands-on tutorial.</td></tr>
+<tr><td><code>C-h k</code></td><td><code>describe-key</code></td><td>Press a key sequence and read what it does.</td></tr>
+<tr><td><code>M-x</code></td><td><code>execute-extended-command</code></td><td>Run any command by typing its name.</td></tr>
+</table>
+
+<h3>Try it</h3>
+
+<p>In a scratch directory, run <code>emacs -Q -nw notes.txt</code> to start in the terminal without your init file. Type two lines, save with <code>C-x C-s</code>, and exit with <code>C-x C-c</code>. Open it again, press <code>C-h k</code>, then <code>C-x C-s</code>, and read the help. Run <code>C-h t</code> and work through the first section of the tutorial. Finish by rerunning the batch example above on a fresh file and checking the result with <code>cat</code>.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>C-x C-c</code> asks whether to save</dt>
+<dd>That is the normal exit prompt. Answer <code>y</code> to save, <code>n</code> to discard, or <code>C-g</code> to cancel the exit and return to editing. <code>C-x C-s</code> saves without exiting.</dd>
+<dt>A command is waiting for input at the bottom of the screen</dt>
+<dd>The minibuffer is prompting you. Press <code>C-g</code> to cancel. You can also press <code>C-g</code> twice to leave a complicated state.</dd>
+<dt><code>Cannot open display</code> or a GUI window does not appear</dt>
+<dd>You are on a terminal without a graphical display. Start Emacs in the terminal with <code>emacs -nw</code>. The <code>-nw</code> option means no window system.</dd>
+<dt><code>M-x</code> does nothing</dt>
+<dd>Your terminal may not deliver Meta. Press Esc, release it, then press X; Emacs treats that as Meta-X. Alternatively, use the menu or run <code>C-h k</code> to see what the terminal sends.</dd>
+<dt>Emacs fails during startup with a Lisp error</dt>
+<dd>Start with <code>emacs -Q</code> to skip your init file and confirm that the problem is there. Then run <code>emacs --debug-init</code> to get a backtrace. Do not delete your configuration before you know which form failed.</dd>
+<dt><code>Waiting for Emacs...</code> from <code>emacsclient</code></dt>
+<dd>No daemon is running. Start one with <code>emacs --daemon</code>, or run <code>emacsclient -a ""</code> so it starts Emacs when needed. Press <code>C-g</code> in the waiting client to cancel.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux provides <code>micro</code> as its baseline editor. Emacs is not installed by default. On Arch-based systems it is split into three optional packages: <code>emacs</code> with X11 support, <code>emacs-nox</code> without X11, and <code>emacs-wayland</code> with the PGTK build for Wayland. On 2026-11-16 the repository listed <code>emacs</code> at 74.37 MiB to download and 261.92 MiB installed, <code>emacs-nox</code> at 73.81 MiB and 259.94 MiB, and <code>emacs-wayland</code> at 75.00 MiB and 267.98 MiB. Ask before installing packages, and read <a href="systems/packages/index.html">Packages and updates</a> first.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What is the difference between <code>C-s</code> and <code>C-x C-s</code>?</summary>
+<p><code>C-s</code> starts an incremental search. <code>C-x C-s</code> is a two-key sequence: <code>C-x</code> is a prefix, and <code>C-s</code> completes the save command. The same final key can mean different things depending on the prefix before it.</p>
+</details>
+<details class="q">
+<summary>Why can you run a command with <code>M-x</code> even if you never learned its shortcut?</summary>
+<p>Every interactive command has a name, and <code>M-x</code> reads a name from the minibuffer and calls that command. Shortcuts are conveniences layered on top of named functions, not the only way to reach them.</p>
+</details>
+<details class="q">
+<summary>You run the batch replacement but the file does not change. What should you check first?</summary>
+<p>Check whether the Lisp form actually saved the buffer. Batch mode performs the edits in memory and exits; without <code>save-buffer</code> or <code>write-file</code> nothing reaches disk. Also check the command's exit status and standard error, since a failed search or a Lisp error may have stopped the form before the save.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>An editor as a Lisp environment</h2>
+
+<h3>Reference</h3>
+
+<table>
+<tr><th>Area</th><th>Key or command</th><th>Notes</th></tr>
+<tr><td>Evaluate Lisp</td><td><code>C-x C-e</code>, <code>M-:</code>, <code>--eval</code></td><td>Evaluate the form before point, the minibuffer, or a command-line form.</td></tr>
+<tr><td>Describe</td><td><code>C-h k</code>, <code>C-h f</code>, <code>C-h v</code></td><td>Describe a key, a function, or a variable, including its documentation and source location.</td></tr>
+<tr><td>Buffers and windows</td><td><code>C-x b</code>, <code>C-x k</code>, <code>C-x 2</code>, <code>C-x o</code></td><td>Switch, kill, split, and move between windows. A window is a view; a buffer is the text.</td></tr>
+<tr><td>Files</td><td><code>C-x C-f</code>, <code>C-x C-w</code>, <code>C-x C-s</code></td><td>Visit, write as another name, and save.</td></tr>
+<tr><td>Processes</td><td><code>M-x shell</code>, <code>M-x compile</code>, <code>M-x proced</code></td><td>Run a shell, a build, or inspect processes from inside Emacs.</td></tr>
+<tr><td>Packages</td><td><code>M-x list-packages</code>, <code>package-install</code></td><td>Browse and install from configured archives with <code>package.el</code>.</td></tr>
+<tr><td>Server</td><td><code>M-x server-start</code>, <code>emacsclient</code></td><td>Let other processes hand files to one running Emacs.</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>Emacs is a Lisp interpreter with an editor attached. A buffer holds text and has a major mode plus any number of minor modes. A key sequence is looked up in active keymaps, and the resulting binding names an interactive function. <code>M-x</code> bypasses the keymap and calls a function by name. Because the same mechanism is available to your own code, a configuration is a program, not a list of settings.</p>
+
+<p>Init files are read in a documented order. Emacs looks for <code>~/.emacs.el</code>, <code>~/.emacs</code>, or <code>~/.emacs.d/init.el</code>, in that order. It can also use the XDG location <code>~/.config/emacs/init.el</code>, but the older locations win if they exist, so you must remove or rename them to move to the XDG path. <code>early-init.el</code> runs before the package system and the initial frame, which makes it the place for settings that must take effect before packages load. <code>-q</code> skips the init file; <code>-Q</code> adds no site file, no site Lisp, no X resources, and no splash screen. <code>--batch</code> implies <code>-q</code> but still loads <code>site-start.el</code>.</p>
+
+<p>The package system is built in. <code>package-archives</code> names the archives; <code>M-x list-packages</code> shows what they offer; <code>package-install</code> installs into <code>user-emacs-directory</code>, usually <code>~/.emacs.d/elpa</code>. The 31.1 package bundled <code>use-package</code>, which groups a package's configuration with its installation. Native compilation turns Emacs Lisp into <code>.eln</code> machine code; the load path for those files is derived from <code>user-emacs-directory</code>, and compilation can happen asynchronously in the background. A first start after a package change can therefore be slower than later starts.</p>
+
+<p>For repeated use, a daemon keeps one Emacs process alive and <code>emacsclient</code> asks it to open a file. <code>emacsclient -c</code> creates a graphical frame, <code>emacsclient -t</code> creates a terminal frame, and <code>emacsclient -n</code> returns without waiting. The daemon calls <code>server-start</code> after initialization and opens no initial frame. This is the usual way to make Emacs feel as fast as a small editor while keeping one Lisp environment loaded.</p>
+
+<h3>Advanced usage</h3>
+
+<p>This batch script reads every file named on the command line and prints its line count. It is illustrative, not an exercise. Save it as <code>count-lines.el</code> and run it with <code>emacs --script count-lines.el FILE...</code>.</p>
+
+<pre class="session">
+(setq inhibit-startup-screen t)
+(dolist (file command-line-args-left)
+  (with-temp-buffer
+    (insert-file-contents file)
+    (princ (format "%s\t%d\n" file (line-number-at-pos (point-max))))))
+</pre>
+
+<p><code>--script</code> runs in batch mode and ignores file-local variables in the script, which is a safety property: a downloaded script cannot change Emacs settings before its code runs. <code>command-line-args-left</code> holds the remaining arguments after Emacs has consumed its own options. <code>with-temp-buffer</code> keeps the work out of your visible buffers.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>File-local variables can execute code.</strong> A file can end with a local-variables block that sets variables or evaluates an expression. Emacs asks before applying unsafe values, but the prompt is a security boundary. Read it; do not approve a block you do not understand. In batch mode there is no one to ask, so Emacs assumes "no".</li>
+<li><strong>A daemon outlives the terminal.</strong> If the daemon was started with an old environment, <code>emacsclient</code> inherits that environment rather than your current shell's. Restart the daemon after changing <code>PATH</code> or language settings, or start clients with the environment they need.</li>
+<li><strong><code>emacsclient</code> without a server.</strong> The client waits by default. <code>-a ""</code> starts a new Emacs when no server exists; <code>-n</code> returns immediately. In a script, an unconditional wait can hang a job.</li>
+<li><strong>Native compilation and stale <code>.eln</code> files.</strong> A package upgrade can leave compiled files that no longer match their source. Emacs usually recompiles in the background, but startup warnings about a missing or outdated <code>.eln</code> mean the cache needs attention. Do not delete the whole cache as a first step; read the warning.</li>
+<li><strong>Huge buffers and long lines.</strong> Emacs is fast on ordinary source files but slow on a single multi-megabyte line, especially with font locking and syntax highlighting enabled. <code>so-long-mode</code> exists for this case. A terminal editor has the same problem for a different reason: the display must redraw the line.</li>
+<li><strong>Batch failures and exit status.</strong> A Lisp error in batch mode prints a backtrace and exits nonzero. Check the status in the calling script; a successful exit means the forms completed, not that they did what you intended.</li>
+<li><strong>Killing Emacs does not save buffers.</strong> <code>C-x C-c</code> asks; <code>kill-emacs</code> from Lisp and a signal do not. Auto-save and recovery files are a safety net, not a substitute for saving or version control.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>You want one Emacs process to serve both graphical and terminal frames, but a colleague reports that files opened from a remote shell do not see the environment set in that shell. Explain the likely cause and the trade-offs in fixing it.</summary>
+<p><code>emacsclient</code> asks an already-running daemon to open the file. The daemon inherited the environment of whichever session started it, so variables set later in the remote shell, such as <code>PATH</code> or locale settings, are absent from the server process. Starting a fresh daemon in the correct environment fixes it but discards the loaded state and may disrupt other clients. Per-client environment adjustment, or a separate daemon for the remote context, trades memory and startup cost for isolation. The key point is that the daemon, not the client, performs the work and therefore supplies the environment.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><cite data-ref="gnu-emacs"><a href="bibliography/gnu-emacs.html">GNU Emacs manuals</a></cite> &mdash; init files, keymaps, packages, daemon mode, batch mode, native compilation, and file-local variables.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>Add a configuration only with the Emacs version that ran it and the result you observed. Prefer built-in facilities over third-party packages unless the page explains what the package adds and how to remove it.</p>
+</section>
+
+<h2>Next</h2>
+
+<p><a href="terminal/editors/emacs-vs-vi.html">The great Emacs versus vi debate</a> &mdash; the history and the arguments behind the two designs.</p>
+
+<h2>Related</h2>
+
+<ul>
+<li><a href="terminal/editors/vi.html">The vi screen editor</a> &mdash; modal editing and the ex command line.</li>
+<li><a href="terminal/editors/ex.html">The ex line editor</a> &mdash; the command language Emacs competes with in scripts.</li>
+<li><a href="desktop/apps/editor.html">Opening and editing text files</a> &mdash; Tamlinux's baseline editor and launcher tools.</li>
+</ul>
+</body>
+</html>

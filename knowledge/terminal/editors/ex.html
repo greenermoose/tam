@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The ex line editor</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shell.novice, shell.learner, files.novice">
+<meta name="topic" content="ex-editor">
+<meta name="summary" content="Edit files by line address and command with ex, the line editor whose command language vi still uses">
+<meta name="keywords" content="ex, ex editor, line editor, vi, vim, ex-vi-compat, POSIX ex, substitute, global, ed, batch editing, exrc, EXINIT, sed">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/editors/index.html">
+<meta name="prereqs" content="shell">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/editors/index.html">Classic text editors</a> / The ex line editor</p></nav>
+
+<h1>The ex line editor</h1>
+
+<p>This page explains ex, an editor that changes a file by naming lines and giving commands instead of moving a cursor around a screen.</p>
+
+<section data-level="novice">
+<h2>Editing by line number</h2>
+
+<p>A <dfn><a href="glossary/l/line-editor.html">line editor</a></dfn> works on a numbered list of lines. You do not point at a character and type over it. You say which line you mean and what should happen to it: print line 2, delete lines 3 to 5, replace every "beta" with "BETA", write the file, quit.</p>
+
+<p>ex is the line editor that grew out of an earlier program called ed. When Bill Joy added a full-screen display at Berkeley in the 1970s, he kept the ex command language underneath it. That is why a vi user types a colon and then commands such as <code>:wq</code> or <code>:%s/old/new/g</code>: the colon hands the rest of the line to ex.</p>
+
+<h3>Why it matters</h3>
+
+<p>ex is useful when there is no screen to draw on, when the edit must happen inside a script, or when a remote connection is too slow or too small for a full-screen editor. It is also the fastest way to understand what vi is doing: vi is a visual front end to the same buffer and the same commands.</p>
+
+<h3>How to think about it</h3>
+
+<p>Imagine a numbered shopping list on a clipboard and an assistant who only takes instructions. "Cross out line 2." "Add eggs after line 4." "Change the word milk to oat milk on every line." You never touch the paper. You read the numbers, speak a command, and the assistant edits the list. ex works the same way, with the file held in a buffer in memory until you write it back.</p>
+
+<h3>New words</h3>
+
+<dl>
+<dt><a href="glossary/l/line-editor.html">Line editor</a></dt>
+<dd>An editor that works on numbered lines with commands rather than a movable cursor.</dd>
+<dt><a href="glossary/b/buffer.html">Buffer</a></dt>
+<dd>The in-memory copy of the file that changes are made to before they are written back.</dd>
+<dt>Address</dt>
+<dd>The line or range of lines a command applies to, such as <code>2</code>, <code>1,3</code>, <code>.</code> for the current line, or <code>$</code> for the last line.</dd>
+<dt><a href="glossary/r/regular-expression.html">Regular expression</a></dt>
+<dd>A pattern that describes text to find, such as <code>^#</code> for a line beginning with a hash mark.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Change a file with ex commands</h2>
+
+<p><strong>Goal:</strong> you will be able to open a file in ex, change one line, print a range of lines, save the result, and quit without saving when you change your mind.</p>
+
+<h3>Worked example</h3>
+
+<p>The <code>-s</code> option puts ex into batch mode. It suppresses prompts and ordinary messages, which keeps the capture readable. The commands between the <code>EOF</code> markers are typed into ex's standard input, one per line.</p>
+
+<pre class="session" data-risk="scratch">
+$ printf 'alpha\nbeta\ngamma\n' &gt; colours.txt
+$ ex -s colours.txt &lt;&lt;'EOF'
+2s/beta/BETA/
+1,2p
+wq
+EOF
+alpha
+BETA
+$ cat colours.txt
+alpha
+BETA
+gamma
+</pre>
+
+<p>Captured with Vim 9.2 in ex mode on an Arch-based system, 2026-11-16. The commands are POSIX ex; other implementations print the same two lines.</p>
+
+<h3>What just happened</h3>
+
+<ol>
+<li><code>ex -s colours.txt</code> opened the file into a buffer and read commands from standard input.</li>
+<li><code>2s/beta/BETA/</code> addressed line 2 and substituted <code>beta</code> with <code>BETA</code>. Because address 2 names one line, only that line changed.</li>
+<li><code>1,2p</code> printed lines 1 through 2. Printing does not change the buffer.</li>
+<li><code>wq</code> wrote the buffer back to <code>colours.txt</code> and quit. The trailing colon is not needed in ex itself; it belongs to vi's command line.</li>
+</ol>
+
+<h3>Try it</h3>
+
+<p>Make a scratch directory and a three-line file. Use ex to change the second line, print all three lines with <code>1,$p</code>, then quit with <code>q!</code> so the change is discarded. Run the same session again and end with <code>wq</code>; check the file with <code>cat</code>. Finally, delete the directory.</p>
+
+<h3>If it goes wrong</h3>
+
+<dl>
+<dt><code>E486: Pattern not found: delta</code></dt>
+<dd>The search or substitution pattern matched nothing. Check spelling and case; ex patterns are case-sensitive unless the pattern or an option says otherwise. With <code>-s</code>, ex exits with a nonzero status instead of leaving you at a prompt.</dd>
+<dt><code>E37: No write since last change</code></dt>
+<dd>You asked to quit while the buffer still had unsaved changes. Use <code>wq</code> to save them, or <code>q!</code> to discard them deliberately.</dd>
+<dt><code>E325: ATTENTION</code> and a swap file name</dt>
+<dd>Another ex or vi session may still be editing the same file, or an earlier session crashed. Do not delete the swap file until you know which case it is; the vi page explains recovery.</dd>
+<dt>Nothing appears after a command</dt>
+<dd>Many ex commands print nothing when they succeed. In batch mode there is also no prompt. Check the file with <code>cat</code> or ask ex to print a range.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux provides <code>micro</code> as its baseline editor. The <code>ex</code> and <code>vi</code> command names are not installed by default. On the Arch-based system checked for this page they come from the optional <code>ex-vi-compat</code> package, which depends on <code>vim</code> and supplies <code>edit</code>, <code>ex</code>, <code>vedit</code>, <code>vi</code>, and <code>view</code>. Ask before installing packages, and read <a href="systems/packages/index.html">Packages and updates</a> first.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>What is the difference between <code>2d</code> and <code>2,4d</code>?</summary>
+<p><code>2d</code> deletes only line 2. <code>2,4d</code> deletes lines 2, 3, and 4 as one range. After either command the remaining lines are renumbered, so a later <code>2p</code> may print a different line than you expect.</p>
+</details>
+<details class="q">
+<summary>Why did <code>1,2p</code> print <code>BETA</code> instead of <code>beta</code>?</summary>
+<p>The substitution ran first and changed the buffer. <code>p</code> prints the current contents of the buffer, not the file on disk. The file changes only when <code>w</code> or <code>wq</code> writes it.</p>
+</details>
+<details class="q">
+<summary>You run <code>ex -s notes.txt</code> and feed it <code>s/draft/final/</code>. The pattern is not on the current line but is on line 4. What happens?</summary>
+<p>The command fails because a substitution without an address applies to the current line, which starts at line 1. Use <code>4s/draft/final/</code>, <code>%s/draft/final/</code> for every line, or <code>g/draft/s//final/</code> to act only on matching lines.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>ex as a language</h2>
+
+<h3>Reference</h3>
+
+<p>POSIX ex reads a command line in the form <code>[address[,address]]command[arguments]</code>. A missing address usually means the current line; a missing second address means the same line as the first.</p>
+
+<table>
+<tr><th>Address</th><th>Meaning</th></tr>
+<tr><td><code>3</code></td><td>Line 3.</td></tr>
+<tr><td><code>.</code></td><td>The current line.</td></tr>
+<tr><td><code>$</code></td><td>The last line in the buffer.</td></tr>
+<tr><td><code>%</code></td><td>All lines; shorthand for <code>1,$</code>.</td></tr>
+<tr><td><code>1,4</code></td><td>The inclusive range from line 1 to line 4.</td></tr>
+<tr><td><code>/pattern/</code></td><td>The next line matching a basic regular expression.</td></tr>
+<tr><td><code>?pattern?</code></td><td>The previous line matching the pattern.</td></tr>
+<tr><td><code>'a</code></td><td>The line marked with the vi command <code>ma</code>.</td></tr>
+<tr><td><code>.+2</code>, <code>$-1</code></td><td>An offset from another address.</td></tr>
+</table>
+
+<table>
+<tr><th>Command</th><th>Effect</th></tr>
+<tr><td><code>p</code></td><td>Print the addressed lines. <code>=</code> prints a line number instead.</td></tr>
+<tr><td><code>d</code></td><td>Delete the addressed lines from the buffer.</td></tr>
+<tr><td><code>s/pat/repl/flags</code></td><td>Substitute in the addressed lines. Without <code>g</code>, replace the first match on each addressed line; with <code>g</code>, every match.</td></tr>
+<tr><td><code>g/pat/cmd</code>, <code>v/pat/cmd</code></td><td>Run <code>cmd</code> on every line matching, or not matching, the pattern.</td></tr>
+<tr><td><code>m target</code>, <code>t target</code></td><td>Move or copy the addressed lines to after <code>target</code>.</td></tr>
+<tr><td><code>r file</code></td><td>Read another file into the buffer after the current line.</td></tr>
+<tr><td><code>w file</code>, <code>wq</code></td><td>Write the buffer, optionally to another file, and quit after writing.</td></tr>
+<tr><td><code>e file</code></td><td>Replace the buffer with another file, refusing if there are unsaved changes.</td></tr>
+<tr><td><code>q</code>, <code>q!</code></td><td>Quit, or quit and discard unsaved changes.</td></tr>
+<tr><td><code>[addr]!cmd</code></td><td>Filter the addressed lines through a shell command, or run the command when no lines are addressed.</td></tr>
+</table>
+
+<h3>How it works</h3>
+
+<p>ex holds the file in an edit buffer and keeps a current line. Every command updates that current line, which is why a sequence of edits can be written without repeating an address. That statefulness is the main difference from a filter such as <code>sed</code>: ex is a session with a cursor line, a buffer, marks, and options; sed is a stream transform.</p>
+
+<p>vi is not a separate editing model. POSIX describes vi as the screen-oriented utility and ex as the line editor; the vi specification covers only open and visual modes and sends the reader to ex for the remaining editing capabilities. Inside vi, <code>Q</code> enters ex mode and <code>visual</code> returns to the screen. The colon command line in vi accepts the same ex commands.</p>
+
+<p>Startup files follow POSIX rules. If <code>EXINIT</code> is set, ex executes the commands it contains. Otherwise it reads <code>$HOME/.exrc</code>, subject to ownership checks. Vim's compatibility wrapper used for <code>ex</code> on Arch also reads <code>./.exrc</code> when the home file is absent. The <code>-s</code> option suppresses prompting and informational messages, but diagnostic errors still go to standard error.</p>
+
+<p>The exit status is 0 for success and greater than 0 after an error. POSIX adds a sharp edge: when standard input is not a terminal and an error occurs, ex must not write the file and must terminate with a nonzero status. A script that pipes commands into ex therefore fails closed rather than saving a half-edited buffer.</p>
+
+<h3>Advanced usage</h3>
+
+<p>This capture deletes comment lines with <code>g</code>, then substitutes without the <code>g</code> flag. Each line changes at most once, which is why only the first letter of each word is capitalized.</p>
+
+<pre class="session">
+$ printf '# note\nalpha\nbeta\ngamma\n' &gt; lines.txt
+$ ex -s lines.txt &lt;&lt;'EOF'
+g/^#/d
+%s/a/A/
+1,$p
+wq
+EOF
+Alpha
+betA
+gAmma
+</pre>
+
+<p>Two details are easy to miss. <code>g/^#/d</code> runs <code>d</code> on line 1 first; ex adjusts the line numbers as it goes, so a global command does not leave dangling addresses. And <code>%s/a/A/</code> without <code>g</code> replaces one match per line. Add <code>g</code> as the final flag to replace every match on each line. A different delimiter avoids escaping slashes: <code>s#/usr/local#/usr#</code>.</p>
+
+<h3>Edge cases</h3>
+
+<ul>
+<li><strong>Basic versus extended regular expressions.</strong> POSIX ex uses basic regular expressions, where grouping is <code>\(</code> and <code>\)</code> and alternation is not portable. Vim also accepts <code>\|</code> and other extensions; a script meant for another ex implementation should stay with the portable subset.</li>
+<li><strong>An empty pattern repeats the last one.</strong> <code>s//replacement/</code> reuses the previous search pattern. That is useful in a <code>g/pat/s//new/</code> command and surprising when the previous pattern was set somewhere else.</li>
+<li><strong>Global commands and line shifts.</strong> Commands that delete or move lines interact with <code>g</code> in implementation-defined ways beyond the simple cases. Prefer one pass for selection and another for editing when a script must be portable.</li>
+<li><strong>No terminal, no recovery prompt.</strong> In batch mode a failed command ends the session. Check ex's exit status in the calling script instead of assuming the file was written.</li>
+<li><strong>Write failures.</strong> A full disk, a read-only file, or a lost permission makes <code>w</code> fail. ex reports the error and does not pretend the write succeeded; a script must still check the exit status.</li>
+<li><strong>Binary data and encodings.</strong> ex is a text editor. NUL bytes and invalid byte sequences in the current encoding are not safely round-tripped. Use a binary-aware tool for those files.</li>
+<li><strong>Swap files and concurrent sessions.</strong> Vim-based ex creates a swap file next to the edited file. Two sessions on one file can collide; recovery is covered on the vi page.</li>
+<li><strong>Naming the file.</strong> Without a file operand, <code>w</code> needs a name. In a pipeline, pass the path as an argument rather than relying on interactive state.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A deployment script runs <code>printf '%s\n' 'g/^#/d' 'wq' | ex -s service.conf</code> and exits 0 even though the file was not changed. Give two plausible explanations and the evidence you would collect.</summary>
+<p>First, the command stream may have failed before the write, for example because the file was not writable or a startup file changed the working state; POSIX says a nonterminal error must prevent the write and return nonzero, so an exit status of 0 argues against that branch. Second, the pipeline may report the status of the last command rather than ex, depending on the shell and options; without <code>set -o pipefail</code>, a successful <code>printf</code> can mask ex's failure. Collect the pipeline's individual statuses, ex's standard error, the file's ownership and mode, and the file's modification time. The design lesson is to run ex with its input redirected from a here-document or file and to check ex's own status, not to trust a pipeline's final status.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+
+<ul>
+<li><cite data-ref="posix-vi"><a href="bibliography/posix-vi.html">POSIX ex and vi</a></cite> &mdash; command grammar, addresses, startup files, and exit status.</li>
+<li><cite data-ref="vim"><a href="bibliography/vim.html">Vim documentation</a></cite> &mdash; ex mode, compatibility behaviour, and the <code>ex-vi-compat</code> wrapper's startup file order.</li>
+</ul>
+
+<h3>Improve it</h3>
+
+<p>If you find a portable ex recipe that belongs here, add it with the exact command and captured output, and say which implementation produced the output. Do not add a command you have not run.</p>
+</section>
+
+<h2>Next</h2>
+
+<p><a href="terminal/editors/vi.html">The vi screen editor</a> &mdash; the visual mode that made the same command language famous.</p>
+
+<h2>Related</h2>
+
+<ul>
+<li><a href="terminal/editors/emacs.html">GNU Emacs</a> &mdash; the modeless alternative with a different command language.</li>
+<li><a href="glossary/l/line-editor.html">Line editor</a> &mdash; the definition and a short comparison with screen editors.</li>
+<li><a href="terminal/shell/pipelines.html">Pipelines</a> &mdash; how to feed commands to a program and check what happened.</li>
+</ul>
+</body>
+</html>
