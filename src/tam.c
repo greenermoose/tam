@@ -369,6 +369,9 @@ static int view_document(const char *root, const char *href, const char *src,
     if (info != NULL) {
         doc->levels = info->levels;
         doc->hidden = info->hidden;
+        if (info->revision[0] != '\0') {
+            doc->revision = strdup(info->revision);
+        }
     }
 
     int rc = 0;

@@ -50,6 +50,7 @@ typedef struct {
     char       *nav_top;
     unsigned    levels; /* Levels a guide page declares; 0 for other pages. */
     int         hidden; /* Level sections the reader's lens hid. */
+    char       *revision; /* "Rev N Last updated ..." pager chrome, or NULL. */
     tam_fold_t *folds;
     size_t      nfolds;
     void       *layout; /* private parsed blocks, retained for width reflow */

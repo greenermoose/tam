@@ -2518,6 +2518,7 @@ void tam_document_free(tam_document_t *doc)
     free(doc->location.spans);
     free(doc->folds);
     free(doc->title);
+    free(doc->revision);
     free(doc->nav_next);
     free(doc->nav_prev);
     free(doc->nav_up);
@@ -2566,6 +2567,14 @@ char *tam_document_text(const tam_document_t *doc)
         for (size_t j = 0; j < doc->lines[i].nspans; j++) {
             s = tam_str_cat(s, doc->lines[i].spans[j].text);
         }
+        s = tam_str_cat(s, "\n");
+    }
+
+    /* The revision stamp is pager chrome, not a page line, but plain text has
+     * no chrome: keep it here so the corpus build and guides can check it. */
+    if (doc->revision != NULL && doc->revision[0] != '\0') {
+        s = tam_str_cat(s, "\n");
+        s = tam_str_cat(s, doc->revision);
         s = tam_str_cat(s, "\n");
     }
 

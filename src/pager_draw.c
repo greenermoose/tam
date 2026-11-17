@@ -41,6 +41,8 @@ static size_t status_byte_limit(const char *s, int max_cols);
 static const char *hyperlink_target(const tam_span_t *sp);
 static void emit_hyperlink(const tam_span_t *sp, int open);
 static void pager_address(const pager_t *st, char *out, size_t cap);
+static int revision_row(const pager_t *st);
+static void emit_revision_line(const pager_t *st, int width);
 
 int tam_terminal_width(void)
 {
@@ -95,12 +97,26 @@ static void outn(const char *s, size_t n)
     }
 }
 
+/* The revision stamp is page chrome, not a page line: it gets the row just
+ * above the two footer rows. A very short terminal drops it so the page keeps
+ * at least one line. */
+static int revision_row(const pager_t *st)
+{
+    return st != NULL && st->doc != NULL && st->doc->revision != NULL &&
+           st->doc->revision[0] != '\0' && st->height >= 5;
+}
+
 int content_rows(const pager_t *st)
 {
     if (st->height <= 1) return 1;
     if (st->height == 2) return 1;
     if (st->height == 3) return 1;
-    return st->height - 3; /* Location row plus two footer rows. */
+    int rows = st->height - 3; /* Location row plus two footer rows. */
+    /* The stamp uses the location row's spare slot when the page has no
+     * breadcrumb; otherwise it costs one page row. */
+    if (revision_row(st) && st->height > 2 && st->doc->location.nspans > 0)
+        rows--;
+    return rows > 0 ? rows : 1;
 }
 
 int content_width(const pager_t *st)
@@ -140,6 +156,27 @@ static void emit_location_line(pager_t *st, int width, const linkref_t *sel)
         }
         emit_reset(0);
     }
+}
+
+/* Paint the revision stamp right-aligned, dim, on the normal background: the
+ * same treatment as the "Showing <lens>" line, and never the footer tint. A
+ * narrow terminal keeps the tail (the date) and drops whole characters. */
+static void emit_revision_line(const pager_t *st, int width)
+{
+    const char *text = st->doc->revision;
+    int text_w = (int)tam_display_width(text, strlen(text));
+    while (text_w > width && text[0] != '\0') {
+        const char *next = text + 1;
+        while (((unsigned char)*next & 0xC0) == 0x80) next++;
+        text = next;
+        text_w = (int)tam_display_width(text, strlen(text));
+    }
+    if (g_term != NULL && g_term->gutter) outn(" ", 1);
+    for (int pad = width - text_w; pad > 0; pad--) outn(" ", 1);
+    tam_span_t span = { .text = (char *)text, .style = TAM_STYLE_DIM };
+    emit_style(&span, 0);
+    outn(text, strlen(text));
+    if (g_term != NULL) emit_reset(0);
 }
 
 static void emit_attention(int enabled)
@@ -517,6 +554,12 @@ int draw(pager_t *st)
         } else if (li >= (int)st->doc->nlines) {
             emit_band_padding(st, 0, paint_width);
         }
+    }
+
+    if (revision_row(st)) {
+        g_capture = &frame[st->height - 3];
+        emit_attention(0);
+        emit_revision_line(st, paint_width);
     }
 
     char footer2[512] = {0};

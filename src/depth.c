@@ -562,25 +562,15 @@ char *tam_level_lines(unsigned shown, unsigned level, int missing,
     return b.data;
 }
 
-static void rev_line(buf_t *b, int rev, const char *updated)
-{
-    char rev_buf[128];
-    snprintf(rev_buf, sizeof(rev_buf), "\n<p>Rev %d Last updated %s</p>\n",
-             rev, updated);
-    buf_str(b, rev_buf);
-}
-
-char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
-                          unsigned level, int rev, const char *updated,
-                          const char *related, size_t *out_len,
-                          tam_depth_info_t *info)
+char *tam_depth_prepare(const char *src, size_t len, const char *path,
+                        unsigned level, const char *related, size_t *out_len,
+                        tam_depth_info_t *info)
 {
     unsigned levels = tam_depth_declared(src, len);
     /* A page without the lens level is shown whole under its banner, so the
      * reader is never left with an empty page. */
     unsigned filter = (levels & level) ? level : 0;
     int line_done = levels == 0 || path == NULL;
-    int has_rev = (rev > 0 && updated != NULL && updated[0] != '\0');
     int hidden = 0;
     buf_t b = {0};
 
@@ -632,9 +622,6 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
                 level_lines(&b, filter != 0 ? filter : levels, level,
                             !(levels & level), related);
                 line_done = 1;
-            } else if (has_rev && tag_is(src, len, i, "body", 1)) {
-                rev_line(&b, rev, updated);
-                has_rev = 0;
             }
         }
         if (src[i] == '<') {
@@ -643,10 +630,6 @@ char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
             buf_add(&b, src + i, stop - i);
             i = stop;
         } else { buf_add(&b, src + i, 1); i++; }
-    }
-
-    if (has_rev) {
-        rev_line(&b, rev, updated);
     }
 
     if (b.data == NULL && !b.failed) {

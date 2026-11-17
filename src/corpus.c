@@ -577,14 +577,20 @@ char *read_corpus_page(const char *root, const char *href,
         spliced = splice_path_markup(src, len, idx, rel, path_id);
         tam_index_free(idx);
     }
+    if (info != NULL) {
+        info->revision[0] = '\0';
+        if (rev > 0 && updated[0] != '\0') {
+            snprintf(info->revision, sizeof(info->revision),
+                     "Rev %d Last updated %s", rev, updated);
+        }
+    }
     const char *work_src = spliced != NULL ? spliced : src;
     size_t work_len = spliced != NULL ? strlen(spliced) : len;
     char *numbered = tam_fold_number(work_src, work_len);
     free(spliced);
     if (numbered == NULL) { free(related); free(src); free(rel); return NULL; }
-    char *html = tam_depth_apply_rev(numbered, strlen(numbered), rel, level, rev,
-                                     updated[0] ? updated : NULL, related,
-                                     out_len, info);
+    char *html = tam_depth_prepare(numbered, strlen(numbered), rel, level,
+                                   related, out_len, info);
     free(numbered);
     free(related);
     free(src);
@@ -623,6 +629,9 @@ tam_document_t *tam_corpus_page_document(const tam_loader_ctx_t *ctx,
     if (doc != NULL) {
         doc->levels = info.levels;
         doc->hidden = info.hidden;
+        if (info.revision[0] != '\0') {
+            doc->revision = strdup(info.revision);
+        }
     }
     return doc;
 }

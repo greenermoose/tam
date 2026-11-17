@@ -93,12 +93,16 @@ int tam_href_put_path(const char *href, const char *path_id, char *out,
  * query is present but is not a valid level selection. */
 char *tam_depth_split_href(const char *href, unsigned *level);
 
-/* What tam_depth_apply_rev() found: the levels the page declares (0 for a
- * page without a level declaration, such as a hub) and how many level
- * sections the lens hid. */
+/* What tam_depth_prepare() found: the levels the page declares (0 for a page
+ * without a level declaration, such as a hub) and how many level sections the
+ * lens hid. `revision` carries the page's build-time stamp
+ * (`Rev <N> Last updated <YYYY-MM-DD HH:MM>`) when its index entry has one,
+ * otherwise it is empty. The stamp is shown as pager chrome, never as page
+ * text. */
 typedef struct {
     unsigned levels;
     int      hidden;
+    char     revision[80];
 } tam_depth_info_t;
 
 /* The level line shown above a page heading, as HTML paragraphs of class
@@ -121,14 +125,13 @@ char *tam_level_lines(unsigned shown, unsigned level, int missing,
  * not offer the selected level is shown whole, and its level line says so,
  * with links from `related` to pages at the selected level.
  *
- * When `rev > 0` and `updated` is non-empty, appends
- * `<p>Rev <rev> Last updated <updated></p>`. Returns a newly allocated,
- * NUL-terminated buffer whose length is stored in *out_len, or NULL on
- * allocation failure. */
-char *tam_depth_apply_rev(const char *src, size_t len, const char *path,
-                          unsigned level, int rev, const char *updated,
-                          const char *related, size_t *out_len,
-                          tam_depth_info_t *info);
+ * The page's revision stamp is reported in `info->revision`, not added to the
+ * HTML: it is pager chrome, so it never counts as a page line. Returns a
+ * newly allocated, NUL-terminated buffer whose length is stored in *out_len,
+ * or NULL on allocation failure. */
+char *tam_depth_prepare(const char *src, size_t len, const char *path,
+                        unsigned level, const char *related, size_t *out_len,
+                        tam_depth_info_t *info);
 
 /* Levels a page declares in <meta name="level">, or 0. */
 unsigned tam_depth_declared(const char *src, size_t len);
