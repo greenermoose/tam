@@ -178,7 +178,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         g_stop = 1;
         return;
     case '?':
-    case 'h':
+    case 'g':
         if (is_help_page(st->cur_href)) {
             pager_return_from_help(st);
         } else {
@@ -262,7 +262,7 @@ static void handle_key_inner(pager_t *st, unsigned char c)
     case 'b':
         pager_page_up(st);
         break;
-    case 'g':
+    case 'h':
     case '`':
         if (strcmp(st->cur_href, "index.html") != 0) {
             follow(st, "index.html");

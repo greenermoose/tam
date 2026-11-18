@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.61.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.61.4' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -475,10 +475,10 @@ send_and_get_target(b"[")
 _, msg = send_and_get_state(b"a")
 assert "no earlier page" in msg, f"expected a to report no earlier page, got [{msg}]"
 
-# g jumps to the Guide index page (index.html).
-os.write(master, b"g")
+# h jumps to the Guide index page (index.html).
+os.write(master, b"h")
 buf = drain_pty(master, timeout=0.1, quiet=0.01)
-assert b"Link fixture index" in buf, f"expected g to jump to index, got {buf}"
+assert b"Link fixture index" in buf, f"expected h to jump to index, got {buf}"
 
 os.write(master, b"q")
 os.waitpid(pid, 0)
@@ -859,7 +859,7 @@ buf = drain_pty(master, timeout=0.1, quiet=0.01)
 # 1. Reading telemetry: verify status line contains position metric
 assert b"L1 1-" in buf and b"/" in buf, f"status line missing position metric: {buf}"
 # The status row lists Navigate, Select links, Help and Quit, then the lens and version.
-assert b"asdf jkl; Navigate  [] Select links  h Help  q Quit | " in buf and b"123 showing All text" in buf, f"status line missing key hints: {buf}"
+assert b"asdf jkl; Navigate  [] Select links  g Guidance  q Quit | " in buf and b"123 showing All text" in buf, f"status line missing key hints: {buf}"
 assert b"/ n/N" not in buf and b"Esc Quit" not in buf, f"status line kept old hints: {buf}"
 assert re.search(rb"v\d+\.\d+\.\d+ \([^)]*\)(?:\x1b\(B\x1b\[m)?\x1b\[K", buf), f"status line missing version: {buf}"
 
@@ -1192,7 +1192,7 @@ drain(master, 0.05)
 os.write(master, b"\r")
 buf = drain(master, 0.1)
 assert b"help" in buf.lower(), f"expected help page from link, got: {buf}"
-os.write(master, b"h")
+os.write(master, b"g")
 drain(master, 0.1)
 
 os.write(master, b"q")
@@ -1236,7 +1236,7 @@ assert os.WEXITSTATUS(status) == 1, f"expected exit 1 on miss, got {status}"
 ' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager prompt and quick-keys tests failed"
     pass "pager search prompts (\\ and /), quick-keys links, and tam search in the pager"
 
-    # Pager help page (help/index.html), keys (h and ?), navigation, and return to invoking page
+    # Pager help page (help/index.html), keys (g and ?), navigation, and return to invoking page
     python3 -c '
 import pty, os, time, sys, select, termios, struct, fcntl, re
 
@@ -1281,8 +1281,8 @@ pid, master = launch(["show", "shell/pipelines"])
 buf = drain(master, 0.15)
 assert b"Fixture pipelines" in buf, f"expected pipelines page, got: {buf}"
 
-# 2. Press h to show help/index.html
-os.write(master, b"h")
+# 2. Press g to show help/index.html
+os.write(master, b"g")
 buf = drain(master, 0.1)
 assert b"Navigation Help" in buf or b"help" in buf.lower(), f"expected help page, got: {buf}"
 
@@ -1290,10 +1290,10 @@ assert b"Navigation Help" in buf or b"help" in buf.lower(), f"expected help page
 os.write(master, b"k")
 drain(master, 0.05)
 
-# 4. Press h from help page returns to shell/pipelines
-os.write(master, b"h")
+# 4. Press g from help page returns to shell/pipelines
+os.write(master, b"g")
 buf = drain(master, 0.1)
-assert b"Fixture pipelines" in buf, f"expected return to pipelines after h, got: {buf}"
+assert b"Fixture pipelines" in buf, f"expected return to pipelines after g, got: {buf}"
 
 # 5. Press ? to show help/index.html
 os.write(master, b"?")
@@ -1309,7 +1309,7 @@ os.write(master, b"q")
 os.waitpid(pid, 0)
 os.close(master)
 ' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager help page tests failed"
-    pass "pager help page (help/index.html) navigation and return on help keys (h and ?)"
+    pass "pager help page (help/index.html) navigation and return on help keys (g and ?)"
 
     # Interactive hyperlinked topics pager (tam explain topics)
     python3 -c '
@@ -1932,7 +1932,7 @@ assert saved(state) == "learner", saved(state)
 
 # The lens holds across a link to a single-level page, which opens under a
 # truthful level line instead of failing, and the status row says so.
-b = p.key(b"g")
+b = p.key(b"h")
 # The relatives line links children of the page at the lens level, from
 # index.parents.tsv.
 assert "See also -> Fixture pipelines" in b, b

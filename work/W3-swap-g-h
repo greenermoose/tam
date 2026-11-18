@@ -1,0 +1,28 @@
+W3 SWAP G AND H KEYS
+
+Date: 2026-11-18
+AI harness: Antigravity 1.5.11
+AI model: gemini-4-hydrogen-medium
+
+GUIDANCE
+
+  Fred: "/plan In tam command, swap the effect of keys g and h. g should be \"get guide\" and show the help page. h should be \"hop home\" and show the guide index page. Update throughout the knowledge corpus and change all references in tam command."
+  Fred: "/plan Change g to be \"get guidance\" not \"get guide\"."
+  Fred: "1 g Guidance / 2 look right / Approved. Proceed."
+
+DONE
+
+  - Swapped g and h in src/pager_input.c (g/? -> help/index.html, h/` -> index.html).
+  - Updated status-row hint in src/pager_draw.c to "g Guidance".
+  - Updated man/tam.1, README, tests/run.sh, tests/pager_screen.py, and help fixtures.
+  - Updated knowledge/index.html, knowledge/welcome.html, knowledge/help/index.html,
+    knowledge/help/documentation.html, and knowledge/paths/first-steps.html.
+  - Bumped command version to 0.61.4 and corpus version to 0.96.2.
+
+FAILED
+
+  - The optional live Ollama checks were skipped because no server was available.
+
+HANDOFF
+
+  Ready for Tamlinux packaging when requested.

@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-18:** Command 0.61.4 (patch) and corpus 0.96.2 (patch): swapped pager keys `g` ("get guidance", opens/closes `help/index.html` alongside `?`) and `h` ("hop home", jumps to `index.html` alongside backtick), updated the status row hint to `g Guidance`, and updated all references in `man/tam.1`, `README`, tests, and the knowledge corpus.
+
 - **2026-11-18:** Command 0.61.3 (patch): development builds read the active native bundle’s cultivar and version before falling back to legacy per-user metadata. Packaged and relocatable builds retain their existing bundle selection.
 
 - **2026-11-17:** Command 0.61.2 (patch) and corpus 0.96.1 (patch): the retired `~/.local/dev` prefix is gone. Development builds use `~/.local`, with executables in `~/.local/bin` and libraries in `~/.local/lib`; every released Tamlinux version installs to `/usr/bin` and `/usr/lib`. `bin/tam-upgrade` now builds and switches source generations under `~/.local/opt/tam` (receipts stay in `~/.local/state/tam-upgrade`), so `tam upgrade --apply` and `tam switch` share the development prefix. The manual, README, tests, upgrade plan and developer-loop steps name the same paths, and the corpus development pages and glossary examples do too. A pre-existing `~/.local/bin/tam` from `make install` is an unowned endpoint: remove it with `make uninstall PREFIX=$HOME/.local` before the first source switch.

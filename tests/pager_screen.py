@@ -238,7 +238,7 @@ def main():
     screen.feed(read_available(master))
     assert focused_rows(screen) == [1], focused_rows(screen)
 
-    os.write(master, b"h")
+    os.write(master, b"g")
     help_frame = read_available(master)
     screen.feed(help_frame)
     assert any("Esc to close" in screen.line(r) or "help" in screen.line(r).lower() for r in range(10)), \

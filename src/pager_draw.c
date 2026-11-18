@@ -682,7 +682,7 @@ int draw(pager_t *st)
         strncat(lens_part, " (not on page)", sizeof(lens_part) - strlen(lens_part) - 1);
 
     static const char *const keys[] = {
-        "asdf jkl; Navigate  [] Select links  h Help  q Quit", "h Help  q Quit"
+        "asdf jkl; Navigate  [] Select links  g Guidance  q Quit", "g Guidance  q Quit"
     };
     int ver_w = (int)tam_display_width(st->version, strlen(st->version));
     int lens_w = (int)tam_display_width(lens_part, strlen(lens_part));
