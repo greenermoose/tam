@@ -24,7 +24,7 @@ Categories:
 - `tests/` — *you edit*. Command, corpus, rendering, upgrade, developer-loop and drift-check suites (`tests/run.sh` command version assertion is updated by `make dev`).
 - `docs/` — *you edit*. Corpus authoring, corpus audit, plan-maintenance and repository-map guides.
 - `docs/plans/` — *you edit*. Feature plans, the living development contract (`development.md`), templates and the plan index (`README`); closed plans remain in place as historical records.
-- `docs/ai/` — *history, read-only*. Per-session AI provenance records; add a new file for a new AI session without rewriting earlier records.
+- `docs/ai/` — *history, read-only*. AI session records from before 2026-11-17, moving to `work/history/`; new sessions record in `work/`.
 - `docs/handoffs/` — *history, read-only*. Historical cross-session handoff notes kept at stable paths.
 - `docs/templates/` — *you edit*. Page skeletons (ladder, layered, single, path) that new corpus pages start from; see `docs/corpus-pedagogy.md`.
 - `build/` — *generated, never edit*. Compiler output (`build/tam` and build configuration stamp) created by `make command`.
@@ -32,7 +32,8 @@ Categories:
 - `README` — *you edit*. Project overview, build prerequisites, developer loop and command reference.
 - `ROADMAP.md` — *script edits*. Current version header, delivered-history rows and the `develop` branch row updated by `make dev`; narrative sections change with plan updates.
 - `AGENTS.md` — *you edit*. Concurrency rules, lane scopes, build/test commands and provenance guidance for AI agents.
-- `AI_PROVENANCE.md` — *you edit*. Chronological table of AI-assisted sessions; append a row when adding a record under `docs/ai/`.
+- `AI_PROVENANCE.md` — *you edit*. How this repository records AI help; its session table covers the records from before 2026-11-17 and gets no new rows.
+- `work/` — *you edit*. `WHATNOW` (read first; revised as a whole at the end of every session) and one plain-text record per AI session, `W<number>-<name>`, added and never rewritten; `README-work` gives the procedure.
 - `CHECKLISTS.md` — *you edit*. Monotonic `TCK<N>` checklist counter and minting rules across plans.
 - `ACKNOWLEDGEMENTS.md` — *you edit*. Third-party and upstream attributions.
 - `COPYRIGHT` — *you edit*. Repository copyright statement.

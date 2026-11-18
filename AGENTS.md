@@ -66,7 +66,8 @@ work is committed, or when it is cancelled.
 Two agents can work at once if each claims one lane. Claim both lanes for a
 change that couples them, such as new renderer support and the pages that
 use it. Shared files move by handoff: claim one only while you edit it. A
-new file such as your own `docs/ai/` record conflicts with nobody.
+new file such as your own `work/` record conflicts with nobody; `work/WHATNOW`
+is shared, so claim it while you revise it.
 
 A corpus-only release stays inside the corpus lane: new pages are discovered by
 `tests/guide.sh`, and the expected corpus version is read from
@@ -141,14 +142,15 @@ on the developer's explicit Test, Run or Release instruction.
 
 ## Provenance
 
-Follow `AI_PROVENANCE.md`. Every AI-assisted commit carries
+Follow `work/README-work`. Start by reading `work/WHATNOW`: what was just
+done and what comes next. Every AI-assisted commit carries
 `Co-authored-by`, `AI-Tool: <tool> <version>` and `AI-Model: <model-id>`,
 with the tool version checked from the running binary, not remembered.
-Each session adds one record under `docs/ai/` and a row in
-`AI_PROVENANCE.md`, quoting the developer's prompts verbatim. Start the
-record from `docs/ai/TEMPLATE.md`: it includes the session's start and end
-time and a `Checked against:` line naming the sources you confirmed facts
-from, and it is sized to the work.
+Each session writes one plain-text record, `work/W<number>-<name>`, quoting
+the developer's prompts verbatim, and revises `work/WHATNOW` as a whole;
+both go in a commit with the work. The records from before 2026-11-17 in
+`docs/ai/` (moving to `work/history/`) and the session table in
+`AI_PROVENANCE.md` are history: add nothing to them.
 
 Public files never contain conversation or session IDs, transcript or
 store paths, home-directory paths, or the names of private repositories.
