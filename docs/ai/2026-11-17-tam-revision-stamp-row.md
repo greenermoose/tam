@@ -45,7 +45,10 @@
 passes the command suite, upgrade tests, renderer goldens, and `check-repo`.
 The PTY screen model asserts the stamp's row, right alignment, dim attribute,
 absence of the footer tint, that the footer total excludes it, that it does
-not scroll, and that a four-row terminal omits it. `make test-command` without
-`LIBTAM_PREFIX` still fails in `tests/test_documentation.py`, whose default
-library prefix remains `~/.local/dev`; that is a pre-existing stale default,
-not this change.
+not scroll, and that a four-row terminal omits it.
+
+A follow-up in the same session fixed `tests/test_documentation.py`, whose
+libtam default was still the retired `~/.local/dev`, so a bare
+`make test-command` failed before reaching the suite. It now uses the
+development prefix (`~/.local`) when that holds libtam, otherwise the prefix
+`pkg-config` reports. Bare `make test-command` passes.

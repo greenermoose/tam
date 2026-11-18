@@ -7,7 +7,23 @@ import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
-LIB=Path(os.environ.get('LIBTAM_TEST_PREFIX',str(Path.home()/'.local/dev')))
+
+
+def _libtam_prefix():
+    """The libtam the C fixtures link: the development prefix first, then
+    wherever pkg-config reports one, so a bare `make test-command` works on a
+    packaged host as well."""
+    local=Path.home()/'.local'
+    if (local/'lib/libtam.a').is_file():
+        return local
+    found=subprocess.run(['pkg-config','--variable=prefix','libtam'],
+                         capture_output=True,text=True)
+    if found.returncode==0 and found.stdout.strip():
+        return Path(found.stdout.strip())
+    return local
+
+
+LIB=Path(os.environ.get('LIBTAM_TEST_PREFIX') or _libtam_prefix())
 
 
 class Documentation(unittest.TestCase):
