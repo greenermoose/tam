@@ -64,9 +64,9 @@ Steps `make dev` takes over, with their current sources:
    decision-record entry in [development.md](development.md).
 3. **Path-limited commits.** `AGENTS.md` requires `git commit -- <paths>`,
    never `-a`, because agents share this clone.
-4. **Development install.** `make install PREFIX=~/.local/dev`, which finds
+4. **Development install.** `make install PREFIX=~/.local`, which finds
    libtam through `pkg-config` (the developer's shell environment puts
-   `~/.local/dev/lib/pkgconfig` on `PKG_CONFIG_PATH`); the `libtam-check`
+   `~/.local/lib/pkgconfig` on `PKG_CONFIG_PATH`); the `libtam-check`
    target already stops with instructions when it cannot.
 
 Dependencies: Python 3 standard library, Git, `tam-work` on `PATH`
@@ -141,7 +141,7 @@ with a plain message saying what was and was not committed.
    `knowledge/component-coverage.json`) changed, commit them alone as `Refresh
    corpus index revisions after <short sha>`. Run `make corpus` again.
 8. **Install.** Run `make command` so the binary embeds the new commit. Prompt
-   `Install prefix [~/.local/dev]:`; any other prefix needs typed `yes`, and
+   `Install prefix [~/.local]:`; any other prefix needs typed `yes`, and
    `/usr/local` is refused. Run `make install PREFIX=<prefix>`, then report
    `type -a tam` (the first entry must be `<prefix>/bin/tam`), `tam --version`,
    and a reminder to run `hash -r`. If other sessions' command paths are dirty,

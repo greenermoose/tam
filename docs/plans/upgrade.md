@@ -205,7 +205,7 @@ than inferring freshness from process success.
 ## Source installation and recovery
 
 **Destination approved by the developer:** use the established user
-development prefix `~/.local/dev` as an explicit development override. It
+development prefix `~/.local` as an explicit development override. It
 takes precedence over the packaged command in terminal PATH. This operation
 does not promote Test/Run/Release. Product delivery still belongs to a recorded
 `tamlinux-packages` assembly. Remove the override through the approved component
@@ -245,8 +245,8 @@ the developer's working clone:
    Apply a source-operation deadline and size limits separately from metadata
    checks; a failed transfer never proceeds to the build.
 5. Build a private libtam and tam into one fresh generation under
-   `~/.local/dev/opt/tam/<generation>/`. Its library and corpus stay together;
-   the shared `~/.local/dev/lib/libtam.so` and other tools are untouched.
+   `~/.local/opt/tam/<generation>/`. Its library and corpus stay together;
+   the shared `~/.local/lib/libtam.so` and other tools are untouched.
    Set the final generation prefix and rpath at build time. Do not rename a
    completed generation to a different absolute path after building it.
 6. Run libtam checks and tam's command/corpus checks against the selected

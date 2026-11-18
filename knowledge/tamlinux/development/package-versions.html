@@ -82,7 +82,7 @@ Tamlinux cultivar KBN WB 0.6.1
 <h3>What just happened</h3>
 <ol>
 <li><code>tam --version</code> printed the four version tiers of the running environment: the C command binary (<code>0.48.1</code>), the offline knowledge corpus (<code>0.59.0</code>), the shared integration library <code>libtam</code> (<code>0.4.0</code>), and the overall workstation milestone cultivar name and release (<code>KBN WB 0.6.1</code>).</li>
-<li>The <code>(dev 4788787)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/dev/bin</code>) matching that Git short hash.</li>
+<li>The <code>(dev 4788787)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/bin</code>) matching that Git short hash.</li>
 <li>Packaged production builds omit the <code>(dev ...)</code> suffix and reflect the exact version declared in the active Home Manager assembly generation.</li>
 </ol>
 <h3>Try it</h3>
@@ -104,21 +104,21 @@ generation: /nix/store/lrmniw3fj0yhrx5mwkm6w2c8p5vl3y6v-home-manager-generation
 <h3>If it goes wrong</h3>
 <dl>
 <dt>tam prints (dev ...) suffix unexpectedly</dt>
-<dd>A development build in <code>~/.local/dev/bin</code> precedes the packaged binary on <code>PATH</code>. Remove it with <code>make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev</code> and run <code>hash -r</code>.</dd>
+<dd>A development build in <code>~/.local/bin</code> precedes the packaged binary on <code>PATH</code>. Remove it with <code>make -C ~/src/tam uninstall PREFIX=$HOME/.local</code> and run <code>hash -r</code>.</dd>
 <dt>command and corpus versions differ</dt>
 <dd>Tamlinux command and corpus version independently. Content additions in the documentation corpus bump its version without needing a command binary recompile.</dd>
 <dt>tam-deploy reports command not found</dt>
 <dd>The command path is missing from your environment. Verify that <code>~/.local/bin</code> is present in your shell <code>PATH</code> variable.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, all software reaches the workstation exclusively through a recorded <code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, never from a mutable checkout, copied payload, or unrecorded override. Test and Run stages are strictly package-managed, and development overrides in <code>~/.local/dev</code> are uninstalled immediately upon deployment. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">deployment contract</a></cite>.</p>
+<p>On Tamlinux, all software reaches the workstation exclusively through a recorded <code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, never from a mutable checkout, copied payload, or unrecorded override. Test and Run stages are strictly package-managed, and development overrides in <code>~/.local</code> are uninstalled immediately upon deployment. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">deployment contract</a></cite>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary>What does <code>(dev ...)</code> indicate when appended to a version number in <code>tam --version</code>?</summary>
-<p>It indicates that the running executable was compiled and installed locally into <code>~/.local/dev/bin</code> from the indicated Git commit, overriding the packaged Home Manager generation on <code>PATH</code>.</p>
+<p>It indicates that the running executable was compiled and installed locally into <code>~/.local/bin</code> from the indicated Git commit, overriding the packaged Home Manager generation on <code>PATH</code>.</p>
 </details>
 <details class="q">
 <summary>Why do <code>tam command</code> and <code>knowledge corpus</code> maintain independent version numbers?</summary>
@@ -150,9 +150,9 @@ generation: /nix/store/lrmniw3fj0yhrx5mwkm6w2c8p5vl3y6v-home-manager-generation
 Work in the component checkout on the <code>develop</code> branch. Install a development build directly into the user prefix:
 <pre data-risk="read-only">
 make -C ~/src/tam test
-make -C ~/src/tam install PREFIX=$HOME/.local/dev
+make -C ~/src/tam install PREFIX=$HOME/.local
 </pre>
-Because <code>~/.local/dev/bin</code> sits first on the shell <code>PATH</code>, this binary immediately overrides the packaged version for interactive testing without root privileges or Nix store builds.</li>
+Because <code>~/.local/bin</code> sits first on the shell <code>PATH</code>, this binary immediately overrides the packaged version for interactive testing without root privileges or Nix store builds.</li>
 
 <li><strong>Component Verification, Version Bump, and Commit:</strong>
 Verify all unit, integration, and guide tests pass (<code>make test</code>). Bump the component version in source:
@@ -181,7 +181,7 @@ Set the candidate Tamlinux letter in <code>VERSION</code> (e.g. <code>0.5.4-a</c
 <li><strong>Promotion to Test, Run, and Dev Override Cleanup:</strong>
 <table>
 <tr><td><strong>Test</strong></td><td>On the developer's explicit "Test" instruction, promote the candidate commit to the <code>test</code> branch (fast-forward only). Deploy using <code>tam-deploy test</code>.</td></tr>
-<tr><td><strong>Clean up the dev override</strong></td><td>Right after the deploy that delivers the pinned version, remove the development override: <pre data-risk="read-only"> make -C ~/src/tam uninstall PREFIX=$HOME/.local/dev hash -r </pre> Confirm <code>type -a tam</code> points back to <code>~/.local/bin/tam</code>.</td></tr>
+<tr><td><strong>Clean up the dev override</strong></td><td>Right after the deploy that delivers the pinned version, remove the development override: <pre data-risk="read-only"> make -C ~/src/tam uninstall PREFIX=$HOME/.local hash -r </pre> Confirm <code>type -a tam</code> points back to <code>/usr/bin/tam</code>.</td></tr>
 <tr><td><strong>Run</strong></td><td>After thorough daily-driver testing, on the developer's explicit "Run" instruction, promote the exact same tested commit to <code>main</code> with <code>tam-deploy run</code>.</td></tr>
 <tr><td><strong>Release</strong></td><td>When all planned steps for the version are accepted, tag the release on GitHub with release notes on the developer's explicit "Release" instruction.</td></tr>
 </table>

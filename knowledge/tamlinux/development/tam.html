@@ -40,7 +40,7 @@
 <dt><a href="glossary/d/decoupled-versioning.html">Decoupled versioning</a></dt>
 <dd>An architecture where the binary executable version and documentation corpus version increment on independent schedules.</dd>
 <dt><a href="glossary/d/development-prefix.html">Development prefix</a></dt>
-<dd>A user-owned directory hierarchy (such as <code>~/.local/dev</code>) used to install and test software without root permissions.</dd>
+<dd>A user-owned directory hierarchy (such as <code>~/.local</code>) used to install and test software without root permissions.</dd>
 </dl>
 <p>A compiled binary runs as a <dfn><a href="glossary/p/process.html">process</a></dfn> belonging to an identifiable configuration <dfn><a href="glossary/o/owner.html">owner</a></dfn>, installed from an immutable <dfn><a href="glossary/p/package.html">package</a></dfn> or local build.</p>
 </section>
@@ -74,7 +74,7 @@ Repository Lanes and Build Pipeline:
                     `make test` / `make check`
                  (Full integration verification)
                               |
-                 `make install PREFIX=~/.local/dev`
+                 `make install PREFIX=~/.local`
                (Isolated user development generation)
 </pre>
 
@@ -88,7 +88,7 @@ libtam 0.7.0
 Tamlinux cultivar 0.6.22
 $ make -C /home/alex/src/tam command
 make: Entering directory '/home/alex/src/tam'
-cc -DTAM_DATADIR=\"/usr/local/share/tamlinux/knowledge\" -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -I/home/alex/.local/dev/include src/tam.c ... /home/alex/.local/dev/lib/libtam.a -lz -lncursesw -o build/tam
+cc -DTAM_DATADIR=\"/usr/local/share/tamlinux/knowledge\" -O2 -Wall -Wextra -Wpedantic -std=c11 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -I/home/alex/.local/include src/tam.c ... /home/alex/.local/lib/libtam.a -lz -lncursesw -o build/tam
 make: Leaving directory '/home/alex/src/tam'
 </pre>
 
@@ -109,14 +109,14 @@ $ make test-command
 <h3>If it goes wrong</h3>
 <dl>
 <dt>fatal error: tam/fs.h: No such file or directory</dt>
-<dd>The <code>libtam</code> header files are not installed under <code>/usr/include</code> or your configured <code>LIBTAM_PREFIX</code> (e.g. <code>~/.local/dev/include</code>). Pass <code>LIBTAM_PREFIX=$HOME/.local/dev</code> when invoking Make.</dd>
+<dd>The <code>libtam</code> header files are not installed under <code>/usr/include</code> or your configured <code>LIBTAM_PREFIX</code> (e.g. <code>~/.local/include</code>). Pass <code>LIBTAM_PREFIX=$HOME/.local</code> when invoking Make.</dd>
 <dt>fatal error: zlib.h: No such file or directory</dt>
 <dd>The zlib compression development headers are missing. On Arch Linux, install native zlib using <code>pacman -S zlib</code>.</dd>
 <dt>build/tam: error while loading shared libraries</dt>
 <dd>Packaged and standard Make builds link static <code>libtam.a</code> directly into <code>build/tam</code>; if testing an override dynamic build, inspect <code>LIBTAM_CFLAGS</code>/<code>LIBTAM_LIBS</code> or <code>ldd ./build/tam</code>.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, development builds and production releases adhere to strict lifecycle boundaries. Developers and AI coding agents build and test candidates locally using user prefixes (<code>~/.local/dev</code>) or transactional generation directories (<code>~/.local/dev/opt/tam/generations/</code>). However, production software never reaches the system from ad-hoc checkouts or copied payloads; it arrives solely through recorded <code>tamlinux-packages</code> assemblies deployed via Home Manager and <code>tam-deploy</code>. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">Tamlinux package deployment contract</a></cite>.</p>
+<p>On Tamlinux, development builds and production releases adhere to strict lifecycle boundaries. Developers and AI coding agents build and test candidates locally in <code>~/.local/bin</code> and <code>~/.local/lib</code>, or in transactional generation directories under <code>~/.local/opt/tam/generations/</code>. Every released Tamlinux version installs its binaries and libraries under <code>/usr/bin</code> and <code>/usr/lib</code>. Production software never reaches the system from ad-hoc checkouts or copied payloads; it arrives solely through recorded <code>tamlinux-packages</code> assemblies deployed via Home Manager and <code>tam-deploy</code>. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">Tamlinux package deployment contract</a></cite>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -145,7 +145,7 @@ $ make test-command
 <tr><td>libtam linkage</td><td>Static <code>libtam.a</code></td><td>Foundational C library</td><td>Provides dynamic strings, safe filesystem I/O, terminal dimensions, and portal helpers</td></tr>
 <tr><td>zlib linkage</td><td><code>-lz</code></td><td>Shared compression library</td><td>Decompresses GNU Info <code>.info.gz</code> documents in memory</td></tr>
 <tr><td>ncurses linkage</td><td><code>-lncursesw</code></td><td>Wide-character terminal library</td><td>Underlying terminal I/O and capability management; see <a href="programming/interfaces/ncurses.html">ncurses</a></td></tr>
-<tr><td>Active generation</td><td><code>~/.local/dev/opt/tam/current</code></td><td>Atomic symlink</td><td>Points to active transactional build generation without downtime</td></tr>
+<tr><td>Active generation</td><td><code>~/.local/opt/tam/current</code></td><td>Atomic symlink</td><td>Points to active transactional build generation without downtime</td></tr>
 </table>
 
 <h3>The tam subcommands inventory</h3>
@@ -176,12 +176,12 @@ $ make test-command
 <code>tam</code> is written entirely in ISO C11. It avoids heavy runtimes, JIT compilation pauses, and dynamic module loading. At launch, the binary initializes terminal state via <code>libtam</code>, parses command-line arguments using a single-pass scanner, loads index structures via zero-copy memory mapping or sequential TSV streaming, and draws the first screenful of formatted text in under 5 milliseconds with resident memory below 4 megabytes.</li>
 
 <li><strong>Decoupled Versioning and Dynamic Runtime Resolution:</strong>
-The binary version (<code>src/version.h</code>) is decoupled from the corpus version (<code>knowledge/version</code>). When invoked, <code>src/tam.c</code> discovers the corpus root by checking <code>$TAM_KNOWLEDGE_DIR</code>, followed by the user prefix <code>~/.local/dev/share/tamlinux/knowledge</code>, and finally the compiled datadir <code>/usr/share/tamlinux/knowledge</code>. It reads <code>knowledge/version</code> dynamically at runtime. This allows documentation fixes and new lessons to land without recompiling the C executable, and guarantees multi-agent concurrency across command and corpus lanes.</li>
+The binary version (<code>src/version.h</code>) is decoupled from the corpus version (<code>knowledge/version</code>). When invoked, <code>src/tam.c</code> discovers the corpus root by checking <code>$TAM_KNOWLEDGE_DIR</code>, followed by the user prefix <code>~/.local/share/tamlinux/knowledge</code>, and finally the compiled datadir <code>/usr/share/tamlinux/knowledge</code>. It reads <code>knowledge/version</code> dynamically at runtime. This allows documentation fixes and new lessons to land without recompiling the C executable, and guarantees multi-agent concurrency across command and corpus lanes.</li>
 
 <li><strong>Transactional Development Generations and Atomic Switching:</strong>
 <code>tam switch STAGE</code> compiles candidates into isolated, timestamped directories:
 <pre data-risk="read-only">
-~/.local/dev/opt/tam/generations/&lt;version&gt;-&lt;commit&gt;-&lt;hash&gt;/
+~/.local/opt/tam/generations/&lt;version&gt;-&lt;commit&gt;-&lt;hash&gt;/
 </pre>
 Each successful generation writes a local receipt recording source pins, versions, checks, and previous targets. Once verified, the command switches the <code>current</code> symlink atomically. If a candidate fails verification, the active generation is untouched. <code>tam switch --rollback</code> restores the prior generation from local receipts without requiring network connectivity.</li>
 
@@ -248,7 +248,7 @@ sys	0m0.002s
 </details>
 <details class="q open">
 <summary>How does the transactional generation architecture in <code>tam switch</code> protect against broken development builds?</summary>
-<p>Each build compiles into an isolated, timestamped generation directory under <code>~/.local/dev/opt/tam/generations/</code>. The active generation link (<code>current</code>) is updated atomically only after the candidate passes verification tests and writes a complete receipt. If the build or tests fail, the symlink remains pointing to the previous functional generation, and <code>tam switch --rollback</code> can restore the earlier state without network access.</p>
+<p>Each build compiles into an isolated, timestamped generation directory under <code>~/.local/opt/tam/generations/</code>. The active generation link (<code>current</code>) is updated atomically only after the candidate passes verification tests and writes a complete receipt. If the build or tests fail, the symlink remains pointing to the previous functional generation, and <code>tam switch --rollback</code> can restore the earlier state without network access.</p>
 </details>
 </section>
 

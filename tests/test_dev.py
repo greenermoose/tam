@@ -32,7 +32,7 @@ ROADMAP_TEMPLATE = """# tam Roadmap
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local/dev` prefix. |
+| `develop` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local` prefix. |
 
 ## 3. Delivered history
 

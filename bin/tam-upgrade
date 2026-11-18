@@ -463,7 +463,7 @@ def safe_root():
     home = Path(os.path.expanduser("~"))
     if not home.is_absolute():
         raise CheckError("home", "HOME must be an absolute path")
-    prefix = home / ".local" / "dev"
+    prefix = home / ".local"
     state = home / ".local" / "state" / "tam-upgrade"
     return prefix, state
 
@@ -943,12 +943,12 @@ def help_text(verb):
                 "Checks Development, Test, Run and Release source metadata. Checks use bounded HTTPS.\n"
                 "--apply builds and switches the tracked stage after an interactive confirmation.\n"
                 "Source builds require Git, curl, a C toolchain, make, pkg-config, Python and headers.\n"
-                "The development override is under ~/.local/dev; rollback is offline with tam switch --rollback.\n")
+                "The development override is under ~/.local; rollback is offline with tam switch --rollback.\n")
     return ("Usage: tam switch STAGE [--version X.Y.Z --corpus-version A.B.C]\n"
             "       tam switch --rollback\n"
             "Selects Development, Test, Run or Release source. Downgrades require confirmation.\n"
             "Source builds require Git, curl, a C toolchain, make, pkg-config, Python and headers.\n"
-            "The development override is under ~/.local/dev; rollback is offline.\n")
+            "The development override is under ~/.local; rollback is offline.\n")
 
 
 def main(argv):

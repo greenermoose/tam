@@ -172,7 +172,7 @@ class UpgradeMetadataTests(unittest.TestCase):
         (package_bin / "tam").write_text("#!/bin/sh\nexit 0\n")
         (package_bin / "tam").chmod(0o755)
         if preexisting:
-            old = home / ".local/dev/bin/tam"
+            old = home / ".local/bin/tam"
             old.parent.mkdir(parents=True, exist_ok=True)
             old.write_text("unowned endpoint\n")
         def fake_subprocess_run(argv, **kwargs):
@@ -205,7 +205,7 @@ class UpgradeMetadataTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             home = pathlib.Path(tmp)
             self.assertEqual(self._activate_fixture(home, "1" * 40), 0)
-            current = home / ".local/dev/opt/tam/current"
+            current = home / ".local/opt/tam/current"
             first = os.readlink(current)
             self.assertTrue(list((home / ".local/state/tam-upgrade/receipts").glob("*.json")))
             self.assertEqual(self._activate_fixture(home, "2" * 40), 0)
@@ -228,7 +228,7 @@ class UpgradeMetadataTests(unittest.TestCase):
                 "Target: tam 0.31.0 / corpus 0.32.0 (development)",
                 "tam " + "1" * 40,
                 "libtam 0.2.0 at c081708b5ed2c8ade4ecdf171cebc110c2cb316f",
-                f"Destination: {home}/.local/dev",
+                f"Destination: {home}/.local",
                 f"Rollback target: {home}/packaged/bin/tam (tam 0.30.0 / corpus unknown)",
                 "downloads pinned sources and runs their Makefiles",
             ):
@@ -238,7 +238,7 @@ class UpgradeMetadataTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             home = pathlib.Path(tmp)
             self._activate_fixture(home, "1" * 40)
-            current = home / ".local/dev/opt/tam/current"
+            current = home / ".local/opt/tam/current"
             before = os.readlink(current)
             with self.assertRaises(module.CheckError):
                 self._activate_fixture(home, "2" * 40, fail_tam_test=True)
@@ -257,13 +257,13 @@ class UpgradeMetadataTests(unittest.TestCase):
             with self.assertRaises(module.CheckError) as caught:
                 self._activate_fixture(home, "1" * 40)
             self.assertEqual(caught.exception.code, "ownership")
-            self.assertFalse((outside / "dev").exists())
+            self.assertFalse((outside / "opt").exists())
         with tempfile.TemporaryDirectory() as tmp:
             home = pathlib.Path(tmp)
             self._activate_fixture(home, "1" * 40)
-            current = home / ".local/dev/opt/tam/current"
+            current = home / ".local/opt/tam/current"
             before = os.readlink(current)
-            updater = home / ".local/dev/opt/tam/updater/tam-upgrade"
+            updater = home / ".local/opt/tam/updater/tam-upgrade"
             updater.unlink()
             outside = home / "outside-updater"
             outside.write_text("user file")
