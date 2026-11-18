@@ -84,7 +84,7 @@ CORPUS_CACHE ?= 1
 export CORPUS_CACHE TAM_READER SKIP_COVERAGE_CHECK
 SESSION = $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py session,)
 
-.PHONY: all command corpus corpus-check corpus-identity dev preview bench-corpus check-repo check-clean-tree test test-command corpus-and-test check install install-corpus uninstall clean libtam-check FORCE _test _test-command _command-checks _corpus-and-test _check corpus-tool-tests
+.PHONY: all command corpus corpus-check corpus-identity dev preview bench-corpus check-repo check-clean-tree test test-command corpus-and-test check install install-archwiki install-corpus uninstall clean libtam-check FORCE _test _test-command _command-checks _corpus-and-test _check corpus-tool-tests
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
@@ -224,6 +224,32 @@ install-tldr:
 	install -d $(DESTDIR)$(DOCDIR)/tldr
 	cp -R knowledge/tldr/. $(DESTDIR)$(DOCDIR)/tldr/
 
+install-archwiki:
+	@if ! pacman -Q arch-wiki-docs arch-wiki-lite >/dev/null 2>&1; then \
+		if [ "$$(id -u)" -eq 0 ]; then \
+			pacman -S --noconfirm --needed arch-wiki-docs arch-wiki-lite; \
+		else \
+			pkexec /usr/bin/pacman -S --noconfirm --needed arch-wiki-docs arch-wiki-lite; \
+		fi; \
+	fi
+	@out="$(DESTDIR)$(PREFIX)/share/doc/arch-wiki/tam"; \
+	stamp="$$out/.archwiki-tam.stamp"; \
+	need=0; \
+	if [ ! -f "$$stamp" ] || [ tools/build-archwiki-tam.py -nt "$$stamp" ] || [ /usr/share/doc/arch-wiki/text/index -nt "$$stamp" ]; then \
+		need=1; \
+	else \
+		for p in patches/arch-wiki-docs/*.patch; do \
+			[ -e "$$p" ] && [ "$$p" -nt "$$stamp" ] && need=1; \
+		done; \
+	fi; \
+	if [ "$$need" -eq 1 ]; then \
+		python3 tools/build-archwiki-tam.py \
+			--docs /usr/share/doc/arch-wiki/html/en \
+			--lite /usr/share/doc/arch-wiki/text \
+			--output "$$out" && \
+		touch "$$stamp"; \
+	fi
+
 install-corpus:
 	@$(MAKE) --no-print-directory check-clean-tree
 	rm -rf $(DESTDIR)$(DATADIR)
@@ -248,6 +274,7 @@ install: all
 	install -m 644 man/tam.1 $(DESTDIR)$(MANDIR)/man1/tam.1
 	install -d $(DESTDIR)$(BASHCOMPDIR)
 	install -m 644 completions/bash/tam $(DESTDIR)$(BASHCOMPDIR)/tam
+	@if [ -z "$(DESTDIR)" ]; then $(MAKE) --no-print-directory install-archwiki; fi
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam
@@ -257,6 +284,7 @@ uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/tam-archwiki
 	rm -f $(DESTDIR)$(BINDIR)/tam-upgrade
 	rm -rf $(DESTDIR)$(DATADIR)
+	rm -rf $(DESTDIR)$(PREFIX)/share/doc/arch-wiki/tam
 	rm -f $(DESTDIR)$(MANDIR)/man1/tam.1
 	rm -f $(DESTDIR)$(BASHCOMPDIR)/tam
 

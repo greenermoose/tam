@@ -4,7 +4,8 @@
 #include "render.h"
 
 /* Locate the installed or overridden Arch Wiki HTML directory.
- * Honors $TAM_ARCHWIKI_DIR first, then /usr/share/doc/arch-wiki/tam,
+ * Honors $TAM_ARCHWIKI_DIR first, then $XDG_DATA_HOME/doc/arch-wiki/tam
+ * (~/.local/share/doc/arch-wiki/tam), then /usr/share/doc/arch-wiki/tam,
  * falling back to /usr/share/doc/arch-wiki/html/en.
  * Caller must free. */
 char *tam_find_archwiki_root(void);

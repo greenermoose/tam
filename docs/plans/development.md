@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-18:** Command 0.62.1 (patch): added `install-archwiki` to `Makefile` (invoked by `make install` when `DESTDIR` is empty) to ensure `arch-wiki-docs` and `arch-wiki-lite` are installed and generate streamlined HTML in `$(PREFIX)/share/doc/arch-wiki/tam/`; updated `src/documentation.c` (`tam_documentation_root`) to check `$XDG_DATA_HOME/doc/arch-wiki/tam` / `~/.local/share/doc/arch-wiki/tam` ahead of `TAM_DOCDIR` when `TAM_DOC_DIR` is unset.
+
 - **2026-11-18:** Command 0.62.0 (minor): added `tools/build-archwiki-tam.py` and `patches/arch-wiki-docs/` to pre-process `arch-wiki-docs` and `arch-wiki-lite` into compact `tam`-pager HTML under `/usr/share/doc/arch-wiki/tam/` with smart link resolution and `tam:archwiki:broken` fallback; updated `src/documentation.c`, `src/archwiki.c`, and `src/archwiki.h` to prefer `arch-wiki/tam/` (falling back to `arch-wiki/html/en/`), support subpage slugs, render `tam:archwiki:broken`, and rewrite `https://man.archlinux.org/man/...` links to `man:` when the man page exists locally.
 
 - **2026-11-18:** Command 0.61.4 (patch) and corpus 0.96.2 (patch): swapped pager keys `g` ("get guidance", opens/closes `help/index.html` alongside `?`) and `h` ("hop home", jumps to `index.html` alongside backtick), updated the status row hint to `g Guidance`, and updated all references in `man/tam.1`, `README`, tests, and the knowledge corpus.

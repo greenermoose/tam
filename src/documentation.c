@@ -15,13 +15,33 @@
 #define TAM_DOCDIR "/usr/share/doc"
 #endif
 
+static char *user_archwiki_tam_dir(void)
+{
+    const char *xdg = getenv("XDG_DATA_HOME");
+    const char *home = getenv("HOME");
+    if (xdg && xdg[0]) {
+        return tam_path_join(xdg, "doc/arch-wiki/tam");
+    }
+    if (home && home[0]) {
+        return tam_path_join(home, ".local/share/doc/arch-wiki/tam");
+    }
+    return NULL;
+}
+
 char *tam_documentation_root(const char *source)
 {
     const char *base = getenv("TAM_DOC_DIR");
     const char *dir = base && base[0] ? base : TAM_DOCDIR;
     if (!strcmp(source, "archwiki")) {
-        char *tam_dir = tam_path_join(dir, "arch-wiki/tam");
         struct stat st;
+        if (!base || !base[0]) {
+            char *user_tam = user_archwiki_tam_dir();
+            if (user_tam && stat(user_tam, &st) == 0 && S_ISDIR(st.st_mode)) {
+                return user_tam;
+            }
+            free(user_tam);
+        }
+        char *tam_dir = tam_path_join(dir, "arch-wiki/tam");
         if (tam_dir && stat(tam_dir, &st) == 0 && S_ISDIR(st.st_mode)) {
             return tam_dir;
         }

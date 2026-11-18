@@ -108,6 +108,18 @@ int main(void) {
         tam_dir.mkdir(parents=True)
         self.assertEqual(subprocess.check_output([binary],env=self.env,text=True).strip(), str(tam_dir))
 
+        # When TAM_DOC_DIR is unset, prefer $XDG_DATA_HOME/doc/arch-wiki/tam
+        # and ~/.local/share/doc/arch-wiki/tam ahead of TAM_DOCDIR.
+        user_xdg_tam = self.root/'user/doc/arch-wiki/tam'
+        user_xdg_tam.mkdir(parents=True)
+        env_no_doc = {k: v for k, v in self.env.items() if k != 'TAM_DOC_DIR'}
+        self.assertEqual(subprocess.check_output([binary],env=env_no_doc,text=True).strip(), str(user_xdg_tam))
+
+        home_tam = self.root/'.local/share/doc/arch-wiki/tam'
+        home_tam.mkdir(parents=True)
+        env_no_xdg = {k: v for k, v in env_no_doc.items() if k != 'XDG_DATA_HOME'}
+        self.assertEqual(subprocess.check_output([binary],env=env_no_xdg,text=True).strip(), str(home_tam))
+
     def test_native_identity_uses_format_two_and_never_stale_fallback(self):
         native=self.root/'native';native.mkdir()
         (native/'BUNDLE').write_text('format 2\nname tamlinux\nversion 0.6.28\nsource tam abc\n')
