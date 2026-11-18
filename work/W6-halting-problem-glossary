@@ -1,0 +1,43 @@
+W6 HALTING PROBLEM GLOSSARY PAGE AND CROSS-LINKS
+
+Date: 2026-11-18
+AI harness: agy 1.5.11
+AI model: Gemini 4 Hydrogen (Medium)
+Commits: pending
+
+GUIDANCE
+
+  Fred: "For the tam knowledge corpus, writing a page about the halting
+  problem. Look for existing pages that discuss it, and link from them
+  to this new page."
+
+DONE
+
+  - Added `knowledge/glossary/h/halting-problem.html` with Novice, Learner
+    (including a self-check question), and Expert sections.
+  - Linked existing halting-problem mentions in
+    `knowledge/security/computer-security-principles.html` and
+    `knowledge/glossary/h/hru.html` to `glossary/h/halting-problem.html`.
+  - Bumped `knowledge/version` to `0.98.0`, updated `ROADMAP.md`, and
+    regenerated the corpus indexes (`knowledge/glossary/h/index.html`,
+    `knowledge/index.tsv`, `knowledge/index.json`,
+    `knowledge/index.parents.tsv`, `knowledge/index.kinds.tsv`,
+    `knowledge/coverage.json`).
+  - Verified with `make corpus-and-test`,
+    `TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe glossary/h/halting-problem`,
+    and `TAM_KNOWLEDGE_DIR=knowledge build/tam explain "halting problem"`.
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  Corpus 0.98.0 is ready on develop. Continue with the work/ move in
+  WHATNOW when ready.
+
+Checked against:
+  docs/corpus-authoring.md, docs/corpus-style.md,
+  knowledge/security/computer-security-principles.html,
+  knowledge/glossary/h/hru.html, knowledge/glossary/b/bpf.html,
+  make corpus-and-test, make check-repo.
