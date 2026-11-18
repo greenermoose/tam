@@ -1,0 +1,45 @@
+W7 REWRITE UNDERSTANDING THE WHOLE SYSTEM (TAMLINUX/COMPONENTS)
+
+Date: 2026-11-18
+AI harness: agy 1.5.11
+AI model: Gemini 4 Hydrogen (Medium)
+Commits: pending
+
+GUIDANCE
+
+  Fred: "Figure out a better introduction to "Understanding the whole
+  system." Right now, page:tamlinux/components.html is worthless. Decide
+  what it should contain, and write an excellent page that will help
+  readers dive in. Make sure to keep the tone friendly, welcoming, fun
+  but professional."
+
+DONE
+
+  - Rewrote `knowledge/tamlinux/components.html` from a 16-line hub stub
+    into a three-level (`novice`, `learner`, `expert`) `explanation` page
+    covering the six-layer computer model, current-vs-planned Tamlinux
+    choices, a real `tam inspect` worked example, self-check quizzes, and
+    a "Where next" subject map.
+  - Updated the `tamlinux/components.html` summary row in
+    `knowledge/tamlinux/index.html`.
+  - Bumped `knowledge/version` to `0.98.1`, updated `ROADMAP.md`, and
+    regenerated the corpus indexes.
+  - Verified with `make corpus-and-test`, `make check-repo`, and
+    `TAM_KNOWLEDGE_DIR=knowledge tam show --pipe tamlinux/components`.
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  Corpus 0.98.1 is ready on develop. Continue with the work/ move in
+  WHATNOW when ready.
+
+Checked against:
+  docs/corpus-authoring.md, docs/corpus-style.md, docs/corpus-pedagogy.md,
+  knowledge/tamlinux/about.html, knowledge/tamlinux/install.html,
+  knowledge/tamlinux/design/philosophy.html,
+  knowledge/tamlinux/design/terminology.html,
+  knowledge/tamlinux/design/distros.html, `tam inspect`,
+  make corpus-and-test, make check-repo.
