@@ -41,8 +41,14 @@ static size_t status_byte_limit(const char *s, int max_cols);
 static const char *hyperlink_target(const tam_span_t *sp);
 static void emit_hyperlink(const tam_span_t *sp, int open);
 static void pager_address(const pager_t *st, char *out, size_t cap);
-static int revision_row(const pager_t *st);
-static void emit_revision_line(const pager_t *st, int width);
+static int status_row(const pager_t *st);
+static void format_revision_tail(const char *text, int max_cols,
+                                 const char **prefix_out,
+                                 const char **shown_out);
+static void build_status_line(const pager_t *st, const linkref_t *sel,
+                              int width, char *out, size_t cap);
+static void emit_footer2(const char *left, const char *rev_prefix,
+                         const char *rev_shown, int width);
 
 int tam_terminal_width(void)
 {
@@ -97,13 +103,11 @@ static void outn(const char *s, size_t n)
     }
 }
 
-/* The revision stamp is page chrome, not a page line: it gets the row just
- * above the two footer rows. A very short terminal drops it so the page keeps
- * at least one line. */
-static int revision_row(const pager_t *st)
+/* The status line gets the third-from-bottom row, just above the two footer
+ * rows. A very short terminal drops it so the page keeps at least one line. */
+static int status_row(const pager_t *st)
 {
-    return st != NULL && st->doc != NULL && st->doc->revision != NULL &&
-           st->doc->revision[0] != '\0' && st->height >= 5;
+    return st != NULL && st->height >= 5;
 }
 
 int content_rows(const pager_t *st)
@@ -112,9 +116,9 @@ int content_rows(const pager_t *st)
     if (st->height == 2) return 1;
     if (st->height == 3) return 1;
     int rows = st->height - 3; /* Location row plus two footer rows. */
-    /* The stamp uses the location row's spare slot when the page has no
+    /* The status line uses the location row's spare slot when the page has no
      * breadcrumb; otherwise it costs one page row. */
-    if (revision_row(st) && st->height > 2 && st->doc->location.nspans > 0)
+    if (status_row(st) && st->height > 2 && st->doc->location.nspans > 0)
         rows--;
     return rows > 0 ? rows : 1;
 }
@@ -158,23 +162,22 @@ static void emit_location_line(pager_t *st, int width, const linkref_t *sel)
     }
 }
 
-/* Paint the revision stamp right-aligned, dim, on the normal background: the
- * same treatment as the "Showing <lens>" line, and never the footer tint. A
- * narrow terminal keeps the newest words after a leading ellipsis, or the
- * tail characters when not even one whole word fits. */
-static void emit_revision_line(const pager_t *st, int width)
+/* Shorten a revision stamp to fit within max_cols, keeping the newest words
+ * after a leading ellipsis, or the tail characters when no whole word fits. */
+static void format_revision_tail(const char *text, int max_cols,
+                                 const char **prefix_out,
+                                 const char **shown_out)
 {
-    const char *text = st->doc->revision;
     const char *shown = text;
     const char *prefix = "";
-    if ((int)tam_display_width(text, strlen(text)) > width) {
+    if ((int)tam_display_width(text, strlen(text)) > max_cols) {
         int found = 0;
         for (const char *tail = text; *tail != '\0'; ) {
             const char *space = strchr(tail, ' ');
             if (space == NULL) break;
             tail = space + 1;
             /* One column for the ellipsis, one for its space. */
-            if ((int)tam_display_width(tail, strlen(tail)) + 2 <= width) {
+            if ((int)tam_display_width(tail, strlen(tail)) + 2 <= max_cols) {
                 shown = tail;
                 prefix = "\xe2\x80\xa6 ";
                 found = 1;
@@ -183,22 +186,74 @@ static void emit_revision_line(const pager_t *st, int width)
         }
         if (!found) {
             while (shown[0] != '\0' &&
-                   (int)tam_display_width(shown, strlen(shown)) > width) {
+                   (int)tam_display_width(shown, strlen(shown)) > max_cols) {
                 const char *next = shown + 1;
                 while (((unsigned char)*next & 0xC0) == 0x80) next++;
                 shown = next;
             }
         }
     }
-    int shown_w = (int)tam_display_width(prefix, strlen(prefix)) +
-                  (int)tam_display_width(shown, strlen(shown));
-    if (g_term != NULL && g_term->gutter) outn(" ", 1);
-    for (int pad = width - shown_w; pad > 0; pad--) outn(" ", 1);
-    tam_span_t span = { .text = (char *)shown, .style = TAM_STYLE_DIM };
-    emit_style(&span, 0);
-    outn(prefix, strlen(prefix));
-    outn(shown, strlen(shown));
-    if (g_term != NULL) emit_reset(0);
+    *prefix_out = prefix;
+    *shown_out = shown;
+}
+
+static void build_status_line(const pager_t *st, const linkref_t *sel,
+                              int width, char *out, size_t cap)
+{
+    out[0] = '\0';
+    if (st->show_address) {
+        char addr[256];
+        pager_address(st, addr, sizeof(addr));
+        snprintf(out, cap, "Path = %s", addr);
+    } else if (st->msg[0] != '\0') {
+        snprintf(out, cap, "[%s]", st->msg);
+    } else if (st->pending_external != NULL) {
+        snprintf(out, cap, "-> %s", st->pending_external);
+    } else if (sel != NULL && sel->href != NULL) {
+        /* The destination always shows; a long link label gives way,
+         * shortened with "..." to the columns the destination leaves. */
+        const char *lt = (sel->span != NULL && sel->span->text != NULL)
+                             ? sel->span->text : "";
+        int room = width - 4 - (int)tam_display_width(sel->href, strlen(sel->href));
+        size_t lt_len = strlen(lt);
+        const char *more = "";
+        if ((int)tam_display_width(lt, lt_len) > room) {
+            lt_len = room > 3 ? status_byte_limit(lt, room - 3) : 0;
+            more = lt_len > 0 ? "..." : "";
+        }
+        size_t max_lt = cap > strlen(sel->href) + 8
+                            ? cap - strlen(sel->href) - 8 : 0;
+        if (lt_len > max_lt) {
+            lt_len = max_lt;
+            while (lt_len > 0 && ((unsigned char)lt[lt_len] & 0xC0) == 0x80)
+                lt_len--;
+            more = lt_len > 0 ? "..." : "";
+        }
+        snprintf(out, cap, "%.*s%s%s-> %s", (int)lt_len, lt,
+                 more, lt_len > 0 ? " " : "", sel->href);
+    }
+}
+
+static void emit_footer2(const char *left, const char *rev_prefix,
+                         const char *rev_shown, int width)
+{
+    emit_attention(1);
+    size_t slen = status_byte_limit(left, width);
+    outn(left, slen);
+    if (rev_shown != NULL && rev_shown[0] != '\0') {
+        int left_w = (int)tam_display_width(left, slen);
+        int rev_w = (int)tam_display_width(rev_prefix, strlen(rev_prefix)) +
+                    (int)tam_display_width(rev_shown, strlen(rev_shown));
+        int pad = width - left_w - rev_w;
+        for (int i = 0; i < pad; i++) outn(" ", 1);
+        if (g_term != NULL && g_term->dim != NULL &&
+            (g_term->ncv < 0 || !(g_term->ncv & 16))) {
+            (void)tam_terminal_cap(g_term, g_capture, g_term->dim, 0, 0);
+        }
+        outn(rev_prefix, strlen(rev_prefix));
+        outn(rev_shown, strlen(rev_shown));
+    }
+    emit_reset(0);
 }
 
 static void emit_attention(int enabled)
@@ -615,10 +670,14 @@ int draw(pager_t *st)
         }
     }
 
-    if (revision_row(st)) {
+    if (status_row(st)) {
+        char status_line[512];
+        build_status_line(st, sel, paint_width, status_line, sizeof(status_line));
         g_capture = &frame[st->height - 3];
-        emit_attention(0);
-        emit_revision_line(st, paint_width);
+        emit_attention(1);
+        size_t slen = status_byte_limit(status_line, paint_width);
+        outn(status_line, slen);
+        emit_reset(0);
     }
 
     char footer2[512] = {0};
@@ -649,53 +708,28 @@ int draw(pager_t *st)
         snprintf(line_label, sizeof(line_label), "L%d",
                  st->cursor_line - lead + 1);
 
-    /* F2: title | attention line + range | highlighted link -> destination. */
-    if (st->show_address) {
-        char addr[256];
-        pager_address(st, addr, sizeof(addr));
-        snprintf(footer2, sizeof(footer2), "Path = %s", addr);
-    } else {
-        char range_part[96];
-        snprintf(range_part, sizeof(range_part), "%s %d-%d/%d",
-                 line_label, first, last, total < 0 ? 0 : total);
-        /* The line and range always show; a narrow row drops the title. */
-        if ((int)tam_display_width(title, strlen(title)) + 3 +
-                (int)tam_display_width(range_part, strlen(range_part)) <= max_cols)
-            snprintf(footer2, sizeof(footer2), "%s | %s", title, range_part);
-        else
-            snprintf(footer2, sizeof(footer2), "%s", range_part);
-        char detail[400] = {0};
-        if (st->msg[0] != '\0')
-            snprintf(detail, sizeof(detail), "[%s]", st->msg);
-        else if (sel != NULL && sel->href != NULL) {
-            /* The destination always shows; a long link label gives way,
-             * shortened with "..." to the columns the destination leaves. */
-            const char *lt = (sel->span != NULL && sel->span->text != NULL)
-                                 ? sel->span->text : "";
-            int room = paint_width
-                - (int)tam_display_width(footer2, strlen(footer2)) - 3
-                - 4 - (int)tam_display_width(sel->href, strlen(sel->href));
-            size_t lt_len = strlen(lt);
-            const char *more = "";
-            if ((int)tam_display_width(lt, lt_len) > room) {
-                lt_len = room > 3 ? status_byte_limit(lt, room - 3) : 0;
-                more = lt_len > 0 ? "..." : "";
-            }
-            size_t cap = sizeof(detail) - strlen(sel->href) - 8;
-            if (strlen(sel->href) + 8 >= sizeof(detail)) cap = 0;
-            if (lt_len > cap) {
-                lt_len = cap;
-                while (lt_len > 0 && ((unsigned char)lt[lt_len] & 0xC0) == 0x80)
-                    lt_len--;
-                more = lt_len > 0 ? "..." : "";
-            }
-            snprintf(detail, sizeof(detail), "%.*s%s%s-> %s", (int)lt_len, lt,
-                     more, lt_len > 0 ? " " : "", sel->href);
-        }
-        if (detail[0] != '\0') {
-            strncat(footer2, " | ", sizeof(footer2) - strlen(footer2) - 1);
-            strncat(footer2, detail, sizeof(footer2) - strlen(footer2) - 1);
-        }
+    /* F2: title | attention line + range, with Rev N Last updated ... right-aligned. */
+    char range_part[96];
+    snprintf(range_part, sizeof(range_part), "%s %d-%d/%d",
+             line_label, first, last, total < 0 ? 0 : total);
+    const char *rev = (st->doc->revision != NULL && st->doc->revision[0] != '\0')
+                          ? st->doc->revision : NULL;
+    int rev_full_w = rev != NULL ? (int)tam_display_width(rev, strlen(rev)) : 0;
+    int title_w = (int)tam_display_width(title, strlen(title));
+    int range_w = (int)tam_display_width(range_part, strlen(range_part));
+    int rev_reserve = rev != NULL ? rev_full_w + 2 : 0;
+    /* The line and range always show; a narrow row drops the title. */
+    if (title_w + 3 + range_w + rev_reserve <= max_cols)
+        snprintf(footer2, sizeof(footer2), "%s | %s", title, range_part);
+    else
+        snprintf(footer2, sizeof(footer2), "%s", range_part);
+    const char *rev_prefix = "";
+    const char *rev_shown = "";
+    if (rev != NULL) {
+        int used = (int)tam_display_width(footer2, strlen(footer2));
+        int avail = max_cols - used - 2;
+        if (avail >= 4)
+            format_revision_tail(rev, avail, &rev_prefix, &rev_shown);
     }
 
     /* F1: keys + lens digits + version. */
@@ -746,25 +780,13 @@ int draw(pager_t *st)
         strncat(footer1, st->version, sizeof(footer1) - strlen(footer1) - 1);
     }
 
-    /* A pending external link's confirmation must stay visible however
-     * narrow the row, so it replaces the usual footer2 fields. */
-    if (st->pending_external != NULL && !st->show_address) {
-        if (st->msg[0] != '\0')
-            snprintf(footer2, sizeof(footer2), "[%s]", st->msg);
-        else
-            snprintf(footer2, sizeof(footer2), "-> %s", st->pending_external);
-    }
-
     if (st->height >= 3) {
         g_capture = &frame[st->height - 2];
-        emit_attention(1);
-        size_t slen = status_byte_limit(footer2, paint_width);
-        outn(footer2, slen);
-        emit_reset(0);
+        emit_footer2(footer2, rev_prefix, rev_shown, paint_width);
 
         g_capture = &frame[st->height - 1];
         emit_attention(1);
-        slen = status_byte_limit(footer1, paint_width);
+        size_t slen = status_byte_limit(footer1, paint_width);
         if (lens_digit < slen && g_term != NULL && g_term->underline != NULL &&
             (g_term->ncv < 0 || !(g_term->ncv & 2))) {
             outn(footer1, lens_digit);
@@ -780,10 +802,7 @@ int draw(pager_t *st)
         }
     } else if (st->height == 2) {
         g_capture = &frame[1];
-        emit_attention(1);
-        size_t slen = status_byte_limit(footer2, paint_width);
-        outn(footer2, slen);
-        emit_reset(0);
+        emit_footer2(footer2, rev_prefix, rev_shown, paint_width);
     }
     g_capture = NULL;
     int rc = tam_pager_screen_update(&g_screen, frame, nframe, paint_width);

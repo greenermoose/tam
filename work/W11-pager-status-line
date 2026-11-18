@@ -1,0 +1,56 @@
+W11 PAGER STATUS LINE AND REVISION STAMP LAYOUT
+
+Date: 2026-11-18
+AI harness: agy 1.5.11
+AI model: Gemini 4 Hydrogen (Medium)
+Commits: pending
+
+GUIDANCE
+
+  Fred: "/plan Move the Rev # Last updated text to the second-to-bottom line,
+  e.g.
+
+  The POSIX Programmer's Manual | L1 1-24/58                                Rev 2 Last updated 2026-11-15 12:26
+
+  Use the third-from-bottom line, which was where the rev notice was
+  displayed, as a status line, i.e. instead of printing the destination for
+  links and notices of things like change the lens on the second-to-bottom line
+  after the line count, print them on the third-to-bottom line.
+
+  Ask if you have any questions about this project."
+
+  Fred (answering design questions):
+  - Third-from-bottom status line style: Footer tint background (same style as
+    the bottom two rows)
+  - Revision stamp style on footer2: Dim text on the footer background
+  - Address toggle ('=' / 'Path = ...'): Move to the third-from-bottom status
+    line (keeping title, line count, and Rev visible)
+  - Row reservation: Always reserve the third-from-bottom row (when height >= 5)
+    so page lines never jump when selecting links or changing lens
+
+  Fred: "Approved. Proceed"
+
+WORK
+
+  - Updated `src/pager_draw.c`:
+    - Replaced `revision_row()` with `status_row()` (returns true when
+      `st->height >= 5`) and updated `content_rows()` to reserve the
+      third-from-bottom row whenever `st->height >= 5`.
+    - Added `build_status_line()` to render `Path = ...`, `[msg]`,
+      `-> pending_external`, or `<label> -> <href>` on `frame[st->height - 3]`
+      using `emit_attention(1)` (footer tint background).
+    - Updated `footer2` (`frame[st->height - 2]`) via `emit_footer2()` and
+      `format_revision_tail()` to keep `title | L<cur> <first>-<last>/<total>`
+      on the left and right-align `Rev <N> Last updated ...` in dim text on
+      the footer background.
+  - Updated tests in `tests/pager_screen.py`, `tests/external_links.py`, and
+    `tests/run.sh` to match the three-row footer/status layout and command
+    version 0.63.2.
+  - Bumped command version to 0.63.2 in `src/version.h`, `ROADMAP.md`,
+    `docs/plans/development.md`, and `tests/run.sh`.
+
+CHECKS
+
+  - `make command` (clean build, no warnings)
+  - `make test-command` (all command integration tests, upgrade tests,
+    renderer golden tests, and `tools/check-repo.py` passed)

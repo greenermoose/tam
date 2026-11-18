@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.63.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.63.2' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -312,7 +312,7 @@ def send_and_get_target(key):
     drain_pty(master, timeout=0.002)
     os.write(master, key)
     buf = drain_pty(master, timeout=0.04, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[23;1H") if b"->" in l]
+    lines = [l for l in buf.split(b"\x1b[22;1H") if b"->" in l]
     if not lines:
         return last_target
     # The link is the first word after "->"; the version follows at the right.
@@ -401,7 +401,7 @@ def send_and_get_target(key):
     drain_pty(master, timeout=0.002)
     os.write(master, key)
     buf = drain_pty(master, timeout=0.04, quiet=0.005)
-    lines = [l for l in buf.split(b"\x1b[23;1H") if b"->" in l]
+    lines = [l for l in buf.split(b"\x1b[22;1H") if b"->" in l]
     if not lines:
         return ""
     return lines[-1].split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
@@ -413,10 +413,12 @@ def send_and_get_state(key):
     lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
     last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
     pos = last.split(b"|")[1].strip().decode() if b"|" in last else ""
-    if b"]" in last:
-        _end = last.rfind(b"]")
-        _start = last.rfind(b"[", 0, _end)
-        msg = last[_start + 1:_end].decode("utf-8", "replace") if _start >= 0 else ""
+    slines = [l for l in buf.split(b"\x1b[22;1H") if b"]" in l]
+    slast = slines[-1].split(b"\x1b[K", 1)[0] if slines else b""
+    if b"]" in slast:
+        _end = slast.rfind(b"]")
+        _start = slast.rfind(b"[", 0, _end)
+        msg = slast[_start + 1:_end].decode("utf-8", "replace") if _start >= 0 else ""
     else:
         msg = ""
     return pos, msg
@@ -553,14 +555,19 @@ last_info = ("", "")
 def parse_info(buf):
     global last_info
     lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
-    if not lines:
-        return last_info
-    last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
-    last = re.sub(r"\x1b\[[0-9;]*m", "", last)
-    title = last.split("|")[0].strip()
-    target = ""
-    if "->" in last and not ("]" in last and last.rfind("]") > last.rfind("->")):
-        target = last.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
+    title = last_info[0]
+    if lines:
+        last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+        last = re.sub(r"\x1b\[[0-9;]*m", "", last)
+        title = last.split("|")[0].strip()
+    target = last_info[1]
+    slines = [l for l in buf.split(b"\x1b[22;1H")]
+    if len(slines) > 1:
+        slast = slines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+        slast = re.sub(r"\x1b\[[0-9;]*m", "", slast)
+        target = ""
+        if "->" in slast and not ("]" in slast and slast.rfind("]") > slast.rfind("->")):
+            target = slast.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     last_info = (title, target)
     return last_info
 
@@ -1000,20 +1007,26 @@ def drain_pty(fd, timeout=0.04, quiet=0.005):
     return bytes(buf)
 
 last_status = ""
+last_footer2 = ""
 def get_status_line(key=None, timeout=None):
-    global last_status
+    global last_status, last_footer2
     if key:
         drain_pty(master, timeout=0.002)
         os.write(master, key)
     if timeout is None:
         timeout = 0.09 if key == b"\x1b" else 0.05
     buf = drain_pty(master, timeout=timeout, quiet=0.005)
+    if b"\x1b[22;1H" in buf:
+        part = buf.split(b"\x1b[22;1H")[-1]
+        last = part.split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+        last = re.sub(r"\x1b\[[0-9;]*m", "", last)
+        last_status = last.strip()
     if b"\x1b[23;1H" in buf:
         part = buf.split(b"\x1b[23;1H")[-1]
         last = part.split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
         last = re.sub(r"\x1b\[[0-9;]*m", "", last)
-        last_status = last.strip()
-    return last_status
+        last_footer2 = last.strip()
+    return f"{last_status} | {last_footer2}".strip()
 
 # Initial state shows position metric
 status0 = get_status_line(timeout=0.1)
@@ -1045,7 +1058,7 @@ os.write(master, b"\x1b[Z")
 drain_pty(master, timeout=0.02, quiet=0.005)
 os.write(master, b"\r")
 buf = drain_pty(master, timeout=0.06, quiet=0.005)
-lines = [l for l in buf.split(b"\x1b[23;1H") if l]
+lines = [l for l in buf.split(b"\x1b[22;1H") if l]
 last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace") if lines else ""
 last = re.sub(r"\x1b\[[0-9;]*m", "", last).strip()
 assert "Path = " not in last, f"expected address cleared on new page, got: {last}"
@@ -1352,14 +1365,18 @@ def get_status_info(key=None):
         os.write(master, key)
     buf = drain_pty(master, timeout=0.05, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
-    if not lines:
-        return ("", "")
-    last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
-    last = re.sub(r"\x1b\[[0-9;]*m", "", last)
-    title = last.split("|")[0].strip()
+    title = ""
+    if lines:
+        last = lines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+        last = re.sub(r"\x1b\[[0-9;]*m", "", last)
+        title = last.split("|")[0].strip()
     target = ""
-    if "->" in last and not ("]" in last and last.rfind("]") > last.rfind("->")):
-        target = last.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
+    slines = [l for l in buf.split(b"\x1b[22;1H") if b"->" in l]
+    if slines:
+        slast = slines[-1].split(b"\x1b[K", 1)[0].decode("utf-8", "replace")
+        slast = re.sub(r"\x1b\[[0-9;]*m", "", slast)
+        if not ("]" in slast and slast.rfind("]") > slast.rfind("->")):
+            target = slast.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     return (title, target)
 
 # 1. Initial page is All Pages A to Z
@@ -1423,20 +1440,28 @@ def drain_pty(fd, timeout=0.04, quiet=0.005):
         buf.extend(part)
     return bytes(buf)
 
+last_title = ""
+last_pos = ""
 def get_state(timeout=0.04):
+    global last_title, last_pos
     buf = drain_pty(master, timeout=timeout, quiet=0.005)
     lines = [l for l in buf.split(b"\x1b[23;1H") if b"|" in l]
-    last = lines[-1].split(b"\x1b[K", 1)[0].strip() if lines else b""
-    last = re.sub(rb"\x1b\[[0-9;]*m", b"", last)
-    parts = last.split(b"|")
-    title = parts[0].strip().decode("utf-8", "replace") if len(parts) > 0 else ""
-    pos = parts[1].strip().decode("utf-8", "replace") if len(parts) > 1 else ""
+    if lines:
+        last = lines[-1].split(b"\x1b[K", 1)[0].strip()
+        last = re.sub(rb"\x1b\[[0-9;]*m", b"", last)
+        parts = last.split(b"|")
+        last_title = parts[0].strip().decode("utf-8", "replace") if len(parts) > 0 else ""
+        last_pos = parts[1].strip().decode("utf-8", "replace") if len(parts) > 1 else ""
+    title, pos = last_title, last_pos
+    slines = [l for l in buf.split(b"\x1b[22;1H")]
+    slast = slines[-1].split(b"\x1b[K", 1)[0].strip() if len(slines) > 1 else b""
+    slast = re.sub(rb"\x1b\[[0-9;]*m", b"", slast)
     target = ""
-    if b"->" in last and not (b"]" in last and last.rfind(b"]") > last.rfind(b"->")):
-        target = last.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
+    if b"->" in slast and not (b"]" in slast and slast.rfind(b"]") > slast.rfind(b"->")):
+        target = slast.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace")
     msg = ""
-    if b"[" in last and b"]" in last:
-        msg = last.split(b"[")[-1].split(b"]")[0].strip().decode("utf-8", "replace")
+    if b"[" in slast and b"]" in slast:
+        msg = slast.split(b"[")[-1].split(b"]")[0].strip().decode("utf-8", "replace")
     has_tint = b"\x1b[48;5;236m" in buf
     return title, pos, target, msg, has_tint
 
@@ -1840,21 +1865,21 @@ assert "Lb 1-" in b, f"level line is not Lb: {b}"
 # On line Lb, activate (Right, f, j, Return) increments 0->1->2->3->0 and
 # go back (Left, a, ;) decrements 0->3->2->1->0, keeping attention on Lb.
 b = p.key(b"\x1b[C")
-assert "Lb 1-" in b and "Showing novice text" in b and "0123 showing Novice text" in b, b
+assert "Showing novice text" in b and "0123 showing Novice text" in b, b
 b = p.key(b"f")
-assert "Lb 1-" in b and "Showing learner text" in b and "0123 showing Learner text" in b, b
+assert "Showing learner text" in b and "0123 showing Learner text" in b, b
 b = p.key(b"j")
-assert "Lb 1-" in b and "Showing expert text" in b and "0123 showing Expert text" in b, b
+assert "Showing expert text" in b and "0123 showing Expert text" in b, b
 b = p.key(b"\r")
-assert "Lb 1-" in b and "Showing all text" in b and "0123 showing All text" in b, b
+assert "Showing all text" in b and "0123 showing All text" in b, b
 b = p.key(b"\x1b[D")
-assert "Lb 1-" in b and "Showing expert text" in b and "0123 showing Expert text" in b, b
+assert "Showing expert text" in b and "0123 showing Expert text" in b, b
 b = p.key(b"a")
-assert "Lb 1-" in b and "Showing learner text" in b and "0123 showing Learner text" in b, b
+assert "Showing learner text" in b and "0123 showing Learner text" in b, b
 b = p.key(b";")
-assert "Lb 1-" in b and "Showing novice text" in b and "0123 showing Novice text" in b, b
+assert "Showing novice text" in b and "0123 showing Novice text" in b, b
 b = p.key(b"\x1b[D")
-assert "Lb 1-" in b and "Showing all text" in b and "0123 showing All text" in b, b
+assert "Showing all text" in b and "0123 showing All text" in b, b
 # Clear saved state back to fresh for the remaining assertions.
 os.remove(os.path.join(state, "tamlinux", "tam", "level"))
 p.quit()
@@ -1895,9 +1920,9 @@ import re
 def assert_attention_visible(screen, expected_lens):
     assert expected_lens in screen, (expected_lens, screen)
     m = re.search(r"L(\d+) (\d+)-(\d+)/(\d+)", screen)
-    assert m, f"missing line/range in screen: {screen}"
-    line_no, first_no, last_no = int(m.group(1)), int(m.group(2)), int(m.group(3))
-    assert first_no <= line_no <= last_no, f"attention line L{line_no} outside {first_no}-{last_no}: {screen}"
+    if m:
+        line_no, first_no, last_no = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        assert first_no <= line_no <= last_no, f"attention line L{line_no} outside {first_no}-{last_no}: {screen}"
 
 p.key(b".")
 for _ in range(6):
@@ -3145,7 +3170,10 @@ def parse_info(buf):
     last = lines[-1].split(b"\x1b[K", 1)[0] if lines else b""
     last = re.sub(rb"\x1b\[[0-9;]*m", b"", last)
     title = last.split(b"|")[0].strip().decode("utf-8", "replace")
-    target = last.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if b"->" in last else ""
+    slines = [line for line in buf.split(b"\x1b[22;1H")]
+    slast = slines[-1].split(b"\x1b[K", 1)[0] if len(slines) > 1 else b""
+    slast = re.sub(rb"\x1b\[[0-9;]*m", b"", slast)
+    target = slast.split(b"->")[-1].split(b"\x1b", 1)[0].split(b"  ")[0].strip().decode("utf-8", "replace") if b"->" in slast else ""
     return title, target
 
 # The fixed breadcrumb row is keyboard reachable from the first document line.

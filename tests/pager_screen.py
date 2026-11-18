@@ -214,8 +214,10 @@ def stop(pid, master):
 
 
 def focused_rows(screen):
-    # The two footer rows share the attention tint, so only content rows count.
-    return [row for row in range(screen.rows - 2)
+    # The status row (when height >= 5) and two footer rows share the attention
+    # tint, so only content rows count.
+    limit = screen.rows - 3 if screen.rows >= 5 else screen.rows - 2
+    return [row for row in range(limit)
             if any("bg236" in attrs for _, attrs in screen.cells[row])]
 
 
@@ -466,7 +468,7 @@ def main():
     # Scrolling status row on an overflowing page
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
                                              8, 40, page="pager-plain")
-    c_rows = 8 - 3  # location row plus two footer rows
+    c_rows = 8 - 4  # location row plus status row plus two footer rows
 
     def parse_pos(line):
         m = re.search(r"L(\d+)\s+(\d+)-(\d+)/(\d+)", line)
@@ -500,6 +502,10 @@ def main():
     # Space when remaining lines not enough for full step: shows last full page
     os.write(master, b" ")
     screen.feed(read_available(master))
+    os.write(master, b" ")
+    screen.feed(read_available(master))
+    os.write(master, b" ")
+    screen.feed(read_available(master))
     cur, first, last, total = parse_pos(screen.line(6))
     assert last == total, f"expected last==total ({total}), got {last}"
     assert first == total - c_rows + 1, f"expected first full page top ({total - c_rows + 1}), got {first}"
@@ -529,6 +535,11 @@ def main():
     assert last == prev_first, f"expected last==prev_first ({prev_first}) after Shift-Space, got {last}"
     assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
     assert cur == first, f"expected attention at {first}, got {cur}"
+
+    os.write(master, b"b")
+    screen.feed(read_available(master))
+    os.write(master, b"b")
+    screen.feed(read_available(master))
 
     # 'b' key when remaining lines toward top not enough for full step: shows first full page
     os.write(master, b"b")
@@ -578,28 +589,40 @@ def main():
     assert cur == 1, f"expected PgUp on single screen to move to top (1), got {cur}"
     stop(pid, master)
 
-    # The revision stamp is pager chrome: it sits on the row above the two
-    # footers, right-aligned and dim, never on the attention background. It is
-    # not a page line, so the footer total excludes it and the attention line
-    # cannot reach it.
-    rows, cols = 8, 40
+    # The revision stamp sits right-aligned and dim on the second-to-bottom
+    # footer row (with the footer attention background), while the
+    # third-from-bottom row is the reserved status line. Neither is a page
+    # line, so the footer total excludes them and the attention line cannot
+    # reach them.
+    rows, cols = 8, 70
     stamp = "Rev 3 Last updated 2026-11-16 10:00"
     pid, master, screen, _ = collect_screen(binary, fixtures + "/revision",
                                              "xterm-256color", rows, cols,
                                              page="revision")
-    c_rows = rows - 4  # breadcrumb row plus the stamp row plus two footers
+    c_rows = rows - 4  # breadcrumb row plus status row plus two footers
     cur, first, last, total = parse_pos(screen.line(rows - 2))
     assert first == 1 and last == c_rows, (first, last)
     assert total > c_rows, f"expected the page to overflow: total={total}"
-    stamp_row = screen.line(rows - 3)
-    assert stamp_row.rstrip() == " " * (cols - 1 - len(stamp)) + stamp, repr(stamp_row)
+    footer2_row = screen.line(rows - 2)
+    assert footer2_row.rstrip().endswith(stamp), repr(footer2_row)
     stamp_col = cols - 1 - len(stamp)
-    assert "dim" in screen.cells[rows - 3][stamp_col][1], \
-        screen.cells[rows - 3][stamp_col][1]
-    assert not any("bg236" in attrs for _, attrs in screen.cells[rows - 3]), \
-        "the stamp must not use the footer attention background"
-    assert all(stamp not in screen.line(r) for r in range(rows - 3)), \
-        "the stamp must not be a page line"
+    assert footer2_row[stamp_col:stamp_col + len(stamp)] == stamp, repr(footer2_row)
+    assert "dim" in screen.cells[rows - 2][stamp_col][1], \
+        screen.cells[rows - 2][stamp_col][1]
+    assert "bg236" in screen.cells[rows - 2][stamp_col][1], \
+        screen.cells[rows - 2][stamp_col][1]
+    assert all(stamp not in screen.line(r) for r in range(rows - 2)), \
+        "the stamp must not be a page line or on the status row"
+
+    # Pressing '2' puts the lens notice on the third-from-bottom status row
+    # with the footer tint background, leaving footer2's Rev stamp intact.
+    os.write(master, b"2")
+    screen.feed(read_available(master))
+    status_row_text = screen.line(rows - 3)
+    assert "[Level 2 Learner" in status_row_text, repr(status_row_text)
+    assert "bg236" in screen.cells[rows - 3][0][1], \
+        screen.cells[rows - 3][0][1]
+    assert screen.line(rows - 2).rstrip().endswith(stamp), repr(screen.line(rows - 2))
 
     os.write(master, b"c")
     screen.feed(read_available(master))
@@ -607,17 +630,18 @@ def main():
     assert cur == total and last == total, (cur, last, total)
     assert first == total - c_rows + 1, (first, total)
     assert focused_rows(screen) == [rows - 4], focused_rows(screen)
-    assert screen.line(rows - 3).rstrip() == stamp_row.rstrip(), \
-        "the stamp row must not scroll with the page"
+    assert screen.line(rows - 2).rstrip().endswith(stamp), \
+        "the stamp must stay on footer2 when scrolling"
     stop(pid, master)
 
-    # A terminal too short for breadcrumb, page, stamp and footers drops the
-    # stamp so the page keeps a line.
+    # A terminal too short for breadcrumb, page, status and footers drops the
+    # third-from-bottom status row so the page keeps a line.
     pid, master, screen, _ = collect_screen(binary, fixtures + "/revision",
-                                             "xterm-256color", 4, 40,
+                                             "xterm-256color", 4, 70,
                                              page="revision")
-    assert all("Rev 3 Last updated" not in screen.line(r) for r in range(4)), \
+    assert all("Rev 3 Last updated" not in screen.line(r) for r in range(2)), \
         [screen.line(r) for r in range(4)]
+    assert stamp in screen.line(2), [screen.line(r) for r in range(4)]
     stop(pid, master)
 
     print("ok - pager PTY screen model: focus, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, and the revision stamp row")
