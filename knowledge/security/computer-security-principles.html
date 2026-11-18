@@ -49,7 +49,7 @@
 <section data-level="learner">
 <h2>Inspecting trust boundaries, STRIDE, and process isolation</h2>
 <p><strong>Goal:</strong> read a Linux process's kernel isolation flags and practice mapping a feature with a STRIDE threat model.</p>
-<p><strong>Before you start:</strong> every boundary where data crosses from untrusted input (network, USB drive, unprivileged user) to privileged code (kernel, root service) is a <em>trust boundary</em>. The <strong>Trusted Computing Base (TCB)</strong> is the set of hardware, firmware, and software components that must work correctly for the security policy to hold.</p>
+<p><strong>Before you start:</strong> every boundary where data crosses from untrusted input (network, USB drive, unprivileged user) to privileged code (kernel, root service) is a <em>trust boundary</em>. The <strong><dfn><a href="glossary/t/tcb.html">Trusted Computing Base (TCB)</a></dfn></strong> is the set of hardware, firmware, and software components that must work correctly for the security policy to hold.</p>
 
 <h3>Worked example</h3>
 <p>Every Linux process exposes its current privilege and isolation state in <code>/proc/self/status</code>. You can inspect whether a shell is blocked from gaining new privileges (<code>NoNewPrivs</code>) and whether system-call filtering (<code>Seccomp</code>) is active:</p>

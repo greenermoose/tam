@@ -1,0 +1,18 @@
+W5 TCB (Trusted Computing Base) glossary page and cross-links
+
+Date: 2026-11-18
+Tool: agy 1.5.11
+Model: Gemini 4 Hydrogen (Medium)
+Commit: pending
+
+Fred asked:
+
+> /plan For the tam knowledge corpus, add a page in the glossary for TCB (Trusted Computing Base). Look for places where TCB is mentioned and link it to this new page you write.
+
+What changed:
+- Added `knowledge/glossary/t/tcb.html` covering Novice, Learner (with self-check question), and Expert levels for TCB (Trusted Computing Base).
+- Linked existing TCB mentions in `knowledge/security/computer-security-principles.html`, `knowledge/glossary/l/l4.html`, `knowledge/glossary/n/nova.html`, `knowledge/glossary/r/rootstock.html`, `knowledge/glossary/t/tdx.html`, and `knowledge/glossary/t/threat-model.html` to `glossary/t/tcb.html`.
+- Bumped `knowledge/version` to `0.97.0`, updated `ROADMAP.md`, and regenerated the corpus indexes (`knowledge/glossary/t/index.html`, `knowledge/index.tsv`, `knowledge/index.json`, `knowledge/index.parents.tsv`, `knowledge/index.kinds.tsv`, `knowledge/coverage.json`).
+
+Checked against:
+- `docs/corpus-authoring.md`, `knowledge/security/computer-security-principles.html`, `knowledge/glossary/t/threat-model.html`, `knowledge/glossary/t/tdx.html`, `knowledge/glossary/l/l4.html`, `knowledge/glossary/n/nova.html`, `knowledge/glossary/r/rootstock.html`, `make corpus-and-test`, `make check-repo`, `TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe glossary/t/tcb`, `TAM_KNOWLEDGE_DIR=knowledge build/tam explain tcb`.
