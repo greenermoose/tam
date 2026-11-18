@@ -67,6 +67,13 @@ printf '%s\n' "$legacy" | grep -q 'Rev 7 Last updated 2026-10-18 10:25' \
     || fail "legacy ten-column index no longer loads"
 pass "additive and legacy index columns preserve existing page metadata"
 
+# The revision stamp is pager chrome, but plain text still carries it once so
+# the corpus build and guides can verify page history.
+rev_text=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/revision" "$TAM" show --pipe revision)
+[ "$(printf '%s\n' "$rev_text" | grep -c '^Rev 3 Last updated 2026-11-16 10:00$')" -eq 1 ] \
+    || fail "piped page lost its revision stamp"
+pass "piped text carries the revision stamp exactly once"
+
 # Help.
 "$TAM" --help | grep -q 'Usage:' || fail "--help is missing usage"
 [ $(printf '%s\n' "$("$TAM" --help)" | wc -l) -le 35 ] || fail "--help exceeds 35 lines"
@@ -92,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.61.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.61.1' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"

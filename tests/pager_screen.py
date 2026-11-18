@@ -92,10 +92,14 @@ class Screen:
                         self.attrs.clear()
                     elif n == 1:
                         self.attrs.add("bold")
+                    elif n == 2:
+                        self.attrs.add("dim")
                     elif n == 4:
                         self.attrs.add("underline")
                     elif n == 7:
                         self.attrs.add("reverse")
+                    elif n == 22:
+                        self.attrs.discard("dim")
                     elif n == 27:
                         self.attrs.discard("reverse")
                     elif n == 39:
@@ -574,7 +578,49 @@ def main():
     assert cur == 1, f"expected PgUp on single screen to move to top (1), got {cur}"
     stop(pid, master)
 
-    print("ok - pager PTY screen model: focus, row diffs, no-op keys, capability fallback, tiny geometry, and in-page links")
+    # The revision stamp is pager chrome: it sits on the row above the two
+    # footers, right-aligned and dim, never on the attention background. It is
+    # not a page line, so the footer total excludes it and the attention line
+    # cannot reach it.
+    rows, cols = 8, 40
+    stamp = "Rev 3 Last updated 2026-11-16 10:00"
+    pid, master, screen, _ = collect_screen(binary, fixtures + "/revision",
+                                             "xterm-256color", rows, cols,
+                                             page="revision")
+    c_rows = rows - 4  # breadcrumb row plus the stamp row plus two footers
+    cur, first, last, total = parse_pos(screen.line(rows - 2))
+    assert first == 1 and last == c_rows, (first, last)
+    assert total > c_rows, f"expected the page to overflow: total={total}"
+    stamp_row = screen.line(rows - 3)
+    assert stamp_row.rstrip() == " " * (cols - 1 - len(stamp)) + stamp, repr(stamp_row)
+    stamp_col = cols - 1 - len(stamp)
+    assert "dim" in screen.cells[rows - 3][stamp_col][1], \
+        screen.cells[rows - 3][stamp_col][1]
+    assert not any("bg236" in attrs for _, attrs in screen.cells[rows - 3]), \
+        "the stamp must not use the footer attention background"
+    assert all(stamp not in screen.line(r) for r in range(rows - 3)), \
+        "the stamp must not be a page line"
+
+    os.write(master, b"c")
+    screen.feed(read_available(master))
+    cur, first, last, total = parse_pos(screen.line(rows - 2))
+    assert cur == total and last == total, (cur, last, total)
+    assert first == total - c_rows + 1, (first, total)
+    assert focused_rows(screen) == [rows - 4], focused_rows(screen)
+    assert screen.line(rows - 3).rstrip() == stamp_row.rstrip(), \
+        "the stamp row must not scroll with the page"
+    stop(pid, master)
+
+    # A terminal too short for breadcrumb, page, stamp and footers drops the
+    # stamp so the page keeps a line.
+    pid, master, screen, _ = collect_screen(binary, fixtures + "/revision",
+                                             "xterm-256color", 4, 40,
+                                             page="revision")
+    assert all("Rev 3 Last updated" not in screen.line(r) for r in range(4)), \
+        [screen.line(r) for r in range(4)]
+    stop(pid, master)
+
+    print("ok - pager PTY screen model: focus, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, and the revision stamp row")
 
 
 if __name__ == "__main__":

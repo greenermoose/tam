@@ -315,5 +315,6 @@ model for each session.
 | 2026-11-15 | Remove redundant `Novice/Learner/Expert definition` headings from all 830 glossary pages, corpus 0.94.1 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-15-tam-glossary-remove-level-headings.md) |
 | 2026-11-15 | Differentiate Novice, Learner (with self-check questions), and Expert sections across all 830 glossary pages, corpus 0.94.2 | Antigravity CLI 1.5.9; Gemini 4 Hydrogen (Medium) (`gemini-4-hydrogen-medium`) | [Session record](docs/ai/2026-11-15-tam-glossary-differentiate-levels.md) |
 | 2026-11-16 | Classic text editors: ex, vi, GNU Emacs, and the Emacs versus vi debate; two glossary terms, four bibliography entries, and context links, corpus 0.96.0 | OpenCode 2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-16-classic-editors.md) |
+| 2026-11-17 | Pager revision stamp becomes fixed chrome: dim, right-aligned, outside the page line total, the attention line, and search; `--pipe` keeps the stamp (command 0.61.1) | OpenCode 2.2.5; Big Pickle (`big-pickle`) | [Session record](docs/ai/2026-11-17-tam-revision-stamp-row.md) |
 
 2026-11-16: Codex CLI 0.169.0 (`gpt-6.1-sol`) implements optional documentation and native delivery fixes. [Record](docs/ai/2026-11-16-0.6.28.md).

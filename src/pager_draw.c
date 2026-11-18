@@ -160,22 +160,44 @@ static void emit_location_line(pager_t *st, int width, const linkref_t *sel)
 
 /* Paint the revision stamp right-aligned, dim, on the normal background: the
  * same treatment as the "Showing <lens>" line, and never the footer tint. A
- * narrow terminal keeps the tail (the date) and drops whole characters. */
+ * narrow terminal keeps the newest words after a leading ellipsis, or the
+ * tail characters when not even one whole word fits. */
 static void emit_revision_line(const pager_t *st, int width)
 {
     const char *text = st->doc->revision;
-    int text_w = (int)tam_display_width(text, strlen(text));
-    while (text_w > width && text[0] != '\0') {
-        const char *next = text + 1;
-        while (((unsigned char)*next & 0xC0) == 0x80) next++;
-        text = next;
-        text_w = (int)tam_display_width(text, strlen(text));
+    const char *shown = text;
+    const char *prefix = "";
+    if ((int)tam_display_width(text, strlen(text)) > width) {
+        int found = 0;
+        for (const char *tail = text; *tail != '\0'; ) {
+            const char *space = strchr(tail, ' ');
+            if (space == NULL) break;
+            tail = space + 1;
+            /* One column for the ellipsis, one for its space. */
+            if ((int)tam_display_width(tail, strlen(tail)) + 2 <= width) {
+                shown = tail;
+                prefix = "\xe2\x80\xa6 ";
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            while (shown[0] != '\0' &&
+                   (int)tam_display_width(shown, strlen(shown)) > width) {
+                const char *next = shown + 1;
+                while (((unsigned char)*next & 0xC0) == 0x80) next++;
+                shown = next;
+            }
+        }
     }
+    int shown_w = (int)tam_display_width(prefix, strlen(prefix)) +
+                  (int)tam_display_width(shown, strlen(shown));
     if (g_term != NULL && g_term->gutter) outn(" ", 1);
-    for (int pad = width - text_w; pad > 0; pad--) outn(" ", 1);
-    tam_span_t span = { .text = (char *)text, .style = TAM_STYLE_DIM };
+    for (int pad = width - shown_w; pad > 0; pad--) outn(" ", 1);
+    tam_span_t span = { .text = (char *)shown, .style = TAM_STYLE_DIM };
     emit_style(&span, 0);
-    outn(text, strlen(text));
+    outn(prefix, strlen(prefix));
+    outn(shown, strlen(shown));
     if (g_term != NULL) emit_reset(0);
 }
 
