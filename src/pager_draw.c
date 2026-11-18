@@ -331,6 +331,7 @@ static int emit_style(const tam_span_t *sp, int is_sel)
                 else if (sp->style & TAM_STYLE_SB_ERR) fg = 210;
                 else if (sp->style & TAM_STYLE_SB_HINT) fg = 150;
                 else if (sp->style & TAM_STYLE_SB_BORDER) fg = 110;
+                else if (sp->style & TAM_STYLE_LINK) fg = 117;
                 else if (sp->style & TAM_STYLE_SB_COMP) fg = 250;
                 (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, fg, 0);
             } else if (g_term->colors >= 8) {
@@ -341,6 +342,7 @@ static int emit_style(const tam_span_t *sp, int is_sel)
                 else if (sp->style & TAM_STYLE_SB_ERR) fg = 1;
                 else if (sp->style & TAM_STYLE_SB_VAR) fg = 5;
                 else if (sp->style & TAM_STYLE_SB_BORDER) fg = 4;
+                else if (sp->style & TAM_STYLE_LINK) fg = 6;
                 (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, fg, 0);
             }
         }

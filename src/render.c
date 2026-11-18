@@ -2690,6 +2690,52 @@ static void sb_push_border_line(linelist_t *out, size_t logical_block,
     out->v[out->n - 1].sandbox_role = 1;
 }
 
+static void sb_push_activation_border(linelist_t *out, size_t logical_block,
+                                      int sb_id, size_t box_inner_w)
+{
+    size_t total_inner = box_inner_w + 2;
+    unsigned bstyle = TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG;
+    char href[40];
+    snprintf(href, sizeof(href), "tam:sandbox:%d", sb_id);
+
+    const char *btn = "[Open sandbox]";
+    const char *hint = " (Enter or -> to type)";
+    size_t btn_w = strlen(btn);
+    size_t hint_w = strlen(hint);
+
+    spanlist_t sl;
+    spanlist_init(&sl);
+    spanlist_append(&sl, " +-", 3, bstyle, NULL, 0);
+    size_t used = 1;
+    if (btn_w + 4 <= total_inner) {
+        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
+        spanlist_append(&sl, btn, btn_w,
+                        TAM_STYLE_LINK | TAM_STYLE_SB_BG | TAM_STYLE_BOLD,
+                        href, 0);
+        used += 1 + btn_w;
+        if (used + hint_w + 2 <= total_inner) {
+            spanlist_append(&sl, hint, hint_w, bstyle | TAM_STYLE_BOLD, NULL, 0);
+            used += hint_w;
+        }
+        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
+        used += 1;
+    }
+    size_t dashes = total_inner > used ? total_inner - used : 1;
+    char *tail = malloc(dashes + 2);
+    if (tail != NULL) {
+        memset(tail, '-', dashes);
+        tail[dashes] = '+';
+        tail[dashes + 1] = '\0';
+        spanlist_append(&sl, tail, dashes + 1, bstyle, NULL, 0);
+        free(tail);
+    }
+    out->logical_block = logical_block;
+    out->logical_offset = 0;
+    linelist_push(out, &sl);
+    out->v[out->n - 1].sandbox_id = sb_id;
+    out->v[out->n - 1].sandbox_role = 1;
+}
+
 static void sb_push_wrapped_text(linelist_t *out, size_t logical_block,
                                  int sb_id, int role, size_t box_inner_w,
                                  const char *text, unsigned style)
@@ -2815,10 +2861,13 @@ static void layout_sandbox_state(const tam_sandbox_spec_t *spec,
     sb_push_bordered_spans(out, logical_block, sb_id, 3, box_inner_w, spans, ns);
     for (size_t k = 0; k < ntoks; k++) free(bufs[k]);
 
-    const char *footer = active
-        ? "ACTIVE: Enter=run | Up/Dn=hist | Esc or <- at start=exit"
-        : "Move attention row here to type";
-    sb_push_border_line(out, logical_block, sb_id, box_inner_w, footer, active);
+    if (active) {
+        sb_push_border_line(out, logical_block, sb_id, box_inner_w,
+                            "ACTIVE: Enter=run | Up/Dn=hist | Esc or <- at start=exit",
+                            1);
+    } else {
+        sb_push_activation_border(out, logical_block, sb_id, box_inner_w);
+    }
 }
 
 static void layout_document(const blocklist_t *blocks,

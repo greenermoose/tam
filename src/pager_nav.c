@@ -435,6 +435,12 @@ void follow(pager_t *st, const char *href)
         if (id > 0 && id <= (unsigned)-1 && *end == 0) toggle_fold(st, (unsigned)id);
         return;
     }
+    if (strncmp(href, "tam:sandbox:", 12) == 0) {
+        char *end;
+        unsigned long id = strtoul(href + 12, &end, 10);
+        if (id > 0 && id <= (unsigned)-1 && *end == 0) pager_activate_sandbox(st, (int)id);
+        return;
+    }
     if (strcmp(href, "tam:help") == 0) {
         follow(st, "help/index.html");
         return;
@@ -1105,7 +1111,6 @@ void pager_free_sandboxes(pager_t *st)
     st->nsandboxes = 0;
     st->sandbox_doc = NULL;
     st->active_sandbox = 0;
-    st->dismissed_sandbox = 0;
 }
 
 void pager_ensure_sandboxes(pager_t *st)
@@ -1135,22 +1140,11 @@ void pager_sync_sandboxes(pager_t *st)
     pager_build_links(st);
 }
 
-void pager_check_sandbox_activation(pager_t *st)
+void pager_activate_sandbox(pager_t *st, int sb_id)
 {
     if (st == NULL || st->doc == NULL || st->doc->nlines == 0) return;
     pager_ensure_sandboxes(st);
-    if (st->nsandboxes == 0) return;
-    if (st->cursor_line < 0 || (size_t)st->cursor_line >= st->doc->nlines) return;
-    int sb_id = st->doc->lines[st->cursor_line].sandbox_id;
-    if (sb_id == 0) {
-        st->dismissed_sandbox = 0;
-        if (st->active_sandbox != 0) {
-            st->active_sandbox = 0;
-            pager_sync_sandboxes(st);
-        }
-        return;
-    }
-    if (sb_id == st->dismissed_sandbox) return;
+    if (sb_id < 1 || (size_t)sb_id > st->nsandboxes) return;
     if (st->active_sandbox != sb_id) {
         st->active_sandbox = sb_id;
         pager_sync_sandboxes(st);
@@ -1176,9 +1170,8 @@ void pager_exit_sandbox(pager_t *st, int move_dir)
     if (st == NULL || st->doc == NULL || st->active_sandbox == 0) return;
     int sb_id = st->active_sandbox;
     st->active_sandbox = 0;
-    st->dismissed_sandbox = sb_id;
     pager_sync_sandboxes(st);
-    /* Move cursor cleanly outside the sandbox if requested, or to its border. */
+    /* Move cursor cleanly outside the sandbox if possible, or to its border. */
     size_t first = st->doc->nlines, last = 0;
     for (size_t i = 0; i < st->doc->nlines; i++) {
         if (st->doc->lines[i].sandbox_id == sb_id) {
@@ -1186,18 +1179,16 @@ void pager_exit_sandbox(pager_t *st, int move_dir)
             last = i;
         }
     }
-    if (move_dir > 0 && last + 1 < st->doc->nlines) {
-        st->cursor_line = (int)(last + 1);
-        st->dismissed_sandbox = 0;
-    } else if (move_dir < 0 && first > 0) {
-        st->cursor_line = (int)(first - 1);
-        st->dismissed_sandbox = 0;
-    } else if (first < st->doc->nlines) {
-        st->cursor_line = (int)last;
+    if (first < st->doc->nlines) {
+        int target;
+        if (move_dir > 0 && last + 1 < st->doc->nlines) {
+            target = (int)(last + 1);
+        } else if (move_dir < 0 && first > 0) {
+            target = (int)(first - 1);
+        } else {
+            target = (int)(move_dir < 0 ? first : last);
+        }
+        set_cursor_line(st, target, move_dir);
     }
-    int usable = content_rows(st);
-    if (st->cursor_line < st->top) st->top = st->cursor_line;
-    else if (st->cursor_line >= st->top + usable)
-        st->top = st->cursor_line - usable + 1;
     st->msg[0] = '\0';
 }

@@ -46,17 +46,34 @@
 <aside class="first-time"><p><strong>New to this?</strong> Type the text after the dollar sign at your prompt and press Enter. The next line is output.</p></aside>
 
 <h3>Worked example</h3>
-<pre class="session" data-risk="read-only">
-$ printf '%s\n' hello
-hello
-</pre>
-<p>Captured on Arch Linux, 2026-10-27. The shell runs <code>printf</code>; the word on the second line is its output.</p>
+<p>Open the sandbox below and run <code>echo "Hello, world!"</code> to see how a shell reads a command and prints its output.</p>
+<tam-sandbox
+  title="Worked example: echo"
+  prompt="alex@tamlinux:~$ "
+  cwd="/home/alex"
+  lesson="variables"
+  goal='Run echo "Hello, world!"'>
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="32">Welcome to the shell sandbox.</file>
+    </dir>
+  </tam-fs>
+  <tam-cmd match='echo "Hello, world!"' goal="true" hint="Simple and direct: echo prints its arguments followed by a newline.">
+    <out>Hello, world!</out>
+  </tam-cmd>
+  <tam-cmd match="echo 'Hello, world!'" goal="true" hint="Single quotes also work here because there are no variables to expand.">
+    <out>Hello, world!</out>
+  </tam-cmd>
+  <tam-hint after="2">Type: echo "Hello, world!" (or type help to see simulated commands).</tam-hint>
+  <tam-fallback>In this sandbox, try echo "Hello, world!" or ls.</tam-fallback>
+</tam-sandbox>
+<p>The shell runs <code>echo</code>; the line below your command is its output.</p>
 
 <h3>What just happened</h3>
 <ol>
 <li>You typed a command after the prompt.</li>
-<li>The shell started <code>printf</code> with the argument <code>hello</code>.</li>
-<li>The program wrote <code>hello</code> to standard output, which appeared on your screen.</li>
+<li>The shell started <code>echo</code> with the argument <code>Hello, world!</code>.</li>
+<li>The program wrote <code>Hello, world!</code> to standard output, which appeared on your screen.</li>
 </ol>
 
 <h3>The standard streams</h3>
@@ -72,26 +89,26 @@ hello
 <p>A pipe (<code>|</code>) normally passes standard output to another program while error messages stay separate.</p>
 
 <h3>Try it</h3>
-<p>Change <code>hello</code> to <code>pear</code> in the sandbox below and predict the output before pressing Enter.</p>
+<p>Now try the same message with <code>printf</code>, which takes a format string (<code>'%s\n'</code>) and an argument (<code>'Hello, world!'</code>). Predict the output before pressing Enter.</p>
 <tam-sandbox
-  title="Try it: commands and output"
+  title="Try it: printf"
   prompt="alex@tamlinux:~$ "
   cwd="/home/alex"
   lesson="variables"
-  goal="Run printf '%s\n' pear">
+  goal="Run printf '%s\n' 'Hello, world!'">
   <tam-fs>
     <dir name="/home/alex">
       <file name="notes.txt" size="32">Welcome to the shell sandbox.</file>
     </dir>
   </tam-fs>
-  <tam-cmd match="printf '%s\n' pear" goal="true" hint="Great! Notice how the command and quoted format string are colored differently from the computer output.">
-    <out>pear</out>
+  <tam-cmd match="printf '%s\n' 'Hello, world!'" goal="true" hint="Great! Notice how printf uses a format string (%s\n) separate from the value it prints, and how commands, strings, and output are colored differently.">
+    <out>Hello, world!</out>
   </tam-cmd>
-  <tam-cmd match="printf '%s\n' hello" hint="That matches the worked example! Now try changing hello to pear.">
-    <out>hello</out>
+  <tam-cmd match='echo "Hello, world!"' hint="That uses echo like the worked example! Now try printf '%s\n' 'Hello, world!'.">
+    <out>Hello, world!</out>
   </tam-cmd>
-  <tam-hint after="2">Type: printf '%s\n' pear (or type help to see simulated commands).</tam-hint>
-  <tam-fallback>In this sandbox, try printf '%s\n' pear, printf '%s\n' hello, echo hi, or ls.</tam-fallback>
+  <tam-hint after="2">Type: printf '%s\n' 'Hello, world!' (or type help to see simulated commands).</tam-hint>
+  <tam-fallback>In this sandbox, try printf '%s\n' 'Hello, world!', echo "Hello, world!", or ls.</tam-fallback>
 </tam-sandbox>
 
 <h3>If it goes wrong</h3>

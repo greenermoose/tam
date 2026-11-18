@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.63.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.63.1' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3813,7 +3813,8 @@ sb_pipe=$(TAM_KNOWLEDGE_DIR="$tmp/sb_guide" "$TAM" show page:sandbox.html --pipe
 printf '%s\n' "$sb_pipe" | grep -q 'Flags Practice \[SIMULATION\]' || fail "sandbox pipe missing title/simulation badge"
 printf '%s\n' "$sb_pipe" | grep -q 'Simulated shell for practice' || fail "sandbox pipe missing simulation disclaimer"
 printf '%s\n' "$sb_pipe" | grep -q 'Goal: List hidden files with ls -a' || fail "sandbox pipe missing goal"
-pass "sandbox pipe rendering shows border, simulation badge, disclaimer, and goal"
+printf '%s\n' "$sb_pipe" | grep -q '\[Open sandbox\]' || fail "sandbox pipe missing Open sandbox activation"
+pass "sandbox pipe rendering shows border, simulation badge, disclaimer, goal, and activation"
 
 if python3 -c 'import pty' >/dev/null 2>&1; then
     python3 - "$TAM" "page:sandbox.html" "$tmp/sb_guide" "$tmp" <<'PY' || fail "interactive sandbox PTY checks failed"
@@ -3856,10 +3857,15 @@ fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
 out = read_until(master, 'Flags Practice [SIMULATION]')
 assert 'Flags Practice [SIMULATION]' in strip_ansi(out), f"initial draw missing sandbox: {strip_ansi(out)}"
 
-# Move attention row down into the sandbox (L5) to activate it
+# Scroll down into the sandbox: must NOT auto-activate while scrolling
 os.write(master, b'\x1b[B\x1b[B\x1b[B\x1b[B')
+time.sleep(0.15)
+# Now scroll down to the [Open sandbox] bottom border (L9, 4 more lines) and press Enter
+os.write(master, b'\x1b[B\x1b[B\x1b[B\x1b[B')
+time.sleep(0.1)
+os.write(master, b'\r')
 out = read_until(master, 'ACTIVE SIMULATION')
-assert 'ACTIVE SIMULATION' in strip_ansi(out), f"sandbox did not activate: {strip_ansi(out)}"
+assert 'ACTIVE SIMULATION' in strip_ansi(out), f"sandbox did not activate on Enter: {strip_ansi(out)}"
 
 # Type ls -a and press Enter
 os.write(master, b'ls -a\r')
@@ -3877,22 +3883,22 @@ os.write(master, f'touch {real_target}\r'.encode())
 time.sleep(0.2)
 assert not os.path.exists(real_target), "sandbox touched the real filesystem!"
 
-# Esc exits sandbox cleanly
+# Esc exits sandbox cleanly (moves cursor below sandbox)
 os.write(master, b'\x1b')
 out = read_until(master, 'Flags Practice [SIMULATION]')
 assert 'Flags Practice [SIMULATION]' in strip_ansi(out), f"Esc did not exit sandbox: {strip_ansi(out)}"
 
-# Re-enter with Up Arrow, then exit with Left Arrow at column 0
-os.write(master, b'\x1b[A')
+# Up Arrow lands on [Open sandbox] border, Right Arrow re-enters, Left Arrow at col 0 exits
+os.write(master, b'\x1b[A\x1b[C')
 out = read_until(master, 'ACTIVE SIMULATION')
-assert 'ACTIVE SIMULATION' in strip_ansi(out), "Up Arrow did not re-enter sandbox"
+assert 'ACTIVE SIMULATION' in strip_ansi(out), "Up Arrow + Right Arrow did not re-enter sandbox"
 os.write(master, b'\x1b[D')
 out = read_until(master, 'Flags Practice [SIMULATION]')
 assert 'Flags Practice [SIMULATION]' in strip_ansi(out), "Left Arrow at col 0 did not exit sandbox"
 
 os.write(master, b'q')
-os.close(master)
 _, status = os.waitpid(pid, 0)
+os.close(master)
 assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, f"pager exited with {status}"
 PY
     pass "interactive sandbox PTY: activation, VFS isolation, flag colors, Esc and Left Arrow exit"

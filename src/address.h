@@ -13,7 +13,7 @@
  *   archwiki:PAGE[#FRAG]     an Arch Wiki page ("archwiki:" alone: Arch Wiki view)
  *   tam:VIEW...              a generated view: topics, keywords, paths, path,
  *                            explain, search, man, tldr, archwiki
- *   tam:help, tam:prompt:*, tam:fold:*   pager actions, never loaded
+ *   tam:help, tam:prompt:*, tam:fold:*, tam:sandbox:*   pager actions, never loaded
  *   anything with "://", or another scheme   external, never fetched
  */
 typedef enum {

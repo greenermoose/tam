@@ -102,7 +102,6 @@ typedef struct {
     tam_sandbox_state_t  *sandboxes;
     size_t                nsandboxes;
     int                   active_sandbox;    /* 1-based sandbox_id, or 0 */
-    int                   dismissed_sandbox; /* 1-based sandbox_id, or 0 */
 } pager_t;
 
 int terminal_height(void);
@@ -157,7 +156,7 @@ void handle_key(pager_t *st, unsigned char c);
 void pager_ensure_sandboxes(pager_t *st);
 void pager_free_sandboxes(pager_t *st);
 void pager_sync_sandboxes(pager_t *st);
-void pager_check_sandbox_activation(pager_t *st);
+void pager_activate_sandbox(pager_t *st, int sb_id);
 void pager_exit_sandbox(pager_t *st, int move_dir);
 int pager_handle_sandbox_key(pager_t *st, unsigned char c);
 

@@ -1,0 +1,52 @@
+W10 TWO-STEP SANDBOX ACTIVATION AND SHELL WORKED EXAMPLE
+
+Date: 2026-11-18
+AI harness: agy 1.5.11
+AI model: Gemini 4 Hydrogen (Medium)
+Commits: pending
+
+GUIDANCE
+
+  Fred: "/plan Change how sandboxes work so that you have to open them for
+  them to become active, and when you press Esc or Left Arrow out of them
+  they become inactive. On the page:terminal/shell/index.html of the
+  knowledge corpus, change the Worked example [read only] to a sandbox that
+  you can activate and use.
+
+  Simplify the first example to be something like echo \"Hello, world!\" and
+  then get more complicated with printf '%s\\n' 'Hello, world!'
+
+  I want to make sure that they don't trip you up when you're scrolling up
+  and down. To get into a sandbox it must be a two-step process:
+
+  1) Scroll the attention line over the activation
+  2) Activate"
+
+  Fred: "Approved. Proceed"
+
+WORK DONE
+
+  - Replaced auto-activation on scroll with two-step activation via an
+    interactive `[Open sandbox]` (`tam:sandbox:<id>`) link on the bottom
+    border (`src/render.c`, `src/address.c`, `src/address.h`,
+    `src/pager_draw.c`, `src/pager_nav.c`, `src/pager_links.c`,
+    `src/pager_int.h`).
+  - Scrolling over any sandbox line no longer traps the reader; activating
+    `[Open sandbox]` with `Enter` or `Right Arrow` (`f`/`j`) opens the
+    sandbox, and `Esc` or `Left Arrow` (at column 0) exits back to the
+    inactive state.
+  - Updated `knowledge/terminal/shell/index.html` to replace the read-only
+    Worked example with an interactive `echo "Hello, world!"` sandbox and
+    updated `Try it` to `printf '%s\n' 'Hello, world!'`; updated
+    `knowledge/help/index.html` controls.
+  - Bumped command version to 0.63.1 (`src/version.h`) and corpus version
+    to 0.100.1 (`knowledge/version`), updated `ROADMAP.md` and
+    `docs/plans/development.md`, and updated the PTY sandbox test in
+    `tests/run.sh`.
+
+VERIFICATION
+
+  - `make -C tam test-command`: passed (all command integration tests,
+    upgrade tests, renderer goldens, and `check-repo.py`).
+  - `make -C tam corpus-and-test`: passed (1150 corpus pages, 92 corpus
+    tooling unit tests, and `check-repo.py`).
