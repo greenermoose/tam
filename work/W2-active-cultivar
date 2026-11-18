@@ -1,0 +1,32 @@
+W2 ACTIVE CULTIVAR REPORTING
+
+Date: 2026-11-18
+AI harness: Codex CLI 0.170.0
+AI model: gpt-6.2-sol
+
+GUIDANCE
+
+  Fred: "tam reports Tamlinux cultivar: unavailable (no installed cultivar
+  metadata). This is a bug. [Image #1] Find the root cause and fix. Then
+  include the fix in Tamlinux 0.6.31."
+  Fred: "Implement the plan."
+
+DONE
+
+  - Reproduced the missing identity with the development command. The
+    0.6.30 bundle already had the metadata used by the packaged command.
+  - The development command now reads the active bundle before legacy
+    metadata. An explicit root and a valid adjacent manifest retain
+    priority.
+  - Command, upgrade, renderer, and repository checks passed. The rebuilt
+    development command reported KBN WB 0.6.30 in version and inspection
+    output, and the deployment check passed.
+
+FAILED
+
+  - The optional live Ollama checks were skipped because no server was
+    available.
+
+HANDOFF
+
+  Select the committed tam fix when Tamlinux 0.6.31 is prepared.

@@ -25,6 +25,20 @@ def _libtam_prefix():
 
 LIB=Path(os.environ.get('LIBTAM_TEST_PREFIX') or _libtam_prefix())
 
+IDENTITY_MAIN = r'''
+#include "version.h"
+#include <stdio.h>
+#include <stdlib.h>
+int main(void) {
+    char *label = cultivar_label();
+    char *path = cultivar_path("version");
+    puts(label ? label : "unavailable");
+    puts(path ? path : "unavailable");
+    free(label);
+    free(path);
+}
+'''
+
 
 class Documentation(unittest.TestCase):
     def setUp(self):
@@ -78,12 +92,7 @@ int main(void) {
         native=self.root/'native';native.mkdir()
         (native/'BUNDLE').write_text('format 2\nname tamlinux\nversion 0.6.28\nsource tam abc\n')
         cultivar=native/'share/tamlinux/cultivar';cultivar.parent.mkdir(parents=True);cultivar.write_text('KBN WB\n')
-        binary=self.compile('identity',['src/identity.c'],r'''
-#include "version.h"
-#include <stdio.h>
-#include <stdlib.h>
-int main(void) { char *v=cultivar_label(),*p=cultivar_path("version");puts(v?v:"unavailable");puts(p?p:"unavailable");free(v);free(p); }
-''','-DTAM_BUNDLE_ROOT="'+str(native)+'"')
+        binary=self.compile('identity',['src/identity.c'],IDENTITY_MAIN,'-DTAM_BUNDLE_ROOT="'+str(native)+'"')
         env={**self.env,'TAMLINUX_VERSION':'0.6.24','XDG_CONFIG_HOME':str(self.root/'config')}
         stale=self.root/'config/tamlinux';stale.mkdir(parents=True);(stale/'version').write_text('0.6.24\n')
         text=subprocess.check_output([binary],env=env,text=True)
@@ -91,5 +100,35 @@ int main(void) { char *v=cultivar_label(),*p=cultivar_path("version");puts(v?v:"
         for bad in ('format 99\nname tamlinux\nversion 9\n','format 2\nname tamlinux\nversion 1\nversion 2\n','format 2\nname other\nversion 9\n'):
             (native/'BUNDLE').write_text(bad)
             self.assertEqual(subprocess.check_output([binary],env=env,text=True).splitlines()[0],'unavailable')
+
+    def test_development_command_follows_active_bundle(self):
+        active = self.root / 'current'
+        native = self.root / 'version' / 'tamlinux-0.6.30'
+        cultivar = native / 'share/tamlinux/cultivar'
+        cultivar.parent.mkdir(parents=True)
+        cultivar.write_text('KBN WB\n')
+        manifest = native / 'BUNDLE'
+        manifest.write_text('format 2\nname tamlinux\nversion 0.6.30\nsource tam abc\n')
+        active.symlink_to(native, target_is_directory=True)
+        binary = self.compile('development', ['src/identity.c'], IDENTITY_MAIN,
+                              f'-DTAM_ACTIVE_BUNDLE_ROOT="{active}"')
+
+        config = self.root / 'config' / 'tamlinux'
+        config.mkdir(parents=True)
+        (config / 'version').write_text('0.6.24\n')
+        (config / 'cultivar').write_text('Legacy\n')
+        env = {**self.env, 'XDG_CONFIG_HOME': str(config.parent), 'TAMLINUX_VERSION': '0.6.25'}
+        env.pop('PKEXEC_UID', None)
+
+        def identity():
+            return subprocess.check_output([binary], env=env, text=True).splitlines()
+
+        self.assertEqual(identity(), ['KBN WB 0.6.30', str(active / 'BUNDLE')])
+        cultivar.unlink()
+        self.assertEqual(identity(), ['0.6.30', str(active / 'BUNDLE')])
+        manifest.write_text('format 2\nname other\nversion 0.6.30\n')
+        self.assertEqual(identity(), ['Legacy 0.6.24', str(config / 'version')])
+        active.unlink()
+        self.assertEqual(identity(), ['Legacy 0.6.24', str(config / 'version')])
 
 if __name__=='__main__':unittest.main()

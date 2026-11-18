@@ -1,6 +1,4 @@
-/* Tamlinux and corpus identity: the cultivar name and version from the
- * invoking user's files (the pkexec caller under pkexec), and the corpus
- * version and build id. */
+/* Tamlinux bundle and legacy per-user identity, and corpus build identity. */
 
 #include <tam.h>
 
@@ -52,10 +50,12 @@
 
 static char *trim_in_place(char *s);
 static const struct passwd *cultivar_passwd(void);
-static char *cultivar_file(const char *leaf);
 
 #ifndef TAM_BUNDLE_ROOT
 #define TAM_BUNDLE_ROOT ""
+#endif
+#ifndef TAM_ACTIVE_BUNDLE_ROOT
+#define TAM_ACTIVE_BUNDLE_ROOT "/usr/lib/tamlinux/current"
 #endif
 
 typedef struct { char *name, *version; } bundle_identity_t;
@@ -75,38 +75,45 @@ static int bundle_identity_line(void *user, size_t line, int format, char **fiel
     return *value ? 0 : 1;
 }
 
-/* Only an executable installed in a bundle's bin/ uses that bundle's
- * identity. Merely placing a dormant bundle on the machine must not change
- * the identity reported by a development or old-delivery command. */
-static char *bundle_identity(char **version)
+static char *adjacent_manifest(void)
 {
-    char *path = NULL;
-    if (TAM_BUNDLE_ROOT[0]) {
-        path = tam_path_join(TAM_BUNDLE_ROOT, "BUNDLE");
-    } else {
-        char exe[PATH_MAX];
-        ssize_t n = readlink("/proc/self/exe", exe, sizeof exe - 1);
-        if (n <= 0 || n >= (ssize_t)sizeof exe - 1) return NULL;
-        exe[n] = '\0';
-        char *slash = strrchr(exe, '/');
-        if (!slash) return NULL;
-        *slash = '\0';
-        slash = strrchr(exe, '/');
-        if (!slash || strcmp(slash + 1, "bin") != 0) return NULL;
-        *slash = '\0';
-        path = tam_path_join(exe, "BUNDLE");
-    }
+    char exe[PATH_MAX];
+    ssize_t n = readlink("/proc/self/exe", exe, sizeof exe - 1);
+    if (n <= 0 || n >= (ssize_t)sizeof exe - 1) return NULL;
+    exe[n] = '\0';
+    char *slash = strrchr(exe, '/');
+    if (!slash) return NULL;
+    *slash = '\0';
+    slash = strrchr(exe, '/');
+    if (!slash || strcmp(slash + 1, "bin") != 0) return NULL;
+    *slash = '\0';
+    return tam_path_join(exe, "BUNDLE");
+}
+
+/* Takes ownership of path and returns it only for a valid manifest. */
+static char *read_bundle_identity(char *path, int max_format, char **version)
+{
     size_t len = 0;
     char *text = path ? tam_fs_read_file(path, &len) : NULL;
     bundle_identity_t b = {0};
-    tam_rec_error_t error;
-    bool valid = text && tam_rec_parse(text, len, 2, TAM_BUNDLE_ROOT[0] ? 2 : 1, bundle_identity_line, &b, &error) == 0 &&
+    bool valid = text && tam_rec_parse(text, len, 2, max_format, bundle_identity_line, &b, NULL) == 0 &&
                  b.name && strcmp(b.name, "tamlinux") == 0 && b.version;
     free(text); free(b.name);
     if (!valid) { free(path); free(b.version); return NULL; }
     if (version) *version = b.version;
     else free(b.version);
     return path;
+}
+
+static char *bundle_identity(char **version)
+{
+    if (TAM_BUNDLE_ROOT[0])
+        return read_bundle_identity(tam_path_join(TAM_BUNDLE_ROOT, "BUNDLE"), 2, version);
+
+    char *path = read_bundle_identity(adjacent_manifest(), 1, version);
+    if (path != NULL || !TAM_ACTIVE_BUNDLE_ROOT[0]) return path;
+
+    return read_bundle_identity(tam_path_join(TAM_ACTIVE_BUNDLE_ROOT, "BUNDLE"), 2, version);
 }
 
 static char *trim_in_place(char *s)
@@ -153,23 +160,8 @@ char *cultivar_user(void)
     return strdup(pw != NULL && pw->pw_name != NULL ? pw->pw_name : "this user");
 }
 
-char *cultivar_path(const char *leaf)
+static char *user_cultivar_path(const char *leaf)
 {
-    if (TAM_BUNDLE_ROOT[0]) {
-        if (strcmp(leaf, "version") == 0) return tam_path_join(TAM_BUNDLE_ROOT, "BUNDLE");
-        if (strcmp(leaf, "cultivar") == 0) return tam_path_join(TAM_BUNDLE_ROOT, "share/tamlinux/cultivar");
-    }
-    char *bundle = bundle_identity(NULL);
-    if (bundle) {
-        if (strcmp(leaf, "version") == 0) return bundle;
-        if (strcmp(leaf, "cultivar") == 0) {
-            *strrchr(bundle, '/') = '\0';
-            char *path = tam_path_join(bundle, "share/tamlinux/cultivar");
-            free(bundle);
-            return path;
-        }
-        free(bundle);
-    }
     const char *xdg = getenv("XDG_CONFIG_HOME");
     char *config = NULL;
 
@@ -198,9 +190,31 @@ char *cultivar_path(const char *leaf)
     return path;
 }
 
-static char *cultivar_file(const char *leaf)
+static char *bundle_cultivar_path(char *manifest)
 {
-    char *path = cultivar_path(leaf);
+    *strrchr(manifest, '/') = '\0';
+    char *path = tam_path_join(manifest, "share/tamlinux/cultivar");
+    free(manifest);
+    return path;
+}
+
+char *cultivar_path(const char *leaf)
+{
+    if (TAM_BUNDLE_ROOT[0]) {
+        if (strcmp(leaf, "version") == 0) return tam_path_join(TAM_BUNDLE_ROOT, "BUNDLE");
+        if (strcmp(leaf, "cultivar") == 0) return tam_path_join(TAM_BUNDLE_ROOT, "share/tamlinux/cultivar");
+    }
+    char *manifest = bundle_identity(NULL);
+    if (manifest != NULL) {
+        if (strcmp(leaf, "version") == 0) return manifest;
+        if (strcmp(leaf, "cultivar") == 0) return bundle_cultivar_path(manifest);
+        free(manifest);
+    }
+    return user_cultivar_path(leaf);
+}
+
+static char *read_cultivar_file(char *path)
+{
     if (path == NULL) {
         return NULL;
     }
@@ -221,13 +235,9 @@ static char *cultivar_file(const char *leaf)
 
 /* The version file wins over $TAMLINUX_VERSION: activation rewrites the file,
  * while a long-running process keeps the value it started with. */
-char *cultivar_version(void)
+static char *legacy_cultivar_version(void)
 {
-    char *version = NULL;
-    char *bundle = bundle_identity(&version);
-    if (bundle) { free(bundle); return version; }
-    if (TAM_BUNDLE_ROOT[0]) return NULL;
-    char *from_file = cultivar_file("version");
+    char *from_file = read_cultivar_file(user_cultivar_path("version"));
     if (from_file != NULL) {
         return from_file;
     }
@@ -239,19 +249,36 @@ char *cultivar_version(void)
     return NULL;
 }
 
+char *cultivar_version(void)
+{
+    char *version = NULL;
+    free(bundle_identity(&version));
+    if (version != NULL || TAM_BUNDLE_ROOT[0]) return version;
+    return legacy_cultivar_version();
+}
+
 char *cultivar_name(void)
 {
-    return cultivar_file("cultivar");
+    return read_cultivar_file(cultivar_path("cultivar"));
 }
 
 /* "Incipiens 0.4.5", or the bare version when no name is installed. */
 char *cultivar_label(void)
 {
-    char *version = cultivar_version();
+    char *version = NULL;
+    char *manifest = bundle_identity(&version);
+    char *name;
+    if (manifest != NULL) {
+        name = read_cultivar_file(bundle_cultivar_path(manifest));
+    } else {
+        if (TAM_BUNDLE_ROOT[0]) return NULL;
+        version = legacy_cultivar_version();
+        name = read_cultivar_file(user_cultivar_path("cultivar"));
+    }
     if (version == NULL) {
+        free(name);
         return NULL;
     }
-    char *name = cultivar_name();
     if (name == NULL) {
         return version;
     }

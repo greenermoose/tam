@@ -21,8 +21,10 @@ unknown identifiers and attributes on inappropriate elements.
 
 `BUNDLE_ROOT` explicitly selects native identity at build time. It reads the
 format-2 BUNDLE and packaged cultivar; stale user/environment identity cannot
-replace invalid native metadata. The default empty setting preserves legacy
-per-user and relocatable identity behavior.
+replace invalid native metadata. With an empty setting, a relocatable
+bundle uses its own manifest. A development build otherwise reads the
+active bundle, then uses legacy per-user metadata when no valid bundle
+manifest is available.
 
 Tests cover all eight availability combinations, empty/index-only directories,
 reopening after collection changes, and native identity with stale or invalid

@@ -58,6 +58,7 @@ SRC   := src/tam.c src/identity.c src/documentation.c src/corpus.c src/views.c s
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/index.paths.tsv knowledge/coverage.json knowledge/component-coverage.json
 
 OBJS  := $(SRC:src/%.c=$(BUILD)/%.o)
+TEST_OBJS := $(filter-out $(BUILD)/identity.o,$(OBJS)) $(BUILD)/identity-test.o
 
 RUN_TIMED    := $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py run,sh -c 'shift; exec "$$@"' _)
 TIME_SUMMARY := $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py summary,true)
@@ -110,6 +111,13 @@ $(BUILD)/tam.o $(BUILD)/upgrade.o: $(BUILD)/identity-config
 $(TAM): $(OBJS) $$(LIBTAM_ARCHIVE) $(BUILD)/link-config | $(BUILD)
 	$(CC) $(OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
+# Exercise per-user identity independently of the host's active bundle.
+$(BUILD)/identity-test.o: src/identity.c $(BUILD)/compile-config | $(BUILD) libtam-check
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -DTAM_ACTIVE_BUNDLE_ROOT=\"\" -MMD -MP -c $< -o $@
+
+$(BUILD)/tam-test: $(TEST_OBJS) $$(LIBTAM_ARCHIVE) $(BUILD)/link-config | $(BUILD)
+	$(CC) $(TEST_OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
+
 $(BUILD)/compile-config: FORCE | $(BUILD)
 	@printf '%s\n' '$(COMPILE_CONFIG)' | cmp -s - $@ || printf '%s\n' '$(COMPILE_CONFIG)' > $@
 
@@ -119,7 +127,7 @@ $(BUILD)/link-config: FORCE | $(BUILD)
 $(BUILD)/identity-config: FORCE | $(BUILD)
 	@printf '%s\n' '$(IDENTITY_FLAGS)' | cmp -s - $@ || printf '%s\n' '$(IDENTITY_FLAGS)' > $@
 
--include $(OBJS:.o=.d)
+-include $(OBJS:.o=.d) $(BUILD)/identity-test.d
 
 $(BUILD):
 	mkdir -p $(BUILD)
@@ -161,8 +169,8 @@ check:
 _test: _test-command
 	+@$(MAKE) --no-print-directory _corpus-and-test CORPUS_CACHE=0 TAM_READER="$(CURDIR)/$(TAM)"
 
-_test-command: command
-	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(TAM)
+_test-command: command $(BUILD)/tam-test
+	@$(RUN_TIMED) "Command integration tests (tests/run.sh)" tests/run.sh $(CURDIR)/$(BUILD)/tam-test
 	@$(RUN_TIMED) "Upgrade tests (test_upgrade.py)" python3 -B -m unittest discover -s tests -p 'test_upgrade.py' -q
 	@$(RUN_TIMED) "Renderer golden tests (tests/render.sh)" tests/render.sh $(CURDIR)/$(TAM)
 
