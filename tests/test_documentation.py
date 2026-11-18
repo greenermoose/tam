@@ -68,7 +68,7 @@ int main(void) {
  "<tr><td><a href='tam:archwiki' data-doc-source='archwiki'>Wiki</a></td><td>Description<span data-doc-missing='archwiki'><span> MISSING-archwiki</span></span></td></tr></table>";
  char *out=tam_documentation_markup(html, __builtin_strlen(html));if(!out)return 1;puts(out);free(out);return 0;
 }''')
-        files=[self.root/'doc/info/bash.info',self.root/'doc/tldr/pages/common/tar.md',self.root/'doc/arch-wiki/html/en/Pacman.html']
+        files=[self.root/'doc/info/bash.info',self.root/'doc/tldr/pages/common/tar.md',self.root/'doc/arch-wiki/tam/Pacman.html']
         for flags in itertools.product((False,True),repeat=3):
             for present,path in zip(flags,files):
                 path.parent.mkdir(parents=True,exist_ok=True)
@@ -87,6 +87,26 @@ int main(void) {
         self.assertIn("href='info:dir'",subprocess.check_output([binary],env=self.env,text=True))
         files[0].unlink()
         self.assertNotIn("href='info:dir'",subprocess.check_output([binary],env=self.env,text=True))
+
+    def test_archwiki_prefers_tam_and_falls_back_to_html_en(self):
+        binary=self.compile('awroot',['src/documentation.c','src/html_scan.c'],r'''
+#include "documentation.h"
+#include <stdio.h>
+#include <stdlib.h>
+char *tam_find_tldr_root(const char *unused) {(void)unused; return tam_documentation_root("tldr");}
+char *tam_find_archwiki_root(void) {return tam_documentation_root("archwiki");}
+int main(void) {
+    char *p = tam_documentation_root("archwiki");
+    puts(p ? p : "");
+    free(p);
+    return 0;
+}''')
+        html_dir = self.root/'doc/arch-wiki/html/en'
+        tam_dir = self.root/'doc/arch-wiki/tam'
+        html_dir.mkdir(parents=True)
+        self.assertEqual(subprocess.check_output([binary],env=self.env,text=True).strip(), str(html_dir))
+        tam_dir.mkdir(parents=True)
+        self.assertEqual(subprocess.check_output([binary],env=self.env,text=True).strip(), str(tam_dir))
 
     def test_native_identity_uses_format_two_and_never_stale_fallback(self):
         native=self.root/'native';native.mkdir()

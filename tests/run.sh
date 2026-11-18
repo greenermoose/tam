@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.61.4' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.62.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3507,14 +3507,27 @@ cat >"$aw_fix/Arch_Linux.html" <<'EOF'
 <div id="catlinks">Category: About Arch</div>
 </body></html>
 EOF
+mkdir -p "$aw_fix/Pacman"
 cat >"$aw_fix/Pacman.html" <<'EOF'
 <!DOCTYPE html><html><head><title>pacman - ArchWiki</title></head><body>
 <div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr">
-<p>The pacman package manager for <a href="../en/Arch_Linux.html#Principles">Arch Linux</a>.</p>
+<p>The pacman package manager for <a href="../en/Arch_Linux.html#Principles">Arch Linux</a>,
+<a href="../en/Pacman/Package_signing.html">signing</a>,
+<a href="https://man.archlinux.org/man/tamtest.1">tamtest(1)</a>, and
+<a href="https://man.archlinux.org/man/missing_man_xyz.8">missing(8)</a>.</p>
 </div>
 <div id="catlinks">Category: Package management</div>
 </body></html>
 EOF
+cat >"$aw_fix/Pacman/Package_signing.html" <<'EOF'
+<!DOCTYPE html><html><head><title>Pacman/Package signing - ArchWiki</title></head><body>
+<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr">
+<p>Subpage for <a href="../../en/Pacman.html">pacman</a>.</p>
+</div></body></html>
+EOF
+aw_man="$tmp/aw_man"
+mkdir -p "$aw_man/man1"
+printf '.TH TAMTEST 1\n.SH NAME\ntamtest \\- test\n' >"$aw_man/man1/tamtest.1"
 
 [ -x "$root/bin/tam-archwiki" ] || fail "bin/tam-archwiki is missing or not executable"
 aw_wrap=$(TAM_ARCHWIKI_DIR="$aw_fix" "$root/bin/tam-archwiki" Pacman --pipe)
@@ -3544,8 +3557,19 @@ printf '%s\n' "$aw_list" | grep -q 'archwiki:Pacman' || fail "tam archwiki --lis
 aw_kw=$(TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki --search Pacman --pipe)
 printf '%s\n' "$aw_kw" | grep -q 'archwiki:Pacman' || fail "tam archwiki --search Pacman failed"
 
-show_aw=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show archwiki:Pacman --pipe)
+show_aw=$(MANPATH="$aw_man" TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show archwiki:Pacman --pipe)
 printf '%s\n' "$show_aw" | grep -q '^Guide > Arch Wiki > pacman$' || fail "tam show archwiki:Pacman failed"
+printf '%s\n' "$show_aw" | grep -q 'man:tamtest(1)' || fail "tam archwiki failed to rewrite local man.archlinux.org link to man:"
+printf '%s\n' "$show_aw" | grep -q 'https://man.archlinux.org/man/missing_man_xyz.8' || fail "tam archwiki failed to preserve remote link for missing man page"
+
+show_aw_sub=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show archwiki:Pacman/Package_signing --pipe)
+printf '%s\n' "$show_aw_sub" | grep -q 'Subpage for' || fail "tam show archwiki subpage failed"
+printf '%s\n' "$show_aw_sub" | grep -q 'archwiki:Pacman' || fail "tam archwiki subpage ../../en/ link rewrite failed"
+
+show_aw_broken=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show "tam:archwiki:broken?target=Missing_Page&from=Pacman" --pipe)
+printf '%s\n' "$show_aw_broken" | grep -q 'Broken internal link:' || fail "tam:archwiki:broken missing message"
+printf '%s\n' "$show_aw_broken" | grep -q 'archwiki:Pacman' || fail "tam:archwiki:broken missing return link"
+printf '%s\n' "$show_aw_broken" | grep -q 'tam:archwiki:keyword?query=Missing%20Page' || fail "tam:archwiki:broken missing keyword search link"
 
 show_aw_idx=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show tam:archwiki --pipe)
 printf '%s\n' "$show_aw_idx" | grep -q '^Guide > Arch Wiki$' || fail "tam show tam:archwiki failed"

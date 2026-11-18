@@ -5,6 +5,7 @@
 #include "archwiki.h"
 #include "documentation.h"
 #include "html.h"
+#include "man.h"
 #include "pager.h"
 #include "render.h"
 #include "terminal.h"
@@ -21,7 +22,7 @@
 
 #define TAM_EXIT_USAGE   2
 #define TAM_EXIT_FAILURE 1
-#define ARCHWIKI_DEFAULT_DIR "/usr/share/doc/arch-wiki/html/en"
+#define ARCHWIKI_DEFAULT_DIR "/usr/share/doc/arch-wiki/tam"
 #define ARCHWIKI_RESULTS_PER_PAGE 60
 
 extern char *tam_find_knowledge_root(void);
@@ -187,31 +188,66 @@ static void archwiki_index_free(archwiki_index_t *idx)
     free(idx);
 }
 
-static archwiki_index_t *archwiki_index_load(const char *root)
+static void archwiki_index_scan_dir(const char *root, const char *rel_prefix,
+                                    archwiki_index_t *idx, int depth)
 {
-    if (root == NULL) return NULL;
-    DIR *dp = opendir(root);
-    if (dp == NULL) return NULL;
-
-    archwiki_index_t *idx = calloc(1, sizeof(*idx));
-    if (idx == NULL) {
-        closedir(dp);
-        return NULL;
+    if (depth > 4) return;
+    char dir_path[1024];
+    if (rel_prefix[0] != '\0') {
+        if (snprintf(dir_path, sizeof(dir_path), "%s/%s", root, rel_prefix) >= (int)sizeof(dir_path)) {
+            return;
+        }
+    } else {
+        if (snprintf(dir_path, sizeof(dir_path), "%s", root) >= (int)sizeof(dir_path)) {
+            return;
+        }
     }
+
+    DIR *dp = opendir(dir_path);
+    if (dp == NULL) return;
 
     struct dirent *de;
     while ((de = readdir(dp)) != NULL) {
         const char *name = de->d_name;
         if (name[0] == '.') continue;
+
+        char full_path[1024];
+        if (snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, name) >= (int)sizeof(full_path)) {
+            continue;
+        }
+        struct stat st;
+        if (lstat(full_path, &st) != 0) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            char next_rel[512];
+            int rn = rel_prefix[0] != '\0'
+                ? snprintf(next_rel, sizeof(next_rel), "%s/%s", rel_prefix, name)
+                : snprintf(next_rel, sizeof(next_rel), "%s", name);
+            if (rn > 0 && (size_t)rn < sizeof(next_rel)) {
+                archwiki_index_scan_dir(root, next_rel, idx, depth + 1);
+            }
+            continue;
+        }
+        if (!S_ISREG(st.st_mode)) continue;
+
         size_t len = strlen(name);
         if (len <= 5 || strcmp(name + len - 5, ".html") != 0) continue;
 
-        char *slug = strndup(name, len - 5);
+        char base_slug[512];
+        size_t blen = len - 5;
+        if (blen >= sizeof(base_slug)) continue;
+        memcpy(base_slug, name, blen);
+        base_slug[blen] = '\0';
+        if (rel_prefix[0] == '\0' && is_hex_hash_slug(base_slug)) continue;
+
+        char slug_buf[768];
+        int sn = rel_prefix[0] != '\0'
+            ? snprintf(slug_buf, sizeof(slug_buf), "%s/%s", rel_prefix, base_slug)
+            : snprintf(slug_buf, sizeof(slug_buf), "%s", base_slug);
+        if (sn <= 0 || (size_t)sn >= sizeof(slug_buf)) continue;
+
+        char *slug = strdup(slug_buf);
         if (slug == NULL) continue;
-        if (is_hex_hash_slug(slug)) {
-            free(slug);
-            continue;
-        }
         char *title = slug_to_title(slug);
         if (title == NULL) {
             free(slug);
@@ -233,6 +269,15 @@ static archwiki_index_t *archwiki_index_load(const char *root)
         idx->count++;
     }
     closedir(dp);
+}
+
+static archwiki_index_t *archwiki_index_load(const char *root)
+{
+    if (root == NULL) return NULL;
+    archwiki_index_t *idx = calloc(1, sizeof(*idx));
+    if (idx == NULL) return NULL;
+
+    archwiki_index_scan_dir(root, "", idx, 0);
 
     if (idx->count > 1) {
         qsort(idx->items, idx->count, sizeof(*idx->items), cmp_archwiki_entry);
@@ -257,18 +302,20 @@ static int normalize_archwiki_spec(const char *spec, char *out_slug, size_t slug
 
     const char *hash = strchr(s, '#');
     size_t slen = hash ? (size_t)(hash - s) : strlen(s);
-    while (slen > 0 && s[slen - 1] == ' ') slen--;
+    while (slen > 0 && (s[slen - 1] == ' ' || s[slen - 1] == '/')) slen--;
     if (slen == 0) return 0;
     if (slen >= 5 && strncmp(s + slen - 5, ".html", 5) == 0) slen -= 5;
     if (slen == 0 || slen >= slug_cap) return 0;
 
     for (size_t i = 0; i < slen; i++) {
         unsigned char c = (unsigned char)s[i];
-        if (c == '/' || c == '\\' || c < 0x20) return 0;
+        if (c == '\\' || c < 0x20) return 0;
+        if (c == '/' && i > 0 && out_slug[i - 1] == '/') return 0;
         out_slug[i] = (c == ' ') ? '_' : (char)c;
     }
     out_slug[slen] = '\0';
-    if (strcmp(out_slug, ".") == 0 || strcmp(out_slug, "..") == 0 ||
+    if (out_slug[0] == '/' || out_slug[slen - 1] == '/' ||
+        strcmp(out_slug, ".") == 0 || strcmp(out_slug, "..") == 0 ||
         strstr(out_slug, "..") != NULL) {
         return 0;
     }
@@ -292,25 +339,42 @@ static char *archwiki_resolve_page(const char *root, const char *slug,
         return strdup(path);
     }
 
-    /* Case-insensitive fallback scan */
+    /* Case-insensitive fallback scan in target directory (supports subpages). */
+    const char *slash = strrchr(slug, '/');
+    char dir_path[1024];
     char target[300];
-    snprintf(target, sizeof(target), "%s.html", slug);
-    DIR *dp = opendir(root);
+    if (slash != NULL) {
+        size_t dlen = (size_t)(slash - slug);
+        if (dlen == 0 || dlen >= 512) return NULL;
+        snprintf(dir_path, sizeof(dir_path), "%s/%.*s", root, (int)dlen, slug);
+        snprintf(target, sizeof(target), "%s.html", slash + 1);
+    } else {
+        snprintf(dir_path, sizeof(dir_path), "%s", root);
+        snprintf(target, sizeof(target), "%s.html", slug);
+    }
+
+    DIR *dp = opendir(dir_path);
     if (dp == NULL) return NULL;
 
     char *found = NULL;
     struct dirent *de;
     while ((de = readdir(dp)) != NULL) {
         if (strcasecmp(de->d_name, target) == 0) {
-            n = snprintf(path, sizeof(path), "%s/%s", root, de->d_name);
+            n = snprintf(path, sizeof(path), "%s/%s", dir_path, de->d_name);
             if (n > 0 && (size_t)n < sizeof(path) && tam_fs_file_exists(path)) {
                 found = strdup(path);
                 if (resolved_slug != NULL && slug_cap > 0) {
                     size_t dlen = strlen(de->d_name);
-                    size_t copy = dlen > 5 ? dlen - 5 : 0;
-                    if (copy >= slug_cap) copy = slug_cap - 1;
-                    memcpy(resolved_slug, de->d_name, copy);
-                    resolved_slug[copy] = '\0';
+                    size_t base_copy = dlen > 5 ? dlen - 5 : 0;
+                    if (slash != NULL) {
+                        size_t prefix_len = (size_t)(slash - slug);
+                        snprintf(resolved_slug, slug_cap, "%.*s/%.*s",
+                                 (int)prefix_len, slug, (int)base_copy, de->d_name);
+                    } else {
+                        if (base_copy >= slug_cap) base_copy = slug_cap - 1;
+                        memcpy(resolved_slug, de->d_name, base_copy);
+                        resolved_slug[base_copy] = '\0';
+                    }
                 }
             }
             break;
@@ -376,7 +440,104 @@ static void find_body_bounds(const char *html, size_t len,
     *out_end = end;
 }
 
-static tam_str_t rewrite_anchor_tag(tam_str_t out, const char *tag, size_t tag_len)
+typedef struct {
+    char *key;
+    int exists;
+} man_cache_entry_t;
+
+typedef struct {
+    man_cache_entry_t *items;
+    size_t count;
+    size_t cap;
+} man_cache_t;
+
+static void man_cache_free(man_cache_t *c)
+{
+    if (c == NULL) return;
+    for (size_t i = 0; i < c->count; i++) free(c->items[i].key);
+    free(c->items);
+}
+
+static int man_cache_exists(man_cache_t *c, const char *name, const char *sec)
+{
+    char key[176];
+    snprintf(key, sizeof(key), "%s(%s)", name, sec);
+    for (size_t i = 0; i < c->count; i++) {
+        if (strcmp(c->items[i].key, key) == 0) return c->items[i].exists;
+    }
+    char *resolved = tam_man_resolve_path(name, sec);
+    int exists = (resolved != NULL);
+    free(resolved);
+    if (c->count == c->cap) {
+        size_t ncap = c->cap ? c->cap * 2 : 16;
+        man_cache_entry_t *nitems = realloc(c->items, ncap * sizeof(*nitems));
+        if (nitems == NULL) return exists;
+        c->items = nitems;
+        c->cap = ncap;
+    }
+    c->items[c->count].key = strdup(key);
+    c->items[c->count].exists = exists;
+    if (c->items[c->count].key != NULL) c->count++;
+    return exists;
+}
+
+static char *rewrite_man_archlinux_href(const char *href, man_cache_t *cache)
+{
+    const char *p = NULL;
+    if (strncmp(href, "https://man.archlinux.org/man/", 30) == 0) {
+        p = href + 30;
+    } else if (strncmp(href, "http://man.archlinux.org/man/", 29) == 0) {
+        p = href + 29;
+    } else {
+        return NULL;
+    }
+
+    const char *slash = strrchr(p, '/');
+    if (slash != NULL) p = slash + 1;
+    if (*p == '\0') return NULL;
+
+    const char *hash = strchr(p, '#');
+    size_t len = hash ? (size_t)(hash - p) : strlen(p);
+    if (len == 0 || len >= 160) return NULL;
+
+    char buf[160];
+    memcpy(buf, p, len);
+    buf[len] = '\0';
+
+    if (len > 5 && strcmp(buf + len - 5, ".html") == 0) {
+        len -= 5;
+        buf[len] = '\0';
+    }
+    if (len > 3 && strcmp(buf + len - 3, ".en") == 0) {
+        len -= 3;
+        buf[len] = '\0';
+    }
+
+    char *dot = strrchr(buf, '.');
+    if (dot == NULL || dot == buf || dot[1] == '\0') return NULL;
+    *dot = '\0';
+    const char *name = buf;
+    const char *sec = dot + 1;
+
+    if (!isdigit((unsigned char)sec[0]) || strlen(sec) > 8) return NULL;
+    for (const char *s = sec; *s; s++) {
+        if (!isalnum((unsigned char)*s)) return NULL;
+    }
+    for (const char *s = name; *s; s++) {
+        if (isspace((unsigned char)*s) || *s == '/') return NULL;
+    }
+
+    if (!man_cache_exists(cache, name, sec)) return NULL;
+
+    char *out = malloc(4 + strlen(name) + 1 + strlen(sec) + 2);
+    if (out != NULL) {
+        sprintf(out, "man:%s(%s)", name, sec);
+    }
+    return out;
+}
+
+static tam_str_t rewrite_anchor_tag(tam_str_t out, const char *tag, size_t tag_len,
+                                    man_cache_t *man_cache)
 {
     /* Locate href="..." or href='...' inside <a ...> */
     const char *p = tag;
@@ -414,17 +575,26 @@ static tam_str_t rewrite_anchor_tag(tam_str_t out, const char *tag, size_t tag_l
     int drop_href = 0;
 
     if (href[0] == '#' ||
-        strncmp(href, "http://", 7) == 0 ||
-        strncmp(href, "https://", 8) == 0 ||
-        strncmp(href, "archwiki:", 9) == 0) {
+        strncmp(href, "archwiki:", 9) == 0 ||
+        strncmp(href, "tam:archwiki:", 13) == 0 ||
+        strncmp(href, "man:", 4) == 0) {
         rewritten = strdup(href);
+    } else if (strncmp(href, "http://", 7) == 0 ||
+               strncmp(href, "https://", 8) == 0) {
+        rewritten = rewrite_man_archlinux_href(href, man_cache);
+        if (rewritten == NULL) rewritten = strdup(href);
     } else {
         const char *page_part = href;
-        if (strncmp(page_part, "../en/", 6) == 0) {
-            page_part += 6;
-        } else if (strncmp(page_part, "./", 2) == 0) {
+        while (strncmp(page_part, "../", 3) == 0) {
+            if (strncmp(page_part, "../en/", 6) == 0) {
+                page_part += 6;
+                break;
+            }
+            page_part += 3;
+        }
+        if (strncmp(page_part, "./", 2) == 0) {
             page_part += 2;
-        } else if (page_part[0] == '/' || strncmp(page_part, "../", 3) == 0) {
+        } else if (page_part[0] == '/') {
             drop_href = 1;
         }
 
@@ -477,6 +647,7 @@ static const char *skip_element_block(const char *p, const char *end, const char
 static tam_str_t clean_archwiki_body(const char *start, const char *end)
 {
     tam_str_t out = tam_str_new("");
+    man_cache_t man_cache = {0};
     const char *p = start;
 
     while (p < end) {
@@ -517,7 +688,7 @@ static tam_str_t clean_archwiki_body(const char *start, const char *end)
                 out = tam_str_cat_len(out, lt, rem);
                 break;
             }
-            out = rewrite_anchor_tag(out, lt, (size_t)(gt - lt + 1));
+            out = rewrite_anchor_tag(out, lt, (size_t)(gt - lt + 1), &man_cache);
             p = gt + 1;
             continue;
         }
@@ -530,6 +701,7 @@ static tam_str_t clean_archwiki_body(const char *start, const char *end)
         out = tam_str_cat_len(out, lt, (size_t)(gt - lt + 1));
         p = gt + 1;
     }
+    man_cache_free(&man_cache);
     return out;
 }
 
@@ -634,8 +806,10 @@ static tam_document_t *archwiki_landing_document(const char *root, int width)
     if (root == NULL) {
         body = tam_str_cat(body,
             "<p><strong>Note:</strong> Offline Arch Wiki pages were not found at "
+            "<code>/usr/share/doc/arch-wiki/tam</code> or "
             "<code>/usr/share/doc/arch-wiki/html/en</code>. Install the "
-            "<code>arch-wiki-docs</code> package with <code>pacman -S arch-wiki-docs</code>.</p>\n");
+            "Arch Wiki documentation package or generate the <code>tam</code> "
+            "corpus from <code>arch-wiki-docs</code>.</p>\n");
     }
 
     body = tam_str_cat(body, "<h2>Starting points</h2>\n<table>\n");
@@ -865,8 +1039,79 @@ static tam_document_t *archwiki_keyword_document(const char *root, const char *q
     return doc;
 }
 
+static tam_document_t *archwiki_broken_document(const char *uri, int width)
+{
+    char *target = uri_parameter(uri, "target");
+    char *from = uri_parameter(uri, "from");
+    char *etarget = tam_html_escape(target && target[0] ? target : "unknown target");
+    char *efrom = tam_html_escape(from && from[0] ? from : "");
+
+    tam_str_t body = tam_str_new("");
+    body = tam_str_cat_printf(body,
+        "<p><strong>Broken internal link:</strong> The Arch Wiki link to "
+        "<code>%s</code>", etarget ? etarget : "");
+    if (from && from[0]) {
+        body = tam_str_cat_printf(body, " (referenced from <code>%s</code>)",
+                                  efrom ? efrom : "");
+    }
+    body = tam_str_cat(body,
+        " could not be resolved in the offline Tamlinux Arch Wiki corpus.</p>\n"
+        "<p>This link has been logged in the broken-links manifest so an AI agent "
+        "can track down the missing page or mend it in a future patch.</p>\n"
+        "<ul>\n");
+
+    if (from && from[0]) {
+        char *from_title = slug_to_title(from);
+        char *efrom_title = tam_html_escape(from_title ? from_title : from);
+        body = tam_str_cat_printf(body,
+            "<li><a href=\"archwiki:%s\">Return to %s</a></li>\n",
+            efrom ? efrom : "", efrom_title ? efrom_title : "");
+        free(efrom_title);
+        free(from_title);
+    }
+
+    if (target && target[0]) {
+        /* Strip .html or #fragment for keyword search */
+        char search_buf[256];
+        snprintf(search_buf, sizeof(search_buf), "%s", target);
+        char *hash = strchr(search_buf, '#');
+        if (hash) *hash = '\0';
+        size_t slen = strlen(search_buf);
+        if (slen > 5 && strcmp(search_buf + slen - 5, ".html") == 0) {
+            search_buf[slen - 5] = '\0';
+        }
+        for (char *p = search_buf; *p; p++) {
+            if (*p == '_' || *p == '/') *p = ' ';
+        }
+        char *enc = uri_encode(search_buf);
+        char *esearch = tam_html_escape(search_buf);
+        body = tam_str_cat_printf(body,
+            "<li><a href=\"tam:archwiki:keyword?query=%s\">Search Arch Wiki for %s</a></li>\n",
+            enc ? enc : "", esearch ? esearch : "");
+        free(esearch);
+        free(enc);
+    }
+
+    body = tam_str_cat(body,
+        "<li><a href=\"tam:archwiki\">Arch Wiki index</a></li>\n"
+        "<li><a href=\"index.html\">Tamlinux Guide</a></li>\n"
+        "</ul>\n");
+
+    free(efrom);
+    free(etarget);
+    free(from);
+    free(target);
+    tam_document_t *doc = archwiki_html_document("Broken Arch Wiki link", body, width);
+    tam_str_free(body);
+    return doc;
+}
+
 tam_document_t *tam_archwiki_uri_document(const char *uri, int width)
 {
+    if (uri != NULL && strncmp(uri, "tam:archwiki:broken", 19) == 0) {
+        return archwiki_broken_document(uri, width);
+    }
+
     char *root = tam_find_archwiki_root();
     if (uri == NULL || strcmp(uri, "tam:archwiki") == 0) {
         tam_document_t *doc = archwiki_landing_document(root, width);

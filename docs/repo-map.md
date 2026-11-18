@@ -34,6 +34,7 @@ Categories:
 - `AGENTS.md` — *you edit*. Concurrency rules, lane scopes, build/test commands and provenance guidance for AI agents.
 - `AI_PROVENANCE.md` — *you edit*. How this repository records AI help; its session table covers the records from before 2026-11-17 and gets no new rows.
 - `work/` — *you edit*. `WHATNOW` (read first; revised as a whole at the end of every session) and one plain-text record per AI session, `W<number>-<name>`, added and never rewritten; `README-work` gives the procedure.
+- `patches/` — *you edit*. Curated link-mend unified diffs applied to upstream `arch-wiki-docs` HTML when pre-processing `/usr/share/doc/arch-wiki/tam/`.
 - `CHECKLISTS.md` — *you edit*. Monotonic `TCK<N>` checklist counter and minting rules across plans.
 - `ACKNOWLEDGEMENTS.md` — *you edit*. Third-party and upstream attributions.
 - `COPYRIGHT` — *you edit*. Repository copyright statement.

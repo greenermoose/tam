@@ -17,12 +17,26 @@
 
 char *tam_documentation_root(const char *source)
 {
-    const char *leaf = !strcmp(source, "info") ? "info" :
-                       !strcmp(source, "tldr") ? "tldr" :
-                       !strcmp(source, "archwiki") ? "arch-wiki/html/en" : NULL;
-    if (!leaf) return NULL;
     const char *base = getenv("TAM_DOC_DIR");
-    return tam_path_join(base && base[0] ? base : TAM_DOCDIR, leaf);
+    const char *dir = base && base[0] ? base : TAM_DOCDIR;
+    if (!strcmp(source, "archwiki")) {
+        char *tam_dir = tam_path_join(dir, "arch-wiki/tam");
+        struct stat st;
+        if (tam_dir && stat(tam_dir, &st) == 0 && S_ISDIR(st.st_mode)) {
+            return tam_dir;
+        }
+        char *html_dir = tam_path_join(dir, "arch-wiki/html/en");
+        if (html_dir && stat(html_dir, &st) == 0 && S_ISDIR(st.st_mode)) {
+            free(tam_dir);
+            return html_dir;
+        }
+        free(html_dir);
+        return tam_dir;
+    }
+    const char *leaf = !strcmp(source, "info") ? "info" :
+                       !strcmp(source, "tldr") ? "tldr" : NULL;
+    if (!leaf) return NULL;
+    return tam_path_join(dir, leaf);
 }
 
 static bool readable_entry(const char *directory, const char *suffix)

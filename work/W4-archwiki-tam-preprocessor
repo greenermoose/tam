@@ -1,0 +1,23 @@
+W4 Arch Wiki tam pre-processor and pager integration
+
+Date: 2026-11-18
+Tool: agy 1.5.11
+Model: Gemini 4 Hydrogen (Medium)
+Commit: pending
+
+Fred asked:
+
+> We need to trim down the Arch Linux wiki for use in the tam knowledge corpus. The Arch Linux wiki has a bunch of formatting that we cannot show in our TUI tam pager. Create a pre-processor script that does the following:
+> 1) Takes the arch-wiki-docs and the arch-wiki-lite packages as input.
+> 2) Creates a version of the Arch wiki pages in HTML specifically designed for the tam pager in /usr/share/doc/arch-wiki/tam/.
+> ...
+> 1 fallback, display the html version if the tam version does not exist
+> 2 update tamlinux-packages, too
+> 3 if the man pages are installed locally, those links should be rewritten to open directly inside tam. But if the man page does not exist locally, keep the remote link so the user can follow it and find what they need to know
+
+What changed:
+- Added `tools/build-archwiki-tam.py` and `patches/arch-wiki-docs/README.md` to pre-process `arch-wiki-docs` and `arch-wiki-lite` into compact `tam`-pager HTML under `/usr/share/doc/arch-wiki/tam/`, apply curated `.patch` link-mend diffs, mend internal links, and route unresolvable links to `tam:archwiki:broken?target=...&from=...` while logging `broken-links.json` and `repaired-links.json`.
+- Updated `src/documentation.c`, `src/archwiki.h`, and `src/archwiki.c` to prefer `/usr/share/doc/arch-wiki/tam/` with `/usr/share/doc/arch-wiki/html/en/` fallback, support subpage slugs (`/`), render `tam:archwiki:broken`, and rewrite `https://man.archlinux.org/man/...` links to `man:` when `tam_man_resolve_path` finds the page locally.
+- Bumped command version to `0.62.0` in `src/version.h`, `ROADMAP.md`, `docs/plans/development.md`, and `tests/run.sh`, and documented `patches/` in `docs/repo-map.md`.
+- Added `tests/test_archwiki_preprocess.py`, updated `tests/test_documentation.py`, and extended `tests/run.sh`.
+- Updated `tamlinux-packages` (`recipes/workstation/documentation.json`, `tools/stage-documentation.py`, `tests/test_documentation_staging.py`) to include `arch-wiki-lite` and stage `/usr/share/doc/arch-wiki/tam/`.
