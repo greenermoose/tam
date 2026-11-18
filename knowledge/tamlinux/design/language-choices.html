@@ -131,7 +131,7 @@ $ size /usr/bin/true
 
 <h3>Why Tamlinux chooses C11 over Rust, Go, and C++</h3>
 
-<p>Fred Horch, the Tamlinux developer (<a href="tamlinux/about.html">About Tamlinux</a>), establishes strict guidelines for package languages and tool efficiency. The choice of C11 for core utilities rests on three technical pillars:</p>
+<p>Fred (<a href="tamlinux/about.html">About Tamlinux</a>) establishes strict guidelines for package languages and tool efficiency. The choice of C11 for core utilities rests on three technical pillars:</p>
 
 <ol>
 <li><strong>Anti-bloat and resource efficiency:</strong> Managed runtimes like Go impose an 8&ndash;15 megabyte minimum binary floor and spawn background garbage collector and runtime scheduler threads. For high-frequency CLI commands, window manager hooks, and terminal utilities, this overhead wastes CPU cycles and battery energy. C11 executables compiled with <code>-O2</code> start in milliseconds and use less than 4 megabytes of resident memory.</li>

@@ -1,0 +1,61 @@
+W8 ALIGN PLANT ANALOGY AND FRED NAMING IN CORPUS
+
+Date: 2026-11-18
+AI harness: agy 1.5.11
+AI model: Gemini 4 Hydrogen (Medium)
+Commits: pending
+
+GUIDANCE
+
+  Fred: "We need to adjust our plant analogy. These are the terms to use
+  consistently through the tam knowledge corpus and all tam repos:
+  1) Each major + minor version (e.g. 0.6, 0.7, etc.) of Tamlinux is called
+  a "cultivar".
+  2) The base operating system, e.g. Archi Linux, Windows, MacOS, Void Linux,
+  etc. is called a "rootstock."
+  3) The Tamlinux software that can install on a rootstock is called a
+  "scion."
+  4) Instead of a "nut" we call the initial, minimal Tamlinux package a
+  "bud." It can be used to install (or "grow") the rest of the Tamlinux
+  scion.
+  5) Instead of a "greenhouse" we call the physical hardware a "host." The
+  rootstock gets installed on a host, and the Tamlinux bud gets installed on
+  a rootstock, and then you use the bud to install the full Tamlinux scion,
+  which can bear fruit in the form of applications that allow your computer
+  to do useful things for you and your family."
+
+  Fred: "Make sure all usage corresponds reasonably well to the botanical
+  terms used. Correct any scientifically wrong or confusing usages.
+  Reference me simply as "Fred" through the knowledge corpus, not Fred Horch
+  or the Tamlinux developer. My full name is on the home page in the
+  copyright notice, but everywhere else I'm just Fred. Proceed"
+
+DONE
+
+  - Added `knowledge/glossary/b/bud.html`, `knowledge/glossary/h/host.html`,
+    and `knowledge/glossary/s/scion.html` and linked them in their glossary
+    letter hubs.
+  - Removed `knowledge/glossary/g/greenhouse.html`,
+    `knowledge/glossary/n/nut.html`, and `knowledge/glossary/p/pot.html`,
+    updated their glossary hubs, and recorded the transitions in
+    `docs/corpus-migration.tsv`.
+  - Redefined `knowledge/glossary/c/cultivar.html` (major + minor version)
+    and updated `rootstock.html`, `distro.html`, `fruit.html`,
+    `tamlinux/design/terminology.html`, `tamlinux/components.html`,
+    `tamlinux/install.html`, and ~20 other corpus pages.
+  - Updated all corpus mentions of `Fred Horch` and `Tamlinux developer`
+    (except the copyright notice on `knowledge/index.html`) to `Fred`.
+  - Bumped `knowledge/version` to `0.99.0` and updated `ROADMAP.md`.
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  Corpus 0.99.0 is ready on develop. Continue with the work/ move in
+  WHATNOW when ready.
+
+Checked against:
+  docs/corpus-authoring.md, improvements-fred-tamlinux/GLOSSARY.md,
+  knowledge/tamlinux/design/terminology.html

@@ -3,8 +3,8 @@
 <head>
 <title>Plant names used in Tamlinux</title>
 <meta name="topic" content="terminology">
-<meta name="summary" content="The botanical framework: greenhouse, pot, nut, rootstock, cultivar, and fruit">
-<meta name="keywords" content="terminology, analogy, framework, concept, greenhouse, pot, nut, rootstock, cultivar, fruit, varieties, uki, bootloader">
+<meta name="summary" content="The botanical framework: host, rootstock, bud, scion, cultivar, and fruit">
+<meta name="keywords" content="terminology, analogy, framework, concept, host, rootstock, bud, scion, cultivar, fruit, varieties">
 <meta name="level" content="novice, learner, expert">
 <meta name="kind" content="reference">
 <meta name="track" content="tamlinux">
@@ -18,16 +18,14 @@
 <h1>Plant names used in Tamlinux</h1>
 <p>This page explains the plant-inspired names used for parts of Tamlinux.</p>
 
-<section data-level="novice"><h2>Names for the layers</h2><p>The botanical analogy names six roles. It helps describe boundaries;
-it is not evidence that a planned boot or distribution feature is delivered.</p>
-<ul><li><a href="glossary/g/greenhouse.html">Greenhouse</a>: The botanical name for the physical computer and its resources.</li><li><a href="glossary/p/pot.html">Pot</a>: The botanical name for the environment that starts or contains a bootable system.</li><li><a href="glossary/n/nut.html">Nut</a>: The name for a planned minimal bootable Tamlinux environment.</li><li><a href="glossary/r/rootstock.html">Rootstock</a>: The kernel and core system software on which the Tamlinux cultivar is installed.</li><li><a href="glossary/c/cultivar.html">Cultivar</a>: All the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents.</li><li><a href="glossary/f/fruit.html">Fruit</a>: Applications you use to get work done.</li></ul>
-<p>Rootstock is not a common term, but one that Fred Horch, the Tamlinux developer, made up to explain how Tamlinux works. Fred defines the rootstock to be the set of software that third-parties publish and is necessary to be installed so that the software we write can function properly. The cultivar is all the software in the Tamlinux release that allows the computer to be used effectively and efficiently by both humans and AI agents. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently we are using Arch Linux as our rootstock but we plan to migrate to Void Linux in future versions of Tamlinux. Beyond that we are considering a microkernel to further reduce the code size of the rootstock and improve its performance per watt.</p>
-<p>The minimal nut environment is a design concept, not an installed recovery
-guarantee. Read the actual deployment and boot procedure for the candidate.</p>
+<section data-level="novice"><h2>Names for the layers</h2><p>The plant analogy names how Tamlinux fits onto a computer. It helps describe boundaries;
+it is not evidence that a planned feature is delivered.</p>
+<ul><li><a href="glossary/h/host.html">Host</a>: The physical hardware—your computer, its processor, memory, storage, and display.</li><li><a href="glossary/r/rootstock.html">Rootstock</a>: The base operating system installed on a host (for example, Arch Linux, Void Linux, Windows, or macOS).</li><li><a href="glossary/b/bud.html">Bud</a>: The initial, minimal Tamlinux package installed on a rootstock and used to install (or “grow”) the rest of the Tamlinux scion.</li><li><a href="glossary/s/scion.html">Scion</a>: The Tamlinux software that installs on a rootstock.</li><li><a href="glossary/c/cultivar.html">Cultivar</a>: Each major + minor version of Tamlinux (for example, <code>0.6</code> or <code>0.7</code>), named from tamarack tree varieties.</li><li><a href="glossary/f/fruit.html">Fruit</a>: Applications that allow your computer to do useful things for you and your family.</li></ul>
+<p>In horticulture, a bud or shoot (the scion) from a named variety (a cultivar) is grafted onto a hardy rootstock so it can grow and bear fruit. In Tamlinux, <a href="tamlinux/developer.html">Fred</a> uses the same idea: a rootstock gets installed on a host, the Tamlinux bud gets installed on the rootstock, and then you use the bud to install the full Tamlinux scion, which bears fruit in the form of everyday applications. Our goal is to minimize the size of the rootstock and maximize its speed and efficiency. Currently Tamlinux uses Arch Linux as its rootstock, with plans to migrate to Void Linux in future versions and to explore a microkernel beyond that.</p>
 <p><a href="glossary/index.html">Glossary</a> supplies definitions at
 all levels; <a href="tamlinux/components.html">the ecosystem overview</a> adds context.</p>
 </section>
-<section data-level="learner"><h2>Use the analogy carefully</h2><p>Follow the glossary links at level 2 for a technical model. Firmware, a boot loader and a virtual machine are distinct mechanisms even when the analogy calls each a pot.</p><p><a href="glossary/index.html?level=2">Glossary at Learner</a>.</p></section>
+<section data-level="learner"><h2>Use the analogy carefully</h2><p>Follow the glossary links at level 2 for a technical model. Today’s initial bootstrap package is named <code>tam-nut</code> and is scheduled to be renamed <code>tam-bud</code> in Tamlinux 1.0.0; check the live system for what is actually installed.</p><p><a href="glossary/index.html?level=2">Glossary at Learner</a>.</p></section>
 <section data-level="expert"><h2>Verify the real boundary</h2><p>Follow level 3 definitions for limits. The analogy does not establish signing, immutability, portability or a working bootstrap. Those require the actual product design and implementation evidence.</p><p><a href="glossary/index.html?level=3">Glossary at Expert</a>.</p></section>
 </body>
 </html>

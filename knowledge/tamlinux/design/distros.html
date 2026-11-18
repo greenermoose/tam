@@ -32,25 +32,23 @@
 <h2>Compare the rootstock and the plan</h2>
 <p><strong>Goal:</strong> distinguish the current rootstock from the pilot target and fallback.</p>
 <h3>Mental model</h3>
-<p>A <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> provides the core system software on which the Tamlinux <dfn><a href="glossary/c/cultivar.html">cultivar</a></dfn> is installed.</p>
+<p>A <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> provides the base operating system on which the Tamlinux <dfn><a href="glossary/s/scion.html">scion</a></dfn> is installed.</p>
 <h3>Worked example</h3>
 <p>The discussion below identifies Arch as the working rootstock, Void as a planned pilot and antiX Core as a fallback.</p>
 
 <p>Every Linux distribution makes its own trade-offs in packaging, init system,
 release cadence, and architecture. Tamlinux is a workstation environment rather
-than a new distribution: it is installed onto a rootstock that
-provides the kernel, drivers, and core system software. Rootstock is not a common
-term, but one that Fred Horch, the Tamlinux developer, made up to explain how
-Tamlinux works. Fred defines the rootstock to be the set of software that
-third-parties publish and is necessary to be installed so that the software we
-write can function properly. The cultivar is all the software in the Tamlinux
-release that allows the computer to be used effectively and efficiently by both
-humans and AI agents.</p>
+than a new distribution: it is installed onto a rootstock (a base operating
+system such as Arch Linux, Void Linux, Windows, or macOS) that is installed on
+a <a href="glossary/h/host.html">host</a>. Rootstock is a gardening term that
+Fred uses to explain how Tamlinux works: it is the base operating system on
+which the Tamlinux scion is grafted so that Tamlinux's software can run
+properly and bear fruit in the form of applications.</p>
 
 <p>Our goal is to minimize the size of the rootstock and maximize its speed and
-efficiency. Currently we are using Arch Linux as our rootstock but we plan to
-migrate to Void Linux in future versions of Tamlinux. Beyond that we are
-considering a microkernel to further reduce the code size of the rootstock and
+efficiency. Currently we are using Arch Linux as our rootstock, with plans to
+migrate to Void Linux in future versions of Tamlinux, and to explore a
+microkernel beyond that to further reduce the code size of the rootstock and
 improve its performance per watt.</p>
 
 <h2>The current rootstock: Arch Linux</h2>

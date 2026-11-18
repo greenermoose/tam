@@ -131,7 +131,7 @@ readlink ~/.nix-profile
 <dd>The store is read-only by design. Reading is allowed; writing into <code>/nix/store/</code> is not. Never change permissions on the store to make a command work.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, pacman owns the rootstock while Nix and Home Manager deliver the cultivar. The public <code>tamlinux-packages</code> flake pins the exact revisions of <code>nixpkgs</code>, Home Manager and each Tamlinux component. Product software reaches your session through a recorded assembly selected by <code>tam-deploy</code>; activating an arbitrary Home Manager generation from a checkout is a development action, not product delivery. A generation rollback returns user software and configuration, not the kernel, boot files or mutable data. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">deployment contract</a></cite>.</p>
+<p>On Tamlinux, pacman owns the rootstock while Nix and Home Manager deliver the scion. The public <code>tamlinux-packages</code> flake pins the exact revisions of <code>nixpkgs</code>, Home Manager and each Tamlinux component. Product software reaches your session through a recorded assembly selected by <code>tam-deploy</code>; activating an arbitrary Home Manager generation from a checkout is a development action, not product delivery. A generation rollback returns user software and configuration, not the kernel, boot files or mutable data. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">deployment contract</a></cite>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -335,7 +335,7 @@ in {
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Tamlinux needs two different kinds of ownership. The rootstock, which includes the kernel, drivers and system services, must follow the hardware and the distribution's lifecycle. Pacman is the right owner for that layer. The cultivar, which includes the compositor, shell, plugins, themes and curated desktop applications, changes quickly and must be reproducible across workstations. Nix and Home Manager give that layer a pinned description, atomic generations and an immediate rollback.</p>
+<p>Tamlinux needs two different kinds of ownership. The rootstock, which includes the kernel, drivers and system services, must follow the hardware and the distribution's lifecycle. Pacman is the right owner for that layer. The scion, which includes the compositor, shell, plugins, themes and curated desktop tools, changes quickly and must be reproducible across workstations. Nix and Home Manager give that layer a pinned description, atomic generations and an immediate rollback.</p>
 
 <p>The design also keeps the two layers honest. A Nix generation cannot silently change the kernel or a native driver. A native update cannot silently rewrite the desktop description. Each layer has its own record and its own recovery boundary. The cost is real: a second package store, a second package language, more disk use and a steeper learning curve. Tamlinux accepts that cost because the desktop is the part that changes most often and benefits most from reproducible delivery.</p>
 
