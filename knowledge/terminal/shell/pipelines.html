@@ -59,7 +59,26 @@ $ printf &#x27;%s
 </ol>
 
 <h3>Try it</h3>
-<p>In your terminal, run the same pipeline but change the pattern from <code>&#x27;^apple$&#x27;</code> to <code>&#x27;^pear$&#x27;</code>. Predict the count before you press Enter.</p>
+<p>In the sandbox below, run the pipeline with the pattern changed from <code>&#x27;^apple$&#x27;</code> to <code>&#x27;^pear$&#x27;</code>. Predict the count before you press Enter.</p>
+<tam-sandbox
+  title="Try it: filtering with pipes"
+  prompt="alex@tamlinux:~$ "
+  cwd="/home/alex"
+  lesson="pipes"
+  goal="Count lines matching '^pear$' in the pipeline">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="fruit.txt" size="18">apple
+pear
+apple</file>
+    </dir>
+  </tam-fs>
+  <tam-cmd match="*^pear$*|*wc -l*" goal="true" hint="Notice how the pipe operator | is highlighted as it connects each program's output to the next.">
+    <out>1</out>
+  </tam-cmd>
+  <tam-hint after="2">Try: printf '%s\n' apple pear apple | grep '^pear$' | wc -l</tam-hint>
+  <tam-fallback>Try a pipeline with printf, grep, and wc -l (or type help).</tam-fallback>
+</tam-sandbox>
 
 <h3>If it goes wrong</h3>
 <dl>

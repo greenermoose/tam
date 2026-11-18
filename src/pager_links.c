@@ -216,6 +216,7 @@ void set_cursor_line(pager_t *st, int new_line, int dir)
         }
         st->selected = caught;
     }
+    pager_check_sandbox_activation(st);
 }
 
 /* The breadcrumb row has focus while one of its links is selected. */

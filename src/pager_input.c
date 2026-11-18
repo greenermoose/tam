@@ -168,10 +168,125 @@ static void pager_right_arrow(pager_t *st)
     }
 }
 
+int pager_handle_sandbox_key(pager_t *st, unsigned char c)
+{
+    if (st == NULL || st->active_sandbox <= 0 ||
+        (size_t)st->active_sandbox > st->nsandboxes)
+        return 0;
+    tam_sandbox_state_t *sb = &st->sandboxes[st->active_sandbox - 1];
+    int sb_id = st->active_sandbox;
+
+    if (c == 0x1b) {
+        unsigned char c1;
+        if (read_byte(st->input_fd, 60, &c1) != 1) {
+            pager_exit_sandbox(st, 1);
+            return 1;
+        }
+        if (c1 != '[') return 1;
+        char seq[16];
+        size_t n = 0;
+        unsigned char c2;
+        if (read_byte(st->input_fd, 60, &c2) != 1) return 1;
+        if (c2 == '?') {
+            read_sync_reply(st, st->input_fd);
+            return 1;
+        }
+        seq[n++] = (char)c2;
+        if (!((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') || c2 == '~')) {
+            while (n < sizeof(seq) - 1 && read_byte(st->input_fd, 60, &c2) == 1) {
+                seq[n++] = (char)c2;
+                if ((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') ||
+                    c2 == '~') {
+                    break;
+                }
+            }
+        }
+        seq[n] = '\0';
+        if (strcmp(seq, "A") == 0) {
+            tam_sandbox_history_move(sb, -1);
+        } else if (strcmp(seq, "B") == 0) {
+            tam_sandbox_history_move(sb, 1);
+        } else if (strcmp(seq, "C") == 0) {
+            if (sb->cursor < sb->input_len) {
+                sb->cursor++;
+                while (sb->cursor < sb->input_len &&
+                       (((unsigned char)sb->input[sb->cursor] & 0xC0) == 0x80))
+                    sb->cursor++;
+            }
+        } else if (strcmp(seq, "D") == 0) {
+            if (sb->cursor == 0) {
+                pager_exit_sandbox(st, -1);
+                return 1;
+            }
+            sb->cursor--;
+            while (sb->cursor > 0 &&
+                   (((unsigned char)sb->input[sb->cursor] & 0xC0) == 0x80))
+                sb->cursor--;
+        } else if (strcmp(seq, "H") == 0) {
+            sb->cursor = 0;
+        } else if (strcmp(seq, "F") == 0) {
+            sb->cursor = sb->input_len;
+        } else if (strcmp(seq, "3~") == 0) {
+            if (sb->cursor < sb->input_len) {
+                size_t next = sb->cursor + 1;
+                while (next < sb->input_len &&
+                       (((unsigned char)sb->input[next] & 0xC0) == 0x80))
+                    next++;
+                memmove(sb->input + sb->cursor, sb->input + next,
+                        sb->input_len - next + 1);
+                sb->input_len -= (next - sb->cursor);
+            }
+        }
+        pager_sync_sandboxes(st);
+        return 1;
+    }
+
+    if (c == '\r' || c == '\n') {
+        tam_sandbox_exec(sb, sb->input);
+        sb->input[0] = '\0';
+        sb->input_len = 0;
+        sb->cursor = 0;
+        pager_sync_sandboxes(st);
+    } else if (c == 0x7f || c == 0x08) {
+        tam_sandbox_backspace(sb);
+        pager_sync_sandboxes(st);
+    } else if (c == 0x15) { /* Ctrl-U */
+        sb->input[0] = '\0';
+        sb->input_len = 0;
+        sb->cursor = 0;
+        pager_sync_sandboxes(st);
+    } else if (c == 0x0c) { /* Ctrl-L */
+        tam_sandbox_exec(sb, "clear");
+        pager_sync_sandboxes(st);
+    } else if (c >= 0x20) {
+        char ch = (char)c;
+        tam_sandbox_insert_bytes(sb, &ch, 1);
+        pager_sync_sandboxes(st);
+    } else {
+        return 1;
+    }
+
+    for (size_t i = 0; i < st->doc->nlines; i++) {
+        if (st->doc->lines[i].sandbox_id == sb_id &&
+            st->doc->lines[i].sandbox_role == 3) {
+            st->cursor_line = (int)i;
+            break;
+        }
+    }
+    int usable = content_rows(st);
+    if (st->cursor_line < st->top) st->top = st->cursor_line;
+    else if (st->cursor_line >= st->top + usable)
+        st->top = st->cursor_line - usable + 1;
+    return 1;
+}
+
 /* Returns 1 if the escape sequence was consumed, and sets *handled to the
  * action code. This keeps arrow/page keys working without a full key table. */
 static void handle_key_inner(pager_t *st, unsigned char c)
 {
+    if (st->active_sandbox > 0 && pager_handle_sandbox_key(st, c)) {
+        return;
+    }
 
     switch (c) {
     case 'q':

@@ -307,6 +307,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     free(st.active_path);
     free(st.pending_external);
     pager_clear_search(&st);
+    pager_free_sandboxes(&st);
     tam_document_free(st.doc);
     tam_pager_screen_free(&g_screen);
     g_term = NULL;

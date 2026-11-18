@@ -113,6 +113,7 @@ void pager_reflow(pager_t *st, int width)
         return;
     }
     st->layout_width = width;
+    pager_sync_sandboxes(st);
     st->cursor_line = nearest_logical_line(st->doc, cursor_block, cursor_offset,
                                            st->cursor_line, cursor_blank);
     st->top = nearest_logical_line(st->doc, top_block, top_offset, st->top, -1);
@@ -1092,4 +1093,111 @@ void pager_handle_right_arrow_unselected(pager_t *st)
         }
         return;
     }
+}
+
+void pager_free_sandboxes(pager_t *st)
+{
+    if (st == NULL) return;
+    for (size_t i = 0; i < st->nsandboxes; i++)
+        tam_sandbox_state_free(&st->sandboxes[i]);
+    free(st->sandboxes);
+    st->sandboxes = NULL;
+    st->nsandboxes = 0;
+    st->sandbox_doc = NULL;
+    st->active_sandbox = 0;
+    st->dismissed_sandbox = 0;
+}
+
+void pager_ensure_sandboxes(pager_t *st)
+{
+    if (st == NULL || st->doc == NULL) return;
+    if (st->sandbox_doc == st->doc) return;
+    pager_free_sandboxes(st);
+    st->sandbox_doc = st->doc;
+    if (st->doc->nsandboxes == 0) return;
+    st->sandboxes = calloc(st->doc->nsandboxes, sizeof(*st->sandboxes));
+    if (st->sandboxes == NULL) return;
+    st->nsandboxes = st->doc->nsandboxes;
+    for (size_t i = 0; i < st->nsandboxes; i++)
+        tam_sandbox_state_init(&st->sandboxes[i], &st->doc->sandboxes[i]);
+}
+
+void pager_sync_sandboxes(pager_t *st)
+{
+    if (st == NULL || st->doc == NULL) return;
+    pager_ensure_sandboxes(st);
+    int w = st->layout_width > 0 ? st->layout_width : content_width(st);
+    for (size_t i = 0; i < st->nsandboxes; i++) {
+        int sb_id = (int)(i + 1);
+        int active = (st->active_sandbox == sb_id);
+        tam_document_sync_sandbox(st->doc, w, sb_id, &st->sandboxes[i], active);
+    }
+    pager_build_links(st);
+}
+
+void pager_check_sandbox_activation(pager_t *st)
+{
+    if (st == NULL || st->doc == NULL || st->doc->nlines == 0) return;
+    pager_ensure_sandboxes(st);
+    if (st->nsandboxes == 0) return;
+    if (st->cursor_line < 0 || (size_t)st->cursor_line >= st->doc->nlines) return;
+    int sb_id = st->doc->lines[st->cursor_line].sandbox_id;
+    if (sb_id == 0) {
+        st->dismissed_sandbox = 0;
+        if (st->active_sandbox != 0) {
+            st->active_sandbox = 0;
+            pager_sync_sandboxes(st);
+        }
+        return;
+    }
+    if (sb_id == st->dismissed_sandbox) return;
+    if (st->active_sandbox != sb_id) {
+        st->active_sandbox = sb_id;
+        pager_sync_sandboxes(st);
+        /* Place attention row on the sandbox's live input line. */
+        for (size_t i = 0; i < st->doc->nlines; i++) {
+            if (st->doc->lines[i].sandbox_id == sb_id &&
+                st->doc->lines[i].sandbox_role == 3) {
+                st->cursor_line = (int)i;
+                break;
+            }
+        }
+        int usable = content_rows(st);
+        if (st->cursor_line < st->top) st->top = st->cursor_line;
+        else if (st->cursor_line >= st->top + usable)
+            st->top = st->cursor_line - usable + 1;
+        snprintf(st->msg, sizeof(st->msg),
+                 "Sandbox simulation (not a real shell) -- Esc or <- at start to exit");
+    }
+}
+
+void pager_exit_sandbox(pager_t *st, int move_dir)
+{
+    if (st == NULL || st->doc == NULL || st->active_sandbox == 0) return;
+    int sb_id = st->active_sandbox;
+    st->active_sandbox = 0;
+    st->dismissed_sandbox = sb_id;
+    pager_sync_sandboxes(st);
+    /* Move cursor cleanly outside the sandbox if requested, or to its border. */
+    size_t first = st->doc->nlines, last = 0;
+    for (size_t i = 0; i < st->doc->nlines; i++) {
+        if (st->doc->lines[i].sandbox_id == sb_id) {
+            if (first == st->doc->nlines) first = i;
+            last = i;
+        }
+    }
+    if (move_dir > 0 && last + 1 < st->doc->nlines) {
+        st->cursor_line = (int)(last + 1);
+        st->dismissed_sandbox = 0;
+    } else if (move_dir < 0 && first > 0) {
+        st->cursor_line = (int)(first - 1);
+        st->dismissed_sandbox = 0;
+    } else if (first < st->doc->nlines) {
+        st->cursor_line = (int)last;
+    }
+    int usable = content_rows(st);
+    if (st->cursor_line < st->top) st->top = st->cursor_line;
+    else if (st->cursor_line >= st->top + usable)
+        st->top = st->cursor_line - usable + 1;
+    st->msg[0] = '\0';
 }

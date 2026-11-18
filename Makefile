@@ -54,7 +54,7 @@ TERMINFO_LIBS   ?= $(shell pkg-config --libs ncursesw 2>/dev/null || echo -ltinf
 
 BUILD := build
 TAM   := $(BUILD)/tam
-SRC   := src/tam.c src/identity.c src/documentation.c src/corpus.c src/views.c src/address.c src/html.c src/html_scan.c src/render.c src/display.c src/pager.c src/pager_draw.c src/pager_input.c src/pager_links.c src/pager_nav.c src/pager_search.c src/pager_screen.c src/external.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/archwiki.c src/upgrade.c
+SRC   := src/tam.c src/identity.c src/documentation.c src/corpus.c src/views.c src/address.c src/html.c src/html_scan.c src/render.c src/sandbox.c src/display.c src/pager.c src/pager_draw.c src/pager_input.c src/pager_links.c src/pager_nav.c src/pager_search.c src/pager_screen.c src/external.c src/terminal.c src/install.c src/man.c src/index.c src/depth.c src/fold.c src/ask.c src/info.c src/discovery.c src/tldr.c src/archwiki.c src/upgrade.c
 INDEX := knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/index.paths.tsv knowledge/coverage.json knowledge/component-coverage.json
 
 OBJS  := $(SRC:src/%.c=$(BUILD)/%.o)

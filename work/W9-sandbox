@@ -1,0 +1,81 @@
+W9 INTERACTIVE SIMULATED SHELL SANDBOXES
+
+Date: 2026-11-18
+AI harness: agy 1.5.11
+AI model: Gemini 4 Hydrogen (Medium)
+Commits: pending
+
+GUIDANCE
+
+  Fred: "/plan The tam knowledge corpus shows many examples of using a
+  shell. These should be made to be interactive by including a sandbox
+  inside the tam pager. Like the asides and answers, we should provide a
+  border for these sandboxes so readers have a visual clue they are inside
+  one. They should also have a slightly different background and slightlight
+  different font color.
+  Have the text that the computer provides be a slightly different color
+  than the text a user types. Also change color depending on the lesson. For
+  example, if you are teaching about options or flags or switches, you can
+  make them a different color when the user types them after a command.
+  I would like the sandboxes to be 'fake' in the sense that you are never
+  connecting to a real filesystem or running a real command. tam is always
+  capturing the keystrokes and deciding what to display.
+  Design these sandboxes for maximum pedagogical impact. The HTML coding
+  should allow a teacher to create endless varieties of examples of shell
+  commands in the HTML pages. Think of a nice, clean set of elements and
+  parameters that can be used to specify how the sandbox should look and
+  what it should do.
+  The sandbox should become active when you move the attention row into it.
+  Esc should always bring you out of it. And maybe left arrow, too. But the
+  instructions should be super clear and it should be carefully explain that
+  these are sandbox simulations designed to teach concepts and allow
+  practicing skills; actual terminals and shells might work slightly
+  differently."
+
+  Fred: "/plan 1 do some research about other teaching examples and
+  simulated shells and report back what they do
+  2 yes, add interactive sandboxes to two existing shell pages so I can see
+  them in action and play with them"
+
+  Fred: "Approved. Proceed"
+
+  Fred: "Commit your work. Release all your work claims. May I close this
+  session now?"
+
+DONE
+
+  - Added in-memory shell simulation engine in `src/sandbox.h` and
+    `src/sandbox.c` with virtual filesystem (`tam_vfs_t`), teacher-scripted
+    `<tam-cmd>` rules, `<tam-hint>`, `<tam-fallback>`, simulated pipelines
+    (`|`) and redirection (`>`, `>>`), and lesson-aware input tokenization
+    (`plain`, `flags`, `paths`, `pipes`, `variables`, `all`).
+  - Added `<tam-sandbox>` HTML parsing and bordered box layout in
+    `src/render.h` and `src/render.c`, including `[SIMULATION]` /
+    `[ACTIVE SIMULATION]` badges, simulation disclaimer, goal tracking, and
+    `tam_document_sync_sandbox()` for live pager updates.
+  - Integrated sandbox activation, key capture (`Esc` anytime, `Left Arrow`
+    at column 0 to exit), and 256-color/8-color/monochrome styling into
+    `src/pager_int.h`, `src/pager.c`, `src/pager_links.c`,
+    `src/pager_nav.c`, `src/pager_input.c`, and `src/pager_draw.c`.
+  - Updated `Makefile`, `tools/lint-corpus.py`, `knowledge/help/index.html`,
+    and added pilot sandboxes to `knowledge/terminal/shell/index.html` and
+    `knowledge/terminal/shell/pipelines.html`.
+  - Added `tests/fixtures/sandbox.html` and pipe + PTY tests in
+    `tests/run.sh`.
+  - Bumped command to `0.63.0` (`src/version.h`, `tests/run.sh`,
+    `ROADMAP.md`, `docs/plans/development.md`) and corpus to `0.100.0`
+    (`knowledge/version`, `ROADMAP.md`).
+
+FAILED
+
+  Nothing.
+
+HANDOFF
+
+  Command 0.63.0 and corpus 0.100.0 are committed on develop. Continue with
+  the work/ move in WHATNOW when ready.
+
+Checked against:
+  src/render.c, src/pager_draw.c, src/pager_input.c, src/pager_nav.c,
+  tests/run.sh, tools/lint-corpus.py, knowledge/help/index.html,
+  knowledge/terminal/shell/index.html, knowledge/terminal/shell/pipelines.html.

@@ -317,6 +317,40 @@ static int emit_style(const tam_span_t *sp, int is_sel)
             (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 3, 0);
         styled = 1;
     }
+    if (sp->style & TAM_STYLE_SB_BG) {
+        if (g_term != NULL && !g_attention && g_term->use_color) {
+            if (g_term->colors >= 256) {
+                (void)tam_terminal_cap(g_term, g_capture, g_term->setab, 234, 0);
+                int fg = 250;
+                if (sp->style & TAM_STYLE_SB_FLAG) fg = 81;
+                else if (sp->style & TAM_STYLE_SB_CMD) fg = 221;
+                else if (sp->style & TAM_STYLE_SB_OP) fg = 214;
+                else if (sp->style & TAM_STYLE_SB_VAR) fg = 183;
+                else if (sp->style & TAM_STYLE_SB_PATH) fg = 114;
+                else if (sp->style & TAM_STYLE_SB_USER) fg = 230;
+                else if (sp->style & TAM_STYLE_SB_ERR) fg = 210;
+                else if (sp->style & TAM_STYLE_SB_HINT) fg = 150;
+                else if (sp->style & TAM_STYLE_SB_BORDER) fg = 110;
+                else if (sp->style & TAM_STYLE_SB_COMP) fg = 250;
+                (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, fg, 0);
+            } else if (g_term->colors >= 8) {
+                int fg = 7;
+                if (sp->style & TAM_STYLE_SB_FLAG) fg = 6;
+                else if (sp->style & (TAM_STYLE_SB_CMD | TAM_STYLE_SB_OP)) fg = 3;
+                else if (sp->style & (TAM_STYLE_SB_PATH | TAM_STYLE_SB_HINT)) fg = 2;
+                else if (sp->style & TAM_STYLE_SB_ERR) fg = 1;
+                else if (sp->style & TAM_STYLE_SB_VAR) fg = 5;
+                else if (sp->style & TAM_STYLE_SB_BORDER) fg = 4;
+                (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, fg, 0);
+            }
+        }
+        if (g_term != NULL && (sp->style & (TAM_STYLE_SB_FLAG | TAM_STYLE_SB_CMD |
+                                            TAM_STYLE_SB_OP)) &&
+            (g_term->ncv < 0 || !(g_term->ncv & 32))) {
+            (void)tam_terminal_cap(g_term, g_capture, g_term->bold, 0, 0);
+        }
+        styled = 1;
+    }
     if (sp->style & TAM_STYLE_LVL_0) {
         if (g_term != NULL && !g_attention && g_term->colors >= 8 && g_term->use_color)
             (void)tam_terminal_cap(g_term, g_capture, g_term->setaf, 6, 0);
@@ -522,6 +556,7 @@ int draw(pager_t *st)
     int h = terminal_height();
     st->height = h > 0 ? h : 24;
     pager_reflow(st, content_width(st));
+    pager_ensure_sandboxes(st);
     if (g_term != NULL) {
         g_term->rows = st->height;
         g_term->cols = st->width;

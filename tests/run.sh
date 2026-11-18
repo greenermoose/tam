@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.62.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.63.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3802,6 +3802,100 @@ elif python3 -c 'import socket, sys; s = socket.socket(); s.settimeout(1); sys.e
 else
     pass "tam ask offline boundary and non-interactive refusal"
     printf 'skip - tam ask live-server checks (no Ollama at 127.0.0.1:11434)\n'
+fi
+
+# Interactive shell sandbox: pipe rendering, PTY activation, VFS isolation,
+# lesson token coloring, Esc exit, and Left Arrow at column 0 exit.
+mkdir -p "$tmp/sb_guide"
+cp -R "$root/tests/fixtures/guide/." "$tmp/sb_guide/"
+cp "$root/tests/fixtures/sandbox.html" "$tmp/sb_guide/sandbox.html"
+sb_pipe=$(TAM_KNOWLEDGE_DIR="$tmp/sb_guide" "$TAM" show page:sandbox.html --pipe)
+printf '%s\n' "$sb_pipe" | grep -q 'Flags Practice \[SIMULATION\]' || fail "sandbox pipe missing title/simulation badge"
+printf '%s\n' "$sb_pipe" | grep -q 'Simulated shell for practice' || fail "sandbox pipe missing simulation disclaimer"
+printf '%s\n' "$sb_pipe" | grep -q 'Goal: List hidden files with ls -a' || fail "sandbox pipe missing goal"
+pass "sandbox pipe rendering shows border, simulation badge, disclaimer, and goal"
+
+if python3 -c 'import pty' >/dev/null 2>&1; then
+    python3 - "$TAM" "page:sandbox.html" "$tmp/sb_guide" "$tmp" <<'PY' || fail "interactive sandbox PTY checks failed"
+import fcntl, os, pty, re, select, struct, termios, time, sys
+
+tam, page, guide_dir, tmp = sys.argv[1:5]
+
+def strip_ansi(s):
+    s = re.sub(r'\x1b\([A-Z0-9]', '', s)
+    s = re.sub(r'\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)', '', s)
+    return re.sub(r'\x1b\[[0-9;?]*[ -/]*[@-~]', '', s)
+
+def read_until(fd, pat, timeout=3.0):
+    buf = b''
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        r, _, _ = select.select([fd], [], [], 0.1)
+        if fd in r:
+            try:
+                chunk = os.read(fd, 4096)
+            except OSError:
+                break
+            if not chunk:
+                break
+            buf += chunk
+            if pat in strip_ansi(buf.decode('utf-8', 'replace')):
+                break
+    return buf.decode('utf-8', 'replace')
+
+pid, master = pty.fork()
+if pid == 0:
+    os.environ['TERM'] = 'xterm-256color'
+    os.environ['TAM_KNOWLEDGE_DIR'] = guide_dir
+    os.environ['XDG_CONFIG_HOME'] = tmp
+    os.environ['XDG_STATE_HOME'] = tmp
+    os.environ['XDG_DATA_HOME'] = tmp
+    os.execv(tam, [tam, 'show', page])
+
+fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
+out = read_until(master, 'Flags Practice [SIMULATION]')
+assert 'Flags Practice [SIMULATION]' in strip_ansi(out), f"initial draw missing sandbox: {strip_ansi(out)}"
+
+# Move attention row down into the sandbox (L5) to activate it
+os.write(master, b'\x1b[B\x1b[B\x1b[B\x1b[B')
+out = read_until(master, 'ACTIVE SIMULATION')
+assert 'ACTIVE SIMULATION' in strip_ansi(out), f"sandbox did not activate: {strip_ansi(out)}"
+
+# Type ls -a and press Enter
+os.write(master, b'ls -a\r')
+out = read_until(master, '[Done]')
+plain = strip_ansi(out)
+assert '.bashrc' in plain, f"ls -a missing .bashrc: {plain}"
+assert '[Done]' in plain, f"goal did not complete: {plain}"
+# Verify 256-color ANSI codes for flag (-a -> 81) and command (ls -> 221) appear
+assert '38;5;81m' in out or ';81m' in out, "missing flag highlight color for -a"
+assert '38;5;221m' in out or ';221m' in out, "missing command highlight color for ls"
+
+# Mutating command stays strictly in-memory
+real_target = os.path.join(tmp, 'should_not_exist_on_disk')
+os.write(master, f'touch {real_target}\r'.encode())
+time.sleep(0.2)
+assert not os.path.exists(real_target), "sandbox touched the real filesystem!"
+
+# Esc exits sandbox cleanly
+os.write(master, b'\x1b')
+out = read_until(master, 'Flags Practice [SIMULATION]')
+assert 'Flags Practice [SIMULATION]' in strip_ansi(out), f"Esc did not exit sandbox: {strip_ansi(out)}"
+
+# Re-enter with Up Arrow, then exit with Left Arrow at column 0
+os.write(master, b'\x1b[A')
+out = read_until(master, 'ACTIVE SIMULATION')
+assert 'ACTIVE SIMULATION' in strip_ansi(out), "Up Arrow did not re-enter sandbox"
+os.write(master, b'\x1b[D')
+out = read_until(master, 'Flags Practice [SIMULATION]')
+assert 'Flags Practice [SIMULATION]' in strip_ansi(out), "Left Arrow at col 0 did not exit sandbox"
+
+os.write(master, b'q')
+os.close(master)
+_, status = os.waitpid(pid, 0)
+assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, f"pager exited with {status}"
+PY
+    pass "interactive sandbox PTY: activation, VFS isolation, flag colors, Esc and Left Arrow exit"
 fi
 
 printf 'All tam command tests passed.\n'

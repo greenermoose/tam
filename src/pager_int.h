@@ -98,6 +98,11 @@ typedef struct {
     int             right_arrow_armed;
     const struct termios *tty_orig;   /* The reader's terminal modes, and the pager's. */
     const struct termios *tty_raw;
+    const tam_document_t *sandbox_doc;
+    tam_sandbox_state_t  *sandboxes;
+    size_t                nsandboxes;
+    int                   active_sandbox;    /* 1-based sandbox_id, or 0 */
+    int                   dismissed_sandbox; /* 1-based sandbox_id, or 0 */
 } pager_t;
 
 int terminal_height(void);
@@ -149,5 +154,11 @@ int read_byte(int fd, int timeout_ms, unsigned char *c);
 void pager_suspend(pager_t *st);
 void pager_resume(pager_t *st);
 void handle_key(pager_t *st, unsigned char c);
+void pager_ensure_sandboxes(pager_t *st);
+void pager_free_sandboxes(pager_t *st);
+void pager_sync_sandboxes(pager_t *st);
+void pager_check_sandbox_activation(pager_t *st);
+void pager_exit_sandbox(pager_t *st, int move_dir);
+int pager_handle_sandbox_key(pager_t *st, unsigned char c);
 
 #endif /* TAM_PAGER_INT_H */

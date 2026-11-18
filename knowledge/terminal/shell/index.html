@@ -72,7 +72,27 @@ hello
 <p>A pipe (<code>|</code>) normally passes standard output to another program while error messages stay separate.</p>
 
 <h3>Try it</h3>
-<p>Change <code>hello</code> to <code>pear</code> in the example and predict the output before running it.</p>
+<p>Change <code>hello</code> to <code>pear</code> in the sandbox below and predict the output before pressing Enter.</p>
+<tam-sandbox
+  title="Try it: commands and output"
+  prompt="alex@tamlinux:~$ "
+  cwd="/home/alex"
+  lesson="variables"
+  goal="Run printf '%s\n' pear">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name="notes.txt" size="32">Welcome to the shell sandbox.</file>
+    </dir>
+  </tam-fs>
+  <tam-cmd match="printf '%s\n' pear" goal="true" hint="Great! Notice how the command and quoted format string are colored differently from the computer output.">
+    <out>pear</out>
+  </tam-cmd>
+  <tam-cmd match="printf '%s\n' hello" hint="That matches the worked example! Now try changing hello to pear.">
+    <out>hello</out>
+  </tam-cmd>
+  <tam-hint after="2">Type: printf '%s\n' pear (or type help to see simulated commands).</tam-hint>
+  <tam-fallback>In this sandbox, try printf '%s\n' pear, printf '%s\n' hello, echo hi, or ls.</tam-fallback>
+</tam-sandbox>
 
 <h3>If it goes wrong</h3>
 <dl>

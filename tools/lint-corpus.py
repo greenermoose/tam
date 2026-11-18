@@ -136,6 +136,15 @@ class PedagogyParser(HTMLParser):
                 self.page.add(offset, "QUIZ", "details.q requires a summary")
             if not "".join(node["body"]).strip():
                 self.page.add(offset, "QUIZ", "details.q requires a nonempty answer body")
+        if tag == "tam-sandbox" and "lesson" in attrs:
+            valid_lessons = {"plain", "flags", "options", "switches", "paths",
+                             "files", "pipes", "pipelines", "variables",
+                             "quoting", "all"}
+            if attrs["lesson"] not in valid_lessons:
+                self.page.add(offset, "SANDBOX",
+                              f"invalid tam-sandbox lesson={attrs['lesson']!r}")
+        if tag == "tam-cmd" and not (attrs.get("match") or "").strip():
+            self.page.add(offset, "SANDBOX", "tam-cmd requires a nonempty match attribute")
         privileged = re.search(r"(?<![\w./-])(?:sudo|pkexec|limine(?:-[\w-]+)?|mkinitcpio|efibootmgr)\b", text)
         packages = any(re.search(r"(?:^|\s)-(?:[a-zA-Z]*[SRU]|-(?:sync|remove|upgrade)\b)", m.group(1))
                        for m in re.finditer(r"\bpacman\s+([^\n]*)", text))

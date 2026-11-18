@@ -2,6 +2,7 @@
 #define TAM_RENDER_H
 
 #include <stddef.h>
+#include "sandbox.h"
 
 /* Inline style bits. */
 enum {
@@ -15,7 +16,18 @@ enum {
     TAM_STYLE_LVL_1    = 1u << 7,  /* level 1: novice text */
     TAM_STYLE_LVL_2    = 1u << 8,  /* level 2: learner text */
     TAM_STYLE_LVL_3    = 1u << 9,  /* level 3: expert text */
-    TAM_STYLE_LVL_MASK = (1u << 6) | (1u << 7) | (1u << 8) | (1u << 9)
+    TAM_STYLE_LVL_MASK = (1u << 6) | (1u << 7) | (1u << 8) | (1u << 9),
+    TAM_STYLE_SB_BG    = 1u << 10, /* sandbox background tint */
+    TAM_STYLE_SB_COMP  = 1u << 11, /* computer-provided output / prompt */
+    TAM_STYLE_SB_ERR   = 1u << 12, /* simulated stderr */
+    TAM_STYLE_SB_USER  = 1u << 13, /* user-typed input */
+    TAM_STYLE_SB_CMD   = 1u << 14, /* command token */
+    TAM_STYLE_SB_FLAG  = 1u << 15, /* option / flag / switch token */
+    TAM_STYLE_SB_PATH  = 1u << 16, /* path / file argument token */
+    TAM_STYLE_SB_OP    = 1u << 17, /* pipeline / redirection operator */
+    TAM_STYLE_SB_VAR   = 1u << 18, /* variable / quoted token */
+    TAM_STYLE_SB_HINT  = 1u << 19, /* pedagogical hint / goal badge */
+    TAM_STYLE_SB_BORDER = 1u << 20 /* sandbox border */
 };
 
 /* A contiguous run of inline text with one style and optional link target. */
@@ -33,6 +45,8 @@ typedef struct {
     size_t      nspans;
     size_t      logical_block;
     size_t      logical_offset;
+    int         sandbox_id;   /* 1-based sandbox index, or 0 */
+    int         sandbox_role; /* 0=none, 1=border, 2=body, 3=input */
 } tam_line_t;
 
 typedef struct { unsigned id; int quiz, open; } tam_fold_t;
@@ -53,6 +67,8 @@ typedef struct {
     char       *revision; /* "Rev N Last updated ..." pager chrome, or NULL. */
     tam_fold_t *folds;
     size_t      nfolds;
+    tam_sandbox_spec_t *sandboxes;
+    size_t      nsandboxes;
     void       *layout; /* private parsed blocks, retained for width reflow */
 } tam_document_t;
 
@@ -61,6 +77,10 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width);
 void tam_document_free(tam_document_t *doc);
 /* Atomically relayout a retained parsed document at the requested width. */
 int tam_document_reflow(tam_document_t *doc, int content_width);
+/* Re-render a single sandbox (1-based sandbox_id) from its live state. */
+int tam_document_sync_sandbox(tam_document_t *doc, int content_width,
+                              int sandbox_id, const tam_sandbox_state_t *state,
+                              int active);
 /* First line of the block holding an id= or <a name=> anchor, or -1. */
 int tam_document_anchor_line(const tam_document_t *doc, const char *id);
 /* Ensure a generated/manual document has a truthful location row. */

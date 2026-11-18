@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><title>Sandbox Fixture</title></head>
+<body>
+<h1>Sandbox Fixture</h1>
+<p>Intro line before the sandbox.</p>
+<tam-sandbox
+  title="Flags Practice"
+  prompt="alex@tamlinux:~$ "
+  cwd="/home/alex"
+  lesson="flags"
+  goal="List hidden files with ls -a">
+  <tam-fs>
+    <dir name="/home/alex">
+      <file name=".bashrc" size="128">export PATH="$HOME/.local/bin:$PATH"</file>
+      <file name="notes.txt" size="24">hello world</file>
+    </dir>
+  </tam-fs>
+  <tam-cmd match="ls -a*" goal="true" hint="Hidden files start with a dot.">
+    <out>.  ..  .bashrc  notes.txt</out>
+  </tam-cmd>
+  <tam-hint after="2">Try typing ls -a</tam-hint>
+  <tam-fallback>Try ls or ls -a</tam-fallback>
+</tam-sandbox>
+<p>Outro line after the sandbox.</p>
+</body>
+</html>

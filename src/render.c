@@ -22,7 +22,8 @@ enum {
     B_DT,
     B_DD,
     B_TABLE,
-    B_META  /* <p class="level-line">: dimmed, right-aligned when it fits */
+    B_META, /* <p class="level-line">: dimmed, right-aligned when it fits */
+    B_SANDBOX
 };
 
 enum {
@@ -98,8 +99,10 @@ typedef struct {
 } anchorlist_t;
 
 typedef struct {
-    blocklist_t  blocks;
-    anchorlist_t anchors;
+    blocklist_t          blocks;
+    anchorlist_t         anchors;
+    tam_sandbox_spec_t  *sandboxes;
+    size_t               nsandboxes;
 } layout_backing_t;
 
 /* ------------------------------------------------------------------------- */
@@ -188,6 +191,8 @@ static void linelist_push(linelist_t *ll, spanlist_t *sl)
     ll->v[ll->n].nspans = sl->n;
     ll->v[ll->n].logical_block = ll->logical_block;
     ll->v[ll->n].logical_offset = ll->logical_offset;
+    ll->v[ll->n].sandbox_id = 0;
+    ll->v[ll->n].sandbox_role = 0;
     ll->n++;
     spanlist_init(sl);
 }
@@ -199,6 +204,8 @@ static void linelist_push_blank(linelist_t *ll)
     ll->v[ll->n].nspans = 0;
     ll->v[ll->n].logical_block = ll->logical_block;
     ll->v[ll->n].logical_offset = ll->logical_offset;
+    ll->v[ll->n].sandbox_id = 0;
+    ll->v[ll->n].sandbox_role = 0;
     ll->n++;
 }
 
@@ -484,6 +491,8 @@ typedef struct {
     int           box_seq;
     int           tight_next;
     int           block_tight;
+    tam_sandbox_spec_t *sandboxes;
+    size_t              nsandboxes;
 } parser_t;
 
 static void list_push(parser_t *p, int ordered)
@@ -1065,6 +1074,281 @@ static const char *find_sub(const char *hay, size_t hn, const char *needle,
     return NULL;
 }
 
+static size_t parse_tam_sandbox(parser_t *p, const char *src, size_t n,
+                                const tam_tag_t *open_tag)
+{
+    parser_end_block(p);
+
+    tam_sandbox_spec_t spec;
+    memset(&spec, 0, sizeof(spec));
+    const char *as = src + open_tag->attrs;
+    const char *ae = src + open_tag->end;
+    spec.title = extract_attr(as, ae, "title");
+    spec.prompt = extract_attr(as, ae, "prompt");
+    spec.cwd = extract_attr(as, ae, "cwd");
+    spec.goal = extract_attr(as, ae, "goal");
+    char *lesson_str = extract_attr(as, ae, "lesson");
+    spec.lesson = tam_sandbox_parse_lesson(lesson_str);
+    free(lesson_str);
+    char *rows_str = extract_attr(as, ae, "rows");
+    spec.rows = rows_str ? atoi(rows_str) : 4;
+    free(rows_str);
+    if (spec.rows < 2) spec.rows = 2;
+    if (spec.rows > 16) spec.rows = 16;
+
+    spec.init_vfs = tam_sb_vfs_new_dir("/", NULL, "root");
+    const char *init_cwd = (spec.cwd && spec.cwd[0]) ? spec.cwd : "/home/alex";
+    tam_sb_vfs_node_t *default_dir = tam_sb_vfs_ensure_path(spec.init_vfs, init_cwd);
+    if (default_dir == NULL) default_dir = spec.init_vfs;
+
+    tam_sb_vfs_node_t *dir_stack[16];
+    int dir_depth = 0;
+    dir_stack[0] = default_dir;
+
+    int in_fs = 0;
+    int in_cmd = 0;
+    tam_sb_cmd_rule_t cur_rule;
+    memset(&cur_rule, 0, sizeof(cur_rule));
+
+    const char *cap_tag = NULL;
+    tam_str_t cap_buf = tam_str_new("");
+    char *file_name = NULL, *file_mode = NULL, *file_owner = NULL;
+    size_t file_size = 0;
+    int hint_after = 1;
+
+    size_t i = open_tag->end;
+    while (i < n) {
+        if (src[i] == '<') {
+            tam_tag_t t;
+            int complete = tam_tag_read(src, n, i, &t);
+            if (t.comment) {
+                i = t.end;
+                continue;
+            }
+            if (!complete) {
+                if (cap_tag != NULL) cap_buf = tam_str_cat_len(cap_buf, src + i, 1);
+                i++;
+                continue;
+            }
+            if (t.closing && strcmp(t.name, "tam-sandbox") == 0) {
+                i = t.end;
+                break;
+            }
+            if (strcmp(t.name, "tam-fs") == 0) {
+                in_fs = !t.closing;
+            } else if (in_fs && strcmp(t.name, "dir") == 0) {
+                if (!t.closing) {
+                    char *dname = extract_attr(src + t.attrs, src + t.end, "name");
+                    char *dmode = extract_attr(src + t.attrs, src + t.end, "mode");
+                    char *downer = extract_attr(src + t.attrs, src + t.end, "owner");
+                    tam_sb_vfs_node_t *cur = dir_stack[dir_depth];
+                    tam_sb_vfs_node_t *nd = NULL;
+                    if (dname != NULL && dname[0] == '/') {
+                        nd = tam_sb_vfs_ensure_path(spec.init_vfs, dname);
+                    } else if (dname != NULL && dname[0] != '\0') {
+                        nd = tam_sb_vfs_add_dir(cur, dname, dmode, downer);
+                    }
+                    int self_closing = (t.end >= 2 && src[t.end - 2] == '/');
+                    if (!self_closing && dir_depth < 15) {
+                        dir_depth++;
+                        dir_stack[dir_depth] = nd ? nd : cur;
+                    }
+                    free(dname);
+                    free(dmode);
+                    free(downer);
+                } else if (dir_depth > 0) {
+                    dir_depth--;
+                }
+            } else if (in_fs && strcmp(t.name, "file") == 0) {
+                if (!t.closing) {
+                    free(file_name); free(file_mode); free(file_owner);
+                    file_name = extract_attr(src + t.attrs, src + t.end, "name");
+                    file_mode = extract_attr(src + t.attrs, src + t.end, "mode");
+                    file_owner = extract_attr(src + t.attrs, src + t.end, "owner");
+                    char *sz = extract_attr(src + t.attrs, src + t.end, "size");
+                    file_size = sz ? (size_t)strtoul(sz, NULL, 10) : 0;
+                    free(sz);
+                    int self_closing = (t.end >= 2 && src[t.end - 2] == '/');
+                    if (self_closing) {
+                        if (file_name != NULL && file_name[0] != '\0') {
+                            tam_sb_vfs_add_file(dir_stack[dir_depth], file_name,
+                                                file_mode, file_owner, file_size, "");
+                        }
+                        free(file_name); free(file_mode); free(file_owner);
+                        file_name = file_mode = file_owner = NULL;
+                    } else {
+                        cap_tag = "file";
+                        tam_str_free(cap_buf);
+                        cap_buf = tam_str_new("");
+                    }
+                } else {
+                    if (file_name != NULL && file_name[0] != '\0') {
+                        char *dec = decode_entities(cap_buf, strlen(cap_buf), NULL);
+                        tam_sb_vfs_add_file(dir_stack[dir_depth], file_name,
+                                            file_mode, file_owner, file_size,
+                                            dec ? dec : "");
+                        free(dec);
+                    }
+                    free(file_name); free(file_mode); free(file_owner);
+                    file_name = file_mode = file_owner = NULL;
+                    cap_tag = NULL;
+                }
+            } else if (strcmp(t.name, "tam-cmd") == 0) {
+                if (!t.closing) {
+                    memset(&cur_rule, 0, sizeof(cur_rule));
+                    cur_rule.match = extract_attr(src + t.attrs, src + t.end, "match");
+                    cur_rule.cwd = extract_attr(src + t.attrs, src + t.end, "cwd");
+                    cur_rule.note = extract_attr(src + t.attrs, src + t.end, "hint");
+                    char *ex = extract_attr(src + t.attrs, src + t.end, "exit");
+                    cur_rule.exit_code = ex ? atoi(ex) : 0;
+                    free(ex);
+                    char *gl = extract_attr(src + t.attrs, src + t.end, "goal");
+                    cur_rule.is_goal = (gl && (strcmp(gl, "true") == 0 ||
+                                               strcmp(gl, "1") == 0));
+                    free(gl);
+                    int self_closing = (t.end >= 2 && src[t.end - 2] == '/');
+                    if (self_closing) {
+                        if (cur_rule.match != NULL) {
+                            spec.rules = realloc(spec.rules,
+                                (spec.nrules + 1) * sizeof(*spec.rules));
+                            spec.rules[spec.nrules++] = cur_rule;
+                        } else {
+                            free(cur_rule.cwd); free(cur_rule.note);
+                        }
+                        memset(&cur_rule, 0, sizeof(cur_rule));
+                    } else {
+                        in_cmd = 1;
+                        cap_tag = "tam-cmd";
+                        tam_str_free(cap_buf);
+                        cap_buf = tam_str_new("");
+                    }
+                } else {
+                    if (in_cmd) {
+                        if (cur_rule.out == NULL && strlen(cap_buf) > 0) {
+                            char *dec = decode_entities(cap_buf, strlen(cap_buf), NULL);
+                            if (dec != NULL) {
+                                char *trimmed = dec;
+                                while (*trimmed == '\n' || *trimmed == '\r') trimmed++;
+                                cur_rule.out = strdup(trimmed);
+                                free(dec);
+                            }
+                        }
+                        if (cur_rule.match != NULL) {
+                            spec.rules = realloc(spec.rules,
+                                (spec.nrules + 1) * sizeof(*spec.rules));
+                            spec.rules[spec.nrules++] = cur_rule;
+                        } else {
+                            free(cur_rule.out); free(cur_rule.err);
+                            free(cur_rule.note); free(cur_rule.cwd);
+                        }
+                        memset(&cur_rule, 0, sizeof(cur_rule));
+                        in_cmd = 0;
+                        cap_tag = NULL;
+                    }
+                }
+            } else if (in_cmd && (strcmp(t.name, "out") == 0 ||
+                                  strcmp(t.name, "err") == 0 ||
+                                  strcmp(t.name, "note") == 0)) {
+                if (!t.closing) {
+                    cap_tag = strcmp(t.name, "out") == 0 ? "out"
+                            : strcmp(t.name, "err") == 0 ? "err" : "note";
+                    tam_str_free(cap_buf);
+                    cap_buf = tam_str_new("");
+                } else {
+                    char *dec = decode_entities(cap_buf, strlen(cap_buf), NULL);
+                    if (strcmp(t.name, "out") == 0) {
+                        free(cur_rule.out);
+                        cur_rule.out = dec;
+                    } else if (strcmp(t.name, "err") == 0) {
+                        free(cur_rule.err);
+                        cur_rule.err = dec;
+                    } else {
+                        free(cur_rule.note);
+                        cur_rule.note = dec;
+                    }
+                    cap_tag = "tam-cmd";
+                    tam_str_free(cap_buf);
+                    cap_buf = tam_str_new("");
+                }
+            } else if (strcmp(t.name, "tam-hint") == 0) {
+                if (!t.closing) {
+                    char *af = extract_attr(src + t.attrs, src + t.end, "after");
+                    hint_after = af ? atoi(af) : 1;
+                    free(af);
+                    if (hint_after < 1) hint_after = 1;
+                    cap_tag = "tam-hint";
+                    tam_str_free(cap_buf);
+                    cap_buf = tam_str_new("");
+                } else {
+                    char *dec = decode_entities(cap_buf, strlen(cap_buf), NULL);
+                    if (dec != NULL && dec[0] != '\0') {
+                        spec.hints = realloc(spec.hints,
+                            (spec.nhints + 1) * sizeof(*spec.hints));
+                        spec.hints[spec.nhints].after = hint_after;
+                        spec.hints[spec.nhints].text = dec;
+                        spec.nhints++;
+                    } else {
+                        free(dec);
+                    }
+                    cap_tag = NULL;
+                }
+            } else if (strcmp(t.name, "tam-fallback") == 0) {
+                if (!t.closing) {
+                    cap_tag = "tam-fallback";
+                    tam_str_free(cap_buf);
+                    cap_buf = tam_str_new("");
+                } else {
+                    free(spec.fallback);
+                    spec.fallback = decode_entities(cap_buf, strlen(cap_buf), NULL);
+                    cap_tag = NULL;
+                }
+            } else if (strcmp(t.name, "tam-init") == 0) {
+                if (!t.closing) {
+                    cap_tag = "tam-init";
+                    tam_str_free(cap_buf);
+                    cap_buf = tam_str_new("");
+                } else {
+                    free(spec.init_text);
+                    spec.init_text = decode_entities(cap_buf, strlen(cap_buf), NULL);
+                    cap_tag = NULL;
+                }
+            }
+            i = t.end;
+            continue;
+        }
+        const char *lt = memchr(src + i, '<', n - i);
+        size_t j = lt ? (size_t)(lt - src) : n;
+        if (cap_tag != NULL) {
+            cap_buf = tam_str_cat_len(cap_buf, src + i, j - i);
+        }
+        i = j;
+    }
+
+    free(file_name);
+    free(file_mode);
+    free(file_owner);
+    free(cur_rule.match);
+    free(cur_rule.out);
+    free(cur_rule.err);
+    free(cur_rule.note);
+    free(cur_rule.cwd);
+    tam_str_free(cap_buf);
+
+    tam_sandbox_spec_t *ns = realloc(p->sandboxes,
+        (p->nsandboxes + 1) * sizeof(*ns));
+    if (ns != NULL) {
+        p->sandboxes = ns;
+        p->sandboxes[p->nsandboxes++] = spec;
+        int box = p->box_depth > 0 ? p->box_seq : 0;
+        blocklist_add(&p->blocks, B_SANDBOX, 0, 0, (int)p->nsandboxes,
+                      box, p->tight_next, NULL, 0);
+        p->tight_next = 0;
+    } else {
+        tam_sandbox_spec_free(&spec);
+    }
+    return i;
+}
+
 static void parser_parse(parser_t *p, const char *src, size_t n)
 {
     size_t i = 0;
@@ -1097,6 +1381,8 @@ static void parser_parse(parser_t *p, const char *src, size_t n)
                 /* A '<' that opens no tag is text. */
                 parser_add_text(p, src + i, 1);
                 i++;
+            } else if (!t.closing && strcmp(t.name, "tam-sandbox") == 0) {
+                i = parse_tam_sandbox(p, src, n, &t);
             } else {
                 parser_handle_tag(p, src, &t);
                 i = t.end;
@@ -2336,8 +2622,208 @@ static void layout_box(const blocklist_t *blocks, size_t start, size_t end,
     layout_box_push_border(out, end - 1, " +", '-', box_inner_w + 2, "+");
 }
 
-static void layout_document(const blocklist_t *blocks, int width,
-                            linelist_t *out)
+static void sb_push_bordered_spans(linelist_t *out, size_t logical_block,
+                                     int sb_id, int role, size_t box_inner_w,
+                                     const tam_span_t *inner, size_t ninner)
+{
+    size_t lw = 0;
+    for (size_t i = 0; i < ninner; i++) {
+        if (inner[i].text != NULL)
+            lw += tam_display_width(inner[i].text, strlen(inner[i].text));
+    }
+    size_t rpad = box_inner_w > lw ? box_inner_w - lw + 1 : 1;
+    spanlist_t sl;
+    spanlist_init(&sl);
+    spanlist_append(&sl, " | ", 3, TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG, NULL, 0);
+    for (size_t i = 0; i < ninner; i++) {
+        if (inner[i].text != NULL && inner[i].text[0] != '\0')
+            spanlist_append(&sl, inner[i].text, strlen(inner[i].text),
+                            inner[i].style | TAM_STYLE_SB_BG, NULL, 0);
+    }
+    char *right = malloc(rpad + 2);
+    if (right != NULL) {
+        memset(right, ' ', rpad);
+        right[rpad] = '|';
+        right[rpad + 1] = '\0';
+        spanlist_append(&sl, right, rpad + 1,
+                        TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG, NULL, 0);
+        free(right);
+    }
+    out->logical_block = logical_block;
+    out->logical_offset = 0;
+    linelist_push(out, &sl);
+    out->v[out->n - 1].sandbox_id = sb_id;
+    out->v[out->n - 1].sandbox_role = role;
+}
+
+static void sb_push_border_line(linelist_t *out, size_t logical_block,
+                                int sb_id, size_t box_inner_w,
+                                const char *label, int active)
+{
+    size_t total_inner = box_inner_w + 2;
+    size_t lbl_w = label ? tam_display_width(label, strlen(label)) : 0;
+    spanlist_t sl;
+    spanlist_init(&sl);
+    unsigned bstyle = TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG |
+                      (active ? TAM_STYLE_BOLD : 0);
+    spanlist_append(&sl, " +-", 3, bstyle, NULL, 0);
+    size_t used = 1;
+    if (label != NULL && label[0] != '\0' && lbl_w + 4 <= total_inner) {
+        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
+        spanlist_append(&sl, label, strlen(label), bstyle | TAM_STYLE_BOLD, NULL, 0);
+        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
+        used += lbl_w + 2;
+    }
+    size_t dashes = total_inner > used ? total_inner - used : 1;
+    char *tail = malloc(dashes + 2);
+    if (tail != NULL) {
+        memset(tail, '-', dashes);
+        tail[dashes] = '+';
+        tail[dashes + 1] = '\0';
+        spanlist_append(&sl, tail, dashes + 1, bstyle, NULL, 0);
+        free(tail);
+    }
+    out->logical_block = logical_block;
+    out->logical_offset = 0;
+    linelist_push(out, &sl);
+    out->v[out->n - 1].sandbox_id = sb_id;
+    out->v[out->n - 1].sandbox_role = 1;
+}
+
+static void sb_push_wrapped_text(linelist_t *out, size_t logical_block,
+                                 int sb_id, int role, size_t box_inner_w,
+                                 const char *text, unsigned style)
+{
+    if (text == NULL || text[0] == '\0') return;
+    const char *p = text;
+    while (*p != '\0') {
+        const char *nl = strchr(p, '\n');
+        size_t seg_len = nl ? (size_t)(nl - p) : strlen(p);
+        if (seg_len == 0) {
+            tam_span_t empty = { .text = "", .style = style };
+            sb_push_bordered_spans(out, logical_block, sb_id, role,
+                                     box_inner_w, &empty, 0);
+        } else {
+            size_t off = 0;
+            while (off < seg_len) {
+                size_t take = tam_display_prefix(p + off, seg_len - off,
+                                                 box_inner_w, NULL);
+                if (take == 0) break;
+                char *chunk = malloc(take + 1);
+                if (chunk != NULL) {
+                    memcpy(chunk, p + off, take);
+                    chunk[take] = '\0';
+                    tam_span_t sp = { .text = chunk, .style = style };
+                    sb_push_bordered_spans(out, logical_block, sb_id, role,
+                                             box_inner_w, &sp, 1);
+                    free(chunk);
+                }
+                off += take;
+            }
+        }
+        if (nl == NULL) break;
+        p = nl + 1;
+        if (*p == '\0') break;
+    }
+}
+
+static void layout_sandbox_state(const tam_sandbox_spec_t *spec,
+                                 const tam_sandbox_state_t *state,
+                                 int active, int sb_id,
+                                 size_t logical_block, int width,
+                                 linelist_t *out)
+{
+    size_t box_inner_w = width > 5 ? (size_t)(width - 5) : 1;
+    if (box_inner_w > 96) box_inner_w = 96;
+
+    const char *title = (spec->title && spec->title[0])
+        ? spec->title : "Shell Sandbox";
+    char hdr[160];
+    snprintf(hdr, sizeof(hdr), "%s [%s]", title,
+             active ? "ACTIVE SIMULATION" : "SIMULATION");
+    sb_push_border_line(out, logical_block, sb_id, box_inner_w, hdr, active);
+
+    sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
+        "Simulated shell for practice -- real terminals may differ slightly.",
+        TAM_STYLE_SB_COMP | TAM_STYLE_DIM);
+
+    if (spec->goal != NULL && spec->goal[0] != '\0') {
+        char gbuf[320];
+        snprintf(gbuf, sizeof(gbuf), "Goal: %s%s", spec->goal,
+                 (state != NULL && state->goal_done) ? " [Done]" : "");
+        sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
+                             gbuf, TAM_STYLE_SB_HINT);
+    }
+
+    if (state != NULL && state->nlog > 0) {
+        size_t max_entries = 8;
+        size_t start_e = state->nlog > max_entries ? state->nlog - max_entries : 0;
+        for (size_t e = start_e; e < state->nlog; e++) {
+            const tam_sb_log_entry_t *le = &state->log[e];
+            if (le->kind == TAM_SB_LOG_CMD) {
+                const char *pr = le->prompt ? le->prompt : "$ ";
+                tam_sb_tok_t toks[64];
+                size_t ntoks = tam_sandbox_tokenize(le->text, spec->lesson, toks, 64);
+                tam_span_t spans[65];
+                size_t ns = 0;
+                spans[ns++] = (tam_span_t){ .text = (char *)pr, .style = TAM_STYLE_SB_COMP };
+                char *bufs[64];
+                for (size_t k = 0; k < ntoks && ns < 65; k++) {
+                    bufs[k] = malloc(toks[k].len + 1);
+                    if (bufs[k] != NULL) {
+                        memcpy(bufs[k], le->text + toks[k].start, toks[k].len);
+                        bufs[k][toks[k].len] = '\0';
+                        spans[ns++] = (tam_span_t){ .text = bufs[k], .style = toks[k].style };
+                    }
+                }
+                sb_push_bordered_spans(out, logical_block, sb_id, 2,
+                                         box_inner_w, spans, ns);
+                for (size_t k = 0; k < ntoks; k++) free(bufs[k]);
+            } else {
+                unsigned st = le->kind == TAM_SB_LOG_ERR ? TAM_STYLE_SB_ERR
+                            : le->kind == TAM_SB_LOG_NOTE ? TAM_STYLE_SB_HINT
+                            : TAM_STYLE_SB_COMP;
+                sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
+                                     le->text, st);
+            }
+        }
+    } else if (spec->init_text != NULL && spec->init_text[0] != '\0') {
+        sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
+                             spec->init_text, TAM_STYLE_SB_COMP);
+    }
+
+    /* Live prompt + user input line (role = 3). */
+    const char *prompt = (spec->prompt && spec->prompt[0]) ? spec->prompt : "$ ";
+    const char *in_str = (state != NULL) ? state->input : "";
+    tam_sb_tok_t toks[64];
+    size_t ntoks = tam_sandbox_tokenize(in_str, spec->lesson, toks, 64);
+    tam_span_t spans[66];
+    size_t ns = 0;
+    spans[ns++] = (tam_span_t){ .text = (char *)prompt, .style = TAM_STYLE_SB_COMP };
+    char *bufs[64];
+    for (size_t k = 0; k < ntoks && ns < 65; k++) {
+        bufs[k] = malloc(toks[k].len + 1);
+        if (bufs[k] != NULL) {
+            memcpy(bufs[k], in_str + toks[k].start, toks[k].len);
+            bufs[k][toks[k].len] = '\0';
+            spans[ns++] = (tam_span_t){ .text = bufs[k], .style = toks[k].style };
+        }
+    }
+    if (active) {
+        spans[ns++] = (tam_span_t){ .text = "_", .style = TAM_STYLE_SB_USER | TAM_STYLE_BOLD };
+    }
+    sb_push_bordered_spans(out, logical_block, sb_id, 3, box_inner_w, spans, ns);
+    for (size_t k = 0; k < ntoks; k++) free(bufs[k]);
+
+    const char *footer = active
+        ? "ACTIVE: Enter=run | Up/Dn=hist | Esc or <- at start=exit"
+        : "Move attention row here to type";
+    sb_push_border_line(out, logical_block, sb_id, box_inner_w, footer, active);
+}
+
+static void layout_document(const blocklist_t *blocks,
+                            const tam_sandbox_spec_t *sandboxes,
+                            size_t nsandboxes, int width, linelist_t *out)
 {
     if (width < 1) width = 1;
 
@@ -2353,6 +2839,13 @@ static void layout_document(const blocklist_t *blocks, int width,
                 out->logical_offset = 0;
                 linelist_blank(out);
             }
+        }
+        if (b->kind == B_SANDBOX && b->number >= 1 &&
+            (size_t)b->number <= nsandboxes) {
+            layout_sandbox_state(&sandboxes[b->number - 1], NULL, 0,
+                                 b->number, i, width, out);
+            i++;
+            continue;
         }
         if (b->box > 0) {
             size_t end = i + 1;
@@ -2428,10 +2921,15 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     memset(&p.blocks, 0, sizeof(p.blocks));
     backing->anchors = p.anchors;
     memset(&p.anchors, 0, sizeof(p.anchors));
+    backing->sandboxes = p.sandboxes;
+    backing->nsandboxes = p.nsandboxes;
+    memset(&p.sandboxes, 0, sizeof(p.sandboxes));
+    p.nsandboxes = 0;
 
     linelist_t out;
     memset(&out, 0, sizeof(out));
-    layout_document(&backing->blocks, width, &out);
+    layout_document(&backing->blocks, backing->sandboxes, backing->nsandboxes,
+                    width, &out);
     if (out.n == 0) {
         linelist_push_blank(&out);
     }
@@ -2464,6 +2962,8 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     doc->nav_prev = p.nav_prev;
     doc->nav_up = p.nav_up;
     doc->nav_top = p.nav_top;
+    doc->sandboxes = backing->sandboxes;
+    doc->nsandboxes = backing->nsandboxes;
     doc->layout = backing;
 
     tam_str_free(p.title);
@@ -2490,7 +2990,8 @@ int tam_document_reflow(tam_document_t *doc, int content_width)
     layout_backing_t *backing = doc->layout;
     linelist_t out;
     memset(&out, 0, sizeof(out));
-    layout_document(&backing->blocks, content_width, &out);
+    layout_document(&backing->blocks, backing->sandboxes, backing->nsandboxes,
+                    content_width, &out);
     if (out.n == 0) linelist_push_blank(&out);
     if (out.v == NULL || out.n == 0) {
         free(out.v);
@@ -2502,6 +3003,63 @@ int tam_document_reflow(tam_document_t *doc, int content_width)
     doc->nlines = out.n;
     doc->nlead = lead_lines(&backing->blocks, &out);
     document_lines_free(old_lines, old_nlines);
+    return 0;
+}
+
+int tam_document_sync_sandbox(tam_document_t *doc, int content_width,
+                              int sandbox_id, const tam_sandbox_state_t *state,
+                              int active)
+{
+    if (doc == NULL || doc->sandboxes == NULL || sandbox_id < 1 ||
+        (size_t)sandbox_id > doc->nsandboxes || content_width < 1)
+        return -1;
+
+    size_t first = doc->nlines, last = 0;
+    size_t logical_block = 0;
+    for (size_t i = 0; i < doc->nlines; i++) {
+        if (doc->lines[i].sandbox_id == sandbox_id) {
+            if (first == doc->nlines) {
+                first = i;
+                logical_block = doc->lines[i].logical_block;
+            }
+            last = i + 1;
+        }
+    }
+    if (first >= last) return -1;
+
+    linelist_t nl;
+    memset(&nl, 0, sizeof(nl));
+    layout_sandbox_state(&doc->sandboxes[sandbox_id - 1], state, active,
+                         sandbox_id, logical_block, content_width, &nl);
+    if (nl.n == 0) {
+        free(nl.v);
+        return -1;
+    }
+
+    size_t old_count = last - first;
+    size_t new_nlines = doc->nlines - old_count + nl.n;
+    tam_line_t *merged = malloc(new_nlines * sizeof(*merged));
+    if (merged == NULL) {
+        document_lines_free(nl.v, nl.n);
+        return -1;
+    }
+    if (first > 0) memcpy(merged, doc->lines, first * sizeof(*merged));
+    memcpy(merged + first, nl.v, nl.n * sizeof(*merged));
+    if (last < doc->nlines) {
+        memcpy(merged + first + nl.n, doc->lines + last,
+               (doc->nlines - last) * sizeof(*merged));
+    }
+    for (size_t i = first; i < last; i++) {
+        for (size_t j = 0; j < doc->lines[i].nspans; j++) {
+            free(doc->lines[i].spans[j].text);
+            free(doc->lines[i].spans[j].href);
+        }
+        free(doc->lines[i].spans);
+    }
+    free(doc->lines);
+    free(nl.v);
+    doc->lines = merged;
+    doc->nlines = new_nlines;
     return 0;
 }
 
@@ -2527,6 +3085,9 @@ void tam_document_free(tam_document_t *doc)
         layout_backing_t *backing = doc->layout;
         blocklist_free(&backing->blocks);
         anchorlist_free(&backing->anchors);
+        for (size_t i = 0; i < backing->nsandboxes; i++)
+            tam_sandbox_spec_free(&backing->sandboxes[i]);
+        free(backing->sandboxes);
         free(backing);
     }
     free(doc);
