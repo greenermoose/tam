@@ -424,6 +424,27 @@ static void follow_external(pager_t *st, const char *href)
     pager_resume(st);
 }
 
+static void wait_for_return_key(pager_t *st)
+{
+    static const char prompt[] = "\nPress any key to return to the guide...";
+    ssize_t wr = write(STDOUT_FILENO, prompt, sizeof(prompt) - 1);
+    (void)wr;
+    if (st->tty_raw != NULL)
+        (void)tcsetattr(st->input_fd, TCSANOW, st->tty_raw);
+    unsigned char ch;
+    for (;;) {
+        ssize_t n = read(st->input_fd, &ch, 1);
+        if (n > 0) break;
+        if (n < 0 && errno == EINTR && !g_stop) continue;
+        return;
+    }
+    /* Drain any trailing bytes of a multi-byte key (such as an arrow key). */
+    struct pollfd pfd = { .fd = st->input_fd, .events = POLLIN };
+    for (int i = 0; i < 16 && poll(&pfd, 1, 20) > 0 && (pfd.revents & POLLIN); i++) {
+        if (read(st->input_fd, &ch, 1) <= 0) break;
+    }
+}
+
 void follow(pager_t *st, const char *href)
 {
     if (href == NULL || href[0] == '\0') {
@@ -448,7 +469,8 @@ void follow(pager_t *st, const char *href)
     if (strcmp(href, "tam:start") == 0) {
         char *const argv[] = { "tam-start", NULL };
         pager_suspend(st);
-        (void)tam_run_foreground_command(argv, st->input_fd, st->msg, sizeof(st->msg));
+        if (tam_run_foreground_command(argv, st->input_fd, st->msg, sizeof(st->msg)) == 0)
+            wait_for_return_key(st);
         pager_resume(st);
         return;
     }

@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.64.0' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.64.1' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3981,7 +3981,7 @@ def read_until(fd, pat, timeout=3.0):
                 break
     return buf.decode('utf-8', 'replace')
 
-def run_case(path_prefix, expect_text):
+def run_case(path_prefix, expect_text, press_return=False):
     pid, master = pty.fork()
     if pid == 0:
         os.environ['TERM'] = 'xterm-256color'
@@ -3998,6 +3998,10 @@ def run_case(path_prefix, expect_text):
     out = read_until(master, '-> tam:start')
     assert '-> tam:start' in strip_ansi(out), f"Tab did not select tam:start: {strip_ansi(out)}"
     os.write(master, b'\r')
+    if press_return:
+        out = read_until(master, 'Press any key to return to the guide...')
+        assert 'Press any key to return to the guide...' in strip_ansi(out), f"missing return prompt: {strip_ansi(out)}"
+        os.write(master, b'\r')
     out = read_until(master, expect_text)
     assert expect_text in strip_ansi(out), f"expected {expect_text!r}, got: {strip_ansi(out)}"
     os.write(master, b'q')
@@ -4005,7 +4009,7 @@ def run_case(path_prefix, expect_text):
     os.close(master)
     assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, f"pager exited with {status}"
 
-run_case(start_bin, 'back from tam-start')
+run_case(start_bin, 'back from tam-start', press_return=True)
 assert os.path.exists(os.path.join(tmp, 'start_ran')), "mock tam-start was not executed"
 run_case('', 'cannot start tam-start')
 PY
