@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-19:** Command 0.65.3 (patch) shows how to run commands and close the sandbox. Goals appear as checkboxes that mark completion. Corpus 0.100.5 (patch) capitalizes the Hello World goal.
+
 - **2026-11-19:** Command 0.65.2 (patch) keeps the expanded sandbox frame visible when it fits and displays “Playing in sandbox -- Esc to close” in the status row.
 
 - **2026-11-19:** Command 0.65.1 (patch) labels the closed control `[+] Sandbox: <title> (-> to try)`.

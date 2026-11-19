@@ -2844,19 +2844,22 @@ static void layout_sandbox_state(const tam_sandbox_spec_t *spec,
     const char *prompt = tam_sandbox_prompt(spec);
     sb_push_border_line(out, logical_block, sb_id, box_inner_w, 1, sandbox_title(spec));
 
-    sb_push_notice(out, logical_block, sb_id, box_inner_w,
-                   "Practice commands in this sandbox -- real terminals may differ slightly.");
-    char notice[256];
-    size_t prompt_len = strlen(prompt);
-    while (prompt_len > 0 && prompt[prompt_len - 1] == ' ') prompt_len--;
-    snprintf(notice, sizeof(notice), "Sandbox terminal prompt is %.*s.",
-             (int)prompt_len, prompt);
-    sb_push_notice(out, logical_block, sb_id, box_inner_w, notice);
+    if (state != NULL) {
+        sb_push_notice(out, logical_block, sb_id, box_inner_w,
+                       "Practice commands in this sandbox -- Esc to close");
+        sb_push_notice(out, logical_block, sb_id, box_inner_w,
+                       "Type a command, then press Return or Enter");
+    } else {
+        sb_push_notice(out, logical_block, sb_id, box_inner_w,
+                       "Practice commands in this sandbox -- real terminals may differ slightly.");
+    }
 
     if (spec->goal != NULL && spec->goal[0] != '\0') {
+        sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
+                             "Goals", TAM_STYLE_SB_HINT | TAM_STYLE_BOLD);
         char goal[320];
-        snprintf(goal, sizeof(goal), "Your goal: %s%s", spec->goal,
-                 (state != NULL && state->goal_done) ? " [Done]" : "");
+        snprintf(goal, sizeof(goal), "[%c] %s",
+                 state != NULL && state->goal_done ? 'x' : ' ', spec->goal);
         sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
                              goal, TAM_STYLE_SB_HINT);
     }

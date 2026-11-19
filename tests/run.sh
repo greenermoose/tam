@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.65.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.65.3' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3839,8 +3839,8 @@ cp "$root/tests/fixtures/sandbox.html" "$tmp/sb_guide/sandbox.html"
 sb_pipe=$(TAM_KNOWLEDGE_DIR="$tmp/sb_guide" "$TAM" show page:sandbox.html --pipe)
 printf '%s\n' "$sb_pipe" | grep -Fq '[-] Flags Practice' || fail "sandbox pipe missing title"
 printf '%s\n' "$sb_pipe" | grep -Fq 'Practice commands in this sandbox' || fail "sandbox pipe missing simulation disclaimer"
-printf '%s\n' "$sb_pipe" | grep -Fq 'Sandbox terminal prompt is you@tamlinux:~ $.' || fail "sandbox pipe missing prompt notice"
-printf '%s\n' "$sb_pipe" | grep -Fq 'Your goal: List hidden files with ls -a' || fail "sandbox pipe missing goal"
+printf '%s\n' "$sb_pipe" | grep -Fq '| Goals' || fail "sandbox pipe missing goals heading"
+printf '%s\n' "$sb_pipe" | grep -Fq '[ ] List hidden files with ls -a' || fail "sandbox pipe missing goal"
 pass "sandbox pipe shows the exercise"
 
 if python3 -c 'import pty' >/dev/null 2>&1; then
@@ -3889,12 +3889,12 @@ if pid == 0:
     os.environ['XDG_DATA_HOME'] = tmp
     os.execv(tam, [tam, 'show', page])
 
-fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 11, 90, 0, 0))
+fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 12, 90, 0, 0))
 out = read_frame(master)
 plain = strip_ansi(out)
 closed = '[+] Sandbox: Flags Practice (-> to try)'
 assert closed in plain, plain
-assert 'Your goal:' not in plain and 'you@tamlinux:' not in plain, plain
+assert 'Goals' not in plain and 'you@tamlinux:' not in plain, plain
 
 # Navigate with the attention line, pass the sandbox, and return to open it.
 os.write(master, b'\x1b[B' * 4)
@@ -3908,7 +3908,11 @@ prompt_col = len(' | you@tamlinux:~ $ ') + 1
 opened_row = assert_input_focus(out, prompt_col)
 border = re.search(rf'\x1b\[{opened_row + 1};1H(.*?)(?=\x1b\[\d+;\d+H)', out, re.S)
 assert border and re.match(r' +\+-+\+', strip_ansi(border[1])), "sandbox bottom border is offscreen"
-assert "Playing in sandbox -- Esc to close" in strip_ansi(out)
+plain = strip_ansi(out)
+assert "Playing in sandbox -- Esc to close" in plain
+assert "Practice commands in this sandbox -- Esc to close" in plain
+assert "Type a command, then press Return or Enter" in plain
+assert "| Goals" in plain and "[ ] List hidden files with ls -a" in plain
 
 fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
 opened_row = assert_input_focus(read_frame(master), prompt_col)
@@ -3925,7 +3929,7 @@ assert cursor_position(out) == (opened_row, prompt_col + 4)
 os.write(master, b'\r')
 out = read_frame(master)
 plain = strip_ansi(out)
-assert '.bashrc' in plain and '[Done]' in plain, plain
+assert '.bashrc' in plain and '[x] List hidden files with ls -a' in plain, plain
 assert '38;5;81m' in out or ';81m' in out, "missing flag highlight color for -a"
 assert '38;5;221m' in out or ';221m' in out, "missing command highlight color for ls"
 assert assert_input_focus(out, prompt_col) > opened_row
@@ -3955,7 +3959,7 @@ out = read_frame(master)
 assert closed in strip_ansi(out) and '\x1b[?25l' in out and '\x1b[2 q' in out, repr(out)
 os.write(master, b'\x1b[C')
 out = read_frame(master)
-assert '[Done]' in strip_ansi(out), strip_ansi(out)
+assert '[x] List hidden files with ls -a' in strip_ansi(out), strip_ansi(out)
 assert_input_focus(out, prompt_col)
 os.write(master, b'\x1b[D')
 out = read_frame(master)
