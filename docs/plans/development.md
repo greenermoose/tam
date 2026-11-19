@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-19:** Command 0.65.1 (patch) labels the closed control `[+] Sandbox: <title> (-> to try)`.
+
 - **2026-11-19:** Command 0.65.0 (minor): shell sandboxes start collapsed. Enter or Right Arrow opens the sandbox and focuses its prompt. The attention line follows the live input through output and resize. The terminal shows a blinking underline where supported, and closing returns focus to the title while preserving progress. Pipe output shows the exercise as static text.
 - **2026-11-19:** Corpus 0.100.3 (patch): updated practice prompts and navigation help for collapsible sandboxes, and named the first shell exercise “First Hello, world! command.”
 

@@ -2703,15 +2703,16 @@ static const char *sandbox_title(const tam_sandbox_spec_t *spec)
 static void layout_sandbox_toggle(const tam_sandbox_spec_t *spec, int sb_id,
                                   size_t logical_block, int width, linelist_t *out)
 {
-    static const char prefix[] = "[+] ";
-    static const char hint[] = " (-> to show)";
+    static const char prefix[] = "[+] Sandbox: ";
+    static const char hint[] = " (-> to try)";
     char href[40];
     snprintf(href, sizeof(href), "tam:sandbox:%d", sb_id);
     const char *title = sandbox_title(spec);
     spanlist_t sl;
     spanlist_init(&sl);
     spanlist_append(&sl, prefix, sizeof(prefix) - 1, TAM_STYLE_LINK, href, 0);
-    size_t available = width > 4 ? (size_t)width - 4 : 0;
+    size_t prefix_width = sizeof(prefix) - 1;
+    size_t available = (size_t)width > prefix_width ? (size_t)width - prefix_width : 0;
     size_t cells;
     size_t len = tam_display_prefix(title, strlen(title), available, &cells);
     spanlist_append(&sl, title, len, TAM_STYLE_LINK, href, 0);
