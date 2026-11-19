@@ -452,6 +452,9 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-19:** Command 0.65.0 (minor): shell sandboxes start collapsed. Enter or Right Arrow opens the sandbox and focuses its prompt. The attention line follows the live input through output and resize. The terminal shows a blinking underline where supported, and closing returns focus to the title while preserving progress. Pipe output shows the exercise as static text.
+- **2026-11-19:** Corpus 0.100.3 (patch): updated practice prompts and navigation help for collapsible sandboxes, and named the first shell exercise “First Hello, world! command.”
+
 - **2026-11-18:** Command 0.64.1 (patch): added `wait_for_return_key()` in `src/pager_nav.c` after `tam:start` exits 0 so command output printed to the normal screen (such as `tam-boot`) stays visible until the user presses a key before `pager_resume()`.
 - **2026-11-18:** Command 0.64.0 (minor): added `tam:start` (`TAM_ADDR_ACTION`) in `src/address.c`, `src/pager_nav.c`, and `src/external.c` (`tam_run_foreground_command`) so activating a `tam:start` link suspends the pager, runs `tam-start` in the foreground on the controlling terminal, and resumes the pager on exit with status feedback.
 - **2026-11-18:** Command 0.63.2 (patch): moved the `Rev <N> Last updated ...` stamp to the right side of the second-to-bottom footer row (`footer2`, dim on the footer background) and repurposed the always-reserved (when `height >= 5`) third-from-bottom row as a dedicated status line with the footer tint background for link destinations, transient notices, pending external link confirmations, and `Path = ...` (`=`) (`src/pager_draw.c`).

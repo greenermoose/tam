@@ -47,6 +47,7 @@ typedef struct {
     size_t      logical_offset;
     int         sandbox_id;   /* 1-based sandbox index, or 0 */
     int         sandbox_role; /* 0=none, 1=border, 2=body, 3=input */
+    int         sandbox_cursor_col; /* Display column on the sandbox input line */
 } tam_line_t;
 
 typedef struct { unsigned id; int quiz, open; } tam_fold_t;
@@ -77,10 +78,10 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width);
 void tam_document_free(tam_document_t *doc);
 /* Atomically relayout a retained parsed document at the requested width. */
 int tam_document_reflow(tam_document_t *doc, int content_width);
-/* Re-render a single sandbox (1-based sandbox_id) from its live state. */
+/* Re-render one sandbox. Expanded with a NULL state prints the exercise. */
 int tam_document_sync_sandbox(tam_document_t *doc, int content_width,
                               int sandbox_id, const tam_sandbox_state_t *state,
-                              int active);
+                              int expanded);
 /* First line of the block holding an id= or <a name=> anchor, or -1. */
 int tam_document_anchor_line(const tam_document_t *doc, const char *id);
 /* Ensure a generated/manual document has a truthful location row. */

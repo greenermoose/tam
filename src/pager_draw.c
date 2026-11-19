@@ -805,7 +805,20 @@ int draw(pager_t *st)
         emit_footer2(footer2, rev_prefix, rev_shown, paint_width);
     }
     g_capture = NULL;
-    int rc = tam_pager_screen_update(&g_screen, frame, nframe, paint_width);
+    int cursor_row = -1, cursor_col = 0;
+    if (st->active_sandbox && st->cursor_line >= st->top &&
+        st->cursor_line - st->top < usable &&
+        (size_t)st->cursor_line < st->doc->nlines) {
+        const tam_line_t *line = &st->doc->lines[st->cursor_line];
+        if (line->sandbox_id == st->active_sandbox && line->sandbox_role == 3) {
+            cursor_row = content_row + st->cursor_line - st->top;
+            cursor_col = line->sandbox_cursor_col;
+            if (cursor_col >= paint_width) cursor_col = paint_width - 1;
+            if (g_term->gutter) cursor_col++;
+        }
+    }
+    int rc = tam_pager_screen_update(&g_screen, frame, nframe, paint_width,
+                                     cursor_row, cursor_col);
     for (int i = 0; i < nframe; i++) tam_buf_free(&frame[i]);
     free(frame);
     if (rc < 0) {

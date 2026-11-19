@@ -24,6 +24,7 @@ typedef struct {
     int hyperlinks;
     int alt_screen;
     int cursor_hidden;
+    int cursor_underlined;
     int raw_mode;
     const char *cup;
     const char *clear;
@@ -43,6 +44,9 @@ typedef struct {
     const char *rmcup;
     const char *civis;
     const char *cnorm;
+    const char *cvvis;
+    const char *set_cursor_style;
+    const char *reset_cursor_style;
     const char *flash;
     int ncv;
 } tam_terminal_t;
@@ -60,6 +64,7 @@ int tam_terminal_write(tam_terminal_t *t, const tam_buf_t *b);
 int tam_terminal_enter(tam_terminal_t *t, tam_buf_t *b);
 int tam_terminal_leave(tam_terminal_t *t, tam_buf_t *b);
 int tam_terminal_move(tam_terminal_t *t, tam_buf_t *b, int row, int col);
+int tam_terminal_input_cursor(tam_terminal_t *t, tam_buf_t *b, int visible);
 int tam_terminal_erase_eol(tam_terminal_t *t, tam_buf_t *b);
 
 #endif

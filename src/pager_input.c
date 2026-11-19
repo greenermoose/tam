@@ -174,12 +174,11 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
         (size_t)st->active_sandbox > st->nsandboxes)
         return 0;
     tam_sandbox_state_t *sb = &st->sandboxes[st->active_sandbox - 1];
-    int sb_id = st->active_sandbox;
 
     if (c == 0x1b) {
         unsigned char c1;
         if (read_byte(st->input_fd, 60, &c1) != 1) {
-            pager_exit_sandbox(st, 1);
+            pager_exit_sandbox(st);
             return 1;
         }
         if (c1 != '[') return 1;
@@ -215,7 +214,7 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
             }
         } else if (strcmp(seq, "D") == 0) {
             if (sb->cursor == 0) {
-                pager_exit_sandbox(st, -1);
+                pager_exit_sandbox(st);
                 return 1;
             }
             sb->cursor--;
@@ -237,7 +236,7 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
                 sb->input_len -= (next - sb->cursor);
             }
         }
-        pager_sync_sandboxes(st);
+        pager_update_sandbox_input(st);
         return 1;
     }
 
@@ -246,37 +245,22 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
         sb->input[0] = '\0';
         sb->input_len = 0;
         sb->cursor = 0;
-        pager_sync_sandboxes(st);
     } else if (c == 0x7f || c == 0x08) {
         tam_sandbox_backspace(sb);
-        pager_sync_sandboxes(st);
     } else if (c == 0x15) { /* Ctrl-U */
         sb->input[0] = '\0';
         sb->input_len = 0;
         sb->cursor = 0;
-        pager_sync_sandboxes(st);
     } else if (c == 0x0c) { /* Ctrl-L */
         tam_sandbox_exec(sb, "clear");
-        pager_sync_sandboxes(st);
     } else if (c >= 0x20) {
         char ch = (char)c;
         tam_sandbox_insert_bytes(sb, &ch, 1);
-        pager_sync_sandboxes(st);
     } else {
         return 1;
     }
 
-    for (size_t i = 0; i < st->doc->nlines; i++) {
-        if (st->doc->lines[i].sandbox_id == sb_id &&
-            st->doc->lines[i].sandbox_role == 3) {
-            st->cursor_line = (int)i;
-            break;
-        }
-    }
-    int usable = content_rows(st);
-    if (st->cursor_line < st->top) st->top = st->cursor_line;
-    else if (st->cursor_line >= st->top + usable)
-        st->top = st->cursor_line - usable + 1;
+    pager_update_sandbox_input(st);
     return 1;
 }
 

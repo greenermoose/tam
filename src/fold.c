@@ -209,6 +209,10 @@ tam_document_t *tam_fold_render(const char *src, size_t len, int width,
     tam_document_t *doc = NULL;
     if (!out.failed && !x.failed) doc = tam_render_html(out.s ? out.s : "", out.n, width);
     free(out.s);
+    if (doc && pipe) {
+        for (size_t i = 0; i < doc->nsandboxes; i++)
+            tam_document_sync_sandbox(doc, width, (int)i + 1, NULL, 1);
+    }
     if (doc) { doc->folds = x.folds; doc->nfolds = x.nfolds; }
     else free(x.folds);
     return doc;

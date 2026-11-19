@@ -73,6 +73,23 @@ static int nearest_logical_line(const tam_document_t *doc, size_t block,
     return fallback;
 }
 
+static int sandbox_line(const pager_t *st, int id, int role)
+{
+    for (size_t i = 0; i < st->doc->nlines; i++) {
+        if (st->doc->lines[i].sandbox_id == id &&
+            st->doc->lines[i].sandbox_role == role)
+            return (int)i;
+    }
+    return -1;
+}
+
+static int sync_sandbox(pager_t *st, int id, int expanded)
+{
+    int width = st->layout_width > 0 ? st->layout_width : content_width(st);
+    return tam_document_sync_sandbox(st->doc, width, id,
+                                     &st->sandboxes[id - 1], expanded);
+}
+
 void pager_reflow(pager_t *st, int width)
 {
     if (width < 1 || width == st->layout_width || st->doc == NULL) return;
@@ -113,9 +130,13 @@ void pager_reflow(pager_t *st, int width)
         return;
     }
     st->layout_width = width;
-    pager_sync_sandboxes(st);
-    st->cursor_line = nearest_logical_line(st->doc, cursor_block, cursor_offset,
-                                           st->cursor_line, cursor_blank);
+    pager_ensure_sandboxes(st);
+    int input_line = -1;
+    if (st->active_sandbox && sync_sandbox(st, st->active_sandbox, 1) == 0)
+        input_line = sandbox_line(st, st->active_sandbox, 3);
+    st->cursor_line = input_line >= 0 ? input_line :
+        nearest_logical_line(st->doc, cursor_block, cursor_offset,
+                             st->cursor_line, cursor_blank);
     st->top = nearest_logical_line(st->doc, top_block, top_offset, st->top, -1);
     st->top = st->cursor_line - cursor_row;
     if (st->top < 0) st->top = 0;
@@ -146,6 +167,7 @@ void pager_reflow(pager_t *st, int width)
             st->cursor_line = (int)st->hits[best].line_idx;
         }
     }
+    if (input_line >= 0) set_cursor_line(st, input_line, 1);
 }
 
 static int same_opt_str(const char *a, const char *b)
@@ -1156,68 +1178,41 @@ void pager_ensure_sandboxes(pager_t *st)
         tam_sandbox_state_init(&st->sandboxes[i], &st->doc->sandboxes[i]);
 }
 
-void pager_sync_sandboxes(pager_t *st)
+static void focus_sandbox_line(pager_t *st, int id, int role)
 {
-    if (st == NULL || st->doc == NULL) return;
-    pager_ensure_sandboxes(st);
-    int w = st->layout_width > 0 ? st->layout_width : content_width(st);
-    for (size_t i = 0; i < st->nsandboxes; i++) {
-        int sb_id = (int)(i + 1);
-        int active = (st->active_sandbox == sb_id);
-        tam_document_sync_sandbox(st->doc, w, sb_id, &st->sandboxes[i], active);
-    }
     pager_build_links(st);
+    if (st->search_query[0] != '\0') {
+        char query[sizeof(st->search_query)];
+        snprintf(query, sizeof(query), "%s", st->search_query);
+        pager_perform_search(st, query);
+    }
+    int line = sandbox_line(st, id, role);
+    if (line >= 0) set_cursor_line(st, line, 1);
+}
+
+int pager_update_sandbox_input(pager_t *st)
+{
+    int id = st->active_sandbox;
+    if (sync_sandbox(st, id, 1) < 0) return -1;
+    focus_sandbox_line(st, id, 3);
+    snprintf(st->msg, sizeof(st->msg),
+             "Sandbox: Enter runs, Up/Down recall, Esc or <- at start closes");
+    return 0;
 }
 
 void pager_activate_sandbox(pager_t *st, int sb_id)
 {
-    if (st == NULL || st->doc == NULL || st->doc->nlines == 0) return;
     pager_ensure_sandboxes(st);
-    if (sb_id < 1 || (size_t)sb_id > st->nsandboxes) return;
-    if (st->active_sandbox != sb_id) {
-        st->active_sandbox = sb_id;
-        pager_sync_sandboxes(st);
-        /* Place attention row on the sandbox's live input line. */
-        for (size_t i = 0; i < st->doc->nlines; i++) {
-            if (st->doc->lines[i].sandbox_id == sb_id &&
-                st->doc->lines[i].sandbox_role == 3) {
-                st->cursor_line = (int)i;
-                break;
-            }
-        }
-        int usable = content_rows(st);
-        if (st->cursor_line < st->top) st->top = st->cursor_line;
-        else if (st->cursor_line >= st->top + usable)
-            st->top = st->cursor_line - usable + 1;
-        snprintf(st->msg, sizeof(st->msg),
-                 "Sandbox simulation (not a real shell) -- Esc or <- at start to exit");
-    }
+    if (sb_id < 1 || (size_t)sb_id > st->nsandboxes || st->active_sandbox) return;
+    st->active_sandbox = sb_id;
+    if (pager_update_sandbox_input(st) < 0) st->active_sandbox = 0;
 }
 
-void pager_exit_sandbox(pager_t *st, int move_dir)
+void pager_exit_sandbox(pager_t *st)
 {
-    if (st == NULL || st->doc == NULL || st->active_sandbox == 0) return;
-    int sb_id = st->active_sandbox;
+    int id = st->active_sandbox;
+    if (sync_sandbox(st, id, 0) < 0) return;
     st->active_sandbox = 0;
-    pager_sync_sandboxes(st);
-    /* Move cursor cleanly outside the sandbox if possible, or to its border. */
-    size_t first = st->doc->nlines, last = 0;
-    for (size_t i = 0; i < st->doc->nlines; i++) {
-        if (st->doc->lines[i].sandbox_id == sb_id) {
-            if (first == st->doc->nlines) first = i;
-            last = i;
-        }
-    }
-    if (first < st->doc->nlines) {
-        int target;
-        if (move_dir > 0 && last + 1 < st->doc->nlines) {
-            target = (int)(last + 1);
-        } else if (move_dir < 0 && first > 0) {
-            target = (int)(first - 1);
-        } else {
-            target = (int)(move_dir < 0 ? first : last);
-        }
-        set_cursor_line(st, target, move_dir);
-    }
+    focus_sandbox_line(st, id, 1);
     st->msg[0] = '\0';
 }

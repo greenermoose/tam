@@ -193,6 +193,7 @@ static void linelist_push(linelist_t *ll, spanlist_t *sl)
     ll->v[ll->n].logical_offset = ll->logical_offset;
     ll->v[ll->n].sandbox_id = 0;
     ll->v[ll->n].sandbox_role = 0;
+    ll->v[ll->n].sandbox_cursor_col = -1;
     ll->n++;
     spanlist_init(sl);
 }
@@ -206,6 +207,7 @@ static void linelist_push_blank(linelist_t *ll)
     ll->v[ll->n].logical_offset = ll->logical_offset;
     ll->v[ll->n].sandbox_id = 0;
     ll->v[ll->n].sandbox_role = 0;
+    ll->v[ll->n].sandbox_cursor_col = -1;
     ll->n++;
 }
 
@@ -2622,67 +2624,70 @@ static void layout_box(const blocklist_t *blocks, size_t start, size_t end,
     layout_box_push_border(out, end - 1, " +", '-', box_inner_w + 2, "+");
 }
 
-static void sb_push_bordered_spans(linelist_t *out, size_t logical_block,
-                                     int sb_id, int role, size_t box_inner_w,
-                                     const tam_span_t *inner, size_t ninner)
+enum { SANDBOX_MAX_INNER_WIDTH = 96 };
+
+static void sb_begin_body_line(spanlist_t *line)
 {
-    size_t lw = 0;
-    for (size_t i = 0; i < ninner; i++) {
-        if (inner[i].text != NULL)
-            lw += tam_display_width(inner[i].text, strlen(inner[i].text));
-    }
-    size_t rpad = box_inner_w > lw ? box_inner_w - lw + 1 : 1;
-    spanlist_t sl;
-    spanlist_init(&sl);
-    spanlist_append(&sl, " | ", 3, TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG, NULL, 0);
-    for (size_t i = 0; i < ninner; i++) {
-        if (inner[i].text != NULL && inner[i].text[0] != '\0')
-            spanlist_append(&sl, inner[i].text, strlen(inner[i].text),
-                            inner[i].style | TAM_STYLE_SB_BG, NULL, 0);
-    }
-    char *right = malloc(rpad + 2);
-    if (right != NULL) {
-        memset(right, ' ', rpad);
-        right[rpad] = '|';
-        right[rpad + 1] = '\0';
-        spanlist_append(&sl, right, rpad + 1,
-                        TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG, NULL, 0);
-        free(right);
-    }
+    spanlist_init(line);
+    spanlist_append(line, " | ", 3, TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG, NULL, 0);
+}
+
+static void sb_end_body_line(linelist_t *out, spanlist_t *line, size_t logical_block,
+                             int sb_id, int role, size_t remaining)
+{
+    char right[SANDBOX_MAX_INNER_WIDTH + 2];
+    memset(right, ' ', remaining + 1);
+    right[remaining + 1] = '|';
+    spanlist_append(line, right, remaining + 2,
+                    TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG, NULL, 0);
     out->logical_block = logical_block;
     out->logical_offset = 0;
-    linelist_push(out, &sl);
+    linelist_push(out, line);
     out->v[out->n - 1].sandbox_id = sb_id;
     out->v[out->n - 1].sandbox_role = role;
 }
 
-static void sb_push_border_line(linelist_t *out, size_t logical_block,
-                                int sb_id, size_t box_inner_w,
-                                const char *label, int active)
+static void sb_push_bordered_spans(linelist_t *out, size_t logical_block,
+                                    int sb_id, int role, size_t box_inner_w,
+                                    const tam_span_t *inner, size_t ninner)
 {
-    size_t total_inner = box_inner_w + 2;
-    size_t lbl_w = label ? tam_display_width(label, strlen(label)) : 0;
+    spanlist_t line;
+    sb_begin_body_line(&line);
+    size_t remaining = box_inner_w;
+    for (size_t i = 0; i < ninner; i++) {
+        size_t cells;
+        size_t len = tam_display_prefix(inner[i].text, strlen(inner[i].text),
+                                        remaining, &cells);
+        spanlist_append(&line, inner[i].text, len, inner[i].style | TAM_STYLE_SB_BG, NULL, 0);
+        remaining -= cells;
+        if (inner[i].text[len] != '\0') break;
+    }
+    sb_end_body_line(out, &line, logical_block, sb_id, role, remaining);
+}
+
+static void sb_push_border_line(linelist_t *out, size_t logical_block,
+                                int sb_id, size_t box_inner_w, int header,
+                                const char *title)
+{
+    unsigned style = TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG;
     spanlist_t sl;
     spanlist_init(&sl);
-    unsigned bstyle = TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG |
-                      (active ? TAM_STYLE_BOLD : 0);
-    spanlist_append(&sl, " +-", 3, bstyle, NULL, 0);
-    size_t used = 1;
-    if (label != NULL && label[0] != '\0' && lbl_w + 4 <= total_inner) {
-        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
-        spanlist_append(&sl, label, strlen(label), bstyle | TAM_STYLE_BOLD, NULL, 0);
-        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
-        used += lbl_w + 2;
+    const char *start = header ? "[-] " : " +-";
+    size_t used = strlen(start);
+    spanlist_append(&sl, start, used, style, NULL, 0);
+    size_t width = box_inner_w + 5;
+    if (title != NULL) {
+        size_t cells;
+        size_t len = tam_display_prefix(title, strlen(title), width - used - 2, &cells);
+        spanlist_append(&sl, title, len, style | TAM_STYLE_BOLD, NULL, 0);
+        spanlist_append(&sl, " ", 1, style, NULL, 0);
+        used += cells + 1;
     }
-    size_t dashes = total_inner > used ? total_inner - used : 1;
-    char *tail = malloc(dashes + 2);
-    if (tail != NULL) {
-        memset(tail, '-', dashes);
-        tail[dashes] = '+';
-        tail[dashes + 1] = '\0';
-        spanlist_append(&sl, tail, dashes + 1, bstyle, NULL, 0);
-        free(tail);
-    }
+    char tail[SANDBOX_MAX_INNER_WIDTH + 5];
+    size_t dashes = width - used - 1;
+    memset(tail, '-', dashes);
+    tail[dashes] = '+';
+    spanlist_append(&sl, tail, dashes + 1, style, NULL, 0);
     out->logical_block = logical_block;
     out->logical_offset = 0;
     linelist_push(out, &sl);
@@ -2690,44 +2695,28 @@ static void sb_push_border_line(linelist_t *out, size_t logical_block,
     out->v[out->n - 1].sandbox_role = 1;
 }
 
-static void sb_push_activation_border(linelist_t *out, size_t logical_block,
-                                      int sb_id, size_t box_inner_w)
+static const char *sandbox_title(const tam_sandbox_spec_t *spec)
 {
-    size_t total_inner = box_inner_w + 2;
-    unsigned bstyle = TAM_STYLE_SB_BORDER | TAM_STYLE_SB_BG;
+    return spec->title && spec->title[0] ? spec->title : "Shell Sandbox";
+}
+
+static void layout_sandbox_toggle(const tam_sandbox_spec_t *spec, int sb_id,
+                                  size_t logical_block, int width, linelist_t *out)
+{
+    static const char prefix[] = "[+] ";
+    static const char hint[] = " (-> to show)";
     char href[40];
     snprintf(href, sizeof(href), "tam:sandbox:%d", sb_id);
-
-    const char *btn = "[Open sandbox]";
-    const char *hint = " (Enter or -> to type)";
-    size_t btn_w = strlen(btn);
-    size_t hint_w = strlen(hint);
-
+    const char *title = sandbox_title(spec);
     spanlist_t sl;
     spanlist_init(&sl);
-    spanlist_append(&sl, " +-", 3, bstyle, NULL, 0);
-    size_t used = 1;
-    if (btn_w + 4 <= total_inner) {
-        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
-        spanlist_append(&sl, btn, btn_w,
-                        TAM_STYLE_LINK | TAM_STYLE_SB_BG | TAM_STYLE_BOLD,
-                        href, 0);
-        used += 1 + btn_w;
-        if (used + hint_w + 2 <= total_inner) {
-            spanlist_append(&sl, hint, hint_w, bstyle | TAM_STYLE_BOLD, NULL, 0);
-            used += hint_w;
-        }
-        spanlist_append(&sl, " ", 1, bstyle, NULL, 0);
-        used += 1;
-    }
-    size_t dashes = total_inner > used ? total_inner - used : 1;
-    char *tail = malloc(dashes + 2);
-    if (tail != NULL) {
-        memset(tail, '-', dashes);
-        tail[dashes] = '+';
-        tail[dashes + 1] = '\0';
-        spanlist_append(&sl, tail, dashes + 1, bstyle, NULL, 0);
-        free(tail);
+    spanlist_append(&sl, prefix, sizeof(prefix) - 1, TAM_STYLE_LINK, href, 0);
+    size_t available = width > 4 ? (size_t)width - 4 : 0;
+    size_t cells;
+    size_t len = tam_display_prefix(title, strlen(title), available, &cells);
+    spanlist_append(&sl, title, len, TAM_STYLE_LINK, href, 0);
+    if (available - cells >= sizeof(hint) - 1) {
+        spanlist_append(&sl, hint, sizeof(hint) - 1, TAM_STYLE_LINK, href, 0);
     }
     out->logical_block = logical_block;
     out->logical_offset = 0;
@@ -2773,33 +2762,105 @@ static void sb_push_wrapped_text(linelist_t *out, size_t logical_block,
     }
 }
 
+static void sb_push_notice(linelist_t *out, size_t logical_block, int sb_id,
+                           size_t box_inner_w, const char *text)
+{
+    size_t len = strlen(text);
+    size_t cells = tam_display_width(text, len);
+    size_t padding = box_inner_w > cells ? box_inner_w - cells : 0;
+    char spaces[SANDBOX_MAX_INNER_WIDTH + 1];
+    memset(spaces, ' ', padding);
+    spaces[padding] = '\0';
+    if (padding > 0) {
+        tam_span_t spans[] = {
+            { .text = spaces },
+            { .text = (char *)text, .style = TAM_STYLE_SB_COMP | TAM_STYLE_DIM },
+        };
+        sb_push_bordered_spans(out, logical_block, sb_id, 2, box_inner_w, spans, 2);
+    } else {
+        sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w, text,
+                             TAM_STYLE_SB_COMP | TAM_STYLE_DIM);
+    }
+}
+
+static void layout_sandbox_input(const tam_sandbox_state_t *state, const char *prompt,
+                                  int sb_id, size_t logical_block, size_t width,
+                                  linelist_t *out)
+{
+    size_t prompt_cells;
+    size_t prompt_len = tam_display_prefix(prompt, strlen(prompt), width - 1, &prompt_cells);
+    if (prompt[prompt_len] != '\0') {
+        prompt_len = tam_display_prefix(prompt, strlen(prompt), width / 2, &prompt_cells);
+    }
+    size_t available = width - prompt_cells;
+    const char *input = state->input;
+    size_t cursor = state->cursor;
+    size_t cursor_cells = tam_display_width(input, cursor);
+    size_t next = cursor;
+    int char_cells = 1;
+    tam_display_next(input, state->input_len, &next, NULL, NULL, &char_cells);
+    size_t cursor_width = char_cells > 1 && (size_t)char_cells <= available
+        ? (size_t)char_cells : 1;
+    size_t start = 0;
+    /* Scroll input horizontally to keep the cursor and its character visible. */
+    while (cursor_cells + cursor_width > available && start < cursor) {
+        int cells;
+        tam_display_next(input, cursor, &start, NULL, NULL, &cells);
+        cursor_cells -= (size_t)cells;
+    }
+    size_t input_cells;
+    size_t end = start + tam_display_prefix(input + start, state->input_len - start,
+                                             available, &input_cells);
+
+    spanlist_t line;
+    sb_begin_body_line(&line);
+    spanlist_append(&line, prompt, prompt_len, TAM_STYLE_SB_COMP | TAM_STYLE_SB_BG, NULL, 0);
+    tam_sb_tok_t tokens[64];
+    size_t ntokens = tam_sandbox_tokenize(input, state->spec->lesson, tokens, 64);
+    size_t unstyled = start;
+    for (size_t i = 0; i < ntokens; i++) {
+        size_t from = tokens[i].start > start ? tokens[i].start : start;
+        size_t to = tokens[i].start + tokens[i].len;
+        if (to > end) to = end;
+        if (to <= from) continue;
+        spanlist_append(&line, input + from, to - from,
+                        tokens[i].style | TAM_STYLE_SB_BG, NULL, 0);
+        unstyled = to;
+    }
+    spanlist_append(&line, input + unstyled, end - unstyled,
+                    TAM_STYLE_SB_USER | TAM_STYLE_SB_BG, NULL, 0);
+    sb_end_body_line(out, &line, logical_block, sb_id, 3, available - input_cells);
+    out->v[out->n - 1].sandbox_cursor_col = (int)(3 + prompt_cells + cursor_cells);
+}
+
 static void layout_sandbox_state(const tam_sandbox_spec_t *spec,
-                                 const tam_sandbox_state_t *state,
-                                 int active, int sb_id,
-                                 size_t logical_block, int width,
-                                 linelist_t *out)
+                                 const tam_sandbox_state_t *state, int sb_id,
+                                 size_t logical_block, int width, linelist_t *out)
 {
     size_t box_inner_w = width > 5 ? (size_t)(width - 5) : 1;
-    if (box_inner_w > 96) box_inner_w = 96;
+    if (box_inner_w > SANDBOX_MAX_INNER_WIDTH) box_inner_w = SANDBOX_MAX_INNER_WIDTH;
 
-    const char *title = (spec->title && spec->title[0])
-        ? spec->title : "Shell Sandbox";
-    char hdr[160];
-    snprintf(hdr, sizeof(hdr), "%s [%s]", title,
-             active ? "ACTIVE SIMULATION" : "SIMULATION");
-    sb_push_border_line(out, logical_block, sb_id, box_inner_w, hdr, active);
+    const char *prompt = tam_sandbox_prompt(spec);
+    sb_push_border_line(out, logical_block, sb_id, box_inner_w, 1, sandbox_title(spec));
 
-    sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
-        "Simulated shell for practice -- real terminals may differ slightly.",
-        TAM_STYLE_SB_COMP | TAM_STYLE_DIM);
+    sb_push_notice(out, logical_block, sb_id, box_inner_w,
+                   "Practice commands in this sandbox -- real terminals may differ slightly.");
+    char notice[256];
+    size_t prompt_len = strlen(prompt);
+    while (prompt_len > 0 && prompt[prompt_len - 1] == ' ') prompt_len--;
+    snprintf(notice, sizeof(notice), "Sandbox terminal prompt is %.*s.",
+             (int)prompt_len, prompt);
+    sb_push_notice(out, logical_block, sb_id, box_inner_w, notice);
 
     if (spec->goal != NULL && spec->goal[0] != '\0') {
-        char gbuf[320];
-        snprintf(gbuf, sizeof(gbuf), "Goal: %s%s", spec->goal,
+        char goal[320];
+        snprintf(goal, sizeof(goal), "Your goal: %s%s", spec->goal,
                  (state != NULL && state->goal_done) ? " [Done]" : "");
         sb_push_wrapped_text(out, logical_block, sb_id, 2, box_inner_w,
-                             gbuf, TAM_STYLE_SB_HINT);
+                             goal, TAM_STYLE_SB_HINT);
     }
+
+    sb_push_bordered_spans(out, logical_block, sb_id, 2, box_inner_w, NULL, 0);
 
     if (state != NULL && state->nlog > 0) {
         size_t max_entries = 8;
@@ -2838,36 +2899,9 @@ static void layout_sandbox_state(const tam_sandbox_spec_t *spec,
                              spec->init_text, TAM_STYLE_SB_COMP);
     }
 
-    /* Live prompt + user input line (role = 3). */
-    const char *prompt = (spec->prompt && spec->prompt[0]) ? spec->prompt : "$ ";
-    const char *in_str = (state != NULL) ? state->input : "";
-    tam_sb_tok_t toks[64];
-    size_t ntoks = tam_sandbox_tokenize(in_str, spec->lesson, toks, 64);
-    tam_span_t spans[66];
-    size_t ns = 0;
-    spans[ns++] = (tam_span_t){ .text = (char *)prompt, .style = TAM_STYLE_SB_COMP };
-    char *bufs[64];
-    for (size_t k = 0; k < ntoks && ns < 65; k++) {
-        bufs[k] = malloc(toks[k].len + 1);
-        if (bufs[k] != NULL) {
-            memcpy(bufs[k], in_str + toks[k].start, toks[k].len);
-            bufs[k][toks[k].len] = '\0';
-            spans[ns++] = (tam_span_t){ .text = bufs[k], .style = toks[k].style };
-        }
-    }
-    if (active) {
-        spans[ns++] = (tam_span_t){ .text = "_", .style = TAM_STYLE_SB_USER | TAM_STYLE_BOLD };
-    }
-    sb_push_bordered_spans(out, logical_block, sb_id, 3, box_inner_w, spans, ns);
-    for (size_t k = 0; k < ntoks; k++) free(bufs[k]);
-
-    if (active) {
-        sb_push_border_line(out, logical_block, sb_id, box_inner_w,
-                            "ACTIVE: Enter=run | Up/Dn=hist | Esc or <- at start=exit",
-                            1);
-    } else {
-        sb_push_activation_border(out, logical_block, sb_id, box_inner_w);
-    }
+    if (state != NULL)
+        layout_sandbox_input(state, prompt, sb_id, logical_block, box_inner_w, out);
+    sb_push_border_line(out, logical_block, sb_id, box_inner_w, 0, NULL);
 }
 
 static void layout_document(const blocklist_t *blocks,
@@ -2891,8 +2925,7 @@ static void layout_document(const blocklist_t *blocks,
         }
         if (b->kind == B_SANDBOX && b->number >= 1 &&
             (size_t)b->number <= nsandboxes) {
-            layout_sandbox_state(&sandboxes[b->number - 1], NULL, 0,
-                                 b->number, i, width, out);
+            layout_sandbox_toggle(&sandboxes[b->number - 1], b->number, i, width, out);
             i++;
             continue;
         }
@@ -3057,7 +3090,7 @@ int tam_document_reflow(tam_document_t *doc, int content_width)
 
 int tam_document_sync_sandbox(tam_document_t *doc, int content_width,
                               int sandbox_id, const tam_sandbox_state_t *state,
-                              int active)
+                              int expanded)
 {
     if (doc == NULL || doc->sandboxes == NULL || sandbox_id < 1 ||
         (size_t)sandbox_id > doc->nsandboxes || content_width < 1)
@@ -3078,8 +3111,12 @@ int tam_document_sync_sandbox(tam_document_t *doc, int content_width,
 
     linelist_t nl;
     memset(&nl, 0, sizeof(nl));
-    layout_sandbox_state(&doc->sandboxes[sandbox_id - 1], state, active,
-                         sandbox_id, logical_block, content_width, &nl);
+    const tam_sandbox_spec_t *spec = &doc->sandboxes[sandbox_id - 1];
+    if (expanded) {
+        layout_sandbox_state(spec, state, sandbox_id, logical_block, content_width, &nl);
+    } else {
+        layout_sandbox_toggle(spec, sandbox_id, logical_block, content_width, &nl);
+    }
     if (nl.n == 0) {
         free(nl.v);
         return -1;

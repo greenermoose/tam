@@ -92,6 +92,9 @@ int tam_terminal_init(tam_terminal_t *t, int fd, int rows, int cols)
     t->rmcup = str_cap("rmcup");
     t->civis = str_cap("civis");
     t->cnorm = str_cap("cnorm");
+    t->cvvis = str_cap("cvvis");
+    t->set_cursor_style = str_cap("Ss");
+    t->reset_cursor_style = str_cap("Se");
     t->flash = str_cap("flash");
     t->colors = tigetnum("colors");
     t->ncv = tigetnum("ncv");
@@ -160,7 +163,11 @@ int tam_terminal_leave(tam_terminal_t *t, tam_buf_t *b)
 {
     if (t->sync_output) (void)tam_buf_puts(b, "\033[?2026l");
     if (tam_terminal_cap(t, b, t->sgr0, 0, 0) < 0) return -1;
-    if (t->cursor_hidden && tam_terminal_cap(t, b, t->cnorm, 0, 0) < 0) return -1;
+    if (t->cursor_underlined &&
+        tam_terminal_cap(t, b, t->reset_cursor_style, 0, 0) < 0) return -1;
+    if ((t->cursor_hidden || t->cursor_underlined) &&
+        tam_terminal_cap(t, b, t->cnorm, 0, 0) < 0) return -1;
+    t->cursor_underlined = 0;
     if (t->alt_screen) {
         if (tam_terminal_cap(t, b, t->rmcup, 0, 0) < 0) return -1;
     } else if (t->interactive) {
@@ -178,6 +185,24 @@ int tam_terminal_move(tam_terminal_t *t, tam_buf_t *b, int row, int col)
     if (row < 0) row = 0;
     if (col < 0) col = 0;
     return tam_terminal_cap(t, b, t->cup, row, col);
+}
+
+int tam_terminal_input_cursor(tam_terminal_t *t, tam_buf_t *b, int visible)
+{
+    int underline = t->set_cursor_style != NULL && t->reset_cursor_style != NULL;
+    if (t->civis != NULL && t->cnorm != NULL && t->cursor_hidden == visible) {
+        const char *show = underline && t->cvvis != NULL ? t->cvvis : t->cnorm;
+        if (tam_terminal_cap(t, b, visible ? show : t->civis, 0, 0) < 0) return -1;
+        t->cursor_hidden = !visible;
+    }
+    if (underline && t->cursor_underlined != visible) {
+        /* DECSCUSR 3 selects a blinking underline. */
+        if (tam_terminal_cap(t, b, visible ? t->set_cursor_style : t->reset_cursor_style,
+                             3, 0) < 0)
+            return -1;
+        t->cursor_underlined = visible;
+    }
+    return 0;
 }
 
 int tam_terminal_erase_eol(tam_terminal_t *t, tam_buf_t *b)

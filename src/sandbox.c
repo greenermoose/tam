@@ -238,6 +238,14 @@ void tam_sb_vfs_free(tam_sb_vfs_node_t *node)
     free(node);
 }
 
+const char *tam_sandbox_prompt(const tam_sandbox_spec_t *spec)
+{
+    const char *prompt = spec->prompt;
+    if (prompt == NULL || prompt[0] == '\0' || strcmp(prompt, "alex@tamlinux:~$ ") == 0)
+        return "you@tamlinux:~ $ ";
+    return prompt;
+}
+
 void tam_sandbox_spec_free(tam_sandbox_spec_t *spec)
 {
     if (spec == NULL) return;
@@ -1114,9 +1122,7 @@ void tam_sandbox_exec(tam_sandbox_state_t *st, const char *line)
         return;
     }
 
-    const char *prompt = (st->spec->prompt && st->spec->prompt[0])
-        ? st->spec->prompt : "$ ";
-    log_push(st, TAM_SB_LOG_CMD, prompt, trimmed);
+    log_push(st, TAM_SB_LOG_CMD, tam_sandbox_prompt(st->spec), trimmed);
 
     if (st->nhistory == 0 || strcmp(st->history[st->nhistory - 1], trimmed) != 0) {
         char **nh = realloc(st->history, (st->nhistory + 1) * sizeof(*nh));

@@ -155,9 +155,9 @@ void pager_resume(pager_t *st);
 void handle_key(pager_t *st, unsigned char c);
 void pager_ensure_sandboxes(pager_t *st);
 void pager_free_sandboxes(pager_t *st);
-void pager_sync_sandboxes(pager_t *st);
+int pager_update_sandbox_input(pager_t *st);
 void pager_activate_sandbox(pager_t *st, int sb_id);
-void pager_exit_sandbox(pager_t *st, int move_dir);
+void pager_exit_sandbox(pager_t *st);
 int pager_handle_sandbox_key(pager_t *st, unsigned char c);
 
 #endif /* TAM_PAGER_INT_H */

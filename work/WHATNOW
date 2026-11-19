@@ -3,53 +3,22 @@ WHATNOW
 What tam is doing now and what comes next. Read this first; revise it at
 the end of every session (work/README-work).
 
-Updated: 2026-11-18, with W13
+Updated: 2026-11-19, with W14
 
 
 STATE
 
-  Command 0.64.1 and corpus 0.100.2 on develop (src/version.h and
-  knowledge/version). W13 added a keypress pause after `tam:start` exits 0
-  in `src/pager_nav.c` so output from commands like `tam-boot` stays
-  visible before `pager_resume()`. W12 added `tam:start` (`TAM_ADDR_ACTION`) in
-  `src/address.c`, `src/external.c`, and `src/pager_nav.c` to suspend the
-  pager, run `tam-start` in the foreground, and resume on exit, and updated
-  the `"start using"` link on `knowledge/welcome.html` to `tam:start`. W11 moved the pager `Rev <N> Last updated ...` stamp
-  to the right side of the second-to-bottom footer row (dim on footer
-  background) and repurposed the always-reserved (height >= 5)
-  third-from-bottom row as a dedicated status line (footer tint background)
-  for link destinations, notices, and `Path = ...` (`src/pager_draw.c`). W10
-  changed shell sandboxes to two-step activation
-  via an `[Open sandbox]` (`tam:sandbox:<id>`) link so scrolling never traps
-  the reader, replaced the read-only Worked example on
-  `knowledge/terminal/shell/index.html` with an interactive
-  `echo "Hello, world!"` sandbox, progressed `Try it` to
-  `printf '%s\n' 'Hello, world!'`, and updated `knowledge/help/index.html`.
-  W9 added interactive, purely simulated shell sandboxes
-  (`<tam-sandbox>`) to the tam pager (`src/sandbox.c`, `src/render.c`,
-  `src/pager_*.c`), documented controls and the simulation disclaimer in
-  `knowledge/help/index.html`, and added pilot sandboxes to
-  `knowledge/terminal/shell/index.html` and
-  `knowledge/terminal/shell/pipelines.html`. W8 aligned the plant analogy across the knowledge
-  corpus (`host`, `rootstock`, `bud`, `scion`, `cultivar`, `fruit`),
-  added `bud.html`, `host.html`, and `scion.html`, retired `greenhouse.html`,
-  `nut.html`, and `pot.html`, and updated corpus references from "Fred Horch"
-  / "the Tamlinux developer" to "Fred" (keeping the copyright notice on
-  `knowledge/index.html`). W7 rewrote `knowledge/tamlinux/components.html`
-  ("Understanding the whole system") into a three-level (`novice`,
-  `learner`, `expert`) architecture and ecosystem guide and updated its
-  row in `knowledge/tamlinux/index.html`. W6 added the Halting problem
-  glossary page (knowledge/glossary/h/halting-problem.html) and linked
-  existing mentions in security/computer-security-principles.html and
-  glossary/h/hru.html. W5 added the TCB (Trusted Computing Base) glossary
-  page (knowledge/glossary/t/tcb.html) and linked existing TCB mentions
-  across six corpus pages. W4 added tools/build-archwiki-tam.py and
-  patches/arch-wiki-docs/ to pre-process arch-wiki-docs and
-  arch-wiki-lite into /usr/share/doc/arch-wiki/tam/, updated tam to
-  prefer arch-wiki/tam/ with html/en/ fallback, added subpage support,
-  tam:archwiki:broken display, and runtime local man-page link
-  rewriting, and updated tamlinux-packages to stage arch-wiki/tam/.
-  W3 swapped g and h. W2 fixed active bundle cultivar reporting.
+  Command 0.65.0 and corpus 0.100.3 on develop. Shell sandboxes open
+  from a collapsed title and keep the attention line and terminal
+  cursor at the input after output, editing, and resize. Esc or Left
+  Arrow at the start of the input closes the sandbox while keeping
+  practice progress on that page. See W14.
+
+  The pager pauses after a successful tam:start so the reader can see
+  command output before returning (W12–W13). Its status row shows link
+  destinations and notices. The revision stamp is in the footer (W11).
+  The shell and pipeline pages provide simulated practice (W9–W10).
+
 
 NEXT
 

@@ -1,0 +1,54 @@
+W14 ADVANCE SHELL SANDBOX INTERACTION
+
+Date: 2026-11-19
+AI harness: Codex 0.170.0
+AI model: gpt-6.2-sol
+Continues: W10
+
+GUIDANCE
+
+  Fred (text accompanying screenshots):
+
+  Change how sandboxes work in the tam pager. Have them start closed, like asides and questions
+
+  Then, once open, show something like the following:
+
+  [-] First "Hello, world!" command ---------------------------------------------+
+   |     Practice commands in this sandbox -- real terminals may differ slightly.|
+   |                                               Sandbox terminal prompt is $. |
+   | Your goal: have your terminal print "Hello, world!"                         |
+   |                                                                             |
+
+  Change sandbox terminal prompt from
+
+  alex@tamlinux:~$
+
+  to
+
+  you@tamlinux:~ $ _
+
+  And show blinking cursor where _ is to indicate that is where the user should type
+
+  When you open a sandbox, the attenion line should jump to the sandbox terminal prompt where your typing will appear. The attention line should follow and always stay where your input is expected.
+
+DONE
+
+  - Enter or Right Arrow opens the sandbox and starts typing at the
+    prompt. Closing returns to the title and keeps the exercise state.
+  - The attention line follows the prompt, and the terminal uses a
+    blinking underline cursor where its terminfo entry supports it.
+  - The first shell exercise uses the requested title and goal. Pipe
+    output gives the exercise as static text.
+  - Command and corpus checks passed. The sandbox PTY check covers
+    opening, typing, cursor movement, output, resize, and closing.
+  - The shell guide's first exercise opened and completed with echo.
+  Checked against: src/pager_nav.c, src/pager_draw.c, build/tam show.
+
+FAILED
+
+  - An initial standalone test inherited NO_COLOR. The command suite
+    clears it and passed the lesson color checks.
+
+HANDOFF
+
+  - Keep the sandbox in Develop. Packaged acceptance awaits Fred.

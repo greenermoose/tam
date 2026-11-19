@@ -7,11 +7,14 @@ void tam_pager_screen_init(tam_pager_screen_t *s, tam_terminal_t *term)
 {
     memset(s, 0, sizeof(*s));
     s->term = term;
+    s->cursor_row = -1;
 }
 
 void tam_pager_screen_invalidate(tam_pager_screen_t *s)
 {
     s->valid = 0;
+    s->cursor_row = -1;
+    s->cursor_col = 0;
 }
 
 static int reserve_rows(tam_pager_screen_t *s, int nrows)
@@ -35,7 +38,8 @@ static int reserve_rows(tam_pager_screen_t *s, int nrows)
 }
 
 int tam_pager_screen_update(tam_pager_screen_t *s,
-                            const tam_buf_t *rows, int nrows, int width)
+                            const tam_buf_t *rows, int nrows, int width,
+                            int cursor_row, int cursor_col)
 {
     if (nrows <= 0 || width <= 0 || reserve_rows(s, nrows) < 0) return -1;
     tam_buf_t out = {0};
@@ -54,8 +58,18 @@ int tam_pager_screen_update(tam_pager_screen_t *s,
             return -1;
         }
     }
-    if (changed && s->term->sync_output) (void)tam_buf_puts(&out, "\033[?2026l");
-    if (changed && tam_terminal_write(s->term, &out) < 0) {
+    int cursor_changed = cursor_row != s->cursor_row || cursor_col != s->cursor_col;
+    int visible = cursor_row >= 0;
+    if ((visible && (changed || cursor_changed) &&
+         tam_terminal_move(s->term, &out, cursor_row, cursor_col) < 0) ||
+        (cursor_changed && tam_terminal_input_cursor(s->term, &out, visible) < 0)) {
+        tam_buf_free(&out);
+        s->valid = 0;
+        return -1;
+    }
+    int updated = changed || cursor_changed;
+    if (updated && s->term->sync_output) (void)tam_buf_puts(&out, "\033[?2026l");
+    if (updated && tam_terminal_write(s->term, &out) < 0) {
         tam_buf_free(&out);
         s->valid = 0;
         return -1;
@@ -72,6 +86,8 @@ int tam_pager_screen_update(tam_pager_screen_t *s,
     }
     s->width = width;
     s->valid = 1;
+    s->cursor_row = cursor_row;
+    s->cursor_col = cursor_col;
     return changed;
 }
 

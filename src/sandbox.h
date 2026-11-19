@@ -93,6 +93,7 @@ typedef struct {
 } tam_sb_tok_t;
 
 tam_sandbox_lesson_t tam_sandbox_parse_lesson(const char *s);
+const char *tam_sandbox_prompt(const tam_sandbox_spec_t *spec);
 void tam_sandbox_spec_free(tam_sandbox_spec_t *spec);
 
 tam_sb_vfs_node_t *tam_sb_vfs_new_dir(const char *name, const char *mode,

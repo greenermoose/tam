@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.64.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.65.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3832,17 +3832,16 @@ else
     printf 'skip - tam ask live-server checks (no Ollama at 127.0.0.1:11434)\n'
 fi
 
-# Interactive shell sandbox: pipe rendering, PTY activation, VFS isolation,
-# lesson token coloring, Esc exit, and Left Arrow at column 0 exit.
+# Shell sandbox disclosure, live cursor, virtual filesystem, and pipe rendering.
 mkdir -p "$tmp/sb_guide"
 cp -R "$root/tests/fixtures/guide/." "$tmp/sb_guide/"
 cp "$root/tests/fixtures/sandbox.html" "$tmp/sb_guide/sandbox.html"
 sb_pipe=$(TAM_KNOWLEDGE_DIR="$tmp/sb_guide" "$TAM" show page:sandbox.html --pipe)
-printf '%s\n' "$sb_pipe" | grep -q 'Flags Practice \[SIMULATION\]' || fail "sandbox pipe missing title/simulation badge"
-printf '%s\n' "$sb_pipe" | grep -q 'Simulated shell for practice' || fail "sandbox pipe missing simulation disclaimer"
-printf '%s\n' "$sb_pipe" | grep -q 'Goal: List hidden files with ls -a' || fail "sandbox pipe missing goal"
-printf '%s\n' "$sb_pipe" | grep -q '\[Open sandbox\]' || fail "sandbox pipe missing Open sandbox activation"
-pass "sandbox pipe rendering shows border, simulation badge, disclaimer, goal, and activation"
+printf '%s\n' "$sb_pipe" | grep -Fq '[-] Flags Practice' || fail "sandbox pipe missing title"
+printf '%s\n' "$sb_pipe" | grep -Fq 'Practice commands in this sandbox' || fail "sandbox pipe missing simulation disclaimer"
+printf '%s\n' "$sb_pipe" | grep -Fq 'Sandbox terminal prompt is you@tamlinux:~ $.' || fail "sandbox pipe missing prompt notice"
+printf '%s\n' "$sb_pipe" | grep -Fq 'Your goal: List hidden files with ls -a' || fail "sandbox pipe missing goal"
+pass "sandbox pipe shows the exercise"
 
 if python3 -c 'import pty' >/dev/null 2>&1; then
     python3 - "$TAM" "page:sandbox.html" "$tmp/sb_guide" "$tmp" <<'PY' || fail "interactive sandbox PTY checks failed"
@@ -3855,22 +3854,31 @@ def strip_ansi(s):
     s = re.sub(r'\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)', '', s)
     return re.sub(r'\x1b\[[0-9;?]*[ -/]*[@-~]', '', s)
 
-def read_until(fd, pat, timeout=3.0):
+def read_frame(fd, timeout=3.0):
     buf = b''
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        r, _, _ = select.select([fd], [], [], 0.1)
-        if fd in r:
-            try:
-                chunk = os.read(fd, 4096)
-            except OSError:
-                break
-            if not chunk:
-                break
-            buf += chunk
-            if pat in strip_ansi(buf.decode('utf-8', 'replace')):
-                break
+        ready, _, _ = select.select([fd], [], [], 0.15 if buf else 0.5)
+        if ready:
+            buf += os.read(fd, 8192)
+        elif buf:
+            break
     return buf.decode('utf-8', 'replace')
+
+def cursor_position(frame):
+    moves = re.findall(r'\x1b\[(\d+);(\d+)H', frame)
+    assert moves, f"missing cursor position: {frame!r}"
+    return tuple(map(int, moves[-1]))
+
+def assert_input_focus(frame, prompt_column):
+    row, col = cursor_position(frame)
+    rendered_input = f'\x1b[{row};1H'
+    assert rendered_input in frame, f"cursor is off the drawn input row: {frame!r}"
+    prompt_row = frame.split(rendered_input)[-1].split(f'\x1b[{row};{col}H')[0]
+    assert '\x1b[48;5;236m' in prompt_row, f"prompt has no attention tint: {prompt_row!r}"
+    assert 'you@tamlinux:~ $ ' in strip_ansi(prompt_row), f"cursor is off prompt: {prompt_row!r}"
+    assert col == prompt_column, (row, col, prompt_column)
+    return row
 
 pid, master = pty.fork()
 if pid == 0:
@@ -3882,54 +3890,77 @@ if pid == 0:
     os.execv(tam, [tam, 'show', page])
 
 fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
-out = read_until(master, 'Flags Practice [SIMULATION]')
-assert 'Flags Practice [SIMULATION]' in strip_ansi(out), f"initial draw missing sandbox: {strip_ansi(out)}"
-
-# Scroll down into the sandbox: must NOT auto-activate while scrolling
-os.write(master, b'\x1b[B\x1b[B\x1b[B\x1b[B')
-time.sleep(0.15)
-# Now scroll down to the [Open sandbox] bottom border (L9, 4 more lines) and press Enter
-os.write(master, b'\x1b[B\x1b[B\x1b[B\x1b[B')
-time.sleep(0.1)
-os.write(master, b'\r')
-out = read_until(master, 'ACTIVE SIMULATION')
-assert 'ACTIVE SIMULATION' in strip_ansi(out), f"sandbox did not activate on Enter: {strip_ansi(out)}"
-
-# Type ls -a and press Enter
-os.write(master, b'ls -a\r')
-out = read_until(master, '[Done]')
+out = read_frame(master)
 plain = strip_ansi(out)
-assert '.bashrc' in plain, f"ls -a missing .bashrc: {plain}"
-assert '[Done]' in plain, f"goal did not complete: {plain}"
-# Verify 256-color ANSI codes for flag (-a -> 81) and command (ls -> 221) appear
+closed = '[+] Flags Practice (-> to show)'
+assert closed in plain, plain
+assert 'Your goal:' not in plain and 'you@tamlinux:' not in plain, plain
+
+# Navigate with the attention line, pass the sandbox, and return to open it.
+os.write(master, b'\x1b[B' * 4)
+out = read_frame(master)
+assert '\x1b[3 q' not in out and '[-] Flags Practice' not in strip_ansi(out)
+os.write(master, b'\x1b[B\x1b[A\r')
+out = read_frame(master)
+assert '[-] Flags Practice' in strip_ansi(out), strip_ansi(out)
+assert '\x1b[3 q' in out and '\x1b[?12;25h' in out, repr(out)
+prompt_col = len(' | you@tamlinux:~ $ ') + 1
+opened_row = assert_input_focus(out, prompt_col)
+
+# Moving Left within input moves only the insertion point.
+os.write(master, b'ls -a')
+out = read_frame(master)
+assert_input_focus(out, prompt_col + 5)
+os.write(master, b'\x1b[D')
+out = read_frame(master)
+assert cursor_position(out) == (opened_row, prompt_col + 4)
+
+# Running the command moves the attention line and cursor to the new prompt.
+os.write(master, b'\r')
+out = read_frame(master)
+plain = strip_ansi(out)
+assert '.bashrc' in plain and '[Done]' in plain, plain
 assert '38;5;81m' in out or ';81m' in out, "missing flag highlight color for -a"
 assert '38;5;221m' in out or ';221m' in out, "missing command highlight color for ls"
+assert assert_input_focus(out, prompt_col) > opened_row
 
-# Mutating command stays strictly in-memory
+# Mutating command stays in memory.
 real_target = os.path.join(tmp, 'should_not_exist_on_disk')
 os.write(master, f'touch {real_target}\r'.encode())
-time.sleep(0.2)
+read_frame(master)
 assert not os.path.exists(real_target), "sandbox touched the real filesystem!"
 
-# Esc exits sandbox cleanly (moves cursor below sandbox)
-os.write(master, b'\x1b')
-out = read_until(master, 'Flags Practice [SIMULATION]')
-assert 'Flags Practice [SIMULATION]' in strip_ansi(out), f"Esc did not exit sandbox: {strip_ansi(out)}"
+# Resize through a short viewport and keep the cursor on the active input.
+fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 10, 36, 0, 0))
+out = read_frame(master)
+resized_row = assert_input_focus(out, prompt_col)
+assert resized_row <= 7, "cursor landed below the content"
+os.write(master, b'echo ' + b'x' * 48)
+out = read_frame(master)
+assert assert_input_focus(out, 33) == resized_row
 
-# Up Arrow lands on [Open sandbox] border, Right Arrow re-enters, Left Arrow at col 0 exits
-os.write(master, b'\x1b[A\x1b[C')
-out = read_until(master, 'ACTIVE SIMULATION')
-assert 'ACTIVE SIMULATION' in strip_ansi(out), "Up Arrow + Right Arrow did not re-enter sandbox"
+fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
+read_frame(master)
+os.write(master, b'\x15')
+
+# Esc collapses and restores the title. Right Arrow reopens with progress.
+os.write(master, b'\x1b')
+out = read_frame(master)
+assert closed in strip_ansi(out) and '\x1b[?25l' in out and '\x1b[2 q' in out, repr(out)
+os.write(master, b'\x1b[C')
+out = read_frame(master)
+assert '[Done]' in strip_ansi(out), strip_ansi(out)
+assert_input_focus(out, prompt_col)
 os.write(master, b'\x1b[D')
-out = read_until(master, 'Flags Practice [SIMULATION]')
-assert 'Flags Practice [SIMULATION]' in strip_ansi(out), "Left Arrow at col 0 did not exit sandbox"
+out = read_frame(master)
+assert closed in strip_ansi(out) and '\x1b[?25l' in out and '\x1b[2 q' in out, repr(out)
 
 os.write(master, b'q')
 _, status = os.waitpid(pid, 0)
 os.close(master)
 assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, f"pager exited with {status}"
 PY
-    pass "interactive sandbox PTY: activation, VFS isolation, flag colors, Esc and Left Arrow exit"
+    pass "interactive sandbox PTY: disclosure, cursor position, resize, progress and VFS isolation"
 fi
 
 # Embedded tam:start action: suspends pager, runs tam-start in foreground,
