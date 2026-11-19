@@ -201,7 +201,9 @@ static void build_status_line(const pager_t *st, const linkref_t *sel,
                               int width, char *out, size_t cap)
 {
     out[0] = '\0';
-    if (st->show_address) {
+    if (st->active_sandbox) {
+        snprintf(out, cap, "Playing in sandbox -- Esc to close");
+    } else if (st->show_address) {
         char addr[256];
         pager_address(st, addr, sizeof(addr));
         snprintf(out, cap, "Path = %s", addr);
@@ -607,6 +609,29 @@ static void pager_address(const pager_t *st, char *out, size_t cap)
              strncmp(st->cur_href, "page:", 5) != 0 ? "page:" : "", st->cur_href);
 }
 
+static void fit_sandbox_viewport(pager_t *st, int usable)
+{
+    int prompt = st->cursor_line;
+    if (st->active_sandbox == 0 || prompt < 0 ||
+        (size_t)prompt >= st->doc->nlines)
+        return;
+
+    const tam_line_t *lines = st->doc->lines;
+    int id = st->active_sandbox;
+    if (lines[prompt].sandbox_id != id || lines[prompt].sandbox_role != 3) return;
+
+    int first = prompt, last = prompt;
+    while (first > 0 && lines[first - 1].sandbox_id == id) first--;
+    /* Leave the prompt visible even if the terminal only has room for one row. */
+    while (last - prompt + 1 < usable && (size_t)(last + 1) < st->doc->nlines &&
+           lines[last + 1].sandbox_id == id)
+        last++;
+
+    if (last - first + 1 <= usable && st->top > first) st->top = first;
+    int min_top = last - usable + 1;
+    if (st->top < min_top) st->top = min_top;
+}
+
 int draw(pager_t *st)
 {
     st->width = tam_terminal_width();
@@ -620,6 +645,7 @@ int draw(pager_t *st)
     }
 
     int usable = content_rows(st);
+    fit_sandbox_viewport(st, usable);
     int max_top = (int)st->doc->nlines - usable;
     if (max_top < 0) {
         max_top = 0;

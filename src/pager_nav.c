@@ -1195,8 +1195,6 @@ int pager_update_sandbox_input(pager_t *st)
     int id = st->active_sandbox;
     if (sync_sandbox(st, id, 1) < 0) return -1;
     focus_sandbox_line(st, id, 3);
-    snprintf(st->msg, sizeof(st->msg),
-             "Sandbox: Enter runs, Up/Down recall, Esc or <- at start closes");
     return 0;
 }
 

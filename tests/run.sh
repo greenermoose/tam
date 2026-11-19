@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.65.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.65.2' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3889,7 +3889,7 @@ if pid == 0:
     os.environ['XDG_DATA_HOME'] = tmp
     os.execv(tam, [tam, 'show', page])
 
-fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
+fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 11, 90, 0, 0))
 out = read_frame(master)
 plain = strip_ansi(out)
 closed = '[+] Sandbox: Flags Practice (-> to try)'
@@ -3906,6 +3906,12 @@ assert '[-] Flags Practice' in strip_ansi(out), strip_ansi(out)
 assert '\x1b[3 q' in out and '\x1b[?12;25h' in out, repr(out)
 prompt_col = len(' | you@tamlinux:~ $ ') + 1
 opened_row = assert_input_focus(out, prompt_col)
+border = re.search(rf'\x1b\[{opened_row + 1};1H(.*?)(?=\x1b\[\d+;\d+H)', out, re.S)
+assert border and re.match(r' +\+-+\+', strip_ansi(border[1])), "sandbox bottom border is offscreen"
+assert "Playing in sandbox -- Esc to close" in strip_ansi(out)
+
+fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
+opened_row = assert_input_focus(read_frame(master), prompt_col)
 
 # Moving Left within input moves only the insertion point.
 os.write(master, b'ls -a')

@@ -51,6 +51,12 @@ GUIDANCE
 
   [+] Sandbox: First "Hello, world!" command (-> to try)
 
+  When you open a sandbox, scroll the page so the whole sandbox is shown (including bottom bounding box).
+
+  Change the status line to say:
+
+  Playing in sandbox -- Esc to close
+
 DONE
 
   - Enter or Right Arrow opens the sandbox and starts typing at the
@@ -58,6 +64,8 @@ DONE
   - The attention line follows the prompt, and the terminal uses a
     blinking underline cursor where its terminfo entry supports it.
   - Command 0.65.1 gives closed rows the Sandbox prefix and try hint.
+  - Command 0.65.2 keeps the whole box onscreen when it fits and shows
+    the shorter status. The PTY check opens a box near the viewport edge.
   - The first shell exercise uses the requested title and goal. Pipe
     output gives the exercise as static text.
   - Command and corpus checks passed. The sandbox PTY check covers
@@ -72,6 +80,5 @@ FAILED
 
 HANDOFF
 
-  - The default tam invocation resolves to development command 0.64.1
-    and needs an explicitly requested development install to see the fix.
-    Packaged acceptance also awaits Fred.
+  - Verified the development prefix at command 0.65.1. Packaged
+    acceptance awaits Fred.
