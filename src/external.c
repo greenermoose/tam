@@ -276,26 +276,16 @@ int tam_external_open_detached(const char *url, char *msg, size_t cap)
     return err != 0 ? -1 : 0;
 }
 
-int tam_external_run_foreground(const char *url, int tty_fd,
-                                char *msg, size_t cap)
+int tam_run_foreground_command(char *const argv[], int tty_fd,
+                               char *msg, size_t cap)
 {
-    command_t c = {0};
-    if (!tam_external_url_ok(url)) {
-        snprintf(msg, cap, "cannot open malformed link");
-        return -1;
-    }
-    if (!choose(0, url, &c)) {
-        snprintf(msg, cap, "%s", tam_external_missing(0));
-        return -1;
-    }
-    const char *name = base_name(c.argv[0]);
+    const char *name = base_name(argv[0]);
     int fds[2];
     if (exec_pipe(fds) != 0) {
         snprintf(msg, cap, "cannot start %s: %s", name, strerror(errno));
-        command_free(&c);
         return -1;
     }
-    /* Interrupt and quit keys belong to the browser while it runs. */
+    /* Interrupt and quit keys belong to the child while it runs. */
     struct sigaction ign, old_int, old_quit;
     memset(&ign, 0, sizeof(ign));
     ign.sa_handler = SIG_IGN;
@@ -308,7 +298,7 @@ int tam_external_run_foreground(const char *url, int tty_fd,
         close(fds[0]);
         if (tty_fd >= 0 && !isatty(STDIN_FILENO)) (void)dup2(tty_fd, STDIN_FILENO);
         default_signals();
-        execvp(c.argv[0], c.argv);
+        execvp(argv[0], argv);
         report_errno(fds[1], errno);
         _exit(127);
     }
@@ -332,6 +322,22 @@ int tam_external_run_foreground(const char *url, int tty_fd,
         snprintf(msg, cap, "back from %s", name);
         rc = 0;
     }
+    return rc;
+}
+
+int tam_external_run_foreground(const char *url, int tty_fd,
+                                char *msg, size_t cap)
+{
+    command_t c = {0};
+    if (!tam_external_url_ok(url)) {
+        snprintf(msg, cap, "cannot open malformed link");
+        return -1;
+    }
+    if (!choose(0, url, &c)) {
+        snprintf(msg, cap, "%s", tam_external_missing(0));
+        return -1;
+    }
+    int rc = tam_run_foreground_command(c.argv, tty_fd, msg, cap);
     command_free(&c);
     return rc;
 }

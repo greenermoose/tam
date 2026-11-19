@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.63.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.64.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3930,6 +3930,86 @@ os.close(master)
 assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, f"pager exited with {status}"
 PY
     pass "interactive sandbox PTY: activation, VFS isolation, flag colors, Esc and Left Arrow exit"
+fi
+
+# Embedded tam:start action: suspends pager, runs tam-start in foreground,
+# resumes pager, and reports status (or missing executable).
+mkdir -p "$tmp/start_guide" "$tmp/start_bin" "$tmp/empty_bin"
+cp -R "$root/tests/fixtures/guide/." "$tmp/start_guide/"
+cat > "$tmp/start_guide/start.html" <<'HTML'
+<!DOCTYPE html>
+<html>
+<head><title>Start Action</title><meta name="level" content="novice"></head>
+<body>
+<h1>Start Action</h1>
+<p>Ready to <a href="tam:start">start using</a> your workstation?</p>
+</body>
+</html>
+HTML
+cat > "$tmp/start_bin/tam-start" <<EOF
+#!/bin/sh
+printf 'started\n' > "$tmp/start_ran"
+exit 0
+EOF
+chmod +x "$tmp/start_bin/tam-start"
+
+if python3 -c 'import pty' >/dev/null 2>&1; then
+    python3 - "$TAM" "page:start.html" "$tmp/start_guide" "$tmp" "$tmp/start_bin" "$tmp/empty_bin" <<'PY' || fail "tam:start PTY checks failed"
+import fcntl, os, pty, re, select, struct, termios, time, sys
+
+tam, page, guide_dir, tmp, start_bin, empty_bin = sys.argv[1:7]
+
+def strip_ansi(s):
+    s = re.sub(r'\x1b\([A-Z0-9]', '', s)
+    s = re.sub(r'\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)', '', s)
+    return re.sub(r'\x1b\[[0-9;?]*[ -/]*[@-~]', '', s)
+
+def read_until(fd, pat, timeout=3.0):
+    buf = b''
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        r, _, _ = select.select([fd], [], [], 0.1)
+        if fd in r:
+            try:
+                chunk = os.read(fd, 4096)
+            except OSError:
+                break
+            if not chunk:
+                break
+            buf += chunk
+            if pat in strip_ansi(buf.decode('utf-8', 'replace')):
+                break
+    return buf.decode('utf-8', 'replace')
+
+def run_case(path_prefix, expect_text):
+    pid, master = pty.fork()
+    if pid == 0:
+        os.environ['TERM'] = 'xterm-256color'
+        os.environ['TAM_KNOWLEDGE_DIR'] = guide_dir
+        os.environ['XDG_CONFIG_HOME'] = tmp
+        os.environ['XDG_STATE_HOME'] = tmp
+        os.environ['XDG_DATA_HOME'] = tmp
+        os.environ['PATH'] = path_prefix + ':' + os.environ.get('PATH', '') if path_prefix else empty_bin
+        os.execv(tam, [tam, 'show', page])
+    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 90, 0, 0))
+    out = read_until(master, 'Start Action')
+    assert 'Start Action' in strip_ansi(out), f"initial draw missing title: {strip_ansi(out)}"
+    os.write(master, b'\t')
+    out = read_until(master, '-> tam:start')
+    assert '-> tam:start' in strip_ansi(out), f"Tab did not select tam:start: {strip_ansi(out)}"
+    os.write(master, b'\r')
+    out = read_until(master, expect_text)
+    assert expect_text in strip_ansi(out), f"expected {expect_text!r}, got: {strip_ansi(out)}"
+    os.write(master, b'q')
+    _, status = os.waitpid(pid, 0)
+    os.close(master)
+    assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, f"pager exited with {status}"
+
+run_case(start_bin, 'back from tam-start')
+assert os.path.exists(os.path.join(tmp, 'start_ran')), "mock tam-start was not executed"
+run_case('', 'cannot start tam-start')
+PY
+    pass "tam:start PTY: suspends pager, runs tam-start, resumes pager, and reports missing binary"
 fi
 
 printf 'All tam command tests passed.\n'

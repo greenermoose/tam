@@ -35,4 +35,11 @@ int tam_external_open_detached(const char *url, char *msg, size_t cap);
 int tam_external_run_foreground(const char *url, int tty_fd,
                                 char *msg, size_t cap);
 
+/* Run argv[0] in the foreground on this terminal, reading from tty_fd when
+ * standard input is not a terminal. The caller restores the terminal before
+ * and after. Returns 0 when the command exited 0, -1 otherwise; msg says
+ * what happened either way. */
+int tam_run_foreground_command(char *const argv[], int tty_fd,
+                               char *msg, size_t cap);
+
 #endif /* TAM_EXTERNAL_H */

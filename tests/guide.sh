@@ -246,4 +246,7 @@ out=$(env HOME="$tmp/nohome" XDG_DATA_HOME="$tmp/nodata" \
     || fail "staged install did not render the current bundled corpus"
 pass "staged install relocates and finds the corpus"
 
+guide --pipe welcome.html | grep -Fq 'tam:start' || fail "welcome.html missing tam:start link"
+pass "welcome.html links to tam:start"
+
 printf 'All tam guide tests passed.\n'

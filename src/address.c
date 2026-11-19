@@ -30,7 +30,8 @@ tam_addr_kind_t tam_addr_kind(const char *href)
     if (has_prefix(href, "info:")) return TAM_ADDR_INFO;
     if (has_prefix(href, "tldr:")) return TAM_ADDR_TLDR;
     if (has_prefix(href, "archwiki:")) return TAM_ADDR_ARCHWIKI;
-    if (strcmp(href, "tam:help") == 0 || has_prefix(href, "tam:prompt:") ||
+    if (strcmp(href, "tam:help") == 0 || strcmp(href, "tam:start") == 0 ||
+        has_prefix(href, "tam:prompt:") ||
         has_prefix(href, "tam:fold:") || has_prefix(href, "tam:sandbox:"))
         return TAM_ADDR_ACTION;
     if (has_prefix(href, "tam:")) return TAM_ADDR_VIEW;

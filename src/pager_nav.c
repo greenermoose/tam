@@ -445,6 +445,13 @@ void follow(pager_t *st, const char *href)
         follow(st, "help/index.html");
         return;
     }
+    if (strcmp(href, "tam:start") == 0) {
+        char *const argv[] = { "tam-start", NULL };
+        pager_suspend(st);
+        (void)tam_run_foreground_command(argv, st->input_fd, st->msg, sizeof(st->msg));
+        pager_resume(st);
+        return;
+    }
     if (strcmp(href, "tam:prompt:page-search") == 0) {
         pager_search_prompt(st);
         return;

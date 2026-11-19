@@ -1,0 +1,44 @@
+W12 TAM:START ACTION AND WELCOME LINK
+
+Date: 2026-11-18
+AI harness: agy 1.5.12
+AI model: Gemini 4 Hydrogen (Medium)
+Commits: pending
+
+GUIDANCE
+
+  Fred: "/plan We want to be able to embed the start command in the tam pager,
+  so the "start using" link on page:welcome.htm in the tam knowledge corpus
+  can open the start menu and from there you can actually start using your
+  computer, rather than just reading about it.
+
+  I.e., instead of linking to page:desktop/session/start.html, it can like to
+  something like tam:start that shows the start menu and from there you can
+  launch programs."
+
+  Fred: "Approved. Proceed"
+
+WORK
+
+  - Classified `tam:start` as `TAM_ADDR_ACTION` in `src/address.c`.
+  - Extracted `tam_run_foreground_command()` in `src/external.h` and
+    `src/external.c` from `tam_external_run_foreground()` so foreground
+    command execution, signal handling, and status messages are shared.
+  - Handled `tam:start` in `follow()` (`src/pager_nav.c`) by suspending the
+    pager (`pager_suspend`), running `tam-start` in the foreground, and
+    resuming the pager (`pager_resume`).
+  - Changed the `"start using"` link on `knowledge/welcome.html` from
+    `desktop/session/start.html` to `tam:start` (keeping `"the start menu"`
+    link to `desktop/session/start.html`).
+  - Added `tam:start` PTY tests in `tests/run.sh` (both running `tam-start`
+    and missing `tam-start`) and a `welcome.html` link check in `tests/guide.sh`.
+  - Bumped command version to 0.64.0 (`src/version.h`, `tests/run.sh`,
+    `ROADMAP.md`, `docs/plans/development.md`) and corpus version to 0.100.2
+    (`knowledge/version`, `ROADMAP.md`), and rebuilt corpus indexes.
+
+CHECKS
+
+  - `make command`
+  - `make test-command`
+  - `make corpus-and-test`
+  - `make check-repo`
