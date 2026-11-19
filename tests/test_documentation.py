@@ -143,7 +143,7 @@ int main(void) {
         manifest.write_text('format 2\nname tamlinux\nversion 0.6.30\nsource tam abc\n')
         active.symlink_to(native, target_is_directory=True)
         binary = self.compile('development', ['src/identity.c'], IDENTITY_MAIN,
-                              f'-DTAM_ACTIVE_BUNDLE_ROOT="{active}"')
+                              f'-DTAM_ACTIVE_BUNDLE_ROOT="{active}"', '-DTAM_ACTIVE_SOURCE_ROOT=""')
 
         config = self.root / 'config' / 'tamlinux'
         config.mkdir(parents=True)

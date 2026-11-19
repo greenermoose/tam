@@ -30,6 +30,7 @@ endif
 
 BINDIR   ?= $(PREFIX)/bin
 BUNDLE_ROOT ?=
+CULTIVAR_ROOT ?= $(BUNDLE_ROOT)
 DOCDIR ?= /usr/share/doc
 DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
 MANDIR   ?= $(PREFIX)/share/man
@@ -39,12 +40,12 @@ PKG_CONFIG ?= pkg-config
 ifdef LIBTAM_PREFIX
 LIBTAM_CFLAGS ?= -I$(LIBTAM_PREFIX)/include
 LIBTAM_LIBS   ?= -L$(LIBTAM_PREFIX)/lib -ltam
-LIBTAM_ERROR  = $(if $(shell grep -s -l tam_bundle_guard $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.6.0 or later include/tam.h)
+LIBTAM_ERROR  = $(if $(shell grep -s -l tam_install_pending $(LIBTAM_PREFIX)/include/tam.h),,LIBTAM_PREFIX=$(LIBTAM_PREFIX) has no libtam 0.8.0 or later include/tam.h)
 else ifeq ($(origin LIBTAM_LIBS),undefined)
-LIBTAM_FOUND  = $(shell $(PKG_CONFIG) --atleast-version=0.6.0 libtam 2>/dev/null && echo yes)
+LIBTAM_FOUND  = $(shell $(PKG_CONFIG) --atleast-version=0.8.0 libtam 2>/dev/null && echo yes)
 LIBTAM_CFLAGS = $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --cflags libtam))
 LIBTAM_LIBS   = $(if $(LIBTAM_FOUND),$(shell $(PKG_CONFIG) --libs libtam))
-LIBTAM_ERROR  = $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.6.0 or later)
+LIBTAM_ERROR  = $(if $(LIBTAM_FOUND),,$(PKG_CONFIG) cannot find libtam 0.8.0 or later)
 endif
 
 LDFLAGS  ?=
@@ -73,7 +74,7 @@ TAM_BUILD_ID = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%h -- $(TAM_SOU
 TAM_SOURCE_REVISION = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%H -- $(TAM_SOURCES) 2>/dev/null),$(shell git -C "$(CURDIR)" rev-parse HEAD 2>/dev/null))
 TAM_SOURCE_DIRTY = $(if $(strip $(shell git -C "$(CURDIR)" status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),1,0)
 
-CPPFLAGS += -DTAM_BUNDLE_ROOT=\"$(BUNDLE_ROOT)\" -DTAM_DOCDIR=\"$(DOCDIR)\"
+CPPFLAGS += -DTAM_BUNDLE_ROOT=\"$(BUNDLE_ROOT)\" -DTAM_CULTIVAR_ROOT=\"$(CULTIVAR_ROOT)\" -DTAM_DOCDIR=\"$(DOCDIR)\"
 CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"
 IDENTITY_FLAGS = -DTAM_BUILD=\"$(TAM_BUILD_ID)\" -DTAM_SOURCE_REVISION=\"$(TAM_SOURCE_REVISION)\" -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 COMPILE_CONFIG = $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS)
@@ -111,9 +112,9 @@ $(BUILD)/tam.o $(BUILD)/upgrade.o: $(BUILD)/identity-config
 $(TAM): $(OBJS) $$(LIBTAM_ARCHIVE) $(BUILD)/link-config | $(BUILD)
 	$(CC) $(OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
 
-# Exercise per-user identity independently of the host's active bundle.
+# Exercise per-user identity independently of the host's active cultivar.
 $(BUILD)/identity-test.o: src/identity.c $(BUILD)/compile-config | $(BUILD) libtam-check
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -DTAM_ACTIVE_BUNDLE_ROOT=\"\" -MMD -MP -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -DTAM_ACTIVE_BUNDLE_ROOT=\"\" -DTAM_ACTIVE_SOURCE_ROOT=\"\" -MMD -MP -c $< -o $@
 
 $(BUILD)/tam-test: $(TEST_OBJS) $$(LIBTAM_ARCHIVE) $(BUILD)/link-config | $(BUILD)
 	$(CC) $(TEST_OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
@@ -136,7 +137,7 @@ $(BUILD):
 libtam-check:
 	@if [ -n '$(LIBTAM_ERROR)' ]; then \
 		printf '%s\n' 'tam: cannot build the command: $(LIBTAM_ERROR).' \
-		'  Install libtam 0.6.0 or later first, or set LIBTAM_PREFIX=<prefix>.' >&2; \
+		'  Install libtam 0.8.0 or later first, or set LIBTAM_PREFIX=<prefix>.' >&2; \
 		exit 1; fi
 
 # --- corpus lane: no compiler, libtam or command prerequisite --------------

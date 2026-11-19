@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <locale.h>
 #include <pwd.h>
+#include <limits.h>
 
 #include "version.h"
 
@@ -57,27 +58,136 @@ enum {
 static void print_tam_help(int tier);
 static void print_version(void);
 
+static bool manifest_has_path(const char *manifest_path, const char *rel)
+{
+    size_t len = 0;
+    char *text = tam_fs_read_file(manifest_path, &len);
+    if (!text) return false;
+    size_t rlen = strlen(rel);
+    char *needle = malloc(rlen + 4);
+    bool found = false;
+    if (needle) {
+        needle[0] = '"';
+        memcpy(needle + 1, rel, rlen);
+        needle[rlen + 1] = '"';
+        needle[rlen + 2] = '\0';
+        const char *p = text;
+        while ((p = strstr(p, needle)) != NULL) {
+            const char *after = p + rlen + 2;
+            while (*after == ' ' || *after == '\t') after++;
+            if (*after == ':') {
+                found = true;
+                break;
+            }
+            p += rlen + 2;
+        }
+        free(needle);
+    }
+    free(text);
+    return found;
+}
+
+static bool extract_json_current(const char *active_path, char *out, size_t max_len)
+{
+    size_t len = 0;
+    char *text = tam_fs_read_file(active_path, &len);
+    if (!text) return false;
+    const char *p = strstr(text, "\"current\"");
+    bool ok = false;
+    if (p) {
+        p += 9;
+        while (*p == ' ' || *p == '\t' || *p == ':') p++;
+        if (*p == '"') {
+            p++;
+            size_t i = 0;
+            while (*p && *p != '"' && i + 1 < max_len) {
+                if (!isxdigit((unsigned char)*p)) break;
+                out[i++] = *p++;
+            }
+            if (*p == '"' && i >= 12) {
+                out[i] = '\0';
+                ok = true;
+            }
+        }
+    }
+    free(text);
+    return ok;
+}
+
+static bool path_owned_by_cultivar(const char *path)
+{
+    static const char *const prefixes[] = {
+        "/usr/lib/tamlinux/versions/",
+        "/usr/lib/tamlinux/current/",
+        "/usr/lib/tamlinux/source/current/",
+        "/usr/bin/tamlinux/",
+        "/usr/share/doc/tamlinux/",
+        NULL
+    };
+    char resolved[PATH_MAX];
+    const char *candidates[2] = { path, NULL };
+    if (realpath(path, resolved) != NULL) candidates[1] = resolved;
+
+    for (int i = 0; i < 2; i++) {
+        const char *c = candidates[i];
+        if (!c) continue;
+        for (int j = 0; prefixes[j]; j++) {
+            if (strncmp(c, prefixes[j], strlen(prefixes[j])) == 0)
+                return true;
+        }
+    }
+
+    const char *state = getenv("TAM_STATE_DIR");
+    if (!state || !state[0]) state = "/var/lib/tamlinux";
+
+    char active_v2[PATH_MAX], active_v1[PATH_MAX], digest[128];
+    const char *manifests[2] = { NULL, NULL };
+    char manifest_buf[2][PATH_MAX + 256];
+
+    snprintf(active_v2, sizeof active_v2, "%s/active.json", state);
+    if (extract_json_current(active_v2, digest, sizeof digest)) {
+        snprintf(manifest_buf[0], sizeof manifest_buf[0], "%s/manifests/%s.json", state, digest);
+        manifests[0] = manifest_buf[0];
+    }
+    snprintf(active_v1, sizeof active_v1, "%s/source/active.json", state);
+    if (extract_json_current(active_v1, digest, sizeof digest)) {
+        snprintf(manifest_buf[1], sizeof manifest_buf[1], "%s/source/%s/manifest.json", state, digest);
+        manifests[1] = manifest_buf[1];
+    }
+
+    for (int i = 0; i < 2; i++) {
+        const char *c = candidates[i];
+        if (!c || c[0] != '/') continue;
+        const char *rel = c;
+        while (*rel == '/') rel++;
+        if (!*rel) continue;
+        for (int m = 0; m < 2; m++) {
+            if (manifests[m] && manifest_has_path(manifests[m], rel))
+                return true;
+        }
+    }
+    return false;
+}
+
 static int cmd_where(int argc, char **argv)
 {
     if (argc == 1 && (strcmp(argv[0], "--help") == 0 || strcmp(argv[0], "-h") == 0)) {
-        puts("Usage: tam where PATH\nShow bundle ownership, otherwise ask the native package manager.");
+        puts("Usage: tam where PATH\nShow Tamlinux cultivar ownership, otherwise ask the native package manager.");
         return 0;
     }
     if (argc != 1 || !argv[0][0]) {
         fputs("Usage: tam where PATH\n", stderr);
         return 2;
     }
-    const char *bundle[] = {"tam-bundle", "where", argv[0], NULL};
-    tam_exec_result_t result = tam_exec(bundle, 10000);
-    if (result.exit_code == 0) {
-        if (result.stdout_buf) fputs(result.stdout_buf, stdout);
-        if (result.stderr_buf) fputs(result.stderr_buf, stderr);
-        tam_exec_result_free(&result);
+    if (path_owned_by_cultivar(argv[0])) {
+        char ver[128];
+        if (tam_cultivar_read_version(NULL, ver, sizeof ver) != 0)
+            snprintf(ver, sizeof ver, "installed");
+        printf("%s is owned by tamlinux %s\n", argv[0], ver);
         return 0;
     }
-    tam_exec_result_free(&result);
     const char *arch[] = {"pacman", "-Qo", "--", argv[0], NULL};
-    result = tam_exec(arch, 10000);
+    tam_exec_result_t result = tam_exec(arch, 10000);
     if (result.exit_code == 127) {
         tam_exec_result_free(&result);
         const char *native[] = {"xbps-query", "-o", argv[0], NULL};
@@ -86,7 +196,7 @@ static int cmd_where(int argc, char **argv)
     if (result.stdout_buf) fputs(result.stdout_buf, stdout);
     if (result.stderr_buf) fputs(result.stderr_buf, stderr);
     int status = result.exit_code == 0 ? 0 : 1;
-    if (result.exit_code == 127) fputs("tam where: install tam-bundle or a supported native package manager\n", stderr);
+    if (result.exit_code == 127) fputs("tam where: no supported native package manager found\n", stderr);
     tam_exec_result_free(&result);
     return status;
 }
@@ -227,7 +337,7 @@ static void print_tam_help(int tier)
         "System subcommands to try:\n"
         "  tam inspect               inspect system components\n"
         "  tam check                 check system health\n\n"
-        "  tam where PATH            show a file's bundle or native package\n\n"
+        "  tam where PATH            show a file's cultivar or native package\n\n"
         "  tam upgrade / switch      check, build, or recover source stages\n\n"
         "Options to know:\n"
         "  --help, -h                show this help overview\n"
@@ -969,8 +1079,8 @@ static int cmd_search(int n, char **args)
 
 int main(int argc, char **argv)
 {
-    if (tam_bundle_guard(NULL)) {
-        fputs("Tamlinux is switching versions or needs recovery; use tam-bundle status from the console.\n", stderr);
+    if (tam_install_pending(NULL)) {
+        fputs("Tamlinux has an interrupted update pending; finish recovery from the console.\n", stderr);
         return 1;
     }
     (void)setlocale(LC_CTYPE, "");
