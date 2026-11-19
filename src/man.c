@@ -143,17 +143,23 @@ static char *literal_apropos_pattern(const char *text)
     return out;
 }
 
-static tam_document_t *html_document(const char *title, const char *body, int width)
+static tam_document_t *html_document_ex(const char *title, const char *body, int width,
+                                         size_t ncrumbs)
 {
     const tam_crumb_t crumbs[] = {
         { "index.html", "Guide" }, { "tam:man", "Man pages" }, { NULL, title }
     };
-    tam_str_t html = tam_page_begin(title, NULL, crumbs, 3);
+    tam_str_t html = tam_page_begin(title, NULL, crumbs, ncrumbs);
     html = tam_str_cat(html, "<h1>");
     html = tam_html_cat(html, title);
     html = tam_str_cat(html, "</h1>");
     html = tam_str_cat(html, body);
     return tam_page_render(html, width);
+}
+
+static tam_document_t *html_document(const char *title, const char *body, int width)
+{
+    return html_document_ex(title, body, width, 3);
 }
 
 char *tam_man_linkify_html(const char *src)
@@ -706,43 +712,22 @@ cleanup:
 static tam_document_t *man_landing_document(int width)
 {
     tam_str_t body = tam_str_new(
-        "<p>Open installed manual pages, find them by keyword, or browse a section. "
-        "Manual lookup is separate from searching the Guide with <a href=\"tam:search\">Guide Search</a>.</p>\n"
         "<ul>\n"
-        "<li><a href=\"tam:prompt:man-open\">Open a page</a> by name, optionally with a section.</li>\n"
+        "<li><a href=\"tam:prompt:man-open\">Open a man page</a> by name, optionally with a section.</li>\n"
         "<li><a href=\"tam:prompt:man-keyword\">Find by keyword</a> in the installed manual index.</li>\n"
         "<li><a href=\"tam:prompt:man-section\">Browse a section</a> by section number or installed subsection.</li>\n"
         "</ul>\n<h2>Section guide</h2>\n"
         "<table><tr><th>Section</th><th>Contents</th></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=1\">1</a></td><td><a href=\"tam:man:section?section=1\">Commands</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=2\">2</a></td><td><a href=\"tam:man:section?section=2\">System calls</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=3\">3</a></td><td><a href=\"tam:man:section?section=3\">Library calls</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=4\">4</a></td><td><a href=\"tam:man:section?section=4\">Device files</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=5\">5</a></td><td><a href=\"tam:man:section?section=5\">File formats</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=6\">6</a></td><td><a href=\"tam:man:section?section=6\">Games</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=7\">7</a></td><td><a href=\"tam:man:section?section=7\">Miscellaneous and conventions</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=8\">8</a></td><td><a href=\"tam:man:section?section=8\">Administration</a></td></tr>\n"
-        "<tr><td><a href=\"tam:man:section?section=9\">9</a></td><td><a href=\"tam:man:section?section=9\">Kernel routines (optional)</a></td></tr></table>\n"
-        "<p>Installed subsection names are accepted too. Section contents differ by host.</p>\n"
-        "<h2>Starting points</h2>\n<ul>\n");
-    static const struct { const char *name; const char *section; } starts[] = {
-        {"printf", "1"}, {"systemctl", "1"}, {"fstab", "5"}
-    };
-    int found = 0;
-    for (size_t i = 0; i < sizeof(starts) / sizeof(starts[0]); i++) {
-        char *path = tam_man_resolve_path(starts[i].name, starts[i].section);
-        int installed = path != NULL;
-        free(path);
-        if (!installed) continue;
-        body = tam_str_cat_printf(body,
-            "<li><a href=\"man:%s(%s)\">%s(%s)</a></li>\n",
-            starts[i].name, starts[i].section, starts[i].name, starts[i].section);
-        found++;
-    }
-    if (found == 0)
-        body = tam_str_cat(body, "<li>No curated manual pages are installed; use Open a page or Browse a section.</li>\n");
-    body = tam_str_cat(body, "</ul>\n");
-    tam_document_t *doc = html_document("Manual lookup", body, width);
+        "<tr><td>1</td><td><a href=\"tam:man:section?section=1\">Commands</a></td></tr>\n"
+        "<tr><td>2</td><td><a href=\"tam:man:section?section=2\">System calls</a></td></tr>\n"
+        "<tr><td>3</td><td><a href=\"tam:man:section?section=3\">Library calls</a></td></tr>\n"
+        "<tr><td>4</td><td><a href=\"tam:man:section?section=4\">Device files</a></td></tr>\n"
+        "<tr><td>5</td><td><a href=\"tam:man:section?section=5\">File formats</a></td></tr>\n"
+        "<tr><td>6</td><td><a href=\"tam:man:section?section=6\">Games</a></td></tr>\n"
+        "<tr><td>7</td><td><a href=\"tam:man:section?section=7\">Miscellaneous and conventions</a></td></tr>\n"
+        "<tr><td>8</td><td><a href=\"tam:man:section?section=8\">Administration</a></td></tr>\n"
+        "<tr><td>9</td><td><a href=\"tam:man:section?section=9\">Kernel routines (optional)</a></td></tr></table>\n");
+    tam_document_t *doc = html_document_ex("Man Pages", body, width, 2);
     tam_str_free(body);
     return doc;
 }

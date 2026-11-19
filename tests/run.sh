@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.65.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.65.4' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3008,10 +3008,12 @@ pass "install framework overview, inspect probes, check runner, and argument err
 
 # Man command: view man pages, section resolution, cross-reference hyperlinking, and tam-man wrapper.
 man_landing=$("$TAM" man)
-printf '%s\n' "$man_landing" | grep -q '^Guide > Man pages > Manual lookup$' || fail "bare man missing landing location"
-printf '%s\n' "$man_landing" | grep -q 'Open a page' || fail "bare man missing open-page action"
+printf '%s\n' "$man_landing" | grep -q '^Guide > Man pages$' || fail "bare man missing landing location"
+printf '%s\n' "$man_landing" | grep -q 'Open a man page' || fail "bare man missing open-page action"
 printf '%s\n' "$man_landing" | grep -q 'Find by keyword' || fail "bare man missing keyword action"
 printf '%s\n' "$man_landing" | grep -q 'Browse a section' || fail "bare man missing section action"
+[ "$(printf '%s\n' "$man_landing" | grep -c 'tam:man:section?section=')" -eq 9 ] \
+    || fail "section guide should link names only, not numbers"
 "$TAM" man --help | grep -q 'Usage:' || fail "man --help missing usage"
 "$TAM" man help | grep -q 'Usage:' || fail "man help missing usage"
 [ "$("$TAM" man help)" = "$("$TAM" man --help)" ] || fail "man help differs from man --help"
@@ -3180,10 +3182,10 @@ def parse_info(buf):
 pid, master = launch(["man"])
 buf = drain(master)
 title, target = parse_info(buf)
-assert title == "Manual lookup" and target == "", (title, target)
+assert title == "Man Pages" and target == "", (title, target)
 os.write(master, b"\x1b[A")
 title, target = parse_info(drain(master))
-assert title == "Manual lookup" and target == "tam:man", f"Up did not focus the last breadcrumb: {target}"
+assert title == "Man Pages" and target == "tam:man", f"Up did not focus the last breadcrumb: {target}"
 os.write(master, b"[")
 title, target = parse_info(drain(master))
 assert target == "index.html", f"[ did not move left across breadcrumbs: {target}"
@@ -3215,7 +3217,7 @@ os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
 
 pid, master = launch(["man"])
 buf = drain(master)
-os.write(master, b"\t\t\r")
+os.write(master, b"\t\r")
 buf += drain(master)
 os.write(master, b"printf\r")
 buf += drain(master, 0.3)
@@ -3246,7 +3248,7 @@ buf = drain(master, 0.3)
 assert b"Zebra(1)" in buf, buf
 os.write(master, b"u")
 buf = drain(master, 0.3)
-assert b"Manual lookup" in buf, buf
+assert b"Section guide" in buf, buf
 assert parse_info(buf)[1] == "tam:man:section?section=1", f"u did not restore section 1 link: {parse_info(buf)}"
 os.write(master, b"q"); os.waitpid(pid, 0); os.close(master)
 

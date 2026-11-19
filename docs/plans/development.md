@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-19:** Command 0.65.4 (patch) cleans up the Man pages landing: section numbers are no longer links, the breadcrumb is Guide > Man pages, the header is Man Pages, and the intro, subsection note and starting points are removed.
 - **2026-11-19:** Command 0.65.3 (patch) shows how to run commands and close the sandbox. Goals appear as checkboxes that mark completion. Corpus 0.100.5 (patch) capitalizes the Hello World goal.
 
 - **2026-11-19:** Command 0.65.2 (patch) keeps the expanded sandbox frame visible when it fits and displays “Playing in sandbox -- Esc to close” in the status row.

@@ -1,0 +1,46 @@
+W16 MAN PAGES LANDING CLEANUP
+
+Date: 2026-11-19
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "In the tam pager, do not hyperlink the number in the list of
+  man page sections. Just hyperlink the name of the section."
+
+  Fred: "Also, clean up a few more things for tam:man: 1) Change
+  breadcrumb from 'Guide > Man pages > Manual lookup' to
+  'Guide > Man pages'. 2) Change Man pages header from
+  'Manual lookup' to 'Man Pages'. 3) Remove 'Open installed manual
+  pages, find them by keyword, or browse a section. Manual lookup is
+  separate from searching the Guide with Guide Search.' 4) Change
+  '_Open a page_ by name, optionally with a section.' to
+  '_Open a man page_ by name, optionally with a section.' 5) Remove
+  'Installed subsection names are accepted too. Section contents
+  differ by host.' and 'Starting points' with printf(1),
+  systemctl(1) and fstab(5)."
+
+DONE
+
+  - Section guide rows link only the section name; the number is
+    plain text.
+  - Landing breadcrumb is Guide > Man pages and the header is
+    Man Pages.
+  - Removed the intro paragraph, subsection note and Starting points
+    list, including its host page probing.
+  - Added a check that the landing has nine section links, not 18.
+  - Updated PTY tests for the new wording and single-Tab man prompt.
+  - Bumped command 0.65.3 -> 0.65.4 in version.h, tests, ROADMAP and
+    the development decision record.
+  - Passed make command, make check-repo and make test-command.
+
+FAILED
+
+  - The first test run failed the manual-open prompt assertion: the
+    removed Guide Search link had been the first Tab stop, so two
+    Tabs reached "Find by keyword". One Tab now opens the prompt.
+
+HANDOFF
+
+  Command 0.65.4 is ready on develop for the next build request.
