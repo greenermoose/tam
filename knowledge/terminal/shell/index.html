@@ -17,36 +17,23 @@
 
 
 <h1>Giving your computer written instructions</h1>
-<p>This page explains how to give your computer written instructions and read its replies.</p>
+<p>From a terminal, you can give a shell written instructions and read its replies.</p>
 
 <section data-level="novice">
-<h2>What is a shell?</h2>
-<p>A terminal is a place to type instructions and read replies. A shell is the program that reads those instructions. You can connect small programs to do more work together.</p>
+<h2>What is a terminal and a shell?</h2>
+<p>A <a href="glossary/t/terminal.html">terminal</a> is a place to type instructions and read replies. A <a href="glossary/s/shell.html">shell</a> is the program that reads those instructions and decides what to do with them.</p>
 
-<h3>Why it matters</h3>
-<p>Recognizing what is a command and what is output helps you avoid typing a reply as if it were an instruction, or mistaking an error message for ordinary results.</p>
-
-<h3>How to think about it</h3>
-<p>Think of the shell as a receptionist who takes your written request, hands it to the right office, and brings back the reply. The three common reply channels are ordinary results, error messages, and the text you type in.</p>
-
-<h3>New words</h3>
-<dl>
-<dt><dfn><a href="glossary/s/shell.html">Shell</a></dfn></dt><dd>The program that reads typed instructions and starts other programs.</dd>
-<dt><dfn><a href="glossary/s/stream.html">Stream</a></dfn></dt><dd>A continuous flow of text into or out of a program.</dd>
-<dt><dfn><a href="glossary/t/terminal.html">Terminal</a></dfn></dt><dd>The window or console where you type and read text.</dd>
-</dl>
+<p>Think of the shell as a receptionist who takes your written request, hands it to the right office, and brings back the reply. Sometimes the reply channel is an ordinary result, and sometimes it is an error message.</p>
 </section>
 
 <section data-level="learner">
 <h2>Commands and streams</h2>
-<p><strong>Goal:</strong> recognize a command, its output, and the streams a shell connects.</p>
+<p><strong>Goal:</strong> learn how to send commands and read results.</p>
 
-
-<p><strong>Before you start:</strong> use a terminal and read <a href="paths/first-steps.html">First steps</a>. This example changes no files.</p>
 <aside class="first-time"><p><strong>New to this?</strong> Type the text after the dollar sign at your prompt and press Enter. The next line is output.</p></aside>
 
-<h3>Worked example</h3>
-<p>Open the sandbox below and run <code>echo "Hello, world!"</code> to see how a shell reads a command and prints its output.</p>
+<h3>Hello, world!</h3>
+<p>The traditional first thing to do for any software engineer to do on a system is figure out how to get it to print "Hello, world!"  Open the sandbox below and see if you can figure that out.</p>
 <tam-sandbox
   title='First "Hello, world!" command'
   prompt="you@tamlinux:~ $ "
@@ -58,26 +45,26 @@
       <file name="notes.txt" size="32">Welcome to the shell sandbox.</file>
     </dir>
   </tam-fs>
-  <tam-cmd match='echo "Hello, world!"' goal="true" hint="Simple and direct: echo prints its arguments followed by a newline.">
+  <tam-cmd match='echo "Hello, world!"' goal="true" hint="Kudos to you! You can see that echo prints its arguments followed by a newline.">
     <out>Hello, world!</out>
   </tam-cmd>
-  <tam-cmd match="echo 'Hello, world!'" goal="true" hint="Single quotes also work here because there are no variables to expand.">
+  <tam-cmd match="echo 'Hello, world!'" goal="true" hint="Nice discovery. Single quotes also work here because there are no variables to expand.">
     <out>Hello, world!</out>
   </tam-cmd>
   <tam-hint after="2">Type: echo "Hello, world!" (or type help to see simulated commands).</tam-hint>
   <tam-fallback>In this sandbox, try echo "Hello, world!" or ls.</tam-fallback>
 </tam-sandbox>
-<p>The shell runs <code>echo</code>; the line below your command is its output.</p>
+<p>The shell evaluates what you've typed after you press your Return key (which may be labeled Enter on your keyboard); the line below your command is its output.</p>
 
 <h3>What just happened</h3>
 <ol>
 <li>You typed a command after the prompt.</li>
-<li>The shell started <code>echo</code> with the argument <code>Hello, world!</code>.</li>
-<li>The program wrote <code>Hello, world!</code> to standard output, which appeared on your screen.</li>
+<li>The shell looked for the <code>echo</code> program, found it, and started it with the argument <code>Hello, world!</code>.</li>
+<li>The echo program wrote <code>Hello, world!</code> to standard output, which appeared on your screen.</li>
 </ol>
 
 <h3>The standard streams</h3>
-<p>A program started by the shell usually has three standard streams:</p>
+<p>A program started by the shell usually has three standard <a href="glossary/s/stream.html">streams</a>:</p>
 <dl>
 <dt>0 &mdash; standard input (stdin)</dt>
 <dd>Where the program reads input, usually from your terminal.</dd>

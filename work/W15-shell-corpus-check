@@ -1,0 +1,31 @@
+W15 SHELL LESSON CORPUS CHECK
+
+Date: 2026-11-19
+AI harness: Codex 0.170.0
+AI model: gpt-6.2-sol
+
+GUIDANCE
+
+  Fred (excerpt): "Fix this error. Some test is being overly persnickety."
+  Fred: "Continue"
+  Fred: "commit"
+
+DONE
+
+  - Closed the Novice section before the Learner exercise.
+  - Made a scripted sandbox command and its output count as a worked
+    example, so the Hello, world! heading can stay.
+  - Matched the sandbox start directory to its virtual filesystem.
+  - Recognized timed corpus checks in developer-loop failure guidance
+    and removed the duplicate copy of streamed output.
+  - Passed make corpus-and-test, the 23 developer-loop unit tests, and
+    make test with the live Ollama checks skipped.
+
+FAILED
+
+  - The first full corpus check flagged /home/you. The sandbox now
+    starts in /home/alex and still shows the you@tamlinux prompt.
+
+HANDOFF
+
+  The fix is included in corpus 0.100.6.

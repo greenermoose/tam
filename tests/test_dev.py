@@ -809,6 +809,19 @@ class FailureExplanationTest(unittest.TestCase):
         self.assertIn("Fix the page it names", text)
         self.assertNotIn("Ask an agent", text)
 
+    def test_timed_corpus_pipeline_failure_is_a_page_check(self):
+        output = (
+            "==> [start] Corpus checks: python3 tools/corpus_pipeline.py check\n"
+            "corpus: Error: terminal/shell/index.html: learner anatomy: missing worked example\n"
+            "==> [failed (1)]  Corpus checks (0.32s)\n"
+            "make: *** [Makefile:150: corpus-check] Error 1\n"
+        )
+        lines = dev_mod.explain_test_failure(output, self.PAGE_CHANGES)
+        self.assertEqual(lines, [
+            "Failing check: python3 tools/corpus_pipeline.py check",
+            "This check reads the pages. Fix the page it names, then run make dev again.",
+        ])
+
     def test_command_change_only_names_the_check(self):
         changes = {"corpus": [], "command": ["src/pager.c"], "other": []}
         lines = dev_mod.explain_test_failure(self.COMMAND_TEST_OUTPUT, changes)

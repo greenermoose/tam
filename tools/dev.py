@@ -856,6 +856,7 @@ def step_versions(root, changes, claim_state, dry_run=False, today=None):
 # Checks that read the developer's pages. Any other failing step is a build,
 # command or repository test that an agent fixes.
 PAGE_CHECKS = (
+    "tools/corpus_pipeline.py check",
     "tools/build-index.py",
     "tools/lint-corpus.py",
     "tests/test_lint_corpus.py",
@@ -863,6 +864,7 @@ PAGE_CHECKS = (
     "tests/guide.sh",
 )
 RECIPE_RE = re.compile(r"^(tests/\S+|python3 |TAM_TEST_SKIP_OLLAMA=)")
+TIMED_RECIPE_RE = re.compile(r"^==> \[start\] [^:]+: (.+)$")
 PAGE_ONLY_OTHER = frozenset({"ROADMAP.md"})
 
 
@@ -870,6 +872,9 @@ def failing_check(output):
     """The last test or check recipe make echoed before it stopped."""
     last = None
     for line in output.splitlines():
+        timed_recipe = TIMED_RECIPE_RE.match(line)
+        if timed_recipe:
+            line = timed_recipe[1]
         if RECIPE_RE.match(line):
             last = line.strip()
     return last
@@ -928,9 +933,6 @@ def step_build_and_test(root, changes):
     test_args = (target, *extra_args)
     res = run_make(root, *test_args, stream=True)
     if res.returncode != 0:
-        lines = res.stdout.splitlines()
-        tail = "\n".join(lines[-40:])
-        print(tail)
         print()
         print("\n".join(explain_test_failure(res.stdout, changes)))
         raise DevError(f"make {target} failed; version edits remain in the working tree.")

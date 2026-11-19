@@ -601,7 +601,8 @@ class LearningHTML(HTMLParser):
         if tag in {"meta", "br", "hr", "img", "link", "input", "wbr"}:
             return
         node = {"tag": tag, "attrs": attrs, "text": [], "links": [],
-                "quiz": False, "first-time": False, "tamlinux": False}
+                "quiz": False, "sandbox-example": False,
+                "first-time": False, "tamlinux": False}
         for parent in self.stack:
             classes = attrs.get("class", "").split()
             parent["quiz"] |= tag == "details" and "q" in classes
@@ -624,6 +625,13 @@ class LearningHTML(HTMLParser):
             if self.stack[i]["tag"] != tag:
                 continue
             nodes, self.stack = self.stack[i:], self.stack[:i]
+            if (tag == "out" and len(self.stack) >= 2
+                    and self.stack[-2]["tag"] == "tam-sandbox"
+                    and self.stack[-1]["tag"] == "tam-cmd"
+                    and (self.stack[-1]["attrs"].get("match") or "").strip()
+                    and "".join(nodes[0]["text"]).strip()):
+                for parent in self.stack[:-2]:
+                    parent["sandbox-example"] = True
             for node in nodes:
                 if node["tag"] in {"dfn", "cite"}:
                     self.refs.append(node)
@@ -729,7 +737,9 @@ def learning_metadata(knowledge, entries, errors, parsed=None):
                         warnings.append({"path": path, "level": level, "forbidden": forbidden})
                 continue
             if level == "learner":
-                required = ["goal:", "worked example", "try it", "if it goes wrong"]
+                required = ["goal:", "try it", "if it goes wrong"]
+                if not section["sandbox-example"]:
+                    required.insert(1, "worked example")
                 missing = [name for name in required if name not in text]
                 if not section["quiz"]:
                     missing.append("quiz")

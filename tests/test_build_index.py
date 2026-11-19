@@ -178,6 +178,30 @@ class BuildIndex(unittest.TestCase):
         self.assertIn('shell/pipelines.html: learner anatomy:', result.stderr)
         self.assertIn('quiz', result.stderr)
 
+    def test_scripted_sandbox_output_counts_as_a_worked_example(self):
+        lesson = (
+            '<section data-level="learner"><h2>Commands</h2>'
+            '<p>Goal: print a greeting.</p><h3>Hello, world!</h3>'
+            '<tam-sandbox><tam-cmd match="echo hello">{output}</tam-cmd></tam-sandbox>'
+            '<h3>Try it</h3><h3>If it goes wrong</h3>'
+            '<details class="q"><summary>What prints?</summary><p>hello</p></details>'
+            '</section>'
+        )
+        path = 'shell/pipelines.html'
+        base = page('Pipelines', 'use', 'index.html').replace(
+            'content="novice"', 'content="learner"')
+        root = self.fixture('0.40.0', {'index.html': page('Guide'), path: base})
+        for output in ('<out>hello</out>', '<out> </out>'):
+            with self.subTest(output=output):
+                (root / 'knowledge' / path).write_text(
+                    base.replace('</body>', lesson.format(output=output) + '</body>'))
+                result = self.build(root)
+                if output == '<out>hello</out>':
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                else:
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn('learner anatomy: missing worked example', result.stderr)
+
     def test_d221_novice_learner_anatomy_errors_only_on_pilot_pages(self):
         """Non-migrated novice/learner gaps warn; D221 migrated pages hard-fail."""
         partial = (
