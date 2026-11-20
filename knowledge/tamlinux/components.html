@@ -4,7 +4,7 @@
 <title>Understanding the whole system</title>
 <meta name="topic" content="ecosystem">
 <meta name="summary" content="See how the parts of a Tamlinux computer work together, from hardware and Linux rootstock to the desktop, terminal, and Tamlinux tools.">
-<meta name="keywords" content="understanding the whole system, ecosystem, choices, packages, dependencies, architecture, philosophy, survey, free software, why, host, rootstock, bud, scion, cultivar, fruit, hyprland, quickshell, wayland, arch, void, nix, foot, bash">
+<meta name="keywords" content="understanding the whole system, ecosystem, choices, packages, dependencies, architecture, philosophy, survey, free software, why, host, rootstock, bud, scion, cultivar, fruit, hyprland, quickshell, wayland, arch, void, pacman, make, foot, bash">
 <meta name="level" content="novice, learner, expert">
 <meta name="kind" content="explanation">
 <meta name="track" content="tamlinux">
@@ -73,7 +73,7 @@
 <tr><td><strong>Init and services</strong></td><td><code>systemd</code></td><td><code>runit</code> (<a href="systems/init.html">Init and service supervision</a>)</td></tr>
 <tr><td><strong>Login and display</strong></td><td>SDDM + Hyprland (Wayland) + Quickshell</td><td>Sway on <code>wlroots</code> (<a href="desktop/session/index.html">Login, input and sessions</a>)</td></tr>
 <tr><td><strong>Terminal and shell</strong></td><td><code>foot</code> terminal + <code>bash</code> + <code>tam</code></td><td>Same curated defaults (<a href="terminal/shell/index.html">Written instructions</a>)</td></tr>
-<tr><td><strong>Packages and delivery</strong></td><td>Arch <code>pacman</code> + Nix/Home Manager assemblies (<code>tam-deploy</code>) + <code>mise</code> for user CLIs</td><td>Native <code>xbps-src</code> packages built from the same sources (<a href="systems/packages/index.html">Software packages</a>)</td></tr>
+<tr><td><strong>Packages and delivery</strong></td><td>Arch <code>pacman</code> for ecosystem packages; Tamlinux software built and installed from Git sources with <code>make</code> and <code>make install</code>; <code>mise</code> for user-local agent CLIs</td><td>Native <code>xbps-src</code> packages built from the same sources (<a href="systems/packages/index.html">Software packages</a>)</td></tr>
 <tr><td><strong>Tamlinux scion</strong></td><td><code>tam-*</code> commands, <code>fred.*</code> Quickshell plugins, and this offline <code>tam</code> guide</td><td>Continued refinement in C11 and clean scripts (<a href="tamlinux/development/tam.html">The tam command</a>)</td></tr>
 </table>
 
@@ -132,7 +132,7 @@ Installation Capabilities:
 <tr><th>Boundary</th><th>Responsibility</th><th>Authoritative reference</th></tr>
 <tr><td><strong>Rootstock &amp; carried patches</strong></td><td>Upstream Arch packages plus minimal local fixes published on public forks and retired automatically when upstream ships them.</td><td><a href="tamlinux/development/patches.html">Carried patches</a></td></tr>
 <tr><td><strong>Scion source</strong></td><td>Product code across <code>tamlinux</code> (<code>commands/</code>, <code>desktop/</code>, <code>desktop/plugins/fred.*</code>), <code>tam</code> (C11 reader + HTML corpus), and <code>tamlinux-tools</code> (standalone utilities).</td><td><a href="tamlinux/development/tam.html">The tam command</a></td></tr>
-<tr><td><strong>Recorded assemblies</strong></td><td>Software reaches live sessions only through recorded Nix/Home Manager <code>tamlinux-packages</code> assemblies via <code>tam-deploy</code>, never from raw checkouts.</td><td><a href="tamlinux/development/package-versions.html">Package versions</a></td></tr>
+<tr><td><strong>Recorded assemblies</strong></td><td>Test and Run use a recorded candidate delivery built from pinned Git commits. Development builds can be installed separately for local trials.</td><td>Source-install delivery records in <code>tamlinux-packages</code></td></tr>
 <tr><td><strong>User configuration</strong></td><td>Personal overrides live under <code>~/.config/</code> following XDG standards, separate from packaged defaults.</td><td><a href="tamlinux/design/philosophy.html">Philosophy and principles</a></td></tr>
 </table>
 
