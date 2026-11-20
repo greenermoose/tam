@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>RTT (Round-Trip Time)</title>
+<meta name="topic" content="glossary-rtt">
+<meta name="summary" content="RTT (Round-Trip Time): The elapsed time for a network signal or packet to travel from a sender to a destination and for the reply to return.">
+<meta name="keywords" content="glossary-rtt, rtt, latency, networking, tls, handshake, ping">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/r/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / RTT (Round-Trip Time)</p></nav>
+
+<h1>RTT (Round-Trip Time)</h1>
+<p>The elapsed time for a network signal or packet to travel from a sender to a destination and for the reply to return.</p>
+<section data-level="novice"><p>Round-trip time is how long it takes a message to cross the network to another computer and come back—measured in milliseconds.</p></section>
+<section data-level="learner"><p>Protocols like TLS 1.3 and QUIC are engineered to minimize the number of round trips required during connection setup because each extra RTT adds noticeable delay on long-distance links.</p><details class="q"><summary>Why did TLS 1.3 reduce its handshake from 2-RTT to 1-RTT?</summary><p>Cutting a round trip halves the network wait time before encrypted data can start flowing, noticeably speeding up connections on high-latency links.</p></details></section>
+<section data-level="expert"><p>RTT combines propagation delay, transmission/serialization delay, and queuing delay across hops; TCP congestion control (e.g., BBR, CUBIC) continuously estimates smoothed RTT (SRTT) and RTT variance to size windows and retransmission timers.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="security/protocols/tls-and-https.html">TLS and HTTPS</a></li><li><a href="security/protocols/security-protocols.html">Security protocols</a></li></ul>
+</body></html>

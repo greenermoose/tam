@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Device node</title>
+<meta name="topic" content="glossary-device-node">
+<meta name="summary" content="Device node: A special file in /dev (such as /dev/ttyUSB0 or /dev/nvme0n1) that gives user-space programs an interface to a kernel hardware driver.">
+<meta name="keywords" content="glossary-device-node, device node, /dev, udev, block device, character device, hardware">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / Device node</p></nav>
+
+<h1>Device node</h1>
+<p>A special file in /dev (such as /dev/ttyUSB0 or /dev/nvme0n1) that gives user-space programs an interface to a kernel hardware driver.</p>
+<section data-level="novice"><p>In Linux, hardware devices appear like special files inside the /dev folder so programs can talk to a keyboard, serial cable, or disk drive using ordinary file operations.</p></section>
+<section data-level="learner"><p>Character device nodes (like /dev/ttyUSB0 or /dev/input/event0) transfer streams of bytes or events; block device nodes (like /dev/nvme0n1) transfer fixed-size storage blocks.</p><details class="q"><summary>Why is a missing /dev/ttyUSB0 node useful diagnostic evidence?</summary><p>It shows immediately that the kernel has not enumerated the USB serial adapter or bound a driver to it, pointing to a cable, power, or driver issue before checking terminal settings.</p></details></section>
+<section data-level="expert"><p>Device nodes are inodes of type S_IFCHR or S_IFBLK carrying major and minor driver numbers, created dynamically on devtmpfs by the kernel and given permissions and persistent symlinks by udev rules.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="hardware/diagnostics/hardware-diagnostics.html">Hardware diagnostics</a></li><li><a href="desktop/session/evdev.html">Linux input subsystem</a></li></ul>
+</body></html>

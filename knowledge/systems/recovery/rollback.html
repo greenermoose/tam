@@ -4,7 +4,7 @@
 <title>Returning to an earlier working state</title>
 <meta name="topic" content="rollback">
 <meta name="summary" content="Choose recovery for software, mutable data and boot state without changing the system">
-<meta name="keywords" content="rollback, snapshots, btrfs, cow, copy-on-write, subvolume, home-manager, generations, nix, restore">
+<meta name="keywords" content="rollback, snapshots, btrfs, cow, copy-on-write, subvolume, source-install, cultivar, restore">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/recovery/index.html">
@@ -89,7 +89,7 @@ before
 </dl>
 
 <aside class="tamlinux">
-<p>Product delivery and return use the recorded <code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, on the developer's instruction for the exact candidate. Mutable data needs its own recovery procedure.</p>
+<p>Product delivery and return use the recorded Tamlinux source-install stage (or prior bundle on transitional hosts) on the developer&apos;s instruction for the exact candidate. Mutable data needs its own recovery procedure.</p>
 </aside>
 
 <h3>Clean up</h3>
@@ -124,7 +124,7 @@ $ findmnt --noheadings --output TARGET,FSTYPE,FSROOT --target /
 
 <h3>Why Tamlinux records the assembly</h3>
 <p>The <cite data-ref="deployment"><a href="bibliography/deployment.html">deployment contract</a></cite>
-ties candidates to revisions and installed outputs and retains the previous package/generation. The product's <code>commands/tam-deploy/tam-deploy</code> restores the recorded selection.</p>
+ties candidates to revisions and installed outputs and retains the previous package/generation. The retained source-install recovery tool (or <code>tam-deploy</code> on transitional bundle hosts) restores the recorded previous stage.</p>
 
 <h3>Sources</h3>
 <ul>

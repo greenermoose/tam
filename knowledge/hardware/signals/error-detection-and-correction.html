@@ -24,17 +24,20 @@
 
 <section data-level="novice">
 <h2>How do systems catch bit errors?</h2>
-<p>Computers control critical real-world systems, from banking transactions and hard drives to automotive brakes and medical monitors. If a cosmic ray, a nearby motor spark, or a loose connector cable causes a <code>0</code> to become a <code>1</code> unnoticed, a monetary transfer of $100 could silently become $10,000, or a machine code instruction could jump into unmapped memory and crash the kernel. Error detection provides the mathematical safety net that protects digital logic from physical reality.</p>
+<p>Error detection and correction add small mathematical check values alongside data so a receiver can notice when noise flips a <code>0</code> into a <code>1</code>—and in some systems, automatically fix the mistake.</p>
 <h3>Why it matters</h3>
-<p>Computers control critical real-world systems, from banking transactions and hard drives to automotive brakes and medical monitors. If a cosmic ray, a nearby motor spark, or a loose connector cable causes a <code>0</code> to become a <code>1</code> unnoticed, a monetary transfer of $100 could silently become $10,000, or a machine code instruction could jump into unmapped memory and crash the kernel. Error detection provides the mathematical safety net that protects digital logic from physical reality.</p>
+<p>Computers manage banking records, disk files, and critical machines. If electrical noise or a flaky cable silently flips even a single bit, a number or program instruction can become wrong. Check codes provide the safety net that catches corruption before it causes harm.</p>
 <h3>How to think about it</h3>
-<p>New to this? Think of a parity bit like a quick count verification.</p>
+<p>Think of a check digit on a credit card or a quick count at the end of a grocery list: if you wrote &ldquo;5 items&rdquo; at the bottom and only 4 arrive in the bag, you know immediately that something went missing on the way.</p>
 <h3>New words</h3>
-<table>
-<tr><td><strong><dfn><a href="glossary/p/parity.html">Parity</a></dfn></strong></td><td>An error-detection method where an extra binary bit is added to a data sequence to ensure the total number of set bits (1s) is always even or always odd.</td></tr>
-<tr><td><strong>Bit Flip</strong></td><td>An unintentional change in the state of a digital bit from 0 to 1, or 1 to 0, caused by electromagnetic interference, thermal noise, or voltage fluctuations.</td></tr>
-<tr><td><strong>Payload</strong></td><td>The actual meaningful data being transmitted, excluding synchronization bits, headers, and error check codes.</td></tr>
-</table>
+<dl>
+<dt><dfn><a href="glossary/p/parity.html">Parity</a></dfn></dt>
+<dd>An extra bit added to a group of bits so the total count of 1s is always even or always odd.</dd>
+<dt><a href="glossary/b/bit-flip.html">Bit flip</a></dt>
+<dd>An accidental change of a stored or transmitted bit from 0 to 1, or 1 to 0.</dd>
+<dt><a href="glossary/p/payload.html">Payload</a></dt>
+<dd>The actual useful message data, separate from headers and check bits.</dd>
+</dl>
 </section>
 
 <section data-level="learner">

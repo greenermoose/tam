@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Keymap</title>
+<meta name="topic" content="glossary-keymap">
+<meta name="summary" content="Keymap: A table translating physical keyboard scan codes or keycodes into characters and actions for a specific language or layout.">
+<meta name="keywords" content="glossary-keymap, keymap, keyboard, layout, console, xkb, input">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/k/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/k/index.html">Terms beginning with K</a> / Keymap</p></nav>
+
+<h1>Keymap</h1>
+<p>A table translating physical keyboard scan codes or keycodes into characters and actions for a specific language or layout.</p>
+<section data-level="novice"><p>A keymap is the lookup chart that decides which letter appears when you press a physical key—for example, whether a keyboard types QWERTY, AZERTY, or accented characters.</p></section>
+<section data-level="learner"><p>Linux uses two separate keymap layers: kernel console keymaps (loaded with loadkeys for text TTYs) and XKB keymaps (used by Wayland compositors like Hyprland).</p><details class="q"><summary>Why might your keyboard layout differ between a text virtual console and your graphical desktop?</summary><p>Because the Linux console uses the kernel keymap (configured in /etc/vconsole.conf), whereas the Wayland compositor loads an XKB keymap.</p></details></section>
+<section data-level="expert"><p>Kernel keymaps map Linux evdev keycodes through modifier planes to keysyms/strings in drivers/tty/vt/keyboard.c, while graphical sessions compile XKB rules/models/layouts/variants via libxkbcommon.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="terminal/input/linux-console.html">Linux console input</a></li><li><a href="terminal/input/key-press-anatomy.html">Anatomy of a key press</a></li></ul>
+</body></html>

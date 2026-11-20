@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Display manager</title>
+<meta name="topic" content="glossary-display-manager">
+<meta name="summary" content="Display manager: A graphical sign-in screen (such as SDDM) that authenticates a user and launches a desktop session.">
+<meta name="keywords" content="glossary-display-manager, display manager, sddm, login, greeter, session, wayland">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / Display manager</p></nav>
+
+<h1>Display manager</h1>
+<p>A graphical sign-in screen (such as SDDM) that authenticates a user and launches a desktop session.</p>
+<section data-level="novice"><p>A display manager is the graphical login screen that asks for your username and password when a computer starts and then opens your desktop.</p></section>
+<section data-level="learner"><p>Current Tamlinux cultivars use console-first login rather than a graphical display manager by default; you sign in at a text prompt and launch the graphical desktop with start or tam-desktop.</p><details class="q"><summary>How does console-first login differ from using a display manager?</summary><p>With console-first login, you authenticate at a plain text virtual console and start graphics explicitly; with a display manager, a graphical greeter starts automatically at boot.</p></details></section>
+<section data-level="expert"><p>A display manager runs as a privileged systemd service (display-manager.service), authenticates via PAM, opens a logind seat/session, and spawns the chosen Wayland or X11 session entry.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="desktop/session/sddm.html">Login and display managers</a></li></ul>
+</body></html>

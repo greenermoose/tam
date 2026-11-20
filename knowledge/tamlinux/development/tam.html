@@ -26,23 +26,20 @@
 
 <section data-level="novice">
 <h2>The tam command architecture</h2>
-
-<p><code>tam</code> is Tamlinux's core offline navigation and diagnostic command. Unlike interpreters or browser engines, it compiles to an ultra-fast, native C binary that starts in under 5 milliseconds. Understanding how to compile it locally allows you to test fixes and improvements safely under your user development prefix without root permissions or risks to production software.</p>
-
+<p><code>tam</code> is Tamlinux&apos;s native, offline knowledge reader and diagnostic tool. Written in C and compiled into a small binary, it opens documentation, manuals, and glossary pages directly in your terminal without needing a web browser or network connection.</p>
 <h3>Why it matters</h3>
-<p><code>tam</code> is Tamlinux's core offline navigation and diagnostic command. Unlike interpreters or browser engines, it compiles to an ultra-fast, native C binary that starts in under 5 milliseconds. Understanding how to compile it locally allows you to test fixes and improvements safely under your user development prefix without root permissions or risks to production software.</p>
+<p>Because <code>tam</code> compiles cleanly from source and separates its binary version from its documentation corpus version, contributors can test either a code fix or a documentation edit independently in a user-local directory without touching system files.</p>
 <h3>How to think about it</h3>
-<p>Make is a build automation tool that reads a Makefile to compile source code into executable programs. Running make command compiles only the C executable under build/tam.</p>
+<p>Think of <code>tam</code> as a pocket field-guide reader made of two replaceable halves: the binding and lens (the C command) and the pages inside (the HTML knowledge corpus). Either half can be updated on its own schedule.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/c/c11.html">C11 standard</a></dt>
-<dd>The ISO/IEC 9899:2011 standard for the C programming language, providing standardized multithreading primitives and compiler features.</dd>
+<dd>The ISO/IEC 9899:2011 standard for the C programming language.</dd>
 <dt><a href="glossary/d/decoupled-versioning.html">Decoupled versioning</a></dt>
-<dd>An architecture where the binary executable version and documentation corpus version increment on independent schedules.</dd>
+<dd>A design where the binary executable version and documentation corpus version advance on independent schedules.</dd>
 <dt><a href="glossary/d/development-prefix.html">Development prefix</a></dt>
-<dd>A user-owned directory hierarchy (such as <code>~/.local</code>) used to install and test software without root permissions.</dd>
+<dd>A user-owned directory hierarchy (such as <code>~/.local</code>) used to install and test software without administrator permissions.</dd>
 </dl>
-<p>A compiled binary runs as a <dfn><a href="glossary/p/process.html">process</a></dfn> belonging to an identifiable configuration <dfn><a href="glossary/o/owner.html">owner</a></dfn>, installed from an immutable <dfn><a href="glossary/p/package.html">package</a></dfn> or local build.</p>
 </section>
 
 <section data-level="learner">
@@ -116,7 +113,7 @@ $ make test-command
 <dd>Packaged and standard Make builds link static <code>libtam.a</code> directly into <code>build/tam</code>; if testing an override dynamic build, inspect <code>LIBTAM_CFLAGS</code>/<code>LIBTAM_LIBS</code> or <code>ldd ./build/tam</code>.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, development builds and production releases adhere to strict lifecycle boundaries. Developers and AI coding agents build and test candidates locally in <code>~/.local/bin</code> and <code>~/.local/lib</code>, or in transactional generation directories under <code>~/.local/opt/tam/generations/</code>. Every released Tamlinux version installs its binaries and libraries under <code>/usr/bin</code> and <code>/usr/lib</code>. Production software never reaches the system from ad-hoc checkouts or copied payloads; it arrives solely through recorded <code>tamlinux-packages</code> assemblies deployed via Home Manager and <code>tam-deploy</code>. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">Tamlinux package deployment contract</a></cite>.</p>
+<p>On Tamlinux, development builds and production releases adhere to strict lifecycle boundaries. Developers and AI coding agents build and test candidates locally in <code>~/.local/bin</code> and <code>~/.local/lib</code>, or in transactional generation directories under <code>~/.local/opt/tam/generations/</code>. Every released Tamlinux version installs its binaries and libraries under <code>/usr/bin</code> and <code>/usr/lib</code>. Production software never reaches the system from ad-hoc checkouts or copied payloads; it arrives solely through recorded candidate deliveries built from pinned Git sources (or recorded transitional bundles). See the <cite data-ref="deployment"><a href="bibliography/deployment.html">Tamlinux package deployment contract</a></cite>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -156,7 +153,7 @@ $ make test-command
 <tr><td><code>tam show [PAGE]</code></td><td>Guide Reader</td><td>Opens the offline guide or specific page in the built-in pager (or clean text with <code>--pipe</code>); supports <code>--level</code>, <code>tam:paths</code>, and <code>tam:path?id=...</code>.</td></tr>
 <tr><td><code>tam search TERM...</code></td><td>Search</td><td>Ranked keyword search across guide topics, summaries, and tags; supports <code>--json</code>.</td></tr>
 <tr><td><code>tam explain [TOPIC]</code></td><td>Topic Guides</td><td>Dynamic topic guides matching keywords, or bare <code>tam explain</code> to browse all topic keywords in the pager.</td></tr>
-<tr><td><code>tam where PATH</code></td><td>Ownership Lookup</td><td>Reports <code>tam-bundle</code> ownership first, otherwise queries the native package manager (<code>pacman -Qo</code> or <code>xbps-query -o</code>).</td></tr>
+<tr><td><code>tam where PATH</code></td><td>Ownership Lookup</td><td>Checks active Tamlinux cultivar paths and manifests first, otherwise queries the native package manager (<code>pacman -Qo</code> or <code>xbps-query -o</code>).</td></tr>
 <tr><td><code>tam man [SEC] PAGE</code></td><td>Manual Pages</td><td>Interactive roff manual page reader with active hyperlinked cross-references.</td></tr>
 <tr><td><code>tam info [MAN [NODE]]</code></td><td>GNU Info</td><td>Native Texinfo documentation browser with hyperlinked node menus and key navigation.</td></tr>
 <tr><td><code>tam tldr [CMD]</code></td><td>tldr Pages</td><td>Curated offline command-example pages from <code>tldr-pages</code> with hyperlinked references and index browsing.</td></tr>
@@ -191,19 +188,19 @@ In Tamlinux, software moves across four disciplined stages governed by the <dfn>
 Develop (tam.git @ dev)
    │
    ▼  Fast-forward promotion
-Test (tam.git @ test ──► pinned in tamlinux-packages flake)
+Test (tam.git @ test ──► pinned in candidate source lock)
    │
    ▼  Workstation acceptance &amp; verification
-Run (tam.git @ main ──► tamlinux-packages main)
+Run (tam.git @ main ──► promoted verified stage)
    │
    ▼  Cultivar release tag &amp; generation snapshot
 Release (Tamlinux release)
 </pre>
 <table>
 <tr><td><strong>Develop</strong></td><td>Engineers and AI coding agents work in one shared clone on <code>dev</code>, claiming paths with <code>tam-work</code> and verifying changes with <code>make check</code>.</td></tr>
-<tr><td><strong>Test</strong></td><td>Candidate commits are fast-forward promoted to <code>test</code> and pinned in <code>tamlinux-packages</code> via flake hashes. Home Manager builds the package outputs into <code>/nix/store</code>.</td></tr>
+<tr><td><strong>Test</strong></td><td>Candidate commits are fast-forward promoted to <code>test</code>, pinned in the component lock, and staged with <code>make</code> to produce a digest-verified source stage.</td></tr>
 <tr><td><strong>Run</strong></td><td>After daily-driver acceptance, the tested commit promotes to <code>main</code>. Crucially, package outputs are <strong>not rebuilt</strong>: the identical byte-for-byte artifacts verified in Test are deployed to Run.</td></tr>
-<tr><td><strong>Release</strong></td><td>On explicit developer instruction, accepted commits on <code>main</code> receive paired release tags (e.g. <code>tam-0.31.0-corpus-0.32.1</code>). If defects occur, <dfn><a href="glossary/r/rollback.html">rollback</a></dfn> to the prior Home Manager generation restores the earlier working state.</td></tr>
+<tr><td><strong>Release</strong></td><td>On explicit developer instruction, accepted commits on <code>main</code> receive paired release tags (e.g. <code>tam-0.31.0-corpus-0.32.1</code>). If defects occur, <dfn><a href="glossary/r/rollback.html">rollback</a></dfn> to the prior recorded source-install stage restores the earlier working state.</td></tr>
 </table>
 </li>
 </ol>
@@ -220,7 +217,7 @@ Release (Tamlinux release)
 <dt>Forward-compatible metadata parsing</dt>
 <dd>The HTML tag scanner and index generators parse metadata additively. If an older command binary encounters newly added meta attributes (such as <code>kind</code> or <code>skills</code>), it ignores unrecognized fields gracefully without crashing or failing to display page content.</dd>
 <dt>Dynamic library ABI shifts</dt>
-<dd>Because Arch Linux is currently used as the rootstock (which is a rolling-release distribution), system libraries (such as <code>libncursesw</code> or <code>libz</code>) occasionally receive soname updates. Packaging via Home Manager pins dependencies in immutable Nix store paths, isolating production tools from rolling ABI disruptions.</dd>
+<dd>Because Arch Linux is currently used as the rootstock (which is a rolling-release distribution), system libraries (such as <code>libncursesw</code> or <code>libz</code>) occasionally receive soname updates. Static linkage of <code>libtam.a</code> and clean Make rebuilds against the rootstock&apos;s native libraries keep <code>tam</code> small, fast, and aligned with the host system.</dd>
 </dl>
 
 <h3>Explore</h3>

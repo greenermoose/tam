@@ -4,7 +4,7 @@
 <title>How software is delivered</title>
 <meta name="topic" content="packaging">
 <meta name="summary" content="Package management: query native packages, identify ownership layers, and trace declarative Tamlinux assemblies">
-<meta name="keywords" content="packaging, package manager, nix, pacman, xbps, xbps-src, apt, portage, home manager, mise, rollback, flake">
+<meta name="keywords" content="packaging, package manager, pacman, xbps, xbps-src, apt, portage, make, source-install, mise, rollback">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/packages/index.html">
@@ -24,21 +24,20 @@
 
 <section data-level="novice">
 <h2>How is Tamlinux software packaged?</h2>
-<p>Before reporting an issue or planning an update, you need to know which version of a package is actually installed. Read-only queries cannot break your system, alter package state, or require administrative privileges.</p>
+<p>Software on Tamlinux comes from two clear layers: the underlying rootstock&apos;s native package manager (currently <code>pacman</code> on Arch Linux) installs ecosystem software, while Tamlinux&apos;s own bespoke programs and desktop files are built and installed cleanly from pinned Git source repositories.</p>
 <h3>Why it matters</h3>
-<p>Before reporting an issue or planning an update, you need to know which version of a package is actually installed. Read-only queries cannot break your system, alter package state, or require administrative privileges.</p>
+<p>Before reporting a bug or planning an update, you need to know which layer owns a program and which exact version is installed. Read-only package queries let you inspect installed software safely without changing anything or needing administrator privileges.</p>
 <h3>How to think about it</h3>
-<p>A package is a bundle of program files, documentation, and metadata. In pacman, uppercase -Q means "query" what is already installed on your computer.</p>
+<p>Think of a package manager as a shipping clerk who keeps an exact manifest of every box delivered to the building: asking the clerk &ldquo;what version is in box X?&rdquo; only reads the clipboard and never moves a single crate.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/p/package.html">Package</a></dt>
-<dd>A manager's named archive containing software binaries, libraries, and metadata.</dd>
+<dd>A named archive of program files, libraries, and metadata tracked by a package manager.</dd>
 <dt><a href="glossary/u/upstream.html">Upstream</a></dt>
 <dd>The original authors and repository of an open-source software project.</dd>
 <dt>Query</dt>
-<dd>A read-only operation that inspects database records without changing them.</dd>
+<dd>A read-only check that inspects package records without changing the system.</dd>
 </dl>
-<p>A <dfn><a href="glossary/p/package.html">package</a></dfn> is managed by an authoritative package manager.</p>
 </section>
 
 <section data-level="learner">
@@ -51,11 +50,11 @@
 <h3>Mental model</h3>
 <pre>
 Rootstock (Kernel, Drivers, Core OS)    --> Pacman (/usr/bin)
-Workstation Assembly (Tamlinux Desktop) --> Nix / Home Manager (/nix/store)
-User Toolchains (Developer / Agent CLIs) --> Mise / Home Manager (~/.local/share)
+Tamlinux Cultivar (Desktop &amp; Commands) --&gt; Make source install (/usr/bin, /usr/lib/tamlinux/)
+User Toolchains (Developer / Agent CLIs) --&gt; Mise (~/.local/share/mise)
 </pre>
 
-<p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> (the base operating system beneath the Tamlinux <dfn><a href="glossary/s/scion.html">scion</a></dfn>; currently Arch Linux, with plans to migrate to Void Linux and later explore a microkernel). Recorded Tamlinux assemblies deliver the graphical desktop and scion tools through Nix and Home Manager. Fast-moving developer and agent CLIs are owned by Mise or Home Manager user declarations.</p>
+<p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> (the base operating system beneath the Tamlinux <dfn><a href="glossary/s/scion.html">scion</a></dfn>; currently Arch Linux, with plans to migrate to Void Linux and later explore a microkernel). Tamlinux builds and installs its own desktop and bespoke tools from pinned Git clones with <code>make</code> and <code>make install</code> (transitioning away from earlier bundle tools; Nix and Home Manager are retired). Fast-moving developer and agent CLIs are owned by <a href="glossary/m/mise.html">Mise</a>.</p>
 <h3>Worked example: Query an installed package</h3>
 <pre class="session" data-risk="read-only">
 $ pacman -Q bash
@@ -74,12 +73,12 @@ bash 5.3.20-1
 <h3>If it goes wrong</h3>
 <dl>
 <dt>package 'foo' was not found</dt>
-<dd>The package is not installed through pacman. It may be provided by Home Manager, Mise, or another tool manager.</dd>
+<dd>The package is not installed through pacman. It may be provided by a Tamlinux source install, Mise, or a user-local build in <code>~/.local/bin</code>.</dd>
 <dt>error: you cannot perform this operation unless you are root</dt>
 <dd>You used an installation flag such as <code>-S</code> or <code>-R</code> instead of the query flag <code>-Q</code>. Use only <code>-Q</code> for safe, unprivileged queries.</dd>
 </dl>
 <aside class="tamlinux">
-<p>Tamlinux strictly enforces that product software reaches your session only through a recorded <code>tamlinux-packages</code> assembly via <code>tam-deploy</code>, never from an unrecorded git checkout or raw copied payload. Furthermore, when local package patches are required, Tamlinux builds self-retiring packages in <code>~/pkgs</code> with a release suffix rather than using <code>IgnorePkg</code> or modifying files under <code>/usr</code>.</p>
+<p>Tamlinux strictly enforces that product software reaches your session only through a recorded candidate delivery built from pinned Git sources (or a recorded transitional bundle), never from an unrecorded checkout or raw copied payload. Furthermore, when local package patches are required, Tamlinux builds self-retiring packages in <code>~/pkgs</code> with a release suffix rather than using <code>IgnorePkg</code> or modifying files under <code>/usr</code>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -101,7 +100,7 @@ bash 5.3.20-1
 
 <table>
 <tr><th>Architecture</th><th>Mechanism</th><th>Guarantees</th></tr>
-<tr><td>Nix Store</td><td>/nix/store/&lt;hash&gt;-&lt;name&gt;</td><td>Cryptographically hashed store paths, isolated dependencies, and atomic generation symlinks.</td></tr>
+<tr><td>Tamlinux Source Install</td><td>/usr/lib/tamlinux/source/</td><td>Pinned Git commits built via Make, verified by SHA-256 manifest digest, with root-owned state and console rollback.</td></tr>
 <tr><td>Pacman DB</td><td>/var/lib/pacman/local/</td><td>Transactional package archives (.pkg.tar.zst) with strict file ownership checks.</td></tr>
 <tr><td>XBPS</td><td>/var/db/xbps/</td><td>Atomic package state machine and binary transactions for the Void Linux target rootstock.</td></tr>
 <tr><td>Mise</td><td>~/.local/share/mise/</td><td>Per-directory or global tool version shims without root access.</td></tr>
@@ -109,45 +108,41 @@ bash 5.3.20-1
 
 <h3>How it works</h3>
 
-<p>Tamlinux delivers software by recording package assemblies in <code>tamlinux-packages</code>. Dependencies are pinned in <code>flake.lock</code>, producing deterministic derivations. When deployed via <code>tam-deploy</code>, Home Manager builds a new generation symlink under <code>~/.local/state/nix/profiles/home-manager</code>. Switching generations updates symlinks in <code>~/.nix-profile/bin/</code> atomically. The rootstock remains untouched under native pacman governance.</p>
+<p>Tamlinux delivers its own components from pinned Git clones built with <code>make</code> and applied through a single root-owned <code>make install</code> transaction under <code>/usr/bin</code> and <code>/usr/lib/tamlinux/source/</code>, recording every destination path and SHA-256 digest. Native ecosystem dependencies stay under <code>pacman</code> governance, and user-local overrides under <code>~/.local/</code> and <code>/usr/local/</code> are preserved untouched.</p>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Tamlinux adopts a hybrid package-management model to balance system stability with developer flexibility. Using the native package manager for the rootstock ensures proper hardware driver integration and kernel lifecycle management. Using declarative Nix flakes and Home Manager for the desktop environment prevents configuration drift, guarantees reproducibility across workstations, and makes every desktop update instantly reversible.</p>
+<p>Tamlinux adopts a hybrid package-management model to balance system stability with developer flexibility. Using the native package manager for the rootstock ensures proper hardware driver integration and kernel lifecycle management. Building bespoke Tamlinux components directly from pinned Git clones with Make avoids duplicate runtime layers, keeps native library linkage clean, and records exact manifests so every cultivar upgrade remains verifiable and reversible.</p>
 
 <h3>Edge cases</h3>
 
 <ul>
-<li><strong>ABI drift across layers:</strong> if a native package upgrades a core graphics library (such as Mesa or Wayland), running binaries from an older Nix generation may encounter symbol mismatches until rebuilt.</li>
-<li><strong>PATH shadowing:</strong> having multiple versions of a CLI installed across Pacman, Nix, and Mise can cause unexpected execution order; always verify with <code>which -a</code>.</li>
-<li><strong>Store garbage accumulation:</strong> old Nix store paths persist until explicitly collected with <code>nix-collect-garbage</code>.</li>
+<li><strong>ABI drift across layers:</strong> if a native rootstock update upgrades a shared library or Hyprland plugin ABI, compiled components linked against the previous ABI must be rebuilt against the updated headers.</li>
+<li><strong>PATH shadowing:</strong> having multiple versions of a CLI installed across <code>~/.local/bin</code>, Mise, and <code>/usr/bin</code> can cause unexpected execution order; always verify with <code>type -a</code> or <code>which -a</code>.</li>
 </ul>
 
 <h3>Explore</h3>
 
-<p>Inspect the immutable store references of a Home Manager profile:</p>
+<p>Trace which layer owns an installed command:</p>
 
 <pre class="session" data-risk="read-only">
-$ home-manager generations | head -n 3
-2026-10-23 21:51 : id 4 -> /nix/store/lrmniw3fj0yhrx5mwkm6w2c8p5vl3y6v-home-manager-generation (current)
-2026-10-23 17:09 : id 3 -> /nix/store/zd89023f4jn33dw1zwnf9z8vasam8ays-home-manager-generation
-2026-10-23 12:31 : id 2 -> /nix/store/pxxz7hcsj8rxsflxshr4ls1kg0iff82s-home-manager-generation
+$ tam where /usr/bin/bash
 </pre>
 
-<p>Captured on an Arch Linux workstation, 2026-10-25. Note the unique hash prefix for each generation.</p>
+<p><code>tam where</code> checks active Tamlinux cultivar paths and manifests first, then queries the rootstock package manager (<code>pacman -Qo</code> on Arch Linux).</p>
 
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q open">
-<summary>How does Home Manager rollback differ from a Btrfs filesystem snapshot rollback?</summary>
-<p>Home Manager rollback updates user-space symlinks to point to an earlier recorded generation under <code>/nix/store/</code> without rebooting or altering system files. A Btrfs snapshot rollback restores the entire root filesystem state, including system configuration, kernel, and pacman databases.</p>
+<summary>How does a Tamlinux source-install rollback differ from a Btrfs filesystem snapshot rollback?</summary>
+<p>A source-install rollback restores only the recorded Tamlinux cultivar files under <code>/usr/</code> to the previous stage without altering rootstock packages or kernel files. A Btrfs snapshot rollback restores the entire snapshotted subvolume, including system configuration, kernel, and pacman databases.</p>
 </details>
 </section>
 
 <h3>Sources</h3>
 
 <p>Consult packaging documentation: <a href="man:pacman(8)">pacman(8)</a>,
-Nix manual, Home Manager manual, and <a href="tamlinux/development/patches.html">Carried patches</a>.</p>
+<a href="tamlinux/development/patches.html">Carried patches</a>, and <a href="tamlinux/development/package-versions.html">Keeping track of software versions</a>.</p>
 
 <h3>Improve it</h3>
 
@@ -155,6 +150,6 @@ Nix manual, Home Manager manual, and <a href="tamlinux/development/patches.html"
 </section>
 
 <h2>Next</h2><p><a href="systems/packages/nix.html">How Nix and Home Manager work</a> &mdash; go from a store path to the flake, package definitions and modules that build it.</p>
-<h2>Related</h2><ul><li><a href="systems/maintenance/updates.html">Non-disruptive updates</a> &mdash; learn about inode unlinking and package tiers.</li><li><a href="systems/recovery/rollback.html">Snapshots and rollbacks</a> &mdash; manage Home Manager generations and Btrfs snapshots.</li><li><a href="systems/maintenance/index.html">System Maintenance and Reliability</a> &mdash; return to the maintenance hub.</li></ul>
+<h2>Related</h2><ul><li><a href="systems/maintenance/updates.html">Non-disruptive updates</a> &mdash; learn about inode unlinking and package tiers.</li><li><a href="systems/recovery/rollback.html">Snapshots and rollbacks</a> &mdash; manage cultivar rollback stages and Btrfs snapshots.</li><li><a href="systems/maintenance/index.html">System Maintenance and Reliability</a> &mdash; return to the maintenance hub.</li></ul>
 </body>
 </html>

@@ -21,20 +21,17 @@
 
 <section data-level="novice">
 <h2>Daily notes stored as ordinary files</h2>
-<p>Press <code>Meta + Shift + J</code> anywhere on the desktop to pop open a quick note prompt, or launch <strong>Today&rsquo;s journal</strong> from the menu or clock bar widget. Every note is stored as plain UTF-8 text named by date (for example <code>~/Journal/2026-11-12.txt</code>), so you can read, search, or back up your notes with ordinary tools forever.</p>
-
+<p>The Tamlinux journal stores each day&apos;s notes in its own plain-text file named after the date. Because every entry is an ordinary text file, you can read, search, or back up your notes with standard tools years from now.</p>
 <h3>Why it matters</h3>
 <p>Plain dated text files never lock your notes into a proprietary database and stay safe even if the power drops mid-edit.</p>
-
 <h3>How to think about it</h3>
-<p><code>tam-journal</code> edits a durable draft under <code>.drafts/</code> first, waits for you to save and close Micro (<code>Ctrl + S</code>, <code>Ctrl + Q</code>), and then commits cleanly.</p>
-
+<p>Think of the journal as a binder with one dated sheet per day. When you edit a day&apos;s sheet, the journal writes to a temporary draft first and swaps it into place only when you finish saving, so an unexpected crash never leaves a half-written page.</p>
 <h3>New words</h3>
 <dl>
 <dt><dfn><a href="glossary/l/lockfile.html">Lockfile</a></dfn></dt>
-<dd>A per-day lock preventing two full-day edit sessions from overwriting each other.</dd>
+<dd>A per-day marker preventing two edit sessions from overwriting each other.</dd>
 <dt><dfn><a href="glossary/f/file.html">Plain text file</a></dfn></dt>
-<dd>UTF-8 text stored one file per day under <code>~/Journal</code> or <code>TAM_JOURNAL_DIR</code>.</dd>
+<dd>Readable text stored one file per day in your journal folder.</dd>
 </dl>
 </section>
 
@@ -70,7 +67,7 @@ $ rm -rf -- "$work"
 </dl>
 
 <aside class="tamlinux">
-<p>Like other tools in the native tools suite, <code>tam-journal</code> checks <code>tam_bundle_guard</code> on startup and refuses edits while a Tamlinux bundle transaction is active so journal writes cannot race recovery.</p>
+<p>Like other tools in the native tools suite, <code>tam-journal</code> checks <code>tam_install_pending()</code> from <code>libtam</code> on startup and refuses edits while a Tamlinux installation or upgrade transaction is in progress.</p>
 </aside>
 
 <section class="quiz">

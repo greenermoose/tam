@@ -37,7 +37,7 @@
 <dd>An unexpected termination of a running program caused by an unhandled error or signal.</dd>
 <dt>Core dump</dt>
 <dd>A snapshot of a program's memory recorded by the kernel when it crashes, used for debugging.</dd>
-<dt>Cache</dt>
+<dt><a href="glossary/c/cache.html">Cache</a></dt>
 <dd>Temporary stored data designed to speed up loading, which can sometimes become stale after an update.</dd>
 </dl>
 </section>
@@ -101,7 +101,7 @@ $ tam-desktop-test --dry-run
 <tr><td><code>tam-desktop-test</code></td><td>Execute physical desktop test battery for layout and workspace validation</td></tr>
 <tr><td><code>tam-workstation-upgrade</code></td><td>Perform workstation assembly upgrade and migration from text console</td></tr>
 </table>
-<p>Home Manager stores deployed plugins with identical Unix timestamps (1970-01-01) in the Nix store. <code>tam-qmlcache-purge</code> clears cached bytecode by matching plugin paths against SHA-1 cache entries, preventing stale execution across version switches.</p>
+<p>When deployed plugins share reproducible timestamps or staged paths across upgrades, Qt&apos;s QML bytecode cache can serve stale code. <code>tam-qmlcache-purge</code> clears cached bytecode by matching plugin paths against SHA-1 cache entries, preventing stale execution across version switches.</p>
 </section>
 
 <h2>Next</h2><p><a href="systems/maintenance/logs.html">Truthful system diagnostics and logs</a> — journal inspection and filtering.</p>

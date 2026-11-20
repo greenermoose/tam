@@ -24,25 +24,23 @@
 
 <section data-level="novice">
 <h2>What are Nix and Home Manager?</h2>
-<p>Ordinary package managers replace a program when a new version arrives. Nix keeps each built result in its own directory. That makes it possible to see exactly which files a command uses and to return to an earlier selection when a change causes trouble.</p>
+<p><dfn><a href="glossary/n/nix.html">Nix</a></dfn> is a functional package manager that stores every built program in its own isolated, hash-named directory instead of overwriting files in place, and <dfn><a href="glossary/h/home-manager.html">Home Manager</a></dfn> is a Nix tool that applies the same model to a user&apos;s personal configuration files. Tamlinux previously used Nix and Home Manager and has since retired them in favor of native rootstock packages and source builds; this page explains the Nix model as general Linux knowledge.</p>
 <h3>Why it matters</h3>
-<p>Ordinary package managers replace a program when a new version arrives. Nix keeps each built result in its own directory. That makes it possible to see exactly which files a command uses and to return to an earlier selection when a change causes trouble.</p>
+<p>Because Nix keeps each version in its own immutable directory and switches between them with symbolic links, you can see exactly which files a command uses and roll back to an earlier selection when a change causes trouble.</p>
 <h3>How to think about it</h3>
-<p>The $ at the start of a line is the shell prompt. Type the part after it and press Enter; do not type the $.</p>
+<p>Think of an ordinary package manager like editing a document in place, and Nix like keeping every past printed edition on a numbered shelf and moving a single bookmark to whichever edition you want active today.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/n/nix.html">Nix</a></dt>
 <dd>A package manager and build system that keeps each built result in its own hashed store directory.</dd>
-<dt><a href="glossary/s/store-path.html">Store</a></dt>
-<dd>The read-only directory <code>/nix/store/</code> holding built results and the recipes that produced them.</dd>
 <dt><a href="glossary/s/store-path.html">Store path</a></dt>
-<dd>One directory in the store, named by a hash and a readable name.</dd>
+<dd>One read-only directory in <code>/nix/store/</code> named by a cryptographic hash and a readable package name.</dd>
 <dt><a href="glossary/p/profile.html">Profile</a></dt>
-<dd>A named link that points to the generation currently in use.</dd>
+<dd>A named link pointing to the currently active generation.</dd>
 <dt><a href="glossary/g/generation.html">Generation</a></dt>
-<dd>A recorded selection of managed software and settings that can be selected again later.</dd>
+<dd>A recorded selection of managed software and settings that can be activated again later.</dd>
 <dt><a href="glossary/i/immutable.html">Immutable</a></dt>
-<dd>Not changed after it is created. Store paths are immutable; the links that point to them are not.</dd>
+<dd>Not modified after creation; store paths stay immutable while links pointing to them switch.</dd>
 </dl>
 </section>
 
@@ -131,7 +129,7 @@ readlink ~/.nix-profile
 <dd>The store is read-only by design. Reading is allowed; writing into <code>/nix/store/</code> is not. Never change permissions on the store to make a command work.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, pacman owns the rootstock while Nix and Home Manager deliver the scion. The public <code>tamlinux-packages</code> flake pins the exact revisions of <code>nixpkgs</code>, Home Manager and each Tamlinux component. Product software reaches your session through a recorded assembly selected by <code>tam-deploy</code>; activating an arbitrary Home Manager generation from a checkout is a development action, not product delivery. A generation rollback returns user software and configuration, not the kernel, boot files or mutable data. See the <cite data-ref="deployment"><a href="bibliography/deployment.html">deployment contract</a></cite>.</p>
+<p><strong>Historical note on Tamlinux:</strong> Earlier Tamlinux releases used Nix and Home Manager to deliver the scion. Tamlinux has since retired Nix and Home Manager in favor of native rootstock packages (<code>pacman</code>) and pinned Git source installs built with <code>make</code> and <code>make install</code>. This page remains as general Linux reference for how Nix and Home Manager work.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -418,7 +416,7 @@ nix why-depends .#packages.x86_64-linux.tam .#packages.x86_64-linux.libtam
 <p>Read the public <code>tamlinux-packages</code> repository at the revision your candidate names. Start with <code>flake.nix</code>, then <code>nix/packages/default.nix</code>, then the module that owns the behaviour you want to change. Make a small change in a scratch checkout, run <code>nix flake check</code> and <code>home-manager build</code>, and compare the result before proposing it. A change that affects the installed desktop is a product change: it needs the normal Test and Run stages, not a local switch presented as delivery.</p>
 </section>
 
-<h2>Next</h2><p><a href="systems/packages/packaging.html">Software packaging and delivery</a> &mdash; trace a command to pacman, Nix or Mise and choose the right owner.</p>
+<h2>Next</h2><p><a href="systems/packages/packaging.html">Software packaging and delivery</a> &mdash; how current Tamlinux separates pacman, Make source installs, and Mise.</p>
 <h2>Related</h2><ul><li><a href="tamlinux/development/package-versions.html">Keeping track of software versions</a> &mdash; see how a candidate records exact component revisions.</li><li><a href="systems/recovery/rollback.html">Returning to an earlier working state</a> &mdash; match a generation rollback to the layer that changed.</li><li><a href="systems/operating-systems/declarative.html">Describing how a system should be set up</a> &mdash; compare Nix and Home Manager with NixOS and Guix.</li><li><a href="systems/packages/tam-bundle.html">How tam-bundle installs and rolls back files</a> &mdash; the planned replacement for Tamlinux's own files, in development.</li></ul>
 </body>
 </html>

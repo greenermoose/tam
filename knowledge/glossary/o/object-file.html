@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Object file (.o)</title>
+<meta name="topic" content="glossary-object-file">
+<meta name="summary" content="Object file (.o): An intermediate compiled binary file containing machine code and symbol tables for one source file before linking.">
+<meta name="keywords" content="glossary-object-file, object file, .o, compiler, linker, elf, c">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/o/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / Object file (.o)</p></nav>
+
+<h1>Object file (.o)</h1>
+<p>An intermediate compiled binary file containing machine code and symbol tables for one source file before linking.</p>
+<section data-level="novice"><p>When a C compiler builds a program made of several source files, it first translates each source file into its own building-block file—an object file ending in .o—before joining them into the final program.</p></section>
+<section data-level="learner"><p>Compiling each .c file to a .o file lets Make rebuild only the files you edited and then quickly relink all .o files into the final executable.</p><details class="q"><summary>Why can you not run a .o object file directly as a finished program?</summary><p>Because an object file still has unresolved references to functions in other object files and libraries; the linker must combine them into an executable first.</p></details></section>
+<section data-level="expert"><p>On Linux, relocatable object files use the ELF ET_REL format, containing .text, .data, .rodata, symbol tables (.symtab), and relocation entries (.rela.*) resolved by the static or dynamic linker.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/c/object-files.html">Object files and linking</a></li></ul>
+</body></html>

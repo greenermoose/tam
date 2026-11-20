@@ -24,21 +24,17 @@
 
 <section data-level="novice">
 <h2>What is a checkpoint?</h2>
-<p>Making a change without a known rollback
-point leaves you guessing if something breaks. A checkpoint records exact state
-at a point in time so you can return safely.</p>
+<p>A <dfn><a href="glossary/c/checkpoint.html">checkpoint</a></dfn> is a recorded snapshot of your system&apos;s state taken right before an update or risky change, giving you a known, tested state to return to if something goes wrong.</p>
 <h3>Why it matters</h3>
-<p>Making a change without a known rollback
-point leaves you guessing if something breaks. A checkpoint records exact state
-at a point in time so you can return safely.</p>
+<p>Making a system change without recording a rollback point leaves you guessing how to undo it if something breaks. A checkpoint makes recovery calm and predictable instead of improvised.</p>
 <h3>How to think about it</h3>
-<p>A checkpoint matches a recovery boundary: software generation, filesystem snapshot, or boot payload. Undo the layer you changed.</p>
+<p>Think of a checkpoint like a save game right before a difficult level—matched to the specific layer you are changing (filesystem snapshot, source-install stage, or boot configuration) so you undo only what changed.</p>
 <h3>New words</h3>
 <dl>
 <dt><dfn><a href="glossary/c/checkpoint.html">Checkpoint</a></dfn></dt>
-<dd>A recorded state of a component captured before a change.</dd>
-<dt><dfn><a href="glossary/r/rollback.html">Rollback point</a></dfn></dt>
-<dd>A specific saved state you can return to if an operation fails.</dd>
+<dd>A recorded state captured before making a system change.</dd>
+<dt><dfn><a href="glossary/r/rollback-point.html">Rollback point</a></dfn></dt>
+<dd>The specific saved state you record so you can return to it if an update fails.</dd>
 </dl>
 </section>
 
@@ -64,7 +60,7 @@ Layer               Boundary                 Checkpoint Mechanism
 Root OS             / (root subvolume)       Btrfs snapshot via Snapper
 Boot Chain          /boot (ESP & loader)     Quiescent boot-state archive
 User Environment    ~/.config, dotfiles      Mutable settings checkpoint
-User Packages       Nix store profiles       Home Manager generation
+Tamlinux Cultivar   /usr/lib/tamlinux/       Previous source-install stage
 </pre>
 
 <p>Taking a snapshot of the root subvolume does not capture files on a separate
@@ -127,7 +123,7 @@ unset lab
 </pre>
 <aside class="tamlinux">
 <p>Tamlinux organizes recovery by layer. The native updater requests a Snapper
-snapshot before host package updates, while user deployments via <code>tam-deploy</code>
+snapshot before host package updates, while cultivar updates via source installs
 track package generations and mutable dotfile state. Software return alone does
 not restore modified databases or root-owned login files.</p>
 </aside>
@@ -154,7 +150,7 @@ not restore modified databases or root-owned login files.</p>
 <tr><td>Root Btrfs snapshot</td><td>Filesystem sync; no active package manager locks</td><td>Snapper info XML and subvolume readability</td><td>Capture before privileged native mutations; retain until verified</td></tr>
 <tr><td>Boot archive</td><td>Writers stopped; ESP unmounted or remounted read-only</td><td>SHA-256 digest of captured archive and spec</td><td>Capture immediately before firmware, loader, or kernel updates</td></tr>
 <tr><td>Settings checkpoint</td><td>Target application closed; state directory flushed</td><td>Manifest hash list of paths, permissions, and symlinks</td><td>Capture before mutable migrations; preserve later user writes</td></tr>
-<tr><td>Software generation</td><td>Nix daemon build lock released</td><td>Derivation output hash and GC root registration</td><td>Managed declaratively by package manager profile switch</td></tr>
+<tr><td>Cultivar source stage</td><td>Root-owned install transaction committed</td><td>Staged manifest SHA-256 digest and Git commit pins</td><td>Managed under <code>/var/lib/tamlinux/source/</code> with console rollback</td></tr>
 </table>
 
 <h3>How it works</h3>

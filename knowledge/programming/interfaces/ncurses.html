@@ -24,17 +24,17 @@
 
 <section data-level="novice">
 <h2>What is ncurses?</h2>
-<p>When colors, clear-screen, or keys break in a full-screen text program, the cause is often <code>TERM</code> or missing terminfo—not the application logic alone. Knowing that the program goes through ncurses points you at the right checks.</p>
+<p><dfn><a href="glossary/n/ncurses.html">ncurses</a></dfn> is a standard software library that lets terminal programs draw full-screen text interfaces—with menus, colors, borders, and cursor movement—without having to hard-code the quirks of every terminal model.</p>
 <h3>Why it matters</h3>
-<p>When colors, clear-screen, or keys break in a full-screen text program, the cause is often <code>TERM</code> or missing terminfo—not the application logic alone. Knowing that the program goes through ncurses points you at the right checks.</p>
+<p>When colors, screen clearing, or arrow keys break in a full-screen text program, the cause is often the terminal type setting (<code>TERM</code>) or missing terminal descriptions rather than a bug in the application itself.</p>
 <h3>How to think about it</h3>
-<p>ldd lists shared libraries a program needs. A line containing libncursesw means that program is linked against wide-character ncurses.</p>
+<p>Think of ncurses as a stage crew between a play (the program) and the theater (your terminal): the program simply asks for &ldquo;bold text at row 3,&rdquo; and ncurses translates that request into whatever control codes your particular terminal expects.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/n/ncurses.html">ncurses</a></dt>
-<dd>A library for terminal-independent text UIs, reading capabilities from terminfo.</dd>
+<dd>A library for building terminal-independent full-screen text interfaces.</dd>
 <dt><a href="glossary/l/libncursesw.html"><code>libncursesw</code></a></dt>
-<dd>The wide-character build of ncurses, used for Unicode text in the terminal.</dd>
+<dd>The wide-character build of ncurses that supports Unicode text in terminals.</dd>
 </dl>
 </section>
 

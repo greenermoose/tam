@@ -19,13 +19,20 @@
 <p>This page explains the software that provides the bar, menus, and other controls around your windows.</p>
 <section data-level="novice">
 <h2>What desktop toolkits does Tamlinux use?</h2>
-<p>The bar, menus and panels around your windows come from a desktop shell built on a toolkit. Separating that shell from the compositor clarifies what to restart or replace when the GUI misbehaves.</p>
+<p>A graphical toolkit is the building-block library—providing buttons, text boxes, panels, and menus—that applications and desktop shells use to draw their user interfaces on screen.</p>
 <h3>Why it matters</h3>
-<p>The bar, menus and panels around your windows come from a desktop shell built on a toolkit. Separating that shell from the compositor clarifies what to restart or replace when the GUI misbehaves.</p>
+<p>The top bar, launcher menus, and status panels around your windows come from a desktop shell built on a toolkit. Knowing that the shell is separate from the window compositor makes it clear which piece to inspect or restart if a bar or menu misbehaves.</p>
 <h3>How to think about it</h3>
-<p>The compositor owns windows and surfaces; the shell draws the bar and menus on top. Toolkit choice (for example Qt Quick / QML) shapes how those shell pieces are written.</p>
+<p>Think of the compositor as the gallery wall that hangs and frames every window, and the desktop shell toolkit as the carpentry kit used to build the clock, menus, and status bar mounted along the edge of the wall.</p>
 <h3>New words</h3>
-<p>See linked glossary terms in the Learner section.</p>
+<dl>
+<dt><a href="glossary/c/compositor.html">Compositor</a></dt>
+<dd>The program that arranges and draws windows on screen.</dd>
+<dt><a href="glossary/q/quickshell.html">Quickshell</a></dt>
+<dd>The Qt Quick / QML desktop shell framework Tamlinux uses for its bar, menus, and widgets.</dd>
+<dt><a href="glossary/q/qml.html">QML</a></dt>
+<dd>The declarative user-interface language used to describe Quickshell panels and widgets.</dd>
+</dl>
 </section>
 
 <section data-level="learner">

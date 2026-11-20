@@ -24,11 +24,11 @@
 
 <section data-level="novice">
 <h2>What is a desktop theme?</h2>
-<p>Reading text on a computer screen for hours requires sufficient contrast between letters and their background. If a terminal window switches to a dark background while an editor remains bright white, or if an interface uses low-contrast gray text on dark gray panels, reading becomes exhausting. A theme coordinates these colors so every window feels coherent, readable, and predictable.</p>
+<p>A desktop theme is a coordinated set of colors and visual rules shared across your desktop bar, menus, terminals, and applications. Instead of styling every program one by one, a theme gives the whole workspace one consistent look.</p>
 <h3>Why it matters</h3>
-<p>Reading text on a computer screen for hours requires sufficient contrast between letters and their background. If a terminal window switches to a dark background while an editor remains bright white, or if an interface uses low-contrast gray text on dark gray panels, reading becomes exhausting. A theme coordinates these colors so every window feels coherent, readable, and predictable.</p>
+<p>Reading text on a computer screen for hours requires sufficient contrast between letters and their background. If a terminal switches to a dark background while an editor stays bright white, or if gray text sits on a dark gray panel, reading becomes exhausting. A theme keeps every window coherent and comfortable to read.</p>
 <h3>How to think about it</h3>
-<p>A theme is a shared set of visual choices. Each application translates those choices into its own settings.</p>
+<p>Think of a theme as a house paint palette where rooms share matching trim, wall, and accent colors. Changing the palette updates every room together instead of repainting one wall at a time.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/t/theme.html">Theme</a></dt>
@@ -36,9 +36,9 @@
 <dt><a href="glossary/p/palette.html">Palette</a></dt>
 <dd>A defined set of harmonious colors chosen for a computer display.</dd>
 <dt><a href="glossary/s/semantic-token.html">Semantic token</a></dt>
-<dd>A named design variable (such as &ldquo;surface&rdquo; or &ldquo;accent&rdquo;) that abstracts a color from its literal RGB value.</dd>
+<dd>A named design variable (such as &ldquo;surface&rdquo; or &ldquo;accent&rdquo;) that separates a color&apos;s role from its raw numeric value.</dd>
 <dt><a href="glossary/c/contrast-ratio.html">Contrast ratio</a></dt>
-<dd>The mathematical ratio between the relative luminance of the brightest color and the darkest color in an interface pair.</dd>
+<dd>The mathematical ratio between the brightness of text and its background.</dd>
 <dt><a href="glossary/l/luminance.html">Luminance</a></dt>
 <dd>The perceived brightness of a color, weighted by the human eye&apos;s sensitivity to different wavelengths of light.</dd>
 </dl>
@@ -87,7 +87,7 @@ head -n 12 ~/.local/state/tamlinux/current/theme/colors.toml
 <h3>If it goes wrong</h3>
 <dl>
 <dt>tam-theme-current: command not found</dt>
-<dd>The Tamlinux command suite is not on your <code>PATH</code>. On a Tamlinux workstation, ensure your profile includes <code>~/.local/share/tamlinux/shell</code> and <code>~/.nix-profile/bin</code>.</dd>
+<dd>The Tamlinux command suite is not on your <code>PATH</code>. On a Tamlinux workstation, ensure your profile includes <code>~/.local/bin</code> and <code>/usr/bin</code>.</dd>
 <dt>Terminal colors do not match the desktop theme</dt>
 <dd>The terminal emulator was launched before the theme was applied or has a personal configuration override in <code>~/.config/</code> that shadows the generated theme.</dd>
 <dt>Text is hard to read due to low contrast</dt>

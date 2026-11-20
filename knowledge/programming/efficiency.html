@@ -24,19 +24,20 @@
 
 <section data-level="novice">
 <h2>What wastes idle CPU time?</h2>
-<p>Naive automation scripts often check status using <code>while true; do check; sleep 1; done</code> loops. Waking up every second prevents modern CPU cores from dropping into low-power package C-states (such as C8 or C10), tripling idle battery drain and generating unnecessary heat even when the laptop lid is closed.</p>
+<p>Modern processors save large amounts of power by dropping into deep sleep states whenever nothing needs to run. Software wastes energy when it wakes the processor up repeatedly on a short timer just to ask &ldquo;did anything change yet?&rdquo;</p>
 <h3>Why it matters</h3>
-<p>Naive automation scripts often check status using <code>while true; do check; sleep 1; done</code> loops. Waking up every second prevents modern CPU cores from dropping into low-power package C-states (such as C8 or C10), tripling idle battery drain and generating unnecessary heat even when the laptop lid is closed.</p>
+<p>A script that checks status every second prevents CPU cores from reaching deep low-power states, multiplying idle battery drain and adding unnecessary heat even while you are not using the machine.</p>
 <h3>How to think about it</h3>
-<p>Periodic wakeups keep CPUs out of deep idle. Prefer work that runs when an event arrives instead of polling on a timer.</p>
+<p>Think of waiting for a package: peeking out the front door every five seconds keeps you on your feet all afternoon (polling), whereas waiting for the doorbell to ring lets you rest until the package actually arrives (event-driven waiting).</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/c/context-switch.html">Context switch</a></dt>
-<dd>The kernel operation of saving one process's execution state and restoring another to run on a CPU core.</dd>
+<dd>The kernel saving one program&apos;s state and loading another onto a CPU core.</dd>
 <dt><a href="glossary/c/c-state.html">C-state</a></dt>
-<dd>An operating state of a processor core; C0 is active execution, while higher states (C1 to C10) progressively power down clock domains and caches to conserve energy.</dd>
+<dd>A processor power state: C0 is active work, while higher C-states progressively power down parts of the chip to save energy.</dd>
+<dt><a href="glossary/p/process.html">Process</a></dt>
+<dd>A running program; an idle process sleeps in the kernel until an event wakes it.</dd>
 </dl>
-<p>An idle <dfn><a href="glossary/p/process.html">process</a></dfn> sleeps in the kernel and consumes zero CPU cycles until an event arrives.</p>
 </section>
 
 <section data-level="learner">

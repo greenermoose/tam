@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism)</title>
+<meta name="topic" content="glossary-ml-kem">
+<meta name="summary" content="ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism): NIST&#x27;s standardized post-quantum key encapsulation algorithm (FIPS 203), formerly known as CRYSTALS-Kyber.">
+<meta name="keywords" content="glossary-ml-kem, ml-kem, kyber, fips 203, post-quantum, pqc, lattice, kem">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism)</p></nav>
+
+<h1>ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism)</h1>
+<p>NIST&#x27;s standardized post-quantum key encapsulation algorithm (FIPS 203), formerly known as CRYSTALS-Kyber.</p>
+<section data-level="novice"><p>ML-KEM is a modern post-quantum key-agreement method designed to stay secure even against future quantum computers, already used alongside classic algorithms in SSH and HTTPS.</p></section>
+<section data-level="learner"><p>Standardized in FIPS 203 in three security tiers (ML-KEM-512, ML-KEM-768, ML-KEM-1024), ML-KEM is commonly paired with X25519 in hybrid key exchanges (such as X25519MLKEM768) to protect against harvest-now, decrypt-later threats.</p><details class="q"><summary>Why do TLS and SSH often combine ML-KEM with X25519 in a hybrid exchange?</summary><p>A hybrid exchange stays secure as long as at least one of the two algorithms remains unbroken, protecting against both future quantum attacks and any unexpected flaw in a newer scheme.</p></details></section>
+<section data-level="expert"><p>ML-KEM bases its security on the Module Learning With Errors (MLWE) problem over the polynomial ring Z_q[X]/(X^256+1) with q=3329, using Number Theoretic Transforms (NTT) for fast encapsulation and IND-CCA2 decapsulation.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="security/cryptography/quantum-safe-cryptography.html">Quantum-safe cryptography</a></li><li><a href="security/practice/ssh.html">SSH</a></li></ul>
+</body></html>

@@ -24,21 +24,20 @@
 
 <section data-level="novice">
 <h2>What is ZRAM?</h2>
-<p>When applications allocate more memory than physical RAM can hold, a traditional system pages data out to mechanical disks or NVMe drives, causing devastating input/output latency spikes and frozen interfaces. ZRAM creates a fast compressed block device in physical memory, compressing idle pages in microseconds via CPU instructions rather than waiting milliseconds for storage disks.</p>
+<p><dfn><a href="glossary/z/zram.html">ZRAM</a></dfn> is a built-in Linux feature that sets aside a slice of your RAM as compressed emergency memory. When memory gets tight, the kernel compresses inactive data in place inside RAM instead of writing it out to a slower disk drive.</p>
 <h3>Why it matters</h3>
-<p>When applications allocate more memory than physical RAM can hold, a traditional system pages data out to mechanical disks or NVMe drives, causing devastating input/output latency spikes and frozen interfaces. ZRAM creates a fast compressed block device in physical memory, compressing idle pages in microseconds via CPU instructions rather than waiting milliseconds for storage disks.</p>
+<p>When programs ask for more memory than physical RAM holds, spilling data onto a disk causes sudden stutters and frozen windows. Compressing idle pages inside RAM happens in microseconds and keeps the desktop responsive under heavy loads.</p>
 <h3>How to think about it</h3>
-<p>ZRAM compresses pages in RAM as swap. It can absorb memory pressure quickly, but it is not the same as adding physical memory.</p>
+<p>Think of ZRAM like vacuum-sealing out-of-season clothes inside your bedroom closet instead of driving them across town to a storage unit: it takes a tiny bit of effort to pack and unpack, yet everything stays right at hand.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/z/zram.html">ZRAM</a></dt>
-<dd>A Linux kernel driver that creates a virtual block device in physical RAM where all stored data is compressed on the fly.</dd>
+<dd>A Linux kernel feature that creates a compressed block of swap space directly inside physical RAM.</dd>
 <dt><a href="glossary/p/paging.html">Paging</a></dt>
-<dd>The operating system mechanism that moves chunks of memory (pages) between physical RAM and swap space to manage memory pressure.</dd>
+<dd>Moving chunks of memory between active RAM and swap space when memory runs low.</dd>
 <dt><a href="glossary/d/disk-thrashing.html">Disk thrashing</a></dt>
-<dd>A severe performance freeze occurring when the system spends more time reading and writing swap pages to disk than executing user instructions.</dd>
+<dd>A severe slowdown caused by spending more time shuffling memory to and from disk than running programs.</dd>
 </dl>
-<p>When system memory is constrained, an inactive <dfn><a href="glossary/p/process.html">process</a></dfn> has its anonymous memory pages compressed into ZRAM.</p>
 </section>
 
 <section data-level="learner">

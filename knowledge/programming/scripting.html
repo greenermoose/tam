@@ -24,21 +24,20 @@
 
 <section data-level="novice">
 <h2>What makes a shell script defensive?</h2>
-<p>Shell scripts can continue after failures and a mistyped or empty path can target an unintended location. Defensive options help detect some errors but have exceptions; validate paths and test failure cases as well.</p>
+<p>A shell script is a plain-text file containing a sequence of terminal commands that run automatically from top to bottom. Writing a script <em>defensively</em> means adding safeguards so it stops right away if a step fails or a variable is unexpectedly empty.</p>
 <h3>Why it matters</h3>
-<p>Shell scripts can continue after failures and a mistyped or empty path can target an unintended location. Defensive options help detect some errors but have exceptions; validate paths and test failure cases as well.</p>
+<p>By default, a shell script keeps running even after a command fails, and an empty variable can turn a file path into the wrong folder. Defensive habits catch mistakes early before they cause damage.</p>
 <h3>How to think about it</h3>
-<p>Defensive scripts fail early on bad paths and empty variables. Treat exit status and cleanup as part of the contract.</p>
+<p>Think of a defensive script like a pre-flight checklist with automatic circuit breakers: if a required input is missing or an earlier step fails, the script halts immediately instead of blindly charging into the next step.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/s/shebang.html">Shebang</a></dt>
-<dd>The <code>#!</code> header on line 1 directing the kernel to the interpreter binary.</dd>
+<dd>The <code>#!</code> line at the top of a script telling the system which interpreter should run it.</dd>
 <dt><a href="glossary/e/errexit.html">Errexit</a></dt>
-<dd>The <code>-e</code> shell option that terminates the script when any command fails.</dd>
+<dd>A shell option that stops a script immediately when a command returns an error.</dd>
 <dt><a href="glossary/n/nounset.html">Nounset</a></dt>
-<dd>The <code>-u</code> shell option treating uninitialized variable expansions as fatal errors.</dd>
+<dd>A shell option that treats an undefined variable as an error instead of silently expanding it to empty text.</dd>
 </dl>
-<p>A <dfn><a href="glossary/f/filter.html">filter</a></dfn> reads standard input and writes standard output within a pipeline.</p>
 </section>
 
 <section data-level="learner">

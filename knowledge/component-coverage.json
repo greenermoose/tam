@@ -5,8 +5,8 @@
   "exemptions_file": "tools/component-coverage-exemptions.tsv",
   "counts": {
     "components": 249,
-    "covered": 197,
-    "exempt": 52,
+    "covered": 199,
+    "exempt": 50,
     "gap": 0,
     "unknown_exemptions": 1
   },
@@ -83,6 +83,8 @@
         "glossary/d/device-file.html",
         "glossary/d/diffie-hellman.html",
         "glossary/d/dimm.html",
+        "glossary/d/display-manager.html",
+        "glossary/d/dotfiles.html",
         "glossary/e/enq.html",
         "glossary/f/fallback-route.html",
         "glossary/f/flit.html",
@@ -99,6 +101,7 @@
         "glossary/l/luks.html",
         "glossary/m/mbr.html",
         "glossary/n/nak.html",
+        "glossary/o/operator.html",
         "glossary/o/option.html",
         "glossary/p/partition.html",
         "glossary/p/patch.html",
@@ -111,6 +114,7 @@
         "glossary/r/rip.html",
         "glossary/r/root-filesystem.html",
         "glossary/r/rs-485.html",
+        "glossary/r/rtt.html",
         "glossary/r/runlevel.html",
         "glossary/s/sandbox.html",
         "glossary/s/scp.html",
@@ -129,6 +133,7 @@
         "glossary/u/uid.html",
         "glossary/u/unit.html",
         "glossary/u/utf-8.html",
+        "glossary/u/uwsm.html",
         "glossary/v/vector-graphics.html",
         "glossary/v/virtual-console.html",
         "glossary/v/virtual-machine.html",
@@ -661,7 +666,8 @@
       "pages": [
         "desktop/apps/browser.html",
         "desktop/apps/web-apps.html",
-        "desktop/session/config.html"
+        "desktop/session/config.html",
+        "glossary/d/default-handler.html"
       ],
       "status": "covered"
     },
@@ -688,17 +694,10 @@
       "kind": "command",
       "source": "commands/tam-deploy",
       "pages": [
-        "glossary/a/assembly-tamlinux.html",
         "glossary/d/deploy.html",
-        "paths/keep-it-healthy.html",
         "systems/packages/nix.html",
-        "systems/packages/packaging.html",
         "systems/packages/tam-bundle.html",
-        "systems/recovery/checkpoint.html",
-        "systems/recovery/recovery.html",
-        "systems/recovery/rollback.html",
-        "tamlinux/development/package-versions.html",
-        "tamlinux/development/tam.html"
+        "systems/recovery/rollback.html"
       ],
       "status": "covered"
     },
@@ -799,6 +798,7 @@
       "kind": "command",
       "source": "commands/tam-fleet",
       "pages": [
+        "glossary/f/fleet.html",
         "tamlinux/development/contributing.html"
       ],
       "status": "covered"
@@ -828,7 +828,8 @@
       "kind": "command",
       "source": "commands/tam-font-set",
       "pages": [
-        "desktop/appearance/fonts.html"
+        "desktop/appearance/fonts.html",
+        "glossary/f/font-family.html"
       ],
       "status": "covered"
     },
@@ -865,8 +866,10 @@
       "id": "tam-hw-clamshell",
       "kind": "command",
       "source": "commands/tam-hw-clamshell",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "glossary/c/clamshell-mode.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-hw-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -996,7 +999,8 @@
       "kind": "command",
       "source": "commands/tam-hyprland-monitor-clamshell",
       "pages": [
-        "desktop/displays.html"
+        "desktop/displays.html",
+        "glossary/c/clamshell-mode.html"
       ],
       "status": "covered"
     },
@@ -1041,7 +1045,8 @@
       "kind": "command",
       "source": "commands/tam-hyprland-monitor-internal-mirror",
       "pages": [
-        "desktop/displays.html"
+        "desktop/displays.html",
+        "glossary/d/display-mirroring.html"
       ],
       "status": "covered"
     },
@@ -1469,6 +1474,7 @@
         "desktop/session/start.html",
         "glossary/r/rapl.html",
         "glossary/r/rss.html",
+        "glossary/w/watt.html",
         "hardware/energy/index.html",
         "hardware/energy/measurement.html",
         "systems/maintenance/index.html",
@@ -1594,6 +1600,7 @@
       "pages": [
         "desktop/apps/documents-and-pdf.html",
         "desktop/apps/media.html",
+        "glossary/d/default-handler.html",
         "systems/storage/archives.html",
         "systems/storage/finding-files.html",
         "terminal/shell/tools.html"
@@ -2164,7 +2171,8 @@
       "kind": "command",
       "source": "commands/tam-theme-bg-next",
       "pages": [
-        "desktop/appearance/theming.html"
+        "desktop/appearance/theming.html",
+        "glossary/w/wallpaper.html"
       ],
       "status": "covered",
       "exemption": {
@@ -2189,8 +2197,10 @@
       "id": "tam-theme-bg-switcher",
       "kind": "command",
       "source": "commands/tam-theme-bg-switcher",
-      "pages": [],
-      "status": "exempt",
+      "pages": [
+        "glossary/w/wallpaper.html"
+      ],
+      "status": "covered",
       "exemption": {
         "reason": "sibling under tam-theme-*; family already mentioned in corpus (ballot 4A hub)",
         "date": "2026-11-04"
@@ -2351,7 +2361,8 @@
       "kind": "command",
       "source": "commands/tam-theme-set-foot",
       "pages": [
-        "desktop/appearance/themes.html"
+        "desktop/appearance/themes.html",
+        "glossary/f/foot.html"
       ],
       "status": "covered"
     },
@@ -2563,6 +2574,7 @@
         "desktop/commands.html",
         "desktop/navigation/toggles.html",
         "desktop/tasks/night-light.html",
+        "glossary/n/night-light.html",
         "paths/everyday-desktop.html"
       ],
       "status": "covered"
@@ -2685,6 +2697,7 @@
       "source": "commands/tam-webapp-install",
       "pages": [
         "desktop/apps/web-apps.html",
+        "glossary/w/web-app.html",
         "terminal/shell/tools.html"
       ],
       "status": "covered"
@@ -2696,6 +2709,7 @@
       "pages": [
         "desktop/apps/index.html",
         "desktop/apps/web-apps.html",
+        "glossary/w/web-app.html",
         "paths/files-and-apps.html",
         "terminal/shell/tools.html"
       ],
@@ -2706,12 +2720,12 @@
       "kind": "command",
       "source": "commands/tam-work",
       "pages": [
+        "glossary/p/path-claim.html",
         "programming/c/object-files.html",
         "programming/c/toolchains.html",
         "programming/scripting.html",
         "tamlinux/development/contributing.html",
         "tamlinux/development/index.html",
-        "tamlinux/development/package-versions.html",
         "tamlinux/development/tam.html"
       ],
       "status": "covered"
@@ -2743,6 +2757,7 @@
       "pages": [
         "desktop/navigation/bar.html",
         "desktop/navigation/transition.html",
+        "glossary/p/plugin.html",
         "tamlinux/development/plugins.html"
       ],
       "status": "covered"
@@ -2774,6 +2789,7 @@
       "source": "desktop/plugins/fred.sysinfo",
       "pages": [
         "desktop/navigation/bar.html",
+        "glossary/p/plugin.html",
         "tamlinux/development/plugins.html"
       ],
       "status": "covered"
@@ -2804,6 +2820,7 @@
       "source": "desktop/plugins/fred.weather",
       "pages": [
         "desktop/navigation/bar.html",
+        "glossary/p/plugin.html",
         "tamlinux/development/plugins.html"
       ],
       "status": "covered"

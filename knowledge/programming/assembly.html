@@ -24,23 +24,22 @@
 
 <section data-level="novice">
 <h2>What is assembly language?</h2>
-<p>When debugging subtle library crashes, optimizing tight performance bottlenecks, or inspecting compiled binaries for security vulnerabilities, looking at high-level source code alone is not enough. Disassembling a binary lets you verify exactly what machine code the compiler generated and what instructions the processor will execute.</p>
+<p>Assembly language is a human-readable shorthand for the raw binary <dfn><a href="glossary/m/machine-code.html">machine code</a></dfn> that a processor executes directly. Each short line of assembly corresponds almost one-to-one with a single hardware instruction.</p>
 <h3>Why it matters</h3>
-<p>When debugging subtle library crashes, optimizing tight performance bottlenecks, or inspecting compiled binaries for security vulnerabilities, looking at high-level source code alone is not enough. Disassembling a binary lets you verify exactly what machine code the compiler generated and what instructions the processor will execute.</p>
+<p>When debugging subtle crashes, tuning tight performance loops, or checking what a compiler actually produced, looking at high-level source code alone is sometimes not enough. Reading assembly lets you see the exact instructions the CPU will run.</p>
 <h3>How to think about it</h3>
-<p>New to this? A mnemonic is a short word (like mov for move, add for addition, or jmp for jump) that represents an opcode.</p>
+<p>Think of high-level code (like C or Python) as a recipe written in full sentences, machine code as the raw binary switches flipping inside the chip, and assembly language as a concise shorthand list of each single switch action—like &ldquo;move,&rdquo; &ldquo;add,&rdquo; or &ldquo;jump.&rdquo;</p>
 <h3>New words</h3>
 <dl>
 <dt><dfn><a href="glossary/m/machine-code.html">Machine code</a></dfn></dt>
-<dd>The raw binary bytes (opcodes and operands) that a microprocessor's hardware decoders directly execute.</dd>
+<dd>The raw binary bytes that a processor&apos;s hardware directly executes.</dd>
 <dt><a href="glossary/m/mnemonic.html">Mnemonic</a></dt>
-<dd>A symbolic human-readable name for a machine operation, such as <code>mov</code>, <code>add</code>, <code>sub</code>, or <code>jmp</code>.</dd>
+<dd>A short readable name for a machine instruction, such as <code>mov</code> or <code>add</code>.</dd>
 <dt><a href="glossary/r/register.html">Register</a></dt>
-<dd>A small, extremely fast physical storage cell directly inside the CPU core (e.g. <code>%rax</code>, <code>%rdi</code>).</dd>
+<dd>A tiny, ultra-fast storage slot built directly inside the CPU core.</dd>
 <dt><a href="glossary/d/disassembler.html">Disassembler</a></dt>
-<dd>A programming tool that parses binary machine code bytes and outputs equivalent assembly mnemonics.</dd>
+<dd>A tool that translates compiled binary machine code back into readable assembly lines.</dd>
 </dl>
-<p>An executable program runs under the control of the operating system <dfn><a href="glossary/k/kernel.html">kernel</a></dfn>.</p>
 </section>
 
 <section data-level="learner">

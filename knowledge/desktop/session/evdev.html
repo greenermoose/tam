@@ -24,11 +24,11 @@
 
 <section data-level="novice">
 <h2>What is the Linux input subsystem?</h2>
-<p>When a keyboard stops responding, a mouse jumps unexpectedly, or a new input device is connected, guessing what is wrong wastes time. Knowing how Linux discovers and names input devices allows you to confirm within seconds whether the operating system recognizes your hardware.</p>
+<p>Every keyboard, mouse, touchpad, and game controller sends raw hardware signals to the computer. The Linux input subsystem receives those signals inside the kernel and translates them into a single standard stream of events that every desktop program can understand.</p>
 <h3>Why it matters</h3>
-<p>When a keyboard stops responding, a mouse jumps unexpectedly, or a new input device is connected, guessing what is wrong wastes time. Knowing how Linux discovers and names input devices allows you to confirm within seconds whether the operating system recognizes your hardware.</p>
+<p>When a keyboard stops responding, a mouse jumps unexpectedly, or a new input device is plugged in, guessing what is wrong wastes time. Understanding that the kernel detects and exposes devices before the desktop sees them lets you tell immediately whether the hardware is recognized.</p>
 <h3>How to think about it</h3>
-<p>New to this? In Linux, hardware devices are represented as special files in the /dev/ directory.</p>
+<p>Think of the input subsystem as a universal translator at a post office. Whether a device speaks USB, Bluetooth, or an internal laptop bus, the kernel translates its signals into one uniform envelope format and places it in a mailbox for the desktop to read.</p>
 <h3>New words</h3>
 <dl>
 <dt><dfn><a href="glossary/e/evdev.html">evdev</a></dfn></dt>

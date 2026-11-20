@@ -21,15 +21,16 @@
 
 <section data-level="novice">
 <h2>What is init?</h2>
-<p>Networking, logging and many desktop helpers are services. Knowing who starts them prevents random restarts.</p>
+<p><code>init</code> is the very first regular program the Linux kernel starts after booting. It launches and supervises background services—such as networking, system logging, audio, and login prompts—for the entire time the computer is running.</p>
 <h3>Why it matters</h3>
-<p>Networking, logging and many desktop helpers are services. Knowing who starts them prevents random restarts.</p>
+<p>Networking, logging, and many desktop helpers all run as managed services. Knowing which manager started a service—and how to check its status—prevents guesswork and unnecessary reboots when a background feature stops working.</p>
 <h3>How to think about it</h3>
-<p>Do not restart services while learning. Looking is enough.</p>
+<p>Think of the kernel as the building&apos;s foundation and electricity, and init (on Arch-based Tamlinux, <dfn><a href="glossary/s/systemd.html">systemd</a></dfn>) as the building superintendent who opens every room in the right order each morning and checks on equipment that trips a breaker.</p>
 <h3>New words</h3>
-<dl><dt><a href="glossary/s/systemd.html">systemd</a></dt><dd>Current init and service manager on Arch-based Tamlinux.</dd></dl>
-<h3>Next step</h3>
-<p><a href="systems/maintenance/logs.html?level=1">System logs</a>.</p>
+<dl>
+<dt><a href="glossary/s/systemd.html">systemd</a></dt>
+<dd>The init and service manager used on Arch-based Tamlinux.</dd>
+</dl>
 </section>
 
 <section data-level="learner">

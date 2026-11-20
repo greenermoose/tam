@@ -24,21 +24,21 @@
 
 <section data-level="novice">
 <h2>What is the instruction cycle?</h2>
-<p>Computers do not read entire programs at once. The processor reads small, numbered instructions one step at a time. Understanding this execution loop explains what a program counter is, how branches change code flow, and why fast CPU caches are essential to prevent processor starvation.</p>
+<p>The instruction cycle is the repeating heartbeat of a processor: fetch the next tiny instruction from memory, decode what it asks for, execute that operation, and move to the next instruction.</p>
 <h3>Why it matters</h3>
-<p>Computers do not read entire programs at once. The processor reads small, numbered instructions one step at a time. Understanding this execution loop explains what a program counter is, how branches change code flow, and why fast CPU caches are essential to prevent processor starvation.</p>
+<p>Computers do not read entire programs at once. Understanding this step-by-step loop explains what a program counter is, how branches change which code runs next, and why fast CPU caches are essential to keep the processor busy.</p>
 <h3>How to think about it</h3>
-<p>New to this? The Instruction Pointer (often called the Program Counter or PC) is a special CPU register that holds the memory address of the next instruction waiting to be executed.</p>
+<p>Think of a cook following a numbered recipe card with one finger holding their place. For each step, they read the line (fetch), understand the action (decode), perform it (execute), and slide their finger down to the next line—unless the step says &ldquo;skip to step 12.&rdquo;</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/f/fetch.html">Fetch</a></dt>
-<dd>The microarchitectural phase where instruction bytes are read from cache or memory into the processor core.</dd>
+<dd>Reading the next instruction&apos;s bytes from cache or memory into the processor.</dd>
 <dt><a href="glossary/d/decode.html">Decode</a></dt>
-<dd>The phase where the processor translates raw binary opcode bits into internal execution control signals.</dd>
+<dd>Translating raw binary instruction bits into internal control signals.</dd>
 <dt><a href="glossary/e/execute.html">Execute</a></dt>
-<dd>The phase where functional units (like the ALU) perform the requested arithmetic, logical, or control operation.</dd>
+<dd>Performing the requested arithmetic, logic, memory, or control step.</dd>
 <dt><a href="glossary/o/opcode.html">Opcode</a></dt>
-<dd>Operation Code; the specific portion of a machine instruction that specifies the operation to be performed.</dd>
+<dd>Operation Code; the part of a machine instruction that names which operation to perform.</dd>
 </dl>
 <p>A sequence of instructions stored in an executable file forms a <dfn><a href="glossary/p/program.html">program</a></dfn>.</p>
 </section>

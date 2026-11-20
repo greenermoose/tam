@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>IV (Initialization Vector)</title>
+<meta name="topic" content="glossary-iv">
+<meta name="summary" content="IV (Initialization Vector): A non-secret, unpredictable or unique starting value fed into a symmetric cipher so encrypting the same message twice yields different ciphertext.">
+<meta name="keywords" content="glossary-iv, iv, initialization vector, nonce, aes, symmetric, cryptography">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/i/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IV (Initialization Vector)</p></nav>
+
+<h1>IV (Initialization Vector)</h1>
+<p>A non-secret, unpredictable or unique starting value fed into a symmetric cipher so encrypting the same message twice yields different ciphertext.</p>
+<section data-level="novice"><p>An initialization vector is a fresh random starting value mixed into an encryption step so that encrypting the same file or message twice never produces identical scrambled output.</p></section>
+<section data-level="learner"><p>An IV does not need to be kept secret—it is stored or sent alongside the ciphertext—but reusing an IV with the same key can completely break stream ciphers and AEAD modes like AES-GCM.</p><details class="q"><summary>What goes wrong if a cipher reuses the exact same IV and key for two different messages?</summary><p>Identical plaintext blocks produce identical ciphertext patterns, and in modes like CTR or GCM, IV/nonce reuse leaks the XOR of plaintexts and can destroy authentication.</p></details></section>
+<section data-level="expert"><p>Depending on the mode of operation, an IV must be unpredictable (CBC) or strictly unique per key (CTR, GCM, ChaCha20-Poly1305, where it is called a nonce); disk encryption like LUKS/XTS derives per-sector IVs (e.g. plain64) from sector numbers.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="security/cryptography/symmetric-cryptography.html">Symmetric cryptography</a></li><li><a href="security/practice/disk-encryption.html">Disk encryption</a></li></ul>
+</body></html>

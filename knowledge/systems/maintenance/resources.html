@@ -24,21 +24,20 @@
 
 <section data-level="novice">
 <h2>What do memory and disk numbers mean?</h2>
-<p>Linux aggressively uses idle RAM for disk buffers and page cache, so seeing low "free" memory is normal. Checking the wrong number leads people to terminate healthy applications or panic about nonexistent memory exhaustion.</p>
+<p>Your computer tracks how much memory (<dfn><a href="glossary/r/ram.html">RAM</a></dfn>) and disk space are in use, how much is temporarily borrowed to speed up file reads, and how much headroom remains for new work.</p>
 <h3>Why it matters</h3>
-<p>Linux aggressively uses idle RAM for disk buffers and page cache, so seeing low "free" memory is normal. Checking the wrong number leads people to terminate healthy applications or panic about nonexistent memory exhaustion.</p>
+<p>Linux intentionally uses idle RAM as a fast disk cache, so seeing a small &ldquo;free&rdquo; memory number is completely normal. Reading the wrong column leads people to close healthy programs or worry about memory exhaustion that is not actually happening.</p>
 <h3>How to think about it</h3>
-<p>Free memory is not the whole story: Linux uses idle RAM for cache. Read capacity and pressure together before killing healthy programs.</p>
+<p>Think of RAM like a workbench: Linux keeps recently used tools laid out on empty bench space (cache) so you can grab them faster, and instantly sweeps them aside the moment a new project needs that space.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/r/ram.html">RAM</a></dt>
-<dd>Random Access Memory; fast volatile storage holding running programs.</dd>
+<dd>Random Access Memory; fast temporary storage holding active programs and data.</dd>
 <dt><a href="glossary/b/buffer.html">Buffer and cache</a></dt>
-<dd>Memory used temporarily by the kernel to speed up storage access.</dd>
+<dd>Memory temporarily borrowed by the kernel to speed up disk access and freed automatically when apps need it.</dd>
 <dt><a href="glossary/h/headroom.html">Headroom</a></dt>
-<dd>Remaining resource capacity before performance degrades or allocations fail.</dd>
+<dd>Remaining capacity before performance degrades or allocations fail.</dd>
 </dl>
-<p>A <dfn><a href="glossary/p/process.html">process</a></dfn> consumes memory while executing.</p>
 </section>
 
 <section data-level="learner">

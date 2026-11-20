@@ -63,13 +63,13 @@ $ printf 'exit=%s picked=%s\n' "$?" "$picked"
 <h3>If it goes wrong</h3>
 <dl>
 <dt>Command exits with status 2</dt>
-<dd>Either no XDG desktop portal is available (for example on a headless text VT), an invalid flag was passed, or <code>tam_bundle_guard</code> refused execution while a bundle update is switching versions.</dd>
+<dd>Either no XDG desktop portal is available (for example on a headless text VT), an invalid flag was passed, or <code>tam_install_pending()</code> refused execution while a Tamlinux install or upgrade transaction is in progress.</dd>
 <dt>Script fails when user presses Cancel</dt>
 <dd>Always handle exit status <code>1</code> explicitly instead of treating empty stdout under <code>set -e</code> as a selected filename.</dd>
 </dl>
 
 <aside class="tamlinux">
-<p><code>tam-file-select</code> guards against mid-upgrade state transitions via <code>tam_bundle_guard</code>, instructing users to inspect <code>tam-bundle status</code> from the console if a version switch or recovery is in progress.</p>
+<p><code>tam-file-select</code> guards against mid-upgrade state transitions via <code>tam_install_pending()</code> from <code>libtam</code>, refusing to start until an interrupted install or upgrade transaction is resolved from the console.</p>
 </aside>
 
 <section class="quiz">

@@ -4,7 +4,7 @@
 <title>Checking and updating your software</title>
 <meta name="topic" content="updates">
 <meta name="summary" content="Identify update owners and prepare recovery before changing software">
-<meta name="keywords" content="updates, package, ownership, pacman, mise, home-manager, tam-update, rollback, inode">
+<meta name="keywords" content="updates, package, ownership, pacman, mise, source-install, tam-update, rollback, inode">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
 <meta name="parent" content="systems/maintenance/index.html">
@@ -90,7 +90,7 @@ bash 5.3.20-1
 <p><strong>Reference:</strong> Tamlinux maintains separate recovery boundaries for different software layers. A disciplined update plan defines the rollback mechanism before initiating changes.</p>
 
 <table><tr><th>Layer</th><th>Manager</th><th>Rollback Mechanism</th></tr>
-<tr><td>User environment</td><td>Home Manager</td><td>Previous Home Manager generation</td></tr>
+<tr><td>Tamlinux cultivar</td><td>Make source install (<code>/usr/lib/tamlinux/</code>)</td><td>Previous recorded source-install stage</td></tr>
 <tr><td>System rootstock</td><td>Pacman</td><td>Snapper Btrfs root snapshot</td></tr>
 <tr><td>User CLI tools</td><td>Mise</td><td>Version lockfile pin</td></tr>
 </table>

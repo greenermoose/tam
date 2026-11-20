@@ -21,22 +21,20 @@
 <p>These exercises look at information without changing startup files. This page also describes tools used by the current Arch Linux system; another system may use different tools.</p>
 <section data-level="novice">
 <h2>What happens when the computer starts?</h2>
-<p>A broken desktop and an absent boot menu
-need different evidence. Changing early boot files because a window is blank
-can introduce a second failure.</p>
+<p>Booting is the ordered handoff that turns a powered-off computer into a running workstation: motherboard firmware wakes up the hardware, a bootloader loads the Linux kernel and its early helpers, the root filesystem mounts, and login services start.</p>
 <h3>Why it matters</h3>
-<p>A broken desktop and an absent boot menu
-need different evidence. Changing early boot files because a window is blank
-can introduce a second failure.</p>
+<p>A blank desktop window and a missing boot menu happen at completely different stages and need different evidence. Changing early boot files when only the desktop failed can create a second problem on top of the first.</p>
 <h3>How to think about it</h3>
-<p>Startup is a chain: firmware, bootloader, kernel, root filesystem, then login and desktop services. Name the last stage that worked.</p>
+<p>Think of startup as a relay race where each runner hands the baton to the next: firmware &rarr; bootloader &rarr; kernel &rarr; filesystem &rarr; login &rarr; desktop. When something stops, naming the last runner who held the baton narrows the search right away.</p>
 <h3>New words</h3>
-<dl><dt><a href="glossary/f/firmware.html">Firmware</a></dt><dd>The <a href="glossary/m/machine-code.html">machine code</a> that starts before the operating system.</dd>
-<dt><a href="glossary/e/efi-system-partition.html">ESP</a></dt><dd>EFI System Partition: a partition containing EFI boot programs; its mount point varies.</dd>
-<dt><a href="glossary/i/initramfs.html">Initramfs</a></dt><dd>The early userspace filesystem used while starting Linux.</dd></dl>
-<p>For text login without the desktop, see the <a href="glossary/v/virtual-console.html">virtual console definition</a>.</p>
-<h3>Next step</h3><p>Compare boot artifacts at Learner, or follow
-<a href="systems/boot/boot-recovery.html?level=1">fallback orientation</a>.</p>
+<dl>
+<dt><a href="glossary/f/firmware.html">Firmware</a></dt>
+<dd>The low-level <a href="glossary/m/machine-code.html">machine code</a> built into the motherboard that runs before the operating system.</dd>
+<dt><a href="glossary/e/efi-system-partition.html">ESP</a></dt>
+<dd>EFI System Partition; the disk partition holding EFI boot programs.</dd>
+<dt><a href="glossary/i/initramfs.html">Initramfs</a></dt>
+<dd>A tiny early filesystem loaded into memory to help the kernel mount the real root disk.</dd>
+</dl>
 </section>
 
 <section data-level="learner">
@@ -88,7 +86,7 @@ cannot start a terminal, record the last visible message and use
 <aside class="tamlinux"><p>The current Arch provider
 uses Limine/mkinitcpio and snapshot synchronization. The product's native updater
 gates transactions on a separate boot-recovery handoff, then creates a Snapper
-checkpoint before the native transaction. A Home Manager generation alone does
+checkpoint before the native transaction. A user-space or cultivar rollback alone does
 not restore native kernel packages, EFI files or firmware settings.</p></aside>
 <section class="quiz">
 <h3>Check yourself</h3>

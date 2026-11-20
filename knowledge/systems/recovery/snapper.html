@@ -20,22 +20,20 @@
 <p>Snapper is a tool for keeping records of earlier states of stored information. The exercises here only inspect information or use a temporary model; they do not create, delete, or restore a real snapshot.</p>
 <section data-level="novice">
 <h2>What are Snapper snapshots?</h2>
-<p>A configuration named root does not mean
-all your files are protected or that a bootable checkpoint exists.</p>
+<p>Snapper is a tool that takes and manages <dfn><a href="glossary/b/btrfs.html">Btrfs</a></dfn> filesystem snapshots—fast, space-efficient point-in-time records of a configured part of your disk, often taken automatically before and after system updates.</p>
 <h3>Why it matters</h3>
-<p>A configuration named root does not mean
-all your files are protected or that a bootable checkpoint exists.</p>
+<p>A snapshot configuration named <code>root</code> covers only the subvolume it is configured for—not automatically every personal file or an external backup. Understanding what Snapper covers keeps you from relying on protection that is not there.</p>
 <h3>How to think about it</h3>
-<p>Snapper snapshots record filesystem state for a configured subvolume. They are not a full independent backup by themselves.</p>
+<p>Think of a Snapper snapshot like a photo of your system folder&apos;s table of contents at one moment in time: it takes almost no extra space until files change, and lets you roll back system changes—though it still lives on the same drive, so it does not replace an off-machine backup.</p>
 <h3>New words</h3>
-<dl><dt>Configuration</dt><dd>Snapper settings for one managed filesystem or subvolume.</dd>
-<dt><a href="glossary/c/checkpoint-number.html">Checkpoint number</a></dt><dd>An identifier within a configuration, not a universal snapshot name.</dd></dl>
-<p>Compare <a href="glossary/s/snapshot.html">snapshot</a>,
-<a href="glossary/g/generation.html">generation</a>,
-<a href="glossary/r/rollback.html">rollback</a> and
-<a href="glossary/c/checkpoint.html">checkpoint</a>.</p>
-<h3>Next step</h3><p>Learn to interpret checkpoint types and recovery
-boundaries at Learner.</p>
+<dl>
+<dt>Configuration</dt>
+<dd>Snapper settings defining which filesystem subvolume is snapshotted and how many snapshots are kept.</dd>
+<dt><a href="glossary/c/checkpoint-number.html">Checkpoint number</a></dt>
+<dd>A snapshot ID number within a specific Snapper configuration.</dd>
+<dt><a href="glossary/s/snapshot.html">Snapshot</a></dt>
+<dd>A saved point-in-time state of a filesystem subvolume.</dd>
+</dl>
 </section>
 
 <section data-level="learner">

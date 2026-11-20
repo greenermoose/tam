@@ -20,18 +20,18 @@
 <p>First notice what still responds. A frozen window, an unavailable desktop, and a computer that cannot start need different responses.</p>
 <section data-level="novice">
 <h2>What does emergency recovery start with?</h2>
-<p>Restarting the whole machine can discard
-unsaved work and the evidence needed to understand a single stuck application.</p>
+<p>Emergency recovery is the calm, step-by-step habit of checking what still works before forcing a reboot—starting with the smallest scope (one stuck window), then the desktop session, then a text console, and only last a full restart.</p>
 <h3>Why it matters</h3>
-<p>Restarting the whole machine can discard
-unsaved work and the evidence needed to understand a single stuck application.</p>
+<p>Immediately pulling the power or rebooting discards unsaved work and erases the clues that tell you whether a single app, the desktop, or the kernel failed.</p>
 <h3>How to think about it</h3>
-<p>Notice what still responds before escalating. A stuck window, a dead desktop, and a machine that never reaches login need different responses.</p>
+<p>Think of a jammed door inside a house: you check the latch on that one door before shutting off the main breaker to the whole building. Notice what still responds first, then escalate one step at a time.</p>
 <h3>New words</h3>
-<dl><dt><a href="glossary/v/virtual-console.html">Virtual console</a></dt><dd>A
-kernel terminal surface; it may have a login service.</dd>
-<dt><dfn><a href="glossary/p/process.html">Process</a></dfn></dt><dd>A
-running program instance. A window and the whole desktop need not share one.</dd></dl>
+<dl>
+<dt><a href="glossary/v/virtual-console.html">Virtual console</a></dt>
+<dd>A full-screen text login provided directly by the Linux kernel, independent of the graphical desktop.</dd>
+<dt><dfn><a href="glossary/p/process.html">Process</a></dfn></dt>
+<dd>A single running program; one frozen window does not mean the whole operating system is frozen.</dd>
+</dl>
 </section>
 
 <section data-level="learner">
@@ -76,7 +76,7 @@ terminal you opened yourself; do not add privileges.</dd>
 virtual console or already-configured remote access may help only if its
 input, kernel, display and login services still work.</dd></dl>
 <aside class="tamlinux"><p>A product regression uses the recorded
-<code>tam-deploy</code> recovery procedure and the developer's instruction
+recorded Tamlinux source-install recovery procedure and the developer&apos;s instruction
 for that exact candidate. Boot, login, disk and firmware changes need a
 recorded rollback point and separate approval for each step. This read-only
 lesson provides no authorization to change policy, restart services or repair disks.</p></aside>

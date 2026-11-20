@@ -3,7 +3,7 @@
 <head>
 <title>How tam-bundle installs and rolls back files</title>
 <meta name="topic" content="tam-bundle">
-<meta name="summary" content="tam-bundle, in development: a named, versioned set of real files installed into a slot, switched in one step and rolled back with one command">
+<meta name="summary" content="Transitional Tamlinux bundle installer: a named, versioned set of real files installed into a slot, switched in one step and rolled back with one command">
 <meta name="keywords" content="tam-bundle, bundle, slot, live tree, kept tree, rollback, switch, manifest, lock file, recipe, reflink, renameat2, tamlinux-tools">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="systems">
@@ -19,7 +19,7 @@
 <h1>How tam-bundle installs and rolls back files</h1>
 <p>This page explains <code>tam-bundle</code>, a small program that installs a set of files as one unit and can put the previous set back in a moment.</p>
 <h2>Before this</h2><p><a href="systems/packages/packaging.html">How software is delivered</a> · <a href="systems/packages/nix.html">How Nix and Home Manager work</a></p>
-<p><code>tam-bundle</code> is in development. No Tamlinux release uses it yet: today the desktop still arrives through Nix and Home Manager, as <a href="systems/packages/nix.html">How Nix and Home Manager work</a> explains. Tamlinux plans to deliver its own files with <code>tam-bundle</code> instead. Everything on this page that describes Tamlinux using it is a plan.</p>
+<p><code>tam-bundle</code> is a transitional Tamlinux delivery tool. Tamlinux has retired Nix and Home Manager and is now moving from <code>tam-bundle</code> to direct <code>make</code> and <code>make install</code> source installs from pinned Git clones, keeping <code>tam-bundle</code> available for migration and recovery on hosts with earlier bundle installs.</p>
 
 <section data-level="novice">
 <h2>What is tam-bundle?</h2>
@@ -227,7 +227,7 @@ tam-bundle switch /var/tmp/tamlinux-0.7.0
 <p>Build <code>libtam</code> and <code>tamlinux-tools</code> into a private prefix, run <code>make test</code>, and try a change in a slot of your own. The tests include interruption at every step of a switch and rollback through older bundles; run them on both Btrfs and ext4 directories by setting <code>TAM_TEST_DIR</code>. Delivery of Tamlinux through <code>tam-bundle</code> follows the normal Test and Run stages, one approved step at a time.</p>
 </section>
 
-<h2>Next</h2><p><a href="systems/packages/nix.html">How Nix and Home Manager work</a> &mdash; the delivery Tamlinux uses today, and what <code>tam-bundle</code> keeps from it.</p>
+<h2>Next</h2><p><a href="systems/packages/packaging.html">Software packaging and delivery</a> &mdash; how current Tamlinux builds and installs packages.</p>
 <h2>Related</h2><ul><li><a href="systems/packages/packaging.html">Software packaging and delivery</a> &mdash; which tool owns which layer.</li><li><a href="systems/recovery/rollback.html">Returning to an earlier working state</a> &mdash; match a rollback to the layer that changed.</li><li><a href="systems/storage/filesystems.html">Filesystems that keep state</a> &mdash; Btrfs, whose clones make kept trees cheap.</li></ul>
 </body>
 </html>

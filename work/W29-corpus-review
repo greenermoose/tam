@@ -1,0 +1,61 @@
+W29 CORPUS-WIDE REVIEW AND REMEDIATION
+
+Date: 2026-11-20
+AI harness: Antigravity CLI 1.5.13
+AI model: Gemini 4 Neon (Medium)
+
+GUIDANCE
+
+  Fred: "/plan Review the entire tam knowledge corpus. Look for the following
+  issues and correct them:
+
+  1) Novice sections which are confusing or conflate the point of the novice
+     section and the learner sections.
+  2) Technical terms that are not defined in the glossary.
+  3) Descriptions of Tamlinux that are out of date."
+
+  Fred: "Approved. Proceed."
+
+CHECKED AGAINST
+
+  docs/corpus-pedagogy.md, docs/corpus-style.md, docs/corpus-authoring.md,
+  tamlinux/VERSION, tamlinux/commands/, tamlinux/commands/start/README,
+  tamlinux/docs/plans/source-install.md,
+  tamlinux/docs/plans/nftables-host-firewall.md,
+  tamlinux/docs/plans/remove-screensaver.md,
+  tamlinux/docs/plans/retire-hey.md,
+  tamlinux-tools/src/tam-file-select.c, src/tam.c, src/version.h, ROADMAP.md.
+
+DONE
+
+  - Phase 1 (Novice sections): Rewrote 69 Novice sections across desktop/,
+    hardware/, help/, networking/, programming/, systems/, tamlinux/, and
+    terminal/ to remove 55 verbatim duplicate intro/"Why it matters" blocks,
+    replace procedural/keybinding/shell-prompt instructions in "How to think
+    about it" with plain mental models, remove reference tables from Novice
+    on desktop/session/start.html, and remove 17 embedded "Next step" blocks.
+  - Phase 2 (Glossary): Added 57 new three-level glossary pages under
+    knowledge/glossary/ (including Tamlinux, desktop, input, terminal,
+    editor, cryptography, networking, and hardware terms) and linked 57
+    previously unlinked Novice <dt> entries to their glossary pages.
+  - Phase 3 (Out-of-date Tamlinux descriptions): Updated ~35 topic, path,
+    and glossary pages to reflect the retirement of Nix and Home Manager,
+    the transition from tam-bundle to Make source installs under
+    /usr/lib/tamlinux/ and /usr/bin, tam_install_pending() in libtam,
+    tam where PATH cultivar ownership lookup, removal of the screensaver
+    keyword from desktop/navigation/toggles.html, and current novice/learner
+    skill IDs in tamlinux/development/authoring.html. Kept
+    systems/packages/nix.html and the nix/home-manager glossary pages as
+    general/historical Linux reference with explicit historical notes.
+  - Phase 4: Bumped knowledge/version to 0.103.0, updated ROADMAP.md and
+    work/WHATNOW, rebuilt indexes with make corpus, and verified with
+    make corpus-and-test and rendered tam show --pipe checks.
+
+FAILED
+
+  - Nothing.
+
+HANDOFF
+
+  - Corpus is at 0.103.0 on dev. No installation or remote push was
+    performed.

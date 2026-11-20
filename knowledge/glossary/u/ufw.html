@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>UFW (Uncomplicated Firewall)</title>
+<meta name="topic" content="glossary-ufw">
+<meta name="summary" content="UFW (Uncomplicated Firewall): A simplified command-line frontend for managing Linux packet-filtering rules, historically used on many desktops before direct nftables policies.">
+<meta name="keywords" content="glossary-ufw, ufw, firewall, nftables, iptables, security, networking">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/u/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/u/index.html">Terms beginning with U</a> / UFW (Uncomplicated Firewall)</p></nav>
+
+<h1>UFW (Uncomplicated Firewall)</h1>
+<p>A simplified command-line frontend for managing Linux packet-filtering rules, historically used on many desktops before direct nftables policies.</p>
+<section data-level="novice"><p>UFW is a beginner-friendly tool for turning a Linux firewall on and allowing or blocking network ports without writing low-level firewall syntax.</p></section>
+<section data-level="learner"><p>Tamlinux is transitioning hosts from transitional UFW configurations to a single owned nftables policy in /etc/nftables.conf so there is one unified firewall layer.</p><details class="q"><summary>Why is Tamlinux moving from UFW to direct nftables policies?</summary><p>Using one owned /etc/nftables.conf policy avoids layered firewall frontends and makes host rules explicit, auditable, and reproducible.</p></details></section>
+<section data-level="expert"><p>UFW wraps iptables/nftables backends with rule files under /etc/ufw/; on Tamlinux 0.6.x hosts, nftables.service with /etc/nftables.conf supersedes UFW once cutover is verified.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="security/practice/firewall.html">Checking and managing the host firewall</a></li></ul>
+</body></html>

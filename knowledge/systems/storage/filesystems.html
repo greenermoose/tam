@@ -23,16 +23,18 @@
 
 <section data-level="novice">
 <h2>What does a filesystem keep?</h2>
-<p>Updates and mistakes are safer when you know which recovery boundary covers which files.</p>
+<p>A <dfn><a href="glossary/f/filesystem.html">filesystem</a></dfn> is the structure an operating system uses to turn raw storage blocks on a drive into named files, folders, permissions, and—on filesystems like <dfn><a href="glossary/b/btrfs.html">Btrfs</a></dfn>—snapshots.</p>
 <h3>Why it matters</h3>
-<p>Updates and mistakes are safer when you know which recovery boundary covers which files.</p>
+<p>Updates, backups, and mistakes are much safer when you know which files live on which filesystem or subvolume, because recovery boundaries follow those divisions.</p>
 <h3>How to think about it</h3>
-<p>A filesystem is the rules and structures that turn a disk into named files and directories.</p>
+<p>Think of a blank drive like an empty warehouse and a filesystem like the shelving, aisle labels, and inventory catalog that let the computer find any document by name and keep separate rooms for system files and personal files.</p>
 <h3>New words</h3>
-<dl><dt><a href="glossary/b/btrfs.html">Btrfs</a></dt><dd>Filesystem that can snapshot subvolumes.</dd>
-<dt><a href="glossary/f/filesystem.html">Filesystem</a></dt><dd>Rules that turn a disk into named files.</dd></dl>
-<h3>Next step</h3>
-<p><a href="systems/recovery/snapper.html?level=1">Snapper</a>; <a href="security/permissions.html?level=1">Permissions</a>.</p>
+<dl>
+<dt><a href="glossary/b/btrfs.html">Btrfs</a></dt>
+<dd>A modern Linux filesystem that supports copy-on-write subvolumes and snapshots.</dd>
+<dt><a href="glossary/f/filesystem.html">Filesystem</a></dt>
+<dd>The rules and structures that organize raw disk space into named files and directories.</dd>
+</dl>
 </section>
 
 <section data-level="learner">
@@ -41,7 +43,7 @@
 <p><strong>Before you start:</strong> read-only commands only.</p>
 <aside class="first-time"><p>A filesystem is the rules and structures that turn a disk into named files and directories.</p></aside>
 <h3>Mental model</h3>
-<pre>Btrfs subvolume snapshot  |  Home Manager generation  |  mutable documents
+<pre>Btrfs subvolume snapshot  |  Cultivar source stage    |  mutable documents
 </pre>
 <p>Each column recovers different state. A healthy plan names which column covers the change you are about to make.</p>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> Snapper timelines and deploy generations are both used; neither replaces the other. See <a href="systems/recovery/rollback.html">rollback</a>.</p></aside>
