@@ -90,12 +90,24 @@ char *tam_find_knowledge_root(void)
     /* The corpus installed with this binary comes before any shared data
      * directory, so a development install under one prefix never renders
      * the pages of a packaged install under another. */
-    const char *compiled = getenv("TAM_DATADIR");
-    if (compiled == NULL || compiled[0] == '\0') {
-        compiled = TAM_DATADIR;
-    }
+    const char *env_datadir = getenv("TAM_DATADIR");
+    const char *compiled = (env_datadir != NULL && env_datadir[0] != '\0')
+                           ? env_datadir : TAM_DATADIR;
     if (knowledge_ok(compiled)) {
         return strdup(compiled);
+    }
+
+    if (env_datadir == NULL) {
+        static const char *const bud_dirs[] = {
+            "/usr/share/doc/tamlinux/knowledge",
+            "/usr/share/doc/tamlinux",
+            NULL
+        };
+        for (int i = 0; bud_dirs[i] != NULL; i++) {
+            if (knowledge_ok(bud_dirs[i])) {
+                return strdup(bud_dirs[i]);
+            }
+        }
     }
 
     const char *xdg = getenv("XDG_DATA_HOME");

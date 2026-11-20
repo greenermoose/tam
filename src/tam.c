@@ -1192,5 +1192,17 @@ int main(int argc, char **argv)
     if (strcmp(arg, "switch") == 0) {
         return tam_cmd_switch(argc - 2, argv + 2);
     }
+    if (strcmp(arg, "grow") == 0) {
+        return tam_cmd_grow(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "rollback") == 0) {
+        return tam_cmd_rollback(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "uninstall") == 0) {
+        return tam_cmd_uninstall(argc - 2, argv + 2);
+    }
+    if (strcmp(arg, "run") == 0) {
+        return tam_cmd_run(argc - 2, argv + 2);
+    }
     return usage_error(arg);
 }
