@@ -1,0 +1,47 @@
+W37 REMOVE PRE-0.6.37 LEGACY IDENTITY AND OWNERSHIP FALLBACKS
+
+Date: 2026-11-20
+AI harness: agy 1.5.13
+AI model: Gemini 4 Neon (High)
+Commits: the commit that adds this record
+
+
+GUIDANCE
+
+  Fred: "Make a note that 0.6.37 is our oldest rollback target going
+  forward. Don't worry about rolling anything back to before this
+  version. Any code which is designed to allow rollback to an older
+  version should be flagged for review and removal if it no longer
+  serves a useful purpose for the project."
+  Fred: "Start removing the flagged code now."
+  Fred: "Pay special attention to keeping our testing code lean and
+  clean."
+  Fred: "Keep going. Clean it all up."
+
+
+DONE
+
+  - Removed retired `BUNDLE` manifest parsing (`TAM_BUNDLE_ROOT`,
+    `TAM_ACTIVE_SOURCE_ROOT`, `read_bundle_identity`, `bundle_identity_line`)
+    from `src/identity.c` and `Makefile`, keeping `TAM_CULTIVAR_ROOT`,
+    `TAM_ACTIVE_CULTIVAR_ROOT` (`/usr/lib/tamlinux/current`), and
+    `VERSION` identity lookup.
+  - Removed legacy `/usr/lib/tamlinux/source/current/` and
+    `/var/lib/tamlinux/source/active.json` checks from
+    `path_owned_by_cultivar()` in `src/tam.c`.
+  - Updated `tests/test_bundle_identity.py` and
+    `tests/test_documentation.py` to drop obsolete `BUNDLE` test cases
+    and test unified `VERSION` and `/usr/lib/tamlinux/current` directly.
+  - Bumped command version from `0.67.7` to `0.67.8` in `VERSION`,
+    `src/version.h`, `tests/run.sh`, and `ROADMAP.md`.
+  - Verified with `make test-command` and `tools/check-repo.py`.
+
+
+FAILED
+
+  - Nothing.
+
+
+HANDOFF
+
+  - Command `0.67.8` / corpus `0.104.1` is committed locally on `dev`.

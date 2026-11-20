@@ -21,11 +21,7 @@ class CultivarIdentity(unittest.TestCase):
             output=subprocess.check_output([str(root/'bin/tam'),'--version'],env=env,text=True)
             self.assertIn('Tamlinux cultivar CultivarName 1.2.3-dev',output)
             self.assertNotIn('Stale',output)
-            (root/'VERSION').unlink()
-            (root/'BUNDLE').write_text('format 1\nname tamlinux\nversion 1.2.4-dev\n')
-            output=subprocess.check_output([str(root/'bin/tam'),'--version'],env=env,text=True)
-            self.assertIn('Tamlinux cultivar CultivarName 1.2.4-dev',output)
-            (root/'BUNDLE').write_text('format 99\nname tamlinux\nversion 9.9.9\n')
+            (root/'VERSION').write_text('bad version!\n')
             output=subprocess.check_output([str(root/'bin/tam'),'--version'],env=env,text=True)
             self.assertIn('Stale 0.1.0',output)
 

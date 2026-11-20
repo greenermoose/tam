@@ -51,27 +51,17 @@
 static char *trim_in_place(char *s);
 static const struct passwd *cultivar_passwd(void);
 
-#ifndef TAM_BUNDLE_ROOT
-#define TAM_BUNDLE_ROOT ""
-#endif
 #ifndef TAM_CULTIVAR_ROOT
 #define TAM_CULTIVAR_ROOT ""
 #endif
-#ifndef TAM_ACTIVE_BUNDLE_ROOT
-#define TAM_ACTIVE_BUNDLE_ROOT "/usr/lib/tamlinux/current"
-#endif
-#ifndef TAM_ACTIVE_SOURCE_ROOT
-#define TAM_ACTIVE_SOURCE_ROOT "/usr/lib/tamlinux/source/current"
+#ifndef TAM_ACTIVE_CULTIVAR_ROOT
+#define TAM_ACTIVE_CULTIVAR_ROOT "/usr/lib/tamlinux/current"
 #endif
 
 static const char *configured_cultivar_root(void)
 {
-    if (TAM_CULTIVAR_ROOT[0]) return TAM_CULTIVAR_ROOT;
-    if (TAM_BUNDLE_ROOT[0]) return TAM_BUNDLE_ROOT;
-    return "";
+    return TAM_CULTIVAR_ROOT[0] ? TAM_CULTIVAR_ROOT : "";
 }
-
-typedef struct { char *name, *version; } bundle_identity_t;
 
 static bool valid_version_token(const char *s)
 {
@@ -81,19 +71,6 @@ static bool valid_version_token(const char *s)
             return false;
     }
     return true;
-}
-
-static int bundle_identity_line(void *user, size_t line, int format, char **fields, size_t n)
-{
-    (void)line; (void)format;
-    bundle_identity_t *b = user;
-    if (n != 2) return 1;
-    char **value = strcmp(fields[0], "name") == 0 ? &b->name :
-                   strcmp(fields[0], "version") == 0 ? &b->version : NULL;
-    if (!value) return 0;
-    if (*value || !valid_version_token(fields[1])) return 1;
-    *value = strdup(fields[1]);
-    return *value ? 0 : 1;
 }
 
 static char *adjacent_root(void)
@@ -123,43 +100,24 @@ static char *read_version_identity(char *path, char **version)
     return path;
 }
 
-/* Takes ownership of path and returns it only for a valid manifest. */
-static char *read_bundle_identity(char *path, int max_format, char **version)
-{
-    size_t len = 0;
-    char *text = path ? tam_fs_read_file(path, &len) : NULL;
-    bundle_identity_t b = {0};
-    bool valid = text && tam_rec_parse(text, len, 2, max_format, bundle_identity_line, &b, NULL) == 0 &&
-                 b.name && strcmp(b.name, "tamlinux") == 0 && b.version;
-    free(text); free(b.name);
-    if (!valid) { free(path); free(b.version); return NULL; }
-    if (version) *version = b.version;
-    else free(b.version);
-    return path;
-}
-
-static char *read_root_identity(const char *root, int max_format, char **version)
+static char *read_root_identity(const char *root, char **version)
 {
     if (!root || !root[0]) return NULL;
-    char *path = read_version_identity(tam_path_join(root, "VERSION"), version);
-    if (path != NULL) return path;
-    return read_bundle_identity(tam_path_join(root, "BUNDLE"), max_format, version);
+    return read_version_identity(tam_path_join(root, "VERSION"), version);
 }
 
 static char *bundle_identity(char **version)
 {
     const char *fixed = configured_cultivar_root();
     if (fixed[0])
-        return read_root_identity(fixed, 2, version);
+        return read_root_identity(fixed, version);
 
     char *adj = adjacent_root();
-    char *path = adj ? read_root_identity(adj, 1, version) : NULL;
+    char *path = adj ? read_root_identity(adj, version) : NULL;
     free(adj);
-    if (path != NULL || !TAM_ACTIVE_BUNDLE_ROOT[0]) return path;
+    if (path != NULL || !TAM_ACTIVE_CULTIVAR_ROOT[0]) return path;
 
-    path = read_root_identity(TAM_ACTIVE_BUNDLE_ROOT, 2, version);
-    if (path != NULL) return path;
-    return read_root_identity(TAM_ACTIVE_SOURCE_ROOT, 2, version);
+    return read_root_identity(TAM_ACTIVE_CULTIVAR_ROOT, version);
 }
 
 static char *trim_in_place(char *s)
@@ -248,10 +206,8 @@ char *cultivar_path(const char *leaf)
 {
     const char *fixed = configured_cultivar_root();
     if (fixed[0]) {
-        if (strcmp(leaf, "version") == 0) {
-            char *vp = read_version_identity(tam_path_join(fixed, "VERSION"), NULL);
-            return vp ? vp : tam_path_join(fixed, "BUNDLE");
-        }
+        if (strcmp(leaf, "version") == 0)
+            return tam_path_join(fixed, "VERSION");
         if (strcmp(leaf, "cultivar") == 0) return tam_path_join(fixed, "share/tamlinux/cultivar");
     }
     char *manifest = bundle_identity(NULL);

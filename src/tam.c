@@ -119,7 +119,6 @@ static bool path_owned_by_cultivar(const char *path)
     static const char *const prefixes[] = {
         "/usr/lib/tamlinux/versions/",
         "/usr/lib/tamlinux/current/",
-        "/usr/lib/tamlinux/source/current/",
         "/usr/bin/tamlinux/",
         "/usr/share/doc/tamlinux/",
         NULL
@@ -140,19 +139,13 @@ static bool path_owned_by_cultivar(const char *path)
     const char *state = getenv("TAM_STATE_DIR");
     if (!state || !state[0]) state = "/var/lib/tamlinux";
 
-    char active_v2[PATH_MAX], active_v1[PATH_MAX], digest[128];
-    const char *manifests[2] = { NULL, NULL };
-    char manifest_buf[2][PATH_MAX + 256];
+    char active_path[PATH_MAX], digest[128], manifest_path[PATH_MAX + 256];
+    const char *manifest = NULL;
 
-    snprintf(active_v2, sizeof active_v2, "%s/active.json", state);
-    if (extract_json_current(active_v2, digest, sizeof digest)) {
-        snprintf(manifest_buf[0], sizeof manifest_buf[0], "%s/manifests/%s.json", state, digest);
-        manifests[0] = manifest_buf[0];
-    }
-    snprintf(active_v1, sizeof active_v1, "%s/source/active.json", state);
-    if (extract_json_current(active_v1, digest, sizeof digest)) {
-        snprintf(manifest_buf[1], sizeof manifest_buf[1], "%s/source/%s/manifest.json", state, digest);
-        manifests[1] = manifest_buf[1];
+    snprintf(active_path, sizeof active_path, "%s/active.json", state);
+    if (extract_json_current(active_path, digest, sizeof digest)) {
+        snprintf(manifest_path, sizeof manifest_path, "%s/manifests/%s.json", state, digest);
+        manifest = manifest_path;
     }
 
     for (int i = 0; i < 2; i++) {
@@ -161,10 +154,8 @@ static bool path_owned_by_cultivar(const char *path)
         const char *rel = c;
         while (*rel == '/') rel++;
         if (!*rel) continue;
-        for (int m = 0; m < 2; m++) {
-            if (manifests[m] && manifest_has_path(manifests[m], rel))
-                return true;
-        }
+        if (manifest && manifest_has_path(manifest, rel))
+            return true;
     }
     return false;
 }

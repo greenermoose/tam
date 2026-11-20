@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-20:** Command 0.67.8 (patch): remove retired `BUNDLE` manifest parsing and pre-0.6.37 `/usr/lib/tamlinux/source/current` and `/var/lib/tamlinux/source/active.json` fallbacks; retain unified `VERSION` and `/usr/lib/tamlinux/current` identity and ownership resolution.
+
 - **2026-11-20:** Command 0.67.7 (patch) uses the WHATWG named character reference table, bounds numeric decoding, and normalizes manual source encoding before groff generates HTML. Manual cache format 2 replaces previously misencoded output.
 
 - **2026-11-20:** Command 0.67.6 (patch) renders the named HTML bullet entity as an ASCII asterisk.

@@ -29,8 +29,7 @@ ifndef PREFIX
 endif
 
 BINDIR   ?= $(PREFIX)/bin
-BUNDLE_ROOT ?=
-CULTIVAR_ROOT ?= $(BUNDLE_ROOT)
+CULTIVAR_ROOT ?=
 DOCDIR ?= /usr/share/doc
 DATADIR  ?= $(PREFIX)/share/tamlinux/knowledge
 MANDIR   ?= $(PREFIX)/share/man
@@ -74,7 +73,7 @@ TAM_BUILD_ID = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%h -- $(TAM_SOU
 TAM_SOURCE_REVISION = $(or $(shell git -C "$(CURDIR)" log -n 1 --format=%H -- $(TAM_SOURCES) 2>/dev/null),$(shell git -C "$(CURDIR)" rev-parse HEAD 2>/dev/null))
 TAM_SOURCE_DIRTY = $(if $(strip $(shell git -C "$(CURDIR)" status --porcelain -- $(TAM_SOURCES) 2>/dev/null)),1,0)
 
-CPPFLAGS += -DTAM_BUNDLE_ROOT=\"$(BUNDLE_ROOT)\" -DTAM_CULTIVAR_ROOT=\"$(CULTIVAR_ROOT)\" -DTAM_DOCDIR=\"$(DOCDIR)\"
+CPPFLAGS += -DTAM_CULTIVAR_ROOT=\"$(CULTIVAR_ROOT)\" -DTAM_DOCDIR=\"$(DOCDIR)\"
 CPPFLAGS += -DTAM_DATADIR=\"$(DATADIR)\"
 IDENTITY_FLAGS = -DTAM_BUILD=\"$(TAM_BUILD_ID)\" -DTAM_SOURCE_REVISION=\"$(TAM_SOURCE_REVISION)\" -DTAM_SOURCE_DIRTY=$(TAM_SOURCE_DIRTY)
 COMPILE_CONFIG = $(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS)
@@ -114,7 +113,7 @@ $(TAM): $(OBJS) $$(LIBTAM_ARCHIVE) $(BUILD)/link-config | $(BUILD)
 
 # Exercise per-user identity independently of the host's active cultivar.
 $(BUILD)/identity-test.o: src/identity.c $(BUILD)/compile-config | $(BUILD) libtam-check
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -DTAM_ACTIVE_BUNDLE_ROOT=\"\" -DTAM_ACTIVE_SOURCE_ROOT=\"\" -MMD -MP -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TERMINFO_CFLAGS) $(LIBTAM_CFLAGS) -DTAM_ACTIVE_CULTIVAR_ROOT=\"\" -MMD -MP -c $< -o $@
 
 $(BUILD)/tam-test: $(TEST_OBJS) $$(LIBTAM_ARCHIVE) $(BUILD)/link-config | $(BUILD)
 	$(CC) $(TEST_OBJS) $(LDFLAGS) $(LIBTAM_LIBS) $(LDLIBS) $(TERMINFO_LIBS) -o $@
