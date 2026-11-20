@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-20:** Command 0.67.2 (patch): replace the Info directory introduction with an expandable aside and a Man pages link.
+
 - **2026-11-20:** Command 0.67.1 (patch): discover Info manuals and their guide link under `/usr/share/info` by default, retaining explicit documentation root and INFOPATH overrides.
 
 - **2026-11-19:** Command 0.67.0 (minor): Add `/usr/share/doc/tamlinux` bud doc fallback and `grow`, `rollback`, `uninstall [--self]`, and `run` subcommands for non-pacman `tam-bud` and the unified `/usr/lib/tamlinux/` cultivar layout.

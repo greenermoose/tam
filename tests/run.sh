@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.67.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.67.2' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3403,6 +3403,36 @@ printf '%s\n' "$info_dir" | grep -q '^Guide > Info manuals$' || fail "tam info p
 printf '%s\n' "$info_dir" | grep -q 'GNU Info Directory' || fail "tam info --pipe missing title"
 printf '%s\n' "$info_dir" | grep -q 'Coreutils' || fail "tam info --pipe missing Coreutils"
 printf '%s\n' "$info_dir" | grep -q 'info:coreutils' || fail "tam info --pipe missing info:coreutils link"
+
+# The generated Info directory supports the same interactive aside as guide pages.
+python3 - "$TAM" <<'PYINFOASIDE'
+import fcntl, os, pty, re, select, struct, subprocess, sys, termios, time
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 30, 100, 0, 0))
+proc = subprocess.Popen([sys.argv[1], 'info'], stdin=slave, stdout=slave, stderr=slave,
+                        env={**os.environ, 'TERM': 'xterm-256color'}, close_fds=True)
+os.close(slave)
+def read_screen():
+    data = bytearray()
+    deadline = time.monotonic() + 2
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([master], [], [], .1 if data else 1)
+        if not ready:
+            if data: break
+            continue
+        data.extend(os.read(master, 65536))
+    return re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', data.decode('utf-8', 'replace'))
+closed = read_screen()
+assert '[+] You may want to know... (-> to show)' in closed, closed
+assert 'Do not rely on them' not in closed, closed
+os.write(master, b'*')
+opened = read_screen()
+assert 'Do not rely on them for accuracy.' in opened, opened
+assert 'Man pages' in opened and 'Tamlinux workstation.' in opened, opened
+os.write(master, b'q')
+proc.wait(timeout=2)
+os.close(master)
+PYINFOASIDE
 
 # Manual top node rendering (coreutils)
 info_core=$("$TAM" info coreutils --pipe)

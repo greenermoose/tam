@@ -3,6 +3,7 @@
 #include "address.h"
 
 #include "depth.h"
+#include "fold.h"
 #include "discovery.h"
 #include "info.h"
 #include "html.h"
@@ -471,12 +472,12 @@ static char *parse_dir_to_html(const char *buf, size_t len)
 {
     tam_str_t html = tam_page_begin("GNU Info Directory", NULL, NULL, 0);
     html = tam_str_cat(html,     "<h1>GNU Info Directory</h1>\n"
-                                 "<p>The GNU Info directory catalog lists reference manuals "
-                                 "available on this system.<br>\n"
-                                 "Use Info for long-form manuals and related nodes; use <a href=\"tam:man\">Man pages</a> "
-                                 "for concise command, system-call and file-format references.<br>\n"
-                                 "Select an installed manual with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to open it. "
-                                 "Press <kbd>`</kbd> for the Guide, or <kbd>q</kbd> to exit.</p>\n");
+                                 "<aside class=\"first-time\"><p>GNU Info manuals are long-form reference manuals "
+                                 "for the GNU's Not UNIX software collection, provided for historical context "
+                                 "and as a source of ideas. Do not rely on them for accuracy.</p>\n"
+                                 "<p>See <a href=\"tam:man\">Man pages</a> for concise, technical, and current "
+                                 "documentation of all commands, system calls and file formats on your "
+                                 "Tamlinux workstation.</p></aside>\n");
 
     const char *menu = strstr(buf, "* Menu:\n");
     if (menu == NULL) {
@@ -1044,7 +1045,7 @@ static char *parse_node_to_html(const char *manual_name, const char *node_slice,
 /* Public API: tam_info_load                                                 */
 /* ------------------------------------------------------------------------- */
 
-tam_document_t *tam_info_load(const char *spec, int width)
+static tam_document_t *info_load(const char *spec, int width, const char *open)
 {
     char manual_buf[128] = "dir";
     char node_buf[128] = "Top";
@@ -1101,7 +1102,9 @@ tam_document_t *tam_info_load(const char *spec, int width)
         char *html = parse_dir_to_html(buf, file_len);
         free(buf);
         if (html == NULL) return NULL;
-        tam_document_t *doc = tam_render_html(html, strlen(html), width);
+        char *numbered = tam_fold_number(html, strlen(html));
+        tam_document_t *doc = numbered ? tam_fold_render(numbered, strlen(numbered), width, open, 0) : NULL;
+        free(numbered);
         tam_str_free(html);
         return doc;
     }
@@ -1174,6 +1177,16 @@ tam_document_t *tam_info_load(const char *spec, int width)
 
     tam_document_t *doc = tam_render_html(html, strlen(html), width);
     tam_str_free(html);
+    return doc;
+}
+
+tam_document_t *tam_info_load(const char *spec, int width)
+{
+    char *open = NULL;
+    char *bare = tam_fold_split_href(spec ? spec : "", &open);
+    tam_document_t *doc = bare ? info_load(bare, width, open) : NULL;
+    free(bare);
+    free(open);
     return doc;
 }
 
