@@ -149,7 +149,7 @@ Verify all unit, integration, and guide tests pass (<code>make test</code>). Bum
 <li>Binary version: <code>src/version.h</code> (<code>TAM_COMMAND_VERSION</code>).</li>
 <li>Corpus version: <code>knowledge/version</code>, its only source. A corpus release changes no command source.</li>
 </ul>
-Record public AI provenance in <code>AI_PROVENANCE.md</code>. Commit only your claimed paths (<code>git commit -m '...' -- &lt;paths&gt;</code>) and push to <code>dev</code> on GitHub. Note the resulting commit hash.</li>
+Record AI-assisted work in <code>work/</code> following <code>AI-BLAME.md</code> (not <code>AI_PROVENANCE.md</code>). Commit only your claimed paths (<code>git commit -m '...' -- &lt;paths&gt;</code>) and push to <code>dev</code> on GitHub. Note the resulting commit hash.</li>
 
 <li><strong>Pinning and Staging a Candidate:</strong>
 Update the component lock to the exact pushed commit hashes, run <code>make preflight</code> and <code>make</code> from the <code>tamlinux</code> checkout to build the complete workstation stage in private staging, and record the resulting manifest digest and candidate version.</li>

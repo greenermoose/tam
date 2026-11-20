@@ -4,7 +4,7 @@
 <title>Artificial intelligence and human choice</title>
 <meta name="topic" content="ai">
 <meta name="summary" content="AI assistance under human direction, with public provenance">
-<meta name="keywords" content="ai, agents, claude, codex, gemini, agy, opencode, cursor, provenance, ai_provenance, supervision, openclaw, hermes">
+<meta name="keywords" content="ai, agents, claude, codex, gemini, agy, opencode, cursor, provenance, blame, ai-blame, supervision, openclaw, hermes">
 <meta name="level" content="novice, learner">
 <meta name="track" content="tamlinux">
 <meta name="parent" content="tamlinux/development/index.html">
@@ -47,7 +47,7 @@ assistant using <code>tam-agent</code>.</p>
 <h2>Public provenance</h2>
 
 <ul>
-<li>Every public Tamlinux repository keeps an <code>AI_PROVENANCE.md</code> file and a <code>work/</code> folder. Each session writes a <code>W&lt;n&gt;-&lt;name&gt;</code> record there and revises <code>WHATNOW</code>; older records are read-only history under <code>work/history/</code>.</li>
+<li>Every public Tamlinux repository keeps an <code>AI-BLAME.md</code> file (not <code>AI_PROVENANCE.md</code>) and a <code>work/</code> folder. Each session writes a <code>W&lt;n&gt;-&lt;name&gt;</code> record there and revises <code>WHATNOW</code>; older records are read-only history under <code>work/history/</code>.</li>
 <li>Each record names the tool and its version, the model, the guiding prompts, and the commits it produced, so anyone can see how a piece of code came to be.</li>
 <li>Commits made with AI assistance carry trailers naming the tool and model.</li>
 </ul>
@@ -73,7 +73,7 @@ OpenClaw and Hermes has been retired from those defaults.</p>
 <tr><td><strong>Cursor</strong></td><td>an AI-assisted editor</td></tr>
 </table>
 
-<p>The provenance files in each repository record which tool did which work.</p>
+<p>Each repository's <code>AI-BLAME.md</code> file and <code>work/</code> records show which tool did which work.</p>
 <h3>Try it</h3>
 <p>Name which part of a record states the human request and which describes verification.</p><details class="solution"><p>The guiding prompt records the human request; the verification section records the checks. Neither substitutes for reviewing the resulting change.</p></details>
 <h3>If it goes wrong</h3>
