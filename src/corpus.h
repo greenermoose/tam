@@ -12,7 +12,7 @@
 
 char *corpus_join(const char *root, const char *href);
 char *find_knowledge_root(void);
-void resolve_page(const char *root, const char *page, char *out,
+bool resolve_page(const char *root, const char *page, char *out,
                   size_t cap);
 char *read_corpus_page(const char *root, const char *href,
                        size_t *out_len, tam_depth_info_t *info);

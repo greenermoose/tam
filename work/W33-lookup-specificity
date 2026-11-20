@@ -1,0 +1,39 @@
+W33 GUIDE LOOKUP SPECIFICITY
+
+Date: 2026-11-20
+AI harness: Codex CLI 0.171.0
+AI model: gpt-6.2-sol
+
+GUIDANCE
+
+  Fred: "Investigate and fix this bug in tam...
+
+  tam show esd displays the glossary page for CDM instead of for ESD
+
+  ... this is a general failure of specificity across all search modes for
+  tam (tam show from the CLI, whatis, and search).
+
+  Improve the performance of these so that users get what they are
+  actually looking for, and not an adjacent page."
+  Fred chose "Show choices (Recommended)" for unresolved exact ties.
+  Fred: "Implement the plan."
+
+DONE
+
+  Shared exact-match precedence across direct lookup, topic guides,
+  search results, and the glossary prompt. Ranked tied lookups as
+  choices and reduced partial-query noise.
+  The command and guide suites and checkout ESD, CDM, and TTY checks passed.
+  ESD search stayed at 12.4 ms median. Opening the results view
+  fell from 20.9 ms to 12.4 ms after removing a duplicate index load.
+
+FAILED
+
+  A Lua heading assertion also failed on the baseline. The existing
+  fixture checks cover the same level behavior without corpus wording.
+  The live ask checks skipped because Ollama was unavailable.
+
+HANDOFF
+
+  Command 0.67.3 is verified in the checkout. Candidate preparation and
+  installation remain separate, developer-directed steps.

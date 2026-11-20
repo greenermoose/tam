@@ -13,6 +13,7 @@ tam_document_t *tam_guide_search_document(const char *root,
                                           int width)
 {
     static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Search" } };
+    tam_index_t *idx = root ? tam_index_load(root) : NULL;
     tam_str_t html = tam_page_begin("Guide Search", NULL, crumbs, 2);
     html = tam_str_cat(html, "<h1>Guide Search</h1>\n");
     if (query == NULL || query[0] == '\0') {
@@ -23,7 +24,6 @@ tam_document_t *tam_guide_search_document(const char *root,
     } else if (root == NULL) {
         html = tam_str_cat(html, "<p>The offline Guide is not installed, so Guide Search is unavailable.</p>\n");
     } else {
-        tam_index_t *idx = tam_index_load(root);
         if (idx == NULL) {
             html = tam_str_cat(html, "<p>The Guide index could not be loaded.</p>\n");
         } else {
@@ -35,14 +35,22 @@ tam_document_t *tam_guide_search_document(const char *root,
             if (found == 0 || results[0].score <= 0) {
                 html = tam_str_cat(html, "<p>No Guide pages matched this search.</p>\n");
             } else {
-                const char *purposes[] = {"Definitions", "Practical guidance", "Explanations and reference", "Learning paths", "Subject guides", "Sources"};
-                for (size_t g = 0; g < sizeof(purposes)/sizeof(purposes[0]); g++) {
+                const char *purposes[6];
+                size_t num_purposes = 0;
+                for (size_t first = 0; first < found; first++) {
+                    const char *purpose = tam_index_purpose(results[first].entry);
+                    size_t g = 0;
+                    while (g < num_purposes && strcmp(purposes[g], purpose) != 0) g++;
+                    if (g < num_purposes) continue;
+                    if (num_purposes == sizeof(purposes) / sizeof(purposes[0])) break;
+                    purposes[num_purposes++] = purpose;
+
                     size_t shown = 0;
-                    for (size_t i = 0; i < found; i++) {
+                    for (size_t i = first; i < found; i++) {
                         const tam_index_entry_t *e = results[i].entry;
-                        if (strcmp(tam_index_purpose(e), purposes[g]) != 0) continue;
+                        if (strcmp(tam_index_purpose(e), purpose) != 0) continue;
                         if (shown == 0) {
-                            html = tam_str_cat_printf(html, "<h2>%s</h2><dl>", purposes[g]);
+                            html = tam_str_cat_printf(html, "<h2>%s</h2><dl>", purpose);
                         }
                         if (shown == 5) html = tam_str_cat(html, "</dl><details><summary>More matches</summary><dl>");
                         html = tam_str_cat_printf(html, "<dt><a href=\"%s\">", e->path);
@@ -60,12 +68,11 @@ tam_document_t *tam_guide_search_document(const char *root,
             html = tam_str_cat(html,
                 "<p><a href=\"tam:prompt:guide-search\">Search again</a> · "
                 "<a href=\"tam:man\">Find a manual page</a></p>\n");
-            tam_index_free(idx);
         }
     }
-    if (root != NULL) {
-        tam_index_t *idx = tam_index_load(root);
-        const tam_index_entry_t *glossary = idx ? tam_index_lookup_alias(idx, "glossary") : NULL;
+    if (idx != NULL) {
+        bool ambiguous;
+        const tam_index_entry_t *glossary = tam_index_lookup_exact(idx, "glossary", &ambiguous);
         if (glossary) html = tam_str_cat_printf(html, "<p><a href=\"%s\">Glossary A–Z</a></p>", glossary->path);
         tam_index_free(idx);
     }

@@ -107,7 +107,7 @@ identity after the index commit, without repeating content validation.
 | `tam` | Implemented | Concise introduction and starting points; reports command version and corpus version; exit 0 without launching a pager or writing state. |
 | `tam --help` | Implemented | Concise usage and implemented commands; reports command version and corpus version; works without guide data or cultivar metadata. `tam help` is the same invocation. |
 | `tam --version`, `tam -v`, `tam -V` | Implemented | Reports command version, bundled corpus version, libtam version, and installed Tamlinux cultivar version; report unavailable cultivar metadata explicitly. |
-| `tam show [PAGE]` | Implemented | Open the local guide in the built-in pager when interactive (e.g. `tam show tam` opens `knowledge/tam.html`); readable text when piped or not a terminal. Preserves path-based semantics and navigates directly to a page. |
+| `tam show [PAGE]` | Implemented | Open the local guide in the built-in pager when interactive (e.g. `tam show tam` opens `knowledge/tam.html`); readable text when piped or not a terminal. Explicit addresses and unique strongest exact names open a page. Tied exact names open a ranked topic guide. |
 | `tam welcome` | Implemented | Explicit orientation; record welcome only after successful display. |
 | `tam hello`, `tam hi` | Implemented | Friendly orientation shortcuts; exact aliases for `tam welcome`. |
 | `tam explain` | Implemented | Open the search entrance, with secondary glossary and alphabetical page lookup (or clean text when piped). |
@@ -118,7 +118,7 @@ identity after the index commit, without repeating content validation.
 | `tam man [SECTION] PAGE` | Implemented | Bare TTY use opens the manual discovery landing; named pages, sections, keyword lookup and section browsing route through the reader. Pipe mode prints landing guidance without prompting. |
 | `tam info [MANUAL [NODE]]` | Implemented | System GNU Info manual, converted from Info format to semantic HTML with hyperlinked node hierarchy, menus, and cross-references; opens top-level dir or specific manual/node in pager. (Milestone 14, tam 0.22.0). |
 | `tam install` `plan`/`apply`/`verify` | Not implemented | Unimplemented installer verbs report truthfully and exit non-zero; they follow the product installation framework. |
-| `tam search [--json] TERM...` | Implemented | Single search verb over the corpus index. Returns a ranked list of pages; `--json` for scripting. |
+| `tam search [--json] TERM...` | Implemented | Returns a ranked list of corpus pages. Exact page names outrank shared keywords, and full term coverage outranks partial coverage. Use `--json` for scripting. |
 | `tam ask <question>` | Implemented | Opt-in, grounded question answering over the corpus with mandatory citations; never starts a daemon. |
 | `tam upgrade` / `tam switch STAGE` | Implemented in source; real source-build acceptance pending | Discover Development/Test/Run/Release, compare independent versions, build selected source into isolated development-prefix generations, pin releases and recover. [TCK6–TCK8](upgrade.md) records implementation and remaining acceptance. |
 
@@ -451,6 +451,8 @@ record remains explicit in that plan and the index; it is not silently closed.
   without interactive consent.
 
 ## Decision record
+
+- **2026-11-20:** Command 0.67.3 (patch) shares exact-match precedence across guide lookup and search. Page names outrank shared keywords, and ambiguous `tam show` lookups offer a ranked topic guide.
 
 - **2026-11-20:** Command 0.67.2 (patch): replace the Info directory introduction with an expandable aside and a Man pages link.
 

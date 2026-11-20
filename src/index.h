@@ -50,7 +50,6 @@ typedef struct {
 typedef struct {
     const tam_index_entry_t *entry;
     int score;
-    const char *match_type; /* "alias", "score", "substring", "fuzzy" */
 } tam_search_result_t;
 
 /* Load index from knowledge root (index.tsv). Returns NULL on error. */
@@ -65,11 +64,12 @@ void tam_index_free(tam_index_t *idx);
 /* Lookup entry by relative corpus path (e.g. "terminal/shell/pipelines.html"). Returns entry or NULL. */
 const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const char *path);
 
-/* Exact alias lookup (case-insensitive, trims outer quotes). Returns entry or NULL. */
-const tam_index_entry_t *tam_index_lookup_alias(const tam_index_t *idx, const char *word);
+/* Return the strongest exact match, or set ambiguous if that strength ties. */
+const tam_index_entry_t *tam_index_lookup_exact(const tam_index_t *idx, const char *query,
+                                                bool *ambiguous);
 
 /* Search the index. Populates results (up to max_results) sorted by score descending.
- * Returns total number of matches found. */
+ * Returns the number of results written. */
 size_t tam_index_search(const tam_index_t *idx, const char *query,
                         tam_search_result_t *results, size_t max_results);
 
@@ -79,8 +79,9 @@ int tam_index_suggest_fuzzy(const tam_index_t *idx, const char *query,
                             const tam_index_entry_t **out_entry, const char **out_keyword,
                             int max_dist);
 
-/* Find the closest glossary entry matching query, or NULL if none match */
-const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx, const char *query);
+/* Return the unique closest glossary entry, with ties reported separately. */
+const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx, const char *query,
+                                                           bool *ambiguous);
 
 /* Print clear miss banner to stderr and return 1 (failure code). */
 int tam_index_print_miss(FILE *out, const tam_index_t *idx, const char *query);
@@ -95,10 +96,8 @@ void tam_index_print_catalog(FILE *out, const tam_index_t *idx, unsigned level);
  * A non-zero level mask filters to topics offering that depth. */
 void tam_index_print_catalog_ex(FILE *out, const tam_index_t *idx, unsigned level, bool terse, bool verbose);
 
-/* Find all pages in the index matching a topic or keyword.
- * Populates out_entries up to max_entries, ordered with primary matches first.
- * If level is non-zero, only entries matching that level mask are returned.
- * Returns the number of matching entries found. */
+/* Populate up to max_entries with ranked pages. Levels apply at display time.
+ * Returns the number of entries written. */
 size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
                                   unsigned level, const tam_index_entry_t **out_entries,
                                   size_t max_entries);

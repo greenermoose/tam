@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.67.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.67.3' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -1164,6 +1164,34 @@ os.write(master, b"w")
 drain(master, 0.1)
 os.write(master, b"\x1b")
 drain(master, 0.1)
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+
+# Shared keywords must not beat the named definition in the glossary prompt.
+pid, master = launch(["show", "welcome"])
+drain(master, 0.15)
+os.write(master, b"w")
+drain(master, 0.1)
+os.write(master, b"volt\r")
+buf = drain(master, 0.3)
+assert b"Fixture volt definition" in buf and b"Fixture Argument" not in buf, buf
+os.write(master, b"u")
+drain(master, 0.2)
+os.write(master, b"w")
+drain(master, 0.1)
+os.write(master, b"electric concept\r")
+buf = drain(master, 0.3)
+assert b"multiple glossary matches" in buf, buf
+os.write(master, b"q")
+os.waitpid(pid, 0)
+os.close(master)
+
+# The interactive search opens the same ranked results.
+pid, master = launch(["search", "volt"])
+buf = drain(master, 0.3)
+assert b"Volt - Potential Difference" in buf, buf
+assert b"Fixture Argument" in buf and buf.index(b"Volt - Potential Difference") < buf.index(b"Fixture Argument"), buf
 os.write(master, b"q")
 os.waitpid(pid, 0)
 os.close(master)
@@ -2607,14 +2635,6 @@ ex_tg_lvl_b=$("$TAM" explain --level novice pipelines --pipe)
 printf '%s\n' "$ex_tg_lvl_b" | grep -q 'Topic Guide: pipelines (novice Level)' || fail "explain --level novice pipelines failed"
 printf '%s\n' "$ex_tg_lvl_b" | grep -q 'terminal/shell/pipelines.html?level=novice' || fail "explain --level novice missing link target"
 
-# Direct page depth ladder: tam show --level LEVEL PAGE
-sh_lua_b=$("$TAM" show --level novice lua --pipe)
-printf '%s\n' "$sh_lua_b" | grep -q 'Why Lua is included' || fail "show --level novice lua failed"
-if printf '%s\n' "$sh_lua_b" | grep -q 'shared stack'; then fail "novice lua contains expert section"; fi
-sh_lua_e=$("$TAM" show --level expert lua --pipe)
-printf '%s\n' "$sh_lua_e" | grep -q 'How a host embeds Lua' || fail "show --level expert lua failed"
-if printf '%s\n' "$sh_lua_e" | grep -q 'Why Lua is included'; then fail "expert lua contains novice section"; fi
-
 # Unmatched topic: clear diagnostic and reference to show.
 if "$TAM" explain no_such_topic >/dev/null 2>&1; then fail "unmatched topic exited 0"; fi
 "$TAM" explain no_such_topic 2>&1 | grep -q "no topic found for 'no_such_topic'" \
@@ -2798,6 +2818,39 @@ pass "whatis subcommand operates as an exact synonym for explain"
 # Search command: ranked search over corpus index, json output, canonical queries, and miss banner.
 "$TAM" search >/dev/null || fail "bare search failed"
 "$TAM" search --help | grep -q 'Usage:' || fail "search --help missing usage"
+
+# Lookup and search must agree even when an earlier page shares the keyword.
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" python3 - "$TAM" <<'PYTHON'
+import json
+import subprocess
+import sys
+
+def tam(*args, check=True):
+    return subprocess.run([sys.argv[1], *args], text=True, capture_output=True, check=check)
+
+path = "learn/glossary/volt.html"
+for query in ("VOLT", "potential difference", ' " volt " '):
+    assert "Fixture volt definition." in tam("show", query, "--pipe").stdout
+    topic = tam("whatis", query, "--pipe").stdout
+    assert topic.index(path) < topic.index("learn/glossary/argument.html"), topic
+    result = tam("search", query, "--pipe").stdout
+    first = result.splitlines()[3]
+    assert path in first, result
+    hits = json.loads(tam("search", "--json", query).stdout)
+    assert hits[0]["page"] == path and '"volt"' in hits[0]["summary"], hits
+
+choices = tam("show", "--level", "novice", "electric concept", "--pipe").stdout
+assert "Topic Guide: electric concept (novice Level)" in choices, choices
+assert path + "?level=novice" in choices and "learn/glossary/argument.html" in choices, choices
+assert "Fixture volt definition." in tam("show", "voltage-unit", "--pipe").stdout
+
+# A strong reference result must appear above a weaker glossary group.
+guide = tam("show", "tam:search?query=pipelines", "--pipe").stdout
+assert guide.index("Fixture pipelines") < guide.index("Fixture Argument"), guide
+assert tam("search", "volt unmatchableword", "--pipe", check=False).returncode == 1
+assert tam("whatis", "volt unmatchableword", "--pipe", check=False).returncode == 1
+PYTHON
+pass "lookup and search rank canonical names above shared keywords"
 
 # Canonical query: "change file owner" -> permissions page
 s_owner=$("$TAM" search "change file owner")

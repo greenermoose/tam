@@ -612,10 +612,16 @@ static int cmd_show(int n, char **args)
         page = "tam:paths";
     }
     tam_addr_kind_t kind = tam_addr_kind(page);
+    char resolved[1800];
+    if (page != NULL && kind != TAM_ADDR_MAN && kind != TAM_ADDR_INFO &&
+        kind != TAM_ADDR_TLDR && kind != TAM_ADDR_ARCHWIKI && kind != TAM_ADDR_VIEW) {
+        if (resolve_page(root, page, resolved, sizeof(resolved))) kind = TAM_ADDR_VIEW;
+        page = resolved;
+    }
     if (kind == TAM_ADDR_MAN || kind == TAM_ADDR_INFO || kind == TAM_ADDR_TLDR ||
         kind == TAM_ADDR_ARCHWIKI || kind == TAM_ADDR_VIEW) {
         /* --level applies to a view that takes the lens and names none. */
-        char addr[600];
+        char addr[1800];
         char named[32];
         snprintf(addr, sizeof(addr), "%s", page);
         if (level != 0 && tam_addr_takes_lens(addr) &&
@@ -655,7 +661,7 @@ static int cmd_show(int n, char **args)
         return rc;
     }
 
-    char href[600];
+    char href[1800];
     if (page == NULL) {
         if (level != 0) {
             snprintf(href, sizeof(href), "index.html?level=%s", tam_level_name(level));
@@ -663,10 +669,10 @@ static int cmd_show(int n, char **args)
             snprintf(href, sizeof(href), "%s", "index.html");
         }
     } else {
-        resolve_page(root, page, href, sizeof(href));
+        snprintf(href, sizeof(href), "%s", page);
         char existing_lvl[32];
         if (level != 0 && !tam_addr_param(href, "level", existing_lvl, sizeof(existing_lvl))) {
-            char with_lvl[600];
+            char with_lvl[1800];
             if (tam_href_put_level(href, level, with_lvl, sizeof(with_lvl))) {
                 snprintf(href, sizeof(href), "%s", with_lvl);
             }
@@ -935,6 +941,13 @@ static int cmd_explain(int n, char **args)
     return rc;
 }
 
+static void print_search_json_string(const char *value)
+{
+    tam_str_t escaped = tam_str_cat_json(tam_str_new(""), value);
+    printf("\"%s\"", escaped ? escaped : "");
+    tam_str_free(escaped);
+}
+
 static int cmd_search(int n, char **args)
 {
     int json_mode = 0;
@@ -1043,15 +1056,26 @@ static int cmd_search(int n, char **args)
             char levels[64];
             tam_level_format(e->levels, "\", \"", levels, sizeof(levels));
             printf("  {\n");
-            printf("    \"topic\": \"%s\",\n", e->topic);
-            printf("    \"page\": \"%s\",\n", e->path);
-            printf("    \"title\": \"%s\",\n", e->title);
-            printf("    \"summary\": \"%s\",\n", e->summary);
+            fputs("    \"topic\": ", stdout);
+            print_search_json_string(e->topic);
+            fputs(",\n", stdout);
+            fputs("    \"page\": ", stdout);
+            print_search_json_string(e->path);
+            fputs(",\n", stdout);
+            fputs("    \"title\": ", stdout);
+            print_search_json_string(e->title);
+            fputs(",\n", stdout);
+            fputs("    \"summary\": ", stdout);
+            print_search_json_string(e->summary);
+            fputs(",\n", stdout);
             printf("    \"levels\": [\"%s\"],\n", levels);
-            printf("    \"track\": \"%s\",\n", e->track);
+            fputs("    \"track\": ", stdout);
+            print_search_json_string(e->track);
+            fputs(",\n", stdout);
             printf("    \"prereqs\": [");
             for (size_t k = 0; k < e->num_prereqs; k++) {
-                printf("%s\"%s\"", k > 0 ? ", " : "", e->prereqs[k]);
+                if (k > 0) fputs(", ", stdout);
+                print_search_json_string(e->prereqs[k]);
             }
             printf("],\n");
             printf("    \"score\": %d\n", results[i].score);

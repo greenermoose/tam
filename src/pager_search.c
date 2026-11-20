@@ -314,9 +314,12 @@ int pager_prompt_action(pager_t *st, const char *href, char *out,
             snprintf(st->msg, sizeof(st->msg), "could not load guide index");
             return 1;
         }
-        const tam_index_entry_t *entry = tam_index_closest_glossary_match(idx, input);
+        bool ambiguous;
+        const tam_index_entry_t *entry = tam_index_closest_glossary_match(idx, input, &ambiguous);
         if (entry != NULL && entry->path != NULL) {
             snprintf(out, out_cap, "%s", entry->path);
+        } else if (ambiguous) {
+            snprintf(st->msg, sizeof(st->msg), "multiple glossary matches; use Guide Search");
         } else {
             snprintf(st->msg, sizeof(st->msg), "no glossary match for '%.30s'", input);
         }

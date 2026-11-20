@@ -51,8 +51,8 @@
 
 static int knowledge_ok(const char *dir);
 static int knowledge_file_exists(const char *root, const char *rel);
-static void resolve_page_path(const char *root, const char *page, char *out,
-                       size_t cap);
+static bool resolve_page_path(const char *root, const char *page, char *out,
+                              size_t cap);
 static int shared_prereqs(const tam_index_entry_t *a, const tam_index_entry_t *b);
 static int parent_relation(const tam_index_entry_t *page,
                     const tam_index_entry_t *e);
@@ -168,46 +168,55 @@ static int knowledge_file_exists(const char *root, const char *rel)
     return ok;
 }
 
-static void resolve_page_path(const char *root, const char *page, char *out,
+static bool resolve_page_path(const char *root, const char *page, char *out,
                               size_t cap)
 {
     static const char suffix[] = ".html";
     if (strstr(page, ".html") != NULL) {
         snprintf(out, cap, "%s", page);
-        return;
+        return false;
     }
     char cand[600];
     int n = snprintf(cand, sizeof(cand), "%s%s", page, suffix);
     if (n > 0 && (size_t)n < sizeof(cand) && knowledge_file_exists(root, cand)) {
         snprintf(out, cap, "%s", cand);
-        return;
+        return false;
     }
     n = snprintf(cand, sizeof(cand), "%s/index.html", page);
     if (n > 0 && (size_t)n < sizeof(cand) && knowledge_file_exists(root, cand)) {
         snprintf(out, cap, "%s", cand);
-        return;
+        return false;
     }
     tam_index_t *idx = tam_index_load(root);
     if (idx != NULL) {
-        const tam_index_entry_t *entry = tam_index_lookup_alias(idx, page);
+        bool ambiguous;
+        const tam_index_entry_t *entry = tam_index_lookup_exact(idx, page, &ambiguous);
         if (entry != NULL && entry->path != NULL) {
             snprintf(out, cap, "%s", entry->path);
             tam_index_free(idx);
-            return;
+            return false;
         }
         tam_index_free(idx);
+        if (ambiguous) {
+            char *encoded = url_encode(page);
+            if (encoded != NULL) {
+                int written = snprintf(out, cap, "tam:explain?topic=%s", encoded);
+                free(encoded);
+                if (written > 0 && (size_t)written < cap) return true;
+            }
+        }
     }
     snprintf(out, cap, "%s%s", page, suffix);
+    return false;
 }
 
-/* Resolve a page name, keeping any "?level=NAME" level selection. */
-void resolve_page(const char *root, const char *page, char *out,
+/* Resolve a page name and preserve its lens. True means a choices view. */
+bool resolve_page(const char *root, const char *page, char *out,
                   size_t cap)
 {
     const char *q = strchr(page, '?');
     if (q == NULL) {
-        resolve_page_path(root, page, out, cap);
-        return;
+        return resolve_page_path(root, page, out, cap);
     }
     char base[600];
     size_t n = (size_t)(q - page);
@@ -216,9 +225,10 @@ void resolve_page(const char *root, const char *page, char *out,
     }
     memcpy(base, page, n);
     base[n] = '\0';
-    char path[600];
-    resolve_page_path(root, base, path, sizeof(path));
-    snprintf(out, cap, "%s%s", path, q);
+    char path[1800];
+    bool choices = resolve_page_path(root, base, path, sizeof(path));
+    snprintf(out, cap, "%s%c%s", path, choices ? '&' : '?', q + 1);
+    return choices;
 }
 
 static int shared_prereqs(const tam_index_entry_t *a, const tam_index_entry_t *b)

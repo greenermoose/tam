@@ -499,38 +499,6 @@ const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const cha
     return NULL;
 }
 
-const tam_index_entry_t *tam_index_lookup_alias(const tam_index_t *idx, const char *word)
-{
-    if (idx == NULL || word == NULL) return NULL;
-    char buf[256];
-    size_t len = strlen(word);
-    if (len >= sizeof(buf)) return NULL;
-    memcpy(buf, word, len + 1);
-
-    char *t = trim_string(buf);
-    t = strip_quotes(t);
-    if (*t == '\0') return NULL;
-
-    /* Pass 1: exact topic match */
-    for (size_t i = 0; i < idx->count; i++) {
-        const tam_index_entry_t *e = &idx->entries[i];
-        if (strcasecmp(t, e->topic) == 0) {
-            return e;
-        }
-    }
-
-    /* Pass 2: keyword alias match */
-    for (size_t i = 0; i < idx->count; i++) {
-        const tam_index_entry_t *e = &idx->entries[i];
-        for (size_t k = 0; k < e->num_keywords; k++) {
-            if (strcasecmp(t, e->keywords[k]) == 0) {
-                return e;
-            }
-        }
-    }
-    return NULL;
-}
-
 int tam_index_suggest_fuzzy(const tam_index_t *idx, const char *query,
                             const tam_index_entry_t **out_entry, const char **out_keyword,
                             int max_dist)
@@ -545,19 +513,22 @@ int tam_index_suggest_fuzzy(const tam_index_t *idx, const char *query,
     t = strip_quotes(t);
     if (*t == '\0') return -1;
 
+    int query_len = (int)strlen(t);
     int best_dist = max_dist + 1;
     const tam_index_entry_t *best_entry = NULL;
     const char *best_kw = NULL;
 
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        int d = levenshtein(t, e->topic);
+        int d = abs(query_len - (int)strlen(e->topic)) < best_dist
+            ? levenshtein(t, e->topic) : best_dist;
         if (d < best_dist) {
             best_dist = d;
             best_entry = e;
             best_kw = e->topic;
         }
         for (size_t k = 0; k < e->num_keywords; k++) {
+            if (abs(query_len - (int)strlen(e->keywords[k])) >= best_dist) continue;
             d = levenshtein(t, e->keywords[k]);
             if (d < best_dist) {
                 best_dist = d;
@@ -610,6 +581,95 @@ static bool is_glossary_index_entry(const tam_index_entry_t *e)
     if (e->track != NULL && strcmp(e->track, "glossary") == 0 &&
         e->topic != NULL && strcmp(e->topic, "glossary") != 0) return true;
     return false;
+}
+
+/* Exact keywords describe a page's subject and related subjects alike. */
+enum match_strength {
+    MATCH_NONE, MATCH_KEYWORD, MATCH_GLOSSARY_NAME, MATCH_TITLE, MATCH_TOPIC
+};
+
+static char *normalize_query(char *query)
+{
+    return trim_string(strip_quotes(trim_string(query)));
+}
+
+static bool exact_span(const char *query, const char *start, size_t len)
+{
+    return strlen(query) == len && strncasecmp(query, start, len) == 0;
+}
+
+/* Glossary titles often pair the long name and acronym, e.g. NAME (ID)
+ * or ID - NAME. Require the part to be an authored keyword as well. */
+static bool glossary_title_name(const char *title, const char *query)
+{
+    const char *dash = strstr(title, " - ");
+    if (dash && (exact_span(query, title, (size_t)(dash - title)) ||
+                 strcasecmp(query, dash + 3) == 0)) return true;
+    const char *paren = strstr(title, " (");
+    size_t len = strlen(title);
+    return paren && title[len - 1] == ')' &&
+           (exact_span(query, title, (size_t)(paren - title)) ||
+            exact_span(query, paren + 2, (size_t)(title + len - 1 - (paren + 2))));
+}
+
+static enum match_strength exact_match(const tam_index_entry_t *e, const char *query)
+{
+    if (strcasecmp(query, e->topic) == 0) return MATCH_TOPIC;
+    if (strcasecmp(query, e->title) == 0) return MATCH_TITLE;
+
+    bool glossary = is_glossary_index_entry(e);
+    if (glossary) {
+        if (strncasecmp(e->topic, "glossary-", 9) == 0 &&
+            strcasecmp(query, e->topic + 9) == 0) return MATCH_GLOSSARY_NAME;
+
+        const char *leaf = strrchr(e->path, '/');
+        if (leaf) {
+            leaf++;
+            size_t len = strlen(leaf);
+            if (len > 5 && strcmp(leaf + len - 5, ".html") == 0 &&
+                strcmp(leaf, "index.html") != 0 &&
+                exact_span(query, leaf, len - 5)) return MATCH_GLOSSARY_NAME;
+        }
+    }
+    for (size_t k = 0; k < e->num_keywords; k++) {
+        if (strcasecmp(query, e->keywords[k]) == 0) {
+            return glossary && glossary_title_name(e->title, query)
+                ? MATCH_GLOSSARY_NAME : MATCH_KEYWORD;
+        }
+    }
+    return MATCH_NONE;
+}
+
+static const tam_index_entry_t *lookup_exact(const tam_index_t *idx, const char *query,
+                                              bool glossary_only, bool *ambiguous)
+{
+    const tam_index_entry_t *best = NULL;
+    enum match_strength strength = MATCH_NONE;
+    *ambiguous = false;
+    for (size_t i = 0; i < idx->count; i++) {
+        const tam_index_entry_t *e = &idx->entries[i];
+        if (glossary_only && !is_glossary_index_entry(e)) continue;
+        enum match_strength match = exact_match(e, query);
+        if (match > strength) {
+            strength = match;
+            best = e;
+            *ambiguous = false;
+        } else if (match != MATCH_NONE && match == strength) {
+            *ambiguous = true;
+        }
+    }
+    return *ambiguous ? NULL : best;
+}
+
+const tam_index_entry_t *tam_index_lookup_exact(const tam_index_t *idx, const char *query,
+                                                bool *ambiguous)
+{
+    *ambiguous = false;
+    char buf[512];
+    if (idx == NULL || query == NULL || strlen(query) >= sizeof(buf)) return NULL;
+    strcpy(buf, query);
+    char *q = normalize_query(buf);
+    return *q ? lookup_exact(idx, q, false, ambiguous) : NULL;
 }
 
 const char *tam_index_purpose(const tam_index_entry_t *e)
@@ -680,17 +740,20 @@ static int score_glossary_candidate(const char *q, size_t qlen, const char *cand
     return -1;
 }
 
-const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx, const char *query)
+const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx, const char *query,
+                                                           bool *ambiguous)
 {
+    *ambiguous = false;
     if (idx == NULL || query == NULL) return NULL;
     char buf[256];
     size_t len = strlen(query);
     if (len >= sizeof(buf)) return NULL;
     memcpy(buf, query, len + 1);
 
-    char *t = trim_string(buf);
-    t = strip_quotes(t);
+    char *t = normalize_query(buf);
     if (*t == '\0') return NULL;
+    const tam_index_entry_t *exact = lookup_exact(idx, t, true, ambiguous);
+    if (exact != NULL || *ambiguous) return exact;
 
     char q[256];
     size_t qlen = strlen(t);
@@ -764,238 +827,164 @@ const tam_index_entry_t *tam_index_closest_glossary_match(const tam_index_t *idx
             if (best_score < 0 || entry_best < best_score) {
                 best_score = entry_best;
                 best_entry = e;
-                if (best_score == 0) {
-                    break;
-                }
+                *ambiguous = false;
+            } else if (entry_best == best_score) {
+                *ambiguous = true;
             }
         }
     }
 
-    return best_entry;
+    return *ambiguous ? NULL : best_entry;
+}
+
+static bool query_separator(char c)
+{
+    return isspace((unsigned char)c) || c == ',' || c == ';';
+}
+
+static size_t query_tokens(const char *query, query_token_t tokens[16])
+{
+    size_t count = 0;
+    bool has_meaningful = false;
+    while (*query && count < 16) {
+        while (*query && query_separator(*query)) query++;
+        const char *start = query;
+        while (*query && !query_separator(*query)) query++;
+        size_t len = (size_t)(query - start);
+        if (len == 0 || len >= sizeof(tokens[0].raw)) continue;
+
+        bool duplicate = false;
+        for (size_t i = 0; i < count; i++) {
+            if (exact_span(tokens[i].raw, start, len)) {
+                duplicate = true;
+                break;
+            }
+        }
+        if (duplicate) continue;
+
+        memcpy(tokens[count].raw, start, len);
+        tokens[count].raw[len] = '\0';
+        stem_word(tokens[count].raw, tokens[count].stem, sizeof(tokens[count].stem));
+        has_meaningful |= !is_stop_word(tokens[count].raw);
+        count++;
+    }
+    if (!has_meaningful) return count;
+
+    size_t kept = 0;
+    for (size_t i = 0; i < count; i++) {
+        if (!is_stop_word(tokens[i].raw)) tokens[kept++] = tokens[i];
+    }
+    return kept;
+}
+
+static int score_term(const tam_index_entry_t *e, const query_token_t *token)
+{
+    const char *raw = token->raw;
+    const char *stem = token->stem;
+    char field_stem[64];
+    stem_word(e->topic, field_stem, sizeof(field_stem));
+    int score = strcasecmp(raw, e->topic) == 0 ? 30 :
+                strcasecmp(stem, field_stem) == 0 ? 20 : 0;
+
+    int keyword_score = 0;
+    for (size_t k = 0; k < e->num_keywords; k++) {
+        const char *kw = e->keywords[k];
+        if (strcasecmp(raw, kw) == 0) {
+            keyword_score = 25;
+            break;
+        }
+        if (contains_word_ci(kw, raw)) {
+            keyword_score = 20;
+        } else if (keyword_score < 18) {
+            stem_word(kw, field_stem, sizeof(field_stem));
+            if (strcasecmp(stem, field_stem) == 0) keyword_score = 18;
+        }
+    }
+    score += keyword_score;
+    if (contains_word_ci(e->title, raw)) score += 15;
+    else if (contains_word_ci(e->title, stem)) score += 10;
+    if (contains_word_ci(e->summary, raw)) score += 8;
+    else if (contains_word_ci(e->summary, stem)) score += 6;
+    return score;
+}
+
+static bool matches_prefix(const tam_index_entry_t *e, const char *raw, size_t len)
+{
+    if (strncasecmp(e->topic, raw, len) == 0 ||
+        strncasecmp(e->title, raw, len) == 0) return true;
+    for (size_t k = 0; k < e->num_keywords; k++) {
+        if (strncasecmp(e->keywords[k], raw, len) == 0) return true;
+    }
+    return false;
+}
+
+static int compare_results(const void *a, const void *b)
+{
+    const tam_search_result_t *left = a;
+    const tam_search_result_t *right = b;
+    if (left->score != right->score) return left->score > right->score ? -1 : 1;
+    int by_title = strcasecmp(left->entry->title, right->entry->title);
+    return by_title ? by_title : strcmp(left->entry->path, right->entry->path);
 }
 
 size_t tam_index_search(const tam_index_t *idx, const char *query,
                         tam_search_result_t *results, size_t max_results)
 {
-    if (idx == NULL || query == NULL || results == NULL || max_results == 0) {
-        return 0;
-    }
+    if (idx == NULL || query == NULL || results == NULL || max_results == 0) return 0;
 
     char buf[512];
-    size_t qlen = strlen(query);
-    if (qlen >= sizeof(buf)) {
-        qlen = sizeof(buf) - 1;
-    }
-    memcpy(buf, query, qlen);
-    buf[qlen] = '\0';
+    snprintf(buf, sizeof(buf), "%s", query);
+    char *q = normalize_query(buf);
+    if (*q == '\0') return 0;
 
-    char *trimmed = trim_string(buf);
-    trimmed = strip_quotes(trimmed);
-    if (*trimmed == '\0') {
-        return 0;
-    }
-
-    /* 1. Exact alias match */
-    const tam_index_entry_t *alias_match = tam_index_lookup_alias(idx, trimmed);
-    size_t found = 0;
-
-    if (alias_match != NULL) {
-        results[found].entry = alias_match;
-        results[found].score = 1000;
-        results[found].match_type = "alias";
-        found++;
-    }
-
-    /* 2. Tokenize and score */
     query_token_t tokens[16];
-    size_t ntokens = 0;
-
-    char *tok_str = trimmed;
-    while (*tok_str != '\0' && ntokens < 16) {
-        while (*tok_str != '\0' && (isspace((unsigned char)*tok_str) ||
-                                    *tok_str == ',' || *tok_str == ';' ||
-                                    *tok_str == '"' || *tok_str == '\'')) {
-            tok_str++;
-        }
-        if (*tok_str == '\0') break;
-
-        char *start = tok_str;
-        while (*tok_str != '\0' && !isspace((unsigned char)*tok_str) &&
-               *tok_str != ',' && *tok_str != ';') {
-            tok_str++;
-        }
-        size_t tlen = (size_t)(tok_str - start);
-        if (tlen > 0 && tlen < sizeof(tokens[0].raw)) {
-            memcpy(tokens[ntokens].raw, start, tlen);
-            tokens[ntokens].raw[tlen] = '\0';
-            stem_word(tokens[ntokens].raw, tokens[ntokens].stem, sizeof(tokens[ntokens].stem));
-            ntokens++;
-        }
-    }
-
-    /* Filter out stop words unless all words are stop words */
-    query_token_t valid_tokens[16];
-    size_t nvalid = 0;
-    for (size_t i = 0; i < ntokens; i++) {
-        if (!is_stop_word(tokens[i].raw)) {
-            valid_tokens[nvalid++] = tokens[i];
-        }
-    }
-    if (nvalid == 0) {
-        for (size_t i = 0; i < ntokens; i++) {
-            valid_tokens[nvalid++] = tokens[i];
-        }
-    }
-
-    /* Score each entry in the index */
-    typedef struct {
-        const tam_index_entry_t *entry;
-        int score;
-        const char *match_type;
-    } scored_entry_t;
-
-    scored_entry_t *scored = calloc(idx->count ? idx->count : 1, sizeof(*scored));
-    if (scored == NULL) return found;
-    size_t nscored = 0;
-
+    size_t n = query_tokens(q, tokens);
+    tam_search_result_t *scored = calloc(idx->count ? idx->count : 1, sizeof(*scored));
+    if (scored == NULL) return 0;
+    size_t found = 0;
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
-        if (alias_match == e) {
-            continue; /* Already added as alias match */
+        enum match_strength strength = exact_match(e, q);
+        if (strength != MATCH_NONE) {
+            scored[found++] = (tam_search_result_t){e, 1000 * strength};
+            continue;
         }
 
         int score = 0;
-        size_t matched_terms = 0;
-
-        for (size_t t = 0; t < nvalid; t++) {
-            const char *raw = valid_tokens[t].raw;
-            const char *stem = valid_tokens[t].stem;
-            bool term_hit = false;
-
-            /* Topic match */
-            if (strcasecmp(raw, e->topic) == 0) {
-                score += 30;
-                term_hit = true;
-            } else {
-                char e_stem[64];
-                stem_word(e->topic, e_stem, sizeof(e_stem));
-                if (strcasecmp(stem, e_stem) == 0) {
-                    score += 20;
-                    term_hit = true;
-                }
-            }
-
-            /* Keyword match */
-            for (size_t k = 0; k < e->num_keywords; k++) {
-                const char *kw = e->keywords[k];
-                if (strcasecmp(raw, kw) == 0) {
-                    score += 25;
-                    term_hit = true;
-                } else if (contains_word_ci(kw, raw)) {
-                    score += 20;
-                    term_hit = true;
-                } else {
-                    char k_stem[64];
-                    stem_word(kw, k_stem, sizeof(k_stem));
-                    if (strcasecmp(stem, k_stem) == 0) {
-                        score += 18;
-                        term_hit = true;
-                    }
-                }
-            }
-
-            /* Title match */
-            if (contains_word_ci(e->title, raw)) {
-                score += 15;
-                term_hit = true;
-            } else if (contains_word_ci(e->title, stem)) {
-                score += 10;
-                term_hit = true;
-            }
-
-            /* Summary match */
-            if (contains_word_ci(e->summary, raw)) {
-                score += 8;
-                term_hit = true;
-            } else if (contains_word_ci(e->summary, stem)) {
-                score += 6;
-                term_hit = true;
-            }
-
-            if (term_hit) {
-                matched_terms++;
+        size_t matched = 0;
+        for (size_t t = 0; t < n; t++) {
+            int term = score_term(e, &tokens[t]);
+            if (term > 0) {
+                score += term;
+                matched++;
             }
         }
 
-        /* For multi-term queries, require that at least half the terms match */
-        if (nvalid > 1 && matched_terms < (nvalid + 1) / 2) {
-            score = 0;
-        }
+        if (matched == 0 || (n > 1 && (matched < 2 || matched < (n + 1) / 2))) continue;
 
-        if (matched_terms == nvalid && nvalid > 1) {
-            score += 35; /* All query terms matched */
-        }
-
-        if (score > 0) {
-            scored[nscored].entry = e;
-            scored[nscored].score = score;
-            scored[nscored].match_type = "terms";
-            nscored++;
-        }
+        /* Rank by coverage, then field quality. Each term adds at most 78
+         * points and there are at most 16 terms. Exact matches stay above
+         * these scores, including queries with many terms. */
+        int quality = score / (int)matched;
+        if (contains_word_ci(e->title, q)) quality += 12;
+        scored[found++] = (tam_search_result_t){e, 16 + 56 * (int)matched + quality / 2};
     }
-
-    /* 3. Substring/prefix fallback if no terms matched and single token */
-    if (found == 0 && nscored == 0 && nvalid == 1) {
-        const char *raw = valid_tokens[0].raw;
-        size_t rlen = strlen(raw);
-        if (rlen >= 3) {
+    if (found == 0 && n == 1) {
+        const char *raw = tokens[0].raw;
+        size_t len = strlen(raw);
+        if (len >= 3) {
             for (size_t i = 0; i < idx->count; i++) {
                 const tam_index_entry_t *e = &idx->entries[i];
-                size_t tlen = strlen(e->topic);
-                if (strncasecmp(raw, e->topic, rlen) == 0 ||
-                    (tlen >= 3 && strncasecmp(e->topic, raw, tlen) == 0)) {
-                    scored[nscored].entry = e;
-                    scored[nscored].score = 10;
-                    scored[nscored].match_type = "substring";
-                    nscored++;
-                    continue;
-                }
-                for (size_t k = 0; k < e->num_keywords; k++) {
-                    const char *kw = e->keywords[k];
-                    size_t klen = strlen(kw);
-                    if (strncasecmp(raw, kw, rlen) == 0 ||
-                        (klen >= 3 && strncasecmp(kw, raw, klen) == 0)) {
-                        scored[nscored].entry = e;
-                        scored[nscored].score = 10;
-                        scored[nscored].match_type = "substring";
-                        nscored++;
-                        break;
-                    }
+                if (matches_prefix(e, raw, len)) {
+                    scored[found++] = (tam_search_result_t){e, 10};
                 }
             }
         }
     }
 
-    /* Sort scored entries by score descending */
-    for (size_t i = 0; i < nscored; i++) {
-        for (size_t j = i + 1; j < nscored; j++) {
-            if (scored[j].score > scored[i].score ||
-                (scored[j].score == scored[i].score &&
-                 strcasecmp(scored[j].entry->title, scored[i].entry->title) < 0)) {
-                scored_entry_t tmp = scored[i];
-                scored[i] = scored[j];
-                scored[j] = tmp;
-            }
-        }
-    }
-
-    for (size_t i = 0; i < nscored && found < max_results; i++) {
-        results[found].entry = scored[i].entry;
-        results[found].score = scored[i].score;
-        results[found].match_type = scored[i].match_type;
-        found++;
-    }
-
+    qsort(scored, found, sizeof(*scored), compare_results);
+    if (found > max_results) found = max_results;
+    memcpy(results, scored, found * sizeof(*results));
     free(scored);
     return found;
 }
@@ -1103,74 +1092,14 @@ size_t tam_index_find_topic_pages(const tam_index_t *idx, const char *topic,
                                   size_t max_entries)
 {
     (void)level;
-    if (idx == NULL || topic == NULL || out_entries == NULL || max_entries == 0) {
-        return 0;
-    }
-    char buf[256];
-    size_t len = strlen(topic);
-    if (len >= sizeof(buf)) return 0;
-    memcpy(buf, topic, len + 1);
+    if (out_entries == NULL || max_entries == 0) return 0;
 
-    char *t = trim_string(buf);
-    t = strip_quotes(t);
-    if (*t == '\0') return 0;
-
-    size_t count = 0;
-
-    #define ADD_PAGE(e) do { \
-        bool exists = false; \
-        for (size_t _j = 0; _j < count; _j++) { \
-            if (out_entries[_j] == (e)) { exists = true; break; } \
-        } \
-        if (!exists && count < max_entries) { \
-            out_entries[count++] = (e); \
-        } \
-    } while (0)
-
-    /* Pass 1: exact topic match */
-    for (size_t i = 0; i < idx->count; i++) {
-        const tam_index_entry_t *e = &idx->entries[i];
-        if (strcasecmp(t, e->topic) == 0) {
-            ADD_PAGE(e);
-        }
-    }
-
-    /* Pass 2: exact keyword match */
-    for (size_t i = 0; i < idx->count; i++) {
-        const tam_index_entry_t *e = &idx->entries[i];
-        for (size_t k = 0; k < e->num_keywords; k++) {
-            if (strcasecmp(t, e->keywords[k]) == 0) {
-                ADD_PAGE(e);
-                break;
-            }
-        }
-    }
-
-    /* Pass 3: keyword contains word */
-    for (size_t i = 0; i < idx->count; i++) {
-        const tam_index_entry_t *e = &idx->entries[i];
-        for (size_t k = 0; k < e->num_keywords; k++) {
-            if (contains_word_ci(e->keywords[k], t)) {
-                ADD_PAGE(e);
-                break;
-            }
-        }
-    }
-
-    /* Pass 4: multi-word search fallback if count == 0 and contains space */
-    if (count == 0 && strchr(t, ' ') != NULL) {
-        tam_search_result_t search_results[16];
-        size_t found = tam_index_search(idx, t, search_results, 16);
-        for (size_t s = 0; s < found; s++) {
-            if (search_results[s].score > 0) {
-                const tam_index_entry_t *e = search_results[s].entry;
-                ADD_PAGE(e);
-            }
-        }
-    }
-
-    #undef ADD_PAGE
-    return count;
+    tam_search_result_t *results = calloc(max_entries, sizeof(*results));
+    if (results == NULL) return 0;
+    size_t found = tam_index_search(idx, topic, results, max_entries);
+    for (size_t i = 0; i < found; i++) out_entries[i] = results[i].entry;
+    free(results);
+    return found;
 }
 
 static int keyword_cmp(const void *a, const void *b)
