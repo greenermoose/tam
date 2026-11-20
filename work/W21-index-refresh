@@ -1,0 +1,36 @@
+W21 CORPUS INDEX REFRESH
+
+Date: 2026-11-20
+AI harness: Codex CLI 0.170.0
+AI model: GPT-6
+
+GUIDANCE
+
+  Fred: "Fix this error:
+
+==> [start] Corpus build: python3 tools/corpus_pipeline.py build
+Corpus: 1151 pages, 1151 parsed; indexes current.
+Learning warnings: 1 level sections need migration; see coverage.json.
+==> [done]  Corpus build (2.16s)
+
+tam: refusing to install from a dirty tree:
+   M knowledge/index.json
+   M knowledge/index.tsv
+Only the regenerated corpus index changed; commit it, then install again:
+  git commit -m 'Refresh corpus index revisions after 14e2f95' -- knowledge/index.tsv knowledge/index.json knowledge/index.parents.tsv knowledge/index.kinds.tsv knowledge/index.skills.tsv knowledge/index.paths.tsv knowledge/coverage.json knowledge/component-coverage.json
+make[1]: *** [Makefile:209: check-clean-tree] Error 1
+make: *** [Makefile:262: install] Error 2"
+
+DONE
+
+  - Committed regenerated revision metadata for the 11 corpus pages
+    changed in the branch rename. The install guard can now pass.
+
+FAILED
+
+  - Nothing.
+
+HANDOFF
+
+  - Retry the intended install. The warning about one learning level
+    section is separate from the install guard.
