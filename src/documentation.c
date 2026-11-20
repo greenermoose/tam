@@ -14,6 +14,9 @@
 #ifndef TAM_DOCDIR
 #define TAM_DOCDIR "/usr/share/doc"
 #endif
+#ifndef TAM_INFODIR
+#define TAM_INFODIR "/usr/share/info"
+#endif
 
 static char *user_archwiki_tam_dir(void)
 {
@@ -32,6 +35,8 @@ char *tam_documentation_root(const char *source)
 {
     const char *base = getenv("TAM_DOC_DIR");
     const char *dir = base && base[0] ? base : TAM_DOCDIR;
+    if (!strcmp(source, "info") && (!base || !base[0]))
+        return strdup(TAM_INFODIR);
     if (!strcmp(source, "archwiki")) {
         struct stat st;
         if (!base || !base[0]) {

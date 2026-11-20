@@ -88,6 +88,27 @@ int main(void) {
         files[0].unlink()
         self.assertNotIn("href='info:dir'",subprocess.check_output([binary],env=self.env,text=True))
 
+    def test_default_info_directory_and_isolated_override(self):
+        default = self.root/'share/info'
+        binary = self.compile('info-root', ['src/documentation.c', 'src/html_scan.c'], r'''
+#include "documentation.h"
+#include <stdio.h>
+#include <stdlib.h>
+char *tam_find_tldr_root(const char *unused) {(void)unused; return NULL;}
+char *tam_find_archwiki_root(void) {return NULL;}
+int main(void) {
+    char *root = tam_documentation_root("info");
+    printf("%s\n%d\n", root, tam_documentation_available("info"));
+    free(root);
+}''', f'-DTAM_INFODIR="{default}"')
+        default.mkdir(parents=True)
+        (default/'bash.info').write_text('manual')
+        env = {k: v for k, v in self.env.items() if k != 'TAM_DOC_DIR'}
+        self.assertEqual(subprocess.check_output([binary], env=env, text=True).splitlines(),
+                         [str(default), '1'])
+        self.assertEqual(subprocess.check_output([binary], env=self.env, text=True).splitlines(),
+                         [str(self.root/'doc/info'), '0'])
+
     def test_archwiki_prefers_tam_and_falls_back_to_html_en(self):
         binary=self.compile('awroot',['src/documentation.c','src/html_scan.c'],r'''
 #include "documentation.h"
