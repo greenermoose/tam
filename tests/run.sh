@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.67.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.67.4' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3554,6 +3554,81 @@ printf '%s\n' "$tldr_landing" | grep -q '^Guide > tldr pages$' || fail "tam tldr
 printf '%s\n' "$tldr_landing" | grep -q 'tam:prompt:tldr-open' || fail "tam tldr landing missing open prompt link"
 printf '%s\n' "$tldr_landing" | grep -q 'tam:prompt:tldr-keyword' || fail "tam tldr landing missing keyword prompt link"
 printf '%s\n' "$tldr_landing" | grep -q 'tam:tldr:list' || fail "tam tldr landing missing list link"
+
+python3 - "$TAM" "$guide_fix" "$tldr_fix" <<'PYTLDR'
+import fcntl, os, pty, select, shutil, struct, subprocess, sys, tempfile, termios, time
+from pathlib import Path
+
+tam, guide, tldr = sys.argv[1:]
+env = {**os.environ, "TAM_KNOWLEDGE_DIR": guide, "TAM_TLDR_DIR": tldr,
+       "TERM": "xterm-256color"}
+def read(*args, overrides=None):
+    return subprocess.check_output([tam, *args], text=True, env=overrides or env)
+
+landing = read("show", "tam:tldr", "--pipe")
+assert landing == read("tldr", "--pipe") == read("tldr"), landing
+assert landing.index("TLDR stands") < landing.index("Open a tldr page"), landing
+assert "tam:fold:" not in landing and "info:dir" in landing, landing
+assert "C — cat\n" in landing and "G — git-commit to gzip" in landing, landing
+assert "tam:tldr:list?letter=g" in landing and "tam:tldr:list?letter=a" not in landing, landing
+assert "tam:tldr:list?letter=0" not in landing, landing
+filtered = read("show", "tam:tldr:list?letter=c&platform=linux", "--pipe")
+assert "tldr:linux/cat" in filtered and "tldr:common/cat" not in filtered, filtered
+
+with tempfile.TemporaryDirectory() as tmp_tldr:
+    tmp_root = Path(tmp_tldr)
+    fixture_tar = tmp_root / "pages/common/tar.md"
+    fixture_tar.parent.mkdir(parents=True)
+    shutil.copyfile(Path(tldr) / "pages/common/tar.md", fixture_tar)
+    tmp_env = {**env, "TAM_TLDR_DIR": tmp_tldr}
+    missing = read("tldr", "--pipe", overrides=tmp_env)
+    assert "index is unavailable" in missing and "tldr:tar" in missing, missing
+    index = tmp_root / "index.tsv"
+    index.write_text("name\tplatform\tsummary\n")
+    empty = read("tldr", "--pipe", overrides=tmp_env)
+    for result in (missing, empty):
+        assert "tam:prompt:tldr-open" in result and "tam:tldr:list" not in result, result
+    assert "index is empty" in empty, empty
+    index.write_text(index.read_text() + "7z\tcommon\tArchive files\n" +
+                     "".join(f"test{i:02}\tcommon\tFixture\n" for i in range(61)))
+    numeric = read("tldr", "--pipe", overrides=tmp_env)
+    assert "0–9 — 7z" in numeric and "tam:tldr:list?letter=0" in numeric, numeric
+    assert "tldr:common/7z" in read("show", "tam:tldr:list?letter=0", "--pipe", overrides=tmp_env)
+    page = read("show", "tam:tldr:list?letter=t&platform=common", "--pipe", overrides=tmp_env)
+    next_page = "tam:tldr:list?letter=t&platform=common&offset=60"
+    assert next_page in page and "tldr:common/test60" not in page, page
+    assert "tldr:common/test60" in read("show", next_page, "--pipe", overrides=tmp_env)
+
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 45, 100, 0, 0))
+with subprocess.Popen([tam, "tldr"], stdin=slave, stdout=slave, stderr=slave, env=env) as proc:
+    os.close(slave)
+    def expect(marker):
+        output = bytearray()
+        deadline = time.monotonic() + 3
+        while marker not in output:
+            ready, _, _ = select.select([master], [], [], max(0, deadline - time.monotonic()))
+            assert ready, output.decode(errors="replace")
+            output.extend(os.read(master, 65536))
+        return output
+    try:
+        closed = expect(b"[+] You may want to know...")
+        assert b"TLDR stands" not in closed, closed
+        os.write(master, b"r")
+        expect(b"TLDR stands")
+        os.write(master, b"a")
+        expect(b"[+] You may want to know...")
+        os.write(master, b"]]]]]]]f")
+        expect(b"tldr index: G")
+    finally:
+        os.write(master, b"q")
+        try:
+            proc.wait(timeout=3)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+            os.close(master)
+PYTLDR
 
 tldr_tar=$(TAM_TLDR_DIR="$tldr_fix" "$TAM" tldr tar --pipe)
 printf '%s\n' "$tldr_tar" | grep -q '^Guide > tldr pages > tar$' || fail "tam tldr tar missing location trail"

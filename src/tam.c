@@ -630,8 +630,8 @@ static int cmd_show(int n, char **args)
             snprintf(addr + len, sizeof(addr) - len, "%clevel=%s",
                      strchr(addr, '?') != NULL ? '&' : '?', tam_level_name(level));
         }
-        tam_loader_ctx_t ctx = {.root = root};
         int interactive = !pipe && isatty(STDOUT_FILENO);
+        tam_loader_ctx_t ctx = {.root = root, .plain_output = !interactive};
         int width = interactive ? tam_terminal_width() : 80;
         tam_document_t *doc = tam_address_load(&ctx, addr, width);
         if (doc == NULL) {

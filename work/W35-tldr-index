@@ -1,0 +1,39 @@
+W35 TLDR BROWSING
+
+Date: 2026-11-20
+AI harness: codex 0.171.0
+AI model: gpt-6.2-sol
+Commits: the commit that adds this record
+Transcript: Retained privately by the author.
+
+
+GUIDANCE
+
+  Fred: "Change the tam:tldr page show by the tam command to be more
+  user friendly. Start with an aside, and change the browsing by letter
+  to show what the letters have. Use the page:glossary/index.html as an
+  example for the latter, and info:dir as an example for the former."
+  Fred: "Implement the plan."
+
+
+DONE
+
+  - Command 0.67.4 starts the tldr landing page with an Info-style
+    aside. Plain output includes the introduction inline.
+  - Each populated letter links to its index and names the first and
+    last command. The numeric group appears when it has entries.
+  - Covered pager disclosure and letter navigation, plain output,
+    missing and empty indexes, section filters, and pagination.
+  - Checked against: src/info.c, knowledge/glossary/index.html,
+    tools/build-tldr-index.py, and the command fixtures.
+  - Passed make test-command and make check-repo.
+
+
+FAILED
+
+  - The live Ollama checks were skipped because no server was running.
+
+
+HANDOFF
+
+  - The change is verified in the source checkout.

@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-20:** Command 0.67.4 (patch) puts a first-time aside at the top of the tldr index and shows the command range for each populated letter.
+
 - **2026-11-20:** Command 0.67.3 (patch) shares exact-match precedence across guide lookup and search. Page names outrank shared keywords, and ambiguous `tam show` lookups offer a ranked topic guide.
 
 - **2026-11-20:** Command 0.67.2 (patch): replace the Info directory introduction with an expandable aside and a Man pages link.

@@ -7,6 +7,7 @@
 #include "documentation.h"
 #include "depth.h"
 #include "discovery.h"
+#include "fold.h"
 #include "html.h"
 #include "index.h"
 #include "info.h"
@@ -789,36 +790,78 @@ static tam_str_t append_az_bar(tam_str_t body, const char *platform)
     return body;
 }
 
-static tam_document_t *tldr_landing_document(const char *tldr_root, int width)
+static tam_str_t append_letter_ranges(tam_str_t body, const tldr_index_t *idx)
+{
+    enum { DIGITS = 26, GROUPS = 27 };
+    struct { const char *first; const char *last; } ranges[GROUPS] = {0};
+    for (size_t i = 0; i < idx->count; i++) {
+        const char *name = idx->entries[i].name;
+        if (name == NULL) continue;
+        int initial = tolower((unsigned char)name[0]);
+        int group;
+        if (initial >= 'a' && initial <= 'z')
+            group = initial - 'a';
+        else if (isdigit(initial))
+            group = DIGITS;
+        else
+            continue;
+        if (ranges[group].first == NULL) ranges[group].first = name;
+        ranges[group].last = name;
+    }
+
+    body = tam_str_cat(body, "<h2>Browse by letter</h2>\n<ul>\n");
+    for (int group = 0; group < GROUPS; group++) {
+        const char *first = ranges[group].first;
+        const char *last = ranges[group].last;
+        if (first == NULL) continue;
+        if (group == DIGITS)
+            body = tam_str_cat(body, "<li><a href=\"tam:tldr:list?letter=0\">0–9 — ");
+        else
+            body = tam_str_cat_printf(body,
+                "<li><a href=\"tam:tldr:list?letter=%c\">%c — ", 'a' + group, 'A' + group);
+        body = tam_html_cat(body, first);
+        if (strcmp(first, last) != 0) {
+            body = tam_str_cat(body, " to ");
+            body = tam_html_cat(body, last);
+        }
+        body = tam_str_cat(body, "</a></li>\n");
+    }
+    return tam_str_cat(body, "</ul>\n");
+}
+
+static tam_document_t *tldr_landing_document(const char *tldr_root, int width,
+                                             const char *open, int plain_output)
 {
     tldr_index_t *idx = tldr_index_load(tldr_root);
     size_t total = idx ? idx->count : 0;
-    tldr_index_free(idx);
-
-    tam_str_t body = tam_str_new(
-        "<p>Concise, example-first command cheat sheets from the upstream "
-        "<code>tldr-pages</code> project, curated for Tamlinux and available "
-        "offline. For complete flag references use <a href=\"tam:man\">Man pages</a>; "
-        "for book-length GNU manuals use <a href=\"info:dir\">Info manuals</a>; "
-        "for conceptual guides use <a href=\"tam:search\">Guide Search</a>.</p>\n"
+    tam_str_t html = tam_page_begin("tldr pages", NULL, NULL, 0);
+    html = tam_str_cat(html,
+        "<h1>tldr pages</h1>\n"
+        "<aside class=\"first-time\">"
+        "<p>TLDR stands for too long, didn't read. These pages show common ways "
+        "to use commands, with short examples from the tldr-pages project "
+        "that you can look up offline.</p>\n"
+        "<p>See <a href=\"tam:man\">Man pages</a> for a command's options and "
+        "<a href=\"info:dir\">Info manuals</a> for longer GNU manuals. "
+        "Use <a href=\"tam:search\">Guide Search</a> to look up a topic in the Tamlinux Guide.</p>"
+        "</aside>\n"
         "<ul>\n"
-        "<li><a href=\"tam:prompt:tldr-open\">Open a tldr page</a> by command name (for example <code>tar</code> or <code>git commit</code>).</li>\n"
-        "<li><a href=\"tam:prompt:tldr-keyword\">Find by keyword</a> across command names and descriptions.</li>\n");
+        "<li><a href=\"tam:prompt:tldr-open\">Open a tldr page</a> by command name (for example <code>tar</code> or <code>git commit</code>).</li>\n");
     if (total > 0) {
-        body = tam_str_cat_printf(body,
-            "<li><a href=\"tam:tldr:list\">Browse all %zu curated tldr pages</a> in the directory index.</li>\n",
+        html = tam_str_cat_printf(html,
+            "<li><a href=\"tam:prompt:tldr-keyword\">Find by keyword</a> across command names and descriptions.</li>\n"
+            "<li><a href=\"tam:tldr:list\">Browse all %zu curated tldr pages</a></li>\n"
+            "</ul>\n"
+            "<p><a href=\"tam:tldr:list?platform=linux\">Linux commands</a> · "
+            "<a href=\"tam:tldr:list?platform=common\">Common commands</a></p>\n",
             total);
+        html = append_letter_ranges(html, idx);
     } else {
-        body = tam_str_cat(body,
-            "<li><a href=\"tam:tldr:list\">Browse all curated tldr pages</a> in the directory index.</li>\n");
+        html = tam_str_cat(html, idx == NULL
+            ? "</ul>\n<p>The local tldr index is unavailable.</p>\n"
+            : "</ul>\n<p>The local tldr index is empty.</p>\n");
     }
-    body = tam_str_cat(body, "</ul>\n<h2>Browse index</h2>\n");
-    body = append_az_bar(body, NULL);
-    body = tam_str_cat(body,
-        "<p>Filter by section: "
-        "<a href=\"tam:tldr:list?platform=linux\">Linux commands</a> · "
-        "<a href=\"tam:tldr:list?platform=common\">Common commands</a></p>\n"
-        "<h2>Starting points</h2>\n<ul>\n");
+    tldr_index_free(idx);
 
     static const struct { const char *name; const char *desc; } starts[] = {
         {"tar", "Archiving utility"},
@@ -834,19 +877,24 @@ static tam_document_t *tldr_landing_document(const char *tldr_root, int width)
     for (size_t i = 0; i < sizeof(starts) / sizeof(starts[0]); i++) {
         char plat[32], path[1024];
         if (tldr_resolve_page(tldr_root, NULL, starts[i].name, plat, sizeof(plat), path, sizeof(path))) {
-            body = tam_str_cat_printf(body,
+            if (!any_start)
+                html = tam_str_cat(html, "<h2>Starting points</h2>\n<ul>\n");
+            html = tam_str_cat_printf(html,
                 "<li><a href=\"tldr:%s\">%s</a> — %s</li>\n",
                 starts[i].name, starts[i].name, starts[i].desc);
             any_start++;
         }
     }
-    if (!any_start) {
-        body = tam_str_cat(body, "<li>Use Open a tldr page or Browse index above.</li>\n");
-    }
-    body = tam_str_cat(body, "</ul>\n");
+    if (any_start) html = tam_str_cat(html, "</ul>\n");
 
-    tam_document_t *doc = tldr_html_document("tldr pages", body, width);
-    tam_str_free(body);
+    if (plain_output) return tam_page_render(html, width);
+    html = tam_page_end(html);
+    if (html == NULL) return NULL;
+    char *numbered = tam_fold_number(html, tam_str_len(html));
+    tam_str_free(html);
+    if (numbered == NULL) return NULL;
+    tam_document_t *doc = tam_fold_render(numbered, strlen(numbered), width, open, 0);
+    free(numbered);
     return doc;
 }
 
@@ -1062,13 +1110,21 @@ static tam_document_t *tldr_keyword_document(const char *tldr_root, const char *
     return doc;
 }
 
-tam_document_t *tam_tldr_uri_document(const char *uri, int width)
+tam_document_t *tam_tldr_uri_document(const char *uri, int width, int plain_output)
 {
     char *tldr_root = tam_find_tldr_root(NULL);
-    if (uri == NULL || strcmp(uri, "tam:tldr") == 0) {
-        tam_document_t *doc = tldr_landing_document(tldr_root, width);
-        free(tldr_root);
-        return doc;
+    if (uri == NULL || strncmp(uri, "tam:tldr?", 9) == 0 || strcmp(uri, "tam:tldr") == 0) {
+        char *open = NULL;
+        char *bare = uri ? tam_fold_split_href(uri, &open) : NULL;
+        int landing = uri == NULL || (bare != NULL && strcmp(bare, "tam:tldr") == 0);
+        free(bare);
+        if (landing) {
+            tam_document_t *doc = tldr_landing_document(tldr_root, width, open, plain_output);
+            free(open);
+            free(tldr_root);
+            return doc;
+        }
+        free(open);
     }
 
     if (strncmp(uri, "tam:tldr:list", 13) == 0) {
@@ -1230,7 +1286,7 @@ int tam_cmd_tldr(int n, char **args)
             snprintf(uri, sizeof(uri), "tam:tldr");
         }
 
-        tam_document_t *doc = tam_tldr_uri_document(uri, width);
+        tam_document_t *doc = tam_tldr_uri_document(uri, width, !interactive);
         if (doc == NULL) return TAM_EXIT_FAILURE;
         tam_document_ensure_location(doc, uri);
         int rc = 0;

@@ -40,12 +40,12 @@ int tam_addr_takes_lens(const char *href);
  * into buf. Returns 1 when the key is present. */
 int tam_addr_param(const char *href, const char *key, char *buf, size_t cap);
 
-/* What every loader needs: the guide root (may be NULL) and, for `tam show
- * -`, the page read from standard input. */
+/* The guide root (may be NULL), optional standard input, and output mode. */
 typedef struct {
     const char *root;
     const char *stdin_html;
     size_t      stdin_len;
+    int         plain_output;
 } tam_loader_ctx_t;
 
 /* The one page loader (a tam_page_loader_t taking a tam_loader_ctx_t):

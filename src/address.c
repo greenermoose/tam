@@ -120,8 +120,7 @@ static tam_document_t *load_tldr(const tam_loader_ctx_t *c, const char *href, in
 
 static tam_document_t *load_tldr_view(const tam_loader_ctx_t *c, const char *href, int w)
 {
-    (void)c;
-    return tam_tldr_uri_document(href, w);
+    return tam_tldr_uri_document(href, w, c->plain_output);
 }
 
 static tam_document_t *load_archwiki(const tam_loader_ctx_t *c, const char *href, int w)

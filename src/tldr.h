@@ -18,7 +18,7 @@ tam_document_t *tam_tldr_load(const char *spec, int width);
  *   tam:tldr:open?query=COMMAND
  *   tam:tldr:keyword?query=TERMS[&offset=N]
  *   tam:tldr:list[?letter=X][&platform=P][&offset=N] */
-tam_document_t *tam_tldr_uri_document(const char *uri, int width);
+tam_document_t *tam_tldr_uri_document(const char *uri, int width, int plain_output);
 
 /* Execute the 'tam tldr' subcommand with given argument vector. */
 int tam_cmd_tldr(int n, char **args);
