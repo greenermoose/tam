@@ -3,35 +3,25 @@ WHATNOW
 What tam is doing now and what comes next. Read this first; revise it at
 the end of every session (work/README-work).
 
-Updated: 2026-11-20, with W33
+Updated: 2026-11-20, with W34
 
 
 STATE
 
-  Command 0.67.3 and corpus 0.104.0 on dev. W33 made guide lookup
-  prefer exact page names and offer choices for tied keywords. The
-  command and guide suites passed. W32 linked ESD terms and added
-  five glossary pages.  W30 updated the four corpus
-  pages that named AI_PROVENANCE.md (philosophy, ai, contributing, and
-  package-versions) to note that public Tamlinux repositories keep
-  AI-BLAME.md files instead. W29 completed a corpus-wide review and
-  W31 italicized all 1,375 quiz question prompts across 1,081 corpus pages.
-  `make corpus-check` passed. Earlier W29 completed a corpus-wide review and
-  remediation: 69 Novice sections were rewritten to remove duplicate
-  intros, procedural/CLI instructions, and embedded Next step blocks; 57
-  new three-level glossary entries were added and unlinked Novice terms
-  linked; and out-of-date Tamlinux descriptions (retired Nix/Home Manager,
-  Make source installs, tam_install_pending(), removed screensaver,
-  authoring.html metadata) were brought up to date.
+  Command 0.67.3 and corpus 0.104.0 on dev. Follows the tam-idol 0.2.0
+  standard (W34): VERSION, UPSTREAM.md, AI-BLAME.md, expanded COPYRIGHT,
+  standard README-<folder> files in arch/, bugs/, ideas/, plans/,
+  reviews/ and work/, updated docs/repo-map.md, AGENTS.md and
+  work/history/README; both tam-idol/tools/idol-check and
+  tools/check-repo.py pass.
 
-  Earlier work on dev: work/ replaced docs/ai/ with 242 historical records
-  under work/history/ (W26); vision, focus, flicker, and display lessons
-  plus video glossary entries landed (W27–W28); interactive shell sandboxes
-  and pager attention/status improvements landed (W9–W15); Man pages and
-  Info landing pages were refined (W16, command 0.67.2); pkg-config C
-  toolchain docs landed (W17); command 0.66.0–0.67.0 retired tam-bundle
-  calls in favor of tam_install_pending(), cultivar path resolution, and
-  tam-bud subcommands.
+  Recent work on dev: W33 made guide lookup prefer exact page names and
+  offer choices for tied keywords (command 0.67.3); W32 linked ESD terms
+  and added five glossary pages (corpus 0.104.0); W31 italicized all
+  1,375 quiz question prompts across 1,081 corpus pages; W30 updated
+  corpus pages to name AI-BLAME.md; W29 completed a corpus-wide review
+  and remediation; W26 moved 242 pre-2026-11-17 records into
+  work/history/.
 
 
 NEXT
@@ -51,12 +41,12 @@ WATCH OUT
   - Lanes: claim the command lane (src/, bin/, completions/) or the
     corpus lane (knowledge/, tools/, test_lint_corpus.py,
     test_build_index.py), or both when a change couples them. Shared
-    files (Makefile, tests/run.sh, ROADMAP.md, README, AI_PROVENANCE.md,
+    files (Makefile, tests/run.sh, ROADMAP.md, README, AI-BLAME.md,
     docs/plans/) are claimed only while edited.
   - Every command or corpus change bumps its version in every place
     AGENTS.md lists, in the same commit; make check-repo checks them.
-  - work/history/ is read-only. Do not add to it or rewrite older
-    records; new sessions use work/W<n>-<name>.
+  - work/history/ is read-only (links may be repaired). Do not add to it
+    or rewrite older records; new sessions use work/W<n>-<name>.
   - make dev is Fred's loop; agents do not run it. Do not install a
     build as a side effect of content changes.
   - Work in the shared clone; never create a worktree.

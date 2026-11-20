@@ -61,7 +61,7 @@ work is committed, or when it is cancelled.
 | --- | --- | --- | --- |
 | Command | `src/`, `bin/`, `completions/`, `man/`, `tests/render/`, `tests/render.sh` | `make command` | `make test-command` |
 | Corpus | `knowledge/`, `tools/`, `tests/test_lint_corpus.py`, `tests/test_build_index.py` | `make corpus` | `make corpus-and-test` |
-| Shared | `Makefile`, `tests/run.sh`, `tests/guide.sh`, `ROADMAP.md`, `README`, `AI_PROVENANCE.md`, `docs/plans/` | | `make test` |
+| Shared | `Makefile`, `tests/run.sh`, `tests/guide.sh`, `ROADMAP.md`, `README`, `AI-BLAME.md`, `docs/plans/` | | `make test` |
 
 Two agents can work at once if each claims one lane. Claim both lanes for a
 change that couples them, such as new renderer support and the pages that
@@ -150,7 +150,7 @@ Each session writes one plain-text record, `work/W<number>-<name>`, quoting
 the developer's prompts verbatim, and revises `work/WHATNOW` as a whole;
 both go in a commit with the work. The records from before 2026-11-17 in
 `work/history/` and the session table in
-`AI_PROVENANCE.md` are history: add nothing to them.
+`AI-BLAME.md` are history: add nothing to them.
 
 Public files never contain conversation or session IDs, transcript or
 store paths, home-directory paths, or the names of private repositories.
