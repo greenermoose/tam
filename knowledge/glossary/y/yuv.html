@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>YUV</title>
+<title>YUV (luma and chroma)</title>
 <meta name="topic" content="glossary-yuv">
 <meta name="summary" content="YUV: A color model that separates brightness from color.">
 <meta name="keywords" content="glossary-yuv, yuv, ycbcr">
@@ -10,9 +10,9 @@
 <meta name="kind" content="glossary">
 <meta name="skills" content="">
 </head><body>
-<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/y/index.html">Terms beginning with Y</a> / YUV</p></nav>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/y/index.html">Terms beginning with Y</a> / YUV (luma and chroma)</p></nav>
 
-<h1>YUV</h1>
+<h1>YUV (luma and chroma)</h1>
 <p>A family of color representations that separate image brightness (luma) from color information (chroma).</p>
 <section data-level="novice"><p>Human eyes notice fine details in light and shadow much more sharply than tiny shifts in color. Instead of storing full red, green, and blue values for every dot like RGB does, YUV splits brightness into its own channel and stores color separately—letting video streams shrink color detail without looking blurry to our eyes.</p></section>
 <section data-level="learner"><p>In digital video tools such as <code>ffmpeg</code>, you frequently see pixel formats like <code>yuv420p</code> (YCbCr with 4:2:0 chroma subsampling). In 4:2:0, every pixel keeps its full-resolution brightness (<code>Y</code>), while each 2×2 block of pixels shares one pair of color values (<code>U</code>/<code>Cb</code> and <code>V</code>/<code>Cr</code>), cutting raw data size in half compared to 4:4:4 RGB. Watch for color-range mismatches (limited TV range 16–235 vs. full 0–255), which cause washed-out blacks or crushed shadows during playback.</p>
