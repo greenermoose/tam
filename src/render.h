@@ -35,7 +35,7 @@ typedef struct {
     char    *text;
     unsigned style;
     char    *href; /* NULL unless TAM_STYLE_LINK */
-    int      link_id; /* Unique identifier per <a> tag, or 0 if unlinked */
+    int      link_id; /* Unique identifier per link, or 0 if unlinked */
 } tam_span_t;
 
 /* A single visual line: an ordered list of styled spans. A line with no spans
@@ -75,6 +75,8 @@ typedef struct {
 
 /* Parse an HTML subset (len bytes) and lay it out to `width` columns. */
 tam_document_t *tam_render_html(const char *src, size_t len, int width);
+/* Render groff HTML, discovering bare web URLs in manual text. */
+tam_document_t *tam_render_man_html(const char *src, size_t len, int width);
 void tam_document_free(tam_document_t *doc);
 /* Atomically relayout a retained parsed document at the requested width. */
 int tam_document_reflow(tam_document_t *doc, int content_width);

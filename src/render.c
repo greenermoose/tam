@@ -1,5 +1,7 @@
 #include <tam.h>
+#include <tam_uni.h>
 #include "display.h"
+#include "external.h"
 #include "render.h"
 #include "html_scan.h"
 
@@ -7,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 /* ------------------------------------------------------------------------- */
 /* Block model (internal)                                                     */
@@ -142,16 +145,19 @@ static int spanlist_append(spanlist_t *l, const char *text, size_t len,
         l->v = nv;
         l->cap = cap;
     }
+    char *target = href != NULL ? strdup(href) : NULL;
+    if (href != NULL && target == NULL) return -1;
     tam_span_t *s = &l->v[l->n++];
     s->text = malloc(len + 1);
     if (s->text == NULL) {
+        free(target);
         l->n--;
         return -1;
     }
     memcpy(s->text, text, len);
     s->text[len] = '\0';
     s->style = style;
-    s->href = href ? strdup(href) : NULL;
+    s->href = target;
     s->link_id = link_id;
     return 0;
 }
@@ -166,6 +172,159 @@ static void spanlist_free(spanlist_t *l)
     l->v = NULL;
     l->n = 0;
     l->cap = 0;
+}
+
+/* Work on decoded text, using byte offsets to keep the original styles. */
+static int copy_url_runs(spanlist_t *out, const tam_span_t **run,
+                         size_t *offset, size_t len, const char *url, int id)
+{
+    while (len > 0) {
+        size_t available = strlen((*run)->text + *offset);
+        size_t count = len < available ? len : available;
+        unsigned style = (*run)->style | (url != NULL ? TAM_STYLE_LINK : 0);
+        if (spanlist_append(out, (*run)->text + *offset, count, style, url, id) < 0)
+            return -1;
+        len -= count;
+        if (count == available) {
+            (*run)++;
+            *offset = 0;
+        } else {
+            *offset += count;
+        }
+    }
+    return 0;
+}
+
+static int url_delimiter(const char *s, size_t len)
+{
+    unsigned char c = (unsigned char)*s;
+    if (c < 0x80) return isspace(c) || strchr("<>\"", c) != NULL;
+    uint32_t cp;
+    if (tam_utf8_decode(s, len, &cp) == 0) return 0;
+    return cp == 0xa0 || (cp >= 0x2000 && cp <= 0x200a) ||
+           (cp >= 0x2013 && cp <= 0x201f) || cp == 0x202f || cp == 0x3000;
+}
+
+static char *manual_url(const char *text, size_t len, size_t start, size_t scheme,
+                        size_t *end, size_t *resume)
+{
+    const char *closer = NULL;
+    if (start > 0) {
+        switch (text[start - 1]) {
+        case '<': closer = ">"; break;
+        case '"': closer = "\""; break;
+        case '\'': closer = "'"; break;
+        }
+    }
+    if (start >= 3) {
+        if (memcmp(text + start - 3, "“", 3) == 0) closer = "”";
+        if (memcmp(text + start - 3, "‘", 3) == 0) closer = "’";
+    }
+    size_t closer_len = closer != NULL ? strlen(closer) : 0;
+    size_t stop = start + scheme;
+    int parens = 0, brackets = 0;
+    while (stop < len && !url_delimiter(text + stop, len - stop) &&
+           !(closer != NULL && strncmp(text + stop, closer, closer_len) == 0)) {
+        switch (text[stop]) {
+        case '(': parens++; break;
+        case ')': parens--; break;
+        case '[': brackets++; break;
+        case ']': brackets--; break;
+        }
+        stop++;
+    }
+    *resume = stop;
+    if (closer == NULL || strncmp(text + stop, closer, closer_len) != 0) {
+        while (stop > start + scheme) {
+            char last = text[stop - 1];
+            if (last == ')' && parens < 0) parens++;
+            else if (last == ']' && brackets < 0) brackets++;
+            else if (strchr(".,;:!?'", last) == NULL) break;
+            stop--;
+        }
+    }
+    *end = stop;
+    int in_authority = 1;
+    if (brackets != 0) return NULL;
+    for (size_t i = start + scheme; i < stop; i++) {
+        unsigned char c = (unsigned char)text[i];
+        if (strchr("/?#", c) != NULL) in_authority = 0;
+        /* Square brackets delimit IP literals in the authority. In a path
+         * they can be part of a manual's glob example, as in curl(1). */
+        if (!in_authority && (c == '[' || c == ']')) return NULL;
+        if (c == '%' && (i + 2 >= stop ||
+            !isxdigit((unsigned char)text[i + 1]) ||
+            !isxdigit((unsigned char)text[i + 2]))) return NULL;
+    }
+    char *url = strndup(text + start, stop - start);
+    if (tam_external_url_ok(url)) return url;
+    free(url);
+    return NULL;
+}
+
+/* Explicit anchors divide the text into independent scan ranges. */
+static void link_manual_urls(tam_span_t **runs, size_t *nruns, int *next_id)
+{
+    spanlist_t result = {0};
+    int id = *next_id;
+    for (size_t i = 0; i < *nruns;) {
+        tam_span_t *span = *runs + i;
+        if (span->href != NULL) {
+            if (spanlist_append(&result, span->text, strlen(span->text),
+                                span->style, span->href, span->link_id) < 0) goto fail;
+            i++;
+            continue;
+        }
+
+        tam_str_t text = tam_str_new("");
+        if (text == NULL) goto fail;
+        while (i < *nruns && (*runs)[i].href == NULL) {
+            tam_str_t next = tam_str_cat(text, (*runs)[i].text);
+            if (next == NULL) {
+                tam_str_free(text);
+                goto fail;
+            }
+            text = next;
+            i++;
+        }
+        size_t len = tam_str_len(text);
+        const tam_span_t *run = span;
+        size_t offset = 0, copied = 0;
+        for (size_t start = 0; start < len;) {
+            size_t scheme = strncasecmp(text + start, "https://", 8) == 0 ? 8 :
+                            strncasecmp(text + start, "http://", 7) == 0 ? 7 : 0;
+            if (!scheme || (start > 0 && (isalnum((unsigned char)text[start - 1]) ||
+                                          strchr("+.-/", text[start - 1]) != NULL))) {
+                start++;
+                continue;
+            }
+            size_t end, resume;
+            char *url = manual_url(text, len, start, scheme, &end, &resume);
+            if (url != NULL) {
+                int failed = copy_url_runs(&result, &run, &offset, start - copied, NULL, 0) < 0 ||
+                             copy_url_runs(&result, &run, &offset, end - start, url, ++id) < 0;
+                free(url);
+                if (failed) {
+                    tam_str_free(text);
+                    goto fail;
+                }
+                copied = end;
+            }
+            start = resume;
+        }
+        tam_str_free(text);
+        if (copy_url_runs(&result, &run, &offset, len - copied, NULL, 0) < 0) goto fail;
+    }
+    if (id != *next_id) {
+        spanlist_t old = {.v = *runs, .n = *nruns};
+        spanlist_free(&old);
+        *runs = result.v;
+        *nruns = result.n;
+        *next_id = id;
+        return;
+    }
+fail:
+    spanlist_free(&result);
 }
 
 static void spanlist_init(spanlist_t *l)
@@ -2951,7 +3110,7 @@ static void layout_document(const blocklist_t *blocks,
 /* Public API                                                                 */
 /* ------------------------------------------------------------------------- */
 
-tam_document_t *tam_render_html(const char *src, size_t len, int width)
+static tam_document_t *render_html(const char *src, size_t len, int width, int manual)
 {
     parser_t p;
     memset(&p, 0, sizeof(p));
@@ -2972,6 +3131,19 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     }
 
     for (size_t i = 0; i < p.blocks.n; i++) {
+        if (manual) {
+            tam_block_t *block = &p.blocks.v[i];
+            link_manual_urls(&block->runs, &block->nruns, &p.next_link_id);
+            if (block->table != NULL) {
+                for (size_t r = 0; r < block->table->nrows; r++) {
+                    tam_table_row_t *row = &block->table->rows[r];
+                    for (size_t c = 0; c < row->ncells; c++) {
+                        tam_table_cell_t *cell = &row->cells[c];
+                        link_manual_urls(&cell->runs, &cell->nruns, &p.next_link_id);
+                    }
+                }
+            }
+        }
         if (p.blocks.v[i].kind == B_HEAD) {
             for (size_t j = 0; j < p.blocks.v[i].nruns; j++) {
                 p.blocks.v[i].runs[j].style |= TAM_STYLE_HEADING;
@@ -3056,6 +3228,16 @@ tam_document_t *tam_render_html(const char *src, size_t len, int width)
     free(p.lists);
     free(p.href);
     return doc;
+}
+
+tam_document_t *tam_render_html(const char *src, size_t len, int width)
+{
+    return render_html(src, len, width, 0);
+}
+
+tam_document_t *tam_render_man_html(const char *src, size_t len, int width)
+{
+    return render_html(src, len, width, 1);
 }
 
 static void document_lines_free(tam_line_t *lines, size_t nlines)

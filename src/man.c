@@ -542,7 +542,7 @@ tam_document_t *tam_man_load(const char *spec, int width)
         return NULL;
     }
 
-    tam_document_t *doc = tam_render_html(linkified, strlen(linkified), width);
+    tam_document_t *doc = tam_render_man_html(linkified, strlen(linkified), width);
     free(linkified);
     return doc;
 }

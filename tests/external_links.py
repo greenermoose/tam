@@ -5,6 +5,7 @@ Stub browsers record their arguments, so no real browser or network is used.
 """
 
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -35,8 +36,8 @@ def wait_for(path, timeout=2.0):
 
 
 class Pager:
-    def __init__(self, binary, fixtures, env, term="xterm-256color", cols=120):
-        self.pid, self.master = start(binary, fixtures, term, 24, cols, env, PAGE)
+    def __init__(self, binary, fixtures, env, term="xterm-256color", cols=120, page=PAGE):
+        self.pid, self.master = start(binary, fixtures, term, 24, cols, env, page)
         self.screen = Screen(24, cols)
         self.initial = read_available(self.master, 0.3)
         self.screen.feed(self.initial)
@@ -53,6 +54,56 @@ class Pager:
 
     def stop(self):
         stop(self.pid, self.master)
+
+
+def manual_links(binary, fixtures):
+    url = "https://example.org/long-path/one(two)/another-very-long-component?x=1&y=2#end"
+    page = "man:link-fixture(1)"
+    with tempfile.TemporaryDirectory() as work:
+        out = os.path.join(work, "browser-args")
+        stub(work, "man", '#!/bin/sh\nprintf "%s\\n" "$TAM_TEST_MAN_PAGE"\n')
+        stub(work, "groff", '#!/bin/sh\ncat "$TAM_TEST_MAN_PAGE"\n')
+        stub(work, "browser-stub", '#!/bin/sh\nprintf "%s\\n" "$@" > "$TAM_TEST_OUT"\n')
+        env = {
+            "PATH": work + os.pathsep + os.environ.get("PATH", "/usr/bin:/bin"),
+            "WAYLAND_DISPLAY": "test",
+            "BROWSER": "browser-stub %s",
+            "TAM_TEST_OUT": out,
+            "TAM_TEST_MAN_PAGE": os.path.join(fixtures, "man-urls.html"),
+            "XDG_CACHE_HOME": work, "XDG_RUNTIME_DIR": work, "XDG_STATE_HOME": work,
+        }
+        expected = [
+            url, "https://example.com/docs", "HTTP://[::1]/keep-period.",
+            "https://example.org/keep-comma,", "https://example.org/a%20b(item)",
+            "https://example.net/explicit", "https://example.org/code",
+            "https://example.org/cell", "man:sed(1)",
+        ]
+        for args in (["show", page], ["man", "1", "link-fixture"]):
+            output = subprocess.run([binary, *args, "--pipe"],
+                                    env=dict(os.environ, TAM_KNOWLEDGE_DIR=fixtures, **env),
+                                    capture_output=True, check=True).stdout
+            assert b"\x1b" not in output, "manual pipe output carries escapes"
+            targets = re.findall(rb"^\s*\[\d+\] ((?:https?://|ftp://|man:).+)$",
+                                 output, re.MULTILINE | re.IGNORECASE)
+            assert [target.decode() for target in targets] == expected, output.decode()
+
+        p = Pager(binary, fixtures, env, cols=52, page=page)
+        try:
+            p.key(b"\t")
+            osc_ids = re.findall(rb"\x1b\]8;id=(tam\d+);" + re.escape(url.encode()) +
+                                 rb"\x1b\\", p.initial)
+            assert len(osc_ids) > 1 and len(set(osc_ids)) == 1, osc_ids
+            p.key(b"\r")
+            assert "Enter again opens it" in p.status(), p.status()
+            assert not os.path.exists(out), "manual link opened on the first press"
+            p.key(b"\r", 0.3)
+            assert wait_for(out), "manual link did not reach the browser"
+            with open(out) as f:
+                assert f.read().splitlines() == [url], "manual URL changed before handoff"
+            p.key(b"\t")
+            assert "-> https://example.com/docs" in p.status(), p.status()
+        finally:
+            p.stop()
 
 
 def main():
@@ -160,6 +211,7 @@ def main():
                           capture_output=True, check=True).stdout
     assert b"\x1b" not in text, "piped output carries escapes"
 
+    manual_links(binary, fixtures)
     print("ok - external links: confirm then open, refusals, console hand-off, OSC 8")
 
 

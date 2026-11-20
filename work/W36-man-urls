@@ -1,0 +1,37 @@
+W36 CLICKABLE WEB URLS IN MANUAL PAGES
+
+Date: 2026-11-20
+AI harness: Codex CLI 0.171.0
+AI model: gpt-6.2-sol
+
+GUIDANCE
+
+  Fred: "When displayed by the tam pager, manual pages do not have active
+  hyperlinks to referenced URLs. For example, man:git shows ...
+
+  A formatted and hyperlinked copy of the latest Git documentation can be viewed at https://git.github.io/htmldocs/git.html or
+  https://git-scm.com/docs.
+
+  ... but neither of those shows as a hyperlink when you are viewing the
+  page.
+
+  Check to see if this is a bug in other man pages, find the source of the
+  bug, and propose a fix. The goal is for every valid URL in a man page to
+  be rendered as a link that can be activated."
+  Fred selected "HTTP and HTTPS (Recommended)" for the scheme scope.
+  Fred: "Implement the plan."
+
+DONE
+
+  - Detect URLs across decoded formatting spans before manual layout.
+  - Verified exact Git destinations and separate keyboard selection.
+  - The fixture checks narrow-terminal wrapping, OSC 8, and browser
+    handoff. make test-command passed.
+
+FAILED
+
+  - The first build needed the libtam Unicode header. Added it and reran.
+
+HANDOFF
+
+  - Command 0.67.5 is ready in source. No installation was requested.
