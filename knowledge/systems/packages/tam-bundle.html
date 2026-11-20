@@ -130,15 +130,15 @@ $ tb where $PWD/slot/current/bin/hello
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does <code>back</code> copy no files?</summary>
+<summary><i>Why does <code>back</code> copy no files?</i></summary>
 <p>The previous version is still complete in <code>slot/kept/</code>. Rolling back swaps that folder with <code>current/</code> in one step, so nothing needs to be copied or rebuilt.</p>
 </details>
 <details class="q">
-<summary>You edited a file in <code>current/</code> while debugging. Why does the next <code>switch</code> stop instead of carrying on?</summary>
+<summary><i>You edited a file in <code>current/</code> while debugging. Why does the next <code>switch</code> stop instead of carrying on?</i></summary>
 <p>A switch moves the old tree to <code>kept/</code>, and pruning can later delete kept trees. Stopping makes sure your edit is noticed: you can undo it, or let <code>--save-edits</code> copy it to the state folder before switching.</p>
 </details>
 <details class="q">
-<summary>Two people seal folders whose files are identical, byte for byte and mode for mode, with the same name and version. Do they get the same bundle id?</summary>
+<summary><i>Two people seal folders whose files are identical, byte for byte and mode for mode, with the same name and version. Do they get the same bundle id?</i></summary>
 <p>Yes, if they also used the same <code>tam-bundle</code> version and recorded the same sources. The hash covers the identity lines and the file list, not the time it was built, so identical inputs give an identical id.</p>
 </details>
 </section>

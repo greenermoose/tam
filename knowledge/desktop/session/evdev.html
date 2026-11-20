@@ -133,11 +133,11 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does Linux provide unified /dev/input/event* interfaces instead of having applications talk directly to USB or PS/2 hardware?</summary>
+<summary><i>Why does Linux provide unified /dev/input/event* interfaces instead of having applications talk directly to USB or PS/2 hardware?</i></summary>
 <p>The evdev subsystem provides a standard hardware-independent abstraction. Applications and compositors only need to understand one uniform protocol (<code>struct input_event</code>) rather than implementing custom communication drivers for thousands of distinct hardware models.</p>
 </details>
 <details class="q">
-<summary>Why do persistent symlinks exist in /dev/input/by-id/?</summary>
+<summary><i>Why do persistent symlinks exist in /dev/input/by-id/?</i></summary>
 <p>Dynamic kernel event node numbers (like <code>event4</code> or <code>event8</code>) can change order between boots depending on which device powers on or enumerates first. The symlinks in <code>by-id/</code> remain consistent across reboots because they are generated from hardware vendor and product serial identifiers.</p>
 </details>
 </section>
@@ -220,11 +220,11 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why is SYN_DROPPED emitted as an EV_SYN packet rather than returning a read error like ENOBUFS?</summary>
+<summary><i>Why is SYN_DROPPED emitted as an EV_SYN packet rather than returning a read error like ENOBUFS?</i></summary>
 <p>Returning an error on <code>read(2)</code> would break standard POSIX event loops that treat errors as fatal disconnects. Emitting <code>SYN_DROPPED</code> in-band within the event stream allows the client to detect buffer overflow at the exact moment in time it occurred, discard corrupted partial event sequences, and resynchronize cleanly.</p>
 </details>
 <details class="q">
-<summary>How does the Multi-Touch Type B slotted protocol reduce CPU overhead compared to Type A?</summary>
+<summary><i>How does the Multi-Touch Type B slotted protocol reduce CPU overhead compared to Type A?</i></summary>
 <p>Type A transmits the complete state of every active touch contact on every scan cycle. Type B assigns persistent hardware slots and transmits updates only for contacts whose position or pressure actually changed, dramatically reducing event volume during multi-finger gestures.</p>
 </details>
 </section>

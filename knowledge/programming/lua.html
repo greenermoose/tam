@@ -104,11 +104,11 @@ $ rmdir -- "$scratch"
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>What operator does Lua use to join two strings together?</summary>
+<summary><i>What operator does Lua use to join two strings together?</i></summary>
 <p>Lua uses two dots (<code>..</code>) for string concatenation (e.g. <code>"hello " .. "world"</code>), not <code>+</code>.</p>
 </details>
 <details class="q">
-<summary>What does an uninitialized Lua variable evaluate to by default?</summary>
+<summary><i>What does an uninitialized Lua variable evaluate to by default?</i></summary>
 <p>It evaluates to <code>nil</code>. Lua does not abort on uninitialized variables; referencing an unassigned variable returns <code>nil</code>.</p>
 </details>
 </section>
@@ -201,7 +201,7 @@ $ hyprctl repl 'print("active workspace:", hl.activeworkspace())'
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why must a C host call <code>lua_pcall</code> rather than <code>lua_call</code> when executing user desktop configuration files?</summary>
+<summary><i>Why must a C host call <code>lua_pcall</code> rather than <code>lua_call</code> when executing user desktop configuration files?</i></summary>
 <p><code>lua_call</code> is unprotected: if the user's script contains an error (such as a typo or missing variable), Lua triggers an uncaught panic that terminates the entire host process (crashing the compositor). <code>lua_pcall</code> catches errors safely, pushes the error message to the stack, and returns a non-zero status code so the host can display a diagnostic message and continue running.</p>
 </details>
 </section>

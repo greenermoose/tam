@@ -87,11 +87,11 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why is a raw SHA-256 hash of a password unsafe for storing login credentials even though SHA-256 is collision-resistant?</summary>
+<summary><i>Why is a raw SHA-256 hash of a password unsafe for storing login credentials even though SHA-256 is collision-resistant?</i></summary>
 <p>SHA-256 is fast and unsalted: attackers can precompute tables for common passwords and test billions of guesses per second on GPUs. Password storage requires per-user random salts and memory-hard work factors (Argon2id, yescrypt, scrypt).</p>
 </details>
 <details class="q">
-<summary>What is the difference between a plain SHA-256 digest and an HMAC-SHA256 tag?</summary>
+<summary><i>What is the difference between a plain SHA-256 digest and an HMAC-SHA256 tag?</i></summary>
 <p>Anyone can compute a plain SHA-256 digest, so it only detects accidental corruption unless delivered over a trusted channel. HMAC requires a secret key, protecting against intentional forgery by an active attacker.</p>
 </details>
 </section>

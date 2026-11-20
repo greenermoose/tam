@@ -105,11 +105,11 @@ $ size /usr/bin/true
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why do native C11 programs start in milliseconds compared to programs written in Go or Python?</summary>
+<summary><i>Why do native C11 programs start in milliseconds compared to programs written in Go or Python?</i></summary>
 <p>C11 programs compile directly to native machine code and link only against the standard C library, requiring no interpreter initialization, virtual machine startup, or garbage collection runtime threads before execution begins.</p>
 </details>
 <details class="q">
-<summary>What tool can you use to inspect which dynamic shared libraries an executable links against?</summary>
+<summary><i>What tool can you use to inspect which dynamic shared libraries an executable links against?</i></summary>
 <p>The <code>ldd</code> utility prints the shared objects required by each program or library specified on the command line.</p>
 </details>
 </section>
@@ -167,7 +167,7 @@ $ size /usr/bin/true
 <p>While Rust guarantees compile-time memory safety, its heavy toolchain (~1.5 GB), deep transitive crate dependencies (Cargo sprawl), and long compilation times conflict with Tamlinux's goals of anti-bloat, 20-year source longevity, and emergency self-reliance on minimal rescue media. Tamlinux reduces memory-safety risks in C11 through pedantic compiler flags, libtam bounds-checked primitives, AddressSanitizer (ASan) in testing, and static assertions. These measures do not guarantee memory safety.</p>
 </details>
 <details class="q">
-<summary>How does the libtam library support C11 development in Tamlinux?</summary>
+<summary><i>How does the libtam library support C11 development in Tamlinux?</i></summary>
 <p>It provides standard, reusable systems primitives &mdash; such as dynamic strings, hash maps, JSON parsing, and atomic file updates &mdash; that the standard C library omits, preventing individual utilities from reinventing low-level data structures while keeping binary sizes small.</p>
 </details>
 </section>

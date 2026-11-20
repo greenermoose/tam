@@ -91,11 +91,11 @@ macs umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>What is the security weakness of Trust On First Use (TOFU) in SSH?</summary>
+<summary><i>What is the security weakness of Trust On First Use (TOFU) in SSH?</i></summary>
 <p>TOFU detects key changes on all future connections, but if an active attacker intercepts your very first connection when the host key is unknown, you must verify the displayed fingerprint out-of-band (or use SSHFP DNSSEC / SSH certificates) to spot the impersonation.</p>
 </details>
 <details class="q">
-<summary>Why do modern OpenSSH configurations prefer <code>-etm</code> MACs or AEAD ciphers like <code>chacha20-poly1305@openssh.com</code>?</summary>
+<summary><i>Why do modern OpenSSH configurations prefer <code>-etm</code> MACs or AEAD ciphers like <code>chacha20-poly1305@openssh.com</code>?</i></summary>
 <p>Encrypt-then-MAC and AEAD authenticate the ciphertext (including the encrypted packet length) before decrypting, preventing chosen-ciphertext length-oracle attacks against unauthenticated CBC streams.</p>
 </details>
 </section>

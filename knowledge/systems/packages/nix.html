@@ -135,15 +135,15 @@ readlink ~/.nix-profile
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does a new Nix build usually get a different store path instead of replacing the old one?</summary>
+<summary><i>Why does a new Nix build usually get a different store path instead of replacing the old one?</i></summary>
 <p>The path contains a hash of the build inputs. A changed input changes the hash, so the new result is stored separately and the old result remains available. That is what makes generations and rollback possible.</p>
 </details>
 <details class="q">
-<summary>Does rolling back a Home Manager generation restore a document you edited yesterday?</summary>
+<summary><i>Does rolling back a Home Manager generation restore a document you edited yesterday?</i></summary>
 <p>No. A generation selects managed software and configuration. Your documents and other mutable files are outside it and need their own backup or recovery.</p>
 </details>
 <details class="q">
-<summary>What is the difference between a profile and a generation?</summary>
+<summary><i>What is the difference between a profile and a generation?</i></summary>
 <p>A generation is one recorded selection. A profile is the named pointer that says which generation is current. Switching moves the profile pointer to another generation.</p>
 </details>
 </section>

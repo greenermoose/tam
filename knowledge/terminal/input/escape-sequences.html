@@ -131,15 +131,15 @@ $ TERM=linux tput kend | od -An -c
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Which bytes does the sequence <code>ESC [ 1 ; 5 A</code> contain, and what is the <code>5</code> likely to mean?</summary>
+<summary><i>Which bytes does the sequence <code>ESC [ 1 ; 5 A</code> contain, and what is the <code>5</code> likely to mean?</i></summary>
 <p>Escape, <code>[</code>, <code>1</code>, <code>;</code>, <code>5</code>, <code>A</code>. The parameters are <code>1</code> and <code>5</code>; in the xterm convention the second parameter is one plus a modifier bitmask, so <code>5</code> means Ctrl and the sequence is Ctrl plus Up.</p>
 </details>
 <details class="q">
-<summary>Why is F1 <code>ESC O P</code> in foot but <code>ESC [ [ A</code> on the Linux console?</summary>
+<summary><i>Why is F1 <code>ESC O P</code> in foot but <code>ESC [ [ A</code> on the Linux console?</i></summary>
 <p>They are different terminals with different encodings. The database records both, and a program reads the entry for the current <code>TERM</code> instead of assuming one form.</p>
 </details>
 <details class="q">
-<summary>Can a program tell Esc from <code>Ctrl + [</code> by looking at the bytes?</summary>
+<summary><i>Can a program tell Esc from <code>Ctrl + [</code> by looking at the bytes?</i></summary>
 <p>No, in the legacy encoding both produce <code>0x1B</code>. Separate reporting requires an extended protocol, such as <dfn><a href="glossary/m/modifyotherkeys.html">modifyOtherKeys</a></dfn> or the <dfn><a href="glossary/k/kitty-keyboard-protocol.html">kitty keyboard protocol</a></dfn>, that the program must enable.</p>
 </details>
 </section>

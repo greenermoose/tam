@@ -27,11 +27,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>What does a full-screen program look up from terminfo?</summary>
+<summary><i>What does a full-screen program look up from terminfo?</i></summary>
 <p>The cursor, colour and screen-control escape sequences for the terminal named by <code>TERM</code>. If the name and the real terminal disagree, the program emits the wrong control bytes.</p>
 </details>
 <details class="q">
-<summary>Why does <code>tam</code> link <code>libncursesw</code> rather than the narrow ncurses library?</summary>
+<summary><i>Why does <code>tam</code> link <code>libncursesw</code> rather than the narrow ncurses library?</i></summary>
 <p>The wide-character library handles Unicode text and cell widths correctly. The narrow library is not enough for the guide's content.</p>
 </details>
 </section>
@@ -45,11 +45,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>Which command reports the font Fontconfig picks for <code>monospace</code>?</summary>
+<summary><i>Which command reports the font Fontconfig picks for <code>monospace</code>?</i></summary>
 <p><code>fc-match monospace</code>. Add <code>-f "%{file}: %{family}\n"</code> when you need the file path and family together.</p>
 </details>
 <details class="q">
-<summary>Where does the current theme link point?</summary>
+<summary><i>Where does the current theme link point?</i></summary>
 <p><code>~/.local/state/tamlinux/current/theme</code>, which points at an isolated, timestamped generation. Switching themes swaps that link atomically rather than editing files one by one.</p>
 </details>
 </section>
@@ -62,11 +62,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>Which file is the desktop's Lua entry point?</summary>
+<summary><i>Which file is the desktop's Lua entry point?</i></summary>
 <p><code>~/.config/hypr/hyprland.lua</code>. It prepares module paths and loads the packaged baseline plus your bindings and monitor files.</p>
 </details>
 <details class="q">
-<summary>Does <code>hyprctl repl</code> change the configuration on disk?</summary>
+<summary><i>Does <code>hyprctl repl</code> change the configuration on disk?</i></summary>
 <p>No. It evaluates Lua in the running compositor. A durable change belongs in a configuration file with a written undo step.</p>
 </details>
 </section>

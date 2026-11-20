@@ -128,15 +128,15 @@ gamma
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>What is the difference between <code>C-s</code> and <code>C-x C-s</code>?</summary>
+<summary><i>What is the difference between <code>C-s</code> and <code>C-x C-s</code>?</i></summary>
 <p><code>C-s</code> starts an incremental search. <code>C-x C-s</code> is a two-key sequence: <code>C-x</code> is a prefix, and <code>C-s</code> completes the save command. The same final key can mean different things depending on the prefix before it.</p>
 </details>
 <details class="q">
-<summary>Why can you run a command with <code>M-x</code> even if you never learned its shortcut?</summary>
+<summary><i>Why can you run a command with <code>M-x</code> even if you never learned its shortcut?</i></summary>
 <p>Every interactive command has a name, and <code>M-x</code> reads a name from the minibuffer and calls that command. Shortcuts are conveniences layered on top of named functions, not the only way to reach them.</p>
 </details>
 <details class="q">
-<summary>You run the batch replacement but the file does not change. What should you check first?</summary>
+<summary><i>You run the batch replacement but the file does not change. What should you check first?</i></summary>
 <p>Check whether the Lisp form actually saved the buffer. Batch mode performs the edits in memory and exits; without <code>save-buffer</code> or <code>write-file</code> nothing reaches disk. Also check the command's exit status and standard error, since a failed search or a Lisp error may have stopped the form before the save.</p>
 </details>
 </section>

@@ -27,11 +27,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>Why do daily work as an ordinary user rather than <code>root</code>?</summary>
+<summary><i>Why do daily work as an ordinary user rather than <code>root</code>?</i></summary>
 <p>Mistakes and buggy programs then cannot silently rewrite system binaries or boot files. Privilege is requested only for the action that needs it.</p>
 </details>
 <details class="q">
-<summary>Which command lists the groups your account belongs to?</summary>
+<summary><i>Which command lists the groups your account belongs to?</i></summary>
 <p><code>id -Gn</code> prints group names; <code>id</code> also shows the numeric user and group IDs.</p>
 </details>
 </section>
@@ -45,11 +45,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>What crosses the network when you sign in with an SSH key?</summary>
+<summary><i>What crosses the network when you sign in with an SSH key?</i></summary>
 <p>A proof signed with your private key. The private key itself stays on your machine; only the public key is installed on the server.</p>
 </details>
 <details class="q">
-<summary>Which files show whether a fingerprint or FIDO2 module is enrolled for privilege prompts?</summary>
+<summary><i>Which files show whether a fingerprint or FIDO2 module is enrolled for privilege prompts?</i></summary>
 <p>The PAM stacks under <code>/etc/pam.d/</code>, for example <code>sudo</code> and <code>polkit-1</code>. Reading them needs no change.</p>
 </details>
 </section>
@@ -63,11 +63,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>What does LUKS protect, and when?</summary>
+<summary><i>What does LUKS protect, and when?</i></summary>
 <p>Data at rest while the machine is powered off or the drive is locked. Once unlocked, the running system can read the files normally.</p>
 </details>
 <details class="q">
-<summary>Which command reports whether the host firewall service is active?</summary>
+<summary><i>Which command reports whether the host firewall service is active?</i></summary>
 <p><code>systemctl is-active nftables.service</code>. It prints the state and exits non-zero when the service is not active.</p>
 </details>
 </section>
@@ -81,11 +81,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>Why does a privilege prompt appear for some actions but not others?</summary>
+<summary><i>Why does a privilege prompt appear for some actions but not others?</i></summary>
 <p>The action needs to change system-wide state. Ordinary work inside your home folder does not, so it runs as your user.</p>
 </details>
 <details class="q">
-<summary>Does a file's mode alone decide who can open it?</summary>
+<summary><i>Does a file's mode alone decide who can open it?</i></summary>
 <p>No. Owner, group and other bits combine with directory traversal permission, and a privileged process can bypass ordinary checks.</p>
 </details>
 </section>
@@ -98,11 +98,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>What must exist before a real update changes installed software?</summary>
+<summary><i>What must exist before a real update changes installed software?</i></summary>
 <p>A verified recovery point for the affected boundary, plus a way to check the new version afterwards. Without it, the change stays pending.</p>
 </details>
 <details class="q">
-<summary>Does restoring a software generation also restore an edited document?</summary>
+<summary><i>Does restoring a software generation also restore an edited document?</i></summary>
 <p>No. Package recovery and your own data are separate. Documents need their own backup or documented recovery method.</p>
 </details>
 </section>

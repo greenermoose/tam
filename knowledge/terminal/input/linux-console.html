@@ -122,15 +122,15 @@ $ dumpkeys | grep -E 'keycode +(14|28|57|59) '
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Does <code>Ctrl + Alt + F2</code> send a special byte to the program on the current console?</summary>
+<summary><i>Does <code>Ctrl + Alt + F2</code> send a special byte to the program on the current console?</i></summary>
 <p>No. The kernel's console keymap maps the chord to the action <code>Console_2</code>, and the console driver switches the active VT. The program on the old console does not receive a key press; it simply stops being the visible console.</p>
 </details>
 <details class="q">
-<summary>Why does F1 produce <code>ESC [ [ A</code> on the Linux console but <code>ESC O P</code> in foot?</summary>
+<summary><i>Why does F1 produce <code>ESC [ [ A</code> on the Linux console but <code>ESC O P</code> in foot?</i></summary>
 <p>The two terminals use different key encodings, described by different terminfo entries. The program asks terminfo for the sequence, or parses both. The physical key and the kernel keycode can be the same while the terminal bytes differ.</p>
 </details>
 <details class="q">
-<summary>Is the console keycode for a letter the same as the XKB keycode?</summary>
+<summary><i>Is the console keycode for a letter the same as the XKB keycode?</i></summary>
 <p>No. The console keymap uses kernel keycodes, such as <code>30</code> for <code>a</code>. XKB and Wayland use the kernel keycode plus 8, so the same key is <code>38</code>. The console never adds that offset.</p>
 </details>
 </section>

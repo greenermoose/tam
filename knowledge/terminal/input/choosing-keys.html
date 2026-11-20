@@ -154,15 +154,15 @@ $ tput kbs | od -An -c
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why is <code>Ctrl + H</code> a poor choice for a help command in a terminal program?</summary>
+<summary><i>Why is <code>Ctrl + H</code> a poor choice for a help command in a terminal program?</i></summary>
 <p>It produces <code>0x08</code>, the ASCII BS code, which is also what some terminals send for Backspace and what some key decoders map to the same Backspace event. The command then competes with the most common editing key in the program.</p>
 </details>
 <details class="q">
-<summary>What does the <code>kbs</code> capability tell you, and how would you use it?</summary>
+<summary><i>What does the <code>kbs</code> capability tell you, and how would you use it?</i></summary>
 <p>It names the byte the terminal sends for Backspace. Read it and treat that byte as Backspace; the other byte of the pair can then be used for a different command, or at least reported as a distinct key. Hard-coding either byte assumes a terminal that may not be in use.</p>
 </details>
 <details class="q">
-<summary>Why is <code>F1</code> a safer choice than <code>Ctrl + I</code> even though both are single key presses?</summary>
+<summary><i>Why is <code>F1</code> a safer choice than <code>Ctrl + I</code> even though both are single key presses?</i></summary>
 <p><code>F1</code> arrives as a multi-byte escape sequence that no text character and no line-discipline character uses, so it cannot be confused with typing. <code>Ctrl + I</code> is exactly the Tab byte, and Tab is both a text character and a completion key.</p>
 </details>
 </section>

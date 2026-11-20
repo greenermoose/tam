@@ -112,15 +112,15 @@ $ printf 'a' | od -An -tx1
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Is <code>30</code> or <code>38</code> the Linux kernel keycode for the <code>a</code> key?</summary>
+<summary><i>Is <code>30</code> or <code>38</code> the Linux kernel keycode for the <code>a</code> key?</i></summary>
 <p><code>30</code> is the kernel keycode, <code>KEY_A</code>. <code>38</code> is the XKB and Wayland keycode, which is the kernel number plus 8. A terminal receives the second number, so a bug report that quotes <code>38</code> is usually talking about the compositor side.</p>
 </details>
 <details class="q">
-<summary>Why can the same physical key produce <code>a</code> on one machine and <code>q</code> on another?</summary>
+<summary><i>Why can the same physical key produce <code>a</code> on one machine and <code>q</code> on another?</i></summary>
 <p>The hardware code can be identical while the active keyboard layout maps it to a different keysym. The layout, not the switch, changed. A remap at the XKB layer leaves the kernel keycode untouched.</p>
 </details>
 <details class="q">
-<summary>A program reads the byte <code>0x61</code>. Which layers has the key press already passed?</summary>
+<summary><i>A program reads the byte <code>0x61</code>. Which layers has the key press already passed?</i></summary>
 <p>All of them up to the terminal encoder: hardware, kernel driver, evdev, compositor, XKB, and the terminal's byte encoder. The program is now at the last layer and sees only the byte, not the key that produced it.</p>
 </details>
 </section>

@@ -92,9 +92,9 @@ $ journalctl -b -u tam-lesson-example.service -n 5 --no-pager
 
 <section class="quiz">
 <h3>Check yourself</h3>
-<details class="q"><summary>What does <code>-b</code> select here?</summary><p>The current boot. It does not mean every saved boot or every login session.</p></details>
-<details class="q"><summary>Does one error message prove why your application stopped?</summary><p>No. Match its boot, time and component to the observed symptom, then check surrounding evidence. An unrelated error can occur nearby.</p></details>
-<details class="q"><summary>A previous-boot query returns nothing. Can you conclude the crash left no evidence?</summary><p>No. First check boot retention, permissions, scope, unit and time bounds. The query only describes entries it could select.</p></details>
+<details class="q"><summary><i>What does <code>-b</code> select here?</i></summary><p>The current boot. It does not mean every saved boot or every login session.</p></details>
+<details class="q"><summary><i>Does one error message prove why your application stopped?</i></summary><p>No. Match its boot, time and component to the observed symptom, then check surrounding evidence. An unrelated error can occur nearby.</p></details>
+<details class="q"><summary><i>A previous-boot query returns nothing. Can you conclude the crash left no evidence?</i></summary><p>No. First check boot retention, permissions, scope, unit and time bounds. The query only describes entries it could select.</p></details>
 </section>
 </section>
 
@@ -112,7 +112,7 @@ $ journalctl -b -u tam-lesson-example.service -n 5 --no-pager
 <h3>Explore</h3>
 <p>For a known event, write two explanations, the evidence each predicts and a bounded query that could contradict each one. Distinguish an absent message from a message that explicitly reports failure. Do not trigger a crash to fill an evidence gap.</p>
 <section class="quiz"><h3>Check yourself</h3>
-<details class="q"><summary>Why is “the last error before the crash caused it” an incomplete conclusion?</summary><p>The last retained message may be unrelated, delayed, or followed by messages that were never flushed. Correlate component state, timestamps and a discriminating prediction. State what remains unknown and what observation would change the explanation.</p></details>
+<details class="q"><summary><i>Why is “the last error before the crash caused it” an incomplete conclusion?</i></summary><p>The last retained message may be unrelated, delayed, or followed by messages that were never flushed. Correlate component state, timestamps and a discriminating prediction. State what remains unknown and what observation would change the explanation.</p></details>
 </section>
 <h3>Sources and improve it</h3>
 <p>Read <a href="man:journalctl(1)">journalctl(1)</a>, <a href="man:journald.conf(5)">journald.conf(5)</a> and <a href="man:dmesg(1)">dmesg(1)</a>, offline if installed. Suggest a clearer diagnostic lesson in the public <code>greenermoose/tam</code> repository with a minimal, redacted example and the exact query; private machine logs need not be published.</p>

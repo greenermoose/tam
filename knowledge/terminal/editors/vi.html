@@ -129,15 +129,15 @@ one
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>You press <code>dd</code>, then <code>p</code>. Where does the deleted line go?</summary>
+<summary><i>You press <code>dd</code>, then <code>p</code>. Where does the deleted line go?</i></summary>
 <p><code>dd</code> removes the line and stores it in the unnamed buffer. <code>p</code> puts that text after the current line, so the line reappears one line lower. <code>P</code> would put it before the current line.</p>
 </details>
 <details class="q">
-<summary>Why does <code>d2w</code> delete two words rather than a word and then something else?</summary>
+<summary><i>Why does <code>d2w</code> delete two words rather than a word and then something else?</i></summary>
 <p>A count before a motion multiplies the motion: <code>2w</code> reaches two words forward. The operator <code>d</code> then deletes everything from the cursor to that destination. Counts and operators compose instead of being separate commands.</p>
 </details>
 <details class="q">
-<summary>What is the safest first action when vi shows a swap-file warning?</summary>
+<summary><i>What is the safest first action when vi shows a swap-file warning?</i></summary>
 <p>Stop and find out whether another session is editing the file. If one is, quit this session and use the other one. If the other session crashed, use <code>:recover</code> and compare the recovered text with the file on disk before overwriting anything. Deleting the swap file first destroys the evidence.</p>
 </details>
 </section>

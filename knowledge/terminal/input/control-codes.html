@@ -114,15 +114,15 @@ $ printf '\177' | od -An -tx1 -c
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Which byte does <code>Ctrl + H</code> send, and which byte does the Backspace key usually send in foot?</summary>
+<summary><i>Which byte does <code>Ctrl + H</code> send, and which byte does the Backspace key usually send in foot?</i></summary>
 <p><code>Ctrl + H</code> sends <code>0x08</code>, the ASCII BS control. foot sends <code>0x7F</code> for Backspace. They are different bytes, which is why a program can usually tell them apart.</p>
 </details>
 <details class="q">
-<summary>Why can a program not tell <code>Ctrl + I</code> from the Tab key on a legacy terminal?</summary>
+<summary><i>Why can a program not tell <code>Ctrl + I</code> from the Tab key on a legacy terminal?</i></summary>
 <p>Both produce the same byte, <code>0x09</code>. The terminal protocol has no separate code for them in legacy mode. A modern protocol such as the kitty keyboard protocol can report them separately, but only if the program asks for it.</p>
 </details>
 <details class="q">
-<summary>Is <code>Ctrl + C</code> always a request to stop the program?</summary>
+<summary><i>Is <code>Ctrl + C</code> always a request to stop the program?</i></summary>
 <p>No. The byte <code>0x03</code> is only a signal request when the line discipline has <code>ISIG</code> enabled and the byte matches the <code>intr</code> character. In raw mode the program receives <code>0x03</code> as data and may use it for copy, cancel, or anything else.</p>
 </details>
 </section>

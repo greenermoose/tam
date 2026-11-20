@@ -131,15 +131,15 @@ $ od -An -tx1 -c
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Which byte does foot send when you press Backspace, and which when you press <code>Ctrl + Backspace</code>?</summary>
+<summary><i>Which byte does foot send when you press Backspace, and which when you press <code>Ctrl + Backspace</code>?</i></summary>
 <p>Backspace sends <code>0x7F</code>, the DEL code. <code>Ctrl + Backspace</code> sends <code>0x08</code>, the ASCII BS code. foot documents both, and it does not implement the DECBKM mode that would let a program ask for BS instead.</p>
 </details>
 <details class="q">
-<summary>Why does the database say Up is <code>ESC O A</code> when pressing Up at a prompt sends <code>ESC [ A</code>?</summary>
+<summary><i>Why does the database say Up is <code>ESC O A</code> when pressing Up at a prompt sends <code>ESC [ A</code>?</i></summary>
 <p>The database value describes application cursor mode, which a full-screen program requests by sending <code>ESC [ ? 1 h</code>. At an ordinary prompt that mode is off, so foot uses the normal form <code>ESC [ A</code>. Both sequences are correct in their own mode.</p>
 </details>
 <details class="q">
-<summary>What does pressing Alt and <code>a</code> send?</summary>
+<summary><i>What does pressing Alt and <code>a</code> send?</i></summary>
 <p><code>ESC</code> followed by <code>a</code>, that is <code>0x1B 0x61</code>. foot prefixes the key with an escape byte instead of setting the high bit of the character.</p>
 </details>
 </section>

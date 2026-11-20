@@ -115,11 +115,11 @@ $ rmdir -- "$scratch"
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why is <code>set -o pipefail</code> critical when chaining commands like <code>curl -s ... | grep pattern</code>?</summary>
+<summary><i>Why is <code>set -o pipefail</code> critical when chaining commands like <code>curl -s ... | grep pattern</code>?</i></summary>
 <p>Without pipefail, Bash only reports the exit status of the final command in the pipeline (grep). If <code>curl</code> fails due to network disconnection or a 404 error, the pipeline could still return 0 if grep matches an empty string or error message, masking the network failure.</p>
 </details>
 <details class="q">
-<summary>What can <code>set -u</code> detect if a script reads a variable that was never set?</summary>
+<summary><i>What can <code>set -u</code> detect if a script reads a variable that was never set?</i></summary>
 <p>It reports an unbound variable in ordinary expansions. It does not validate an empty but set variable or make destructive operations safe.</p>
 </details>
 </section>
@@ -185,7 +185,7 @@ Hello, Tamlinux!
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why will <code>count=0; cat file | while read l; do ((count++)); done; echo $count</code> print 0 even if the file had 10 lines?</summary>
+<summary><i>Why will <code>count=0; cat file | while read l; do ((count++)); done; echo $count</code> print 0 even if the file had 10 lines?</i></summary>
 <p>In standard Bash, each element of a pipeline runs in a separate child subshell. The <code>while</code> loop incremented <code>count</code> inside a child process whose memory was discarded upon loop completion. The parent shell's <code>count</code> remained 0.</p>
 </details>
 </section>

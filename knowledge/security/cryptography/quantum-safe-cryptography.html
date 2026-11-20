@@ -93,11 +93,11 @@ $ openssl list -signature-algorithms | grep -iE 'ml-?dsa|slh-dsa' | head -n 6
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why do protocols deploy hybrid key exchange like <code>X25519MLKEM768</code> instead of switching solely to ML-KEM overnight?</summary>
+<summary><i>Why do protocols deploy hybrid key exchange like <code>X25519MLKEM768</code> instead of switching solely to ML-KEM overnight?</i></summary>
 <p>Hybrid key exchange combines a battle-tested classical primitive (X25519) with a newer post-quantum primitive (ML-KEM-768). Even if a subtle mathematical flaw were discovered in ML-KEM, the session remains classically secure—and vice versa against a quantum computer.</p>
 </details>
 <details class="q">
-<summary>Does AES-256 need to be replaced by a lattice cipher to stay quantum-safe?</summary>
+<summary><i>Does AES-256 need to be replaced by a lattice cipher to stay quantum-safe?</i></summary>
 <p>No. Quantum computers do not break AES in polynomial time; Grover's algorithm only offers a quadratic speedup, reducing AES-256 from 2^256 to roughly 2^128 quantum operations, which remains secure.</p>
 </details>
 </section>

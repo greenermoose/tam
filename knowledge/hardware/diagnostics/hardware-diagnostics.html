@@ -87,11 +87,11 @@ crw-rw---- 1 root dialout 188, 0 Nov  1 14:15 /dev/ttyUSB0
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>You plug a USB-to-serial cable into your computer, but running "ls -l /dev/ttyUSB*" shows "No such file or directory". What command should you run first to see if the USB hardware was physically recognized?</summary>
+<summary><i>You plug a USB-to-serial cable into your computer, but running "ls -l /dev/ttyUSB*" shows "No such file or directory". What command should you run first to see if the USB hardware was physically recognized?</i></summary>
 <p>Run <code>lsusb</code> or <code>dmesg | tail -20</code>. If <code>lsusb</code> lists the USB device vendor ID (e.g. FTDI, Prolific, or CH340), the physical USB connection is healthy and the issue is likely a missing kernel driver module. If <code>lsusb</code> does not list the device at all, the hardware has no power or the USB cable is physically defective.</p>
 </details>
 <details class="q">
-<summary>Why should you always tighten the jack screws on DB-9 serial connectors on permanent equipment?</summary>
+<summary><i>Why should you always tighten the jack screws on DB-9 serial connectors on permanent equipment?</i></summary>
 <p>Vibration from cooling fans, equipment movement, or cable weight can slowly back an unsecured DB-9 connector out of its socket by a fraction of a millimeter. This creates intermittent pin contact that causes random character corruption, framing errors, or complete link drops.</p>
 </details>
 </section>

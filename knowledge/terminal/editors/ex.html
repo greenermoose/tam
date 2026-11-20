@@ -108,15 +108,15 @@ gamma
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>What is the difference between <code>2d</code> and <code>2,4d</code>?</summary>
+<summary><i>What is the difference between <code>2d</code> and <code>2,4d</code>?</i></summary>
 <p><code>2d</code> deletes only line 2. <code>2,4d</code> deletes lines 2, 3, and 4 as one range. After either command the remaining lines are renumbered, so a later <code>2p</code> may print a different line than you expect.</p>
 </details>
 <details class="q">
-<summary>Why did <code>1,2p</code> print <code>BETA</code> instead of <code>beta</code>?</summary>
+<summary><i>Why did <code>1,2p</code> print <code>BETA</code> instead of <code>beta</code>?</i></summary>
 <p>The substitution ran first and changed the buffer. <code>p</code> prints the current contents of the buffer, not the file on disk. The file changes only when <code>w</code> or <code>wq</code> writes it.</p>
 </details>
 <details class="q">
-<summary>You run <code>ex -s notes.txt</code> and feed it <code>s/draft/final/</code>. The pattern is not on the current line but is on line 4. What happens?</summary>
+<summary><i>You run <code>ex -s notes.txt</code> and feed it <code>s/draft/final/</code>. The pattern is not on the current line but is on line 4. What happens?</i></summary>
 <p>The command fails because a substitution without an address applies to the current line, which starts at line 1. Use <code>4s/draft/final/</code>, <code>%s/draft/final/</code> for every line, or <code>g/draft/s//final/</code> to act only on matching lines.</p>
 </details>
 </section>

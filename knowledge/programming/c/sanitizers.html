@@ -150,11 +150,11 @@ $ rm -f /tmp/test_uaf.c /tmp/test_uaf
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why must -fsanitize=address be passed to both the compile step and the link step?</summary>
+<summary><i>Why must -fsanitize=address be passed to both the compile step and the link step?</i></summary>
 <p>The compile step inserts instrumentation instructions before every memory load and store, while the link step links the AddressSanitizer runtime library (libasan) and replaces standard memory allocators (malloc and free) with instrumented versions. Without linking libasan, unresolved symbol errors occur at link time.</p>
 </details>
 <details class="q">
-<summary>How does AddressSanitizer differ from traditional static analysis like -Wall or cppcheck?</summary>
+<summary><i>How does AddressSanitizer differ from traditional static analysis like -Wall or cppcheck?</i></summary>
 <p>Static analysis inspects source code without running it, which cannot catch bugs that depend on runtime inputs, dynamic allocation sizes, or complex pointer aliasing. AddressSanitizer inspects actual memory accesses as the program runs, catching errors that only manifest under specific runtime conditions.</p>
 </details>
 </section>
@@ -237,7 +237,7 @@ $ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main
 <p>Both sanitizers require dedicated, conflicting shadow memory layouts and incompatible memory interception mechanisms. ASan uses shadow memory to record byte validity and redzones, whereas TSan uses shadow memory to record thread IDs and clock vectors for synchronization tracking. To test both memory safety and data races, projects maintain separate build targets.</p>
 </details>
 <details class="q">
-<summary>Why does ASan quarantine freed memory rather than immediately returning it to the OS allocator?</summary>
+<summary><i>Why does ASan quarantine freed memory rather than immediately returning it to the OS allocator?</i></summary>
 <p>If freed memory were immediately reused by another malloc call, a dangling pointer from the first allocation might read or write into the new allocation without triggering a memory fault. The quarantine queue keeps freed memory poisoned for a period of time, ensuring that use-after-free bugs reliably trigger an immediate crash report.</p>
 </details>
 </section>

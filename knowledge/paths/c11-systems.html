@@ -26,11 +26,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>Which value of <code>__STDC_VERSION__</code> identifies C11?</summary>
+<summary><i>Which value of <code>__STDC_VERSION__</code> identifies C11?</i></summary>
 <p><code>201112L</code>. Compile with <code>-std=c11</code> and inspect the macro with <code>gcc -dM -E</code>.</p>
 </details>
 <details class="q">
-<summary>Why does the build define <code>_DEFAULT_SOURCE</code> and <code>_XOPEN_SOURCE</code>?</summary>
+<summary><i>Why does the build define <code>_DEFAULT_SOURCE</code> and <code>_XOPEN_SOURCE</code>?</i></summary>
 <p>They expose the POSIX interfaces the code needs while keeping the language target portable ISO C11. They are feature-test macros, not compiler extensions.</p>
 </details>
 </section>
@@ -43,11 +43,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>What does <code>gcc -c</code> stop before?</summary>
+<summary><i>What does <code>gcc -c</code> stop before?</i></summary>
 <p>Linking. It produces an object file with unresolved references that the linker resolves later.</p>
 </details>
 <details class="q">
-<summary>Which tools list archive members and ELF sections?</summary>
+<summary><i>Which tools list archive members and ELF sections?</i></summary>
 <p><code>ar -t libNAME.a</code> lists members; <code>readelf -S FILE.o</code> lists sections such as <code>.text</code>, <code>.rodata</code> and <code>.rela.text</code>.</p>
 </details>
 </section>
@@ -61,11 +61,11 @@
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
 <details class="q">
-<summary>What does AddressSanitizer place around each object, and where does it record the result?</summary>
+<summary><i>What does AddressSanitizer place around each object, and where does it record the result?</i></summary>
 <p>Redzones around allocated and stack objects, tracked in shadow memory. A read or write into a redzone is reported with the source line.</p>
 </details>
 <details class="q">
-<summary>Does a warning-free build prove there is no memory bug?</summary>
+<summary><i>Does a warning-free build prove there is no memory bug?</i></summary>
 <p>No. Warnings catch some static problems; out-of-bounds or use-after-free behaviour needs a sanitizer run or a test that exercises the path.</p>
 </details>
 </section>

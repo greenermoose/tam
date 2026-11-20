@@ -114,15 +114,15 @@ $ cat -v
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary>Why does <code>Ctrl + Shift + C</code> not stop a running command in foot?</summary>
+<summary><i>Why does <code>Ctrl + Shift + C</code> not stop a running command in foot?</i></summary>
 <p>foot binds that chord to copying the selection and consumes it. The program never receives <code>0x03</code>. <code>Ctrl + C</code> without Shift is not bound by foot, so it reaches the line discipline and becomes <code>SIGINT</code>.</p>
 </details>
 <details class="q">
-<summary>Who handles a key first: the shell or the compositor?</summary>
+<summary><i>Who handles a key first: the shell or the compositor?</i></summary>
 <p>The compositor. It receives the key from the kernel, applies layout and modifier state, and checks its own shortcuts before delivering the key to the focused window. The shell only sees bytes that survive the layers in between.</p>
 </details>
 <details class="q">
-<summary>Does SSH forward key presses to the server?</summary>
+<summary><i>Does SSH forward key presses to the server?</i></summary>
 <p>No. The local terminal turns keys into bytes, and SSH forwards those bytes through a pseudo-terminal on the server. The server's programs read bytes under the server's <code>TERM</code>, so a terminal mismatch changes what the remote program believes about the keyboard.</p>
 </details>
 </section>
