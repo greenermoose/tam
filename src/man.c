@@ -1,4 +1,5 @@
 #include <tam.h>
+#include <tam_uni.h>
 
 #include "address.h"
 
@@ -372,6 +373,17 @@ static void remove_scratch_dir(const char *dir)
 
 #define MAN_RENDER_TIMEOUT_MS 20000
 
+static const char *man_fallback_encoding(const char *source, size_t len)
+{
+    for (size_t i = 0; i < len;) {
+        uint32_t cp;
+        size_t size = tam_utf8_decode(source + i, len - i, &cp);
+        if (size == 1 && cp == 0xfffd) return "latin1";
+        i += size;
+    }
+    return "utf8";
+}
+
 /* Render a man page source file to HTML with groff. gzip is read in process;
  * bzip2, xz and zstd go through their decompressor. No shell is involved. */
 static char *render_man_with_groff(const char *path)
@@ -398,22 +410,40 @@ static char *render_man_with_groff(const char *path)
         input_len = r.stdout_len;
     }
 
+    int compressed = input != NULL;
+    if (!compressed) {
+        input = tam_fs_read_file(path, &input_len);
+        if (input == NULL) return NULL;
+    }
+    const char *encoding = man_fallback_encoding(input, input_len);
+
     char *scratch = groff_scratch_dir();
     if (scratch == NULL) {
         free(input);
         return NULL;
     }
+    /* preconv needs seekable input to read a coding tag. Keep the original
+     * filename for plain sources and stage only decompressed sources. */
+    char *source_copy = compressed ? tam_path_join(scratch, "source") : NULL;
+    if (compressed && (source_copy == NULL ||
+                       !tam_fs_write_atomic(source_copy, input, input_len, 0600))) {
+        remove_scratch_dir(scratch);
+        free(source_copy);
+        free(scratch);
+        free(input);
+        return NULL;
+    }
+    free(input);
     char tmpdir_env[4200], image_dir[4200];
     snprintf(tmpdir_env, sizeof(tmpdir_env), "TMPDIR=%s", scratch);
     snprintf(image_dir, sizeof(image_dir), "-D%s", scratch);
-    const char *argv[] = { "env", tmpdir_env, "groff", "-mandoc", "-Thtml", "-P",
-                           image_dir, input != NULL ? NULL : path, NULL };
-    tam_exec_opts_t opts = { .timeout_ms = MAN_RENDER_TIMEOUT_MS,
-                             .input = input, .input_len = input_len };
-    tam_exec_result_t r = tam_exec_opts(argv, &opts);
+    const char *argv[] = { "env", tmpdir_env, "groff", "-D", encoding, "-mandoc",
+                           "-Thtml", "-P", image_dir, "--",
+                           compressed ? source_copy : path, NULL };
+    tam_exec_result_t r = tam_exec(argv, MAN_RENDER_TIMEOUT_MS);
     remove_scratch_dir(scratch);
     free(scratch);
-    free(input);
+    free(source_copy);
     free(r.stderr_buf);
     /* groff can warn and exit non-zero yet still produce the page. */
     if (r.timed_out || r.truncated || r.stdout_len == 0) {
@@ -429,7 +459,7 @@ static char *render_man_with_groff(const char *path)
  * naming the format, the source's size, modification time and path. A
  * changed source no longer matches its stamp and is rendered again into the
  * same file, so each source has one cache file. */
-#define MAN_CACHE_FORMAT 1
+#define MAN_CACHE_FORMAT 2
 
 static char *man_cache_file(const char *source)
 {
@@ -452,6 +482,10 @@ static char *man_cache_file(const char *source)
 
 static char *render_man_to_html(const char *path)
 {
+    /* The explicit groff override applies only to this invocation. */
+    const char *override = getenv("GROFF_ENCODING");
+    if (override != NULL && override[0] != '\0') return render_man_with_groff(path);
+
     char *source = realpath(path, NULL);
     struct stat st;
     if (source == NULL || strchr(source, '\n') != NULL || stat(source, &st) != 0) {

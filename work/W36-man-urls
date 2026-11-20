@@ -3,7 +3,7 @@ W36 CLICKABLE WEB URLS IN MANUAL PAGES
 Date: 2026-11-20
 AI harness: Codex CLI 0.171.0
 AI model: gpt-6.2-sol
-Commits: 84d8f9c
+Commits: 84d8f9c, 661f5fa
 
 GUIDANCE
 
@@ -22,6 +22,10 @@ GUIDANCE
   Fred selected "HTTP and HTTPS (Recommended)" for the scheme scope.
   Fred: "Implement the plan."
   Fred (excerpt): "Fix the tam pager so &bull; is rendered as *. See man:giteveryday(7)"
+  Fred: "Are there any other entity codes bleeding through on man pages rendered by tam?"
+  Fred: "Create a robust strategy for handling HTML entities in man pages."
+  Fred selected "All rendered HTML (Recommended)" for decoder scope.
+  Fred: "Implement the plan."
 
 DONE
 
@@ -31,11 +35,17 @@ DONE
     handoff. make test-command passed.
   - Mapped the named bullet entity to an ASCII asterisk. Verified the
     renderer golden and the installed giteveryday(7) page.
+  - Added the complete semicolon-terminated WHATWG entity table and
+    safe numeric decoding. Enabled groff input encoding selection and
+    advanced the manual HTML cache format. make test-command passed.
+  - Rechecked 142 rendered manuals. The four remaining entity-like
+    strings were escaped literals. git-config(1) displays ⁑⁕⁑.
 
 FAILED
 
   - The first build needed the libtam Unicode header. Added it and reran.
+  - The cache test needed an explicit path for a POSIX shell redirect.
 
 HANDOFF
 
-  - Command 0.67.6 is ready in source. No installation was requested.
+  - Command 0.67.7 is ready in source. No installation was requested.

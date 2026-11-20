@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-20:** Command 0.67.7 (patch) uses the WHATWG named character reference table, bounds numeric decoding, and normalizes manual source encoding before groff generates HTML. Manual cache format 2 replaces previously misencoded output.
+
 - **2026-11-20:** Command 0.67.6 (patch) renders the named HTML bullet entity as an ASCII asterisk.
 
 - **2026-11-20:** Command 0.67.5 (patch) links HTTP and HTTPS URLs in manual text before line wrapping and preserves explicit links.

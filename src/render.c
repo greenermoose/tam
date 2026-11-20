@@ -490,102 +490,122 @@ static void blocklist_free(blocklist_t *bl)
 /* Entities                                                                   */
 /* ------------------------------------------------------------------------- */
 
-static int utf8_encode(unsigned cp, char *out)
+#include "html_entities.inc"
+
+static int compare_entity(const void *key, const void *entry)
 {
-    if (cp < 0x80) {
-        out[0] = (char)cp;
-        return 1;
-    }
-    if (cp < 0x800) {
-        out[0] = (char)(0xC0 | (cp >> 6));
-        out[1] = (char)(0x80 | (cp & 0x3F));
-        return 2;
-    }
-    if (cp < 0x10000) {
-        out[0] = (char)(0xE0 | (cp >> 12));
-        out[1] = (char)(0x80 | ((cp >> 6) & 0x3F));
-        out[2] = (char)(0x80 | (cp & 0x3F));
-        return 3;
-    }
-    if (cp < 0x110000) {
-        out[0] = (char)(0xF0 | (cp >> 18));
-        out[1] = (char)(0x80 | ((cp >> 12) & 0x3F));
-        out[2] = (char)(0x80 | ((cp >> 6) & 0x3F));
-        out[3] = (char)(0x80 | (cp & 0x3F));
-        return 4;
-    }
-    return 0;
+    const html_entity_t *entity = entry;
+    return strcmp(key, entity->name);
 }
 
-static const struct {
-    const char *name;
-    unsigned    cp;
-} entities[] = {
-    {"amp", '&'},     {"lt", '<'},      {"gt", '>'},      {"quot", '"'},
-    {"apos", '\''},   {"nbsp", 0xA0},   {"mdash", 0x2014}, {"ndash", 0x2013},
-    {"hellip", 0x2026}, {"copy", 0xA9}, {"reg", 0xAE},
-    {"bull", '*'},
-    {"lsquo", 0x2018}, {"rsquo", 0x2019}, {"ldquo", 0x201C}, {"rdquo", 0x201D},
-    {"larr", 0x2190},  {"rarr", 0x2192},  {"times", 0xD7},   {"le", 0x2264},
-    {"ge", 0x2265},    {"asymp", 0x2248},
-    {NULL, 0}
-};
+static int entity_digit(unsigned char c, unsigned base)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (base == 16 && c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (base == 16 && c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
 
-static char *decode_entities(const char *s, size_t n, size_t *outlen)
+static uint32_t numeric_entity_value(uint32_t cp)
+{
+    /* Printable assignments from the HTML numeric-reference C1 table.
+     * Zero entries are control characters without a printable mapping. */
+    static const uint32_t c1[] = {
+        0x20ac, 0, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
+        0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0, 0x017d, 0,
+        0, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
+        0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0, 0x017e, 0x0178
+    };
+    if (cp >= 0x80 && cp <= 0x9f) cp = c1[cp - 0x80];
+    if ((cp < 0x20 && cp != '\t' && cp != '\n') || cp == 0x7f ||
+        cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff) ||
+        (cp >= 0xfdd0 && cp <= 0xfdef) || (cp & 0xfffe) == 0xfffe)
+        return 0xfffd;
+    return cp;
+}
+
+/* Scan the source once. Decoded output is never tokenized as markup or fed
+ * back into the decoder. Unknown and incomplete references remain literal. */
+static char *decode_html_entities(const char *s, size_t n, size_t *outlen, int visible)
 {
     tam_str_t out = tam_str_new("");
-    size_t i = 0;
-
-    while (i < n) {
-        if (s[i] == '&') {
-            const char *semi = memchr(s + i, ';', n - i);
-            if (semi != NULL && (size_t)(semi - (s + i)) <= 10) {
-                size_t l = (size_t)(semi - (s + i + 1));
-                char name[12];
-                memcpy(name, s + i + 1, l);
-                name[l] = '\0';
-                unsigned cp = 0;
-                int ok = 0;
-                if (name[0] == '#') {
-                    char *endp = NULL;
-                    if (name[1] == 'x' || name[1] == 'X') {
-                        cp = (unsigned)strtoul(name + 2, &endp, 16);
-                    } else {
-                        cp = (unsigned)strtoul(name + 1, &endp, 10);
-                    }
-                    if (endp != NULL && *endp == '\0') {
-                        ok = 1;
-                    }
-                } else {
-                    for (int k = 0; entities[k].name != NULL; k++) {
-                        if (strcmp(entities[k].name, name) == 0) {
-                            cp = entities[k].cp;
-                            ok = 1;
-                            break;
-                        }
-                    }
-                }
-                if (ok) {
-                    char ub[4];
-                    int ul = utf8_encode(cp, ub);
-                    if (ul > 0) {
-                        out = tam_str_cat_len(out, ub, (size_t)ul);
-                        i = (size_t)(semi - s) + 1;
-                        continue;
-                    }
+    if (out == NULL) return NULL;
+    size_t literal = 0;
+    for (size_t i = 0; i < n;) {
+        const char *amp = memchr(s + i, '&', n - i);
+        if (amp == NULL) break;
+        i = (size_t)(amp - s);
+        size_t end = i + 1;
+        uint32_t first = 0, second = 0;
+        if (end < n && s[end] == '#') {
+            end++;
+            unsigned base = 10;
+            if (end < n && (s[end] == 'x' || s[end] == 'X')) {
+                base = 16;
+                end++;
+            }
+            size_t digits = end;
+            uint32_t value = 0;
+            int digit;
+            while (end < n && (digit = entity_digit((unsigned char)s[end], base)) >= 0) {
+                /* Saturate before the next multiplication can overflow. */
+                if (value <= 0x10ffff) value = value * base + (unsigned)digit;
+                end++;
+            }
+            if (end > digits && end < n && s[end] == ';')
+                first = numeric_entity_value(value);
+        } else {
+            size_t name_start = end;
+            while (end < n && end - name_start < HTML_ENTITY_MAX_NAME) {
+                unsigned char c = (unsigned char)s[end];
+                if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                      (c >= '0' && c <= '9'))) break;
+                end++;
+            }
+            if (end > name_start && end < n && s[end] == ';') {
+                char name[HTML_ENTITY_MAX_NAME + 1];
+                size_t len = end - name_start;
+                memcpy(name, s + name_start, len);
+                name[len] = '\0';
+                const html_entity_t *entry = bsearch(name, html_entities,
+                    sizeof(html_entities) / sizeof(html_entities[0]),
+                    sizeof(html_entities[0]), compare_entity);
+                if (entry != NULL) {
+                    first = visible && strcmp(name, "bull") == 0 ? '*' : entry->first;
+                    second = entry->second;
                 }
             }
         }
-        out = tam_str_cat_len(out, s + i, 1);
-        i++;
-    }
+        i = end;
+        if (first == 0) continue;
 
-    char *res = strdup(out);
-    if (outlen != NULL) {
-        *outlen = strlen(res);
+        char utf8[8];
+        size_t len = tam_utf8_encode(first, utf8);
+        if (second != 0) len += tam_utf8_encode(second, utf8 + len);
+        tam_str_t next = tam_str_cat_len(out, s + literal, (size_t)(amp - s) - literal);
+        if (next == NULL) goto fail;
+        out = next;
+        next = tam_str_cat_len(out, utf8, len);
+        if (next == NULL) goto fail;
+        out = next;
+        literal = ++i;
     }
+    tam_str_t next = tam_str_cat_len(out, s + literal, n - literal);
+    if (next == NULL) goto fail;
+    out = next;
+    char *decoded = strdup(out);
+    if (outlen != NULL) *outlen = decoded != NULL ? strlen(decoded) : 0;
     tam_str_free(out);
-    return res;
+    return decoded;
+
+fail:
+    tam_str_free(out);
+    return NULL;
+}
+
+static char *decode_entities(const char *s, size_t n, size_t *outlen)
+{
+    return decode_html_entities(s, n, outlen, 1);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -600,7 +620,7 @@ static char *extract_attr(const char *s, const char *end, const char *attr)
     if (s >= end || !tam_html_attr(s, 0, (size_t)(end - s), attr, &v, &len)) {
         return NULL;
     }
-    return decode_entities(s + v, len, NULL);
+    return decode_html_entities(s + v, len, NULL, 0);
 }
 
 /* ------------------------------------------------------------------------- */

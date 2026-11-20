@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.67.6' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.67.7' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3384,14 +3384,56 @@ leftover=$(find "$tmp/manz-run" -mindepth 3 2>/dev/null)
 [ -z "$leftover" ] || fail "man rendering left scratch files: $leftover"
 pass "man pages render alike from gzip, bzip2, xz and zstd with no scratch files left"
 
+# Use both plain and compressed sources so the coding tag must work even
+# when tam decompresses the input itself.
+python3 - "$tmp/manz/man1" <<'PY'
+import codecs
+import gzip
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1])
+header = ".TH ENCODING 1\n.SH DESCRIPTION\n"
+text = header + "café — déjà vu\n"
+pages = {
+    "utf8": text.encode("utf-8"),
+    "bom": codecs.BOM_UTF16_LE + text.encode("utf-16-le"),
+    "declared": (r'.\" -*- coding: windows-1252 -*-' + "\n" + text).encode("cp1252"),
+    "latin1": (header + "café déjà vu\n").encode("latin-1"),
+}
+for name, data in pages.items():
+    (root / f"plain-{name}.1").write_bytes(data)
+    (root / f"gzip-{name}.1.gz").write_bytes(gzip.compress(data))
+PY
+for encoding in utf8 bom declared latin1; do
+    expected='café — déjà vu'
+    [ "$encoding" != latin1 ] || expected='café déjà vu'
+    for source in plain gzip; do
+        MANPATH="$tmp/manz" LC_ALL=C.UTF-8 "$TAM" man "$source-$encoding" --pipe |
+            grep -Fq "$expected" || fail "$source $encoding manual decoded incorrectly"
+    done
+done
+pass "manual source encoding: UTF-8, BOM, coding tag, and Latin-1 fallback"
+
 # A rendered man page is cached, one file per source, reused while the source
 # is unchanged and rendered again when it changes.
 cache_dir="$tmp/manz-cache/tamlinux/tam/man"
 first=$(MANPATH="$tmp/manz" XDG_CACHE_HOME="$tmp/manz-cache" "$TAM" man tamzplain --pipe)
 [ "$(find "$cache_dir" -name '*.html' | wc -l)" -eq 1 ] || fail "man cache did not store one page"
-head -1 "$cache_dir"/*.html | grep -q '^<!-- tam-man-cache 1 ' || fail "man cache entry has no stamp"
+head -1 "$cache_dir"/*.html | grep -q '^<!-- tam-man-cache 2 ' || fail "man cache entry has no stamp"
+sed -i '1s/tam-man-cache 2 /tam-man-cache 1 /' "$cache_dir"/*.html
+second=$(MANPATH="$tmp/manz" XDG_CACHE_HOME="$tmp/manz-cache" "$TAM" man tamzplain --pipe)
+[ "$first" = "$second" ] || fail "regenerated man page renders differently"
+head -1 "$cache_dir"/*.html | grep -q '^<!-- tam-man-cache 2 ' || fail "old man cache entry was reused"
+cache_entry=$(find "$cache_dir" -name '*.html')
+printf '\n<!-- REUSED -->\n' >> "$cache_entry"
 second=$(MANPATH="$tmp/manz" XDG_CACHE_HOME="$tmp/manz-cache" "$TAM" man tamzplain --pipe)
 [ "$first" = "$second" ] || fail "cached man page renders differently"
+grep -q REUSED "$cache_dir"/*.html || fail "valid man cache entry was rewritten"
+override_dir="$tmp/man-override"
+GROFF_ENCODING=latin1 XDG_CACHE_HOME="$override_dir" MANPATH="$tmp/manz" LC_ALL=C.UTF-8 \
+    "$TAM" man plain-utf8 --pipe | grep -Fq 'cafÃ©' || fail "groff encoding override was ignored"
+[ ! -e "$override_dir/tamlinux/tam/man" ] || fail "explicit groff encoding override cached a page"
 sed -i 's/^\.SH NAME$/.SH NAME\nCACHE-CHANGED/' "$tmp/manz/man1/tamzplain.1"
 touch -d '+1 minute' "$tmp/manz/man1/tamzplain.1"
 MANPATH="$tmp/manz" XDG_CACHE_HOME="$tmp/manz-cache" "$TAM" man tamzplain --pipe | grep -q 'CACHE-CHANGED' \
