@@ -5,7 +5,7 @@
 **Scope:** TTY/VT page in corpus 0.27.0, corrected in 0.27.1.
 **Authority:** [Current development contract](development.md) and the evidence below.
 **Next action:** None for this closed plan; follow the current roadmap.
-**Completion evidence:** Implementation `8458674`, corrected in `91d2c47`; [audit-fix verification](../ai/2026-10-16-tam-corpus-checker-and-audit-fixes.md). The page exists at `knowledge/ecosystem/ttys-and-virtual-consoles.html`. Its Learning placement now follows the [overhaul](knowledge-system-0.31.0.md); old alternatives, snapshot and release steps below are historical.
+**Completion evidence:** Implementation `8458674`, corrected in `91d2c47`; [audit-fix verification](../../work/history/2026-10-16-tam-corpus-checker-and-audit-fixes.md). The page exists at `knowledge/ecosystem/ttys-and-virtual-consoles.html`. Its Learning placement now follows the [overhaul](knowledge-system-0.31.0.md); old alternatives, snapshot and release steps below are historical.
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development

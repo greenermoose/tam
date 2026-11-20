@@ -80,4 +80,4 @@ and review of an exact packaged candidate.
 ## Disposition
 
 Completed in command 0.32.0 / corpus 0.33.5. Evidence: the
-[session record](../ai/2026-10-20-tam-pager-home-row-keys.md) and its commits.
+[session record](../../work/history/2026-10-20-tam-pager-home-row-keys.md) and its commits.

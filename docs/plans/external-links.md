@@ -26,7 +26,7 @@ arguments without a shell. Browsers are optional runtime tools.
 The implementation from `feature/external-links` at `abf0262` is integrated in
 command 0.44.0 on `dev`; the branch and its remote ref are preserved.
 Documentation and automated verification are recorded in the
-[session record](../ai/2026-10-27-tam-external-links-integration.md).
+[session record](../../work/history/2026-10-27-tam-external-links-integration.md).
 On 2026-10-27 Fred reported: “I tested external links and they work.” The
 report does not identify the candidate, environments or individual acceptance
 cases, so the full desktop and console acceptance matrix remains open.

@@ -6,7 +6,7 @@
 their tests and one new map document. No command or corpus version changes
 for this work (command 0.32.0 and corpus 0.33.6 at approval).
 **Authority:** The developer approved this design on 2026-10-20; see
-[the planning record](../ai/2026-10-20-tam-dev-loop-plan.md).
+[the planning record](../../work/history/2026-10-20-tam-dev-loop-plan.md).
 **Next action:** None; closed 2026-10-20 (see Disposition). On hold: about
 200 non-interactive live-corpus assertions in `tests/run.sh` (roadmap section 4).
 
@@ -177,7 +177,7 @@ expected value and the fix.
 `docs/repo-map.md` has one line per entry: what it is for and how it changes,
 using four categories: *you edit* (pages, README, plans), *script edits*
 (version files and the `ROADMAP.md` version places), *generated, never edit*
-(`knowledge/index.*`, `build/`) and *history, read-only* (`docs/ai/`,
+(`knowledge/index.*`, `build/`) and *history, read-only* (`work/history/`,
 `docs/handoffs/`, closed plans). `tools/dev.py` reads these categories for
 step 3. Keep the map short enough to read in two minutes.
 
@@ -259,9 +259,9 @@ Evidence for each acceptance criterion:
   `tests/test_check_repo.py` (10 tests), whose fixtures cover lane grouping,
   claimed-path exclusion, generated-file filtering, single-occurrence version
   edits, "already bumped" detection, the refusals, and each drift check
-  ([TCK11](../ai/2026-10-20-tam-dev-loop-tck11.md),
-  [TCK12](../ai/2026-10-20-tam-dev-loop-tck12.md),
-  [TCK13 and TCK14](../ai/2026-10-20-tam-dev-loop-tck13-tck14.md)).
+  ([TCK11](../../work/history/2026-10-20-tam-dev-loop-tck11.md),
+  [TCK12](../../work/history/2026-10-20-tam-dev-loop-tck12.md),
+  [TCK13 and TCK14](../../work/history/2026-10-20-tam-dev-loop-tck13-tck14.md)).
 - `make dev DRY_RUN=1` with one edited page listed only that page and left
   `git status` unchanged (TCK11 record). Exclusion of another session's claimed
   paths is covered by the fixture test, not by a live dry run.

@@ -5,7 +5,7 @@
 **Scope:** Command 0.4.0 welcome/orientation and original explanations.
 **Authority:** [Current development contract](development.md) and the evidence below.
 **Next action:** None for this closed plan; follow the current roadmap.
-**Completion evidence:** Implementation `b01faf9`; [verification record](../ai/2026-10-09-tam-orientation-and-explanation.md). Current explanation semantics are in the development contract; the new learning paths belong to the [overhaul](knowledge-system-0.31.0.md).
+**Completion evidence:** Implementation `b01faf9`; [verification record](../../work/history/2026-10-09-tam-orientation-and-explanation.md). Current explanation semantics are in the development contract; the new learning paths belong to the [overhaul](knowledge-system-0.31.0.md).
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development

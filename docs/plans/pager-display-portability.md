@@ -3,7 +3,7 @@
 **Plan status:** In progress
 **Reviewed:** 2026-10-21
 **Scope:** Command 0.29.0 portable pager implementation and the command 0.38.1 resize cursor correction; packaged visual acceptance remains pending.
-**Authority:** [Implementation and verification record](../ai/2026-10-17-tam-pager-portability.md).
+**Authority:** [Implementation and verification record](../../work/history/2026-10-17-tam-pager-portability.md).
 **Next action:** On the developer's instruction, review an exact packaged candidate
 in the Linux console and Foot; record the candidate and results.
 

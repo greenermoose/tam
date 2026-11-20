@@ -30,7 +30,7 @@ The developer asks that pages introduce and define unfamiliar concepts rather
 than assume readers know technical terms, and that the glossary be expanded and
 linked from the Guide index. Corpus 0.44.0 adds that index link, twelve basic
 terms and contextual explanations in First steps, shell and filesystem
-(`0fcddfe`, index `d1beac0`; [verification](../ai/2026-10-27-tam-foundation-glossary.md)).
+(`0fcddfe`, index `d1beac0`; [verification](../../work/history/2026-10-27-tam-foundation-glossary.md)).
 Corpus 0.44.1 replaces recursive cleanup in the practice exercise with removal of its known file and empty directory. Continue in small sourced slices: define a term in context on first use, link
 its glossary entry, and check that a beginner can follow the explanation without
 opening every link. Prioritize the terminology encountered along First steps.
@@ -370,7 +370,7 @@ filtered answers out of pipe output. The pager owns its open set; loader-only
 HTML supports the same folds. All-view level identification uses generated
 heading labels alone, without another gutter. The 23 prefixed pages now omit
 those prefixes; existing privileged examples have risk labels. Implementation
-and verification: [TCK22 record](../ai/2026-10-21-tam-folding.md).
+and verification: [TCK22 record](../../work/history/2026-10-21-tam-folding.md).
 
 ### TCK23 (pilot pages, goal-path hub, two goal paths)
 
@@ -426,7 +426,7 @@ and Keep it healthy paths are linked from Welcome and the Learning hub.
 Keep it healthy prepares an update and recovery decision without performing
 a transaction or deployment. The source baseline was command 0.38.0 / corpus
 0.37.1 at `56a2866`; command version is unchanged. Verification and review
-findings: [pilot record](../ai/2026-10-21-tam-learning-pilot.md).
+findings: [pilot record](../../work/history/2026-10-21-tam-learning-pilot.md).
 
 TCK23 remains open for its developer review criterion. The developer's
 subsequent "Continue" directs TCK24 work without asserting that the pilot
@@ -498,7 +498,7 @@ unsupported claims of a delivered signed nut are removed. Pilot metadata,
 vocabulary and citations are converted. The TCK24 baseline had 24 cells without
 mapped pages and 30 without paths; 40 legacy level sections warn about
 anatomy. These are migration gaps, not new breakages or accepted teaching.
-Verification: [session record](../ai/2026-10-21-tam-learning-pilot.md).
+Verification: [session record](../../work/history/2026-10-21-tam-learning-pilot.md).
 
 ### TCK25 (migration)
 
@@ -551,7 +551,7 @@ Command-line fluency is added; all three level paths follow the stage,
 checkpoint and capstone format. The current report has 19 page gaps, 21
 path gaps and 38 warning sections in other parts. Maintaining, Learning,
 Installing and Improving migration remain. Verification and limits:
-[session record](../ai/2026-10-21-tam-learning-pilot.md).
+[session record](../../work/history/2026-10-21-tam-learning-pilot.md).
 
 **Maintaining recovery execution plan (2026-10-21).** The developer
 asked to inspect the last session and continue the next chunk. Baseline
@@ -588,7 +588,7 @@ gaps unchanged. These counts measure metadata, not learning effectiveness.
 At that slice's completion, Maintaining still needed boot, boot-fallback,
 Snapper, logs, power, resources, packaging and hub migration and its Rescue
 path before part-wide enforcement. See the
-[verification record](../ai/2026-10-21-tam-recovery-learning.md).
+[verification record](../../work/history/2026-10-21-tam-recovery-learning.md).
 
 **Boot and Rescue execution plan (2026-10-21).** The developer explicitly
 requested boot, boot-fallback and Snapper lessons, then Rescue. Baseline
@@ -624,7 +624,7 @@ repair was performed. Anatomy warnings fall from 34 to 28; page gaps remain
 15 and path gaps fall from 21 to 19. These are metadata counts. Remaining
 Maintaining pages (logs, power, resources, packaging and hub), enforcement,
 pilot/learner and packaged acceptance remain open. See the
-[verification record](../ai/2026-10-21-tam-boot-rescue-learning.md).
+[verification record](../../work/history/2026-10-21-tam-boot-rescue-learning.md).
 
 **Logs/power slice (2026-10-22, corpus 0.42.3).** The developer said
 "Proceed" to the proposed two-page slice. Baseline command 0.43.1 / corpus
@@ -638,7 +638,7 @@ selection and observed completion. No sleep cycle, sysfs write, swap change,
 journal cleanup or session installation is part of the exercises. Metadata
 coverage is not learner validation. Resources, packaging and the hub remain;
 Maintaining enforcement stays off. Verification and limitations:
-[session record](../ai/2026-10-22-tam-logs-power-learning.md).
+[session record](../../work/history/2026-10-22-tam-logs-power-learning.md).
 
 **Maintaining completion slice (2026-10-25, corpus 0.43.2).** The developer
 directed: "Finish the remaining Maintaining pages under TCK25." Baseline command
@@ -664,7 +664,7 @@ patch bump (0.43.2); command version is unchanged.
    build errors. Anatomy warnings drop from 24 to 22 (remaining warnings are in
    unmigrated parts). Maintaining has zero warnings and zero errors.
 
-See the [verification record](../ai/2026-10-25-tam-tck25-maintaining-completion.md).
+See the [verification record](../../work/history/2026-10-25-tam-tck25-maintaining-completion.md).
 
 **Improving track slice 1 (2026-10-25, corpus 0.43.3).** The developer
 directed: "Check the last agy session to see what we were doing in the tam repo. Then continue that work. We are completing checklists."
@@ -687,7 +687,7 @@ version is unchanged.
 4. Anatomy warnings drop from 22 to 18 across the corpus. Gaps for `customizing.beginner`,
    `customizing.intermediate`, and `customizing.expert` are resolved.
 
-See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice1.md).
+See the [verification record](../../work/history/2026-10-25-tam-tck25-improving-slice1.md).
 
 **Improving track slice 2 (2026-10-25, corpus 0.43.4).** The developer directed:
 "In the tam repo, we are completing checklist item TCK25. The Using and Maintaining tracks are fully migrated and enforced, and the Improving track hub, scripting, and lua lessons landed in corpus 0.43.3. Continue TCK25 Improving track migration with the next slice: improve/terminal.html and improve/efficiency.html. Follow tam/AGENTS.md and claim scopes before editing."
@@ -713,7 +713,7 @@ version is unchanged.
    are in unmigrated lessons). Unclassified pages drop from 45 to 43; unmapped
    pages drop from 87 to 83. The page gap for `desktop.expert` is resolved.
 
-See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice2.md).
+See the [verification record](../../work/history/2026-10-25-tam-tck25-improving-slice2.md).
 
 **Improving track slice 3 (2026-10-25, corpus 0.43.5).** The developer directed:
 "In the tam repo, we are completing checklist item TCK25. Improving track slices 1 and 2 landed in corpus 0.43.3 and 0.43.4. Continue TCK25 Improving track migration with the next slice: improve/zram.html and improve/toolchains.html. Follow tam/AGENTS.md and claim scopes before editing."
@@ -742,7 +742,7 @@ command version is unchanged.
    are in unmigrated lessons). Unclassified pages drop from 43 to 41; unmapped
    pages drop from 83 to 81. All page gaps for `contributing` skills are resolved.
 
-See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice3.md).
+See the [verification record](../../work/history/2026-10-25-tam-tck25-improving-slice3.md).
 
 **Improving track slice 4 (2026-10-25, corpus 0.43.6).** The developer directed:
 "In the tam repo, we are completing checklist item TCK25. Improving track slices 1–3 landed in corpus 0.43.3, 0.43.4, and 0.43.5. Continue TCK25 Improving track migration with the next slice: improve/ai-performance.html and ecosystem/patches.html. Follow tam/AGENTS.md and claim scopes before editing."
@@ -772,7 +772,7 @@ It takes a corpus patch bump (0.43.6); command version is unchanged.
    unmigrated lessons). Unclassified pages drop from 41 to 39; unmapped pages drop from
    83 to 79.
 
-See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice4.md).
+See the [verification record](../../work/history/2026-10-25-tam-tck25-improving-slice4.md).
 
 **Improving track slice 5 (2026-10-25, corpus 0.43.7).** The developer directed:
 "In the tam repo, we are completing checklist item TCK25. Improving track slices 1–4 landed in corpus 0.43.3, 0.43.4, 0.43.5, and 0.43.6. Continue TCK25 Improving track migration with the next slice: ecosystem/package-versions.html and ecosystem/virtualization.html. Follow tam/AGENTS.md and claim scopes before editing."
@@ -800,7 +800,7 @@ command version is unchanged.
    unmigrated lessons). Unclassified pages drop from 39 to 37; unmapped pages drop from
    79 to 77.
 
-See the [verification record](../ai/2026-10-25-tam-tck25-improving-slice5.md).
+See the [verification record](../../work/history/2026-10-25-tam-tck25-improving-slice5.md).
 
 **Improving track completion and enforcement (2026-10-25, corpus 0.43.8).** The developer directed:
 "In the tam repo, we are completing checklist item TCK25. Improving track slices 1–5 landed in corpus 0.43.3, 0.43.4, 0.43.5, and 0.43.6. Continue TCK25 Improving track migration with the final Improving lesson: tam.html. Follow tam/AGENTS.md and claim scopes before editing. Once tam.html is migrated, enable Improving track build enforcement in knowledge/learn/skills/skills.json."
@@ -810,7 +810,7 @@ Baseline command 0.43.2 / corpus 0.43.7 at `36992ca`. This slice migrates `tam.h
 2. `learn/skills/skills.json` enables `"enforce_tracks": ["use", "maintain", "improve"]`, promoting anatomy and quiz warnings across Using, Maintaining, and Improving to fatal build errors. The Improving track has zero anatomy warnings and zero gaps.
 3. Whole-corpus anatomy warnings drop from 6 to 4 (all 4 remaining warnings are in unmigrated lessons in the Learning track: `ecosystem/sddm.html` and `ecosystem/ttys-and-virtual-consoles.html`). Unclassified pages drop from 37 to 36; unmapped pages drop from 77 to 76.
 
-See the [verification record](../ai/2026-10-25-tam-tck25-improving-completion.md).
+See the [verification record](../../work/history/2026-10-25-tam-tck25-improving-completion.md).
 
 ### Stop and ask the developer
 

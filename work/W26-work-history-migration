@@ -1,0 +1,55 @@
+W26 WORK HISTORY MIGRATION
+
+Date: 2026-11-20
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Commit: the docs/ai retirement commit
+
+
+GUIDANCE
+
+  Fred: "all docs/ai files should be rewritten into work/ files. i don't
+  want there to be a docs/ai/ folder any more -- I'm looking in work/
+  to see work history"
+
+  D278 retires docs/ai/ in every live repository. Claude's 2026-11-17
+  message in the shared inbox set out the tam steps; this session carried
+  them out.
+
+
+DONE
+
+  - git mv docs/ai work/history: 242 dated records, README and TEMPLATE
+    now sit in read-only work/history/. The docs/ai folder is gone.
+  - Converted the two genuine sessions from the cutover into W records:
+    W24 (pager revision stamp row) and W25 (~/.local/dev prefix), after
+    the existing W23. Their wording is preserved in the new plain format.
+  - Repointed 259 ledger paths in AI_PROVENANCE.md, its two cutover links
+    at W24 and W25, 21 ROADMAP record links, and links in README, AGENTS,
+    docs/plans, docs/handoffs, docs guides and the repo map. Added a short
+    work/ description and a "Before 2026-11-17" heading to the ledger.
+  - Fixed 49 relative links that had used ../ai/ or ../../ai/ so they
+    reach work/history/ from their new home, plus a ../handoffs link in a
+    moved record. A scan of 525 relative links found none missing.
+  - Updated tools/check-repo.py to expect work/ subdirectories in the
+    repo map, and its fixture tests, so work/history/ stays listed as
+    "history, read-only" and make dev still warns on edits to it.
+  - Rewrote the two corpus pages that told readers records live in
+    docs/ai/. Corpus bumped 0.101.2 -> 0.101.3 in knowledge/version and
+    all three ROADMAP places; make corpus reports indexes current.
+  - Added the history/ line to work/README-work and revised WHATNOW.
+
+
+FAILED
+
+  - Nothing. make check-repo passes after the repo-map checker update.
+
+
+HANDOFF
+
+  - Two Codex commits from the YUV title session (7c80725, 55e2b3f) were
+    already on local dev and unpushed. Pushing this work carries them too;
+    they are unchanged and keep their trailers.
+  - No Test, Run or Release action. No product version or source pin
+    changed; the corpus patch version is the internal documentation
+    version required for the corpus page edits.

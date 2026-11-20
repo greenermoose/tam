@@ -68,7 +68,7 @@ Five-run medians: unchanged build **0.214s**, one edited page/checks **0.583s**,
 100 edited pages/checks **1.443s**, cold build/checks **2.629s**, all 588 edited
 pages/checks **2.668s**, and batch checking/commits/staged copy **1.927s**.
 All four target medians pass. Slowest times and exclusions are in the
-[implementation record](../ai/2026-11-11-tam-incremental-build.md).
+[implementation record](../../work/history/2026-11-11-tam-incremental-build.md).
 
 Production artifacts match the uncached reference byte for byte. The complete
 `make check SKIP_COVERAGE_CHECK=1` passes in 27.65s, including the new cache

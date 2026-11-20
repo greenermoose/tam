@@ -24,7 +24,7 @@ Categories:
 - `tests/` — *you edit*. Command, corpus, rendering, upgrade, developer-loop and drift-check suites (`tests/run.sh` command version assertion is updated by `make dev`).
 - `docs/` — *you edit*. Corpus authoring, corpus audit, plan-maintenance and repository-map guides.
 - `docs/plans/` — *you edit*. Feature plans, the living development contract (`development.md`), templates and the plan index (`README`); closed plans remain in place as historical records.
-- `docs/ai/` — *history, read-only*. AI session records from before 2026-11-17, moving to `work/history/`; new sessions record in `work/`.
+- `work/history/` — *history, read-only*. AI session records from before 2026-11-17, moved from `docs/ai/` under D278; new sessions record in `work/`.
 - `docs/handoffs/` — *history, read-only*. Historical cross-session handoff notes kept at stable paths.
 - `docs/templates/` — *you edit*. Page skeletons (ladder, layered, single, path) that new corpus pages start from; see `docs/corpus-pedagogy.md`.
 - `build/` — *generated, never edit*. Compiler output (`build/tam` and build configuration stamp) created by `make command`.

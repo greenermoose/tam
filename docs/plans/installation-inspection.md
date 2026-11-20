@@ -5,7 +5,7 @@
 **Scope:** Command 0.5.0 read-only host inspection.
 **Authority:** [Current development contract](development.md) and the evidence below.
 **Next action:** None for this closed plan; follow the current roadmap.
-**Completion evidence:** Implementation `dd2793a`; [verification record](../ai/2026-10-09-tam-installation-inspection.md). The current verbs are top-level inspect/check. Installer plan/apply/verify remain separately deferred in the roadmap.
+**Completion evidence:** Implementation `dd2793a`; [verification record](../../work/history/2026-10-09-tam-installation-inspection.md). The current verbs are top-level inspect/check. Installer plan/apply/verify remain separately deferred in the roadmap.
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development
@@ -168,7 +168,7 @@ Following the repository's modularity guidelines:
 | `knowledge/install/index.html` | Update offline guide to document `tam install inspect` and the installation framework lifecycle. |
 | `tests/snapshots/install-index.txt` | Update snapshot to match revised `knowledge/install/index.html`. |
 | `tests/run.sh` | Add test cases for `tam install`, `tam install inspect`, `--help`, unimplemented operations, state isolation, and error handling. Update version assertion to `0.5.0`. |
-| `docs/ai/` | Add provenance record for slice 4. |
+| `work/history/` | Add provenance record for slice 4. |
 
 ---
 

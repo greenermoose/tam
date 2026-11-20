@@ -5,7 +5,7 @@
 **Scope:** Boot fallback/rescue guide in corpus 0.29.0.
 **Authority:** [Current development contract](../development.md) and the evidence below.
 **Next action:** None for this closed plan; follow the current roadmap.
-**Completion evidence:** Implementation `b9c17ed`, index `9de0735`; [verification record](../../ai/2026-10-17-tam-linux-fallback-rescue.md). Keep the page in Maintaining under the [overhaul](../knowledge-system-0.31.0.md).
+**Completion evidence:** Implementation `b9c17ed`, index `9de0735`; [verification record](../../../work/history/2026-10-17-tam-linux-fallback-rescue.md). Keep the page in Maintaining under the [overhaul](../knowledge-system-0.31.0.md).
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development

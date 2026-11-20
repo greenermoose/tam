@@ -222,7 +222,7 @@ Readers see the text that `tam show` renders, not the HTML.
    `knowledge/index.json`, `knowledge/index.tsv`, `knowledge/index.parents.tsv`,
    `knowledge/index.kinds.tsv`, `knowledge/index.skills.tsv`, `knowledge/index.paths.tsv`,
    `knowledge/coverage.json`, `knowledge/version`,
-   your `docs/ai/` record, and `AI_PROVENANCE.md` while
+   your `work/history/` record, and `AI_PROVENANCE.md` while
    you edit it.
 2. Write the page from its sources. Keep a list of what you checked.
 3. Link it from its canonical subject hub and appropriate learning/task routes.

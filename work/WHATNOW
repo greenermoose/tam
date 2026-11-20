@@ -3,17 +3,16 @@ WHATNOW
 What tam is doing now and what comes next. Read this first; revise it at
 the end of every session (work/README-work).
 
-Updated: 2026-11-20, with W23
+Updated: 2026-11-20, with W26
 
 
 STATE
 
-  Command 0.67.2 and corpus 0.101.2 on dev. Info manuals are
-  discovered under /usr/share/info by default (W18). The Info directory
-  introduction is an expandable aside with a Man pages link (W20).
-  The generated index revisions for the branch rename are current (W21).
-  The component overview describes current source delivery (W22).
-  The YUV glossary title identifies luma and chroma (W23).
+  Command 0.67.2 and corpus 0.101.3 on dev. The docs/ai folder is gone:
+  242 old records are read-only history in work/history/, the two 2026-11-17
+  sessions are W24 and W25, and this migration is W26. All record links,
+  AI_PROVENANCE.md and the private-facing ledger rows were repointed. The
+  development and contribution corpus pages now describe work/ (W26).
 
   Shell sandbox work: Shell sandboxes open
   from a [+] Sandbox title and keep the attention line and terminal
@@ -51,31 +50,7 @@ STATE
 
 NEXT
 
-  1. Finish moving tam to work/, as in the other Tamlinux repositories,
-     once nobody holds these paths:
-     - git mv docs/ai work/history, then rewrite every link and path to
-       it (about 38 files: AI_PROVENANCE.md, README, ROADMAP.md, docs/,
-       docs/plans/). Links inside the moved records that go up one level
-       (../plans/x) need ../../docs/ in front. Keep "git show
-       <commit>:docs/ai/..." commands as they are.
-     - docs/repo-map.md: the docs/ai/ line becomes a work/history/ line
-       (history, read-only). tests/test_check_repo.py line 347
-       categorizes "docs/ai/2026-10-20-rec.md"; make it
-       "work/history/2026-10-20-rec.md".
-     - AI_PROVENANCE.md: the short work/ description first, its current
-       content after it under "Before 2026-11-17".
-     - work/README-work: add the history/ line, as the other
-       repositories have.
-     - Corpus: knowledge/tamlinux/development/ai.html and
-       contributing.html say records live in docs/ai/. Make them
-       describe work/, WHATNOW and work/history/. That is corpus 0.96.1:
-       update knowledge/version and the three ROADMAP.md places
-       (AGENTS.md, "Versions"), then make corpus-and-test, commit, make
-       corpus, and commit the index follow-up.
-     - Check: make check-repo, and no stale docs/ai references outside
-       work/history/ (git grep).
-
-  2. Then await the developer's direction for the next approved outcome
+  1. Await the developer's direction for the next approved outcome
      (AGENTS.md); nothing else is approved.
 
 
@@ -94,6 +69,8 @@ WATCH OUT
     docs/plans/) are claimed only while edited.
   - Every command or corpus change bumps its version in every place
     AGENTS.md lists, in the same commit; make check-repo checks them.
+  - work/history/ is read-only. Do not add to it or rewrite older
+    records; new sessions use work/W<n>-<name>.
   - make dev is Fred's loop; agents do not run it. Do not install a
     build as a side effect of content changes.
   - Work in the shared clone; never create a worktree.

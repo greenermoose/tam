@@ -217,7 +217,7 @@ Release tags record both component versions (for example,
 `tam-0.31.0-corpus-0.32.1`), so a corpus-only release has an exact identity.
 
 Update the `--version` assertion in `tests/run.sh` to match, and note the
-bump in the decision record below. Historical `docs/ai/` records keep the
+bump in the decision record below. Historical `work/history/` records keep the
 version that shipped at the time; do not rewrite them.
 
 The corpus version lives only in `knowledge/version` and follows the same
@@ -388,7 +388,7 @@ skills, plus Snapshot, Generation and Virtual console glossary pages.
 Keep it healthy uses the Intermediate recovery-planning lesson. The lessons
 separate product return, mutable data and native boot state, and teach SysRq
 limits without invoking it. Maintaining remains partially migrated;
-part-wide enforcement stays off. See the [verification record](../ai/2026-10-21-tam-recovery-learning.md).
+part-wide enforcement stays off. See the [verification record](../../work/history/2026-10-21-tam-recovery-learning.md).
 
 Corpus 0.42.0 migrates boot, boot-fallback (`maintain/boot-recovery.html`)
 and Snapper, with captured read-only/scratch exercises and folded quizzes.
@@ -396,18 +396,18 @@ It corrects Snapper types, comparison endpoints and option semantics and
 separates checkpoint creation, menu generation, boot and restoration. Rescue
 is a four-stage Intermediate-to-Expert goal path with a scratch decision
 capstone. Logs, power, resources, packaging and hub migration remain before
-Maintaining enforcement. See the [verification record](../ai/2026-10-21-tam-boot-rescue-learning.md).
+Maintaining enforcement. See the [verification record](../../work/history/2026-10-21-tam-boot-rescue-learning.md).
 
 Corpus 0.42.3 migrates logs and power: captured read-only examples, full
 Beginner/Intermediate anatomy, skill mappings and folded questions at all levels.
 Logs distinguish empty selection, structural integrity and causal evidence;
 power separates capabilities, selection, actual transitions and energy claims.
 Resources, packaging and the hub remain before Maintaining enforcement.
-See the [verification record](../ai/2026-10-22-tam-logs-power-learning.md).
+See the [verification record](../../work/history/2026-10-22-tam-logs-power-learning.md).
 
 Corpus 0.43.2 completed Maintaining and 0.43.8 completed Improving, with
 track enforcement. Corpus 0.44.0 adds twelve foundational glossary entries,
-a Guide index link and first-use explanations ([record](../ai/2026-10-27-tam-foundation-glossary.md)).
+a Guide index link and first-use explanations ([record](../../work/history/2026-10-27-tam-foundation-glossary.md)).
 Corpus 0.45.0 revises Learning and Installing lessons, enables tagged-section
 enforcement in every part and adds six goal paths. TCK25 source implementation is complete; wider concept explanations and
 glossary coverage remain. Pilot, learner and packaged acceptance are pending. The [external-links plan](external-links.md) tracks command 0.44.0’s integrated browser handoff; Fred reports it works, while the candidate, environments and full acceptance matrix remain unrecorded.
@@ -866,7 +866,7 @@ record remains explicit in that plan and the index; it is not silently closed.
   question's answer; keep the open set in the pager and pass it privately to
   the loader. Pipe output collects answers at section ends. Generated level
   labels replace manual heading prefixes on 23 pages. See the
-  [implementation record](../ai/2026-10-21-tam-folding.md).
+  [implementation record](../../work/history/2026-10-21-tam-folding.md).
 
 Entries are dated historical decisions; the current sections and roadmap above
 resolve superseded schedules. Do not execute a former plan from this history.
@@ -1016,7 +1016,7 @@ resolve superseded schedules. Do not execute a former plan from this history.
 - **2026-10-18:** The developer accepted [source upgrades and stage switching](upgrade.md)
   for a subsequent implementation session: TCK6–TCK8, development-prefix source
   installs, independent code-based component versions and paired release tags.
-  Approval is recorded in the [planning session](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
+  Approval is recorded in the [planning session](../../work/history/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
   No implementation, installation or stage promotion occurred during planning.
 - **2026-10-18:** The developer approved Installing, Learning, Using, Maintaining,
   Improving as the spine, Learning routes through shared pages, and arbitrary
@@ -1311,7 +1311,7 @@ resolve superseded schedules. Do not execute a former plan from this history.
      lands.
   5. Session records keep every required field, record key decisions only
      where the diff cannot show them, and add `Checked against:` and `Time:`
-     lines (`docs/ai/TEMPLATE.md`); tam only for now.
+     lines (`work/history/TEMPLATE.md`); tam only for now.
   6. The audit SOP is adopted narrowed (`docs/corpus-audit.md`): about every
      ten changed pages or monthly, by a delegate that did not write the
      pages, never gating a candidate.

@@ -16,6 +16,6 @@ Authoritative documentation and session records:
 
 - Feature work plan: [Check, upgrade and switch tam source versions](../plans/upgrade.md)
 - Work plan index: [tam plans index](../plans/README)
-- Planning and approval session: [2026-10-18 planning](../ai/2026-10-18-tam-update-check-plan.md)
-- Implementation session: [2026-10-18 implementation](../ai/2026-10-18-tam-upgrade-implementation.md)
-- Acceptance session: [2026-10-18 acceptance](../ai/2026-10-18-tam-upgrade-acceptance.md)
+- Planning and approval session: [2026-10-18 planning](../../work/history/2026-10-18-tam-update-check-plan.md)
+- Implementation session: [2026-10-18 implementation](../../work/history/2026-10-18-tam-upgrade-implementation.md)
+- Acceptance session: [2026-10-18 acceptance](../../work/history/2026-10-18-tam-upgrade-acceptance.md)

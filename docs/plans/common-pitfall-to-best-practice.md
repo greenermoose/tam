@@ -6,10 +6,10 @@
 `Best practice` sections that lead with the correct action.
 **Authority:** The developer's instruction of 2026-10-20 to audit the
 `Common pitfall` sections, plan the fixes and do the work; the
-[audit report](../ai/2026-10-20-common-pitfall-to-best-practice-audit.md);
+[audit report](../../work/history/2026-10-20-common-pitfall-to-best-practice-audit.md);
 [plan maintenance procedure](../plan-maintenance.md).
 **Next action:** None; delivered in `ae1fa41` (pages), `ca25c8f` (index) and
-corpus 0.35.2 ([session record](../ai/2026-10-20-tam-common-pitfall-best-practice.md)).
+corpus 0.35.2 ([session record](../../work/history/2026-10-20-tam-common-pitfall-best-practice.md)).
 Package stages remain developer-directed.
 
 ## Goal
@@ -35,7 +35,7 @@ Rename all `Common pitfall` sections to `Best practice` in the tam knowledge cor
 - knowledge/shell/pipelines.html
 
 ## Approach
-Follow the fix procedure in `docs/ai/2026-10-20-common-pitfall-to-best-practice-audit.md`:
+Follow the fix procedure in `work/history/2026-10-20-common-pitfall-to-best-practice-audit.md`:
 1. Claim each page (or batch) with `tam-work begin`
 2. Read full page for context
 3. Change `<h3>Common pitfall</h3>` → `<h3>Best practice</h3>`
@@ -53,4 +53,4 @@ Follow the fix procedure in `docs/ai/2026-10-20-common-pitfall-to-best-practice-
 
 ## Notes
 - Style audit SOP: `docs/style-audit.md`
-- Audit report: `docs/ai/2026-10-20-common-pitfall-to-best-practice-audit.md`
+- Audit report: `work/history/2026-10-20-common-pitfall-to-best-practice-audit.md`

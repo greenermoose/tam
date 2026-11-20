@@ -238,7 +238,7 @@ Completed at corpus 0.81.0. The developer approved the page set, the curated
 command subset, job-family granularity and the `devices`, `security` and
 `accounts` skill domains on 2026-11-02. Slice 1 landed at corpus 0.61.0; the
 remaining slices landed at corpus 0.79.0–0.81.0
-([record](../../ai/2026-11-13-tam-dynamic-multipath-and-beginner-pages.md)).
+([record](../../../work/history/2026-11-13-tam-dynamic-multipath-and-beginner-pages.md)).
 
 All 28 planned pages exist: nine `use/desktop/`, three `use/files/`, five
 `use/apps/`, five `use/security/`, one `use/people/` and five `use/commands/`.

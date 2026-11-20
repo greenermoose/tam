@@ -149,7 +149,7 @@ with the tool version checked from the running binary, not remembered.
 Each session writes one plain-text record, `work/W<number>-<name>`, quoting
 the developer's prompts verbatim, and revises `work/WHATNOW` as a whole;
 both go in a commit with the work. The records from before 2026-11-17 in
-`docs/ai/` (moving to `work/history/`) and the session table in
+`work/history/` and the session table in
 `AI_PROVENANCE.md` are history: add nothing to them.
 
 Public files never contain conversation or session IDs, transcript or

@@ -10,7 +10,7 @@ contracts survive where the current plan retains them.
 navigation and integrated manual discovery. TCK1–TCK5 are complete in source.
 **Authority:** The developer approved the five-part design and in-guide manual
 lookup, then requested this authoritative work plan; see the
-[approval record](../ai/2026-10-18-tam-knowledge-overhaul-planning.md).
+[approval record](../../work/history/2026-10-18-tam-knowledge-overhaul-planning.md).
 **Next action:** None for source implementation. Package assembly and real
 Linux-console/Foot review remain developer-directed.
 

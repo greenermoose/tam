@@ -61,6 +61,6 @@ The developer reviewed the plan in Micro and accepted it on 2026-10-18:
 
 Micro closed successfully; the saved plan was reread before finalization.
 The plan/index/roadmap/development contract now record Ready, and `AGENTS.md`
-routes new sessions to it. The [Luna handoff](../handoffs/tam-upgrade-luna.md)
+routes new sessions to it. The [Luna handoff](../../docs/handoffs/tam-upgrade-luna.md)
 gives the starting point, ordered TCK6–TCK8 work, accepted decisions, checks and
 bootstrap/activation boundaries. This session implements no feature code.

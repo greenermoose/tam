@@ -5,7 +5,7 @@
 **Scope:** Command 0.1.0 offline reader, later navigation fixes.
 **Authority:** [Current development contract](development.md) and the evidence below.
 **Next action:** None for this closed plan; follow the current roadmap.
-**Completion evidence:** Implementation `51f43f6`; [verification record](../ai/2026-10-09-tam-offline-guide.md). Native rendering survives; organization and common navigation now follow the [overhaul](knowledge-system-0.31.0.md).
+**Completion evidence:** Implementation `51f43f6`; [verification record](../../work/history/2026-10-09-tam-offline-guide.md). Native rendering survives; organization and common navigation now follow the [overhaul](knowledge-system-0.31.0.md).
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development
@@ -95,7 +95,7 @@ and network URLs are refused. `PREFIX`/`DESTDIR` staging must relocate cleanly.
    relocated staged install; verified clean under ASan/UBSan.
 7. ⛔ External browser accelerator dropped: native renderer and pager handle
    display completely self-sufficiently with zero external dependencies.
-8. ✅ Docs: milestone 2 marked in `development.md`; `docs/ai/` record added.
+8. ✅ Docs: milestone 2 marked in `development.md`; `work/history/` record added.
 
 ## 6. Acceptance
 

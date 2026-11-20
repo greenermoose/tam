@@ -8,7 +8,7 @@ Implementation: command 0.31.0 / corpus 0.32.0; baseline was 0.30.0 / 0.31.0.
 Release switching, approved the development prefix and paired release tags, and
 clarified independent code-based versions with no renumbering on installation.
 The developer accepted the complete plan on 2026-10-18; see the
-[approval record](../ai/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
+[approval record](../../work/history/2026-10-18-tam-update-check-plan.md#approval-and-handoff).
 **Next action:** None for source implementation or local activation. Package
 Test/Run/Release remain separate developer-directed stages.
 **Implementation commits:** `f721120`, `5a84294`, `627c126`, `4afdea5` and

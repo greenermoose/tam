@@ -8,7 +8,7 @@ Checks the copied-fact invariants defined in docs/plans/dev-loop.md (TCK12, TCK1
   2. Corpus version (knowledge/version -> ROADMAP.md)
   3. Build inputs (src/*.c and src/*.h -> Makefile SRC and DEPS)
   4. Plan index (docs/plans/**/*.md -> docs/plans/README)
-  5. Repository map (top-level entries and docs/ subdirectories -> docs/repo-map.md)
+  5. Repository map (top-level entries and docs/ and work/ subdirectories -> docs/repo-map.md)
   6. Relative links (tracked Markdown and README files -> existing target paths)
   7. Lane table (AGENTS.md lane table -> existing paths)
   8. Pager fixtures (tests/run.sh interactive tests -> tests/fixtures/, not knowledge/)
@@ -542,12 +542,13 @@ def expected_repo_map_entries(root):
         if has_build:
             entries["build"] = "build/"
 
-    docs_dir = root / "docs"
-    if docs_dir.is_dir():
-        for p in sorted(docs_dir.iterdir(), key=lambda x: x.name):
-            if p.is_dir() and not p.name.startswith(".") and p.name != "__pycache__":
-                key = f"docs/{p.name}"
-                entries[key] = f"docs/{p.name}/"
+    for top in ("docs", "work"):
+        folder = root / top
+        if folder.is_dir():
+            for p in sorted(folder.iterdir(), key=lambda x: x.name):
+                if p.is_dir() and not p.name.startswith(".") and p.name != "__pycache__":
+                    key = f"{top}/{p.name}"
+                    entries[key] = f"{top}/{p.name}/"
 
     return entries
 
@@ -561,7 +562,7 @@ def check_repo_map(root):
             format_finding(
                 map_rel, 1, "Repository map",
                 "missing docs/repo-map.md",
-                "one line per top-level entry and docs/ subdirectory",
+                "one line per top-level entry and docs/ and work/ subdirectory",
                 "create docs/repo-map.md",
             )
         ]
@@ -603,7 +604,7 @@ def check_repo_map(root):
                 format_finding(
                     map_rel, first_line, "Repository map",
                     f"line for missing entry '{raw_entry}'",
-                    "only existing top-level entries and docs/ subdirectories",
+                    "only existing top-level entries and docs/ and work/ subdirectories",
                     f"remove '{raw_entry}' on {map_rel}:{first_line} or create {raw_entry}",
                 )
             )

@@ -16,7 +16,7 @@ have distinct jobs:
 3. `docs/plans/README` inventories every plan, its status and its disposition.
 4. One authoritative feature plan owns each approved outcome, including its
    acceptance criteria and implementation handoff. Other plans link to it.
-5. `docs/ai/` records what happened and why; it is evidence, not a task queue.
+5. `work/history/` records what happened and why; it is evidence, not a task queue.
 
 Read a plan's disposition before its body. Older date-stamped decisions describe
 their time; they do not overrule the current contract or a replacement plan.

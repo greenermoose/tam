@@ -1,7 +1,7 @@
 # Auditing the tam knowledge corpus
 
 Adopted by the developer on 2026-10-16, narrowed from the proposal in
-`docs/ai/2026-10-16-tam-corpus-audit-sop.md`, which also records the first
+`work/history/2026-10-16-tam-corpus-audit-sop.md`, which also records the first
 audit.
 
 ## Purpose
@@ -72,8 +72,8 @@ audit finds what the checker cannot:
 
 ## Report
 
-- One record, `docs/ai/<date>-tam-corpus-audit.md`, with the usual
-  provenance fields from `docs/ai/TEMPLATE.md`.
+- One record, `work/history/<date>-tam-corpus-audit.md`, with the usual
+  provenance fields from `work/history/TEMPLATE.md`.
 - A findings table: ID, severity, page, one line.
 - For each finding: the page's claim at `file:line`, the authority at
   `file:line`, and a fix direction. Do not restate the page.

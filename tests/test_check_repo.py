@@ -104,7 +104,8 @@ Categories:
 - `ROADMAP.md` — *script edits*. Component versions and delivered history.
 - `build/` — *generated, never edit*. Compiled binary output.
 - `docs/` — *you edit*. Project documentation.
-- `docs/ai/` — *history, read-only*. Per-session provenance records.
+- `work/` — *you edit*. Current work records and WHATNOW.
+- `work/history/` — *history, read-only*. Per-session provenance records.
 - `docs/plans/` — *you edit*. Feature plans and plan index.
 - `knowledge/` — *you edit*. HTML corpus pages and version file.
 - `src/` — *you edit*. C source and headers.
@@ -124,7 +125,7 @@ class CheckRepoTest(unittest.TestCase):
         (root / "tests").mkdir()
         (root / "tools").mkdir()
         (root / "docs" / "plans").mkdir(parents=True)
-        (root / "docs" / "ai").mkdir(parents=True)
+        (root / "work" / "history").mkdir(parents=True)
 
         (root / ".gitignore").write_text("build/\n__pycache__/\n", encoding="utf-8")
         (root / "Makefile").write_text(MAKEFILE_FIXTURE, encoding="utf-8")
@@ -154,8 +155,8 @@ class CheckRepoTest(unittest.TestCase):
             DEVELOPMENT_FIXTURE, encoding="utf-8"
         )
         (root / "docs" / "plans" / "dev-loop.md").write_text(DEV_LOOP_FIXTURE, encoding="utf-8")
-        (root / "docs" / "ai" / "README").write_text(
-            "AI RECORDS\n\nSee plans <../plans/README>.\n",
+        (root / "work" / "history" / "README").write_text(
+            "AI RECORDS\n\nSee plans <../../docs/plans/README>.\n",
             encoding="utf-8",
         )
 
@@ -319,7 +320,7 @@ class CheckRepoTest(unittest.TestCase):
         (root / "completions").mkdir()
         findings = check_mod.check_repo(root)
         self.assertEqual(len(findings), 1, findings)
-        self.assert_finding_details(findings[0], "docs/repo-map.md", 23, "Repository map")
+        self.assert_finding_details(findings[0], "docs/repo-map.md", 24, "Repository map")
         self.assertIn("completions/", findings[0])
 
         # Extra line in docs/repo-map.md for a missing entry
@@ -330,7 +331,7 @@ class CheckRepoTest(unittest.TestCase):
         )
         findings2 = check_mod.check_repo(root2)
         self.assertEqual(len(findings2), 1, findings2)
-        self.assert_finding_details(findings2[0], "docs/repo-map.md", 24, "Repository map")
+        self.assert_finding_details(findings2[0], "docs/repo-map.md", 25, "Repository map")
         self.assertIn("obsolete/", findings2[0])
 
     def test_dev_script_reads_repo_map_categories_and_warns_on_history(self):
@@ -344,7 +345,7 @@ class CheckRepoTest(unittest.TestCase):
         self.assertEqual(dev_mod.categorize_path("ROADMAP.md", repo_map), "script edits")
         self.assertEqual(dev_mod.categorize_path("build/tam", repo_map), "generated, never edit")
         self.assertEqual(
-            dev_mod.categorize_path("docs/ai/2026-10-20-rec.md", repo_map),
+            dev_mod.categorize_path("work/history/2026-10-20-rec.md", repo_map),
             "history, read-only",
         )
         self.assertEqual(dev_mod.categorize_path("docs/plans/dev-loop.md", repo_map), "you edit")

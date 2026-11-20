@@ -4,7 +4,7 @@
 **Reviewed:** 2026-10-19
 **Scope:** Corpus tooling correction, corpus 0.32.2; command 0.31.1 unchanged.
 **Authority:** Developer-approved plan and implementation instruction recorded
-in [the session record](../ai/2026-10-19-tam-corpus-build.md).
+in [the session record](../../work/history/2026-10-19-tam-corpus-build.md).
 **Next action:** None for source implementation. Package stages remain separate.
 
 Implemented in `fb8c1ac`; the generated-index follow-up records the corrected

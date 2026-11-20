@@ -5,7 +5,7 @@
 **Scope:** Implemented help tiers and top-level inspect/check, between command 0.21.0 and 0.22.0.
 **Authority:** [Current development contract](development.md) and the evidence below.
 **Next action:** None for this closed plan; follow the current roadmap.
-**Completion evidence:** Implementation `9464b0f`; [developer decisions and verification](../ai/2026-10-14-tam-help-message-redesign.md). The recorded final decisions, including no legacy inspect/check aliases, override draft examples below. Update new navigation help under the [overhaul](knowledge-system-0.31.0.md).
+**Completion evidence:** Implementation `9464b0f`; [developer decisions and verification](../../work/history/2026-10-14-tam-help-message-redesign.md). The recorded final decisions, including no legacy inspect/check aliases, override draft examples below. Update new navigation help under the [overhaul](knowledge-system-0.31.0.md).
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development

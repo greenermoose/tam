@@ -5,7 +5,7 @@
 **Scope:** Command 0.17.0 opt-in grounded ask.
 **Authority:** [Current development contract](development.md) and the evidence below.
 **Next action:** None for this closed plan; follow the current roadmap.
-**Completion evidence:** Implementation `e929ee5`; [verification record](../ai/2026-10-14-tam-grounded-ask.md). The corpus-only grounding and opt-in boundary survive. System-manual AI retrieval is not part of the overhaul.
+**Completion evidence:** Implementation `e929ee5`; [verification record](../../work/history/2026-10-14-tam-grounded-ask.md). The corpus-only grounding and opt-in boundary survive. System-manual AI retrieval is not part of the overhaul.
 
 > Historical design snapshot. This plan is closed; its original work items do
 > not assign further implementation. Current behavior belongs to the development
@@ -191,5 +191,5 @@ Tests will be added to `tests/run.sh`:
 
 1. **`docs/plans/development.md`**: Update Stage summary, mark Milestone 9 done, add decision record entry.
 2. **`ROADMAP.md`**: Update version to `0.17.0`, record Milestone 9 under Section 2 and reference matrix.
-3. **`AI_PROVENANCE.md`** & **`docs/ai/`**: Record public AI provenance record.
+3. **`AI_PROVENANCE.md`** & **`work/history/`**: Record public AI provenance record.
 4. **Development Build Installation:** Run `make test` and `make install PREFIX=$HOME/.local/dev`.

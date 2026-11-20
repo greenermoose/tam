@@ -257,7 +257,7 @@ action links work; the overlay text matches item 3.
 Claim: `knowledge/index.html`, `knowledge/welcome.html`, `knowledge/version`,
 `tests/guide.sh`, `README.md`, `ROADMAP.md`, `docs/plans/pager-quick-keys.md`,
 `docs/plans/README.md`, `docs/plans/development.md`, `AGENTS.md`,
-`AI_PROVENANCE.md` and your new `docs/ai/` record.
+`AI_PROVENANCE.md` and your new `work/history/` record.
 
 1. In `knowledge/index.html`, replace everything from
    `<p>Appendices and More</p>` through the closing `Press ...` paragraph with:
@@ -303,7 +303,7 @@ Claim: `knowledge/index.html`, `knowledge/welcome.html`, `knowledge/version`,
    - Update its row in `docs/plans/README.md`, `ROADMAP.md` section 3, the
      `development.md` header and Current implementation section, and the
      start-here paragraph of `AGENTS.md`.
-   - Write one `docs/ai/` record from `docs/ai/TEMPLATE.md` and add its row to
+   - Write one `work/history/` record from `work/history/TEMPLATE.md` and add its row to
      `AI_PROVENANCE.md`. The record's Key decisions section states adherence
      for each slice: followed as written, deviated (how and why), or needed
      rework (what).
@@ -319,7 +319,7 @@ keys table, and each link works; the plan, index, roadmap, contract and
 - If a test outside the slice's files fails for reasons this change did not
   cause.
 - If a slice needs a file outside its claim list, other than your own
-  `docs/ai/` record.
+  `work/history/` record.
 - If the table in TCK19 does not render readably.
 - If another session holds a claim on a path you need. Wait or ask; do not
   edit around it.
@@ -351,5 +351,5 @@ Completed on 2026-10-20. Slices TCK15 through TCK19 built and committed:
 - TCK18: `775eb42` (Guide search `\`; labelled prompts; `tam:help` and prompt links)
 - TCK19: (this commit: Guide index, welcome page, README, corpus 0.35.1, plan close-out)
 
-Session record: [2026-10-20-tam-pager-quick-keys.md](../ai/2026-10-20-tam-pager-quick-keys.md).
+Session record: [2026-10-20-tam-pager-quick-keys.md](../../work/history/2026-10-20-tam-pager-quick-keys.md).
 Deviations: none. All slices followed as written.

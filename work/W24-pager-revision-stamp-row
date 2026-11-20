@@ -1,0 +1,71 @@
+W24 PAGER REVISION STAMP ROW
+
+Date: 2026-11-16 to 2026-11-17 (planning on the 16th; implementation and
+verification on the 17th)
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Commands: 0.61.1
+Converted from docs/ai/2026-11-17-tam-revision-stamp-row.md under D278.
+
+
+GUIDANCE
+
+  Fred: "In the tam pager, change how the revision and last updated line is
+  displayed. That line is not included in the HTML but is added
+  automatically by tam command.
+
+  It is currently displayed in the same color as the page contents, left
+  aligned, and counts as the last line of the page. You can move the
+  attention line over it.
+
+  Change it so that it does not count in the line length of the page, you
+  cannot move the attention line to it, and it is displayed in a more
+  subtle color (same as the Showing <lens> line) aligned right."
+
+  Fred: "Stop being searchable is fine"
+
+  Fred: "make it so"
+
+
+DONE
+
+  - The stamp is pager chrome, not a page line. It is carried on the
+    document (tam_document_t.revision) rather than injected as a <p>, so
+    it is absent from doc->lines, the footer line total, the attention
+    line and search.
+  - It is drawn on the row above the two footer rows, dim and
+    right-aligned like the Showing <lens> line, on the normal background.
+  - content_rows() reserves that row only when the page has a stamp and a
+    breadcrumb; without a breadcrumb it uses the row already spare.
+    Terminals shorter than five rows drop the stamp so the page keeps one
+    line. A narrow terminal keeps the newest words after a leading
+    ellipsis, falling back to tail characters.
+  - tam_document_text() still prints the stamp once in the same position,
+    so --pipe, the corpus build's reader check and tests/guide.sh keep
+    working.
+  - Renamed tam_depth_apply_rev() to tam_depth_prepare() because it no
+    longer handles the revision.
+  - Follow-up: fixed tests/test_documentation.py, whose libtam default
+    still named the retired ~/.local/dev, so a bare make test-command
+    failed before reaching the suite. It now uses the development prefix
+    when that holds libtam, otherwise what pkg-config reports.
+
+
+CHECKED AGAINST
+
+  - src/depth.c, src/depth.h, src/corpus.c, src/render.c, src/render.h,
+    src/tam.c, src/pager_draw.c, src/pager_screen.c, tests/pager_screen.py,
+    tests/run.sh, tests/guide.sh, tools/corpus_pipeline.py, tam --pipe
+    output and tam --version.
+  - make command builds clean. make test-command passes the command
+    suite, upgrade tests, renderer goldens and check-repo. The PTY screen
+    model asserts the stamp's row, right alignment, dim attribute,
+    absence of footer tint, exclusion from the footer total, that it does
+    not scroll, and that a four-row terminal omits it.
+
+
+HANDOFF
+
+  - The original record named docs/ai/ as history in a key decision; that
+    wording stays as written in the history copy of this session. New
+    sessions record in work/.

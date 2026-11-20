@@ -5,7 +5,7 @@
 **Scope:** Command 0.23.0 topic guides and command architecture page.
 **Authority:** [Current development contract](development.md).
 **Next action:** None for this closed plan; use the overhaul for new work.
-**Completion evidence:** `a32f983`; [verification record](../ai/2026-10-15-tam-topic-guides-and-tam-page.md).
+**Completion evidence:** `a32f983`; [verification record](../../work/history/2026-10-15-tam-topic-guides-and-tam-page.md).
 
 > Historical design snapshot. The show/explain separation survives. The
 > [corpus 0.31.0 plan](knowledge-system-0.31.0.md) replaces the three-track labels,

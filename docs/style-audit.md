@@ -27,7 +27,7 @@ The corpus checker (`make corpus-and-test` / `tools/lint-corpus.py`) catches mec
 
 ## Before you start
 
-- Claim only your report file under `docs/ai/`.
+- Claim only your report file under `work/history/`.
 - Note corpus version (`knowledge/version`) and command version (`src/version.h`) if relevant.
 - Understand the target pattern from the style guide/request.
 
@@ -36,12 +36,12 @@ The corpus checker (`make corpus-and-test` / `tools/lint-corpus.py`) catches mec
 1. **Define scope**: What pattern/naming/style issue to look for (be specific).
 2. **Inventory**: Use `grep`/`glob` to find all occurrences of the pattern across `knowledge/**/*.html`.
 3. **Classify**: For each occurrence, read the section and classify structure (current vs desired). Note special cases.
-4. **Document**: Create a report in `docs/ai/<date>-<slug>-audit.md` with findings table, per-item fix directions, fix procedure, and verification checklist.
+4. **Document**: Create a report in `work/history/<date>-<slug>-audit.md` with findings table, per-item fix directions, fix procedure, and verification checklist.
 5. **Suggest follow-up**: Group as corpus fixes; no automatic edits.
 
 ## Report format
 
-Follow `docs/ai/TEMPLATE.md`. Include:
+Follow `work/history/TEMPLATE.md`. Include:
 
 - **Summary**: count, pattern found, desired pattern, note if SOP exists/needed
 - **Findings table**: ID, page, current state, structure notes
@@ -58,4 +58,4 @@ Follow `docs/ai/TEMPLATE.md`. Include:
 
 ## Example
 
-The 2026-10-20 audit for `Common pitfall` → `Best practice` (leading with positive guidance) is recorded in `docs/ai/2026-10-20-common-pitfall-to-best-practice-audit.md`.
+The 2026-10-20 audit for `Common pitfall` → `Best practice` (leading with positive guidance) is recorded in `work/history/2026-10-20-common-pitfall-to-best-practice-audit.md`.

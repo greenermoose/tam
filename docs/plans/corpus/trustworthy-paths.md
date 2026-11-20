@@ -217,7 +217,7 @@ Follow `docs/corpus-audit.md`:
 - Render a sample of pages at each level with `tam show --pipe` and read them
   as a user.
 - Report findings as High / Medium / Low with `file:line`, authority, and a
-  fix direction. Write only the report under `docs/ai/`.
+  fix direction. Write only the report under `work/history/`.
 
 Acceptance: one committed report, no content fixes in the same commit, a short
 re-check table for A01–A12, and the four carved-out pages named as unaudited.
