@@ -551,7 +551,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 - **2026-11-12:** Command 0.54.2 (patch): Make ] work like Tab (select next link anywhere on page) and [ work like Shift+Tab (select previous link anywhere on page). Update status line key hints to "[] Select links" and restore documentation in man page, help page, and first steps guide.
 - **2026-11-11:** Command 0.54.1 (patch): Enable ANSI colors on 8-color Linux virtual consoles (TERM=linux). Fixes terminal capability initialization in terminal.c and unselected link color check in pager_draw.c; promotes unselected links to bold bright blue when underline is suppressed by ncv; retains reverse video for attention line and footer status rows.
 - **2026-11-11:** Command 0.54.0 (minor): Rebind home-row keys to arrow synonyms (left hand a s d f for Left, Up, Down, Right; right hand j k l ; for Right, Down, Up, Left). Attention column moves to [ (left) and ] (right). g and backtick jump to the Guide index page.
-- **2026-11-11:** Command 0.53.0 adds the libtam 0.6.0 startup barrier during a system bundle apply. The approved bundle integration follows the [public delivery plan](https://github.com/greenermoose/tamlinux-tools/blob/develop/docs/plans/tam-bundle.md).
+- **2026-11-11:** Command 0.53.0 adds the libtam 0.6.0 startup barrier during a system bundle apply. The approved bundle integration follows the [public delivery plan](https://github.com/greenermoose/tamlinux-tools/blob/dev/docs/plans/tam-bundle.md).
 
 - **2026-11-10:** Command 0.52.1 (patch): Hiding sections of welcome page by level
 - **2026-11-10:** Command 0.52.0 (minor): links activate only when the
@@ -969,7 +969,7 @@ resolve superseded schedules. Do not execute a former plan from this history.
   committed, tested development install: it commits every changed path except
   other sessions' claimed paths, proposes the version bump for each changed
   lane, makes the separate index commit, installs to `~/.local/dev` and asks
-  before pushing `develop`. Plain `make`, `make all` and `make install` stay
+  before pushing `dev`. Plain `make`, `make all` and `make install` stay
   non-interactive for packaging and agents. A drift checker in `make test`
   compares copied facts with their sources, and `docs/repo-map.md` says what
   each top-level entry is. Tooling only; no component version change.

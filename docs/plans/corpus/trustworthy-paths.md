@@ -16,7 +16,7 @@ direction of 2026-11-13.
 The corpus is structurally green but not yet trustworthy enough to call
 finished.
 
-Measured on `develop` at corpus 0.81.0 / command 0.55.0:
+Measured on `dev` at corpus 0.81.0 / command 0.55.0:
 
 | Measure | Value |
 | --- | --- |

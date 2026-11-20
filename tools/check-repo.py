@@ -46,17 +46,17 @@ def read_lines(root, rel_path):
 
 
 def parse_roadmap_sections(lines):
-    """Locate header versions, section 2 delivered-history rows, and section 3 develop row."""
+    """Locate header versions, section 2 delivered-history rows, and section 3 dev row."""
     cmd_header = None
     corpus_header = None
-    develop_row = None
+    dev_row = None
     history_rows = []
     in_section_2 = False
     section_2_last_line = 1
 
     header_cmd_re = re.compile(r"\*\*Current Command Version:\*\*\s*`([^`]+)`")
     header_corpus_re = re.compile(r"\*\*Current Corpus Version:\*\*\s*`([^`]+)`")
-    develop_re = re.compile(r"^\|\s*`develop`\s*\|\s*([^|/]+?)\s*/\s*([^|]+?)\s*\|")
+    dev_re = re.compile(r"^\|\s*`dev`\s*\|\s*([^|/]+?)\s*/\s*([^|]+?)\s*\|")
     table_row_re = re.compile(r"^\|\s*\*\*([^*]+)\*\*\s*\|")
 
     for idx, line in enumerate(lines, 1):
@@ -81,14 +81,14 @@ def parse_roadmap_sections(lines):
             if m_row:
                 history_rows.append((idx, m_row.group(1).strip()))
 
-        m_dev = develop_re.match(line)
-        if m_dev and develop_row is None:
-            develop_row = (idx, m_dev.group(1).strip(), m_dev.group(2).strip())
+        m_dev = dev_re.match(line)
+        if m_dev and dev_row is None:
+            dev_row = (idx, m_dev.group(1).strip(), m_dev.group(2).strip())
 
     return {
         "cmd_header": cmd_header,
         "corpus_header": corpus_header,
-        "develop_row": develop_row,
+        "dev_row": dev_row,
         "history_rows": history_rows,
         "section_2_last_line": section_2_last_line,
     }
@@ -165,7 +165,7 @@ def check_command_version(root):
                 )
             )
 
-    # Copies 2, 3, 4: ROADMAP.md header, develop row, and delivered-history row
+    # Copies 2, 3, 4: ROADMAP.md header, dev row, and delivered-history row
     rm_lines = read_lines(root, "ROADMAP.md")
     if rm_lines is None:
         findings.append(
@@ -198,23 +198,23 @@ def check_command_version(root):
                 )
             )
 
-        if rm["develop_row"] is None:
+        if rm["dev_row"] is None:
             findings.append(
                 format_finding(
                     "ROADMAP.md", 1, "Command version",
-                    "missing `develop` row in section 3",
-                    f"'| `develop` | {cmd_ver} / <corpus> |' (from src/version.h)",
-                    f"add the `develop` row with command version {cmd_ver} in section 3 of ROADMAP.md",
+                    "missing `dev` row in section 3",
+                    f"'| `dev` | {cmd_ver} / <corpus> |' (from src/version.h)",
+                    f"add the `dev` row with command version {cmd_ver} in section 3 of ROADMAP.md",
                 )
             )
-        elif rm["develop_row"][1] != cmd_ver:
-            line_no, actual_cmd, actual_cor = rm["develop_row"]
+        elif rm["dev_row"][1] != cmd_ver:
+            line_no, actual_cmd, actual_cor = rm["dev_row"]
             findings.append(
                 format_finding(
                     "ROADMAP.md", line_no, "Command version",
-                    f"`develop` row has command version '{actual_cmd}'",
+                    f"`dev` row has command version '{actual_cmd}'",
                     f"'{cmd_ver} / {actual_cor}' (from src/version.h)",
-                    f"update ROADMAP.md line {line_no} to '| `develop` | {cmd_ver} / {actual_cor} |'",
+                    f"update ROADMAP.md line {line_no} to '| `dev` | {cmd_ver} / {actual_cor} |'",
                 )
             )
 
@@ -324,23 +324,23 @@ def check_corpus_version(root):
             )
         )
 
-    if rm["develop_row"] is None:
+    if rm["dev_row"] is None:
         findings.append(
             format_finding(
                 "ROADMAP.md", 1, "Corpus version",
-                "missing `develop` row in section 3",
-                f"'| `develop` | <command> / {corpus_ver} |' (from knowledge/version)",
-                f"add the `develop` row with corpus version {corpus_ver} in section 3 of ROADMAP.md",
+                "missing `dev` row in section 3",
+                f"'| `dev` | <command> / {corpus_ver} |' (from knowledge/version)",
+                f"add the `dev` row with corpus version {corpus_ver} in section 3 of ROADMAP.md",
             )
         )
-    elif rm["develop_row"][2] != corpus_ver:
-        line_no, actual_cmd, actual_cor = rm["develop_row"]
+    elif rm["dev_row"][2] != corpus_ver:
+        line_no, actual_cmd, actual_cor = rm["dev_row"]
         findings.append(
             format_finding(
                 "ROADMAP.md", line_no, "Corpus version",
-                f"`develop` row has corpus version '{actual_cor}'",
+                f"`dev` row has corpus version '{actual_cor}'",
                 f"'{actual_cmd} / {corpus_ver}' (from knowledge/version)",
-                f"update ROADMAP.md line {line_no} to '| `develop` | {actual_cmd} / {corpus_ver} |'",
+                f"update ROADMAP.md line {line_no} to '| `dev` | {actual_cmd} / {corpus_ver} |'",
             )
         )
 

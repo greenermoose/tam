@@ -129,7 +129,7 @@ class UpgradeMetadataTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, "invalid_request")
 
     def test_stage_check_preserves_partial_results_and_failures(self):
-        revisions = {"develop": "1" * 40, "test": "2" * 40, "main": "3" * 40}
+        revisions = {"dev": "1" * 40, "test": "2" * 40, "main": "3" * 40}
         def api(path, deadline, allow_404=False):
             if path == "": return {"full_name": "greenermoose/tam"}
             branch = path.rsplit("/", 1)[-1]

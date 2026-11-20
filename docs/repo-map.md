@@ -30,7 +30,7 @@ Categories:
 - `build/` — *generated, never edit*. Compiler output (`build/tam` and build configuration stamp) created by `make command`.
 - `Makefile` — *you edit*. Build, test, `make dev`, `make check-repo` and install targets; keep `SRC` and `DEPS` aligned with `src/`.
 - `README` — *you edit*. Project overview, build prerequisites, developer loop and command reference.
-- `ROADMAP.md` — *script edits*. Current version header, delivered-history rows and the `develop` branch row updated by `make dev`; narrative sections change with plan updates.
+- `ROADMAP.md` — *script edits*. Current version header, delivered-history rows and the `dev` branch row updated by `make dev`; narrative sections change with plan updates.
 - `AGENTS.md` — *you edit*. Concurrency rules, lane scopes, build/test commands and provenance guidance for AI agents.
 - `AI_PROVENANCE.md` — *you edit*. How this repository records AI help; its session table covers the records from before 2026-11-17 and gets no new rows.
 - `work/` — *you edit*. `WHATNOW` (read first; revised as a whole at the end of every session) and one plain-text record per AI session, `W<number>-<name>`, added and never rewritten; `README-work` gives the procedure.

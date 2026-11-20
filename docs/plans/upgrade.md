@@ -67,7 +67,7 @@ or the whole Tamlinux product; installation receipts record all dependencies.
 
 | Stage | Meaning supplied by the developer | Source selector |
 | --- | --- | --- |
-| Development | The feature list is still being worked on. | `develop` branch |
+| Development | The feature list is still being worked on. | `dev` branch |
 | Test | Feature list believed complete; looking for bugs. | `test` branch |
 | Run | Believed reliable for daily use. | `main` branch |
 | Release | A noteworthy Run version worth upgrading to, pegged to a specific release. | Exact full release tag and resolved commit |
@@ -145,7 +145,7 @@ Do not read credentials or invoke an authenticated `gh` session.
    Verify release ancestry on main before offering installation; a full tag
    outside Run history is invalid release metadata. A GitHub Release may supply
    notes, but is not required: the maintainer's release tag establishes identity.
-   Never substitute main or develop when a release is absent. Exhaust the refs
+   Never substitute main or dev when a release is absent. Exhaust the refs
    response within the byte/ref limits (maximum 4096 refs); report incomplete
    discovery rather than calling a truncated set latest.
 2. Development/Test/Run: resolve their branch to a full commit SHA, then read
@@ -287,7 +287,7 @@ or old hand-built overrides is outside this first implementation.
 ## Implementation and handoff
 
 The developer accepted this design on 2026-10-18. Implementation is in the
-shared clone on develop under path claims, following `AGENTS.md` and the
+shared clone on dev under path claims, following `AGENTS.md` and the
 [implementation handoff](../handoffs/tam-upgrade-luna.md).
 
 - [x] **TCK6 (version discovery and comparison):** Added `src/upgrade.c/.h` and
@@ -369,7 +369,7 @@ GitHub's [Git references API](https://docs.github.com/en/rest/git/refs),
 [commit API](https://docs.github.com/en/rest/commits/commits#get-a-commit),
 [content API](https://docs.github.com/en/rest/repos/contents#get-repository-content)
 and [curl options](https://curl.se/docs/manpage.html), consulted 2026-10-18.
-Live tam release/develop API responses were unavailable through the research
+Live tam release/dev API responses were unavailable through the research
 tool; this plan makes no claim about the current remote release or branch head.
 
 Closure evidence: TCK6–TCK8, the isolated real source build, live metadata

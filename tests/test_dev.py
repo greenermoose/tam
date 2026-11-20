@@ -32,7 +32,7 @@ ROADMAP_TEMPLATE = """# tam Roadmap
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local` prefix. |
+| `dev` | 0.32.0 / 0.33.6 | Newest source; installed only in the developer's `~/.local` prefix. |
 
 ## 3. Delivered history
 
@@ -181,7 +181,7 @@ class DevLoopTest(unittest.TestCase):
         shutil.copyfile(BUILDER, root / "tools" / "build-index.py")
         shutil.copyfile(DEV_SCRIPT, root / "tools" / "dev.py")
 
-        self.git(root, "init", "-q", "-b", "develop")
+        self.git(root, "init", "-q", "-b", "dev")
         self.git(root, "remote", "add", "origin", str(origin))
         self.git(root, "add", ".")
         self.git(root, "commit", "-qm", "Initial commit")
@@ -192,7 +192,7 @@ class DevLoopTest(unittest.TestCase):
         )
         self.git(root, "add", "knowledge")
         self.git(root, "commit", "-qm", "Initial indexes")
-        self.git(root, "push", "-q", "-u", "origin", "develop")
+        self.git(root, "push", "-q", "-u", "origin", "dev")
 
         env = {
             **os.environ,
@@ -249,7 +249,7 @@ class DevLoopTest(unittest.TestCase):
             b"Commit body (optional):",
             b"Install prefix",
             b"Type 'yes' to confirm:",
-            b"Push develop? [y/N]:",
+            b"Push dev? [y/N]:",
         )
         sent_for_pos = 0
         try:
@@ -274,7 +274,7 @@ class DevLoopTest(unittest.TestCase):
         rc = proc.wait(timeout=15)
         return rc, output.decode("utf-8", errors="replace")
 
-    def test_refuses_without_terminal_off_develop_or_during_rebase(self):
+    def test_refuses_without_terminal_off_dev_or_during_rebase(self):
         root, env = self.make_fixture()
         res = subprocess.run(
             [sys.executable, str(DEV_SCRIPT), "--root", str(root)],
@@ -290,9 +290,9 @@ class DevLoopTest(unittest.TestCase):
         self.git(root, "checkout", "-qb", "feature")
         rc, out = self.run_dev_pty(root, env, [])
         self.assertNotEqual(rc, 0)
-        self.assertIn("must be on branch 'develop'", out)
+        self.assertIn("must be on branch 'dev'", out)
 
-        self.git(root, "checkout", "-q", "develop")
+        self.git(root, "checkout", "-q", "dev")
         rebase_dir = root / ".git" / "rebase-merge"
         rebase_dir.mkdir()
         rc, out = self.run_dev_pty(root, env, [])
@@ -365,7 +365,7 @@ class DevLoopTest(unittest.TestCase):
         self.assertEqual((root / "knowledge" / "version").read_text().strip(), "0.33.7")
         roadmap = (root / "ROADMAP.md").read_text()
         self.assertIn("**Current Corpus Version:** `0.33.7`.", roadmap)
-        self.assertIn("| `develop` | 0.32.0 / 0.33.7 |", roadmap)
+        self.assertIn("| `dev` | 0.32.0 / 0.33.7 |", roadmap)
         self.assertIn(
             "| **0.33.7 corpus** | Clarify using index | Done (2026-10-20) | Clarify using index |",
             roadmap,
@@ -378,7 +378,7 @@ class DevLoopTest(unittest.TestCase):
         self.assertIn("^tam command 0.33.0", (root / "tests" / "run.sh").read_text())
         roadmap = (root / "ROADMAP.md").read_text()
         self.assertIn("**Current Command Version:** `0.33.0`.", roadmap)
-        self.assertIn("| `develop` | 0.33.0 / 0.33.7 |", roadmap)
+        self.assertIn("| `dev` | 0.33.0 / 0.33.7 |", roadmap)
         self.assertIn(
             "| **0.33.0 command** | Add helper command | Done (2026-10-20) | Add helper command |",
             roadmap,
@@ -444,7 +444,7 @@ class DevLoopTest(unittest.TestCase):
         roadmap_path.write_text(
             roadmap_path.read_text()
             .replace("**Current Corpus Version:** `0.33.6`.", "**Current Corpus Version:** `0.33.7`.")
-            .replace("| `develop` | 0.32.0 / 0.33.6 |", "| `develop` | 0.32.0 / 0.33.7 |"),
+            .replace("| `dev` | 0.32.0 / 0.33.6 |", "| `dev` | 0.32.0 / 0.33.7 |"),
             encoding="utf-8",
         )
         changes = {
@@ -476,7 +476,7 @@ class DevLoopTest(unittest.TestCase):
         roadmap_path = root / "ROADMAP.md"
         roadmap_path.write_text(
             roadmap_path.read_text().replace(
-                "| `develop` | 0.32.0 / 0.33.6 |", "| `develop` | 0.32.0 / 0.33.5 |"
+                "| `dev` | 0.32.0 / 0.33.6 |", "| `dev` | 0.32.0 / 0.33.5 |"
             ),
             encoding="utf-8",
         )
@@ -526,7 +526,7 @@ class DevLoopTest(unittest.TestCase):
         dev_mod.write_staged(texts)
         self.assertEqual((root / "knowledge" / "version").read_text().strip(), "0.33.7")
         roadmap = (root / "ROADMAP.md").read_text()
-        self.assertIn("| `develop` | 0.33.0 / 0.33.7 |", roadmap)
+        self.assertIn("| `dev` | 0.33.0 / 0.33.7 |", roadmap)
         self.assertIn('"0.33.0"', (root / "src" / "version.h").read_text())
 
     def test_failed_test_keeps_version_bump_and_rerun_detects_already_bumped(self):
@@ -581,7 +581,7 @@ class DevLoopTest(unittest.TestCase):
         )
         self.assertIn("fixture tests ok", out2)
         self.assertIn("Refresh corpus index revisions after", out2)
-        self.assertIn("Pushed develop to origin.", out2)
+        self.assertIn("Pushed dev to origin.", out2)
 
         log_subjects = self.git(root, "log", "-n", "2", "--format=%s").splitlines()
         self.assertTrue(log_subjects[0].startswith("Refresh corpus index revisions after "))
@@ -595,13 +595,13 @@ class DevLoopTest(unittest.TestCase):
             encoding="utf-8",
         )
 
-        # Advance origin/develop from a second clone so upstream is ahead
+        # Advance origin/dev from a second clone so upstream is ahead
         other_clone = root.parent / "other-clone"
-        subprocess.run(["git", "clone", "-q", "-b", "develop", str(root.parent / "origin.git"), str(other_clone)], check=True)
+        subprocess.run(["git", "clone", "-q", "-b", "dev", str(root.parent / "origin.git"), str(other_clone)], check=True)
         (other_clone / "README").write_text("# upstream change\n", encoding="utf-8")
         self.git(other_clone, "add", "README")
         self.git(other_clone, "commit", "-qm", "Upstream commit")
-        self.git(other_clone, "push", "-q", "origin", "develop")
+        self.git(other_clone, "push", "-q", "origin", "dev")
 
         # Try /usr/local prefix -> refused after commit, reporting what WAS committed
         rc, out = self.run_dev_pty(

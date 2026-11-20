@@ -40,6 +40,6 @@ development library. The explicit parallel `corpus corpus-and-test` invocation
 passed and generated the indexes once. Live Ollama checks were skipped because
 no local server was running. See the linked session record for commands.
 
-The work stays on develop. It does not install software, assemble a package,
+The work stays on dev. It does not install software, assemble a package,
 promote branches, tag or release. Command compilation still needs installed
 libtam; the corpus-only target does not.

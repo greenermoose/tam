@@ -99,7 +99,7 @@ other than US QWERTY; color as the only way to show anything.
 
 ## Baseline and dependencies
 
-- Command 0.36.0 and corpus 0.37.0 on `develop` at `c9b6c5d` (before TCK21).
+- Command 0.36.0 and corpus 0.37.0 on `dev` at `c9b6c5d` (before TCK21).
 - 70 guide pages declare levels: 24 laddered, 19 beginner, 23 intermediate
   and 4 expert.
 - 23 pages carry hand-typed "Beginner:", "Intermediate:" or "Expert:" heading

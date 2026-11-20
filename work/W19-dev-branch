@@ -1,0 +1,40 @@
+W19 DEV BRANCH
+
+Date: 2026-11-20
+AI harness: opencode 2.2.5
+AI model: big-pickle
+Commits: the branch-rename commit
+
+
+GUIDANCE
+
+  Fred: "Plan approved. Proceed"
+
+  D272 renames the working branch from develop to dev in every Tamlinux
+  repository. Fred accepted leaving fred.<id>/develop/2.0.0 and the
+  external develop/plan54-* fork branches alone.
+
+
+DONE
+
+  - Renamed develop to dev locally and on GitHub; origin/dev holds the
+    same history. The unpushed Info-manual fix was carried across.
+  - tools/dev.py, tools/check-repo.py, tools/bench-corpus.py and their
+    tests now use dev for the branch, the ROADMAP row and the push
+    prompt. The tam switch develop alias stays.
+  - bin/tam-upgrade maps the development stage to the dev branch; the
+    CLI stage alias develop stays.
+  - Routing, policy, plans, repository docs and the corpus pages that
+    point at branch URLs or name the branch now say dev.
+  - work/WHATNOW and this record.
+
+
+FAILED
+
+  - Nothing.
+
+
+HANDOFF
+
+  - No new tam work was requested. work/WHATNOW lists the open items.
+  - The repository-by-repository rename continues elsewhere.

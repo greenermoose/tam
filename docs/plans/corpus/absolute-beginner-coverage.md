@@ -14,7 +14,7 @@ The guide explains computers well but does not teach everyday jobs. A reader
 who finishes the theory cannot take a screenshot, pair headphones, print, add a
 second account or find the command behind a desktop action.
 
-Measured on `develop` at corpus 0.60.0 / command 0.48.1:
+Measured on `dev` at corpus 0.60.0 / command 0.48.1:
 
 | Evidence | Count |
 | --- | --- |

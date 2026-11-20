@@ -133,7 +133,7 @@ generation: /nix/store/lrmniw3fj0yhrx5mwkm6w2c8p5vl3y6v-home-manager-generation
 
 <table>
 <tr><th>Tier / Component</th><th>Source of Truth</th><th>Declared In</th><th>Promotion Gate</th></tr>
-<tr><td><code>tam</code> command binary</td><td><code>TAM_COMMAND_VERSION</code></td><td><code>src/version.h</code></td><td>Tests pass (<code>make test-command</code>); fast-forward develop</td></tr>
+<tr><td><code>tam</code> command binary</td><td><code>TAM_COMMAND_VERSION</code></td><td><code>src/version.h</code></td><td>Tests pass (<code>make test-command</code>); fast-forward dev</td></tr>
 <tr><td><code>tam</code> knowledge corpus</td><td>Corpus version string</td><td><code>knowledge/version</code></td><td>Lint and guide tests pass (<code>make corpus-and-test</code>)</td></tr>
 <tr><td><code>libtam</code> shared library</td><td>Library version</td><td><code>include/tam.h</code>, <code>meson.build</code></td><td>ABI compliance and test suite pass</td></tr>
 <tr><td><code>tamlinux</code> desktop / plugins</td><td>Product version</td><td><code>tamlinux/VERSION</code></td><td>Quickshell syntax checks and plugin unit tests</td></tr>
@@ -147,7 +147,7 @@ generation: /nix/store/lrmniw3fj0yhrx5mwkm6w2c8p5vl3y6v-home-manager-generation
 
 <ol>
 <li><strong>Component Development and Override:</strong>
-Work in the component checkout on the <code>develop</code> branch. Install a development build directly into the user prefix:
+Work in the component checkout on the <code>dev</code> branch. Install a development build directly into the user prefix:
 <pre data-risk="read-only">
 make -C ~/src/tam test
 make -C ~/src/tam install PREFIX=$HOME/.local
@@ -160,10 +160,10 @@ Verify all unit, integration, and guide tests pass (<code>make test</code>). Bum
 <li>Binary version: <code>src/version.h</code> (<code>TAM_COMMAND_VERSION</code>).</li>
 <li>Corpus version: <code>knowledge/version</code>, its only source. A corpus release changes no command source.</li>
 </ul>
-Record public AI provenance in <code>AI_PROVENANCE.md</code>. Commit only your claimed paths (<code>git commit -m '...' -- &lt;paths&gt;</code>) and push to <code>develop</code> on GitHub. Note the resulting commit hash.</li>
+Record public AI provenance in <code>AI_PROVENANCE.md</code>. Commit only your claimed paths (<code>git commit -m '...' -- &lt;paths&gt;</code>) and push to <code>dev</code> on GitHub. Note the resulting commit hash.</li>
 
 <li><strong>Assembly Pinning in tamlinux-packages:</strong>
-In <code>~/src/tamlinux-packages</code> on <code>develop</code>, claim the packaging files with <code>tam-work begin</code>. In <code>flake.nix</code>, update the input URL for <code>tam</code> to the exact pushed commit hash:
+In <code>~/src/tamlinux-packages</code> on <code>dev</code>, claim the packaging files with <code>tam-work begin</code>. In <code>flake.nix</code>, update the input URL for <code>tam</code> to the exact pushed commit hash:
 <pre data-risk="read-only">
 tam.url = "github:greenermoose/tam/&lt;commit-hash&gt;";
 </pre>
@@ -176,7 +176,7 @@ In <code>nix/packages/default.nix</code>, update the declared <code>version = "0
 nix build .#tam
 nix flake check
 </pre>
-Set the candidate Tamlinux letter in <code>VERSION</code> (e.g. <code>0.5.4-a</code>) following candidate letter rules. Commit and push the updated assembly definition to <code>develop</code>.</li>
+Set the candidate Tamlinux letter in <code>VERSION</code> (e.g. <code>0.5.4-a</code>) following candidate letter rules. Commit and push the updated assembly definition to <code>dev</code>.</li>
 
 <li><strong>Promotion to Test, Run, and Dev Override Cleanup:</strong>
 <table>

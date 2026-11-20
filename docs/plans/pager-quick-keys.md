@@ -70,7 +70,7 @@ US QWERTY.
 
 ## Baseline and dependencies
 
-Command 0.33.0 and corpus 0.35.0 on `develop` at `52b38fe`. Builds on the
+Command 0.33.0 and corpus 0.35.0 on `dev` at `52b38fe`. Builds on the
 [home-row keys](pager-home-row-keys.md) (TCK10, D175), the
 [developer loop](dev-loop.md) fixtures (TCK13) and `tam tldr` (command
 0.33.0). Before starting, run `git log --oneline -3` and read `src/version.h`
@@ -104,7 +104,7 @@ Claim: `src/pager.c`, `src/version.h`, `tests/run.sh`,
    `src/version.h` (expected `0.34.0`) and the `--version` assertion in
    `tests/run.sh` (~line 90). Add an entry at the **top** of the Decision record
    in `docs/plans/development.md` (newest entries are first, just under the
-   heading). Change the `ROADMAP.md` version header and section 3 `develop`
+   heading). Change the `ROADMAP.md` version header and section 3 `dev`
    row. The help overlay changes in TCK18, not here.
 4. Tests in `tests/run.sh`, in the link-navigation case (~lines 222–283, fixture
    `tests/fixtures/link-cycle/`):

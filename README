@@ -97,7 +97,7 @@ control.  Command source, bundled guide pages, tests and component
 documentation live in this repo. The tamlinux repository owns workstation
 assembly and the installation framework.
 
-tam upgrade checks the public Development (develop), Test (test), Run (main)
+tam upgrade checks the public Development (dev), Test (test), Run (main)
 and Release (paired version tag) sources. A check is the only normal command
 that contacts GitHub; it uses fixed HTTPS endpoints and needs curl. Use
 tam upgrade --apply --channel STAGE to build a forward update, or
@@ -186,7 +186,7 @@ claims, proposes the next version bump for each changed lane, asks whether to
 run the component coverage gap check (the default answer skips it), runs
 lane-appropriate checks, commits the changes and any refreshed corpus indexes,
 installs the development build under ~/.local, and asks before pushing
-develop. Use make dev DRY_RUN=1 to preview the change list and proposed
+dev. Use make dev DRY_RUN=1 to preview the change list and proposed
 versions without writing, building or committing anything.
 
 For a non-interactive build and development install:

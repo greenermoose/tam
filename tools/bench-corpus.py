@@ -67,7 +67,7 @@ def benchmark(source, reader, repeats=5):
                              "slowest": round(max(times), 4), "runs": repeats}
             print(f"{name:36} median {statistics.median(times):.3f}s; slowest {max(times):.3f}s", flush=True)
 
-        git("init", "-q", "-b", "develop")
+        git("init", "-q", "-b", "dev")
         git("add", "--", ".gitignore", "Makefile", "tools", "src", "tests", "knowledge")
         git("commit", "-qm", "Fixture baseline")
         pages = sorted((root / "knowledge").rglob("*.html"))

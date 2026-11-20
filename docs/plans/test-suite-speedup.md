@@ -40,7 +40,7 @@ Running `make dev` (and its test phase `make test`) takes over 106 seconds, caus
 
 ## Baseline and dependencies
 
-- Branch: `develop`
+- Branch: `dev`
 - Command: `0.48.2` (`src/version.h`)
 - Corpus: `0.63.0` (`knowledge/version`)
 - Measured on the workstation.

@@ -390,9 +390,9 @@ def step_preflight(root, dry_run=False):
 
     branch_res = run_git(root, "symbolic-ref", "--quiet", "--short", "HEAD", check=False)
     branch = branch_res.stdout.strip() if branch_res.returncode == 0 else ""
-    if branch != "develop":
+    if branch != "dev":
         raise DevError(
-            f"must be on branch 'develop' (current: {branch or 'detached HEAD'})."
+            f"must be on branch 'dev' (current: {branch or 'detached HEAD'})."
         )
 
     git_dir_res = run_git(root, "rev-parse", "--git-dir")
@@ -412,7 +412,7 @@ def step_preflight(root, dry_run=False):
 
     if shutil.which("tam-work") is None:
         raise DevError("tam-work not found on PATH.")
-    print("Preflight ok: on branch develop, tam-work ready.")
+    print("Preflight ok: on branch dev, tam-work ready.")
 
 
 # ---------------------------------------------------------------------------
@@ -663,8 +663,8 @@ def apply_corpus_version_edits(root, old_ver, new_ver, summary, today, texts=Non
     replace_once(
         texts,
         roadmap,
-        f"| `develop` | {cmd_ver} / {old_ver} |",
-        f"| `develop` | {cmd_ver} / {new_ver} |",
+        f"| `dev` | {cmd_ver} / {old_ver} |",
+        f"| `dev` | {cmd_ver} / {new_ver} |",
     )
     insert_history_row(texts, roadmap, new_ver, "corpus", summary, today)
     if owned:
@@ -704,8 +704,8 @@ def apply_command_version_edits(root, old_ver, new_ver, bump_kind, summary, toda
     replace_once(
         texts,
         roadmap,
-        f"| `develop` | {old_ver} / {corpus_ver} |",
-        f"| `develop` | {new_ver} / {corpus_ver} |",
+        f"| `dev` | {old_ver} / {corpus_ver} |",
+        f"| `dev` | {new_ver} / {corpus_ver} |",
     )
     insert_history_row(texts, roadmap, new_ver, "command", summary, today)
 
@@ -1113,11 +1113,11 @@ def step_push(root):
         print(upstream_commits)
         return "not pushed (upstream has new commits)"
 
-    ans = read_answer("Push develop? [y/N]: ").strip().lower()
+    ans = read_answer("Push dev? [y/N]: ").strip().lower()
     if ans in ("y", "yes"):
-        run_git(root, "push", "origin", "develop")
-        print("Pushed develop to origin.")
-        return "pushed origin/develop"
+        run_git(root, "push", "origin", "dev")
+        print("Pushed dev to origin.")
+        return "pushed origin/dev"
     print("Skipped push.")
     return "not pushed"
 

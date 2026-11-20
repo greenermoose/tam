@@ -27,7 +27,7 @@ SOURCE_OPERATION_SECONDS = 30 * 60
 TOTAL_TIMEOUT = 30
 CONNECT_TIMEOUT = 3
 SOURCE_DEADLINE = None
-STAGES = (("development", "develop"), ("test", "test"), ("run", "main"))
+STAGES = (("development", "dev"), ("test", "test"), ("run", "main"))
 LOCK_MARKER = b"tam-upgrade lock v1\n"
 
 
@@ -384,7 +384,7 @@ def selection(stage, channel, version, corpus_version):
     if not isinstance(repo, dict) or not isinstance(repo.get("full_name"), str) or repo["full_name"].lower() != "greenermoose/tam":
         raise CheckError("repository", "GitHub response does not identify greenermoose/tam")
     if stage in ("development", "develop", "test", "run"):
-        branch = {"development": "develop", "develop": "develop", "test": "test", "run": "main"}[stage]
+        branch = {"development": "dev", "develop": "dev", "test": "test", "run": "main"}[stage]
         item = resolve_stage(stage, branch, True, deadline)
         if item["status"] != "available":
             raise CheckError("absent", f"{stage} stage is unavailable")

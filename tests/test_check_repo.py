@@ -33,7 +33,7 @@ Read the [plan index](docs/plans/README) and [development contract](docs/plans/d
 
 | Branch | Command / corpus | Meaning |
 | --- | --- | --- |
-| `develop` | 0.32.0 / 0.34.0 | Newest source. |
+| `dev` | 0.32.0 / 0.34.0 | Newest source. |
 """
 
 DEVELOPMENT_FIXTURE = """# tam development plan
@@ -159,7 +159,7 @@ class CheckRepoTest(unittest.TestCase):
             encoding="utf-8",
         )
 
-        subprocess.run(["git", "init", "-q", "-b", "develop"], cwd=root, check=True)
+        subprocess.run(["git", "init", "-q", "-b", "dev"], cwd=root, check=True)
         subprocess.run(["git", "add", "."], cwd=root, check=True)
         return root
 
@@ -195,7 +195,7 @@ class CheckRepoTest(unittest.TestCase):
         self.assertEqual(len(findings), 1, findings)
         self.assert_finding_details(findings[0], "tests/run.sh", 2, "Command version")
 
-        # 1b. ROADMAP.md header, develop row, and delivered-history row drift
+        # 1b. ROADMAP.md header, dev row, and delivered-history row drift
         root = self.make_clean_fixture()
         (root / "src" / "version.h").write_text(
             '#define TAM_COMMAND_VERSION "0.33.0"\n', encoding="utf-8"
@@ -218,9 +218,9 @@ class CheckRepoTest(unittest.TestCase):
 
     def test_corpus_version_drift_fails(self):
         root = self.make_clean_fixture()
-        # Plant drift in ROADMAP.md develop row only
+        # Plant drift in ROADMAP.md dev row only
         (root / "ROADMAP.md").write_text(
-            ROADMAP_FIXTURE.replace("| `develop` | 0.32.0 / 0.34.0 |", "| `develop` | 0.32.0 / 0.33.6 |"),
+            ROADMAP_FIXTURE.replace("| `dev` | 0.32.0 / 0.34.0 |", "| `dev` | 0.32.0 / 0.33.6 |"),
             encoding="utf-8",
         )
         findings = check_mod.check_repo(root)

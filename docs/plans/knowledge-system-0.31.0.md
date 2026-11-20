@@ -41,7 +41,7 @@ is authorized by this plan alone.
 
 ## Verified baseline and problems
 
-Inspected `develop` at `d13c1f6` (2026-10-18): command **0.29.3** in
+Inspected `dev` at `d13c1f6` (2026-10-18): command **0.29.3** in
 `src/version.h`, corpus **0.30.0** in `knowledge/version`, 50 HTML pages.
 Tracks are currently `use` (13 pages), `maintain` (12), `improve` (25).
 

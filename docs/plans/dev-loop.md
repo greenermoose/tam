@@ -34,7 +34,7 @@ Agreed outcome:
   repository. It lists the excluded paths.
 - **Versions:** when `knowledge/` or `src/` changed, it proposes the next version
   for that lane and edits every file that carries the number.
-- **Push:** it asks before pushing `develop`, every time.
+- **Push:** it asks before pushing `dev`, every time.
 - **Drift:** the script never rewrites the developer's prose. Facts that are
   copied between files (versions, file lists, plan index, links) are checked
   by a deterministic checker that is part of `make test`. A short repository
@@ -46,7 +46,7 @@ Test, Run or Release, tags and `tam-deploy`; changing how
 
 ## Baseline and dependencies
 
-Verified 2026-10-20 at `d45a49a` on `develop`: command 0.32.0
+Verified 2026-10-20 at `d45a49a` on `dev`: command 0.32.0
 (`src/version.h`), corpus 0.33.6 (`knowledge/version`).
 
 Steps `make dev` takes over, with their current sources:
@@ -58,7 +58,7 @@ Steps `make dev` takes over, with their current sources:
    (as in `d022860` then `beda4e8`), and `make corpus` runs once more to
    refresh the ignored `knowledge/.build_id`.
 2. **Version copies.** Corpus: `knowledge/version`, the `ROADMAP.md` header,
-   its `develop` row in section 3 and a delivered-history row in section 2.
+   its `dev` row in section 3 and a delivered-history row in section 2.
    Command: `TAM_COMMAND_VERSION` in `src/version.h`, the `--version`
    assertion in `tests/run.sh`, the same `ROADMAP.md` places and a
    decision-record entry in [development.md](development.md).
@@ -93,7 +93,7 @@ standard library only, and takes `--root` for test fixtures, like
 with a plain message saying what was and was not committed.
 
 1. **Preflight.** Refuse unless stdin and stdout are terminals. Require branch
-   `develop` with no merge, rebase or cherry-pick in progress. Run
+   `dev` with no merge, rebase or cherry-pick in progress. Run
    `make libtam-check`. Require `tam-work` on `PATH`.
 2. **Claim.** Set `TAM_WORK_OWNER=fred` and
    `TAM_WORK_SESSION=make-dev-<UTC timestamp>`, run `tam-work begin` with a
@@ -120,7 +120,7 @@ with a plain message saying what was and was not committed.
    Prompt once for a one-line summary, which is also the default commit
    subject. Apply with exact-match replacements that fail loudly unless the
    pattern occurs exactly once:
-   - corpus: `knowledge/version`; the `ROADMAP.md` header and `develop` row;
+   - corpus: `knowledge/version`; the `ROADMAP.md` header and `dev` row;
      a new last row in the delivered-history table,
      `| **X corpus** | <summary> | Done (YYYY-MM-DD) | <summary> |`;
    - command: `src/version.h`; the `tests/run.sh` assertion; the same
@@ -148,8 +148,8 @@ with a plain message saying what was and was not committed.
    say that the build id will read `-dirty` and why.
 9. **Push.** `git fetch`, then check `git log HEAD..@{u}`. If upstream has
    commits, say so and do not push; the shared checkout is never pulled,
-   rebased or reset by this script. Otherwise prompt `Push develop? [y/N]` and
-   run `git push origin develop`. Never touch `test`, `main` or tags.
+   rebased or reset by this script. Otherwise prompt `Push dev? [y/N]` and
+   run `git push origin dev`. Never touch `test`, `main` or tags.
 10. **Finish.** Release the claim and print a summary: commits, versions,
     install prefix and push state.
 
@@ -165,8 +165,8 @@ expected value and the fix.
 
 | Check | Source of truth | Copies checked |
 | --- | --- | --- |
-| Command version | `src/version.h` | `tests/run.sh` assertion; `ROADMAP.md` header and `develop` row; a delivered-history row and a decision-record entry naming it |
-| Corpus version | `knowledge/version` | `ROADMAP.md` header and `develop` row; a delivered-history row naming it |
+| Command version | `src/version.h` | `tests/run.sh` assertion; `ROADMAP.md` header and `dev` row; a delivered-history row and a decision-record entry naming it |
+| Corpus version | `knowledge/version` | `ROADMAP.md` header and `dev` row; a delivered-history row naming it |
 | Build inputs | `src/*.c` and `src/*.h` on disk | `SRC` and `DEPS` in `Makefile` |
 | Plan index | Markdown files under `docs/plans/` | exactly one Plan entry each in `docs/plans/README`, and no entry for a missing file |
 | Repository map | top-level entries and `docs/` subdirectories | one line each in `docs/repo-map.md`, and no line for a missing entry |
@@ -226,7 +226,7 @@ agent should fix the named test.
   `tests/test_check_repo.py`. Fixture repositories cover lane grouping,
   claimed-path exclusion, generated-file filtering, each version edit applying
   exactly once, "already bumped" detection, and refusal without a terminal, off
-  `develop` or during a rebase. Each drift check fails on a fixture with one
+  `dev` or during a rebase. Each drift check fails on a fixture with one
   planted error and passes on the clean fixture.
 - `make dev DRY_RUN=1` with one edited page lists only that page as corpus,
   proposes the next corpus patch, and leaves `git status` unchanged.

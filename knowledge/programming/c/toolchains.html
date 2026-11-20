@@ -102,7 +102,7 @@ Tamlinux cultivar KBN WB 0.6.1
 <dd>Record the exact test line and failure message in your issue report. Do not modify system packages to force a test to pass; test failures indicate a code regression or missing local dependency.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, all development across core repositories (including <code>tam</code>, <code>libtam</code>, and <code>tamlinux</code>) follows the shared clone concurrency model. Git worktrees are explicitly avoided because their setup and merge overhead exceeds small changes, and relative directory paths break when nested in worktrees. Instead, contributors and AI coding agents reserve paths with <code>tam-work</code>, push exclusively to <code>develop</code>, and record all verification evidence with AI provenance.</p>
+<p>On Tamlinux, all development across core repositories (including <code>tam</code>, <code>libtam</code>, and <code>tamlinux</code>) follows the shared clone concurrency model. Git worktrees are explicitly avoided because their setup and merge overhead exceeds small changes, and relative directory paths break when nested in worktrees. Instead, contributors and AI coding agents reserve paths with <code>tam-work</code>, push exclusively to <code>dev</code>, and record all verification evidence with AI provenance.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -145,7 +145,7 @@ Tamlinux cultivar KBN WB 0.6.1
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Traditional Git branching workflows often isolate developers in long-lived feature branches or heavy Git worktrees. In multi-agent autonomous engineering, creating and synchronizing dozens of separate clones or worktrees creates massive disk bloat, breaks relative cross-repo path assumptions in test harnesses, and delays integration until messy merge conflicts arise. Operating in one shared clone with atomic <code>tam-work</code> path claims allows several AI agents and human contributors to integrate changes continuously on <code>develop</code> with zero disk duplication and zero branch switching friction.</p>
+<p>Traditional Git branching workflows often isolate developers in long-lived feature branches or heavy Git worktrees. In multi-agent autonomous engineering, creating and synchronizing dozens of separate clones or worktrees creates massive disk bloat, breaks relative cross-repo path assumptions in test harnesses, and delays integration until messy merge conflicts arise. Operating in one shared clone with atomic <code>tam-work</code> path claims allows several AI agents and human contributors to integrate changes continuously on <code>dev</code> with zero disk duplication and zero branch switching friction.</p>
 
 <h3>Edge cases and failure modes</h3>
 
@@ -175,7 +175,7 @@ $ readelf -d build/tam | grep -E 'RPATH|RUNPATH|NEEDED'
 <p>Decide your answer before you reveal it.</p>
 <details class="q open">
 <summary>Why does the Tamlinux engineering model prefer one shared clone with <code>tam-work</code> path claims over individual Git worktrees?</summary>
-<p>Git worktrees require independent directory checkouts, branch setup, build configurations, and follow-up merges for every small task. In multi-agent autonomous development, this creates massive disk duplication and risks path breakage in test suites. A single shared clone with <code>tam-work</code> path claims allows several agents and human contributors to work concurrently on disjoint directory scopes and commit directly to <code>develop</code> with zero worktree overhead.</p>
+<p>Git worktrees require independent directory checkouts, branch setup, build configurations, and follow-up merges for every small task. In multi-agent autonomous development, this creates massive disk duplication and risks path breakage in test suites. A single shared clone with <code>tam-work</code> path claims allows several agents and human contributors to work concurrently on disjoint directory scopes and commit directly to <code>dev</code> with zero worktree overhead.</p>
 </details>
 </section>
 
