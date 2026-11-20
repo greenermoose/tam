@@ -3,7 +3,7 @@ WHATNOW
 What tam is doing now and what comes next. Read this first; revise it at
 the end of every session (work/README-work).
 
-Updated: 2026-11-19, with W16
+Updated: 2026-11-19, with W17
 
 
 STATE
@@ -29,6 +29,11 @@ STATE
   The Man pages landing now links only section names, with a shorter
   breadcrumb, a Man Pages header and no intro or starting points
   (W16, command 0.65.4).
+
+  Corpus 0.101.0 adds a three-level pkg-config page under C and native
+  toolchains, covering .pc metadata, the search path, PKG_CONFIG_PATH
+  and the local libtam discovery; linked from the C hub and the
+  toolchains page (W17).
 
   Command 0.66.0 retires `tam-bundle` calls: switches the startup barrier
   to `tam_install_pending()` from libtam 0.8.0, resolves `tam where PATH`
@@ -85,3 +90,6 @@ WATCH OUT
   - make dev is Fred's loop; agents do not run it. Do not install a
     build as a side effect of content changes.
   - Work in the shared clone; never create a worktree.
+  - check-repo currently fails on the command version: src says 0.67.0
+    while ROADMAP.md and docs/plans still say 0.66.0. That is command
+    lane work, not a corpus failure.

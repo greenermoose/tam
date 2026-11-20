@@ -1,0 +1,50 @@
+W17 PKG-CONFIG CORPUS PAGE
+
+Date: 2026-11-19
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "For the tam knowledge corpus, write a page about pkg-config.
+  What does that do on bosgame?"
+
+  Fred: "proceed"
+
+DONE
+
+  - Added knowledge/programming/c/pkg-config.html, a three-level page
+    on .pc descriptions, the --cflags/--libs/--modversion options, the
+    search path and PKG_CONFIG_PATH, with a live worked example and
+    expert reference.
+  - Linked the page from the C hub and from toolchains.html; bumped the
+    corpus 0.100.10 -> 0.101.0 in knowledge/version and all three
+    ROADMAP.md places.
+  - Answered the host question in conversation: pkg-config is pkgconf
+    on Arch, and the Tamlinux shell path adds the user-prefix .pc
+    directory so locally built libtam and libtam-portal are found.
+  - Captured output was adapted to the example account and home path
+    to keep the public boundary; the page names the workstation type
+    and capture date instead of a personal host.
+  - Checked against: pkg-config --help and --version; live --cflags,
+    --libs, --modversion and --list-all queries for libtam and
+    libtam-portal; the pc_path variable; installed .pc metadata; the
+    Tamlinux shell environment file that sets PKG_CONFIG_PATH; pacman
+    query for the command; tam Makefile; docs/corpus-authoring.md,
+    corpus-style.md and corpus-pedagogy.md.
+  - Passed make corpus, make corpus-check, make corpus-tool-tests,
+    tools/lint-corpus.py on the new page and a pipe preview with the
+    checkout corpus.
+
+FAILED
+
+  - make check-repo fails before and after this change: the command
+    version in src is 0.67.0 while ROADMAP.md and docs/plans still
+    say 0.66.0. That belongs to the command lane, so no files outside
+    this session's claim were changed to chase it. The single corpus
+    anatomy warning is the pre-existing one on tamlinux/components.html.
+
+HANDOFF
+
+  Corpus 0.101.0 is ready on develop. The index follow-up commit still
+  needs to land after the page commit, then the corpus claim can close.
