@@ -1437,3 +1437,12 @@ Added native `tam archwiki`, `archwiki:PAGE`, and `tam:archwiki*` support (`src/
 
 The developer approved subjects first, targeted editorial repair, four reader
 entrances, and a clean page-address break. See [subject-library.md](subject-library.md).
+
+### 2026-11-21 — Network setup and discovery curriculum (corpus 0.105.0)
+
+The developer approved the "Foundations + Avahi" tranche of
+[network-setup-curriculum.md](network-setup-curriculum.md): a three-level
+Avahi/Zeroconf teaching page, five setup pages, the `network-setup` goal path,
+two hubs, seven glossary entries, and RFC 6762/6763 bibliography entries. This
+tranche is corpus content only; the performance, protocols and development
+tranches remain separate plans.

@@ -159,8 +159,8 @@ def snapshot(root, coverage):
     # Tool/rule inputs are small and hashed, including content-preserving timestamp edits.
     dependencies = sorted((root / "tools").glob("*.py"))
     dependencies += [root / rel for rel in (
-        "src/render.c", "src/tam.c", "src/install.c", "tests/guide.sh",
-        "tools/component-coverage-exemptions.tsv")]
+        "src/render.c", "src/html_entities.inc", "src/tam.c", "src/install.c",
+        "tests/guide.sh", "tools/component-coverage-exemptions.tsv")]
     deps = {str(p.relative_to(root)): digest(p.read_bytes()) if p.is_file() else None
             for p in dependencies}
     product = coverage.resolve_tamlinux(root, None)

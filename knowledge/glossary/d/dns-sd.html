@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>DNS-SD (DNS-Based Service Discovery)</title>
+<meta name="topic" content="glossary-dns-sd">
+<meta name="summary" content="DNS-SD: using DNS PTR, SRV and TXT records to list and resolve named service instances.">
+<meta name="keywords" content="glossary-dns-sd, dns-sd, service discovery, ptr, srv, txt, bonjour, avahi, service instance">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DNS-SD (DNS-Based Service Discovery)</p></nav>
+
+<h1>DNS-SD (DNS-Based Service Discovery)</h1>
+<p>A convention for using ordinary DNS records to list the services available on a network and to resolve one of them to a host and port.</p>
+<section data-level="novice"><p>DNS-SD is the list-making part of local discovery. Instead of asking for one fixed address, a computer asks "what printers are here?" and receives a list of named instances. After the user picks one, another query gives the address and port. It works with multicast DNS on the local link and with conventional DNS servers.</p></section>
+<section data-level="learner"><p>A service has a type such as <code>_ipp._tcp</code> and instances such as <code>Demo Printer._ipp._tcp.local</code>. A PTR query for the type lists instance names; an SRV query for one instance gives its target host and port; a TXT query gives small key/value attributes. With <a href="glossary/a/avahi.html">Avahi</a>, <code>avahi-browse _ipp._tcp -t -r -p</code> performs both steps and prints the result.</p><details class="q"><summary><i>Why does DNS-SD browse with PTR records rather than SRV records?</i></summary><p>PTR records provide a list of user-facing instance names to choose from. SRV records assume the instances are interchangeable and give a target directly, which would not let a user pick a particular printer.</p></details></section>
+<section data-level="expert"><p>DNS-SD adds no new DNS message types. The instance name is <code>&lt;Instance&gt;.&lt;Service&gt;.&lt;Domain&gt;</code>, where the service is an underscore-prefixed name plus <code>_tcp</code> or <code>_udp</code>. Browsing queries PTR records at <code>&lt;Service&gt;.&lt;Domain&gt;</code>; resolution queries SRV and TXT records at the instance name. Every DNS-SD service must have a TXT record, even an empty one containing a single zero byte, and unknown TXT keys must be ignored. Service type enumeration uses <code>_services._dns-sd._udp.local</code>; subtypes narrow a browse. The design is specified in RFC 6763 and is normally paired with <a href="glossary/m/mdns.html">mDNS</a> for zero-configuration operation.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/services/avahi-and-zeroconf.html">Avahi and Zeroconf</a></li><li><a href="bibliography/rfc6763-dns-sd.html">RFC 6763</a></li></ul>
+</body></html>

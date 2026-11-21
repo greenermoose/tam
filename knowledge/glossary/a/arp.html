@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>ARP (Address Resolution Protocol)</title>
+<meta name="topic" content="glossary-arp">
+<meta name="summary" content="ARP: the protocol that maps an IPv4 address on the local link to a hardware (MAC) address.">
+<meta name="keywords" content="glossary-arp, arp, address resolution protocol, mac address, neighbor, ethernet, ipv4">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/a/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / ARP (Address Resolution Protocol)</p></nav>
+
+<h1>ARP (Address Resolution Protocol)</h1>
+<p>The protocol that finds the hardware address belonging to an IPv4 neighbor on the same network.</p>
+<section data-level="novice"><p>An IP address is a number used by the network layer, but an Ethernet frame needs a hardware address to reach the next device on the cable. ARP asks the local network "who has this IP address?" and the owner replies with its hardware address. The answer is kept briefly in a neighbor table so the question does not have to be asked for every packet.</p></section>
+<section data-level="learner"><p>On Linux, <code>ip neigh show</code> displays the neighbor table. An entry such as <code>192.168.1.1 lladdr 10:0c:6b:20:34:e6 REACHABLE</code> records the learned hardware address and its state. <code>INCOMPLETE</code> means no reply arrived. Only addresses on the local link need ARP; a remote address is reached through the gateway's hardware address.</p><details class="q"><summary><i>Why does ARP not find the hardware address of a web server across the internet?</i></summary><p>ARP works only on a shared link. Frames to a remote server are addressed to the local gateway, which forwards the packet onward; the server's hardware address is never needed by the sender.</p></details></section>
+<section data-level="expert"><p>ARP requests are broadcast at the link layer and answered with a unicast ARP reply; the result populates the kernel's neighbour cache, keyed by destination address and output interface. IPv6 replaces ARP with ICMPv6 Neighbor Solicitation and Advertisement under <a href="glossary/n/ndp.html">NDP</a>, which also performs duplicate address detection. Gratuitous ARP announcements can update neighbors after a failover, but ARP has no authentication, so an attacker on the link can spoof replies and redirect traffic. Static neighbor entries and dynamic ARP inspection are common defenses.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a></li><li><a href="networking/setup/gateways-and-routing.html">Gateways and routing</a></li></ul>
+</body></html>

@@ -4,7 +4,8 @@
 Usage: lint-corpus.py [--root DIR]
 
 Reads DIR/knowledge/**/*.html and the command sources that define what the
-renderer and the command accept (src/render.c, src/tam.c, src/install.c).
+renderer and the command accept (src/render.c, src/html_entities.inc,
+src/tam.c, src/install.c).
 Prints one finding per line, "knowledge/<page>:<line>: <RULE>: <message>",
 sorted by page, line and rule. Exit 0 when clean, 1 with findings, 2 when a
 source file is missing or yields nothing. The rules are described in
@@ -61,7 +62,13 @@ def read_source(root, rel):
 
 
 def load_rules(root):
+    # render.c includes the entity table from html_entities.inc (commit 3496cea).
+    # Older fixtures keep entities[] in render.c itself, so append the include
+    # only when it exists.
     render = read_source(root, "src/render.c")
+    entities_inc = root / "src/html_entities.inc"
+    if entities_inc.is_file():
+        render += "\n" + entities_inc.read_text(encoding="utf-8", errors="replace")
     m = re.search(r"entities\[\]\s*=\s*\{(.*?)\};", render, re.S)
     entities = set(re.findall(r'\{"([A-Za-z0-9]+)"', m.group(1))) if m else set()
     if not entities:

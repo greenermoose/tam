@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Avahi</title>
+<meta name="topic" content="glossary-avahi">
+<meta name="summary" content="Avahi: the Linux implementation of zero-configuration networking, publishing and discovering local services.">
+<meta name="keywords" content="glossary-avahi, avahi, service discovery, mdns, dns-sd, local network">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/a/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / Avahi</p></nav>
+
+<h1>Avahi</h1>
+<p>The Linux daemon and tools that publish and discover services on a local network without a central server.</p>
+<section data-level="novice"><p>Avahi is the program that lets a Linux computer call out what it offers and listen for what other devices offer. A print dialog can show a nearby printer because the printer announced itself and Avahi received the announcement. It works with Bonjour, the Apple name for the same idea, so devices from different makers can find each other.</p></section>
+<section data-level="learner"><p>Avahi runs as <code>avahi-daemon</code> and is used through commands such as <code>avahi-browse</code>, <code>avahi-resolve</code> and <code>avahi-publish</code>. Browse a service type with <code>avahi-browse _ipp._tcp -t -r -p</code>; the <code>+</code> lines announce found instances and the <code>=</code> lines give host, address and port. Static services can be published from XML files under <code>/etc/avahi/services/</code>. A firewall must allow UDP 5353 for discovery to work across the local network.</p><details class="q"><summary><i>Why can a service appear twice, once on a physical interface and once on loopback?</i></summary><p>Avahi listens on several interfaces. It receives its own announcement both on the wired interface and through <code>lo</code>, so a parsable browse shows two records with different source addresses.</p></details></section>
+<section data-level="expert"><p>Avahi implements <a href="glossary/m/mdns.html">mDNS</a> and <a href="glossary/d/dns-sd.html">DNS-SD</a>. The daemon owns the multicast socket on UDP 5353, performs conflict resolution for unique records, and exposes browsing and publishing over D-Bus. <code>avahi-daemon.conf</code> controls <code>host-name</code>, <code>domain-name</code>, <code>use-ipv4</code>, <code>use-ipv6</code>, <code>allow-interfaces</code>, <code>deny-interfaces</code>, <code>enable-dbus</code>, the <code>publish-*</code> switches and <code>enable-wide-area</code>. Host name resolution is a separate matter: applications reach <code>.local</code> names through a Name Service Switch module such as <code>nss-mdns</code>, not through the daemon directly. mDNS has no authentication, so it must not be treated as a security boundary.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="networking/services/avahi-and-zeroconf.html">Avahi and Zeroconf</a></li><li><a href="networking/setup/name-resolution.html">Name resolution</a></li></ul>
+</body></html>

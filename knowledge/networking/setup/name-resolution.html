@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Name resolution</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="name-resolution">
+<meta name="summary" content="Follow a DNS query from the local resolver to the hierarchy, and learn search domains, split DNS and the .local hand-off">
+<meta name="keywords" content="dns, name resolution, resolver, nameserver, search domain, split dns, hosts file, resolvectl, getent, local domain, mdns">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/setup/index.html">
+<meta name="prereqs" content="gateways-and-routing">
+<meta name="paths" content="network-setup:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Name resolution</p></nav>
+
+<h1>Name resolution</h1>
+<p>Name resolution turns a name people remember, such as <code>example.com</code>, into the address a network actually uses.</p>
+<h2>Before this</h2><p><a href="networking/setup/gateways-and-routing.html">Gateways and routing</a> explains the address that the resolver's answer is used to reach.</p>
+
+<section data-level="novice">
+<h2>A phone book that asks other phone books</h2>
+<p><a href="glossary/d/dns.html">DNS</a> is a distributed phone book. Your computer asks a local resolver; the resolver asks other servers, starting near the root of the name tree, until it finds the server responsible for the name. The answer is an <a href="glossary/i/ip-address.html">IP address</a> that the routing layer can use.</p>
+
+<h3>Why it matters</h3>
+<p>Names change address when a service moves. Using a name means a bookmark keeps working; using a hard-coded address breaks. When a name fails but a numeric address works, you know the link and the route are fine and only the lookup needs attention.</p>
+
+<h3>How to think about it</h3>
+<pre>
+example.com
+  --&gt; local resolver (often your router or a public server)
+  --&gt; root server: "ask the .com servers"
+  --&gt; .com server: "ask the servers for example.com"
+  --&gt; authoritative server: "104.20.23.154"
+</pre>
+<p>A <dfn><a href="glossary/d/dnssec.html">DNSSEC</a></dfn> signature can prove an answer has not been altered, but it does not make the lookup private. Ordinary DNS queries travel in clear text unless an encrypted transport is configured.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/dns.html">DNS</a></dt>
+<dd>The Domain Name System, a hierarchical service that maps names to data such as addresses.</dd>
+<dt><a href="glossary/h/host.html">Host name</a></dt>
+<dd>A label for a machine, which may be resolved locally or through DNS.</dd>
+<dt><a href="glossary/d/dhcp.html">DHCP</a></dt>
+<dd>The service that often tells a computer which resolver to use when it joins a network.</dd>
+<dt><a href="glossary/d/dnssec.html">DNSSEC</a></dt>
+<dd>Signed DNS records that let a resolver verify the origin and integrity of an answer.</dd>
+<dt><a href="glossary/m/mdns.html">mDNS</a></dt>
+<dd>Multicast DNS, which answers names on the local link without a central server.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>See what your resolver answers</h2>
+<p><strong>Goal:</strong> you will be able to name the resolver in use, look up a name through the system rules, and explain why a different tool can return a different answer.</p>
+
+<p><strong>Before you start:</strong> these commands only read resolver state and send ordinary lookup queries. They do not change DNS settings.</p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ getent ahosts example.com
+104.20.23.154   STREAM example.com
+104.20.23.154   DGRAM
+104.20.23.154   RAW
+172.66.147.243  STREAM
+172.66.147.243  DGRAM
+172.66.147.243  RAW
+2606:4700:10::6814:179a STREAM
+2606:4700:10::6814:179a DGRAM
+2606:4700:10::6814:179a RAW
+$ resolvectl status
+Global
+           Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+    resolv.conf mode: stub
+Fallback DNS Servers: 9.9.9.9#dns.quad9.net 2620:fe::9#dns.quad9.net
+                      1.1.1.1#cloudflare-dns.com
+Link 2 (enp1s0)
+    Current Scopes: DNS
+         Protocols: +DefaultRoute -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+Current DNS Server: 192.168.1.1
+       DNS Servers: 192.168.1.1
+     Default Route: yes
+$ resolvectl query example.com
+example.com: 104.20.23.154                                  -- link: enp1s0
+             172.66.147.243                                 -- link: enp1s0
+             2606:4700:10::6814:179a                        -- link: enp1s0
+             2606:4700:10::ac42:93f3                        -- link: enp1s0
+
+-- Information acquired via protocol DNS in 46.0ms.
+-- Data is authenticated: no; Data was acquired via local or encrypted transport: no
+-- Data from: cache network
+</pre>
+<p>Captured on a wired Arch Linux workstation on 2026-11-21. The status output is shortened to the relevant links; your servers and answers will differ.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>getent ahosts</code> uses the system's Name Service Switch rules, so it answers exactly as an application would. It prints IPv4 and IPv6 addresses in the order the resolver supplied.</li>
+<li><code>resolvectl status</code> shows that this machine uses a stub resolver: applications send queries to a local address and systemd-resolved forwards them to the servers listed per link.</li>
+<li>The active link has DNS scope and <code>+DefaultRoute</code>, so its server handles names without an explicit routing domain; other links have no DNS scope.</li>
+<li><code>resolvectl query</code> asks the resolver directly and reports which link supplied each address, how long the query took, and whether the data was authenticated.</li>
+<li><code>-mDNS</code> in the protocol line means systemd-resolved is not handling multicast DNS here; that job belongs to a separate local-discovery stack.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Run <code>getent hosts localhost</code> and then <code>getent ahosts example.com</code>. The first answer comes from the local hosts file; the second from DNS. Both are read-only.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A name returns no addresses</dt>
+<dd>Check <code>resolvectl query &lt;name&gt;</code> for the exact error. <code>NXDOMAIN</code> means the name does not exist; <code>SERVFAIL</code> means a server failed; a timeout often means the resolver is unreachable.</dd>
+<dt>A new DNS setting appears in the profile but not in the resolver</dt>
+<dd>The connection must be reapplied and the resolver reloaded. Compare <code>nmcli</code> with <code>resolvectl status</code>.</dd>
+<dt>A short name resolves in one application but not another</dt>
+<dd>Search domains differ between tools. Try the fully qualified name and check <code>resolvectl status</code> for the domain associated with the link.</dd>
+<dt>A <code>.local</code> name fails through DNS</dt>
+<dd>That is expected: <code>.local</code> names are answered by multicast DNS on the local link, not by the global DNS hierarchy.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux uses systemd-resolved for ordinary DNS and keeps provider changes in <code>tam-dns</code>, which saves the previous resolver configuration before writing it and records a restart path. The panel and command descriptions live in the public <code>tamlinux</code> repository under <code>commands/tam-dns</code> and <code>desktop/shell/panels/network/</code>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why can getent and resolvectl disagree about the order of addresses?</i></summary>
+<p><code>getent</code> follows NSS and may consult local files and caches before DNS, while <code>resolvectl query</code> goes straight to systemd-resolved. Different sources or cache states produce different ordering.</p>
+</details>
+<details class="q">
+<summary><i>What does a stub resolver actually do?</i></summary>
+<p>It listens on a local address, accepts queries from applications, forwards them to configured upstream servers, and caches the answers. The applications need no knowledge of which upstream server is in use.</p>
+</details>
+<details class="q">
+<summary><i>Predict what happens to a name lookup when a VPN is connected with split DNS.</i></summary>
+<p>Names in the VPN's routing domain go to the VPN's DNS server and other names continue to the local server. A name outside the domain is not answered by the VPN even though the tunnel is up.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: query path, records and scopes</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Record</th><th>Answers</th><th>Used for</th></tr>
+<tr><td><code>A</code></td><td>IPv4 address</td><td>Ordinary name lookup</td></tr>
+<tr><td><code>AAAA</code></td><td>IPv6 address</td><td>Ordinary name lookup</td></tr>
+<tr><td><code>CNAME</code></td><td>Another name</td><td>Aliases</td></tr>
+<tr><td><code>PTR</code></td><td>A name for an address</td><td>Reverse lookup and service discovery</td></tr>
+<tr><td><code>SRV</code></td><td>Host and port for a service</td><td>Service discovery</td></tr>
+<tr><td><code>TXT</code></td><td>Text key/value pairs</td><td>Service metadata</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>A recursive resolver follows delegations from the root through top-level domains to an authoritative server, caching each answer for its time to live. An iterative client does that walk itself; most applications ask a recursive resolver instead. systemd-resolved exposes the result through a local stub and through the <code>Resolve</code> D-Bus API, while <code>/etc/nsswitch.conf</code> decides whether an application consults files, mDNS or DNS first.</p>
+<p>Search domains append a suffix to a short name. A link marked <code>+DefaultRoute</code> is eligible for all queries; a link with a routing domain is used only for names inside that domain, which is how split DNS keeps a corporate name inside the tunnel. DNSSEC validation, when enabled, verifies signatures from the root down; it proves integrity and origin, not confidentiality. DNS over TLS and DNS over HTTPS address confidentiality by encrypting the query.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ getent ahostsv4 example.com
+104.20.23.154   STREAM example.com
+172.66.147.243  STREAM
+$ resolvectl query --legend=no --cache=no example.com
+example.com: 104.20.23.154 -- link: enp1s0
+             172.66.147.243 -- link: enp1s0
+             2606:4700:10::6814:179a -- link: enp1s0
+             2606:4700:10::ac42:93f3 -- link: enp1s0
+</pre>
+<p>Reading the cache-free form distinguishes a fresh answer from one the resolver remembered. Compare it with a normal query to see the cache in action.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li><code>/etc/hosts</code> is consulted first on many systems, so an old entry can shadow a DNS answer that has changed.</li>
+<li>A CNAME chain can return several names; the final address is what the application connects to, while the alias stays useful.</li>
+<li>Resource records have a time to live. A cached answer can outlive a change made at the authoritative server until the timer expires.</li>
+<li>Multiple addresses in one answer let a client try another if the first is unreachable; a single-address answer has no such fallback.</li>
+<li><code>.local</code> is reserved for link-local names. Sending it to a global DNS server is a common misconfiguration that produces NXDOMAIN.</li>
+<li>DNS over UDP can lose a large answer; EDNS0 allows larger messages and TCP fallback handles truncation.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why does split DNS need a routing domain instead of only a list of servers?</summary>
+<p>Without a domain, the system cannot tell which names belong to the tunnel and which belong to the local network. A routing domain labels the link so queries for private names go to the VPN resolver while public names stay local.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><a href="man:resolvectl(1)">resolvectl(1)</a>, <a href="man:systemd-resolved.service(8)">systemd-resolved.service(8)</a>, <a href="man:nsswitch.conf(5)">nsswitch.conf(5)</a>, <a href="man:getent(5)">getent(5)</a> and <a href="man:dig(1)">dig(1)</a> where installed.</p>
+
+<h3>Improve it</h3>
+<p>Keep the distinction between global DNS and link-local discovery explicit; readers often try to fix a <code>.local</code> name by changing an upstream server.</p>
+</section>
+
+<h2>Next</h2><p><a href="networking/services/avahi-and-zeroconf.html">Avahi and Zeroconf</a> &mdash; the discovery system that answers <code>.local</code> names and finds services on the link.</p>
+<h2>Related</h2><ul><li><a href="networking/connections.html">Network connections and DNS</a> &mdash; the short diagnostic guide.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the full reading order.</li></ul>
+</body>
+</html>

@@ -11,7 +11,7 @@ procedure and design.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK28.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK31.** Update this
   counter and add the item to this file in the same change that adds a new
   top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
@@ -76,6 +76,9 @@ labels.
 | `TCK25` | Track migration and tagged-section build enforcement | [learning-levels.md](docs/plans/learning-levels.md) | Source done (2026-10-27) | Corpora 0.40.0–0.45.0; review/acceptance pending |
 | `TCK26` | Browser handoff, confirmation and OSC 8 source | [external-links.md](docs/plans/external-links.md) | Source integrated (2026-10-27) | `abf0262` (command 0.44.0); review pending |
 | `TCK27` | External links documentation and integration checks | [external-links.md](docs/plans/external-links.md) | Source integrated (2026-10-27) | `abf0262`; review pending |
+| `TCK28` | Avahi and Zeroconf page | [network-setup-curriculum.md](docs/plans/network-setup-curriculum.md) | Completed (2026-11-21) | Corpus 0.105.0 |
+| `TCK29` | Network setup pages and path | [network-setup-curriculum.md](docs/plans/network-setup-curriculum.md) | Completed (2026-11-21) | Corpus 0.105.0 |
+| `TCK30` | References and verification | [network-setup-curriculum.md](docs/plans/network-setup-curriculum.md) | Completed (2026-11-21) | Corpus 0.105.0; `make corpus-and-test` and `make check-repo` pass |
 
 ### Knowledge system (corpus 0.31.0)
 
@@ -143,3 +146,20 @@ Owning plan: [external-links.md](docs/plans/external-links.md)
 
 - [ ] **TCK26 (Browser handoff, confirmation, and OSC 8 links):** Offline-safe handoff of HTTP/HTTPS URLs to external browser with two-step keyboard confirmation and optional OSC 8 terminal hyperlink emission; command 0.44.0. Source integrated from `feature/external-links` at `abf0262` (2026-10-27); environment acceptance matrix pending.
 - [ ] **TCK27 (External links documentation and integration checks):** Documentation, man page updates, manual/automated tests, and shared-checkout integration. Source completed at `abf0262` (2026-10-27); full desktop and text console verification pending.
+
+### Network setup and discovery curriculum
+
+Owning plan: [network-setup-curriculum.md](docs/plans/network-setup-curriculum.md)
+
+- [x] **TCK28 (Avahi and Zeroconf page):** Three-level
+  `networking/services/avahi-and-zeroconf.html` and folder hub covering local
+  service discovery, captured `avahi-browse`/`avahi-resolve` practice and
+  RFC 6762/6763 detail. Completed 2026-11-21 (corpus 0.105.0).
+- [x] **TCK29 (Network setup pages and path):** `networking/setup/` hub and
+  five three-level pages on foundations, addressing, connections, routing and
+  name resolution, plus `paths/network-setup.html` with five checkpoints and a
+  capstone. Completed 2026-11-21 (corpus 0.105.0).
+- [x] **TCK30 (References and verification):** Seven glossary pages, RFC 6762
+  and RFC 6763 bibliography entries, regenerated indexes, corpus/test/repo
+  checks, `tam show`/`tam explain` spot checks, corpus 0.105.0 version and
+  roadmap updates. Completed 2026-11-21.

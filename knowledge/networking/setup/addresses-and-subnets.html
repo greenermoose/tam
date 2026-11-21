@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Addresses and subnets</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="addresses-and-subnets">
+<meta name="summary" content="Understand IPv4 and IPv6 addresses, CIDR prefix lengths, private ranges and how addresses become hardware neighbors">
+<meta name="keywords" content="ip address, subnet, subnet mask, cidr, prefix length, ipv4, ipv6, private address, arp, ndp, network address, broadcast">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/setup/index.html">
+<meta name="prereqs" content="network-foundations">
+<meta name="paths" content="network-setup:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Addresses and subnets</p></nav>
+
+<h1>Addresses and subnets</h1>
+<p>An address says where a machine is on a network, and a prefix length says how much of that address describes the local network rather than the individual machine.</p>
+<h2>Before this</h2><p><a href="networking/setup/how-networks-fit-together.html">How networks fit together</a> introduces the four layers this page explains in detail.</p>
+
+<section data-level="novice">
+<h2>Street names and house numbers</h2>
+<p>Think of a network as a street and each machine as a house. The street name is the <dfn><a href="glossary/s/subnet.html">subnet</a></dfn>; the house number is the machine's <a href="glossary/i/ip-address.html">IP address</a>. Houses on the same street can talk directly. To reach another street, a letter goes to a <a href="glossary/r/router.html">router</a>.</p>
+
+<h3>Why it matters</h3>
+<p>Two machines that appear to have similar addresses cannot always talk directly. The prefix length decides the boundary. If one thinks the other is on a different subnet, it sends the traffic to the router instead of delivering it locally, which is a common cause of "the cable works but the printer does not appear".</p>
+
+<h3>How to think about it</h3>
+<pre>
+192.168.1.26 / 24
+\________/   |
+  address    prefix length: the first 24 bits name the subnet
+
+subnet:      192.168.1.0
+broadcast:   192.168.1.255
+usable:      192.168.1.1 - 192.168.1.254
+</pre>
+<p>There are two address families. IPv4 uses four decimal groups, such as <code>192.168.1.26</code>. IPv6 uses eight hexadecimal groups, such as <code>fe80::80d1:99bb:b99:2848</code>. Both work the same way: a prefix length says how many leading bits are shared by every machine on the link.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/i/ip-address.html">IP address</a></dt>
+<dd>A number that identifies one machine or interface on a network.</dd>
+<dt><a href="glossary/s/subnet.html">Subnet</a></dt>
+<dd>A group of addresses that share a prefix and can normally reach each other directly.</dd>
+<dt><a href="glossary/c/cidr.html">CIDR</a></dt>
+<dd>Classless Inter-Domain Routing: the <code>address/prefix</code> notation that replaced fixed address classes.</dd>
+<dt><a href="glossary/a/arp.html">ARP</a></dt>
+<dd>The Address Resolution Protocol, which finds the hardware address for an IPv4 neighbor.</dd>
+<dt><a href="glossary/n/nat.html">NAT</a></dt>
+<dd>Network Address Translation, which lets many private addresses share one public address.</dd>
+<dt><a href="glossary/n/ndp.html">NDP</a></dt>
+<dd>The IPv6 Neighbor Discovery Protocol, which replaces ARP and also discovers routers.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read and calculate a prefix</h2>
+<p><strong>Goal:</strong> you will be able to take an <code>address/prefix</code> pair, name its subnet and broadcast address, and find the hardware address of a neighbor.</p>
+
+<p><strong>Before you start:</strong> all commands below only read state or do arithmetic locally. Nothing is changed on the network.</p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ip -4 -br addr show dev enp1s0
+enp1s0           UP             192.168.1.26/24
+$ python3 -c 'import ipaddress; n=ipaddress.ip_network("192.168.1.26/24", strict=False); print(n, n.netmask, n.broadcast_address, n.num_addresses)'
+192.168.1.0/24 255.255.255.0 192.168.1.255 256
+$ ip neigh show dev enp1s0
+192.168.1.1 lladdr 10:0c:6b:20:34:e6 REACHABLE
+192.168.1.2 lladdr 98:ed:5c:a2:c5:1f STALE
+192.168.1.5 lladdr 22:ea:48:a9:d6:3d STALE
+</pre>
+<p>Captured on a wired Arch Linux workstation on 2026-11-21. Your addresses and neighbor list will differ.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The interface has address <code>192.168.1.26</code> with a <code>/24</code> prefix, so the first 24 bits (the first three groups) name the subnet.</li>
+<li>Holding the last group at zero gives the subnet <code>192.168.1.0/24</code>; holding it at all ones gives the broadcast address <code>192.168.1.255</code>.</li>
+<li>The netmask <code>255.255.255.0</code> is the same fact written as four octets: 255 means all eight bits belong to the prefix.</li>
+<li><code>ip neigh</code> shows the neighbor table: each IPv4 address on the link paired with the hardware address learned by <a href="glossary/a/arp.html">ARP</a>.</li>
+<li><code>REACHABLE</code> means a recent confirmation; <code>STALE</code> means the entry is still usable but should be refreshed before the next use.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Find your own address with <code>ip -4 -br addr</code>, then substitute it in the Python command above. Change <code>/24</code> to <code>/25</code> and compare: a <code>/25</code> splits the same street into two halves, and <code>192.168.1.26/25</code> belongs to <code>192.168.1.0/25</code>, not <code>192.168.1.128/25</code>.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A neighbor has no hardware address, or shows <code>INCOMPLETE</code></dt>
+<dd>ARP has not received a reply. Check that the neighbor is up and on the same link; a firewall can also block ARP.</dd>
+<dt>Two machines report the same address</dt>
+<dd>An address conflict. One machine will log a duplicate-address warning; change one profile, then clear the stale neighbor entry with <code>ip neigh flush dev &lt;interface&gt;</code>.</dd>
+<dt>A device is on the same cable but unreachable at a numeric address</dt>
+<dd>Compare prefix lengths. A <code>/24</code> and a <code>/25</code> on one link can make two hosts disagree about whether they are local.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux uses NetworkManager profiles for addresses; the DNS and connection commands in the public <code>tamlinux</code> repository read those profiles and the kernel tables rather than keeping a second copy. The host firewall template documented in the corpus permits local network discovery traffic including mDNS on UDP port 5353.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>How many addresses are in 192.168.1.0/24, and why are two of them special?</i></summary>
+<p>256 addresses, because 32 minus 24 leaves 8 host bits. The all-zero address names the subnet and the all-one address is the broadcast address, so 254 remain for hosts.</p>
+</details>
+<details class="q">
+<summary><i>Why does ip neigh show a MAC address for 192.168.1.1 but not for an internet server?</i></summary>
+<p>ARP resolves only next hops on the local link. A remote server is reached through the gateway, so the neighbor table needs the gateway's hardware address, not the server's.</p>
+</details>
+<details class="q">
+<summary><i>Predict what changes when the prefix becomes /25.</i></summary>
+<p>One more bit moves into the network portion. The subnet becomes either <code>192.168.1.0/25</code> or <code>192.168.1.128/25</code>, with 128 addresses and a broadcast address of <code>.127</code> or <code>.255</code>.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: prefix arithmetic and neighbor resolution</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Prefix</th><th>Netmask</th><th>Addresses</th><th>Common use</th></tr>
+<tr><td><code>/8</code></td><td>255.0.0.0</td><td>16,777,216</td><td>A large private range (<code>10.0.0.0/8</code>)</td></tr>
+<tr><td><code>/16</code></td><td>255.255.0.0</td><td>65,536</td><td>A campus or site range (<code>172.16.0.0/16</code> portion)</td></tr>
+<tr><td><code>/24</code></td><td>255.255.255.0</td><td>256</td><td>A small home or office LAN</td></tr>
+<tr><td><code>/25</code></td><td>255.255.255.128</td><td>128</td><td>A split LAN</td></tr>
+<tr><td><code>/30</code></td><td>255.255.255.252</td><td>4</td><td>A point-to-point link</td></tr>
+<tr><td><code>/32</code></td><td>255.255.255.255</td><td>1</td><td>A single host route</td></tr>
+<tr><td><code>/64</code></td><td>IPv6</td><td>2^64</td><td>A normal IPv6 link</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>A prefix length is a count of leading one bits in the mask. The kernel applies a bitwise AND between an address and the mask to find the subnet, and routing uses longest-prefix match: among all routes whose prefix contains the destination, the one with the most leading bits wins. That is why a <code>/32</code> host route overrides a <code>/24</code> route.</p>
+<p>IPv4 private ranges are <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> and <code>192.168.0.0/16</code>; they are not routed on the public internet and are translated at the boundary by <a href="glossary/n/nat.html">NAT</a>. IPv6 uses global unicast, link-local <code>fe80::/10</code> and unique local <code>fc00::/7</code>. Link-local addresses need an interface scope, written <code>fe80::1%enp1s0</code>, because the same prefix may exist on several interfaces.</p>
+<p>On IPv4, ARP broadcasts a request asking "who owns this address?" and the owner replies with its hardware address; the result enters the neighbor table. IPv6 replaces this with ICMPv6 Neighbor Solicitation and Advertisement, adds duplicate address detection before an address is used, and discovers routers through Router Advertisements. A gratuitous ARP announcement can also update neighbors after an address move, which is useful for failover but opens the door to spoofing.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ python3 - <<'PY'
+import ipaddress
+for cidr in ('10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '2001:db8::/32'):
+    net = ipaddress.ip_network(cidr)
+    print(f'{net!s:22} {net.version}  {net.num_addresses:>20}  {net.netmask}')
+PY
+10.0.0.0/8             4           16777216  255.0.0.0
+172.16.0.0/12          4            1048576  255.240.0.0
+192.168.0.0/16         4              65536  255.255.0.0
+2001:db8::/32          6  79228162514264337593543950336  ffff:ffff::
+</pre>
+<p>The Python <code>ipaddress</code> module performs the same prefix arithmetic as the kernel's address parser, and is convenient for checking a planned layout before applying it.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>Subnet zero and the all-ones subnet are usable in CIDR, but some old equipment still treats them specially.</li>
+<li>A <code>/31</code> is defined for point-to-point links, where there is no need for a broadcast address; older systems expect <code>/30</code>.</li>
+<li>IPv6 does not use broadcast. Multicast and solicited-node addresses carry the functions that IPv4 broadcast performs.</li>
+<li>NAT breaks end-to-end addressing. A host behind NAT is reachable from outside only through a port mapping or a relay.</li>
+<li>Duplicate address detection in IPv6 can delay use of a new address by a moment; a manual profile that appears slow to start may simply be probing.</li>
+<li>Routes with the same prefix length but different metrics are chosen by metric; equal-cost multipath can use several at once.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why must a router be on the same subnet as the hosts it serves?</summary>
+<p>Hosts deliver local traffic using ARP or NDP, which only work on a shared link. The router's next-hop address must therefore be directly reachable; otherwise the host cannot turn it into a hardware address and must send to a different router that can.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><a href="man:ip-address(8)">ip-address(8)</a>, <a href="man:ip-neigh(8)">ip-neigh(8)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:python3(1)">python3(1)</a>. The address meanings follow the IETF IPv4, IPv6, CIDR, ARP and Neighbor Discovery specifications.</p>
+
+<h3>Improve it</h3>
+<p>Check any prefix example with <code>ipaddress</code> before publishing it; an off-by-one broadcast address is easy to miss by reading.</p>
+</section>
+
+<h2>Next</h2><p><a href="networking/setup/adding-a-connection.html">Adding a connection</a> &mdash; put an address into a saved profile and apply it.</p>
+<h2>Related</h2><ul><li><a href="networking/setup/how-networks-fit-together.html">How networks fit together</a> &mdash; place this layer in the four-question model.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the full reading order.</li></ul>
+</body>
+</html>

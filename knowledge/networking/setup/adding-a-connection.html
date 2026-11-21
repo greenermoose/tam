@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Adding a connection</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="adding-a-connection">
+<meta name="summary" content="Create a saved network profile, choose DHCP or a manual address, connect wired or Wi-Fi, and undo the change">
+<meta name="keywords" content="add network connection, network profile, dhcp, static ip, manual address, nmcli, networkmanager, wifi profile, ethernet profile">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/setup/index.html">
+<meta name="prereqs" content="addresses-and-subnets">
+<meta name="paths" content="network-setup:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Adding a connection</p></nav>
+
+<h1>Adding a connection</h1>
+<p>A connection is a saved recipe that tells the computer how to configure an interface: whether to ask for an address automatically or use a fixed one, which router to use, and which DNS servers to query.</p>
+<h2>Before this</h2><p><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a> explains the numbers a profile contains.</p>
+
+<section data-level="novice">
+<h2>A recipe, not a one-time action</h2>
+<p>When you connect to a network, the operating system can either ask a <a href="glossary/d/dhcp.html">DHCP</a> server for settings or use settings you typed in. A saved connection remembers that choice, so the next time the cable is plugged in or the Wi-Fi network is in range, the same settings return without being entered again.</p>
+
+<h3>Why it matters</h3>
+<p>Saving a connection avoids repeating the setup and lets several profiles coexist. A laptop can keep one profile for home and another for work; a desktop can keep a wired profile and a fallback Wi-Fi profile. Editing a profile changes future connections, so knowing how to undo a change matters.</p>
+
+<h3>How to think about it</h3>
+<pre>
+connection profile = { which interface, which SSID, how to get an address,
+                       which DNS servers, whether to connect automatically }
+        |
+        v
+NetworkManager applies it to the kernel when the link appears
+</pre>
+<p>Most home networks use DHCP: the router hands out an address, a prefix, a gateway and DNS servers. A printer, server or lab device often needs a fixed address so its address does not change.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/dhcp.html">DHCP</a></dt>
+<dd>A service that assigns an address and related settings automatically.</dd>
+<dt><a href="glossary/i/ip-address.html">IP address</a></dt>
+<dd>The number assigned to an interface; it may be leased from DHCP or set manually.</dd>
+<dt><a href="glossary/s/ssid.html">SSID</a></dt>
+<dd>The public name of a Wi-Fi network, stored in a Wi-Fi profile.</dd>
+<dt><a href="glossary/n/network-interface.html">Network interface</a></dt>
+<dd>The device a profile is bound to, such as <code>enp1s0</code>.</dd>
+<dt><a href="glossary/g/gateway.html">Gateway</a></dt>
+<dd>The router a profile uses for traffic outside the local network.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Inspect profiles before creating one</h2>
+<p><strong>Goal:</strong> you will be able to list saved connections, tell which one is active, describe how it obtains an address, and say what you would delete to undo a new profile.</p>
+
+<p><strong>Before you start:</strong> these commands read profile state. In this exercise you do not need to create a profile; the creation command is shown for reference in the expert section, together with its undo.</p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ nmcli device status
+DEVICE   TYPE      STATE                   CONNECTION
+enp1s0   ethernet  connected               Wired connection 1
+docker0  bridge    connected (externally)  docker0
+lo       loopback  connected (externally)  lo
+enp2s0   ethernet  unavailable             --
+wlp3s0   wifi      unavailable             --
+$ nmcli -t -f NAME,TYPE,DEVICE connection show | grep -E ':(802-3-ethernet|bridge|loopback):'
+Wired connection 1:802-3-ethernet:enp1s0
+docker0:bridge:docker0
+lo:loopback:lo
+Wired connection 2:802-3-ethernet:
+$ nmcli -f IP4.METHOD,IP4.ADDRESS,IP4.GATEWAY connection show 'Wired connection 1'
+IP4.METHOD:  auto
+IP4.ADDRESS: --
+IP4.GATEWAY: --
+</pre>
+<p>Captured on a wired Arch Linux workstation on 2026-11-21. Wi-Fi profile names are omitted from the second command so the output stays focused on wired profiles; your list will differ.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>nmcli device status</code> shows devices and the profile in use on each. <code>unavailable</code> means no carrier; <code>connected (externally)</code> means something other than NetworkManager configured the device.</li>
+<li><code>nmcli connection show</code> lists saved profiles, including ones not currently active. <code>Wired connection 2</code> is saved but unused.</li>
+<li>The fields printed in the third command describe the profile, not the live interface. <code>auto</code> means DHCP; <code>manual</code> would mean a fixed address written in the profile.</li>
+<li>The second output is in <code>-t</code> (terse) form with selected fields, which is easier to read in scripts and avoids printing secrets.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>On your own machine, run <code>nmcli device status</code>, then <code>nmcli connection show --active</code>. Pick the active connection and print its method with <code>nmcli -g IP4.METHOD connection show '&lt;name&gt;'</code>. This is read-only. Write the profile name down: <code>nmcli connection delete '&lt;name&gt;'</code> is the undo for a profile you create.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>Error: unknown connection</code></dt>
+<dd>The name must match a saved profile exactly; quote names that contain spaces. List them again with <code>nmcli connection show</code>.</dd>
+<dt>A new profile does not connect</dt>
+<dd>Check <code>nmcli device status</code> for carrier and confirm the profile is bound to the right interface. A profile for <code>enp2s0</code> cannot configure <code>enp1s0</code>.</dd>
+<dt>The profile shows <code>auto</code> but no address is assigned</dt>
+<dd>No DHCP server answered on that link. Look at <code>journalctl -u NetworkManager</code> for lease errors before assigning a fixed address.</dd>
+<dt>A Wi-Fi profile asks for a password every time</dt>
+<dd>The saved secret may be missing or marked for this user only. Recreate the profile with the correct key management settings rather than typing the password into a command you later paste into a log.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux keeps connection management in NetworkManager and binds the desktop network panel to Meta + CTRL+W. Changing DNS providers goes through <code>tam-dns</code>, which saves the previous configuration before writing it. Those behaviors are recorded in the public <code>tamlinux</code> repository and in the connection reference page.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>What is the difference between a device and a connection in nmcli?</i></summary>
+<p>A device is the hardware or virtual interface; a connection is a saved profile that can be applied to a compatible device. Several profiles can exist for one device, but only one is active on it at a time.</p>
+</details>
+<details class="q">
+<summary><i>Why read a profile's IP4.METHOD instead of the interface address?</i></summary>
+<p>The method records the intent (<code>auto</code> or <code>manual</code>), while the live address records the current result. When a lease has not arrived yet, the profile still tells you what should happen.</p>
+</details>
+<details class="q">
+<summary><i>Which command undoes a newly created profile?</i></summary>
+<p><code>nmcli connection delete '&lt;name&gt;'</code> removes the saved profile. It does not delete files on other systems or change the network itself.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: profile settings and state</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Setting</th><th>Typical value</th><th>Meaning</th></tr>
+<tr><td><code>connection.interface-name</code></td><td><code>enp1s0</code></td><td>Binds a wired profile to one device</td></tr>
+<tr><td><code>802-11-wireless.ssid</code></td><td>network name</td><td>Identifies the Wi-Fi network, not the access point</td></tr>
+<tr><td><code>ipv4.method</code></td><td><code>auto</code> / <code>manual</code> / <code>disabled</code></td><td>DHCP, fixed address or no IPv4 configuration</td></tr>
+<tr><td><code>ipv4.addresses</code></td><td><code>192.168.1.50/24</code></td><td>Fixed address and prefix, used with <code>manual</code></td></tr>
+<tr><td><code>ipv4.gateway</code></td><td><code>192.168.1.1</code></td><td>Default next hop</td></tr>
+<tr><td><code>ipv4.dns</code></td><td><code>1.1.1.1 9.9.9.9</code></td><td>Servers for this connection</td></tr>
+<tr><td><code>ipv4.route-metric</code></td><td><code>100</code></td><td>Preference when several default routes exist</td></tr>
+<tr><td><code>connection.autoconnect</code></td><td><code>yes</code></td><td>Apply the profile when the link appears</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>NetworkManager stores profiles as keyfiles under <code>/etc/NetworkManager/system-connections/</code> or in its private D-Bus state. The settings names above are the same keys a keyfile uses, grouped into sections such as <code>[ipv4]</code> and <code>[802-11-wireless]</code>. <code>nmcli connection add</code> creates a profile; <code>nmcli connection up</code> applies it; <code>nmcli device reapply</code> pushes edited settings into the active connection without a full reconnect.</p>
+<p>A DHCP lease is not a permanent address. It carries a lifetime, and the client renews it before expiry; if renewal fails the address can disappear while the cable stays connected. A manual profile has no such timer, which is why printers and servers use one.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="system">
+$ nmcli connection add type ethernet con-name 'Lab wired' ifname enp2s0 \
+    ipv4.method manual ipv4.addresses 192.168.2.10/24 \
+    ipv4.gateway 192.168.2.1 ipv4.dns '192.168.2.1'
+Connection 'Lab wired' (...) successfully added.
+$ nmcli connection up 'Lab wired'
+Connection successfully activated ...
+$ nmcli connection delete 'Lab wired'
+Connection 'Lab wired' (...) successfully deleted.
+</pre>
+<p>Illustrative sequence for reference, not an exercise on a working machine. The last command is the recorded undo. Activation changes kernel state; deleting the profile does not undo changes made to other systems.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>A Wi-Fi profile without a secret can still connect through an enterprise method or a stored system secret; reading it back requires suitable permissions.</li>
+<li>Setting both a manual address and <code>ipv4.method=auto</code> leaves the manual address unused; the method decides which values are applied.</li>
+<li>Two profiles for the same interface can both have <code>autoconnect=yes</code>. The one with the higher autoconnect priority or the most recent activation usually wins, which can look random.</li>
+<li>A VPN profile is a connection too. It adds a virtual device and its own routes rather than configuring the physical interface.</li>
+<li>Changing DNS in a profile does not immediately change the running resolver; the profile must be reapplied or the connection reactivated.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why is deleting a profile the right undo for a profile you just created?</summary>
+<p>The profile is the persistent change. Removing it restores the previous set of profiles; the live configuration returns to whatever the remaining active profile supplies on the next reactivation.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><a href="man:nmcli(1)">nmcli(1)</a>, <a href="man:nm-settings(5)">nm-settings(5)</a>, <a href="man:NetworkManager(8)">NetworkManager(8)</a> and <a href="man:dhcpcd(8)">dhcpcd(8)</a> where that client is installed.</p>
+
+<h3>Improve it</h3>
+<p>Add a worked example for enterprise Wi-Fi only when a source can confirm the key-management settings; do not copy a password into a corpus page.</p>
+</section>
+
+<h2>Next</h2><p><a href="networking/setup/gateways-and-routing.html">Gateways and routing</a> &mdash; see what the profile's gateway does once it is applied.</p>
+<h2>Related</h2><ul><li><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a> &mdash; the numbers used in a manual profile.</li><li><a href="networking/commands.html">Network commands</a> &mdash; the Tamlinux commands that read and share connection details.</li></ul>
+</body>
+</html>

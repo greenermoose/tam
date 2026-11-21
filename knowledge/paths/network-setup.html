@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Set up a network connection</title>
+<meta name="topic" content="network-setup">
+<meta name="summary" content="From no prior knowledge to configuring and inspecting a working network connection and finding local services">
+<meta name="keywords" content="path, network setup, networking, addresses, subnets, dhcp, routing, dns, avahi, zeroconf, service discovery">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Set up a network connection</p></nav>
+
+<h1>Set up a network connection</h1>
+<p>This path takes a reader with no networking knowledge from the first idea of a network to configuring a connection, reading the routing and name decisions, and finding devices that announce themselves locally.</p>
+<p>Each stage has a checkpoint. Answer it before moving on; if a checkpoint is unclear, reread the stage at the suggested lens. The capstone is a whole task in a reversible setting, so no mistake changes a working connection.</p>
+
+<h2>Stage 1: The four questions</h2>
+<p><a href="networking/setup/how-networks-fit-together.html?level=1">How networks fit together</a>: learn that every connection answers a link, address, route and name question, and that these layers fail independently. Read the four answers from a real machine with <code>ip -br addr</code>, <code>ip route</code> and <code>getent ahosts</code>.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>A machine has an address but no default route. Which destinations still work?</i></summary>
+<p>Destinations inside the directly connected prefix still work, because the kernel creates a route from the interface address. Anything outside that prefix has no next hop and fails.</p>
+</details>
+</section>
+
+<h2>Stage 2: Numbers on the wire</h2>
+<p><a href="networking/setup/addresses-and-subnets.html?level=1">Addresses and subnets</a>: work out a subnet, broadcast address and usable range from an <code>address/prefix</code> pair, and see how ARP and NDP turn an address into a hardware neighbor.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why can two machines on one cable fail to talk if their prefix lengths differ?</i></summary>
+<p>Each machine decides independently whether the other is local. If one treats the destination as remote it sends the frame to a gateway instead of directly, and with no gateway on that link the packet has no usable path.</p>
+</details>
+</section>
+
+<h2>Stage 3: Save a connection</h2>
+<p><a href="networking/setup/adding-a-connection.html?level=2">Adding a connection</a>: distinguish a device from a saved profile, read the DHCP or manual method, and learn the undo for a profile you create. Record the profile name before changing anything.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>What is the undo for a connection profile you just created?</i></summary>
+<p><code>nmcli connection delete '&lt;name&gt;'</code> removes the saved profile. The live configuration then comes from whichever profile remains active on that interface.</p>
+</details>
+</section>
+
+<h2>Stage 4: Routes and names</h2>
+<p><a href="networking/setup/gateways-and-routing.html?level=2">Gateways and routing</a> and <a href="networking/setup/name-resolution.html?level=2">Name resolution</a>: ask the kernel which interface a destination would use, then follow a name to an address through the local resolver. Keep the two questions separate: a numeric address isolates routing, and a name adds resolution.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>A numeric address replies but the name fails. Which layer is at fault, and which command isolates it?</i></summary>
+<p>Name resolution. The successful numeric reply proves link, address and route are working. <code>resolvectl query &lt;name&gt;</code> reports the resolver's error, such as NXDOMAIN, SERVFAIL or a timeout.</p>
+</details>
+</section>
+
+<h2>Stage 5: Find devices without an address</h2>
+<p><a href="networking/services/avahi-and-zeroconf.html?level=2">Avahi and Zeroconf</a>: publish a temporary service, read <code>avahi-browse</code> output, resolve a <code>.local</code> name and understand the mDNS and DNS-SD records behind the result.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why does a <code>.local</code> name fail through a global DNS server, and what answers it instead?</i></summary>
+<p><code>.local</code> is reserved for link-local names and is not delegated in the global DNS hierarchy. Multicast DNS on the local link answers it, using a Name Service Switch module such as <code>nss-mdns</code> on Linux.</p>
+</details>
+</section>
+
+<h2>Capstone: Bring a new device online and find its service</h2>
+<p><strong>Scenario:</strong> a computer has a wired connection, a new printer was plugged into the same network, and the printer does not appear in the print dialog. Work in a reversible setting: use only read-only checks until you know what to change, and write down the profile name and setting before any edit.</p>
+<p><strong>Task:</strong> check the interface and address, confirm a default route, verify that a public name resolves, then browse for printing services and resolve the printer's <code>.local</code> name. State which layer each observation proves and what single change would fix the remaining fault.</p>
+
+<details class="solution">
+<p><strong>Model approach:</strong></p>
+<ol>
+<li><code>ip -br addr</code> and <code>nmcli device status</code> establish that the interface has carrier and an address. Without an address, no service discovery or routing can work.</li>
+<li><code>ip route get 1.1.1.1</code> proves the default route and names the gateway. A failure here confines the problem to the local prefix.</li>
+<li><code>getent ahosts example.com</code> separates name resolution from routing. A numeric reply with a failed name points at the resolver; a failed numeric reply points at the route or link.</li>
+<li><code>avahi-browse _ipp._tcp -t -r -p</code> shows whether the printer announces itself. No result with a healthy network points at the printer, its VLAN or a firewall on UDP 5353.</li>
+<li><code>avahi-resolve -4 -n '&lt;printer&gt;.local'</code> confirms the name-to-address step. If a profile change is needed, note its current values and the delete command that undoes a newly created profile.</li>
+</ol>
+<p>The point is not the exact output but the order: each check eliminates a layer, so the final change is the smallest one that can help.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/keep-it-healthy.html">Keep it healthy</a> &mdash; turn these checks into a routine.</li>
+<li><a href="paths/cables-and-protocols.html">Mastering computer cables, hardware communication, and protocols</a> &mdash; continue below the network layer into signals and framing.</li>
+<li><a href="paths/diagnose-from-principles.html">Diagnose from principles</a> &mdash; apply the same layer-by-layer reasoning to other faults.</li>
+</ul>
+</body>
+</html>

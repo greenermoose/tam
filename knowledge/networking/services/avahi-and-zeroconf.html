@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Avahi and Zeroconf</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="avahi-and-zeroconf">
+<meta name="summary" content="Find printers and other local services without a central server, then learn how multicast DNS and DNS-Based Service Discovery work">
+<meta name="keywords" content="avahi, zeroconf, bonjour, mdns, multicast dns, dns-sd, service discovery, local network, .local, 224.0.0.251, 5353, avahi-browse, avahi-resolve">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/services/index.html">
+<meta name="prereqs" content="name-resolution">
+<meta name="paths" content="network-setup:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/services/index.html">Local services and discovery</a> / Avahi and Zeroconf</p></nav>
+
+<h1>Avahi and Zeroconf</h1>
+<p>Local service discovery lets a printer, screen or file share announce itself on a network so a computer can find it without being told its address first.</p>
+<h2>Before this</h2><p><a href="networking/setup/name-resolution.html">Name resolution</a> explains ordinary DNS, which answers names from a configured server. This page begins where that server is not needed.</p>
+
+<section data-level="novice">
+<h2>Finding things on a network with no central list</h2>
+<p>Imagine walking into a room where everyone wears a name badge and calls out what they can do. You do not need a directory of the room; you listen. A network can work the same way: a device calls out "I am a printer called Demo Printer at this address and port", and your computer hears it.</p>
+
+<h3>Why it matters</h3>
+<p>You rarely type a printer's address. A browser shows a list of nearby screens, a print dialog shows nearby printers, and a file manager shows nearby shares. That works because the devices announced themselves on the local network. Understanding the announcement lets you explain why a device appears on one network but not another.</p>
+
+<h3>How to think about it</h3>
+<pre>
+Device with a service     --- announces ---&gt;  everyone on the local link
+Your computer             --- asks --------&gt;  everyone on the local link
+                          &lt;--- answers -----  the device that offers it
+</pre>
+<p>Several names describe the same idea. <a href="glossary/z/zeroconf.html">Zeroconf</a> is the general set of "zero configuration" techniques. <a href="glossary/b/bonjour.html">Bonjour</a> is Apple's name for its implementation. <a href="glossary/a/avahi.html">Avahi</a> is the free implementation used on Linux. Underneath, <a href="glossary/m/mdns.html">mDNS</a> answers names on the local link and <a href="glossary/d/dns-sd.html">DNS-SD</a> describes services using DNS record types.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/a/avahi.html">Avahi</a></dt>
+<dd>The Linux daemon and tools that publish and discover local services.</dd>
+<dt><a href="glossary/z/zeroconf.html">Zeroconf</a></dt>
+<dd>Zero-configuration networking: connecting devices without a central configuration service.</dd>
+<dt><a href="glossary/b/bonjour.html">Bonjour</a></dt>
+<dd>Apple's name for its Zeroconf implementation, compatible with Avahi.</dd>
+<dt><a href="glossary/m/mdns.html">mDNS</a></dt>
+<dd>Multicast DNS, which resolves names by asking every device on the local link.</dd>
+<dt><a href="glossary/d/dns-sd.html">DNS-SD</a></dt>
+<dd>DNS-Based Service Discovery, which lists service instances and resolves each to a host and port.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Publish and find a service</h2>
+<p><strong>Goal:</strong> you will be able to publish a temporary test service, read the discovery output, resolve the resulting local name and stop the test cleanly.</p>
+
+<p><strong>Before you start:</strong> the Avahi daemon must be running on your machine. The example creates a short-lived service in your own session and then removes it. It does not install anything or change configuration files.</p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="user">
+$ avahi-publish -s 'Demo Printer' _ipp._tcp 631 &amp;
+Established under name 'Demo Printer'
+$ avahi-browse _ipp._tcp -t -r -p
++;enp1s0;IPv4;Demo\032Printer;Internet Printer;local
++;lo;IPv4;Demo\032Printer;Internet Printer;local
+=;enp1s0;IPv4;Demo\032Printer;Internet Printer;local;workstation.local;192.168.1.26;631;
+=;lo;IPv4;Demo\032Printer;Internet Printer;local;workstation.local;127.0.0.1;631;
+$ avahi-resolve -4 -n "$(hostname).local"
+workstation.local       192.168.1.26
+</pre>
+<p>Captured on a wired Arch Linux workstation on 2026-11-21 with Avahi 0.9-rc5. The host name is shortened to <code>workstation.local</code> here; your name, interfaces and addresses will differ. Stop the publisher with <code>kill %1</code> or Ctrl+C in the shell that started it.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li><code>avahi-publish -s</code> registers a service instance named <code>Demo Printer</code> of type <code>_ipp._tcp</code> on port 631. The ampersand puts it in the background so the next command can run.</li>
+<li><code>avahi-browse -t</code> asks for instances of that type and terminates after collecting them; <code>-r</code> resolves each one; <code>-p</code> prints semicolon-separated fields suitable for scripts.</li>
+<li>Lines beginning <code>+</code> announce that a service was found. Lines beginning <code>=</code> give the resolved host name, address and port.</li>
+<li><code>\032</code> is the DNS text escape for a space. Service instance names can contain spaces; the parsable output escapes them so fields stay separated.</li>
+<li>The same service appears on <code>enp1s0</code> and <code>lo</code> because Avahi listens on both interfaces. The loopback copy resolves to <code>127.0.0.1</code>; the wired copy resolves to the LAN address.</li>
+<li><code>avahi-resolve</code> resolves the machine's <code>.local</code> name to an address using multicast DNS rather than a configured DNS server.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>Repeat the example with a name of your own, then run <code>avahi-browse -a -t -r -p</code> to see all advertised types on the link. End with <code>avahi-browse -D -t</code> to list discovery domains. Stop every publisher you started; a forgotten one keeps announcing a service that no longer exists.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No services appear</dt>
+<dd>Check <code>systemctl is-active avahi-daemon</code>. If it is inactive, start it with <code>systemctl start avahi-daemon</code>, which needs privilege; then browse again.</dd>
+<dt>A service appears but cannot be resolved</dt>
+<dd>The publisher may have stopped, or a firewall may block UDP port 5353. The Tamlinux host firewall template permits mDNS from the local home subnet.</dd>
+<dt><code>avahi-resolve</code> fails for a <code>.local</code> name</dt>
+<dd>Ordinary DNS does not answer <code>.local</code>. Check that a Name Service Switch module such as <code>nss-mdns</code> is installed and that the resolver is not claiming the domain first.</dd>
+<dt>Services appear only from this machine</dt>
+<dd>Multicast traffic may be confined by a switch, a guest-network setting or a firewall. Discovery is a link-local mechanism and does not cross a router by default.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux's host firewall template permits mDNS on UDP 5353 from the local home subnet, and its connection pages direct DNS changes through a command that records a snapshot. The template is documented in the public product repository; the enabled protocols on a given machine can be checked with <code>resolvectl status</code>, where <code>-mDNS</code> means systemd-resolved is not answering <code>.local</code> and the Avahi stack handles it instead.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why does the same service appear twice in the browse output?</i></summary>
+<p>Avahi listens on more than one interface. It sees its own announcement on the wired interface and through loopback, each with a different address. Device lists normally hide the local copies, but the parsable output shows both.</p>
+</details>
+<details class="q">
+<summary><i>What does the _ipp._tcp part identify?</i></summary>
+<p>A DNS-SD service type: Internet Printing Protocol over TCP. It is a label used to group instances of the same kind of service, not the printer's name or its address.</p>
+</details>
+<details class="q">
+<summary><i>Predict what happens if the firewall drops UDP 5353 on the wired interface.</i></summary>
+<p>Local announcements still appear on loopback, but no other machine is heard and no announcement from this machine reaches the network. Browse shows little or nothing while the daemon itself remains active.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: mDNS, DNS-SD and the Avahi daemon</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Item</th><th>Meaning</th><th>Authority</th></tr>
+<tr><td>UDP 5353</td><td>Port used for multicast DNS queries and responses</td><td><a href="bibliography/rfc6762-mdns.html">RFC 6762</a></td></tr>
+<tr><td><code>224.0.0.251</code> / <code>FF02::FB</code></td><td>IPv4 and IPv6 link-local multicast groups</td><td><a href="bibliography/rfc6762-mdns.html">RFC 6762</a></td></tr>
+<tr><td><code>.local</code></td><td>DNS suffix reserved for link-local names</td><td><a href="bibliography/rfc6762-mdns.html">RFC 6762</a></td></tr>
+<tr><td><code>_ipp._tcp.local</code></td><td>A service type within the local domain</td><td><a href="bibliography/rfc6763-dns-sd.html">RFC 6763</a></td></tr>
+<tr><td>PTR / SRV / TXT</td><td>Instance enumeration, host and port, and service metadata</td><td><a href="bibliography/rfc6763-dns-sd.html">RFC 6763</a></td></tr>
+<tr><td><code>/etc/avahi/services/*.service</code></td><td>XML definitions of services published at daemon start</td><td><code>avahi-daemon.conf(5)</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>mDNS uses the DNS wire format without a configured server. A query is sent to the multicast group with a destination port of 5353 and IP TTL 255; every host on the link receives it, and the host that owns the answer multicasts a response. Responses are delayed by a random interval of 20 to 120 milliseconds so that several hosts answering at once do not collide. A host choosing a name first probes for it with tentative records, then announces it with unsolicited responses; a later claimant that wins a conflict sends its own announcement while the loser picks a new name. A withdrawal is announced with a record whose TTL is zero, called a goodbye packet.</p>
+<p>Unique records, such as an address record for a host name, carry a cache-flush bit so receivers discard older copies; shared records do not. Negative answers use NSEC records to prove that a name or type does not exist, which avoids repeated multicast queries for missing names. Known-suppression keeps a host from repeating an answer it recently heard from someone else, at the cost of losing some redundancy.</p>
+<p>DNS-SD adds naming structure to those DNS records. A service instance is named <code>&lt;Instance&gt;.&lt;Service&gt;.&lt;Domain&gt;</code>, for example <code>Demo Printer._ipp._tcp.local</code>. A PTR query for <code>_ipp._tcp.local</code> enumerates instances; resolving an instance fetches its SRV record, which gives host and port, and its TXT record, which carries small key/value attributes. Every DNS-SD service has a TXT record even when it is empty. Service type enumeration uses <code>_services._dns-sd._udp.local</code>, and subtypes such as <code>_printer._sub._ipp._tcp.local</code> narrow a browse.</p>
+<p>Avahi is the Linux implementation: <code>avahi-daemon</code> owns multicast responses and records, applications talk to it over D-Bus, and <code>avahi-browse</code>, <code>avahi-resolve</code> and <code>avahi-publish</code> are clients of that interface. Its configuration file controls <code>host-name</code>, <code>domain-name</code>, <code>use-ipv4</code>, <code>use-ipv6</code>, <code>allow-interfaces</code>, <code>deny-interfaces</code>, <code>enable-dbus</code>, the <code>publish-*</code> switches and <code>enable-wide-area</code>. Host-name resolution for applications uses a Name Service Switch module such as <code>nss-mdns</code>, which is separate from the daemon.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="system">
+# /etc/avahi/services/printer.service - published by the daemon at start
+&lt;service-group&gt;
+  &lt;name replace-wildcards="yes"&gt;Printer on %h&lt;/name&gt;
+  &lt;service&gt;
+    &lt;type&gt;_ipp._tcp&lt;/type&gt;
+    &lt;port&gt;631&lt;/port&gt;
+    &lt;txt-record&gt;txtvers=1&lt;/txt-record&gt;
+  &lt;/service&gt;
+&lt;/service-group&gt;
+</pre>
+<p>A static definition publishes a service even when no application is running. Reload the daemon after a change. This is an illustrative file, not an exercise; a typo in <code>/etc/avahi/services/</code> can publish a misleading service to the whole link.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>mDNS has no built-in authentication. Any host on the link can claim a name or service, so it is unsuitable as a security boundary.</li>
+<li>The <code>.local</code> suffix is for link-local use. Sending those queries to a global DNS server, or using <code>.local</code> inside a corporate DNS domain, creates conflicts.</li>
+<li>Multicast does not cross routers by default. A printer on another VLAN will not appear unless a repeater or a conventional DNS-SD deployment bridges the domains.</li>
+<li>Hosts with several interfaces can answer on all of them. Interface allow and deny lists keep a service off a guest or VPN network.</li>
+<li>Name conflicts are resolved by probing, so two devices with the same factory name will change one another's names; the name a user saved may not be the name that appears tomorrow.</li>
+<li>DNS-SD TXT records are meant to be small. Large records are expensive on wireless links and may be truncated; a missing key must be handled as unknown, not as an error.</li>
+<li>Wide-area mode changes how queries and responses are framed for unicast DNS. It is not the normal home-network setting and needs deliberate configuration.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why does DNS-SD use PTR records for browsing instead of SRV records alone?</summary>
+<p>A query for an SRV record assumes the instances are interchangeable and returns targets directly. DNS-SD needs a user-visible list of named instances to choose from, so a PTR query returns instance names first; the client then resolves the chosen instance with SRV and TXT queries.</p>
+</details>
+<details class="q open">
+<summary>What does the cache-flush bit accomplish, and why is it only set on unique records?</summary>
+<p>It tells receivers to discard older data for that name and type, which is correct when exactly one host owns the record. Shared records can legitimately have several owners, so flushing would erase valid answers from other hosts.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="rfc6762-mdns"><a href="bibliography/rfc6762-mdns.html">RFC 6762, Multicast DNS</a></cite> and <cite data-ref="rfc6763-dns-sd"><a href="bibliography/rfc6763-dns-sd.html">RFC 6763, DNS-Based Service Discovery</a></cite> are the standards. <a href="man:avahi-daemon(8)">avahi-daemon(8)</a>, <a href="man:avahi-daemon.conf(5)">avahi-daemon.conf(5)</a>, <a href="man:avahi-browse(1)">avahi-browse(1)</a>, <a href="man:avahi-resolve(1)">avahi-resolve(1)</a> and <a href="man:avahi-publish(1)">avahi-publish(1)</a> describe the implementation.</p>
+
+<h3>Improve it</h3>
+<p>Verify new capture against the installed Avahi version and date. A change in output format is easy to mistake for a protocol detail.</p>
+</section>
+
+<h2>Next</h2><p><a href="networking/ietf-and-rfcs.html">The IETF and how RFCs work</a> &mdash; read the standards behind the behavior you just observed.</p>
+<h2>Related</h2><ul><li><a href="networking/setup/name-resolution.html">Name resolution</a> &mdash; where ordinary DNS ends and <code>.local</code> begins.</li><li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; the path that leads here.</li></ul>
+</body>
+</html>

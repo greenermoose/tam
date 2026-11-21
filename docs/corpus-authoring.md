@@ -190,8 +190,9 @@ section anatomy/quiz gaps to errors for completed parts. It currently includes
 
 Readers see the text that `tam show` renders, not the HTML.
 
-- Use only the named entities in `entities[]` in `src/render.c`. For anything
-  else, write the character in UTF-8 or use plain words.
+- Use only the named entities in `html_entities[]` in `src/html_entities.inc`
+  (included by `src/render.c`). For anything else, write the character in UTF-8
+  or use plain words.
 - No LaTeX or `$...$` math. The renderer has no math support.
 - Read your page as a reader will:
 

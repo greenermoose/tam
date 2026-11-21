@@ -1,0 +1,64 @@
+W38 NETWORK SETUP AND DISCOVERY CURRICULUM
+
+Date: 2026-11-21
+AI harness: OpenCode 2.2.5
+AI model: Big Pickle (`big-pickle`)
+Commits: the commit that adds this record
+
+
+GUIDANCE
+
+  Fred approved one tranche of the network curriculum: "Foundations +
+  Avahi". He chose general/standards-first teaching with sourced "On
+  Tamlinux" asides, a goal path with glossary and source support, and a
+  short repository plan. He asked for corpus version 0.105.0.
+
+  Fred: "Fix the linter (Recommended)." This approved changing the corpus
+  tooling so the checks could run; the rest of the tranche is content only.
+
+  Constraints: redact the real hostname to workstation.local, omit Wi-Fi
+  profile names from captures, and leave the stale Nix remark in
+  networking/connections.html and the $...$ math in
+  networking/communication-protocols.html untouched.
+
+
+DONE
+
+  - Wrote the three-level Avahi and Zeroconf page and its folder hub, with
+    captured publish/browse/resolve output (hostname redacted) and RFC
+    6762/6763 detail.
+  - Wrote the networking/setup hub and five three-level pages: how networks
+    fit together, addresses and subnets, adding a connection, gateways and
+    routing, name resolution. Added the network-setup goal path with five
+    stages and a reversible capstone.
+  - Added glossary pages for Avahi, ARP, Bonjour, CIDR, DNS-SD, mDNS and
+    Zeroconf; updated six letter indexes. Added RFC 6762 and RFC 6763
+    bibliography entries and linked them from the bibliography hub.
+  - Linked the new hubs and path from the networking hub.
+  - Fixed the corpus linter to read the entity table from
+    src/html_entities.inc, added that file to the pipeline's dependency
+    inputs, updated three corpus test fixtures and the authoring guide.
+  - Bumped corpus to 0.105.0 and updated ROADMAP.md, docs/plans/development.md,
+    the plan, CHECKLISTS.md and docs/plans/README.
+  - Verification: make corpus-and-test (1267 pages parsed/rendered, 93 unit
+    tests OK, repo consistency passed), make corpus, make check-repo, zero
+    missing internal links, and tam show/tam explain spot checks.
+
+
+FAILED
+
+  - The first linter fix appended src/html_entities.inc unconditionally,
+    which broke fixtures that only copy render.c. The final fix reads the
+    include when present and keeps the older entities[]-in-render.c path;
+    the fixtures now copy the include too. No rule was weakened.
+  - One pre-existing learning warning remains on tamlinux/components.html.
+  - No learner review or packaged acceptance was performed; the approved
+    tranche was content plus the tooling fix.
+
+
+HANDOFF
+
+  - Corpus 0.105.0 is committed locally on dev; nothing was pushed or
+    installed. TCK28-TCK30 are closed. The performance, protocols and
+    development tranches are separate, unstarted plans. Await the
+    developer's direction for the next approved outcome.

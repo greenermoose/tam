@@ -471,7 +471,7 @@ class BuildIndex(unittest.TestCase):
                 "        self.assertTrue(Path('knowledge/index.json').is_file())\n")
         shutil.copyfile(BUILDER.parent / "lint-corpus.py", root / "tools/lint-corpus.py")
         (root / "src").mkdir()
-        for name in ("render.c", "tam.c", "install.c"):
+        for name in ("render.c", "html_entities.inc", "tam.c", "install.c"):
             shutil.copyfile(BUILDER.parent.parent / "src" / name, root / "src" / name)
         reader = root / "reader"
         reader.write_text('#!/bin/sh\nprintf "Page\\nRev 1 Last updated 2026-11-11 12:00\\n"\n')

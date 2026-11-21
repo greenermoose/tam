@@ -28,7 +28,7 @@ class CorpusPipeline(unittest.TestCase):
         self.root.mkdir()
         shutil.copytree(REPO / "tools", self.root / "tools", ignore=shutil.ignore_patterns("__pycache__"))
         (self.root / "src").mkdir()
-        for name in ("render.c", "tam.c", "install.c"):
+        for name in ("render.c", "html_entities.inc", "tam.c", "install.c"):
             shutil.copyfile(REPO / "src" / name, self.root / "src" / name)
         knowledge = self.root / "knowledge"
         (knowledge / "use").mkdir(parents=True)
@@ -140,7 +140,7 @@ class CorpusPipeline(unittest.TestCase):
     def test_tools_rules_reader_and_inventory_changes_invalidate(self):
         self.ok("check")
         # A rule change must rerun the linter even though no HTML changed.
-        rules = self.root / "src/render.c"
+        rules = self.root / "src/html_entities.inc"
         rules.write_text(rules.read_text().replace('{"amp",', '{"amp-changed",'))
         self.assertIn("2 parsed", self.ok("check"))
         self.reader.write_text(self.reader.read_text() + "# different reader\n")

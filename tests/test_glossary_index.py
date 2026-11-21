@@ -147,7 +147,7 @@ class GlossaryIndexTests(unittest.TestCase):
     def test_pipeline_check_and_fix_glossary(self):
         shutil.copytree(REPO / "tools", self.root / "tools", ignore=shutil.ignore_patterns("__pycache__"))
         (self.root / "src").mkdir()
-        for name in ("render.c", "tam.c", "install.c"):
+        for name in ("render.c", "html_entities.inc", "tam.c", "install.c"):
             shutil.copyfile(REPO / "src" / name, self.root / "src" / name)
         (self.knowledge / "index.html").write_text(page("Guide"))
         (self.knowledge / "version").write_text("0.39.0\n")
