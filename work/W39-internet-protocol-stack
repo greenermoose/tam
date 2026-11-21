@@ -1,0 +1,79 @@
+W39 INTERNET PROTOCOL STACK CURRICULUM
+
+Date: 2026-11-21
+AI harness: OpenCode 2.2.5
+AI model: Big Pickle (`big-pickle`)
+Commits: the commit that adds this record and the follow-up index commit
+
+
+GUIDANCE
+
+  Fred: "Make sure to explain all networking concepts so that someone with
+  no prior knowledge can reach PhD-level understanding by reading our guide."
+
+  Fred: "Do a scan for an mention of IPv4 or IPv6 in any page and link those
+  terms directly to the correct glossary page."
+
+  Asked to confirm scope, Fred chose six teaching pages plus a hub and a goal
+  path; prose mentions in guide HTML pages only; and full repository
+  bookkeeping.
+
+  Fred: "Make it so".
+
+  Constraints: examples must use real captured command output, not invented
+  values; no command, install, tag, push or stage change; work on dev in the
+  shared clone.
+
+
+DONE
+
+  - Added three-level IPv4 and IPv6 glossary pages and their letter-index
+    rows.
+  - Added the internet protocol stack hub and six three-level teaching pages:
+    the stack, IP packets and forwarding, ports and sockets, TCP, UDP, and one
+    request end to end. Examples use command output captured on a Tamlinux
+    workstation on 2026-11-21.
+  - Added the internet-protocol-stack goal path with six stages, a checkpoint
+    at each, a reversible capstone with a folded solution and next paths.
+    Declared path steps 1-6 on the teaching pages.
+  - Added RFC 791, RFC 8200, RFC 9293 and RFC 768 bibliography entries and
+    linked them from the bibliography hub and the teaching pages.
+  - Cross-linked the new hub from the networking and setup hubs and the new
+    path from network-setup.
+  - Linked 122 prose IPv4/IPv6 mentions to the matching glossary page across
+    the guide. Generated indexes, captured output, configuration keys such as
+    ipv4.method, metadata, headings and self-links were left alone. Breadcrumb
+    links were unwrapped after one broke the parent-hierarchy check.
+  - Bumped corpus to 0.106.0 and wrote docs/plans/internet-protocol-stack-
+    curriculum.md; updated docs/plans/README, ROADMAP.md and
+    docs/plans/development.md.
+  - Verification: make corpus (1281 pages, indexes current), make
+    corpus-and-test (1281 pages parsed/rendered, 93 unit tests OK, repository
+    consistency passed), make check-repo, git diff --check on all
+    hand-written files, a post-edit scan with no unlinked prose mention,
+    tam show on all 14 new pages and tam explain spot checks.
+
+
+FAILED
+
+  - The first linking pass wrapped a breadcrumb link in bibliography/rfc8200,
+    which failed the breadcrumb ancestor check. Unwrapping breadcrumb links
+    before the pass fixed it; no other link was affected.
+  - An early draft of the UDP page showed invented process names and file
+    descriptors for ss -ulnp. It was corrected to the real unprivileged
+    output captured on 2026-11-21.
+  - One pre-existing learning warning remains on tamlinux/components.html.
+  - git diff --check flags trailing tabs on the six new step rows in the
+    generated knowledge/index.paths.tsv. That is the generator's normal
+    format: every committed step row has an empty final column, written by
+    tools/build-index.py. All hand-written files pass the check; the
+    generated file must not be hand-edited because make corpus rewrites it.
+  - No learner review or packaged acceptance was performed; the approved
+    scope was corpus content and bookkeeping.
+
+
+HANDOFF
+
+  - Corpus 0.106.0 is committed locally on dev; nothing was pushed or
+    installed, and no tag or stage was moved. Await the developer's direction
+    for the next approved outcome.

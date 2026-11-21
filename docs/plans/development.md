@@ -1446,3 +1446,12 @@ Avahi/Zeroconf teaching page, five setup pages, the `network-setup` goal path,
 two hubs, seven glossary entries, and RFC 6762/6763 bibliography entries. This
 tranche is corpus content only; the performance, protocols and development
 tranches remain separate plans.
+
+### 2026-11-21 — Internet protocol stack curriculum (corpus 0.106.0)
+
+The developer asked for a zero-to-expert explanation of networking and for
+every prose IPv4 or IPv6 mention to link to the correct glossary page. See
+[internet-protocol-stack-curriculum.md](internet-protocol-stack-curriculum.md):
+a six-page stack series with a hub and goal path, two address-family glossary
+pages, four RFC entries, and the linking pass. This is corpus content only;
+installation and release remain developer-directed.

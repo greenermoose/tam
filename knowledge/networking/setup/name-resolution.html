@@ -96,7 +96,7 @@ example.com: 104.20.23.154                                  -- link: enp1s0
 
 <h3>What just happened</h3>
 <ol>
-<li><code>getent ahosts</code> uses the system's Name Service Switch rules, so it answers exactly as an application would. It prints IPv4 and IPv6 addresses in the order the resolver supplied.</li>
+<li><code>getent ahosts</code> uses the system's Name Service Switch rules, so it answers exactly as an application would. It prints <a href="glossary/i/ipv4.html">IPv4</a> and <a href="glossary/i/ipv6.html">IPv6</a> addresses in the order the resolver supplied.</li>
 <li><code>resolvectl status</code> shows that this machine uses a stub resolver: applications send queries to a local address and systemd-resolved forwards them to the servers listed per link.</li>
 <li>The active link has DNS scope and <code>+DefaultRoute</code>, so its server handles names without an explicit routing domain; other links have no DNS scope.</li>
 <li><code>resolvectl query</code> asks the resolver directly and reports which link supplied each address, how long the query took, and whether the data was authenticated.</li>
@@ -145,8 +145,8 @@ example.com: 104.20.23.154                                  -- link: enp1s0
 <h3>Reference</h3>
 <table>
 <tr><th>Record</th><th>Answers</th><th>Used for</th></tr>
-<tr><td><code>A</code></td><td>IPv4 address</td><td>Ordinary name lookup</td></tr>
-<tr><td><code>AAAA</code></td><td>IPv6 address</td><td>Ordinary name lookup</td></tr>
+<tr><td><code>A</code></td><td><a href="glossary/i/ipv4.html">IPv4</a> address</td><td>Ordinary name lookup</td></tr>
+<tr><td><code>AAAA</code></td><td><a href="glossary/i/ipv6.html">IPv6</a> address</td><td>Ordinary name lookup</td></tr>
 <tr><td><code>CNAME</code></td><td>Another name</td><td>Aliases</td></tr>
 <tr><td><code>PTR</code></td><td>A name for an address</td><td>Reverse lookup and service discovery</td></tr>
 <tr><td><code>SRV</code></td><td>Host and port for a service</td><td>Service discovery</td></tr>

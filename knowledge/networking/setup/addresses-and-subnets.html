@@ -37,7 +37,7 @@ subnet:      192.168.1.0
 broadcast:   192.168.1.255
 usable:      192.168.1.1 - 192.168.1.254
 </pre>
-<p>There are two address families. IPv4 uses four decimal groups, such as <code>192.168.1.26</code>. IPv6 uses eight hexadecimal groups, such as <code>fe80::80d1:99bb:b99:2848</code>. Both work the same way: a prefix length says how many leading bits are shared by every machine on the link.</p>
+<p>There are two address families. <a href="glossary/i/ipv4.html">IPv4</a> uses four decimal groups, such as <code>192.168.1.26</code>. <a href="glossary/i/ipv6.html">IPv6</a> uses eight hexadecimal groups, such as <code>fe80::80d1:99bb:b99:2848</code>. Both work the same way: a prefix length says how many leading bits are shared by every machine on the link.</p>
 
 <h3>New words</h3>
 <dl>
@@ -48,11 +48,11 @@ usable:      192.168.1.1 - 192.168.1.254
 <dt><a href="glossary/c/cidr.html">CIDR</a></dt>
 <dd>Classless Inter-Domain Routing: the <code>address/prefix</code> notation that replaced fixed address classes.</dd>
 <dt><a href="glossary/a/arp.html">ARP</a></dt>
-<dd>The Address Resolution Protocol, which finds the hardware address for an IPv4 neighbor.</dd>
+<dd>The Address Resolution Protocol, which finds the hardware address for an <a href="glossary/i/ipv4.html">IPv4</a> neighbor.</dd>
 <dt><a href="glossary/n/nat.html">NAT</a></dt>
 <dd>Network Address Translation, which lets many private addresses share one public address.</dd>
 <dt><a href="glossary/n/ndp.html">NDP</a></dt>
-<dd>The IPv6 Neighbor Discovery Protocol, which replaces ARP and also discovers routers.</dd>
+<dd>The <a href="glossary/i/ipv6.html">IPv6</a> Neighbor Discovery Protocol, which replaces ARP and also discovers routers.</dd>
 </dl>
 </section>
 
@@ -80,7 +80,7 @@ $ ip neigh show dev enp1s0
 <li>The interface has address <code>192.168.1.26</code> with a <code>/24</code> prefix, so the first 24 bits (the first three groups) name the subnet.</li>
 <li>Holding the last group at zero gives the subnet <code>192.168.1.0/24</code>; holding it at all ones gives the broadcast address <code>192.168.1.255</code>.</li>
 <li>The netmask <code>255.255.255.0</code> is the same fact written as four octets: 255 means all eight bits belong to the prefix.</li>
-<li><code>ip neigh</code> shows the neighbor table: each IPv4 address on the link paired with the hardware address learned by <a href="glossary/a/arp.html">ARP</a>.</li>
+<li><code>ip neigh</code> shows the neighbor table: each <a href="glossary/i/ipv4.html">IPv4</a> address on the link paired with the hardware address learned by <a href="glossary/a/arp.html">ARP</a>.</li>
 <li><code>REACHABLE</code> means a recent confirmation; <code>STALE</code> means the entry is still usable but should be refreshed before the next use.</li>
 </ol>
 
@@ -130,13 +130,13 @@ $ ip neigh show dev enp1s0
 <tr><td><code>/25</code></td><td>255.255.255.128</td><td>128</td><td>A split LAN</td></tr>
 <tr><td><code>/30</code></td><td>255.255.255.252</td><td>4</td><td>A point-to-point link</td></tr>
 <tr><td><code>/32</code></td><td>255.255.255.255</td><td>1</td><td>A single host route</td></tr>
-<tr><td><code>/64</code></td><td>IPv6</td><td>2^64</td><td>A normal IPv6 link</td></tr>
+<tr><td><code>/64</code></td><td><a href="glossary/i/ipv6.html">IPv6</a></td><td>2^64</td><td>A normal <a href="glossary/i/ipv6.html">IPv6</a> link</td></tr>
 </table>
 
 <h3>How it works</h3>
 <p>A prefix length is a count of leading one bits in the mask. The kernel applies a bitwise AND between an address and the mask to find the subnet, and routing uses longest-prefix match: among all routes whose prefix contains the destination, the one with the most leading bits wins. That is why a <code>/32</code> host route overrides a <code>/24</code> route.</p>
-<p>IPv4 private ranges are <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> and <code>192.168.0.0/16</code>; they are not routed on the public internet and are translated at the boundary by <a href="glossary/n/nat.html">NAT</a>. IPv6 uses global unicast, link-local <code>fe80::/10</code> and unique local <code>fc00::/7</code>. Link-local addresses need an interface scope, written <code>fe80::1%enp1s0</code>, because the same prefix may exist on several interfaces.</p>
-<p>On IPv4, ARP broadcasts a request asking "who owns this address?" and the owner replies with its hardware address; the result enters the neighbor table. IPv6 replaces this with ICMPv6 Neighbor Solicitation and Advertisement, adds duplicate address detection before an address is used, and discovers routers through Router Advertisements. A gratuitous ARP announcement can also update neighbors after an address move, which is useful for failover but opens the door to spoofing.</p>
+<p><a href="glossary/i/ipv4.html">IPv4</a> private ranges are <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> and <code>192.168.0.0/16</code>; they are not routed on the public internet and are translated at the boundary by <a href="glossary/n/nat.html">NAT</a>. <a href="glossary/i/ipv6.html">IPv6</a> uses global unicast, link-local <code>fe80::/10</code> and unique local <code>fc00::/7</code>. Link-local addresses need an interface scope, written <code>fe80::1%enp1s0</code>, because the same prefix may exist on several interfaces.</p>
+<p>On <a href="glossary/i/ipv4.html">IPv4</a>, ARP broadcasts a request asking "who owns this address?" and the owner replies with its hardware address; the result enters the neighbor table. <a href="glossary/i/ipv6.html">IPv6</a> replaces this with ICMPv6 Neighbor Solicitation and Advertisement, adds duplicate address detection before an address is used, and discovers routers through Router Advertisements. A gratuitous ARP announcement can also update neighbors after an address move, which is useful for failover but opens the door to spoofing.</p>
 
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="read-only">
@@ -157,9 +157,9 @@ PY
 <ul>
 <li>Subnet zero and the all-ones subnet are usable in CIDR, but some old equipment still treats them specially.</li>
 <li>A <code>/31</code> is defined for point-to-point links, where there is no need for a broadcast address; older systems expect <code>/30</code>.</li>
-<li>IPv6 does not use broadcast. Multicast and solicited-node addresses carry the functions that IPv4 broadcast performs.</li>
+<li><a href="glossary/i/ipv6.html">IPv6</a> does not use broadcast. Multicast and solicited-node addresses carry the functions that <a href="glossary/i/ipv4.html">IPv4</a> broadcast performs.</li>
 <li>NAT breaks end-to-end addressing. A host behind NAT is reachable from outside only through a port mapping or a relay.</li>
-<li>Duplicate address detection in IPv6 can delay use of a new address by a moment; a manual profile that appears slow to start may simply be probing.</li>
+<li>Duplicate address detection in <a href="glossary/i/ipv6.html">IPv6</a> can delay use of a new address by a moment; a manual profile that appears slow to start may simply be probing.</li>
 <li>Routes with the same prefix length but different metrics are chosen by metric; equal-cost multipath can use several at once.</li>
 </ul>
 
@@ -172,7 +172,7 @@ PY
 </section>
 
 <h3>Sources</h3>
-<p><a href="man:ip-address(8)">ip-address(8)</a>, <a href="man:ip-neigh(8)">ip-neigh(8)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:python3(1)">python3(1)</a>. The address meanings follow the IETF IPv4, IPv6, CIDR, ARP and Neighbor Discovery specifications.</p>
+<p><a href="man:ip-address(8)">ip-address(8)</a>, <a href="man:ip-neigh(8)">ip-neigh(8)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:python3(1)">python3(1)</a>. The address meanings follow the IETF <a href="glossary/i/ipv4.html">IPv4</a>, <a href="glossary/i/ipv6.html">IPv6</a>, CIDR, ARP and Neighbor Discovery specifications.</p>
 
 <h3>Improve it</h3>
 <p>Check any prefix example with <code>ipaddress</code> before publishing it; an off-by-one broadcast address is easy to miss by reading.</p>

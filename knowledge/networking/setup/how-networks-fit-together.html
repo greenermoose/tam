@@ -86,7 +86,7 @@ $ getent ahosts example.com
 <h3>What just happened</h3>
 <ol>
 <li><code>ip -br addr</code> answers the link and address questions. <code>UP</code> means the interface is enabled; <code>DOWN</code> means it is not. <code>lo</code> is the loopback interface the machine uses to talk to itself.</li>
-<li><code>192.168.1.26/24</code> is an IPv4 address with a prefix length; <code>fe80::…/64</code> is an IPv6 link-local address valid only on this cable or radio link.</li>
+<li><code>192.168.1.26/24</code> is an <a href="glossary/i/ipv4.html">IPv4</a> address with a prefix length; <code>fe80::…/64</code> is an <a href="glossary/i/ipv6.html">IPv6</a> link-local address valid only on this cable or radio link.</li>
 <li><code>ip route</code> answers the route question. The <code>default</code> line names the gateway for everywhere outside the local <code>192.168.1.0/24</code> network.</li>
 <li><code>proto dhcp</code> records where the setting came from: DHCP supplied it. <code>proto kernel</code> marks a route the kernel added from an address on the interface.</li>
 <li><code>getent ahosts</code> answers the name question through the system's normal lookup rules and prints the addresses in the order it tried them.</li>
@@ -162,7 +162,7 @@ $ ip -j route get 1.1.1.1 | python3 -m json.tool
 <h3>Edge cases</h3>
 <ul>
 <li>Loopback is a real interface with its own address. Traffic to <code>127.0.0.1</code> never leaves the machine, which makes it a safe place to test a service.</li>
-<li>A link-local IPv6 address (<code>fe80::/10</code>) needs a scope identifier, written <code>fe80::…%enp1s0</code>, because the same prefix can exist on several interfaces.</li>
+<li>A link-local <a href="glossary/i/ipv6.html">IPv6</a> address (<code>fe80::/10</code>) needs a scope identifier, written <code>fe80::…%enp1s0</code>, because the same prefix can exist on several interfaces.</li>
 <li>A virtual interface such as <code>docker0</code> or a VPN tunnel appears in the same lists as hardware. It may carry a route without any physical cable.</li>
 <li>An address can be present while its route is marked <code>linkdown</code>. The kernel keeps the configuration, but no carrier means nothing can be delivered.</li>
 <li>Name resolution is not a single service: <code>/etc/hosts</code>, NSS modules, mDNS and DNS each answer some names. The order is set in <code>/etc/nsswitch.conf</code>.</li>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head>
+<title>IPv6 (Internet Protocol version 6)</title>
+<meta name="topic" content="glossary-ipv6">
+<meta name="summary" content="IPv6: The 128-bit internet protocol with hexadecimal addresses, neighbor discovery and no address exhaustion.">
+<meta name="keywords" content="glossary-ipv6, ipv6, internet protocol version 6, 128-bit address, slaac, ndp, icmpv6, rfc 8200">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/i/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IPv6 (Internet Protocol version 6)</p></nav>
+
+<h1>IPv6 (Internet Protocol version 6)</h1>
+<p>The modern addressing system of the internet, which writes each device's number as hexadecimal groups such as <code>2001:db8::1</code>.</p>
+<section data-level="novice"><p>IPv6 is the newer way of giving devices addresses. Its addresses are much longer than <a href="glossary/i/ipv4.html">IPv4</a> addresses, so there is room for every device to have its own without sharing. An address looks like <code>2001:db8::1</code>: groups of letters and numbers separated by colons, where <code>::</code> stands for a run of zeros. Your computer still uses the address the same way — to receive data addressed to it and to send replies back.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/i/ip-address.html">IP address</a></dt>
+<dd>The number that identifies a device on a network.</dd>
+<dt><a href="glossary/n/ndp.html">NDP (Neighbor Discovery Protocol)</a></dt>
+<dd>The IPv6 method for finding neighbours and routers on the local link.</dd>
+<dt><a href="glossary/i/icmp.html">ICMPv6</a></dt>
+<dd>The control and error messages that IPv6 relies on for basic operation.</dd>
+<dt><a href="glossary/c/cidr.html">Prefix length</a></dt>
+<dd>The number of leading bits that name the network rather than the device.</dd>
+</dl></section>
+<section data-level="learner"><p>An IPv6 address is 128 bits, written as eight 16-bit groups in hexadecimal. A group of zeros can be left out, and one <code>::</code> may replace a continuous run of zero groups: <code>2001:db8:0:0:0:0:0:1</code> becomes <code>2001:db8::1</code>. The loopback address is <code>::1</code>. A normal local network uses a <code>/64</code> prefix. Addresses beginning <code>fe80::</code> are link-local and need a scope suffix on Linux, such as <code>fe80::1%enp1s0</code>, because the same prefix can exist on several interfaces. A device can configure its own global address from a router advertisement (SLAAC) or receive one from DHCPv6; it finds neighbours with <a href="glossary/n/ndp.html">NDP</a> instead of ARP, and there is no broadcast.</p>
+<details class="q"><summary><i>Why does fe80::1 need an interface name such as %enp1s0 after it?</i></summary>
+<p>Link-local addresses are valid only on one link, and every interface can use the same <code>fe80::/10</code> prefix. The scope suffix tells the kernel which interface to send on, so the address is unambiguous when a machine has two network cards.</p></details></section>
+<section data-level="expert"><p>IPv6 is specified in RFC 8200. Its base header is a fixed 40 bytes: version, traffic class, flow label, 16-bit payload length, an 8-bit Next Header that chains optional extension headers (routing, fragmentation, authentication, encapsulation), an 8-bit hop limit, and two 128-bit addresses. There is no header checksum and no in-path fragmentation; links must carry at least 1280 bytes and senders discover the path MTU through ICMPv6 "Packet Too Big" messages. ICMPv6 (Next Header 58) is mandatory, carrying Neighbor Solicitation/Advertisement and Router Advertisement for NDP, multicast group management, and errors. Address types include global unicast, unique local <code>fc00::/7</code>, link-local <code>fe80::/10</code>, multicast <code>ff00::/8</code>, and anycast; an interface identifier may be derived from EUI-64 or randomized under RFC 8981 privacy extensions. Solicited-node multicast replaces broadcast for address resolution. Dual-stack hosts run both families, and transition mechanisms such as tunnels and NAT64 bridge to <a href="glossary/i/ipv4.html">IPv4</a>.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/i/ipv4.html">IPv4</a> — the 32-bit original.</li><li><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a> — prefix lengths and neighbor discovery in practice.</li><li><a href="networking/stack/ip-packets-and-forwarding.html">IP packets and forwarding</a> — headers, hop limits and path MTU.</li></ul>
+</body></html>

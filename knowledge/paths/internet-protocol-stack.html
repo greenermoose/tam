@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Internet protocol and the stack</title>
+<meta name="topic" content="internet-protocol-stack">
+<meta name="summary" content="From no prior knowledge to explaining one web request through layers, packets, ports, TCP, UDP and applications">
+<meta name="keywords" content="path, internet protocol stack, tcp ip, layers, packets, routing, ports, sockets, tcp, udp, web request">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Internet protocol and the stack</p></nav>
+
+<h1>Internet protocol and the stack</h1>
+<p>This path takes a reader who has never studied networking from the idea of a layered message to explaining every step of one web request.</p>
+<p>Each stage gives a lens to read with. Start with the gentle explanation where offered, then use the practice or reference lens. Answer the checkpoint before moving on; if it is unclear, reread the stage at the earlier lens. All commands in this path only read state.</p>
+
+<h2>Stage 1: Why layers exist</h2>
+<p><a href="networking/stack/the-internet-protocol-stack.html?level=1">The internet protocol stack</a> first: learn why a message is wrapped in labels, and name the application, transport, internet and link layers. Then read <a href="networking/stack/the-internet-protocol-stack.html?level=2">the same page at the practice lens</a> to find the addresses and ports on your own machine.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Which layer adds an address, which adds a port, and why does the receiver need both?</i></summary>
+<p>The internet layer adds the address so routers can forward the packet to the right machine. The transport layer adds the port so that machine can hand the data to the right program. Reread the Learner section of the first page if either job is unclear.</p>
+</details>
+</section>
+
+<h2>Stage 2: Packets and next hops</h2>
+<p><a href="networking/stack/ip-packets-and-forwarding.html?level=1">IP packets and forwarding</a> first: picture a packet as a parcel passed between routers with a counter that stops it circling forever. Then read <a href="networking/stack/ip-packets-and-forwarding.html?level=2">the practice lens</a> to ask the kernel which next hop it chooses and to read a hop count from a reply.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>A packet's hop limit reaches zero. What happens, and what command deliberately uses that behaviour?</i></summary>
+<p>The router drops the packet and sends an internet control message back to the source. Traceroute sends packets with increasing hop limits to collect those messages and learn the routers along the path. Reread the Learner quiz on the forwarding page if needed.</p>
+</details>
+</section>
+
+<h2>Stage 3: Many conversations on one machine</h2>
+<p><a href="networking/stack/ports-and-sockets.html?level=1">Ports and sockets</a> first: use the apartment-building picture to see why a port picks a program inside a machine. Then read <a href="networking/stack/ports-and-sockets.html?level=2">the practice lens</a> to identify a listening service and the four values that name one conversation.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Two browser tabs reach the same website on port 443. Why do their connections stay separate?</i></summary>
+<p>Each tab gets a different local port. The pair of local and remote addresses and ports identifies a conversation, so the four values differ even though both tabs use the same remote port. The Expert section of this page gives the exact range of local ports.</p>
+</details>
+</section>
+
+<h2>Stage 4: A reliable stream</h2>
+<p><a href="networking/stack/transmission-control-protocol.html?level=2">Transmission Control Protocol</a> at the practice lens: read a live connection's round-trip time, segment size and congestion window. Then read <a href="networking/stack/transmission-control-protocol.html?level=3">the reference lens</a> for the handshake, sequence numbers, retransmission and the trade-offs behind those numbers.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why can a connection with a quick round trip still send too slowly to fill a link?</i></summary>
+<p>The sender may have only a small congestion window of unacknowledged data in flight, or the application may not be feeding it enough bytes. Check both the window and the counters that show how much data the application wrote. The Expert section explains the bandwidth-delay limit.</p>
+</details>
+</section>
+
+<h2>Stage 5: Messages without a conversation</h2>
+<p><a href="networking/stack/user-datagram-protocol.html?level=2">User Datagram Protocol</a> at the practice lens: find DNS and multicast DNS by their port numbers and see that no connection state is kept. Then read <a href="networking/stack/user-datagram-protocol.html?level=3">the reference lens</a> for the eight-byte header and what an application must supply when it needs reliability.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>A name lookup gets no reply. Why can't UDP say whether the request or the reply was lost?</i></summary>
+<p>UDP keeps no connection state and sends no acknowledgements, so the sender sees only silence. The application must retry or try another server. Contrast this with the acknowledgement numbers you read in Stage 4.</p>
+</details>
+</section>
+
+<h2>Stage 6: One request, end to end</h2>
+<p><a href="networking/stack/from-packets-to-applications.html?level=2">From packets to applications</a> at the practice lens: follow a name lookup, a route decision and a live socket. Then read <a href="networking/stack/from-packets-to-applications.html?level=3">the reference lens</a> for the full path from resolver through TLS to an HTTP reply, and for what changes with HTTP/3.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>A numeric address replies to a ping but the page will not open. Which layers are proved, and what do you check next?</i></summary>
+<p>Link, addressing, routing and basic control messages work. Check the TCP connection to the web port, then TLS and the HTTP response. The reference table on the final page lists one read-only check for each stage.</p>
+</details>
+</section>
+
+<h2>Capstone: Trace a slow page from name to bytes</h2>
+<p><strong>Scenario:</strong> a web page opens but takes several seconds. Work only with read-only commands in your normal session; nothing here changes a connection or a setting.</p>
+<p><strong>Task:</strong> measure the name lookup, the route decision and the live connection. State which stage contributes the delay, name one piece of evidence for that conclusion, and say which stage the evidence rules out. Then explain what would change if the site used HTTP/3 instead.</p>
+
+<details class="solution">
+<p><strong>Model approach:</strong></p>
+<ol>
+<li><code>time getent ahosts example.com</code> shows how long name resolution takes and which addresses were returned. A long pause here points at the resolver, not the website.</li>
+<li><code>ip route get &lt;address&gt;</code> answers where a packet would go without sending one. An unreachable answer would stop the process before any connection is attempted.</li>
+<li><code>ss -ti state established '( dport = :443 or sport = :443 )'</code> reports the round trip, retransmission timer, congestion window and bytes sent. A growing <code>rto</code> points to loss; a small window points to a rate limit or an idle application.</li>
+<li>With the network stages healthy, the remaining delay belongs above transport: TLS negotiation, a slow server, or application content. A browser trace separates those.</li>
+<li>HTTP/3 carries the request over QUIC and UDP, so the TCP table would show no connection; the same name, route and encryption stages still apply, with reliability provided inside QUIC.</li>
+</ol>
+<p>The point is the order: each check eliminates a layer, so the final answer names the smallest remaining set of causes.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/network-setup.html">Set up a network connection</a> &mdash; configure the addresses and routes these pages only inspect.</li>
+<li><a href="paths/cables-and-protocols.html">Mastering computer cables, hardware communication, and protocols</a> &mdash; go below the packet layer into signals and framing.</li>
+<li><a href="paths/diagnose-from-principles.html">Diagnose from principles</a> &mdash; apply the same layer-by-layer method to other faults.</li>
+</ul>
+</body>
+</html>

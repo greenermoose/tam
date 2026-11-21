@@ -94,7 +94,7 @@ $ sudo nft list table inet tamlinux-filter
 <dt>Docker and the <code>forward</code> hook</dt>
 <dd>Published container ports traverse the <code>prerouting</code> DNAT and <code>forward</code> hooks rather than host <code>input</code>. A host <code>policy drop</code> on <code>input</code> does not block container-exposed ports unless <code>forward</code> rules or <code>127.0.0.1</code> port bindings constrain them.</dd>
 <dt>ICMPv6 Neighbor Discovery</dt>
-<dd>Blocking all ICMPv6 breaks IPv6 NDP (<code>nd-neighbor-solicit</code>, <code>nd-router-advert</code>) and Path MTU Discovery, so <code>inet</code> family tables must permit essential ICMPv6 types explicitly.</dd>
+<dd>Blocking all ICMPv6 breaks <a href="glossary/i/ipv6.html">IPv6</a> NDP (<code>nd-neighbor-solicit</code>, <code>nd-router-advert</code>) and Path MTU Discovery, so <code>inet</code> family tables must permit essential ICMPv6 types explicitly.</dd>
 </dl>
 <details class="q open">
 <summary>Research frontier: How does XDP / eBPF packet filtering complement <code>nftables</code> at line rate?</summary>

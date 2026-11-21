@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>User Datagram Protocol</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="user-datagram-protocol">
+<meta name="summary" content="Understand how UDP sends independent messages without a connection, and why applications such as DNS and mDNS choose it">
+<meta name="keywords" content="udp, user datagram protocol, datagram, connectionless, port 53, 5353, dns, mdns, checksum, ss -uln">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="prereqs" content="ports-and-sockets, the-internet-protocol-stack">
+<meta name="paths" content="internet-protocol-stack:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / User Datagram Protocol</p></nav>
+
+<h1>User Datagram Protocol</h1>
+<p>This page explains how UDP sends one self-contained message at a time, without setting up a conversation first.</p>
+
+<section data-level="novice">
+<h2>What is UDP?</h2>
+<p>UDP is a set of rules for sending a single message to another program. Each message carries its own destination, so nothing has to be set up beforehand. UDP does not check that the message arrived and does not resend it; the program using UDP decides what to do if a reply never comes.</p>
+<h3>Why it matters</h3>
+<p>Some jobs are short enough that setting up a reliable conversation would cost more than simply asking again. Looking up a name is like that: you send one question and usually get one answer. Skipping the setup makes the exchange faster and uses less network traffic.</p>
+<h3>How to think about it</h3>
+<p>Think of a postcard compared with a phone call. A postcard is quick to write and send, but it can be lost, and you do not know it arrived unless someone writes back. A phone call takes time to set up, but both people know the other is there. UDP is the postcard; <a href="glossary/t/tcp.html">TCP</a> is the phone call.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/u/udp.html">UDP (User Datagram Protocol)</a></dt>
+<dd>A transport protocol that sends independent messages without a connection.</dd>
+<dt><a href="glossary/p/packet.html">Datagram</a></dt>
+<dd>A self-contained message that carries its own addressing information.</dd>
+<dt><a href="glossary/p/port.html">Port</a></dt>
+<dd>A number that picks the program that should receive a message.</dd>
+<dt><a href="glossary/c/checksum.html">Checksum</a></dt>
+<dd>A short value that lets the receiver notice damaged data.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Find UDP services on a running machine</h2>
+<p><strong>Goal:</strong> you will be able to read the UDP socket table, identify well-known services by their port numbers, and explain why a service would choose UDP.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ss -uln | head -6
+State  Recv-Q Send-Q Local Address:Port Peer Address:Port
+UNCONN 0      0         172.17.0.1:53        0.0.0.0:*
+UNCONN 0      0         127.0.0.54:53        0.0.0.0:*
+UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*
+UNCONN 0      0            0.0.0.0:5353      0.0.0.0:*
+UNCONN 0      0               [::]:5353         [::]:*
+</pre>
+<p>Captured on a Tamlinux workstation, 2026-11-21. Your sockets and addresses will differ.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>UNCONN</code> means no connection state is kept. Each datagram is handled on its own.</li>
+<li>Port 53 is the <a href="glossary/d/dns.html">DNS</a> service. The <code>127.0.0.53%lo</code> entry is the local resolver that applications on this machine ask first.</li>
+<li>Port 5353 is multicast DNS, which answers questions about devices on the local link.</li>
+<li><code>[::]:5353</code> is the same service listening for <a href="glossary/i/ipv6.html">IPv6</a> datagrams; <code>0.0.0.0</code> and <code>[::]</code> mean all local addresses of that family.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>ss -uln</code>, then <code>getent ahosts example.com</code> while watching the table again. Name resolution usually begins with one UDP question to the local resolver. These commands only read state.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Port 53 is missing</dt>
+<dd>No local resolver is listening on that address. Check <code>resolvectl status</code> to see which resolver the system is configured to use.</dd>
+<dt>A service listens only on 127.0.0.1</dt>
+<dd>It will not answer requests from other machines. That is normal for a local-only resolver; an uncovered address is needed for network-wide service.</dd>
+<dt>A UDP reply never arrives</dt>
+<dd>UDP cannot tell you why. Check whether a firewall drops the datagram, the service is running, or the request went to the wrong address.</dd>
+</dl>
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> the local resolver address <code>127.0.0.53</code> and the multicast DNS service on 5353 come from systemd-resolved and Avahi. The same setup pages explain how the name lookup reaches them; see <a href="networking/setup/name-resolution.html">Name resolution</a> and <a href="networking/services/avahi-and-zeroconf.html">Avahi and Zeroconf</a>.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>A name lookup gets no reply. Why can't UDP tell the program whether the request or the reply was lost?</i></summary>
+<p>UDP keeps no connection state and sends no acknowledgements. The sender sees only silence, which could mean the request never arrived, the service did not reply, or the reply was dropped. A program that needs to know retries, times out or switches to another transport.</p>
+</details>
+<details class="q">
+<summary><i>Why do two UDP services on one machine use different port numbers?</i></summary>
+<p>The kernel uses the port to choose which socket receives an incoming datagram. Without distinct ports it could not deliver a packet to DNS rather than multicast DNS. The address and port together form the endpoint that the program binds.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: datagram semantics and the UDP header</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Field</th><th>Size</th><th>Meaning</th></tr>
+<tr><td>Source port</td><td>16 bits</td><td>Endpoint that sent the datagram, used for replies</td></tr>
+<tr><td>Destination port</td><td>16 bits</td><td>Endpoint that should receive it</td></tr>
+<tr><td>Length</td><td>16 bits</td><td>Length of the UDP header and data in bytes</td></tr>
+<tr><td>Checksum</td><td>16 bits</td><td>Covers a pseudo-header, the UDP header and the data; optional in <a href="glossary/i/ipv4.html">IPv4</a>, required in <a href="glossary/i/ipv6.html">IPv6</a></td></tr>
+</table>
+<p>The eight-byte header is the entire transport overhead. There are no sequence numbers, acknowledgements, window fields or connection states.</p>
+<h3>How it works</h3>
+<p>UDP is specified in RFC 768. A program creates a socket, binds an address and port if it expects replies, and sends each datagram with <code>sendto(2)</code>. The kernel adds the UDP header and hands the result to the internet layer. On receipt, the kernel looks up the destination address and port, verifies the checksum when it is present, and places the datagram in the socket's queue. Message boundaries survive: one send produces one datagram, and one receive returns one whole datagram, provided the buffer is large enough.</p>
+<p>Because there is no handshake, a UDP sender can transmit immediately. Because there is no retransmission, correctness belongs to the application: DNS retries a question and falls back to TCP when an answer is too large; multicast DNS repeats announcements; real-time media simply accepts some loss; QUIC builds its own reliability over UDP.</p>
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ ss -ulnp | head -6
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+UNCONN 0      0         172.17.0.1:53        0.0.0.0:*
+UNCONN 0      0         127.0.0.54:53        0.0.0.0:*
+UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*
+UNCONN 0      0            0.0.0.0:5353      0.0.0.0:*
+UNCONN 0      0               [::]:5353         [::]:*
+</pre>
+<p>Captured on the same workstation, 2026-11-21. The <code>-p</code> flag would add the owning process, but an unprivileged reader sees no process column here; processes owned by other users need elevated privileges. <code>ss -uap</code> also shows UDP sockets that are not listening, which matters when diagnosing an application that sends requests but never receives replies.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A receive buffer that is smaller than the datagram truncates it. The application must notice the truncation flag and use a larger buffer.</li>
+<li>A large UDP datagram is fragmented at the internet layer. Losing one fragment loses the whole datagram, so applications keep datagrams small.</li>
+<li>A service that answers a small request with a much larger reply can be used for reflection attacks. Good implementations rate-limit or verify the source.</li>
+<li>An unconnected UDP socket accepts datagrams from any source. An application that cares who sent a message must authenticate it at its own layer.</li>
+<li>A path that drops UDP entirely breaks name lookup and local discovery even though TCP connections still work; test with <code>dig</code> rather than a browser.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>What does an application give up by choosing UDP, and what must it provide itself if it needs reliable delivery?</summary>
+<p>It gives up the handshake, ordered delivery, retransmission, flow control and congestion control that TCP supplies. If it still needs reliable delivery, it must number its messages, detect gaps, retry, and back off when the path is congested. QUIC does exactly this in user space; DNS instead keeps its requests small and simply retries on timeout.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc768"><a href="bibliography/rfc768.html">RFC 768</a></cite>, <a href="man:ss(8)">ss(8)</a>, <a href="man:udp(7)">udp(7)</a> and <a href="man:sendto(2)">sendto(2)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/stack/from-packets-to-applications.html">From packets to applications</a> &mdash; follow one web request through every layer.</li>
+<li><a href="networking/stack/transmission-control-protocol.html">Transmission Control Protocol</a> &mdash; compare the connection-oriented alternative.</li>
+</ul>
+</body>
+</html>

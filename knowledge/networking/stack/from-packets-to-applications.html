@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>From packets to applications</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="from-packets-to-applications">
+<meta name="summary" content="Follow one web request through every layer, from a name lookup and routing decision to a TCP connection, TLS and an HTTP reply">
+<meta name="keywords" content="web request, dns lookup, routing, tcp handshake, tls, http, https, encapsulation, layers, sockets, getent, ss">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="prereqs" content="transmission-control-protocol, user-datagram-protocol, name-resolution">
+<meta name="paths" content="internet-protocol-stack:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / From packets to applications</p></nav>
+
+<h1>From packets to applications</h1>
+<p>This page follows one request for a web page through every layer, from the first lookup of a name to the moment the page appears on screen.</p>
+
+<section data-level="novice">
+<h2>What happens when you open a web page?</h2>
+<p>Your computer first turns the name you typed into a number, then works out where to send a message to that number, then opens a reliable conversation, then asks for the page. The reply travels back through the same kinds of steps in reverse.</p>
+<h3>Why it matters</h3>
+<p>When a page will not load, each step gives a different clue. A failure at the name step means the number was never found. A failure at the route step means there is no path. A failure at the conversation step means the two programs could not agree or exchange data.</p>
+<h3>How to think about it</h3>
+<p>Think of asking a librarian for a book. You look up the shelf number in a catalogue, find the aisle, walk to the shelf, and hand over your request. The book comes back through your hands. If the catalogue, the aisle or the shelf is missing, you know exactly where to look for the problem.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/dns.html">DNS (Domain Name System)</a></dt>
+<dd>The service that turns a readable name into a network address.</dd>
+<dt><a href="glossary/t/tcp.html">TCP</a></dt>
+<dd>The protocol that keeps the conversation reliable and in order.</dd>
+<dt><a href="glossary/t/tls.html">TLS (Transport Layer Security)</a></dt>
+<dd>The protocol that encrypts the conversation and checks the server's identity.</dd>
+<dt><a href="glossary/h/http.html">HTTP (Hypertext Transfer Protocol)</a></dt>
+<dd>The rules for asking a web server for a page and receiving it.</dd>
+<dt><a href="glossary/i/ip-address.html">IP address</a></dt>
+<dd>The number that identifies a machine on the network.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Follow a request with read-only commands</h2>
+<p><strong>Goal:</strong> you will be able to name the stage each command checks, and say which layer a failure belongs to.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ getent ahosts example.com | head -6
+172.66.147.243  STREAM example.com
+172.66.147.243  DGRAM
+172.66.147.243  RAW
+104.20.23.154   STREAM
+104.20.23.154   DGRAM
+104.20.23.154   RAW
+
+$ ip route get 1.1.1.1
+1.1.1.1 via 192.168.1.1 dev enp1s0 src 192.168.1.26 uid 1000
+    cache
+
+$ ss -tan state established '( dport = :443 or sport = :443 )' | head -3
+Recv-Q Send-Q Local Address:Port    Peer Address:Port
+0      0       192.168.1.26:37764  172.217.119.4:443
+0      0       192.168.1.26:38016  74.151.238.140:443
+</pre>
+<p>Captured on a Tamlinux workstation, 2026-11-21. Your addresses, routes and open connections will differ.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>getent ahosts</code> asks the system resolver for a name. It returns addresses with the socket types that can use them: <code>STREAM</code> for TCP, <code>DGRAM</code> for UDP and <code>RAW</code> for direct internet-protocol use.</li>
+<li><code>ip route get</code> asks the kernel where a packet to a numeric destination would go. The answer names the gateway and the source address, without sending anything.</li>
+<li><code>ss -tan state established</code> shows real TCP conversations. Each line is a pair of endpoints: a local address and port, and a remote address and port.</li>
+<li>TLS and the web request itself run inside those conversations. They add encryption and page semantics above the transport layer, so the socket table cannot show them.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run the three commands while a web page is open. Then close the page and run the last one again: the finished connections disappear or move to a closing state. All three commands only read state.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The name lookup returns nothing</dt>
+<dd>Check <code>resolvectl status</code>. A failed name lookup stops the process before any route or connection is attempted.</dd>
+<dt><code>Network is unreachable</code> from <code>ip route get</code></dt>
+<dd>No route matches the destination. Check the interface address and the default route before blaming the website.</dd>
+<dt>An address resolves and a route exists, but no connection appears</dt>
+<dd>The remote service may refuse the connection, a firewall may drop it, or TLS or the web application may fail after the connection opens. Test the port before inspecting the page contents.</dd>
+</dl>
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> name lookup goes through systemd-resolved and the connection's DNS settings; the browser does not read DNS servers directly. The <a href="networking/setup/name-resolution.html">Name resolution</a> page shows what to check when that hand-off fails.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>A numeric address replies to a ping, but the page will not open. What have you ruled out, and what do you check next?</i></summary>
+<p>Link, addressing, routing and basic internet control messages work. Check that a TCP connection to the web port can be established, then TLS and the HTTP response. Each check isolates one layer above the one the ping proved.</p>
+</details>
+<details class="q">
+<summary><i>Why can the socket table not tell you whether TLS succeeded?</i></summary>
+<p>TLS data travels inside the TCP stream as ordinary bytes from the transport layer's point of view. The socket table reports addresses, ports, queues and timers, not the meaning of the bytes. A browser or a tool such as <code>openssl s_client</code> must inspect the application data.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: one request across the layers</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Stage</th><th>Layer</th><th>What is decided</th><th>Read-only evidence</th></tr>
+<tr><td>Name to address</td><td>Application</td><td>Which numeric endpoint to use</td><td><code>getent ahosts</code>, <code>resolvectl query</code></td></tr>
+<tr><td>Next hop</td><td>Internet</td><td>Which interface and gateway reach that address</td><td><code>ip route get</code></td></tr>
+<tr><td>Connection</td><td>Transport</td><td>Which local port and sequence space carry the request</td><td><code>ss -tan</code>, <code>ss -ti</code></td></tr>
+<tr><td>Identity and secrecy</td><td>Application over transport</td><td>Certificate chain, cipher suite and session keys</td><td><code>openssl s_client</code>, browser certificate view</td></tr>
+<tr><td>Request and reply</td><td>Application</td><td>Method, path, status code and content</td><td>Browser developer tools, <code>curl -v</code></td></tr>
+<tr><td>Local frames</td><td>Link</td><td>Which hardware neighbour receives each frame</td><td><code>ip neigh</code>, <code>ip link</code></td></tr>
+</table>
+<h3>How it works</h3>
+<p>A resolver reads the system's name-service configuration, queries a local cache and, on a miss, sends a UDP question to a configured DNS server. The answer is a set of addresses. The kernel then performs a longest-prefix route lookup for the chosen address, selects a source address, and creates a TCP socket with an ephemeral local port. The three-way handshake establishes sequence numbers and windows. The application writes an encrypted TLS record containing an HTTP request into the socket; TCP segments it, IP addresses it, and the link layer frames it for the next hop. At the far end each layer removes its own header before handing the data upward.</p>
+<p>Modern browsers prefer HTTPS and often negotiate HTTP/2 over TCP. HTTP/3 instead uses QUIC over UDP, moving the handshake and reliability into user space so a lost packet does not block unrelated streams. Both reach the same application result through different transport choices.</p>
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ ip -j route get 1.1.1.1 | jq .
+[
+  {
+    "dst": "1.1.1.1",
+    "gateway": "192.168.1.1",
+    "dev": "enp1s0",
+    "prefsrc": "192.168.1.26",
+    "flags": [],
+    "uid": 1000,
+    "cache": []
+  }
+]
+</pre>
+<p>Captured on the same workstation, 2026-11-21. The JSON form is useful when a script needs the route decision; a human usually prefers the plain form shown in the Learner section. <code>curl -v</code> adds the name lookup, connection, TLS and HTTP lines in one trace, which is the quickest way to see all four stages at once.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A name can resolve to several addresses. Happy Eyeballs tries both families so a broken path does not stall the page while the host waits for a timeout.</li>
+<li>A CNAME or a load balancer can change the address between two lookups, so a new connection need not reach the same machine as an old one.</li>
+<li>DNS over HTTPS hides the lookup inside a TLS connection to a resolver, which changes what a local packet capture can reveal.</li>
+<li>TLS session resumption shortens a later handshake, so a short connection can carry data almost immediately.</li>
+<li>Early replies and cached content can complete before a firewall or a path-MTU problem shows up in a large transfer.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A page loads over HTTP/3 while ss -tan shows no connection for it. Explain why.</summary>
+<p>HTTP/3 uses QUIC, which runs over UDP rather than TCP. The connection appears in <code>ss -uan</code> or in the QUIC implementation's own state, not in the TCP table. The layers above still perform name lookup, route selection, encryption and an HTTP request, but the transport that carries them has changed.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite>, <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>, <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite>, <a href="man:getent(5)">getent(5)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:ss(8)">ss(8)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="paths/internet-protocol-stack.html">Internet protocol and the stack</a> &mdash; revisit the stages with the capstone task.</li>
+<li><a href="networking/connections.html">Network connections and DNS</a> &mdash; apply the layer-by-layer method to a real fault.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ports and sockets</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="ports-and-sockets">
+<meta name="summary" content="Understand how port numbers and sockets let one computer run many separate network conversations at the same time">
+<meta name="keywords" content="port, socket, endpoint, four tuple, listen, ephemeral port, ss, tcp, udp, multiplexing">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="prereqs" content="the-internet-protocol-stack, glossary-ip-address">
+<meta name="paths" content="internet-protocol-stack:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Ports and sockets</p></nav>
+
+<h1>Ports and sockets</h1>
+<p>This page explains how a single computer can run many network conversations at once without mixing them up.</p>
+
+<section data-level="novice">
+<h2>What is a port?</h2>
+<p>A port is a small number attached to a network message that says which program should receive it. An IP address identifies the computer; a port identifies the particular service or conversation inside it.</p>
+<h3>Why it matters</h3>
+<p>Without ports, a computer could only run one network program at a time. Ports let a web browser, a mail program and a printer service all use the same connection at the same time.</p>
+<h3>How to think about it</h3>
+<p>Think of a large apartment building. The street address gets a letter to the building; the apartment number gets it to the right household. The IP address is the street address and the port is the apartment number. A socket is the doorway that a program stands at to hand letters in and out.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/p/port.html">Port</a></dt>
+<dd>A number from 0 to 65535 that identifies a service or conversation endpoint.</dd>
+<dt><a href="glossary/s/socket.html">Socket</a></dt>
+<dd>The endpoint a program uses to send and receive network data.</dd>
+<dt><a href="glossary/t/tcp.html">TCP</a></dt>
+<dd>A transport protocol that keeps a reliable, ordered conversation.</dd>
+<dt><a href="glossary/u/udp.html">UDP</a></dt>
+<dd>A transport protocol that sends independent messages without a connection.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read listening sockets and identify a conversation</h2>
+<p><strong>Goal:</strong> you will be able to read a socket table, name the four values that identify a conversation, and explain why local port numbers are reused by different remote connections.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ss -tan | head -5
+State     Recv-Q Send-Q Local Address:Port     Peer Address:Port
+LISTEN    0      128          0.0.0.0:22            0.0.0.0:*
+LISTEN    0      4096      127.0.0.54:53            0.0.0.0:*
+LISTEN    0      4096      127.0.0.1:45701         0.0.0.0:*
+LISTEN    0      128        127.0.0.1:35577         0.0.0.0:*
+
+$ ss -uln | head -6
+State  Recv-Q Send-Q Local Address:Port Peer Address:Port
+UNCONN 0      0         172.17.0.1:53        0.0.0.0:*
+UNCONN 0      0         127.0.0.54:53        0.0.0.0:*
+UNCONN 0      0      127.0.0.53%lo:53        0.0.0.0:*
+UNCONN 0      0            0.0.0.0:5353      0.0.0.0:*
+UNCONN 0      0               [::]:5353         [::]:*
+</pre>
+<p>Captured on a Tamlinux workstation, 2026-11-21. Your open ports will differ.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>LISTEN</code> means a program is waiting for new connections on that address and port. Port 22 is the usual SSH service; port 53 is DNS.</li>
+<li><code>0.0.0.0:22</code> listens on every <a href="glossary/i/ipv4.html">IPv4</a> address on the machine; <code>127.0.0.54:53</code> listens only on a local loopback address.</li>
+<li><code>UNCONN</code> in the UDP table is a socket with no connection state: it accepts independent datagrams.</li>
+<li>Port 5353 is multicast DNS, which announces local printers and devices; it appears once for <a href="glossary/i/ipv4.html">IPv4</a> and once for <a href="glossary/i/ipv6.html">IPv6</a>.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>ss -tan</code>, then <code>ss -uln</code>. Open a web page and run <code>ss -tan state established</code>: each line is one live conversation with its local and remote address and port. These commands only read kernel state.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>ss: command not found</code></dt>
+<dd>The <code>iproute2</code> tools are missing. Read <code>/proc/net/tcp</code> and <code>/proc/net/udp</code> instead; the port numbers are in hexadecimal.</dd>
+<dt>An address and port you expect is missing</dt>
+<dd>The service may not be running, or it may listen only on <a href="glossary/i/ipv6.html">IPv6</a>. Check <code>ss -tlan</code> for all listening TCP sockets on both families.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Two browser tabs connect to the same website on port 443. Why don't the connections collide?</i></summary>
+<p>Each connection gets its own local port from the ephemeral range. A conversation is identified by local address, local port, remote address and remote port together, so two tabs have different four-tuples even though the remote port is the same.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: endpoints, lifetimes and the socket API</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Value</th><th>Range</th><th>Meaning</th></tr>
+<tr><td>Well-known port</td><td>0 to 1023</td><td>Standard service such as 22 SSH, 53 DNS, 80 HTTP, 443 HTTPS</td></tr>
+<tr><td>Registered port</td><td>1024 to 49151</td><td>Assigned services and application defaults</td></tr>
+<tr><td>Ephemeral port</td><td>49152 to 65535 by convention</td><td>Local port chosen for an outgoing connection</td></tr>
+<tr><td>Four-tuple</td><td>Two addresses and two ports</td><td>Identifies a TCP conversation inside a network namespace</td></tr>
+<tr><td>Socket pair</td><td>Two four-tuples</td><td>Identifies the two directions of a full-duplex connection</td></tr>
+</table>
+<p>Linux actually draws ephemeral ports from <code>/proc/sys/net/ipv4/ip_local_port_range</code>, which usually defaults to a narrower range than the conventional one. Root privileges are needed only to bind a port below 1024, unless the process holds the <code>CAP_NET_BIND_SERVICE</code> capability.</p>
+<h3>How it works</h3>
+<p>A program calls <code>socket(2)</code> to create a socket, <code>bind(2)</code> to choose a local address and port, <code>listen(2)</code> to accept TCP connections, and <code>accept(2)</code> to obtain a new socket for each client. The original listening socket stays open. The kernel matches an incoming segment to a socket by hashing the four-tuple, with separate lookup tables for listening and established sockets. UDP uses <code>sendto(2)</code> and <code>recvfrom(2)</code>, and preserves message boundaries: one send becomes one datagram. A socket appears in the process's file descriptor table, so <code>/proc/&lt;pid&gt;/fd</code> and <code>lsof -i</code> show which program owns it.</p>
+<h3>Advanced usage</h3>
+<pre data-risk="read-only">
+$ ss -tan state established '( dport = :443 or sport = :443 )' | head -4
+Recv-Q Send-Q Local Address:Port    Peer Address:Port
+0      0       192.168.1.26:37764  172.217.119.4:443
+0      0       192.168.1.26:42234 142.251.45.165:443
+0      0       192.168.1.26:48752   104.18.18.80:443
+0      0       192.168.1.26:54308 74.151.238.100:443
+</pre>
+<p>Captured on a Tamlinux workstation, 2026-11-21; the remote addresses and local ports depend on which sites are open. <code>ss -ti</code> adds TCP timer and congestion information. <code>SO_REUSEPORT</code> lets several processes share one listening port, and the kernel distributes incoming connections among them.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>A closed TCP connection spends time in <code>TIME_WAIT</code> so delayed duplicates cannot be mistaken for a new connection on the same four-tuple.</li>
+<li>Two sockets cannot normally bind the same address and port. A wildcard <code>0.0.0.0</code> bind conflicts with a specific address bind on the same port unless options permit sharing.</li>
+<li>Network namespaces each have their own port space, so containers can reuse the same ports without conflict.</li>
+<li>A UDP socket with no peer receives datagrams from any source; an application that cares about identity must authenticate the sender itself.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>What breaks if two processes bind the same address and port without SO_REUSEPORT, and why does the second bind fail?</summary>
+<p>The kernel has no way to decide which socket should receive an incoming segment, so the second bind returns EADDRINUSE. With SO_REUSEPORT the kernel accepts both sockets and spreads incoming connections among them, which is how multi-process servers balance load on one port.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="man:ss(8)">ss(8)</a>, <a href="man:socket(2)">socket(2)</a>, <a href="man:bind(2)">bind(2)</a>, <a href="man:ip(8)">ip(8)</a> and <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/stack/transmission-control-protocol.html">Transmission Control Protocol</a> &mdash; see how a TCP connection uses these endpoints.</li>
+<li><a href="networking/stack/user-datagram-protocol.html">User Datagram Protocol</a> &mdash; see the connectionless alternative.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The internet protocol stack</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="topic" content="the-internet-protocol-stack">
+<meta name="summary" content="Understand why network software is split into layers and how encapsulation passes data from an application down to a cable and back">
+<meta name="keywords" content="internet protocol stack, tcp ip model, osi layers, encapsulation, decapsulation, packet, protocol, layer, network interface">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="prereqs" content="networking, communication-protocols">
+<meta name="paths" content="internet-protocol-stack:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / The internet protocol stack</p></nav>
+
+<h1>The internet protocol stack</h1>
+<p>This page explains how a message is split into layers so that a program on one computer can reach a program on another without either one knowing how the cable or radio works.</p>
+
+<section data-level="novice">
+<h2>What is a protocol stack?</h2>
+<p>A protocol stack is a set of small jobs stacked on top of each other. Each job adds its own label to your message and passes it down to the next job. At the other end, the labels are read and removed in the reverse order until the original message arrives.</p>
+<h3>Why it matters</h3>
+<p>Layers let different kinds of equipment work together. A web page can travel from a laptop over Wi-Fi, through a router, across fiber, and into a server without the browser or the web server caring which cable carried each part. If one layer changes, the others do not have to be rewritten.</p>
+<h3>How to think about it</h3>
+<p>Think of sending a parcel. You write a note, put it in a box with a name on it, put the box in a mailbag with a route label, and hand the bag to a driver. The driver only reads the route label. When the parcel arrives, each wrapper is opened in reverse until the note is back in your friend's hands.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/p/protocol.html">Protocol</a></dt>
+<dd>An agreed set of rules that two communicating programs follow.</dd>
+<dt><a href="glossary/p/packet.html">Packet</a></dt>
+<dd>A small piece of data with the addresses needed to deliver it.</dd>
+<dt><a href="glossary/i/ip-address.html">IP address</a></dt>
+<dd>The number that says which machine a packet is for.</dd>
+<dt><a href="glossary/p/port.html">Port</a></dt>
+<dd>A number that says which program on that machine should receive the data.</dd>
+<dt><a href="glossary/s/socket.html">Socket</a></dt>
+<dd>The endpoint a program uses to send or receive network data.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Name the layers and find them on your machine</h2>
+<p><strong>Goal:</strong> you will be able to name the four layers of the internet model and find the addresses and ports each layer adds on a running Linux system.</p>
+<h3>The four layers</h3>
+<ol>
+<li><strong>Application:</strong> the program's data and rules, such as DNS for names or HTTP for web pages.</li>
+<li><strong>Transport:</strong> <a href="glossary/t/tcp.html">TCP</a> or <a href="glossary/u/udp.html">UDP</a>, which adds port numbers so the right program receives the data.</li>
+<li><strong>Internet:</strong> <a href="glossary/i/ip-address.html">IP</a>, which adds source and destination addresses so routers can forward the packet.</li>
+<li><strong>Link:</strong> Ethernet or Wi-Fi, which turn the packet into signals on the local cable or radio link.</li>
+</ol>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ip -br addr show enp1s0
+enp1s0           UP             192.168.1.26/24 fe80::80d1:99bb:b99:2848/64
+
+$ ss -tan | head -4
+State     Recv-Q Send-Q Local Address:Port     Peer Address:Port
+LISTEN    0      128          0.0.0.0:22            0.0.0.0:*
+LISTEN    0      4096      127.0.0.54:53            0.0.0.0:*
+LISTEN    0      4096      127.0.0.1:45701         0.0.0.0:*
+</pre>
+<p>Captured on a Tamlinux workstation, 2026-11-21. Your interface names and addresses will differ.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>ip -br addr</code> shows the internet-layer address on the link named <code>enp1s0</code>: an <a href="glossary/i/ipv4.html">IPv4</a> address and an <a href="glossary/i/ipv6.html">IPv6</a> link-local address.</li>
+<li><code>ss -tan</code> shows transport-layer endpoints. <code>0.0.0.0:22</code> means program listening on port 22 on every local address.</li>
+<li>The pair of an address and a port is a socket endpoint. A conversation is identified by the local and remote ends together.</li>
+<li>Nothing here shows the application data; that is added above the transport layer and is hidden by encryption for many web services.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run <code>ip -br addr</code> and <code>ss -tan</code> on your own machine. Then run <code>getent ahosts example.com</code> to see the address an application gets after DNS resolves a name. All three commands only read state.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>ss: command not found</code></dt>
+<dd>The <code>iproute2</code> tools are not installed. Use <code>cat /proc/net/tcp</code> to read the same kernel table in raw form.</dd>
+<dt>No lines after the header in <code>ss -tan</code></dt>
+<dd>No TCP sockets are open right now. Open a web page and repeat the command.</dd>
+</dl>
+<aside class="tamlinux">
+<p><strong>On Tamlinux:</strong> NetworkManager owns connection state and systemd-resolved answers name lookups. The connection panel and <code>tam-network-status</code> read the same kernel and resolver state shown here; see <a href="networking/connections.html">Network connections and DNS</a> for the command source and limits.</p>
+</aside>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>Which layer adds the IP address 192.168.1.26, and which adds the port 22?</i></summary>
+<p>The internet layer adds the address so routers can forward the packet. The transport layer adds the port so the receiving machine knows which program to hand the data to. The link layer then wraps both in a frame for the local cable or radio link.</p>
+</details>
+<details class="q">
+<summary><i>Why can one IP address serve many web connections at once?</i></summary>
+<p>Because each conversation is identified by the local address, local port, remote address and remote port together. Different local port numbers keep the conversations separate inside the same machine.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: encapsulation and the kernel data path</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Layer</th><th>Unit of data</th><th>What it adds</th><th>Linux example</th></tr>
+<tr><td>Application</td><td>Message or record</td><td>Application semantics, such as a DNS query or an HTTP request</td><td><code>getent ahosts</code>, a browser</td></tr>
+<tr><td>Transport</td><td>Segment (TCP) or datagram (UDP)</td><td>Source and destination ports, and optionally ordering and reliability</td><td><code>ss -tan</code>, <code>ss -uln</code></td></tr>
+<tr><td>Internet</td><td>Datagram or packet</td><td>Source and destination IP addresses, hop limit, next-protocol field</td><td><code>ip route get</code>, <code>ip -6 route</code></td></tr>
+<tr><td>Link</td><td>Frame</td><td>Local hardware addresses and a frame check sequence</td><td><code>ip link</code>, <code>ip neigh</code></td></tr>
+</table>
+<p>The seven-layer OSI reference model splits the application layer into application, presentation and session, and splits the link layer into data link and physical. The four-layer internet model merges those pairs. Both describe the same exchange; neither is a separate implementation.</p>
+<h3>How it works</h3>
+<pre data-risk="read-only">
+[ application data ]
+[ TCP header ][ application data ]              segment
+[ IP header  ][ TCP header ][ application data ] datagram
+[ Ethernet header ][ IP header ][ TCP ][ data ][ FCS ] frame
+</pre>
+<p>Each layer reads only the header meant for it and passes the rest upward or downward. On the receive path a network interface places frames into memory, the driver raises an interrupt and the kernel's NAPI loop polls in batches to avoid an interrupt per packet. Each <code>sk_buff</code> carries header offsets that let layers add or remove headers without copying the payload. Netfilter hooks sit at PREROUTING, INPUT, FORWARD, OUTPUT and POSTROUTING, which is why a firewall rule can see a packet before or after a routing decision.</p>
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ ip -j route get 1.1.1.1 | jq .
+[
+  {
+    "dst": "1.1.1.1",
+    "gateway": "192.168.1.1",
+    "dev": "enp1s0",
+    "prefsrc": "192.168.1.26",
+    "flags": [],
+    "uid": 1000,
+    "cache": []
+  }
+]
+</pre>
+<p>This shows the same route decision as data, including the source address the kernel would choose. Illustrative output from the workstation used above; your values will differ.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Checksums exist at several layers. A link-layer frame can be valid while the IP or transport checksum fails, so each layer reports its own errors.</li>
+<li>A tunnel wraps an entire packet inside another one, adding another header pair and reducing the payload space available to the application.</li>
+<li>Checksum offload and segmentation offload can make a captured frame look different from what the application wrote, because hardware fills in fields after the capture point.</li>
+<li>A single physical interface can hold several addresses, and a network namespace gives each container its own stack with a separate loopback device.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A numeric address replies to a ping but a web page fails. Which layers are proven, and which still need checking?</summary>
+<p>The link, internet and ICMP parts of the stack work, because a ping reached the numeric destination and came back. Name resolution, the TCP connection, TLS and the HTTP application are still open. Test them in that order so each check eliminates one layer.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> for IP, <cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite> for TCP, and <a href="man:ip(8)">ip(8)</a>, <a href="man:ss(8)">ss(8)</a> and <a href="man:netns(8)">netns(8)</a> for the Linux view.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/stack/ip-packets-and-forwarding.html">IP packets and forwarding</a> &mdash; read the headers this page introduced.</li>
+<li><a href="paths/internet-protocol-stack.html">Internet protocol and the stack</a> &mdash; follow the whole series in order.</li>
+</ul>
+</body>
+</html>
