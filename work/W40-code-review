@@ -1,0 +1,35 @@
+W40 COMMAND AND CORPUS CODE REVIEW
+
+Date: 2026-12-03
+AI harness: Codex 0.171.0
+AI model: gpt-6.2-sol
+Commits: This documentation commit
+
+GUIDANCE
+
+  Fred: "Do a code review of tam. Look for bugs and find the root cause.
+  Review the data structures and algorithms; document them in arch/.
+  Take a look at how the code is factored and suggest refactoring if you
+  think there are better ways to get things done. Look at the latest
+  libtam and decide whether tam is making best use of it. Provide a
+  general assessment as well as specific suggestions for improvement."
+  Fred: "Implement the plan."
+  Fred: "Continue"
+  Fred: "Okay, skip that since you can't work on it. Keep going."
+
+DONE
+
+  - Documented the renderer, pager, index and corpus build under arch/.
+  - Compared published libtam 0.8.0 with local 0.9.0 pager work.
+  - Recorded five verified bugs and additional source findings in R1.
+  - Fresh 0.8.0 build passed command, renderer and 160 tooling tests.
+
+FAILED
+
+  - The first scratch run lacked the adjacent upgrade helper. Linked
+    the helper into the scratch build and reran the tests successfully.
+
+HANDOFF
+
+  - B1 is the source-upgrade blocker. R1 gives follow-up tests and a
+    refactoring order for a separately directed fix.

@@ -3,61 +3,29 @@ WHATNOW
 What tam is doing now and what comes next. Read this first; revise it at
 the end of every session (work/README-work).
 
-Updated: 2026-11-21, with W39
+Updated: 2026-12-03, with W40
 
 
 STATE
 
-  Command 0.67.8 and corpus 0.106.0 on dev. W39 delivered the internet
-  protocol stack curriculum: IPv4 and IPv6 glossary pages, a six-page stack
-  series with a hub and the internet-protocol-stack goal path, four RFC
-  bibliography entries, and links from every prose IPv4/IPv6 mention in the
-  guide (122 links). make corpus-and-test (93 unit tests) and make check-repo
-  pass; git diff --check passes on all hand-written files (the generated
-  index.paths.tsv has the generator's normal trailing tabs on step rows).
-  One pre-existing learning warning remains on tamlinux/components.html.
-  Nothing was pushed or installed.
+  Command 0.67.8 and corpus 0.106.1 on dev. W40 documented the document
+  model, pager, index, corpus pipeline and dependencies in arch/.
+  reviews/R1-command-and-corpus-code.md records five confirmed bugs,
+  other source findings and prioritized refactoring suggestions.
+  The reviewed command built against libtam 0.8.0 and passed command
+  integration, all seven renderer goldens and 160 focused Python tests.
 
-  W38 delivered the "Foundations + Avahi" tranche of the network
-  curriculum: a three-level Avahi/Zeroconf page, five setup pages, the
-  network-setup goal path, two hubs, seven glossary entries and two RFC
-  bibliography entries. It also fixed the corpus linter to read entities
-  from src/html_entities.inc. TCK28-TCK30 are closed in corpus 0.105.0.
-
-  W37 removed retired `BUNDLE`
-  manifest parsing and pre-0.6.37 `/usr/lib/tamlinux/source/current` /
-  `/var/lib/tamlinux/source/active.json` identity and ownership fallbacks
-  and trimmed obsolete `BUNDLE` test cases. Follows the tam-idol 0.2.0
-  standard (W34): VERSION, UPSTREAM.md, AI-BLAME.md, expanded COPYRIGHT,
-  standard README-<folder> files in arch/, bugs/, ideas/, plans/,
-  reviews/ and work/, updated docs/repo-map.md, AGENTS.md and
-  work/history/README; both tam-idol/tools/idol-check and
-  tools/check-repo.py pass.
-
-  W36 made web URLs in manual text selectable and openable in the pager.
-  Both Git documentation links were verified in a terminal. It also made
-  the named bullet entity display as an asterisk in giteveryday(7).
-  The follow-up added full named HTML entity decoding and groff source
-  encoding detection. The 142-page repeat audit found only escaped
-  literals.
-
-  W35 made the tldr index start with a first-time aside and show
-  command ranges for populated letters. The curated tldr pages were
-  refreshed in corpus 0.104.1.
-
-  Recent work on dev: W33 made guide lookup prefer exact page names and
-  offer choices for tied keywords (command 0.67.3); W32 linked ESD terms
-  and added five glossary pages (corpus 0.104.0); W31 italicized all
-  1,375 quiz question prompts across 1,081 corpus pages; W30 updated
-  corpus pages to name AI-BLAME.md; W29 completed a corpus-wide review
-  and remediation; W26 moved 242 pre-2026-11-17 records into
-  work/history/.
+  W39 delivered the internet protocol stack curriculum and the subsequent
+  corpus 0.106.1 commits revised the Tamlinux index page. W38 delivered
+  Avahi/Zeroconf foundations and network setup guidance. W37 retired
+  BUNDLE and legacy identity and ownership fallbacks.
 
 
 NEXT
 
-  1. Await the developer's direction for the next approved outcome
-     (AGENTS.md); nothing else is approved.
+  1. B1 is the source-upgrade blocker. The manifest pins libtam 0.4.0
+     while the command requires 0.8.0. R1 records verification and the
+     suggested order for follow-up work. Fixes await developer direction.
 
 
 WAITING FOR FRED
@@ -67,15 +35,9 @@ WAITING FOR FRED
 
 WATCH OUT
 
-  - Lanes: claim the command lane (src/, bin/, completions/) or the
-    corpus lane (knowledge/, tools/, test_lint_corpus.py,
-    test_build_index.py), or both when a change couples them. Shared
-    files (Makefile, tests/run.sh, ROADMAP.md, README, AI-BLAME.md,
-    docs/plans/) are claimed only while edited.
-  - Every command or corpus change bumps its version in every place
-    AGENTS.md lists, in the same commit; make check-repo checks them.
+  - Claim the paths you edit in the shared clone. See AGENTS.md for
+    lane scopes, version bumps and tests.
   - work/history/ is read-only (links may be repaired). Do not add to it
     or rewrite older records; new sessions use work/W<n>-<name>.
   - make dev is Fred's loop; agents do not run it. Do not install a
     build as a side effect of content changes.
-  - Work in the shared clone; never create a worktree.
