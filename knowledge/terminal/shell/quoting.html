@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html><head>
+<title>Keeping words together</title>
+<meta name="topic" content="shell-quoting">
+<meta name="summary" content="Use single quotes, double quotes and backslashes to keep typed text as one word">
+<meta name="keywords" content="quoting, quotes, single quotes, double quotes, backslash, escaping, shell words, arguments, IFS">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/shell/index.html">
+<meta name="prereqs" content="shell">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shelltext.novice, shelltext.learner, shelltext.expert">
+<meta name="paths" content="shell-text-and-ifs:2">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/shell/index.html">Giving your computer written instructions</a> / Keeping words together</p></nav>
+
+<h1>Keeping words together</h1>
+<p>This page shows how quotes keep several characters together as one word when you type instructions for a shell.</p>
+
+<section data-level="novice">
+<h2>One word, not many</h2>
+<p>A shell reads what you type and uses spaces to decide where one word ends and the next begins. Sometimes you want a space to stay inside a word, for example in the name <code>My notes.txt</code>. Quoting is the way to say that several characters belong together.</p>
+<aside class="first-time"><p>Type after the terminal prompt; do not type the dollar sign shown in examples. A missing closing quote leaves the shell waiting for more input. Ctrl+C cancels that unfinished line and returns you to a fresh prompt.</p></aside>
+
+<h3>Why it matters</h3>
+<p>A filename with a space is one file. If the shell treats it as two words, the command looks for two files and fails.</p>
+
+<h3>How to think about it</h3>
+<p>Picture a parcel tied with string. The string is the quote: everything inside travels as one package, even when it contains spaces.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/q/quoting.html">Quoting</a></dfn></dt><dd>Marking text so the shell keeps it together and does not give special meaning to its characters.</dd>
+<dt><dfn><a href="glossary/w/word-splitting.html">Word splitting</a></dfn></dt><dd>The shell step that divides expansion results into separate words.</dd>
+<dt><dfn><a href="glossary/a/argument.html">Argument</a></dfn></dt><dd>One piece of information passed to a command.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Choose the right quote</h2>
+<p><strong>Goal:</strong> you will be able to keep a value containing spaces as a single argument.</p>
+
+<p><strong>Learning path:</strong> <a href="paths/shell-text-and-ifs.html?level=2">Start</a> · <a href="terminal/shell/index.html?level=2">Back</a> · <a href="terminal/shell/expansion.html?level=2">Next</a></p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ name='Quarterly Report.pdf'
+$ printf '[%s]\n' $name
+[Quarterly]
+[Report.pdf]
+$ printf '[%s]\n' "$name"
+[Quarterly Report.pdf]
+$ printf '[%s]\n' 'Quarterly Report.pdf'
+[Quarterly Report.pdf]
+</pre>
+<p>Captured on Arch Linux, 2026-11-22. The format <code>[%s]</code> puts brackets around each argument, so you can count the arguments the command received.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The assignment stores one value with a space inside it.</li>
+<li>Unquoted <code>$name</code> expands, then word splitting divides the result into two arguments.</li>
+<li>Double quotes expand the variable but keep the result as one argument.</li>
+<li>Single quotes stop expansion too, so the literal text <code>$name</code> would stay literal.</li>
+</ol>
+
+<h3>Try it</h3>
+<tam-sandbox
+  title="Try it: quote a value"
+  prompt="alex@tamlinux:~ $ "
+  cwd="/home/alex"
+  lesson="quoting"
+  goal="printf '%s\n' 'a b'">
+  <tam-fs>
+    <dir name="/home/alex"></dir>
+  </tam-fs>
+  <tam-cmd match="printf '%s\n' 'a b'" goal="true" hint="Right. The quotes keep a b as one argument, so printf prints one line.">
+    <out>a b</out>
+  </tam-cmd>
+  <tam-cmd match="printf '%s\n' a b" hint="Without quotes printf receives two arguments and prints two lines. Try the quoted form.">
+    <out>a</out>
+    <out>b</out>
+  </tam-cmd>
+  <tam-hint after="2">Type: printf '%s\n' 'a b'</tam-hint>
+  <tam-fallback>Try printf '%s\n' 'a b' or printf '%s\n' a b.</tam-fallback>
+</tam-sandbox>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The prompt changes to a continuation line</dt><dd>A quote is unfinished. Press Ctrl+C to cancel the line, then retype it with a matching closing quote.</dd>
+<dt>The command reports two missing files</dt><dd>A value with spaces was left unquoted. Wrap the expansion in double quotes and try again.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>Tamlinux starts a terminal session with <code>bash</code> as its shell, so these quoting rules apply in a normal terminal. The shell used by a script is written on its first line; see <a href="tamlinux/components.html">Tamlinux components</a> for the default terminal and shell.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary><i>Why does "$name" give one argument while $name can give two?</i></summary><p>Double quotes protect the expansion result from word splitting. Without quotes, the space inside the value is treated as a separator.</p></details>
+<details class="q"><summary><i>Which form prints a dollar sign followed by the letters name?</i></summary><p><code>'$name'</code>. Single quotes preserve every character literally; inside double quotes the dollar sign would start an expansion.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Quoting is decided before expansion</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Form</th><th>What it protects</th><th>Still special inside</th></tr>
+<tr><td><code>'text'</code></td><td>Every character is literal</td><td>Nothing; a single quote cannot appear inside single quotes</td></tr>
+<tr><td><code>"text"</code></td><td>Spaces and other separators stay literal</td><td><code>$</code>, backquote and backslash</td></tr>
+<tr><td><code>\c</code></td><td>The single character after the backslash</td><td>A newline after a backslash becomes line continuation</td></tr>
+<tr><td><code>$'text'</code></td><td>Literal text with C-style escape sequences decoded</td><td>Backslash escapes such as <code>\t</code> and <code>\n</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>The shell recognizes quotes while it turns input into tokens. Quote characters remain part of the token during that stage, which is what tells later stages which characters came from literal text. Field splitting looks only at unquoted expansion results, and pathname expansion leaves quoted pattern characters alone. In the final quote-removal step the shell drops the quote characters themselves; what was quoted stays marked so the shell still knows it was literal.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="scratch">
+$ printf '[%s]\n' "${arr[@]}"
+[a b]
+[c]
+$ printf '[%s]\n' "${arr[*]}"
+[a b c]
+</pre>
+<p>Captured on Arch Linux, 2026-11-22, after <code>arr=('a b' c)</code>. Double-quoted <code>${arr[@]}</code> keeps each element as its own argument; <code>${arr[*]}</code> joins them using the first character of IFS.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>A newline after an unquoted backslash is removed before tokenization, so it cannot separate words.</li>
+<li>Inside double quotes, a backslash is special only before dollar sign, backquote, backslash, newline or a double quote.</li>
+<li>A quoted empty string still produces one empty argument; an unquoted empty expansion can disappear entirely.</li>
+<li>A here-document with an unquoted delimiter performs expansions, while a quoted delimiter keeps the body literal.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Why can an unquoted asterisk in a variable match filenames even though the variable held only text?</summary><p>Field splitting happens before pathname expansion. If splitting leaves an unquoted asterisk in a field, the next stage treats it as a pattern and expands it to matching filenames.</p></details>
+<details class="q"><summary>What does a backslash before a newline do, and why is that different from a quoted space?</summary><p>It removes both characters before tokenization, joining the lines with no separator. A quoted space keeps a separator character inside a word, so the two operations are different.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, sections 2.2, 2.5.2 and 2.6; <cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="terminal/shell/expansion.html">What changes before a command runs</a> &mdash; place quoting in the expansion order.</li>
+<li><a href="programming/robust-shell-data.html">Handling real data safely</a> &mdash; apply quoting to filenames and input lines.</li>
+</ul>
+</body></html>

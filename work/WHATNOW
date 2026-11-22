@@ -1,77 +1,97 @@
 WHATNOW
 
-What tam is doing now and what comes next. Read this first; revise it at
-the end of every session (work/README-work).
+What tam is doing now and what comes next. Read this first;
+revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-22, with W41
+Updated: 2026-11-22, with W42
 
 STATE
 
-  Command 0.67.8 and corpus 0.106.1 on dev; no version bump for W41.
-  W41 fixed B6 (a failed back or forward load freed a live history
-  entry; use-after-free on the next press) in src/pager_nav.c, with the
-  check_vanished_history test in tests/pager_screen.py. The fix is in
-  source only; Fred has not run it in a build. B1-B5 from
+  Command 0.67.8 and corpus 0.107.0 on dev. W42 delivered the
+  IFS curriculum: three glossary entries, four shell lessons,
+  a data-handling how-to, a six-stage goal path and a POSIX
+  source. Corpus checks and make check-repo pass; the pages
+  render at all three levels with the checkout corpus. The
+  generated indexes still need their follow-up commit.
+
+  W41 fixed B6 (a failed back or forward load freed a live
+  history entry; use-after-free on the next press) in
+  src/pager_nav.c, with the check_vanished_history test in
+  tests/pager_screen.py. The fix is in source only; Fred has
+  not run it in a build. B1-B5 from
   reviews/R1-command-and-corpus-code.md are still open.
   The whole of tests/pager_screen.py fails on HEAD at the
-  "[Level 2 Learner" status assertion (status reads "already at Level 2
-  Learner"); it was not checked whether make test hits this.
+  "[Level 2 Learner" status assertion (status reads "already
+  at Level 2 Learner"); it was not checked whether make test
+  hits this.
 
-  W40 documented the architecture in arch/. W39 and W38 delivered the
-  protocol stack and network setup curricula.
+  W40 documented the architecture in arch/. W39 and W38
+  delivered the protocol stack and network setup curricula.
 
 
 NEXT
 
-  Bugs, most urgent first. Each has a B record in bugs/ with steps.
-
-  1. B1: source-upgrade pins libtam 0.4.0; the command needs 0.8.0.
-     Pin a tested 0.8.0 revision in source-build.json and add a pin
-     compatibility check to source-upgrade verification.
-  2. Failing assertion "[Level 2 Learner" in tests/pager_screen.py.
-     Decide whether the test or the status text is wrong, fix it, and
-     run the whole file so check_vanished_history runs in the suite.
-  3. B4: reflow in src/pager_nav.c (pager_reflow) takes the first link
-     whose ID or href matches. Match the original link ID first and
-     fall back to href plus logical position. Add a PTY resize test.
-  4. B2, B3, B5: see their records for cause and fix.
-  5. Unchecked realloc in history_push, forward_push (pager_nav.c) and
-     link building (pager_links.c). Check growth, build the snapshot
-     before incrementing the count, and fail the caller cleanly.
-  6. src/pager_screen.c:51 passes a null row pointer to memcmp when a
-     row is empty (UBSan: null pointer passed as argument 2). Guard the
-     empty-row case. Harmless today but undefined behaviour.
-  7. Inference HTTP read loop in src/ask.c: use one monotonic deadline
-     and a response size cap (R1, open).
+  1. Run make corpus after the W42 commit and commit the changed
+     generated indexes; they record each page's commit history.
+  2. B1: source-upgrade pins libtam 0.4.0; the command needs
+     0.8.0. Pin a tested 0.8.0 revision in source-build.json
+     and add a pin compatibility check to source-upgrade
+     verification.
+  3. Failing assertion "[Level 2 Learner" in tests/pager_screen.py.
+     Decide whether the test or the status text is wrong, fix
+     it, and run the whole file so check_vanished_history runs
+     in the suite.
+  4. B4: reflow in src/pager_nav.c (pager_reflow) takes the first
+     link whose ID or href matches. Match the original link ID
+     first and fall back to href plus logical position. Add a
+     PTY resize test.
+  5. B2, B3, B5: see their records for cause and fix.
+  6. Unchecked realloc in history_push, forward_push
+     (pager_nav.c) and link building (pager_links.c). Check
+     growth, build the snapshot before incrementing the count,
+     and fail the caller cleanly.
+  7. src/pager_screen.c:51 passes a null row pointer to memcmp
+     when a row is empty (UBSan: null pointer passed as argument
+     2). Guard the empty-row case. Harmless today but undefined
+     behaviour.
+  8. Inference HTTP read loop in src/ask.c: use one monotonic
+     deadline and a response size cap (R1, open).
 
   Code improvements, after the bugs:
 
-  8. history_push and forward_push are line-for-line copies, and go_back
-     and go_forward are near copies. Replace with one snapshot builder
-     and one nav_state_free helper; the free sequence is repeated in
-     pager_return_from_help, forward_clear and pager.c cleanup. This is
-     step 2 of the R1 refactoring order and prevents B6 recurring.
-  9. Add a make target for an ASan and UBSan build with UBSAN_OPTIONS
-     log_path set, so sanitizer output stays out of the PTY tests.
-  10. Test go_forward after a vanished page, which W41 did not cover.
-  11. Then the R1 order: central address parsing, index lookup table,
-      shared key and UTF-8 code from libtam.
+  9. history_push and forward_push are line-for-line copies, and
+     go_back and go_forward are near copies. Replace with one
+     snapshot builder and one nav_state_free helper; the free
+     sequence is repeated in pager_return_from_help,
+     forward_clear and pager.c cleanup. This is step 2 of the
+     R1 refactoring order and prevents B6 recurring.
+  10. Add a make target for an ASan and UBSan build with
+      UBSAN_OPTIONS log_path set, so sanitizer output stays out
+      of the PTY tests.
+  11. Test go_forward after a vanished page, which W41 did not
+      cover.
+  12. Then the R1 order: central address parsing, index lookup
+      table, shared key and UTF-8 code from libtam.
 
 
 WAITING FOR FRED
 
-  - Version bump for the B6 fix (command, src/version.h) and a build to
-    verify it. The bug stays "Fix available" until then.
-  - Tamlinux 0.6.31 candidate preparation and packaged verification.
+  - Version bump for the B6 fix (command, src/version.h) and a
+    build to verify it. The bug stays "Fix available" until then.
+  - Tamlinux 0.6.31 candidate preparation and packaged
+    verification.
 
 
 WATCH OUT
 
-  - Claim the paths you edit in the shared clone. See AGENTS.md for
-    lane scopes, version bumps and tests.
-  - UBSan output printed into a PTY corrupts the pager screen model; log
-    it to a file when testing under sanitizers.
-  - work/history/ is read-only (links may be repaired). Do not add to it
-    or rewrite older records; new sessions use work/W<n>-<name>.
-  - make dev is Fred's loop; agents do not run it. Do not install a
-    build as a side effect of content changes.
+  - Claim the paths you edit in the shared clone. See AGENTS.md
+    for lane scopes, version bumps and tests.
+  - Generated corpus indexes trail the page commits by one;
+    commit them after the pages.
+  - UBSan output printed into a PTY corrupts the pager screen
+    model; log it to a file when testing under sanitizers.
+  - work/history/ is read-only (links may be repaired). Do not
+    add to it or rewrite older records; new sessions use
+    work/W<n>-<name>.
+  - make dev is Fred's loop; agents do not run it. Do not install
+    a build as a side effect of content changes.

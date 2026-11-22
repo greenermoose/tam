@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html><head>
+<title>What changes before a command runs</title>
+<meta name="topic" content="shell-expansion">
+<meta name="summary" content="The order of shell expansions: parameters, commands, arithmetic, field splitting, filename patterns and quote removal">
+<meta name="keywords" content="expansion, word expansion, expansion order, parameter expansion, command substitution, field splitting, pathname expansion, glob, quote removal">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/shell/index.html">
+<meta name="prereqs" content="shell, shell-quoting">
+<meta name="kind" content="tutorial">
+<meta name="skills" content="shelltext.novice, shelltext.learner, shelltext.expert">
+<meta name="paths" content="shell-text-and-ifs:3">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/shell/index.html">Giving your computer written instructions</a> / What changes before a command runs</p></nav>
+
+<h1>What changes before a command runs</h1>
+<p>This page explains the order in which a shell changes what you typed before it starts a command.</p>
+
+<section data-level="novice">
+<h2>An assembly line for words</h2>
+<p>When you type an instruction, the shell does not hand your text straight to a program. It works through the text in steps. Some steps replace a name with the value stored in it. One step can turn a single piece of text into several words. A later step looks for filenames that match a pattern. Only after all of that does the shell remove the quote marks and run the command.</p>
+<aside class="first-time"><p>You do not need to type anything on this page. The examples are printed records of commands someone else ran, included so you can see what each step does.</p></aside>
+
+<h3>Why it matters</h3>
+<p>The same text can produce different arguments depending on the order of these steps. Knowing the order tells you why quoting changes the result.</p>
+
+<h3>How to think about it</h3>
+<p>Picture an assembly line with several stations. A parcel goes through each station in turn. A station can only work on what earlier stations left behind, so the order decides the final shape.</p>
+
+<h3>New words</h3>
+<dl>
+<dt>Expansion</dt><dd>The shell replacing a short notation, such as <code>$name</code>, with the value it stands for.</dd>
+<dt><dfn><a href="glossary/w/word-splitting.html">Word splitting</a></dfn></dt><dd>Dividing an expansion result into separate words.</dd>
+<dt><dfn><a href="glossary/g/glob.html">Glob</a></dfn></dt><dd>A pattern such as <code>*.txt</code> that matches filenames.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Follow the order</h2>
+<p><strong>Goal:</strong> you will be able to explain why a quoted and an unquoted expansion give different arguments.</p>
+
+<p><strong>Learning path:</strong> <a href="paths/shell-text-and-ifs.html?level=2">Start</a> · <a href="terminal/shell/quoting.html?level=2">Back</a> · <a href="terminal/shell/word-splitting.html?level=2">Next</a></p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ scratch=$(mktemp -d); cd "$scratch"
+$ touch 'red one.txt' 'red two.txt'
+$ var='red *'
+$ printf '[%s]\n' "$var"
+[red *]
+$ printf '[%s]\n' $var
+[red]
+[red one.txt]
+[red two.txt]
+</pre>
+<p>Captured on Arch Linux, 2026-11-22. The scratch directory held only the two named files, which were removed after the capture.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The variable was replaced by the text <code>red *</code>.</li>
+<li>With quotes, that text stayed one field, so the asterisk was never treated as a pattern.</li>
+<li>Without quotes, field splitting divided the text at the space into <code>red</code> and <code>*</code>.</li>
+<li>Pathname expansion then replaced the asterisk with the two matching filenames.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>In a fresh scratch directory, create two files whose names share a prefix. Store a value with that prefix and an asterisk in a variable, then print it once quoted and once unquoted with <code>printf '[%s]\n'</code>. Predict the number of lines before you press Enter. Remove the scratch directory when you are done.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No files match the pattern</dt><dd>Most shells leave an unquoted asterisk as literal text when nothing matches. Check the directory and the spelling of the prefix.</dd>
+<dt>A filename with a space appears split</dt><dd>The value was left unquoted. Wrap the expansion in double quotes before repeating the command.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>The usual interactive shell on Tamlinux is <code>bash</code>, described in <a href="tamlinux/components.html">Tamlinux components</a>; it follows this order and adds its own extensions. Scripts that must run under other shells should stay within the portable rules in <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary><i>Why does "$var" not expand an asterisk into filenames?</i></summary><p>The quotes keep the expansion result as one field and protect pattern characters, so the pathname expansion stage has no unquoted pattern to match.</p></details>
+<details class="q"><summary><i>Which happens first: field splitting or pathname expansion?</i></summary><p>Field splitting. It can create a field that consists of an asterisk, which the next stage then expands to matching filenames.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>The expansion pipeline</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Stage</th><th>What it does</th></tr>
+<tr><td>Dollar-single-quote processing</td><td>Decodes C-style escapes before word expansion</td></tr>
+<tr><td>Tilde, parameter, command and arithmetic expansion</td><td>Replaces names, commands and expressions with values, working from the start of the word to the end</td></tr>
+<tr><td>Field splitting</td><td>Splits unquoted results using IFS</td></tr>
+<tr><td>Pathname expansion</td><td>Matches unquoted pattern characters against filenames</td></tr>
+<tr><td>Quote removal</td><td>Removes the quote characters that were present in the original word</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Each stage sees the output of the previous one. Tilde, parameter, command and arithmetic expansion can be interleaved from left to right, but field splitting always follows them and precedes pathname expansion. Quote removal is last. A quoted expansion result is protected from both splitting and pattern matching because the token still carries its quoting information; removal only deletes the quote characters, not the protection they provided.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="scratch">
+$ value=$(printf 'a\nb\n\n')
+$ printf '&lt;%s&gt;\n' "$value"
+&lt;a
+b&gt;
+</pre>
+<p>Captured on Arch Linux, 2026-11-22. Command substitution removes all trailing newlines. If a value must retain them, append a sentinel character and strip it after substitution.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>Alias substitution happens at tokenization, before any expansion described here.</li>
+<li>Brace expansion, where supported, happens before the other expansions and can create entire new fields.</li>
+<li>With <code>set -f</code>, pathname expansion is skipped and an unquoted asterisk stays literal.</li>
+<li>Redirections and assignment words have their own expansion rules, so their values are not always subject to splitting.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Why can a variable containing a filename pattern never match a file if it is always double-quoted?</summary><p>Because quoting keeps the expansion result as a single protected field, and pathname expansion ignores quoted pattern characters.</p></details>
+<details class="q"><summary>What does command substitution do to trailing newlines, and what consequence does that have for reading data?</summary><p>It strips them all, so a value read this way cannot preserve an empty final line. Use a read loop instead when exact line boundaries matter.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, section 2.6; <cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="terminal/shell/word-splitting.html">IFS and splitting</a> &mdash; study the splitting stage in detail.</li>
+<li><a href="terminal/shell/field-splitting-reference.html">Field splitting rules</a> &mdash; read the precise algorithm.</li>
+</ul>
+</body></html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html><head>
+<title>Field splitting rules</title>
+<meta name="topic" content="shell-field-splitting-reference">
+<meta name="summary" content="Precise POSIX field-splitting semantics for IFS, empty fields, special parameters and read">
+<meta name="keywords" content="field splitting, IFS, POSIX, empty fields, IFS whitespace, special parameters, read, reference">
+<meta name="level" content="expert">
+<meta name="track" content="terminal">
+<meta name="parent" content="terminal/shell/index.html">
+<meta name="prereqs" content="shell-expansion, shell-word-splitting">
+<meta name="kind" content="reference">
+<meta name="skills" content="shelltext.expert">
+<meta name="paths" content="shell-text-and-ifs:5">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/shell/index.html">Giving your computer written instructions</a> / Field splitting rules</p></nav>
+
+<h1>Field splitting rules</h1>
+<p>This page states the precise rules a POSIX shell follows when it splits expansion results into fields.</p>
+
+<h2>Scope</h2>
+<p>Field splitting applies to the results of unquoted parameter expansion, command substitution and arithmetic expansion. It does not apply to literal characters from the original word, nor to any result that was quoted when the word was tokenized. It runs after those expansions and before pathname expansion; quote removal happens last. The normative source is <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, section 2.6.5, with the IFS variable defined in section 2.5.3.</p>
+
+<h2>What IFS contributes</h2>
+<table>
+<tr><th>Concept</th><th>Precise meaning</th></tr>
+<tr><td>IFS</td><td>A string whose characters, as byte sequences, are used as delimiters for field splitting, for the unquoted expansion of <code>*</code>, and for the <code>read</code> utility.</td></tr>
+<tr><td>IFS white space</td><td>Space, tab and newline whenever they occur in IFS, plus any other white-space characters the implementation chooses to treat as IFS white space. The three portable characters count regardless of locale.</td></tr>
+<tr><td>Non-whitespace IFS character</td><td>Any other character in IFS. Each occurrence terminates a field, including when the candidate field is empty.</td></tr>
+<tr><td>Unset IFS</td><td>For splitting and <code>read</code>, behaves as if the value were space, tab and newline; the variable itself is not changed.</td></tr>
+<tr><td>Empty IFS</td><td>No field splitting occurs. A field consisting entirely of an expansion result that is empty is still removed before quote removal.</td></tr>
+</table>
+
+<h2>The algorithm</h2>
+<p>Each input field is processed in order. Bytes that did not come from an expansion are appended to the candidate field unchanged. For bytes that did come from an expansion:</p>
+<ol>
+<li>If the byte sequence is not a character in IFS, append its first byte to the candidate and continue.</li>
+<li>If it is an IFS white-space character, discard it and continue scanning.</li>
+<li>If it is a non-whitespace IFS character, discard it but remember that a delimiter was seen.</li>
+<li>After skipping a run of white space, or on seeing a non-whitespace delimiter, emit the candidate as a field if the candidate is non-empty or a non-whitespace delimiter was seen. Then reset the candidate.</li>
+<li>When the input is exhausted, emit the candidate only if it is non-empty.</li>
+</ol>
+<p>If no field was delimited, the result is zero fields rather than one empty field. A field with no expansion results is passed through unaltered. The ordered output replaces the input field list.</p>
+
+<h2>Consequences worth memorizing</h2>
+<ul>
+<li>Repeated IFS whitespace between values collapses to one boundary; repeated non-whitespace delimiters produce empty fields.</li>
+<li>Leading and trailing IFS whitespace produces no empty fields; leading and trailing commas do.</li>
+<li>A quoted null string participates in the word even though it expands to no characters, so it can keep an otherwise empty field alive.</li>
+<li>Pathname expansion runs on the fields this algorithm produces, so a delimiter that survives splitting can become a pattern character.</li>
+</ul>
+
+<h2>Special parameters</h2>
+<p>The parameters <code>@</code> and <code>*</code> start with one field per positional parameter. In a context where splitting will happen, empty fields may be discarded and the non-empty ones are split again. When no splitting will happen, <code>*</code> joins the values using the first character of IFS, a space if IFS is unset, or no separator if IFS is null. Quoted <code>"$@"</code> is the only form that reliably produces one field per original argument, even when an argument contains IFS characters or is empty.</p>
+
+<h2>Interaction with read</h2>
+<p>The <code>read</code> utility uses IFS to divide a line into fields, with the same distinction between whitespace and non-whitespace characters. A leading or trailing run of IFS whitespace is ignored; a non-whitespace delimiter can produce an empty field. The <code>-r</code> option disables backslash interpretation, which is separate from splitting. Prefixing a command with an assignment, as in <code>IFS=, read -r a b c</code>, changes IFS for that command only.</p>
+
+<h2>Limits and unspecified behaviour</h2>
+<ul>
+<li>If IFS contains bytes that do not form valid characters, the results of splitting, <code>*</code> expansion and <code>read</code> are unspecified.</li>
+<li>It is implementation-defined whether locale white-space characters other than space, tab and newline count as IFS white space; if they do, it is unspecified whether the locale is read at assignment time or at split time.</li>
+<li>Shell variables and arguments cannot contain a NUL byte, so no splitting rule can preserve one.</li>
+<li>Extensions such as brace expansion and Bash arrays go beyond the portable rules; scripts depending on them need the corresponding shell manual.</li>
+</ul>
+
+<h2>Worked reference capture</h2>
+<pre class="session" data-risk="scratch">
+$ IFS=,; v=',a,,b,'
+$ printf '[%s]\n' $v
+[]
+[a]
+[]
+[b]
+$ unset IFS; v='  a  b  '
+$ printf '[%s]\n' $v
+[a]
+[b]
+</pre>
+<p>Captured on Arch Linux, 2026-11-22, with <a href="bibliography/bash.html">GNU Bash</a> 5.3.20. The first value uses a non-whitespace delimiter and keeps empty fields; the second uses default whitespace and collapses runs.</p>
+
+<h2>Sources</h2>
+<p><cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, sections 2.2, 2.5.2, 2.5.3, 2.6, 2.6.5 and 2.6.7; <cite data-ref="bash"><a href="bibliography/bash.html">GNU Bash manual</a></cite>; <a href="man:bash(1)">bash(1)</a>.</p>
+
+<h2>Where next</h2>
+<p><a href="programming/robust-shell-data.html">Handling real data safely</a> turns these rules into defensive script patterns.</p>
+</body></html>

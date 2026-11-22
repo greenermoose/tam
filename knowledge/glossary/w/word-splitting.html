@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>Word splitting</title>
+<meta name="topic" content="glossary-word-splitting">
+<meta name="summary" content="Word splitting: the shell step that divides the results of an unquoted expansion into fields using IFS.">
+<meta name="keywords" content="glossary-word-splitting, word splitting, field splitting, IFS, unquoted expansion, quoting, fields">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/w/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / Word splitting</p></nav>
+
+<h1>Word splitting</h1>
+<p>Word splitting is the shell step that divides the result of an unquoted expansion into separate words, called fields.</p>
+<section data-level="novice"><p>When you write a name in a shell command, spaces usually separate one word from the next. If the name is stored in a <a href="glossary/v/variable.html">variable</a>, the shell first replaces the variable with its value and then looks again for spaces. That second look is word splitting. It is why a file called <code>My notes.txt</code> can turn into two words unless you put quotes around the value. The characters that count as separators come from <a href="glossary/i/ifs.html">IFS</a>.</p></section>
+<section data-level="learner"><p>With a <a href="glossary/p/posix.html">POSIX</a> shell, writing <code>$name</code> unquoted lets splitting happen; writing <code>"$name"</code> keeps the whole value as one field. The same rule applies to the result of command substitution and arithmetic expansion. Splitting happens after those expansions and before the shell looks for filename patterns, so an unquoted <code>*</code> in a variable can also match files. Read <a href="terminal/shell/word-splitting.html">IFS and splitting</a> for a worked example and <a href="terminal/shell/expansion.html">the expansion order</a> for why the order matters.</p><details class="q"><summary><i>A variable holds two names separated by a space. Why does an unquoted expansion sometimes become two arguments?</i></summary><p>The space is a separator from IFS. After the variable is replaced by its value, the splitting step divides the value at that space, so the command receives two arguments instead of one.</p></details></section>
+<section data-level="expert"><p>Field splitting is applied only to parts of a field that came from an unquoted parameter expansion, command substitution or arithmetic expansion. Literal characters from the original word stay attached to the candidate field. Sequences of IFS white space delimit a field and are discarded; a non-whitespace IFS character delimits a field even when the candidate is empty, which is how empty fields arise. If the whole input is empty or consists only of IFS white space, the result is zero fields. When IFS is null, no splitting occurs but an entirely empty expanded field is removed. The special parameters <code>@</code> and <code>*</code> have their own rules. See <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite> section 2.6.5 and <cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="glossary/q/quoting.html">quoting</a>; <a href="programming/robust-shell-data.html">handling real data</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+</body></html>

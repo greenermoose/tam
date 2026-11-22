@@ -1,0 +1,59 @@
+W42 SHELL TEXT, QUOTING AND IFS CURRICULUM
+
+Date: 2026-11-22
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+Commits: This work commit
+
+GUIDANCE
+
+  Fred: "Add a glossary page defining IFS characters."
+  Fred: "Examine the knowledge corpus for any treatment of
+  unquoted and quote expressions and other topics related to
+  IFS."
+  Fred: "Can readers without any prior knowledge gain a
+  PhD-level understanding of the topic that IFS characters
+  represents?"
+  Fred: "Expand to as many pages as necessary. Could be a
+  series."
+  Fred: "Build it."
+
+DONE
+
+  - Audited the corpus: IFS appeared only in passing. There was
+    no teaching page for quoting, expansion order or word
+    splitting, so a glossary entry alone could not carry the
+    subject.
+  - Added ten pages: three glossary entries (IFS, quoting,
+    word splitting), four lessons (quoting, expansion, word
+    splitting, field-splitting reference), one practical data
+    handling page, a six-stage goal path and a POSIX source.
+  - Registered shelltext.novice, shelltext.learner and
+    shelltext.expert in skills.json, and added
+    shell-text-and-ifs:1 to the shell hub.
+  - Linked the glossary, terminal, programming and bibliography
+    hubs plus the related shell, scripting and glossary pages.
+  - Corpus 0.107.0: bumped knowledge/version and the ROADMAP
+    header, dev row and delivered-history table.
+  - make corpus, make corpus-and-test, make check-repo and the
+    coverage report pass. All ten pages render at levels 1, 2
+    and 3 through build/tam with the checkout corpus.
+  - The sandbox goal command prints exactly "a b"; the sandbox
+    match and expected output agree with it.
+
+FAILED
+
+  - The first make corpus rejected the pages: the shelltext
+    skills were not registered and the path listed steps 2-6
+    before the shell hub carried step 1. Both were fixed.
+  - The goal sandbox rendered and its command was checked, but
+    it was not driven through the interactive pager.
+  - No install, build verification, Test, Run or Release was
+    done, and nothing was pushed.
+
+HANDOFF
+
+  - Corpus 0.107.0 is on dev. The generated indexes trail the
+    page commits and need one follow-up commit after this one.
+  - Fred must decide on a build or any stage move. The B1-B6
+    command bugs in WHATNOW are untouched.

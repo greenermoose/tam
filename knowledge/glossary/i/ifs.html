@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head>
+<title>IFS (Internal Field Separator)</title>
+<meta name="topic" content="glossary-ifs">
+<meta name="summary" content="IFS: the shell variable that holds the characters used as separators when text is split into words.">
+<meta name="keywords" content="glossary-ifs, ifs, internal field separator, field splitting, word splitting, separator, shell variable">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/i/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IFS (Internal Field Separator)</p></nav>
+
+<h1>IFS (Internal Field Separator)</h1>
+<p>IFS is the <a href="glossary/v/variable.html">shell variable</a> that holds the characters a shell uses as separators when it splits text into words.</p>
+<section data-level="novice"><p>Imagine a row of beads with small gaps between them. The gaps let you count the beads as separate things. IFS is the list of characters a shell treats as those gaps. By default the gaps are a space, a tab and a new line. If you change the list to a comma, commas become the gaps and spaces stay inside a word. Follow <a href="terminal/shell/word-splitting.html">IFS and splitting</a> for the full story.</p></section>
+<section data-level="learner"><p>In a <a href="glossary/p/posix.html">POSIX</a> shell the default IFS value is the three bytes space, tab and newline. On a fresh shell, <code>printf '%s' "$IFS" | od -An -tx1</code> prints <code>20 09 0a</code>. Setting <code>IFS=,</code> makes comma the separator, so an unquoted <code>$line</code> holding <code>one,two,three</code> becomes three fields. Writing <code>"$line"</code> instead stops splitting altogether. The <a href="glossary/w/word-splitting.html">word splitting</a> page shows this with captured output, and <a href="terminal/shell/field-splitting-reference.html">the precise rules</a> cover the edge cases.</p><details class="q"><summary><i>Why does changing IFS to a comma not split a quoted value?</i></summary><p>Quotes mark the expansion as text to keep whole. A shell splits only the results of unquoted expansions, so quoting removes that text from the splitting step.</p></details></section>
+<section data-level="expert"><p>IFS has three roles: it supplies delimiters for field splitting, it separates values when the special parameter <code>*</code> expands without quotes, and it sets field boundaries for <code>read</code>. POSIX treats space, tab and newline as IFS white space whenever they appear in IFS; other locale white-space characters may also count, which is implementation-defined. A non-whitespace IFS character behaves differently: each one terminates a field, so consecutive delimiters can yield empty fields. If IFS is unset, splitting and <code>read</code> behave as if it held the three default bytes. If IFS is set to an empty string, no splitting happens, although a field made entirely from an empty expansion is still removed. A value containing bytes that are not valid characters gives unspecified results. See <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite> sections 2.5.3 and 2.6.5, and <cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="terminal/shell/quoting.html">quoting</a>; <a href="terminal/shell/expansion.html">word expansions</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+</body></html>

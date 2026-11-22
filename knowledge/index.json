@@ -12321,6 +12321,32 @@
     "updated": "2026-11-20 08:31"
   },
   {
+    "topic": "glossary-ifs",
+    "path": "glossary/i/ifs.html",
+    "title": "IFS (Internal Field Separator)",
+    "summary": "IFS: the shell variable that holds the characters used as separators when text is split into words.",
+    "keywords": [
+      "glossary-ifs",
+      "ifs",
+      "internal field separator",
+      "field splitting",
+      "word splitting",
+      "separator",
+      "shell variable"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "glossary",
+    "parent": "glossary/i/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-22 17:28"
+  },
+  {
     "topic": "glossary-igpu",
     "path": "glossary/i/igpu.html",
     "title": "iGPU - Integrated Graphics Processing Unit",
@@ -18263,6 +18289,33 @@
     "updated": "2026-11-20 08:31"
   },
   {
+    "topic": "glossary-quoting",
+    "path": "glossary/q/quoting.html",
+    "title": "Quoting",
+    "summary": "Quoting: marks text so a shell keeps it literal instead of splitting, expanding or matching it.",
+    "keywords": [
+      "glossary-quoting",
+      "quoting",
+      "quote",
+      "single quotes",
+      "double quotes",
+      "backslash",
+      "escaping",
+      "shell"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "glossary",
+    "parent": "glossary/q/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-22 17:29"
+  },
+  {
     "topic": "glossary-qwerty",
     "path": "glossary/q/qwerty.html",
     "title": "QWERTY",
@@ -24055,6 +24108,32 @@
     "updated": "2026-11-20 08:31"
   },
   {
+    "topic": "glossary-word-splitting",
+    "path": "glossary/w/word-splitting.html",
+    "title": "Word splitting",
+    "summary": "Word splitting: the shell step that divides the results of an unquoted expansion into fields using IFS.",
+    "keywords": [
+      "glossary-word-splitting",
+      "word splitting",
+      "field splitting",
+      "IFS",
+      "unquoted expansion",
+      "quoting",
+      "fields"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "glossary",
+    "parent": "glossary/w/index.html",
+    "prereqs": [],
+    "kind": "glossary",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-22 17:29"
+  },
+  {
     "topic": "glossary-workspace",
     "path": "glossary/w/workspace.html",
     "title": "Workspace",
@@ -29413,6 +29492,33 @@
     "updated": "2026-11-14 17:27"
   },
   {
+    "topic": "reference-posix-shell",
+    "path": "bibliography/posix-shell.html",
+    "title": "POSIX Shell Command Language",
+    "summary": "Bibliography: the POSIX specification defining shell quoting, word expansions, field splitting and IFS",
+    "keywords": [
+      "bibliography",
+      "posix",
+      "shell command language",
+      "ieee 1003.1",
+      "ifs",
+      "field splitting",
+      "quoting",
+      "word expansions"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "bibliography",
+    "parent": "bibliography/index.html",
+    "prereqs": [],
+    "kind": "bibliography",
+    "skills": [],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-22 17:29"
+  },
+  {
     "topic": "reference-posix-vi",
     "path": "bibliography/posix-vi.html",
     "title": "POSIX ex and vi",
@@ -29936,6 +30042,45 @@
     "updated": "2026-11-20 08:31"
   },
   {
+    "topic": "robust-shell-data",
+    "path": "programming/robust-shell-data.html",
+    "title": "Handling real data safely",
+    "summary": "Read filenames and input lines with spaces using quotes, arrays, IFS and NUL-delimited streams",
+    "keywords": [
+      "filenames with spaces",
+      "IFS",
+      "read",
+      "arrays",
+      "find print0",
+      "word splitting",
+      "quoting",
+      "shell scripts",
+      "injection"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "programming",
+    "parent": "programming/index.html",
+    "prereqs": [
+      "shell-word-splitting"
+    ],
+    "kind": "how-to",
+    "skills": [
+      "shelltext.novice",
+      "shelltext.learner",
+      "shelltext.expert"
+    ],
+    "paths": [
+      {
+        "id": "shell-text-and-ifs",
+        "step": 6
+      }
+    ],
+    "rev": 1,
+    "updated": "2026-11-22 17:35"
+  },
+  {
     "topic": "rollback",
     "path": "systems/recovery/rollback.html",
     "title": "Returning to an earlier working state",
@@ -30411,10 +30556,162 @@
       {
         "id": "command-line-fluency",
         "step": 1
+      },
+      {
+        "id": "shell-text-and-ifs",
+        "step": 1
       }
     ],
     "rev": 7,
     "updated": "2026-11-20 08:31"
+  },
+  {
+    "topic": "shell-expansion",
+    "path": "terminal/shell/expansion.html",
+    "title": "What changes before a command runs",
+    "summary": "The order of shell expansions: parameters, commands, arithmetic, field splitting, filename patterns and quote removal",
+    "keywords": [
+      "expansion",
+      "word expansion",
+      "expansion order",
+      "parameter expansion",
+      "command substitution",
+      "field splitting",
+      "pathname expansion",
+      "glob",
+      "quote removal"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "terminal",
+    "parent": "terminal/shell/index.html",
+    "prereqs": [
+      "shell",
+      "shell-quoting"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "shelltext.novice",
+      "shelltext.learner",
+      "shelltext.expert"
+    ],
+    "paths": [
+      {
+        "id": "shell-text-and-ifs",
+        "step": 3
+      }
+    ],
+    "rev": 1,
+    "updated": "2026-11-22 17:35"
+  },
+  {
+    "topic": "shell-field-splitting-reference",
+    "path": "terminal/shell/field-splitting-reference.html",
+    "title": "Field splitting rules",
+    "summary": "Precise POSIX field-splitting semantics for IFS, empty fields, special parameters and read",
+    "keywords": [
+      "field splitting",
+      "IFS",
+      "POSIX",
+      "empty fields",
+      "IFS whitespace",
+      "special parameters",
+      "read",
+      "reference"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "terminal",
+    "parent": "terminal/shell/index.html",
+    "prereqs": [
+      "shell-expansion",
+      "shell-word-splitting"
+    ],
+    "kind": "reference",
+    "skills": [
+      "shelltext.expert"
+    ],
+    "paths": [
+      {
+        "id": "shell-text-and-ifs",
+        "step": 5
+      }
+    ],
+    "rev": 1,
+    "updated": "2026-11-22 17:30"
+  },
+  {
+    "topic": "shell-quoting",
+    "path": "terminal/shell/quoting.html",
+    "title": "Keeping words together",
+    "summary": "Use single quotes, double quotes and backslashes to keep typed text as one word",
+    "keywords": [
+      "quoting",
+      "quotes",
+      "single quotes",
+      "double quotes",
+      "backslash",
+      "escaping",
+      "shell words",
+      "arguments",
+      "IFS"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "terminal",
+    "parent": "terminal/shell/index.html",
+    "prereqs": [
+      "shell"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "shelltext.novice",
+      "shelltext.learner",
+      "shelltext.expert"
+    ],
+    "paths": [
+      {
+        "id": "shell-text-and-ifs",
+        "step": 2
+      }
+    ],
+    "rev": 1,
+    "updated": "2026-11-22 17:29"
+  },
+  {
+    "topic": "shell-text-and-ifs",
+    "path": "paths/shell-text-and-ifs.html",
+    "title": "Shell text, quoting and IFS",
+    "summary": "From no prior knowledge to explaining and applying quoting, expansion, IFS and field splitting in safe shell data handling",
+    "keywords": [
+      "path",
+      "shell text",
+      "quoting",
+      "expansion",
+      "IFS",
+      "field splitting",
+      "word splitting",
+      "arguments",
+      "safe data handling"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "paths",
+    "parent": "paths/index.html",
+    "prereqs": [],
+    "kind": "path",
+    "skills": [
+      "shelltext.novice",
+      "shelltext.learner",
+      "shelltext.expert"
+    ],
+    "paths": [],
+    "rev": 1,
+    "updated": "2026-11-22 17:32"
   },
   {
     "topic": "shell-tools",
@@ -30450,6 +30747,45 @@
     ],
     "rev": 3,
     "updated": "2026-11-20 08:31"
+  },
+  {
+    "topic": "shell-word-splitting",
+    "path": "terminal/shell/word-splitting.html",
+    "title": "IFS and splitting",
+    "summary": "Use IFS to control where an unquoted shell expansion becomes separate fields, and read data safely",
+    "keywords": [
+      "IFS",
+      "internal field separator",
+      "word splitting",
+      "field splitting",
+      "unquoted expansion",
+      "read",
+      "CSV",
+      "shell fields"
+    ],
+    "levels": [
+      "novice"
+    ],
+    "track": "terminal",
+    "parent": "terminal/shell/index.html",
+    "prereqs": [
+      "shell",
+      "shell-expansion"
+    ],
+    "kind": "tutorial",
+    "skills": [
+      "shelltext.novice",
+      "shelltext.learner",
+      "shelltext.expert"
+    ],
+    "paths": [
+      {
+        "id": "shell-text-and-ifs",
+        "step": 4
+      }
+    ],
+    "rev": 1,
+    "updated": "2026-11-22 17:35"
   },
   {
     "topic": "skills-map",

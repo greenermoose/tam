@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Shell text, quoting and IFS</title>
+<meta name="topic" content="shell-text-and-ifs">
+<meta name="summary" content="From no prior knowledge to explaining and applying quoting, expansion, IFS and field splitting in safe shell data handling">
+<meta name="keywords" content="path, shell text, quoting, expansion, IFS, field splitting, word splitting, arguments, safe data handling">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="shelltext.novice, shelltext.learner, shelltext.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Shell text, quoting and IFS</p></nav>
+
+<h1>Shell text, quoting and IFS</h1>
+<p>This path takes a reader who has never used a shell from the idea of one word to the precise rules that split expansion results, and on to scripts that keep real data intact.</p>
+<p>Each stage gives a lens to read with. Start with the gentle explanation where offered, then use the practice or reference lens. Answer the checkpoint before moving on. All commands in this path are safe in a fresh scratch directory.</p>
+
+<h2>Stage 1: Words in a shell</h2>
+<p><a href="terminal/shell/index.html?level=1">Giving your computer written instructions</a> first: meet the shell, a prompt and the standard streams. Then read <a href="terminal/shell/index.html?level=2">the same page at the practice lens</a> to send a command and see its output.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>What does a shell do with the line you type after the prompt?</i></summary>
+<p>It reads the text, identifies words and operators, starts the requested command, and connects the command's normal output and error messages to streams. Reread the first page if the prompt or the stream numbers are unclear.</p>
+</details>
+</section>
+
+<h2>Stage 2: Keeping text together</h2>
+<p><a href="terminal/shell/quoting.html?level=1">Keeping words together</a> first: see why a name with a space needs quotes. Then read <a href="terminal/shell/quoting.html?level=2">the practice lens</a> to compare single quotes, double quotes and a backslash, and <a href="terminal/shell/quoting.html?level=3">the reference lens</a> for how quoting is decided before expansion.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why does a value with spaces become two arguments when it is left unquoted?</i></summary>
+<p>The shell uses spaces as word boundaries. Quotes mark the value as one word; without them the spaces inside the value become separators. The worked capture on the quoting page shows the argument count with brackets.</p>
+</details>
+</section>
+
+<h2>Stage 3: The expansion order</h2>
+<p><a href="terminal/shell/expansion.html?level=2">What changes before a command runs</a> at the practice lens: follow a variable containing an asterisk through quoting, splitting and filename matching. Then read <a href="terminal/shell/expansion.html?level=3">the reference lens</a> for the full pipeline and the position of quote removal.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why can an unquoted variable containing an asterisk match filenames?</i></summary>
+<p>Parameter expansion puts the asterisk into the word, field splitting can leave it in its own field, and pathname expansion then treats that unquoted field as a pattern. Double quotes stop the field from being split or matched.</p>
+</details>
+</section>
+
+<h2>Stage 4: IFS and splitting</h2>
+<p><a href="terminal/shell/word-splitting.html?level=2">IFS and splitting</a> at the practice lens: change IFS to a comma, watch empty fields appear, and use a prefix assignment with <code>read</code>. Then read <a href="terminal/shell/word-splitting.html?level=3">the reference lens</a> for the table of IFS states and the special parameters.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why do adjacent commas give empty fields but adjacent spaces do not?</i></summary>
+<p>Comma is a non-whitespace IFS character, so each one terminates a field even when the candidate is empty. Space, tab and newline are IFS white space in the portable set; runs of them collapse into one boundary.</p>
+</details>
+</section>
+
+<h2>Stage 5: The precise rules</h2>
+<p><a href="terminal/shell/field-splitting-reference.html?level=3">Field splitting rules</a> at the reference lens: read the algorithm step by step, including IFS white space, empty fields, the special parameters, <code>read</code>, the unspecified cases and the captured example.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>What is the difference between an unset IFS and an empty IFS?</i></summary>
+<p>An unset IFS behaves as if it held space, tab and newline, so splitting and <code>read</code> still use those separators. An empty IFS performs no splitting, although an entirely empty expansion field is still removed before quote removal.</p>
+</details>
+</section>
+
+<h2>Stage 6: Data that survives</h2>
+<p><a href="programming/robust-shell-data.html?level=2">Handling real data safely</a> at the practice lens: replace a fragile command substitution loop with a <code>while IFS= read -r</code> loop. Then read <a href="programming/robust-shell-data.html?level=3">the reference lens</a> for arrays, NUL-delimited streams and the injection risk in unquoted data.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why is a NUL-delimited stream safer than a newline-delimited one for arbitrary filenames?</i></summary>
+<p>A pathname cannot contain a NUL byte, so NUL is an unambiguous separator. Newlines, spaces and shell metacharacters can all appear in a filename and need quoting or a read loop to stay intact.</p>
+</details>
+</section>
+
+<h2>Capstone: Handle names that fight back</h2>
+<p><strong>Scenario:</strong> a scratch directory holds three files with difficult names: one with a space, one starting with a space, and one containing a dollar sign. You must produce a list that shows each name inside brackets, with one name per line and no splitting or expansion of the data.</p>
+<p><strong>Task:</strong> create the three files in a fresh temporary directory. First try a <code>for</code> loop over unquoted command output and record how it fails. Then use <code>find . -type f -print0</code> piped into <code>while IFS= read -r -d '' path</code> and print each name as <code>[&lt;path&gt;]</code>. Explain what <code>IFS=</code>, <code>-r</code>, <code>-d ''</code> and the quotes around <code>"$path"</code> each protect. Remove the scratch directory when you have checked the result.</p>
+
+<details class="solution">
+<p><strong>Model approach:</strong></p>
+<ol>
+<li>Create a scratch directory with <code>mktemp -d</code> and change into it. Create the files with quoted names, for example <code>touch 'Quarterly Report.pdf' ' leading.txt' 'odd$name.txt'</code>.</li>
+<li>Run <code>for f in $(printf '%s\n' *); do printf '[%s]\n' "$f"; done</code>. The unquoted command output is split again, so the name with a space appears as two bracketed pieces.</li>
+<li>Run <code>find . -type f -print0 | sort -z | while IFS= read -r -d '' path; do printf '[%s]\n' "$path"; done</code>.</li>
+<li>Check that you see exactly three bracketed lines and that the dollar sign in <code>odd$name.txt</code> did not expand. It stayed literal because it came from data, not from the shell's input.</li>
+<li><code>IFS=</code> stops the read command trimming leading IFS characters, <code>-r</code> keeps backslashes literal, <code>-d ''</code> makes NUL the record separator, and the quotes around <code>"$path"</code> pass the whole field as one argument.</li>
+<li>Return to your previous directory and remove the scratch directory only after the output is correct.</li>
+</ol>
+<p>The point is that every stage protects a different boundary: the stream separates records, the read command preserves one record, and the quotes preserve one argument.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/command-line-fluency.html">Command-line fluency</a> &mdash; build speed and confidence with the commands whose output you are handling here.</li>
+<li><a href="paths/build-and-contribute.html">Build and contribute</a> &mdash; place these patterns into scripts and patches you maintain.</li>
+</ul>
+</body>
+</html>

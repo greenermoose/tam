@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html><head>
+<title>Handling real data safely</title>
+<meta name="topic" content="robust-shell-data">
+<meta name="summary" content="Read filenames and input lines with spaces using quotes, arrays, IFS and NUL-delimited streams">
+<meta name="keywords" content="filenames with spaces, IFS, read, arrays, find print0, word splitting, quoting, shell scripts, injection">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/index.html">
+<meta name="prereqs" content="shell-word-splitting">
+<meta name="kind" content="how-to">
+<meta name="skills" content="shelltext.novice, shelltext.learner, shelltext.expert">
+<meta name="paths" content="shell-text-and-ifs:6">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / Handling real data safely</p></nav>
+
+<h1>Handling real data safely</h1>
+<p>This page shows how to handle filenames and input lines that contain spaces, quotes or other shell characters.</p>
+
+<section data-level="novice">
+<h2>Data is not always tidy</h2>
+<p>A filename can contain a space. A line of input can begin with spaces that matter. A shell treats spaces as places to split words, so you need a way to say that a value came from data and must stay whole.</p>
+<aside class="first-time"><p>You do not need to run anything here. The examples show commands that were already tried in a temporary directory, which was removed afterwards.</p></aside>
+
+<h3>Why it matters</h3>
+<p>A script that splits a filename into two pieces will look for two files. A script that passes data as shell text can also run commands hidden inside that data.</p>
+
+<h3>How to think about it</h3>
+<p>Imagine moving glassware between two shelves. You wrap each piece before carrying it. Quotes and read loops are the wrapping: the value arrives intact, whatever characters it contains.</p>
+
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/w/word-splitting.html">Word splitting</a></dfn></dt><dd>The shell step that cuts unquoted values into fields.</dd>
+<dt><dfn><a href="glossary/i/ifs.html">IFS</a></dfn></dt><dd>The variable holding the separator characters used by that step.</dd>
+<dt><dfn><a href="glossary/s/script.html">Script</a></dfn></dt><dd>A file containing shell instructions.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Keep each value intact</h2>
+<p><strong>Goal:</strong> you will be able to process a list of values without losing spaces or splitting filenames.</p>
+
+<p><strong>Learning path:</strong> <a href="paths/shell-text-and-ifs.html?level=2">Start</a> · <a href="terminal/shell/word-splitting.html?level=2">Back</a></p>
+
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ for f in $(printf '%s\n' 'Quarterly Report.pdf' 'invoice.txt'); do printf '&lt;%s&gt;\n' "$f"; done
+&lt;Quarterly&gt;
+&lt;Report.pdf&gt;
+&lt;invoice.txt&gt;
+$ printf '%s\n' 'Quarterly Report.pdf' 'invoice.txt' | while IFS= read -r line; do printf '&lt;%s&gt;\n' "$line"; done
+&lt;Quarterly Report.pdf&gt;
+&lt;invoice.txt&gt;
+</pre>
+<p>Captured on Arch Linux, 2026-11-22, in a scratch directory that was removed afterwards.</p>
+
+<h3>What just happened</h3>
+<ol>
+<li>The command substitution in the first loop produced two lines of text.</li>
+<li>Because it was unquoted, word splitting cut the filename with a space into two names.</li>
+<li>The read loop takes one line at a time. <code>IFS=</code> stops it trimming leading and trailing spaces, and <code>-r</code> stops backslashes being interpreted.</li>
+<li>Quoting <code>"$line"</code> then passes the whole line to <code>printf</code> as one argument.</li>
+</ol>
+
+<h3>Try it</h3>
+<p>In a temporary directory, create two files whose names contain spaces and one whose name starts with a space. Print their names with a <code>while IFS= read -r</code> loop fed by <code>find ... -print</code>. Check that each printed name keeps its spaces, then remove the directory.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The last line is missing</dt><dd>A read loop needs its input to end with a newline. Use <code>while IFS= read -r line || [ -n "$line" ]</code> to process a final unterminated line.</dd>
+<dt>Leading spaces vanish</dt><dd>You used <code>read -r</code> without <code>IFS=</code>. Add the empty IFS assignment to that command.</dd>
+</dl>
+
+<aside class="tamlinux">
+<p>The usual interactive shell on Tamlinux is <code>bash</code>, described in <a href="tamlinux/components.html">Tamlinux components</a>, so arrays and <code>read -d</code> are available in ordinary scripts. For a script that must run under a stricter shell, use the portable forms in <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>.</p>
+</aside>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary><i>Why does a for loop over unquoted command output split a filename with a space?</i></summary><p>The output of the substitution is subject to word splitting before the loop begins, so the space in the filename becomes a word boundary.</p></details>
+<details class="q"><summary><i>What do IFS= and -r each protect in a read loop?</i></summary><p><code>IFS=</code> prevents trimming leading and trailing IFS characters; <code>-r</code> prevents backslashes from being treated as escapes. Together they preserve the line as written.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Defensive patterns</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Situation</th><th>Safe form</th><th>Why</th></tr>
+<tr><td>Forward all arguments</td><td><code>"$@"</code></td><td>One field per original argument</td></tr>
+<tr><td>Hold a set of names</td><td><code>items=('a b' c)</code> then <code>"${items[@]}"</code></td><td>Each element stays a separate argument</td></tr>
+<tr><td>Read lines of text</td><td><code>while IFS= read -r line</code></td><td>Preserves spaces and backslashes</td></tr>
+<tr><td>Read arbitrary filenames</td><td><code>find ... -print0</code> into <code>while IFS= read -r -d '' path</code></td><td>NUL separators cannot occur in a filename</td></tr>
+<tr><td>Read one delimited line</td><td><code>IFS=, read -r a b c</code></td><td>Sets the separator for that command only</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Unquoted expansions are re-tokenized by field splitting, and later by pathname expansion if they contain pattern characters. Data that must survive unchanged therefore has to be quoted, read field by field, or carried in an array. A NUL-delimited stream is the only common form that can represent every byte allowed in a filename, because NUL is the one byte a pathname cannot contain and a shell variable cannot store.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="scratch">
+$ find . -type f -print0 | sort -z | while IFS= read -r -d '' path; do printf '&lt;%s&gt;\n' "$path"; done
+&lt;./invoice.txt&gt;
+&lt;./odd$name.txt&gt;
+&lt;./Quarterly Report.pdf&gt;
+</pre>
+<p>Captured on Arch Linux, 2026-11-22, in a scratch directory holding those three files. The dollar sign in the filename never expanded because it was data, not input to the shell.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li>Command substitution strips every trailing newline, so it cannot faithfully carry text whose final line endings matter.</li>
+<li>A pipeline stage runs in a subshell in many shells, so a variable set inside a <code>while</code> fed by a pipe may not survive; redirect from a here-string or process substitution when that matters.</li>
+<li>Unquoted data can be interpreted as an option or as a command name. Use <code>--</code> where a utility supports it, and never build commands by concatenating unquoted data.</li>
+<li>Globbing and splitting happen before the command is identified, so a value that expands to a command name can change what is executed.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q"><summary>Why is a NUL-delimited stream the strongest way to transfer arbitrary filenames?</summary><p>NUL is not allowed in a pathname, so it can never appear inside a name and is unambiguous as a separator. Shell variables cannot hold NUL, but the read loop can consume the stream field by field.</p></details>
+<details class="q"><summary>What is the injection risk in command substitution used to build a command line?</summary><p>Unquoted results are split, can match filename patterns, and can supply command names or options. Quoting and arrays keep data as data.</p></details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, sections 2.2, 2.6 and 2.6.5; <cite data-ref="bash"><a href="bibliography/bash.html">Bash manual</a></cite>; <cite data-ref="coreutils"><a href="bibliography/coreutils.html">GNU Coreutils manual</a></cite> for <code>find</code> and <code>sort</code>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="terminal/shell/field-splitting-reference.html">Field splitting rules</a> &mdash; revisit the precise algorithm.</li>
+<li><a href="programming/scripting.html">Writing instructions your computer can repeat</a> &mdash; place these patterns in a defensive script.</li>
+</ul>
+</body></html>

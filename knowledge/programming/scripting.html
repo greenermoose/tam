@@ -55,7 +55,7 @@ $@       --> arg1 arg2 arg3                 (unquoted: splits on internal whites
 trap ... EXIT --> attempt cleanup when the shell can execute the handler
 </pre>
 
-<p>When handling filenames passed by users, never expand bare <code>$*</code> or unquoted <code>$@</code>. Unquoted expansions split filenames containing spaces (such as <code>"Quarterly Report.pdf"</code>) into multiple separate words. Always use double-quoted <code>"$@"</code>.</p>
+<p>When handling filenames passed by users, never expand bare <code>$*</code> or unquoted <code>$@</code>. Unquoted expansions split filenames containing spaces (such as <code>"Quarterly Report.pdf"</code>) into multiple separate words. Always use double-quoted <code>"$@"</code>. For arrays, read loops and NUL-delimited streams, see <a href="programming/robust-shell-data.html">Handling real data safely</a>.</p>
 <h3>Worked example: Write and run a safe script</h3>
 <p>Run the entire block in a terminal. It creates one script in a fresh temporary directory and removes that known file and the empty directory afterward.</p>
 <pre data-risk="scratch">if scratch=$(mktemp -d); then
