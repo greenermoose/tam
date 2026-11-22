@@ -206,8 +206,8 @@ the build stops and says what to do.
 
 For an assembly or staged package build, set PREFIX and DESTDIR as required by
 that packaging recipe. DESTDIR stages files under a temporary root; it does
-not make that tree a deployment. Do not run the default /usr/local install on
-a Tamlinux session.
+not make that tree a deployment. Plain make install targets ~/.local and
+needs no root; use it only for a development build, not a deployed system.
 
 Runtime knowledge resolution
 

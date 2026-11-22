@@ -17,15 +17,11 @@
 CC       ?= cc
 CFLAGS   ?= -O2 -Wall -Wextra -Wpedantic -std=c11
 
-# When Nix is detected (e.g. Tamlinux, where /usr/local is retired), default
-# development installs to the user prefix $(HOME)/.local (installing tam into
-# ~/.local/bin) rather than root-owned /usr/local.
+# Development installs go to the user prefix $(HOME)/.local: ~/.local/bin
+# precedes /usr/bin and needs no root. /usr/local is retired on Tamlinux, and
+# Nix detection no longer applies. Packaging recipes pass PREFIX explicitly.
 ifndef PREFIX
-  ifneq ($(or $(NIX_PROFILES),$(wildcard $(HOME)/.nix-profile)),)
-    PREFIX := $(HOME)/.local
-  else
-    PREFIX := /usr/local
-  endif
+  PREFIX := $(HOME)/.local
 endif
 
 BINDIR   ?= $(PREFIX)/bin

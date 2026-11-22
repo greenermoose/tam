@@ -1,0 +1,35 @@
+W43 DEFAULT INSTALL PREFIX
+
+Date: 2026-11-22
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+Commits: This work commit
+
+GUIDANCE
+
+  Fred: "Fix this error. I tried make install and it had the wrong install
+  target location."
+
+DONE
+
+  - Removed the Nix-era PREFIX conditional in Makefile. Plain make install
+    now targets $(HOME)/.local, so it needs no root; an explicit PREFIX on
+    the command line still wins.
+  - Updated test_default_prefix_without_nix in tests/test_install_guard.py
+    to expect ~/.local. The Nix case expects the same prefix.
+  - Corrected README's warning about the old default /usr/local install.
+  - Verified prefix resolution with and without NIX_PROFILES, an explicit
+    override, make -n install, and 12 install-guard unit tests.
+  - make check-repo passes.
+
+FAILED
+
+  - Did not run make install for real: the request was to fix the target,
+    not to replace Fred's installed build.
+  - No command version bump. This is a Makefile-only install-location fix,
+    like f341324, with no change to the command binary.
+
+HANDOFF
+
+  - Plain make install now writes to ~/.local/bin and ~/.local/share.
+  - No push, Test, Run or Release was done.

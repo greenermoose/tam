@@ -108,7 +108,7 @@ class InstallGuardTest(unittest.TestCase):
             input="print-prefix: ; @echo $(PREFIX)\n",
             capture_output=True, text=True, check=True,
             env={"HOME": home, "PATH": "/bin:/usr/bin"})
-        self.assertEqual(res.stdout.strip(), "/usr/local")
+        self.assertEqual(res.stdout.strip(), f"{home}/.local")
 
     def test_explicit_prefix_override(self):
         res = subprocess.run(
