@@ -1,0 +1,41 @@
+W41 FAILED HISTORY LOAD FREES A LIVE ENTRY
+
+Date: 2026-11-22
+AI harness: Claude Code 2.1.330
+AI model: claude-sonnet-5-5
+Commits: This fix commit
+
+GUIDANCE
+
+  Fred: "Codex found a history error path in the tam pager that appears
+  to leave a freed entry on the stack. Check it with a temporary guide
+  whose previous page disappears while the pager is open. Then propose
+  a fix."
+  Fred: "yes"
+  Fred: "commit. Write up WHATNOW with all bug fixes and code
+  improvements you recommend. Then I want to close this session."
+
+DONE
+
+  - Reproduced the R1 finding under ASan: back after a vanished page
+    reads freed memory at go_back (heap-use-after-free).
+  - Removed the three free() calls from the failed-load branch of
+    go_back and go_forward. Recorded as B6.
+  - Added check_vanished_history to tests/pager_screen.py. It passes on
+    the fix and fails on the previous source, both under ASan.
+
+FAILED
+
+  - The whole of tests/pager_screen.py stops earlier, at the
+    "[Level 2 Learner" status assertion, on both this change and
+    unmodified HEAD. The new check therefore ran on its own, and
+    go_forward was edited but not exercised.
+  - Under ASan the full suite also failed early: UBSan prints into the
+    PTY and corrupts the screen model. Set UBSAN_OPTIONS=log_path=...
+  - Did not run make test, tests/run.sh or any build under build/.
+  - No version bump was made.
+
+HANDOFF
+
+  - Fred decides the version bump and whether to verify B6 in a build.
+  - WHATNOW lists the other bugs and cleanups found, in order.

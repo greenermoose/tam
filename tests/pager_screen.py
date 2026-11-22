@@ -221,6 +221,37 @@ def focused_rows(screen):
             if any("bg236" in attrs for _, attrs in screen.cells[row])]
 
 
+def check_vanished_history(binary):
+    import tempfile
+    # A history entry whose page has disappeared stays on the stack intact:
+    # repeated back presses keep reporting the failure and the pager survives.
+    with tempfile.TemporaryDirectory() as gone:
+        page = ('<!DOCTYPE html><html><head><title>%s</title></head><body>'
+                '<h1>%s</h1><p>%s</p></body></html>')
+        for name, body in (("index", "Index"), ("b", "Plain page B")):
+            with open(f"{gone}/{name}.html", "w") as f:
+                f.write(page % (body, body, "text"))
+        with open(f"{gone}/a.html", "w") as f:
+            f.write(page % ("A", "A", 'Go to <a href="b.html">Page B</a>.'))
+        pid, master, screen, _ = collect_screen(
+            binary, gone, "xterm-256color", 24, 80, page="page:a.html")
+        os.write(master, b"\t")
+        screen.feed(read_available(master, 0.3))
+        os.write(master, b"\r")
+        screen.feed(read_available(master, 0.4))
+        assert "Plain page B" in screen.line(0), screen.line(0)
+        os.remove(f"{gone}/a.html")
+        for _ in range(2):
+            os.write(master, b"\x1b[D")
+            screen.feed(read_available(master, 0.4))
+            assert any("cannot open" in screen.line(r) for r in range(screen.rows)), \
+                [screen.line(r) for r in range(screen.rows)]
+        os.write(master, b"q")
+        _, status = os.waitpid(pid, 0)
+        os.close(master)
+        assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, status
+
+
 def main():
     binary = os.path.abspath(sys.argv[1])
     fixtures = os.path.abspath(sys.argv[2])
@@ -644,7 +675,9 @@ def main():
     assert stamp in screen.line(2), [screen.line(r) for r in range(4)]
     stop(pid, master)
 
-    print("ok - pager PTY screen model: focus, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, and the revision stamp row")
+    check_vanished_history(binary)
+
+    print("ok - pager PTY screen model: focus, vanished history page, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, and the revision stamp row")
 
 
 if __name__ == "__main__":

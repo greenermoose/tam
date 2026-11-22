@@ -955,11 +955,10 @@ void go_back(pager_t *st)
     }
     tam_document_t *nd = load_at_context(st, prev.href, prev.active_path);
     if (nd == NULL) {
+        /* The entry returns to the stack, which owns its strings again. */
         st->nhistory++;
-        snprintf(st->msg, sizeof(st->msg), "cannot open %s", prev.href);
-        free(prev.href);
-        free(prev.selected_href);
-        free(prev.active_path);
+        snprintf(st->msg, sizeof(st->msg), "cannot open %s",
+                 st->history[st->nhistory - 1].href);
         return;
     }
     free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
@@ -997,11 +996,10 @@ void go_forward(pager_t *st)
     }
     tam_document_t *nd = load_at_context(st, next.href, next.active_path);
     if (nd == NULL) {
+        /* The entry returns to the stack, which owns its strings again. */
         st->nforward++;
-        snprintf(st->msg, sizeof(st->msg), "cannot open %s", next.href);
-        free(next.href);
-        free(next.selected_href);
-        free(next.active_path);
+        snprintf(st->msg, sizeof(st->msg), "cannot open %s",
+                 st->forward[st->nforward - 1].href);
         return;
     }
     free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
