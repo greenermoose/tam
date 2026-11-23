@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>CRTC (Cathode Ray Tube Controller)</title>
+<meta name="topic" content="glossary-crtc">
+<meta name="summary" content="CRTC: a display controller that scans a framebuffer out to a display output; in DRM/KMS it represents the scanout engine.">
+<meta name="keywords" content="glossary-crtc, crtc, cathode ray tube controller, drm, kms, scanout, display, framebuffer">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/c/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CRTC (Cathode Ray Tube Controller)</p></nav>
+
+<h1>CRTC (Cathode Ray Tube Controller)</h1>
+<p>A display controller that reads pixels from memory and sends them to a display output.</p>
+<section data-level="novice"><p>The name comes from old cathode-ray tube displays, but the idea is still used today. A CRTC is the part of the graphics system that takes an image from a <a href="glossary/f/framebuffer.html">framebuffer</a> and scans it out, line by line, to a screen. If you have two monitors, the graphics card usually needs a CRTC for each active display output.</p></section>
+<section data-level="learner"><p>In Linux's <a href="glossary/d/drm.html">DRM</a>/<a href="glossary/k/kms.html">KMS</a> model, a CRTC is the scanout engine that combines a framebuffer plane with a display mode and timing. It connects to encoders and connectors that represent the physical output path. Tools such as <code>drm_info</code> or <code>modetest</code> can show CRTCs, their modes, and which connector they drive. Running out of CRTCs can limit how many independent displays can be active at once.</p><details class="q"><summary><i>Why can a GPU with three ports sometimes drive only two monitors?</i></summary><p>The ports are not the only limit. The GPU may have fewer CRTCs than connectors, so it cannot scan out an independent image to every port at the same time.</p></details></section>
+<section data-level="expert"><p>A DRM CRTC represents the hardware block that reads plane buffers, applies cursor/overlay composition as supported, and generates display timings for an encoder. Atomic KMS updates commit CRTC state, plane state, and connector state as one validated transaction. CRTC capabilities vary by driver: some support scaling, gamma/CTM color management, or VRR, while others expose limits such as maximum pixel clock or plane count. The historical CRT name remains in the API even though modern outputs drive LCD, OLED, or other panel technologies.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/d/drm.html">DRM (Direct Rendering Manager)</a></li><li><a href="glossary/k/kms.html">KMS (Kernel Mode Setting)</a></li></ul>
+</body></html>

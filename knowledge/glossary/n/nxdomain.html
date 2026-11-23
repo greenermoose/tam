@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>NXDOMAIN (Non-Existent Domain)</title>
+<meta name="topic" content="glossary-nxdomain">
+<meta name="summary" content="NXDOMAIN: a DNS response code meaning the queried domain name does not exist.">
+<meta name="keywords" content="glossary-nxdomain, nxdomain, non-existent domain, dns, rcode, name error, lookup">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/n/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NXDOMAIN (Non-Existent Domain)</p></nav>
+
+<h1>NXDOMAIN (Non-Existent Domain)</h1>
+<p>A <a href="glossary/d/dns.html">DNS</a> response code meaning the requested domain name does not exist.</p>
+<section data-level="novice"><p>When you look up a name in DNS and that name has not been registered or published, the DNS server can answer with NXDOMAIN. It means "there is no such domain name." It is different from a name that exists but has no record of the type you asked for; in that case DNS usually returns a successful reply with no answer records.</p></section>
+<section data-level="learner"><p>NXDOMAIN is DNS response code 3 (Name Error). You can see it with <code>dig nonexistent.example.com</code>, which reports <code>status: NXDOMAIN</code>. Caching resolvers may cache NXDOMAIN responses for the negative TTL from the zone's SOA record, so a newly created name might not appear immediately everywhere. Some ISPs or networks intercept NXDOMAIN and return a search page instead, which can break tools that expect the standard DNS behavior.</p><details class="q"><summary><i>Is NXDOMAIN the same as "no A record"?</i></summary><p>No. NXDOMAIN means the name itself does not exist. "No A record" usually means the name exists, but it has no address record of that type; DNS can return NOERROR with an empty answer section.</p></details></section>
+<section data-level="expert"><p>NXDOMAIN is signaled by RCODE 3 in the DNS header. With <a href="glossary/d/dnssec.html">DNSSEC</a>, an authoritative server proves non-existence with signed NSEC or NSEC3 records, allowing validators to distinguish an authentic NXDOMAIN from forgery. NXDOMAIN synthesis by recursive resolvers or middleboxes (for captive portals, ads, or "search assistance") violates end-to-end DNS semantics and can interfere with DANE, certificate validation workflows, and application error handling. Negative caching follows RFC 2308 rules based on the SOA minimum/negative TTL.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/d/dns.html">DNS (Domain Name System)</a></li><li><a href="glossary/d/dnssec.html">DNSSEC (Domain Name System Security Extensions)</a></li></ul>
+</body></html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>VLAN (Virtual Local Area Network)</title>
+<meta name="topic" content="glossary-vlan">
+<meta name="summary" content="VLAN: a logical network segment created on shared physical network equipment, often using 802.1Q tags.">
+<meta name="keywords" content="glossary-vlan, vlan, virtual local area network, 802.1q, tagging, switch, ethernet, network">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/v/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/v/index.html">Terms beginning with V</a> / VLAN (Virtual Local Area Network)</p></nav>
+
+<h1>VLAN (Virtual Local Area Network)</h1>
+<p>A logical local network carved out of shared physical network equipment.</p>
+<section data-level="novice"><p>A VLAN lets one physical switch or cable carry several separate networks. Devices in the same VLAN behave as if they are on the same local network, even when they are plugged into different switch ports. Devices in different VLANs are kept separate unless a router or firewall passes traffic between them. This is useful for separating office computers, guest devices, or servers without buying separate switches for each group.</p></section>
+<section data-level="learner"><p>On <a href="glossary/e/ethernet.html">Ethernet</a>, VLANs are commonly identified by an 802.1Q tag carrying a VLAN ID from 1 to 4094. A switch port can be an access port (untagged, one VLAN) or a trunk port (tagged frames for several VLANs). On Linux, <code>ip link add link eth0 name eth0.10 type vlan id 10</code> creates a tagged VLAN interface. Each VLAN is its own broadcast domain, so <a href="glossary/i/ip-address.html">IP</a> addressing and routing are configured per VLAN.</p><details class="q"><summary><i>Can two VLANs talk to each other by default?</i></summary><p>No. VLANs isolate traffic at layer 2. To pass traffic between VLANs, you need routing between them, often with firewall rules controlling what is allowed.</p></details></section>
+<section data-level="expert"><p>IEEE 802.1Q inserts a 4-byte tag with PCP/DEI and a 12-bit VID into the Ethernet frame; QinQ (802.1ad) stacks service and customer tags. VLAN membership is enforced by the switching fabric, but security depends on correct trunk/access configuration, native-VLAN handling, and filtering of unexpected tags. Linux implements VLANs as netdevs over a parent interface, integrating with bridges, namespaces, nftables/iptables, and VRFs. VLANs provide segmentation, not cryptographic isolation; sensitive separation may require separate physical networks or encrypted overlays.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/e/ethernet.html">Ethernet</a></li><li><a href="glossary/n/network-interface.html">Network interface</a></li></ul>
+</body></html>
