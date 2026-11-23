@@ -1,9 +1,9 @@
 # B3 — Guide search address delimiters change the query
 
-- **Status:** Fix available
+- **Status:** Verified
 - **Severity:** medium
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** 0.68.4
+- **Fixed in:** 0.68.4 (427e4e6), verification accepted by Fred (2026-11-23)
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -42,4 +42,4 @@ external fallback. `tam_guide_search_uri_document` now uses shared
 `tam_addr_param` decoding, so query parsing respects `#` fragments and
 encoded delimiters. Added B3 command-line tests in `tests/run.sh` for
 fragments, literal/percent-encoded URL values, and encoded delimiters,
-plus a pager PTY smoke test for the fragment case.
+plus a pager PTY smoke test for the fragment case. Fred verified (2026-11-23).

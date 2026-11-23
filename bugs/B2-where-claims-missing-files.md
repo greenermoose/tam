@@ -1,9 +1,9 @@
 # B2 — File ownership lookup claims nonexistent paths
 
-- **Status:** Fix available
+- **Status:** Verified
 - **Severity:** medium
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** 0.68.4
+- **Fixed in:** 0.68.4 (427e4e6), verification accepted by Fred (2026-11-23)
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -37,3 +37,4 @@ then only accepts cultivar prefix matches when `realpath` succeeds
 (existence and canonical-path evidence). Added B2 tests in `tests/run.sh`
 for a missing child under a cultivar directory, an existing unowned
 child with native package lookup fixture, and a known manifest member.
+Fred verified (2026-11-23).
