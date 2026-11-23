@@ -107,6 +107,16 @@ Installation Capabilities:
 
 <p>Open a terminal and run <code>tam inspect</code>. Match each line it prints—operating system, kernel release, package tools, and graphics device—to the layers in the table above. Because <code>tam inspect</code> is read-only, it is completely safe to run anytime.</p>
 
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>tam: command not found</code></dt>
+<dd>The shell could not find the command. Check with <code>command -v tam</code>; if it prints nothing, <code>tam</code> is not installed or its directory is not on your <a href="glossary/e/environment-variable.html">PATH</a>.</dd>
+<dt>The report differs from the capture above</dt>
+<dd>That is expected. Each line describes the machine you are using, so compare the labels and their order rather than the exact values.</dd>
+<dt>A line reads <code>unknown</code>, <code>unavailable</code> or <code>not deployed</code></dt>
+<dd>The inspection reports only what it can detect on this host. Keep the line as evidence and use the other rows to place it in the stack; nothing was changed.</dd>
+</dl>
+
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>

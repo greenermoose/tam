@@ -1,0 +1,43 @@
+W48 COMPONENTS LEARNER ANATOMY
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Make that page fix."
+
+  The preceding question asked what "1 level sections need
+  migration; see coverage.json" meant. The single warning was
+  the learner section of knowledge/tamlinux/components.html.
+
+DONE
+
+  - Added an "If it goes wrong" block to the learner section of
+    knowledge/tamlinux/components.html: command not found with
+    command -v and PATH, differences from the captured output,
+    and unknown/unavailable/not deployed lines from a read-only
+    inspection.
+  - Bumped corpus 0.108.0 to 0.108.1 in knowledge/version and
+    the ROADMAP header, dev row and delivered-history table.
+  - make corpus now prints no learning warning;
+    tools/report-coverage.py --warnings shows anatomy warnings:
+    0. make corpus-and-test passes: 1,292 pages parsed and
+    rendered, 93 tooling tests OK, check-repo clean. The block
+    renders through build/tam show --pipe at the learner lens.
+  - Checked against: docs/corpus-pedagogy.md,
+    docs/corpus-authoring.md, docs/corpus-style.md,
+    tools/build-index.py, tools/report-coverage.py,
+    src/install.c, knowledge/glossary/e/environment-variable.html,
+    knowledge/tamlinux/design/distros.html.
+
+FAILED
+
+  - Nothing.
+
+HANDOFF
+
+  - Generated indexes trail this page commit; commit them in a
+    follow-up commit, then rerun make corpus.
+  - No install or stage move was made. The page stays in Develop.
