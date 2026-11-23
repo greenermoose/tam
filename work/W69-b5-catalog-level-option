@@ -1,0 +1,37 @@
+W69 B5 CATALOG LEVEL OPTION
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / B5: "Put lens eligibility on the catalog's route and
+  test output equivalence for both forms. Preserve an explicitly named level
+  when a flag is also supplied."
+
+DONE
+
+  - Added `tam:catalog` to `tam_addr_takes_lens` in `src/address.c` so
+    `--level` is applied to catalog views that do not already name a level.
+  - Added `test_catalog_level_option` in `tests/test_library_discovery.py`
+    covering flag/param equivalence and explicit level preservation; updated
+    test fixture index format to include level column.
+  - Updated `bugs/B5-catalog-ignores-level-option.md` to Fix available.
+  - Bumped command to 0.68.3 (patch): `src/version.h`, `tests/run.sh`,
+    `docs/plans/development.md`, `ROADMAP.md`.
+  - Updated `work/WHATNOW`: recorded W69, removed B5 from NEXT, added B5 to
+    WAITING FOR FRED.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make command: built successfully.
+  - python3 tests/test_library_discovery.py: 7 tests, pass.
+
+HANDOFF
+
+  - B5 fix is available in source; needs verification in a build Fred runs.

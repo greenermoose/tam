@@ -47,7 +47,8 @@ int tam_addr_takes_lens(const char *href)
                                       has_prefix(href, "tam:hubs") ||
                                       has_prefix(href, "tam:keywords") ||
                                       has_prefix(href, "tam:paths") ||
-                                      has_prefix(href, "tam:path")));
+                                      has_prefix(href, "tam:path") ||
+                                      has_prefix(href, "tam:catalog")));
 }
 
 static int hex_value(char c)

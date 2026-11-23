@@ -3,11 +3,14 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W68
+Updated: 2026-11-23, with W69
 
 STATE
 
-  Command 0.68.2 and corpus 0.117.2 on dev. W68 added a complete
+  Command 0.68.3 and corpus 0.117.2 on dev. W69 fixed B5: catalog
+  now accepts `--level` via `tam_addr_takes_lens`; added regression
+  test for flag/param equivalence and explicit level preservation.
+  B5 fix is available in source. W68 added a complete
   redirection table with examples to
   knowledge/glossary/r/redirection.html. W67 fixed B4 in
   pager_nav.c pager_reflow: restore selected link by ID first, then
@@ -71,7 +74,7 @@ STATE
 
 NEXT
 
-  1. B2, B3, B5: see their records for cause and fix.
+  1. B2, B3: see their records for cause and fix.
   2. Unchecked realloc in history_push, forward_push
      (pager_nav.c) and link building (pager_links.c). Check
      growth, build the snapshot before incrementing the count,
@@ -112,6 +115,9 @@ WAITING FOR FRED
 
   - Version bump for the B6 fix (command, src/version.h) and a
     build to verify it. The bug stays "Fix available" until then.
+  - B5 fix available in source (command 0.68.3): `tam show --pipe
+    --level expert tam:catalog` now applies the level; needs
+    verification in a build Fred runs.
   - Tamlinux 0.6.31 candidate preparation and packaged
     verification.
 

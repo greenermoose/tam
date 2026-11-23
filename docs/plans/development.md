@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.3 (patch): fix B5 catalog level option. Add `tam:catalog` to `tam_addr_takes_lens` so `--level` applies to catalog views; add regression test for flag/param equivalence and explicit level preservation.
 - **2026-11-23:** Command 0.68.2 (patch): fix B4 pager reflow same-href link selection. In `pager_reflow`, restore the selected link by ID first, then fall back to the href match closest to the old link's logical position; add a PTY resize regression test.
 - **2026-11-23:** Command 0.68.1 (patch): fix B1 source-upgrade libtam pin. Pin `source-build.json` to libtam 0.8.0 (`725dd1f848e47`) and reject schema 1 source-build manifests that pin libtam below 0.8.0 in `tam-upgrade` `source_build_manifest()`.
 - **2026-11-23:** Command 0.68.0 (minor): split the two lists that shared the `topics` name. `tam:topics` and `tam explain topics` now present the same complete Topics A to Z catalog in the pager and in plain text; the eight subject hubs moved to `tam:hubs` with `Browse hubs` / `Subject Hubs in Your Tamlinux User Guide` wording, and `tam show hubs` is its shorthand. Corpus 0.108.2 (patch) repoints the guide index and Help links to `tam:hubs` and labels `tam:topics` links as Topics A to Z.

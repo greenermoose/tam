@@ -18,13 +18,13 @@ class LibraryDiscovery(unittest.TestCase):
         self.kinds = []
         self.parents = []
 
-    def add(self, topic, path, title, keywords, kind, track='security', parent='index.html'):
-        self.rows.append([topic,path,title,'Read about '+title,keywords,track,'','1','2026-11-14 12:00'])
+    def add(self, topic, path, title, keywords, kind, track='security', parent='index.html', level=''):
+        self.rows.append([topic,path,title,'Read about '+title,keywords,level,track,'','1','2026-11-14 12:00'])
         self.kinds.append(path+'\t'+kind)
         self.parents.append(path+'\t'+parent)
 
     def save(self):
-        (self.root/'index.tsv').write_text('topic\tpath\ttitle\tsummary\tkeywords\ttrack\tprereqs\trev\tupdated\n'+''.join('\t'.join(r)+'\n' for r in self.rows))
+        (self.root/'index.tsv').write_text('topic\tpath\ttitle\tsummary\tkeywords\tlevel\ttrack\tprereqs\trev\tupdated\n'+''.join('\t'.join(r)+'\n' for r in self.rows))
         (self.root/'index.kinds.tsv').write_text('path\tkind\n'+'\n'.join(self.kinds)+'\n')
         (self.root/'index.parents.tsv').write_text('path\tparent\n'+'\n'.join(self.parents)+'\n')
 
@@ -105,5 +105,15 @@ class LibraryDiscovery(unittest.TestCase):
         self.assertNotIn('Every topic tam can explain',out)
         self.assertLess(out.index('Networking'),out.index('Security'))
         self.assertLess(out.index('Security'),out.index('Word'))
+
+    def test_catalog_level_option(self):
+        self.add('security','security/index.html','Security','security','hub','','index.html','novice')
+        out_flag=self.run_tam('show','--pipe','--level','expert','tam:catalog')
+        out_param=self.run_tam('show','--pipe','tam:catalog?level=expert')
+        self.assertEqual(out_flag,out_param)
+        self.assertIn('All Pages A to Z (expert)',out_flag)
+        self.assertIn('?level=expert',out_flag)
+        explicit=self.run_tam('show','--pipe','--level','novice','tam:catalog?level=expert')
+        self.assertIn('All Pages A to Z (expert)',explicit)
 
 if __name__=='__main__':unittest.main()
