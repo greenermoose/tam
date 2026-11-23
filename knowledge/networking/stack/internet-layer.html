@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Internet layer</title>
+<meta name="topic" content="internet-layer">
+<meta name="summary" content="How the internet layer uses IP addresses and routing to deliver packets across networks">
+<meta name="keywords" content="internet layer, network layer, layer 3, ip, ipv4, ipv6, routing, forwarding, packet, hop limit, ttl">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="prereqs" content="the-internet-protocol-stack">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Internet layer</p></nav>
+
+<h1>Internet layer</h1>
+<p>The internet layer is the part of the network stack that gives packets source and destination addresses and moves them across connected networks toward their destination.</p>
+
+<section data-level="novice">
+<h2>What the internet layer does</h2>
+<p>When you send data across the internet, the internet layer puts an address label on each packet, like a postal address on an envelope. Routers read that label and decide where to send the packet next. This layer does not promise that every packet arrives, arrives once, or arrives in order; it focuses on getting packets from one network to another.</p>
+<h3>Why it matters</h3>
+<p>Without the internet layer, devices could only talk on the same local cable or Wi-Fi network. <a href="glossary/i/ip-address.html">IP addresses</a> and routing let packets cross many networks on the way to a distant server.</p>
+<h3>How to think about it</h3>
+<p>Think of the internet layer as the addressing and routing system for parcels. It decides which road or hub comes next, but it does not open the parcel or guarantee the recipient signs for it.</p>
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/i/ip-address.html">IP address</a></dfn></dt>
+<dd>A number that identifies a network interface so packets can be routed to it.</dd>
+<dt><dfn><a href="glossary/r/router.html">Router</a></dfn></dt>
+<dd>A device that forwards packets between networks by choosing the next hop.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>See internet-layer decisions on Linux</h2>
+<p><strong>Goal:</strong> Identify an IP address, a route, and a next hop as internet-layer information.</p>
+<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ip -br addr show
+$ ip route get 1.1.1.1
+</pre>
+<p><code>ip -br addr</code> shows addresses assigned to interfaces. <code>ip route get</code> asks the kernel which next hop it would use for a destination. Both commands read state only.</p>
+
+<h3>What just happened</h3>
+<p>The kernel looked up the destination in its routing table. If the destination is on the local network, it can send directly. If not, it sends the packet to a <a href="glossary/g/gateway.html">gateway</a> (next-hop router). The internet layer chooses the path; the <a href="networking/stack/link-layer.html">link layer</a> handles delivery on the local link.</p>
+
+<h3>Try it</h3>
+<p>Run <code>ip route</code> and find the line starting with <code>default</code>. That default route is the internet-layer path used when no more specific route matches.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No default route</dt>
+<dd>Your machine may be able to reach local addresses but not remote networks. Check the connection configuration and local link first.</dd>
+<dt>Wrong interface or source address</dt>
+<dd>The kernel chooses routes based on its routing table and rules. Use <code>ip route get &lt;address&gt;</code> to see the chosen path.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is an IP address called a Layer 3 locator in OSI terms?</i></summary>
+<p>In the OSI model, Layer 3 is the network layer. IP addresses identify where a packet should be routed across networks, so they are Layer 3 locators. In the internet protocol stack, this is the internet layer.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Property</th><th>Internet layer</th></tr>
+<tr><td>Common OSI name</td><td>Network layer, Layer 3</td></tr>
+<tr><td>Data unit</td><td>Packet or datagram</td></tr>
+<tr><td>Main identifiers</td><td>Source and destination IP addresses</td></tr>
+<tr><td>Main protocols</td><td><a href="glossary/i/ipv4.html">IPv4</a>, <a href="glossary/i/ipv6.html">IPv6</a>, <a href="glossary/i/icmp.html">ICMP</a></td></tr>
+<tr><td>Linux tools</td><td><code>ip addr</code>, <code>ip route</code>, <code>ip route get</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>The internet layer wraps transport data in an IP header containing source and destination addresses, hop limit/<a href="glossary/t/ttl.html">TTL</a>, next-protocol field, and fragmentation or flow-related fields depending on version. Routers perform longest-prefix-match forwarding on the destination address. They do not maintain end-to-end application state; they forward each packet based on routing information. <a href="glossary/i/ipv4.html">IPv4</a> is defined by <cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite> and <a href="glossary/i/ipv6.html">IPv6</a> by <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ ip -j route get 1.1.1.1
+$ ip -6 route show
+</pre>
+<p>Use structured output for scripts and inspect IPv6 routing separately, because IPv6 link-local addresses and scope rules affect next-hop selection.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Fragmentation:</strong> IPv4 routers may fragment packets unless DF is set; IPv6 routers do not fragment in flight and send Packet Too Big messages.</li>
+<li><strong>Multiple addresses:</strong> One interface can have several IPv4/IPv6 addresses with different scopes and lifetimes.</li>
+<li><strong>Policy routing:</strong> Linux can choose routes based on rules beyond destination address, such as source address or firewall marks.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary><i>What does the internet layer guarantee, and what does it leave to higher layers?</i></summary>
+<p>It provides addressing and best-effort forwarding across networks. It does not guarantee delivery, ordering, duplicate suppression, or application-level meaning; transport and application protocols handle those needs when required.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="rfc791"><a href="bibliography/rfc791.html">RFC 791</a></cite>, <cite data-ref="rfc8200"><a href="bibliography/rfc8200.html">RFC 8200</a></cite>, <a href="man:ip(8)">ip(8)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/stack/ip-packets-and-forwarding.html">IP packets and forwarding</a> &mdash; headers, hop limits, and next-hop decisions in detail.</li>
+<li><a href="networking/stack/link-layer.html">Link layer</a> &mdash; how packets are delivered on the local network.</li>
+<li><a href="networking/stack/transport-layer.html">Transport layer</a> &mdash; how ports and TCP/UDP build on IP.</li>
+</ul>
+</body>
+</html>

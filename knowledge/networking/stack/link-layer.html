@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Link layer</title>
+<meta name="topic" content="link-layer">
+<meta name="summary" content="How the link layer delivers frames on the local network using hardware addresses and physical media">
+<meta name="keywords" content="link layer, data link layer, layer 2, ethernet, wi-fi, frame, mac address, arp, ndp, mtu">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="prereqs" content="the-internet-protocol-stack">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Link layer</p></nav>
+
+<h1>Link layer</h1>
+<p>The link layer is the part of the network stack that moves data across the local network link, such as Ethernet or Wi-Fi, using frames and hardware addresses.</p>
+
+<section data-level="novice">
+<h2>What the link layer does</h2>
+<p>The <a href="networking/stack/internet-layer.html">internet layer</a> decides where a packet should go next. The link layer handles the last local step: getting that packet across the cable, switch, or radio link to the next device. It wraps the packet in a frame with local delivery information.</p>
+<h3>Why it matters</h3>
+<p>Different links work differently. Wi-Fi, Ethernet, and mobile links have different signals and rules. The link layer hides those local details so higher layers can work over many kinds of networks.</p>
+<h3>How to think about it</h3>
+<p>If the internet layer is the road map between cities, the link layer is the local delivery truck that moves a package from one stop to the next on the current street.</p>
+</section>
+
+<section data-level="learner">
+<h2>See link-layer information on Linux</h2>
+<p><strong>Goal:</strong> Identify a link-layer address, a neighbor entry, and a network interface.</p>
+<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ip link show
+$ ip neigh
+</pre>
+<p><code>ip link</code> shows interfaces and their hardware (<a href="glossary/m/mac-address.html">MAC</a>) addresses. <code>ip neigh</code> shows the neighbor table, which maps local IP addresses to link-layer addresses.</p>
+
+<h3>What just happened</h3>
+<p>To send an IP packet on a local Ethernet or Wi-Fi network, the system needs the link-layer address of the next hop. IPv4 usually uses <a href="glossary/a/arp.html">ARP</a>; IPv6 uses <a href="glossary/n/ndp.html">NDP</a>. The result is cached in the neighbor table.</p>
+
+<h3>Try it</h3>
+<p>Run <code>ip -br link</code> to list interfaces briefly. Then run <code>ip neigh</code> after contacting another local device to see if a neighbor entry appears.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>No neighbor entry</dt>
+<dd>The host may not have tried to reach that neighbor yet, or local link resolution failed. Check connectivity and interface state.</dd>
+<dt>Interface is DOWN</dt>
+<dd>The link layer cannot send frames until the interface is up and connected to a link.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>What is the difference between an IP address and a MAC address?</i></summary>
+<p>An IP address is an internet-layer address used for routing across networks. A MAC address is a link-layer address used for delivery on the local network segment.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Property</th><th>Link layer</th></tr>
+<tr><td>Common OSI name</td><td>Data link and physical layers, Layers 2 and 1 (often grouped as link in the internet model)</td></tr>
+<tr><td>Data unit</td><td>Frame</td></tr>
+<tr><td>Main identifiers</td><td>MAC addresses, interface names</td></tr>
+<tr><td>Main protocols/technologies</td><td><a href="glossary/e/ethernet.html">Ethernet</a>, <a href="glossary/w/wi-fi.html">Wi-Fi</a>, ARP, NDP</td></tr>
+<tr><td>Linux tools</td><td><code>ip link</code>, <code>ip neigh</code>, <code>ethtool</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>The link layer encapsulates an IP packet in a frame with source and destination link addresses and a frame check sequence. It also defines how nodes share the medium, detect errors, and handle local delivery. In the four-layer internet model, the physical signaling details are often included in the link layer; in the OSI model, physical signaling is Layer 1 and framing/addressing is Layer 2.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ ip -d link show
+$ ip neigh show nud reachable
+</pre>
+<p>Detailed link output shows MTU, queueing, and driver information. Neighbor states reveal whether local resolution is fresh, stale, or failed.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li><strong>MTU limits:</strong> The link MTU limits frame payload size and affects IP fragmentation or path MTU discovery.</li>
+<li><strong>Changing MACs:</strong> Privacy features and virtualization can change link-layer addresses; stale neighbor caches can cause brief delivery failures.</li>
+<li><strong>Shared media:</strong> Wi-Fi and switched Ethernet have very different collision, retry, and latency behavior despite serving the same layer role.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary><i>Why does the internet model group physical and data-link concerns together?</i></summary>
+<p>The internet model focuses on interoperable packet delivery across heterogeneous networks. Grouping local media details into one link layer keeps the model simple while allowing Ethernet, Wi-Fi, and other link technologies to carry IP packets.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><a href="man:ip-link(8)">ip-link(8)</a>, <a href="man:ip-neighbour(8)">ip-neighbour(8)</a>, and RFC 826 for ARP.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/stack/internet-layer.html">Internet layer</a> &mdash; how packets are routed across networks.</li>
+<li><a href="networking/communication-protocols.html">Communication protocols, framing, and data rates</a> &mdash; signals, framing, and physical-layer details.</li>
+</ul>
+</body>
+</html>

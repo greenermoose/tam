@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Transport layer</title>
+<meta name="topic" content="transport-layer">
+<meta name="summary" content="How the transport layer uses ports and protocols like TCP and UDP to deliver data between programs">
+<meta name="keywords" content="transport layer, layer 4, tcp, udp, port, socket, segment, datagram, multiplexing">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="prereqs" content="the-internet-protocol-stack">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Transport layer</p></nav>
+
+<h1>Transport layer</h1>
+<p>The transport layer is the part of the network stack that carries data between programs on different machines, usually by adding port numbers and choosing how delivery should behave.</p>
+
+<section data-level="novice">
+<h2>What the transport layer does</h2>
+<p>The <a href="networking/stack/internet-layer.html">internet layer</a> can deliver a packet to the right machine. The transport layer helps deliver it to the right program on that machine. It also decides whether the conversation should be careful and ordered, like a phone call with confirmations, or quick and simple, like sending postcards.</p>
+<h3>Why it matters</h3>
+<p>Your computer can run many network programs at once: a browser, chat app, and update service. Transport-layer <a href="glossary/p/port.html">ports</a> keep those conversations separate.</p>
+<h3>How to think about it</h3>
+<p>If an IP address is the building address, a port number is the apartment number. The transport layer makes sure the message reaches the right apartment.</p>
+</section>
+
+<section data-level="learner">
+<h2>See transport-layer endpoints</h2>
+<p><strong>Goal:</strong> Identify TCP and UDP sockets and understand what port numbers mean.</p>
+<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ ss -tan
+$ ss -uan
+</pre>
+<p><code>ss -tan</code> shows TCP sockets; <code>ss -uan</code> shows UDP sockets. The local and peer address:port pairs identify endpoints.</p>
+
+<h3>What just happened</h3>
+<p>TCP and UDP are the two common transport protocols. <a href="glossary/t/tcp.html">TCP</a> provides a reliable, ordered byte stream. <a href="glossary/u/udp.html">UDP</a> sends independent datagrams with less overhead and no built-in delivery guarantee. Both use ports so multiple programs can share one IP address.</p>
+
+<h3>Try it</h3>
+<p>Run <code>ss -tlnp</code> with appropriate permissions to see listening TCP ports. Compare with <code>ss -ulnp</code> for UDP listeners.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A port is not listening</dt>
+<dd>The service may not be running, or it may be listening on a different address or interface.</dd>
+<dt>Connection refused</dt>
+<dd>The machine was reachable, but no program accepted the transport connection on that port.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why does the transport layer need ports if IP already has addresses?</i></summary>
+<p>An IP address identifies a host or interface, but many programs can use the network at the same time. Ports let the transport layer multiplex and demultiplex data to the correct program.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Property</th><th>Transport layer</th></tr>
+<tr><td>Common OSI name</td><td>Transport layer, Layer 4</td></tr>
+<tr><td>Data unit</td><td>Segment (TCP) or datagram (UDP)</td></tr>
+<tr><td>Main identifiers</td><td>Source port, destination port</td></tr>
+<tr><td>Main protocols</td><td><a href="glossary/t/tcp.html">TCP</a>, <a href="glossary/u/udp.html">UDP</a>, QUIC (over UDP)</td></tr>
+<tr><td>Linux tools</td><td><code>ss</code>, <code>nstat</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>The transport layer demultiplexes incoming packets to sockets using the 5-tuple: source IP, source port, destination IP, destination port, and protocol. TCP adds sequence numbers, acknowledgements, flow control, and congestion control. UDP provides a minimal header with ports, length, and checksum. <a href="glossary/q/quic.html">QUIC</a> builds reliable, encrypted transport features in user space over UDP.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ ss -ti state established
+</pre>
+<p>TCP info exposes round-trip time, congestion window, retransmissions, and other transport state useful for diagnosing performance.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li><strong>NAT and firewalls:</strong> Middleboxes may rewrite ports or drop packets, making transport behavior depend on path state.</li>
+<li><strong>Ephemeral ports:</strong> Clients usually use temporary local ports chosen from a configured range.</li>
+<li><strong>Head-of-line blocking:</strong> TCP's ordered stream can delay later bytes when an earlier segment is lost; some applications avoid this with UDP/QUIC.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary><i>When is UDP a better fit than TCP?</i></summary>
+<p>UDP fits when an application can tolerate or handle loss, needs low overhead, or manages its own timing/retransmission semantics, such as DNS, real-time media, or QUIC-based protocols.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><cite data-ref="rfc9293"><a href="bibliography/rfc9293.html">RFC 9293</a></cite> for TCP, <cite data-ref="rfc768"><a href="bibliography/rfc768.html">RFC 768</a></cite> for UDP, <a href="man:ss(8)">ss(8)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/stack/ports-and-sockets.html">Ports and sockets</a> &mdash; how endpoints are named and inspected.</li>
+<li><a href="networking/stack/transmission-control-protocol.html">Transmission Control Protocol</a> &mdash; reliable streams over IP.</li>
+<li><a href="networking/stack/user-datagram-protocol.html">User Datagram Protocol</a> &mdash; lightweight messages over IP.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,40 @@
+W55 NETWORKING LAYER PAGES
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Write up a series of pages about the standard networking layer stack. In the tam knowledge corpus, page:glossary/i/ip-address.html mentions that an IP address is a \"Layer 3 locator\" without providing a link to what that means. Write pages for each of the layers. Link to these new pages from pages like the IP address page where these concepts should be used."
+
+DONE
+
+  - Added four internet-protocol-stack layer pages under
+    knowledge/networking/stack/: application-layer.html,
+    transport-layer.html, internet-layer.html, and link-layer.html.
+  - Updated networking/stack/index.html and
+    networking/stack/the-internet-protocol-stack.html to link to the
+    new layer pages.
+  - Linked Layer 2/3/4 references to the new pages from
+    glossary/i/ip-address.html, glossary/g/gateway.html, and
+    glossary/p/packet.html.
+  - Bumped corpus 0.111.1 to 0.112.0 in knowledge/version and updated
+    ROADMAP.md current version, dev row, and delivered history.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus-check passed after adding the layer pages and links.
+  - make corpus refreshed generated indexes; index changes were
+    committed separately when present.
+
+HANDOFF
+
+  - Corpus-only content change; no command version bump, no install,
+    no stage move. Source changes stay in Develop.
+  - Other pages that mention OSI/TCP-IP layers may benefit from links
+    to the new layer pages in future passes.

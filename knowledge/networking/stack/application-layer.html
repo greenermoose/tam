@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Application layer</title>
+<meta name="topic" content="application-layer">
+<meta name="summary" content="How the application layer defines the meaning of network data for programs like browsers, DNS clients, and mail tools">
+<meta name="keywords" content="application layer, layer 7, http, dns, tls, smtp, ssh, protocol, application, tcp ip model">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="networking">
+<meta name="parent" content="networking/stack/index.html">
+<meta name="kind" content="explanation">
+<meta name="skills" content="networking.novice, networking.learner, networking.expert">
+<meta name="prereqs" content="the-internet-protocol-stack">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Application layer</p></nav>
+
+<h1>Application layer</h1>
+<p>The application layer is the part of the network stack where programs give meaning to data, using protocols such as DNS, HTTP, or SSH.</p>
+
+<section data-level="novice">
+<h2>What the application layer does</h2>
+<p>Lower layers move data to the right machine and the right program. The application layer defines what that data means. A web browser and web server speak <a href="glossary/h/http.html">HTTP</a>. A name lookup uses <a href="glossary/d/dns.html">DNS</a>. A remote shell uses <a href="glossary/s/ssh.html">SSH</a>. The network carries bytes; the application layer explains the conversation.</p>
+<h3>Why it matters</h3>
+<p>The same transport connection can carry very different kinds of messages. Application-layer protocols let programs interoperate because both sides agree on message format and meaning.</p>
+<h3>How to think about it</h3>
+<p>If lower layers deliver an envelope to the right person, the application layer is the language and form of the letter inside.</p>
+</section>
+
+<section data-level="learner">
+<h2>See application-layer protocols in action</h2>
+<p><strong>Goal:</strong> Recognize common application protocols and the transport they use.</p>
+<p><strong>Before you start:</strong> Read <a href="networking/stack/the-internet-protocol-stack.html">The internet protocol stack</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ getent ahosts example.com
+$ curl -I https://example.com
+</pre>
+<p><code>getent ahosts</code> exercises name resolution through the system resolver. <code>curl -I</code> sends an HTTP request and shows response headers. Both depend on lower layers, but the meaning comes from application protocols.</p>
+
+<h3>What just happened</h3>
+<p>DNS turned a name into addresses. HTTP described a request for a resource and a response with headers. If TLS is involved, encryption protects the application data in transit, but the application still interprets the HTTP messages after decryption.</p>
+
+<h3>Try it</h3>
+<p>Run <code>dig example.com</code> if available, or <code>getent ahosts example.com</code>. Identify which part is application protocol behavior and which part is transport/addressing.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Name resolves but HTTP fails</dt>
+<dd>DNS may be working while the web server, transport port, TLS, or HTTP layer has a problem. Test layers in order.</dd>
+<dt>Can connect by IP but not by name</dt>
+<dd>The lower layers may be fine; the DNS application-layer step is failing.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is HTTP considered an application-layer protocol?</i></summary>
+<p>HTTP defines the meaning and structure of web requests and responses between programs. It relies on lower layers for delivery but is not responsible for routing packets or managing ports.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Property</th><th>Application layer</th></tr>
+<tr><td>Common OSI name</td><td>Application, presentation, and session layers, Layers 7-5 (merged in the internet model)</td></tr>
+<tr><td>Data unit</td><td>Messages, requests/responses, records (protocol-specific)</td></tr>
+<tr><td>Main identifiers</td><td>Names, URLs, message types, protocol headers</td></tr>
+<tr><td>Examples</td><td>DNS, HTTP, <a href="glossary/t/tls.html">TLS</a>, SMTP, SSH</td></tr>
+<tr><td>Linux tools</td><td><code>curl</code>, <code>dig</code>, <code>ssh</code>, <code>getent</code></td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>The internet model places application semantics at the top and treats presentation/session concerns as part of application protocols or libraries when needed. For example, HTTP defines web semantics, TLS provides cryptographic protection, and DNS defines name-resolution messages. These protocols use transport sockets but define their own message formats, state machines, and error handling.</p>
+
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="read-only">
+$ curl -v https://example.com
+$ dig +trace example.com
+</pre>
+<p>Verbose tool output exposes application-layer negotiation, headers, and protocol decisions. Use it after confirming lower-layer connectivity.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Encrypted payloads:</strong> TLS hides application data from the network, but the application protocol still exists above the encryption boundary.</li>
+<li><strong>Protocol layering:</strong> Some protocols run over other application protocols or tunnels; the "application layer" label describes role, not a single fixed wire format.</li>
+<li><strong>Same port, different meaning:</strong> Port 443 commonly carries HTTPS, but the actual application behavior depends on the protocol negotiated.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary><i>Why does the internet model merge OSI layers 5-7?</i></summary>
+<p>Because many internet protocols bundle session, presentation, and application concerns into the application protocol or library. The merged model keeps focus on the practical boundary between transport services and application semantics.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p>RFC 9110 for HTTP semantics, RFC 1034 for DNS concepts, and <a href="man:curl(1)">curl(1)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="networking/stack/from-packets-to-applications.html">From packets to applications</a> &mdash; follow one request through all layers.</li>
+<li><a href="networking/stack/transport-layer.html">Transport layer</a> &mdash; the sockets and ports application protocols use.</li>
+</ul>
+</body>
+</html>
