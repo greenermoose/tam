@@ -3,17 +3,19 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W73
+Updated: 2026-11-23, with W74
 
 STATE
 
-  Command 0.68.7 and corpus 0.117.2 on dev. W73 hardened the ask HTTP
-  read loop with one monotonic deadline, a 1 MiB response size cap, and
-  distinct incomplete/oversized/complete outcomes (R1). W72 guarded
-  `tam_pager_screen_update` against null-pointer memcmp when a row is
-  empty. W71 hardened pager history/forward push and link building
-  against realloc/strdup failure. W70 fixed B2 and B3; B2 and B3
-  verified by Fred (2026-11-23).
+  Command 0.68.8 and corpus 0.117.2 on dev. W74 deduplicated pager nav
+  snapshot/push/traverse helpers: `nav_state_free`, `nav_stack_clear`,
+  `nav_stack_push`, and `nav_traverse` replace copied history/forward
+  push/back/forward and cleanup sequences (R1 step 2). W73 hardened the
+  ask HTTP read loop with one monotonic deadline, a 1 MiB response size
+  cap, and distinct incomplete/oversized/complete outcomes (R1). W72
+  guarded `tam_pager_screen_update` against null-pointer memcmp when a
+  row is empty. W70 fixed B2 and B3; B2 and B3 verified by Fred
+  (2026-11-23).
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -81,21 +83,15 @@ STATE
 
 NEXT
 
-  1. history_push and forward_push are line-for-line copies, and
-     go_back and go_forward are near copies. Replace with one
-     snapshot builder and one nav_state_free helper; the free
-     sequence is repeated in pager_return_from_help,
-     forward_clear and pager.c cleanup. This is step 2 of the
-     R1 refactoring order and prevents B6 recurring.
-  2. Add a make target for an ASan and UBSan build with
+  1. Add a make target for an ASan and UBSan build with
      UBSAN_OPTIONS log_path set, so sanitizer output stays out
      of the PTY tests.
-  3. Test go_forward after a vanished page, which W41 did not
+  2. Test go_forward after a vanished page, which W41 did not
      cover.
-  4. Then the R1 order: central address parsing, index lookup
+  3. Then the R1 order: central address parsing, index lookup
      table, shared key and UTF-8 code from libtam.
 
-  5. Future glossary work: write glossary pages for technical
+  4. Future glossary work: write glossary pages for technical
      terms used in the corpus that have none. The scan found
      VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
      SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,

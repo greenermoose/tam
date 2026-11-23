@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.8 (patch): deduplicate pager nav snapshot/push/traverse helpers. Share nav_state_free/nav_stack_clear/nav_stack_push/nav_traverse and consolidate history/forward cleanup paths (R1 step 2).
 - **2026-11-23:** Command 0.68.7 (patch): harden ask HTTP read loop with one monotonic deadline and response size cap. Distinguish incomplete/timeout, oversized, and complete responses (R1).
 - **2026-11-23:** Command 0.68.6 (patch): guard empty-row memcmp in pager screen diff. Skip memcmp when row length is zero to avoid undefined behavior on null row pointers.
 - **2026-11-23:** Command 0.68.5 (patch): harden pager history/link realloc paths. Build nav snapshots before incrementing history/forward counts, check realloc/strdup failures, and fail callers cleanly; guard link-building realloc failures in `pager_links.c`.

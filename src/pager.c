@@ -287,20 +287,8 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
         close(tty_fd);
     }
 
-    while (st.nhistory > 0) {
-        nav_state_t *state = &st.history[--st.nhistory];
-        free(state->href);
-        free(state->selected_href);
-        free(state->active_path);
-    }
-    free(st.history);
-    while (st.nforward > 0) {
-        nav_state_t *state = &st.forward[--st.nforward];
-        free(state->href);
-        free(state->selected_href);
-        free(state->active_path);
-    }
-    free(st.forward);
+    nav_stack_clear(&st.history, &st.nhistory);
+    nav_stack_clear(&st.forward, &st.nforward);
     free(st.links);
     free(st.fold_open);
     free(st.cur_href);

@@ -255,7 +255,7 @@ static int nav_state_build(pager_t *st, const char *href, int top,
     return 0;
 }
 
-static void nav_state_dispose(nav_state_t *state)
+void nav_state_free(nav_state_t *state)
 {
     if (state == NULL) return;
     free(state->href);
@@ -264,51 +264,48 @@ static void nav_state_dispose(nav_state_t *state)
     memset(state, 0, sizeof(*state));
 }
 
-static int history_push(pager_t *st, const char *href, int top,
-                        int cursor_line)
+void nav_stack_clear(nav_state_t **stack, size_t *n)
+{
+    if (stack == NULL || n == NULL) return;
+    while (*n > 0) {
+        nav_state_free(&(*stack)[--(*n)]);
+    }
+    free(*stack);
+    *stack = NULL;
+    *n = 0;
+}
+
+static int nav_stack_push(nav_state_t **stack, size_t *n, pager_t *st,
+                          const char *href, int top, int cursor_line)
 {
     nav_state_t snap;
     if (nav_state_build(st, href, top, cursor_line, &snap) != 0)
         return -1;
-    nav_state_t *next = realloc(st->history,
-                                (st->nhistory + 1) * sizeof(*st->history));
+    nav_state_t *next = realloc(*stack, (*n + 1) * sizeof(**stack));
     if (next == NULL) {
-        nav_state_dispose(&snap);
+        nav_state_free(&snap);
         return -1;
     }
-    st->history = next;
-    st->history[st->nhistory++] = snap;
+    *stack = next;
+    (*stack)[(*n)++] = snap;
     return 0;
+}
+
+static int history_push(pager_t *st, const char *href, int top,
+                        int cursor_line)
+{
+    return nav_stack_push(&st->history, &st->nhistory, st, href, top, cursor_line);
 }
 
 static int forward_push(pager_t *st, const char *href, int top,
                         int cursor_line)
 {
-    nav_state_t snap;
-    if (nav_state_build(st, href, top, cursor_line, &snap) != 0)
-        return -1;
-    nav_state_t *next = realloc(st->forward,
-                                (st->nforward + 1) * sizeof(*st->forward));
-    if (next == NULL) {
-        nav_state_dispose(&snap);
-        return -1;
-    }
-    st->forward = next;
-    st->forward[st->nforward++] = snap;
-    return 0;
+    return nav_stack_push(&st->forward, &st->nforward, st, href, top, cursor_line);
 }
 
 static void forward_clear(pager_t *st)
 {
-    while (st->nforward > 0) {
-        nav_state_t *state = &st->forward[--st->nforward];
-        free(state->href);
-        free(state->selected_href);
-        free(state->active_path);
-    }
-    free(st->forward);
-    st->forward = NULL;
-    st->nforward = 0;
+    nav_stack_clear(&st->forward, &st->nforward);
 }
 
 static void restore_nav_state(pager_t *st, int top, int cursor_line)
@@ -1010,24 +1007,20 @@ void pager_return_from_help(pager_t *st)
 {
     while (st->nhistory > 0 && is_help_page(st->history[st->nhistory - 1].href)) {
         nav_state_t discarded = st->history[--st->nhistory];
-        free(discarded.href);
-        free(discarded.selected_href);
-        free(discarded.active_path);
+        nav_state_free(&discarded);
     }
     go_back(st);
 }
 
-void go_back(pager_t *st)
+static void nav_traverse(pager_t *st, nav_state_t **src, size_t *nsrc,
+                         int (*push)(pager_t *st, const char *href, int top,
+                                     int cursor_line))
 {
-    if (st->nhistory == 0) {
-        snprintf(st->msg, sizeof(st->msg), "no earlier page");
-        return;
-    }
-    nav_state_t prev = st->history[--st->nhistory];
+    nav_state_t prev = (*src)[--(*nsrc)];
     if (strcmp(prev.href, st->cur_href) == 0 &&
         same_opt_str(prev.active_path, st->active_path)) {
-        if (forward_push(st, st->cur_href, st->top, st->cursor_line) != 0) {
-            st->nhistory++;
+        if (push(st, st->cur_href, st->top, st->cursor_line) != 0) {
+            (*nsrc)++;
             snprintf(st->msg, sizeof(st->msg), "out of memory");
             return;
         }
@@ -1042,14 +1035,14 @@ void go_back(pager_t *st)
     tam_document_t *nd = load_at_context(st, prev.href, prev.active_path);
     if (nd == NULL) {
         /* The entry returns to the stack, which owns its strings again. */
-        st->nhistory++;
+        (*nsrc)++;
         snprintf(st->msg, sizeof(st->msg), "cannot open %s",
-                 st->history[st->nhistory - 1].href);
+                 (*src)[(*nsrc) - 1].href);
         return;
     }
-    if (forward_push(st, st->cur_href, st->top, st->cursor_line) != 0) {
+    if (push(st, st->cur_href, st->top, st->cursor_line) != 0) {
         tam_document_free(nd);
-        st->nhistory++;
+        (*nsrc)++;
         snprintf(st->msg, sizeof(st->msg), "out of memory");
         return;
     }
@@ -1068,56 +1061,22 @@ void go_back(pager_t *st)
     st->msg[0] = '\0';
 }
 
+void go_back(pager_t *st)
+{
+    if (st->nhistory == 0) {
+        snprintf(st->msg, sizeof(st->msg), "no earlier page");
+        return;
+    }
+    nav_traverse(st, &st->history, &st->nhistory, forward_push);
+}
+
 void go_forward(pager_t *st)
 {
     if (st->nforward == 0) {
         return;
     }
-    nav_state_t next = st->forward[--st->nforward];
-    if (strcmp(next.href, st->cur_href) == 0 &&
-        same_opt_str(next.active_path, st->active_path)) {
-        if (history_push(st, st->cur_href, st->top, st->cursor_line) != 0) {
-            st->nforward++;
-            snprintf(st->msg, sizeof(st->msg), "out of memory");
-            return;
-        }
-        pager_clear_search(st);
-        free(next.href);
-        free(next.active_path);
-        restore_logical_nav_state(st, &next);
-        free(next.selected_href);
-        st->msg[0] = '\0';
-        return;
-    }
-    tam_document_t *nd = load_at_context(st, next.href, next.active_path);
-    if (nd == NULL) {
-        /* The entry returns to the stack, which owns its strings again. */
-        st->nforward++;
-        snprintf(st->msg, sizeof(st->msg), "cannot open %s",
-                 st->forward[st->nforward - 1].href);
-        return;
-    }
-    if (history_push(st, st->cur_href, st->top, st->cursor_line) != 0) {
-        tam_document_free(nd);
-        st->nforward++;
-        snprintf(st->msg, sizeof(st->msg), "out of memory");
-        return;
-    }
-    free(st->fold_open); st->fold_open = NULL; st->nfold_open = 0;
-    tam_document_ensure_location(nd, next.href);
-    pager_clear_search(st);
-    free(st->cur_href);
-    st->cur_href = next.href;
-    free(st->active_path);
-    st->active_path = next.active_path;
-    tam_document_free(st->doc);
-    st->doc = nd;
-    pager_build_links(st);
-    restore_logical_nav_state(st, &next);
-    free(next.selected_href);
-    st->msg[0] = '\0';
+    nav_traverse(st, &st->forward, &st->nforward, history_push);
 }
-
 void follow_selected(pager_t *st)
 {
     const linkref_t *current = selected_link(st);

@@ -139,6 +139,8 @@ void set_lens(pager_t *st, unsigned char key);
 int lens_line_here(const pager_t *st);
 void cycle_lens(pager_t *st, int dir);
 int is_help_page(const char *href);
+void nav_state_free(nav_state_t *state);
+void nav_stack_clear(nav_state_t **stack, size_t *n);
 void pager_return_from_help(pager_t *st);
 void go_back(pager_t *st);
 void go_forward(pager_t *st);
