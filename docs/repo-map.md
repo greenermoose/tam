@@ -26,6 +26,7 @@ Categories:
 - `man/` — *you edit*. Section 1 manual page (`man/tam.1`).
 - `tools/` — *you edit*. Python build, lint, developer-loop and drift-check scripts (`build-index.py`, `build-tldr-index.py`, `lint-corpus.py`, `dev.py`, `check-repo.py`).
 - `tests/` — *you edit*. Command, corpus, rendering, upgrade, developer-loop and drift-check suites (`tests/run.sh` command version assertion is updated by `make dev`).
+- `sandbox/` — *you edit*. Manual playground for trying tam by hand; sample guide fixtures and demos, not installed and not used by `make test`.
 - `docs/` — *you edit*. Corpus authoring, corpus audit, plan-maintenance and repository-map guides.
 - `docs/plans/` — *you edit*. Feature plans, the living development contract (`development.md`), templates and the plan index (`README`); closed plans remain in place as historical records.
 - `work/history/` — *history, read-only*. AI session records from before 2026-11-17, moved from `docs/ai/` under D278; new sessions record in `work/`.
