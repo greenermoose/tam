@@ -1,0 +1,37 @@
+W50 NIST GLOSSARY PAGE
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Create a tam knowledge corpus glossary page for NIST"
+
+DONE
+
+  - Added knowledge/glossary/n/nist.html defining NIST (National
+    Institute of Standards and Technology) as a glossary term with
+    novice, learner, and expert sections, a self-check question, and
+    links to related FIPS, cryptography, and NIST bibliography pages.
+  - Bumped corpus 0.108.2 to 0.109.0 in knowledge/version and ROADMAP.
+  - Regenerated corpus indexes and coverage with make corpus.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus rebuilt indexes and coverage for the new page.
+  - make corpus-and-test passed: corpus checks, component coverage,
+    93 corpus tooling unit tests, and repository consistency check.
+  - env TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe glossary/n/nist.html
+    rendered the page correctly.
+
+HANDOFF
+
+  - No install or stage move. Source changes stay in Develop.
+  - The NIST page is linked from the N glossary hub by generated
+    indexes; teaching pages that mention NIST may still benefit from
+    first-mention glossary links in future glossary-link passes.
