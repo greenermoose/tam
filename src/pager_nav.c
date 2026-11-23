@@ -1100,8 +1100,7 @@ void pager_nav_next_name(const pager_t *st, const char *href, char *out, size_t 
     out[0] = '\0';
     if (href == NULL || href[0] == '\0') return;
 
-    const char *p = href;
-    if (strncmp(p, "page:", 5) == 0) p += 5;
+    const char *p = tam_addr_strip_page_prefix(href);
 
     char clean_path[256];
     size_t i = 0;
