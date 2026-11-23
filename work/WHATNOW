@@ -3,16 +3,18 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W55
+Updated: 2026-11-23, with W56
 
 STATE
 
-  Command 0.68.0 and corpus 0.112.0 on dev. W55 added four internet
-  protocol stack layer pages (application, transport, internet, link)
-  under knowledge/networking/stack/, linked them from the stack index
-  and overview page, and linked Layer 2/3/4 references from IP
-  address, gateway, and packet glossary pages to the new pages. W54
-  consolidated userspace.html into user-space.html. W53 added kernel
+  Command 0.68.0 and corpus 0.112.0 on dev. W56 fixed the
+  tests/pager_screen.py Level 2 Learner status assertion so it accepts
+  both "already at" and "set" notices; the whole file passes. W55 added
+  four internet protocol stack layer pages (application, transport,
+  internet, link) under knowledge/networking/stack/, linked them from
+  the stack index and overview page, and linked Layer 2/3/4 references
+  from IP address, gateway, and packet glossary pages to the new pages.
+  W54 consolidated userspace.html into user-space.html. W53 added kernel
   space and user space glossary pages and linked boundary/programming
   references. W52 added a Tamlinux design goals page. W51 added the
   Tamlinux Five performance target to relevant corpus pages. W50
@@ -28,11 +30,8 @@ STATE
   installs. W43 removed the stale Nix conditional from Makefile.
   W42 delivered the IFS curriculum. W41 fixed B6 in source only;
   Fred has not run it in a build. B1-B5 from
-  reviews/R1-command-and-corpus-code.md are still open.
-  The whole of tests/pager_screen.py fails on HEAD at the
-  "[Level 2 Learner" status assertion (status reads "already
-  at Level 2 Learner"); it was not checked whether make test
-  hits this. W40 documented the architecture in arch/.
+  reviews/R1-command-and-corpus-code.md are still open. W40 documented
+  the architecture in arch/.
 
 NEXT
 
@@ -40,43 +39,39 @@ NEXT
      0.8.0. Pin a tested 0.8.0 revision in source-build.json
      and add a pin compatibility check to source-upgrade
      verification.
-  2. Failing assertion "[Level 2 Learner" in tests/pager_screen.py.
-     Decide whether the test or the status text is wrong, fix
-     it, and run the whole file so check_vanished_history runs
-     in the suite.
-  3. B4: reflow in src/pager_nav.c (pager_reflow) takes the first
+  2. B4: reflow in src/pager_nav.c (pager_reflow) takes the first
      link whose ID or href matches. Match the original link ID
      first and fall back to href plus logical position. Add a
      PTY resize test.
-  4. B2, B3, B5: see their records for cause and fix.
-  5. Unchecked realloc in history_push, forward_push
+  3. B2, B3, B5: see their records for cause and fix.
+  4. Unchecked realloc in history_push, forward_push
      (pager_nav.c) and link building (pager_links.c). Check
      growth, build the snapshot before incrementing the count,
      and fail the caller cleanly.
-  6. src/pager_screen.c:51 passes a null row pointer to memcmp
+  5. src/pager_screen.c:51 passes a null row pointer to memcmp
      when a row is empty (UBSan: null pointer passed as argument
      2). Guard the empty-row case. Harmless today but undefined
      behaviour.
-  7. Inference HTTP read loop in src/ask.c: use one monotonic
+  6. Inference HTTP read loop in src/ask.c: use one monotonic
      deadline and a response size cap (R1, open).
 
   Code improvements, after the bugs:
 
-  8. history_push and forward_push are line-for-line copies, and
+  7. history_push and forward_push are line-for-line copies, and
      go_back and go_forward are near copies. Replace with one
      snapshot builder and one nav_state_free helper; the free
      sequence is repeated in pager_return_from_help,
      forward_clear and pager.c cleanup. This is step 2 of the
      R1 refactoring order and prevents B6 recurring.
-  9. Add a make target for an ASan and UBSan build with
+  8. Add a make target for an ASan and UBSan build with
      UBSAN_OPTIONS log_path set, so sanitizer output stays out
      of the PTY tests.
-  10. Test go_forward after a vanished page, which W41 did not
-      cover.
-  11. Then the R1 order: central address parsing, index lookup
+  9. Test go_forward after a vanished page, which W41 did not
+     cover.
+  10. Then the R1 order: central address parsing, index lookup
       table, shared key and UTF-8 code from libtam.
 
-  12. Future glossary work: write glossary pages for technical
+  11. Future glossary work: write glossary pages for technical
       terms used in the corpus that have none. The scan found
       VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
       SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,

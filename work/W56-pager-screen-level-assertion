@@ -1,0 +1,39 @@
+W56 PAGER SCREEN LEVEL ASSERTION
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Do the next work slice from tam's WHATNOW"
+
+DONE
+
+  - Fixed the failing `tests/pager_screen.py` status assertion at the
+    Level 2 notice check. The test expected `"[Level 2 Learner"`; when
+    the pager was already at Level 2, `set_lens` reports "already at
+    Level 2 Learner" and the status row renders as
+    `[already at Level 2 Learner]`, so the old substring did not match.
+  - Changed the assertion to accept `Level 2 Learner` in the status row,
+    which matches both the "already at" and "set" notices. The status
+    text behavior is correct; the test was too strict.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - `python3 tests/pager_screen.py build/tam tests/fixtures` passed
+    (clean env).
+  - `TAM_LEVEL=2 python3 tests/pager_screen.py build/tam tests/fixtures`
+    passed, covering the already-at-Level-2 case described in WHATNOW.
+  - The whole `pager_screen.py` file ran, including
+    `check_vanished_history`.
+
+HANDOFF
+
+  - Test-only fix; no command or corpus version bump, no install, no
+    stage move.
+  - WHATNOW item 2 is resolved.

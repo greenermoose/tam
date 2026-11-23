@@ -650,7 +650,7 @@ def main():
     os.write(master, b"2")
     screen.feed(read_available(master))
     status_row_text = screen.line(rows - 3)
-    assert "[Level 2 Learner" in status_row_text, repr(status_row_text)
+    assert "Level 2 Learner" in status_row_text, repr(status_row_text)
     assert "bg236" in screen.cells[rows - 3][0][1], \
         screen.cells[rows - 3][0][1]
     assert screen.line(rows - 2).rstrip().endswith(stamp), repr(screen.line(rows - 2))
