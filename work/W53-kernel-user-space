@@ -1,0 +1,41 @@
+W53 KERNEL SPACE AND USER SPACE PAGES
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Write knowledge pages for kernel space and user space. Link to those from pages that discuss kernal space and user space programming."
+
+DONE
+
+  - Added glossary pages knowledge/glossary/k/kernel-space.html and
+    knowledge/glossary/u/user-space.html with novice/learner/expert
+    explanations of the privilege boundary, system calls, and kernel/
+    user-space programming tradeoffs.
+  - Updated glossary indexes (K and U), kernel.html, and userspace.html
+    to cross-link the new pages.
+  - Linked kernel/user space pages from programming and systems pages
+    that discuss the boundary, including kernels.html, microkernels.html,
+    c11.html, language-choices.html, kernel-module.html, driver.html,
+    and bpf.html.
+  - Bumped corpus 0.110.0 to 0.111.0 in knowledge/version and updated
+    ROADMAP.md current version, dev row, and delivered history.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus-check passed after the changes.
+  - make corpus refreshed generated indexes; index changes were
+    committed separately when present.
+
+HANDOFF
+
+  - Corpus-only content change; no command version bump, no install,
+    no stage move. Source changes stay in Develop.
+  - More pages mention kernel/user space and may gain first-mention
+    links during future glossary-link passes.

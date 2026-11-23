@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>Kernel space</title>
+<meta name="topic" content="glossary-kernel-space">
+<meta name="summary" content="Kernel space: the privileged part of memory where the kernel and kernel modules run">
+<meta name="keywords" content="glossary-kernel-space, kernel space, kernel-space, kernel, ring 0, privileged, kernel programming, drivers">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/k/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/k/index.html">Terms beginning with K</a> / Kernel space</p></nav>
+
+<h1>Kernel space</h1>
+<p>Kernel space is the privileged part of a computer's memory where the operating system <a href="glossary/k/kernel.html">kernel</a> runs and can directly control hardware.</p>
+<section data-level="novice"><p>Imagine a building with a secure control room. Only authorized staff can enter the control room because it has switches that affect the whole building: power, elevators, alarms, and locks. Kernel space is like that control room. Ordinary programs stay outside in <a href="glossary/u/user-space.html">user space</a>, where they can do their own work safely. When they need hardware or a protected service, they ask the kernel through a controlled request.</p></section>
+<section data-level="learner"><p>On Linux, kernel space code runs with full hardware privilege. The kernel, device drivers loaded as <a href="glossary/k/kernel-module.html">kernel modules</a>, and core subsystems such as scheduling, memory management, and file systems execute there. User-space programs cannot directly read kernel memory or touch device registers; they make <a href="glossary/s/system-call.html">system calls</a> to request kernel services. This boundary protects the system: a bug in a normal program usually crashes only that program, but a bug in kernel-space code can crash or compromise the whole machine.</p><details class="q"><summary><i>Why is kernel-space programming riskier than ordinary application programming?</i></summary><p>Kernel-space code runs with full privilege and shares the kernel’s address space, so mistakes such as bad pointers, race conditions, or incorrect hardware access can corrupt the whole operating system instead of being contained to one process.</p></details></section>
+<section data-level="expert"><p>Kernel space executes at a privileged CPU mode (for example, x86-64 Ring 0 or <a href="glossary/a/arm64.html">ARM64</a> EL1) with access to privileged instructions, page-table control, interrupt handling, and device <a href="glossary/m/mmu.html">MMU</a>/<a href="glossary/i/iommu.html">IOMMU</a> configuration. The user/kernel boundary is enforced by hardware page-table permissions and mode transitions through <code>syscall</code>, exceptions, and interrupts; mitigations such as <a href="glossary/k/kpti.html">KPTI</a> reduce information-leak exposure from shared mappings. Kernel-space programming therefore requires strict discipline around memory ownership, concurrency, preemption, and <a href="glossary/a/abi.html">ABI</a> stability: interfaces such as loadable modules, <a href="glossary/b/bpf.html">BPF</a>, and driver frameworks trade extensibility for a large trusted computing base.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/k/kernel.html">Kernel</a></li><li><a href="glossary/u/user-space.html">User space</a></li><li><a href="systems/operating-systems/kernels.html">Kernel architectures</a></li><li><a href="systems/kernel-and-processes.html">Kernel and processes</a></li></ul>
+</body></html>

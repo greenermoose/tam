@@ -37,7 +37,7 @@ privilege.</p>
 
 <p>A microkernel keeps only the mechanisms that need hardware privilege:
 address spaces, threads, scheduling and interprocess communication (<a href="glossary/i/ipc.html">IPC</a>).
-Device drivers, file systems and the network stack run as separate user-space
+Device drivers, file systems and the network stack run as separate <a href="glossary/u/user-space.html">user-space</a>
 programs, often called servers, that talk to each other and to applications by
 passing messages through the kernel.</p>
 
@@ -66,7 +66,7 @@ cited; both designs remain in wide use.</p>
 <h2>Hybrid kernels</h2>
 
 <p>A hybrid kernel is structured like a microkernel but runs many of its
-services inside kernel space for speed. Windows NT and Apple's <a href="glossary/x/xnu.html">XNU</a>, the kernel
+services inside <a href="glossary/k/kernel-space.html">kernel space</a> for speed. Windows NT and Apple's <a href="glossary/x/xnu.html">XNU</a>, the kernel
 of macOS, are usually described as hybrids. The term is loose; it describes
 where code runs, not a separate theory.</p>
 
@@ -95,6 +95,6 @@ explore a microkernel).</p>
 
 <p>Linux itself moves some work out of the kernel: <a href="glossary/f/fuse.html">FUSE</a> lets file systems run
 as user programs, and <a href="glossary/v/vfio.html">VFIO</a> lets a user program drive a device. These narrow the
-gap for particular cases without changing the overall design.</p>
+gap for particular cases without changing the overall design. See <a href="glossary/k/kernel-space.html">Kernel space</a> and <a href="glossary/u/user-space.html">User space</a> for the privilege boundary behind these designs.</p>
 </body>
 </html>
