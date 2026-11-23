@@ -3,15 +3,15 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W81
+Updated: 2026-11-23, with W82
 
 STATE
 
-  Command 0.68.13 and corpus 0.117.2 on dev. W81 removed the pager
-  `lens_href` wrapper in favor of direct `tam_addr_takes_lens` calls
-  (R1 step 1 follow-up). W80 used `tam_href_put_level` for CLI level
-  injection. W79 shared `tam_addr_take_param`. W78 centralized address
-  kind/lens/route loading in one descriptor table.
+  Command 0.68.14 and corpus 0.117.2 on dev. W82 extracted shared
+  `read_csi_seq` for sandbox and main pager ESC/CSI parsing (R1 step 4
+  pilot). W81-W78 continued R1 step 1 address parsing consolidation:
+  shared route descriptors, `tam_addr_take_param`, CLI `tam_href_put_level`,
+  and direct `tam_addr_takes_lens` use.
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -84,10 +84,10 @@ NEXT
      ad hoc; characterize aliases, fold/path params, relative Guide
      links, and external opener confirmation, then use one parser/shape
      where it reduces duplication without changing behavior.
-  2. R1 step 4: pilot shared key and UTF-8 code from libtam in
-     duplicate escape-sequence paths; reuse UTF-8 decoding before
-     changing display-width policy. Keep renderer capability
-     detection, Linux-console behavior, and terminal handoff.
+  2. R1 step 4 follow-up: continue piloting shared key and UTF-8 code
+     from libtam in duplicate escape-sequence paths; reuse UTF-8
+     decoding before changing display-width policy. Keep renderer
+     capability detection, Linux-console behavior, and terminal handoff.
   3. R1 step 3 follow-up: measure whether keeping one index per
      pager session is worthwhile and how it refreshes if corpus
      changes; preserve ranking algorithm until measurements justify

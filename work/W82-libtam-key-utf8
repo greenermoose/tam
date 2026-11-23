@@ -1,0 +1,42 @@
+W82 PAGER CSI PARSING DEDUP
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 2 / R1 step 4: "pilot shared key and UTF-8 code
+  from libtam in duplicate escape-sequence paths; reuse UTF-8 decoding
+  before changing display-width policy. Keep renderer capability
+  detection, Linux-console behavior, and terminal handoff."
+
+DONE
+
+  - Extracted `read_csi_seq` in `src/pager_input.c` to read a CSI
+    sequence after '[' from a first byte, shared by sandbox and main
+    pager ESC handling. Preserved existing timeout/sync-reply/bare-ESC
+    behavior.
+  - Bumped command to 0.68.14 (patch) and updated development plan,
+    ROADMAP, and WHATNOW.
+
+NOT DONE / FOLLOW-UP
+
+  - Did not yet replace pager key parsing with libtam `tam_key_*` or
+    reuse libtam UTF-8 helpers in pager input editing; this is a small
+    dedup pilot only.
+  - R1 step 1 follow-up and R1 step 3 follow-up remain.
+
+VERIFICATION
+
+  - make command: built successfully (tam command 0.68.14).
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed.
+  - make check-repo: not run in this slice.
+  - make test-command: not run in this slice; pre-existing brittle B3
+    PTY fragment assertion in tests/run.sh remains known.
+
+HANDOFF
+
+  - Continue R1 step 4 follow-up: evaluate safe pilot use of libtam
+    key/UTF-8 helpers in duplicate escape-sequence paths without
+    changing behavior.

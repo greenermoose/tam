@@ -144,6 +144,27 @@ static void read_sync_reply(pager_t *st, int fd)
     }
 }
 
+/* Read CSI bytes after '[' into seq, starting with `first`. Returns 1 when
+ * a final byte (A-Z, a-z, ~) is seen, 0 on timeout or read error. */
+static int read_csi_seq(int fd, char *seq, size_t cap, unsigned char first)
+{
+    size_t n = 0;
+    if (cap == 0) return 0;
+    seq[n++] = (char)first;
+    if (!((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z') ||
+          first == '~')) {
+        unsigned char c2;
+        while (n < cap - 1 && read_byte(fd, 60, &c2) == 1) {
+            seq[n++] = (char)c2;
+            if ((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') ||
+                c2 == '~')
+                break;
+        }
+    }
+    seq[n] = '\0';
+    return 1;
+}
+
 static void pager_left_arrow(pager_t *st)
 {
     if (lens_line_here(st)) {
@@ -182,25 +203,14 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
             return 1;
         }
         if (c1 != '[') return 1;
-        char seq[16];
-        size_t n = 0;
         unsigned char c2;
         if (read_byte(st->input_fd, 60, &c2) != 1) return 1;
         if (c2 == '?') {
             read_sync_reply(st, st->input_fd);
             return 1;
         }
-        seq[n++] = (char)c2;
-        if (!((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') || c2 == '~')) {
-            while (n < sizeof(seq) - 1 && read_byte(st->input_fd, 60, &c2) == 1) {
-                seq[n++] = (char)c2;
-                if ((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') ||
-                    c2 == '~') {
-                    break;
-                }
-            }
-        }
-        seq[n] = '\0';
+        char seq[16];
+        read_csi_seq(st->input_fd, seq, sizeof(seq), c2);
         if (strcmp(seq, "A") == 0) {
             tam_sandbox_history_move(sb, -1);
         } else if (strcmp(seq, "B") == 0) {
@@ -418,25 +428,14 @@ static void handle_key_inner(pager_t *st, unsigned char c)
         if (c1 != '[') {
             return;
         }
-        char seq[16];
-        size_t n = 0;
         unsigned char c2;
         if (read_byte(st->input_fd, 60, &c2) != 1) return;
         if (c2 == '?') {
             read_sync_reply(st, st->input_fd);
             return;
         }
-        seq[n++] = (char)c2;
-        if (!((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') || c2 == '~')) {
-            while (n < sizeof(seq) - 1 && read_byte(st->input_fd, 60, &c2) == 1) {
-                seq[n++] = (char)c2;
-                if ((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') ||
-                    c2 == '~') {
-                    break;
-                }
-            }
-        }
-        seq[n] = '\0';
+        char seq[16];
+        read_csi_seq(st->input_fd, seq, sizeof(seq), c2);
         if (strcmp(seq, "A") == 0) {
             move_line_up(st);
         } else if (strcmp(seq, "B") == 0) {
