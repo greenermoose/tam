@@ -60,6 +60,36 @@ int tam_addr_param(const char *href, const char *key, char *buf, size_t cap)
     return 0;
 }
 
+int tam_addr_take_param(char *href, const char *key, char *buf, size_t cap)
+{
+    if (href == NULL || key == NULL) return 0;
+    size_t klen = strlen(key);
+    char *q = strchr(href, '?');
+    if (q == NULL) return 0;
+    char *p = q + 1;
+    while (*p != '\0' && *p != '#') {
+        char *end = p + strcspn(p, "&#");
+        if ((size_t)(end - p) > klen && strncmp(p, key, klen) == 0 && p[klen] == '=') {
+            if (buf != NULL && cap > 0) {
+                size_t n = (size_t)(end - (p + klen + 1));
+                if (n >= cap) n = cap - 1;
+                memcpy(buf, p + klen + 1, n);
+                buf[n] = '\0';
+            }
+            if (*end == '&') {
+                memmove(p, end + 1, strlen(end + 1) + 1);
+            } else {
+                char *cut = (p == q + 1) ? q : (p - 1);
+                memmove(cut, end, strlen(end) + 1);
+            }
+            return 1;
+        }
+        if (*end != '&') break;
+        p = end + 1;
+    }
+    return 0;
+}
+
 /* The lens a view address names with level=, or 0 for all levels. */
 static unsigned view_level(const char *href)
 {

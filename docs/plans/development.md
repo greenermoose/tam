@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.11 (patch): share query param take/remove. Add `tam_addr_take_param` in `src/address.c` and use it from `src/depth.c` and `src/fold.c` (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.10 (patch): centralize address route descriptors. Drive address kind, lens eligibility, and route loading from one descriptor table in `src/address.c` (R1 step 1).
 - **2026-11-23:** Command 0.68.9 (patch): add sorted index path lookup table. Build a case-insensitive path-sorted view over index entries and use it for `tam_index_lookup_path`, preserving first-entry behavior (R1 step 3).
 - **2026-11-23:** Command 0.68.8 (patch): deduplicate pager nav snapshot/push/traverse helpers. Share nav_state_free/nav_stack_clear/nav_stack_push/nav_traverse and consolidate history/forward cleanup paths (R1 step 2).

@@ -40,6 +40,10 @@ int tam_addr_takes_lens(const char *href);
  * into buf. Returns 1 when the key is present. */
 int tam_addr_param(const char *href, const char *key, char *buf, size_t cap);
 
+/* Remove `key` from the query in `href` in place. Returns 1 when present
+ * and copies its raw value into buf (no percent-decoding). */
+int tam_addr_take_param(char *href, const char *key, char *buf, size_t cap);
+
 /* The guide root (may be NULL), optional standard input, and output mode. */
 typedef struct {
     const char *root;

@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
+#include "address.h"
 #include "fold.h"
 #include "html_scan.h"
 
@@ -222,19 +223,8 @@ char *tam_fold_split_href(const char *href, char **open)
     *open = NULL;
     char *copy = strdup(href);
     if (!copy) return NULL;
-    char *q = strchr(copy, '?');
-    if (!q) return copy;
-    char *p = q + 1;
-    while (*p) {
-        char *end = p + strcspn(p, "&#");
-        if (!strncmp(p, "fold=", 5)) {
-            *open = strndup(p + 5, (size_t)(end - p - 5));
-            if (*end == '&') memmove(p, end + 1, strlen(end + 1) + 1);
-            else { char *cut = p == q + 1 ? q : p - 1; memmove(cut, end, strlen(end) + 1); }
-            break;
-        }
-        if (*end != '&') break;
-        p = end + 1;
-    }
+    char val[4096];
+    if (tam_addr_take_param(copy, "fold", val, sizeof(val)))
+        *open = strdup(val);
     return copy;
 }

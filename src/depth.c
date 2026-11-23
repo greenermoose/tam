@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "address.h"
 #include "depth.h"
 #include "html_scan.h"
 #include "version.h"
@@ -215,48 +216,12 @@ void tam_lens_set(unsigned level)
     free(path);
 }
 
-static int take_query_param(char *href, const char *key, char *out, size_t cap)
-{
-    if (href == NULL || key == NULL) {
-        return 0;
-    }
-    size_t klen = strlen(key);
-    char *q = strchr(href, '?');
-    if (q == NULL) {
-        return 0;
-    }
-    char *p = q + 1;
-    while (*p != '\0' && *p != '#') {
-        char *end = p + strcspn(p, "&#");
-        if ((size_t)(end - p) > klen && strncmp(p, key, klen) == 0 && p[klen] == '=') {
-            if (out != NULL && cap > 0) {
-                size_t n = (size_t)(end - (p + klen + 1));
-                if (n >= cap) {
-                    n = cap - 1;
-                }
-                memcpy(out, p + klen + 1, n);
-                out[n] = '\0';
-            }
-            if (*end == '&') {
-                memmove(p, end + 1, strlen(end + 1) + 1);
-            } else {
-                char *cut = (p == q + 1) ? q : (p - 1);
-                memmove(cut, end, strlen(end) + 1);
-            }
-            return 1;
-        }
-        if (*end != '&') {
-            break;
-        }
-        p = end + 1;
-    }
-    return 0;
-}
+/* Query param read/remove lives in address.c (tam_addr_take_param). */
 
 int tam_href_take_level(char *href, unsigned *level)
 {
     char value[32];
-    if (!take_query_param(href, "level", value, sizeof(value))) {
+    if (!tam_addr_take_param(href, "level", value, sizeof(value))) {
         return 0;
     }
     unsigned bit = 0;
@@ -292,7 +257,7 @@ int tam_href_take_path(char *href, char *out, size_t cap, int *cleared)
         *cleared = 0;
     }
     char value[256];
-    if (!take_query_param(href, "path", value, sizeof(value))) {
+    if (!tam_addr_take_param(href, "path", value, sizeof(value))) {
         return 0;
     }
     if (value[0] == '\0' || strcasecmp(value, "none") == 0 ||
