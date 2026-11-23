@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>NSEC (Next Secure)</title>
+<meta name="topic" content="glossary-nsec">
+<meta name="summary" content="NSEC: a DNSSEC record that proves a name or record type does not exist by naming the next existing name in a signed zone.">
+<meta name="keywords" content="glossary-nsec, nsec, next secure, dnssec, dns, authenticated denial of existence">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/n/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NSEC (Next Secure)</p></nav>
+
+<h1>NSEC (Next Secure)</h1>
+<p>A <a href="glossary/d/dnssec.html">DNSSEC</a> record that proves a <a href="glossary/d/dns.html">DNS</a> name or record type does not exist.</p>
+<section data-level="novice"><p>Normal DNS can say "that name does not exist," but DNSSEC needs a way to prove that answer is real and not forged. An NSEC record does that by pointing from one existing signed name to the next existing signed name in the zone. If the name you asked for falls between them, the resolver can see that it truly is missing.</p></section>
+<section data-level="learner"><p>An NSEC record lists the next owner name in the zone's canonical order and the record types that exist at the current owner name. For a missing name, a validator uses NSEC records to prove there is a gap. For an existing name with a missing type, the NSEC record at that name shows which types are present. Because NSEC records form a chain through zone names, they can allow zone walking: an attacker can follow the chain to enumerate names in the zone.</p><details class="q"><summary><i>Why might a zone use NSEC3 instead of NSEC?</i></summary><p>NSEC3 hashes owner names so the chain does not directly reveal every name in plain text. It makes casual zone walking harder, though it does not make name enumeration impossible against determined attackers.</p></details></section>
+<section data-level="expert"><p>NSEC (RFC 4034/4035) provides authenticated denial of existence by asserting the canonical next owner name and an RR type bitmap. A proving non-existence response may include NSEC records covering the QNAME, a wildcard, and/or the closest encloser, depending on the case. NSEC enables trivial zone enumeration because the chain is traversable. NSEC3 (RFC 5155) replaces plaintext next names with hashed owner names and adds opt-out behavior, trading direct disclosure for offline dictionary attack resistance limits.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/d/dnssec.html">DNSSEC (Domain Name System Security Extensions)</a></li><li><a href="glossary/n/nxdomain.html">NXDOMAIN (Non-Existent Domain)</a></li></ul>
+</body></html>

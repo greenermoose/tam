@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>NSS (Name Service Switch)</title>
+<meta name="topic" content="glossary-nss">
+<meta name="summary" content="NSS: the Name Service Switch, a glibc mechanism that decides which sources provide names such as users, hosts, and services.">
+<meta name="keywords" content="glossary-nss, nss, name service switch, nsswitch.conf, glibc, getent, hosts, passwd">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/n/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NSS (Name Service Switch)</p></nav>
+
+<h1>NSS (Name Service Switch)</h1>
+<p>The Name Service Switch, a Linux/glibc mechanism for choosing where system name lookups come from.</p>
+<section data-level="novice"><p>When a program asks "what is the IP address for this name?" or "which user has this ID?", the system may have several possible sources: local files, <a href="glossary/d/dns.html">DNS</a>, or other services. NSS is the switchboard that decides which sources to check, and in what order. On most Linux systems, its rules live in <code>/etc/nsswitch.conf</code>. In Linux system configuration, NSS usually means Name Service Switch, not Mozilla Network Security Services.</p></section>
+<section data-level="learner"><p>NSS databases include <code>passwd</code>, <code>group</code>, <code>hosts</code>, and <code>services</code>. Each line in <code>/etc/nsswitch.conf</code> lists modules, such as <code>hosts: files mdns4_minimal [NOTFOUND=return] dns</code>. Programs that use glibc lookups, such as <code>getent hosts example.com</code>, follow NSS rules. This is why installing <code>nss-mdns</code> can make <code>.local</code> names resolve for ordinary applications, not just Avahi tools.</p><details class="q"><summary><i>Why can dig and getent give different answers for the same host name?</i></summary><p><code>dig</code> asks DNS directly. <code>getent</code> uses NSS, so it may consult <code>/etc/hosts</code>, mDNS, DNS, or other configured sources in the order <code>nsswitch.conf</code> specifies.</p></details></section>
+<section data-level="expert"><p>glibc NSS loads backend modules such as <code>libnss_files.so</code>, <code>libnss_dns.so</code>, or <code>libnss_mdns.so</code> to implement database lookups. Action rules (<code>SUCCESS</code>, <code>NOTFOUND</code>, <code>UNAVAIL</code>, <code>TRYAGAIN</code>) control fallback behavior, which is why module order and status conditions matter for correctness and latency. NSS modules run in the calling process's address space, so they are a security and stability boundary; static linking with glibc also has limited NSS support because modules are dynamically loaded. systemd provides nss-systemd/nss-resolve modules that integrate local users and resolver state into the same lookup path.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/d/dns.html">DNS (Domain Name System)</a></li><li><a href="glossary/a/avahi.html">Avahi</a></li></ul>
+</body></html>

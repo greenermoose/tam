@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>EDNS0 (Extension Mechanisms for DNS 0)</title>
+<meta name="topic" content="glossary-edns0">
+<meta name="summary" content="EDNS0: DNS extension mechanism that uses an OPT record to carry larger UDP sizes and extended flags.">
+<meta name="keywords" content="glossary-edns0, edns0, edns, extension mechanisms for dns, dns, opt record, udp">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/e/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EDNS0 (Extension Mechanisms for DNS 0)</p></nav>
+
+<h1>EDNS0 (Extension Mechanisms for DNS 0)</h1>
+<p>An extension mechanism that lets modern <a href="glossary/d/dns.html">DNS</a> messages carry extra capabilities and larger payloads.</p>
+<section data-level="novice"><p>Original DNS messages were small and had limited room for new features. EDNS0 is a way for DNS clients and servers to say "I support newer DNS features." It helps DNS carry larger replies and extra flags without changing the basic DNS message format in an incompatible way.</p></section>
+<section data-level="learner"><p>EDNS0 (often written EDNS(0)) adds an OPT pseudo-record in the DNS additional section. It is not a normal DNS record; it carries metadata such as the sender's UDP payload size and extended flags. <a href="glossary/d/dnssec.html">DNSSEC</a> uses the EDNS0 DO (DNSSEC OK) bit to request DNSSEC records. With EDNS0, DNS over UDP can use payloads larger than the old 512-byte limit, though large packets may still be fragmented or fall back to TCP.</p><details class="q"><summary><i>Why does EDNS0 matter for DNSSEC?</i></summary><p>DNSSEC replies include extra records such as signatures, making them larger. EDNS0 lets the client advertise support for larger UDP payloads and set the DO bit to ask for DNSSEC data.</p></details></section>
+<section data-level="expert"><p>EDNS0 is specified by RFC 6891. The OPT RR encodes extended RCODE bits, UDP payload size, version, flags, and option codes (RDATA options such as NSID, COOKIE, ECS, or padding). Because OPT is hop-by-hop metadata, intermediaries must handle it carefully; broken middleboxes have historically caused EDNS/DNSSEC interoperability problems, leading to fallback behavior in resolvers. EDNS0 is also the transport for modern DNS extensions, but it does not itself provide confidentiality or authentication.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/d/dns.html">DNS (Domain Name System)</a></li><li><a href="glossary/d/dnssec.html">DNSSEC (Domain Name System Security Extensions)</a></li></ul>
+</body></html>
