@@ -1,4 +1,5 @@
 #include <tam.h>
+#include <tam_uni.h>
 
 #include "address.h"
 #include "depth.h"
@@ -217,10 +218,10 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
             tam_sandbox_history_move(sb, 1);
         } else if (strcmp(seq, "C") == 0) {
             if (sb->cursor < sb->input_len) {
-                sb->cursor++;
-                while (sb->cursor < sb->input_len &&
-                       (((unsigned char)sb->input[sb->cursor] & 0xC0) == 0x80))
-                    sb->cursor++;
+                uint32_t cp;
+                size_t n = tam_utf8_decode(sb->input + sb->cursor,
+                                           sb->input_len - sb->cursor, &cp);
+                sb->cursor += n;
             }
         } else if (strcmp(seq, "D") == 0) {
             if (sb->cursor == 0) {
@@ -237,10 +238,10 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
             sb->cursor = sb->input_len;
         } else if (strcmp(seq, "3~") == 0) {
             if (sb->cursor < sb->input_len) {
-                size_t next = sb->cursor + 1;
-                while (next < sb->input_len &&
-                       (((unsigned char)sb->input[next] & 0xC0) == 0x80))
-                    next++;
+                uint32_t cp;
+                size_t next = sb->cursor + tam_utf8_decode(sb->input + sb->cursor,
+                                                           sb->input_len - sb->cursor,
+                                                           &cp);
                 memmove(sb->input + sb->cursor, sb->input + next,
                         sb->input_len - next + 1);
                 sb->input_len -= (next - sb->cursor);
