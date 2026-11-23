@@ -1,5 +1,6 @@
 #include <tam.h>
 
+#include "address.h"
 #include "discovery.h"
 #include "html.h"
 #include "index.h"
@@ -84,37 +85,8 @@ tam_document_t *tam_guide_search_uri_document(const char *root,
                                               const char *uri,
                                               int width)
 {
-    const char *p = uri != NULL ? strchr(uri, '?') : NULL;
-    if (p == NULL) return tam_guide_search_document(root, NULL, width);
-    p++;
-    while (*p != '\0') {
-        const char *end = strchr(p, '&');
-        size_t n = end ? (size_t)(end - p) : strlen(p);
-        if (n >= 6 && strncmp(p, "query=", 6) == 0) {
-            char *raw = strndup(p + 6, n - 6);
-            if (raw == NULL) return NULL;
-            size_t read = 0, write = 0, len = strlen(raw);
-            while (read < len) {
-                if (raw[read] == '%' && read + 2 < len) {
-                    char hex[3] = {raw[read + 1], raw[read + 2], 0};
-                    char *hex_end = NULL;
-                    unsigned long value = strtoul(hex, &hex_end, 16);
-                    if (hex_end == hex + 2) {
-                        raw[write++] = (char)value;
-                        read += 3;
-                        continue;
-                    }
-                }
-                raw[write++] = raw[read] == '+' ? ' ' : raw[read];
-                read++;
-            }
-            raw[write] = '\0';
-            tam_document_t *doc = tam_guide_search_document(root, raw, width);
-            free(raw);
-            return doc;
-        }
-        if (end == NULL) break;
-        p = end + 1;
-    }
+    char query[4096];
+    if (tam_addr_param(uri, "query", query, sizeof(query)))
+        return tam_guide_search_document(root, query, width);
     return tam_guide_search_document(root, NULL, width);
 }

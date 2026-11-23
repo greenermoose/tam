@@ -1,9 +1,9 @@
 # B2 — File ownership lookup claims nonexistent paths
 
-- **Status:** Confirmed
+- **Status:** Fix available
 - **Severity:** medium
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** Open
+- **Fixed in:** 0.68.4
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -32,7 +32,8 @@ failed. It treats location as proof of ownership.
 
 ## Fix and verification
 
-Check the deployment manifest for specific entries and give versioned
-trees an existence and canonical-path check. Exercise a missing child,
-an existing unowned child, a known manifest member and a native package
-lookup using a fixture.
+`path_owned_by_cultivar` now checks deployment manifest entries first,
+then only accepts cultivar prefix matches when `realpath` succeeds
+(existence and canonical-path evidence). Added B2 tests in `tests/run.sh`
+for a missing child under a cultivar directory, an existing unowned
+child with native package lookup fixture, and a known manifest member.

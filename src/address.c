@@ -23,7 +23,7 @@ tam_addr_kind_t tam_addr_kind(const char *href)
     if (href == NULL || href[0] == '\0') return TAM_ADDR_NONE;
     if (href[0] == '#') return TAM_ADDR_FRAGMENT;
     if (strcmp(href, "-") == 0 || href[0] == '<') return TAM_ADDR_STDIN;
-    if (strstr(href, "://") != NULL) return TAM_ADDR_EXTERNAL;
+
     if (href[strcspn(href, ":/?#")] != ':' || has_prefix(href, "page:"))
         return TAM_ADDR_GUIDE;
     if (has_prefix(href, "man:")) return TAM_ADDR_MAN;

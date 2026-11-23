@@ -1,0 +1,48 @@
+W70 B2 B3 WHERE OWNERSHIP AND SEARCH ADDRESS PARSING
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1: "B2, B3: see their records for cause and fix."
+
+DONE
+
+  - B2: `path_owned_by_cultivar` in `src/tam.c` now checks deployment
+    manifest entries first and only accepts cultivar prefix matches when
+    `realpath` succeeds (existence and canonical-path evidence). Added
+    run.sh tests for missing cultivar child, existing unowned child with
+    native package lookup fixture, and known manifest member.
+  - B3: removed early `://`-anywhere external classification in
+    `src/address.c` `tam_addr_kind`; known tam schemes fall through to
+    final external fallback. `tam_guide_search_uri_document` in
+    `src/discovery.c` now uses shared `tam_addr_param` decoding, fixing
+    fragment consumption and sharing parameter parsing. Added run.sh
+    command-line tests for fragments, literal/percent-encoded URL query
+    values, and encoded delimiters, plus a pager PTY smoke test.
+  - Updated `bugs/B2-where-claims-missing-files.md` and
+    `bugs/B3-guide-search-address-parsing.md` to Fix available.
+  - Bumped command to 0.68.4 (patch): `src/version.h`, `tests/run.sh`,
+    `docs/plans/development.md`, `ROADMAP.md`.
+  - Updated `work/WHATNOW`: recorded W70, removed B2/B3 from NEXT,
+    renumbered NEXT, added B2/B3 to WAITING FOR FRED.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make command: built successfully.
+  - Manual smoke: B2 missing child falls through to native lookup; known
+    manifest member reported owned. B3 fragment, literal URL, and
+    percent-encoded URL query cases return Guide Search with expected query.
+  - B3 pager PTY smoke test passed standalone.
+  - make check-repo: passed.
+
+HANDOFF
+
+  - B2 and B3 fixes are available in source; need verification in a build
+    Fred runs.

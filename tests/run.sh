@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.68.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.68.4' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -4269,6 +4269,121 @@ run_case('', 'cannot start tam-start')
 PY
     pass "tam:start PTY: suspends pager, runs tam-start, resumes pager, and reports missing binary"
 fi
+
+# B2: tam where must not claim nonexistent paths by prefix alone.
+b2dir=$(mktemp -d "${TMPDIR:-/tmp}/tam-b2.XXXXXX")
+mkdir -p "$b2dir/state/manifests" "$b2dir/bin"
+cat > "$b2dir/state/active.json" <<'JSON'
+{"current":"aaaaaaaaaaaaaaaaaaaaaaaa"}
+JSON
+cat > "$b2dir/state/manifests/aaaaaaaaaaaaaaaaaaaaaaaa.json" <<'JSON'
+{"usr/share/doc/tamlinux/manifest-owned.txt":{"path":"usr/share/doc/tamlinux/manifest-owned.txt"}}
+JSON
+cat > "$b2dir/bin/pacman" <<'SH'
+#!/bin/sh
+if [ "$1" = "-Qo" ]; then
+  echo "pacman-fixture $3"
+  exit 0
+fi
+exit 1
+SH
+chmod +x "$b2dir/bin/pacman"
+touch "$b2dir/unowned-child.txt"
+
+# Missing child under a known cultivar directory must not be claimed.
+if TAM_STATE_DIR="$b2dir/state" PATH="$b2dir/bin:$PATH" "$TAM" where /usr/share/doc/tamlinux/definitely-not-real-b2 >/tmp/tam-b2-missing.out 2>&1; then
+    if grep -q 'owned by tamlinux' /tmp/tam-b2-missing.out; then
+        fail "B2: missing child under cultivar dir claimed as owned"
+    fi
+else
+    # Falling through to native lookup failure is acceptable; ownership claim is not.
+    if grep -q 'owned by tamlinux' /tmp/tam-b2-missing.out; then
+        fail "B2: missing child under cultivar dir claimed as owned"
+    fi
+fi
+pass "B2: missing cultivar child is not claimed by prefix"
+
+# Existing unowned child falls through to native package lookup fixture.
+TAM_STATE_DIR="$b2dir/state" PATH="$b2dir/bin:$PATH" "$TAM" where "$b2dir/unowned-child.txt" >/tmp/tam-b2-unowned.out 2>&1 || true
+grep -q 'pacman-fixture' /tmp/tam-b2-unowned.out || fail "B2: existing unowned child did not use native package lookup fixture"
+if grep -q 'owned by tamlinux' /tmp/tam-b2-unowned.out; then
+    fail "B2: existing unowned child claimed as owned by tamlinux"
+fi
+pass "B2: existing unowned child uses native package lookup"
+
+# Known manifest member is owned by tamlinux.
+TAM_STATE_DIR="$b2dir/state" PATH="$b2dir/bin:$PATH" "$TAM" where /usr/share/doc/tamlinux/manifest-owned.txt >/tmp/tam-b2-manifest.out 2>&1
+grep -q 'owned by tamlinux' /tmp/tam-b2-manifest.out || fail "B2: known manifest member not reported as owned"
+pass "B2: known manifest member is reported as owned"
+
+rm -rf "$b2dir" /tmp/tam-b2-missing.out /tmp/tam-b2-unowned.out /tmp/tam-b2-manifest.out
+
+# B3: tam:search address parsing must preserve query boundaries.
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --pipe 'tam:search?query=pipelines' >/tmp/tam-b3-base.out
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --pipe 'tam:search?query=pipelines#details' >/tmp/tam-b3-frag.out
+cmp -s /tmp/tam-b3-base.out /tmp/tam-b3-frag.out || fail "B3: fragment changed tam:search query"
+pass "B3: fragment does not change tam:search query"
+
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --pipe 'tam:search?query=https://example.invalid' >/tmp/tam-b3-url.out
+grep -q 'Guide Search' /tmp/tam-b3-url.out || fail "B3: literal URL query misrouted"
+pass "B3: literal URL query reaches Guide Search"
+
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --pipe 'tam:search?query=https%3A%2F%2Fexample.invalid' >/tmp/tam-b3-urlenc.out
+grep -q 'Guide Search' /tmp/tam-b3-urlenc.out || fail "B3: percent-encoded URL query misrouted"
+pass "B3: percent-encoded URL query reaches Guide Search"
+
+TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show --pipe 'tam:search?query=pipe%26line' >/tmp/tam-b3-encdelim.out
+grep -q 'Results for pipe&line' /tmp/tam-b3-encdelim.out || fail "B3: encoded delimiter not preserved in query"
+pass "B3: encoded delimiter preserved in tam:search query"
+
+rm -f /tmp/tam-b3-base.out /tmp/tam-b3-frag.out /tmp/tam-b3-url.out /tmp/tam-b3-urlenc.out /tmp/tam-b3-encdelim.out
+
+# B3 pager entry point: initial address with fragment reaches Guide Search.
+TAM="$TAM" ROOT="$root" python3 - <<'PY'
+import os, pty, select, signal, struct, fcntl, termios, time, sys
+tam = os.environ['TAM']
+root = os.environ['ROOT']
+env = os.environ.copy()
+env['TAM_KNOWLEDGE_DIR'] = os.path.join(root, 'tests/fixtures/guide')
+env['TERM'] = 'xterm-256color'
+master, slave = pty.openpty()
+fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 80, 0, 0))
+pid = os.fork()
+if pid == 0:
+    os.close(master)
+    os.setsid()
+    os.dup2(slave, 0); os.dup2(slave, 1); os.dup2(slave, 2)
+    os.close(slave)
+    os.execve(tam, [tam, 'show', 'tam:search?query=pipelines#details'], env)
+os.close(slave)
+buf = b''
+deadline = time.time() + 3
+while time.time() < deadline:
+    r, _, _ = select.select([master], [], [], 0.1)
+    if r:
+        try:
+            chunk = os.read(master, 4096)
+        except OSError:
+            break
+        if not chunk:
+            break
+        buf += chunk
+        if b'Results for pipelines' in buf:
+            break
+try:
+    os.write(master, b'q')
+except OSError:
+    pass
+try:
+    os.waitpid(pid, 0)
+except ChildProcessError:
+    pass
+os.close(master)
+text = buf.decode('utf-8', 'replace')
+assert 'Results for pipelines' in text, text
+assert 'pipelines#details' not in text, text
+PY
+pass "B3: pager entry point handles tam:search fragment"
 
 printf 'All tam command tests passed.\n'
 

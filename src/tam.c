@@ -125,16 +125,8 @@ static bool path_owned_by_cultivar(const char *path)
     };
     char resolved[PATH_MAX];
     const char *candidates[2] = { path, NULL };
-    if (realpath(path, resolved) != NULL) candidates[1] = resolved;
-
-    for (int i = 0; i < 2; i++) {
-        const char *c = candidates[i];
-        if (!c) continue;
-        for (int j = 0; prefixes[j]; j++) {
-            if (strncmp(c, prefixes[j], strlen(prefixes[j])) == 0)
-                return true;
-        }
-    }
+    bool have_resolved = realpath(path, resolved) != NULL;
+    if (have_resolved) candidates[1] = resolved;
 
     const char *state = getenv("TAM_STATE_DIR");
     if (!state || !state[0]) state = "/var/lib/tamlinux";
@@ -156,6 +148,13 @@ static bool path_owned_by_cultivar(const char *path)
         if (!*rel) continue;
         if (manifest && manifest_has_path(manifest, rel))
             return true;
+    }
+
+    if (have_resolved) {
+        for (int j = 0; prefixes[j]; j++) {
+            if (strncmp(resolved, prefixes[j], strlen(prefixes[j])) == 0)
+                return true;
+        }
     }
     return false;
 }

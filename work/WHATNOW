@@ -3,14 +3,19 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W69
+Updated: 2026-11-23, with W70
 
 STATE
 
-  Command 0.68.3 and corpus 0.117.2 on dev. W69 fixed B5: catalog
-  now accepts `--level` via `tam_addr_takes_lens`; added regression
-  test for flag/param equivalence and explicit level preservation;
-  B5 verified by Fred (2026-11-23). W68 added a complete
+  Command 0.68.4 and corpus 0.117.2 on dev. W70 fixed B2 and B3:
+  `tam where` now requires manifest or existence/canonical-path
+  evidence for cultivar ownership, and Guide Search address parsing
+  no longer treats `://` in query values as external or consumes
+  fragments in the query. B2 and B3 fixes are available in source.
+  W69 fixed B5: catalog now accepts `--level` via
+  `tam_addr_takes_lens`; added regression test for flag/param
+  equivalence and explicit level preservation; B5 verified by Fred
+  (2026-11-23). W68 added a complete
   redirection table with examples to
   knowledge/glossary/r/redirection.html. W67 fixed B4 in
   pager_nav.c pager_reflow: restore selected link by ID first, then
@@ -74,35 +79,34 @@ STATE
 
 NEXT
 
-  1. B2, B3: see their records for cause and fix.
-  2. Unchecked realloc in history_push, forward_push
+  1. Unchecked realloc in history_push, forward_push
      (pager_nav.c) and link building (pager_links.c). Check
      growth, build the snapshot before incrementing the count,
      and fail the caller cleanly.
-  3. src/pager_screen.c:51 passes a null row pointer to memcmp
+  2. src/pager_screen.c:51 passes a null row pointer to memcmp
      when a row is empty (UBSan: null pointer passed as argument
      2). Guard the empty-row case. Harmless today but undefined
      behaviour.
-  4. Inference HTTP read loop in src/ask.c: use one monotonic
+  3. Inference HTTP read loop in src/ask.c: use one monotonic
      deadline and a response size cap (R1, open).
 
   Code improvements, after the bugs:
 
-  5. history_push and forward_push are line-for-line copies, and
+  4. history_push and forward_push are line-for-line copies, and
      go_back and go_forward are near copies. Replace with one
      snapshot builder and one nav_state_free helper; the free
      sequence is repeated in pager_return_from_help,
      forward_clear and pager.c cleanup. This is step 2 of the
      R1 refactoring order and prevents B6 recurring.
-  6. Add a make target for an ASan and UBSan build with
+  5. Add a make target for an ASan and UBSan build with
      UBSAN_OPTIONS log_path set, so sanitizer output stays out
      of the PTY tests.
-  7. Test go_forward after a vanished page, which W41 did not
+  6. Test go_forward after a vanished page, which W41 did not
      cover.
-  8. Then the R1 order: central address parsing, index lookup
+  7. Then the R1 order: central address parsing, index lookup
      table, shared key and UTF-8 code from libtam.
 
-  9. Future glossary work: write glossary pages for technical
+  8. Future glossary work: write glossary pages for technical
      terms used in the corpus that have none. The scan found
      VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
      SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,
@@ -115,6 +119,9 @@ WAITING FOR FRED
 
   - Version bump for the B6 fix (command, src/version.h) and a
     build to verify it. The bug stays "Fix available" until then.
+  - B2 and B3 fixes available in source (command 0.68.4): `tam where`
+    requires ownership evidence; `tam:search` parsing preserves query
+    boundaries. Needs verification in a build Fred runs.
   - Tamlinux 0.6.31 candidate preparation and packaged
     verification.
 
