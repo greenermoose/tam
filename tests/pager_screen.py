@@ -252,6 +252,40 @@ def check_vanished_history(binary):
         assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, status
 
 
+def check_vanished_forward(binary):
+    import tempfile
+    # A forward entry whose page has disappeared stays on the stack intact:
+    # repeated forward presses keep reporting the failure and the pager survives.
+    with tempfile.TemporaryDirectory() as gone:
+        page = ('<!DOCTYPE html><html><head><title>%s</title></head><body>'
+                '<h1>%s</h1><p>%s</p></body></html>')
+        for name, body in (("index", "Index"), ("b", "Plain page B")):
+            with open(f"{gone}/{name}.html", "w") as f:
+                f.write(page % (body, body, "text"))
+        with open(f"{gone}/a.html", "w") as f:
+            f.write(page % ("A", "A", 'Go to <a href="b.html">Page B</a>.'))
+        pid, master, screen, _ = collect_screen(
+            binary, gone, "xterm-256color", 24, 80, page="page:a.html")
+        os.write(master, b"\t")
+        screen.feed(read_available(master, 0.3))
+        os.write(master, b"\r")
+        screen.feed(read_available(master, 0.4))
+        assert "Plain page B" in screen.line(0), screen.line(0)
+        os.write(master, b"\x1b[D")
+        screen.feed(read_available(master, 0.4))
+        assert "A" in screen.line(0), screen.line(0)
+        os.remove(f"{gone}/b.html")
+        for _ in range(2):
+            os.write(master, b"\x1b[C")
+            screen.feed(read_available(master, 0.4))
+            assert any("cannot open" in screen.line(r) for r in range(screen.rows)), \
+                [screen.line(r) for r in range(screen.rows)]
+        os.write(master, b"q")
+        _, status = os.waitpid(pid, 0)
+        os.close(master)
+        assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, status
+
+
 def check_b4_same_href_resize(binary, fixtures):
     # B4: resize must keep focus on the same link occurrence when two links
     # share the same href. ID match must win before an earlier href match.
@@ -703,9 +737,10 @@ def main():
     stop(pid, master)
 
     check_vanished_history(binary)
+    check_vanished_forward(binary)
     check_b4_same_href_resize(binary, fixtures)
 
-    print("ok - pager PTY screen model: focus, vanished history page, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, the revision stamp row, and B4 same-href resize")
+    print("ok - pager PTY screen model: focus, vanished history/forward pages, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, the revision stamp row, and B4 same-href resize")
 
 
 if __name__ == "__main__":

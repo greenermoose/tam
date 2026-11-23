@@ -1,0 +1,31 @@
+W76 VANISHED FORWARD PAGE TEST
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1: "Test go_forward after a vanished page, which W41
+  did not cover."
+
+DONE
+
+  - Added `check_vanished_forward` to `tests/pager_screen.py`: navigate
+    A->B, go back to A, remove B, press Right twice; each forward reports
+    "cannot open" and the pager exits cleanly.
+  - Wired the check into main and updated the test summary string.
+  - Updated `work/WHATNOW`: recorded W76 and renumbered NEXT.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed.
+
+HANDOFF
+
+  - Continue with WHATNOW NEXT item 1 (R1 order: central address parsing,
+    index lookup table, shared key and UTF-8 code from libtam).

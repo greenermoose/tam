@@ -3,17 +3,16 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W75
+Updated: 2026-11-23, with W76
 
 STATE
 
-  Command 0.68.8 and corpus 0.117.2 on dev. W75 added a `make sanitize`
-  target that builds the command with ASan+UBSan in `build/sanitize` and
-  exports `ASAN_OPTIONS`/`UBSAN_OPTIONS` with `log_path` set so sanitizer
-  output stays out of PTY tests. W74 deduplicated pager nav
-  snapshot/push/traverse helpers (R1 step 2). W73 hardened the ask HTTP
-  read loop with one monotonic deadline, a 1 MiB response size cap, and
-  distinct incomplete/oversized/complete outcomes (R1).
+  Command 0.68.8 and corpus 0.117.2 on dev. W76 added pager PTY coverage
+  for `go_forward` after a vanished page, the symmetric case W41 did not
+  cover. W75 added a `make sanitize` target that builds the command with
+  ASan+UBSan in `build/sanitize` and exports `ASAN_OPTIONS`/`UBSAN_OPTIONS`
+  with `log_path` set so sanitizer output stays out of PTY tests. W74
+  deduplicated pager nav snapshot/push/traverse helpers (R1 step 2).
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -81,12 +80,10 @@ STATE
 
 NEXT
 
-  1. Test go_forward after a vanished page, which W41 did not
-     cover.
-  2. Then the R1 order: central address parsing, index lookup
+  1. Then the R1 order: central address parsing, index lookup
      table, shared key and UTF-8 code from libtam.
 
-  3. Future glossary work: write glossary pages for technical
+  2. Future glossary work: write glossary pages for technical
      terms used in the corpus that have none. The scan found
      VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
      SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,
