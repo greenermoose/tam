@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html><head>
+<title>System Programmer Reading List</title>
+<meta name="topic" content="reference-system-programmer-reading-list">
+<meta name="summary" content="A curated reading list of books and key articles for system programmers working close to operating systems, hardware, and runtime boundaries.">
+<meta name="keywords" content="bibliography, reading list, system programming, operating systems, compilers, kernels, c, rust, performance">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="bibliography">
+<meta name="parent" content="bibliography/index.html">
+<meta name="kind" content="bibliography">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="bibliography/index.html">Sources and further reading</a> / System Programmer Reading List</p></nav>
+
+<h1>System Programmer Reading List</h1>
+<p>This page is a curated reading list for system programmers. It focuses on programs that interact closely with operating systems, hardware, compilers, memory, concurrency, and performance: kernels, drivers, runtimes, databases, network services, embedded software, and low-level tools.</p>
+
+<section data-level="novice">
+<h2>How to use this list</h2>
+<p>System programming requires strong C or systems-language fundamentals, a clear mental model of the machine, and careful debugging habits. Start with computer systems and operating systems, then add networking, concurrency, compilers, and performance. Build small programs that use files, processes, sockets, memory mapping, and threads.</p>
+<p>Read with a Linux machine nearby. Use manual pages, source code, and debuggers to verify behavior. System programs must handle errors, resource limits, and undefined behavior carefully.</p>
+</section>
+
+<section data-level="learner">
+<h2>Core books</h2>
+
+<h3>Computer systems and C</h3>
+<ul>
+<li>Brian W. Kernighan and Dennis M. Ritchie, <em>The C Programming Language</em>, 2nd ed., Prentice Hall, 1988. Essential C language foundation.</li>
+<li>Randal E. Bryant and David R. O'Hallaron, <em>Computer Systems: A Programmer's Perspective</em> (CS:APP), Pearson (recent edition). The bridge between code, machine, OS, and runtime behavior.</li>
+<li>Jens Gustedt, <em>Modern C</em>, Manning (recent edition). Modern C practice and semantics. Also available online.</li>
+</ul>
+
+<h3>Operating systems and Linux</h3>
+<ul>
+<li>Remzi H. Arpaci-Dusseau and Andrea C. Arpaci-Dusseau, <em>Operating Systems: Three Easy Pieces</em> (OSTEP), Arpaci-Dusseau Books (recent edition). Core OS concepts. Also available online.</li>
+<li>Andrew S. Tanenbaum and Herbert Bos, <em>Modern Operating Systems</em>, Pearson (recent edition). Broad OS design and implementation perspective.</li>
+<li>Michael Kerrisk, <em>The Linux Programming Interface</em>, No Starch Press, 2010. Detailed Linux/UNIX system programming APIs and concepts.</li>
+<li>Robert Love, <em>Linux Kernel Development</em>, Addison-Wesley (recent edition). Practical introduction to Linux kernel design and subsystems.</li>
+</ul>
+
+<h3>Systems programming and UNIX APIs</h3>
+<ul>
+<li>W. Richard Stevens and Stephen A. Rago, <em>Advanced Programming in the UNIX Environment</em> (APUE), Addison-Wesley (recent edition). UNIX system programming fundamentals.</li>
+<li>W. Richard Stevens, Bill Fenner, and Andrew M. Rudoff, <em>UNIX Network Programming, Volume 1: The Sockets Networking API</em>, Addison-Wesley, 3rd ed., 2003. Core network system programming reference.</li>
+<li>Kay A. Robbins and Steven Robbins, <em>UNIX Systems Programming: Communication, Concurrency, and Threads</em>, Prentice Hall, 2nd ed., 2003. Practical process, signal, and concurrency patterns.</li>
+</ul>
+
+<h3>Concurrency, memory, and performance</h3>
+<ul>
+<li>Anthony Williams, <em>C++ Concurrency in Action</em>, Manning (recent edition). Practical concurrency model and patterns; useful even for non-C++ system programmers learning threading concepts.</li>
+<li>Brendan Gregg, <em>Systems Performance: Enterprise and the Cloud</em>, Addison-Wesley (recent edition). Performance methodology and Linux observability.</li>
+<li>Ulrich Drepper, "What Every Programmer Should Know About Memory," Red Hat, 2007. Essential paper on memory hierarchies, caches, and DRAM behavior.</li>
+</ul>
+
+<h3>Compilers, linkers, and toolchains</h3>
+<ul>
+<li>Alfred V. Aho, Monica S. Lam, Ravi Sethi, and Jeffrey D. Ullman, <em>Compilers: Principles, Techniques, and Tools</em>, Pearson, 2nd ed., 2006. Compiler foundations.</li>
+<li>John R. Levine, <em>Linkers and Loaders</em>, Morgan Kaufmann, 1999. Object files, linking, loading, and runtime layout. Also available online.</li>
+<li>Ian Lance Taylor, <em>Linkers</em> (blog series), 2007. Practical modern linker internals.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Key articles and references</h2>
+<p>These references deepen understanding of OS interfaces, low-level behavior, and system design trade-offs.</p>
+
+<h3>Operating systems and interfaces</h3>
+<ul>
+<li>Dennis M. Ritchie and Ken Thompson, "The UNIX Time-Sharing System," <em>Communications of the ACM</em>, 1974. Foundational UNIX design paper.</li>
+<li>Jerome H. Saltzer and Michael D. Schroeder, "The Protection of Information in Computer Systems," <em>Proceedings of the IEEE</em>, 1975. Security design principles relevant to system boundaries.</li>
+<li><a href="bibliography/linux-api.html">Linux man-pages</a> and kernel documentation. Primary references for system call behavior and Linux interfaces.</li>
+<li><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a> and related POSIX specifications. Authoritative interface behavior.</li>
+</ul>
+
+<h3>Memory, concurrency, and correctness</h3>
+<ul>
+<li>Leslie Lamport, "Time, Clocks, and the Ordering of Events in a Distributed System," <em>Communications of the ACM</em>, 1978. Causality and ordering.</li>
+<li>Maurice Herlihy and Nir Shavit, <em>The Art of Multiprocessor Programming</em>, Morgan Kaufmann (recent edition). Concurrent data structures and memory models.</li>
+<li>Paul E. McKenney, <em>Is Parallel Programming Hard, And, If So, What Can You Do About It?</em>, Linux Foundation (recent edition). Practical low-level concurrency and RCU. Also available online.</li>
+</ul>
+
+<h3>Debugging and performance</h3>
+<ul>
+<li>Brendan Gregg, <em>BPF Performance Tools</em>, Addison-Wesley, 2019. Advanced Linux tracing.</li>
+<li>GDB, Valgrind, perf, strace, ltrace, and eBPF tool documentation. Essential for observing real system behavior.</li>
+<li>Intel 64 and IA-32 Architectures Software Developer Manuals, and relevant architecture manuals (ARM, RISC-V). Authoritative hardware behavior when working at the machine boundary.</li>
+</ul>
+
+<h2>Preparation for advanced system work</h2>
+<p>Advanced system programmers should be comfortable with:</p>
+<ul>
+<li>Reading specifications, ABI documentation, and source code.</li>
+<li>Debugging memory, concurrency, and performance problems.</li>
+<li>Understanding process, memory, file system, network, and device boundaries.</li>
+<li>Writing robust error handling and cleanup paths.</li>
+<li>Measuring before optimizing and validating assumptions on real hardware.</li>
+</ul>
+</section>
+
+<section class="reference" id="system-programmer-reading-list"><p>This reference is for readers at all levels.</p><p>This reading list selects widely used system programming books and foundational papers. Verify behavior against the operating system, compiler, architecture, and manual pages you are using.</p><p>Some listed works are commercially published; others are freely available online from authors or standards bodies.</p></section>
+<p><a href="bibliography/index.html">All references</a>.</p>
+<h2>Used in this reference</h2><ul><li><a href="bibliography/index.html">Sources and further reading</a></li></ul>
+</body></html>
