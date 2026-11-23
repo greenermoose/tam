@@ -3,17 +3,17 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W77
+Updated: 2026-11-23, with W78
 
 STATE
 
-  Command 0.68.9 and corpus 0.117.2 on dev. W77 added a sorted
-  case-insensitive path lookup table to `tam_index_t` and made
-  `tam_index_lookup_path` use it, preserving first-entry behavior (R1
-  step 3 first slice). W76 added pager PTY coverage for `go_forward`
-  after a vanished page. W75 added a `make sanitize` target that builds
-  the command with ASan+UBSan in `build/sanitize` and exports
-  `ASAN_OPTIONS`/`UBSAN_OPTIONS` with `log_path` set.
+  Command 0.68.10 and corpus 0.117.2 on dev. W78 centralized address
+  classification, lens eligibility, and route loading into one
+  descriptor table in `src/address.c` (R1 step 1 partial). W77 added a
+  sorted case-insensitive path lookup table to `tam_index_t` and made
+  `tam_index_lookup_path` use it (R1 step 3 first slice). W76 added
+  pager PTY coverage for `go_forward` after a vanished page. W75 added
+  `make sanitize` (ASan+UBSan) with log_path under `build/sanitize/`.
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -81,11 +81,11 @@ STATE
 
 NEXT
 
-  1. R1 step 1: centralize address parsing. Drive route matching and
-     lens eligibility from the same descriptors; use one parser for
-     CLI entry, pager navigation, and generated views. Characterize
-     current aliases, fold/path params, relative Guide links, and
-     external opener confirmation before consolidating.
+  1. R1 step 1 follow-up: finish centralizing address parsing. CLI
+     entry, pager navigation, and generated views still parse addresses
+     ad hoc; characterize aliases, fold/path params, relative Guide
+     links, and external opener confirmation, then use one parser/shape
+     where it reduces duplication without changing behavior.
   2. R1 step 4: pilot shared key and UTF-8 code from libtam in
      duplicate escape-sequence paths; reuse UTF-8 decoding before
      changing display-width policy. Keep renderer capability

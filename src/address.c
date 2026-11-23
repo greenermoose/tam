@@ -18,39 +18,7 @@ static int has_prefix(const char *s, const char *prefix)
     return strncmp(s, prefix, strlen(prefix)) == 0;
 }
 
-tam_addr_kind_t tam_addr_kind(const char *href)
-{
-    if (href == NULL || href[0] == '\0') return TAM_ADDR_NONE;
-    if (href[0] == '#') return TAM_ADDR_FRAGMENT;
-    if (strcmp(href, "-") == 0 || href[0] == '<') return TAM_ADDR_STDIN;
-
-    if (href[strcspn(href, ":/?#")] != ':' || has_prefix(href, "page:"))
-        return TAM_ADDR_GUIDE;
-    if (has_prefix(href, "man:")) return TAM_ADDR_MAN;
-    if (has_prefix(href, "info:")) return TAM_ADDR_INFO;
-    if (has_prefix(href, "tldr:")) return TAM_ADDR_TLDR;
-    if (has_prefix(href, "archwiki:")) return TAM_ADDR_ARCHWIKI;
-    if (strcmp(href, "tam:help") == 0 || strcmp(href, "tam:start") == 0 ||
-        has_prefix(href, "tam:prompt:") ||
-        has_prefix(href, "tam:fold:") || has_prefix(href, "tam:sandbox:"))
-        return TAM_ADDR_ACTION;
-    if (has_prefix(href, "tam:")) return TAM_ADDR_VIEW;
-    return TAM_ADDR_EXTERNAL;
-}
-
-int tam_addr_takes_lens(const char *href)
-{
-    tam_addr_kind_t kind = tam_addr_kind(href);
-    return kind == TAM_ADDR_GUIDE ||
-           (kind == TAM_ADDR_VIEW && (has_prefix(href, "tam:explain") ||
-                                      has_prefix(href, "tam:topics") ||
-                                      has_prefix(href, "tam:hubs") ||
-                                      has_prefix(href, "tam:keywords") ||
-                                      has_prefix(href, "tam:paths") ||
-                                      has_prefix(href, "tam:path") ||
-                                      has_prefix(href, "tam:catalog")));
-}
-
+/* tam_addr_kind and tam_addr_takes_lens defined after route table. */
 static int hex_value(char c)
 {
     if (c >= '0' && c <= '9') return c - '0';
@@ -189,26 +157,77 @@ static tam_document_t *load_paths(const tam_loader_ctx_t *c, const char *href, i
     return tam_paths_document(c->root, id[0] ? id : NULL, view_level(href), w);
 }
 
-static const struct {
-    const char *prefix;
-    tam_document_t *(*load)(const tam_loader_ctx_t *, const char *, int);
-} routes[] = {
-    { "man:",         load_man },
-    { "info:",        load_info },
-    { "tldr:",        load_tldr },
-    { "archwiki:",    load_archwiki },
-    { "tam:tldr",     load_tldr_view },
-    { "tam:archwiki", load_archwiki_view },
-    { "tam:man",      load_man_view },
-    { "tam:search",   load_search },
-    { "tam:explain",  load_explain },
-    { "tam:keywords", load_keywords },
-    { "tam:topics",   load_topics },
-    { "tam:hubs",     load_hubs },
-    { "tam:catalog",  load_catalog },
-    { "tam:paths",    load_paths },
-    { "tam:path",     load_paths },
+typedef tam_document_t *(*tam_view_loader_t)(const tam_loader_ctx_t *,
+                                             const char *, int);
+
+typedef struct {
+    const char       *prefix;
+    tam_addr_kind_t   kind;
+    int               takes_lens;
+    tam_view_loader_t load;
+} tam_route_t;
+
+/* One descriptor table for address classification, lens eligibility, and
+ * loading. Order matters where prefixes overlap: tam:paths before tam:path. */
+static const tam_route_t routes[] = {
+    /* Schemes */
+    { "man:",         TAM_ADDR_MAN,      0, load_man },
+    { "info:",        TAM_ADDR_INFO,     0, load_info },
+    { "tldr:",        TAM_ADDR_TLDR,     0, load_tldr },
+    { "archwiki:",    TAM_ADDR_ARCHWIKI, 0, load_archwiki },
+    /* Actions - never loaded through the address loader */
+    { "tam:help",     TAM_ADDR_ACTION,   0, NULL },
+    { "tam:start",    TAM_ADDR_ACTION,   0, NULL },
+    { "tam:prompt:",  TAM_ADDR_ACTION,   0, NULL },
+    { "tam:fold:",    TAM_ADDR_ACTION,   0, NULL },
+    { "tam:sandbox:", TAM_ADDR_ACTION,   0, NULL },
+    /* Generated views */
+    { "tam:tldr",     TAM_ADDR_VIEW,     0, load_tldr_view },
+    { "tam:archwiki", TAM_ADDR_VIEW,     0, load_archwiki_view },
+    { "tam:man",      TAM_ADDR_VIEW,     0, load_man_view },
+    { "tam:search",   TAM_ADDR_VIEW,     0, load_search },
+    { "tam:explain",  TAM_ADDR_VIEW,     1, load_explain },
+    { "tam:keywords", TAM_ADDR_VIEW,     1, load_keywords },
+    { "tam:topics",   TAM_ADDR_VIEW,     1, load_topics },
+    { "tam:hubs",     TAM_ADDR_VIEW,     1, load_hubs },
+    { "tam:catalog",  TAM_ADDR_VIEW,     1, load_catalog },
+    { "tam:paths",    TAM_ADDR_VIEW,     1, load_paths },
+    { "tam:path",     TAM_ADDR_VIEW,     1, load_paths },
 };
+
+static const tam_route_t *find_route(const char *href)
+{
+    if (href == NULL) return NULL;
+    for (size_t i = 0; i < sizeof(routes) / sizeof(routes[0]); i++) {
+        if (has_prefix(href, routes[i].prefix))
+            return &routes[i];
+    }
+    return NULL;
+}
+
+tam_addr_kind_t tam_addr_kind(const char *href)
+{
+    if (href == NULL || href[0] == '\0') return TAM_ADDR_NONE;
+    if (href[0] == '#') return TAM_ADDR_FRAGMENT;
+    if (strcmp(href, "-") == 0 || href[0] == '<') return TAM_ADDR_STDIN;
+
+    if (href[strcspn(href, ":/?#")] != ':' || has_prefix(href, "page:"))
+        return TAM_ADDR_GUIDE;
+
+    const tam_route_t *r = find_route(href);
+    if (r != NULL) return r->kind;
+    if (has_prefix(href, "tam:")) return TAM_ADDR_VIEW;
+    return TAM_ADDR_EXTERNAL;
+}
+
+int tam_addr_takes_lens(const char *href)
+{
+    tam_addr_kind_t kind = tam_addr_kind(href);
+    if (kind == TAM_ADDR_GUIDE) return 1;
+    if (kind != TAM_ADDR_VIEW) return 0;
+    const tam_route_t *r = find_route(href);
+    return r != NULL && r->takes_lens;
+}
 
 tam_document_t *tam_address_load(void *vctx, const char *href, int width)
 {
@@ -225,9 +244,8 @@ tam_document_t *tam_address_load(void *vctx, const char *href, int width)
     default:
         break;
     }
-    for (size_t i = 0; i < sizeof(routes) / sizeof(routes[0]); i++) {
-        if (has_prefix(href, routes[i].prefix))
-            return routes[i].load(ctx, href, width);
-    }
+    const tam_route_t *r = find_route(href);
+    if (r != NULL && r->load != NULL)
+        return r->load(ctx, href, width);
     return NULL;
 }
