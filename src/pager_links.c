@@ -81,7 +81,16 @@ void pager_build_links(pager_t *st)
                     continue;
                 }
             }
-            st->links = realloc(st->links, (st->nlinks + 1) * sizeof(*st->links));
+            linkref_t *next = realloc(st->links, (st->nlinks + 1) * sizeof(*st->links));
+            if (next == NULL) {
+                free(st->links);
+                st->links = NULL;
+                st->nlinks = 0;
+                st->selected = -1;
+                snprintf(st->msg, sizeof(st->msg), "out of memory");
+                return;
+            }
+            st->links = next;
             st->links[st->nlinks].link_id = sp->link_id;
             st->links[st->nlinks].header = 0;
             st->links[st->nlinks].href = sp->href;
@@ -100,7 +109,16 @@ void pager_build_links(pager_t *st)
         int start = header_col;
         header_col += (int)tam_display_width(sp->text, strlen(sp->text));
         if (sp->href == NULL) continue;
-        st->links = realloc(st->links, (st->nlinks + 1) * sizeof(*st->links));
+        linkref_t *next = realloc(st->links, (st->nlinks + 1) * sizeof(*st->links));
+        if (next == NULL) {
+            free(st->links);
+            st->links = NULL;
+            st->nlinks = 0;
+            st->selected = -1;
+            snprintf(st->msg, sizeof(st->msg), "out of memory");
+            return;
+        }
+        st->links = next;
         st->links[st->nlinks++] = (linkref_t){
             .link_id = sp->link_id, .header = 1, .href = sp->href,
             .line_start = 0, .line_end = 0, .col_start = start,

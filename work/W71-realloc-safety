@@ -1,0 +1,39 @@
+W71 PAGER REALLOC SAFETY
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1: "Unchecked realloc in history_push, forward_push
+  (pager_nav.c) and link building (pager_links.c). Check growth, build the
+  snapshot before incrementing the count, and fail the caller cleanly."
+
+DONE
+
+  - Added `nav_state_build`/`nav_state_dispose` in `src/pager_nav.c` and
+    changed `history_push`/`forward_push` to return int. Snapshots are fully
+    built before array growth; realloc uses temp pointers; strdup failures
+    are checked; count increments only after commit.
+  - Updated history/forward push callers in follow/go_back/go_forward to fail
+    cleanly on OOM, restoring stack state where needed.
+  - Guarded link array growth in `src/pager_links.c`; on realloc failure,
+    clear link state, set message, and return.
+  - Bumped command to 0.68.5 (patch): `src/version.h`, `tests/run.sh`,
+    `docs/plans/development.md`, `ROADMAP.md`.
+  - Updated `work/WHATNOW`: recorded W71 and renumbered NEXT.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make command: built successfully (tam command 0.68.5).
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed.
+  - make check-repo: passed.
+
+HANDOFF
+
+  - None; continue with WHATNOW NEXT item 1 (pager_screen.c:51 null memcmp).
