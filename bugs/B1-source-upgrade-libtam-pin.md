@@ -3,7 +3,7 @@
 - **Status:** Verified
 - **Severity:** high
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** dev (e0b97c2), verification accepted by Fred (2026-11-23)
+- **Fixed in:** 0.68.1 (e0b97c2)
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
