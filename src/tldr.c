@@ -166,6 +166,12 @@ char *tam_find_tldr_root(const char *knowledge_root)
         if (tldr_dir_ok(cand)) return strdup(cand);
     }
 
+    const char *doc_env = getenv("TAM_DOC_DIR");
+    if ((doc_env == NULL || doc_env[0] == '\0') &&
+        tldr_dir_ok("/usr/share/doc/tamlinux/tldr")) {
+        return strdup("/usr/share/doc/tamlinux/tldr");
+    }
+
     if (tldr_dir_ok("knowledge/tldr")) {
         return strdup("knowledge/tldr");
     }

@@ -251,7 +251,7 @@ install-corpus:
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
-	rm -rf $(DESTDIR)$(DATADIR)/tldr
+	@if [ -n "$(DESTDIR)" ]; then rm -rf $(DESTDIR)$(DATADIR)/tldr; fi
 
 install: all
 	@$(MAKE) --no-print-directory check-clean-tree
@@ -265,7 +265,7 @@ install: all
 	rm -rf $(DESTDIR)$(DATADIR)
 	install -d $(DESTDIR)$(DATADIR)
 	cp -R knowledge/. $(DESTDIR)$(DATADIR)/
-	rm -rf $(DESTDIR)$(DATADIR)/tldr
+	@if [ -n "$(DESTDIR)" ]; then rm -rf $(DESTDIR)$(DATADIR)/tldr; fi
 	install -d $(DESTDIR)$(MANDIR)/man1
 	install -m 644 man/tam.1 $(DESTDIR)$(MANDIR)/man1/tam.1
 	install -d $(DESTDIR)$(BASHCOMPDIR)

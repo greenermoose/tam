@@ -1,0 +1,45 @@
+W44 RETAIN TLDR IN USER-PREFIX INSTALL AND FALL BACK TO CULTIVAR TLDR
+
+Date: 2026-11-23
+AI harness: Antigravity CLI 1.5.15
+AI model: Gemini 4 Argon (Medium)
+Commits: This work commit
+Continues: W43
+
+GUIDANCE
+
+  Fred: "Before we freeze 0.6.38, fix and figure this problem: tam pager
+  for 0.67.8 (0.107.0) says tldr pages not installed"
+
+DONE
+
+  - Traced why the user-prefix development build reported tldr pages as
+    not installed:
+    1. Makefile's install and install-corpus targets unconditionally ran
+       rm -rf $(DESTDIR)$(DATADIR)/tldr after copying knowledge/, which is
+       only appropriate for staged cultivar builds (DESTDIR set) that run
+       a separate install-tldr into $(DESTDIR)$(DOCDIR)/tldr. Direct
+       user-prefix installs (DESTDIR empty) removed tldr from
+       $(DATADIR)/tldr without running install-tldr.
+    2. User-prefix builds compile with default TAM_DOCDIR="/usr/share/doc",
+       where an empty /usr/share/doc/tldr directory exists while the
+       active cultivar's tldr symlink is at /usr/share/doc/tamlinux/tldr.
+  - Updated Makefile install and install-corpus to strip $(DATADIR)/tldr
+    only when DESTDIR is non-empty.
+  - Updated tam_find_tldr_root() in src/tldr.c to fall back to
+    /usr/share/doc/tamlinux/tldr when TAM_DOC_DIR is unset.
+  - Added test_install_corpus_retains_tldr_when_destdir_empty_and_strips_when_staged
+    in tests/test_install_guard.py.
+  - Bumped command version to 0.67.9 across src/version.h, tests/run.sh,
+    ROADMAP.md, and docs/plans/development.md.
+  - Verified with make check-repo, test_install_guard.py,
+    test_documentation.py, and make test-command.
+
+FAILED
+
+  - Nothing.
+
+HANDOFF
+
+  - Command 0.67.9 and corpus 0.107.0 are ready on dev, with both direct
+    user-prefix installs and staged cultivar installs finding tldr pages.

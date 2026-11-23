@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.67.9 (patch): keep `knowledge/tldr` in `$(DATADIR)/tldr` on direct user-prefix `make install` and `make install-corpus` (when `DESTDIR` is empty, while staged cultivar builds with `DESTDIR` still split `tldr` via `install-tldr`), and fall back to `/usr/share/doc/tamlinux/tldr` in `tam_find_tldr_root()` when `TAM_DOC_DIR` is unset.
+
 - **2026-11-20:** Command 0.67.8 (patch): remove retired `BUNDLE` manifest parsing and pre-0.6.37 `/usr/lib/tamlinux/source/current` and `/var/lib/tamlinux/source/active.json` fallbacks; retain unified `VERSION` and `/usr/lib/tamlinux/current` identity and ownership resolution.
 
 - **2026-11-20:** Command 0.67.7 (patch) uses the WHATWG named character reference table, bounds numeric decoding, and normalizes manual source encoding before groff generates HTML. Manual cache format 2 replaces previously misencoded output.

@@ -119,6 +119,30 @@ class InstallGuardTest(unittest.TestCase):
             capture_output=True, text=True, check=True)
         self.assertEqual(res.stdout.strip(), "/custom/opt")
 
+    def test_install_corpus_retains_tldr_when_destdir_empty_and_strips_when_staged(self):
+        tldr_page = self.root / "knowledge" / "tldr" / "pages" / "common" / "tar.md"
+        tldr_page.parent.mkdir(parents=True)
+        tldr_page.write_text("# tar\n")
+        git(self.root, "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+            "add", ".")
+        git(self.root, "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+            "commit", "-q", "-m", "add tldr")
+
+        local_prefix = Path(self.tmp.name) / "local-prefix"
+        subprocess.run(
+            ["make", "--no-print-directory", "-C", str(self.root),
+             "install-corpus", f"PREFIX={local_prefix}"],
+            check=True, capture_output=True, text=True)
+        self.assertTrue((local_prefix / "share/tamlinux/knowledge/tldr/pages/common/tar.md").is_file())
+
+        staged_dest = Path(self.tmp.name) / "staged"
+        subprocess.run(
+            ["make", "--no-print-directory", "-C", str(self.root),
+             "install-corpus", "PREFIX=/usr/lib/tamlinux/current",
+             f"DESTDIR={staged_dest}"],
+            check=True, capture_output=True, text=True)
+        self.assertFalse((staged_dest / "usr/lib/tamlinux/current/share/tamlinux/knowledge/tldr").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
