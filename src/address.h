@@ -44,6 +44,11 @@ int tam_addr_param(const char *href, const char *key, char *buf, size_t cap);
  * and copies its raw value into buf (no percent-decoding). */
 int tam_addr_take_param(char *href, const char *key, char *buf, size_t cap);
 
+/* Parse tam:fold:<id> and tam:sandbox:<id> actions. Returns 1 on a valid
+ * positive unsigned id that consumes the whole payload. */
+int tam_addr_fold_id(const char *href, unsigned *id);
+int tam_addr_sandbox_id(const char *href, unsigned *id);
+
 /* The guide root (may be NULL), optional standard input, and output mode. */
 typedef struct {
     const char *root;

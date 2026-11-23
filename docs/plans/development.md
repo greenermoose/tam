@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.15 (patch): centralize action id parsing. Add `tam_addr_fold_id` and `tam_addr_sandbox_id` helpers and use them in pager navigation (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.14 (patch): deduplicate pager CSI parsing. Extract shared `read_csi_seq` for sandbox and main pager escape-sequence reading (R1 step 4 pilot).
 - **2026-11-23:** Command 0.68.13 (patch): remove lens_href wrapper. Use `tam_addr_takes_lens` directly in pager code (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.12 (patch): use shared level URL helper in CLI. Replace manual level query injection in `src/tam.c` with `tam_href_put_level` (R1 step 1 follow-up).

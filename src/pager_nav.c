@@ -529,16 +529,13 @@ void follow(pager_t *st, const char *href)
     if (href == NULL || href[0] == '\0') {
         return;
     }
-    if (strncmp(href, "tam:fold:", 9) == 0) {
-        char *end;
-        unsigned long id = strtoul(href + 9, &end, 10);
-        if (id > 0 && id <= (unsigned)-1 && *end == 0) toggle_fold(st, (unsigned)id);
+    unsigned action_id = 0;
+    if (tam_addr_fold_id(href, &action_id)) {
+        toggle_fold(st, action_id);
         return;
     }
-    if (strncmp(href, "tam:sandbox:", 12) == 0) {
-        char *end;
-        unsigned long id = strtoul(href + 12, &end, 10);
-        if (id > 0 && id <= (unsigned)-1 && *end == 0) pager_activate_sandbox(st, (int)id);
+    if (tam_addr_sandbox_id(href, &action_id)) {
+        pager_activate_sandbox(st, (int)action_id);
         return;
     }
     if (strcmp(href, "tam:help") == 0) {

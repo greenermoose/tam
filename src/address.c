@@ -259,6 +259,30 @@ int tam_addr_takes_lens(const char *href)
     return r != NULL && r->takes_lens;
 }
 
+int tam_addr_fold_id(const char *href, unsigned *id)
+{
+    if (id != NULL) *id = 0;
+    if (href == NULL || strncmp(href, "tam:fold:", 9) != 0) return 0;
+    char *end = NULL;
+    unsigned long v = strtoul(href + 9, &end, 10);
+    if (end == href + 9 || *end != '\0' || v == 0 || v > (unsigned)-1)
+        return 0;
+    if (id != NULL) *id = (unsigned)v;
+    return 1;
+}
+
+int tam_addr_sandbox_id(const char *href, unsigned *id)
+{
+    if (id != NULL) *id = 0;
+    if (href == NULL || strncmp(href, "tam:sandbox:", 12) != 0) return 0;
+    char *end = NULL;
+    unsigned long v = strtoul(href + 12, &end, 10);
+    if (end == href + 12 || *end != '\0' || v == 0 || v > (unsigned)-1)
+        return 0;
+    if (id != NULL) *id = (unsigned)v;
+    return 1;
+}
+
 tam_document_t *tam_address_load(void *vctx, const char *href, int width)
 {
     const tam_loader_ctx_t *ctx = vctx;
