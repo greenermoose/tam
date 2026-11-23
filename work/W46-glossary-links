@@ -52,19 +52,40 @@ DONE
     1,291 pages parse and render, 93 tooling tests OK. Sampled pages
     render with TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe.
 
-FAILED
+FAILED, THEN FIXED
 
   - The first term set was too broad: it linked ordinary words such as
     "can" and "current" that have glossary pages. Case-sensitive
     matching against the canonical title form and a stopword list cut
     the candidate set from 4,041 to 1,300 real first mentions.
+  - The first pass explicitly excluded every page under glossary/ on
+    the grounds that definitions were not "first mentions". Fred
+    pointed out two counterexamples: glossary/u/udp.html mentioned
+    TCP without a link, and glossary/t/tcp.html mentioned UDP without
+    a link. "On any page" includes glossary pages. Extended the scan
+    to all 1,291 pages, skipped targets equal to the current page, and
+    added 4,461 cross-term links across 900 glossary pages. A final
+    scan over every page now reports zero unlinked first mentions.
   - The build-index.py tool has no --check flag; the corpus pipeline
     check is the supported validation path.
 
+FOLLOW-UP (corpus 0.107.2)
+
+  - Linked TCP to glossary/t/tcp.html at its first mention in
+    glossary/u/udp.html and UDP to glossary/u/udp.html at its first
+    mention in glossary/t/tcp.html, plus 4,459 other cross-references
+    inside glossary pages.
+  - Verified zero self-links and zero nested anchors. Self-links are
+    skipped where a page mentions its own term, so no page links to
+    itself.
+  - Re-ran make corpus, make corpus-and-test, make check-repo and
+    tools/lint-corpus.py; all pass.
+
 HANDOFF
 
-  - The glossary first-mention pass is complete in Develop; no install
-    or stage move was done.
+  - The glossary first-mention pass is now complete across all 1,291
+    pages, including glossary pages, in Develop; no install or stage
+    move was done.
   - NEXT item 12 holds the terms that still need glossary pages. Write
     those pages in a later corpus change and bump the corpus version.
   - The remaining NEXT items (command bugs and refactoring) are

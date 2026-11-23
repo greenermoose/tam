@@ -13,7 +13,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / XWayland</p></nav>
 
 <h1>XWayland</h1>
-<p>A compatibility layer that lets older X11 graphical applications run inside a modern Wayland desktop.</p>
+<p>A compatibility layer that lets older X11 graphical applications run inside a modern <a href="glossary/w/wayland.html">Wayland</a> desktop.</p>
 <section data-level="novice"><p>XWayland is a translator that lets older Linux programs written for the X11 display system open windows normally inside a Wayland desktop.</p></section>
 <section data-level="learner"><p>When a legacy app does not support Wayland natively, the compositor starts XWayland on demand to host it. XWayland apps may look slightly blurry under fractional scaling compared to native Wayland apps.</p><details class="q"><summary><i>Why might one older application look slightly softer on a scaled Wayland monitor than a native app?</i></summary><p>Because it is running through XWayland, where legacy X11 scaling differs from native Wayland fractional-scale rendering.</p></details></section>
 <section data-level="expert"><p>XWayland runs a rootless Xorg server as a Wayland client, mapping X11 windows to wl_surface objects and translating X11 input, clipboard selections, and RandR queries through the compositor&#x27;s XWayland bridge.</p></section>

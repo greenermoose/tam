@@ -13,7 +13,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / Wakeup</p></nav>
 
 <h1>Wakeup</h1>
-<p>An event—such as a timer firing, a network packet arriving, or a key press—that pulls a sleeping CPU core out of a low-power idle state.</p>
+<p>An event—such as a timer firing, a network packet arriving, or a key press—that pulls a sleeping <a href="glossary/c/cpu.html">CPU</a> core out of a low-power idle state.</p>
 <section data-level="novice"><p>A wakeup is any tiny tap on the shoulder that forces a resting processor to wake up and check something—even if there is no real work to do.</p></section>
 <section data-level="learner"><p>Hundreds of unnecessary timer wakeups per second from polling loops keep CPU cores out of deep sleep states and drain laptop batteries much faster.</p><details class="q"><summary><i>Why do frequent wakeups increase power draw even when total CPU usage looks close to 0%?</i></summary><p>Each wakeup interrupts deep package C-states and powers up clocks and caches briefly, preventing the processor from staying in its lowest-power idle tier.</p></details></section>
 <section data-level="expert"><p>Kernel timer wheels, hardware IRQs, and userspace poll/epoll timeouts generate wakeups observable via powertop, perf, and /proc/interrupts; event-driven blocking and coalesced timers minimize wakeup rate.</p></section>

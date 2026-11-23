@@ -14,9 +14,9 @@
 
 <h1>Enumeration (hardware)</h1>
 <p>The startup process where the operating system detects a newly plugged-in device, reads its IDs, and loads the matching driver.</p>
-<section data-level="novice"><p>Enumeration is the handshake that happens when you plug in a USB drive or keyboard: the computer notices something arrived, asks what model it is, and loads the right driver.</p></section>
+<section data-level="novice"><p>Enumeration is the handshake that happens when you plug in a <a href="glossary/u/usb.html">USB</a> drive or keyboard: the computer notices something arrived, asks what model it is, and loads the right driver.</p></section>
 <section data-level="learner"><p>When a plugged-in device does not work, checking kernel logs (dmesg or journalctl -k) shows whether enumeration succeeded or failed due to a bad cable or missing power.</p><details class="q"><summary><i>If a USB device never appears in kernel logs at all when plugged in, what does that suggest?</i></summary><p>Hardware enumeration never even started—pointing first to a power, port, or charge-only cable problem rather than a software setting.</p></details></section>
-<section data-level="expert"><p>During USB/PCIe enumeration, the host controller assigns bus addresses, reads device/configuration descriptors (VID/PID/class), binds a matching kernel driver via modalias, and triggers udev to create /dev nodes.</p></section>
+<section data-level="expert"><p>During USB/<a href="glossary/p/pcie.html">PCIe</a> enumeration, the host controller assigns bus addresses, reads device/configuration descriptors (VID/<a href="glossary/p/pid.html">PID</a>/class), binds a matching kernel driver via modalias, and triggers udev to create /dev nodes.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="hardware/diagnostics/hardware-diagnostics.html">Hardware diagnostics</a></li></ul>
 </body></html>

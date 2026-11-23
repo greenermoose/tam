@@ -12,11 +12,11 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/u/index.html">Terms beginning with U</a> / UWSM (Universal Wayland Session Manager)</p></nav>
 
-<h1>UWSM (Universal Wayland Session Manager)</h1>
+<h1>UWSM (Universal <a href="glossary/w/wayland.html">Wayland</a> Session Manager)</h1>
 <p>A session manager that starts a Wayland compositor inside proper systemd user units and environment slices.</p>
 <section data-level="novice"><p>UWSM is a helper that launches your graphical desktop cleanly under systemd so background services, audio, and environment variables all start and stop in the right order.</p></section>
-<section data-level="learner"><p>On Tamlinux, starting the graphical desktop runs Hyprland through UWSM, which exports session environment variables to systemd user services and cleans them up when you log out.</p><details class="q"><summary><i>Why does Tamlinux start Hyprland through UWSM instead of running Hyprland directly from a shell?</i></summary><p>UWSM integrates the Wayland compositor with systemd user units, ensuring services receive the right display environment and shut down cleanly on logout.</p></details></section>
-<section data-level="expert"><p>UWSM wraps compositor startup into graphical-session.target and app-graphical.slice cgroup units, managing WAYLAND_DISPLAY and XDG_CURRENT_DESKTOP propagation and preventing lingering user daemons across session restarts.</p></section>
+<section data-level="learner"><p>On Tamlinux, starting the graphical desktop runs <a href="glossary/h/hyprland.html">Hyprland</a> through UWSM, which exports session environment variables to systemd user services and cleans them up when you log out.</p><details class="q"><summary><i>Why does Tamlinux start Hyprland through UWSM instead of running Hyprland directly from a shell?</i></summary><p>UWSM integrates the Wayland compositor with systemd user units, ensuring services receive the right display environment and shut down cleanly on logout.</p></details></section>
+<section data-level="expert"><p>UWSM wraps compositor startup into graphical-session.target and app-graphical.slice cgroup units, managing WAYLAND_DISPLAY and <a href="glossary/x/xdg.html">XDG</a>_CURRENT_DESKTOP propagation and preventing lingering user daemons across session restarts.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 <h2>Learn more</h2><ul><li><a href="desktop/session/compositors.html">How windows appear on your screen</a></li><li><a href="desktop/session/sddm.html">Login and display managers</a></li></ul>
 </body></html>
