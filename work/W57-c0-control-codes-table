@@ -1,0 +1,35 @@
+W57 C0 CONTROL CODES TABLE
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "On page:glossary/c/c0-control-codes.html add a table showing the complete list of 32 ASCII control characters."
+
+DONE
+
+  - Added a complete 32-row table to
+    knowledge/glossary/c/c0-control-codes.html listing ASCII C0 control
+    characters 0x00-0x1F with decimal, hex, abbreviation, Ctrl notation,
+    and name/purpose.
+  - Linked VT to its glossary page; preserved existing glossary links in
+    the table.
+  - Bumped corpus 0.112.0 to 0.112.1 in knowledge/version and updated
+    ROADMAP.md current version, dev row, and delivered history.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus-check passed after the page update.
+  - make corpus refreshed generated indexes; index changes committed
+    separately when present.
+
+HANDOFF
+
+  - Corpus-only content change; no command version bump, no install, no
+    stage move. Source changes stay in Develop.
