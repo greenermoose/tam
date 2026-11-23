@@ -3,16 +3,17 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W94
+Updated: 2026-11-23, with W95
 
 STATE
 
-  Command 0.68.24 and corpus 0.117.2 on dev. W94 added
-  `tam_addr_bare_path` and used it in pager next-name resolution
-  (R1 step 1 follow-up). W93-W92 piloted libtam UTF-8 decode in pager
-  draw/sandbox input (R1 step 4); W91 characterized R1 step 1 address
-  parsing areas; W90-W78 continued consolidation; W86 measured index
-  load and deferred per-session caching.
+  Command 0.68.24 and corpus 0.117.2 on dev. W95 triaged R1
+  follow-ups: item 1 low-risk consolidations are mostly exhausted
+  (remaining candidates need characterization tests); item 2 forward
+  UTF-8 decode pilots landed, backward scans are not decode reuse, and
+  key-helper pilot remains behavior-sensitive. W94-W78 continued
+  address parsing consolidation; W86 measured index load and deferred
+  per-session caching.
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -80,16 +81,17 @@ STATE
 
 NEXT
 
-  1. R1 step 1 follow-up (characterized, consolidation remains):
+  1. R1 step 1 follow-up (characterized, low-risk pass mostly done):
      aliases, fold/path params, relative Guide links, and external
      opener confirmation are characterized in
-     work/W91-address-characterization. Continue with low-risk
-     parser/shape consolidation where behavior is preserved; avoid
-     risky fold/depth/path pipeline or external-message changes without
-     characterization tests.
+     work/W91-address-characterization. Remaining candidates
+     (fold/depth/path split pipeline; render breadcrumb href
+     classification; external scheme error-message parsing) need
+     characterization tests before consolidation.
   2. R1 step 4 follow-up: continue piloting shared key and UTF-8 code
-     from libtam in duplicate escape-sequence paths; reuse UTF-8
-     decoding before changing display-width policy. Keep renderer
+     from libtam in duplicate escape-sequence paths. Forward UTF-8
+     decode pilots landed (W92/W93); backward lead-byte scans are not
+     decode reuse. Any libtam key-helper pilot must preserve renderer
      capability detection, Linux-console behavior, and terminal handoff.
   3. R1 step 3 follow-up (measured, deferred): `tam_index_load` is
      ~9.5ms average over 100 warm-cache loads (1311 entries, 3 TSV

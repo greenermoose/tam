@@ -1,0 +1,35 @@
+W95 R1 FOLLOW-UP STATUS
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT items 1 and 2 / R1 follow-ups.
+
+STATUS
+
+  - R1 step 1 follow-up: characterization recorded in W91. Low-risk
+    helper consolidations landed through W94 (route descriptors, param
+    take/read, action id parsing, CLI alias, page prefix strip/has,
+    prompt helper, bare guide path, pager uses). Remaining candidates
+    identified in W91 are higher risk (fold/depth/path split pipeline;
+    render.c breadcrumb href classification; external scheme error-message
+    parsing) and need characterization tests before consolidation.
+  - R1 step 4 follow-up: W82 deduped pager CSI parsing; W92/W93 reused
+    `tam_utf8_decode` in sandbox input forward/delete and pager draw
+    truncation. Remaining forward UTF-8 continuation scans are exhausted;
+    backward lead-byte scans are not decode reuse. libtam key-helper
+    pilot remains possible but risky for terminal behavior/handoff.
+  - R1 step 3 follow-up: measured/deferred in W86.
+
+NO CODE CHANGE
+
+  - Status/triage record only; no command/corpus behavior changed.
+
+HANDOFF
+
+  - Prefer a safe R1 step 4 pilot if a clear libtam key/UTF-8 reuse can
+    preserve terminal behavior; otherwise prepare characterization tests
+    before attempting higher-risk R1 step 1 consolidations.
