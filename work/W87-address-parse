@@ -1,0 +1,36 @@
+W87 HELP PAGE PREFIX HELPER
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / R1 step 1 follow-up: centralize address parsing;
+  characterize aliases, fold/path params, relative Guide links, and
+  external opener confirmation, then use one parser/shape where it
+  reduces duplication without changing behavior.
+
+DONE
+
+  - Replaced manual `page:` stripping in `is_help_page` (src/pager_nav.c)
+    with `tam_addr_strip_page_prefix`.
+  - Bumped command to 0.68.18 (patch) and updated development plan,
+    ROADMAP, and WHATNOW.
+
+NOT DONE / FOLLOW-UP
+
+  - R1 step 1 follow-up remains: aliases, fold/path params, relative
+    Guide links, and external opener confirmation still need
+    characterization/consolidation into one parser/shape where safe.
+  - R1 step 4 follow-up and R1 step 3 (measured/deferred) remain.
+
+VERIFICATION
+
+  - make command: pass.
+  - python3 tests/pager_screen.py build/tam tests/fixtures: pass.
+  - make check-repo: pass.
+
+HANDOFF
+
+  - Continue WHATNOW item 1 follow-up with safe characterization/consolidation.

@@ -983,7 +983,7 @@ void cycle_lens(pager_t *st, int dir)
 int is_help_page(const char *href)
 {
     if (href == NULL) return 0;
-    if (strncmp(href, "page:", 5) == 0) href += 5;
+    href = tam_addr_strip_page_prefix(href);
     if (strcmp(href, "help/index.html") == 0 || strcmp(href, "help") == 0 ||
         strcmp(href, "help/") == 0)
         return 1;

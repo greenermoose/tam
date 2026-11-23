@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.18 (patch): use `tam_addr_strip_page_prefix` in `is_help_page` pager navigation (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.17 (patch): centralize page: prefix stripping. Add `tam_addr_strip_page_prefix` and use it in address loading and CLI page normalization (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.16 (patch): centralize CLI view aliases. Add `tam_addr_cli_alias` for bare topics/hubs/paths and use it in `src/tam.c` (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.15 (patch): centralize action id parsing. Add `tam_addr_fold_id` and `tam_addr_sandbox_id` helpers and use them in pager navigation (R1 step 1 follow-up).
