@@ -302,6 +302,20 @@ int tam_addr_has_page_prefix(const char *href)
     return href != NULL && has_prefix(href, "page:");
 }
 
+void tam_addr_bare_path(const char *href, char *out, size_t cap)
+{
+    if (out == NULL || cap == 0) return;
+    out[0] = '\0';
+    if (href == NULL) return;
+    const char *p = tam_addr_strip_page_prefix(href);
+    size_t i = 0;
+    while (p[i] != '\0' && p[i] != '?' && p[i] != '#' && i < cap - 1) {
+        out[i] = p[i];
+        i++;
+    }
+    out[i] = '\0';
+}
+
 int tam_addr_is_prompt(const char *href)
 {
     return href != NULL && has_prefix(href, "tam:prompt:");

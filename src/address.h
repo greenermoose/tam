@@ -62,6 +62,9 @@ const char *tam_addr_strip_page_prefix(const char *href);
 /* True when href has an explicit `page:` scheme. */
 int tam_addr_has_page_prefix(const char *href);
 
+/* Copy guide path without `page:` prefix or query/fragment into out. */
+void tam_addr_bare_path(const char *href, char *out, size_t cap);
+
 /* The guide root (may be NULL), optional standard input, and output mode. */
 typedef struct {
     const char *root;

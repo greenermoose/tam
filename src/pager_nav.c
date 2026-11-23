@@ -1100,15 +1100,8 @@ void pager_nav_next_name(const pager_t *st, const char *href, char *out, size_t 
     out[0] = '\0';
     if (href == NULL || href[0] == '\0') return;
 
-    const char *p = tam_addr_strip_page_prefix(href);
-
     char clean_path[256];
-    size_t i = 0;
-    while (p[i] != '\0' && p[i] != '?' && p[i] != '#' && i < sizeof(clean_path) - 1) {
-        clean_path[i] = p[i];
-        i++;
-    }
-    clean_path[i] = '\0';
+    tam_addr_bare_path(href, clean_path, sizeof(clean_path));
 
     const char *root = NULL;
     char *owned_root = NULL;
@@ -1132,7 +1125,7 @@ void pager_nav_next_name(const pager_t *st, const char *href, char *out, size_t 
         if (owned_root != NULL) free(owned_root);
     }
     if (out[0] == '\0') {
-        snprintf(out, cap, "%s", p);
+        snprintf(out, cap, "%s", clean_path[0] != '\0' ? clean_path : href);
     }
 }
 

@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.24 (patch): add `tam_addr_bare_path` and use it in pager next-name resolution (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.23 (patch): reuse `tam_utf8_decode` in pager draw status truncation (R1 step 4 follow-up).
 - **2026-11-23:** Command 0.68.22 (patch): reuse `tam_utf8_decode` for sandbox input forward/delete cursor movement (R1 step 4 follow-up).
 - **2026-11-23:** Command 0.68.21 (patch): add `tam_addr_has_page_prefix` and use it in pager address display (R1 step 1 follow-up).

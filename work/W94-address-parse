@@ -1,0 +1,37 @@
+W94 BARE GUIDE PATH HELPER
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / R1 step 1 follow-up: centralize address parsing;
+  characterize aliases, fold/path params, relative Guide links, and
+  external opener confirmation, then use one parser/shape where it
+  reduces duplication without changing behavior.
+
+DONE
+
+  - Added `tam_addr_bare_path` in `src/address.c/h` to copy a guide path
+    without `page:` prefix or query/fragment.
+  - Used it in `pager_nav_next_name` (`src/pager_nav.c`).
+  - Bumped command to 0.68.24 (patch) and updated development plan,
+    ROADMAP, and WHATNOW.
+
+NOT DONE / FOLLOW-UP
+
+  - R1 step 1 follow-up remains: low-risk parser/shape consolidation
+    where safe; avoid risky fold/depth/path pipeline or external-message
+    changes without characterization tests.
+  - R1 step 4 follow-up and R1 step 3 (measured/deferred) remain.
+
+VERIFICATION
+
+  - make command: pass.
+  - python3 tests/pager_screen.py build/tam tests/fixtures: pass.
+  - make check-repo: pass.
+
+HANDOFF
+
+  - Continue WHATNOW item 1 or 2 with safe, behavior-preserving slices.
