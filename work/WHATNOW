@@ -3,16 +3,17 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W76
+Updated: 2026-11-23, with W77
 
 STATE
 
-  Command 0.68.8 and corpus 0.117.2 on dev. W76 added pager PTY coverage
-  for `go_forward` after a vanished page, the symmetric case W41 did not
-  cover. W75 added a `make sanitize` target that builds the command with
-  ASan+UBSan in `build/sanitize` and exports `ASAN_OPTIONS`/`UBSAN_OPTIONS`
-  with `log_path` set so sanitizer output stays out of PTY tests. W74
-  deduplicated pager nav snapshot/push/traverse helpers (R1 step 2).
+  Command 0.68.9 and corpus 0.117.2 on dev. W77 added a sorted
+  case-insensitive path lookup table to `tam_index_t` and made
+  `tam_index_lookup_path` use it, preserving first-entry behavior (R1
+  step 3 first slice). W76 added pager PTY coverage for `go_forward`
+  after a vanished page. W75 added a `make sanitize` target that builds
+  the command with ASan+UBSan in `build/sanitize` and exports
+  `ASAN_OPTIONS`/`UBSAN_OPTIONS` with `log_path` set.
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -80,10 +81,21 @@ STATE
 
 NEXT
 
-  1. Then the R1 order: central address parsing, index lookup
-     table, shared key and UTF-8 code from libtam.
+  1. R1 step 1: centralize address parsing. Drive route matching and
+     lens eligibility from the same descriptors; use one parser for
+     CLI entry, pager navigation, and generated views. Characterize
+     current aliases, fold/path params, relative Guide links, and
+     external opener confirmation before consolidating.
+  2. R1 step 4: pilot shared key and UTF-8 code from libtam in
+     duplicate escape-sequence paths; reuse UTF-8 decoding before
+     changing display-width policy. Keep renderer capability
+     detection, Linux-console behavior, and terminal handoff.
+  3. R1 step 3 follow-up: measure whether keeping one index per
+     pager session is worthwhile and how it refreshes if corpus
+     changes; preserve ranking algorithm until measurements justify
+     change.
 
-  2. Future glossary work: write glossary pages for technical
+  4. Future glossary work: write glossary pages for technical
      terms used in the corpus that have none. The scan found
      VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
      SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,

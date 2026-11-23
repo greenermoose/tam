@@ -1,0 +1,42 @@
+W77 INDEX PATH LOOKUP TABLE
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / R1 step 3: "Replace repeated path scans with a
+  sorted lookup table over the existing array first. Preserve
+  case-insensitive matching and first-entry behavior for old indexes."
+
+DONE
+
+  - Added `by_path` sorted lookup view to `tam_index_t` in `src/index.h`.
+  - Built case-insensitive path-sorted table in `src/index.c` after index
+    load, with original-index tiebreaker to preserve first-entry behavior.
+  - `tam_index_lookup_path` uses lower-bound binary search over `by_path`,
+    falling back to linear scan if the table is unavailable.
+  - Freed `by_path` in `tam_index_free`.
+  - Bumped command to 0.68.9 (patch): `src/version.h`, `tests/run.sh`,
+    `docs/plans/development.md`, `ROADMAP.md`.
+  - Updated `work/WHATNOW`: recorded W77 and split remaining R1 items.
+
+FAILED
+
+  - Nothing in this slice. `make test-command` still fails on a pre-existing
+    brittle B3 PTY assertion in `tests/run.sh` ("B3: pager entry point handles
+    tam:search fragment") that expects contiguous `Results for pipelines`
+    text in ANSI output; reproduced with pre-W77 index code as well.
+
+VERIFICATION
+
+  - make command: built successfully (tam command 0.68.9).
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed.
+  - make check-repo: passed.
+  - make test-command: failed on pre-existing B3 PTY fragment assertion
+    (not caused by W77; confirmed by reproducing with old index.c).
+
+HANDOFF
+
+  - Continue with WHATNOW NEXT item 1 (R1 step 1: central address parsing).

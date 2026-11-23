@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.9 (patch): add sorted index path lookup table. Build a case-insensitive path-sorted view over index entries and use it for `tam_index_lookup_path`, preserving first-entry behavior (R1 step 3).
 - **2026-11-23:** Command 0.68.8 (patch): deduplicate pager nav snapshot/push/traverse helpers. Share nav_state_free/nav_stack_clear/nav_stack_push/nav_traverse and consolidate history/forward cleanup paths (R1 step 2).
 - **2026-11-23:** Command 0.68.7 (patch): harden ask HTTP read loop with one monotonic deadline and response size cap. Distinguish incomplete/timeout, oversized, and complete responses (R1).
 - **2026-11-23:** Command 0.68.6 (patch): guard empty-row memcmp in pager screen diff. Skip memcmp when row length is zero to avoid undefined behavior on null row pointers.

@@ -297,6 +297,34 @@ static void load_paths_projection(tam_index_t *idx, const char *root)
     free(content);
 }
 
+static int path_lookup_cmp(const void *a, const void *b)
+{
+    const tam_index_entry_t *ea = *(const tam_index_entry_t *const *)a;
+    const tam_index_entry_t *eb = *(const tam_index_entry_t *const *)b;
+    const char *pa = ea && ea->path ? ea->path : "";
+    const char *pb = eb && eb->path ? eb->path : "";
+    int cmp = strcasecmp(pa, pb);
+    if (cmp != 0) return cmp;
+    if (ea < eb) return -1;
+    if (ea > eb) return 1;
+    return 0;
+}
+
+static void build_path_lookup(tam_index_t *idx)
+{
+    if (idx == NULL || idx->count == 0) return;
+    idx->by_path = malloc(idx->count * sizeof(*idx->by_path));
+    if (idx->by_path == NULL) {
+        idx->by_path_count = 0;
+        return;
+    }
+    for (size_t i = 0; i < idx->count; i++) {
+        idx->by_path[i] = &idx->entries[i];
+    }
+    qsort(idx->by_path, idx->count, sizeof(*idx->by_path), path_lookup_cmp);
+    idx->by_path_count = idx->count;
+}
+
 tam_index_t *tam_index_load(const char *root)
 {
     if (root == NULL) {
@@ -407,12 +435,14 @@ tam_index_t *tam_index_load(const char *root)
     load_kind_projection(idx, root);
     load_paths_projection(idx, root);
     free(content);
+    build_path_lookup(idx);
     return idx;
 }
 
 void tam_index_free(tam_index_t *idx)
 {
     if (idx == NULL) return;
+    free(idx->by_path);
     for (size_t i = 0; i < idx->count; i++) {
         tam_index_entry_t *e = &idx->entries[i];
         free(e->topic);
@@ -488,6 +518,22 @@ size_t tam_index_paths_for_page(const tam_index_t *idx, const char *page_path,
 const tam_index_entry_t *tam_index_lookup_path(const tam_index_t *idx, const char *path)
 {
     if (idx == NULL || path == NULL || path[0] == '\0') {
+        return NULL;
+    }
+    if (idx->by_path != NULL && idx->by_path_count > 0) {
+        size_t lo = 0, hi = idx->by_path_count;
+        while (lo < hi) {
+            size_t mid = lo + (hi - lo) / 2;
+            const char *mp = idx->by_path[mid]->path ? idx->by_path[mid]->path : "";
+            int cmp = strcasecmp(mp, path);
+            if (cmp < 0) lo = mid + 1;
+            else hi = mid;
+        }
+        if (lo < idx->by_path_count) {
+            const tam_index_entry_t *e = idx->by_path[lo];
+            if (e->path != NULL && strcasecmp(e->path, path) == 0)
+                return e;
+        }
         return NULL;
     }
     for (size_t i = 0; i < idx->count; i++) {

@@ -43,6 +43,8 @@ typedef struct {
 typedef struct {
     tam_index_entry_t *entries;
     size_t count;
+    tam_index_entry_t **by_path;
+    size_t by_path_count;
     tam_path_def_t *paths;
     size_t num_paths;
 } tam_index_t;
