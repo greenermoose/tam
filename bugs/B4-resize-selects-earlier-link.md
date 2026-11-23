@@ -1,9 +1,9 @@
 # B4 — Resize selects an earlier link with the same target
 
-- **Status:** Confirmed
+- **Status:** Fix available
 - **Severity:** medium
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** Open
+- **Fixed in:** 0.68.2
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -31,6 +31,8 @@ An earlier destination match wins before the original ID is visited.
 
 ## Fix and verification
 
-Restore by ID first. Use the destination and logical position when the
-ID disappeared. Assert which label is focused after a resize in the PTY
-suite.
+`pager_reflow` now restores the selected link by ID first. If the ID
+disappeared, it falls back to the same-href link closest to the old
+link's logical position. Added `check_b4_same_href_resize` in
+`tests/pager_screen.py` with fixture `tests/fixtures/guide/b4-same-href.html`.
+Verified with `python3 tests/pager_screen.py build/tam tests/fixtures` (pass).

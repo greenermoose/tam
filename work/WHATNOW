@@ -7,7 +7,10 @@ Updated: 2026-11-23, with W65
 
 STATE
 
-  Command 0.68.1 and corpus 0.117.1 on dev. W65 rewrote
+  Command 0.68.2 and corpus 0.117.1 on dev. W67 fixed B4 in
+  pager_nav.c pager_reflow: restore selected link by ID first, then
+  fall back to same-href link closest to old logical position; added
+  PTY resize regression test. B4 fix is available in source. W65 rewrote
   knowledge/bibliography/linux-api.html: fixed the incorrect
   `man:pipe(7)` link, added intro/novice/learner/expert sections, and
   clarified Linux man-pages project scope and usage. W64 added System
@@ -66,51 +69,50 @@ STATE
 
 NEXT
 
-  1. B4: reflow in src/pager_nav.c (pager_reflow) takes the first
-     link whose ID or href matches. Match the original link ID
-     first and fall back to href plus logical position. Add a
-     PTY resize test.
-  2. B2, B3, B5: see their records for cause and fix.
-  3. Unchecked realloc in history_push, forward_push
+  1. B2, B3, B5: see their records for cause and fix.
+  2. Unchecked realloc in history_push, forward_push
      (pager_nav.c) and link building (pager_links.c). Check
      growth, build the snapshot before incrementing the count,
      and fail the caller cleanly.
-  4. src/pager_screen.c:51 passes a null row pointer to memcmp
+  3. src/pager_screen.c:51 passes a null row pointer to memcmp
      when a row is empty (UBSan: null pointer passed as argument
      2). Guard the empty-row case. Harmless today but undefined
      behaviour.
-  5. Inference HTTP read loop in src/ask.c: use one monotonic
+  4. Inference HTTP read loop in src/ask.c: use one monotonic
      deadline and a response size cap (R1, open).
 
   Code improvements, after the bugs:
 
-  6. history_push and forward_push are line-for-line copies, and
+  5. history_push and forward_push are line-for-line copies, and
      go_back and go_forward are near copies. Replace with one
      snapshot builder and one nav_state_free helper; the free
      sequence is repeated in pager_return_from_help,
      forward_clear and pager.c cleanup. This is step 2 of the
      R1 refactoring order and prevents B6 recurring.
-  7. Add a make target for an ASan and UBSan build with
+  6. Add a make target for an ASan and UBSan build with
      UBSAN_OPTIONS log_path set, so sanitizer output stays out
      of the PTY tests.
-  8. Test go_forward after a vanished page, which W41 did not
+  7. Test go_forward after a vanished page, which W41 did not
      cover.
-  9. Then the R1 order: central address parsing, index lookup
+  8. Then the R1 order: central address parsing, index lookup
      table, shared key and UTF-8 code from libtam.
 
-  10. Future glossary work: write glossary pages for technical
-      terms used in the corpus that have none. The scan found
-      VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
-      SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,
-      AES-GCM-SIV, BBR, BLE, DB-9, SISD/MISD/MIMD, TX/RX, AAA,
-      LZ77/LZ78, XMSS/LMS and GEM/TTM. Check each before writing
-      a page; near misses such as IP and MB already link to the
-      closest existing page (ip-address, byte).
+  9. Future glossary work: write glossary pages for technical
+     terms used in the corpus that have none. The scan found
+     VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
+     SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,
+     AES-GCM-SIV, BBR, BLE, DB-9, SISD/MISD/MIMD, TX/RX, AAA,
+     LZ77/LZ78, XMSS/LMS and GEM/TTM. Check each before writing
+     a page; near misses such as IP and MB already link to the
+     closest existing page (ip-address, byte).
 
 WAITING FOR FRED
 
   - Version bump for the B6 fix (command, src/version.h) and a
     build to verify it. The bug stays "Fix available" until then.
+  - B4 fix available in source (command 0.68.2): pager reflow keeps
+    same-href link selection by ID first, then logical position. Needs
+    verification in a build Fred runs.
   - Tamlinux 0.6.31 candidate preparation and packaged
     verification.
 

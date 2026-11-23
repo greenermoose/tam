@@ -1,0 +1,41 @@
+W67 B4 PAGER REFLOW SAME-HREF SELECTION
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / B4: "reflow in src/pager_nav.c (pager_reflow) takes
+  the first link whose ID or href matches. Match the original link ID first
+  and fall back to href plus logical position. Add a PTY resize test."
+
+DONE
+
+  - Fixed pager_reflow in src/pager_nav.c to restore selected link by ID
+    first; if ID is missing, fall back to same-href link closest to the old
+    link's logical block/offset.
+  - Added PTY resize regression test check_b4_same_href_resize in
+    tests/pager_screen.py and fixture
+    tests/fixtures/guide/b4-same-href.html (registered in
+    tests/fixtures/guide/index.tsv).
+  - Updated bugs/B4-resize-selects-earlier-link.md to Fix available.
+  - Bumped command to 0.68.2 (patch): src/version.h, tests/run.sh,
+    docs/plans/development.md, ROADMAP.md.
+  - Updated work/WHATNOW: recorded W67, removed B4 from NEXT, renumbered
+    NEXT, added B4 to WAITING FOR FRED.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make command: built successfully.
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed, including
+    B4 same-href resize check.
+  - make check-repo: passed.
+
+HANDOFF
+
+  - B4 fix is available in source; needs verification in a build Fred runs.

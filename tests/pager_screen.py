@@ -252,6 +252,33 @@ def check_vanished_history(binary):
         assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0, status
 
 
+def check_b4_same_href_resize(binary, fixtures):
+    # B4: resize must keep focus on the same link occurrence when two links
+    # share the same href. ID match must win before an earlier href match.
+    pid, master, screen, _ = collect_screen(
+        binary, fixtures + "/guide", "xterm-256color", 24, 64,
+        page="page:b4-same-href.html")
+    for _ in range(10):
+        rows = focused_rows(screen)
+        if len(rows) == 1 and "Second label" in screen.line(rows[0]):
+            break
+        os.write(master, b"\t")
+        screen.feed(read_available(master, 0.3))
+    rows = focused_rows(screen)
+    assert len(rows) == 1, rows
+    focused = "".join(ch for ch, attrs in screen.cells[rows[0]] if "bg236" in attrs)
+    assert "Second label" in focused, (focused, screen.line(rows[0]))
+    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 56, 0, 0))
+    os.kill(pid, signal.SIGWINCH)
+    screen.resize(24, 56)
+    screen.feed(read_available(master, 0.3))
+    rows = focused_rows(screen)
+    assert len(rows) == 1, rows
+    focused = "".join(ch for ch, attrs in screen.cells[rows[0]] if "bg236" in attrs)
+    assert "Second label" in focused, (focused, screen.line(rows[0]))
+    stop(pid, master)
+
+
 def main():
     binary = os.path.abspath(sys.argv[1])
     fixtures = os.path.abspath(sys.argv[2])
@@ -676,8 +703,9 @@ def main():
     stop(pid, master)
 
     check_vanished_history(binary)
+    check_b4_same_href_resize(binary, fixtures)
 
-    print("ok - pager PTY screen model: focus, vanished history page, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, and the revision stamp row")
+    print("ok - pager PTY screen model: focus, vanished history page, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, the revision stamp row, and B4 same-href resize")
 
 
 if __name__ == "__main__":

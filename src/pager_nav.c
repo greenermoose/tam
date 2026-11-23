@@ -112,6 +112,16 @@ void pager_reflow(pager_t *st, int width)
     char *old_href = old_link >= 0 && (size_t)old_link < st->nlinks &&
                      st->links[old_link].href != NULL
         ? strdup(st->links[old_link].href) : NULL;
+    size_t old_link_block = 0, old_link_offset = 0;
+    int have_old_link_pos = 0;
+    if (old_link >= 0 && (size_t)old_link < st->nlinks) {
+        size_t ll = st->links[old_link].line_start;
+        if (ll < st->doc->nlines) {
+            old_link_block = st->doc->lines[ll].logical_block;
+            old_link_offset = st->doc->lines[ll].logical_offset;
+            have_old_link_pos = 1;
+        }
+    }
     int had_search = st->search_query[0] != '\0';
     char query[sizeof(st->search_query)];
     snprintf(query, sizeof(query), "%s", st->search_query);
@@ -142,12 +152,46 @@ void pager_reflow(pager_t *st, int width)
     if (st->top < 0) st->top = 0;
     pager_build_links(st);
     if (old_link_id > 0 || old_href != NULL) {
-        for (size_t i = 0; i < st->nlinks; i++) {
-            int same_id = old_link_id > 0 && st->links[i].link_id == old_link_id;
-            int same_href = old_href != NULL && st->links[i].href != NULL &&
-                            strcmp(old_href, st->links[i].href) == 0;
-            if (same_id || same_href) { st->selected = (int)i; break; }
+        int found = -1;
+        if (old_link_id > 0) {
+            for (size_t i = 0; i < st->nlinks; i++) {
+                if (st->links[i].link_id == old_link_id) {
+                    found = (int)i;
+                    break;
+                }
+            }
         }
+        if (found < 0 && old_href != NULL) {
+            size_t best_distance = (size_t)-1;
+            for (size_t i = 0; i < st->nlinks; i++) {
+                if (st->links[i].href == NULL ||
+                    strcmp(old_href, st->links[i].href) != 0)
+                    continue;
+                if (!have_old_link_pos) {
+                    found = (int)i;
+                    break;
+                }
+                size_t ll = st->links[i].line_start;
+                size_t block = ll < st->doc->nlines
+                    ? st->doc->lines[ll].logical_block : 0;
+                size_t offset = ll < st->doc->nlines
+                    ? st->doc->lines[ll].logical_offset : 0;
+                size_t distance;
+                if (block != old_link_block)
+                    distance = block > old_link_block
+                        ? (block - old_link_block) * 4096
+                        : (old_link_block - block) * 4096;
+                else
+                    distance = offset > old_link_offset
+                        ? offset - old_link_offset
+                        : old_link_offset - offset;
+                if (distance < best_distance) {
+                    best_distance = distance;
+                    found = (int)i;
+                }
+            }
+        }
+        if (found >= 0) st->selected = found;
     }
     free(old_href);
     if (had_search) {
