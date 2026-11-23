@@ -153,7 +153,7 @@ $ stty sane
 </section>
 
 <section data-level="expert">
-<h2>Reference: termios and the N_TTY discipline</h2>
+<h2>Reference: termios and the N_<a href="glossary/t/tty.html">TTY</a> discipline</h2>
 
 <p>The settings come from a <code>struct termios</code> with four flag words and a table of special characters:</p>
 
@@ -175,7 +175,7 @@ struct termios {
 <tr><td><code>INLCR</code>, <code>IGNCR</code></td><td><code>c_iflag</code></td><td>translate NL to CR, or drop CR</td></tr>
 <tr><td><code>ISTRIP</code></td><td><code>c_iflag</code></td><td>clear the eighth bit of input bytes</td></tr>
 <tr><td><code>IXON</code>, <code>IXOFF</code>, <code>IXANY</code></td><td><code>c_iflag</code></td><td>software flow control</td></tr>
-<tr><td><code>IUTF8</code></td><td><code>c_iflag</code></td><td>make erase remove a whole UTF-8 character</td></tr>
+<tr><td><code>IUTF8</code></td><td><code>c_iflag</code></td><td>make erase remove a whole <a href="glossary/u/utf-8.html">UTF-8</a> character</td></tr>
 <tr><td><code>OPOST</code>, <code>ONLCR</code></td><td><code>c_oflag</code></td><td>output post-processing, NL to CR NL</td></tr>
 <tr><td><code>ICANON</code></td><td><code>c_lflag</code></td><td>canonical line editing</td></tr>
 <tr><td><code>ISIG</code></td><td><code>c_lflag</code></td><td>enable <code>VINTR</code>, <code>VQUIT</code>, <code>VSUSP</code> signals</td></tr>
@@ -233,10 +233,10 @@ tcsetattr(fd, TCSAFLUSH, &amp;saved);
 <ul>
 <li><strong>No terminal at all.</strong> Without a controlling terminal, these ioctls fail with <code>ENOTTY</code>. This is normal for a program run from cron, or for a remote command started without a pseudo-terminal such as <code>ssh -T</code>.</li>
 <li><strong>UTF-8 erase without <code>IUTF8</code>.</strong> With the flag off, one erase removes one byte, so erasing a multi-byte character leaves invalid fragments.</li>
-<li><strong>Binary data through a terminal.</strong> Canonical mode interprets <code>0x03</code>, <code>0x04</code>, <code>0x11</code> and <code>0x13</code> as commands. Binary transfers need raw mode and usually a different transport.</li>
+<li><strong><a href="glossary/b/binary.html">Binary</a> data through a terminal.</strong> Canonical mode interprets <code>0x03</code>, <code>0x04</code>, <code>0x11</code> and <code>0x13</code> as commands. Binary transfers need raw mode and usually a different transport.</li>
 <li><strong>Literal CR in input.</strong> With <code>ICRNL</code> on, a program cannot receive <code>0x0D</code> from the keyboard. A protocol that needs it must disable the translation.</li>
 <li><strong>Password prompts.</strong> They clear <code>ECHO</code> and restore it afterwards, which is why an interrupted password prompt can leave typing invisible.</li>
-<li><strong>Terminal injection.</strong> Writing to another terminal's input queue was historically possible through <code>TIOCSTI</code>. Modern kernels restrict it, and a program should not rely on it.</li>
+<li><strong><a href="glossary/t/terminal.html">Terminal</a> injection.</strong> Writing to another terminal's input queue was historically possible through <code>TIOCSTI</code>. Modern kernels restrict it, and a program should not rely on it.</li>
 <li><strong>Detached processes.</strong> A process that keeps a tty open after its session ends can receive <code>SIGHUP</code>. Some programs ignore it; most should exit.</li>
 </ul>
 

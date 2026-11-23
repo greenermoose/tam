@@ -24,7 +24,7 @@
 
 <section data-level="novice">
 <h2>What do display cables carry?</h2>
-<p>Display cables carry high-speed streams of pixel data—and often audio and monitor identification signals—from your computer&apos;s graphics output to your monitor. Different connectors such as HDMI, DisplayPort, and USB-C support different resolutions and refresh rates.</p>
+<p>Display cables carry high-speed streams of pixel data—and often audio and monitor identification signals—from your computer&apos;s graphics output to your monitor. Different connectors such as <a href="glossary/h/hdmi.html">HDMI</a>, <a href="glossary/d/displayport.html">DisplayPort</a>, and <a href="glossary/u/usb-c.html">USB-C</a> support different resolutions and refresh rates.</p>
 <h3>Why it matters</h3>
 <p>One of the most common desktop setup mistakes is plugging a monitor into the motherboard video port instead of the dedicated graphics card, or using an older cable that cannot carry a high refresh rate. Knowing what each port and cable does prevents blank screens and blurry output.</p>
 <h3>How to think about it</h3>
@@ -93,14 +93,14 @@ card1-HDMI-A-1: connected
 <dd>The display cable is not fully seated, the monitor is powered off, or the monitor is set to a different input source (e.g., set to HDMI 2 while plugged into HDMI 1). Check monitor input settings.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> multi-monitor stability is treated with great care. The Tamlinux desktop uses standard Wayland protocols (<code>wl_output</code> and <code>wlr-output-management</code>) to handle hotplugging dynamically, ensuring windows preserve their assigned workspaces when external cables are disconnected and reconnected.</p>
+<p><strong>On Tamlinux:</strong> multi-monitor stability is treated with great care. The Tamlinux desktop uses standard <a href="glossary/w/wayland.html">Wayland</a> protocols (<code>wl_output</code> and <code>wlr-output-management</code>) to handle hotplugging dynamically, ensuring windows preserve their assigned workspaces when external cables are disconnected and reconnected.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary><i>Why does plugging a monitor into the upper motherboard port often result in a black screen on a desktop tower?</i></summary>
-<p>When a dedicated graphics card is installed in a PCIe slot, most motherboards automatically disable the CPU&apos;s integrated graphics to prevent hardware conflicts, leaving the motherboard video ports unpowered.</p>
+<p>When a dedicated graphics card is installed in a <a href="glossary/p/pcie.html">PCIe</a> slot, most motherboards automatically disable the CPU&apos;s integrated graphics to prevent hardware conflicts, leaving the motherboard video ports unpowered.</p>
 </details>
 <details class="q">
 <summary><i>How can you physically tell a DisplayPort plug apart from an HDMI plug?</i></summary>
@@ -109,18 +109,18 @@ card1-HDMI-A-1: connected
 </section>
 </section>
 <section data-level="expert">
-<h2>DRM connector topology, EDID parsing, and the DisplayPort AUX channel</h2>
+<h2><a href="glossary/d/drm.html">DRM</a> connector topology, <a href="glossary/e/edid.html">EDID</a> parsing, and the DisplayPort AUX channel</h2>
 
 <h3>Reference: Linux DRM connector types in kernel source (`include/uapi/drm/drm_mode.h`)</h3>
 
 <table>
 <tr><th>Connector Type ID</th><th>Kernel Constant</th><th>Physical Connector Standard</th><th>Signaling Interface</th></tr>
 <tr><td>0</td><td><code>DRM_MODE_CONNECTOR_Unknown</code></td><td>Unidentified port</td><td>Fallback</td></tr>
-<tr><td>1</td><td><code>DRM_MODE_CONNECTOR_VGA</code></td><td>15-pin DE-15</td><td>Analog RGB + H/V Sync</td></tr>
-<tr><td>2</td><td><code>DRM_MODE_CONNECTOR_DVII</code></td><td>DVI-Integrated</td><td>Digital TMDS + Analog RGB</td></tr>
+<tr><td>1</td><td><code>DRM_MODE_CONNECTOR_VGA</code></td><td>15-pin DE-15</td><td>Analog <a href="glossary/r/rgb.html">RGB</a> + H/V Sync</td></tr>
+<tr><td>2</td><td><code>DRM_MODE_CONNECTOR_DVII</code></td><td><a href="glossary/d/dvi.html">DVI</a>-Integrated</td><td>Digital <a href="glossary/t/tmds.html">TMDS</a> + Analog RGB</td></tr>
 <tr><td>3</td><td><code>DRM_MODE_CONNECTOR_DVID</code></td><td>DVI-Digital</td><td>Digital TMDS only</td></tr>
 <tr><td>10</td><td><code>DRM_MODE_CONNECTOR_DisplayPort</code></td><td>DisplayPort (Standard &amp; Mini)</td><td>Packetized Main Link + AUX</td></tr>
-<tr><td>11</td><td><code>DRM_MODE_CONNECTOR_HDMIA</code></td><td>HDMI Type-A (Standard)</td><td>Digital TMDS / FRL + DDC</td></tr>
+<tr><td>11</td><td><code>DRM_MODE_CONNECTOR_HDMIA</code></td><td>HDMI Type-A (Standard)</td><td>Digital TMDS / FRL + <a href="glossary/d/ddc.html">DDC</a></td></tr>
 <tr><td>14</td><td><code>DRM_MODE_CONNECTOR_eDP</code></td><td>Embedded DisplayPort</td><td>Internal laptop panel ribbon</td></tr>
 <tr><td>16</td><td><code>DRM_MODE_CONNECTOR_USB</code></td><td>USB Type-C Alt Mode / DisplayLink</td><td>Multiplexed serial transport</td></tr>
 </table>
@@ -130,18 +130,18 @@ card1-HDMI-A-1: connected
 <p>When you plug a DisplayPort cable into a computer, the connection establishes itself through an automated, low-level hardware handshake before any video is transmitted:</p>
 
 <ol>
-<li><strong>Hot-Plug Detection (HPD):</strong> The monitor pulls the HPD pin high (3.3V). This triggers an electrical interrupt on the GPU, causing the Linux kernel DRM driver to initiate discovery.</li>
-<li><strong>AUX Channel Handshake:</strong> The GPU issues bidirectional half-duplex transactions across the 1 Mbps Manchester-encoded AUX channel to read the monitor&apos;s <strong>DPCD</strong> (DisplayPort Configuration Data) at address <code>0x00000</code>. The GPU reads:
+<li><strong>Hot-Plug Detection (<a href="glossary/h/hpd.html">HPD</a>):</strong> The monitor pulls the HPD pin high (3.3V). This triggers an electrical interrupt on the GPU, causing the Linux kernel DRM driver to initiate discovery.</li>
+<li><strong>AUX Channel Handshake:</strong> The GPU issues bidirectional half-duplex transactions across the 1 Mbps Manchester-encoded AUX channel to read the monitor&apos;s <strong><a href="glossary/d/dpcd.html">DPCD</a></strong> (DisplayPort Configuration Data) at address <code>0x00000</code>. The GPU reads:
   <ul>
-  <li>Maximum supported link rate (RBR: 1.62 Gbps, HBR: 2.7 Gbps, HBR2: 5.4 Gbps, HBR3: 8.1 Gbps, or UHBR: up to 20 Gbps per lane).</li>
+  <li>Maximum supported link rate (<a href="glossary/r/rbr.html">RBR</a>: 1.62 Gbps, <a href="glossary/h/hbr.html">HBR</a>: 2.7 Gbps, <a href="glossary/h/hbr2.html">HBR2</a>: 5.4 Gbps, <a href="glossary/h/hbr3.html">HBR3</a>: 8.1 Gbps, or <a href="glossary/u/uhbr.html">UHBR</a>: up to 20 Gbps per lane).</li>
   <li>Supported lane count (1, 2, or 4 lanes).</li>
-  <li>Downstream port capabilities and Display Stream Compression (DSC) support.</li>
+  <li><a href="glossary/d/downstream.html">Downstream</a> port capabilities and Display Stream Compression (<a href="glossary/d/dsc.html">DSC</a>) support.</li>
   </ul>
 </li>
-<li><strong>EDID Reading:</strong> Over the same AUX channel (via I2C-over-AUX), the GPU queries the monitor&apos;s 128-byte basic <dfn><a href="glossary/e/edid.html">EDID</a></dfn> block and any CTA-861 extension blocks, learning panel manufacturer, native resolution, and chromaticity coordinates.</li>
+<li><strong>EDID Reading:</strong> Over the same AUX channel (via <a href="glossary/i/i2c.html">I2C</a>-over-AUX), the GPU queries the monitor&apos;s 128-byte basic <dfn><a href="glossary/e/edid.html">EDID</a></dfn> block and any <a href="glossary/c/cta-861.html">CTA-861</a> extension blocks, learning panel manufacturer, native resolution, and chromaticity coordinates.</li>
 <li><strong>Link Training:</strong> The GPU and monitor execute a closed-loop feedback training sequence across the Main Link lanes:
   <table>
-<tr><td><strong>Clock Recovery</strong></td><td>The GPU transmits training pattern 1 (TPS1). The monitor adjusts its Phase-Locked Loop (PLL) receivers and signals lock over the AUX channel.</td></tr>
+<tr><td><strong>Clock Recovery</strong></td><td>The GPU transmits training pattern 1 (TPS1). The monitor adjusts its Phase-Locked Loop (<a href="glossary/p/pll.html">PLL</a>) receivers and signals lock over the AUX channel.</td></tr>
 <tr><td><strong>Channel Equalization</strong></td><td>The GPU transmits training pattern 2/3/4 (TPS2/3/4) to adjust pre-emphasis and voltage swing levels, compensating for high-frequency attenuation caused by the physical cable copper.</td></tr>
 </table>
 </li>

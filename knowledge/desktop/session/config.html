@@ -29,7 +29,7 @@
 <p>Separating system defaults from user overrides means system updates can refresh packaged programs without overwriting your personal themes, keybindings, or preferred web browser.</p>
 
 <h3>How to think about it</h3>
-<p>Tamlinux follows the XDG base directory specification. Read-only application defaults reside in system packages, while personal overrides live under <code>~/.config/</code>. Session state and cache files live under <code>~/.local/state/</code> and <code>~/.cache/</code>.</p>
+<p>Tamlinux follows the <a href="glossary/x/xdg.html">XDG</a> base directory specification. Read-only application defaults reside in system packages, while personal overrides live under <code>~/.config/</code>. Session state and cache files live under <code>~/.local/state/</code> and <code>~/.cache/</code>.</p>
 
 <h3>New words</h3>
 <dl>
@@ -101,16 +101,16 @@ $ tam-default-agent
 <h2>Configuration and session command family</h2>
 <table>
 <tr><th>Command</th><th>Role</th></tr>
-<tr><td><code>tam-default-browser</code></td><td>Show or set default browser for web protocols and HTML files</td></tr>
+<tr><td><code>tam-default-browser</code></td><td>Show or set default browser for web protocols and <a href="glossary/h/html.html">HTML</a> files</td></tr>
 <tr><td><code>tam-default-terminal</code></td><td>Show or set default terminal emulator for <code>xdg-terminal-exec</code></td></tr>
 <tr><td><code>tam-default-agent</code></td><td>Read, select, or launch supported coding agents</td></tr>
 <tr><td><code>tam-browser-command</code></td><td>Resolve browser desktop entry Exec specifications into argv without executing</td></tr>
-<tr><td><code>tam-branding-about</code></td><td>Edit, reset, or transcode custom ASCII artwork for the about dialog</td></tr>
-<tr><td><code>tam-chromium-copy-url-host</code></td><td>Native messaging endpoint for browser URL copy integration</td></tr>
+<tr><td><code>tam-branding-about</code></td><td>Edit, reset, or transcode custom <a href="glossary/a/ascii.html">ASCII</a> artwork for the about dialog</td></tr>
+<tr><td><code>tam-chromium-copy-url-host</code></td><td>Native messaging endpoint for browser <a href="glossary/u/url.html">URL</a> copy integration</td></tr>
 <tr><td><code>tam-chromium-ytdlp-host</code></td><td>Native messaging endpoint for browser video download integration</td></tr>
 <tr><td><code>tam-desktop-mode</code></td><td>Query or switch workspace layouts and desktop modes used by the bar</td></tr>
 <tr><td><code>tam-session-init</code></td><td>Initialize application defaults and user assets upon fresh session startup</td></tr>
-<tr><td><code>tam-settings-preserve</code></td><td>Snapshot user files and state before settings mutations to provide rollback</td></tr>
+<tr><td><code>tam-settings-preserve</code></td><td><a href="glossary/s/snapshot.html">Snapshot</a> user files and state before settings mutations to provide rollback</td></tr>
 </table>
 <p>Desktop applications launch via standard XDG desktop files. <code>tam-browser-command</code> parses Exec strings according to the desktop entry specification, allowing clean invocation without shell interpolation risks.</p>
 </section>

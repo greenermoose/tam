@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/protocols/index.html">Secure protocols</a> / The SSH Protocol Internals</p></nav>
 
 
-<h1>The SSH Protocol Internals</h1>
+<h1>The <a href="glossary/s/ssh.html">SSH</a> Protocol Internals</h1>
 <p>This page explains how the Secure Shell (SSH) protocol establishes an encrypted, mutually authenticated tunnel for remote terminals and file transfers.</p>
 <h2>Before this</h2><p><a href="security/protocols/tls-and-https.html">SSL, TLS, and HTTPS</a></p>
 
@@ -26,7 +26,7 @@
 <p>When you connect to another computer with SSH, two separate checks happen before you ever see a shell prompt: your computer checks that it is talking to the real remote server, and the server checks that you are an authorized user using your <dfn><a href="glossary/s/ssh-key.html">SSH key</a></dfn>.</p>
 
 <h3>Why it matters</h3>
-<p>Unlike websites, personal servers and lab machines usually do not have commercial X.509 certificates signed by a browser certificate authority. Instead, SSH remembers each server's public host key the first time you connect—a model called <strong>Trust On First Use (TOFU)</strong>—and warns you loudly if that key ever changes unexpectedly.</p>
+<p>Unlike websites, personal servers and lab machines usually do not have commercial <a href="glossary/x/x509.html">X.509</a> certificates signed by a browser certificate authority. Instead, SSH remembers each server's public host key the first time you connect—a model called <strong>Trust On First Use (<a href="glossary/t/tofu.html">TOFU</a>)</strong>—and warns you loudly if that key ever changes unexpectedly.</p>
 
 <h3>How to think about it</h3>
 <p>Think of SSH as a two-key lockbox inside an armored pipe: first, both machines build the armored pipe and check the server's permanent fingerprint against your saved address book (<code>~/.ssh/known_hosts</code>). Second, once the pipe is sealed, you prove your identity by signing a fresh challenge with your private key—never sending the private key over the wire.</p>
@@ -42,7 +42,7 @@
 
 <section data-level="learner">
 <h2>Inspecting OpenSSH key-exchange and cipher algorithms</h2>
-<p><strong>Goal:</strong> you will be able to query the key-exchange (KEX), cipher, and MAC algorithms supported by OpenSSH on your workstation and see how <code>ssh -G</code> resolves client defaults without opening a connection.</p>
+<p><strong>Goal:</strong> you will be able to query the key-exchange (<a href="glossary/k/kex.html">KEX</a>), cipher, and <a href="glossary/m/mac.html">MAC</a> algorithms supported by OpenSSH on your workstation and see how <code>ssh -G</code> resolves client defaults without opening a connection.</p>
 <p><strong>Before you start:</strong> <code>ssh -Q</code> and <code>ssh -G</code> are completely read-only and never contact a remote host.</p>
 
 <h3>Worked example</h3>
@@ -69,7 +69,7 @@ macs umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.
 <h3>What just happened</h3>
 <ol>
 <li><code>ssh -Q kex</code> showed both classical (<code>curve25519-sha256</code>) and post-quantum hybrid key exchanges (<code>mlkem768x25519-sha256</code>, <code>sntrup761x25519-sha512</code>).</li>
-<li><code>ssh -G localhost</code> printed the exact preference order your client proposes in <code>SSH_MSG_KEXINIT</code>, preferring AEAD ciphers (<code>chacha20-poly1305@openssh.com</code>, AES-GCM) and Encrypt-then-MAC (<code>-etm</code>) modes.</li>
+<li><code>ssh -G localhost</code> printed the exact preference order your client proposes in <code>SSH_MSG_KEXINIT</code>, preferring <a href="glossary/a/aead.html">AEAD</a> ciphers (<code>chacha20-poly1305@openssh.com</code>, AES-<a href="glossary/g/gcm.html">GCM</a>) and Encrypt-then-MAC (<code>-etm</code>) modes.</li>
 </ol>
 
 <h3>Try it</h3>
@@ -80,7 +80,7 @@ macs umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.
 <dt><code>WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!</code></dt>
 <dd>Either the server was legitimately reinstalled/rekeyed, or an active attacker is intercepting the connection. Verify the new host key fingerprint out-of-band before removing the old entry with <code>ssh-keygen -R hostname</code>.</dd>
 <dt><code>HashKnownHosts yes</code> makes <code>~/.ssh/known_hosts</code> unreadable</dt>
-<dd>OpenSSH hashes hostnames with HMAC-SHA1 in <code>known_hosts</code> so an attacker who steals your laptop cannot read a list of servers you connect to. Use <code>ssh-keygen -F hostname</code> to look up a host.</dd>
+<dd>OpenSSH hashes hostnames with <a href="glossary/h/hmac-sha1.html">HMAC-SHA1</a> in <code>known_hosts</code> so an attacker who steals your laptop cannot read a list of servers you connect to. Use <code>ssh-keygen -F hostname</code> to look up a host.</dd>
 </dl>
 
 <aside class="tamlinux">
@@ -92,18 +92,18 @@ macs umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary><i>What is the security weakness of Trust On First Use (TOFU) in SSH?</i></summary>
-<p>TOFU detects key changes on all future connections, but if an active attacker intercepts your very first connection when the host key is unknown, you must verify the displayed fingerprint out-of-band (or use SSHFP DNSSEC / SSH certificates) to spot the impersonation.</p>
+<p>TOFU detects key changes on all future connections, but if an active attacker intercepts your very first connection when the host key is unknown, you must verify the displayed fingerprint out-of-band (or use <a href="glossary/s/sshfp.html">SSHFP</a> <a href="glossary/d/dnssec.html">DNSSEC</a> / SSH certificates) to spot the impersonation.</p>
 </details>
 <details class="q">
 <summary><i>Why do modern OpenSSH configurations prefer <code>-etm</code> MACs or AEAD ciphers like <code>chacha20-poly1305@openssh.com</code>?</i></summary>
-<p>Encrypt-then-MAC and AEAD authenticate the ciphertext (including the encrypted packet length) before decrypting, preventing chosen-ciphertext length-oracle attacks against unauthenticated CBC streams.</p>
+<p>Encrypt-then-MAC and AEAD authenticate the ciphertext (including the encrypted packet length) before decrypting, preventing chosen-ciphertext length-oracle attacks against unauthenticated <a href="glossary/c/cbc.html">CBC</a> streams.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>RFC 4251–4254 layers, exchange hash binding, and Terrapin</h2>
-<p><strong>Reference:</strong> SSH-2 is a three-layer protocol over TCP: (1) <strong>Transport Layer</strong> (RFC 4253), (2) <strong>User Authentication Protocol</strong> (RFC 4252), and (3) <strong>Connection Protocol</strong> (RFC 4254).</p>
+<h2><a href="glossary/r/rfc.html">RFC</a> 4251–4254 layers, exchange hash binding, and Terrapin</h2>
+<p><strong>Reference:</strong> <a href="glossary/s/ssh-2.html">SSH-2</a> is a three-layer protocol over <a href="glossary/t/tcp.html">TCP</a>: (1) <strong>Transport Layer</strong> (RFC 4253), (2) <strong>User <a href="glossary/a/authentication.html">Authentication</a> Protocol</strong> (RFC 4252), and (3) <strong>Connection Protocol</strong> (RFC 4254).</p>
 
 <pre>
 +-------------------------------------------------------------+
@@ -119,7 +119,7 @@ macs umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.
 </pre>
 
 <h3>How it works: Transport KEX, Session ID binding, and UserAuth</h3>
-<p><strong>Binary Packet Protocol &amp; KEX:</strong> After exchanging plaintext version banners (<code>SSH-2.0-...</code>), both sides send <code>SSH_MSG_KEXINIT</code> listing algorithm preferences and a 16-byte random cookie. In ephemeral ECDH / hybrid KEX (e.g., <code>mlkem768x25519-sha256</code>), client and server exchange ephemeral public values <code>Q_C, Q_S</code>, compute shared secret <code>K</code>, and compute the exchange hash:</p>
+<p><strong><a href="glossary/b/binary.html">Binary</a> <a href="glossary/p/packet.html">Packet</a> Protocol &amp; KEX:</strong> After exchanging plaintext version banners (<code>SSH-2.0-...</code>), both sides send <code>SSH_MSG_KEXINIT</code> listing algorithm preferences and a 16-byte random cookie. In ephemeral ECDH / hybrid KEX (e.g., <code>mlkem768x25519-sha256</code>), client and server exchange ephemeral public values <code>Q_C, Q_S</code>, compute shared secret <code>K</code>, and compute the exchange hash:</p>
 <pre>
 H = SHA-256(V_C || V_S || I_C || I_S || K_S || Q_C || Q_S || K)
 </pre>
@@ -128,15 +128,15 @@ H = SHA-256(V_C || V_S || I_C || I_S || K_S || Q_C || Q_S || K)
 
 <h3>Edge cases and failure modes</h3>
 <ul>
-<li><strong>Terrapin Prefix-Truncation Attack (CVE-2023-48795):</strong> Because SSH packet sequence numbers reset or increment predictably across <code>NEWKEYS</code>, an active MITM could inject or drop packets during plaintext KEX (e.g., stripping <code>SSH_MSG_EXT_INFO</code> to disable signature-algorithm extensions) while keeping ChaCha20-Poly1305 or CBC-EtM sequence counters aligned. OpenSSH and peers mitigated this with <strong>strict-kex</strong> (<code>kex-strict-c-v00@openssh.com</code>), which forbids extraneous packets during KEX and resets sequence numbers to zero upon <code>NEWKEYS</code>.</li>
-<li><strong><code>ssh-agent</code> forwarding hijacking:</strong> Forwarding <code>SSH_AUTH_SOCK</code> (<code>ssh -A</code>) exposes a Unix socket on the remote host; any root user or compromised process on that remote host can request signatures from your local agent for the lifetime of the session. Prefer <code>ProxyJump</code> (<code>ssh -J</code>), where the local client authenticates end-to-end without exposing the agent socket.</li>
+<li><strong>Terrapin Prefix-Truncation Attack (CVE-2023-48795):</strong> Because SSH packet sequence numbers reset or increment predictably across <code>NEWKEYS</code>, an active <a href="glossary/m/mitm.html">MITM</a> could inject or drop packets during plaintext KEX (e.g., stripping <code>SSH_MSG_EXT_INFO</code> to disable signature-algorithm extensions) while keeping ChaCha20-Poly1305 or CBC-EtM sequence counters aligned. OpenSSH and peers mitigated this with <strong>strict-kex</strong> (<code>kex-strict-c-v00@openssh.com</code>), which forbids extraneous packets during KEX and resets sequence numbers to zero upon <code>NEWKEYS</code>.</li>
+<li><strong><code>ssh-agent</code> forwarding hijacking:</strong> Forwarding <code>SSH_AUTH_SOCK</code> (<code>ssh -A</code>) exposes a <a href="glossary/u/unix.html">Unix</a> socket on the remote host; any root user or compromised process on that remote host can request signatures from your local agent for the lifetime of the session. Prefer <code>ProxyJump</code> (<code>ssh -J</code>), where the local client authenticates end-to-end without exposing the agent socket.</li>
 </ul>
 
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q open">
 <summary>Why is SSH's publickey authentication signature computed over session_id rather than just a fresh server nonce?</summary>
-<p>session_id is the exchange hash H of the entire Transport Layer handshake (version strings, KEXINIT lists, server host key K_S, ephemeral shares, and shared secret K). Signing session_id cryptographically binds the client's authentication proof to the exact server host key and encrypted channel, preventing an attacker from relaying a client's signature to a different server or MITM session.</p>
+<p>session_id is the exchange hash H of the entire Transport Layer handshake (version strings, <a href="glossary/k/kexinit.html">KEXINIT</a> lists, server host key K_S, ephemeral shares, and shared secret K). Signing session_id cryptographically binds the client's authentication proof to the exact server host key and encrypted channel, preventing an attacker from relaying a client's signature to a different server or MITM session.</p>
 </details>
 </section>
 

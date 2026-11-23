@@ -17,13 +17,13 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/cryptography/index.html">Cryptography</a> / Symmetric Cryptography and Authenticated Encryption</p></nav>
 
 
-<h1>Symmetric Cryptography and Authenticated Encryption</h1>
+<h1>Symmetric Cryptography and Authenticated <a href="glossary/e/encryption.html">Encryption</a></h1>
 <p>This page explains how a single shared secret key scrambles bulk data quickly and seals it against tampering.</p>
 <h2>Before this</h2><p><a href="security/cryptography/cryptography-foundations.html">Foundations of Cryptography</a></p>
 
 <section data-level="novice">
 <h2>Locking and sealing data with one shared key</h2>
-<p><dfn><a href="glossary/s/symmetric-encryption.html">Symmetric encryption</a></dfn> uses the exact same secret key to scramble (encrypt) and unscramble (decrypt) information. Because it relies on fast bitwise operations—shifting, mixing, and adding—it can encrypt gigabytes per second, making it the workhorse behind full-disk encryption, Wi-Fi, and web traffic.</p>
+<p><dfn><a href="glossary/s/symmetric-encryption.html">Symmetric encryption</a></dfn> uses the exact same secret key to scramble (encrypt) and unscramble (decrypt) information. Because it relies on fast bitwise operations—shifting, mixing, and adding—it can encrypt gigabytes per second, making it the workhorse behind full-disk encryption, <a href="glossary/w/wi-fi.html">Wi-Fi</a>, and web traffic.</p>
 
 <h3>Why it matters</h3>
 <p>Confidentiality alone is not enough: if an attacker flips a few bits in an encrypted message without being noticed, they could change a bank transfer amount or corrupt a program. Modern symmetric systems therefore pair encryption with a tamper-evident seal so any modification is caught before the data is trusted.</p>
@@ -39,17 +39,17 @@
 <dt><dfn><a href="glossary/a/aead.html">AEAD</a></dfn></dt>
 <dd>Authenticated Encryption with Associated Data: locking data and sealing it against tampering in one step.</dd>
 <dt><dfn><a href="glossary/m/mac.html">MAC</a></dfn></dt>
-<dd>Message Authentication Code: a short tag made with a secret key to prove a message was not altered.</dd>
+<dd>Message <a href="glossary/a/authentication.html">Authentication</a> Code: a short tag made with a secret key to prove a message was not altered.</dd>
 </dl>
 </section>
 
 <section data-level="learner">
 <h2>Encrypting files and spotting key-derivation headers</h2>
-<p><strong>Goal:</strong> you will be able to encrypt and decrypt a scratch file safely with OpenSSL using AES-256 and PBKDF2 key derivation, and inspect why salting changes the ciphertext.</p>
+<p><strong>Goal:</strong> you will be able to encrypt and decrypt a scratch file safely with OpenSSL using <a href="glossary/a/aes-256.html">AES-256</a> and <a href="glossary/p/pbkdf2.html">PBKDF2</a> key derivation, and inspect why salting changes the ciphertext.</p>
 <p><strong>Before you start:</strong> work inside a temporary directory created with <code>mktemp -d</code> so no scratch files remain in your home folder.</p>
 
 <h3>Worked example</h3>
-<p>Create a scratch file, encrypt it with AES-256-CBC and PBKDF2 key derivation, inspect the first 32 bytes of the encrypted file, and decrypt it:</p>
+<p>Create a scratch file, encrypt it with AES-256-<a href="glossary/c/cbc.html">CBC</a> and PBKDF2 key derivation, inspect the first 32 bytes of the encrypted file, and decrypt it:</p>
 <pre class="session" data-risk="scratch">
 $ work=$(mktemp -d) &amp;&amp; cd "$work"
 $ printf 'Secret message for Tamlinux.\n' &gt; msg.txt
@@ -66,9 +66,9 @@ $ rm -rf "$work"
 
 <h3>What just happened</h3>
 <ol>
-<li>The first 8 bytes of <code>msg.enc</code> (<code>53 61 6c 74 65 64 5f 5f</code>) spell <code>Salted__</code> in ASCII, followed by an 8-byte random salt (<code>c5 76 5e ...</code>).</li>
+<li>The first 8 bytes of <code>msg.enc</code> (<code>53 61 6c 74 65 64 5f 5f</code>) spell <code>Salted__</code> in <a href="glossary/a/ascii.html">ASCII</a>, followed by an 8-byte random salt (<code>c5 76 5e ...</code>).</li>
 <li><code>-pbkdf2</code> stretches the passphrase with the random salt to derive both an encryption key and an initialization vector (IV), so encrypting the same file twice with the same passphrase produces different ciphertexts.</li>
-<li>Note that <code>openssl enc</code> defaults to unauthenticated modes (CBC) without a MAC; for real file encryption, prefer authenticated tools such as <code>age</code>, <code>gpg</code>, or LUKS2 rather than raw <code>openssl enc</code>.</li>
+<li>Note that <code>openssl enc</code> defaults to unauthenticated modes (CBC) without a MAC; for real file encryption, prefer authenticated tools such as <code>age</code>, <code>gpg</code>, or <a href="glossary/l/luks2.html">LUKS2</a> rather than raw <code>openssl enc</code>.</li>
 </ol>
 
 <h3>Try it</h3>
@@ -78,12 +78,12 @@ $ rm -rf "$work"
 <dl>
 <dt><code>bad decrypt</code> error</dt>
 <dd>The passphrase is wrong, the file was truncated, or the decryption command omitted <code>-pbkdf2</code> when encryption used it.</dd>
-<dt>ECB mode warning or repeated blocks</dt>
+<dt><a href="glossary/e/ecb.html">ECB</a> mode warning or repeated blocks</dt>
 <dd>Never use <code>-aes-256-ecb</code>: ECB encrypts identical 16-byte blocks identically, leaking structure in images and structured files.</dd>
 </dl>
 
 <aside class="tamlinux">
-<p>On Tamlinux, full-disk encryption (<a href="security/practice/disk-encryption.html">LUKS2</a>) uses <code>aes-xts-plain64</code> (a tweakable block cipher mode designed for fixed-sector storage where ciphertext cannot expand to hold a MAC tag), while TLS 1.3 and WireGuard use AEAD suites (<code>AES-256-GCM</code> and <code>ChaCha20-Poly1305</code>).</p>
+<p>On Tamlinux, full-disk encryption (<a href="security/practice/disk-encryption.html">LUKS2</a>) uses <code>aes-xts-plain64</code> (a tweakable block cipher mode designed for fixed-sector storage where ciphertext cannot expand to hold a MAC tag), while <a href="glossary/t/tls.html">TLS</a> 1.3 and WireGuard use AEAD suites (<code>AES-256-GCM</code> and <code>ChaCha20-Poly1305</code>).</p>
 </aside>
 
 <section class="quiz">
@@ -95,33 +95,33 @@ $ rm -rf "$work"
 </details>
 <details class="q">
 <summary><i>What does AEAD add beyond plain encryption?</i></summary>
-<p>AEAD computes an authentication tag over both the ciphertext and any unencrypted associated headers (AAD), so decryption rejects any tampered packet before releasing plaintext.</p>
+<p>AEAD computes an authentication tag over both the ciphertext and any unencrypted associated headers (<a href="glossary/a/aad.html">AAD</a>), so decryption rejects any tampered packet before releasing plaintext.</p>
 </details>
 </section>
 </section>
 
 <section data-level="expert">
-<h2>Cipher constructions, Galois fields, AEAD, and cryptanalysis</h2>
-<p><strong>Reference:</strong> a block cipher <code>E: {0,1}^k × {0,1}^n → {0,1}^n</code> is modeled as a Pseudorandom Permutation (PRP). Security requires that no PPT adversary can distinguish <code>E_K(·)</code> from a uniform random permutation over <code>{0,1}^n</code>.</p>
+<h2><a href="glossary/c/cipher.html">Cipher</a> constructions, Galois fields, AEAD, and cryptanalysis</h2>
+<p><strong>Reference:</strong> a block cipher <code>E: {0,1}^k × {0,1}^n → {0,1}^n</code> is modeled as a Pseudorandom Permutation (PRP). Security requires that no <a href="glossary/p/ppt.html">PPT</a> adversary can distinguish <code>E_K(·)</code> from a uniform random permutation over <code>{0,1}^n</code>.</p>
 
 <table>
 <tr><th>Primitive</th><th>Structure</th><th>Key / Block / Nonce</th><th>Core Operations</th></tr>
-<tr><td>AES-128 / 256</td><td>SPN (10 / 14 rounds)</td><td>128 or 256 / 128 / mode</td><td><code>SubBytes</code> (<code>GF(2^8)</code>), <code>ShiftRows</code>, <code>MixColumns</code>, <code>AddRoundKey</code></td></tr>
-<tr><td>ChaCha20</td><td>ARX stream (20 rounds)</td><td>256 / 512 state / 96</td><td>32-bit Modular Add, Rotate, XOR quarter-round</td></tr>
-<tr><td>AES-GCM</td><td>AEAD (CTR + GHASH)</td><td>128 or 256 / 128 / 96</td><td>CTR encryption + polynomial MAC in <code>GF(2^128)</code></td></tr>
+<tr><td><a href="glossary/a/aes-128.html">AES-128</a> / 256</td><td><a href="glossary/s/spn.html">SPN</a> (10 / 14 rounds)</td><td>128 or 256 / 128 / mode</td><td><code>SubBytes</code> (<code>GF(2^8)</code>), <code>ShiftRows</code>, <code>MixColumns</code>, <code>AddRoundKey</code></td></tr>
+<tr><td>ChaCha20</td><td><a href="glossary/a/arx.html">ARX</a> stream (20 rounds)</td><td>256 / 512 state / 96</td><td>32-bit Modular Add, Rotate, <a href="glossary/x/xor.html">XOR</a> quarter-round</td></tr>
+<tr><td>AES-<a href="glossary/g/gcm.html">GCM</a></td><td>AEAD (<a href="glossary/c/ctr.html">CTR</a> + <a href="glossary/g/ghash.html">GHASH</a>)</td><td>128 or 256 / 128 / 96</td><td>CTR encryption + polynomial MAC in <code>GF(2^128)</code></td></tr>
 <tr><td>ChaCha20-Poly1305</td><td>AEAD (Encrypt-then-MAC)</td><td>256 / stream / 96</td><td>ChaCha20 keystream + Poly1305 mod <code>2^130 - 5</code></td></tr>
 </table>
 
 <h3>How it works: AES, ChaCha20, and AEAD</h3>
 <p><strong>AES (Rijndael) Internals:</strong> AES operates on a 4×4 byte state matrix in the finite field <code>GF(2^8) = 𝔽_2[x] / (x^8 + x^4 + x^3 + x + 1)</code>. Each round applies four layers: (1) <code>SubBytes</code>, the only nonlinear step, computes the multiplicative inverse in <code>GF(2^8)</code> (mapping 0 to 0) followed by an affine map over <code>𝔽_2</code>; (2) <code>ShiftRows</code> cyclically shifts row <code>i</code> left by <code>i</code> bytes; (3) <code>MixColumns</code> multiplies each column by a fixed Maximum Distance Separable (MDS) circulant matrix over <code>GF(2^8)</code> (branch number 5, maximizing diffusion); (4) <code>AddRoundKey</code> XORs the round subkey.</p>
-<p><strong>ChaCha20 ARX Design:</strong> Rather than S-boxes (which risk cache-timing side channels in software without AES-NI), ChaCha20 initializes a 4×4 matrix of 32-bit words (constants <code>"expand 32-byte k"</code>, 256-bit key, 32-bit block counter, 96-bit nonce) and applies 20 rounds (10 column + 10 diagonal) of quarter-rounds using only <code>a += b; d ^= a; d &lt;&lt;&lt;= 16</code> and similar Add-Rotate-XOR steps. Every operation runs in constant time on general-purpose CPUs.</p>
-<p><strong>GCM and Poly1305 Authentication:</strong> AES-GCM encrypts plaintext with AES-CTR starting at counter 2, then computes <code>GHASH(H, AAD, C)</code> where <code>H = E_K(0^128)</code> by evaluating a polynomial <code>∑ X_i · H^i</code> in <code>GF(2^128)</code> (irreducible polynomial <code>x^128 + x^7 + x^2 + x + 1</code>) and XORing <code>E_K(nonce || 1)</code>. ChaCha20-Poly1305 derives a one-time Poly1305 key from ChaCha20 block 0 and evaluates a polynomial modulo the prime <code>2^130 - 5</code> over blocks of AAD and ciphertext.</p>
+<p><strong>ChaCha20 ARX Design:</strong> Rather than S-boxes (which risk cache-timing side channels in software without <a href="glossary/a/aes-ni.html">AES-NI</a>), ChaCha20 initializes a 4×4 matrix of 32-bit words (constants <code>"expand 32-byte k"</code>, 256-bit key, 32-bit block counter, 96-bit nonce) and applies 20 rounds (10 column + 10 diagonal) of quarter-rounds using only <code>a += b; d ^= a; d &lt;&lt;&lt;= 16</code> and similar Add-Rotate-XOR steps. Every operation runs in constant time on general-purpose CPUs.</p>
+<p><strong>GCM and Poly1305 Authentication:</strong> AES-GCM encrypts plaintext with <a href="glossary/a/aes-ctr.html">AES-CTR</a> starting at counter 2, then computes <code>GHASH(H, AAD, C)</code> where <code>H = E_K(0^128)</code> by evaluating a polynomial <code>∑ X_i · H^i</code> in <code>GF(2^128)</code> (irreducible polynomial <code>x^128 + x^7 + x^2 + x + 1</code>) and XORing <code>E_K(nonce || 1)</code>. ChaCha20-Poly1305 derives a one-time Poly1305 key from ChaCha20 block 0 and evaluates a polynomial modulo the prime <code>2^130 - 5</code> over blocks of AAD and ciphertext.</p>
 <p><strong>Cryptanalysis Foundations:</strong> <em>Differential cryptanalysis</em> (Biham–Shamir) tracks how input XOR differences <code>ΔX</code> propagate to output differences <code>ΔY</code> with high probability across rounds; <em>linear cryptanalysis</em> (Matsui) finds high-bias linear approximations <code>(α · P) ⊕ (β · C) = (γ · K)</code>. Wide-trail design in AES bounds the minimum number of active S-boxes across any 4-round trail to 25, defeating both attacks.</p>
 
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li><strong>Nonce reuse in CTR/GCM/ChaCha20:</strong> Encrypting two messages under the same <code>(Key, Nonce)</code> immediately leaks <code>C_1 ⊕ C_2 = P_1 ⊕ P_2</code>. Worse, in AES-GCM, nonce reuse lets an attacker recover the GHASH authentication key <code>H</code> via polynomial root-finding in <code>GF(2^128)</code> (Joux's Forbidden Attack), forging arbitrary future tags. Use random 192-bit nonces (XChaCha20) or AES-GCM-SIV when nonce uniqueness cannot be guaranteed.</li>
-<li><strong>Cache-timing attacks on table-based AES:</strong> Software T-table implementations index RAM by secret-dependent bytes, leaking AES keys across shared CPU caches (Bernstein 2005). Production systems must use hardware instructions (AES-NI / ARMv8 Crypto) or constant-time bit-sliced / ARX designs.</li>
+<li><strong>Cache-timing attacks on table-based AES:</strong> Software T-table implementations index <a href="glossary/r/ram.html">RAM</a> by secret-dependent bytes, leaking AES keys across shared <a href="glossary/c/cpu.html">CPU</a> caches (Bernstein 2005). Production systems must use hardware instructions (AES-NI / ARMv8 Crypto) or constant-time bit-sliced / ARX designs.</li>
 </ul>
 
 <section class="quiz">

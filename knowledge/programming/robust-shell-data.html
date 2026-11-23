@@ -59,7 +59,7 @@ $ printf '%s\n' 'Quarterly Report.pdf' 'invoice.txt' | while IFS= read -r line; 
 <li>The command substitution in the first loop produced two lines of text.</li>
 <li>Because it was unquoted, word splitting cut the filename with a space into two names.</li>
 <li>The read loop takes one line at a time. <code>IFS=</code> stops it trimming leading and trailing spaces, and <code>-r</code> stops backslashes being interpreted.</li>
-<li>Quoting <code>"$line"</code> then passes the whole line to <code>printf</code> as one argument.</li>
+<li><a href="glossary/q/quoting.html">Quoting</a> <code>"$line"</code> then passes the whole line to <code>printf</code> as one argument.</li>
 </ol>
 
 <h3>Try it</h3>
@@ -92,7 +92,7 @@ $ printf '%s\n' 'Quarterly Report.pdf' 'invoice.txt' | while IFS= read -r line; 
 <tr><td>Forward all arguments</td><td><code>"$@"</code></td><td>One field per original argument</td></tr>
 <tr><td>Hold a set of names</td><td><code>items=('a b' c)</code> then <code>"${items[@]}"</code></td><td>Each element stays a separate argument</td></tr>
 <tr><td>Read lines of text</td><td><code>while IFS= read -r line</code></td><td>Preserves spaces and backslashes</td></tr>
-<tr><td>Read arbitrary filenames</td><td><code>find ... -print0</code> into <code>while IFS= read -r -d '' path</code></td><td>NUL separators cannot occur in a filename</td></tr>
+<tr><td>Read arbitrary filenames</td><td><code>find ... -print0</code> into <code>while IFS= read -r -d '' path</code></td><td><a href="glossary/n/nul.html">NUL</a> separators cannot occur in a filename</td></tr>
 <tr><td>Read one delimited line</td><td><code>IFS=, read -r a b c</code></td><td>Sets the separator for that command only</td></tr>
 </table>
 

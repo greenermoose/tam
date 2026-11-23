@@ -24,7 +24,7 @@
 
 <section data-level="novice">
 <h2>From human code to machine instructions</h2>
-<p>Computer processors cannot directly read human-written programming languages like C. They only understand binary <dfn><a href="glossary/m/machine-code.html">machine code</a></dfn> &mdash; sequences of numbers that instruct CPU circuits to move data between registers and perform arithmetic. Between the code written by programmers and the program you run in a terminal are intermediate files that make software faster to build, easier to share, and simpler to maintain.</p>
+<p>Computer processors cannot directly read human-written programming languages like C. They only understand binary <dfn><a href="glossary/m/machine-code.html">machine code</a></dfn> &mdash; sequences of numbers that instruct <a href="glossary/c/cpu.html">CPU</a> circuits to move data between registers and perform arithmetic. Between the code written by programmers and the program you run in a terminal are intermediate files that make software faster to build, easier to share, and simpler to maintain.</p>
 
 <h3>Why it matters</h3>
 <p>Large software systems consist of dozens or hundreds of individual source files. If every change to a single line required recompiling the entire system from scratch, building software would take minutes or hours instead of milliseconds. Breaking code into individual object files and reusable static archives allows computers to recompile only the files that changed and package common routines so multiple programs can share them without rewriting logic.</p>
@@ -35,7 +35,7 @@
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/c/compiler.html">Compiler</a></dt>
-<dd>A programming tool (such as GCC or Clang) that translates human-readable source code into machine instructions.</dd>
+<dd>A programming tool (such as <a href="glossary/g/gcc.html">GCC</a> or Clang) that translates human-readable source code into machine instructions.</dd>
 <dt>Object file (<code>.o</code>)</dt>
 <dd>The compiled machine code translation of a single source file, complete with function instructions and relocation placeholders, but not yet linked into an executable program.</dd>
 <dt><a href="glossary/s/static-library.html">Static library (<code>.a</code>)</a></dt>
@@ -81,7 +81,7 @@ Hello, Tamlinux
 <h3>What just happened</h3>
 
 <ol>
-<li><code>gcc -c greet.c -o greet.o</code> compiled the C source into an ELF 64-bit relocatable object file. The machine code for <code>greet()</code> was generated, but memory addresses for external dependencies like <code>printf</code> remain unresolved.</li>
+<li><code>gcc -c greet.c -o greet.o</code> compiled the C source into an <a href="glossary/e/elf.html">ELF</a> 64-bit relocatable object file. The machine code for <code>greet()</code> was generated, but memory addresses for external dependencies like <code>printf</code> remain unresolved.</li>
 <li><code>nm greet.o</code> inspected the object file symbol table: <code>T greet</code> marks <code>greet</code> as an exported text (code) symbol defined in this object, while <code>U printf</code> marks <code>printf</code> as an undefined symbol that the linker must resolve later.</li>
 <li><code>ar rcs libgreet.a greet.o</code> packaged the object file into an indexed static library archive. The <code>r</code> flag inserts files, <code>c</code> creates the archive without warning, and <code>s</code> builds an object symbol index.</li>
 <li><code>gcc main.c -L. -lgreet -o demo</code> compiled <code>main.c</code> and instructed the linker to search the current directory (<code>-L.</code>) for a library named <code>libgreet.a</code> (<code>-lgreet</code>), producing a self-contained executable.</li>
@@ -104,7 +104,7 @@ greet.o
 <dt><code>undefined reference to 'greet'</code></dt>
 <dd>The linker could not find the definition of <code>greet</code>. Ensure that <code>-L.</code> (library search path) and <code>-lgreet</code> (library name) appear after <code>main.c</code> on the compiler command line.</dd>
 <dt><code>ar: command not found</code></dt>
-<dd>The GNU binary utilities (<code>binutils</code>) are not installed. Static archive creation requires <code>ar</code> from the standard development package group.</dd>
+<dd>The <a href="glossary/g/gnu.html">GNU</a> binary utilities (<code>binutils</code>) are not installed. Static archive creation requires <code>ar</code> from the standard development package group.</dd>
 </dl>
 
 <aside class="tamlinux">
@@ -120,7 +120,7 @@ greet.o
 </details>
 <details class="q">
 <summary><i>Why does the compiler flag <code>-c</code> stop before running the linker?</i></summary>
-<p>The <code>-c</code> flag instructs GCC to compile C source into machine code but halt before linking, allowing developers and build systems like Make to recompile individual files incrementally without producing an incomplete executable.</p>
+<p>The <code>-c</code> flag instructs GCC to compile C source into machine code but halt before linking, allowing developers and build systems like <a href="glossary/m/make.html">Make</a> to recompile individual files incrementally without producing an incomplete executable.</p>
 </details>
 </section>
 </section>
@@ -132,9 +132,9 @@ greet.o
 
 <table>
 <tr><th>Extension / Tool</th><th>Format / Class</th><th>Function in compilation pipeline</th></tr>
-<tr><td><code>.c</code></td><td>ASCII / UTF-8 source</td><td>Human-readable C11 program logic and type declarations.</td></tr>
+<tr><td><code>.c</code></td><td><a href="glossary/a/ascii.html">ASCII</a> / <a href="glossary/u/utf-8.html">UTF-8</a> source</td><td>Human-readable C11 program logic and type declarations.</td></tr>
 <tr><td><code>.o</code></td><td>ELF Relocatable (<code>ET_REL</code>)</td><td>Compiled machine code sections (<code>.text</code>, <code>.data</code>, <code>.rodata</code>), symbol tables (<code>.symtab</code>), and relocation entries (<code>.rela.text</code>).</td></tr>
-<tr><td><code>.a</code></td><td>Unix <code>ar</code> Archive</td><td>Collection of ELF relocatable objects prefixed by standard 60-byte headers and an internal symbol index (<code>ranlib</code> map).</td></tr>
+<tr><td><code>.a</code></td><td><a href="glossary/u/unix.html">Unix</a> <code>ar</code> Archive</td><td>Collection of ELF relocatable objects prefixed by standard 60-byte headers and an internal symbol index (<code>ranlib</code> map).</td></tr>
 <tr><td><code>gcc -c</code></td><td>Compiler frontend</td><td>Runs the preprocessor and compiler backend to emit relocatable object files without invoking <code>ld</code>.</td></tr>
 <tr><td><code>ar rcs</code></td><td>Archive utility</td><td>Bundles object files into a static library and generates the symbol table map required for fast linker lookups.</td></tr>
 <tr><td><code>nm</code></td><td>Symbol inspector</td><td>Dumps symbol names, types (<code>T</code>, <code>U</code>, <code>D</code>, <code>R</code>), and section offsets from object files and archives.</td></tr>

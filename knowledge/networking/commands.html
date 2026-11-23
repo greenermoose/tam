@@ -17,12 +17,12 @@
 
 
 <h1>Network commands</h1>
-<p>These hand-checked Tamlinux commands inspect your active connection, inspect or share Wi-Fi details, check DNS resolvers, and restart Wi-Fi when needed.</p>
+<p>These hand-checked Tamlinux commands inspect your active connection, inspect or share <a href="glossary/w/wi-fi.html">Wi-Fi</a> details, check <a href="glossary/d/dns.html">DNS</a> resolvers, and restart Wi-Fi when needed.</p>
 
 <h2>Connection status and diagnostics</h2>
 <table>
 <tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
-<tr><td><code>tam-network-status</code></td><td>Print active type (ethernet, wifi, disconnected), SSID, signal, and frequency</td><td>Read-only</td><td><code>commands/tam-network-status/tam-network-status</code></td></tr>
+<tr><td><code>tam-network-status</code></td><td>Print active type (ethernet, wifi, disconnected), <a href="glossary/s/ssid.html">SSID</a>, signal, and frequency</td><td>Read-only</td><td><code>commands/tam-network-status/tam-network-status</code></td></tr>
 <tr><td><code>tam-network-status --verbose</code></td><td>Print detailed route, link, and gateway ping key/value lines</td><td>Read-only</td><td><code>commands/tam-network-status/tam-network-status</code></td></tr>
 <tr><td><code>tam-network-band</code></td><td>Print the active Wi-Fi radio band</td><td>Read-only</td><td><code>commands/tam-network-band/tam-network-band</code></td></tr>
 <tr><td><code>tam-network-speedtest</code></td><td>Measure live internet speed in one direction</td><td>User (network transfer)</td><td><code>commands/tam-network-speedtest/tam-network-speedtest</code></td></tr>
@@ -42,14 +42,14 @@ $ tam-network-status --verbose
 <table>
 <tr><th>Command</th><th>What it does</th><th>Risk / undo</th><th>Source</th></tr>
 <tr><td><code>tam-dns</code></td><td>Show the current system DNS configuration without changing it</td><td>Read-only</td><td><code>commands/tam-dns/tam-dns</code></td></tr>
-<tr><td><code>tam-dns &lt;Cloudflare|Google|DHCP|Custom&gt;</code></td><td>Set system DNS via <code>pkexec</code> Polkit prompt (<code>20-tamlinux-dns.conf</code>); undo with <code>tam-dns DHCP</code></td><td>System (privileged prompt)</td><td><code>commands/tam-dns/tam-dns</code></td></tr>
+<tr><td><code>tam-dns &lt;Cloudflare|Google|DHCP|Custom&gt;</code></td><td>Set system DNS via <code>pkexec</code> <a href="glossary/p/polkit.html">Polkit</a> prompt (<code>20-tamlinux-dns.conf</code>); undo with <code>tam-dns DHCP</code></td><td>System (privileged prompt)</td><td><code>commands/tam-dns/tam-dns</code></td></tr>
 <tr><td><code>tam-restart-wifi</code></td><td>Unblock and restart Wi-Fi connectivity when the radio stalls</td><td>System (drops active Wi-Fi briefly)</td><td><code>commands/tam-restart-wifi/tam-restart-wifi</code></td></tr>
 </table>
 <pre class="session" data-risk="read-only">
 $ tam-dns
 </pre>
 
-<h2>Next</h2><p><a href="networking/connections.html">Network connections and DNS</a> &mdash; diagnose link, IP address, and name-resolution faults step by step.</p>
+<h2>Next</h2><p><a href="networking/connections.html">Network connections and DNS</a> &mdash; diagnose link, <a href="glossary/i/ip-address.html">IP address</a>, and name-resolution faults step by step.</p>
 <h2>Related</h2><ul><li><a href="networking/quick-check.html">Check the network recipe</a> &mdash; quick checklist before changing DNS or restarting services.</li><li><a href="help/commands.html">Command reference hub</a> &mdash; desktop, packages, and system command lists.</li></ul>
 </body>
 </html>

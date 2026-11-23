@@ -57,7 +57,7 @@ $ command -v systemctl
 </section>
 <section data-level="expert">
 <h2>Units, seats and failure boundaries</h2>
-<p>systemd units, sockets and targets group work; the journal stores structured logs. A Wayland compositor needs seat permission for DRM and input. On systemd systems <code>systemd-logind</code> grants seats; without systemd, <code>seatd</code> and <code>libseat</code> can. Restarting a login or display-related unit can end sessions—capture evidence first.</p>
+<p>systemd units, sockets and targets group work; the journal stores structured logs. A <a href="glossary/w/wayland.html">Wayland</a> compositor needs seat permission for <a href="glossary/d/drm.html">DRM</a> and input. On systemd systems <code>systemd-logind</code> grants seats; without systemd, <code>seatd</code> and <code>libseat</code> can. Restarting a login or display-related unit can end sessions—capture evidence first.</p>
 <p>Why runit is attractive on the target rootstock: simple <code>run</code> scripts, direct supervision, small footprint. That is design rationale, not a claim that your current host runs runit.</p>
 <section class="quiz"><h3>Check yourself</h3>
 <details class="q open"><summary>A greeter or desktop fails only after a service restart you triggered. What should your note include?</summary><p>The unit name, time, prior status evidence, and that the restart may have terminated sessions. Prefer read-only diagnosis before further restarts.</p></details>

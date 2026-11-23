@@ -22,7 +22,7 @@
 <p><a href="networking/setup/how-networks-fit-together.html?level=1">How networks fit together</a>: learn that every connection answers a link, address, route and name question, and that these layers fail independently. Read the four answers from a real machine with <code>ip -br addr</code>, <code>ip route</code> and <code>getent ahosts</code>.</p>
 
 <section class="quiz">
-<h3>Checkpoint</h3>
+<h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <details class="q">
 <summary><i>A machine has an address but no default route. Which destinations still work?</i></summary>
 <p>Destinations inside the directly connected prefix still work, because the kernel creates a route from the interface address. Anything outside that prefix has no next hop and fails.</p>
@@ -30,7 +30,7 @@
 </section>
 
 <h2>Stage 2: Numbers on the wire</h2>
-<p><a href="networking/setup/addresses-and-subnets.html?level=1">Addresses and subnets</a>: work out a subnet, broadcast address and usable range from an <code>address/prefix</code> pair, and see how ARP and NDP turn an address into a hardware neighbor.</p>
+<p><a href="networking/setup/addresses-and-subnets.html?level=1">Addresses and subnets</a>: work out a subnet, broadcast address and usable range from an <code>address/prefix</code> pair, and see how <a href="glossary/a/arp.html">ARP</a> and <a href="glossary/n/ndp.html">NDP</a> turn an address into a hardware neighbor.</p>
 
 <section class="quiz">
 <h3>Checkpoint</h3>
@@ -41,7 +41,7 @@
 </section>
 
 <h2>Stage 3: Save a connection</h2>
-<p><a href="networking/setup/adding-a-connection.html?level=2">Adding a connection</a>: distinguish a device from a saved profile, read the DHCP or manual method, and learn the undo for a profile you create. Record the profile name before changing anything.</p>
+<p><a href="networking/setup/adding-a-connection.html?level=2">Adding a connection</a>: distinguish a device from a saved profile, read the <a href="glossary/d/dhcp.html">DHCP</a> or manual method, and learn the undo for a profile you create. Record the profile name before changing anything.</p>
 
 <section class="quiz">
 <h3>Checkpoint</h3>
@@ -63,7 +63,7 @@
 </section>
 
 <h2>Stage 5: Find devices without an address</h2>
-<p><a href="networking/services/avahi-and-zeroconf.html?level=2">Avahi and Zeroconf</a>: publish a temporary service, read <code>avahi-browse</code> output, resolve a <code>.local</code> name and understand the mDNS and DNS-SD records behind the result.</p>
+<p><a href="networking/services/avahi-and-zeroconf.html?level=2">Avahi and Zeroconf</a>: publish a temporary service, read <code>avahi-browse</code> output, resolve a <code>.local</code> name and understand the mDNS and <a href="glossary/d/dns-sd.html">DNS-SD</a> records behind the result.</p>
 
 <section class="quiz">
 <h3>Checkpoint</h3>
@@ -83,7 +83,7 @@
 <li><code>ip -br addr</code> and <code>nmcli device status</code> establish that the interface has carrier and an address. Without an address, no service discovery or routing can work.</li>
 <li><code>ip route get 1.1.1.1</code> proves the default route and names the gateway. A failure here confines the problem to the local prefix.</li>
 <li><code>getent ahosts example.com</code> separates name resolution from routing. A numeric reply with a failed name points at the resolver; a failed numeric reply points at the route or link.</li>
-<li><code>avahi-browse _ipp._tcp -t -r -p</code> shows whether the printer announces itself. No result with a healthy network points at the printer, its VLAN or a firewall on UDP 5353.</li>
+<li><code>avahi-browse _ipp._tcp -t -r -p</code> shows whether the printer announces itself. No result with a healthy network points at the printer, its VLAN or a firewall on <a href="glossary/u/udp.html">UDP</a> 5353.</li>
 <li><code>avahi-resolve -4 -n '&lt;printer&gt;.local'</code> confirms the name-to-address step. If a profile change is needed, note its current values and the delete command that undoes a newly created profile.</li>
 </ol>
 <p>The point is not the exact output but the order: each check eliminates a layer, so the final change is the smallest one that can help.</p>

@@ -20,7 +20,7 @@
 <p>Turning off the screen, putting the computer to sleep, and saving its state before power-off are different choices. This page explains what each preserves.</p>
 <section data-level="novice">
 <h2>What are blanking, suspend, and hibernation?</h2>
-<p>Computers have three different ways to rest: <em>blanking</em> only turns off the screen while programs keep running, <em>suspend</em> pauses the machine in low-power RAM, and <em>hibernation</em> saves memory to disk so the computer can power off completely and resume later.</p>
+<p>Computers have three different ways to rest: <em>blanking</em> only turns off the screen while programs keep running, <em>suspend</em> pauses the machine in low-power <a href="glossary/r/ram.html">RAM</a>, and <em>hibernation</em> saves memory to disk so the computer can power off completely and resume later.</p>
 <h3>Why it matters</h3>
 <p>A dark monitor does not pause a download or save battery the way suspend does, and losing power during ordinary suspend loses unsaved work held only in RAM. Knowing the difference prevents unexpected data loss and battery drain.</p>
 <h3>How to think about it</h3>
@@ -95,7 +95,7 @@ does not prove a successful hibernation. Do not run the hook manually for this l
 <h2>Reason about image allocation and resume boundaries</h2>
 <h3>Reference and how it works</h3>
 <p>Hibernation freezes activity, prepares a memory image and saves it to
-storage. The final mode can use firmware-assisted ACPI S4 or power down.
+storage. The final mode can use firmware-assisted <a href="glossary/a/acpi.html">ACPI</a> S4 or power down.
 A restore kernel must locate and load the image before handing control back
 to the saved kernel. Image creation, storage write, power-down and device
 restoration are separate failure boundaries.</p>
@@ -147,13 +147,13 @@ does not change sysfs values, swap, boot parameters or sleep policy.</p>
 <tr><td><code>tam-powerprofiles-set</code></td><td>Switch and remember power profile for AC mains vs battery power</td></tr>
 <tr><td><code>tam-hibernation-available</code></td><td>Succeed when platform kernel and swap support hibernation</td></tr>
 <tr><td><code>tam-suspend-unless-stay-awake</code></td><td>Suspend the workstation unless the Stay Awake toggle is engaged</td></tr>
-<tr><td><code>tam-meter</code></td><td>Sample APU power, temperature and wakeups (<code>now</code>, <code>top</code>), or take a settled reading; see <a href="hardware/energy/measurement.html">How much power your computer uses</a></td></tr>
+<tr><td><code>tam-meter</code></td><td>Sample <a href="glossary/a/apu.html">APU</a> power, temperature and wakeups (<code>now</code>, <code>top</code>), or take a settled reading; see <a href="hardware/energy/measurement.html">How much power your computer uses</a></td></tr>
 <tr><td><code>tam-nut</code></td><td>Hardware inspection and environment verification in the initial <a href="glossary/b/bud.html">bud</a> package (<code>tam-nut inspect</code>; scheduled to be renamed <code>tam-bud</code>)</td></tr>
 </table>
 <h3>Sources and improve it</h3>
 <p>Read <a href="man:systemd-sleep(8)">systemd-sleep(8)</a> and
 <a href="man:systemd-sleep.conf(5)">systemd-sleep.conf(5)</a>, offline if installed.
-The kernel's System Sleep States and sysfs power ABI documentation are the
+The kernel's System Sleep States and sysfs power <a href="glossary/a/abi.html">ABI</a> documentation are the
 primary references for these interfaces. Tamlinux's public source is
 <code>greenermoose/tamlinux</code>, under
 <code>desktop/native/defaults/root/usr/lib/systemd/system-sleep/tam-hibernate-swap</code>.

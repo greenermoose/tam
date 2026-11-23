@@ -82,19 +82,19 @@ procedure are still required.</p></details>
 <p>If Snapper is absent, stop at the paper example.
 If access is denied or a configuration is missing, record that limitation;
 do not create a config or escalate privileges as practice. Direct operation
-bypasses D-Bus, not filesystem permissions.</p>
+bypasses D-<a href="glossary/b/bus.html">Bus</a>, not filesystem permissions.</p>
 <aside class="tamlinux"><p>The current native updater
 requests a snapshot with description “pre: Tamlinux native update” after its
 recovery gates and before the native transaction. It does not specify type
 pre, so the ordinary create default is single; it is not an automatic pre/post
-pair. A failed creation stops that transaction. Limine snapshot-menu generation
+pair. A failed creation stops that transaction. <a href="glossary/l/limine.html">Limine</a> snapshot-menu generation
 belongs to the separately selected boot provider. Neither a description nor
 successful creation proves a boot entry or successful restore.</p></aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide before revealing the explanation.</p>
 <details class="q"><summary><i>Does a root configuration prove your home directory is included?</i></summary><p>No. Nested subvolumes and separate mounts are outside the root snapshot boundary. Check the actual layout and independent backup coverage.</p></details>
-<details class="q"><summary><i>Does --no-dbus grant administrator access?</i></summary><p>No. It changes the communication mode. Filesystem permissions still apply; record an access limit rather than changing it.</p></details>
+<details class="q"><summary><i>Does --no-dbus grant administrator access?</i></summary><p>No. It changes the communication mode. <a href="glossary/f/filesystem.html">Filesystem</a> permissions still apply; record an access limit rather than changing it.</p></details>
 </section>
 </section>
 <section data-level="expert">
@@ -132,7 +132,7 @@ restore recipe. Likewise, undoing selected files is not a whole-system restore.<
 boot entry generation have different owners and failure boundaries. The current
 Arch selection includes limine-snapper-sync; its exact package and consumer
 policy determine the generated entries and boot behavior. Root snapshots do
-not by themselves retain EFI files on a separate filesystem or firmware state.</p>
+not by themselves retain <a href="glossary/e/efi.html">EFI</a> files on a separate filesystem or firmware state.</p>
 <h3>Edge cases and failure modes</h3><p>Excluded subvolumes, stale entries,
 changed encryption support and mixed-version data mounts can invalidate a
 recovery assumption. A snapshot can preserve crash-consistent filesystem data

@@ -48,7 +48,7 @@
 <p>When you launch <code>micro filename</code>, the editor takes over your terminal window. The status line at the bottom shows the file name and cursor position. You can click with the mouse to move the cursor or select text. To quit at any time, press <code>Ctrl+Q</code>. If you have unsaved changes, Micro prompts <code>Save changes to filename? (y, n, esc)</code>.</p>
 </aside>
 <h3>Mental model</h3>
-<p>An editor may have an in-memory buffer and a separate file on disk. A change to one does not by itself prove the other is updated. JSON syntax, supported settings and actual runtime behavior are separate checks.</p>
+<p>An editor may have an in-memory buffer and a separate file on disk. A change to one does not by itself prove the other is updated. <a href="glossary/j/json.html">JSON</a> syntax, supported settings and actual runtime behavior are separate checks.</p>
 <h3>Worked example: Create and edit a scratch note</h3>
 <p>Run each command separately. If <code>mktemp</code> fails, stop before creating or removing anything.</p>
 
@@ -80,7 +80,7 @@ $ rmdir -- "$scratch"
 <dd>In Micro, <code>Ctrl+C</code> is the standard shortcut to copy selected text to the clipboard. Press <code>Ctrl+Q</code> to quit.</dd>
 <dt>Micro asks "Save changes to ...? (y, n, esc)" on exit</dt>
 <dd>The buffer has modifications that have not been written to disk. Press <code>y</code> to save, <code>n</code> to discard changes, or <code>Esc</code> to continue editing.</dd>
-<dt>Terminal mouse clicks do not position the cursor</dt>
+<dt><a href="glossary/t/terminal.html">Terminal</a> mouse clicks do not position the cursor</dt>
 <dd>Verify that your terminal emulator supports mouse tracking. Standard <code>foot</code> on Tamlinux supports mouse selection, dragging, and wheel scrolling out of the box.</dd>
 </dl>
 <aside class="tamlinux"><p><strong>On Tamlinux:</strong> settings can be supplied by a package or by a user configuration. Inspect the actual selected file before editing and preserve user changes.</p></aside>
@@ -98,21 +98,21 @@ $ rmdir -- "$scratch"
 </section>
 </section>
 <section data-level="expert">
-<h2>Sub-10ms shell startup and Wayland terminal architecture</h2>
+<h2>Sub-10ms shell startup and <a href="glossary/w/wayland.html">Wayland</a> terminal architecture</h2>
 
 <h3>Reference: Wayland terminal interfaces and startup benchmarks</h3>
 
 <table>
 <tr><th>Component</th><th>Interface / Mechanism</th><th>Architectural contract</th></tr>
-<tr><td><code>foot</code> terminal</td><td>Wayland client (<code>$XDG_RUNTIME_DIR/wayland-0</code>)</td><td>Direct compositor communication via <code>wl_shm</code> or DMA-BUF without XWayland.</td></tr>
+<tr><td><code>foot</code> terminal</td><td>Wayland client (<code>$XDG_RUNTIME_DIR/wayland-0</code>)</td><td>Direct compositor communication via <code>wl_shm</code> or <a href="glossary/d/dma.html">DMA</a>-BUF without <a href="glossary/x/xwayland.html">XWayland</a>.</td></tr>
 <tr><td>Damage tracking</td><td><code>wl_surface.damage_buffer</code></td><td>Emits damage regions precisely matching modified character cells; zero compositor repaints when idle.</td></tr>
-<tr><td>Glyph caching</td><td>FreeType &amp; HarfBuzz rasterization</td><td>Asynchronous glyph raster thread with GPU texture atlas caching.</td></tr>
+<tr><td>Glyph caching</td><td>FreeType &amp; HarfBuzz rasterization</td><td>Asynchronous glyph raster thread with <a href="glossary/g/gpu.html">GPU</a> texture atlas caching.</td></tr>
 <tr><td>Shell latency</td><td><code>time bash --norc -i -c exit</code></td><td>Sub-10ms startup budget for interactive shells on Tamlinux.</td></tr>
 </table>
 
 <h3>How it works: Wayland client/compositor boundaries</h3>
 
-<p>Tamlinux standardizes on <code>foot</code> as its primary Wayland terminal emulator. Unlike bloated Electron or heavy VTE/GTK-based terminals that consume over 100MB of memory and take 200ms+ to initialize, <code>foot</code> communicates directly with the Wayland compositor over a UNIX domain stream socket located at <code>$XDG_RUNTIME_DIR/wayland-0</code> (or <code>wayland-1</code>).</p>
+<p>Tamlinux standardizes on <code>foot</code> as its primary Wayland terminal emulator. Unlike bloated <a href="glossary/e/electron.html">Electron</a> or heavy <a href="glossary/v/vte.html">VTE</a>/<a href="glossary/g/gtk.html">GTK</a>-based terminals that consume over 100MB of memory and take 200ms+ to initialize, <code>foot</code> communicates directly with the Wayland compositor over a UNIX domain stream socket located at <code>$XDG_RUNTIME_DIR/wayland-0</code> (or <code>wayland-1</code>).</p>
 
 <p>When terminal output arrives from a running command, <code>foot</code> processes the VT escape sequences in an internal grid buffer. It computes the exact bounding rectangle of modified character cells and transmits a <code>wl_surface.damage_buffer</code> request followed by <code>wl_surface.commit</code>. When no output is being generated, the terminal client sends zero Wayland protocol messages and the compositor performs zero redraws, consuming zero GPU cycles.</p>
 
@@ -171,6 +171,6 @@ srwxr-xr-x 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1
 </section>
 
 <h2>Next</h2><p><a href="terminal/terminfo-and-termcap.html">How terminals display text</a> &mdash; terminfo, termcap, <code>TERM</code>, and escape sequences.</p>
-<h2>Related</h2><ul><li><a href="programming/interfaces/ncurses.html">ncurses</a> &mdash; the library many full-screen terminal programs use.</li><li><a href="terminal/editors/index.html">Classic text editors</a> &mdash; ex, vi, and GNU Emacs, and the long debate between the last two.</li><li><a href="programming/scripting.html">Shell scripting and tool conventions</a> &mdash; learn strict Bash headers and safe argument handling.</li><li><a href="programming/efficiency.html">Zero-polling and event-driven architecture</a> &mdash; eliminate CPU wakeups and save energy.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
+<h2>Related</h2><ul><li><a href="programming/interfaces/ncurses.html">ncurses</a> &mdash; the library many full-screen terminal programs use.</li><li><a href="terminal/editors/index.html">Classic text editors</a> &mdash; ex, vi, and GNU Emacs, and the long debate between the last two.</li><li><a href="programming/scripting.html">Shell scripting and tool conventions</a> &mdash; learn strict Bash headers and safe argument handling.</li><li><a href="programming/efficiency.html">Zero-polling and event-driven architecture</a> &mdash; eliminate <a href="glossary/c/cpu.html">CPU</a> wakeups and save energy.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
 </body>
 </html>

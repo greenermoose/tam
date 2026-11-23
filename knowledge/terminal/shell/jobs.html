@@ -88,7 +88,7 @@ worker finished
 
 <section data-level="expert">
 <h2>Distinguish existence, identity and health</h2>
-<p><strong>Reference:</strong> signals target processes or process groups according to kill's PID argument. Dispositions and masks differ; SIGKILL and SIGSTOP cannot be caught, blocked or ignored. A PID can be reused after exit. Existence alone is not identity or health.</p>
+<p><strong>Reference:</strong> signals target processes or process groups according to kill's PID argument. Dispositions and masks differ; <a href="glossary/s/sigkill.html">SIGKILL</a> and <a href="glossary/s/sigstop.html">SIGSTOP</a> cannot be caught, blocked or ignored. A PID can be reused after exit. Existence alone is not identity or health.</p>
 
 <h3>How it works</h3>
 <p>The shell records its children and reaps their termination statuses with wait interfaces. Process groups organize terminal jobs, so terminal-generated signals need not target only one process. Zombie processes have exited but retain status until reaped.</p>
@@ -104,10 +104,10 @@ existence check: 0
 $ bash -c 'sleep 30 &amp; worker=$!; kill -TERM "$worker"; wait "$worker" 2&gt;/dev/null; printf "wait status: %s\n" "$?"'
 wait status: 143
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. Bash reports 128 + 15 = 143 for this SIGTERM-terminated child.</p>
+<p>Captured on Arch Linux, 2026-10-21. Bash reports 128 + 15 = 143 for this <a href="glossary/s/sigterm.html">SIGTERM</a>-terminated child.</p>
 
 <h3>Edge cases and cost</h3>
-<p>Terminal closure, shell hangup policy, session management, open descriptors and application behavior all matter. disown and nohup are not universal workload-survival guarantees. Do not poll process existence in a busy loop when waiting or service supervision provides the needed lifecycle event.</p>
+<p><a href="glossary/t/terminal.html">Terminal</a> closure, shell hangup policy, session management, open descriptors and application behavior all matter. disown and nohup are not universal workload-survival guarantees. Do not poll process existence in a busy loop when waiting or service supervision provides the needed lifecycle event.</p>
 
 <h3>Sources</h3>
 <p><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux API references</a></cite>:

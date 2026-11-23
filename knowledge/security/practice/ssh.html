@@ -16,7 +16,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/practice/index.html">Protect your computer</a> / SSH keys and remote access</p></nav>
 
 
-<h1>SSH keys and remote access</h1>
+<h1><a href="glossary/s/ssh.html">SSH</a> keys and remote access</h1>
 <p>This page explains how SSH uses paired public and private keys to connect securely between computers, and how Tamlinux enables or removes incoming SSH access.</p>
 
 <section data-level="novice">
@@ -87,9 +87,9 @@ $ ssh-keygen -t ed25519 -C "workstation-key"
 <section data-level="expert"><h3>Related setup commands</h3><table><tr><th>Command</th><th>Role</th></tr><tr><td><code>tam-setup-security-sshd</code></td><td>Start OpenSSH daemon, configure firewall rule, and disable password logins</td></tr><tr><td><code>tam-remove-security-sshd</code></td><td>Stop OpenSSH server and close firewall ports</td></tr></table>
 <h2>OpenSSH key formats, privilege separation, and agent-forwarding risks</h2>
 <h3>Reference</h3>
-<p>Modern OpenSSH keys (<code>ssh-ed25519</code>, <code>sk-ssh-ed25519@openssh.com</code> for FIDO2 hardware-backed keys) store private keys encrypted with AES-256-CTR + bcrypt KDF. Server host keys authenticate the server during the SSH key-exchange transcript signature.</p>
+<p>Modern OpenSSH keys (<code>ssh-ed25519</code>, <code>sk-ssh-ed25519@openssh.com</code> for FIDO2 hardware-backed keys) store private keys encrypted with <a href="glossary/a/aes-256.html">AES-256</a>-<a href="glossary/c/ctr.html">CTR</a> + bcrypt <a href="glossary/k/kdf.html">KDF</a>. Server host keys authenticate the server during the SSH key-exchange transcript signature.</p>
 <h3>How it works</h3>
-<p><code>sshd</code> enforces privilege separation: an unprivileged pre-authentication sandboxed child parses untrusted network packets and performs key exchange, while the privileged monitor holds host private keys and spawns the user session only after authentication succeeds. For multi-hop connections, <code>ProxyJump</code> (<code>-J</code>) tunnels end-to-end encrypted SSH over an intermediate hop's TCP forwarding channel without exposing your local <code>ssh-agent</code> Unix socket to the jump host.</p>
+<p><code>sshd</code> enforces privilege separation: an unprivileged pre-authentication sandboxed child parses untrusted network packets and performs key exchange, while the privileged monitor holds host private keys and spawns the user session only after authentication succeeds. For multi-hop connections, <code>ProxyJump</code> (<code>-J</code>) tunnels end-to-end encrypted SSH over an intermediate hop's <a href="glossary/t/tcp.html">TCP</a> forwarding channel without exposing your local <code>ssh-agent</code> <a href="glossary/u/unix.html">Unix</a> socket to the jump host.</p>
 <h3>Edge cases</h3>
 <dl>
 <dt>Why <code>ForwardAgent yes</code> is dangerous on untrusted hosts</dt>
@@ -99,7 +99,7 @@ $ ssh-keygen -t ed25519 -C "workstation-key"
 </dl>
 <details class="q open">
 <summary>Research frontier: How do hybrid post-quantum key exchanges like <code>mlkem768x25519-sha256</code> protect SSH sessions against Harvest Now, Decrypt Later?</summary>
-<p>Combining X25519 with ML-KEM-768 in a single key exchange ensures session keys remain confidential unless an adversary breaks both classical ECDH and Module-LWE, thwarting passive capture of today's SSH traffic.</p>
+<p>Combining X25519 with <a href="glossary/m/ml-kem.html">ML-KEM</a>-768 in a single key exchange ensures session keys remain confidential unless an adversary breaks both classical ECDH and Module-LWE, thwarting passive capture of today's SSH traffic.</p>
 </details>
 <h3>Sources</h3>
 <ul>

@@ -23,7 +23,7 @@
 <h2>What is a protocol stack?</h2>
 <p>A protocol stack is a set of small jobs stacked on top of each other. Each job adds its own label to your message and passes it down to the next job. At the other end, the labels are read and removed in the reverse order until the original message arrives.</p>
 <h3>Why it matters</h3>
-<p>Layers let different kinds of equipment work together. A web page can travel from a laptop over Wi-Fi, through a router, across fiber, and into a server without the browser or the web server caring which cable carried each part. If one layer changes, the others do not have to be rewritten.</p>
+<p>Layers let different kinds of equipment work together. A web page can travel from a laptop over <a href="glossary/w/wi-fi.html">Wi-Fi</a>, through a router, across fiber, and into a server without the browser or the web server caring which cable carried each part. If one layer changes, the others do not have to be rewritten.</p>
 <h3>How to think about it</h3>
 <p>Think of sending a parcel. You write a note, put it in a box with a name on it, put the box in a mailbag with a route label, and hand the bag to a driver. The driver only reads the route label. When the parcel arrives, each wrapper is opened in reverse until the note is back in your friend's hands.</p>
 <h3>New words</h3>
@@ -46,10 +46,10 @@
 <p><strong>Goal:</strong> you will be able to name the four layers of the internet model and find the addresses and ports each layer adds on a running Linux system.</p>
 <h3>The four layers</h3>
 <ol>
-<li><strong>Application:</strong> the program's data and rules, such as DNS for names or HTTP for web pages.</li>
+<li><strong>Application:</strong> the program's data and rules, such as <a href="glossary/d/dns.html">DNS</a> for names or <a href="glossary/h/http.html">HTTP</a> for web pages.</li>
 <li><strong>Transport:</strong> <a href="glossary/t/tcp.html">TCP</a> or <a href="glossary/u/udp.html">UDP</a>, which adds port numbers so the right program receives the data.</li>
 <li><strong>Internet:</strong> <a href="glossary/i/ip-address.html">IP</a>, which adds source and destination addresses so routers can forward the packet.</li>
-<li><strong>Link:</strong> Ethernet or Wi-Fi, which turn the packet into signals on the local cable or radio link.</li>
+<li><strong>Link:</strong> <a href="glossary/e/ethernet.html">Ethernet</a> or Wi-Fi, which turn the packet into signals on the local cable or radio link.</li>
 </ol>
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
@@ -135,14 +135,14 @@ $ ip -j route get 1.1.1.1 | jq .
 <ul>
 <li>Checksums exist at several layers. A link-layer frame can be valid while the IP or transport checksum fails, so each layer reports its own errors.</li>
 <li>A tunnel wraps an entire packet inside another one, adding another header pair and reducing the payload space available to the application.</li>
-<li>Checksum offload and segmentation offload can make a captured frame look different from what the application wrote, because hardware fills in fields after the capture point.</li>
+<li><a href="glossary/c/checksum.html">Checksum</a> offload and segmentation offload can make a captured frame look different from what the application wrote, because hardware fills in fields after the capture point.</li>
 <li>A single physical interface can hold several addresses, and a network namespace gives each container its own stack with a separate loopback device.</li>
 </ul>
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q open">
 <summary>A numeric address replies to a ping but a web page fails. Which layers are proven, and which still need checking?</summary>
-<p>The link, internet and ICMP parts of the stack work, because a ping reached the numeric destination and came back. Name resolution, the TCP connection, TLS and the HTTP application are still open. Test them in that order so each check eliminates one layer.</p>
+<p>The link, internet and <a href="glossary/i/icmp.html">ICMP</a> parts of the stack work, because a ping reached the numeric destination and came back. Name resolution, the TCP connection, <a href="glossary/t/tls.html">TLS</a> and the HTTP application are still open. Test them in that order so each check eliminates one layer.</p>
 </details>
 </section>
 <h3>Sources</h3>

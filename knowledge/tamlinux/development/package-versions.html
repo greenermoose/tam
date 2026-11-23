@@ -64,7 +64,7 @@ tamlinux source lock (pinned Git commits)
     ~/.local/bin/tam  (make install PREFIX=$HOME/.local)
 </pre>
 
-<p>Tamlinux does not install floating package versions from remote repositories at deploy time. Instead, a dedicated repository named <code>tamlinux-packages</code> serves as the central bill of materials (BOM), locking every dependency down to the exact commit and cryptographic tree hash.</p>
+<p>Tamlinux does not install floating package versions from remote repositories at deploy time. Instead, a dedicated repository named <code>tamlinux-packages</code> serves as the central bill of materials (<a href="glossary/b/bom.html">BOM</a>), locking every dependency down to the exact commit and cryptographic tree hash.</p>
 <h3>Worked example: Inspect active versions and cultivar</h3>
 <pre class="session" data-risk="read-only">
 $ tam --version
@@ -78,7 +78,7 @@ Tamlinux cultivar KBN WB 0.6.1
 <h3>What just happened</h3>
 <ol>
 <li><code>tam --version</code> printed the four version tiers of the running environment: the C command binary (<code>0.48.1</code>), the offline knowledge corpus (<code>0.59.0</code>), the shared integration library <code>libtam</code> (<code>0.4.0</code>), and the overall workstation milestone cultivar name and release (<code>KBN WB 0.6.1</code>).</li>
-<li>The <code>(dev 4788787)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/bin</code>) matching that Git short hash.</li>
+<li>The <code>(dev 4788787)</code> suffix indicates that the command and corpus are executing from a local development build installed in the user prefix (<code>~/.local/bin</code>) matching that <a href="glossary/g/git.html">Git</a> short hash.</li>
 <li>Released cultivar builds omit the <code>(dev ...)</code> suffix and reflect the exact version declared in the active installed cultivar.</li>
 </ol>
 <h3>Try it</h3>
@@ -124,9 +124,9 @@ $ tam --version
 <tr><th>Tier / Component</th><th>Source of Truth</th><th>Declared In</th><th>Promotion Gate</th></tr>
 <tr><td><code>tam</code> command binary</td><td><code>TAM_COMMAND_VERSION</code></td><td><code>src/version.h</code></td><td>Tests pass (<code>make test-command</code>); fast-forward dev</td></tr>
 <tr><td><code>tam</code> knowledge corpus</td><td>Corpus version string</td><td><code>knowledge/version</code></td><td>Lint and guide tests pass (<code>make corpus-and-test</code>)</td></tr>
-<tr><td><code>libtam</code> shared library</td><td>Library version</td><td><code>include/tam.h</code>, <code>meson.build</code></td><td>ABI compliance and test suite pass</td></tr>
-<tr><td><code>tamlinux</code> desktop / plugins</td><td>Product version</td><td><code>tamlinux/VERSION</code></td><td>Quickshell syntax checks and plugin unit tests</td></tr>
-<tr><td>Source lock &amp; delivery</td><td>Pinned component revisions</td><td>Component lock &amp; staged manifest</td><td><code>make preflight</code>, staged SHA-256 manifest, and isolated root tests</td></tr>
+<tr><td><code>libtam</code> shared library</td><td>Library version</td><td><code>include/tam.h</code>, <code>meson.build</code></td><td><a href="glossary/a/abi.html">ABI</a> compliance and test suite pass</td></tr>
+<tr><td><code>tamlinux</code> desktop / plugins</td><td>Product version</td><td><code>tamlinux/VERSION</code></td><td><a href="glossary/q/quickshell.html">Quickshell</a> syntax checks and plugin unit tests</td></tr>
+<tr><td>Source lock &amp; delivery</td><td>Pinned component revisions</td><td>Component lock &amp; staged manifest</td><td><code>make preflight</code>, staged <a href="glossary/s/sha-256.html">SHA-256</a> manifest, and isolated root tests</td></tr>
 <tr><td>Tamlinux cultivar</td><td>Cultivar name &amp; milestone</td><td><code>VERSION</code> in packages repo</td><td>Explicit developer instruction (Test, Run, Release)</td></tr>
 </table>
 
@@ -146,7 +146,7 @@ Because <code>~/.local/bin</code> sits first on the shell <code>PATH</code>, thi
 <li><strong>Component Verification, Version Bump, and Commit:</strong>
 Verify all unit, integration, and guide tests pass (<code>make test</code>). Bump the component version in source:
 <ul>
-<li>Binary version: <code>src/version.h</code> (<code>TAM_COMMAND_VERSION</code>).</li>
+<li><a href="glossary/b/binary.html">Binary</a> version: <code>src/version.h</code> (<code>TAM_COMMAND_VERSION</code>).</li>
 <li>Corpus version: <code>knowledge/version</code>, its only source. A corpus release changes no command source.</li>
 </ul>
 Record AI-assisted work in <code>work/</code> following <code>AI-BLAME.md</code> (not <code>AI_PROVENANCE.md</code>). Commit only your claimed paths (<code>git commit -m '...' -- &lt;paths&gt;</code>) and push to <code>dev</code> on GitHub. Note the resulting commit hash.</li>

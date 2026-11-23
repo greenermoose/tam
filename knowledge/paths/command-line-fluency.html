@@ -20,7 +20,7 @@
 <li><a href="terminal/shell/jobs.html?level=1">Jobs and signals</a>: complete the owned-child example before changing signals.</li>
 <li><a href="terminal/shell/jobs.html?level=2">Jobs and signals</a>: wait for or signal only a child you started.</li></ol>
 <section class="quiz"><h3>Check yourself</h3><p>Decide before revealing the explanation.</p><details class="q"><summary><i>What does a pipe pass?</i></summary><p>The printed byte stream, not a filename or an argument list.</p></details>
-<details class="q"><summary><i>Why avoid a name-wide kill in this exercise?</i></summary><p>It can include unrelated processes. Save the child PID and use its lifecycle evidence.</p></details></section>
+<details class="q"><summary><i>Why avoid a name-wide kill in this exercise?</i></summary><p>It can include unrelated processes. Save the child <a href="glossary/p/pid.html">PID</a> and use its lifecycle evidence.</p></details></section>
 <h2>Stage 4: Finding instructions and everyday commands</h2>
 <ol><li><a href="help/manuals.html?level=1">Finding instructions for programs</a>: the manual sections and how to search them.</li>
 <li><a href="networking/commands.html?level=1">Network commands</a>: inspect connections without changing them.</li>
@@ -33,7 +33,7 @@
 <h2>Capstone</h2><p>In a scratch directory, create a three-line
 red/blue/red input, write a private executable report script that counts red
 lines in its file argument, start it in the background, wait for that child,
-then inspect its report and mode. Remove only your exercise files.</p><details class="solution"><p>Make and enter a fresh temporary directory for this capstone.</p>
+then inspect its report and mode. Remove only your exercise files.</p><details class="solution"><p><a href="glossary/m/make.html">Make</a> and enter a fresh temporary directory for this capstone.</p>
 <pre data-risk="scratch">work=$(mktemp -d)
 cd "$work"</pre><pre class="session" data-risk="scratch">
 $ printf &#x27;%s\n&#x27; red blue red &gt; colours.txt

@@ -16,9 +16,9 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/services/index.html">Local services and discovery</a> / Avahi and Zeroconf</p></nav>
 
-<h1>Avahi and Zeroconf</h1>
+<h1><a href="glossary/a/avahi.html">Avahi</a> and <a href="glossary/z/zeroconf.html">Zeroconf</a></h1>
 <p>Local service discovery lets a printer, screen or file share announce itself on a network so a computer can find it without being told its address first.</p>
-<h2>Before this</h2><p><a href="networking/setup/name-resolution.html">Name resolution</a> explains ordinary DNS, which answers names from a configured server. This page begins where that server is not needed.</p>
+<h2>Before this</h2><p><a href="networking/setup/name-resolution.html">Name resolution</a> explains ordinary <a href="glossary/d/dns.html">DNS</a>, which answers names from a configured server. This page begins where that server is not needed.</p>
 
 <section data-level="novice">
 <h2>Finding things on a network with no central list</h2>
@@ -88,7 +88,7 @@ workstation.local       192.168.1.26
 <dt>No services appear</dt>
 <dd>Check <code>systemctl is-active avahi-daemon</code>. If it is inactive, start it with <code>systemctl start avahi-daemon</code>, which needs privilege; then browse again.</dd>
 <dt>A service appears but cannot be resolved</dt>
-<dd>The publisher may have stopped, or a firewall may block UDP port 5353. The Tamlinux host firewall template permits mDNS from the local home subnet.</dd>
+<dd>The publisher may have stopped, or a firewall may block <a href="glossary/u/udp.html">UDP</a> port 5353. The Tamlinux host firewall template permits mDNS from the local home subnet.</dd>
 <dt><code>avahi-resolve</code> fails for a <code>.local</code> name</dt>
 <dd>Ordinary DNS does not answer <code>.local</code>. Check that a Name Service Switch module such as <code>nss-mdns</code> is installed and that the resolver is not claiming the domain first.</dd>
 <dt>Services appear only from this machine</dt>
@@ -107,7 +107,7 @@ workstation.local       192.168.1.26
 </details>
 <details class="q">
 <summary><i>What does the _ipp._tcp part identify?</i></summary>
-<p>A DNS-SD service type: Internet Printing Protocol over TCP. It is a label used to group instances of the same kind of service, not the printer's name or its address.</p>
+<p>A DNS-SD service type: Internet Printing Protocol over <a href="glossary/t/tcp.html">TCP</a>. It is a label used to group instances of the same kind of service, not the printer's name or its address.</p>
 </details>
 <details class="q">
 <summary><i>Predict what happens if the firewall drops UDP 5353 on the wired interface.</i></summary>
@@ -127,14 +127,14 @@ workstation.local       192.168.1.26
 <tr><td><code>.local</code></td><td>DNS suffix reserved for link-local names</td><td><a href="bibliography/rfc6762-mdns.html">RFC 6762</a></td></tr>
 <tr><td><code>_ipp._tcp.local</code></td><td>A service type within the local domain</td><td><a href="bibliography/rfc6763-dns-sd.html">RFC 6763</a></td></tr>
 <tr><td>PTR / SRV / TXT</td><td>Instance enumeration, host and port, and service metadata</td><td><a href="bibliography/rfc6763-dns-sd.html">RFC 6763</a></td></tr>
-<tr><td><code>/etc/avahi/services/*.service</code></td><td>XML definitions of services published at daemon start</td><td><code>avahi-daemon.conf(5)</code></td></tr>
+<tr><td><code>/etc/avahi/services/*.service</code></td><td><a href="glossary/x/xml.html">XML</a> definitions of services published at daemon start</td><td><code>avahi-daemon.conf(5)</code></td></tr>
 </table>
 
 <h3>How it works</h3>
-<p>mDNS uses the DNS wire format without a configured server. A query is sent to the multicast group with a destination port of 5353 and IP TTL 255; every host on the link receives it, and the host that owns the answer multicasts a response. Responses are delayed by a random interval of 20 to 120 milliseconds so that several hosts answering at once do not collide. A host choosing a name first probes for it with tentative records, then announces it with unsolicited responses; a later claimant that wins a conflict sends its own announcement while the loser picks a new name. A withdrawal is announced with a record whose TTL is zero, called a goodbye packet.</p>
+<p>mDNS uses the DNS wire format without a configured server. A query is sent to the multicast group with a destination port of 5353 and <a href="glossary/i/ip-address.html">IP</a> <a href="glossary/t/ttl.html">TTL</a> 255; every host on the link receives it, and the host that owns the answer multicasts a response. Responses are delayed by a random interval of 20 to 120 milliseconds so that several hosts answering at once do not collide. A host choosing a name first probes for it with tentative records, then announces it with unsolicited responses; a later claimant that wins a conflict sends its own announcement while the loser picks a new name. A withdrawal is announced with a record whose TTL is zero, called a goodbye packet.</p>
 <p>Unique records, such as an address record for a host name, carry a cache-flush bit so receivers discard older copies; shared records do not. Negative answers use NSEC records to prove that a name or type does not exist, which avoids repeated multicast queries for missing names. Known-suppression keeps a host from repeating an answer it recently heard from someone else, at the cost of losing some redundancy.</p>
 <p>DNS-SD adds naming structure to those DNS records. A service instance is named <code>&lt;Instance&gt;.&lt;Service&gt;.&lt;Domain&gt;</code>, for example <code>Demo Printer._ipp._tcp.local</code>. A PTR query for <code>_ipp._tcp.local</code> enumerates instances; resolving an instance fetches its SRV record, which gives host and port, and its TXT record, which carries small key/value attributes. Every DNS-SD service has a TXT record even when it is empty. Service type enumeration uses <code>_services._dns-sd._udp.local</code>, and subtypes such as <code>_printer._sub._ipp._tcp.local</code> narrow a browse.</p>
-<p>Avahi is the Linux implementation: <code>avahi-daemon</code> owns multicast responses and records, applications talk to it over D-Bus, and <code>avahi-browse</code>, <code>avahi-resolve</code> and <code>avahi-publish</code> are clients of that interface. Its configuration file controls <code>host-name</code>, <code>domain-name</code>, <code>use-ipv4</code>, <code>use-ipv6</code>, <code>allow-interfaces</code>, <code>deny-interfaces</code>, <code>enable-dbus</code>, the <code>publish-*</code> switches and <code>enable-wide-area</code>. Host-name resolution for applications uses a Name Service Switch module such as <code>nss-mdns</code>, which is separate from the daemon.</p>
+<p>Avahi is the Linux implementation: <code>avahi-daemon</code> owns multicast responses and records, applications talk to it over D-<a href="glossary/b/bus.html">Bus</a>, and <code>avahi-browse</code>, <code>avahi-resolve</code> and <code>avahi-publish</code> are clients of that interface. Its configuration file controls <code>host-name</code>, <code>domain-name</code>, <code>use-ipv4</code>, <code>use-ipv6</code>, <code>allow-interfaces</code>, <code>deny-interfaces</code>, <code>enable-dbus</code>, the <code>publish-*</code> switches and <code>enable-wide-area</code>. Host-name resolution for applications uses a Name Service Switch module such as <code>nss-mdns</code>, which is separate from the daemon.</p>
 
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="system">
@@ -155,7 +155,7 @@ workstation.local       192.168.1.26
 <li>mDNS has no built-in authentication. Any host on the link can claim a name or service, so it is unsuitable as a security boundary.</li>
 <li>The <code>.local</code> suffix is for link-local use. Sending those queries to a global DNS server, or using <code>.local</code> inside a corporate DNS domain, creates conflicts.</li>
 <li>Multicast does not cross routers by default. A printer on another VLAN will not appear unless a repeater or a conventional DNS-SD deployment bridges the domains.</li>
-<li>Hosts with several interfaces can answer on all of them. Interface allow and deny lists keep a service off a guest or VPN network.</li>
+<li>Hosts with several interfaces can answer on all of them. Interface allow and deny lists keep a service off a guest or <a href="glossary/v/vpn.html">VPN</a> network.</li>
 <li>Name conflicts are resolved by probing, so two devices with the same factory name will change one another's names; the name a user saved may not be the name that appears tomorrow.</li>
 <li>DNS-SD TXT records are meant to be small. Large records are expensive on wireless links and may be truncated; a missing key must be handled as unknown, not as an error.</li>
 <li>Wide-area mode changes how queries and responses are framed for unicast DNS. It is not the normal home-network setting and needs deliberate configuration.</li>

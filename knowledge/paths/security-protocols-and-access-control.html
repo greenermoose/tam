@@ -16,15 +16,15 @@
 
 
 <h1>Security protocols and access control</h1>
-<p>This path starts from everyday ideas—locks, secrets, and trust boundaries—with zero prior technical knowledge assumed, and builds step by step to Linux kernel credentials, TLS 1.3, SSH internals, and formal protocol verification.</p>
+<p>This path starts from everyday ideas—locks, secrets, and trust boundaries—with zero prior technical knowledge assumed, and builds step by step to Linux kernel credentials, <a href="glossary/t/tls.html">TLS</a> 1.3, <a href="glossary/s/ssh.html">SSH</a> internals, and formal protocol verification.</p>
 <p>If any page feels too advanced, step back one stop along the path until the terms feel familiar. Every exercise uses read-only commands.</p>
 
 <h2>Stage 1: Security principles and threat modeling</h2>
 <ol>
-<li><a href="security/computer-security-principles.html?level=1">Computer Security Principles and Threat Modeling</a> &mdash; CIA triad, STRIDE, Saltzer–Schroeder principles, Lampson's matrix, Bell–LaPadula, and side channels.</li>
+<li><a href="security/computer-security-principles.html?level=1">Computer Security Principles and Threat Modeling</a> &mdash; <a href="glossary/c/cia.html">CIA</a> triad, STRIDE, Saltzer–Schroeder principles, Lampson's matrix, Bell–LaPadula, and side channels.</li>
 </ol>
 <section class="quiz">
-<h3>Checkpoint</h3>
+<h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer before moving to Stage 2.</p>
 <details class="q">
 <summary><i>What are the three core properties of the CIA triad, and why does a threat model come before choosing tools?</i></summary>
@@ -35,7 +35,7 @@
 <h2>Stage 2: Passwords, authentication, and authorization</h2>
 <ol>
 <li><a href="security/practice/passwords.html?level=1">Passwords, sudo, and keeping secrets safe</a> &mdash; normal accounts vs. administrator elevation and secrets hygiene.</li>
-<li><a href="security/authentication-and-authorization.html?level=2">Authentication, Authorization, and Linux Access Control</a> &mdash; Argon2id, PAM stacks, DAC/MAC/RBAC/ABAC/ReBAC, Linux UIDs, capabilities, and <code>seccomp-bpf</code>.</li>
+<li><a href="security/authentication-and-authorization.html?level=2">Authentication, Authorization, and Linux Access Control</a> &mdash; Argon2id, <a href="glossary/p/pam.html">PAM</a> stacks, DAC/<a href="glossary/m/mac.html">MAC</a>/<a href="glossary/r/rbac.html">RBAC</a>/<a href="glossary/a/abac.html">ABAC</a>/ReBAC, Linux UIDs, capabilities, and <code>seccomp-bpf</code>.</li>
 </ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
@@ -46,7 +46,7 @@
 </details>
 </section>
 
-<h2>Stage 3: Filesystem permissions and POSIX ACLs</h2>
+<h2>Stage 3: <a href="glossary/f/filesystem.html">Filesystem</a> permissions and <a href="glossary/p/posix.html">POSIX</a> ACLs</h2>
 <ol>
 <li><a href="security/permissions.html?level=2">Who can use a file</a> &mdash; read/write/execute bits, directory search rights, POSIX ACLs, and dynamic-linker hardening.</li>
 </ol>
@@ -72,10 +72,10 @@
 </details>
 </section>
 
-<h2>Stage 5: Transport security: TLS, HTTPS, and SSH</h2>
+<h2>Stage 5: Transport security: TLS, <a href="glossary/h/https.html">HTTPS</a>, and SSH</h2>
 <ol>
-<li><a href="security/protocols/tls-and-https.html?level=2">SSL, TLS, and HTTPS</a> &mdash; TLS 1.3 1-RTT handshake, HKDF key schedule, X.509 PKI, and HTTP/1.1–HTTP/3.</li>
-<li><a href="security/protocols/ssh-protocol.html?level=2">The SSH Protocol Internals</a> &mdash; RFC 4251–4254 binary packet protocol, TOFU host keys, strict-kex, and agent-forwarding risks.</li>
+<li><a href="security/protocols/tls-and-https.html?level=2">SSL, TLS, and HTTPS</a> &mdash; TLS 1.3 1-<a href="glossary/r/rtt.html">RTT</a> handshake, HKDF key schedule, <a href="glossary/x/x509.html">X.509</a> PKI, and <a href="glossary/h/http.html">HTTP/1.1</a>–HTTP/3.</li>
+<li><a href="security/protocols/ssh-protocol.html?level=2">The SSH Protocol Internals</a> &mdash; <a href="glossary/r/rfc.html">RFC</a> 4251–4254 binary packet protocol, <a href="glossary/t/tofu.html">TOFU</a> host keys, strict-kex, and agent-forwarding risks.</li>
 </ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
@@ -88,14 +88,14 @@
 
 <h2>Stage 6: Network, messaging, and identity protocols</h2>
 <ol>
-<li><a href="security/protocols/security-protocols.html?level=3">Network, Messaging, and Identity Security Protocols</a> &mdash; WireGuard (Noise), IPsec, Signal Double Ratchet, Kerberos, OAuth 2.0/OIDC, DNSSEC, FIDO2, and ProVerif/Tamarin.</li>
+<li><a href="security/protocols/security-protocols.html?level=3">Network, Messaging, and Identity Security Protocols</a> &mdash; WireGuard (Noise), IPsec, Signal Double Ratchet, <a href="glossary/k/kerberos.html">Kerberos</a>, OAuth 2.0/<a href="glossary/o/oidc.html">OIDC</a>, <a href="glossary/d/dnssec.html">DNSSEC</a>, FIDO2, and ProVerif/Tamarin.</li>
 </ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer before moving to the capstone.</p>
 <details class="q">
 <summary><i>What two properties does Signal's Double Ratchet combine to protect long-lived messaging conversations?</i></summary>
-<p>A Diffie–Hellman ratchet and a symmetric KDF chain ratchet, providing both forward secrecy for past messages and post-compromise (future) secrecy after a temporary state leak.</p>
+<p>A Diffie–Hellman ratchet and a symmetric <a href="glossary/k/kdf.html">KDF</a> chain ratchet, providing both forward secrecy for past messages and post-compromise (future) secrecy after a temporary state leak.</p>
 </details>
 </section>
 
@@ -109,7 +109,7 @@ $ capsh --print | head -n 4
 $ ssh -G localhost | grep -E '^(kexalgorithms|ciphers|macs) '
 $ systemctl is-active nftables.service 2>/dev/null || echo "nftables inactive"
 </pre>
-<p>Verify that your shell runs as an unprivileged UID with zero ambient capabilities, confirm modern post-quantum/AEAD SSH algorithms, and check host firewall state before enabling any network service.</p>
+<p>Verify that your shell runs as an unprivileged <a href="glossary/u/uid.html">UID</a> with zero ambient capabilities, confirm modern post-quantum/<a href="glossary/a/aead.html">AEAD</a> SSH algorithms, and check host firewall state before enabling any network service.</p>
 </details>
 
 <h2>Next paths</h2>

@@ -23,7 +23,7 @@
 <p>Repeatedly checking for work can use energy even when nothing needs attention. Programs can instead wait to be notified when something happens.</p>
 
 <section data-level="novice">
-<h2>What wastes idle CPU time?</h2>
+<h2>What wastes idle <a href="glossary/c/cpu.html">CPU</a> time?</h2>
 <p>Modern processors save large amounts of power by dropping into deep sleep states whenever nothing needs to run. Software wastes energy when it wakes the processor up repeatedly on a short timer just to ask &ldquo;did anything change yet?&rdquo;</p>
 <h3>Why it matters</h3>
 <p>A script that checks status every second prevents CPU cores from reaching deep low-power states, multiplying idle battery drain and adding unnecessary heat even while you are not using the machine.</p>
@@ -83,13 +83,13 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
 <dl>
 <dt>Context switches (cs) spike into tens of thousands</dt>
 <dd>A background process or browser tab is actively running a high-frequency polling loop or animation. Identify it using <code>top</code> or <code>htop</code> sorted by CPU usage.</dd>
-<dt>Idle column (id) drops below 80% with no visible apps</dt>
+<dt><a href="glossary/i/idle.html">Idle</a> column (id) drops below 80% with no visible apps</dt>
 <dd>A background indexing service, compilation, or misbehaving background daemon is consuming CPU cycles. Inspect active processes with <code>ps aux --sort=-%cpu | head -10</code>.</dd>
 <dt>Command vmstat not found</dt>
 <dd><code>vmstat</code> is part of the standard <code>procps-ng</code> package included with every base Arch Linux installation.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, desktop widgets and status monitors (such as <code>fred.*</code> plugins and Quickshell bars) can use events such as Wayland and D-Bus notifications. Whether a particular component polls and how much power it draws require inspection and measurement.</p>
+<p>On Tamlinux, desktop widgets and status monitors (such as <code>fred.*</code> plugins and <a href="glossary/q/quickshell.html">Quickshell</a> bars) can use events such as <a href="glossary/w/wayland.html">Wayland</a> and D-<a href="glossary/b/bus.html">Bus</a> notifications. Whether a particular component polls and how much power it draws require inspection and measurement.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -114,7 +114,7 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
 <tr><td><code>epoll_create1(2)</code></td><td>$O(1)$</td><td>Creates an epoll file descriptor with <code>EPOLL_CLOEXEC</code>.</td><td>Initializes kernel event ready-list and interest tree.</td></tr>
 <tr><td><code>epoll_ctl(2)</code></td><td>$O(1)$</td><td>Adds, modifies, or removes watched descriptors (sockets, timers, inotify handles).</td><td>Configures monitored event masks (e.g. <code>EPOLLIN</code>, <code>EPOLLET</code>).</td></tr>
 <tr><td><code>epoll_wait(2)</code></td><td>$O(1)$</td><td>Blocks process execution until one or more descriptors become ready.</td><td>Timeout <code>-1</code> waits without a timeout until an event or interruption.</td></tr>
-<tr><td><code>wl_display_get_fd()</code></td><td>Wayland API</td><td>Retrieves the Wayland display UNIX domain socket descriptor.</td><td>Enables registering the compositor socket directly into an <code>epoll</code> loop.</td></tr>
+<tr><td><code>wl_display_get_fd()</code></td><td>Wayland <a href="glossary/a/api.html">API</a></td><td>Retrieves the Wayland display UNIX domain socket descriptor.</td><td>Enables registering the compositor socket directly into an <code>epoll</code> loop.</td></tr>
 <tr><td><code>wl_display_dispatch()</code></td><td>Wayland API</td><td>Processes pending events from the compositor and flushes the outgoing request buffer.</td><td>Executes client callbacks and returns immediately to the event loop.</td></tr>
 </table>
 
@@ -179,7 +179,7 @@ srwxr-xr-x 1 user user 0 Oct 25 08:00 /run/user/1000/wayland-1
 <p>Tamlinux power efficiency policies and sleep state configurations are coordinated in <a href="systems/power.html">The Progressive Power Ladder</a> and documented under <code>tamlinux/desktop/</code>.</p>
 </section>
 
-<h2>Next</h2><p><a href="systems/memory-compression.html">Memory compression with ZRAM</a> &mdash; double available memory with in-RAM swap.</p>
+<h2>Next</h2><p><a href="systems/memory-compression.html">Memory compression with ZRAM</a> &mdash; double available memory with in-<a href="glossary/r/ram.html">RAM</a> swap.</p>
 <h2>Related</h2><ul><li><a href="terminal/configuration.html">Terminal and editor ergonomics</a> &mdash; fast shell startup and Micro live reload.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
 </body>
 </html>

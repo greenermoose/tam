@@ -82,10 +82,10 @@ $ ethtool enp1s0 | grep -E "Speed|Duplex|Port"
 	Port: Twisted Pair
 </pre>
 
-<p>Captured on a Tamlinux workstation, 2026-11-01. The machine provides both a wired twisted-pair copper Ethernet interface (<code>enp1s0</code>) and a wireless radio interface (<code>wlp3s0</code>).</p>
+<p>Captured on a Tamlinux workstation, 2026-11-01. The machine provides both a wired twisted-pair copper <a href="glossary/e/ethernet.html">Ethernet</a> interface (<code>enp1s0</code>) and a wireless radio interface (<code>wlp3s0</code>).</p>
 <h3>What just happened</h3>
 <ol>
-<li><code>ip -br link</code> lists kernel network devices: <code>enp1s0</code> is a physical wired Ethernet card; <code>wlp3s0</code> is a wireless Wi-Fi radio adapter.</li>
+<li><code>ip -br link</code> lists kernel network devices: <code>enp1s0</code> is a physical wired Ethernet card; <code>wlp3s0</code> is a wireless <a href="glossary/w/wi-fi.html">Wi-Fi</a> radio adapter.</li>
 <li><code>ethtool</code> queries the physical layer transceiver of the wired card, reporting that it is connected via a <code>Twisted Pair</code> copper cable operating at 1,000 megabits per second (1 Gbps) in full duplex.</li>
 </ol>
 <h3>Try it</h3>
@@ -98,13 +98,13 @@ $ ethtool enp1s0 | grep -E "Speed|Duplex|Port"
 <dd>The network interface is a virtual container adapter or wireless interface. <code>ethtool</code> link queries apply strictly to physical wired network interface controllers (NICs).</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> wireless regulatory domains are configured through the kernel wireless subsystem (`crda` / `wireless-regdb`). Tamlinux automatically aligns Wi-Fi channels and maximum allowable transmit power (EIRP) with local radio spectrum laws, preventing interference with aircraft radar frequencies on Dynamic Frequency Selection (DFS) channels.</p>
+<p><strong>On Tamlinux:</strong> wireless regulatory domains are configured through the kernel wireless subsystem (`crda` / `wireless-regdb`). Tamlinux automatically aligns Wi-Fi channels and maximum allowable transmit power (<a href="glossary/e/eirp.html">EIRP</a>) with local radio spectrum laws, preventing interference with aircraft radar frequencies on Dynamic Frequency Selection (<a href="glossary/d/dfs.html">DFS</a>) channels.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Why is a fiber optic cable completely immune to electromagnetic interference (EMI) from nearby power lines or electric motors?</i></summary>
+<summary><i>Why is a fiber optic cable completely immune to electromagnetic interference (<a href="glossary/e/emi.html">EMI</a>) from nearby power lines or electric motors?</i></summary>
 <p>Because fiber optic cables carry data using pulses of light (photons) traveling through non-conductive glass, rather than electric current (electrons) traveling through metal. Magnetic fields from power lines only induce noise in electrical conductors, having zero effect on light beams in glass.</p>
 </details>
 <details class="q">
@@ -120,11 +120,11 @@ $ ethtool enp1s0 | grep -E "Speed|Duplex|Port"
 
 <table>
 <tr><th>Transmission Standard</th><th>Medium Specification</th><th>Impedance (Z_0)</th><th>Signal Type</th><th>Typical Voltage Swing (V_pp)</th><th>Max Loss Budget</th></tr>
-<tr><td>1000BASE-T Ethernet</td><td>Cat5e/Cat6 UTP (4 pairs)</td><td>100 ohms +/- 15%</td><td>Differential PAM-5</td><td>+/- 1.0 V</td><td>21 dB at 100 MHz (100 m)</td></tr>
+<tr><td>1000BASE-T Ethernet</td><td>Cat5e/Cat6 UTP (4 pairs)</td><td>100 ohms +/- 15%</td><td>Differential <a href="glossary/p/pam-5.html">PAM-5</a></td><td>+/- 1.0 V</td><td>21 dB at 100 MHz (100 m)</td></tr>
 <tr><td>10GBASE-LR Optical</td><td>Single-Mode OS2 (1310 nm)</td><td>Dielectric Waveguide</td><td>Optical 10.3 Gbps</td><td>Laser Launch: -8 to +0.5 dBm</td><td>6.2 dB optical budget (10 km)</td></tr>
-<tr><td>RS-485 Industrial</td><td>Shielded Twisted Pair (1 pair)</td><td>120 ohms +/- 10%</td><td>Differential Bipolar</td><td>+/- 1.5 V to +/- 5.0 V</td><td>+/- 200 mV receiver sensitivity</td></tr>
-<tr><td>USB 3.2 Gen 2</td><td>Shielded Differential Pair (SDP)</td><td>90 ohms +/- 5 ohms</td><td>Differential High-Speed</td><td>+/- 400 mV - 600 mV</td><td>-8.5 dB at 5 GHz (1 m)</td></tr>
-<tr><td>Wi-Fi 6 (802.11ax)</td><td>Free Space RF (5 GHz)</td><td>377 ohms (Air) / 50 ohms (Antenna)</td><td>1024-QAM / OFDM</td><td>EIRP limit: +20 to +30 dBm</td><td>Receiver Sensitivity: -65 to -90 dBm</td></tr>
+<tr><td><a href="glossary/r/rs-485.html">RS-485</a> Industrial</td><td>Shielded Twisted Pair (1 pair)</td><td>120 ohms +/- 10%</td><td>Differential Bipolar</td><td>+/- 1.5 V to +/- 5.0 V</td><td>+/- 200 mV receiver sensitivity</td></tr>
+<tr><td><a href="glossary/u/usb.html">USB</a> 3.2 Gen 2</td><td>Shielded Differential Pair (<a href="glossary/s/sdp.html">SDP</a>)</td><td>90 ohms +/- 5 ohms</td><td>Differential High-Speed</td><td>+/- 400 mV - 600 mV</td><td>-8.5 dB at 5 GHz (1 m)</td></tr>
+<tr><td>Wi-Fi 6 (802.11ax)</td><td>Free Space RF (5 GHz)</td><td>377 ohms (Air) / 50 ohms (Antenna)</td><td>1024-<a href="glossary/q/qam.html">QAM</a> / <a href="glossary/o/ofdm.html">OFDM</a></td><td>EIRP limit: +20 to +30 dBm</td><td>Receiver Sensitivity: -65 to -90 dBm</td></tr>
 </table>
 
 <h3>How it works: Transmission Line Theory and Impedance</h3>
@@ -137,7 +137,7 @@ $ ethtool enp1s0 | grep -E "Speed|Duplex|Port"
 Z_0 = sqrt( L / C )
 </pre>
 Characteristic impedance depends solely on conductor geometry, spacing, and the dielectric constant of the insulating material &mdash; not on cable length.</li>
-<li><strong>The Reflection Coefficient (Gamma):</strong> When a propagating wave encounters a load impedance (<code>Z_L</code>) at the end of the cable, the fraction of voltage reflected back toward the transmitter is:
+<li><strong>The Reflection Coefficient (<a href="glossary/g/gamma.html">Gamma</a>):</strong> When a propagating wave encounters a load impedance (<code>Z_L</code>) at the end of the cable, the fraction of voltage reflected back toward the transmitter is:
 <pre data-risk="read-only">
 Gamma = (Z_L - Z_0) / (Z_L + Z_0)
 </pre>
@@ -160,7 +160,7 @@ P_rx = P_tx - (alpha * Length + N_connectors * Loss_connector + N_splices * Loss
 
 <table>
 <tr><td><strong>Eye Height</strong></td><td>The vertical opening between high and low voltage levels. Represents the channel's <strong>noise margin</strong>. A collapsed eye height indicates severe line attenuation or high contact resistance.</td></tr>
-<tr><td><strong>Eye Width</strong></td><td>The horizontal time opening between rising and falling edges. Represents <strong>timing jitter</strong>. A narrow eye indicates clock instability, Phase-Locked Loop phase noise, or inter-symbol interference (ISI).</td></tr>
+<tr><td><strong>Eye Width</strong></td><td>The horizontal time opening between rising and falling edges. Represents <strong>timing jitter</strong>. A narrow eye indicates clock instability, Phase-Locked Loop phase noise, or inter-symbol interference (<a href="glossary/i/isi.html">ISI</a>).</td></tr>
 <tr><td><strong>Eye Mask Violations</strong></td><td>Standards define a geometric diamond mask in the center of the eye. If signal ringing, overshoot, or impedance reflections cross into the mask, bit decoding errors are guaranteed.</td></tr>
 </table>
 
@@ -173,12 +173,12 @@ P_rx = P_tx - (alpha * Length + N_connectors * Loss_connector + N_splices * Loss
 <ul>
 <li><strong>Optical Receiver Saturation:</strong> Connecting a high-power long-range optical transceiver (e.g. 40 km optics with +3 dBm output) directly into a receiver with a short 1-meter patch cord without an inline optical attenuator will overpower the photodiode, causing optical saturation distortion or permanently destroying the receiver semiconductor.</li>
 <li><strong>Skin Effect at High Frequencies:</strong> At gigahertz frequencies, alternating current flows exclusively on the microscopic outer perimeter of a copper conductor (the skin depth is less than 2 micrometers at 1 GHz). This exponentially increases effective AC resistance, causing sharp high-frequency signal attenuation that rounds off square-wave digital edges.</li>
-<li><strong>Dielectric Absorption and Inter-Symbol Interference (ISI):</strong> High-frequency energy absorbed by cheap PCB laminate materials or cable PVC insulation delays discharging, causing residual energy from a previous bit to smear into the next bit period.</li>
+<li><strong>Dielectric Absorption and Inter-Symbol Interference (ISI):</strong> High-frequency energy absorbed by cheap <a href="glossary/p/pcb.html">PCB</a> laminate materials or cable <a href="glossary/p/pvc.html">PVC</a> insulation delays discharging, causing residual energy from a previous bit to smear into the next bit period.</li>
 </ul>
 
 <h3>Explore</h3>
 
-<p>Inspect raw kernel Wi-Fi link statistics and signal attenuation (RSSI in dBm) in real time:</p>
+<p>Inspect raw kernel Wi-Fi link statistics and signal attenuation (<a href="glossary/r/rssi.html">RSSI</a> in dBm) in real time:</p>
 
 <pre class="session" data-risk="read-only">
 $ watch -n 1 "cat /proc/net/wireless"
@@ -209,7 +209,7 @@ wlp3s0: 0000   58.  -52.  -256        0      0      0      4      0      0
 <p>Contribute physical layer link diagnostics and optical monitoring additions in the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
 </section>
 
-<h2>Next</h2><p><a href="networking/communication-protocols.html">Communication protocols, framing, and data rates</a> &mdash; baud rate, UART framing, and flow control.</p>
+<h2>Next</h2><p><a href="networking/communication-protocols.html">Communication protocols, framing, and data rates</a> &mdash; baud rate, <a href="glossary/u/uart.html">UART</a> framing, and flow control.</p>
 <h2>Related</h2><ul><li><a href="hardware/signals/error-detection-and-correction.html">Error detection, correction, and channel reliability</a> &mdash; parity, CRCs, and forward error correction.</li><li><a href="hardware/foundations/circuits-and-power.html">Electrical circuits, semiconductors, and power delivery</a> &mdash; voltage, current loops, and power cables.</li><li><a href="hardware/signals/serial-and-parallel.html">Serial and parallel communication channels</a> &mdash; simplex, half-duplex, and full-duplex architectures.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>
 </body>
 </html>

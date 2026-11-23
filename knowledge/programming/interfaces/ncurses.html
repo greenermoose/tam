@@ -34,7 +34,7 @@
 <dt><a href="glossary/n/ncurses.html">ncurses</a></dt>
 <dd>A library for building terminal-independent full-screen text interfaces.</dd>
 <dt><a href="glossary/l/libncursesw.html"><code>libncursesw</code></a></dt>
-<dd>The wide-character build of ncurses that supports Unicode text in terminals.</dd>
+<dd>The wide-character build of ncurses that supports <a href="glossary/u/unicode.html">Unicode</a> text in terminals.</dd>
 </dl>
 </section>
 
@@ -52,14 +52,14 @@
 application  -->  ncurses  -->  terminfo for $TERM  -->  update sequences  -->  emulator paints cells
 </pre>
 
-<p>Many TUIs call the high-level API: create a screen (<code>initscr</code>), draw into windows, then refresh so ncurses sends only the changes needed. That virtual screen idea keeps applications from repainting every cell on every keystroke.</p>
+<p>Many TUIs call the high-level <a href="glossary/a/api.html">API</a>: create a screen (<code>initscr</code>), draw into windows, then refresh so ncurses sends only the changes needed. That virtual screen idea keeps applications from repainting every cell on every keystroke.</p>
 
-<p>Other programs link ncurses but draw themselves. They call lower-level terminfo helpers such as <code>setupterm</code>, <code>tigetstr</code>, and <code>tparm</code> to look up clear, cursor address, and color sequences, then write those sequences with their own UI code.</p>
+<p>Other programs link ncurses but draw themselves. They call lower-level terminfo helpers such as <code>setupterm</code>, <code>tigetstr</code>, and <code>tparm</code> to look up clear, cursor address, and color sequences, then write those sequences with their own <a href="glossary/g/gui.html">UI</a> code.</p>
 
 <p>A wrong <code>TERM</code> still breaks both styles: ncurses can only emit what the named terminfo entry describes.</p>
 
 <aside class="tamlinux">
-<p><strong>Does <code>tam</code> use ncurses? Yes.</strong> The <code>tam</code> binary links wide-character ncurses (<code>-lncursesw</code> / <code>libncursesw</code>). The interactive pager needs capabilities that vary by <code>$TERM</code> (cursor address, clear, colors, alternate screen, and related strings). Rather than hard-coding escapes, <code>tam_terminal_init</code> in <code>src/terminal.c</code> calls ncurses terminfo entry points (<code>setupterm</code>, <code>tigetstr</code>, <code>tigetnum</code>, <code>tigetflag</code>, <code>tparm</code>). <strong>What it does not do:</strong> <code>tam</code> does not build its UI with the high-level ncurses window API (<code>initscr</code>, <code>newwin</code>, library-managed refresh). It has its own pager and renderer; ncurses is the capability layer. So <code>tam show</code> is not “an ncurses app” in the same sense as <code>nano</code>, even though both link <code>libncursesw</code>. Build and linkage details also appear on <a href="tamlinux/development/tam.html">tam</a> and <a href="programming/c/toolchains.html">toolchains</a>.</p>
+<p><strong>Does <code>tam</code> use ncurses? Yes.</strong> The <code>tam</code> binary links wide-character ncurses (<code>-lncursesw</code> / <code>libncursesw</code>). The interactive pager needs capabilities that vary by <code>$TERM</code> (cursor address, clear, colors, alternate screen, and related strings). Rather than hard-coding escapes, <code>tam_terminal_init</code> in <code>src/terminal.c</code> calls ncurses terminfo entry points (<code>setupterm</code>, <code>tigetstr</code>, <code>tigetnum</code>, <code>tigetflag</code>, <code>tparm</code>). <strong>What it does not do:</strong> <code>tam</code> does not build its UI with the high-level ncurses window API (<code>initscr</code>, <code>newwin</code>, library-managed refresh). It has its own pager and renderer; ncurses is the capability layer. So <code>tam show</code> is not “an ncurses app” in the same sense as <code>nano</code>, even though both link <code>libncursesw</code>. <a href="glossary/b/build.html">Build</a> and linkage details also appear on <a href="tamlinux/development/tam.html">tam</a> and <a href="programming/c/toolchains.html">toolchains</a>.</p>
 </aside>
 <h3>Worked example</h3>
 <pre class="session" data-risk="read-only">
@@ -83,7 +83,7 @@ $ ldd /home/alex/src/tam/build/tam | grep ncurses
 <h3>If it goes wrong</h3>
 <dl>
 <dt><code>ldd</code> shows no ncurses line</dt>
-<dd>That binary may use another UI library, be a script, or call a helper. Do not assume every TUI uses ncurses.</dd>
+<dd>That binary may use another UI library, be a script, or call a helper. Do not assume every <a href="glossary/t/tui.html">TUI</a> uses ncurses.</dd>
 <dt>Command not found</dt>
 <dd>The example program is not installed. Use <code>clear</code> or <code>tam</code> if those are on your <code>PATH</code>.</dd>
 </dl>
@@ -106,8 +106,8 @@ $ ldd /home/alex/src/tam/build/tam | grep ncurses
 
 <table>
 <tr><th>Item</th><th>Meaning</th></tr>
-<tr><td><code>ncursesw</code></td><td>Wide-character build; preferred on UTF-8 workstations</td></tr>
-<tr><td>Terminfo lookup</td><td>Load compiled entry for <code>$TERM</code> from the terminfo database directories</td></tr>
+<tr><td><code>ncursesw</code></td><td>Wide-character build; preferred on <a href="glossary/u/utf-8.html">UTF-8</a> workstations</td></tr>
+<tr><td><a href="glossary/t/terminfo.html">Terminfo</a> lookup</td><td>Load compiled entry for <code>$TERM</code> from the terminfo database directories</td></tr>
 <tr><td>High-level API</td><td>Screen, windows, input queue, refresh optimization (<code>ncurses(3)</code>)</td></tr>
 <tr><td>Terminfo API</td><td><code>setupterm</code>, <code>tigetstr</code>, <code>tparm</code>, and related calls (<code>curs_terminfo(3)</code>)</td></tr>
 </table>
@@ -148,7 +148,7 @@ $ ldd /home/alex/src/tam/build/tam | grep ncurses
 
 <h3>Improve it</h3>
 
-<p>Capability and linkage behavior for <code>tam</code> is maintained in the public <code>tam</code> repository (<code>src/terminal.c</code>, Makefile <code>ncursesw</code> flags). Prefer documenting verified <code>ldd</code> and <code>TERM</code> evidence over assumed dependency lists.</p>
+<p><a href="glossary/c/capability.html">Capability</a> and linkage behavior for <code>tam</code> is maintained in the public <code>tam</code> repository (<code>src/terminal.c</code>, Makefile <code>ncursesw</code> flags). Prefer documenting verified <code>ldd</code> and <code>TERM</code> evidence over assumed dependency lists.</p>
 </section>
 
 <h2>Next</h2><p><a href="terminal/terminfo-and-termcap.html">How terminals display text</a> — terminfo, termcap, and <code>TERM</code>.</p>

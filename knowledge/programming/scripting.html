@@ -55,7 +55,7 @@ $@       --> arg1 arg2 arg3                 (unquoted: splits on internal whites
 trap ... EXIT --> attempt cleanup when the shell can execute the handler
 </pre>
 
-<p>When handling filenames passed by users, never expand bare <code>$*</code> or unquoted <code>$@</code>. Unquoted expansions split filenames containing spaces (such as <code>"Quarterly Report.pdf"</code>) into multiple separate words. Always use double-quoted <code>"$@"</code>. For arrays, read loops and NUL-delimited streams, see <a href="programming/robust-shell-data.html">Handling real data safely</a>.</p>
+<p>When handling filenames passed by users, never expand bare <code>$*</code> or unquoted <code>$@</code>. Unquoted expansions split filenames containing spaces (such as <code>"Quarterly Report.pdf"</code>) into multiple separate words. Always use double-quoted <code>"$@"</code>. For arrays, read loops and <a href="glossary/n/nul.html">NUL</a>-delimited streams, see <a href="programming/robust-shell-data.html">Handling real data safely</a>.</p>
 <h3>Worked example: Write and run a safe script</h3>
 <p>Run the entire block in a terminal. It creates one script in a fresh temporary directory and removes that known file and the empty directory afterward.</p>
 <pre data-risk="scratch">if scratch=$(mktemp -d); then
@@ -75,7 +75,7 @@ fi</pre>
 <p>On success it prints <code>Hello, Tamlinux!</code>. If cleanup fails, inspect the reported directory; do not remove unexpected contents recursively.</p>
 
 <ol>
-<li><code>#!/usr/bin/env bash</code> locates the <code>bash</code> executable portably across Nix, Arch, and standard Linux distributions.</li>
+<li><code>#!/usr/bin/env bash</code> locates the <code>bash</code> executable portably across <a href="glossary/n/nix.html">Nix</a>, Arch, and standard Linux distributions.</li>
 <li><code>set -e</code> (errexit) can exit on a failing command, but has exceptions in conditionals, pipelines and other contexts; consult Bash documentation and test the actual control flow.</li>
 <li><code>set -u</code> (nounset) treats references to unset variables as fatal errors, preventing accidental operations on empty or mistyped paths.</li>
 <li><code>set -o pipefail</code> prevents pipeline masking: the return value of a pipeline is the status of the last command to fail, not the last command executed.</li>
@@ -105,7 +105,7 @@ $ rmdir -- "$scratch"
 <dd>A variable was referenced before being assigned. Check spelling, or provide a default fallback such as <code>${var:-default}</code>.</dd>
 <dt>Permission denied when running <code>./script.sh</code></dt>
 <dd>The script lacks executable permissions. Run <code>chmod +x script.sh</code>.</dd>
-<dt>Script exits immediately on a non-critical command</dt>
+<dt><a href="glossary/s/script.html">Script</a> exits immediately on a non-critical command</dt>
 <dd>With <code>set -e</code>, a nonzero status may abort execution depending on context. If a command is expected to return 1 (such as <code>grep</code> without matches), append <code>|| true</code> or test it in an <code>if</code> conditional.</dd>
 </dl>
 <aside class="tamlinux">
@@ -125,7 +125,7 @@ $ rmdir -- "$scratch"
 </section>
 </section>
 <section data-level="expert">
-<h2>Tool namespaces, descriptor contracts, and POSIX exit semantics</h2>
+<h2>Tool namespaces, descriptor contracts, and <a href="glossary/p/posix.html">POSIX</a> exit semantics</h2>
 
 <p><strong>Reference:</strong> Tamlinux commands respect standard POSIX exit status conventions and maintain an explicit architectural boundary between public product utilities and personal user scripts.</p>
 
@@ -133,7 +133,7 @@ $ rmdir -- "$scratch"
 
 <table>
 <tr><th>Prefix</th><th>Ownership</th><th>Scope and Design Rules</th></tr>
-<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories. Individual tools define their own CLI arguments and behavior: complex utilities support flags like <code>--help</code>, while focused wrappers may forward arguments directly to underlying applications. Interactive menu wrappers use <code>tam-show-logo</code> for banners and <code>tam-show-done</code> for completion pauses.</td></tr>
+<tr><td><code>tam-*</code></td><td>Tamlinux Product</td><td>Portable, system-wide commands developed in public repositories (e.g. <code>tam-work</code>, <code>tam-update</code>). They must never contain hardcoded user home directories. Individual tools define their own <a href="glossary/c/cli.html">CLI</a> arguments and behavior: complex utilities support flags like <code>--help</code>, while focused wrappers may forward arguments directly to underlying applications. Interactive menu wrappers use <code>tam-show-logo</code> for banners and <code>tam-show-done</code> for completion pauses.</td></tr>
 <tr><td><code>fred-*</code></td><td>Personal Machine</td><td>Private, user-specific scripts tailored to a single user's workstation, local aliases, or specific hardware setups.</td></tr>
 </table>
 
@@ -144,8 +144,8 @@ $ rmdir -- "$scratch"
 <tr><td><code>0</code></td><td>Success</td><td>Standard command success, or affirmative result in predicates (e.g. <code>tam-sudo-docker</code> returns 0 when sudo is needed).</td></tr>
 <tr><td><code>1</code></td><td>General error / Negative result</td><td>Runtime failure, or normal negative result in silent status predicates (e.g. <code>tam-toggle-enabled</code> or <code>tam-sudo-docker</code>). Some utilities emit usage notices on exit 1.</td></tr>
 <tr><td><code>2</code></td><td>Usage error / Invalid syntax</td><td>Command-line argument error or invalid option in tools adhering strictly to utility conventions (e.g. <code>tam-notification-wait</code>).</td></tr>
-<tr><td><code>126</code></td><td>Command cannot execute</td><td>Target file exists but lacks executable permission or valid architecture.</td></tr>
-<tr><td><code>127</code></td><td>Command not found</td><td>Binary or utility not found anywhere on <code>PATH</code>.</td></tr>
+<tr><td><code>126</code></td><td>Command cannot execute</td><td><a href="glossary/t/target.html">Target</a> file exists but lacks executable permission or valid architecture.</td></tr>
+<tr><td><code>127</code></td><td>Command not found</td><td><a href="glossary/b/binary.html">Binary</a> or utility not found anywhere on <code>PATH</code>.</td></tr>
 <tr><td><code>128+N</code></td><td>Fatal signal <code>N</code></td><td>Process terminated by signal (e.g. 130 for <code>SIGINT</code> / Ctrl+C, 137 for <code>SIGKILL</code>).</td></tr>
 </table>
 
@@ -193,7 +193,7 @@ Hello, Tamlinux!
 <h3>Sources</h3>
 
 <ul>
-<li><a href="man:bash(1)">bash(1)</a> &mdash; GNU Bourne-Again SHell reference manual.</li>
+<li><a href="man:bash(1)">bash(1)</a> &mdash; <a href="glossary/g/gnu.html">GNU</a> Bourne-Again SHell reference manual.</li>
 <li><a href="man:execve(2)">execve(2)</a> &mdash; execute program and descriptor inheritance semantics.</li>
 </ul>
 

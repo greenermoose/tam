@@ -36,7 +36,7 @@
 <p>Tam 2.0 aims to keep what Tamlinux is for: comfortable ergonomics,
 responsiveness, reliability, accessibility, long hardware life, repairability,
 updates and recovery the user controls, and a total cost that stays
-maintainable. Whether today's specific choices, such as runit, Sway, bash, Nix
+maintainable. Whether today's specific choices, such as runit, Sway, bash, <a href="glossary/n/nix.html">Nix</a>
 and Linux applications, carry over unchanged is a decision still to be made.
 Tamlinux's ideas on a new kernel might become a new environment rather than a
 copy of the Linux desktop.</p>
@@ -47,8 +47,8 @@ copy of the Linux desktop.</p>
 
 <ul>
 <li><strong>Website:</strong> <a href="https://fuchsia.dev/">fuchsia.dev</a></li>
-<li><strong>Design:</strong> an operating system from Google built on the Zircon kernel. Zircon provides processes, memory and IPC primitives, with drivers and services in user space. Whether Zircon should be called a microkernel or a hybrid is not settled.</li>
-<li><strong>Components:</strong> software is built from isolated components that receive only the capabilities they are given, and talk through interfaces described in the FIDL language.</li>
+<li><strong>Design:</strong> an operating system from Google built on the Zircon kernel. Zircon provides processes, memory and <a href="glossary/i/ipc.html">IPC</a> primitives, with drivers and services in user space. Whether Zircon should be called a microkernel or a hybrid is not settled.</li>
+<li><strong>Components:</strong> software is built from isolated components that receive only the capabilities they are given, and talk through interfaces described in the <a href="glossary/f/fidl.html">FIDL</a> language.</li>
 <li><strong>Linux programs:</strong> a compatibility layer called Starnix aims to run unmodified Linux programs. How well it works for a desktop has not been tested.</li>
 <li><strong>Tamlinux role:</strong> studied for component isolation, diagnostics and its driver framework. No Tamlinux portability is claimed.</li>
 </ul>
@@ -57,9 +57,9 @@ copy of the Linux desktop.</p>
 
 <ul>
 <li><strong>Website:</strong> <a href="https://www.redox-os.org/">redox-os.org</a></li>
-<li><strong>Design:</strong> a Unix-like operating system with a microkernel, written in Rust. Drivers and file systems run as user-space programs.</li>
+<li><strong>Design:</strong> a <a href="glossary/u/unix.html">Unix</a>-like operating system with a microkernel, written in Rust. Drivers and file systems run as user-space programs.</li>
 <li><strong>Resources as URLs:</strong> Redox names resources through <em>schemes</em>, so a program opens a file, a network connection or a device through a path whose prefix names the server that handles it.</li>
-<li><strong>Compatibility:</strong> its own C library, relibc, written in Rust, provides partial POSIX compatibility, so some existing Unix software can be ported by recompiling.</li>
+<li><strong>Compatibility:</strong> its own C library, relibc, written in Rust, provides partial <a href="glossary/p/posix.html">POSIX</a> compatibility, so some existing Unix software can be ported by recompiling.</li>
 <li><strong>Desktop:</strong> its own windowing system, Orbital.</li>
 <li><strong>License:</strong> the core is MIT-licensed; individual programs have their own licenses.</li>
 <li><strong>Open questions:</strong> hardware support (processors, graphics, networking, storage), gaps in POSIX and applications, input and accessibility, package signing and security response, disk encryption, updates and offline recovery. Supporting real hardware would probably mean taking part in Redox driver development. The Redox book itself warns that some of its material is out of date.</li>
@@ -82,7 +82,7 @@ so it is an idea donor rather than a Tam 2.0 candidate; see
 microkernels have achieved in practice and where they have struggled.</p>
 
 <table>
-<tr id="genode"><td><strong>Genode and Sculpt OS</strong></td><td>a framework for building systems from small components with explicit capabilities. It runs on several kernels, including seL4 and NOVA. Sculpt OS is a general-purpose desktop built with Genode and used daily by its developers. <strong>Website:</strong> <a href="https://genode.org/">genode.org</a></td></tr>
+<tr id="genode"><td><strong>Genode and Sculpt OS</strong></td><td>a framework for building systems from small components with explicit capabilities. It runs on several kernels, including seL4 and <a href="glossary/n/nova.html">NOVA</a>. Sculpt OS is a general-purpose desktop built with Genode and used daily by its developers. <strong>Website:</strong> <a href="https://genode.org/">genode.org</a></td></tr>
 <tr id="gnu-hurd"><td><strong>GNU Hurd</strong></td><td>the GNU Project's kernel, a set of servers on the GNU Mach microkernel. Debian maintains an unofficial port. Decades of development show how hard hardware support and performance are for a small community. <strong>Website:</strong> <a href="https://www.gnu.org/software/hurd/">gnu.org/software/hurd</a></td></tr>
 <tr id="helenos"><td><strong>HelenOS</strong></td><td>a multiserver microkernel system from Charles University in Prague, portable to many processor architectures and used for research and teaching. <strong>Website:</strong> <a href="http://www.helenos.org/">helenos.org</a></td></tr>
 <tr id="minix-3"><td><strong>MINIX 3</strong></td><td>Andrew Tanenbaum's teaching system, redesigned for reliability: its reincarnation server restarts drivers that fail. Development has been largely inactive for years. <strong>Website:</strong> <a href="https://www.minix3.org/">minix3.org</a></td></tr>

@@ -21,7 +21,7 @@
 
 <section data-level="novice">
 <h2>Unlocking prompts with a touch</h2>
-<p>Typing a long password many times a day can feel slow. If your laptop has a fingerprint reader, or if you carry a USB security key (FIDO2), Tamlinux can let you tap that hardware to approve permission prompts.</p>
+<p>Typing a long password many times a day can feel slow. If your laptop has a fingerprint reader, or if you carry a <a href="glossary/u/usb.html">USB</a> security key (FIDO2), Tamlinux can let you tap that hardware to approve permission prompts.</p>
 
 <h3>Why it matters</h3>
 <p>Hardware verification confirms you are physically sitting at the computer without encouraging you to choose an easy-to-guess password.</p>
@@ -34,9 +34,9 @@
 <dt><dfn><a href="glossary/f/fingerprint.html">Fingerprint authentication</a></dfn></dt>
 <dd>Verifying your identity by scanning a registered fingerprint through <code>fprintd</code>.</dd>
 <dt><dfn><a href="glossary/f/fido.html">FIDO2</a></dfn></dt>
-<dd>A hardware token standard where tapping a physical USB or NFC key signs an authentication challenge.</dd>
+<dd>A hardware token standard where tapping a physical USB or <a href="glossary/n/nfc.html">NFC</a> key signs an authentication challenge.</dd>
 <dt><dfn><a href="glossary/p/pam.html">PAM</a></dfn></dt>
-<dd>Pluggable Authentication Modules, the Linux layer that decides whether a password, fingerprint, or token satisfies a prompt.</dd>
+<dd>Pluggable <a href="glossary/a/authentication.html">Authentication</a> Modules, the Linux layer that decides whether a password, fingerprint, or token satisfies a prompt.</dd>
 </dl>
 </section>
 
@@ -82,22 +82,22 @@ $ grep -E 'pam_(fprintd|u2f)\.so' /etc/pam.d/sudo /etc/pam.d/polkit-1 2>/dev/nul
 </section>
 </section>
 
-<section data-level="expert"><h3>Related setup commands</h3><table><tr><th>Command</th><th>Role</th></tr><tr><td><code>tam-setup-security-fido2</code></td><td>Register FIDO2 hardware token and configure PAM stacks for sudo and polkit</td></tr><tr><td><code>tam-remove-security-fido2</code></td><td>Remove FIDO2 modules from authentication stacks and remove helper packages</td></tr><tr><td><code>tam-setup-security-fingerprint</code></td><td>Enroll biometric fingerprint reader and integrate with hyprlock and PAM</td></tr><tr><td><code>tam-remove-security-fingerprint</code></td><td>Remove fingerprint authentication and restore default PAM configurations</td></tr></table>
-<h2>FIDO2/CTAP2 cryptography, PAM composition, and biometric limits</h2>
+<section data-level="expert"><h3>Related setup commands</h3><table><tr><th>Command</th><th>Role</th></tr><tr><td><code>tam-setup-security-fido2</code></td><td><a href="glossary/r/register.html">Register</a> FIDO2 hardware token and configure PAM stacks for sudo and polkit</td></tr><tr><td><code>tam-remove-security-fido2</code></td><td>Remove FIDO2 modules from authentication stacks and remove helper packages</td></tr><tr><td><code>tam-setup-security-fingerprint</code></td><td>Enroll biometric fingerprint reader and integrate with hyprlock and PAM</td></tr><tr><td><code>tam-remove-security-fingerprint</code></td><td>Remove fingerprint authentication and restore default PAM configurations</td></tr></table>
+<h2>FIDO2/<a href="glossary/c/ctap2.html">CTAP2</a> cryptography, PAM composition, and biometric limits</h2>
 <h3>Reference</h3>
-<p>FIDO2 combines WebAuthn (for browsers) with CTAP2 (Client to Authenticator Protocol 2 over USB HID, NFC, or BLE). Each Relying Party receives a distinct ECDSA P-256 or Ed25519 key pair bound to its Relying Party ID (RP ID), preventing cross-site tracking and phishing.</p>
+<p>FIDO2 combines WebAuthn (for browsers) with CTAP2 (Client to Authenticator Protocol 2 over USB <a href="glossary/h/hid.html">HID</a>, NFC, or BLE). Each Relying Party receives a distinct ECDSA P-256 or Ed25519 key pair bound to its Relying Party ID (RP ID), preventing cross-site tracking and phishing.</p>
 <h3>How it works</h3>
-<p><code>pam_u2f</code> issues a 32-byte random challenge over <code>libfido2</code>; the hardware token signs <code>SHA-256(rpId) || flags || signCount || challenge</code> inside its secure element only after physical user presence (UP) and optional user verification (UV/PIN). For biometrics, <code>pam_fprintd</code> communicates over D-Bus with <code>fprintd</code>, which matches sensor templates locally—though unlike FIDO2, a biometric match alone does not produce a cryptographic signature over a remote challenge.</p>
+<p><code>pam_u2f</code> issues a 32-byte random challenge over <code>libfido2</code>; the hardware token signs <code>SHA-256(rpId) || flags || signCount || challenge</code> inside its secure element only after physical user presence (UP) and optional user verification (UV/PIN). For biometrics, <code>pam_fprintd</code> communicates over D-<a href="glossary/b/bus.html">Bus</a> with <code>fprintd</code>, which matches sensor templates locally—though unlike FIDO2, a biometric match alone does not produce a cryptographic signature over a remote challenge.</p>
 <h3>Edge cases</h3>
 <dl>
 <dt>Match-on-host vs. match-on-chip fingerprint readers</dt>
-<dd>On match-on-host sensors, raw image frames cross USB to user-space drivers (<code>libfprint</code>), whereas match-on-chip sensors verify templates inside the sensor ASIC and return a signed verdict.</dd>
+<dd>On match-on-host sensors, raw image frames cross USB to user-space drivers (<code>libfprint</code>), whereas match-on-chip sensors verify templates inside the sensor <a href="glossary/a/asic.html">ASIC</a> and return a signed verdict.</dd>
 <dt>PAM short-circuiting</dt>
 <dd>Placing <code>sufficient</code> before <code>pam_unix</code> lets a physical token pass <code>auth</code> while preserving password fallback; <code>pam_succeed_if</code> or clamshell gates prevent closed-lid <code>fprintd</code> timeouts.</dd>
 </dl>
 <details class="q open">
 <summary>Research frontier: How can post-quantum signatures fit within CTAP2 hardware token memory and latency budgets?</summary>
-<p>ML-DSA signatures (2.4–4.6 KB) exceed legacy 64-byte ECDSA USB HID frames and constrained smart-card RAM, driving work on stateful/stateless hash-based or compact lattice signatures on next-generation authenticators.</p>
+<p><a href="glossary/m/ml-dsa.html">ML-DSA</a> signatures (2.4–4.6 <a href="glossary/b/byte.html">KB</a>) exceed legacy 64-byte ECDSA USB HID frames and constrained smart-card <a href="glossary/r/ram.html">RAM</a>, driving work on stateful/stateless hash-based or compact lattice signatures on next-generation authenticators.</p>
 </details>
 <h3>Sources</h3>
 <ul>

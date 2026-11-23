@@ -29,16 +29,16 @@
 <p>Plugins let you customize what information is visible on your screen at a glance without modifying the compositor or rewriting the main desktop shell.</p>
 
 <h3>How to think about it</h3>
-<p>Tamlinux desktop plugins (named in the <code>fred.*</code> namespace) run inside Quickshell. Each plugin lives in its own directory with a declarative manifest and QML interface files. Plugins interact with the system through bounded helpers rather than arbitrary root access.</p>
+<p>Tamlinux desktop plugins (named in the <code>fred.*</code> namespace) run inside <a href="glossary/q/quickshell.html">Quickshell</a>. Each plugin lives in its own directory with a declarative manifest and <a href="glossary/q/qml.html">QML</a> interface files. Plugins interact with the system through bounded helpers rather than arbitrary root access.</p>
 
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/q/qml.html">QML</a></dt>
 <dd>Qt Modeling Language; a declarative language used to define user interface components and layouts.</dd>
 <dt><a href="glossary/m/manifest.html">Manifest</a></dt>
-<dd>A JSON description file (<code>manifest.json</code>) declaring a plugin's identifier, version, title, entry points, and permissions.</dd>
+<dd>A <a href="glossary/j/json.html">JSON</a> description file (<code>manifest.json</code>) declaring a plugin's identifier, version, title, entry points, and permissions.</dd>
 <dt><a href="glossary/q/quickshell.html">Quickshell</a></dt>
-<dd>The flexible Wayland desktop shell engine powering Tamlinux panels, bars, and overlays.</dd>
+<dd>The flexible <a href="glossary/w/wayland.html">Wayland</a> desktop shell engine powering Tamlinux panels, bars, and overlays.</dd>
 </dl>
 </section>
 
@@ -87,7 +87,7 @@ $ tam-plugin dev fred.clock on
 
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Plugin fails to appear on the bar</dt>
+<dt><a href="glossary/p/plugin.html">Plugin</a> fails to appear on the bar</dt>
 <dd>Check the journal for Quickshell QML parse errors using <code>journalctl --user -u tamlinux-shell.service</code>.</dd>
 <dt>Plugin shows old assets after editing</dt>
 <dd>Purge cached bytecode and restart the shell by running <code>tam-restart-shell</code> (or <code>tam-qmlcache-purge</code>).</dd>
@@ -121,7 +121,7 @@ $ tam-plugin dev fred.clock on
 <tr><td><code>tam-plugin verify</code></td><td>Compare installed plugin digests against maintained source to detect drift</td></tr>
 <tr><td><code>tam-restart-shell</code></td><td>Purge QML cache and restart the shell service after code edits</td></tr>
 </table>
-<p>All plugins run within the unprivileged user session. Any persistent settings should be stored under descriptor-relative cache paths or standard XDG state directories.</p>
+<p>All plugins run within the unprivileged user session. Any persistent settings should be stored under descriptor-relative cache paths or standard <a href="glossary/x/xdg.html">XDG</a> state directories.</p>
 </section>
 
 <h2>Next</h2><p><a href="desktop/navigation/bar.html">The top bar</a> — bar layout and status plugins.</p>

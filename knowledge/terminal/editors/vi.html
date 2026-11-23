@@ -28,7 +28,7 @@
 
 <h3>Why it matters</h3>
 
-<p>vi is the common editor on Unix-like systems and inside many tools that borrow its keys. If you administer a machine with no graphical desktop, or open a file in a rescue environment, vi or one of its clones is often what exists. Learning a few commands turns a stuck moment into a two-second edit.</p>
+<p>vi is the common editor on <a href="glossary/u/unix.html">Unix</a>-like systems and inside many tools that borrow its keys. If you administer a machine with no graphical desktop, or open a file in a rescue environment, vi or one of its clones is often what exists. Learning a few commands turns a stuck moment into a two-second edit.</p>
 
 <h3>How to think about it</h3>
 
@@ -159,7 +159,7 @@ one
 <tr><td>Registers</td><td><code>"a</code>, <code>"1</code>, <code>"_</code></td><td>Named, numbered, and, in Vim, black-hole registers used before a command.</td></tr>
 <tr><td>Marks</td><td><code>ma</code>, <code>'a</code></td><td>Set and return to a named position.</td></tr>
 <tr><td>Ex command line</td><td><code>:</code></td><td>Run ex commands such as <code>:s</code>, <code>:g</code>, and <code>:w</code>.</td></tr>
-<tr><td>Visual selection</td><td><code>v</code>, <code>V</code>, <code>Ctrl + V</code></td><td>Vim extensions for character, line, and block selection. POSIX "visual mode" means the full-screen mode, not this selection.</td></tr>
+<tr><td>Visual selection</td><td><code>v</code>, <code>V</code>, <code>Ctrl + V</code></td><td>Vim extensions for character, line, and block selection. <a href="glossary/p/posix.html">POSIX</a> "visual mode" means the full-screen mode, not this selection.</td></tr>
 </table>
 
 <h3>How it works</h3>
@@ -170,7 +170,7 @@ one
 
 <p>Compatibility is an implementation choice, not a single behaviour. Vim starts with <code>nocompatible</code> when it finds a vimrc, and with <code>compatible</code> when invoked as <code>vi</code> or with <code>-C</code>. The <code>compatible</code> option changes many small defaults, including the behaviour of some commands and options. <code>vim -u NONE</code> skips your vimrc; <code>--noplugin</code> also skips plugins. Neither makes Vim identical to a 1970s vi, and neither is needed just to edit a file.</p>
 
-<p>Swap files are a Vim feature, not part of POSIX vi. Vim writes <code>.filename.swp</code> in the same directory by default, updating it after a period of inactivity and after a number of typed characters. If the process dies, the swap file holds enough information to recover. <code>:recover</code> reads it; <code>vim -r file</code> does the same from the shell; <code>:preserve</code> forces a swap write; <code>:set noswapfile</code> or <code>-n</code> disables the protection. The trade is explicit: no swap file means no crash recovery for that session.</p>
+<p><a href="glossary/s/swap.html">Swap</a> files are a Vim feature, not part of POSIX vi. Vim writes <code>.filename.swp</code> in the same directory by default, updating it after a period of inactivity and after a number of typed characters. If the process dies, the swap file holds enough information to recover. <code>:recover</code> reads it; <code>vim -r file</code> does the same from the shell; <code>:preserve</code> forces a swap write; <code>:set noswapfile</code> or <code>-n</code> disables the protection. The trade is explicit: no swap file means no crash recovery for that session.</p>
 
 <h3>Advanced usage</h3>
 
@@ -196,7 +196,7 @@ yap      yank the current paragraph, including surrounding blank lines
 <li><strong>Very large files.</strong> Swap files add disk writes, syntax highlighting costs memory and time, and one enormous line is slow to redraw. <code>-n</code>, <code>:syntax off</code>, and a larger <code>updatetime</code> can help, at the cost of crash recovery and feedback.</li>
 <li><strong>Concurrent editing.</strong> Two Vim sessions on one file can both write and silently lose one set of changes. The swap warning is the protection, not an obstacle; do not disable it just to silence the message.</li>
 <li><strong>Read-only files.</strong> <code>view</code> and <code>vim -R</code> open read-only. <code>:w</code> still fails if the file permissions forbid writing; use the proper ownership or a deliberate save-as, not a workaround that leaves a root-owned file behind.</li>
-<li><strong>Terminal and locale assumptions.</strong> vi assumes a terminal that can address the screen and a locale whose encoding matches the file. A mismatch produces broken accents, wrong cursor positions, or a corrupted display. <code>Ctrl + L</code> redraws; <code>reset</code> repairs the terminal after exit.</li>
+<li><strong><a href="glossary/t/terminal.html">Terminal</a> and locale assumptions.</strong> vi assumes a terminal that can address the screen and a locale whose encoding matches the file. A mismatch produces broken accents, wrong cursor positions, or a corrupted display. <code>Ctrl + L</code> redraws; <code>reset</code> repairs the terminal after exit.</li>
 <li><strong>Undo is not a backup.</strong> Vim's undo history can be lost with the process, and a write can overwrite a good file with bad text. Keep important files under version control or take a copy before a large mechanical edit.</li>
 </ul>
 

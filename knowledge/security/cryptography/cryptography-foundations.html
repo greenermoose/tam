@@ -51,7 +51,7 @@
 <p><strong>Before you start:</strong> generating random bytes with <code>openssl rand</code> is read-only to the system and safe to run in any terminal.</p>
 
 <aside class="first-time">
-<p><strong>New to this?</strong> The <code>$</code> sign marks the shell prompt; do not type it. Hexadecimal (base-16) uses digits <code>0-9</code> and letters <code>a-f</code>, so two hex characters represent one 8-bit byte.</p>
+<p><strong>New to this?</strong> The <code>$</code> sign marks the shell prompt; do not type it. <a href="glossary/h/hexadecimal.html">Hexadecimal</a> (base-16) uses digits <code>0-9</code> and letters <code>a-f</code>, so two hex characters represent one 8-bit byte.</p>
 </aside>
 
 <h3>Worked example</h3>
@@ -82,7 +82,7 @@ $ openssl rand -hex 16
 </dl>
 
 <aside class="tamlinux">
-<p>On Tamlinux, kernel <code>getrandom(2)</code> and <code>/dev/urandom</code> draw from a ChaCha20-based CSPRNG seeded from hardware timing, interrupt jitter, and CPU RNG instructions when available; never read <code>/dev/random</code> in scripts expecting it to "have higher quality" on modern Linux, as both interfaces share the same seeded pool.</p>
+<p>On Tamlinux, kernel <code>getrandom(2)</code> and <code>/dev/urandom</code> draw from a ChaCha20-based <a href="glossary/c/csprng.html">CSPRNG</a> seeded from hardware timing, interrupt jitter, and <a href="glossary/c/cpu.html">CPU</a> <a href="glossary/r/rng.html">RNG</a> instructions when available; never read <code>/dev/random</code> in scripts expecting it to "have higher quality" on modern Linux, as both interfaces share the same seeded pool.</p>
 </aside>
 
 <section class="quiz">
@@ -101,21 +101,21 @@ $ openssl rand -hex 16
 
 <section data-level="expert">
 <h2>Information-theoretic secrecy, reductions, and security games</h2>
-<p><strong>Reference:</strong> let <code>λ</code> denote the security parameter (typically 128 or 256 bits). A function <code>negl(λ)</code> is negligible if for every positive polynomial <code>p(·)</code>, there exists <code>λ_0</code> such that <code>negl(λ) &lt; 1/p(λ)</code> for all <code>λ &gt; λ_0</code>. Adversaries are modeled as probabilistic polynomial-time (PPT) Turing machines.</p>
+<p><strong>Reference:</strong> let <code>λ</code> denote the security parameter (typically 128 or 256 bits). A function <code>negl(λ)</code> is negligible if for every positive polynomial <code>p(·)</code>, there exists <code>λ_0</code> such that <code>negl(λ) &lt; 1/p(λ)</code> for all <code>λ &gt; λ_0</code>. Adversaries are modeled as probabilistic polynomial-time (<a href="glossary/p/ppt.html">PPT</a>) Turing machines.</p>
 
 <table>
 <tr><th>Security Notion</th><th>Adversary Goal</th><th>Oracle Access</th><th>Typical Primitive</th></tr>
 <tr><td>Perfect Secrecy</td><td>Distinguish <code>Enc(k, m_0)</code> from <code>Enc(k, m_1)</code></td><td>Unbounded computation</td><td>One-Time Pad (<code>|K| ≥ |M|</code>)</td></tr>
-<tr><td>IND-CPA</td><td>Distinguish encryptions of chosen <code>m_0, m_1</code></td><td>Encryption oracle</td><td>AES-CTR / randomized symmetric</td></tr>
-<tr><td>IND-CCA2</td><td>Distinguish challenge ciphertext</td><td>Encryption + Decryption (except challenge)</td><td>AEAD (AES-GCM), RSA-OAEP</td></tr>
-<tr><td>EUF-CMA</td><td>Forge valid tag/sig on fresh message <code>m*</code></td><td>MAC / Signing oracle</td><td>HMAC-SHA256, Ed25519, ML-DSA</td></tr>
+<tr><td><a href="glossary/i/ind-cpa.html">IND-CPA</a></td><td>Distinguish encryptions of chosen <code>m_0, m_1</code></td><td>Encryption oracle</td><td><a href="glossary/a/aes-ctr.html">AES-CTR</a> / randomized symmetric</td></tr>
+<tr><td><a href="glossary/i/ind-cca2.html">IND-CCA2</a></td><td>Distinguish challenge ciphertext</td><td>Encryption + Decryption (except challenge)</td><td><a href="glossary/a/aead.html">AEAD</a> (AES-<a href="glossary/g/gcm.html">GCM</a>), <a href="glossary/r/rsa-oaep.html">RSA-OAEP</a></td></tr>
+<tr><td><a href="glossary/e/euf-cma.html">EUF-CMA</a></td><td>Forge valid tag/sig on fresh message <code>m*</code></td><td><a href="glossary/m/mac.html">MAC</a> / Signing oracle</td><td><a href="glossary/h/hmac-sha256.html">HMAC-SHA256</a>, Ed25519, <a href="glossary/m/ml-dsa.html">ML-DSA</a></td></tr>
 </table>
 
 <h3>How it works: from Shannon to computational reductions</h3>
 <p><strong>Shannon's Perfect Secrecy:</strong> A cipher <code>(Gen, Enc, Dec)</code> achieves perfect secrecy if for all messages <code>m_0, m_1 ∈ M</code> and all ciphertexts <code>c ∈ C</code>, <code>Pr[Enc(K, m_0) = c] = Pr[Enc(K, m_1) = c]</code>. Equivalently, ciphertext reveals zero Shannon mutual information: <code>I(M; C) = 0</code>. Shannon's theorem proves this requires <code>|K| ≥ |M|</code> (entropy <code>H(K) ≥ H(M)</code>), which the One-Time Pad (<code>c = m ⊕ k</code>) saturates. Reusing a pad key <code>k</code> leaks <code>c_1 ⊕ c_2 = m_1 ⊕ m_2</code>, catastrophically breaking secrecy.</p>
-<p><strong>Computational Security &amp; Reductions:</strong> To reuse a short key <code>|k| = λ</code> for gigabytes of data, modern cryptography relaxes unbounded adversaries to PPT adversaries and zero advantage to <code>negl(λ)</code>. Security is proved by <em>reduction</em>: show that if an efficient adversary <code>A</code> breaks scheme <code>Π</code> with non-negligible advantage <code>ε(λ)</code>, we can wrap <code>A</code> inside a PPT algorithm <code>B</code> that solves a conjectured hard problem (e.g., PRF indistinguishability, integer factoring, CDH/DDH, or Module-LWE) with non-negligible advantage.</p>
+<p><strong>Computational Security &amp; Reductions:</strong> To reuse a short key <code>|k| = λ</code> for gigabytes of data, modern cryptography relaxes unbounded adversaries to PPT adversaries and zero advantage to <code>negl(λ)</code>. Security is proved by <em>reduction</em>: show that if an efficient adversary <code>A</code> breaks scheme <code>Π</code> with non-negligible advantage <code>ε(λ)</code>, we can wrap <code>A</code> inside a PPT algorithm <code>B</code> that solves a conjectured hard problem (e.g., <a href="glossary/p/prf.html">PRF</a> indistinguishability, integer factoring, <a href="glossary/c/cdh.html">CDH</a>/<a href="glossary/d/ddh.html">DDH</a>, or Module-LWE) with non-negligible advantage.</p>
 <p><strong>Modular Arithmetic &amp; Algebraic Foundations:</strong> Many asymmetric schemes operate in the multiplicative group <code>(ℤ_p*, ×)</code> of integers modulo a prime <code>p</code>, or <code>ℤ_N*</code> for composite <code>N = p·q</code>. Under division, <code>a ≡ b (mod n)</code> means <code>n | (a - b)</code>. By Fermat's Little Theorem, for prime <code>p</code> and <code>gcd(a, p) = 1</code>, <code>a^(p-1) ≡ 1 (mod p)</code>; Euler's theorem generalizes this to <code>a^φ(N) ≡ 1 (mod N)</code> where <code>φ(N) = (p-1)(q-1)</code>.</p>
-<p><strong>Random Oracle Model (ROM) vs. Standard Model:</strong> In the ROM, a hash function <code>H</code> is idealized as a truly random public function queried via an oracle. ROM proofs are tight and practical (e.g., RSA-OAEP, Schnorr/Ed25519), though Canetti–Goldreich–Halevi (1998) proved artificial schemes exist that are secure in the ROM yet insecure under every concrete hash instantiation.</p>
+<p><strong>Random Oracle Model (<a href="glossary/r/rom.html">ROM</a>) vs. Standard Model:</strong> In the ROM, a hash function <code>H</code> is idealized as a truly random public function queried via an oracle. ROM proofs are tight and practical (e.g., RSA-OAEP, Schnorr/Ed25519), though Canetti–Goldreich–Halevi (1998) proved artificial schemes exist that are secure in the ROM yet insecure under every concrete hash instantiation.</p>
 
 <h3>Edge cases and failure modes</h3>
 <ul>
@@ -127,7 +127,7 @@ $ openssl rand -hex 16
 <h3>Check yourself</h3>
 <details class="q open">
 <summary>Why is IND-CPA alone insufficient for real-world network protocols, and what concrete attack exploits IND-CPA-only encryption?</summary>
-<p>IND-CPA does not prevent an attacker from modifying ciphertexts in flight or abusing a server as a decryption/padding oracle. Classic CBC-mode padding oracle attacks (Vaudenay, 2002) and malleability attacks against unauthenticated CTR mode exploit IND-CPA schemes to recover full plaintext byte-by-byte without knowing the key. Real protocols require IND-CCA2 / Authenticated Encryption (INT-CTXT).</p>
+<p>IND-CPA does not prevent an attacker from modifying ciphertexts in flight or abusing a server as a decryption/padding oracle. Classic <a href="glossary/c/cbc.html">CBC</a>-mode padding oracle attacks (Vaudenay, 2002) and malleability attacks against unauthenticated CTR mode exploit IND-CPA schemes to recover full plaintext byte-by-byte without knowing the key. Real protocols require IND-CCA2 / Authenticated Encryption (<a href="glossary/i/int-ctxt.html">INT-CTXT</a>).</p>
 </details>
 </section>
 

@@ -66,7 +66,7 @@ hello from Lua 5.5
 <p>Captured on an Arch Linux workstation, 2026-10-25.</p>
 
 <ol>
-<li><code>lua</code> is the standalone interpreter installed by the <code>lua</code> package (version 5.5), matching the version Hyprland embeds.</li>
+<li><code>lua</code> is the standalone interpreter installed by the <code>lua</code> package (version 5.5), matching the version <a href="glossary/h/hyprland.html">Hyprland</a> embeds.</li>
 <li><code>-e</code> executes the given string as a statement without creating a file.</li>
 <li><code>..</code> is Lua's string concatenation operator.</li>
 <li><code>_VERSION</code> is a global variable holding the interpreter's version string.</li>
@@ -114,7 +114,7 @@ $ rmdir -- "$scratch"
 </section>
 </section>
 <section data-level="expert">
-<h2>How a host embeds Lua: the C API stack protocol</h2>
+<h2>How a host embeds Lua: the C <a href="glossary/a/api.html">API</a> stack protocol</h2>
 
 <p><strong>Reference:</strong> A host program creates one Lua state, loads script files into it, and exchanges values with it over a single shared virtual stack. Positions on that stack count up from the bottom (<code>1</code>, <code>2</code>, <code>3</code>&hellip;) or down from the top (<code>-1</code> is the value most recently pushed or returned).</p>
 
@@ -169,7 +169,7 @@ lua_pop(L, 1);                         /* pop table           */
 
 <h3>How it works: execution lifecycle</h3>
 
-<p>When Hyprland initializes, it calls <code>luaL_newstate()</code> to allocate an isolated execution context and <code>luaL_openlibs()</code> to populate standard libraries (math, string, table). It registers custom C functions (such as bind dispatchers and monitor hooks) into the global table. When executing <code>hyprctl reload</code>, the compositor re-runs the Lua scripts in place without restarting the Wayland display server.</p>
+<p>When Hyprland initializes, it calls <code>luaL_newstate()</code> to allocate an isolated execution context and <code>luaL_openlibs()</code> to populate standard libraries (math, string, table). It registers custom C functions (such as bind dispatchers and monitor hooks) into the global table. When executing <code>hyprctl reload</code>, the compositor re-runs the Lua scripts in place without restarting the <a href="glossary/w/wayland.html">Wayland</a> display server.</p>
 
 <h3>Why Tamlinux chose this</h3>
 
@@ -211,7 +211,7 @@ $ hyprctl repl 'print("active workspace:", hl.activeworkspace())'
 <ul>
 <li><a href="man:lua(1)">lua(1)</a> &mdash; Lua reference manual.</li>
 <li><a href="man:luac(1)">luac(1)</a> &mdash; Lua bytecode compiler reference.</li>
-<li>Lua 5.5 Reference Manual: <code>/usr/share/doc/lua/manual.html</code> (locally installed HTML manual).</li>
+<li>Lua 5.5 Reference Manual: <code>/usr/share/doc/lua/manual.html</code> (locally installed <a href="glossary/h/html.html">HTML</a> manual).</li>
 </ul>
 
 <h3>Improve it</h3>

@@ -17,8 +17,8 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="security/index.html">Security</a> / <a href="security/cryptography/index.html">Cryptography</a> / Cryptographic Hash Functions, SHA, HMAC, and Key Derivation</p></nav>
 
 
-<h1>Cryptographic Hash Functions, SHA, HMAC, and Key Derivation</h1>
-<p>This page explains how cryptographic hash functions like SHA-256 create compact digital fingerprints, authenticate messages with keys, and stretch passwords safely.</p>
+<h1>Cryptographic <a href="glossary/h/hash.html">Hash</a> Functions, SHA, <a href="glossary/h/hmac.html">HMAC</a>, and Key Derivation</h1>
+<p>This page explains how cryptographic hash functions like <a href="glossary/s/sha-256.html">SHA-256</a> create compact digital fingerprints, authenticate messages with keys, and stretch passwords safely.</p>
 <h2>Before this</h2><p><a href="security/cryptography/symmetric-cryptography.html">Symmetric Cryptography and Authenticated Encryption</a></p>
 
 <section data-level="novice">
@@ -41,12 +41,12 @@
 </section>
 
 <section data-level="learner">
-<h2>Computing SHA-256, BLAKE2, SHA-3, and HMAC digests</h2>
-<p><strong>Goal:</strong> you will be able to compute and compare SHA-256, BLAKE2b, SHA-3, and HMAC-SHA256 digests and verify why single-bit changes trigger the avalanche effect.</p>
+<h2>Computing SHA-256, <a href="glossary/b/blake2.html">BLAKE2</a>, <a href="glossary/s/sha-3.html">SHA-3</a>, and HMAC digests</h2>
+<p><strong>Goal:</strong> you will be able to compute and compare SHA-256, BLAKE2b, SHA-3, and <a href="glossary/h/hmac-sha256.html">HMAC-SHA256</a> digests and verify why single-bit changes trigger the avalanche effect.</p>
 <p><strong>Before you start:</strong> hashing standard input with <code>sha256sum</code>, <code>b2sum</code>, and <code>openssl dgst</code> is read-only and leaves no files behind.</p>
 
 <h3>Worked example</h3>
-<p>Hash <code>hello</code> and <code>hellp</code> (one bit apart in the last letter) with SHA-256, then compute BLAKE2b, SHA3-256, and HMAC-SHA256 on <code>hello</code>:</p>
+<p>Hash <code>hello</code> and <code>hellp</code> (one bit apart in the last letter) with SHA-256, then compute BLAKE2b, <a href="glossary/s/sha3-256.html">SHA3-256</a>, and HMAC-SHA256 on <code>hello</code>:</p>
 <pre class="session" data-risk="read-only">
 $ printf 'hello' | sha256sum
 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824  -
@@ -63,8 +63,8 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 
 <h3>What just happened</h3>
 <ol>
-<li>Changing <code>o</code> (ASCII <code>0x6f</code>) to <code>p</code> (ASCII <code>0x70</code>)—a single bit flip—changed roughly half of all 256 bits in the SHA-256 output (the avalanche effect).</li>
-<li><code>b2sum</code> outputs a 512-bit BLAKE2b digest, while <code>openssl dgst -sha3-256</code> uses the Keccak sponge algorithm rather than SHA-2.</li>
+<li>Changing <code>o</code> (<a href="glossary/a/ascii.html">ASCII</a> <code>0x6f</code>) to <code>p</code> (ASCII <code>0x70</code>)—a single bit flip—changed roughly half of all 256 bits in the SHA-256 output (the avalanche effect).</li>
+<li><code>b2sum</code> outputs a 512-bit BLAKE2b digest, while <code>openssl dgst -sha3-256</code> uses the Keccak sponge algorithm rather than <a href="glossary/s/sha-2.html">SHA-2</a>.</li>
 <li>Adding <code>-hmac "my-secret-key"</code> mixes a secret key into the hash so only someone with the key can reproduce that tag.</li>
 </ol>
 
@@ -76,11 +76,11 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 <dt><code>echo "hello" | sha256sum</code> gives a different hash than <code>printf 'hello'</code></dt>
 <dd><code>echo</code> appends a trailing newline character (<code>\n</code>), changing the input bytes. Always use <code>printf '%s'</code> when hashing exact strings.</dd>
 <dt>Using SHA-256 directly to store user passwords</dt>
-<dd>SHA-256 is designed to be blazingly fast (billions of hashes per second on GPUs). Always use a salted, memory-hard password KDF such as Argon2id or yescrypt.</dd>
+<dd>SHA-256 is designed to be blazingly fast (billions of hashes per second on GPUs). Always use a salted, memory-hard password <a href="glossary/k/kdf.html">KDF</a> such as Argon2id or yescrypt.</dd>
 </dl>
 
 <aside class="tamlinux">
-<p>On Tamlinux, Arch Linux local password hashes in <code>/etc/shadow</code> use <code>yescrypt</code> via PAM, LUKS2 key slots default to memory-hard <code>Argon2id</code>, and package/assembly verification relies on SHA-256 digests pinned in Nix flakes and <code>tamlinux-packages</code>.</p>
+<p>On Tamlinux, Arch Linux local password hashes in <code>/etc/shadow</code> use <code>yescrypt</code> via <a href="glossary/p/pam.html">PAM</a>, <a href="glossary/l/luks2.html">LUKS2</a> key slots default to memory-hard <code>Argon2id</code>, and package/assembly verification relies on SHA-256 digests pinned in <a href="glossary/n/nix.html">Nix</a> flakes and <code>tamlinux-packages</code>.</p>
 </aside>
 
 <section class="quiz">
@@ -99,7 +99,7 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 
 <section data-level="expert">
 <h2>SHA-256, Keccak sponge, collision bounds, HMAC, and Argon2id</h2>
-<p><strong>Reference:</strong> an <code>n</code>-bit cryptographic hash <code>H: {0,1}* → {0,1}^n</code> must satisfy three hardness properties against PPT adversaries:</p>
+<p><strong>Reference:</strong> an <code>n</code>-bit cryptographic hash <code>H: {0,1}* → {0,1}^n</code> must satisfy three hardness properties against <a href="glossary/p/ppt.html">PPT</a> adversaries:</p>
 <table>
 <tr><td><strong>Preimage resistance (one-wayness)</strong></td><td>given <code>y</code>, finding <code>x</code> with <code>H(x) = y</code> requires <code>~2^n</code> work.</td></tr>
 <tr><td><strong>Second-preimage resistance</strong></td><td>given <code>x_1</code>, finding <code>x_2 ≠ x_1</code> with <code>H(x_2) = H(x_1)</code> requires <code>~2^n</code> work.</td></tr>
@@ -108,29 +108,29 @@ SHA2-256(stdin)= 3ac7fc22f5cbd1aaaea11fac013d3e6f5d894fe2fc51ab98b6d3b1593a45255
 
 <table>
 <tr><th>Family</th><th>Construction</th><th>Internal State / Digest</th><th>Status &amp; Notes</th></tr>
-<tr><td>MD5 / SHA-1</td><td>Merkle–Damgård</td><td>128 / 160 bits</td><td><strong>Broken</strong> for collisions (MD5 trivial; SHA-1 SHAttered <code>2^63.1</code>)</td></tr>
+<tr><td><a href="glossary/m/md5.html">MD5</a> / <a href="glossary/s/sha-1.html">SHA-1</a></td><td>Merkle–Damgård</td><td>128 / 160 bits</td><td><strong>Broken</strong> for collisions (MD5 trivial; SHA-1 SHAttered <code>2^63.1</code>)</td></tr>
 <tr><td>SHA-256 / SHA-512</td><td>Merkle–Damgård (Davies–Meyer)</td><td>256 / 512 bits</td><td>Secure; 64 / 80 rounds; vulnerable to length-extension unless wrapped in HMAC</td></tr>
 <tr><td>SHA3-256 / SHAKE</td><td>Keccak-f[1600] Sponge</td><td>1600-bit state (<code>r=1088, c=512</code>)</td><td>Secure; indifferentiable from RO up to <code>2^(c/2)</code>; no length-extension</td></tr>
-<tr><td>BLAKE2b / BLAKE3</td><td>HAIFA / Merkle-tree ChaCha</td><td>512 / 256 bits</td><td>High-speed parallel hashing, built-in keyed/KDF modes</td></tr>
+<tr><td>BLAKE2b / <a href="glossary/b/blake3.html">BLAKE3</a></td><td><a href="glossary/h/haifa.html">HAIFA</a> / Merkle-tree ChaCha</td><td>512 / 256 bits</td><td>High-speed parallel hashing, built-in keyed/KDF modes</td></tr>
 </table>
 
 <h3>How it works: SHA-256 vs. SHA-3 Sponge</h3>
-<p><strong>SHA-256 (FIPS 180-4) Internals:</strong> Messages are padded with a <code>1</code> bit, <code>k</code> zero bits, and a 64-bit big-endian length so total length is a multiple of 512 bits. Each 512-bit block <code>M^(i)</code> is expanded into sixty-four 32-bit words <code>W_0..W_63</code> using <code>σ_0(x) = ROTR^7(x) ⊕ ROTR^18(x) ⊕ SHR^3(x)</code> and <code>σ_1(x) = ROTR^17(x) ⊕ ROTR^19(x) ⊕ SHR^10(x)</code>. Eight 32-bit state registers <code>(a..h)</code>—initialized from the fractional parts of the square roots of the first 8 primes—run 64 rounds using <code>Ch(e,f,g) = (e ∧ f) ⊕ (¬e ∧ g)</code>, <code>Maj(a,b,c) = (a ∧ b) ⊕ (a ∧ c) ⊕ (b ∧ c)</code>, <code>Σ_0</code>, <code>Σ_1</code>, and round constants <code>K_t</code> (fractional parts of cube roots of the first 64 primes), followed by Davies–Meyer feed-forward addition modulo <code>2^32</code>.</p>
-<p><strong>Length-Extension Attack on Merkle–Damgård:</strong> Because SHA-256 outputs its full internal chaining state, an attacker given <code>H(secret || m)</code> and <code>|secret || m|</code> can append <code>padding || m'</code> and continue running the compression function to compute <code>H(secret || m || padding || m')</code> without knowing <code>secret</code>. <strong>HMAC</strong> defeats this by nesting: <code>HMAC(K, m) = H((K' ⊕ opad) || H((K' ⊕ ipad) || m))</code>, where <code>ipad = 0x36...</code> and <code>opad = 0x5c...</code>. <strong>HKDF</strong> (RFC 5869) builds a two-stage Extract-then-Expand KDF on top of HMAC.</p>
+<p><strong>SHA-256 (<a href="glossary/f/fips.html">FIPS</a> 180-4) Internals:</strong> Messages are padded with a <code>1</code> bit, <code>k</code> zero bits, and a 64-bit big-endian length so total length is a multiple of 512 bits. Each 512-bit block <code>M^(i)</code> is expanded into sixty-four 32-bit words <code>W_0..W_63</code> using <code>σ_0(x) = ROTR^7(x) ⊕ ROTR^18(x) ⊕ SHR^3(x)</code> and <code>σ_1(x) = ROTR^17(x) ⊕ ROTR^19(x) ⊕ SHR^10(x)</code>. Eight 32-bit state registers <code>(a..h)</code>—initialized from the fractional parts of the square roots of the first 8 primes—run 64 rounds using <code>Ch(e,f,g) = (e ∧ f) ⊕ (¬e ∧ g)</code>, <code>Maj(a,b,c) = (a ∧ b) ⊕ (a ∧ c) ⊕ (b ∧ c)</code>, <code>Σ_0</code>, <code>Σ_1</code>, and round constants <code>K_t</code> (fractional parts of cube roots of the first 64 primes), followed by Davies–Meyer feed-forward addition modulo <code>2^32</code>.</p>
+<p><strong>Length-Extension Attack on Merkle–Damgård:</strong> Because SHA-256 outputs its full internal chaining state, an attacker given <code>H(secret || m)</code> and <code>|secret || m|</code> can append <code>padding || m'</code> and continue running the compression function to compute <code>H(secret || m || padding || m')</code> without knowing <code>secret</code>. <strong>HMAC</strong> defeats this by nesting: <code>HMAC(K, m) = H((K' ⊕ opad) || H((K' ⊕ ipad) || m))</code>, where <code>ipad = 0x36...</code> and <code>opad = 0x5c...</code>. <strong>HKDF</strong> (<a href="glossary/r/rfc.html">RFC</a> 5869) builds a two-stage Extract-then-Expand KDF on top of HMAC.</p>
 <p><strong>SHA-3 / Keccak Sponge (FIPS 202):</strong> A 1600-bit state (<code>5×5×64</code> lanes) is partitioned into bitrate <code>r</code> (outer, exposed) and capacity <code>c</code> (inner, hidden; <code>r + c = 1600</code>, with <code>c = 2n</code> for SHA3-<code>n</code>). Input blocks are XORed into the first <code>r</code> bits interleaved with the 24-round <code>Keccak-f[1600]</code> permutation (<code>θ, ρ, π, χ, ι</code> steps), then output blocks are squeezed from the <code>r</code> bits. Because the capacity <code>c</code> is never output directly, sponge hashes resist length-extension attacks natively and are proved indifferentiable from a Random Oracle up to <code>2^(c/2)</code> queries.</p>
-<p><strong>Memory-Hard Password KDFs (Argon2id):</strong> Unlike PBKDF2 (low memory, easily parallelized on ASICs/GPUs), Argon2id fills a large 2D memory matrix (e.g., 64 MiB–1 GiB) with pseudo-random dependencies—using data-independent addressing (Argon2i) in early passes to resist cache-timing side channels and data-dependent addressing (Argon2d) in later passes to maximize time-memory tradeoff resistance.</p>
+<p><strong>Memory-Hard Password KDFs (Argon2id):</strong> Unlike <a href="glossary/p/pbkdf2.html">PBKDF2</a> (low memory, easily parallelized on ASICs/GPUs), Argon2id fills a large 2D memory matrix (e.g., 64 MiB–1 GiB) with pseudo-random dependencies—using data-independent addressing (Argon2i) in early passes to resist cache-timing side channels and data-dependent addressing (Argon2d) in later passes to maximize time-memory tradeoff resistance.</p>
 
 <h3>Edge cases and failure modes</h3>
 <ul>
 <li><strong>Truncating hashes &amp; multi-target attacks:</strong> Truncating SHA-256 to 128 bits reduces collision resistance to <code>2^64</code> (infeasible for security today). Similarly, lacking per-user salts enables multi-target preimage attacks where cracking any one of <code>T</code> targets drops cost by factor <code>T</code>.</li>
-<li><strong>Comparing MAC tags with <code>==</code> / <code>memcmp</code>:</strong> Non-constant-time byte comparison leaks how many leading bytes of a forged MAC match via timing side channels; always use constant-time comparison (e.g., <code>CRYPTO_memcmp</code>).</li>
+<li><strong>Comparing <a href="glossary/m/mac.html">MAC</a> tags with <code>==</code> / <code>memcmp</code>:</strong> Non-constant-time byte comparison leaks how many leading bytes of a forged MAC match via timing side channels; always use constant-time comparison (e.g., <code>CRYPTO_memcmp</code>).</li>
 </ul>
 
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q open">
 <summary>Why does SHA3-256 not need HMAC to prevent length-extension attacks, whereas SHA-256 does?</summary>
-<p>SHA-256 outputs its entire 256-bit Merkle-Damgard chaining variable, letting an attacker resume compression from the digest. SHA3-256 uses a 1600-bit Keccak sponge where 512 capacity bits remain hidden inside the internal state and are never emitted; without those capacity bits, an attacker cannot predict the state transition for appended blocks (so KMAC is a simple keyed sponge).</p>
+<p>SHA-256 outputs its entire 256-bit Merkle-Damgard chaining variable, letting an attacker resume compression from the digest. SHA3-256 uses a 1600-bit Keccak sponge where 512 capacity bits remain hidden inside the internal state and are never emitted; without those capacity bits, an attacker cannot predict the state transition for appended blocks (so <a href="glossary/k/kmac.html">KMAC</a> is a simple keyed sponge).</p>
 </details>
 </section>
 

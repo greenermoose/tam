@@ -53,7 +53,7 @@ load average > logical cores  --> processes queuing for CPU or disk I/O
 load average <= logical cores --> system has compute headroom
 </pre>
 
-<p>A load average is an exponential moving average of processes in runnable or uninterruptible sleep state (waiting for CPU or disk). Compare load to <code>nproc</code>: on a 16-core machine, a load of 1.4 means substantial spare headroom; on a 2-core machine, a load of 4.0 means tasks are actively queuing.</p>
+<p>A load average is an exponential moving average of processes in runnable or uninterruptible sleep state (waiting for <a href="glossary/c/cpu.html">CPU</a> or disk). Compare load to <code>nproc</code>: on a 16-core machine, a load of 1.4 means substantial spare headroom; on a 2-core machine, a load of 4.0 means tasks are actively queuing.</p>
 <h3>Worked example: Check available memory</h3>
 <pre class="session" data-risk="read-only">
 $ free -h
@@ -89,7 +89,7 @@ Filesystem                Size  Used Avail Use% Mounted on
 <dd>Applications are consuming most physical RAM. Check running tasks before starting heavy workloads. Nothing needs undo.</dd>
 </dl>
 <aside class="tamlinux">
-<p>Tamlinux configures compressed in-RAM swap via ZRAM by default rather than slow disk swap partitions, maximizing responsiveness on systems with modest RAM. In addition, <code>tam inspect</code> audits host CPU, memory, and mount headroom in one read-only command, and <code>tam check storage_root_space</code> validates root filesystem headroom against the Check Contract.</p>
+<p>Tamlinux configures compressed in-RAM swap via <a href="glossary/z/zram.html">ZRAM</a> by default rather than slow disk swap partitions, maximizing responsiveness on systems with modest RAM. In addition, <code>tam inspect</code> audits host CPU, memory, and mount headroom in one read-only command, and <code>tam check storage_root_space</code> validates root filesystem headroom against the Check Contract.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -121,18 +121,18 @@ Filesystem                Size  Used Avail Use% Mounted on
 
 <h3>How it works</h3>
 
-<p>Linux virtual memory architecture separates anonymous memory (application heap and stack) from file-backed memory (page cache, mmap files). When memory pressure mounts, the kernel's <code>kswapd</code> daemon reclaims clean file pages and compresses anonymous pages into ZRAM swap devices backed by lz4 or zstd algorithms. Dirty page flushing is governed by <code>vm.dirty_ratio</code> and <code>vm.dirty_background_ratio</code> in <code>sysctl(8)</code>. Pressure Stall Information (PSI) in <code>/proc/pressure/memory</code> provides leading indicators of memory stalls before thrashing occurs.</p>
+<p>Linux virtual memory architecture separates anonymous memory (application heap and stack) from file-backed memory (page cache, mmap files). When memory pressure mounts, the kernel's <code>kswapd</code> daemon reclaims clean file pages and compresses anonymous pages into ZRAM swap devices backed by lz4 or zstd algorithms. Dirty page flushing is governed by <code>vm.dirty_ratio</code> and <code>vm.dirty_background_ratio</code> in <code>sysctl(8)</code>. Pressure Stall Information (<a href="glossary/p/psi.html">PSI</a>) in <code>/proc/pressure/memory</code> provides leading indicators of memory stalls before thrashing occurs.</p>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Tamlinux avoids persistent disk swap files on flash storage to prevent SSD write wear and eliminate the catastrophic latency spikes associated with reading swapped pages from disk. In-RAM compression with ZRAM delivers near-memory speeds while effectively doubling usable RAM on memory-constrained systems, with zero background telemetry daemons.</p>
+<p>Tamlinux avoids persistent disk swap files on flash storage to prevent <a href="glossary/s/ssd.html">SSD</a> write wear and eliminate the catastrophic latency spikes associated with reading swapped pages from disk. In-RAM compression with ZRAM delivers near-memory speeds while effectively doubling usable RAM on memory-constrained systems, with zero background telemetry daemons.</p>
 
 <h3>Edge cases</h3>
 
 <ul>
 <li><strong>Direct reclaim stalls:</strong> when allocation rate exceeds <code>kswapd</code> reclaim speed, allocating processes block in direct reclaim, causing perceptible micro-stutters.</li>
 <li><strong>ZRAM incompressible payload:</strong> data that cannot be compressed (e.g. encrypted files or already-compressed media) yields a 1:1 ratio, consuming physical RAM without space savings.</li>
-<li><strong>OOM killer latency:</strong> without user-space memory monitors, the kernel OOM killer may trigger only after prolonged swap thrashing has degraded desktop interactivity.</li>
+<li><strong><a href="glossary/o/oom.html">OOM</a> killer latency:</strong> without user-space memory monitors, the kernel OOM killer may trigger only after prolonged swap thrashing has degraded desktop interactivity.</li>
 </ul>
 
 <h3>Explore</h3>

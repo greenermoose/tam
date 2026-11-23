@@ -40,19 +40,19 @@
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q">
-<summary><i>Why did high-speed computer architectures transition from 64-bit parallel buses to point-to-point serial links like PCIe?</i></summary>
+<summary><i>Why did high-speed computer architectures transition from 64-bit parallel buses to point-to-point serial links like <a href="glossary/p/pcie.html">PCIe</a>?</i></summary>
 <p>At gigahertz frequencies, microscopic variations in wire length cause clock skew (bits arriving out of alignment), and closely packed parallel wires suffer severe capacitive crosstalk. Serial links eliminate skew and achieve orders-of-magnitude higher speeds using embedded clock recovery.</p>
 </details>
 </section>
 
 <h2>Stage 3: Media and signaling: copper, fiber, and wireless waves</h2>
-<p><a href="hardware/signals/cables-and-signaling.html?level=2">Transmission media: electrical cables, optical fiber, and wireless waves</a>: Discover how differential signaling cancels electrical noise on copper pairs, how total internal reflection traps laser light inside optical fiber cores, and how accelerating electrical charges radiate electromagnetic radio waves for Wi-Fi and cellular networks.</p>
+<p><a href="hardware/signals/cables-and-signaling.html?level=2">Transmission media: electrical cables, optical fiber, and wireless waves</a>: Discover how differential signaling cancels electrical noise on copper pairs, how total internal reflection traps laser light inside optical fiber cores, and how accelerating electrical charges radiate electromagnetic radio waves for <a href="glossary/w/wi-fi.html">Wi-Fi</a> and cellular networks.</p>
 
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q">
 <summary><i>How does an optical transceiver convert digital electronic bits into light pulses and back again?</i></summary>
-<p>A laser diode or VCSEL transmitter converts electrical logic voltage into nanosecond pulses of photons. At the receiving end, a semiconductor photodiode absorbs incoming photons, generating a minute electrical current via the photoelectric effect, which a transimpedance amplifier boosts back into digital voltage swings.</p>
+<p>A laser diode or <a href="glossary/v/vcsel.html">VCSEL</a> transmitter converts electrical logic voltage into nanosecond pulses of photons. At the receiving end, a semiconductor photodiode absorbs incoming photons, generating a minute electrical current via the photoelectric effect, which a transimpedance amplifier boosts back into digital voltage swings.</p>
 </details>
 <details class="q">
 <summary><i>Why does twisting copper wire pairs together reject electromagnetic interference?</i></summary>
@@ -61,17 +61,17 @@
 </section>
 
 <h2>Stage 4: Protocols, framing, and channel reliability</h2>
-<p><a href="networking/communication-protocols.html?level=2">Communication protocols, framing, and data rates</a> and <a href="hardware/signals/error-detection-and-correction.html?level=2">Error detection, correction, and channel reliability</a>: Distinguish baud rate from bit rate, master UART 8N1 framing, evaluate hardware vs software flow control, and implement parity, checksums, CRCs, and Hamming Forward Error Correction codes.</p>
+<p><a href="networking/communication-protocols.html?level=2">Communication protocols, framing, and data rates</a> and <a href="hardware/signals/error-detection-and-correction.html?level=2">Error detection, correction, and channel reliability</a>: Distinguish baud rate from bit rate, master <a href="glossary/u/uart.html">UART</a> 8N1 framing, evaluate hardware vs software flow control, and implement parity, checksums, CRCs, and Hamming Forward Error Correction codes.</p>
 
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q">
 <summary><i>If an asynchronous serial link is configured as 115,200 baud, 8N1, what is the maximum number of data characters it can transmit per second?</i></summary>
-<p>Each character requires 10 physical bit periods (1 Start bit + 8 Data bits + 0 Parity bits + 1 Stop bit). Dividing 115,200 baud by 10 bits per frame yields a maximum throughput of 11,520 characters (payload bytes) per second.</p>
+<p>Each character requires 10 physical bit periods (1 Start bit + 8 Data bits + 0 <a href="glossary/p/parity.html">Parity</a> bits + 1 Stop bit). Dividing 115,200 baud by 10 bits per frame yields a maximum throughput of 11,520 characters (payload bytes) per second.</p>
 </details>
 <details class="q">
-<summary><i>What is the difference between error detection (like CRC-32) and Forward Error Correction (like Hamming codes)?</i></summary>
-<p>Error detection calculates a mathematical remainder that tells the receiver whether a frame was corrupted, requiring a retransmission protocol (ARQ) to request a new copy. Forward Error Correction (FEC) adds geometric redundancy that allows the receiver to locate and invert the exact corrupted bits on the fly without retransmission.</p>
+<summary><i>What is the difference between error detection (like <a href="glossary/c/crc-32.html">CRC-32</a>) and Forward Error Correction (like Hamming codes)?</i></summary>
+<p>Error detection calculates a mathematical remainder that tells the receiver whether a frame was corrupted, requiring a retransmission protocol (<a href="glossary/a/arq.html">ARQ</a>) to request a new copy. Forward Error Correction (<a href="glossary/f/fec.html">FEC</a>) adds geometric redundancy that allows the receiver to locate and invert the exact corrupted bits on the fly without retransmission.</p>
 </details>
 </section>
 
@@ -82,14 +82,14 @@
 <h3>Check yourself</h3>
 <details class="q">
 <summary><i>What does a successful serial loopback test (connecting TX directly to RX) prove about a computer system?</i></summary>
-<p>It proves that the entire local communication stack &mdash; user-space software, OS kernel drivers, USB host controllers, hardware UART registers, and line transceiver output/input circuitry &mdash; is 100% operational. Any remaining fault must reside in the external field cable or remote device.</p>
+<p>It proves that the entire local communication stack &mdash; user-space software, OS kernel drivers, <a href="glossary/u/usb.html">USB</a> host controllers, hardware UART registers, and line transceiver output/input circuitry &mdash; is 100% operational. Any remaining fault must reside in the external field cable or remote device.</p>
 </details>
 </section>
 
 <h2>Capstone: End-to-end field link diagnostics</h2>
 <p><strong>Scenario:</strong> You are dispatched to diagnose an automated solar energy monitoring array. An industrial logging controller communicates with distant solar inverters across a 60-meter link consisting of:
 1. A 24V DC auxiliary power bus running alongside the data lines.
-2. An RS-485 two-wire differential serial bus operating at 115,200 baud.
+2. An <a href="glossary/r/rs-485.html">RS-485</a> two-wire differential serial bus operating at 115,200 baud.
 3. An optical fiber bridge coupling data to the central operations center.</p>
 
 <p><strong>Reported Symptoms:</strong>

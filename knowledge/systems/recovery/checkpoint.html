@@ -147,10 +147,10 @@ not restore modified databases or root-owned login files.</p>
 
 <table>
 <tr><th>Checkpoint Class</th><th>Quiescence Requirement</th><th>Integrity Verification</th><th>Lifecycle Policy</th></tr>
-<tr><td>Root Btrfs snapshot</td><td>Filesystem sync; no active package manager locks</td><td>Snapper info XML and subvolume readability</td><td>Capture before privileged native mutations; retain until verified</td></tr>
-<tr><td>Boot archive</td><td>Writers stopped; ESP unmounted or remounted read-only</td><td>SHA-256 digest of captured archive and spec</td><td>Capture immediately before firmware, loader, or kernel updates</td></tr>
-<tr><td>Settings checkpoint</td><td>Target application closed; state directory flushed</td><td>Manifest hash list of paths, permissions, and symlinks</td><td>Capture before mutable migrations; preserve later user writes</td></tr>
-<tr><td>Cultivar source stage</td><td>Root-owned install transaction committed</td><td>Staged manifest SHA-256 digest and Git commit pins</td><td>Managed under <code>/var/lib/tamlinux/source/</code> with console rollback</td></tr>
+<tr><td>Root <a href="glossary/b/btrfs.html">Btrfs</a> snapshot</td><td><a href="glossary/f/filesystem.html">Filesystem</a> sync; no active package manager locks</td><td>Snapper info <a href="glossary/x/xml.html">XML</a> and subvolume readability</td><td>Capture before privileged native mutations; retain until verified</td></tr>
+<tr><td><a href="glossary/b/boot.html">Boot</a> archive</td><td>Writers stopped; ESP unmounted or remounted read-only</td><td><a href="glossary/s/sha-256.html">SHA-256</a> digest of captured archive and spec</td><td>Capture immediately before firmware, loader, or kernel updates</td></tr>
+<tr><td>Settings checkpoint</td><td><a href="glossary/t/target.html">Target</a> application closed; state directory flushed</td><td><a href="glossary/m/manifest.html">Manifest</a> hash list of paths, permissions, and symlinks</td><td>Capture before mutable migrations; preserve later user writes</td></tr>
+<tr><td><a href="glossary/c/cultivar.html">Cultivar</a> source stage</td><td>Root-owned install transaction committed</td><td>Staged manifest SHA-256 digest and <a href="glossary/g/git.html">Git</a> commit pins</td><td>Managed under <code>/var/lib/tamlinux/source/</code> with console rollback</td></tr>
 </table>
 
 <h3>How it works</h3>
@@ -159,7 +159,7 @@ not restore modified databases or root-owned login files.</p>
 
 <ol>
 <li><strong>Quiescence:</strong> Background processes writing to the target scope must be stopped or flushed. Capturing a database or boot tree during active writes produces crash-inconsistent or corrupt archives.</li>
-<li><strong>Explicit Boundaries:</strong> Checkpoints define precise path inclusion and exclusion lists. Sockets, FIFO pipes, temporary cache trees, and mounted shared volumes must be excluded.</li>
+<li><strong>Explicit Boundaries:</strong> Checkpoints define precise path inclusion and exclusion lists. Sockets, <a href="glossary/f/fifo.html">FIFO</a> pipes, temporary cache trees, and mounted shared volumes must be excluded.</li>
 <li><strong>Integrity Verification:</strong> Upon capture, the checkpoint record stores cryptographic checksums (such as SHA-256) of the archive and its constituent files. Verification inspects the digest before any rollback operation is initiated.</li>
 </ol>
 

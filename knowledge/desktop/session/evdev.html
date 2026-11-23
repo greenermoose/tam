@@ -20,7 +20,7 @@
 <h1>The Linux Input Subsystem and evdev</h1>
 <p>This page explains how Linux receives signals from keyboards, mice, and touchscreens and turns them into events programs can understand.</p>
 <h2>Before this</h2><p><a href="desktop/session/compositors.html">How windows appear on your screen</a> · <a href="terminal/ttys-and-virtual-consoles.html">Text screens and terminal windows</a></p>
-<p>Every time you press a key, slide a mouse, or tap a touchscreen, physical electrical contacts generate hardware interrupts. The kernel processes these signals and passes them through a unified abstraction called the <dfn><a href="glossary/e/evdev.html">evdev</a></dfn> (event device) subsystem. Instead of every application needing proprietary drivers for every keyboard, mouse, and game controller on earth, Linux provides a standardized stream of timestamped event packets. This architecture guarantees that modern Wayland compositors, terminal emulators, and games handle input safely, predictably, and without background polling daemons.</p>
+<p>Every time you press a key, slide a mouse, or tap a touchscreen, physical electrical contacts generate hardware interrupts. The kernel processes these signals and passes them through a unified abstraction called the <dfn><a href="glossary/e/evdev.html">evdev</a></dfn> (event device) subsystem. Instead of every application needing proprietary drivers for every keyboard, mouse, and game controller on earth, Linux provides a standardized stream of timestamped event packets. This architecture guarantees that modern <a href="glossary/w/wayland.html">Wayland</a> compositors, terminal emulators, and games handle input safely, predictably, and without background polling daemons.</p>
 
 <section data-level="novice">
 <h2>What is the Linux input subsystem?</h2>
@@ -28,7 +28,7 @@
 <h3>Why it matters</h3>
 <p>When a keyboard stops responding, a mouse jumps unexpectedly, or a new input device is plugged in, guessing what is wrong wastes time. Understanding that the kernel detects and exposes devices before the desktop sees them lets you tell immediately whether the hardware is recognized.</p>
 <h3>How to think about it</h3>
-<p>Think of the input subsystem as a universal translator at a post office. Whether a device speaks USB, Bluetooth, or an internal laptop bus, the kernel translates its signals into one uniform envelope format and places it in a mailbox for the desktop to read.</p>
+<p>Think of the input subsystem as a universal translator at a post office. Whether a device speaks <a href="glossary/u/usb.html">USB</a>, Bluetooth, or an internal laptop bus, the kernel translates its signals into one uniform envelope format and places it in a mailbox for the desktop to read.</p>
 <h3>New words</h3>
 <dl>
 <dt><dfn><a href="glossary/e/evdev.html">evdev</a></dfn></dt>
@@ -149,7 +149,7 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 
 <h3>The evdev ioctl interface</h3>
 
-<p>User-space programs communicate with <code>/dev/input/event*</code> nodes using standard POSIX <code>read(2)</code> to receive event streams, and <code>ioctl(2)</code> to query hardware capabilities. Core request codes defined in <code>&lt;linux/input.h&gt;</code> include:</p>
+<p>User-space programs communicate with <code>/dev/input/event*</code> nodes using standard <a href="glossary/p/posix.html">POSIX</a> <code>read(2)</code> to receive event streams, and <code>ioctl(2)</code> to query hardware capabilities. Core request codes defined in <code>&lt;linux/input.h&gt;</code> include:</p>
 
 <ul>
 <li><strong><code>EVIOCGVERSION(int *version)</code>:</strong> Returns the driver protocol version (such as <code>0x010001</code> for version 1.0.1).</li>
@@ -173,7 +173,7 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
   <li>Subsequent packets only emit modified values for that slot (such as <code>ABS_MT_POSITION_X</code> or <code>ABS_MT_POSITION_Y</code>). If a finger remains motionless while another moves, no data is sent for the stationary slot.</li>
   <li>When the finger lifts from the surface, the driver sends <code>ABS_MT_TRACKING_ID</code> with value <code>-1</code>.</li>
   </ul>
-  Type B reduces context switching and CPU overhead by eliminating redundant coordinate transmissions during multi-finger gestures.</li>
+  Type B reduces context switching and <a href="glossary/c/cpu.html">CPU</a> overhead by eliminating redundant coordinate transmissions during multi-finger gestures.</li>
 </ol>
 
 <h3>Virtual device creation with uinput</h3>
@@ -194,10 +194,10 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 
 <h3>Wayland seat handover architecture</h3>
 
-<p>In the X11 era, the display server ran as root, allowing direct access to <code>/dev/input/event*</code>. In modern Linux and Tamlinux, Wayland compositors (such as Hyprland and Sway) run as unprivileged user processes. Access to input devices is mediated by a seat management daemon (such as <code>seatd</code> or <code>systemd-logind</code>):</p>
+<p>In the X11 era, the display server ran as root, allowing direct access to <code>/dev/input/event*</code>. In modern Linux and Tamlinux, Wayland compositors (such as <a href="glossary/h/hyprland.html">Hyprland</a> and Sway) run as unprivileged user processes. Access to input devices is mediated by a seat management daemon (such as <code>seatd</code> or <code>systemd-logind</code>):</p>
 
 <ol>
-<li>When the compositor starts, it establishes an IPC connection (via UNIX domain socket or D-Bus) to the seat manager.</li>
+<li>When the compositor starts, it establishes an <a href="glossary/i/ipc.html">IPC</a> connection (via UNIX domain socket or D-<a href="glossary/b/bus.html">Bus</a>) to the seat manager.</li>
 <li>The compositor calls <code>TakeControl</code> to claim the active seat and virtual terminal (VT).</li>
 <li>The compositor requests access to individual input devices (e.g. <code>OpenDevice("/dev/input/event4")</code>).</li>
 <li>The seat manager checks that the calling session is active and currently foregrounded on the VT. It opens the device node with root privileges and passes the open file descriptor back to the compositor using <code>SCM_RIGHTS</code> control messages over the UNIX socket.</li>
@@ -205,7 +205,7 @@ lrwxrwxrwx 1 root root  9 Oct 31 10:55 usb-Logitech_USB_Optical_Mouse-mouse -&gt
 <li>When the user switches consoles (e.g. <code>Ctrl + Alt + F2</code>), the seat manager pauses or revokes the input descriptors. This prevents a background compositor from snooping on passwords typed into the foreground virtual console.</li>
 </ol>
 
-<h3>Ring buffer overflow and SYN_DROPPED recovery</h3>
+<h3>Ring buffer overflow and <a href="glossary/s/syn.html">SYN</a>_DROPPED recovery</h3>
 
 <p>The kernel evdev driver maintains a fixed-size circular ring buffer for each open file descriptor (typically 64 to 512 events). If a user-space application stalls due to CPU starvation or heavy I/O, the queue fills up. The kernel handles overflow gracefully:</p>
 

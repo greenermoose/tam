@@ -24,7 +24,7 @@
 
 <section data-level="novice">
 <h2>How is Tamlinux software packaged?</h2>
-<p>Software on Tamlinux comes from two clear layers: the underlying rootstock&apos;s native package manager (currently <code>pacman</code> on Arch Linux) installs ecosystem software, while Tamlinux&apos;s own bespoke programs and desktop files are built and installed cleanly from pinned Git source repositories.</p>
+<p>Software on Tamlinux comes from two clear layers: the underlying rootstock&apos;s native package manager (currently <code>pacman</code> on Arch Linux) installs ecosystem software, while Tamlinux&apos;s own bespoke programs and desktop files are built and installed cleanly from pinned <a href="glossary/g/git.html">Git</a> source repositories.</p>
 <h3>Why it matters</h3>
 <p>Before reporting a bug or planning an update, you need to know which layer owns a program and which exact version is installed. Read-only package queries let you inspect installed software safely without changing anything or needing administrator privileges.</p>
 <h3>How to think about it</h3>
@@ -54,7 +54,7 @@ Tamlinux Cultivar (Desktop &amp; Commands) --&gt; Make source install (/usr/bin,
 User Toolchains (Developer / Agent CLIs) --&gt; Mise (~/.local/share/mise)
 </pre>
 
-<p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> (the base operating system beneath the Tamlinux <dfn><a href="glossary/s/scion.html">scion</a></dfn>; currently Arch Linux, with plans to migrate to Void Linux and later explore a microkernel). Tamlinux builds and installs its own desktop and bespoke tools from pinned Git clones with <code>make</code> and <code>make install</code> (transitioning away from earlier bundle tools; Nix and Home Manager are retired). Fast-moving developer and agent CLIs are owned by <a href="glossary/m/mise.html">Mise</a>.</p>
+<p>Each command on your system should have one clear owner. Pacman owns the <dfn><a href="glossary/r/rootstock.html">rootstock</a></dfn> (the base operating system beneath the Tamlinux <dfn><a href="glossary/s/scion.html">scion</a></dfn>; currently Arch Linux, with plans to migrate to Void Linux and later explore a microkernel). Tamlinux builds and installs its own desktop and bespoke tools from pinned Git clones with <code>make</code> and <code>make install</code> (transitioning away from earlier bundle tools; <a href="glossary/n/nix.html">Nix</a> and Home Manager are retired). Fast-moving developer and agent CLIs are owned by <a href="glossary/m/mise.html">Mise</a>.</p>
 <h3>Worked example: Query an installed package</h3>
 <pre class="session" data-risk="read-only">
 $ pacman -Q bash
@@ -100,9 +100,9 @@ bash 5.3.20-1
 
 <table>
 <tr><th>Architecture</th><th>Mechanism</th><th>Guarantees</th></tr>
-<tr><td>Tamlinux Source Install</td><td>/usr/lib/tamlinux/source/</td><td>Pinned Git commits built via Make, verified by SHA-256 manifest digest, with root-owned state and console rollback.</td></tr>
+<tr><td>Tamlinux Source Install</td><td>/usr/lib/tamlinux/source/</td><td>Pinned Git commits built via <a href="glossary/m/make.html">Make</a>, verified by <a href="glossary/s/sha-256.html">SHA-256</a> manifest digest, with root-owned state and console rollback.</td></tr>
 <tr><td>Pacman DB</td><td>/var/lib/pacman/local/</td><td>Transactional package archives (.pkg.tar.zst) with strict file ownership checks.</td></tr>
-<tr><td>XBPS</td><td>/var/db/xbps/</td><td>Atomic package state machine and binary transactions for the Void Linux target rootstock.</td></tr>
+<tr><td><a href="glossary/x/xbps.html">XBPS</a></td><td>/var/db/xbps/</td><td>Atomic package state machine and binary transactions for the Void Linux target rootstock.</td></tr>
 <tr><td>Mise</td><td>~/.local/share/mise/</td><td>Per-directory or global tool version shims without root access.</td></tr>
 </table>
 
@@ -117,8 +117,8 @@ bash 5.3.20-1
 <h3>Edge cases</h3>
 
 <ul>
-<li><strong>ABI drift across layers:</strong> if a native rootstock update upgrades a shared library or Hyprland plugin ABI, compiled components linked against the previous ABI must be rebuilt against the updated headers.</li>
-<li><strong>PATH shadowing:</strong> having multiple versions of a CLI installed across <code>~/.local/bin</code>, Mise, and <code>/usr/bin</code> can cause unexpected execution order; always verify with <code>type -a</code> or <code>which -a</code>.</li>
+<li><strong><a href="glossary/a/abi.html">ABI</a> drift across layers:</strong> if a native rootstock update upgrades a shared library or <a href="glossary/h/hyprland.html">Hyprland</a> plugin ABI, compiled components linked against the previous ABI must be rebuilt against the updated headers.</li>
+<li><strong>PATH shadowing:</strong> having multiple versions of a <a href="glossary/c/cli.html">CLI</a> installed across <code>~/.local/bin</code>, Mise, and <code>/usr/bin</code> can cause unexpected execution order; always verify with <code>type -a</code> or <code>which -a</code>.</li>
 </ul>
 
 <h3>Explore</h3>
@@ -134,7 +134,7 @@ $ tam where /usr/bin/bash
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q open">
-<summary>How does a Tamlinux source-install rollback differ from a Btrfs filesystem snapshot rollback?</summary>
+<summary>How does a Tamlinux source-install rollback differ from a <a href="glossary/b/btrfs.html">Btrfs</a> filesystem snapshot rollback?</summary>
 <p>A source-install rollback restores only the recorded Tamlinux cultivar files under <code>/usr/</code> to the previous stage without altering rootstock packages or kernel files. A Btrfs snapshot rollback restores the entire snapshotted subvolume, including system configuration, kernel, and pacman databases.</p>
 </details>
 </section>

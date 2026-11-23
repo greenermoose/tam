@@ -40,7 +40,7 @@
 
 <dl>
 <dt><a href="glossary/t/terminal-emulator.html">Terminal emulator</a></dt>
-<dd>A program that behaves like a text terminal inside a graphical window. foot is one; so are Alacritty, Kitty and GNOME Terminal.</dd>
+<dd>A program that behaves like a text terminal inside a graphical window. foot is one; so are Alacritty, Kitty and <a href="glossary/g/gnome.html">GNOME</a> Terminal.</dd>
 <dt><a href="glossary/p/pty.html">Pseudo-terminal</a></dt>
 <dd>A pair of connected devices that lets one program act as a terminal for another. foot holds the master side; the shell holds the slave side.</dd>
 <dt><a href="glossary/m/modifier-key.html">Modifier key</a></dt>
@@ -132,7 +132,7 @@ $ od -An -tx1 -c
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary><i>Which byte does foot send when you press Backspace, and which when you press <code>Ctrl + Backspace</code>?</i></summary>
-<p>Backspace sends <code>0x7F</code>, the DEL code. <code>Ctrl + Backspace</code> sends <code>0x08</code>, the ASCII BS code. foot documents both, and it does not implement the DECBKM mode that would let a program ask for BS instead.</p>
+<p>Backspace sends <code>0x7F</code>, the DEL code. <code>Ctrl + Backspace</code> sends <code>0x08</code>, the <a href="glossary/a/ascii.html">ASCII</a> BS code. foot documents both, and it does not implement the DECBKM mode that would let a program ask for BS instead.</p>
 </details>
 <details class="q">
 <summary><i>Why does the database say Up is <code>ESC O A</code> when pressing Up at a prompt sends <code>ESC [ A</code>?</i></summary>
@@ -150,7 +150,7 @@ $ od -An -tx1 -c
 
 <table>
 <tr><th>Stage</th><th>foot behaviour</th><th>Interface</th></tr>
-<tr><td>Compositor focus</td><td>delivers <code>enter</code>, then <code>key</code> and <code>modifiers</code></td><td><code>wl_keyboard</code></td></tr>
+<tr><td><a href="glossary/c/compositor.html">Compositor</a> focus</td><td>delivers <code>enter</code>, then <code>key</code> and <code>modifiers</code></td><td><code>wl_keyboard</code></td></tr>
 <tr><td>Key code</td><td>Wayland keycode, kernel keycode plus 8</td><td><code>wl_keyboard.key</code></td></tr>
 <tr><td>Layout</td><td>compiled XKB keymap from the compositor</td><td><code>wl_keyboard.keymap</code>, xkbcommon</td></tr>
 <tr><td>Encoding</td><td>keysym or chord becomes bytes</td><td>internal encoder</td></tr>
@@ -163,7 +163,7 @@ $ od -An -tx1 -c
 <p>foot receives <code>wl_keyboard.key</code> with a Wayland keycode, plus a <code>wl_keyboard.modifiers</code> event carrying the Shift, Ctrl, Alt, Meta, Caps Lock and Num Lock state. It applies the compositor's keymap with xkbcommon and obtains a keysym. From there it chooses one of several encodings:</p>
 
 <ul>
-<li><strong>Printable keysym.</strong> The character is encoded as UTF-8 and written unchanged. A keysym that is not printable but has a Unicode equivalent is sent as its character when the layout says so.</li>
+<li><strong>Printable keysym.</strong> The character is encoded as <a href="glossary/u/utf-8.html">UTF-8</a> and written unchanged. A keysym that is not printable but has a <a href="glossary/u/unicode.html">Unicode</a> equivalent is sent as its character when the layout says so.</li>
 <li><strong>Ctrl with a letter or symbol.</strong> The control byte is derived from the character with the mask <code>&amp; 0x1F</code>, so <code>Ctrl + H</code> is <code>0x08</code>. <code>Ctrl + Space</code> and <code>Ctrl + @</code> become <code>0x00</code>; <code>Ctrl + ?</code> becomes <code>0x7F</code>.</li>
 <li><strong>Alt with any key.</strong> Alt is not a control byte in foot. It prefixes the key's own encoding with <code>ESC</code>, so Alt and <code>a</code> is <code>ESC a</code> and Alt and Up is <code>ESC ESC [ A</code>.</li>
 <li><strong>Cursor keys, function keys and editing keys.</strong> These use fixed sequences, normally the <code>ESC [</code> form and the <code>ESC O</code> form in application cursor mode. Modified cursor keys use the xterm parameter form, where the modifier is encoded as a number after a semicolon.</li>

@@ -17,12 +17,12 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/setup/index.html">Network setup</a> / Adding a connection</p></nav>
 
 <h1>Adding a connection</h1>
-<p>A connection is a saved recipe that tells the computer how to configure an interface: whether to ask for an address automatically or use a fixed one, which router to use, and which DNS servers to query.</p>
+<p>A connection is a saved recipe that tells the computer how to configure an interface: whether to ask for an address automatically or use a fixed one, which router to use, and which <a href="glossary/d/dns.html">DNS</a> servers to query.</p>
 <h2>Before this</h2><p><a href="networking/setup/addresses-and-subnets.html">Addresses and subnets</a> explains the numbers a profile contains.</p>
 
 <section data-level="novice">
 <h2>A recipe, not a one-time action</h2>
-<p>When you connect to a network, the operating system can either ask a <a href="glossary/d/dhcp.html">DHCP</a> server for settings or use settings you typed in. A saved connection remembers that choice, so the next time the cable is plugged in or the Wi-Fi network is in range, the same settings return without being entered again.</p>
+<p>When you connect to a network, the operating system can either ask a <a href="glossary/d/dhcp.html">DHCP</a> server for settings or use settings you typed in. A saved connection remembers that choice, so the next time the cable is plugged in or the <a href="glossary/w/wi-fi.html">Wi-Fi</a> network is in range, the same settings return without being entered again.</p>
 
 <h3>Why it matters</h3>
 <p>Saving a connection avoids repeating the setup and lets several profiles coexist. A laptop can keep one profile for home and another for work; a desktop can keep a wired profile and a fallback Wi-Fi profile. Editing a profile changes future connections, so knowing how to undo a change matters.</p>
@@ -140,7 +140,7 @@ IP4.GATEWAY: --
 </table>
 
 <h3>How it works</h3>
-<p>NetworkManager stores profiles as keyfiles under <code>/etc/NetworkManager/system-connections/</code> or in its private D-Bus state. The settings names above are the same keys a keyfile uses, grouped into sections such as <code>[ipv4]</code> and <code>[802-11-wireless]</code>. <code>nmcli connection add</code> creates a profile; <code>nmcli connection up</code> applies it; <code>nmcli device reapply</code> pushes edited settings into the active connection without a full reconnect.</p>
+<p>NetworkManager stores profiles as keyfiles under <code>/etc/NetworkManager/system-connections/</code> or in its private D-<a href="glossary/b/bus.html">Bus</a> state. The settings names above are the same keys a keyfile uses, grouped into sections such as <code>[ipv4]</code> and <code>[802-11-wireless]</code>. <code>nmcli connection add</code> creates a profile; <code>nmcli connection up</code> applies it; <code>nmcli device reapply</code> pushes edited settings into the active connection without a full reconnect.</p>
 <p>A DHCP lease is not a permanent address. It carries a lifetime, and the client renews it before expiry; if renewal fails the address can disappear while the cable stays connected. A manual profile has no such timer, which is why printers and servers use one.</p>
 
 <h3>Advanced usage</h3>
@@ -161,7 +161,7 @@ Connection 'Lab wired' (...) successfully deleted.
 <li>A Wi-Fi profile without a secret can still connect through an enterprise method or a stored system secret; reading it back requires suitable permissions.</li>
 <li>Setting both a manual address and <code>ipv4.method=auto</code> leaves the manual address unused; the method decides which values are applied.</li>
 <li>Two profiles for the same interface can both have <code>autoconnect=yes</code>. The one with the higher autoconnect priority or the most recent activation usually wins, which can look random.</li>
-<li>A VPN profile is a connection too. It adds a virtual device and its own routes rather than configuring the physical interface.</li>
+<li>A <a href="glossary/v/vpn.html">VPN</a> profile is a connection too. It adds a virtual device and its own routes rather than configuring the physical interface.</li>
 <li>Changing DNS in a profile does not immediately change the running resolver; the profile must be reapplied or the connection reactivated.</li>
 </ul>
 

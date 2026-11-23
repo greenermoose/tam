@@ -90,7 +90,7 @@ Max throughput: 115200 bytes/sec (92.2 kbps)
 <p>Run <code>stty -a</code> and locate the line containing <code>cs8</code>. <code>cs8</code> stands for "character size 8 bits". Test changing to 7-bit characters in a subshell using <code>(stty cs7; stty -a | grep -o "cs[0-9]")</code> and observe how the driver adapts.</p>
 <h3>If it goes wrong</h3>
 <dl>
-<dt>Terminal prints strange hieroglyphs or high-ASCII box-drawing characters</dt>
+<dt><a href="glossary/t/terminal.html">Terminal</a> prints strange hieroglyphs or high-<a href="glossary/a/ascii.html">ASCII</a> box-drawing characters</dt>
 <dd>The terminal baud rate does not match the connected hardware, causing the receiver to sample in the middle of transitions. Set the standard baud rate using <code>stty 115200</code>.</dd>
 <dt>Output pauses and appears completely frozen</dt>
 <dd>You may have accidentally pressed Ctrl+S, which transmits the software flow control XOFF character. Press Ctrl+Q (XON) to resume transmission.</dd>
@@ -118,13 +118,13 @@ Max throughput: 115200 bytes/sec (92.2 kbps)
 
 <table>
 <tr><th>Line Coding / Modulation</th><th>Bits / Symbol</th><th>Clock Recovery</th><th>DC Balance</th><th>Primary Application</th></tr>
-<tr><td>Non-Return-to-Zero (NRZ)</td><td>1 bit / baud</td><td>Poor (Fails on long runs of 0s or 1s)</td><td>No (Suffers baseline wander)</td><td>RS-232, internal microcontroller buses</td></tr>
-<tr><td>Non-Return-to-Zero Inverted (NRZI)</td><td>1 bit / baud</td><td>Requires bit-stuffing (transitions on 0)</td><td>Partial</td><td>USB 2.0 Full-Speed / High-Speed</td></tr>
-<tr><td>Manchester Encoding</td><td>0.5 bits / baud (50% overhead)</td><td>Guaranteed (Transition in every bit cell)</td><td>Yes (Perfect zero DC bias)</td><td>10BASE-T Ethernet, RFID, aerospace telemetry</td></tr>
-<tr><td>8b/10b Encoding</td><td>0.8 bits / baud (20% overhead)</td><td>Guaranteed (Max 5 consecutive identical bits)</td><td>Yes (Bounded running disparity)</td><td>PCIe Gen 1/2, SATA, DisplayPort, USB 3.0</td></tr>
-<tr><td>128b/130b Encoding</td><td>0.984 bits / baud (1.5% overhead)</td><td>Scrambler-based pseudo-random transitions</td><td>Yes</td><td>PCIe Gen 3/4/5, USB4</td></tr>
-<tr><td>PAM-4 (4-Level Pulse Amplitude)</td><td>2 bits / baud</td><td>Multi-level DSP clock recovery</td><td>Yes</td><td>PCIe Gen 6, 100G/400G Ethernet (802.3ck)</td></tr>
-<tr><td>1024-QAM</td><td>10 bits / baud</td><td>Complex carrier constellation tracking</td><td>Yes</td><td>Wi-Fi 6 (802.11ax), DOCSIS 3.1 cable modems</td></tr>
+<tr><td>Non-Return-to-Zero (<a href="glossary/n/nrz.html">NRZ</a>)</td><td>1 bit / baud</td><td>Poor (Fails on long runs of 0s or 1s)</td><td>No (Suffers baseline wander)</td><td><a href="glossary/r/rs-232.html">RS-232</a>, internal microcontroller buses</td></tr>
+<tr><td>Non-Return-to-Zero Inverted (<a href="glossary/n/nrzi.html">NRZI</a>)</td><td>1 bit / baud</td><td>Requires bit-stuffing (transitions on 0)</td><td>Partial</td><td><a href="glossary/u/usb.html">USB</a> 2.0 Full-Speed / High-Speed</td></tr>
+<tr><td>Manchester Encoding</td><td>0.5 bits / baud (50% overhead)</td><td>Guaranteed (Transition in every bit cell)</td><td>Yes (Perfect zero DC bias)</td><td>10BASE-T <a href="glossary/e/ethernet.html">Ethernet</a>, <a href="glossary/r/rfid.html">RFID</a>, aerospace telemetry</td></tr>
+<tr><td>8b/10b Encoding</td><td>0.8 bits / baud (20% overhead)</td><td>Guaranteed (Max 5 consecutive identical bits)</td><td>Yes (Bounded running disparity)</td><td><a href="glossary/p/pcie.html">PCIe</a> Gen 1/2, <a href="glossary/s/sata.html">SATA</a>, <a href="glossary/d/displayport.html">DisplayPort</a>, USB 3.0</td></tr>
+<tr><td>128b/130b Encoding</td><td>0.984 bits / baud (1.5% overhead)</td><td>Scrambler-based pseudo-random transitions</td><td>Yes</td><td>PCIe Gen 3/4/5, <a href="glossary/u/usb4.html">USB4</a></td></tr>
+<tr><td><a href="glossary/p/pam-4.html">PAM-4</a> (4-Level Pulse Amplitude)</td><td>2 bits / baud</td><td>Multi-level <a href="glossary/d/dsp.html">DSP</a> clock recovery</td><td>Yes</td><td>PCIe Gen 6, 100G/400G Ethernet (802.3ck)</td></tr>
+<tr><td>1024-<a href="glossary/q/qam.html">QAM</a></td><td>10 bits / baud</td><td>Complex carrier constellation tracking</td><td>Yes</td><td><a href="glossary/w/wi-fi.html">Wi-Fi</a> 6 (802.11ax), <a href="glossary/d/docsis.html">DOCSIS</a> 3.1 cable modems</td></tr>
 </table>
 
 <h3>How it works: mathematical channel limits</h3>
@@ -151,7 +151,7 @@ Even with infinite voltage levels (as <code>M</code> approaches infinity), chann
 
 <table>
 <tr><td><strong>Baseline Wander</strong></td><td>High-speed serial links place ceramic capacitors in series with differential lines to block DC ground offsets between devices. If a data stream contains a long string of consecutive 1s, the capacitor charges up, shifting the zero-voltage reference level (baseline wander). The receiver's comparator threshold drifts, causing subsequent bits to be misinterpreted.</td></tr>
-<tr><td><strong>Run-Length Limiting (RLL)</strong></td><td>Phase-Locked Loops in Clock Data Recovery (CDR) circuits require frequent voltage edges to stay synchronized. Encodings like <strong>8b/10b</strong> map every 8-bit byte to a 10-bit symbol chosen from a codebook that limits maximum consecutive identical bits to five, and tracks <em>running disparity</em> (+1 or -1) to guarantee long-term zero DC bias.</td></tr>
+<tr><td><strong>Run-Length Limiting (<a href="glossary/r/rll.html">RLL</a>)</strong></td><td>Phase-Locked Loops in Clock Data Recovery (<a href="glossary/c/cdr.html">CDR</a>) circuits require frequent voltage edges to stay synchronized. Encodings like <strong>8b/10b</strong> map every 8-bit byte to a 10-bit symbol chosen from a codebook that limits maximum consecutive identical bits to five, and tracks <em>running disparity</em> (+1 or -1) to guarantee long-term zero DC bias.</td></tr>
 </table>
 
 <h3>Linux kernel tty architecture and termios</h3>
@@ -170,7 +170,7 @@ Even with infinite voltage levels (as <code>M</code> approaches infinity), chann
 [ Physical UART Silicon &amp; Transceiver ] &lt;--- Serial Pin Voltage Swings
 </pre>
 
-<p>Applications configure the interface via the POSIX <code>struct termios</code> data structure using <code>tcgetattr(3)</code> and <code>tcsetattr(3)</code>. The structure separates control flags into four bitmasks:</p>
+<p>Applications configure the interface via the <a href="glossary/p/posix.html">POSIX</a> <code>struct termios</code> data structure using <code>tcgetattr(3)</code> and <code>tcsetattr(3)</code>. The structure separates control flags into four bitmasks:</p>
 <table>
 <tr><td><code>c_iflag</code></td><td>Input processing (e.g. <code>IXON</code> for software flow control, <code>IGNPAR</code> to ignore framing errors).</td></tr>
 <tr><td><code>c_oflag</code></td><td>Output processing (e.g. <code>OPOST</code> to translate newline characters to carriage-return newline pairs).</td></tr>
@@ -180,13 +180,13 @@ Even with infinite voltage levels (as <code>M</code> approaches infinity), chann
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Tamlinux preserves pure Unix stream semantics across its terminal and console architecture. By strictly separating hardware UART drivers from POSIX line disciplines, Tamlinux ensures that diagnostic commands, headless serial consoles, and accessibility screen readers operate across identical, predictable APIs. Hardware flow control is enforced on all automated test harnesses, guaranteeing zero dropped bytes during unattended kernel boot logging.</p>
+<p>Tamlinux preserves pure <a href="glossary/u/unix.html">Unix</a> stream semantics across its terminal and console architecture. By strictly separating hardware <a href="glossary/u/uart.html">UART</a> drivers from POSIX line disciplines, Tamlinux ensures that diagnostic commands, headless serial consoles, and accessibility screen readers operate across identical, predictable APIs. Hardware flow control is enforced on all automated test harnesses, guaranteeing zero dropped bytes during unattended kernel boot logging.</p>
 
 <h3>Edge cases and failure modes</h3>
 
 <ul>
-<li><strong>Inter-Symbol Interference (ISI) from Slew Rate Limiting:</strong> When cable capacitance is high, voltage pulses cannot rise or fall instantaneously (<code>t_rise approx 2.2 * R * C</code>). If the baud period is shorter than the rise time, the signal never reaches full voltage before transitioning to the next bit, causing the pulse to smear into adjacent symbol periods.</li>
-<li><strong>Baud Divisor Quantization Error:</strong> Hardware UARTs generate baud rates by dividing a master crystal oscillator frequency (e.g. 1.8432 MHz or 24 MHz) by an integer divisor register. If the target baud rate cannot be divided evenly, the actual generated baud rate will deviate from the nominal rate. If divisor quantization error exceeds 2.5%, the receiver will reliably lose synchronization on multi-byte transfers.</li>
+<li><strong>Inter-Symbol Interference (<a href="glossary/i/isi.html">ISI</a>) from Slew Rate Limiting:</strong> When cable capacitance is high, voltage pulses cannot rise or fall instantaneously (<code>t_rise approx 2.2 * R * C</code>). If the baud period is shorter than the rise time, the signal never reaches full voltage before transitioning to the next bit, causing the pulse to smear into adjacent symbol periods.</li>
+<li><strong>Baud Divisor <a href="glossary/q/quantization.html">Quantization</a> Error:</strong> Hardware UARTs generate baud rates by dividing a master crystal oscillator frequency (e.g. 1.8432 MHz or 24 MHz) by an integer divisor register. If the target baud rate cannot be divided evenly, the actual generated baud rate will deviate from the nominal rate. If divisor quantization error exceeds 2.5%, the receiver will reliably lose synchronization on multi-byte transfers.</li>
 <li><strong>Flow Control Deadlock:</strong> When two devices communicate with hardware flow control enabled, but each device incorrectly configures its CTS pin as an input waiting for the other side to assert RTS before asserting its own, both devices freeze indefinitely in a mutual wait state.</li>
 </ul>
 
@@ -211,8 +211,8 @@ c_cflag: 0x4bf, ispeed: 38400, ospeed: 38400
 <h3>Sources</h3>
 
 <ul>
-<li>Nyquist, H. (1928). <em>Certain Topics in Telegraph Transmission Theory</em>. Transactions of the AIEE.</li>
-<li>Shannon, C. E. (1948). <em>A Mathematical Theory of Communication</em>. Bell System Technical Journal.</li>
+<li>Nyquist, H. (1928). <em>Certain Topics in Telegraph Transmission Theory</em>. Transactions of the <a href="glossary/a/aiee.html">AIEE</a>.</li>
+<li>Shannon, C. E. (1948). <em>A Mathematical Theory of Communication</em>. Bell System Technical <a href="glossary/j/journal.html">Journal</a>.</li>
 <li>IEEE Standards Association. <em>IEEE Standard for Ethernet &mdash; Section 802.3ck (100 Gb/s and 400 Gb/s Electrical Interfaces)</em>.</li>
 </ul>
 

@@ -62,7 +62,7 @@
 <table>
 <tr><th>Time</th><th>What happened</th></tr>
 <tr><td>Early 1970s</td><td>Ken Thompson's <code>ed</code> establishes the line-editor model at Bell Labs: addresses, commands, and a buffer.</td></tr>
-<tr><td>Mid-1970s</td><td>Bill Joy at UC Berkeley writes <code>ex</code> and then <code>vi</code>, adding a full-screen view to the ex command language. BSD distributions spread it.</td></tr>
+<tr><td>Mid-1970s</td><td>Bill Joy at UC Berkeley writes <code>ex</code> and then <code>vi</code>, adding a full-screen view to the ex command language. <a href="glossary/b/bsd.html">BSD</a> distributions spread it.</td></tr>
 <tr><td>Mid-1970s</td><td>At the MIT AI Lab, Richard Stallman, with Guy Steele and David Moon, turns TECO macros into EMACS. The 1981 AI Memo 554 describes an extensible, self-documenting display editor.</td></tr>
 <tr><td>1985</td><td>GNU Emacs is released as part of the GNU Project, with Emacs Lisp as its extension language.</td></tr>
 <tr><td>1980s and 1990s</td><td>Usenet turns the disagreement into a recurring flame war. The Jargon File calls it a holy war and notes that such arguments are often about cultural attachment rather than large technical differences.</td></tr>
@@ -87,12 +87,12 @@
 <table>
 <tr><th>Question</th><th>vi and its descendants</th><th>Emacs</th></tr>
 <tr><td>Core model</td><td>Modal command grammar plus an ex command line</td><td>Modeless editing plus named commands and key chords</td></tr>
-<tr><td>Extension language</td><td>Ex commands and recorded macros; Vim adds Vimscript and Lua support; Neovim adds a Lua API</td><td>Emacs Lisp, a full programming environment inside the editor</td></tr>
-<tr><td>Standardization</td><td>vi and ex are standardized by POSIX</td><td>Not standardized by POSIX; the GNU manuals and the implementation define behaviour</td></tr>
+<tr><td>Extension language</td><td>Ex commands and recorded macros; Vim adds Vimscript and Lua support; Neovim adds a Lua <a href="glossary/a/api.html">API</a></td><td>Emacs Lisp, a full programming environment inside the editor</td></tr>
+<tr><td>Standardization</td><td>vi and ex are standardized by <a href="glossary/p/posix.html">POSIX</a></td><td>Not standardized by POSIX; the GNU manuals and the implementation define behaviour</td></tr>
 <tr><td>Availability</td><td>Very wide: POSIX systems, BSDs, embedded systems, rescue images, and clones such as BusyBox vi</td><td>Wide, but usually an installed package; not the minimal rescue editor</td></tr>
 <tr><td>Footprint</td><td>A small vi can be tiny; Vim is larger but still modest</td><td>Substantially larger, especially with packages and native compilation</td></tr>
 <tr><td>Startup</td><td>A bare vi starts quickly; Vim starts quickly with a small configuration</td><td>Depends heavily on init files and packages; a daemon changes the comparison</td></tr>
-<tr><td>Typical strength</td><td>Fast edits, remote sessions, servers, repetitive text changes</td><td>Long sessions, organizing text, Git, mail, documents, building a personal environment</td></tr>
+<tr><td>Typical strength</td><td>Fast edits, remote sessions, servers, repetitive text changes</td><td>Long sessions, organizing text, <a href="glossary/g/git.html">Git</a>, mail, documents, building a personal environment</td></tr>
 <tr><td>Typical cost</td><td>Mode confusion; terse commands; a learning curve before fluency</td><td>Configuration complexity; chord-heavy input; a large environment to learn and maintain</td></tr>
 </table>
 
@@ -197,7 +197,7 @@
 <h3>Check yourself</h3>
 <details class="q open">
 <summary>A team proposes a rule that every member must use the same editor so that pair programming and documentation stay consistent. Argue both sides, then propose a policy that addresses the real risks without turning the editor into an identity test.</summary>
-<p>The case for one editor is real: shared keybindings make pairing smoother, plugins and formatting can be standardized, and onboarding has one path. The case against is also real: forcing a tool on skilled users costs productivity and morale, and the editor is rarely the source of inconsistent output. The risks that matter are formatting, line endings, encoding, and reproducible builds. A better policy standardizes those with a formatter, an editorconfig file, and a pre-commit check, then lets people choose their editor. Pairing can use a shared screen or a common keybinding layer without mandating one program. The debate becomes a tooling decision instead of a loyalty test.</p>
+<p>The case for one editor is real: shared keybindings make pairing smoother, plugins and formatting can be standardized, and onboarding has one path. The case against is also real: forcing a tool on skilled users costs productivity and morale, and the editor is rarely the source of inconsistent output. The risks that matter are formatting, line endings, encoding, and reproducible builds. A better policy standardizes those with a formatter, an editorconfig file, and a pre-commit check, then lets people choose their editor. <a href="glossary/p/pairing.html">Pairing</a> can use a shared screen or a common keybinding layer without mandating one program. The debate becomes a tooling decision instead of a loyalty test.</p>
 </details>
 </section>
 

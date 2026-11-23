@@ -43,8 +43,8 @@
 </section>
 
 <section data-level="learner">
-<h2>Binary signals, truth tables, and logic gates</h2>
-<p><strong>Goal:</strong> you will be able to explain how high and low voltages represent binary bits, interpret truth tables for fundamental logic gates (AND, OR, NOT, XOR), and evaluate bitwise logic in the terminal.</p>
+<h2><a href="glossary/b/binary.html">Binary</a> signals, truth tables, and logic gates</h2>
+<p><strong>Goal:</strong> you will be able to explain how high and low voltages represent binary bits, interpret truth tables for fundamental logic gates (AND, OR, NOT, <a href="glossary/x/xor.html">XOR</a>), and evaluate bitwise logic in the terminal.</p>
 <p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). The shell arithmetic expressions in this section execute purely in memory and modify no files.</p>
 <aside class="first-time">
 <p><strong>New to this?</strong> In digital electronics, a <strong>bit</strong> is the smallest unit of information: either 0 or 1. Computers represent 0 as a low voltage (e.g. 0 volts / ground) and 1 as a higher voltage (e.g. +1.0 V or +3.3 V). The shell lets you test these operations directly using <code>$(( ... ))</code> arithmetic syntax.</p>
@@ -64,7 +64,7 @@ Clock Pulse ---------+  (Updates only on rising edge: ___/--- )
 
 <table>
 <tr><td><strong>Combinational logic</strong></td><td>the output depends strictly and immediately on the current combination of inputs. It has no memory and no concept of past state. Examples include addition circuits, multiplexers, and decoders.</td></tr>
-<tr><td><strong>Sequential logic</strong></td><td>the output depends on both current inputs and past history. It uses feedback loops to store bits, synchronized by a master <em>clock signal</em>. Examples include CPU registers, program counters, and RAM cells.</td></tr>
+<tr><td><strong>Sequential logic</strong></td><td>the output depends on both current inputs and past history. It uses feedback loops to store bits, synchronized by a master <em>clock signal</em>. Examples include <a href="glossary/c/cpu.html">CPU</a> registers, program counters, and <a href="glossary/r/ram.html">RAM</a> cells.</td></tr>
 </table>
 <h3>Worked example: evaluate Boolean logic gates in Bash</h3>
 <pre class="session" data-risk="read-only">
@@ -96,7 +96,7 @@ XOR: 12 ^ 10 = 6
 <dd>Bitwise NOT in two's complement inverts all bits including the sign bit, so <code>~0</code> evaluates to -1. This is normal signed integer behavior.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> the kernel leverages Dynamic Voltage and Frequency Scaling (DVFS) and processor C-states to power down execution units and lower clock frequencies when idle. Tamlinux’s zero-polling design principle ensures that background applications do not wake processor cores unnecessarily, preventing millions of wasted transistor state transitions per second and maximizing battery life. See the <a href="programming/efficiency.html">zero-polling guide</a>.</p>
+<p><strong>On Tamlinux:</strong> the kernel leverages Dynamic Voltage and Frequency <a href="glossary/s/scaling.html">Scaling</a> (<a href="glossary/d/dvfs.html">DVFS</a>) and processor C-states to power down execution units and lower clock frequencies when idle. Tamlinux’s zero-polling design principle ensures that background applications do not wake processor cores unnecessarily, preventing millions of wasted transistor state transitions per second and maximizing battery life. See the <a href="programming/efficiency.html">zero-polling guide</a>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -106,28 +106,28 @@ XOR: 12 ^ 10 = 6
 <p>The XOR (Exclusive OR) gate. It outputs 1 for inputs (0,1) and (1,0), and outputs 0 for (0,0) and (1,1).</p>
 </details>
 <details class="q">
-<summary><i>Why is the NAND gate called a "universal gate" in computer engineering?</i></summary>
+<summary><i>Why is the <a href="glossary/n/nand.html">NAND</a> gate called a "universal gate" in computer engineering?</i></summary>
 <p>Any possible Boolean function (including AND, OR, NOT, and XOR) can be constructed exclusively out of interconnected NAND gates.</p>
 </details>
 </section>
 </section>
 <section data-level="expert">
-<h2>CMOS transistor physics, propagation delay, and ALU design</h2>
+<h2><a href="glossary/c/cmos.html">CMOS</a> transistor physics, propagation delay, and <a href="glossary/a/alu.html">ALU</a> design</h2>
 
 <h3>Reference</h3>
 
 <table>
-<tr><th>Logic Gate / Cell</th><th>CMOS Transistor Count</th><th>Pull-Up Network (P-MOSFET)</th><th>Pull-Down Network (N-MOSFET)</th><th>Propagation Delay</th></tr>
-<tr><td>CMOS Inverter (NOT)</td><td>2 transistors (1P, 1N)</td><td>Conducts when input is 0 (Vdd)</td><td>Conducts when input is 1 (GND)</td><td>~5 - 10 ps</td></tr>
+<tr><th>Logic Gate / Cell</th><th>CMOS <a href="glossary/t/transistor.html">Transistor</a> Count</th><th>Pull-Up Network (P-<a href="glossary/m/mosfet.html">MOSFET</a>)</th><th>Pull-Down Network (N-MOSFET)</th><th>Propagation Delay</th></tr>
+<tr><td>CMOS Inverter (NOT)</td><td>2 transistors (1P, 1N)</td><td>Conducts when input is 0 (Vdd)</td><td>Conducts when input is 1 (<a href="glossary/g/gnd.html">GND</a>)</td><td>~5 - 10 ps</td></tr>
 <tr><td>NAND Gate (2-input)</td><td>4 transistors (2P, 2N)</td><td>Two P-MOSFETs in parallel</td><td>Two N-MOSFETs in series</td><td>~10 - 20 ps</td></tr>
-<tr><td>NOR Gate (2-input)</td><td>4 transistors (2P, 2N)</td><td>Two P-MOSFETs in series</td><td>Two N-MOSFETs in parallel</td><td>~15 - 25 ps</td></tr>
+<tr><td><a href="glossary/n/nor.html">NOR</a> Gate (2-input)</td><td>4 transistors (2P, 2N)</td><td>Two P-MOSFETs in series</td><td>Two N-MOSFETs in parallel</td><td>~15 - 25 ps</td></tr>
 <tr><td>XOR Gate (2-input)</td><td>6 - 8 transistors</td><td>Complex series/parallel tree</td><td>Complex series/parallel tree</td><td>~25 - 40 ps</td></tr>
-<tr><td>SRAM Bit Cell (6T)</td><td>6 transistors (2P, 4N)</td><td>Two cross-coupled inverters</td><td>Two access N-MOSFETs to word line</td><td>~100 - 300 ps</td></tr>
+<tr><td><a href="glossary/s/sram.html">SRAM</a> Bit Cell (6T)</td><td>6 transistors (2P, 4N)</td><td>Two cross-coupled inverters</td><td>Two access N-MOSFETs to word line</td><td>~100 - 300 ps</td></tr>
 </table>
 
 <h3>How it works: CMOS switching physics and the ALU pipeline</h3>
 
-<p>Modern microprocessors are fabricated using <strong>Complementary Metal-Oxide-Semiconductor (CMOS)</strong> technology, combining two complementary types of field-effect transistors:</p>
+<p>Modern microprocessors are fabricated using <strong>Complementary Metal-Oxide-<a href="glossary/s/semiconductor.html">Semiconductor</a> (CMOS)</strong> technology, combining two complementary types of field-effect transistors:</p>
 
 <ol>
 <li><strong>Transistor Operation:</strong> An N-channel MOSFET conducts electricity between its source and drain when a positive voltage is applied to its gate terminal. A P-channel MOSFET conducts when zero or low voltage is applied to its gate. In a CMOS inverter, when the input is high (1), the N-MOSFET turns on and connects the output to ground (0), while the P-MOSFET is off. When the input is low (0), the P-MOSFET turns on and pulls the output up to supply voltage (1).</li>
@@ -137,17 +137,17 @@ P_dynamic = C_load * V_supply^2 * f_clock * alpha
 </pre>
 where C is capacitance, V is voltage, f is clock frequency, and alpha is switching activity. Because power scales quadratically with voltage, modern processors dynamically drop voltage alongside frequency to conserve energy.</li>
 <li><strong>Critical Path and Propagation Delay:</strong> Every physical transistor takes a finite number of picoseconds to switch, governed by electron mobility and gate capacitance. The longest chain of combinational gates between two sequential registers is called the <strong>critical path</strong>. The propagation delay across the critical path sets the strict upper limit on maximum clock frequency: if the clock period is shorter than the critical path delay, flip-flops capture incomplete results, corrupting computation.</li>
-<li><strong>The Arithmetic Logic Unit (ALU):</strong> The ALU is a multi-function combinational core. It accepts two N-bit operands (A and B) and a function select code from the instruction decoder (such as <code>001</code> for ADD, <code>010</code> for SUB, <code>100</code> for AND, <code>101</code> for OR, <code>110</code> for XOR, <code>111</code> for SHIFT). Internal multiplexers steer the inputs to the requested arithmetic or bitwise circuit and route the result to the output bus, updating hardware status flags (Zero Flag, Sign Flag, Carry Flag, Overflow Flag).</li>
+<li><strong>The Arithmetic Logic Unit (ALU):</strong> The ALU is a multi-function combinational core. It accepts two N-bit operands (A and B) and a function select code from the instruction decoder (such as <code>001</code> for ADD, <code>010</code> for <a href="glossary/s/sub.html">SUB</a>, <code>100</code> for AND, <code>101</code> for OR, <code>110</code> for XOR, <code>111</code> for SHIFT). Internal multiplexers steer the inputs to the requested arithmetic or bitwise circuit and route the result to the output bus, updating hardware status flags (Zero Flag, Sign Flag, Carry Flag, Overflow Flag).</li>
 </ol>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Understanding digital logic physics informs Tamlinux’s workstation design principles. Because dynamic power scales with switching frequency (power scales linearly with frequency), preventing unnecessary CPU wakeups saves significant energy. Operating system daemons that poll every 100 milliseconds force billions of transistors to charge and discharge gate capacitances repeatedly. Tamlinux replaces periodic polling with event-driven Linux kernel mechanisms like <code>epoll</code>, <code>inotify</code>, and Wayland compositor event loops, allowing CPU cores to remain in deep zero-power sleep states.</p>
+<p>Understanding digital logic physics informs Tamlinux’s workstation design principles. Because dynamic power scales with switching frequency (power scales linearly with frequency), preventing unnecessary CPU wakeups saves significant energy. Operating system daemons that poll every 100 milliseconds force billions of transistors to charge and discharge gate capacitances repeatedly. Tamlinux replaces periodic polling with event-driven Linux kernel mechanisms like <code>epoll</code>, <code>inotify</code>, and <a href="glossary/w/wayland.html">Wayland</a> compositor event loops, allowing CPU cores to remain in deep zero-power sleep states.</p>
 
 <h3>Edge cases and failure modes</h3>
 
 <ul>
-<li><strong>Single-Event Upsets (Bit Flips):</strong> Cosmic rays or terrestrial alpha particles can deposit charge in a transistor channel, spontaneously flipping a flip-flop or SRAM bit cell without hardware defect. In mission-critical workstations, Error-Correcting Code (ECC) memory detects and corrects single-bit flips in real time using parity syndroming.</li>
+<li><strong>Single-Event Upsets (Bit Flips):</strong> Cosmic rays or terrestrial alpha particles can deposit charge in a transistor channel, spontaneously flipping a flip-flop or SRAM bit cell without hardware defect. In mission-critical workstations, Error-Correcting Code (<a href="glossary/e/ecc.html">ECC</a>) memory detects and corrects single-bit flips in real time using parity syndroming.</li>
 <li><strong>Subthreshold Leakage:</strong> At nanometer scale (e.g., 5 nm and below), transistors cannot shut off completely. Electrons quantum-tunnel through gate oxides, creating static leakage current even when the clock is completely stopped. Modern processors use power-gating switches to completely cut power rails to unused execution units.</li>
 <li><strong>Clock Skew:</strong> Physical variations in wire lengths distribute the clock signal to different registers at slightly different times. If clock skew exceeds the register hold time, data can race through two stages in a single clock cycle (&ldquo;hold time violation&rdquo;).</li>
 </ul>
@@ -177,7 +177,7 @@ schedutil
 
 <ul>
 <li>Harris, D., &amp; Harris, S. <em>Digital Design and Computer Architecture</em>.</li>
-<li>Mead, C., &amp; Conway, L. <em>Introduction to VLSI Systems</em>.</li>
+<li>Mead, C., &amp; Conway, L. <em>Introduction to <a href="glossary/v/vlsi.html">VLSI</a> Systems</em>.</li>
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; sysfs(5).</li>
 </ul>
 

@@ -44,7 +44,7 @@ APU power: 3.0 W | CPU temp: 49.1 °C | CPU busy: 1.0% | Wakeups: 2395 int/s, 34
 <p>Captured on an AMD desktop running Tamlinux 0.6.18, 2026-11-07, with <code>tam-meter</code> 0.1.0. Your numbers will differ, and they change from second to second.</p>
 <h3>What just happened</h3>
 <ol>
-<li><code>APU power</code> is what the main chip reports it is drawing. An APU is a processor with its graphics built in.</li>
+<li><code>APU power</code> is what the main chip reports it is drawing. An <a href="glossary/a/apu.html">APU</a> is a processor with its graphics built in.</li>
 <li><code>CPU temp</code> is the processor's temperature sensor.</li>
 <li><code>CPU busy</code> is the share of time the processor was doing work rather than resting.</li>
 <li><code>int/s</code> counts interrupts per second, signals from hardware and timers; <code>ctxt/s</code> counts <a href="glossary/c/context-switch.html">context switches</a> per second, when the processor changes from one task to another.</li>
@@ -85,11 +85,11 @@ APU power: 3.0 W | CPU temp: 49.1 °C | CPU busy: 1.0% | Wakeups: 2395 int/s, 34
 <tr><td>CPU temperature</td><td>The first hwmon temperature found from <code>k10temp</code>, then <code>coretemp</code>, then <code>acpitz</code></td></tr>
 <tr><td>CPU busy, interrupts, context switches</td><td>Differences between successive readings of <code>/proc/stat</code></td></tr>
 <tr><td>Busiest processes (<code>reading</code>)</td><td>CPU seconds each process used during the window, from <code>/proc/PID/stat</code> at the start and end</td></tr>
-<tr><td>Displays (<code>reading</code>)</td><td>The DPMS state of each connected DRM connector under <code>/sys/class/drm</code>, at the start and end</td></tr>
+<tr><td>Displays (<code>reading</code>)</td><td>The <a href="glossary/d/dpms.html">DPMS</a> state of each connected <a href="glossary/d/drm.html">DRM</a> connector under <code>/sys/class/drm</code>, at the start and end</td></tr>
 <tr><td>Memory (<code>reading</code>)</td><td>Available memory and swap in use, from <code>/proc/meminfo</code></td></tr>
 </table>
 <h3>How it works</h3>
-<p><code>reading</code> sleeps for the settle time, samples for the window, then reports mean, median and range. It also reports the CPU time it used itself, so you can see that the meter is not what is being measured. Each report ends with a <q>Not measured</q> line: wall power, the RAPL package energy counter when only root can read it, and everything outside the APU.</p>
+<p><code>reading</code> sleeps for the settle time, samples for the window, then reports mean, median and range. It also reports the CPU time it used itself, so you can see that the meter is not what is being measured. Each report ends with a <q>Not measured</q> line: wall power, the <a href="glossary/r/rapl.html">RAPL</a> package energy counter when only root can read it, and everything outside the APU.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>Package power reported by the chip is a model of its own draw, useful for comparing one state with another on the same machine, not a calibrated wall measurement.</li>

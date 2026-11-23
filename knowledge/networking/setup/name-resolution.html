@@ -133,7 +133,7 @@ example.com: 104.20.23.154                                  -- link: enp1s0
 <p>It listens on a local address, accepts queries from applications, forwards them to configured upstream servers, and caches the answers. The applications need no knowledge of which upstream server is in use.</p>
 </details>
 <details class="q">
-<summary><i>Predict what happens to a name lookup when a VPN is connected with split DNS.</i></summary>
+<summary><i>Predict what happens to a name lookup when a <a href="glossary/v/vpn.html">VPN</a> is connected with split DNS.</i></summary>
 <p>Names in the VPN's routing domain go to the VPN's DNS server and other names continue to the local server. A name outside the domain is not answered by the VPN even though the tunnel is up.</p>
 </details>
 </section>
@@ -154,8 +154,8 @@ example.com: 104.20.23.154                                  -- link: enp1s0
 </table>
 
 <h3>How it works</h3>
-<p>A recursive resolver follows delegations from the root through top-level domains to an authoritative server, caching each answer for its time to live. An iterative client does that walk itself; most applications ask a recursive resolver instead. systemd-resolved exposes the result through a local stub and through the <code>Resolve</code> D-Bus API, while <code>/etc/nsswitch.conf</code> decides whether an application consults files, mDNS or DNS first.</p>
-<p>Search domains append a suffix to a short name. A link marked <code>+DefaultRoute</code> is eligible for all queries; a link with a routing domain is used only for names inside that domain, which is how split DNS keeps a corporate name inside the tunnel. DNSSEC validation, when enabled, verifies signatures from the root down; it proves integrity and origin, not confidentiality. DNS over TLS and DNS over HTTPS address confidentiality by encrypting the query.</p>
+<p>A recursive resolver follows delegations from the root through top-level domains to an authoritative server, caching each answer for its time to live. An iterative client does that walk itself; most applications ask a recursive resolver instead. systemd-resolved exposes the result through a local stub and through the <code>Resolve</code> D-<a href="glossary/b/bus.html">Bus</a> <a href="glossary/a/api.html">API</a>, while <code>/etc/nsswitch.conf</code> decides whether an application consults files, mDNS or DNS first.</p>
+<p>Search domains append a suffix to a short name. A link marked <code>+DefaultRoute</code> is eligible for all queries; a link with a routing domain is used only for names inside that domain, which is how split DNS keeps a corporate name inside the tunnel. DNSSEC validation, when enabled, verifies signatures from the root down; it proves integrity and origin, not confidentiality. DNS over <a href="glossary/t/tls.html">TLS</a> and DNS over <a href="glossary/h/https.html">HTTPS</a> address confidentiality by encrypting the query.</p>
 
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="read-only">
@@ -177,7 +177,7 @@ example.com: 104.20.23.154 -- link: enp1s0
 <li>Resource records have a time to live. A cached answer can outlive a change made at the authoritative server until the timer expires.</li>
 <li>Multiple addresses in one answer let a client try another if the first is unreachable; a single-address answer has no such fallback.</li>
 <li><code>.local</code> is reserved for link-local names. Sending it to a global DNS server is a common misconfiguration that produces NXDOMAIN.</li>
-<li>DNS over UDP can lose a large answer; EDNS0 allows larger messages and TCP fallback handles truncation.</li>
+<li>DNS over <a href="glossary/u/udp.html">UDP</a> can lose a large answer; EDNS0 allows larger messages and <a href="glossary/t/tcp.html">TCP</a> fallback handles truncation.</li>
 </ul>
 
 <section class="quiz">

@@ -20,11 +20,11 @@
 <h1>Making better use of working memory</h1>
 <p>This page explains one way a computer can make better use of its working memory.</p>
 <h2>Before this</h2><p><a href="tamlinux/development/index.html">Developing Tamlinux</a> · <a href="systems/maintenance/resources.html">How your computer uses its resources</a></p>
-<p>When working memory runs short, a computer can move some information elsewhere. ZRAM compresses information in memory to make room; the benefit depends on the information and the machine.</p>
+<p>When working memory runs short, a computer can move some information elsewhere. <a href="glossary/z/zram.html">ZRAM</a> compresses information in memory to make room; the benefit depends on the information and the machine.</p>
 
 <section data-level="novice">
 <h2>What is ZRAM?</h2>
-<p><dfn><a href="glossary/z/zram.html">ZRAM</a></dfn> is a built-in Linux feature that sets aside a slice of your RAM as compressed emergency memory. When memory gets tight, the kernel compresses inactive data in place inside RAM instead of writing it out to a slower disk drive.</p>
+<p><dfn><a href="glossary/z/zram.html">ZRAM</a></dfn> is a built-in Linux feature that sets aside a slice of your <a href="glossary/r/ram.html">RAM</a> as compressed emergency memory. When memory gets tight, the kernel compresses inactive data in place inside RAM instead of writing it out to a slower disk drive.</p>
 <h3>Why it matters</h3>
 <p>When programs ask for more memory than physical RAM holds, spilling data onto a disk causes sudden stutters and frozen windows. Compressing idle pages inside RAM happens in microseconds and keeps the desktop responsive under heavy loads.</p>
 <h3>How to think about it</h3>
@@ -111,7 +111,7 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 </details>
 <details class="q">
 <summary><i>Why is swapping to ZRAM over 100 times faster than traditional disk swap?</i></summary>
-<p>ZRAM compresses and decompresses pages directly in physical memory using CPU instructions in microseconds, avoiding the millisecond latency and I/O bottlenecks of physical storage drives.</p>
+<p>ZRAM compresses and decompresses pages directly in physical memory using <a href="glossary/c/cpu.html">CPU</a> instructions in microseconds, avoiding the millisecond latency and I/O bottlenecks of physical storage drives.</p>
 </details>
 </section>
 </section>
@@ -122,7 +122,7 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 
 <table>
 <tr><th>Algorithm / Layer</th><th>Compression ratio</th><th>Decompression speed</th><th>Kernel architectural role</th></tr>
-<tr><td><code>lz4</code></td><td>~2.0x &ndash; 2.2x</td><td>&gt;4,000 MB/s</td><td>Ultra-fast decompression; lowest CPU overhead under heavy interactive multi-core workloads.</td></tr>
+<tr><td><code>lz4</code></td><td>~2.0x &ndash; 2.2x</td><td>&gt;4,000 <a href="glossary/b/byte.html">MB</a>/s</td><td>Ultra-fast decompression; lowest CPU overhead under heavy interactive multi-core workloads.</td></tr>
 <tr><td><code>zstd</code></td><td>~2.7x &ndash; 3.2x</td><td>~1,200 MB/s</td><td>Default on Tamlinux; maximum density to double or triple effective RAM capacity without disk I/O.</td></tr>
 <tr><td><code>zsmalloc</code></td><td>Variable</td><td>Direct pointer mapping</td><td>Kernel memory slab allocator designed specifically to pack variable-sized compressed chunks into page clusters.</td></tr>
 </table>
@@ -132,7 +132,7 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 <p>When anonymous memory pressure increases, the Linux kernel's memory management subsystem reclaims physical pages through the swap abstraction:</p>
 
 <ol>
-<li>The kernel memory management subsystem selects inactive anonymous pages from the LRU (Least Recently Used) list.</li>
+<li>The kernel memory management subsystem selects inactive anonymous pages from the <a href="glossary/l/lru.html">LRU</a> (Least Recently Used) list.</li>
 <li>The virtual memory manager dispatches block I/O requests to the swap device <code>/dev/zram0</code>.</li>
 <li>The ZRAM block device driver intercepts the bio requests and dispatches the memory buffers to multi-threaded compression streams using per-CPU workqueues.</li>
 <li>The compressed chunk is allocated into a <code>zsmalloc</code> slab pool. Unlike the kernel's buddy allocator, which operates on power-of-two page alignments (4 KiB, 8 KiB, etc.) and causes severe internal fragmentation for compressed data, <code>zsmalloc</code> groups heterogeneous variable-sized compressed chunks into multi-page clusters (known as <em>zspages</em>), achieving over 90% allocation packing efficiency.</li>
@@ -140,13 +140,13 @@ NAME       ALGORITHM DISKSIZE  DATA COMPR TOTAL STREAMS MOUNTPOINT
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>A responsive developer workstation must never experience whole-system lockups when launching heavy compilation toolchains, browser test suites, or local AI inference models. By deploying ZRAM backed by <code>zstd</code> and configured via <code>systemd-zram-generator</code>, Tamlinux expands usable memory capacity by 100% to 200% entirely in RAM. Because ZRAM operations execute at memory bus speeds with zero disk head contention or NVMe queue saturation, the desktop user interface remains fluid even under severe memory pressure.</p>
+<p>A responsive developer workstation must never experience whole-system lockups when launching heavy compilation toolchains, browser test suites, or local AI inference models. By deploying ZRAM backed by <code>zstd</code> and configured via <code>systemd-zram-generator</code>, Tamlinux expands usable memory capacity by 100% to 200% entirely in RAM. Because ZRAM operations execute at memory bus speeds with zero disk head contention or <a href="glossary/n/nvme.html">NVMe</a> queue saturation, the desktop user interface remains fluid even under severe memory pressure.</p>
 
 <h3>Edge cases and failure modes</h3>
 
 <ul>
 <li><strong>Incompressible pages:</strong> Certain data types (such as encrypted payloads, compressed archives, or already-compressed media) cannot be compressed further. When <code>zsmalloc</code> determines that compressed output plus metadata equals or exceeds 4096 bytes, the driver stores the page uncompressed to avoid wasting memory.</li>
-<li><strong>Memory limit exhaustion:</strong> If ZRAM reaches its maximum configured memory limit and no secondary disk swap exists, the kernel triggers the Out-Of-Memory (OOM) killer. Tamlinux prevents this by providing a secondary zero-priority disk swapfile for emergency spillover.</li>
+<li><strong>Memory limit exhaustion:</strong> If ZRAM reaches its maximum configured memory limit and no secondary disk swap exists, the kernel triggers the Out-Of-Memory (<a href="glossary/o/oom.html">OOM</a>) killer. Tamlinux prevents this by providing a secondary zero-priority disk swapfile for emergency spillover.</li>
 <li><strong>CPU latency trade-off:</strong> While <code>zstd</code> achieves higher compression than <code>lz4</code>, it consumes slightly more CPU instructions during compression. On battery-constrained or low-power embedded processors, <code>lz4</code> can be selected to minimize CPU energy consumption.</li>
 </ul>
 
@@ -186,7 +186,7 @@ $ cat /sys/block/zram0/mm_stat
 <p>Workstation memory policies and swap configurations are managed declaratively in the Tamlinux packaging and desktop repos under <code>tamlinux/systemd/</code> and <code>/etc/systemd/zram-generator.conf</code>.</p>
 </section>
 
-<h2>Next</h2><p><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; examine overall RAM, CPU load, and PSI pressure metrics.</p>
+<h2>Next</h2><p><a href="systems/maintenance/resources.html">Resources and performance</a> &mdash; examine overall RAM, CPU load, and <a href="glossary/p/psi.html">PSI</a> pressure metrics.</p>
 <h2>Related</h2><ul><li><a href="terminal/configuration.html">Terminal and editor ergonomics</a> &mdash; explore sub-10ms shell startup and Micro live reload.</li><li><a href="programming/c/toolchains.html">Native toolchains and multi-agent workflows</a> &mdash; build native C projects and coordinate shared checkouts.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
 </body>
 </html>

@@ -55,7 +55,7 @@ program  -->  escapes or library  -->  PTY / console  -->  emulator paints cells
          terminfo (usual) or termcap (older)
 </pre>
 
-<p><strong>Termcap</strong> is the older database: terminal descriptions as colon-separated capability strings. <strong>Terminfo</strong> is the usual modern database on Linux: compiled entries that <code>tput</code>, ncurses, and many other tools read. Both answer the same kind of question—“how does this terminal type clear the screen?”—with different file formats.</p>
+<p><strong>Termcap</strong> is the older database: terminal descriptions as colon-separated capability strings. <strong><a href="glossary/t/terminfo.html">Terminfo</a></strong> is the usual modern database on Linux: compiled entries that <code>tput</code>, ncurses, and many other tools read. Both answer the same kind of question—“how does this terminal type clear the screen?”—with different file formats.</p>
 
 <p>A wrong <code>TERM</code> means the wrong descriptions: clear may fail, colors may be wrong, or special keys may print garbage.</p>
 <h3>Worked example</h3>
@@ -85,7 +85,7 @@ $ tput lines
 <dd><code>TERM</code> is unset. Open a desktop terminal or export a known type such as <code>xterm-256color</code> for a temporary check.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> the desktop terminal is <code>foot</code>, which sets <code>TERM=foot</code>. When connecting to remote servers that lack the <code>foot-terminfo</code> package, key sequences or backspace may misbehave. Install <code>foot-terminfo</code> on the remote machine or use <code>TERM=xterm-256color</code> as a temporary fallback. Details live under <a href="terminal/configuration.html">terminal comfort</a>; this page does not retell foot’s Wayland redraw path.</p>
+<p><strong>On Tamlinux:</strong> the desktop terminal is <code>foot</code>, which sets <code>TERM=foot</code>. When connecting to remote servers that lack the <code>foot-terminfo</code> package, key sequences or backspace may misbehave. Install <code>foot-terminfo</code> on the remote machine or use <code>TERM=xterm-256color</code> as a temporary fallback. Details live under <a href="terminal/configuration.html">terminal comfort</a>; this page does not retell foot’s <a href="glossary/w/wayland.html">Wayland</a> redraw path.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -103,9 +103,9 @@ $ tput lines
 
 <table>
 <tr><th>Item</th><th>Meaning</th></tr>
-<tr><td>Compiled terminfo</td><td>Binary entries under the system terminfo tree (often <code>/usr/share/terminfo</code>), selected by the first character of the type name</td></tr>
+<tr><td>Compiled terminfo</td><td><a href="glossary/b/binary.html">Binary</a> entries under the system terminfo tree (often <code>/usr/share/terminfo</code>), selected by the first character of the type name</td></tr>
 <tr><td>Capability names</td><td>Short identifiers such as <code>clear</code>, <code>cup</code> (cursor address), <code>setaf</code> / <code>setab</code> (foreground / background color)</td></tr>
-<tr><td>VT / ANSI sequences</td><td>The byte strings many emulators actually implement; terminfo stores them per type rather than forcing every app to embed them</td></tr>
+<tr><td>VT / <a href="glossary/a/ansi.html">ANSI</a> sequences</td><td>The byte strings many emulators actually implement; terminfo stores them per type rather than forcing every app to embed them</td></tr>
 <tr><td><code>infocmp</code></td><td>Reconstructs or compares terminfo source for a type name</td></tr>
 </table>
 
@@ -157,7 +157,7 @@ xterm-256color|xterm with 256 colors,
 
 <h3>Improve it</h3>
 
-<p>Terminal emulator settings for Tamlinux live under the desktop configuration; remote terminfo packages are ordinary rootstock packages. Document capability issues with the exact <code>TERM</code> value and <code>infocmp</code> output rather than guessing sequences.</p>
+<p><a href="glossary/t/terminal.html">Terminal</a> emulator settings for Tamlinux live under the desktop configuration; remote terminfo packages are ordinary rootstock packages. Document capability issues with the exact <code>TERM</code> value and <code>infocmp</code> output rather than guessing sequences.</p>
 </section>
 
 <h2>Next</h2><p><a href="programming/interfaces/ncurses.html">ncurses</a> — the library that applies terminfo for many full-screen programs, and how <code>tam</code> uses it.</p>

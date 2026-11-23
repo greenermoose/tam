@@ -18,7 +18,7 @@
 
 
 <h1>Network, Messaging, and Identity Security Protocols</h1>
-<p>This page explains how modern protocols beyond TLS and SSH secure VPN tunnels, end-to-end encrypted chat, internet name lookups, and passwordless logins.</p>
+<p>This page explains how modern protocols beyond <a href="glossary/t/tls.html">TLS</a> and <a href="glossary/s/ssh.html">SSH</a> secure <a href="glossary/v/vpn.html">VPN</a> tunnels, end-to-end encrypted chat, internet name lookups, and passwordless logins.</p>
 <h2>Before this</h2><p><a href="security/protocols/ssh-protocol.html">The SSH Protocol Internals</a></p>
 
 <section data-level="novice">
@@ -26,17 +26,17 @@
 <p>TLS and SSH protect individual connections, but computers also need to encrypt entire network tunnels (VPNs), protect private chat messages even when servers are hacked, verify internet domain names (<dfn><a href="glossary/d/dns.html">DNS</a></dfn>), and let you sign in to websites with a hardware security key instead of a password.</p>
 
 <h3>Why it matters</h3>
-<p>Each environment has different rules: a chat app must work even when your friend's phone is turned off; a VPN must recover instantly when your laptop switches from Wi-Fi to a phone hotspot; and a login system must verify your identity without giving every website your password.</p>
+<p>Each environment has different rules: a chat app must work even when your friend's phone is turned off; a VPN must recover instantly when your laptop switches from <a href="glossary/w/wi-fi.html">Wi-Fi</a> to a phone hotspot; and a login system must verify your identity without giving every website your password.</p>
 
 <h3>How to think about it</h3>
-<p>Think of protocols as specialized vehicles built from the same engine parts (hashes, symmetric AEAD ciphers, and public-key signatures): WireGuard is a stripped-down armored courier carrying IP packets; the Signal protocol shreds and replaces its keys after every single text message; and FIDO2 is a physical badge that signs a unique challenge for each website so phishing pages cannot reuse it.</p>
+<p>Think of protocols as specialized vehicles built from the same engine parts (hashes, symmetric <a href="glossary/a/aead.html">AEAD</a> ciphers, and public-key signatures): WireGuard is a stripped-down armored courier carrying <a href="glossary/i/ip-address.html">IP</a> packets; the Signal protocol shreds and replaces its keys after every single text message; and FIDO2 is a physical badge that signs a unique challenge for each website so phishing pages cannot reuse it.</p>
 
 <h3>New words</h3>
 <dl>
 <dt><dfn><a href="glossary/f/fido.html">FIDO2</a></dfn></dt>
 <dd>An open standard using hardware-backed public/private keys so websites and machines verify you without passwords.</dd>
 <dt><dfn><a href="glossary/d/digital-signature.html">Digital signature</a></dfn></dt>
-<dd>A cryptographic proof used by DNSSEC, FIDO2, and tokens to verify who issued a record or challenge.</dd>
+<dd>A cryptographic proof used by <a href="glossary/d/dnssec.html">DNSSEC</a>, FIDO2, and tokens to verify who issued a record or challenge.</dd>
 </dl>
 </section>
 
@@ -55,8 +55,8 @@ $ command -v wg fido2-token pamu2fcfg || true
 
 <h3>What just happened</h3>
 <ol>
-<li>Modern Linux kernels include WireGuard directly in-tree, routing encrypted UDP packets via <em>cryptokey routing</em> (mapping each peer's public key to allowed IP ranges).</li>
-<li>Tools like <code>fido2-token</code> and <code>pamu2fcfg</code> bridge hardware FIDO2 keys to local PAM and WebAuthn authenticators.</li>
+<li>Modern Linux kernels include WireGuard directly in-tree, routing encrypted <a href="glossary/u/udp.html">UDP</a> packets via <em>cryptokey routing</em> (mapping each peer's public key to allowed IP ranges).</li>
+<li>Tools like <code>fido2-token</code> and <code>pamu2fcfg</code> bridge hardware FIDO2 keys to local <a href="glossary/p/pam.html">PAM</a> and WebAuthn authenticators.</li>
 </ol>
 
 <h3>Try it</h3>
@@ -66,12 +66,12 @@ $ command -v wg fido2-token pamu2fcfg || true
 <dl>
 <dt><code>wg: command not found</code></dt>
 <dd>Install <code>wireguard-tools</code> with your native package manager if you plan to inspect or configure WireGuard interfaces.</dd>
-<dt>OAuth2 / JWT login failures after clock drift</dt>
-<dd>Short-lived tokens (Kerberos tickets, JWT <code>exp</code>/<code>nbf</code> claims) reject requests when system clocks drift; verify NTP synchronization with <code>timedatectl status</code>.</dd>
+<dt>OAuth2 / <a href="glossary/j/jwt.html">JWT</a> login failures after clock drift</dt>
+<dd>Short-lived tokens (<a href="glossary/k/kerberos.html">Kerberos</a> tickets, JWT <code>exp</code>/<code>nbf</code> claims) reject requests when system clocks drift; verify <a href="glossary/n/ntp.html">NTP</a> synchronization with <code>timedatectl status</code>.</dd>
 </dl>
 
 <aside class="tamlinux">
-<p>On Tamlinux, hardware FIDO2 keys integrate directly with PAM and Polkit via <code>tam-setup-security-fido2</code> (<a href="security/hardware-authentication.html">Hardware Security and Privilege Management</a>), binding physical presence to local privilege prompts.</p>
+<p>On Tamlinux, hardware FIDO2 keys integrate directly with PAM and <a href="glossary/p/polkit.html">Polkit</a> via <code>tam-setup-security-fido2</code> (<a href="security/hardware-authentication.html">Hardware Security and Privilege Management</a>), binding physical presence to local privilege prompts.</p>
 </aside>
 
 <section class="quiz">
@@ -89,22 +89,22 @@ $ command -v wg fido2-token pamu2fcfg || true
 </section>
 
 <section data-level="expert">
-<h2>WireGuard, Signal Double Ratchet, Kerberos, OIDC, and formal verification</h2>
+<h2>WireGuard, Signal Double Ratchet, Kerberos, <a href="glossary/o/oidc.html">OIDC</a>, and formal verification</h2>
 <p><strong>Reference:</strong> advanced protocol design balances latency, statefulness, compromise recovery, and formal verifiability under active network adversaries.</p>
 
 <table>
 <tr><th>Protocol</th><th>Core Primitives</th><th>Key Security Properties</th></tr>
-<tr><td>WireGuard (Noise_IKpsk2)</td><td>Curve25519, ChaCha20-Poly1305, BLAKE2s</td><td>1-RTT mutual auth, identity hiding, DoS cookie, ~4k LoC</td></tr>
-<tr><td>Signal (X3DH + Double Ratchet)</td><td>X25519, Ed25519/XEdDSA, HKDF, AES-GCM/HMAC</td><td>Asynchronous key agreement, forward secrecy + post-compromise security</td></tr>
-<tr><td>Kerberos v5</td><td>Symmetric AEAD (AES-256-CTS-HMAC-SHA384)</td><td>Trusted KDC / TGT, mutually authenticated intranet SSO</td></tr>
-<tr><td>OAuth 2.0 + OIDC + PKCE</td><td>TLS 1.3 + SHA-256 code challenge + JWS/EdDSA</td><td>Delegated authorization &amp; federated identity; PKCE stops code interception</td></tr>
-<tr><td>DNSSEC / RPKI</td><td>ECDSA P-256 / Ed25519 signatures over RRsets / ROAs</td><td>Origin authenticity &amp; integrity of DNS / BGP prefix-to-AS bindings</td></tr>
+<tr><td>WireGuard (Noise_IKpsk2)</td><td>Curve25519, ChaCha20-Poly1305, BLAKE2s</td><td>1-<a href="glossary/r/rtt.html">RTT</a> mutual auth, identity hiding, DoS cookie, ~4k LoC</td></tr>
+<tr><td>Signal (<a href="glossary/x/x3dh.html">X3DH</a> + Double Ratchet)</td><td>X25519, Ed25519/XEdDSA, HKDF, AES-<a href="glossary/g/gcm.html">GCM</a>/<a href="glossary/h/hmac.html">HMAC</a></td><td>Asynchronous key agreement, forward secrecy + post-compromise security</td></tr>
+<tr><td>Kerberos v5</td><td>Symmetric AEAD (<a href="glossary/a/aes-256.html">AES-256</a>-<a href="glossary/c/cts-hmac.html">CTS-HMAC</a>-SHA384)</td><td>Trusted <a href="glossary/k/kdc.html">KDC</a> / <a href="glossary/t/tgt.html">TGT</a>, mutually authenticated intranet SSO</td></tr>
+<tr><td>OAuth 2.0 + OIDC + <a href="glossary/p/pkce.html">PKCE</a></td><td>TLS 1.3 + <a href="glossary/s/sha-256.html">SHA-256</a> code challenge + <a href="glossary/j/jws.html">JWS</a>/EdDSA</td><td>Delegated authorization &amp; federated identity; PKCE stops code interception</td></tr>
+<tr><td>DNSSEC / <a href="glossary/r/rpki.html">RPKI</a></td><td>ECDSA P-256 / Ed25519 signatures over RRsets / ROAs</td><td>Origin authenticity &amp; integrity of DNS / <a href="glossary/b/bgp.html">BGP</a> prefix-to-AS bindings</td></tr>
 </table>
 
 <h3>How it works: protocol mechanics and formal models</h3>
-<p><strong>WireGuard &amp; the Noise Protocol Framework:</strong> WireGuard instantiates <code>Noise_IKpsk2</code>: the initiator already knows the responder's static Curve25519 key <code>S_r</code>, performs ephemeral-static and ephemeral-ephemeral DH (<code>es</code>, <code>ee</code>, <code>ss</code>, optional <code>psk</code>) mixed into chaining key <code>ck</code> and transcript hash <code>h</code> via BLAKE2s, and sends a single 148-byte initiation packet. A stateless responder under flood sends an encrypted MAC2 cookie before allocating state.</p>
-<p><strong>Signal Protocol (X3DH &amp; Double Ratchet):</strong> To message an offline peer, X3DH combines four DH values between identity keys <code>(IK_A, IK_B)</code>, signed prekey <code>SPK_B</code>, one-time prekey <code>OPK_B</code>, and ephemeral <code>EK_A</code>. Afterward, the <strong>Double Ratchet</strong> advances a symmetric-key KDF chain per message (providing per-message <em>forward secrecy</em>) and performs a new DH ratchet step whenever message direction reverses (providing <em>post-compromise security</em> / self-healing after a temporary state leak).</p>
-<p><strong>OAuth 2.0 / OIDC &amp; JWT Pitfalls:</strong> Public clients use Authorization Code flow with <strong>PKCE</strong> (sending <code>SHA-256(code_verifier)</code> so an intercepted authorization code cannot be redeemed). JSON Web Tokens (JWTs) fail catastrophically when libraries trust the unverified <code>alg</code> header (<code>"alg": "none"</code> bypass or RSA-vs-HMAC key-confusion where an HMAC check uses the server's public RSA key).</p>
+<p><strong>WireGuard &amp; the Noise Protocol Framework:</strong> WireGuard instantiates <code>Noise_IKpsk2</code>: the initiator already knows the responder's static Curve25519 key <code>S_r</code>, performs ephemeral-static and ephemeral-ephemeral DH (<code>es</code>, <code>ee</code>, <code>ss</code>, optional <code>psk</code>) mixed into chaining key <code>ck</code> and transcript hash <code>h</code> via BLAKE2s, and sends a single 148-byte initiation packet. A stateless responder under flood sends an encrypted <a href="glossary/m/mac2.html">MAC2</a> cookie before allocating state.</p>
+<p><strong>Signal Protocol (X3DH &amp; Double Ratchet):</strong> To message an offline peer, X3DH combines four DH values between identity keys <code>(IK_A, IK_B)</code>, signed prekey <code>SPK_B</code>, one-time prekey <code>OPK_B</code>, and ephemeral <code>EK_A</code>. Afterward, the <strong>Double Ratchet</strong> advances a symmetric-key <a href="glossary/k/kdf.html">KDF</a> chain per message (providing per-message <em>forward secrecy</em>) and performs a new DH ratchet step whenever message direction reverses (providing <em>post-compromise security</em> / self-healing after a temporary state leak).</p>
+<p><strong>OAuth 2.0 / OIDC &amp; JWT Pitfalls:</strong> Public clients use <a href="glossary/a/authorization.html">Authorization</a> Code flow with <strong>PKCE</strong> (sending <code>SHA-256(code_verifier)</code> so an intercepted authorization code cannot be redeemed). <a href="glossary/j/json.html">JSON</a> Web Tokens (JWTs) fail catastrophically when libraries trust the unverified <code>alg</code> header (<code>"alg": "none"</code> bypass or <a href="glossary/r/rsa.html">RSA</a>-vs-HMAC key-confusion where an HMAC check uses the server's public RSA key).</p>
 <p><strong>Formal Protocol Verification:</strong> Protocols are analyzed under the <strong>Dolev–Yao adversary model</strong> (attacker controls the entire network—intercepting, replaying, and synthesizing messages—while cryptography is idealized as black-box algebra). Automated tools such as <strong>ProVerif</strong> (applied pi-calculus) and <strong>Tamarin Prover</strong> (multiset rewriting) symbolically prove secrecy and injective agreement or discover subtle multi-session reflection and downgrade counterexamples.</p>
 
 <h3>Edge cases and failure modes</h3>
@@ -116,7 +116,7 @@ $ command -v wg fido2-token pamu2fcfg || true
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q open">
-<summary>What is the difference between Forward Secrecy and Post-Compromise Security (PCS) in the Signal Double Ratchet?</summary>
+<summary>What is the difference between Forward Secrecy and Post-Compromise Security (<a href="glossary/p/pcs.html">PCS</a>) in the Signal Double Ratchet?</summary>
 <p>Forward secrecy guarantees that compromising a device's current state cannot decrypt past messages (achieved by one-way symmetric KDF ratcheting and deleting old message keys). Post-compromise security guarantees that if an attacker steals current state today and stops observing, future fresh DH ratchet exchanges heal the session so the attacker is locked out again.</p>
 </details>
 </section>

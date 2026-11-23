@@ -118,14 +118,14 @@ hyprland 0.56.2-4.1
 </section>
 </section>
 <section data-level="expert">
-<h2>Fork branch conventions, PKGBUILD maintenance, and upstream policy</h2>
+<h2>Fork branch conventions, <a href="glossary/p/pkgbuild.html">PKGBUILD</a> maintenance, and upstream policy</h2>
 
 <h3>Reference</h3>
 
 <table>
 <tr><th>Component</th><th>Path or Convention</th><th>Purpose</th></tr>
 <tr><td>Fork checkout</td><td><code>~/Code/&lt;Upstream&gt;</code></td><td>Public fork (<code>greenermoose/&lt;Upstream&gt;</code>); branch <code>patch/&lt;slug&gt;</code> off release tag.</td></tr>
-<tr><td>Patch set tag</td><td><code>patchset/&lt;tag&gt;</code></td><td>Release tag plus all applied patches in order, tagged <code>&lt;tag&gt;-fred.&lt;N&gt;</code>.</td></tr>
+<tr><td><a href="glossary/p/patch.html">Patch</a> set tag</td><td><code>patchset/&lt;tag&gt;</code></td><td>Release tag plus all applied patches in order, tagged <code>&lt;tag&gt;-fred.&lt;N&gt;</code>.</td></tr>
 <tr><td>Default branch</td><td><code>fred</code></td><td>Points to latest <code>patchset/&lt;tag&gt;</code> so fork landing page shows patched tree.</td></tr>
 <tr><td>Scratch build</td><td><code>~/pkgs/&lt;pkg&gt;/</code></td><td>Arch PKGBUILD, <code>PKGBUILD.arch-orig</code>, exported patch files, and <code>.SRCINFO</code>.</td></tr>
 <tr><td>Local repo</td><td><code>/var/cache/local-patches/</code></td><td>Published pacman repository owned by user (mode 755), indexed by <code>repo-add</code>.</td></tr>
@@ -146,13 +146,13 @@ hyprland 0.56.2-4.1
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Public open-source pull request queues face high maintainer fatigue and increasing restrictions, including contributor vouch gates and strict bans on AI-assisted contributions (such as Hyprland's policy). Rather than adding review burden to upstream queues where AI-assisted contributions are unwelcome, Tamlinux publishes each fix where it costs upstream nothing: a clean branch on a public fork based on the upstream release tag, indexed in a public registry. Anyone can inspect, verify, or cherry-pick the change.</p>
+<p>Public open-source pull request queues face high maintainer fatigue and increasing restrictions, including contributor vouch gates and strict bans on AI-assisted contributions (such as <a href="glossary/h/hyprland.html">Hyprland</a>'s policy). Rather than adding review burden to upstream queues where AI-assisted contributions are unwelcome, Tamlinux publishes each fix where it costs upstream nothing: a clean branch on a public fork based on the upstream release tag, indexed in a public registry. Anyone can inspect, verify, or cherry-pick the change.</p>
 
 <h3>Edge cases</h3>
 
 <ul>
-<li><strong>Building from tarball vs git tree:</strong> Packages must always be built from upstream source tarballs, never raw git repository checkouts. For example, Hyprland bakes its source <code>GIT_COMMIT_HASH</code> into its plugin ABI validation string; building from git alters this hash and breaks all desktop plugins.</li>
-<li><strong>Shared library SONAME preservation:</strong> Carried patches should not alter exported symbol signatures or increment library SONAMEs, as doing so requires rebuilding all dependent packages.</li>
+<li><strong>Building from tarball vs git tree:</strong> Packages must always be built from upstream source tarballs, never raw git repository checkouts. For example, Hyprland bakes its source <code>GIT_COMMIT_HASH</code> into its plugin <a href="glossary/a/abi.html">ABI</a> validation string; building from git alters this hash and breaks all desktop plugins.</li>
+<li><strong>Shared library <a href="glossary/s/soname.html">SONAME</a> preservation:</strong> Carried patches should not alter exported symbol signatures or increment library SONAMEs, as doing so requires rebuilding all dependent packages.</li>
 <li><strong>Partial upgrade risk:</strong> Running <code>pacman -Sy</code> against local repositories without performing a full system upgrade (<code>pacman -Syu</code>) leaves sync databases newer than installed packages. Always upgrade packages cohesively.</li>
 </ul>
 

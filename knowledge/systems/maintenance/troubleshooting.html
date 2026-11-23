@@ -49,13 +49,13 @@
 
 <h3>Worked example</h3>
 <ol>
-<li>When an application crashes, <code>tam-crash-watch</code> issues a desktop alert naming the process ID (PID).</li>
+<li>When an application crashes, <code>tam-crash-watch</code> issues a desktop alert naming the process ID (<a href="glossary/p/pid.html">PID</a>).</li>
 <li>To gather crash evidence and view an automated report, run:
 <pre class="session" data-risk="read-only">
 $ tam-agent-crash 12345
 </pre>
 </li>
-<li>If desktop status bar plugins fail to display updated code after an update, purge stale QML caches:
+<li>If desktop status bar plugins fail to display updated code after an update, purge stale <a href="glossary/q/qml.html">QML</a> caches:
 <pre class="session" data-risk="user">
 $ tam-qmlcache-purge
 </pre>
@@ -97,11 +97,11 @@ $ tam-desktop-test --dry-run
 <tr><th>Command</th><th>Role</th></tr>
 <tr><td><code>tam-crash-watch</code></td><td>Monitor user process exits and notify with AI diagnosis options</td></tr>
 <tr><td><code>tam-agent-crash</code></td><td>Collect stack trace and crash context for a PID using the default agent</td></tr>
-<tr><td><code>tam-qmlcache-purge</code></td><td>Remove stale compiled Quickshell QML caches for deployed desktop plugins</td></tr>
-<tr><td><code>tam-desktop-test</code></td><td>Execute physical desktop test battery for layout and workspace validation</td></tr>
+<tr><td><code>tam-qmlcache-purge</code></td><td>Remove stale compiled <a href="glossary/q/quickshell.html">Quickshell</a> QML caches for deployed desktop plugins</td></tr>
+<tr><td><code>tam-desktop-test</code></td><td><a href="glossary/e/execute.html">Execute</a> physical desktop test battery for layout and workspace validation</td></tr>
 <tr><td><code>tam-workstation-upgrade</code></td><td>Perform workstation assembly upgrade and migration from text console</td></tr>
 </table>
-<p>When deployed plugins share reproducible timestamps or staged paths across upgrades, Qt&apos;s QML bytecode cache can serve stale code. <code>tam-qmlcache-purge</code> clears cached bytecode by matching plugin paths against SHA-1 cache entries, preventing stale execution across version switches.</p>
+<p>When deployed plugins share reproducible timestamps or staged paths across upgrades, Qt&apos;s QML bytecode cache can serve stale code. <code>tam-qmlcache-purge</code> clears cached bytecode by matching plugin paths against <a href="glossary/s/sha-1.html">SHA-1</a> cache entries, preventing stale execution across version switches.</p>
 </section>
 
 <h2>Next</h2><p><a href="systems/maintenance/logs.html">Truthful system diagnostics and logs</a> — journal inspection and filtering.</p>

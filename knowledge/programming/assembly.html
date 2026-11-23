@@ -17,10 +17,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / Assembly language programming and machine code</p></nav>
 
 
-<h1>Assembly language programming and machine code</h1>
+<h1><a href="glossary/a/assembly-tamlinux.html">Assembly</a> language programming and machine code</h1>
 <p>This page explains how assembly language provides human-readable words for the numeric instructions that a processor understands.</p>
 <h2>Before this</h2><p><a href="hardware/architecture/computer-architecture.html">Computer architecture and hardware systems</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
-<p>While high-level programming languages like C, Rust, or Python let developers write code using familiar mathematical syntax and abstractions, microprocessors can only execute raw binary byte sequences known as <dfn><a href="glossary/m/machine-code.html">machine code</a></dfn>. Assembly language is the closest human-readable representation of this machine code: each assembly instruction corresponds directly to one machine operation, giving developers total visibility into CPU registers, memory addresses, and execution flags.</p>
+<p>While high-level programming languages like C, Rust, or Python let developers write code using familiar mathematical syntax and abstractions, microprocessors can only execute raw binary byte sequences known as <dfn><a href="glossary/m/machine-code.html">machine code</a></dfn>. Assembly language is the closest human-readable representation of this machine code: each assembly instruction corresponds directly to one machine operation, giving developers total visibility into <a href="glossary/c/cpu.html">CPU</a> registers, memory addresses, and execution flags.</p>
 
 <section data-level="novice">
 <h2>What is assembly language?</h2>
@@ -49,7 +49,7 @@
 <aside class="first-time">
 <p><strong>New to this?</strong> A <strong>mnemonic</strong> is a short word (like <code>mov</code> for move, <code>add</code> for addition, or <code>jmp</code> for jump) that represents an opcode. A <strong>disassembler</strong> (like <code>objdump</code>) reads binary bytes from an executable file and translates them back into assembly mnemonics.</p>
 </aside>
-<h3>Worked example: disassemble machine code in an ELF executable</h3>
+<h3>Worked example: disassemble machine code in an <a href="glossary/e/elf.html">ELF</a> executable</h3>
 <pre class="session" data-risk="read-only">
 $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 0000000000005190 &lt;_start&gt;:
@@ -79,10 +79,10 @@ $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 <dt><code>objdump: command not found</code></dt>
 <dd>The <code>binutils</code> package containing <code>objdump</code>, <code>readelf</code>, <code>as</code>, and <code>ld</code> is not installed. Install standard development utilities from base repositories.</dd>
 <dt>Output uses AT&amp;T syntax instead of Intel</dt>
-<dd>By default, GNU <code>objdump</code> outputs AT&amp;T syntax (source first, with <code>%</code> for registers and <code>$</code> for constants). Pass <code>-M intel</code> to view Intel syntax (destination first).</dd>
+<dd>By default, <a href="glossary/g/gnu.html">GNU</a> <code>objdump</code> outputs AT&amp;T syntax (source first, with <code>%</code> for registers and <code>$</code> for constants). Pass <code>-M intel</code> to view Intel syntax (destination first).</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> core utilities are developed in native C11 rather than raw assembly language. C provides direct low-level control, compiles to near-optimal machine code, and links seamlessly with system libraries (like <code>libtam</code> and <code>libncursesw</code>) while preserving complete portability across x86-64, ARM64, and future RISC-V platforms without maintaining separate assembly codebases. See the <a href="programming/c/toolchains.html">native toolchains guide</a>.</p>
+<p><strong>On Tamlinux:</strong> core utilities are developed in native <a href="glossary/c/c11.html">C11</a> rather than raw assembly language. C provides direct low-level control, compiles to near-optimal machine code, and links seamlessly with system libraries (like <code>libtam</code> and <code>libncursesw</code>) while preserving complete portability across x86-64, <a href="glossary/a/arm64.html">ARM64</a>, and future <a href="glossary/r/risc-v.html">RISC-V</a> platforms without maintaining separate assembly codebases. See the <a href="programming/c/toolchains.html">native toolchains guide</a>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -93,12 +93,12 @@ $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 </details>
 <details class="q">
 <summary><i>Why do x86-64 instruction lengths vary from 1 byte (like <code>pop rsi</code>) to 15 bytes?</i></summary>
-<p>Because x86 is a Complex Instruction Set Computer (CISC) with variable-length instruction encoding: simple operations use short 1-to-2 byte opcodes, while complex operations with prefixes, registers, and 64-bit immediate values require more bytes.</p>
+<p>Because x86 is a Complex Instruction Set Computer (<a href="glossary/c/cisc.html">CISC</a>) with variable-length instruction encoding: simple operations use short 1-to-2 byte opcodes, while complex operations with prefixes, registers, and 64-bit immediate values require more bytes.</p>
 </details>
 </section>
 </section>
 <section data-level="expert">
-<h2>System V AMD64 ABI, stack frames, and the Red Zone</h2>
+<h2>System V <a href="glossary/a/amd64.html">AMD64</a> <a href="glossary/a/abi.html">ABI</a>, stack frames, and the Red Zone</h2>
 
 <h3>Reference: System V AMD64 Calling Convention</h3>
 
@@ -109,7 +109,7 @@ $ objdump -d -M intel build/tam | grep -A 8 "&lt;_start&gt;:"
 <tr><td>Return Value</td><td><code>%rax</code> (1st integer), <code>%rdx</code> (2nd integer / 128-bit), <code>%xmm0</code> (float)</td><td>Caller-saved</td></tr>
 <tr><td>Callee-Saved Registers</td><td><code>%rbx</code>, <code>%rsp</code>, <code>%rbp</code>, <code>%r12</code>, <code>%r13</code>, <code>%r14</code>, <code>%r15</code></td><td>Callee-saved (function must save and restore if used)</td></tr>
 <tr><td>Scratch / Temporary Registers</td><td><code>%r10</code>, <code>%r11</code></td><td>Caller-saved</td></tr>
-<tr><td>Stack Alignment Requirement</td><td><code>%rsp % 16 == 8</code> upon function entry; <code>%rsp % 16 == 0</code> before executing <code>call</code></td><td>Mandatory for SSE/AVX vector memory instructions</td></tr>
+<tr><td>Stack Alignment Requirement</td><td><code>%rsp % 16 == 8</code> upon function entry; <code>%rsp % 16 == 0</code> before executing <code>call</code></td><td>Mandatory for SSE/<a href="glossary/a/avx.html">AVX</a> vector memory instructions</td></tr>
 </table>
 
 <h3>How it works: Stack frames and the 128-byte Red Zone</h3>
@@ -132,17 +132,17 @@ pop  %rbp             # Restore caller base pointer
 ret                   # Pop return address from stack into %rip
 </pre>
 The composite instruction <code>leave</code> can replace <code>mov %rbp, %rsp; pop %rbp</code>.</li>
-<li><strong>Position-Independent Code (PIC):</strong> Modern Linux executables are built as Position-Independent Executables (PIE). Rather than referencing absolute 64-bit addresses, instructions reference data relative to the Instruction Pointer using <strong>RIP-relative addressing</strong> (e.g. <code>mov message(%rip), %rax</code>). This allows the Linux kernel's Address Space Layout Randomization (ASLR) to load the executable at a randomized base address in virtual memory, defending against memory exploitation.</li>
+<li><strong>Position-Independent Code (PIC):</strong> Modern Linux executables are built as Position-Independent Executables (<a href="glossary/p/pie.html">PIE</a>). Rather than referencing absolute 64-bit addresses, instructions reference data relative to the Instruction Pointer using <strong><a href="glossary/r/rip.html">RIP</a>-relative addressing</strong> (e.g. <code>mov message(%rip), %rax</code>). This allows the Linux kernel's Address Space Layout Randomization (<a href="glossary/a/aslr.html">ASLR</a>) to load the executable at a randomized base address in virtual memory, defending against memory exploitation.</li>
 </ol>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Adherence to standard ABI conventions ensures seamless interoperability. In Tamlinux, core utilities compile to standard ELF64 shared libraries and executables. By following standard System V calling conventions, native C functions in <code>libtam</code> can be called directly from assembly, C, Rust, or foreign function interfaces in scripting languages without data marshalling overhead or stack corruption.</p>
+<p>Adherence to standard ABI conventions ensures seamless interoperability. In Tamlinux, core utilities compile to standard <a href="glossary/e/elf64.html">ELF64</a> shared libraries and executables. By following standard System V calling conventions, native C functions in <code>libtam</code> can be called directly from assembly, C, Rust, or foreign function interfaces in scripting languages without data marshalling overhead or stack corruption.</p>
 
 <h3>Edge cases and failure modes</h3>
 
 <ul>
-<li><strong>AVX Stack Alignment Crash:</strong> Modern vector instructions like <code>movaps</code> (Move Aligned Packed Single-Precision) require memory operands to be aligned on 16-byte boundaries (or 32-byte for AVX2). If a programmer fails to maintain 16-byte stack alignment before calling a function, vector operations inside <code>libc</code> trigger an immediate General Protection Fault (<code>#GP</code>).</li>
+<li><strong>AVX Stack Alignment Crash:</strong> Modern vector instructions like <code>movaps</code> (Move Aligned Packed Single-Precision) require memory operands to be aligned on 16-byte boundaries (or 32-byte for <a href="glossary/a/avx2.html">AVX2</a>). If a programmer fails to maintain 16-byte stack alignment before calling a function, vector operations inside <code>libc</code> trigger an immediate General Protection Fault (<code>#GP</code>).</li>
 <li><strong>Red Zone Corruption:</strong> If a non-leaf function attempts to use the Red Zone and executes a <code>call</code> instruction, the <code>call</code> pushes the return address onto the stack, immediately overwriting the top 8 bytes of the Red Zone and corrupting local variables.</li>
 <li><strong>Buffer Overflow Exploitation:</strong> Writing past the boundary of a stack-allocated buffer overwrites the saved <code>%rbp</code> and return address stored on the stack. Modern compilers mitigate this by inserting stack canaries (<code>-fstack-protector-strong</code>) that trigger <code>__stack_chk_fail</code> if modified.</li>
 </ul>
@@ -172,7 +172,7 @@ add:
 <h3>Sources</h3>
 
 <ul>
-<li>System V Application Binary Interface: AMD64 Architecture Processor Supplement.</li>
+<li>System V Application <a href="glossary/b/binary.html">Binary</a> Interface: AMD64 Architecture Processor Supplement.</li>
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; elf(5) and syscall(2).</li>
 <li>Bryant, R. E., &amp; O'Hallaron, D. R. <em>Computer Systems: A Programmer's Perspective</em>.</li>
 </ul>
@@ -182,7 +182,7 @@ add:
 <p>Contribute toolchain and low-level diagnostic improvements in the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
 </section>
 
-<h2>Next</h2><p><a href="programming/c/toolchains.html">Toolchains and compilation</a> &mdash; how Make, GCC, and Clang coordinate builds.</p>
+<h2>Next</h2><p><a href="programming/c/toolchains.html">Toolchains and compilation</a> &mdash; how <a href="glossary/m/make.html">Make</a>, <a href="glossary/g/gcc.html">GCC</a>, and Clang coordinate builds.</p>
 <h2>Related</h2><ul><li><a href="hardware/architecture/instruction-cycle.html">The microarchitectural instruction cycle</a> &mdash; how instructions execute in the CPU pipeline.</li><li><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a> &mdash; boolean gates, adders, and ALUs.</li><li><a href="hardware/architecture/computer-architecture.html">Computer architecture</a> &mdash; CPU, memory, and bus system organization.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>
 </body>
 </html>

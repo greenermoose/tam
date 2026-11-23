@@ -21,7 +21,7 @@
 
 <section data-level="novice">
 <h2>What is a port?</h2>
-<p>A port is a small number attached to a network message that says which program should receive it. An IP address identifies the computer; a port identifies the particular service or conversation inside it.</p>
+<p>A port is a small number attached to a network message that says which program should receive it. An <a href="glossary/i/ip-address.html">IP address</a> identifies the computer; a port identifies the particular service or conversation inside it.</p>
 <h3>Why it matters</h3>
 <p>Without ports, a computer could only run one network program at a time. Ports let a web browser, a mail program and a printer service all use the same connection at the same time.</p>
 <h3>How to think about it</h3>
@@ -62,7 +62,7 @@ UNCONN 0      0               [::]:5353         [::]:*
 <p>Captured on a Tamlinux workstation, 2026-11-21. Your open ports will differ.</p>
 <h3>What just happened</h3>
 <ol>
-<li><code>LISTEN</code> means a program is waiting for new connections on that address and port. Port 22 is the usual SSH service; port 53 is DNS.</li>
+<li><code>LISTEN</code> means a program is waiting for new connections on that address and port. Port 22 is the usual <a href="glossary/s/ssh.html">SSH</a> service; port 53 is <a href="glossary/d/dns.html">DNS</a>.</li>
 <li><code>0.0.0.0:22</code> listens on every <a href="glossary/i/ipv4.html">IPv4</a> address on the machine; <code>127.0.0.54:53</code> listens only on a local loopback address.</li>
 <li><code>UNCONN</code> in the UDP table is a socket with no connection state: it accepts independent datagrams.</li>
 <li>Port 5353 is multicast DNS, which announces local printers and devices; it appears once for <a href="glossary/i/ipv4.html">IPv4</a> and once for <a href="glossary/i/ipv6.html">IPv6</a>.</li>
@@ -87,11 +87,11 @@ UNCONN 0      0               [::]:5353         [::]:*
 </section>
 
 <section data-level="expert">
-<h2>Reference: endpoints, lifetimes and the socket API</h2>
+<h2>Reference: endpoints, lifetimes and the socket <a href="glossary/a/api.html">API</a></h2>
 <h3>Reference</h3>
 <table>
 <tr><th>Value</th><th>Range</th><th>Meaning</th></tr>
-<tr><td>Well-known port</td><td>0 to 1023</td><td>Standard service such as 22 SSH, 53 DNS, 80 HTTP, 443 HTTPS</td></tr>
+<tr><td>Well-known port</td><td>0 to 1023</td><td>Standard service such as 22 SSH, 53 DNS, 80 <a href="glossary/h/http.html">HTTP</a>, 443 <a href="glossary/h/https.html">HTTPS</a></td></tr>
 <tr><td>Registered port</td><td>1024 to 49151</td><td>Assigned services and application defaults</td></tr>
 <tr><td>Ephemeral port</td><td>49152 to 65535 by convention</td><td>Local port chosen for an outgoing connection</td></tr>
 <tr><td>Four-tuple</td><td>Two addresses and two ports</td><td>Identifies a TCP conversation inside a network namespace</td></tr>

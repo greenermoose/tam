@@ -66,7 +66,7 @@ Recv-Q Send-Q Local Address:Port    Peer Address:Port
 <p>Captured on a Tamlinux workstation, 2026-11-21. Your addresses, routes and open connections will differ.</p>
 <h3>What just happened</h3>
 <ol>
-<li><code>getent ahosts</code> asks the system resolver for a name. It returns addresses with the socket types that can use them: <code>STREAM</code> for TCP, <code>DGRAM</code> for UDP and <code>RAW</code> for direct internet-protocol use.</li>
+<li><code>getent ahosts</code> asks the system resolver for a name. It returns addresses with the socket types that can use them: <code>STREAM</code> for TCP, <code>DGRAM</code> for <a href="glossary/u/udp.html">UDP</a> and <code>RAW</code> for direct internet-protocol use.</li>
 <li><code>ip route get</code> asks the kernel where a packet to a numeric destination would go. The answer names the gateway and the source address, without sending anything.</li>
 <li><code>ss -tan state established</code> shows real TCP conversations. Each line is a pair of endpoints: a local address and port, and a remote address and port.</li>
 <li>TLS and the web request itself run inside those conversations. They add encryption and page semantics above the transport layer, so the socket table cannot show them.</li>
@@ -113,7 +113,7 @@ Recv-Q Send-Q Local Address:Port    Peer Address:Port
 </table>
 <h3>How it works</h3>
 <p>A resolver reads the system's name-service configuration, queries a local cache and, on a miss, sends a UDP question to a configured DNS server. The answer is a set of addresses. The kernel then performs a longest-prefix route lookup for the chosen address, selects a source address, and creates a TCP socket with an ephemeral local port. The three-way handshake establishes sequence numbers and windows. The application writes an encrypted TLS record containing an HTTP request into the socket; TCP segments it, IP addresses it, and the link layer frames it for the next hop. At the far end each layer removes its own header before handing the data upward.</p>
-<p>Modern browsers prefer HTTPS and often negotiate HTTP/2 over TCP. HTTP/3 instead uses QUIC over UDP, moving the handshake and reliability into user space so a lost packet does not block unrelated streams. Both reach the same application result through different transport choices.</p>
+<p>Modern browsers prefer <a href="glossary/h/https.html">HTTPS</a> and often negotiate <a href="glossary/h/http.html">HTTP/2</a> over TCP. HTTP/3 instead uses <a href="glossary/q/quic.html">QUIC</a> over UDP, moving the handshake and reliability into user space so a lost packet does not block unrelated streams. Both reach the same application result through different transport choices.</p>
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="read-only">
 $ ip -j route get 1.1.1.1 | jq .
@@ -129,14 +129,14 @@ $ ip -j route get 1.1.1.1 | jq .
   }
 ]
 </pre>
-<p>Captured on the same workstation, 2026-11-21. The JSON form is useful when a script needs the route decision; a human usually prefers the plain form shown in the Learner section. <code>curl -v</code> adds the name lookup, connection, TLS and HTTP lines in one trace, which is the quickest way to see all four stages at once.</p>
+<p>Captured on the same workstation, 2026-11-21. The <a href="glossary/j/json.html">JSON</a> form is useful when a script needs the route decision; a human usually prefers the plain form shown in the Learner section. <code>curl -v</code> adds the name lookup, connection, TLS and HTTP lines in one trace, which is the quickest way to see all four stages at once.</p>
 <h3>Edge cases</h3>
 <ul>
 <li>A name can resolve to several addresses. Happy Eyeballs tries both families so a broken path does not stall the page while the host waits for a timeout.</li>
 <li>A CNAME or a load balancer can change the address between two lookups, so a new connection need not reach the same machine as an old one.</li>
 <li>DNS over HTTPS hides the lookup inside a TLS connection to a resolver, which changes what a local packet capture can reveal.</li>
 <li>TLS session resumption shortens a later handshake, so a short connection can carry data almost immediately.</li>
-<li>Early replies and cached content can complete before a firewall or a path-MTU problem shows up in a large transfer.</li>
+<li>Early replies and cached content can complete before a firewall or a path-<a href="glossary/m/mtu.html">MTU</a> problem shows up in a large transfer.</li>
 </ul>
 <section class="quiz">
 <h3>Check yourself</h3>

@@ -42,7 +42,7 @@
 <li><a href="terminal/input/foot.html">Keys inside foot</a> &mdash; the Wayland terminal path, Backspace, Alt, function keys, and modern key protocols.</li>
 <li><a href="terminal/input/line-discipline.html">The kernel's line editor</a> &mdash; canonical mode, erase and kill, <code>Ctrl + C</code>, <code>Ctrl + D</code>, and raw mode.</li>
 <li><a href="terminal/input/escape-sequences.html">Escape sequences</a> &mdash; how arrow keys and function keys become multi-byte codes, and how programs parse them.</li>
-<li><a href="terminal/input/other-contexts.html">Other places keys are handled</a> &mdash; shells, editors, browsers, SSH, tmux, and the desktop.</li>
+<li><a href="terminal/input/other-contexts.html">Other places keys are handled</a> &mdash; shells, editors, browsers, <a href="glossary/s/ssh.html">SSH</a>, tmux, and the desktop.</li>
 <li><a href="terminal/input/choosing-keys.html">Choosing a keybinding</a> &mdash; how to pick a key that means one thing everywhere, with the <code>Ctrl + H</code> help conflict as a worked case.</li>
 </ul>
 
@@ -50,17 +50,17 @@
 
 <table>
 <tr><th>Layer</th><th>Question it answers</th><th>Example</th></tr>
-<tr><td>Keyboard hardware</td><td>Which switch moved?</td><td>USB usage <code>0x04</code></td></tr>
+<tr><td>Keyboard hardware</td><td>Which switch moved?</td><td><a href="glossary/u/usb.html">USB</a> usage <code>0x04</code></td></tr>
 <tr><td>Kernel input driver</td><td>Which Linux key is it?</td><td>key code <code>30</code> (<code>KEY_A</code>)</td></tr>
-<tr><td>Compositor and layout</td><td>Which symbol does this key produce with these modifiers?</td><td>keysym <code>a</code>, or <code>H</code> with Shift</td></tr>
-<tr><td>Terminal emulator</td><td>Which bytes represent that symbol or chord?</td><td><code>a</code>, <code>0x1B 0x5B 0x41</code> for Up</td></tr>
+<tr><td><a href="glossary/c/compositor.html">Compositor</a> and layout</td><td>Which symbol does this key produce with these modifiers?</td><td>keysym <code>a</code>, or <code>H</code> with Shift</td></tr>
+<tr><td><a href="glossary/t/terminal.html">Terminal</a> emulator</td><td>Which bytes represent that symbol or chord?</td><td><code>a</code>, <code>0x1B 0x5B 0x41</code> for Up</td></tr>
 <tr><td>Line discipline</td><td>Is this an editing command, a signal, or data?</td><td><code>0x7F</code> erases; <code>0x03</code> sends <code>SIGINT</code></td></tr>
 <tr><td>Program</td><td>What does this byte sequence mean here?</td><td>move left, delete a character, open help</td></tr>
 </table>
 
 <h2>The Ctrl + H puzzle</h2>
 
-<p>The chord <code>Ctrl + H</code> produces byte <code>0x08</code>, which is the ASCII Backspace control. Many terminals send <code>0x7F</code> for the Backspace key instead, so the two are usually different bytes. But not always: foot sends <code>0x08</code> for <code>Ctrl + Backspace</code>, and the key parser in libtam 0.7.0 decodes both <code>0x08</code> and <code>0x7F</code> as the same Backspace event. A help command bound to <code>Ctrl + H</code> can therefore open when the reader presses Backspace. The last page of this section works through that case and the alternatives.</p>
+<p>The chord <code>Ctrl + H</code> produces byte <code>0x08</code>, which is the <a href="glossary/a/ascii.html">ASCII</a> Backspace control. Many terminals send <code>0x7F</code> for the Backspace key instead, so the two are usually different bytes. But not always: foot sends <code>0x08</code> for <code>Ctrl + Backspace</code>, and the key parser in libtam 0.7.0 decodes both <code>0x08</code> and <code>0x7F</code> as the same Backspace event. A help command bound to <code>Ctrl + H</code> can therefore open when the reader presses Backspace. The last page of this section works through that case and the alternatives.</p>
 
 <h2>Where to start</h2>
 

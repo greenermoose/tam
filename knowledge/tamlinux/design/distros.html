@@ -15,7 +15,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/design/index.html">Design and philosophy</a> / Rootstocks: Arch, Void, and antiX</p></nav>
 
 
-<h1>Choosing the Rootstock</h1>
+<h1>Choosing the <a href="glossary/r/rootstock.html">Rootstock</a></h1>
 <p>This page compares different versions of Linux and explains which ones Tamlinux uses or is considering as its rootstock.</p>
 <section data-level="novice">
 <h2>What is a rootstock?</h2>
@@ -59,7 +59,7 @@ improve its performance per watt.</p>
 <h2>The current rootstock: Arch Linux</h2>
 
 <table>
-<tr><td><strong>Why Arch today</strong></td><td>rolling releases bring current kernels, Mesa, Qt 6, and Wayland protocols, and keep the system maintained without whole-OS reinstalls.</td></tr>
+<tr><td><strong>Why Arch today</strong></td><td>rolling releases bring current kernels, Mesa, Qt 6, and <a href="glossary/w/wayland.html">Wayland</a> protocols, and keep the system maintained without whole-OS reinstalls.</td></tr>
 <tr><td><strong>Packaging</strong></td><td><code>pacman</code> with simple <code>PKGBUILD</code> recipes. Locally patched packages are served from a dedicated repository listed first in <code>/etc/pacman.conf</code>; see <a href="tamlinux/development/patches.html">Carried patches</a>.</td></tr>
 <tr><td><strong>Why move on</strong></td><td>Arch is built around systemd, while the long-term target is a minimal rootstock without it.</td></tr>
 </table>
@@ -72,7 +72,7 @@ step 1.2 of the roadmap:</p>
 <table>
 <tr><td><strong>Independent</strong></td><td>Void is built from scratch, not derived from Debian or Red Hat.</td></tr>
 <tr><td><strong>runit</strong></td><td>Void uses runit for init and service supervision instead of systemd; see <a href="systems/init.html">Init and service supervision</a>.</td></tr>
-<tr><td><strong>XBPS</strong></td><td>a package manager written in C, with source packages built cleanly by <code>xbps-src</code>. Tamlinux plans to deliver native <code>xbps-src</code> packages built from the same sources as its Nix package.</td></tr>
+<tr><td><strong><a href="glossary/x/xbps.html">XBPS</a></strong></td><td>a package manager written in C, with source packages built cleanly by <code>xbps-src</code>. Tamlinux plans to deliver native <code>xbps-src</code> packages built from the same sources as its <a href="glossary/n/nix.html">Nix</a> package.</td></tr>
 <tr><td><strong>glibc and musl</strong></td><td>Void offers both C libraries, which allows a measured comparison; see <a href="programming/c/libc.html">C standard libraries</a>.</td></tr>
 </table>
 
@@ -87,7 +87,7 @@ running well on older, low-resource hardware.</p>
 <table>
 <tr><td><strong>Debian</strong></td><td>the upstream of many distributions and a benchmark for packaging standards, but its stable releases move slowly for desktop development.</td></tr>
 <tr><td><strong>Alpine Linux</strong></td><td>very small, built on musl and BusyBox; shows how small a rootstock can be, but less suited to a daily graphical workstation.</td></tr>
-<tr><td><strong>Puppy Linux and Tiny Core</strong></td><td>demonstrations of running entirely from RAM, relevant to hardware longevity.</td></tr>
+<tr><td><strong>Puppy Linux and Tiny Core</strong></td><td>demonstrations of running entirely from <a href="glossary/r/ram.html">RAM</a>, relevant to hardware longevity.</td></tr>
 <tr><td><strong>Gentoo</strong></td><td>source-based and highly tunable, but full source builds are impractical on older hardware.</td></tr>
 </table>
 

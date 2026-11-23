@@ -19,7 +19,7 @@
 <h1>How tam-bundle installs and rolls back files</h1>
 <p>This page explains <code>tam-bundle</code>, a small program that installs a set of files as one unit and can put the previous set back in a moment.</p>
 <h2>Before this</h2><p><a href="systems/packages/packaging.html">How software is delivered</a> · <a href="systems/packages/nix.html">How Nix and Home Manager work</a></p>
-<p><code>tam-bundle</code> is a transitional Tamlinux delivery tool. Tamlinux has retired Nix and Home Manager and is now moving from <code>tam-bundle</code> to direct <code>make</code> and <code>make install</code> source installs from pinned Git clones, keeping <code>tam-bundle</code> available for migration and recovery on hosts with earlier bundle installs.</p>
+<p><code>tam-bundle</code> is a transitional Tamlinux delivery tool. Tamlinux has retired Nix and Home Manager and is now moving from <code>tam-bundle</code> to direct <code>make</code> and <code>make install</code> source installs from pinned <a href="glossary/g/git.html">Git</a> clones, keeping <code>tam-bundle</code> available for migration and recovery on hosts with earlier bundle installs.</p>
 
 <section data-level="novice">
 <h2>What is tam-bundle?</h2>
@@ -61,7 +61,7 @@
   slot/current/  &lt;--- swap ---&gt;  slot/kept/&lt;bundle id&gt;/
                    back: swap again, nothing copied
 </pre>
-<p>A <em>bundle id</em> joins the name, the version and the first twelve characters of the bundle's hash, for example <code>demo-1-198a107655aa</code>. The <code>MANIFEST</code> file lists every directory, file and link with its mode and, for a file, its SHA-256 hash. <code>BUNDLE</code> holds the name, version, overall hash and the sources and tools it was built from.</p>
+<p>A <em>bundle id</em> joins the name, the version and the first twelve characters of the bundle's hash, for example <code>demo-1-198a107655aa</code>. The <code>MANIFEST</code> file lists every directory, file and link with its mode and, for a file, its <a href="glossary/s/sha-256.html">SHA-256</a> hash. <code>BUNDLE</code> holds the name, version, overall hash and the sources and tools it was built from.</p>
 <h3>Worked example: two versions, one rollback</h3>
 <pre class="session" data-risk="scratch">
 $ d=$(mktemp -d); cd "$d"
@@ -105,7 +105,7 @@ $ tb where $PWD/slot/current/bin/hello
 <ol>
 <li><code>seal</code> wrote <code>BUNDLE</code> and <code>MANIFEST</code> into each folder. The two entries are the <code>bin</code> directory and the <code>hello</code> file.</li>
 <li>The first <code>switch</code> created the slot and made <code>demo-1</code> live. <code>(from -)</code> means nothing was live before.</li>
-<li>The second <code>switch</code> made <code>demo-2</code> live and moved <code>demo-1</code>'s tree to <code>slot/kept/</code>. On a Btrfs filesystem, files that did not change are cloned rather than copied, and the message counts them as reused.</li>
+<li>The second <code>switch</code> made <code>demo-2</code> live and moved <code>demo-1</code>'s tree to <code>slot/kept/</code>. On a <a href="glossary/b/btrfs.html">Btrfs</a> filesystem, files that did not change are cloned rather than copied, and the message counts them as reused.</li>
 <li><code>back</code> swapped the kept tree and the live tree. Nothing was copied, which is why a rollback is fast.</li>
 <li><code>status</code> shows what is live, what <code>back</code> would return to, and the last line of the log.</li>
 <li><code>where</code> names the bundle that installed a file and the hash it was installed with.</li>
@@ -151,10 +151,10 @@ $ tb where $PWD/slot/current/bin/hello
 <h3>Reference</h3>
 <table>
 <tr><th>Command</th><th>What it does</th><th>Root for a root-owned slot</th></tr>
-<tr><td><code>build &lt;recipes&gt; &lt;lock&gt; -o DIR --version V</code></td><td>Build a bundle from exact commits for the slot's live tree</td><td>No</td></tr>
+<tr><td><code>build &lt;recipes&gt; &lt;lock&gt; -o DIR --version V</code></td><td><a href="glossary/b/build.html">Build</a> a bundle from exact commits for the slot's live tree</td><td>No</td></tr>
 <tr><td><code>seal DIR --name N --version V</code></td><td>Write <code>BUNDLE</code> and <code>MANIFEST</code> for a built tree</td><td>No</td></tr>
 <tr><td><code>verify DIR</code>, <code>needs DIR</code></td><td>Hash every file against <code>MANIFEST</code>; report missing native commands and files</td><td>No</td></tr>
-<tr><td><code>switch DIR</code>, <code>back [ID]</code></td><td>Make a bundle live; make a kept tree live again</td><td>Yes</td></tr>
+<tr><td><code>switch DIR</code>, <code>back [ID]</code></td><td><a href="glossary/m/make.html">Make</a> a bundle live; make a kept tree live again</td><td>Yes</td></tr>
 <tr><td><code>status</code>, <code>check [--full]</code>, <code>where PATH</code></td><td>Report; find edited, missing and extra files; name a file's bundle</td><td>No</td></tr>
 <tr><td><code>keep ID REASON</code>, <code>unkeep ID</code>, <code>prune [--yes]</code></td><td>Protect kept trees; list or remove unprotected ones</td><td>Yes</td></tr>
 <tr><td><code>recover</code></td><td>Finish or undo an interrupted switch</td><td>Yes</td></tr>
@@ -174,7 +174,7 @@ $ tb where $PWD/slot/current/bin/hello
 <p>Recovery reads the intent file and the live tree's own <code>BUNDLE</code>. If the live tree is still the "from" side, the switch is undone; if it is the "to" side, the switch is finished; if it is neither, nothing is touched and the command stops. Every command that changes the slot does this first, under the lock, because until then the bookkeeping is not trustworthy: after an interrupted <code>back</code>, the tree that was live sits in <code>kept/</code> under the target's name, and pruning it unrecovered would delete the wrong tree. A dry run only says what recovery would do and exits with status 4. <code>check</code>, <code>where</code> and <code>after</code> read only the live tree, which is always whole, so they answer with a warning; <code>status</code> reports the interrupted switch with exit status 4.</p>
 <p>The bundle hash is SHA-256 over <code>BUNDLE</code> without its <code>hash</code> and <code>built</code> lines, followed by <code>MANIFEST</code>. Every record is plain text with a <code>format</code> line; a newer format is refused with the version needed, and older formats keep being read so that rollback to an older release keeps working.</p>
 <p><strong>Building.</strong> A lock file names each component's repository and full commit. A recipe is data, never a script: <code>build make</code>, an optional <code>output build-only</code> for libraries other components link against, <code>make-vars</code> and <code>after-build</code>. Each commit is exported with <code>git archive</code>; <code>make</code> runs with <code>PREFIX</code> set to the slot's <code>current</code> path inside its own user and mount namespace at fixed paths, with <code>SOURCE_DATE_EPOCH</code>, <code>LC_ALL=C</code> and <code>TZ=UTC</code>, so the same lock gives the same bytes whatever the cache's location. With <code>index man</code>, the manual index is built into the bundle with man-db's <code>mandb</code>, so <code>whatis</code> and <code>apropos</code> match the pages and roll back with them.</p>
-<p><strong>Privilege.</strong> Run as a user on a root-owned slot, a changing command re-runs itself through <code>/usr/bin/pkexec</code> with its own absolute path; the user's waiting process then runs the session steps. Where no polkit agent runs, as on a text console, run it with <code>sudo</code> and then <code>tam-bundle after</code> in the graphical session.</p>
+<p><strong><a href="glossary/p/privilege.html">Privilege</a>.</strong> Run as a user on a root-owned slot, a changing command re-runs itself through <code>/usr/bin/pkexec</code> with its own absolute path; the user's waiting process then runs the session steps. Where no polkit agent runs, as on a text console, run it with <code>sudo</code> and then <code>tam-bundle after</code> in the graphical session.</p>
 
 <h3>Advanced usage</h3>
 <p>Build for the planned product slot from a lock file and local clones, inspect, then switch. Illustrative; it needs recipes and a lock file that no Tamlinux release ships yet.</p>
@@ -193,7 +193,7 @@ tam-bundle switch /var/tmp/tamlinux-0.7.0
 <ul>
 <li><strong>One filesystem.</strong> The exchange fails with <code>EXDEV</code> across filesystems, and on Btrfs the trees must share a subvolume. Keeping everything under one slot directory guarantees that.</li>
 <li><strong>Disk use.</strong> On Btrfs, unchanged files are clones and a kept tree costs only what differs. Elsewhere each switch copies the tree and each kept tree costs its full size. <code>prune</code> sizes on Btrfs overstate what comes back, because shared extents are freed only when no tree uses them.</li>
-<li><strong>Long-running programs.</strong> A program that opens files by path later, such as a desktop shell loading QML, would read the new tree while running old code. That is what <code>shell-restart</code> is for.</li>
+<li><strong>Long-running programs.</strong> A program that opens files by path later, such as a desktop shell loading <a href="glossary/q/qml.html">QML</a>, would read the new tree while running old code. That is what <code>shell-restart</code> is for.</li>
 <li><strong>Hand edits.</strong> <code>check</code> trusts unchanged size, inode, modification time and change time; <code>--full</code> hashes everything. Running <code>mandb</code> as root with the live tree on the manual path rewrites the index, which <code>check</code> then reports as edited.</li>
 <li><strong>Power loss</strong> is not simulated by the tests; correctness relies on the staging <code>syncfs</code> and the directory syncs. Interruption at every step, and <code>SIGKILL</code> at random moments, are tested.</li>
 <li><strong>Builds</strong> need unprivileged user namespaces; where they are turned off, <code>build</code> stops and says so.</li>

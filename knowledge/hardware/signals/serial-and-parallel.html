@@ -69,8 +69,8 @@ Clock Skew in Parallel Buses:
 <p>When sending data, the receiver must know <em>when</em> to sample the line to distinguish a 0 from a 1. Digital communication solves this through two primary timing models:</p>
 
 <table>
-<tr><td><strong>Synchronous communication</strong></td><td>A dedicated physical wire carries a pulsating <strong>clock signal</strong> alongside the data wires. The receiver samples the data wire strictly on the rising or falling edge of that clock pulse. Examples include SPI (Serial Peripheral Interface), I²C, and internal CPU memory buses.</td></tr>
-<tr><td><strong>Asynchronous communication</strong></td><td>There is no separate clock wire. The transmitter and receiver agree in advance on an exact transmission speed (<a href="glossary/b/baud-rate.html">baud rate</a>). The line rests at high voltage (Idle / Mark). When a byte is sent, the transmitter pulls the line low for one bit duration (the Start bit), which resets and aligns the receiver's internal timer. The receiver then samples the line at precise fractional intervals to read the data bits before returning to line reset (the Stop bit). The classic example is the Universal Asynchronous Receiver-Transmitter (UART / RS-232).</td></tr>
+<tr><td><strong>Synchronous communication</strong></td><td>A dedicated physical wire carries a pulsating <strong>clock signal</strong> alongside the data wires. The receiver samples the data wire strictly on the rising or falling edge of that clock pulse. Examples include <a href="glossary/s/spi.html">SPI</a> (Serial Peripheral Interface), I²C, and internal <a href="glossary/c/cpu.html">CPU</a> memory buses.</td></tr>
+<tr><td><strong>Asynchronous communication</strong></td><td>There is no separate clock wire. The transmitter and receiver agree in advance on an exact transmission speed (<a href="glossary/b/baud-rate.html">baud rate</a>). The line rests at high voltage (<a href="glossary/i/idle.html">Idle</a> / Mark). When a byte is sent, the transmitter pulls the line low for one bit duration (the Start bit), which resets and aligns the receiver's internal timer. The receiver then samples the line at precise fractional intervals to read the data bits before returning to line reset (the Stop bit). The classic example is the Universal Asynchronous Receiver-Transmitter (<a href="glossary/u/uart.html">UART</a> / <a href="glossary/r/rs-232.html">RS-232</a>).</td></tr>
 </table>
 <h3>Worked example: inspect terminal serial line settings</h3>
 <pre class="session" data-risk="read-only">
@@ -95,11 +95,11 @@ crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0
 <dl>
 <dt><code>stty: 'standard input': Inappropriate ioctl for device</code></dt>
 <dd>The command was run in a non-interactive script or redirected pipe with no attached terminal. Run <code>stty -a &lt; /dev/tty</code> to bind explicitly to your controlling terminal.</dd>
-<dt>Terminal stops echoing typed keys</dt>
+<dt><a href="glossary/t/terminal.html">Terminal</a> stops echoing typed keys</dt>
 <dd>A crashed command left the terminal in raw no-echo mode. Type <code>stty sane</code> and press Enter (even though characters are invisible) to restore standard full-duplex terminal behavior.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> kernel boot parameters standardly configure high-speed serial console redirection (`console=ttyS0,115200n8`) for headless server deployments and VM debugging. Tamlinux udev rules automatically set proper device permissions on USB-to-serial bridges (`/dev/ttyUSB*`) to grant non-root access to members of the `uucp` group without requiring unsafe world-writable permissions.</p>
+<p><strong>On Tamlinux:</strong> kernel boot parameters standardly configure high-speed serial console redirection (`console=ttyS0,115200n8`) for headless server deployments and VM debugging. Tamlinux udev rules automatically set proper device permissions on <a href="glossary/u/usb.html">USB</a>-to-serial bridges (`/dev/ttyUSB*`) to grant non-root access to members of the `uucp` group without requiring unsafe world-writable permissions.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -125,12 +125,12 @@ crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0
 
 <table>
 <tr><th>Standard</th><th>Raw Line Rate</th><th>Encoding</th><th>Net Data Rate / Lane</th><th>Max Aggregation</th><th>Clock Recovery</th></tr>
-<tr><td>PCIe Gen 3</td><td>8.0 GT/s</td><td>128b/130b</td><td>984.6 MB/s</td><td>x16 (15.75 GB/s)</td><td>Embedded CDR via 128b/130b scrambler</td></tr>
-<tr><td>PCIe Gen 4</td><td>16.0 GT/s</td><td>128b/130b</td><td>1.969 GB/s</td><td>x16 (31.51 GB/s)</td><td>Embedded CDR with CTLE / DFE equalization</td></tr>
-<tr><td>PCIe Gen 5</td><td>32.0 GT/s</td><td>128b/130b</td><td>3.938 GB/s</td><td>x16 (63.02 GB/s)</td><td>PAM-2 with advanced DSP equalization</td></tr>
-<tr><td>PCIe Gen 6</td><td>64.0 GT/s</td><td>PAM-4 / FLIT (1b/1b)</td><td>7.562 GB/s</td><td>x16 (121.0 GB/s)</td><td>PAM-4 DSP with Forward Error Correction</td></tr>
-<tr><td>SATA III</td><td>6.0 Gbps</td><td>8b/10b</td><td>600 MB/s</td><td>x1 (Point-to-point)</td><td>Embedded CDR via 8b/10b transitions</td></tr>
-<tr><td>USB4 Gen 3x2</td><td>20.0 Gbps / lane</td><td>128b/132b</td><td>2.42 GB/s</td><td>x2 (Dual-lane 40 Gbps)</td><td>Asynchronous dual-simplex differential</td></tr>
+<tr><td><a href="glossary/p/pcie.html">PCIe</a> Gen 3</td><td>8.0 GT/s</td><td>128b/130b</td><td>984.6 <a href="glossary/b/byte.html">MB</a>/s</td><td>x16 (15.75 <a href="glossary/b/byte.html">GB</a>/s)</td><td>Embedded <a href="glossary/c/cdr.html">CDR</a> via 128b/130b scrambler</td></tr>
+<tr><td>PCIe Gen 4</td><td>16.0 GT/s</td><td>128b/130b</td><td>1.969 GB/s</td><td>x16 (31.51 GB/s)</td><td>Embedded CDR with <a href="glossary/c/ctle.html">CTLE</a> / <a href="glossary/d/dfe.html">DFE</a> equalization</td></tr>
+<tr><td>PCIe Gen 5</td><td>32.0 GT/s</td><td>128b/130b</td><td>3.938 GB/s</td><td>x16 (63.02 GB/s)</td><td><a href="glossary/p/pam-2.html">PAM-2</a> with advanced <a href="glossary/d/dsp.html">DSP</a> equalization</td></tr>
+<tr><td>PCIe Gen 6</td><td>64.0 GT/s</td><td><a href="glossary/p/pam-4.html">PAM-4</a> / <a href="glossary/f/flit.html">FLIT</a> (1b/1b)</td><td>7.562 GB/s</td><td>x16 (121.0 GB/s)</td><td>PAM-4 DSP with Forward Error Correction</td></tr>
+<tr><td><a href="glossary/s/sata.html">SATA</a> III</td><td>6.0 Gbps</td><td>8b/10b</td><td>600 MB/s</td><td>x1 (Point-to-point)</td><td>Embedded CDR via 8b/10b transitions</td></tr>
+<tr><td><a href="glossary/u/usb4.html">USB4</a> Gen 3x2</td><td>20.0 Gbps / lane</td><td>128b/132b</td><td>2.42 GB/s</td><td>x2 (Dual-lane 40 Gbps)</td><td>Asynchronous dual-simplex differential</td></tr>
 </table>
 
 <h3>How it works: SerDes and Clock Data Recovery (CDR)</h3>
@@ -138,7 +138,7 @@ crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0
 <p>High-speed serial links transfer tens of gigabits per second without an external clock line through specialized silicon blocks called <strong>Serializer/Deserializers (SerDes)</strong>:</p>
 
 <ol>
-<li><strong>Parallel-to-Serial Conversion:</strong> Inside the transmitter, wide internal data words (e.g. 64 bits from the CPU cache) enter a multiplexing shift register clocked by a Phase-Locked Loop (PLL). The serializer converts the 64 parallel bits into a single sequential high-frequency bit stream.</li>
+<li><strong>Parallel-to-Serial Conversion:</strong> Inside the transmitter, wide internal data words (e.g. 64 bits from the CPU cache) enter a multiplexing shift register clocked by a Phase-Locked Loop (<a href="glossary/p/pll.html">PLL</a>). The serializer converts the 64 parallel bits into a single sequential high-frequency bit stream.</li>
 <li><strong>Line Encoding and DC Balance:</strong> If a stream contained long runs of identical bits (e.g. 100 consecutive zeros), the signal would become a flat DC voltage. This would cause two severe problems: receiver AC-coupling capacitors would charge up (causing <em>baseline wander</em>), and the receiver would lose track of clock transitions. Encodings like <strong>8b/10b</strong> (mapping 8-bit bytes to 10-bit symbols) or <strong>128b/130b</strong> ensure that 0s and 1s are balanced (DC balance) and that voltage transitions occur frequently regardless of payload data.</li>
 <li><strong>Differential Transmission:</strong> The serial bit stream drives a low-voltage differential signaling driver, launching equal and opposite voltage swings across a matched-impedance trace pair.</li>
 <li><strong>Clock Data Recovery (CDR):</strong> At the receiving end, an analog Phase-Locked Loop locks onto the frequent voltage transitions of the incoming data stream. The CDR circuit reconstructs the transmitter's exact clock frequency and phase directly from the data edges, eliminating the need for a separate physical clock trace.</li>
@@ -147,20 +147,20 @@ crw--w---- 1 root tty 4, 0 Nov  1 14:15 /dev/tty0
 
 <h3>Multi-lane aggregation</h3>
 
-<p>To scale throughput beyond the limits of a single serial lane, architectures like PCI Express group multiple independent serial transceivers into <strong>aggregated link widths</strong> (x1, x2, x4, x8, x16). Unlike legacy parallel buses, each PCIe lane possesses its own dedicated differential pair and independent SerDes hardware.</p>
+<p>To scale throughput beyond the limits of a single serial lane, architectures like <a href="glossary/p/pci.html">PCI</a> Express group multiple independent serial transceivers into <strong>aggregated link widths</strong> (x1, x2, x4, x8, x16). Unlike legacy parallel buses, each PCIe lane possesses its own dedicated differential pair and independent SerDes hardware.</p>
 
 <p>When an operating system transfers data, the PCIe controller stripes bytes round-robin across the active lanes. Because trace lengths between slots and CPU sockets vary slightly on the motherboard, bytes arrive on different lanes with picosecond-scale skew. The receiving PCIe physical layer buffers incoming bytes in per-lane elastic de-skew FIFOs. By detecting predefined synchronization training sequences (ordered sets), the hardware dynamically realigns the bytes across all lanes before presenting the reconstructed packet to the transaction layer, combining massive throughput with zero clock skew vulnerability.</p>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Understanding PCIe lane negotiation and serial console semantics directly impacts Tamlinux systems administration. Headless server recovery, kernel crash debugging via KGDB, and automated virtual machine test suites rely on deterministic serial links. By structuring desktop and diagnostic tools around asynchronous character streams and PCIe sysfs hierarchies, Tamlinux ensures maintainers have direct visibility into hardware link states without proprietary abstraction layers.</p>
+<p>Understanding PCIe lane negotiation and serial console semantics directly impacts Tamlinux systems administration. Headless server recovery, kernel crash debugging via <a href="glossary/k/kgdb.html">KGDB</a>, and automated virtual machine test suites rely on deterministic serial links. By structuring desktop and diagnostic tools around asynchronous character streams and PCIe sysfs hierarchies, Tamlinux ensures maintainers have direct visibility into hardware link states without proprietary abstraction layers.</p>
 
 <h3>Edge cases and failure modes</h3>
 
 <ul>
 <li><strong>Lane Degradation (PCIe Link Retraining):</strong> If physical electrical noise, micro-fractures, or oxidation degrade high-frequency signal integrity on lane 12 of a x16 card, the PCIe root complex will drop the entire link down to x8 or x4 width during retraining. The device continues operating but at significantly reduced bandwidth.</li>
-<li><strong>UART FIFO Buffer Overrun:</strong> When a serial port receives data faster than user-space processes can read it from the kernel input queue, the hardware 16550A UART FIFO buffer (typically 16 to 64 bytes deep) overflows, dropping bytes and asserting an Overrun Error (`oe`) flag in `/proc/tty/driver/serial`.</li>
-<li><strong>Clock Drift Beyond 2.5% Tolerance:</strong> In asynchronous UART communication, receiver clocks must match transmitter clocks within approximately +/- 2.5%. If thermal drift or improper baud divisor register calculation pushes clock mismatch beyond 3%, the receiver samples the Stop bit during the final data bit period, generating continuous Framing Errors (<code>fe</code>).</li>
+<li><strong>UART <a href="glossary/f/fifo.html">FIFO</a> Buffer Overrun:</strong> When a serial port receives data faster than user-space processes can read it from the kernel input queue, the hardware 16550A UART FIFO buffer (typically 16 to 64 bytes deep) overflows, dropping bytes and asserting an Overrun Error (`oe`) flag in `/proc/tty/driver/serial`.</li>
+<li><strong>Clock Drift Beyond 2.5% Tolerance:</strong> In asynchronous UART communication, receiver clocks must match transmitter clocks within approximately +/- 2.5%. If thermal drift or improper baud divisor register calculation pushes clock mismatch beyond 3%, the receiver samples the Stop bit during the final data bit period, generating continuous <a href="glossary/f/framing.html">Framing</a> Errors (<code>fe</code>).</li>
 </ul>
 
 <h3>Explore</h3>
@@ -186,9 +186,9 @@ serinfo:1.0 driver revision:
 <h3>Sources</h3>
 
 <ul>
-<li>PCI-SIG. <em>PCI Express Base Specification Revision 5.0 / 6.0</em>.</li>
+<li><a href="glossary/p/pci-sig.html">PCI-SIG</a>. <em>PCI Express Base Specification Revision 5.0 / 6.0</em>.</li>
 <li>Axelson, J. <em>Serial Port Complete: COM Ports, USB Virtual COM Ports, and Ports for Embedded Systems</em>.</li>
-<li>Widmer, A. X., &amp; Franaszek, P. A. (1983). <em>A DC-Balanced, Partitioned-Block, 8B/10B Transmission Code</em>. IBM Journal of Research and Development.</li>
+<li>Widmer, A. X., &amp; Franaszek, P. A. (1983). <em>A DC-Balanced, Partitioned-Block, 8B/10B Transmission Code</em>. IBM <a href="glossary/j/journal.html">Journal</a> of Research and Development.</li>
 </ul>
 
 <h3>Improve it</h3>

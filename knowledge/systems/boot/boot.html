@@ -31,7 +31,7 @@
 <dt><a href="glossary/f/firmware.html">Firmware</a></dt>
 <dd>The low-level <a href="glossary/m/machine-code.html">machine code</a> built into the motherboard that runs before the operating system.</dd>
 <dt><a href="glossary/e/efi-system-partition.html">ESP</a></dt>
-<dd>EFI System Partition; the disk partition holding EFI boot programs.</dd>
+<dd><a href="glossary/e/efi.html">EFI</a> System Partition; the disk partition holding EFI boot programs.</dd>
 <dt><a href="glossary/i/initramfs.html">Initramfs</a></dt>
 <dd>A tiny early filesystem loaded into memory to help the kernel mount the real root disk.</dd>
 </dl>
@@ -43,14 +43,14 @@
 stage and report what remains unknown.</p>
 <p><strong>Before you start:</strong> open a terminal on a working Linux
 session; review <a href="systems/storage/hierarchy.html">filesystem paths</a>.
-The query below only checks whether Linux exposes its UEFI interface.</p>
+The query below only checks whether Linux exposes its <a href="glossary/u/uefi.html">UEFI</a> interface.</p>
 <aside class="first-time"><p>Type the command after
 <code>$</code>, without the dollar sign, then press Enter. This is one line.
 It asks a question about a directory; it does not select a boot entry.</p></aside>
 <h3>Mental model</h3>
 <p>A boot choice ties together an EFI loader, configuration, a kernel and
 early userspace, root selection and later mounts. A Unified Kernel Image
-(UKI) combines a UEFI stub and kernel with optional initrd, command line and
+(<a href="glossary/u/uki.html">UKI</a>) combines a UEFI stub and kernel with optional initrd, command line and
 other sections. One file simplifies distribution and signing; it does not
 make an entire package transaction or root-filesystem update atomic.</p>
 <h3>Worked example: One observable fact</h3>
@@ -84,7 +84,7 @@ are in a container, live environment or the installed session. If the computer
 cannot start a terminal, record the last visible message and use
 <a href="systems/boot/boot-recovery.html?level=1">fallback orientation</a>.</p>
 <aside class="tamlinux"><p>The current Arch provider
-uses Limine/mkinitcpio and snapshot synchronization. The product's native updater
+uses <a href="glossary/l/limine.html">Limine</a>/mkinitcpio and snapshot synchronization. The product's native updater
 gates transactions on a separate boot-recovery handoff, then creates a Snapper
 checkpoint before the native transaction. A user-space or cultivar rollback alone does
 not restore native kernel packages, EFI files or firmware settings.</p></aside>
@@ -100,7 +100,7 @@ not restore native kernel packages, EFI files or firmware settings.</p></aside>
 <h3>Reference</h3><table><tr><th>Layer</th><th>Identity to retain</th><th>Failure to distinguish</th></tr>
 <tr><td>Firmware / loader</td><td>Entry, device, EFI program and trust policy</td><td>Missing pointer versus unreadable program</td></tr>
 <tr><td>Provider generation</td><td>Package versions, effective config, hook order and output hashes</td><td>Successful package extraction versus successful image generation</td></tr>
-<tr><td>Boot payload</td><td>Kernel, initrd/UKI and command line</td><td>Correct filename versus compatible content</td></tr>
+<tr><td><a href="glossary/b/boot.html">Boot</a> payload</td><td>Kernel, initrd/UKI and command line</td><td>Correct filename versus compatible content</td></tr>
 <tr><td>Root and services</td><td>Device, unlock method, subvolume and required mounts</td><td>Root mounted versus usable login and data</td></tr></table>
 <h3>How it works</h3><p>Native transaction hooks may run the image generator
 and loader integration. Trace the actual installed hooks and provider recipes,
@@ -120,7 +120,7 @@ destinations and an independent rescue route before changing them. That makes
 recovery scope explicit rather than promising it from a package generation.</p>
 <h3>Edge cases and failure modes</h3><p>A shadowing Limine configuration can
 select a different image from the file you inspected. An unmounted ESP can leave
-a convincing image in the underlying directory. Encryption keys or resume/root
+a convincing image in the underlying directory. <a href="glossary/e/encryption.html">Encryption</a> keys or resume/root
 parameters can make a byte-valid image unusable. Broader fallback images cost
 space and build time; generation may also exhaust a small ESP. Avoid repeated
 regeneration while the target and capacity are unknown.</p>

@@ -72,7 +72,7 @@ BETA
 gamma
 </pre>
 
-<p>Captured with Vim 9.2 in ex mode on an Arch-based system, 2026-11-16. The commands are POSIX ex; other implementations print the same two lines.</p>
+<p>Captured with Vim 9.2 in ex mode on an Arch-based system, 2026-11-16. The commands are <a href="glossary/p/posix.html">POSIX</a> ex; other implementations print the same two lines.</p>
 
 <h3>What just happened</h3>
 
@@ -85,7 +85,7 @@ gamma
 
 <h3>Try it</h3>
 
-<p>Make a scratch directory and a three-line file. Use ex to change the second line, print all three lines with <code>1,$p</code>, then quit with <code>q!</code> so the change is discarded. Run the same session again and end with <code>wq</code>; check the file with <code>cat</code>. Finally, delete the directory.</p>
+<p><a href="glossary/m/make.html">Make</a> a scratch directory and a three-line file. Use ex to change the second line, print all three lines with <code>1,$p</code>, then quit with <code>q!</code> so the change is discarded. Run the same session again and end with <code>wq</code>; check the file with <code>cat</code>. Finally, delete the directory.</p>
 
 <h3>If it goes wrong</h3>
 
@@ -193,8 +193,8 @@ gAmma
 <li><strong>Global commands and line shifts.</strong> Commands that delete or move lines interact with <code>g</code> in implementation-defined ways beyond the simple cases. Prefer one pass for selection and another for editing when a script must be portable.</li>
 <li><strong>No terminal, no recovery prompt.</strong> In batch mode a failed command ends the session. Check ex's exit status in the calling script instead of assuming the file was written.</li>
 <li><strong>Write failures.</strong> A full disk, a read-only file, or a lost permission makes <code>w</code> fail. ex reports the error and does not pretend the write succeeded; a script must still check the exit status.</li>
-<li><strong>Binary data and encodings.</strong> ex is a text editor. NUL bytes and invalid byte sequences in the current encoding are not safely round-tripped. Use a binary-aware tool for those files.</li>
-<li><strong>Swap files and concurrent sessions.</strong> Vim-based ex creates a swap file next to the edited file. Two sessions on one file can collide; recovery is covered on the vi page.</li>
+<li><strong><a href="glossary/b/binary.html">Binary</a> data and encodings.</strong> ex is a text editor. <a href="glossary/n/nul.html">NUL</a> bytes and invalid byte sequences in the current encoding are not safely round-tripped. Use a binary-aware tool for those files.</li>
+<li><strong><a href="glossary/s/swap.html">Swap</a> files and concurrent sessions.</strong> Vim-based ex creates a swap file next to the edited file. Two sessions on one file can collide; recovery is covered on the vi page.</li>
 <li><strong>Naming the file.</strong> Without a file operand, <code>w</code> needs a name. In a pipeline, pass the path as an argument rather than relying on interactive state.</li>
 </ul>
 

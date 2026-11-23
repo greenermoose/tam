@@ -20,13 +20,13 @@
 <h1>The microarchitectural instruction cycle</h1>
 <p>This page explains how a computer processor continuously fetches instructions from memory, interprets their binary codes, executes calculations, and records the results.</p>
 <h2>Before this</h2><p><a href="hardware/architecture/computer-architecture.html">Computer architecture and hardware systems</a> · <a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></p>
-<p>Every software program on your computer &mdash; from a simple shell script to the Linux kernel itself &mdash; eventually compiles into a stream of raw binary machine instructions. The processor operates as an automated engine that loops through discrete microarchitectural phases billions of times per second: pulling bytes from cache into registers, decoding binary opcodes into electrical control signals, calculating results in the ALU, and committing values to memory.</p>
+<p>Every software program on your computer &mdash; from a simple shell script to the Linux kernel itself &mdash; eventually compiles into a stream of raw binary machine instructions. The processor operates as an automated engine that loops through discrete microarchitectural phases billions of times per second: pulling bytes from cache into registers, decoding binary opcodes into electrical control signals, calculating results in the <a href="glossary/a/alu.html">ALU</a>, and committing values to memory.</p>
 
 <section data-level="novice">
 <h2>What is the instruction cycle?</h2>
 <p>The instruction cycle is the repeating heartbeat of a processor: fetch the next tiny instruction from memory, decode what it asks for, execute that operation, and move to the next instruction.</p>
 <h3>Why it matters</h3>
-<p>Computers do not read entire programs at once. Understanding this step-by-step loop explains what a program counter is, how branches change which code runs next, and why fast CPU caches are essential to keep the processor busy.</p>
+<p>Computers do not read entire programs at once. Understanding this step-by-step loop explains what a program counter is, how branches change which code runs next, and why fast <a href="glossary/c/cpu.html">CPU</a> caches are essential to keep the processor busy.</p>
 <h3>How to think about it</h3>
 <p>Think of a cook following a numbered recipe card with one finger holding their place. For each step, they read the line (fetch), understand the action (decode), perform it (execute), and slide their finger down to the next line—unless the step says &ldquo;skip to step 12.&rdquo;</p>
 <h3>New words</h3>
@@ -99,22 +99,22 @@ $ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
 
 <table>
 <tr><th>Microarchitectural Engine</th><th>Pipeline Phase</th><th>Primary Function</th><th>Capacity / Width</th></tr>
-<tr><td>Branch Prediction Unit (BPU)</td><td>Pre-Fetch</td><td>Predicts branch direction and target address using branch history tables and TAGE algorithms</td><td>Thousands of branch history entries</td></tr>
-<tr><td>Instruction Decoder</td><td>Decode</td><td>Decodes variable-length x86 instructions (1-15 bytes) into fixed-length RISC micro-operations (uops)</td><td>Typically 4 to 6 instructions decoded per cycle</td></tr>
+<tr><td>Branch Prediction Unit (<a href="glossary/b/bpu.html">BPU</a>)</td><td>Pre-Fetch</td><td>Predicts branch direction and target address using branch history tables and <a href="glossary/t/tage.html">TAGE</a> algorithms</td><td>Thousands of branch history entries</td></tr>
+<tr><td>Instruction Decoder</td><td>Decode</td><td>Decodes variable-length x86 instructions (1-15 bytes) into fixed-length <a href="glossary/r/risc.html">RISC</a> micro-operations (uops)</td><td>Typically 4 to 6 instructions decoded per cycle</td></tr>
 <tr><td>Decoded Stream Buffer (uop Cache)</td><td>Decode / Dispatch</td><td>Caches already-decoded uops, completely bypassing x86 instruction decoding for hot loops</td><td>~1.5 K to 4 K uops</td></tr>
-<tr><td>Register Alias Table (RAT)</td><td>Rename</td><td>Maps architectural registers (%rax, %rbx) to a large physical register file (PRF), eliminating WAR/WAW hazards</td><td>~160 to 256 physical registers</td></tr>
+<tr><td><a href="glossary/r/register.html">Register</a> Alias Table (RAT)</td><td>Rename</td><td>Maps architectural registers (%rax, %rbx) to a large physical register file (<a href="glossary/p/prf.html">PRF</a>), eliminating WAR/<a href="glossary/w/waw.html">WAW</a> hazards</td><td>~160 to 256 physical registers</td></tr>
 <tr><td>Reservation Stations / Scheduler</td><td>Dispatch / Schedule</td><td>Holds uops until their required operands are available, then dispatches them out-of-order to execution ports</td><td>~100 to 180 scheduler entries</td></tr>
-<tr><td>Reorder Buffer (ROB)</td><td>Retirement / Commit</td><td>Tracks out-of-order instructions and retires them in strict original program order, preserving precise exceptions</td><td>~256 to 512 ROB entries</td></tr>
+<tr><td>Reorder Buffer (<a href="glossary/r/rob.html">ROB</a>)</td><td><a href="glossary/r/retirement.html">Retirement</a> / Commit</td><td>Tracks out-of-order instructions and retires them in strict original program order, preserving precise exceptions</td><td>~256 to 512 ROB entries</td></tr>
 </table>
 
 <h3>How it works: the Out-of-Order (OoO) Superscalar pipeline</h3>
 
-<p>Modern high-performance x86-64 processors (such as AMD Zen and Intel Core) do not execute instructions strictly in order. Internally, they translate CISC x86 instructions into an internal stream of RISC-like <strong>micro-operations (uops)</strong> and execute them dynamically:</p>
+<p>Modern high-performance x86-64 processors (such as AMD Zen and Intel Core) do not execute instructions strictly in order. Internally, they translate <a href="glossary/c/cisc.html">CISC</a> x86 instructions into an internal stream of RISC-like <strong>micro-operations (uops)</strong> and execute them dynamically:</p>
 
 <ol>
 <li><strong>Instruction Fetch &amp; uop Cache:</strong> The Branch Predictor speculates ahead. The fetch unit pulls bytes from L1i cache into the decoders. If the instructions reside in the uop cache (Decoded Stream Buffer), the power-hungry variable-length instruction decoders are bypassed entirely.</li>
 <li><strong>Register Renaming:</strong> Architectural registers (e.g. 16 general-purpose registers in x86-64) create false data dependencies: Write-After-Read (WAR) and Write-After-Write (WAW). The Register Alias Table renames architectural registers to a pool of over 200 physical registers, dissolving false dependencies.</li>
-<li><strong>Out-of-Order Dispatch:</strong> uops enter the Reservation Stations. Each cycle, the scheduler checks which uops have all their source operands ready. As soon as operands are available, uops are dispatched to parallel execution ports (multiple integer ALUs, vector SIMD units, branch units, load/store units) regardless of original program order.</li>
+<li><strong>Out-of-Order Dispatch:</strong> uops enter the Reservation Stations. Each cycle, the scheduler checks which uops have all their source operands ready. As soon as operands are available, uops are dispatched to parallel execution ports (multiple integer ALUs, vector <a href="glossary/s/simd.html">SIMD</a> units, branch units, load/store units) regardless of original program order.</li>
 <li><strong>In-Order Retirement via Reorder Buffer (ROB):</strong> Although instructions execute out of order as fast as hardware permits, the CPU must preserve the illusion of sequential execution. Every uop is tracked by the circular Reorder Buffer. Results are committed to the architectural state strictly in original program order. If an exception occurs (such as a page fault or divide-by-zero) or a branch was mispredicted, all speculative uops younger than the fault are wiped from the pipeline without modifying permanent architectural state (&ldquo;precise exceptions&rdquo;).</li>
 </ol>
 
@@ -125,7 +125,7 @@ $ cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size
 <h3>Edge cases and failure modes</h3>
 
 <ul>
-<li><strong>Speculative Execution Side-Channels (Spectre):</strong> When the branch predictor speculates down a path that is later rolled back, speculative memory loads leave cache footprint changes. Attackers can measure memory access timing to infer secret cryptographic keys or kernel memory. Mitigations include barrier instructions (<code>lfence</code>), Retpolines, and Indirect Branch Restricted Speculation (IBRS).</li>
+<li><strong>Speculative Execution Side-Channels (Spectre):</strong> When the branch predictor speculates down a path that is later rolled back, speculative memory loads leave cache footprint changes. Attackers can measure memory access timing to infer secret cryptographic keys or kernel memory. Mitigations include barrier instructions (<code>lfence</code>), Retpolines, and Indirect Branch Restricted Speculation (<a href="glossary/i/ibrs.html">IBRS</a>).</li>
 <li><strong>Denormalized Floating-Point Stalls:</strong> When floating-point calculations produce numbers extremely close to zero (denormals), hardware ALUs often cannot process them in single-cycle pipelines and trap to microcode, slowing execution by orders of magnitude.</li>
 <li><strong>Store-to-Load Forwarding Failure:</strong> When a program stores data to memory and immediately loads it back using a mismatched address offset or larger data size, the processor cannot forward the data directly from the Store Buffer to the Load Queue, causing an expensive pipeline stall.</li>
 </ul>
@@ -155,7 +155,7 @@ stepping	: 1
 
 <ul>
 <li>Shen, J. P., &amp; Lipasti, M. H. <em>Modern Processor Design: Fundamentals of Superscalar Processors</em>.</li>
-<li>AMD64 Architecture Programmer's Manual, Volume 2: System Programming.</li>
+<li><a href="glossary/a/amd64.html">AMD64</a> Architecture Programmer's Manual, Volume 2: System Programming.</li>
 <li>Intel 64 and IA-32 Architectures Optimization Reference Manual.</li>
 </ul>
 

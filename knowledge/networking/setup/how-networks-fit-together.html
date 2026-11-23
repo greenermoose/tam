@@ -39,7 +39,7 @@
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/n/network-interface.html">Network interface</a></dt>
-<dd>The named doorway a computer uses to send and receive traffic, such as <code>enp1s0</code> for wired Ethernet or <code>wlp3s0</code> for Wi-Fi.</dd>
+<dd>The named doorway a computer uses to send and receive traffic, such as <code>enp1s0</code> for wired <a href="glossary/e/ethernet.html">Ethernet</a> or <code>wlp3s0</code> for <a href="glossary/w/wi-fi.html">Wi-Fi</a>.</dd>
 <dt><a href="glossary/i/ip-address.html">IP address</a></dt>
 <dd>A number that identifies a machine on a network, much as a street address identifies a house.</dd>
 <dt><a href="glossary/g/gateway.html">Gateway</a></dt>
@@ -157,13 +157,13 @@ $ ip -j route get 1.1.1.1 | python3 -m json.tool
     }
 }
 </pre>
-<p>The JSON form is the machine-readable version of the same decision. It is useful when a script must check which interface would carry a destination without sending traffic.</p>
+<p>The <a href="glossary/j/json.html">JSON</a> form is the machine-readable version of the same decision. It is useful when a script must check which interface would carry a destination without sending traffic.</p>
 
 <h3>Edge cases</h3>
 <ul>
-<li>Loopback is a real interface with its own address. Traffic to <code>127.0.0.1</code> never leaves the machine, which makes it a safe place to test a service.</li>
+<li><a href="glossary/l/loopback.html">Loopback</a> is a real interface with its own address. Traffic to <code>127.0.0.1</code> never leaves the machine, which makes it a safe place to test a service.</li>
 <li>A link-local <a href="glossary/i/ipv6.html">IPv6</a> address (<code>fe80::/10</code>) needs a scope identifier, written <code>fe80::…%enp1s0</code>, because the same prefix can exist on several interfaces.</li>
-<li>A virtual interface such as <code>docker0</code> or a VPN tunnel appears in the same lists as hardware. It may carry a route without any physical cable.</li>
+<li>A virtual interface such as <code>docker0</code> or a <a href="glossary/v/vpn.html">VPN</a> tunnel appears in the same lists as hardware. It may carry a route without any physical cable.</li>
 <li>An address can be present while its route is marked <code>linkdown</code>. The kernel keeps the configuration, but no carrier means nothing can be delivered.</li>
 <li>Name resolution is not a single service: <code>/etc/hosts</code>, NSS modules, mDNS and DNS each answer some names. The order is set in <code>/etc/nsswitch.conf</code>.</li>
 </ul>

@@ -49,7 +49,7 @@
 <section data-level="learner">
 <h2>Inspecting trust boundaries, STRIDE, and process isolation</h2>
 <p><strong>Goal:</strong> read a Linux process's kernel isolation flags and practice mapping a feature with a STRIDE threat model.</p>
-<p><strong>Before you start:</strong> every boundary where data crosses from untrusted input (network, USB drive, unprivileged user) to privileged code (kernel, root service) is a <em>trust boundary</em>. The <strong><dfn><a href="glossary/t/tcb.html">Trusted Computing Base (TCB)</a></dfn></strong> is the set of hardware, firmware, and software components that must work correctly for the security policy to hold.</p>
+<p><strong>Before you start:</strong> every boundary where data crosses from untrusted input (network, <a href="glossary/u/usb.html">USB</a> drive, unprivileged user) to privileged code (kernel, root service) is a <em>trust boundary</em>. The <strong><dfn><a href="glossary/t/tcb.html">Trusted Computing Base (TCB)</a></dfn></strong> is the set of hardware, firmware, and software components that must work correctly for the security policy to hold.</p>
 
 <h3>Worked example</h3>
 <p>Every Linux process exposes its current privilege and isolation state in <code>/proc/self/status</code>. You can inspect whether a shell is blocked from gaining new privileges (<code>NoNewPrivs</code>) and whether system-call filtering (<code>Seccomp</code>) is active:</p>
@@ -68,7 +68,7 @@ Seccomp:	2
 <tr><td><strong>Tampering</strong></td><td>modifying data in transit or on disk (mitigated by integrity checks and MACs).</td></tr>
 <tr><td><strong>Repudiation</strong></td><td>denying an action occurred (mitigated by tamper-evident audit logs and signatures).</td></tr>
 <tr><td><strong>Information disclosure</strong></td><td>leaking secrets (mitigated by encryption and confidentiality controls).</td></tr>
-<tr><td><strong>Denial of service</strong></td><td>exhausting CPU, memory, or bandwidth (mitigated by quotas and rate limits).</td></tr>
+<tr><td><strong>Denial of service</strong></td><td>exhausting <a href="glossary/c/cpu.html">CPU</a>, memory, or bandwidth (mitigated by quotas and rate limits).</td></tr>
 <tr><td><strong>Elevation of privilege</strong></td><td>gaining unauthorized rights (mitigated by least privilege and sandboxing).</td></tr>
 </table>
 
@@ -79,7 +79,7 @@ Seccomp:	2
 <dl>
 <dt>Confusing encryption with access control</dt>
 <dd>Encrypting a file on disk protects it when the key is absent (for example, a powered-off stolen laptop), not after the operating system unlocks the disk for a running session. Process isolation and file permissions still matter while logged in.</dd>
-<dt>Overlooking TOCTOU races</dt>
+<dt>Overlooking <a href="glossary/t/toctou.html">TOCTOU</a> races</dt>
 <dd>Checking a file's permissions and then opening it by path creates a Time-of-Check to Time-of-Use (TOCTOU) window where an attacker can swap the path for a symlink. Safe programs open once and operate on the file descriptor (<code>fstat</code>, <code>openat</code>).</dd>
 </dl>
 
@@ -92,7 +92,7 @@ Seccomp:	2
 <p>Answer before revealing the explanation.</p>
 <details class="q">
 <summary><i>Why is keeping the Trusted Computing Base (TCB) small a core security goal?</i></summary>
-<p>Any bug inside the TCB can defeat the entire security policy. Moving parsers, network handlers, and UI code outside the TCB reduces the code that must be trusted and audited.</p>
+<p>Any bug inside the TCB can defeat the entire security policy. Moving parsers, network handlers, and <a href="glossary/g/gui.html">UI</a> code outside the TCB reduces the code that must be trusted and audited.</p>
 </details>
 <details class="q">
 <summary><i>Which STRIDE category describes an unprivileged process tricking a privileged helper into overwriting an arbitrary file?</i></summary>
@@ -118,7 +118,7 @@ Seccomp:	2
 </ol>
 <p>A <strong>reference monitor</strong> is the abstract machine mediating all subject-to-object accesses; to be sound it must be <em>tamperproof</em>, <em>always invoked</em> (complete mediation), and <em>small enough to be verified</em> (verifiability).</p>
 
-<h3>How it works: Lampson's access matrix, HRU undecidability, and lattice models</h3>
+<h3>How it works: Lampson's access matrix, <a href="glossary/h/hru.html">HRU</a> undecidability, and lattice models</h3>
 <p>Lampson (1971) modeled protection state as a triple <code>(S, O, A)</code>: a set of subjects <code>S</code>, objects <code>O</code>, and an access matrix <code>A[s, o]</code> containing rights such as <code>{read, write, own}</code>. Because matrices are sparse, systems implement them either by columns (<strong>Access Control Lists</strong>, stored on objects) or by rows (<strong>Capabilities</strong>, unforgeable tokens held by subjects).</p>
 <p>Harrison, Ruzzo, and Ullman (HRU, 1976) formalized state transitions over the access matrix as primitive commands. They proved that in general, the <strong>safety problem</strong>—deciding whether a given configuration can ever leak a right <code>r</code> to an unauthorized subject—is <em>undecidable</em> by reduction from the <a href="glossary/h/halting-problem.html">Halting Problem</a> (though decidable in restricted mono-operational or typed systems such as Take-Grant).</p>
 <p>To reason about information flow rather than merely object access, lattice models order security labels <code>(L, &lt;=)</code>:</p>
@@ -126,17 +126,17 @@ Seccomp:	2
 <tr><td><strong>Bell–LaPadula (confidentiality) <cite data-ref="bell-lapadula"><a href="bibliography/bell-lapadula.html">[Bell &amp; LaPadula]</a></cite></strong></td><td>enforces the <em>Simple Security Property</em> (no read up: subject <code>s</code> may read object <code>o</code> only if <code>L(o) &lt;= L(s)</code>) and the <em>*-Property</em> (no write down: <code>s</code> may write <code>o</code> only if <code>L(s) &lt;= L(o)</code>), preventing a compromised high-clearance process from copying secrets to low-clearance files.</td></tr>
 <tr><td><strong>Biba (integrity, 1977)</strong></td><td>dual of Bell–LaPadula—<em>no read down</em> (do not taint high-integrity computation with untrusted input) and <em>no write up</em> (untrusted subjects cannot modify high-integrity objects).</td></tr>
 <tr><td><strong>Clark–Wilson (commercial integrity, 1987)</strong></td><td>models integrity through well-formed transactions (Transformation Procedures) that move Constrained Data Items from one valid state to another, enforcing separation of duty.</td></tr>
-<tr><td><strong>Noninterference (Goguen &amp; Meseguer, 1982)</strong></td><td>defines end-to-end confidentiality semantically: high-level inputs <code>H</code> must have zero observable effect on low-level outputs <code>L</code>. Formally verified kernels such as <strong>seL4</strong> prove noninterference and functional correctness down to C/binary semantics, while capability systems such as <strong>Capsicum</strong> eliminate ambient authority at the OS API layer.</td></tr>
+<tr><td><strong>Noninterference (Goguen &amp; Meseguer, 1982)</strong></td><td>defines end-to-end confidentiality semantically: high-level inputs <code>H</code> must have zero observable effect on low-level outputs <code>L</code>. Formally verified kernels such as <strong>seL4</strong> prove noninterference and functional correctness down to C/binary semantics, while capability systems such as <strong>Capsicum</strong> eliminate ambient authority at the OS <a href="glossary/a/api.html">API</a> layer.</td></tr>
 </table>
 
 <h3>Edge cases and open research problems</h3>
 <dl>
 <dt>Confused Deputy and ambient authority</dt>
-<dd>When a privileged server resolves pathnames or URLs using its own authority rather than the caller's capability, an attacker can redirect the server's privilege against a protected target (Hardy, 1988). Capability-passing APIs bind authority directly to the unforgeable object reference.</dd>
+<dd>When a privileged server resolves pathnames or URLs using its own authority rather than the caller's capability, an attacker can redirect the server's privilege against a protected target (Hardy, 1988). <a href="glossary/c/capability.html">Capability</a>-passing APIs bind authority directly to the unforgeable object reference.</dd>
 <dt>Microarchitectural side channels (Spectre, Meltdown, covert timing)</dt>
-<dd>Speculative execution, out-of-order pipelines, and shared CPU caches violate Saltzer–Schroeder's "least common mechanism" at the hardware layer. Transient instructions leave microarchitectural traces measurable via Flush+Reload or Prime+Probe, leaking across kernel/user and VM boundaries even when architectural state is sound. Mitigations include KPTI, retpoline/IBRS, constant-time programming, and hardware partitioning.</dd>
+<dd>Speculative execution, out-of-order pipelines, and shared CPU caches violate Saltzer–Schroeder's "least common mechanism" at the hardware layer. <a href="glossary/t/transient.html">Transient</a> instructions leave microarchitectural traces measurable via Flush+Reload or Prime+Probe, leaking across kernel/user and VM boundaries even when architectural state is sound. Mitigations include <a href="glossary/k/kpti.html">KPTI</a>, retpoline/<a href="glossary/i/ibrs.html">IBRS</a>, constant-time programming, and hardware partitioning.</dd>
 <dt>Memory safety vs. spatial/temporal isolation</dt>
-<dd>Buffer overflows, use-after-free, and type confusion break the language-level abstraction that OS boundaries assume. Modern mitigations combine type-safe languages (Rust), ASLR, DEP/NX, CFI, PAC, and hardware capability architectures (CHERI), alongside fuzzing and formal verification.</dd>
+<dd>Buffer overflows, use-after-free, and type confusion break the language-level abstraction that OS boundaries assume. Modern mitigations combine type-safe languages (Rust), <a href="glossary/a/aslr.html">ASLR</a>, DEP/NX, <a href="glossary/c/cfi.html">CFI</a>, PAC, and hardware capability architectures (<a href="glossary/c/cheri.html">CHERI</a>), alongside fuzzing and formal verification.</dd>
 </dl>
 
 <details class="q open">

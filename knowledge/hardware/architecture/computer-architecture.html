@@ -20,7 +20,7 @@
 <h1>Computer architecture and hardware systems</h1>
 <p>This page explains how the physical parts of a computer are organized to store data and execute instructions.</p>
 <h2>Before this</h2><p><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></p>
-<p>Every digital computer coordinates three primary components: a Central Processing Unit (CPU) to perform calculations, Primary Memory (RAM) to hold active instructions and data, and Secondary Storage (NVMe, SSD, or hard disk) to persist information when powered off. Understanding computer architecture clarifies how data travels across system buses, why cache hierarchies exist, and how instruction set architectures bridge software with silicon.</p>
+<p>Every digital computer coordinates three primary components: a Central Processing Unit (<a href="glossary/c/cpu.html">CPU</a>) to perform calculations, Primary Memory (<a href="glossary/r/ram.html">RAM</a>) to hold active instructions and data, and Secondary Storage (<a href="glossary/n/nvme.html">NVMe</a>, <a href="glossary/s/ssd.html">SSD</a>, or hard disk) to persist information when powered off. Understanding computer architecture clarifies how data travels across system buses, why cache hierarchies exist, and how instruction set architectures bridge software with silicon.</p>
 
 <section data-level="novice">
 <h2>What is computer architecture?</h2>
@@ -92,8 +92,8 @@ L3         4M       8M   16 Unified         3 4096        1             64
 <ol>
 <li><code>lscpu</code> reports the fundamental CPU architecture: <code>x86_64</code> (64-bit x86 extensions), using Little Endian byte ordering (least significant byte stored at the lowest address).</li>
 <li><code>Address sizes</code> shows that the processor uses 48-bit virtual and physical memory addresses, allowing up to 256 terabytes of addressable space.</li>
-<li><code>Thread(s) per core: 2</code> indicates simultaneous multithreading (SMT), allowing two logical execution contexts to share execution resources on each physical core.</li>
-<li><code>lscpu -C</code> exposes the hardware cache hierarchy: Level 1 has separate Data (L1d, 32 KB) and Instruction (L1i, 32 KB) caches per core; Level 2 (L2, 512 KB per core) is unified; and Level 3 (L3, 4 MB to 8 MB) is shared across cores. All caches use 64-byte coherency lines.</li>
+<li><code>Thread(s) per core: 2</code> indicates simultaneous multithreading (<a href="glossary/s/smt.html">SMT</a>), allowing two logical execution contexts to share execution resources on each physical core.</li>
+<li><code>lscpu -C</code> exposes the hardware cache hierarchy: Level 1 has separate Data (L1d, 32 <a href="glossary/b/byte.html">KB</a>) and Instruction (L1i, 32 KB) caches per core; Level 2 (L2, 512 KB per core) is unified; and Level 3 (L3, 4 <a href="glossary/b/byte.html">MB</a> to 8 MB) is shared across cores. All caches use 64-byte coherency lines.</li>
 </ol>
 <h3>Try it</h3>
 <p>Run <code>lscpu</code> on your terminal without filtering. Identify your CPU family, maximum clock frequency in MHz, and virtualization capabilities.</p>
@@ -105,7 +105,7 @@ L3         4M       8M   16 Unified         3 4096        1             64
 <dd>Older versions of <code>util-linux</code> do not support the <code>-C</code> cache table flag. Query cache parameters directly via sysfs: <code>cat /sys/devices/system/cpu/cpu0/cache/index0/size</code>.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> core product packages are built targeting generic x86-64 baselines (x86-64-v2/v3) so binaries run reliably across different CPU generations without generating illegal instruction faults. Tamlinux avoids persistent disk swap on solid-state drives, using compressed in-RAM ZRAM to preserve flash memory lifespan and keep memory operations operating at bus speeds. See the <a href="systems/memory-compression.html">memory compression guide</a>.</p>
+<p><strong>On Tamlinux:</strong> core product packages are built targeting generic x86-64 baselines (x86-64-v2/v3) so binaries run reliably across different CPU generations without generating illegal instruction faults. Tamlinux avoids persistent disk swap on solid-state drives, using compressed in-RAM <a href="glossary/z/zram.html">ZRAM</a> to preserve flash memory lifespan and keep memory operations operating at bus speeds. See the <a href="systems/memory-compression.html">memory compression guide</a>.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -121,40 +121,40 @@ L3         4M       8M   16 Unified         3 4096        1             64
 </section>
 </section>
 <section data-level="expert">
-<h2>Hardware interconnects, DMA, and memory management units</h2>
+<h2>Hardware interconnects, <a href="glossary/d/dma.html">DMA</a>, and memory management units</h2>
 
 <h3>Reference</h3>
 
 <table>
-<tr><th>Subsystem / Bus</th><th>Typical Standard</th><th>Peak Bandwidth</th><th>Latency</th><th>Function</th></tr>
-<tr><td>CPU Register File</td><td>Internal SRAM</td><td>&gt; 1 TB/s</td><td>&lt; 0.3 ns</td><td>Holds operands actively manipulated by CPU functional units</td></tr>
-<tr><td>L1 Cache Bus</td><td>Dedicated on-die interconnect</td><td>&gt; 500 GB/s</td><td>~1 ns</td><td>Delivers 64-byte lines to execution pipelines with zero contention</td></tr>
-<tr><td>DDR5 Memory Bus</td><td>Dual-channel 128-bit bus</td><td>~60 - 100 GB/s</td><td>~60 - 90 ns</td><td>Connects CPU integrated memory controller (IMC) to DRAM DIMMs</td></tr>
-<tr><td>PCIe 4.0 / 5.0 (x16)</td><td>Point-to-point serial lanes</td><td>~32 - 64 GB/s</td><td>~100 - 200 ns</td><td>High-throughput connection to GPUs, fast NVMe arrays, and NICs</td></tr>
+<tr><th>Subsystem / <a href="glossary/b/bus.html">Bus</a></th><th>Typical Standard</th><th>Peak <a href="glossary/b/bandwidth.html">Bandwidth</a></th><th><a href="glossary/l/latency.html">Latency</a></th><th>Function</th></tr>
+<tr><td>CPU <a href="glossary/r/register.html">Register</a> File</td><td>Internal <a href="glossary/s/sram.html">SRAM</a></td><td>&gt; 1 <a href="glossary/b/byte.html">TB</a>/s</td><td>&lt; 0.3 ns</td><td>Holds operands actively manipulated by CPU functional units</td></tr>
+<tr><td>L1 Cache Bus</td><td>Dedicated on-die interconnect</td><td>&gt; 500 <a href="glossary/b/byte.html">GB</a>/s</td><td>~1 ns</td><td>Delivers 64-byte lines to execution pipelines with zero contention</td></tr>
+<tr><td><a href="glossary/d/ddr5.html">DDR5</a> Memory Bus</td><td>Dual-channel 128-bit bus</td><td>~60 - 100 GB/s</td><td>~60 - 90 ns</td><td>Connects CPU integrated memory controller (<a href="glossary/i/imc.html">IMC</a>) to <a href="glossary/d/dram.html">DRAM</a> DIMMs</td></tr>
+<tr><td><a href="glossary/p/pcie.html">PCIe</a> 4.0 / 5.0 (x16)</td><td>Point-to-point serial lanes</td><td>~32 - 64 GB/s</td><td>~100 - 200 ns</td><td>High-throughput connection to GPUs, fast NVMe arrays, and NICs</td></tr>
 <tr><td>NVMe / PCIe (x4)</td><td>PCIe bus over M.2/U.2</td><td>~4 - 8 GB/s</td><td>~10 - 30 us</td><td>Direct block storage transfers via NVMe command queues</td></tr>
 </table>
 
-<h3>How it works: Direct Memory Access (DMA) and the MMU</h3>
+<h3>How it works: Direct Memory Access (DMA) and the <a href="glossary/m/mmu.html">MMU</a></h3>
 
 <p>When an operating system loads an executable binary or writes data to disk, involving the CPU in every single byte transfer would starve computational tasks. Modern architecture solves this through <strong>Direct Memory Access (DMA)</strong> and the <strong>Memory Management Unit (MMU)</strong>:</p>
 
 <ol>
 <li><strong>DMA Transfers:</strong> The CPU programs the storage controller (such as an NVMe host controller) with memory addresses and block counts, then issues a transfer command. The storage controller takes ownership of the PCIe bus, reading or writing data directly to physical DRAM buffers without CPU intervention. Upon completion, the controller issues a hardware interrupt to signal the kernel.</li>
 <li><strong>Virtual Memory Translation (MMU):</strong> Every user-space process operates in its own virtual address space. The CPU's hardware MMU translates virtual addresses to physical RAM addresses on every single instruction and data reference using multi-level page tables (e.g., 4-level or 5-level paging on x86-64).</li>
-<li><strong>Translation Lookaside Buffer (TLB):</strong> Walking page tables in DRAM on every memory access would quadruple memory latency. The MMU relies on an on-die associative cache called the TLB. When a virtual page translation hits the TLB, address resolution takes less than a cycle. On a TLB miss, the hardware page table walker traverses the page hierarchy in memory.</li>
-<li><strong>Cache Coherence (MESI):</strong> When multiple CPU cores access shared memory, caches must remain coherent. Processors implement protocols like MESI (Modified, Exclusive, Shared, Invalid) over on-die interconnects (such as Intel UPI or AMD Infinity Fabric) to ensure that writes on one core invalidate stale copies in neighbouring caches.</li>
+<li><strong>Translation Lookaside Buffer (<a href="glossary/t/tlb.html">TLB</a>):</strong> Walking page tables in DRAM on every memory access would quadruple memory latency. The MMU relies on an on-die associative cache called the TLB. When a virtual page translation hits the TLB, address resolution takes less than a cycle. On a TLB miss, the hardware page table walker traverses the page hierarchy in memory.</li>
+<li><strong>Cache Coherence (<a href="glossary/m/mesi.html">MESI</a>):</strong> When multiple CPU cores access shared memory, caches must remain coherent. Processors implement protocols like MESI (Modified, Exclusive, Shared, Invalid) over on-die interconnects (such as Intel <a href="glossary/u/upi.html">UPI</a> or AMD Infinity Fabric) to ensure that writes on one core invalidate stale copies in neighbouring caches.</li>
 </ol>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Understanding memory bus bottlenecks directly shapes Tamlinux system engineering. Rather than treating RAM merely as passive storage, Tamlinux configures in-RAM compressed memory (ZRAM) with LZ4 or zstd algorithms. Because the CPU can compress and decompress data at memory bus speeds (tens of gigabytes per second), ZRAM trades a negligible fraction of compute cycles to effectively double workstation memory headroom while completely avoiding the massive latency cliffs (tens of microseconds) of solid-state storage.</p>
+<p>Understanding memory bus bottlenecks directly shapes Tamlinux system engineering. Rather than treating RAM merely as passive storage, Tamlinux configures in-RAM compressed memory (ZRAM) with <a href="glossary/l/lz4.html">LZ4</a> or zstd algorithms. Because the CPU can compress and decompress data at memory bus speeds (tens of gigabytes per second), ZRAM trades a negligible fraction of compute cycles to effectively double workstation memory headroom while completely avoiding the massive latency cliffs (tens of microseconds) of solid-state storage.</p>
 
 <h3>Edge cases and failure modes</h3>
 
 <ul>
 <li><strong>False sharing:</strong> When two threads running on different cores modify unrelated variables that happen to share the same 64-byte cache line, the MESI protocol repeatedly invalidates the cache line across both cores. The system spends immense bus bandwidth bouncing cache lines back and forth (&ldquo;cache ping-pong&rdquo;) rather than executing useful work.</li>
 <li><strong>TLB shootdowns:</strong> When the Linux kernel reclaims or remaps virtual memory, it must invalidate TLB entries across all CPU cores executing threads of that process. This requires inter-processor interrupts (IPIs) that stall execution across cores.</li>
-<li><strong>Microarchitectural side-channels:</strong> Modern speculative execution engines leave timing traces in shared cache lines (Spectre and Meltdown attacks), requiring operating system mitigations like Kernel Page Table Isolation (KPTI) that introduce modest syscall performance overhead.</li>
+<li><strong>Microarchitectural side-channels:</strong> Modern speculative execution engines leave timing traces in shared cache lines (Spectre and Meltdown attacks), requiring operating system mitigations like Kernel Page Table Isolation (<a href="glossary/k/kpti.html">KPTI</a>) that introduce modest syscall performance overhead.</li>
 </ul>
 
 <h3>Explore</h3>
@@ -176,7 +176,7 @@ Node 0 MemUsed:        19610156 kB
 <p>Decide your answer before you reveal it.</p>
 <details class="q open">
 <summary>How does Direct Memory Access (DMA) interact with CPU caches, and what mechanism ensures consistency?</summary>
-<p>When a DMA controller writes data from a storage device directly into DRAM, CPU caches might still hold older, stale versions of those memory addresses. On coherent architectures like modern x86 and ARM, the hardware bus interface snoops DMA transactions and automatically invalidates or updates matching cache lines, ensuring processor cores read fresh data without manual cache flushing.</p>
+<p>When a DMA controller writes data from a storage device directly into DRAM, CPU caches might still hold older, stale versions of those memory addresses. On coherent architectures like modern x86 and <a href="glossary/a/arm.html">ARM</a>, the hardware bus interface snoops DMA transactions and automatically invalidates or updates matching cache lines, ensuring processor cores read fresh data without manual cache flushing.</p>
 </details>
 </section>
 
@@ -185,7 +185,7 @@ Node 0 MemUsed:        19610156 kB
 <ul>
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; mmap(2), madvise(2), and getpagesize(2).</li>
 <li>Patterson, D. A., &amp; Hennessy, J. L. <em>Computer Organization and Design: The Hardware/Software Interface</em>.</li>
-<li>Intel 64 and IA-32 Architectures Software Developer's Manual / AMD64 Architecture Programmer's Manual.</li>
+<li>Intel 64 and IA-32 Architectures Software Developer's Manual / <a href="glossary/a/amd64.html">AMD64</a> Architecture Programmer's Manual.</li>
 </ul>
 
 <h3>Improve it</h3>

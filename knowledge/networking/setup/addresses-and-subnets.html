@@ -98,7 +98,7 @@ $ ip neigh show dev enp1s0
 </dl>
 
 <aside class="tamlinux">
-<p>Tamlinux uses NetworkManager profiles for addresses; the DNS and connection commands in the public <code>tamlinux</code> repository read those profiles and the kernel tables rather than keeping a second copy. The host firewall template documented in the corpus permits local network discovery traffic including mDNS on UDP port 5353.</p>
+<p>Tamlinux uses NetworkManager profiles for addresses; the <a href="glossary/d/dns.html">DNS</a> and connection commands in the public <code>tamlinux</code> repository read those profiles and the kernel tables rather than keeping a second copy. The host firewall template documented in the corpus permits local network discovery traffic including mDNS on <a href="glossary/u/udp.html">UDP</a> port 5353.</p>
 </aside>
 
 <section class="quiz">
@@ -108,7 +108,7 @@ $ ip neigh show dev enp1s0
 <p>256 addresses, because 32 minus 24 leaves 8 host bits. The all-zero address names the subnet and the all-one address is the broadcast address, so 254 remain for hosts.</p>
 </details>
 <details class="q">
-<summary><i>Why does ip neigh show a MAC address for 192.168.1.1 but not for an internet server?</i></summary>
+<summary><i>Why does ip neigh show a <a href="glossary/m/mac.html">MAC</a> address for 192.168.1.1 but not for an internet server?</i></summary>
 <p>ARP resolves only next hops on the local link. A remote server is reached through the gateway, so the neighbor table needs the gateway's hardware address, not the server's.</p>
 </details>
 <details class="q">
@@ -136,7 +136,7 @@ $ ip neigh show dev enp1s0
 <h3>How it works</h3>
 <p>A prefix length is a count of leading one bits in the mask. The kernel applies a bitwise AND between an address and the mask to find the subnet, and routing uses longest-prefix match: among all routes whose prefix contains the destination, the one with the most leading bits wins. That is why a <code>/32</code> host route overrides a <code>/24</code> route.</p>
 <p><a href="glossary/i/ipv4.html">IPv4</a> private ranges are <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> and <code>192.168.0.0/16</code>; they are not routed on the public internet and are translated at the boundary by <a href="glossary/n/nat.html">NAT</a>. <a href="glossary/i/ipv6.html">IPv6</a> uses global unicast, link-local <code>fe80::/10</code> and unique local <code>fc00::/7</code>. Link-local addresses need an interface scope, written <code>fe80::1%enp1s0</code>, because the same prefix may exist on several interfaces.</p>
-<p>On <a href="glossary/i/ipv4.html">IPv4</a>, ARP broadcasts a request asking "who owns this address?" and the owner replies with its hardware address; the result enters the neighbor table. <a href="glossary/i/ipv6.html">IPv6</a> replaces this with ICMPv6 Neighbor Solicitation and Advertisement, adds duplicate address detection before an address is used, and discovers routers through Router Advertisements. A gratuitous ARP announcement can also update neighbors after an address move, which is useful for failover but opens the door to spoofing.</p>
+<p>On <a href="glossary/i/ipv4.html">IPv4</a>, ARP broadcasts a request asking "who owns this address?" and the owner replies with its hardware address; the result enters the neighbor table. <a href="glossary/i/ipv6.html">IPv6</a> replaces this with ICMPv6 Neighbor Solicitation and Advertisement, adds duplicate address detection before an address is used, and discovers routers through <a href="glossary/r/router.html">Router</a> Advertisements. A gratuitous ARP announcement can also update neighbors after an address move, which is useful for failover but opens the door to spoofing.</p>
 
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="read-only">
@@ -172,7 +172,7 @@ PY
 </section>
 
 <h3>Sources</h3>
-<p><a href="man:ip-address(8)">ip-address(8)</a>, <a href="man:ip-neigh(8)">ip-neigh(8)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:python3(1)">python3(1)</a>. The address meanings follow the IETF <a href="glossary/i/ipv4.html">IPv4</a>, <a href="glossary/i/ipv6.html">IPv6</a>, CIDR, ARP and Neighbor Discovery specifications.</p>
+<p><a href="man:ip-address(8)">ip-address(8)</a>, <a href="man:ip-neigh(8)">ip-neigh(8)</a>, <a href="man:ip-route(8)">ip-route(8)</a> and <a href="man:python3(1)">python3(1)</a>. The address meanings follow the <a href="glossary/i/ietf.html">IETF</a> <a href="glossary/i/ipv4.html">IPv4</a>, <a href="glossary/i/ipv6.html">IPv6</a>, CIDR, ARP and Neighbor Discovery specifications.</p>
 
 <h3>Improve it</h3>
 <p>Check any prefix example with <code>ipaddress</code> before publishing it; an off-by-one broadcast address is easy to miss by reading.</p>

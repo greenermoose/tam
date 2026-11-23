@@ -17,11 +17,11 @@
 
 
 <h1>Selecting files natively with tam-file-select</h1>
-<p><code>tam-file-select</code> is a fast C utility (linking <code>libtam</code>) that opens the desktop XDG file chooser portal so shell scripts and theme tools can ask you to pick files or folders cleanly.</p>
+<p><code>tam-file-select</code> is a fast C utility (linking <code>libtam</code>) that opens the desktop <a href="glossary/x/xdg.html">XDG</a> file chooser portal so shell scripts and theme tools can ask you to pick files or folders cleanly.</p>
 
 <section data-level="novice">
 <h2>Picking a file cleanly from scripts and themes</h2>
-<p>When a desktop action—such as choosing a custom background image—needs you to pick a PNG or SVG file, <code>tam-file-select</code> opens your native graphical file dialog, prints the chosen file path to standard output, and exits immediately.</p>
+<p>When a desktop action—such as choosing a custom background image—needs you to pick a <a href="glossary/p/png.html">PNG</a> or <a href="glossary/s/svg.html">SVG</a> file, <code>tam-file-select</code> opens your native graphical file dialog, prints the chosen file path to standard output, and exits immediately.</p>
 
 <h3>Why it matters</h3>
 <p>Delegating to the XDG portal avoids pulling heavy graphical toolkits into every small script while respecting your current desktop theme.</p>
@@ -64,7 +64,7 @@ $ printf 'exit=%s picked=%s\n' "$?" "$picked"
 <dl>
 <dt>Command exits with status 2</dt>
 <dd>Either no XDG desktop portal is available (for example on a headless text VT), an invalid flag was passed, or <code>tam_install_pending()</code> refused execution while a Tamlinux install or upgrade transaction is in progress.</dd>
-<dt>Script fails when user presses Cancel</dt>
+<dt><a href="glossary/s/script.html">Script</a> fails when user presses Cancel</dt>
 <dd>Always handle exit status <code>1</code> explicitly instead of treating empty stdout under <code>set -e</code> as a selected filename.</dd>
 </dl>
 

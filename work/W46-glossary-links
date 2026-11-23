@@ -1,0 +1,71 @@
+W46 GLOSSARY FIRST-MENTION LINKS
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: opencode/big-pickle
+
+GUIDANCE
+
+  Fred: "Review the tam knowledge corpus glossary for technical terms
+  or acronyms, such as UDP. Verify that each technical term has a page
+  in the glossary. Verify that the first mention of each technical term
+  on any page is hyperlinked to that glossary page.
+
+  Make a list of technical terms that do not have a glossary page and
+  add this to WHATNOW as future work to do.
+
+  For any technical term on a page that is not hyperlinked to its
+  glossary page, link it. Upon encountering a technical term on a page
+  for the first time, a reader should always be able to follow a
+  hyperlink to a glossary page to see the definition and relevant
+  information to ensure they understand the technical term."
+
+  Scope choices confirmed with Fred: acronyms and named technologies,
+  not institutions, chip part numbers, function keys or man-page
+  labels; near misses link to the closest existing page; a one-off
+  editorial pass with no new checker; work in subject-area batches.
+
+DONE
+
+  - Built a throwaway analysis script outside the repository. It reads
+    each glossary page's title, heading, keywords and slug, then finds
+    the first prose mention of each term on every content page. It
+    skips nav, head, comments, pre and code regions, and skips any
+    mention already inside an anchor.
+  - Linked 1,300 first mentions across 278 content pages, in batches:
+    networking, security, programming, terminal, hardware, systems,
+    desktop, tamlinux, bibliography, help, paths, skills and the guide
+    index. A second scan reports no unlinked first mentions left.
+  - UDP on networking/stack/user-datagram-protocol.html now links at
+    its first mention in the opening sentence.
+  - Near misses link to the closest page: IP and IP address to
+    ip-address, MB/KB/GB/TB to byte, HTTP/2 and HTTP/1.1 to http,
+    DRM/KMS to drm, POSIX.1 to posix, UI to gui.
+  - Bumped corpus 0.107.0 to 0.107.1 in knowledge/version and the
+    ROADMAP header, dev row and delivered-history table.
+  - Added the missing-term list to WHATNOW NEXT item 12 for future
+    work: VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
+    SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR, AES-GCM-SIV, BBR,
+    BLE, DB-9, SISD/MISD/MIMD, TX/RX, AAA, LZ77/LZ78, XMSS/LMS,
+    GEM/TTM.
+  - make corpus, make corpus-and-test and tools/lint-corpus.py pass;
+    1,291 pages parse and render, 93 tooling tests OK. Sampled pages
+    render with TAM_KNOWLEDGE_DIR=knowledge build/tam show --pipe.
+
+FAILED
+
+  - The first term set was too broad: it linked ordinary words such as
+    "can" and "current" that have glossary pages. Case-sensitive
+    matching against the canonical title form and a stopword list cut
+    the candidate set from 4,041 to 1,300 real first mentions.
+  - The build-index.py tool has no --check flag; the corpus pipeline
+    check is the supported validation path.
+
+HANDOFF
+
+  - The glossary first-mention pass is complete in Develop; no install
+    or stage move was done.
+  - NEXT item 12 holds the terms that still need glossary pages. Write
+    those pages in a later corpus change and bump the corpus version.
+  - The remaining NEXT items (command bugs and refactoring) are
+    untouched.

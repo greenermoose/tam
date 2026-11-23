@@ -22,7 +22,7 @@
 
 <p>A monolithic kernel runs the scheduler, memory management, file systems,
 network stack and device drivers together in one privileged address space.
-Linux and the BSD kernels are monolithic. Linux can load and unload modules
+Linux and the <a href="glossary/b/bsd.html">BSD</a> kernels are monolithic. Linux can load and unload modules
 while running, but a loaded module still runs inside the kernel with full
 privilege.</p>
 
@@ -36,7 +36,7 @@ privilege.</p>
 <h2>Microkernels</h2>
 
 <p>A microkernel keeps only the mechanisms that need hardware privilege:
-address spaces, threads, scheduling and interprocess communication (IPC).
+address spaces, threads, scheduling and interprocess communication (<a href="glossary/i/ipc.html">IPC</a>).
 Device drivers, file systems and the network stack run as separate user-space
 programs, often called servers, that talk to each other and to applications by
 passing messages through the kernel.</p>
@@ -51,7 +51,7 @@ passing messages through the kernel.</p>
 
 <p>The L4 family of microkernels, begun in the 1990s, showed that careful
 design can make IPC fast, which answered much of the early criticism. The
-public argument in 1992 between Andrew Tanenbaum, author of MINIX, and Linus
+public argument in 1992 between Andrew Tanenbaum, author of <a href="glossary/m/minix.html">MINIX</a>, and Linus
 Torvalds over whether Linux should have been a microkernel is still often
 cited; both designs remain in wide use.</p>
 
@@ -59,14 +59,14 @@ cited; both designs remain in wide use.</p>
 
 <table>
 <tr><td><strong>Restarting is not recovering</strong></td><td>Restarting a crashed file-system server does not restore the data it held in memory, and its clients must be written to reconnect.</td></tr>
-<tr><td><strong>Isolation needs hardware help</strong></td><td>A driver that controls a device able to write anywhere in memory (direct memory access) is only contained if an IOMMU restricts that device.</td></tr>
+<tr><td><strong>Isolation needs hardware help</strong></td><td>A driver that controls a device able to write anywhere in memory (direct memory access) is only contained if an <a href="glossary/i/iommu.html">IOMMU</a> restricts that device.</td></tr>
 <tr><td><strong>The label is not the measurement</strong></td><td>Whether a system is faster, safer or more reliable depends on its implementation, not its category. Tam 2.0 research measures these rather than assuming them.</td></tr>
 </table>
 
 <h2>Hybrid kernels</h2>
 
 <p>A hybrid kernel is structured like a microkernel but runs many of its
-services inside kernel space for speed. Windows NT and Apple's XNU, the kernel
+services inside kernel space for speed. Windows NT and Apple's <a href="glossary/x/xnu.html">XNU</a>, the kernel
 of macOS, are usually described as hybrids. The term is loose; it describes
 where code runs, not a separate theory.</p>
 
@@ -81,8 +81,8 @@ where code runs, not a separate theory.</p>
 
 <p>Programs rarely call the kernel directly. They call a C library, such as
 glibc or musl on Linux, which makes the system calls; see
-<a href="programming/c/libc.html">C standard libraries</a>. POSIX is the standard
-interface that Unix-like systems share at this level. A system with good
+<a href="programming/c/libc.html">C standard libraries</a>. <a href="glossary/p/posix.html">POSIX</a> is the standard
+interface that <a href="glossary/u/unix.html">Unix</a>-like systems share at this level. A system with good
 POSIX compatibility can run much existing software after recompiling it, even
 if its kernel is very different from Linux. Tamlinux's design keeps the
 communication between its own software and the <a href="glossary/r/rootstock.html">rootstock</a> to standard
@@ -93,8 +93,8 @@ and aims to minimize the size of the rootstock while maximizing its speed and
 efficiency (currently Arch Linux, with plans to migrate to Void Linux and later
 explore a microkernel).</p>
 
-<p>Linux itself moves some work out of the kernel: FUSE lets file systems run
-as user programs, and VFIO lets a user program drive a device. These narrow the
+<p>Linux itself moves some work out of the kernel: <a href="glossary/f/fuse.html">FUSE</a> lets file systems run
+as user programs, and <a href="glossary/v/vfio.html">VFIO</a> lets a user program drive a device. These narrow the
 gap for particular cases without changing the overall design.</p>
 </body>
 </html>

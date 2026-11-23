@@ -20,9 +20,9 @@
 <p>If the usual startup fails, you may be able to start with a different set of system files or use separate recovery tools. The name shown in a menu does not tell you which problems an option can solve.</p>
 <section data-level="novice">
 <h2>What is a boot recovery route?</h2>
-<p>A boot recovery route is an alternate way to start your computer—such as choosing an older kernel, booting a previous filesystem snapshot, or starting from a rescue USB drive—when the normal startup path fails.</p>
+<p>A boot recovery route is an alternate way to start your computer—such as choosing an older kernel, booting a previous filesystem snapshot, or starting from a rescue <a href="glossary/u/usb.html">USB</a> drive—when the normal startup path fails.</p>
 <h3>Why it matters</h3>
-<p>Different startup failures need different recovery tools: picking another kernel cannot fix an EFI partition that firmware cannot read. Noticing the last stage that appeared on screen tells you which recovery route can actually help.</p>
+<p>Different startup failures need different recovery tools: picking another kernel cannot fix an <a href="glossary/e/efi.html">EFI</a> partition that firmware cannot read. Noticing the last stage that appeared on screen tells you which recovery route can actually help.</p>
 <h3>How to think about it</h3>
 <p>Think of startup like a row of bridges leading into town. If the second bridge is out, taking a detour around the fourth bridge will not get you across; you pick the detour that bypasses the specific bridge that failed.</p>
 <h3>New words</h3>
@@ -58,7 +58,7 @@ credentials to access encrypted installed storage.</p>
 <h3>Worked example: A desktop failure</h3>
 <p>Scenario: the machine reaches a text login, but the graphical session fails.</p>
 <ol><li>Record “text login reached; graphical session fails” and the time.</li>
-<li>Firmware, loader and enough of Linux to offer that login worked.</li>
+<li><a href="glossary/f/firmware.html">Firmware</a>, loader and enough of Linux to offer that login worked.</li>
 <li>Choose session evidence and the <a href="systems/recovery/recovery.html?level=1">console recovery lesson</a>
 before proposing a boot-file change.</li></ol>
 <p>This is a paper diagnosis, not captured host output or a claim that a
@@ -77,7 +77,7 @@ a disk number or overwrite an EFI file to see whether the message changes.
 If storage may be physically failing, prioritize a suitable data-recovery
 procedure rather than repeated repairs.</p>
 <aside class="tamlinux"><p>The current Arch provider
-combines Limine, generated images and snapshot entries. A second menu item is
+combines <a href="glossary/l/limine.html">Limine</a>, generated images and snapshot entries. A second menu item is
 not evidence of independence. The boot-provider contract calls for retained
 native artifacts and an independent rescue route; product generation return
 has a different boundary.</p></aside>
@@ -90,7 +90,7 @@ has a different boundary.</p></aside>
 </section>
 <section data-level="expert">
 <h2>Audit independence and recovery evidence</h2>
-<h3>Reference</h3><p>On x86-64 UEFI removable media, the default EFI program
+<h3>Reference</h3><p>On x86-64 <a href="glossary/u/uefi.html">UEFI</a> removable media, the default EFI program
 name is <code>\EFI\BOOT\BOOTX64.EFI</code>. This names an EFI program,
 not another Linux installation. Availability and fixed-disk fallback behavior
 must be verified against the firmware and platform procedure.</p>

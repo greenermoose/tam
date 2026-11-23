@@ -74,7 +74,7 @@ Power = Voltage * Current    (P = V * I)
 Power = Current^2 * Resistance    (P = I^2 * R)
 </pre>
 
-<p>Because resistive power loss scales with the <em>square</em> of the current ($I^2 R$), doubling the current quadruples the heat generated in the cables. This explains why computers use higher voltages (+12V rather than +5V, or USB-PD at 20V/48V) to power energy-intensive processors and graphics cards: transmitting power at higher voltage requires fewer amperes of current for the same wattage, dramatically reducing cable heating and voltage drop.</p>
+<p>Because resistive power loss scales with the <em>square</em> of the current ($I^2 R$), doubling the current quadruples the heat generated in the cables. This explains why computers use higher voltages (+12V rather than +5V, or <a href="glossary/u/usb-pd.html">USB-PD</a> at 20V/48V) to power energy-intensive processors and graphics cards: transmitting power at higher voltage requires fewer amperes of current for the same wattage, dramatically reducing cable heating and voltage drop.</p>
 <h3>Worked example: inspect system power rails and battery state</h3>
 <pre class="session" data-risk="read-only">
 $ upower -i $(upower -e | grep -E "battery|line_power" | head -1)
@@ -109,7 +109,7 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 <h3>What just happened</h3>
 <ol>
 <li><code>upower</code> queries the system power management daemon for physical battery metrics, reporting an active voltage of 12.65 volts and an instantaneous charging rate of 18.4 watts.</li>
-<li><code>sensors</code> reads hardware monitoring chips on the motherboard, showing regulated direct-current (DC) voltage rails: the CPU core voltage (1.05 V) and the primary system power rails (+12V, +5V, +3.3V).</li>
+<li><code>sensors</code> reads hardware monitoring chips on the motherboard, showing regulated direct-current (DC) voltage rails: the <a href="glossary/c/cpu.html">CPU</a> core voltage (1.05 V) and the primary system power rails (+12V, +5V, +3.3V).</li>
 <li>Each voltage rail remains within standard 5% tolerance windows required for digital silicon stability.</li>
 </ol>
 <h3>Try it</h3>
@@ -119,10 +119,10 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 <dt><code>sensors: command not found</code></dt>
 <dd>The <code>lm_sensors</code> package is not installed. Inspect power status via the sysfs battery interface instead: <code>cat /sys/class/power_supply/*/voltage_now</code>.</dd>
 <dt>A reported voltage rail shows zero or negative values</dt>
-<dd>Motherboard sensor chips use analog multiplexers that require specific chip-configuration formulas. Unconfigured sensors often report erroneous raw values; confirm stability with <code>upower -d</code>.</dd>
+<dd><a href="glossary/m/motherboard.html">Motherboard</a> sensor chips use analog multiplexers that require specific chip-configuration formulas. Unconfigured sensors often report erroneous raw values; confirm stability with <code>upower -d</code>.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> the power management daemon coordinates with ACPI and the Linux kernel to monitor battery health, thermal margins, and charging profiles. Tamlinux sets CPU governor policies that throttle back clock frequencies if motherboard sensors detect thermal runaway or voltage delivery instability, protecting laptop hardware from battery swelling and circuit stress.</p>
+<p><strong>On Tamlinux:</strong> the power management daemon coordinates with <a href="glossary/a/acpi.html">ACPI</a> and the Linux kernel to monitor battery health, thermal margins, and charging profiles. Tamlinux sets CPU governor policies that throttle back clock frequencies if motherboard sensors detect thermal runaway or voltage delivery instability, protecting laptop hardware from battery swelling and circuit stress.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -147,22 +147,22 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 <h3>Reference</h3>
 
 <table>
-<tr><th>Subsystem / Rail</th><th>Nominal Voltage</th><th>Allowable Ripple (V_pp)</th><th>Transient Response</th><th>Primary Destination</th></tr>
-<tr><td>+12V Rail</td><td>+12.00 V +/- 5%</td><td>&lt; 120 mV</td><td>&lt; 500 us to 1% load step</td><td>CPU VRM, GPU VRM, fan motors, mechanical disk spindles</td></tr>
-<tr><td>+5V Rail</td><td>+5.00 V +/- 5%</td><td>&lt; 50 mV</td><td>&lt; 500 us to 1% load step</td><td>USB ports, SSD logic circuits, legacy motherboard ICs</td></tr>
-<tr><td>+3.3V Rail</td><td>+3.30 V +/- 5%</td><td>&lt; 50 mV</td><td>&lt; 500 us to 1% load step</td><td>PCIe card logic, M.2 NVMe controllers, motherboard chipsets</td></tr>
-<tr><td>+5VSB (Standby)</td><td>+5.00 V +/- 5%</td><td>&lt; 50 mV</td><td>Continuous (active during shutdown)</td><td>Baseboard Management Controller (BMC), Power button logic, Wake-on-LAN</td></tr>
+<tr><th>Subsystem / Rail</th><th>Nominal Voltage</th><th>Allowable Ripple (V_pp)</th><th><a href="glossary/t/transient.html">Transient</a> Response</th><th>Primary Destination</th></tr>
+<tr><td>+12V Rail</td><td>+12.00 V +/- 5%</td><td>&lt; 120 mV</td><td>&lt; 500 us to 1% load step</td><td>CPU <a href="glossary/v/vrm.html">VRM</a>, <a href="glossary/g/gpu.html">GPU</a> VRM, fan motors, mechanical disk spindles</td></tr>
+<tr><td>+5V Rail</td><td>+5.00 V +/- 5%</td><td>&lt; 50 mV</td><td>&lt; 500 us to 1% load step</td><td>USB ports, <a href="glossary/s/ssd.html">SSD</a> logic circuits, legacy motherboard ICs</td></tr>
+<tr><td>+3.3V Rail</td><td>+3.30 V +/- 5%</td><td>&lt; 50 mV</td><td>&lt; 500 us to 1% load step</td><td><a href="glossary/p/pcie.html">PCIe</a> card logic, M.2 <a href="glossary/n/nvme.html">NVMe</a> controllers, motherboard chipsets</td></tr>
+<tr><td>+5VSB (Standby)</td><td>+5.00 V +/- 5%</td><td>&lt; 50 mV</td><td>Continuous (active during shutdown)</td><td>Baseboard Management Controller (<a href="glossary/b/bmc.html">BMC</a>), Power button logic, Wake-on-LAN</td></tr>
 <tr><td>Vcore (CPU/GPU)</td><td>0.70 V - 1.45 V</td><td>&lt; 15 mV</td><td>&lt; 10 us (multiphase buck)</td><td>Silicon execution core transistors (ALUs, vector registers, caches)</td></tr>
 </table>
 
-<h3>How it works: Switched-Mode Power Supplies (SMPS)</h3>
+<h3>How it works: Switched-Mode Power Supplies (<a href="glossary/s/smps.html">SMPS</a>)</h3>
 
 <p>Computers do not use bulky, inefficient linear power supplies that dissipate excess voltage as pure heat. Instead, modern computer power supply units operate as <strong>Switched-Mode Power Supplies (SMPS)</strong>, achieving over 90% energy efficiency through high-frequency switching:</p>
 
 <ol>
-<li><strong>Mains Rectification and Filtering:</strong> Incoming 120V/240V AC power passes through an Electromagnetic Interference (EMI) filter to prevent high-frequency noise from leaking back into the building wiring. A full-wave diode bridge rectifier converts the sinusoidal AC wave into high-voltage pulsating DC (approximately 170V to 340V DC), smoothed by bulk electrolytic capacitors.</li>
-<li><strong>Active Power Factor Correction (PFC):</strong> An active boost converter aligns the current waveform with the voltage waveform, ensuring power factor exceeds 0.95 and preventing wasted reactive power on utility grids.</li>
-<li><strong>High-Frequency Inversion:</strong> High-power MOSFET switches chop the high-voltage DC into a high-frequency square wave (typically 50 kHz to 200 kHz). Because transformer core size shrinks inversely with frequency, a tiny high-frequency ferrite transformer steps down this high voltage to low voltages safely, providing complete galvanic isolation from the lethal AC mains.</li>
+<li><strong>Mains Rectification and Filtering:</strong> Incoming 120V/240V AC power passes through an Electromagnetic Interference (<a href="glossary/e/emi.html">EMI</a>) filter to prevent high-frequency noise from leaking back into the building wiring. A full-wave diode bridge rectifier converts the sinusoidal AC wave into high-voltage pulsating DC (approximately 170V to 340V DC), smoothed by bulk electrolytic capacitors.</li>
+<li><strong>Active Power Factor Correction (<a href="glossary/p/pfc.html">PFC</a>):</strong> An active boost converter aligns the current waveform with the voltage waveform, ensuring power factor exceeds 0.95 and preventing wasted reactive power on utility grids.</li>
+<li><strong>High-Frequency Inversion:</strong> High-power <a href="glossary/m/mosfet.html">MOSFET</a> switches chop the high-voltage DC into a high-frequency square wave (typically 50 kHz to 200 kHz). Because transformer core size shrinks inversely with frequency, a tiny high-frequency ferrite transformer steps down this high voltage to low voltages safely, providing complete galvanic isolation from the lethal AC mains.</li>
 <li><strong>Secondary Rectification and Multiphase Buck Regulation:</strong> Fast Schottky diodes or synchronous MOSFET rectifiers convert the stepped-down transformer output back into smooth DC rails (+12V). On the motherboard, multi-phase synchronous buck converters take that +12V rail and step it down to the exact sub-1.2V core voltages (Vcore) needed by CPU and GPU silicon, switching phases sequentially to deliver hundreds of amperes of current with less than 15 millivolts of ripple.</li>
 </ol>
 
@@ -171,10 +171,10 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 <p>Computer power supplies and motherboards incorporate dedicated hardware supervisor ICs that monitor voltages and currents in real time:</p>
 
 <table>
-<tr><td><strong>Over-Current Protection (OCP)</strong></td><td>Current-sensing shunt resistors detect if current through any rail exceeds safe wire ratings. If tripped, the controller halts switching pulses within microseconds to prevent wire melting.</td></tr>
-<tr><td><strong>Over-Voltage Protection (OVP)</strong></td><td>Voltage divider circuits verify rails do not exceed specifications. If a failed MOSFET shorts the 12V input directly to a 1.0V CPU line, OVP clamps the rail and shuts down the supply before the silicon die vaporizes.</td></tr>
-<tr><td><strong>Short-Circuit Protection (SCP)</strong></td><td>Detects instantaneous impedance drops between positive rails and ground, cutting power before fires can start.</td></tr>
-<tr><td><strong>Transient Voltage Suppression (TVS)</strong></td><td>Solid-state avalanche diodes soldered adjacent to external connector pins (USB, Ethernet, HDMI). When static electricity (which can exceed 15,000 volts) strikes an exposed pin, the TVS diode breaks down reversibly in less than 1 nanosecond, shunting the discharge energy safely to chassis ground.</td></tr>
+<tr><td><strong>Over-Current Protection (<a href="glossary/o/ocp.html">OCP</a>)</strong></td><td>Current-sensing shunt resistors detect if current through any rail exceeds safe wire ratings. If tripped, the controller halts switching pulses within microseconds to prevent wire melting.</td></tr>
+<tr><td><strong>Over-Voltage Protection (<a href="glossary/o/ovp.html">OVP</a>)</strong></td><td>Voltage divider circuits verify rails do not exceed specifications. If a failed MOSFET shorts the 12V input directly to a 1.0V CPU line, OVP clamps the rail and shuts down the supply before the silicon die vaporizes.</td></tr>
+<tr><td><strong>Short-Circuit Protection (<a href="glossary/s/scp.html">SCP</a>)</strong></td><td>Detects instantaneous impedance drops between positive rails and ground, cutting power before fires can start.</td></tr>
+<tr><td><strong>Transient Voltage Suppression (TVS)</strong></td><td>Solid-state avalanche diodes soldered adjacent to external connector pins (USB, <a href="glossary/e/ethernet.html">Ethernet</a>, <a href="glossary/h/hdmi.html">HDMI</a>). When static electricity (which can exceed 15,000 volts) strikes an exposed pin, the TVS diode breaks down reversibly in less than 1 nanosecond, shunting the discharge energy safely to chassis ground.</td></tr>
 </table>
 
 <h3>Safety Earth versus Signal Ground: the ground loop hazard</h3>
@@ -183,20 +183,20 @@ in0:           1.05 V  (min =  +0.80 V, max =  +1.35 V)
 
 <table>
 <tr><td><strong>Safety Earth (Protective Earth / PE)</strong></td><td>The third prong on an AC mains plug. It connects the metal chassis of the power supply and computer case directly to the physical soil of the building electrical service. If an internal wire frays and touches the metal case, the fault current rushes down the Safety Earth wire, immediately tripping the room's circuit breaker rather than electrocuting someone who touches the case.</td></tr>
-<tr><td><strong>Signal Ground (GND)</strong></td><td>The common reference point (0 volts) for electronic logic circuits inside the computer.</td></tr>
+<tr><td><strong>Signal Ground (<a href="glossary/g/gnd.html">GND</a>)</strong></td><td>The common reference point (0 volts) for electronic logic circuits inside the computer.</td></tr>
 </table>
 
-<p>When two computers located in different parts of a building are connected by a shielded copper cable (such as an RS-232 serial cable or unisolated audio line), subtle differences in electrical building wiring mean the earth potential at Computer A may be 2 or 3 volts different from Computer B. This voltage difference drives a continuous stray current through the cable shield &mdash; a phenomenon known as a <strong>ground loop</strong>. Ground loops introduce 50/60 Hz hum, induce logic errors in communication lines, and in severe industrial environments can melt cable shielding. Engineers eliminate ground loops by using differential signaling, optical fiber cables, or galvanic optoisolators.</p>
+<p>When two computers located in different parts of a building are connected by a shielded copper cable (such as an <a href="glossary/r/rs-232.html">RS-232</a> serial cable or unisolated audio line), subtle differences in electrical building wiring mean the earth potential at Computer A may be 2 or 3 volts different from Computer B. This voltage difference drives a continuous stray current through the cable shield &mdash; a phenomenon known as a <strong>ground loop</strong>. Ground loops introduce 50/60 Hz hum, induce logic errors in communication lines, and in severe industrial environments can melt cable shielding. Engineers eliminate ground loops by using differential signaling, optical fiber cables, or galvanic optoisolators.</p>
 
 <h3>Why Tamlinux chose this</h3>
 
-<p>Understanding power rail tolerances and grounding informs Tamlinux’s hardware qualification. By prioritizing digital kernel power management (CPU C-states, PCIe ASPM, runtime PM), Tamlinux ensures workstations run at lowest possible dynamic switching power. Furthermore, Tamlinux documentation emphasizes complete electrical isolation when interfacing external instrumentation or serial devices, preventing damaging ground loop currents from circulating through workstation motherboards.</p>
+<p>Understanding power rail tolerances and grounding informs Tamlinux’s hardware qualification. By prioritizing digital kernel power management (CPU C-states, PCIe <a href="glossary/a/aspm.html">ASPM</a>, runtime PM), Tamlinux ensures workstations run at lowest possible dynamic switching power. Furthermore, Tamlinux documentation emphasizes complete electrical isolation when interfacing external instrumentation or serial devices, preventing damaging ground loop currents from circulating through workstation motherboards.</p>
 
 <h3>Edge cases and failure modes</h3>
 
 <ul>
 <li><strong>12VHPWR Connector Contact Resistance:</strong> The 16-pin PCIe 5.0 high-power GPU connector carries up to 50 amperes over small pins. If the connector is partially unseated or bent tightly near the socket, pin contact resistance can rise from 2 milliohms to 20 milliohms. At 50 amps, that small resistance generates 50 watts of localized heat ($I^2 R$), melting the nylon housing.</li>
-<li><strong>Electrolytic Capacitor Degradation:</strong> Aging power supplies suffer from electrolyte evaporation in filter capacitors, increasing Equivalent Series Resistance (ESR). High ESR allows excessive voltage ripple on DC rails, causing mysterious memory corruption and random CPU kernel panics under high load.</li>
+<li><strong>Electrolytic Capacitor Degradation:</strong> Aging power supplies suffer from electrolyte evaporation in filter capacitors, increasing Equivalent Series Resistance (<a href="glossary/e/esr.html">ESR</a>). High ESR allows excessive voltage ripple on DC rails, causing mysterious memory corruption and random CPU kernel panics under high load.</li>
 <li><strong>Floating Ground Voltage Drift:</strong> When a communication board lacks a shared ground reference return with its host, capacitive coupling causes the board's local zero-volt reference to float unpredictably, pushing incoming signals far outside the transceiver's allowable common-mode voltage range.</li>
 </ul>
 
@@ -225,8 +225,8 @@ Core	CPU	Avg_MHz	PkgWatt	CorWatt	RAMWatt
 
 <ul>
 <li>Horowitz, P., &amp; Hill, W. <em>The Art of Electronics</em> (3rd ed.). Cambridge University Press.</li>
-<li>Intel Corporation. <em>ATX Version 3.0 Multi-Rail Power Supply Design Guide</em>.</li>
-<li>USB Implementers Forum. <em>Universal Serial Bus Power Delivery Specification Revision 3.1</em>.</li>
+<li>Intel Corporation. <em><a href="glossary/a/atx.html">ATX</a> Version 3.0 Multi-Rail Power Supply Design Guide</em>.</li>
+<li>USB Implementers Forum. <em>Universal Serial <a href="glossary/b/bus.html">Bus</a> Power Delivery Specification Revision 3.1</em>.</li>
 </ul>
 
 <h3>Improve it</h3>

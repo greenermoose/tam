@@ -24,7 +24,7 @@
 
 <section data-level="novice">
 <h2>How did computer displays evolve?</h2>
-<p>Computer displays began as paper-printing typewriters called teletypes, progressed to glass cathode-ray tubes (CRTs), and evolved into today&apos;s thin flat-panel LCD and OLED screens.</p>
+<p>Computer displays began as paper-printing typewriters called teletypes, progressed to glass cathode-ray tubes (CRTs), and evolved into today&apos;s thin flat-panel <a href="glossary/l/lcd.html">LCD</a> and <a href="glossary/o/oled.html">OLED</a> screens.</p>
 <h3>Why it matters</h3>
 <p>Even on modern high-resolution monitors, everyday Linux tools—terminals, cursor keys, virtual consoles, and escape codes—still carry conventions invented for historical teletypes and early screens. Knowing that lineage explains why terminals behave the way they do.</p>
 <h3>How to think about it</h3>
@@ -38,7 +38,7 @@
 <dt><a href="glossary/l/lcd.html">LCD</a></dt>
 <dd>Liquid Crystal Display; a flat panel that shapes light from a backlight through liquid crystals and color filters.</dd>
 <dt><a href="glossary/o/oled.html">OLED</a></dt>
-<dd>Organic Light-Emitting Diode; a flat panel where each individual pixel emits its own light.</dd>
+<dd>Organic Light-Emitting <a href="glossary/d/diode.html">Diode</a>; a flat panel where each individual pixel emits its own light.</dd>
 </dl>
 </section>
 
@@ -47,7 +47,7 @@
 <p><strong>Goal:</strong> you will be able to outline the primary eras of computer output devices and inspect the physical display outputs detected by your Linux system.</p>
 <p><strong>Before you start:</strong> open a terminal window. All commands in this section inspect system hardware state without changing your files or display settings.</p>
 <aside class="first-time">
-<p><strong>New to this?</strong> Display hardware attached to your computer is represented by files in the Linux <code>/sys/class/drm/</code> directory. DRM stands for Direct Rendering Manager, the kernel system responsible for managing screens and graphics cards.</p>
+<p><strong>New to this?</strong> Display hardware attached to your computer is represented by files in the Linux <code>/sys/class/drm/</code> directory. <a href="glossary/d/drm.html">DRM</a> stands for Direct Rendering Manager, the kernel system responsible for managing screens and graphics cards.</p>
 </aside>
 <h3>Mental model</h3>
 <pre>
@@ -101,14 +101,14 @@ $ head -n 1 /sys/class/drm/card1-*/modes
 <dd>The monitor did not transmit an Extended Display Identification Data (<dfn><a href="glossary/e/edid.html">EDID</a></dfn>) packet over the display cable, so the kernel does not yet know what resolutions the screen supports.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> power efficiency and hardware longevity are foundational principles. Tamlinux defaults to high-contrast dark green themes (<a href="desktop/appearance/themes.html">Tamarack</a>) which significantly reduce power consumption and thermal stress on modern OLED and AMOLED displays while maximizing legibility.</p>
+<p><strong>On Tamlinux:</strong> power efficiency and hardware longevity are foundational principles. Tamlinux defaults to high-contrast dark green themes (<a href="desktop/appearance/themes.html">Tamarack</a>) which significantly reduce power consumption and thermal stress on modern OLED and <a href="glossary/a/amoled.html">AMOLED</a> displays while maximizing legibility.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary><i>Why is the Linux terminal command called tty?</i></summary>
-<p>TTY is short for &ldquo;TeleTYpe&rdquo;, the electromechanical typewriter used to communicate with early Unix mainframes before glass video monitors were invented.</p>
+<p>TTY is short for &ldquo;TeleTYpe&rdquo;, the electromechanical typewriter used to communicate with early <a href="glossary/u/unix.html">Unix</a> mainframes before glass video monitors were invented.</p>
 </details>
 <details class="q">
 <summary><i>What was a Williams-Kilburn tube, and why is it historically unique?</i></summary>
@@ -124,12 +124,12 @@ $ head -n 1 /sys/class/drm/card1-*/modes
 <table>
 <tr><th>Protocol Type</th><th>Mechanism</th><th>Tracking Responsibility</th><th>Kernel Events Used</th><th>Hardware Class</th></tr>
 <tr><td>Type A (Anonymous)</td><td>Sends all active contact packets on every frame; packet order implies slot</td><td>User-space driver must correlate contacts across frames</td><td><code>ABS_MT_POSITION_X</code>, <code>SYN_MT_REPORT</code>, <code>SYN_REPORT</code></td><td>Legacy multi-touch screens, early digitizers</td></tr>
-<tr><td>Type B (Slotted)</td><td>Assigns a persistent hardware tracking ID to each contact point across frames</td><td>Kernel tracks touch contacts in hardware slots</td><td><code>ABS_MT_SLOT</code>, <code>ABS_MT_TRACKING_ID</code>, <code>SYN_REPORT</code></td><td>Modern PCAP touchscreens, multi-touch trackpads</td></tr>
+<tr><td>Type B (Slotted)</td><td>Assigns a persistent hardware tracking ID to each contact point across frames</td><td>Kernel tracks touch contacts in hardware slots</td><td><code>ABS_MT_SLOT</code>, <code>ABS_MT_TRACKING_ID</code>, <code>SYN_REPORT</code></td><td>Modern <a href="glossary/p/pcap.html">PCAP</a> touchscreens, multi-touch trackpads</td></tr>
 </table>
 
 <h3>How it works: Touch event reporting in the Linux kernel</h3>
 
-<p>When you touch a projected capacitive screen, the hardware digitizer ASIC scans its electrode matrix, computes coordinate centroids, and sends USB or I2C interrupt reports to the Linux kernel:</p>
+<p>When you touch a projected capacitive screen, the hardware digitizer <a href="glossary/a/asic.html">ASIC</a> scans its electrode matrix, computes coordinate centroids, and sends <a href="glossary/u/usb.html">USB</a> or <a href="glossary/i/i2c.html">I2C</a> interrupt reports to the Linux kernel:</p>
 
 <ol>
 <li><strong>Slot Allocation:</strong> The kernel&apos;s <code>hid-multitouch</code> driver maps the hardware contact to an available multi-touch slot using <code>ABS_MT_SLOT</code>.</li>
@@ -141,7 +141,7 @@ $ head -n 1 /sys/class/drm/card1-*/modes
 <tr><td><strong>Finger Up</strong></td><td>The kernel emits <code>ABS_MT_TRACKING_ID -1</code> to indicate that the touch contact has lifted from the screen.</td></tr>
 </table>
 </li>
-<li><strong>Compositor Handling:</strong> Wayland compositors (like Hyprland and Sway) consume these slotted events via <code>libinput</code>, converting raw hardware digitizer coordinates into window surface touch gestures (tap, scroll, pinch-to-zoom).</li>
+<li><strong><a href="glossary/c/compositor.html">Compositor</a> Handling:</strong> <a href="glossary/w/wayland.html">Wayland</a> compositors (like <a href="glossary/h/hyprland.html">Hyprland</a> and Sway) consume these slotted events via <code>libinput</code>, converting raw hardware digitizer coordinates into window surface touch gestures (tap, scroll, pinch-to-zoom).</li>
 </ol>
 
 <h3>Why Tamlinux chose this</h3>
@@ -152,7 +152,7 @@ $ head -n 1 /sys/class/drm/card1-*/modes
 
 <ol>
 <li><strong>Indium Tin Oxide (ITO) Resistance Drifts:</strong> Large touchscreens suffer from electrical resistance and capacitance across long physical traces, leading to edge latency and touch jitter. Advanced controllers compensate using multi-frequency driving and digital noise filtering.</li>
-<li><strong>OLED Burn-in and Subpixel Layouts:</strong> Most consumer OLEDs use PenTile or diamond subpixel arrangements (sharing green subpixels between red and blue) rather than standard RGB stripes. Subpixel font rendering (ClearType / FreeType LCD filters) that assumes strict horizontal RGB ordering can cause colored fringing around small text. High-DPI scaling mitigates this by rendering at pixel densities where subpixel rendering can be disabled cleanly.</li>
+<li><strong>OLED Burn-in and Subpixel Layouts:</strong> Most consumer OLEDs use PenTile or diamond subpixel arrangements (sharing green subpixels between red and blue) rather than standard <a href="glossary/r/rgb.html">RGB</a> stripes. Subpixel font rendering (ClearType / FreeType LCD filters) that assumes strict horizontal RGB ordering can cause colored fringing around small text. High-<a href="glossary/d/dpi.html">DPI</a> scaling mitigates this by rendering at pixel densities where subpixel rendering can be disabled cleanly.</li>
 </ol>
 
 <h3>Explore: inspect kernel input devices with evtest</h3>
@@ -175,7 +175,7 @@ H: Handlers=sysrq kbd event3
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q open">
-<summary>Why is the Linux Type B (slotted) multi-touch protocol vastly more CPU-efficient than the Type A protocol?</summary>
+<summary>Why is the Linux Type B (slotted) multi-touch protocol vastly more <a href="glossary/c/cpu.html">CPU</a>-efficient than the Type A protocol?</summary>
 <p>Under Type A, the hardware transmits every contact coordinate on every single frame, requiring user-space software to perform complex spatial matching algorithms to determine which point corresponds to which finger. Type B performs this tracking in hardware or low-level kernel drivers, transmitting only changed coordinates for active slots and eliminating redundant user-space calculations.</p>
 </details>
 <details class="q open">
@@ -198,7 +198,7 @@ H: Handlers=sysrq kbd event3
 </section>
 
 <h2>Next</h2><p><a href="hardware/displays/computer-graphics.html">Computer graphics and the rendering pipeline</a> &mdash; understand how the images on these screens are created in memory.</p>
-<h2>Related</h2><ul><li><a href="hardware/architecture/gpu-architecture.html">Graphics processing units and CPU-GPU architecture</a> &mdash; explore the parallel processors driving modern displays.</li><li><a href="hardware/displays/display-cables.html">Display interfaces, video cables, and connectors</a> &mdash; learn how display signals travel across physical cables like HDMI and DisplayPort.</li><li><a href="desktop/appearance/themes.html">Color systems and desktop theming</a> &mdash; study color science, WCAG contrast, and atomic desktop styling.</li></ul>
+<h2>Related</h2><ul><li><a href="hardware/architecture/gpu-architecture.html">Graphics processing units and CPU-GPU architecture</a> &mdash; explore the parallel processors driving modern displays.</li><li><a href="hardware/displays/display-cables.html">Display interfaces, video cables, and connectors</a> &mdash; learn how display signals travel across physical cables like <a href="glossary/h/hdmi.html">HDMI</a> and <a href="glossary/d/displayport.html">DisplayPort</a>.</li><li><a href="desktop/appearance/themes.html">Color systems and desktop theming</a> &mdash; study color science, <a href="glossary/w/wcag.html">WCAG</a> contrast, and atomic desktop styling.</li></ul>
 
 </body>
 </html>

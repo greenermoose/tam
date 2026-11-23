@@ -65,8 +65,8 @@ Use: Bootloader, kernel, initramfs,     Use: Fast tool/build
      clean-room OS installation              package verification
 </pre>
 
-<p>Virtual machines emulate full hardware, booting an independent kernel with its own memory and device drivers. Containers isolate user space using Linux kernel namespaces (PID, mount, network, IPC) and control groups (cgroups), sharing the host kernel for minimal resource overhead and instant startup.</p>
-<h3>Worked example: Check runtime virtualization and KVM availability</h3>
+<p>Virtual machines emulate full hardware, booting an independent kernel with its own memory and device drivers. Containers isolate user space using Linux kernel namespaces (<a href="glossary/p/pid.html">PID</a>, mount, network, <a href="glossary/i/ipc.html">IPC</a>) and control groups (cgroups), sharing the host kernel for minimal resource overhead and instant startup.</p>
+<h3>Worked example: Check runtime virtualization and <a href="glossary/k/kvm.html">KVM</a> availability</h3>
 <pre class="session" data-risk="read-only">
 $ systemd-detect-virt
 none
@@ -78,10 +78,10 @@ crw-rw-rw- 1 root kvm 10, 232 Oct 23 14:15 /dev/kvm
 <h3>What just happened</h3>
 <ol>
 <li><code>systemd-detect-virt</code> returned <code>none</code>, confirming that the current shell is executing directly on physical bare-metal hardware rather than within a guest virtual machine or container.</li>
-<li><code>ls -l /dev/kvm</code> confirms that the Kernel-based Virtual Machine (KVM) character device is present with read-write permissions (mode 0666), enabling hardware-accelerated virtualization for QEMU virtual machines.</li>
+<li><code>ls -l /dev/kvm</code> confirms that the Kernel-based Virtual Machine (KVM) character device is present with read-write permissions (mode 0666), enabling hardware-accelerated virtualization for <a href="glossary/q/qemu.html">QEMU</a> virtual machines.</li>
 </ol>
 <h3>Try it</h3>
-<p>Query CPU hardware virtualization extension flags (such as Intel VT-x or AMD-V) using <code>lscpu</code>:</p>
+<p>Query <a href="glossary/c/cpu.html">CPU</a> hardware virtualization extension flags (such as Intel VT-x or <a href="glossary/a/amd-v.html">AMD-V</a>) using <code>lscpu</code>:</p>
 
 <pre class="session" data-risk="read-only">
 $ lscpu | grep -i Virtualization
@@ -94,7 +94,7 @@ Virtualization:                          AMD-V
 <dt>systemd-detect-virt prints 'kvm', 'qemu', or 'systemd-nspawn'</dt>
 <dd>The shell is currently running inside a virtual machine or container guest rather than directly on bare metal.</dd>
 <dt>/dev/kvm does not exist or Permission denied</dt>
-<dd>Hardware virtualization (Intel VT-x or AMD-V) is disabled in the system UEFI/BIOS firmware, or the <code>kvm</code> kernel module is not loaded.</dd>
+<dd>Hardware virtualization (Intel VT-x or AMD-V) is disabled in the system <a href="glossary/u/uefi.html">UEFI</a>/<a href="glossary/b/bios.html">BIOS</a> firmware, or the <code>kvm</code> kernel module is not loaded.</dd>
 <dt>systemd-detect-virt exits with code 1</dt>
 <dd>This is expected on bare-metal systems: <code>systemd-detect-virt</code> prints <code>none</code> and returns exit status 1 to allow shell scripts to branch on virtualization presence.</dd>
 </dl>
@@ -110,19 +110,19 @@ Virtualization:                          AMD-V
 </details>
 <details class="q">
 <summary><i>Why is hardware acceleration via <code>/dev/kvm</code> critical when running virtual machines in QEMU?</i></summary>
-<p>Without KVM hardware acceleration, QEMU must emulate every CPU instruction in software via TCG (Tiny Code Generator), which is orders of magnitude slower. KVM allows guest CPU instructions to execute directly on host processor cores at near-native speed.</p>
+<p>Without KVM hardware acceleration, QEMU must emulate every CPU instruction in software via <a href="glossary/t/tcg.html">TCG</a> (Tiny Code Generator), which is orders of magnitude slower. KVM allows guest CPU instructions to execute directly on host processor cores at near-native speed.</p>
 </details>
 </section>
 </section>
 <section data-level="expert">
-<h2>Hypervisor interfaces, paravirtualization, and automated test harnesses</h2>
+<h2><a href="glossary/h/hypervisor.html">Hypervisor</a> interfaces, paravirtualization, and automated test harnesses</h2>
 
 <h3>Reference</h3>
 
 <table>
 <tr><th>Interface / Component</th><th>Path or Protocol</th><th>Mechanism</th><th>Function</th></tr>
 <tr><td>KVM character device</td><td><code>/dev/kvm</code></td><td>Character device (major 10, minor 232)</td><td>Kernel ioctl interface for hardware-assisted CPU/memory execution</td></tr>
-<tr><td>CPU virtualization hooks</td><td><code>kvm_amd</code> / <code>kvm_intel</code></td><td>Kernel modules</td><td>CPU vendor-specific virtualization (AMD SVM / Intel VMX)</td></tr>
+<tr><td>CPU virtualization hooks</td><td><code>kvm_amd</code> / <code>kvm_intel</code></td><td>Kernel modules</td><td>CPU vendor-specific virtualization (AMD <a href="glossary/s/svm.html">SVM</a> / Intel <a href="glossary/v/vmx.html">VMX</a>)</td></tr>
 <tr><td>Nested virtualization</td><td><code>/sys/module/kvm_amd/parameters/nested</code></td><td>Kernel parameter</td><td>Allows running KVM hypervisors inside guest virtual machines</td></tr>
 <tr><td>Virtio paravirtualization</td><td><code>virtio_net</code>, <code>virtio_blk</code>, <code>virtio_pci</code></td><td>Circular memory rings (<code>vring</code>)</td><td>High-throughput, low-latency I/O bypassing emulated hardware</td></tr>
 <tr><td>Virtio serial console</td><td><code>virtio-console</code> / <code>ttyS0</code></td><td>Character device stream</td><td>Line-buffered guest console streams for automated test assertion capture</td></tr>
@@ -140,7 +140,7 @@ The host kernel configures the CPU hardware virtualization extensions (AMD SVM o
 When the guest OS performs a sensitive operation &mdash; such as accessing privileged control registers, executing I/O port instructions, or encountering a page fault on unmapped memory &mdash; the CPU halts guest execution and triggers a <em>VM-Exit</em>. Control returns to the KVM kernel module, which either handles the exit directly in kernel space or delegates device emulation to QEMU in user space.</li>
 
 <li><strong>Paravirtualized I/O with Virtio:</strong>
-Emulating legacy hardware controllers (such as IDE disks or Intel e1000 network cards) requires thousands of costly VM-Exits per second. Modern clean-room testing uses <em>Virtio</em>: standardized, cooperative drivers where the guest OS and host hypervisor communicate via shared-memory circular ring buffers (<code>vring</code>). Virtio block devices (<code>virtio-blk</code>) and network devices (<code>virtio-net</code>) batch operations and eliminate unnecessary exits, delivering near-native storage and networking throughput.</li>
+Emulating legacy hardware controllers (such as <a href="glossary/i/ide.html">IDE</a> disks or Intel e1000 network cards) requires thousands of costly VM-Exits per second. Modern clean-room testing uses <em>Virtio</em>: standardized, cooperative drivers where the guest OS and host hypervisor communicate via shared-memory circular ring buffers (<code>vring</code>). Virtio block devices (<code>virtio-blk</code>) and network devices (<code>virtio-net</code>) batch operations and eliminate unnecessary exits, delivering near-native storage and networking throughput.</li>
 
 <li><strong>Headless Automated Test Harnesses:</strong>
 Automated testing harnesses launch QEMU with a direct kernel boot:

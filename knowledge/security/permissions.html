@@ -33,7 +33,7 @@
 <table>
 <tr><td><strong>Read (r)</strong></td><td>viewing or copying the contents of a file.</td></tr>
 <tr><td><strong>Write (w)</strong></td><td>modifying the contents, renaming, or deleting the file.</td></tr>
-<tr><td><strong>Execute (x)</strong></td><td>running the file as a program or script.</td></tr>
+<tr><td><strong><a href="glossary/e/execute.html">Execute</a> (x)</strong></td><td>running the file as a program or script.</td></tr>
 </table>
 
 <h3>New words</h3>
@@ -49,7 +49,7 @@
 
 
 <h3>Worked example</h3>
-<p>Make a new temporary directory and enter it:</p>
+<p><a href="glossary/m/make.html">Make</a> a new temporary directory and enter it:</p>
 <pre data-risk="scratch">
 work=$(mktemp -d)
 cd "$work"
@@ -66,7 +66,7 @@ $ stat -c &#x27;%A %a %n&#x27; hello.sh
 $ ./hello.sh
 hello
 </pre>
-<p>Captured on Arch Linux, 2026-10-21. GNU <code>stat</code> omits user names, sizes, and timestamps from this format.</p>
+<p>Captured on Arch Linux, 2026-10-21. <a href="glossary/g/gnu.html">GNU</a> <code>stat</code> omits user names, sizes, and timestamps from this format.</p>
 
 <h3>What just happened</h3>
 <ol>
@@ -89,7 +89,7 @@ hello
 </dl>
 
 <aside class="tamlinux">
-<p>On Tamlinux, permissions follow standard Linux POSIX rules. The Guide lens filters which explanations and exercises are displayed; it does not change permissions on disk.</p>
+<p>On Tamlinux, permissions follow standard Linux <a href="glossary/p/posix.html">POSIX</a> rules. The Guide lens filters which explanations and exercises are displayed; it does not change permissions on disk.</p>
 </aside>
 
 <h3>Clean up</h3>
@@ -128,7 +128,7 @@ rmdir -- "$work"
 <p>On directories, the execute bit (<code>x</code>) means search/traversal: the right to enter the directory and access files inside. The read bit (<code>r</code>) allows listing directory entries. Without <code>x</code>, a user cannot access inodes inside even if they know file names.</p>
 
 <h3>POSIX ACLs, setuid, and dynamic-linker hardening</h3>
-<p>Beyond the classic 9-bit mode, <strong>POSIX Access Control Lists (ACLs)</strong> stored in <code>system.posix_acl_access</code> extended attributes grant per-user or per-group rights (<code>getfacl</code>/<code>setfacl</code>), bounded by an effective <code>mask::</code> entry. On executable files, the <code>setuid</code> (<code>4000</code>) and <code>setgid</code> (<code>2000</code>) bits change effective credentials at <code>execve()</code>, which also sets the ELF auxiliary vector flag <code>AT_SECURE=1</code> so the dynamic linker strips dangerous environment variables such as <code>LD_PRELOAD</code> and <code>LD_LIBRARY_PATH</code>.</p>
+<p>Beyond the classic 9-bit mode, <strong>POSIX Access Control Lists (ACLs)</strong> stored in <code>system.posix_acl_access</code> extended attributes grant per-user or per-group rights (<code>getfacl</code>/<code>setfacl</code>), bounded by an effective <code>mask::</code> entry. On executable files, the <code>setuid</code> (<code>4000</code>) and <code>setgid</code> (<code>2000</code>) bits change effective credentials at <code>execve()</code>, which also sets the <a href="glossary/e/elf.html">ELF</a> auxiliary vector flag <code>AT_SECURE=1</code> so the dynamic linker strips dangerous environment variables such as <code>LD_PRELOAD</code> and <code>LD_LIBRARY_PATH</code>.</p>
 
 <h3>Illustrative reference</h3>
 <pre data-risk="scratch">

@@ -53,14 +53,14 @@
 <li>Speak clearly: "Tamlinux runs speech recognition entirely on my local machine."</li>
 <li>Release F9. The indicator shows transcribing, and within one to two seconds the text is typed at your cursor.</li>
 </ol>
-<p>This walkthrough is checked against the packaged Voxtype bindings, not a claim that a GUI acceptance test was performed in your session.</p>
+<p>This walkthrough is checked against the packaged Voxtype bindings, not a claim that a <a href="glossary/g/gui.html">GUI</a> acceptance test was performed in your session.</p>
 
 <h3>What just happened</h3>
 <ol>
 <li>The compositor detected F9 and told the Voxtype daemon to start recording.</li>
-<li>The daemon captured audio in memory through PipeWire.</li>
+<li>The daemon captured audio in memory through <a href="glossary/p/pipewire.html">PipeWire</a>.</li>
 <li>On release, the local Whisper model converted the sound into text.</li>
-<li><code>wtype</code> injected Wayland keyboard events into the focused window.</li>
+<li><code>wtype</code> injected <a href="glossary/w/wayland.html">Wayland</a> keyboard events into the focused window.</li>
 </ol>
 
 <h3>Try it</h3>
@@ -81,7 +81,7 @@
 <section class="quiz">
 <h3>Check yourself</h3>
 <details class="q"><summary><i>Where is your voice recording sent during dictation?</i></summary>
-<p>Nowhere outside your machine. Audio is held in local memory and processed on your own CPU by an on-device Whisper model.</p></details>
+<p>Nowhere outside your machine. Audio is held in local memory and processed on your own <a href="glossary/c/cpu.html">CPU</a> by an on-device Whisper model.</p></details>
 <details class="q"><summary><i>How does the transcribed text enter the active application?</i></summary>
 <p>A virtual keyboard injector (<code>wtype</code>) sends Wayland keyboard events to the focused window.</p></details>
 </section>

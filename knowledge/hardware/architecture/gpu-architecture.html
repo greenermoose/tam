@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> / <a href="hardware/architecture/index.html">Computer architecture</a> / Graphics processing units and CPU-GPU architecture</p></nav>
 
 
-<h1>Graphics processing units and CPU-GPU architecture</h1>
+<h1>Graphics processing units and <a href="glossary/c/cpu.html">CPU</a>-<a href="glossary/g/gpu.html">GPU</a> architecture</h1>
 <p>This page explains how CPUs and GPUs are built differently and how they work together to run modern computers.</p>
 <h2>Before this</h2><p><a href="hardware/architecture/computer-architecture.html">Computer architecture and hardware systems</a> · <a href="hardware/displays/computer-graphics.html">Computer graphics and the rendering pipeline</a></p>
 <p>In the early days of personal computing, the Central Processing Unit performed every single calculation in the machine, including calculating every pixel on the monitor. Today, modern computers rely on heterogeneous computing: pairing a latency-optimized CPU with a throughput-optimized Graphics Processing Unit (GPU). Understanding this architectural partnership clarifies why dedicated GPUs exist, how massive parallelism works, and how graphics drivers coordinate hardware across system buses.</p>
@@ -34,7 +34,7 @@
 <dt><a href="glossary/g/gpu.html">GPU</a></dt>
 <dd>Graphics Processing Unit; a massively parallel processor built for drawing images and processing large grids of numbers.</dd>
 <dt><a href="glossary/i/igpu.html">iGPU</a></dt>
-<dd>Integrated Graphics Processing Unit; graphics hardware built into the CPU chip and sharing system RAM.</dd>
+<dd>Integrated Graphics Processing Unit; graphics hardware built into the CPU chip and sharing system <a href="glossary/r/ram.html">RAM</a>.</dd>
 <dt><a href="glossary/d/dgpu.html">dGPU</a></dt>
 <dd>Discrete Graphics Processing Unit; a separate graphics card with its own board, cooling, and dedicated memory.</dd>
 <dt><a href="glossary/d/drm.html">DRM</a></dt>
@@ -47,7 +47,7 @@
 <p><strong>Goal:</strong> you will be able to distinguish the core responsibilities of a CPU and a GPU, inspect your active graphics processor using standard Linux commands, and identify whether your system uses integrated or discrete graphics.</p>
 <p><strong>Before you start:</strong> open a terminal window (<a href="terminal/shell/index.html">The Shell and Streams</a>). All commands in this section inspect hardware devices without changing system configuration.</p>
 <aside class="first-time">
-<p><strong>New to this?</strong> The <code>lspci</code> command queries the Peripheral Component Interconnect (PCI) bus on your motherboard. The filter <code>-d ::0300</code> instructs <code>lspci</code> to list only display and VGA-compatible controllers.</p>
+<p><strong>New to this?</strong> The <code>lspci</code> command queries the Peripheral Component Interconnect (<a href="glossary/p/pci.html">PCI</a>) bus on your motherboard. The filter <code>-d ::0300</code> instructs <code>lspci</code> to list only display and <a href="glossary/v/vga.html">VGA</a>-compatible controllers.</p>
 </aside>
 <h3>Mental model</h3>
 <pre>
@@ -91,7 +91,7 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 <li><code>lspci</code> locates the graphics controller at PCI bus address <code>05:00.0</code>. It identifies the hardware as an AMD Radeon graphics processor (Lucienne architecture) and confirms that the open-source <code>amdgpu</code> kernel driver is managing the device.</li>
 <li><code>ls -l /dev/dri/</code> exposes the character device nodes created by the Linux Direct Rendering Manager:
   <table>
-<tr><td><code>card1</code></td><td>The master KMS display node, used by the Wayland compositor to control screen modes and outputs.</td></tr>
+<tr><td><code>card1</code></td><td>The master <a href="glossary/k/kms.html">KMS</a> display node, used by the <a href="glossary/w/wayland.html">Wayland</a> compositor to control screen modes and outputs.</td></tr>
 <tr><td><code>renderD128</code></td><td>The unprivileged render node, used by applications and games to submit 3D rendering and compute tasks without needing display management rights.</td></tr>
 </table>
 </li>
@@ -103,10 +103,10 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 <dt><code>lspci: command not found</code></dt>
 <dd>The <code>pciutils</code> package is missing. On Tamlinux, <code>pciutils</code> is included in the base system rootstock.</dd>
 <dt><code>Kernel driver in use</code> is missing from lspci output</dt>
-<dd>The Linux kernel did not bind a hardware graphics driver to the chip, causing the system to fall back to basic EFI framebuffers. Verify that your kernel firmware package (such as <code>linux-firmware</code>) is installed.</dd>
+<dd>The Linux kernel did not bind a hardware graphics driver to the chip, causing the system to fall back to basic <a href="glossary/e/efi.html">EFI</a> framebuffers. Verify that your kernel firmware package (such as <code>linux-firmware</code>) is installed.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> power consumption and thermal footprint are actively monitored. For multi-GPU laptops, Tamlinux supports standard Linux PRIME render offloading, allowing the lightweight Wayland desktop and terminal to run coolly on the integrated GPU while activating the high-power discrete GPU only on explicit demand.</p>
+<p><strong>On Tamlinux:</strong> power consumption and thermal footprint are actively monitored. For multi-GPU laptops, Tamlinux supports standard Linux <a href="glossary/p/prime.html">PRIME</a> render offloading, allowing the lightweight Wayland desktop and terminal to run coolly on the integrated GPU while activating the high-power discrete GPU only on explicit demand.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -117,20 +117,20 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 </details>
 <details class="q">
 <summary><i>What is the difference between an integrated GPU (iGPU) and a dedicated/discrete GPU (dGPU)?</i></summary>
-<p>An integrated GPU is built into the same silicon chip as the CPU and shares system RAM for video memory. A discrete GPU is an independent expansion card installed in a PCIe slot, featuring its own dedicated cooling system, power delivery, and ultra-high-speed Video RAM (VRAM).</p>
+<p>An integrated GPU is built into the same silicon chip as the CPU and shares system RAM for video memory. A discrete GPU is an independent expansion card installed in a <a href="glossary/p/pcie.html">PCIe</a> slot, featuring its own dedicated cooling system, power delivery, and ultra-high-speed Video RAM (<a href="glossary/v/vram.html">VRAM</a>).</p>
 </details>
 </section>
 </section>
 <section data-level="expert">
-<h2>The Linux graphics stack: DRM/KMS, Mesa, GEM/TTM, and DMA-BUF</h2>
+<h2>The Linux graphics stack: <a href="glossary/d/drm.html">DRM/KMS</a>, Mesa, GEM/<a href="glossary/t/ttm.html">TTM</a>, and <a href="glossary/d/dma.html">DMA</a>-BUF</h2>
 
 <h3>Reference: The Linux graphics architecture layers</h3>
 
 <table>
 <tr><th>Layer</th><th>Components</th><th>Role</th><th>Address Space</th></tr>
-<tr><td>Application</td><td>Foot, Firefox, Blender, mpv</td><td>Generates visual content; issues API draw calls</td><td>User space</td></tr>
-<tr><td>User-space Driver</td><td>Mesa (RadeonSI, RADV, Iris, ANV, NVK)</td><td>Translates API calls into hardware bytecode; builds command streams</td><td>User space (linked as shared library)</td></tr>
-<tr><td>Window System</td><td>Wayland Compositor (Hyprland, Sway), <code>wl_surface</code></td><td>Allocates client surfaces; coordinates composited screen scenes</td><td>User space (compositor process)</td></tr>
+<tr><td>Application</td><td>Foot, Firefox, Blender, mpv</td><td>Generates visual content; issues <a href="glossary/a/api.html">API</a> draw calls</td><td>User space</td></tr>
+<tr><td>User-space Driver</td><td>Mesa (RadeonSI, <a href="glossary/r/radv.html">RADV</a>, Iris, <a href="glossary/a/anv.html">ANV</a>, <a href="glossary/n/nvk.html">NVK</a>)</td><td>Translates API calls into hardware bytecode; builds command streams</td><td>User space (linked as shared library)</td></tr>
+<tr><td>Window System</td><td>Wayland <a href="glossary/c/compositor.html">Compositor</a> (<a href="glossary/h/hyprland.html">Hyprland</a>, Sway), <code>wl_surface</code></td><td>Allocates client surfaces; coordinates composited screen scenes</td><td>User space (compositor process)</td></tr>
 <tr><td>Kernel DRM Subsystem</td><td>Direct Rendering Manager (DRM core)</td><td>Arbitrates access to GPU; schedules hardware command queues</td><td>Kernel space (GPL-2.0)</td></tr>
 <tr><td>Kernel Device Driver</td><td><code>amdgpu</code>, <code>i915</code>, <code>xe</code>, <code>nouveau</code>, <code>panfrost</code></td><td>Direct hardware register access, clock gating, interrupt handling</td><td>Kernel space</td></tr>
 <tr><td>Display Engine (KMS)</td><td>CRTC, Planes, Encoders, Connectors</td><td>Directs framebuffers to display timing controllers and physical output ports</td><td>Kernel space (Modesetting)</td></tr>
@@ -141,9 +141,9 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 <p>When an application renders a frame and presents it to your screen under Wayland, data flows through a carefully coordinated zero-copy pipeline:</p>
 
 <ol>
-<li><strong>Buffer Allocation (GBM / DMA-BUF):</strong> The client requests a graphic buffer from the Generic Buffer Manager (GBM) or Vulkan memory allocator. The kernel graphics driver (via GEM or TTM memory managers) allocates physical VRAM pages and exports a portable file descriptor called a <strong>DMA-BUF</strong>.</li>
+<li><strong>Buffer Allocation (<a href="glossary/g/gbm.html">GBM</a> / DMA-BUF):</strong> The client requests a graphic buffer from the Generic Buffer Manager (GBM) or Vulkan memory allocator. The kernel graphics driver (via GEM or TTM memory managers) allocates physical VRAM pages and exports a portable file descriptor called a <strong>DMA-BUF</strong>.</li>
 <li><strong>Hardware Rendering:</strong> The application issues draw calls through Mesa. Mesa compiles shaders into native GPU machine instructions and constructs a command packet. It passes the command packet to the kernel DRM driver via <code>ioctl(DRM_IOCTL_AMDGPU_CS)</code> (or driver equivalent). The GPU hardware executes the shaders, writing rendered pixels into the allocated DMA-BUF.</li>
-<li><strong>Presentation over Wayland:</strong> When rendering completes, the client passes the DMA-BUF file descriptor across the Wayland Unix domain socket to the compositor using the <code>linux-dmabuf-v1</code> protocol, followed by <code>wl_surface.attach</code> and <code>wl_surface.commit</code>.</li>
+<li><strong>Presentation over Wayland:</strong> When rendering completes, the client passes the DMA-BUF file descriptor across the Wayland <a href="glossary/u/unix.html">Unix</a> domain socket to the compositor using the <code>linux-dmabuf-v1</code> protocol, followed by <code>wl_surface.attach</code> and <code>wl_surface.commit</code>.</li>
 <li><strong>Compositing and Scanout:</strong> The Wayland compositor takes incoming client buffers, composites them into a desktop scene (or directs full-screen buffers straight to a hardware display overlay plane to achieve zero-copy scanout), and issues an atomic modesetting commit (<code>DRM_IOCTL_MODE_ATOMIC_COMMIT</code>).</li>
 <li><strong>Page Flip:</strong> At the next V-Blank interval, the display timing controller scans out pixels directly from the buffer over the monitor cable.</li>
 </ol>
@@ -156,7 +156,7 @@ crw-rw-rw-+ 1 root render 226, 128 Nov  1 11:00 renderD128
 
 <ol>
 <li><strong>GPU Hangs and Recovery:</strong> If a shader enters an infinite loop or encounters an illegal memory dereference, the GPU engine locks up. Modern Linux kernel drivers implement hardware watchdog timers. When a ring buffer times out, the driver issues a soft engine reset, resets the faulting GPU block, and returns an error (<code>VK_ERROR_DEVICE_LOST</code>) to the affected process without crashing the entire operating system.</li>
-<li><strong>Context Switching Costs in GPGPU:</strong> Switching a GPU between graphics rendering tasks (which operate with high-priority V-Sync deadlines) and large compute workloads (such as AI model inference running thousands of iterations) introduces context-switch overhead. Modern GPUs provide dedicated asynchronous compute queues that run compute tasks in parallel alongside graphics rasterization without stalling display updates.</li>
+<li><strong>Context Switching Costs in <a href="glossary/g/gpgpu.html">GPGPU</a>:</strong> Switching a GPU between graphics rendering tasks (which operate with high-priority V-Sync deadlines) and large compute workloads (such as AI model inference running thousands of iterations) introduces context-switch overhead. Modern GPUs provide dedicated asynchronous compute queues that run compute tasks in parallel alongside graphics rasterization without stalling display updates.</li>
 </ol>
 
 <h3>Explore: inspect DRM devices and memory managers</h3>

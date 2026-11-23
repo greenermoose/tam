@@ -15,7 +15,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/editors/index.html">Classic text editors</a> / GNU Emacs</p></nav>
 
-<h1>GNU Emacs</h1>
+<h1><a href="glossary/g/gnu.html">GNU</a> Emacs</h1>
 
 <p>This page explains GNU Emacs, a modeless editor in which every action is a named command that can be reached by a keyboard shortcut or by name.</p>
 
@@ -24,7 +24,7 @@
 
 <p>Emacs does not have an insert mode. Ordinary typing inserts text, and a key combination such as <code>Ctrl + X</code> followed by <code>Ctrl + S</code> runs a command. That command is not a secret code: it has a name, <code>save-buffer</code>, and you can run any command by typing its name instead of its shortcut.</p>
 
-<p>The design is called modeless editing. vi asks which mode you are in; Emacs asks which command you want. Commands are ordinary functions written in Emacs Lisp, the programming language built into the editor. That is why Emacs can be a file editor, a Git interface, a mail client, a calendar, and a document authoring system without becoming several programs.</p>
+<p>The design is called modeless editing. vi asks which mode you are in; Emacs asks which command you want. Commands are ordinary functions written in Emacs Lisp, the programming language built into the editor. That is why Emacs can be a file editor, a <a href="glossary/g/git.html">Git</a> interface, a mail client, a calendar, and a document authoring system without becoming several programs.</p>
 
 <h3>Why it matters</h3>
 
@@ -110,7 +110,7 @@ gamma
 <dd>That is the normal exit prompt. Answer <code>y</code> to save, <code>n</code> to discard, or <code>C-g</code> to cancel the exit and return to editing. <code>C-x C-s</code> saves without exiting.</dd>
 <dt>A command is waiting for input at the bottom of the screen</dt>
 <dd>The minibuffer is prompting you. Press <code>C-g</code> to cancel. You can also press <code>C-g</code> twice to leave a complicated state.</dd>
-<dt><code>Cannot open display</code> or a GUI window does not appear</dt>
+<dt><code>Cannot open display</code> or a <a href="glossary/g/gui.html">GUI</a> window does not appear</dt>
 <dd>You are on a terminal without a graphical display. Start Emacs in the terminal with <code>emacs -nw</code>. The <code>-nw</code> option means no window system.</dd>
 <dt><code>M-x</code> does nothing</dt>
 <dd>Your terminal may not deliver Meta. Press Esc, release it, then press X; Emacs treats that as Meta-X. Alternatively, use the menu or run <code>C-h k</code> to see what the terminal sends.</dd>
@@ -121,7 +121,7 @@ gamma
 </dl>
 
 <aside class="tamlinux">
-<p>Tamlinux provides <code>micro</code> as its baseline editor. Emacs is not installed by default. On Arch-based systems it is split into three optional packages: <code>emacs</code> with X11 support, <code>emacs-nox</code> without X11, and <code>emacs-wayland</code> with the PGTK build for Wayland. On 2026-11-16 the repository listed <code>emacs</code> at 74.37 MiB to download and 261.92 MiB installed, <code>emacs-nox</code> at 73.81 MiB and 259.94 MiB, and <code>emacs-wayland</code> at 75.00 MiB and 267.98 MiB. Ask before installing packages, and read <a href="systems/packages/index.html">Packages and updates</a> first.</p>
+<p>Tamlinux provides <code>micro</code> as its baseline editor. Emacs is not installed by default. On Arch-based systems it is split into three optional packages: <code>emacs</code> with X11 support, <code>emacs-nox</code> without X11, and <code>emacs-wayland</code> with the PGTK build for <a href="glossary/w/wayland.html">Wayland</a>. On 2026-11-16 the repository listed <code>emacs</code> at 74.37 MiB to download and 261.92 MiB installed, <code>emacs-nox</code> at 73.81 MiB and 259.94 MiB, and <code>emacs-wayland</code> at 75.00 MiB and 267.98 MiB. Ask before installing packages, and read <a href="systems/packages/index.html">Packages and updates</a> first.</p>
 </aside>
 
 <section class="quiz">
@@ -162,7 +162,7 @@ gamma
 
 <p>Emacs is a Lisp interpreter with an editor attached. A buffer holds text and has a major mode plus any number of minor modes. A key sequence is looked up in active keymaps, and the resulting binding names an interactive function. <code>M-x</code> bypasses the keymap and calls a function by name. Because the same mechanism is available to your own code, a configuration is a program, not a list of settings.</p>
 
-<p>Init files are read in a documented order. Emacs looks for <code>~/.emacs.el</code>, <code>~/.emacs</code>, or <code>~/.emacs.d/init.el</code>, in that order. It can also use the XDG location <code>~/.config/emacs/init.el</code>, but the older locations win if they exist, so you must remove or rename them to move to the XDG path. <code>early-init.el</code> runs before the package system and the initial frame, which makes it the place for settings that must take effect before packages load. <code>-q</code> skips the init file; <code>-Q</code> adds no site file, no site Lisp, no X resources, and no splash screen. <code>--batch</code> implies <code>-q</code> but still loads <code>site-start.el</code>.</p>
+<p><a href="glossary/i/init.html">Init</a> files are read in a documented order. Emacs looks for <code>~/.emacs.el</code>, <code>~/.emacs</code>, or <code>~/.emacs.d/init.el</code>, in that order. It can also use the <a href="glossary/x/xdg.html">XDG</a> location <code>~/.config/emacs/init.el</code>, but the older locations win if they exist, so you must remove or rename them to move to the XDG path. <code>early-init.el</code> runs before the package system and the initial frame, which makes it the place for settings that must take effect before packages load. <code>-q</code> skips the init file; <code>-Q</code> adds no site file, no site Lisp, no X resources, and no splash screen. <code>--batch</code> implies <code>-q</code> but still loads <code>site-start.el</code>.</p>
 
 <p>The package system is built in. <code>package-archives</code> names the archives; <code>M-x list-packages</code> shows what they offer; <code>package-install</code> installs into <code>user-emacs-directory</code>, usually <code>~/.emacs.d/elpa</code>. The 31.1 package bundled <code>use-package</code>, which groups a package's configuration with its installation. Native compilation turns Emacs Lisp into <code>.eln</code> machine code; the load path for those files is derived from <code>user-emacs-directory</code>, and compilation can happen asynchronously in the background. A first start after a package change can therefore be slower than later starts.</p>
 

@@ -14,8 +14,8 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Systems programming in C11</p></nav>
 
-<h1>Systems programming in C11</h1>
-<p>This path is for readers who will read or change C code: portable ISO C11, how the compiler and linker turn source into a native binary, how sanitizers find memory bugs, and why Tamlinux writes its core utilities in C11. It assumes you can compile and run a program from a terminal.</p>
+<h1>Systems programming in <a href="glossary/c/c11.html">C11</a></h1>
+<p>This path is for readers who will read or change C code: portable <a href="glossary/i/iso.html">ISO</a> C11, how the compiler and linker turn source into a native binary, how sanitizers find memory bugs, and why Tamlinux writes its core utilities in C11. It assumes you can compile and run a program from a terminal.</p>
 <p>Every exercise builds in a fresh temporary directory. Nothing installs, and no system binary is replaced.</p>
 
 <h2>Stage 1: Write portable C11</h2>
@@ -23,7 +23,7 @@
 <li><a href="programming/c/c11.html?level=3">The C11 programming language and portable systems code</a> &mdash; the standard, compiler flags, libc portability and native systems programming.</li>
 </ol>
 <section class="quiz">
-<h3>Checkpoint</h3>
+<h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer these before you go on.</p>
 <details class="q">
 <summary><i>Which value of <code>__STDC_VERSION__</code> identifies C11?</i></summary>
@@ -31,13 +31,13 @@
 </details>
 <details class="q">
 <summary><i>Why does the build define <code>_DEFAULT_SOURCE</code> and <code>_XOPEN_SOURCE</code>?</i></summary>
-<p>They expose the POSIX interfaces the code needs while keeping the language target portable ISO C11. They are feature-test macros, not compiler extensions.</p>
+<p>They expose the <a href="glossary/p/posix.html">POSIX</a> interfaces the code needs while keeping the language target portable ISO C11. They are feature-test macros, not compiler extensions.</p>
 </details>
 </section>
 
 <h2>Stage 2: Compile, inspect and link</h2>
 <ol>
-<li><a href="programming/c/object-files.html?level=3">Object files, static libraries, and compilation stages</a> &mdash; source to <code>.o</code> to <code>.a</code>, ELF sections, and selective linking.</li>
+<li><a href="programming/c/object-files.html?level=3">Object files, static libraries, and compilation stages</a> &mdash; source to <code>.o</code> to <code>.a</code>, <a href="glossary/e/elf.html">ELF</a> sections, and selective linking.</li>
 </ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
@@ -70,7 +70,7 @@
 </details>
 </section>
 
-<h2>Capstone: Build, catch and fix an out-of-bounds read</h2>
+<h2>Capstone: <a href="glossary/b/build.html">Build</a>, catch and fix an out-of-bounds read</h2>
 <p>Create a two-file program whose loop reads one element past a three-element array. Build it with AddressSanitizer and UndefinedBehaviorSanitizer, read the report, fix the loop bound, and rebuild until the run is clean.</p>
 <details class="solution">
 <p>Work in a temporary directory. The first file holds the bug; the second supplies the data and calls it.</p>
@@ -107,7 +107,7 @@ READ of size 4 at 0x7b41da0f002c thread T0
 ...
     [32, 44) 'values' (line 7) &lt;== Memory access at offset 44 overflows this variable
 </pre>
-<p>Captured with GCC 16.2.1 on Arch Linux, 2026-11-13; addresses and process IDs differ on every run. The report names the function, the source line and the object that overflowed. The compiler had accepted the code without a warning, so only the sanitized run exposed it.</p>
+<p>Captured with <a href="glossary/g/gcc.html">GCC</a> 16.2.1 on Arch Linux, 2026-11-13; addresses and process IDs differ on every run. The report names the function, the source line and the object that overflowed. The compiler had accepted the code without a warning, so only the sanitized run exposed it.</p>
 <p>Change the loop condition in <code>total.c</code> from <code>i &lt;= count</code> to <code>i &lt; count</code>, then rebuild and run:</p>
 <pre class="session" data-risk="scratch">
 $ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main.c total.c -o stats

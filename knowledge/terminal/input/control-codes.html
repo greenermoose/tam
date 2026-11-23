@@ -67,10 +67,10 @@ $ printf '\001\002\003\010\011\012\015\033\037\177\n' | od -An -tx1 -c
 
 <table>
 <tr><th>Chord</th><th>Byte</th><th>Common name</th><th>What often happens</th></tr>
-<tr><td><code>Ctrl + @</code> or <code>Ctrl + Space</code></td><td><code>0x00</code></td><td>NUL</td><td>Ignored, or read as a null byte</td></tr>
-<tr><td><code>Ctrl + A</code></td><td><code>0x01</code></td><td>SOH</td><td>Shell moves to the start of the line</td></tr>
-<tr><td><code>Ctrl + C</code></td><td><code>0x03</code></td><td>ETX</td><td>Kernel sends <code>SIGINT</code> to the foreground job</td></tr>
-<tr><td><code>Ctrl + D</code></td><td><code>0x04</code></td><td>EOT</td><td>End of input; at an empty prompt it closes the shell</td></tr>
+<tr><td><code>Ctrl + @</code> or <code>Ctrl + Space</code></td><td><code>0x00</code></td><td><a href="glossary/n/nul.html">NUL</a></td><td>Ignored, or read as a null byte</td></tr>
+<tr><td><code>Ctrl + A</code></td><td><code>0x01</code></td><td><a href="glossary/s/soh.html">SOH</a></td><td>Shell moves to the start of the line</td></tr>
+<tr><td><code>Ctrl + C</code></td><td><code>0x03</code></td><td><a href="glossary/e/etx.html">ETX</a></td><td>Kernel sends <code>SIGINT</code> to the foreground job</td></tr>
+<tr><td><code>Ctrl + D</code></td><td><code>0x04</code></td><td><a href="glossary/e/eot.html">EOT</a></td><td>End of input; at an empty prompt it closes the shell</td></tr>
 <tr><td><code>Ctrl + H</code></td><td><code>0x08</code></td><td>BS</td><td>Backspace, if the terminal or line discipline treats it that way</td></tr>
 <tr><td><code>Ctrl + I</code></td><td><code>0x09</code></td><td>HT</td><td>Tab, or completion</td></tr>
 <tr><td><code>Ctrl + J</code></td><td><code>0x0A</code></td><td>LF</td><td>New line; often the same as Enter</td></tr>
@@ -134,13 +134,13 @@ $ printf '\177' | od -An -tx1 -c
 <table>
 <tr><th>Byte</th><th>Chord</th><th>ASCII name</th><th>Typical terminal or line-discipline role</th></tr>
 <tr><td><code>0x00</code></td><td><code>Ctrl + @</code>, <code>Ctrl + Space</code></td><td>NUL</td><td>Ignored, or a null data byte</td></tr>
-<tr><td><code>0x01</code></td><td><code>Ctrl + A</code></td><td>SOH</td><td>Readline beginning-of-line</td></tr>
-<tr><td><code>0x02</code></td><td><code>Ctrl + B</code></td><td>STX</td><td>Readline backward-char</td></tr>
+<tr><td><code>0x01</code></td><td><code>Ctrl + A</code></td><td>SOH</td><td><a href="glossary/r/readline.html">Readline</a> beginning-of-line</td></tr>
+<tr><td><code>0x02</code></td><td><code>Ctrl + B</code></td><td><a href="glossary/s/stx.html">STX</a></td><td>Readline backward-char</td></tr>
 <tr><td><code>0x03</code></td><td><code>Ctrl + C</code></td><td>ETX</td><td><code>intr</code>, usually <code>SIGINT</code></td></tr>
 <tr><td><code>0x04</code></td><td><code>Ctrl + D</code></td><td>EOT</td><td><code>eof</code>; makes a pending line available</td></tr>
-<tr><td><code>0x05</code></td><td><code>Ctrl + E</code></td><td>ENQ</td><td>Readline end-of-line</td></tr>
-<tr><td><code>0x06</code></td><td><code>Ctrl + F</code></td><td>ACK</td><td>Readline forward-char</td></tr>
-<tr><td><code>0x07</code></td><td><code>Ctrl + G</code></td><td>BEL</td><td>Bell; readline abort</td></tr>
+<tr><td><code>0x05</code></td><td><code>Ctrl + E</code></td><td><a href="glossary/e/enq.html">ENQ</a></td><td>Readline end-of-line</td></tr>
+<tr><td><code>0x06</code></td><td><code>Ctrl + F</code></td><td><a href="glossary/a/ack.html">ACK</a></td><td>Readline forward-char</td></tr>
+<tr><td><code>0x07</code></td><td><code>Ctrl + G</code></td><td><a href="glossary/b/bel.html">BEL</a></td><td>Bell; readline abort</td></tr>
 <tr><td><code>0x08</code></td><td><code>Ctrl + H</code></td><td>BS</td><td><code>erase</code> if configured; otherwise data</td></tr>
 <tr><td><code>0x09</code></td><td><code>Ctrl + I</code></td><td>HT</td><td>Tab; completion</td></tr>
 <tr><td><code>0x0A</code></td><td><code>Ctrl + J</code></td><td>LF</td><td>Newline; affected by <code>ICRNL</code> and <code>INLCR</code></td></tr>
@@ -149,17 +149,17 @@ $ printf '\177' | od -An -tx1 -c
 <tr><td><code>0x0D</code></td><td><code>Ctrl + M</code></td><td>CR</td><td>Carriage return; usually the Enter byte</td></tr>
 <tr><td><code>0x0E</code></td><td><code>Ctrl + N</code></td><td>SO</td><td>Shift out; readline next-history</td></tr>
 <tr><td><code>0x0F</code></td><td><code>Ctrl + O</code></td><td>SI</td><td>Shift in; <code>discard</code> output</td></tr>
-<tr><td><code>0x10</code></td><td><code>Ctrl + P</code></td><td>DLE</td><td>Readline previous-history</td></tr>
-<tr><td><code>0x11</code></td><td><code>Ctrl + Q</code></td><td>DC1</td><td><code>start</code>; resume output (XON)</td></tr>
-<tr><td><code>0x12</code></td><td><code>Ctrl + R</code></td><td>DC2</td><td><code>rprnt</code>; reprint the line</td></tr>
-<tr><td><code>0x13</code></td><td><code>Ctrl + S</code></td><td>DC3</td><td><code>stop</code>; pause output (XOFF)</td></tr>
-<tr><td><code>0x14</code></td><td><code>Ctrl + T</code></td><td>DC4</td><td>Readline transpose-chars</td></tr>
-<tr><td><code>0x15</code></td><td><code>Ctrl + U</code></td><td>NAK</td><td><code>kill</code>; erase the line</td></tr>
-<tr><td><code>0x16</code></td><td><code>Ctrl + V</code></td><td>SYN</td><td><code>lnext</code>; quote the next character</td></tr>
-<tr><td><code>0x17</code></td><td><code>Ctrl + W</code></td><td>ETB</td><td><code>werase</code>; erase the previous word</td></tr>
-<tr><td><code>0x18</code></td><td><code>Ctrl + X</code></td><td>CAN</td><td>Cancel an escape sequence; readline prefix</td></tr>
+<tr><td><code>0x10</code></td><td><code>Ctrl + P</code></td><td><a href="glossary/d/dle.html">DLE</a></td><td>Readline previous-history</td></tr>
+<tr><td><code>0x11</code></td><td><code>Ctrl + Q</code></td><td><a href="glossary/d/dc1.html">DC1</a></td><td><code>start</code>; resume output (XON)</td></tr>
+<tr><td><code>0x12</code></td><td><code>Ctrl + R</code></td><td><a href="glossary/d/dc2.html">DC2</a></td><td><code>rprnt</code>; reprint the line</td></tr>
+<tr><td><code>0x13</code></td><td><code>Ctrl + S</code></td><td><a href="glossary/d/dc3.html">DC3</a></td><td><code>stop</code>; pause output (XOFF)</td></tr>
+<tr><td><code>0x14</code></td><td><code>Ctrl + T</code></td><td><a href="glossary/d/dc4.html">DC4</a></td><td>Readline transpose-chars</td></tr>
+<tr><td><code>0x15</code></td><td><code>Ctrl + U</code></td><td><a href="glossary/n/nak.html">NAK</a></td><td><code>kill</code>; erase the line</td></tr>
+<tr><td><code>0x16</code></td><td><code>Ctrl + V</code></td><td><a href="glossary/s/syn.html">SYN</a></td><td><code>lnext</code>; quote the next character</td></tr>
+<tr><td><code>0x17</code></td><td><code>Ctrl + W</code></td><td><a href="glossary/e/etb.html">ETB</a></td><td><code>werase</code>; erase the previous word</td></tr>
+<tr><td><code>0x18</code></td><td><code>Ctrl + X</code></td><td><a href="glossary/c/can.html">CAN</a></td><td>Cancel an escape sequence; readline prefix</td></tr>
 <tr><td><code>0x19</code></td><td><code>Ctrl + Y</code></td><td>EM</td><td>Readline yank</td></tr>
-<tr><td><code>0x1A</code></td><td><code>Ctrl + Z</code></td><td>SUB</td><td><code>susp</code>, usually <code>SIGTSTP</code></td></tr>
+<tr><td><code>0x1A</code></td><td><code>Ctrl + Z</code></td><td><a href="glossary/s/sub.html">SUB</a></td><td><code>susp</code>, usually <code>SIGTSTP</code></td></tr>
 <tr><td><code>0x1B</code></td><td><code>Ctrl + [</code></td><td>ESC</td><td>Start of an escape sequence</td></tr>
 <tr><td><code>0x1C</code></td><td><code>Ctrl + \</code></td><td>FS</td><td><code>quit</code>, usually <code>SIGQUIT</code></td></tr>
 <tr><td><code>0x1D</code></td><td><code>Ctrl + ]</code></td><td>GS</td><td>Escape character in some protocols</td></tr>
@@ -197,8 +197,8 @@ $ printf '\010\177' | cat -v
 <ul>
 <li><strong>Both bytes can arrive.</strong> A terminal may send <code>0x08</code> for Backspace and <code>0x7F</code> for Delete, or the reverse. A robust program should handle both, or the terminal should be configured consistently.</li>
 <li><strong>Raw mode bypasses the line discipline.</strong> Editors, pagers and full-screen programs call <code>tcsetattr</code> with <code>ICANON</code> and <code>ISIG</code> cleared. They must implement erase, signals and line editing themselves.</li>
-<li><strong>Meta is not a control byte.</strong> Some old terminals set bit 7 of the byte for Alt, producing <code>0x80</code> and above. That conflicts with UTF-8, so modern terminals prefix the byte with ESC instead. See <a href="terminal/input/foot.html">Keys inside foot</a>.</li>
-<li><strong>8-bit C1 controls.</strong> Bytes <code>0x80</code> to <code>0x9F</code> duplicate some ESC sequences in ISO 8859-1, but they are not valid UTF-8. A terminal in UTF-8 mode must not treat a bare <code>0x9B</code> as CSI.</li>
+<li><strong>Meta is not a control byte.</strong> Some old terminals set bit 7 of the byte for Alt, producing <code>0x80</code> and above. That conflicts with <a href="glossary/u/utf-8.html">UTF-8</a>, so modern terminals prefix the byte with ESC instead. See <a href="terminal/input/foot.html">Keys inside foot</a>.</li>
+<li><strong>8-bit C1 controls.</strong> Bytes <code>0x80</code> to <code>0x9F</code> duplicate some ESC sequences in <a href="glossary/i/iso.html">ISO</a> 8859-1, but they are not valid UTF-8. A terminal in UTF-8 mode must not treat a bare <code>0x9B</code> as <a href="glossary/c/csi.html">CSI</a>.</li>
 <li><strong>Pasting control bytes.</strong> A paste can contain <code>0x03</code> or <code>0x1B</code>. Bracketed paste lets an editor distinguish pasted text from typed keys and avoid executing it as commands.</li>
 </ul>
 

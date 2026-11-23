@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / Network connections and DNS</p></nav>
 
 
-<h1>Network connections and DNS</h1>
+<h1>Network connections and <a href="glossary/d/dns.html">DNS</a></h1>
 <p>This page explains how your computer reaches the internet and how to tell which part of that path is failing.</p>
 <h2>Before this</h2><p><a href="terminal/shell/index.html">Giving your computer written instructions</a></p>
 
@@ -51,7 +51,7 @@ link (ethernet or wifi) --> router --> internet
 <dt><a href="glossary/d/dns.html">DNS</a></dt>
 <dd>The Domain Name System, which turns a name such as example.com into an IP address.</dd>
 <dt><a href="glossary/s/ssid.html">SSID</a></dt>
-<dd>The public name of a Wi-Fi network.</dd>
+<dd>The public name of a <a href="glossary/w/wi-fi.html">Wi-Fi</a> network.</dd>
 </dl>
 </section>
 
@@ -99,11 +99,11 @@ internet_ping_ms  20.2
 <h3>If it goes wrong</h3>
 <dl>
 <dt>The output says <code>disconnected</code> and the fields are empty</dt>
-<dd>No interface has a route to the internet. Check that the Ethernet cable is seated, or open the network panel with Meta + CTRL+W and connect to a Wi-Fi network.</dd>
+<dd>No interface has a route to the internet. Check that the <a href="glossary/e/ethernet.html">Ethernet</a> cable is seated, or open the network panel with Meta + CTRL+W and connect to a Wi-Fi network.</dd>
 <dt><code>tam-network-status: command not found</code></dt>
 <dd>The command ships with Tamlinux. Use <code>ip route</code> and <code>nmcli device status</code> instead, and report that the Tamlinux command is missing.</dd>
 <dt><code>router_ping_ms</code> or <code>internet_ping_ms</code> is blank</dt>
-<dd>No reply arrived. Some networks block ICMP even when web traffic works. Compare with a name lookup and a browser before concluding the connection is down.</dd>
+<dd>No reply arrived. Some networks block <a href="glossary/i/icmp.html">ICMP</a> even when web traffic works. Compare with a name lookup and a browser before concluding the connection is down.</dd>
 <dt>A name fails while a numeric address replies</dt>
 <dd>The link and route layers work; check DNS with <code>getent ahosts example.com</code> or <code>resolvectl query example.com</code>.</dd>
 </dl>
@@ -138,8 +138,8 @@ internet_ping_ms  20.2
 <tr><th>Command or file</th><th>Reads or changes</th><th>Notes</th></tr>
 <tr><td><code>tam-network-status [--verbose]</code></td><td>Reads the default route, link, Wi-Fi details and ping samples</td><td>Short form prints <code>type name signal freq</code> separated by tabs; <code>--verbose</code> prints named key/value lines.</td></tr>
 <tr><td><code>tam-network-band [auto|2.4|5|6]</code></td><td>Reads or pins <code>802-11-wireless.band</code></td><td>Shows <code>band</code>, <code>available</code> and <code>selected</code>. A failed reconnect restores the previous band.</td></tr>
-<tr><td><code>tam-network-password &lt;interface&gt;</code></td><td>Reads the saved PSK or WEP key</td><td>Refuses enterprise Wi-Fi, which has no shareable password. Writes the secret only to standard output.</td></tr>
-<tr><td><code>tam-network-qr [--meta] [interface]</code></td><td>Reads the saved profile and renders a matrix</td><td>Payload is <code>WIFI:T:&lt;security&gt;;S:&lt;ssid&gt;;P:&lt;password&gt;;</code>. <code>--meta</code> adds interface, security and SSID.</td></tr>
+<tr><td><code>tam-network-password &lt;interface&gt;</code></td><td>Reads the saved <a href="glossary/p/psk.html">PSK</a> or <a href="glossary/w/wep.html">WEP</a> key</td><td>Refuses enterprise Wi-Fi, which has no shareable password. Writes the secret only to standard output.</td></tr>
+<tr><td><code>tam-network-qr [--meta] [interface]</code></td><td>Reads the saved profile and renders a matrix</td><td><a href="glossary/p/payload.html">Payload</a> is <code>WIFI:T:&lt;security&gt;;S:&lt;ssid&gt;;P:&lt;password&gt;;</code>. <code>--meta</code> adds interface, security and SSID.</td></tr>
 <tr><td><code>tam-network-speedtest down|up</code></td><td>Reads interface byte counters while transferring</td><td>Uses fast.com endpoints and <code>curl</code>; reports one direction at a time.</td></tr>
 <tr><td><code>tam-dns [Cloudflare|Google|DHCP|Custom]</code></td><td>Reads or writes the DNS provider</td><td>No argument prints the current provider. Changing it requires authorization and records a snapshot.</td></tr>
 <tr><td><code>tam-dns --checkpoint</code></td><td>Writes a recovery snapshot</td><td>Privileged; uses the same lock and recovery directory as a change.</td></tr>
@@ -150,11 +150,11 @@ internet_ping_ms  20.2
 
 <h3>How it works</h3>
 
-<p>NetworkManager owns device and connection state. The desktop panel in the public <code>tamlinux</code> repository at <code>desktop/shell/panels/network/Panel.qml</code> uses Quickshell's Networking module for devices and Wi-Fi networks, and calls <code>tam-network-status</code>, <code>tam-network-band</code>, <code>tam-network-qr</code> and <code>tam-network-speedtest</code> for details the module does not expose.</p>
+<p>NetworkManager owns device and connection state. The desktop panel in the public <code>tamlinux</code> repository at <code>desktop/shell/panels/network/Panel.qml</code> uses <a href="glossary/q/quickshell.html">Quickshell</a>'s Networking module for devices and Wi-Fi networks, and calls <code>tam-network-status</code>, <code>tam-network-band</code>, <code>tam-network-qr</code> and <code>tam-network-speedtest</code> for details the module does not expose.</p>
 
-<p><code>tam-network-status</code> finds the device that would carry traffic to 1.1.1.1 with <code>ip route get 1.1.1.1</code>. It treats the device as wireless when <code>/sys/class/net/&lt;device&gt;/wireless</code> exists. Wi-Fi details come from <code>nmcli -t</code> and <code>iw dev &lt;device&gt; link</code>. The verbose path reads <code>ip -j route get</code>, the interface's <code>addr_info</code>, and the kernel counters under <code>/sys/class/net/&lt;device&gt;/statistics</code>. Ping samples run in parallel with a one-second deadline.</p>
+<p><code>tam-network-status</code> finds the device that would carry traffic to 1.1.1.1 with <code>ip route get 1.1.1.1</code>. It treats the device as wireless when <code>/sys/class/net/&lt;device&gt;/wireless</code> exists. Wi-Fi details come from <code>nmcli -t</code> and <code>iw dev &lt;device&gt; link</code>. The verbose path reads <code>ip -j route get</code>, the interface's <code>addr_info</code>, and the kernel counters under <code>/sys/class/net/&lt;device&gt;/statistics</code>. <a href="glossary/p/ping.html">Ping</a> samples run in parallel with a one-second deadline.</p>
 
-<p>DNS has two possible authorities. <code>tam-dns</code> first reads the NetworkManager global-DNS drop-in at <code>/etc/NetworkManager/conf.d/20-tamlinux-dns.conf</code>. If that file has no servers, it reads <code>DNS=</code> from <code>/etc/systemd/resolved.conf</code>. If neither names a server, the provider is DHCP. A change preserves the original files through <code>dns_recovery.py</code> under <code>/var/lib/tamlinux/network-recovery</code>, writes or clears the drop-in and rewrites <code>resolved.conf</code>, reloads NetworkManager's configuration, reapplies the active wired and wireless profiles, reloads or restarts systemd-resolved, and asks NetworkManager to publish DNS again. The privileged half runs only from the read-only Nix-store copy of the command.</p>
+<p>DNS has two possible authorities. <code>tam-dns</code> first reads the NetworkManager global-DNS drop-in at <code>/etc/NetworkManager/conf.d/20-tamlinux-dns.conf</code>. If that file has no servers, it reads <code>DNS=</code> from <code>/etc/systemd/resolved.conf</code>. If neither names a server, the provider is <a href="glossary/d/dhcp.html">DHCP</a>. A change preserves the original files through <code>dns_recovery.py</code> under <code>/var/lib/tamlinux/network-recovery</code>, writes or clears the drop-in and rewrites <code>resolved.conf</code>, reloads NetworkManager's configuration, reapplies the active wired and wireless profiles, reloads or restarts systemd-resolved, and asks NetworkManager to publish DNS again. The privileged half runs only from the read-only <a href="glossary/n/nix.html">Nix</a>-store copy of the command.</p>
 
 <p><code>resolvectl</code> talks to systemd-resolved, which usually listens on the stub address <code>127.0.0.53</code>. The kernel sends DNS packets there, and resolved forwards them to the per-link or global servers. A link can have its own DNS scope and default-route flag; <code>resolvectl status</code> shows both.</p>
 
@@ -165,12 +165,12 @@ internet_ping_ms  20.2
 <h3>Edge cases</h3>
 
 <ul>
-<li>Enterprise Wi-Fi (EAP or 802.1X) has no shareable password. <code>tam-network-password</code> and <code>tam-network-qr</code> refuse it rather than printing a misleading secret.</li>
+<li>Enterprise Wi-Fi (<a href="glossary/e/eap.html">EAP</a> or 802.1X) has no shareable password. <code>tam-network-password</code> and <code>tam-network-qr</code> refuse it rather than printing a misleading secret.</li>
 <li>NetworkManager models WEP as key management <code>none</code> plus a WEP key. Both sharing commands read that key so the QR code does not claim the network is open.</li>
 <li>A band pin only takes effect after reassociation. If the radio cannot reconnect on the requested band, <code>tam-network-band</code> restores the previous value and reconnects.</li>
 <li>A DNS change is not complete until the active profiles are reapplied and resolved rereads its configuration. Reloading only one side can leave a menu selection one step behind the live resolver.</li>
 <li>Multiple interfaces can carry default routes with different metrics. <code>ip route get</code> names the winner for a specific destination, which is why the status command asks about 1.1.1.1 rather than listing every route.</li>
-<li>A VPN or a captive portal can intercept traffic without changing the default route. Compare <code>resolvectl status</code> with the browser's actual failure before changing DNS.</li>
+<li>A <a href="glossary/v/vpn.html">VPN</a> or a captive portal can intercept traffic without changing the default route. Compare <code>resolvectl status</code> with the browser's actual failure before changing DNS.</li>
 <li>ICMP replies are sometimes blocked. A blank ping is evidence, not proof, that the internet is down.</li>
 </ul>
 

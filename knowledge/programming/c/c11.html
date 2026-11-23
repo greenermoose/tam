@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/c/index.html">C and native toolchains</a> / The C11 programming language and portable systems code</p></nav>
 
 
-<h1>The C11 programming language and portable systems code</h1>
+<h1>The <a href="glossary/c/c11.html">C11</a> programming language and portable systems code</h1>
 <p>This page explains the role of the C11 programming language standard in Tamlinux, why core utilities are written in standard C, and how C11 provides a portable, high-performance foundation across different hardware and system libraries.</p>
 <h2>Before this</h2><p><a href="programming/assembly.html">Assembly language programming and machine code</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
 <p>While shell scripts and higher-level scripting languages coordinate desktop tasks and agent workflows, Tamlinux's core terminal utilities, diagnostic tools, and shared libraries are written in standard C. Standard C compiles directly to native <dfn><a href="glossary/m/machine-code.html">machine code</a></dfn>, providing deterministic performance, sub-millisecond startup times, and minimal memory consumption without background daemon runtimes.</p>
@@ -30,7 +30,7 @@
 <p>Core system utilities must be available under all operating conditions, including emergency recovery consoles when graphical desktop compositors, network access, or heavy language runtimes have failed. While many modern tools are written in languages with large runtimes (like Go, Rust, or Python), writing core utilities in standard C ensures they have no external runtime dependencies beyond the standard C library, start in under 5 milliseconds, and consume less than 4 megabytes of resident memory. This anti-bloat design keeps Tamlinux responsive on hardware ranging from 2006-era budget laptops to modern multi-core workstations.</p>
 
 <h3>How to think about it</h3>
-<p>C is a compiled programming language where source code is translated directly into processor instructions by a compiler (such as GCC or Clang). Over the decades, the international C standard has evolved through major revisions: C89/C90, C99, C11, C17, and C23. C11 (ISO/IEC 9899:2011) represents a mature, universally supported standard that introduced essential features for modern 64-bit systems &mdash; including static assertions, memory alignment controls, and anonymous data structures &mdash; while maintaining complete portability across every Linux distribution and hardware generation.</p>
+<p>C is a compiled programming language where source code is translated directly into processor instructions by a compiler (such as <a href="glossary/g/gcc.html">GCC</a> or Clang). Over the decades, the international C standard has evolved through major revisions: <a href="glossary/c/c89.html">C89</a>/<a href="glossary/c/c90.html">C90</a>, <a href="glossary/c/c99.html">C99</a>, C11, <a href="glossary/c/c17.html">C17</a>, and <a href="glossary/c/c23.html">C23</a>. C11 (<a href="glossary/i/iso.html">ISO</a>/IEC 9899:2011) represents a mature, universally supported standard that introduced essential features for modern 64-bit systems &mdash; including static assertions, memory alignment controls, and anonymous data structures &mdash; while maintaining complete portability across every Linux distribution and hardware generation.</p>
 
 <h3>New words</h3>
 <dl>
@@ -67,7 +67,7 @@ $ gcc -std=c11 -Wall -Wextra -Wpedantic -dM -E - &lt;/dev/null | grep '__STDC_VE
 
 <h3>What just happened</h3>
 <ol>
-<li><code>gcc -std=c11</code> configures the GNU Compiler Collection to enforce ISO C11 syntax and semantics.</li>
+<li><code>gcc -std=c11</code> configures the <a href="glossary/g/gnu.html">GNU</a> Compiler Collection to enforce ISO C11 syntax and semantics.</li>
 <li><code>-Wall -Wextra -Wpedantic</code> enables strict compiler warnings and pedantic standard conformance checking.</li>
 <li><code>-dM -E</code> instructs the preprocessor to run on an empty input stream (<code>&lt;/dev/null</code>) and output all predefined preprocessor macros instead of compiling code.</li>
 <li>The output confirms that the compiler defines <code>__STDC_VERSION__</code> as <code>201112L</code>, verifying full C11 mode activation.</li>
@@ -118,7 +118,7 @@ $ rm -f /tmp/c11_check
 
 <table>
 <tr><th>Standard</th><th>ISO Specification</th><th>Published</th><th>Key Architectural Characteristics</th></tr>
-<tr><td>C89 / C90</td><td>ISO/IEC 9899:1990</td><td>1990</td><td>Original ANSI/ISO standardization; function prototypes, <code>void*</code>, standard library headers.</td></tr>
+<tr><td>C89 / C90</td><td>ISO/IEC 9899:1990</td><td>1990</td><td>Original <a href="glossary/a/ansi.html">ANSI</a>/ISO standardization; function prototypes, <code>void*</code>, standard library headers.</td></tr>
 <tr><td>C99</td><td>ISO/IEC 9899:1999</td><td>1999</td><td>Exact-width integers (<code>&lt;stdint.h&gt;</code>), <code>inline</code>, designated initializers, compound literals.</td></tr>
 <tr><td>C11</td><td>ISO/IEC 9899:2011</td><td>2011</td><td>Static assertions (<code>_Static_assert</code>), alignment (<code>_Alignas</code>), anonymous structs, removed <code>gets()</code>.</td></tr>
 <tr><td>C17</td><td>ISO/IEC 9899:2018</td><td>2018</td><td>Bug-fix release to C11; no new language features introduced.</td></tr>
@@ -133,8 +133,8 @@ $ rm -f /tmp/c11_check
 <tr><td><code>-O2</code></td><td>Level 2 optimization</td><td>Enables instruction scheduling, register allocation, and inlining without bloated binary size.</td></tr>
 <tr><td><code>-Wall -Wextra</code></td><td>Standard warning suites</td><td>Enables comprehensive compiler warnings for suspicious constructs, sign mismatches, and uninitialized variables.</td></tr>
 <tr><td><code>-Wpedantic</code></td><td>Strict ISO pedantry</td><td>Issues warnings or errors for any code construct that deviates from strict ISO C11 rules.</td></tr>
-<tr><td><code>-D_DEFAULT_SOURCE</code></td><td>Feature test macro</td><td>Exposes standard POSIX, BSD, and SVID library definitions in <code>glibc</code> and <code>musl</code> headers.</td></tr>
-<tr><td><code>-D_XOPEN_SOURCE=600</code></td><td>POSIX.1-2001 / SUSv3 conformance</td><td>Enables standard POSIX operating system interfaces (such as terminal control and directory traversal).</td></tr>
+<tr><td><code>-D_DEFAULT_SOURCE</code></td><td>Feature test macro</td><td>Exposes standard <a href="glossary/p/posix.html">POSIX</a>, <a href="glossary/b/bsd.html">BSD</a>, and <a href="glossary/s/svid.html">SVID</a> library definitions in <code>glibc</code> and <code>musl</code> headers.</td></tr>
+<tr><td><code>-D_XOPEN_SOURCE=600</code></td><td><a href="glossary/p/posix.html">POSIX.1</a>-2001 / <a href="glossary/s/susv3.html">SUSv3</a> conformance</td><td>Enables standard POSIX operating system interfaces (such as terminal control and directory traversal).</td></tr>
 </table>
 
 <h3>Why Tamlinux chose C11 over C23</h3>
@@ -153,9 +153,9 @@ $ rm -f /tmp/c11_check
 <p>Modern systems software is frequently written in Rust, Go, or C++. While each language has distinct strengths, Tamlinux deliberately restricts core utilities to ISO C11 linked against <code>libtam</code>:</p>
 
 <table>
-<tr><td><strong>Rust</strong></td><td>While Rust guarantees compile-time memory safety, its toolchain is enormous (~1.5 GB), compilation is slow on modest hardware, and typical projects accumulate hundreds of transitive dependencies (Cargo sprawl). In an emergency rescue environment or minimal musl chroot, compiling Rust tools is often impractical. Tamlinux instead achieves safety in C11 through pedantic compiler flags, <code>_Static_assert</code>, strict bounds-checked primitives in <code>libtam</code>, and <a href="programming/c/sanitizers.html">AddressSanitizer (ASan)</a> testing.</td></tr>
-<tr><td><strong>Go</strong></td><td>Go provides built-in concurrency with goroutines, but incurs an 8&ndash;15 MB binary size floor, spawns background runtime threads, and introduces garbage-collection pauses. These characteristics conflict with Tamlinux's anti-bloat principle of event-driven, bounded execution without background daemons.</td></tr>
-<tr><td><strong>C++</strong></td><td>C++ offers powerful object and template abstractions, but code frequently suffers from template-instantiation bloat, complex cognitive overhead, and fragile application binary interface (ABI) stability across compiler and standard-library upgrades.</td></tr>
+<tr><td><strong>Rust</strong></td><td>While Rust guarantees compile-time memory safety, its toolchain is enormous (~1.5 <a href="glossary/b/byte.html">GB</a>), compilation is slow on modest hardware, and typical projects accumulate hundreds of transitive dependencies (Cargo sprawl). In an emergency rescue environment or minimal musl chroot, compiling Rust tools is often impractical. Tamlinux instead achieves safety in C11 through pedantic compiler flags, <code>_Static_assert</code>, strict bounds-checked primitives in <code>libtam</code>, and <a href="programming/c/sanitizers.html">AddressSanitizer (ASan)</a> testing.</td></tr>
+<tr><td><strong>Go</strong></td><td>Go provides built-in concurrency with goroutines, but incurs an 8&ndash;15 <a href="glossary/b/byte.html">MB</a> binary size floor, spawns background runtime threads, and introduces garbage-collection pauses. These characteristics conflict with Tamlinux's anti-bloat principle of event-driven, bounded execution without background daemons.</td></tr>
+<tr><td><strong>C++</strong></td><td>C++ offers powerful object and template abstractions, but code frequently suffers from template-instantiation bloat, complex cognitive overhead, and fragile application binary interface (<a href="glossary/a/abi.html">ABI</a>) stability across compiler and standard-library upgrades.</td></tr>
 </table>
 
 <p>Rather than importing entire language ecosystems, Tamlinux uses AI assistants under human direction to survey open source projects written in diverse languages, extract their best algorithmic concepts, and implement them as lean, self-contained C11 programs. For a comprehensive architectural comparison, see <a href="tamlinux/design/language-choices.html">systems programming philosophy and language choices</a>.</p>
@@ -172,7 +172,7 @@ $ rm -f /tmp/c11_check
 
 <h3>Explore: inspect the compiler invocation for tam</h3>
 
-<p>You can inspect how the <code>tam</code> command compiles using Make's dry-run mode (<code>-n</code>) inside the source repository:</p>
+<p>You can inspect how the <code>tam</code> command compiles using <a href="glossary/m/make.html">Make</a>'s dry-run mode (<code>-n</code>) inside the source repository:</p>
 
 <pre class="session" data-risk="read-only">
 $ make -C ~/src/tam -n command | head -n 3

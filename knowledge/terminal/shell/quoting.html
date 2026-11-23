@@ -19,7 +19,7 @@
 
 <section data-level="novice">
 <h2>One word, not many</h2>
-<p>A shell reads what you type and uses spaces to decide where one word ends and the next begins. Sometimes you want a space to stay inside a word, for example in the name <code>My notes.txt</code>. Quoting is the way to say that several characters belong together.</p>
+<p>A shell reads what you type and uses spaces to decide where one word ends and the next begins. Sometimes you want a space to stay inside a word, for example in the name <code>My notes.txt</code>. <a href="glossary/q/quoting.html">Quoting</a> is the way to say that several characters belong together.</p>
 <aside class="first-time"><p>Type after the terminal prompt; do not type the dollar sign shown in examples. A missing closing quote leaves the shell waiting for more input. Ctrl+C cancels that unfinished line and returns you to a fresh prompt.</p></aside>
 
 <h3>Why it matters</h3>
@@ -125,7 +125,7 @@ $ printf '[%s]\n' "${arr[@]}"
 $ printf '[%s]\n' "${arr[*]}"
 [a b c]
 </pre>
-<p>Captured on Arch Linux, 2026-11-22, after <code>arr=('a b' c)</code>. Double-quoted <code>${arr[@]}</code> keeps each element as its own argument; <code>${arr[*]}</code> joins them using the first character of IFS.</p>
+<p>Captured on Arch Linux, 2026-11-22, after <code>arr=('a b' c)</code>. Double-quoted <code>${arr[@]}</code> keeps each element as its own argument; <code>${arr[*]}</code> joins them using the first character of <a href="glossary/i/ifs.html">IFS</a>.</p>
 
 <h3>Edge cases</h3>
 <ul>

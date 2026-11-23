@@ -20,7 +20,7 @@
 <h1>Desktop themes and color coordination</h1>
 <p>This page explains how computer screens display colors and how desktop themes coordinate visual styling across different programs.</p>
 <h2>Before this</h2><p><a href="terminal/ttys-and-virtual-consoles.html">Text screens and terminal windows</a> · <a href="terminal/terminfo-and-termcap.html">How terminals display text</a> · <a href="programming/interfaces/toolkits.html">The bar and menus around your windows</a></p>
-<p>Unlike proprietary operating systems where a single setting controls the visual appearance of all software, a Unix-like desktop is an assembly of independent programs. Terminal emulators, code editors, UI toolkits like GTK and Qt, and desktop shells each store color palettes in their own configuration formats. Understanding how colors and themes work allows you to adjust visual contrast, avoid eye strain, and build robust, efficient desktop environments.</p>
+<p>Unlike proprietary operating systems where a single setting controls the visual appearance of all software, a <a href="glossary/u/unix.html">Unix</a>-like desktop is an assembly of independent programs. <a href="glossary/t/terminal.html">Terminal</a> emulators, code editors, <a href="glossary/g/gui.html">UI</a> toolkits like <a href="glossary/g/gtk.html">GTK</a> and Qt, and desktop shells each store color palettes in their own configuration formats. Understanding how colors and themes work allows you to adjust visual contrast, avoid eye strain, and build robust, efficient desktop environments.</p>
 
 <section data-level="novice">
 <h2>What is a desktop theme?</h2>
@@ -74,7 +74,7 @@ $ tam-theme-color foreground
 <li><code>tam-theme-color</code> extracts specific hexadecimal color values from the active palette, such as the dark background (<code>#131a15</code>) and the light foreground text (<code>#e4ece6</code>).</li>
 </ol>
 
-<p>A <dfn><a href="glossary/p/package.html">theme</a></dfn> is a coordinated set of colors, font assignments, and visual parameters (such as window borders and margins). A <em>palette</em> is the specific collection of colors used by a theme. In modern interface design, colors are defined as semantic <em>tokens</em> (such as &ldquo;background&rdquo;, &ldquo;surface&rdquo;, &ldquo;primary&rdquo;, or &ldquo;danger&rdquo;) rather than hardcoded RGB numbers, allowing software to adapt cleanly between light and dark modes.</p>
+<p>A <dfn><a href="glossary/p/package.html">theme</a></dfn> is a coordinated set of colors, font assignments, and visual parameters (such as window borders and margins). A <em>palette</em> is the specific collection of colors used by a theme. In modern interface design, colors are defined as semantic <em>tokens</em> (such as &ldquo;background&rdquo;, &ldquo;surface&rdquo;, &ldquo;primary&rdquo;, or &ldquo;danger&rdquo;) rather than hardcoded <a href="glossary/r/rgb.html">RGB</a> numbers, allowing software to adapt cleanly between light and dark modes.</p>
 <h3>Try it</h3>
 <p>Run these read-only commands to list all available themes and inspect the colors assigned to the active theme:</p>
 
@@ -94,7 +94,7 @@ head -n 12 ~/.local/state/tamlinux/current/theme/colors.toml
 <dd>The display brightness or ambient room lighting may be mismatched with your current theme. Switch between dark and light variants using <code>tam-theme-set tamarack-light</code> or <code>tam-theme-set tamarack-dark</code>.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, themes are generated from semantic token files into an isolated state generation directory and published via atomic directory exchange. The default Tamarack palette enforces WCAG AA contrast (at least 4.5:1) at build time. User customizations live in <code>~/.config/tamlinux/themes/</code> and override packaged defaults without modifying immutable store paths.</p>
+<p>On Tamlinux, themes are generated from semantic token files into an isolated state generation directory and published via atomic directory exchange. The default Tamarack palette enforces <a href="glossary/w/wcag.html">WCAG</a> AA contrast (at least 4.5:1) at build time. User customizations live in <code>~/.config/tamlinux/themes/</code> and override packaged defaults without modifying immutable store paths.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -142,7 +142,7 @@ result = rename(-100, os.fsencode(temporary), -100, os.fsencode(destination), 2)
 
 <h4>2. Transactional journaling and rollback</h4>
 
-<p>Before any external application configuration is modified (such as GTK CSS, VS Code settings, or Obsidian vaults), the engine wraps the operation in a transaction manager (<code>Journal</code> class):</p>
+<p>Before any external application configuration is modified (such as GTK <a href="glossary/c/css.html">CSS</a>, VS Code settings, or Obsidian vaults), the engine wraps the operation in a transaction manager (<code>Journal</code> class):</p>
 
 <pre data-risk="read-only">
 class Journal:
@@ -182,7 +182,7 @@ for fg in ('foreground', 'muted', 'primary', 'accent', 'danger', 'info'):
 
 <p>Any token failing the 4.5:1 ratio halts execution before any file is written.</p>
 
-<h4>4. Direct binary PNG synthesis without dependencies</h4>
+<h4>4. Direct binary <a href="glossary/p/png.html">PNG</a> synthesis without dependencies</h4>
 
 <p>To avoid adding large dependencies (such as Pillow or ImageMagick) to the Tamlinux scion, the theme engine generates solid wallpaper PNGs and preview swatches directly using Python&apos;s standard <code>struct</code> and <code>zlib</code> libraries:</p>
 
@@ -197,17 +197,17 @@ def solid_png(color):
             + chunk(b'IEND', b''))
 </pre>
 
-<p>This generates a valid 1&times;1 24-bit TrueColor PNG image with proper PNG headers, chunks, and CRC-32 checksums in under 100 microseconds.</p>
+<p>This generates a valid 1&times;1 24-bit TrueColor PNG image with proper PNG headers, chunks, and <a href="glossary/c/crc-32.html">CRC-32</a> checksums in under 100 microseconds.</p>
 
 <h3>Future work for smaller code and higher efficiency</h3>
 
 <p>The current Tamlinux theme system is robust, but there are multiple paths to make it leaner and more efficient:</p>
 
 <ol>
-<li><strong>Consolidating Adapter Subprocesses:</strong> In the current implementation, applying a theme executes <code>engine.py</code>, which then loops through a list of adapters (<code>ADAPTERS = ['foot', 'tmux', 'gnome', 'browser', 'pi', 'claude', 't3code', 'vscode', 'obsidian', 'keyboard']</code>), invoking individual shell scripts (e.g. <code>tam-theme-set-foot</code>). Each script forks Python, bash, or sed. Integrating these adapters as internal generator functions inside the engine would eliminate over 20 process forks per theme change.</li>
-<li><strong>Lightweight C Theme Engine:</strong> Python requires a ~30 MB memory footprint and several tenths of a second of interpreter startup time. The entire theme engine (reading TOML, performing WCAG contrast calculations, calling <code>renameat2</code>, and writing files) could be implemented in roughly 500 lines of standard C using POSIX APIs and a small JSON/TOML parser. This would reduce the memory footprint to under 1 MB and make theme switching nearly instantaneous.</li>
+<li><strong>Consolidating <a href="glossary/a/adapter.html">Adapter</a> Subprocesses:</strong> In the current implementation, applying a theme executes <code>engine.py</code>, which then loops through a list of adapters (<code>ADAPTERS = ['foot', 'tmux', 'gnome', 'browser', 'pi', 'claude', 't3code', 'vscode', 'obsidian', 'keyboard']</code>), invoking individual shell scripts (e.g. <code>tam-theme-set-foot</code>). Each script forks Python, bash, or sed. Integrating these adapters as internal generator functions inside the engine would eliminate over 20 process forks per theme change.</li>
+<li><strong>Lightweight C Theme Engine:</strong> Python requires a ~30 <a href="glossary/b/byte.html">MB</a> memory footprint and several tenths of a second of interpreter startup time. The entire theme engine (reading <a href="glossary/t/toml.html">TOML</a>, performing WCAG contrast calculations, calling <code>renameat2</code>, and writing files) could be implemented in roughly 500 lines of standard C using <a href="glossary/p/posix.html">POSIX</a> APIs and a small <a href="glossary/j/json.html">JSON</a>/TOML parser. This would reduce the memory footprint to under 1 MB and make theme switching nearly instantaneous.</li>
 <li><strong>Daemonless Inotify File-Watch Architecture:</strong> Currently, the engine explicitly restarts or notifies applications via <code>tam-restart-*</code> and shell commands. In an event-driven architecture, applications and UI panels can watch <code>~/.local/state/tamlinux/current/theme</code> using Linux <code>inotify</code>. When <code>renameat2</code> swaps the directory, inotify triggers a directory modified event, allowing each process to reload its styling autonomously without central coordination scripts.</li>
-<li><strong>Decoupling from dconf for Void Linux and Microkernels:</strong> The current engine checks <code>dconf</code> and refuses to run if GSettings backends are missing. For Void Linux and microkernel targets that do not use GNOME libraries, theming should rely strictly on XDG portal settings or static file symlinks, removing the hard dependency on D-Bus and dconf.</li>
+<li><strong>Decoupling from dconf for Void Linux and Microkernels:</strong> The current engine checks <code>dconf</code> and refuses to run if GSettings backends are missing. For Void Linux and microkernel targets that do not use <a href="glossary/g/gnome.html">GNOME</a> libraries, theming should rely strictly on <a href="glossary/x/xdg.html">XDG</a> portal settings or static file symlinks, removing the hard dependency on D-<a href="glossary/b/bus.html">Bus</a> and dconf.</li>
 </ol>
 
 <h3>Explore</h3>
@@ -239,18 +239,18 @@ lrwxrwxrwx 1 alex alex   68 Nov  1 05:00 theme -&gt; /home/alex/.local/state/tam
 </details>
 <details class="q open">
 <summary>What is the primary benefit of consolidating adapter shell scripts into the main engine?</summary>
-<p>It eliminates dozens of process forks (spawning shells, Python interpreters, and command-line utilities for each adapter), reducing disk I/O, CPU context switching, and theme application latency.</p>
+<p>It eliminates dozens of process forks (spawning shells, Python interpreters, and command-line utilities for each adapter), reducing disk I/O, <a href="glossary/c/cpu.html">CPU</a> context switching, and theme application latency.</p>
 </details>
 </section>
 
 <h3>Sources</h3>
 
 <ul>
-<li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">Fontconfig User Manual (online)</a> &mdash; font matching algorithms, pattern syntax, and XML configuration rules.</li>
+<li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">Fontconfig User Manual (online)</a> &mdash; font matching algorithms, pattern syntax, and <a href="glossary/x/xml.html">XML</a> configuration rules.</li>
 <li><a href="https://www.w3.org/TR/WCAG21/">W3C Web Content Accessibility Guidelines (WCAG) 2.1 (online)</a> &mdash; relative luminance and contrast ratio specifications.</li>
 <li><a href="https://www.w3.org/Graphics/Color/sRGB">IEC 61966-2-1: sRGB Default RGB Colour Space (online)</a> &mdash; standard color space and gamma transfer characteristics.</li>
 <li><a href="https://man7.org/linux/man-pages/man2/renameat2.2.html">renameat2(2) Linux Manual Page (online)</a> &mdash; atomic directory exchange and rename flags.</li>
-<li><a href="https://www.ecma-international.org/publications-and-standards/standards/ecma-48/">ECMA-48: Control Functions for Coded Character Sets (online)</a> &mdash; standard ANSI escape sequences and Select Graphic Rendition (SGR) codes.</li>
+<li><a href="https://www.ecma-international.org/publications-and-standards/standards/ecma-48/">ECMA-48: Control Functions for Coded Character Sets (online)</a> &mdash; standard <a href="glossary/a/ansi.html">ANSI</a> escape sequences and Select Graphic Rendition (<a href="glossary/s/sgr.html">SGR</a>) codes.</li>
 <li><a href="https://github.com/greenermoose/tamlinux">Tamlinux Repository (online)</a> &mdash; <code>tamlinux/desktop/theme/engine.py</code> and Tamarack design tokens.</li>
 </ul>
 
@@ -260,6 +260,6 @@ lrwxrwxrwx 1 alex alex   68 Nov  1 05:00 theme -&gt; /home/alex/.local/state/tam
 </section>
 
 <h2>Next</h2><p><a href="hardware/displays/display-history.html">Computer displays and the history of visual output</a> &mdash; discover how display hardware evolved from tubes to touchscreens.</p>
-<h2>Related</h2><ul><li><a href="hardware/displays/computer-graphics.html">Computer graphics and the rendering pipeline</a> &mdash; understand pixels, rasters, and framebuffers.</li><li><a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a> &mdash; learn how fonts, FreeType, and Fontconfig shape and draw text on screens.</li><li><a href="programming/interfaces/toolkits.html">Desktop shell and UI toolkits</a> &mdash; explore Quickshell, QML, and desktop UI components.</li><li><a href="terminal/terminfo-and-termcap.html">How terminals display text</a> &mdash; understand terminal escape sequences, character cells, and capabilities.</li><li><a href="tamlinux/design/distros.html">Rootstocks</a> &mdash; see why Tamlinux is planning a migration from Arch Linux to Void Linux.</li></ul>
+<h2>Related</h2><ul><li><a href="hardware/displays/computer-graphics.html">Computer graphics and the rendering pipeline</a> &mdash; understand pixels, rasters, and framebuffers.</li><li><a href="desktop/appearance/fonts.html">Typography, fonts and text rendering</a> &mdash; learn how fonts, FreeType, and Fontconfig shape and draw text on screens.</li><li><a href="programming/interfaces/toolkits.html">Desktop shell and UI toolkits</a> &mdash; explore <a href="glossary/q/quickshell.html">Quickshell</a>, <a href="glossary/q/qml.html">QML</a>, and desktop UI components.</li><li><a href="terminal/terminfo-and-termcap.html">How terminals display text</a> &mdash; understand terminal escape sequences, character cells, and capabilities.</li><li><a href="tamlinux/design/distros.html">Rootstocks</a> &mdash; see why Tamlinux is planning a migration from Arch Linux to Void Linux.</li></ul>
 </body>
 </html>

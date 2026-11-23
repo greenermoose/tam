@@ -65,7 +65,7 @@ One Shared Git Clone (e.g. ~/src/tam)
 </pre>
 
 <p>Instead of creating duplicate worktrees or branches for every task, contributors share a single clone. Before editing, each contributor or agent uses <code>tam-work</code> to reserve the specific paths they will change. Multiple sessions can work concurrently in the same repository as long as their claimed scopes do not overlap.</p>
-<h3>Worked example: Build native C tools and inspect version output</h3>
+<h3>Worked example: <a href="glossary/b/build.html">Build</a> native C tools and inspect version output</h3>
 <pre class="session" data-risk="read-only">
 $ cd ~/src/tam
 $ make test-command
@@ -101,13 +101,13 @@ Tamlinux cultivar KBN WB 0.6.1
 <dd>Record the exact test line and failure message in your issue report. Do not modify system packages to force a test to pass; test failures indicate a code regression or missing local dependency.</dd>
 </dl>
 <aside class="tamlinux">
-<p>On Tamlinux, all development across core repositories (including <code>tam</code>, <code>libtam</code>, and <code>tamlinux</code>) follows the shared clone concurrency model. Git worktrees are explicitly avoided because their setup and merge overhead exceeds small changes, and relative directory paths break when nested in worktrees. Instead, contributors and AI coding agents reserve paths with <code>tam-work</code>, push exclusively to <code>dev</code>, and record all verification evidence with AI provenance.</p>
+<p>On Tamlinux, all development across core repositories (including <code>tam</code>, <code>libtam</code>, and <code>tamlinux</code>) follows the shared clone concurrency model. <a href="glossary/g/git.html">Git</a> worktrees are explicitly avoided because their setup and merge overhead exceeds small changes, and relative directory paths break when nested in worktrees. Instead, contributors and AI coding agents reserve paths with <code>tam-work</code>, push exclusively to <code>dev</code>, and record all verification evidence with AI provenance.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
-<summary><i>Why does Tamlinux compile core utilities in native C11 rather than using interpreted scripts?</i></summary>
+<summary><i>Why does Tamlinux compile core utilities in native <a href="glossary/c/c11.html">C11</a> rather than using interpreted scripts?</i></summary>
 <p>Native C executables start in less than 5 milliseconds and consume negligible memory, avoiding the startup latency, memory overhead, and runtime dependency management of interpreted script runtimes.</p>
 </details>
 <details class="q">
@@ -124,9 +124,9 @@ Tamlinux cultivar KBN WB 0.6.1
 <table>
 <tr><th>Compiler flag / Contract</th><th>Mechanism</th><th>Performance benefit / Guarantee</th></tr>
 <tr><td><code>-O2</code></td><td>Standard optimization level</td><td>Enables function inlining, instruction scheduling, and loop vectorization without binary size inflation.</td></tr>
-<tr><td><code>-march=native</code></td><td>Host microarchitecture tuning</td><td>Emits instruction set extensions supported by host CPU (AVX2, FMA, BMI2, AES-NI) for maximum vector execution speed.</td></tr>
+<tr><td><code>-march=native</code></td><td>Host microarchitecture tuning</td><td>Emits instruction set extensions supported by host <a href="glossary/c/cpu.html">CPU</a> (<a href="glossary/a/avx2.html">AVX2</a>, FMA, <a href="glossary/b/bmi2.html">BMI2</a>, <a href="glossary/a/aes-ni.html">AES-NI</a>) for maximum vector execution speed.</td></tr>
 <tr><td><code>-pipe</code></td><td>Compiler pipes</td><td>Transfers learner assembler data via in-memory pipes rather than temporary disk files, reducing disk I/O during builds.</td></tr>
-<tr><td><code>-Wl,-rpath,DIR</code></td><td>Embedded runtime library path</td><td>Binds the exact ELF directory search path for <code>libtam.so</code> into the binary header, avoiding dynamic loader lookup failures.</td></tr>
+<tr><td><code>-Wl,-rpath,DIR</code></td><td>Embedded runtime library path</td><td>Binds the exact <a href="glossary/e/elf.html">ELF</a> directory search path for <code>libtam.so</code> into the binary header, avoiding dynamic loader lookup failures.</td></tr>
 <tr><td><code>tam-work</code> claim</td><td>Atomic path reservation</td><td>Guarantees that concurrent developer and AI agent sessions work exclusively on disjoint directory scopes.</td></tr>
 </table>
 
@@ -183,7 +183,7 @@ $ readelf -d build/tam | grep -E 'RPATH|RUNPATH|NEEDED'
 <ul>
 <li><cite data-ref="linux-api"><a href="bibliography/linux-api.html">Linux man-pages</a></cite> &mdash; execve(2) process execution, elf(5) object format, and system call interfaces.</li>
 <li><cite data-ref="bash"><a href="bibliography/bash.html">GNU Bash manual</a></cite> &mdash; environment variable export, shell options, and script invocation semantics.</li>
-<li><a href="man:make(1)">make(1)</a> &mdash; GNU Make build utility and dependency DAG execution.</li>
+<li><a href="man:make(1)">make(1)</a> &mdash; GNU Make build utility and dependency <a href="glossary/d/dag.html">DAG</a> execution.</li>
 <li><a href="man:gcc(1)">gcc(1)</a> &mdash; GNU Compiler Collection optimization and architecture options.</li>
 </ul>
 
@@ -192,7 +192,7 @@ $ readelf -d build/tam | grep -E 'RPATH|RUNPATH|NEEDED'
 <p>The native C codebase for the <code>tam</code> command is located in <code>src/</code>, shared library code is in <code>libtam/</code>, and multi-agent concurrency rules are defined in <code>AGENTS.md</code>.</p>
 </section>
 
-<h2>Next</h2><p><a href="programming/c/sanitizers.html">Compiler sanitizers</a> &mdash; verify memory safety with AddressSanitizer and UndefinedBehaviorSanitizer.</p>
-<h2>Related</h2><ul><li><a href="programming/c/pkg-config.html">pkg-config</a> &mdash; ask installed libraries for their compiler and linker flags.</li><li><a href="programming/interfaces/ncurses.html">ncurses</a> &mdash; terminal capability library behind <code>libncursesw</code>.</li><li><a href="programming/ai/local-inference.html">Physics of local AI generation</a> &mdash; explore memory bandwidth constraints and model quantization.</li><li><a href="programming/scripting.html">Shell scripting and tool conventions</a> &mdash; write robust Bash utilities with strict headers.</li><li><a href="systems/memory-compression.html">Memory compression with ZRAM</a> &mdash; configure compressed RAM swap to prevent disk thrashing.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
+<h2>Next</h2><p><a href="programming/c/sanitizers.html">Compiler sanitizers</a> &mdash; verify memory safety with <a href="glossary/a/addresssanitizer.html">AddressSanitizer</a> and UndefinedBehaviorSanitizer.</p>
+<h2>Related</h2><ul><li><a href="programming/c/pkg-config.html">pkg-config</a> &mdash; ask installed libraries for their compiler and linker flags.</li><li><a href="programming/interfaces/ncurses.html">ncurses</a> &mdash; terminal capability library behind <code>libncursesw</code>.</li><li><a href="programming/ai/local-inference.html">Physics of local AI generation</a> &mdash; explore memory bandwidth constraints and model quantization.</li><li><a href="programming/scripting.html">Shell scripting and tool conventions</a> &mdash; write robust Bash utilities with strict headers.</li><li><a href="systems/memory-compression.html">Memory compression with ZRAM</a> &mdash; configure compressed <a href="glossary/r/ram.html">RAM</a> swap to prevent disk thrashing.</li><li><a href="tamlinux/development/index.html">Extending and improving</a> &mdash; return to the improve track overview.</li></ul>
 </body>
 </html>

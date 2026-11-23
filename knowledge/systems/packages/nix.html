@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/packages/index.html">Software packages</a> / How Nix and Home Manager work</p></nav>
 
 
-<h1>How Nix and Home Manager work</h1>
+<h1>How <a href="glossary/n/nix.html">Nix</a> and Home Manager work</h1>
 <p>This page explains how Nix builds software and how Home Manager uses Nix to create the software and settings in your home directory.</p>
 <h2>Before this</h2><p><a href="systems/packages/packaging.html">How software is delivered</a></p>
 <p>Tamlinux uses these tools to deliver its desktop. You do not need to know them to use Tamlinux, but knowing them makes updates, rollbacks and configuration changes much easier to understand.</p>
@@ -129,7 +129,7 @@ readlink ~/.nix-profile
 <dd>The store is read-only by design. Reading is allowed; writing into <code>/nix/store/</code> is not. Never change permissions on the store to make a command work.</dd>
 </dl>
 <aside class="tamlinux">
-<p><strong>Historical note on Tamlinux:</strong> Earlier Tamlinux releases used Nix and Home Manager to deliver the scion. Tamlinux has since retired Nix and Home Manager in favor of native rootstock packages (<code>pacman</code>) and pinned Git source installs built with <code>make</code> and <code>make install</code>. This page remains as general Linux reference for how Nix and Home Manager work.</p>
+<p><strong>Historical note on Tamlinux:</strong> Earlier Tamlinux releases used Nix and Home Manager to deliver the scion. Tamlinux has since retired Nix and Home Manager in favor of native rootstock packages (<code>pacman</code>) and pinned <a href="glossary/g/git.html">Git</a> source installs built with <code>make</code> and <code>make install</code>. This page remains as general Linux reference for how Nix and Home Manager work.</p>
 </aside>
 <section class="quiz">
 <h3>Check yourself</h3>
@@ -179,8 +179,8 @@ readlink ~/.nix-profile
 <tr><td><code>assert cond; expr</code></td><td>Fail evaluation unless <code>cond</code> is true, then evaluate <code>expr</code>.</td></tr>
 <tr><td><code>throw "message"</code></td><td>Stop evaluation with an error. It is forced only if the value is actually needed.</td></tr>
 <tr><td><code>map f list</code></td><td>Apply a function to every item of a list.</td></tr>
-<tr><td><code>foldl' f init list</code></td><td>Fold a list from the left with a strict accumulator.</td></tr>
-<tr><td><code>lib.genAttrs names f</code></td><td>Build an attribute set by applying <code>f</code> to each name.</td></tr>
+<tr><td><code>foldl' f init list</code></td><td><a href="glossary/f/fold.html">Fold</a> a list from the left with a strict accumulator.</td></tr>
+<tr><td><code>lib.genAttrs names f</code></td><td><a href="glossary/b/build.html">Build</a> an attribute set by applying <code>f</code> to each name.</td></tr>
 </table>
 
 <h3>How it works</h3>
@@ -193,7 +193,7 @@ readlink ~/.nix-profile
 
 <p>Home Manager's module system merges declarations from many files. Each module returns an attribute set with optional <code>options</code> and <code>config</code> attributes. An option declaration gives a name, a type, a default and a description. A config definition assigns a value. The module system checks types, merges values according to priority, and produces one final <code>config</code>. Helpers such as <code>lib.mkIf</code>, <code>lib.mkDefault</code>, <code>lib.mkForce</code> and <code>lib.mkMerge</code> control whether and how a value participates in that merge. <code>lib.mkEnableOption</code> is shorthand for a Boolean option that defaults to false.</p>
 
-<p>Home Manager then builds an activation package. The package contains an <code>activate</code> script, a <code>home-files</code> tree of managed files, and a <code>home-path</code> profile of packages. Activation creates a new generation link, switches the profile, links the managed files into your home directory, and runs the activation scripts in dependency order. The order is a directed acyclic graph, or DAG. A script added with <code>lib.hm.dag.entryAfter [ "linkGeneration" ]</code> runs after the named step; <code>entryBefore</code> runs before it. Activation scripts should be idempotent, because they run again on every switch.</p>
+<p>Home Manager then builds an activation package. The package contains an <code>activate</code> script, a <code>home-files</code> tree of managed files, and a <code>home-path</code> profile of packages. Activation creates a new generation link, switches the profile, links the managed files into your home directory, and runs the activation scripts in dependency order. The order is a directed acyclic graph, or <a href="glossary/d/dag.html">DAG</a>. A script added with <code>lib.hm.dag.entryAfter [ "linkGeneration" ]</code> runs after the named step; <code>entryBefore</code> runs before it. Activation scripts should be idempotent, because they run again on every switch.</p>
 
 <h3>The Tamlinux flake, line by line</h3>
 
@@ -271,7 +271,7 @@ libtam = pkgs.stdenv.mkDerivation {
 
 <p><code>pname</code> and <code>version</code> name the result. The version is read from the pinned source at evaluation time: <code>builtins.readFile</code> reads the header, <code>lib.splitString</code> splits it into lines, <code>lib.findFirst</code> finds the version line, and <code>builtins.match</code> extracts the captured string. This means the package version cannot drift from the source header without the derivation changing. <code>src</code> is the pinned source tree. <code>nativeBuildInputs</code> are tools used while building; <code>buildInputs</code> are libraries the result needs. The phases run the project's own build and install commands. <code>$out</code> is the output store path. <code>doCheck = true</code> runs the project's tests during the build, and <code>meta.license</code> records the license for tooling and users.</p>
 
-<p>The other components use the same ideas with different helpers. <code>pkgs.runCommand</code> creates a derivation that runs a shell script; it is convenient for copying files into a store tree. <code>passthru</code> attaches extra attributes to a package, such as <code>version</code>, <code>revision</code> and <code>features</code>, without changing the build. <code>builtins.pathExists</code> and <code>builtins.readDir</code> inspect the pinned product source during evaluation, which lets one flake support revisions that have different features. <code>lib.optionalString</code> and <code>lib.optionals</code> include a string or list only when a condition is true. <code>patchShebangs</code> rewrites interpreter lines such as <code>#!/usr/bin/env python3</code> to the store path of the declared interpreter. <code>wrapProgram</code> creates a small wrapper that sets <code>PATH</code> and other environment variables before running the real program. <code>pkgs.writeText</code> writes a generated text file into the store, and <code>builtins.toJSON</code> turns a Nix value into JSON.</p>
+<p>The other components use the same ideas with different helpers. <code>pkgs.runCommand</code> creates a derivation that runs a shell script; it is convenient for copying files into a store tree. <code>passthru</code> attaches extra attributes to a package, such as <code>version</code>, <code>revision</code> and <code>features</code>, without changing the build. <code>builtins.pathExists</code> and <code>builtins.readDir</code> inspect the pinned product source during evaluation, which lets one flake support revisions that have different features. <code>lib.optionalString</code> and <code>lib.optionals</code> include a string or list only when a condition is true. <code>patchShebangs</code> rewrites interpreter lines such as <code>#!/usr/bin/env python3</code> to the store path of the declared interpreter. <code>wrapProgram</code> creates a small wrapper that sets <code>PATH</code> and other environment variables before running the real program. <code>pkgs.writeText</code> writes a generated text file into the store, and <code>builtins.toJSON</code> turns a Nix value into <a href="glossary/j/json.html">JSON</a>.</p>
 
 <h3>The module file</h3>
 
@@ -316,7 +316,7 @@ in {
 
 <p>The <code>config</code> attribute is active only when <code>cfg.enable</code> is true. <code>home.packages</code> adds a package to the profile. <code>home.file</code> and <code>xdg.configFile</code> create managed links; <code>.source</code> points at a store path, while <code>.text</code> stores literal content and links that file. The <code>assertions</code> list fails evaluation if the shell and plugin package revisions differ, which prevents mixing outputs from different product revisions. <code>home.activation</code> adds a script to the activation DAG; <code>entryBefore [ "checkLinkTargets" ]</code> places it before Home Manager's own link check. The <code>''</code> string is an indented string, and <code>''${...}</code> would escape a literal interpolation.</p>
 
-<p>The same module file also declares <code>systemd.user.services.tamlinux-shell</code>. Home Manager turns that attribute set into a user unit. The <code>Unit</code>, <code>Service</code> and <code>Install</code> sections use systemd's own names. <code>WantedBy = [ "graphical-session.target" ]</code> makes the service part of the graphical session. <code>ConditionEnvironment = "WAYLAND_DISPLAY"</code> prevents it from starting without a Wayland session. The service's <code>PATH</code> is assembled from the user's <code>~/.local/bin</code>, the shell's runtime dependencies and a final <code>/usr/bin</code> fallback, so the shell finds its packaged commands first.</p>
+<p>The same module file also declares <code>systemd.user.services.tamlinux-shell</code>. Home Manager turns that attribute set into a user unit. The <code>Unit</code>, <code>Service</code> and <code>Install</code> sections use systemd's own names. <code>WantedBy = [ "graphical-session.target" ]</code> makes the service part of the graphical session. <code>ConditionEnvironment = "WAYLAND_DISPLAY"</code> prevents it from starting without a <a href="glossary/w/wayland.html">Wayland</a> session. The service's <code>PATH</code> is assembled from the user's <code>~/.local/bin</code>, the shell's runtime dependencies and a final <code>/usr/bin</code> fallback, so the shell finds its packaged commands first.</p>
 
 <h3>How a change becomes a generation</h3>
 
@@ -346,9 +346,9 @@ in {
 <li><strong>Import from derivation.</strong> A build that needs the output of another build during evaluation is an import from derivation. It can slow evaluation, break sandbox assumptions and make caching harder. Prefer evaluating data that is already in the source tree.</li>
 <li><strong>Fixed-output derivations.</strong> Network fetches are allowed only when the output hash is declared in advance. A hash mismatch means the source changed or the hash is wrong. Do not disable the check; update the pin and hash deliberately.</li>
 <li><strong>Garbage collection.</strong> Old generations keep their store closures alive. Removing a generation removes a root, and a later <code>nix-collect-garbage</code> may delete paths that only that generation used. Keep the generations you may need for rollback.</li>
-<li><strong>ABI drift across layers.</strong> A native update can replace a core library such as Mesa or Wayland while an older Nix generation still expects the previous application binary interface. Rebuild or return to a matching generation; do not assume that an old store path is compatible with a new host library.</li>
-<li><strong>PATH shadowing.</strong> A development build, a Mise shim, a Nix profile and <code>/usr/bin</code> can all provide the same command. The first match wins. Check the resolved path, not only the version string.</li>
-<li><strong>Non-NixOS graphics.</strong> A program built by Nix may need the host's graphics drivers and vendor configuration. Tamlinux wraps the shell provider to supply its locked Mesa EGL vendor file and DRI directory while leaving child processes with the caller's environment. The wrapper changes only the shell process; it is not a general fix for every Nix-built graphical program.</li>
+<li><strong><a href="glossary/a/abi.html">ABI</a> drift across layers.</strong> A native update can replace a core library such as Mesa or Wayland while an older Nix generation still expects the previous application binary interface. Rebuild or return to a matching generation; do not assume that an old store path is compatible with a new host library.</li>
+<li><strong>PATH shadowing.</strong> A development build, a <a href="glossary/m/mise.html">Mise</a> shim, a Nix profile and <code>/usr/bin</code> can all provide the same command. The first match wins. Check the resolved path, not only the version string.</li>
+<li><strong>Non-NixOS graphics.</strong> A program built by Nix may need the host's graphics drivers and vendor configuration. Tamlinux wraps the shell provider to supply its locked Mesa <a href="glossary/e/egl.html">EGL</a> vendor file and DRI directory while leaving child processes with the caller's environment. The wrapper changes only the shell process; it is not a general fix for every Nix-built graphical program.</li>
 <li><strong>Mutable state.</strong> A generation contains software and configuration, not your documents, caches, browser profiles or other changing data. Back up mutable state separately, and do not expect a rollback to undo a document edit.</li>
 <li><strong>Evaluation cost.</strong> A large flake can evaluate many attributes before it builds anything. Lazy evaluation helps, but a broad <code>nix flake show</code> or an unnecessary import can still be slow. Ask for the narrow attribute you need.</li>
 </ul>
@@ -374,7 +374,7 @@ Inputs:
 └───tamlinux-tools: github:greenermoose/tamlinux-tools/&lt;commit&gt;
 </pre>
 
-<p>This is a schematic, not captured output; the real command also prints the checkout path, locked URL and timestamps. Notice that every input is pinned to a commit, and that the product repositories appear as source inputs rather than as flakes.</p>
+<p>This is a schematic, not captured output; the real command also prints the checkout path, locked <a href="glossary/u/url.html">URL</a> and timestamps. Notice that every input is pinned to a commit, and that the product repositories appear as source inputs rather than as flakes.</p>
 
 <p>Then follow one dependency chain without building it:</p>
 
@@ -413,7 +413,7 @@ nix why-depends .#packages.x86_64-linux.tam .#packages.x86_64-linux.libtam
 
 <h3>Improve it</h3>
 
-<p>Read the public <code>tamlinux-packages</code> repository at the revision your candidate names. Start with <code>flake.nix</code>, then <code>nix/packages/default.nix</code>, then the module that owns the behaviour you want to change. Make a small change in a scratch checkout, run <code>nix flake check</code> and <code>home-manager build</code>, and compare the result before proposing it. A change that affects the installed desktop is a product change: it needs the normal Test and Run stages, not a local switch presented as delivery.</p>
+<p>Read the public <code>tamlinux-packages</code> repository at the revision your candidate names. Start with <code>flake.nix</code>, then <code>nix/packages/default.nix</code>, then the module that owns the behaviour you want to change. <a href="glossary/m/make.html">Make</a> a small change in a scratch checkout, run <code>nix flake check</code> and <code>home-manager build</code>, and compare the result before proposing it. A change that affects the installed desktop is a product change: it needs the normal Test and Run stages, not a local switch presented as delivery.</p>
 </section>
 
 <h2>Next</h2><p><a href="systems/packages/packaging.html">Software packaging and delivery</a> &mdash; how current Tamlinux separates pacman, Make source installs, and Mise.</p>

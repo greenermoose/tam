@@ -15,10 +15,10 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="terminal/index.html">Terminals and shells</a> / <a href="terminal/shell/index.html">Giving your computer written instructions</a> / Field splitting rules</p></nav>
 
 <h1>Field splitting rules</h1>
-<p>This page states the precise rules a POSIX shell follows when it splits expansion results into fields.</p>
+<p>This page states the precise rules a <a href="glossary/p/posix.html">POSIX</a> shell follows when it splits expansion results into fields.</p>
 
 <h2>Scope</h2>
-<p>Field splitting applies to the results of unquoted parameter expansion, command substitution and arithmetic expansion. It does not apply to literal characters from the original word, nor to any result that was quoted when the word was tokenized. It runs after those expansions and before pathname expansion; quote removal happens last. The normative source is <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, section 2.6.5, with the IFS variable defined in section 2.5.3.</p>
+<p>Field splitting applies to the results of unquoted parameter expansion, command substitution and arithmetic expansion. It does not apply to literal characters from the original word, nor to any result that was quoted when the word was tokenized. It runs after those expansions and before pathname expansion; quote removal happens last. The normative source is <cite data-ref="posix-shell"><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a></cite>, section 2.6.5, with the <a href="glossary/i/ifs.html">IFS</a> variable defined in section 2.5.3.</p>
 
 <h2>What IFS contributes</h2>
 <table>
@@ -59,7 +59,7 @@
 <ul>
 <li>If IFS contains bytes that do not form valid characters, the results of splitting, <code>*</code> expansion and <code>read</code> are unspecified.</li>
 <li>It is implementation-defined whether locale white-space characters other than space, tab and newline count as IFS white space; if they do, it is unspecified whether the locale is read at assignment time or at split time.</li>
-<li>Shell variables and arguments cannot contain a NUL byte, so no splitting rule can preserve one.</li>
+<li>Shell variables and arguments cannot contain a <a href="glossary/n/nul.html">NUL</a> byte, so no splitting rule can preserve one.</li>
 <li>Extensions such as brace expansion and Bash arrays go beyond the portable rules; scripts depending on them need the corresponding shell manual.</li>
 </ul>
 

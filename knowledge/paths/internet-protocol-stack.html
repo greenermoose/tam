@@ -22,7 +22,7 @@
 <p><a href="networking/stack/the-internet-protocol-stack.html?level=1">The internet protocol stack</a> first: learn why a message is wrapped in labels, and name the application, transport, internet and link layers. Then read <a href="networking/stack/the-internet-protocol-stack.html?level=2">the same page at the practice lens</a> to find the addresses and ports on your own machine.</p>
 
 <section class="quiz">
-<h3>Checkpoint</h3>
+<h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <details class="q">
 <summary><i>Which layer adds an address, which adds a port, and why does the receiver need both?</i></summary>
 <p>The internet layer adds the address so routers can forward the packet to the right machine. The transport layer adds the port so that machine can hand the data to the right program. Reread the Learner section of the first page if either job is unclear.</p>
@@ -63,24 +63,24 @@
 </section>
 
 <h2>Stage 5: Messages without a conversation</h2>
-<p><a href="networking/stack/user-datagram-protocol.html?level=2">User Datagram Protocol</a> at the practice lens: find DNS and multicast DNS by their port numbers and see that no connection state is kept. Then read <a href="networking/stack/user-datagram-protocol.html?level=3">the reference lens</a> for the eight-byte header and what an application must supply when it needs reliability.</p>
+<p><a href="networking/stack/user-datagram-protocol.html?level=2">User Datagram Protocol</a> at the practice lens: find <a href="glossary/d/dns.html">DNS</a> and multicast DNS by their port numbers and see that no connection state is kept. Then read <a href="networking/stack/user-datagram-protocol.html?level=3">the reference lens</a> for the eight-byte header and what an application must supply when it needs reliability.</p>
 
 <section class="quiz">
 <h3>Checkpoint</h3>
 <details class="q">
-<summary><i>A name lookup gets no reply. Why can't UDP say whether the request or the reply was lost?</i></summary>
+<summary><i>A name lookup gets no reply. Why can't <a href="glossary/u/udp.html">UDP</a> say whether the request or the reply was lost?</i></summary>
 <p>UDP keeps no connection state and sends no acknowledgements, so the sender sees only silence. The application must retry or try another server. Contrast this with the acknowledgement numbers you read in Stage 4.</p>
 </details>
 </section>
 
 <h2>Stage 6: One request, end to end</h2>
-<p><a href="networking/stack/from-packets-to-applications.html?level=2">From packets to applications</a> at the practice lens: follow a name lookup, a route decision and a live socket. Then read <a href="networking/stack/from-packets-to-applications.html?level=3">the reference lens</a> for the full path from resolver through TLS to an HTTP reply, and for what changes with HTTP/3.</p>
+<p><a href="networking/stack/from-packets-to-applications.html?level=2">From packets to applications</a> at the practice lens: follow a name lookup, a route decision and a live socket. Then read <a href="networking/stack/from-packets-to-applications.html?level=3">the reference lens</a> for the full path from resolver through <a href="glossary/t/tls.html">TLS</a> to an <a href="glossary/h/http.html">HTTP</a> reply, and for what changes with HTTP/3.</p>
 
 <section class="quiz">
 <h3>Checkpoint</h3>
 <details class="q">
 <summary><i>A numeric address replies to a ping but the page will not open. Which layers are proved, and what do you check next?</i></summary>
-<p>Link, addressing, routing and basic control messages work. Check the TCP connection to the web port, then TLS and the HTTP response. The reference table on the final page lists one read-only check for each stage.</p>
+<p>Link, addressing, routing and basic control messages work. Check the <a href="glossary/t/tcp.html">TCP</a> connection to the web port, then TLS and the HTTP response. The reference table on the final page lists one read-only check for each stage.</p>
 </details>
 </section>
 
@@ -95,7 +95,7 @@
 <li><code>ip route get &lt;address&gt;</code> answers where a packet would go without sending one. An unreachable answer would stop the process before any connection is attempted.</li>
 <li><code>ss -ti state established '( dport = :443 or sport = :443 )'</code> reports the round trip, retransmission timer, congestion window and bytes sent. A growing <code>rto</code> points to loss; a small window points to a rate limit or an idle application.</li>
 <li>With the network stages healthy, the remaining delay belongs above transport: TLS negotiation, a slow server, or application content. A browser trace separates those.</li>
-<li>HTTP/3 carries the request over QUIC and UDP, so the TCP table would show no connection; the same name, route and encryption stages still apply, with reliability provided inside QUIC.</li>
+<li>HTTP/3 carries the request over <a href="glossary/q/quic.html">QUIC</a> and UDP, so the TCP table would show no connection; the same name, route and encryption stages still apply, with reliability provided inside QUIC.</li>
 </ol>
 <p>The point is the order: each check eliminates a layer, so the final answer names the smallest remaining set of causes.</p>
 </details>

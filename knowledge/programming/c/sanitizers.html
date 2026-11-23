@@ -17,14 +17,14 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/c/index.html">C and native toolchains</a> / Compiler sanitizers, AddressSanitizer, and memory safety in C</p></nav>
 
 
-<h1>Compiler sanitizers, AddressSanitizer, and memory safety in C</h1>
+<h1>Compiler sanitizers, <a href="glossary/a/addresssanitizer.html">AddressSanitizer</a>, and memory safety in C</h1>
 <p>This page explains what compiler sanitizers are, how AddressSanitizer (ASan) detects memory errors at runtime, and how native C programs use sanitizers to prevent crashes and security vulnerabilities.</p>
 <h2>Before this</h2><p><a href="programming/c/c11.html">The C11 programming language and portable systems code</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
 <p>Writing high-performance native systems software in C provides deterministic speed and low memory use, but places full responsibility for memory management on the programmer. In standard C, mistakes such as writing past the boundary of a buffer, using memory after freeing it, or dereferencing invalid pointers do not always crash immediately; they often silently corrupt data. Compiler <dfn><a href="glossary/s/sanitizer.html">sanitizers</a></dfn> instrument code at build time so runtime errors are detected and diagnosed the instant they occur.</p>
 
 <section data-level="novice">
 <h2>What are compiler sanitizers?</h2>
-<p>When you run a native command in Tamlinux, the program executes direct CPU instructions and manages its own memory without an interpreter or background garbage collector. Compiler sanitizers are built-in diagnostic tools that monitor how a program touches memory while it runs, catching mistakes immediately during testing before software is released.</p>
+<p>When you run a native command in Tamlinux, the program executes direct <a href="glossary/c/cpu.html">CPU</a> instructions and manages its own memory without an interpreter or background garbage collector. Compiler sanitizers are built-in diagnostic tools that monitor how a program touches memory while it runs, catching mistakes immediately during testing before software is released.</p>
 
 <h3>Why it matters</h3>
 <p>In lower-level programming languages like C, a single mistake &mdash; such as storing eleven items in a ten-slot list or reading from memory that was already released &mdash; can cause subtle bugs. Without sanitizers, these mistakes might remain hidden for months, only causing a crash when special data is encountered or creating security vulnerabilities that attackers could exploit. Sanitizers make invisible memory bugs visible and pinpoint their exact cause.</p>
@@ -37,7 +37,7 @@
 <dt><a href="glossary/a/addresssanitizer.html">AddressSanitizer (ASan)</a></dt>
 <dd>A compiler tool that instruments memory allocations and pointers to catch buffer overflows, use-after-free, and memory corruption during execution.</dd>
 <dt><a href="glossary/s/sanitizer.html">Sanitizer</a></dt>
-<dd>A tool built into modern compilers (like GCC and Clang) that inserts runtime checks into a program to catch errors, leaks, or undefined behavior.</dd>
+<dd>A tool built into modern compilers (like <a href="glossary/g/gcc.html">GCC</a> and Clang) that inserts runtime checks into a program to catch errors, leaks, or undefined behavior.</dd>
 <dt><a href="glossary/b/buffer.html">Buffer overflow</a></dt>
 <dd>A condition where a program writes data outside the allocated boundary of a memory block, risking silent data corruption or security breaches.</dd>
 <dt><a href="glossary/c/compiler.html">Compiler flag</a></dt>
@@ -137,13 +137,13 @@ $ rm -f /tmp/test_uaf.c /tmp/test_uaf
 <dt><code>unrecognized command-line option '-fsanitize=address'</code></dt>
 <dd>Your compiler is too old or lacks sanitizer support. GCC 4.8 or later and Clang 3.1 or later support AddressSanitizer on x86-64 Linux.</dd>
 <dt><code>ASan report shows addresses but no line numbers</code></dt>
-<dd>You omitted the <code>-g</code> flag during compilation. Compile with <code>-g</code> to embed DWARF debugging symbols so ASan can resolve function names, file paths, and line numbers.</dd>
+<dd>You omitted the <code>-g</code> flag during compilation. Compile with <code>-g</code> to embed <a href="glossary/d/dwarf.html">DWARF</a> debugging symbols so ASan can resolve function names, file paths, and line numbers.</dd>
 <dt><code>Program runs and prints without triggering ASan</code></dt>
 <dd>The compiler optimizer may have eliminated the unused access or determined that a constant expression has no side effects. Ensure you compile with <code>-O1</code> or <code>-O0</code>, or pass input via command-line arguments so the compiler cannot optimize away memory operations.</dd>
 </dl>
 
 <aside class="tamlinux">
-<p><strong>On Tamlinux:</strong> core utilities like the <code>tam</code> command and <code>libtam</code> foundational library are regularly verified with <code>-fsanitize=address,undefined</code> during development test runs. This ensures that command parsing, HTML rendering, terminal resizing, and PTY handling remain memory-safe and free from undefined behavior across all supported hardware.</p>
+<p><strong>On Tamlinux:</strong> core utilities like the <code>tam</code> command and <code>libtam</code> foundational library are regularly verified with <code>-fsanitize=address,undefined</code> during development test runs. This ensures that command parsing, <a href="glossary/h/html.html">HTML</a> rendering, terminal resizing, and <a href="glossary/p/pty.html">PTY</a> handling remain memory-safe and free from undefined behavior across all supported hardware.</p>
 </aside>
 
 <section class="quiz">
@@ -167,7 +167,7 @@ $ rm -f /tmp/test_uaf.c /tmp/test_uaf
 
 <table>
 <tr><th>Sanitizer</th><th>Compiler Flag</th><th>Defects Detected</th><th>Overhead</th><th>Compatibility</th></tr>
-<tr><td>AddressSanitizer (ASan)</td><td><code>-fsanitize=address</code></td><td>Out-of-bounds (heap, stack, globals), use-after-free, double-free, invalid free</td><td>~2&times; CPU, 2&ndash;3&times; RAM</td><td>Compatible with UBSan; incompatible with TSan</td></tr>
+<tr><td>AddressSanitizer (ASan)</td><td><code>-fsanitize=address</code></td><td>Out-of-bounds (heap, stack, globals), use-after-free, double-free, invalid free</td><td>~2&times; CPU, 2&ndash;3&times; <a href="glossary/r/ram.html">RAM</a></td><td>Compatible with UBSan; incompatible with TSan</td></tr>
 <tr><td>UndefinedBehaviorSanitizer (UBSan)</td><td><code>-fsanitize=undefined</code></td><td>Signed integer overflow, null pointer dereference, misaligned pointers, invalid shifts</td><td>~1.2&times; CPU, negligible RAM</td><td>Compatible with ASan and TSan</td></tr>
 <tr><td>ThreadSanitizer (TSan)</td><td><code>-fsanitize=thread</code></td><td>Data races between threads, lock inversion deadlocks</td><td>~5&ndash;15&times; CPU, 5&ndash;10&times; RAM</td><td>Incompatible with ASan</td></tr>
 <tr><td>MemorySanitizer (MSan)</td><td><code>-fsanitize=memory</code></td><td>Uninitialized memory reads</td><td>~2.5&times; CPU, ~2&times; RAM</td><td>Clang only; requires fully instrumented libc</td></tr>
@@ -213,7 +213,7 @@ $ ASAN_OPTIONS="detect_leaks=0:color=never:abort_on_error=1" ./my_program
 <table>
 <tr><th>Option</th><th>Default</th><th>Description</th></tr>
 <tr><td><code>detect_leaks=0|1</code></td><td><code>1</code></td><td>Enable or disable LeakSanitizer at program exit. Useful to disable when running inside containers where <code>ptrace</code> is restricted.</td></tr>
-<tr><td><code>abort_on_error=0|1</code></td><td><code>0</code></td><td>Call <code>abort()</code> instead of <code>_exit()</code> when an error occurs, enabling core dump generation for post-mortem debugging with GDB.</td></tr>
+<tr><td><code>abort_on_error=0|1</code></td><td><code>0</code></td><td>Call <code>abort()</code> instead of <code>_exit()</code> when an error occurs, enabling core dump generation for post-mortem debugging with <a href="glossary/g/gdb.html">GDB</a>.</td></tr>
 <tr><td><code>halt_on_error=0|1</code></td><td><code>1</code></td><td>Halt on the first error. Setting to <code>0</code> allows the program to continue executing to detect multiple defects in one run.</td></tr>
 <tr><td><code>quarantine_size_mb=N</code></td><td><code>256</code></td><td>Size of the quarantine queue in megabytes for tracking freed memory and catching use-after-free.</td></tr>
 <tr><td><code>symbolize=0|1</code></td><td><code>1</code></td><td>Demangle and symbolize stack frames using <code>addr2line</code> or an external symbolizer.</td></tr>
@@ -245,15 +245,15 @@ $ gcc -std=c11 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g -O1 main
 <h3>Sources</h3>
 <ul>
 <li>Serebryany, K., Bruening, D., Potapenko, A., &amp; Vyukov, D. (2012). <em>AddressSanitizer: A Fast Address Sanity Checker</em>. USENIX Annual Technical Conference.</li>
-<li>LLVM Project. <em>AddressSanitizer: A fast memory error detector</em>. Clang Documentation.</li>
-<li>Free Software Foundation. <em>Program Instrumentation Options</em>. GNU Compiler Collection (GCC) Manual.</li>
+<li><a href="glossary/l/llvm.html">LLVM</a> Project. <em>AddressSanitizer: A fast memory error detector</em>. Clang Documentation.</li>
+<li>Free Software Foundation. <em>Program Instrumentation Options</em>. <a href="glossary/g/gnu.html">GNU</a> Compiler Collection (GCC) Manual.</li>
 </ul>
 
 <h3>Improve it</h3>
 <p>Contribute toolchain and systems programming improvements in the public <a href="tamlinux/development/tam.html">tam</a> command repository.</p>
 </section>
 
-<h2>Next</h2><p><a href="programming/c/c11.html">The C11 programming language</a> &mdash; ISO C11 standard, compiler flags, and static assertions.</p>
-<h2>Related</h2><ul><li><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a> &mdash; why Tamlinux chooses C11 over Rust, Go, or C++, and AI synthesis.</li><li><a href="programming/c/toolchains.html">Toolchains and compilation</a> &mdash; native compilation, Make recipes, and multi-agent workflows.</li><li><a href="programming/c/object-files.html">Object files and linking</a> &mdash; C source files, object files, and static libraries.</li><li><a href="programming/c/libc.html">C standard libraries</a> &mdash; comparing glibc and musl.</li><li><a href="tamlinux/development/tam.html">The tam command architecture</a> &mdash; native C11 implementation and development verification.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>
+<h2>Next</h2><p><a href="programming/c/c11.html">The C11 programming language</a> &mdash; <a href="glossary/i/iso.html">ISO</a> C11 standard, compiler flags, and static assertions.</p>
+<h2>Related</h2><ul><li><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a> &mdash; why Tamlinux chooses C11 over Rust, Go, or C++, and AI synthesis.</li><li><a href="programming/c/toolchains.html">Toolchains and compilation</a> &mdash; native compilation, <a href="glossary/m/make.html">Make</a> recipes, and multi-agent workflows.</li><li><a href="programming/c/object-files.html">Object files and linking</a> &mdash; C source files, object files, and static libraries.</li><li><a href="programming/c/libc.html">C standard libraries</a> &mdash; comparing glibc and musl.</li><li><a href="tamlinux/development/tam.html">The tam command architecture</a> &mdash; native C11 implementation and development verification.</li><li><a href="tamlinux/components.html">The Tamlinux Ecosystem</a> &mdash; return to the ecosystem overview.</li></ul>
 </body>
 </html>

@@ -75,7 +75,7 @@ $ ip route get 192.168.1.1
 <li>The <code>default</code> route has no prefix restriction, so it matches every destination that no other route claims.</li>
 <li><code>via 192.168.1.1</code> is the next hop: the packet carries the remote destination but is sent to the gateway's hardware address on the wire.</li>
 <li>The <code>192.168.1.0/24</code> route was added by the kernel from the interface's own address; it needs no gateway because that prefix is on the link.</li>
-<li><code>proto dhcp</code> on the default route means a DHCP server supplied the gateway; <code>proto kernel</code> means the kernel derived the route from an address.</li>
+<li><code>proto dhcp</code> on the default route means a <a href="glossary/d/dhcp.html">DHCP</a> server supplied the gateway; <code>proto kernel</code> means the kernel derived the route from an address.</li>
 <li><code>metric 100</code> is a preference. When two routes match equally, the lower metric wins.</li>
 <li><code>ip route get 1.1.1.1</code> uses the default route; <code>ip route get 192.168.1.1</code> shows a direct delivery because the gateway is on the local prefix.</li>
 </ol>
@@ -88,11 +88,11 @@ $ ip route get 192.168.1.1
 <dt>No line begins with <code>default</code></dt>
 <dd>There is no route outside the directly connected prefixes. Check the profile's gateway or whether DHCP supplied one.</dd>
 <dt>Two default routes appear with different metrics</dt>
-<dd>Both are valid; the lower metric is preferred. This is normal when a wired and a wireless connection, or a VPN, are active at once.</dd>
+<dd>Both are valid; the lower metric is preferred. This is normal when a wired and a wireless connection, or a <a href="glossary/v/vpn.html">VPN</a>, are active at once.</dd>
 <dt>The gateway is not on any local prefix</dt>
 <dd>The kernel cannot reach the next hop, so the route cannot be used. Correct the gateway or the prefix length.</dd>
 <dt>A route shows <code>linkdown</code></dt>
-<dd>The configuration exists but the interface has no carrier. Reconnect the cable or Wi-Fi; the route becomes usable when the link returns.</dd>
+<dd>The configuration exists but the interface has no carrier. Reconnect the cable or <a href="glossary/w/wi-fi.html">Wi-Fi</a>; the route becomes usable when the link returns.</dd>
 </dl>
 
 <aside class="tamlinux">
@@ -103,7 +103,7 @@ $ ip route get 192.168.1.1
 <h3>Check yourself</h3>
 <details class="q">
 <summary><i>Why does a packet to a remote address carry the gateway's hardware address?</i></summary>
-<p>Ethernet delivers frames within one link using hardware addresses. The IP destination stays the remote server, but the frame must be addressed to the next hop that can forward it, which is the gateway.</p>
+<p><a href="glossary/e/ethernet.html">Ethernet</a> delivers frames within one link using hardware addresses. The IP destination stays the remote server, but the frame must be addressed to the next hop that can forward it, which is the gateway.</p>
 </details>
 <details class="q">
 <summary><i>A host has routes for 10.0.0.0/8 and 10.1.2.0/24. Which wins for 10.1.2.5?</i></summary>
@@ -151,7 +151,7 @@ $ ip rule
 32766:  from all lookup main
 32767:  from all lookup default
 </pre>
-<p>The JSON form and the rule list show the same decision from two angles: the route that was chosen, and the tables that were eligible to supply it.</p>
+<p>The <a href="glossary/j/json.html">JSON</a> form and the rule list show the same decision from two angles: the route that was chosen, and the tables that were eligible to supply it.</p>
 
 <h3>Edge cases</h3>
 <ul>

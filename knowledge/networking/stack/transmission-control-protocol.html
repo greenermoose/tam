@@ -17,7 +17,7 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / Transmission Control Protocol</p></nav>
 
 <h1>Transmission Control Protocol</h1>
-<p>This page explains how TCP makes a conversation over an unreliable network feel like one reliable, ordered stream of bytes to the programs at each end.</p>
+<p>This page explains how <a href="glossary/t/tcp.html">TCP</a> makes a conversation over an unreliable network feel like one reliable, ordered stream of bytes to the programs at each end.</p>
 
 <section data-level="novice">
 <h2>What is TCP?</h2>
@@ -66,7 +66,7 @@ Recv-Q Send-Q Local Address:Port    Peer Address:Port
 <h3>If it goes wrong</h3>
 <dl>
 <dt>No lines after the header</dt>
-<dd>No HTTPS connection is open at that moment. Open a page and repeat; a plain HTTP connection uses port 80, so the filter above will not show it.</dd>
+<dd>No <a href="glossary/h/https.html">HTTPS</a> connection is open at that moment. Open a page and repeat; a plain <a href="glossary/h/http.html">HTTP</a> connection uses port 80, so the filter above will not show it.</dd>
 <dt><code>rto</code> grows much larger than <code>rtt</code></dt>
 <dd>The retransmission timeout is rising because acknowledgements are missing. Look for loss on the path or a receiver that is overwhelmed.</dd>
 <dt>Large <code>Send-Q</code> that does not drain</dt>
@@ -104,7 +104,7 @@ Recv-Q Send-Q Local Address:Port    Peer Address:Port
 <tr><td>cwnd / ssthresh</td><td>Sender's congestion window and the threshold between slow start and congestion avoidance</td></tr>
 </table>
 <h3>How it works</h3>
-<p>TCP is specified in RFC 9293. A connection begins with a three-way exchange: the client sends SYN with an initial sequence number, the server replies SYN-ACK with its own number, and the client acknowledges it. Data then flows in both directions. Each acknowledgement names the next byte expected, so loss is inferred from a gap or from several duplicate acknowledgements.</p>
+<p>TCP is specified in <a href="glossary/r/rfc.html">RFC</a> 9293. A connection begins with a three-way exchange: the client sends SYN with an initial sequence number, the server replies SYN-<a href="glossary/a/ack.html">ACK</a> with its own number, and the client acknowledges it. Data then flows in both directions. Each acknowledgement names the next byte expected, so loss is inferred from a gap or from several duplicate acknowledgements.</p>
 <p>The sender keeps a retransmission timer whose value is computed from the smoothed round-trip time and its variance; <code>rto:214</code> in the example is that timer in milliseconds. Flow control protects the receiver: its advertised window limits how much unacknowledged data the sender may keep in flight. Congestion control protects the network: the sender grows <code>cwnd</code> as acknowledgements arrive and reduces it when loss or delay signals a bottleneck. Linux uses cubic by default; other algorithms such as BBR estimate bandwidth and delay instead of treating loss as the main signal.</p>
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="read-only">
@@ -119,7 +119,7 @@ net.ipv4.tcp_rmem = 4096	131072	33554432
 <li>Head-of-line blocking: if one segment is lost, the receiver withholds later bytes from the application even though they arrived, because the stream must stay ordered.</li>
 <li>A notification based only on packet loss mistakes wireless interference for congestion; delay-based algorithms and explicit congestion notification try to separate the two.</li>
 <li>Offloaded segmentation can hide the real segment count from a packet capture: the NIC splits a large write after the capture point.</li>
-<li>A black-holed path MTU makes large transfers stall while small requests succeed, because ICMP \"Fragmentation Needed\" messages are dropped by an overzealous firewall.</li>
+<li>A black-holed path <a href="glossary/m/mtu.html">MTU</a> makes large transfers stall while small requests succeed, because <a href="glossary/i/icmp.html">ICMP</a> \"Fragmentation Needed\" messages are dropped by an overzealous firewall.</li>
 </ul>
 <section class="quiz">
 <h3>Check yourself</h3>

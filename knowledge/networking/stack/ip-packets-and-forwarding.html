@@ -16,7 +16,7 @@
 <body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="networking/index.html">Networking</a> / <a href="networking/stack/index.html">Internet protocol stack</a> / IP packets and forwarding</p></nav>
 
-<h1>IP packets and forwarding</h1>
+<h1><a href="glossary/i/ip-address.html">IP</a> packets and forwarding</h1>
 <p>This page explains how an IP packet carries its destination, how routers decide where to send it next, and what happens when a packet is too large for one link.</p>
 
 <section data-level="novice">
@@ -82,7 +82,7 @@ rtt min/avg/max/mdev = 20.034/20.067/20.101/0.033 ms
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary><i>A packet's hop limit reaches zero at a router. What happens, and who finds out?</i></summary>
-<p>The router drops the packet and sends an ICMP Time Exceeded (or ICMPv6 Time Exceeded) message back to the source. <code>traceroute</code> deliberately sends packets with increasing hop limits to collect those messages and learn each router on the path.</p>
+<p>The router drops the packet and sends an <a href="glossary/i/icmp.html">ICMP</a> Time Exceeded (or ICMPv6 Time Exceeded) message back to the source. <code>traceroute</code> deliberately sends packets with increasing hop limits to collect those messages and learn each router on the path.</p>
 </details>
 <details class="q">
 <summary><i>Why does a computer send a packet for a distant address to its gateway instead of directly to the destination?</i></summary>
@@ -102,11 +102,11 @@ rtt min/avg/max/mdev = 20.034/20.067/20.101/0.033 ms
 <tr><td>Fragmentation</td><td>Identification, flags, offset</td><td>Extension header only at the sender</td><td>Allows reassembly; routers never fragment <a href="glossary/i/ipv6.html">IPv6</a></td></tr>
 <tr><td>Hop limit</td><td>Time to Live, 8 bits</td><td>Hop Limit, 8 bits</td><td>Prevent infinite loops</td></tr>
 <tr><td>Next protocol</td><td>Protocol number (1, 6, 17)</td><td>Next Header (6, 17, 58, and extension headers)</td><td>Names the payload protocol</td></tr>
-<tr><td>Checksum</td><td>Header only</td><td>None in the base header</td><td>Detects corruption; upper layers and the link layer still check data</td></tr>
+<tr><td><a href="glossary/c/checksum.html">Checksum</a></td><td>Header only</td><td>None in the base header</td><td>Detects corruption; upper layers and the link layer still check data</td></tr>
 <tr><td>Addresses</td><td>Two 32-bit addresses</td><td>Two 128-bit addresses</td><td>Source and destination</td></tr>
 </table>
 <h3>How it works</h3>
-<p>Forwarding is a longest-prefix match over the kernel's routing table. For each candidate destination the router compares the packet's destination with the route's prefix; the route with the most matching leading bits wins, and the zero-length prefix is the default. The router decrements the hop limit, recomputes the header checksum for <a href="glossary/i/ipv4.html">IPv4</a>, resolves the next hop to a hardware address with <a href="glossary/a/arp.html">ARP</a> or <a href="glossary/n/ndp.html">NDP</a>, and sends the frame onward. The original source and destination IP addresses do not change; only the link-layer addresses change at each hop, except when a NAT device rewrites them.</p>
+<p>Forwarding is a longest-prefix match over the kernel's routing table. For each candidate destination the router compares the packet's destination with the route's prefix; the route with the most matching leading bits wins, and the zero-length prefix is the default. The router decrements the hop limit, recomputes the header checksum for <a href="glossary/i/ipv4.html">IPv4</a>, resolves the next hop to a hardware address with <a href="glossary/a/arp.html">ARP</a> or <a href="glossary/n/ndp.html">NDP</a>, and sends the frame onward. The original source and destination IP addresses do not change; only the link-layer addresses change at each hop, except when a <a href="glossary/n/nat.html">NAT</a> device rewrites them.</p>
 <p>Path MTU discovery starts with a packet sized to the interface MTU and sets the Don't Fragment bit. A router that cannot forward it sends ICMP "Fragmentation Needed" (<a href="glossary/i/ipv4.html">IPv4</a>) or ICMPv6 "Packet Too Big" (<a href="glossary/i/ipv6.html">IPv6</a>) with the smaller MTU. The sender caches that result per destination. <a href="glossary/i/ipv4.html">IPv4</a> routers may fragment when the bit is clear; <a href="glossary/i/ipv6.html">IPv6</a> routers never do, so the sender must fragment in an extension header before sending.</p>
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="read-only">
@@ -127,7 +127,7 @@ $ ip -j route get 1.1.1.1 | jq .
 <h3>Edge cases</h3>
 <ul>
 <li>Blocking all ICMP in a firewall breaks path MTU discovery, so small packets work while large transfers stall. This applies to ICMPv6 as well.</li>
-<li>A tunnel adds outer headers, so the effective MTU for inner packets shrinks. Clamp the TCP maximum segment size or lower the tunnel interface MTU.</li>
+<li>A tunnel adds outer headers, so the effective MTU for inner packets shrinks. Clamp the <a href="glossary/t/tcp.html">TCP</a> maximum segment size or lower the tunnel interface MTU.</li>
 <li>Asymmetric paths make a reply take a different route from the request, which reverse-path filtering can mistake for spoofing.</li>
 <li>Offloading can make a packet appear larger in a capture than the application wrote; the NIC performs segmentation after the capture point.</li>
 </ul>

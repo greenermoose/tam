@@ -24,11 +24,11 @@
 <li><a href="security/accounts.html?level=1">User accounts and groups</a> &mdash; identify your account, home folder and groups, and plan a second account.</li>
 </ol>
 <section class="quiz">
-<h3>Checkpoint</h3>
+<h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer these before you go on.</p>
 <details class="q">
 <summary><i>Why do daily work as an ordinary user rather than <code>root</code>?</i></summary>
-<p>Mistakes and buggy programs then cannot silently rewrite system binaries or boot files. Privilege is requested only for the action that needs it.</p>
+<p>Mistakes and buggy programs then cannot silently rewrite system binaries or boot files. <a href="glossary/p/privilege.html">Privilege</a> is requested only for the action that needs it.</p>
 </details>
 <details class="q">
 <summary><i>Which command lists the groups your account belongs to?</i></summary>
@@ -39,7 +39,7 @@
 <h2>Stage 2: Keys and hardware tokens</h2>
 <ol>
 <li><a href="security/practice/ssh.html?level=1">SSH keys and remote access</a> &mdash; generate a key, connect to another machine, and inspect the local server state.</li>
-<li><a href="security/practice/fingerprint-and-fido.html?level=1">Fingerprints and FIDO2 security keys</a> &mdash; check hardware readiness and see which PAM modules are enrolled.</li>
+<li><a href="security/practice/fingerprint-and-fido.html?level=1">Fingerprints and FIDO2 security keys</a> &mdash; check hardware readiness and see which <a href="glossary/p/pam.html">PAM</a> modules are enrolled.</li>
 </ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
@@ -86,7 +86,7 @@
 </details>
 <details class="q">
 <summary><i>Does a file's mode alone decide who can open it?</i></summary>
-<p>No. Owner, group and other bits combine with directory traversal permission, and a privileged process can bypass ordinary checks.</p>
+<p>No. <a href="glossary/o/owner.html">Owner</a>, group and other bits combine with directory traversal permission, and a privileged process can bypass ordinary checks.</p>
 </details>
 </section>
 
@@ -133,7 +133,7 @@ nvme0n1
 <p>Captured on an Arch Linux workstation, 2026-11-13; your output will differ. <code>P</code> in the password status means a password is set. <code>crypto_LUKS</code> identifies an encrypted device; it does not mean the disk is unlocked or that the passphrase is known.</p>
 <p>Now write the note. Keep it to four lines:</p>
 <ol>
-<li><strong>Current state:</strong> the values you just collected, one per line or grouped.</li>
+<li><strong><a href="glossary/c/current.html">Current</a> state:</strong> the values you just collected, one per line or grouped.</li>
 <li><strong>Owner:</strong> who or what supplies the change, for example the native package manager or a recorded Tamlinux assembly.</li>
 <li><strong>Verification:</strong> the command you will run afterwards and the value you expect.</li>
 <li><strong>Recovery:</strong> the exact checkpoint or backup you would need, or <em>unknown</em>.</li>
@@ -143,7 +143,7 @@ nvme0n1
 
 <h2>Next paths</h2>
 <ul>
-<li><a href="paths/security-protocols-and-access-control.html?level=1">Security protocols and access control</a> &mdash; threat modeling, authentication, Linux access control, TLS, SSH, and formal protocol verification.</li>
+<li><a href="paths/security-protocols-and-access-control.html?level=1">Security protocols and access control</a> &mdash; threat modeling, authentication, Linux access control, <a href="glossary/t/tls.html">TLS</a>, SSH, and formal protocol verification.</li>
 <li><a href="paths/cryptography-and-quantum-safety.html?level=1">Cryptography and quantum safety</a> &mdash; the mathematical and algorithmic foundations behind encryption, hashes, keys, and post-quantum safety.</li>
 <li><a href="paths/keep-it-healthy.html?level=2">Keep it healthy</a> &mdash; read focused logs and plan recovery at the matching layer.</li>
 <li><a href="paths/rescue.html?level=2">Rescue</a> &mdash; choose a recovery procedure for a failed update or startup.</li>

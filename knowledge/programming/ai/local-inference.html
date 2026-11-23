@@ -24,7 +24,7 @@
 <h3>Why it matters</h3>
 <p>Running an oversized model can slow down the whole workstation, fail to load, or push the computer into heavy memory pressure. Knowing your machine&apos;s limits helps you pick models that stay responsive and offline-friendly.</p>
 <h3>How to think about it</h3>
-<p>Think of a local AI model like a massive reference encyclopedia you have to spread open on a desk to read quickly: if the desk (your RAM or GPU memory) is big enough, looking up answers is fast; if it spills onto the floor (disk swap), every word slows to a crawl.</p>
+<p>Think of a local AI model like a massive reference encyclopedia you have to spread open on a desk to read quickly: if the desk (your <a href="glossary/r/ram.html">RAM</a> or <a href="glossary/g/gpu.html">GPU</a> memory) is big enough, looking up answers is fast; if it spills onto the floor (disk swap), every word slows to a crawl.</p>
 <h3>New words</h3>
 <dl>
 <dt><a href="glossary/p/process.html">Process</a></dt>
@@ -51,12 +51,12 @@ Swap:           56Gi       6.1Gi        50Gi</pre>
 <p>Run <code>free -h</code> and compare available memory with the model's documented requirements. If the model, server or headroom is unknown, leave inference pending.</p>
 <h3>If it goes wrong</h3>
 <p>A missing model or server is different from memory pressure. Read the message and inspect the configured endpoint. Do not download a model or change swap merely to complete this exercise.</p>
-<aside class="tamlinux"><p><strong>On Tamlinux:</strong> <code>tam ask</code> defaults to <code>http://127.0.0.1:11434</code>, but <code>--server</code> or <code>TAM_ASK_SERVER</code> can select another host. The current client accepts non-loopback hosts and sends plain HTTP, even when a URL begins with <code>https://</code>. Do not use it to send sensitive data to a remote endpoint. A server or model can have its own network behavior.</p></aside>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> <code>tam ask</code> defaults to <code>http://127.0.0.1:11434</code>, but <code>--server</code> or <code>TAM_ASK_SERVER</code> can select another host. The current client accepts non-loopback hosts and sends plain <a href="glossary/h/http.html">HTTP</a>, even when a <a href="glossary/u/url.html">URL</a> begins with <code>https://</code>. Do not use it to send sensitive data to a remote endpoint. A server or model can have its own network behavior.</p></aside>
 <section class="quiz"><h3>Check yourself</h3><details class="q"><summary><i>Does available memory alone guarantee a model will run without pressure?</i></summary><p>No. Runtime overhead, context and competing workloads also matter, and available memory changes.</p></details><details class="q"><summary><i>Is a cited answer automatically correct?</i></summary><p>No. Open the cited source and check whether it supports the answer.</p></details></section>
 </section>
 <section data-level="expert"><h2>Limits of resource estimates</h2>
 <p>Weight size is only one part of a deployment's memory use. Context state and runtime buffers depend on implementation and configuration. Memory bandwidth can constrain autoregressive inference, but compute, data placement, caching, batching and scheduling can also matter. Treat a bandwidth calculation as an upper-bound model with explicit assumptions, then measure the actual workload.</p>
-<p>The current <code>tam ask</code> implementation resolves its configured host and uses plain HTTP sockets; its help describes a local server but does not enforce loopback or transport encryption. Review the endpoint before submitting a prompt and do not treat an <code>https://</code> prefix as TLS protection in this client.</p>
+<p>The current <code>tam ask</code> implementation resolves its configured host and uses plain HTTP sockets; its help describes a local server but does not enforce loopback or transport encryption. Review the endpoint before submitting a prompt and do not treat an <code>https://</code> prefix as <a href="glossary/t/tls.html">TLS</a> protection in this client.</p>
 <section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>How would you distinguish a memory-bandwidth limit from another bottleneck?</summary><p>Hold model, context and workload constant; measure throughput and resource use across comparable runs, then vary one relevant factor at a time. Record uncertainty and avoid attributing a slowdown to bandwidth from core count alone.</p></details></section>
 <p>See <a href="systems/maintenance/resources.html">resource inspection</a> and the inference runtime's own documentation for its allocation and networking behavior.</p></section>
 </body></html>

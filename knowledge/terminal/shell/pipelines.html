@@ -121,7 +121,7 @@ command redirections, then applies redirections from left to right.</p>
 
 <h3>How it works</h3>
 <p>A Linux pipe is a finite byte buffer, without message boundaries. Writers
-may block when it is full; readers see EOF only when all write descriptors
+may block when it is full; readers see <a href="glossary/e/eof.html">EOF</a> only when all write descriptors
 are closed. Writes up to <code>PIPE_BUF</code> have an atomicity guarantee;
 that limit is distinct from capacity. Do not assume a fixed capacity.</p>
 
@@ -154,7 +154,7 @@ redirections before trying it. The separate Bash invocation confines
 <p>Bash normally runs pipeline elements in subshell environments; the
 <code>lastpipe</code> option can change the last element's environment when
 job control is inactive. A consumer that exits early can give a writer
-SIGPIPE. Extra filters create processes and move bytes; prefer a direct
+<a href="glossary/s/sigpipe.html">SIGPIPE</a>. Extra filters create processes and move bytes; prefer a direct
 file argument when it expresses the task clearly. Avoid polling pipelines
 when a single query answers the question.</p>
 
