@@ -1,0 +1,44 @@
+W47 IEEE GLOSSARY PAGE
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: opencode/big-pickle
+
+GUIDANCE
+
+  Fred: "Add a page for IEEE to the tam knowledge corpus glossary"
+
+  W46 deliberately left institutions out of its first-mention link
+  pass, so this change stays local to the new term and its two
+  companion pages.
+
+DONE
+
+  - Added knowledge/glossary/i/ieee.html: a three-level glossary
+    entry on the standards association behind IEEE 802 networking,
+    IEEE 754 floating point and POSIX, with a folded quiz and links
+    to AIEE, IETF, RFC, ISO, Ethernet, Wi-Fi, IEEE 802.3an and POSIX.
+  - Linked the term from the I glossary hub and from AIEE's opening
+    sentence, its first prose mention there.
+  - Bumped corpus 0.107.2 to 0.108.0 in knowledge/version and the
+    ROADMAP header, dev row and delivered-history table.
+  - make corpus, make corpus-and-test and make check-repo pass;
+    1,292 pages parse and render, 93 tooling tests OK. The one
+    coverage warning (tamlinux/components.html) predates this work.
+  - build/tam show --pipe glossary/i/ieee renders at all three
+    levels; tam explain ieee lists the new page first.
+  - Checked against: glossary/i/ietf.html, glossary/a/aiee.html,
+    glossary/i/ieee-802-3an.html, glossary/p/posix.html,
+    bibliography/posix-shell.html, glossary/i/index.html.
+
+FAILED
+
+  - Nothing.
+
+HANDOFF
+
+  - The IEEE page is in Develop; no install or stage move was made.
+  - Generated indexes trail the page commit; commit them in a
+    follow-up commit, then rerun make corpus.
+  - WHATNOW NEXT items are unchanged, including the future glossary
+    term list; IEEE was not on it.
