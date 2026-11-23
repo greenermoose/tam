@@ -372,6 +372,9 @@ def source_build_manifest(sha, deadline):
         semver(version)
         if not isinstance(deps, list) or not all(isinstance(x, str) for x in deps):
             raise ValueError()
+        if semver(version)[0] < (0, 8, 0):
+            raise CheckError("libtam_pin_incompatible",
+                             "source-build.json pins libtam %s but this command requires libtam 0.8.0 or later" % version)
         return {"libtam_revision": rev, "libtam_version": version,
                 "dependencies": deps, "evidence": "source-build.json at selected tam commit"}
     except (KeyError, TypeError, ValueError, json.JSONDecodeError):

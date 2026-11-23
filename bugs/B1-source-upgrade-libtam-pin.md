@@ -1,9 +1,9 @@
 # B1 — Source upgrade pins an incompatible libtam
 
-- **Status:** Confirmed
+- **Status:** Fix available
 - **Severity:** high
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** Open
+- **Fixed in:** Unreleased
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -34,6 +34,13 @@ declaration for that function.
 
 ## Fix and verification
 
-Update the manifest and build instructions together. Verify an isolated
-source build with the pinned library and add a compatibility check for
-the dependency manifest.
+Pinned `source-build.json` to libtam 0.8.0 at
+`725dd1f848e4717d18db3e6f228e2a75cb9d21bb` and added a
+`libtam_pin_incompatible` check in `bin/tam-upgrade`
+`source_build_manifest()` so schema 1 manifests below libtam 0.8.0 are
+rejected before build.
+
+Verified with the B1 reproduction: extracting `include/tam.h` from the
+pinned libtam revision into a scratch prefix makes
+`make libtam-check LIBTAM_PREFIX=<scratch-prefix>` pass. A full isolated
+source-upgrade build remains to be verified.

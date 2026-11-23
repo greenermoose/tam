@@ -57,49 +57,48 @@ STATE
   and tldr index pages. W44 fixed missing tldr pages on user-prefix
   installs. W43 removed the stale Nix conditional from Makefile.
   W42 delivered the IFS curriculum. W41 fixed B6 in source only;
-  Fred has not run it in a build. B1-B5 from
+  Fred has not run it in a build. W66 pinned source-build.json to
+  libtam 0.8.0 (725dd1f) and added a libtam pin compatibility check
+  in tam-upgrade; B1 fix is available in source, pending verification
+  in an isolated source-upgrade build. B2-B5 from
   reviews/R1-command-and-corpus-code.md are still open. W40 documented
   the architecture in arch/.
 
 NEXT
 
-  1. B1: source-upgrade pins libtam 0.4.0; the command needs
-     0.8.0. Pin a tested 0.8.0 revision in source-build.json
-     and add a pin compatibility check to source-upgrade
-     verification.
-  2. B4: reflow in src/pager_nav.c (pager_reflow) takes the first
+  1. B4: reflow in src/pager_nav.c (pager_reflow) takes the first
      link whose ID or href matches. Match the original link ID
      first and fall back to href plus logical position. Add a
      PTY resize test.
-  3. B2, B3, B5: see their records for cause and fix.
-  4. Unchecked realloc in history_push, forward_push
+  2. B2, B3, B5: see their records for cause and fix.
+  3. Unchecked realloc in history_push, forward_push
      (pager_nav.c) and link building (pager_links.c). Check
      growth, build the snapshot before incrementing the count,
      and fail the caller cleanly.
-  5. src/pager_screen.c:51 passes a null row pointer to memcmp
+  4. src/pager_screen.c:51 passes a null row pointer to memcmp
      when a row is empty (UBSan: null pointer passed as argument
      2). Guard the empty-row case. Harmless today but undefined
      behaviour.
-  6. Inference HTTP read loop in src/ask.c: use one monotonic
+  5. Inference HTTP read loop in src/ask.c: use one monotonic
      deadline and a response size cap (R1, open).
 
   Code improvements, after the bugs:
 
-  7. history_push and forward_push are line-for-line copies, and
+  6. history_push and forward_push are line-for-line copies, and
      go_back and go_forward are near copies. Replace with one
      snapshot builder and one nav_state_free helper; the free
      sequence is repeated in pager_return_from_help,
      forward_clear and pager.c cleanup. This is step 2 of the
      R1 refactoring order and prevents B6 recurring.
-  8. Add a make target for an ASan and UBSan build with
+  7. Add a make target for an ASan and UBSan build with
      UBSAN_OPTIONS log_path set, so sanitizer output stays out
      of the PTY tests.
-  9. Test go_forward after a vanished page, which W41 did not
+  8. Test go_forward after a vanished page, which W41 did not
      cover.
-  10. Then the R1 order: central address parsing, index lookup
-      table, shared key and UTF-8 code from libtam.
+  9. Then the R1 order: central address parsing, index lookup
+     table, shared key and UTF-8 code from libtam.
 
-  11. Future glossary work: write glossary pages for technical
+  10. Future glossary work: write glossary pages for technical
       terms used in the corpus that have none. The scan found
       VLAN, CNAME, NXDOMAIN, NSS, EDNS0, NSEC, ECH, CRTC, TECO,
       SHA-512, ML-KEM-768, AES-256-CBC, AES-256-CTR,
@@ -112,6 +111,10 @@ WAITING FOR FRED
 
   - Version bump for the B6 fix (command, src/version.h) and a
     build to verify it. The bug stays "Fix available" until then.
+  - B1 fix available in source: source-build.json now pins libtam
+    0.8.0 (725dd1f) and tam-upgrade rejects incompatible libtam pins.
+    Needs an isolated source-upgrade build verification and version
+    bump decision.
   - Tamlinux 0.6.31 candidate preparation and packaged
     verification.
 

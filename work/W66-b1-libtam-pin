@@ -1,0 +1,40 @@
+W66 B1 SOURCE-UPGRADE LIBTAM PIN
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / B1: "source-upgrade pins libtam 0.4.0; the command
+  needs 0.8.0. Pin a tested 0.8.0 revision in source-build.json and add a
+  pin compatibility check to source-upgrade verification."
+
+DONE
+
+  - Updated source-build.json: pinned libtam to 0.8.0 at
+    725dd1f848e4717d18db3e6f228e2a75cb9d21bb.
+  - Added libtam_pin_incompatible check in bin/tam-upgrade
+    source_build_manifest() to reject schema 1 manifests pinning libtam
+    below 0.8.0.
+  - Updated bugs/B1-source-upgrade-libtam-pin.md to Fix available with
+    verification notes.
+  - Updated work/WHATNOW: recorded W66, removed B1 from NEXT, renumbered
+    NEXT items, added B1 to WAITING FOR FRED.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - python3 -m py_compile bin/tam-upgrade: passed.
+  - B1 reproduction: extracted include/tam.h from pinned libtam revision
+    725dd1f848e4717d18db3e6f228e2a75cb9d21bb into a scratch prefix; make
+    libtam-check LIBTAM_PREFIX=<scratch-prefix> passed.
+
+HANDOFF
+
+  - Full isolated source-upgrade build with the pinned libtam remains to be
+    verified before closing B1.
+  - Command version bump decision remains with Fred (same pattern as B6).
