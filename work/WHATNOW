@@ -3,11 +3,15 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W85
+Updated: 2026-11-23, with W86
 
 STATE
 
-  Command 0.68.17 and corpus 0.117.2 on dev. W85 added
+  Command 0.68.17 and corpus 0.117.2 on dev. W86 measured index
+  load cost for R1 step 3: ~9.5ms average per `tam_index_load` over
+  100 warm-cache loads of 1311 entries (3 TSV files, knowledge/);
+  per-session caching not justified at this size/cost, and would need
+  invalidation if corpus changes. W85 added
   `tam_addr_strip_page_prefix` and used it in address loading and CLI
   page normalization (R1 step 1 follow-up). W84-W78 continued address
   parsing consolidation; W82 piloted shared CSI parsing (R1 step 4).
@@ -87,10 +91,11 @@ NEXT
      from libtam in duplicate escape-sequence paths; reuse UTF-8
      decoding before changing display-width policy. Keep renderer
      capability detection, Linux-console behavior, and terminal handoff.
-  3. R1 step 3 follow-up: measure whether keeping one index per
-     pager session is worthwhile and how it refreshes if corpus
-     changes; preserve ranking algorithm until measurements justify
-     change.
+  3. R1 step 3 follow-up (measured, deferred): `tam_index_load` is
+     ~9.5ms average over 100 warm-cache loads (1311 entries, 3 TSV
+     files). Per-session caching is not justified at this cost; if
+     revisited, invalidate on index TSV mtime/change. Preserve ranking
+     algorithm until measurements justify change.
 
   4. Future glossary work: write glossary pages for technical
      terms used in the corpus that have none. The scan found

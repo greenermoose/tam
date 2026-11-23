@@ -1,0 +1,43 @@
+W86 INDEX LOAD MEASUREMENT
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 3 / R1 step 3 follow-up: "measure whether keeping
+  one index per pager session is worthwhile and how it refreshes if
+  corpus changes; preserve ranking algorithm until measurements justify
+  change."
+
+MEASUREMENT
+
+  - Built a small harness linked against build objects (excluding tam.o
+    and *-test.o) calling `tam_index_load` on `knowledge/`.
+  - Warm-cache result: 100 loads, 1311 entries, 954.35ms total,
+    9.544ms average per load (3 TSV files: index.tsv,
+    index.parents.tsv, index.kinds.tsv).
+  - Index load sites in command: pager_search.c, pager_nav.c, corpus.c,
+    views.c, ask.c, discovery.c, tam.c. Pager/session use is a few loads
+    per interaction, so per-session caching saves tens of ms at most.
+
+DECISION
+
+  - Per-session index caching is not justified at current size/cost.
+  - Preserve ranking algorithm (no measurement-driven change).
+  - If revisited, cache should invalidate on index TSV mtime/change or
+    be rebuilt when corpus root/content changes; do not add stale-cache
+    behavior.
+
+VERIFICATION
+
+  - /tmp/opencode/measure_index knowledge 100: entries=1311,
+    avg=9.544ms.
+  - No command source behavior changed; no version bump.
+
+HANDOFF
+
+  - WHATNOW item 3 marked measured/deferred with numbers. Continue with
+    item 1 (address parsing centralization) or item 2 (libtam key/UTF-8
+    pilot) as next R1 follow-up.
