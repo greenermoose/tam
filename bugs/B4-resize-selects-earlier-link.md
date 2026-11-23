@@ -1,9 +1,9 @@
 # B4 — Resize selects an earlier link with the same target
 
-- **Status:** Fix available
+- **Status:** Verified
 - **Severity:** medium
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** 0.68.2
+- **Fixed in:** 0.68.2 (2173a51), verification accepted by Fred (2026-11-23)
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -35,4 +35,4 @@ An earlier destination match wins before the original ID is visited.
 disappeared, it falls back to the same-href link closest to the old
 link's logical position. Added `check_b4_same_href_resize` in
 `tests/pager_screen.py` with fixture `tests/fixtures/guide/b4-same-href.html`.
-Verified with `python3 tests/pager_screen.py build/tam tests/fixtures` (pass).
+Verified with `python3 tests/pager_screen.py build/tam tests/fixtures` (pass). Fred verified (2026-11-23).
