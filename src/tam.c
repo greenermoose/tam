@@ -618,9 +618,9 @@ static int cmd_show(int n, char **args)
         snprintf(addr, sizeof(addr), "%s", page);
         if (level != 0 && tam_addr_takes_lens(addr) &&
             !tam_addr_param(addr, "level", named, sizeof(named))) {
-            size_t len = strlen(addr);
-            snprintf(addr + len, sizeof(addr) - len, "%clevel=%s",
-                     strchr(addr, '?') != NULL ? '&' : '?', tam_level_name(level));
+            char with_lvl[1800];
+            if (tam_href_put_level(addr, level, with_lvl, sizeof(with_lvl)))
+                snprintf(addr, sizeof(addr), "%s", with_lvl);
         }
         int interactive = !pipe && isatty(STDOUT_FILENO);
         tam_loader_ctx_t ctx = {.root = root, .plain_output = !interactive};
@@ -655,11 +655,8 @@ static int cmd_show(int n, char **args)
 
     char href[1800];
     if (page == NULL) {
-        if (level != 0) {
-            snprintf(href, sizeof(href), "index.html?level=%s", tam_level_name(level));
-        } else {
-            snprintf(href, sizeof(href), "%s", "index.html");
-        }
+        if (!tam_href_put_level("index.html", level, href, sizeof(href)))
+            snprintf(href, sizeof(href), "index.html");
     } else {
         snprintf(href, sizeof(href), "%s", page);
         char existing_lvl[32];
@@ -847,11 +844,8 @@ static int cmd_explain(int n, char **args)
         tam_loader_ctx_t ctx = {0};
         ctx.root = root;
         char initial_href[64];
-        if (level != 0) {
-            snprintf(initial_href, sizeof(initial_href), "tam:topics?level=%s", tam_level_name(level));
-        } else {
+        if (!tam_href_put_level("tam:topics", level, initial_href, sizeof(initial_href)))
             snprintf(initial_href, sizeof(initial_href), "tam:topics");
-        }
         int rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
         tam_index_free(idx);
         free(root);
@@ -878,12 +872,9 @@ static int cmd_explain(int n, char **args)
         if (interactive) {
             tam_loader_ctx_t ctx = {0};
             ctx.root = root;
-                char initial_href[64];
-            if (level != 0) {
-                snprintf(initial_href, sizeof(initial_href), "tam:keywords?level=%s", tam_level_name(level));
-            } else {
+            char initial_href[64];
+            if (!tam_href_put_level("tam:keywords", level, initial_href, sizeof(initial_href)))
                 snprintf(initial_href, sizeof(initial_href), "tam:keywords");
-            }
             rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
         } else {
             char *text = tam_document_text(doc);
@@ -912,13 +903,12 @@ static int cmd_explain(int n, char **args)
         tam_loader_ctx_t ctx = {0};
         ctx.root = root;
         char initial_href[512];
+        char base_href[512];
         char *enc_q = url_encode(query_buf);
-        if (level != 0) {
-            snprintf(initial_href, sizeof(initial_href), "tam:explain?topic=%s&level=%s", enc_q ? enc_q : "", tam_level_name(level));
-        } else {
-            snprintf(initial_href, sizeof(initial_href), "tam:explain?topic=%s", enc_q ? enc_q : "");
-        }
+        snprintf(base_href, sizeof(base_href), "tam:explain?topic=%s", enc_q ? enc_q : "");
         free(enc_q);
+        if (!tam_href_put_level(base_href, level, initial_href, sizeof(initial_href)))
+            snprintf(initial_href, sizeof(initial_href), "%s", base_href);
         rc = tam_pager_run(doc, initial_href, tam_address_load, &ctx);
     } else {
         char *text = tam_document_text(doc);

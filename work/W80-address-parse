@@ -1,0 +1,42 @@
+W80 CLI LEVEL URL HELPER
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / R1 step 1 follow-up: centralize address parsing;
+  characterize aliases, fold/path params, relative Guide links, and
+  external opener confirmation, then use one parser/shape where it
+  reduces duplication without changing behavior.
+
+DONE
+
+  - Replaced manual CLI level query injection in `src/tam.c` with
+    `tam_href_put_level` for view address, default index, topics,
+    keywords, and explain initial hrefs.
+  - Bumped command to 0.68.12 (patch) and updated development plan,
+    ROADMAP, and WHATNOW.
+
+NOT DONE / FOLLOW-UP
+
+  - CLI entry, pager navigation, and generated views still have ad-hoc
+    address/action parsing. Aliases, relative Guide links, and
+    external opener confirmation remain to be characterized/consolidated
+    into one parser/shape where safe.
+  - R1 step 4 (shared key/UTF-8 code from libtam) and R1 step 3
+    follow-up (measure one-index-per-pager-session) remain.
+
+VERIFICATION
+
+  - make command: built successfully (tam command 0.68.12).
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed.
+  - make check-repo: passed.
+  - make test-command: not run in this slice; pre-existing brittle B3
+    PTY fragment assertion in tests/run.sh remains known.
+
+HANDOFF
+
+  - Continue WHATNOW item 1 follow-up: characterize remaining address
+    parsing in CLI/pager/views and consolidate safely.
