@@ -1,0 +1,34 @@
+W72 PAGER SCREEN EMPTY-ROW MEMCMP GUARD
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1: "src/pager_screen.c:51 passes a null row pointer to
+  memcmp when a row is empty (UBSan: null pointer passed as argument 2).
+  Guard the empty-row case. Harmless today but undefined behaviour."
+
+DONE
+
+  - Guarded `tam_pager_screen_update` in `src/pager_screen.c` to skip
+    memcmp when `rows[i].len == 0`.
+  - Bumped command to 0.68.6 (patch): `src/version.h`, `tests/run.sh`,
+    `docs/plans/development.md`, `ROADMAP.md`.
+  - Updated `work/WHATNOW`: recorded W72 and renumbered NEXT.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make command: built successfully (tam command 0.68.6).
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed.
+  - make check-repo: passed.
+
+HANDOFF
+
+  - Continue with WHATNOW NEXT item 1 (ask.c inference HTTP monotonic
+    deadline and response size cap, R1 open).

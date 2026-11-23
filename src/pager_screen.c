@@ -48,7 +48,8 @@ int tam_pager_screen_update(tam_pager_screen_t *s,
     if (s->term->sync_output) (void)tam_buf_puts(&out, "\033[?2026h");
     for (int i = 0; i < nrows; i++) {
         if (!full && s->lengths[i] == rows[i].len &&
-            memcmp(s->rows[i], rows[i].data, rows[i].len) == 0) continue;
+            (rows[i].len == 0 ||
+             memcmp(s->rows[i], rows[i].data, rows[i].len) == 0)) continue;
         changed++;
         if (tam_terminal_move(s->term, &out, i, 0) < 0 ||
             tam_buf_append(&out, rows[i].data, rows[i].len) < 0 ||
