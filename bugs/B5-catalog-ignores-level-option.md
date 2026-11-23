@@ -1,9 +1,9 @@
 # B5 — The catalog ignores the reading-level option
 
-- **Status:** Fix available
+- **Status:** Verified
 - **Severity:** medium
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** 0.68.3
+- **Fixed in:** 0.68.3 (da2b0d7), verification accepted by Fred (2026-11-23)
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -38,4 +38,4 @@ Added `tam:catalog` to `tam_addr_takes_lens` in `src/address.c` so
 `--level` is applied to catalog addresses that do not already name a
 level. Added `test_catalog_level_option` in `tests/test_library_discovery.py`
 covering flag/param equivalence and explicit level preservation.
-Verified with `python3 tests/test_library_discovery.py` (7 tests, pass).
+Verified with `python3 tests/test_library_discovery.py` (7 tests, pass). Fred verified (2026-11-23).
