@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <poll.h>
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <strings.h>
 #include <sys/socket.h>
+#include <time.h>
 #include <unistd.h>
 
 #define TAM_EXIT_USAGE 2
@@ -32,6 +34,14 @@
 #define DEFAULT_TIMEOUT_PROBE_MS 500
 #define DEFAULT_TIMEOUT_GENERATE_MS 30000
 #define MAX_CONTEXT_BYTES 4000
+#define MAX_HTTP_RESPONSE_BYTES (1024 * 1024)
+
+enum {
+    HTTP_OK = 0,
+    HTTP_ERR = -1,
+    HTTP_INCOMPLETE = -2,
+    HTTP_TOO_LARGE = -3
+};
 
 /* ------------------------------------------------------------------------- */
 /* Knowledge root resolution                                                 */
@@ -215,11 +225,30 @@ static bool parse_http_url(const char *url, char *host, size_t host_sz, int *por
     return true;
 }
 
+static long long monotonic_ms(void)
+{
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+        return 0;
+    return (long long)ts.tv_sec * 1000LL + ts.tv_nsec / 1000000LL;
+}
+
+static int remaining_ms(long long deadline_ms)
+{
+    long long now = monotonic_ms();
+    long long rem = deadline_ms - now;
+    if (rem <= 0) return 0;
+    if (rem > INT_MAX) return INT_MAX;
+    return (int)rem;
+}
+
 static int http_request(const char *host, int port, const char *method, const char *path,
                          const char *body, int timeout_ms, char **resp_body, int *status_code)
 {
     if (resp_body) *resp_body = NULL;
     if (status_code) *status_code = 0;
+    if (timeout_ms < 0) timeout_ms = 0;
+    long long deadline_ms = monotonic_ms() + (long long)timeout_ms;
 
     struct addrinfo hints, *res = NULL, *rp = NULL;
     memset(&hints, 0, sizeof(hints));
@@ -231,11 +260,15 @@ static int http_request(const char *host, int port, const char *method, const ch
 
     int s = getaddrinfo(host, port_str, &hints, &res);
     if (s != 0) {
-        return -1;
+        return HTTP_ERR;
     }
 
     int sock = -1;
     for (rp = res; rp != NULL; rp = rp->ai_next) {
+        int rem = remaining_ms(deadline_ms);
+        if (rem <= 0) {
+            break;
+        }
         sock = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (sock == -1) continue;
 
@@ -249,7 +282,7 @@ static int http_request(const char *host, int port, const char *method, const ch
             struct pollfd pfd;
             pfd.fd = sock;
             pfd.events = POLLOUT;
-            int poll_rc = poll(&pfd, 1, timeout_ms);
+            int poll_rc = poll(&pfd, 1, rem);
             if (poll_rc > 0 && (pfd.revents & POLLOUT)) {
                 int err = 0;
                 socklen_t len = sizeof(err);
@@ -264,7 +297,7 @@ static int http_request(const char *host, int port, const char *method, const ch
     freeaddrinfo(res);
 
     if (sock == -1) {
-        return -1;
+        return remaining_ms(deadline_ms) <= 0 ? HTTP_INCOMPLETE : HTTP_ERR;
     }
 
     /* Build HTTP request */
@@ -281,53 +314,84 @@ static int http_request(const char *host, int port, const char *method, const ch
         req = tam_str_cat(req, "\r\n");
     }
 
-    /* Send request with timeout */
+    /* Send request with a single monotonic deadline */
     size_t total_sent = 0;
     size_t req_len = tam_str_len(req);
     while (total_sent < req_len) {
+        int rem = remaining_ms(deadline_ms);
+        if (rem <= 0) {
+            tam_str_free(req);
+            close(sock);
+            return HTTP_INCOMPLETE;
+        }
         struct pollfd pfd;
         pfd.fd = sock;
         pfd.events = POLLOUT;
-        int poll_rc = poll(&pfd, 1, timeout_ms);
+        int poll_rc = poll(&pfd, 1, rem);
+        if (poll_rc < 0 && errno == EINTR) continue;
         if (poll_rc <= 0) {
             tam_str_free(req);
             close(sock);
-            return -1;
+            return HTTP_INCOMPLETE;
         }
         ssize_t n = write(sock, req + total_sent, req_len - total_sent);
         if (n <= 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+            if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) continue;
             tam_str_free(req);
             close(sock);
-            return -1;
+            return HTTP_ERR;
         }
         total_sent += (size_t)n;
     }
     tam_str_free(req);
 
-    /* Read response with timeout */
+    /* Read response with a single monotonic deadline and size cap */
     tam_str_t raw_resp = tam_str_new("");
     char buf[4096];
+    bool complete = false;
+    int read_result = HTTP_ERR;
     while (1) {
+        int rem = remaining_ms(deadline_ms);
+        if (rem <= 0) {
+            read_result = HTTP_INCOMPLETE;
+            break;
+        }
         struct pollfd pfd;
         pfd.fd = sock;
         pfd.events = POLLIN;
-        int poll_rc = poll(&pfd, 1, timeout_ms);
+        int poll_rc = poll(&pfd, 1, rem);
+        if (poll_rc < 0 && errno == EINTR) continue;
         if (poll_rc <= 0) {
-            break; /* timeout or end */
+            read_result = HTTP_INCOMPLETE;
+            break;
         }
         ssize_t n = read(sock, buf, sizeof(buf));
-        if (n <= 0) {
-            if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) continue;
-            break; /* connection closed or EOF */
+        if (n == 0) {
+            complete = true;
+            break; /* EOF */
+        }
+        if (n < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) continue;
+            read_result = HTTP_ERR;
+            break;
+        }
+        size_t cur_len = tam_str_len(raw_resp);
+        if ((size_t)n > MAX_HTTP_RESPONSE_BYTES - cur_len) {
+            read_result = HTTP_TOO_LARGE;
+            break;
         }
         raw_resp = tam_str_cat_len(raw_resp, buf, (size_t)n);
     }
     close(sock);
 
+    if (!complete) {
+        tam_str_free(raw_resp);
+        return read_result;
+    }
+
     if (tam_str_len(raw_resp) == 0) {
         tam_str_free(raw_resp);
-        return -1;
+        return HTTP_ERR;
     }
 
     /* Parse status code */
@@ -355,7 +419,7 @@ static int http_request(const char *host, int port, const char *method, const ch
     }
 
     tam_str_free(raw_resp);
-    return 0;
+    return HTTP_OK;
 }
 
 /* ------------------------------------------------------------------------- */
