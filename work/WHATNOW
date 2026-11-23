@@ -3,14 +3,14 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W80
+Updated: 2026-11-23, with W81
 
 STATE
 
-  Command 0.68.12 and corpus 0.117.2 on dev. W80 replaced manual CLI
-  level query injection in `src/tam.c` with `tam_href_put_level` (R1
-  step 1 follow-up). W79 added shared `tam_addr_take_param` and reused
-  it from depth/fold query-param handling. W78 centralized address
+  Command 0.68.13 and corpus 0.117.2 on dev. W81 removed the pager
+  `lens_href` wrapper in favor of direct `tam_addr_takes_lens` calls
+  (R1 step 1 follow-up). W80 used `tam_href_put_level` for CLI level
+  injection. W79 shared `tam_addr_take_param`. W78 centralized address
   kind/lens/route loading in one descriptor table.
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param

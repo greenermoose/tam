@@ -90,7 +90,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     st.cur_href = strdup(initial_href);
     /* An address that names a level sets the lens for this run only. */
     unsigned named = 0;
-    int named_level = lens_href(st.cur_href) &&
+    int named_level = tam_addr_takes_lens(st.cur_href) &&
                       tam_href_take_level(st.cur_href, &named);
     if (named_level)
         tam_lens_override(named);
@@ -149,7 +149,7 @@ int tam_pager_run(tam_document_t *initial, const char *initial_href,
     }
     g_term = &term;
     tam_pager_screen_init(&g_screen, &term);
-    if (!named_level && st.lens != 0 && st.load != NULL && lens_href(st.cur_href)) {
+    if (!named_level && st.lens != 0 && st.load != NULL && tam_addr_takes_lens(st.cur_href)) {
         tam_document_t *nd = load_at_lens(&st, st.cur_href);
         if (nd != NULL) {
             tam_document_ensure_location(nd, st.cur_href);

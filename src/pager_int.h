@@ -127,7 +127,6 @@ void pager_nav_next_name(const pager_t *st, const char *href, char *out,
 void pager_reflow(pager_t *st, int width);
 int breadcrumb_focused(const pager_t *st);
 int draw(pager_t *st);
-int lens_href(const char *href);
 tam_document_t *load_at_lens(pager_t *st, const char *href);
 void follow(pager_t *st, const char *href);
 void set_fold_here(pager_t *st, int open);

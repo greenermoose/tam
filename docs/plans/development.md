@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.13 (patch): remove lens_href wrapper. Use `tam_addr_takes_lens` directly in pager code (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.12 (patch): use shared level URL helper in CLI. Replace manual level query injection in `src/tam.c` with `tam_href_put_level` (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.11 (patch): share query param take/remove. Add `tam_addr_take_param` in `src/address.c` and use it from `src/depth.c` and `src/fold.c` (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.10 (patch): centralize address route descriptors. Drive address kind, lens eligibility, and route loading from one descriptor table in `src/address.c` (R1 step 1).

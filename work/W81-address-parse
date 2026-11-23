@@ -1,0 +1,42 @@
+W81 REMOVE LENS_HREF WRAPPER
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / R1 step 1 follow-up: centralize address parsing;
+  use one parser/shape where it reduces duplication without changing
+  behavior.
+
+DONE
+
+  - Removed the pager `lens_href` wrapper and its declaration from
+    `src/pager_nav.c` and `src/pager_int.h`; replaced calls with
+    `tam_addr_takes_lens` in `src/pager_nav.c`, `src/pager.c`, and
+    `src/pager_draw.c`.
+  - Bumped command to 0.68.13 (patch) and updated development plan,
+    ROADMAP, and WHATNOW.
+
+NOT DONE / FOLLOW-UP
+
+  - CLI entry, pager navigation, and generated views still parse/dispatch
+    addresses ad hoc in places. Aliases, relative Guide links, and
+    external opener confirmation remain to be characterized and
+    consolidated into one parser/shape where safe.
+  - R1 step 4 and R1 step 3 follow-up remain.
+
+VERIFICATION
+
+  - make command: built successfully (tam command 0.68.13).
+  - python3 tests/pager_screen.py build/tam tests/fixtures: passed.
+  - make check-repo: passed.
+  - make test-command: not run in this slice; pre-existing brittle B3
+    PTY fragment assertion in tests/run.sh remains known.
+
+HANDOFF
+
+  - Continue WHATNOW item 1 follow-up: characterize remaining address
+    parsing and consolidate safely, or move to R1 step 4 when a good
+    parser consolidation boundary is reached.

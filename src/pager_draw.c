@@ -592,7 +592,7 @@ static size_t status_byte_limit(const char *s, int max_cols)
 static void pager_address(const pager_t *st, char *out, size_t cap)
 {
     char with_lens[600];
-    if (st->cur_href != NULL && lens_href(st->cur_href) &&
+    if (st->cur_href != NULL && tam_addr_takes_lens(st->cur_href) &&
         tam_href_put_level(st->cur_href, st->lens, with_lens,
                            sizeof(with_lens))) {
         snprintf(out, cap, "%s%.240s",

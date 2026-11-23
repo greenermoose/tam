@@ -416,13 +416,6 @@ static int find_anchor_text(const tam_document_t *doc, const char *target)
     return plain;
 }
 
-/* Guide pages and the generated topic views take the reader's lens; man,
- * Info, tldr, other tam: pages and standard input have one level. */
-int lens_href(const char *href)
-{
-    return tam_addr_takes_lens(href);
-}
-
 /* Load `href` (stored without level= or path=) at the reader's lens and
  * active learning path. A view that cannot be shown at the lens is loaded
  * at every level instead. */
@@ -432,7 +425,7 @@ static tam_document_t *load_at_context(const pager_t *st, const char *href,
     int with_path = path_id != NULL && path_id[0] != '\0' &&
                     tam_addr_kind(href) == TAM_ADDR_GUIDE &&
                     !tam_addr_param(href, "path", (char[8]){0}, 8);
-    if (st->lens != 0 && lens_href(href)) {
+    if (st->lens != 0 && tam_addr_takes_lens(href)) {
         size_t cap = strlen(href) + (with_path ? strlen(path_id) : 0) + 64;
         char *buf = malloc(cap);
         char *target = malloc(cap);
@@ -611,7 +604,7 @@ void follow(pager_t *st, const char *href)
     char bare[600];
     snprintf(bare, sizeof(bare), "%s", href);
     unsigned named = 0;
-    if (lens_href(bare) && tam_href_take_level(bare, &named) &&
+    if (tam_addr_takes_lens(bare) && tam_href_take_level(bare, &named) &&
         named != st->lens) {
         st->lens = named;
         tam_lens_set(named);
@@ -960,7 +953,7 @@ void set_lens(pager_t *st, unsigned char key)
 
     st->lens = level;
     tam_lens_set(level);
-    if (!lens_href(st->cur_href) || !reload_in_place(st)) {
+    if (!tam_addr_takes_lens(st->cur_href) || !reload_in_place(st)) {
         snprintf(st->msg, sizeof(st->msg),
                  "Level %d %s set; this page has one level", number, label);
         return;
