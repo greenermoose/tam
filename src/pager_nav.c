@@ -554,7 +554,7 @@ void follow(pager_t *st, const char *href)
         pager_search_prompt(st);
         return;
     }
-    if (strncmp(href, "tam:prompt:", 11) == 0) {
+    if (tam_addr_is_prompt(href)) {
         char target[512];
         if (pager_prompt_action(st, href, target, sizeof(target)) && target[0] != '\0')
             follow(st, target);

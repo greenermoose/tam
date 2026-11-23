@@ -297,6 +297,11 @@ const char *tam_addr_strip_page_prefix(const char *href)
     return (href != NULL && has_prefix(href, "page:")) ? href + 5 : href;
 }
 
+int tam_addr_is_prompt(const char *href)
+{
+    return href != NULL && has_prefix(href, "tam:prompt:");
+}
+
 tam_document_t *tam_address_load(void *vctx, const char *href, int width)
 {
     const tam_loader_ctx_t *ctx = vctx;

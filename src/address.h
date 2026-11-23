@@ -49,6 +49,9 @@ int tam_addr_take_param(char *href, const char *key, char *buf, size_t cap);
 int tam_addr_fold_id(const char *href, unsigned *id);
 int tam_addr_sandbox_id(const char *href, unsigned *id);
 
+/* True for tam:prompt:* action addresses. */
+int tam_addr_is_prompt(const char *href);
+
 /* Bare CLI view aliases accepted by `tam show`/entry; returns a canonical
  * tam: address or NULL. */
 const char *tam_addr_cli_alias(const char *page);
