@@ -292,6 +292,11 @@ const char *tam_addr_cli_alias(const char *page)
     return NULL;
 }
 
+const char *tam_addr_strip_page_prefix(const char *href)
+{
+    return (href != NULL && has_prefix(href, "page:")) ? href + 5 : href;
+}
+
 tam_document_t *tam_address_load(void *vctx, const char *href, int width)
 {
     const tam_loader_ctx_t *ctx = vctx;
@@ -303,7 +308,7 @@ tam_document_t *tam_address_load(void *vctx, const char *href, int width)
         return NULL;
     case TAM_ADDR_GUIDE:
     case TAM_ADDR_STDIN:
-        return tam_corpus_page_document(ctx, has_prefix(href, "page:") ? href + 5 : href, width);
+        return tam_corpus_page_document(ctx, tam_addr_strip_page_prefix(href), width);
     default:
         break;
     }

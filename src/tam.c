@@ -566,11 +566,14 @@ static int cmd_show(int n, char **args)
         }
     }
 
-    if (page != NULL && strncmp(page, "page:", 5) == 0) {
-        page += 5;
-        if (page[0] == '\0') {
-            fprintf(stderr, TAM_COMMAND_NAME ": missing guide page after 'page:'\n");
-            return TAM_EXIT_USAGE;
+    {
+        const char *stripped = tam_addr_strip_page_prefix(page);
+        if (stripped != page) {
+            page = stripped;
+            if (page[0] == '\0') {
+                fprintf(stderr, TAM_COMMAND_NAME ": missing guide page after 'page:'\n");
+                return TAM_EXIT_USAGE;
+            }
         }
     }
 

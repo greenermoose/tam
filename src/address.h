@@ -53,6 +53,9 @@ int tam_addr_sandbox_id(const char *href, unsigned *id);
  * tam: address or NULL. */
 const char *tam_addr_cli_alias(const char *page);
 
+/* Strip the optional `page:` scheme from a guide address. */
+const char *tam_addr_strip_page_prefix(const char *href);
+
 /* The guide root (may be NULL), optional standard input, and output mode. */
 typedef struct {
     const char *root;
