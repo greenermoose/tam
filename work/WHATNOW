@@ -3,16 +3,17 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W90
+Updated: 2026-11-23, with W91
 
 STATE
 
-  Command 0.68.21 and corpus 0.117.2 on dev. W90 added
-  `tam_addr_has_page_prefix` and used it in pager address display
-  (R1 step 1 follow-up). W89-W78 continued address parsing
-  consolidation; W86 measured index load cost (~9.5ms avg, 1311
-  entries) and deferred per-session index caching; W82 piloted
-  shared CSI parsing (R1 step 4).
+  Command 0.68.21 and corpus 0.117.2 on dev. W91 characterized R1
+  step 1 address parsing areas (aliases, fold/path params, relative
+  Guide links, external opener confirmation) in
+  work/W91-address-characterization; no code change. W90-W78 continued
+  address parsing consolidation; W86 measured index load cost (~9.5ms
+  avg, 1311 entries) and deferred per-session index caching; W82
+  piloted shared CSI parsing (R1 step 4).
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -80,11 +81,13 @@ STATE
 
 NEXT
 
-  1. R1 step 1 follow-up: finish centralizing address parsing. CLI
-     entry, pager navigation, and generated views still parse addresses
-     ad hoc; characterize aliases, fold/path params, relative Guide
-     links, and external opener confirmation, then use one parser/shape
-     where it reduces duplication without changing behavior.
+  1. R1 step 1 follow-up (characterized, consolidation remains):
+     aliases, fold/path params, relative Guide links, and external
+     opener confirmation are characterized in
+     work/W91-address-characterization. Continue with low-risk
+     parser/shape consolidation where behavior is preserved; avoid
+     risky fold/depth/path pipeline or external-message changes without
+     characterization tests.
   2. R1 step 4 follow-up: continue piloting shared key and UTF-8 code
      from libtam in duplicate escape-sequence paths; reuse UTF-8
      decoding before changing display-width policy. Keep renderer

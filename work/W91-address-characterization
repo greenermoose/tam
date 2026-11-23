@@ -1,0 +1,74 @@
+W91 ADDRESS PARSING CHARACTERIZATION
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / R1 step 1 follow-up: "finish centralizing
+  address parsing. CLI entry, pager navigation, and generated views
+  still parse addresses ad hoc; characterize aliases, fold/path params,
+  relative Guide links, and external opener confirmation, then use one
+  parser/shape where it reduces duplication without changing behavior."
+
+CHARACTERIZATION
+
+  Aliases
+  - CLI bare view aliases: `topics`, `hubs`, `paths` normalized by
+    `tam_addr_cli_alias` in `src/tam.c` (W84). `-` is stdin.
+  - `page:` is an explicit guide scheme; stripped by
+    `tam_addr_strip_page_prefix` (W85, W87, W89) and accepted by
+    `tam_addr_kind` as GUIDE.
+  - Action aliases are not parsed as aliases: `tam:help` dispatches to
+    `help/index.html`, `tam:start` runs tam-start; both are route-table
+    ACTION entries with NULL loader and custom follow() behavior.
+
+  Fold/path params
+  - Fold open state is split by `tam_fold_split_href` before corpus page
+    load; fold ids are parsed by `tam_addr_fold_id` (W83).
+  - Level is split by `tam_depth_split_href` (`?level=`), which also
+    tolerates `?path=` but does not return it.
+  - Path selection is read separately by `tam_addr_param(href, "path", ...)`
+    in `read_corpus_page` (`src/corpus.c`), then used for path navigation
+    metadata/body links. Same href may be scanned/split multiple times
+    (fold, depth, path param) - duplication remains, but behavior is
+    coupled to fold/depth/corpus rendering.
+
+  Relative Guide links
+  - Pager follow() handles `#fragment`, tam: actions, and external links;
+    other hrefs go through `load_at_lens` -> `tam_address_load` ->
+    `tam_corpus_page_document`. Relative guide paths are not resolved in
+    pager_nav; they are treated as corpus/page hrefs by the loader/corpus
+    path join (`corpus_join` uses `tam_path_join_under` and rejects URL
+    schemes). This keeps relative resolution out of pager dispatch.
+
+  External opener confirmation
+  - `follow_external` (`src/pager_nav.c`) rejects URLs failing
+    `tam_external_url_ok` with malformed/scheme-specific messages.
+  - First press on an unopened external href arms `pending_external` and
+    reports opener name (`tam_external_opener`); second press on same
+    href opens detached (graphical) or foreground (text browser) via
+    external.c helpers. Different href re-arms. This is confirmation
+    behavior, not address parsing shape.
+
+CONSOLIDATION ASSESSMENT
+
+  - Safe consolidations done in recent slices: route descriptors,
+    take_param, fold/sandbox id helpers, CLI alias helper, page prefix
+    strip/has helpers, prompt helper, pager page-prefix uses.
+  - Remaining duplication (higher risk): fold/depth/path split pipeline
+    across fold.c/depth.c/corpus.c; render.c location/breadcrumb href
+    classification; external scheme error-message parsing. Consolidate
+    only with characterization tests and no behavior change.
+
+NO CODE CHANGE
+
+  - This record characterizes the four areas named by WHATNOW item 1.
+  - No command/corpus behavior changed; no version bump.
+
+HANDOFF
+
+  - Continue R1 step 1 follow-up by selecting one low-risk consolidation
+    from the assessment, or move to R1 step 4 follow-up if item 1 has no
+    safe small slice remaining.
