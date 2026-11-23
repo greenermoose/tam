@@ -1,0 +1,39 @@
+W97 R1 FOLLOW-UP STATUS
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT items 1-3 / R1 follow-ups.
+
+STATUS
+
+  - R1 step 1: W96 added depth/fold/path query param characterization.
+    Render breadcrumb href classification is already characterized by
+    existing run.sh tests (man landing/page, tldr landing/name/list/show,
+    tam:tldr landing) and render.c behavior is stable; archwiki/info
+    subnode cases are fixture/system dependent. External scheme
+    error-message parsing is characterized by tests/external_links.py
+    (ftp scheme refused, malformed link, confirmation, missing/broken
+    browser, text-browser handoff). No safe small consolidation was
+    identified in render breadcrumb classification or pager_nav external
+    message formatting without behavior risk.
+  - R1 step 4: forward UTF-8 decode pilots landed (W92/W93). Remaining
+    continuation-byte scans in pager_draw/sandbox are backward lead-byte
+    searches, not decode reuse. No obvious safe libtam key-helper pilot
+    identified; terminal capability detection, Linux console, and
+    handoff behavior remain sensitive.
+  - R1 step 3: measured/deferred in W86.
+
+NO CODE CHANGE
+
+  - Status/triage record only; no command/corpus behavior changed.
+
+HANDOFF
+
+  - If a clearly safe R1 consolidation appears, add characterization
+    tests first where needed and keep behavior unchanged. Otherwise
+    treat R1 step 1/4 as blocked on safe candidates and R1 step 3 as
+    deferred pending measurement justification.

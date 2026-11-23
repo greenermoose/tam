@@ -3,15 +3,16 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W96
+Updated: 2026-11-23, with W97
 
 STATE
 
-  Command 0.68.25 and corpus 0.117.2 on dev. W96 accepted `fold=` in
-  depth split and added characterization tests for depth/fold/path query
-  params (R1 step 1 follow-up). W95 triaged R1 follow-ups; W94-W78
-  continued address parsing consolidation; W86 measured index load and
-  deferred per-session caching.
+  Command 0.68.25 and corpus 0.117.2 on dev. W97 audited R1
+  follow-ups: item 1 remaining candidates are already largely covered by
+  existing characterization tests (run.sh breadcrumbs, external_links.py
+  scheme/message flow) with no safe small consolidation identified;
+  item 2 has no obvious safe UTF-8/key-helper reuse beyond landed
+  pilots; item 3 remains measured/deferred.
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -79,20 +80,18 @@ STATE
 
 NEXT
 
-  1. R1 step 1 follow-up (characterized, low-risk pass mostly done):
-     aliases, fold/path params, relative Guide links, and external
-     opener confirmation are characterized in
-     work/W91-address-characterization. W96 added characterization tests
-     for depth/fold/path query params and accepted `fold=` in depth
-     split. Remaining candidates (render breadcrumb href classification;
-     external scheme error-message parsing) still need characterization
-     tests before consolidation; fold/depth/path split pipeline remains
-     risky to consolidate beyond characterized behavior.
-  2. R1 step 4 follow-up: continue piloting shared key and UTF-8 code
-     from libtam in duplicate escape-sequence paths. Forward UTF-8
-     decode pilots landed (W92/W93); backward lead-byte scans are not
-     decode reuse. Any libtam key-helper pilot must preserve renderer
-     capability detection, Linux-console behavior, and terminal handoff.
+  1. R1 step 1 follow-up (characterized, no safe small consolidation
+     identified): W91/W96 characterized aliases, fold/path params,
+     relative Guide links, external opener confirmation, and
+     depth/fold/path query params. Render breadcrumb href classification
+     and external scheme error-message parsing are already largely
+     covered by existing tests (run.sh breadcrumbs, external_links.py);
+     consolidate only with characterization tests and no behavior change.
+  2. R1 step 4 follow-up (no safe small pilot identified): forward UTF-8
+     decode pilots landed (W92/W93); remaining continuation-byte scans
+     are backward lead-byte searches, not decode reuse. Any libtam
+     key-helper pilot must preserve renderer capability detection,
+     Linux-console behavior, and terminal handoff.
   3. R1 step 3 follow-up (measured, deferred): `tam_index_load` is
      ~9.5ms average over 100 warm-cache loads (1311 entries, 3 TSV
      files). Per-session caching is not justified at this cost; if
