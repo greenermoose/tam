@@ -319,6 +319,8 @@ char *tam_depth_split_href(const char *href, unsigned *level)
             }
         } else if (strncmp(p, "path=", 5) == 0) {
             /* Path query selection is handled by the corpus path loader. */
+        } else if (strncmp(p, "fold=", 5) == 0) {
+            /* Fold open state is handled by the fold renderer/CLI. */
         } else {
             return NULL;
         }

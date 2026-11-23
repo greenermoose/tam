@@ -3,17 +3,15 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W95
+Updated: 2026-11-23, with W96
 
 STATE
 
-  Command 0.68.24 and corpus 0.117.2 on dev. W95 triaged R1
-  follow-ups: item 1 low-risk consolidations are mostly exhausted
-  (remaining candidates need characterization tests); item 2 forward
-  UTF-8 decode pilots landed, backward scans are not decode reuse, and
-  key-helper pilot remains behavior-sensitive. W94-W78 continued
-  address parsing consolidation; W86 measured index load and deferred
-  per-session caching.
+  Command 0.68.25 and corpus 0.117.2 on dev. W96 accepted `fold=` in
+  depth split and added characterization tests for depth/fold/path query
+  params (R1 step 1 follow-up). W95 triaged R1 follow-ups; W94-W78
+  continued address parsing consolidation; W86 measured index load and
+  deferred per-session caching.
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -84,10 +82,12 @@ NEXT
   1. R1 step 1 follow-up (characterized, low-risk pass mostly done):
      aliases, fold/path params, relative Guide links, and external
      opener confirmation are characterized in
-     work/W91-address-characterization. Remaining candidates
-     (fold/depth/path split pipeline; render breadcrumb href
-     classification; external scheme error-message parsing) need
-     characterization tests before consolidation.
+     work/W91-address-characterization. W96 added characterization tests
+     for depth/fold/path query params and accepted `fold=` in depth
+     split. Remaining candidates (render breadcrumb href classification;
+     external scheme error-message parsing) still need characterization
+     tests before consolidation; fold/depth/path split pipeline remains
+     risky to consolidate beyond characterized behavior.
   2. R1 step 4 follow-up: continue piloting shared key and UTF-8 code
      from libtam in duplicate escape-sequence paths. Forward UTF-8
      decode pilots landed (W92/W93); backward lead-byte scans are not

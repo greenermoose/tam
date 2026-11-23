@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.68.24' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.68.25' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -2427,6 +2427,23 @@ s = show("layered.html", "--pipe", "--level", "3")
 for block in ("ASIDE", "PARAGRAPH", "ITEM", "PRE", "QUESTION", "ANSWER", "DIV", "TABLE"):
     assert "EXPERT_" + block in s, s
 assert "NESTED_DIV" in s and "SHARED_ANSWER" in s, s
+
+# W96 characterization: depth/fold/path query param split pipeline.
+# fold= is accepted by depth split and handled by fold renderer.
+s = show("folds.html?fold=1", "--pipe")
+assert "SECRET_ALPHA" in s and "SECRET_BETA" in s, s
+# fold= combined with level= is accepted.
+s = show("folds.html?fold=1&level=novice", "--pipe")
+assert "Fold fixture" in s, s
+# path= is accepted by depth split (corpus/path loader handles selection).
+s = show("folds.html?path=alpha", "--pipe")
+assert "Fold fixture" in s, s
+# unknown query param is rejected by depth split (characterized behavior).
+try:
+    show("folds.html?bogus=1", "--pipe")
+    raise AssertionError("expected failure for unknown depth param")
+except subprocess.CalledProcessError:
+    pass
 PYFOLD
 pass "folds: pipe answers collected, non-terminal show, stable IDs and block-level filtering"
 
