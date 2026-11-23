@@ -1,0 +1,27 @@
+SANDBOX
+
+This folder holds test files, demos, and small experiments for trying
+this repository's project out by hand. It is for playing with the
+program, separate from automated tests (tests/) and developer helpers
+(tools/).
+
+
+WHAT GOES HERE
+
+  Sample input files, interactive demo scripts, and throwaway configs
+  that let someone exercise the program and see how it behaves. Nothing
+  here is installed by make install, and make test does not rely on it.
+
+
+IN THIS REPOSITORY
+
+  A small sample guide in `guide/` for manually exercising tam against a
+  known fixture. From the repository root, after `make command`:
+
+    TAM_KNOWLEDGE_DIR=sandbox/guide ./build/tam show --pipe page:welcome.html
+    TAM_KNOWLEDGE_DIR=sandbox/guide ./build/tam show --pipe tam:catalog
+    TAM_KNOWLEDGE_DIR=sandbox/guide ./build/tam show --pipe --level expert tam:catalog
+    TAM_KNOWLEDGE_DIR=sandbox/guide ./build/tam search welcome
+
+  Add pages or index rows here when verifying a fix by hand; keep the
+  fixture small and self-contained.
