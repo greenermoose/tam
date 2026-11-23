@@ -1,9 +1,9 @@
 # B1 — Source upgrade pins an incompatible libtam
 
-- **Status:** Fix available
+- **Status:** Verified
 - **Severity:** high
 - **Affected versions:** Confirmed in 0.67.8
-- **Fixed in:** Unreleased
+- **Fixed in:** dev (e0b97c2), verification accepted by Fred (2026-11-23)
 - **Reported:** 2026-12-03, Codex
 - **Found by:** [R1](../reviews/R1-command-and-corpus-code.md)
 
@@ -42,5 +42,5 @@ rejected before build.
 
 Verified with the B1 reproduction: extracting `include/tam.h` from the
 pinned libtam revision into a scratch prefix makes
-`make libtam-check LIBTAM_PREFIX=<scratch-prefix>` pass. A full isolated
-source-upgrade build remains to be verified.
+`make libtam-check LIBTAM_PREFIX=<scratch-prefix>` pass. Fred ran `make`
+successfully and confirmed verification is sufficient (2026-11-23).
