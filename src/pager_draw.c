@@ -1,4 +1,5 @@
 #include <tam.h>
+#include <tam_uni.h>
 
 #include "address.h"
 #include "depth.h"
@@ -187,9 +188,9 @@ static void format_revision_tail(const char *text, int max_cols,
         if (!found) {
             while (shown[0] != '\0' &&
                    (int)tam_display_width(shown, strlen(shown)) > max_cols) {
-                const char *next = shown + 1;
-                while (((unsigned char)*next & 0xC0) == 0x80) next++;
-                shown = next;
+                uint32_t cp;
+                size_t n = tam_utf8_decode(shown, strlen(shown), &cp);
+                shown += n > 0 ? n : 1;
             }
         }
     }
