@@ -3,68 +3,35 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W51
+Updated: 2026-11-23, with W52
 
 STATE
 
-  Command 0.68.0 and corpus 0.109.1 on dev. W51 added the Tamlinux
-  Five performance target for tam-* utility programs (start and exit
-  in 5 milliseconds, use under 5 megabytes of memory) to relevant
-  Tamlinux design/development and C corpus pages, replacing older
-  "start instantly / consume minimal memory / <4 MB / <5 ms"
-  phrasing. Corpus checks passed. W50 added a NIST (National
-  Institute of Standards and Technology) glossary page linked from
-  the N glossary hub and related FIPS and NIST bibliography pages.
-  W49 split the two discovery views that shared the word topics:
-  tam:topics and tam explain topics now present the same complete
-  Topics A to Z catalog, while the eight subject hubs moved to
-  tam:hubs with "Browse hubs" wording and a tam show hubs shorthand.
-  Guide and Help links were repointed to tam:hubs. W47 added a
-  glossary page for IEEE (Institute of Electrical and Electronics
-  Engineers), linked from the AIEE page and the I glossary hub. W46
-  linked the first prose mention of 1,300 glossary terms across 278
-  teaching pages, then a follow-up added 4,461 cross-term links
-  inside 900 glossary pages, so the rule now holds on every page.
-  Fred caught that the first pass had skipped glossary pages,
-  including TCP on udp.html and UDP on tcp.html. The terms below
-  still have no glossary page.
+  Command 0.68.0 and corpus 0.110.0 on dev. W52 added a Tamlinux
+  design goals page at knowledge/tamlinux/design/goals.html covering
+  the Tamlinux Five target (tam-* utilities start and exit in 5
+  milliseconds and use under 5 megabytes of memory), minimal
+  dependencies other than libc, C11 implementation, and why simple
+  C11/libc code is easier for machine intelligence to inspect and
+  change; the design hub links to it. W51 added the Tamlinux Five
+  performance target to relevant Tamlinux and C corpus pages. W50
+  added a NIST glossary page. W49 split hub and topic discovery into
+  tam:hubs and tam:topics. W47 added an IEEE glossary page. W46
+  linked first prose mentions of glossary terms across teaching and
+  glossary pages. The terms below still have no glossary page.
 
   W48 completed the learner section anatomy on
-  tamlinux/components.html with the missing "If it goes wrong"
-  block. The corpus builds with no learning warnings; corpus
-  0.108.1 records the fix.
-
-  W45 moved the 28-link A-Z jump bar below the page list in the
-  Arch Wiki and tldr index pages, so page links come first in pager
-  link numbering. The landing pages keep their own navigation aids.
-
-  W44 fixed missing tldr pages on user-prefix installs: Makefile's
-  install and install-corpus now keep $(DATADIR)/tldr when DESTDIR is
-  empty (stripping it only for staged cultivar builds that run
-  install-tldr separately), and tam_find_tldr_root() in src/tldr.c
-  falls back to /usr/share/doc/tamlinux/tldr when TAM_DOC_DIR is unset.
-
-  W43 removed the stale Nix conditional from Makefile: plain make install
-  now targets ~/.local and needs no root, while an explicit PREFIX still
-  wins.
-
-  W42 delivered the IFS curriculum: three glossary entries, four shell
-  lessons, a data-handling how-to, a six-stage goal path and a POSIX
-  source. Corpus checks pass and the pages render at all three levels.
-
-  W41 fixed B6 (a failed back or forward load freed a live history
-  entry; use-after-free on the next press) in src/pager_nav.c, with the
-  check_vanished_history test in tests/pager_screen.py. The fix is in
-  source only; Fred has not run it in a build. B1-B5 from
+  tamlinux/components.html; the corpus builds with no learning
+  warnings. W45 moved the A-Z jump bar below page lists in Arch Wiki
+  and tldr index pages. W44 fixed missing tldr pages on user-prefix
+  installs. W43 removed the stale Nix conditional from Makefile.
+  W42 delivered the IFS curriculum. W41 fixed B6 in source only;
+  Fred has not run it in a build. B1-B5 from
   reviews/R1-command-and-corpus-code.md are still open.
   The whole of tests/pager_screen.py fails on HEAD at the
   "[Level 2 Learner" status assertion (status reads "already
   at Level 2 Learner"); it was not checked whether make test
-  hits this.
-
-  W40 documented the architecture in arch/. W39 and W38
-  delivered the protocol stack and network setup curricula.
-
+  hits this. W40 documented the architecture in arch/.
 
 NEXT
 
@@ -117,14 +84,12 @@ NEXT
       a page; near misses such as IP and MB already link to the
       closest existing page (ip-address, byte).
 
-
 WAITING FOR FRED
 
   - Version bump for the B6 fix (command, src/version.h) and a
     build to verify it. The bug stays "Fix available" until then.
   - Tamlinux 0.6.31 candidate preparation and packaged
     verification.
-
 
 WATCH OUT
 

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Design goals</title>
+<meta name="topic" content="design-goals">
+<meta name="summary" content="Tamlinux design goals: fast small C11 utilities, minimal dependencies, and code that machine intelligence can understand and improve">
+<meta name="keywords" content="design goals, tamlinux five, performance, 5 milliseconds, 5 megabytes, c11, libc, dependencies, machine intelligence, ai, agents, simplicity, tam-*">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="tamlinux">
+<meta name="parent" content="tamlinux/design/index.html">
+<meta name="kind" content="explanation">
+<meta name="skills" content="contributing.novice, contributing.learner, contributing.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="tamlinux/index.html">Tamlinux</a> / <a href="tamlinux/design/index.html">Design and philosophy</a> / Design goals</p></nav>
+
+<h1>Design goals</h1>
+<p>Tamlinux design goals describe the practical targets that guide how Tamlinux utility programs are built and kept fast, simple, and easy to understand.</p>
+
+<section data-level="novice">
+<h2>What Tamlinux aims for</h2>
+<p>When you run a small Tamlinux command, it should feel immediate and leave room for the work you actually want to do. Tamlinux design goals keep core tools small, quick, and simple so they work well on old and new computers.</p>
+<h3>Why it matters</h3>
+<p>Clear goals help developers make consistent choices. If a tool starts slowly, uses too much memory, or depends on many extra pieces, it becomes harder to trust, harder to fix, and harder to run on modest hardware.</p>
+<h3>How to think about it</h3>
+<p>Think of a good hand tool in a workshop: it should be light, ready the moment you pick it up, and simple enough that you can understand how it works. Tamlinux wants its own utility programs to feel that way.</p>
+<h3>New words</h3>
+<dl>
+<dt><dfn><a href="glossary/d/dependency.html">Dependency</a></dfn></dt>
+<dd>Other software that a program needs in order to build or run.</dd>
+<dt><dfn><a href="glossary/l/libc.html">libc</a></dfn></dt>
+<dd>The C standard library, which provides common functions such as input/output, memory management, and string handling.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Understand the goals</h2>
+<p><strong>Goal:</strong> Identify the main Tamlinux design goals for utility programs and explain why they matter.</p>
+<p><strong>Before you start:</strong> Read <a href="tamlinux/design/philosophy.html">Philosophy</a> and <a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a>.</p>
+<h3>Worked example</h3>
+<p>Tamlinux gives its <code>tam-*</code> utility programs a clear performance target called the <strong>Tamlinux Five</strong>: start and exit in 5 milliseconds and use under 5 megabytes of memory. This is a design goal to measure against, not a claim that every command on every system will always hit the same number under every condition.</p>
+
+<h3>The main goals</h3>
+<table>
+<tr><th>Goal</th><th>What it means</th><th>Why it helps</th></tr>
+<tr><td><strong>Tamlinux Five</strong></td><td><code>tam-*</code> utility programs aim to start and exit in 5 milliseconds and use under 5 megabytes of memory.</td><td>Commands feel immediate and remain usable on older or resource-constrained hardware.</td></tr>
+<tr><td><strong>Minimal dependencies</strong></td><td>Tamlinux utility programs aim to have no dependencies other than the C standard library, <code>libc</code>.</td><td>Fewer moving parts mean simpler builds, fewer runtime surprises, and less code to audit or carry.</td></tr>
+<tr><td><strong>C11 implementation</strong></td><td>Tamlinux utility programs are written in standard <a href="glossary/c/c11.html">C11</a>.</td><td>C11 is small, widely supported, and close to the machine, which makes behavior easier to inspect and reason about.</td></tr>
+<tr><td><strong>Helpful to machine intelligence</strong></td><td>Simple C11 code with minimal dependencies gives AI tools and other automated assistants less hidden behavior to guess about.</td><td>When code is direct and dependencies are few, machine intelligence can more reliably read, test, explain, and propose changes.</td></tr>
+</table>
+
+<h3>Why C11 and minimal dependencies help machine intelligence</h3>
+<p>Machine intelligence works best when the code it reads has clear boundaries. A C11 program that depends only on <code>libc</code> has a small language surface, explicit memory and control flow, and a limited set of external interfaces. There is no large runtime, garbage collector, framework magic, or hidden dependency tree to infer. That makes it easier for an AI agent, static analyzer, or human reviewer to trace what a program does, reproduce its behavior, and verify a fix.</p>
+
+<h3>Try it</h3>
+<p>Pick a small Tamlinux utility and ask three questions: How quickly does it start? How much memory does it use? What does it depend on besides <code>libc</code>? Use those questions as a practical check against the design goals.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A command feels slow or heavy</dt>
+<dd>Measure it before drawing conclusions. Startup time and memory use depend on the command, workload, and system. Compare the result to the Tamlinux Five goal and look for unnecessary work or dependencies.</dd>
+<dt>A feature seems to need a large dependency</dt>
+<dd>Check whether the feature belongs in a core <code>tam-*</code> utility or in a different layer. The minimal-dependency goal is strongest for Tamlinux's own utility programs.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary><i>What is the Tamlinux Five performance target?</i></summary>
+<p>Tamlinux <code>tam-*</code> utility programs aim to start and exit in 5 milliseconds and use under 5 megabytes of memory.</p>
+</details>
+<details class="q">
+<summary><i>Why can minimal dependencies help machine intelligence work with code?</i></summary>
+<p>With fewer external libraries and less hidden runtime behavior, an AI tool or reviewer has less context to guess about and can more reliably trace, test, and change the program.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Design constraints and tradeoffs</h2>
+
+<h3>Reference</h3>
+<table>
+<tr><th>Goal</th><th>Target</th><th>Scope</th></tr>
+<tr><td>Tamlinux Five</td><td>Start and exit in 5 milliseconds; use under 5 megabytes of memory</td><td>Tamlinux <code>tam-*</code> utility programs</td></tr>
+<tr><td>Dependencies</td><td>No dependencies other than <code>libc</code></td><td>Tamlinux utility programs, as a design goal</td></tr>
+<tr><td>Language</td><td>Standard C11</td><td>Tamlinux utility programs and shared low-level code</td></tr>
+<tr><td>Machine intelligence</td><td>Code should be easy for automated tools and AI agents to inspect and modify</td><td>Implementation style, interfaces, and dependency choices</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>These goals reinforce each other. C11 compiles to native code with predictable runtime behavior. A <code>libc</code>-only dependency set keeps the <a href="glossary/a/abi.html">ABI</a> and runtime surface small. Small, fast programs reduce startup overhead in shells, scripts, keybindings, and agent workflows. The same properties also reduce the amount of implicit context that machine intelligence needs: source files, headers, build flags, and libc behavior are usually enough to understand the program.</p>
+
+<p>The C11 and low-dependency goals do not mean Tamlinux avoids all other languages or libraries everywhere. Desktop components, rootstock packages, and third-party applications may use different toolchains. The design goal applies most strongly to Tamlinux's own utility programs, where startup cost, memory use, auditability, and portability matter most.</p>
+
+<h3>Advanced usage</h3>
+<p>When evaluating a proposed change to a <code>tam-*</code> utility, treat the goals as review questions:</p>
+<pre class="session" data-risk="scratch">
+$ time ./build/tam --version
+$ /usr/bin/time -v ./build/tam --version
+$ ldd ./build/tam
+</pre>
+<p>Illustrative checks: measure startup, inspect memory use, and confirm the runtime dependency footprint. Use the measurements appropriate to the program and system under test.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Measurement noise:</strong> A 5 millisecond target can be affected by cold caches, scheduler noise, or slow storage. Measure repeatedly and report conditions.</li>
+<li><strong>Necessary exceptions:</strong> Some programs may need a carefully chosen library for compression, cryptography, or platform integration. Treat exceptions as explicit design decisions, not defaults.</li>
+<li><strong>AI assistance is not proof:</strong> Machine intelligence can help read and modify simple code, but tests, review, and measured behavior still determine correctness.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary><i>Why is "no dependencies other than libc" a design goal rather than a blanket rule for every Tamlinux component?</i></summary>
+<p>It gives Tamlinux utility programs a strong default: small, portable, auditable binaries with little runtime overhead. Some components may still need specialized libraries, but those dependencies should be deliberate exceptions because they increase build, runtime, and audit complexity.</p>
+</details>
+</section>
+
+<h3>Sources</h3>
+<p><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a>, <a href="tamlinux/design/philosophy.html">Philosophy</a>, <a href="programming/c/c11.html">The C11 programming language and portable systems code</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="tamlinux/design/language-choices.html">Systems programming philosophy and language choices</a> &mdash; why Tamlinux uses C11 for core utilities.</li>
+<li><a href="tamlinux/design/philosophy.html">Philosophy: Free Software, Open Standards, and Efficiency</a> &mdash; the broader principles behind Tamlinux design.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,38 @@
+W52 TAMLINUX DESIGN GOALS PAGE
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Add a design goals page for Tamlinux and add it to tamlinux/design/index.html. On that design goals page, include the 5 millisecond / 5 MB RAM performance goal.  Also discuss the idea of no dependencies other than libc and all programs written in C11 so machine intelligence can be most helpful."
+
+DONE
+
+  - Added knowledge/tamlinux/design/goals.html, a novice/learner/expert
+    explanation page covering Tamlinux design goals: Tamlinux Five
+    (tam-* utilities start and exit in 5 milliseconds and use under 5
+    megabytes of memory), minimal dependencies other than libc, C11
+    implementation, and why simple C11/libc code is easier for machine
+    intelligence to inspect and change.
+  - Linked the new page from knowledge/tamlinux/design/index.html.
+  - Bumped corpus 0.109.1 to 0.110.0 in knowledge/version and updated
+    ROADMAP.md current version, dev row, and delivered history.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus-check passed after the page addition.
+  - make corpus refreshed generated indexes; index changes were
+    committed separately if present.
+
+HANDOFF
+
+  - Corpus-only content change; no command version bump, no install,
+    no stage move. Source changes stay in Develop.
+  - The design goals page can be added to the understand-design path
+    later if Fred wants it in that reading order.
