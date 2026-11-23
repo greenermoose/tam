@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html><head>
+<title>System Administrator Reading List</title>
+<meta name="topic" content="reference-sysadmin-reading-list">
+<meta name="summary" content="A curated reading list of books and key articles for system administrators, from fundamentals to advanced operations.">
+<meta name="keywords" content="bibliography, reading list, system administration, sysadmin, operations, linux, networking, security, sre">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="bibliography">
+<meta name="parent" content="bibliography/index.html">
+<meta name="kind" content="bibliography">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="bibliography/index.html">Sources and further reading</a> / System Administrator Reading List</p></nav>
+
+<h1>System Administrator Reading List</h1>
+<p>This page is a curated reading list for system administrators. It covers the practical knowledge needed to install, operate, secure, troubleshoot, and automate Linux and Unix-like systems. It also includes key references for networking, storage, security, reliability, and incident response.</p>
+
+<section data-level="novice">
+<h2>How to use this list</h2>
+<p>Start with one practical Linux/Unix administration book, then add networking, security, and automation as you gain experience. Read with a test machine or virtual machine nearby: try commands, break things safely, and practice recovery. System administration is learned by doing careful, repeatable work.</p>
+<p>A strong sysadmin foundation includes command-line skills, users and permissions, packages and updates, processes and services, logs, storage and backups, networking, security basics, shell scripting, and troubleshooting.</p>
+</section>
+
+<section data-level="learner">
+<h2>Core books</h2>
+
+<h3>Linux and Unix administration</h3>
+<ul>
+<li>Evi Nemeth, Garth Snyder, Trent R. Hein, Ben Whaley, and Dan Mackin, <em>UNIX and Linux System Administration Handbook</em>, Addison-Wesley (recent edition). Broad, practical coverage of Unix/Linux administration across real systems.</li>
+<li>Brian Ward, <em>How Linux Works: What Every Superuser Should Know</em>, No Starch Press (recent edition). Clear explanation of how Linux systems boot, run processes, use devices, and manage networks.</li>
+<li>Michael Hausenblas, <em>Learning Modern Linux</em>, O'Reilly, 2022. Modern Linux concepts including containers, cgroups, systemd, observability, and cloud-era tooling.</li>
+</ul>
+
+<h3>Operations and professional practice</h3>
+<ul>
+<li>Thomas A. Limoncelli, Christina J. Hogan, and Strata R. Chalup, <em>The Practice of System and Network Administration</em>, Addison-Wesley (recent edition). Operations principles, service management, change management, and professional practice.</li>
+<li>Betsy Beyer, Chris Jones, Jennifer Petoff, and Niall Richard Murphy (eds.), <em>Site Reliability Engineering: How Google Runs Production Systems</em>, O'Reilly, 2016. SRE practices: SLOs, toil, monitoring, incident response, and release engineering. Also available online.</li>
+<li>Betsy Beyer, Niall Richard Murphy, David K. Rensin, Kent Kawahara, and Stephen Thorne (eds.), <em>The Site Reliability Workbook</em>, O'Reilly, 2018. Practical SRE implementation examples. Also available online.</li>
+</ul>
+
+<h3>Networking</h3>
+<ul>
+<li>James F. Kurose and Keith W. Ross, <em>Computer Networking: A Top-Down Approach</em>, Pearson (recent edition). Networking fundamentals for understanding services, DNS, HTTP, TCP/IP, and troubleshooting.</li>
+<li>Craig Hunt, <em>TCP/IP Network Administration</em>, O'Reilly, 3rd ed., 2002. Classic practical TCP/IP administration reference; pair with newer distro and kernel documentation for current tools.</li>
+</ul>
+
+<h3>Shell, automation, and tooling</h3>
+<ul>
+<li>Arnold Robbins and Nelson H. F. Beebe, <em>Classic Shell Scripting</em>, O'Reilly, 2005. Portable shell scripting and Unix tool use.</li>
+<li>Brendan Gregg, <em>Systems Performance: Enterprise and the Cloud</em>, Addison-Wesley (recent edition). Performance analysis, profiling, and Linux observability tools.</li>
+<li>Brendan Gregg, <em>BPF Performance Tools</em>, Addison-Wesley, 2019. Advanced Linux tracing and performance diagnostics using eBPF.</li>
+</ul>
+
+<h3>Security</h3>
+<ul>
+<li>Ross J. Anderson, <em>Security Engineering</em>, Wiley (recent edition). Security as a systems problem: threats, controls, human factors, and failures. Also available online.</li>
+<li>Simson Garfinkel, Gene Spafford, and Alan Schwartz, <em>Practical UNIX and Internet Security</em>, O'Reilly, 3rd ed., 2003. Older but useful security principles; supplement with current platform security guidance.</li>
+<li>Lee Brotherston and Amanda Berlin, <em>Defensive Security Handbook</em>, O'Reilly, 2017. Practical defensive controls, monitoring, and incident readiness.</li>
+</ul>
+
+<h3>Backup, recovery, and reliability</h3>
+<ul>
+<li>W. Curtis Preston, <em>Backup &amp; Recovery</em>, O'Reilly, 2007. Backup principles, restore testing, and recovery planning; supplement with modern object storage and snapshot tooling.</li>
+<li>John Allspaw and Jesse Robbins, <em>Web Operations: Keeping the Data On Time</em>, O'Reilly, 2010. Operations culture, monitoring, deployment, and incident handling.</li>
+</ul>
+</section>
+
+<section data-level="expert">
+<h2>Key references, articles, and standards</h2>
+<p>These references are useful when you need authoritative detail, operational models, or incident-learning material.</p>
+
+<h3>Operational practice</h3>
+<ul>
+<li>Richard Cook, "How Complex Systems Fail," Cognitive Technologies Laboratory, 2000. Short, essential paper on failure in complex systems.</li>
+<li>Gene Kim, Kevin Behr, and George Spafford, <em>The Phoenix Project</em>, IT Revolution Press, 2013. A narrative introduction to DevOps and flow; useful culturally, but pair with technical references.</li>
+<li>Gene Kim, Jez Humble, Patrick Debois, and John Willis, <em>The DevOps Handbook</em>, IT Revolution Press (recent edition). Practical guidance on flow, feedback, and continuous improvement.</li>
+</ul>
+
+<h3>Linux and standards references</h3>
+<ul>
+<li><a href="bibliography/linux-api.html">Linux man-pages</a>. The primary reference for Linux system calls, C library interfaces, and many user-space conventions.</li>
+<li><a href="https://man7.org/linux/man-pages/">man7.org</a> and installed <code>man</code> pages. Use local manual pages first when checking behavior on a specific system.</li>
+<li><a href="bibliography/posix-shell.html">POSIX Shell Command Language</a>. Authoritative shell behavior for portable scripts.</li>
+<li>Filesystem Hierarchy Standard (FHS), Linux Foundation. Reference for common Linux directory layout conventions.</li>
+<li>systemd documentation and <a href="bibliography/journalctl.html">journalctl manual</a>. Service management and log inspection on systemd-based systems.</li>
+</ul>
+
+<h3>Networking and security references</h3>
+<ul>
+<li><a href="bibliography/rfc791.html">RFC 791 (IPv4)</a>, <a href="bibliography/rfc8200.html">RFC 8200 (IPv6)</a>, <a href="bibliography/rfc9293.html">RFC 9293 (TCP)</a>, and <a href="bibliography/rfc768.html">RFC 768 (UDP)</a>. Core Internet protocol references.</li>
+<li><a href="bibliography/rfc8446-tls13.html">RFC 8446 (TLS 1.3)</a> and <a href="bibliography/rfc4251-ssh.html">RFC 4251–4254 (SSH)</a>. Core secure transport and remote administration protocols.</li>
+<li>NIST SP 800-series publications (for example SP 800-53, SP 800-61, SP 800-123). Security controls, incident handling, and server security guidance.</li>
+</ul>
+
+<h2>Preparation for senior sysadmin / SRE roles</h2>
+<p>Advanced system administration requires calm debugging, risk management, and clear communication. Aim to be comfortable with:</p>
+<ul>
+<li>Observability: logs, metrics, traces, and performance analysis.</li>
+<li>Change discipline: backups, rollback plans, maintenance windows, and tested automation.</li>
+<li>Security: least privilege, patching, key management, auditing, and incident response.</li>
+<li>Networking: DNS, routing, firewalls, TLS, and service debugging.</li>
+<li>Automation: shell, configuration management, infrastructure as code, and repeatable builds.</li>
+<li>Documentation: runbooks, postmortems, and clear handoffs.</li>
+</ul>
+</section>
+
+<section class="reference" id="sysadmin-reading-list"><p>This reference is for readers at all levels.</p><p>This reading list is a curated selection of system administration books, papers, and standards. Prefer current editions and verify commands against the documentation for the specific system you administer.</p><p>Some listed works are commercially published; check library access or official publisher pages. Some resources are freely available online, including Google SRE books, man7.org, and IETF RFCs.</p></section>
+<p><a href="bibliography/index.html">All references</a>.</p>
+<h2>Used in this reference</h2><ul><li><a href="bibliography/index.html">Sources and further reading</a></li></ul>
+</body></html>
