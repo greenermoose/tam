@@ -15,7 +15,31 @@
 <h1>Redirection</h1>
 <p>Redirection is the shell feature that changes where a command’s standard input comes from or where its output and error messages go.</p>
 <section data-level="novice"><p>Every command-line program normally reads from your keyboard and prints onto your terminal screen. Redirection lets you re-route those streams—sending a program’s output straight into a file to save a report, or feeding a saved file into a program instead of typing it all by hand.</p></section>
-<section data-level="learner"><p>In bash and <a href="glossary/p/posix.html">POSIX</a> shells, <code>&gt;</code> overwrites a file with standard output (stdout, file descriptor 1), <code>&gt;&gt;</code> appends to it, <code>&lt;</code> feeds a file to standard input (stdin, fd 0), and <code>2&gt;</code> captures errors (stderr, fd 2). A classic pitfall is <code>sort file.txt &gt; file.txt</code>: the shell truncates <code>file.txt</code> before <code>sort</code> runs, leaving it empty.</p><details class="q"><summary><i>Why does the order of &gt; out.txt 2&gt;&amp;1 vs 2&gt;&amp;1 &gt; out.txt matter in a shell command?</i></summary><p>Redirections are evaluated left to right. <code>&gt; out.txt 2&gt;&amp;1</code> points fd 1 to out.txt first, then duplicates fd 1 into fd 2 so both go to the file. <code>2&gt;&amp;1 &gt; out.txt</code> points fd 2 to the original terminal first, then moves only fd 1 to out.txt.</p></details></section>
+<section data-level="learner"><p>In bash and <a href="glossary/p/posix.html">POSIX</a> shells, <code>&gt;</code> overwrites a file with standard output (stdout, file descriptor 1), <code>&gt;&gt;</code> appends to it, <code>&lt;</code> feeds a file to standard input (stdin, fd 0), and <code>2&gt;</code> captures errors (stderr, fd 2). A classic pitfall is <code>sort file.txt &gt; file.txt</code>: the shell truncates <code>file.txt</code> before <code>sort</code> runs, leaving it empty.</p>
+<table>
+<thead><tr><th>Redirection</th><th>Meaning</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><code>&lt; file</code></td><td>Redirect standard input from <code>file</code>.</td><td><code>wc -l &lt; notes.txt</code></td></tr>
+<tr><td><code>&gt; file</code></td><td>Redirect standard output to <code>file</code>, truncating it.</td><td><code>ls &gt; listing.txt</code></td></tr>
+<tr><td><code>&gt;| file</code></td><td>Redirect standard output to <code>file</code>, overriding <code>noclobber</code>.</td><td><code>echo ok &gt;| listing.txt</code></td></tr>
+<tr><td><code>&gt;&gt; file</code></td><td>Append standard output to <code>file</code>.</td><td><code>date &gt;&gt; log.txt</code></td></tr>
+<tr><td><code>&lt;&gt; file</code></td><td>Open <code>file</code> for both reading and writing on standard input.</td><td><code>cat &lt;&gt; data.txt</code></td></tr>
+<tr><td><code>&lt;&lt; word</code></td><td>Here-document: read standard input until a line containing <code>word</code>.</td><td><code>cat &lt;&lt;EOF</code> … <code>EOF</code></td></tr>
+<tr><td><code>&lt;&lt;- word</code></td><td>Here-document with leading tabs stripped from lines and delimiter.</td><td><code>cat &lt;&lt;-EOF</code> … <code>EOF</code></td></tr>
+<tr><td><code>n&lt; file</code></td><td>Redirect file descriptor <code>n</code> for input from <code>file</code>.</td><td><code>exec 3&lt; input.txt</code></td></tr>
+<tr><td><code>n&gt; file</code></td><td>Redirect file descriptor <code>n</code> for output to <code>file</code>.</td><td><code>grep err app.log 2&gt; errors.txt</code></td></tr>
+<tr><td><code>n&gt;&gt; file</code></td><td>Append file descriptor <code>n</code> to <code>file</code>.</td><td><code>grep err app.log 2&gt;&gt; errors.txt</code></td></tr>
+<tr><td><code>n&lt;&gt; file</code></td><td>Open <code>file</code> for reading and writing on file descriptor <code>n</code>.</td><td><code>exec 3&lt;&gt; data.txt</code></td></tr>
+<tr><td><code>n&gt;&amp;m</code> / <code>n&lt;&amp;m</code></td><td>Duplicate file descriptor <code>m</code> to <code>n</code> (output or input).</td><td><code>make &gt; out.txt 2&gt;&amp;1</code></td></tr>
+<tr><td><code>n&gt;&amp;-</code> / <code>n&lt;&amp;-</code></td><td>Close file descriptor <code>n</code> for output or input.</td><td><code>cmd 2&gt;&amp;-</code></td></tr>
+<tr><td><code>n&gt;&amp;word</code></td><td>Redirect file descriptor <code>n</code> to <code>file</code> if <code>word</code> is not a descriptor number.</td><td><code>exec 2&gt;&amp;error.log</code></td></tr>
+<tr><td><code>&amp;&gt; file</code></td><td>Bash extension: redirect both stdout and stderr to <code>file</code>.</td><td><code>make &amp;&gt; build.log</code></td></tr>
+<tr><td><code>&amp;&gt;&gt; file</code></td><td>Bash extension: append both stdout and stderr to <code>file</code>.</td><td><code>make &amp;&gt;&gt; build.log</code></td></tr>
+<tr><td><code>&lt;&lt;&lt; word</code></td><td>Bash extension (here-string): provide <code>word</code> as standard input.</td><td><code>grep foo &lt;&lt;&lt; "foo bar"</code></td></tr>
+</tbody>
+</table>
+<p><code>n</code> is a file descriptor number; when omitted, <code>&lt;</code> uses 0 (stdin) and <code>&gt;</code>/<code>&gt;&gt;</code> use 1 (stdout). Redirections are processed left to right before the command runs.</p>
+<details class="q"><summary><i>Why does the order of &gt; out.txt 2&gt;&amp;1 vs 2&gt;&amp;1 &gt; out.txt matter in a shell command?</i></summary><p>Redirections are evaluated left to right. <code>&gt; out.txt 2&gt;&amp;1</code> points fd 1 to out.txt first, then duplicates fd 1 into fd 2 so both go to the file. <code>2&gt;&amp;1 &gt; out.txt</code> points fd 2 to the original terminal first, then moves only fd 1 to out.txt.</p></details></section>
 <section data-level="expert"><p>Shells implement redirection in the forked child process prior to <code>execve(2)</code> by calling <code>open(2)</code> (e.g., <code>O_WRONLY|O_CREAT|O_TRUNC</code> for <code>&gt;</code>) and <code>dup2(oldfd, newfd)</code> to replace descriptors 0, 1, or 2, closing the temporary descriptor afterward. <code>O_APPEND</code> (<code>&gt;&gt;</code>) is atomic per <code>write(2)</code> on local POSIX filesystems, <code>&gt;|</code> overrides <code>set -o noclobber</code>, and process substitution (<code>&lt;(cmd)</code>) passes <code>/dev/fd/N</code> or a named <a href="glossary/f/fifo.html">FIFO</a>.</p></section>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>
