@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Reliability and data integrity</title>
+<meta name="kind" content="explanation">
+<meta name="topic" content="memory-reliability-data-integrity">
+<meta name="summary" content="How memory and storage fail, how error correction works, how media are tested, and how bad regions are marked off limits by firmware, kernels, and controllers">
+<meta name="keywords" content="ecc, error correction, bit rot, bad blocks, memtest, gamma rays, radiation, memory testing, secded, degradation">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/memory/index.html">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/memory/index.html">Memory technology</a> / Reliability and data integrity</p></nav>
+
+<h1>Reliability and data integrity</h1>
+<p>All memory technologies can fail. Some failures are sudden, like a dead drive. Others are quiet, like a flipped bit in RAM or a fading charge in flash. Reliable systems use error detection, error correction, testing, monitoring, and redundancy to reduce the chance that bad data is accepted as good.</p>
+
+<section data-level="novice">
+<h2>When memory gets it wrong</h2>
+<p>A bit is a tiny physical state: a charge, magnetization, pit, or voltage level. If that physical state changes unexpectedly, the stored value can change. A scratch on a disc, a worn-out flash cell, a cosmic ray hitting RAM, or a failing disk sector can all cause errors.</p>
+<h3>Why it matters</h3>
+<p>A single wrong bit can corrupt a photo, crash a program, or damage a database. Good systems do not assume memory is perfect. They check for errors, correct some errors automatically, and keep backups for problems they cannot fix.</p>
+<h3>Key terms</h3>
+<dl>
+<dt>Error detection</dt>
+<dd>Finding out that data has changed or been damaged, often using checksums, parity, or hashes.</dd>
+<dt>Error correction</dt>
+<dd>Fixing certain errors automatically, usually by storing extra information alongside the data.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Detecting, correcting, and avoiding bad regions</h2>
+<p><strong>Goal:</strong> Learn the main protection techniques for memory and storage.</p>
+
+<h3>Error correction codes</h3>
+<p><a href="glossary/e/ecc.html">ECC</a> memory adds extra bits so the memory system can detect and correct some errors. A common form is SECDED (single-error correct, double-error detect). Storage devices and communication protocols use other codes, such as CRCs for detection and Reed-Solomon or LDPC codes for correction. The extra bits cost space and performance, but they protect against silent corruption.</p>
+
+<h3>Testing memory and storage</h3>
+<p>Memory chips and storage devices are tested at manufacture, but problems can appear later. RAM can be tested with tools like <code>memtest86+</code> or kernel memory test features. Disks can be checked with SMART tools and read scans. Filesystems can check metadata and data checksums. SSDs and HDDs also run internal self-tests and remap bad areas.</p>
+<pre class="session" data-risk="system">
+$ sudo smartctl -H /dev/sda
+$ sudo smartctl -t short /dev/sda
+</pre>
+<p>These commands ask a drive to report health and run a short self-test. They do not repair physical damage.</p>
+
+<h3>Marking bad sections off limits</h3>
+<p>When a region is unreliable, systems can avoid it:</p>
+<ul>
+<li><strong>RAM:</strong> The Linux kernel can avoid known bad memory ranges with boot parameters such as <code>memmap=</code> or through mechanisms exposed for bad page handling on some systems. Firmware memory maps and ECC reports can also take memory out of use.</li>
+<li><strong>Hard disks:</strong> The disk controller remaps bad sectors to spare sectors. Filesystems historically had bad-block lists; modern disks mostly handle remapping internally, but a growing reallocated-sector count is a warning sign.</li>
+<li><strong>SSDs/flash:</strong> The flash translation layer keeps a map of bad blocks and spare blocks. When a block becomes unreliable, the controller retires it and uses spare area.</li>
+</ul>
+
+<h3>Worked example: a corrected RAM error</h3>
+<p>A server with ECC RAM logs a corrected single-bit error in one DIMM. The system continues running because ECC repaired the bit, but the log is a warning: the physical memory may be degrading. An administrator monitors for repeated corrected errors, runs memory tests during maintenance, and replaces the DIMM before an uncorrected error causes a crash or silent data corruption.</p>
+
+<h3>Try it</h3>
+<p>Use <code>dmesg | grep -i memory</code> or <code>dmesg | grep -i ecc</code> to look for memory error reports on a system that logs them. On servers, EDAC drivers may report corrected or uncorrected memory errors.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You see corrected ECC errors</dt>
+<dd>Corrected errors mean ECC is doing its job, but repeated errors on the same location can indicate a failing DIMM. Monitor trends and plan replacement.</dd>
+<dt>You see uncorrected errors</dt>
+<dd>Uncorrected memory or storage errors are serious. Back up data, check logs, and replace the faulty component. Do not ignore them.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is error detection not enough for critical memory?</i></summary>
+<p>Detection tells you data is wrong, but it cannot always recover the original value. ECC can correct some errors automatically, which is important for RAM and systems that cannot simply retry from another copy.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Technology</th><th>Common failure/degradation modes</th><th>Typical protection</th></tr>
+<tr><td>DRAM</td><td>Soft bit flips (cosmic rays/radiation), cell leakage, row disturbance, DIMM faults</td><td>Refresh, ECC/SECDED, memory testing, kernel page retirement</td></tr>
+<tr><td>SRAM/caches</td><td>Soft errors, voltage/margin issues, aging</td><td>Parity/ECC, BIST, redundancy, architectural retry where possible</td></tr>
+<tr><td>Flash/SSD</td><td>Program/erase wear, charge retention loss, read disturb, controller failure</td><td>ECC/LDPC, wear leveling, bad-block remapping, overprovisioning, scrubbing</td></tr>
+<tr><td>HDD</td><td>Bad sectors, head crashes, mechanical wear, magnetic decay</td><td>SMART, sector remapping, RAID, backups, checksums</td></tr>
+<tr><td>Optical</td><td>Scratches, dye fade, oxidation/delamination, UV/heat damage</td><td>Error correction codes, careful storage, multiple copies</td></tr>
+<tr><td>Tape</td><td>Binder decay, stretching, magnetic decay, mechanical wear</td><td>Checksums, cataloging, controlled storage, periodic migration</td></tr>
+</table>
+
+<h3>Environmental risks and radiation</h3>
+<p><strong>Heat</strong> accelerates many degradation mechanisms: charge leakage in flash, material aging, and mechanical stress. <strong>Humidity and contaminants</strong> can corrode contacts and damage media. <strong>Magnetic fields</strong> are a particular risk for magnetic media. <strong>Ultraviolet light</strong> can damage optical dyes and plastics. <strong>Radiation</strong>, including cosmic rays and gamma rays, can cause soft errors by depositing charge in electronic circuits. DRAM and SRAM are well-known for soft-error susceptibility; caches and registers can also be affected. Flash cells and storage controllers are also electronic devices and can be disturbed or damaged by sufficient radiation, though failure modes differ. Shielding, ECC, redundancy, and robust design reduce risk, but no ordinary system is perfectly immune.</p>
+
+<h3>How memory is tested</h3>
+<p>Manufacturers use built-in self-test (BIST), pattern tests, margin tests, burn-in, and characterization to find defects. After deployment, RAM tests write patterns (all zeros, all ones, walking bits, random patterns), read them back, and look for mismatches. Storage tests read sectors, perform self-tests, and monitor error counters. Controllers may do background scrubbing: reading data proactively to detect weak cells before they become uncorrectable.</p>
+
+<h3>How bad regions are marked off limits</h3>
+<p>At the hardware/controller level, bad sectors or flash blocks are remapped to spare areas; the host may never see the original physical address. At the OS level, Linux can avoid bad RAM frames using kernel parameters or memory failure handling when supported. Filesystems may maintain bad-block metadata or rely on checksums to detect corruption. The key idea is isolation: once a region is known unreliable, stop trusting it for new data and preserve evidence for repair.</p>
+
+<h3>Sources</h3>
+<p><a href="man:smartctl(8)">smartctl(8)</a>, <a href="man:badblocks(8)">badblocks(8)</a>, Linux kernel memory parameters documentation, and <a href="glossary/e/ecc.html">ECC</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/memory/index.html">Memory technology</a> &mdash; return to the series overview.</li>
+<li><a href="systems/storage/filesystems.html">Filesystems that keep state</a> &mdash; how filesystems use storage and protect state.</li>
+</ul>
+</body>
+</html>

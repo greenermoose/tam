@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sequential access media</title>
+<meta name="kind" content="explanation">
+<meta name="topic" content="sequential-access-media">
+<meta name="summary" content="How punch cards, paper tape, and magnetic tape store data sequentially, and why tar is named for tape archives">
+<meta name="keywords" content="sequential access, punch card, paper tape, magnetic tape, tar, archive, storage history">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/memory/index.html">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/memory/index.html">Memory technology</a> / Sequential access media</p></nav>
+
+<h1>Sequential access media</h1>
+<p>Sequential access media store data in an order that is read from beginning to end, or from a current position to a later one. Punch cards, paper tape, and magnetic tape are classic examples: they are simple, durable in the right conditions, and efficient for long streams, but slow when you need one small item in the middle.</p>
+
+<section data-level="novice">
+<h2>Reading in order</h2>
+<p>Imagine a cassette tape with songs. To reach song five, you move past songs one through four. That is sequential access. A bookshelf is more like random access: you can go straight to the book you want. Early computer media often worked like the tape: the machine read data in sequence.</p>
+<h3>Why it matters</h3>
+<p>Sequential media shaped early computing. Programs, data, and backups were stored as ordered records. Many file formats and commands still carry that history, including <code>tar</code>, whose name comes from "tape archive".</p>
+<h3>Key terms</h3>
+<dl>
+<dt>Sequential access</dt>
+<dd>Accessing data in order, one item after another, rather than jumping directly to any location.</dd>
+<dt>Archive</dt>
+<dd>A collection of files and metadata packed into one stream or file for transport, backup, or long-term storage. An archive preserves names and structure; compression can make it smaller, but compression is separate from archiving.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>From punched holes to tape archives</h2>
+<p><strong>Goal:</strong> Understand how physical media represent bits and why tape-style archives are still useful.</p>
+
+<h3>Punch cards and paper tape</h3>
+<p>Punch cards and paper tape store data as patterns of holes in stiff paper or cardstock. A hole at a position means one value; no hole means another. The reader shines light or uses mechanical contacts to detect holes as the card or tape moves through. The material is the paper substrate; the technique is physical perforation. The data is durable as long as the paper is intact, but the medium is bulky, slow, and sensitive to tearing, moisture, and wear.</p>
+
+<h3>Magnetic tape</h3>
+<p>Magnetic tape stores data as magnetized regions on a thin plastic film coated with magnetic material. A write head changes the magnetic orientation of tiny regions as the tape passes. A read head senses those magnetic changes later. Because the tape is a long continuous ribbon, it is naturally sequential: the drive winds to the needed position and then reads or writes a stream.</p>
+
+<h3>Worked example: tar and tape archives</h3>
+<p>The Unix <code>tar</code> command creates a tape archive: a stream of file headers and file data written one after another. Even when you write a <code>.tar</code> file to disk, the format still looks like a tape stream. This is why tar is good for backups and streaming: it can write files in sequence without needing to jump around a lot.</p>
+<pre class="session" data-risk="scratch">
+$ work=$(mktemp -d)
+$ mkdir -p "$work/data"
+$ printf 'log entry\n' &gt; "$work/data/log.txt"
+$ tar -cf "$work/backup.tar" -C "$work/data" .
+$ tar -tf "$work/backup.tar"
+./
+./log.txt
+$ rm -rf -- "$work"
+</pre>
+<p>The first command creates an archive file. The second lists its contents in order. On real tape hardware, listing can mean winding through the tape until the relevant headers are read.</p>
+
+<h3>Try it</h3>
+<p>Run <code>man tar</code> and look for the word "archive". Notice how tar treats input and output as streams, which fits tape, pipes, and files.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The archive is hard to search</dt>
+<dd>Sequential formats are efficient for streaming but poor for random lookups. For many small lookups, a filesystem or database is usually a better fit than a raw tape stream.</dd>
+<dt>Tape is slow to restore one file</dt>
+<dd>The drive may need to seek forward through the tape. Modern backup systems often keep catalogs/indexes so they know where files are.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is tar called a tape archive?</i></summary>
+<p>Because it was designed to write files as a sequential archive stream suitable for tape devices: file headers and data follow one after another.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Medium</th><th>Substrate/material</th><th>How bits are stored</th><th>Access pattern</th><th>Main risks</th></tr>
+<tr><td>Punch card</td><td>Cardstock/paper</td><td>Presence or absence of holes at fixed positions</td><td>Sequential by card/feed</td><td>Tearing, moisture, warping, physical loss</td></tr>
+<tr><td>Paper tape</td><td>Paper or mylar tape</td><td>Perforated hole patterns across channels</td><td>Sequential stream</td><td>Tearing, stretching, dirt, reader wear</td></tr>
+<tr><td>Magnetic tape</td><td>Plastic film with magnetic coating (e.g. iron oxide/metal particles)</td><td>Magnetized domains written/read by tape heads</td><td>Sequential; seek by winding</td><td>Magnetic decay, print-through, binder hydrolysis, stretching, heat, strong fields</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Sequential media optimize throughput for long ordered reads/writes. Magnetic tape is still used for archival backup because it has high capacity per cartridge, low cost per byte, and can be stored offline. The trade-off is high access latency: reaching an arbitrary file may require seconds to minutes of winding, positioning, and tape loading. In the scaled table on <a href="systems/memory/index.html">Memory technology</a>, a minute-long tape mount becomes nearly two millennia if 1 ns is one second.</p>
+
+<h3>Archiving vs compression</h3>
+<p>An archive packs many files into one container. Compression encodes data to use fewer bytes. <code>tar</code> archives; <code>gzip</code>, <code>xz</code>, or <code>zstd</code> compress. A <code>.tar.gz</code> file is an archive that has then been compressed. You can archive without compressing, or compress a single file without creating a multi-file archive.</p>
+
+<h3>Environmental and longevity notes</h3>
+<p>Paper media are vulnerable to humidity, mold, fire, and mechanical damage. Magnetic tape is vulnerable to magnetic fields, temperature, humidity, binder degradation, and mechanical wear. However, tape can be very durable when stored properly and kept offline, which makes it resistant to many online attack paths. It is not immune to physical disaster or media decay.</p>
+
+<h3>Sources</h3>
+<p><a href="man:tar(1)">tar(1)</a>, <a href="glossary/i/iso.html">ISO</a>/IEC storage media standards, and vendor LTO/archival documentation for modern tape characteristics.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/memory/magnetic-and-optical.html">Magnetic and optical storage</a> &mdash; disks and optical media that added faster access and different materials.</li>
+<li><a href="systems/storage/archives.html">Creating and opening archives (.tar.gz and .zip)</a> &mdash; practical tar and zip commands.</li>
+</ul>
+</body>
+</html>

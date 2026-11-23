@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Magnetic and optical storage</title>
+<meta name="kind" content="explanation">
+<meta name="topic" content="magnetic-optical-storage">
+<meta name="summary" content="How hard drives, floppy disks, CD-ROMs, DVDs, and Blu-ray store data using magnetic and optical materials, and how they degrade over time">
+<meta name="keywords" content="hard drive, hdd, floppy disk, cd-rom, dvd, blu-ray, optical storage, magnetic storage, latency, degradation">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/memory/index.html">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/memory/index.html">Memory technology</a> / Magnetic and optical storage</p></nav>
+
+<h1>Magnetic and optical storage</h1>
+<p>Magnetic and optical media store data by changing physical properties of a material: magnetization for disks and tape, and light-reflecting patterns for CDs, DVDs, and Blu-ray discs. They made large, relatively inexpensive storage possible, but each technology has its own speed limits, wear modes, and environmental risks.</p>
+
+<section data-level="novice">
+<h2>Spinning disks and shiny discs</h2>
+<p>A hard drive stores data as tiny magnetic regions on spinning platters. A read/write head floats extremely close to the surface and senses or changes magnetism. An optical disc stores data as patterns that affect how laser light reflects. The player reads those reflections as bits.</p>
+<h3>Why it matters</h3>
+<p>These technologies explain why some storage is fast for large files but slow to find a specific place. A disk has to move a head and wait for the right spot to spin under it. An optical drive has to seek and track the laser. That mechanical movement is much slower than electronic memory.</p>
+<h3>Key terms</h3>
+<dl>
+<dt>Random access</dt>
+<dd>The ability to go to a location without reading everything before it. Disks are more random-access than tape, but still far slower than RAM because they involve mechanical motion.</dd>
+<dt>Latency</dt>
+<dd>The delay before data starts arriving. For a disk, latency includes seek time and rotational delay.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>How the media work</h2>
+<p><strong>Goal:</strong> Compare magnetic and optical media by material, read/write mechanism, speed, and risk.</p>
+
+<h3>Hard disk drives (HDD)</h3>
+<p>An HDD has rigid platters coated with a magnetic film. Data is written by a magnetic head that sets tiny regions to one magnetic direction or another. Data is read by sensing the magnetic field changes. Modern drives pack bits extremely densely and use error correction to recover from small defects. Because the platter spins and the head moves, access time is usually in milliseconds. On the <a href="systems/memory/index.html">human-scale table</a>, a 10 ms disk access is like 115 days if 1 ns were one second.</p>
+
+<h3>Floppy disks</h3>
+<p>A floppy disk uses a flexible plastic disk coated with magnetic material inside a protective shell. It works like a small, removable hard disk but with much lower density, slower speed, and less durability. Floppies were convenient for small files, but they are vulnerable to dust, magnetic fields, wear, and media decay.</p>
+
+<h3>CD-ROM, DVD, and Blu-ray</h3>
+<p>Optical discs use a laser to read patterns on a disc. A pressed CD-ROM has microscopic pits and flat lands molded into a polycarbonate layer with a reflective metal layer. The laser sees changes in reflection as the disc spins. Recordable discs (CD-R/DVD-R) use a dye layer that a writing laser changes. Rewritable discs (CD-RW/DVD-RW) use phase-change materials that switch between reflective and less-reflective states. Blu-ray uses a shorter-wavelength blue-violet laser and smaller features, allowing higher density.</p>
+
+<h3>Typical speed and access behavior</h3>
+<table>
+<thead><tr><th>Medium</th><th>Typical access/latency</th><th>Human scale if 1 ns = 1 s</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Hard disk drive</td><td>~5-15 ms seek/access</td><td>~58-174 days</td><td>Good sequential throughput; poor random latency.</td></tr>
+<tr><td>DVD/Blu-ray optical drive</td><td>~100-200 ms seek/access</td><td>~3.2-6.3 years</td><td>Very slow random access; fine for sequential media playback.</td></tr>
+<tr><td>Floppy disk</td><td>~100 ms and up</td><td>~3.2+ years</td><td>Low capacity and low throughput by modern standards.</td></tr>
+</tbody>
+</table>
+
+<h3>Worked example: read the human-scale delay</h3>
+<p>A hard drive with 10 ms access latency sounds fast. On the 1 ns = 1 second scale from the <a href="systems/memory/index.html">series overview</a>, that same 10 ms becomes 115.7 days. A 100 µs SSD access becomes about 1 day 3 hours. This is why SSDs feel much more responsive than spinning disks even when both are called "storage."</p>
+
+<h3>Try it</h3>
+<p>On Linux, <code>lsblk</code> shows block devices, and <code>udisksctl status</code> or <code>smartctl -a /dev/sdX</code> can show disk information when available. For optical media, <code>lsblk</code> may show a <code>sr0</code> device when a disc is present.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A disc or disk is readable on one machine but not another</dt>
+<dd>Media degradation, dirty optics, weak drives, or marginal sectors can cause inconsistent reads. Copy important data while reads still succeed and verify checksums when possible.</dd>
+<dt>A hard drive sounds unusual or becomes slow</dt>
+<dd>Mechanical drives can fail. Back up data immediately and check SMART health; do not trust a failing drive with the only copy.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is a hard drive much slower than RAM even though both can access arbitrary locations?</i></summary>
+<p>An HDD needs mechanical motion: moving the head and waiting for rotation. RAM uses electronic addressing with no moving parts, so its latency is orders of magnitude lower.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Medium</th><th>Substrate/materials</th><th>Write/read mechanism</th><th>Typical degradation risks</th></tr>
+<tr><td>HDD</td><td>Aluminum/glass platters, magnetic thin film, protective overcoat, lubricant</td><td>Magnetic head writes domains; magnetoresistive head reads field changes</td><td>Head crash, bearing wear, bad sectors, corrosion, shock, heat</td></tr>
+<tr><td>Floppy</td><td>Flexible magnetic-coated disk in shell</td><td>Magnetic head read/write through access window</td><td>Magnetic decay, abrasion, dust, mold, warping</td></tr>
+<tr><td>CD-ROM/DVD-ROM</td><td>Polycarbonate, molded pits/lands, reflective aluminum/gold layer, lacquer/label</td><td>Pressed physical pattern; laser reads reflectivity</td><td>Scratches, delamination, oxidation ("disc rot"), UV/heat damage</td></tr>
+<tr><td>CD-R/DVD-R</td><td>Polycarbonate, organic dye, reflective layer</td><td>Laser alters dye for writing; lower-power laser reads</td><td>Dye fading, heat, light exposure, poor media quality</td></tr>
+<tr><td>CD-RW/DVD-RW</td><td>Phase-change alloy, dielectric layers, reflective layer</td><td>Laser heats alloy to amorphous/crystalline states</td><td>Limited rewrite cycles, thermal stress, material fatigue</td></tr>
+</table>
+
+<h3>Environmental risks and radiation</h3>
+<p>Magnetic media can be corrupted by strong magnetic fields, but ordinary stray background radiation is usually less of a concern than mechanical damage, heat, humidity, and material aging. High-energy radiation, including gamma rays, can damage electronics, controllers, and sensors, and in extreme doses can affect materials; for consumer storage, the more common risks are device failure, media decay, and bit errors. Optical discs avoid magnetic erasure, but they are sensitive to scratches, UV light, heat, and layer separation. No common consumer medium is immune to environmental risk; redundancy and verification matter.</p>
+
+<h3>Long-term retention</h3>
+<p>Retention depends heavily on manufacturing quality and storage conditions. Cool, dry, dark, stable storage helps. Archival-grade optical media and carefully stored tape can last many years, but claims should be treated as estimates, not guarantees. For important data, use multiple copies, multiple media types or locations, and periodic integrity checks.</p>
+
+<h3>Sources</h3>
+<p><a href="man:lsblk(8)">lsblk(8)</a>, <a href="man:smartctl(8)">smartctl(8)</a>, and optical/magnetic media manufacturer technical documentation.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/memory/solid-state-storage.html">Solid-state and non-volatile memory</a> &mdash; flash, SSDs, and EEPROM cells with no moving parts.</li>
+<li><a href="systems/memory/reliability-and-data-integrity.html">Reliability and data integrity</a> &mdash; error correction, bad sectors, and testing.</li>
+</ul>
+</body>
+</html>

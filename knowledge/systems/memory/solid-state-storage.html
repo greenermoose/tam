@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Solid-state and non-volatile memory</title>
+<meta name="kind" content="explanation">
+<meta name="topic" content="solid-state-nonvolatile-memory">
+<meta name="summary" content="How ROM, EEPROM, flash, and SSDs store data without moving parts, including FLOTOX and SONOS cells, wear, and the meanings of flash and store">
+<meta name="keywords" content="solid state, flash memory, eeprom, flotox, sonos, nand, nor, ssd, rom, non-volatile, wear leveling">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/memory/index.html">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/memory/index.html">Memory technology</a> / Solid-state and non-volatile memory</p></nav>
+
+<h1>Solid-state and non-volatile memory</h1>
+<p>Solid-state memory stores data in electronic circuits with no moving parts. Non-volatile solid-state memory keeps data when power is removed. This family includes ROM, EEPROM, flash memory, and SSDs, each with different trade-offs for speed, cost, endurance, and update granularity.</p>
+
+<section data-level="novice">
+<h2>Memory with no moving parts</h2>
+<p>A USB stick or SSD stores data in tiny electronic cells. Unlike a hard drive, there is no spinning platter and no moving head. Many of these devices use flash memory: a kind of non-volatile memory that keeps data without power by storing electric charge in special cell structures.</p>
+<h3>Why it matters</h3>
+<p>Solid-state storage is fast, quiet, and shock-resistant. But flash cells wear out after enough erase/write cycles, and writing data is more complicated than reading it. That is why SSDs have controllers that manage wear and cleanup.</p>
+<h3>Key terms</h3>
+<dl>
+<dt>Flash</dt>
+<dd>Non-volatile solid-state memory that stores data as charge in cells and is erased electrically, usually in blocks. It is "flash" because early devices could erase a whole block or chip quickly in one operation.</dd>
+<dt>Store</dt>
+<dd>To save data so it can be read later. A computer can store data temporarily in RAM, persistently in flash or disk, or as an archive for backup and transport.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>ROM, EEPROM, and flash</h2>
+<p><strong>Goal:</strong> Understand how non-volatile solid-state memory stores bits and why writes are harder than reads.</p>
+
+<h3>ROM family</h3>
+<p>Read-only memory (ROM) started as memory whose contents were fixed during manufacturing. Programmable variants came later: PROM could be programmed once, EPROM could be erased with ultraviolet light, and <a href="glossary/e/eeprom.html">EEPROM</a> can be erased electrically. Modern firmware often lives in flash memory, which is related to EEPROM but optimized for density and block erase.</p>
+
+<h3>How flash cells store data</h3>
+<p>Flash cells store charge in a floating gate or a charge-trap layer. The stored charge changes the transistor's threshold voltage. When the chip reads the cell, it measures how the transistor behaves and interprets that as a stored bit or multi-bit value. Because the charge is isolated, it can remain without power.</p>
+<p>Two common EEPROM/flash cell structures are <a href="glossary/f/flotox.html">FLOTOX</a>, which uses a floating-gate tunnel oxide, and <a href="glossary/s/sonos.html">SONOS</a>, which traps charge in a nitride layer. Both rely on moving charge through thin insulating layers under controlled electric fields.</p>
+
+<h3>NAND, NOR, and SSDs</h3>
+<p><a href="glossary/n/nor.html">NOR</a> flash allows byte-like reads and is often used for firmware. <a href="glossary/n/nand.html">NAND</a> flash packs cells densely and is used in SSDs, USB sticks, and memory cards. NAND is usually read and written in pages but erased in larger blocks. That means you cannot overwrite one page in place the same way you overwrite RAM; the controller must manage erasure, garbage collection, and wear leveling.</p>
+
+<h3>Worked example: why SSDs need TRIM</h3>
+<p>Imagine an SSD page that held an old file. You delete the file in the filesystem, but the SSD does not immediately know the page is free because it only sees block writes, not filesystem meaning. Later, when you write new data, the SSD may need to erase a whole block that still contains stale pages. TRIM/discard tells the SSD which pages are no longer needed so it can reclaim them ahead of time.</p>
+
+<h3>Try it</h3>
+<p>On Linux, <code>lsblk -d -o NAME,ROTA,MODEL,SIZE</code> shows whether a block device rotates (<code>ROTA=1</code> for HDD, <code>0</code> for SSD/flash). <code>cat /sys/block/sda/queue/rotational</code> gives a similar hint for a specific device.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>An SSD gets slower over time</dt>
+<dd>Flash cannot overwrite pages in place. If the drive has few free erased blocks, it must do garbage collection. TRIM/discard tells the SSD which blocks are no longer needed.</dd>
+<dt>A flash device fails after heavy writes</dt>
+<dd>Flash cells have finite program/erase endurance. Logs, swap, or constant small writes can wear consumer flash quickly if not managed carefully.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is flash called non-volatile?</i></summary>
+<p>Because it retains stored charge and data when power is removed. Volatile memory, such as ordinary RAM, loses its contents without power.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Technology</th><th>Storage mechanism</th><th>Typical granularity</th><th>Strengths</th><th>Limits/risks</th></tr>
+<tr><td>ROM/PROM</td><td>Fixed or one-time programmed circuit state</td><td>Byte/word read</td><td>Simple, stable</td><td>Not updatable or only once</td></tr>
+<tr><td>EPROM</td><td>Floating-gate charge, UV erased</td><td>Byte read, chip erase</td><td>Reprogrammable historically</td><td>Needs UV erase, obsolete in most uses</td></tr>
+<tr><td>EEPROM</td><td><a href="glossary/f/flotox.html">FLOTOX</a>/charge-trap cells, electrical erase</td><td>Byte/small page write</td><td>Small config storage, non-volatile</td><td>Low density, finite write cycles</td></tr>
+<tr><td>NOR flash</td><td>Floating-gate/charge-trap arrays</td><td>Random read, block erase</td><td>Firmware execute-in-place use cases</td><td>Lower density than NAND</td></tr>
+<tr><td>NAND flash/SSD</td><td>Floating-gate/charge-trap, SLC/MLC/TLC/QLC</td><td>Page read/write, block erase</td><td>High density, fast access, no moving parts</td><td>Write amplification, endurance limits, retention loss, controller complexity</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>Flash program and erase operations use high electric fields. Fowler–Nordheim tunneling or hot-carrier injection moves electrons onto a floating gate or into charge-trap sites. Erasing removes charge. These operations stress oxide layers over time. As cells wear, threshold voltage margins shrink, and error rates rise. SSD controllers use error-correcting codes, wear leveling, bad-block remapping, overprovisioning, and firmware management to keep the device usable.</p>
+
+<h3>Speed and persistence trade-offs</h3>
+<p>Flash reads are much faster than HDD seeks: often tens to hundreds of microseconds for SSD access, versus milliseconds for HDD. But flash is still much slower than DRAM and far slower than CPU caches. It is also asymmetric: reads are usually easier than writes, and erases are larger and slower. On the 1 ns = 1 second scale, a 100 µs SSD access is over a day.</p>
+
+<h3>Environmental risks</h3>
+<p>Flash is resistant to shock and vibration, but it is sensitive to total program/erase wear, charge leakage over time, high temperature, and power-loss during writes. Strong radiation can cause bit flips or controller damage; ordinary consumer environments are more often affected by heat, aging, and firmware or power failures. For long-term archival storage, verify data periodically and keep redundant copies.</p>
+
+<h3>Sources</h3>
+<p><a href="glossary/e/eeprom.html">EEPROM glossary page</a>, <a href="glossary/n/nand.html">NAND glossary page</a>, <a href="man:lsblk(8)">lsblk(8)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/memory/volatile-memory-and-caches.html">Volatile memory and CPU caches</a> &mdash; RAM and CPU cache layers that trade persistence for speed.</li>
+<li><a href="systems/memory/reliability-and-data-integrity.html">Reliability and data integrity</a> &mdash; ECC, bad blocks, and testing.</li>
+</ul>
+</body>
+</html>

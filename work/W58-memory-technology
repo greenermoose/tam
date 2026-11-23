@@ -1,0 +1,45 @@
+W58 MEMORY TECHNOLOGY SERIES
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "page:glossary/e/eeprom.html mentions FLOTOX and SONOS. Write glossary pages for them and link those terms from the EEPROM page to those new glossary pages. Write a series about computer memory technology, starting with sequential access like punch cards and tape, and going all the way to modern day. In this series, fully explain the underlying technology, including the materials and techninques that allow the physical substrates to act as memories. Make reference to commands, such as tar which refer to tape archives. Fully explain the terms archive, flash, store, etc. that are used when referring to memory. Also discuss in detail the level 1 and 2 caches on CPUs and other chips. Give a complete explanation of time required to read and write to different media types and use seconds as a reference, i.e. translate the speed of memory technologies from the smallest unit up to seconds, years, centuries, etc. so people can understand the differences more clearly (most peopple don't understand the difference between nanoseconds and milliseconds -- they both sound about equally small). Include CD-ROMs and other storage technologies. Discuss the long-term degradation and resistance to stray gamma rays and other environmental risks of the different types of memory. Also include a full discussion of error correction and how memory chips are tested and how sections of them can be marked off limits by a kernel or other programs running on a host."
+
+DONE
+
+  - Added glossary pages: knowledge/glossary/f/flotox.html and
+    knowledge/glossary/s/sonos.html; linked FLOTOX and SONOS from
+    knowledge/glossary/e/eeprom.html.
+  - Added memory technology hub and series under knowledge/systems/memory/:
+    index.html, sequential-access.html, magnetic-and-optical.html,
+    solid-state-storage.html, volatile-memory-and-caches.html,
+    reliability-and-data-integrity.html.
+  - Covered punch cards/paper tape/magnetic tape, HDD/floppy/CD/DVD/Blu-ray,
+    ROM/EEPROM/flash/SSD, DRAM/SRAM/L1/L2/L3 caches, materials and
+    mechanisms, tar/archive/flash/store terms, human-scale latency table
+    (1 ns = 1 second), degradation/environmental/radiation risks, ECC,
+    memory/storage testing, and bad-region marking/remapping.
+  - Linked the new hub from systems/index.html and
+    systems/storage/index.html.
+  - Bumped corpus 0.112.1 to 0.113.0 and updated ROADMAP.md and WHATNOW.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus-check passed after adding pages.
+  - make corpus refreshed generated indexes; index changes committed
+    separately when present.
+
+HANDOFF
+
+  - Corpus-only content change; no command version bump, no install, no
+    stage move. Source changes stay in Develop.
+  - Follow-up opportunities: add glossary pages for archive/flash/store as
+    standalone terms if desired, and add more cross-links from related
+    glossary/storage pages into the new memory series.

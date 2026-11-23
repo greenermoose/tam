@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Volatile memory and CPU caches</title>
+<meta name="kind" content="explanation">
+<meta name="topic" content="volatile-memory-cpu-caches">
+<meta name="summary" content="How DRAM and SRAM work, how L1, L2, and L3 CPU caches speed up access, and how cache latency compares to other memory technologies">
+<meta name="keywords" content="dram, sram, cpu cache, l1 cache, l2 cache, l3 cache, cache line, latency, volatile memory, memory hierarchy">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/memory/index.html">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / <a href="systems/memory/index.html">Memory technology</a> / Volatile memory and CPU caches</p></nav>
+
+<h1>Volatile memory and CPU caches</h1>
+<p>Volatile memory loses its data when power is removed. Computers use it for fast working storage because electronic memory can be much faster than disks or flash. CPU caches are small volatile memories placed close to processor cores to hide the delay of main memory.</p>
+
+<section data-level="novice">
+<h2>Fast memory near the work</h2>
+<p>Your computer's main memory (<a href="glossary/r/ram.html">RAM</a>) is fast compared with a disk, but still slow compared with a CPU. To avoid waiting, the CPU keeps tiny copies of recently used data in caches. The smallest cache, <a href="glossary/l/l1.html">L1</a>, is closest and fastest. <a href="glossary/l/l2.html">L2</a> is larger and a bit slower. <a href="glossary/l/l3.html">L3</a> is usually larger still and shared by several cores.</p>
+<h3>Why it matters</h3>
+<p>A CPU can do billions of simple operations per second, but only if data arrives quickly enough. Cache hits keep the CPU busy; cache misses make it wait for RAM. This is why memory layout and access patterns can change program speed dramatically.</p>
+<h3>Key terms</h3>
+<dl>
+<dt>Volatile memory</dt>
+<dd>Memory that needs power to keep its contents. When power is lost, the data is lost.</dd>
+<dt><dfn><a href="glossary/c/cache.html">Cache</a></dfn></dt>
+<dd>A small fast copy of data kept near where it will be used.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>DRAM, SRAM, and cache levels</h2>
+<p><strong>Goal:</strong> Understand how volatile memory cells work and why caches are layered.</p>
+
+<h3>DRAM: main memory</h3>
+<p>Dynamic RAM (<a href="glossary/d/dram.html">DRAM</a>) stores each bit as charge in a tiny capacitor connected to a transistor. Because the capacitor leaks, DRAM must be refreshed periodically by reading and rewriting values. DRAM is dense and relatively inexpensive per bit, so it is used for main system memory. Typical access is around 100 ns, which is fast to humans but slow to a CPU. On the 1 ns = 1 second scale, 100 ns is 1 minute 40 seconds.</p>
+
+<h3>SRAM: cache memory</h3>
+<p>Static RAM (<a href="glossary/s/sram.html">SRAM</a>) stores bits using flip-flop circuits made from transistors. It does not need refresh the way DRAM does, and it can be very fast. The trade-off is size and cost: an SRAM cell uses more transistors than a DRAM cell, so SRAM is less dense and more expensive. That makes it ideal for small caches close to CPU cores.</p>
+
+<h3>L1 and L2 caches in detail</h3>
+<p>The <a href="glossary/c/cpu-caches.html">CPU cache hierarchy</a> usually has separate <strong>L1 instruction</strong> and <strong>L1 data</strong> caches per core. L1 is the smallest and fastest: often tens of kilobytes, with access around 4 cycles or a few nanoseconds. It is optimized for the CPU's immediate needs.</p>
+<p><strong>L2</strong> is usually larger, often hundreds of kilobytes to a few megabytes per core on many designs. It is slower than L1 but still much faster than RAM. L2 catches data that does not fit in L1 and acts as a second buffer before going to shared L3 or main memory. Some CPUs have private L2 per core; others share or have different arrangements, but the common pattern is L1 closest/smallest, L2 next.</p>
+<p><strong>L3</strong> is larger still, often several to tens of megabytes, and commonly shared among cores on a chip. It helps cores share data and reduces trips to DRAM. Access is slower than L2 but much faster than main memory.</p>
+
+<h3>Caches on other chips</h3>
+<p>CPUs are not the only chips with caches. GPUs have instruction/data caches, texture caches, and shared caches. Disk controllers and SSDs use RAM caches to buffer reads and writes. Network cards have buffers. Even browsers and operating systems use software caches. The same principle applies: keep frequently used data in a faster, closer layer.</p>
+
+<h3>Worked example: cache hit versus RAM</h3>
+<p>Suppose a CPU needs a value that is already in L1 cache: it may get it in about 1 ns. If it misses L1 and L2 but hits L3, it may wait around 40 ns. If it must go to DRAM, it may wait around 100 ns. Using the 1 ns = 1 second scale, that is the difference between 1 second, 40 seconds, and 1 minute 40 seconds for a single access. Repeated millions of times, locality becomes the difference between fast and slow code.</p>
+
+<h3>Try it</h3>
+<p>On Linux, inspect CPU cache sizes with:</p>
+<pre class="session" data-risk="read-only">
+$ lscpu | grep cache
+$ ls /sys/devices/system/cpu/cpu0/cache/
+$ cat /sys/devices/system/cpu/cpu0/cache/index0/size
+</pre>
+<p><code>index0</code>/<code>index1</code> are often L1 data/instruction caches, with higher indexes for L2/L3 depending on the CPU.</p>
+
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A program is slower than expected</dt>
+<dd>It may have poor locality: jumping around memory causes cache misses. Sequential access and compact data structures often work better with caches.</dd>
+<dt>Cache numbers look different across machines</dt>
+<dd>Cache sizes and levels vary by CPU model and generation. Always check the actual system rather than assuming one layout.</dd>
+</dl>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why not make all memory out of SRAM?</i></summary>
+<p>SRAM is fast but uses more transistors per bit, making it larger and more expensive. DRAM is denser for main memory, and flash/disk are denser still for persistent storage. The memory hierarchy balances speed, size, cost, and persistence.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<table>
+<tr><th>Level</th><th>Typical technology</th><th>Typical size</th><th>Typical latency</th><th>Human scale (1 ns = 1 s)</th></tr>
+<tr><td>L1 cache</td><td>SRAM</td><td>32-128 KiB per core (split I/D)</td><td>~1 ns / ~4 cycles</td><td>~1-4 seconds</td></tr>
+<tr><td>L2 cache</td><td>SRAM</td><td>256 KiB-2 MiB per core</td><td>~3-15 ns</td><td>~3-15 seconds</td></tr>
+<tr><td>L3 cache</td><td>SRAM</td><td>Several MB to tens of MB shared</td><td>~10-40 ns</td><td>~10-40 seconds</td></tr>
+<tr><td>Main DRAM</td><td>DRAM capacitor cells</td><td>GBs to TBs</td><td>~60-120 ns</td><td>~1-2 minutes</td></tr>
+<tr><td>NVMe SSD</td><td>NAND flash</td><td>GBs to TBs</td><td>~20-100 µs</td><td>~5.5 hours to 1.2 days</td></tr>
+<tr><td>HDD</td><td>Magnetic platter</td><td>TBs</td><td>~5-15 ms</td><td>~58-174 days</td></tr>
+</table>
+
+<h3>How caches work</h3>
+<p>Caches move data in <a href="glossary/c/cache-line.html">cache lines</a>, commonly 64 bytes. When the CPU requests a byte, the cache may fetch the whole line from a lower level. This exploits spatial locality: nearby data is likely to be used soon. Temporal locality means recently used data is likely to be used again. Caches use tags to identify which memory address a line belongs to, and replacement policies to decide what to evict when full.</p>
+<p>L1 caches are often split into instruction and data caches so instruction fetch and data load/store can proceed in parallel. L1 is commonly virtually indexed, physically tagged to balance speed and correctness. L2 may be unified and private per core. L3 is often a shared last-level cache with coherence protocols such as MESI/MOESI variants to keep cores consistent.</p>
+
+<h3>Other cache considerations</h3>
+<p>Caches improve average performance but make timing less predictable. Cache misses, false sharing, coherence traffic, and prefetch behavior matter in performance-sensitive code. On other chips, GPU caches manage massive parallel access patterns; storage controllers use volatile write caches (sometimes protected by capacitors or batteries) to improve performance but must handle power loss carefully.</p>
+
+<h3>Sources</h3>
+<p><a href="glossary/c/cpu-caches.html">CPU caches glossary page</a>, <a href="glossary/c/cache.html">Cache glossary page</a>, <a href="man:lscpu(1)">lscpu(1)</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="systems/memory/reliability-and-data-integrity.html">Reliability and data integrity</a> &mdash; how errors are detected, corrected, and managed.</li>
+<li><a href="systems/memory/index.html">Memory technology</a> &mdash; the full series overview and time-scale table.</li>
+</ul>
+</body>
+</html>

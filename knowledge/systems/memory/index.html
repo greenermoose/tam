@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html><head>
+<title>Memory technology</title>
+<meta name="topic" content="hub-memory-technology">
+<meta name="summary" content="Understand how memory and storage technologies work, from punch cards and tape to RAM, caches, flash, and optical media, including speed, materials, reliability, and failure modes.">
+<meta name="keywords" content="memory technology, storage, ram, cache, flash, tape, punch card, cd-rom, ecc, latency">
+<meta name="level" content="novice">
+<meta name="kind" content="hub">
+<meta name="track" content="systems">
+<meta name="parent" content="systems/index.html">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Operating systems</a> / Memory technology</p></nav>
+<h1>Memory technology</h1>
+<p>This series explains how computers remember data: the physical materials, the read/write mechanisms, the speed differences, and the ways memory can wear out, lose data, or be protected by error correction.</p>
+
+<h2>Start here</h2>
+<p>Read in order if you are new to memory technology. Each page builds on the previous one, from old sequential media to modern CPU caches and reliability.</p>
+
+<h2>Explore</h2>
+<table>
+<tr><td><a href="systems/memory/sequential-access.html">Sequential access media</a></td><td>Punch cards, paper tape, magnetic tape, archives, and why <code>tar</code> is named for tape.</td></tr>
+<tr><td><a href="systems/memory/magnetic-and-optical.html">Magnetic and optical storage</a></td><td>Hard drives, floppy disks, CD-ROMs, DVDs, Blu-ray, materials, and environmental risks.</td></tr>
+<tr><td><a href="systems/memory/solid-state-storage.html">Solid-state and non-volatile memory</a></td><td>ROM, EEPROM, flash, SSDs, FLOTOX/SONOS cells, wear leveling, and what "flash" and "store" mean.</td></tr>
+<tr><td><a href="systems/memory/volatile-memory-and-caches.html">Volatile memory and CPU caches</a></td><td>DRAM, SRAM, memory hierarchy, L1/L2/L3 caches, cache lines, and locality.</td></tr>
+<tr><td><a href="systems/memory/reliability-and-data-integrity.html">Reliability and data integrity</a></td><td>Error correction, memory testing, bad-block marking, radiation, and long-term degradation.</td></tr>
+</table>
+
+<h2>Speed at a human scale</h2>
+<p>Nanoseconds and milliseconds sound similarly small, but they differ by a factor of one million. The table below rescales time so that <strong>1 nanosecond = 1 second</strong>. Under that scale, you can feel the gap between CPU cache, RAM, SSD, disk, tape, and network-scale delays.</p>
+<table>
+<thead><tr><th>Actual time</th><th>If 1 ns were 1 second</th><th>Typical memory/storage example</th></tr></thead>
+<tbody>
+<tr><td>1 ns</td><td>1 second</td><td>Roughly a fast CPU cycle or L1 cache reference.</td></tr>
+<tr><td>4 ns</td><td>4 seconds</td><td>Typical L1 cache hit.</td></tr>
+<tr><td>10 ns</td><td>10 seconds</td><td>Typical L2 cache hit.</td></tr>
+<tr><td>40 ns</td><td>40 seconds</td><td>Typical L3 cache hit.</td></tr>
+<tr><td>100 ns</td><td>1 minute 40 seconds</td><td>Typical DRAM access.</td></tr>
+<tr><td>1 µs</td><td>16 minutes 40 seconds</td><td>Fast NVMe SSD overhead or short I/O path work.</td></tr>
+<tr><td>10 µs</td><td>2 hours 46 minutes</td><td>Very fast SSD read latency.</td></tr>
+<tr><td>100 µs</td><td>1 day 3 hours</td><td>Typical SSD read/write latency range.</td></tr>
+<tr><td>1 ms</td><td>11.6 days</td><td>Fast network round trip or slow SSD operation.</td></tr>
+<tr><td>10 ms</td><td>115.7 days</td><td>Typical hard disk seek/access.</td></tr>
+<tr><td>100 ms</td><td>3.17 years</td><td>Slow disk operation, distant network, or human-noticeable delay.</td></tr>
+<tr><td>1 s</td><td>31.7 years</td><td>Waiting one second for storage is, at CPU scale, a generation.</td></tr>
+<tr><td>1 minute</td><td>1,902 years</td><td>Tape mount or long archival retrieval delay.</td></tr>
+</tbody>
+</table>
+<p>These values are representative order-of-magnitude examples, not promises for every device. Real latency depends on device model, queue depth, filesystem, cache state, and workload.</p>
+
+<h2>Key terms</h2>
+<dl>
+<dt>Memory</dt>
+<dd>Storage used to hold data or instructions. In everyday speech, "memory" often means fast working <a href="glossary/r/ram.html">RAM</a>, while "storage" means persistent disks or flash. Technically, both are memory technologies with different speed, cost, and persistence trade-offs.</dd>
+<dt>Store</dt>
+<dd>To write data so it can be retrieved later. A "data store" is the place where that data is kept: RAM, disk, tape, database, or archive.</dd>
+<dt>Archive</dt>
+<dd>A collection of files and metadata packed together for storage, transport, or backup. An archive may also be compressed, but archiving and compression are different steps. The <code>tar</code> command name comes from "tape archive".</dd>
+<dt>Flash</dt>
+<dd>A non-volatile solid-state memory technology that stores charge in cells and can be erased electrically. Flash keeps data without power, but erase/write operations wear cells over time.</dd>
+</dl>
+
+<p><a href="tam:paths">Learn step by step</a> · <a href="tam:search">Search for a term or task</a></p>
+</body></html>
