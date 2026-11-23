@@ -117,7 +117,9 @@ is omitted, opens the root User Guide index (
 .I PAGE
 is
 .BR topics ,
-displays the interactive topic catalog.
+displays the complete Topics A to Z catalog; if
+.BR hubs ,
+displays the eight subject hubs.
 .I PAGE
 may be a bare guide path, a
 .BI page: PATH
@@ -183,7 +185,11 @@ to directly view a page). Bare
 presents a dynamically generated catalog of all topic keywords from page metadata in the built-in pager. Input containing shell characters (pipes, redirections, subshells) is treated purely as data and is never executed. Multi-word queries fall back to ranked index search.
 .TP
 .B tam explain topics \fR[\fB\-\-pipe\fR] [\fB\-\-terse\fR|\fB\-\-verbose\fR] [\fB\-\-level\fR \fILEVEL\fR]
-Display the complete catalog of curated explanation topics. Interactively opens a hyperlinked table in the built-in pager, allowing immediate selection and navigation. Under
+Display the complete catalog of curated explanation topics, the same list as
+.BR "tam show tam:topics" .
+Interactively opens a hyperlinked table in the built-in pager, allowing immediate selection and navigation. Subject hubs are browsed with
+.BR "tam show tam:hubs" .
+Under
 .BR \-\-pipe ,
 emits clean plain text. Supports
 .B \-\-terse
@@ -484,7 +490,8 @@ such as
 end the row at the right edge. A narrow terminal drops the page title
 first, then the link target, then the key hints. Guide pages and the
 .BR tam:explain ,
-.B tam:topics
+.BR tam:topics ,
+.B tam:hubs
 and
 .B tam:keywords
 views take the lens; man, Info and tldr pages, other

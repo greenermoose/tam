@@ -63,14 +63,14 @@ class LibraryDiscovery(unittest.TestCase):
         self.assertIn('No Guide pages matched',out)
         self.assertIn('Search again',out)
 
-    def test_subject_browser_is_not_a_flat_term_catalog(self):
+    def test_hub_browser_is_not_a_flat_term_catalog(self):
         self.add('security','security/index.html','Security','security','hub')
         self.add('networking','networking/index.html','Networking','networking','hub')
         self.add('systems','systems/index.html','Operating systems','systems','hub')
         self.add('word','glossary/w/word.html','Word','word','glossary','glossary','glossary/index.html')
-        out=self.run_tam('show','tam:topics','--pipe')
-        self.assertIn('Browse topics',out)
-        self.assertIn('Topics Covered in Your Tamlinux User Guide',out)
+        out=self.run_tam('show','tam:hubs','--pipe')
+        self.assertIn('Browse hubs',out)
+        self.assertIn('Subject Hubs in Your Tamlinux User Guide',out)
         self.assertNotIn('Choose a subject',out)
         self.assertIn('Security',out)
         self.assertLess(out.index('Networking'),out.index('Operating systems'))
@@ -80,6 +80,18 @@ class LibraryDiscovery(unittest.TestCase):
         out=self.run_tam('explain','--pipe')
         self.assertIn('Search for a word',out)
         self.assertNotIn('Keyword Index',out)
+
+    def test_topics_and_explain_topics_share_one_catalog(self):
+        self.add('word','glossary/w/word.html','Word','word','glossary')
+        self.add('connect','security/connect.html','Connect','connect','how-to')
+        shown=self.run_tam('show','tam:topics','--pipe')
+        slugs=self.run_tam('explain','topics','--terse').splitlines()
+        self.assertIn('word',slugs)
+        self.assertIn('connect',slugs)
+        for slug in slugs:
+            self.assertIn(slug,shown)
+        self.assertIn('Topics A to Z',shown)
+        self.assertNotIn('Browse hubs',shown)
 
     def test_catalog_lists_all_pages_alphabetically(self):
         self.add('security','security/index.html','Security','security','hub')

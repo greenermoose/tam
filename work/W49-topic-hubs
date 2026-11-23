@@ -1,0 +1,72 @@
+W49 TOPIC AND HUB SPLIT
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Browse topics in tam (tam:topics) seems haphazard, without
+  rhyme or reason as to the order of presentation or the list of
+  topics shown. Are there only eight topics? How were they chosen?"
+
+  Fred: "First reconcile the two "topics" commands so tam:topics
+  and tam explain topics aren't presenting different lists under
+  the same name."
+
+  Asked which meaning should win, Fred chose: "Rename, but call
+  hubs tam:hubs".
+
+DONE
+
+  - Found the cause of the first complaint: tam_topics_document in
+    src/views.c filtered the index on eight hardcoded subject
+    tracks plus parent=index.html, so only the eight subject hub
+    pages appeared. The order was already alphabetical by title
+    since command 0.59.1; the eight-track list came from the
+    approved subject-library plan.
+  - Restored the full Topics A to Z table as tam_topics_document:
+    every index entry appears as a topic slug and summary, in the
+    pager and under --pipe. tam explain topics interactive now
+    opens that same document, and its --pipe/--terse/--verbose
+    output is unchanged, so both commands name one catalog.
+  - Moved the eight-hub view to tam_hubs_document at tam:hubs,
+    with "Browse hubs" and "Subject Hubs in Your Tamlinux User
+    Guide" wording. Added tam show hubs shorthand, the address
+    loader route, the level lens and the header declaration.
+  - Repointed guide and Help links to tam:hubs in
+    knowledge/index.html and knowledge/help/learning.html, and
+    labelled the tam:topics links as Topics A to Z in
+    knowledge/help/documentation.html and
+    knowledge/tamlinux/install.html. src/discovery.c and the man
+    page describe the split.
+  - Bumped command 0.67.10 to 0.68.0 and corpus 0.108.1 to 0.108.2
+    in version files, ROADMAP, plan index, subject-library plan
+    and development decision record. Updated tests/run.sh,
+    tests/guide.sh and tests/test_library_discovery.py; added a
+    check that show tam:topics covers every explain topics slug.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make command built cleanly with no warnings; make check-repo
+    passed.
+  - make test-command passed: command integration tests, 15
+    upgrade tests, 7 renderer goldens, repo consistency.
+  - test_library_discovery.py passed all 6 tests, including the
+    new check that show tam:topics covers every explain topics
+    slug.
+  - make corpus rebuilt with indexes current; make corpus-and-test
+    passed 1,292 pages and 93 tooling tests. The link-text edits
+    changed no index files.
+
+HANDOFF
+
+  - No install or stage move. All source changes stay in Develop.
+  - The plain-text formats still differ by purpose: show tam:topics
+    renders the pager table with a link appendix, while explain
+    topics --pipe lists slugs and summaries. Both cover the same
+    entries; that is intentional.

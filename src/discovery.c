@@ -76,7 +76,7 @@ tam_document_t *tam_guide_search_document(const char *root,
         if (glossary) html = tam_str_cat_printf(html, "<p><a href=\"%s\">Glossary A–Z</a></p>", glossary->path);
         tam_index_free(idx);
     }
-    html = tam_str_cat(html, "<p><a href=\"tam:topics\">Browse subjects</a> · <a href=\"tam:catalog\">All pages A–Z</a></p>");
+    html = tam_str_cat(html, "<p><a href=\"tam:hubs\">Browse hubs</a> · <a href=\"tam:catalog\">All pages A–Z</a></p>");
     return tam_page_render(html, width);
 }
 

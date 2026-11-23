@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.67.10' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.68.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -225,10 +225,15 @@ printf '%s\n' "$sh_out" | grep -q 'Fixture Guide' || fail "tam show --pipe faile
 sh_page=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Fixture Welcome' || fail "tam show welcome failed"
 sh_topics=$("$TAM" show topics --pipe)
-printf '%s\n' "$sh_topics" | grep -q 'Browse topics' || fail "tam show topics failed"
-printf '%s\n' "$sh_topics" | grep -q 'Topics Covered in Your Tamlinux User Guide' || fail "tam show topics heading failed"
+printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z' || fail "tam show topics failed"
 sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
-printf '%s\n' "$sh_topics_pseudo" | grep -q 'Browse topics' || fail "tam show tam:topics failed"
+printf '%s\n' "$sh_topics_pseudo" | grep -q 'Topics A to Z' || fail "tam show tam:topics failed"
+[ "$sh_topics" = "$sh_topics_pseudo" ] || fail "tam show topics and tam:topics differ"
+sh_hubs=$("$TAM" show hubs --pipe)
+printf '%s\n' "$sh_hubs" | grep -q 'Browse hubs' || fail "tam show hubs failed"
+printf '%s\n' "$sh_hubs" | grep -q 'Subject Hubs in Your Tamlinux User Guide' || fail "tam show hubs heading failed"
+sh_hubs_pseudo=$("$TAM" show tam:hubs --pipe)
+[ "$sh_hubs" = "$sh_hubs_pseudo" ] || fail "tam show hubs and tam:hubs differ"
 
 # page: addresses, tam:keywords, and tam:explain under show
 sh_pipe1=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show page:shell/pipelines --pipe) || fail "show page:shell/pipelines --pipe failed"
@@ -1407,9 +1412,9 @@ def get_status_info(key=None):
             target = slast.split("->")[-1].split("\x1b", 1)[0].split("  ")[0].strip()
     return (title, target)
 
-# 1. Initial page is All Pages A to Z
+# 1. Initial page is Topics A to Z
 title, _ = get_status_info()
-assert title == "All Pages A to Z", f"unexpected topics title: {title}"
+assert title == "Topics A to Z", f"unexpected topics title: {title}"
 
 # 2. Tab selects first topic link
 title, target = get_status_info(b"\t")
@@ -1417,11 +1422,11 @@ assert target != "", "expected link target to be selected by Tab"
 
 # 3. Enter follows selected topic link into explanation
 title_topic, _ = get_status_info(b"\r")
-assert title_topic != "All Pages A to Z", f"did not follow link into topic explanation: {title_topic}"
+assert title_topic != "Topics A to Z", f"did not follow link into topic explanation: {title_topic}"
 
 # 4. u returns to catalog page
 title_back, _ = get_status_info(b"u")
-assert title_back == "All Pages A to Z", f"did not return to topics page: {title_back}"
+assert title_back == "Topics A to Z", f"did not return to topics page: {title_back}"
 
 # 5. Backtick (`) jumps to root guide index.html
 title_home, _ = get_status_info(b"`")

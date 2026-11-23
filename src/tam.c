@@ -599,6 +599,8 @@ static int cmd_show(int n, char **args)
 
     if (page != NULL && strcmp(page, "topics") == 0) {
         page = "tam:topics";
+    } else if (page != NULL && strcmp(page, "hubs") == 0) {
+        page = "tam:hubs";
     } else if (page != NULL && strcmp(page, "paths") == 0) {
         page = "tam:paths";
     }

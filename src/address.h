@@ -33,7 +33,7 @@ typedef enum {
 tam_addr_kind_t tam_addr_kind(const char *href);
 
 /* Whether the reader's level lens applies: guide pages and the tam:explain,
- * tam:topics and tam:keywords views. */
+ * tam:topics, tam:hubs and tam:keywords views. */
 int tam_addr_takes_lens(const char *href);
 
 /* The value of `key` in the address's query ("?a=1&b=2"), percent-decoded

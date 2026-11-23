@@ -49,7 +49,10 @@ Subject tracks replace the old five-part hierarchy in this corpus. Index
 columns and sidecar shapes stay stable. Older corpus metadata remains readable.
 Page kinds classify search results and glossary entries, with legacy fallback.
 
-`tam:topics` browses subject hubs; `tam:catalog` lists page titles alphabetically.
+`tam:hubs` browses the subject hubs; `tam:topics` lists every explainable
+topic A to Z, matching `tam explain topics` in both the pager and plain text;
+`tam:catalog` lists page titles alphabetically. The 2026-11-23 decision
+separated the two lists so one address does not carry two meanings.
 `tam:paths` is the single generated learning-path catalog; authored path pages
 retain teaching and capstones. `tam:keywords` and bare `tam explain` open the
 search entrance. Named topic explanations and the definition shortcut remain.

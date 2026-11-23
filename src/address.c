@@ -44,6 +44,7 @@ int tam_addr_takes_lens(const char *href)
     return kind == TAM_ADDR_GUIDE ||
            (kind == TAM_ADDR_VIEW && (has_prefix(href, "tam:explain") ||
                                       has_prefix(href, "tam:topics") ||
+                                      has_prefix(href, "tam:hubs") ||
                                       has_prefix(href, "tam:keywords") ||
                                       has_prefix(href, "tam:paths") ||
                                       has_prefix(href, "tam:path")));
@@ -173,6 +174,11 @@ static tam_document_t *load_topics(const tam_loader_ctx_t *c, const char *href, 
     return c->root != NULL ? tam_topics_document(c->root, view_level(href), w) : NULL;
 }
 
+static tam_document_t *load_hubs(const tam_loader_ctx_t *c, const char *href, int w)
+{
+    return c->root != NULL ? tam_hubs_document(c->root, view_level(href), w) : NULL;
+}
+
 static tam_document_t *load_paths(const tam_loader_ctx_t *c, const char *href, int w)
 {
     if (c->root == NULL) return NULL;
@@ -197,6 +203,7 @@ static const struct {
     { "tam:explain",  load_explain },
     { "tam:keywords", load_keywords },
     { "tam:topics",   load_topics },
+    { "tam:hubs",     load_hubs },
     { "tam:catalog",  load_catalog },
     { "tam:paths",    load_paths },
     { "tam:path",     load_paths },
