@@ -1,0 +1,36 @@
+W65 LINUX MAN-PAGES BIBLIOGRAPHY REWRITE
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Fix the bug on page:bibliography/linux-api.html that links \"Linux man-pages\" to man:pipe(7).
+
+Rewrite that entire page. It needs an intro, novice, learner, and expert sections."
+
+DONE
+
+  - Rewrote knowledge/bibliography/linux-api.html.
+  - Fixed bug: removed incorrect `man:pipe(7)` link used as the Linux
+    man-pages project link; linked to https://man7.org/linux/man-pages/.
+  - Added intro and novice/learner/expert sections explaining what Linux
+    man-pages are, how to use them, and scope/version/limits.
+  - Preserved bibliography reference metadata and existing "Used in this
+    reference" links.
+  - Bumped corpus 0.117.0 to 0.117.1 and updated ROADMAP.md and WHATNOW.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus-check passed.
+  - make corpus run after content change.
+
+HANDOFF
+
+  - Consider whether bibliography pages should be included in automated
+    checks for broken `man:` links in reference prose.
