@@ -1,0 +1,37 @@
+W90 PAGE PREFIX DISPLAY HELPER
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1 / R1 step 1 follow-up: centralize address parsing;
+  characterize aliases, fold/path params, relative Guide links, and
+  external opener confirmation, then use one parser/shape where it
+  reduces duplication without changing behavior.
+
+DONE
+
+  - Added `tam_addr_has_page_prefix` in `src/address.c/h`.
+  - Used it in pager address display (`src/pager_draw.c`) instead of
+    inline `strncmp(..., "page:", 5)` checks.
+  - Bumped command to 0.68.21 (patch) and updated development plan,
+    ROADMAP, and WHATNOW.
+
+NOT DONE / FOLLOW-UP
+
+  - R1 step 1 follow-up remains: aliases, fold/path params, relative
+    Guide links, and external opener confirmation still need
+    characterization/consolidation into one parser/shape where safe.
+  - R1 step 4 follow-up and R1 step 3 (measured/deferred) remain.
+
+VERIFICATION
+
+  - make command: pass.
+  - python3 tests/pager_screen.py build/tam tests/fixtures: pass.
+  - make check-repo: pass.
+
+HANDOFF
+
+  - Continue WHATNOW item 1 follow-up with safe characterization/consolidation.

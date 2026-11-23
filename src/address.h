@@ -59,6 +59,9 @@ const char *tam_addr_cli_alias(const char *page);
 /* Strip the optional `page:` scheme from a guide address. */
 const char *tam_addr_strip_page_prefix(const char *href);
 
+/* True when href has an explicit `page:` scheme. */
+int tam_addr_has_page_prefix(const char *href);
+
 /* The guide root (may be NULL), optional standard input, and output mode. */
 typedef struct {
     const char *root;

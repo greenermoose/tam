@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.21 (patch): add `tam_addr_has_page_prefix` and use it in pager address display (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.20 (patch): use `tam_addr_strip_page_prefix` in pager nav next-name resolution (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.19 (patch): add `tam_addr_is_prompt` and use it in pager prompt action dispatch (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.18 (patch): use `tam_addr_strip_page_prefix` in `is_help_page` pager navigation (R1 step 1 follow-up).

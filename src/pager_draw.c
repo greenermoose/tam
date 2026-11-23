@@ -597,7 +597,7 @@ static void pager_address(const pager_t *st, char *out, size_t cap)
                            sizeof(with_lens))) {
         snprintf(out, cap, "%s%.240s",
                  tam_addr_kind(with_lens) == TAM_ADDR_GUIDE &&
-                 strncmp(with_lens, "page:", 5) != 0 ? "page:" : "", with_lens);
+                 !tam_addr_has_page_prefix(with_lens) ? "page:" : "", with_lens);
         return;
     }
     tam_addr_kind_t kind = tam_addr_kind(st->cur_href);
@@ -606,7 +606,7 @@ static void pager_address(const pager_t *st, char *out, size_t cap)
         return;
     }
     snprintf(out, cap, "%s%s", kind == TAM_ADDR_GUIDE &&
-             strncmp(st->cur_href, "page:", 5) != 0 ? "page:" : "", st->cur_href);
+             !tam_addr_has_page_prefix(st->cur_href) ? "page:" : "", st->cur_href);
 }
 
 static void fit_sandbox_viewport(pager_t *st, int usable)

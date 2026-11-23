@@ -297,6 +297,11 @@ const char *tam_addr_strip_page_prefix(const char *href)
     return (href != NULL && has_prefix(href, "page:")) ? href + 5 : href;
 }
 
+int tam_addr_has_page_prefix(const char *href)
+{
+    return href != NULL && has_prefix(href, "page:");
+}
+
 int tam_addr_is_prompt(const char *href)
 {
     return href != NULL && has_prefix(href, "tam:prompt:");
