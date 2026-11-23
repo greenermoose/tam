@@ -169,8 +169,8 @@ $ make test-command
 <h3>How it works</h3>
 
 <ol>
-<li><strong>C11 Architecture and Sub-5ms Startup:</strong>
-<code>tam</code> is written entirely in ISO C11. It avoids heavy runtimes, <a href="glossary/j/jit.html">JIT</a> compilation pauses, and dynamic module loading. At launch, the binary initializes terminal state via <code>libtam</code>, parses command-line arguments using a single-pass scanner, loads index structures via zero-copy memory mapping or sequential TSV streaming, and draws the first screenful of formatted text in under 5 milliseconds with resident memory below 4 megabytes.</li>
+<li><strong>C11 Architecture and the Tamlinux Five target:</strong>
+<code>tam</code> is written entirely in ISO C11. It avoids heavy runtimes, <a href="glossary/j/jit.html">JIT</a> compilation pauses, and dynamic module loading. At launch, the binary initializes terminal state via <code>libtam</code>, parses command-line arguments using a single-pass scanner, loads index structures via zero-copy memory mapping or sequential TSV streaming, and draws the first screenful of formatted text. As a <code>tam-*</code> utility program, <code>tam</code> follows the <strong>Tamlinux Five</strong> performance target: it starts and exits in 5 milliseconds and uses under 5 megabytes of memory.</li>
 
 <li><strong>Decoupled Versioning and Dynamic Runtime Resolution:</strong>
 The binary version (<code>src/version.h</code>) is decoupled from the corpus version (<code>knowledge/version</code>). When invoked, <code>src/tam.c</code> discovers the corpus root by checking <code>$TAM_KNOWLEDGE_DIR</code>, followed by the user prefix <code>~/.local/share/tamlinux/knowledge</code>, and finally the compiled datadir <code>/usr/share/tamlinux/knowledge</code>. It reads <code>knowledge/version</code> dynamically at runtime. This allows documentation fixes and new lessons to land without recompiling the C executable, and guarantees multi-agent concurrency across command and corpus lanes.</li>
@@ -222,7 +222,7 @@ Release (Tamlinux release)
 
 <h3>Explore</h3>
 
-<p>Measure the execution time and startup latency of the standalone command using <code>time</code> to verify that it executes well within the 5 millisecond design threshold:</p>
+<p>Measure the execution time and startup latency of the standalone command using <code>time</code> to verify that it meets the <strong>Tamlinux Five</strong> performance target for <code>tam-*</code> utility programs: starts and exits in 5 milliseconds and uses under 5 megabytes of memory:</p>
 
 <pre class="session" data-risk="read-only">
 $ time ./build/tam --version

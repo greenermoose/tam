@@ -26,7 +26,7 @@
 <h2>What is a native toolchain build?</h2>
 <p>A native <dfn><a href="glossary/t/toolchain.html">toolchain</a></dfn> is the set of build tools—compiler, linker, and build runner such as <dfn><a href="glossary/m/make.html">Make</a></dfn>—that turns human-readable C source code into fast, standalone programs that run directly on your computer.</p>
 <h3>Why it matters</h3>
-<p>Tamlinux writes core utilities like <code>tam</code> in C so they start almost instantly and use very little memory. Knowing how local source builds work lets contributors test changes safely in their own user folder without touching system-wide files.</p>
+<p>Tamlinux writes core utilities like <code>tam</code> in C so they start quickly and use little memory. Tamlinux <code>tam-*</code> utility programs follow the <strong>Tamlinux Five</strong> performance target: they start and exit in 5 milliseconds and use under 5 megabytes of memory. Knowing how local source builds work lets contributors test changes safely in their own user folder without touching system-wide files.</p>
 <h3>How to think about it</h3>
 <p>Think of a toolchain like a woodworking shop: source files are the blueprints, the compiler cuts the individual parts, the linker joins them into a finished piece, and Make is the checklist that rebuilds only the parts whose blueprints changed.</p>
 <h3>New words</h3>
@@ -108,7 +108,7 @@ Tamlinux cultivar KBN WB 0.6.1
 <p>Decide your answer before you reveal it.</p>
 <details class="q">
 <summary><i>Why does Tamlinux compile core utilities in native <a href="glossary/c/c11.html">C11</a> rather than using interpreted scripts?</i></summary>
-<p>Native C executables start in less than 5 milliseconds and consume negligible memory, avoiding the startup latency, memory overhead, and runtime dependency management of interpreted script runtimes.</p>
+<p>Native C executables avoid the startup latency, memory overhead, and runtime dependency management of interpreted script runtimes. Tamlinux <code>tam-*</code> utility programs meet the <strong>Tamlinux Five</strong> performance target: they start and exit in 5 milliseconds and use under 5 megabytes of memory.</p>
 </details>
 <details class="q">
 <summary><i>What does running <code>make -n</code> do when inspecting a project build?</i></summary>

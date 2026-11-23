@@ -1,0 +1,52 @@
+W51 TAMLINUX FIVE PERFORMANCE TARGET
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "In knowledge corpus pages, look for phrases like \"In Tamlinux,
+  core utilities are written in standard C11 so they start instantly,
+  consume minimal memory\" and rewrite to the Tamlinux performance
+  target of starts and exits in 5 milliseconds and uses under 5
+  megabytes of memory. This is the \"Tamlinux Five\" performance target
+  for tam-* utility programs. Add this performance target to the
+  relevant Tamlinux pages in the knowledge corpus."
+
+  Fred: "Commit"
+
+DONE
+
+  - Added the named Tamlinux Five performance target for tam-* utility
+    programs (starts and exits in 5 milliseconds, uses under 5
+    megabytes of memory) to relevant corpus pages:
+    knowledge/tamlinux/design/language-choices.html,
+    knowledge/tamlinux/development/tam.html,
+    knowledge/programming/c/c11.html, and
+    knowledge/programming/c/toolchains.html.
+  - Replaced old "start instantly / consume minimal memory" and
+    "<4 MB / <5 ms" tam-* utility claims in those pages with the
+    Tamlinux Five target.
+  - Bumped corpus 0.109.0 to 0.109.1 in knowledge/version and updated
+    ROADMAP.md current version, dev row, and delivered history.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make corpus-check passed: 1293 pages, 4 parsed, 1293 rendered;
+    component coverage check passed.
+  - make corpus reported indexes current (no index changes).
+  - Grepped knowledge/ for "start instantly, consume minimal memory"
+    (no matches) and confirmed Tamlinux Five appears in the four
+    updated pages.
+
+HANDOFF
+
+  - Corpus-only content change; no command version bump, no install,
+    no stage move. Source changes stay in Develop.
+  - Other Tamlinux pages that mention utility startup/memory in
+    general terms may be aligned with Tamlinux Five later if Fred asks.
