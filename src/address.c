@@ -283,6 +283,15 @@ int tam_addr_sandbox_id(const char *href, unsigned *id)
     return 1;
 }
 
+const char *tam_addr_cli_alias(const char *page)
+{
+    if (page == NULL) return NULL;
+    if (strcmp(page, "topics") == 0) return "tam:topics";
+    if (strcmp(page, "hubs") == 0) return "tam:hubs";
+    if (strcmp(page, "paths") == 0) return "tam:paths";
+    return NULL;
+}
+
 tam_document_t *tam_address_load(void *vctx, const char *href, int width)
 {
     const tam_loader_ctx_t *ctx = vctx;

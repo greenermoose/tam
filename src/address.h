@@ -49,6 +49,10 @@ int tam_addr_take_param(char *href, const char *key, char *buf, size_t cap);
 int tam_addr_fold_id(const char *href, unsigned *id);
 int tam_addr_sandbox_id(const char *href, unsigned *id);
 
+/* Bare CLI view aliases accepted by `tam show`/entry; returns a canonical
+ * tam: address or NULL. */
+const char *tam_addr_cli_alias(const char *page);
+
 /* The guide root (may be NULL), optional standard input, and output mode. */
 typedef struct {
     const char *root;
