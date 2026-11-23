@@ -80,7 +80,7 @@ CORPUS_CACHE ?= 1
 export CORPUS_CACHE TAM_READER SKIP_COVERAGE_CHECK
 SESSION = $(if $(wildcard $(CURDIR)/tools/timer.py),python3 $(CURDIR)/tools/timer.py session,)
 
-.PHONY: all command corpus corpus-check corpus-identity dev preview bench-corpus check-repo check-clean-tree test test-command corpus-and-test check install install-archwiki install-corpus uninstall clean libtam-check FORCE _test _test-command _command-checks _corpus-and-test _check corpus-tool-tests
+.PHONY: all command corpus corpus-check corpus-identity dev preview bench-corpus check-repo check-clean-tree test test-command corpus-and-test check sanitize install install-archwiki install-corpus uninstall clean libtam-check FORCE _test _test-command _command-checks _corpus-and-test _check corpus-tool-tests
 
 # Whole project (default): the command and the corpus index.
 all: command corpus
@@ -183,6 +183,21 @@ ifeq ($(SKIP_UNIT_TESTS),)
 else
 	@printf '%s\n' 'tam: tooling unit tests skipped (SKIP_UNIT_TESTS).'
 endif
+
+SANITIZE_BUILD := $(BUILD)/sanitize
+SANITIZE_CFLAGS := -O1 -g -Wall -Wextra -Wpedantic -std=c11 -fsanitize=address,undefined -fno-omit-frame-pointer
+SANITIZE_LDFLAGS := -fsanitize=address,undefined
+
+sanitize: export ASAN_OPTIONS := detect_leaks=0:abort_on_error=1:log_path=$(CURDIR)/$(SANITIZE_BUILD)/asan
+sanitize: export UBSAN_OPTIONS := print_stacktrace=1:halt_on_error=1:log_path=$(CURDIR)/$(SANITIZE_BUILD)/ubsan
+sanitize:
+	@mkdir -p $(SANITIZE_BUILD)
+	$(MAKE) command BUILD=$(SANITIZE_BUILD) \
+		CFLAGS="$(SANITIZE_CFLAGS)" \
+		LDFLAGS="$(SANITIZE_LDFLAGS)"
+	@printf '%s\n' 'Sanitized binary: $(SANITIZE_BUILD)/tam'
+	@printf '%s\n' 'ASAN_OPTIONS=$(ASAN_OPTIONS)'
+	@printf '%s\n' 'UBSAN_OPTIONS=$(UBSAN_OPTIONS)'
 
 check-repo:
 	@if [ -d .git ] && [ -d .githooks ]; then git config core.hooksPath .githooks 2>/dev/null || true; fi

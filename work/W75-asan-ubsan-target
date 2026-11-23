@@ -1,0 +1,34 @@
+W75 ASAN/UBSAN MAKE TARGET
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW NEXT item 1: "Add a make target for an ASan and UBSan build with
+  UBSAN_OPTIONS log_path set, so sanitizer output stays out of the PTY
+  tests."
+
+DONE
+
+  - Added `sanitize` make target in `Makefile`. It builds the command in
+    `build/sanitize` with `-fsanitize=address,undefined -fno-omit-frame-pointer`
+    and exports `ASAN_OPTIONS`/`UBSAN_OPTIONS` with `log_path` under
+    `build/sanitize/` so sanitizer output stays out of PTY tests.
+  - Updated `work/WHATNOW`: recorded W75 and renumbered NEXT.
+
+FAILED
+
+  - Nothing.
+
+VERIFICATION
+
+  - make sanitize: built successfully; emitted sanitized binary path and
+    ASAN_OPTIONS/UBSAN_OPTIONS with log_path.
+  - make check-repo: passed.
+
+HANDOFF
+
+  - Continue with WHATNOW NEXT item 1 (test go_forward after a vanished page,
+    which W41 did not cover).
