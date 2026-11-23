@@ -1,0 +1,47 @@
+W60 BIBLIOGRAPHY REORGANIZATION AND BASELINE COVERAGE
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Reorganize the bibliography. Provide several ways to sort and view the contents of the bibliography. 1) By author. 2) Alphabetical by title. 3) By subject. 4) By level of expertise required (introductory, intermediate, advanced, expert) 5) By type: article, blog, book, series, conference proceeding, etc. Expand the bibliography to cover all pages in the Tamlinux guide. All pages should have a bibliographic refence. No page should assert facts without a reference to an authority that is listed in the bibliography."
+
+DONE
+
+  - Reorganized knowledge/bibliography/index.html with five views:
+    author, alphabetical by title, subject, level of expertise
+    (introductory/intermediate/advanced/expert), and type.
+  - Classified existing 42 bibliography entries with author, type,
+    subject, and expertise metadata in the index views.
+  - Added a baseline "Sources and further reading" section linking to
+    the bibliography on 309 corpus pages that previously had no
+    bibliography link.
+  - Bumped corpus 0.114.0 to 0.115.0 and updated ROADMAP.md and WHATNOW.
+
+FAILED
+
+  - Did not fully satisfy "No page should assert facts without a
+    reference to an authority that is listed in the bibliography".
+    A generic bibliography link is a baseline, not a per-fact citation.
+    Completing this requires a corpus-wide sourcing/citation audit and
+    many additional bibliography entries mapped to specific page claims.
+
+VERIFICATION
+
+  - make corpus-check to be run after commit/index refresh.
+  - make corpus refreshes generated indexes; index changes committed
+    separately when present.
+
+HANDOFF
+
+  - Corpus-wide citation coverage remains incomplete. Next pass should
+    add specific bibliography entries for major subject areas (systems,
+    desktop, terminal, hardware, networking, programming, tamlinux,
+    security) and add page-specific "Sources and further reading"
+    sections citing relevant authorities rather than only the bibliography
+    index.
+  - Consider adding biblio metadata fields (author/type/subject/level)
+    to individual bibliography page meta or a structured data file so the
+    index can be regenerated safely.

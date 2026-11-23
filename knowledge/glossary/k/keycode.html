@@ -18,4 +18,7 @@
 <section data-level="expert"><p>Kernel keycodes are defined in <code>linux/input-event-codes.h</code> (<code>KEY_A</code> is 30, and codes extend past 255 for media and special keys). Because X11 historically reserved keycodes 0–7 and used 8–255, XKB and Wayland’s <code>wl_keyboard.key</code> event report <code>evdev + 8</code>, which XKB then maps through the active keymap to a <a href="glossary/k/keysym.html">keysym</a>. Notice the boundary: X11 core protocol keycodes are 8-bit (capped at 255), whereas evdev and Wayland support higher codes when the XKB keymap defines them. Remapping can occur at multiple stages: <code>setkeycodes</code> or <code>udev</code> hwdb alters scancode-to-evdev translation, while XKB rules and compositor keymaps alter how the keycode is interpreted.</p></section>
 <p><a href="terminal/input/key-press-anatomy.html">From key press to character</a>; <a href="glossary/index.html">All glossary terms</a>.</p>
 <h2>Learn more</h2><ul><li><a href="terminal/input/key-press-anatomy.html">From key press to character</a></li></ul>
+
+<h2>Sources and further reading</h2>
+<p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
 </body></html>
