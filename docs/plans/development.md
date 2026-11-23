@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.67.10 (patch): move the 28-link `All`/A–Z/`0-9` jump bar from the top of the Arch Wiki and tldr index pages to below the page list and pagination, before the footer, so page links come first in reading order and pager link numbering. Landing pages keep their own navigation aids.
 - **2026-11-23:** Command 0.67.9 (patch): keep `knowledge/tldr` in `$(DATADIR)/tldr` on direct user-prefix `make install` and `make install-corpus` (when `DESTDIR` is empty, while staged cultivar builds with `DESTDIR` still split `tldr` via `install-tldr`), and fall back to `/usr/share/doc/tamlinux/tldr` in `tam_find_tldr_root()` when `TAM_DOC_DIR` is unset.
 
 - **2026-11-20:** Command 0.67.8 (patch): remove retired `BUNDLE` manifest parsing and pre-0.6.37 `/usr/lib/tamlinux/source/current` and `/var/lib/tamlinux/source/active.json` fallbacks; retain unified `VERSION` and `/usr/lib/tamlinux/current` identity and ownership resolution.

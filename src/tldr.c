@@ -953,7 +953,6 @@ static tam_document_t *tldr_list_document(const char *tldr_root, const char *uri
     }
 
     tam_str_t body = tam_str_new("");
-    body = append_az_bar(body, platform);
 
     /* Count matching entries and deduplicate linux+common when platform is not filtered */
     size_t matched = 0;
@@ -1011,6 +1010,8 @@ static tam_document_t *tldr_list_document(const char *tldr_root, const char *uri
         }
         body = tam_str_cat(body, "</p>\n");
     }
+    body = append_az_bar(body, platform);
+
     body = tam_str_cat(body,
         "<p><a href=\"tam:prompt:tldr-open\">Open a tldr page</a> · "
         "<a href=\"tam:prompt:tldr-keyword\">Find by keyword</a> · "

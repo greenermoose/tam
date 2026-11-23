@@ -1,0 +1,44 @@
+W45 A-Z BAR AFTER INDEX PAGE LISTS
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+Commits: This work commit
+
+GUIDANCE
+
+  Fred: "When you are browsing the Arch Wiki index in tam pager, put
+  the All A B C, etc. list at the end, after the list of pages for
+  faster navigation. By having that index after the list of pages,
+  you don't have to move through 28 links before getting to ones
+  that actually take you somewhere interesting. Do the same in the
+  tldr index."
+  Fred: "Build it"
+
+DONE
+
+  - Moved append_az_bar() in src/archwiki.c and src/tldr.c from the
+    start of the list-document body to after the page list and
+    pagination, just before each footer. The landing pages keep
+    their own navigation: the archwiki landing still has a bare
+    A-Z bar under Browse index, and the tldr landing keeps the
+    first-to-last letter ranges from append_letter_ranges().
+  - The bar is 28 links (All + A-Z + 0-9); in the pager it used to
+    occupy link numbers 3-30. Page links now start at 3.
+  - Added order assertions to tests/run.sh: the first tldr table
+    row precedes "Browse by letter: All", and the archwiki "- Pacman"
+    line precedes the "All A B C ..." line.
+  - Bumped command version to 0.67.10 in src/version.h, tests/run.sh,
+    ROADMAP.md and docs/plans/development.md. No new plan: this is a
+    patch-level layout fix, like 0.60.1.
+  - make command, make test-command (including check-repo) pass.
+    Spot-checked both --list --pipe outputs with the fixtures.
+
+FAILED
+
+  - Nothing.
+
+HANDOFF
+
+  - Command 0.67.10 is ready on dev. The A-Z bar now follows the
+    page list in both indexes; no install or release was done.

@@ -893,7 +893,6 @@ static tam_document_t *archwiki_list_document(const char *root, const char *uri,
     }
 
     tam_str_t body = tam_str_new("");
-    body = append_az_bar(body);
 
     size_t matched = 0;
     for (size_t i = 0; i < idx->count; i++) {
@@ -937,6 +936,8 @@ static tam_document_t *archwiki_list_document(const char *root, const char *uri,
             tam_str_free(next_uri);
         }
     }
+
+    body = append_az_bar(body);
 
     body = tam_str_cat(body,
         "<p><a href=\"tam:archwiki\">Return to Arch Wiki</a> · "

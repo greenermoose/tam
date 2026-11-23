@@ -3,16 +3,20 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W44
+Updated: 2026-11-23, with W45
 
 STATE
 
-  Command 0.67.9 and corpus 0.107.0 on dev. W44 fixed missing tldr pages
-  on user-prefix installs: Makefile's install and install-corpus now keep
-  $(DATADIR)/tldr when DESTDIR is empty (stripping it only for staged
-  cultivar builds that run install-tldr separately), and
-  tam_find_tldr_root() in src/tldr.c falls back to
-  /usr/share/doc/tamlinux/tldr when TAM_DOC_DIR is unset.
+  Command 0.67.10 and corpus 0.107.0 on dev. W45 moved the 28-link
+  A-Z jump bar below the page list in the Arch Wiki and tldr index
+  pages, so page links come first in pager link numbering. The
+  landing pages keep their own navigation aids.
+
+  W44 fixed missing tldr pages on user-prefix installs: Makefile's
+  install and install-corpus now keep $(DATADIR)/tldr when DESTDIR is
+  empty (stripping it only for staged cultivar builds that run
+  install-tldr separately), and tam_find_tldr_root() in src/tldr.c
+  falls back to /usr/share/doc/tamlinux/tldr when TAM_DOC_DIR is unset.
 
   W43 removed the stale Nix conditional from Makefile: plain make install
   now targets ~/.local and needs no root, while an explicit PREFIX still

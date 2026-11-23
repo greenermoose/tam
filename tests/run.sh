@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.67.9' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.67.10' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3616,6 +3616,8 @@ assert "tam:tldr:list?letter=g" in landing and "tam:tldr:list?letter=a" not in l
 assert "tam:tldr:list?letter=0" not in landing, landing
 filtered = read("show", "tam:tldr:list?letter=c&platform=linux", "--pipe")
 assert "tldr:linux/cat" in filtered and "tldr:common/cat" not in filtered, filtered
+listing = read("tldr", "--list", "--pipe")
+assert listing.index("Print and concatenate files (GNU coreutils).") < listing.index("Browse by letter: All"), listing
 
 with tempfile.TemporaryDirectory() as tmp_tldr:
     tmp_root = Path(tmp_tldr)
@@ -3783,6 +3785,10 @@ fi
 aw_list=$(TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki --list --pipe)
 printf '%s\n' "$aw_list" | grep -q '^Guide > Arch Wiki > Arch Wiki index$' || fail "tam archwiki --list missing location trail"
 printf '%s\n' "$aw_list" | grep -q 'archwiki:Pacman' || fail "tam archwiki --list missing Pacman"
+aw_page_line=$(printf '%s\n' "$aw_list" | grep -n '^- Pacman$' | head -1 | cut -d: -f1)
+aw_bar_line=$(printf '%s\n' "$aw_list" | grep -n '^All A B C' | head -1 | cut -d: -f1)
+[ -n "$aw_page_line" ] && [ -n "$aw_bar_line" ] && [ "$aw_page_line" -lt "$aw_bar_line" ] ||
+    fail "tam archwiki --list A-Z bar must follow the page list"
 
 aw_kw=$(TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" archwiki --search Pacman --pipe)
 printf '%s\n' "$aw_kw" | grep -q 'archwiki:Pacman' || fail "tam archwiki --search Pacman failed"
