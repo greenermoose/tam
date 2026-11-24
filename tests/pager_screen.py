@@ -319,11 +319,15 @@ def main():
 
     pid, master, screen, initial = collect_screen(binary, fixtures, "xterm-256color")
     assert "Guide > Pager fixture" in screen.line(0), screen.line(0)
-    assert "First heading" in screen.line(1), screen.line(1)
-    focus_attrs = screen.cells[1][0][1]
+    assert "Showing all text" in screen.line(1), screen.line(1)
+    assert "First heading" in screen.line(2), screen.line(2)
+    focus_attrs = screen.cells[2][0][1]
     assert "bg236" in focus_attrs and "fg15" in focus_attrs, focus_attrs
     assert b"\x1b[2J" not in initial
 
+    os.write(master, b"\x1b[A")
+    screen.feed(read_available(master))
+    assert focused_rows(screen) == [1], focused_rows(screen)
     os.write(master, b"\x1b[A")
     screen.feed(read_available(master))
     assert focused_rows(screen) == [0], focused_rows(screen)
@@ -331,6 +335,9 @@ def main():
     os.write(master, b"\x1b[B")
     screen.feed(read_available(master))
     assert focused_rows(screen) == [1], focused_rows(screen)
+    os.write(master, b"\x1b[B")
+    screen.feed(read_available(master))
+    assert focused_rows(screen) == [2], focused_rows(screen)
 
     os.write(master, b"g")
     help_frame = read_available(master)
@@ -343,8 +350,8 @@ def main():
     os.write(master, b"?")
     close_help = read_available(master)
     screen.feed(close_help)
-    assert "First heading" in screen.line(1), screen.line(1)
-    assert "bg236" in screen.cells[1][0][1], screen.cells[1][0][1]
+    assert "First heading" in screen.line(2), screen.line(2)
+    assert "bg236" in screen.cells[2][0][1], screen.cells[2][0][1]
 
     os.write(master, b"z")
     ignored = read_available(master)
@@ -358,7 +365,7 @@ def main():
     cups = re.findall(rb"\x1b\[(\d+);(\d+)H", moved)
     assert len(cups) == 3, f"one line move should repaint two content rows and status: {cups!r}"
     screen.feed(moved)
-    assert "first attention row" in screen.line(3), screen.line(3)
+    assert "first attention row" in screen.line(4), screen.line(4)
     stop(pid, master)
 
     # Reflow keeps the focused text row when a separator shares its logical
@@ -468,7 +475,7 @@ def main():
 
     # Linux's eight-color profile keeps an interactive pager and uses reverse.
     pid, master, screen, _ = collect_screen(binary, fixtures, "linux")
-    assert "reverse" in screen.cells[1][0][1], screen.cells[1][0][1]
+    assert "reverse" in screen.cells[2][0][1], screen.cells[2][0][1]
     # Linux has no alternate screen. Quitting keeps the last page visible,
     # scrolled up one line, and leaves the cursor at the start of a fresh,
     # empty bottom line for the shell prompt.
@@ -488,24 +495,24 @@ def main():
     assert {"bold", "fg4"}.issubset(screen.cells[0][0][1]), screen.cells[0][0][1]
     os.write(master, b"k")
     screen.feed(read_available(master, 0.2))
-    assert {"bold", "fg6"}.issubset(screen.cells[1][0][1]), screen.cells[1][0][1]
-    assert "reverse" not in screen.cells[1][0][1], screen.cells[1][0][1]
+    assert {"bold", "fg6"}.issubset(screen.cells[2][0][1]), screen.cells[2][0][1]
+    assert "reverse" not in screen.cells[2][0][1], screen.cells[2][0][1]
     stop(pid, master)
 
     # NO_COLOR under linux retains reverse focus and omits foreground colors.
     pid_nc, master_nc, screen_nc, _ = collect_screen(binary, fixtures, "linux", extra_env={"NO_COLOR": "1"})
-    assert "reverse" in screen_nc.cells[1][0][1], screen_nc.cells[1][0][1]
+    assert "reverse" in screen_nc.cells[2][0][1], screen_nc.cells[2][0][1]
     os.write(master_nc, b"k")
     screen_nc.feed(read_available(master_nc, 0.2))
-    assert "fg6" not in screen_nc.cells[1][0][1], screen_nc.cells[1][0][1]
+    assert "fg6" not in screen_nc.cells[2][0][1], screen_nc.cells[2][0][1]
     stop(pid_nc, master_nc)
 
     # NO_COLOR retains a visible focus indication; an empty value keeps color.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", extra_env={"NO_COLOR": "1"})
-    assert "reverse" in screen.cells[1][0][1], screen.cells[1][0][1]
+    assert "reverse" in screen.cells[2][0][1], screen.cells[2][0][1]
     stop(pid, master)
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", extra_env={"NO_COLOR": ""})
-    assert "bg236" in screen.cells[1][0][1], screen.cells[1][0][1]
+    assert "bg236" in screen.cells[2][0][1], screen.cells[2][0][1]
     stop(pid, master)
 
     # TERM=dumb emits readable plain text and exits without terminal control.
@@ -518,7 +525,7 @@ def main():
 
     # A one-row terminal remains navigable and does not report a status row.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color", 1, 12)
-    assert "First" in screen.line(0), screen.line(0)
+    assert screen.line(0).strip() != "", screen.line(0)
     assert b"L1 " not in screen.line(0).encode()
     stop(pid, master)
 
@@ -532,7 +539,7 @@ def main():
     # In-page links jump to their name=/id= target, not to the link's own text,
     # and put the target on the first content row; Left Arrow returns.
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
-                                             8, 40, page="pager-anchors")
+                                             9, 40, page="pager-anchors")
     os.write(master, b"\t")
     screen.feed(read_available(master))
     os.write(master, b"\r")
@@ -560,18 +567,19 @@ def main():
     # Scrolling status row on an overflowing page
     pid, master, screen, _ = collect_screen(binary, fixtures, "xterm-256color",
                                              8, 40, page="pager-plain")
-    c_rows = 8 - 4  # location row plus status row plus two footer rows
+    c_rows = 8 - 4  # location row plus status row and two footer rows
 
     def parse_pos(line):
-        m = re.search(r"L(\d+)\s+(\d+)-(\d+)/(\d+)", line)
+        m = re.search(r"L([0-9]+|b)\s+(\d+)-(\d+)/(\d+)", line)
         assert m, f"position metric missing in status line: {line!r}"
-        return int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
+        cur = 0 if m.group(1) == "b" else int(m.group(1))
+        return cur, int(m.group(2)), int(m.group(3)), int(m.group(4))
 
-    # At top: first is 1
+    # At top: first is 1; Lb takes one content row so only c_rows - 1 are numbered.
     cur, first, last, total = parse_pos(screen.line(6))
     assert first == 1, f"expected first == 1 at top, got {first}"
-    assert last == c_rows, f"expected last == {c_rows} at top, got {last}"
-    assert last - first + 1 == c_rows, f"expected {c_rows} content rows, got {last - first + 1}"
+    assert last == c_rows - 1, f"expected last == {c_rows - 1} at top, got {last}"
+    assert last - first + 1 == c_rows - 1, f"expected {c_rows - 1} numbered rows, got {last - first + 1}"
     assert total > c_rows, f"expected page to overflow: total={total}, content_rows={c_rows}"
 
     # Space (page down) from top: previous last line becomes first line
@@ -638,7 +646,7 @@ def main():
     screen.feed(read_available(master))
     cur, first, last, total = parse_pos(screen.line(6))
     assert first == 1, f"expected first==1 after b, got {first}"
-    assert last == c_rows, f"expected last=={c_rows}, got {last}"
+    assert last == c_rows - 1, f"expected last=={c_rows - 1}, got {last}"
 
     # 'b' when already at first full page: moves attention line to top (L1)
     os.write(master, b"b")
@@ -651,7 +659,7 @@ def main():
     os.write(master, b" ")
     screen.feed(read_available(master))
     cur, first, last, total = parse_pos(screen.line(6))
-    assert first == c_rows, f"expected first=={c_rows} after Space, got {first}"
+    assert first == c_rows - 1, f"expected first=={c_rows - 1} after Space, got {first}"
     os.write(master, b"\x1b[27;2;32~")
     screen.feed(read_available(master))
     cur, first, last, total = parse_pos(screen.line(6))
@@ -691,9 +699,9 @@ def main():
     pid, master, screen, _ = collect_screen(binary, fixtures + "/revision",
                                              "xterm-256color", rows, cols,
                                              page="revision")
-    c_rows = rows - 4  # breadcrumb row plus status row plus two footers
+    c_rows = rows - 4  # breadcrumb row plus status row and two footers
     cur, first, last, total = parse_pos(screen.line(rows - 2))
-    assert first == 1 and last == c_rows, (first, last)
+    assert first == 1 and last == c_rows - 1, (first, last)
     assert total > c_rows, f"expected the page to overflow: total={total}"
     footer2_row = screen.line(rows - 2)
     assert footer2_row.rstrip().endswith(stamp), repr(footer2_row)

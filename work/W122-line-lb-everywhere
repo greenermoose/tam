@@ -1,0 +1,71 @@
+W122 LINE LB ON EVERY PAGE
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "The welcome page (page:welcome.html) renders as
+
+  Guide > Welcome
+  Hello!
+
+  It should render as
+
+  Guide > Welcome
+
+  Hello!
+
+  Find and fix the bug that is eating the blank line that should be above
+  Hello!
+
+  There should always be a blank line between the breadcrumb and the first
+  line of the page, regardless of whether there are lens sections on the
+  page."
+
+  Fred: "I think just always showing line Lb (the current lens selected)
+  will be satisfactory."
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session. His second message chose
+  the always-visible lens line as the satisfactory separator, so the fix
+  restores Lb instead of inserting a dedicated blank pager row.
+
+DONE
+
+  - Found that tam_depth_prepare() emitted the top-level Lb line only when
+    it met an <h1>, and only for pages declaring a lens level. W121 removed
+    those headings from the corpus, so Lb vanished from the welcome page
+    and from sectioned pages such as updates.
+  - src/depth.c now detects the breadcrumb <nav> and emits the level_lines()
+    block just after </nav>, once per page. The <h1> trigger remains for
+    pages without a breadcrumb, such as the root guide index. Lb is now
+    unconditional, so pages with no declared lens level also show it.
+  - Added tests/render/lb-no-heading.html: a breadcrumb with no <h1> and no
+    level meta. Its golden confirms breadcrumb, blank, Showing all text,
+    then Hello!. Refreshed five existing renderer goldens that gained Lb.
+  - Updated pager assertions in tests/run.sh and tests/pager_screen.py for
+    the extra lead line, and fixed two stale welcome assertions that still
+    looked for the removed Welcome to Tamlinux heading.
+  - Bumped command to 0.69.2 with the version assertion, decision record
+    and roadmap entries.
+
+FAILED
+
+  - Nothing required a correction during this session.
+
+CHECKED AGAINST
+
+  - make command and make test-command pass, including the repository
+    consistency check.
+  - Reader smoke checks: show page:welcome.html --pipe and the PTY pager now
+    both place Showing all text between the breadcrumb and Hello!. The
+    same holds for the updates page.
+  - No push, install, Test, Run or Release was requested or performed.
+
+CONTINUATION
+
+  - Commit this change on dev with provenance trailers.
+  - Await Fred's direction. No stage promotion is authorised.

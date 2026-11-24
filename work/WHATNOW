@@ -3,34 +3,31 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W121
+Updated: 2026-11-24, with W122
 
 STATE
 
-  Command 0.69.1 and corpus 0.124.0 on dev. W121 rewrote the welcome page
-  with the requested intro-first opening and curated links, and removed the
-  1,442 body headings that repeated breadcrumbs across the non-root corpus.
-  Templates, authoring rules, the glossary hub generator and the guide test
-  now teach and preserve the pattern. TCK32 is minted with four children;
-  next free checklist ID is TCK33. Corpus, repository and reader checks pass.
+  Command 0.69.2 and corpus 0.124.0 on dev. W122 made line Lb, the
+  current lens, appear on every Guide page. tam_depth_prepare() now
+  emits it after the breadcrumb when a page has no title <h1>, so the
+  welcome page shows breadcrumb, Showing all text, then Hello! in both
+  pipe and pager output. Pager and renderer tests were updated, and a
+  new no-heading fixture covers the exact welcome-page case.
 
-  W120 added a Programming > Web development hub with ten three-level pages
-  from JavaScript history to Node, full-stack architecture, security,
-  testing, deployment and Electron, a five-stage goal path with a capstone,
-  thirty glossary pages, five bibliography entries and the web.* skills.
-  W119 updated corpus plan statements to say Tamlinux is writing its own
-  compositor, tam-pane, and does not plan to use Sway or wlroots. Hyprland
-  is still the current compositor; tam-pane integration is later. W118
-  renamed the plant-names terminology to a botanical analogy. Earlier work
-  is recorded in work/history/.
+  W121 rewrote the welcome page with the requested intro-first opening
+  and removed the 1,442 body headings that repeated breadcrumbs across
+  the non-root corpus. Templates, authoring rules, the glossary hub
+  generator and the guide test preserve the pattern. TCK32 is minted
+  with four children; next free checklist ID is TCK33.
+
+  make command, make test-command, make corpus, make corpus-and-test and
+  make check-repo all pass. Work is uncommitted at this point.
 
 NEXT
 
-  - Commit the W121 source and version records on dev with provenance
-    trailers.
-  - Rerun make corpus and commit the generated index follow-up.
-  - Rerun make corpus after that commit to refresh the build marker.
-  - Then await Fred's direction. No Test, Run or Release is authorised.
+  - Commit the W122 source, test and version records on dev with
+    provenance trailers. Only claimed paths go into this commit.
+  - Await Fred's direction. No Test, Run or Release is authorised.
 
 WAITING FOR FRED
 
@@ -41,6 +38,9 @@ WATCH OUT
   - Claim the paths you edit in the shared clone. See AGENTS.md for lane
     scopes, version bumps and tests. CHECKLISTS.md is a separate shared
     claim when minting TCK IDs.
+  - Lb is a lead line: it takes one content row at the top of the pager
+    and reduces the numbered-line range shown there by one. Pager row
+    and scroll assertions must account for it.
   - Escaped href="..." inside a pre block still trips the corpus link
     checker. Use &quot; around the example attribute value.
   - Generated corpus indexes trail page commits by one; commit them after
@@ -56,8 +56,7 @@ WATCH OUT
     botanical analogy, not a set of plant names.
   - Digit-leading glossary titles belong in glossary/numeric/, not in the
     letter folder matching a later "b" or other letter.
-  - Command and corpus versions are independent; W121 is corpus content
-    only.
+  - Command and corpus versions are independent; W122 is command only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.

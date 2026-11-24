@@ -537,9 +537,13 @@ char *tam_depth_prepare(const char *src, size_t len, const char *path,
     /* A page without the lens level is shown whole under its banner, so the
      * reader is never left with an empty page. */
     unsigned filter = (levels & level) ? level : 0;
-    int line_done = levels == 0 || path == NULL;
+    /* Line Lb shows the reader's lens on every page. Pages no longer carry a
+     * title <h1> to anchor it, so emit it after the breadcrumb instead. */
+    int line_done = 0;
+    int in_breadcrumb = 0;
     int hidden = 0;
     buf_t b = {0};
+    (void)path;
 
     size_t i = 0;
     while (i < len) {
@@ -585,6 +589,14 @@ char *tam_depth_prepare(const char *src, size_t len, const char *path,
                     }
                 }
             }
+            if (!line_done && tag_is(src, len, i, "nav", 0)) {
+                size_t e = tag_end(src, len, i);
+                char label[32];
+                if (tag_attr(src, i + 1, e, "aria-label", label, sizeof(label)) &&
+                    strcasecmp(label, "Breadcrumb") == 0) {
+                    in_breadcrumb = 1;
+                }
+            }
             if (!line_done && tag_is(src, len, i, "h1", 0)) {
                 level_lines(&b, filter != 0 ? filter : levels, level,
                             !(levels & level), related);
@@ -594,8 +606,17 @@ char *tam_depth_prepare(const char *src, size_t len, const char *path,
         if (src[i] == '<') {
             size_t e = tag_end(src, len, i);
             size_t stop = e < len ? e + 1 : len;
+            int close_breadcrumb = in_breadcrumb && tag_is(src, len, i, "nav", 1);
             buf_add(&b, src + i, stop - i);
             i = stop;
+            if (close_breadcrumb) {
+                in_breadcrumb = 0;
+                if (!line_done) {
+                    level_lines(&b, filter != 0 ? filter : levels, level,
+                                !(levels & level), related);
+                    line_done = 1;
+                }
+            }
         } else { buf_add(&b, src + i, 1); i++; }
     }
 

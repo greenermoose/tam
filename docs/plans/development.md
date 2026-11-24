@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-24:** Command 0.69.2 (patch): show line Lb (the current lens) on every Guide page, emitting it after the breadcrumb when a page has no title `<h1>`, so the welcome page keeps a lens line above its first paragraph.
 - **2026-11-24:** Command 0.69.1 (patch): simplify the `tam:paths` intro to "Choose your own learning adventure." and remove the Start and Overview links from each path line; the named path detail page keeps its own Start this path and Path overview and practice links.
 - **2026-11-24:** Command 0.69.0 (minor): redesign `tam:hubs` as eight root subject homes in two groups, require hub kind, and add an aside explaining hubs, paths and topics.
 - **2026-11-24:** Corpus 0.120.1 (patch): revise the Guide index second grouping, add Browse topics, rename the systems hub to Systems and administration, and update its breadcrumbs.

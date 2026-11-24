@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.1' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.2' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -181,7 +181,7 @@ pass "argument errors"
 # Welcome command: displays orientation and records welcome_seen on success.
 w_state="$tmp/welcome_state"
 w_out=$(env HOME="$tmp/w_home" XDG_STATE_HOME="$w_state" "$TAM" welcome --pipe)
-printf '%s\n' "$w_out" | grep -q 'Welcome to Tamlinux' || fail "welcome output missing title"
+printf '%s\n' "$w_out" | grep -q '^Hello!$' || fail "welcome output missing introduction"
 [ -f "$w_state/tamlinux/tam/welcome_seen" ] || fail "welcome did not create tamlinux/tam/welcome_seen"
 [ ! -e "$w_state/tamlinux/welcome_seen" ] || fail "welcome wrote the retired top-level welcome_seen"
 grep -q '^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}T' "$w_state/tamlinux/tam/welcome_seen" \
@@ -193,9 +193,9 @@ pass "welcome displays orientation and records welcome_seen"
 
 # hello and hi aliases for welcome
 hello_out=$("$TAM" hello --pipe)
-printf '%s\n' "$hello_out" | grep -q 'Welcome to Tamlinux' || fail "tam hello did not render welcome"
+printf '%s\n' "$hello_out" | grep -q '^Hello!$' || fail "tam hello did not render welcome"
 hi_out=$("$TAM" hi --pipe)
-printf '%s\n' "$hi_out" | grep -q 'Welcome to Tamlinux' || fail "tam hi did not render welcome"
+printf '%s\n' "$hi_out" | grep -q '^Hello!$' || fail "tam hi did not render welcome"
 pass "hello and hi aliases for welcome"
 
 # Welcome isolation: bare tam, show, help, version, explain, install NEVER write welcome state.
@@ -1681,7 +1681,11 @@ os.close(slave)
 _, pos, target, _, _ = get_state(timeout=0.08)
 assert pos.startswith("L1 ") and target == "", f"expected L1 with no selection, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[A")
-assert target == "index.html", f"expected Up on the first line to focus the breadcrumb, got: {target}"
+assert pos.startswith("Lb ") and target == "", f"expected Up from L1 to reach Lb, got: {pos} {target}"
+_, pos, target, _, _ = send_key(b"\x1b[A")
+assert target == "index.html", f"expected Up on Lb to focus the breadcrumb, got: {target}"
+_, pos, target, _, _ = send_key(b"\x1b[B")
+assert pos.startswith("Lb ") and target == "", f"expected Down to return to Lb, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[B")
 assert pos.startswith("L1 ") and target == "", f"expected Down to return to the first line, got: {pos} {target}"
 _, pos, target, _, _ = send_key(b"\x1b[B")
