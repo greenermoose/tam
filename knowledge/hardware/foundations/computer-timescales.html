@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Time and timescales in computing</title>
+<meta name="topic" content="computer-timescales">
+<meta name="summary" content="Understand computer timescales from CPU cycles to network round trips, with hertz, refresh rates, overclocking, and a human-scaled time analogy.">
+<meta name="keywords" content="time, timescales, nanosecond, microsecond, millisecond, hertz, hz, ghz, refresh rate, overclocking, latency, cpu cycle, cache, ram, ssd, network, human scale">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="hardware">
+<meta name="parent" content="hardware/foundations/index.html">
+<meta name="prereqs" content="digital-logic">
+<meta name="kind" content="explanation">
+<meta name="skills" content="hardware.novice, hardware.learner, hardware.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="hardware/index.html">Hardware</a> / <a href="hardware/foundations/index.html">Physical foundations</a> / Time and timescales in computing</p></nav>
+
+<h1>Time and timescales in computing</h1>
+<p>This page explains how fast different computer operations happen, and uses a human-scale analogy to make nanoseconds, microseconds, and milliseconds easier to compare.</p>
+<h2>Before this</h2><p><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a></p>
+<p>Computers work on timescales far smaller than human perception. A processor may complete billions of tiny steps each second, while a disk seek or network round trip can feel instant to a person and still be enormously slow to a CPU. Learning these timescales helps you understand why caches exist, why refresh rate matters, why <a href="glossary/l/latency.html">latency</a> feels different from bandwidth, and what changing a clock speed can and cannot do.</p>
+
+<section data-level="novice">
+<h2>Why computer time is hard to feel</h2>
+<p>People are good at judging seconds, minutes, and days. Computers work in nanoseconds and microseconds. The numbers are so small that they all sound like "basically instant" - but to a computer, they are very different.</p>
+<h3>A human-scale analogy</h3>
+<p>Imagine we stretch time so that <strong>1 nanosecond (1 ns)</strong> becomes <strong>1 second</strong>. In that scale:</p>
+<table>
+<tr><th>Real computer time</th><th>Human-scaled time (1 ns = 1 s)</th></tr>
+<tr><td>1 nanosecond (ns)</td><td>1 second</td></tr>
+<tr><td>1 microsecond (µs)</td><td>16 minutes 40 seconds</td></tr>
+<tr><td>1 millisecond (ms)</td><td>11.6 days</td></tr>
+<tr><td>1 second (s)</td><td>31.7 years</td></tr>
+</table>
+<p>This is why a CPU waiting for main memory is like a person taking a quick break, while waiting for a disk or network can be like waiting days or years in that same stretched scale.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/h/hertz.html">Hertz (Hz)</a></dt>
+<dd>One cycle per second. A 3 GHz CPU clock ticks 3 billion times per second.</dd>
+<dt>Millisecond (ms)</dt>
+<dd>One thousandth of a second (0.001 s).</dd>
+<dt>Microsecond (µs)</dt>
+<dd>One millionth of a second (0.000001 s).</dd>
+<dt>Nanosecond (ns)</dt>
+<dd>One billionth of a second (0.000000001 s).</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Common timescales on a Tamlinux system</h2>
+<p><strong>Goal:</strong> compare common hardware and system operations by order of magnitude, and connect hertz, refresh rate, and overclocking to real time.</p>
+<p><strong>Before you start:</strong> the times below are representative examples. Actual values vary by CPU model, memory, storage, kernel, load, temperature, and network path.</p>
+
+<h3>Representative operation times</h3>
+<table>
+<tr><th>Operation</th><th>Typical time</th><th>If 1 ns = 1 second</th><th>What it means</th></tr>
+<tr><td>1 CPU cycle at 3 GHz</td><td>~0.33 ns</td><td>~0.33 s</td><td>A single clock tick; modern CPUs can do more than one simple operation per cycle.</td></tr>
+<tr><td>L1 cache reference</td><td>~1 ns</td><td>1 s</td><td>Fastest data close to the CPU core.</td></tr>
+<tr><td>L2 cache reference</td><td>~4 ns</td><td>4 s</td><td>Still very fast, but farther away than L1.</td></tr>
+<tr><td>L3 cache reference</td><td>~10&ndash;20 ns</td><td>10&ndash;20 s</td><td>Shared cache; useful, but noticeably slower than L1/L2.</td></tr>
+<tr><td>Main memory (RAM) reference</td><td>~60&ndash;100 ns</td><td>1&ndash;2 min</td><td>A big jump; this is why cache misses matter.</td></tr>
+<tr><td>NVMe SSD 4K read (typical)</td><td>~20&ndash;100 µs</td><td>~5.5&ndash;27.8 hours</td><td>Fast storage, but far slower than RAM.</td></tr>
+<tr><td>Read 1 MB sequentially from SSD</td><td>~200 µs&ndash;1 ms</td><td>~2.3&ndash;11.6 days</td><td>Sequential reads amortize overhead.</td></tr>
+<tr><td>Disk seek / HDD random access</td><td>~3&ndash;10 ms</td><td>~35&ndash;116 days</td><td>Mechanical movement is huge in CPU time.</td></tr>
+<tr><td>Local network ping (LAN/Wi-Fi)</td><td>~1&ndash;10 ms</td><td>~11.6&ndash;116 days</td><td>Still "instant" to humans, long to CPUs.</td></tr>
+<tr><td>Internet round trip (typical)</td><td>~20&ndash;150 ms</td><td>~0.63&ndash;4.76 years</td><td>Distance, routing, and queues dominate.</td></tr>
+<tr><td>One frame at 60 Hz</td><td>16.7 ms</td><td>~193 days</td><td>Display refresh budget for smooth 60 FPS.</td></tr>
+<tr><td>One frame at 120 Hz</td><td>8.3 ms</td><td>~96 days</td><td>Half the time per frame compared to 60 Hz.</td></tr>
+</table>
+
+<h3>Hertz, refresh rate, and overclocking</h3>
+<p><strong><a href="glossary/h/hertz.html">Hertz</a></strong> means cycles per second. It is used for many things: CPU clock speed (GHz), monitor <a href="glossary/r/refresh-rate.html">refresh rate</a> (Hz), audio sample rates, and timer ticks. The same unit does not mean the same kind of work.</p>
+<p>A 60 Hz display redraws every 16.7 ms. A 120 Hz display redraws every 8.3 ms. That can make motion look smoother, but only if the system can produce frames fast enough.</p>
+<p><strong><a href="glossary/o/overclocking.html">Overclocking</a></strong> means running a component faster than its default rated speed. More clock cycles per second can improve performance, but it also increases heat, power use, and the chance of instability. The gain is limited by cooling, voltage, workload, and the rest of the system.</p>
+
+<h3>Try it</h3>
+<pre class="session" data-risk="read-only">
+$ lscpu | grep -E 'Model name|CPU max MHz|CPU min MHz'
+Model name:                              AMD Ryzen 7 5700U with Radeon Graphics
+CPU max MHz:                             4300.0000
+CPU min MHz:                             1400.0000
+
+$ cat /sys/class/drm/card1-eDP-1/modes | head -n 1
+1920x1080
+</pre>
+<p>Captured on a Tamlinux workstation, 2026-11-01. Paths and values vary by system.</p>
+<p>The CPU frequency range shows the processor can move between lower and higher clock speeds. Display modes and refresh rates (check your desktop display settings or <code>/sys/class/drm/*/modes</code>) show another place where Hz directly affects user experience.</p>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>If 1 nanosecond is scaled to 1 second, about how long is 1 millisecond?</i></summary>
+<p>About 11.6 days. A millisecond is one million nanoseconds, so 1,000,000 seconds is roughly 11.6 days.</p>
+</details>
+<details class="q">
+<summary><i>Why can a higher refresh rate make motion look smoother even when the image content is the same?</i></summary>
+<p>Because the display updates more often (for example every 8.3 ms at 120 Hz instead of 16.7 ms at 60 Hz), so movement and camera pans have smaller visual steps if new frames are available in time.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: time, clocks, and latency budgets</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Domain</th><th>Typical unit/range</th><th>Tamlinux relevance</th><th>Caveat</th></tr>
+<tr><td>CPU clock</td><td>MHz&ndash;GHz</td><td>Instruction throughput, DVFS/boost behavior</td><td>Frequency != instructions per cycle (IPC)</td></tr>
+<tr><td>Memory/cache</td><td>ns to ~100 ns</td><td>Cache misses, allocator behavior, workload latency</td><td>NUMA, contention, prefetchers change results</td></tr>
+<tr><td>Storage</td><td>µs&ndash;ms</td><td>Boot, package installs, logs, swap, file access</td><td>Queue depth, filesystem, writeback, device health</td></tr>
+<tr><td>Display</td><td>Hz / ms per frame</td><td>Compositor smoothness, input feel, VRR</td><td>Frame pacing, GPU render time, buffer age</td></tr>
+<tr><td>Network</td><td>ms to 100s of ms</td><td>SSH, updates, web, remote services</td><td>RTT, jitter, loss, queuing dominate tails</td></tr>
+</table>
+
+<h3>How it works</h3>
+<p>A clocked digital system advances work on clock edges; cycle time is the inverse of frequency (3 GHz &rarr; ~333 ps). But end-to-end performance is shaped by the whole path: pipeline depth, IPC, cache hierarchy, memory latency/bandwidth, storage queues, scheduler delay, and network RTT/jitter. <a href="glossary/o/overclocking.html">Overclocking</a> raises frequency/voltage margins, but may hit thermal/power limits and reduce stability; undervolting/DVFS trade the opposite direction. Display timing is a fixed budget per frame (16.7 ms at 60 Hz), so missed deadlines become dropped frames or stutter.</p>
+
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Averages hide tails:</strong> p99 latency matters more than mean for interactive feel.</li>
+<li><strong>Units collide:</strong> Hz can describe CPU clocks, refresh rate, PWM, or audio sampling - same unit, different subsystem.</li>
+<li><strong>Faster clock is not always faster:</strong> thermal throttling, memory bottlenecks, or lower IPC can erase gains.</li>
+<li><strong>Human perception is not uniform:</strong> people notice input lag, jitter, and frame pacing differently than raw throughput.</li>
+</ul>
+
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why is a human-scaled latency table useful, and what can it hide?</summary>
+<p>It makes orders of magnitude intuitive by mapping ns/µs/ms to familiar time. It can hide variability, tail latency, queueing effects, and the fact that modern CPUs overlap work (out-of-order execution, prefetching, pipelining), so a "memory access" cost is not always paid as a simple blocking wait.</p>
+</details>
+</section>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="glossary/h/hertz.html">Hertz</a> &mdash; the unit used for cycles per second.</li>
+<li><a href="glossary/o/overclocking.html">Overclocking</a> &mdash; running hardware faster than its default rating.</li>
+<li><a href="glossary/r/refresh-rate.html">Refresh rate</a> &mdash; how often a display redraws.</li>
+<li><a href="glossary/l/latency.html">Latency</a> &mdash; delay before a response arrives.</li>
+<li><a href="hardware/architecture/instruction-cycle.html">The microarchitectural instruction cycle</a> &mdash; what happens in each CPU step.</li>
+</ul>
+
+<h2>Sources and further reading</h2>
+<ul>
+<li><a href="https://gist.github.com/jboner/2841832">Latency Numbers Every Programmer Should Know</a> &mdash; classic order-of-magnitude latency reference (values vary by hardware/year).</li>
+<li><a href="https://en.wikipedia.org/wiki/Orders_of_magnitude_(time)">Orders of magnitude (time)</a> &mdash; time scale comparisons.</li>
+</ul>
+</body>
+</html>

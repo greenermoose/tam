@@ -1,0 +1,40 @@
+W113 COMPUTER TIMESCALES
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Do we have an explanation of time in the knowledge corpus? I
+  want to make sure users understand timescales that are relevant to the
+  functioning of the Tamlinux system. This should include hertz,
+  overclocking, refresh rates, and a general introduction to how long
+  things take scaled to a relatable reference frame..." Follow-up: "Draft
+  it as a W113 corpus task. I accept your suggested shape."
+
+DONE
+
+  - Added `knowledge/hardware/foundations/computer-timescales.html`
+    (explanation, hardware foundations): human-scaled analogy
+    (1 ns = 1 s => 1 µs = 16m40s, 1 ms = 11.6 days, 1 s = 31.7 years),
+    representative operation table, hertz/refresh rate/overclocking
+    connections, and Tamlinux-relevant caveats.
+  - Added glossary pages: `knowledge/glossary/h/hertz.html`,
+    `knowledge/glossary/o/overclocking.html`; updated H/O letter indexes.
+  - Added cross-links from `glossary/l/latency.html`,
+    `glossary/r/refresh-rate.html`, `glossary/c/clock-signal.html`,
+    `hardware/architecture/computer-architecture.html`, and
+    `hardware/architecture/instruction-cycle.html`.
+  - Updated `knowledge/hardware/foundations/index.html` to include the
+    new page.
+  - Bumped corpus to 0.120.0; updated ROADMAP/WHATNOW; regenerated indexes.
+
+VERIFICATION
+
+  - python3 tools/build-index.py: pass.
+  - make corpus-and-test: pass.
+
+FOLLOW-UP
+
+  - None.
