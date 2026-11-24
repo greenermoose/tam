@@ -3,35 +3,35 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W124
+Updated: 2026-11-24, with W125
 
 STATE
 
-  Command 0.69.4 and corpus 0.124.0 on dev. W124 changed tam:paths to open
-  with the breadcrumb, line Lb and `Choose your own learning adventure`,
-  with an empty line between breadcrumb and intro and no title heading
-  repeating the breadcrumb. Because generated views bypass
-  tam_depth_prepare(), the view injects tam_level_lines() itself.
+  Command 0.69.5 and corpus 0.124.0 on dev. W125 removed everything above
+  the topic table on tam:topics: the `Topics A to Z` heading and the
+  instructions paragraph are gone. The view opens with the breadcrumb,
+  line Lb and the `Topic` / `Covers` table header, with a blank line below
+  the breadcrumb in pipe output.
 
-  W123 changed tam:hubs to open with the breadcrumb, a closed first-time
-  aside labelled `[+] You may want to know... (-> to show)` and the Using
-  your system group, with no title heading. The generated view passes
-  through the fold renderer, so the intro opens and closes in the pager.
+  W124 changed tam:paths to open with the breadcrumb, Lb and `Choose your
+  own learning adventure`. W123 changed tam:hubs to open with the
+  breadcrumb, a closed first-time aside and the Using your system group.
+  W122 made line Lb appear on every depth-prepared Guide page; W121
+  rewrote the welcome page and removed the 1,442 body headings that
+  repeated breadcrumbs across the non-root corpus. TCK32 is minted with
+  four children; next free checklist ID is TCK33.
 
-  W122 made line Lb, the current lens, appear on every Guide page by
-  emitting it after the breadcrumb when there is no title <h1>. W121
-  rewrote the welcome page with the requested intro-first opening and
-  removed the 1,442 body headings that repeated breadcrumbs across the
-  non-root corpus. Templates, authoring rules, the glossary hub generator
-  and the guide test preserve the pattern. TCK32 is minted with four
-  children; next free checklist ID is TCK33.
+  Generated views built with tam_page_render() do not go through
+  tam_depth_prepare(), so hubs, paths and topics now supply their own
+  opening explicitly (fold renderer for hubs, tam_level_lines() for paths
+  and topics).
 
   make command, make test-command, make corpus, make corpus-and-test and
   make check-repo all pass. Work is uncommitted at this point.
 
 NEXT
 
-  - Commit the W124 source, test, version and record paths on dev with
+  - Commit the W125 source, test, version and record paths on dev with
     provenance trailers. Only claimed paths go into this commit.
   - Await Fred's direction. No Test, Run or Release is authorised.
 
@@ -51,6 +51,9 @@ WATCH OUT
     depth-prepared corpus pages get it from tam_depth_prepare().
   - Interactive checks of generated views need `tam show <view>`, not a
     bare `tam <view>` alias; only some views have bare aliases.
+  - PTY assertions on coloured rows must strip ANSI escapes first: a
+    right-aligned Lb can be split by colour codes. Wait for a content
+    marker instead of a fixed delay when the view loads an index.
   - The reveal and hide keys r and a are reliable for first-time asides;
     Right Arrow depends on where the attention line sits.
   - Escaped href="..." inside a pre block still trips the corpus link
@@ -68,7 +71,7 @@ WATCH OUT
     botanical analogy, not a set of plant names.
   - Digit-leading glossary titles belong in glossary/numeric/, not in the
     letter folder matching a later "b" or other letter.
-  - Command and corpus versions are independent; W124 is command only.
+  - Command and corpus versions are independent; W125 is command only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.

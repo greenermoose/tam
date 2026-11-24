@@ -93,7 +93,10 @@ class LibraryDiscovery(unittest.TestCase):
         self.assertIn('connect',slugs)
         for slug in slugs:
             self.assertIn(slug,shown)
-        self.assertIn('Topics A to Z',shown)
+        self.assertIn('Covers',shown)
+        self.assertIn('Showing all text',shown)
+        self.assertNotIn('Topics A to Z',shown)
+        self.assertNotIn('Every topic tam can explain',shown)
         self.assertNotIn('Browse hubs',shown)
 
     def test_catalog_lists_all_pages_alphabetically(self):

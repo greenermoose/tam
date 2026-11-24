@@ -216,16 +216,11 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
     if (idx == NULL) return NULL;
     static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Topics" } };
     tam_str_t html = tam_page_begin("Topics A to Z", NULL, crumbs, 2);
-    if (level != 0) {
-        html = tam_str_cat_printf(html, "<h1>Topics A to Z (%s)</h1>\n",
-                                  tam_level_name(level));
-    } else {
-        html = tam_str_cat(html, "<h1>Topics A to Z</h1>\n");
-    }
+    /* Line Lb follows the breadcrumb on every Guide view; the table starts
+     * straight after it, so nothing sits above the topic list. */
+    char *lb = tam_level_lines(0, level, 0, NULL);
+    if (lb != NULL) { html = tam_str_cat(html, lb); free(lb); }
     html = tam_str_cat(html,
-        "<p>Every topic tam can explain, one line each.<br>\n"
-        "Select a topic with <kbd>Tab</kbd> and press <kbd>Enter</kbd> to read it. "
-        "Press <kbd>`</kbd> for the guide index, or <kbd>q</kbd> to quit.</p>\n"
         "<table>\n"
         "<tr><th>Topic</th><th>Covers</th></tr>\n");
     for (size_t i = 0; i < idx->count; i++) {

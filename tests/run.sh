@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.4' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.5' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -225,10 +225,57 @@ printf '%s\n' "$sh_out" | grep -q 'Fixture Guide' || fail "tam show --pipe faile
 sh_page=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show welcome --pipe)
 printf '%s\n' "$sh_page" | grep -q 'Fixture Welcome' || fail "tam show welcome failed"
 sh_topics=$("$TAM" show topics --pipe)
-printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z' || fail "tam show topics failed"
+printf '%s\n' "$sh_topics" | grep -q '^Topic .*Covers' || fail "tam show topics table missing"
+if printf '%s\n' "$sh_topics" | grep -q 'Topics A to Z'; then fail "tam show topics repeated the breadcrumb in a heading"; fi
+if printf '%s\n' "$sh_topics" | grep -q 'Every topic tam can explain'; then fail "tam show topics still has an intro above the table"; fi
+printf '%s\n' "$sh_topics" | grep -q 'Showing all text' || fail "tam show topics missing line Lb"
+[ "$(printf '%s\n' "$sh_topics" | sed -n '2p')" = "" ] || fail "tam show topics needs a blank line after the breadcrumb"
 sh_topics_pseudo=$("$TAM" show tam:topics --pipe)
-printf '%s\n' "$sh_topics_pseudo" | grep -q 'Topics A to Z' || fail "tam show tam:topics failed"
 [ "$sh_topics" = "$sh_topics_pseudo" ] || fail "tam show topics and tam:topics differ"
+
+# In the pager Lb sits between the breadcrumb and the table header. This view
+# is generated from the indexed corpus, so it has no small page fixture.
+# live-corpus: the topics view is generated from the corpus index, not a fixture page
+python3 - "$TAM" "$knowledge" <<'PYTOPICS'
+import fcntl, os, pty, re, select, struct, subprocess, sys, termios, time
+tam, knowledge = sys.argv[1], sys.argv[2]
+env = dict(os.environ, TAM_KNOWLEDGE_DIR=knowledge, TERM="xterm-256color", NO_COLOR="")
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 8, 80, 0, 0))
+with subprocess.Popen([tam, "show", "topics"], stdin=slave, stdout=slave, stderr=slave,
+                      env=env) as proc:
+    os.close(slave)
+    def until(marker):
+        out = bytearray()
+        deadline = time.monotonic() + 3
+        while marker not in out:
+            ready, _, _ = select.select([master], [], [], max(0, deadline - time.monotonic()))
+            assert ready, out.decode(errors="replace")
+            out.extend(os.read(master, 65536))
+        return out
+    try:
+        screen = until(b"Covers")
+        plain = re.sub(rb"\x1b(?:\[[0-9;?]*[ -/]*[@-~]|\([A-Z0-9])", b"", screen)
+        assert b"Guide > Topics" in plain, plain
+        assert b"Showing all text" in plain, plain
+        # The footer still shows the document title; only the page body is
+        # allowed to lose it, so it must not appear before the table header.
+        if b"Topics A to Z" in plain:
+            assert plain.index(b"Topics A to Z") > plain.index(b"Covers"), plain
+        assert b"Every topic tam can explain" not in plain, plain
+        assert (plain.index(b"Guide > Topics") <
+                plain.index(b"Showing all text") <
+                plain.index(b"Covers")), plain
+    finally:
+        os.write(master, b"q")
+        try:
+            proc.wait(timeout=3)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+            os.close(master)
+PYTOPICS
+pass "tam:topics shows Lb between breadcrumb and table"
 sh_hubs=$("$TAM" show hubs --pipe)
 printf '%s\n' "$sh_hubs" | grep -q 'Browse hubs' || fail "tam show hubs failed"
 if printf '%s\n' "$sh_hubs" | grep -q 'Subject Hubs in Your Tamlinux User Guide'; then fail "tam show hubs repeated the breadcrumb in a heading"; fi

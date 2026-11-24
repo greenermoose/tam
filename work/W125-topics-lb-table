@@ -1,0 +1,65 @@
+W125 TOPICS LB TABLE
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "On tam:topics, remove everything above the Topic table. Make sure
+  there is a blank line (Lb) below the Breadcrumb and above the table."
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session. "Everything above the Topic
+  table" means both the `Topics A to Z` title heading and the instructions
+  paragraph. Lb is Fred's named separator: below the breadcrumb, above the
+  table, matching the welcome, hubs and paths openings.
+
+DONE
+
+  - src/views.c: tam_topics_document() no longer emits the level-dependent
+    `<h1>Topics A to Z ...</h1>` or the `Every topic tam can explain ...`
+    paragraph. It injects `tam_level_lines(0, level, 0, NULL)` after the
+    breadcrumb and goes straight into the `<table>` with its `Topic` /
+    `Covers` header. The `<title>` stays "Topics A to Z", and a level lens
+    still colours the table links and makes Lb say e.g. "Showing learner
+    text".
+  - tests/run.sh: the pipe check now requires the table header, Lb and an
+    empty second line, and rejects the removed heading and intro. A PTY
+    check confirms the breadcrumb, Lb and table header appear in that order
+    with neither heading nor intro. As with hubs and paths, the generated
+    view is marked with the `# live-corpus:` exception.
+  - tests/test_library_discovery.py: the shared-catalog check now asserts
+    the table and Lb instead of the removed heading.
+  - Bumped command to 0.69.5 in src/version.h, tests/run.sh, the decision
+    record and ROADMAP.md, including a delivered-history row.
+
+FAILED
+
+  - The first PTY check rejected any `Topics A to Z` byte sequence, but the
+    pager footer still shows that document title. The check now allows it
+    only after the `Covers` table header, so it catches a body heading but
+    not the footer title.
+  - The initial visual probe of the pager read only the first 0.2 s of PTY
+    output, before the topics table had rendered; feeding another 0.5 s
+    showed the real screen. The automated check waits for the `Covers`
+    marker instead of a fixed delay.
+
+CHECKED AGAINST
+
+  - make command builds cleanly.
+  - Pipe output: line 1 `Guide > Topics`, line 2 empty, line 3 right-aligned
+    `Showing all text`, line 4 `Topic    Covers`, then the rule and rows.
+  - PTY inspection: row 0 breadcrumb, row 1 Lb, row 2 table header, row 3
+    rule, with no heading or instructions above it.
+  - `show topics --level=learner --pipe` shows `Showing learner text` above
+    the same table.
+  - make test-command, python3 tools/check-repo.py and git diff --check
+    pass (see final verification below).
+  - No push, install, Test, Run or Release was requested or performed.
+
+CONTINUATION
+
+  - Commit this change on dev with provenance trailers.
+  - Await Fred's direction. No stage promotion is authorised.
