@@ -1,0 +1,54 @@
+W127 FOLD STATUS CLEARS ON MOVEMENT
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Fix the same issue when you expand an answer or show an aside.
+  When you move the attention line, the status line should clear."
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session, following W126. The
+  complaint is the same stale-status problem: after expanding a fold the
+  status row keeps reporting the fold notice after the reader moves away.
+
+DONE
+
+  - src/pager_input.c: handle_key() now clears st->msg whenever the page,
+    cursor line or selected link changes, but only when the key being
+    handled did not write a new notice. The existing snapshot of the
+    previous message provides the guard, so `r` and `*` still report a
+    fresh quiz count while ordinary movement keys clear the old one.
+    The same block clears show_address, replacing the W126-only branch.
+  - tests/run.sh: a fold regression case opens folds.html, reveals the
+    first answer, moves down one line and checks that `Quiz 1/2 revealed`
+    is gone; a following `r` still reports `Quiz 2/2 revealed`.
+  - Bumped command to 0.69.7 in src/version.h, tests/run.sh, the decision
+    record and ROADMAP.md, including a delivered-history row.
+
+FAILED
+
+  - None. The first probe confirmed the bug: `+` wrote
+    `[Quiz 1/2 revealed]` and a following `d` left it unchanged. After the
+    change the same sequence ends with an empty status row, while `r`
+    writes a new count.
+
+CHECKED AGAINST
+
+  - PTY probe on folds.html: Tab selects the fold link, `+` shows
+    `Quiz 1/2 revealed`, `d` clears it, and `r` writes
+    `Quiz 2/2 revealed`.
+  - PTY probe on the hubs view: showing the first-time aside already
+    loses its fold-link destination on the next line move; no stale
+    aside notice remains.
+  - make command builds cleanly; make test-command, python3 tools/check-repo.py
+    and git diff --check pass (see final verification below).
+  - No push, install, Test, Run or Release was requested or performed.
+
+CONTINUATION
+
+  - Commit this change on dev with provenance trailers.
+  - Await Fred's direction. No stage promotion is authorised.

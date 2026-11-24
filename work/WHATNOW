@@ -3,15 +3,20 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W126
+Updated: 2026-11-24, with W127
 
 STATE
 
-  Command 0.69.6 and corpus 0.124.0 on dev. W126 makes the pager status
-  line follow the attention line: `Path = ...` is cleared as soon as the
-  cursor, selection or page changes, and a selected link's destination
-  in the status row now uses the same bold/reverse styling (and visible
-  background) as the highlighted link in the page.
+  Command 0.69.7 and corpus 0.124.0 on dev. W127 extends the status-line
+  fix to fold notices: `Quiz 1/2 revealed` and similar transient messages
+  are cleared when the attention line, selection or page changes, unless
+  the key being handled wrote a fresh notice. Expanding an answer or
+  showing an aside no longer leaves a stale notice behind.
+
+  W126 made the pager status line follow the attention line: `Path = ...`
+  is cleared as soon as the cursor, selection or page changes, and a
+  selected link's destination in the status row uses the same bold/reverse
+  styling (and visible background) as the highlighted link in the page.
 
   W125 removed everything above the topic table on tam:topics: the
   `Topics A to Z` heading and the instructions paragraph are gone. The
@@ -34,8 +39,8 @@ STATE
 
 NEXT
 
-  - Commit the W126 source, test, version, manual and record paths on dev
-    with provenance trailers. Only claimed paths go into this commit.
+  - Commit the W127 source, test, version and record paths on dev with
+    provenance trailers. Only claimed paths go into this commit.
   - Await Fred's direction. No Test, Run or Release is authorised.
 
 WAITING FOR FRED
@@ -79,7 +84,10 @@ WATCH OUT
     botanical analogy, not a set of plant names.
   - Digit-leading glossary titles belong in glossary/numeric/, not in the
     letter folder matching a later "b" or other letter.
-  - Command and corpus versions are independent; W126 is command only.
+  - Fold notices are transient st->msg text: a movement key clears them
+    only when the key did not write a new notice, so reveal-all still
+    reports its count.
+  - Command and corpus versions are independent; W127 is command only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.

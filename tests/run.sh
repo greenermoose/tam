@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.6' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.7' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -2325,6 +2325,18 @@ p = Pager(["show", "-"], state, env={"TAM_LEVEL": "all"},
           stdin=b"<h1>Input quiz</h1><details class=\"q\"><summary>Input?</summary>INPUT_SECRET</details>")
 assert "INPUT_SECRET" not in p.first, p.first
 assert "INPUT_SECRET" in p.key(b"r")
+p.quit()
+
+# Fold notices describe where they were written: moving the attention line
+# clears them, but a key that writes a fresh notice still shows it.
+p = Pager(["show", "folds.html"], state, env={"TAM_LEVEL": "all"})
+p.key(b"\t")
+b = p.key(b"+")
+assert "Quiz 1/2 revealed" in b, b
+b = p.key(b"d")
+assert "Quiz 1/2 revealed" not in b, b
+b = p.key(b"r")
+assert "Quiz 2/2 revealed" in b, b
 p.quit()
 
 # Quiz summary/details spacing, section spacing, and box-width lens alignment.
