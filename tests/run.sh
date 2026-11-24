@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.68.26' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.68.27' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -234,6 +234,10 @@ printf '%s\n' "$sh_hubs" | grep -q 'Browse hubs' || fail "tam show hubs failed"
 printf '%s\n' "$sh_hubs" | grep -q 'Subject Hubs in Your Tamlinux User Guide' || fail "tam show hubs heading failed"
 sh_hubs_pseudo=$("$TAM" show tam:hubs --pipe)
 [ "$sh_hubs" = "$sh_hubs_pseudo" ] || fail "tam show hubs and tam:hubs differ"
+sh_paths=$("$TAM" show paths --pipe)
+printf '%s\n' "$sh_paths" | grep -q 'Learning Paths' || fail "tam show paths failed"
+sh_paths_pseudo=$("$TAM" show tam:paths --pipe)
+[ "$sh_paths" = "$sh_paths_pseudo" ] || fail "tam show paths and tam:paths differ"
 
 # page: addresses, tam:keywords, and tam:explain under show
 sh_pipe1=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show page:shell/pipelines --pipe) || fail "show page:shell/pipelines --pipe failed"

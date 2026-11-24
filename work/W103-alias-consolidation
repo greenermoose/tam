@@ -1,0 +1,40 @@
+W103 CLI ALIAS CHARACTERIZATION AND CONSOLIDATION
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Do W91/96 characterized aliases"
+  WHATNOW item 1 / R1 step 1 follow-up: characterize aliases, then
+  consolidate only with characterization tests and no behavior change.
+
+DONE
+
+  - Added characterization for CLI view alias `paths` in tests/run.sh
+    (show paths == show tam:paths).
+  - Consolidated `tam explain topics` special case in src/tam.c to use
+    `tam_addr_cli_alias()` while preserving behavior (only topics gets
+    the interactive topics document path).
+  - Bumped command to 0.68.27 (patch) and updated development plan,
+    ROADMAP, and WHATNOW.
+
+NOT DONE / FOLLOW-UP
+
+  - Render breadcrumb href classification and external scheme
+    error-message parsing remain characterized/largely covered but not
+    consolidated (WHATNOW item 1).
+  - R1 step 4 follow-up and R1 step 3 (measured/deferred) remain.
+
+VERIFICATION
+
+  - make -j4: pass.
+  - Manual checks: `tam --version` reports 0.68.27; `show paths` and
+    `show tam:paths` same heading; `explain topics --pipe` heading OK.
+  - make check-repo: pass.
+
+HANDOFF
+
+  - Continue R1 item 1 only with characterization tests and no behavior
+    change; otherwise move to another Fred-directed item.

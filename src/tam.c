@@ -826,7 +826,9 @@ static int cmd_explain(int n, char **args)
     int width = interactive ? tam_terminal_width() : 80;
 
     /* Case A1: tam explain topics -> display topics document */
-    if (strcmp(query_buf, "topics") == 0) {
+    {
+        const char *qalias = tam_addr_cli_alias(query_buf);
+        if (qalias != NULL && strcmp(qalias, "tam:topics") == 0) {
         if (!interactive) {
             tam_index_print_catalog_ex(stdout, idx, level, terse != 0, verbose != 0);
             tam_index_free(idx);
@@ -850,6 +852,7 @@ static int cmd_explain(int n, char **args)
         tam_index_free(idx);
         free(root);
         return rc;
+        }
     }
 
     /* Case A2: Bare tam explain -> display topic keywords list */
