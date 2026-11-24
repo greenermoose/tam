@@ -8,7 +8,8 @@
  * (src/tam.c). `level` is a lens: 0 for all levels or one level bit. */
 tam_document_t *tam_catalog_document(const char *root, unsigned level, int width);
 tam_document_t *tam_topics_document(const char *root, unsigned level, int width);
-tam_document_t *tam_hubs_document(const char *root, unsigned level, int width);
+tam_document_t *tam_hubs_document(const char *root, unsigned level, int width,
+                                  const char *open, int plain_output);
 tam_document_t *tam_topic_keywords_document(const char *root, unsigned level, int width);
 tam_document_t *tam_topic_guide_document(const char *root, const char *topic,
                                          unsigned level, int width);

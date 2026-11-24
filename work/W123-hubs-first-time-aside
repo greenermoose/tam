@@ -1,0 +1,68 @@
+W123 HUBS FIRST-TIME ASIDE
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Change tam:hubs to render as follows:
+
+  _Guide_ > Browse hubs
+
+  [+] You may want to know... (-> to show)
+
+  Using your system
+
+  Have the initial paragraph be an aside that readers can open or close."
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session. The sketch fixes the exact
+  pager opening: breadcrumb, collapsed first-time aside toggle, then the first
+  subject group, with no title heading between them.
+
+DONE
+
+  - src/views.c: removed the <h1> "Subject Hubs in Your Tamlinux User Guide"
+    that repeated the breadcrumb, and changed the hub-browser intro from
+    <aside class="note"> to <aside class="first-time">.
+  - src/views.c, src/views.h and src/address.c: generated views previously
+    bypassed the fold renderer. tam_hubs_document() now takes the open-fold
+    set and a plain-output flag. Interactive output goes through
+    tam_fold_number() and tam_fold_render(), so the aside is a real fold
+    that opens and closes; pipe output keeps the existing tam_page_render()
+    form. load_hubs() splits the fold state out of the address href.
+  - Updated tests/run.sh: the pipe check no longer expects the removed
+    heading and asserts it is absent; a PTY check confirms the closed toggle,
+    the absence of the old heading, the first group below it, and that r and
+    a reveal and hide the intro.
+  - Updated tests/test_library_discovery.py for the removed heading.
+  - Bumped command to 0.69.3 in src/version.h, tests/run.sh, the decision
+    record and ROADMAP.md, including a delivered-history row.
+
+FAILED
+
+  - The first PTY check launched bare `tam hubs`; that alias is only accepted
+    by `tam show hubs`, so the child exited with an argument error and the
+    PTY read returned EIO. Changed the launch to `tam show hubs`.
+  - Right Arrow did not toggle the fold from the initial cursor position;
+    the reveal/hide keys r and a are the reliable check and match the
+    existing tldr landing test.
+
+CHECKED AGAINST
+
+  - make command and make test-command pass, including the repository
+    consistency check, renderer goldens and the new hubs PTY check.
+  - python3 -B -m unittest discover -s tests -p test_library_discovery.py -q
+    passes.
+  - PTY inspection of `tam show hubs`: row 0 breadcrumb, row 1
+    `[+] You may want to know... (-> to show)`, row 3 `Using your system`.
+    Pressing r opens the boxed intro; pressing a closes it again.
+  - Pipe output keeps the intro text inline and shows no title heading.
+  - No push, install, Test, Run or Release was requested or performed.
+
+CONTINUATION
+
+  - Commit this change on dev with provenance trailers.
+  - Await Fred's direction. No stage promotion is authorised.

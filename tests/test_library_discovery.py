@@ -70,7 +70,7 @@ class LibraryDiscovery(unittest.TestCase):
         self.add('word','glossary/w/word.html','Word','word','glossary','glossary','glossary/index.html')
         out=self.run_tam('show','tam:hubs','--pipe')
         self.assertIn('Browse hubs',out)
-        self.assertIn('Subject Hubs in Your Tamlinux User Guide',out)
+        self.assertNotIn('Subject Hubs in Your Tamlinux User Guide',out)
         self.assertIn('Hubs are the subject homes',out)
         self.assertIn('Using your system',out)
         self.assertIn('Understanding computing',out)

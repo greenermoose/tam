@@ -3,29 +3,31 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W122
+Updated: 2026-11-24, with W123
 
 STATE
 
-  Command 0.69.2 and corpus 0.124.0 on dev. W122 made line Lb, the
-  current lens, appear on every Guide page. tam_depth_prepare() now
-  emits it after the breadcrumb when a page has no title <h1>, so the
-  welcome page shows breadcrumb, Showing all text, then Hello! in both
-  pipe and pager output. Pager and renderer tests were updated, and a
-  new no-heading fixture covers the exact welcome-page case.
+  Command 0.69.3 and corpus 0.124.0 on dev. W123 changed tam:hubs to open
+  with the breadcrumb, a closed first-time aside labelled
+  `[+] You may want to know... (-> to show)` and the Using your system
+  group, with no title heading repeating the breadcrumb. The generated
+  view now passes through the fold renderer, so the intro opens and closes
+  in the pager; pipe output keeps the intro inline.
 
-  W121 rewrote the welcome page with the requested intro-first opening
-  and removed the 1,442 body headings that repeated breadcrumbs across
-  the non-root corpus. Templates, authoring rules, the glossary hub
-  generator and the guide test preserve the pattern. TCK32 is minted
-  with four children; next free checklist ID is TCK33.
+  W122 made line Lb, the current lens, appear on every Guide page by
+  emitting it after the breadcrumb when there is no title <h1>. W121
+  rewrote the welcome page with the requested intro-first opening and
+  removed the 1,442 body headings that repeated breadcrumbs across the
+  non-root corpus. Templates, authoring rules, the glossary hub generator
+  and the guide test preserve the pattern. TCK32 is minted with four
+  children; next free checklist ID is TCK33.
 
   make command, make test-command, make corpus, make corpus-and-test and
   make check-repo all pass. Work is uncommitted at this point.
 
 NEXT
 
-  - Commit the W122 source, test and version records on dev with
+  - Commit the W123 source, test, version and record paths on dev with
     provenance trailers. Only claimed paths go into this commit.
   - Await Fred's direction. No Test, Run or Release is authorised.
 
@@ -40,7 +42,12 @@ WATCH OUT
     claim when minting TCK IDs.
   - Lb is a lead line: it takes one content row at the top of the pager
     and reduces the numbered-line range shown there by one. Pager row
-    and scroll assertions must account for it.
+    and scroll assertions must account for it. Generated views built with
+    tam_page_render() do not carry Lb; only depth-prepared corpus pages do.
+  - Interactive checks of generated views need `tam show <view>`, not a
+    bare `tam <view>` alias; only some views have bare aliases.
+  - The reveal and hide keys r and a are reliable for first-time asides;
+    Right Arrow depends on where the attention line sits.
   - Escaped href="..." inside a pre block still trips the corpus link
     checker. Use &quot; around the example attribute value.
   - Generated corpus indexes trail page commits by one; commit them after
@@ -56,7 +63,7 @@ WATCH OUT
     botanical analogy, not a set of plant names.
   - Digit-leading glossary titles belong in glossary/numeric/, not in the
     letter folder matching a later "b" or other letter.
-  - Command and corpus versions are independent; W122 is command only.
+  - Command and corpus versions are independent; W123 is command only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.

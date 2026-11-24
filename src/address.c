@@ -4,6 +4,7 @@
 #include "archwiki.h"
 #include "depth.h"
 #include "discovery.h"
+#include "fold.h"
 #include "info.h"
 #include "man.h"
 #include "tldr.h"
@@ -175,7 +176,15 @@ static tam_document_t *load_topics(const tam_loader_ctx_t *c, const char *href, 
 
 static tam_document_t *load_hubs(const tam_loader_ctx_t *c, const char *href, int w)
 {
-    return c->root != NULL ? tam_hubs_document(c->root, view_level(href), w) : NULL;
+    if (c->root == NULL) return NULL;
+    char *open = NULL;
+    char *bare = tam_fold_split_href(href, &open);
+    if (bare == NULL) { free(open); return NULL; }
+    tam_document_t *doc = tam_hubs_document(c->root, view_level(bare), w,
+                                            open, c->plain_output);
+    free(bare);
+    free(open);
+    return doc;
 }
 
 static tam_document_t *load_paths(const tam_loader_ctx_t *c, const char *href, int w)

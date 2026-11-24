@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.2' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.3' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -231,12 +231,54 @@ printf '%s\n' "$sh_topics_pseudo" | grep -q 'Topics A to Z' || fail "tam show ta
 [ "$sh_topics" = "$sh_topics_pseudo" ] || fail "tam show topics and tam:topics differ"
 sh_hubs=$("$TAM" show hubs --pipe)
 printf '%s\n' "$sh_hubs" | grep -q 'Browse hubs' || fail "tam show hubs failed"
-printf '%s\n' "$sh_hubs" | grep -q 'Subject Hubs in Your Tamlinux User Guide' || fail "tam show hubs heading failed"
+if printf '%s\n' "$sh_hubs" | grep -q 'Subject Hubs in Your Tamlinux User Guide'; then fail "tam show hubs repeated the breadcrumb in a heading"; fi
 printf '%s\n' "$sh_hubs" | grep -q 'Hubs are the subject homes' || fail "tam show hubs intro failed"
 printf '%s\n' "$sh_hubs" | grep -q 'Using your system' || fail "tam show hubs first group failed"
 printf '%s\n' "$sh_hubs" | grep -q 'Understanding computing' || fail "tam show hubs second group failed"
 sh_hubs_pseudo=$("$TAM" show tam:hubs --pipe)
 [ "$sh_hubs" = "$sh_hubs_pseudo" ] || fail "tam show hubs and tam:hubs differ"
+
+# The hub browser's intro is a first-time aside: closed by default in the
+# pager, with no title line, and openable/closable with the reveal/hide keys. This view
+# is generated from the indexed corpus, so it has no small page fixture.
+# live-corpus: the hubs view is generated from the corpus index, not a fixture page
+python3 - "$TAM" "$knowledge" <<'PYHUBS'
+import fcntl, os, pty, select, struct, subprocess, sys, termios, time
+tam, knowledge = sys.argv[1], sys.argv[2]
+env = dict(os.environ, TAM_KNOWLEDGE_DIR=knowledge, TERM="xterm-256color", NO_COLOR="")
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 14, 80, 0, 0))
+with subprocess.Popen([tam, "show", "hubs"], stdin=slave, stdout=slave, stderr=slave,
+                      env=env) as proc:
+    os.close(slave)
+    def expect(marker):
+        out = bytearray()
+        deadline = time.monotonic() + 3
+        while marker not in out:
+            ready, _, _ = select.select([master], [], [], max(0, deadline - time.monotonic()))
+            assert ready, out.decode(errors="replace")
+            out.extend(os.read(master, 65536))
+        return out
+    try:
+        closed = expect(b"[+] You may want to know... (-> to show)")
+        assert b"Hubs are the subject homes" not in closed, closed
+        assert b"Subject Hubs in Your Tamlinux User Guide" not in closed, closed
+        assert b"Using your system" in closed, closed
+        os.write(master, b"r")
+        opened = expect(b"[-] You may want to know... (<- to hide)")
+        assert b"Hubs are the subject homes" in opened, opened
+        os.write(master, b"a")
+        expect(b"[+] You may want to know... (-> to show)")
+    finally:
+        os.write(master, b"q")
+        try:
+            proc.wait(timeout=3)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+            os.close(master)
+PYHUBS
+pass "tam:hubs intro is a toggleable first-time aside"
 sh_paths=$("$TAM" show paths --pipe)
 printf '%s\n' "$sh_paths" | grep -q 'Learning Paths' || fail "tam show paths failed"
 sh_paths_pseudo=$("$TAM" show tam:paths --pipe)

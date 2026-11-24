@@ -270,14 +270,15 @@ static void append_hub_group(tam_str_t *html, const tam_index_entry_t *const *en
     *html = tam_str_cat(*html, "</dl>");
 }
 
-tam_document_t *tam_hubs_document(const char *root, unsigned level, int width)
+tam_document_t *tam_hubs_document(const char *root, unsigned level, int width,
+                                  const char *open, int plain_output)
 {
     tam_index_t *idx = tam_index_load(root);
     if (idx == NULL) return NULL;
     static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Browse hubs" } };
     tam_str_t html = tam_page_begin("Browse hubs", NULL, crumbs, 2);
-    html = tam_str_cat(html, "<h1>Subject Hubs in Your Tamlinux User Guide</h1>"
-        "<aside class=\"note\"><p>Hubs are the subject homes of the Guide. Each hub gathers the pages that belong to one subject and leads into smaller hubs for its parts. A <strong>path</strong> is a guided reading order with steps and checkpoints, for learning a subject in sequence. A <strong>topic</strong> is one page about one thing, listed in the A&ndash;Z catalog for when you already know what you want. Start with a hub to explore a subject, choose a path to learn step by step, or use topics and search to look something up.</p></aside>");
+    html = tam_str_cat(html,
+        "<aside class=\"first-time\"><p>Hubs are the subject homes of the Guide. Each hub gathers the pages that belong to one subject and leads into smaller hubs for its parts. A <strong>path</strong> is a guided reading order with steps and checkpoints, for learning a subject in sequence. A <strong>topic</strong> is one page about one thing, listed in the A&ndash;Z catalog for when you already know what you want. Start with a hub to explore a subject, choose a path to learn step by step, or use topics and search to look something up.</p></aside>");
     static const struct {
         const char *title;
         const char *const tracks[4];
@@ -305,7 +306,15 @@ tam_document_t *tam_hubs_document(const char *root, unsigned level, int width)
     html = tam_str_cat(html, "<p><a href=\"tam:catalog\">All pages A&ndash;Z</a> · <a href=\"tam:paths\">Learn step by step</a> · <a href=\"tam:search\">Search</a></p>");
     tam_index_free(idx);
     if (!shown) { tam_str_free(html); return tam_catalog_document(root, level, width); }
-    return tam_page_render(html, width);
+    if (plain_output) return tam_page_render(html, width);
+    html = tam_page_end(html);
+    if (html == NULL) return NULL;
+    char *numbered = tam_fold_number(html, tam_str_len(html));
+    tam_str_free(html);
+    if (numbered == NULL) return NULL;
+    tam_document_t *doc = tam_fold_render(numbered, strlen(numbered), width, open, 0);
+    free(numbered);
+    return doc;
 }
 
 static tam_str_t append_step_href(tam_str_t html, const char *path,
