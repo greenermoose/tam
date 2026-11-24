@@ -1,0 +1,46 @@
+W119 OWN COMPOSITOR PLAN
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "We are writing our own compositor; we are not planning to use
+  sway or wlroots. Look for pages that mention our plans for Tamlinux
+  and update them to note this."
+
+DONE
+
+  - Read the product decision: tam-pane, Tamlinux's own compositor, is
+    selected for later integration; Hyprland remains the compositor in
+    use. No internal decision identifier was put in the corpus.
+  - Rewrote the plan statements on the compositor page, About, the
+    whole-system page, both desktop hubs, the application survey, SDDM
+    next link, two learning paths, Hyprland glossary entry, toolkits,
+    sustainability and computer graphics.
+  - Kept Sway and wlroots where they are peer projects, generic
+    technical examples or explicit statements that they are not planned.
+    Updated the microkernels research page's stale "Sway" example.
+  - Updated the corpus-authoring source row to the current product
+    plans and bumped corpus to 0.122.3 with ROADMAP and decision record.
+
+FAILED
+
+  - Nothing.
+
+CHECKED AGAINST
+
+  - docs/corpus-authoring.md, docs/plans/development.md and
+    work/README-work.
+  - rg over knowledge for sway and wlroots: all remaining mentions are
+    generic examples, peer/community material or "not planned" wording.
+  - rg for plan wording near sway/wlroots: only explicit corrections.
+  - make corpus, tools/lint-corpus.py and tools/check-repo.py pass.
+  - make check passes; reader smoke checks show the new wording.
+
+HANDOFF
+
+  - Commit the source and version records on dev with provenance
+    trailers, then rerun make corpus and commit generated indexes.
+  - No Test, Run or Release is authorised.

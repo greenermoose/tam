@@ -3,7 +3,7 @@
 <head>
 <title>Desktop Application Suites: KDE and GNOME</title>
 <meta name="topic" content="desktop-apps">
-<meta name="summary" content="A survey of KDE Gear and GNOME Core applications for a Sway and Quickshell desktop">
+<meta name="summary" content="A survey of KDE Gear and GNOME Core applications for a planned tam-pane and Quickshell desktop">
 <meta name="keywords" content="desktop applications, applications, apps, kde, gnome, kde gear, gnome core, dolphin, kate, okular, kcalc, filelight, libadwaita, qt6, kf6, baloo, tracker">
 <meta name="level" content="learner">
 <meta name="track" content="desktop">
@@ -25,14 +25,14 @@ Arch and <a href="glossary/h/hyprland.html">Hyprland</a> desktop:</p>
 
 <table>
 <tr><td><strong>The planned base</strong></td><td>the target Void base runs runit and seatd without systemd, so applications must work without systemd user sessions or logind.</td></tr>
-<tr><td><strong>The planned desktop</strong></td><td>Sway with the <a href="glossary/q/quickshell.html">Quickshell</a>-based Tamlinux shell, keyboard-driven and tiling. Applications should accept server-side decorations and avoid background polling.</td></tr>
+<tr><td><strong>The planned desktop</strong></td><td>Tamlinux's own compositor, <code>tam-pane</code>, with the <a href="glossary/q/quickshell.html">Quickshell</a>-based Tamlinux shell, keyboard-driven and tiling. Applications should accept server-side decorations and avoid background polling. Sway and wlroots are not planned.</td></tr>
 </table>
 
 <h2>Key findings</h2>
 
 <table>
 <tr><td><strong>Toolkit alignment</strong></td><td>the Tamlinux shell is built on Qt Quick, so KDE applications share the Qt 6 runtime already in memory; GNOME applications bring a second toolkit.</td></tr>
-<tr><td><strong>Window decorations</strong></td><td>KDE applications support server-side decorations, leaving window frames to Sway. Libadwaita applications draw their own header bars.</td></tr>
+<tr><td><strong>Window decorations</strong></td><td>KDE applications support server-side decorations, leaving window frames to <code>tam-pane</code>. Libadwaita applications draw their own header bars.</td></tr>
 <tr><td><strong>systemd coupling</strong></td><td>core KDE Frameworks libraries do not require systemd. Several GNOME applications expect logind or systemd user services.</td></tr>
 <tr><td><strong>Background services</strong></td><td>both projects ship file indexers (Baloo in KDE, Tracker in GNOME) and heavy personal-information databases (Akonadi, Evolution Data Server). Baloo can be switched off in its configuration file; Tracker is more tightly bound to GNOME's core applications.</td></tr>
 </table>

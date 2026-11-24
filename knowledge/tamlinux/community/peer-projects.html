@@ -153,8 +153,9 @@ configuration set.</dd>
 
 <h2>Compositors</h2>
 
-<p>Tamlinux's current desktop uses Hyprland, and the plan is to move to Sway
-on wlroots. The full comparison is in
+<p>Tamlinux's current desktop uses Hyprland, and it is writing its own
+compositor, <code>tam-pane</code>; Sway and wlroots are not planned. The full
+comparison is in
 <a href="desktop/session/compositors.html">Compositors and windowing</a>; this
 section records only the peer relationship.</p>
 
@@ -186,9 +187,9 @@ library that provides compositor building blocks.</dd>
 <dd>It keeps the i3 model and relies on a shared library for protocol and
 backend work, rather than implementing everything in one project.</dd>
 <dt>Why Tamlinux watches it</dt>
-<dd>It is the planned compositor. Sway's own development is quiet, while
-wlroots remains active; quiet is not the same as abandoned, and the two
-projects should be judged separately.</dd>
+<dd>It is a peer project, not a Tamlinux target. Sway's own development is
+quiet, while wlroots remains active; quiet is not the same as abandoned, and
+the two projects should be judged separately.</dd>
 <dt>Where to find it</dt>
 <dd><a href="https://github.com/swaywm/sway">github.com/swaywm/sway</a> and
 <a href="https://gitlab.freedesktop.org/wlroots/wlroots">gitlab.freedesktop.org/wlroots/wlroots</a>.</dd>

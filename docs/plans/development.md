@@ -1539,3 +1539,16 @@ related descriptions now call host, rootstock, bud, scion, cultivar and
 fruit a botanical analogy. Horticultural definitions of the individual
 words remain as explanations. This is a corpus correction; command version,
 stage promotion and installation remain developer-directed.
+
+### 2026-11-24 — Own compositor plan (corpus 0.122.3)
+
+The developer said Tamlinux is writing its own compositor and does not plan
+to use Sway or wlroots, and asked for corpus pages that state Tamlinux plans
+to be updated. The product plan names `tam-pane` as the selected compositor
+with integration later, while Hyprland remains in use. The corpus now says
+that in its plan statements across the compositor page, the whole-system
+page, About, the learning paths and the desktop and hardware pages. Sway and
+wlroots remain only as peer projects, generic technical examples or explicit
+statements that they are not planned. The corpus-authoring source table now
+points at the current product plans. This is a corpus correction; command
+version, stage promotion and installation remain developer-directed.

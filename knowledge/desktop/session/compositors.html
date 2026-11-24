@@ -3,8 +3,8 @@
 <head>
 <title>How windows appear on your screen</title>
 <meta name="topic" content="compositors">
-<meta name="summary" content="Wayland compositors: Hyprland today, Sway planned, and blank-screen checks">
-<meta name="keywords" content="compositor, sway, hyprland, wayland, wlroots, blank screen, drm">
+<meta name="summary" content="Wayland compositors: Hyprland today, Tamlinux's own compositor planned, and blank-screen checks">
+<meta name="keywords" content="compositor, tam-pane, hyprland, wayland, sway, wlroots, blank screen, drm">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="desktop">
 <meta name="parent" content="desktop/session/index.html">
@@ -41,7 +41,7 @@
 <p><strong>Before you start:</strong> you need a working graphical session or a text console. Do not restart display services while learning.</p>
 <aside class="first-time"><p>If the graphical desktop stops responding, try Ctrl + Alt + F2 (or another Fn key) for a text console. Exact numbers depend on the installation.</p></aside>
 <h3>Mental model</h3>
-<p>A Wayland compositor presents application surfaces and manages placement and input. The desktop shell (panels, menus) is separate. Tamlinux runs <strong>Hyprland</strong> today and has selected <strong>Sway</strong> on <strong>wlroots</strong> as a long-term planned compositor.</p>
+<p>A Wayland compositor presents application surfaces and manages placement and input. The desktop shell (panels, menus) is separate. Tamlinux runs <strong>Hyprland</strong> today and is writing its own compositor, <code>tam-pane</code>, for later integration. Sway and wlroots are not part of the plan.</p>
 <h3>Worked example</h3>
 <p>From a working desktop, press Meta + K and confirm keybindings still list Meta + Return. That shows the compositor is receiving keys. If nothing responds, move to a virtual console instead of forcing power off.</p>
 <h3>Try it</h3>
@@ -55,7 +55,7 @@
 </section>
 <section data-level="expert">
 <h2>Blank-screen boundaries</h2>
-<p>Separate panel power, cable/protocol, <a href="glossary/d/drm.html">DRM/KMS</a> programming, compositor process, and client faults. <a href="glossary/p/plugin.html">Plugin</a> <a href="glossary/a/abi.html">ABI</a> churn and carried multi-monitor patches are reasons Tamlinux plans to leave Hyprland; contribution policy also blocks some upstream paths. Capture <code>hyprctl</code> or DRM connector evidence from a working VT when documenting a fault. Do not restart display stacks as a first exploratory step.</p>
+<p>Separate panel power, cable/protocol, <a href="glossary/d/drm.html">DRM/KMS</a> programming, compositor process, and client faults. <a href="glossary/p/plugin.html">Plugin</a> <a href="glossary/a/abi.html">ABI</a> churn and carried multi-monitor patches are reasons Tamlinux plans to move from Hyprland to <code>tam-pane</code>; contribution policy also blocks some upstream paths. Capture <code>hyprctl</code> or DRM connector evidence from a working VT when documenting a fault. Do not restart display stacks as a first exploratory step.</p>
 <section class="quiz"><h3>Check yourself</h3>
 <details class="q open"><summary>Text VTs work but the <a href="glossary/g/gui.html">GUI</a> is black. Which layer have you roughly cleared?</summary><p>Early boot and basic input/<a href="glossary/g/gpu.html">GPU</a> text paths are at least partly alive. <a href="glossary/f/focus.html">Focus</a> on the graphical session, compositor, and display modes next.</p></details>
 </section>
