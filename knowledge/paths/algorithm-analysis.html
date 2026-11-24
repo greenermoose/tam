@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Analyzing algorithms</title>
+<meta name="topic" content="algorithm-analysis">
+<meta name="summary" content="Learn how to measure and categorize algorithms by running time and memory use, from Big-O intuition to real benchmarks">
+<meta name="keywords" content="path, algorithm analysis, big-o, time complexity, space complexity, benchmarking, profiling">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Analyzing algorithms</p></nav>
+
+<h1>Analyzing algorithms</h1>
+<p>This path teaches you how to measure and categorize algorithms by running time and memory required. You will learn asymptotic notation, common complexity classes, and how to check theory against real measurements.</p>
+<p>Each stage gives a lens to read with. Start with the gentle explanation, then use the practice or reference lens. Answer the checkpoint before moving on.</p>
+
+<h2>Stage 1: Why analysis matters</h2>
+<p>Read <a href="algorithms/algorithm-analysis.html?level=1">Algorithm analysis</a> first: understand why growth rates matter. Then read <a href="algorithms/algorithm-analysis.html?level=2">the practice lens</a> for input size, cases, and worked examples, and <a href="algorithms/algorithm-analysis.html?level=3">the reference lens</a> for cost models and limits.</p>
+<section class="quiz">
+<h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
+<details class="q">
+<summary><i>Why can a stopwatch measurement of one input be misleading?</i></summary>
+<p>It tells you what happened for that input, machine, and moment. It may not predict how the algorithm scales as input grows, and it can be affected by noise. Analysis gives growth trends; repeated measurement across sizes gives evidence.</p>
+</details>
+</section>
+
+<h2>Stage 2: Categorize running time</h2>
+<p>Read <a href="algorithms/time-complexity.html?level=1">Time complexity and Big-O notation</a> first: learn common growth classes. Then read <a href="algorithms/time-complexity.html?level=2">the practice lens</a> to estimate complexity from code, and <a href="algorithms/time-complexity.html?level=3">the reference lens</a> for O/Ω/Θ and analysis caveats.</p>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>What does O(n log n) tell you, and what does it not tell you?</i></summary>
+<p>It tells you the running time grows no faster than a constant times n log n for large enough n in the chosen model. It does not tell you exact seconds, constant factors, memory behavior, or which algorithm is faster for small n.</p>
+</details>
+</section>
+
+<h2>Stage 3: Categorize memory use</h2>
+<p>Read <a href="algorithms/space-complexity.html?level=1">Space complexity and memory use</a> first: learn why memory matters. Then read <a href="algorithms/space-complexity.html?level=2">the practice lens</a> for auxiliary space and recursion stack, and <a href="algorithms/space-complexity.html?level=3">the reference lens</a> for conventions and time-space trade-offs.</p>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why can a recursive solution have O(n) space complexity even without allocating an array?</i></summary>
+<p>Each recursive call consumes stack space. If recursion depth grows linearly with n, the call stack uses O(n) space in the usual model, even when no explicit heap array is allocated.</p>
+</details>
+</section>
+
+<h2>Stage 4: Measure real performance</h2>
+<p>Read <a href="algorithms/measuring-performance.html?level=1">Measuring algorithm performance</a> first: learn why measurement matters. Then read <a href="algorithms/measuring-performance.html?level=2">the practice lens</a> for simple benchmarks and pitfalls, and <a href="algorithms/measuring-performance.html?level=3">the reference lens</a> for profilers, counters, and rigorous reporting.</p>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>What should you change when comparing two algorithms in a benchmark?</i></summary>
+<p>Change only the algorithm/implementation under test while keeping input, hardware, runtime settings, warmup, and measurement method as comparable as possible. If you change multiple variables, you cannot attribute the difference reliably.</p>
+</details>
+</section>
+
+<h2>Capstone: Analyze and measure a choice</h2>
+<p><strong>Scenario:</strong> you need to check whether a list of user IDs contains duplicates. One implementation compares every pair; another uses a hash set.</p>
+<p><strong>Task:</strong> state the expected time and auxiliary space complexity of each approach, name one case where the pairwise approach might still be acceptable, and describe a simple benchmark that would test the growth trend.</p>
+<details class="solution">
+<p><strong>Model approach:</strong></p>
+<ol>
+<li><strong>Pairwise comparison:</strong> O(n^2) time, O(1) auxiliary space in the simple form. Acceptable for very small n or when memory is extremely constrained and simplicity matters.</li>
+<li><strong>Hash set:</strong> O(n) average time, O(n) auxiliary space. Better for large n, but depends on hash quality and memory availability; worst-case adversarial inputs can degrade behavior.</li>
+<li><strong>Benchmark:</strong> generate lists of several sizes (e.g., 10k, 20k, 40k, 80k), include duplicate and no-duplicate cases, run multiple trials, report median and spread, and compare observed growth to the expected O(n^2) vs O(n) trend.</li>
+</ol>
+<p>The key is to combine asymptotic categorization with empirical evidence on representative inputs.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/algorithms.html">Important algorithms for modern computing</a> &mdash; apply analysis to FFT, sorting, factoring, and LLM algorithms.</li>
+<li><a href="paths/build-and-contribute.html">Build and contribute</a> &mdash; turn analysis into tested code changes.</li>
+</ul>
+
+<h2>Sources and further reading</h2>
+<p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Algorithm analysis</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="algorithm-analysis-overview">
+<meta name="summary" content="Learn how to measure and categorize algorithms by running time and memory use, and why growth rates matter more than stopwatch numbers.">
+<meta name="keywords" content="algorithm analysis, time complexity, space complexity, big-o, running time, memory, growth rate">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="algorithms/index.html">
+<meta name="paths" content="algorithm-analysis:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Algorithm analysis</p></nav>
+
+<h1>Algorithm analysis</h1>
+<p>Algorithm analysis is how we predict the cost of an algorithm as the input grows. Instead of asking only "is it fast on my machine?", we ask "how does its running time and memory use grow when the problem gets bigger?"</p>
+
+<section data-level="novice">
+<h2>Why counting steps matters</h2>
+<p>Two programs can solve the same problem, but one may become unusably slow on large input. A stopwatch can tell you what happened for one test, but analysis helps you predict what will happen when the input is ten times, a thousand times, or a million times larger.</p>
+<h3>Two costs to watch</h3>
+<table>
+<tr><th>Cost</th><th>Question</th><th>Example</th></tr>
+<tr><td><a href="glossary/t/time-complexity.html">Time complexity</a></td><td>How does running time grow?</td><td>Checking every item takes longer as the list grows.</td></tr>
+<tr><td><a href="glossary/s/space-complexity.html">Space complexity</a></td><td>How much memory grows?</td><td>Making a copy of a list uses extra memory proportional to the list.</td></tr>
+</table>
+<h3>How to think about it</h3>
+<p>Imagine looking for a name in a phone book. Scanning every page works, but a smarter method that halves the search area each step scales much better. Analysis gives you the vocabulary to compare those strategies before you run them on huge data.</p>
+</section>
+
+<section data-level="learner">
+<h2>Input size, cases, and growth</h2>
+<p><strong>Goal:</strong> understand what algorithm analysis measures and what it ignores.</p>
+<h3>What "n" means</h3>
+<p>Analysis usually expresses cost as a function of input size, often written as <code>n</code>. For a list, <code>n</code> might be the number of items. For a number, it might be the number of digits or bits. For an image, it might be the number of pixels. The right <code>n</code> depends on the problem.</p>
+<h3>Cases</h3>
+<table>
+<tr><th>Case</th><th>Meaning</th><th>When useful</th></tr>
+<tr><td>Best case</td><td>Least work for some input of size n</td><td>Optimistic; rarely enough alone</td></tr>
+<tr><td>Average case</td><td>Expected work over a distribution of inputs</td><td>Useful when input distribution is realistic</td></tr>
+<tr><td>Worst case</td><td>Most work for any input of size n</td><td>Safe bound; common in guarantees</td></tr>
+<tr><td>Amortized</td><td>Average cost per operation over a sequence</td><td>Useful for dynamic arrays, hash tables, etc.</td></tr>
+</table>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ python3 - &lt;&lt;'PY'
+def linear_search(items, target):
+    steps = 0
+    for x in items:
+        steps += 1
+        if x == target:
+            return steps
+    return steps
+
+items = list(range(10))
+print(linear_search(items, 0))   # best case
+print(linear_search(items, 9))   # worst case in this list
+print(linear_search(items, 99))  # not found
+PY
+1
+10
+10
+</pre>
+<p>The same algorithm does different amounts of work depending on the input. Analysis usually reports the growth pattern, not just one lucky case.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is worst-case analysis common?</i></summary>
+<p>It gives a guarantee: the algorithm will not do worse than that bound for inputs of size n. This is useful when you need reliability, security, or predictable limits, even if typical inputs are easier.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: models and limits</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Concept</th><th>Purpose</th><th>Caveat</th></tr>
+<tr><td><a href="glossary/a/asymptotic-notation.html">Asymptotic notation</a></td><td>Describe growth as n becomes large</td><td>Ignores constants and lower-order terms</td></tr>
+<tr><td>Cost model</td><td>Define what counts as a step/unit</td><td>RAM model, bit model, I/O model can give different answers</td></tr>
+<tr><td>Empirical measurement</td><td>Observe real runtime/memory</td><td>Depends on hardware, compiler, input, cache, OS noise</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Asymptotic analysis chooses a cost model (often the RAM model: simple operations and memory accesses cost O(1)) and counts how many such operations occur as a function of n. It then simplifies using <a href="glossary/b/big-o-notation.html">Big-O notation</a> and related notations. This gives machine-independent growth trends, but not exact seconds.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Small n: constants matter; an O(n^2) algorithm can beat O(n log n) for tiny inputs.</li>
+<li>Memory hierarchy: cache misses can dominate runtime even when operation counts look good.</li>
+<li>Input model: "n" may be value, count, bits, or graph size (V+E); be explicit.</li>
+<li>Amortized vs worst-case: occasional expensive operations may be acceptable if average cost is bounded.</li>
+</ul>
+<h3>Sources</h3>
+<p><a href="https://en.wikipedia.org/wiki/Analysis_of_algorithms">Analysis of algorithms</a>; Cormen, Leiserson, Rivest, and Stein, <em>Introduction to Algorithms</em>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/time-complexity.html">Time complexity and Big-O notation</a> &mdash; categorize running-time growth.</li>
+<li><a href="algorithms/space-complexity.html">Space complexity and memory use</a> &mdash; categorize memory growth.</li>
+<li><a href="algorithms/measuring-performance.html">Measuring algorithm performance</a> &mdash; measure real implementations.</li>
+<li><a href="paths/algorithm-analysis.html">Analyzing algorithms</a> &mdash; follow the full series.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Space complexity and memory use</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="space-complexity">
+<meta name="summary" content="Learn how to measure and categorize algorithm memory use, including auxiliary space, recursion stack, and time-space trade-offs.">
+<meta name="keywords" content="space complexity, memory, auxiliary space, in-place, recursion, big-o, trade-off">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="algorithms/index.html">
+<meta name="prereqs" content="time-complexity">
+<meta name="paths" content="algorithm-analysis:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Space complexity and memory use</p></nav>
+
+<h1>Space complexity and memory use</h1>
+<p><a href="glossary/s/space-complexity.html">Space complexity</a> describes how much memory an algorithm needs as input grows. Fast code can still be unusable if it needs too much memory.</p>
+
+<section data-level="novice">
+<h2>Memory is a cost too</h2>
+<p>An algorithm may run quickly but need extra room to store copies, tables, or intermediate results. On a small input that is fine; on a large input it can exhaust memory or slow down because data no longer fits in fast caches.</p>
+<h3>Two common questions</h3>
+<ul>
+<li><strong>Total space:</strong> How much memory is used overall, including the input?</li>
+<li><strong>Auxiliary space:</strong> How much extra memory beyond the input does the algorithm need?</li>
+</ul>
+<p>When people say an algorithm is "in-place", they usually mean it uses O(1) or very small auxiliary space.</p>
+</section>
+
+<section data-level="learner">
+<h2>Counting extra memory</h2>
+<p><strong>Goal:</strong> identify common sources of memory use in algorithms.</p>
+<h3>Common patterns</h3>
+<table>
+<tr><th>Pattern</th><th>Typical auxiliary space</th><th>Example</th></tr>
+<tr><td>Fixed number of variables</td><td>O(1)</td><td>Finding a maximum by scanning</td></tr>
+<tr><td>Copy of input</td><td>O(n)</td><td>Merge sort's merge buffer (typical array form)</td></tr>
+<tr><td>Lookup table / hash set</td><td>O(n)</td><td>Memoization or duplicate detection</td></tr>
+<tr><td>Recursion depth</td><td>O(depth)</td><td>Recursive DFS or quicksort call stack</td></tr>
+</table>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ python3 - &lt;&lt;'PY'
+# O(1) auxiliary space
+def sum_list(xs):
+    total = 0
+    for x in xs:
+        total += x
+    return total
+
+# O(n) auxiliary space (new list)
+def doubled(xs):
+    return [x*2 for x in xs]
+
+print(sum_list([1,2,3]))
+print(doubled([1,2,3]))
+PY
+6
+[2, 4, 6]
+</pre>
+<p>The first function keeps only a few variables. The second creates a new list proportional to the input.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Can a recursive algorithm use extra memory even if it creates no new arrays?</i></summary>
+<p>Yes. Each recursive call uses stack space for parameters, local variables, and return address. A recursion depth of n means O(n) stack space in the usual model.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: memory models and trade-offs</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Concept</th><th>Meaning</th><th>Why it matters</th></tr>
+<tr><td>Auxiliary space</td><td>Extra space beyond input (and sometimes output)</td><td>Separates algorithm overhead from problem data</td></tr>
+<tr><td>Total space</td><td>All memory used during execution</td><td>Relevant to system limits and containers</td></tr>
+<tr><td>In-place</td><td>O(1) auxiliary space, by common convention</td><td>Useful on constrained memory; may complicate stability or clarity</td></tr>
+<tr><td>Time-space trade-off</td><td>Use more memory to save time, or vice versa</td><td>Caches, memoization, precomputation, compression</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Space analysis counts memory cells or bytes as a function of input size under a chosen model. It includes data structures, buffers, recursion stack, and sometimes output. Real programs also pay allocator metadata, object headers, padding, and fragmentation costs not captured by simple asymptotic notation.</p>
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Output space:</strong> some definitions exclude output; others include it. State the convention.</li>
+<li><strong>Tail recursion:</strong> can be optimized to O(1) stack in some languages/compilers, but not guaranteed in all Python/C implementations unless specified.</li>
+<li><strong>Cache locality:</strong> an algorithm with smaller asymptotic memory may still be slower if its access pattern causes cache misses.</li>
+<li><strong>Shared memory/copy-on-write:</strong> measuring "memory used" in modern OSes requires care (RSS, VSZ, shared pages).</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why might you choose an O(n) extra-space algorithm over an in-place O(1) one?</summary>
+<p>If it gives better time complexity, simpler correctness, stability (as in merge sort vs quicksort variants), better parallelism, or safer behavior. The right choice depends on input size, memory limits, latency requirements, and correctness properties.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="https://en.wikipedia.org/wiki/Space_complexity">Space complexity</a>; <a href="https://en.wikipedia.org/wiki/In-place_algorithm">In-place algorithm</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/measuring-performance.html">Measuring algorithm performance</a> &mdash; measure real runtime and memory behavior.</li>
+<li><a href="algorithms/sorting-algorithms.html">Sorting algorithms</a> &mdash; see time-space trade-offs in practice.</li>
+<li><a href="paths/algorithm-analysis.html">Analyzing algorithms</a> &mdash; follow the full series.</li>
+</ul>
+</body>
+</html>

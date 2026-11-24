@@ -1,0 +1,36 @@
+W109 ALGORITHM ANALYSIS SERIES
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "page:glossary/f/fast-fourier-transform.html mentions O(N log N)
+  time and O(N^2) without linking to definitions of \"big O\". Create a
+  series of pages that describe how to measure and categorize algorithms
+  in terms of running time and memory required."
+
+DONE
+
+  - Added algorithm analysis series under `knowledge/algorithms/`:
+    `algorithm-analysis.html`, `time-complexity.html`,
+    `space-complexity.html`, `measuring-performance.html`.
+  - Added glossary pages: `glossary/a/asymptotic-notation.html`,
+    `glossary/b/big-o-notation.html`, `glossary/t/time-complexity.html`,
+    `glossary/s/space-complexity.html`; updated glossary letter indexes.
+  - Linked FFT glossary to Big-O and time-complexity page; added a
+    growth-rate cross-link in `algorithms/fast-fourier-transform.html`.
+  - Added `knowledge/paths/algorithm-analysis.html` and registered it in
+    `knowledge/index.paths.tsv`; updated `knowledge/algorithms/index.html`.
+  - Bumped corpus to 0.119.0, updated ROADMAP/WHATNOW, regenerated indexes.
+
+NOT DONE / FOLLOW-UP
+
+  - Existing algorithm pages outside FFT could gain first-mention Big-O
+    links where helpful; kept scope to requested issue plus new series.
+
+VERIFICATION
+
+  - python3 tools/build-index.py: pass.
+  - make check-repo: pass.

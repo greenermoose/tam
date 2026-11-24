@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Measuring algorithm performance</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="measuring-algorithm-performance">
+<meta name="summary" content="Learn how to measure real algorithm performance with benchmarks and profiling, and how to interpret results alongside asymptotic analysis.">
+<meta name="keywords" content="benchmarking, profiling, performance, runtime, memory, wall clock, cpu time, algorithm analysis">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="algorithms/index.html">
+<meta name="prereqs" content="space-complexity">
+<meta name="paths" content="algorithm-analysis:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Measuring algorithm performance</p></nav>
+
+<h1>Measuring algorithm performance</h1>
+<p>Asymptotic analysis predicts growth; measurement shows what actually happens on real hardware with real inputs. Good performance work uses both: analysis to choose candidates, measurement to confirm behavior.</p>
+
+<section data-level="novice">
+<h2>Measure, don't guess</h2>
+<p>Two algorithms with the same Big-O class can have very different real speeds. One may use memory in a cache-friendly way; another may do extra allocations. The only way to know for your case is to measure carefully.</p>
+<h3>What to measure</h3>
+<ul>
+<li><strong>Time:</strong> how long it takes (wall-clock or CPU time).</li>
+<li><strong>Memory:</strong> peak or typical memory use.</li>
+<li><strong>Input size:</strong> how cost changes as n grows.</li>
+</ul>
+</section>
+
+<section data-level="learner">
+<h2>Simple benchmarking</h2>
+<p><strong>Goal:</strong> run a small, repeatable timing check and interpret it cautiously.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ python3 - &lt;&lt;'PY'
+import time
+
+def work(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+for n in [100000, 200000, 400000]:
+    t0 = time.perf_counter()
+    work(n)
+    t1 = time.perf_counter()
+    print(n, f"{(t1-t0)*1000:.2f} ms")
+PY
+100000 2.31 ms
+200000 4.62 ms
+400000 9.10 ms
+</pre>
+<p>Illustrative timing; your numbers will vary. The useful signal is the trend: doubling n roughly doubled time, consistent with O(n).</p>
+<h3>Measurement pitfalls</h3>
+<table>
+<tr><th>Pitfall</th><th>Why it misleads</th><th>What to do</th></tr>
+<tr><td>Single run</td><td>Noise from OS, cache, scheduler</td><td>Repeat and report median/range</td></tr>
+<tr><td>Tiny input</td><td>Startup and constant factors dominate</td><td>Test several sizes</td></tr>
+<tr><td>Warmup ignored</td><td>JIT/caches change behavior</td><td>Warm up before measuring steady state</td></tr>
+<tr><td>Wrong metric</td><td>Wall time includes waiting</td><td>Use CPU time/profilers when appropriate</td></tr>
+</table>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is one timing run not enough?</i></summary>
+<p>Because runtime is affected by noise: CPU scheduling, caches, background processes, thermal state, and allocator behavior. Multiple runs give a more reliable picture.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: rigorous performance measurement</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Tool/metric</th><th>Good for</th><th>Limits</th></tr>
+<tr><td>Microbenchmark</td><td>Small hot function comparisons</td><td>Easy to benchmark the wrong thing; dead-code elimination</td></tr>
+<tr><td>Profiler (CPU)</td><td>Finding hotspots in real programs</td><td>Sampling/overhead can distort small functions</td></tr>
+<tr><td>Memory profiler / heap stats</td><td>Allocations, peak memory, leaks</td><td>Tool overhead; allocator behavior varies</td></tr>
+<tr><td>Counters (perf)</td><td>Cache misses, branch misses, IPC</td><td>Needs interpretation; architecture-specific</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Measure across input sizes and plot or compare growth. Use representative data distributions: worst-case, average, and adversarial inputs can differ sharply. Keep the environment stable, pin versions/configuration, and record hardware, compiler/interpreter, and flags. For asymptotic claims, show that measured ratios follow the expected growth over large enough n.</p>
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Compiler/interpreter optimizations:</strong> dead code elimination can make a benchmark "too fast" because no work was observed.</li>
+<li><strong>GC/runtime effects:</strong> managed runtimes may pause at unpredictable times.</li>
+<li><strong>I/O-bound vs CPU-bound:</strong> algorithmic improvements may not matter if disk/network dominates.</li>
+<li><strong>Latency vs throughput:</strong> mean time can hide tail latency spikes (p95/p99).</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>How do asymptotic analysis and benchmarking complement each other?</summary>
+<p>Asymptotic analysis predicts scaling behavior and rules out algorithms that cannot meet growth requirements. Benchmarking validates real constants, memory behavior, and system effects on representative inputs. Together they prevent choosing an algorithm that looks good in theory but performs poorly in practice, or one that wins on a tiny benchmark but collapses at scale.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="https://en.wikipedia.org/wiki/Benchmark_(computing)">Benchmark</a>; <a href="https://en.wikipedia.org/wiki/Profiling_(computer_programming)">Profiling</a>; Brendan Gregg, <em>Systems Performance</em>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/algorithm-analysis.html">Algorithm analysis</a> &mdash; revisit the big picture.</li>
+<li><a href="algorithms/sorting-algorithms.html">Sorting algorithms</a> &mdash; apply analysis to a familiar family.</li>
+<li><a href="paths/algorithm-analysis.html">Analyzing algorithms</a> &mdash; follow the full series.</li>
+</ul>
+</body>
+</html>
