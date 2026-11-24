@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.26 (patch): bump command version for B6 history-stack fix and verify with build and command tests.
 - **2026-11-23:** Command 0.68.25 (patch): accept `fold=` in depth split and add characterization tests for depth/fold/path query params (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.24 (patch): add `tam_addr_bare_path` and use it in pager next-name resolution (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.23 (patch): reuse `tam_utf8_decode` in pager draw status truncation (R1 step 4 follow-up).

@@ -3,13 +3,14 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W101
+Updated: 2026-11-23, with W102
 
 STATE
 
-  Command 0.68.25 and corpus 0.117.6 on dev. W101 added AES-GCM-SIV,
-  ECH, LZ77, ML-KEM-768, and TECO glossary pages and regenerated
-  corpus indexes (R1 follow-ups remain as audited in W97).
+  Command 0.68.26 and corpus 0.117.6 on dev. W102 bumped command for
+  the B6 history-stack fix and verified build/tests; W101 added
+  AES-GCM-SIV, ECH, LZ77, ML-KEM-768, and TECO glossary pages and
+  regenerated corpus indexes (R1 follow-ups remain as audited in W97).
   W69 fixed B5: catalog now accepts `--level` via
   `tam_addr_takes_lens`; added regression test for flag/param
   equivalence and explicit level preservation; B5 verified by Fred
@@ -67,9 +68,11 @@ STATE
   warnings. W45 moved the A-Z jump bar below page lists in Arch Wiki
   and tldr index pages. W44 fixed missing tldr pages on user-prefix
   installs. W43 removed the stale Nix conditional from Makefile.
-  W42 delivered the IFS curriculum. W41 fixed B6 in source only;
-  Fred has not run it in a build. W66 pinned source-build.json to
-  libtam 0.8.0 (725dd1f), added a libtam pin compatibility check
+  W42 delivered the IFS curriculum. W102 bumped command to 0.68.26
+  for the B6 history-stack fix and verified build plus B6 pager
+  regression tests; the known pre-existing B3 PTY assertion in
+  `make test-command` remains unrelated. W66 pinned source-build.json
+  to libtam 0.8.0 (725dd1f), added a libtam pin compatibility check
   in tam-upgrade, and bumped command to 0.68.1; B1 verified by Fred
   (make/build verification sufficient, 2026-11-23). B2-B5 from
   reviews/R1-command-and-corpus-code.md are still open. W40 documented
@@ -109,8 +112,6 @@ NEXT
 
 WAITING FOR FRED
 
-  - Version bump for the B6 fix (command, src/version.h) and a
-    build to verify it. The bug stays "Fix available" until then.
   - Tamlinux 0.6.31 candidate preparation and packaged
     verification.
 
