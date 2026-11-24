@@ -8,6 +8,7 @@
 #include "pager_screen.h"
 #include "render.h"
 #include "terminal.h"
+#include "utf8.h"
 #include "version.h"
 
 #include <ctype.h>
@@ -228,10 +229,7 @@ int pager_handle_sandbox_key(pager_t *st, unsigned char c)
                 pager_exit_sandbox(st);
                 return 1;
             }
-            sb->cursor--;
-            while (sb->cursor > 0 &&
-                   (((unsigned char)sb->input[sb->cursor] & 0xC0) == 0x80))
-                sb->cursor--;
+            sb->cursor = tam_utf8_prev(sb->input, sb->cursor);
         } else if (strcmp(seq, "H") == 0) {
             sb->cursor = 0;
         } else if (strcmp(seq, "F") == 0) {

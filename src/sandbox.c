@@ -2,6 +2,7 @@
 
 #include "sandbox.h"
 #include "render.h"
+#include "utf8.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -1323,9 +1324,7 @@ void tam_sandbox_insert_bytes(tam_sandbox_state_t *st, const char *bytes,
 void tam_sandbox_backspace(tam_sandbox_state_t *st)
 {
     if (st == NULL || st->cursor == 0) return;
-    size_t prev = st->cursor - 1;
-    while (prev > 0 && (((unsigned char)st->input[prev] & 0xC0) == 0x80))
-        prev--;
+    size_t prev = tam_utf8_prev(st->input, st->cursor);
     size_t del = st->cursor - prev;
     memmove(st->input + prev, st->input + st->cursor,
             st->input_len - st->cursor + 1);

@@ -1,0 +1,44 @@
+W105 RETIRE R1 STEP 4 FOLLOW-UP
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Do all the work for NEXT paragraph 1 from tam's WHATNOW. When
+  you are done, all the work in that paragraph should be done and it
+  should be retired from the WHATNOW."
+
+DONE
+
+  - Audited remaining UTF-8 continuation-byte scans and key-helper
+    candidates against WHATNOW item 1.
+  - Landed safe small pilot: added src/utf8.h with tam_utf8_prev() and
+    consolidated prev-codepoint backward scans in src/pager_search.c,
+    src/pager_input.c, and src/sandbox.c. No behavior change.
+  - Documented non-safe/non-equivalent candidates:
+    - src/pager_draw.c status truncation uses boundary-snap (backs up
+      over continuation bytes only when cut lands inside a codepoint);
+      not equivalent to prev-codepoint deletion.
+    - Key parsing in src/pager_input.c is hand-rolled and handles sync
+      replies, ESC/CSI timing, Linux console behavior, and terminal
+      handoff. libtam tam_key.h exists, but a key-helper pilot is not a
+      safe small change under the stated constraints.
+  - Bumped command to 0.68.29 (patch) and updated development plan,
+    ROADMAP, and WHATNOW; retired NEXT item 1.
+
+NOT DONE / FOLLOW-UP
+
+  - R1 step 3 follow-up remains measured/deferred (WHATNOW NEXT 1).
+  - Future glossary work remains (WHATNOW NEXT 2).
+
+VERIFICATION
+
+  - make -j4: pass.
+  - make check-repo: pass.
+
+HANDOFF
+
+  - R1 step 4 follow-up is retired with evidence. Continue with WHATNOW
+    NEXT items as Fred directs.

@@ -8,6 +8,7 @@
 #include "pager_screen.h"
 #include "render.h"
 #include "terminal.h"
+#include "utf8.h"
 #include "version.h"
 
 #include <ctype.h>
@@ -227,9 +228,7 @@ static int pager_read_prompt(pager_t *st, const char *label,
         }
         if (ch == '\b' || ch == 127) {
             if (qlen > 0) {
-                qlen--;
-                while (qlen > 0 && ((unsigned char)query[qlen] & 0xc0) == 0x80)
-                    qlen--;
+                qlen = tam_utf8_prev(query, qlen);
                 query[qlen] = '\0';
                 pager_draw_prompt(st, label, query, qlen);
             }
