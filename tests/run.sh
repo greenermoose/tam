@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.68.29' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.0' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -232,6 +232,9 @@ printf '%s\n' "$sh_topics_pseudo" | grep -q 'Topics A to Z' || fail "tam show ta
 sh_hubs=$("$TAM" show hubs --pipe)
 printf '%s\n' "$sh_hubs" | grep -q 'Browse hubs' || fail "tam show hubs failed"
 printf '%s\n' "$sh_hubs" | grep -q 'Subject Hubs in Your Tamlinux User Guide' || fail "tam show hubs heading failed"
+printf '%s\n' "$sh_hubs" | grep -q 'Hubs are the subject homes' || fail "tam show hubs intro failed"
+printf '%s\n' "$sh_hubs" | grep -q 'Using your system' || fail "tam show hubs first group failed"
+printf '%s\n' "$sh_hubs" | grep -q 'Understanding computing' || fail "tam show hubs second group failed"
 sh_hubs_pseudo=$("$TAM" show tam:hubs --pipe)
 [ "$sh_hubs" = "$sh_hubs_pseudo" ] || fail "tam show hubs and tam:hubs differ"
 sh_paths=$("$TAM" show paths --pipe)
@@ -4387,7 +4390,7 @@ rm -f /tmp/tam-b3-base.out /tmp/tam-b3-frag.out /tmp/tam-b3-url.out /tmp/tam-b3-
 
 # B3 pager entry point: initial address with fragment reaches Guide Search.
 TAM="$TAM" ROOT="$root" python3 - <<'PY'
-import os, pty, select, signal, struct, fcntl, termios, time, sys
+import os, pty, re, select, signal, struct, fcntl, termios, time, sys
 tam = os.environ['TAM']
 root = os.environ['ROOT']
 env = os.environ.copy()
@@ -4427,8 +4430,9 @@ except ChildProcessError:
     pass
 os.close(master)
 text = buf.decode('utf-8', 'replace')
-assert 'Results for pipelines' in text, text
-assert 'pipelines#details' not in text, text
+plain = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]|\x1b\([A-Za-z0-9]', '', text)
+assert 'Results for pipelines' in plain, text
+assert 'pipelines#details' not in plain, text
 PY
 pass "B3: pager entry point handles tam:search fragment"
 

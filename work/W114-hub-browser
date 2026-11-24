@@ -1,0 +1,57 @@
+W114 HUB BROWSER REDESIGN
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Review the entire tam knowledge corpus. Think about what users
+  need to know and what is available to learn in the corpus. Revise
+  tam:hubs from first principles: how many hubs should there be, what
+  should they be called, how should they be organized? On tam:hubs,
+  briefly explain what hubs are and how they differ from paths and
+  topics. Also, change the Guide index page to provide these links in
+  the second grouping: Explore hubs / Learn step by step / Browse
+  topics / All pages A-Z / Glossary of terms / Bibliography. Remove
+  Search from the list (search is already provided in the Essential
+  keybinding table)."
+  Design decisions: rename systems hub to Systems and administration
+  (yes); use two groups (yes); keep the intro copy but make it an
+  aside. "Plan approved. Proceed."
+
+DONE
+
+  - `src/views.c`: `tam_hubs_document` now requires the root parent and
+    hub kind, shows only the eight canonical subject tracks, and
+    renders two groups: Using your system (Tamlinux, Desktop and
+    applications, Terminals and shells, Systems and administration)
+    and Understanding computing (Hardware, Networking, Security,
+    Programming). Added a `<aside class="note">` explaining hubs,
+    paths and topics. Other root hubs (Welcome, Paths, Skills,
+    Glossary, Bibliography) stay off the subject browser.
+  - `knowledge/index.html`: second grouping is exactly Explore hubs,
+    Learn step by step, Browse topics (`tam:topics`), All pages A-Z,
+    Glossary of terms and Bibliography; the Search row was removed.
+  - Renamed the systems hub title from Operating systems to Systems
+    and administration in `knowledge/systems/index.html`, index.tsv
+    and 63 breadcrumbs across `knowledge/systems/` and
+    `knowledge/tamlinux/components.html`. The Operating Systems
+    Reference subhub keeps its name.
+  - Updated tests, docs, ROADMAP, versions (command 0.69.0, corpus
+    0.120.1) and regenerated indexes.
+  - Fixed the pre-existing B3 pager assertion in `tests/run.sh`: it
+    compared raw PTY bytes to 'Results for pipelines' while the query
+    is bolded, so it failed at HEAD too. It now strips ANSI escapes
+    before the same assertion.
+
+VERIFICATION
+
+  - `make check`: all command, corpus and guard tests pass.
+  - Rendered `tam:hubs` and Guide index with the checkout corpus:
+    eight hubs in two groups with the intro aside, and the six
+    requested index links with no Search row.
+
+FOLLOW-UP
+
+  - None.

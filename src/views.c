@@ -246,36 +246,63 @@ tam_document_t *tam_topics_document(const char *root, unsigned level, int width)
     return tam_page_render(html, width);
 }
 
+static void append_hub_group(tam_str_t *html, const tam_index_entry_t *const *entries,
+                             size_t count, const char *title,
+                             const char *const *tracks, size_t ntracks)
+{
+    size_t hits = 0;
+    for (size_t t = 0; t < ntracks; t++)
+        for (size_t i = 0; i < count; i++)
+            if (entries[i]->track && strcmp(entries[i]->track, tracks[t]) == 0) hits++;
+    if (!hits) return;
+    *html = tam_str_cat_printf(*html, "<h2>%s</h2><dl>", title);
+    for (size_t t = 0; t < ntracks; t++) {
+        for (size_t i = 0; i < count; i++) {
+            const tam_index_entry_t *e = entries[i];
+            if (!e->track || strcmp(e->track, tracks[t]) != 0) continue;
+            *html = tam_str_cat_printf(*html, "<dt><a href=\"%s\">", e->path);
+            *html = tam_html_cat(*html, e->title);
+            *html = tam_str_cat(*html, "</a></dt><dd>");
+            *html = tam_html_cat(*html, e->summary);
+            *html = tam_str_cat(*html, "</dd>");
+        }
+    }
+    *html = tam_str_cat(*html, "</dl>");
+}
+
 tam_document_t *tam_hubs_document(const char *root, unsigned level, int width)
 {
     tam_index_t *idx = tam_index_load(root);
     if (idx == NULL) return NULL;
     static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Browse hubs" } };
     tam_str_t html = tam_page_begin("Browse hubs", NULL, crumbs, 2);
-    html = tam_str_cat(html, "<h1>Subject Hubs in Your Tamlinux User Guide</h1><dl>");
+    html = tam_str_cat(html, "<h1>Subject Hubs in Your Tamlinux User Guide</h1>"
+        "<aside class=\"note\"><p>Hubs are the subject homes of the Guide. Each hub gathers the pages that belong to one subject and leads into smaller hubs for its parts. A <strong>path</strong> is a guided reading order with steps and checkpoints, for learning a subject in sequence. A <strong>topic</strong> is one page about one thing, listed in the A&ndash;Z catalog for when you already know what you want. Start with a hub to explore a subject, choose a path to learn step by step, or use topics and search to look something up.</p></aside>");
+    static const struct {
+        const char *title;
+        const char *const tracks[4];
+    } groups[] = {
+        { "Using your system", { "tamlinux", "desktop", "terminal", "systems" } },
+        { "Understanding computing", { "hardware", "networking", "security", "programming" } }
+    };
     const tam_index_entry_t **ordered = calloc(idx->count ? idx->count : 1, sizeof(*ordered));
     if (ordered == NULL) { tam_index_free(idx); tam_str_free(html); return NULL; }
     size_t shown = 0;
-    static const char * const subjects[] = {"hardware", "systems", "terminal", "networking", "security", "programming", "desktop", "tamlinux"};
     for (size_t i = 0; i < idx->count; i++) {
         const tam_index_entry_t *e = &idx->entries[i];
+        if (!e->parent || strcmp(e->parent, "index.html") != 0) continue;
+        if (e->kind && strcmp(e->kind, "hub") != 0) continue;
         int subject = 0;
-        for (size_t j = 0; j < sizeof(subjects)/sizeof(subjects[0]); j++)
-            if (e->track && strcmp(e->track, subjects[j]) == 0) subject = 1;
-        if (!subject || !e->parent || strcmp(e->parent, "index.html") != 0) continue;
+        for (size_t g = 0; g < sizeof(groups)/sizeof(groups[0]) && !subject; g++)
+            for (size_t j = 0; j < 4; j++)
+                if (e->track && strcmp(e->track, groups[g].tracks[j]) == 0) subject = 1;
+        if (!subject) continue;
         ordered[shown++] = e;
     }
-    qsort(ordered, shown, sizeof(*ordered), entry_title_order);
-    for (size_t i = 0; i < shown; i++) {
-        const tam_index_entry_t *e = ordered[i];
-        html = tam_str_cat_printf(html, "<dt><a href=\"%s\">", e->path);
-        html = tam_html_cat(html, e->title);
-        html = tam_str_cat(html, "</a></dt><dd>");
-        html = tam_html_cat(html, e->summary);
-        html = tam_str_cat(html, "</dd>");
-    }
+    for (size_t g = 0; g < sizeof(groups)/sizeof(groups[0]); g++)
+        append_hub_group(&html, ordered, shown, groups[g].title, groups[g].tracks, 4);
     free(ordered);
-    html = tam_str_cat(html, "</dl><p><a href=\"tam:catalog\">All pages A–Z</a> · <a href=\"tam:paths\">Learn step by step</a> · <a href=\"tam:search\">Search</a></p>");
+    html = tam_str_cat(html, "<p><a href=\"tam:catalog\">All pages A&ndash;Z</a> · <a href=\"tam:paths\">Learn step by step</a> · <a href=\"tam:search\">Search</a></p>");
     tam_index_free(idx);
     if (!shown) { tam_str_free(html); return tam_catalog_document(root, level, width); }
     return tam_page_render(html, width);

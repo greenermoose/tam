@@ -452,6 +452,8 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-24:** Command 0.69.0 (minor): redesign `tam:hubs` as eight root subject homes in two groups, require hub kind, and add an aside explaining hubs, paths and topics.
+- **2026-11-24:** Corpus 0.120.1 (patch): revise the Guide index second grouping, add Browse topics, rename the systems hub to Systems and administration, and update its breadcrumbs.
 - **2026-11-23:** Command 0.68.29 (patch): retire R1 step 4 follow-up by auditing remaining UTF-8/key-helper candidates; consolidate prev-codepoint backward scans in pager search/input/sandbox with no behavior change; document non-safe candidates.
 - **2026-11-23:** Command 0.68.28 (patch): retire R1 step 1 follow-up by consolidating breadcrumb/location href classification and external scheme error-message parsing with characterization tests and no behavior change.
 - **2026-11-23:** Command 0.68.27 (patch): characterize CLI view aliases and consolidate explain topics alias check (R1 step 1 follow-up).
@@ -1488,3 +1490,13 @@ every prose IPv4 or IPv6 mention to link to the correct glossary page. See
 a six-page stack series with a hub and goal path, two address-family glossary
 pages, four RFC entries, and the linking pass. This is corpus content only;
 installation and release remain developer-directed.
+
+### 2026-11-24 — Hub browser redesign (command 0.69.0 / corpus 0.120.1)
+
+The developer approved a first-principles review of `tam:hubs`: eight root
+subject homes, named as the canonical tracks with the systems hub renamed
+Systems and administration, organized into Using your system and
+Understanding computing. An aside explains hubs, paths and topics. The Guide
+index second grouping became Explore hubs, Learn step by step, Browse topics,
+All pages A-Z, Glossary of terms and Bibliography; Search stays in the
+keybinding table. See [subject-library.md](subject-library.md).

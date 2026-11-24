@@ -68,7 +68,7 @@ idx_title=$(sed -n 's:.*<h1[^>]*>\(.*\)</h1>.*:\1:p' "$knowledge/index.html" | s
 [ -n "$idx_title" ] || fail "index.html has no <h1> heading"
 printf '%s\n' "$idx" | grep -Fq "$idx_title" || fail "index missing its heading '$idx_title'"
 printf '%s\n' "$idx" | grep -q '^Links:' || fail "index missing link appendix"
-for entry in 'tam:hubs' 'tam:paths' 'tam:search' 'tam:archwiki' 'bibliography/index.html'; do
+for entry in 'tam:hubs' 'tam:paths' 'tam:topics' 'tam:archwiki' 'bibliography/index.html'; do
     printf '%s\n' "$idx" | grep -Fq "$entry" || fail "index missing $entry"
 done
 pass "index text includes links appendix"

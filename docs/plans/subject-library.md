@@ -53,6 +53,17 @@ Page kinds classify search results and glossary entries, with legacy fallback.
 topic A to Z, matching `tam explain topics` in both the pager and plain text;
 `tam:catalog` lists page titles alphabetically. The 2026-11-23 decision
 separated the two lists so one address does not carry two meanings.
+The 2026-11-24 redesign kept eight root subject homes in `tam:hubs`, grouped
+as Using your system (Tamlinux, Desktop and applications, Terminals and shells,
+Systems and administration) and Understanding computing (Hardware, Networking,
+Security, Programming). Paths, skills, glossary, bibliography and Welcome are
+navigation facilities rather than subjects, so they stay on the Guide index.
+An aside on the hub browser explains how hubs, paths and topics differ.
+The systems hub title changed from Operating systems to Systems and
+administration to cover boot, storage, packages, maintenance and recovery;
+the Operating Systems Reference subhub keeps its name. The Guide index second
+grouping lists Explore hubs, Learn step by step, Browse topics, All pages A-Z,
+Glossary of terms and Bibliography; Search remains in the keybinding table.
 `tam:paths` is the single generated learning-path catalog; authored path pages
 retain teaching and capstones. `tam:keywords` and bare `tam explain` open the
 search entrance. Named topic explanations and the definition shortcut remain.
