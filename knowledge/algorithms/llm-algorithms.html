@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Algorithms behind large language models</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="llm-algorithms">
+<meta name="summary" content="Learn the core algorithms behind large language models, from tokenization and attention to training, optimization, and inference.">
+<meta name="keywords" content="llm, large language model, transformer, attention, tokenization, backpropagation, gradient descent, inference, kv cache">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="algorithms/index.html">
+<meta name="paths" content="algorithms:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Algorithms behind large language models</p></nav>
+
+<h1>Algorithms behind large language models</h1>
+<p>Large language models (LLMs) are built from several algorithms working together: text is turned into tokens, tokens become vectors, neural networks learn patterns, and inference algorithms generate output one token at a time.</p>
+
+<section data-level="novice">
+<h2>What an LLM is doing</h2>
+<p>At a simple level, a language model learns to predict what token is likely to come next given previous tokens. By training on huge amounts of text and using a large neural network, it learns patterns of language, code, and facts well enough to generate useful responses.</p>
+<h3>Why it matters</h3>
+<p>LLMs power chat assistants, code completion, search, summarization, and translation. Understanding the underlying algorithms helps you see both their strengths and limits: they are powerful pattern learners, not magic oracles.</p>
+<h3>How to think about it</h3>
+<p>Imagine autocomplete trained at enormous scale. Instead of only suggesting the next word from a small local pattern, it uses a model with billions of parameters and an attention mechanism to weigh relevant context from the input.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/l/large-language-model.html">Large language model (LLM)</a></dt>
+<dd>A large neural network trained on text to model and generate language.</dd>
+<dt>Token</dt>
+<dd>A chunk of text, such as a word piece, used as the model's input/output unit.</dd>
+<dt>Parameter</dt>
+<dd>A numeric value learned during training that shapes model behavior.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>The main pipeline</h2>
+<p><strong>Goal:</strong> understand the major algorithmic stages in training and using an LLM.</p>
+<h3>Training pipeline</h3>
+<table>
+<tr><th>Stage</th><th>What happens</th><th>Key algorithms/ideas</th></tr>
+<tr><td>Tokenization</td><td>Text becomes token IDs</td><td>BPE/Unigram-style subword tokenization</td></tr>
+<tr><td>Embedding</td><td>Token IDs become vectors</td><td>Embedding lookup, positional encoding/embeddings</td></tr>
+<tr><td>Forward pass</td><td>Model computes predictions</td><td>Transformer layers, self-attention, MLPs, layer norm/residuals</td></tr>
+<tr><td>Loss</td><td>Prediction error is measured</td><td>Cross-entropy next-token loss</td></tr>
+<tr><td>Backpropagation</td><td>Gradients flow backward</td><td>Chain rule through the network</td></tr>
+<tr><td>Optimization</td><td>Parameters update</td><td>SGD/Adam-family optimizers, learning rate schedules</td></tr>
+</table>
+<h3>Inference pipeline</h3>
+<pre class="session" data-risk="read-only">
+prompt -> tokens -> embeddings -> transformer layers -> logits
+      -> select next token -> append -> repeat
+</pre>
+<p>During generation, the model produces probabilities (logits after softmax) for the next token, selects one, appends it, and repeats. Techniques like KV cache avoid recomputing attention for previous tokens.</p>
+<h3>Try it</h3>
+<p>When using an LLM, notice how changing the prompt changes the next-token distribution. Asking for a short answer, a table, or code constrains what tokens are likely next.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why is attention important in transformers?</i></summary>
+<p>Attention lets each token weigh other tokens in the context when computing its representation. This helps the model use relevant earlier words, code symbols, or instructions instead of treating all context equally.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: core algorithms and trade-offs</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Component</th><th>Algorithmic role</th><th>Cost/trade-off</th></tr>
+<tr><td>Self-attention</td><td>Compute weighted interactions among tokens</td><td>Standard attention scales quadratically with sequence length in time/memory</td></tr>
+<tr><td>Transformer blocks</td><td>Alternate attention and feed-forward transformations</td><td>Deep stacks give capacity but require careful optimization and hardware</td></tr>
+<tr><td>Backprop + optimizer</td><td>Adjust parameters to reduce loss</td><td>Large-scale training needs distributed systems, mixed precision, checkpointing</td></tr>
+<tr><td>Decoding</td><td>Choose output tokens</td><td>Greedy is fast; sampling/temperature/top-k/top-p trade determinism and diversity</td></tr>
+<tr><td>KV cache</td><td>Reuse past key/value attention tensors</td><td>Speeds autoregressive inference but uses memory proportional to context</td></tr>
+</table>
+<h3>How it works</h3>
+<p>In a transformer, input token embeddings are transformed through layers. Self-attention computes query, key, and value vectors; attention scores determine how much each token attends to others. Feed-forward networks apply nonlinear transformations per token. Training minimizes next-token prediction loss over large corpora. Fine-tuning and alignment methods can further adapt behavior after pretraining.</p>
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Hallucination/confabulation:</strong> plausible text is not guaranteed to be true; models optimize likelihood/policy objectives, not a truth oracle.</li>
+<li><strong>Context limits:</strong> finite context windows and attention cost constrain how much input can be used directly.</li>
+<li><strong>Data and bias:</strong> training data shapes capabilities and failure modes.</li>
+<li><strong>Evaluation:</strong> benchmarks measure specific behaviors; no single score captures general reliability.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why is inference optimization different from training optimization?</summary>
+<p>Training optimizes billions of parameters over batches to minimize loss, requiring gradients and backpropagation. Inference keeps parameters fixed and optimizes latency, throughput, memory, and cost while generating tokens, using techniques like KV caching, quantization, batching, and efficient kernels.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Vaswani et al., "Attention Is All You Need" (2017); <a href="https://en.wikipedia.org/wiki/Large_language_model">Large language model</a>; <a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)">Transformer</a>; and model/system cards for implementation details.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/fourier-transforms.html">Fourier transforms</a> &mdash; revisit how mathematical transforms make hard problems tractable.</li>
+<li><a href="algorithms/sorting-algorithms.html">Sorting algorithms</a> &mdash; compare with classic discrete algorithms.</li>
+<li><a href="paths/algorithms.html">Important algorithms for modern computing</a> &mdash; follow the full series.</li>
+</ul>
+</body>
+</html>

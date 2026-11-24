@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fourier transforms</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="fourier-transforms">
+<meta name="summary" content="Learn what a Fourier transform does, how it represents a signal as waves, and why that representation is useful in computing.">
+<meta name="keywords" content="fourier transform, dft, frequency, spectrum, signal, sine wave, complex exponential">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="algorithms/index.html">
+<meta name="paths" content="algorithms:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Fourier transforms</p></nav>
+
+<h1>Fourier transforms</h1>
+<p>A Fourier transform describes a signal as a combination of waves. Instead of asking "what is the value at each moment?", it asks "how much of each frequency is present?"</p>
+
+<section data-level="novice">
+<h2>The big idea</h2>
+<p>Many complicated signals are made by adding simpler waves together. A musical chord is several notes at once. A picture edge is a sharp change that can be described by many spatial frequencies. A Fourier transform is a mathematical way to move between the time view and the frequency view.</p>
+<h3>Why it matters</h3>
+<p>The frequency view makes some problems easier. Noise can be reduced by removing unwanted frequencies. Audio formats can compress sound by keeping the frequencies humans notice most. Images, radio, medical scans, and scientific measurements all use Fourier ideas.</p>
+<h3>How to think about it</h3>
+<p>Imagine a smoothie. In the time view, you taste the blended drink at each sip. In the frequency view, you know how much strawberry, banana, and yogurt went in. The Fourier transform is the recipe-finding step: it tells you how much of each ingredient wave appears in the mixture.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/f/fourier-transform.html">Fourier transform</a></dt>
+<dd>A transform that represents a signal by the frequencies it contains.</dd>
+<dt>Frequency</dt>
+<dd>How often a repeating pattern occurs, such as cycles per second (hertz).</dd>
+<dt>Spectrum</dt>
+<dd>The amount of signal present at each frequency.</dd>
+<dt>Signal</dt>
+<dd>Data that changes over time or space, such as sound, voltage, or pixel brightness.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>From time samples to frequency bins</h2>
+<p><strong>Goal:</strong> understand what the Discrete Fourier Transform (DFT) computes and how to interpret its output.</p>
+<h3>Worked example</h3>
+<p>A computer usually has samples, not a continuous wave. If you sample a signal <code>N</code> times, the DFT produces <code>N</code> frequency values. Each value says how strongly a particular frequency matches the signal.</p>
+<pre class="session" data-risk="read-only">
+$ python3 - &lt;&lt;'PY'
+import math
+N = 8
+# signal = 1.0*sin(2*pi*1*k/N) + 0.5*sin(2*pi*2*k/N)
+x = [math.sin(2*math.pi*1*k/N) + 0.5*math.sin(2*math.pi*2*k/N) for k in range(N)]
+for m in range(N):
+    re = sum(x[k]*math.cos(2*math.pi*m*k/N) for k in range(N))
+    im = -sum(x[k]*math.sin(2*math.pi*m*k/N) for k in range(N))
+    mag = math.hypot(re, im)
+    print(f"bin {m}: magnitude {mag:.3f}")
+PY
+bin 0: magnitude 0.000
+bin 1: magnitude 4.000
+bin 2: magnitude 2.000
+bin 3: magnitude 0.000
+bin 4: magnitude 0.000
+bin 5: magnitude 0.000
+bin 6: magnitude 2.000
+bin 7: magnitude 4.000
+</pre>
+<p>Illustrative output from a simple DFT calculation. Bins 1 and 7 mirror each other for a real signal, as do bins 2 and 6.</p>
+<h3>What just happened</h3>
+<ol>
+<li>The input had two sine waves: one at frequency 1 and a weaker one at frequency 2.</li>
+<li>The DFT compared the signal against sine and cosine waves at each bin.</li>
+<li>Large magnitudes appeared at the matching bins, showing which frequencies were present.</li>
+<li>The mirrored bins are normal for real-valued input; the useful information is in the first half plus the Nyquist details when applicable.</li>
+</ol>
+<h3>Try it</h3>
+<p>Change the signal to use only frequency 2, or add a constant offset. Notice how the spectrum changes. Keep <code>N</code> small so you can inspect every bin.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The strongest bin is not where you expect</dt>
+<dd>Check that the frequency is an integer number of cycles over <code>N</code> samples. If it is not, energy spreads across nearby bins; this is called spectral leakage.</dd>
+<dt>You see unexpected symmetry</dt>
+<dd>Real input signals produce conjugate-symmetric DFT output. That is expected, not an error.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>If a signal is made of two pure tones, what should its DFT magnitude show?</i></summary>
+<p>Strong peaks at the bins corresponding to those two tones (and their mirror bins for a real signal), with small or zero magnitude elsewhere if the tones align neatly with the sample window.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: DFT, properties, and limits</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Concept</th><th>Meaning</th><th>Why it matters</th></tr>
+<tr><td>DFT</td><td><code>X[k] = Σ x[n] * e^(-2πi*k*n/N)</code></td><td>Transforms N samples into N frequency coefficients</td></tr>
+<tr><td>Inverse DFT</td><td><code>x[n] = (1/N) Σ X[k] * e^(2πi*k*n/N)</code></td><td>Reconstructs the signal from its spectrum</td></tr>
+<tr><td>Nyquist frequency</td><td>Half the sampling rate</td><td>Frequencies above it alias into lower frequencies</td></tr>
+<tr><td>Convolution theorem</td><td>Convolution in time becomes multiplication in frequency</td><td>Enables fast filtering and correlation</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The DFT projects a sampled signal onto complex exponentials. Each coefficient measures correlation with one basis frequency. The transform is linear and invertible, so no information is lost for the sampled signal. In practice, windowing, sampling rate, and finite precision determine what you can reliably observe.</p>
+<h3>Edge cases</h3>
+<ul>
+<li><strong>Aliasing:</strong> sampling too slowly folds high frequencies into lower ones.</li>
+<li><strong>Leakage:</strong> a frequency not aligned to a DFT bin spreads energy across bins; windows trade leakage for main-lobe width.</li>
+<li><strong>DC and Nyquist bins:</strong> for real input, bin 0 and bin N/2 (when N is even) are special and not mirrored the same way as other bins.</li>
+<li><strong>Scaling conventions:</strong> libraries differ in where they place the 1/N factor; check documentation before comparing results.</li>
+</ul>
+<h3>Advanced usage</h3>
+<p>For large N, computing the DFT directly costs O(N^2). The <a href="algorithms/fast-fourier-transform.html">Fast Fourier Transform</a> computes the same DFT in O(N log N), making frequency-domain methods practical for audio, images, radar, and scientific computing.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why is the convolution theorem important for performance?</summary>
+<p>Direct convolution of long signals is expensive. The convolution theorem lets you transform both signals, multiply pointwise in the frequency domain, and transform back. With an FFT, this can be much faster than direct convolution for sufficiently large inputs.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="https://en.wikipedia.org/wiki/Fourier_transform">Fourier transform</a> and <a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">Discrete Fourier transform</a> provide background; numerical libraries document their scaling and ordering conventions.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/fast-fourier-transform.html">Fast Fourier Transform</a> &mdash; see how the same transform is computed efficiently.</li>
+<li><a href="paths/algorithms.html">Important algorithms for modern computing</a> &mdash; follow the full series.</li>
+</ul>
+</body>
+</html>

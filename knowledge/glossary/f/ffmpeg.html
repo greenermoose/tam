@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html><head><title>FFmpeg</title>
 <meta name="topic" content="glossary-ffmpeg">
-<meta name="summary" content="A collection of programs and libraries for processing audio and video.">
-<meta name="keywords" content="ffmpeg, FFmpeg">
+<meta name="summary" content="An open-source collection of programs and libraries for recording, converting, filtering, and streaming audio and video.">
+<meta name="keywords" content="ffmpeg, FFmpeg, ffprobe, codec, container, media">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/f/index.html">
@@ -10,11 +10,12 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / FFmpeg</p></nav>
 <h1>FFmpeg</h1>
-<p>A collection of programs and libraries for processing audio and video.</p>
-<section data-level="learner"><p>Its ffmpeg command converts, filters and encodes media; ffprobe inspects streams.</p></section>
-<section data-level="expert"><p>A command can decode an input, apply filters, and encode output using separately selected codecs and pixel formats.</p></section>
-<p><a href="glossary/y/yuv.html">YUV</a>; <a href="glossary/index.html">all glossary terms</a>.</p>
-<p>Further reading: <a href="https://ffmpeg.org/ffmpeg.html">FFmpeg documentation</a>.</p>
+<p>An open-source collection of programs and libraries for recording, converting, filtering, and streaming audio and video.</p>
+<section data-level="novice"><p>FFmpeg is a tool you can use to change media files. It can convert between formats, extract audio, resize video, or show what is inside a file.</p></section>
+<section data-level="learner"><p>The <code>ffmpeg</code> command builds a pipeline: it demuxes a container, decodes streams, applies filters, encodes, and muxes output. <code>ffprobe</code> inspects streams and metadata. You can copy streams to avoid re-encoding when you only need to change the container or metadata.</p></section>
+<section data-level="expert"><p>FFmpeg separates containers, codecs, and filter graphs. Practical media workflows involve timestamp/timebase handling, pixel/sample formats, color space/range, hardware acceleration, and codec trade-offs (quality, bitrate, latency, compatibility). Frequency-domain transforms such as FFT/DCT/MDCT appear in analysis and codec/filter internals.</p></section>
+<p>See also: <a href="algorithms/ffmpeg.html">FFmpeg and media processing</a>; <a href="algorithms/fast-fourier-transform.html">Fast Fourier Transform</a>.</p>
+<p>Further reading: <a href="https://ffmpeg.org/documentation.html">FFmpeg documentation</a>.</p>
 
 <h2>Sources and further reading</h2>
 <p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>

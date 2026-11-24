@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sorting algorithms</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="sorting-algorithms">
+<meta name="summary" content="Learn how sorting algorithms put data in order, why different sorts exist, and how to choose based on time, memory, and stability.">
+<meta name="keywords" content="sorting, algorithm, quicksort, mergesort, heapsort, timsort, complexity, stable sort">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="algorithms/index.html">
+<meta name="paths" content="algorithms:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Sorting algorithms</p></nav>
+
+<h1>Sorting algorithms</h1>
+<p>A sorting algorithm puts items into an order, such as numbers from smallest to largest or names alphabetically. Sorting is fundamental because many other problems become easier once data is ordered.</p>
+
+<section data-level="novice">
+<h2>Why sorting matters</h2>
+<p>Sorted data is easier to search, group, and display. A phone contact list, a file browser, a leaderboard, and a database index all rely on ordering. The same task can be done by different algorithms, and some are much better for large data.</p>
+<h3>How to think about it</h3>
+<p>Sorting is like organizing books on a shelf. You can compare two books at a time and swap them, split the shelf into piles and merge them, or pick the smallest book repeatedly. Each strategy has different effort and space needs.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/s/sorting-algorithm.html">Sorting algorithm</a></dt>
+<dd>A procedure for arranging items in a defined order.</dd>
+<dt>Stable sort</dt>
+<dd>A sort that keeps equal items in their original relative order.</dd>
+<dt>In-place</dt>
+<dd>An algorithm that needs only a small constant amount of extra memory beyond the input.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Common strategies and trade-offs</h2>
+<p><strong>Goal:</strong> recognize major sorting strategies and their trade-offs.</p>
+<h3>Worked example</h3>
+<table>
+<tr><th>Algorithm</th><th>Typical time</th><th>Extra memory</th><th>Stable</th><th>Good when</th></tr>
+<tr><td>Insertion sort</td><td>O(n^2), O(n) nearly sorted</td><td>O(1)</td><td>Yes</td><td>Small or nearly sorted arrays</td></tr>
+<tr><td>Merge sort</td><td>O(n log n)</td><td>O(n)</td><td>Yes</td><td>Predictable performance, linked lists, external sorting</td></tr>
+<tr><td>Quicksort</td><td>O(n log n) average</td><td>O(log n) stack</td><td>No</td><td>Fast general-purpose in-memory sorting</td></tr>
+<tr><td>Heapsort</td><td>O(n log n)</td><td>O(1)</td><td>No</td><td>Good worst-case bound with low memory</td></tr>
+<tr><td>Timsort</td><td>O(n log n), O(n) on runs</td><td>O(n)</td><td>Yes</td><td>Real-world partially ordered data (Python, Java objects)</td></tr>
+</table>
+<pre class="session" data-risk="read-only">
+$ python3 - &lt;&lt;'PY'
+items = [("b", 2), ("a", 2), ("c", 1)]
+print(sorted(items, key=lambda x: x[1]))
+PY
+[('c', 1), ('b', 2), ('a', 2)]
+</pre>
+<p>Python's <code>sorted</code> is stable: the two items with key 1 keep their original order.</p>
+<h3>What just happened</h3>
+<ol>
+<li>The key selected the number for ordering.</li>
+<li>Items with equal keys remained in their original relative order because the sort is stable.</li>
+<li>Stability matters when you sort by one field after another, or when equal keys carry meaning.</li>
+</ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Why isn't there one "best" sorting algorithm?</i></summary>
+<p>Different algorithms make different trade-offs: average speed, worst-case guarantees, memory use, stability, implementation complexity, cache behavior, and whether data fits in memory or arrives as a stream.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: bounds and practical choices</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Property</th><th>Meaning</th><th>Example</th></tr>
+<tr><td>Comparison sort lower bound</td><td>Comparison-based sorts need Ω(n log n) comparisons in worst case</td><td>Mergesort/heapsort are asymptotically optimal in this model</td></tr>
+<tr><td>Non-comparison sorts</td><td>Can beat n log n under assumptions about keys</td><td>Counting sort, radix sort, bucket sort</td></tr>
+<tr><td>Cache behavior</td><td>Memory access pattern can dominate runtime</td><td>Quicksort often beats heapsort on arrays despite similar asymptotics</td></tr>
+<tr><td>External sorting</td><td>Data too large for RAM</td><td>Merge runs from disk</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Comparison sorts can be modeled as decision trees: each comparison gives one bit of information. With <code>n!</code> possible orderings, the tree height must be at least <code>log2(n!)</code>, which is Ω(n log n). Non-comparison sorts avoid this bound by using key structure, such as integer ranges or digit positions.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Quicksort's worst case is O(n^2); randomized pivots or introsort mitigate it.</li>
+<li>Stability is not just cosmetic - it affects multi-key sorts and user-visible behavior.</li>
+<li>Sorting pointers/records can make comparison and move costs more important than raw comparison count.</li>
+<li>For security-sensitive contexts, avoid timing/data-dependent behavior that leaks secrets through side channels.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>When can radix sort beat merge sort?</summary>
+<p>When keys have fixed-size or bounded structure (such as integers, fixed-length strings, or digit/byte representations) and the key distribution/length makes linear or near-linear passes cheaper than comparison-based n log n sorting. It trades generality for assumptions about keys.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="https://en.wikipedia.org/wiki/Sorting_algorithm">Sorting algorithm</a> and standard algorithms texts such as CLRS cover bounds and implementations; language/runtime docs describe the guarantees of built-in sorts.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/factoring-algorithms.html">Factoring algorithms</a> &mdash; move from ordering data to breaking numbers into factors.</li>
+<li><a href="paths/algorithms.html">Important algorithms for modern computing</a> &mdash; follow the full series.</li>
+</ul>
+</body>
+</html>

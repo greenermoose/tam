@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Important algorithms for modern computing</title>
+<meta name="topic" content="algorithms">
+<meta name="summary" content="Learn key algorithms behind modern computing: Fourier transforms, FFT, sorting, factoring, and the algorithms behind large language models">
+<meta name="keywords" content="path, algorithms, fourier transform, fft, sorting, factoring, llm, large language models, modern computing">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+<meta name="kind" content="path">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / Important algorithms for modern computing</p></nav>
+
+<h1>Important algorithms for modern computing</h1>
+<p>This path introduces a small set of algorithms that shape modern computing. You will learn how signals become frequencies, how data gets ordered, why factoring is hard, and what core algorithms make large language models work.</p>
+<p>Each stage gives a lens to read with. Start with the gentle explanation, then use the practice or reference lens. Answer the checkpoint before moving on; if it is unclear, reread the stage at an earlier lens.</p>
+
+<h2>Stage 1: See a signal as frequencies</h2>
+<p>Read <a href="algorithms/fourier-transforms.html?level=1">Fourier transforms</a> first: learn how a complicated signal can be described as a combination of waves. Then read <a href="algorithms/fourier-transforms.html?level=2">the practice lens</a> to see how a DFT picks out frequency bins from samples.</p>
+
+<section class="quiz">
+<h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
+<details class="q">
+<summary><i>What question does a Fourier transform answer that a plain time-domain view does not make obvious?</i></summary>
+<p>It answers how much of each frequency is present in a signal. That makes patterns like tones, periodic noise, or spectral components visible even when the time-domain waveform looks complicated. Reread the novice section if the time/frequency split is unclear.</p>
+</details>
+</section>
+
+<h2>Stage 2: Make the transform practical</h2>
+<p>Read <a href="algorithms/fast-fourier-transform.html?level=1">Fast Fourier Transform</a> first: understand why the FFT matters. Then read <a href="algorithms/fast-fourier-transform.html?level=2">the practice lens</a> for the O(N^2) versus O(N log N) difference, and <a href="algorithms/fast-fourier-transform.html?level=3">the reference lens</a> for Cooley-Tukey and fast convolution.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Does the FFT produce a different result from the DFT?</i></summary>
+<p>No. It computes the same DFT result, but reorganizes the work to avoid repeated calculations. The importance of FFT is efficiency: it makes frequency-domain methods practical at sizes where a direct DFT would be too slow.</p>
+</details>
+</section>
+
+<h2>Stage 3: Use transforms in real media work</h2>
+<p>Read <a href="algorithms/ffmpeg.html?level=1">FFmpeg and media processing</a> first: see how a practical tool handles containers, codecs, and filters. Then read <a href="algorithms/ffmpeg.html?level=2">the practice lens</a> for inspect/convert/filter commands, and <a href="algorithms/ffmpeg.html?level=3">the reference lens</a> for where FFT/DCT/MDCT-style processing appears in media pipelines.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>When should you copy a media stream instead of re-encoding it?</i></summary>
+<p>Copy when you do not need to change that stream's codec, bitrate, filters, or other encoded properties. Copying avoids unnecessary quality loss and CPU work; re-encoding is needed only when the stream itself must change.</p>
+</details>
+</section>
+
+<h2>Stage 4: Put data in order</h2>
+<p>Read <a href="algorithms/sorting-algorithms.html?level=1">Sorting algorithms</a> first: learn why ordering data matters. Then read <a href="algorithms/sorting-algorithms.html?level=2">the practice lens</a> to compare common sorts and stability, and <a href="algorithms/sorting-algorithms.html?level=3">the reference lens</a> for complexity bounds and when non-comparison sorts win.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why can an algorithm with the same big-O time as another still be faster in practice?</i></summary>
+<p>Big-O ignores constants and machine effects. Cache behavior, memory allocation, branch prediction, data layout, and input characteristics can make one O(n log n) sort faster than another on real workloads. That is why practical systems often use hybrid sorts like Timsort or introsort.</p>
+</details>
+</section>
+
+<h2>Stage 5: Break numbers into factors</h2>
+<p>Read <a href="algorithms/factoring-algorithms.html?level=1">Factoring algorithms</a> first: understand factoring and why it gets hard. Then read <a href="algorithms/factoring-algorithms.html?level=2">the practice lens</a> for trial division versus smarter methods, and <a href="algorithms/factoring-algorithms.html?level=3">the reference lens</a> for GNFS, ECM, and the cryptographic implications.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why does factoring matter to cryptography if most people never factor large numbers themselves?</i></summary>
+<p>Some cryptosystems rely on factoring being computationally difficult for appropriately chosen large numbers. The cost of factoring affects key sizes, security margins, and migration decisions, especially when new algorithms or quantum computing change the cost curve.</p>
+</details>
+</section>
+
+<h2>Stage 6: Understand the algorithms behind LLMs</h2>
+<p>Read <a href="algorithms/llm-algorithms.html?level=1">Algorithms behind large language models</a> first: get the big picture of next-token prediction. Then read <a href="algorithms/llm-algorithms.html?level=2">the practice lens</a> for the training and inference pipeline, and <a href="algorithms/llm-algorithms.html?level=3">the reference lens</a> for attention cost, optimization, decoding, and KV cache trade-offs.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why is attention useful in a language model?</i></summary>
+<p>Attention lets the model weigh relevant earlier tokens when building a representation for the current token. That helps it use context such as instructions, variable names, or earlier sentences instead of treating every token as equally relevant.</p>
+</details>
+</section>
+
+<h2>Capstone: Choose the right algorithmic lens</h2>
+<p><strong>Scenario:</strong> you are building a system that records audio, cleans it up, stores searchable transcripts, and answers questions over them.</p>
+<p><strong>Task:</strong> identify where each algorithm family from this path appears. Name one place where an FFT or related frequency-domain method helps, one place where sorting helps, one place where factoring/hard-problem cryptography matters, and one place where LLM inference algorithms matter. For each, state the input, output, and main cost trade-off.</p>
+
+<details class="solution">
+<p><strong>Model approach:</strong></p>
+<ol>
+<li><strong>FFT/frequency domain:</strong> audio cleanup or spectrum analysis. Input: sampled audio frames; output: frequency bins or filtered samples; trade-off: time/frequency resolution, windowing leakage, and compute/memory cost.</li>
+<li><strong>Sorting:</strong> organizing transcript segments, timestamps, or search results. Input: records with keys; output: ordered records; trade-off: speed vs memory, stability, and data size/access pattern.</li>
+<li><strong>Factoring/cryptography:</strong> securing stored or transmitted data. Input: keys/protocol parameters; output: confidential/authenticated communication; trade-off: security assumptions and key sizes vs performance and migration cost.</li>
+<li><strong>LLM algorithms:</strong> answering questions over transcripts. Input: prompt plus retrieved context; output: generated tokens; trade-off: quality/latency/cost/context length, with risks like hallucination requiring grounding and verification.</li>
+</ol>
+<p>The point is not to use every algorithm everywhere, but to recognize which problem shape each algorithm family fits.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/build-and-contribute.html">Build and contribute</a> &mdash; turn algorithmic understanding into small programs and contributions.</li>
+<li><a href="paths/cryptography-and-quantum-safety.html">Cryptography and quantum safety</a> &mdash; go deeper into hard problems and cryptographic design.</li>
+<li><a href="paths/diagnose-from-principles.html">Diagnose from principles</a> &mdash; apply systematic reasoning to technical problems.</li>
+</ul>
+
+<h2>Sources and further reading</h2>
+<p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fast Fourier Transform</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="fast-fourier-transform">
+<meta name="summary" content="Learn what the Fast Fourier Transform does, why it is much faster than a direct DFT, and why it became one of the most important algorithms in modern computing.">
+<meta name="keywords" content="fft, fast fourier transform, dft, cooley-tukey, signal processing, convolution, spectrum">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="systems">
+<meta name="parent" content="algorithms/index.html">
+<meta name="prereqs" content="fourier-transforms">
+<meta name="paths" content="algorithms:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="systems/index.html">Systems and computing</a> / <a href="algorithms/index.html">Important algorithms for modern computing</a> / Fast Fourier Transform</p></nav>
+
+<h1>Fast Fourier Transform</h1>
+<p>The Fast Fourier Transform (FFT) is an algorithm for computing the <a href="algorithms/fourier-transforms.html">Discrete Fourier Transform</a> quickly. It produces the same result as a direct DFT, but with far less work for large inputs.</p>
+
+<section data-level="novice">
+<h2>Why "fast" matters</h2>
+<p>A direct DFT checks every sample against every frequency. If you have 1,000 samples, that is roughly a million combinations. If you have a million samples, it becomes a trillion - too much for many real-time uses. The FFT reorganizes the same math to avoid repeating work.</p>
+<h3>Why it matters</h3>
+<p>The FFT made frequency analysis practical at scale. It helps audio players equalize sound, phones compress voice, Wi-Fi and cellular systems process radio signals, medical scanners reconstruct images, and media tools like <a href="algorithms/ffmpeg.html">FFmpeg</a> analyze and filter audio and video. Many problems that look unrelated to waves become faster after an FFT.</p>
+<h3>How to think about it</h3>
+<p>Imagine sorting mail by checking every letter against every mailbox one by one. The FFT is like noticing a pattern that lets you split the pile, sort smaller piles, and combine the results. You get the same final mailboxes, but with much less walking around.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/f/fast-fourier-transform.html">Fast Fourier Transform (FFT)</a></dt>
+<dd>An efficient algorithm for computing a DFT.</dd>
+<dt><a href="glossary/a/algorithm.html">Algorithm</a></dt>
+<dd>A precise step-by-step procedure for solving a problem.</dd>
+<dt>Complexity</dt>
+<dd>How the cost of an algorithm grows as the input gets larger.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Same answer, less work</h2>
+<p><strong>Goal:</strong> see why FFT is faster than a direct DFT and where that speed shows up.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="read-only">
+$ python3 - &lt;&lt;'PY'
+import math, time
+def dft(x):
+    N=len(x); out=[]
+    for k in range(N):
+        re=sum(x[n]*math.cos(2*math.pi*k*n/N) for n in range(N))
+        im=-sum(x[n]*math.sin(2*math.pi*k*n/N) for n in range(N))
+        out.append(complex(re,im))
+    return out
+
+# A tiny power-of-two size keeps the demo quick.
+N=256
+x=[math.sin(2*math.pi*3*n/N)+0.3*math.cos(2*math.pi*20*n/N) for n in range(N)]
+t0=time.time(); dft(x); t1=time.time()
+print(f"direct DFT: {N*N} sample-frequency combinations")
+print(f"FFT class: about {N*int(math.log2(N))} work units")
+print(f"elapsed: {t1-t0:.4f}s for N={N} (illustrative)")
+PY
+direct DFT: 65536 sample-frequency combinations
+FFT class: about 2048 work units
+elapsed: 0.0123s for N=256 (illustrative)
+</pre>
+<p>Illustrative timing; exact numbers vary by machine. The key point is the growth rate: DFT grows like <code>N^2</code>, FFT grows like <code>N log N</code>.</p>
+<h3>What just happened</h3>
+<ol>
+<li>The direct DFT computed every frequency from every sample.</li>
+<li>The FFT class count shows why the same result can be obtained with far fewer operations.</li>
+<li>As <code>N</code> grows, the gap becomes enormous. This is why FFT is not just an optimization - it changes what is feasible.</li>
+</ol>
+<h3>Try it</h3>
+<p>Double <code>N</code> several times in your head: <code>N^2</code> becomes four times larger, while <code>N log N</code> grows much more gently. For audio at 48,000 samples per second, that difference is decisive.</p>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q">
+<summary><i>Does the FFT give a different answer than the DFT?</i></summary>
+<p>No. The FFT computes the same DFT result (within normal floating-point rounding). It is a faster algorithm for the same mathematical transform.</p>
+</details>
+<details class="q">
+<summary><i>Why is FFT important outside audio?</i></summary>
+<p>Many problems can be expressed as frequency analysis or convolution: image filtering, polynomial multiplication, solving some differential equations, radar, MRI, and compression. The FFT makes those frequency-domain methods fast enough to use.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference: how FFT works and where it is used</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Topic</th><th>Detail</th><th>Practical implication</th></tr>
+<tr><td>Complexity</td><td>O(N log N) vs O(N^2)</td><td>Makes large transforms feasible in real time</td></tr>
+<tr><td>Cooley-Tukey</td><td>Divide DFT into smaller DFTs, often by even/odd indices</td><td>Classic radix-2 FFT when N is a power of two</td></tr>
+<tr><td>In-place variants</td><td>Reorder data with bit reversal or stage scheduling</td><td>Lower memory use, careful implementation</td></tr>
+<tr><td>Real FFT</td><td>Exploits conjugate symmetry</td><td>Roughly half the work/storage for real signals</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The common Cooley-Tukey FFT uses the divide-and-conquer idea. A DFT of size <code>N</code> can be written as a combination of smaller DFTs of even-indexed and odd-indexed samples. The "twiddle factors" <code>e^(-2πi*k/N)</code> combine those smaller results. When <code>N</code> factors nicely, especially powers of two, the recursion or iterative stages remove repeated computation.</p>
+<pre data-risk="read-only">
+DFT(x[0..N-1])
+  = DFT(even samples) + W^k * DFT(odd samples)
+  = DFT(even samples) - W^k * DFT(odd samples)  (for the upper half)
+</pre>
+<h3>Advanced usage</h3>
+<ul>
+<li><strong>Fast convolution:</strong> filter a signal by multiplying spectra, then inverse FFT.</li>
+<li><strong>Polynomial multiplication:</strong> multiply coefficient polynomials by transforming, pointwise multiplying, and inverse transforming.</li>
+<li><strong>Spectral analysis:</strong> STFT/FFT windows power audio editors, spectrum analyzers, and speech features.</li>
+<li><strong>Compression and codecs:</strong> related transforms (DCT/MDCT) are central in media formats; FFT itself is used in analysis, filtering, and some processing pipelines.</li>
+</ul>
+<h3>Edge cases</h3>
+<ul>
+<li>Input size and padding matter: many FFT implementations are fastest at power-of-two sizes, while mixed-radix FFTs handle other sizes.</li>
+<li>Window choice affects spectral leakage and resolution.</li>
+<li>Floating-point FFTs introduce rounding error; for some integer/exact problems, number-theoretic transforms are used instead.</li>
+<li>Performance depends on memory layout and cache behavior, not only arithmetic count.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Why did the FFT have such a large historical impact?</summary>
+<p>It turned an O(N^2) transform into O(N log N), making frequency-domain computation practical for large real-world data. That enabled efficient digital signal processing across audio, communications, imaging, scientific computing, and many algorithmic tricks such as fast convolution.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Cooley and Tukey, "An Algorithm for the Machine Calculation of Complex Fourier Series" (1965), is the classic modern FFT paper; see also <a href="https://en.wikipedia.org/wiki/Fast_Fourier_transform">Fast Fourier transform</a> and <a href="https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm">Cooley-Tukey FFT algorithm</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/ffmpeg.html">FFmpeg and media processing</a> &mdash; see a practical media tool that lives in the same signal-processing world.</li>
+<li><a href="algorithms/sorting-algorithms.html">Sorting algorithms</a> &mdash; compare another family of fundamental algorithms.</li>
+<li><a href="paths/algorithms.html">Important algorithms for modern computing</a> &mdash; follow the full series.</li>
+</ul>
+</body>
+</html>
