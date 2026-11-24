@@ -1,0 +1,29 @@
+W110 ALGORITHM GLOSSARY AND LINK CHECK
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Create a glossary page for algorithm. And do a link check for
+  the entire corpus. I found a couple pages with dead links."
+
+DONE
+
+  - Added `knowledge/glossary/a/algorithm.html` and linked it from
+    `knowledge/glossary/a/index.html`.
+  - Ran corpus-wide local href/src link check (knowledge HTML, resolved
+    as knowledge-root relative with file-relative fallback; ignored
+    external/tam:/mailto:/data:/anchors).
+  - Fixed dead links:
+    - `knowledge/glossary/b/ble.html` -> `glossary/b/bluetooth.html`
+      (created `knowledge/glossary/b/bluetooth.html` and added to B index)
+    - `knowledge/glossary/d/db-9.html` -> `glossary/s/serial-communication.html`
+  - Bumped corpus to 0.119.1; updated ROADMAP/WHATNOW; regenerated indexes.
+
+VERIFICATION
+
+  - python3 /tmp/opencode/check_links.py: TOTAL 0
+  - python3 tools/build-index.py: pass.
+  - make check-repo: pass.
