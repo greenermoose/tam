@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>ML-KEM-768</title>
+<meta name="topic" content="glossary-ml-kem-768">
+<meta name="summary" content="ML-KEM-768: the ML-KEM parameter set targeting roughly NIST Category 3 post-quantum security.">
+<meta name="keywords" content="glossary-ml-kem-768, ml-kem-768, ml-kem, kyber, fips 203, post-quantum, pqc">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / ML-KEM-768</p></nav>
+
+<h1>ML-KEM-768</h1>
+<p>The middle parameter set of <a href="glossary/m/ml-kem.html">ML-KEM</a>, commonly used for post-quantum key exchange.</p>
+<section data-level="novice"><p>ML-KEM comes in different sizes. ML-KEM-768 is a popular middle choice: stronger than the smallest option, smaller and faster than the largest. It is often paired with a classic key exchange so connections are protected both against today's attackers and future quantum computers.</p></section>
+<section data-level="learner"><p>ML-KEM-768 is standardized in <a href="glossary/f/fips.html">FIPS</a> 203 alongside ML-KEM-512 and ML-KEM-1024. In practice, you may see it in hybrid names such as <code>X25519MLKEM768</code> in TLS or <code>mlkem768x25519-sha256</code> in OpenSSH. The hybrid design means the session key is derived from both a classical and a post-quantum shared secret, so an attacker would need to break both to recover the key.</p><details class="q"><summary><i>Why not always use ML-KEM-1024 if it is stronger?</i></summary><p>Stronger parameter sets cost more: larger keys/ciphertexts, more CPU work, and more bandwidth. ML-KEM-768 is often chosen as a practical balance for general-purpose protocols.</p></details></section>
+<section data-level="expert"><p>ML-KEM-768 (Kyber-768 in the original submission naming) targets NIST security category 3, with module rank k=3 over the ML-KEM ring. Relative to ML-KEM-512 it increases lattice dimension and noise cost, yielding a higher security margin at the cost of larger encapsulation keys/ciphertexts and higher runtime. In hybrid deployments, the KEM shared secret is combined with a classical ECDH secret through the protocol's key schedule (for example TLS 1.3 shared secret derivation or SSH key exchange method composition), providing defense in depth against both classical breaks and future CRQC threats.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/m/ml-kem.html">ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism)</a></li><li><a href="security/cryptography/quantum-safe-cryptography.html">Quantum-safe cryptography</a></li></ul>
+</body></html>

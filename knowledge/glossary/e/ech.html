@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>ECH (Encrypted Client Hello)</title>
+<meta name="topic" content="glossary-ech">
+<meta name="summary" content="ECH: TLS extension that encrypts the ClientHello, including SNI, to hide the destination hostname from passive observers.">
+<meta name="keywords" content="glossary-ech, ech, encrypted client hello, tls, sni, privacy, hpke">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/e/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / ECH (Encrypted Client Hello)</p></nav>
+
+<h1>ECH (Encrypted Client Hello)</h1>
+<p>A <a href="glossary/t/tls.html">TLS</a> extension that encrypts the ClientHello so observers cannot easily see which website name a client requested.</p>
+<section data-level="novice"><p>When you connect to a website over <a href="glossary/h/https.html">HTTPS</a>, the page contents are encrypted. But in ordinary TLS, the first hello message can still reveal the site name through <a href="glossary/s/sni.html">SNI</a>. ECH hides that name by encrypting the sensitive part of the hello. It is like putting the website name inside the sealed envelope, not just the letter.</p></section>
+<section data-level="learner"><p>ECH protects metadata that normal TLS 1.3 leaves visible, especially the SNI hostname. The client gets the server's ECH public key from <a href="glossary/d/dns.html">DNS</a> HTTPS records, builds an inner ClientHello containing the real destination, and wraps it inside an outer ClientHello. A network observer may still see the IP address and outer connection details, but not the encrypted inner SNI. ECH works best when deployed with encrypted DNS and careful server configuration; otherwise, fallback behavior or DNS leaks can reduce its privacy benefit.</p><details class="q"><summary><i>Does ECH make browsing anonymous?</i></summary><p>No. It hides the TLS hostname from passive network observers, but the destination IP address, traffic timing, DNS behavior, and account logins can still reveal information.</p></details></section>
+<section data-level="expert"><p>ECH (RFC-compliant TLS extension work, deployed with HPKE and DNS HTTPS/SVCB configuration) splits the ClientHello into an outer, cleartext-facing message and an encrypted inner ClientHello. The client encrypts the inner message with HPKE using the ECH configuration published by the server or its fronting provider. The outer SNI typically identifies a client-facing cover service; the backend server recovers the true inner SNI after decryption. Deployment challenges include DNS distribution and freshness, retry/config mismatch handling, client-greeting fragmentation across frontends, and interaction with middleboxes that assume plaintext SNI. ECH complements, but does not replace, encrypted DNS and IP-level privacy controls.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/s/sni.html">SNI (Server Name Indication)</a></li><li><a href="glossary/t/tls.html">TLS (Transport Layer Security)</a></li><li><a href="glossary/h/https.html">HTTPS (Hypertext Transfer Protocol Secure)</a></li></ul>
+</body></html>

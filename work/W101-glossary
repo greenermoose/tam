@@ -1,0 +1,45 @@
+W101 GLOSSARY PAGES BATCH
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  WHATNOW item 4: write glossary pages for technical terms used in the
+  corpus that have none. Check each before writing a page.
+
+DONE
+
+  - Added glossary pages: AES-GCM-SIV, ECH (Encrypted Client Hello),
+    LZ77, ML-KEM-768, TECO (Text Editor and Corrector).
+  - Updated glossary letter indexes (A, E, L, M, T).
+  - Bumped corpus to 0.117.6 (knowledge/version, ROADMAP, WHATNOW).
+  - Regenerated corpus indexes.
+
+CHECKED / NOT ADDED
+
+  - AES-256-CBC, AES-256-CTR: no direct corpus usage found; AES-256,
+    CBC, CTR already covered by existing pages.
+  - SISD/MISD/MIMD: no corpus usage found.
+  - AAA: corpus uses AAA as WCAG conformance level, not networking AAA.
+  - LZ78: no corpus usage found (LZ77 added).
+  - TX/RX: generic transmit/receive abbreviations used widely; no clear
+    missing glossary concept identified.
+
+NOT DONE / FOLLOW-UP
+
+  - Remaining WHATNOW item 4 scan terms need re-check before writing:
+    AES-256-CBC, AES-256-CTR, SISD/MISD/MIMD, TX/RX, AAA, LZ78. Most
+    had no clear corpus usage or were ambiguous in W101 checks.
+
+VERIFICATION
+
+  - python3 tools/build-index.py: pass.
+  - make check-repo: pass.
+
+HANDOFF
+
+  - Continue WHATNOW item 4 only for terms with clear corpus usage and
+    unambiguous meaning; update letter/main glossary indexes and corpus
+    indexes.

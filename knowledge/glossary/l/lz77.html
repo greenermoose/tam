@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>LZ77</title>
+<meta name="topic" content="glossary-lz77">
+<meta name="summary" content="LZ77: lossless compression algorithm that replaces repeated data with references to earlier occurrences in a sliding window.">
+<meta name="keywords" content="glossary-lz77, lz77, lempel-ziv, compression, sliding window, deflate, lz4">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/l/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / LZ77</p></nav>
+
+<h1>LZ77</h1>
+<p>A lossless compression method that replaces repeated text with references to earlier data in a sliding window.</p>
+<section data-level="novice"><p>If a file repeats the same phrase, LZ77 does not store the phrase again. Instead, it stores a short note like "go back 20 characters and copy 5." When the file is decompressed, that note is expanded back to the original text. This saves space without losing any information.</p></section>
+<section data-level="learner"><p>LZ77, published by Lempel and Ziv in 1977, is the basis for many practical compressors. <a href="glossary/d/deflate.html">DEFLATE</a> combines LZ77-style matching with Huffman coding, and formats like gzip, PNG, and ZIP rely on it. <a href="glossary/l/lz4.html">LZ4</a> also uses LZ77-style backreferences but favors speed over maximum compression ratio. The "sliding window" limits how far back a match can refer, which affects both memory use and compression effectiveness.</p><details class="q"><summary><i>Why can LZ77 compression make some encrypted or already-compressed files larger?</i></summary><p>LZ77 needs repeated patterns to find matches. Random-looking or already-compressed data has few useful repeats, so the compressor adds overhead without finding much to shorten.</p></details></section>
+<section data-level="expert"><p>LZ77 encodes a stream as literals and (distance, length) match tokens referencing previously emitted bytes within a bounded window. In DEFLATE (RFC 1951), the window is 32 KiB and matches are 3-258 bytes; match/literal and distance symbols are then entropy-coded. LZ77-family designs trade compression ratio, speed, and memory by window size, hash-chain/HashTable match finding, lazy matching, and entropy stage choice. Because match length depends on secret content, LZ77-based compression in security-sensitive contexts can leak information through size side channels, as in CRIME/BREACH.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/d/deflate.html">DEFLATE</a></li><li><a href="glossary/l/lz4.html">LZ4</a></li><li><a href="glossary/c/crime.html">CRIME (Compression Ratio Info-leak Made Easy)</a></li></ul>
+</body></html>
