@@ -383,9 +383,7 @@ tam_document_t *tam_paths_document(const char *root, const char *path_id,
     tam_str_t html = tam_page_begin("Learning Paths", NULL, crumbs, 2);
     html = tam_str_cat(html,
         "<h1>Learn step by step</h1>\n"
-        "<p>Choose what you want to understand or do. Read the overview for prerequisites, stages, and a final task.<br>\n"
-        "Follow any path to keep <strong>Back</strong>, <strong>Next</strong>, and <kbd>Right Arrow</kbd> "
-        "on that course even across shared pages.</p>\n");
+        "<p>Choose your own learning adventure.</p>\n");
 
     if (idx->num_paths == 0) {
         html = tam_str_cat(html, "<p>No learning paths are indexed.</p>\n");
@@ -412,14 +410,6 @@ tam_document_t *tam_paths_document(const char *root, const char *path_id,
             html = tam_html_cat(html, p->title);
             html = tam_str_cat_printf(html, "</a> (%zu step%s)",
                                       p->num_steps, p->num_steps == 1 ? "" : "s");
-            if (p->num_steps > 0) {
-                html = tam_str_cat(html, " &mdash; <a href=\"");
-                html = append_step_href(html, p->steps[0].path, p->id, level);
-                html = tam_str_cat(html, "\">Start</a>");
-            }
-            if (p->intro_path[0] != '\0') {
-                html = tam_str_cat_printf(html, " | <a href=\"%s\">Overview</a>", p->intro_path);
-            }
             html = tam_str_cat(html, "</dt>\n<dd>");
             html = tam_html_cat(html, p->summary);
             html = tam_str_cat(html, "</dd>\n");

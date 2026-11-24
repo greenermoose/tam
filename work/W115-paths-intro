@@ -1,0 +1,48 @@
+W115 PATHS INTRO AND PATH LINES
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "On tam:paths, do the following:
+  1) Change 'Choose what you want to understand or do. Read the overview
+  for prerequisites, stages, and a final task. Follow any path to keep
+  Back, Next, and Right Arrow on that course even across shared pages.'
+  to 'Choose your own learning adventure.'
+  2) Remove the - Start | Overview from each path line."
+
+DONE
+
+  - `src/views.c`, `tam_paths_document()` catalog branch: the intro
+    paragraph is now exactly "<p>Choose your own learning adventure.</p>".
+  - Removed the per-path-line ` &mdash; <a ...>Start</a>` and
+    ` | <a ...>Overview</a>` links. Each line is now just the path title,
+    step count and summary.
+  - The `tam:path?id=` detail page is unchanged: "Start this path" and
+    "Path overview and practice" still appear there, and tests/guide.sh
+    still checks for the Start link.
+  - Command version 0.69.0 -> 0.69.1; tests/run.sh assertion, ROADMAP
+    header/dev row/history row and the development decision record
+    updated to match. Corpus stays at 0.120.1.
+
+COORDINATION
+
+  - A codex claim held tests/run.sh when this task began. I acknowledged
+    their message and explained the B3 fix had already landed in W114
+    commit 9c9b6c9. Codex released the claim before I needed it.
+  - Codex commit 1904a5c refreshed index revision stamps only; it did
+    not conflict with the paths view change.
+
+VERIFICATION
+
+  - Rendered `tam show tam:paths --pipe` with the checkout corpus: the
+    intro is the single requested sentence and path lines carry no
+    Start or Overview links.
+  - Rendered `tam show tam:path?id=first-steps --pipe`: detail links
+    intact.
+
+FOLLOW-UP
+
+  - None.
