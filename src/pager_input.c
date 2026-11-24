@@ -506,7 +506,9 @@ void handle_key(pager_t *st, unsigned char c)
         st->right_arrow_state = 0;
         if (memcmp(msg, st->msg, sizeof(msg)) == 0) st->msg[0] = '\0';
     }
-    if (st->doc != doc)
+    /* "Path =" describes where the reader is. Once the attention line moves,
+     * the status row must report the new destination instead. */
+    if (st->doc != doc || st->cursor_line != line || st->selected != selected)
         st->show_address = 0;
     if (c == '\r' || c == '\n' || c == 'f' || c == 'j' ||
         st->doc != doc || st->cursor_line != line || st->selected != selected)

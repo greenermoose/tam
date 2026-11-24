@@ -1,0 +1,76 @@
+W126 STATUS LINE FOLLOWS ATTENTION
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Fix the tam pager so that when you move the attention line, the
+  status line updates. Currently, if you press = the path to the current
+  page stays in the status line even after you start moving the attention
+  line. Also, change the coloring of the status line so that when links
+  are highlighted, the status line shows them in the same background
+  color as the link appears in the page, to reinforce in the reader's
+  mind that the status line is showing the destination for that link."
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session. The two changes are one
+  interaction: `Path =` must stop describing the old page once attention
+  moves, and the destination that replaces it must be visually tied to
+  the highlighted link in the page.
+
+DONE
+
+  - src/pager_input.c: handle_key() now clears show_address when the
+    document, cursor_line or selected link changes, not just on a page
+    change. Moving with d/k, s/l, Tab, or any other attention move
+    dismisses the stale `Path = ...` line.
+  - src/pager_draw.c: build_status_line() reports whether the text it
+    built is a selected link destination. The status row then applies
+    emit_style() with is_sel=1 to that text, giving it the same bold and
+    reverse treatment (and therefore the same visible background) as the
+    selected link on the page. Notices, pending external links, sandbox
+    messages and `Path = ...` keep their original footer-tint styling.
+  - tests/run.sh: the address-toggle test expects `Path =` to disappear
+    after a line down, then checks it can be shown again on the new line
+    and cleared with Esc. The hyperlink spacing check now scopes its
+    reverse-video assertions to page rows, because the status row now
+    legitimately repeats the selected link label in reverse video.
+  - tests/pager_screen.py: a PTY screen-model check compares the status
+    row cell attributes with the selected link cell attributes on the
+    fixture Guide index; both carry bg236, fg15, bold and reverse.
+  - man/tam.1: `=` dismissal wording now includes moving the attention
+    line as well as a second `=`, Esc, or a page change.
+  - Bumped command to 0.69.6 in src/version.h, tests/run.sh, the decision
+    record and ROADMAP.md, including a delivered-history row.
+
+FAILED
+
+  - The first status-row styling used sel->href directly on a non-const
+    tam_span_t field and produced a -Wdiscarded-qualifiers warning; it
+    now uses a local marker because emit_style() only tests href for
+    non-NULL.
+  - The hyperlink spacing test initially failed because it searched the
+    whole PTY buffer for `\x1b[7m the`; the styled status row repeats the
+    link label with its leading space. The assertion now reads only the
+    page rows before the status row.
+  - An inline shell comment used an apostrophe inside a single-quoted
+    python3 -c block and caused a shell syntax error; reworded it.
+
+CHECKED AGAINST
+
+  - make command builds with no warnings.
+  - PTY probe on shell/pipelines: `=` shows `Path = page:shell/pipelines.html`;
+    `d` clears it; `=` shows it again; `Tab` selects a link and the status
+    row shows its destination with bg236 fg15 bold reverse, matching the
+    selected link cell attributes exactly.
+  - make test-command, python3 tools/check-repo.py and git diff --check
+    pass (see final verification below).
+  - No push, install, Test, Run or Release was requested or performed.
+
+CONTINUATION
+
+  - Commit this change on dev with provenance trailers.
+  - Await Fred's direction. No stage promotion is authorised.

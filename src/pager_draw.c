@@ -47,7 +47,8 @@ static void format_revision_tail(const char *text, int max_cols,
                                  const char **prefix_out,
                                  const char **shown_out);
 static void build_status_line(const pager_t *st, const linkref_t *sel,
-                              int width, char *out, size_t cap);
+                              int width, char *out, size_t cap,
+                              int *link_destination);
 static void emit_footer2(const char *left, const char *rev_prefix,
                          const char *rev_shown, int width);
 
@@ -199,9 +200,11 @@ static void format_revision_tail(const char *text, int max_cols,
 }
 
 static void build_status_line(const pager_t *st, const linkref_t *sel,
-                              int width, char *out, size_t cap)
+                              int width, char *out, size_t cap,
+                              int *link_destination)
 {
     out[0] = '\0';
+    if (link_destination != NULL) *link_destination = 0;
     if (st->active_sandbox) {
         snprintf(out, cap, "Playing in sandbox -- Esc to close");
     } else if (st->show_address) {
@@ -213,6 +216,7 @@ static void build_status_line(const pager_t *st, const linkref_t *sel,
     } else if (st->pending_external != NULL) {
         snprintf(out, cap, "-> %s", st->pending_external);
     } else if (sel != NULL && sel->href != NULL) {
+        if (link_destination != NULL) *link_destination = 1;
         /* The destination always shows; a long link label gives way,
          * shortened with "..." to the columns the destination leaves. */
         const char *lt = (sel->span != NULL && sel->span->text != NULL)
@@ -699,9 +703,19 @@ int draw(pager_t *st)
 
     if (status_row(st)) {
         char status_line[512];
-        build_status_line(st, sel, paint_width, status_line, sizeof(status_line));
+        int link_destination = 0;
+        build_status_line(st, sel, paint_width, status_line, sizeof(status_line),
+                          &link_destination);
         g_capture = &frame[st->height - 3];
         emit_attention(1);
+        if (link_destination) {
+            /* A destination gets the selected link's own styling, so its
+             * background matches the highlighted link on the page. */
+            char href_marker = 0; /* emit_style only tests href for non-NULL. */
+            tam_span_t link = {0};
+            link.href = &href_marker;
+            (void)emit_style(&link, 1);
+        }
         size_t slen = status_byte_limit(status_line, paint_width);
         outn(status_line, slen);
         emit_reset(0);

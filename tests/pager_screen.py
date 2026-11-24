@@ -473,6 +473,23 @@ def main():
     assert "reverse" in screen.cells[link_row][tl_start][1], screen.cells[link_row][tl_start]
     stop(pid, master)
 
+    # A link destination in the status row reuses the selected link's styling,
+    # including its background, so both read as the same highlighted item.
+    pid, master, screen, _ = collect_screen(binary, fixtures + "/guide",
+                                            "xterm-256color", 12, 80,
+                                            page="index")
+    os.write(master, b"\t")
+    screen.feed(read_available(master, 0.2))
+    status_row = screen.rows - 3
+    assert "-> welcome.html" in screen.line(status_row), repr(screen.line(status_row))
+    link_row = next(r for r in range(status_row) if "Welcome" in screen.line(r))
+    link_col = screen.line(link_row).index("Welcome")
+    status_attrs = screen.cells[status_row][0][1]
+    link_attrs = screen.cells[link_row][link_col][1]
+    assert status_attrs == link_attrs, (status_attrs, link_attrs)
+    assert {"bg236", "fg15", "bold", "reverse"}.issubset(status_attrs), status_attrs
+    stop(pid, master)
+
     # Linux's eight-color profile keeps an interactive pager and uses reverse.
     pid, master, screen, _ = collect_screen(binary, fixtures, "linux")
     assert "reverse" in screen.cells[2][0][1], screen.cells[2][0][1]
@@ -748,7 +765,7 @@ def main():
     check_vanished_forward(binary)
     check_b4_same_href_resize(binary, fixtures)
 
-    print("ok - pager PTY screen model: focus, vanished history/forward pages, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, the revision stamp row, and B4 same-href resize")
+    print("ok - pager PTY screen model: focus, vanished history/forward pages, row diffs, no-op keys, capability fallback, tiny geometry, in-page links, link-destination status styling, the revision stamp row, and B4 same-href resize")
 
 
 if __name__ == "__main__":

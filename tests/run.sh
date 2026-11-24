@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.5' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.6' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -920,9 +920,12 @@ assert b"the desktop guide" in buf, "interior spaces in unselected link lost und
 
 os.write(master, b"\t")
 buf = drain_pty(master, timeout=0.04, quiet=0.005)
+# The status row now repeats a selected link label with the same reverse
+# styling; only check the page rows for the leading-space boundary.
+page = buf.split(b"\x1b[22;1H", 1)[0]
 
-assert b"\x1b[7m the" not in buf, "space before hyperlink received selected reverse emphasis"
-assert b"\x1b[7mthe desktop guide" in buf, "interior hyperlink spaces lost selected reverse emphasis"
+assert b"\x1b[7m the" not in page, "space before hyperlink received selected reverse emphasis"
+assert b"\x1b[7mthe desktop guide" in page, "interior hyperlink spaces lost selected reverse emphasis"
 os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures" || fail "selected hyperlink boundary spacing failed"
@@ -1181,11 +1184,14 @@ assert "L1 1-" in status0, f"expected L1 position at start, got: {status0}"
 status = get_status_line(b"=")
 assert "Path = page:shell/pipelines.html" in status, f"expected Path = page:shell/pipelines.html, got: {status}"
 
-# 2. A line-down key (d) keeps it
+# 2. A line-down key moves the attention line, so the path gives way to the
+#    destination under the new attention line (or an empty status row here)
 status = get_status_line(b"d")
-assert "Path = page:shell/pipelines.html" in status, f"expected Path = ... to persist after line down, got: {status}"
+assert "Path = " not in status and "L2 1-" in status, f"expected path cleared after line down, got: {status}"
 
-# 3. Esc removes it and the position appears again
+# 3. = shows the path again at the new line; Esc removes it
+status = get_status_line(b"=")
+assert "Path = page:shell/pipelines.html" in status, f"expected Path = ... after = on L2, got: {status}"
 status = get_status_line(b"\x1b")
 assert "Path = " not in status and "L2 1-" in status, f"expected position restored after Esc, got: {status}"
 
@@ -1212,7 +1218,7 @@ assert "Fixture Guide" in buf.decode("utf-8", "replace"), "expected to be on Fix
 os.write(master, b"q")
 os.waitpid(pid, 0)
 ' "$TAM" "$root/tests/fixtures/guide" || fail "interactive pager address toggle failed"
-    pass "pager address toggle (=): path display, persistence, Esc clear, and navigation reset"
+    pass "pager address toggle (=): path display, dismissal on attention movement, Esc clear, and navigation reset"
 
     # Pager guide search ('\') and in-page search ('/') prompts; show quick-keys links
     python3 -c '

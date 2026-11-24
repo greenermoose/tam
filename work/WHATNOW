@@ -3,36 +3,39 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W125
+Updated: 2026-11-24, with W126
 
 STATE
 
-  Command 0.69.5 and corpus 0.124.0 on dev. W125 removed everything above
-  the topic table on tam:topics: the `Topics A to Z` heading and the
-  instructions paragraph are gone. The view opens with the breadcrumb,
-  line Lb and the `Topic` / `Covers` table header, with a blank line below
-  the breadcrumb in pipe output.
+  Command 0.69.6 and corpus 0.124.0 on dev. W126 makes the pager status
+  line follow the attention line: `Path = ...` is cleared as soon as the
+  cursor, selection or page changes, and a selected link's destination
+  in the status row now uses the same bold/reverse styling (and visible
+  background) as the highlighted link in the page.
 
-  W124 changed tam:paths to open with the breadcrumb, Lb and `Choose your
-  own learning adventure`. W123 changed tam:hubs to open with the
-  breadcrumb, a closed first-time aside and the Using your system group.
-  W122 made line Lb appear on every depth-prepared Guide page; W121
-  rewrote the welcome page and removed the 1,442 body headings that
-  repeated breadcrumbs across the non-root corpus. TCK32 is minted with
-  four children; next free checklist ID is TCK33.
+  W125 removed everything above the topic table on tam:topics: the
+  `Topics A to Z` heading and the instructions paragraph are gone. The
+  view opens with the breadcrumb, line Lb and the `Topic` / `Covers`
+  table header. W124 changed tam:paths to open with the breadcrumb, Lb
+  and `Choose your own learning adventure`. W123 changed tam:hubs to open
+  with the breadcrumb, a closed first-time aside and the Using your
+  system group. W122 made line Lb appear on every depth-prepared Guide
+  page; W121 rewrote the welcome page and removed the 1,442 body headings
+  that repeated breadcrumbs across the non-root corpus. TCK32 is minted
+  with four children; next free checklist ID is TCK33.
 
   Generated views built with tam_page_render() do not go through
-  tam_depth_prepare(), so hubs, paths and topics now supply their own
-  opening explicitly (fold renderer for hubs, tam_level_lines() for paths
-  and topics).
+  tam_depth_prepare(), so hubs, paths and topics supply their own
+  opening explicitly (fold renderer for hubs, tam_level_lines() for
+  paths and topics).
 
   make command, make test-command, make corpus, make corpus-and-test and
   make check-repo all pass. Work is uncommitted at this point.
 
 NEXT
 
-  - Commit the W125 source, test, version and record paths on dev with
-    provenance trailers. Only claimed paths go into this commit.
+  - Commit the W126 source, test, version, manual and record paths on dev
+    with provenance trailers. Only claimed paths go into this commit.
   - Await Fred's direction. No Test, Run or Release is authorised.
 
 WAITING FOR FRED
@@ -49,11 +52,16 @@ WATCH OUT
     and scroll assertions must account for it. Generated views built with
     tam_page_render() do not carry Lb unless they inject it themselves;
     depth-prepared corpus pages get it from tam_depth_prepare().
+  - The status row repeats a selected link label with the link's own
+    reverse styling. Raw-PTY assertions that search for `\x1b[7m` must
+    scope themselves to page rows, not the whole buffer.
   - Interactive checks of generated views need `tam show <view>`, not a
     bare `tam <view>` alias; only some views have bare aliases.
   - PTY assertions on coloured rows must strip ANSI escapes first: a
     right-aligned Lb can be split by colour codes. Wait for a content
     marker instead of a fixed delay when the view loads an index.
+  - Inline python3 -c blocks in tests/run.sh are single-quoted: avoid
+    apostrophes in comments or strings inside them.
   - The reveal and hide keys r and a are reliable for first-time asides;
     Right Arrow depends on where the attention line sits.
   - Escaped href="..." inside a pre block still trips the corpus link
@@ -71,7 +79,7 @@ WATCH OUT
     botanical analogy, not a set of plant names.
   - Digit-leading glossary titles belong in glossary/numeric/, not in the
     letter folder matching a later "b" or other letter.
-  - Command and corpus versions are independent; W125 is command only.
+  - Command and corpus versions are independent; W126 is command only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.
