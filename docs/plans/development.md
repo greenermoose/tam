@@ -1522,3 +1522,10 @@ The entries explain value ranges, pointers, ABI, instruction-set modes,
 libraries and compatibility. This is corpus content and tooling; command
 version, stage promotion and installation remain separate developer-directed
 actions.
+
+### 2026-11-24 — Numeric path question italics (corpus 0.122.1)
+
+The developer asked to italicize the questions on the numeric-systems path.
+The five checkpoint question summaries now use `<i>` like the other quiz
+pages. This is a corpus correction; command version and stage promotion are
+unchanged.
