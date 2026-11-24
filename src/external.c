@@ -40,6 +40,22 @@ int tam_external_url_ok(const char *url)
     return 1;
 }
 
+int tam_external_refusal_reason(const char *url, char *msg, size_t cap)
+{
+    if (tam_external_url_ok(url)) return 0;
+    if (msg == NULL || cap == 0) return -1;
+    size_t scheme = 0;
+    if (url != NULL) scheme = strcspn(url, ":/?#");
+    if (url == NULL || url[scheme] != ':' ||
+        (scheme == 4 && strncasecmp(url, "http", 4) == 0) ||
+        (scheme == 5 && strncasecmp(url, "https", 5) == 0))
+        snprintf(msg, cap, "cannot open malformed link");
+    else
+        snprintf(msg, cap, "cannot open %.*s: links",
+                 scheme < 24 ? (int)scheme : 24, url);
+    return -1;
+}
+
 int tam_external_graphical(void)
 {
     const char *wayland = getenv("WAYLAND_DISPLAY");
@@ -229,10 +245,8 @@ static int wait_child(pid_t pid, int *status)
 int tam_external_open_detached(const char *url, char *msg, size_t cap)
 {
     command_t c = {0};
-    if (!tam_external_url_ok(url)) {
-        snprintf(msg, cap, "cannot open malformed link");
+    if (tam_external_refusal_reason(url, msg, cap) != 0)
         return -1;
-    }
     if (!choose(1, url, &c)) {
         snprintf(msg, cap, "%s", tam_external_missing(1));
         return -1;
@@ -329,10 +343,8 @@ int tam_external_run_foreground(const char *url, int tty_fd,
                                 char *msg, size_t cap)
 {
     command_t c = {0};
-    if (!tam_external_url_ok(url)) {
-        snprintf(msg, cap, "cannot open malformed link");
+    if (tam_external_refusal_reason(url, msg, cap) != 0)
         return -1;
-    }
     if (!choose(0, url, &c)) {
         snprintf(msg, cap, "%s", tam_external_missing(0));
         return -1;

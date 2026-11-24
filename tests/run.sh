@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.68.27' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.68.28' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -3847,6 +3847,32 @@ set -e
 [ "$rc_aw_flag" -eq 2 ] || fail "expected exit 2 on invalid archwiki flag, got $rc_aw_flag"
 
 pass "tam archwiki subcommand, index discovery, HTML extraction, and hyperlinks"
+
+# R1 step 1: breadcrumb/location href classification characterization
+guide_fix="$root/tests/fixtures/guide"
+loc_guide=$(TAM_KNOWLEDGE_DIR="$guide_fix" "$TAM" show welcome --pipe)
+printf '%s\n' "$loc_guide" | grep -q '^Guide > .*Welcome' || fail "location: guide page"
+loc_man=$(TAM_KNOWLEDGE_DIR="$guide_fix" "$TAM" show man:ls --pipe)
+printf '%s\n' "$loc_man" | grep -q '^Guide > Man pages > ' || fail "location: man: page"
+loc_tldr=$(TAM_KNOWLEDGE_DIR="$guide_fix" "$TAM" show tldr:tar --pipe)
+printf '%s\n' "$loc_tldr" | grep -q '^Guide > tldr pages > tar$' || fail "location: tldr: page"
+loc_tldr_view=$(TAM_KNOWLEDGE_DIR="$guide_fix" "$TAM" show tam:tldr:tar --pipe)
+printf '%s\n' "$loc_tldr_view" | grep -q '^Guide > tldr pages > ' || fail "location: tam:tldr: page"
+loc_tldr_landing=$(TAM_KNOWLEDGE_DIR="$guide_fix" "$TAM" show tam:tldr --pipe)
+printf '%s\n' "$loc_tldr_landing" | grep -q '^Guide > tldr pages$' || fail "location: tam:tldr landing"
+loc_aw=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show archwiki:Arch_Linux --pipe)
+printf '%s\n' "$loc_aw" | grep -q '^Guide > Arch Wiki > Arch Linux$' || fail "location: archwiki: page"
+loc_aw_view=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show tam:archwiki:Arch_Linux --pipe)
+printf '%s\n' "$loc_aw_view" | grep -q '^Guide > Arch Wiki > ' || fail "location: tam:archwiki: page"
+loc_aw_landing=$(TAM_KNOWLEDGE_DIR="$guide_fix" TAM_ARCHWIKI_DIR="$aw_fix" "$TAM" show tam:archwiki --pipe)
+printf '%s\n' "$loc_aw_landing" | grep -q '^Guide > Arch Wiki$' || fail "location: tam:archwiki landing"
+loc_info_dir=$(INFOPATH="$tmp/info-fixture" "$TAM" show info:dir --pipe)
+printf '%s\n' "$loc_info_dir" | grep -q '^Guide > Info manuals$' || fail "location: info:dir"
+loc_info_manual=$(INFOPATH="$tmp/info-fixture" "$TAM" show info:coreutils --pipe)
+printf '%s\n' "$loc_info_manual" | grep -q '^Guide > Info manuals > coreutils$' || fail "location: info:manual"
+loc_info_node=$(INFOPATH="$tmp/info-fixture" "$TAM" show "info:coreutils/head invocation" --pipe)
+printf '%s\n' "$loc_info_node" | grep -q '^Guide > Info manuals > coreutils > coreutils: head invocation$' || fail "location: info:manual/node"
+pass "R1 step 1 breadcrumb/location href classification characterization"
 
 # Shell completion scripts verification (Tamlinux supports bash)
 bash -n "$root/completions/bash/tam" || fail "bash completion syntax error"

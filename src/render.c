@@ -1,5 +1,6 @@
 #include <tam.h>
 #include <tam_uni.h>
+#include "address.h"
 #include "display.h"
 #include "external.h"
 #include "render.h"
@@ -1701,37 +1702,31 @@ void tam_document_ensure_location(tam_document_t *doc, const char *href)
         location_append(doc, "Guide", NULL);
         return;
     }
-    if (strncmp(href, "man:", 4) == 0) {
+
+    tam_addr_kind_t kind = tam_addr_kind(href);
+    if (kind == TAM_ADDR_MAN && strncmp(href, "man:", 4) == 0) {
         location_append(doc, "Guide", "index.html");
         location_append(doc, "Man pages", "man:");
         location_append(doc, doc->title ? doc->title : href + 4, NULL);
         return;
     }
-    if (strncmp(href, "tldr:", 5) == 0) {
+    if ((kind == TAM_ADDR_TLDR && strncmp(href, "tldr:", 5) == 0) ||
+        (kind == TAM_ADDR_VIEW && strncmp(href, "tam:tldr:", 9) == 0)) {
+        const char *tail = href[0] == 't' && href[1] == 'l' ? href + 5 : href + 9;
         location_append(doc, "Guide", "index.html");
         location_append(doc, "tldr pages", "tam:tldr");
-        location_append(doc, doc->title ? doc->title : href + 5, NULL);
+        location_append(doc, doc->title ? doc->title : tail, NULL);
         return;
     }
-    if (strncmp(href, "tam:tldr:", 9) == 0) {
-        location_append(doc, "Guide", "index.html");
-        location_append(doc, "tldr pages", "tam:tldr");
-        location_append(doc, doc->title ? doc->title : href + 9, NULL);
-        return;
-    }
-    if (strncmp(href, "archwiki:", 9) == 0) {
+    if ((kind == TAM_ADDR_ARCHWIKI && strncmp(href, "archwiki:", 9) == 0) ||
+        (kind == TAM_ADDR_VIEW && strncmp(href, "tam:archwiki:", 13) == 0)) {
+        const char *tail = href[0] == 'a' ? href + 9 : href + 13;
         location_append(doc, "Guide", "index.html");
         location_append(doc, "Arch Wiki", "tam:archwiki");
-        location_append(doc, doc->title ? doc->title : href + 9, NULL);
+        location_append(doc, doc->title ? doc->title : tail, NULL);
         return;
     }
-    if (strncmp(href, "tam:archwiki:", 13) == 0) {
-        location_append(doc, "Guide", "index.html");
-        location_append(doc, "Arch Wiki", "tam:archwiki");
-        location_append(doc, doc->title ? doc->title : href + 13, NULL);
-        return;
-    }
-    if (strncmp(href, "info:", 5) == 0) {
+    if (kind == TAM_ADDR_INFO && strncmp(href, "info:", 5) == 0) {
         const char *spec = href + 5;
         location_append(doc, "Guide", "index.html");
         location_append(doc, "Info manuals", "info:dir");

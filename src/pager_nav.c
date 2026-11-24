@@ -468,16 +468,8 @@ tam_document_t *load_at_lens(pager_t *st, const char *href)
  * terminal until it exits. */
 static void follow_external(pager_t *st, const char *href)
 {
-    if (!tam_external_url_ok(href)) {
-        size_t scheme = strcspn(href, ":/?#");
-        if (href[scheme] != ':' || (scheme == 4 && strncasecmp(href, "http", 4) == 0) ||
-            (scheme == 5 && strncasecmp(href, "https", 5) == 0))
-            snprintf(st->msg, sizeof(st->msg), "cannot open malformed link");
-        else
-            snprintf(st->msg, sizeof(st->msg), "cannot open %.*s: links",
-                     scheme < 24 ? (int)scheme : 24, href);
+    if (tam_external_refusal_reason(href, st->msg, sizeof(st->msg)) != 0)
         return;
-    }
     int graphical = tam_external_graphical();
     if (st->pending_external == NULL || strcmp(st->pending_external, href) != 0) {
         char name[64];

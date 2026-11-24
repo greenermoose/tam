@@ -1,0 +1,48 @@
+W104 RETIRE R1 STEP 1 FOLLOW-UP
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Do the entire R1 step 1 follow up from tam's WHATNOW. Get
+  everything done so you can retire the entire #1 paragraph from the
+  NEXT."
+
+DONE
+
+  - Added breadcrumb/location href classification characterization in
+    tests/run.sh for guide, man, tldr/tam:tldr, archwiki/tam:archwiki,
+    and info:dir/manual/node locations.
+  - Consolidated tam_document_ensure_location in src/render.c to use
+    tam_addr_kind for href classification while preserving exact
+    breadcrumb labels, links, and title fallbacks; info node structure
+    remains explicit.
+  - Added tam_external_refusal_reason in src/external.c/src/external.h
+    as the single source for external refusal messages.
+  - Replaced manual scheme parsing in src/pager_nav.c and invalid-URL
+    checks in src/external.c detached/foreground open paths with
+    tam_external_refusal_reason; preserved exact messages
+    ("cannot open malformed link", "cannot open %.*s: links").
+  - Bumped command to 0.68.28 (patch) and updated development plan,
+    ROADMAP, and WHATNOW; retired NEXT item 1.
+
+NOT DONE / FOLLOW-UP
+
+  - R1 step 4 follow-up: no safe small pilot identified (WHATNOW NEXT 1).
+  - R1 step 3 follow-up: measured/deferred (WHATNOW NEXT 2).
+  - Future glossary work remains (WHATNOW NEXT 3).
+
+VERIFICATION
+
+  - make -j4: pass.
+  - python3 tests/external_links.py build/tam tests/fixtures: pass.
+  - Targeted breadcrumb/location pipe checks: pass (guide, man, tldr,
+    tam:tldr, archwiki, tam:archwiki, info dir/manual/node).
+  - make check-repo: pass.
+
+HANDOFF
+
+  - R1 step 1 follow-up is retired. Continue with WHATNOW NEXT items in
+    order as Fred directs.

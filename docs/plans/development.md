@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-23:** Command 0.68.28 (patch): retire R1 step 1 follow-up by consolidating breadcrumb/location href classification and external scheme error-message parsing with characterization tests and no behavior change.
 - **2026-11-23:** Command 0.68.27 (patch): characterize CLI view aliases and consolidate explain topics alias check (R1 step 1 follow-up).
 - **2026-11-23:** Command 0.68.26 (patch): bump command version for B6 history-stack fix and verify with build and command tests.
 - **2026-11-23:** Command 0.68.25 (patch): accept `fold=` in depth split and add characterization tests for depth/fold/path query params (R1 step 1 follow-up).

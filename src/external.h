@@ -14,6 +14,10 @@
  * spaces or control bytes. */
 int tam_external_url_ok(const char *url);
 
+/* Write the refusal reason for url into msg. Returns 0 when the URL is
+ * acceptable for handoff, -1 when it must be refused. */
+int tam_external_refusal_reason(const char *url, char *msg, size_t cap);
+
 /* 1 when WAYLAND_DISPLAY or DISPLAY names a graphical session. */
 int tam_external_graphical(void);
 

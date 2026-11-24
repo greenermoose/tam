@@ -3,13 +3,17 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-23, with W103
+Updated: 2026-11-23, with W104
 
 STATE
 
-  Command 0.68.27 and corpus 0.117.6 on dev. W103 characterized CLI
-  view aliases and consolidated explain topics alias check (R1 step 1
-  follow-up); W102 bumped command for the B6 history-stack fix and
+  Command 0.68.28 and corpus 0.117.6 on dev. W104 retired R1 step 1
+  follow-up: added breadcrumb/location and external refusal
+  characterization tests, consolidated location href classification in
+  render.c via tam_addr_kind, and centralized external scheme refusal
+  message parsing in external.c/pager_nav.c with no behavior change.
+  W103 characterized CLI view aliases and consolidated explain topics
+  alias check; W102 bumped command for the B6 history-stack fix and
   verified build/tests; W101 added AES-GCM-SIV, ECH, LZ77, ML-KEM-768,
   and TECO glossary pages and regenerated corpus indexes (R1 follow-ups
   remain as audited in W97).
@@ -82,26 +86,18 @@ STATE
 
 NEXT
 
-  1. R1 step 1 follow-up (characterized, no safe small consolidation
-     identified): W91/W96/W103 characterized aliases, fold/path params,
-     relative Guide links, external opener confirmation, and
-     depth/fold/path query params; W103 consolidated explain topics to
-     use centralized CLI alias check. Render breadcrumb href classification
-     and external scheme error-message parsing are already largely
-     covered by existing tests (run.sh breadcrumbs, external_links.py);
-     consolidate only with characterization tests and no behavior change.
-  2. R1 step 4 follow-up (no safe small pilot identified): forward UTF-8
+  1. R1 step 4 follow-up (no safe small pilot identified): forward UTF-8
      decode pilots landed (W92/W93); remaining continuation-byte scans
      are backward lead-byte searches, not decode reuse. Any libtam
      key-helper pilot must preserve renderer capability detection,
      Linux-console behavior, and terminal handoff.
-  3. R1 step 3 follow-up (measured, deferred): `tam_index_load` is
+  2. R1 step 3 follow-up (measured, deferred): `tam_index_load` is
      ~9.5ms average over 100 warm-cache loads (1311 entries, 3 TSV
      files). Per-session caching is not justified at this cost; if
      revisited, invalidate on index TSV mtime/change. Preserve ranking
      algorithm until measurements justify change.
 
-  4. Future glossary work: write glossary pages for technical
+  3. Future glossary work: write glossary pages for technical
      terms used in the corpus that have none. W98 added CNAME, CRTC,
      NXDOMAIN, and VLAN; W99 added EDNS0, NSEC, NSS, and SHA-512; W100
      added BBR, BLE, DB-9, and GEM; W101 added AES-GCM-SIV, ECH, LZ77,
