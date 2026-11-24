@@ -1,0 +1,35 @@
+W112 X/OPEN GLOSSARY AND SLASH NAMING STANDARD
+
+Date: 2026-11-23
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Write a glossary page for X/Open. Figure out what to do about
+  naming topics with a slash in them. Make that / treatment standardized
+  for every topic that contains a slash."
+
+DONE
+
+  - Added `knowledge/glossary/x/x-open.html` (topic `glossary-x-open`),
+    covering X/Open as a consortium, XPG/XSI, merger into The Open Group,
+    and relation to POSIX/SUS/UNIX.
+  - Added X/Open to `knowledge/glossary/x/index.html`.
+  - Standardized slash naming rule in `docs/corpus-authoring.md`:
+    topic IDs are slugs `[a-z0-9-]`; when a name contains `/`, replace `/`
+    with `-` in topic meta and filename, collapse repeated hyphens, keep `/`
+    in visible titles/text. Example: X/Open -> `glossary-x-open` /
+    `x-open.html`.
+  - Verified no existing topic meta contains `/` (TOPIC_RE already enforces
+    slug form); display names with `/` already use slug-safe topic IDs.
+  - Bumped corpus to 0.119.3; updated ROADMAP/WHATNOW; regenerated indexes.
+
+VERIFICATION
+
+  - python3 tools/build-index.py: pass.
+  - make check-repo: pass.
+
+FOLLOW-UP
+
+  - None.

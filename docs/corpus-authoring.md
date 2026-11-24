@@ -145,6 +145,14 @@ blocks; the pager synthesizes path navigation dynamically and preserves the
 reader's active path across multi-path pages. The skills map publishes the same
 can-do statements for readers.
 
+Topic IDs are slugs: lowercase letters, digits, and hyphens only
+(`^[a-z0-9][a-z0-9-]*$`). When a topic name contains `/`, replace each `/`
+with `-` in the `<meta name="topic">` value and filename, collapse repeated
+hyphens, and keep the `/` in visible titles and text. For example, X/Open uses
+topic `glossary-x-open` and filename `knowledge/glossary/x/x-open.html`.
+Apply the same slug treatment to any other character that cannot appear in a
+topic slug.
+
 Mark a term's first use with a glossary link, optionally inside `<dfn>`.
 Every `<dfn>` must contain a working link under `glossary/`; definitions
 themselves can use ordinary headings and paragraphs. A citation uses a stable
