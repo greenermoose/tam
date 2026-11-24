@@ -452,6 +452,7 @@ record remains explicit in that plan and the index; it is not silently closed.
 
 ## Decision record
 
+- **2026-11-24:** Command 0.69.4 (patch): render `tam:paths` as the breadcrumb, line Lb, and `Choose your own learning adventure` before the path groups, removing the `Learn step by step` title heading that repeated the breadcrumb and the period from the intro. Injecting `tam_level_lines()` directly gives the generated view the same blank separator as depth-prepared Guide pages.
 - **2026-11-24:** Command 0.69.3 (patch): render `tam:hubs` as the breadcrumb, a closed first-time aside labelled `You may want to know... (-> to show)` and the two subject groups, with no title `<h1>` that repeats the breadcrumb. Route the generated view through the fold renderer so readers can open and close the intro in the pager.
 - **2026-11-24:** Command 0.69.2 (patch): show line Lb (the current lens) on every Guide page, emitting it after the breadcrumb when a page has no title `<h1>`, so the welcome page keeps a lens line above its first paragraph.
 - **2026-11-24:** Command 0.69.1 (patch): simplify the `tam:paths` intro to "Choose your own learning adventure." and remove the Start and Overview links from each path line; the named path detail page keeps its own Start this path and Path overview and practice links.

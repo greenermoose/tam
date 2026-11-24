@@ -390,9 +390,11 @@ tam_document_t *tam_paths_document(const char *root, const char *path_id,
 
     static const tam_crumb_t crumbs[] = { { "index.html", "Guide" }, { NULL, "Learning Paths" } };
     tam_str_t html = tam_page_begin("Learning Paths", NULL, crumbs, 2);
-    html = tam_str_cat(html,
-        "<h1>Learn step by step</h1>\n"
-        "<p>Choose your own learning adventure.</p>\n");
+    /* Line Lb follows the breadcrumb on every Guide view, giving the intro
+     * a separator even though this generated page has no lens sections. */
+    char *lb = tam_level_lines(0, level, 0, NULL);
+    if (lb != NULL) { html = tam_str_cat(html, lb); free(lb); }
+    html = tam_str_cat(html, "<p>Choose your own learning adventure</p>\n");
 
     if (idx->num_paths == 0) {
         html = tam_str_cat(html, "<p>No learning paths are indexed.</p>\n");

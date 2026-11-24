@@ -99,7 +99,7 @@ pass "--help, -h, help, --terse, and --verbose"
 # The command version is asserted here; the corpus version comes from the
 # corpus itself, so a corpus release needs no change to this file.
 corpus_version=$(cat "$knowledge/version")
-"$TAM" --version | grep -q '^tam command 0.69.3' || fail "--version missing command version"
+"$TAM" --version | grep -q '^tam command 0.69.4' || fail "--version missing command version"
 TAM_TEST_BIN="$TAM" python3 -B tests/test_bundle_identity.py || fail "bundle identity and ownership"
 python3 -B tests/test_documentation.py || fail "optional documentation and native identity"
 "$TAM" --version | grep -q "^knowledge corpus $corpus_version" || fail "--version missing corpus version"
@@ -281,8 +281,52 @@ PYHUBS
 pass "tam:hubs intro is a toggleable first-time aside"
 sh_paths=$("$TAM" show paths --pipe)
 printf '%s\n' "$sh_paths" | grep -q 'Learning Paths' || fail "tam show paths failed"
+printf '%s\n' "$sh_paths" | grep -q '^Choose your own learning adventure$' || fail "tam show paths intro failed"
+if printf '%s\n' "$sh_paths" | grep -q 'Learn step by step'; then fail "tam show paths repeated the breadcrumb in a heading"; fi
+printf '%s\n' "$sh_paths" | grep -q 'Showing all text' || fail "tam show paths missing line Lb"
+[ "$(printf '%s\n' "$sh_paths" | sed -n '2p')" = "" ] || fail "tam show paths needs a blank line after the breadcrumb"
 sh_paths_pseudo=$("$TAM" show tam:paths --pipe)
 [ "$sh_paths" = "$sh_paths_pseudo" ] || fail "tam show paths and tam:paths differ"
+
+# In the pager Lb sits between the breadcrumb and the intro. This view is
+# generated from the indexed corpus, so it has no small page fixture.
+# live-corpus: the paths view is generated from the corpus index, not a fixture page
+python3 - "$TAM" "$knowledge" <<'PYPATHS'
+import fcntl, os, pty, re, select, struct, subprocess, sys, termios, time
+tam, knowledge = sys.argv[1], sys.argv[2]
+env = dict(os.environ, TAM_KNOWLEDGE_DIR=knowledge, TERM="xterm-256color", NO_COLOR="")
+master, slave = pty.openpty()
+fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 8, 80, 0, 0))
+with subprocess.Popen([tam, "show", "paths"], stdin=slave, stdout=slave, stderr=slave,
+                      env=env) as proc:
+    os.close(slave)
+    def until(marker):
+        out = bytearray()
+        deadline = time.monotonic() + 3
+        while marker not in out:
+            ready, _, _ = select.select([master], [], [], max(0, deadline - time.monotonic()))
+            assert ready, out.decode(errors="replace")
+            out.extend(os.read(master, 65536))
+        return out
+    try:
+        screen = until(b"Choose your own learning adventure")
+        plain = re.sub(rb"\x1b(?:\[[0-9;?]*[ -/]*[@-~]|\([A-Z0-9])", b"", screen)
+        assert b"Guide > Learning Paths" in plain, plain
+        assert b"Showing all text" in plain, plain
+        assert b"Learn step by step" not in plain, plain
+        assert (plain.index(b"Guide > Learning Paths") <
+                plain.index(b"Showing all text") <
+                plain.index(b"Choose your own learning adventure")), plain
+    finally:
+        os.write(master, b"q")
+        try:
+            proc.wait(timeout=3)
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+            os.close(master)
+PYPATHS
+pass "tam:paths shows Lb between breadcrumb and intro"
 
 # page: addresses, tam:keywords, and tam:explain under show
 sh_pipe1=$(TAM_KNOWLEDGE_DIR="$root/tests/fixtures/guide" "$TAM" show page:shell/pipelines --pipe) || fail "show page:shell/pipelines --pipe failed"

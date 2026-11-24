@@ -1,0 +1,71 @@
+W124 PATHS LB INTRO
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Make tam:paths render as
+
+  _Guide_ > Learning Paths
+
+  Choose your own learning adventure
+
+  <rest of page>
+
+  Make sure there is an empty line between the breadcrumb and Choose your
+  own learning adventure. I recommend always showing line Lb to ensure that
+  blank line appears."
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session. The sketch fixes the exact
+  pager opening: breadcrumb, an empty separator line, then the intro, with
+  no title heading between them. Fred explicitly recommends line Lb as the
+  separator.
+
+DONE
+
+  - src/views.c: tam_paths_document() no longer emits the `<h1>Learn step
+    by step</h1>` heading that repeated the breadcrumb. It now injects
+    `tam_level_lines(0, level, 0, NULL)` directly after the breadcrumb and
+    opens with `<p>Choose your own learning adventure</p>` (period removed
+    to match the requested wording). The path groups and all per-path view
+    rendering are unchanged.
+  - tests/run.sh: the pipe check now requires the exact intro line, rejects
+    the removed heading, requires line Lb and an empty line at pager row 2,
+    and a PTY check confirms Lb sits between breadcrumb and intro in the
+    pager. The view is generated from the corpus index, so this is marked
+    with the `# live-corpus:` exception like the hubs check.
+  - Bumped command to 0.69.4 in src/version.h, tests/run.sh, the decision
+    record and ROADMAP.md, including a delivered-history row.
+
+FAILED
+
+  - The first PTY assertion looked for the contiguous bytes
+    `Showing all text`, but the pager colours the word "Showing" and
+    "all text" separately, so ANSI escapes split the string. The check now
+    strips terminal escapes before asserting and also checks the line
+    order: breadcrumb, Lb, intro.
+  - The design was a direct receiving of Fred's recommendation: generated
+    views use tam_page_render() and do not pass through
+    tam_depth_prepare(), so Lb must be injected explicitly here.
+
+CHECKED AGAINST
+
+  - make command builds cleanly.
+  - Visual check of `tam show paths --pipe`: line 1 `Guide > Learning
+    Paths`, line 2 empty, line 3 right-aligned `Showing all text`, line 4
+    `Choose your own learning adventure`, then the subject groups; no
+    `Learn step by step` heading.
+  - PTY inspection shows pager rows breadcrumb, blank, Lb, intro, blank,
+    then `hardware`, matching the requested layout.
+  - make test-command, python3 tools/check-repo.py and git diff --check
+    pass (see final verification below).
+  - No push, install, Test, Run or Release was requested or performed.
+
+CONTINUATION
+
+  - Commit this change on dev with provenance trailers.
+  - Await Fred's direction. No stage promotion is authorised.
