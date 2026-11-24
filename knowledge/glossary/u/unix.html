@@ -2,8 +2,8 @@
 <html><head>
 <title>Unix</title>
 <meta name="topic" content="glossary-unix">
-<meta name="summary" content="Unix: Influential 1970s Bell Labs operating system whose pipes, files, and POSIX design shaped Linux and BSD.">
-<meta name="keywords" content="glossary-unix, unix, posix, bell labs">
+<meta name="summary" content="Unix: Influential Bell Labs operating system family and design tradition, spanning System V, BSD, commercial Unix, and Unix-like systems such as Linux and macOS.">
+<meta name="keywords" content="glossary-unix, unix, system v, sysv, bsd, solaris, freebsd, netbsd, openbsd, macos, darwin, xnu, posix">
 <meta name="level" content="novice, learner, expert">
 <meta name="track" content="glossary">
 <meta name="parent" content="glossary/u/index.html">
@@ -13,9 +13,69 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/u/index.html">Terms beginning with U</a> / Unix</p></nav>
 
 <h1>Unix</h1>
-<p>An influential 1970s operating system created at Bell Labs whose design of files, pipes, and small composable tools shaped Linux, <a href="glossary/b/bsd.html">BSD</a>, and macOS.</p>
-<section data-level="novice"><p>Long before modern desktops and smartphones, researchers at Bell Labs built an operating system called Unix around a simple idea: keep tools small, let them pass text to each other like water through pipes, and treat almost everything—documents, folders, and even hardware devices—as a file. Even though Linux was written from scratch later on, it copied those same building blocks so people and programs could feel at home on both.</p></section>
-<section data-level="learner"><p>Modern systems such as Linux, FreeBSD, and macOS are “Unix-like” because they follow <a href="glossary/p/posix.html">POSIX</a> and Single UNIX Specification conventions inherited from Unix: hierarchical directories rooted at <code>/</code>, standard input/output/error streams, shell pipelines (<code>|</code>), and user/group file permissions. Notice that Linux is a clean-room kernel and is not trademark-certified as “UNIX,” whereas macOS is BSD-derived and POSIX-certified.</p><details class="q"><summary><i>Why can a shell pipeline written on Linux often run almost unchanged on BSD or macOS?</i></summary><p>Because all three implement the POSIX user-space model inherited from Unix—standard utilities, text streams, exit codes, and filesystem paths behave consistently across Unix-like systems.</p></details></section>
-<section data-level="expert"><p>Developed by Ken Thompson and Dennis Ritchie at AT&amp;T Bell Labs and rewritten in C (Version 4, 1973) for portability across architectures, Unix established the process and <a href="glossary/v/vfs.html">VFS</a> abstractions still central to modern kernels: <code>fork(2)</code>/<code>execve(2)</code> process creation, file-descriptor tables shared across <code>pipe(2)</code>, <a href="glossary/t/tty.html">TTY</a> line disciplines, and unified byte-stream I/O (<code>open</code>/<code>read</code>/<code>write</code>/<code>close</code>). The split between AT&amp;T System V and UC Berkeley’s BSD drove the POSIX (IEEE Std 1003) standardization effort, though modern Linux diverges in areas such as <code>clone(2)</code>, <code>procfs</code>/<code>sysfs</code>, and netlink sockets where “everything is a file” no longer holds strictly.</p></section>
+<p>An influential operating system family and design tradition that began at Bell Labs in the late 1960s. Its ideas—files, processes, pipes, small tools, and portable C code—shaped <a href="glossary/b/bsd.html">BSD</a>, System V, commercial Unix systems, Linux, and macOS.</p>
+
+<section data-level="novice"><p>Unix started as a research operating system at Bell Labs, built by Ken Thompson, Dennis Ritchie, and others. It became famous for simple, powerful ideas: keep programs small, let them work together, and treat many things as files. Over time, different groups made their own Unix systems. Some were called "Unix-like" because they followed the same style, while others were officially certified as UNIX. Today, when you use Linux or macOS, you are using systems deeply influenced by Unix history.</p></section>
+
+<section data-level="learner"><p>Unix history is easiest to understand as a family tree with two major early branches: AT&amp;T's System V line and Berkeley's BSD line. Modern systems inherited features from both, and standards like <a href="glossary/p/posix.html">POSIX</a> helped them work in similar ways.</p>
+<h2>Key moments</h2>
+<table>
+<tr><th>Period</th><th>What happened</th><th>Why it matters</th></tr>
+<tr><td>1969&ndash;1970s</td><td>Research Unix developed at Bell Labs; rewritten in C.</td><td>Made Unix portable and influential beyond one machine.</td></tr>
+<tr><td>1977&ndash;1980s</td><td>BSD grew at UC Berkeley; AT&amp;T released System III/V.</td><td>Created the Berkeley vs System V split.</td></tr>
+<tr><td>1980s&ndash;1990s</td><td>Commercial Unix vendors shipped AIX, HP-UX, Solaris/SunOS, IRIX, etc.</td><td>Unix became a major workstation and server platform.</td></tr>
+<tr><td>1990s</td><td>4.4BSD-Lite, Linux growth, Unix wars/standardization.</td><td>Led to modern BSDs, Linux adoption, and POSIX/SUS convergence.</td></tr>
+<tr><td>2000s&ndash;today</td><td>macOS certified as UNIX; illumos/OpenIndiana continue Solaris lineage; BSDs and Linux remain active.</td><td>Unix ideas remain central to modern operating systems.</td></tr>
+</table>
+<h2>System V vs Berkeley</h2>
+<table>
+<tr><th>Topic</th><th>System V (AT&amp;T)</th><th>Berkeley BSD (CSRG, UC Berkeley)</th></tr>
+<tr><td>Origin</td><td>AT&amp;T commercial Unix releases</td><td>University research distribution based on Unix</td></tr>
+<tr><td>Notable releases</td><td>System III, System V Release 2/3/4</td><td>3BSD, 4.2BSD, 4.3BSD, 4.4BSD</td></tr>
+<tr><td>Famous contributions</td><td>init scripts/rc style in SVR4 era, SysV IPC, STREAMS in some lines, SVR4 packaging/admin traditions</td><td>TCP/IP networking stack, sockets, csh/TCP tools, FFS, job control improvements</td></tr>
+<tr><td>Typical descendants</td><td>Solaris/SVR4 lineage, AIX/HP-UX have System V influence, UnixWare</td><td>FreeBSD, NetBSD, OpenBSD, DragonFly BSD; also influenced macOS/Darwin userland</td></tr>
+</table>
+<p>The split was not absolute. Vendors borrowed from both lines, especially after SVR4, which merged System V, BSD, SunOS, and Xenix influences.</p>
+<h2>Major Unix varieties</h2>
+<table>
+<tr><th>System</th><th>Origin / vendor</th><th>Notes</th></tr>
+<tr><td><a href="glossary/b/bsd.html">BSD</a> family</td><td>UC Berkeley CSRG</td><td>Led to FreeBSD, NetBSD, OpenBSD, DragonFly BSD after 4.4BSD-Lite.</td></tr>
+<tr><td>SunOS / Solaris</td><td>Sun Microsystems</td><td>SunOS 4 was BSD-based; Solaris 2+ moved to SVR4. OpenSolaris/illumos continue the open lineage.</td></tr>
+<tr><td>AIX</td><td>IBM</td><td>Commercial Unix for IBM systems; long-running enterprise Unix with System V and BSD features.</td></tr>
+<tr><td>HP-UX</td><td>Hewlett-Packard</td><td>Commercial Unix for HP systems, especially PA-RISC and later Itanium.</td></tr>
+<tr><td>IRIX</td><td>Silicon Graphics (SGI)</td><td>Unix for SGI workstations/servers, known for graphics and XFS.</td></tr>
+<tr><td>Xenix / SCO / UnixWare</td><td>Microsoft/SCO/Novell/SCO lineage</td><td>Xenix was an early commercial Unix for microcomputers; later SCO/UnixWare lines evolved through acquisitions.</td></tr>
+<tr><td>Tru64 / Ultrix</td><td>Digital Equipment Corporation (DEC)</td><td>Ultrix was BSD-based; Tru64 UNIX descended from OSF/1 on DEC Alpha.</td></tr>
+</table>
+<details class="q"><summary><i>Is Linux a Unix?</i></summary><p>Linux is Unix-like: it follows many Unix/POSIX conventions and design ideas, but it was written independently and is not generally marketed as a certified "UNIX" operating system. "UNIX" as a certification/trademark is managed by The Open Group.</p></details></section>
+
+<section data-level="expert"><p>Unix history is a lineage of code, interfaces, and standards rather than a single product. Research Unix (V1&ndash;V7, later V8&ndash;V10) established core abstractions: hierarchical filesystem, processes, pipes, shell, and C as the implementation language. The post-V7 split produced two dominant traditions: AT&amp;T System V and UC Berkeley's BSD. The "Unix wars" and vendor fragmentation drove standardization: POSIX (IEEE/ISO), X/Open, and later the Single UNIX Specification (SUS) under The Open Group, which controls the UNIX trademark for compliant systems.</p>
+<h2>System V and BSD in technical terms</h2>
+<p>System V Release 4 (SVR4) was a major convergence point, combining AT&amp;T System V, BSD, SunOS, and Xenix features. Many practical differences that users once learned—init systems, printing, packaging, some IPC interfaces, device naming conventions—were historically SysV vs BSD markers, though modern systems have mixed and evolved them. BSD's enduring technical contributions include the sockets API and TCP/IP implementation in 4.2BSD, the fast filesystem (FFS), and a coherent base-system development model.</p>
+<h2>Other major historical varieties</h2>
+<table>
+<tr><th>Family</th><th>Examples</th><th>Historical note</th></tr>
+<tr><td>Research/AT&amp;T</td><td>Research Unix V7, System III, SVR4</td><td>Canonical early Unix and commercial AT&amp;T lineage.</td></tr>
+<tr><td>BSD</td><td>4.3BSD, 4.4BSD-Lite, FreeBSD, NetBSD, OpenBSD, DragonFly BSD</td><td>4.4BSD-Lite2 (1995) removed remaining AT&amp;T-encumbered code, enabling clean open-source BSDs.</td></tr>
+<tr><td>Commercial SVR4/SysV-derived</td><td>Solaris, UnixWare, some IRIX/AIX/HP-UX influences</td><td>Enterprise Unix on SPARC, x86, PA-RISC, POWER, Itanium, MIPS.</td></tr>
+<tr><td>OSF/1 and variants</td><td>Digital Tru64 UNIX, OSF/1</td><td>POSIX-compliant Unix line from the OSF effort; Tru64 ran on Alpha.</td></tr>
+<tr><td>Open Solaris lineage</td><td>OpenSolaris, illumos, OpenIndiana, SmartOS</td><td>Post-Sun open continuation of Solaris technologies (ZFS, DTrace, Zones, SMF).</td></tr>
+</table>
+<h2>macOS and UNIX</h2>
+<p>macOS is related to Unix in both lineage and certification. Apple’s modern operating system descends from NeXTSTEP/OPENSTEP. Its core, Darwin, combines the <a href="glossary/x/xnu.html">XNU</a> kernel (Mach + BSD-derived components + I/O Kit) with a userland that includes substantial BSD-derived code. Apple also submits macOS for The Open Group’s Single UNIX Specification compliance; macOS (starting with Mac OS X 10.5 Leopard on Intel) is a certified UNIX 03 system. iOS, iPadOS, watchOS, and tvOS share Darwin/XNU foundations but are not marketed as separately certified UNIX desktop/server operating systems in the same way macOS is.</p>
+<h2>Trade-offs and care</h2>
+<ul>
+<li><strong>Trademark vs design:</strong> "UNIX" (all caps) is a certification/trademark; "Unix-like" describes behavior/design without certification.</li>
+<li><strong>Lineage vs compatibility:</strong> a system can inherit BSD code and still have its own kernel or userland behavior.</li>
+<li><strong>Standards do not erase differences:</strong> POSIX/SUS improve portability, but filesystems, service managers, packaging, security frameworks, and kernel interfaces still differ.</li>
+</ul></section>
+
+<h2>Learn more</h2>
+<ul>
+<li><a href="glossary/b/bsd.html">BSD</a> &mdash; the Berkeley branch and its modern descendants.</li>
+<li><a href="glossary/x/xnu.html">XNU</a> &mdash; the kernel at the core of macOS and Apple platforms.</li>
+<li><a href="glossary/p/posix.html">POSIX</a> &mdash; the portability standard shaped by Unix.</li>
+<li><a href="glossary/l/linux-kernel.html">Linux kernel</a> &mdash; a Unix-like kernel written independently.</li>
+</ul>
 <p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
 </body></html>
