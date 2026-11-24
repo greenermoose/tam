@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Significand</title>
+<meta name="topic" content="glossary-significand">
+<meta name="summary" content="The digit part of a number in scientific notation or floating point.">
+<meta name="keywords" content="significand, mantissa, fraction, floating point, IEEE 754, scientific notation, precision">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Significand</p></nav>
+<h1>Significand</h1>
+<p>The significand is the part of a number that carries its digits.</p>
+<section data-level="novice"><p>In 1.5 times 10^6, the 1.5 is the significand. It says which digits the number has, while the exponent says where to put the point.</p></section>
+<section data-level="learner"><p>The same number can be written as 15 times 10^5 or 1.5 times 10^6, so its significand depends on normalization. In <a href="glossary/f/floating-point.html">floating point</a>, the significand has a fixed number of bits and the <a href="glossary/e/exponent.html">exponent</a> shifts their scale. More significand bits mean more <a href="glossary/p/precision.html">precision</a>, but the exponent controls the overall range.</p><details class="q"><summary>Is the significand the same as the mantissa of a logarithm?</summary><p>No. Mantissa is an older word sometimes used for the significand, but it also has a separate meaning in logarithms. Significand is the precise term for the digit field of floating point.</p></details></section>
+<section data-level="expert"><p>IEEE 754 binary formats store the fractional field of a normalized significand and imply a leading one bit, which is not stored. binary32 has a 23-bit field and effectively 24 bits of significand; binary64 has a 52-bit field and effectively 53 bits. <a href="glossary/s/subnormal.html">Subnormal</a> values drop the implicit leading one so tiny numbers can be represented. Decimal formats may store coefficient digits directly, with different rules for what counts as a significand.</p></section>
+<p>See also: <a href="glossary/i/ieee-754.html">IEEE 754</a>; <a href="glossary/s/scientific-notation.html">Scientific notation</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

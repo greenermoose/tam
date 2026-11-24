@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Number systems and bases</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="number-systems">
+<meta name="summary" content="Read and convert decimal, binary, octal and hexadecimal numbers, and see how bytes are ordered in memory.">
+<meta name="keywords" content="number systems, base, radix, binary, decimal, octal, hexadecimal, byte order, endianness, positional notation">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/numeric/index.html">
+<meta name="paths" content="numeric-systems:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/numeric/index.html">Numbers in computers</a> / Number systems and bases</p></nav>
+
+<h1>Number systems and bases</h1>
+<p>A number system is a way of writing a count using digits, and a computer mostly uses binary because its circuits have two stable states.</p>
+<p>This page uses only whole numbers. Fractions and decimal values come later on the path.</p>
+
+<section data-level="novice">
+<h2>Counting with different sets of digits</h2>
+<p>You count in tens because you learned the digits 0 through 9. A <dfn><a href="glossary/b/binary.html">binary</a></dfn> number uses only 0 and 1. A <dfn><a href="glossary/h/hexadecimal.html">hexadecimal</a></dfn> number uses 0 through 9 and then A through F. The <dfn><a href="glossary/r/radix.html">radix</a></dfn>, or base, tells you how many digit values a system has.</p>
+<h3>Why it matters</h3>
+<p>Computer memory is made of <a href="glossary/b/bit.html">bits</a>, each holding one of two states. Writing a value in binary shows those states directly. Writing the same value in hexadecimal keeps the same information but makes long strings shorter and easier to check.</p>
+<h3>How to think about it</h3>
+<p>Think of an odometer. In a decimal odometer, a wheel rolls over after 9. In a binary odometer, each wheel rolls over after 1. The rightmost wheel is the ones place; each wheel to its left is worth the base times the one before it.</p>
+<h3>New words</h3>
+<dl>
+<dt>Radix (base)</dt><dd>The number of digit values in a system: 2 for binary, 10 for decimal and 16 for hexadecimal. See <a href="glossary/r/radix.html">radix</a>.</dd>
+<dt>Bit</dt><dd>One binary digit, a 0 or a 1. Eight bits make one <a href="glossary/b/byte.html">byte</a>.</dd>
+<dt>Byte order</dt><dd>Which byte of a multi-byte number is stored first in memory. See <a href="glossary/e/endianness.html">endianness</a>.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Read and convert a whole number</h2>
+<p><strong>Goal:</strong> you will be able to read a whole number in several bases and check a conversion with a short command.</p>
+<p><strong>Learner path:</strong> <a href="paths/numeric-systems.html?level=2">Start this path</a>; next: <a href="programming/numeric/integers.html?level=2">whole numbers in binary memory</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ printf '%d %o %x\n' 42 42 42
+42 52 2a
+$ python3 -c "print(bin(42), oct(42), hex(42)); print(int('101010', 2), int('2a', 16))"
+0b101010 0o52 0x2a
+42 42
+</pre>
+<p>Captured on a Linux system with Python 3, 2026-11-24. Your output will match when you use the same commands.</p>
+<h3>What just happened</h3>
+<ol>
+<li><code>printf</code> printed one value three ways: decimal 42, octal 52 and hexadecimal 2a.</li>
+<li>Python's <code>bin</code>, <code>oct</code> and <code>hex</code> add prefixes so you can tell the bases apart.</li>
+<li><code>int(text, base)</code> went the other way. Both <code>101010</code> in base 2 and <code>2a</code> in base 16 are 42.</li>
+</ol>
+<h3>Try it</h3>
+<p>In a scratch directory, print your own age or a room number in decimal, octal and hexadecimal. Then convert one result back to decimal and check that you get the starting value.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>ValueError: invalid literal for int()</code></dt><dd>The digits do not match the base you gave. Hexadecimal <code>g</code> and octal <code>8</code> do not exist.</dd>
+<dt>The prefixes look wrong</dt><dd>Python uses <code>0b</code>, <code>0o</code> and <code>0x</code>. A leading zero alone does not mean octal in Python 3.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why does one hexadecimal digit replace exactly four binary digits?</summary>
+<p>Sixteen is two to the fourth power. Four bits have sixteen possible patterns, from 0000 to 1111, so each pattern maps to one hex digit from 0 to F without gaps or overlap.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Positional notation and byte order</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Base</th><th>Digits</th><th>Place values from the right</th><th>Common use</th></tr>
+<tr><td>2, binary</td><td>0-1</td><td>1, 2, 4, 8, 16</td><td>Logical states and bit fields</td></tr>
+<tr><td>8, octal</td><td>0-7</td><td>1, 8, 64, 512</td><td>Three-bit groups; older permission notation</td></tr>
+<tr><td>10, decimal</td><td>0-9</td><td>1, 10, 100, 1000</td><td>Human arithmetic</td></tr>
+<tr><td>16, hexadecimal</td><td>0-9, A-F</td><td>1, 16, 256, 4096</td><td>Compact display of memory and machine words</td></tr>
+</table>
+<h3>How it works</h3>
+<p>For radix b, a numeral with digits d_n ... d_0 means the sum of d_i times b^i. Converting a whole number to another base is repeated division: record the remainders from right to left until the quotient is zero. Converting back is repeated multiplication and addition. A byte is eight bits, so it spans two hexadecimal digits; a 32-bit word spans eight.</p>
+<p>Byte order is a separate question from the value. Memory is addressed by byte, so a value wider than one byte must choose which byte goes at the lower address. In <a href="glossary/e/endianness.html">little-endian</a> order the least significant byte comes first; in big-endian order the most significant byte comes first. Network protocols have traditionally used big-endian order, which is why it is often called network byte order.</p>
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="scratch">
+$ python3 -c "import struct; v=0x12345678; print(struct.pack('<I',v).hex(' ')); print(struct.pack('>I',v).hex(' '))"
+78 56 34 12
+12 34 56 78
+</pre>
+<p>Illustrative sequence: the same 32-bit value written to a byte buffer with the two byte orders. Reading with the wrong order gives a different number even though the bytes are unchanged.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Leading zeros change the width of a display but not the value. They matter when a field has a fixed size.</li>
+<li>A base prefix is notation, not a different kind of number. Arithmetic is the same; only the written digits differ.</li>
+<li>Endianness applies to bytes within a multi-byte value, not to the order of bits inside a byte and not to text characters.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A file stores the bytes 78 56 34 12. What is the 32-bit integer if it was written little-endian, and what if it was written big-endian?</summary>
+<p>Little-endian reverses the byte list before reading place value, giving 0x12345678. Big-endian reads the list as written, giving 0x78563412. The bytes alone do not tell you the order; the format or protocol must define it.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p><a href="bibliography/index.html">Bibliography</a>; IEEE 754 is the standard for the floating-point formats described later on this path.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/numeric/integers.html">Whole numbers in binary memory</a> &mdash; use these bases to represent signed and unsigned values.</li>
+<li><a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a> &mdash; carry place value past the ones column.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a> &mdash; where the two states come from.</li>
+<li><a href="paths/numeric-systems.html">Numbers and how computers use them</a> &mdash; the five-stage path.</li>
+</ul>
+</body></html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>BCD (binary-coded decimal)</title>
+<meta name="topic" content="glossary-bcd">
+<meta name="summary" content="A format that stores each decimal digit in its own group of bits.">
+<meta name="keywords" content="BCD, binary coded decimal, packed decimal, decimal digit, exact decimal, financial">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/b/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / BCD (binary-coded decimal)</p></nav>
+<h1>BCD (binary-coded decimal)</h1>
+<p>A way of writing decimal digits using bits, one digit at a time.</p>
+<section data-level="novice"><p>Ordinary <a href="glossary/b/binary.html">binary</a> stores the whole number 42 as one value. BCD stores the digit 4 and the digit 2 separately. That keeps the familiar decimal digits, even though the storage is still made of bits.</p></section>
+<section data-level="learner"><p>In packed BCD, each decimal digit uses four bits, so one <a href="glossary/b/byte.html">byte</a> holds two digits. The number 42 is stored as 0100 0010. Codes 1010 through 1111 are unused in straightforward BCD. Decimal arithmetic hardware uses correction steps after addition so each nibble stays a valid digit.</p><details class="q"><summary>Why not just use ordinary binary for money?</summary><p>Binary cannot represent one tenth exactly. BCD or another decimal format can keep decimal amounts exact when the rules say how to round, which matters for totals and invoices.</p></details></section>
+<section data-level="expert"><p>IEEE 754 also defines decimal <a href="glossary/f/floating-point.html">floating-point</a> formats with decimal coefficients and exponents; these differ from simple packed BCD but share the goal of exact decimal digits. BCD uses more bits than binary for the same range because six of the sixteen nibble patterns are wasted. It remains in financial systems, calculators and some real-time clocks. Conversion must define sign, scale and validation of unused codes.</p></section>
+<p>See also: <a href="glossary/i/ieee-754.html">IEEE 754</a>; <a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

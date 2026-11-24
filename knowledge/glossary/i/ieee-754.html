@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>IEEE 754</title>
+<meta name="topic" content="glossary-ieee-754">
+<meta name="summary" content="The standard that defines binary and decimal floating-point formats and arithmetic.">
+<meta name="keywords" content="IEEE 754, floating point, binary32, binary64, double, float, rounding, NaN, subnormal">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/i/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IEEE 754</p></nav>
+<h1>IEEE 754</h1>
+<p>IEEE 754 is the standard that makes floating-point arithmetic behave consistently across computers.</p>
+<section data-level="novice"><p>Different machines could once round numbers in different ways, so the same program gave different answers. IEEE 754 defines the bit layouts and the rules for arithmetic, which lets results travel between systems.</p></section>
+<section data-level="learner"><p>The familiar formats are binary32, often called float, and binary64, often called double. Each stores a sign, an exponent and a significand. The standard also defines rounding modes, infinity, <a href="glossary/n/nan.html">NaN</a>, <a href="glossary/s/subnormal.html">subnormal</a> values and exception flags such as divide by zero and inexact. Decimal formats are defined as well, for work that needs exact decimal digits.</p><details class="q"><summary>Does IEEE 754 make 0.1 exact?</summary><p>No. It makes the approximation and its behaviour predictable. One tenth has a repeating binary expansion, so a finite binary format must round it.</p></details></section>
+<section data-level="expert"><p>The 2008 revision added decimal formats and the fusedMultiplyAdd operation; the 2019 revision added binary16 and binary128 as storage and interchange formats. Normal binary values use an implicit leading one in the significand. Exponent fields of all zeros and all ones encode subnormals, zero, infinity and NaNs. Required operations round correctly under the active rounding mode, but expression contraction, library implementations and transcendental functions can still cause cross-platform differences.</p></section>
+<p>See also: <a href="glossary/i/ieee.html">IEEE</a>; <a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

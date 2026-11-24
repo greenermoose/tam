@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Analog values and digital approximations</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="analog-and-digital">
+<meta name="summary" content="Turn continuous physical values into sampled, quantized digital codes and back again.">
+<meta name="keywords" content="analog, digital, ADC, DAC, sampling, quantization, Nyquist, PCM, bit depth, aliasing">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/numeric/index.html">
+<meta name="prereqs" content="fractions-and-floating-point">
+<meta name="paths" content="numeric-systems:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/numeric/index.html">Numbers in computers</a> / Analog values and digital approximations</p></nav>
+
+<h1>Analog values and digital approximations</h1>
+<p>Real-world measurements vary smoothly, while a computer stores one of a finite set of numbers for each moment it records.</p>
+
+<section data-level="novice">
+<h2>From a smooth value to numbered snapshots</h2>
+<p>An analog value can be any level in a range, such as the voltage from a microphone. A digital system takes <a href="glossary/s/sampling.html">samples</a> at separate moments and stores each one as a number. An <dfn><a href="glossary/a/analog-to-digital-converter.html">analog-to-digital converter</a></dfn>, or ADC, does the measuring. A <dfn><a href="glossary/d/digital-to-analog-converter.html">digital-to-analog converter</a></dfn>, or DAC, turns stored numbers back into a voltage.</p>
+<h3>Why it matters</h3>
+<p>Sound, light, temperature and radio arrive as changing physical levels. To store, send or process them in a computer, they must become numbers. The conversion always loses some detail, so knowing what was lost helps you judge whether a recording or measurement is good enough.</p>
+<h3>How to think about it</h3>
+<p>Think of a film camera. It takes separate pictures rather than a continuous record. More frames per second capture faster motion; finer colour steps capture subtler shading. A digital converter makes the same two choices: how often to look, and how finely to record what it sees.</p>
+<h3>New words</h3>
+<dl>
+<dt>Sampling</dt><dd>Recording values at separate points in time. See <a href="glossary/s/sampling.html">sampling</a>.</dd>
+<dt>Quantization</dt><dd>Rounding each sample to the nearest available number. See <a href="glossary/q/quantization.html">quantization</a>.</dd>
+<dt>Bit depth</dt><dd>How many bits each sample uses, which sets the number of available levels. See <a href="glossary/b/bit-depth.html">bit depth</a>.</dd>
+<dt><a href="glossary/n/nyquist-criterion.html">Nyquist criterion</a></dt><dd>The rule that a sample rate must exceed twice the highest frequency you want to capture.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Round a voltage to a digital code</h2>
+<p><strong>Goal:</strong> you will be able to map a voltage range onto a fixed number of codes and explain the resulting error.</p>
+<p><strong>Learner path:</strong> previous: <a href="programming/numeric/fractions-and-floating-point.html?level=2">fractions and floating point</a>; next: <a href="programming/numeric/fast-numerical-computing.html?level=2">fast numerical computing</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ python3 -c "levels=16; vals=(0.0,0.3,0.99,1.0); [print(f'{v:4.2f} V -> code {min(levels-1,round(v*(levels-1))):2d} -> {min(levels-1,round(v*(levels-1)))*1.0/(levels-1):4.2f} V') for v in vals]"
+0.00 V -> code  0 -> 0.00 V
+0.30 V -> code  4 -> 0.27 V
+0.99 V -> code 15 -> 1.00 V
+1.00 V -> code 15 -> 1.00 V
+</pre>
+<p>Captured on a Linux system with Python 3, 2026-11-24. Your output will match.</p>
+<h3>What just happened</h3>
+<ol>
+<li>Sixteen levels need four bits, because 2^4 is 16. The codes run from 0 to 15.</li>
+<li>The input range 0 to 1 volt was multiplied by 15, then rounded. The code 4 means 4/15 volt, about 0.27 V, not 0.30 V.</li>
+<li>This is <a href="glossary/q/quantization.html">quantization</a> error. More bits give more levels and a smaller step, but never a perfect copy of a continuous value.</li>
+</ol>
+<h3>Try it</h3>
+<p>In a scratch directory, change <code>levels</code> to 256 and repeat. What is the closest code for 0.30 V, and what voltage does it represent? How many bits does 256 levels need?</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Your code is 16 or larger</dt><dd>The rounding reached the value after the last code. Real converters clip or saturate at the top of their range instead of wrapping.</dd>
+<dt>The recording sounds gritty</dt><dd>Too few levels create audible quantization steps. Raising bit depth reduces that noise but uses more storage.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>A sensor uses 12 bits over a 0 to 3.3 V range. How many levels are there, and roughly how large is one step?</summary>
+<p>2^12 = 4096 levels. The step is about 3.3 V / 4095, roughly 0.00081 V. Endpoints and converter design can shift the exact divisor, but the scale is set by the bit depth and range.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Sample rate, encoding and reconstruction</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Choice</th><th>Controls</th><th>Cost of getting it wrong</th></tr>
+<tr><td>Sample rate</td><td>Highest frequency that can be captured</td><td><a href="glossary/a/aliasing.html">Aliasing</a>: high frequencies appear as false low ones</td></tr>
+<tr><td>Bit depth</td><td>Number of amplitude levels and quantization step</td><td>Quantization noise and clipping at range ends</td></tr>
+<tr><td>Converter range and reference</td><td>Which physical span maps to the codes</td><td>Saturation, wasted codes or poor resolution</td></tr>
+<tr><td>Encoding</td><td>How codes are stored and ordered</td><td>Incompatible files or incorrect playback speed</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The <a href="glossary/n/nyquist-criterion.html">Nyquist criterion</a> says a signal with no frequency above B hertz can be recovered from samples taken more than 2B times per second. Without an anti-alias filter before the ADC, frequencies above half the sample rate fold into lower ones and cannot be removed later. <a href="glossary/p/pulse-code-modulation.html">Pulse-code modulation</a>, or PCM, is the straightforward encoding: one code per sample at a fixed rate and width. Compressed audio often starts from PCM and then exploits prediction or frequency-domain coding.</p>
+<p>A DAC holds or reconstructs a voltage from each code. A zero-order hold produces a staircase; an output filter smooths it. Clock jitter, non-linearity, noise and reference drift affect the result even when the digital numbers are exact. Conversion is a chain, not just a rounding step.</p>
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="scratch">
+$ python3 -c "import math; rate=48000; tone=19000; print(rate/2, tone, 'alias at', abs(tone-rate))"
+24000.0 19000 alias at 29000
+</pre>
+<p>Illustrative sequence: a 19 kHz tone is below half of 48 kHz, so it is safe here. A 29 kHz tone would fold to 19 kHz after sampling at 48 kHz, which is why converters filter the input first.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Oversampling gives more samples than the minimum, which eases filter design and can reduce noise through averaging.</li>
+<li>Dither adds a tiny controlled noise before quantization so error becomes less correlated with the signal, useful in audio and images.</li>
+<li>Logarithmic encodings such as mu-law use uneven spacing to give fine resolution to quiet sounds and coarser resolution to loud ones.</li>
+<li>One <a href="glossary/b/bit.html">bit</a> per sample can represent an on/off state, but a chain of such decisions can still describe a waveform through delta-sigma conversion.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>You record a 44.1 kHz audio stream from a sensor that also emits a 30 kHz tone. What should the analog front end do before sampling?</summary>
+<p>Filter out everything above 22.05 kHz before the ADC. Otherwise the 30 kHz tone aliases into a lower frequency in the recording. Raising the sample rate above 60 kHz would also satisfy the criterion, but only if the converter and storage support it.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>Converter and audio standards define ranges, coding and sample rates. See the <a href="bibliography/index.html">bibliography</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/numeric/fast-numerical-computing.html">Fast numerical computing</a> &mdash; process large arrays of these numbers quickly.</li>
+<li><a href="algorithms/fourier-transforms.html">Fourier transforms</a> &mdash; move from samples to frequencies.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="paths/numeric-systems.html">Numbers and how computers use them</a> &mdash; the five-stage path.</li>
+<li><a href="hardware/foundations/digital-logic.html">Digital logic and binary computation</a> &mdash; the circuits behind converters.</li>
+</ul>
+</body></html>

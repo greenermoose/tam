@@ -1501,3 +1501,13 @@ Understanding computing. An aside explains hubs, paths and topics. The Guide
 index second grouping became Explore hubs, Learn step by step, Browse topics,
 All pages A-Z, Glossary of terms and Bibliography; Search stays in the
 keybinding table. See [subject-library.md](subject-library.md).
+
+### 2026-11-24 — Numbers in computers (corpus 0.121.0)
+
+The developer asked for a learning path covering numeric systems, number
+representation in binary memory, decimal fractions, scientific notation,
+analog-to-digital approximation and fast linear algebra, with a comprehensive
+glossary. The approved shape is a `programming/numeric/` subhub with five
+three-level teaching pages, a five-stage `numeric-systems` path, and glossary
+entries for the relevant terms. This is corpus content only; command version,
+stage promotion and installation remain separate developer-directed actions.

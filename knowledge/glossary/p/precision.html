@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Precision</title>
+<meta name="topic" content="glossary-precision">
+<meta name="summary" content="How many digits a number format carries, distinct from how accurate the value is.">
+<meta name="keywords" content="precision, accuracy, significant digits, double, single, roundoff, floating point">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/p/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Precision</p></nav>
+<h1>Precision</h1>
+<p>Precision describes how finely a representation can distinguish numbers.</p>
+<section data-level="novice"><p>A ruler marked in millimetres is more precise than one marked only in centimetres. The extra marks let you write a more detailed measurement, though the measurement can still be wrong.</p></section>
+<section data-level="learner"><p>A 64-bit floating-point number carries about 15 to 17 decimal digits; a 32-bit one carries about 6 to 9. More precision reduces <a href="glossary/r/rounding.html">rounding</a> error but uses more memory and may run slower. Precision is not accuracy: a value written to many digits can still be far from the true quantity if the sensor or method was poor.</p><details class="q"><summary>If a calculation prints 0.30000000000000004, is it accurate to 17 digits?</summary><p>No. Those digits show the format's precision, not the truth of the result. The input 0.1 was already approximated, so the trailing digits mostly describe binary rounding.</p></details></section>
+<section data-level="expert"><p>In IEEE 754 binary formats, unit roundoff is half the spacing at the current exponent; relative error for correctly rounded normal operations is bounded by that value. Binary64 has 53 significand bits including the implicit bit, giving about 16 decimal digits. Mixed-precision workflows choose narrow storage and wide accumulation, but operation order and cancellation still govern result quality. Condition numbers measure how input error is amplified by the problem itself, independently of the arithmetic precision.</p></section>
+<p>See also: <a href="glossary/f/floating-point.html">Floating-point</a>; <a href="programming/numeric/fast-numerical-computing.html">Fast numerical computing</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

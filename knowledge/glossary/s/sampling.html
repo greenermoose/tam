@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Sampling</title>
+<meta name="topic" content="glossary-sampling">
+<meta name="summary" content="Measuring a continuous signal at separate points in time.">
+<meta name="keywords" content="sampling, sample rate, sample, hertz, ADC, nyquist, discrete time">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Sampling</p></nav>
+<h1>Sampling</h1>
+<p>Sampling records a changing value at separate moments instead of continuously.</p>
+<section data-level="novice"><p>A movie is a series of still pictures. Played quickly, they look like smooth motion. Sampling a sound or sensor reading works the same way: each snapshot becomes one stored number.</p></section>
+<section data-level="learner"><p>The sample rate says how many snapshots are taken each second, measured in <a href="glossary/h/hertz.html">hertz</a>. Audio at 48 kHz takes 48,000 samples per second. Sampling decides when to look; <a href="glossary/q/quantization.html">quantization</a> decides how precisely to record what was seen. They are separate steps performed by an <a href="glossary/a/analog-to-digital-converter.html">ADC</a>.</p><details class="q"><summary>If you double the sample rate, do you double the highest frequency you can capture?</summary><p>Yes, approximately: the highest recoverable frequency is just under half the sample rate, the <a href="glossary/n/nyquist-criterion.html">Nyquist frequency</a>. Real filters need a transition band, so usable bandwidth is somewhat lower.</p></details></section>
+<section data-level="expert"><p>Ideal sampling multiplies a continuous signal by an impulse train. Perfect reconstruction from those samples requires the signal to be band-limited below half the sample rate and uses sinc interpolation in theory. Real systems use sample-and-hold circuits, anti-alias filters and practical reconstruction filters. Clock jitter, aperture uncertainty and timing skew between channels introduce error even when amplitude quantization is fine.</p></section>
+<p>See also: <a href="glossary/n/nyquist-criterion.html">Nyquist criterion</a>; <a href="programming/numeric/analog-and-digital.html">Analog values and digital approximations</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

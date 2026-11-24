@@ -1,0 +1,64 @@
+W116 NUMBERS IN COMPUTERS
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Add a learning path for numeric systems and ways to represent
+  numbers in computers. Include glossary pages for endian and other terms
+  that are relevant. Make sure to explain how to represent decimal numbers
+  and fractions in computer binary memory. Discuss scientific notation
+  and other concepts related to displaying numeric values and doing math
+  on a computer that has an underlying binary representation for all
+  values. Cover how to represent analog values with digital approximations
+  and how to do things like linear algebra quickly on a computer."
+
+  Fred chose a new Numbers subhub under Programming and the comprehensive
+  glossary scope (about 28 terms).
+
+DONE
+
+  - Added knowledge/programming/numeric/index.html and five three-level
+    teaching pages: number-systems, integers, fractions-and-floating-point,
+    analog-and-digital and fast-numerical-computing.
+  - Added knowledge/paths/numeric-systems.html with five staged readings,
+    levelled ?level= links, checkpoints, a capstone with a folded solution
+    and three Next paths. Each teaching page declares the path and its step.
+  - Added 30 glossary entries: aliasing, ADC, arbitrary precision, BCD, bit
+    depth, BLAS, DAC, endianness, exponent, fixed point, floating point,
+    FMA, IEEE 754, LAPACK, linear algebra, matrix, NaN, Nyquist criterion,
+    overflow, precision, PCM, radix, rounding, sampling, scientific
+    notation, significand, subnormal, two's complement, underflow and vector.
+  - Linked the new subhub from the Programming hub and expanded the Binary
+    glossary expert section to link the new representation terms.
+  - Bumped corpus 0.120.1 -> 0.121.0 in knowledge/version, ROADMAP header,
+    dev row and delivered history, and added a decision record to
+    docs/plans/development.md.
+  - Worked examples use commands captured in a scratch directory with
+    Python 3 on 2026-11-24.
+
+FAILED
+
+  - The first draft of analog-and-digital.html used the wrong prereq topic
+    slug and linked an aliasing page that did not exist. Both were fixed:
+    the prereq now names fractions-and-floating-point and the missing
+    glossary page was added.
+
+CHECKED AGAINST
+
+  - docs/templates/ladder.html, path.html and single.html
+  - docs/corpus-authoring.md, corpus-pedagogy.md and corpus-style.md
+  - tools/build-index.py validate_path_pages and tools/lint-corpus.py
+  - knowledge/skills/skills.json (algorithms cells reused; no new domain)
+  - python3 tools/lint-corpus.py: no findings
+  - make corpus: 1393 pages, indexes current
+  - python3 tools/report-coverage.py --warnings: no new anatomy warnings
+  - build/tam show --pipe for the path, hub, a teaching page and Endianness
+
+HANDOFF
+
+  - Commit the claimed paths on dev. Generated indexes trail the page
+    commit; rerun make corpus and commit the index follow-up.
+  - No Test, Run or Release is authorised by this work.

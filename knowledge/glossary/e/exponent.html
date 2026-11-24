@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Exponent</title>
+<meta name="topic" content="glossary-exponent">
+<meta name="summary" content="The part of a number that says how many times a base is multiplied by itself.">
+<meta name="keywords" content="exponent, power, base, scientific notation, floating point, biased exponent">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/e/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Exponent</p></nav>
+<h1>Exponent</h1>
+<p>An exponent tells you how many times to multiply a base by itself, or where a decimal or binary point belongs.</p>
+<section data-level="novice"><p>In 2^3, the 3 is the exponent. It means 2 times 2 times 2, which is 8. In <a href="glossary/s/scientific-notation.html">scientific notation</a>, an exponent also tells you how large or small a written number is.</p></section>
+<section data-level="learner"><p>The value 1.5 times 10^6 means 1.5 multiplied by a million, or 1,500,000. A negative exponent means division: 1.5 times 10^-3 is 0.0015. In <a href="glossary/f/floating-point.html">floating point</a>, the <a href="glossary/s/significand.html">significand</a> holds the digits and the exponent sets their scale, so a single format covers very large and very small numbers.</p><details class="q"><summary>What does an exponent of -2 mean in decimal scientific notation?</summary><p>Divide by 100, shifting the point two places left. 7.5 times 10^-2 is 0.075. Negative exponents make small values, not negative ones; the sign is a separate part of the number.</p></details></section>
+<section data-level="expert"><p>IEEE 754 stores a biased exponent: an unsigned field whose value is offset by a fixed bias so that both positive and negative mathematical exponents can use an ordinary unsigned comparison. For binary32 the bias is 127, giving usable normal exponents from -126 to 127. All-zero and all-one exponent fields are reserved for <a href="glossary/s/subnormal.html">subnormal</a> values, infinity and <a href="glossary/n/nan.html">NaN</a>. Exponent range, not significand width, sets the largest and smallest magnitudes.</p></section>
+<p>See also: <a href="glossary/i/ieee-754.html">IEEE 754</a>; <a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

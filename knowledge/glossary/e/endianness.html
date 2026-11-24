@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Endianness</title>
+<meta name="topic" content="glossary-endianness">
+<meta name="summary" content="The order in which bytes of a multi-byte value are stored in memory.">
+<meta name="keywords" content="endianness, endian, little-endian, big-endian, byte order, network byte order, memory">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/e/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Endianness</p></nav>
+<h1>Endianness</h1>
+<p>Endianness says which byte of a multi-byte number comes first in memory or in a file.</p>
+<section data-level="novice"><p>Memory is numbered one <a href="glossary/b/byte.html">byte</a> at a time. A number wider than one byte must be split across several addresses. Little-endian puts the smallest part first; big-endian puts the largest part first. Both can store the same number.</p></section>
+<section data-level="learner"><p>The 32-bit value 0x12345678 is stored as 78 56 34 12 in little-endian order and 12 34 56 78 in big-endian order. Most desktop and server processors use little-endian order. Network protocols have traditionally used big-endian order, called network byte order, so data must be converted when it crosses that boundary. Byte order does not affect the order of bits inside one byte.</p><details class="q"><summary>A file contains 78 56 34 12. What could the 32-bit value be?</summary><p>It is 0x12345678 if written little-endian and 0x78563412 if written big-endian. The bytes alone cannot decide; the file format must state the order.</p></details></section>
+<section data-level="expert"><p>Endianness applies whenever data leaves the processor: file formats, network packets, device registers and debug buffers. Conversion routines such as htons and ntohl handle 16- and 32-bit network order. Mixed-endian formats exist in older architectures. A field smaller than a byte, a text string or a sequence of unrelated bytes has no endianness, even though it may sit inside a wider word. Use explicit fixed-width unsigned types and byte-array views when inspecting raw data; relying on host layout makes formats non-portable.</p></section>
+<p>See also: <a href="programming/numeric/number-systems.html">Number systems and bases</a>; <a href="programming/numeric/integers.html">Whole numbers in binary memory</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fast numerical computing</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="algorithms.novice, algorithms.learner, algorithms.expert">
+<meta name="topic" content="fast-numerical-computing">
+<meta name="summary" content="Do linear algebra quickly with vectors, matrices, BLAS, LAPACK, SIMD and careful memory layout.">
+<meta name="keywords" content="linear algebra, vector, matrix, BLAS, LAPACK, SIMD, fused multiply-add, cache, GPU, numerical computing">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/numeric/index.html">
+<meta name="prereqs" content="analog-and-digital">
+<meta name="paths" content="numeric-systems:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/numeric/index.html">Numbers in computers</a> / Fast numerical computing</p></nav>
+
+<h1>Fast numerical computing</h1>
+<p>Computer math becomes fast when many numbers are arranged well and the same small operation is repeated without wasted work.</p>
+
+<section data-level="novice">
+<h2>Vectors, matrices and repeated arithmetic</h2>
+<p>A <dfn><a href="glossary/v/vector.html">vector</a></dfn> is a list of numbers. A <dfn><a href="glossary/m/matrix.html">matrix</a></dfn> is a rectangular grid of numbers. <dfn><a href="glossary/l/linear-algebra.html">Linear algebra</a></dfn> studies how to combine them. A common operation is the dot product: multiply pairs of numbers from two vectors, then add the results.</p>
+<h3>Why it matters</h3>
+<p>Graphics, sound, simulations, search and machine learning all reduce large problems to many vector and matrix operations. Doing one multiplication at a time in a general-purpose loop can be far slower than letting the machine work on several values at once.</p>
+<h3>How to think about it</h3>
+<p>Think of washing a large pile of dishes. You can wash one, dry it, put it away, then reach for the next, or you can set up a steady line where each step happens continuously. Fast numerical code builds that line: data arrives in order, the same operation runs on each piece, and results leave without interruption.</p>
+<h3>New words</h3>
+<dl>
+<dt>Dot product</dt><dd>Multiply matching entries of two vectors and add all the products.</dd>
+<dt><a href="glossary/b/blas.html">BLAS</a></dt><dd>A standard library interface for basic vector and matrix operations.</dd>
+<dt><a href="glossary/l/lapack.html">LAPACK</a></dt><dd>A standard library interface for higher-level matrix problems such as solving systems of equations.</dd>
+<dt><a href="glossary/s/simd.html">SIMD</a></dt><dd>One instruction that performs the same operation on several values at once.</dd>
+</dl>
+</section>
+
+<section data-level="learner">
+<h2>Recognise the inner loop</h2>
+<p><strong>Goal:</strong> you will be able to write a small dot product, identify the repeated work, and say which library would replace it in production code.</p>
+<p><strong>Learner path:</strong> previous: <a href="programming/numeric/analog-and-digital.html?level=2">analog values and digital approximations</a>. This is the last stage; review the <a href="paths/numeric-systems.html?level=2">whole path</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ python3 -c "a=(1.0,2.0,3.0); b=(4.0,5.0,6.0); print(sum(x*y for x,y in zip(a,b)))"
+32.0
+</pre>
+<p>Captured on a Linux system with Python 3, 2026-11-24. Your output will match.</p>
+<h3>What just happened</h3>
+<ol>
+<li>The loop pairs 1 with 4, 2 with 5 and 3 with 6.</li>
+<li>Each pair is multiplied: 4, 10 and 18. The sum is 32.</li>
+<li>This tiny loop is the shape of a dot product. A library such as <a href="glossary/b/blas.html">BLAS</a> replaces it with code tuned for the processor, including <a href="glossary/s/simd.html">SIMD</a> instructions and careful memory access.</li>
+</ol>
+<h3>Try it</h3>
+<p>In a scratch directory, extend the vectors to ten values and compute the dot product again. Then change one value and predict the new total before you run it.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The vectors have different lengths</dt><dd><code>zip</code> silently stops at the shorter one. In real work, check lengths first so a bug does not become a plausible wrong answer.</dd>
+<dt>The result is not what you expected</dt><dd>Print the products before the sum. An off-by-one pairing or an integer division is easier to see there.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why not just write the loop yourself for a large matrix multiplication?</summary>
+<p>A correct loop can still be slow. Library kernels reuse loaded values, avoid cache misses, keep the processor pipeline full and use wide instructions. They also handle different shapes and precision without rewriting the algorithm each time.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Kernels, layout and arithmetic cost</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Layer</th><th>Does what</th><th>Example</th></tr>
+<tr><td>BLAS</td><td>Small vector and matrix kernels</td><td>Dot product, matrix-vector and matrix-matrix multiplication</td></tr>
+<tr><td>LAPACK</td><td>Algorithms built on BLAS</td><td>Linear systems, eigenvalues, least squares, factorizations</td></tr>
+<tr><td>SIMD</td><td>Same operation on a wide register</td><td>Four or eight floating-point lanes per instruction</td></tr>
+<tr><td><a href="glossary/s/simt.html">SIMT</a> on a <a href="glossary/g/gpu.html">GPU</a></td><td>Many threads follow similar instruction streams</td><td>Large parallel matrix work</td></tr>
+<tr><td><a href="glossary/f/fused-multiply-add.html">Fused multiply-add</a></td><td>Multiplies and adds with one rounding</td><td>Dot-product inner steps</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A matrix multiplication of an m-by-k matrix and a k-by-n matrix performs m*n*k multiply-add pairs. Reordering those pairs changes how often data is fetched from memory, even though the arithmetic count is the same. BLAS describes operations, not a single implementation; vendors and open-source projects supply tuned kernels that choose blocking, packing and instruction sets at run time. LAPACK builds higher-level factorizations from those kernels.</p>
+<p>Main memory is far slower than a processor register, so layout matters. Contiguous access lets hardware prefetch and fill cache lines; strided access wastes transfers. A transposed matrix can be much faster to multiply even though it holds the same values. <a href="glossary/f/fused-multiply-add.html">Fused multiply-add</a> reduces both instruction count and rounding error by performing x times y plus z with a single final rounding.</p>
+<h3>Advanced usage</h3>
+<pre class="session" data-risk="scratch">
+$ python3 -c "n=4; print('pairs for 4x4 by 4x4:', n*n*n); print('caches: contiguous stride 1 beats stride 4')"
+pairs for 4x4 by 4x4: 64
+caches: contiguous stride 1 beats stride 4
+</pre>
+<p>Illustrative sequence: the operation count is easy; the memory pattern is where hand-written loops usually lose to a tuned kernel.</p>
+<h3>Edge cases</h3>
+<ul>
+<li>Low <a href="glossary/p/precision.html">precision</a> can be faster but changes results. Mixed-precision workflows compute in a narrow type and accumulate in a wider one.</li>
+<li>Parallel reductions do not add in the same order every run, so bitwise-identical results are not guaranteed.</li>
+<li>BLAS implementations may differ in rounding and exception behaviour. Compare tolerances, not raw bits, when changing libraries.</li>
+<li>More threads can make a small matrix slower because coordination costs exceed the saved arithmetic.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Two programs compute the same matrix product. One uses a naive triple loop and one calls an optimized BLAS. What should you compare before blaming the library for different last digits?</summary>
+<p>Check shapes, storage order, accumulation precision, thread count and fused multiply-add use. Different addition order or rounding changes low digits without changing the mathematical result. Benchmark with representative sizes, since small cases may be dominated by setup costs.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>BLAS and LAPACK specifications and processor architecture manuals. See the <a href="bibliography/index.html">bibliography</a>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="algorithms/fast-fourier-transform.html">Fast Fourier Transform</a> &mdash; another case where reorganizing arithmetic changes the cost.</li>
+<li><a href="paths/algorithms.html">Important algorithms for modern computing</a> &mdash; see where these kernels appear in larger systems.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="paths/numeric-systems.html">Numbers and how computers use them</a> &mdash; the five-stage path.</li>
+<li><a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a> &mdash; the arithmetic being accelerated.</li>
+</ul>
+</body></html>

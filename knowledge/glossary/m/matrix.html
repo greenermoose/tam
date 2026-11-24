@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Matrix</title>
+<meta name="topic" content="glossary-matrix">
+<meta name="summary" content="A rectangular grid of numbers used to hold data or a linear transformation.">
+<meta name="keywords" content="matrix, matrices, rows, columns, matrix multiplication, transpose, linear algebra, BLAS">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / Matrix</p></nav>
+<h1>Matrix</h1>
+<p>A matrix is a rectangular arrangement of numbers in rows and columns.</p>
+<section data-level="novice"><p>A spreadsheet table is a matrix: each cell has a row and a column. A matrix can hold a picture's pixels, a set of measurements or instructions for moving points on a screen.</p></section>
+<section data-level="learner"><p>A matrix with 3 rows and 2 columns is called a 3-by-2 matrix. Multiplying a matrix by a <a href="glossary/v/vector.html">vector</a> mixes the vector's entries using the rows. Multiplying two matrices requires the inner dimensions to match: an m-by-k matrix times a k-by-n matrix gives an m-by-n result. Transposing swaps rows and columns.</p><details class="q"><summary>Can a 3-by-2 matrix multiply a vector with 3 entries?</summary><p>Not on the right. The vector must have as many entries as the matrix has columns, so a 3-by-2 matrix takes a 2-entry vector and produces a 3-entry result. Its transpose takes a 3-entry vector.</p></details></section>
+<section data-level="expert"><p>In storage, row-major order places a row's entries next to each other; column-major order does the same for columns. That choice affects cache behaviour more than the algebra does. Dense matrices store every entry; sparse formats store only nonzero entries plus indices. BLAS names include type and operation, such as DGEMM for double-precision general matrix multiplication. Factorizations such as LU, QR and Cholesky express the same matrix in forms suited to solving equations.</p></section>
+<p>See also: <a href="glossary/l/linear-algebra.html">Linear algebra</a>; <a href="programming/numeric/fast-numerical-computing.html">Fast numerical computing</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

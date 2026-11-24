@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Floating-point</title>
+<meta name="topic" content="glossary-floating-point">
+<meta name="summary" content="A number format whose point can move by storing a significand and an exponent.">
+<meta name="keywords" content="floating point, floating-point, float, double, significand, exponent, IEEE 754, scientific notation">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/f/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / Floating-point</p></nav>
+<h1>Floating-point</h1>
+<p>Floating-point stores digits plus a scale, so the same format covers tiny and huge values.</p>
+<section data-level="novice"><p>Writing 1,500 as 1.5 times 1,000 is a way of moving the point. A floating-point number does the same inside a computer: it keeps the digits and remembers where the point belongs.</p></section>
+<section data-level="learner"><p>A floating-point value has a sign, a <a href="glossary/s/significand.html">significand</a> for the digits and an <a href="glossary/e/exponent.html">exponent</a> for the scale. That makes it possible to store both 0.0015 and 1,500,000,000 in one format. The cost is that many familiar decimal fractions, such as 0.1, cannot be stored exactly. Comparing results by exact equality is often wrong; use a tolerance chosen for the problem.</p><details class="q"><summary>Why does 0.1 + 0.2 not equal 0.3 exactly in many programs?</summary><p>Both inputs are rounded to the nearest binary floating-point values, and their sum is rounded again. The stored result is close to 0.3 but not the same pattern as the stored 0.3.</p></details></section>
+<section data-level="expert"><p><a href="glossary/i/ieee-754.html">IEEE 754</a> defines the widely used binary32 and binary64 formats, rounding modes, special values and exception flags. Relative <a href="glossary/p/precision.html">precision</a> is roughly constant across the normal range; absolute precision grows with magnitude. <a href="glossary/o/overflow.html">Overflow</a>, <a href="glossary/u/underflow.html">underflow</a>, cancellation and operation order affect reproducible results. Decimal floating-point formats keep decimal digits exact but are a different encoding.</p></section>
+<p>See also: <a href="glossary/f/fixed-point.html">Fixed-point</a>; <a href="programming/numeric/fractions-and-floating-point.html">Fractions, decimals and floating point</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

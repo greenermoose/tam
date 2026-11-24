@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Arbitrary precision</title>
+<meta name="topic" content="glossary-arbitrary-precision">
+<meta name="summary" content="Number storage that grows to hold values beyond a fixed machine word.">
+<meta name="keywords" content="arbitrary precision, bignum, big integer, multiple precision, fixed width, overflow">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/a/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / Arbitrary precision</p></nav>
+<h1>Arbitrary precision</h1>
+<p>A way of storing numbers that uses more memory when the value gets larger.</p>
+<section data-level="novice"><p>An eight-bit counter stops making sense above 255. An arbitrary-precision number adds more storage as needed, like writing another column when a sum grows past 9.</p></section>
+<section data-level="learner"><p>Python integers are arbitrary precision, so <code>2**100</code> works without a special type. In C, a fixed <code>uint64_t</code> wraps at 2^64. The trade-off is cost: arbitrary-precision operations allocate memory and run many machine-word steps, while fixed-width values fit in registers and are much faster.</p><details class="q"><summary>Is arbitrary precision the same as arbitrary accuracy?</summary><p>No. It removes the fixed limit on integer size. A rational or decimal type still needs rules for division and rounding, and measured values can still be uncertain.</p></details></section>
+<section data-level="expert"><p>Libraries such as GMP represent a big integer as an array of machine words plus a sign and length. Addition and multiplication are schoolbook algorithms for small sizes and Karatsuba or FFT-based multiplication for large ones. Fixed-width arithmetic still matters at the edges: byte order, sign extension and language-defined <a href="glossary/o/overflow.html">overflow</a> behaviour apply when data crosses into a native type. Arbitrary-precision floating point also exists, but its precision must be chosen and carried explicitly.</p></section>
+<p>See also: <a href="glossary/o/overflow.html">Overflow</a>; <a href="programming/numeric/integers.html">Whole numbers in binary memory</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

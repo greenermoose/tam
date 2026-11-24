@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Analog-to-digital converter (ADC)</title>
+<meta name="topic" content="glossary-analog-to-digital-converter">
+<meta name="summary" content="A circuit that measures a continuous voltage and reports it as a number.">
+<meta name="keywords" content="ADC, analog to digital converter, A to D, sampling, quantization, resolution, bit depth">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/a/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / Analog-to-digital converter (ADC)</p></nav>
+<h1>Analog-to-digital converter (ADC)</h1>
+<p>A circuit that turns a changing physical voltage into a digital code a computer can store.</p>
+<section data-level="novice"><p>A microphone produces a voltage that moves smoothly with sound. An ADC looks at that voltage at separate moments and writes a number for each one. Those numbers can then be saved, sent or processed.</p></section>
+<section data-level="learner"><p>Two settings describe most converters: the <a href="glossary/s/sampling.html">sample rate</a>, or how often it looks, and the <a href="glossary/b/bit-depth.html">bit depth</a>, or how finely it rounds each look. A 16-bit converter over 0 to 3.3 V has 65,536 possible codes. The input is <a href="glossary/q/quantization.html">quantized</a> to the nearest code, so a small difference in voltage may produce no change in the number.</p><details class="q"><summary>Why does a higher bit depth not fix a too-low sample rate?</summary><p>Bit depth controls the size of each amplitude step. Sample rate controls which frequencies can be captured. They solve different problems, and neither substitutes for the other.</p></details></section>
+<section data-level="expert"><p>Common architectures include successive approximation, flash, pipelined and delta-sigma converters. Key parameters include integral and differential non-linearity, offset and gain error, noise floor, aperture jitter, reference drift and settling time. An ADC may saturate at its rails, and its effective number of bits can be lower than its nominal width because of noise and distortion. Sampling theory requires band-limiting before conversion to avoid <a href="glossary/a/aliasing.html">aliasing</a>.</p></section>
+<p>See also: <a href="glossary/d/digital-to-analog-converter.html">Digital-to-analog converter</a>; <a href="programming/numeric/analog-and-digital.html">Analog values and digital approximations</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

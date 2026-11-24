@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>Nyquist criterion</title>
+<meta name="topic" content="glossary-nyquist-criterion">
+<meta name="summary" content="A signal must be sampled more than twice as fast as its highest frequency to be recoverable.">
+<meta name="keywords" content="Nyquist, Nyquist criterion, sampling theorem, sample rate, aliasing, frequency, hertz">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/n/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / Nyquist criterion</p></nav>
+<h1>Nyquist criterion</h1>
+<p>To capture a signal faithfully, take more than two <a href="glossary/s/sampling.html">samples</a> per cycle of its highest frequency.</p>
+<section data-level="novice"><p>A wave that wiggles too quickly between snapshots can look like a slower wave. Taking at least two snapshots per wiggle is the minimum needed to tell a wave from a slower one. That is the idea behind the Nyquist rule.</p></section>
+<section data-level="learner"><p>Half the sample rate is called the Nyquist frequency. Audio sampled at 48,000 times per second has a Nyquist frequency of 24 kHz. A 20 kHz tone is safe; a 30 kHz tone is not and will <a href="glossary/a/aliasing.html">alias</a> into a lower frequency. Real converters filter the analog input before sampling, because the rule assumes the signal contains no energy above that limit.</p><details class="q"><summary>Is exactly two samples per cycle enough?</summary><p>Only in the ideal mathematical case with perfect timing and known phase. Practical systems sample faster and use a filter with a transition band, so there is room to remove unwanted frequencies.</p></details></section>
+<section data-level="expert"><p>The sampling theorem states that a band-limited signal with no content at or above B hertz can be reconstructed exactly from samples taken at a rate greater than 2B, using an appropriate interpolation filter. Equality is not sufficient in general because a component exactly at the band edge can be ambiguous or cancel. Oversampling relaxes analog filter design and can reduce quantization noise; decimation must include a digital anti-alias filter before lowering the rate.</p></section>
+<p>See also: <a href="glossary/a/aliasing.html">Aliasing</a>; <a href="programming/numeric/analog-and-digital.html">Analog values and digital approximations</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

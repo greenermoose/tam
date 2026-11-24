@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><title>LAPACK (Linear Algebra Package)</title>
+<meta name="topic" content="glossary-lapack">
+<meta name="summary" content="A library of higher-level matrix algorithms built on BLAS kernels.">
+<meta name="keywords" content="LAPACK, linear algebra package, eigenvalue, least squares, matrix factorization, LU, QR, BLAS">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/l/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / LAPACK (Linear Algebra Package)</p></nav>
+<h1>LAPACK (Linear Algebra Package)</h1>
+<p>LAPACK solves larger matrix problems using the small operations supplied by BLAS.</p>
+<section data-level="novice"><p>If BLAS provides the basic steps for working with lists and grids of numbers, LAPACK combines those steps into answers such as solving an equation or finding the main directions in a set of data.</p></section>
+<section data-level="learner"><p>Common LAPACK jobs include solving systems of linear equations, least-squares fitting, eigenproblems and matrix factorizations such as LU, QR, Cholesky and SVD. A program can call the same routine names on different machines and get tuned behaviour from the underlying <a href="glossary/b/blas.html">BLAS</a>. Choosing a routine means knowing the matrix shape and properties: symmetric, positive definite, dense or banded.</p><details class="q"><summary>Why does it matter whether a matrix is symmetric or positive definite?</summary><p>Special properties allow faster, more stable factorizations such as Cholesky instead of a general LU decomposition. Using the wrong routine can waste work or produce unreliable answers.</p></details></section>
+<section data-level="expert"><p>LAPACK routine names encode data type, matrix property and operation, for example DSYEV for a double symmetric eigenproblem. Blocked algorithms use level-3 BLAS so that most work happens on cached tiles. ScaLAPACK extends the model to distributed memory. Numerical behaviour depends on pivoting, condition number and scaling; a correct factorization can still amplify input error for an ill-conditioned matrix.</p></section>
+<p>See also: <a href="glossary/b/blas.html">BLAS</a>; <a href="programming/numeric/fast-numerical-computing.html">Fast numerical computing</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>
