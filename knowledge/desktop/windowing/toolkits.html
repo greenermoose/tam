@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How graphical toolkits build interfaces</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="ui-toolkits">
+<meta name="summary" content="See how GTK, Qt, web technology and other widget toolkits turn application code into buttons, menus and windows.">
+<meta name="keywords" content="widget toolkit, GTK, Qt, QML, libadwaita, web technology, Electron, FLTK, wxWidgets, GUI">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="prereqs" content="desktop-environments-windowing">
+<meta name="paths" content="windowing-systems:7">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / How graphical toolkits build interfaces</p></nav>
+
+<p>A graphical toolkit is a library that supplies the buttons, menus, text fields and windows inside an application. The display system puts the finished window on the screen; the toolkit decides what is inside it.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>A <dfn><a href="glossary/w/widget.html">widget</a></dfn> is one reusable interface part, such as a button or a slider. A <dfn><a href="glossary/t/toolkit.html">toolkit</a></dfn> collects widgets, layout rules and event handling so an application does not draw every pixel itself.</p>
+<h3>Why it matters</h3>
+<p>Two applications on the same desktop can look different because their authors chose different toolkits. When one application's controls behave strangely, the cause may be in the toolkit rather than the compositor.</p>
+<h3>How to think about it</h3>
+<p>Think of a toolkit as a box of pre-cut parts. You arrange buttons and labels in the box's layout system, and the toolkit draws them and tells your code when someone clicks.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/g/gtk.html">GTK</a></dt><dd>A toolkit widely used by GNOME and many other Linux applications.</dd>
+<dt><a href="glossary/q/qt.html">Qt</a></dt><dd>A toolkit used by KDE Plasma, Tamlinux's shell, and many cross-platform applications.</dd>
+<dt><a href="glossary/q/qml.html">QML</a></dt><dd>A declarative language for describing Qt Quick interfaces.</dd>
+<dt><a href="glossary/e/electron.html">Electron</a></dt><dd>A framework that uses web technology to build desktop applications.</dd>
+</dl>
+<p><a href="desktop/windowing/session-checks.html">Next: Check your graphical session</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Build one button in your head</h2>
+<p><strong>Goal:</strong> you will be able to say which layer supplies a window's controls and which layer presents the finished window.</p>
+<p><strong>Learner path:</strong> back: <a href="desktop/windowing/desktops.html?level=2">GNOME, KDE Plasma and other desktops</a>; next: <a href="desktop/windowing/session-checks.html?level=2">Check your graphical session</a>.</p>
+<h3>Worked example</h3>
+<p>Follow a button from code to click:</p>
+<ol>
+<li>An application creates a window and places a button in it using <a href="glossary/g/gtk.html">GTK</a> or <a href="glossary/q/qt.html">Qt</a>.</li>
+<li>The toolkit lays out the button, draws its text and border, and records that clicking it should run a callback.</li>
+<li>The application receives a click event from the display system and passes it to the toolkit.</li>
+<li>The toolkit decides which widget was hit and calls the callback. The redrawn picture is committed as a surface to the compositor.</li>
+</ol>
+<p>The toolkit owns widget behaviour; the compositor owns presentation.</p>
+<h3>Try it</h3>
+<p>Open two applications on your desktop and compare their title bars, buttons and menus. Write down which visible parts look toolkit-supplied and which look supplied by the desktop shell. Do not change settings.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>A button looks wrong but the window is placed correctly</dt><dd>Look at the toolkit version, theme or stylesheet before the compositor.</dd>
+<dt>A window appears with no control at all</dt><dd>Look at the application and its toolkit backend; a missing display backend means it may not have drawn a surface.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the shell uses <a href="glossary/q/quickshell.html">Quickshell</a> and Qt Quick, with QML describing its panels and controls. Many applications use GTK or Qt; web-based applications use <a href="glossary/e/electron.html">Electron</a> or a browser engine.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>A KDE application and a GTK application show different buttons on the same Wayland session. Is the compositor responsible?</summary><p>No. Each toolkit draws its own widgets inside the application's surface. The compositor places those surfaces, combines them and routes input. Different widget appearance is a toolkit and theme matter.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<h3>Toolkit families on Linux</h3>
+<table>
+<tr><th>Family</th><th>Interface style</th><th>Where it appears</th></tr>
+<tr><td><a href="glossary/g/gtk.html">GTK</a> and <a href="glossary/l/libadwaita.html">libadwaita</a></td><td>C-based widgets with CSS styling; libadwaita adds GNOME patterns.</td><td>GNOME applications and many independent Linux programs.</td></tr>
+<tr><td><a href="glossary/q/qt.html">Qt</a> Widgets</td><td>C++ widget classes with signals and slots.</td><td>KDE Plasma, Qt applications and cross-platform desktop tools.</td></tr>
+<tr><td>Qt Quick and <a href="glossary/q/qml.html">QML</a></td><td>Declarative scene graph with JavaScript expressions.</td><td>Plasma Shell, Quickshell, embedded interfaces and animated controls.</td></tr>
+<tr><td>Web technology and <a href="glossary/e/electron.html">Electron</a></td><td>HTML, CSS and JavaScript in a browser engine.</td><td>Cross-platform applications and web apps packaged for the desktop.</td></tr>
+<tr><td>FLTK, wxWidgets, Tk and others</td><td>Smaller native or portable widget sets.</td><td>Utilities, scientific tools and older applications.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A toolkit supplies an event loop, a widget tree, layout, styles, accessibility bridges and backend integration. On Wayland, a toolkit backend connects to protocol globals, creates surfaces, handles configure events and sends buffer releases. On X11, the same toolkit uses an X11 backend. Applications normally see a stable widget API even when the display protocol changes underneath.</p>
+<h3>Advanced usage examples</h3>
+<p>A Qt Quick shell can describe a panel declaratively in QML and bind its width to an output geometry exposed by the compositor. A GTK application can use a CSS stylesheet to restyle widgets without changing application logic. Both ultimately commit finished buffers; neither sends raw drawing commands to the display server in the X11 sense.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Toolkit backends differ in feature support, so global shortcuts, screen capture and translation may need portal negotiation.</li>
+<li>Client-side decorations belong to the toolkit, not the compositor; theme changes can therefore alter title bars without any display change.</li>
+<li>Accessibility and input methods depend on both toolkit bridges and compositor or platform services.</li>
+<li>Web-based applications may look consistent across systems but notice more differences in native settings and permissions.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>Why can a toolkit be portable across X11 and Wayland without changing the application's button code?</summary><p>Model answer: the application talks to a widget API, and the toolkit implements that API over one or more display backends. The backend handles surfaces, events and buffers for X11 or Wayland. Widget layout and callbacks stay the same, though some platform-specific features need negotiation.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="gnome-docs"><a href="bibliography/gnome-docs.html">GNOME developer documentation</a></cite>, <cite data-ref="kde-docs"><a href="bibliography/kde-docs.html">KDE developer documentation</a></cite> and <cite data-ref="qt-docs"><a href="bibliography/qt-docs.html">Qt documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windowing/session-checks.html">Check your graphical session</a> &mdash; confirm what is actually running.</li>
+<li><a href="paths/windowing-systems.html">From pixels to desktop applications</a> &mdash; revisit the whole path.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="programming/interfaces/toolkits.html">The bar and menus around your windows</a> &mdash; the Tamlinux shell toolkit page.</li>
+<li><a href="desktop/session/compositors.html">How windows appear on your screen</a> &mdash; the layer below the toolkit.</li>
+</ul>
+</body></html>

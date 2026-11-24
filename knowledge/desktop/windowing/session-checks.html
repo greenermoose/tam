@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Check your graphical session</title>
+<meta name="kind" content="how-to">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="windowing-session-checks">
+<meta name="summary" content="Use read-only commands to tell whether a session uses Wayland, X11 or XWayland, and understand what the variables mean.">
+<meta name="keywords" content="XDG_SESSION_TYPE, WAYLAND_DISPLAY, DISPLAY, loginctl, XWayland, Wayland session, X11 session, read-only checks">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="prereqs" content="ui-toolkits">
+<meta name="paths" content="windowing-systems:8">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / Check your graphical session</p></nav>
+
+<p>You can find out which display system a graphical session uses without changing settings. A few environment values and one session query usually give enough evidence.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>A session is the time from login to logout. During it, the desktop, applications and display system run together. A <dfn><a href="glossary/c/compositor.html">compositor</a></dfn> presents windows on Wayland; an <dfn><a href="glossary/x/x-server.html">X server</a></dfn> does the older job on X11.</p>
+<h3>Why it matters</h3>
+<p>The same application can behave differently on X11 and Wayland. Knowing the session type helps you choose the right instructions when a window, screenshot or keyboard shortcut misbehaves.</p>
+<h3>How to think about it</h3>
+<p>Think of the values as labels on a door. One label says which display protocol the session uses; another says where X11 clients can connect. Both labels can be present at once.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/w/wayland.html">Wayland</a></dt><dd>The modern display protocol used by most Linux desktops.</dd>
+<dt><a href="glossary/x/x11.html">X11</a></dt><dd>The older display system still used by legacy applications.</dd>
+<dt><a href="glossary/x/xwayland.html">XWayland</a></dt><dd>A compatibility X server that runs on a Wayland desktop.</dd>
+<dt><a href="glossary/x/x-client.html">X client</a></dt><dd>An application that speaks the X11 protocol.</dd>
+</dl>
+<p><a href="desktop/windowing/index.html">Back: Windowing systems hub</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Read the labels</h2>
+<p><strong>Goal:</strong> you will be able to distinguish a Wayland session, an X11 session and an X11 compatibility display using read-only output.</p>
+<p><strong>Learner path:</strong> back: <a href="desktop/windowing/toolkits.html?level=2">How graphical toolkits build interfaces</a>; next: <a href="paths/windowing-systems.html?level=2">From pixels to desktop applications</a>.</p>
+<h3>Worked example</h3>
+<p>In a graphical terminal on the session used to check this page, the following command printed:</p>
+<pre><code>$ printf 'session=%s wayland=%s display=%s\n' "$XDG_SESSION_TYPE" "$WAYLAND_DISPLAY" "$DISPLAY"
+session=wayland wayland=wayland-1 display=:0</code></pre>
+<p>That says the session type is Wayland and a native Wayland socket is available. The <code>DISPLAY=:0</code> value tells X11 applications where to connect; it does not by itself make the session X11. Then:</p>
+<pre><code>$ loginctl show-session "$XDG_SESSION_ID" -p Type -p Active -p State
+Type=wayland
+Active=yes
+State=active</code></pre>
+<p>The login manager agrees that the session is Wayland and active.</p>
+<h3>Try it</h3>
+<p>Run both commands in a terminal inside the graphical desktop, not in a text console or an SSH shell. Compare the result with what you expect from your desktop's compositor. If a value is blank, say so rather than guessing.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>XDG_SESSION_TYPE</code> is missing</dt><dd>The terminal may have been started outside the graphical login, or an older session manager may not export it. Check the login-manager query instead.</dd>
+<dt><code>DISPLAY</code> is set but <code>WAYLAND_DISPLAY</code> is blank</dt><dd>You are likely in an X11 session, or in a shell that only inherited X11 variables. Confirm with the login-manager query before deciding.</dd>
+<dt>Both variables are set</dt><dd>This is common on Wayland desktops that run <a href="glossary/x/xwayland.html">XWayland</a>. Let <code>XDG_SESSION_TYPE</code> and the login manager identify the session.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the active desktop uses <a href="glossary/h/hyprland.html">Hyprland</a> on Wayland today, so a read-only check should show a Wayland session. X11 applications can still run through XWayland.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>You see <code>DISPLAY=:0</code> in a terminal. Is the desktop session X11?</summary><p>Not necessarily. A Wayland desktop that runs XWayland also sets <code>DISPLAY</code> so X11 clients can connect. Check <code>XDG_SESSION_TYPE</code>, <code>WAYLAND_DISPLAY</code> and the login-manager query. On the checked session they identify Wayland even though <code>DISPLAY</code> was present.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<h3>Signals and what they prove</h3>
+<table>
+<tr><th>Signal</th><th>Meaning</th><th>Limit</th></tr>
+<tr><td><code>XDG_SESSION_TYPE=wayland</code></td><td>The session was started with a Wayland compositor.</td><td>A child shell may inherit stale or absent values; combine with another check.</td></tr>
+<tr><td><code>WAYLAND_DISPLAY=wayland-1</code></td><td>A Wayland socket name is available to clients.</td><td>The name can differ; a blank value does not prove the whole session is X11.</td></tr>
+<tr><td><code>DISPLAY=:0</code></td><td>X11 clients can find an X display.</td><td>On Wayland this is normally XWayland, not the session's display server.</td></tr>
+<tr><td><code>loginctl show-session ID -p Type -p Active -p State</code></td><td>The login manager's view of the session type and state.</td><td>Use the current shell's <code>XDG_SESSION_ID</code>; a different ID describes a different session.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Environment variables are inherited by child processes, so a terminal launched from the graphical session sees the values the session exported. The login manager tracks the same session through its own ID and exposes Type, Active and State as properties. These checks are read-only: they print state and change nothing.</p>
+<h3>Advanced usage examples</h3>
+<p>In a script, prefer <code>loginctl show-session "$XDG_SESSION_ID" -p Type --value</code> when a bare value is needed, and keep <code>DISPLAY</code> and <code>WAYLAND_DISPLAY</code> as separate facts. A Wayland-native screenshot tool uses the compositor or a portal; an X11-only tool may use <code>DISPLAY</code> and therefore see XWayland windows only.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A text console, SSH shell or container may have none of these variables even though another session is graphical.</li>
+<li>Nested sessions and remote desktops can expose more than one display socket; name the session you actually inspected.</li>
+<li>XWayland can make an X11 client look native in a screenshot while it remains subject to X11's weaker isolation.</li>
+<li>These commands identify the display path, not the desktop environment or toolkit inside the windows.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>A script sees both <code>WAYLAND_DISPLAY</code> and <code>DISPLAY</code>. Why should it not treat the second variable as proof that the session is X11?</summary><p>Model answer: because XWayland provides an X11 display inside a Wayland session for compatibility. The session type and login-manager query distinguish the real session. The script should branch on the session type and treat <code>DISPLAY</code> as the address of X11 clients, not as the owner of the screen.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="wayland-protocol"><a href="bibliography/wayland-protocol.html">the Wayland protocol</a></cite> and <cite data-ref="x11-protocol"><a href="bibliography/x11-protocol.html">the X Window System protocol documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="paths/windowing-systems.html">From pixels to desktop applications</a> &mdash; return to the start with what you observed.</li>
+<li><a href="desktop/session/compositors.html">How windows appear on your screen</a> &mdash; see what the compositor does in Tamlinux.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="desktop/windowing/comparison.html">Why Linux moved from X11 to Wayland</a> &mdash; interpret the session type you found.</li>
+<li><a href="desktop/windowing/x11.html">How X11 draws windows</a> &mdash; understand what XWayland keeps compatible.</li>
+</ul>
+</body></html>

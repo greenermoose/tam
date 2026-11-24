@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>A short history of windowing systems</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="windowing-history">
+<meta name="summary" content="Follow the idea of the window from research computers to X11, Wayland and the desktop systems in use today.">
+<meta name="keywords" content="history, windowing system, X11, Wayland, Xerox Alto, Macintosh, Windows, GNOME, KDE">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="paths" content="windowing-systems:1">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / A short history of windowing systems</p></nav>
+
+<p>A window is a rectangular area on a screen that shows one program while other programs stay nearby. Windowing systems grew from research ideas into the ordinary way people use a computer.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>Early computers usually ran one program at a time on a screen of text. A <dfn><a href="glossary/w/window.html">window</a></dfn> lets several programs share the screen: each gets its own rectangle, and you can bring one forward or put it aside.</p>
+<h3>Why it matters</h3>
+<p>The window controls you use today, and the arguments about <a href="glossary/x/x11.html">X11</a> and <a href="glossary/w/wayland.html">Wayland</a>, come from choices made decades ago. Knowing that history makes current desktop design easier to understand.</p>
+<h3>How to think about it</h3>
+<p>Think of a desk covered with sheets of paper. You can overlap them, move one to the front, and read another without putting the first away. A windowing computer does the same with program output.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/desktop-environment.html">Desktop environment</a></dt><dd>The windows, panels, settings and applications that make up a graphical desktop.</dd>
+<dt><a href="glossary/c/compositor.html">Compositor</a></dt><dd>The program that places finished windows on the screen.</dd>
+<dt><a href="glossary/x/x11.html">X11</a></dt><dd>The older display system that Linux desktops used for many years.</dd>
+<dt><a href="glossary/w/wayland.html">Wayland</a></dt><dd>The modern display protocol used by most Linux desktops today.</dd>
+</dl>
+<p><a href="desktop/windowing/x11.html">Next: How X11 draws windows</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Follow one idea through time</h2>
+<p><strong>Goal:</strong> you will be able to name the main stages that led from shared screens to today's X11 and Wayland desktops.</p>
+<p><strong>Learner path:</strong> start: <a href="desktop/windowing/history.html?level=2">A short history of windowing systems</a>; next: <a href="desktop/windowing/x11.html?level=2">How X11 draws windows</a>.</p>
+<h3>Worked example</h3>
+<p>Trace the same job, "show two programs at once", through four designs:</p>
+<ol>
+<li>A research desktop draws both programs into one screen-sized picture, with a mouse pointer and overlapping rectangles.</li>
+<li><a href="glossary/x/x11.html">X11</a> puts a display server between programs and the screen. Programs ask that server to draw; a separate window manager places and decorates windows.</li>
+<li><a href="glossary/g/gnome.html">GNOME</a> and <a href="glossary/k/kde.html">KDE</a> add a complete <a href="glossary/d/desktop-environment.html">desktop environment</a>: panels, settings, icons and core applications on top of X11.</li>
+<li><a href="glossary/w/wayland.html">Wayland</a> gives the <a href="glossary/c/compositor.html">compositor</a> both jobs. Applications draw their own surface and hand it to the compositor, which places it on screen.</li>
+</ol>
+<p>The idea of a window stayed. The owner of the screen changed.</p>
+<h3>Try it</h3>
+<p>Look at your current desktop and write down three separate windows, one panel or bar, and which program probably draws each one. Do not change settings; this is an observation exercise.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The names blur together</dt><dd>Keep three jobs separate: drawing a window, placing a window, and building the buttons inside it. The pages in this series use that split throughout.</dd>
+<dt>You cannot see several windows</dt><dd>A phone or a single full-screen application still uses a windowing system internally. You just see one surface at a time.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the desktop runs <a href="glossary/h/hyprland.html">Hyprland</a> today on Wayland. Tamlinux is writing its own compositor, <code>tam-pane</code>, for later integration; Sway and wlroots are not part of the plan.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>Why did overlapping windows need a program to manage them?</summary><p>Because more than one program draws into the same screen area. Something must decide which rectangle is on top, where it sits, and where keyboard and mouse events go. X11 called that program a window manager; Wayland folds the job into the compositor.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Timeline and lineage</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Period</th><th>System or idea</th><th>Lasting contribution</th></tr>
+<tr><td>Early 1970s</td><td>Xerox Alto</td><td>Bitmap screen, mouse, overlapping windows and icons as one working environment.</td></tr>
+<tr><td>1981</td><td>Xerox Star</td><td>Commercial desktop metaphor: files, folders, icons and WYSIWYG documents.</td></tr>
+<tr><td>1984</td><td>Apple Macintosh</td><td>Brought the graphical desktop to a mass audience.</td></tr>
+<tr><td>1984–1987</td><td>MIT X project; X11</td><td>Network-transparent display protocol with a server and clients; still the basis of X.Org and XWayland.</td></tr>
+<tr><td>1985 onward</td><td>Microsoft Windows</td><td>Windowing, GDI drawing and a message-based application model on personal computers.</td></tr>
+<tr><td>1990s</td><td>KDE and GNOME</td><td>Complete free-software desktops on X11: session, shell, settings and applications.</td></tr>
+<tr><td>2008 onward</td><td>Wayland</td><td>Compositor as display server; isolation between clients and a smaller protocol core.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The important transition is not "graphics got newer" but "who owns the final picture". X11 keeps a display server that owns drawing resources and a window manager that behaves like a privileged client. Wayland makes the compositor the display server, so the same process that places windows also presents buffers and routes input. Desktop environments then layer policy, panels and applications over whichever model they use.</p>
+<h3>Advanced examples</h3>
+<p>Compare three lineages: X11's protocol-and-toolkit model; Apple's <a href="glossary/q/quartz.html">Quartz</a> and <a href="glossary/a/appkit.html">AppKit</a> family; and Windows' USER/GDI and <a href="glossary/d/dwm.html">Desktop Window Manager</a> family. Each solves placement, drawing and input, but they divide the work across different libraries and kernel interfaces.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>History is not one straight ladder: overlapping research systems, X11 and commercial desktops developed in parallel.</li>
+<li>A desktop environment is not a display protocol. GNOME and KDE can sit above different display systems over time.</li>
+<li>"Client-side decorations" moved title bars into applications and changed what a window manager appears to draw.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>If a desktop says it supports both X11 and Wayland sessions, what has actually changed between those sessions?</summary><p>Model answer: the display protocol and the process that owns presentation changed, not the applications' wish to show windows. In an X11 session a separate X server and window manager handle drawing and placement. In a Wayland session the compositor does both. The desktop shell and toolkits may stay similar, though toolkits choose different backends. Compatibility layers such as <a href="glossary/x/xwayland.html">XWayland</a> can blur the visible result.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="x11-protocol"><a href="bibliography/x11-protocol.html">the X Window System protocol documentation</a></cite>, <cite data-ref="wayland-protocol"><a href="bibliography/wayland-protocol.html">the Wayland protocol</a></cite>, <cite data-ref="windows-docs"><a href="bibliography/windows-docs.html">Windows app documentation</a></cite> and <cite data-ref="apple-docs"><a href="bibliography/apple-docs.html">Apple's macOS documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windowing/x11.html">How X11 draws windows</a> &mdash; see the older model in detail.</li>
+<li><a href="desktop/windowing/wayland.html">How Wayland draws windows</a> &mdash; see the compositor-centred model.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="paths/windowing-systems.html">From pixels to desktop applications</a> &mdash; the whole reading path.</li>
+<li><a href="hardware/displays/display-history.html">Display history</a> &mdash; the screens and signals underneath windowing.</li>
+</ul>
+</body></html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>Xlib</title>
+<meta name="topic" content="glossary-xlib">
+<meta name="summary" content="Xlib: The traditional C library for speaking the X11 protocol.">
+<meta name="keywords" content="glossary-xlib, xlib, x11 library, c library">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / Xlib</p></nav>
+
+<p>Xlib is the traditional C library applications use to talk to an <a href="glossary/x/x-server.html">X server</a>.</p>
+<section data-level="novice"><p>Instead of writing network messages by hand, a programmer calls Xlib functions to open a display, create a window and receive events. It is one way for an <a href="glossary/x/x-client.html">X client</a> to use <a href="glossary/x/x11.html">X11</a>.</p></section>
+<section data-level="learner"><p>Xlib is synchronous in many operations, so a call may wait for a reply from the server. Newer programs often choose <a href="glossary/x/xcb.html">XCB</a>, which is asynchronous and exposes protocol extensions directly. Toolkits normally hide both behind a widget API.</p></section>
+<section data-level="expert"><p>Xlib converts C calls into protocol requests and decodes events and replies. It predates XCB and remains widely linked, so older applications and bindings still depend on it. Its API mixes core protocol calls with extension helpers and does not provide a modern presentation contract.</p></section>
+<p>See <a href="desktop/windowing/x11.html">How X11 draws windows</a>.</p>
+</body></html>

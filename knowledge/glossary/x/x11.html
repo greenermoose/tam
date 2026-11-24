@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>X11</title>
+<meta name="topic" content="glossary-x11">
+<meta name="summary" content="X11: The older display protocol that lets applications draw through an X server.">
+<meta name="keywords" content="glossary-x11, x11, x window system, xorg, display server">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / X11</p></nav>
+
+<p>X11 is the older display protocol that lets applications draw windows through a separate X server.</p>
+<section data-level="novice"><p>An application called an <a href="glossary/x/x-client.html">X client</a> asks the <a href="glossary/x/x-server.html">X server</a> to draw lines, text and pictures. A window manager places the finished windows on the screen. X11 was the usual display system on Linux desktops for many years and still supports older applications.</p></section>
+<section data-level="learner"><p>X11 separates drawing from placement. Clients use <a href="glossary/x/xlib.html">Xlib</a> or <a href="glossary/x/xcb.html">XCB</a> to send requests. The server sends input events back. Conventions such as <a href="glossary/i/icccm.html">ICCCM</a> and <a href="glossary/e/ewmh.html">EWMH</a> let clients and window managers agree on titles, focus and workspaces. On a Wayland desktop, <a href="glossary/x/xwayland.html">XWayland</a> supplies an X11 display for legacy clients.</p></section>
+<section data-level="expert"><p>X11 is a network-transparent request and event protocol. Core resources include windows, pixmaps, graphics contexts and fonts; extensions add rendering, shape, RandR and compositing. There is no atomic presentation contract equivalent to a Wayland surface commit, and a client with display access can often observe global input or pixels. Those boundaries explain much of the move to <a href="glossary/w/wayland.html">Wayland</a>.</p></section>
+<p>See <a href="desktop/windowing/x11.html">How X11 draws windows</a> and <a href="desktop/windowing/comparison.html">Why Linux moved from X11 to Wayland</a>.</p>
+</body></html>

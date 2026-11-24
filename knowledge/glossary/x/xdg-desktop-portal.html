@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>XDG desktop portal</title>
+<meta name="topic" content="glossary-xdg-desktop-portal">
+<meta name="summary" content="XDG desktop portal: A desktop-neutral service for file choosers, screen capture and other permissions.">
+<meta name="keywords" content="glossary-xdg-desktop-portal, portal, xdg portal, screenshot, file chooser, permissions">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / XDG desktop portal</p></nav>
+
+<p>An XDG desktop portal is a service that lets applications ask the desktop for a file chooser, screenshot or other shared facility.</p>
+<section data-level="novice"><p>Instead of every application reading the whole screen, it asks the desktop through the portal. The desktop can show a chooser or ask your permission. This is why a screenshot tool may prompt you on a Wayland session.</p></section>
+<section data-level="learner"><p>Portals give applications a desktop-neutral way to request sensitive operations. Common interfaces include file chooser, screenshot, remote desktop, notification and secrets. The compositor or desktop supplies the implementation; user consent can be part of the request.</p></section>
+<section data-level="expert"><p>Portal clients speak over D-Bus to a frontend that selects a desktop-specific backend. Interfaces are versioned and negotiated, and results may be returned as file descriptors or URIs. Portals arose partly because <a href="glossary/w/wayland.html">Wayland</a> deliberately does not give every client global screen or file access.</p></section>
+<p>See <a href="desktop/windowing/wayland.html">How Wayland draws windows</a> and <a href="desktop/windowing/comparison.html">Why Linux moved from X11 to Wayland</a>.</p>
+</body></html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>X client</title>
+<meta name="topic" content="glossary-x-client">
+<meta name="summary" content="X client: An application that sends drawing requests to an X server and receives input events.">
+<meta name="keywords" content="glossary-x-client, x client, x11 application, x protocol">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / X client</p></nav>
+
+<p>An X client is any application that connects to an <a href="glossary/x/x-server.html">X server</a> using the <a href="glossary/x/x11.html">X11</a> protocol.</p>
+<section data-level="novice"><p>The application asks the server to draw its window and reports when it wants keyboard or mouse input. The window manager is also an X client, but it has the special job of placing windows.</p></section>
+<section data-level="learner"><p>Most programs do not speak the protocol directly. They use <a href="glossary/x/xlib.html">Xlib</a>, <a href="glossary/x/xcb.html">XCB</a> or a toolkit backend that hides the difference between X11 and Wayland. On a Wayland session, an X client normally talks to <a href="glossary/x/xwayland.html">XWayland</a>.</p></section>
+<section data-level="expert"><p>Clients create resources such as windows, pixmaps and graphics contexts in the server, then exchange requests and events over a byte stream. Convention-based properties, not the core protocol alone, let a client cooperate with a window manager: see <a href="glossary/i/icccm.html">ICCCM</a> and <a href="glossary/e/ewmh.html">EWMH</a>.</p></section>
+<p>See <a href="desktop/windowing/x11.html">How X11 draws windows</a>.</p>
+</body></html>

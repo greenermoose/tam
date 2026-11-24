@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>SurfaceFlinger</title>
+<meta name="topic" content="glossary-surfaceflinger">
+<meta name="summary" content="SurfaceFlinger: The Android system service that combines application surfaces for display.">
+<meta name="keywords" content="glossary-surfaceflinger, surfaceflinger, android, compositor, bufferqueue">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SurfaceFlinger</p></nav>
+
+<p>SurfaceFlinger is the Android service that combines application surfaces into what appears on the screen.</p>
+<section data-level="novice"><p>Each app draws its interface; SurfaceFlinger arranges those pictures, the system bars and overlays into the final display. It performs the same broad job as a compositor on a Linux desktop.</p></section>
+<section data-level="learner"><p>Applications supply buffers through BufferQueue. SurfaceFlinger uses the Hardware Composer where available and works with Android's window and input services. Compositing happens even when a phone shows one main app at a time, because system overlays still need a final picture.</p></section>
+<section data-level="expert"><p>SurfaceFlinger is a native system service reached through Binder interfaces. It handles layer stacking, transforms, scaling and buffer acquisition, and coordinates with the Hardware Composer HAL for efficient presentation. Android's View hierarchy and Jetpack Compose both ultimately produce surfaces for it.</p></section>
+<p>See <a href="desktop/windowing/other-systems.html">Windowing on other operating systems</a>.</p>
+</body></html>

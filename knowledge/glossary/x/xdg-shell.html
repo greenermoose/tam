@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>xdg-shell</title>
+<meta name="topic" content="glossary-xdg-shell">
+<meta name="summary" content="xdg-shell: The Wayland extension that gives surfaces window roles such as toplevel and popup.">
+<meta name="keywords" content="glossary-xdg-shell, xdg-shell, wayland extension, toplevel, popup">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / xdg-shell</p></nav>
+
+<p>xdg-shell is the <a href="glossary/w/wayland.html">Wayland</a> extension that turns a surface into an ordinary window.</p>
+<section data-level="novice"><p>A bare <a href="glossary/w/wl-surface.html">surface</a> has no window behaviour. xdg-shell says whether it is a main window, a menu or a popup, so the compositor knows how to place and treat it.</p></section>
+<section data-level="learner"><p>An application creates an xdg toplevel for its main window. It may create popups for menus and tooltips. The compositor sends configure events with proposed size and state; the application acknowledges them when its next buffer is ready.</p></section>
+<section data-level="expert"><p>xdg-shell defines roles, state, seat and keyboard interactivity, window geometry versus surface geometry, and configure/acknowledge sequencing. It is an optional protocol global that clients bind from the registry. Compositors and toolkits must negotiate its version.</p></section>
+<p>See <a href="desktop/windowing/wayland.html">How Wayland draws windows</a>.</p>
+</body></html>

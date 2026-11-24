@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>X server</title>
+<meta name="topic" content="glossary-x-server">
+<meta name="summary" content="X server: The program that owns the screen and input devices in an X11 session.">
+<meta name="keywords" content="glossary-x-server, x server, xorg, display server, x11">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / X server</p></nav>
+
+<p>An X server is the program that owns the screen, keyboard and mouse in an <a href="glossary/x/x11.html">X11</a> session.</p>
+<section data-level="novice"><p>Applications send the server requests such as "draw this box" or "tell me when a key is pressed". The server carries out those requests and sends input events back. A separate window manager decides where windows go.</p></section>
+<section data-level="learner"><p>The <code>DISPLAY</code> environment variable tells clients which X server to contact. That server may be local, remote, or an <a href="glossary/x/xwayland.html">XWayland</a> instance running as a Wayland client. Seeing <code>DISPLAY</code> therefore does not prove the desktop session is X11.</p></section>
+<section data-level="expert"><p>X.Org is the common free implementation. The server serialises drawing requests from many clients, manages resources and delivers events. Its broad default access to input and windows is the isolation weakness that <a href="glossary/w/wayland.html">Wayland</a> removes by making the compositor the single display and input owner.</p></section>
+<p>See <a href="desktop/windowing/x11.html">How X11 draws windows</a>.</p>
+</body></html>

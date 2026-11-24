@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GNOME, KDE Plasma and other desktops</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="desktop-environments-windowing">
+<meta name="summary" content="See how GNOME, KDE Plasma and other Linux desktops combine a compositor, shell, settings and applications.">
+<meta name="keywords" content="GNOME, KDE Plasma, Mutter, KWin, Xfce, LXQt, Cinnamon, Cosmic, desktop environment, shell">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="prereqs" content="other-windowing-systems">
+<meta name="paths" content="windowing-systems:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / GNOME, KDE Plasma and other desktops</p></nav>
+
+<p>A desktop environment is the complete graphical workspace around your applications. It combines a <a href="glossary/c/compositor.html">compositor</a>, a shell, settings, and core applications.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p><a href="glossary/g/gnome.html">GNOME</a> and <a href="glossary/k/kde.html">KDE</a> Plasma are two well-known Linux desktops. Each supplies a way to launch programs, switch windows, change settings and use familiar applications.</p>
+<h3>Why it matters</h3>
+<p>Knowing that a desktop is a bundle explains why one part can fail while another keeps working. A broken panel is not necessarily a broken compositor.</p>
+<h3>How to think about it</h3>
+<p>Think of an office. The compositor provides the desks and lighting, the shell provides the reception area and notice boards, the settings are the building rules, and the applications are the people doing work.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/d/desktop-environment.html">Desktop environment</a></dt><dd>A bundled graphical workspace with shell, settings and applications.</dd>
+<dt><a href="glossary/m/mutter.html">Mutter</a></dt><dd>The compositor used by GNOME.</dd>
+<dt><a href="glossary/k/kwin.html">KWin</a></dt><dd>The compositor and window manager used by KDE Plasma.</dd>
+<dt><a href="glossary/w/window-manager.html">Window manager</a></dt><dd>The part that places and decorates windows.</dd>
+</dl>
+<p><a href="desktop/windowing/toolkits.html">Next: How graphical toolkits build interfaces</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Name the parts you can see</h2>
+<p><strong>Goal:</strong> you will be able to separate a desktop's compositor, shell and toolkit when reading a fault report.</p>
+<p><strong>Learner path:</strong> back: <a href="desktop/windowing/other-systems.html?level=2">Windowing on other operating systems</a>; next: <a href="desktop/windowing/toolkits.html?level=2">How graphical toolkits build interfaces</a>.</p>
+<h3>Worked example</h3>
+<p>Map two desktops:</p>
+<ol>
+<li>GNOME: <a href="glossary/m/mutter.html">Mutter</a> presents surfaces; GNOME Shell draws the top bar and overview; <a href="glossary/g/gtk.html">GTK</a> and <a href="glossary/l/libadwaita.html">libadwaita</a> build many of its applications.</li>
+<li>KDE Plasma: <a href="glossary/k/kwin.html">KWin</a> manages and composes windows; Plasma Shell supplies panels and widgets; <a href="glossary/q/qt.html">Qt</a> and <a href="glossary/q/qml.html">QML</a> build much of the interface.</li>
+</ol>
+<p>Same visible jobs, different components behind them.</p>
+<h3>Try it</h3>
+<p>Look at one panel, one application window and one notification on your desktop. Write which layer probably owns each: compositor, shell or application toolkit. Do not change settings.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Panel disappears but windows still work</dt><dd>Suspect the shell or its plugin before the compositor.</dd>
+<dt>Windows appear without borders or focus</dt><dd>Suspect the compositor or window manager, not the application's toolkit.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the shell is separate from the compositor and is built with <a href="glossary/q/quickshell.html">Quickshell</a> and Qt Quick. This is closer to the modular end of the spectrum than GNOME or KDE Plasma.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>Is GNOME the same thing as GTK?</summary><p>No. GTK is a widget toolkit that GNOME applications often use, and other projects use it too. GNOME is the whole desktop: compositor, shell, settings, services and applications.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<h3>Desktop families</h3>
+<table>
+<tr><th>Desktop</th><th>Compositor or window manager</th><th>Shell and toolkit</th></tr>
+<tr><td>GNOME</td><td>Mutter on Wayland; X11 sessions historically used Metacity or Mutter.</td><td>GNOME Shell, GTK, libadwaita, <a href="glossary/b/bus.html">D-Bus</a> services and portals.</td></tr>
+<tr><td>KDE Plasma</td><td>KWin.</td><td>Plasma Shell, Qt/Qt Quick and QML.</td></tr>
+<tr><td>Xfce</td><td>Xfwm historically; newer compositions vary.</td><td>Lightweight GTK panels and applications.</td></tr>
+<tr><td>LXQt</td><td>Openbox historically.</td><td>Qt-based panels and settings.</td></tr>
+<tr><td>Cinnamon</td><td>Mutter-derived compositor.</td><td>GTK shell with a traditional desktop layout.</td></tr>
+<tr><td>COSMIC</td><td>Compositor written in Rust.</td><td>Flutter-based shell and applications.</td></tr>
+<tr><td>Tiling compositors</td><td>Hyprland, Sway, i3 and others.</td><td>Often paired with a separately chosen bar, launcher and widgets.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A full desktop adds session management, a shell process, settings services, a notification daemon and core applications above the display protocol. Toolkits render the shell's own widgets. A modular setup lets the reader choose those pieces separately; an integrated desktop tests them together and ships consistent defaults.</p>
+<h3>Advanced usage examples</h3>
+<p>A shell panel often uses a layer-shell protocol to reserve space at an output edge. A settings daemon writes configuration and notifies applications over D-Bus. A portal service mediates file choosers and screen capture so applications need not know which desktop is present.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A window manager and a compositor are not synonyms; a compositing window manager does both jobs.</li>
+<li>Desktop sessions can offer both X11 and Wayland modes with different component sets.</li>
+<li>Shell extensions can run inside the compositor process in some designs, making an extension fault look like a display fault.</li>
+<li>Sway and wlroots are not part of Tamlinux's compositor plan; Hyprland is current and <code>tam-pane</code> is planned.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>A notification never appears, but input and windows work. Where would you look first?</summary><p>Model answer: the shell or notification service, not the compositor. The compositor is still presenting surfaces and routing input. Check the shell process and its settings or plugin state before considering display-server evidence.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="gnome-docs"><a href="bibliography/gnome-docs.html">GNOME developer documentation</a></cite>, <cite data-ref="kde-docs"><a href="bibliography/kde-docs.html">KDE developer documentation</a></cite> and <cite data-ref="freedesktop-standards"><a href="bibliography/freedesktop-standards.html">freedesktop.org standards</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windowing/toolkits.html">How graphical toolkits build interfaces</a> &mdash; go inside the widgets.</li>
+<li><a href="desktop/windowing/session-checks.html">Check your graphical session</a> &mdash; see a read-only session map.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="desktop/session/compositors.html">How windows appear on your screen</a> &mdash; Tamlinux's current compositor.</li>
+<li><a href="programming/interfaces/toolkits.html">The bar and menus around your windows</a> &mdash; the Tamlinux shell toolkit page.</li>
+</ul>
+</body></html>

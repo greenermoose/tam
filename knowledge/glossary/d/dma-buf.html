@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>DMA-BUF</title>
+<meta name="topic" content="glossary-dma-buf">
+<meta name="summary" content="DMA-BUF: A Linux buffer-sharing mechanism used to pass GPU memory between subsystems.">
+<meta name="keywords" content="glossary-dma-buf, dma-buf, dmabuf, buffer sharing, gpu, wayland">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DMA-BUF</p></nav>
+
+<p>DMA-BUF is a Linux mechanism for sharing a buffer of memory between drivers and processes.</p>
+<section data-level="novice"><p>When an application draws with the GPU, the finished picture already sits in GPU memory. DMA-BUF lets it hand that picture to the compositor without copying it through ordinary CPU memory first.</p></section>
+<section data-level="learner"><p>On <a href="glossary/w/wayland.html">Wayland</a>, the <code>linux-dmabuf</code> protocol passes a DMA-BUF file descriptor and layout information to the compositor. The compositor can then use <a href="glossary/d/drm.html">DRM/KMS</a> to present it. CPU-drawn alternatives use <a href="glossary/s/shared-memory.html">shared memory</a>.</p></section>
+<section data-level="expert"><p>A DMA-BUF file descriptor carries a shared buffer exported by a DMA-BUF exporter such as a GPU driver. Importers map or bind it with their own offsets, strides and modifiers. Linux explicit synchronization uses fences so producers and consumers do not read or write the same buffer at the wrong time.</p></section>
+<p>See <a href="desktop/windowing/wayland.html">How Wayland draws windows</a>.</p>
+</body></html>

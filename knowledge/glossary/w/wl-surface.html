@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>wl_surface</title>
+<meta name="topic" content="glossary-wl-surface">
+<meta name="summary" content="wl_surface: The Wayland protocol object that represents a drawable surface committed by a client.">
+<meta name="keywords" content="glossary-wl-surface, wl_surface, wayland surface, buffer, commit">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/w/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / wl_surface</p></nav>
+
+<p>A wl_surface is the <a href="glossary/w/wayland.html">Wayland</a> object that represents an application's drawable area.</p>
+<section data-level="novice"><p>An application paints a picture into memory and attaches it to its surface. When it commits the surface, the <a href="glossary/c/compositor.html">compositor</a> knows the picture is ready to place on screen.</p></section>
+<section data-level="learner"><p>A surface by itself is just a rectangle for pixels. A role such as <a href="glossary/x/xdg-shell.html">xdg-shell</a> makes it an ordinary window or popup. Buffers may come from <a href="glossary/s/shared-memory.html">shared memory</a> or GPU memory through <a href="glossary/d/dma-buf.html">DMA-BUF</a>.</p></section>
+<section data-level="expert"><p>Surface state is double-buffered: attached buffers, damage, transforms, scale and opaque region are pending until a commit. The compositor applies that state atomically at frame presentation and sends release events when a buffer is no longer in use. Protocol extensions add subsurfaces, viewports and frame callbacks.</p></section>
+<p>See <a href="desktop/windowing/wayland.html">How Wayland draws windows</a>.</p>
+</body></html>

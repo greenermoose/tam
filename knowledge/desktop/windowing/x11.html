@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How X11 draws windows</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="x11">
+<meta name="summary" content="Understand the X server, X clients, window manager and extensions that made X11 the Linux desktop standard.">
+<meta name="keywords" content="X11, X server, X client, Xlib, XCB, window manager, ICCCM, EWMH, XWayland">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="prereqs" content="windowing-history">
+<meta name="paths" content="windowing-systems:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / How X11 draws windows</p></nav>
+
+<p><a href="glossary/x/x11.html">X11</a> is the older display system that Linux desktops used for decades. It still runs legacy applications through <a href="glossary/x/xwayland.html">XWayland</a>.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>In X11, one program called the <dfn><a href="glossary/x/x-server.html">X server</a></dfn> owns the screen, keyboard and mouse. Applications are <dfn><a href="glossary/x/x-client.html">X clients</a></dfn>: they ask the server to draw and tell it when they need input.</p>
+<h3>Why it matters</h3>
+<p>Many older Linux applications and tools still speak X11. When one misbehaves, knowing which part is the server, which part is the application and which part is the window manager tells you where to look.</p>
+<h3>How to think about it</h3>
+<p>Imagine a clerk at a drawing board. Applications send the clerk instructions such as "draw this box" or "tell me when a key is pressed". A separate interior decorator moves the finished boxes around and adds title bars.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/x/x-server.html">X server</a></dt><dd>The program that owns the screen and input devices.</dd>
+<dt><a href="glossary/x/x-client.html">X client</a></dt><dd>An application that sends drawing requests and receives input.</dd>
+<dt><a href="glossary/w/window-manager.html">Window manager</a></dt><dd>A special client that places windows and draws their frames.</dd>
+<dt><a href="glossary/x/xlib.html">Xlib</a> and <a href="glossary/x/xcb.html">XCB</a></dt><dd>Libraries that applications use to speak the X protocol.</dd>
+</dl>
+<p><a href="desktop/windowing/wayland.html">Next: How Wayland draws windows</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Follow a key press</h2>
+<p><strong>Goal:</strong> you will be able to describe what the server, an application and the window manager each do in an X11 session.</p>
+<p><strong>Learner path:</strong> back: <a href="desktop/windowing/history.html?level=2">A short history of windowing systems</a>; next: <a href="desktop/windowing/wayland.html?level=2">How Wayland draws windows</a>.</p>
+<h3>Worked example</h3>
+<p>Trace one press of a key in an X11 session:</p>
+<ol>
+<li>The <a href="glossary/x/x-server.html">X server</a> reads the key from the input device.</li>
+<li>It sends a key event to the client that currently has <a href="glossary/f/focus.html">focus</a>.</li>
+<li>The application decides what the key means and may send drawing requests back through <a href="glossary/x/xlib.html">Xlib</a> or <a href="glossary/x/xcb.html">XCB</a>.</li>
+<li>The window manager, itself just another client, may move or decorate the window in response to other events.</li>
+</ol>
+<p>The server coordinates; applications and the window manager make requests.</p>
+<h3>Try it</h3>
+<p>In a text terminal, run <code>printf '%s\n' "$DISPLAY"</code>. A value such as <code>:0</code> means X11 clients can find a display. Then run <code>printf '%s\n' "$XDG_SESSION_TYPE"</code>: on a modern Wayland session this can say <code>wayland</code> even though <code>DISPLAY</code> is set for compatibility.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>DISPLAY</code> is empty</dt><dd>No X11 display was named in that shell. A fresh login, a text console or a remote shell may need different setup; do not assume the graphical session is broken.</dd>
+<dt>A window has no title bar</dt><dd>The window manager may be missing, or the application may draw its own decoration. Check the compositor or window manager process before blaming the application.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> the graphical session is Wayland today. X11 programs run through <a href="glossary/x/xwayland.html">XWayland</a>, so seeing <code>DISPLAY</code> does not mean the whole desktop is an X11 session.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>Is the window manager the same thing as the X server?</summary><p>No. The X server owns the screen and input. The window manager is an application that asks the server to place windows and draw frames. On Wayland those jobs are combined inside the compositor instead.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<h3>Parts of the X11 stack</h3>
+<table>
+<tr><th>Part</th><th>Role</th></tr>
+<tr><td><a href="glossary/x/x-server.html">X server</a></td><td>Owns outputs, input devices, fonts and drawing resources; sends events to clients.</td></tr>
+<tr><td><a href="glossary/x/x-client.html">X client</a></td><td>Any program that opens a display connection and requests drawing or input.</td></tr>
+<tr><td><a href="glossary/x/xlib.html">Xlib</a> / <a href="glossary/x/xcb.html">XCB</a></td><td>Client libraries that encode and decode the X11 wire protocol. XCB is asynchronous and exposes extensions directly.</td></tr>
+<tr><td><a href="glossary/w/window-manager.html">Window manager</a></td><td>A client that manages top-level windows, focus and decorations.</td></tr>
+<tr><td><a href="glossary/i/icccm.html">ICCCM</a> / <a href="glossary/e/ewmh.html">EWMH</a></td><td>Conventions that let clients, window managers and desktops agree on properties such as title, state and workspaces.</td></tr>
+<tr><td><a href="glossary/x/xwayland.html">XWayland</a></td><td>An X server that runs as a Wayland client to support older X11 applications.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>X11 is a request/event protocol over a byte stream, traditionally a Unix domain socket or a network connection named by <code>DISPLAY</code>. Clients create windows and resources such as pixmaps and graphics contexts, then send requests that the server serialises. Events travel the other way. Extensions add rendering, shape, RandR mode setting and compositing without changing the core protocol.</p>
+<h3>Advanced usage examples</h3>
+<p>A remote X11 run can use <code>ssh -X</code> to forward the display through an encrypted tunnel. Bare network transparency is convenient but unsafe by default: a client with display access can usually observe input and windows belonging to other clients. Modern deployments therefore treat X11 forwarding as a compatibility tool, not a general desktop security boundary.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Any client can ask for global key events or read another window's pixels, which is why screen locks and password fields need special handling.</li>
+<li>There is no atomic presentation contract equivalent to Wayland's surface commit, so tearing and inconsistent multi-monitor updates are harder to eliminate.</li>
+<li>Client-side decoration and compositing extensions blurred the old split between server, window manager and application.</li>
+<li>HiDPI scaling was added through properties and toolkit policy rather than a single core protocol rule.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>A legacy program opens a window on a Wayland desktop. What is most likely supplying its X11 display?</summary><p>Model answer: XWayland. It runs an X server as a Wayland client, translating X11 requests into surfaces for the Wayland compositor. The program can still behave like an X11 client even though the session type is Wayland; global input and screen-capture rules depend on the compositor and portal policy.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="x11-protocol"><a href="bibliography/x11-protocol.html">the X Window System protocol documentation</a></cite>, <cite data-ref="freedesktop-standards"><a href="bibliography/freedesktop-standards.html">freedesktop.org standards</a></cite> and <cite data-ref="drm-kms"><a href="bibliography/drm-kms.html">Linux DRM/KMS documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windowing/wayland.html">How Wayland draws windows</a> &mdash; contrast the compositor-centred design.</li>
+<li><a href="desktop/windowing/comparison.html">Why Linux moved from X11 to Wayland</a> &mdash; weigh the technical trade-offs.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="desktop/session/compositors.html">How windows appear on your screen</a> &mdash; the Tamlinux compositor page.</li>
+<li><a href="desktop/windowing/session-checks.html">Check your graphical session</a> &mdash; read-only evidence for the display in use.</li>
+</ul>
+</body></html>

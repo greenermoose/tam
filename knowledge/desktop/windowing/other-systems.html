@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Windowing on other operating systems</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="other-windowing-systems">
+<meta name="summary" content="Compare the windowing models behind Windows, macOS, iOS, Android and older research systems with X11 and Wayland.">
+<meta name="keywords" content="Windows, Win32, DWM, macOS, Quartz, AppKit, iOS, UIKit, Android, SurfaceFlinger, windowing systems">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="prereqs" content="x11-wayland-comparison">
+<meta name="paths" content="windowing-systems:5">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / Windowing on other operating systems</p></nav>
+
+<p>Other operating systems also draw windows and route input. They often bundle the jobs that Linux splits between a display protocol, a compositor and a toolkit.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p><a href="glossary/m/microsoft-windows.html">Microsoft Windows</a>, macOS, iOS and Android all show applications as rectangles or full-screen areas. Each has a part that decides what is on screen, and libraries that applications use to build buttons and menus.</p>
+<h3>Why it matters</h3>
+<p>When you move between systems, the words change but the jobs stay familiar. That makes it easier to understand a Linux desktop and to judge cross-platform applications.</p>
+<h3>How to think about it</h3>
+<p>Imagine different theatre companies. They all put actors on a stage, but one has a single stage manager, another has a committee, and another builds the set inside each actor's costume. The play still needs somewhere to appear.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/w/win32.html">Win32</a></dt><dd>The long-standing Windows application interface for windows, messages and drawing.</dd>
+<dt><a href="glossary/d/dwm.html">Desktop Window Manager</a></dt><dd>The Windows component that composes application windows for display.</dd>
+<dt><a href="glossary/q/quartz.html">Quartz</a></dt><dd>The macOS graphics and windowing family built on Core Graphics.</dd>
+<dt><a href="glossary/s/surfaceflinger.html">SurfaceFlinger</a></dt><dd>The Android service that combines application surfaces.</dd>
+</dl>
+<p><a href="desktop/windowing/desktops.html">Next: GNOME, KDE Plasma and other desktops</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Map one action across systems</h2>
+<p><strong>Goal:</strong> you will be able to match "show a window, draw a button, deliver a click" to the named components on several operating systems.</p>
+<p><strong>Learner path:</strong> back: <a href="desktop/windowing/comparison.html?level=2">Why Linux moved from X11 to Wayland</a>; next: <a href="desktop/windowing/desktops.html?level=2">GNOME, KDE Plasma and other desktops</a>.</p>
+<h3>Worked example</h3>
+<p>Follow one button click on four systems:</p>
+<ol>
+<li><a href="glossary/m/microsoft-windows.html">Windows</a>: USER sends a message to the window, the application's Win32 handler responds, and the <a href="glossary/d/dwm.html">Desktop Window Manager</a> composes the result.</li>
+<li>macOS: <a href="glossary/a/appkit.html">AppKit</a> turns the click into an action on an <code>NSView</code>, and Quartz/Core Animation presents the window.</li>
+<li>iOS: <a href="glossary/u/uikit.html">UIKit</a> delivers a touch through the view hierarchy; Core Animation composites the layers.</li>
+<li>Android: the input dispatcher sends the event into the View hierarchy or Compose, while <a href="glossary/s/surfaceflinger.html">SurfaceFlinger</a> combines surfaces.</li>
+</ol>
+<p>Linux with Wayland follows a similar shape: a toolkit handles the widget, the compositor owns display and input, and the kernel driver presents pixels.</p>
+<h3>Try it</h3>
+<p>Draw a three-column table labelled "application controls", "system compositor", "toolkit". Fill a row for each system above. Do not install anything; this is a mapping exercise.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>You treat a toolkit as the operating system</dt><dd>Qt and GTK can run on several systems, so they are not the windowing system itself. Ask who owns the display and input before naming the toolkit.</dd>
+<dt>Phone systems seem unrelated</dt><dd>They still need composition and input routing. They usually show one main surface at a time, with task switching controlled by the system.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> cross-platform toolkits can make an application feel familiar across Windows, macOS and Linux, but native integration still comes from each desktop's shell, portals and settings.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>What job does SurfaceFlinger share with a Wayland compositor?</summary><p>Both combine finished surfaces from applications into what the screen shows. They differ in protocol, API and policy: Android applications use the Android view or Compose stack and Binder interfaces, while Wayland clients use protocol objects such as wl_surface.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<h3>Windowing stacks across systems</h3>
+<table>
+<tr><th>System</th><th>Composition and display</th><th>Application model</th></tr>
+<tr><td>Microsoft Windows</td><td><a href="glossary/d/dwm.html">DWM</a> with DirectComposition and Desktop Duplication.</td><td><a href="glossary/w/win32.html">Win32</a>/USER messages, GDI, then XAML and WinUI for modern apps.</td></tr>
+<tr><td>macOS</td><td><a href="glossary/q/quartz.html">Quartz</a>/Core Graphics with Core Animation and Metal-backed layers.</td><td><a href="glossary/a/appkit.html">AppKit</a>, <code>NSWindow</code> and the responder chain; SwiftUI builds on the same graphics stack.</td></tr>
+<tr><td>iOS</td><td>Core Animation composites layers into the display.</td><td><a href="glossary/u/uikit.html">UIKit</a> view controllers and touch events; SwiftUI offers a declarative layer.</td></tr>
+<tr><td>Android</td><td><a href="glossary/s/surfaceflinger.html">SurfaceFlinger</a> with BufferQueue and Hardware Composer.</td><td>View hierarchy or Jetpack Compose, with window and input services mediated by Binder.</td></tr>
+<tr><td>X11 on Linux</td><td>X server plus optional compositing window manager.</td><td>Xlib/XCB clients and toolkits such as GTK and Qt.</td></tr>
+<tr><td>Wayland on Linux</td><td>Compositor owns outputs, input and presentation.</td><td>Wayland protocol clients using xdg-shell and toolkit backends.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Windows and macOS expose more of their windowing as an operating-system framework: an application links a platform library and receives messages or events from it. Linux keeps the display protocol separate from the toolkit, so GTK and Qt can talk to X11 or Wayland through backends. Android sits between the two models: it has a system compositor service and a platform UI framework supplied together.</p>
+<h3>Advanced examples</h3>
+<p>Research and older systems show other splits. Plan 9's Rio offered a minimal window system built from ordinary files; Haiku's app_server centralised drawing; the Amiga used Intuition and screens. They are useful contrasts because they ask the same questions with different boundaries.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Modern Windows and macOS also use compositors, so "Linux invented compositing" is false; the difference is where the interface boundary sits.</li>
+<li>A cross-platform toolkit may look the same while using completely different native accessibility and input paths.</li>
+<li>Full-screen mobile applications still participate in a windowing system; task switching and system overlays need composition.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>Why is comparing "GTK versus Win32" less useful than comparing "who composes and who routes input"?</summary><p>Model answer: GTK is a widget toolkit and Win32 is a broad platform API; they are not the same layer. The transferable questions are: which process owns the final screen, how an application requests a window, how buffers reach the display, and how input finds the focused application. Those answers map cleanly across X11, Wayland, DWM, Quartz and SurfaceFlinger.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="windows-docs"><a href="bibliography/windows-docs.html">Windows app documentation</a></cite>, <cite data-ref="apple-docs"><a href="bibliography/apple-docs.html">Apple's macOS documentation</a></cite> and <cite data-ref="android-docs"><a href="bibliography/android-docs.html">Android developer documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windowing/desktops.html">GNOME, KDE Plasma and other desktops</a> &mdash; see policy built on top of a display system.</li>
+<li><a href="desktop/windowing/toolkits.html">How graphical toolkits build interfaces</a> &mdash; see the widget layer in detail.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="desktop/windowing/history.html">A short history of windowing systems</a> &mdash; where these families came from.</li>
+<li><a href="desktop/windowing/comparison.html">Why Linux moved from X11 to Wayland</a> &mdash; the Linux-specific comparison.</li>
+</ul>
+</body></html>

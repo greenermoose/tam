@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>From pixels to desktop applications</title>
+<meta name="kind" content="path">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="windowing-systems">
+<meta name="summary" content="Start with what a window is and finish able to explain X11, Wayland, desktops, toolkits and your own graphical session">
+<meta name="keywords" content="path, windowing systems, X11, Wayland, desktop environments, toolkits, graphical session">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / From pixels to desktop applications</p></nav>
+
+<p>This path takes a reader who has never thought about how a window reaches the screen to a clear explanation of X11, Wayland, desktop environments and toolkits.</p>
+<p>Each stage uses the lens shown on its links. Novice gives the idea, Learner adds worked practice, and Expert gives the reference detail. The checks are read-only; nothing here changes your desktop.</p>
+
+<h2>Stage 1: Meet the window and X11</h2>
+<ol>
+<li><a href="desktop/windowing/history.html?level=1">A short history of windowing systems</a> &mdash; see where overlapping windows came from.</li>
+<li><a href="desktop/windowing/x11.html?level=1">How X11 draws windows</a> &mdash; meet the X server, clients and window manager.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before you go on.</p>
+<details class="q">
+<summary>In X11, is the window manager the same program as the X server?</summary>
+<p>No. The X server owns the screen and input; the window manager is a client that places and decorates windows. Reread the novice section of How X11 draws windows if that distinction is new.</p>
+</details>
+</section>
+
+<h2>Stage 2: Follow Wayland and the change from X11</h2>
+<ol>
+<li><a href="desktop/windowing/wayland.html?level=2">How Wayland draws windows</a> &mdash; follow a finished buffer from application to compositor.</li>
+<li><a href="desktop/windowing/comparison.html?level=2">Why Linux moved from X11 to Wayland</a> &mdash; compare isolation, rendering, input and compatibility.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before you go on.</p>
+<details class="q">
+<summary>Why does a keylogger have less access in a Wayland session than in an X11 session?</summary>
+<p>The compositor routes input only to the focused client. X11 lets a client with display access request global key events. Reread the Learner section of Why Linux moved from X11 to Wayland.</p>
+</details>
+</section>
+
+<h2>Stage 3: Compare systems and desktops</h2>
+<ol>
+<li><a href="desktop/windowing/other-systems.html?level=2">Windowing on other operating systems</a> &mdash; map windows, composition and input on Windows, macOS, iOS and Android.</li>
+<li><a href="desktop/windowing/desktops.html?level=2">GNOME, KDE Plasma and other desktops</a> &mdash; separate compositor, shell and toolkit.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before you go on.</p>
+<details class="q">
+<summary>A desktop notification never appears, but input and windows work. Which layer would you check first?</summary>
+<p>The shell or notification service, not the compositor. The compositor is still presenting surfaces and routing input. Reread the Learner section of GNOME, KDE Plasma and other desktops.</p>
+</details>
+</section>
+
+<h2>Stage 4: Understand toolkits and check your session</h2>
+<ol>
+<li><a href="desktop/windowing/toolkits.html?level=2">How graphical toolkits build interfaces</a> &mdash; see what GTK, Qt and web technology put inside a window.</li>
+<li><a href="desktop/windowing/session-checks.html?level=2">Check your graphical session</a> &mdash; read the display values without changing anything.</li>
+</ol>
+<section class="quiz">
+<h3>Checkpoint</h3>
+<p>Answer before you go on.</p>
+<details class="q">
+<summary>You see both WAYLAND_DISPLAY and DISPLAY in a terminal. What is the safest conclusion?</summary>
+<p>Native Wayland clients have a socket, and X11 clients have an address that may be XWayland. Use XDG_SESSION_TYPE and a login-manager query to identify the session. Reread the Learner section of Check your graphical session.</p>
+</details>
+</section>
+
+<h2>Capstone</h2>
+<p>Explain a graphical problem in your own words without changing the desktop: name the session type, the application's toolkit, the layer that presents its window, and the layer that routes input. Use read-only checks and say which evidence supports each claim.</p>
+<details class="solution">
+<p>A sound answer includes: the session type from <code>XDG_SESSION_TYPE</code> and <code>loginctl show-session</code>; whether <code>DISPLAY</code> is an XWayland compatibility address; the toolkit that draws the visible controls; the compositor that commits surfaces and presents the screen; and the compositor or X server that routes input. It separates a shell or toolkit fault from a display-server fault and avoids claiming that a variable proves more than it does. Check the result by explaining the same problem on the other display protocol: the window, controls and input path should still be named correctly.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/session-and-desktop.html">Session and desktop</a> &mdash; continue with login, input and session configuration.</li>
+<li><a href="paths/display-and-gpu.html">Displays and GPUs</a> &mdash; follow pixels from the compositor to the monitor.</li>
+</ul>
+</body></html>

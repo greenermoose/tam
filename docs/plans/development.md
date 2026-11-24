@@ -1576,6 +1576,21 @@ glossary hub generator and the guide test now teach and preserve the pattern.
 This is corpus content only; command version, stage promotion and installation
 remain developer-directed.
 
+### 2026-11-24 — Windowing systems series (corpus 0.125.0)
+
+The developer asked for a series on X11 and windowing systems: the history of
+windowing operating systems, a comparison of X11 and Wayland and of windowing
+on other operating systems, why Linux moved away from X11 and Wayland's
+technical advantages, and how GNOME, KDE and other widget and UI systems work
+and what is available on Linux. When asked about shape, he chose the Desktop
+hub and the full series. The result is a Desktop / Windowing systems hub with
+eight three-level teaching pages, the four-stage `windowing-systems` goal path,
+25 glossary pages, nine bibliography entries and `windowing.novice`,
+`windowing.learner` and `windowing.expert` skills. Session-check examples were
+captured from a read-only command run on the live graphical session. This is
+corpus content only; command version, stage promotion and installation remain
+developer-directed.
+
 ### 2026-11-24 — Own compositor plan (corpus 0.122.3)
 
 The developer said Tamlinux is writing its own compositor and does not plan

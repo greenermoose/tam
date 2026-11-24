@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>XCB</title>
+<meta name="topic" content="glossary-xcb">
+<meta name="summary" content="XCB: An asynchronous C library for speaking the X11 protocol.">
+<meta name="keywords" content="glossary-xcb, xcb, x C binding, x11 library">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / XCB</p></nav>
+
+<p>XCB is a C library that sends <a href="glossary/x/x11.html">X11</a> protocol requests without waiting for each reply.</p>
+<section data-level="novice"><p>Like <a href="glossary/x/xlib.html">Xlib</a>, XCB lets an application create windows and receive input through an <a href="glossary/x/x-server.html">X server</a>. It is a lower-level building block, so most users meet it indirectly through a toolkit.</p></section>
+<section data-level="learner"><p>XCB's asynchronous design lets a program queue requests and check replies later. Extensions are generated from protocol descriptions, so newer X11 features are available without changing a central library API.</p></section>
+<section data-level="expert"><p>XCB speaks the wire protocol directly and exposes core requests and extensions through generated headers. Applications choose when to flush the connection and when to wait for a reply or event. Toolkits such as Qt have used it for X11 backends; on Wayland those backends use protocol objects instead.</p></section>
+<p>See <a href="desktop/windowing/x11.html">How X11 draws windows</a>.</p>
+</body></html>

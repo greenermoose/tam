@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How Wayland draws windows</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="wayland-display-protocol">
+<meta name="summary" content="See how a Wayland compositor owns the screen while applications commit surfaces and receive input through protocol objects.">
+<meta name="keywords" content="Wayland, compositor, wl_surface, xdg-shell, shared memory, DMA-BUF, xdg-desktop-portal, XWayland">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="prereqs" content="x11">
+<meta name="paths" content="windowing-systems:3">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / How Wayland draws windows</p></nav>
+
+<p><a href="glossary/w/wayland.html">Wayland</a> is the protocol that most modern Linux desktops use. In it, the <a href="glossary/c/compositor.html">compositor</a> is both the display server and the program that places windows.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>An application draws its own window into a private area of memory and hands the finished picture to the compositor. The compositor decides where that picture appears, what lies on top, and which keyboard or mouse events go to which application.</p>
+<h3>Why it matters</h3>
+<p>This arrangement keeps applications separate. One program cannot normally watch every key you press or read the whole screen without the compositor explicitly allowing it.</p>
+<h3>How to think about it</h3>
+<p>Think of a gallery with one curator. Each artist paints a canvas, but only the curator hangs the canvases, chooses the lighting and hands visitors' questions to the right artist.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/c/compositor.html">Compositor</a></dt><dd>The process that presents surfaces and routes input.</dd>
+<dt><a href="glossary/w/wl-surface.html">wl_surface</a></dt><dd>The protocol object that represents a drawable surface.</dd>
+<dt><a href="glossary/x/xdg-shell.html">xdg-shell</a></dt><dd>The extension that turns a surface into an ordinary window with roles such as a toplevel.</dd>
+<dt><a href="glossary/x/xdg-desktop-portal.html">XDG desktop portal</a></dt><dd>A negotiated service for jobs such as choosing a file or capturing the screen.</dd>
+</dl>
+<p><a href="desktop/windowing/comparison.html">Next: Why Linux moved from X11 to Wayland</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Follow a finished frame</h2>
+<p><strong>Goal:</strong> you will be able to explain how an application's picture reaches the screen and how input returns in a Wayland session.</p>
+<p><strong>Learner path:</strong> back: <a href="desktop/windowing/x11.html?level=2">How X11 draws windows</a>; next: <a href="desktop/windowing/comparison.html?level=2">Why Linux moved from X11 to Wayland</a>.</p>
+<h3>Worked example</h3>
+<p>Trace one refreshed window:</p>
+<ol>
+<li>The application allocates a buffer, either in <a href="glossary/s/shared-memory.html">shared memory</a> or through <a href="glossary/d/dma-buf.html">DMA-BUF</a> for <a href="glossary/g/gpu.html">GPU</a> memory.</li>
+<li>It paints into that buffer and attaches it to a <a href="glossary/w/wl-surface.html">wl_surface</a>, using <a href="glossary/x/xdg-shell.html">xdg-shell</a> to say that the surface is a toplevel window.</li>
+<li>A commit tells the compositor that the surface state is ready.</li>
+<li>The compositor combines it with other surfaces and presents the result on an output, then sends input events back through the focused seat.</li>
+</ol>
+<p>The application never sends "draw this rectangle" commands to a display server; it hands over a finished picture.</p>
+<h3>Try it</h3>
+<p>In a graphical terminal, run <code>printf '%s\n' "$WAYLAND_DISPLAY" "$XDG_SESSION_TYPE"</code>. A value such as <code>wayland-1</code> plus <code>wayland</code> means native Wayland clients can connect. A blank first line with <code>x11</code> means you are in an X11 session; see the session-checks page for a fuller read-only check.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>Screen capture fails in an application</dt><dd>Wayland does not give every client global screen access. Use the compositor's screenshot key or a portal-based tool.</dd>
+<dt>A window has no border drawn by the compositor</dt><dd>Many Wayland toolkits draw their own title bars. That is toolkit policy, not a missing window manager.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> <a href="glossary/h/hyprland.html">Hyprland</a> is the current Wayland compositor. The planned <code>tam-pane</code> compositor is intended to replace it later; Sway and wlroots are not planned.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>Who draws the buttons inside a Wayland application's window: the compositor or the application?</summary><p>The application, using a <a href="glossary/t/toolkit.html">toolkit</a> such as <a href="glossary/g/gtk.html">GTK</a> or <a href="glossary/q/qt.html">Qt</a>. The compositor places the finished surface, combines it with others and routes input. It does not normally draw widget contents.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<h3>Protocol objects and extensions</h3>
+<table>
+<tr><th>Name</th><th>What it provides</th></tr>
+<tr><td><code>wl_display</code> and <code>wl_registry</code></td><td>The connection and the list of globals a compositor offers.</td></tr>
+<tr><td><a href="glossary/w/wl-surface.html">wl_surface</a></td><td>A rectilinear surface whose attached buffer and state change on commit.</td></tr>
+<tr><td><a href="glossary/x/xdg-shell.html">xdg-shell</a></td><td>Toplevel, popup and other window roles, plus configure and acknowledge events.</td></tr>
+<tr><td><code>wl_seat</code>, <code>wl_pointer</code>, <code>wl_keyboard</code>, <code>wl_touch</code></td><td>Input devices grouped into a seat and delivered to the focused client.</td></tr>
+<tr><td><code>wl_output</code></td><td>Output geometry, scale, modes and physical properties.</td></tr>
+<tr><td><code>wl_shm</code> and <a href="glossary/d/dma-buf.html">linux-dmabuf</a></td><td>Shared-memory and GPU buffer allocation paths.</td></tr>
+<tr><td><a href="glossary/x/xdg-desktop-portal.html">XDG desktop portal</a></td><td>Compositor-mediated file chooser, screenshot, remote desktop and permission interfaces.</td></tr>
+<tr><td><a href="glossary/x/xwayland.html">XWayland</a></td><td>An X server running as a Wayland client for legacy applications.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>Wayland is an asynchronous object-oriented wire protocol over a Unix domain socket named by <code>WAYLAND_DISPLAY</code>. A client binds globals from the registry, creates objects such as surfaces and seats, and sends requests without waiting for a reply for every one. The compositor owns <a href="glossary/d/drm.html">DRM/KMS</a> outputs, chooses modes, applies surface state at commit time and drives presentation. Extensions are optional globals; a client must negotiate the ones it needs.</p>
+<h3>Advanced usage examples</h3>
+<p>A shell panel can use the layer-shell protocol to reserve a strip of an output and anchor widgets to an edge. A remote-desktop client can use portal interfaces instead of reading all pixels directly. Both are protocol negotiations, not built-in rights every client receives.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Protocol support varies between compositors; an extension that works on one desktop may be absent on another.</li>
+<li>Client-side decorations mean the visible frame belongs to the application's toolkit, even though the compositor owns the surface.</li>
+<li>Wayland has no built-in network transparency analogous to X11 forwarding; remote display uses separate protocols.</li>
+<li>Buffer lifetime matters: a client must not reuse a buffer while the compositor still holds it, so toolkits manage release events.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>A screenshot tool cannot read the whole screen in a Wayland session. Is that a bug in the compositor by default?</summary><p>Model answer: no. Global screen access is deliberately not a basic Wayland right. The compositor exposes screenshot or remote-desktop capability through its own interface or an <a href="glossary/x/xdg-desktop-portal.html">XDG desktop portal</a>, usually with user consent. A tool that assumes it can read the root window, as on X11, needs a different implementation.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="wayland-protocol"><a href="bibliography/wayland-protocol.html">the Wayland protocol</a></cite>, <cite data-ref="freedesktop-standards"><a href="bibliography/freedesktop-standards.html">freedesktop.org standards</a></cite> and <cite data-ref="drm-kms"><a href="bibliography/drm-kms.html">Linux DRM/KMS documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windowing/comparison.html">Why Linux moved from X11 to Wayland</a> &mdash; compare the two designs directly.</li>
+<li><a href="desktop/windowing/session-checks.html">Check your graphical session</a> &mdash; confirm what is running.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="glossary/w/wayland.html">Wayland glossary entry</a> &mdash; a short definition of the protocol.</li>
+<li><a href="desktop/session/compositors.html">How windows appear on your screen</a> &mdash; compositor coverage on Tamlinux.</li>
+</ul>
+</body></html>

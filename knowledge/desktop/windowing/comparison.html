@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Why Linux moved from X11 to Wayland</title>
+<meta name="kind" content="explanation">
+<meta name="skills" content="windowing.novice, windowing.learner, windowing.expert">
+<meta name="topic" content="x11-wayland-comparison">
+<meta name="summary" content="Compare X11 and Wayland by architecture, isolation, rendering, input, compatibility and the reasons Linux desktops changed.">
+<meta name="keywords" content="X11 versus Wayland, display server, compositor, security isolation, tearing, latency, XWayland">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="desktop">
+<meta name="parent" content="desktop/windowing/index.html">
+<meta name="prereqs" content="wayland-display-protocol">
+<meta name="paths" content="windowing-systems:4">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/windowing/index.html">Windowing systems</a> / Why Linux moved from X11 to Wayland</p></nav>
+
+<p><a href="glossary/x/x11.html">X11</a> and <a href="glossary/w/wayland.html">Wayland</a> both put application windows on a screen. They differ in who owns the display and in how much one application can observe another.</p>
+
+<section data-level="novice">
+<h2>What changed</h2>
+<p>X11 uses a separate display server, and applications send it drawing requests. Wayland makes the <a href="glossary/c/compositor.html">compositor</a> the display server; applications hand it finished pictures.</p>
+<h3>Why it matters</h3>
+<p>The change gives applications less power over the whole screen, removes an old layer from the drawing path, and lets one process coordinate windows and input consistently.</p>
+<h3>How to think about it</h3>
+<p>Under X11, many people can give orders to the same clerk. Under Wayland, each person paints a picture and only the curator is allowed to hang pictures or read the room.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/x/x-server.html">X server</a></dt><dd>The older display server that received drawing requests from applications.</dd>
+<dt><a href="glossary/c/compositor.html">Compositor</a></dt><dd>The process that presents surfaces and routes input in Wayland.</dd>
+<dt><a href="glossary/x/xwayland.html">XWayland</a></dt><dd>The bridge that lets old X11 applications run on a Wayland desktop.</dd>
+<dt><a href="glossary/x/xdg-desktop-portal.html">XDG desktop portal</a></dt><dd>A deliberate way for applications to request screen capture or a file chooser.</dd>
+</dl>
+<p><a href="desktop/windowing/other-systems.html">Next: Windowing on other operating systems</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Compare one action</h2>
+<p><strong>Goal:</strong> you will be able to explain why Linux desktops changed display systems without claiming that Wayland is universally faster or simpler for every task.</p>
+<p><strong>Learner path:</strong> back: <a href="desktop/windowing/wayland.html?level=2">How Wayland draws windows</a>; next: <a href="desktop/windowing/other-systems.html?level=2">Windowing on other operating systems</a>.</p>
+<h3>Worked example</h3>
+<p>Consider a malicious keylogger in each model:</p>
+<ol>
+<li>On X11, a client with access to the display can usually request global key events, even when another window has focus.</li>
+<li>On Wayland, the compositor sends keyboard events only to the focused client. A keylogger must be given a special compositor interface or run inside the target application.</li>
+<li>Screen capture follows the same pattern: X11 offers broad access by default; Wayland uses a compositor decision or a portal, usually with a user prompt.</li>
+</ol>
+<p>That is the security argument in one example: remove ambient access to other clients' input and pixels.</p>
+<h3>Try it</h3>
+<p>On paper, make two columns headed X11 and Wayland. Put "window manager", "display server", "drawing requests", "finished surfaces" and "screen capture" into the column where each idea belongs. Use the expert table below to check.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>"Wayland is just a new window manager"</dt><dd>No. The compositor replaces the X server's display duties and the window manager's placement duties. A desktop shell can still sit on top.</dd>
+<dt>"X11 disappeared"</dt><dd>No. XWayland and remote X11 forwarding keep it in use. The default session on most modern Linux desktops changed.</dd>
+</dl>
+<aside class="tamlinux"><p><strong>On Tamlinux:</strong> Wayland is the session protocol and XWayland supplies compatibility for older clients. Decisions about future compositor work are recorded in public product plans, not inferred from the presence of <code>DISPLAY</code>.</p></aside>
+<section class="quiz"><h3>Check yourself</h3><p>Decide your answer before you reveal it.</p>
+<details class="q"><summary>Why did removing global input access matter for Linux desktops?</summary><p>Because any X11 client could ask to see keys meant for another window. A desktop is a shared workspace with passwords, chat and banking in separate applications. Wayland makes the compositor the single input router, so observing another client requires an explicit interface or user consent.</p></details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Reference</h2>
+<h3>X11 and Wayland side by side</h3>
+<table>
+<tr><th>Concern</th><th>X11</th><th>Wayland</th></tr>
+<tr><td>Display owner</td><td>Separate X server; window manager is a client.</td><td>Compositor is display server and placement manager.</td></tr>
+<tr><td>Drawing model</td><td>Clients send drawing requests and resources to the server.</td><td>Clients commit finished buffers on surfaces.</td></tr>
+<tr><td>Input</td><td>Server can deliver global events to any interested client.</td><td>Compositor routes input to the focused client; no ambient global capture.</td></tr>
+<tr><td>Presentation</td><td>No single atomic contract across all windows; tearing control is harder.</td><td>Commit and presentation are compositor-coordinated; tearing control and frame callbacks are explicit.</td></tr>
+<tr><td>Multi-monitor</td><td>RandR extension and toolkit policy.</td><td>Outputs, scaling and transforms are core compositor state.</td></tr>
+<tr><td>Network transparency</td><td>Core design; <code>DISPLAY</code> can name a remote server.</td><td>Not built in; remote desktop uses other protocols and portals.</td></tr>
+<tr><td>Screen capture</td><td>Any client with display access can usually read pixels.</td><td>Compositor or portal decides and asks the user.</td></tr>
+<tr><td>Compatibility</td><td>Native model for older applications.</td><td>XWayland bridges older X11 clients.</td></tr>
+</table>
+<h3>Why Linux moved</h3>
+<p>The old X server accumulated extensions while remaining a large, privileged component with a weak isolation boundary between clients. At the same time, compositing, <a href="glossary/g/gpu.html">GPU</a> buffers and high-refresh displays made a single presentation manager more attractive. Wayland shrinks the protocol core, makes rendering buffer-based and gives the compositor clear ownership of input, outputs and frame timing. The result is a cleaner security boundary and a better platform for modern effects &mdash; not an automatic speed win in every workload.</p>
+<h3>Advanced usage examples</h3>
+<p>A Wayland compositor can use <a href="glossary/d/dma-buf.html">DMA-BUF</a> and <a href="glossary/d/drm.html">DRM/KMS</a> atomic updates to present a set of surfaces without copying through a server. A remote desktop session instead goes through a portal and a stream protocol, because raw framebuffer access is not a basic client right.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Extension differences mean a Wayland feature may exist on one compositor but not another; toolkits detect and degrade.</li>
+<li>X11 still wins where simple network forwarding of a single program matters more than desktop isolation.</li>
+<li>Screen-sharing, global shortcuts and input methods needed new negotiated protocols; early Wayland desktops felt incomplete until those arrived.</li>
+<li>A toolkit can hide the display protocol so well that users see the same window on both systems; the underlying fault boundaries remain different.</li>
+</ul>
+<section class="quiz"><h3>Check yourself</h3><details class="q open"><summary>An application works on X11 but cannot capture the screen on Wayland. Give a sound diagnosis without calling it a compositor bug.</summary><p>Model answer: first identify how the application asks for capture. If it reads the X11 root window, that assumption does not exist for native Wayland clients; use the compositor's screenshot mechanism or an <a href="glossary/x/xdg-desktop-portal.html">XDG desktop portal</a> and expect a consent prompt. If it already uses a portal, check that the compositor exposes the portal and that the user approved the request. Only then suspect a compositor fault.</p></details></section>
+<h3>Sources</h3>
+<p>See <cite data-ref="x11-protocol"><a href="bibliography/x11-protocol.html">the X Window System protocol documentation</a></cite>, <cite data-ref="wayland-protocol"><a href="bibliography/wayland-protocol.html">the Wayland protocol</a></cite> and <cite data-ref="freedesktop-standards"><a href="bibliography/freedesktop-standards.html">freedesktop.org standards</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="desktop/windowing/other-systems.html">Windowing on other operating systems</a> &mdash; see different answers to the same problems.</li>
+<li><a href="desktop/windowing/desktops.html">GNOME, KDE Plasma and other desktops</a> &mdash; move from display protocol to desktop policy.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="glossary/x/xwayland.html">XWayland</a> &mdash; the compatibility bridge.</li>
+<li><a href="paths/windowing-systems.html">From pixels to desktop applications</a> &mdash; the whole reading path.</li>
+</ul>
+</body></html>

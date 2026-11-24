@@ -1,0 +1,70 @@
+W128 WINDOWING SYSTEMS SERIES
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Create a series for X11 and windowing systems. Explain the
+  history of windowing operating systems, comparing X11 and Wayland
+  and other windowing systems used by other operating systems.
+  Explain why Linux moved away from X11 and the technical advantages
+  of Wayland. Also explain how GNOME, KDE, and other graphical widget
+  and UI building systems work and what are available on Linux
+  systems."
+
+  Fred chose the Desktop hub and the full series from the offered
+  shapes.
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session; the shape was chosen
+  with a follow-up question in the same session.
+
+DONE
+
+  - Added a Desktop > Windowing systems hub and eight three-level
+    teaching pages: history, X11, Wayland, X11/Wayland comparison,
+    other operating systems, GNOME/KDE and other desktops, widget
+    toolkits, and read-only graphical session checks.
+  - Added the four-stage windowing-systems goal path with checkpoint
+    quizzes, a capstone with a folded solution and next paths. The
+    path and its steps appear in the generated path index.
+  - Added 25 three-level glossary pages, nine bibliography pages with
+    stable citation IDs and rows in every bibliography view, and
+    windowing.novice, windowing.learner and windowing.expert skills.
+    Linked the new series from the Desktop hub, the compositor and
+    toolkit pages, and relevant glossary pages.
+  - Bumped corpus to 0.125.0 and updated the roadmap and development
+    contract. Command version stays 0.69.7; stage promotion and
+    installation remain Fred's decisions.
+  - Session-check examples were captured from a read-only command run
+    on the live Wayland session: XDG_SESSION_TYPE, WAYLAND_DISPLAY,
+    DISPLAY and the user-unit compositor service state.
+
+FAILED
+
+  - The first corpus-and-test run rejected glossary/t/widget.html:
+    the title files it under W, not T. Ran the corpus pipeline's
+    --fix-glossary check, which moved the page, corrected its parent
+    and breadcrumb, rewrote inbound links and regenerated the
+    glossary hubs. Checks then passed.
+
+CHECKED AGAINST
+
+  - make corpus, make corpus-and-test and make check-repo pass. All
+    95 corpus tooling unit tests pass; the nine learning warnings are
+    the pre-existing algorithms and computer-timescales ones.
+  - Every internal corpus link resolves; every dfn in the new pages
+    links to a glossary page.
+  - Read-only session capture: session=wayland wayland=wayland-1
+    display=:0, then Type=wayland, Active=yes, State=active.
+  - No push, install, Test, Run or Release was requested or performed.
+
+HANDOFF
+
+  - Commit the W128 corpus, version and record paths on dev with
+    provenance trailers, then rerun make corpus and commit the
+    generated index follow-up.
+  - Await Fred's direction. No stage promotion is authorised.

@@ -3,44 +3,58 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W127
+Updated: 2026-11-24, with W128
 
 STATE
 
-  Command 0.69.7 and corpus 0.124.0 on dev. W127 extends the status-line
-  fix to fold notices: `Quiz 1/2 revealed` and similar transient messages
-  are cleared when the attention line, selection or page changes, unless
-  the key being handled wrote a fresh notice. Expanding an answer or
-  showing an aside no longer leaves a stale notice behind.
+  Command 0.69.7 is committed on dev (W127 and earlier). Corpus
+  0.125.0 adds the Windowing systems series from W128 and is
+  uncommitted at this point.
+
+  W128 adds a Desktop / Windowing systems hub with eight three-level
+  teaching pages: history, X11, Wayland, why Linux moved from X11,
+  other operating systems, GNOME/KDE Plasma desktops, widget toolkits
+  and read-only graphical session checks. It adds the four-stage
+  windowing-systems goal path, 25 glossary pages, nine bibliography
+  entries, three windowing.* skills and cross-links.
+
+  W127 extends the status-line fix to fold notices: `Quiz 1/2 revealed`
+  and similar transient messages are cleared when the attention line,
+  selection or page changes, unless the key being handled wrote a
+  fresh notice. Expanding an answer or showing an aside no longer
+  leaves a stale notice behind.
 
   W126 made the pager status line follow the attention line: `Path = ...`
   is cleared as soon as the cursor, selection or page changes, and a
-  selected link's destination in the status row uses the same bold/reverse
-  styling (and visible background) as the highlighted link in the page.
+  selected link's destination in the status row uses the same
+  bold/reverse styling and visible background as the highlighted link.
 
   W125 removed everything above the topic table on tam:topics: the
   `Topics A to Z` heading and the instructions paragraph are gone. The
   view opens with the breadcrumb, line Lb and the `Topic` / `Covers`
   table header. W124 changed tam:paths to open with the breadcrumb, Lb
-  and `Choose your own learning adventure`. W123 changed tam:hubs to open
-  with the breadcrumb, a closed first-time aside and the Using your
-  system group. W122 made line Lb appear on every depth-prepared Guide
-  page; W121 rewrote the welcome page and removed the 1,442 body headings
-  that repeated breadcrumbs across the non-root corpus. TCK32 is minted
-  with four children; next free checklist ID is TCK33.
+  and `Choose your own learning adventure`. W123 changed tam:hubs to
+  open with the breadcrumb, a closed first-time aside and the Using
+  your system group. W122 made line Lb appear on every depth-prepared
+  Guide page; W121 rewrote the welcome page and removed the 1,442 body
+  headings that repeated breadcrumbs across the non-root corpus.
+  TCK32 is minted with four children; next free checklist ID is TCK33.
 
   Generated views built with tam_page_render() do not go through
   tam_depth_prepare(), so hubs, paths and topics supply their own
   opening explicitly (fold renderer for hubs, tam_level_lines() for
   paths and topics).
 
-  make command, make test-command, make corpus, make corpus-and-test and
-  make check-repo all pass. Work is uncommitted at this point.
+  make command, make test-command, make corpus, make corpus-and-test
+  and make check-repo all pass. The nine learning warnings are
+  pre-existing algorithms and computer-timescales ones.
 
 NEXT
 
-  - Commit the W127 source, test, version and record paths on dev with
+  - Commit the W128 corpus, version and record paths on dev with
     provenance trailers. Only claimed paths go into this commit.
+  - Rerun make corpus and commit the generated index follow-up if it
+    changed; the index records each page's commit history.
   - Await Fred's direction. No Test, Run or Release is authorised.
 
 WAITING FOR FRED
@@ -49,47 +63,54 @@ WAITING FOR FRED
 
 WATCH OUT
 
-  - Claim the paths you edit in the shared clone. See AGENTS.md for lane
-    scopes, version bumps and tests. CHECKLISTS.md is a separate shared
-    claim when minting TCK IDs.
+  - Claim the paths you edit in the shared clone. See AGENTS.md for
+    lane scopes, version bumps and tests. CHECKLISTS.md is a separate
+    shared claim when minting TCK IDs.
   - Lb is a lead line: it takes one content row at the top of the pager
     and reduces the numbered-line range shown there by one. Pager row
-    and scroll assertions must account for it. Generated views built with
-    tam_page_render() do not carry Lb unless they inject it themselves;
-    depth-prepared corpus pages get it from tam_depth_prepare().
+    and scroll assertions must account for it. Generated views built
+    with tam_page_render() do not carry Lb unless they inject it
+    themselves; depth-prepared corpus pages get it from
+    tam_depth_prepare().
   - The status row repeats a selected link label with the link's own
-    reverse styling. Raw-PTY assertions that search for `\x1b[7m` must
-    scope themselves to page rows, not the whole buffer.
-  - Interactive checks of generated views need `tam show <view>`, not a
-    bare `tam <view>` alias; only some views have bare aliases.
+    reverse styling. Raw-PTY assertions that search for `\x1b[7m`
+    must scope themselves to page rows, not the whole buffer.
+  - Interactive checks of generated views need `tam show <view>`, not
+    a bare `tam <view>` alias; only some views have bare aliases.
   - PTY assertions on coloured rows must strip ANSI escapes first: a
     right-aligned Lb can be split by colour codes. Wait for a content
     marker instead of a fixed delay when the view loads an index.
   - Inline python3 -c blocks in tests/run.sh are single-quoted: avoid
     apostrophes in comments or strings inside them.
-  - The reveal and hide keys r and a are reliable for first-time asides;
-    Right Arrow depends on where the attention line sits.
+  - The reveal and hide keys r and a are reliable for first-time
+    asides; Right Arrow depends on where the attention line sits.
   - Escaped href="..." inside a pre block still trips the corpus link
     checker. Use &quot; around the example attribute value.
-  - Generated corpus indexes trail page commits by one; commit them after
-    the pages, then rerun make corpus.
-  - A page title belongs in <title> and the breadcrumb only. Do not add a
-    body heading that repeats the breadcrumb; start with an intro paragraph.
-    The root guide index has no breadcrumb and keeps its <h1>.
-  - make corpus regenerates glossary hubs from tools/glossary_index.py, so
-    heading changes there must be made in the generator too.
+  - Generated corpus indexes trail page commits by one; commit them
+    after the pages, then rerun make corpus.
+  - A page title belongs in <title> and the breadcrumb only. Do not
+    add a body heading that repeats the breadcrumb; start with an
+    intro paragraph. The root guide index has no breadcrumb and keeps
+    its <h1>.
+  - make corpus regenerates glossary hubs from tools/glossary_index.py,
+    so heading changes there must be made in the generator too.
+  - Glossary pages are filed by the first letter of their title. If a
+    check reports a misplaced page, run
+    `python3 tools/corpus_pipeline.py check --fix-glossary`: it moves
+    the page, fixes its parent and breadcrumb, rewrites inbound links
+    and regenerates the hubs.
   - Tamlinux's desktop plan is its own compositor, tam-pane. Sway and
     wlroots are peer projects or technical examples, not targets.
   - Tamlinux's host/rootstock/bud/scion/cultivar/fruit naming is a
     botanical analogy, not a set of plant names.
-  - Digit-leading glossary titles belong in glossary/numeric/, not in the
-    letter folder matching a later "b" or other letter.
-  - Fold notices are transient st->msg text: a movement key clears them
-    only when the key did not write a new notice, so reveal-all still
-    reports its count.
-  - Command and corpus versions are independent; W127 is command only.
+  - Digit-leading glossary titles belong in glossary/numeric/, not in
+    the letter folder matching a later "b" or other letter.
+  - Fold notices are transient st->msg text: a movement key clears
+    them only when the key did not write a new notice, so reveal-all
+    still reports its count.
+  - Command and corpus versions are independent; W128 is corpus only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.
-  - make dev is Fred's loop; agents do not run it. Do not install a build
-    as a side effect of content changes.
+  - make dev is Fred's loop; agents do not run it. Do not install a
+    build as a side effect of content changes.

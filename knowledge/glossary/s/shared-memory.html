@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>Shared memory</title>
+<meta name="topic" content="glossary-shared-memory">
+<meta name="summary" content="Shared memory: Memory that two processes can access, used by Wayland clients to pass image buffers.">
+<meta name="keywords" content="glossary-shared-memory, shared memory, shm, wayland, buffer">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Shared memory</p></nav>
+
+<p>Shared memory is a region of memory that more than one process can read or write.</p>
+<section data-level="novice"><p>Instead of copying a whole picture through a message, an application can paint into shared memory and tell the compositor where to find it. Both processes see the same pixels.</p></section>
+<section data-level="learner"><p>On <a href="glossary/w/wayland.html">Wayland</a>, the <code>wl_shm</code> protocol lets a client create a memory-backed pool and attach part of it to a <a href="glossary/w/wl-surface.html">surface</a>. It is a simple path for CPU-drawn buffers; GPU rendering often uses <a href="glossary/d/dma-buf.html">DMA-BUF</a> instead.</p></section>
+<section data-level="expert"><p>A Linux shared-memory file descriptor is passed over the Wayland socket. The client maps it, writes pixels and commits a buffer; the compositor maps or copies from the same region and sends a release event when finished. Correct lifetime and damage tracking avoid reusing a buffer still presented on screen.</p></section>
+<p>See <a href="desktop/windowing/wayland.html">How Wayland draws windows</a>.</p>
+</body></html>
