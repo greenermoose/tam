@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>GEM (Graphics Execution Manager)</title>
+<meta name="topic" content="glossary-gem">
+<meta name="summary" content="GEM: the Linux DRM Graphics Execution Manager, a kernel API for managing GPU buffer objects and memory sharing.">
+<meta name="keywords" content="glossary-gem, gem, graphics execution manager, drm, gpu, buffer object, ttm">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/g/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/g/index.html">Terms beginning with G</a> / GEM (Graphics Execution Manager)</p></nav>
+
+<h1>GEM (Graphics Execution Manager)</h1>
+<p>A Linux <a href="glossary/d/drm.html">DRM</a> kernel API for managing GPU memory objects.</p>
+<section data-level="novice"><p>Graphics programs need places in memory to store images, textures, and command buffers for the <a href="glossary/g/gpu.html">GPU</a>. GEM is the Linux kernel system that helps graphics drivers create and manage those memory objects safely. It gives applications and the display system a common way to work with GPU buffers.</p></section>
+<section data-level="learner"><p>GEM manages buffer objects (GEM objects) used by DRM drivers. It provides handles for user space, supports memory mapping, and works with <code>dma-buf</code> for sharing buffers between devices or processes. Some drivers use GEM with simple memory placement, while discrete GPU drivers often use <a href="glossary/t/ttm.html">TTM</a> underneath for moving buffers between VRAM and system RAM. When you hear "GEM/TTM" in Linux graphics, it usually refers to this memory-management layer.</p><details class="q"><summary><i>Why is buffer sharing important in a Wayland desktop?</i></summary><p>The compositor, application, and GPU may all need access to the same rendered image. Sharing a buffer object avoids copying pixels between processes and keeps rendering efficient.</p></details></section>
+<section data-level="expert"><p>GEM was introduced to unify DRM buffer management (originally in Intel's i915 stack) around named buffer objects, dumb buffers for simple KMS clients, and PRIME/dma-buf export-import for cross-device sharing. GEM itself is an API/framework; drivers provide memory backends. TTM offers a richer placement/eviction model for discrete GPUs with multiple memory domains, while GEM shmem/CMA helpers suit unified-memory or simpler devices. Correctness depends on explicit synchronization (dma_fence), cache/domain handling, and modifier-aware buffer layout when buffers are scanned out or shared across drivers.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/d/drm.html">DRM (Direct Rendering Manager)</a></li><li><a href="glossary/t/ttm.html">TTM (Translation Table Manager)</a></li><li><a href="glossary/g/gpu.html">GPU (Graphics Processing Unit)</a></li></ul>
+</body></html>

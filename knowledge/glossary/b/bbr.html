@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>BBR (Bottleneck Bandwidth and Round-trip propagation time)</title>
+<meta name="topic" content="glossary-bbr">
+<meta name="summary" content="BBR: a TCP congestion control algorithm that estimates bottleneck bandwidth and round-trip time instead of relying mainly on packet loss.">
+<meta name="keywords" content="glossary-bbr, bbr, congestion control, tcp, bandwidth, round-trip time, linux">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/b/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / BBR (Bottleneck Bandwidth and Round-trip propagation time)</p></nav>
+
+<h1>BBR (Bottleneck Bandwidth and Round-trip propagation time)</h1>
+<p>A <a href="glossary/t/tcp.html">TCP</a> congestion control algorithm that tries to send at the network's real capacity without filling queues unnecessarily.</p>
+<section data-level="novice"><p>When many computers share a network, they need rules for how fast to send data. Older TCP rules often slow down only after packets are lost. BBR takes a different approach: it estimates how much bandwidth the path can carry and how long a round trip takes, then tries to send at that pace. The goal is high throughput with lower delay.</p></section>
+<section data-level="learner"><p>BBR models the connection's bottleneck bandwidth (BtlBw) and minimum round-trip propagation time (RTprop). Instead of treating packet loss as the primary congestion signal, it probes to keep estimates current and paces packets to match the estimated delivery rate. On Linux, you can see available congestion control algorithms with <code>sysctl net.ipv4.tcp_available_congestion_control</code> and the current one with <code>sysctl net.ipv4.tcp_congestion_control</code>. CUBIC remains the default on many systems, while BBR is often used where latency under load matters.</p><details class="q"><summary><i>Why can loss-based congestion control create high latency?</i></summary><p>If a sender keeps increasing its rate until buffers overflow, queues build up before packets are dropped. Those full queues add delay, sometimes called bufferbloat, even when the link is "busy".</p></details></section>
+<section data-level="expert"><p>BBR (developed by Google, with BBRv1 in Linux and later BBRv2/v3 iterations) operates around BtlBw and RTprop estimates, pacing at an estimated delivery rate and limiting inflight data near BDP (bandwidth-delay product). It periodically probes bandwidth upward and RTprop downward (by reducing inflight). Compared with loss-based CUBIC, BBR can reduce queueing delay but has had fairness and coexistence edge cases, especially with shallow buffers, loss-heavy paths, or competing loss-based flows. Deployment decisions should be based on measured path behavior, not algorithm name alone.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/t/tcp.html">TCP (Transmission Control Protocol)</a></li><li><a href="glossary/r/rtt.html">RTT (Round-Trip Time)</a></li></ul>
+</body></html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head>
+<title>BLE (Bluetooth Low Energy)</title>
+<meta name="topic" content="glossary-ble">
+<meta name="summary" content="BLE: Bluetooth Low Energy, a low-power wireless protocol for short-range devices and sensors.">
+<meta name="keywords" content="glossary-ble, ble, bluetooth low energy, bluetooth, wireless, gatt, pairing">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/b/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / BLE (Bluetooth Low Energy)</p></nav>
+
+<h1>BLE (Bluetooth Low Energy)</h1>
+<p>A low-power <a href="glossary/b/bluetooth.html">Bluetooth</a> radio protocol for short-range devices such as sensors, keyboards, and beacons.</p>
+<section data-level="novice"><p>BLE is designed for devices that need to run on small batteries for a long time. Instead of keeping a constant high-power connection, BLE devices send small bursts of data and spend much of their time asleep. You see it in fitness trackers, wireless mice, smart locks, and many sensors.</p></section>
+<section data-level="learner"><p>BLE is part of the Bluetooth specification but uses a different radio design from classic Bluetooth audio/data profiles. Devices often advertise their presence, then form connections for GATT (Generic Attribute Profile) services and characteristics. On Linux, BlueZ manages Bluetooth adapters and can pair BLE devices. BLE trades throughput for low power: it is good for small, occasional messages, not for high-bandwidth audio streams in the classic A2DP sense.</p><details class="q"><summary><i>Why does a BLE sensor last months on a coin cell while classic Bluetooth audio drains batteries quickly?</i></summary><p>BLE is optimized for short events and long sleep periods. Continuous audio streaming requires much more radio time and power, which is why classic Bluetooth or other profiles are used for that workload.</p></details></section>
+<section data-level="expert"><p>BLE (introduced in Bluetooth 4.0) uses a 40-channel 2.4 GHz PHY with advertising and data channels, and supports LE 1M/2M/Coded PHYs depending on version. The GAP/GATT model exposes attributes over ATT, with security provided by pairing/bonding, LTK/IRK key distribution, and LE Secure Connections (ECDH P-256) in modern implementations. Privacy features use resolvable private addresses. BLE has different attack surfaces from BR/EDR: advertisement tracking, weak legacy pairing modes, GATT permission misconfiguration, and proximity assumptions should be treated as explicit threat-model items.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="glossary/b/bluetooth.html">Bluetooth</a></li><li><a href="glossary/p/pairing.html">Pairing</a></li></ul>
+</body></html>
