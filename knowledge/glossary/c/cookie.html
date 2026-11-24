@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Cookie</title>
+<meta name="topic" content="glossary-cookie">
+<meta name="summary" content="Cookie: A small value a browser stores and sends back with matching requests.">
+<meta name="keywords" content="glossary-cookie, cookie, session, httponly, samesite, secure">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/c/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Cookie</p></nav>
+
+<h1>Cookie</h1>
+<p>A cookie is a small piece of data that a server asks a browser to keep and send back with later requests.</p>
+<section data-level="novice"><p>A cookie is like a wristband at an event. The server gives it to your browser once, and the browser shows it on later visits so the server recognises the same session.</p></section>
+<section data-level="learner"><p>Cookies carry attributes such as Expiry, Path, Domain, Secure, HttpOnly and SameSite. A session identifier is a common use; the actual account data stays on the server.</p>
+<details class="q"><summary><i>Why should a session identifier be HttpOnly when script does not need it?</i></summary><p>An XSS flaw could otherwise read the identifier and send it to an attacker. HttpOnly lets the browser send the cookie to the server while keeping it out of JavaScript.</p></details></section>
+<section data-level="expert"><p>HttpOnly hides a cookie from page script but does not prevent CSRF. Secure limits transport to HTTPS. SameSite controls sending on cross-site requests. Cookie scope follows domain and path rules, and a token kept in JavaScript has a different theft profile from a cookie.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/web-security.html">Related web development lesson</a></li></ul>
+</body></html>

@@ -1540,6 +1540,17 @@ fruit a botanical analogy. Horticultural definitions of the individual
 words remain as explanations. This is a corpus correction; command version,
 stage promotion and installation remain developer-directed.
 
+### 2026-11-24 — Web development series (corpus 0.123.0)
+
+The developer asked for a JavaScript and web development series that takes a
+reader with no background to an expert full-stack web developer. The approved
+shape is a Programming > Web development hub with ten level-tagged teaching
+pages, a five-stage `web-development` goal path with a capstone, thirty
+glossary pages, five bibliography entries and `web.novice`, `web.learner` and
+`web.expert` skills. Worked examples were captured from real Node.js, npm and
+Python runs on 2026-11-24. This is corpus content only; command version, stage
+promotion and installation remain developer-directed.
+
 ### 2026-11-24 — Own compositor plan (corpus 0.122.3)
 
 The developer said Tamlinux is writing its own compositor and does not plan

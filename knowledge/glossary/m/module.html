@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Module</title>
+<meta name="topic" content="glossary-module">
+<meta name="summary" content="Module: A file that publishes named values for other files to import.">
+<meta name="keywords" content="glossary-module, module, import, export, esm, commonjs">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/m/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / Module</p></nav>
+
+<h1>Module</h1>
+<p>A module is a file with a clear interface: it exports named values and imports what it needs from other modules.</p>
+<section data-level="novice"><p>Modules are like labelled drawers in a workshop. Each drawer holds one kind of tool and has a label telling you what is inside, so you do not need to open every drawer to find a hammer.</p></section>
+<section data-level="learner"><p>Standard ES modules use export and import. A .mjs file selects module mode in Node, or package.json can set type to module. Imports are resolved from file paths or package names.</p>
+<details class="q"><summary><i>Why do bundlers prefer static import over conditional require?</i></summary><p>A static import is visible before code runs, so a bundler can build the full dependency graph and decide which exports are reachable. A conditional require depends on runtime values and is harder to analyze.</p></details></section>
+<section data-level="expert"><p>ES modules are statically analyzable, which lets bundlers build a graph and remove unused exports. CommonJS uses require() at runtime. Circular imports work but can expose partially initialized bindings; module scope is lexical and strict.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/frameworks-and-tooling.html">Related web development lesson</a></li></ul>
+</body></html>

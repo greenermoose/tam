@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>npm</title>
+<meta name="topic" content="glossary-npm">
+<meta name="summary" content="npm: The package manager that installs, records and runs reusable JavaScript project code.">
+<meta name="keywords" content="glossary-npm, npm, package manager, package.json, lockfile">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/n/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / npm</p></nav>
+
+<h1>npm</h1>
+<p>npm is the package manager most JavaScript projects use to install reusable code and run named project scripts.</p>
+<section data-level="novice"><p>If a project needs a helper someone else wrote, npm can fetch it and remember which version you chose. It also runs shortcuts such as npm run start.</p></section>
+<section data-level="learner"><p>package.json names the project, lists dependencies and defines scripts. npm install writes the exact resolved tree to package-lock.json, so a later install can repeat the same versions.</p>
+<details class="q"><summary><i>Why commit package-lock.json as well as package.json?</i></summary><p>package.json states acceptable version ranges; the lockfile records the exact versions installed. Without it, a teammate or deployment can resolve different dependencies and ship different code.</p></details></section>
+<section data-level="expert"><p>npm resolves a dependency graph from a public or private registry using semantic version ranges. The lockfile pins transitive versions; scripts run at install and lifecycle points can execute code. A software bill of materials helps review what a project really includes.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/node-and-npm.html">Related web development lesson</a></li></ul>
+</body></html>

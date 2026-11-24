@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Event loop</title>
+<meta name="topic" content="glossary-event-loop">
+<meta name="summary" content="Event loop: The mechanism that runs one task at a time and takes the next when the current one finishes.">
+<meta name="keywords" content="glossary-event-loop, event loop, task queue, microtask, async, libuv">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/e/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Event loop</p></nav>
+
+<h1>Event loop</h1>
+<p>An event loop is the part of a runtime that waits for work, runs one piece at a time, and then moves to the next.</p>
+<section data-level="novice"><p>Imagine one clerk at a counter. They finish the person in front before calling the next. New arrivals wait in a line rather than interrupting the current task.</p></section>
+<section data-level="learner"><p>In browsers, clicks, timers and network replies are tasks. Promises queue microtasks that run before the next task. In Node, the loop also coordinates filesystem and network work through libuv.</p>
+<details class="q"><summary><i>Why does a delayed promise not freeze the whole page?</i></summary><p>The promise settles later and queues a microtask. The event loop keeps running other tasks and rendering while the delay passes, then resumes only the code waiting on that promise.</p></details></section>
+<section data-level="expert"><p>A loop iteration drains microtasks after each callback; rendering may occur between tasks in a browser. Long synchronous work starves both rendering and queued callbacks. Node's phases order timers, polls and check callbacks, but user JavaScript still runs on one thread per process.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/browser-apis-and-async.html">Related web development lesson</a></li></ul>
+</body></html>

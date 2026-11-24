@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Stack trace</title>
+<meta name="topic" content="glossary-stack-trace">
+<meta name="summary" content="Stack trace: The list of function calls that led to an error.">
+<meta name="keywords" content="glossary-stack-trace, stack trace, exception, debugging, sourcemap">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Stack trace</p></nav>
+
+<h1>Stack trace</h1>
+<p>A stack trace is the list of function calls that were active when an error occurred.</p>
+<section data-level="novice"><p>When a program stops with an error, it leaves a trail of where it had been. That trail is the stack trace, like breadcrumbs back to the place that started the trouble.</p></section>
+<section data-level="learner"><p>Read the first frame as the place the error was raised, then follow the calls below it to find who asked for that work. A source map turns generated file positions back into your original code.</p>
+<details class="q"><summary><i>Why can the top frame of a stack trace be library code rather than your own?</i></summary><p>The error may be raised while a library checks a value your code passed. Read down the trace to the first frame in your application and inspect the arguments at that boundary.</p></details></section>
+<section data-level="expert"><p>Asynchronous traces may be split across tasks unless the runtime supports async stack tagging. Minified bundles produce short, unhelpful names; symbolication restores them. The deepest frame is not always the bug: inspect the arguments and boundary that caused it.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/testing-debugging-performance.html">Related web development lesson</a></li></ul>
+</body></html>

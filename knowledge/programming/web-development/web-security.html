@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Web security</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="web.novice, web.learner, web.expert">
+<meta name="topic" content="web-security">
+<meta name="summary" content="Protect browser pages, servers, sessions, and data against injection, broken trust, and unsafe storage of secrets.">
+<meta name="keywords" content="web security, XSS, CSRF, CORS, SQL injection, cookie, content security policy, password hashing, HTTPS">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/web-development/index.html">
+<meta name="prereqs" content="full-stack-web-architecture">
+<meta name="paths" content="web-development:7">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / Web security</p></nav>
+
+<h1>Web security</h1>
+<p>Web security is the practice of treating every input as untrusted and keeping data, identity, and code inside the right boundaries.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>A page can receive text from a person, a URL, or another computer. <dfn><a href="glossary/x/xss.html">XSS</a></dfn> happens when that text becomes executable code in a page. <dfn><a href="glossary/c/csrf.html">CSRF</a></dfn> happens when a site makes your browser send a request you did not intend.</p>
+<h3>Why it matters</h3>
+<p>A browser acts for the person using it. If a site can borrow that trust, it may read private data or change an account without a password.</p>
+<h3>How to think about it</h3>
+<p>Treat input like a parcel from an unknown sender. You may open it, but you do not let it plug itself into your electricity or hand it the keys to your house.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/h/https.html">HTTPS</a></dt><dd>HTTP carried inside encryption so a network observer cannot read or change the reply.</dd>
+<dt><a href="glossary/s/sql-injection.html">SQL injection</a></dt><dd>Input that changes the meaning of a database query.</dd>
+<dt><a href="glossary/c/cookie.html">Cookie</a></dt><dd>A small value a server asks the browser to keep and send back.</dd>
+</dl>
+<p><a href="programming/web-development/frameworks-and-tooling.html">Next: frameworks and tooling</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Keep text as text</h2>
+<p><strong>Goal:</strong> you will be able to show untrusted text without executing it and explain why a salted hash protects stored passwords better than a plain hash.</p>
+<p><strong>Learner path:</strong> previous: <a href="programming/web-development/full-stack-architecture.html?level=2">Full-stack web architecture</a>; next: <a href="programming/web-development/frameworks-and-tooling.html?level=2">Frameworks and tooling</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ python3 -c "from html import escape; print(escape('&lt;script&gt;alert(1)&lt;/script&gt;'))"
+&lt;script&gt;alert(1)&lt;/script&gt;
+$ node -e "const crypto=require('node:crypto'); const salt=crypto.randomBytes(4).toString('hex'); console.log(salt.length, crypto.createHash('sha256').update('hello').digest('hex').slice(0,16));"
+8 2cf24dba5fb0a30e
+</pre>
+<p>Captured on 2026-11-24 with Python 3.14.8 and Node.js 24.5.0. The salt is random, so your eight-character value will differ; the truncated hash of <code>hello</code> is the same because SHA-256 is deterministic.</p>
+<ol>
+<li>Escaping turns <code>&lt;</code> and <code>&gt;</code> into text that the browser displays, not markup it parses.</li>
+<li>A salt is random data mixed into password hashing so two people with the same password do not share a stored hash.</li>
+<li>The hash shown here illustrates determinism; real password storage uses a deliberately slow function such as Argon2 or bcrypt, not a plain SHA hash.</li>
+</ol>
+<h3>Try it</h3>
+<p>Run the escaping command with <code>&lt;img src=x onerror=alert(1)&gt;</code>. Confirm the output contains no executable tag. Then change the Node command to print two hashes of the same word and note that each fresh salt changes the stored value.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The browser still runs the script</dt><dd>The text was inserted with <code>innerHTML</code> or an equivalent DOM sink. Use <code>textContent</code> or your framework's escaped output path.</dd>
+<dt>A login works locally but fails after deployment</dt><dd>Check <a href="glossary/c/cookie.html">cookie</a> flags, <a href="glossary/h/https.html">HTTPS</a>, and the site origin. Secure cookies are not sent over plain HTTP.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why is escaping output better than deleting the word <code>script</code> from input?</summary>
+<p>Escaping works at the place where text becomes page code, and it covers every tag and attribute form. Deleting one word can be bypassed with other tags, event attributes, or encoded characters; it also corrupts harmless input.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Threats and controls</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Risk</th><th>Where it enters</th><th>Control</th></tr>
+<tr><td><a href="glossary/x/xss.html">XSS</a></td><td>Untrusted text in a page</td><td>Contextual escaping, <a href="glossary/c/content-security-policy.html">CSP</a>, safe DOM sinks</td></tr>
+<tr><td><a href="glossary/c/csrf.html">CSRF</a></td><td>A request from another site</td><td>SameSite cookies, per-session tokens, reauthentication</td></tr>
+<tr><td><a href="glossary/s/sql-injection.html">SQL injection</a></td><td>Input in a query</td><td>Parameterized statements, least privilege</td></tr>
+<tr><td>Broken identity</td><td>Cookies, tokens, headers</td><td>HTTPS, expiry, server-side authorization</td></tr>
+<tr><td><a href="glossary/c/cors.html">CORS</a> mistake</td><td>Cross-origin browser request</td><td>Exact allowed origins, no wildcard with credentials</td></tr>
+</table>
+<h3>How it works</h3>
+<p>The <a href="glossary/s/same-origin-policy.html">same-origin policy</a> lets a page read replies only from its own origin unless the server grants an exception with <a href="glossary/c/cors.html">CORS</a>. That policy protects reading, not sending: a form or image request can still leave the browser, which is why <a href="glossary/c/csrf.html">CSRF</a> needs its own control. A <a href="glossary/c/content-security-policy.html">content security policy</a> narrows which scripts a page may load and where they may send data, limiting the damage of an <a href="glossary/x/xss.html">XSS</a> finding. Passwords are stored as salted hashes made with a slow memory-hard function; a secret sent to a browser is a public value, so API keys belong only on the server.</p>
+<h3>Advanced usage</h3>
+<pre data-risk="scratch">
+Content-Security-Policy: default-src 'self'; script-src 'self';
+  connect-src 'self' https://api.example.com; object-src 'none'
+Set-Cookie: sid=...; HttpOnly; Secure; SameSite=Lax; Path=/
+</pre>
+<p>Illustrative headers: the first limits script and network destinations; the second keeps a session cookie away from JavaScript and restricts when a browser sends it.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li><code>HttpOnly</code> blocks script access to a cookie but does not stop CSRF.</li>
+<li>A permissive CORS origin plus credentials can turn a private endpoint into a public one.</li>
+<li>Framework escaping is context-specific: HTML text, attributes, URLs, and JavaScript strings need different rules.</li>
+<li>Secrets embedded in a client bundle cannot be kept secret from the person who runs the page.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A bug report says a private API works from <code>curl</code> but the browser blocks it. What evidence separates CORS from authentication?</summary>
+<p>Model answer: read the response status and headers. A <code>401</code> or <code>403</code> points at identity or permission. A successful <code>curl</code> reply with browser console text about a missing <code>Access-Control-Allow-Origin</code> header points at CORS: the server replied, but the browser refused to let script read it. Do not loosen authentication to fix a CORS error.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>See <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite> and <cite data-ref="whatwg-html"><a href="bibliography/whatwg-html.html">the WHATWG standards</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/web-development/frameworks-and-tooling.html">Frameworks and tooling</a> &mdash; carry safety into larger codebases.</li>
+<li><a href="programming/web-development/testing-debugging-performance.html">Testing, debugging, and performance</a> &mdash; verify the controls.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="security/computer-security-principles.html">Computer security principles</a> &mdash; the wider threat model.</li>
+<li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; the whole sequence.</li>
+</ul>
+</body></html>

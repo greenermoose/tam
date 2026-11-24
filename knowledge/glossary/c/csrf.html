@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>CSRF (Cross-site request forgery)</title>
+<meta name="topic" content="glossary-csrf">
+<meta name="summary" content="CSRF: An attack that makes a browser send an unwanted request using a person's existing session.">
+<meta name="keywords" content="glossary-csrf, csrf, cross-site request forgery, samesite, token">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/c/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CSRF (Cross-site request forgery)</p></nav>
+
+<h1>CSRF (Cross-site request forgery)</h1>
+<p>CSRF is an attack where another site causes your browser to send a request you did not mean to send, using a session you already have.</p>
+<section data-level="novice"><p>You are logged in to a bank, then visit a page that silently asks the bank to move money. If the bank trusts the browser's cookie alone, the request may succeed.</p></section>
+<section data-level="learner"><p>Defences include SameSite cookies, a per-session token included in each state-changing request, and asking for the password again before sensitive actions. CORS does not stop a simple form from being submitted.</p>
+<details class="q"><summary><i>Does a Secure cookie stop CSRF?</i></summary><p>No. Secure means the browser sends the cookie only over HTTPS. It says nothing about which site caused the request. Use SameSite plus a token or another action-bound check.</p></details></section>
+<section data-level="expert"><p>Any request that changes state needs an authorization decision tied to the intended user action, not merely to an ambient credential. SameSite=Lax blocks many cross-site POSTs but not every top-level navigation; tokens and reauthentication cover the remainder. Safe methods should remain free of side effects.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/web-security.html">Related web development lesson</a></li></ul>
+</body></html>

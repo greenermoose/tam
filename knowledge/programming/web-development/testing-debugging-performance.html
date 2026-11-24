@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Testing, debugging, and performance</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="web.novice, web.learner, web.expert">
+<meta name="topic" content="web-testing-debugging-performance">
+<meta name="summary" content="Find web faults early, read failures and traces, and measure page speed with evidence instead of guesses.">
+<meta name="keywords" content="testing, debugging, performance, node test, assertion, stack trace, DevTools, profiling, Web Vitals">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/web-development/index.html">
+<meta name="prereqs" content="web-frameworks-tooling">
+<meta name="paths" content="web-development:9">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / Testing, debugging, and performance</p></nav>
+
+<h1>Testing, debugging, and performance</h1>
+<p>Tests tell you when behaviour changes, debugging tells you why it changed, and measurement tells you whether a fix helped.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>A test is a small program that checks one promise about your code. Debugging is the work of finding where a promise broke. Performance work compares how long something takes before and after a change.</p>
+<h3>Why it matters</h3>
+<p>A page can look fine on one computer and fail for another person. Tests and measurements turn “it works for me” into evidence you can repeat.</p>
+<h3>How to think about it</h3>
+<p>A test is a smoke alarm: it tells you something is wrong, not where the fire started. A debugger and a trace are the flashlight you use afterwards.</p>
+<h3>New words</h3>
+<dl>
+<dt>Assertion</dt><dd>A statement that a value must match what you expect.</dd>
+<dt><a href="glossary/s/stack-trace.html">Stack trace</a></dt><dd>A list of function calls that led to an error.</dd>
+<dt>Profile</dt><dd>A record of where time was spent while a program ran.</dd>
+</dl>
+<p><a href="programming/web-development/deployment-and-electron.html">Next: deployment and Electron desktop apps</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Run a test and read a trace</h2>
+<p><strong>Goal:</strong> you will be able to run a small Node test, read its result, and collect a timing measurement you can repeat.</p>
+<p><strong>Learner path:</strong> previous: <a href="programming/web-development/frameworks-and-tooling.html?level=2">Frameworks and tooling</a>; next: <a href="programming/web-development/deployment-and-electron.html?level=2">Deployment and Electron desktop apps</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ node --test --test-reporter=dot sum.test.mjs
+.
+$ node -e "console.error('warning from app')"
+warning from app
+$ node -e "const t=performance.now(); let s=0; for(let i=0;i&lt;1e6;i++) s+=i; console.log('sum',s,'ms',(performance.now()-t).toFixed(1));"
+sum 499999500000 ms 9.5
+</pre>
+<p>Captured on 2026-11-24 with Node.js 24.5.0. The test file defined <code>add(a, b)</code> and asserted that <code>add(2, 3)</code> is <code>5</code>. One dot means one passing test. The loop time depends on your machine; the sum does not.</p>
+<ol>
+<li>Run the test before you change code, so you know the starting state.</li>
+<li>Send diagnostic text to standard error with <code>console.error</code>, leaving normal output clean.</li>
+<li>Time a loop with <code>performance.now</code>, then repeat it; one run is a hint, not a conclusion.</li>
+</ol>
+<h3>Try it</h3>
+<p>In a scratch file, write a test that asserts <code>add(4, 5)</code> is <code>9</code>. Change the expected value to <code>10</code>, run the test, and read the failure. Restore the correct value and confirm the dot returns.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The test runner reports zero tests</dt><dd>Check the filename. Node discovers files ending in <code>.test.mjs</code> or matching its test patterns.</dd>
+<dt>A browser bug cannot be reproduced in Node</dt><dd>Use the browser's built-in developer tools: inspect the console, the network list, and a performance recording. Node does not have a page tree.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>A test passes but a page is still slow. Why is that not a contradiction?</summary>
+<p>The test checks correctness of one value; speed is a different property. Add a performance check or a recorded trace that measures the path users take. A function can return the right answer after doing far too much work.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Diagnosis and measurement</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Signal</th><th>Where to read it</th><th>What it proves</th></tr>
+<tr><th>Console error</th><th>Browser console or standard error</th><td>An exception or explicit diagnostic happened</td></tr>
+<tr><th>Stack trace</th><th>Error output</th><td>The call chain at the failure point</td></tr>
+<tr><th>Network timing</th><th>Developer tools network list</th><td>Where a request spent time</td></tr>
+<tr><th>Long task</th><th>Performance recording</th><td>Main-loop work delayed rendering</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A browser trace records script, style, layout, paint, and network spans on one timeline. The <a href="glossary/e/event-loop.html">event loop</a> cannot paint while a long task runs, so a slow handler appears as a block before the next frame. Network timing separates waiting for a reply from downloading it. Field measures such as Web Vitals describe what real visitors experienced; a local profiling run explains a cause but does not replace field data. Tests belong at several sizes: unit checks for pure functions, integration checks for an HTTP boundary, and end-to-end checks for one complete user task.</p>
+<h3>Advanced usage</h3>
+<pre data-risk="scratch">
+test('rejects an empty title', async (t) =&gt; {
+  await assert.rejects(saveNote({ title: '' }), /title required/);
+});
+</pre>
+<p>Illustrative snippet: a negative test checks the failure path as well as the happy path. Keep it independent of ordering so it can run in parallel with other tests.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Timing tests that assert exact milliseconds are flaky on busy machines; assert bounds or compare relative runs.</li>
+<li>End-to-end suites that share one account can fail from leftover state; create fresh data per run.</li>
+<li>A stack trace from minified code points at generated files unless source maps are available.</li>
+<li>Caching can make a second measurement look faster even though the code did not change.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A slow page has a fast server response and a long browser task. Which measurement rules out the network, and what would you inspect next?</summary>
+<p>Model answer: the network list shows a short time to first byte and small transfer size, so the server and transfer are not the delay. The performance trace then identifies the long task. Inspect its call tree for repeated DOM writes, synchronous parsing, or an oversized framework render before adding caching.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>See <cite data-ref="node-docs"><a href="bibliography/node-docs.html">the Node.js documentation</a></cite> and <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/web-development/deployment-and-electron.html">Deployment and Electron desktop apps</a> &mdash; publish a verified build.</li>
+<li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; review the whole path.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="programming/web-development/browser-engines-and-dom.html">Browser engines and the DOM</a> &mdash; the source of layout and paint work.</li>
+<li><a href="programming/web-development/frameworks-and-tooling.html">Frameworks and tooling</a> &mdash; production builds to test.</li>
+</ul>
+</body></html>

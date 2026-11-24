@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>From first page to full-stack web developer</title>
+<meta name="kind" content="path">
+<meta name="skills" content="web.novice, web.learner, web.expert">
+<meta name="topic" content="web-development">
+<meta name="summary" content="Start with no web background and finish able to build, secure, test, deploy and package a full-stack web application">
+<meta name="keywords" content="path, web development, javascript, html, css, browser, dom, node.js, npm, full stack, security, electron">
+<meta name="level" content="novice">
+<meta name="track" content="paths">
+<meta name="parent" content="paths/index.html">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="paths/index.html">Learn step by step</a> / From first page to full-stack web developer</p></nav>
+
+<h1>From first page to full-stack web developer</h1>
+<p>This path takes a reader who has never written a web page from the idea of a script to building, securing, testing and shipping a small full-stack application.</p>
+<p>Each page has a novice, learner and expert lens. The stages name the lens to start with; after you finish, reread the pages at the expert lens to turn practice into reference knowledge. Work in a scratch directory. Nothing here changes your system, and the worked examples use local servers that you stop with Ctrl+C.</p>
+
+<h2>Stage 1: The language and the page</h2>
+<p><a href="programming/web-development/javascript.html?level=1">JavaScript: language, history and engines</a> first: learn what the language is, where it came from, and why one language now runs in browsers, servers and desktop apps. Then read <a href="programming/web-development/html-and-css.html?level=1">HTML and CSS foundations</a> to see the structure and presentation that a page is made of.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Which part of a page comes from HTML, which from CSS, and which from JavaScript?</i></summary>
+<p>HTML describes the structure and meaning of the content. CSS describes how that structure looks. JavaScript reads and changes the page after it loads. Reread the novice sections of both pages if you would describe all three as "the code".</p>
+</details>
+</section>
+
+<h2>Stage 2: How the browser runs a page</h2>
+<p><a href="programming/web-development/browser-engines-and-dom.html?level=1">Browser engines and the DOM</a> first: follow markup into a document tree that script can change. Then read <a href="programming/web-development/browser-apis-and-async.html?level=2">Browser APIs and asynchronous JavaScript</a> at the practice lens to react to events, fetch data and keep the page responsive while work is pending.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>Why does a line printed after <code>await</code> appear later than a line written after the whole async function call?</i></summary>
+<p><code>await</code> pauses only the async function that contains it. The <a href="glossary/e/event-loop.html">event loop</a> carries on with other work, then resumes that function when the promise settles. The Learner example on the async page shows the exact order.</p>
+</details>
+</section>
+
+<h2>Stage 3: The server half</h2>
+<p><a href="programming/web-development/node-and-npm.html?level=2">Node.js and npm</a> at the practice lens: run JavaScript outside a browser and manage project scripts and packages. Then read <a href="programming/web-development/full-stack-architecture.html?level=2">Full-stack web architecture</a> to connect a client, HTTP requests, a server and a database into one application.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>What can the server enforce that browser code cannot?</i></summary>
+<p>The server runs where the data lives. It can check identity and permission, omit private fields and refuse a request before replying. Anything sent to the browser can be read or changed by the person using it, so client-side rules are feedback, not a security boundary.</p>
+</details>
+</section>
+
+<h2>Stage 4: Safety and larger codebases</h2>
+<p><a href="programming/web-development/web-security.html?level=2">Web security</a> at the practice lens: keep untrusted text as text and understand cookies, CORS and injection. Then read <a href="programming/web-development/frameworks-and-tooling.html?level=3">Frameworks and tooling</a> at the reference lens to see what a framework, module system and bundler actually do underneath.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>A private API succeeds from <code>curl</code> but fails in the browser with a CORS message. What do you check first?</i></summary>
+<p>Read the status and headers, not just the console message. A <code>401</code> or <code>403</code> is an authentication problem; a successful reply hidden by the browser is a CORS problem. Never loosen authentication to fix a CORS error. The Expert quiz on the security page walks through the evidence.</p>
+</details>
+</section>
+
+<h2>Stage 5: Verification and delivery</h2>
+<p><a href="programming/web-development/testing-debugging-performance.html?level=3">Testing, debugging, and performance</a> at the reference lens: check behaviour, read traces and measure change. Then read <a href="programming/web-development/deployment-and-electron.html?level=3">Deployment and Electron desktop apps</a> to publish the application or package the same interface as a desktop program.</p>
+
+<section class="quiz">
+<h3>Checkpoint</h3>
+<details class="q">
+<summary><i>What did serving a page from a local folder prove, and what did it not prove?</i></summary>
+<p>It proved that the files could be returned with the right status and content type. It did not prove public reachability, encrypted transport, behaviour under load or a safe rollback. Those belong to a deployment plan.</p>
+</details>
+</section>
+
+<h2>Capstone: Build and hand over a small notes application</h2>
+<p><strong>Scenario:</strong> a friend wants a private notes app that works in a browser and can later be packaged as a desktop program. Work in a scratch directory; use only local servers and stop them when you finish.</p>
+<p><strong>Task:</strong> build a page with an input and a list, a Node server that stores notes in memory, a JSON endpoint, output that stays as text, one automated test, and a short handover note that says how to run it, how to deploy it and how to undo a bad release. Add a second test that checks the failure path for an empty title.</p>
+
+<details class="solution">
+<p><strong>Model approach:</strong></p>
+<ol>
+<li>Create a folder with <code>package.json</code>, <code>index.html</code>, <code>server.mjs</code> and <code>notes.test.mjs</code>. Set <code>"type": "module"</code> so <code>import</code> works.</li>
+<li>In the page, use a form and <code>fetch('/api/notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) })</code>. Render returned titles with <code>textContent</code>, never with <code>innerHTML</code>.</li>
+<li>In the server, use <code>node:http</code>. Accept <code>GET /api/notes</code> for the list and <code>POST /api/notes</code> for a new note. Reject an empty title with status <code>400</code>. Serve <code>index.html</code> for <code>/</code> with content type <code>text/html</code>.</li>
+<li>Keep the notes array in a module with <code>addNote</code> and <code>listNotes</code> exports. Validate and cap the title length on the server as well as in the page.</li>
+<li>Add <code>Content-Security-Policy: default-src 'self'; script-src 'self'</code> to responses. The inline script in the practice page would need a separate file to satisfy this policy; making that change is part of the task.</li>
+<li>Write two tests with <code>node:test</code>: one asserting a valid title is stored, one asserting an empty title is rejected. Run <code>node --test --test-reporter=dot</code> and require two dots before continuing.</li>
+<li>Start the server, open the local address, add a note in the browser and confirm the list updates. Stop the server with Ctrl+C. For an Electron version, move the page into a renderer and expose only a named <code>read:notes</code> operation from the main process.</li>
+<li>The handover note records the Node version, the command to run, the command to test, the exact files shipped, and the previous working directory to restore if a release fails.</li>
+</ol>
+<p>The point is that each stage of the path appears once: markup and style, DOM and async, server and JSON, escaping and headers, tests and a reversible release.</p>
+</details>
+
+<h2>Next paths</h2>
+<ul>
+<li><a href="paths/how-software-runs.html">How software runs</a> &mdash; see what a runtime and an operating system do beneath your program.</li>
+<li><a href="paths/internet-protocol-stack.html">Internet protocol and the stack</a> &mdash; follow an HTTP request down to packets and routing.</li>
+<li><a href="paths/people-and-security.html">People and security</a> &mdash; place these technical controls in a wider threat model.</li>
+</ul>
+
+<h2>Sources and further reading</h2>
+<p>See the <a href="bibliography/index.html">bibliography</a> for the standards and documentation behind this series.</p>
+</body>
+</html>

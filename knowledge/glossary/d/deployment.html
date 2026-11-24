@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Deployment</title>
+<meta name="topic" content="glossary-deployment">
+<meta name="summary" content="Deployment: The step that makes a finished program available to its users.">
+<meta name="keywords" content="glossary-deployment, deployment, release, artifact, rollback">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/d/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / Deployment</p></nav>
+
+<h1>Deployment</h1>
+<p>Deployment is the work of putting a finished program where its users can reach it and keeping a way to undo a bad release.</p>
+<section data-level="novice"><p>Writing the program is only half the job. Deployment is moving the finished version into place, like putting a new sign outside a shop after the paint has dried.</p></section>
+<section data-level="learner"><p>A simple deployment copies built files to a server. A larger one records a versioned artifact, applies database changes carefully and checks that the new version responds correctly.</p>
+<details class="q"><summary><i>Why build one artifact and promote it instead of rebuilding in production?</i></summary><p>Rebuilding can resolve different dependencies or apply different settings, so the tested code is not the shipped code. Promoting the recorded artifact preserves the evidence from testing.</p></details></section>
+<section data-level="expert"><p>Reliable releases build once and promote the same artifact through environments. Blue-green or canary rollouts send a small share of traffic to the new version first. Secrets stay outside the artifact, and a tested rollback path is part of the release.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/deployment-and-electron.html">Related web development lesson</a></li></ul>
+</body></html>

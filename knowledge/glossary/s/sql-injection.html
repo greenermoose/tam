@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>SQL injection</title>
+<meta name="topic" content="glossary-sql-injection">
+<meta name="summary" content="SQL injection: A flaw where input changes the meaning of a database query.">
+<meta name="keywords" content="glossary-sql-injection, sql injection, parameterized query, database security">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SQL injection</p></nav>
+
+<h1>SQL injection</h1>
+<p>SQL injection is a security flaw in which input is treated as part of a database query instead of as a value.</p>
+<section data-level="novice"><p>If a form answer is pasted straight into a question for the database, a clever answer can change the question. The database then answers something the programmer never intended.</p></section>
+<section data-level="learner"><p>Use parameterized queries: send the SQL text and the values separately. Validate input for business rules, but do not rely on validation alone for safety.</p>
+<details class="q"><summary><i>Why does escaping quotation marks alone often fail?</i></summary><p>Different databases and contexts use different quote and escape rules, and some injections need no quotes at all. Passing values as parameters keeps them separate from query syntax by construction.</p></details></section>
+<section data-level="expert"><p>Payloads can use UNION queries, boolean conditions or timing differences to infer data when results are not returned directly. Object-relational mappers reduce raw SQL but can still be misused with interpolated fragments. Least-privilege database accounts limit the damage.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/full-stack-architecture.html">Related web development lesson</a></li></ul>
+</body></html>

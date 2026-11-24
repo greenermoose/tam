@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>WebSocket</title>
+<meta name="topic" content="glossary-websocket">
+<meta name="summary" content="WebSocket: A long-lived two-way connection between a browser and a server.">
+<meta name="keywords" content="glossary-websocket, websocket, ws, wss, real-time, http upgrade">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/w/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / WebSocket</p></nav>
+
+<h1>WebSocket</h1>
+<p>WebSocket is a web protocol that keeps one connection open so a browser and a server can both send messages at any time.</p>
+<section data-level="novice"><p>Ordinary web requests are like sending letters one at a time. A WebSocket is a phone call: once it is open, either side can speak without hanging up.</p></section>
+<section data-level="learner"><p>A client opens ws:// or wss:// and listens for message events. Applications add reconnects and heartbeat messages so a dropped connection is noticed.</p>
+<details class="q"><summary><i>Why is WebSocket useful for a chat page but not for a static article?</i></summary><p>Chat needs the server to push new messages at unpredictable times. A static article is a single cacheable HTTP reply, where ordinary HTTP is simpler and works better with caches.</p></details></section>
+<section data-level="expert"><p>A WebSocket starts as an HTTP upgrade request, then carries framed messages over TCP with wss adding TLS. Proxies and load balancers may close idle connections, so keepalives and reconnect backoff are required. It does not replace HTTP for ordinary cacheable reads.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/full-stack-architecture.html">Related web development lesson</a></li></ul>
+</body></html>

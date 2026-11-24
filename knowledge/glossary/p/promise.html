@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Promise</title>
+<meta name="topic" content="glossary-promise">
+<meta name="summary" content="Promise: An object that stands for a result that will arrive later.">
+<meta name="keywords" content="glossary-promise, promise, async, await, reject, microtask">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/p/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Promise</p></nav>
+
+<h1>Promise</h1>
+<p>A promise is a JavaScript object that represents a result which is not ready yet but will either succeed or fail later.</p>
+<section data-level="novice"><p>A promise is like a receipt for a parcel. You do not have the parcel now, but the receipt gives you a way to be told when it arrives.</p></section>
+<section data-level="learner"><p>A promise starts pending, then becomes fulfilled with a value or rejected with a reason. await pauses the surrounding async function until that happens; catch handles a rejection.</p>
+<details class="q"><summary><i>Does await pause the whole program?</i></summary><p>No. It pauses only the async function that contains it. The event loop continues with other work and resumes that function when the promise settles.</p></details></section>
+<section data-level="expert"><p>Promise reactions are microtasks queued after the current script and before the next task. Promise combinators such as all, race and allSettled express different waiting rules. An unhandled rejection is reported by the runtime and should be caught at a boundary.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/browser-apis-and-async.html">Related web development lesson</a></li></ul>
+</body></html>

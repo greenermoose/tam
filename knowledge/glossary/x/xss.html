@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>XSS (Cross-site scripting)</title>
+<meta name="topic" content="glossary-xss">
+<meta name="summary" content="XSS: A flaw where untrusted text becomes executable code in a web page.">
+<meta name="keywords" content="glossary-xss, xss, cross-site scripting, escaping, injection">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/x/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / XSS (Cross-site scripting)</p></nav>
+
+<h1>XSS (Cross-site scripting)</h1>
+<p>XSS is a security flaw in which text from an untrusted source is treated as page code instead of ordinary words.</p>
+<section data-level="novice"><p>If a site shows a comment and the comment contains hidden instructions, an XSS flaw can make the browser follow those instructions as if the site wrote them.</p></section>
+<section data-level="learner"><p>Escaping text where it is inserted into the page, and using textContent rather than innerHTML, keeps input as words. Frameworks escape by default but not in every context, such as a URL or an attribute.</p>
+<details class="q"><summary><i>Why is escaping output better than banning the word script in input?</i></summary><p>Escaping works at the point where text becomes markup and covers every tag and attribute form. A word ban misses alternate tags, event attributes and encodings, and it damages harmless input.</p></details></section>
+<section data-level="expert"><p>XSS is classified as stored, reflected or DOM-based depending on where the payload waits. A content security policy limits which scripts may run and where they may send data. Sanitization is needed only when a product truly requires rich markup, and it must be context-aware.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/web-security.html">Related web development lesson</a></li></ul>
+</body></html>

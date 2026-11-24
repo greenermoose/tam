@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Same-origin policy</title>
+<meta name="topic" content="glossary-same-origin-policy">
+<meta name="summary" content="Same-origin policy: A browser rule limiting when a page may read data from another origin.">
+<meta name="keywords" content="glossary-same-origin-policy, same-origin policy, origin, cors, browser security">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Same-origin policy</p></nav>
+
+<h1>Same-origin policy</h1>
+<p>The same-origin policy is a browser rule that stops a page from reading data from a different origin unless permission is granted.</p>
+<section data-level="novice"><p>A page may read its own site's information, but not another site's private replies. The rule keeps one tab from quietly reading another service you are logged into.</p></section>
+<section data-level="learner"><p>An origin is the combination of scheme, host and port. A different port or a change from http to https makes a different origin. CORS is the server-side way to allow a specific cross-origin read.</p>
+<details class="q"><summary><i>If same-origin policy blocks cross-origin reads, why is CSRF still possible?</i></summary><p>The policy limits what script can read, not what a browser can send. A form submission or simple request may still carry a session cookie to another site, so state-changing actions need their own CSRF defence.</p></details></section>
+<section data-level="expert"><p>The policy restricts reads of response bodies, not the act of sending a request. Images and forms can load cross-origin without granting script access. postMessage offers an explicit channel, and CORS headers grant narrow exceptions to the default rule.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/web-security.html">Related web development lesson</a></li></ul>
+</body></html>

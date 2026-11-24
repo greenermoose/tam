@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Full-stack web architecture</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="web.novice, web.learner, web.expert">
+<meta name="topic" content="full-stack-web-architecture">
+<meta name="summary" content="Connect a browser client, HTTP interfaces, a Node server, and a database into one working web application.">
+<meta name="keywords" content="full stack, client, server, HTTP, REST, database, SQL, JSON, web application architecture">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/web-development/index.html">
+<meta name="prereqs" content="node-npm">
+<meta name="paths" content="web-development:6">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / Full-stack web architecture</p></nav>
+
+<h1>Full-stack web architecture</h1>
+<p>A full-stack application joins the page a person sees, the program that answers it, and the place its data is kept.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>The browser page asks for information over <a href="glossary/h/http.html">HTTP</a>. A <dfn><a href="glossary/w/web-server.html">web server</a></dfn> answers with data, often in <a href="glossary/j/json.html">JSON</a>. The server reads and writes a <dfn><a href="glossary/d/database.html">database</a></dfn>, which keeps information between visits.</p>
+<h3>Why it matters</h3>
+<p>Keeping page code and stored data apart lets many people use the same application without sharing one another's browser state. The server can enforce rules that a person could otherwise skip.</p>
+<h3>How to think about it</h3>
+<p>Picture a library. The page is the catalogue and the reading desk, the server is the librarian, and the database is the stacks. You ask at the desk; the librarian fetches the book; the stacks never come to you.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/r/rest.html">REST</a></dt><dd>A style for naming things on a server and using HTTP methods to work with them.</dd>
+<dt><a href="glossary/s/sql.html">SQL</a></dt><dd>A language for asking a database for rows and changing them.</dd>
+<dt>Endpoint</dt><dd>A URL on a server that accepts a request and returns a response.</dd>
+</dl>
+<p><a href="programming/web-development/web-security.html">Next: web security</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Follow one request</h2>
+<p><strong>Goal:</strong> you will be able to trace one request from a browser-style <code>fetch</code> call to a JSON response and name what each side owns.</p>
+<p><strong>Learner path:</strong> previous: <a href="programming/web-development/node-and-npm.html?level=2">Node.js and npm</a>; next: <a href="programming/web-development/web-security.html?level=2">Web security</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ node server.mjs
+200 application/json {"ok":true,"path":"/api/health"}
+</pre>
+<p>Captured on 2026-11-24 with Node.js 24.5.0. <code>server.mjs</code> opened a local HTTP server, returned a JSON object for <code>/api/health</code>, and the same program fetched that address and printed the response.</p>
+<ol>
+<li>The client used <code>fetch</code> with a <a href="glossary/u/url.html">URL</a> for the local server.</li>
+<li>The server checked the request path and chose a response.</li>
+<li>The response carried status <code>200</code>, content type <code>application/json</code>, and a short JSON body.</li>
+</ol>
+<h3>Try it</h3>
+<p>Change the server to return <code>{"ok":true,"visits":1}</code>. Fetch it again and confirm the printed body changes while the status stays <code>200</code>. Then request a path the server does not handle and observe the difference.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The fetch fails with a connection error</dt><dd>The server is not listening, or the port in the URL is wrong. Start the server first and read its printed port.</dd>
+<dt>The browser can reach the page but not the API</dt><dd>Check the origin and <a href="glossary/c/cors.html">CORS</a>. A server response that looks correct in Node may be hidden from browser script without permission.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why can the server hide a value that the browser page must not show?</summary>
+<p>The browser runs page code on the reader's machine, so anything sent to it can be read. The server runs where the data lives and can refuse a request or omit fields before replying.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Architecture and trust boundaries</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Layer</th><th>Owns</th><th>Typical failure</th></tr>
+<tr><td>Browser client</td><td>Presentation, input, local UI state</td><td>Stale data, unsafe DOM writes</td></tr>
+<tr><td>HTTP interface</td><td>URLs, methods, status, headers</td><td>Mismatched method or content type</td></tr>
+<tr><td>Application server</td><td>Rules, authorization, sessions</td><td>Trusting client-supplied identity</td></tr>
+<tr><td>Database</td><td>Durable rows and constraints</td><td>Unparameterized queries, lost updates</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A <a href="glossary/r/rest.html">REST</a> design names resources as URLs and uses HTTP methods for actions: <code>GET</code> reads, <code>POST</code> creates, <code>PUT</code> replaces, and <code>DELETE</code> removes. A <a href="glossary/d/database.html">database</a> queried with <a href="glossary/s/sql.html">SQL</a> enforces structure and constraints. The server treats every request as untrusted, checks identity and permission, and returns the smallest useful answer. <a href="glossary/j/jwt.html">JWT</a> tokens and server-side <a href="glossary/s/session.html">sessions</a> are two ways to remember identity; neither makes input safe by itself. A <a href="glossary/w/websocket.html">WebSocket</a> upgrades an HTTP connection into a two-way channel when the page needs server-initiated messages.</p>
+<h3>Advanced usage</h3>
+<pre data-risk="scratch">
+const result = await database.query(
+  'SELECT id, title FROM notes WHERE owner = $1 ORDER BY id LIMIT $2',
+  [userId, 50],
+);
+response.json({ items: result.rows });
+</pre>
+<p>Illustrative snippet: parameters keep values separate from SQL text, and a limit keeps one reply bounded.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>A <code>GET</code> handler that changes state can be replayed by caches or prefetching; use it only for reads.</li>
+<li>Client-side validation improves feedback but is not a security boundary.</li>
+<li>Unbounded list responses grow without limit; paginate with stable keys.</li>
+<li>Two writes to the same row need a transaction or version check to avoid lost updates.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A user edits the price in browser code before submitting an order. What does a correct server do, and why?</summary>
+<p>Model answer: ignore the submitted price and read it from the product record under a transaction. The client is not a trusted party. The server rechecks identity, permission, and current data before committing. Relying on a hidden form field or a disabled input is not an authorization control.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>See <cite data-ref="node-docs"><a href="bibliography/node-docs.html">the Node.js documentation</a></cite> and <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/web-development/web-security.html">Web security</a> &mdash; protect each trust boundary.</li>
+<li><a href="programming/web-development/deployment-and-electron.html">Deployment and Electron desktop apps</a> &mdash; publish the finished application.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="programming/web-development/node-and-npm.html">Node.js and npm</a> &mdash; the server half built earlier.</li>
+<li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; the whole sequence.</li>
+</ul>
+</body></html>

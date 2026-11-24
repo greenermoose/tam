@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>CORS (Cross-Origin Resource Sharing)</title>
+<meta name="topic" content="glossary-cors">
+<meta name="summary" content="CORS: A server's permission for a browser to let one origin read a response from another.">
+<meta name="keywords" content="glossary-cors, cors, cross-origin, origin, header, fetch">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/c/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CORS (Cross-Origin Resource Sharing)</p></nav>
+
+<h1>CORS (Cross-Origin Resource Sharing)</h1>
+<p>CORS is a rule that lets a server say which other website origins may read its replies from browser script.</p>
+<section data-level="novice"><p>Browsers normally stop a page from reading replies from a different site. CORS is the server giving that page permission, like a librarian handing over a signed note.</p></section>
+<section data-level="learner"><p>The browser sends an Origin header. The server can answer with Access-Control-Allow-Origin. Some requests first send a small preflight request asking whether the real method and headers are allowed.</p>
+<details class="q"><summary><i>A curl request succeeds but the browser reports a CORS error. Did the server refuse the request?</i></summary><p>Not necessarily. The server may have replied successfully, but the browser hides the body from script because no CORS permission was present. Read the status and response headers before changing authentication.</p></details></section>
+<section data-level="expert"><p>CORS relaxes the same-origin policy for reads; it does not stop requests from being sent. Credentialed requests require an explicit origin rather than a wildcard, and preflight results are cached. A permissive configuration can expose private data to any site.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/web-security.html">Related web development lesson</a></li></ul>
+</body></html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Frameworks and tooling</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="web.novice, web.learner, web.expert">
+<meta name="topic" content="web-frameworks-tooling">
+<meta name="summary" content="Choose libraries, modules, build steps, and rendering strategies without losing sight of how the browser works.">
+<meta name="keywords" content="framework, library, module, bundler, npm, single-page application, server-side rendering, build tool, lint">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/web-development/index.html">
+<meta name="prereqs" content="web-security">
+<meta name="paths" content="web-development:8">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / Frameworks and tooling</p></nav>
+
+<h1>Frameworks and tooling</h1>
+<p>Frameworks and tools help a team build larger web applications, but they still produce ordinary HTML, CSS, and JavaScript in the end.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p>A <dfn><a href="glossary/l/library.html">library</a></dfn> is code you call when you need it. A <dfn><a href="glossary/f/framework.html">framework</a></dfn> supplies the shape of an application and calls your code at the right moments. A <dfn><a href="glossary/b/bundler.html">bundler</a></dfn> combines many source files into fewer files a browser can load.</p>
+<h3>Why it matters</h3>
+<p>A framework handles repeated work such as updating a page when data changes. A tool catches mistakes before readers meet them. Knowing what each one does helps you choose instead of copying a template.</p>
+<h3>How to think about it</h3>
+<p>A library is a tool you pick up. A framework is a workshop with a bench and a workflow. Neither replaces knowing what the wood and the saw do.</p>
+<h3>New words</h3>
+<dl>
+<dt><a href="glossary/m/module.html">Module</a></dt><dd>A file with an explicit interface to other files.</dd>
+<dt><a href="glossary/s/single-page-application.html">SPA</a></dt><dd>An application that loads one page and updates it with script.</dd>
+<dt><a href="glossary/s/server-side-rendering.html">SSR</a></dt><dd>A server that builds page markup before sending it.</dd>
+</dl>
+<p><a href="programming/web-development/testing-debugging-performance.html">Next: testing, debugging, and performance</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Check a module before you ship it</h2>
+<p><strong>Goal:</strong> you will be able to syntax-check a JavaScript file, import a function from a module, and assert its result.</p>
+<p><strong>Learner path:</strong> previous: <a href="programming/web-development/web-security.html?level=2">Web security</a>; next: <a href="programming/web-development/testing-debugging-performance.html?level=2">Testing, debugging, and performance</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ node --check app.mjs
+$ node app.mjs
+5
+$ node --input-type=module -e "import { strict as assert } from 'node:assert'; assert.equal(2 + 2, 4); console.log('module and assert OK');"
+module and assert OK
+</pre>
+<p>Captured on 2026-11-24 with Node.js 24.5.0. <code>app.mjs</code> exported an <code>add</code> function and printed <code>add(2, 3)</code>.</p>
+<ol>
+<li><code>node --check</code> parses the file and prints nothing when syntax is valid.</li>
+<li>The <code>.mjs</code> suffix selects ES modules, so <code>import</code> and <code>export</code> work.</li>
+<li><code>assert.equal</code> stops with an error if the value is wrong; silence apart from the final line means it passed.</li>
+</ol>
+<h3>Try it</h3>
+<p>Add a <code>multiply</code> export to a scratch module and assert that <code>multiply(3, 4)</code> is <code>12</code>. Change the expected value to <code>11</code> and read the failure message.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt><code>Cannot use import statement outside a module</code></dt><dd>Rename the file to <code>.mjs</code> or set <code>"type": "module"</code> in <code>package.json</code>.</dd>
+<dt>The bundler cannot find an import</dt><dd>Check relative paths and file extensions. A browser needs a real URL; a build tool may add one for you.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>When should you reach for a framework rather than a library?</summary>
+<p>Use a library for one job you control, such as formatting a date. Use a framework when many pages share the same lifecycle, routing, and state rules and you want those rules handled consistently. Both still rest on the browser APIs you already learned.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Build pipeline and rendering trade-offs</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Category</th><th>Job</th><th>Question to ask</th></tr>
+<tr><td>UI library</td><td>Render and update views from state</td><td>How does it update the DOM, and can I escape output?</td></tr>
+<tr><td>Meta-framework</td><td>Routing, data loading, rendering mode</td><td>Where does code run: browser, server, or both?</td></tr>
+<tr><td>Bundler</td><td>Resolve modules and emit assets</td><td>What enters the output and why?</td></tr>
+<tr><td>Linter and formatter</td><td>Catch patterns and keep style steady</td><td>Are the rules checked in CI?</td></tr>
+<tr><td>Type checker</td><td>Describe shapes before runtime</td><td>Does it cover data from the network?</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A build tool follows <a href="glossary/m/module.html">module</a> imports from an entry file, applies transforms, and writes browser-ready assets. Dead code removal drops exports nothing reaches. A <a href="glossary/s/single-page-application.html">SPA</a> sends a small shell and builds most markup in the browser; a <a href="glossary/s/server-side-rendering.html">SSR</a> application builds the first markup on the server and then attaches browser behavior. That attachment step must match the markup the server produced, or the page can flicker or lose input. Source maps connect generated code back to source when debugging, but they should not be exposed with personal data.</p>
+<h3>Advanced usage</h3>
+<pre data-risk="scratch">
+export default {
+  build: { target: 'es2022' },
+  server: { port: 5173 },
+};
+</pre>
+<p>Illustrative configuration: a build target sets the syntax level emitted, and a local port lets the page use ordinary HTTP origins during development.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Dev and production builds can take different code paths; test the production output.</li>
+<li>A dependency added for one small helper can dominate bundle size; measure before accepting it.</li>
+<li>SSR code that touches browser globals during server execution crashes at startup.</li>
+<li>Generated files committed by mistake hide which source actually changed.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>A page renders correctly on the server but loses form input after loading. Which boundary do you inspect?</summary>
+<p>Model answer: the handoff between server markup and browser attachment, often called hydration. Compare the first markup with what the browser renders, confirm the same data was supplied on both sides, and look for browser-only globals running during server rendering. Fix the mismatch before blaming the framework.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>See <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite> and <cite data-ref="node-docs"><a href="bibliography/node-docs.html">the Node.js documentation</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/web-development/testing-debugging-performance.html">Testing, debugging, and performance</a> &mdash; verify a larger codebase.</li>
+<li><a href="programming/web-development/deployment-and-electron.html">Deployment and Electron desktop apps</a> &mdash; ship the build.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="programming/web-development/node-and-npm.html">Node.js and npm</a> &mdash; where modules and scripts began.</li>
+<li><a href="paths/web-development.html">From first page to full-stack web developer</a> &mdash; the whole sequence.</li>
+</ul>
+</body></html>

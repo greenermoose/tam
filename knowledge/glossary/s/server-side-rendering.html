@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+<title>Server-side rendering (SSR)</title>
+<meta name="topic" content="glossary-server-side-rendering">
+<meta name="summary" content="SSR: Building page markup on a server before sending it to a browser.">
+<meta name="keywords" content="glossary-server-side-rendering, ssr, server rendering, hydration">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/s/index.html">
+<meta name="kind" content="glossary">
+<meta name="skills" content="">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Server-side rendering (SSR)</p></nav>
+
+<h1>Server-side rendering (SSR)</h1>
+<p>Server-side rendering, or SSR, means a server builds the page's markup before the browser receives it.</p>
+<section data-level="novice"><p>The server prepares a finished page and sends it, rather than sending an empty frame and asking the browser to build everything. Words can appear sooner.</p></section>
+<section data-level="learner"><p>After the markup arrives, browser script attaches behaviour to the existing elements. That attachment step is called hydration, and it must match the markup the server sent.</p>
+<details class="q"><summary><i>Why can SSR show words earlier than a pure SPA?</i></summary><p>The browser receives markup it can display immediately. A pure SPA first downloads and runs script, then builds the markup; both can end at the same view, but the first visible content arrives later.</p></details></section>
+<section data-level="expert"><p>SSR can stream markup as data becomes ready and cache whole responses. A hydration mismatch occurs when client and server compute different markup from the same URL. Server code must avoid browser-only globals, and serialized data must be escaped to avoid XSS.</p></section>
+<p><a href="glossary/index.html">All glossary terms</a>; <a href="bibliography/index.html">reference sources</a>.</p>
+<h2>Learn more</h2><ul><li><a href="programming/web-development/frameworks-and-tooling.html">Related web development lesson</a></li></ul>
+</body></html>

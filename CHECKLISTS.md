@@ -11,7 +11,7 @@ procedure and design.
 ## Rules
 
 - Mint top-level IDs in sequence (`TCK1`, `TCK2`, ...) across all plans; never
-  restart per plan, reuse or renumber an ID. **Next free: TCK31.** Update this
+  restart per plan, reuse or renumber an ID. **Next free: TCK32.** Update this
   counter and add the item to this file in the same change that adds a new
   top-level item.
 - Mint IDs only while holding a `tam-work` claim on this file and the plan
@@ -79,6 +79,10 @@ labels.
 | `TCK28` | Avahi and Zeroconf page | [network-setup-curriculum.md](docs/plans/network-setup-curriculum.md) | Completed (2026-11-21) | Corpus 0.105.0 |
 | `TCK29` | Network setup pages and path | [network-setup-curriculum.md](docs/plans/network-setup-curriculum.md) | Completed (2026-11-21) | Corpus 0.105.0 |
 | `TCK30` | References and verification | [network-setup-curriculum.md](docs/plans/network-setup-curriculum.md) | Completed (2026-11-21) | Corpus 0.105.0; `make corpus-and-test` and `make check-repo` pass |
+| `TCK31` | Web development curriculum | [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md) | Completed (2026-11-24) | Corpus 0.123.0; ten teaching pages, hub, goal path, glossary, sources and skills |
+| `TCK31.1` | Web development pages | [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md) | Completed (2026-11-24) | Hub and ten level-tagged pages with steps 1–10 |
+| `TCK31.2` | Web path and supporting corpus | [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md) | Completed (2026-11-24) | Goal path, thirty glossary pages, five sources, hub links and `web.*` skills |
+| `TCK31.3` | Web bookkeeping and verification | [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md) | Completed (2026-11-24) | Corpus 0.123.0 records; corpus, repository and reader checks |
 
 ### Knowledge system (corpus 0.31.0)
 
@@ -163,3 +167,21 @@ Owning plan: [network-setup-curriculum.md](docs/plans/network-setup-curriculum.m
   and RFC 6763 bibliography entries, regenerated indexes, corpus/test/repo
   checks, `tam show`/`tam explain` spot checks, corpus 0.105.0 version and
   roadmap updates. Completed 2026-11-21.
+
+### JavaScript and web development curriculum
+
+Owning plan: [javascript-web-development-curriculum.md](docs/plans/javascript-web-development-curriculum.md)
+
+- [x] **TCK31 (Web development curriculum):** Rollup for the zero-to-expert
+  web series at corpus 0.123.0. Completed 2026-11-24 when every child below
+  was complete.
+- [x] **TCK31.1 (Web development pages):** Programming > Web development hub
+  and ten three-level teaching pages from JavaScript history and HTML/CSS to
+  browser engines, async APIs, Node, full-stack architecture, security,
+  tooling, testing and deployment/Electron. Steps 1–10 declared in order.
+- [x] **TCK31.2 (Web path and supporting corpus):** Five-stage goal path with
+  checkpoints and a capstone, thirty glossary pages, five bibliography entries,
+  programming hub link and `web.*` skill cells. Generated hubs rebuilt.
+- [x] **TCK31.3 (Web bookkeeping and verification):** Corpus 0.123.0 version,
+  roadmap, development contract, plan index and work record; corpus, repository
+  and reader checks pass. Completed 2026-11-24.

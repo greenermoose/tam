@@ -1,0 +1,69 @@
+W120 JAVASCRIPT AND WEB DEVELOPMENT SERIES
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Add a series of pages about JavaScript. Include a description of
+  the language and its history. Also discuss Node, Electron, interpreters
+  built into web browsers. Make sure to give a complete overview of
+  programming for web browsers. A reader with no background should be able
+  to become an expert full-stack web developer after reading the series of
+  pages you create for the guide."
+
+  The offered shapes were a full series, a shorter introduction or a single
+  hub. Fred chose the full series.
+
+DONE
+
+  - Added a Programming > Web development hub and ten level-tagged teaching
+    pages: JavaScript history, HTML/CSS, browser engines and the DOM,
+    browser APIs and async, Node/npm, full-stack architecture, web security,
+    frameworks and tooling, testing/debugging/performance, and deployment
+    with Electron. Each page has novice, learner and expert sections, a
+    learner worked example and check question, and a paths step 1-10.
+  - Added the five-stage web-development goal path with checkpoints, a
+    capstone with a folded solution and next paths. The path and its steps
+    appear in the generated path index.
+  - Added thirty three-level glossary pages, five bibliography pages with
+    stable citation IDs, and rows for each source in every bibliography
+    view. Added web.novice, web.learner and web.expert to the skills
+    registry and map, and linked the hub from the programming hub.
+  - Bumped corpus to 0.123.0 and updated the roadmap, development contract,
+    plan index and CHECKLISTS. Minted TCK31 with three children; next free
+    is TCK32. Wrote the completed curriculum plan.
+  - Captured worked-output examples on this workstation with Node 24.5.0,
+    npm 12.2.1 and Python 3.14.8. Source facts were checked against MDN,
+    ECMA-262, WHATWG HTML and the Node and Electron documentation.
+
+FAILED
+
+  - The first corpus check failed with a broken internal link to style.css.
+    The link came from the escaped HTML example in the HTML/CSS page: the
+    checker matches href="..." in raw page text even inside a pre block.
+    Changed the example attribute to href=&quot;style.css&quot; so the
+    reader still displays href="style.css" while the raw text no longer
+    looks like an internal link. Corpus checks then passed.
+  - The first glossary generation used a non-English word in the XSS expert
+    section. Corrected the generator and regenerated the glossary pages.
+
+CHECKED AGAINST
+
+  - make corpus, make corpus-and-test and make check-repo pass. The nine
+    remaining learning warnings are the pre-existing algorithms and
+    computer-timescales ones.
+  - Reader smoke checks with TAM_KNOWLEDGE_DIR set to the checkout corpus:
+    all ten teaching topics, the hub, the path page and tam:paths, the
+    twenty-web-term glossary lookups, the six bibliography lookups and the
+    skills-map rows resolve. The escaped stylesheet example renders as a
+    normal quoted href.
+
+HANDOFF
+
+  - Commit the source and version records on dev with provenance trailers,
+    then rerun make corpus and commit the generated index follow-up.
+  - Rerun make corpus after that commit to refresh the build marker.
+  - No Test, Run or Release is authorised. Learner review and packaged
+    acceptance remain Fred's decisions.

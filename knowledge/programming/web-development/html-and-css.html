@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HTML and CSS foundations</title>
+<meta name="kind" content="tutorial">
+<meta name="skills" content="web.novice, web.learner, web.expert">
+<meta name="topic" content="html-css-foundations">
+<meta name="summary" content="Structure a web page with HTML and describe how it looks with CSS.">
+<meta name="keywords" content="HTML, CSS, elements, tags, selectors, box model, stylesheet, web page">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="programming">
+<meta name="parent" content="programming/web-development/index.html">
+<meta name="prereqs" content="javascript-language">
+<meta name="paths" content="web-development:2">
+</head>
+<body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/web-development/index.html">Web development</a> / HTML and CSS foundations</p></nav>
+
+<h1>HTML and CSS foundations</h1>
+<p>HTML says what a page contains, and CSS says how that content should look.</p>
+
+<section data-level="novice">
+<h2>What this is</h2>
+<p><dfn><a href="glossary/h/html.html">HTML</a></dfn> is a plain text file with labels around words, such as a heading label or a list label. <dfn><a href="glossary/c/css.html">CSS</a></dfn> is another text file with rules about colour, spacing, and size.</p>
+<h3>Why it matters</h3>
+<p>A browser can read those two files on almost any computer. That is why one web page works on a phone, a laptop, and a TV without a separate installation.</p>
+<h3>How to think about it</h3>
+<p>HTML is the skeleton and the words. CSS is the clothes. The same skeleton can wear different clothes for a narrow screen, a dark room, or a printed page.</p>
+<h3>New words</h3>
+<dl>
+<dt>Element</dt><dd>A piece of a page, usually written with an opening tag, content, and a closing tag.</dd>
+<dt>Attribute</dt><dd>Extra information inside a tag, such as a link address or a class name.</dd>
+<dt>Selector</dt><dd>The part of a CSS rule that chooses which elements to style.</dd>
+</dl>
+<p><a href="programming/web-development/browser-engines-and-dom.html">Next: browser engines and the document object model</a></p>
+</section>
+
+<section data-level="learner">
+<h2>Build a tiny page</h2>
+<p><strong>Goal:</strong> you will be able to make a small HTML file, attach a CSS file, and explain what each part does.</p>
+<p><strong>Learner path:</strong> previous: <a href="programming/web-development/javascript.html?level=2">JavaScript and its history</a>; next: <a href="programming/web-development/browser-engines-and-dom.html?level=2">Browser engines and the DOM</a>.</p>
+<h3>Worked example</h3>
+<pre class="session" data-risk="scratch">
+$ cat &gt; index.html
+&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;My first page&lt;/title&gt;
+&lt;link rel="stylesheet" href=&quot;style.css&quot;&gt;&lt;/head&gt;
+&lt;body&gt;&lt;h1&gt;Hello, web&lt;/h1&gt;&lt;p class="note"&gt;Made with HTML and CSS.&lt;/p&gt;&lt;/body&gt;
+&lt;/html&gt;
+$ cat &gt; style.css
+h1 { color: #16324f; }
+.note { font-size: 1.1rem; }
+$ python3 -c "...read index.html with HTMLParser..."
+title: My first page
+$ wc -c index.html style.css
+ 222 index.html
+  52 style.css
+ 274 total
+</pre>
+<p>Captured in a scratch directory on 2026-11-24. The byte counts depend on your exact whitespace; the title does not.</p>
+<ol>
+<li><code>&lt;!doctype html&gt;</code> tells the browser to use standards mode.</li>
+<li><code>&lt;head&gt;</code> holds information about the page. Its title appears in the tab.</li>
+<li><code>&lt;body&gt;</code> holds what the reader sees. The <code>class</code> attribute lets CSS find the paragraph.</li>
+</ol>
+<h3>Try it</h3>
+<p>Add a second paragraph with <code>class="note"</code> and change <code>h1 { color: ... }</code> to a different colour. Open the file in a browser and confirm both paragraphs change.</p>
+<h3>If it goes wrong</h3>
+<dl>
+<dt>The page shows raw tags</dt><dd>The file is not named with an <code>.html</code> suffix, or the server is sending the wrong content type.</dd>
+<dt>CSS does not appear</dt><dd>Check that <code>style.css</code> sits beside the HTML file and that the selector matches the class or tag exactly.</dd>
+</dl>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide your answer before you reveal it.</p>
+<details class="q">
+<summary>Why keep HTML and CSS in separate files?</summary>
+<p>One page of structure can wear several styles, and one stylesheet can give many pages the same look. Browsers can also cache the stylesheet, so later pages load faster.</p>
+</details>
+</section>
+</section>
+
+<section data-level="expert">
+<h2>Documents, boxes, and cascade</h2>
+<h3>Reference</h3>
+<table>
+<tr><th>Concept</th><th>Rule</th></tr>
+<tr><td>Parser</td><td>HTML is tokenized and tree-built with error recovery; invalid markup still produces a document.</td></tr>
+<tr><td>Box model</td><td>Each element has content, padding, border, and margin. <code>box-sizing: border-box</code> includes padding and border in a declared width.</td></tr>
+<tr><td>Cascade</td><td>Origin, importance, specificity, then source order decide which declaration wins.</td></tr>
+<tr><td>Layout</td><td>Normal flow, flexbox, and grid place boxes; <code>position</code> can remove a box from flow.</td></tr>
+</table>
+<h3>How it works</h3>
+<p>A browser parses HTML into a tree, combines it with styles, and builds a render tree. CSS selectors match elements in that tree. Values such as <code>1rem</code> resolve against the root font size, while <code>em</code> resolves against the current element. Media queries let one stylesheet respond to width, colour preference, or motion preference. A valid document gives assistive technology a reliable structure; <cite data-ref="wcag"><a href="bibliography/wcag.html">WCAG</a></cite> adds testable accessibility requirements.</p>
+<h3>Advanced usage</h3>
+<pre data-risk="scratch">
+:root { color-scheme: light dark; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; }
+}
+</pre>
+<p>Illustrative snippet: modern CSS can express user preferences without JavaScript. Use <code>!important</code> sparingly because it changes the ordinary cascade.</p>
+<h3>Edge cases and failure modes</h3>
+<ul>
+<li>Missing <code>&lt;meta charset="utf-8"&gt;</code> can corrupt non-ASCII text.</li>
+<li>Fixed pixel layouts break when text is enlarged or translated.</li>
+<li>A selector with many IDs can become brittle; prefer meaningful classes.</li>
+<li>Using a <code>div</code> for a button loses keyboard and assistive-technology behaviour that a real <code>button</code> supplies.</li>
+</ul>
+<section class="quiz">
+<h3>Check yourself</h3>
+<details class="q open">
+<summary>Two rules match the same paragraph. One has a class selector, the other an element selector and appears later. Which wins?</summary>
+<p>The class selector wins because specificity is compared before source order. Model answer: origin and importance come first, then specificity, then order. Later source order only breaks a tie in specificity.</p>
+</details>
+</section>
+<h3>Sources</h3>
+<p>See <cite data-ref="whatwg-html"><a href="bibliography/whatwg-html.html">the WHATWG HTML and DOM standards</a></cite> and <cite data-ref="mdn-web"><a href="bibliography/mdn-web-docs.html">MDN Web Docs</a></cite>.</p>
+</section>
+
+<h2>Where next</h2>
+<ul>
+<li><a href="programming/web-development/browser-engines-and-dom.html">Browser engines and the document object model</a> &mdash; see how a static page becomes a live one.</li>
+<li><a href="programming/web-development/web-security.html">Web security</a> &mdash; keep markup and user data from mixing dangerously.</li>
+</ul>
+<h2>See also</h2>
+<ul>
+<li><a href="glossary/h/html.html">HTML glossary entry</a> &mdash; the term in one paragraph.</li>
+<li><a href="glossary/c/css.html">CSS glossary entry</a> &mdash; the styling language in one paragraph.</li>
+</ul>
+</body></html>
