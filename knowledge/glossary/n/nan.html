@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NaN (not a number)</p></nav>
-<h1>NaN (not a number)</h1>
 <p>NaN is a special floating-point marker for a result that has no ordinary numeric value.</p>
 <section data-level="novice"><p>Sometimes arithmetic has no sensible answer, such as zero divided by zero. Instead of stopping or inventing a number, floating point can carry a marker that says the result is not a number.</p></section>
 <section data-level="learner"><p>Operations such as 0/0, infinity minus infinity and the square root of a negative number produce NaN in typical floating-point systems. A NaN spreads through later calculations, so one appears in the final result as a warning that something went wrong earlier. It is not equal to itself: a check like <code>x == x</code> is false when x is NaN.</p><details class="q"><summary>Why test for NaN instead of comparing it with a number?</summary><p>No numeric comparison with NaN succeeds, including equality with itself. Languages provide isnan() or an equivalent check that inspects the special pattern rather than comparing values.</p></details></section>

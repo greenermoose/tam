@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / Redirection</p></nav>
 
-<h1>Redirection</h1>
 <p>Redirection is the shell feature that changes where a command’s standard input comes from or where its output and error messages go.</p>
 <section data-level="novice"><p>Every command-line program normally reads from your keyboard and prints onto your terminal screen. Redirection lets you re-route those streams—sending a program’s output straight into a file to save a report, or feeding a saved file into a program instead of typing it all by hand.</p></section>
 <section data-level="learner"><p>In bash and <a href="glossary/p/posix.html">POSIX</a> shells, <code>&gt;</code> overwrites a file with standard output (stdout, file descriptor 1), <code>&gt;&gt;</code> appends to it, <code>&lt;</code> feeds a file to standard input (stdin, fd 0), and <code>2&gt;</code> captures errors (stderr, fd 2). A classic pitfall is <code>sort file.txt &gt; file.txt</code>: the shell truncates <code>file.txt</code> before <code>sort</code> runs, leaving it empty.</p>

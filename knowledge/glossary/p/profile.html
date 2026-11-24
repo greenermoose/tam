@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Profile</p></nav>
 
-<h1>Profile</h1>
 <p>A named set of installed software and links.</p>
 <section data-level="novice"><p>Instead of dumping every program into one shared pile, a profile keeps a named, self-contained list of which programs and settings are active right now. Think of it like a saved loadout: you can switch to a new loadout, and if something breaks, switch right back to the previous one.</p></section>
 <section data-level="learner"><p>A <a href="glossary/n/nix.html">Nix</a> or Home Manager profile is a numbered generation of symlinks to immutable packages in the store, with a <code>current</code> symlink pointing to the active generation. Because previous generations remain on disk until garbage-collected, you can roll back without rebuilding or redownloading.</p><details class="q"><summary><i>Why can switching back to an older Nix or Home Manager profile happen almost instantly?</i></summary><p>Previous generations are still kept in the Nix store. Rolling back only updates a symbolic link to point to an earlier generation’s tree of links rather than reinstalling files.</p></details></section>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EFI System Partition</p></nav>
 
-<h1><a href="glossary/e/efi.html">EFI</a> System Partition</h1>
 <p>The EFI System Partition (ESP) is the dedicated disk partition that stores boot loaders and startup files for <a href="glossary/u/uefi.html">UEFI</a> firmware.</p>
 <section data-level="novice"><p>Think of the EFI System Partition as a small, tidy front hallway on your storage drive. Even if Linux stores your files in its own format elsewhere on the disk, the computer’s startup firmware always checks this shared hallway first because it knows how to read it and launch your operating system from there.</p></section>
 <section data-level="learner"><p>On Linux, the ESP is a FAT32-formatted partition typically mounted at <code>/boot/efi</code> or <code>/efi</code>, holding vendor subdirectories like <code>EFI/systemd/</code> or <code>EFI/BOOT/BOOTX64.EFI</code>. Unlike <code>/boot</code> on ext4 or <a href="glossary/b/btrfs.html">Btrfs</a>, FAT32 has no <a href="glossary/p/posix.html">POSIX</a> file permissions, so <code>/etc/fstab</code> normally mounts it with restrictive masks such as <code>umask=0077</code> to protect files like random-seed data.</p>

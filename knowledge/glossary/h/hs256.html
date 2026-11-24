@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / HS256 (HMAC with SHA-256)</p></nav>
 
-<h1>HS256 (<a href="glossary/h/hmac.html">HMAC</a> with <a href="glossary/s/sha-256.html">SHA-256</a>)</h1>
 <p>HS256 is the <a href="glossary/j/jws.html">JWS</a>/<a href="glossary/j/jwt.html">JWT</a> algorithm identifier for symmetric <a href="glossary/h/hmac-sha256.html">HMAC-SHA256</a> signatures.</p>
 <section data-level="novice"><p>When a website gives your browser a login pass (token), it adds a digital seal so you cannot edit the pass to pretend you are an administrator. With HS256, the server that creates the pass and the server that checks it both use the exact same secret key. That makes it fast and simple for one service, though you cannot hand that key to untrusted third parties without letting them forge passes too.</p></section>
 <section data-level="learner"><p>In a JWT header (<code>{&quot;alg&quot;:&quot;HS256&quot;,&quot;typ&quot;:&quot;JWT&quot;}</code>), HS256 uses symmetric HMAC-SHA256: any party able to verify a token can also mint one because both sides hold the same secret. Contrast with <code>RS256</code> or <code>ES256</code>, where an auth server signs with a private key and downstream services verify using only a public key. Always enforce the expected algorithm in server configuration rather than trusting the token’s <code>alg</code> field.</p>

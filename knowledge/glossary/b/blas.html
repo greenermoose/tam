@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / BLAS (Basic Linear Algebra Subprograms)</p></nav>
-<h1>BLAS (Basic Linear Algebra Subprograms)</h1>
 <p>A named set of routines for common <a href="glossary/m/matrix.html">matrix</a> and <a href="glossary/v/vector.html">vector</a> operations.</p>
 <section data-level="novice"><p>Computers often add, multiply and combine large lists of numbers. BLAS gives those jobs standard names, so a program can ask for a well-known operation instead of writing its own loop.</p></section>
 <section data-level="learner"><p>Routines are grouped by level. Level 1 works on vectors, such as a dot product. Level 2 works on a matrix and a vector. Level 3 works on matrix-matrix operations such as GEMM. Level 3 usually runs fastest because it reuses each loaded value many times. Many libraries implement the same interface with machine-specific tuning.</p><details class="q"><summary>Why is matrix-matrix multiplication usually faster than many matrix-vector calls?</summary><p>It has more work per byte loaded from memory. A tuned kernel can block and reuse tiles of both matrices, while repeated matrix-vector calls stream one matrix again each time.</p></details></section>

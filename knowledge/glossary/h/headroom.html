@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / Headroom</p></nav>
 
-<h1>Headroom</h1>
 <p>Headroom is the extra capacity—such as free disk space, unused memory, or spare network bandwidth—kept in reserve below a system’s maximum limit.</p>
 <section data-level="novice"><p>Think of headroom like keeping a few inches of empty space at the top of a backpack or a little extra gas in your tank. If a disk or memory fills all the way to 100%, a computer slows down or crashes when a program needs even a tiny bit more room. Leaving headroom keeps everyday tasks running smoothly.</p></section>
 <section data-level="learner"><p>In Linux, running out of disk headroom prevents logs, package updates, or login sessions from writing temporary files; similarly, running without memory headroom forces heavy swapping or triggers the <a href="glossary/o/oom.html">OOM</a> killer. Filesystems like ext4 even reserve a small percentage (by default 5% for <code>root</code>) so an ordinary user filling the disk does not lock out system recovery.</p><details class="q"><summary><i>Why does Linux ext4 reserve a portion of disk space (often 5%) for the root user by default?</i></summary><p>It preserves disk headroom so critical system daemons, root login, and recovery tools can still write temporary files and logs—and reduces file fragmentation—even if a regular user fills the rest of the filesystem.</p></details></section>

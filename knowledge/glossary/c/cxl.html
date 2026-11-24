@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CXL (Compute Express Link)</p></nav>
 
-<h1>CXL (Compute Express Link)</h1>
 <p>A high-speed, cache-coherent interconnect layered over <a href="glossary/p/pcie.html">PCIe</a> 5.0 and 6.0 for connecting CPUs, memory expanders, and accelerators.</p>
 <section data-level="novice"><p>Normally, an add-in card like a graphics card keeps its own separate memory, so the <a href="glossary/c/cpu.html">CPU</a> has to copy data back and forth like mailing packages between two offices. CXL is a newer high-speed connection built on top of standard PCIe slots that lets the CPU, accelerators, and memory expansion cards share the same workspace directly without slow copying.</p></section>
 <section data-level="learner"><p>CXL runs over PCIe physical lanes and defines three device roles: Type 1 (accelerators without local <a href="glossary/r/ram.html">RAM</a> that cache host memory, like smart NICs), Type 2 (accelerators with local RAM, like GPUs), and Type 3 (memory expanders). On Linux, Type 3 CXL memory is managed via <code>/sys/bus/cxl</code> and <code>cxl-cli</code>, appearing to the kernel as an additional NUMA memory node.</p>

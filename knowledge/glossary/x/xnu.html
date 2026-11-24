@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / XNU (X is Not Unix)</p></nav>
 
-<h1>XNU (X is Not <a href="glossary/u/unix.html">Unix</a>)</h1>
 <p>The open-source hybrid kernel powering macOS, iOS, iPadOS, watchOS, and tvOS.</p>
 <section data-level="novice"><p>A kernel is the core traffic controller of an operating system, managing memory, hardware, and running programs. Apple’s XNU kernel is called a “hybrid” because instead of being built from one single blueprint, it combines pieces from two different designs—a message-passing core and a traditional Unix layer—into one fast engine that runs Macs and iPhones.</p></section>
 <section data-level="learner"><p>Unlike the monolithic Linux kernel, XNU pairs a Mach microkernel core (handling threads, virtual memory, and inter-process communication) with a FreeBSD-derived layer (providing <a href="glossary/p/posix.html">POSIX</a> system calls, <a href="glossary/v/vfs.html">VFS</a>, and the network stack) inside the same kernel address space. Running both in ring 0 avoids the heavy context-switch overhead of pure microkernels while still exposing Mach ports and <a href="glossary/b/bsd.html">BSD</a> sockets side by side.</p>

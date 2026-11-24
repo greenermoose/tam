@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Static assertion</p></nav>
 
-<h1>Static assertion</h1>
 <p>A check evaluated by the compiler at build time that halts compilation with an error if a constant condition is false.</p>
 <section data-level="novice"><p>Instead of waiting until a program is running to notice that a critical assumption is wrong—like a bridge failing only when a truck drives over it—a static assertion checks the blueprint before anything is built. If the numbers do not add up, the compiler refuses to finish building the program and points straight to the problem.</p></section>
 <section data-level="learner"><p>Unlike runtime <code>assert()</code>, which only triggers if the running program hits that code path (and may be compiled out with <code>-DNDEBUG</code>), a static assertion runs unconditionally during compilation. In C and C++, systems programmers use it to verify assumptions such as <code>sizeof(struct header) == 16</code> across architectures so layout bugs are caught immediately on build rather than corrupting data at runtime.</p><details class="q"><summary><i>When should you use a static assertion instead of runtime <code>assert()</code>?</i></summary><p>Use a static assertion whenever the condition depends only on compile-time constants—such as type sizes, struct layouts, or array bounds—so the build fails immediately on any unsupported platform.</p></details></section>

@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / Overflow</p></nav>
-<h1>Overflow</h1>
 <p>Overflow happens when arithmetic produces a value beyond the range a number format can hold.</p>
 <section data-level="novice"><p>An eight-bit counter has room up to 255. If you add one more, the stored result cannot be 256. Something must give: the counter wraps, stops at the top, or reports an error.</p></section>
 <section data-level="learner"><p>In unsigned eight-bit arithmetic, 255 plus 1 wraps to 0. In signed eight-bit two's complement, 127 plus 1 wraps to -128. Floating-point overflow usually produces infinity under the default rule. Languages differ: some define wrapping, some define saturation, and some say signed overflow is an error with unpredictable consequences.</p><details class="q"><summary>Why can overflow be dangerous in a program that adds lengths?</summary><p>A wrapped length can become small or negative, so a later check may read past a buffer or allocate too little memory. Range checks and wider accumulator types prevent the bad value from reaching that point.</p></details></section>

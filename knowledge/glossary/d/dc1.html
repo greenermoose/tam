@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DC1 (Device Control 1 / XON, 0x11)</p></nav>
 
-<h1>DC1 (Device Control 1 / XON, 0x11)</h1>
 <p>DC1 (Device Control 1, also called XON) is an <a href="glossary/a/ascii.html">ASCII</a> control code (0x11, typed with Ctrl+Q) used in terminals to resume paused output.</p>
 <section data-level="novice"><p>If you have ever seen a terminal suddenly freeze and stop responding to what you type, you may have accidentally pressed Ctrl+S. DC1 (Ctrl+Q) is the matching "unfreeze" signal—like pressing play after pause—telling the terminal to start showing output again.</p></section>
 <section data-level="learner"><p>Part of the <a href="glossary/c/c0-control-codes.html">C0 control codes</a>, DC1 acts as XON in software flow control (<code>IXON</code>). When enabled, Ctrl+S pauses terminal output and Ctrl+Q resumes it. In modern shells and editors, people often run <code>stty -ixon</code> so Ctrl+S and Ctrl+Q pass through to applications like Bash or Vim instead of pausing the screen.</p>

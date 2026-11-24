@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IND-CPA (Indistinguishability under Chosen-Plaintext Attack)</p></nav>
 
-<h1>IND-<a href="glossary/c/cpa.html">CPA</a> (Indistinguishability under Chosen-Plaintext Attack)</h1>
 <p>A baseline encryption security property ensuring an eavesdropper who can choose messages to be encrypted still cannot tell which of two plaintexts a ciphertext hides.</p>
 <section data-level="novice"><p>Suppose an eavesdropper watches you send scrambled messages and can even trick you into encrypting specific words of their choice to study the output. IND-CPA means that if you encrypt either “yes” or “no”, the eavesdropper still cannot tell which one you sent—not even by noticing that identical messages look the same.</p></section>
 <section data-level="learner"><p>Deterministic encryption modes such as AES-<a href="glossary/e/ecb.html">ECB</a> fail IND-CPA because encrypting the same plaintext block twice produces identical ciphertext, leaking patterns. Achieving IND-CPA requires randomized encryption using a fresh initialization vector (IV) or unique nonce (as in <a href="glossary/a/aes-ctr.html">AES-CTR</a> or AES-<a href="glossary/c/cbc.html">CBC</a> with an unpredictable IV) for every message.</p>

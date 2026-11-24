@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TCB (Trusted Computing Base)</p></nav>
 
-<h1>TCB (Trusted Computing Base)</h1>
 <p>The set of hardware, firmware, and software components that must work correctly for a computer system’s security policy to hold.</p>
 <section data-level="novice"><p>Think of a bank vault: its security depends on the concrete walls, the lock mechanism, and the guards who hold the keys—not on the brochures in the lobby. In a computer, the Trusted Computing Base (TCB) is that inner circle of essential parts. If any piece inside the TCB has a flaw or is tricked, the whole system’s protections can fail, which is why security engineers try to keep that circle as small and simple as possible.</p></section>
 <section data-level="learner"><p>On a typical Linux system, the TCB includes the processor, system firmware, bootloader, Linux kernel, and privileged services (such as <code>systemd</code> or authentication helpers) that enforce user separation and file permissions. Unprivileged user applications—like a web browser, text editor, or image viewer—normally sit outside the TCB so that a bug in one app cannot compromise the rest of the machine. Moving complex tasks like file parsing or device emulation out of privileged code shrinks the TCB and reduces how much code must be trusted and audited.</p>

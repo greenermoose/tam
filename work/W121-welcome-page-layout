@@ -1,0 +1,89 @@
+W121 WELCOME PAGE AND INTRO-FIRST LAYOUT
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Rewrite the welcome page to provide a better introduction to
+  Tamlinux. Start pages without repeating the Breadcrumb header in the text
+  of the page. The page:welcome.html should render like so:
+
+  _Guide_ > Welcome
+
+  Hello!
+
+  _Tamlinux_ empowers you to get *the absolute maximum performance* from your
+  computer workstation.
+
+  _get started_ | _get help_
+
+  What I've shown is how I want to have a blank line between the Breadcrumb
+  and the first text of the page. That should be easily done by putting it in
+  a <p> tag.
+
+  I've removed the duplicate page heading Welcome to Tamlinux because the
+  Breadcrumb already has the page title. Get right to the page text and then
+  put headings for sections below the introductory paragraph.
+
+  I've tighted up the Ready to get started sentence so that the links are
+  easier to scan.
+
+  Make this page layout pattern standard. Look for page headings that add no
+  value and simple repeat the breadcrumb. Remove them from the page. Make
+  sure intro paragraphs are well written. Pages should have an intro section,
+  then novice, learner, and expert sections.
+
+  The welcome page can be an exception: just has an intro section that
+  everyone always sees. Think about the links that should be on the welcome
+  page so that readers get a full appreciation of what Tamlinux is and what
+  the guide contains."
+
+  Offered scopes were whole corpus, welcome plus standards only, or welcome
+  page only. Fred chose the whole corpus.
+
+GUIDANCE SOURCE
+
+  Direct instruction from Fred in this session. No earlier remark is treated
+  as a decision beyond what he wrote here.
+
+DONE
+
+  - Rewrote knowledge/welcome.html with the exact three-paragraph opening,
+    blank line after the breadcrumb, and no duplicate Welcome to Tamlinux
+    heading. The get started / get help line is short and scannable.
+  - Added sections that give a full appreciation of Tamlinux and the Guide:
+    opening the Guide and its keys, a table of the eight subject hubs, ways
+    to read through paths, skills map, glossary, bibliography and help, Fred's
+    message, return keys, next page and sources. Welcome has no level sections.
+  - Removed the body <h1> from all 1,442 non-root corpus pages. Kept the root
+    index <h1> because it has no breadcrumb. Verified every remaining page
+    opens with an intro paragraph before any level section.
+  - Updated tools/glossary_index.py so generated glossary hubs and the A-Z
+    hub have no <h1>; the pattern survives make corpus.
+  - Updated the four templates, corpus-pedagogy.md, corpus-authoring.md, the
+    build-index.py docstring and tests/guide.sh which now reads the updates
+    page title from <title> instead of <h1>.
+  - Bumped corpus to 0.124.0 and updated the roadmap, development contract,
+    plan index and CHECKLISTS. Minted TCK32 with four children; next free is
+    TCK33. Wrote the completed welcome-page-layout plan.
+
+FAILED
+
+  - Nothing required a correction during this session.
+
+CHECKED AGAINST
+
+  - make corpus, make corpus-and-test and make check-repo pass.
+  - Reader smoke checks confirm the requested welcome opening, no duplicate
+    heading on a regular page or a generated glossary hub, and working
+    tam:paths and tam explain updates lookups.
+  - No push, install, Test, Run or Release was requested or performed.
+
+CONTINUATION
+
+  - Commit the source and version records on dev with provenance trailers.
+  - Rerun make corpus and commit the generated index follow-up, then rerun
+    make corpus once more to refresh the build marker.
+  - Await Fred's direction. No stage promotion is authorised.

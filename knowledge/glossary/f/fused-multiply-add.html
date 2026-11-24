@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / Fused multiply-add (FMA)</p></nav>
-<h1>Fused multiply-add (FMA)</h1>
 <p>A single instruction that computes x times y plus z with one final rounding.</p>
 <section data-level="novice"><p>Dot products keep doing the same pair of jobs: multiply two numbers, then add the result to a running total. A fused multiply-add does both jobs as one step, which is quicker and keeps more of the answer.</p></section>
 <section data-level="learner"><p>Written separately, the multiplication rounds its product and then the addition rounds again. The fused form keeps a wider intermediate value and rounds once. That often gives a more accurate result and uses fewer instructions. Processors expose it through <a href="glossary/s/simd.html">SIMD</a> instructions, and optimized BLAS kernels use it heavily.</p><details class="q"><summary>Does FMA always change the final digits of a dot product?</summary><p>No. If the product is exact or the rounding steps happen to agree, the result is unchanged. When they differ, FMA is usually more accurate but not bit-identical to a separate multiply then add.</p></details></section>

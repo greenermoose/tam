@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / LZ77</p></nav>
 
-<h1>LZ77</h1>
 <p>A lossless compression method that replaces repeated text with references to earlier data in a sliding window.</p>
 <section data-level="novice"><p>If a file repeats the same phrase, LZ77 does not store the phrase again. Instead, it stores a short note like "go back 20 characters and copy 5." When the file is decompressed, that note is expanded back to the original text. This saves space without losing any information.</p></section>
 <section data-level="learner"><p>LZ77, published by Lempel and Ziv in 1977, is the basis for many practical compressors. <a href="glossary/d/deflate.html">DEFLATE</a> combines LZ77-style matching with Huffman coding, and formats like gzip, PNG, and ZIP rely on it. <a href="glossary/l/lz4.html">LZ4</a> also uses LZ77-style backreferences but favors speed over maximum compression ratio. The "sliding window" limits how far back a match can refer, which affects both memory use and compression effectiveness.</p><details class="q"><summary><i>Why can LZ77 compression make some encrypted or already-compressed files larger?</i></summary><p>LZ77 needs repeated patterns to find matches. Random-looking or already-compressed data has few useful repeats, so the compressor adds overhead without finding much to shorten.</p></details></section>

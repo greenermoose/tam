@@ -1551,6 +1551,25 @@ glossary pages, five bibliography entries and `web.novice`, `web.learner` and
 Python runs on 2026-11-24. This is corpus content only; command version, stage
 promotion and installation remain developer-directed.
 
+### 2026-11-24 — Welcome page and intro-first layout (corpus 0.124.0)
+
+The developer asked for a better welcome introduction that starts directly
+after the breadcrumb with `Hello!`, the Tamlinux performance sentence and
+`get started | get help`, with no duplicate `Welcome to Tamlinux` heading. He
+asked that page headings which merely repeat the breadcrumb be removed across
+the corpus, that intro paragraphs be well written, and that topic pages follow
+an intro then novice, learner and expert sections. The welcome page is the
+single exception: one shared intro that every reader always sees. He chose
+whole-corpus application when asked about scope.
+
+The welcome page now opens as requested and links to the subject hubs, paths,
+skills map, glossary, bibliography and help. All 1,442 non-root pages lost the
+body `<h1>` that repeated their breadcrumb; the root index keeps its heading
+because it has no breadcrumb. Templates, the pedagogy and authoring rules, the
+glossary hub generator and the guide test now teach and preserve the pattern.
+This is corpus content only; command version, stage promotion and installation
+remain developer-directed.
+
 ### 2026-11-24 — Own compositor plan (corpus 0.122.3)
 
 The developer said Tamlinux is writing its own compositor and does not plan

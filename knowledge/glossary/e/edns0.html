@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EDNS0 (Extension Mechanisms for DNS 0)</p></nav>
 
-<h1>EDNS0 (Extension Mechanisms for DNS 0)</h1>
 <p>An extension mechanism that lets modern <a href="glossary/d/dns.html">DNS</a> messages carry extra capabilities and larger payloads.</p>
 <section data-level="novice"><p>Original DNS messages were small and had limited room for new features. EDNS0 is a way for DNS clients and servers to say "I support newer DNS features." It helps DNS carry larger replies and extra flags without changing the basic DNS message format in an incompatible way.</p></section>
 <section data-level="learner"><p>EDNS0 (often written EDNS(0)) adds an OPT pseudo-record in the DNS additional section. It is not a normal DNS record; it carries metadata such as the sender's UDP payload size and extended flags. <a href="glossary/d/dnssec.html">DNSSEC</a> uses the EDNS0 DO (DNSSEC OK) bit to request DNSSEC records. With EDNS0, DNS over UDP can use payloads larger than the old 512-byte limit, though large packets may still be fragmented or fall back to TCP.</p><details class="q"><summary><i>Why does EDNS0 matter for DNSSEC?</i></summary><p>DNSSEC replies include extra records such as signatures, making them larger. EDNS0 lets the client advertise support for larger UDP payloads and set the DO bit to ask for DNSSEC data.</p></details></section>

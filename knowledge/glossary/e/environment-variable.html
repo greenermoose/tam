@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Environment variable</p></nav>
 
-<h1>Environment variable</h1>
 <p>A named text value stored in a process’s environment and passed down from parent processes to their children.</p>
 <section data-level="novice"><p>Think of environment variables as sticky notes attached to a running program when it starts. Notes like <code>HOME</code> (where your personal folder is) or <code>LANG</code> (which language to use) let every program you launch pick up your basic preferences automatically without asking each time.</p></section>
 <section data-level="learner"><p>In a shell, variables set with <code>export NAME=value</code> become part of the environment inherited by commands you run, whereas plain shell variables stay local to that shell. Because inheritance flows strictly downward from parent to child, a child script cannot change an environment variable in its parent shell.</p><details class="q"><summary><i>Why can’t a script you run normally change your current shell’s <code>PATH</code>?</i></summary><p>A script runs in a child process that receives a copy of the parent’s environment; modifying that copy affects only the child and its own descendants, unless you source the script in the current shell.</p></details></section>

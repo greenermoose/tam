@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / Fixed-point</p></nav>
-<h1>Fixed-point</h1>
 <p>Fixed-point stores a fraction as an integer with an agreed scale that never changes.</p>
 <section data-level="novice"><p>If you store cents instead of euros, you can use whole numbers and still handle prices. The decimal point is fixed in your agreement, not stored in the number. Fixed-point binary works the same way with a chosen number of fractional bits.</p></section>
 <section data-level="learner"><p>With a scale of 256, the stored integer 384 means 384 / 256, or exactly 1.5. Eight fractional bits give steps of 1/256. Values such as 1/10 do not divide evenly by that scale and must be rounded. Fixed point uses ordinary integer arithmetic, so it is predictable and fast on hardware without a floating-point unit.</p><details class="q"><summary>Can fixed-point represent every decimal amount exactly?</summary><p>No. It represents multiples of its step exactly. Choose a step that matches the problem: hundredths of a currency unit for money, or a power of two when scaling with bit shifts.</p></details></section>

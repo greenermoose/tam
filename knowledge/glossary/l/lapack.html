@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / LAPACK (Linear Algebra Package)</p></nav>
-<h1>LAPACK (Linear Algebra Package)</h1>
 <p>LAPACK solves larger matrix problems using the small operations supplied by BLAS.</p>
 <section data-level="novice"><p>If BLAS provides the basic steps for working with lists and grids of numbers, LAPACK combines those steps into answers such as solving an equation or finding the main directions in a set of data.</p></section>
 <section data-level="learner"><p>Common LAPACK jobs include solving systems of linear equations, least-squares fitting, eigenproblems and matrix factorizations such as LU, QR, Cholesky and SVD. A program can call the same routine names on different machines and get tuned behaviour from the underlying <a href="glossary/b/blas.html">BLAS</a>. Choosing a routine means knowing the matrix shape and properties: symmetric, positive definite, dense or banded.</p><details class="q"><summary>Why does it matter whether a matrix is symmetric or positive definite?</summary><p>Special properties allow faster, more stable factorizations such as Cholesky instead of a general LU decomposition. Using the wrong routine can waste work or produce unreliable answers.</p></details></section>

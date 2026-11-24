@@ -116,9 +116,10 @@ Naming the developer:
 
 ## How a page teaches
 
-Every page starts after its navigation lines with a clear heading and one
-plain, unformatted sentence explaining the page to a reader without
-specialized technical knowledge. Define or link unfamiliar terms. See
+Every page starts after its navigation lines with one or two plain,
+unformatted sentences introducing the page to a reader without specialized
+technical knowledge. Do not add a heading that repeats the breadcrumb title;
+the pager already shows it. Define or link unfamiliar terms. See
 `corpus-pedagogy.md` for the complete opening rule.
 
 Before you write or restructure a page, read

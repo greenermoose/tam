@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CIDR (Classless Inter-Domain Routing)</p></nav>
 
-<h1>CIDR (Classless Inter-Domain Routing)</h1>
 <p>A way of writing an address together with the length of its network prefix, such as <code>192.168.1.26/24</code>.</p>
 <section data-level="novice"><p>The prefix length tells you how much of an address names the network and how much names the machine. In <code>192.168.1.26/24</code>, the first 24 bits describe the local network and the remaining eight bits identify a host. This replaced an older system where the network size was fixed by the first digits of the address, which wasted large blocks.</p></section>
 <section data-level="learner"><p>A <code>/24</code> has 256 addresses, a <code>/25</code> has 128 and a <code>/30</code> has four. The netmask is the same information in dotted form: <code>/24</code> is <code>255.255.255.0</code>. In Python, <code>ipaddress.ip_network('192.168.1.26/24', strict=False)</code> prints the network, netmask and broadcast address. Routes use the same notation, and a router prefers the longest prefix that matches a destination.</p><details class="q"><summary><i>How many host addresses are usable in a /24 network?</i></summary><p>254. Of the 256 addresses, the all-zero address names the network and the all-one address is the broadcast address.</p></details></section>

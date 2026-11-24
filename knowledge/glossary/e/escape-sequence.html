@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Escape sequence</p></nav>
 
-<h1>Escape sequence</h1>
 <p>A sequence of bytes beginning with the Escape byte (0x1B) used by terminals to encode special keys and formatting commands.</p>
 <section data-level="novice"><p>Because keyboards have more keys than plain letters, terminals send a special Escape signal followed by extra characters to represent arrow keys, function keys, or color changes.</p></section>
 <section data-level="learner"><p>When you press Up Arrow in a terminal, the terminal sends three bytes (ESC, [, A) rather than one. Programs decode these sequences using terminfo or parser state machines.</p><details class="q"><summary><i>Why does pressing the Escape key alone sometimes feel slightly delayed in older terminal programs?</i></summary><p>Because the program pauses briefly to check whether more bytes follow Escape as part of a multi-byte escape sequence.</p></details></section>

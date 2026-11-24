@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CTR (Counter mode)</p></nav>
 
-<h1>CTR (Counter mode)</h1>
 <p>A block-cipher mode that encrypts an incrementing counter to turn a fixed-size block cipher into a stream cipher.</p>
 <section data-level="novice"><p>Instead of scrambling each chunk of a file directly, CTR mode uses a secret key and a steadily counting number (1, 2, 3, and so on) to generate a stream of unpredictable bytes, then blends that stream with your data. Because every block’s counter number is known ahead of time, your computer can encrypt or read any part of a file out of order without waiting for earlier parts.</p></section>
 <section data-level="learner"><p>You encounter CTR mode in <a href="glossary/s/ssh.html">SSH</a> (<code>aes256-ctr</code>), IPsec, and as the encryption engine inside AES-<a href="glossary/g/gcm.html">GCM</a>. It supports parallel processing across <a href="glossary/c/cpu.html">CPU</a> cores, random-access reads, and arbitrary message lengths without padding. However, CTR alone does not detect tampering, and reusing the same nonce (starting value) with the same key completely exposes the plaintext.</p>

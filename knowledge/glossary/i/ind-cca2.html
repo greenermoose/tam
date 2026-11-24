@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IND-CCA2 (Indistinguishability under Adaptive Chosen-Ciphertext Attack)</p></nav>
 
-<h1>IND-<a href="glossary/c/cca2.html">CCA2</a> (Indistinguishability under Adaptive Chosen-Ciphertext Attack)</h1>
 <p>The standard security benchmark for encryption and key-encapsulation schemes, ensuring an attacker cannot learn anything about encrypted messages even when allowed to tamper with ciphertexts.</p>
 <section data-level="novice"><p>Imagine sending locked boxes through a courier who is secretly working for an eavesdropper. Even if the eavesdropper swaps labels, dents boxes, or sends fake boxes to see how the receiver reacts, IND-CCA2 guarantees the attacker still learns nothing about what is inside your real locked box.</p></section>
 <section data-level="learner"><p>Modern public-key encryption and post-quantum key encapsulation mechanisms (KEMs) such as <a href="glossary/r/rsa-oaep.html">RSA-OAEP</a>, ECIES, and <a href="glossary/m/ml-kem.html">ML-KEM</a> (via the Fujisaki–Okamoto transform) target IND-CCA2 security. Older schemes without it—like textbook RSA or unauthenticated <a href="glossary/c/cbc.html">CBC</a> padding—were broken in practice by padding-oracle attacks, where servers leaked plaintext bytes just by returning “invalid padding” errors.</p>

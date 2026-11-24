@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Cache line</p></nav>
 
-<h1>Cache line</h1>
 <p>A cache line is the fixed-size block of memory transferred as a single unit between main memory and a <a href="glossary/c/cpu.html">CPU</a> cache.</p>
 <section data-level="novice"><p>When a processor needs a single byte from main memory, it does not fetch just that one byte—it grabs a whole neighboring chunk at once, much like picking up an entire egg carton instead of carrying one egg at a time. That chunk is a cache line, and keeping related data together inside it makes programs noticeably faster.</p></section>
 <section data-level="learner"><p>On most modern x86 and <a href="glossary/a/arm64.html">ARM64</a> Linux systems, a cache line is 64 bytes (some architectures, such as Apple Silicon, use 128 bytes). Reading one byte pulls all 64 bytes into L1/L2/L3 cache, so iterating sequentially through an array hits data already fetched by the previous read (spatial locality). Conversely, if two CPU threads modify separate variables that happen to sit in the same 64-byte cache line, the cores fight over ownership of that line—a slowdown called false sharing. You can check the line size on Linux with <code>getconf LEVEL1_DCACHE_LINESIZE</code>.</p>

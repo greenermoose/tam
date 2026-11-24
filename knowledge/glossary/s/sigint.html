@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SIGINT (Interrupt signal)</p></nav>
 
-<h1>SIGINT (Interrupt signal)</h1>
 <p>SIGINT (signal 2) is the interrupt signal sent to a foreground terminal program when you press Ctrl+C.</p>
 <section data-level="novice"><p>Think of SIGINT as tapping someone on the shoulder to say “please stop what you’re doing.” When a command is taking too long or scrolling endlessly, pressing Ctrl+C asks it to stop cleanly without pulling the plug on your whole computer.</p></section>
 <section data-level="learner"><p>Part of <a href="glossary/u/unix-signals.html">Unix signals</a>, SIGINT (2) is catchable, so programs like text editors, compilers, or database shells can catch it to clean up temporary files, flush buffers, or prompt “really quit?” instead of exiting immediately. Unlike <code>SIGTERM</code> (sent by <code>kill</code>), SIGINT is tied to interactive terminal input; unlike <code>SIGKILL</code>, a stuck or custom-handling program can ignore it.</p><details class="q"><summary><i>Why does pressing Ctrl+C in a Python script print a Traceback instead of killing the process silently?</i></summary><p>Because Python installs a SIGINT handler that raises <code>KeyboardInterrupt</code>, allowing <code>try/finally</code> cleanup blocks to run before exiting rather than terminating abruptly.</p></details></section>

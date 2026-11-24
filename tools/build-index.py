@@ -9,7 +9,8 @@ learner, expert); a page offering more than one wraps each level in
 unknown levels or tracks, on topics that are not slugs, on prerequisites that
 name no topic, and on laddered pages whose sections do not match their declared levels.
 
-Every page except the guide index carries a breadcrumb nav before its <h1>.
+Every page except the guide index carries a breadcrumb nav before its opening
+paragraph, which introduces the page without repeating the breadcrumb title.
 Parent metadata defines the canonical hierarchy; older corpora without it use
 the historical directory-based fallback. Breadcrumb ancestors must match the
 hierarchy, which must reach the guide root without cycles. Corpus 0.31.0

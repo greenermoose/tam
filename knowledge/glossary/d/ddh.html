@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DDH (Decisional Diffie-Hellman)</p></nav>
 
-<h1>DDH (Decisional <a href="glossary/d/diffie-hellman.html">Diffie-Hellman</a>)</h1>
 <p>DDH (Decisional Diffie-Hellman) is a cryptographic hardness assumption stating that a Diffie-Hellman shared secret looks indistinguishable from a purely random value to any eavesdropper.</p>
 <section data-level="novice"><p>Imagine two people mixing secret paint colors with a shared base color in public, then combining what they receive to make a final secret shade. Even if an eavesdropper watches the public exchange, DDH is the mathematical guarantee that the final shared color looks completely random—not even a tiny hint or pattern leaks out.</p></section>
 <section data-level="learner"><p>In public-key cryptography, DDH is stronger than Computational Diffie-Hellman (<a href="glossary/c/cdh.html">CDH</a>). CDH only says an attacker cannot compute the full shared secret; DDH says an attacker cannot even tell the real shared secret apart from random noise. Protocols like <a href="glossary/t/tls.html">TLS</a> and WireGuard rely on DDH-like assumptions so they can feed the shared secret through a key derivation function directly into symmetric encryption keys.</p>

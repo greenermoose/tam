@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / Aliasing</p></nav>
-<h1>Aliasing</h1>
 <p>A fast-changing signal can look like a slower one when it is sampled too rarely.</p>
 <section data-level="novice"><p>Imagine a wagon wheel filmed at the wrong frame rate. It can appear to turn slowly backwards even though it turns quickly forwards. Sampling a signal gives the same kind of illusion: a real high frequency is mistaken for a lower one.</p></section>
 <section data-level="learner"><p>A 29 kHz tone sampled 48,000 times per second is read as 19 kHz because 48 minus 29 is 19. The recording contains a false tone that was not in the original sound. An anti-alias filter removes frequencies too high for the <a href="glossary/s/sampling.html">sample rate</a> before the <a href="glossary/a/analog-to-digital-converter.html">ADC</a> converts the signal.</p><details class="q"><summary>Can a filter added after sampling remove aliasing?</summary><p>No. Once the high frequency has been mistaken for a low one, the two are indistinguishable in the samples. The filter must work on the analog signal before conversion.</p></details></section>

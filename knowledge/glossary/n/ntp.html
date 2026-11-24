@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NTP (Network Time Protocol)</p></nav>
 
-<h1>NTP (Network Time Protocol)</h1>
 <p>A network protocol for keeping computer clocks synchronized to accurate reference time over a network.</p>
 <section data-level="novice"><p>Just like wristwatches slowly drift fast or slow, a computer’s internal clock gradually loses accuracy. NTP quietly checks trusted time servers over the internet and nudges your clock by tiny amounts so your timestamps match everyone else’s—preventing sudden jumps that could confuse running apps, and keeping secure websites and login tokens working properly.</p></section>
 <section data-level="learner"><p>Accurate time is essential on Linux: <a href="glossary/t/tls.html">TLS</a>/<a href="glossary/x/x509.html">X.509</a> certificates, <a href="glossary/k/kerberos.html">Kerberos</a> tickets, <a href="glossary/d/dnssec.html">DNSSEC</a> signatures, and distributed log correlation all break if clocks drift by more than a few seconds or minutes. Modern Linux systems typically run <code>chrony</code> or <code>systemd-timesyncd</code> as an NTP client rather than the older <code>ntpd</code>; you can inspect sync status with <code>chronyc tracking</code> or <code>timedatectl</code>. Because standard NTP traffic is unauthenticated, NTS (Network Time Security) adds TLS key exchange and authenticated extension fields to prevent an attacker from spoofing time.</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / Thread</p></nav>
 
-<h1>Thread</h1>
 <p>The smallest unit of execution that an operating system’s scheduler can run independently inside a program.</p>
 <section data-level="novice"><p>Think of a kitchen: the whole restaurant is a program, and each cook working in that kitchen is a thread. All the cooks share the same pantry and counters, so they can pass ingredients to each other quickly, and multiple cooks let the kitchen handle several orders at once. However, if two cooks grab the same pan without coordinating, they can make a mess.</p></section>
 <section data-level="learner"><p>Unlike separate processes—which each have their own isolated memory space—threads inside the same process share virtual memory and open file descriptors, while each thread keeps its own stack, instruction pointer, and <a href="glossary/c/cpu.html">CPU</a> registers. On Linux, you can view individual threads of a process with <code>ps -eLf</code> or <code>top -H</code>. Because threads share memory, communication is fast, but missing synchronization can cause data races or deadlocks.</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / AVX (Advanced Vector Extensions)</p></nav>
 
-<h1>AVX (Advanced Vector Extensions)</h1>
 <p>A 256-bit <a href="glossary/s/simd.html">SIMD</a> (Single Instruction, Multiple Data) instruction-set extension for x86_64 processors that speeds up math-heavy workloads.</p>
 <section data-level="novice"><p>Normally, a processor works on one or two numbers at a time. AVX lets the processor pack several numbers side by side—256 bits wide—and add or multiply all of them in a single step. Think of it like carrying eight grocery bags in one trip instead of making eight separate trips; it makes tasks like audio, video, and 3D graphics much faster.</p></section>
 <section data-level="learner"><p>AVX (introduced with Intel Sandy Bridge and AMD Bulldozer in 2011) doubles the vector register width from 128-bit XMM registers (SSE) to 256-bit YMM registers and introduces non-destructive three-operand instruction syntax. Older laptops may lack AVX or <a href="glossary/a/avx2.html">AVX2</a>, which is why Tamlinux builds baseline binaries for generic x86_64 unless tuned locally. You can check whether your <a href="glossary/c/cpu.html">CPU</a> supports it by inspecting the <code>avx</code> flag in <code>/proc/cpuinfo</code>.</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / AMD-V (AMD Virtualization)</p></nav>
 
-<h1>AMD-V (AMD Virtualization)</h1>
 <p>AMD Virtualization (also known as <a href="glossary/s/svm.html">SVM</a>, Secure Virtual Machine): hardware virtualization extensions in AMD x86_64 processors.</p>
 <section data-level="novice"><p>Without hardware help, running a virtual machine inside your computer forces software to translate or fake sensitive processor steps, which makes the virtual computer slow. AMD-V adds a built-in “guest mode” to AMD processors so a virtual machine’s operating system can run most of its code directly on the real <a href="glossary/c/cpu.html">CPU</a> while staying safely isolated from your main system.</p></section>
 <section data-level="learner"><p>On Linux, AMD-V appears as the <code>svm</code> flag in <code>/proc/cpuinfo</code> and <code>lscpu</code> (the AMD counterpart to Intel’s <code>vmx</code> flag for VT-x). The <code>kvm_amd</code> kernel module uses it to provide hardware-assisted acceleration for <a href="glossary/q/qemu.html">QEMU</a> and libvirt via <code>/dev/kvm</code>, though many motherboards ship with SVM disabled in <a href="glossary/u/uefi.html">UEFI</a>/<a href="glossary/b/bios.html">BIOS</a> firmware until you turn it on.</p>

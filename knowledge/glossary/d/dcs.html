@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DCS (Device Control String)</p></nav>
 
-<h1>DCS (Device Control String)</h1>
 <p>DCS (Device Control String) is a terminal escape sequence (<code>ESC P ... ESC \</code>) used to carry structured payloads for capability queries and device-level protocols.</p>
 <section data-level="novice"><p>Terminals normally display every letter a program sends, so sending a complex package—like asking the terminal what colors it supports or drawing an inline image—needs a wrapper so it doesn’t appear as garbled text. DCS acts like a sealed envelope: <code>ESC P</code> opens the message and <code>ESC \</code> closes it.</p></section>
 <section data-level="learner"><p>Unlike <a href="glossary/c/csi.html">CSI</a> sequences (<code>ESC [</code>, used for cursor movement and text styling) or <a href="glossary/o/osc.html">OSC</a> sequences (<code>ESC ]</code>, used for window titles and clipboards), a Device Control String wraps an arbitrary payload between <code>ESC P</code> and the string terminator <code>ESC \</code>. Common uses include <code>XTGETTCAP</code> terminfo queries and Sixel graphics; inside multiplexers like <code>tmux</code>, nested DCS sequences must be wrapped or allowed via <code>allow-passthrough</code>.</p>

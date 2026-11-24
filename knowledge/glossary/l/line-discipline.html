@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / Line discipline</p></nav>
 
-<h1>Line discipline</h1>
 <p>A kernel software layer between a <a href="glossary/t/tty.html">TTY</a>/<a href="glossary/p/pty.html">PTY</a> driver and user programs that handles line editing, character translation, and keyboard signals.</p>
 <section data-level="novice"><p>When you type in a basic terminal, Backspace erases the last letter, Enter sends the whole line, and Ctrl+C stops a runaway program. The raw keyboard or serial link only sends individual key codes one by one—it does not know how to edit a sentence. The line discipline is the kernel’s built-in helper in the middle, letting you fix typos before handing a finished line to the program, or tapping the program on the shoulder when you press Ctrl+C.</p></section>
 <section data-level="learner"><p>Linux’s default <code>N_TTY</code> line discipline supports two contrasting modes: in canonical (“cooked”) mode, used by simple tools like <code>cat</code>, the kernel buffers and edits each line until Enter; in raw/non-canonical mode, used by editors like <code>vim</code> or shells like <code>bash</code>, the program receives every keystroke immediately. If a raw-mode program crashes without restoring settings, <code>stty sane</code> resets the line discipline.</p>

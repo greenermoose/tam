@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / L4 (L4 microkernel family)</p></nav>
 
-<h1>L4 (L4 microkernel family)</h1>
 <p>A family of minimal, high-performance operating system kernels—including seL4—that keep only core isolation and messaging inside the kernel.</p>
 <section data-level="novice"><p>In most operating systems, device drivers, filesystems, and networking all live inside one giant, all-powerful core, so a bug in one driver can crash the entire machine. L4 takes the opposite approach—like an apartment building with locked units and a tiny security desk in the lobby. The kernel only checks badges and passes messages; drivers and filesystems run outside as separate programs, so a fault in one cannot corrupt the rest.</p></section>
 <section data-level="learner"><p>Unlike first-generation microkernels such as Mach, which suffered from slow message passing, L4 achieves high speed and is used in hypervisors, security enclaves, and high-assurance embedded systems. Modern seL4 goes further by mathematically proving in machine-checked proofs that its C code matches its security specification.</p>

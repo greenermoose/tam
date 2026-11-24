@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / Mode (permission)</p></nav>
 
-<h1>Mode (permission)</h1>
 <p>A permission mode is a set of access rules attached to a Linux file or directory that controls who can read, modify, or execute it.</p>
 <section data-level="novice"><p>Every file or folder on Linux has a small three-part lock: one rule for the owner, one for a shared group, and one for everyone else. Each rule says whether that person can look inside (read), make changes (write), or run it as a program (execute).</p></section>
 <section data-level="learner"><p>Running <code>ls -l</code> shows modes like <code>-rwxr-xr--</code> (octal <code>0754</code>) for user, group, and others, and <code>chmod</code> changes them. Crucially, <code>x</code> (execute) means something different on directories than on files: on a file it lets you run it as a program, whereas on a directory it lets you traverse (<code>cd</code> into) it and access files inside.<details class="q"><summary><i>What happens if a directory has read (<code>r</code>) permission but lacks execute (<code>x</code>) permission?</i></summary><p>You can list the filenames inside the directory, but you cannot <code>cd</code> into it or open any of the files inside it, because directory <code>x</code> controls traversal and metadata lookup.</p></details></p></section>

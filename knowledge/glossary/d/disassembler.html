@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / Disassembler</p></nav>
 
-<h1>Disassembler</h1>
 <p>A disassembler is a tool that translates binary machine code back into human-readable assembly instructions.</p>
 <section data-level="novice"><p>When programmers build software, human-written code is turned into raw numbers that only the processor understands. A disassembler reverses one step of that process so a person can see the exact processor instructions a compiled program runs—useful when debugging a crash or checking what an unknown program actually does.</p></section>
 <section data-level="learner"><p>On Linux, tools like <code>objdump -d</code>, <code>gdb</code> (<code>disassemble</code>), and Ghidra read compiled binaries and display assembly mnemonics and memory addresses for a specific <a href="glossary/c/cpu.html">CPU</a> architecture. Unlike a decompiler, which tries to guess higher-level C-like code, a disassembler stays faithful to the exact machine instructions present in the binary.</p><details class="q"><summary><i>Why does disassembling a stripped binary show raw registers and addresses instead of original variable names and comments?</i></summary><p>Comments and local variable names are discarded during compilation (or removed by <code>strip</code>) because the CPU only needs machine instructions, so the disassembler has no source metadata left to recover them.</p></details></section>

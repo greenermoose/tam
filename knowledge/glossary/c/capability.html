@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / Capability</p></nav>
 
-<h1>Capability</h1>
 <p>A capability is a fine-grained permission bit that grants a Linux process a specific privileged action without giving it full root power.</p>
 <section data-level="novice"><p>Traditionally, Linux had an all-or-nothing rule: either you were a normal user with limited rights, or you were <code>root</code> with total control over the whole machine. Capabilities split that master key into separate smaller keys—so a web server can be given just the key to open a protected network port without getting the keys to erase disks or read everyone’s files.</p></section>
 <section data-level="learner"><p>Linux capabilities divide root’s authority into named flags such as <code>CAP_NET_BIND_SERVICE</code> (bind ports below 1024), <code>CAP_NET_RAW</code> (create raw sockets for tools like <code>ping</code>), and <code>CAP_SYS_ADMIN</code> (broad administrative operations). Instead of making a binary setuid-root, administrators can attach only the needed capability to an executable with <code>setcap cap_net_bind_service=+ep /usr/bin/myserver</code>, inspect it with <code>getcap</code>, or check a running process’s capabilities in <code>/proc/&lt;pid&gt;/status</code> (<code>CapEff</code>, <code>CapPrm</code>).</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Process</p></nav>
 
-<h1>Process</h1>
 <p>A process is a running instance of a program.</p>
 <section data-level="novice"><p>If a program saved on your drive is like a recipe in a book, a process is the act of actually cooking it. Every running process gets its own ID number (<a href="glossary/p/pid.html">PID</a>). Opening two separate windows of the same app means one program on disk is running as two separate processes.</p></section>
 <section data-level="learner"><p>Each process has its own isolated memory, open files, user credentials, and working directory; a shell pipeline like <code>grep foo file | sort</code> starts multiple processes at once. You can inspect processes with <code>ps</code> or <code>top</code>, and control ones you own using signals and job control; see <a href="terminal/shell/jobs.html">jobs</a>.</p><details class="q"><summary><i>If you run the same text editor twice as two separate processes, why doesn’t a crash in one necessarily crash the other?</i></summary><p>The kernel gives each process its own isolated virtual address space and execution state, so memory corruption or a fatal signal in one process cannot overwrite the other’s memory.</p></details></section>

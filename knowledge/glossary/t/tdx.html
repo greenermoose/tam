@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TDX (Trust Domain Extensions)</p></nav>
 
-<h1>TDX (Trust Domain Extensions)</h1>
 <p>Intel’s hardware-based confidential computing technology that isolates virtual machines—called Trust Domains—from the host operating system, hypervisor, and physical memory snooping.</p>
 <section data-level="novice"><p>Normally, whoever controls the host computer (such as a cloud provider’s administrator) can peek inside any virtual machine running on it. TDX puts a virtual machine inside a locked, hardware-encrypted box so even the host computer’s own software cannot read or alter what is inside. It matters for running sensitive workloads on shared or remote servers without having to fully trust the server’s operator.</p></section>
 <section data-level="learner"><p>TDX is Intel’s counterpart to AMD SEV-SNP. The host hypervisor (such as <a href="glossary/q/qemu.html">QEMU</a>/<a href="glossary/k/kvm.html">KVM</a> on Linux) still schedules guest vCPUs and allocates memory pages, but it cannot inspect guest registers or plaintext <a href="glossary/r/ram.html">RAM</a> and must exchange I/O through explicitly shared buffers. Before sending secrets to a TDX guest, a remote party verifies a cryptographic attestation quote signed by Intel hardware to confirm the guest’s boot state.</p>

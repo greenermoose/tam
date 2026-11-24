@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / ELF (Executable and Linkable Format)</p></nav>
 
-<h1>ELF (Executable and Linkable Format)</h1>
 <p>ELF (Executable and Linkable Format) is the standard binary file format on Linux for executables, shared libraries (<code>.so</code>), relocatable object files, and core dumps.</p>
 <section data-level="novice"><p>ELF is the standard “shipping container” Linux uses for compiled programs. Whether a file is a runnable app or a shared library of helper code, packing it in ELF format lets Linux check which processor it was built for and place each piece of code and data into memory before running it.</p></section>
 <section data-level="learner"><p>Compiler object files (<code>.o</code>), executables, and shared libraries (<code>.so</code>) are all ELF files; you can inspect their architecture, dynamic dependencies, and sections with <code>file</code>, <code>readelf -h</code>, <code>objdump -d</code>, and <code>ldd</code>. Dynamically linked binaries point to a runtime loader such as <code>/lib64/ld-linux-x86-64.so.2</code>, whereas statically linked binaries embed all needed code directly.</p>

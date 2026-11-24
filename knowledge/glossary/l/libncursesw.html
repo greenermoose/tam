@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / libncursesw (wide-character new curses library)</p></nav>
 
-<h1>libncursesw (wide-character new curses library)</h1>
 <p>The wide-character version of the ncurses terminal-interface library, built to display <a href="glossary/u/unicode.html">Unicode</a> and multibyte text cleanly.</p>
 <section data-level="novice"><p><a href="glossary/t/terminal.html">Terminal</a> programs such as <code>htop</code> or text-based installers draw boxes, menus, and status bars out of text characters. The older <code>ncurses</code> library assumed each character was a single simple byte, which breaks on accented letters, emoji, or non-Latin scripts. <code>libncursesw</code> (the “w” stands for wide) is the updated version that understands modern Unicode text so menus and borders stay neatly aligned.</p></section>
 <section data-level="learner"><p>On modern <a href="glossary/u/utf-8.html">UTF-8</a> Linux systems, linking a program against <code>-lncurses</code> instead of <code>-lncursesw</code> often causes box-drawing lines or UTF-8 filenames to render as garbled characters and shift columns out of place. Even with <code>libncursesw</code>, C programs must call <code>setlocale(LC_ALL, "")</code> at startup so the library uses the terminal’s UTF-8 locale rather than <a href="glossary/a/ascii.html">ASCII</a>.</p>

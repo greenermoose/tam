@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NXDOMAIN (Non-Existent Domain)</p></nav>
 
-<h1>NXDOMAIN (Non-Existent Domain)</h1>
 <p>A <a href="glossary/d/dns.html">DNS</a> response code meaning the requested domain name does not exist.</p>
 <section data-level="novice"><p>When you look up a name in DNS and that name has not been registered or published, the DNS server can answer with NXDOMAIN. It means "there is no such domain name." It is different from a name that exists but has no record of the type you asked for; in that case DNS usually returns a successful reply with no answer records.</p></section>
 <section data-level="learner"><p>NXDOMAIN is DNS response code 3 (Name Error). You can see it with <code>dig nonexistent.example.com</code>, which reports <code>status: NXDOMAIN</code>. Caching resolvers may cache NXDOMAIN responses for the negative TTL from the zone's SOA record, so a newly created name might not appear immediately everywhere. Some ISPs or networks intercept NXDOMAIN and return a search page instead, which can break tools that expect the standard DNS behavior.</p><details class="q"><summary><i>Is NXDOMAIN the same as "no A record"?</i></summary><p>No. NXDOMAIN means the name itself does not exist. "No A record" usually means the name exists, but it has no address record of that type; DNS can return NOERROR with an empty answer section.</p></details></section>

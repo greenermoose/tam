@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DDC - Display Data Channel</p></nav>
 
-<h1>DDC - Display Data Channel</h1>
 <p>DDC (Display Data Channel) is the communication link inside a video cable that lets a computer identify a monitor and adjust settings like brightness or input source.</p>
 <section data-level="novice"><p>When you plug in an external monitor, your computer immediately knows its model name and sharpest resolution—and can sometimes dim the screen from software—without you typing anything in. DDC is the quiet two-way channel inside the display cable that lets the computer and monitor exchange that information.</p></section>
 <section data-level="learner"><p>Display Data Channel serves two distinct roles on Linux: reading the monitor’s read-only <a href="glossary/e/edid.html">EDID</a> (supported resolutions and timings) during hotplug, and sending live control commands over DDC/CI (such as brightness or input switching) using tools like <code>ddcutil</code> via <code>/dev/i2c-*</code>. Laptop built-in panels usually skip DDC/CI and use <code>/sys/class/backlight</code> instead.</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CAN (Cancel, 0x18)</p></nav>
 
-<h1>CAN (Cancel, 0x18)</h1>
 <p>CAN (Cancel, 0x18) is an <a href="glossary/a/ascii.html">ASCII</a> control character (typed with Ctrl+X) that tells a terminal to discard an incomplete escape or control sequence.</p>
 <section data-level="novice"><p>Terminals use special multi-character codes starting with Escape to change colors or move the cursor. If one of those codes gets cut off halfway—for example, by a dropped network packet—the terminal could get stuck waiting for the rest of it. Sending the CAN character is like saying “never mind, throw away what I just started” so normal text output can resume cleanly.</p></section>
 <section data-level="learner"><p>Part of the <a href="glossary/c/c0-control-codes.html">C0 control codes</a>, CAN (<code>0x18</code>, <code>Ctrl+X</code>) aborts an in-progress <a href="glossary/c/csi.html">CSI</a>, <a href="glossary/o/osc.html">OSC</a>, or ESC sequence in <a href="glossary/e/ecma-48.html">ECMA-48</a> / VT100-compatible terminals and returns the parser to its normal text state. By contrast, interactive programs such as Bash or <code>nano</code> bind <code>Ctrl+X</code> at the application layer for editing shortcuts when non-canonical input is active, whereas byte <code>0x18</code> sent in the output stream to the terminal emulator cancels an unfinished escape sequence.</p>

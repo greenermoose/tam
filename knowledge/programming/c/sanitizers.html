@@ -17,7 +17,6 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="programming/index.html">Programming</a> / <a href="programming/c/index.html">C and native toolchains</a> / Compiler sanitizers, AddressSanitizer, and memory safety in C</p></nav>
 
 
-<h1>Compiler sanitizers, <a href="glossary/a/addresssanitizer.html">AddressSanitizer</a>, and memory safety in C</h1>
 <p>This page explains what compiler sanitizers are, how AddressSanitizer (ASan) detects memory errors at runtime, and how native C programs use sanitizers to prevent crashes and security vulnerabilities.</p>
 <h2>Before this</h2><p><a href="programming/c/c11.html">The C11 programming language and portable systems code</a> · <a href="programming/c/toolchains.html">Tools for building programs</a></p>
 <p>Writing high-performance native systems software in C provides deterministic speed and low memory use, but places full responsibility for memory management on the programmer. In standard C, mistakes such as writing past the boundary of a buffer, using memory after freeing it, or dereferencing invalid pointers do not always crash immediately; they often silently corrupt data. Compiler <dfn><a href="glossary/s/sanitizer.html">sanitizers</a></dfn> instrument code at build time so runtime errors are detected and diagnosed the instant they occur.</p>

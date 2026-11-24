@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / Build</p></nav>
 
-<h1>Build</h1>
 <p>The process of turning human-readable source files into runnable software or installable packages.</p>
 <section data-level="novice"><p>Think of building software like baking from a recipe: source code is the list of ingredients and instructions, and building is mixing and baking them into a finished program you can actually run. Computers cannot run most human-written code directly until it is translated and assembled into machine-ready form.</p></section>
 <section data-level="learner"><p>On Linux, a build usually runs through distinct stages—configuring options and finding libraries, compiling source files into object code, linking them into executables or shared libraries, and optionally packaging the output. Tools such as <code>make</code>, <code>cmake</code>, and <code>meson</code> track timestamps so incremental builds only recompile what changed.</p><details class="q"><summary><i>Why does an incremental build sometimes fail or produce stale output after you change a header or build option?</i></summary><p>Incremental builds skip steps whose tracked inputs look unchanged. If a build script misses a header dependency, or if you change a compiler flag without cleaning old object files, old compiled pieces get linked with new ones and cause subtle bugs or link errors.</p></details></section>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / RIP (Instruction Pointer Register)</p></nav>
 
-<h1>RIP (Instruction Pointer <a href="glossary/r/register.html">Register</a>)</h1>
 <p>The 64-bit Instruction Pointer register on x86_64 processors that holds the memory address of the next instruction to execute.</p>
 <section data-level="novice"><p>A processor runs a program one small step at a time, like reading a recipe line by line. RIP is the <a href="glossary/c/cpu.html">CPU</a>’s built-in bookmark: it stores the exact memory address of the next instruction the processor is about to run, moving forward automatically after each step—or jumping to a new address when a program calls a function or takes a branch.</p></section>
 <section data-level="learner"><p>On modern Linux systems, programs are compiled as Position-Independent Executables (<a href="glossary/p/pie.html">PIE</a>) so <a href="glossary/a/aslr.html">ASLR</a> can load them at a randomized address each time they start. Because the program does not know its fixed memory address ahead of time, x86_64 instructions use <em>RIP-relative addressing</em> (such as <code>lea rax, [rip + offset]</code>) to find global variables and strings relative to the current instruction’s location. When inspecting a crash in <code>gdb</code> or a kernel oops, the saved <code>RIP</code> value tells you which exact instruction failed.</p>

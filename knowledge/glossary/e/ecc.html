@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / ECC - Error-Correcting Code</p></nav>
 
-<h1>ECC - Error-Correcting Code</h1>
 <p>A coding scheme—widely used in server memory, <a href="glossary/c/cpu.html">CPU</a> caches, and storage—that adds redundant check bits so hardware can detect and automatically fix small data errors.</p>
 <section data-level="novice"><p>Cosmic rays and electrical noise can occasionally flip a single 0 to a 1 inside computer memory, like a typo sneaking into a printed page. ECC acts like a built-in proofreader that stores extra summary bits alongside your data, quietly fixing single-bit typos before they crash a program or corrupt a file.</p></section>
 <section data-level="learner"><p>While standard desktop <a href="glossary/r/ram.html">RAM</a> stores 64 bits per word, ECC DIMMs store 72 bits (8 extra parity bits) using a <a href="glossary/s/secded.html">SECDED</a> (Single-Error Correction, Double-Error Detection) code. On Linux, the <a href="glossary/e/edac.html">EDAC</a> subsystem logs corrected and uncorrected memory events to the kernel log and <code>/sys/devices/system/edac/mc/</code>, letting administrators spot a failing <a href="glossary/d/dimm.html">DIMM</a> before an uncorrectable error triggers a Machine Check Exception.</p>

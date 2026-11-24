@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Signal</p></nav>
 
-<h1>Signal</h1>
 <p>A signal is a short software notification sent to a running program to tell it about an event—such as a user pressing Ctrl+C, a broken pipe, or a request to shut down.</p>
 <section data-level="novice"><p>Think of a signal like a tap on a program’s shoulder or a fire alarm in a building. Instead of sending a long message, the operating system sends a simple named alert—like “stop,” “pause,” or “wake up”—and the program either reacts in its own way or follows the system’s default rule.</p></section>
 <section data-level="learner"><p>Every signal has a number, a name (such as <code>SIGTERM</code> or <code>SIGINT</code>), and a default disposition (terminate, ignore, core dump, or stop). Most signals can be caught with a handler, blocked temporarily, or ignored—except <code>SIGKILL</code> and <code>SIGSTOP</code>. Because sending a catchable signal only schedules delivery, <code>kill</code> returning success does not mean the target has finished exiting.</p><details class="q"><summary><i>If <code>kill -TERM 1234</code> succeeds with exit code 0, why might process 1234 still be running a moment later?</i></summary><p><code>kill</code> only queues the signal in the kernel; the process might be catching <code>SIGTERM</code> to flush data, blocking it temporarily, or waiting to be scheduled.</p></details></section>

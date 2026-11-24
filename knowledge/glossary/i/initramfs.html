@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / Initramfs (initial RAM filesystem)</p></nav>
 
-<h1>Initramfs (initial <a href="glossary/r/ram.html">RAM</a> filesystem)</h1>
 <p>A small, temporary in-memory filesystem loaded during early boot so the kernel can prepare storage and mount the real root filesystem.</p>
 <section data-level="novice"><p>Think of an initramfs as a compact travel toolkit the computer unpacks into memory right as it wakes up. Before the main drive is unlocked and ready, the computer uses the tools inside that toolkit—like a key prompt for an encrypted disk or a driver for a storage card—to open the main system and hand off control.</p></section>
 <section data-level="learner"><p>The bootloader loads both the Linux kernel and the initramfs image into RAM before starting the kernel. On systems using full-disk encryption (<a href="glossary/l/luks.html">LUKS</a>), LVM, <a href="glossary/r/raid.html">RAID</a>, or network root filesystems, the initramfs provides the user-space utilities and kernel modules needed to prompt for a passphrase, assemble volumes, and mount the real root filesystem.</p>

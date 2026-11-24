@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EDAC (Error Detection and Correction)</p></nav>
 
-<h1>EDAC (Error Detection and Correction)</h1>
 <p>EDAC (Error Detection and Correction) is the Linux kernel subsystem that monitors, logs, and reports hardware memory (<a href="glossary/e/ecc.html">ECC</a>) and bus errors.</p>
 <section data-level="novice"><p>Electrical noise or stray radiation can occasionally flip a 0 to a 1 in computer memory. Server and workstation ECC memory can spot and fix small flips automatically, and EDAC is the Linux system that keeps a log of those fixes—warning you if a memory stick is starting to wear out before it causes a crash.</p></section>
 <section data-level="learner"><p>On systems with ECC <a href="glossary/r/ram.html">RAM</a> and a supported driver, Linux exposes per-controller counters under <code>/sys/devices/system/edac/mc/</code>, separating corrected errors (<code>ce_count</code>) from uncorrected errors (<code>ue_count</code>). Corrected errors let the system keep running, while uncorrected errors indicate corrupted data that may trigger a kernel panic or machine check.</p>

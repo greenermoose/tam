@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / HMAC - Hash-based Message Authentication Code</p></nav>
 
-<h1>HMAC - <a href="glossary/h/hash.html">Hash</a>-based Message <a href="glossary/a/authentication.html">Authentication</a> Code</h1>
 <p>HMAC (Hash-based Message Authentication Code) is a standard way to verify both that a message has not been altered and that it came from someone holding a shared secret key.</p>
 <section data-level="novice"><p>Think of HMAC like a wax seal stamped with a private ring: anyone can read the letter, and if even one word is changed the seal no longer matches, yet nobody without the ring can forge a new seal. Unlike a plain file checksum—which anyone can recompute after changing a file—HMAC proves both integrity and sender identity to anyone who shares the secret.</p></section>
 <section data-level="learner"><p>In practice, HMAC pairs a cryptographic hash function (such as <a href="glossary/s/sha-256.html">SHA-256</a>) with a secret key. A plain <code>sha256sum</code> only catches accidental corruption because an attacker can modify the data and recompute the hash; HMAC blocks forgery unless the attacker also has the key. Unlike asymmetric digital signatures, HMAC is symmetric and very fast, so it is widely used for <a href="glossary/a/api.html">API</a> request signing, session cookies, and key derivation (HKDF), always using constant-time comparison when checking tags.</p>

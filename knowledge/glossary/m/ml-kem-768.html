@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/m/index.html">Terms beginning with M</a> / ML-KEM-768</p></nav>
 
-<h1>ML-KEM-768</h1>
 <p>The middle parameter set of <a href="glossary/m/ml-kem.html">ML-KEM</a>, commonly used for post-quantum key exchange.</p>
 <section data-level="novice"><p>ML-KEM comes in different sizes. ML-KEM-768 is a popular middle choice: stronger than the smallest option, smaller and faster than the largest. It is often paired with a classic key exchange so connections are protected both against today's attackers and future quantum computers.</p></section>
 <section data-level="learner"><p>ML-KEM-768 is standardized in <a href="glossary/f/fips.html">FIPS</a> 203 alongside ML-KEM-512 and ML-KEM-1024. In practice, you may see it in hybrid names such as <code>X25519MLKEM768</code> in TLS or <code>mlkem768x25519-sha256</code> in OpenSSH. The hybrid design means the session key is derived from both a classical and a post-quantum shared secret, so an attacker would need to break both to recover the key.</p><details class="q"><summary><i>Why not always use ML-KEM-1024 if it is stronger?</i></summary><p>Stronger parameter sets cost more: larger keys/ciphertexts, more CPU work, and more bandwidth. ML-KEM-768 is often chosen as a practical balance for general-purpose protocols.</p></details></section>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/c/index.html">Terms beginning with C</a> / CTS-HMAC (Ciphertext Stealing with HMAC)</p></nav>
 
-<h1>CTS-<a href="glossary/h/hmac.html">HMAC</a> (Ciphertext Stealing with HMAC)</h1>
 <p>A <a href="glossary/k/kerberos.html">Kerberos</a> encryption type that combines AES-<a href="glossary/c/cbc.html">CBC</a> encryption with ciphertext stealing and an HMAC integrity tag.</p>
 <section data-level="novice"><p>Many encryption methods pack data into fixed-size boxes, which normally forces them to add extra filler bytes when a message does not fill the last box. Ciphertext stealing avoids that wasted space by borrowing a few bytes from the previous box so the encrypted message stays the exact same length. Adding HMAC attaches a tamper-evident seal so Kerberos knows if a login ticket was altered in transit.</p></section>
 <section data-level="learner"><p>On Linux systems using Kerberos (visible in <code>klist -e</code> or <code>/etc/krb5.conf</code>), common encryption types are <code>aes256-cts-hmac-sha1-96</code> and the newer <code>aes256-cts-hmac-sha384-192</code>. Ciphertext stealing keeps Kerberos tickets compact, while the trailing number (<code>96</code> or <code>192</code>) indicates the bit length of the integrity tag appended to each message.</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DVFS (Dynamic Voltage and Frequency Scaling)</p></nav>
 
-<h1>DVFS (Dynamic Voltage and Frequency <a href="glossary/s/scaling.html">Scaling</a>)</h1>
 <p>A power-management technique that lowers a processor’s clock speed and supply voltage together when demand is light, and raises them under heavy load.</p>
 <section data-level="novice"><p>Driving a car gently at 30 mph in a neighborhood uses far less fuel than flooring it at 90 mph on the highway. DVFS lets a <a href="glossary/c/cpu.html">CPU</a> or <a href="glossary/g/gpu.html">GPU</a> cruise at a slower pace when you are only reading text—keeping your device cooler, quieter, and longer-lasting on battery—then speed right back up when you open a heavy app.</p></section>
 <section data-level="learner"><p>Because dynamic <a href="glossary/c/cmos.html">CMOS</a> power scales roughly with <code>C × V² × f</code>, lowering voltage alongside frequency yields near-cubic power savings. On Linux, cpufreq governors (<code>schedutil</code>, <code>powersave</code>, <code>performance</code>) and drivers such as <code>amd-pstate</code> or <code>intel_pstate</code> coordinate P-states, which you can inspect under <code>/sys/devices/system/cpu/cpufreq/</code>.</p>

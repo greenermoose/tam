@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / AES-CTR (AES Counter Mode)</p></nav>
 
-<h1>AES-<a href="glossary/c/ctr.html">CTR</a> (AES Counter Mode)</h1>
 <p>Stream-cipher mode that turns AES into a parallelizable keystream using an incrementing counter.</p>
 <section data-level="novice"><p>A block cipher like AES normally locks data in fixed 16-byte chunks. AES-CTR turns it into a flexible stream by encrypting a sequence of counting numbers—like stamping page numbers 1, 2, 3 and locking each number with your secret key—then blending those locked numbers with your message. Because each chunk’s mask depends only on its counter value, you can encrypt or decrypt different parts of a file at the same time without padding the end.</p></section>
 <section data-level="learner"><p>Part of <a href="glossary/a/aes-variants.html">AES variants</a>; unlike <a href="glossary/c/cbc.html">CBC</a> mode, CTR requires no padding and supports parallel encryption and random-access decryption at arbitrary byte offsets, which makes it fast for network streams and large files. However, CTR provides confidentiality only—an attacker can flip bits in the ciphertext to flip the exact same bits in the plaintext—so real protocols pair it with a message authentication code (as in AES-<a href="glossary/g/gcm.html">GCM</a>).</p>

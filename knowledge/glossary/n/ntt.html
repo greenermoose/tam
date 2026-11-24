@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NTT (Number Theoretic Transform)</p></nav>
 
-<h1>NTT (Number Theoretic Transform)</h1>
 <p>A fast mathematical transform over finite fields used to multiply large polynomials quickly in lattice-based cryptography.</p>
 <section data-level="novice"><p>Modern post-quantum encryption protects data using math problems built from long lists of numbers called polynomials. Multiplying two long lists directly takes a huge number of steps, which would make every secure connection feel sluggish. NTT is a clever shortcut—like sorting and pairing numbers before multiplying—that turns heavy work into microseconds.</p></section>
 <section data-level="learner"><p>By converting polynomials from coefficient form into point-value form modulo a prime <code>q</code>, NTT lets two degree-<code>n</code> polynomials be multiplied element-by-element in O(n log n) operations instead of O(n²). Unlike the standard Fast Fourier Transform (FFT), which uses complex floating-point numbers and suffers from rounding errors, NTT uses exact integer arithmetic modulo <code>q</code>—which is mandatory for cryptography where a single rounding bit would break decryption.</p>

@@ -17,7 +17,6 @@
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="desktop/index.html">Desktop and applications</a> / <a href="desktop/session/index.html">Login, input and sessions</a> / The Linux Input Subsystem and evdev</p></nav>
 
 
-<h1>The Linux Input Subsystem and evdev</h1>
 <p>This page explains how Linux receives signals from keyboards, mice, and touchscreens and turns them into events programs can understand.</p>
 <h2>Before this</h2><p><a href="desktop/session/compositors.html">How windows appear on your screen</a> · <a href="terminal/ttys-and-virtual-consoles.html">Text screens and terminal windows</a></p>
 <p>Every time you press a key, slide a mouse, or tap a touchscreen, physical electrical contacts generate hardware interrupts. The kernel processes these signals and passes them through a unified abstraction called the <dfn><a href="glossary/e/evdev.html">evdev</a></dfn> (event device) subsystem. Instead of every application needing proprietary drivers for every keyboard, mouse, and game controller on earth, Linux provides a standardized stream of timestamped event packets. This architecture guarantees that modern <a href="glossary/w/wayland.html">Wayland</a> compositors, terminal emulators, and games handle input safely, predictably, and without background polling daemons.</p>

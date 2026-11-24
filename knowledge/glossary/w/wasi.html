@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / WASI (WebAssembly System Interface)</p></nav>
 
-<h1>WASI (WebAssembly System Interface)</h1>
 <p>WASI (WebAssembly System Interface) is a capability-based system interface that lets sandboxed WebAssembly modules interact safely with files, clocks, and networks outside a web browser.</p>
 <section data-level="novice"><p>A WebAssembly program normally runs inside a locked box with no access to your computer. WASI is the set of controlled slots you can open in that box—for example, letting a program read one specific folder you choose without letting it touch any of your other files.</p></section>
 <section data-level="learner"><p>Unlike a typical Linux program, which inherits all permissions of the user running it (so anything <code>alex</code> can read, the program can read unless confined), WASI denies system access by default. A WASI runtime such as Wasmtime grants access only to explicit capabilities passed at launch, like a preopened directory, rather than exposing the whole filesystem.</p>

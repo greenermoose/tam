@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / INT-CTXT (Integrity of Ciphertext)</p></nav>
 
-<h1>INT-CTXT (Integrity of Ciphertext)</h1>
 <p>A cryptographic security property guaranteeing that an attacker cannot forge a new valid ciphertext that decrypts without being rejected.</p>
 <section data-level="novice"><p>Imagine sealing a letter inside a tamper-evident envelope. Even if a thief cannot read what is inside, INT-CTXT ensures the thief cannot alter the envelope or glue together a fake one that the receiver would mistakenly accept as genuine. Any tampering causes the receiver to reject the message right away.</p></section>
 <section data-level="learner"><p><a href="glossary/e/encryption.html">Encryption</a> alone (such as unauthenticated <a href="glossary/a/aes-ctr.html">AES-CTR</a> or AES-<a href="glossary/c/cbc.html">CBC</a>) only hides data; it does not stop attackers from flipping bits in transit. <a href="glossary/p/pairing.html">Pairing</a> <a href="glossary/i/ind-cpa.html">IND-CPA</a> encryption with INT-CTXT authentication—as modern Authenticated Encryption with Associated Data (<a href="glossary/a/aead.html">AEAD</a>) modes like AES-<a href="glossary/g/gcm.html">GCM</a> and ChaCha20-Poly1305 do—achieves full <a href="glossary/i/ind-cca2.html">IND-CCA2</a> security against active tampering.</p>

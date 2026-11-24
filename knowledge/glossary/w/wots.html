@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / WOTS (Winternitz One-Time Signature)</p></nav>
 
-<h1>WOTS (Winternitz One-Time Signature)</h1>
 <p>WOTS (Winternitz One-Time Signature) is a post-quantum digital signature scheme built entirely from cryptographic hash functions, where each key pair can safely sign only one message.</p>
 <section data-level="novice"><p>Imagine a pad of single-use signature stamps: once you use a stamp on one document, part of its pattern is revealed, so using the same stamp a second time would let someone copy it to forge your signature. Larger signature systems bundle many of these single-use stamps together so you do not run out.</p></section>
 <section data-level="learner"><p>Because signing two different messages with the same WOTS key exposes secret hash-chain values and lets an attacker forge new signatures, WOTS is never used standalone for general signing. Instead, stateful hash-based schemes (<a href="glossary/x/xmss.html">XMSS</a>, <a href="glossary/l/lms.html">LMS</a>) and the stateless NIST standard SLH-DSA (<a href="glossary/s/sphincs.html">SPHINCS+</a>) arrange WOTS+ one-time keys as leaves under Merkle trees.</p>

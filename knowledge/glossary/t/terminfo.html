@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / Terminfo (terminal information)</p></nav>
 
-<h1>Terminfo (terminal information)</h1>
 <p>A database that describes the capabilities and control codes of different terminal types so text programs can work consistently across them.</p>
 <section data-level="novice"><p>Different terminals use different special codes to clear the screen, move the cursor, or show colors. Terminfo is like a translation dictionary that lists what each terminal understands. Programs look up your terminal in this dictionary instead of having to memorize every terminal model ever made.</p></section>
 <section data-level="learner"><p>On Linux, terminfo replaces the older termcap system and stores one compiled file per terminal name under directories like <code>/usr/share/terminfo/</code>. You can inspect the active entry with <code>infocmp</code> or query a single capability with <code>tput</code> (for example, <code>tput colors</code> or <code>tput cols</code>). Because programs read the entry named by <code>$TERM</code>, an outdated or missing terminfo database on a remote machine is a common reason full-screen tools look broken over <a href="glossary/s/ssh.html">SSH</a>.</p>

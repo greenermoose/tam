@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / HRU (Harrison-Ruzzo-Ullman model)</p></nav>
 
-<h1>HRU (Harrison-Ruzzo-Ullman model)</h1>
 <p>The HRU (Harrison–Ruzzo–Ullman) model is a classic formal access-control model proving that general safety verification is undecidable.</p>
 <section data-level="novice"><p>Imagine a giant permission chart listing which users can read or edit which files, along with rules for creating new files and sharing access. You might hope to run an automated checker that guarantees “nobody outside accounting can ever reach the payroll file.” The HRU model proved that once a permission system is flexible enough to create new items and grant rights in combination, no universal checker can answer that question for every possible rulebook.</p></section>
 <section data-level="learner"><p>HRU models protection state as an access matrix (rows for subjects, columns for objects, cells for rights) updated by conditional commands built from primitive operations (<code>enter</code>, <code>delete</code>, <code>create</code>, <code>destroy</code>). This explains why real systems such as SELinux or capability-based kernels constrain how permissions propagate: unrestricted dynamic policy rules make static safety checking equivalent to the <a href="glossary/h/halting-problem.html">halting problem</a>.</p>

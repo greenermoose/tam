@@ -3,28 +3,30 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W120
+Updated: 2026-11-24, with W121
 
 STATE
 
-  Command 0.69.1 and corpus 0.123.0 on dev. W120 added a Programming >
-  Web development hub with ten three-level pages from JavaScript history
-  to Node, full-stack architecture, security, testing, deployment and
-  Electron, a five-stage goal path with a capstone, thirty glossary pages,
-  five bibliography entries and the web.* skills. TCK31 is minted with
-  three children; next free checklist ID is TCK32. Corpus, repository and
-  reader checks pass.
+  Command 0.69.1 and corpus 0.124.0 on dev. W121 rewrote the welcome page
+  with the requested intro-first opening and curated links, and removed the
+  1,442 body headings that repeated breadcrumbs across the non-root corpus.
+  Templates, authoring rules, the glossary hub generator and the guide test
+  now teach and preserve the pattern. TCK32 is minted with four children;
+  next free checklist ID is TCK33. Corpus, repository and reader checks pass.
 
+  W120 added a Programming > Web development hub with ten three-level pages
+  from JavaScript history to Node, full-stack architecture, security,
+  testing, deployment and Electron, a five-stage goal path with a capstone,
+  thirty glossary pages, five bibliography entries and the web.* skills.
   W119 updated corpus plan statements to say Tamlinux is writing its own
   compositor, tam-pane, and does not plan to use Sway or wlroots. Hyprland
   is still the current compositor; tam-pane integration is later. W118
-  renamed the plant-names terminology to a botanical analogy. W117 added
-  the generated 0-9 glossary section. W116 added the Numbers in computers
-  subhub and path. Earlier work is recorded in work/history/.
+  renamed the plant-names terminology to a botanical analogy. Earlier work
+  is recorded in work/history/.
 
 NEXT
 
-  - Commit the W120 source and version records on dev with provenance
+  - Commit the W121 source and version records on dev with provenance
     trailers.
   - Rerun make corpus and commit the generated index follow-up.
   - Rerun make corpus after that commit to refresh the build marker.
@@ -43,13 +45,18 @@ WATCH OUT
     checker. Use &quot; around the example attribute value.
   - Generated corpus indexes trail page commits by one; commit them after
     the pages, then rerun make corpus.
+  - A page title belongs in <title> and the breadcrumb only. Do not add a
+    body heading that repeats the breadcrumb; start with an intro paragraph.
+    The root guide index has no breadcrumb and keeps its <h1>.
+  - make corpus regenerates glossary hubs from tools/glossary_index.py, so
+    heading changes there must be made in the generator too.
   - Tamlinux's desktop plan is its own compositor, tam-pane. Sway and
     wlroots are peer projects or technical examples, not targets.
   - Tamlinux's host/rootstock/bud/scion/cultivar/fruit naming is a
     botanical analogy, not a set of plant names.
   - Digit-leading glossary titles belong in glossary/numeric/, not in the
     letter folder matching a later "b" or other letter.
-  - Command and corpus versions are independent; W120 is corpus content
+  - Command and corpus versions are independent; W121 is corpus content
     only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a
     file when testing under sanitizers.

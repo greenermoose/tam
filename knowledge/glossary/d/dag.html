@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DAG (Directed Acyclic Graph)</p></nav>
 
-<h1>DAG (Directed Acyclic Graph)</h1>
 <p>A dependency graph with one-way arrows and no circular loops, used by package managers, version control, and build tools.</p>
 <section data-level="novice"><p>Think of a recipe or a row of dominoes: you have to crack the eggs before you bake the cake, and a step can never depend on itself to finish first. A DAG is a map of steps or items connected by one-way arrows that always move forward and never loop back in a circle.</p></section>
 <section data-level="learner"><p>In Linux and software development, <a href="glossary/g/git.html">Git</a> commit history (commits pointing to parent commits), <a href="glossary/n/nix.html">Nix</a> store dependencies, and <a href="glossary/m/make.html">Make</a> or Ninja build targets all form DAGs. Because there are no loops, tools can sort the steps into a valid build order and safely skip or cache unchanged branches. If two packages accidentally depend on each other, the loop breaks the DAG and causes a cycle error.</p>

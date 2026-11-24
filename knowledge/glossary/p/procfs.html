@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / Procfs (process filesystem)</p></nav>
 
-<h1>Procfs (process filesystem)</h1>
 <p>A virtual filesystem that exposes process and kernel information.</p>
 <section data-level="novice"><p>Even though <code>/proc</code> looks like a normal folder full of files, nothing inside it is stored on your hard drive. Instead, the operating system creates those files on the fly so tools and users can peek at what programs are running and how memory and <a href="glossary/c/cpu.html">CPU</a> are doing.</p></section>
 <section data-level="learner"><p>Mounted at <code>/proc</code>, procfs exposes per-process directories by <a href="glossary/p/pid.html">PID</a> (such as <code>/proc/self/status</code>), hardware summaries (<code>/proc/cpuinfo</code>, <code>/proc/meminfo</code>), and live kernel tunables under <code>/proc/sys/</code> (managed with <code>sysctl</code>). Reading procfs files is safe, whereas writing to <code>/proc/sys/</code> as root changes kernel behavior immediately until reboot.</p><details class="q"><summary><i>Why do files inside /proc often show a size of 0 bytes in ls -l even when reading them prints lots of text?</i></summary><p>Because procfs files do not exist on disk with a precomputed size. The kernel generates their contents dynamically at the moment a program opens and reads them.</p></details></section>

@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Endianness</p></nav>
-<h1>Endianness</h1>
 <p>Endianness says which byte of a multi-byte number comes first in memory or in a file.</p>
 <section data-level="novice"><p>Memory is numbered one <a href="glossary/b/byte.html">byte</a> at a time. A number wider than one byte must be split across several addresses. Little-endian puts the smallest part first; big-endian puts the largest part first. Both can store the same number.</p></section>
 <section data-level="learner"><p>The <a href="glossary/numeric/32-bit.html">32-bit</a> value 0x12345678 is stored as 78 56 34 12 in little-endian order and 12 34 56 78 in big-endian order. Most desktop and server processors use little-endian order. Network protocols have traditionally used big-endian order, called network byte order, so data must be converted when it crosses that boundary. Byte order does not affect the order of bits inside one byte.</p><details class="q"><summary>A file contains 78 56 34 12. What could the 32-bit value be?</summary><p>It is 0x12345678 if written little-endian and 0x78563412 if written big-endian. The bytes alone cannot decide; the file format must state the order.</p></details></section>

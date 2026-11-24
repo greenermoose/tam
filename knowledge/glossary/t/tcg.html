@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TCG (Tiny Code Generator)</p></nav>
 
-<h1>TCG (Tiny Code Generator)</h1>
 <p><a href="glossary/q/qemu.html">QEMU</a>’s cross-architecture dynamic binary translator, which lets an emulator run software built for one kind of processor on a completely different kind of processor.</p>
 <section data-level="novice"><p>Imagine reading a recipe written in a language you do not speak: a translator reads each step and turns it into instructions you can follow right away. TCG does that for computer processors. It matters because it lets you test or run programs meant for another kind of chip—such as phone or embedded software—on an ordinary desktop computer without needing that physical hardware.</p></section>
 <section data-level="learner"><p>In Linux virtualization with QEMU, TCG is the fallback execution engine when hardware virtualization (<a href="glossary/k/kvm.html">KVM</a>) cannot be used—either because the host and guest architectures differ (for example, running an <code>aarch64</code> guest on an <code>x86_64</code> host) or because <code>/dev/kvm</code> is unavailable. Because every guest instruction is decoded and translated in software rather than executed directly by the <a href="glossary/c/cpu.html">CPU</a>, TCG is much slower than KVM, though multi-threaded TCG (<code>-accel tcg,thread=multi</code>) lets multi-core guests spread work across host cores.</p>

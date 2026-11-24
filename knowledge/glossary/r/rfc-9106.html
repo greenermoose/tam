@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / RFC 9106 (Argon2)</p></nav>
 
-<h1><a href="glossary/r/rfc.html">RFC</a> 9106 (Argon2)</h1>
 <p>The <a href="glossary/i/ietf.html">IETF</a> specification for Argon2, a modern memory-hard function for hashing passwords and deriving keys from passphrases.</p>
 <section data-level="novice"><p>Websites and encrypted disks should never store your password as plain text; instead, they scramble it into a one-way fingerprint. Old scrambling methods are easy for attackers with fast graphics cards to guess millions of times per second. RFC 9106 defines Argon2, a modern standard that forces each guess to use a chunk of memory as well as processing time, making mass password guessing slow and expensive.</p></section>
 <section data-level="learner"><p>When configuring disk encryption (such as <a href="glossary/l/luks2.html">LUKS2</a>) or application authentication on Linux, Argon2id is typically recommended over older algorithms like <a href="glossary/p/pbkdf2.html">PBKDF2</a>. Because Argon2id requires configurable <a href="glossary/r/ram.html">RAM</a> in addition to <a href="glossary/c/cpu.html">CPU</a> iterations, attackers cannot cheaply parallelize guesses on GPUs or custom ASICs. Tuning its memory cost too high on a low-RAM machine, however, can cause out-of-memory failures when unlocking a disk at boot.</p>

@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/u/index.html">Terms beginning with U</a> / Underflow</p></nav>
-<h1>Underflow</h1>
 <p>Underflow happens when a result is closer to zero than the format can normally represent.</p>
 <section data-level="novice"><p>A scale that only reads whole grams shows zero for a grain of sand. Floating point can also lose a value that is too tiny, replacing it with zero or with a special tiny form.</p></section>
 <section data-level="learner"><p>Binary64 can represent ordinary values down to about 2.2 times 10^-308. Below that, results may become <a href="glossary/s/subnormal.html">subnormal</a> and then zero. Underflow is the opposite of <a href="glossary/o/overflow.html">overflow</a>, which concerns values too large to hold. It usually matters in probabilities, physics simulations and products of many small numbers.</p><details class="q"><summary>Is underflow always a bug?</summary><p>No. If a value is negligible for the task, flushing it to zero is harmless. It becomes a bug when later division, logarithms or accumulation depend on the tiny value.</p></details></section>

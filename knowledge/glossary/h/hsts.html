@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/h/index.html">Terms beginning with H</a> / HSTS (HTTP Strict Transport Security)</p></nav>
 
-<h1>HSTS (<a href="glossary/h/http.html">HTTP</a> Strict Transport Security)</h1>
 <p>HSTS (HTTP Strict Transport Security) is an HTTP response header instructing browsers to connect to a site only over <a href="glossary/h/https.html">HTTPS</a>.</p>
 <section data-level="novice"><p>Normally, when you type a web address like <code>example.com</code>, your browser first tries the unencrypted HTTP door and waits to be redirected to encrypted HTTPS—leaving a brief moment where someone on the same <a href="glossary/w/wi-fi.html">Wi-Fi</a> could intercept you. HSTS is a sticky rule your browser saves for that site: “Never use unencrypted HTTP here again; go straight to HTTPS every time.”</p></section>
 <section data-level="learner"><p>When a server sends <code>Strict-Transport-Security: max-age=31536000</code> over HTTPS, the browser caches that policy and internally rewrites future <code>http://</code> links or typed addresses for that host to <code>https://</code> before sending any packet, blocking SSL-stripping downgrade attacks and disabling certificate-warning click-throughs. Because browsers ignore HSTS over plain HTTP, a site’s very first visit remains exposed unless it is in the browser’s built-in preload list.</p>

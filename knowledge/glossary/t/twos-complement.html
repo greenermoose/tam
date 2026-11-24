@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / Two's complement</p></nav>
-<h1>Two's complement</h1>
 <p>Two's complement is a way to write negative whole numbers so ordinary addition still works.</p>
 <section data-level="novice"><p>A fixed group of bits has only a limited number of patterns. Two's complement uses the leftmost bit to mark negative values and arranges the remaining patterns so that adding a number and its negative gives zero.</p></section>
 <section data-level="learner"><p>To write -5 in eight bits, start with 5 as 00000101, flip every bit to get 11111010, then add one to get 11111011. Adding 00000101 and 11111011 gives 00000000 if the ninth carry is discarded. Positive values look the same as unsigned values; only patterns with the leftmost bit set are read as negative.</p><details class="q"><summary>Why is eight-bit 10000000 equal to -128 and not -0?</summary><p>Zero has only one pattern, 00000000. That frees 10000000 to extend the negative range by one value, giving -128 through 127 from 256 patterns.</p></details></section>

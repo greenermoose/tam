@@ -111,14 +111,19 @@ evidence. Do not add one on your own.
 
 ## Page openings
 
-After the navigation and level lines, start every page with a clear heading
-and one ordinary sentence explaining what the page is about. Write for a
-reader with a high school education and no specialized technical knowledge.
-Define unfamiliar terms in the sentence or link to a definition; prefer
-familiar words. Do not use labels, bold text, or other formatting on the
-orientation sentence. Follow it with any necessary context, prerequisites,
-and safety information in plain language. The heading and sentence appear
-at every reading level.
+The breadcrumb already names the page, so do not add a heading that repeats
+it. After the navigation and level lines, start the page body with one or two
+ordinary sentences that introduce the topic. Write for a reader with a high
+school education and no specialized technical knowledge. Define unfamiliar
+terms in the sentence or link to a definition; prefer familiar words. Do not
+use labels, bold text, or other formatting on the opening sentence. Follow it
+with any necessary context, prerequisites, and safety information in plain
+language. This intro appears at every reading level.
+
+A topic page then presents its teaching as an intro followed by novice,
+learner and expert sections, as its pattern allows (see Page patterns below).
+The welcome page is the exception: its whole text is one shared intro that
+every reader always sees.
 
 ## Page patterns
 
@@ -133,9 +138,10 @@ ladder.
 | Path | Level paths and goal paths | Single pattern with the path format below | [`path.html`](templates/path.html) |
 
 Untagged content shows at every lens. Content is shared by every level only
-outside the level sections: the title, one-line summary, "Where next", "See
-also" and the revision line. The pager generates the level bar and level
-labels. Never type "Beginner:" into a heading.
+outside the level sections: the breadcrumb, the intro, "Where next", "See
+also" and the revision line. The page title appears only in the breadcrumb
+and `<title>` tag, never as a duplicate body heading. The pager generates the
+level bar and level labels. Never type "Beginner:" into a heading.
 
 ## Section anatomy
 
@@ -257,9 +263,9 @@ acceptable.
 
 Every path page uses [`templates/path.html`](templates/path.html):
 
-1. **Opening:** a clear heading and an ordinary orientation sentence, as in
-   Page openings above. Explain who the path helps and any prerequisites or
-   safety limits in ordinary sentences when needed.
+1. **Opening:** an ordinary orientation paragraph, as in Page openings above.
+   Explain who the path helps and any prerequisites or safety limits in
+   ordinary sentences when needed. Do not repeat the breadcrumb title.
 2. **Stages:** three to six. Each stage has one to four page links at stated
    levels (`?level=`, which sets the reader's lens) and a checkpoint quiz.
 3. **Capstone:** one realistic whole task in a scratch or reversible setting,

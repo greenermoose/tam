@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / Exit status</p></nav>
 
-<h1>Exit status</h1>
 <p>A numeric code a program returns when it finishes to report whether it succeeded or why it failed.</p>
 <section data-level="novice"><p>When a command finishes running, it leaves behind a small number like a report card. Zero means everything worked, while any other number means something went wrong—even if the program did not print a long error message.</p></section>
 <section data-level="learner"><p>In Linux shells, the last command’s exit status is held in <code>$?</code>, where <code>0</code> means success and <code>1</code>–<code>255</code> means failure. Conditionals (<code>if cmd</code>) and chaining operators (<code>&amp;&amp;</code>, <code>||</code>) test this number rather than printed output. Common conventions include <code>1</code> (general error), <code>2</code> (invalid usage), <code>126</code> (not executable), <code>127</code> (command not found), and <code>128 + N</code> (killed by signal <code>N</code>, such as <code>130</code> for <code>SIGINT</code>).</p>

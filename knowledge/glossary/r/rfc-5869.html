@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/r/index.html">Terms beginning with R</a> / RFC 5869 (HKDF)</p></nav>
 
-<h1><a href="glossary/r/rfc.html">RFC</a> 5869 (HKDF)</h1>
 <p>The <a href="glossary/i/ietf.html">IETF</a> specification for HKDF, a standard method for turning a shared secret into multiple independent encryption keys.</p>
 <section data-level="novice"><p>When two devices agree on a secret over the internet, they often need several different keys—one to encrypt messages, another to check that messages were not tampered with, and others for the return direction. Reusing the exact same key for every job is unsafe. RFC 5869 defines a recipe called HKDF that safely stretches and splits one starting secret into separate, independent keys.</p></section>
 <section data-level="learner"><p>HKDF works in two phases built on <a href="glossary/h/hmac.html">HMAC</a>: <em>Extract</em> concentrates uneven randomness from an input secret (such as a Diffie–Hellman shared secret) into a fixed-length pseudorandom key, and <em>Expand</em> derives one or more application-specific keys tagged with context labels. Protocols like <a href="glossary/t/tls.html">TLS</a> 1.3 and Noise use HKDF so that compromising one derived key or changing a context label does not reveal the other keys.</p>

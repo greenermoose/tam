@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / X.509</p></nav>
 
-<h1>X.509</h1>
 <p>The standard digital certificate format used by <a href="glossary/t/tls.html">TLS</a>, <a href="glossary/h/https.html">HTTPS</a>, and public-key infrastructure to bind an identity to a public key.</p>
 <section data-level="novice"><p>Think of an X.509 certificate as a website’s digital passport. When your browser connects to a bank or store, the server shows this passport so your computer can check who issued it, whether it has expired, and which public key belongs to that site—preventing an impostor from pretending to be the real service.</p></section>
 <section data-level="learner"><p>On Linux, X.509 certificates usually appear as Base64-encoded <a href="glossary/p/pem.html">PEM</a> files (<code>.pem</code>, <code>.crt</code>) under <code>/etc/ssl/certs/</code> or binary DER files (<code>.der</code>). Modern TLS clients match the server’s hostname against the Subject Alternative Name (<a href="glossary/s/san.html">SAN</a>) extension rather than the older Common Name (CN) field, and you can inspect a certificate’s fields directly with <code>openssl x509 -in cert.pem -noout -text</code>.</p>

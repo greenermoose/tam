@@ -98,8 +98,8 @@ pass "acceptance queries reach their expected guide destinations"
 
 # Curated topic lookup must reach the authored page. Read its actual title:
 # teaching revisions may change wording without changing the command contract.
-updates_title=$(sed -n 's:.*<h1[^>]*>\(.*\)</h1>.*:\1:p' "$knowledge/systems/maintenance/updates.html" | sed 's/<[^>]*>//g' | head -n 1)
-[ -n "$updates_title" ] || fail "updates page has no heading"
+updates_title=$(sed -n 's:.*<title>\(.*\)</title>.*:\1:p' "$knowledge/systems/maintenance/updates.html" | sed 's/<[^>]*>//g' | head -n 1)
+[ -n "$updates_title" ] || fail "updates page has no title"
 updates=$(env TAM_KNOWLEDGE_DIR="$knowledge" "$TAM" explain updates --pipe)
 printf '%s\n' "$updates" | grep -Fq "$updates_title" \
     || fail "explain updates did not reach the authored updates page"

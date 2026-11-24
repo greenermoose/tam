@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / XTS (XEX-based Tweaked-Codebook with Ciphertext Stealing)</p></nav>
 
-<h1>XTS (XEX-based Tweaked-Codebook with Ciphertext Stealing)</h1>
 <p>A block-cipher encryption mode designed specifically for sector-level disk and storage encryption.</p>
 <section data-level="novice"><p>Unlike a message sent from start to finish, a hard drive or <a href="glossary/s/ssd.html">SSD</a> needs to read and update any small chunk of data in any order at any time. XTS is a way of scrambling each disk sector using its location on the drive as an extra ingredient, so two identical files saved in different places still look completely different on disk—without making the encrypted data any bigger than the drive’s sectors.</p></section>
 <section data-level="learner"><p>On Linux, <code>cryptsetup</code>/<a href="glossary/l/luks2.html">LUKS2</a> defaults to <code>aes-xts-plain64</code>, where the sector number acts as the per-sector tweak. Notice that an XTS key size like 512 bits (<code>-s 512</code>) actually splits into two 256-bit AES keys: one for encrypting the data and one for computing the sector tweak. Unlike authenticated modes such as AES-<a href="glossary/g/gcm.html">GCM</a>, XTS does not store an integrity tag, because disk sectors have no spare room for extra metadata.</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / BEAST (Browser Exploit Against SSL/TLS)</p></nav>
 
-<h1>BEAST (Browser Exploit Against SSL/<a href="glossary/t/tls.html">TLS</a>)</h1>
 <p>A 2011 cryptographic attack against TLS 1.0 that exploited predictable initialization vectors in <a href="glossary/c/cbc.html">CBC</a>-mode encryption.</p>
 <section data-level="novice"><p>When a browser encrypts web traffic in blocks, each block is mixed with the previous one so identical messages don’t look identical. In old TLS 1.0 connections, the starting value (IV) for a new message was predictable—it was just the last piece of the previous message. BEAST showed that an attacker running malicious JavaScript in a browser could guess secret cookies bit by bit by watching how the encrypted blocks changed.</p></section>
 <section data-level="learner"><p>BEAST (Browser Exploit Against SSL/TLS) was a chosen-plaintext attack against CBC-mode cipher suites in TLS 1.0 (notably affecting <a href="glossary/h/http.html">HTTP</a> session cookies). Mitigations initially included browser-side <code>1/n-1</code> record splitting and switching to <a href="glossary/r/rc4.html">RC4</a> (which later proved broken for other reasons), before the ecosystem moved to TLS 1.1+ (explicit random IVs per record) and TLS 1.2/1.3 <a href="glossary/a/aead.html">AEAD</a> ciphers like AES-<a href="glossary/g/gcm.html">GCM</a> and ChaCha20-Poly1305.</p>

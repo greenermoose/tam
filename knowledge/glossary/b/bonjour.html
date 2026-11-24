@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / Bonjour</p></nav>
 
-<h1>Bonjour</h1>
 <p>Apple's name for its implementation of zero-configuration networking, used to find printers, shares and other devices on a local network.</p>
 <section data-level="novice"><p>Bonjour is what Apple calls the technology that lets a Mac find a printer without being given its address. It is an instance of <a href="glossary/z/zeroconf.html">Zeroconf</a>, not a different protocol. Linux uses a compatible implementation called <a href="glossary/a/avahi.html">Avahi</a>, so a device announcing itself with Bonjour can be discovered by Avahi on the same network.</p></section>
 <section data-level="learner"><p>A Bonjour-enabled service publishes a name such as <code>My Printer._ipp._tcp.local</code>. Clients browse a service type, see a list of named instances, and resolve the chosen one to a host, address and port. On Linux the same records are read with <code>avahi-browse</code>. The compatibility comes from shared standards, not from Apple software being installed.</p><details class="q"><summary><i>Does finding a Bonjour printer require an Apple computer on the network?</i></summary><p>No. The announcements use open standards on the local link. Any compatible implementation, including Avahi, can publish and read them.</p></details></section>

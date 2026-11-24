@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / ECB (Electronic Codebook)</p></nav>
 
-<h1>ECB (Electronic Codebook)</h1>
 <p>The simplest block-cipher mode of operation, which encrypts each fixed-size block independently with the same key and therefore leaks patterns in repeated data.</p>
 <section data-level="novice"><p>Imagine replacing every letter in a message with a fixed symbol, like a newspaper puzzle. Even if you cannot read the symbols, any repeated word or picture still shows the exact same shape—so an outsider can spot patterns right through the disguise, which makes ECB unsafe for real data.</p></section>
 <section data-level="learner"><p>Because ECB uses no initialization vector (IV) or chaining between blocks, identical 16-byte AES input blocks always produce identical output blocks—encrypting a bitmap image in ECB famously leaves its silhouette visible. In practice, always choose an authenticated mode such as AES-<a href="glossary/g/gcm.html">GCM</a> or ChaCha20-Poly1305 instead.</p>

@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/l/index.html">Terms beginning with L</a> / LF (Line Feed, 0x0A)</p></nav>
 
-<h1>LF (Line Feed, 0x0A)</h1>
 <p>The <a href="glossary/a/ascii.html">ASCII</a> control character <code>0x0A</code> (Ctrl+J, written <code>'\n'</code> in C) used as the standard line ending in Linux and <a href="glossary/u/unix.html">Unix</a> text files.</p>
 <section data-level="novice"><p>On old mechanical typewriters, starting a new line took two steps: sliding the carriage back to the left margin (Carriage Return) and rolling the paper up one line (Line Feed). Linux and Unix kept things simple by using a single invisible character, Line Feed, to mark the end of a line. Windows uses both characters together, which is why text files moved from Windows sometimes show stray <code>^M</code> marks in Linux editors.</p></section>
 <section data-level="learner"><p>Part of the <a href="glossary/c/c0-control-codes.html">C0 control codes</a>, LF (<code>0x0A</code>) contrasts with Windows’ two-byte CRLF (<code>0x0D 0x0A</code>). On Linux, you can convert files with <code>dos2unix</code> or configure <a href="glossary/g/git.html">Git</a>’s <code>core.autocrlf</code>, while the kernel’s terminal driver automatically translates LF to CRLF when drawing text to a terminal screen.</p>

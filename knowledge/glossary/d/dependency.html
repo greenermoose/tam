@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / Dependency</p></nav>
 
-<h1>Dependency</h1>
 <p>Something a program needs in order to be built or to run.</p>
 <section data-level="novice"><p>Most programs do not include every piece of code they need from scratch. Instead, they rely on shared building blocks—such as a tool that draws windows or reads image files—made by others. Think of it like a recipe that assumes you already have flour and salt in the pantry: if a required ingredient is missing, the dish cannot be made.</p></section>
 <section data-level="learner"><p>In Linux package managers and build systems, dependencies are split into <em>runtime dependencies</em> (shared libraries or helper tools needed when executing) and <em>build-time dependencies</em> (compilers, headers, or code generators needed only to produce the binary). Package managers inspect declared version constraints to install missing dependencies automatically, and <code>ldd</code> or <code>ldconfig</code> can show which shared libraries an executable expects at runtime.</p><details class="q"><summary><i>Why can removing a single “unused” library package break several unrelated apps?</i></summary><p>Because multiple programs often share one runtime dependency; removing it leaves their dynamic linker unable to resolve required symbols at startup.</p></details></section>

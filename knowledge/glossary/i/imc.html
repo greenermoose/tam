@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / IMC (Integrated Memory Controller)</p></nav>
 
-<h1>IMC (Integrated Memory Controller)</h1>
 <p>Circuitry built directly into a modern processor that manages reading from and writing to the computer’s main memory (<a href="glossary/r/ram.html">RAM</a>).</p>
 <section data-level="novice"><p>Think of RAM as a busy warehouse of shelves and the processor as a factory floor. The IMC is the dispatcher sitting right inside the factory, fetching materials and storing finished parts without sending messengers down the road to another chip. That direct connection makes the whole computer feel snappier and avoids traffic jams when several programs need data at once.</p></section>
 <section data-level="learner"><p>Moving the memory controller from a separate motherboard chip (the old northbridge) onto the <a href="glossary/c/cpu.html">CPU</a> die dramatically reduced memory latency and tied supported RAM types (such as <a href="glossary/d/ddr4.html">DDR4</a> or <a href="glossary/d/ddr5.html">DDR5</a>) and channel counts directly to the processor model. On Linux, you can inspect memory layout with <code>dmidecode -t memory</code>, and populating multiple channels matters because the IMC stripes requests across them for higher bandwidth.</p>

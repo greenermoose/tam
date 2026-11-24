@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/n/index.html">Terms beginning with N</a> / NX (No-Execute / XD bit)</p></nav>
 
-<h1>NX (No-<a href="glossary/e/execute.html">Execute</a> / XD bit)</h1>
 <p>A hardware memory-protection feature in modern CPUs that marks data regions such as the stack and heap as non-executable.</p>
 <section data-level="novice"><p>Normally, a computer’s memory holds both program instructions (code) and information the program works on (data, like text or images). Without NX, a bug could trick the computer into treating user-supplied data as instructions and running it. NX puts a “read/write only, do not run” label on data areas so the <a href="glossary/c/cpu.html">CPU</a> refuses to execute them.</p></section>
 <section data-level="learner"><p>Known as NX (AMD), XD (Intel Execute Disable), or XN (<a href="glossary/a/arm.html">ARM</a> Execute Never), this hardware bit enforces the W^X (“Write <a href="glossary/x/xor.html">XOR</a> Execute”) principle: memory pages can be writable or executable, but not both at once. On Linux, <a href="glossary/e/elf.html">ELF</a> binaries carry a <code>PT_GNU_STACK</code> header (inspectable with <code>readelf -l</code>) that tells the kernel whether the stack should be non-executable (<code>RW</code> rather than <code>RWE</code>), blocking classic buffer-overflow shellcode injection and forcing attackers toward harder techniques like Return-Oriented Programming (ROP).</p>

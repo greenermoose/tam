@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/b/index.html">Terms beginning with B</a> / Bundle</p></nav>
 
-<h1>Bundle</h1>
 <p>A bundle is all the files of one version of some software, with a name, a version and a fingerprint, installed and removed as one unit.</p>
 <section data-level="novice"><p>Think of a bundle like a sealed box with a label on the outside and a packing slip inside. Instead of scattering loose files across your computer where they can get mixed up with other programs, keeping every file for one version together lets the system install, check, or swap back to an older box cleanly.</p></section>
 <section data-level="learner"><p>In <code>tam-bundle</code>, a bundle is a directory holding a built file tree plus two text records: <code>BUNDLE</code> (name, version, hash, sources) and <code>MANIFEST</code> (every path with its mode and <a href="glossary/s/sha-256.html">SHA-256</a> hash). Its id is <code>name-version-</code> followed by twelve hash characters, which lets you tell two builds of the same version apart at a glance.</p><details class="q"><summary><i>Why does a bundle include a MANIFEST listing every file’s mode and SHA-256 hash?</i></summary><p>Recording each file’s path, permissions, and hash lets the installer verify that no file was corrupted or altered after the build, and ensures removal or rollback touches only the exact files belonging to that bundle.</p></details></section>

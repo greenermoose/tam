@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / Object file (.o)</p></nav>
 
-<h1>Object file (.o)</h1>
 <p>An intermediate compiled binary file containing machine code and symbol tables for one source file before linking.</p>
 <section data-level="novice"><p>When a C compiler builds a program made of several source files, it first translates each source file into its own building-block file—an object file ending in .o—before joining them into the final program.</p></section>
 <section data-level="learner"><p>Compiling each .c file to a .o file lets <a href="glossary/m/make.html">Make</a> rebuild only the files you edited and then quickly relink all .o files into the final executable.</p><details class="q"><summary><i>Why can you not run a .o object file directly as a finished program?</i></summary><p>Because an object file still has unresolved references to functions in other object files and libraries; the linker must combine them into an executable first.</p></details></section>

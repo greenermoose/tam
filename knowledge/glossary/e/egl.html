@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EGL (Embedded-System Graphics Library)</p></nav>
 
-<h1>EGL (Embedded-System Graphics Library)</h1>
 <p>EGL (Embedded-System Graphics Library) is a Khronos Group interface that connects rendering APIs such as OpenGL and OpenGL ES to native windowing systems and display buffers.</p>
 <section data-level="novice"><p>EGL acts like a translator between a 3D drawing engine and your screen manager. An app knows how to draw shapes and colors, while <a href="glossary/w/wayland.html">Wayland</a> or Linux’s display layer knows how to place windows on your monitor—EGL sits in between so finished frames can be handed off smoothly without slow copying.</p></section>
 <section data-level="learner"><p>On modern Linux desktops, Wayland compositors (such as <a href="glossary/h/hyprland.html">Hyprland</a>) and toolkits like Qt/<a href="glossary/q/quickshell.html">Quickshell</a> use EGL over <code>wl_egl_window</code> or <a href="glossary/g/gbm.html">GBM</a> instead of X11’s legacy GLX. You can inspect available EGL platforms and extensions with <code>eglinfo</code>, and <a href="glossary/g/gpu.html">GPU</a> buffers are shared between apps and the compositor via zero-copy <a href="glossary/d/dma.html">DMA</a>-BUF.</p>

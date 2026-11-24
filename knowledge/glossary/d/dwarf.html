@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/d/index.html">Terms beginning with D</a> / DWARF (Debugging With Attributed Record Formats)</p></nav>
 
-<h1>DWARF (Debugging With Attributed Record Formats)</h1>
 <p>The standard debugging-information format embedded in <a href="glossary/e/elf.html">ELF</a> binaries that maps compiled machine code back to source files, line numbers, and variable types.</p>
 <section data-level="novice"><p>Compiled programs are like a baked cake—the computer no longer sees the original recipe. DWARF is an extra map tucked alongside the program so a debugger or crash report can point to the exact source file and line number where something went wrong.</p></section>
 <section data-level="learner"><p>Compiling with <code>-g</code> embeds DWARF sections (<code>.debug_info</code>, <code>.debug_line</code>, <code>.debug_frame</code>) into ELF binaries so <a href="glossary/g/gdb.html">GDB</a>, <a href="glossary/a/addresssanitizer.html">AddressSanitizer</a>, and <code>perf</code> can display readable stack traces and inspect local variables. Because debug data can be larger than the program itself, Linux distributions often strip it into separate <code>.debug</code> packages or serve it on demand via <code>debuginfod</code>.</p>

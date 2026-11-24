@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/k/index.html">Terms beginning with K</a> / KDF (Key Derivation Function)</p></nav>
 
-<h1>KDF (Key Derivation Function)</h1>
 <p>A cryptographic algorithm that stretches a password or shared secret into strong, fixed-length encryption keys.</p>
 <section data-level="novice"><p>A key derivation function turns a human password or a raw shared secret into strong cryptographic keys suitable for locking files or securing network traffic.</p></section>
 <section data-level="learner"><p>Password KDFs (like Argon2id and scrypt) are intentionally slow and memory-hard to resist brute-force guessing, whereas key-expansion KDFs (like HKDF) quickly derive multiple session keys from an already high-entropy secret.</p><details class="q"><summary><i>Why should you use Argon2id rather than plain <a href="glossary/s/sha-256.html">SHA-256</a> to derive an encryption key from a user password?</i></summary><p>SHA-256 is designed to be extremely fast, making offline password guessing easy; Argon2id intentionally consumes time and memory to slow attackers down.</p></details></section>

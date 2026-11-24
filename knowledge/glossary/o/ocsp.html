@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / OCSP (Online Certificate Status Protocol)</p></nav>
 
-<h1>OCSP (Online Certificate Status Protocol)</h1>
 <p>A network protocol for checking whether an <a href="glossary/x/x509.html">X.509</a> <a href="glossary/t/tls.html">TLS</a> certificate has been revoked before its scheduled expiration date.</p>
 <section data-level="novice"><p>Even if a website’s security certificate has not expired yet, it might need to be canceled early—for example, if the site’s private key was stolen. OCSP is how your browser asks the certificate issuer, “Is this certificate still valid right now?” so you do not trust a compromised site.</p></section>
 <section data-level="learner"><p>Classic OCSP has two major drawbacks: your browser leaks which sites you visit to the Certificate Authority (CA), and if the CA’s OCSP responder is slow or unreachable, connections stall or silently fail open (“soft-fail”). OCSP stapling fixes both issues by having the web server fetch a signed, time-stamped OCSP response from the CA and attach (“staple”) it directly inside the TLS handshake—improving speed and protecting user privacy.</p>

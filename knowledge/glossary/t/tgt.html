@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TGT (Ticket-Granting Ticket)</p></nav>
 
-<h1>TGT (Ticket-Granting Ticket)</h1>
 <p>An initial <a href="glossary/k/kerberos.html">Kerberos</a> credential that lets a user request access tickets for individual network services without re-entering a password each time.</p>
 <section data-level="novice"><p>Imagine visiting a theme park where you show your ID once at the front gate and receive a wristband. Throughout the day, you show that wristband at each ride to get a ride ticket instead of going back to the gate with your ID. A TGT works like that wristband for network logins: you prove who you are once, and your computer uses the TGT behind the scenes to fetch passes for file shares, email, or servers.</p></section>
 <section data-level="learner"><p>In Kerberos on Linux, running <code>kinit</code> authenticates you to the Key Distribution Center (<a href="glossary/k/kdc.html">KDC</a>) and stores a time-limited TGT in your credential cache, which you can inspect with <code>klist</code>. Whenever you connect to a Kerberos-aware service like <a href="glossary/s/ssh.html">SSH</a> or NFS, your client uses the TGT to request a service ticket for that specific host—whereas a service ticket only works for one target service.</p>

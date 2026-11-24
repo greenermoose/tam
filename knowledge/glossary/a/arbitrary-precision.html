@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / Arbitrary precision</p></nav>
-<h1>Arbitrary precision</h1>
 <p>A way of storing numbers that uses more memory when the value gets larger.</p>
 <section data-level="novice"><p>An eight-bit counter stops making sense above 255. An arbitrary-precision number adds more storage as needed, like writing another column when a sum grows past 9.</p></section>
 <section data-level="learner"><p>Python integers are arbitrary precision, so <code>2**100</code> works without a special type. In C, a fixed <code>uint64_t</code> wraps at 2^64. The trade-off is cost: arbitrary-precision operations allocate memory and run many machine-word steps, while fixed-width values fit in registers and are much faster.</p><details class="q"><summary>Is arbitrary precision the same as arbitrary accuracy?</summary><p>No. It removes the fixed limit on integer size. A rational or decimal type still needs rules for division and rounding, and measured values can still be uncertain.</p></details></section>

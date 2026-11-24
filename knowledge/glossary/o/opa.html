@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/o/index.html">Terms beginning with O</a> / OPA (Open Policy Agent)</p></nav>
 
-<h1>OPA (Open Policy Agent)</h1>
 <p>OPA (Open Policy Agent) is a general-purpose policy engine that evaluates authorization and compliance rules written in a declarative language called Rego.</p>
 <section data-level="novice"><p>Normally, permission rules like “only admins can delete backups” are buried inside each program’s code, so changing a rule means editing and rebuilding every app. OPA moves those rules into one dedicated decision-maker—like a central rulebook clerk that any app can ask, “Is <code>alex</code> allowed to do this right now?” That keeps security rules consistent and easy to update in one place.</p></section>
 <section data-level="learner"><p>In Policy-Based Access Control (PBAC), OPA acts as a decoupled Policy Decision Point (<a href="glossary/p/pdp.html">PDP</a>) alongside a Policy Enforcement Point (PEP) such as an <a href="glossary/a/api.html">API</a> gateway, Envoy proxy, or Kubernetes admission controller. The PEP sends OPA a <a href="glossary/j/json.html">JSON</a> request describing the actor, action, and resource; OPA evaluates Rego rules against that input and any loaded context data, then returns a decision (such as allow/deny or structured obligations). Because Rego policies are plain text, teams can version-control them and run unit tests with <code>opa test</code> just like application code.</p>

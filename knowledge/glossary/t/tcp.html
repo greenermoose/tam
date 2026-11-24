@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/t/index.html">Terms beginning with T</a> / TCP - Transmission Control Protocol</p></nav>
 
-<h1>TCP - Transmission Control Protocol</h1>
 <p>A core internet transport protocol that delivers a reliable, ordered stream of bytes between two programs over a network.</p>
 <section data-level="novice"><p>Sending data across a network is like mailing a long letter one page at a time: pages can arrive late, out of order, or get lost on the way. TCP numbers every page, checks that each one arrived, asks for missing ones to be sent again, and puts them back in order before handing the letter to the program. It matters because web pages, file downloads, and email would break or scramble if even a small piece went missing.</p></section>
 <section data-level="learner"><p>Unlike <a href="glossary/u/udp.html">UDP</a>—which sends independent datagrams with no delivery guarantee—TCP opens a stateful connection between an <a href="glossary/i/ip-address.html">IP address</a> and port pair, exposes a continuous byte stream to applications, and adapts its sending rate to network conditions. On Linux, you can inspect active TCP sockets and states (<code>LISTEN</code>, <code>ESTABLISHED</code>, <code>TIME_WAIT</code>) with <code>ss -tan</code>. Because TCP guarantees ordered delivery, a single lost packet stalls later packets already in the receive buffer until it is retransmitted.</p>

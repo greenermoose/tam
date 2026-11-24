@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / Init</p></nav>
 
-<h1>Init</h1>
 <p>The first user-space program the operating system kernel starts at boot, responsible for bringing up the rest of the system and managing running services.</p>
 <section data-level="novice"><p>When you turn on a computer, the kernel wakes up the hardware first, like turning on a building’s electricity and plumbing. Init is the first manager who walks through the door: it starts background helpers like networking and login screens, and stays on duty until shutdown to keep everything orderly.</p></section>
 <section data-level="learner"><p>Init always runs as process ID 1 (<code>PID 1</code>). On most modern Linux distributions, <code>systemd</code> fills this role, though alternatives like OpenRC, runit, or s6 exist. When a parent program exits before its child processes finish, <code>PID 1</code> adopts those orphans and cleans up their exit status so they do not pile up as zombie processes. You can check your active init with <code>ps -p 1 -o comm=</code>.</p>

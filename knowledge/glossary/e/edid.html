@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EDID - Extended Display Identification Data</p></nav>
 
-<h1>EDID - Extended Display Identification Data</h1>
 <p>EDID (Extended Display Identification Data) is a standardized data format used by monitors to describe their identity and capabilities to a computer.</p>
 <section data-level="novice"><p>Think of EDID as a digital business card your monitor sends through the display cable as soon as it is plugged in. It tells the computer the monitor’s brand, model, physical screen size, and which resolutions and refresh rates it can safely display—so you get a sharp picture automatically without typing settings by hand.</p></section>
 <section data-level="learner"><p>EDID is a 128-byte (or 256-byte+ extended) binary structure standardized by <a href="glossary/v/vesa.html">VESA</a> that the Linux <a href="glossary/d/drm.html">DRM/KMS</a> subsystem reads during display hotplugging to pick the native resolution and refresh rate. You can inspect the raw data under <code>/sys/class/drm/card*-*/edid</code> with <code>edid-decode</code>, or override a faulty monitor’s EDID via <code>drm.edid_firmware=</code>.</p>

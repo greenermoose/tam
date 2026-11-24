@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / Subnormal</p></nav>
-<h1>Subnormal</h1>
 <p>A subnormal is a very small floating-point value stored without the usual leading digit.</p>
 <section data-level="novice"><p>Ordinary floating-point numbers keep a leading 1 bit that does not need to be stored. When a number is too small for that trick, the format can still represent it by giving up the hidden bit. Those tiny values are called subnormal.</p></section>
 <section data-level="learner"><p>Subnormals fill the gap between zero and the smallest normal value. Without them, a calculation that falls below the normal range would jump straight to zero. With them, values fade out gradually. They are sometimes called denormals in older documentation.</p><details class="q"><summary>Why not just make the exponent range bigger?</summary><p>The exponent field has a fixed number of bits. Some of its patterns are reserved for zero, infinity and NaN, and the smallest exponent is already in use. Subnormals extend the low end without widening the field.</p></details></section>

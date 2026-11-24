@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/a/index.html">Terms beginning with A</a> / AVX2 (Advanced Vector Extensions 2)</p></nav>
 
-<h1>AVX2 (Advanced Vector Extensions 2)</h1>
 <p>An x86_64 processor extension that expands 256-bit <a href="glossary/s/simd.html">SIMD</a> support to integer operations and adds gather instructions.</p>
 <section data-level="novice"><p>While the original <a href="glossary/a/avx.html">AVX</a> extension focused mostly on decimal (floating-point) numbers used in graphics and science, AVX2 brings that same 256-bit wide-lane speedup to whole-number math. That makes everyday tasks like encrypting files, compressing archives, and decoding modern video formats noticeably faster.</p></section>
 <section data-level="learner"><p>Introduced in 2013 (Intel Haswell, AMD Excavator), AVX2 is a core requirement of the <code>x86-64-v3</code> microarchitecture level. Because pre-2013 CPUs lack AVX2, distributed packages target baseline x86_64 while local <code>-march=native</code> builds can enable AVX2 (often paired with FMA3 for fused multiply-add). In practice, libraries like OpenSSL, <a href="glossary/f/ffmpeg.html">FFmpeg</a>, and glibc use runtime CPUID dispatch (<code>IFUNC</code>) to select AVX2 routines only when supported.</p>

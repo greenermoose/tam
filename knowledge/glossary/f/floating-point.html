@@ -9,7 +9,6 @@
 <meta name="kind" content="glossary">
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A-Z</a> / <a href="glossary/f/index.html">Terms beginning with F</a> / Floating-point</p></nav>
-<h1>Floating-point</h1>
 <p>Floating-point stores digits plus a scale, so the same format covers tiny and huge values.</p>
 <section data-level="novice"><p>Writing 1,500 as 1.5 times 1,000 is a way of moving the point. A floating-point number does the same inside a computer: it keeps the digits and remembers where the point belongs.</p></section>
 <section data-level="learner"><p>A floating-point value has a sign, a <a href="glossary/s/significand.html">significand</a> for the digits and an <a href="glossary/e/exponent.html">exponent</a> for the scale. That makes it possible to store both 0.0015 and 1,500,000,000 in one format. The cost is that many familiar decimal fractions, such as 0.1, cannot be stored exactly. Comparing results by exact equality is often wrong; use a tolerance chosen for the problem.</p><details class="q"><summary>Why does 0.1 + 0.2 not equal 0.3 exactly in many programs?</summary><p>Both inputs are rounded to the nearest binary floating-point values, and their sum is rounded again. The stored result is close to 0.3 but not the same pattern as the stored 0.3.</p></details></section>

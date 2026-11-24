@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / X3DH (Extended Triple Diffie-Hellman)</p></nav>
 
-<h1>X3DH (Extended Triple <a href="glossary/d/diffie-hellman.html">Diffie-Hellman</a>)</h1>
 <p>An asynchronous key-agreement protocol that lets two people establish a shared encryption key even when one of them is offline.</p>
 <section data-level="novice"><p>Normally, locking a shared secret box together requires both people to be online at the same time to agree on the key. X3DH solves this by letting the receiver leave a few public lockboxes on a server ahead of time—like a drop box at a post office—so a sender can start a private, encrypted conversation at any hour without waiting for the other person to come online.</p></section>
 <section data-level="learner"><p>In apps such as Signal, each client uploads a bundle of public keys to the messaging server: a long-term identity key, a regularly rotated signed prekey, and a batch of single-use one-time prekeys. Unlike classic <a href="glossary/t/tls.html">TLS</a> handshakes, where both sides must respond live, the sender downloads that bundle, computes the shared secret locally, and attaches the first encrypted message immediately. Once the receiver comes online and consumes a one-time prekey, the server deletes it so future sessions get fresh entropy and past sessions gain forward secrecy.</p>

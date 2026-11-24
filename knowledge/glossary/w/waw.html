@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/w/index.html">Terms beginning with W</a> / WAW (Write-After-Write hazard)</p></nav>
 
-<h1>WAW (Write-After-Write hazard)</h1>
 <p>A WAW (Write-After-Write) hazard is a <a href="glossary/c/cpu.html">CPU</a> pipeline conflict that occurs when two instructions write to the same register and could finish out of order.</p>
 <section data-level="novice"><p>Imagine two people updating the same box on a whiteboard: the first writes a slow calculation, and the second writes a newer number right after. If the second person finishes first and the first person writes later, the old number ends up in the box. Modern CPUs prevent this mix-up by giving each write its own temporary scratchpad.</p></section>
 <section data-level="learner"><p>WAW is a false (name) dependency: the second instruction does not actually need the result of the first, they just happen to name the same architectural register. Out-of-order CPUs eliminate both WAW and WAR (Write-After-Read) hazards through hardware register renaming, mapping a small set of <a href="glossary/i/isa.html">ISA</a> register names onto a much larger pool of internal physical registers.</p>

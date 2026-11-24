@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/p/index.html">Terms beginning with P</a> / PRF (Pseudorandom Function)</p></nav>
 
-<h1>PRF (Pseudorandom Function)</h1>
 <p>Keyed deterministic function whose outputs are indistinguishable from a truly random function.</p>
 <section data-level="novice"><p>A PRF works like a locked magic box: you feed in a label and it always hands back the same messy, random-looking number. Anyone without the secret key cannot predict the output or tell it apart from pure coin flips, even after seeing many examples.</p></section>
 <section data-level="learner"><p>Protocols like <a href="glossary/t/tls.html">TLS</a> and <a href="glossary/s/ssh.html">SSH</a> use <a href="glossary/h/hmac.html">HMAC</a> and HKDF as PRFs to derive session keys and authentication tags from a shared secret. Unlike a plain hash function, a PRF takes a secret key, and its deterministic behavior lets both sides compute the exact same keys independently.</p><details class="q"><summary><i>If a PRF is deterministic—always returning the same output for the same key and input—why is it called “pseudorandom”?</i></summary><p>Without the secret key, an observer cannot distinguish the outputs from truly random values, even if they choose the inputs. Determinism is required so both parties holding the key derive identical results.</p></details></section>

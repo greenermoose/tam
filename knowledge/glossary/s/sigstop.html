@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/s/index.html">Terms beginning with S</a> / SIGSTOP (Stop signal)</p></nav>
 
-<h1>SIGSTOP (Stop signal)</h1>
 <p>SIGSTOP (signal 19 on x86_64 Linux) is an uncatchable signal that pauses a running process in place until SIGCONT resumes it.</p>
 <section data-level="novice"><p>SIGSTOP works like a universal pause button controlled by the operating system. It freezes a program exactly where it is—keeping its memory and open files intact—without the program being able to refuse, and you can unfreeze it later with SIGCONT.</p></section>
 <section data-level="learner"><p>Part of <a href="glossary/u/unix-signals.html">Unix signals</a>, SIGSTOP cannot be caught, blocked, or ignored, which distinguishes it from <code>SIGTSTP</code> (<code>Ctrl+Z</code>). Programs like text editors catch <code>SIGTSTP</code> to restore your terminal screen before pausing, whereas <code>kill -STOP</code> freezes the process immediately without letting it clean up the terminal.</p><details class="q"><summary><i>Why is <code>kill -STOP</code> risky to use on a full-screen terminal app like an editor, compared to pressing Ctrl+Z?</i></summary><p>Because SIGSTOP cannot be caught, the editor cannot switch the terminal back out of raw or alternate-screen mode before freezing, leaving your shell prompt garbled until you resume it with <code>kill -CONT</code>.</p></details></section>

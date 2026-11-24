@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/i/index.html">Terms beginning with I</a> / Inode</p></nav>
 
-<h1>Inode</h1>
 <p>A filesystem data structure that stores a file’s metadata and where its contents live on disk, separate from its filename.</p>
 <section data-level="novice"><p>Think of a directory as a label on a folder and an inode as the hidden catalog card it points to. The folder only holds the file’s name; the catalog card records who owns the file, who can read or edit it, how big it is, and where its data sits on the drive. Because the name and the card are separate, two names can point to the exact same file.</p></section>
 <section data-level="learner"><p>In Linux filesystems like ext4 and XFS, directories map filenames to inode numbers (viewable with <code>ls -i</code>, while <code>stat</code> shows the full inode metadata). Creating a hard link (<code>ln a b</code>) gives two filenames the same inode number, and deleting a file only frees its blocks once its link count drops to zero and no process holds it open. A disk with millions of tiny files can also run out of inodes (<code>df -i</code>) even when free gigabytes remain.</p>

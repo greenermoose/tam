@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/x/index.html">Terms beginning with X</a> / XDP (eXpress Data Path)</p></nav>
 
-<h1>XDP (eXpress Data Path)</h1>
 <p>A high-speed Linux kernel hook that lets eBPF programs inspect, drop, or redirect network packets directly in the network driver before normal networking structures are allocated.</p>
 <section data-level="novice"><p>Normally, when a network packet arrives, the operating system wraps it in tracking paperwork and passes it through several layers of software before deciding whether to keep or block it. During a flood of junk traffic, all that paperwork slows the machine down. XDP acts like a bouncer standing right at the front door of the network card, turning unwanted packets away immediately before the system spends effort processing them.</p></section>
 <section data-level="learner"><p>Whereas <code>nftables</code> or <code>iptables</code> filter packets after the kernel has already allocated an <code>sk_buff</code> (socket buffer) and entered the network stack, XDP runs at the driver’s receive ring—making it ideal for DDoS mitigation, line-rate packet filtering, and fast load balancing. You attach an XDP program to an interface with tools like <code>ip link set dev eth0 xdp obj prog.o</code>, and can inspect attached hooks via <code>ip link show</code> or <code>bpftool</code>.</p>

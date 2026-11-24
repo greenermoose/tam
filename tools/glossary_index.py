@@ -267,7 +267,6 @@ def _render_section_index(section: str, items: list[tuple[str, str, str]]) -> st
         '<meta name="parent" content="glossary/index.html">',
         "</head><body>",
         f'<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A\u2013Z</a> / {label}</p></nav>',
-        f"<h1>{label}</h1>",
         f"<p>{summary}</p>",
         "<h2>Explore</h2><table>\n"
         + "\n".join(
@@ -299,7 +298,6 @@ def _render_top_index(ranges: list[tuple[str, str, tuple[str, str], int]]) -> st
         '<meta name="parent" content="index.html">',
         "</head><body>",
         '<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / Glossary A\u2013Z</p></nav>',
-        "<h1>Glossary A\u2013Z</h1>",
         "<p>Look up a word or acronym, then follow its links to learn more.</p>",
         "<h2>Explore</h2><ul>" + "\n".join(list_items),
         "</ul>",

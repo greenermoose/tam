@@ -185,3 +185,23 @@ Owning plan: [javascript-web-development-curriculum.md](docs/plans/javascript-we
 - [x] **TCK31.3 (Web bookkeeping and verification):** Corpus 0.123.0 version,
   roadmap, development contract, plan index and work record; corpus, repository
   and reader checks pass. Completed 2026-11-24.
+
+### Welcome page and intro-first layout
+
+Owning plan: [welcome-page-layout.md](docs/plans/welcome-page-layout.md)
+
+- [x] **TCK32 (Intro-first corpus layout):** Rollup for the welcome rewrite and
+  corpus-wide removal of duplicate body headings at corpus 0.124.0. Completed
+  2026-11-24 when every child below was complete.
+- [x] **TCK32.1 (Welcome page):** The requested breadcrumb, `Hello!`,
+  performance sentence and `get started | get help` opening, with curated links
+  to the subject hubs, paths, skills map, glossary, bibliography and help. No
+  duplicate heading and no level sections.
+- [x] **TCK32.2 (Corpus headings):** Removed the redundant `<h1>` from all
+  1,442 non-root pages; the root index keeps its heading. The glossary hub
+  generator now omits the heading so regenerated hubs follow the pattern.
+- [x] **TCK32.3 (Standards and checks):** Templates, pedagogy and authoring
+  rules, `build-index.py` docstring and `tests/guide.sh` updated; TCK32, corpus
+  version, roadmap, development contract, plan index and work record written.
+- [x] **TCK32.4 (Verification):** Corpus, repository and reader checks pass.
+  Completed 2026-11-24.

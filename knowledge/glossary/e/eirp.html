@@ -12,7 +12,6 @@
 </head><body>
 <nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/e/index.html">Terms beginning with E</a> / EIRP (Effective Isotropic Radiated Power)</p></nav>
 
-<h1>EIRP (Effective Isotropic Radiated Power)</h1>
 <p>EIRP (Effective Isotropic Radiated Power) is a measure of how much radio power a transmitter and its antenna radiate in the direction of strongest signal.</p>
 <section data-level="novice"><p>Imagine a bare light bulb versus a flashlight: both use the same bulb, but the flashlight’s reflector focuses the light into a much brighter beam in one direction. EIRP measures how strong a <a href="glossary/w/wi-fi.html">Wi-Fi</a> or radio signal is in its brightest direction, which is why radio regulators limit EIRP by law rather than just the chip’s raw power.</p></section>
 <section data-level="learner"><p>EIRP is calculated in dBm as <code>TX power (dBm) − cable loss (dB) + antenna gain (dBi)</code>, meaning a high-gain antenna raises EIRP even if the radio’s output stays the same. On Linux, the kernel’s <code>cfg80211</code> regulatory database enforces regional EIRP caps per Wi-Fi band, which you can inspect with <code>iw reg get</code> and <code>iw dev wlan0 info</code>.</p>
