@@ -3,28 +3,30 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W117
+Updated: 2026-11-24, with W118
 
 STATE
 
-  Command 0.69.1 and corpus 0.122.1 on dev. W117 added a generated
-  0-9 section to the glossary index, a glossary/numeric/ hub and entries
-  for 8-bit, 32-bit and 64-bit. The entries explain value ranges,
-  pointers, address space, ABI, instruction-set modes, libraries and
-  why both 32-bit and 64-bit programs exist. The numeric teaching pages
-  link to the new terms. The same session italicized the five checkpoint
-  questions on the numeric path. Corpus build, lint and tests pass.
+  Command 0.69.1 and corpus 0.122.2 on dev. W118 renamed "Plant
+  names used in Tamlinux" to "Botanical analogy used in Tamlinux"
+  in the terminology page, design hub, glossary links and related
+  descriptions. Host, rootstock, bud, scion, cultivar and fruit are
+  described as a botanical analogy; horticultural definitions of
+  the words remain. Corpus build, lint and tests pass.
 
-  W116 added the Numbers in computers subhub and the five-stage path.
-  W115 simplified the `tam:paths` intro and removed Start/Overview from
-  each path line. W114 redesigned `tam:hubs` as eight subject homes.
-  Earlier work added computer timescales and the reading list and
-  bibliography changes recorded in work/history/.
+  W117 added the generated 0-9 glossary section, 8-bit, 32-bit and
+  64-bit entries, and italicized the five numeric path questions.
+  W116 added the Numbers in computers subhub and five-stage path.
+  W115 simplified the `tam:paths` intro. W114 redesigned `tam:hubs`
+  as eight subject homes. Earlier work added computer timescales,
+  reading lists and bibliography changes recorded in work/history/.
 
 NEXT
 
-  - Commit the italics correction on dev with provenance trailers.
+  - Commit the W118 source and version records on dev with
+    provenance trailers.
   - Rerun make corpus and commit the generated index follow-up.
+  - Rerun make corpus after that commit to refresh the build marker.
   - Then await Fred's direction. No Test, Run or Release is authorised.
 
 WAITING FOR FRED
@@ -37,12 +39,14 @@ WATCH OUT
     scopes, version bumps and tests.
   - Generated corpus indexes trail page commits by one; commit them after
     the pages, then rerun make corpus.
+  - Tamlinux's host/rootstock/bud/scion/cultivar/fruit naming is a
+    botanical analogy, not a set of plant names.
   - Digit-leading glossary titles belong in glossary/numeric/, not in
     the letter folder matching a later "b" or other letter.
-  - Command and corpus versions are independent. This change was corpus
-    content and tooling only.
-  - UBSan output in a PTY corrupts the pager screen model; log it to a file
-    when testing under sanitizers.
+  - Command and corpus versions are independent; W118 is corpus content
+    only.
+  - UBSan output in a PTY corrupts the pager screen model; log it to a
+    file when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.
   - make dev is Fred's loop; agents do not run it. Do not install a build
     as a side effect of content changes.

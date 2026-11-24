@@ -1,0 +1,49 @@
+W118 BOTANICAL ANALOGY WORDING
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "On page:tamlinux/components.html change "Plant names used in
+  Tamlinux" to Botanical analogy used in Tamlinux. Make that change
+  through the corpus. Describe our use of rootstock, bud, scion,
+  cultivar, etc. as a "botanical analogy" rather than as a "plant name.""
+
+DONE
+
+  - Renamed the terminology page title, heading and breadcrumb to
+    "Botanical analogy used in Tamlinux".
+  - Updated the design hub row and all glossary "Learn more" links
+    that used the old title.
+  - Changed the whole-system page and install page from "garden
+    analogy" or "plant terms" to "botanical analogy".
+  - Updated bud, scion and fruit glossary intros to say "Tamlinux
+    botanical analogy"; kept horticultural definitions of the words.
+  - Bumped corpus to 0.122.2 and updated ROADMAP, the development
+    decision record and WHATNOW.
+
+FAILED
+
+  - Nothing.
+
+CHECKED AGAINST
+
+  - docs/corpus-authoring.md and work/README-work.
+  - knowledge/tamlinux/design/terminology.html, design/index.html,
+    tamlinux/components.html and tamlinux/install.html.
+  - knowledge/glossary/b/bud.html, f/fruit.html, h/host.html and
+    s/scion.html.
+  - make corpus: 1397 pages, indexes current; nine old anatomy warnings.
+  - tools/lint-corpus.py and tools/check-repo.py: no findings.
+  - make check: all suites passed.
+  - build/tam show --pipe for the terminology and whole-system pages.
+  - Grep for the old title, plant terms, plant analogy, garden analogy
+    and botanical framework: no corpus matches.
+
+HANDOFF
+
+  - Commit the source and version records on dev with provenance
+    trailers, then rerun make corpus and commit generated indexes.
+  - No Test, Run or Release is authorised.

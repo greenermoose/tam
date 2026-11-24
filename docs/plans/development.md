@@ -1529,3 +1529,13 @@ The developer asked to italicize the questions on the numeric-systems path.
 The five checkpoint question summaries now use `<i>` like the other quiz
 pages. This is a corpus correction; command version and stage promotion are
 unchanged.
+
+### 2026-11-24 — Botanical analogy wording (corpus 0.122.2)
+
+The developer asked to change "Plant names used in Tamlinux" to
+"Botanical analogy used in Tamlinux" on the whole-system page and through
+the corpus. The terminology page, design hub, glossary cross-links and
+related descriptions now call host, rootstock, bud, scion, cultivar and
+fruit a botanical analogy. Horticultural definitions of the individual
+words remain as explanations. This is a corpus correction; command version,
+stage promotion and installation remain developer-directed.
