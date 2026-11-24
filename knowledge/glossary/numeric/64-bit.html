@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>64-bit</title>
+<meta name="topic" content="glossary-64-bit">
+<meta name="summary" content="A width of 64 bits, giving very large integers and the ABI used by most modern desktop programs.">
+<meta name="keywords" content="64-bit, sixty-four-bit, AMD64, x86-64, ABI, pointer width, LP64, LLP64, compatibility">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/numeric/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/numeric/index.html">Terms beginning with a number</a> / 64-bit</p></nav>
+<h1>64-bit</h1>
+<p>64-bit means that 64 <a href="glossary/b/bit.html">bits</a> form one unit, such as an integer or a memory address.</p>
+<section data-level="novice"><p>Sixty-four bits have enough patterns for very large whole numbers and for a huge range of memory addresses. Most modern desktop and server programs are built as 64-bit programs because their processors and operating systems use this width.</p></section>
+<section data-level="learner"><p>An unsigned 64-bit integer runs from 0 to 18,446,744,073,709,551,615. As a signed <a href="glossary/t/twos-complement.html">two's complement</a> value it runs from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807. A 64-bit pointer can in principle address 2^64 bytes, or 16 EiB, though real systems use fewer address bits. A 64-bit program is compiled for a 64-bit <a href="glossary/a/abi.html">ABI</a>, with 64-bit instruction-set mode, wider registers and 64-bit libraries. Programs moved to 64-bit gain room for large address spaces and large counters, which is why new desktop builds use it; the change needs a 64-bit processor and operating system.</p><details class="q"><summary>Is a 64-bit program always faster than a 32-bit one?</summary><p>No. Wider registers help some large calculations, but larger pointers also use more memory and cache space. Speed depends on the work, the compiler and the processor; the main reason to choose 64-bit is address space and range.</p></details></section>
+<section data-level="expert"><p>The full 64-bit pointer width is not always used for addresses: current x86-64 systems commonly implement 48-bit or 57-bit canonical virtual addresses and require upper bits to match the sign bit. Data models also differ. Linux and macOS use LP64, where <code>long</code> and pointers are 64 bits but <code>int</code> stays 32 bits; Windows uses LLP64, where <code>long long</code> and pointers are 64 bits but <code>long</code> stays 32 bits. A 64-bit operating system can run a <a href="glossary/numeric/32-bit.html">32-bit</a> program through compatibility mode and 32-bit libraries when both are present; a 32-bit operating system cannot load a 64-bit program. The instruction-set mode, ABI and library set must match the build.</p></section>
+<p>See also: <a href="glossary/numeric/8-bit.html">8-bit</a>; <a href="programming/numeric/integers.html">Whole numbers in binary memory</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

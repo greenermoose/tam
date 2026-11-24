@@ -11,13 +11,17 @@ import string
 import subprocess
 import tempfile
 
+NUMERIC_SECTION = "numeric"
+NUMERIC_TOP_LABEL = "0\u20139"
+NUMERIC_SECTION_LABEL = "Terms beginning with a number"
+
 TITLE_RE = re.compile(r"<title>(.*?)</title>", re.I | re.S)
 META_RE = re.compile(r"<meta\b([^>]*)>", re.I)
 ATTR_RE = re.compile(r'([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*(?:"([^"]*)"|\'([^\']*)\')')
 HREF_RE = re.compile(r'(href\s*=\s*)(["\'])([^"\']+)(\2)')
 BREADCRUMB_RE = re.compile(r'(<nav\b[^>]*aria-label=["\']Breadcrumb["\'][^>]*>.*?</nav>)', re.I | re.S)
-LETTER_CRUMB_RE = re.compile(
-    r'<a\s+href=(["\'])glossary/[a-z]/index\.html\1>[^<]*</a>', re.I
+SECTION_CRUMB_RE = re.compile(
+    r'<a\s+href=(["\'])glossary/[A-Za-z0-9-]+/index\.html\1>[^<]*</a>', re.I
 )
 
 
@@ -63,20 +67,60 @@ def expected_letter(title: str) -> str | None:
     return match.group(0).lower() if match else None
 
 
-def _is_letter_index(rel: str) -> bool:
+def expected_section(title: str) -> str | None:
+    """Return the glossary section for a title: numeric first, then A-Z."""
+    if re.match(r"\s*\d", title):
+        return NUMERIC_SECTION
+    return expected_letter(title)
+
+
+def _section_top_label(section: str) -> str:
+    return NUMERIC_TOP_LABEL if section == NUMERIC_SECTION else section.upper()
+
+
+def _section_label(section: str) -> str:
+    if section == NUMERIC_SECTION:
+        return NUMERIC_SECTION_LABEL
+    return f"Terms beginning with {section.upper()}"
+
+
+def _section_summary(section: str) -> str:
+    if section == NUMERIC_SECTION:
+        return "Glossary definitions for technical terms and acronyms beginning with a number."
+    return f"Glossary definitions for technical terms and acronyms beginning with {section.upper()}."
+
+
+def _section_keywords(section: str) -> str:
+    if section == NUMERIC_SECTION:
+        return "terms beginning with a number"
+    return f"terms beginning with {section}"
+
+
+def _item_sort_key(item: tuple[str, str, str]) -> tuple[int, str, str]:
+    title, filename = item[0], item[1]
+    match = re.match(r"\s*(\d+)", title)
+    number = int(match.group(1)) if match else 0
+    return number, title.casefold(), filename
+
+
+def _is_section_index(rel: str) -> bool:
     parts = rel.split("/")
-    return len(parts) == 3 and parts[0] == "glossary" and len(parts[1]) == 1 and parts[1] in string.ascii_lowercase and parts[2] == "index.html"
+    if len(parts) != 3 or parts[0] != "glossary" or parts[2] != "index.html":
+        return False
+    return parts[1] == NUMERIC_SECTION or (
+        len(parts[1]) == 1 and parts[1] in string.ascii_lowercase
+    )
 
 
 def find_misplaced_glossary_pages(knowledge_dir: Path) -> list[tuple[str, str, str, str]]:
-    """Return [(old_rel, expected_rel, letter, title)] for misplaced glossary term pages."""
+    """Return [(old_rel, expected_rel, section, title)] for misplaced glossary pages."""
     glossary_dir = knowledge_dir / "glossary"
     if not glossary_dir.is_dir():
         return []
     misplaced: list[tuple[str, str, str, str]] = []
     for path in sorted(knowledge_dir.rglob("*.html")):
         rel = path.relative_to(knowledge_dir).as_posix()
-        if rel == "glossary/index.html" or _is_letter_index(rel):
+        if rel == "glossary/index.html" or _is_section_index(rel):
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         meta = _meta_map(text)
@@ -84,19 +128,19 @@ def find_misplaced_glossary_pages(knowledge_dir: Path) -> list[tuple[str, str, s
         if not is_glossary:
             continue
         title = extract_title(text)
-        letter = expected_letter(title)
-        if not letter:
-            raise GlossaryPlacementError(f"{rel}: glossary page title {title!r} has no ASCII letter")
-        target = f"glossary/{letter}/{path.name}"
+        section = expected_section(title)
+        if not section:
+            raise GlossaryPlacementError(f"{rel}: glossary page title {title!r} has no section")
+        target = f"glossary/{section}/{path.name}"
         if rel != target:
-            misplaced.append((rel, target, letter, title))
+            misplaced.append((rel, target, section, title))
     return misplaced
 
 
-def _update_moved_page_metadata(path: Path, letter: str) -> None:
+def _update_moved_page_metadata(path: Path, section: str) -> None:
     text = path.read_text(encoding="utf-8", errors="replace")
-    upper = letter.upper()
-    parent_target = f"glossary/{letter}/index.html"
+    label = _section_label(section)
+    parent_target = f"glossary/{section}/index.html"
     updated = re.sub(
         r'(<meta\s+name=(["\'])parent\2\s+content=(["\']))[^"\']*(\3\s*/?>)',
         rf"\g<1>{parent_target}\4",
@@ -107,9 +151,9 @@ def _update_moved_page_metadata(path: Path, letter: str) -> None:
 
     def replace_crumb(match: re.Match[str]) -> str:
         nav = match.group(1)
-        new_link = f'<a href="{parent_target}">Terms beginning with {upper}</a>'
-        if LETTER_CRUMB_RE.search(nav):
-            return LETTER_CRUMB_RE.sub(new_link, nav, count=1)
+        new_link = f'<a href="{parent_target}">{label}</a>'
+        if SECTION_CRUMB_RE.search(nav):
+            return SECTION_CRUMB_RE.sub(new_link, nav, count=1)
         return re.sub(
             r'(<a\s+href=(["\'])glossary/index\.html\2>[^<]*</a>\s*/\s*)',
             rf"\1{new_link} / ",
@@ -165,7 +209,7 @@ def check_glossary_placement(
     interactive: bool = False,
     input_fn=input,
 ) -> list[tuple[str, str]]:
-    """Check that glossary pages live in the folder matching their title's first letter."""
+    """Check that glossary pages live in the folder matching their title's section."""
     misplaced = find_misplaced_glossary_pages(knowledge_dir)
     if not misplaced:
         return []
@@ -196,37 +240,38 @@ def check_glossary_placement(
 
     root = knowledge_dir.parent
     moves: list[tuple[str, str]] = []
-    for old_rel, new_rel, letter, _ in misplaced:
+    for old_rel, new_rel, section, _ in misplaced:
         src = knowledge_dir / old_rel
         dst = knowledge_dir / new_rel
         _move_file(root, src, dst)
-        _update_moved_page_metadata(dst, letter)
+        _update_moved_page_metadata(dst, section)
         moves.append((old_rel, new_rel))
 
     _rewrite_inbound_links(knowledge_dir, moves)
     return moves
 
 
-def _render_letter_index(letter: str, items: list[tuple[str, str, str]]) -> str:
-    upper = letter.upper()
+def _render_section_index(section: str, items: list[tuple[str, str, str]]) -> str:
+    label = _section_label(section)
+    summary = _section_summary(section)
     lines = [
         "<!DOCTYPE html>",
         "<html><head>",
-        f"<title>Terms beginning with {upper}</title>",
-        f'<meta name="topic" content="hub-glossary-{letter}">',
-        f'<meta name="summary" content="Glossary definitions for technical terms and acronyms beginning with {upper}.">',
-        f'<meta name="keywords" content="terms beginning with {letter}">',
+        f"<title>{label}</title>",
+        f'<meta name="topic" content="hub-glossary-{section}">',
+        f'<meta name="summary" content="{summary}">',
+        f'<meta name="keywords" content="{_section_keywords(section)}">',
         '<meta name="level" content="novice">',
         '<meta name="kind" content="hub">',
         '<meta name="track" content="glossary">',
         '<meta name="parent" content="glossary/index.html">',
         "</head><body>",
-        f'<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A\u2013Z</a> / Terms beginning with {upper}</p></nav>',
-        f"<h1>Terms beginning with {upper}</h1>",
-        f"<p>Glossary definitions for technical terms and acronyms beginning with {upper}.</p>",
+        f'<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A\u2013Z</a> / {label}</p></nav>',
+        f"<h1>{label}</h1>",
+        f"<p>{summary}</p>",
         "<h2>Explore</h2><table>\n"
         + "\n".join(
-            f'<tr><td><a href="glossary/{letter}/{filename}">{html.escape(title, quote=True)}</a></td><td>{html.escape(summary, quote=True)}</td></tr>'
+            f'<tr><td><a href="glossary/{section}/{filename}">{html.escape(title, quote=True)}</a></td><td>{html.escape(summary, quote=True)}</td></tr>'
             for title, filename, summary in items
         ),
         "</table>",
@@ -264,28 +309,29 @@ def _render_top_index(ranges: list[tuple[str, str, tuple[str, str], int]]) -> st
 
 
 def generate_glossary_indexes(knowledge_dir: Path, write_fn=atomic_write) -> None:
-    """Regenerate knowledge/glossary/<letter>/index.html and knowledge/glossary/index.html."""
+    """Regenerate glossary section hubs and knowledge/glossary/index.html."""
     glossary_dir = knowledge_dir / "glossary"
     if not glossary_dir.is_dir():
         return
 
     ranges: list[tuple[str, str, tuple[str, str], int]] = []
-    for letter in string.ascii_lowercase:
-        letter_dir = glossary_dir / letter
-        if not letter_dir.is_dir():
+    sections = [NUMERIC_SECTION, *string.ascii_lowercase]
+    for section in sections:
+        section_dir = glossary_dir / section
+        if not section_dir.is_dir():
             continue
         items: list[tuple[str, str, str]] = []
-        for path in sorted(letter_dir.glob("*.html")):
+        for path in sorted(section_dir.glob("*.html")):
             if path.name == "index.html":
                 continue
             text = path.read_text(encoding="utf-8", errors="replace")
             title = extract_title(text) or path.stem
             summary = _meta_map(text).get("summary", "")
             items.append((title, path.name, summary))
-        items.sort(key=lambda item: (item[0].casefold(), item[1]))
+        items.sort(key=_item_sort_key)
         if not items:
             continue
-        write_fn(letter_dir / "index.html", _render_letter_index(letter, items))
-        ranges.append((letter.upper(), f"glossary/{letter}/index.html", (items[0][0], items[-1][0]), len(items)))
+        write_fn(section_dir / "index.html", _render_section_index(section, items))
+        ranges.append((_section_top_label(section), f"glossary/{section}/index.html", (items[0][0], items[-1][0]), len(items)))
 
     write_fn(glossary_dir / "index.html", _render_top_index(ranges))

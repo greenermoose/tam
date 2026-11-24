@@ -81,7 +81,7 @@ $ python3 -c "print(bin(42), oct(42), hex(42)); print(int('101010', 2), int('2a'
 <tr><td>16, hexadecimal</td><td>0-9, A-F</td><td>1, 16, 256, 4096</td><td>Compact display of memory and machine words</td></tr>
 </table>
 <h3>How it works</h3>
-<p>For radix b, a numeral with digits d_n ... d_0 means the sum of d_i times b^i. Converting a whole number to another base is repeated division: record the remainders from right to left until the quotient is zero. Converting back is repeated multiplication and addition. A byte is eight bits, so it spans two hexadecimal digits; a 32-bit word spans eight.</p>
+<p>For radix b, a numeral with digits d_n ... d_0 means the sum of d_i times b^i. Converting a whole number to another base is repeated division: record the remainders from right to left until the quotient is zero. Converting back is repeated multiplication and addition. A byte is eight bits, so it spans two hexadecimal digits; a <a href="glossary/numeric/32-bit.html">32-bit</a> word spans eight.</p>
 <p>Byte order is a separate question from the value. Memory is addressed by byte, so a value wider than one byte must choose which byte goes at the lower address. In <a href="glossary/e/endianness.html">little-endian</a> order the least significant byte comes first; in big-endian order the most significant byte comes first. Network protocols have traditionally used big-endian order, which is why it is often called network byte order.</p>
 <h3>Advanced usage</h3>
 <pre class="session" data-risk="scratch">

@@ -1511,3 +1511,14 @@ glossary. The approved shape is a `programming/numeric/` subhub with five
 three-level teaching pages, a five-stage `numeric-systems` path, and glossary
 entries for the relevant terms. This is corpus content only; command version,
 stage promotion and installation remain separate developer-directed actions.
+
+### 2026-11-24 — Numeric glossary section (corpus 0.122.0)
+
+The developer asked for a numeric glossary section with entries for 8-bit,
+32-bit and 64-bit, and an explanation of why 32-bit and 64-bit programs
+exist. The approved shape is a generated 0–9 hub: digit-leading titles file
+under `glossary/numeric/`, and the top glossary index gains a 0–9 section.
+The entries explain value ranges, pointers, ABI, instruction-set modes,
+libraries and compatibility. This is corpus content and tooling; command
+version, stage promotion and installation remain separate developer-directed
+actions.

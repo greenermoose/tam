@@ -78,6 +78,8 @@ $ python3 -c "for v in (5, -5): print(f'{v:6d} -> {v & 0xff:08b}')"
 <tr><td>32 bits</td><td>0 to 4,294,967,295</td><td>-2,147,483,648 to 2,147,483,647</td></tr>
 <tr><td>64 bits</td><td>0 to 18,446,744,073,709,551,615</td><td>-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807</td></tr>
 </table>
+<h3>Program width</h3>
+<p>The widths in this table describe stored values. An <a href="glossary/numeric/8-bit.html">8-bit</a>, <a href="glossary/numeric/32-bit.html">32-bit</a> or <a href="glossary/numeric/64-bit.html">64-bit</a> program also names the <a href="glossary/a/abi.html">ABI</a> it was built for: pointer width, register mode, calling convention and libraries. That is why a 64-bit operating system can run a 32-bit program when compatibility libraries are installed, while a 32-bit system cannot run a 64-bit program.</p>
 <h3>How it works</h3>
 <p>For a width of k bits, unsigned values use 0 through 2^k - 1. Two's complement values use -2^(k-1) through 2^(k-1) - 1. Negation is bitwise inversion plus one, modulo 2^k. Addition, subtraction and multiplication use the same low-bit result for signed and unsigned operands; only the interpretation of the sign bit and the overflow test differ. This is why one adder serves both cases.</p>
 <p>Fixed-width arithmetic wraps modulo 2^k. That is useful for counters and cryptography, but surprising for ordinary arithmetic. Languages differ on what they guarantee when signed overflow occurs, so check the language rule before relying on wrapping. <a href="glossary/a/arbitrary-precision.html">Arbitrary precision</a> integers avoid the bound by allocating more words as needed, at the cost of extra work and memory.</p>

@@ -21,8 +21,9 @@ pipeline = importlib.util.module_from_spec(PIPE_SPEC)
 PIPE_SPEC.loader.exec_module(pipeline)
 
 
-def term_page(title, summary, letter, parent=None):
+def term_page(title, summary, letter, parent=None, label=None):
     parent_path = parent or f"glossary/{letter}/index.html"
+    crumb_label = label or f"Terms beginning with {letter.upper()}"
     slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
     return (
         "<!DOCTYPE html>\n<html><head>\n"
@@ -37,7 +38,7 @@ def term_page(title, summary, letter, parent=None):
         "</head><body>\n"
         f'<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / '
         f'<a href="glossary/index.html">Glossary A\u2013Z</a> / '
-        f'<a href="{parent_path}">Terms beginning with {letter.upper()}</a> / {title}</p></nav>\n'
+        f'<a href="{parent_path}">{crumb_label}</a> / {title}</p></nav>\n'
         f"<h1>{title}</h1>\n<p>{summary}</p>\n</body></html>\n"
     )
 
@@ -54,6 +55,7 @@ class GlossaryIndexTests(unittest.TestCase):
         (self.knowledge / "glossary" / "y").mkdir(parents=True)
         (self.knowledge / "glossary" / "z").mkdir(parents=True)
         (self.knowledge / "glossary" / "s").mkdir(parents=True)
+        (self.knowledge / "glossary" / "numeric").mkdir(parents=True)
 
         (self.knowledge / "glossary" / "a" / "awg.html").write_text(
             term_page("AWG (American Wire Gauge)", "AWG: Wire gauge.", "a")
@@ -70,6 +72,24 @@ class GlossaryIndexTests(unittest.TestCase):
         (self.knowledge / "glossary" / "s" / "srcinfo.html").write_text(
             term_page(".SRCINFO", ".SRCINFO: AUR metadata.", "s")
         )
+        for title, filename in (
+            ("64-bit", "64-bit.html"),
+            ("8-bit", "8-bit.html"),
+            ("32-bit", "32-bit.html"),
+        ):
+            (self.knowledge / "glossary" / "numeric" / filename).write_text(
+                term_page(
+                    title,
+                    f"{title}: Width in bits.",
+                    "numeric",
+                    label="Terms beginning with a number",
+                )
+            )
+
+    def test_expected_section_prefers_numeric_titles(self):
+        self.assertEqual(glossary_index.expected_section("8-bit"), "numeric")
+        self.assertEqual(glossary_index.expected_section("32-bit"), "numeric")
+        self.assertEqual(glossary_index.expected_section(".SRCINFO"), "s")
 
     def test_generate_indexes_format_and_idempotency(self):
         glossary_index.generate_glossary_indexes(self.knowledge)
@@ -80,6 +100,10 @@ class GlossaryIndexTests(unittest.TestCase):
         )
         self.assertIn('<li><a href="glossary/y/index.html">Y : YUV</a></li>', top)
         self.assertIn('<li><a href="glossary/s/index.html">S : .SRCINFO</a></li>', top)
+        self.assertIn(
+            '<li><a href="glossary/numeric/index.html">0\u20139 : 8-bit - 64-bit</a></li>',
+            top,
+        )
         # Empty folders b and z are omitted.
         self.assertNotIn("glossary/b/index.html", top)
         self.assertNotIn("glossary/z/index.html", top)
@@ -88,6 +112,11 @@ class GlossaryIndexTests(unittest.TestCase):
         self.assertIn("Aylur&#x27;s GTK Shell", a_idx)
         self.assertLess(a_idx.index("AAD"), a_idx.index("AGS"))
         self.assertLess(a_idx.index("AGS"), a_idx.index("AWG"))
+
+        numeric_idx = (self.knowledge / "glossary" / "numeric" / "index.html").read_text()
+        self.assertIn("<title>Terms beginning with a number</title>", numeric_idx)
+        self.assertLess(numeric_idx.index(">8-bit<"), numeric_idx.index(">32-bit<"))
+        self.assertLess(numeric_idx.index(">32-bit<"), numeric_idx.index(">64-bit<"))
 
         mtime_before = (self.knowledge / "glossary" / "index.html").stat().st_mtime_ns
         glossary_index.generate_glossary_indexes(self.knowledge)
@@ -135,6 +164,19 @@ class GlossaryIndexTests(unittest.TestCase):
         glossary_index.generate_glossary_indexes(self.knowledge)
         top = (self.knowledge / "glossary" / "index.html").read_text()
         self.assertIn('<li><a href="glossary/z/index.html">Z : Zebra</a></li>', top)
+
+    def test_numeric_page_moved_to_numeric_section(self):
+        (self.knowledge / "glossary" / "b" / "128-bit.html").write_text(
+            term_page("128-bit", "128-bit: A wide value.", "b")
+        )
+        moves = glossary_index.check_glossary_placement(self.knowledge, fix=True)
+        self.assertEqual(moves, [("glossary/b/128-bit.html", "glossary/numeric/128-bit.html")])
+        moved = (self.knowledge / "glossary" / "numeric" / "128-bit.html").read_text()
+        self.assertIn('<meta name="parent" content="glossary/numeric/index.html">', moved)
+        self.assertIn(
+            '<a href="glossary/numeric/index.html">Terms beginning with a number</a>',
+            moved,
+        )
 
     def test_collision_prevents_overwrite(self):
         (self.knowledge / "glossary" / "a" / "yuv.html").write_text(

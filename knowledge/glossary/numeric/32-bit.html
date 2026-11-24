@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head>
+<title>32-bit</title>
+<meta name="topic" content="glossary-32-bit">
+<meta name="summary" content="A width of 32 bits, giving four billion unsigned values and a 4 GiB pointer address space.">
+<meta name="keywords" content="32-bit, thirty-two-bit, x86, ABI, pointer width, address space, compatibility, ILP32">
+<meta name="level" content="novice, learner, expert">
+<meta name="track" content="glossary">
+<meta name="parent" content="glossary/numeric/index.html">
+<meta name="kind" content="glossary">
+</head><body>
+<nav aria-label="Breadcrumb"><p><a href="index.html">Guide</a> / <a href="glossary/index.html">Glossary A–Z</a> / <a href="glossary/numeric/index.html">Terms beginning with a number</a> / 32-bit</p></nav>
+<h1>32-bit</h1>
+<p>32-bit means that 32 <a href="glossary/b/bit.html">bits</a> form one unit, such as an integer or a memory address.</p>
+<section data-level="novice"><p>Thirty-two bits have 4,294,967,296 patterns. Used as an unsigned count, they run from 0 to 4,294,967,295. Many older desktop programs are called 32-bit because their instructions and addresses were built around this unit.</p></section>
+<section data-level="learner"><p>As a signed <a href="glossary/t/twos-complement.html">two's complement</a> integer, 32 bits run from -2,147,483,648 to 2,147,483,647. A 32-bit pointer holds a memory address in 32 bits, so one process can address up to 2^32 bytes, or 4 GiB. A 32-bit program is compiled for a 32-bit <a href="glossary/a/abi.html">ABI</a>: it uses 32-bit instruction-set mode, 32-bit registers for addresses and 32-bit libraries. Both widths still exist because old hardware, old operating systems and older plug-in formats need 32-bit builds, while smaller pointers can suit a program that never needs a large address space.</p><details class="q"><summary>Can a 64-bit computer run a 32-bit program?</summary><p>Usually yes, if the processor and operating system support 32-bit compatibility and the needed libraries are installed. The reverse does not work: a 32-bit operating system cannot run a program built for a 64-bit ABI.</p></details></section>
+<section data-level="expert"><p>On x86, a 32-bit build targets IA-32 mode; a 64-bit operating system may run it in a compatibility mode while keeping a 64-bit kernel. Linux 32-bit user space uses an ILP32 data model, where <code>int</code>, <code>long</code> and pointers are 32 bits. Physical Address Extension let 32-bit x86 systems use more physical memory, but it did not widen a process's 32-bit pointers, so the virtual address space stayed at 4 GiB, often less after operating-system reservations. Mixing 32-bit and 64-bit object code in one process needs matching calling conventions and data layouts; otherwise the call crosses incompatible ABIs. A 32-bit integer field inside a <a href="glossary/numeric/64-bit.html">64-bit</a> program is only a data width, not a 32-bit program.</p></section>
+<p>See also: <a href="glossary/numeric/8-bit.html">8-bit</a>; <a href="programming/numeric/integers.html">Whole numbers in binary memory</a>.</p>
+<h2>Sources and further reading</h2><p>See the <a href="bibliography/index.html">bibliography</a> for external sources and background reading.</p>
+</body></html>

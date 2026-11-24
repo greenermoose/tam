@@ -21,8 +21,9 @@ Use Before this for actual prerequisites, Next for recommended continuation,
 Related for other useful branches, and Sources and further reading for evidence
 and deeper study. Keep prerequisite metadata and visible links in agreement.
 Keywords include ordinary phrasing, acronyms, and synonyms; they power Search,
-not a separate catalog. Glossary entries live in `glossary/<initial>/` and link
-back to teaching pages. Bibliography entries retain stable citation IDs.
+not a separate catalog. Glossary entries live in `glossary/<initial>/`, or in
+`glossary/numeric/` when the title begins with a digit, and link back to
+teaching pages. Bibliography entries retain stable citation IDs.
 
 The corpus is public product documentation. Readers trust it to describe the
 Tamlinux they are running, so the rules below are about one thing: every

@@ -1,0 +1,51 @@
+W117 NUMERIC GLOSSARY WIDTHS
+
+Date: 2026-11-24
+AI harness: OpenCode 2.2.5
+AI model: big-pickle
+
+GUIDANCE
+
+  Fred: "Add a numeric section to the glossary. Add entries for 8-bit,
+  32-bit, and 64-bit. Explain why there are "32-bit" programs and
+  "64-bit" programs."
+
+  Fred chose a generated numbers hub under the Glossary index.
+
+DONE
+
+  - Added a generated 0-9 glossary section. Digit-leading titles now
+    file under glossary/numeric/ with a hub at its index.html; the
+    top glossary index gains a 0-9 row before A.
+  - Added 8-bit, 32-bit and 64-bit entries with three levels each.
+    They cover value ranges, pointers, address space, ABI, instruction
+    set modes, libraries and why 32-bit and 64-bit builds coexist.
+  - Linked the entries from the numeric teaching pages, the Numbers in
+    computers hub, Byte and Endianness.
+  - Updated the glossary authoring rule, corpus to 0.122.0, ROADMAP,
+    development decision record and WHATNOW.
+  - Verified ranges with Python 3 arithmetic on 2026-11-24.
+
+FAILED
+
+  - Nothing.
+
+CHECKED AGAINST
+
+  - docs/templates/single.html, corpus-authoring.md, corpus-style.md
+    and corpus-pedagogy.md.
+  - tools/glossary_index.py, tests/test_glossary_index.py and the
+    build-index parent and breadcrumb rules.
+  - python3 tools/lint-corpus.py: no findings.
+  - make corpus: 1397 pages; indexes current; nine old anatomy warnings.
+  - python3 tools/report-coverage.py --warnings: no new warnings.
+  - python3 tools/check-repo.py: clean.
+  - make check: all suites passed.
+  - build/tam show --pipe for the 32-bit entry, numeric hub and glossary
+    top index.
+
+HANDOFF
+
+  - Commit the claimed paths on dev with provenance trailers, then rerun
+    make corpus and commit the generated index follow-up.
+  - No Test, Run or Release is authorised.

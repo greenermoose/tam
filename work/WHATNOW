@@ -3,31 +3,26 @@ WHATNOW
 What tam is doing now and what comes next. Read this first;
 revise it at the end of every session (work/README-work).
 
-Updated: 2026-11-24, with W116
+Updated: 2026-11-24, with W117
 
 STATE
 
-  Command 0.69.1 and corpus 0.121.0 on dev. W116 added the Numbers in
-  computers subhub under Programming: five three-level teaching pages on
-  bases and byte order, signed integers, fractions and floating point,
-  analog-to-digital conversion and fast numerical computing. It also added
-  the five-stage numeric-systems path, 30 glossary entries, links from the
-  Programming hub and Binary glossary, and version records. The corpus
-  builds and lints clean; generated indexes trail the page commit until
-  the follow-up commit after them.
+  Command 0.69.1 and corpus 0.122.0 on dev. W117 added a generated
+  0-9 section to the glossary index, a glossary/numeric/ hub and entries
+  for 8-bit, 32-bit and 64-bit. The entries explain value ranges,
+  pointers, address space, ABI, instruction-set modes, libraries and
+  why both 32-bit and 64-bit programs exist. The numeric teaching pages
+  link to the new terms. Corpus build, lint and full tests pass.
 
-  W115 simplified the `tam:paths` intro to "Choose your own learning
-  adventure." and removed Start/Overview from each path line; the named
-  detail page keeps its links. W114 redesigned `tam:hubs` as eight subject
-  homes in two groups and revised the Guide index; the systems hub is
-  Systems and administration. W114 also fixed the B3 PTY assertion. W113
-  added computer timescales and the Hertz and Overclocking glossary pages.
-  Earlier work added the X/Open, Unix, algorithm, network, memory, reading
-  list and bibliography changes recorded in work/history/.
+  W116 added the Numbers in computers subhub and the five-stage path.
+  W115 simplified the `tam:paths` intro and removed Start/Overview from
+  each path line. W114 redesigned `tam:hubs` as eight subject homes.
+  Earlier work added computer timescales and the reading list and
+  bibliography changes recorded in work/history/.
 
 NEXT
 
-  - Commit the W116 claimed paths on dev with provenance trailers.
+  - Commit the W117 claimed paths on dev with provenance trailers.
   - Rerun make corpus and commit the generated index follow-up.
   - Then await Fred's direction. No Test, Run or Release is authorised.
 
@@ -41,7 +36,10 @@ WATCH OUT
     scopes, version bumps and tests.
   - Generated corpus indexes trail page commits by one; commit them after
     the pages, then rerun make corpus.
-  - Command and corpus versions are independent. This was corpus-only.
+  - Digit-leading glossary titles belong in glossary/numeric/, not in
+    the letter folder matching a later "b" or other letter.
+  - Command and corpus versions are independent. This change was corpus
+    content and tooling only.
   - UBSan output in a PTY corrupts the pager screen model; log it to a file
     when testing under sanitizers.
   - work/history/ is read-only; new sessions use work/W<n>-<name>.
