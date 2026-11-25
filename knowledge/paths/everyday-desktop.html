@@ -63,7 +63,12 @@ terminal font: 9 pt</out>
 <h3>Check yourself</h3>
 <details class="q"><summary><i>Why read all four values before a desktop experiment?</i></summary><p>So you can compare the final state with a real starting point instead of relying on memory.</p></details>
 </section>
-<h3>Path checkpoints</h3>
+<h2>Stage 1: Capture and share</h2>
+<ol>
+<li><a href="desktop/tasks/screenshots.html?level=1">Taking a screenshot or recording the screen</a> &mdash; capture a region, copy text from it, or record a short clip.</li>
+<li><a href="desktop/tasks/clipboard.html?level=1">Finding something you copied earlier</a> &mdash; copy, paste, and recover an earlier item.</li>
+<li><a href="desktop/tasks/notifications.html?level=1">Reading and dismissing notifications</a> &mdash; dismiss a pop-up, open history, and silence alerts.</li>
+</ol>
 <section class="quiz">
 <h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer these before you go on.</p>
@@ -76,6 +81,12 @@ terminal font: 9 pt</out>
 <p>Yes. Silencing stops new pop-ups; the message is still recorded in history, which <code>Meta + Shift + H</code> opens.</p>
 </details>
 </section>
+
+<h2>Stage 2: Sound and wireless devices</h2>
+<ol>
+<li><a href="desktop/tasks/audio.html?level=1">Changing the volume and choosing speakers or headphones</a> &mdash; raise, lower and mute sound, and switch outputs.</li>
+<li><a href="desktop/tasks/bluetooth.html?level=1">Connecting Bluetooth headphones or a mouse</a> &mdash; pair, connect, and remove a device.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -88,6 +99,12 @@ terminal font: 9 pt</out>
 <p><a href="glossary/p/pairing.html">Pairing</a> exchanges and stores a key, which the computer and device reuse when they connect later.</p>
 </details>
 </section>
+
+<h2>Stage 3: Screens and their hardware</h2>
+<ol>
+<li><a href="desktop/tasks/displays.html?level=1">Arranging your screens and changing brightness</a> &mdash; brightness, text size, monitor arrangement and mirroring.</li>
+<li><a href="desktop/displays.html?level=1">Displays and Monitors</a> &mdash; how panels, scaling and multi-head layouts work underneath.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -100,6 +117,14 @@ terminal font: 9 pt</out>
 <p><code>tam-display-text-size</code>. It prints the text size, scaling factor and terminal font.</p>
 </details>
 </section>
+
+<h2>Stage 4: Input, locking and night light</h2>
+<ol>
+<li><a href="desktop/tasks/keyboard-touchpad.html?level=1">Turning the touchpad on or off and finding keyboard shortcuts</a> &mdash; touchpad, keyboard backlight and the keybinding lookup.</li>
+<li><a href="desktop/input.html?level=1">Input Devices</a> &mdash; how keyboards, pointing devices and touchscreens reach the desktop.</li>
+<li><a href="desktop/tasks/lock-and-idle.html?level=1">Locking the screen and keeping it awake</a> &mdash; lock, unlock, and pause idle locking for a long job.</li>
+<li><a href="desktop/tasks/night-light.html?level=1">Making the screen warmer at night</a> &mdash; turn the blue-light filter on and off and check its state.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -112,6 +137,34 @@ terminal font: 9 pt</out>
 <p>Stay Awake is off, so normal idle behaviour applies. It does not mean the status command failed.</p>
 </details>
 </section>
+
+<h2>Capstone: Set up an evening of work, then put it back</h2>
+<p>Record the current display, audio, night-light and idle state. Turn night light on, capture and paste a screenshot, lock and unlock the screen, then turn night light off. Finish by comparing the four recorded values with the current ones.</p>
+<details class="solution">
+<p>Run these four read-only commands first and write down what each prints. They only report state.</p>
+<tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="tam-display-text-size"><out>text size: 12 px
+gtk text-scaling-factor: 1.0
+terminal font: 9 pt</out></tam-cmd>
+<tam-cmd match="tam-audio-output-sink"><out>alsa_output.pci-0000_05_00.1.hdmi-stereo-extra1</out></tam-cmd>
+<tam-cmd match="tam-toggle-nightlight --status"><out>{"enabled":false,"temperature":null}</out></tam-cmd>
+<tam-cmd match="tam-toggle-idle status" goal="true"><out>{"enabled":false,"class":"disabled","tooltip":"Stay Awake"}</out></tam-cmd>
+<tam-init>Try: tam-display-text-size</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+<p>The sandbox uses fixed sample data. Your values will differ with your hardware and settings.</p>
+<ol>
+<li>Press <code>Meta + Ctrl + J</code> to turn night light on. Run <code>tam-toggle-nightlight --status</code> again; the filter should now report <code>"enabled":true</code>.</li>
+<li>Press <code>Print Screen</code>, drag a box around one empty window, and release. The picture is saved and copied.</li>
+<li>Press <code>Meta + Ctrl + V</code> to open clipboard history, choose the screenshot, and paste it into a scratch editor. Close the editor without saving.</li>
+<li>Press <code>Meta + Ctrl + L</code>, type your login password, and press Return. Your windows return as they were.</li>
+<li>Press <code>Meta + Ctrl + J</code> again to turn night light off, and confirm the status reports <code>"enabled":false</code>.</li>
+</ol>
+<p>Run the four commands once more. The display, audio and idle values should match what you wrote down, and night light should be off. If a value changed, use the same desktop control to restore it; nothing here needs a file edit. If <code>tam-toggle-nightlight --status</code> reports an error, check that you are in a graphical session.</p>
+</details>
 </section>
 
 <section data-level="expert">
@@ -119,35 +172,6 @@ terminal font: 9 pt</out>
 
 <p>Use the linked stages for capture and clipboard, sound and wireless devices, display hardware, and input controls. Each task should leave the machine as it found it: capture and paste into scratch space, then close without saving; change night light with the same control you used to turn it on.</p>
 
-<h2>Stage 1: Capture and share</h2>
-<ol>
-<li><a href="desktop/tasks/screenshots.html?level=1">Taking a screenshot or recording the screen</a> &mdash; capture a region, copy text from it, or record a short clip.</li>
-<li><a href="desktop/tasks/clipboard.html?level=1">Finding something you copied earlier</a> &mdash; copy, paste, and recover an earlier item.</li>
-<li><a href="desktop/tasks/notifications.html?level=1">Reading and dismissing notifications</a> &mdash; dismiss a pop-up, open history, and silence alerts.</li>
-</ol>
-
-
-<h2>Stage 2: Sound and wireless devices</h2>
-<ol>
-<li><a href="desktop/tasks/audio.html?level=1">Changing the volume and choosing speakers or headphones</a> &mdash; raise, lower and mute sound, and switch outputs.</li>
-<li><a href="desktop/tasks/bluetooth.html?level=1">Connecting Bluetooth headphones or a mouse</a> &mdash; pair, connect, and remove a device.</li>
-</ol>
-
-
-<h2>Stage 3: Screens and their hardware</h2>
-<ol>
-<li><a href="desktop/tasks/displays.html?level=1">Arranging your screens and changing brightness</a> &mdash; brightness, text size, monitor arrangement and mirroring.</li>
-<li><a href="desktop/displays.html?level=1">Displays and Monitors</a> &mdash; how panels, scaling and multi-head layouts work underneath.</li>
-</ol>
-
-
-<h2>Stage 4: Input, locking and night light</h2>
-<ol>
-<li><a href="desktop/tasks/keyboard-touchpad.html?level=1">Turning the touchpad on or off and finding keyboard shortcuts</a> &mdash; touchpad, keyboard backlight and the keybinding lookup.</li>
-<li><a href="desktop/input.html?level=1">Input Devices</a> &mdash; how keyboards, pointing devices and touchscreens reach the desktop.</li>
-<li><a href="desktop/tasks/lock-and-idle.html?level=1">Locking the screen and keeping it awake</a> &mdash; lock, unlock, and pause idle locking for a long job.</li>
-<li><a href="desktop/tasks/night-light.html?level=1">Making the screen warmer at night</a> &mdash; turn the blue-light filter on and off and check its state.</li>
-</ol>
 </section>
 
 <h2>Next paths</h2>

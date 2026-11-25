@@ -1591,6 +1591,17 @@ captured from a read-only command run on the live graphical session. This is
 corpus content only; command version, stage promotion and installation remain
 developer-directed.
 
+### 2026-11-25 — Restore goal-path structure (corpus 0.128.1)
+
+The corpus-wide sandbox migration moved goal-path stage headings and links into
+Expert while leaving checkpoint quizzes in Learner, and removed the capstone
+headings and folded solutions. The path validator correctly rejected these
+pages because it binds each checkpoint to the stage that precedes it and
+requires one capstone. Restore the complete stages and capstones in Learner;
+convert the recovered command transcripts to simulated sandboxes. The corpus
+build passes for all 1,493 pages. This is a content correction only; command
+version and Tamlinux stages remain unchanged.
+
 ### 2026-11-25 — Corpus-wide interactive examples (corpus 0.128.0)
 
 The developer asked to review static Worked examples across the corpus and

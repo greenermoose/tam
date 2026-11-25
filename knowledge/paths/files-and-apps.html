@@ -65,7 +65,12 @@ sub/note.txt</out>
 <h3>Check yourself</h3>
 <details class="q"><summary><i>Why list before extracting?</i></summary><p>To see the contained paths and choose a destination that will not overwrite real files.</p></details>
 </section>
-<h3>Path checkpoints</h3>
+<h2>Stage 1: Where files live</h2>
+<ol>
+<li><a href="systems/storage/hierarchy.html?level=1">Files and folders</a> &mdash; the home folder, system folders, and what each is for.</li>
+<li><a href="systems/storage/finding-files.html?level=1">Finding and opening files</a> &mdash; search by name or text content inside a scratch folder.</li>
+<li><a href="security/permissions.html?level=1">Who can use a file</a> &mdash; read, write and execute bits, numeric modes, and directory access.</li>
+</ol>
 <section class="quiz">
 <h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer these before you go on.</p>
@@ -78,6 +83,12 @@ sub/note.txt</out>
 <p>Not necessarily. Many successful commands are silent. Inspect the mode with <code>stat -c '%A %a %n' FILE</code> before assuming failure.</p>
 </details>
 </section>
+
+<h2>Stage 2: Move data safely</h2>
+<ol>
+<li><a href="systems/storage/usb-drives.html?level=1">Using USB drives safely</a> &mdash; find a stick, copy files, and unmount before unplugging.</li>
+<li><a href="systems/storage/archives.html?level=1">Creating and opening archives</a> &mdash; list a <code>.tar.gz</code> or <code>.zip</code> before extracting it.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -90,6 +101,13 @@ sub/note.txt</out>
 <p>The listing shows the paths it contains, so you can choose a target folder and notice unexpected absolute paths or entries before they land.</p>
 </details>
 </section>
+
+<h2>Stage 3: Open and edit</h2>
+<ol>
+<li><a href="desktop/apps/browser.html?level=1">Opening the web browser and setting your default</a> &mdash; launch, open a private window, and check the default browser.</li>
+<li><a href="desktop/apps/editor.html?level=1">Opening and editing text files</a> &mdash; edit a scratch file in Micro and save or cancel cleanly.</li>
+<li><a href="desktop/apps/documents-and-pdf.html?level=1">Reading PDFs, documents, and printing</a> &mdash; check viewers and printer queues before printing.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -102,6 +120,12 @@ sub/note.txt</out>
 <p><code>lpstat -p</code>. If it prints nothing, no queue is configured yet.</p>
 </details>
 </section>
+
+<h2>Stage 4: Media and web apps</h2>
+<ol>
+<li><a href="desktop/apps/media.html?level=1">Viewing photos, playing media, and converting files</a> &mdash; inspect media properties and convert a copy.</li>
+<li><a href="desktop/apps/web-apps.html?level=1">Installing and removing web apps</a> &mdash; give a site its own window and remove it again.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -114,6 +138,12 @@ sub/note.txt</out>
 <p>Remove it with <code>tam-webapp-remove "NAME"</code>, using the same name you installed it with.</p>
 </details>
 </section>
+
+<h2>Stage 5: Everyday file tools</h2>
+<ol>
+<li><a href="desktop/apps/tam-journal.html?level=1">Keeping plain-text daily journals with tam-journal</a> &mdash; timestamped notes in one dated text file per day.</li>
+<li><a href="programming/interfaces/tam-file-select.html?level=1">Selecting files natively with tam-file-select</a> &mdash; ask for a file or folder from a script and handle the exit status.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -126,6 +156,38 @@ sub/note.txt</out>
 <p>Exit status 1. Status 0 means at least one path was printed, and 2 means the chooser could not open.</p>
 </details>
 </section>
+
+<h2>Capstone: Pack, inspect, unpack and verify a folder</h2>
+<p>In a fresh temporary directory, create a small folder with one text file. Pack it into a <code>.tar.gz</code>, list the archive before extracting, extract it into a second folder, and compare the extracted file with the original. Then remove everything you made.</p>
+<details class="solution">
+<p>These commands touch only a new temporary directory. The archive stores the folder name, so extraction into a separate output folder keeps the two copies apart.</p>
+<tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="work=$(mktemp -d)"></tam-cmd>
+<tam-cmd match="mkdir -p &quot;$work/src/sub&quot; &quot;$work/out&quot;"></tam-cmd>
+<tam-cmd match="printf &#x27;hello\n&#x27; &gt; &quot;$work/src/sub/note.txt&quot;"></tam-cmd>
+<tam-cmd match="tar -czf &quot;$work/bundle.tar.gz&quot; -C &quot;$work/src&quot; sub"></tam-cmd>
+<tam-cmd match="tar -tzf &quot;$work/bundle.tar.gz&quot;"><out>sub/
+sub/note.txt</out></tam-cmd>
+<tam-cmd match="tar -xzf &quot;$work/bundle.tar.gz&quot; -C &quot;$work/out&quot;"></tam-cmd>
+<tam-cmd match="cat &quot;$work/out/sub/note.txt&quot;" goal="true"><out>hello</out></tam-cmd>
+<tam-init>Try: work=$(mktemp -d)</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+<p>The sandbox uses fixed sample data. The listing confirms the archive holds <code>sub/</code> and <code>sub/note.txt</code>; the final <code>cat</code> confirms the extracted copy is readable.</p>
+<tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="cmp &quot;$work/src/sub/note.txt&quot; &quot;$work/out/sub/note.txt&quot; &amp;&amp; echo &quot;same contents&quot;"><out>same contents</out></tam-cmd>
+<tam-cmd match="rm -rf -- &quot;$work&quot;" goal="true"></tam-cmd>
+<tam-init>Try: cmp "$work/src/sub/note.txt" "$work/out/sub/note.txt" &amp;&amp; echo "same cont…</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+<p><code>cmp</code> prints nothing and exits 0 when the files match, so the echoed line is the check. Removing the temporary directory is safe because it holds only the practice copy. If the archive listing shows an unexpected path, stop before extracting and inspect it; do not extract over real folders.</p>
+</details>
 </section>
 
 <section data-level="expert">
@@ -133,41 +195,6 @@ sub/note.txt</out>
 
 <p>Follow the linked stages for filesystem basics, finding files, permissions, USB drives, archives, browsers and editors, media tools, journals and native file selection. Practice on copies in a temporary directory; a move, extraction or removal is hard to undo once it succeeds.</p>
 
-<h2>Stage 1: Where files live</h2>
-<ol>
-<li><a href="systems/storage/hierarchy.html?level=1">Files and folders</a> &mdash; the home folder, system folders, and what each is for.</li>
-<li><a href="systems/storage/finding-files.html?level=1">Finding and opening files</a> &mdash; search by name or text content inside a scratch folder.</li>
-<li><a href="security/permissions.html?level=1">Who can use a file</a> &mdash; read, write and execute bits, numeric modes, and directory access.</li>
-</ol>
-
-
-<h2>Stage 2: Move data safely</h2>
-<ol>
-<li><a href="systems/storage/usb-drives.html?level=1">Using USB drives safely</a> &mdash; find a stick, copy files, and unmount before unplugging.</li>
-<li><a href="systems/storage/archives.html?level=1">Creating and opening archives</a> &mdash; list a <code>.tar.gz</code> or <code>.zip</code> before extracting it.</li>
-</ol>
-
-
-<h2>Stage 3: Open and edit</h2>
-<ol>
-<li><a href="desktop/apps/browser.html?level=1">Opening the web browser and setting your default</a> &mdash; launch, open a private window, and check the default browser.</li>
-<li><a href="desktop/apps/editor.html?level=1">Opening and editing text files</a> &mdash; edit a scratch file in Micro and save or cancel cleanly.</li>
-<li><a href="desktop/apps/documents-and-pdf.html?level=1">Reading PDFs, documents, and printing</a> &mdash; check viewers and printer queues before printing.</li>
-</ol>
-
-
-<h2>Stage 4: Media and web apps</h2>
-<ol>
-<li><a href="desktop/apps/media.html?level=1">Viewing photos, playing media, and converting files</a> &mdash; inspect media properties and convert a copy.</li>
-<li><a href="desktop/apps/web-apps.html?level=1">Installing and removing web apps</a> &mdash; give a site its own window and remove it again.</li>
-</ol>
-
-
-<h2>Stage 5: Everyday file tools</h2>
-<ol>
-<li><a href="desktop/apps/tam-journal.html?level=1">Keeping plain-text daily journals with tam-journal</a> &mdash; timestamped notes in one dated text file per day.</li>
-<li><a href="programming/interfaces/tam-file-select.html?level=1">Selecting files natively with tam-file-select</a> &mdash; ask for a file or folder from a script and handle the exit status.</li>
-</ol>
 </section>
 
 <h2>Next paths</h2>

@@ -67,34 +67,6 @@ usb external-media rescue-root</out>
 <h3>Check yourself</h3>
 <details class="q"><summary><i>What does the surviving route establish?</i></summary><p>Only that it does not use the named failed dependency in the model.</p></details>
 </section>
-<h3>Path checkpoints</h3>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>A menu offers two kernels but the partition holding both images is unreadable. What route should you investigate?</i></summary><p>An independently prepared route that avoids that partition, such as verified external rescue media. Another kernel name on the same unreadable partition does not cross the failure boundary.</p></details>
-</section>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>A known-good root snapshot excludes home and <a href="glossary/e/efi.html">EFI</a> files. Which parts of recovery are still separate?</i></summary><p>Home data and later writes need their own preservation/recovery plan. EFI files and native boot dependencies need the provider procedure. Selecting a software generation or booting a snapshot does not restore all those parts.</p></details>
-</section>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide before revealing the explanation.</p>
-<details class="q"><summary><i>A live environment starts successfully. Is mounting the first listed disk a valid next step?</i></summary><p>No. First establish device identity, encryption state, subvolume/mount layout and the chosen procedure. Live startup proves access to that environment, not identification or recoverability of installed storage.</p></details>
-</section>
-<section class="quiz">
-<h3>Check yourself</h3>
-<p>Decide before revealing a model answer.</p>
-<details class="q open"><summary>What does a successful snapshot boot establish, and what does it leave open?</summary><p>It establishes that one selected route reached the observed environment. Persistent normal-root restoration, excluded data, later writes and future boot behavior remain separate checks. Record exactly what was observed rather than calling the whole plan accepted.</p></details>
-</section>
-</section>
-
-<section data-level="expert">
-<h2>Recovery reading map</h2>
-
-<p>Work through the linked stages for failure boundaries, snapshot coverage, access planning and shared dependencies. Preserve later writes independently, and keep checkpoint IDs, hashes and assembly identifiers unknown unless you have actual evidence. A successful snapshot boot proves one observed route reached an environment, not that the whole plan is restored.</p>
-
 <h2>Stage 1: Locate the failure boundary</h2>
 <ol><li>If the machine will not resume from sleep or rest, start with
 <a href="systems/power.html?level=2">when your computer rests or sleeps</a>.</li>
@@ -103,7 +75,11 @@ usb external-media rescue-root</out>
 <a href="systems/boot/boot-recovery.html?level=2">Boot fallbacks and rescue routes</a>.</li>
 <li>Record the symptom, time, last observed stage and the next unknown. Name
 a route that avoids the suspected failure and its remaining shared dependencies.</li></ol>
-
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary><i>A menu offers two kernels but the partition holding both images is unreadable. What route should you investigate?</i></summary><p>An independently prepared route that avoids that partition, such as verified external rescue media. Another kernel name on the same unreadable partition does not cross the failure boundary.</p></details>
+</section>
 
 <h2>Stage 2: Identify what can actually be recovered</h2>
 <ol><li>Work through <a href="systems/recovery/snapper.html?level=2">Snapper inventory and checkpoint relationships</a>.</li>
@@ -111,7 +87,11 @@ a route that avoids the suspected failure and its remaining shared dependencies.
 <li>For your paper scenario, name the software layer, retained recovery source
 and data outside it. Keep checkpoint IDs, image hashes and assembly identifiers
 unknown unless you have actual evidence. Never substitute the teaching IDs.</li></ol>
-
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary><i>A known-good root snapshot excludes home and <a href="glossary/e/efi.html">EFI</a> files. Which parts of recovery are still separate?</i></summary><p>Home data and later writes need their own preservation/recovery plan. EFI files and native boot dependencies need the provider procedure. Selecting a software generation or booting a snapshot does not restore all those parts.</p></details>
+</section>
 
 <h2>Stage 3: Plan access before a repair</h2>
 <ol><li>Work through <a href="systems/recovery/recovery.html?level=2">Emergency recovery planning</a>.</li>
@@ -124,7 +104,11 @@ when installed startup cannot work.</li>
 <li>Write the exact procedure you would consult, how target identity would
 be verified, where later writes would be preserved, and the stop condition
 if storage, credentials or recovery source cannot be confirmed.</li></ol>
-
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing the explanation.</p>
+<details class="q"><summary><i>A live environment starts successfully. Is mounting the first listed disk a valid next step?</i></summary><p>No. First establish device identity, encryption state, subvolume/mount layout and the chosen procedure. Live startup proves access to that environment, not identification or recoverability of installed storage.</p></details>
+</section>
 
 <h2>Stage 4: Audit shared dependencies</h2>
 <ol><li>Switch to <a href="systems/boot/boot-recovery.html?level=3">Fallback independence</a>.</li>
@@ -137,6 +121,69 @@ explicit subvolume selection, excluded mounts and a shared failed device.
 Before a real change, retain a verified rollback point and approve one specific
 operation. Define checks for normal boot/unlock, required mounts, login and
 preserved data, with an abort route if any check fails.</li></ol>
+<section class="quiz">
+<h3>Check yourself</h3>
+<p>Decide before revealing a model answer.</p>
+<details class="q open"><summary>What does a successful snapshot boot establish, and what does it leave open?</summary><p>It establishes that one selected route reached the observed environment. Persistent normal-root restoration, excluded data, later writes and future boot behavior remain separate checks. Record exactly what was observed rather than calling the whole plan accepted.</p></details>
+</section>
+
+<h2>Capstone: Reject an unsafe recovery shortcut</h2>
+<p>Scenario: after an update, the internal EFI partition containing the loader
+and boot images is unreadable. A recent
+root snapshot exists on the internal disk. A document in a separate home
+subvolume was edited afterward. You have an external rescue device, but its
+storage-unlock support has not been verified.</p>
+<p>Use a private scratch directory to represent the candidate routes. These
+are fictional labels, not boot entries, verified artifacts or mount targets.</p>
+<pre data-risk="scratch">
+rescue_plan=$(mktemp -d)
+printf 'normal internal-esp installed-root\nsnapshot internal-esp snapshot-root\nusb external-media rescue-root\n' &gt; "$rescue_plan/routes"
+</pre>
+<p>Filter out routes needing the unavailable internal ESP. Then write five
+lines in your own notes: observed failure; candidate access; unknown dependency;
+later-write preservation; verification/stop condition. Do not write to installed
+storage, repair a loader, mount a snapshot or perform a rollback.</p>
+<details class="solution">
+<tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="awk &#x27;$2 != &quot;internal-esp&quot; { print $1 }&#x27; &quot;$rescue_plan/routes&quot;" goal="true"><out>usb</out></tam-cmd>
+<tam-init>Try: awk '$2 != "internal-esp" { print $1 }' "$rescue_plan/routes"</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+<p>The sandbox uses fixed sample data. </p>
+<ol><li><strong>Observed failure:</strong> internal boot images are
+inaccessible; the root snapshot alone cannot supply a working loader/image path.</li>
+<li><strong>Candidate access:</strong> external media avoids that boot-file
+dependency in the model. It has not been proven ready.</li>
+<li><strong>Unknown dependency:</strong> confirm firmware startup, device
+identity, filesystem/unlock support and credentials through the chosen procedure.
+Keep installed-storage operations pending while any required fact is unknown.</li>
+<li><strong>Later writes:</strong> the edited home document is outside the
+root snapshot. Preserve and verify it using a suitable data-recovery procedure
+and independent destination before any destructive restoration.</li>
+<li><strong>Verification/stop condition:</strong> retain the original error
+and native recovery artifacts. A future approved repair must check intended
+boot/unlock, root and data mounts, login and the document. Stop if the target,
+backup, credentials or procedure cannot be verified. Suspected device failure
+requires a data-recovery plan before repeated boot/repair attempts.</li></ol>
+<p>A good result is a bounded plan with honest unknowns. The scratch filter
+has neither tested external media nor recovered this scenario's system.</p>
+</details>
+<p>Remove only your scratch file and directory:</p>
+<pre data-risk="scratch">
+rm -- "$rescue_plan/routes"
+rmdir -- "$rescue_plan"
+unset rescue_plan
+</pre>
+</section>
+
+<section data-level="expert">
+<h2>Recovery reading map</h2>
+
+<p>Work through the linked stages for failure boundaries, snapshot coverage, access planning and shared dependencies. Preserve later writes independently, and keep checkpoint IDs, hashes and assembly identifiers unknown unless you have actual evidence. A successful snapshot boot proves one observed route reached an environment, not that the whole plan is restored.</p>
+
 </section>
 
 <h2>Next paths</h2><ul><li><a href="paths/keep-it-healthy.html?level=2">Keep it healthy</a>: prepare updates before a failure.</li>

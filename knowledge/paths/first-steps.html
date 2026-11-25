@@ -51,12 +51,12 @@ go to <a href="help/documentation.html">another page</a> when you
  <tr><td>go back</td><td><code>Left Arrow</code></td></tr>
  <tr><td></td><td><i>Left hand keybindings</i></td></tr>
  <tr><td>move the attention line down</td><td><code>d</code> (middle finger)</td></tr>
- <tr><td>move the attention line up</td><td><code>s</code> (ring finger)</td></tr> 
+ <tr><td>move the attention line up</td><td><code>s</code> (ring finger)</td></tr>
  <tr><td>activate an element</td><td><code>f</code> (pointer finger)</td></tr>
  <tr><td>go back</td><td><code>a</code> (pinky finger)</td></tr>
  <tr><td></td><td><i>Right hand keybindings</i></td></tr>
  <tr><td>move the attention line down</td><td><code>k</code> (middle finger)</td></tr>
- <tr><td>move the attention line up</td><td><code>l</code> (ring finger)</td></tr> 
+ <tr><td>move the attention line up</td><td><code>l</code> (ring finger)</td></tr>
  <tr><td>activate an element</td><td><code>j</code> (pointer finger)</td></tr>
  <tr><td>go back</td><td><code>;</code> (pinky finger)</td></tr>
 </table>
@@ -122,17 +122,89 @@ for this guide reader's full key list.</p>
 <h3>Check yourself</h3>
 <details class="q"><summary><i>Which part of an example do you type?</i></summary><p>Only the command after the prompt; the following line is output.</p></details>
 </section>
-<h3>Path checkpoints</h3>
+<h2>1. Open a terminal for entering commands</h2>
+<p>If you have not read <a href="welcome.html?level=1">Welcome</a> yet, start
+there: it maps the Guide and names this path. Then come back here.</p>
+<p>A <a href="glossary/t/terminal.html">terminal</a> is where you
+can type instructions and read replies. Each instruction is called a
+<a href="glossary/c/command.html">command</a>. A program called a
+<a href="glossary/s/shell.html">shell</a> reads those instructions.</p>
+<p>If you are using the Tamlinux graphical desktop, press and hold the Meta key
+then press the Return key (Meta + Return) to open a terminal.
+(The Meta key often has a Windows logo and the Return key is often labeled Enter.)
+If you are using a text-only terminal (as you will be if you have just booted
+your computer and have not yet started the Tamlinux desktop), you can type
+instructions there already.</p>
+<p>Press Esc to leave this guide and return to the terminal where you can
+type commands.  To get back to this page from a terminal, type <code>tam hi</code>,
+press the Return (or Enter) key, then follow the First steps link from the
+Welcome page.</p>
+<p>A shell <a href="glossary/p/prompt.html">prompt</a> is the text that shows
+where the computer is waiting for your instruction. Your shell prompt may look
+different from the <code>$</code> in the example below. Type only the text after
+the <code>$</code>, then press your return key.</p>
+<p>Read <a href="terminal/shell/index.html?level=1">Giving your computer written
+instructions</a> for the shell's role and how it reads a command.</p>
+
+<h3>Try it: command and output</h3>
+<p>Here's an example for you to try.  This is how most terminal command examples work:
+you see a shell prompt (<code>$</code> in this case), followed by
+the command you need to type.  Then you see the output of the command.</p>
+
+<p>If you can, open another terminal so you can try this command. If you can't, read on and try it later in a terminal.
+Type the command and then press your return key (marked either Return or Enter on your keyboard). Then you should see the output of the command. In this example, the expected output is "hello".</p>
+<tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="printf &#x27;%s\n&#x27; hello" goal="true"><out>    hello</out></tam-cmd>
+<tam-init>Try: printf '%s\n' hello</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+
+<p>The above example was tested using the <code>bash</code> shell from Arch Linux on 2026-10-21. Your results may vary.</p>
+
+<p>Note that the example shows both the command you type and the output we expect the computer to display.
+When you try examples of commands to use in a terminal, just type the command. Do not type hello;
+that is the expected output. The shell command <code>printf</code> prints text; the argument <code>'%s\n'</code>
+tells it to print each supplied word on a new line. Include the single quotes (<code>'</code>) and spaces
+when you type your command.</p>
+<p>To make your life easier, you can copy and paste text into a terminal using Tamlinux's Meta + C and Meta + V shortcuts.
+For short examples, you can type everything yourself. But for longer examples, it's easier to select text, copy it, and then paste it into the terminal.</p>
+
 <section class="quiz">
 <h3>Check your knowledge</h3>
 <p>Answer before revealing the explanation.</p>
 <details class="q">
-<summary><i>Which text do you type at a shell prompt: the prompt sign, the printf command, or the printed word hello?</i></summary>
+<summary><i>In the terminal command example above, which text do you type: the leading dollar sign, the printf command, or the output hello?</i></summary>
 <p>Type only the <code>printf</code> command plus the arguments <code>'%s\n'</code> and <code>hello</code>, then press Enter. The dollar sign is the shell prompt in this example;
 hello is the result. Shell prompts often end with a dollar sign, but not always.
 Sometimes they end with a slash (<code>/</code>) or a number sign (<code>#</code>) or a colon (<code>:</code>) or another character.</p>
 </details>
 </section>
+<h2>2. See where you are and make a safe place</h2>
+<p>Leave the Guide with Esc so you can type in the terminal. Keep that
+terminal open: later steps depend on the directory you choose here.</p>
+<p>Ask the shell where you are, list names in that place, then create a
+temporary practice directory and enter it:</p>
+<tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="pwd"><out>/home/alex</out></tam-cmd>
+<tam-cmd match="ls"><out>Documents  Downloads</out></tam-cmd>
+<tam-cmd match="work=$(mktemp -d)"></tam-cmd>
+<tam-cmd match="cd &quot;$work&quot;"></tam-cmd>
+<tam-cmd match="pwd" goal="true"><out>/tmp/tmp.AbCdEfGh</out></tam-cmd>
+<tam-init>Try: pwd</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+<p>The sandbox uses fixed sample data. Your home path and listing will differ;
+<code>mktemp -d</code> always prints a new empty directory under <code>/tmp</code>.</p>
+<p>Read <a href="systems/storage/hierarchy.html?level=1">Filesystem basics</a> for
+names and directories. If you want to keep a picture of what you see,
+<a href="desktop/tasks/screenshots.html?level=1">take a screenshot</a>; it
+saves a file and copies it, so nothing here changes your settings.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
@@ -141,6 +213,14 @@ Sometimes they end with a slash (<code>/</code>) or a number sign (<code>#</code
 <p><code>pwd</code> prints the current directory. <code>mktemp -d</code> creates a new empty temporary directory and prints its path. <code>cd</code> changes into a directory; <code>ls</code> lists names.</p>
 </details>
 </section>
+<h2>3. Create something in a safe place</h2>
+<p>Still inside your temporary directory (or a fresh one from
+<code>mktemp -d</code>), work through
+<a href="security/permissions.html?level=1">File permissions</a>.
+The New to this? fold explains the small steps. Finish that exercise's
+cleanup before returning here. After typing a command, you can reopen a
+lesson with <code>tam show security/permissions</code> and leave again
+with Esc.</p>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
@@ -149,14 +229,26 @@ Sometimes they end with a slash (<code>/</code>) or a number sign (<code>#</code
 <p>Inspect the mode with stat, as in the permissions page. Many successful commands print nothing. An error message needs attention; silence alone is not failure.</p>
 </details>
 </section>
+<h2>4. Connect two instructions</h2>
+<ol><li>Read <a href="terminal/shell/pipelines.html?level=1">Pipelines</a>.</li>
+<li>Predict its count, run the fixed-input example, and try the pear variation.</li></ol>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
 <details class="q">
 <summary><i>What will the pipeline count if you change only the pattern from apple to pear?</i></summary>
-<p>It counts one line: the fixed input contains pear once. Compare with the pear rule in the pipeline sandbox if needed.</p>
+<p>It counts one line: the fixed input contains pear once. Return to the pipeline worked example if needed.</p>
 </details>
 </section>
+<h2>5. Find your way back</h2>
+<ol><li>Read <a href="help/documentation.html?level=1">Using the Guide</a>.</li>
+<li>In the guide reader, press the backtick key to open the Guide index. Use
+<code>Tab</code> or <code>]</code> to select a link, then <code>Right Arrow</code>
+to follow it. Left Arrow goes back.</li>
+<li>Press Esc to return to the terminal. Type <code>tam hi</code> and
+press Enter to open Welcome again.</li>
+<li>Then work through <a href="help/practice.html?level=1">safe practice and
+self-checks</a> to repeat the risky parts on temporary files.</li></ol>
 <section class="quiz">
 <h3>Check yourself</h3>
 <p>Answer before revealing the explanation.</p>
@@ -165,6 +257,43 @@ Sometimes they end with a slash (<code>/</code>) or a number sign (<code>#</code
 <p>Esc leaves tam for the terminal. The backtick key opens the Guide index inside the pager. You can reopen the welcome page with tam hi.</p>
 </details>
 </section>
+<h2>Capstone: <a href="glossary/m/make.html">Make</a> and inspect a tiny report</h2>
+<p>In a fresh temporary directory, create colours.txt with red, blue, red
+on separate lines. Count whole lines equal to red. Create ready.txt
+containing ready and make it readable and writable only by you. Inspect
+its numeric mode. Remove these two files and the temporary directory when
+done, then reopen Welcome and find this path again.</p>
+<details class="solution">
+<p>For this section, make a new temporary directory and enter it. These
+commands print nothing when they succeed. Run the first line on its own; if
+it reports an error, stop. Run the second line and stop if it reports an
+error too. Keep this terminal open while you work through the section.</p>
+<pre data-risk="scratch">
+work=$(mktemp -d)
+cd "$work"
+</pre><tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="printf &#x27;%s\n&#x27; red blue red &gt; colours.txt"></tam-cmd>
+<tam-cmd match="grep &#x27;^red$&#x27; colours.txt | wc -l"><out>2</out></tam-cmd>
+<tam-cmd match="printf &#x27;%s\n&#x27; ready &gt; ready.txt"></tam-cmd>
+<tam-cmd match="chmod 600 ready.txt"></tam-cmd>
+<tam-cmd match="stat -c &#x27;%a %n&#x27; ready.txt" goal="true"><out>600 ready.txt</out></tam-cmd>
+<tam-init>Try: printf '%s\n' red blue red &gt; colours.txt</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+<p>The sandbox uses fixed sample data. The count is 2 and the file mode is
+600. These verify different things: stream filtering and file access.</p>
+<pre data-risk="scratch">
+rm -- colours.txt ready.txt
+cd /tmp
+rmdir -- "$work"
+</pre>
+<p>In a separate terminal command, run <code>tam hi</code>, select
+Paths by Goal, then First steps. If your result differed, return to the
+pipeline or permissions example before trying again.</p>
+</details>
 </section>
 
 <section data-level="expert">
@@ -182,29 +311,6 @@ can type instructions and read replies. Each instruction is called a
 <p>Read <a href="terminal/shell/index.html?level=1">Giving your computer written
 instructions</a> for the shell's role and how it reads a command.</p>
 
-<h2>2. See where you are and make a safe place</h2>
-
-<p>Read <a href="systems/storage/hierarchy.html?level=1">Filesystem basics</a> for
-names and directories. If you want to keep a picture of what you see,
-<a href="desktop/tasks/screenshots.html?level=1">take a screenshot</a>; it
-saves a file and copies it, so nothing here changes your settings.</p>
-
-<h2>3. Create something in a safe place</h2>
-
-<h2>4. Connect two instructions</h2>
-<ol><li>Read <a href="terminal/shell/pipelines.html?level=1">Pipelines</a>.</li>
-<li>Predict its count, run the fixed-input example, and try the pear variation.</li></ol>
-
-<h2>5. Find your way back</h2>
-<ol><li>Read <a href="help/documentation.html?level=1">Using the Guide</a>.</li>
-<li>In the guide reader, press the backtick key to open the Guide index. Use
-<code>Tab</code> or <code>]</code> to select a link, then <code>Right Arrow</code>
-to follow it. Left Arrow goes back.</li>
-<li>Press Esc to return to the terminal. Type <code>tam hi</code> and
-press Enter to open Welcome again.</li>
-<li>Then work through <a href="help/practice.html?level=1">safe practice and
-self-checks</a> to repeat the risky parts on temporary files.</li></ol>
-<p><strong>Further reading in this topic:</strong> <a href="glossary/p/prompt.html">prompt</a> · <a href="security/permissions.html?level=1">File permissions</a> · <a href="glossary/m/make.html">Make</a>.</p>
 </section>
 
 <h2>Next paths</h2>

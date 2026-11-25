@@ -64,7 +64,11 @@
 <h3>Check yourself</h3>
 <details class="q"><summary><i>What does a failing lookup with a deliberately wrong name show?</i></summary><p>That the error tracks the supplied name, not necessarily a broken program.</p></details>
 </section>
-<h3>Path checkpoints</h3>
+<h2>Stage 1: How a terminal draws text</h2>
+<ol>
+<li><a href="terminal/terminfo-and-termcap.html?level=2">How terminals display text</a> &mdash; escape sequences, <code>TERM</code>, terminfo, <code>tput</code> and <code>infocmp</code>.</li>
+<li><a href="programming/interfaces/ncurses.html?level=2">ncurses</a> &mdash; the virtual screen, wide-character support, and how <code>tam</code> links it.</li>
+</ol>
 <section class="quiz">
 <h3><a href="glossary/c/checkpoint.html">Checkpoint</a></h3>
 <p>Answer these before you go on.</p>
@@ -77,6 +81,12 @@
 <p>The wide-character library handles <a href="glossary/u/unicode.html">Unicode</a> text and cell widths correctly. The narrow library is not enough for the guide's content.</p>
 </details>
 </section>
+
+<h2>Stage 2: Text and colour on screen</h2>
+<ol>
+<li><a href="desktop/appearance/fonts.html?level=2">Typography, fonts and text rendering</a> &mdash; <a href="glossary/f/fontconfig.html">Fontconfig</a>, font files, rasterization and the <code>tam-font-*</code> helpers.</li>
+<li><a href="desktop/appearance/themes.html?level=2">Color systems, displays and desktop theming</a> &mdash; palettes, contrast, and the transactional theme engine.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -89,6 +99,11 @@
 <p><code>~/.local/state/tamlinux/current/theme</code>, which points at an isolated, timestamped generation. Switching themes swaps that link atomically rather than editing files one by one.</p>
 </details>
 </section>
+
+<h2>Stage 3: Configure the desktop in Lua</h2>
+<ol>
+<li><a href="programming/lua.html?level=2">Lua: a language for giving programs instructions</a> &mdash; the interpreter, the desktop configuration tree, and the host C <a href="glossary/a/api.html">API</a>.</li>
+</ol>
 <section class="quiz">
 <h3>Checkpoint</h3>
 <p>Answer these before you go on.</p>
@@ -101,6 +116,31 @@
 <p>No. It evaluates Lua in the running compositor. A durable change belongs in a configuration file with a written undo step.</p>
 </details>
 </section>
+
+<h2>Capstone: Diagnose a terminal that refuses to start</h2>
+<p>A full-screen program prints <em>unknown terminal type</em> and exits. Work out whether the program, the terminal emulator or the environment is wrong, using only read-only queries and a variable that lasts for one command.</p>
+<details class="solution">
+<p>Start by recording what the shell advertises, then ask the terminfo database whether it agrees. The demonstration below sets <code>TERM</code> only for the command that follows, so your session is unchanged afterwards.</p>
+<tam-sandbox title="Try the sample command sequence" prompt="alex@tamlinux:~ $ " cwd="/home/alex" lesson="plain" goal="Explore this fixed sample command sequence">
+<tam-cmd match="printenv TERM"><out>xterm-256color</out></tam-cmd>
+<tam-cmd match="infocmp &gt;/dev/null; echo &quot;infocmp exit=$?&quot;"><out>infocmp exit=0</out></tam-cmd>
+<tam-cmd match="TERM=definitely-not-a-terminal tput cols"><out>tput: unknown terminal "definitely-not-a-terminal"</out></tam-cmd>
+<tam-cmd match="TERM=definitely-not-a-terminal clear" goal="true"><out>'definitely-not-a-terminal': unknown terminal type.</out></tam-cmd>
+<tam-init>Try: printenv TERM</tam-init>
+<tam-hint after="1">Read the sample output and compare it with the task.</tam-hint>
+<tam-hint after="2">These commands are simulated; nothing runs on the host.</tam-hint>
+<tam-fallback>Type one of the sample commands, or type help.</tam-fallback>
+</tam-sandbox>
+<p>The sandbox uses fixed sample output and does not run commands on your system.</p>
+<p>The sandbox uses fixed sample data. <code>tput</code> exits 3 and <code>clear</code> exits 1 for an unknown name. The database is healthy because <code>infocmp</code> succeeded for the real <code>TERM</code>; the failure follows the name you supplied.</p>
+<ol>
+<li><code>printenv TERM</code> shows the name the program will query.</li>
+<li><code>infocmp</code> compares that name with the installed terminfo database. A match means the database entry exists.</li>
+<li>The failing command changes only its own environment. If the error follows the changed name, the name is the problem, not the program.</li>
+<li>Restore the real value and confirm: <code>TERM=xterm-256color tput cols</code> prints your width, for example <code>80</code>.</li>
+</ol>
+<p>If the real <code>TERM</code> also fails <code>infocmp</code>, the entry is missing or the database path is wrong; that is a package question, not a configuration typo. Do not "fix" it by exporting a random terminal name in your shell startup file.</p>
+</details>
 </section>
 
 <section data-level="expert">
@@ -108,24 +148,6 @@
 
 <p>Work through the linked stages for drawing text, colour and escape sequences, Lua desktop configuration, and diagnosis. Use one-command environment changes for tests so the shell's own TERM remains intact. A matching infocmp entry proves the database has that name; it does not prove your terminal emulator actually sends the advertised sequences.</p>
 
-<h2>Stage 1: How a terminal draws text</h2>
-<ol>
-<li><a href="terminal/terminfo-and-termcap.html?level=2">How terminals display text</a> &mdash; escape sequences, <code>TERM</code>, terminfo, <code>tput</code> and <code>infocmp</code>.</li>
-<li><a href="programming/interfaces/ncurses.html?level=2">ncurses</a> &mdash; the virtual screen, wide-character support, and how <code>tam</code> links it.</li>
-</ol>
-
-
-<h2>Stage 2: Text and colour on screen</h2>
-<ol>
-<li><a href="desktop/appearance/fonts.html?level=2">Typography, fonts and text rendering</a> &mdash; <a href="glossary/f/fontconfig.html">Fontconfig</a>, font files, rasterization and the <code>tam-font-*</code> helpers.</li>
-<li><a href="desktop/appearance/themes.html?level=2">Color systems, displays and desktop theming</a> &mdash; palettes, contrast, and the transactional theme engine.</li>
-</ol>
-
-
-<h2>Stage 3: Configure the desktop in Lua</h2>
-<ol>
-<li><a href="programming/lua.html?level=2">Lua: a language for giving programs instructions</a> &mdash; the interpreter, the desktop configuration tree, and the host C <a href="glossary/a/api.html">API</a>.</li>
-</ol>
 </section>
 
 <h2>Next paths</h2>
